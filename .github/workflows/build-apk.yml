@@ -1,0 +1,81 @@
+name: Build Braseiro O Um Anel APK
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android 35 tools
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Download Android 4.7.2 source from latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release download --repo "$GITHUB_REPOSITORY" --pattern 'android472.zip' --output source.zip
+          unzip -t source.zip
+          sha256sum source.zip
+
+      - name: Extract project
+        run: |
+          set -euo pipefail
+          mkdir source
+          unzip -q source.zip -d source
+          test -f source/android/gradlew
+          test -f source/android/settings.gradle.kts
+          test -f source/android/app/build.gradle.kts
+
+      - name: Verify exact app/version
+        run: |
+          set -euo pipefail
+          grep -q 'applicationId = "com.braseiro.oumanel"' source/android/app/build.gradle.kts
+          grep -q 'versionCode = 472' source/android/app/build.gradle.kts
+          grep -q 'versionName = "4.7.2"' source/android/app/build.gradle.kts
+
+      - name: Build debug APK
+        working-directory: source/android
+        run: |
+          chmod +x gradlew
+          ./gradlew clean assembleDebug --stacktrace --no-daemon
+
+      - name: Validate APK
+        run: |
+          set -euo pipefail
+          APK="source/android/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee apk-badging.txt
+          sha256sum "$APK" | tee APK_SHA256.txt
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Braseiro-O-Um-Anel-4.7.2-debug
+          path: |
+            source/android/app/build/outputs/apk/debug/app-debug.apk
+            APK_SHA256.txt
+            apk-badging.txt
+          if-no-files-found: error
+          retention-days: 14
