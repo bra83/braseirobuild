@@ -77,7 +77,7 @@ jobs:
           echo "sdk=$SDK" >> "$GITHUB_OUTPUT"
           echo "Android root: $ROOT | compileSdk: $SDK"
 
-      - name: Preparar variante ARM64 de instalação
+      - name: Preparar variante LEGACY COMPAT
         env:
           ROOT: ${{ steps.detect.outputs.root }}
         run: |
@@ -93,23 +93,62 @@ jobs:
           gradle = root / 'app' / 'build.gradle.kts'
           text = gradle.read_text(encoding='utf-8')
 
-          # APK exclusivo para celulares ARM64: reduz tamanho e evita x86/ARMv7 desnecessários.
+          # Universal para celulares ARM: 64 e 32 bits.
           needle = '    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"\n'
-          if 'abiFilters += listOf("arm64-v8a")' not in text:
-              text = text.replace(needle, needle + '    ndk {\n      abiFilters += listOf("arm64-v8a")\n    }\n')
+          if 'abiFilters += listOf("arm64-v8a", "armeabi-v7a")' not in text:
+              text = text.replace(needle, needle + '    ndk {\n      abiFilters += listOf("arm64-v8a", "armeabi-v7a")\n    }\n')
 
-          # VersionCode maior para atualizar qualquer tentativa stable anterior.
-          text = re.sub(r'versionCode\s*=\s*\d+', 'versionCode = 9', text, count=1)
+          # Package e versionCode completamente novos para eliminar qualquer conflito anterior.
+          text = re.sub(r'versionCode\s*=\s*\d+', 'versionCode = 10', text, count=1)
+          text = text.replace('    release {\n      isCrunchPngs = false', '    release {\n      applicationIdSuffix = ".compat2"\n      versionNameSuffix = "-legacy-compat"\n      isCrunchPngs = false')
 
-          # Package separado elimina conflito de certificado com versões antigas do app.
-          text = text.replace('    release {\n      isCrunchPngs = false', '    release {\n      applicationIdSuffix = ".stable"\n      versionNameSuffix = "-arm64"\n      isCrunchPngs = false')
-
-          # Compatibilidade com instaladores OEM: extrair libs nativas durante instalação.
+          # JNI dentro do APK em modo compatível com instaladores OEM antigos.
           if 'useLegacyPackaging = true' not in text:
               text = text.replace('  dependenciesInfo {\n', '  packaging {\n    jniLibs {\n      useLegacyPackaging = true\n    }\n  }\n  dependenciesInfo {\n')
 
           gradle.write_text(text, encoding='utf-8')
           print(gradle.read_text(encoding='utf-8'))
+          PY
+
+      - name: Reduzir recursos gráficos sem mudar geometria
+        env:
+          ROOT: ${{ steps.detect.outputs.root }}
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pillow
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import os
+
+          root = Path(os.environ['ROOT']) / 'app' / 'src' / 'main' / 'res'
+          before = 0
+          after = 0
+          converted = 0
+
+          for p in list(root.rglob('*.png')):
+              size = p.stat().st_size
+              before += size
+              if size <= 250_000 or p.name.endswith('.9.png'):
+                  after += size
+                  continue
+
+              target = p.with_suffix('.webp')
+              with Image.open(p) as im:
+                  im.save(target, format='WEBP', quality=90, method=6)
+              new_size = target.stat().st_size
+              if new_size < size:
+                  p.unlink()
+                  after += new_size
+                  converted += 1
+              else:
+                  target.unlink(missing_ok=True)
+                  after += size
+
+          print(f'converted={converted}')
+          print(f'graphics_before={before}')
+          print(f'graphics_after={after}')
+          print(f'saved={before-after}')
           PY
 
       - name: Configurar Java
@@ -130,13 +169,13 @@ jobs:
       - name: Configurar cache Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Compilar APK release ARM64
+      - name: Compilar APK release LEGACY COMPAT
         working-directory: ${{ steps.detect.outputs.root }}
         run: |
           set -euo pipefail
           ./gradlew clean assembleRelease --stacktrace --no-daemon
 
-      - name: Zipalign, assinar e validar
+      - name: Zipalign, assinar V1 V2 V3 e validar
         id: apk
         working-directory: ${{ steps.detect.outputs.root }}
         env:
@@ -153,10 +192,10 @@ jobs:
           APKSIGNER="$BUILD_TOOLS/apksigner"
           ZIPALIGN="$BUILD_TOOLS/zipalign"
 
-          ALIGNED="$RUNNER_TEMP/tales-arm64-aligned.apk"
-          NAME="${TAG}-ARM64-INSTALL.apk"
+          ALIGNED="$RUNNER_TEMP/tales-legacy-compat-aligned.apk"
+          NAME="${TAG}-LEGACY-COMPAT.apk"
           FINAL="$OUT/$NAME"
-          REPORT="$OUT/VALIDACAO_ARM64_INSTALL.txt"
+          REPORT="$OUT/VALIDACAO_LEGACY_COMPAT.txt"
 
           "$ZIPALIGN" -p -f 4 "$UNSIGNED" "$ALIGNED"
           "$APKSIGNER" sign \
@@ -167,7 +206,7 @@ jobs:
             --v1-signing-enabled true \
             --v2-signing-enabled true \
             --v3-signing-enabled true \
-            --min-sdk-version 24 \
+            --min-sdk-version 21 \
             --out "$FINAL" \
             "$ALIGNED"
 
@@ -176,44 +215,48 @@ jobs:
           "$AAPT" dump badging "$FINAL" | grep -E '^(package:|sdkVersion:|targetSdkVersion:|native-code:)' | tee -a "$REPORT"
           "$APKSIGNER" verify --verbose --print-certs "$FINAL" | tee -a "$REPORT"
 
-          # Android 7+ (minSdk 24) usa APK Signature Scheme V2; V3 também deve validar.
+          grep -q 'Verified using v1 scheme (JAR signing): true' "$REPORT" || { echo "::error::V1 não validou"; exit 1; }
           grep -q 'Verified using v2 scheme (APK Signature Scheme v2): true' "$REPORT" || { echo "::error::V2 não validou"; exit 1; }
           grep -q 'Verified using v3 scheme (APK Signature Scheme v3): true' "$REPORT" || { echo "::error::V3 não validou"; exit 1; }
-          grep -q "native-code: 'arm64-v8a'" "$REPORT" || { echo "::error::APK não é ARM64"; exit 1; }
-          grep -q "package: name='com.braseiro.talesvtt.stable'" "$REPORT" || { echo "::error::Package estável incorreto"; exit 1; }
+          grep -q "native-code: 'arm64-v8a' 'armeabi-v7a'" "$REPORT" || { echo "::error::ABIs ARM esperadas não encontradas"; exit 1; }
+          grep -q "package: name='com.braseiro.talesvtt.compat2'" "$REPORT" || { echo "::error::Package compat incorreto"; exit 1; }
 
-          stat -c 'size=%s' "$FINAL" | tee -a "$REPORT"
+          SIZE="$(stat -c '%s' "$FINAL")"
+          echo "size=$SIZE" | tee -a "$REPORT"
+          [ "$SIZE" -lt 100000000 ] || { echo "::error::APK ainda >=100MB ($SIZE bytes)"; exit 1; }
+
           sha256sum "$FINAL" | tee -a "$REPORT"
-          (cd "$OUT" && sha256sum *.apk > SHA256SUMS_ARM64_INSTALL.txt)
+          (cd "$OUT" && sha256sum *.apk > SHA256SUMS_LEGACY_COMPAT.txt)
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
 
       - name: Publicar artifact de backup
         uses: actions/upload-artifact@v4
         with:
-          name: APK-ARM64-INSTALL-${{ steps.source.outputs.tag }}
+          name: APK-LEGACY-COMPAT-${{ steps.source.outputs.tag }}
           path: APK_SAIDA/*
           if-no-files-found: error
           retention-days: 30
 
-      - name: Anexar APK ARM64 diretamente à Release
+      - name: Anexar APK LEGACY COMPAT diretamente à Release
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.source.outputs.tag }}
         run: |
           set -euo pipefail
-          gh release upload "$TAG" APK_SAIDA/*.apk APK_SAIDA/VALIDACAO_ARM64_INSTALL.txt APK_SAIDA/SHA256SUMS_ARM64_INSTALL.txt --clobber
+          gh release upload "$TAG" APK_SAIDA/*.apk APK_SAIDA/VALIDACAO_LEGACY_COMPAT.txt APK_SAIDA/SHA256SUMS_LEGACY_COMPAT.txt --clobber
 
       - name: Resumo
         run: |
           {
-            echo "## Tales ARM64 Install APK"
+            echo "## Tales LEGACY COMPAT APK"
             echo ""
             echo "- Release: \`${{ steps.source.outputs.tag }}\`"
             echo "- APK: \`${{ steps.apk.outputs.name }}\`"
-            echo "- package: \`com.braseiro.talesvtt.stable\`"
-            echo "- versionCode: \`9\`"
-            echo "- ABI: \`arm64-v8a\`"
-            echo "- assinatura validada: V2 + V3"
+            echo "- package: \`com.braseiro.talesvtt.compat2\`"
+            echo "- versionCode: \`10\`"
+            echo "- ABI: \`arm64-v8a + armeabi-v7a\`"
+            echo "- assinatura validada: V1 + V2 + V3"
+            echo "- APK: menor que 100 MB"
             echo "- JNI legacy packaging: ativo"
             echo "- zipalign: validado"
           } >> "$GITHUB_STEP_SUMMARY"
