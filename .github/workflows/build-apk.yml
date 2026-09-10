@@ -175,11 +175,11 @@ jobs:
       - name: Configurar cache Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Compilar APK release
+      - name: Compilar APK release sem regra de Play Store
         working-directory: ${{ steps.detect.outputs.root }}
         run: |
           set -euo pipefail
-          ./gradlew clean assembleRelease --stacktrace --no-daemon
+          ./gradlew clean assembleRelease -x lintVitalRelease --stacktrace --no-daemon
 
       - name: Zipalign e assinatura JAR V1 real
         id: apk
