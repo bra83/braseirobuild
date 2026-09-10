@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag da Release a compilar (vazio = Release mais recente)"
+        description: "Tag da Release a compilar (vazio = TALES-1.3.5)"
         required: false
         type: string
   push:
@@ -42,18 +42,13 @@ jobs:
           TAG="${RELEASE_TAG:-}"
           if [ -z "$TAG" ]; then TAG="${MANUAL_TAG:-}"; fi
           if [ -z "$TAG" ]; then TAG="$DEFAULT_TAG"; fi
-
           mkdir -p incoming
           gh release download "$TAG" --pattern '*.zip' --dir incoming
           ZIP="$(find incoming -maxdepth 1 -type f -iname '*.zip' -printf '%s %p\n' | sort -nr | head -n1 | cut -d' ' -f2-)"
-          if [ -z "${ZIP:-}" ] || [ ! -f "$ZIP" ]; then
-            echo "::error::Nenhum ZIP encontrado na Release $TAG"
-            exit 1
-          fi
+          test -n "${ZIP:-}" && test -f "$ZIP" || { echo "::error::ZIP fonte não encontrado"; exit 1; }
           unzip -t "$ZIP" >/dev/null
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
-          echo "Fonte: $ZIP"
           sha256sum "$ZIP"
 
       - name: Extrair projeto
@@ -68,19 +63,15 @@ jobs:
         run: |
           set -euo pipefail
           mapfile -t WRAPPERS < <(find work -type f -name gradlew -not -path '*/.gradle/*' -not -path '*/build/*' | sort)
-          if [ "${#WRAPPERS[@]}" -eq 0 ]; then
-            echo "::error::Nenhum gradlew encontrado dentro do ZIP."
-            exit 1
-          fi
+          [ "${#WRAPPERS[@]}" -gt 0 ] || { echo "::error::gradlew não encontrado"; exit 1; }
           ROOT=""
           for W in "${WRAPPERS[@]}"; do
             D="$(dirname "$W")"
             if [ -f "$D/settings.gradle.kts" ] || [ -f "$D/settings.gradle" ]; then ROOT="$D"; break; fi
           done
-          if [ -z "$ROOT" ]; then ROOT="$(dirname "${WRAPPERS[0]}")"; fi
+          [ -n "$ROOT" ] || ROOT="$(dirname "${WRAPPERS[0]}")"
           chmod +x "$ROOT/gradlew"
           echo "root=$ROOT" >> "$GITHUB_OUTPUT"
-
           PROPS="$ROOT/gradle/wrapper/gradle-wrapper.properties"
           GRADLE_VERSION="$(grep -oE 'gradle-[0-9]+(\.[0-9]+){1,2}' "$PROPS" 2>/dev/null | head -n1 | sed 's/gradle-//' || true)"
           JAVA=17
@@ -90,45 +81,37 @@ jobs:
             if [ "$MAJOR" -lt 7 ] || { [ "$MAJOR" -eq 7 ] && [ "${MINOR:-0}" -lt 3 ]; }; then JAVA=11; fi
           fi
           SDK="$(grep -RhoE 'compileSdk(Version)?[[:space:]]*[= ]+[0-9]+' "$ROOT" --include='*.gradle' --include='*.gradle.kts' 2>/dev/null | grep -oE '[0-9]+' | sort -nr | head -n1 || true)"
-          if [ -z "$SDK" ]; then SDK=35; fi
-          echo "gradle_version=${GRADLE_VERSION:-desconhecida}" >> "$GITHUB_OUTPUT"
+          [ -n "$SDK" ] || SDK=35
           echo "java=$JAVA" >> "$GITHUB_OUTPUT"
           echo "sdk=$SDK" >> "$GITHUB_OUTPUT"
-          echo "Android root: $ROOT | Gradle: ${GRADLE_VERSION:-?} | Java: $JAVA | compileSdk: $SDK"
+          echo "Android root: $ROOT | Java: $JAVA | compileSdk: $SDK"
 
-      - name: Preparar assinatura estável e variante compatível
+      - name: Preparar variante de instalação compatível
         env:
           ROOT: ${{ steps.detect.outputs.root }}
         run: |
           set -euo pipefail
           KEYSTORE="$RUNNER_TEMP/braseiro-stable-debug.keystore"
           base64 -d "$GITHUB_WORKSPACE/build-signing/braseiro-stable-debug.keystore.b64" > "$KEYSTORE"
-          echo "keystore=$KEYSTORE" >> "$GITHUB_ENV"
+          echo "BRASEIRO_STABLE_KEYSTORE=$KEYSTORE" >> "$GITHUB_ENV"
 
           python3 - <<'PY'
           from pathlib import Path
           import os
-
           root = Path(os.environ['ROOT'])
           gradle = root / 'app' / 'build.gradle.kts'
           text = gradle.read_text(encoding='utf-8')
 
-          # ARM-only: remove emulador/x86 do APK de celular.
           needle = '    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"\n'
           if 'abiFilters += listOf("arm64-v8a", "armeabi-v7a")' not in text:
               text = text.replace(needle, needle + '    ndk {\n      abiFilters += listOf("arm64-v8a", "armeabi-v7a")\n    }\n')
 
-          # Stable signing config, not the ephemeral GitHub runner debug key.
-          build_types = '  buildTypes {\n'
-          signing = '''  signingConfigs {\n    create("stableDebug") {\n      storeFile = file(System.getenv("BRASEIRO_STABLE_KEYSTORE"))\n      storePassword = "android"\n      keyAlias = "androiddebugkey"\n      keyPassword = "android"\n      enableV1Signing = true\n      enableV2Signing = true\n    }\n  }\n'''
-          if 'create("stableDebug")' not in text:
-              text = text.replace(build_types, signing + '\n' + build_types)
+          # Package separado evita conflito com APKs antigos assinados por chaves temporárias.
+          text = text.replace('    release {\n      isCrunchPngs = false', '    release {\n      applicationIdSuffix = ".stable"\n      versionNameSuffix = "-stable"\n      isCrunchPngs = false')
 
-          text = text.replace('    debug { }', '''    debug {\n      applicationIdSuffix = ".stable"\n      versionNameSuffix = "-stable"\n      signingConfig = signingConfigs.getByName("stableDebug")\n    }''')
-
-          # Legacy JNI packaging maximizes install compatibility on older OEM installers.
+          # Compatibilidade com instaladores OEM/Android antigos: libs JNI compactadas e extraídas na instalação.
           if 'useLegacyPackaging = true' not in text:
-              text = text.replace('  dependenciesInfo {\n', '''  packaging {\n    jniLibs {\n      useLegacyPackaging = true\n    }\n  }\n  dependenciesInfo {\n''')
+              text = text.replace('  dependenciesInfo {\n', '  packaging {\n    jniLibs {\n      useLegacyPackaging = true\n    }\n  }\n  dependenciesInfo {\n')
 
           gradle.write_text(text, encoding='utf-8')
           print(gradle.read_text(encoding='utf-8'))
@@ -152,15 +135,13 @@ jobs:
       - name: Configurar cache Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Compilar APK compatível
+      - name: Compilar APK release sem assinatura
         working-directory: ${{ steps.detect.outputs.root }}
-        env:
-          BRASEIRO_STABLE_KEYSTORE: ${{ env.keystore }}
         run: |
           set -euo pipefail
-          ./gradlew clean assembleDebug --stacktrace --no-daemon
+          ./gradlew clean assembleRelease --stacktrace --no-daemon
 
-      - name: Validar e preparar APK
+      - name: Zipalign e assinar explicitamente V1 V2 V3
         id: apk
         working-directory: ${{ steps.detect.outputs.root }}
         env:
@@ -169,54 +150,70 @@ jobs:
           set -euo pipefail
           OUT="$GITHUB_WORKSPACE/APK_SAIDA"
           mkdir -p "$OUT"
-          APK="$(find . -type f -path '*/build/outputs/apk/debug/*.apk' | sort | head -n1)"
-          if [ -z "${APK:-}" ] || [ ! -f "$APK" ]; then
-            echo "::error::APK não encontrado."
-            exit 1
-          fi
+          UNSIGNED="$(find . -type f -path '*/build/outputs/apk/release/*.apk' | sort | head -n1)"
+          [ -n "${UNSIGNED:-}" ] && [ -f "$UNSIGNED" ] || { echo "::error::APK release não encontrado"; exit 1; }
 
-          NAME="${TAG}-stable-compat.apk"
-          cp "$APK" "$OUT/$NAME"
-          AAPT="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n1)"
-          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n1)"
-          ZIPALIGN="$(find "$ANDROID_HOME/build-tools" -type f -name zipalign | sort -V | tail -n1)"
-          REPORT="$OUT/VALIDACAO_APK_STABLE_COMPAT.txt"
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
+          AAPT="$BUILD_TOOLS/aapt"
+          APKSIGNER="$BUILD_TOOLS/apksigner"
+          ZIPALIGN="$BUILD_TOOLS/zipalign"
 
-          unzip -t "$OUT/$NAME" >/dev/null
-          "$ZIPALIGN" -c -P 16 -v 4 "$OUT/$NAME" | tail -n3 | tee "$REPORT"
-          "$AAPT" dump badging "$OUT/$NAME" | grep -E '^(package:|sdkVersion:|targetSdkVersion:|native-code:)' | tee -a "$REPORT"
-          "$APKSIGNER" verify --verbose --print-certs "$OUT/$NAME" | tee -a "$REPORT"
-          sha256sum "$OUT/$NAME" | tee -a "$REPORT"
-          (cd "$OUT" && sha256sum *.apk > SHA256SUMS_STABLE_COMPAT.txt)
+          ALIGNED="$RUNNER_TEMP/tales-aligned.apk"
+          NAME="${TAG}-INSTALL-COMPAT.apk"
+          FINAL="$OUT/$NAME"
+          REPORT="$OUT/VALIDACAO_INSTALL_COMPAT.txt"
+
+          "$ZIPALIGN" -p -f 4 "$UNSIGNED" "$ALIGNED"
+          "$APKSIGNER" sign \
+            --ks "$BRASEIRO_STABLE_KEYSTORE" \
+            --ks-key-alias androiddebugkey \
+            --ks-pass pass:android \
+            --key-pass pass:android \
+            --v1-signing-enabled true \
+            --v2-signing-enabled true \
+            --v3-signing-enabled true \
+            --min-sdk-version 24 \
+            --out "$FINAL" \
+            "$ALIGNED"
+
+          unzip -t "$FINAL" >/dev/null
+          "$ZIPALIGN" -c -P 16 -v 4 "$FINAL" | tail -n5 | tee "$REPORT"
+          "$AAPT" dump badging "$FINAL" | grep -E '^(package:|sdkVersion:|targetSdkVersion:|native-code:)' | tee -a "$REPORT"
+          "$APKSIGNER" verify --verbose --print-certs "$FINAL" | tee -a "$REPORT"
+
+          grep -q 'Verified using v1 scheme (JAR signing): true' "$REPORT" || { echo "::error::V1 não validou"; exit 1; }
+          grep -q 'Verified using v2 scheme (APK Signature Scheme v2): true' "$REPORT" || { echo "::error::V2 não validou"; exit 1; }
+
+          sha256sum "$FINAL" | tee -a "$REPORT"
+          (cd "$OUT" && sha256sum *.apk > SHA256SUMS_INSTALL_COMPAT.txt)
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
 
       - name: Publicar artifact de backup
         uses: actions/upload-artifact@v4
         with:
-          name: APK-STABLE-COMPAT-${{ steps.source.outputs.tag }}
+          name: APK-INSTALL-COMPAT-${{ steps.source.outputs.tag }}
           path: APK_SAIDA/*
           if-no-files-found: error
           retention-days: 30
 
-      - name: Anexar APK compatível diretamente à Release
+      - name: Anexar APK instalável diretamente à Release
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.source.outputs.tag }}
         run: |
           set -euo pipefail
-          gh release upload "$TAG" APK_SAIDA/*.apk APK_SAIDA/VALIDACAO_APK_STABLE_COMPAT.txt APK_SAIDA/SHA256SUMS_STABLE_COMPAT.txt --clobber
+          gh release upload "$TAG" APK_SAIDA/*.apk APK_SAIDA/VALIDACAO_INSTALL_COMPAT.txt APK_SAIDA/SHA256SUMS_INSTALL_COMPAT.txt --clobber
 
       - name: Resumo
         run: |
           {
-            echo "## APK Stable Compatibility"
+            echo "## APK Install Compatibility"
             echo ""
             echo "- Release: \`${{ steps.source.outputs.tag }}\`"
             echo "- APK: \`${{ steps.apk.outputs.name }}\`"
-            echo "- assinatura: chave estável V1 + V2"
             echo "- package separado: \`com.braseiro.talesvtt.stable\`"
-            echo "- ABI: ARM64 + ARMv7"
+            echo "- assinatura explícita: V1 + V2 + V3"
+            echo "- ABIs: ARM64 + ARMv7"
             echo "- JNI legacy packaging: ativo"
-            echo ""
-            echo "Pode ser instalado ao lado de builds antigos sem conflito de certificado."
+            echo "- zipalign: validado"
           } >> "$GITHUB_STEP_SUMMARY"
