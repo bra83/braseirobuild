@@ -1,0 +1,246 @@
+diff --git a/app/build.gradle.kts b/app/build.gradle.kts
+index 85cf6e7..33af092 100644
+--- a/app/build.gradle.kts
++++ b/app/build.gradle.kts
+@@ -12,8 +12,8 @@ android {
+     applicationId = "com.braseiro.talesvtt"
+     minSdk = 24
+     targetSdk = 36
+-    versionCode = 8
+-    versionName = "1.3.5"
++    versionCode = 9
++    versionName = "1.3.6"
+ 
+     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+   }
+diff --git a/app/src/main/java/com/braseiro/talesvtt/game/GameViewModel.kt b/app/src/main/java/com/braseiro/talesvtt/game/GameViewModel.kt
+index 5981cb7..db7b040 100644
+--- a/app/src/main/java/com/braseiro/talesvtt/game/GameViewModel.kt
++++ b/app/src/main/java/com/braseiro/talesvtt/game/GameViewModel.kt
+@@ -61,7 +61,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
+   val manualLibraryStatus: StateFlow<ManualLibraryStatus> = _manualLibraryStatus.asStateFlow()
+   private val _adventureStarted = MutableStateFlow(prefs.getBoolean(KEY_ADVENTURE_STARTED, false))
+   val adventureStarted: StateFlow<Boolean> = _adventureStarted.asStateFlow()
+-  private var pendingAdventureStart = false
+ 
+   init {
+     _motorConfig.value = motorTransport.currentConfig()
+@@ -125,15 +124,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
+     val result = MotorBarbaraFirewall.apply(_state.value, gmPrivateState, packet)
+     _state.value = result.gameState
+     gmPrivateState = result.privateState
+-    if (pendingAdventureStart) {
+-      pendingAdventureStart = false
+-      val acceptedStart = result.acceptedActions > 0
+-      _adventureStarted.value = acceptedStart
+-      prefs.edit().putBoolean(KEY_ADVENTURE_STARTED, acceptedStart).apply()
+-      if (!acceptedStart) {
+-        _dataStatus.value = "O Mestre respondeu, mas nenhuma ação válida iniciou a aventura. Tente NOVA AVENTURA novamente."
+-      }
+-    }
+     _motorRoute.value = result.routeHint
+     val rejectedCount = result.rejected.size + wireRejected.size
+     _motorStatus.value = MotorRuntimeStatus(
+@@ -174,7 +164,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
+           if (intent.type == "test_result" && _state.value.testResolution?.reportedToGm == true) {
+             dispatch(GameEvent.SetTestResultReported(false))
+           }
+-          if (intent.type == "adventure_start") pendingAdventureStart = false
+           markMotorTransportOffline(error.message ?: "Falha ao acionar o Motor Barbara.")
+           _dataStatus.value = error.message ?: "Falha ao acionar o Motor Barbara."
+         }
+@@ -278,11 +267,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
+ 
+   fun startRandomAdventure() {
+     if (_motorStatus.value.busy) return
+-    if (!motorTransport.hasApiKey()) {
+-      markMotorTransportOffline("Configure e salve a chave Gemini antes de iniciar uma aventura.")
+-      _dataStatus.value = "A aventura não foi iniciada: falta configurar o Motor Barbara/Gemini."
+-      return
+-    }
+     val history = prefs.getString(KEY_ADVENTURE_HISTORY, "").orEmpty()
+       .split("\n").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+     val seed = AdventureFactory.create(history)
+@@ -318,16 +302,34 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
+         time = seed.time,
+         daylight = seed.daylight,
+         visualAssetKey = seed.visualAsset,
+-        narrative = listOf("O Mestre está preparando uma aventura nova a partir de um seed aleatório…"),
++        narrative = listOf(
++          "${seed.seasonYear}. ${seed.location}, ${seed.time}. ${seed.weather}. A rotina é interrompida: ${seed.hook}. " +
++            "Ao mesmo tempo, ${seed.anomaly}. ${seed.importantNpc} está por perto, enquanto ${seed.everydayPressure}. " +
++            "O Mistério começou, mas nada além do que o Kid percebeu foi revelado."
++        ),
+         choices = emptyList()
+       ),
+       revealed = RevealedState(clues = emptySet(), locations = setOf(seed.location), connections = emptySet())
+     )
+     gmPrivateState = GmPrivateState()
+-    pendingAdventureStart = true
+-    _dataStatus.value = "Gerando aventura aleatória inédita…"
++
++    // The player's explicit tap is the authoritative start. Gemini enriches the opening,
++    // but a network/model failure can no longer trap the user on MENU.
++    _adventureStarted.value = true
++    prefs.edit().putBoolean(KEY_ADVENTURE_STARTED, true).apply()
++    _dataStatus.value = if (motorTransport.hasApiKey()) {
++      "Aventura criada. O Mestre está enriquecendo a cena inicial…"
++    } else {
++      "Aventura criada em modo local. Configure a chave Gemini para o Mestre continuar a narrar."
++    }
+     persistAutosave()
+-    requestMotor(MotorIntent(type = "adventure_start", text = seed.motorBrief()))
++    _motorRoute.value = MotorRouteHint.SCENE
++
++    if (motorTransport.hasApiKey()) {
++      requestMotor(MotorIntent(type = "adventure_start", text = seed.motorBrief()))
++    } else {
++      markMotorTransportOffline("Aventura iniciada; Motor Barbara offline até uma chave Gemini ser configurada.")
++    }
+   }
+ 
+   fun saveMotorConfig(apiKey: String?, model: String, ttsModel: String, ttsVoice: String, ttsMode: String) {
+diff --git a/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraTransport.kt b/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraTransport.kt
+index fa6be67..345b9c4 100644
+--- a/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraTransport.kt
++++ b/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraTransport.kt
+@@ -121,23 +121,46 @@ class MotorBarbaraTransport(private val context: Context) {
+         .post(requestJson.toString().toRequestBody("application/json; charset=utf-8".toMediaType()))
+         .build()
+ 
+-      client.newCall(request).execute().use { response ->
+-        val body = response.body?.string().orEmpty()
+-        if (!response.isSuccessful) error("Motor Gemini HTTP ${response.code}: $body")
+-        val root = JSONObject(body)
+-        val parts = root.getJSONArray("candidates")
+-          .getJSONObject(0)
+-          .getJSONObject("content")
+-          .getJSONArray("parts")
+-        val text = buildString {
+-          for (i in 0 until parts.length()) append(parts.getJSONObject(i).optString("text"))
+-        }.trim()
+-        require(text.isNotEmpty()) { "Motor Gemini não retornou JSON textual." }
+-        MotorTransportResult(MotorBarbaraWireAdapter.parse(text), text)
++      var lastTransientCode: Int? = null
++      repeat(MAX_TRANSIENT_ATTEMPTS) { attempt ->
++        client.newCall(request).execute().use { response ->
++          val body = response.body?.string().orEmpty()
++          if (!response.isSuccessful) {
++            if (response.code in TRANSIENT_HTTP_CODES && attempt + 1 < MAX_TRANSIENT_ATTEMPTS) {
++              lastTransientCode = response.code
++              Thread.sleep(RETRY_BASE_DELAY_MS * (attempt + 1L))
++              return@use
++            }
++            error(userSafeHttpError(response.code))
++          }
++
++          val root = JSONObject(body)
++          val candidates = root.optJSONArray("candidates")
++          require(candidates != null && candidates.length() > 0) { "Motor Gemini respondeu sem candidato utilizável." }
++          val parts = candidates.getJSONObject(0)
++            .optJSONObject("content")
++            ?.optJSONArray("parts")
++            ?: error("Motor Gemini respondeu sem conteúdo textual.")
++          val text = buildString {
++            for (i in 0 until parts.length()) append(parts.optJSONObject(i)?.optString("text").orEmpty())
++          }.trim()
++          require(text.isNotEmpty()) { "Motor Gemini não retornou JSON textual." }
++          return@runCatching MotorTransportResult(MotorBarbaraWireAdapter.parse(text), text)
++        }
+       }
++      error("Motor Gemini temporariamente indisponível (HTTP ${lastTransientCode ?: 500}). Tente novamente.")
+     }
+   }
+ 
++  private fun userSafeHttpError(code: Int): String = when (code) {
++    400 -> "O Gemini recusou a solicitação (HTTP 400). Verifique o modelo configurado."
++    401, 403 -> "O Gemini recusou a autenticação (HTTP $code). Verifique a chave API."
++    404 -> "O modelo Gemini configurado não foi encontrado (HTTP 404). Escolha outro modelo."
++    429 -> "Limite temporário do Gemini atingido (HTTP 429). Tente novamente em instantes."
++    in TRANSIENT_HTTP_CODES -> "Motor Gemini temporariamente indisponível (HTTP $code). Tente novamente."
++    else -> "Falha de comunicação com o Gemini (HTTP $code)."
++  }
++
+   private fun resolveApiKey(): String {
+     val secure = secrets.get("gemini_api_key").trim()
+     if (secure.isNotEmpty()) return secure
+@@ -256,6 +279,9 @@ class MotorBarbaraTransport(private val context: Context) {
+ 
+   companion object {
+     private const val DEFAULT_MODEL = "gemini-2.5-flash"
++    private const val MAX_TRANSIENT_ATTEMPTS = 3
++    private const val RETRY_BASE_DELAY_MS = 700L
++    private val TRANSIENT_HTTP_CODES = setOf(500, 502, 503, 504)
+ 
+     private val SYSTEM_PROMPT = """
+ Você é o Motor Barbara, Mestre autônomo do VTT BRASEIRO para Tales from the Loop no perfil Tales/Kids.
+diff --git a/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraWireAdapter.kt b/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraWireAdapter.kt
+index 10e6d81..97137fb 100644
+--- a/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraWireAdapter.kt
++++ b/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraWireAdapter.kt
+@@ -15,8 +15,14 @@ data class MotorParseResult(
+  */
+ object MotorBarbaraWireAdapter {
+   fun parse(raw: String): MotorParseResult {
+-    val root = JSONObject(raw)
+-    val actionsJson = root.optJSONArray("actions") ?: JSONArray()
++    val root = parseRoot(raw)
++    val actionsJson = when {
++      root.optJSONArray("actions") != null -> root.getJSONArray("actions")
++      root.optJSONObject("actions") != null -> JSONArray().put(root.getJSONObject("actions"))
++      root.optJSONObject("action") != null -> JSONArray().put(root.getJSONObject("action"))
++      root.optString("type").isNotBlank() -> JSONArray().put(root)
++      else -> JSONArray()
++    }
+     val parsed = mutableListOf<MotorAction>()
+     val rejected = mutableListOf<String>()
+ 
+@@ -35,6 +41,23 @@ object MotorBarbaraWireAdapter {
+     return MotorParseResult(MotorPacket(actions = parsed), rejected)
+   }
+ 
++
++  private fun parseRoot(raw: String): JSONObject {
++    val trimmed = raw.trim()
++    require(trimmed.isNotEmpty()) { "Resposta JSON vazia do Motor." }
++
++    val unfenced = Regex("^```(?:json)?\\s*([\\s\\S]*?)\\s*```$", RegexOption.IGNORE_CASE)
++      .find(trimmed)?.groupValues?.getOrNull(1)?.trim()
++      ?: trimmed
++
++    return runCatching { JSONObject(unfenced) }.getOrElse {
++      val start = unfenced.indexOf('{')
++      val end = unfenced.lastIndexOf('}')
++      require(start >= 0 && end > start) { "Resposta do Motor não contém objeto JSON válido." }
++      JSONObject(unfenced.substring(start, end + 1))
++    }
++  }
++
+   private fun parseAction(type: String, a: JSONObject): MotorAction? {
+     return when (type) {
+     "narration" -> {
+diff --git a/app/src/main/java/com/braseiro/talesvtt/navigation/AppNavGraph.kt b/app/src/main/java/com/braseiro/talesvtt/navigation/AppNavGraph.kt
+index 58a5e40..6d8557b 100644
+--- a/app/src/main/java/com/braseiro/talesvtt/navigation/AppNavGraph.kt
++++ b/app/src/main/java/com/braseiro/talesvtt/navigation/AppNavGraph.kt
+@@ -48,7 +48,10 @@ fun AppNavGraph(
+   val adventureStarted by gameViewModel.adventureStarted.collectAsStateWithLifecycle()
+ 
+   val onNavigate: (AppDestination) -> Unit = { requested ->
+-    val destination = if (!adventureStarted && requested in setOf(
++    // Read the live StateFlow value here instead of the last composed snapshot. During
++    // NEW ADVENTURE, started=true and route=SCENE can be emitted in the same frame.
++    val startedNow = gameViewModel.adventureStarted.value
++    val destination = if (!startedNow && requested in setOf(
+         AppDestination.SCENE, AppDestination.GROUP, AppDestination.MYSTERY, AppDestination.MAP, AppDestination.BACKPACK
+       )) AppDestination.MENU else requested
+     navController.navigate(destination.route) {
+@@ -62,7 +65,7 @@ fun AppNavGraph(
+     navController.navigate(route) { launchSingleTop = true }
+   }
+ 
+-  // Only validated Motor Barbara packets can emit this navigation signal.
++  // Validated Motor Barbara packets and deterministic local adventure creation can emit this navigation signal.
+   LaunchedEffect(motorRoute) {
+     when (motorRoute) {
+       MotorRouteHint.TROUBLE -> openInternal(InternalRoutes.TROUBLE)
