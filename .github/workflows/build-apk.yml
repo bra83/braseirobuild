@@ -88,37 +88,28 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import os, re
-
           root = Path(os.environ['ROOT'])
           gradle = root / 'app' / 'build.gradle.kts'
           text = gradle.read_text(encoding='utf-8')
-
           needle = '    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"\n'
           if 'abiFilters += listOf("arm64-v8a", "armeabi-v7a")' not in text:
               text = text.replace(needle, needle + '    ndk {\n      abiFilters += listOf("arm64-v8a", "armeabi-v7a")\n    }\n')
-
           text = re.sub(r'targetSdk\s*=\s*\d+', 'targetSdk = 28', text, count=1)
           text = re.sub(r'versionCode\s*=\s*\d+', 'versionCode = 11', text, count=1)
           text = text.replace(
               '    release {\n      isCrunchPngs = false',
               '    release {\n      applicationIdSuffix = ".legacyv1"\n      versionNameSuffix = "-android10-v1"\n      isCrunchPngs = false'
           )
-
           if 'useLegacyPackaging = true' not in text:
               text = text.replace(
                   '  dependenciesInfo {\n',
                   '  packaging {\n    jniLibs {\n      useLegacyPackaging = true\n    }\n  }\n  dependenciesInfo {\n'
               )
-
           gradle.write_text(text, encoding='utf-8')
-
           manifest = root / 'app' / 'src' / 'main' / 'AndroidManifest.xml'
           m = manifest.read_text(encoding='utf-8')
           m = re.sub(r'\n\s*android:dataExtractionRules="[^"]+"', '', m)
           manifest.write_text(m, encoding='utf-8')
-
-          print(gradle.read_text(encoding='utf-8'))
-          print(manifest.read_text(encoding='utf-8'))
           PY
 
       - name: Reduzir APK para o instalador do aparelho
@@ -131,7 +122,6 @@ jobs:
           from pathlib import Path
           from PIL import Image
           import os
-
           root = Path(os.environ['ROOT']) / 'app' / 'src' / 'main' / 'res'
           before = after = converted = 0
           for p in list(root.rglob('*.png')):
@@ -181,7 +171,7 @@ jobs:
           set -euo pipefail
           ./gradlew clean assembleRelease -x lintVitalRelease --stacktrace --no-daemon
 
-      - name: Zipalign e assinatura JAR V1 real
+      - name: Assinar JAR V1, zipalign e validar
         id: apk
         working-directory: ${{ steps.detect.outputs.root }}
         env:
@@ -198,11 +188,13 @@ jobs:
           APKSIGNER="$BUILD_TOOLS/apksigner"
           ZIPALIGN="$BUILD_TOOLS/zipalign"
 
+          SIGNED_UNALIGNED="$RUNNER_TEMP/tales-legacy-v1-signed-unaligned.apk"
           NAME="${TAG}-ANDROID10-LEGACY-V1.apk"
           FINAL="$OUT/$NAME"
           REPORT="$OUT/VALIDACAO_ANDROID10_LEGACY_V1.txt"
 
-          "$ZIPALIGN" -p -f 4 "$UNSIGNED" "$FINAL"
+          cp "$UNSIGNED" "$SIGNED_UNALIGNED"
+          zip -q -d "$SIGNED_UNALIGNED" 'META-INF/*.SF' 'META-INF/*.RSA' 'META-INF/*.DSA' 'META-INF/MANIFEST.MF' >/dev/null 2>&1 || true
 
           jarsigner \
             -keystore "$BRASEIRO_STABLE_KEYSTORE" \
@@ -210,12 +202,14 @@ jobs:
             -keypass android \
             -sigalg SHA256withRSA \
             -digestalg SHA-256 \
-            "$FINAL" androiddebugkey
+            "$SIGNED_UNALIGNED" androiddebugkey
+
+          jarsigner -verify "$SIGNED_UNALIGNED" >/dev/null
+          "$ZIPALIGN" -p -f 4 "$SIGNED_UNALIGNED" "$FINAL"
 
           unzip -t "$FINAL" >/dev/null
           "$ZIPALIGN" -c -P 16 -v 4 "$FINAL" | tail -n5 | tee "$REPORT"
           "$AAPT" dump badging "$FINAL" | grep -E '^(package:|sdkVersion:|targetSdkVersion:|native-code:)' | tee -a "$REPORT"
-          jarsigner -verify -verbose -certs "$FINAL" >> "$REPORT" 2>&1
           "$APKSIGNER" verify --verbose --print-certs "$FINAL" | tee -a "$REPORT"
 
           grep -q 'Verified using v1 scheme (JAR signing): true' "$REPORT" || { echo "::error::V1 REAL não validou"; exit 1; }
