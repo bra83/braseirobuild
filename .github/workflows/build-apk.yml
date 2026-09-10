@@ -11,7 +11,7 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -200,6 +200,7 @@ jobs:
                 echo "signature: OK" | tee -a "$REPORT"
               else
                 echo "signature: FAIL" | tee -a "$REPORT"
+                exit 1
               fi
             fi
           done
@@ -211,7 +212,7 @@ jobs:
 
           echo "count=${#APKS[@]}" >> "$GITHUB_OUTPUT"
 
-      - name: Publicar APK
+      - name: Publicar artifact de backup
         uses: actions/upload-artifact@v4
         with:
           name: APK-${{ steps.source.outputs.tag }}
@@ -219,18 +220,34 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      - name: Anexar APK diretamente à Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.source.outputs.tag }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          FILES=(APK_SAIDA/*.apk APK_SAIDA/VALIDACAO_APK.txt APK_SAIDA/SHA256SUMS.txt)
+          if [ "${#FILES[@]}" -eq 0 ]; then
+            echo "::error::Nenhum arquivo de saída para anexar à Release."
+            exit 1
+          fi
+          gh release upload "$TAG" "${FILES[@]}" --clobber
+          echo "APK(s) anexado(s) diretamente à Release $TAG"
+
       - name: Resumo
         run: |
           {
             echo "## Braseiro Universal Android Builder"
             echo ""
             echo "- Release: \`${{ steps.source.outputs.tag }}\`"
-            echo "- ZIP: \`${{ steps.source.outputs.zip }}\`"
+            echo "- ZIP fonte: \`${{ steps.source.outputs.zip }}\`"
             echo "- Android root: \`${{ steps.detect.outputs.root }}\`"
             echo "- Gradle: \`${{ steps.detect.outputs.gradle_version }}\`"
             echo "- Java: \`${{ steps.detect.outputs.java }}\`"
             echo "- compileSdk: \`${{ steps.detect.outputs.sdk }}\`"
             echo "- APK(s): \`${{ steps.apk.outputs.count }}\`"
             echo ""
-            echo "Baixe o artifact **APK-${{ steps.source.outputs.tag }}**."
+            echo "O APK está anexado diretamente à Release **${{ steps.source.outputs.tag }}** para download no celular."
+            echo "O artifact ZIP também foi mantido como backup."
           } >> "$GITHUB_STEP_SUMMARY"
