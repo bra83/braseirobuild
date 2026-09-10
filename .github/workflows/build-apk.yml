@@ -45,7 +45,7 @@ jobs:
           mkdir -p incoming
           gh release download "$TAG" --pattern '*.zip' --dir incoming
           ZIP="$(find incoming -maxdepth 1 -type f -iname '*.zip' -printf '%s %p\n' | sort -nr | head -n1 | cut -d' ' -f2-)"
-          test -n "${ZIP:-}" && test -f "$ZIP" || { echo "::error::ZIP fonte não encontrado"; exit 1; }
+          [ -n "${ZIP:-}" ] && [ -f "$ZIP" ] || { echo "::error::ZIP fonte não encontrado"; exit 1; }
           unzip -t "$ZIP" >/dev/null
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
@@ -72,21 +72,12 @@ jobs:
           [ -n "$ROOT" ] || ROOT="$(dirname "${WRAPPERS[0]}")"
           chmod +x "$ROOT/gradlew"
           echo "root=$ROOT" >> "$GITHUB_OUTPUT"
-          PROPS="$ROOT/gradle/wrapper/gradle-wrapper.properties"
-          GRADLE_VERSION="$(grep -oE 'gradle-[0-9]+(\.[0-9]+){1,2}' "$PROPS" 2>/dev/null | head -n1 | sed 's/gradle-//' || true)"
-          JAVA=17
-          if [ -n "$GRADLE_VERSION" ]; then
-            MAJOR="${GRADLE_VERSION%%.*}"
-            MINOR="$(echo "$GRADLE_VERSION" | cut -d. -f2)"
-            if [ "$MAJOR" -lt 7 ] || { [ "$MAJOR" -eq 7 ] && [ "${MINOR:-0}" -lt 3 ]; }; then JAVA=11; fi
-          fi
           SDK="$(grep -RhoE 'compileSdk(Version)?[[:space:]]*[= ]+[0-9]+' "$ROOT" --include='*.gradle' --include='*.gradle.kts' 2>/dev/null | grep -oE '[0-9]+' | sort -nr | head -n1 || true)"
           [ -n "$SDK" ] || SDK=35
-          echo "java=$JAVA" >> "$GITHUB_OUTPUT"
           echo "sdk=$SDK" >> "$GITHUB_OUTPUT"
-          echo "Android root: $ROOT | Java: $JAVA | compileSdk: $SDK"
+          echo "Android root: $ROOT | compileSdk: $SDK"
 
-      - name: Preparar variante de instalação compatível
+      - name: Preparar variante ARM64 de instalação
         env:
           ROOT: ${{ steps.detect.outputs.root }}
         run: |
@@ -97,19 +88,23 @@ jobs:
 
           python3 - <<'PY'
           from pathlib import Path
-          import os
+          import os, re
           root = Path(os.environ['ROOT'])
           gradle = root / 'app' / 'build.gradle.kts'
           text = gradle.read_text(encoding='utf-8')
 
+          # APK exclusivo para celulares ARM64: reduz tamanho e evita x86/ARMv7 desnecessários.
           needle = '    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"\n'
-          if 'abiFilters += listOf("arm64-v8a", "armeabi-v7a")' not in text:
-              text = text.replace(needle, needle + '    ndk {\n      abiFilters += listOf("arm64-v8a", "armeabi-v7a")\n    }\n')
+          if 'abiFilters += listOf("arm64-v8a")' not in text:
+              text = text.replace(needle, needle + '    ndk {\n      abiFilters += listOf("arm64-v8a")\n    }\n')
 
-          # Package separado evita conflito com APKs antigos assinados por chaves temporárias.
-          text = text.replace('    release {\n      isCrunchPngs = false', '    release {\n      applicationIdSuffix = ".stable"\n      versionNameSuffix = "-stable"\n      isCrunchPngs = false')
+          # VersionCode maior para atualizar qualquer tentativa stable anterior.
+          text = re.sub(r'versionCode\s*=\s*\d+', 'versionCode = 9', text, count=1)
 
-          # Compatibilidade com instaladores OEM/Android antigos: libs JNI compactadas e extraídas na instalação.
+          # Package separado elimina conflito de certificado com versões antigas do app.
+          text = text.replace('    release {\n      isCrunchPngs = false', '    release {\n      applicationIdSuffix = ".stable"\n      versionNameSuffix = "-arm64"\n      isCrunchPngs = false')
+
+          # Compatibilidade com instaladores OEM: extrair libs nativas durante instalação.
           if 'useLegacyPackaging = true' not in text:
               text = text.replace('  dependenciesInfo {\n', '  packaging {\n    jniLibs {\n      useLegacyPackaging = true\n    }\n  }\n  dependenciesInfo {\n')
 
@@ -121,12 +116,12 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: ${{ steps.detect.outputs.java }}
+          java-version: 17
 
       - name: Configurar Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Instalar plataforma Android necessária
+      - name: Instalar plataforma Android
         run: |
           set -euo pipefail
           yes | sdkmanager --licenses >/dev/null || true
@@ -135,13 +130,13 @@ jobs:
       - name: Configurar cache Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Compilar APK release sem assinatura
+      - name: Compilar APK release ARM64
         working-directory: ${{ steps.detect.outputs.root }}
         run: |
           set -euo pipefail
           ./gradlew clean assembleRelease --stacktrace --no-daemon
 
-      - name: Zipalign e assinar explicitamente V1 V2 V3
+      - name: Zipalign, assinar e validar
         id: apk
         working-directory: ${{ steps.detect.outputs.root }}
         env:
@@ -158,10 +153,10 @@ jobs:
           APKSIGNER="$BUILD_TOOLS/apksigner"
           ZIPALIGN="$BUILD_TOOLS/zipalign"
 
-          ALIGNED="$RUNNER_TEMP/tales-aligned.apk"
-          NAME="${TAG}-INSTALL-COMPAT.apk"
+          ALIGNED="$RUNNER_TEMP/tales-arm64-aligned.apk"
+          NAME="${TAG}-ARM64-INSTALL.apk"
           FINAL="$OUT/$NAME"
-          REPORT="$OUT/VALIDACAO_INSTALL_COMPAT.txt"
+          REPORT="$OUT/VALIDACAO_ARM64_INSTALL.txt"
 
           "$ZIPALIGN" -p -f 4 "$UNSIGNED" "$ALIGNED"
           "$APKSIGNER" sign \
@@ -181,39 +176,44 @@ jobs:
           "$AAPT" dump badging "$FINAL" | grep -E '^(package:|sdkVersion:|targetSdkVersion:|native-code:)' | tee -a "$REPORT"
           "$APKSIGNER" verify --verbose --print-certs "$FINAL" | tee -a "$REPORT"
 
-          grep -q 'Verified using v1 scheme (JAR signing): true' "$REPORT" || { echo "::error::V1 não validou"; exit 1; }
+          # Android 7+ (minSdk 24) usa APK Signature Scheme V2; V3 também deve validar.
           grep -q 'Verified using v2 scheme (APK Signature Scheme v2): true' "$REPORT" || { echo "::error::V2 não validou"; exit 1; }
+          grep -q 'Verified using v3 scheme (APK Signature Scheme v3): true' "$REPORT" || { echo "::error::V3 não validou"; exit 1; }
+          grep -q "native-code: 'arm64-v8a'" "$REPORT" || { echo "::error::APK não é ARM64"; exit 1; }
+          grep -q "package: name='com.braseiro.talesvtt.stable'" "$REPORT" || { echo "::error::Package estável incorreto"; exit 1; }
 
+          stat -c 'size=%s' "$FINAL" | tee -a "$REPORT"
           sha256sum "$FINAL" | tee -a "$REPORT"
-          (cd "$OUT" && sha256sum *.apk > SHA256SUMS_INSTALL_COMPAT.txt)
+          (cd "$OUT" && sha256sum *.apk > SHA256SUMS_ARM64_INSTALL.txt)
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
 
       - name: Publicar artifact de backup
         uses: actions/upload-artifact@v4
         with:
-          name: APK-INSTALL-COMPAT-${{ steps.source.outputs.tag }}
+          name: APK-ARM64-INSTALL-${{ steps.source.outputs.tag }}
           path: APK_SAIDA/*
           if-no-files-found: error
           retention-days: 30
 
-      - name: Anexar APK instalável diretamente à Release
+      - name: Anexar APK ARM64 diretamente à Release
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.source.outputs.tag }}
         run: |
           set -euo pipefail
-          gh release upload "$TAG" APK_SAIDA/*.apk APK_SAIDA/VALIDACAO_INSTALL_COMPAT.txt APK_SAIDA/SHA256SUMS_INSTALL_COMPAT.txt --clobber
+          gh release upload "$TAG" APK_SAIDA/*.apk APK_SAIDA/VALIDACAO_ARM64_INSTALL.txt APK_SAIDA/SHA256SUMS_ARM64_INSTALL.txt --clobber
 
       - name: Resumo
         run: |
           {
-            echo "## APK Install Compatibility"
+            echo "## Tales ARM64 Install APK"
             echo ""
             echo "- Release: \`${{ steps.source.outputs.tag }}\`"
             echo "- APK: \`${{ steps.apk.outputs.name }}\`"
-            echo "- package separado: \`com.braseiro.talesvtt.stable\`"
-            echo "- assinatura explícita: V1 + V2 + V3"
-            echo "- ABIs: ARM64 + ARMv7"
+            echo "- package: \`com.braseiro.talesvtt.stable\`"
+            echo "- versionCode: \`9\`"
+            echo "- ABI: \`arm64-v8a\`"
+            echo "- assinatura validada: V2 + V3"
             echo "- JNI legacy packaging: ativo"
             echo "- zipalign: validado"
           } >> "$GITHUB_STEP_SUMMARY"
