@@ -1,0 +1,181 @@
+name: Prepare Tales 1.3.7 Source
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/TALES_137_PREPARE_TRIGGER"
+      - ".github/workflows/prepare-tales-1.3.7.yml"
+      - "tales-1.3.7-overlay/**"
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout builder
+        uses: actions/checkout@v4
+
+      - name: Download proven 1.3.6 source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rm -rf incoming work out
+          mkdir -p incoming work out
+          gh release download TALES-1.3.6 \
+            --pattern 'BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.6.zip' \
+            --dir incoming
+          unzip -t incoming/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.6.zip >/dev/null
+          unzip -q incoming/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.6.zip -d work
+
+      - name: Apply TTS and action-choice repair
+        run: |
+          set -euo pipefail
+          ROOT="$(dirname "$(find work -type f -name gradlew | head -n1)")"
+          [ -n "$ROOT" ] && [ -f "$ROOT/app/build.gradle.kts" ]
+
+          cp tales-1.3.7-overlay/GeminiNarrationTts.kt \
+            "$ROOT/app/src/main/java/com/braseiro/talesvtt/audio/GeminiNarrationTts.kt"
+          cp tales-1.3.7-overlay/NarrationTts.kt \
+            "$ROOT/app/src/main/java/com/braseiro/talesvtt/components/NarrationTts.kt"
+          cp tales-1.3.7-overlay/SceneChoiceDefaults.kt \
+            "$ROOT/app/src/main/java/com/braseiro/talesvtt/game/SceneChoiceDefaults.kt"
+
+          ROOT="$ROOT" python3 - <<'PY'
+          from pathlib import Path
+          import os
+          root = Path(os.environ['ROOT'])
+
+          gradle = root / 'app/build.gradle.kts'
+          text = gradle.read_text(encoding='utf-8')
+          assert 'versionCode = 9' in text and 'versionName = "1.3.6"' in text
+          text = text.replace('versionCode = 9', 'versionCode = 10', 1)
+          text = text.replace('versionName = "1.3.6"', 'versionName = "1.3.7"', 1)
+          gradle.write_text(text, encoding='utf-8')
+
+          contract = root / 'app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraContract.kt'
+          text = contract.read_text(encoding='utf-8')
+          old = '''            val safeChoices = action.choices
+              .filter { it.title.isNotBlank() && it.description.isNotBlank() }
+              .take(3)'''
+          new = old + '''
+              .ifEmpty { SceneChoiceDefaults.standard() }'''
+          assert old in text
+          contract.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          wire = root / 'app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraWireAdapter.kt'
+          text = wire.read_text(encoding='utf-8')
+          old_call = 'if (text.isEmpty()) null else MotorAction.Narration(text, parseChoices(a.optJSONArray("choices")))'
+          new_call = 'if (text.isEmpty()) null else MotorAction.Narration(text, parseChoices(a.opt("choices") ?: a.opt("options")))'
+          assert old_call in text
+          text = text.replace(old_call, new_call, 1)
+          old_fun = '''  private fun parseChoices(arr: JSONArray?): List<SceneChoice> {
+    if (arr == null) return emptyList()
+    val result = mutableListOf<SceneChoice>()
+    for (i in 0 until minOf(arr.length(), 3)) {
+      val row = arr.optJSONArray(i) ?: continue
+      if (row.length() < 2) continue
+      val title = row.optString(0).trim()
+      val description = row.optString(1).trim()
+      if (title.isNotEmpty() && description.isNotEmpty()) result += SceneChoice(title, description)
+    }
+    return result
+  }'''
+          new_fun = '''  private fun parseChoices(value: Any?): List<SceneChoice> {
+    val arr = value as? JSONArray ?: return emptyList()
+    val result = mutableListOf<SceneChoice>()
+    for (i in 0 until minOf(arr.length(), 3)) {
+      val item = arr.opt(i)
+      val choice = when (item) {
+        is JSONArray -> {
+          val title = item.optString(0).trim()
+          val description = item.optString(1).trim()
+          if (title.isNotEmpty() && description.isNotEmpty()) SceneChoice(title, description) else null
+        }
+        is JSONObject -> {
+          val title = item.optString("title", item.optString("titulo", item.optString("label"))).trim()
+          val description = item.optString("description", item.optString("descricao", item.optString("text"))).trim()
+          if (title.isNotEmpty() && description.isNotEmpty()) SceneChoice(title, description) else null
+        }
+        else -> null
+      }
+      if (choice != null) result += choice
+    }
+    return result
+  }'''
+          assert old_fun in text
+          wire.write_text(text.replace(old_fun, new_fun, 1), encoding='utf-8')
+
+          for rel in [
+            'app/src/main/java/com/braseiro/talesvtt/screens/SceneScreen.kt',
+            'app/src/main/java/com/braseiro/talesvtt/screens/LocationScreen.kt',
+          ]:
+            p = root / rel
+            text = p.read_text(encoding='utf-8')
+            marker = 'import com.braseiro.talesvtt.game.GameState\n'
+            if 'import com.braseiro.talesvtt.game.SceneChoiceDefaults' not in text:
+              assert marker in text
+              text = text.replace(marker, marker + 'import com.braseiro.talesvtt.game.SceneChoiceDefaults\n', 1)
+            old = 'scene.choices.take(3).forEachIndexed { index, choice ->'
+            new = 'scene.choices.take(3).ifEmpty { SceneChoiceDefaults.standard() }.forEachIndexed { index, choice ->'
+            assert old in text
+            p.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          vm = root / 'app/src/main/java/com/braseiro/talesvtt/game/GameViewModel.kt'
+          text = vm.read_text(encoding='utf-8')
+          anchor = '''            "O Mistério começou, mas nada além do que o Kid percebeu foi revelado."
+        ),
+        choices = emptyList()'''
+          replacement = '''            "O Mistério começou, mas nada além do que o Kid percebeu foi revelado."
+        ),
+        choices = SceneChoiceDefaults.standard()'''
+          assert anchor in text
+          vm.write_text(text.replace(anchor, replacement, 1), encoding='utf-8')
+          PY
+
+          grep -q 'versionName = "1.3.7"' "$ROOT/app/build.gradle.kts"
+          grep -q 'gemini-3.1-flash-tts-preview' "$ROOT/app/src/main/java/com/braseiro/talesvtt/audio/GeminiNarrationTts.kt"
+          grep -q 'Voz Gemini indisponível; usando TTS do Android' "$ROOT/app/src/main/java/com/braseiro/talesvtt/components/NarrationTts.kt"
+          grep -q 'SceneChoiceDefaults.standard()' "$ROOT/app/src/main/java/com/braseiro/talesvtt/screens/SceneScreen.kt"
+          grep -q 'is JSONObject' "$ROOT/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraWireAdapter.kt"
+
+      - name: Package corrected Android Studio source
+        run: |
+          set -euo pipefail
+          ROOT="$(dirname "$(find work -type f -name gradlew | head -n1)")"
+          PARENT="$(dirname "$ROOT")"
+          rm -rf "$PARENT/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.7"
+          mv "$ROOT" "$PARENT/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.7"
+          (cd "$PARENT" && zip -qr "$GITHUB_WORKSPACE/out/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.7.zip" BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.7)
+          unzip -t out/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.7.zip >/dev/null
+          sha256sum out/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.7.zip | tee out/SHA256SUMS_SOURCE_1.3.7.txt
+
+      - name: Publish 1.3.7 source release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view TALES-1.3.7 >/dev/null 2>&1; then
+            gh release delete TALES-1.3.7 -y --cleanup-tag || true
+          fi
+          gh release create TALES-1.3.7 --draft \
+            --title 'BRASEIRO TALES VTT 1.3.7' \
+            --notes 'Correção de TTS e opções prévias de ação. Gemini TTS usa modelo atual recomendado com compatibilidade legada e fallback automático para TTS Android. CENA/LOCAL sempre exibem três opções seguras quando o Mestre omite escolhas; parser aceita escolhas como arrays ou objetos.'
+          gh release upload TALES-1.3.7 \
+            out/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.7.zip \
+            out/SHA256SUMS_SOURCE_1.3.7.txt
+          gh release edit TALES-1.3.7 --draft=false
+
+      - name: Summary
+        run: |
+          {
+            echo '## TALES 1.3.7 source prepared'
+            echo '- TTS Gemini + Android fallback repaired.'
+            echo '- Three player action suggestions guaranteed in CENA/LOCAL.'
+            echo '- Source release published; universal APK builder is triggered by release publication.'
+          } >> "$GITHUB_STEP_SUMMARY"
