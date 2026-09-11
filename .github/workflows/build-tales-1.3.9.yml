@@ -140,7 +140,6 @@ jobs:
           ./gradlew clean assembleRelease -x lintVitalRelease --stacktrace --no-daemon
 
       - name: Sign, align and validate APK
-        id: apk
         working-directory: ${{ steps.detect.outputs.root }}
         run: |
           set -euo pipefail
@@ -186,14 +185,11 @@ jobs:
         run: |
           set -euo pipefail
           cp "$ROOT/TALES_RETOMADA_CURRENT.md" TALES_RETOMADA_CURRENT.md
-          cat >> TALES_RETOMADA_CURRENT.md <<EOF
-
-## Evidência executada no GitHub
-- testDebugUnitTest: PASS no workflow ${GITHUB_RUN_ID}.
-- assembleRelease: PASS no workflow ${GITHUB_RUN_ID}.
-- assinatura, zipalign, package, versionCode 13, targetSdk 28 e ABIs ARM: PASS.
-- APK publicado na release TALES-1.3.9.
-EOF
+          printf '\n## Evidência executada no GitHub\n' >> TALES_RETOMADA_CURRENT.md
+          printf '%s\n' "- testDebugUnitTest: PASS no workflow $GITHUB_RUN_ID." >> TALES_RETOMADA_CURRENT.md
+          printf '%s\n' "- assembleRelease: PASS no workflow $GITHUB_RUN_ID." >> TALES_RETOMADA_CURRENT.md
+          printf '%s\n' '- assinatura, zipalign, package, versionCode 13, targetSdk 28 e ABIs ARM: PASS.' >> TALES_RETOMADA_CURRENT.md
+          printf '%s\n' '- APK publicado na release TALES-1.3.9.' >> TALES_RETOMADA_CURRENT.md
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add TALES_RETOMADA_CURRENT.md
