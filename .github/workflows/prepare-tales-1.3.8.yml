@@ -1,0 +1,76 @@
+name: Prepare Tales 1.3.8 Source
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/prepare-tales-1.3.8.yml"
+      - "tales-1.3.8-transform.py"
+      - ".github/TALES_138_TRIGGER"
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout builder
+        uses: actions/checkout@v4
+
+      - name: Download 1.3.7 source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rm -rf incoming work out
+          mkdir -p incoming work out
+          gh release download TALES-1.3.7 --pattern 'BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.7.zip' --dir incoming
+          unzip -t incoming/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.7.zip >/dev/null
+          unzip -q incoming/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.7.zip -d work
+
+      - name: Apply corrections
+        run: |
+          set -euo pipefail
+          ROOT="$(dirname "$(find work -type f -name gradlew | head -n1)")"
+          [ -n "$ROOT" ] && [ -f "$ROOT/app/build.gradle.kts" ]
+          python3 tales-1.3.8-transform.py "$ROOT"
+          grep -q 'versionName = "1.3.8"' "$ROOT/app/build.gradle.kts"
+          grep -q 'fontSize = (16.5f' "$ROOT/app/src/main/java/com/braseiro/talesvtt/components/NarrativePanel.kt"
+          grep -q 'localOpeningNarrative' "$ROOT/app/src/main/java/com/braseiro/talesvtt/game/AdventureFactory.kt"
+          grep -q 'optString("action")' "$ROOT/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraWireAdapter.kt"
+          grep -q 'O Mestre está reorganizando a resposta' "$ROOT/app/src/main/java/com/braseiro/talesvtt/game/GameViewModel.kt"
+          grep -q 'R.drawable.item_notebook' "$ROOT/app/src/main/java/com/braseiro/talesvtt/components/IconicItemVisual.kt"
+          grep -q 'ABERTURA e MUDANÇA DE CENA' "$ROOT/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraTransport.kt"
+
+      - name: Package 1.3.8 source
+        run: |
+          set -euo pipefail
+          ROOT="$(dirname "$(find work -type f -name gradlew | head -n1)")"
+          PARENT="$(dirname "$ROOT")"
+          NEW="$PARENT/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8"
+          rm -rf "$NEW"
+          mv "$ROOT" "$NEW"
+          (cd "$PARENT" && zip -qr "$GITHUB_WORKSPACE/out/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8.zip" BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8)
+          unzip -t out/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8.zip >/dev/null
+          sha256sum out/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8.zip > out/SHA256SUMS_SOURCE_1.3.8.txt
+
+      - name: Publish 1.3.8 source release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view TALES-1.3.8 >/dev/null 2>&1; then
+            gh release delete TALES-1.3.8 -y --cleanup-tag || true
+          fi
+          gh release create TALES-1.3.8 --draft --title 'BRASEIRO TALES VTT 1.3.8' --notes 'Correções de leitura, narrativa longa e sensorial, continuidade da Vida Cotidiana, respostas do jogador, mensagens de erro e imagem do Item Icônico.'
+          gh release upload TALES-1.3.8 out/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8.zip out/SHA256SUMS_SOURCE_1.3.8.txt
+          gh release edit TALES-1.3.8 --draft=false
+
+      - name: Build APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run build-apk.yml --repo "$GITHUB_REPOSITORY" --ref main -f tag=TALES-1.3.8
