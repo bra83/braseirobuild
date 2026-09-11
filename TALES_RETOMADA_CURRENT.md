@@ -29,10 +29,14 @@ Atualizado em 11/09/2026.
 - Ícones normal, redondo e adaptativo foram atualizados sem alterar telas aprovadas.
 - Correções 1.3.9 preservadas integralmente.
 
-## Evidência executada no GitHub — 1.3.10
-- verificação Gradle testDebugUnitTest executada no workflow 34563303744; não há fontes de teste unitário nessa configuração (NO-SOURCE), mas a compilação das fontes de debug foi concluída sem erro.
-- validação dos arquivos de ícone por densidade: PASS no workflow 34563303744.
-- assembleRelease: PASS no workflow 34563303744.
-- launcher normal/redondo/adaptativo: presentes e empacotados no APK.
-- assinatura, zipalign, versionCode 14, targetSdk 28 e ABIs ARM: PASS.
-- APK publicado na release TALES-1.3.10.
+## Bloco 1.3.11
+- MAPA: adicionada camada dinâmica de rota percorrida. A rota cresce somente quando o Mestre muda o local real da cena, acompanha o progresso da aventura e é salva/restaurada com a campanha.
+- TTS: voz Gemini usa áudio de mídia e timeout menor; em falha cai para TTS Android. Narrativas longas são divididas em trechos seguros em vez de falharem silenciosamente.
+- TTS Android tenta pt-BR, pt-PT, idioma do aparelho e fallback final; informa quando a voz não pôde iniciar.
+- Correções e ícone da 1.3.10 preservados.
+
+## Evidência executada no GitHub — 1.3.11
+- testes automatizados de rota, persistência e TTS longo: PASS no workflow 34656622825.
+- assembleRelease: PASS no workflow 34656622825.
+- assinatura, zipalign, versionCode 15, targetSdk 28, ícone e ABIs ARM: PASS.
+- APK publicado na release TALES-1.3.11.
