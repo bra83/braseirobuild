@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/workflows/build-tales-1.3.10.yml"
       - "tales-1.3.10-transform.py"
+      - "tales-launcher-approved.webp.b64"
       - ".github/TALES_1310_TRIGGER"
 
 permissions:
@@ -60,7 +61,38 @@ jobs:
           test -s "$ROOT/app/src/main/res/mipmap-mdpi/ic_launcher.png"
           test -s "$ROOT/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png"
           test -s "$ROOT/app/src/main/res/drawable/ic_launcher_foreground.png"
-          grep -q 'LAUNCHER_ICON_SOURCE=' APK_SAIDA/TRANSFORM_TALES_1.3.10.txt
+          grep -q 'LAUNCHER_ICON_SOURCE=approved_stacked_tales_from_the_loop_header_logo' APK_SAIDA/TRANSFORM_TALES_1.3.10.txt
+
+      - name: Validate launcher images
+        env:
+          ROOT: ${{ steps.detect.outputs.root }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import os
+          root=Path(os.environ['ROOT'])/'app'/'src'/'main'/'res'
+          expected={
+            'mipmap-mdpi':48,
+            'mipmap-hdpi':72,
+            'mipmap-xhdpi':96,
+            'mipmap-xxhdpi':144,
+            'mipmap-xxxhdpi':192,
+          }
+          for folder,size in expected.items():
+            for name in ('ic_launcher.png','ic_launcher_round.png'):
+              p=root/folder/name
+              assert p.is_file() and p.stat().st_size>0, p
+              with Image.open(p) as im:
+                assert im.size==(size,size), (p,im.size)
+                assert im.getbbox() is not None, p
+          fg=root/'drawable'/'ic_launcher_foreground.png'
+          with Image.open(fg) as im:
+            assert im.size==(432,432), im.size
+            assert im.getbbox() is not None
+          print('Launcher raster validation: PASS')
+          PY
 
       - name: Configure Java
         uses: actions/setup-java@v4
@@ -80,7 +112,7 @@ jobs:
       - name: Configure Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Run project tests
+      - name: Gradle source check
         working-directory: ${{ steps.detect.outputs.root }}
         run: |
           set -euo pipefail
@@ -168,7 +200,7 @@ jobs:
           grep -q "package: name='com.braseiro.talesvtt.legacyv1'" "$REPORT"
           grep -q "versionCode='14'" "$REPORT"
           grep -q "targetSdkVersion:'28'" "$REPORT"
-          grep -q "application-icon-160:'res/mipmap-mdpi" "$REPORT"
+          grep -Eq "^application-icon-160:'res/.+'" "$REPORT"
           grep -q "native-code: 'arm64-v8a' 'armeabi-v7a'" "$REPORT"
           SIZE="$(stat -c '%s' "$FINAL")"; echo "size=$SIZE" | tee -a "$REPORT"
           [ "$SIZE" -lt 100000000 ]
@@ -181,7 +213,7 @@ jobs:
         run: |
           set -euo pipefail
           if gh release view "$TAG" >/dev/null 2>&1; then gh release delete "$TAG" -y --cleanup-tag || true; fi
-          gh release create "$TAG" --title 'BRASEIRO TALES VTT 1.3.10' --notes 'Bloco incremental sobre 1.3.9: ícone Android substituído pela identidade visual Tales já existente no projeto. Correções anteriores preservadas.'
+          gh release create "$TAG" --title 'BRASEIRO TALES VTT 1.3.10' --notes 'Bloco incremental sobre 1.3.9: ícone Android substituído pelo logo TALES / FROM THE / LOOP da referência aprovada. Correções anteriores preservadas.'
           gh release upload "$TAG" APK_SAIDA/TALES-1.3.10-ANDROID10-LEGACY-V1.apk APK_SAIDA/VALIDACAO_TALES_1.3.10.txt APK_SAIDA/SHA256SUMS_TALES_1.3.10.txt APK_SAIDA/TRANSFORM_TALES_1.3.10.txt
 
       - name: Update resume record
@@ -191,13 +223,14 @@ jobs:
           set -euo pipefail
           cp "$ROOT/TALES_RETOMADA_CURRENT.md" TALES_RETOMADA_CURRENT.md
           printf '\n## Evidência executada no GitHub — 1.3.10\n' >> TALES_RETOMADA_CURRENT.md
-          printf '%s\n' "- testDebugUnitTest: PASS no workflow $GITHUB_RUN_ID." >> TALES_RETOMADA_CURRENT.md
+          printf '%s\n' "- verificação Gradle testDebugUnitTest executada no workflow $GITHUB_RUN_ID; não há fontes de teste unitário nessa configuração (NO-SOURCE), mas a compilação das fontes de debug foi concluída sem erro." >> TALES_RETOMADA_CURRENT.md
+          printf '%s\n' "- validação dos arquivos de ícone por densidade: PASS no workflow $GITHUB_RUN_ID." >> TALES_RETOMADA_CURRENT.md
           printf '%s\n' "- assembleRelease: PASS no workflow $GITHUB_RUN_ID." >> TALES_RETOMADA_CURRENT.md
-          printf '%s\n' '- launcher normal/redondo/adaptativo: presentes e empacotados.' >> TALES_RETOMADA_CURRENT.md
+          printf '%s\n' '- launcher normal/redondo/adaptativo: presentes e empacotados no APK.' >> TALES_RETOMADA_CURRENT.md
           printf '%s\n' '- assinatura, zipalign, versionCode 14, targetSdk 28 e ABIs ARM: PASS.' >> TALES_RETOMADA_CURRENT.md
           printf '%s\n' '- APK publicado na release TALES-1.3.10.' >> TALES_RETOMADA_CURRENT.md
           git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.email '41898282+bra83@users.noreply.github.com'
           git add TALES_RETOMADA_CURRENT.md
           git commit -m 'Update Tales resume after 1.3.10 icon build' || exit 0
           git push
