@@ -32,7 +32,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.braseiro.talesvtt.R
-import com.braseiro.talesvtt.components.AppPanel
 import com.braseiro.talesvtt.components.AppShell
 import com.braseiro.talesvtt.components.SecondaryButton
 import com.braseiro.talesvtt.components.SectionHeader
@@ -108,54 +107,12 @@ fun MapScreen(
       RevealedMapCard("Loop Industries", R.drawable.scene_loop_gate, R.drawable.loc_loop_facility, Modifier.weight(1f))
     }
 
-    Spacer(modifier = Modifier.height(Dimens.spacing8))
-
-    Row(
-      modifier = Modifier.fillMaxWidth(),
-      horizontalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-      AppPanel(
-        modifier = Modifier.weight(1f),
-        contentPadding = 7.dp,
-        borderColor = AppTheme.colors.accentAmber.copy(alpha = 0.55f)
-      ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-          Image(
-            painter = painterResource(R.drawable.state_current_location),
-            contentDescription = null,
-            modifier = Modifier.size(31.dp),
-            contentScale = ContentScale.Fit
-          )
-          Spacer(modifier = Modifier.width(7.dp))
-          Column {
-            Text("LOCAL ATUAL", style = AppTheme.typography.label.copy(color = AppTheme.colors.accentAmber))
-            Text(gameState.scene.location, style = AppTheme.typography.cardTitle)
-            Text("ROTA · ${gameState.routeHistory.size.coerceAtLeast(1)} parada(s)", style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.accentCyan))
-          }
-        }
-      }
-
-      AppPanel(
-        modifier = Modifier.weight(1f),
-        contentPadding = 7.dp,
-        borderColor = AppTheme.colors.accentAmber.copy(alpha = 0.55f)
-      ) {
-        Text("AÇÃO NO MAPA", style = AppTheme.typography.label.copy(color = AppTheme.colors.accentAmber))
-        Text("Selecionar local", style = AppTheme.typography.cardTitle)
-        Text(
-          "Veja detalhes e peça a viagem ao Mestre.",
-          style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.accentCyan)
-        )
-      }
-    }
-
-    Spacer(modifier = Modifier.height(Dimens.spacing10))
-
     val destinations = gameState.revealed.locations
       .filterNot { it.equals(gameState.scene.location, ignoreCase = true) }
       .sorted()
 
     if (destinations.isNotEmpty()) {
+      Spacer(modifier = Modifier.height(Dimens.spacing10))
       destinations.forEach { location ->
         SecondaryButton(
           text = "SOLICITAR VIAGEM · $location",
