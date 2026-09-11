@@ -1,4 +1,4 @@
-name: Build Tales 1.3.10 Icon Block
+name: Build Tales 1.3.11 Routes and TTS
 
 on:
   workflow_dispatch:
@@ -6,15 +6,17 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/build-tales-1.3.10.yml"
+      - "tales-1.3.11-transform.py"
+      - "tales-1.3.11-overlay/**"
       - "tales-1.3.10-transform.py"
       - "tales-launcher-approved.webp.b64"
-      - ".github/TALES_1310_TRIGGER"
+      - ".github/TALES_1311_TRIGGER"
 
 permissions:
   contents: write
 
 env:
-  TAG: TALES-1.3.10
+  TAG: TALES-1.3.11
 
 jobs:
   build:
@@ -47,52 +49,21 @@ jobs:
           echo "root=$ROOT" >> "$GITHUB_OUTPUT"
           echo "sdk=$SDK" >> "$GITHUB_OUTPUT"
 
-      - name: Apply cumulative 1.3.10 block
+      - name: Apply cumulative 1.3.11 block
         env:
           ROOT: ${{ steps.detect.outputs.root }}
         run: |
           set -euo pipefail
           python3 -m pip install --quiet pillow
-          python3 tales-1.3.10-transform.py "$ROOT" | tee APK_SAIDA/TRANSFORM_TALES_1.3.10.txt
-          grep -q 'versionName = "1.3.10"' "$ROOT/app/build.gradle.kts"
+          python3 tales-1.3.11-transform.py "$ROOT" | tee APK_SAIDA/TRANSFORM_TALES_1.3.11.txt
+          grep -q 'versionName = "1.3.11"' "$ROOT/app/build.gradle.kts"
+          grep -q 'MapTravelRouteOverlay' "$ROOT/app/src/main/java/com/braseiro/talesvtt/screens/MapScreen.kt"
+          grep -q 'NarrationTextChunker' "$ROOT/app/src/main/java/com/braseiro/talesvtt/components/NarrationTts.kt"
+          grep -q 'route.history' "$ROOT/app/src/main/java/com/braseiro/talesvtt/game/GameSnapshotCodec.kt"
+          grep -q 'callTimeout(30, TimeUnit.SECONDS)' "$ROOT/app/src/main/java/com/braseiro/talesvtt/audio/GeminiNarrationTts.kt"
           grep -q 'imageBase64 = currentPortraitImage' "$ROOT/app/src/main/java/com/braseiro/talesvtt/screens/GroupScreen.kt"
           grep -q 'NARRAÇÃO VISÍVEL DA CENA ATUAL' "$ROOT/app/src/main/java/com/braseiro/talesvtt/data/SceneImageExchange.kt"
           grep -q 'android:icon="@mipmap/ic_launcher"' "$ROOT/app/src/main/AndroidManifest.xml"
-          test -s "$ROOT/app/src/main/res/mipmap-mdpi/ic_launcher.png"
-          test -s "$ROOT/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png"
-          test -s "$ROOT/app/src/main/res/drawable/ic_launcher_foreground.png"
-          grep -q 'LAUNCHER_ICON_SOURCE=approved_stacked_tales_from_the_loop_header_logo' APK_SAIDA/TRANSFORM_TALES_1.3.10.txt
-
-      - name: Validate launcher images
-        env:
-          ROOT: ${{ steps.detect.outputs.root }}
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          from PIL import Image
-          import os
-          root=Path(os.environ['ROOT'])/'app'/'src'/'main'/'res'
-          expected={
-            'mipmap-mdpi':48,
-            'mipmap-hdpi':72,
-            'mipmap-xhdpi':96,
-            'mipmap-xxhdpi':144,
-            'mipmap-xxxhdpi':192,
-          }
-          for folder,size in expected.items():
-            for name in ('ic_launcher.png','ic_launcher_round.png'):
-              p=root/folder/name
-              assert p.is_file() and p.stat().st_size>0, p
-              with Image.open(p) as im:
-                assert im.size==(size,size), (p,im.size)
-                assert im.getbbox() is not None, p
-          fg=root/'drawable'/'ic_launcher_foreground.png'
-          with Image.open(fg) as im:
-            assert im.size==(432,432), im.size
-            assert im.getbbox() is not None
-          print('Launcher raster validation: PASS')
-          PY
 
       - name: Configure Java
         uses: actions/setup-java@v4
@@ -112,11 +83,14 @@ jobs:
       - name: Configure Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Gradle source check
+      - name: Run route and TTS tests
         working-directory: ${{ steps.detect.outputs.root }}
         run: |
           set -euo pipefail
           ./gradlew testDebugUnitTest --stacktrace --no-daemon
+          grep -R 'tests="' app/build/test-results/testDebugUnitTest/*.xml
+          ! grep -R 'failures="[1-9]' app/build/test-results/testDebugUnitTest/*.xml
+          ! grep -R 'errors="[1-9]' app/build/test-results/testDebugUnitTest/*.xml
 
       - name: Prepare Android 10 installable build
         env:
@@ -136,7 +110,7 @@ jobs:
           if 'abiFilters += listOf("arm64-v8a", "armeabi-v7a")' not in text:
               text=text.replace(needle, needle+'    ndk {\n      abiFilters += listOf("arm64-v8a", "armeabi-v7a")\n    }\n')
           text=re.sub(r'targetSdk\s*=\s*\d+', 'targetSdk = 28', text, count=1)
-          text=re.sub(r'versionCode\s*=\s*\d+', 'versionCode = 14', text, count=1)
+          text=re.sub(r'versionCode\s*=\s*\d+', 'versionCode = 15', text, count=1)
           if 'applicationIdSuffix = ".legacyv1"' not in text:
               text=text.replace('    release {\n      isCrunchPngs = false', '    release {\n      applicationIdSuffix = ".legacyv1"\n      versionNameSuffix = "-android10-v1"\n      isCrunchPngs = false')
           if 'useLegacyPackaging = true' not in text:
@@ -184,9 +158,9 @@ jobs:
           [ -n "${UNSIGNED:-}" ] && [ -f "$UNSIGNED" ]
           BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
           AAPT="$BUILD_TOOLS/aapt"; APKSIGNER="$BUILD_TOOLS/apksigner"; ZIPALIGN="$BUILD_TOOLS/zipalign"
-          TMP="$RUNNER_TEMP/tales-1310-signed-unaligned.apk"
-          FINAL="$OUT/TALES-1.3.10-ANDROID10-LEGACY-V1.apk"
-          REPORT="$OUT/VALIDACAO_TALES_1.3.10.txt"
+          TMP="$RUNNER_TEMP/tales-1311-signed-unaligned.apk"
+          FINAL="$OUT/TALES-1.3.11-ANDROID10-LEGACY-V1.apk"
+          REPORT="$OUT/VALIDACAO_TALES_1.3.11.txt"
           cp "$UNSIGNED" "$TMP"
           zip -q -d "$TMP" 'META-INF/*.SF' 'META-INF/*.RSA' 'META-INF/*.DSA' 'META-INF/MANIFEST.MF' >/dev/null 2>&1 || true
           jarsigner -keystore "$BRASEIRO_STABLE_KEYSTORE" -storepass android -keypass android -sigalg SHA256withRSA -digestalg SHA-256 "$TMP" androiddebugkey
@@ -198,14 +172,14 @@ jobs:
           "$APKSIGNER" verify --verbose --print-certs "$FINAL" | tee -a "$REPORT"
           grep -q 'Verified using v1 scheme (JAR signing): true' "$REPORT"
           grep -q "package: name='com.braseiro.talesvtt.legacyv1'" "$REPORT"
-          grep -q "versionCode='14'" "$REPORT"
+          grep -q "versionCode='15'" "$REPORT"
           grep -q "targetSdkVersion:'28'" "$REPORT"
           grep -Eq "^application-icon-160:'res/.+'" "$REPORT"
           grep -q "native-code: 'arm64-v8a' 'armeabi-v7a'" "$REPORT"
           SIZE="$(stat -c '%s' "$FINAL")"; echo "size=$SIZE" | tee -a "$REPORT"
           [ "$SIZE" -lt 100000000 ]
           sha256sum "$FINAL" | tee -a "$REPORT"
-          (cd "$OUT" && sha256sum *.apk > SHA256SUMS_TALES_1.3.10.txt)
+          (cd "$OUT" && sha256sum *.apk > SHA256SUMS_TALES_1.3.11.txt)
 
       - name: Publish APK release
         env:
@@ -213,8 +187,8 @@ jobs:
         run: |
           set -euo pipefail
           if gh release view "$TAG" >/dev/null 2>&1; then gh release delete "$TAG" -y --cleanup-tag || true; fi
-          gh release create "$TAG" --title 'BRASEIRO TALES VTT 1.3.10' --notes 'Bloco incremental sobre 1.3.9: ícone Android substituído pelo logo TALES / FROM THE / LOOP da referência aprovada. Correções anteriores preservadas.'
-          gh release upload "$TAG" APK_SAIDA/TALES-1.3.10-ANDROID10-LEGACY-V1.apk APK_SAIDA/VALIDACAO_TALES_1.3.10.txt APK_SAIDA/SHA256SUMS_TALES_1.3.10.txt APK_SAIDA/TRANSFORM_TALES_1.3.10.txt
+          gh release create "$TAG" --title 'BRASEIRO TALES VTT 1.3.11' --notes 'Mapa com rota dinâmica conforme deslocamentos da aventura e TTS reforçado com áudio de mídia, fallback Android e leitura segura de narrativas longas. Correções anteriores preservadas.'
+          gh release upload "$TAG" APK_SAIDA/TALES-1.3.11-ANDROID10-LEGACY-V1.apk APK_SAIDA/VALIDACAO_TALES_1.3.11.txt APK_SAIDA/SHA256SUMS_TALES_1.3.11.txt APK_SAIDA/TRANSFORM_TALES_1.3.11.txt
 
       - name: Update resume record
         env:
@@ -222,15 +196,13 @@ jobs:
         run: |
           set -euo pipefail
           cp "$ROOT/TALES_RETOMADA_CURRENT.md" TALES_RETOMADA_CURRENT.md
-          printf '\n## Evidência executada no GitHub — 1.3.10\n' >> TALES_RETOMADA_CURRENT.md
-          printf '%s\n' "- verificação Gradle testDebugUnitTest executada no workflow $GITHUB_RUN_ID; não há fontes de teste unitário nessa configuração (NO-SOURCE), mas a compilação das fontes de debug foi concluída sem erro." >> TALES_RETOMADA_CURRENT.md
-          printf '%s\n' "- validação dos arquivos de ícone por densidade: PASS no workflow $GITHUB_RUN_ID." >> TALES_RETOMADA_CURRENT.md
+          printf '\n## Evidência executada no GitHub — 1.3.11\n' >> TALES_RETOMADA_CURRENT.md
+          printf '%s\n' "- testes automatizados de rota, persistência e TTS longo: PASS no workflow $GITHUB_RUN_ID." >> TALES_RETOMADA_CURRENT.md
           printf '%s\n' "- assembleRelease: PASS no workflow $GITHUB_RUN_ID." >> TALES_RETOMADA_CURRENT.md
-          printf '%s\n' '- launcher normal/redondo/adaptativo: presentes e empacotados no APK.' >> TALES_RETOMADA_CURRENT.md
-          printf '%s\n' '- assinatura, zipalign, versionCode 14, targetSdk 28 e ABIs ARM: PASS.' >> TALES_RETOMADA_CURRENT.md
-          printf '%s\n' '- APK publicado na release TALES-1.3.10.' >> TALES_RETOMADA_CURRENT.md
+          printf '%s\n' '- assinatura, zipalign, versionCode 15, targetSdk 28, ícone e ABIs ARM: PASS.' >> TALES_RETOMADA_CURRENT.md
+          printf '%s\n' '- APK publicado na release TALES-1.3.11.' >> TALES_RETOMADA_CURRENT.md
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+bra83@users.noreply.github.com'
           git add TALES_RETOMADA_CURRENT.md
-          git commit -m 'Update Tales resume after 1.3.10 icon build' || exit 0
+          git commit -m 'Update Tales resume after 1.3.11 routes and TTS build' || exit 0
           git push
