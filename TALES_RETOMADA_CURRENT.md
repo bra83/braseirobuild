@@ -23,8 +23,16 @@ Atualizado em 11/09/2026.
 1. Abrir KID, trocar/importar a foto do Kid e conferir a mesma foto em GRUPO.
 2. Em uma cena diante da escola, usar ILUSTRAÇÃO e confirmar que o prompt descreve/resume a cena atual e mantém a escola como local.
 
-## Evidência executada no GitHub
-- testDebugUnitTest: PASS no workflow 34561347348.
-- assembleRelease: PASS no workflow 34561347348.
-- assinatura, zipalign, package, versionCode 13, targetSdk 28 e ABIs ARM: PASS.
-- APK publicado na release TALES-1.3.9.
+## Bloco 1.3.10
+- ÍCONE DO APP: launcher Android substituído pelo logo empilhado TALES / FROM THE / LOOP da referência visual aprovada.
+- O retrato de personagem selecionado incorretamente no primeiro ensaio deste bloco foi descartado antes de qualquer APK ser publicado.
+- Ícones normal, redondo e adaptativo foram atualizados sem alterar telas aprovadas.
+- Correções 1.3.9 preservadas integralmente.
+
+## Evidência executada no GitHub — 1.3.10
+- verificação Gradle testDebugUnitTest executada no workflow 34563303744; não há fontes de teste unitário nessa configuração (NO-SOURCE), mas a compilação das fontes de debug foi concluída sem erro.
+- validação dos arquivos de ícone por densidade: PASS no workflow 34563303744.
+- assembleRelease: PASS no workflow 34563303744.
+- launcher normal/redondo/adaptativo: presentes e empacotados no APK.
+- assinatura, zipalign, versionCode 14, targetSdk 28 e ABIs ARM: PASS.
+- APK publicado na release TALES-1.3.10.
