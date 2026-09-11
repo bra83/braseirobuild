@@ -159,7 +159,7 @@ class GeminiNarrationTts(private val context: Context) {
   private fun pcmToWav(pcm: ByteArray, rate: Int, channels: Int, bits: Int): ByteArray {
     val out = ByteBuffer.allocate(44 + pcm.size).order(ByteOrder.LITTLE_ENDIAN)
     out.put("RIFF".toByteArray(Charsets.US_ASCII)); out.putInt(36 + pcm.size); out.put("WAVE".toByteArray(Charsets.US_ASCII))
-    out.put("fmt ".toByteArray(Charsets.US_ASCII)); out.putInt(16); out.putShort(1); out.putShort(channels.toShort()); out.putInt(rate)
+    out.put("fmt ".toByteArray(Charsets.US_ASCII)); out.putInt(16); out.putShort(1.toShort()); out.putShort(channels.toShort()); out.putInt(rate)
     out.putInt(rate * channels * bits / 8); out.putShort((channels * bits / 8).toShort()); out.putShort(bits.toShort())
     out.put("data".toByteArray(Charsets.US_ASCII)); out.putInt(pcm.size); out.put(pcm)
     return out.array()
