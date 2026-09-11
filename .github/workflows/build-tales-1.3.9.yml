@@ -1,0 +1,201 @@
+name: Build Tales 1.3.9 Corrections
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-tales-1.3.9.yml"
+      - "tales-1.3.9-transform.py"
+      - ".github/TALES_139_TRIGGER"
+
+permissions:
+  contents: write
+
+env:
+  TAG: TALES-1.3.9
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout builder
+        uses: actions/checkout@v4
+
+      - name: Download current 1.3.8 source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rm -rf incoming work APK_SAIDA
+          mkdir -p incoming work APK_SAIDA
+          gh release download TALES-1.3.8 --pattern 'BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8.zip' --dir incoming
+          unzip -t incoming/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8.zip >/dev/null
+          unzip -q incoming/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8.zip -d work
+
+      - name: Detect Android project
+        id: detect
+        run: |
+          set -euo pipefail
+          ROOT="$(dirname "$(find work -type f -name gradlew | head -n1)")"
+          [ -n "$ROOT" ] && [ -f "$ROOT/app/build.gradle.kts" ] || { echo '::error::Projeto Android não encontrado'; exit 1; }
+          chmod +x "$ROOT/gradlew"
+          SDK="$(grep -RhoE 'compileSdk(Version)?[[:space:]]*[= ]+[0-9]+' "$ROOT" --include='*.gradle' --include='*.gradle.kts' 2>/dev/null | grep -oE '[0-9]+' | sort -nr | head -n1 || true)"
+          [ -n "$SDK" ] || SDK=36
+          echo "root=$ROOT" >> "$GITHUB_OUTPUT"
+          echo "sdk=$SDK" >> "$GITHUB_OUTPUT"
+
+      - name: Apply 1.3.9 corrections
+        env:
+          ROOT: ${{ steps.detect.outputs.root }}
+        run: |
+          set -euo pipefail
+          python3 tales-1.3.9-transform.py "$ROOT"
+          grep -q 'versionName = "1.3.9"' "$ROOT/app/build.gradle.kts"
+          grep -q 'imageBase64 = currentPortraitImage' "$ROOT/app/src/main/java/com/braseiro/talesvtt/screens/GroupScreen.kt"
+          grep -q 'NARRAÇÃO VISÍVEL DA CENA ATUAL' "$ROOT/app/src/main/java/com/braseiro/talesvtt/data/SceneImageExchange.kt"
+          ! grep -q 'Referência de composição da biblioteca' "$ROOT/app/src/main/java/com/braseiro/talesvtt/data/SceneImageExchange.kt"
+          ! grep -q 'visualAssetKey' "$ROOT/app/src/main/java/com/braseiro/talesvtt/data/SceneImageExchange.kt"
+          test -f "$ROOT/TALES_RETOMADA_CURRENT.md"
+
+      - name: Configure Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Configure Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-${{ steps.detect.outputs.sdk }}"
+
+      - name: Configure Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run project tests
+        working-directory: ${{ steps.detect.outputs.root }}
+        run: |
+          set -euo pipefail
+          ./gradlew testDebugUnitTest --stacktrace --no-daemon
+
+      - name: Prepare Android 10 installable build
+        env:
+          ROOT: ${{ steps.detect.outputs.root }}
+        run: |
+          set -euo pipefail
+          KEYSTORE="$RUNNER_TEMP/braseiro-stable-debug.keystore"
+          base64 -d "$GITHUB_WORKSPACE/build-signing/braseiro-stable-debug.keystore.b64" > "$KEYSTORE"
+          echo "BRASEIRO_STABLE_KEYSTORE=$KEYSTORE" >> "$GITHUB_ENV"
+          python3 - <<'PY'
+          from pathlib import Path
+          import os, re
+          root=Path(os.environ['ROOT'])
+          gradle=root/'app'/'build.gradle.kts'
+          text=gradle.read_text(encoding='utf-8')
+          needle='    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"\n'
+          if 'abiFilters += listOf("arm64-v8a", "armeabi-v7a")' not in text:
+              text=text.replace(needle, needle+'    ndk {\n      abiFilters += listOf("arm64-v8a", "armeabi-v7a")\n    }\n')
+          text=re.sub(r'targetSdk\s*=\s*\d+', 'targetSdk = 28', text, count=1)
+          text=re.sub(r'versionCode\s*=\s*\d+', 'versionCode = 13', text, count=1)
+          if 'applicationIdSuffix = ".legacyv1"' not in text:
+              text=text.replace('    release {\n      isCrunchPngs = false', '    release {\n      applicationIdSuffix = ".legacyv1"\n      versionNameSuffix = "-android10-v1"\n      isCrunchPngs = false')
+          if 'useLegacyPackaging = true' not in text:
+              text=text.replace('  dependenciesInfo {\n', '  packaging {\n    jniLibs {\n      useLegacyPackaging = true\n    }\n  }\n  dependenciesInfo {\n')
+          gradle.write_text(text, encoding='utf-8')
+          manifest=root/'app'/'src'/'main'/'AndroidManifest.xml'
+          m=manifest.read_text(encoding='utf-8')
+          m=re.sub(r'\n\s*android:dataExtractionRules="[^"]+"', '', m)
+          manifest.write_text(m, encoding='utf-8')
+          PY
+
+      - name: Reduce large PNG assets
+        env:
+          ROOT: ${{ steps.detect.outputs.root }}
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pillow
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import os
+          root=Path(os.environ['ROOT'])/'app'/'src'/'main'/'res'
+          for p in list(root.rglob('*.png')):
+              size=p.stat().st_size
+              if size <= 250_000 or p.name.endswith('.9.png'): continue
+              target=p.with_suffix('.webp')
+              with Image.open(p) as im: im.save(target, format='WEBP', quality=90, method=6)
+              if target.stat().st_size < size: p.unlink()
+              else: target.unlink(missing_ok=True)
+          PY
+
+      - name: Compile release APK
+        working-directory: ${{ steps.detect.outputs.root }}
+        run: |
+          set -euo pipefail
+          ./gradlew clean assembleRelease -x lintVitalRelease --stacktrace --no-daemon
+
+      - name: Sign, align and validate APK
+        id: apk
+        working-directory: ${{ steps.detect.outputs.root }}
+        run: |
+          set -euo pipefail
+          OUT="$GITHUB_WORKSPACE/APK_SAIDA"
+          UNSIGNED="$(find . -type f -path '*/build/outputs/apk/release/*.apk' | sort | head -n1)"
+          [ -n "${UNSIGNED:-}" ] && [ -f "$UNSIGNED" ]
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
+          AAPT="$BUILD_TOOLS/aapt"; APKSIGNER="$BUILD_TOOLS/apksigner"; ZIPALIGN="$BUILD_TOOLS/zipalign"
+          TMP="$RUNNER_TEMP/tales-139-signed-unaligned.apk"
+          FINAL="$OUT/TALES-1.3.9-ANDROID10-LEGACY-V1.apk"
+          REPORT="$OUT/VALIDACAO_TALES_1.3.9.txt"
+          cp "$UNSIGNED" "$TMP"
+          zip -q -d "$TMP" 'META-INF/*.SF' 'META-INF/*.RSA' 'META-INF/*.DSA' 'META-INF/MANIFEST.MF' >/dev/null 2>&1 || true
+          jarsigner -keystore "$BRASEIRO_STABLE_KEYSTORE" -storepass android -keypass android -sigalg SHA256withRSA -digestalg SHA-256 "$TMP" androiddebugkey
+          jarsigner -verify "$TMP" >/dev/null
+          "$ZIPALIGN" -p -f 4 "$TMP" "$FINAL"
+          unzip -t "$FINAL" >/dev/null
+          "$ZIPALIGN" -c -P 16 -v 4 "$FINAL" | tail -n5 | tee "$REPORT"
+          "$AAPT" dump badging "$FINAL" | grep -E '^(package:|sdkVersion:|targetSdkVersion:|native-code:)' | tee -a "$REPORT"
+          "$APKSIGNER" verify --verbose --print-certs "$FINAL" | tee -a "$REPORT"
+          grep -q 'Verified using v1 scheme (JAR signing): true' "$REPORT"
+          grep -q "package: name='com.braseiro.talesvtt.legacyv1'" "$REPORT"
+          grep -q "versionCode='13'" "$REPORT"
+          grep -q "targetSdkVersion:'28'" "$REPORT"
+          grep -q "native-code: 'arm64-v8a' 'armeabi-v7a'" "$REPORT"
+          SIZE="$(stat -c '%s' "$FINAL")"; echo "size=$SIZE" | tee -a "$REPORT"
+          [ "$SIZE" -lt 100000000 ]
+          sha256sum "$FINAL" | tee -a "$REPORT"
+          (cd "$OUT" && sha256sum *.apk > SHA256SUMS_TALES_1.3.9.txt)
+
+      - name: Publish APK release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then gh release delete "$TAG" -y --cleanup-tag || true; fi
+          gh release create "$TAG" --title 'BRASEIRO TALES VTT 1.3.9' --notes 'Correções incrementais sobre 1.3.8: foto real do Kid atual na tela GRUPO; prompt Gemini de ilustração ancorado no local e na narração visível da cena atual. Sem redesenho de telas.'
+          gh release upload "$TAG" APK_SAIDA/TALES-1.3.9-ANDROID10-LEGACY-V1.apk APK_SAIDA/VALIDACAO_TALES_1.3.9.txt APK_SAIDA/SHA256SUMS_TALES_1.3.9.txt
+
+      - name: Update resume record with executed evidence
+        env:
+          ROOT: ${{ steps.detect.outputs.root }}
+        run: |
+          set -euo pipefail
+          cp "$ROOT/TALES_RETOMADA_CURRENT.md" TALES_RETOMADA_CURRENT.md
+          cat >> TALES_RETOMADA_CURRENT.md <<EOF
+
+## Evidência executada no GitHub
+- testDebugUnitTest: PASS no workflow ${GITHUB_RUN_ID}.
+- assembleRelease: PASS no workflow ${GITHUB_RUN_ID}.
+- assinatura, zipalign, package, versionCode 13, targetSdk 28 e ABIs ARM: PASS.
+- APK publicado na release TALES-1.3.9.
+EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add TALES_RETOMADA_CURRENT.md
+          git commit -m 'Update Tales resume after 1.3.9 build' || exit 0
+          git push
