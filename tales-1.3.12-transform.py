@@ -30,6 +30,22 @@ if not overlay.is_file():
     raise SystemExit(f"Missing overlay: {overlay}")
 shutil.copy2(overlay, dst)
 
+# Compile-compat fixes for the Compose version used by the preserved Android source.
+source = dst.read_text(encoding="utf-8")
+source = source.replace('import androidx.compose.foundation.layout.weight\n', '')
+source = source.replace(
+    '    val mapWidthPx = constraints.maxWidth.toFloat()\n    val mapHeightPx = constraints.maxHeight.toFloat()\n',
+    '    val mapWidthPx = constraints.maxWidth.toFloat()\n    val mapHeightPx = constraints.maxHeight.toFloat()\n    val mapWidthDp = maxWidth\n',
+    1,
+)
+source = source.replace('          x = maxWidth * poi.x,', '          x = mapWidthDp * poi.x,', 1)
+source = source.replace(
+    '  Canvas(modifier = modifier) {\n    drawable.forEach { (a, b) ->\n      drawLine(\n        color = AppTheme.colors.accentCyan.copy(alpha = 0.72f),',
+    '  val connectionColor = AppTheme.colors.accentCyan.copy(alpha = 0.72f)\n  Canvas(modifier = modifier) {\n    drawable.forEach { (a, b) ->\n      drawLine(\n        color = connectionColor,',
+    1,
+)
+dst.write_text(source, encoding="utf-8")
+
 # Add a compact unit contract so CI catches an accidental return to passive markers.
 test_dir = root / "app/src/test/java/com/braseiro/talesvtt/screens"
 test_dir.mkdir(parents=True, exist_ok=True)
@@ -75,6 +91,9 @@ for required in [
     'ANOTAÇÕES DOS KIDS',
     'IR PARA ${poi.name.uppercase()}',
     '.clickable(onClick = onClick)',
+    'val mapWidthDp = maxWidth',
+    'val connectionColor = AppTheme.colors.accentCyan.copy(alpha = 0.72f)',
 ]:
     assert required in source, required
+assert 'import androidx.compose.foundation.layout.weight' not in source
 print("TALES 1.3.12 transform: OK")
