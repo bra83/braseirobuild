@@ -7,15 +7,22 @@ on:
     inputs:
       tag:
         description: "Release tag containing the WWN source ZIP"
-        required: true
+        required: false
         type: string
+  push:
+    branches: [main]
+    paths:
+      - ".github/WWN_BUILD_TRIGGER"
 
 permissions:
   contents: write
 
+env:
+  DEFAULT_WWN_TAG: "WWN-POST071-2026-09-13"
+
 jobs:
   build:
-    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'WWN-') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || startsWith(github.event.release.tag_name, 'WWN-') }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
@@ -33,12 +40,12 @@ jobs:
           set -euo pipefail
           TAG="${RELEASE_TAG:-}"
           if [ -z "$TAG" ]; then TAG="${MANUAL_TAG:-}"; fi
-          [ -n "$TAG" ] || { echo "::error::WWN release tag not provided"; exit 1; }
+          if [ -z "$TAG" ]; then TAG="$DEFAULT_WWN_TAG"; fi
           case "$TAG" in WWN-*) ;; *) echo "::error::Tag must start with WWN-"; exit 1;; esac
           mkdir -p incoming
           gh release download "$TAG" --pattern '*.zip' --dir incoming
           ZIP="$(find incoming -maxdepth 1 -type f -iname '*.zip' -printf '%s %p\n' | sort -nr | head -n1 | cut -d' ' -f2-)"
-          [ -n "${ZIP:-}" ] && [ -f "$ZIP" ] || { echo "::error::WWN source ZIP not found in release"; exit 1; }
+          [ -n "${ZIP:-}" ] && [ -f "$ZIP" ] || { echo "::error::WWN source ZIP not found in release $TAG"; exit 1; }
           unzip -t "$ZIP" >/dev/null
           sha256sum "$ZIP"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
