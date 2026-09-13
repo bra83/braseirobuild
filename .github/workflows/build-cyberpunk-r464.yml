@@ -1,4 +1,4 @@
-name: BRASEIRO Cyberpunk RED R4.64 APK
+name: BRASEIRO Cyberpunk RED R4.64.1 APK
 
 on:
   push:
@@ -12,8 +12,9 @@ permissions:
   contents: read
 
 env:
-  CPRED_SOURCE_SHARE_URL: "https://firestorage.ai/ja/f/onr-vWOrloy8"
-  CPRED_SOURCE_SHA256: "6d47d415bc5e4bfd49a5114c8780d29e1b730fc7d698e4d6d7052266522461c5"
+  CPRED_SOURCE_SHARE_URL: "https://firestorage.ai/ja/f/PcuAwqsFLYmN"
+  CPRED_SOURCE_SHA256: "38ab66a15c2a27dff2fb4bf28870ba7561435f4779b0a0f84081b35f002dec15"
+  CPRED_SOURCE_NAME: "CYBERPUNK_RED_R4_64_1_ANDROID_BUILD_FIX_ANDROID_STUDIO.zip"
 
 jobs:
   build:
@@ -24,12 +25,12 @@ jobs:
       - uses: actions/checkout@v4
         name: Checkout braseirobuild
 
-      - name: Download exact Cyberpunk RED R4.64 source
+      - name: Download exact Cyberpunk RED R4.64.1 source
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p incoming /tmp/cpred-browser
-          ZIP="$GITHUB_WORKSPACE/incoming/CYBERPUNK_RED_R4_64_REGISTRY_RECOVERED_CHECKPOINT_ANDROID_STUDIO.zip"
+          ZIP="$GITHUB_WORKSPACE/incoming/$CPRED_SOURCE_NAME"
           cd /tmp/cpred-browser
           npm init -y >/dev/null 2>&1
           npm install --silent playwright@1.55.0
@@ -40,7 +41,7 @@ jobs:
           const context = await browser.newContext({acceptDownloads:true, locale:'ja-JP'});
           const page = await context.newPage();
           const url = process.env.CPRED_SOURCE_SHARE_URL;
-          const output = process.env.GITHUB_WORKSPACE + '/incoming/CYBERPUNK_RED_R4_64_REGISTRY_RECOVERED_CHECKPOINT_ANDROID_STUDIO.zip';
+          const output = process.env.GITHUB_WORKSPACE + '/incoming/' + process.env.CPRED_SOURCE_NAME;
 
           async function openShare() {
             await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
@@ -99,7 +100,7 @@ jobs:
           set -euo pipefail
           rm -rf work
           mkdir -p work
-          unzip -q incoming/CYBERPUNK_RED_R4_64_REGISTRY_RECOVERED_CHECKPOINT_ANDROID_STUDIO.zip -d work
+          unzip -q "incoming/$CPRED_SOURCE_NAME" -d work
           ROOT=""
           while IFS= read -r -d '' W; do
             D="$(dirname "$W")"
@@ -109,6 +110,8 @@ jobs:
           chmod +x "$ROOT/gradlew"
           SDK="$(grep -hoE 'compileSdk[[:space:]]*=[[:space:]]*[0-9]+' "$ROOT/app/build.gradle.kts" | grep -oE '[0-9]+' | head -n1)"
           [ -n "$SDK" ] || SDK=36
+          KOTLIN="$ROOT/app/src/main/java/com/braseiro/cyberpunkred/BarbaraRuntime.kt"
+          grep -F 'Regex("""\d+,\d+""")' "$KOTLIN" >/dev/null || { echo "::error::R4.64.1 Kotlin build fix missing"; exit 1; }
           echo "root=$ROOT" >> "$GITHUB_OUTPUT"
           echo "sdk=$SDK" >> "$GITHUB_OUTPUT"
           echo "ROOT=$ROOT SDK=$SDK"
@@ -153,7 +156,7 @@ jobs:
           mkdir -p out
           APK="$(find "$ROOT" -type f -path '*/build/outputs/apk/debug/*.apk' | sort | head -n1)"
           [ -n "${APK:-}" ] && [ -f "$APK" ] || { echo "::error::Debug APK not found"; exit 1; }
-          NAME="BRASEIRO-CYBERPUNK-RED-R4.64-DEBUG.apk"
+          NAME="BRASEIRO-CYBERPUNK-RED-R4.64.1-DEBUG.apk"
           FINAL="out/$NAME"
           cp "$APK" "$FINAL"
           unzip -t "$FINAL" >/dev/null
@@ -168,7 +171,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: Upload Cyberpunk RED APK
         with:
-          name: BRASEIRO-CYBERPUNK-RED-R4.64-APK
+          name: BRASEIRO-CYBERPUNK-RED-R4.64.1-APK
           path: out/*
           if-no-files-found: error
           retention-days: 30
@@ -176,7 +179,7 @@ jobs:
       - name: Summary
         shell: bash
         run: |
-          echo "## BRASEIRO Cyberpunk RED R4.64" >> "$GITHUB_STEP_SUMMARY"
+          echo "## BRASEIRO Cyberpunk RED R4.64.1" >> "$GITHUB_STEP_SUMMARY"
           echo "- Source SHA-256: $CPRED_SOURCE_SHA256" >> "$GITHUB_STEP_SUMMARY"
           echo "- Build: assembleDebug" >> "$GITHUB_STEP_SUMMARY"
           echo "- Package: com.braseiro.cyberpunkred" >> "$GITHUB_STEP_SUMMARY"
