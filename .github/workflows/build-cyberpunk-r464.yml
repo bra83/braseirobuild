@@ -1,0 +1,158 @@
+name: BRASEIRO Cyberpunk RED R4.64 APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-cyberpunk-r464.yml"
+      - "CYBERPUNK_RED_BUILD_TRIGGER.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CPRED_SOURCE_SHARE_URL: "https://firestorage.ai/ja/f/onr-vWOrloy8"
+  CPRED_SOURCE_SHA256: "6d47d415bc5e4bfd49a5114c8780d29e1b730fc7d698e4d6d7052266522461c5"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout braseirobuild
+
+      - name: Download exact Cyberpunk RED R4.64 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p incoming /tmp/cpred-browser
+          ZIP="$GITHUB_WORKSPACE/incoming/CYBERPUNK_RED_R4_64_REGISTRY_RECOVERED_CHECKPOINT_ANDROID_STUDIO.zip"
+          cd /tmp/cpred-browser
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+          cat > download.mjs <<'NODE'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch({headless:true});
+          const context = await browser.newContext({acceptDownloads:true, locale:'ja-JP'});
+          const page = await context.newPage();
+          await page.goto(process.env.CPRED_SOURCE_SHARE_URL,{waitUntil:'domcontentloaded',timeout:60000});
+          await page.waitForTimeout(3000);
+          const output = process.env.GITHUB_WORKSPACE + '/incoming/CYBERPUNK_RED_R4_64_REGISTRY_RECOVERED_CHECKPOINT_ANDROID_STUDIO.zip';
+          for (const sel of ['text=/一括ダウンロード/i','text=/ダウンロード/i','text=/Download/i','button','a']) {
+            const loc=page.locator(sel); const n=Math.min(await loc.count(),60);
+            for(let i=0;i<n;i++){
+              const el=loc.nth(i); let text=''; try{text=(await el.innerText({timeout:1000})).trim()}catch{}
+              if((sel==='button'||sel==='a')&&!/download|ダウンロード|一括|保存|ZIP|ファイル/i.test(text)) continue;
+              try {
+                const p=page.waitForEvent('download',{timeout:10000});
+                await el.click({timeout:5000});
+                const d=await p;
+                await d.saveAs(output);
+                await browser.close();
+                process.exit(0);
+              } catch {}
+            }
+          }
+          console.log((await page.locator('body').innerText()).slice(0,8000));
+          await browser.close();
+          process.exit(2);
+          NODE
+          node download.mjs
+          cd "$GITHUB_WORKSPACE"
+          unzip -t "$ZIP" >/dev/null
+          echo "$CPRED_SOURCE_SHA256  $ZIP" | sha256sum -c -
+          ls -lh "$ZIP"
+
+      - name: Extract project and detect Android root
+        id: android
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf work
+          mkdir -p work
+          unzip -q incoming/CYBERPUNK_RED_R4_64_REGISTRY_RECOVERED_CHECKPOINT_ANDROID_STUDIO.zip -d work
+          ROOT=""
+          while IFS= read -r -d '' W; do
+            D="$(dirname "$W")"
+            if [ -f "$D/settings.gradle.kts" ] || [ -f "$D/settings.gradle" ]; then ROOT="$D"; break; fi
+          done < <(find work -type f -name gradlew -print0)
+          [ -n "$ROOT" ] || { echo "::error::Android root not found"; exit 1; }
+          chmod +x "$ROOT/gradlew"
+          SDK="$(grep -hoE 'compileSdk[[:space:]]*=[[:space:]]*[0-9]+' "$ROOT/app/build.gradle.kts" | grep -oE '[0-9]+' | head -n1)"
+          [ -n "$SDK" ] || SDK=36
+          echo "root=$ROOT" >> "$GITHUB_OUTPUT"
+          echo "sdk=$SDK" >> "$GITHUB_OUTPUT"
+          echo "ROOT=$ROOT SDK=$SDK"
+          grep -E 'applicationId|versionCode|versionName|minSdk|targetSdk|compileSdk' "$ROOT/app/build.gradle.kts" || true
+
+      - uses: actions/setup-java@v4
+        name: Configure Java 17
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+        name: Configure Android SDK
+
+      - name: Install Android SDK platform and build tools
+        shell: bash
+        env:
+          SDK: ${{ steps.android.outputs.sdk }}
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-${SDK}" "build-tools;36.0.0"
+
+      - uses: gradle/actions/setup-gradle@v4
+        name: Configure Gradle cache
+
+      - name: Build Cyberpunk RED debug APK
+        working-directory: ${{ steps.android.outputs.root }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew --version
+          ./gradlew clean assembleDebug --stacktrace --no-daemon
+
+      - name: Collect and validate APK
+        id: apk
+        shell: bash
+        env:
+          ROOT: ${{ steps.android.outputs.root }}
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          APK="$(find "$ROOT" -type f -path '*/build/outputs/apk/debug/*.apk' | sort | head -n1)"
+          [ -n "${APK:-}" ] && [ -f "$APK" ] || { echo "::error::Debug APK not found"; exit 1; }
+          NAME="BRASEIRO-CYBERPUNK-RED-R4.64-DEBUG.apk"
+          FINAL="out/$NAME"
+          cp "$APK" "$FINAL"
+          unzip -t "$FINAL" >/dev/null
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
+          "$BUILD_TOOLS/aapt" dump badging "$FINAL" | grep -E '^(package:|sdkVersion:|targetSdkVersion:|native-code:)' | tee out/APK_BADGING.txt
+          "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$FINAL" | tee out/APK_SIGNATURE.txt
+          grep -q "package: name='com.braseiro.cyberpunkred'" out/APK_BADGING.txt || { echo "::error::Unexpected package id"; exit 1; }
+          sha256sum "$FINAL" | tee "out/$NAME.sha256"
+          stat -c 'APK_SIZE_BYTES=%s' "$FINAL" | tee out/APK_SIZE.txt
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        name: Upload Cyberpunk RED APK
+        with:
+          name: BRASEIRO-CYBERPUNK-RED-R4.64-APK
+          path: out/*
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Summary
+        shell: bash
+        run: |
+          echo "## BRASEIRO Cyberpunk RED R4.64" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Source SHA-256: $CPRED_SOURCE_SHA256" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Build: assembleDebug" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Package: com.braseiro.cyberpunkred" >> "$GITHUB_STEP_SUMMARY"
+          echo "- APK: ${{ steps.apk.outputs.name }}" >> "$GITHUB_STEP_SUMMARY"
