@@ -1,0 +1,139 @@
+name: BRASEIRO WWN Safe Area Hotfix Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-wwn-safearea-hotfix.yml"
+
+permissions:
+  contents: read
+
+env:
+  WWN_SOURCE_SHARE_URL: "https://firestorage.ai/ja/f/DSoH8e-wsx_A"
+  WWN_SOURCE_SHA256: "d5204de15b4fe4ffc5076fe9d243f921ce96c5eb22f7f5c52a2658cd0ad99398"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download exact safe-area source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p incoming /tmp/wwn-download
+          cd /tmp/wwn-download
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+          cat > download.mjs <<'NODE'
+          import { chromium } from 'playwright';
+          const browser=await chromium.launch({headless:true});
+          const ctx=await browser.newContext({acceptDownloads:true,locale:'ja-JP'});
+          const page=await ctx.newPage();
+          await page.goto(process.env.WWN_SOURCE_SHARE_URL,{waitUntil:'domcontentloaded',timeout:60000});
+          await page.waitForTimeout(3000);
+          const out=process.env.GITHUB_WORKSPACE+'/incoming/wwn.zip';
+          for(const sel of ['text=/一括ダウンロード/i','text=/ダウンロード/i','text=/Download/i','button','a']){
+            const loc=page.locator(sel), n=Math.min(await loc.count(),50);
+            for(let i=0;i<n;i++){
+              const el=loc.nth(i); let text=''; try{text=(await el.innerText({timeout:1000})).trim()}catch{}
+              if((sel==='button'||sel==='a')&&!/download|ダウンロード|一括|保存|ZIP|ファイル/i.test(text)) continue;
+              try{const p=page.waitForEvent('download',{timeout:10000}); await el.click({timeout:5000}); const d=await p; await d.saveAs(out); await browser.close(); process.exit(0)}catch{}
+            }
+          }
+          await browser.close(); process.exit(2);
+          NODE
+          node download.mjs
+          cd "$GITHUB_WORKSPACE"
+          unzip -t incoming/wwn.zip >/dev/null
+          echo "$WWN_SOURCE_SHA256  incoming/wwn.zip" | sha256sum -c -
+
+      - name: Extract and validate safe-area source
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf work && mkdir work
+          unzip -q incoming/wwn.zip -d work
+          chmod +x work/gradlew
+          grep -q 'KEY_SAFE_AUDIO_DEFAULTS_APPLIED' work/app/src/main/java/com/braseiro/wwn/bridge/NativeAudioRuntime.kt
+          grep -q 'settings.useWideViewPort = true' work/app/src/main/java/com/braseiro/wwn/MainActivity.kt
+          grep -q 'settings.loadWithOverviewMode = true' work/app/src/main/java/com/braseiro/wwn/MainActivity.kt
+          grep -q 'WindowCompat.setDecorFitsSystemWindows(window, false)' work/app/src/main/java/com/braseiro/wwn/MainActivity.kt
+          grep -q 'WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()' work/app/src/main/java/com/braseiro/wwn/MainActivity.kt
+          grep -q 'height:clamp(300px,calc(100dvh - 415px),500px)' work/app/src/main/assets/www/scr014.css
+          grep -q '#app{position:relative;width:415px;height:100dvh' work/app/src/main/assets/www/jornada.css
+          grep -E 'compileSdk|targetSdk' work/app/build.gradle.kts
+          grep distributionSha256Sum work/gradle/wrapper/gradle-wrapper.properties
+
+      - name: Run local regression contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd work
+          python3 tools/static_guard.py
+          python3 tools/static_guard_release.py
+          python3 tools/closure069_native_audio_contract.py
+          node tools/post071_current_contract_check.mjs
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('app/src/main/assets/www')
+          main=Path('app/src/main/java/com/braseiro/wwn/MainActivity.kt').read_text()
+          for x in ['settings.useWideViewPort = true','settings.loadWithOverviewMode = true','WindowCompat.setDecorFitsSystemWindows(window, false)','view.setPadding(safe.left, safe.top, safe.right, safe.bottom)']:
+              assert x in main, x
+          for name in ['jornada.html','scr014.html','diario.html','regras.html','scr022.html','mochila.html','scr016.html','ficha.html']:
+              t=(root/name).read_text(); assert 'width=415' in t and 'initial-scale=1' not in t, name
+          assert 'height:clamp(300px,calc(100dvh - 415px),500px)' in (root/'scr014.css').read_text()
+          print('SAFEAREA_LAYOUT_CONTRACT_PASS')
+          PY
+          cd web-tests
+          npm test -- --test-name-pattern='regressão|áudio|audio|Configurações'
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install Android API 36
+        shell: bash
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-36"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Test and build APK
+        working-directory: work
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew --version
+          ./gradlew clean test assembleDebug --stacktrace --no-daemon
+
+      - name: Collect and validate APK
+        id: apk
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          APK="$(find work -type f -path '*/build/outputs/apk/debug/*.apk' | sort | head -n1)"
+          test -f "$APK"
+          NAME="BRASEIRO-WWN-POST071-SAFEAREA-HOTFIX-DEBUG.apk"
+          cp "$APK" "out/$NAME"
+          unzip -t "out/$NAME" >/dev/null
+          sha256sum "out/$NAME" | tee "out/$NAME.sha256"
+          stat -c 'APK_SIZE_BYTES=%s' "out/$NAME"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO-WWN-POST071-SAFEAREA-HOTFIX-APK
+          path: out/*
+          if-no-files-found: error
+          retention-days: 30
