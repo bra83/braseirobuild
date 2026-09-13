@@ -146,7 +146,7 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public String appInfo() {
-            return "Braseiro Fichas Android 1.0.0";
+            return "Braseiro Fichas Android 1.0.2";
         }
     }
 
