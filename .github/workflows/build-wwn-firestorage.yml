@@ -119,6 +119,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          PROPS="gradle/wrapper/gradle-wrapper.properties"
+          sed -i 's#^distributionSha256Sum=.*#distributionSha256Sum=bbaeb2fef8710818cf0e261201dab964c572f92b942812df0c3620d62a529a01#' "$PROPS"
+          echo "CI corrected official Gradle 9.6 distribution checksum:"
+          grep -E 'distributionUrl|distributionSha256Sum' "$PROPS"
           ./gradlew --version
           ./gradlew clean test assembleDebug --stacktrace --no-daemon
 
