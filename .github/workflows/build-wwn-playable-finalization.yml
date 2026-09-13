@@ -1,0 +1,130 @@
+name: BRASEIRO WWN Playable Finalization Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-wwn-playable-finalization.yml"
+
+permissions:
+  contents: read
+
+env:
+  WWN_SOURCE_SHARE_URL: "https://firestorage.ai/ja/f/4IF3nQmmhdyk"
+  WWN_SOURCE_SHA256: "e60b7efe43b5f1200a3c5fed349b935ae9f51d9c4157a14825009f1d998a1e7f"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download exact WWN playable source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p incoming /tmp/wwn-download
+          cd /tmp/wwn-download
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+          cat > download.mjs <<'NODE'
+          import { chromium } from 'playwright';
+          const browser=await chromium.launch({headless:true});
+          const ctx=await browser.newContext({acceptDownloads:true,locale:'ja-JP'});
+          const page=await ctx.newPage();
+          await page.goto(process.env.WWN_SOURCE_SHARE_URL,{waitUntil:'domcontentloaded',timeout:60000});
+          await page.waitForTimeout(3000);
+          const out=process.env.GITHUB_WORKSPACE+'/incoming/wwn.zip';
+          for(const sel of ['text=/一括ダウンロード/i','text=/ダウンロード/i','text=/Download/i','button','a']){
+            const loc=page.locator(sel), n=Math.min(await loc.count(),50);
+            for(let i=0;i<n;i++){
+              const el=loc.nth(i); let text=''; try{text=(await el.innerText({timeout:1000})).trim()}catch{}
+              if((sel==='button'||sel==='a')&&!/download|ダウンロード|一括|保存|ZIP|ファイル/i.test(text)) continue;
+              try{const p=page.waitForEvent('download',{timeout:10000}); await el.click({timeout:5000}); const d=await p; await d.saveAs(out); await browser.close(); process.exit(0)}catch{}
+            }
+          }
+          await browser.close(); process.exit(2);
+          NODE
+          node download.mjs
+          cd "$GITHUB_WORKSPACE"
+          unzip -t incoming/wwn.zip >/dev/null
+          echo "$WWN_SOURCE_SHA256  incoming/wwn.zip" | sha256sum -c -
+
+      - name: Extract and validate playable source
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf work && mkdir work
+          unzip -q incoming/wwn.zip -d work
+          chmod +x work/gradlew
+          grep -q "geminiGenerateTextAsync" work/app/src/main/java/com/braseiro/wwn/bridge/BraseiroBridge.kt
+          grep -q "inlineData" work/app/src/main/java/com/braseiro/wwn/bridge/GeminiRuntime.kt
+          grep -q "Charon" work/app/src/main/assets/www/configuracoes.html
+          grep -q "VIAJAR PARA ESTE HEX" work/app/src/main/assets/www/scr014.html
+          grep -q "EXPLORAR HEX" work/app/src/main/assets/www/scr014.html
+          grep -q "Indexando PDF" work/app/src/main/assets/www/regras.js
+          grep -q 'versionCode = 102' work/app/build.gradle.kts
+
+      - name: Run current local gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd work
+          find app/src/main/assets/www -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+          python3 tools/static_guard.py
+          python3 tools/static_guard_release.py
+          node tools/post071_current_contract_check.mjs
+          node tools/post071_encounter_actions_check.mjs
+          node tools/post071_inventory_status_poi_hotfix_check.mjs
+          node tools/post071_flow_integration_check.mjs
+          node --test web-tests/post071-playable-finalization.test.mjs
+          python3 tools/test_sqlite_contract.py
+          python3 tools/closure065_native_contract.py
+          python3 tools/closure069_native_audio_contract.py
+          node tools/stress_wave10.mjs
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install Android API 36
+        shell: bash
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-36"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Test and build APK
+        working-directory: work
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew --version
+          ./gradlew clean test assembleDebug --stacktrace --no-daemon
+
+      - name: Collect and validate APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          APK="$(find work -type f -path '*/build/outputs/apk/debug/*.apk' | sort | head -n1)"
+          test -f "$APK"
+          NAME="BRASEIRO-WWN-POST071-PLAYABLE-FINALIZATION-DEBUG.apk"
+          cp "$APK" "out/$NAME"
+          unzip -t "out/$NAME" >/dev/null
+          sha256sum "out/$NAME" | tee "out/$NAME.sha256"
+          stat -c 'APK_SIZE_BYTES=%s' "out/$NAME"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO-WWN-POST071-PLAYABLE-FINALIZATION-APK
+          path: out/*
+          if-no-files-found: error
+          retention-days: 30
