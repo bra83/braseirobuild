@@ -1,0 +1,3 @@
+WWN POST071 build trigger
+source_sha256=656fa6ad39d8df697a47974c46163bf9a41c623de328be76f34bd8fd1a340921
+source_share=https://firestorage.ai/ja/f/zMStC53yvoQ4
