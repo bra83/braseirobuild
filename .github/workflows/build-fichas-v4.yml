@@ -69,9 +69,9 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee "$TMP/aapt.txt"
           grep -q "package: name='com.braseiro.fichas' versionCode='2' versionName='1.0.1'" "$TMP/aapt.txt"
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee "$TMP/apksigner.txt"
+          cp "$APK" "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.1-debug.apk"
           rm -rf "$ROOT/.gradle" "$ROOT/app/build" "$ROOT/build"
           (cd "$GITHUB_WORKSPACE/android" && zip -qr "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA_ANDROID_STUDIO_V4.zip" fichas-multissistema)
-          cp "$APK" "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.1-debug.apk"
           sha256sum "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA_ANDROID_STUDIO_V4.zip" > "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA_ANDROID_STUDIO_V4.zip.sha256"
           sha256sum "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.1-debug.apk" > "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.1-debug.apk.sha256"
           {
