@@ -18,84 +18,39 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 60
-
     steps:
-      - name: Checkout builder repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        name: Checkout builder repository
 
       - name: Download exact WWN source ZIP
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p incoming
-          TMP="incoming/source.download"
-          ZIP="incoming/BRASEIRO_WWN_POST071_ANDROID_STUDIO_SOURCE_2026-09-13.zip"
-          curl -fL --retry 3 --retry-delay 2 "$WWN_SOURCE_SHARE_URL" -o "$TMP" || true
-          if unzip -t "$TMP" >/dev/null 2>&1; then
-            mv "$TMP" "$ZIP"
-          else
-            rm -f "$TMP"
-            mkdir -p /tmp/wwn-browser
-            pushd /tmp/wwn-browser >/dev/null
-            npm init -y >/dev/null 2>&1
-            npm install --silent playwright@1.55.0
-            npx playwright install chromium
-            cat > download.mjs <<'NODE'
+          mkdir -p incoming /tmp/wwn-browser
+          ZIP="$GITHUB_WORKSPACE/incoming/BRASEIRO_WWN_POST071_ANDROID_STUDIO_SOURCE_2026-09-13.zip"
+          cd /tmp/wwn-browser
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+          cat > download.mjs <<'NODE'
           import { chromium } from 'playwright';
-          import fs from 'fs';
-          const url = process.env.WWN_SOURCE_SHARE_URL;
-          const out = process.env.GITHUB_WORKSPACE + '/incoming/BRASEIRO_WWN_POST071_ANDROID_STUDIO_SOURCE_2026-09-13.zip';
           const browser = await chromium.launch({headless:true});
           const context = await browser.newContext({acceptDownloads:true, locale:'ja-JP'});
           const page = await context.newPage();
-          await page.goto(url, {waitUntil:'domcontentloaded', timeout:60000});
-          await page.waitForTimeout(4000);
-          const links = await page.locator('a').evaluateAll(as => as.map(a => ({href:a.href, text:(a.textContent||'').trim(), download:a.getAttribute('download')})));
-          console.log('LINKS', JSON.stringify(links));
-          for (const l of links) {
-            if (!l.href) continue;
-            if (/\.zip(?:\?|$)/i.test(l.href) || l.download || /download|ダウンロード|一括|保存/i.test(l.text)) {
-              try {
-                const r = await page.request.get(l.href, {timeout:60000});
-                if (r.ok()) {
-                  const b = await r.body();
-                  if (b.length > 1000000 && b[0] === 0x50 && b[1] === 0x4b) {
-                    fs.writeFileSync(out, b);
-                    await browser.close();
-                    process.exit(0);
-                  }
-                }
-              } catch {}
+          await page.goto(process.env.WWN_SOURCE_SHARE_URL,{waitUntil:'domcontentloaded',timeout:60000});
+          await page.waitForTimeout(3000);
+          for (const sel of ['text=/一括ダウンロード/i','text=/ダウンロード/i','text=/Download/i','button','a']) {
+            const loc=page.locator(sel); const n=Math.min(await loc.count(),50);
+            for(let i=0;i<n;i++){
+              const el=loc.nth(i); let text=''; try{text=(await el.innerText({timeout:1000})).trim()}catch{}
+              if((sel==='button'||sel==='a')&&!/download|ダウンロード|一括|保存|ZIP|ファイル/i.test(text)) continue;
+              try{const p=page.waitForEvent('download',{timeout:10000}); await el.click({timeout:5000}); const d=await p; await d.saveAs(process.env.GITHUB_WORKSPACE+'/incoming/BRASEIRO_WWN_POST071_ANDROID_STUDIO_SOURCE_2026-09-13.zip'); await browser.close(); process.exit(0)}catch{}
             }
           }
-          const candidates = ['text=/一括ダウンロード/i','text=/ダウンロード/i','text=/Download/i','button','a'];
-          for (const sel of candidates) {
-            const loc = page.locator(sel);
-            const n = Math.min(await loc.count(), 40);
-            for (let i=0;i<n;i++) {
-              const el = loc.nth(i);
-              let text='';
-              try { text=(await el.innerText({timeout:1000})).trim(); } catch {}
-              if ((sel === 'button' || sel === 'a') && !/download|ダウンロード|一括|保存|ZIP|ファイル/i.test(text)) continue;
-              try {
-                const d = page.waitForEvent('download', {timeout:10000});
-                await el.click({timeout:5000});
-                const download = await d;
-                await download.saveAs(out);
-                await browser.close();
-                process.exit(0);
-              } catch {}
-            }
-          }
-          fs.writeFileSync(process.env.GITHUB_WORKSPACE + '/incoming/firestorage-page.html', await page.content());
-          console.log('BODY', (await page.locator('body').innerText()).slice(0,8000));
-          await browser.close();
-          process.exit(2);
+          console.log((await page.locator('body').innerText()).slice(0,8000)); await browser.close(); process.exit(2);
           NODE
-            node download.mjs
-            popd >/dev/null
-          fi
-          test -f "$ZIP"
+          node download.mjs
+          cd "$GITHUB_WORKSPACE"
           unzip -t "$ZIP" >/dev/null
           echo "$WWN_SOURCE_SHA256  $ZIP" | sha256sum -c -
           ls -lh "$ZIP"
@@ -105,32 +60,27 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf work
           mkdir -p work
           unzip -q incoming/BRASEIRO_WWN_POST071_ANDROID_STUDIO_SOURCE_2026-09-13.zip -d work
           ROOT=""
-          while IFS= read -r -d '' W; do
-            D="$(dirname "$W")"
-            if [ -f "$D/settings.gradle.kts" ] || [ -f "$D/settings.gradle" ]; then ROOT="$D"; break; fi
-          done < <(find work -type f -name gradlew -not -path '*/.gradle/*' -not -path '*/build/*' -print0)
-          [ -n "$ROOT" ] || { echo "::error::Android project root not found"; find work -maxdepth 4 -type f | head -200; exit 1; }
+          while IFS= read -r -d '' W; do D="$(dirname "$W")"; if [ -f "$D/settings.gradle.kts" ] || [ -f "$D/settings.gradle" ]; then ROOT="$D"; break; fi; done < <(find work -type f -name gradlew -print0)
+          [ -n "$ROOT" ] || { echo "::error::Android root not found"; exit 1; }
           chmod +x "$ROOT/gradlew"
-          SDK="$(grep -hoE 'compileSdk[[:space:]]*=[[:space:]]*[0-9]+' "$ROOT/app/build.gradle.kts" 2>/dev/null | grep -oE '[0-9]+' | head -n1 || true)"
-          [ -n "$SDK" ] || SDK=35
+          SDK="$(grep -hoE 'compileSdk[[:space:]]*=[[:space:]]*[0-9]+' "$ROOT/app/build.gradle.kts" | grep -oE '[0-9]+' | head -n1)"
           echo "root=$ROOT" >> "$GITHUB_OUTPUT"
           echo "sdk=$SDK" >> "$GITHUB_OUTPUT"
           echo "ROOT=$ROOT REQUESTED_SDK=$SDK"
 
-      - name: Configure Java 17
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
+        name: Configure Java 17
         with:
           distribution: temurin
           java-version: "17"
 
-      - name: Configure Android SDK
-        uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v3
+        name: Configure Android SDK
 
-      - name: Install available Android platform and patch CI copy if needed
+      - name: Install Android platform
         shell: bash
         env:
           ROOT: ${{ steps.android.outputs.root }}
@@ -139,25 +89,30 @@ jobs:
           set -euo pipefail
           yes | sdkmanager --licenses >/dev/null || true
           SDK="$REQUESTED_SDK"
-          if ! sdkmanager --list | grep -q "platforms;android-${SDK}"; then
-            echo "Requested Android API ${SDK} is unavailable; using API 36 for CI build only."
+          if [ "$SDK" -gt 36 ]; then
+            echo "Trying preview/canary Android API $SDK"
+            if yes | sdkmanager --channel=3 "platform-tools" "platforms;android-${SDK}"; then
+              echo "CI_ANDROID_API=$SDK" >> "$GITHUB_ENV"
+              exit 0
+            fi
+            echo "API $SDK is not installable even from preview/canary; patching CI copy to API 36 only."
             SDK=36
             python3 - <<'PY'
           from pathlib import Path
-          import os, re
-          p = Path(os.environ['ROOT']) / 'app' / 'build.gradle.kts'
-          s = p.read_text(encoding='utf-8')
-          s = re.sub(r'compileSdk\s*=\s*\d+', 'compileSdk = 36', s, count=1)
-          s = re.sub(r'targetSdk\s*=\s*\d+', 'targetSdk = 36', s, count=1)
-          p.write_text(s, encoding='utf-8')
-          print(p.read_text(encoding='utf-8').splitlines()[:20])
+          import os,re
+          p=Path(os.environ['ROOT'])/'app'/'build.gradle.kts'
+          s=p.read_text(encoding='utf-8')
+          s=re.sub(r'compileSdk\s*=\s*\d+','compileSdk = 36',s,count=1)
+          s=re.sub(r'targetSdk\s*=\s*\d+','targetSdk = 36',s,count=1)
+          p.write_text(s,encoding='utf-8')
+          print('CI_PATCHED_TO_API36')
           PY
           fi
           sdkmanager "platform-tools" "platforms;android-${SDK}"
           echo "CI_ANDROID_API=$SDK" >> "$GITHUB_ENV"
 
-      - name: Configure Gradle cache
-        uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4
+        name: Configure Gradle cache
 
       - name: Test and build WWN debug APK
         working-directory: ${{ steps.android.outputs.root }}
@@ -176,7 +131,7 @@ jobs:
           set -euo pipefail
           mkdir -p out
           APK="$(find "$ROOT" -type f -path '*/build/outputs/apk/debug/*.apk' | sort | head -n1)"
-          [ -n "$APK" ] && [ -f "$APK" ] || { echo "::error::Debug APK not found"; exit 1; }
+          [ -f "$APK" ] || { echo "::error::Debug APK not found"; exit 1; }
           NAME="BRASEIRO-WWN-POST071-DEBUG.apk"
           cp "$APK" "out/$NAME"
           unzip -t "out/$NAME" >/dev/null
@@ -184,8 +139,8 @@ jobs:
           stat -c 'APK_SIZE_BYTES=%s' "out/$NAME"
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
+        name: Upload APK artifact
         with:
           name: BRASEIRO-WWN-POST071-APK
           path: out/*
@@ -195,11 +150,8 @@ jobs:
       - name: Summary
         shell: bash
         run: |
-          {
-            echo "## BRASEIRO WWN POST071"
-            echo "- Source SHA-256: $WWN_SOURCE_SHA256"
-            echo "- CI Android API: $CI_ANDROID_API"
-            echo "- Gradle tests: PASS"
-            echo "- assembleDebug: PASS"
-            echo "- APK: ${{ steps.apk.outputs.name }}"
-          } >> "$GITHUB_STEP_SUMMARY"
+          echo "## BRASEIRO WWN POST071" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Source SHA-256: $WWN_SOURCE_SHA256" >> "$GITHUB_STEP_SUMMARY"
+          echo "- CI Android API: $CI_ANDROID_API" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Gradle test + assembleDebug: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- APK: ${{ steps.apk.outputs.name }}" >> "$GITHUB_STEP_SUMMARY"
