@@ -39,23 +39,48 @@ jobs:
           const browser = await chromium.launch({headless:true});
           const context = await browser.newContext({acceptDownloads:true, locale:'ja-JP'});
           const page = await context.newPage();
-          await page.goto(process.env.CPRED_SOURCE_SHARE_URL,{waitUntil:'domcontentloaded',timeout:60000});
-          await page.waitForTimeout(3000);
+          const url = process.env.CPRED_SOURCE_SHARE_URL;
           const output = process.env.GITHUB_WORKSPACE + '/incoming/CYBERPUNK_RED_R4_64_REGISTRY_RECOVERED_CHECKPOINT_ANDROID_STUDIO.zip';
-          for (const sel of ['text=/一括ダウンロード/i','text=/ダウンロード/i','text=/Download/i','button','a']) {
-            const loc=page.locator(sel); const n=Math.min(await loc.count(),60);
-            for(let i=0;i<n;i++){
-              const el=loc.nth(i); let text=''; try{text=(await el.innerText({timeout:1000})).trim()}catch{}
-              if((sel==='button'||sel==='a')&&!/download|ダウンロード|一括|保存|ZIP|ファイル/i.test(text)) continue;
+
+          async function openShare() {
+            await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForTimeout(2500);
+          }
+
+          async function attemptDownload() {
+            const candidates = page.locator('a,button,[role="button"]');
+            const count = Math.min(await candidates.count(), 120);
+            for (let i=0;i<count;i++) {
+              const el = candidates.nth(i);
+              let text=''; let href='';
+              try { text=(await el.innerText({timeout:700})).trim(); } catch {}
+              try { href=(await el.getAttribute('href')) || ''; } catch {}
+              if (!/download|ダウンロード|一括|保存|ZIP|ファイル/i.test(text+' '+href)) continue;
               try {
-                const p=page.waitForEvent('download',{timeout:10000});
-                await el.click({timeout:5000});
-                const d=await p;
+                const pending = page.waitForEvent('download',{timeout:8000});
+                await el.click({timeout:4000});
+                const d = await pending;
                 await d.saveAs(output);
-                await browser.close();
-                process.exit(0);
-              } catch {}
+                return true;
+              } catch {
+                try { if (!page.url().includes('/f/')) await openShare(); } catch {}
+              }
             }
+            return false;
+          }
+
+          await openShare();
+          for (let attempt=1; attempt<=24; attempt++) {
+            if (await attemptDownload()) {
+              console.log(`DOWNLOAD_OK attempt=${attempt}`);
+              await browser.close();
+              process.exit(0);
+            }
+            let body='';
+            try { body=(await page.locator('body').innerText()).slice(0,1200).replace(/\s+/g,' '); } catch {}
+            console.log(`WAIT_ATTEMPT=${attempt} BODY=${body}`);
+            await page.waitForTimeout(5000);
+            if (attempt % 4 === 0) await openShare();
           }
           console.log((await page.locator('body').innerText()).slice(0,8000));
           await browser.close();
