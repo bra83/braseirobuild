@@ -26,6 +26,47 @@ jobs:
           set -euo pipefail
           WORK="$RUNNER_TEMP/braseiro-fichas"
           mkdir -p "$WORK"
+
+          # Um dos fragmentos foi transportado como texto pelo conector e perdeu 1 caractere.
+          # Reparamos de forma determinística usando os hashes do fragmento original, sem
+          # alterar o conteúdo-fonte do ZIP.
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+
+          path = Path('incoming/fichas-multissistema/chunk_03.b64')
+          data = path.read_bytes()
+          target = '5bbeaa6c4aca3fd8c81ce682893fb9acd3c021ce07c566531c288cddf6cd9a92'
+          if hashlib.sha256(data).hexdigest() != target:
+              if len(data) != 19999:
+                  raise SystemExit(f'chunk_03: tamanho inesperado {len(data)}, esperado 19999 para reparo de 1 byte')
+              prefix_map = {}
+              for line in Path('incoming/fichas-multissistema/chunk_03_prefix_sha256.tsv').read_text().splitlines():
+                  n, digest = line.split('\t')
+                  prefix_map[int(n)] = digest
+              last_good = 0
+              for n in sorted(prefix_map):
+                  if n <= len(data) and hashlib.sha256(data[:n]).hexdigest() == prefix_map[n]:
+                      last_good = n
+                  elif n > last_good:
+                      break
+              alphabet = b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+              found = None
+              for pos in range(last_good, min(last_good + 501, len(data) + 1)):
+                  for ch in alphabet:
+                      candidate = data[:pos] + bytes([ch]) + data[pos:]
+                      if hashlib.sha256(candidate).hexdigest() == target:
+                          found = candidate
+                          print(f'chunk_03 reparado: inserção determinística na posição {pos}')
+                          break
+                  if found is not None:
+                      break
+              if found is None:
+                  raise SystemExit('não foi possível reconstruir chunk_03 pelo hash canônico')
+              path.write_bytes(found)
+          print('chunk_03 sha256 OK:', hashlib.sha256(path.read_bytes()).hexdigest())
+          PY
+
           cat incoming/fichas-multissistema/chunk_*.b64 > "$WORK/project.b64"
           base64 -d "$WORK/project.b64" > "$WORK/BRASEIRO_FICHAS_MULTISSISTEMA_ANDROID_STUDIO.zip"
           echo "b62e238fcc9fdee27e20dcdc34a758cfd5dab92d8110766818d6f121119d8bd9  $WORK/BRASEIRO_FICHAS_MULTISSISTEMA_ANDROID_STUDIO.zip" | sha256sum -c -
