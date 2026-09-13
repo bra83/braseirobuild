@@ -1,0 +1,88 @@
+name: Build Braseiro Fichas Multissistema V5
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/FICHAS_V5_TRIGGER"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Aplicar launcher V5 como entrada principal
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp android/fichas-multissistema/app/src/main/assets/www/index-v5.html android/fichas-multissistema/app/src/main/assets/www/index.html
+          test -f android/fichas-multissistema/app/src/main/assets/www/launcher-strip1.css
+          test -f android/fichas-multissistema/app/src/main/assets/www/launcher-strip2.css
+          test -f android/fichas-multissistema/app/src/main/assets/www/launcher-strip3.css
+          test -f android/fichas-multissistema/app/src/main/assets/www/launcher-strip4.css
+          test -f android/fichas-multissistema/app/src/main/assets/www/launcher-strip5.css
+          grep -q 'data-system="sw_eote"' android/fichas-multissistema/app/src/main/assets/www/index.html
+          grep -q 'data-system="pf2e"' android/fichas-multissistema/app/src/main/assets/www/index.html
+          node --check android/fichas-multissistema/app/src/main/assets/www/app.js
+          node --check android/fichas-multissistema/app/src/main/assets/www/rules-engine.js
+          node --check android/fichas-multissistema/app/src/main/assets/www/launcher.js
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar Android 35
+        shell: bash
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Compilar APK debug
+        working-directory: android/fichas-multissistema
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew clean :app:assembleDebug --stacktrace --no-daemon
+
+      - name: Validar APK e preparar entrega
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$GITHUB_WORKSPACE/android/fichas-multissistema"
+          APK="$ROOT/app/build/outputs/apk/debug/app-debug.apk"
+          OUT="$GITHUB_WORKSPACE/build-artifacts/fichas-multissistema-v5"
+          mkdir -p "$OUT"
+          test -f "$APK"
+          unzip -t "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee "$OUT/aapt.txt"
+          grep -q "package: name='com.braseiro.fichas' versionCode='3' versionName='1.0.2'" "$OUT/aapt.txt"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee "$OUT/apksigner.txt"
+          cp "$APK" "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.2-debug.apk"
+          sha256sum "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.2-debug.apk" > "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.2-debug.apk.sha256"
+          (cd "$GITHUB_WORKSPACE/android" && zip -qr "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA_ANDROID_STUDIO_V5.zip" fichas-multissistema -x 'fichas-multissistema/.gradle/*' 'fichas-multissistema/app/build/*' 'fichas-multissistema/build/*')
+          sha256sum "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA_ANDROID_STUDIO_V5.zip" > "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA_ANDROID_STUDIO_V5.zip.sha256"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: braseiro-fichas-multissistema-v5
+          path: build-artifacts/fichas-multissistema-v5
+          if-no-files-found: error
+          retention-days: 30
