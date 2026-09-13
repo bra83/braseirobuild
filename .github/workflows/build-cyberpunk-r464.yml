@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   CPRED_SOURCE_SHARE_URL: "https://firestorage.ai/ja/f/PcuAwqsFLYmN"
@@ -168,13 +168,33 @@ jobs:
           stat -c 'APK_SIZE_BYTES=%s' "$FINAL" | tee out/APK_SIZE.txt
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/upload-artifact@v4
-        name: Upload Cyberpunk RED APK
-        with:
-          name: BRASEIRO-CYBERPUNK-RED-R4.64.1-APK
-          path: out/*
-          if-no-files-found: error
-          retention-days: 30
+      - name: Publish APK in GitHub Release
+        id: release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APK_NAME: ${{ steps.apk.outputs.name }}
+        run: |
+          set -euo pipefail
+          TAG="cyberpunk-red-r4.64.1"
+          TITLE="BRASEIRO Cyberpunk RED R4.64.1 DEBUG APK"
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --target "$GITHUB_SHA" --title "$TITLE" --notes "Cyberpunk RED R4.64.1 debug APK. Source SHA-256: $CPRED_SOURCE_SHA256. Built with Gradle 8.11.1 / compileSdk 36."
+          fi
+          gh release upload "$TAG" out/* --clobber
+          RELEASE_URL="$(gh release view "$TAG" --json url --jq .url)"
+          ASSET_ID="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" --jq ".assets[] | select(.name == \"$APK_NAME\") | .id")"
+          [ -n "$ASSET_ID" ] || { echo "::error::Release APK asset ID not found"; exit 1; }
+          API_URL="https://api.github.com/repos/$GITHUB_REPOSITORY/releases/assets/$ASSET_ID"
+          HDR="$(mktemp)"
+          curl -sS -D "$HDR" -o /dev/null -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" "$API_URL"
+          SIGNED_URL="$(awk 'BEGIN{IGNORECASE=1} /^location:/ {sub(/^[^:]+:[[:space:]]*/,""); sub(/\r$/,""); print; exit}' "$HDR")"
+          echo "release_url=$RELEASE_URL" >> "$GITHUB_OUTPUT"
+          echo "asset_id=$ASSET_ID" >> "$GITHUB_OUTPUT"
+          echo "signed_url=$SIGNED_URL" >> "$GITHUB_OUTPUT"
+          echo "RELEASE_URL=$RELEASE_URL"
+          echo "APK_ASSET_ID=$ASSET_ID"
+          echo "SIGNED_APK_URL=$SIGNED_URL"
 
       - name: Summary
         shell: bash
@@ -184,3 +204,4 @@ jobs:
           echo "- Build: assembleDebug" >> "$GITHUB_STEP_SUMMARY"
           echo "- Package: com.braseiro.cyberpunkred" >> "$GITHUB_STEP_SUMMARY"
           echo "- APK: ${{ steps.apk.outputs.name }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Release: ${{ steps.release.outputs.release_url }}" >> "$GITHUB_STEP_SUMMARY"
