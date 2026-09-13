@@ -30,8 +30,6 @@ jobs:
           mkdir -p incoming
           TMP="incoming/source.download"
           ZIP="incoming/BRASEIRO_WWN_POST071_ANDROID_STUDIO_SOURCE_2026-09-13.zip"
-
-          # Fast path: some one-file shares resolve directly to the payload.
           curl -fL --retry 3 --retry-delay 2 "$WWN_SOURCE_SHARE_URL" -o "$TMP" || true
           if unzip -t "$TMP" >/dev/null 2>&1; then
             mv "$TMP" "$ZIP"
@@ -52,8 +50,6 @@ jobs:
           const page = await context.newPage();
           await page.goto(url, {waitUntil:'domcontentloaded', timeout:60000});
           await page.waitForTimeout(4000);
-
-          // Try explicit downloadable anchors first.
           const links = await page.locator('a').evaluateAll(as => as.map(a => ({href:a.href, text:(a.textContent||'').trim(), download:a.getAttribute('download')})));
           console.log('LINKS', JSON.stringify(links));
           for (const l of links) {
@@ -72,15 +68,7 @@ jobs:
               } catch {}
             }
           }
-
-          // Click likely download controls and capture the browser download.
-          const candidates = [
-            'text=/一括ダウンロード/i',
-            'text=/ダウンロード/i',
-            'text=/Download/i',
-            'button',
-            'a'
-          ];
+          const candidates = ['text=/一括ダウンロード/i','text=/ダウンロード/i','text=/Download/i','button','a'];
           for (const sel of candidates) {
             const loc = page.locator(sel);
             const n = Math.min(await loc.count(), 40);
@@ -88,9 +76,7 @@ jobs:
               const el = loc.nth(i);
               let text='';
               try { text=(await el.innerText({timeout:1000})).trim(); } catch {}
-              if (sel === 'button' || sel === 'a') {
-                if (!/download|ダウンロード|一括|保存|ZIP|ファイル/i.test(text)) continue;
-              }
+              if ((sel === 'button' || sel === 'a') && !/download|ダウンロード|一括|保存|ZIP|ファイル/i.test(text)) continue;
               try {
                 const d = page.waitForEvent('download', {timeout:10000});
                 await el.click({timeout:5000});
@@ -101,7 +87,6 @@ jobs:
               } catch {}
             }
           }
-
           fs.writeFileSync(process.env.GITHUB_WORKSPACE + '/incoming/firestorage-page.html', await page.content());
           console.log('BODY', (await page.locator('body').innerText()).slice(0,8000));
           await browser.close();
@@ -110,7 +95,6 @@ jobs:
             node download.mjs
             popd >/dev/null
           fi
-
           test -f "$ZIP"
           unzip -t "$ZIP" >/dev/null
           echo "$WWN_SOURCE_SHA256  $ZIP" | sha256sum -c -
@@ -131,11 +115,11 @@ jobs:
           done < <(find work -type f -name gradlew -not -path '*/.gradle/*' -not -path '*/build/*' -print0)
           [ -n "$ROOT" ] || { echo "::error::Android project root not found"; find work -maxdepth 4 -type f | head -200; exit 1; }
           chmod +x "$ROOT/gradlew"
-          SDK="$(grep -RhoE 'compileSdk(Version)?[[:space:]]*[= ]+[0-9]+' "$ROOT" --include='*.gradle' --include='*.gradle.kts' 2>/dev/null | grep -oE '[0-9]+' | sort -nr | head -n1 || true)"
+          SDK="$(grep -hoE 'compileSdk[[:space:]]*=[[:space:]]*[0-9]+' "$ROOT/app/build.gradle.kts" 2>/dev/null | grep -oE '[0-9]+' | head -n1 || true)"
           [ -n "$SDK" ] || SDK=35
           echo "root=$ROOT" >> "$GITHUB_OUTPUT"
           echo "sdk=$SDK" >> "$GITHUB_OUTPUT"
-          echo "ROOT=$ROOT SDK=$SDK"
+          echo "ROOT=$ROOT REQUESTED_SDK=$SDK"
 
       - name: Configure Java 17
         uses: actions/setup-java@v4
@@ -146,12 +130,31 @@ jobs:
       - name: Configure Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android platform
+      - name: Install available Android platform and patch CI copy if needed
         shell: bash
+        env:
+          ROOT: ${{ steps.android.outputs.root }}
+          REQUESTED_SDK: ${{ steps.android.outputs.sdk }}
         run: |
           set -euo pipefail
           yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platform-tools" "platforms;android-${{ steps.android.outputs.sdk }}"
+          SDK="$REQUESTED_SDK"
+          if ! sdkmanager --list | grep -q "platforms;android-${SDK}"; then
+            echo "Requested Android API ${SDK} is unavailable; using API 36 for CI build only."
+            SDK=36
+            python3 - <<'PY'
+          from pathlib import Path
+          import os, re
+          p = Path(os.environ['ROOT']) / 'app' / 'build.gradle.kts'
+          s = p.read_text(encoding='utf-8')
+          s = re.sub(r'compileSdk\s*=\s*\d+', 'compileSdk = 36', s, count=1)
+          s = re.sub(r'targetSdk\s*=\s*\d+', 'targetSdk = 36', s, count=1)
+          p.write_text(s, encoding='utf-8')
+          print(p.read_text(encoding='utf-8').splitlines()[:20])
+          PY
+          fi
+          sdkmanager "platform-tools" "platforms;android-${SDK}"
+          echo "CI_ANDROID_API=$SDK" >> "$GITHUB_ENV"
 
       - name: Configure Gradle cache
         uses: gradle/actions/setup-gradle@v4
@@ -195,6 +198,7 @@ jobs:
           {
             echo "## BRASEIRO WWN POST071"
             echo "- Source SHA-256: $WWN_SOURCE_SHA256"
+            echo "- CI Android API: $CI_ANDROID_API"
             echo "- Gradle tests: PASS"
             echo "- assembleDebug: PASS"
             echo "- APK: ${{ steps.apk.outputs.name }}"
