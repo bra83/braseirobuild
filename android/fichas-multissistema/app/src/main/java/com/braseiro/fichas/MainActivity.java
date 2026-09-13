@@ -7,6 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Build;
+import android.graphics.Insets;
+import android.graphics.Color;
+import android.view.WindowInsets;
 import android.provider.Settings;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
@@ -32,10 +36,24 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (Build.VERSION.SDK_INT >= 30) {
+            getWindow().setDecorFitsSystemWindows(false);
+        }
+        getWindow().setStatusBarColor(Color.rgb(3, 9, 12));
+        getWindow().setNavigationBarColor(Color.rgb(3, 9, 12));
+
         webView = new WebView(this);
         webView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
+        webView.setBackgroundColor(Color.rgb(3, 9, 12));
+        if (Build.VERSION.SDK_INT >= 30) {
+            webView.setOnApplyWindowInsetsListener((view, insets) -> {
+                Insets bars = insets.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+                view.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+                return insets;
+            });
+        }
 
         WebSettings s = webView.getSettings();
         s.setJavaScriptEnabled(true);
@@ -146,7 +164,7 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public String appInfo() {
-            return "Braseiro Fichas Android 1.0.2";
+            return "Braseiro Fichas Android 1.1.0";
         }
     }
 
