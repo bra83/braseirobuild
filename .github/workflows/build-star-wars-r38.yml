@@ -178,14 +178,6 @@ jobs:
           stat -c 'size_bytes=%s' "$FINAL" | tee -a APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R38_DEBUG.info.txt
           echo "path=$FINAL" >> "$GITHUB_OUTPUT"
 
-      - name: Upload R38 APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: STAR-WARS-EDGE-OF-THE-GALAXY-R38-APK
-          path: APK_SAIDA/*
-          if-no-files-found: error
-          retention-days: 30
-
       - name: Publish R38 APK to tmpfiles.org
         id: tmpfiles
         shell: bash
@@ -200,6 +192,15 @@ jobs:
           echo "TMPFILES_PAGE=$URL"
           echo "TMPFILES_DIRECT=$DIRECT"
 
+      - name: Upload R38 APK artifact
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: STAR-WARS-EDGE-OF-THE-GALAXY-R38-APK
+          path: APK_SAIDA/*
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Summary
         if: always()
         run: |
@@ -211,5 +212,9 @@ jobs:
             echo '- applicationId: `com.braseiro.starwarsedge`.'
             echo '- targetSdk: `36`.'
             if [ -f APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R38_DEBUG.sha256 ]; then cat APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R38_DEBUG.sha256; fi
-            if [ -f APK_SAIDA/tmpfiles-response.json ]; then echo "- tmpfiles response captured."; fi
+            if [ -f APK_SAIDA/tmpfiles-response.json ]; then
+              echo '- tmpfiles upload: success.'
+              echo "- page: ${{ steps.tmpfiles.outputs.page_url }}"
+              echo "- direct: ${{ steps.tmpfiles.outputs.direct_url }}"
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
