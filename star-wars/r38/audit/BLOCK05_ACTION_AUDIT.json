@@ -1,0 +1,122 @@
+{
+  "declared_action_count": 4,
+  "unique_actions": 2,
+  "actions": [
+    {
+      "action": "gemini",
+      "declarations": 2,
+      "raw_occurrences": 95,
+      "handler_signal_count": 1,
+      "status": "referenced"
+    },
+    {
+      "action": "import",
+      "declarations": 2,
+      "raw_occurrences": 62,
+      "handler_signal_count": 0,
+      "status": "referenced"
+    }
+  ],
+  "plain_buttons": [
+    {
+      "file": "final-runtime.js",
+      "label": "ROLAR",
+      "attrs": " type=\"button\""
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "Testar voz",
+      "attrs": " type=\"button\" id=\"final-tts-test\""
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "Parar",
+      "attrs": " type=\"button\" id=\"final-tts-stop\""
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "LISTA",
+      "attrs": " type=\"button\" data-start-mode=\"list\" class=\"is-active\""
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "MAPA",
+      "attrs": " type=\"button\" data-start-mode=\"map\""
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "ALEATÓRIO",
+      "attrs": " type=\"button\" data-start-mode=\"random\""
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "${p.name} ${p.desc}",
+      "attrs": " type=\"button\" data-point=\"${i}\" class=\"${i===0?'is-selected':''}\""
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "${i+1}",
+      "attrs": " type=\"button\" data-point=\"${i}\" style=\"left:${p.x}%;top:${p.y}%\" aria-label=\"Escolher ${p.name}\""
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "CRIAR MUNDO VIVO",
+      "attrs": " id=\"sandbox-start-button\" type=\"button\" class=\"final-primary-button\""
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "INICIAR AVENTURA",
+      "attrs": " type=\"button\" data-start-adventure"
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "CRIAR FICHA",
+      "attrs": " type=\"button\" data-manual-character"
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "ALEATÓRIA",
+      "attrs": " type=\"button\" data-random-character"
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "IMPORTAR JSON",
+      "attrs": " type=\"button\" data-import-character"
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "SALVAR MODELOS",
+      "attrs": " type=\"button\""
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "GERAR FICHA ALEATÓRIA",
+      "attrs": " type=\"button\" data-random"
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "IMPORTAR .JSON",
+      "attrs": " type=\"button\" data-import"
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "INTERFACE",
+      "attrs": " type=\"button\" data-r=\"27\""
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "VOZ",
+      "attrs": " type=\"button\" data-r=\"28\""
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "GEMINI",
+      "attrs": " type=\"button\" data-r=\"29\""
+    },
+    {
+      "file": "final-runtime.js",
+      "label": "BIBLIOTECA",
+      "attrs": " type=\"button\" data-r=\"30\""
+    }
+  ]
+}
