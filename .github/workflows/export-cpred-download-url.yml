@@ -20,7 +20,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          # refreshed for R4.64.2 source recovery
           ASSET_ID=562179248
           API_URL="https://api.github.com/repos/$GITHUB_REPOSITORY/releases/assets/$ASSET_ID"
           HDR="$(mktemp)"
@@ -31,4 +30,4 @@ jobs:
             "$API_URL"
           URL="$(awk 'BEGIN{IGNORECASE=1} /^location:/ {sub(/^[^:]+:[[:space:]]*/,""); sub(/\r$/,""); print; exit}' "$HDR")"
           [ -n "$URL" ] || { echo 'missing redirect'; cat "$HDR"; exit 1; }
-          printf 'SIGNED_URL_B64=%s\n' "$(printf '%s' "$URL" | base64 -w0)"
+          printf 'SIGNED_URL=%s\n' "$URL"
