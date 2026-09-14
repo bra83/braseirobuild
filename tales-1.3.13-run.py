@@ -6,15 +6,15 @@ repo = Path(__file__).resolve().parent
 source_path = repo / "tales-1.3.13-transform.py"
 source = source_path.read_text(encoding="utf-8")
 
-# Fix the snapshot-v10 insertion against the actual 1.3.12 codec shape: the current
-# decoder constructs KidState directly, so insert kidItems immediately before it.
+# The 1.3.12 decoder constructs KidState directly. Replace only the stale insertion
+# block in the transform, without changing any other 1.3.13 behavior.
 pattern = re.compile(
     r'''# Insert decoded item list before KidState construction\.\nanchor = .*?\nt = replace_once\(t, anchor, insert, "snapshot decode items"\)''',
     re.DOTALL,
 )
-replacement = r'''# Insert decoded item list before KidState construction.
-anchor = ''' + "'''    val kid = KidState(\n'''" + r'''
-insert = '''    val kidItems = if (version >= 10) map["kid.items"].orEmpty().split('|')
+replacement = """# Insert decoded item list before KidState construction.
+anchor = '''    val kid = KidState(\n'''
+insert = '''    val kidItems = if (version >= 10) map[\"kid.items\"].orEmpty().split('|')
       .filter { it.isNotBlank() }
       .mapNotNull { raw ->
         val parts = raw.split('~', limit = 4)
@@ -27,9 +27,9 @@ insert = '''    val kidItems = if (version >= 10) map["kid.items"].orEmpty().spl
 
     val kid = KidState(
 '''
-t = replace_once(t, anchor, insert, "snapshot decode items")'''
+t = replace_once(t, anchor, insert, \"snapshot decode items\")"""
 
-patched, count = pattern.subn(replacement, source, count=1)
+patched, count = pattern.subn(lambda _m: replacement, source, count=1)
 if count != 1:
     raise SystemExit("Could not patch 1.3.13 snapshot insertion")
 
