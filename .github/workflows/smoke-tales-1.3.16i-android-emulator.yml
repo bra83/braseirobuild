@@ -57,20 +57,58 @@ jobs:
         run: |
           set -euo pipefail
           echo no | avdmanager create avd --force --name tales_ci --package "system-images;android-35;google_apis;x86_64" --device "pixel_2"
-          sudo chmod 666 /dev/kvm 2>/dev/null || true
-          nohup emulator @tales_ci -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -camera-back none -camera-front none >/tmp/emulator.log 2>&1 &
-          adb wait-for-device
-          for i in $(seq 1 180); do
-            if [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; then
-              echo "EMULATOR_BOOT_SECONDS=$i"
-              break
+          adb start-server
+
+          boot_wait() {
+            local seconds="$1"
+            for i in $(seq 1 "$seconds"); do
+              if adb get-state >/dev/null 2>&1 && [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; then
+                echo "EMULATOR_BOOT_SECONDS=$i"
+                return 0
+              fi
+              if ! pgrep -f 'emulator.*tales_ci' >/dev/null 2>&1; then
+                echo 'Emulator process exited before boot.'
+                return 1
+              fi
+              sleep 1
+            done
+            return 1
+          }
+
+          launch_emulator() {
+            local accel="$1"
+            rm -f /tmp/emulator.log
+            nohup emulator @tales_ci \
+              -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot \
+              -camera-back none -camera-front none -cores 2 -memory 2048 \
+              -accel "$accel" >/tmp/emulator.log 2>&1 &
+          }
+
+          if [ -e /dev/kvm ]; then
+            sudo chmod 666 /dev/kvm || true
+            echo 'Trying KVM acceleration first.'
+            launch_emulator on
+            if ! boot_wait 180; then
+              echo 'KVM boot failed; emulator log follows:'
+              tail -200 /tmp/emulator.log || true
+              adb emu kill >/dev/null 2>&1 || true
+              pkill -f 'emulator.*tales_ci' >/dev/null 2>&1 || true
+              sleep 3
+              echo 'Retrying with software acceleration.'
+              launch_emulator off
+              boot_wait 420 || { tail -300 /tmp/emulator.log || true; exit 1; }
             fi
-            sleep 1
-          done
-          test "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1"
+          else
+            echo '/dev/kvm unavailable; using software acceleration.'
+            launch_emulator off
+            boot_wait 420 || { tail -300 /tmp/emulator.log || true; exit 1; }
+          fi
+
+          adb shell input keyevent 82 || true
           adb shell settings put global window_animation_scale 0
           adb shell settings put global transition_animation_scale 0
           adb shell settings put global animator_duration_scale 0
+          adb shell getprop ro.build.version.sdk | grep -qx 35
 
       - name: Install and launch Tales profile
         env:
@@ -81,7 +119,7 @@ jobs:
           adb install -r "$APK"
           adb logcat -c
           adb shell monkey -p com.braseiro.talesvtt -c android.intent.category.LAUNCHER 1 >/tmp/monkey-start.txt
-          sleep 3
+          sleep 5
           adb shell pidof com.braseiro.talesvtt >/tmp/tales-pid.txt
           test -s /tmp/tales-pid.txt
           adb shell uiautomator dump /sdcard/window.xml >/dev/null
@@ -110,7 +148,7 @@ jobs:
           PY
           read X Y < /tmp/flood-tap.txt
           adb shell input tap "$X" "$Y"
-          sleep 2
+          sleep 3
           adb shell uiautomator dump /sdcard/window2.xml >/dev/null
           adb pull /sdcard/window2.xml /tmp/tales-after.xml >/dev/null
           grep -q 'THINGS FROM THE FLOOD' /tmp/tales-after.xml
@@ -130,7 +168,7 @@ jobs:
           for i in $(seq 1 10); do
             adb shell am force-stop com.braseiro.talesvtt
             adb shell monkey -p com.braseiro.talesvtt -c android.intent.category.LAUNCHER 1 >/dev/null
-            sleep 1
+            sleep 2
             PID=$(adb shell pidof com.braseiro.talesvtt | tr -d '\r')
             test -n "$PID"
             echo "RELAUNCH_$i=PASS PID=$PID"
