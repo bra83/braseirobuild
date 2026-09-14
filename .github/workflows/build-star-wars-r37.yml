@@ -71,45 +71,28 @@ jobs:
                       if loc.count() and loc.first.is_visible(): loc.first.click(timeout=1500)
                   except Exception:
                       pass
-              selectors=[
-                  'a[download]',
-                  'a[href*="download"]',
-                  'button:has-text("Download")',
-                  'a:has-text("Download")',
-                  'button:has-text("ダウンロード")',
-                  'a:has-text("ダウンロード")',
-                  'button:has-text("保存")',
-                  'a:has-text("保存")'
-              ]
+              selectors=['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")','button:has-text("保存")','a:has-text("保存")']
               done=False
               for sel in selectors:
                   try:
                       loc=page.locator(sel).first
-                      if not loc.count() or not loc.is_visible():
-                          continue
-                      with page.expect_download(timeout=120000) as info:
-                          loc.click(timeout=10000)
-                      info.value.save_as(str(out))
-                      done=True
-                      break
-                  except Exception:
-                      continue
+                      if not loc.count() or not loc.is_visible(): continue
+                      with page.expect_download(timeout=120000) as info: loc.click(timeout=10000)
+                      info.value.save_as(str(out)); done=True; break
+                  except Exception: continue
               if not done:
                   try:
                       card=page.get_by_text(filename, exact=False).first
                       parent=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]')
                       ctrl=parent.locator('a,button').last
-                      with page.expect_download(timeout=120000) as info:
-                          ctrl.click(timeout=10000)
-                      info.value.save_as(str(out))
-                      done=True
+                      with page.expect_download(timeout=120000) as info: ctrl.click(timeout=10000)
+                      info.value.save_as(str(out)); done=True
                   except Exception as e:
                       pathlib.Path('incoming/firestorage_debug.html').write_text(page.content(), encoding='utf-8')
                       page.screenshot(path='incoming/firestorage_debug.png', full_page=True)
                       print('Download control failure:', repr(e))
               browser.close()
-          if not done or not out.exists():
-              raise SystemExit('Could not download Star Wars source ZIP from share page')
+          if not done or not out.exists(): raise SystemExit('Could not download Star Wars source ZIP from share page')
           PY
           echo "Downloaded: $(stat -c '%s' "incoming/$SOURCE_FILE") bytes"
           echo "${EXPECTED_SHA}  incoming/${SOURCE_FILE}" | sha256sum -c -
@@ -121,8 +104,7 @@ jobs:
           SOURCE_FILE: ${{ steps.source.outputs.file }}
         run: |
           set -euo pipefail
-          rm -rf work
-          mkdir work
+          rm -rf work; mkdir work
           unzip -q "incoming/${SOURCE_FILE}" -d work
           GRADLEW="$(find work -type f -name gradlew -not -path '*/.gradle/*' -not -path '*/build/*' | head -n1)"
           [ -n "$GRADLEW" ] || { echo '::error::gradlew not found'; exit 1; }
@@ -138,15 +120,9 @@ jobs:
           EXPECTED_APP_ID: ${{ steps.source.outputs.app_id }}
         run: |
           set -euo pipefail
-          grep -Rqs "applicationId = \"${EXPECTED_APP_ID}\"" "$ROOT/app/build.gradle.kts" || {
-            echo "::error::Unexpected applicationId"; exit 1;
-          }
-          grep -Rqs 'targetSdk = 36' "$ROOT/app/build.gradle.kts" || {
-            echo "::error::targetSdk 36 not preserved"; exit 1;
-          }
-          grep -Rqs 'compileSdk = 36' "$ROOT/app/build.gradle.kts" || {
-            echo "::error::compileSdk 36 not preserved"; exit 1;
-          }
+          grep -Rqs "applicationId = \"${EXPECTED_APP_ID}\"" "$ROOT/app/build.gradle.kts" || { echo '::error::Unexpected applicationId'; exit 1; }
+          grep -Rqs 'targetSdk = 36' "$ROOT/app/build.gradle.kts" || { echo '::error::targetSdk 36 not preserved'; exit 1; }
+          grep -Rqs 'compileSdk = 36' "$ROOT/app/build.gradle.kts" || { echo '::error::compileSdk 36 not preserved'; exit 1; }
 
       - name: Setup Java 17
         uses: actions/setup-java@v4
@@ -191,36 +167,6 @@ jobs:
           stat -c 'size_bytes=%s' "$FINAL" | tee -a APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R37_DEBUG.info.txt
           echo "path=$FINAL" >> "$GITHUB_OUTPUT"
 
-      - name: Publish exact ZIP, source and APK into braseirobuild
-        env:
-          ROOT: ${{ steps.project.outputs.root }}
-          SOURCE_FILE: ${{ steps.source.outputs.file }}
-        run: |
-          set -euo pipefail
-          rm -rf star-wars/r37/source
-          mkdir -p star-wars/r37/source build-artifacts/star-wars/r37
-          rsync -a \
-            --exclude '.gradle/' \
-            --exclude '**/build/' \
-            --exclude 'local.properties' \
-            --exclude '*.apk' \
-            --exclude '*.aab' \
-            "$ROOT/" star-wars/r37/source/
-          cp "incoming/${SOURCE_FILE}" "build-artifacts/star-wars/r37/${SOURCE_FILE}"
-          cp APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R37_DEBUG.apk build-artifacts/star-wars/r37/
-          cp APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R37_DEBUG.sha256 build-artifacts/star-wars/r37/
-          cp APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R37_DEBUG.info.txt build-artifacts/star-wars/r37/
-          sha256sum "build-artifacts/star-wars/r37/${SOURCE_FILE}" > build-artifacts/star-wars/r37/SOURCE_SHA256.txt
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add star-wars/r37/source build-artifacts/star-wars/r37
-          if git diff --cached --quiet; then
-            echo 'No source/APK changes to commit.'
-          else
-            git commit -m 'Publish Star Wars Edge of the Galaxy R37 source and APK'
-            git push origin HEAD:main
-          fi
-
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
@@ -229,7 +175,32 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      - name: Publish exact ZIP, source and APK into braseirobuild
+        env:
+          ROOT: ${{ steps.project.outputs.root }}
+          SOURCE_FILE: ${{ steps.source.outputs.file }}
+        run: |
+          set -euo pipefail
+          rm -rf star-wars/r37/source
+          mkdir -p star-wars/r37/source build-artifacts/star-wars/r37
+          rsync -a --exclude '.gradle/' --exclude '**/build/' --exclude 'local.properties' --exclude '*.apk' --exclude '*.aab' "$ROOT/" star-wars/r37/source/
+          cp "incoming/${SOURCE_FILE}" "build-artifacts/star-wars/r37/${SOURCE_FILE}"
+          cp APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R37_DEBUG.apk build-artifacts/star-wars/r37/
+          cp APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R37_DEBUG.sha256 build-artifacts/star-wars/r37/
+          cp APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R37_DEBUG.info.txt build-artifacts/star-wars/r37/
+          sha256sum "build-artifacts/star-wars/r37/${SOURCE_FILE}" > build-artifacts/star-wars/r37/SOURCE_SHA256.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add star-wars/r37/source build-artifacts/star-wars/r37
+          if ! git diff --cached --quiet; then
+            git commit -m 'Publish Star Wars Edge of the Galaxy R37 source and APK'
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
+          fi
+
       - name: Summary
+        if: always()
         run: |
           {
             echo '## Star Wars Edge of the Galaxy R37'
@@ -237,8 +208,5 @@ jobs:
             echo '- Gradle task: `:app:assembleDebug`.'
             echo '- applicationId: `com.braseiro.starwarsedge`.'
             echo '- targetSdk: `36`.'
-            echo '- No Tales/OSE/WWN transformation applied.'
-            echo '- Exact ZIP and extracted source committed under `build-artifacts/star-wars/r37/` and `star-wars/r37/source/`.'
-            echo '- APK committed under `build-artifacts/star-wars/r37/`.'
-            cat APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R37_DEBUG.sha256
+            if [ -f APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R37_DEBUG.sha256 ]; then cat APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R37_DEBUG.sha256; fi
           } >> "$GITHUB_STEP_SUMMARY"
