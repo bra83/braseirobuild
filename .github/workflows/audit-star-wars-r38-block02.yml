@@ -1,0 +1,244 @@
+name: Audit Star Wars R38 post-Block01 UI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/audit-star-wars-r38-block02.yml"
+      - "star-wars/r38/patches/block01_repair.py"
+      - "star-wars/r38/patches/block01_repair_safe.py"
+      - "star-wars/r38/patches/assets/scene-assets-v1.tar.gz.b64"
+      - "STAR_WARS_R38_BLOCK02_AUDIT_TRIGGER.txt"
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: source
+        shell: bash
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          d=json.load(open('star-wars/r38/SOURCE.json'))
+          print('url='+d['source_share_url']); print('sha='+d['sha256']); print('file='+d['file'])
+          PY
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install browser
+        run: |
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium >/dev/null
+
+      - name: Download exact R38 and recovered scenes
+        env:
+          SHARE_URL: ${{ steps.source.outputs.url }}
+          SOURCE_FILE: ${{ steps.source.outputs.file }}
+          EXPECTED_SHA: ${{ steps.source.outputs.sha }}
+          SCENE_SHARE_URL: https://firestorage.ai/ja/f/PbM3XvdzNMAk
+          SCENE_FILE: scene-assets-v1-tiny.tar.gz
+          SCENE_SHA: 2ca16b2cd0d3f489fe10f1df718be1243febeef38fb88a52bd50502528f60711
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf incoming work; mkdir -p incoming/scenes work
+          python3 - <<'PY'
+          import os,pathlib
+          from playwright.sync_api import sync_playwright
+          def dl(url,name,out):
+            with sync_playwright() as p:
+              b=p.chromium.launch(headless=True); page=b.new_page(accept_downloads=True)
+              page.goto(url,wait_until='domcontentloaded',timeout=120000); page.wait_for_timeout(3000)
+              done=False
+              for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")','button:has-text("保存")','a:has-text("保存")']:
+                try:
+                  q=page.locator(sel).first
+                  if not q.count() or not q.is_visible(): continue
+                  with page.expect_download(timeout=120000) as info: q.click(timeout=10000)
+                  info.value.save_as(str(out)); done=True; break
+                except: pass
+              if not done:
+                q=page.get_by_text(name,exact=False).first; parent=q.locator('xpath=ancestor::*[self::div or self::li or self::article][1]')
+                with page.expect_download(timeout=120000) as info: parent.locator('a,button').last.click(timeout=10000)
+                info.value.save_as(str(out)); done=True
+              b.close()
+            if not done: raise SystemExit('download failed '+name)
+          dl(os.environ['SHARE_URL'],os.environ['SOURCE_FILE'],pathlib.Path('incoming')/os.environ['SOURCE_FILE'])
+          dl(os.environ['SCENE_SHARE_URL'],os.environ['SCENE_FILE'],pathlib.Path('incoming/scenes')/os.environ['SCENE_FILE'])
+          PY
+          echo "${EXPECTED_SHA}  incoming/${SOURCE_FILE}" | sha256sum -c -
+          echo "${SCENE_SHA}  incoming/scenes/${SCENE_FILE}" | sha256sum -c -
+          unzip -q "incoming/${SOURCE_FILE}" -d work
+          G="$(find work -type f -name gradlew -not -path '*/build/*'|head -n1)"; test -n "$G"; R="$(dirname "$G")"; echo "$R" > /tmp/root
+          base64 -w0 "incoming/scenes/${SCENE_FILE}" > star-wars/r38/patches/assets/scene-assets-v1.tar.gz.b64
+          python3 star-wars/r38/patches/block01_repair_safe.py "$R"
+
+      - name: Broad static + runtime audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$(cat /tmp/root)"; export ROOT
+          mkdir -p star-wars/r38/audit
+          python3 - <<'PY'
+          import os,re,json,pathlib,collections,datetime,subprocess,threading,http.server,socketserver,time
+          from playwright.sync_api import sync_playwright
+          root=pathlib.Path(os.environ['ROOT'])
+          vtt=root/'app/src/main/assets/vtt'; r46=vtt/'r46'
+          issues=[]; stats={}
+          def add(sev,code,msg,path=None,evidence=None): issues.append({'severity':sev,'code':code,'message':msg,'path':path,'evidence':evidence})
+          text_ext={'.html','.js','.mjs','.css','.json','.java','.kt','.xml'}
+          files=[p for p in root.rglob('*') if p.is_file()]
+          texts={p:p.read_text(encoding='utf-8',errors='replace') for p in files if p.suffix.lower() in text_ext}
+          stats['files_scanned']=len(texts)
+
+          # JS syntax every R46 JS file.
+          js_files=[p for p in r46.rglob('*.js') if p.is_file()]
+          stats['r46_js_files']=len(js_files)
+          for p in js_files:
+            cp=subprocess.run(['node','--check',str(p)],capture_output=True,text=True)
+            if cp.returncode: add('critical','JS_SYNTAX','JavaScript syntax failure',str(p.relative_to(root)),cp.stderr[-1200:])
+
+          # HTML duplicate IDs and label/target integrity.
+          htmls=[p for p in r46.rglob('*.html') if p.is_file()]
+          for p in htmls:
+            t=texts[p]; ids=re.findall(r'\bid=["\']([^"\']+)',t)
+            dup=[k for k,v in collections.Counter(ids).items() if v>1]
+            for k in dup: add('high','DUPLICATE_ID',f'Duplicate DOM id {k}',str(p.relative_to(root)))
+            for target in re.findall(r'\bfor=["\']([^"\']+)',t):
+              if target not in ids: add('medium','BROKEN_LABEL_TARGET',f'label for={target} has no matching id',str(p.relative_to(root)))
+
+          # Local URL references in R46 must resolve somewhere under assets/vtt/r46 or assets/vtt.
+          refs=[]
+          ref_re=re.compile(r'''(?:src|href)\s*=\s*["']([^"'#?]+)|url\(\s*["']?([^"')?#]+)''',re.I)
+          for p,t in texts.items():
+            if r46 not in p.parents and p!=r46: continue
+            for m in ref_re.finditer(t):
+              ref=m.group(1) or m.group(2)
+              if not ref or ref.startswith(('http:','https:','data:','blob:','javascript:','mailto:','tel:','android-asset:')): continue
+              refs.append((p,ref))
+          missing=[]
+          for p,ref in refs:
+            target=(p.parent/ref).resolve()
+            if not target.exists():
+              alt=(vtt/ref.lstrip('/')).resolve()
+              if not alt.exists(): missing.append((p,ref))
+          for p,ref in missing[:200]: add('high','MISSING_LOCAL_ASSET',f'Local UI asset not found: {ref}',str(p.relative_to(root)))
+          stats['local_refs']=len(refs); stats['missing_local_refs']=len(missing)
+
+          # Bottom nav icons: ensure exactly five reachable PNG assets referenced by R46.
+          allr46='\n'.join(texts[p] for p in texts if r46 in p.parents or p.parent==r46)
+          icon_pngs=sorted(set(re.findall(r'''[^"'\s()]+\.png''',allr46,re.I)))
+          stats['r46_png_refs']=len(icon_pngs)
+          if len(icon_pngs)<5: add('high','BOTTOM_NAV_ICON_RISK',f'Only {len(icon_pngs)} PNG references detected in R46; expected >=5',evidence=icon_pngs)
+
+          # data-action controls should be represented in runtime/bundle text.
+          actions=[]
+          for p,t in texts.items():
+            if r46 in p.parents or p.parent==r46:
+              actions += re.findall(r'data-action=["\']([^"\']+)',t)
+          runtime_text='\n'.join(t for p,t in texts.items() if p.suffix.lower() in {'.js','.mjs'} and (r46 in p.parents or p.parent==r46))
+          missing_actions=[]
+          for a in sorted(set(actions)):
+            if a not in runtime_text: missing_actions.append(a)
+          for a in missing_actions: add('high','UNBOUND_ACTION',f'data-action {a} has no textual handler/reference in R46 JS')
+          stats['data_actions']=len(set(actions)); stats['unbound_actions']=len(missing_actions)
+
+          # Bridge calls consumed by R46 must exist in Android host source.
+          host='\n'.join(t for p,t in texts.items() if '/app/src/main/java/' in ('/'+str(p.relative_to(root)).replace('\\','/')))
+          bridge_calls=sorted(set(re.findall(r'\bBraseiro[A-Za-z0-9_]+\.([A-Za-z_$][A-Za-z0-9_$]*)\s*\(',runtime_text)))
+          stats['native_bridge_calls']=len(bridge_calls)
+          for method in bridge_calls:
+            if not re.search(r'\b'+re.escape(method)+r'\s*\(',host): add('critical','MISSING_NATIVE_METHOD',f'R46 calls native method {method} but host implementation was not found')
+
+          # UI viewport/safe-area markers.
+          shell=(r46/'r46-shell.html').read_text(encoding='utf-8',errors='replace') if (r46/'r46-shell.html').exists() else ''
+          if 'viewport-fit=cover' not in shell: add('medium','VIEWPORT_FIT','viewport-fit=cover not found in R46 shell')
+          if '--native-inset-bottom' not in allr46: add('high','SAFE_AREA_BINDING','native bottom inset CSS variable not found in R46')
+          if 'env(safe-area-inset-bottom' not in allr46: add('medium','CSS_SAFE_AREA','CSS safe-area-inset-bottom fallback not found')
+
+          # Android manifest and WebView config sanity.
+          manifest=next((t for p,t in texts.items() if p.name=='AndroidManifest.xml' and '/app/src/main/' in ('/'+str(p.relative_to(root)).replace('\\','/'))),'')
+          if 'android:windowSoftInputMode="adjustResize"' not in manifest and 'adjustResize' not in manifest: add('medium','IME_RESIZE','adjustResize not found in manifest')
+          main='\n'.join(t for p,t in texts.items() if p.name=='MainActivity.java')
+          if 'setDecorFitsSystemWindows' not in main and 'WindowInsetsCompat' not in main: add('high','ANDROID_INSETS','No modern WindowInsets handling detected in MainActivity')
+
+          # Runtime smoke through HTTP. Inject permissive native bridge mocks before any page script.
+          webroot=vtt
+          class Handler(http.server.SimpleHTTPRequestHandler):
+            def log_message(self,*a): pass
+          os.chdir(webroot)
+          srv=socketserver.TCPServer(('127.0.0.1',0),Handler); port=srv.server_address[1]
+          th=threading.Thread(target=srv.serve_forever,daemon=True); th.start()
+          runtime={'url':None,'page_errors':[],'console_errors':[],'failed_requests':[],'nav':[],'image_failures':[]}
+          try:
+            with sync_playwright() as pw:
+              b=pw.chromium.launch(headless=True)
+              page=b.new_page(viewport={'width':415,'height':915},device_scale_factor=1)
+              page.on('pageerror',lambda e: runtime['page_errors'].append(str(e)))
+              page.on('console',lambda m: runtime['console_errors'].append(m.text) if m.type=='error' else None)
+              page.on('requestfailed',lambda req: runtime['failed_requests'].append({'url':req.url,'failure':req.failure}))
+              page.add_init_script('''
+                const handler={get:(t,p)=>{ if(p==='then') return undefined; return (...args)=>{ if(/^get|^list|^search|^load|^export|^import|^resolve/i.test(String(p))) return JSON.stringify({ok:true,items:[],data:[],state:{}}); return true; }; }};
+                for(const n of ['BraseiroUiBridge','BraseiroLibrary','BraseiroGemini','BraseiroImages','BraseiroFile','BraseiroTts','Android','FileBridge','TtsBridge']) window[n]=new Proxy({},handler);
+              ''')
+              candidates=['r46/r46-shell.html','r46/index.html']
+              loaded=False
+              for c in candidates:
+                url=f'http://127.0.0.1:{port}/{c}'
+                resp=page.goto(url,wait_until='domcontentloaded',timeout=30000)
+                if resp and resp.status<400:
+                  runtime['url']=url; loaded=True; break
+              if not loaded: add('critical','R46_BOOT','Could not load R46 shell in browser runtime')
+              else:
+                page.wait_for_timeout(1800)
+                # image natural dimensions
+                runtime['image_failures']=page.evaluate('''() => [...document.images].filter(i=>i.complete && i.naturalWidth===0).map(i=>i.currentSrc||i.src)''')
+                # try bottom nav-like controls conservatively
+                navs=page.locator('nav button, nav [role="button"], .bottom-nav button, [data-tab]')
+                count=min(navs.count(),12)
+                for i in range(count):
+                  try:
+                    el=navs.nth(i); txt=(el.inner_text(timeout=1000) or el.get_attribute('aria-label') or el.get_attribute('data-tab') or f'#{i}')[:80]
+                    before=page.url; el.click(timeout=1500); page.wait_for_timeout(120)
+                    runtime['nav'].append({'control':txt,'ok':True,'url':page.url,'before':before})
+                  except Exception as e: runtime['nav'].append({'control':f'#{i}','ok':False,'error':str(e)[:300]})
+              b.close()
+          finally: srv.shutdown(); srv.server_close()
+          for e in runtime['page_errors'][:30]: add('critical','PAGE_ERROR','Browser pageerror during R46 smoke',evidence=e)
+          for e in runtime['console_errors'][:30]:
+            if not any(x in e.lower() for x in ['favicon','404']): add('high','CONSOLE_ERROR','Browser console error during R46 smoke',evidence=e)
+          for x in runtime['image_failures'][:50]: add('high','BROKEN_IMAGE_RUNTIME','Rendered image failed to load',evidence=x)
+          for n in runtime['nav']:
+            if not n.get('ok'): add('high','NAV_CLICK_FAILURE','Navigation control could not be clicked',evidence=n)
+
+          counts=collections.Counter(i['severity'] for i in issues)
+          report={'generated_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'stats':stats,'issue_counts':dict(counts),'issues':issues,'runtime_smoke':runtime}
+          out=pathlib.Path(os.environ.get('GITHUB_WORKSPACE','.') )/'star-wars/r38/audit/BLOCK02_BROAD_AUDIT.json'
+          out.write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+          md=['# STAR WARS — EDGE OF THE GALAXY — BLOCK02 BROAD AUDIT','',f'- Files scanned: **{stats.get("files_scanned",0)}**',f'- Critical: **{counts.get("critical",0)}**',f'- High: **{counts.get("high",0)}**',f'- Medium: **{counts.get("medium",0)}**',f'- R46 JS syntax files checked: **{stats.get("r46_js_files",0)}**',f'- Local refs checked: **{stats.get("local_refs",0)}**; missing: **{stats.get("missing_local_refs",0)}**',f'- Data actions: **{stats.get("data_actions",0)}**; unbound: **{stats.get("unbound_actions",0)}**',f'- Native bridge calls checked: **{stats.get("native_bridge_calls",0)}**','', '## Findings','']
+          if not issues: md.append('- No static/runtime issue found by this audit scope.')
+          else:
+            for i in issues[:200]: md.append(f'- **{i["severity"].upper()} · {i["code"]}** — {i["message"]}' + (f' (`{i["path"]}`)' if i.get('path') else '') + (f' — `{str(i.get("evidence"))[:500]}`' if i.get('evidence') is not None else ''))
+          md += ['','## Runtime smoke','',f'- URL: `{runtime.get("url")}`',f'- Page errors: **{len(runtime["page_errors"])}**',f'- Console errors: **{len(runtime["console_errors"])}**',f'- Failed requests: **{len(runtime["failed_requests"])}**',f'- Broken rendered images: **{len(runtime["image_failures"])}**',f'- Navigation controls exercised: **{len(runtime["nav"])}**']
+          (out.parent/'BLOCK02_BROAD_AUDIT.md').write_text('\n'.join(md)+'\n',encoding='utf-8')
+          PY
+
+      - name: Commit audit evidence
+        run: |
+          set -euo pipefail
+          git config user.name braseiro-audit-bot
+          git config user.email actions@users.noreply.github.com
+          git add star-wars/r38/audit/BLOCK02_BROAD_AUDIT.json star-wars/r38/audit/BLOCK02_BROAD_AUDIT.md
+          git commit -m 'audit(star-wars): record R38 Block02 broad audit' || true
+          git push
