@@ -1,0 +1,1072 @@
+{
+  "generated_utc": "2026-09-14T15:09:28.779269+00:00",
+  "tabs": {
+    "CENA": [
+      {
+        "label": "CRIAR FICHA",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "CENA",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "PERSONAGEM",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "ITENS",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "NAVE",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "REGISTROS",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      }
+    ],
+    "PERSONAGEM": [
+      {
+        "label": "Ficha",
+        "bridge_calls": [],
+        "dom_changed": false,
+        "class_changed": false,
+        "signal": false
+      },
+      {
+        "label": "Progressão",
+        "bridge_calls": [],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "Abrir fluxo de criação",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "CENA",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "PERSONAGEM",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "ITENS",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "NAVE",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "REGISTROS",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      }
+    ],
+    "ITENS": [
+      {
+        "label": "Inventário",
+        "bridge_calls": [],
+        "dom_changed": false,
+        "class_changed": false,
+        "signal": false
+      },
+      {
+        "label": "Aquisição pendente",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "CENA",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "PERSONAGEM",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "ITENS",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "NAVE",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "REGISTROS",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      }
+    ],
+    "NAVE": [
+      {
+        "label": "Resumo",
+        "bridge_calls": [],
+        "dom_changed": false,
+        "class_changed": false,
+        "signal": false
+      },
+      {
+        "label": "Danos críticos",
+        "bridge_calls": [],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "CENA",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "PERSONAGEM",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "ITENS",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "NAVE",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "REGISTROS",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      }
+    ],
+    "REGISTROS": [
+      {
+        "label": "Missão",
+        "bridge_calls": [],
+        "dom_changed": false,
+        "class_changed": false,
+        "signal": false
+      },
+      {
+        "label": "Grupo / Base",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "Contatos conhecidos",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "Histórico",
+        "bridge_calls": [],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "CENA",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "PERSONAGEM",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "ITENS",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "NAVE",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      },
+      {
+        "label": "REGISTROS",
+        "bridge_calls": [
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          },
+          {
+            "ns": "BraseiroGemini",
+            "m": "getStatus",
+            "args": []
+          }
+        ],
+        "dom_changed": true,
+        "class_changed": false,
+        "signal": true
+      }
+    ]
+  },
+  "suspects": [
+    {
+      "tab": "PERSONAGEM",
+      "label": "Ficha",
+      "reason": "no observable DOM/bridge signal"
+    },
+    {
+      "tab": "ITENS",
+      "label": "Inventário",
+      "reason": "no observable DOM/bridge signal"
+    },
+    {
+      "tab": "NAVE",
+      "label": "Resumo",
+      "reason": "no observable DOM/bridge signal"
+    },
+    {
+      "tab": "REGISTROS",
+      "label": "Missão",
+      "reason": "no observable DOM/bridge signal"
+    }
+  ],
+  "page_errors": []
+}
