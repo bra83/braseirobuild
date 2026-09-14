@@ -95,7 +95,22 @@ Atualizado em 11/09/2026.
 - Recuperação por Esconderijo permanece exclusiva de Tales/Kids.
 - Nenhum APK publicado.
 
-## Evidência executada — 1.3.16c
-- compileDebugKotlin: PASS no workflow 34808933418.
-- regressão Tales + Flood core: PASS.
+## Bloco 1.3.16d-dev — seleção Tales/Flood + ciclo de personagem
+- Menu ganhou seletor real TALES/KIDS ↔ FLOOD/TEENS, bloqueado durante campanha ativa.
+- Factory, início de aventura, import/export JSON e Motor preservam o perfil selecionado.
+- Flood Change agora permite Problem/Shame/Iconic Item/Relationships sem importar Drive/Pride de Tales.
+- Flood aniversário aumenta apenas idade; aos 20 o Teen deixa o jogo.
+- Cicatriz pendente bloqueia fechamento de XP antes de ser registrada.
+- Nenhum APK publicado.
+
+## Bloco 1.3.16e-dev — UI Flood ligada ao motor
+- Ficha preserva layout aprovado e exibe Teen, aniversário, Shame, Hooks, Friction, Scars e registro de Scar pendente.
+- Trouble esconde Sorte/Orgulho no Flood e expõe Shame + Scars; efeitos Tales ficam bloqueados na UI Flood até catálogo Flood local.
+- Encerramento usa as cinco perguntas Flood, Change Flood, cura de Scars aceitas, Friction e idade até saída aos 20.
+- Mochila troca Kid/Teen sem alterar mecânicas.
+- Nenhum APK publicado.
+
+## Evidência executada — 1.3.16e
+- compileDebugKotlin: PASS no workflow 34811346285.
+- regressão Tales + Flood UI/lifecycle: PASS.
 - nenhum APK publicado.

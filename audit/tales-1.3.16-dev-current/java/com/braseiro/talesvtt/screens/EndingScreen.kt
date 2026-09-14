@@ -33,6 +33,7 @@ import com.braseiro.talesvtt.game.GameState
 import com.braseiro.talesvtt.game.EndingMode
 import com.braseiro.talesvtt.game.TalesSkillCatalog
 import com.braseiro.talesvtt.game.KidItemKind
+import com.braseiro.talesvtt.game.RulesProfile
 import com.braseiro.talesvtt.model.AppDestination
 import com.braseiro.talesvtt.model.ContextIconType
 import com.braseiro.talesvtt.model.ContextItemData
@@ -52,17 +53,21 @@ fun EndingScreen(
   onSaveCharacterChanges: (String, String, String, String, String) -> Unit,
   onConfirmCharacterChanges: () -> Unit,
   onPromoteMysteryItem: (String) -> Unit,
+  onHealFloodScar: (Int) -> Unit,
+  onSetFloodFriction: (String) -> Unit,
   onStartNextSession: () -> Unit,
   modifier: Modifier = Modifier
 ) {
+  val flood = gameState.rulesProfile == RulesProfile.FLOOD_TEENS
   val contextItems = listOf(
     ContextItemData("end_myst", if (gameState.endingMode == EndingMode.SESSION) "Sessão" else "Mistério", "Concluído", ContextIconType.MYSTERY, isHighlighted = true),
-    ContextItemData("end_kid", "Kid", gameState.kid.name.substringBefore(' '), ContextIconType.CHARACTERS),
+    ContextItemData("end_kid", if(flood) "Teen" else "Kid", gameState.kid.name.substringBefore(' '), ContextIconType.CHARACTERS),
     ContextItemData("end_xp", "XP Atual", gameState.kid.xp.toString(), ContextIconType.MYSTERY)
   )
   var changeProblem by rememberSaveable(gameState.endingMode) { mutableStateOf(gameState.kid.problem) }
   var changeDrive by rememberSaveable(gameState.endingMode) { mutableStateOf(gameState.kid.drive) }
-  var changePride by rememberSaveable(gameState.endingMode) { mutableStateOf(gameState.kid.prideText) }
+  var changePride by rememberSaveable(gameState.endingMode, flood) { mutableStateOf(if(flood) gameState.kid.shameText else gameState.kid.prideText) }
+  var changeFriction by rememberSaveable(gameState.endingMode, flood) { mutableStateOf(gameState.kid.friction) }
   var changeIconic by rememberSaveable(gameState.endingMode) { mutableStateOf(gameState.kid.iconicItemName) }
   var changeRelationships by rememberSaveable(gameState.endingMode) { mutableStateOf(gameState.kid.relationships.joinToString("\n") { "${it.name} — ${it.description}" }) }
 
@@ -93,7 +98,7 @@ fun EndingScreen(
         Column {
           Text(text = if (gameState.endingMode == EndingMode.SESSION) "SESSÃO ENCERRADA" else "MISTÉRIO ENCERRADO", style = AppTheme.typography.cardTitle)
           Text(
-            text = if (gameState.endingMode == EndingMode.SESSION) "Calcule o XP desta sessão. Condições permanecem até uma recuperação válida ou o fim do Mistério." else "Os Kids voltam para casa. Agora é hora de responder XP e revisar Mudanças.",
+            text = if (gameState.endingMode == EndingMode.SESSION) "Calcule o XP desta sessão. Condições permanecem até uma recuperação válida ou o fim do Mistério." else if(flood) "Os Teens entram na fase de Mudança: XP, Cicatrizes, Friction e revisão do personagem." else "Os Kids voltam para casa. Agora é hora de responder XP e revisar Mudanças.",
             style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.textSecondary)
           )
         }
@@ -104,7 +109,13 @@ fun EndingScreen(
     SectionHeader(title = "EXPERIÊNCIA", color = AppTheme.colors.accentAmber)
     Spacer(modifier = Modifier.height(Dimens.spacing6))
     AppPanel {
-      val questions = listOf(
+      val questions = if(flood) listOf(
+        "Você participou da sessão?",
+        "Seu Problema ou Relacionamentos colocaram você em Trouble?",
+        "Você ficou Quebrado e precisou receber uma Cicatriz?",
+        "Você se colocou em perigo para resolver o Mistério?",
+        "Você aprendeu algo novo?"
+      ) else listOf(
         "Você participou da sessão?",
         "Você esteve em apuros por causa do seu Problema ou Relacionamentos?",
         "Você usou ou lutou com seu Orgulho?",
@@ -142,14 +153,14 @@ fun EndingScreen(
       Spacer(modifier = Modifier.height(Dimens.spacing6))
       AppPanel {
         Text(
-          text = "Entre Mistérios, todas as Condições são curadas. Problema, Ímpeto, Orgulho, Item Icônico e Relacionamentos podem mudar quando fizer sentido na história.",
+          text = if(flood) "Entre Mistérios, todas as Condições são curadas. Problema, Vergonha, Item Icônico e Relacionamentos podem mudar; Friction pode ser redefinida entre sessões." else "Entre Mistérios, todas as Condições são curadas. Problema, Ímpeto, Orgulho, Item Icônico e Relacionamentos podem mudar quando fizer sentido na história.",
           style = AppTheme.typography.body.copy(color = AppTheme.colors.textPrimary)
         )
         if (gameState.sessionXpAwarded && !gameState.change.characterReviewConfirmed) {
           Spacer(modifier = Modifier.height(8.dp))
           OutlinedTextField(changeProblem, { changeProblem = it }, label = { Text("PROBLEMA") }, modifier = Modifier.fillMaxWidth())
-          OutlinedTextField(changeDrive, { changeDrive = it }, label = { Text("ÍMPETO") }, modifier = Modifier.fillMaxWidth())
-          OutlinedTextField(changePride, { changePride = it }, label = { Text("ORGULHO") }, modifier = Modifier.fillMaxWidth())
+          if(!flood) OutlinedTextField(changeDrive, { changeDrive = it }, label = { Text("ÍMPETO") }, modifier = Modifier.fillMaxWidth())
+          OutlinedTextField(changePride, { changePride = it }, label = { Text(if(flood) "VERGONHA" else "ORGULHO") }, modifier = Modifier.fillMaxWidth())
           OutlinedTextField(changeIconic, { changeIconic = it }, label = { Text("ITEM ICÔNICO") }, modifier = Modifier.fillMaxWidth())
           OutlinedTextField(changeRelationships, { changeRelationships = it }, label = { Text("RELACIONAMENTOS • Nome — descrição") }, modifier = Modifier.fillMaxWidth(), minLines = 2)
           val mysteryItems=gameState.kid.items.filter{it.kind==KidItemKind.MYSTERY}
@@ -158,6 +169,19 @@ fun EndingScreen(
             Text("ITENS DESTE MISTÉRIO • opcionalmente escolha um novo Item Icônico",style=AppTheme.typography.label.copy(color=AppTheme.colors.accentAmber))
             mysteryItems.forEach { item ->
               SecondaryButton(text="TORNAR ICÔNICO • ${item.name.uppercase()} • +2",onClick={onPromoteMysteryItem(item.name);changeIconic=item.name},modifier=Modifier.fillMaxWidth())
+            }
+          }
+          if(flood) {
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(changeFriction, { changeFriction = it }, label = { Text("FRICTION DO GRUPO") }, modifier = Modifier.fillMaxWidth())
+            SecondaryButton(text="SALVAR FRICTION",onClick={onSetFloodFriction(changeFriction)},enabled=changeFriction.isNotBlank(),modifier=Modifier.fillMaxWidth())
+            val healable=gameState.kid.scars.withIndex().filter{it.value.accepted}
+            if(healable.isNotEmpty()) {
+              Spacer(modifier=Modifier.height(8.dp))
+              Text("CICATRIZES ACEITAS • cure apenas quando o grupo concordar que a ação/cena justificou",style=AppTheme.typography.label.copy(color=AppTheme.colors.accentAmber))
+              healable.forEach { indexed ->
+                SecondaryButton(text="GRUPO APROVOU • CURAR CICATRIZ ${indexed.index + 1}",onClick={onHealFloodScar(indexed.index)},modifier=Modifier.fillMaxWidth())
+              }
             }
           }
           Spacer(modifier = Modifier.height(8.dp))
@@ -195,35 +219,36 @@ fun EndingScreen(
               }
             }
             gameState.change.birthdayPassed && !gameState.change.birthdayApplied -> {
-              Text(
-                text = "Escolha 1 Atributo para receber +1. Nenhum Atributo pode ultrapassar 5.",
-                style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.textSecondary)
-              )
-              gameState.kid.attributes.forEach { (attribute, current) ->
-                Row(
-                  modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
-                  verticalAlignment = Alignment.CenterVertically
-                ) {
-                  Text(text = attribute, style = AppTheme.typography.label.copy(color = AppTheme.colors.textPrimary), modifier = Modifier.weight(1f))
-                  Text(text = if (current >= 5) "$current • MÁXIMO" else "$current → ${current + 1}", style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.accentCyan))
-                  Spacer(modifier = Modifier.width(8.dp))
-                  SecondaryButton(
-                    text = if (current >= 5) "MÁXIMO" else "+1",
-                    onClick = { onApplyBirthdayAttribute(attribute) },
-                    enabled = current < 5,
-                    modifier = Modifier.width(92.dp)
-                  )
+              if(flood) {
+                Text("Se tempo suficiente passou, o Teen fica um ano mais velho. Atributos não aumentam por aniversário em Flood.", style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.textSecondary))
+                Spacer(modifier=Modifier.height(8.dp))
+                PrimaryButton(text="APLICAR +1 ANO • ${gameState.kid.age} → ${gameState.kid.age + 1}",onClick={onApplyBirthdayAttribute("")},modifier=Modifier.fillMaxWidth())
+              } else {
+                Text(
+                  text = "Escolha 1 Atributo para receber +1. Nenhum Atributo pode ultrapassar 5.",
+                  style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.textSecondary)
+                )
+                gameState.kid.attributes.forEach { (attribute, current) ->
+                  Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                  ) {
+                    Text(text = attribute, style = AppTheme.typography.label.copy(color = AppTheme.colors.textPrimary), modifier = Modifier.weight(1f))
+                    Text(text = if (current >= 5) "$current • MÁXIMO" else "$current → ${current + 1}", style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.accentCyan))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    SecondaryButton(text = if (current >= 5) "MÁXIMO" else "+1",onClick = { onApplyBirthdayAttribute(attribute) },enabled = current < 5,modifier = Modifier.width(92.dp))
+                  }
                 }
               }
             }
             gameState.change.birthdayPassed && gameState.change.birthdayApplied -> {
               Text(
-                text = "Aniversário aplicado • ${gameState.kid.age} anos • ${gameState.change.improvedAttribute ?: "Atributo"} +1 • Sorte máxima ${gameState.kid.maxLuck}.",
+                text = if(flood) "Mudança de idade aplicada • ${gameState.kid.age} anos." else "Aniversário aplicado • ${gameState.kid.age} anos • ${gameState.change.improvedAttribute ?: "Atributo"} +1 • Sorte máxima ${gameState.kid.maxLuck}.",
                 style = AppTheme.typography.body.copy(color = AppTheme.colors.accentCyan)
               )
               if (gameState.change.newKidRequired) {
                 Text(
-                  text = "Aos 16 anos este Kid segue em frente. É necessário criar um novo Kid antes de continuar.",
+                  text = if(flood) "Aos 20 anos o Teen deixa a adolescência. É necessário criar um novo Teen." else "Aos 16 anos este Kid segue em frente. É necessário criar um novo Kid antes de continuar.",
                   style = AppTheme.typography.bodySmall.copy(color = AppTheme.colors.accentAmber)
                 )
               }

@@ -234,6 +234,16 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
   }
 
   fun usePride() = dispatch(GameEvent.UsePride)
+  fun useShame() = dispatch(GameEvent.UseShame)
+  fun useScar(index:Int) = dispatch(GameEvent.UseScar(index))
+  fun recordFloodScar(text:String) {
+    val count=_state.value.kid.scars.size+1
+    val roll=if(count in 2..5) Random.nextInt(1,7) else null
+    dispatch(GameEvent.RecordFloodScar(text,roll))
+  }
+  fun healFloodScar(index:Int) = dispatch(GameEvent.HealAcceptedScar(index,true))
+  fun setFloodFriction(text:String) = dispatch(GameEvent.SetFriction(text))
+  fun resolveFloodFriction(troubleOccurred:Boolean) = dispatch(GameEvent.ResolveFriction(troubleOccurred))
   fun applyInformationBonus() = dispatch(GameEvent.ApplyInformationBonus)
   fun applyContactItemBonus() = dispatch(GameEvent.ApplyContactItemBonus)
   fun applyLeadershipComfort(condition:Condition) = dispatch(GameEvent.ApplyLeadershipComfort(condition))
@@ -284,16 +294,50 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
       _dataStatus.value = "Relacionamentos: use uma linha por pessoa no formato Nome — descrição."
       return
     }
-    dispatch(GameEvent.ApplyBetweenMysteryChanges(problem, drive, pride, iconic, relationships))
+    val flood=_state.value.rulesProfile==RulesProfile.FLOOD_TEENS
+    dispatch(GameEvent.ApplyBetweenMysteryChanges(
+      problem=problem,
+      drive=if(flood) null else drive,
+      prideText=if(flood) null else pride,
+      shameText=if(flood) pride else null,
+      iconicItemName=iconic,
+      relationships=relationships
+    ))
   }
 
   fun confirmBetweenMysteryReview() = dispatch(GameEvent.ConfirmBetweenMysteryReview)
   fun startNextSession() = dispatch(GameEvent.StartNextSession)
 
 
+  private fun groupForProfile(profile:RulesProfile,primary:KidState):GroupState {
+    val others=List(3){ if(profile==RulesProfile.FLOOD_TEENS) RandomTeenFactory.create() else RandomKidFactory.create() }
+    val members=(listOf(primary)+others).map { GroupMemberState(it.name,it.archetype,it.portraitAssetKey,it.conditions,it.broken) }
+    return GroupState(
+      members=members,
+      relationships=emptyList(),
+      hideoutName=if(profile==RulesProfile.FLOOD_TEENS) "Ponto de encontro" else "Cabana no bosque",
+      hideoutDescription=if(profile==RulesProfile.FLOOD_TEENS) "Um lugar recorrente onde os Teens se encontram; Friction continua sendo uma regra separada." else "O esconderijo do grupo: um lugar seguro que os Kids mantêm em segredo.",
+      notes=emptyList()
+    )
+  }
+
+  fun selectRulesProfile(profile:RulesProfile) {
+    if (_adventureStarted.value) {
+      _dataStatus.value="Encerre ou reinicie a campanha antes de trocar Tales/Kids por Flood/Teens."
+      return
+    }
+    if (_state.value.rulesProfile==profile) return
+    val character=if(profile==RulesProfile.FLOOD_TEENS) RandomTeenFactory.create() else RandomKidFactory.create()
+    _state.value=GameState(rulesProfile=profile,kid=character,group=groupForProfile(profile,character))
+    gmPrivateState=GmPrivateState()
+    persistAutosave()
+    _dataStatus.value=if(profile==RulesProfile.FLOOD_TEENS) "Things from the Flood / Teens selecionado." else "Tales from the Loop / Kids selecionado."
+  }
+
   fun createRandomKid() {
-    val kid = RandomKidFactory.create()
-    check(RandomKidFactory.validateCreation(kid)) { "Factory de Kid gerou ficha fora das regras." }
+    val profile=_state.value.rulesProfile
+    val kid=if(profile==RulesProfile.FLOOD_TEENS) RandomTeenFactory.create() else RandomKidFactory.create()
+    check(if(profile==RulesProfile.FLOOD_TEENS) RandomTeenFactory.validateCreation(kid) else RandomKidFactory.validateCreation(kid)) { "Factory de personagem gerou ficha fora das regras do perfil ativo." }
     val members = _state.value.group.members.toMutableList()
     if (members.isEmpty()) {
       members += GroupMemberState(kid.name, kid.archetype, kid.portraitAssetKey)
@@ -314,23 +358,27 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
       lastError = null
     )
     persistAutosave()
-    _dataStatus.value = "Kid aleatório criado dentro dos limites de criação de Tales/Kids: ${kid.name}, ${kid.age} anos, ${kid.archetype}."
+    _dataStatus.value = if(profile==RulesProfile.FLOOD_TEENS) "Teen aleatório criado pelas regras Flood/Teens: ${kid.name}, ${kid.age} anos, ${kid.archetype}." else "Kid aleatório criado dentro dos limites de criação de Tales/Kids: ${kid.name}, ${kid.age} anos, ${kid.archetype}."
   }
 
   fun startRandomAdventure() {
     if (_motorStatus.value.busy) return
     val history = prefs.getString(KEY_ADVENTURE_HISTORY, "").orEmpty()
       .split("\n").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+    val profile=_state.value.rulesProfile
+    if(profile==RulesProfile.FLOOD_TEENS && _state.value.kid.removedFromPlay) {
+      _dataStatus.value="Este Teen deixou o jogo. Crie um novo Teen antes de iniciar outro Mistério."
+      return
+    }
     val seed = AdventureFactory.create(history)
-    val nextHistory = (history + seed.signature).joinToString("\n")
+    val activeSeed = if(profile==RulesProfile.FLOOD_TEENS) seed.copy(seasonYear="Outono, 1995") else seed
+    val nextHistory = (history + "${profile.wireName}|${seed.signature}").joinToString("\n")
     prefs.edit().putString(KEY_ADVENTURE_HISTORY, nextHistory).apply()
 
-    val refreshedKid = _state.value.kid.copy(
-      luck = _state.value.kid.maxLuck,
-      conditions = emptySet(),
-      broken = false,
-      prideAvailable = true
-    )
+    val refreshedKid = when(profile) {
+      RulesProfile.TALES_KIDS -> _state.value.kid.copy(luck=_state.value.kid.maxLuck,conditions=emptySet(),broken=false,prideAvailable=true)
+      RulesProfile.FLOOD_TEENS -> _state.value.kid.copy(luck=0,conditions=emptySet(),broken=false,prideAvailable=false,shameAvailable=true,scarPending=false)
+    }
     val refreshedMembers = _state.value.group.members.map { member ->
       if (member.name.equals(_state.value.kid.name, ignoreCase = true)) {
         member.copy(
@@ -343,22 +391,23 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
       } else member.copy(conditions = emptySet(), broken = false)
     }
     _state.value = GameState(
+      rulesProfile = profile,
       kid = refreshedKid,
       group = _state.value.group.copy(members = refreshedMembers),
       scene = SceneState(
-        title = seed.title,
-        chapter = "NOVA AVENTURA",
-        seasonYear = seed.seasonYear,
-        location = seed.location,
-        weather = seed.weather,
-        time = seed.time,
-        daylight = seed.daylight,
-        visualAssetKey = seed.visualAsset,
-        narrative = seed.localOpeningNarrative(),
+        title = activeSeed.title,
+        chapter = if(profile==RulesProfile.FLOOD_TEENS) "NOVO MISTÉRIO • FLOOD" else "NOVA AVENTURA",
+        seasonYear = activeSeed.seasonYear,
+        location = activeSeed.location,
+        weather = activeSeed.weather,
+        time = activeSeed.time,
+        daylight = activeSeed.daylight,
+        visualAssetKey = activeSeed.visualAsset,
+        narrative = activeSeed.localOpeningNarrative(),
         choices = SceneChoiceDefaults.standard()
       ),
-      revealed = RevealedState(clues = emptySet(), locations = setOf(seed.location), connections = emptySet()),
-      routeHistory = listOf(seed.location)
+      revealed = RevealedState(clues = emptySet(), locations = setOf(activeSeed.location), connections = emptySet()),
+      routeHistory = listOf(activeSeed.location)
     )
     gmPrivateState = GmPrivateState()
 
@@ -375,7 +424,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     _motorRoute.value = MotorRouteHint.SCENE
 
     if (motorTransport.hasApiKey()) {
-      requestMotor(MotorIntent(type = "adventure_start", text = seed.motorBrief()))
+      requestMotor(MotorIntent(type = "adventure_start", text = activeSeed.motorBrief()))
     } else {
       markMotorTransportOffline("Aventura iniciada; Motor Barbara offline até uma chave Gemini ser configurada.")
     }
@@ -474,7 +523,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
   fun exportKid(uri: Uri) {
     viewModelScope.launch {
       runCatching {
-        val text = KidJsonCodec.encode(_state.value.kid)
+        val text = KidJsonCodec.encode(_state.value.rulesProfile,_state.value.kid)
         getApplication<Application>().contentResolver.openOutputStream(uri, "wt")?.bufferedWriter(Charsets.UTF_8).use { out ->
           requireNotNull(out) { "Destino da ficha indisponível." }
           out.write(text); out.flush()
@@ -491,7 +540,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
           requireNotNull(input) { "Ficha não pôde ser aberta." }
           input.readText()
         }
-        KidJsonCodec.decode(text)
+        KidJsonCodec.decodeForProfile(text,_state.value.rulesProfile)
       }.onSuccess { kid ->
         val members = _state.value.group.members.toMutableList()
         if (members.isNotEmpty()) members[0] = members[0].copy(
@@ -500,7 +549,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         )
         _state.value = _state.value.copy(kid = kid, group = _state.value.group.copy(members = members), activeTest = null, testResolution = null, lastError = null)
         persistAutosave()
-        _dataStatus.value = "Ficha ${kid.name} importada e validada."
+        _dataStatus.value = "Ficha ${kid.name} importada e validada para ${_state.value.rulesProfile.wireName}."
       }.onFailure { _dataStatus.value = "Ficha rejeitada: ${it.message}" }
     }
   }

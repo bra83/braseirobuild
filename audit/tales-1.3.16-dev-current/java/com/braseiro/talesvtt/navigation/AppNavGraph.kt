@@ -98,7 +98,8 @@ fun AppNavGraph(
         gameState = gameState,
         onExportKid = gameViewModel::exportKid,
         onImportKid = gameViewModel::importKid,
-        onChangePortrait = gameViewModel::setKidPortrait
+        onChangePortrait = gameViewModel::setKidPortrait,
+        onRecordFloodScar = gameViewModel::recordFloodScar
       )
     }
     composable(AppDestination.GROUP.route) {
@@ -148,6 +149,7 @@ fun AppNavGraph(
         onOpenLibrary = { openInternal(InternalRoutes.LIBRARY) },
         onStartRandomAdventure = gameViewModel::startRandomAdventure,
         onCreateRandomKid = gameViewModel::createRandomKid,
+        onSelectRulesProfile = gameViewModel::selectRulesProfile,
         onContinueAdventure = { onNavigate(AppDestination.SCENE) }
       )
     }
@@ -170,6 +172,8 @@ fun AppNavGraph(
         onLuck = gameViewModel::spendLuck,
         onPush = gameViewModel::push,
         onPride = gameViewModel::usePride,
+        onShame = gameViewModel::useShame,
+        onScar = gameViewModel::useScar,
         onInformationBonus = gameViewModel::applyInformationBonus,
         onContactItemBonus = gameViewModel::applyContactItemBonus,
         onLeadershipComfort = gameViewModel::applyLeadershipComfort,
@@ -216,6 +220,8 @@ fun AppNavGraph(
         onSaveCharacterChanges = gameViewModel::saveBetweenMysteryChanges,
         onConfirmCharacterChanges = gameViewModel::confirmBetweenMysteryReview,
         onPromoteMysteryItem = gameViewModel::promoteMysteryItemToIconic,
+        onHealFloodScar = gameViewModel::healFloodScar,
+        onSetFloodFriction = gameViewModel::setFloodFriction,
         onStartNextSession = {
           gameViewModel.startNextSession()
           if (gameViewModel.state.value.lastError == null) onNavigate(AppDestination.SCENE)

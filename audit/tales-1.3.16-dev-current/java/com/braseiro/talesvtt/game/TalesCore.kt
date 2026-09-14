@@ -345,7 +345,8 @@ sealed interface GameEvent {
     val drive: String? = null,
     val prideText: String? = null,
     val iconicItemName: String? = null,
-    val relationships: List<KidRelationship>? = null
+    val relationships: List<KidRelationship>? = null,
+    val shameText: String? = null
   ) : GameEvent
   data object ConfirmBetweenMysteryReview : GameEvent
   data object StartNextSession : GameEvent
@@ -974,34 +975,47 @@ object TalesReducer {
       is GameEvent.ApplyMysteryEnd -> {
         if (state.sessionXpAwarded) fail("XP desta sessão já foi aplicado.")
         else if (event.xpGained !in 1..5) fail("XP de sessão deve vir das cinco perguntas.")
-        else ok(state.copy(
-          kid = state.kid.copy(
-            xp = (state.kid.xp + event.xpGained).coerceAtMost(10),
-            conditions = emptySet(),
-            broken = false,
-            prideAvailable = true
-          ),
-          sessionXpAwarded = true,
-          endingMode = EndingMode.MYSTERY
-        ))
+        else if (state.rulesProfile == RulesProfile.FLOOD_TEENS && state.kid.scarPending) fail("Registre a Cicatriz pendente antes de encerrar o Mistério.")
+        else {
+          val nextKid = when(state.rulesProfile) {
+            RulesProfile.TALES_KIDS -> state.kid.copy(
+              xp=(state.kid.xp+event.xpGained).coerceAtMost(10),conditions=emptySet(),broken=false,prideAvailable=true
+            )
+            RulesProfile.FLOOD_TEENS -> state.kid.copy(
+              xp=(state.kid.xp+event.xpGained).coerceAtMost(10),conditions=emptySet(),broken=false,luck=0,prideAvailable=false
+            )
+          }
+          ok(state.copy(kid=nextKid,sessionXpAwarded=true,endingMode=EndingMode.MYSTERY))
+        }
       }
 
       GameEvent.ConfirmMysteryEnd -> {
         if (state.endingMode == EndingMode.NONE) fail("O encerramento precisa ser aberto pelo Mestre antes de calcular XP.")
         else if (state.xpAnswers.any { it == null }) fail("Responda às cinco perguntas de XP.")
         else if (state.sessionXpAwarded) fail("XP desta sessão já foi aplicado.")
+        else if (state.rulesProfile == RulesProfile.FLOOD_TEENS && state.kid.scarPending) fail("Registre a Cicatriz pendente antes de concluir o XP.")
         else {
           val gained = state.xpAnswers.count { it == true }
           if (gained !in 1..5) fail("Ao menos a participação precisa estar registrada para XP.")
-          else ok(state.copy(
-            kid = state.kid.copy(
-              xp = (state.kid.xp + gained).coerceAtMost(10),
-              conditions = if (state.endingMode == EndingMode.MYSTERY) emptySet() else state.kid.conditions,
-              broken = if (state.endingMode == EndingMode.MYSTERY) false else state.kid.broken,
-              prideAvailable = true
-            ),
-            sessionXpAwarded = true
-          ))
+          else {
+            val mysteryEnded = state.endingMode == EndingMode.MYSTERY
+            val nextKid = when(state.rulesProfile) {
+              RulesProfile.TALES_KIDS -> state.kid.copy(
+                xp=(state.kid.xp+gained).coerceAtMost(10),
+                conditions=if(mysteryEnded) emptySet() else state.kid.conditions,
+                broken=if(mysteryEnded) false else state.kid.broken,
+                prideAvailable=true
+              )
+              RulesProfile.FLOOD_TEENS -> state.kid.copy(
+                xp=(state.kid.xp+gained).coerceAtMost(10),
+                conditions=if(mysteryEnded) emptySet() else state.kid.conditions,
+                broken=if(mysteryEnded) false else state.kid.broken,
+                luck=0,
+                prideAvailable=false
+              )
+            }
+            ok(state.copy(kid=nextKid,sessionXpAwarded=true))
+          }
         }
       }
 
@@ -1024,6 +1038,16 @@ object TalesReducer {
           state.endingMode != EndingMode.MYSTERY || !state.sessionXpAwarded -> fail("Mudança de aniversário só ocorre entre Mistérios.")
           !state.change.birthdayReviewed || !state.change.birthdayPassed -> fail("Confirme primeiro que o aniversário ocorreu desde o último Mistério.")
           state.change.birthdayApplied -> fail("Mudança de aniversário já aplicada.")
+          state.rulesProfile == RulesProfile.FLOOD_TEENS -> {
+            if (state.kid.age >= 20) fail("Este Teen já deixou a adolescência.")
+            else {
+              val nextAge=state.kid.age+1
+              ok(state.copy(
+                kid=state.kid.copy(age=nextAge,removedFromPlay=state.kid.removedFromPlay || nextAge>=20,luck=0,prideAvailable=false),
+                change=state.change.copy(birthdayApplied=true,improvedAttribute=null,newKidRequired=nextAge>=20)
+              ))
+            }
+          }
           attr == null -> fail("Atributo inválido.")
           (state.kid.attributes[attr] ?: 0) >= 5 -> fail("Nenhum Atributo pode ultrapassar 5.")
           state.kid.age >= 16 -> fail("Este Kid já chegou aos 16 anos e precisa seguir em frente.")
@@ -1033,16 +1057,8 @@ object TalesReducer {
             nextAttributes[attr] = (nextAttributes[attr] ?: 0) + 1
             val nextMaxLuck = (15 - nextAge).coerceAtLeast(0)
             ok(state.copy(
-              kid = state.kid.copy(
-                age = nextAge,
-                luck = state.kid.luck.coerceAtMost(nextMaxLuck),
-                attributes = nextAttributes
-              ),
-              change = state.change.copy(
-                birthdayApplied = true,
-                improvedAttribute = attr,
-                newKidRequired = nextAge >= 16
-              )
+              kid = state.kid.copy(age=nextAge,luck=state.kid.luck.coerceAtMost(nextMaxLuck),attributes=nextAttributes),
+              change = state.change.copy(birthdayApplied=true,improvedAttribute=attr,newKidRequired=nextAge>=16)
             ))
           }
         }
@@ -1053,17 +1069,30 @@ object TalesReducer {
           state.endingMode != EndingMode.MYSTERY || !state.sessionXpAwarded -> fail("Mudanças de personagem só podem ser feitas entre Mistérios.")
           state.change.characterReviewConfirmed -> fail("A revisão de Mudança já foi confirmada.")
           event.problem != null && event.problem.trim().isBlank() -> fail("Problema não pode ficar vazio.")
-          event.drive != null && event.drive.trim().isBlank() -> fail("Ímpeto não pode ficar vazio.")
-          event.prideText != null && event.prideText.trim().isBlank() -> fail("Orgulho não pode ficar vazio.")
           event.iconicItemName != null && event.iconicItemName.trim().isBlank() -> fail("Item Icônico não pode ficar vazio.")
           event.relationships != null && event.relationships.any { it.name.isBlank() || it.description.isBlank() } -> fail("Relacionamento precisa de pessoa e descrição.")
-          else -> ok(state.copy(kid = state.kid.copy(
-            problem = event.problem?.trim()?.take(1000) ?: state.kid.problem,
-            drive = event.drive?.trim()?.take(1000) ?: state.kid.drive,
-            prideText = event.prideText?.trim()?.take(1000) ?: state.kid.prideText,
-            iconicItemName = event.iconicItemName?.trim()?.take(180) ?: state.kid.iconicItemName,
-            relationships = event.relationships?.take(20) ?: state.kid.relationships
-          )))
+          state.rulesProfile == RulesProfile.TALES_KIDS && event.drive != null && event.drive.trim().isBlank() -> fail("Ímpeto não pode ficar vazio.")
+          state.rulesProfile == RulesProfile.TALES_KIDS && event.prideText != null && event.prideText.trim().isBlank() -> fail("Orgulho não pode ficar vazio.")
+          state.rulesProfile == RulesProfile.FLOOD_TEENS && event.shameText != null && event.shameText.trim().isBlank() -> fail("Vergonha não pode ficar vazia.")
+          else -> {
+            val next = when(state.rulesProfile) {
+              RulesProfile.TALES_KIDS -> state.kid.copy(
+                problem=event.problem?.trim()?.take(1000) ?: state.kid.problem,
+                drive=event.drive?.trim()?.take(1000) ?: state.kid.drive,
+                prideText=event.prideText?.trim()?.take(1000) ?: state.kid.prideText,
+                iconicItemName=event.iconicItemName?.trim()?.take(180) ?: state.kid.iconicItemName,
+                relationships=event.relationships?.take(20) ?: state.kid.relationships
+              )
+              RulesProfile.FLOOD_TEENS -> state.kid.copy(
+                problem=event.problem?.trim()?.take(1000) ?: state.kid.problem,
+                shameText=event.shameText?.trim()?.take(1000) ?: state.kid.shameText,
+                iconicItemName=event.iconicItemName?.trim()?.take(180) ?: state.kid.iconicItemName,
+                relationships=event.relationships?.take(20) ?: state.kid.relationships,
+                luck=0,prideAvailable=false
+              )
+            }
+            ok(state.copy(kid=next))
+          }
         }
       }
 
@@ -1084,7 +1113,7 @@ object TalesReducer {
           state.endingMode == EndingMode.MYSTERY && !state.change.characterReviewConfirmed -> fail("Confirme a revisão de Mudança antes do próximo Mistério.")
           state.endingMode == EndingMode.MYSTERY && !state.change.birthdayReviewed -> fail("Confirme se houve aniversário antes do próximo Mistério.")
           state.endingMode == EndingMode.MYSTERY && state.change.birthdayPassed && !state.change.birthdayApplied -> fail("Aplique a mudança de aniversário antes de continuar.")
-          state.change.newKidRequired -> fail("Aos 16 anos este Kid segue em frente; crie um novo Kid antes de continuar.")
+          state.change.newKidRequired -> fail(if(state.rulesProfile==RulesProfile.FLOOD_TEENS) "Aos 20 anos este Teen segue em frente; crie um novo Teen antes de continuar." else "Aos 16 anos este Kid segue em frente; crie um novo Kid antes de continuar.")
           else -> ok(state.copy(
             kid = when(state.rulesProfile) {
               RulesProfile.TALES_KIDS -> state.kid.copy(luck = state.kid.maxLuck, prideAvailable = true)

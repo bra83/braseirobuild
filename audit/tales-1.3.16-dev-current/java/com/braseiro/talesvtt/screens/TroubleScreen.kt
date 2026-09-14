@@ -34,6 +34,7 @@ import com.braseiro.talesvtt.game.CanonicalTalesRules
 import com.braseiro.talesvtt.game.BonusEffectKind
 import com.braseiro.talesvtt.game.GameState
 import com.braseiro.talesvtt.game.TestPurpose
+import com.braseiro.talesvtt.game.RulesProfile
 import com.braseiro.talesvtt.model.AppDestination
 import com.braseiro.talesvtt.model.ContextIconType
 import com.braseiro.talesvtt.model.ContextItemData
@@ -50,6 +51,8 @@ fun TroubleScreen(
   onLuck: () -> Unit,
   onPush: (Condition?) -> Unit,
   onPride: () -> Unit,
+  onShame: () -> Unit,
+  onScar: (Int) -> Unit,
   onInformationBonus: () -> Unit,
   onContactItemBonus: () -> Unit,
   onLeadershipComfort: (Condition) -> Unit,
@@ -61,10 +64,11 @@ fun TroubleScreen(
   val test = gameState.activeTest
   val result = gameState.testResolution
   val activeCondition = gameState.kid.conditions.firstOrNull()
+  val flood = gameState.rulesProfile == RulesProfile.FLOOD_TEENS
 
   val contextItems = listOf(
     ContextItemData("tr_loc", "Local Atual", gameState.scene.location, ContextIconType.LOCATION),
-    ContextItemData("tr_kid", "Kid", gameState.kid.name.substringBefore(' '), ContextIconType.CHARACTERS, isHighlighted = true),
+    ContextItemData("tr_kid", if(flood) "Teen" else "Kid", gameState.kid.name.substringBefore(' '), ContextIconType.CHARACTERS, isHighlighted = true),
     ContextItemData(
       "tr_cond",
       "Condições",
@@ -199,16 +203,16 @@ fun TroubleScreen(
         Spacer(modifier = Modifier.height(7.dp))
         if (test.helperKid == null) {
           SecondaryButton(
-            text = "PEDIR AJUDA  •  +1 dado de um Kid",
+            text = "PEDIR AJUDA  •  +1 dado de ${if(flood) "um Teen" else "um Kid"}",
             icon = AppIcons.Group,
             onClick = onHelp,
             modifier = Modifier.fillMaxWidth()
           )
         }
       } else {
-        RollResultPanel(gameState, onLuck, onPush, onPride)
+        RollResultPanel(gameState, onLuck, onPush, onPride, onShame, onScar)
         LeadershipComfortEffect(gameState,onLeadershipComfort)
-        CanonicalBonusEffects(gameState,onPurchaseBonusEffect)
+        if(!flood) CanonicalBonusEffects(gameState,onPurchaseBonusEffect)
         Spacer(modifier = Modifier.height(10.dp))
         val pendingComfort = test.purpose == TestPurpose.LEADERSHIP_COMFORT && result.successes >= test.requiredSuccesses && !result.baseEffectApplied
         PrimaryButton(
@@ -248,11 +252,14 @@ private fun RollResultPanel(
   gameState: GameState,
   onLuck: () -> Unit,
   onPush: (Condition?) -> Unit,
-  onPride: () -> Unit
+  onPride: () -> Unit,
+  onShame: () -> Unit,
+  onScar: (Int) -> Unit
 ) {
   val test = gameState.activeTest ?: return
   val result = gameState.testResolution ?: return
   val success = result.successes >= test.requiredSuccesses
+  val flood = gameState.rulesProfile == RulesProfile.FLOOD_TEENS
 
   Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
     Text(
@@ -264,7 +271,7 @@ private fun RollResultPanel(
       style = AppTheme.typography.sectionTitle.copy(color = if (success) AppTheme.colors.accentOlive else AppTheme.colors.accentAmber)
     )
 
-    if (!success && !result.luckUsed && gameState.kid.luck > 0) {
+    if (!flood && !success && !result.luckUsed && gameState.kid.luck > 0) {
       SecondaryButton(
         text = "USAR SORTE  •  rerrolar dados sem 6",
         onClick = onLuck,
@@ -300,12 +307,30 @@ private fun RollResultPanel(
         }
       }
     }
-    if (gameState.kid.prideAvailable && !result.prideUsed) {
+    if (!flood && gameState.kid.prideAvailable && !result.prideUsed) {
       SecondaryButton(
         text = "USAR ORGULHO  •  +1 sucesso automático",
         onClick = onPride,
         modifier = Modifier.fillMaxWidth()
       )
+    }
+    if (flood && gameState.kid.shameAvailable) {
+      SecondaryButton(
+        text = "USAR VERGONHA  •  +1 sucesso automático",
+        onClick = onShame,
+        modifier = Modifier.fillMaxWidth()
+      )
+    }
+    if (flood) {
+      gameState.kid.scars.forEachIndexed { index, scar ->
+        if (!scar.usedForSuccess) {
+          SecondaryButton(
+            text = "USAR CICATRIZ ${index + 1}  •  +1 sucesso automático",
+            onClick = { onScar(index) },
+            modifier = Modifier.fillMaxWidth()
+          )
+        }
+      }
     }
   }
 }
