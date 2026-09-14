@@ -72,9 +72,8 @@ Atualizado em 11/09/2026.
 - XP de participação não pode ser negado a um Kid presente.
 - Bloco somente código/teste; nenhum APK publicado.
 
-## Evidência executada — 1.3.15j
-- compileDebugKotlin: PASS no workflow 34802361381.
+## Evidência executada — 1.3.15k
+- compileDebugKotlin: PASS no workflow 34802604658.
 - regressão unitária total: PASS.
-- Liderança/Contatos: 8/8 PASS.
-- memória privada NPC/fatos/countdowns: 5/5 PASS.
+- 33/33 sessões completas determinísticas: PASS.
 - nenhum APK publicado.
