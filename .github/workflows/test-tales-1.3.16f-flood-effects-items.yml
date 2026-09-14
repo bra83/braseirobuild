@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/workflows/test-tales-1.3.16f-flood-effects-items.yml"
       - "tales-1.3.16f-transform.py"
+      - "tales-1.3.16f1-transform.py"
 
 permissions:
   contents: write
@@ -31,7 +32,7 @@ jobs:
           chmod +x "$ROOT/gradlew"
           python3 -m pip install --quiet pillow
           python3 tales-1.3.14-transform.py "$ROOT"
-          python3 tales-1.3.16f-transform.py "$ROOT" | tee /tmp/tales-transform-1316f.txt
+          python3 tales-1.3.16f1-transform.py "$ROOT" | tee /tmp/tales-transform-1316f.txt
           echo "root=$ROOT" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-java@v5
