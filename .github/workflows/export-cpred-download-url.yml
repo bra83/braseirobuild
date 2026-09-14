@@ -20,7 +20,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          ASSET_ID=562131797
+          ASSET_ID=562179248
           API_URL="https://api.github.com/repos/$GITHUB_REPOSITORY/releases/assets/$ASSET_ID"
           HDR="$(mktemp)"
           curl -sS -D "$HDR" -o /dev/null \
