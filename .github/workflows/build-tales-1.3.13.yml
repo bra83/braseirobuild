@@ -1,0 +1,183 @@
+name: Build Tales 1.3.13 Local Rules
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-tales-1.3.13.yml"
+      - "tales-1.3.13-transform.py"
+
+permissions:
+  contents: write
+
+env:
+  TAG: TALES-1.3.13
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout builder
+        uses: actions/checkout@v4
+
+      - name: Download preserved 1.3.8 source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rm -rf incoming work APK_SAIDA
+          mkdir -p incoming work APK_SAIDA
+          gh release download TALES-1.3.8 --pattern 'BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8.zip' --dir incoming
+          unzip -q incoming/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8.zip -d work
+
+      - name: Detect Android project
+        id: detect
+        run: |
+          set -euo pipefail
+          ROOT="$(dirname "$(find work -type f -name gradlew | head -n1)")"
+          [ -f "$ROOT/app/build.gradle.kts" ]
+          chmod +x "$ROOT/gradlew"
+          SDK="$(grep -RhoE 'compileSdk(Version)?[[:space:]]*[= ]+[0-9]+' "$ROOT" --include='*.gradle' --include='*.gradle.kts' 2>/dev/null | grep -oE '[0-9]+' | sort -nr | head -n1 || true)"
+          [ -n "$SDK" ] || SDK=36
+          echo "root=$ROOT" >> "$GITHUB_OUTPUT"
+          echo "sdk=$SDK" >> "$GITHUB_OUTPUT"
+
+      - name: Apply cumulative 1.3.13 block
+        env:
+          ROOT: ${{ steps.detect.outputs.root }}
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pillow
+          python3 tales-1.3.13-transform.py "$ROOT" | tee APK_SAIDA/TRANSFORM_TALES_1.3.13.txt
+          grep -q 'versionName = "1.3.13"' "$ROOT/app/build.gradle.kts"
+          grep -q 'object CanonicalTalesRules' "$ROOT/app/src/main/java/com/braseiro/talesvtt/game/CanonicalTalesRules.kt"
+          grep -q 'data class KidItemState' "$ROOT/app/src/main/java/com/braseiro/talesvtt/game/TalesCore.kt"
+          grep -q 'mechanical_contract' "$ROOT/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraTransport.kt"
+          ! grep -q 'rag_instruction' "$ROOT/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraTransport.kt"
+          ! grep -q 'title = "Lanterna"' "$ROOT/app/src/main/java/com/braseiro/talesvtt/screens/BackpackScreen.kt"
+          grep -q 'mystery_item_approve' "$ROOT/app/src/main/java/com/braseiro/talesvtt/game/MotorBarbaraWireAdapter.kt"
+
+      - name: Configure Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Configure Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-${{ steps.detect.outputs.sdk }}"
+
+      - name: Configure Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run rules and regression tests
+        working-directory: ${{ steps.detect.outputs.root }}
+        run: |
+          set -euo pipefail
+          ./gradlew testDebugUnitTest --stacktrace --no-daemon
+          ! grep -R 'failures="[1-9]' app/build/test-results/testDebugUnitTest/*.xml
+          ! grep -R 'errors="[1-9]' app/build/test-results/testDebugUnitTest/*.xml
+          grep -R 'tests="10"' app/build/test-results/testDebugUnitTest/TEST-com.braseiro.talesvtt.game.CanonicalRulesV1313Test.xml
+
+      - name: Prepare Android 10 build
+        env:
+          ROOT: ${{ steps.detect.outputs.root }}
+        run: |
+          set -euo pipefail
+          KEYSTORE="$RUNNER_TEMP/braseiro-stable-debug.keystore"
+          base64 -d "$GITHUB_WORKSPACE/build-signing/braseiro-stable-debug.keystore.b64" > "$KEYSTORE"
+          echo "BRASEIRO_STABLE_KEYSTORE=$KEYSTORE" >> "$GITHUB_ENV"
+          python3 - <<'PY'
+          from pathlib import Path
+          import os,re
+          root=Path(os.environ['ROOT'])
+          gradle=root/'app'/'build.gradle.kts'
+          t=gradle.read_text(encoding='utf-8')
+          needle='    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"\n'
+          if 'abiFilters += listOf("arm64-v8a", "armeabi-v7a")' not in t:
+              t=t.replace(needle, needle+'    ndk {\n      abiFilters += listOf("arm64-v8a", "armeabi-v7a")\n    }\n')
+          t=re.sub(r'targetSdk\s*=\s*\d+', 'targetSdk = 28', t, count=1)
+          t=re.sub(r'versionCode\s*=\s*\d+', 'versionCode = 17', t, count=1)
+          if 'applicationIdSuffix = ".legacyv1"' not in t:
+              t=t.replace('    release {\n      isCrunchPngs = false','    release {\n      applicationIdSuffix = ".legacyv1"\n      versionNameSuffix = "-android10-v1"\n      isCrunchPngs = false')
+          if 'useLegacyPackaging = true' not in t:
+              t=t.replace('  dependenciesInfo {\n','  packaging {\n    jniLibs {\n      useLegacyPackaging = true\n    }\n  }\n  dependenciesInfo {\n')
+          gradle.write_text(t,encoding='utf-8')
+          manifest=root/'app'/'src'/'main'/'AndroidManifest.xml'
+          m=manifest.read_text(encoding='utf-8')
+          m=re.sub(r'\n\s*android:dataExtractionRules="[^"]+"','',m)
+          manifest.write_text(m,encoding='utf-8')
+          PY
+
+      - name: Reduce large PNG assets
+        env:
+          ROOT: ${{ steps.detect.outputs.root }}
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import os
+          root=Path(os.environ['ROOT'])/'app'/'src'/'main'/'res'
+          launcher={'ic_launcher.png','ic_launcher_round.png','ic_launcher_foreground.png'}
+          for p in list(root.rglob('*.png')):
+              if p.name in launcher or p.name.endswith('.9.png') or p.stat().st_size<=250000: continue
+              target=p.with_suffix('.webp')
+              with Image.open(p) as im: im.save(target,format='WEBP',quality=90,method=6)
+              if target.stat().st_size < p.stat().st_size: p.unlink()
+              else: target.unlink(missing_ok=True)
+          PY
+
+      - name: Compile release APK
+        working-directory: ${{ steps.detect.outputs.root }}
+        run: ./gradlew clean assembleRelease -x lintVitalRelease --stacktrace --no-daemon
+
+      - name: Sign align and validate APK
+        working-directory: ${{ steps.detect.outputs.root }}
+        run: |
+          set -euo pipefail
+          OUT="$GITHUB_WORKSPACE/APK_SAIDA"; mkdir -p "$OUT"
+          UNSIGNED="$(find . -type f -path '*/build/outputs/apk/release/*.apk' | sort | head -n1)"
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
+          TMP="$RUNNER_TEMP/tales-1313.apk"
+          FINAL="$OUT/TALES-1.3.13-ANDROID10-LEGACY-V1.apk"
+          REPORT="$OUT/VALIDACAO_TALES_1.3.13.txt"
+          cp "$UNSIGNED" "$TMP"
+          zip -q -d "$TMP" 'META-INF/*.SF' 'META-INF/*.RSA' 'META-INF/*.DSA' 'META-INF/MANIFEST.MF' >/dev/null 2>&1 || true
+          jarsigner -keystore "$BRASEIRO_STABLE_KEYSTORE" -storepass android -keypass android -sigalg SHA256withRSA -digestalg SHA-256 "$TMP" androiddebugkey
+          "$BUILD_TOOLS/zipalign" -p -f 4 "$TMP" "$FINAL"
+          unzip -t "$FINAL" >/dev/null
+          "$BUILD_TOOLS/aapt" dump badging "$FINAL" | grep -E '^(package:|sdkVersion:|targetSdkVersion:|application-icon-|native-code:)' | tee "$REPORT"
+          "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$FINAL" | tee -a "$REPORT"
+          grep -q "versionCode='17'" "$REPORT"
+          grep -q "targetSdkVersion:'28'" "$REPORT"
+          grep -q 'Verified using v1 scheme (JAR signing): true' "$REPORT"
+          sha256sum "$FINAL" | tee -a "$REPORT"
+          (cd "$OUT" && sha256sum *.apk > SHA256SUMS_TALES_1.3.13.txt)
+
+      - name: Publish APK release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then gh release delete "$TAG" -y --cleanup-tag || true; fi
+          gh release create "$TAG" --title 'BRASEIRO TALES VTT 1.3.13' --notes 'Autoridade mecânica Tales/Kids local e determinística; RAG demovido a referência narrativa; inventário real/persistente com objetos comuns, Itens do Mistério e validação exata de bônus. Correções 1.3.12 preservadas.'
+          gh release upload "$TAG" APK_SAIDA/TALES-1.3.13-ANDROID10-LEGACY-V1.apk APK_SAIDA/VALIDACAO_TALES_1.3.13.txt APK_SAIDA/SHA256SUMS_TALES_1.3.13.txt APK_SAIDA/TRANSFORM_TALES_1.3.13.txt
+
+      - name: Update resume
+        env:
+          ROOT: ${{ steps.detect.outputs.root }}
+        run: |
+          cp "$ROOT/TALES_RETOMADA_CURRENT.md" TALES_RETOMADA_CURRENT.md
+          printf '\n## Evidência executada no GitHub — 1.3.13\n- regressão + contratos de regras locais/inventário/RAG-independence: PASS no workflow %s.\n- assembleRelease, assinatura e validação Android: PASS.\n- APK publicado na release TALES-1.3.13.\n' "$GITHUB_RUN_ID" >> TALES_RETOMADA_CURRENT.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+bra83@users.noreply.github.com'
+          git add TALES_RETOMADA_CURRENT.md
+          git commit -m 'Update Tales resume after 1.3.13 local rules build' || exit 0
+          git push
