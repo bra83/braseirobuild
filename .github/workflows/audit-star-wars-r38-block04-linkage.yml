@@ -5,7 +5,6 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/audit-star-wars-r38-block04-linkage.yml"
-      - "STAR_WARS_R38_BLOCK04_AUDIT_TRIGGER.txt"
 
 permissions:
   contents: write
@@ -21,15 +20,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Read source
-        id: source
+      - id: source
         run: |
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json
           d=json.load(open('star-wars/r38/SOURCE.json'))
           print('url='+d['source_share_url']); print('sha='+d['sha256']); print('file='+d['file'])
           PY
-      - name: Download pinned source
+      - name: Download pinned R38 source
         env:
           SHARE_URL: ${{ steps.source.outputs.url }}
           EXPECTED_SHA: ${{ steps.source.outputs.sha }}
@@ -68,18 +66,13 @@ jobs:
           PY
           echo "${EXPECTED_SHA}  incoming/${SOURCE_FILE}" | sha256sum -c -
           unzip -q "incoming/${SOURCE_FILE}" -d work
-      - name: Apply already-green cumulative patches
-        run: |
-          set -euo pipefail
           ROOT="$(dirname "$(find work -type f -name gradlew | head -n1)")"
-          python3 star-wars/r38/patches/block01_repair_safe.py "$ROOT" >/tmp/b1.txt
-          if [ -f star-wars/r38/patches/block02_scene_controls.py ]; then python3 star-wars/r38/patches/block02_scene_controls.py "$ROOT" >/tmp/b2.txt; fi
           echo "ROOT=$ROOT" >> "$GITHUB_ENV"
       - name: Inspect actual R46 linkage surfaces
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import os,re,json,pathlib,collections
+          import os,re,json,pathlib,collections,unicodedata
           root=pathlib.Path(os.environ['ROOT']); vtt=root/'app/src/main/assets/vtt'; out=pathlib.Path('star-wars/r38/audit'); out.mkdir(parents=True,exist_ok=True)
           paths=[vtt/'r46/r46-shell.bundle.js',vtt/'r46/final-runtime.js',vtt/'js/core/uiBridge.mjs',vtt/'js/core/uiBridge.bundle.js',vtt/'js/library/imageLibrary.mjs',vtt/'js/rules/equipmentCatalog.mjs',vtt/'js/rules/vehicles.mjs']
           pats=[r'imageVisualEntityCatalog',r'imageMapCatalog',r'searchImageLibrary',r'getImageAsset',r'imageAssetRuntime',r'visualEntit',r'equipment',r'inventory',r'vehicle',r'npc',r'droid',r'beast',r'creature',r'assetId',r'mechanicalBinding']
@@ -93,13 +86,10 @@ jobs:
                 hits.append({'line':i,'context':'\n'.join(f'{j}:{ls[j-1]}' for j in range(a,b+1))[:6000]})
                 if len(hits)>=120: break
             snippets[str(p.relative_to(root))]=hits
-          # manifest exact mechanical bindings
           mf=json.loads((vtt/'image-library/manifest.json').read_text(encoding='utf-8')); arr=mf.get('assets',[])
           bound=[a for a in arr if isinstance(a,dict) and a.get('mechanicalBinding')]
           categories=collections.Counter(str(a.get('category')) for a in arr if isinstance(a,dict))
-          # candidate exact title/name identities from rule source vs visual manifest titles
           def norm(s):
-            import unicodedata
             s=unicodedata.normalize('NFKD',str(s)).encode('ascii','ignore').decode().lower(); return re.sub(r'[^a-z0-9]+',' ',s).strip()
           visual_titles={norm(a.get('title')):a for a in arr if isinstance(a,dict) and a.get('title')}
           rule_strings=[]
@@ -108,7 +98,7 @@ jobs:
             for m in re.finditer(r"(?:name|title|label)\s*:\s*['\"]([^'\"]{2,120})['\"]",t): rule_strings.append({'source':str(rp.relative_to(root)),'value':m.group(1)})
           exact=[]
           for r in rule_strings:
-            n=norm(r['value']); a=visual_titles.get(n)
+            a=visual_titles.get(norm(r['value']))
             if a: exact.append({'rule':r,'assetId':a.get('assetId'),'assetTitle':a.get('title'),'category':a.get('category'),'localPath':a.get('localPath'),'remoteReady':a.get('remoteReady'),'remoteUrl':a.get('remoteUrl')})
           report={'manifest_assets':len(arr),'categories':dict(categories),'explicit_mechanical_bindings':len(bound),'binding_examples':bound[:50],'exact_rule_title_matches':exact,'snippets':snippets}
           (out/'BLOCK04_LINKAGE_INSPECTION.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
