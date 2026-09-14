@@ -1,0 +1,160 @@
+name: Audit Star Wars R38 Block04 broad runtime
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-star-wars-r38-block04.yml'
+      - 'star-wars/r38/patches/**'
+permissions:
+  contents: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Install browser
+        run: |
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium >/dev/null
+      - name: Prepare exact patched R38
+        env:
+          U: https://firestorage.ai/ja/f/qPKfDLdfrlCc
+          F: STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R38_BUILD_FIX.zip
+          S: e925d7c2885e51b4f03dfe55ec7f477deb23ee0551b7b30f3a457154db9dd872
+          SU: https://firestorage.ai/ja/f/PbM3XvdzNMAk
+          SF: scene-assets-v1-tiny.tar.gz
+          SS: 2ca16b2cd0d3f489fe10f1df718be1243febeef38fb88a52bd50502528f60711
+        shell: bash
+        run: |
+          set -euo pipefail; rm -rf incoming work; mkdir -p incoming work
+          python3 - <<'PY'
+          import os,pathlib
+          from playwright.sync_api import sync_playwright
+          def dl(u,n,o):
+            with sync_playwright() as p:
+              b=p.chromium.launch(headless=True);q=b.new_page(accept_downloads=True);q.goto(u,wait_until='domcontentloaded',timeout=120000);q.wait_for_timeout(2500);done=False
+              for s in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")','button:has-text("保存")','a:has-text("保存")']:
+                try:
+                  x=q.locator(s).first
+                  if not x.count() or not x.is_visible(): continue
+                  with q.expect_download(timeout=120000) as i:x.click(timeout=10000)
+                  i.value.save_as(str(o));done=True;break
+                except: pass
+              if not done:
+                x=q.get_by_text(n,exact=False).first
+                with q.expect_download(timeout=120000) as i:x.locator('xpath=ancestor::*[self::div or self::li or self::article][1]').locator('a,button').last.click(timeout=10000)
+                i.value.save_as(str(o));done=True
+              b.close()
+            if not done: raise SystemExit('download failed '+n)
+          dl(os.environ['U'],os.environ['F'],pathlib.Path('incoming')/os.environ['F']);dl(os.environ['SU'],os.environ['SF'],pathlib.Path('incoming')/os.environ['SF'])
+          PY
+          echo "${S}  incoming/${F}"|sha256sum -c -; echo "${SS}  incoming/${SF}"|sha256sum -c -
+          unzip -q "incoming/${F}" -d work
+          G="$(find work -type f -name gradlew -not -path '*/build/*'|head -1)"; R="$(dirname "$G")"; echo "$R">/tmp/root
+          base64 -w0 "incoming/${SF}" > star-wars/r38/patches/assets/scene-assets-v1.tar.gz.b64
+          python3 star-wars/r38/patches/block01_repair_safe.py "$R"
+          python3 star-wars/r38/patches/block02_scene_controls.py "$R"
+      - name: Broad browser and asset audit
+        shell: bash
+        run: |
+          set -euo pipefail; export ROOT="$(cat /tmp/root)"
+          python3 - <<'PY'
+          import os,pathlib,threading,http.server,socketserver,json,datetime,re
+          from playwright.sync_api import sync_playwright
+          root=pathlib.Path(os.environ['ROOT']);vtt=root/'app/src/main/assets/vtt';os.chdir(vtt)
+          class H(http.server.SimpleHTTPRequestHandler):
+            def log_message(self,*a):pass
+          s=socketserver.TCPServer(('127.0.0.1',0),H);threading.Thread(target=s.serve_forever,daemon=True).start();port=s.server_address[1]
+          R={'generated_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'issues':[],'viewports':{},'static':{}}
+          def issue(code,msg,sev='high',ev=None):R['issues'].append({'severity':sev,'code':code,'message':msg,'evidence':ev})
+          try:
+            with sync_playwright() as p:
+              b=p.chromium.launch(headless=True)
+              for vw,vh in [(415,915),(360,800)]:
+                pg=b.new_page(viewport={'width':vw,'height':vh}); errors=[]; failed=[]; badresp=[]; consoles=[]
+                pg.on('pageerror',lambda e:errors.append(str(e)))
+                pg.on('requestfailed',lambda r:failed.append({'url':r.url,'failure':str(r.failure)}))
+                pg.on('response',lambda r: badresp.append({'url':r.url,'status':r.status}) if r.status>=400 and r.url.startswith(f'http://127.0.0.1:{port}') else None)
+                pg.on('console',lambda m:consoles.append({'type':m.type,'text':m.text}) if m.type in ('error','warning') else None)
+                pg.add_init_script('''window.__geminiPrompt=null;window.BraseiroGemini={openGeminiWithPrompt:(p)=>{window.__geminiPrompt=String(p||'');return JSON.stringify({ok:true})},pickSceneImage:(k)=>JSON.stringify({ok:true})};const h={get:(t,p)=>{if(p==='then')return undefined;return(...a)=>JSON.stringify({ok:true,items:[],data:[],state:{}})}};for(const n of ['BraseiroUiBridge','BraseiroLibrary','BraseiroImages','BraseiroFiles','BraseiroTts'])window[n]=new Proxy({},h);''')
+                pg.goto(f'http://127.0.0.1:{port}/r46-shell.html',wait_until='networkidle',timeout=30000);pg.wait_for_timeout(500)
+                st=pg.locator('#sandbox-start-button');
+                if st.count() and st.is_visible(): st.click(timeout=3000);pg.wait_for_timeout(500)
+                vp={'tabs':{},'doc':{},'errors':errors,'failed':failed,'badresp':badresp,'console':consoles}
+                # Global viewport/overflow invariants
+                dims=pg.evaluate('''()=>({sw:document.documentElement.scrollWidth,cw:document.documentElement.clientWidth,sh:document.documentElement.scrollHeight,ch:document.documentElement.clientHeight,bodySw:document.body.scrollWidth})''')
+                vp['doc']=dims
+                if dims['sw']>dims['cw']+2: issue('H_OVERFLOW',f'{vw}x{vh}: horizontal overflow {dims}',ev=dims)
+                nav=pg.locator('.bottom-nav, .bottom-navigation, nav.bottom-nav').first
+                if nav.count():
+                  box=nav.bounding_box();vp['nav_box']=box
+                  if box and box['y']+box['height']>vh+2: issue('NAV_BELOW_VIEWPORT',f'{vw}x{vh}: bottom nav extends below viewport',ev=box)
+                # Visit every visible bottom tab, assert active state and usable main content.
+                btns=pg.locator('.bottom-nav-button:visible'); count=btns.count();
+                for i in range(count):
+                  # reacquire because render may replace nodes
+                  btns=pg.locator('.bottom-nav-button:visible'); btn=btns.nth(i);label=(btn.inner_text() or '').strip();
+                  try: btn.click(timeout=3000);pg.wait_for_timeout(350)
+                  except Exception as e: issue('TAB_CLICK',f'{vw}x{vh}: cannot click tab {label}',ev=str(e));continue
+                  active=pg.locator('.bottom-nav-button.active:visible, .bottom-nav-button[aria-current="page"]:visible')
+                  main=pg.locator('main:visible, .screen:visible, .app-main:visible, #app:visible').first
+                  state={'active_labels':[(active.nth(j).inner_text() or '').strip() for j in range(active.count())], 'main_visible':bool(main.count())}
+                  # interactive buttons visible must not extend beyond horizontal viewport
+                  offenders=[]
+                  els=pg.locator('button:visible, input:visible, textarea:visible, select:visible, [role="button"]:visible')
+                  for j in range(min(els.count(),120)):
+                    e=els.nth(j);bb=e.bounding_box()
+                    if bb and (bb['x'] < -2 or bb['x']+bb['width']>vw+2): offenders.append({'text':(e.inner_text() or e.get_attribute('aria-label') or '')[:80],'box':bb})
+                  state['offscreen_interactives']=offenders;vp['tabs'][label or str(i)]=state
+                  if offenders: issue('OFFSCREEN_CONTROL',f'{vw}x{vh} {label}: controls outside viewport',ev=offenders[:12])
+                  if active.count()!=1: issue('ACTIVE_TAB_COUNT',f'{vw}x{vh} {label}: active nav count {active.count()}',ev=state)
+                if errors: issue('PAGE_ERROR',f'{vw}x{vh}: JS page errors',ev=errors)
+                if badresp: issue('LOCAL_ASSET_HTTP',f'{vw}x{vh}: local HTTP failures',ev=badresp[:30])
+                # console warnings are recorded but only errors are high findings
+                cerr=[x for x in consoles if x['type']=='error']
+                if cerr: issue('CONSOLE_ERROR',f'{vw}x{vh}: console errors',ev=cerr[:30])
+                R['viewports'][f'{vw}x{vh}']=vp;pg.close()
+              b.close()
+          finally:s.shutdown();s.server_close()
+          # Static file references in CSS/HTML: local URL targets must exist.
+          missing=[]
+          for pth in [vtt/'r46/r46.css',vtt/'r46/globals.css',vtt/'r46/r46-shell.html']:
+            txt=pth.read_text(encoding='utf-8',errors='replace')
+            refs=re.findall(r'url\(["\']?([^"\')]+)',txt) if pth.suffix=='.css' else re.findall(r'(?:src|href)=["\']([^"\']+)',txt)
+            for ref in refs:
+              ref=ref.strip()
+              if not ref or ref.startswith(('http:','https:','data:','#','javascript:')) or 'var(' in ref: continue
+              target=(pth.parent/ref.split('?',1)[0].split('#',1)[0]).resolve()
+              if not target.exists(): missing.append({'from':str(pth.relative_to(vtt)),'ref':ref})
+          R['static']['missing_local_refs']=missing
+          if missing: issue('MISSING_LOCAL_REF','CSS/HTML local references missing',ev=missing[:50])
+          out=pathlib.Path(os.environ['GITHUB_WORKSPACE'])/'star-wars/r38/audit/BLOCK04_BROAD_RUNTIME.json';out.write_text(json.dumps(R,ensure_ascii=False,indent=2))
+          md=['# STAR WARS R38 — BLOCK04 BROAD RUNTIME AUDIT','',f'- Findings: **{len(R["issues"])}**',f'- High: **{sum(x["severity"]=="high" for x in R["issues"])}**','','## Findings']
+          md += [f'- **{x["code"]}** — {x["message"]} — `{str(x.get("evidence"))[:500]}`' for x in R['issues']] or ['- Nenhuma regressão reproduzível encontrada neste gate.']
+          for vp,d in R['viewports'].items(): md += ['',f'## {vp}',f'- Document: `{d["doc"]}`',f'- Nav: `{d.get("nav_box")}`',f'- Tabs: `{json.dumps(d["tabs"],ensure_ascii=False)[:5000]}`',f'- Local HTTP errors: **{len(d["badresp"])}**',f'- JS page errors: **{len(d["errors"])}**']
+          md += ['','## Static',f'- Missing local refs: **{len(missing)}**']
+          (out.parent/'BLOCK04_BROAD_RUNTIME.md').write_text('\n'.join(md)+'\n')
+          if any(x['severity']=='high' for x in R['issues']): print('BLOCK04_HIGH_FINDINGS',sum(x['severity']=='high' for x in R['issues']))
+          else: print('BLOCK04_NO_HIGH_FINDINGS')
+          PY
+      - name: Android compile and APK gate
+        shell: bash
+        run: |
+          set -euo pipefail; R="$(cat /tmp/root)"; cd "$R"; chmod +x gradlew
+          ./gradlew --no-daemon :app:compileDebugJavaWithJavac
+          ./gradlew --no-daemon :app:assembleDebug
+          APK="$(find app/build/outputs/apk/debug -name '*.apk'|head -1)"; test -s "$APK"; sha256sum "$APK" | tee "$GITHUB_WORKSPACE/star-wars/r38/audit/BLOCK04_APK_SHA256.txt"
+          unzip -l "$APK" | grep -q 'assets/vtt/r46/final-runtime.js'
+          unzip -l "$APK" | grep -q 'assets/vtt/image-library/local/scenes/recovered/scene_briefing_social.webp'
+      - name: Commit evidence
+        run: |
+          git checkout -- star-wars/r38/patches/assets/scene-assets-v1.tar.gz.b64
+          git config user.name braseiro-audit-bot; git config user.email actions@users.noreply.github.com
+          git add star-wars/r38/audit/BLOCK04_BROAD_RUNTIME.* star-wars/r38/audit/BLOCK04_APK_SHA256.txt
+          git commit -m 'audit(star-wars): record broad R46 runtime and Android gate' || true
+          git push
