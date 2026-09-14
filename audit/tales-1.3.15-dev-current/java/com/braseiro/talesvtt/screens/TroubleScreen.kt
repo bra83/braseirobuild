@@ -33,6 +33,7 @@ import com.braseiro.talesvtt.game.Condition
 import com.braseiro.talesvtt.game.CanonicalTalesRules
 import com.braseiro.talesvtt.game.BonusEffectKind
 import com.braseiro.talesvtt.game.GameState
+import com.braseiro.talesvtt.game.TestPurpose
 import com.braseiro.talesvtt.model.AppDestination
 import com.braseiro.talesvtt.model.ContextIconType
 import com.braseiro.talesvtt.model.ContextItemData
@@ -50,6 +51,8 @@ fun TroubleScreen(
   onPush: (Condition?) -> Unit,
   onPride: () -> Unit,
   onInformationBonus: () -> Unit,
+  onContactItemBonus: () -> Unit,
+  onLeadershipComfort: (Condition) -> Unit,
   onPurchaseBonusEffect: (String,String?) -> Unit,
   onSubmitResult: () -> Unit,
   onDeclareAction: (String) -> Unit,
@@ -184,6 +187,10 @@ fun TroubleScreen(
           SecondaryButton(text="USAR +1 DADO DE INFORMAÇÃO • ${gameState.informationBonusBank} guardado(s)",onClick=onInformationBonus,modifier=Modifier.fillMaxWidth())
           Spacer(modifier=Modifier.height(7.dp))
         }
+        if (gameState.contactItemBonusBank > 0 && test.approvedItemBonus == 0) {
+          SecondaryButton(text="USAR CONTATO COMO ITEM • +${gameState.contactItemBonusBank} DADO(S)",onClick=onContactItemBonus,modifier=Modifier.fillMaxWidth())
+          Spacer(modifier=Modifier.height(7.dp))
+        }
         PrimaryButton(
           text = if (gameState.kid.broken) "REGISTRAR FALHA" else "ROLAR ${gameState.finalPool()} DADOS",
           onClick = onRoll,
@@ -200,12 +207,14 @@ fun TroubleScreen(
         }
       } else {
         RollResultPanel(gameState, onLuck, onPush, onPride)
+        LeadershipComfortEffect(gameState,onLeadershipComfort)
         CanonicalBonusEffects(gameState,onPurchaseBonusEffect)
         Spacer(modifier = Modifier.height(10.dp))
+        val pendingComfort = test.purpose == TestPurpose.LEADERSHIP_COMFORT && result.successes >= test.requiredSuccesses && !result.baseEffectApplied
         PrimaryButton(
-          text = if (result.reportedToGm) "RESULTADO ENVIADO AO MESTRE" else "ENVIAR RESULTADO AO MESTRE",
+          text = when { result.reportedToGm -> "RESULTADO ENVIADO AO MESTRE"; pendingComfort -> "ESCOLHA A CONDIÇÃO CURADA"; else -> "ENVIAR RESULTADO AO MESTRE" },
           onClick = onSubmitResult,
-          enabled = !result.reportedToGm,
+          enabled = !result.reportedToGm && !pendingComfort,
           modifier = Modifier.fillMaxWidth()
         )
       }
@@ -302,24 +311,49 @@ private fun RollResultPanel(
 }
 
 @Composable
+private fun LeadershipComfortEffect(gameState:GameState,onApply:(Condition)->Unit) {
+  val test=gameState.activeTest ?: return
+  val result=gameState.testResolution ?: return
+  if(test.purpose!=TestPurpose.LEADERSHIP_COMFORT || result.successes<test.requiredSuccesses || result.baseEffectApplied) return
+  val target=test.targetKid.orEmpty()
+  val member=gameState.group.members.firstOrNull{it.name.equals(target,true)||it.name.substringBefore(' ').equals(target,true)} ?: return
+  Spacer(modifier=Modifier.height(10.dp))
+  Text("CONFORTO • ESCOLHA 1 CONDIÇÃO DE ${member.name.substringBefore(' ').uppercase()}",style=AppTheme.typography.label.copy(color=AppTheme.colors.accentOlive))
+  member.conditions.forEach { condition ->
+    SecondaryButton(text="CURAR ${condition.label.uppercase()}",onClick={onApply(condition)},modifier=Modifier.fillMaxWidth())
+  }
+}
+
+@Composable
 private fun CanonicalBonusEffects(gameState:GameState,onPurchase:(String,String?)->Unit) {
   val test=gameState.activeTest ?: return
   val result=gameState.testResolution ?: return
   val skill=test.skillName?.let{com.braseiro.talesvtt.game.TalesSkillCatalog.canonicalSkill(it)} ?: return
   val credits=(result.successes-test.requiredSuccesses-result.bonusEffects.size).coerceAtLeast(0)
   if(credits<=0) return
+  if(test.purpose==TestPurpose.LEADERSHIP_COMFORT && result.successes>=test.requiredSuccesses && !result.baseEffectApplied) return
   val rules=CanonicalTalesRules.effectsForSkill(skill)
   if(rules.isEmpty()) return
   Spacer(modifier=Modifier.height(10.dp))
   Text("SUCESSOS EXTRAS • $credits PARA GASTAR",style=AppTheme.typography.label.copy(color=AppTheme.colors.accentPurple))
   rules.forEach { rule ->
-    val target=when(rule.kind) {
-      BonusEffectKind.GIVE_SUCCESS -> gameState.group.members.firstOrNull{!it.name.equals(gameState.kid.name,true)}?.name
-      BonusEffectKind.HEAL_SELF_CONDITION -> gameState.kid.conditions.firstOrNull()?.name
-      else -> null
+    when(rule.kind) {
+      BonusEffectKind.GIVE_SUCCESS -> gameState.group.members.filterNot{it.name.equals(gameState.kid.name,true)}.forEach { member ->
+        SecondaryButton(text="${rule.label.uppercase()} • ${member.name.substringBefore(' ').uppercase()}",onClick={onPurchase(rule.id,member.name)},modifier=Modifier.fillMaxWidth())
+      }
+      BonusEffectKind.HEAL_SELF_CONDITION -> gameState.kid.conditions.forEach { condition ->
+        SecondaryButton(text="${rule.label.uppercase()} • ${condition.label.uppercase()}",onClick={onPurchase(rule.id,condition.name)},enabled=!gameState.kid.broken,modifier=Modifier.fillMaxWidth())
+      }
+      BonusEffectKind.HEAL_OTHER_CONDITION -> {
+        val target=test.targetKid.orEmpty()
+        val member=gameState.group.members.firstOrNull{it.name.equals(target,true)||it.name.substringBefore(' ').equals(target,true)}
+        member?.conditions?.forEach { condition ->
+          SecondaryButton(text="${rule.label.uppercase()} • ${condition.label.uppercase()}",onClick={onPurchase(rule.id,condition.name)},enabled=!member.broken,modifier=Modifier.fillMaxWidth())
+        }
+      }
+      BonusEffectKind.CONTACT_ITEM -> SecondaryButton(text="${rule.label.uppercase()} • ATUAL +${gameState.contactItemBonusBank}",onClick={onPurchase(rule.id,null)},enabled=gameState.contactItemBonusBank<3,modifier=Modifier.fillMaxWidth())
+      else -> SecondaryButton(text=rule.label.uppercase(),onClick={onPurchase(rule.id,null)},modifier=Modifier.fillMaxWidth())
     }
-    val needsTarget=rule.kind in setOf(BonusEffectKind.GIVE_SUCCESS,BonusEffectKind.HEAL_SELF_CONDITION)
-    SecondaryButton(text=rule.label.uppercase(),onClick={onPurchase(rule.id,target)},enabled=!needsTarget||target!=null,modifier=Modifier.fillMaxWidth())
   }
 }
 

@@ -110,7 +110,9 @@ Test = Attribute + Skill + approved Item + information bonus + at most one Help 
 Luck: after failure, once per roll, reroll non-6. Push: once, mark Condition then reroll non-6. Pride: +1 automatic success.
 Iconic Item +2. Mystery Items +1..+3 as stored. Ordinary props +0. Mystery Items remain through Change so one may replace the Iconic Item; all other Mystery Items are then lost.
 Each success above the required successes buys one effect from the local Skill effect catalog; no invented effects.
-Information effects bank +1 die each, max +3. Leadership preparation gives pool 2/4/6 for 1/2/3+ successes, never for the leader.
+Information effects bank +1 die each, max +3. Leadership preparation gives pool 2/4/6 for 1/2/3+ successes, never for the leader; assigned dice are consumed by that Kid's next roll.
+Leadership comfort: on success heal exactly one chosen light Condition from the other target Kid; each lead_more extra success heals one additional Condition from that same Kid; lead_self heals one light Condition from the leader. None heals Broken.
+Contact Item effect banks +1 per purchased extra success up to +3; the resulting contact bonus is used once as the single Item bonus of a later test and is then consumed.
 Conditions: Chateado, Assustado, Exausto, Machucado. Broken auto-fails until valid recovery. NPCs never roll.
 Extended Trouble: target Normal=2x Kids, Difficult=3x, Almost Impossible=4x, one scene/roll per Kid.
 XP: each Yes among five questions =1; a present Kid always gets participation XP; 5 XP raises one Skill, max5; max10 stored.

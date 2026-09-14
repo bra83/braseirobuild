@@ -171,6 +171,8 @@ fun AppNavGraph(
         onPush = gameViewModel::push,
         onPride = gameViewModel::usePride,
         onInformationBonus = gameViewModel::applyInformationBonus,
+        onContactItemBonus = gameViewModel::applyContactItemBonus,
+        onLeadershipComfort = gameViewModel::applyLeadershipComfort,
         onPurchaseBonusEffect = gameViewModel::purchaseBonusEffect,
         onSubmitResult = gameViewModel::submitTestResultToMotor,
         onDeclareAction = gameViewModel::submitPlayerIntent

@@ -255,12 +255,14 @@ data class GameState(
   val leadershipAssignments: Map<String, Int> = emptyMap(),
   val grantedSuccesses: Map<String, Int> = emptyMap(),
   val waivedTroubles: Set<String> = emptySet(),
+  val contactItemBonusBank: Int = 0,
   val lastError: String? = null
 ) {
   fun finalPool(): Int {
     val test = activeTest ?: return 0
     if (kid.broken) return 0
-    return (test.basePool() + test.approvedItemBonus + test.informationBonus + (if (test.helperKid != null) CanonicalTalesRules.HELP_BONUS else 0) - kid.conditionPenalty).coerceAtLeast(0)
+    val leadership = leadershipAssignments.entries.firstOrNull { it.key.equals(kid.name, ignoreCase = true) }?.value ?: 0
+    return (test.basePool() + test.approvedItemBonus + test.informationBonus + leadership + (if (test.helperKid != null) CanonicalTalesRules.HELP_BONUS else 0) - kid.conditionPenalty).coerceAtLeast(0)
   }
 }
 
@@ -280,7 +282,9 @@ sealed interface GameEvent {
   data class ApplyHelp(val helperKid: String) : GameEvent
   data class ApplyApprovedItem(val bonus: Int) : GameEvent
   data object ApplyInformationBonus : GameEvent
+  data object ApplyContactItemBonus : GameEvent
   data class PurchaseBonusEffect(val effectId: String, val target: String? = null) : GameEvent
+  data class ApplyLeadershipComfort(val condition: Condition) : GameEvent
   data class AssignLeadershipDice(val kid: String, val dice: Int = 1) : GameEvent
   data class PromoteMysteryItemToIconic(val itemName: String) : GameEvent
   data class AddItem(val item: KidItemState) : GameEvent
@@ -396,6 +400,11 @@ object TalesReducer {
           event.request.attributeValue < 0 || event.request.skillValue < 0 || event.request.requiredSuccesses !in 1..3 -> fail("Teste inválido.")
           skill == null -> fail("Teste precisa de Perícia canônica Tales/Kids.")
           !CanonicalTalesRules.purposeAllowed(skill, event.request.purpose) -> fail("Finalidade incompatível com a Perícia.")
+          event.request.purpose == TestPurpose.LEADERSHIP_COMFORT && event.request.targetKid.isNullOrBlank() -> fail("Conforto por Liderança exige um Kid alvo.")
+          event.request.purpose == TestPurpose.LEADERSHIP_COMFORT && state.group.members.none { member -> event.request.targetKid?.let { target -> member.name.equals(target,true) || member.name.substringBefore(' ').equals(target,true) } == true } -> fail("Kid alvo do conforto não pertence ao grupo.")
+          event.request.purpose == TestPurpose.LEADERSHIP_COMFORT && state.group.members.any { member -> event.request.targetKid?.let { target -> (member.name.equals(target,true) || member.name.substringBefore(' ').equals(target,true)) && member.name.equals(state.kid.name,true) } == true } -> fail("Liderança conforta outro Kid, não o próprio líder.")
+          event.request.purpose == TestPurpose.LEADERSHIP_COMFORT && state.group.members.firstOrNull { member -> event.request.targetKid?.let { target -> member.name.equals(target,true) || member.name.substringBefore(' ').equals(target,true) } == true }?.broken == true -> fail("Conforto por Liderança não cura Kid Quebrado.")
+          event.request.purpose == TestPurpose.LEADERSHIP_COMFORT && state.group.members.firstOrNull { member -> event.request.targetKid?.let { target -> member.name.equals(target,true) || member.name.substringBefore(' ').equals(target,true) } == true }?.conditions?.isEmpty() == true -> fail("Kid alvo não possui Condição para confortar.")
           key in state.waivedTroubles -> ok(state.copy(activeTest=event.request,testResolution=TestResolution(emptyList(),event.request.requiredSuccesses)))
           else -> ok(state.copy(activeTest=event.request,testResolution=null))
         }
@@ -414,6 +423,7 @@ object TalesReducer {
       is GameEvent.ApplyApprovedItem -> {
         val test = state.activeTest ?: return fail("Não há teste ativo.")
         if (state.testResolution != null) fail("Item deve ser aprovado antes da rolagem.")
+        else if (test.approvedItemBonus != 0) fail("Só um Item pode fornecer bônus ao teste.")
         else if (event.bonus !in 0..3) fail("Bônus de item inválido.")
         else ok(state.copy(activeTest = test.copy(approvedItemBonus = event.bonus)))
       }
@@ -425,6 +435,16 @@ object TalesReducer {
           state.informationBonusBank<=0 -> fail("Nenhum bônus de informação disponível.")
           test.informationBonus>=3 -> fail("Máximo de +3 dados de informação.")
           else -> ok(state.copy(informationBonusBank=state.informationBonusBank-1,activeTest=test.copy(informationBonus=test.informationBonus+1)))
+        }
+      }
+
+      GameEvent.ApplyContactItemBonus -> {
+        val test=state.activeTest ?: return fail("Não há teste ativo.")
+        when {
+          state.testResolution!=null -> fail("O contato deve ser usado antes da rolagem.")
+          state.contactItemBonusBank !in 1..3 -> fail("Nenhum bônus de contato disponível.")
+          test.approvedItemBonus!=0 -> fail("Só um Item pode fornecer bônus ao teste.")
+          else -> ok(state.copy(contactItemBonusBank=0,activeTest=test.copy(approvedItemBonus=state.contactItemBonusBank)))
         }
       }
 
@@ -459,9 +479,47 @@ object TalesReducer {
                 if(c !in next.kid.conditions) return fail("Condição não está marcada.")
                 next=next.copy(kid=next.kid.copy(conditions=next.kid.conditions-c))
               }
+              BonusEffectKind.HEAL_OTHER_CONDITION -> {
+                if(test.purpose!=TestPurpose.LEADERSHIP_COMFORT || !result.baseEffectApplied) return fail("Cure primeiro a Condição básica do Kid confortado.")
+                val targetName=test.targetKid.orEmpty()
+                val index=next.group.members.indexOfFirst{it.name.equals(targetName,true)||it.name.substringBefore(' ').equals(targetName,true)}
+                if(index<0) return fail("Kid confortado não pertence ao grupo.")
+                val member=next.group.members[index]
+                if(member.broken) return fail("Conforto por Liderança não cura Kid Quebrado.")
+                val c=event.target?.let{raw->Condition.entries.firstOrNull{it.name.equals(raw,true)||it.label.equals(raw,true)}} ?: return fail("Escolha uma Condição do Kid confortado.")
+                if(c !in member.conditions) return fail("Condição não está marcada no Kid confortado.")
+                val members=next.group.members.toMutableList(); members[index]=member.copy(conditions=member.conditions-c)
+                next=next.copy(group=next.group.copy(members=members))
+              }
+              BonusEffectKind.CONTACT_ITEM -> {
+                if(next.contactItemBonusBank>=3) return fail("O contato já está preparado como Item +3.")
+                next=next.copy(contactItemBonusBank=next.contactItemBonusBank+1)
+              }
               else -> Unit
             }
             ok(next.copy(testResolution=result.copy(bonusEffects=result.bonusEffects+BonusEffectPurchase(rule.id,event.target))))
+          }
+        }
+      }
+
+      is GameEvent.ApplyLeadershipComfort -> {
+        val test=state.activeTest ?: return fail("Não há teste ativo.")
+        val result=state.testResolution ?: return fail("Role Liderança antes de aplicar conforto.")
+        val targetName=test.targetKid.orEmpty()
+        val index=state.group.members.indexOfFirst{it.name.equals(targetName,true)||it.name.substringBefore(' ').equals(targetName,true)}
+        when {
+          test.purpose!=TestPurpose.LEADERSHIP_COMFORT -> fail("O teste ativo não é de conforto por Liderança.")
+          result.successes<test.requiredSuccesses -> fail("Conforto exige sucesso no teste de Liderança.")
+          result.baseEffectApplied -> fail("A Condição básica do conforto já foi curada.")
+          index<0 -> fail("Kid confortado não pertence ao grupo.")
+          state.group.members[index].name.equals(state.kid.name,true) -> fail("O líder não conforta a si mesmo com este efeito.")
+          state.group.members[index].broken -> fail("Conforto por Liderança não cura Kid Quebrado.")
+          event.condition !in state.group.members[index].conditions -> fail("Condição não está marcada no Kid confortado.")
+          else -> {
+            val members=state.group.members.toMutableList()
+            val member=members[index]
+            members[index]=member.copy(conditions=member.conditions-event.condition)
+            ok(state.copy(group=state.group.copy(members=members),testResolution=result.copy(baseEffectApplied=true)))
           }
         }
       }
@@ -524,7 +582,13 @@ object TalesReducer {
             run {
             val successes=event.dice.count{it==6}
             val pool=if(state.activeTest?.purpose==TestPurpose.LEADERSHIP_PREPARE && successes >= (state.activeTest?.requiredSuccesses ?: 1)) CanonicalTalesRules.leadershipPool(successes) else state.leadershipPoolDice
-            ok(state.copy(leadershipPoolDice=pool,leadershipAssignments=if(pool!=state.leadershipPoolDice) emptyMap() else state.leadershipAssignments,testResolution=TestResolution(event.dice,successes)))
+            val assignedKey=state.leadershipAssignments.keys.firstOrNull{it.equals(state.kid.name,true)}
+            val remainingAssignments=if(assignedKey!=null) state.leadershipAssignments-assignedKey else state.leadershipAssignments
+            ok(state.copy(
+              leadershipPoolDice=pool,
+              leadershipAssignments=if(pool!=state.leadershipPoolDice) emptyMap() else remainingAssignments,
+              testResolution=TestResolution(event.dice,successes)
+            ))
           }
           }
         }
@@ -916,7 +980,8 @@ object TalesReducer {
             leadershipPoolDice = 0,
             leadershipAssignments = emptyMap(),
             grantedSuccesses = emptyMap(),
-            waivedTroubles = emptySet()
+            waivedTroubles = emptySet(),
+            contactItemBonusBank = 0
           ))
         }
       }

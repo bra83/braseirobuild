@@ -235,6 +235,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
   fun usePride() = dispatch(GameEvent.UsePride)
   fun applyInformationBonus() = dispatch(GameEvent.ApplyInformationBonus)
+  fun applyContactItemBonus() = dispatch(GameEvent.ApplyContactItemBonus)
+  fun applyLeadershipComfort(condition:Condition) = dispatch(GameEvent.ApplyLeadershipComfort(condition))
   fun purchaseBonusEffect(effectId:String,target:String?) = dispatch(GameEvent.PurchaseBonusEffect(effectId,target))
   fun assignLeadershipDice(kid:String) = dispatch(GameEvent.AssignLeadershipDice(kid,1))
   fun promoteMysteryItemToIconic(itemName:String) = dispatch(GameEvent.PromoteMysteryItemToIconic(itemName))

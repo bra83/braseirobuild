@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets
  * GM-private memory is deliberately stored by GameViewModel in a separate private snapshot.
  */
 object GameSnapshotCodec {
-  private const val VERSION = 12
+  private const val VERSION = 13
 
   private fun enc(value: String): String = URLEncoder.encode(value, StandardCharsets.UTF_8.name())
   private fun dec(value: String): String = URLDecoder.decode(value, StandardCharsets.UTF_8.name())
@@ -120,6 +120,7 @@ object GameSnapshotCodec {
     line("bonus.leadershipAssignments", state.leadershipAssignments.entries.joinToString("|") { "${enc(it.key)}~${it.value}" })
     line("bonus.grantedSuccesses", state.grantedSuccesses.entries.joinToString("|") { "${enc(it.key)}~${it.value}" })
     line("bonus.waivedTroubles", state.waivedTroubles.joinToString("|") { enc(it) })
+    line("bonus.contactItem", state.contactItemBonusBank)
 
     line("reveal.clues", state.revealed.clues.joinToString("|") { enc(it) })
     line("reveal.locations", state.revealed.locations.joinToString("|") { enc(it) })
@@ -366,6 +367,7 @@ object GameSnapshotCodec {
       leadershipAssignments = if (version >= 12) decodeIntMap("bonus.leadershipAssignments") else emptyMap(),
       grantedSuccesses = if (version >= 12) decodeIntMap("bonus.grantedSuccesses") else emptyMap(),
       waivedTroubles = if (version >= 12) map["bonus.waivedTroubles"].orEmpty().split('|').filter{it.isNotBlank()}.map(::dec).toSet() else emptySet(),
+      contactItemBonusBank = if (version >= 13) int("bonus.contactItem").coerceIn(0,3) else 0,
       lastError = null
     )
   }.getOrNull()
