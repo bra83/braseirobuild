@@ -1,15 +1,15 @@
 {
   "project": "STAR_WARS_EDGE_OF_THE_GALAXY",
-  "revision": "R37-BUILD-FIX",
-  "file": "STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_FINAL_R37_BUILD_FIX.zip",
-  "source_share_url": "https://firestorage.ai/ja/f/OljAvissgEpz",
-  "sha256": "6e497b9943b9e76d29196957b1d5b925226a43b1de3303a5f549912650ce8c5d",
-  "size_bytes": 13220091,
+  "revision": "R37-BUILD-FIX2",
+  "file": "STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_FINAL_R37_BUILD_FIX2.zip",
+  "source_share_url": "https://firestorage.ai/ja/f/D6tYrx0tNqB7",
+  "sha256": "dc63b8d62483aa6b818b82c842fe43252e9725793f4bf80cfddaa69f7008785e",
+  "size_bytes": 13220189,
   "application_id": "com.braseiro.starwarsedge",
   "version_name": "1.0.0",
   "version_code": 10000,
   "compile_sdk": 36,
   "target_sdk": 36,
   "min_sdk": 26,
-  "build_fix": "GeminiBridge JSONException checked exceptions handled without behavioral change"
+  "build_fix": "GeminiBridge and ImageLibraryBridge JSONException checked exceptions handled without behavioral change"
 }
