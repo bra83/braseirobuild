@@ -129,3 +129,7 @@ Atualizado em 11/09/2026.
 - regressão completa Tales + Flood: PASS.
 - simulação determinística Flood: 33/33 sessões PASS cobrindo Trouble, Shame, efeitos, Problema Estendido 3x, Cicatriz, Push, Friction, inventário, snapshot, XP e Change.
 - nenhum APK publicado.
+
+## Evidência Android interna — package gate
+- lintDebug + assembleDebug: PASS no workflow 34813429452.
+- APK interno apenas para verificação estrutural/secret scan; NÃO publicado.
