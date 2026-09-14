@@ -47,6 +47,8 @@ jobs:
           set -euo pipefail
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0" "emulator" "system-images;android-29;google_apis;x86_64"
+          test -x "$ANDROID_HOME/emulator/emulator"
+          "$ANDROID_HOME/emulator/emulator" -version | head -n 2
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Build final internal debug APK
@@ -70,6 +72,8 @@ jobs:
       - name: Boot clean Android 10 emulator
         run: |
           set -euo pipefail
+          EMU="$ANDROID_HOME/emulator/emulator"
+          test -x "$EMU"
           echo no | avdmanager create avd --force --name tales_api29 --package "system-images;android-29;google_apis;x86_64" --device "pixel_2"
           adb start-server
 
@@ -92,7 +96,7 @@ jobs:
           launch_emulator() {
             local accel="$1"
             rm -f /tmp/emulator29.log
-            nohup emulator @tales_api29 \
+            nohup "$EMU" @tales_api29 \
               -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot \
               -camera-back none -camera-front none -cores 2 -memory 2048 \
               -accel "$accel" >/tmp/emulator29.log 2>&1 &
