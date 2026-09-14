@@ -1,0 +1,297 @@
+[
+  {
+    "button": {
+      "tag": "BUTTON",
+      "cls": "bottom-nav-button",
+      "disabled": false,
+      "rect": {
+        "x": 2.875,
+        "y": 844.203125,
+        "w": 80.828125,
+        "h": 70
+      },
+      "z": "auto",
+      "pos": "relative",
+      "pe": "auto"
+    },
+    "point": {
+      "x": 43.2890625,
+      "y": 879.203125
+    },
+    "top": [
+      {
+        "tag": "DIV",
+        "id": "braseiro-sandbox-setup",
+        "cls": "final-sandbox-overlay",
+        "aria": "Configurar campanha sandbox",
+        "pe": "auto",
+        "z": "2147483600",
+        "pos": "fixed"
+      },
+      {
+        "tag": "BODY",
+        "id": "",
+        "cls": "",
+        "aria": null,
+        "pe": "auto",
+        "z": "auto",
+        "pos": "static"
+      },
+      {
+        "tag": "HTML",
+        "id": "",
+        "cls": "",
+        "aria": null,
+        "pe": "auto",
+        "z": "auto",
+        "pos": "static"
+      }
+    ],
+    "label": "CENA",
+    "normal": {
+      "ok": false,
+      "error": "Locator.click: Timeout 2000ms exceeded.\nCall log:\n  - waiting for locator(\".bottom-nav-button:visible\").first\n    - locator resolved to <button type=\"button\" aria-current=\"page\" class=\"bottom-nav-button\">…</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div role=\"dialog\" aria-modal=\"true\" id=\"braseiro-sandbox-setup\" class=\"final-sandbox-overlay\" aria-label=\"Configurar campanha sandbox\">…</div> intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div role=\"dialog\" aria-modal=\"true\" id=\"braseiro-sandbox-setup\" class=\"final-sandbox-overlay\" aria-label=\"Configurar campanha sandbox\">…</div> intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div role=\"dialog\" aria-modal=\"true\" id=\"braseiro-sandbox-setup\" class=\"final-sandbox-overlay\" aria-label=\"Configurar campanha sandbox\">…</div> intercepts pointer events\n    - retrying click action\n      - waiting 500ms\n"
+    },
+    "forced": {
+      "ok": true,
+      "error": null
+    },
+    "ariaCurrent": "page"
+  },
+  {
+    "button": {
+      "tag": "BUTTON",
+      "cls": "bottom-nav-button",
+      "disabled": false,
+      "rect": {
+        "x": 84.96875,
+        "y": 844.203125,
+        "w": 80.84375,
+        "h": 70
+      },
+      "z": "auto",
+      "pos": "relative",
+      "pe": "auto"
+    },
+    "point": {
+      "x": 125.390625,
+      "y": 879.203125
+    },
+    "top": [
+      {
+        "tag": "DIV",
+        "id": "braseiro-sandbox-setup",
+        "cls": "final-sandbox-overlay",
+        "aria": "Configurar campanha sandbox",
+        "pe": "auto",
+        "z": "2147483600",
+        "pos": "fixed"
+      },
+      {
+        "tag": "BODY",
+        "id": "",
+        "cls": "",
+        "aria": null,
+        "pe": "auto",
+        "z": "auto",
+        "pos": "static"
+      },
+      {
+        "tag": "HTML",
+        "id": "",
+        "cls": "",
+        "aria": null,
+        "pe": "auto",
+        "z": "auto",
+        "pos": "static"
+      }
+    ],
+    "label": "PERSONAGEM",
+    "normal": {
+      "ok": false,
+      "error": "Locator.click: Timeout 2000ms exceeded.\nCall log:\n  - waiting for locator(\".bottom-nav-button:visible\").nth(1)\n    - locator resolved to <button type=\"button\" class=\"bottom-nav-button\">…</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div role=\"dialog\" aria-modal=\"true\" id=\"braseiro-sandbox-setup\" class=\"final-sandbox-overlay\" aria-label=\"Configurar campanha sandbox\">…</div> intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div role=\"dialog\" aria-modal=\"true\" id=\"braseiro-sandbox-setup\" class=\"final-sandbox-overlay\" aria-label=\"Configurar campanha sandbox\">…</div> intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    3 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div role=\"dialog\" aria-modal=\"true\" id=\"braseiro-sandbox-setup\" class=\"final-sandbox-overlay\" aria-label=\"Configurar campanha sandbox\">…</div> intercepts pointer events\n    - retrying click action\n      - waiting 500ms\n"
+    },
+    "forced": {
+      "ok": true,
+      "error": null
+    },
+    "ariaCurrent": null
+  },
+  {
+    "button": {
+      "tag": "BUTTON",
+      "cls": "bottom-nav-button",
+      "disabled": false,
+      "rect": {
+        "x": 167.078125,
+        "y": 844.203125,
+        "w": 80.828125,
+        "h": 70
+      },
+      "z": "auto",
+      "pos": "relative",
+      "pe": "auto"
+    },
+    "point": {
+      "x": 207.4921875,
+      "y": 879.203125
+    },
+    "top": [
+      {
+        "tag": "DIV",
+        "id": "braseiro-sandbox-setup",
+        "cls": "final-sandbox-overlay",
+        "aria": "Configurar campanha sandbox",
+        "pe": "auto",
+        "z": "2147483600",
+        "pos": "fixed"
+      },
+      {
+        "tag": "BODY",
+        "id": "",
+        "cls": "",
+        "aria": null,
+        "pe": "auto",
+        "z": "auto",
+        "pos": "static"
+      },
+      {
+        "tag": "HTML",
+        "id": "",
+        "cls": "",
+        "aria": null,
+        "pe": "auto",
+        "z": "auto",
+        "pos": "static"
+      }
+    ],
+    "label": "ITENS",
+    "normal": {
+      "ok": false,
+      "error": "Locator.click: Timeout 2000ms exceeded.\nCall log:\n  - waiting for locator(\".bottom-nav-button:visible\").nth(2)\n    - locator resolved to <button type=\"button\" class=\"bottom-nav-button\">…</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div role=\"dialog\" aria-modal=\"true\" id=\"braseiro-sandbox-setup\" class=\"final-sandbox-overlay\" aria-label=\"Configurar campanha sandbox\">…</div> intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div role=\"dialog\" aria-modal=\"true\" id=\"braseiro-sandbox-setup\" class=\"final-sandbox-overlay\" aria-label=\"Configurar campanha sandbox\">…</div> intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div role=\"dialog\" aria-modal=\"true\" id=\"braseiro-sandbox-setup\" class=\"final-sandbox-overlay\" aria-label=\"Configurar campanha sandbox\">…</div> intercepts pointer events\n    - retrying click action\n      - waiting 500ms\n"
+    },
+    "forced": {
+      "ok": true,
+      "error": null
+    },
+    "ariaCurrent": null
+  },
+  {
+    "button": {
+      "tag": "BUTTON",
+      "cls": "bottom-nav-button",
+      "disabled": false,
+      "rect": {
+        "x": 249.171875,
+        "y": 844.203125,
+        "w": 80.84375,
+        "h": 70
+      },
+      "z": "auto",
+      "pos": "relative",
+      "pe": "auto"
+    },
+    "point": {
+      "x": 289.59375,
+      "y": 879.203125
+    },
+    "top": [
+      {
+        "tag": "DIV",
+        "id": "braseiro-sandbox-setup",
+        "cls": "final-sandbox-overlay",
+        "aria": "Configurar campanha sandbox",
+        "pe": "auto",
+        "z": "2147483600",
+        "pos": "fixed"
+      },
+      {
+        "tag": "BODY",
+        "id": "",
+        "cls": "",
+        "aria": null,
+        "pe": "auto",
+        "z": "auto",
+        "pos": "static"
+      },
+      {
+        "tag": "HTML",
+        "id": "",
+        "cls": "",
+        "aria": null,
+        "pe": "auto",
+        "z": "auto",
+        "pos": "static"
+      }
+    ],
+    "label": "NAVE",
+    "normal": {
+      "ok": false,
+      "error": "Locator.click: Timeout 2000ms exceeded.\nCall log:\n  - waiting for locator(\".bottom-nav-button:visible\").nth(3)\n    - locator resolved to <button type=\"button\" class=\"bottom-nav-button\">…</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div role=\"dialog\" aria-modal=\"true\" id=\"braseiro-sandbox-setup\" class=\"final-sandbox-overlay\" aria-label=\"Configurar campanha sandbox\">…</div> intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div role=\"dialog\" aria-modal=\"true\" id=\"braseiro-sandbox-setup\" class=\"final-sandbox-overlay\" aria-label=\"Configurar campanha sandbox\">…</div> intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    3 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div role=\"dialog\" aria-modal=\"true\" id=\"braseiro-sandbox-setup\" class=\"final-sandbox-overlay\" aria-label=\"Configurar campanha sandbox\">…</div> intercepts pointer events\n    - retrying click action\n      - waiting 500ms\n"
+    },
+    "forced": {
+      "ok": true,
+      "error": null
+    },
+    "ariaCurrent": null
+  },
+  {
+    "button": {
+      "tag": "BUTTON",
+      "cls": "bottom-nav-button",
+      "disabled": false,
+      "rect": {
+        "x": 331.28125,
+        "y": 844.203125,
+        "w": 80.84375,
+        "h": 70
+      },
+      "z": "auto",
+      "pos": "relative",
+      "pe": "auto"
+    },
+    "point": {
+      "x": 371.703125,
+      "y": 879.203125
+    },
+    "top": [
+      {
+        "tag": "DIV",
+        "id": "braseiro-sandbox-setup",
+        "cls": "final-sandbox-overlay",
+        "aria": "Configurar campanha sandbox",
+        "pe": "auto",
+        "z": "2147483600",
+        "pos": "fixed"
+      },
+      {
+        "tag": "BODY",
+        "id": "",
+        "cls": "",
+        "aria": null,
+        "pe": "auto",
+        "z": "auto",
+        "pos": "static"
+      },
+      {
+        "tag": "HTML",
+        "id": "",
+        "cls": "",
+        "aria": null,
+        "pe": "auto",
+        "z": "auto",
+        "pos": "static"
+      }
+    ],
+    "label": "REGISTROS",
+    "normal": {
+      "ok": false,
+      "error": "Locator.click: Timeout 2000ms exceeded.\nCall log:\n  - waiting for locator(\".bottom-nav-button:visible\").nth(4)\n    - locator resolved to <button type=\"button\" class=\"bottom-nav-button\">…</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div role=\"dialog\" aria-modal=\"true\" id=\"braseiro-sandbox-setup\" class=\"final-sandbox-overlay\" aria-label=\"Configurar campanha sandbox\">…</div> intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div role=\"dialog\" aria-modal=\"true\" id=\"braseiro-sandbox-setup\" class=\"final-sandbox-overlay\" aria-label=\"Configurar campanha sandbox\">…</div> intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    3 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div role=\"dialog\" aria-modal=\"true\" id=\"braseiro-sandbox-setup\" class=\"final-sandbox-overlay\" aria-label=\"Configurar campanha sandbox\">…</div> intercepts pointer events\n    - retrying click action\n      - waiting 500ms\n"
+    },
+    "forced": {
+      "ok": true,
+      "error": null
+    },
+    "ariaCurrent": null
+  }
+]
