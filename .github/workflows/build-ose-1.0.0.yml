@@ -1,0 +1,213 @@
+name: Build BRASEIRO OSE 1.0.0 APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-ose-1.0.0.yml"
+      - "ose/1.0.0/SOURCE.json"
+      - "OSE_BUILD_TRIGGER.txt"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout builder repo
+        uses: actions/checkout@v4
+
+      - name: Read pinned OSE source manifest
+        id: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          d=json.load(open('ose/1.0.0/SOURCE.json', encoding='utf-8'))
+          print('url='+d['source_share_url'])
+          print('sha='+d['sha256'])
+          print('file='+d['file'])
+          PY
+
+      - name: Configure Python download helper
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Chromium downloader
+        run: |
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Download exact final OSE source
+        env:
+          SHARE_URL: ${{ steps.source.outputs.url }}
+          EXPECTED_SHA: ${{ steps.source.outputs.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p incoming
+          python3 - <<'PY'
+          import os, pathlib
+          from playwright.sync_api import sync_playwright
+          url=os.environ['SHARE_URL']
+          out=pathlib.Path('incoming/BRASEIRO_OSE_FINAL_ANDROID_STUDIO_1_0_0.zip')
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True)
+              page=browser.new_page(accept_downloads=True)
+              page.goto(url, wait_until='domcontentloaded', timeout=120000)
+              page.wait_for_timeout(5000)
+              # dismiss common consent dialogs if present
+              for label in ['Accept','Aceitar','同意する','OK']:
+                  try:
+                      loc=page.get_by_text(label, exact=True)
+                      if loc.count() and loc.first.is_visible(): loc.first.click(timeout=1500)
+                  except Exception: pass
+              selectors=[
+                  'a[download]',
+                  'a[href*="download"]',
+                  'button:has-text("Download")',
+                  'a:has-text("Download")',
+                  'button:has-text("ダウンロード")',
+                  'a:has-text("ダウンロード")',
+                  'button:has-text("保存")',
+                  'a:has-text("保存")'
+              ]
+              done=False
+              for sel in selectors:
+                  try:
+                      loc=page.locator(sel).first
+                      if not loc.count() or not loc.is_visible():
+                          continue
+                      with page.expect_download(timeout=120000) as info:
+                          loc.click(timeout=10000)
+                      info.value.save_as(str(out))
+                      done=True
+                      break
+                  except Exception:
+                      continue
+              if not done:
+                  # Prefer a control in the same card as the exact filename.
+                  try:
+                      card=page.get_by_text('BRASEIRO_OSE_FINAL_ANDROID_STUDIO_1_0_0.zip', exact=False).first
+                      parent=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]')
+                      ctrl=parent.locator('a,button').last
+                      with page.expect_download(timeout=120000) as info:
+                          ctrl.click(timeout=10000)
+                      info.value.save_as(str(out))
+                      done=True
+                  except Exception as e:
+                      pathlib.Path('incoming/firestorage_debug.html').write_text(page.content(), encoding='utf-8')
+                      page.screenshot(path='incoming/firestorage_debug.png', full_page=True)
+                      print('Download control failure:', repr(e))
+              browser.close()
+          if not done or not out.exists():
+              raise SystemExit('Could not download source ZIP from share page')
+          PY
+          echo "Downloaded: $(stat -c '%s' incoming/BRASEIRO_OSE_FINAL_ANDROID_STUDIO_1_0_0.zip) bytes"
+          echo "${EXPECTED_SHA}  incoming/BRASEIRO_OSE_FINAL_ANDROID_STUDIO_1_0_0.zip" | sha256sum -c -
+          unzip -t incoming/BRASEIRO_OSE_FINAL_ANDROID_STUDIO_1_0_0.zip >/dev/null
+
+      - name: Extract and detect Android project
+        id: project
+        run: |
+          set -euo pipefail
+          rm -rf work
+          mkdir work
+          unzip -q incoming/BRASEIRO_OSE_FINAL_ANDROID_STUDIO_1_0_0.zip -d work
+          GRADLEW="$(find work -type f -name gradlew -not -path '*/.gradle/*' -not -path '*/build/*' | head -n1)"
+          [ -n "$GRADLEW" ] || { echo '::error::gradlew not found'; exit 1; }
+          ROOT="$(dirname "$GRADLEW")"
+          [ -f "$ROOT/settings.gradle.kts" ] || { echo '::error::settings.gradle.kts not found'; exit 1; }
+          chmod +x "$ROOT/gradlew"
+          echo "root=$ROOT" >> "$GITHUB_OUTPUT"
+          echo "Detected project root: $ROOT"
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK 35
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platform-tools' 'platforms;android-35'
+
+      - name: Setup Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Compile BRASEIRO OSE debug APK
+        working-directory: ${{ steps.project.outputs.root }}
+        run: |
+          set -euo pipefail
+          ./gradlew :app-android:assembleDebug --stacktrace --no-daemon
+
+      - name: Validate APK
+        id: apk
+        env:
+          ROOT: ${{ steps.project.outputs.root }}
+        run: |
+          set -euo pipefail
+          mkdir -p APK_SAIDA
+          APK="$(find "$ROOT/app-android/build/outputs/apk/debug" -type f -name '*.apk' | sort | head -n1)"
+          [ -f "$APK" ] || { echo '::error::APK not found'; exit 1; }
+          FINAL='APK_SAIDA/BRASEIRO_OSE_1_0_0_DEBUG.apk'
+          cp "$APK" "$FINAL"
+          unzip -t "$FINAL" >/dev/null
+          sha256sum "$FINAL" | tee APK_SAIDA/BRASEIRO_OSE_1_0_0_DEBUG.sha256
+          stat -c 'size_bytes=%s' "$FINAL" | tee APK_SAIDA/BRASEIRO_OSE_1_0_0_DEBUG.info.txt
+          echo "path=$FINAL" >> "$GITHUB_OUTPUT"
+
+      - name: Publish exact source and APK into braseirobuild
+        env:
+          ROOT: ${{ steps.project.outputs.root }}
+        run: |
+          set -euo pipefail
+          rm -rf ose/1.0.0/source
+          mkdir -p ose/1.0.0/source build-artifacts/ose/1.0.0
+          rsync -a \
+            --exclude '.gradle/' \
+            --exclude '**/build/' \
+            --exclude 'local.properties' \
+            --exclude '*.apk' \
+            --exclude '*.aab' \
+            "$ROOT/" ose/1.0.0/source/
+          cp APK_SAIDA/BRASEIRO_OSE_1_0_0_DEBUG.apk build-artifacts/ose/1.0.0/
+          cp APK_SAIDA/BRASEIRO_OSE_1_0_0_DEBUG.sha256 build-artifacts/ose/1.0.0/
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ose/1.0.0/source build-artifacts/ose/1.0.0
+          if git diff --cached --quiet; then
+            echo 'No source/APK changes to commit.'
+          else
+            git commit -m 'Publish BRASEIRO OSE 1.0.0 source and APK'
+            git push origin HEAD:main
+          fi
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO-OSE-1.0.0-APK
+          path: APK_SAIDA/*
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Summary
+        run: |
+          {
+            echo '## BRASEIRO OSE 1.0.0'
+            echo '- Source SHA verified before build.'
+            echo '- Gradle task: `:app-android:assembleDebug`.'
+            echo '- No Tales/WWN transformations applied.'
+            echo '- Source committed under `ose/1.0.0/source/`.'
+            echo '- APK committed under `build-artifacts/ose/1.0.0/`.'
+            cat APK_SAIDA/BRASEIRO_OSE_1_0_0_DEBUG.sha256
+          } >> "$GITHUB_STEP_SUMMARY"
