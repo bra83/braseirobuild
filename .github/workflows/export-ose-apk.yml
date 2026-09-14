@@ -1,0 +1,32 @@
+name: Export BRASEIRO OSE APK
+
+on:
+  push:
+    paths:
+      - '.github/workflows/export-ose-apk.yml'
+  workflow_dispatch:
+
+jobs:
+  export-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify committed APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK='build-artifacts/ose/1.0.0/BRASEIRO_OSE_1_0_0_DEBUG.apk'
+          test -f "$APK"
+          echo '3b57b19014ce1a8ee92273fe2837fcebea9481a9bbd70799e757e916a4c41e78  '"$APK" | sha256sum -c -
+          ls -lh "$APK"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO-OSE-1.0.0-APK
+          path: build-artifacts/ose/1.0.0/BRASEIRO_OSE_1_0_0_DEBUG.apk
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
