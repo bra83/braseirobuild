@@ -26,8 +26,8 @@ jobs:
 
       - name: Download exact 1.0.2 patch
         env:
-          PATCH_SHARE: https://firestorage.ai/ja/f/GaQ9ovFx_0SU
-          PATCH_SHA: 3b928926498595e4a9f13771dc7c8cf314f68d16c48b0d68b0f4957cf2aef8ca
+          PATCH_SHARE: https://firestorage.ai/ja/f/SbOByropwfty
+          PATCH_SHA: c263676fc3f655cc6c973b976e91170e69aee754e280317591efad5631e73542
         run: |
           set -euo pipefail
           python -m pip install --quiet playwright
@@ -55,7 +55,7 @@ jobs:
                       info.value.save_as(str(out)); done=True; break
                   except Exception: pass
               if not done:
-                  card=page.get_by_text('BRASEIRO_OSE_1_0_2.patch', exact=False).first
+                  card=page.get_by_text('BRASEIRO_OSE_1_0_2_FIXED.patch', exact=False).first
                   parent=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]')
                   with page.expect_download(timeout=120000) as info: parent.locator('a,button').last.click(timeout=10000)
                   info.value.save_as(str(out)); done=True
@@ -80,6 +80,7 @@ jobs:
           grep -q 'CRIAR PERSONAGEM ALEATÓRIO' ose/1.0.0/source/web-ui-p1/p1.js
           grep -q 'Regras consultadas nesta ação' ose/1.0.0/source/web-ui-p1/p1.js
           grep -q 'android:icon="@mipmap/ic_launcher"' ose/1.0.0/source/app-android/src/main/AndroidManifest.xml
+          ! grep -q 'WILD_TRAVEL_FORAGE_DAY' ose/1.0.0/source/web-ui-p1/index.html
           node --check ose/1.0.0/source/web-ui-p1/p1.js
 
       - name: Setup Java 17
