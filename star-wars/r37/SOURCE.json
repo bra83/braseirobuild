@@ -1,0 +1,14 @@
+{
+  "project": "STAR_WARS_EDGE_OF_THE_GALAXY",
+  "revision": "R37",
+  "file": "STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_FINAL_R37.zip",
+  "source_share_url": "https://firestorage.ai/ja/f/Kcg7RGANj8vc",
+  "sha256": "f1994279ac4cfe2780d2ab07c3ba26251b6ee9dc42fac11c2961e1cb19513d43",
+  "size_bytes": 13219968,
+  "application_id": "com.braseiro.starwarsedge",
+  "version_name": "1.0.0",
+  "version_code": 10000,
+  "compile_sdk": 36,
+  "target_sdk": 36,
+  "min_sdk": 26
+}
