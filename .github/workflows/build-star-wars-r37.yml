@@ -163,9 +163,6 @@ jobs:
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager 'platform-tools' 'platforms;android-${{ steps.source.outputs.compile_sdk }}'
 
-      - name: Setup Gradle cache
-        uses: gradle/actions/setup-gradle@v4
-
       - name: Compile Star Wars R37 debug APK
         working-directory: ${{ steps.project.outputs.root }}
         run: |
