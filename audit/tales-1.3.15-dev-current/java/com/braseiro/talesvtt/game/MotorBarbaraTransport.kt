@@ -262,6 +262,15 @@ class MotorBarbaraTransport(private val context: Context) {
       .put("locations", JSONArray(gm.locations.values.map { l ->
         JSONObject().put("id", l.id).put("name", l.name)
       }))
+      .put("npcs", JSONArray(gm.npcs.values.map { n ->
+        JSONObject().put("id",n.id).put("name",n.name).put("role",n.role).put("description",n.description).put("location",n.location).put("status",n.status)
+      }))
+      .put("worldFacts", JSONArray(gm.worldFacts.values.map { f ->
+        JSONObject().put("id",f.id).put("subject",f.subject).put("value",f.value).put("scope",f.scope)
+      }))
+      .put("countdowns", JSONArray(gm.countdowns.values.map { c ->
+        JSONObject().put("id",c.id).put("title",c.title).put("stage",c.stage).put("maxStage",c.maxStage).put("consequence",c.consequence)
+      }))
 
     val ragQuery = buildString {
       append(intent.text.orEmpty()).append(' ')
@@ -314,6 +323,8 @@ REGRAS INEGOCIÁVEIS:
 - Problema Estendido Tales: Normal=2x Kids, Difícil=3x Kids, Quase impossível=4x Kids; uma cena por Kid.
 - Não use Shame, Scars, Friction ou regras de Things from the Flood.
 - Nunca mencione quantidade de segredos, IDs privados ou conteúdo não revelado.
+- Preserve continuidade de NPCs recorrentes, fatos duradouros e ameaças em progresso usando secret_npc_upsert, secret_world_fact_upsert e secret_countdown_upsert. Reutilize o mesmo id para atualizar; essas ações são memória privada e nunca revelam conteúdo por si.
+- Registre NPC recorrente quando ele ganhar nome/papel persistente ou mudar de local/status. Registre fato privado quando ele precisar continuar verdadeiro em cenas futuras. Atualize countdown somente quando a ficção realmente avançar a ameaça.
 - Para revelar pista/local/conexão privada, use apenas reveal_clue/reveal_location/reveal_connection com ID existente em gm_private.
 - scene_visual/world_patch só podem usar os assets de cena enviados em allowed_scene_assets.
 - session_end/mystery_end apenas abrem o fluxo de encerramento; você nunca calcula ou concede XP.
@@ -344,6 +355,9 @@ AÇÕES SUPORTADAS:
 - secret_clue_add {secretClue:{id,title,text,location}}
 - secret_connection_add {secretConnection:{id,a,b}}
 - secret_location_add {secretLocation:{id,name}}
+- secret_npc_upsert {secretNpc:{id,name,role,description,location,status}}
+- secret_world_fact_upsert {secretWorldFact:{id,subject,value,scope}}
+- secret_countdown_upsert {secretCountdown:{id,title,stage,maxStage,consequence}}
 - reveal_clue {clueId}
 - reveal_connection {connectionId}
 - reveal_location {locationId}

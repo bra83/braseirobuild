@@ -28,10 +28,37 @@ data class PrivateLocation(
   val name: String
 )
 
+data class PrivateNpc(
+  val id: String,
+  val name: String,
+  val role: String = "",
+  val description: String = "",
+  val location: String = "",
+  val status: String = "active"
+)
+
+data class PrivateWorldFact(
+  val id: String,
+  val subject: String,
+  val value: String,
+  val scope: String = "campaign"
+)
+
+data class PrivateCountdown(
+  val id: String,
+  val title: String,
+  val stage: Int = 0,
+  val maxStage: Int = 4,
+  val consequence: String = ""
+)
+
 data class GmPrivateState(
   val clues: Map<String, PrivateClue> = emptyMap(),
   val connections: Map<String, PrivateConnection> = emptyMap(),
-  val locations: Map<String, PrivateLocation> = emptyMap()
+  val locations: Map<String, PrivateLocation> = emptyMap(),
+  val npcs: Map<String, PrivateNpc> = emptyMap(),
+  val worldFacts: Map<String, PrivateWorldFact> = emptyMap(),
+  val countdowns: Map<String, PrivateCountdown> = emptyMap()
 )
 
 sealed interface MotorAction {
@@ -60,6 +87,9 @@ sealed interface MotorAction {
   data class SecretClueAdd(val clue: PrivateClue) : MotorAction
   data class SecretConnectionAdd(val connection: PrivateConnection) : MotorAction
   data class SecretLocationAdd(val location: PrivateLocation) : MotorAction
+  data class SecretNpcUpsert(val npc: PrivateNpc) : MotorAction
+  data class SecretWorldFactUpsert(val fact: PrivateWorldFact) : MotorAction
+  data class SecretCountdownUpsert(val countdown: PrivateCountdown) : MotorAction
   data class RevealClue(val clueId: String) : MotorAction
   data class RevealConnection(val connectionId: String) : MotorAction
   data class RevealLocation(val locationId: String) : MotorAction
@@ -392,6 +422,37 @@ object MotorBarbaraFirewall {
           else {
             gm = gm.copy(locations = gm.locations + (l.id to l))
             accepted++
+          }
+        }
+
+        is MotorAction.SecretNpcUpsert -> {
+          val n=action.npc.copy(id=action.npc.id.trim(),name=action.npc.name.trim(),role=action.npc.role.trim(),description=action.npc.description.trim(),location=action.npc.location.trim(),status=action.npc.status.trim().ifBlank{"active"})
+          when {
+            n.id.isBlank() || n.name.isBlank() -> rejected += "ação[$index] secret_npc_upsert: id/nome inválidos."
+            n.id.length>120 || n.name.length>180 || n.role.length>240 || n.description.length>4000 || n.location.length>240 || n.status.length>120 -> rejected += "ação[$index] secret_npc_upsert: campo excede limite local."
+            gm.npcs.size>=500 && n.id !in gm.npcs -> rejected += "ação[$index] secret_npc_upsert: limite de NPCs privados atingido."
+            else -> { gm=gm.copy(npcs=gm.npcs+(n.id to n)); accepted++ }
+          }
+        }
+
+        is MotorAction.SecretWorldFactUpsert -> {
+          val f=action.fact.copy(id=action.fact.id.trim(),subject=action.fact.subject.trim(),value=action.fact.value.trim(),scope=action.fact.scope.trim().ifBlank{"campaign"})
+          when {
+            f.id.isBlank() || f.subject.isBlank() || f.value.isBlank() -> rejected += "ação[$index] secret_world_fact_upsert: fato inválido."
+            f.id.length>120 || f.subject.length>300 || f.value.length>4000 || f.scope.length>120 -> rejected += "ação[$index] secret_world_fact_upsert: campo excede limite local."
+            gm.worldFacts.size>=1000 && f.id !in gm.worldFacts -> rejected += "ação[$index] secret_world_fact_upsert: limite de fatos privados atingido."
+            else -> { gm=gm.copy(worldFacts=gm.worldFacts+(f.id to f)); accepted++ }
+          }
+        }
+
+        is MotorAction.SecretCountdownUpsert -> {
+          val c=action.countdown.copy(id=action.countdown.id.trim(),title=action.countdown.title.trim(),consequence=action.countdown.consequence.trim())
+          when {
+            c.id.isBlank() || c.title.isBlank() -> rejected += "ação[$index] secret_countdown_upsert: id/título inválidos."
+            c.maxStage !in 1..12 || c.stage !in 0..c.maxStage -> rejected += "ação[$index] secret_countdown_upsert: estágio inválido."
+            c.id.length>120 || c.title.length>300 || c.consequence.length>4000 -> rejected += "ação[$index] secret_countdown_upsert: campo excede limite local."
+            gm.countdowns.size>=100 && c.id !in gm.countdowns -> rejected += "ação[$index] secret_countdown_upsert: limite de contagens privadas atingido."
+            else -> { gm=gm.copy(countdowns=gm.countdowns+(c.id to c)); accepted++ }
           }
         }
 

@@ -204,6 +204,24 @@ object MotorBarbaraWireAdapter {
       if (id.isEmpty() || name.isEmpty()) null else MotorAction.SecretLocationAdd(PrivateLocation(id, name))
     }
 
+    "secret_npc_upsert", "secret_npc_add" -> {
+      val n=a.optJSONObject("secretNpc") ?: a.optJSONObject("npc") ?: return null
+      val id=n.optString("id").trim(); val name=n.optString("name").trim()
+      if(id.isEmpty()||name.isEmpty()) null else MotorAction.SecretNpcUpsert(PrivateNpc(id,name,n.optString("role"),n.optString("description"),n.optString("location"),n.optString("status","active")))
+    }
+
+    "secret_world_fact_upsert", "secret_fact_upsert" -> {
+      val f=a.optJSONObject("secretWorldFact") ?: a.optJSONObject("fact") ?: return null
+      val id=f.optString("id").trim(); val subject=f.optString("subject").trim(); val value=f.optString("value").trim()
+      if(id.isEmpty()||subject.isEmpty()||value.isEmpty()) null else MotorAction.SecretWorldFactUpsert(PrivateWorldFact(id,subject,value,f.optString("scope","campaign")))
+    }
+
+    "secret_countdown_upsert", "secret_countdown_add" -> {
+      val c=a.optJSONObject("secretCountdown") ?: a.optJSONObject("countdown") ?: return null
+      val id=c.optString("id").trim(); val title=c.optString("title").trim()
+      if(id.isEmpty()||title.isEmpty()) null else MotorAction.SecretCountdownUpsert(PrivateCountdown(id,title,c.optInt("stage",0),c.optInt("maxStage",4),c.optString("consequence")))
+    }
+
     "reveal_clue" -> a.optString("clueId").takeIf { it.isNotBlank() }?.let(MotorAction::RevealClue)
     "reveal_connection" -> a.optString("connectionId").takeIf { it.isNotBlank() }?.let(MotorAction::RevealConnection)
     "reveal_location" -> a.optString("locationId").takeIf { it.isNotBlank() }?.let(MotorAction::RevealLocation)
@@ -222,8 +240,6 @@ object MotorBarbaraWireAdapter {
     "mystery_end" -> MotorAction.MysteryEnd
     "message" -> MotorAction.Message(a.optString("text"))
 
-    // NPC/countdown/private campaign authoring is intentionally not yet accepted by the
-    // player-state engine. Those domains remain GM-private until their own deterministic stores exist.
     else -> null
     }
   }
