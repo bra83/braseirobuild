@@ -63,7 +63,17 @@ Atualizado em 11/09/2026.
 - Próximo Mistério só inicia depois da revisão de Mudança e da revisão de aniversário.
 - Confirmação de Mudança persiste no save; edição continua proibida durante jogo ativo.
 
-## Evidência executada no GitHub — 1.3.14
-- regras locais + inventário + independência de RAG + Recuperação + Mudança: PASS no workflow 34792323959.
-- assembleRelease, assinatura e validação Android: PASS.
-- APK publicado na release TALES-1.3.14.
+
+## Bloco 1.3.15-dev — Itens e sucessos extras
+- Itens do Mistério permanecem até Mudança; um pode substituir o Item Icônico (+2) antes de os demais serem perdidos.
+- Os efeitos compráveis por sucessos extras das 12 Perícias foram codificados localmente e não dependem de RAG/Gemini.
+- Bônus de informação, dispensa do mesmo Problema, sucesso cedido e pool de Liderança ganharam estado local persistente.
+- Criação por Mecânica/Programação usa Item +1 base e upgrades locais até +3.
+- XP de participação não pode ser negado a um Kid presente.
+- Bloco somente código/teste; nenhum APK publicado.
+
+## Evidência executada — 1.3.15-dev
+- compileDebugKotlin: PASS no workflow 34801744592.
+- testes novos de Itens/efeitos: 11/11 PASS.
+- regressão unitária total: PASS.
+- nenhum APK publicado.
