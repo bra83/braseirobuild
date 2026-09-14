@@ -105,6 +105,55 @@ jobs:
           echo "root=$ROOT" >> "$GITHUB_OUTPUT"
           echo "ROOT=$ROOT"
 
+      - name: Hydrate verified recovered scene pack
+        env:
+          SCENE_SHARE_URL: https://firestorage.ai/ja/f/PbM3XvdzNMAk
+          SCENE_FILE: scene-assets-v1-tiny.tar.gz
+          SCENE_SHA: 2ca16b2cd0d3f489fe10f1df718be1243febeef38fb88a52bd50502528f60711
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p incoming/scenes star-wars/r38/patches/assets
+          python3 - <<'PY'
+          import os,pathlib
+          from playwright.sync_api import sync_playwright
+          out=pathlib.Path('incoming/scenes')/os.environ['SCENE_FILE']
+          with sync_playwright() as p:
+            b=p.chromium.launch(headless=True)
+            page=b.new_page(accept_downloads=True)
+            page.goto(os.environ['SCENE_SHARE_URL'],wait_until='domcontentloaded',timeout=120000)
+            page.wait_for_timeout(3000)
+            for label in ['Accept','Aceitar','同意する','OK']:
+              try:
+                q=page.get_by_text(label,exact=True)
+                if q.count() and q.first.is_visible(): q.first.click(timeout=1200)
+              except Exception: pass
+            done=False
+            for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")','button:has-text("保存")','a:has-text("保存")']:
+              try:
+                q=page.locator(sel).first
+                if not q.count() or not q.is_visible(): continue
+                with page.expect_download(timeout=120000) as info: q.click(timeout=10000)
+                info.value.save_as(str(out)); done=True; break
+              except Exception: pass
+            if not done:
+              q=page.get_by_text(os.environ['SCENE_FILE'],exact=False).first
+              parent=q.locator('xpath=ancestor::*[self::div or self::li or self::article][1]')
+              with page.expect_download(timeout=120000) as info: parent.locator('a,button').last.click(timeout=10000)
+              info.value.save_as(str(out)); done=True
+            b.close()
+          if not done or not out.exists(): raise SystemExit('Could not download recovered scene pack')
+          PY
+          echo "${SCENE_SHA}  incoming/scenes/${SCENE_FILE}" | sha256sum -c -
+          base64 -w0 "incoming/scenes/${SCENE_FILE}" > star-wars/r38/patches/assets/scene-assets-v1.tar.gz.b64
+          python3 - <<'PY'
+          import base64,hashlib,pathlib
+          p=pathlib.Path('star-wars/r38/patches/assets/scene-assets-v1.tar.gz.b64')
+          raw=base64.b64decode(p.read_text().strip(),validate=True)
+          assert hashlib.sha256(raw).hexdigest()=='2ca16b2cd0d3f489fe10f1df718be1243febeef38fb88a52bd50502528f60711'
+          print('RECOVERED_SCENE_PACK_OK',len(raw))
+          PY
+
       - name: Apply Block01 patch only
         env:
           ROOT: ${{ steps.project.outputs.root }}
@@ -276,7 +325,7 @@ jobs:
           {
             echo '## Star Wars R38 Block01'
             echo '- Exact R38 baseline downloaded and SHA checked.'
-            echo '- Block01 applied incrementally.'
+            echo '- Block01 attempted incrementally.'
             echo '- No APK published by this workflow.'
             if [ -f /tmp/block01-apk.sha256 ]; then echo "- Validation APK SHA: $(cut -d' ' -f1 /tmp/block01-apk.sha256)"; fi
           } >> "$GITHUB_STEP_SUMMARY"
