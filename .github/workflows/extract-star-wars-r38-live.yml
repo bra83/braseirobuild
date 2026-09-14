@@ -79,16 +79,20 @@ jobs:
           OUT=star-wars/r38/live-snapshot
           rm -rf "$OUT"; mkdir -p "$OUT"
           cp "$ROOT/app/src/main/assets/vtt/r46/final-runtime.js" "$OUT/final-runtime.js"
+          cp "$ROOT/app/src/main/assets/vtt/r46/final-runtime.css" "$OUT/final-runtime.css" || true
+          cp "$ROOT/app/src/main/assets/vtt/r46/globals.css" "$OUT/globals.css" || true
           cp "$ROOT/app/src/main/assets/vtt/r46/r46.css" "$OUT/r46.css"
           cp "$ROOT/app/src/main/assets/vtt/r46-shell.html" "$OUT/r46-shell.html"
           cp "$ROOT/app/src/main/assets/vtt/r46/r46-shell.bundle.js" "$OUT/r46-shell.bundle.js"
           cp "$ROOT/app/src/main/assets/vtt/js/library/sceneLibrary.mjs" "$OUT/sceneLibrary.mjs" || true
           cp "$ROOT/app/src/main/assets/vtt/image-library/manifest.json" "$OUT/image-manifest.json" || true
           cp "$ROOT/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java" "$OUT/MainActivity.java"
+          cp "$ROOT/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java" "$OUT/GeminiBridge.java"
+          cp "$ROOT/app/src/main/java/com/braseiro/starwarsedge/ImageLibraryBridge.java" "$OUT/ImageLibraryBridge.java"
           cp "$ROOT/app/src/main/AndroidManifest.xml" "$OUT/AndroidManifest.xml"
           find "$ROOT/app/src/main/assets/vtt" -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) | sed "s#^$ROOT/##" | sort > "$OUT/IMAGE_FILES.txt"
           python3 - <<'PY'
-          import json,pathlib,re,os
+          import json,pathlib
           out=pathlib.Path('star-wars/r38/live-snapshot')
           data=json.loads((out/'image-manifest.json').read_text(encoding='utf-8')) if (out/'image-manifest.json').exists() else {}
           arr=data.get('assets',[]) if isinstance(data,dict) else []
