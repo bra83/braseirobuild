@@ -45,7 +45,25 @@ Atualizado em 11/09/2026.
 - Toques próximos aos pinos também são reconhecidos para melhorar o uso no celular.
 - Rotas dinâmicas e correção de TTS da 1.3.11 foram preservadas.
 
-## Evidência executada no GitHub — 1.3.12
-- testes de mapa interativo + regressão 1.3.11: PASS no workflow 34669080742.
+## Bloco 1.3.13 — autoridade mecânica local / inventário real
+- Regras mecânicas centrais Tales/Kids consolidadas em autoridade local determinística; Gemini/RAG não pode definir regra.
+- Contexto de manuais importados passou a ser somente referência opcional de ambientação/lore; conflitos mecânicos são ignorados pelo Motor.
+- MOCHILA deixou de exibir Lanterna/Fita/Caderno/Binóculos fictícios fixos. Agora mostra somente objetos realmente presentes no estado do Kid.
+- Objetos comuns têm bônus 0. Itens do Mistério guardam seu bônus específico +1..+3. Item Icônico permanece +2.
+- Mestre pode adicionar/remover Itens reais por ações validadas; bônus proposto só entra se nome/tipo/valor coincidirem exatamente com o estado persistido.
+- Itens do Mistério são removidos no limite de fim de Mistério; objetos comuns persistem.
+- Inventário e música favorita passam a persistir em save e JSON do Kid. Saves antigos migram com inventário vazio, sem itens inventados.
+- Locais continuam sendo estado dinâmico revelado pelo Mestre, não catálogo rígido nem dependência de RAG.
+- TAL-EDGE-001 continua bloqueado: nenhuma regra Flood de mínimo 1 dado foi importada.
+
+## Bloco 1.3.14 — recuperação e Mudança canônicas
+- Recuperação genérica removida: Âncora e Esconderijo qualificados curam todas as Condições; conforto por Perícia cura exatamente uma Condição leve e nunca cura Quebrado.
+- Motor precisa declarar a fonte da recuperação; sem fonte, a cura é rejeitada em vez de inventada.
+- Entre Mistérios, Problema, Ímpeto, Orgulho, Item Icônico e Relacionamentos podem ser revisados em estado próprio de Mudança.
+- Próximo Mistério só inicia depois da revisão de Mudança e da revisão de aniversário.
+- Confirmação de Mudança persiste no save; edição continua proibida durante jogo ativo.
+
+## Evidência executada no GitHub — 1.3.14
+- regras locais + inventário + independência de RAG + Recuperação + Mudança: PASS no workflow 34792323959.
 - assembleRelease, assinatura e validação Android: PASS.
-- APK publicado na release TALES-1.3.12.
+- APK publicado na release TALES-1.3.14.
