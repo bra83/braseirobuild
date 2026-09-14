@@ -1,4 +1,4 @@
-name: BRASEIRO Cyberpunk RED R4.64.1 APK
+name: BRASEIRO Cyberpunk RED R4.64.2 APK
 
 on:
   push:
@@ -12,9 +12,9 @@ permissions:
   contents: write
 
 env:
-  CPRED_SOURCE_SHARE_URL: "https://firestorage.ai/ja/f/PcuAwqsFLYmN"
-  CPRED_SOURCE_SHA256: "38ab66a15c2a27dff2fb4bf28870ba7561435f4779b0a0f84081b35f002dec15"
-  CPRED_SOURCE_NAME: "CYBERPUNK_RED_R4_64_1_ANDROID_BUILD_FIX_ANDROID_STUDIO.zip"
+  CPRED_SOURCE_SHARE_URL: "https://firestorage.ai/ja/f/VOI0s6T5poF6"
+  CPRED_SOURCE_SHA256: "b9be73c2498c9d009dd6adfa2af9546bda861d362130150b720df7472e46e750"
+  CPRED_SOURCE_NAME: "CYBERPUNK_RED_R4_64_2_UI_RUNTIME_HOTFIX_ANDROID_STUDIO.zip"
 
 jobs:
   build:
@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
         name: Checkout braseirobuild
 
-      - name: Download exact Cyberpunk RED R4.64.1 source
+      - name: Download exact Cyberpunk RED R4.64.2 source
         shell: bash
         run: |
           set -euo pipefail
@@ -42,12 +42,10 @@ jobs:
           const page = await context.newPage();
           const url = process.env.CPRED_SOURCE_SHARE_URL;
           const output = process.env.GITHUB_WORKSPACE + '/incoming/' + process.env.CPRED_SOURCE_NAME;
-
           async function openShare() {
             await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
             await page.waitForTimeout(2500);
           }
-
           async function attemptDownload() {
             const candidates = page.locator('a,button,[role="button"]');
             const count = Math.min(await candidates.count(), 120);
@@ -69,7 +67,6 @@ jobs:
             }
             return false;
           }
-
           await openShare();
           for (let attempt=1; attempt<=24; attempt++) {
             if (await attemptDownload()) {
@@ -112,10 +109,24 @@ jobs:
           [ -n "$SDK" ] || SDK=36
           KOTLIN="$ROOT/app/src/main/java/com/braseiro/cyberpunkred/BarbaraRuntime.kt"
           grep -F 'Regex("""\d+,\d+""")' "$KOTLIN" >/dev/null || { echo "::error::R4.64.1 Kotlin build fix missing"; exit 1; }
+          grep -F 'versionCode = 4004' "$ROOT/app/build.gradle.kts" >/dev/null || { echo "::error::R4.64.2 versionCode missing"; exit 1; }
+          grep -F 'versionName = "4.0.4"' "$ROOT/app/build.gradle.kts" >/dev/null || { echo "::error::R4.64.2 versionName missing"; exit 1; }
           echo "root=$ROOT" >> "$GITHUB_OUTPUT"
           echo "sdk=$SDK" >> "$GITHUB_OUTPUT"
           echo "ROOT=$ROOT SDK=$SDK"
           grep -E 'applicationId|versionCode|versionName|minSdk|targetSdk|compileSdk' "$ROOT/app/build.gradle.kts" || true
+
+      - name: Prove R4.64.2 web runtime boot fix
+        shell: bash
+        env:
+          ROOT: ${{ steps.android.outputs.root }}
+        run: |
+          set -euo pipefail
+          APP="$ROOT/app/src/main/assets/web/app"
+          node --input-type=module -e "import('file://$GITHUB_WORKSPACE/$APP/atlas.js').then(()=>console.log('ATLAS_ESM_IMPORT_PASS')).catch(e=>{console.error(e);process.exit(1)})"
+          (cd "$ROOT" && node qa/WEB_RUNTIME_MODULE_IMPORT_GATE_R4_64_2.mjs)
+          grep -F -- '--pink:#f830a8' "$APP/styles.css" >/dev/null || { echo "::error::Pink neon theme missing"; exit 1; }
+          grep -F -- '--cyan:#10f8f8' "$APP/styles.css" >/dev/null || { echo "::error::Cyan neon theme missing"; exit 1; }
 
       - uses: actions/setup-java@v4
         name: Configure Java 17
@@ -156,14 +167,14 @@ jobs:
           mkdir -p out
           APK="$(find "$ROOT" -type f -path '*/build/outputs/apk/debug/*.apk' | sort | head -n1)"
           [ -n "${APK:-}" ] && [ -f "$APK" ] || { echo "::error::Debug APK not found"; exit 1; }
-          NAME="BRASEIRO-CYBERPUNK-RED-R4.64.1-DEBUG.apk"
+          NAME="BRASEIRO-CYBERPUNK-RED-R4.64.2-DEBUG.apk"
           FINAL="out/$NAME"
           cp "$APK" "$FINAL"
           unzip -t "$FINAL" >/dev/null
           BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
           "$BUILD_TOOLS/aapt" dump badging "$FINAL" | grep -E '^(package:|sdkVersion:|targetSdkVersion:|native-code:)' | tee out/APK_BADGING.txt
           "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$FINAL" | tee out/APK_SIGNATURE.txt
-          grep -q "package: name='com.braseiro.cyberpunkred'" out/APK_BADGING.txt || { echo "::error::Unexpected package id"; exit 1; }
+          grep -q "package: name='com.braseiro.cyberpunkred' versionCode='4004' versionName='4.0.4'" out/APK_BADGING.txt || { echo "::error::Unexpected package/version"; exit 1; }
           sha256sum "$FINAL" | tee "out/$NAME.sha256"
           stat -c 'APK_SIZE_BYTES=%s' "$FINAL" | tee out/APK_SIZE.txt
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
@@ -176,10 +187,10 @@ jobs:
           APK_NAME: ${{ steps.apk.outputs.name }}
         run: |
           set -euo pipefail
-          TAG="cyberpunk-red-r4.64.1"
-          TITLE="BRASEIRO Cyberpunk RED R4.64.1 DEBUG APK"
+          TAG="cyberpunk-red-r4.64.2"
+          TITLE="BRASEIRO Cyberpunk RED R4.64.2 DEBUG APK"
           if ! gh release view "$TAG" >/dev/null 2>&1; then
-            gh release create "$TAG" --target "$GITHUB_SHA" --title "$TITLE" --notes "Cyberpunk RED R4.64.1 debug APK. Source SHA-256: $CPRED_SOURCE_SHA256. Built with Gradle 8.11.1 / compileSdk 36."
+            gh release create "$TAG" --target "$GITHUB_SHA" --title "$TITLE" --notes "Cyberpunk RED R4.64.2: UI runtime/Atlas syntax hotfix + approved pink/cyan theme restoration. Source SHA-256: $CPRED_SOURCE_SHA256."
           fi
           gh release upload "$TAG" out/* --clobber
           RELEASE_URL="$(gh release view "$TAG" --json url --jq .url)"
@@ -199,9 +210,11 @@ jobs:
       - name: Summary
         shell: bash
         run: |
-          echo "## BRASEIRO Cyberpunk RED R4.64.1" >> "$GITHUB_STEP_SUMMARY"
+          echo "## BRASEIRO Cyberpunk RED R4.64.2" >> "$GITHUB_STEP_SUMMARY"
           echo "- Source SHA-256: $CPRED_SOURCE_SHA256" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Runtime ESM import gate: PASS" >> "$GITHUB_STEP_SUMMARY"
           echo "- Build: assembleDebug" >> "$GITHUB_STEP_SUMMARY"
           echo "- Package: com.braseiro.cyberpunkred" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Version: 4.0.4 (4004)" >> "$GITHUB_STEP_SUMMARY"
           echo "- APK: ${{ steps.apk.outputs.name }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Release: ${{ steps.release.outputs.release_url }}" >> "$GITHUB_STEP_SUMMARY"
