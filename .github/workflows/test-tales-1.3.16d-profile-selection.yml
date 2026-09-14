@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/workflows/test-tales-1.3.16d-profile-selection.yml"
       - "tales-1.3.16d-transform.py"
+      - "tales-1.3.16d1-transform.py"
 
 permissions:
   contents: write
@@ -31,7 +32,7 @@ jobs:
           chmod +x "$ROOT/gradlew"
           python3 -m pip install --quiet pillow
           python3 tales-1.3.14-transform.py "$ROOT"
-          python3 tales-1.3.16d-transform.py "$ROOT" | tee /tmp/tales-transform-1316d.txt
+          python3 tales-1.3.16d1-transform.py "$ROOT" | tee /tmp/tales-transform-1316d.txt
           echo "root=$ROOT" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-java@v5
