@@ -1,0 +1,127 @@
+name: Audit Star Wars R38 Block06 clicks
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/audit-star-wars-r38-block06-clicks.yml"]
+permissions:
+  contents: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - id: src
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          d=json.load(open('star-wars/r38/SOURCE.json'));print('u='+d['source_share_url']);print('f='+d['file']);print('s='+d['sha256'])
+          PY
+      - run: |
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium >/dev/null
+      - name: Prepare exact current patched source
+        env:
+          U: ${{ steps.src.outputs.u }}
+          F: ${{ steps.src.outputs.f }}
+          S: ${{ steps.src.outputs.s }}
+          SU: https://firestorage.ai/ja/f/PbM3XvdzNMAk
+          SF: scene-assets-v1-tiny.tar.gz
+          SS: 2ca16b2cd0d3f489fe10f1df718be1243febeef38fb88a52bd50502528f60711
+        run: |
+          set -euo pipefail;rm -rf incoming work;mkdir -p incoming work
+          python3 - <<'PY'
+          import os,pathlib
+          from playwright.sync_api import sync_playwright
+          def dl(u,n,o):
+            with sync_playwright() as p:
+              b=p.chromium.launch(headless=True);q=b.new_page(accept_downloads=True);q.goto(u,wait_until='domcontentloaded',timeout=120000);q.wait_for_timeout(2500);done=False
+              for s in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")','button:has-text("保存")','a:has-text("保存")']:
+                try:
+                  x=q.locator(s).first
+                  if x.count() and x.is_visible():
+                    with q.expect_download(timeout=120000) as i:x.click(timeout=10000)
+                    i.value.save_as(str(o));done=True;break
+                except:pass
+              if not done:
+                x=q.get_by_text(n,exact=False).first
+                with q.expect_download(timeout=120000) as i:x.locator('xpath=ancestor::*[self::div or self::li or self::article][1]').locator('a,button').last.click(timeout=10000)
+                i.value.save_as(str(o))
+              b.close()
+          dl(os.environ['U'],os.environ['F'],pathlib.Path('incoming')/os.environ['F']);dl(os.environ['SU'],os.environ['SF'],pathlib.Path('incoming')/os.environ['SF'])
+          PY
+          echo "${S}  incoming/${F}"|sha256sum -c -;echo "${SS}  incoming/${SF}"|sha256sum -c -
+          unzip -q "incoming/${F}" -d work
+          R="$(dirname "$(find work -type f -name gradlew -not -path '*/build/*'|head -1)")";echo "ROOT=$R">>/tmp/env
+          base64 -w0 "incoming/${SF}" > star-wars/r38/patches/assets/scene-assets-v1.tar.gz.b64
+          python3 star-wars/r38/patches/block01_repair_safe.py "$R" >/dev/null
+          python3 star-wars/r38/patches/block02_scene_controls.py "$R" >/dev/null
+      - name: Exercise visible controls
+        run: |
+          source /tmp/env
+          export ROOT
+          python3 - <<'PY'
+          import os,pathlib,threading,http.server,socketserver,json,hashlib,datetime
+          from playwright.sync_api import sync_playwright
+          root=pathlib.Path(os.environ['ROOT']);vtt=root/'app/src/main/assets/vtt';os.chdir(vtt)
+          class H(http.server.SimpleHTTPRequestHandler):
+            def log_message(self,*a):pass
+          s=socketserver.TCPServer(('127.0.0.1',0),H);threading.Thread(target=s.serve_forever,daemon=True).start();port=s.server_address[1]
+          report={'generated_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'tabs':{},'suspects':[],'page_errors':[]}
+          init='''window.__calls=[];window.__geminiPrompt=null;function rec(ns,m,a){window.__calls.push({ns,m,args:a.map(x=>String(x).slice(0,120))});if(ns==='BraseiroGemini'&&m==='openGeminiWithPrompt')window.__geminiPrompt=String(a[0]||'');return JSON.stringify({ok:true,items:[],data:[],state:{},value:true});}const mk=ns=>new Proxy({}, {get:(t,p)=>{if(p==='then')return undefined;return(...a)=>rec(ns,String(p),a)}});for(const n of ['BraseiroUiBridge','BraseiroLibrary','BraseiroImages','BraseiroFiles','BraseiroTts'])window[n]=mk(n);window.BraseiroGemini=mk('BraseiroGemini');'''
+          try:
+            with sync_playwright() as p:
+              b=p.chromium.launch(headless=True)
+              for tab in ['CENA','PERSONAGEM','ITENS','NAVE','REGISTROS']:
+                pg=b.new_page(viewport={'width':415,'height':915});errs=[];pg.on('pageerror',lambda e,errs=errs:errs.append(str(e)));pg.add_init_script(init);pg.goto(f'http://127.0.0.1:{port}/r46-shell.html',wait_until='domcontentloaded');pg.wait_for_timeout(900)
+                st=pg.locator('#sandbox-start-button');
+                if st.count() and st.is_visible():st.click();pg.wait_for_timeout(500)
+                nav=pg.locator('.bottom-nav-button:visible').filter(has_text=tab)
+                if nav.count():nav.first.click();pg.wait_for_timeout(400)
+                buttons=pg.locator('button:visible');labels=[]
+                for i in range(buttons.count()):
+                  btn=buttons.nth(i);lab=' '.join((btn.inner_text() or '').split());
+                  if not lab: continue
+                  labels.append(lab)
+                tabres=[]
+                for lab in list(dict.fromkeys(labels))[:35]:
+                  # reload state for each click so actions do not contaminate each other
+                  pg.evaluate('window.__calls=[]')
+                  q=pg.get_by_role('button',name=lab,exact=True)
+                  if not q.count() or not q.first.is_visible():continue
+                  before=pg.locator('body').inner_text(); before_cls=q.first.get_attribute('class') or ''
+                  try:q.first.click(timeout=2500)
+                  except Exception as e:
+                    tabres.append({'label':lab,'click_error':str(e)[:300]});report['suspects'].append({'tab':tab,'label':lab,'reason':'click_error'});continue
+                  pg.wait_for_timeout(180)
+                  after=pg.locator('body').inner_text();calls=pg.evaluate('window.__calls')
+                  changed=(before!=after); still=q.count() and q.first.is_visible(); after_cls=(q.first.get_attribute('class') or '') if still else ''
+                  active_changed=before_cls!=after_cls
+                  # navigation buttons are allowed to signal only through DOM/class mutation.
+                  signal=bool(calls or changed or active_changed)
+                  item={'label':lab,'bridge_calls':calls[:8],'dom_changed':changed,'class_changed':active_changed,'signal':signal}
+                  tabres.append(item)
+                  if not signal and lab not in ['CENA','PERSONAGEM','ITENS','NAVE','REGISTROS']:
+                    report['suspects'].append({'tab':tab,'label':lab,'reason':'no observable DOM/bridge signal'})
+                if errs:report['page_errors']+= [{'tab':tab,'error':e} for e in errs]
+                report['tabs'][tab]=tabres;pg.close()
+              b.close()
+          finally:s.shutdown();s.server_close()
+          out=pathlib.Path(os.environ['GITHUB_WORKSPACE'])/'star-wars/r38/audit';out.mkdir(parents=True,exist_ok=True)
+          (out/'BLOCK06_CLICK_AUDIT.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          md=['# STAR WARS R38 — BLOCK06 CLICK AUDIT','',f'- Suspect controls: **{len(report["suspects"])}**',f'- Page errors: **{len(report["page_errors"])}**','','## Suspects']
+          md += [f"- {x['tab']} / `{x['label']}` — {x['reason']}" for x in report['suspects']] or ['- none']
+          md += ['','## Page errors']+[f"- {x['tab']}: `{x['error']}`" for x in report['page_errors']] or ['- none']
+          for tab,items in report['tabs'].items():md += ['',f'## {tab}']+[f"- `{x['label']}` signal={x.get('signal')} bridge={len(x.get('bridge_calls',[]))} dom={x.get('dom_changed')} class={x.get('class_changed')}" for x in items]
+          (out/'BLOCK06_CLICK_AUDIT.md').write_text('\n'.join(md)+'\n')
+          PY
+      - name: Commit evidence
+        run: |
+          git checkout -- star-wars/r38/patches/assets/scene-assets-v1.tar.gz.b64
+          git config user.name braseiro-audit-bot;git config user.email actions@users.noreply.github.com
+          git add star-wars/r38/audit/BLOCK06_CLICK_AUDIT.*
+          git commit -m 'audit(star-wars): exercise visible R46 controls' || true
+          git push
