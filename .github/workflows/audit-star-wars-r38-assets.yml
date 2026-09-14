@@ -1,0 +1,290 @@
+name: Audit Star Wars Edge of the Galaxy R38 visual assets
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/audit-star-wars-r38-assets.yml"
+      - "star-wars/r38/SOURCE.json"
+      - "STAR_WARS_R38_ASSET_AUDIT_TRIGGER.txt"
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout builder repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read pinned R38 source
+        id: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          d=json.load(open('star-wars/r38/SOURCE.json', encoding='utf-8'))
+          print('url='+d['source_share_url'])
+          print('sha='+d['sha256'])
+          print('file='+d['file'])
+          PY
+
+      - name: Setup Python and Chromium
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install downloader
+        run: |
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Download exact SHA-pinned R38 source
+        env:
+          SHARE_URL: ${{ steps.source.outputs.url }}
+          EXPECTED_SHA: ${{ steps.source.outputs.sha }}
+          SOURCE_FILE: ${{ steps.source.outputs.file }}
+        run: |
+          set -euo pipefail
+          rm -rf incoming work
+          mkdir -p incoming work
+          python3 - <<'PY'
+          import os, pathlib
+          from playwright.sync_api import sync_playwright
+          url=os.environ['SHARE_URL']; filename=os.environ['SOURCE_FILE']
+          out=pathlib.Path('incoming')/filename
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True)
+              page=browser.new_page(accept_downloads=True)
+              page.goto(url, wait_until='domcontentloaded', timeout=120000)
+              page.wait_for_timeout(4000)
+              for label in ['Accept','Aceitar','同意する','OK']:
+                  try:
+                      loc=page.get_by_text(label, exact=True)
+                      if loc.count() and loc.first.is_visible(): loc.first.click(timeout=1500)
+                  except Exception: pass
+              selectors=['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")','button:has-text("保存")','a:has-text("保存")']
+              done=False
+              for sel in selectors:
+                  try:
+                      loc=page.locator(sel).first
+                      if not loc.count() or not loc.is_visible(): continue
+                      with page.expect_download(timeout=120000) as info: loc.click(timeout=10000)
+                      info.value.save_as(str(out)); done=True; break
+                  except Exception: continue
+              if not done:
+                  card=page.get_by_text(filename, exact=False).first
+                  parent=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]')
+                  ctrl=parent.locator('a,button').last
+                  with page.expect_download(timeout=120000) as info: ctrl.click(timeout=10000)
+                  info.value.save_as(str(out)); done=True
+              browser.close()
+          if not done or not out.exists(): raise SystemExit('Could not download pinned R38 source')
+          PY
+          echo "${EXPECTED_SHA}  incoming/${SOURCE_FILE}" | sha256sum -c -
+          unzip -q "incoming/${SOURCE_FILE}" -d work
+
+      - name: Audit source, manifests, R46 and existing validated APK
+        env:
+          EXPECTED_SOURCE_SHA: ${{ steps.source.outputs.sha }}
+          SOURCE_FILE: ${{ steps.source.outputs.file }}
+          EXPECTED_APK_SHA: 648be43302dcaac0d85a6b408492b80f9896cd145bba2c3310ba1711496a6271
+          EXISTING_APK_URL: https://tmpfiles.org/dl/w6waPvxflI7W/star_wars_edge_of_the_galaxy_r38_debug.apk
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p star-wars/r38/audit
+          GRADLEW="$(find work -type f -name gradlew -not -path '*/.gradle/*' -not -path '*/build/*' | head -n1)"
+          [ -n "$GRADLEW" ]
+          ROOT="$(dirname "$GRADLEW")"
+          export ROOT
+          python3 - <<'PY'
+          import os, re, json, hashlib, pathlib, subprocess, urllib.request, zipfile, collections, datetime
+          root=pathlib.Path(os.environ['ROOT'])
+          assets=root/'app/src/main/assets'
+          r46=assets/'vtt/r46'
+          outdir=pathlib.Path('star-wars/r38/audit')
+          outdir.mkdir(parents=True, exist_ok=True)
+          image_ext={'.png','.jpg','.jpeg','.webp','.gif','.svg','.avif'}
+          text_ext={'.js','.mjs','.cjs','.json','.html','.css','.txt','.md','.xml','.kt','.java'}
+          all_files=[p for p in root.rglob('*') if p.is_file()]
+          asset_files=[p for p in assets.rglob('*') if p.is_file()] if assets.exists() else []
+          local_images=[p for p in asset_files if p.suffix.lower() in image_ext]
+          texts={}
+          for p in all_files:
+              if p.suffix.lower() in text_ext or p.name.endswith('.gradle.kts'):
+                  try: texts[p]=p.read_text(encoding='utf-8', errors='replace')
+                  except Exception: pass
+
+          def rel(p):
+              try: return str(p.relative_to(root)).replace('\\','/')
+              except Exception: return str(p)
+
+          url_re=re.compile(r'https?://[^\s\"\'<>)}]+',re.I)
+          img_url_re=re.compile(r'https?://[^\s\"\'<>)}]+\.(?:png|jpe?g|webp|gif|svg|avif)(?:\?[^\s\"\'<>)}]*)?',re.I)
+          manifest_candidates=[]
+          for p,t in texts.items():
+              if not str(p).startswith(str(assets)): continue
+              low=t.lower()
+              score=sum(x in low for x in ['assetid','imageurl','visual','kainrath','sourceurl','remoteurl'])
+              urls=url_re.findall(t)
+              imgurls=img_url_re.findall(t)
+              if score>=2 or len(imgurls)>=3:
+                  manifest_candidates.append({'path':rel(p),'score':score,'urls':len(urls),'image_urls':len(imgurls),'bytes':p.stat().st_size})
+
+          # Generic JSON object harvest to discover category/id/url inventory without assuming schema.
+          harvested=[]
+          idkeys=('id','assetId','asset_id','visualId','visual_id','key')
+          urlkeys=('imageUrl','image_url','url','src','image','sourceUrl','source_url','remoteUrl','remote_url')
+          kindkeys=('kind','category','type','entityType','entity_type','group','subtype')
+          def walk(obj, source, path='$'):
+              if isinstance(obj,dict):
+                  idv=next((obj.get(k) for k in idkeys if isinstance(obj.get(k),(str,int))),None)
+                  urlv=next((obj.get(k) for k in urlkeys if isinstance(obj.get(k),str) and obj.get(k).startswith(('http://','https://','assets/','./','../'))),None)
+                  kindv=next((obj.get(k) for k in kindkeys if isinstance(obj.get(k),str)),None)
+                  if idv is not None and (urlv is not None or kindv is not None):
+                      harvested.append({'source':source,'path':path,'id':str(idv),'kind':kindv,'url':urlv})
+                  for k,v in obj.items(): walk(v,source,path+'.'+str(k))
+              elif isinstance(obj,list):
+                  for i,v in enumerate(obj): walk(v,source,path+f'[{i}]')
+          for p,t in texts.items():
+              if p.suffix.lower()=='.json' and str(p).startswith(str(assets)):
+                  try: walk(json.loads(t),rel(p))
+                  except Exception: pass
+
+          cats={
+            'items':['item','weapon','armor','gear','equipment','equipamento','arma','armadura'],
+            'vehicles':['vehicle','ship','starship','speeder','walker','veículo','veiculo','nave'],
+            'npcs':['npc','character portrait','enemy','enemies'],
+            'droids':['droid','droide'],
+            'beasts':['beast','creature','fera','animal'],
+            'locations':['location','planet','place','local','map'],
+            'scenes':['scene','cena','illustration','ilustração','ilustracao']
+          }
+          cat_report={}
+          for cat,keys in cats.items():
+              h=[]
+              for e in harvested:
+                  blob=' '.join(str(e.get(k) or '') for k in ('id','kind','url','source')).lower()
+                  if any(k in blob for k in keys): h.append(e)
+              files=[]
+              for p,t in texts.items():
+                  if not str(p).startswith(str(assets)): continue
+                  low=(rel(p)+'\n'+t[:200000]).lower()
+                  if any(k in low for k in keys): files.append(rel(p))
+              imgs=[rel(p) for p in local_images if any(k in rel(p).lower() for k in keys)]
+              cat_report[cat]={'harvested_entries':len(h),'harvested_examples':h[:20],'source_files_matching':sorted(set(files))[:80],'local_image_binaries_matching':imgs[:80]}
+
+          # References to local image binaries anywhere in source text.
+          refs=[]
+          for img in local_images:
+              name=img.name
+              hitfiles=[]
+              for p,t in texts.items():
+                  if name in t: hitfiles.append(rel(p))
+              refs.append({'image':rel(img),'referenced_by':sorted(set(hitfiles))[:30]})
+
+          def line_hits(path, patterns, max_hits=120):
+              if not path.exists(): return []
+              lines=path.read_text(encoding='utf-8',errors='replace').splitlines()
+              out=[]
+              for i,line in enumerate(lines,1):
+                  low=line.lower()
+                  if any(re.search(p,low,re.I) for p in patterns):
+                      out.append({'line':i,'text':line[:500]})
+                      if len(out)>=max_hits: break
+              return out
+
+          runtime=r46/'final-runtime.js'
+          shell=r46/'r46-shell.html'
+          runtime_hits=line_hits(runtime,[r'visual',r'image',r'asset',r'item',r'vehicle',r'npc',r'droid',r'beast',r'location',r'scene',r'gemini'])
+          shell_hits=line_hits(shell,[r'visual',r'image',r'asset',r'item',r'vehicle',r'npc',r'droid',r'beast',r'location',r'scene'])
+          bridge_candidates=[]
+          for p,t in texts.items():
+              low=t.lower()
+              if 'visual' in low and ('bridge' in low or 'image' in low):
+                  bridge_candidates.append({'path':rel(p),'hits':line_hits(p,[r'visual',r'image',r'asset',r'cache',r'preview'])[:40]})
+
+          # Exact existing validated APK: optional download, SHA-gated. No rebuild.
+          apk={'downloaded':False,'sha_ok':False,'assets':[],'packaged_manifest_candidates':[],'packaged_local_images':[],'error':None}
+          apk_path=pathlib.Path('/tmp/R38_EXISTING.apk')
+          try:
+              urllib.request.urlretrieve(os.environ['EXISTING_APK_URL'],apk_path)
+              apk['downloaded']=True
+              sha=hashlib.sha256(apk_path.read_bytes()).hexdigest(); apk['sha256']=sha
+              apk['sha_ok']=(sha==os.environ['EXPECTED_APK_SHA'])
+              if apk['sha_ok']:
+                  with zipfile.ZipFile(apk_path) as z:
+                      names=z.namelist(); aset=[n for n in names if n.startswith('assets/')]
+                      apk['assets']=aset
+                      src_manifest_names=[m['path'].split('app/src/main/assets/',1)[-1] for m in manifest_candidates if 'app/src/main/assets/' in m['path']]
+                      apk['packaged_manifest_candidates']=[x for x in src_manifest_names if 'assets/'+x in names]
+                      src_images=[rel(p).split('app/src/main/assets/',1)[-1] for p in local_images]
+                      apk['packaged_local_images']=[x for x in src_images if 'assets/'+x in names]
+              else: apk['error']='Existing APK SHA mismatch; APK contents not trusted.'
+          except Exception as e:
+              apk['error']=repr(e)
+
+          source_sha=hashlib.sha256((pathlib.Path('incoming')/os.environ['SOURCE_FILE']).read_bytes()).hexdigest()
+          gradle='\n'.join(t for p,t in texts.items() if p.name=='build.gradle.kts' and '/app/' in ('/'+rel(p)))
+          report={
+            'generated_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            'project_root':str(root),
+            'source_file':os.environ['SOURCE_FILE'],
+            'source_sha256':source_sha,
+            'expected_source_sha256':os.environ['EXPECTED_SOURCE_SHA'],
+            'source_sha_ok':source_sha==os.environ['EXPECTED_SOURCE_SHA'],
+            'assets_root_exists':assets.exists(),
+            'asset_file_count':len(asset_files),
+            'local_image_binary_count':len(local_images),
+            'local_image_binaries':[rel(p) for p in local_images],
+            'local_image_references':refs,
+            'manifest_candidates':sorted(manifest_candidates,key=lambda x:(-x['image_urls'],-x['score'],x['path'])),
+            'harvested_json_entry_count':len(harvested),
+            'harvested_json_entries':harvested[:1000],
+            'categories':cat_report,
+            'r46_final_runtime_exists':runtime.exists(),
+            'r46_runtime_hits':runtime_hits,
+            'r46_shell_exists':shell.exists(),
+            'r46_shell_hits':shell_hits,
+            'visual_bridge_candidates':bridge_candidates[:80],
+            'gradle_mentions_assets_source_set':('assets.src' in gradle.lower() or 'src/main/assets' in gradle.lower()),
+            'existing_validated_apk':apk
+          }
+          (outdir/'ASSET_AUDIT_R38.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+
+          # Human-readable summary with conservative classifications. No claim of UI linkage unless code evidence is found.
+          rt=(runtime.read_text(encoding='utf-8',errors='replace').lower() if runtime.exists() else '')
+          has_visual_runtime=('visual' in rt and ('image' in rt or 'asset' in rt))
+          md=[]
+          md += ['# STAR WARS — EDGE OF THE GALAXY — R38 REAL VISUAL ASSET AUDIT','',f'- Source SHA verified: **{report["source_sha_ok"]}**',f'- `app/src/main/assets` files: **{len(asset_files)}**',f'- Local image binaries under assets: **{len(local_images)}**',f'- Manifest candidates: **{len(manifest_candidates)}**',f'- Existing validated APK downloaded: **{apk["downloaded"]}**',f'- Existing validated APK SHA verified: **{apk["sha_ok"]}**',f'- Manifest candidates physically packaged in verified APK: **{len(apk["packaged_manifest_candidates"])}**',f'- Local image binaries physically packaged in verified APK: **{len(apk["packaged_local_images"])}**','']
+          md += ['## Category evidence','', '| Category | Harvested catalog entries | Local binaries | R46/runtime textual evidence |', '|---|---:|---:|---|']
+          for cat,d in cat_report.items():
+              rt_ev=any(k in rt for k in cats[cat])
+              md.append(f'| {cat} | {d["harvested_entries"]} | {len(d["local_image_binaries_matching"])} | {"YES" if rt_ev else "NO"} |')
+          md += ['','## Important interpretation','', '- `CREATED/CATALOGED` is supported only by manifest/catalog evidence.', '- `PRESENT IN APK` is supported only when the exact pre-existing APK matches the pinned APK SHA and the asset/manifest path is inside that APK.', '- `LINKED TO UI` is not inferred from catalog presence; R46 code evidence must exist.', '- External image URLs are not counted as local image binaries.', '- This audit does not alter rules, R46 layout, or generate images.','']
+          if apk['error']: md += ['## APK note','',f'- {apk["error"]}','']
+          md += ['## Manifest candidates','']+[f'- `{m["path"]}` — image URLs: {m["image_urls"]}, URLs: {m["urls"]}, score: {m["score"]}' for m in sorted(manifest_candidates,key=lambda x:(-x['image_urls'],-x['score']))[:80]]
+          md += ['','## Local image binaries','']+[f'- `{rel(p)}`' for p in local_images[:300]]
+          (outdir/'ASSET_AUDIT_R38.md').write_text('\n'.join(md)+'\n',encoding='utf-8')
+          PY
+
+      - name: Commit audit report only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'braseiro-audit-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add star-wars/r38/audit/ASSET_AUDIT_R38.json star-wars/r38/audit/ASSET_AUDIT_R38.md
+          if git diff --cached --quiet; then
+            echo 'No audit report changes.'
+          else
+            git commit -m 'audit(star-wars): record real R38 visual asset integration evidence'
+            git push
+          fi
