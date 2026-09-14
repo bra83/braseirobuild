@@ -1,0 +1,122 @@
+name: Audit Star Wars R38 sandbox flow
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/audit-star-wars-r38-sandbox-flow.yml"]
+permissions:
+  contents: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - id: src
+        shell: bash
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          d=json.load(open('star-wars/r38/SOURCE.json'));print('url='+d['source_share_url']);print('sha='+d['sha256']);print('file='+d['file'])
+          PY
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: |
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium >/dev/null
+      - name: Prepare exact Block01 state
+        env:
+          U: ${{ steps.src.outputs.url }}
+          F: ${{ steps.src.outputs.file }}
+          S: ${{ steps.src.outputs.sha }}
+          SU: https://firestorage.ai/ja/f/PbM3XvdzNMAk
+          SF: scene-assets-v1-tiny.tar.gz
+          SS: 2ca16b2cd0d3f489fe10f1df718be1243febeef38fb88a52bd50502528f60711
+        run: |
+          set -euo pipefail;rm -rf incoming work;mkdir -p incoming work
+          python3 - <<'PY'
+          import os,pathlib
+          from playwright.sync_api import sync_playwright
+          def dl(u,n,o):
+            with sync_playwright() as p:
+              b=p.chromium.launch(headless=True);q=b.new_page(accept_downloads=True);q.goto(u,wait_until='domcontentloaded',timeout=120000);q.wait_for_timeout(3000);done=False
+              for s in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")','button:has-text("保存")','a:has-text("保存")']:
+                try:
+                  x=q.locator(s).first
+                  if not x.count() or not x.is_visible():continue
+                  with q.expect_download(timeout=120000) as i:x.click(timeout=10000)
+                  i.value.save_as(str(o));done=True;break
+                except:pass
+              if not done:
+                x=q.get_by_text(n,exact=False).first
+                with q.expect_download(timeout=120000) as i:x.locator('xpath=ancestor::*[self::div or self::li or self::article][1]').locator('a,button').last.click(timeout=10000)
+                i.value.save_as(str(o));done=True
+              b.close()
+            if not done:raise SystemExit('download failed')
+          dl(os.environ['U'],os.environ['F'],pathlib.Path('incoming')/os.environ['F']);dl(os.environ['SU'],os.environ['SF'],pathlib.Path('incoming')/os.environ['SF'])
+          PY
+          echo "${S}  incoming/${F}"|sha256sum -c -;echo "${SS}  incoming/${SF}"|sha256sum -c -
+          unzip -q "incoming/${F}" -d work;G="$(find work -name gradlew -type f -not -path '*/build/*'|head -1)";R="$(dirname "$G")";echo "$R">/tmp/root
+          base64 -w0 "incoming/${SF}" > star-wars/r38/patches/assets/scene-assets-v1.tar.gz.b64;python3 star-wars/r38/patches/block01_repair_safe.py "$R"
+      - name: Exercise sandbox setup and post-modal nav
+        run: |
+          export ROOT="$(cat /tmp/root)"
+          python3 - <<'PY'
+          import os,json,pathlib,threading,http.server,socketserver,re
+          from playwright.sync_api import sync_playwright
+          root=pathlib.Path(os.environ['ROOT']);vtt=root/'app/src/main/assets/vtt';os.chdir(vtt)
+          class H(http.server.SimpleHTTPRequestHandler):
+            def log_message(self,*a):pass
+          s=socketserver.TCPServer(('127.0.0.1',0),H);threading.Thread(target=s.serve_forever,daemon=True).start();port=s.server_address[1]
+          result={'modal':{},'completion':{},'nav_after':[],'errors':[]}
+          try:
+            with sync_playwright() as p:
+              b=p.chromium.launch(headless=True);pg=b.new_page(viewport={'width':415,'height':915})
+              pg.add_init_script('''const h={get:(t,p)=>{if(p==='then')return undefined;return(...a)=>JSON.stringify({ok:true,items:[],data:[],state:{}})}};for(const n of ['BraseiroUiBridge','BraseiroLibrary','BraseiroGemini','BraseiroImages','BraseiroFiles','BraseiroTts'])window[n]=new Proxy({},h);''')
+              pg.goto(f'http://127.0.0.1:{port}/r46-shell.html',wait_until='domcontentloaded');pg.wait_for_timeout(1500)
+              ov=pg.locator('#braseiro-sandbox-setup')
+              result['modal']['present']=ov.count()>0 and ov.is_visible()
+              if result['modal']['present']:
+                result['modal']['text']=(ov.inner_text() or '')[:5000]
+                result['modal']['controls']=pg.evaluate('''()=>{const o=document.querySelector('#braseiro-sandbox-setup');return [...o.querySelectorAll('input,select,textarea,button')].map((e,i)=>({i,tag:e.tagName,type:e.type,name:e.name,id:e.id,value:e.value,placeholder:e.placeholder,disabled:e.disabled,text:(e.innerText||'').trim(),aria:e.getAttribute('aria-label')}))}''')
+                # fill empty text inputs conservatively for validation only
+                for el in ov.locator('input[type="text"],textarea').all():
+                  try:
+                    if not el.input_value():el.fill('Teste de campanha')
+                  except:pass
+                # prefer explicit start/confirm controls
+                btns=ov.locator('button:visible');clicked=None
+                for pat in ['COMEÇAR','INICIAR','CONFIRMAR','SALVAR','CONTINUAR','JOGAR']:
+                  for i in range(btns.count()):
+                    x=btns.nth(i);txt=(x.inner_text() or '').strip().upper()
+                    if pat in txt and not x.is_disabled():
+                      try:x.click(timeout=2000);clicked=txt;break
+                      except Exception as ex:result['errors'].append('setup click '+repr(ex))
+                  if clicked:break
+                result['completion']['clicked']=clicked
+                pg.wait_for_timeout(800)
+                result['completion']['modal_still_visible']=ov.count()>0 and ov.is_visible()
+              nav=pg.locator('.bottom-nav-button:visible')
+              for i in range(nav.count()):
+                e=nav.nth(i);lab=(e.inner_text() or f'#{i}').strip().replace('\n',' ')
+                before=e.get_attribute('aria-current');ok=True;err=None
+                try:e.click(timeout=2000);pg.wait_for_timeout(120)
+                except Exception as ex:ok=False;err=str(ex)[:1200]
+                # reacquire current marker after re-render
+                currents=pg.locator('.bottom-nav-button[aria-current="page"]');current=(currents.first.inner_text().strip().replace('\n',' ') if currents.count() else None)
+                result['nav_after'].append({'label':lab,'ok':ok,'current':current,'error':err})
+              b.close()
+          finally:s.shutdown();s.server_close()
+          dest=pathlib.Path(os.environ['GITHUB_WORKSPACE'])/'star-wars/r38/audit/SANDBOX_FLOW_AUDIT.json';dest.write_text(json.dumps(result,ensure_ascii=False,indent=2))
+          md=['# R38 SANDBOX FLOW AUDIT','',f"- Modal present: **{result['modal'].get('present')}**",f"- Setup action clicked: **{result['completion'].get('clicked')}**",f"- Modal still visible after action: **{result['completion'].get('modal_still_visible')}**",'','## Post-setup navigation']
+          for x in result['nav_after']:md.append(f"- {x['label']}: click **{x['ok']}**, current=`{x['current']}`"+(f" — {x['error'][:400]}" if x['error'] else ''))
+          md+=['','## Modal controls']+[f"- `{x}`" for x in result['modal'].get('controls',[])]
+          (dest.parent/'SANDBOX_FLOW_AUDIT.md').write_text('\n'.join(md)+'\n')
+          PY
+      - name: Commit evidence
+        run: |
+          git checkout -- star-wars/r38/patches/assets/scene-assets-v1.tar.gz.b64
+          git config user.name braseiro-audit-bot;git config user.email actions@users.noreply.github.com
+          git add star-wars/r38/audit/SANDBOX_FLOW_AUDIT.*;git commit -m 'audit(star-wars): verify sandbox setup navigation' || true;git push
