@@ -1,0 +1,60 @@
+name: Publish BRASEIRO OSE 1.0.1 to tmpfiles.org
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/publish-ose-1.0.1-tmpfiles.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Upload APK to tmpfiles.org
+        run: |
+          set -euo pipefail
+          APK="build-artifacts/ose/1.0.1/BRASEIRO_OSE_1_0_1_DEBUG.apk"
+          test -f "$APK"
+          curl --fail-with-body -sS -F "file=@${APK}" https://tmpfiles.org/api/v1/upload | tee /tmp/tmpfiles-response.json
+          python3 - <<'PY'
+          import json, pathlib
+          p = pathlib.Path('/tmp/tmpfiles-response.json')
+          obj = json.loads(p.read_text())
+          url = obj.get('data', {}).get('url')
+          if not url:
+              raise SystemExit(f'tmpfiles upload did not return a URL: {obj}')
+          direct = url.replace('https://tmpfiles.org/', 'https://tmpfiles.org/dl/', 1)
+          out = pathlib.Path('build-artifacts/ose/1.0.1')
+          (out / 'TMPFILES_PAGE_URL.txt').write_text(url + '\n')
+          (out / 'TMPFILES_DIRECT_URL.txt').write_text(direct + '\n')
+          (out / 'TMPFILES_RESPONSE.json').write_text(json.dumps(obj, ensure_ascii=False, indent=2) + '\n')
+          print('page_url=' + url)
+          print('direct_url=' + direct)
+          PY
+
+      - name: Save published URL
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add build-artifacts/ose/1.0.1/TMPFILES_PAGE_URL.txt build-artifacts/ose/1.0.1/TMPFILES_DIRECT_URL.txt build-artifacts/ose/1.0.1/TMPFILES_RESPONSE.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Record tmpfiles.org URL for BRASEIRO OSE 1.0.1'
+            git push origin HEAD:main
+          fi
+
+      - name: Summary
+        run: |
+          {
+            echo '## BRASEIRO OSE 1.0.1 — tmpfiles.org'
+            echo "Page: $(cat build-artifacts/ose/1.0.1/TMPFILES_PAGE_URL.txt)"
+            echo "Direct: $(cat build-artifacts/ose/1.0.1/TMPFILES_DIRECT_URL.txt)"
+          } >> "$GITHUB_STEP_SUMMARY"
