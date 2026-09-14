@@ -1,0 +1,30 @@
+{
+  "start": true,
+  "scene": {
+    "images": [
+      {
+        "src": "image-library/local/scenes/recovered/scene_exploration.webp",
+        "w": 420,
+        "h": 236,
+        "recovered": "exploration"
+      }
+    ],
+    "has_recovered": true,
+    "illustration_visible": false,
+    "import_visible": false
+  },
+  "gemini": {
+    "prompt": "",
+    "length": 0,
+    "required_tokens": {
+      "STAR WARS": false,
+      "Cena": false,
+      "Local": false,
+      "Situação": false,
+      "Narração": false
+    },
+    "rich": false
+  },
+  "page_errors": [],
+  "console_errors": []
+}
