@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 env:
   FINAL_ZIP: BRASEIRO_TALES_FROM_THE_LOOP_THINGS_FROM_THE_FLOOD_1.3.16_ANDROID_STUDIO.zip
@@ -27,7 +28,7 @@ jobs:
           UPSTREAM_RUN: ${{ github.event.workflow_run.id }}
         run: |
           set -euo pipefail
-          test "$UPSTREAM_RUN" = "34813573980" || echo "Upstream smoke run: $UPSTREAM_RUN"
+          echo "Upstream smoke run: $UPSTREAM_RUN"
           gh run view "$UPSTREAM_RUN" --json conclusion --jq '.conclusion' | grep -qx success
 
       - name: Recover exact cumulative source and freeze 1.3.16
