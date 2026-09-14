@@ -35,4 +35,28 @@ object RulesProfiles {
     RulesProfile.TALES_KIDS -> CanonicalTalesRules.localMechanicalContract()
     RulesProfile.FLOOD_TEENS -> CanonicalFloodRules.localMechanicalContract()
   }
+  fun effectsForSkill(profile:RulesProfile,skill:String):List<BonusEffectRule> = when(profile){
+    RulesProfile.TALES_KIDS -> CanonicalTalesRules.effectsForSkill(skill)
+    RulesProfile.FLOOD_TEENS -> CanonicalFloodRules.effectsForSkill(skill)
+  }
+  fun effect(profile:RulesProfile,id:String):BonusEffectRule? = when(profile){
+    RulesProfile.TALES_KIDS -> CanonicalTalesRules.effect(id)
+    RulesProfile.FLOOD_TEENS -> CanonicalFloodRules.effect(id)
+  }
+  fun purposeAllowed(profile:RulesProfile,skill:String,purpose:TestPurpose):Boolean = when(profile){
+    RulesProfile.TALES_KIDS -> CanonicalTalesRules.purposeAllowed(skill,purpose)
+    RulesProfile.FLOOD_TEENS -> CanonicalFloodRules.purposeAllowed(skill,purpose)
+  }
+  fun validItem(profile:RulesProfile,item:KidItemState):Boolean = when(profile){
+    RulesProfile.TALES_KIDS -> CanonicalTalesRules.validItem(item)
+    RulesProfile.FLOOD_TEENS -> CanonicalFloodRules.validItem(item)
+  }
+  fun troubleKey(profile:RulesProfile,reason:String):String = when(profile){
+    RulesProfile.TALES_KIDS -> CanonicalTalesRules.troubleKey(reason)
+    RulesProfile.FLOOD_TEENS -> CanonicalFloodRules.troubleKey(reason)
+  }
+  fun leadershipPool(profile:RulesProfile,successes:Int):Int = when(profile){
+    RulesProfile.TALES_KIDS -> CanonicalTalesRules.leadershipPool(successes)
+    RulesProfile.FLOOD_TEENS -> CanonicalFloodRules.leadershipPool(successes)
+  }
 }

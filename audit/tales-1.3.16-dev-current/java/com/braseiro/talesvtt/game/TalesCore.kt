@@ -416,11 +416,11 @@ object TalesReducer {
 
       is GameEvent.GmRequestTest -> {
         val skill = event.request.skillName?.let(TalesSkillCatalog::canonicalSkill)
-        val key = CanonicalTalesRules.troubleKey(event.request.reason)
+        val key = RulesProfiles.troubleKey(state.rulesProfile,event.request.reason)
         when {
           event.request.attributeValue < 0 || event.request.skillValue < 0 || event.request.requiredSuccesses !in 1..3 -> fail("Teste inválido.")
           skill == null -> fail("Teste precisa de Perícia canônica Tales/Kids.")
-          !CanonicalTalesRules.purposeAllowed(skill, event.request.purpose) -> fail("Finalidade incompatível com a Perícia.")
+          !RulesProfiles.purposeAllowed(state.rulesProfile,skill,event.request.purpose) -> fail("Finalidade incompatível com a Perícia no perfil ativo.")
           event.request.purpose == TestPurpose.LEADERSHIP_COMFORT && event.request.targetKid.isNullOrBlank() -> fail("Conforto por Liderança exige um Kid alvo.")
           event.request.purpose == TestPurpose.LEADERSHIP_COMFORT && state.group.members.none { member -> event.request.targetKid?.let { target -> member.name.equals(target,true) || member.name.substringBefore(' ').equals(target,true) } == true } -> fail("Kid alvo do conforto não pertence ao grupo.")
           event.request.purpose == TestPurpose.LEADERSHIP_COMFORT && state.group.members.any { member -> event.request.targetKid?.let { target -> (member.name.equals(target,true) || member.name.substringBefore(' ').equals(target,true)) && member.name.equals(state.kid.name,true) } == true } -> fail("Liderança conforta outro Kid, não o próprio líder.")
@@ -473,7 +473,7 @@ object TalesReducer {
         val test=state.activeTest ?: return fail("Não há teste ativo.")
         val result=state.testResolution ?: return fail("Role antes de comprar efeito.")
         val skill=test.skillName?.let(TalesSkillCatalog::canonicalSkill) ?: return fail("Perícia inválida.")
-        val rule=CanonicalTalesRules.effect(event.effectId) ?: return fail("Efeito bônus não canônico.")
+        val rule=RulesProfiles.effect(state.rulesProfile,event.effectId) ?: return fail("Efeito bônus não canônico para o perfil ativo.")
         val credits=(result.successes-test.requiredSuccesses-result.bonusEffects.size).coerceAtLeast(0)
         when {
           credits<=0 -> fail("Não há sucessos extras disponíveis.")
@@ -486,10 +486,10 @@ object TalesReducer {
               BonusEffectKind.GIVE_SUCCESS -> {
                 val target=event.target.orEmpty().trim()
                 val member=state.group.members.firstOrNull{it.name.equals(target,true)||it.name.substringBefore(' ').equals(target,true)} ?: return fail("Escolha outro Kid do grupo.")
-                if(member.name.equals(state.kid.name,true)) return fail("O Kid não pode dar sucesso a si mesmo.")
+                if(member.name.equals(state.kid.name,true)) return fail(if(state.rulesProfile==RulesProfile.FLOOD_TEENS) "O Teen não pode dar sucesso a si mesmo." else "O Kid não pode dar sucesso a si mesmo.")
                 next=next.copy(grantedSuccesses=next.grantedSuccesses+(member.name to ((next.grantedSuccesses[member.name]?:0)+1)))
               }
-              BonusEffectKind.SAME_TROUBLE_WAIVER -> next=next.copy(waivedTroubles=next.waivedTroubles+CanonicalTalesRules.troubleKey(test.reason))
+              BonusEffectKind.SAME_TROUBLE_WAIVER -> next=next.copy(waivedTroubles=next.waivedTroubles+RulesProfiles.troubleKey(state.rulesProfile,test.reason))
               BonusEffectKind.INFORMATION_DIE -> {
                 if(next.informationBonusBank>=3) return fail("Bônus de informação já está no máximo +3.")
                 next=next.copy(informationBonusBank=next.informationBonusBank+1)
@@ -569,7 +569,7 @@ object TalesReducer {
       is GameEvent.AddItem -> {
         val item = event.item.copy(name = event.item.name.trim(), description = event.item.description.trim())
         when {
-          !CanonicalTalesRules.validItem(item) -> fail("Item viola o contrato Tales/Kids.")
+          !RulesProfiles.validItem(state.rulesProfile,item) -> fail("Item viola o contrato do perfil ativo.")
           state.kid.items.any { it.name.equals(item.name, ignoreCase = true) } -> fail("O Kid já possui este Item.")
           else -> ok(state.copy(kid = state.kid.copy(items = state.kid.items + item)))
         }
@@ -602,7 +602,7 @@ object TalesReducer {
           } else {
             run {
             val successes=event.dice.count{it==6}
-            val pool=if(state.activeTest?.purpose==TestPurpose.LEADERSHIP_PREPARE && successes >= (state.activeTest?.requiredSuccesses ?: 1)) CanonicalTalesRules.leadershipPool(successes) else state.leadershipPoolDice
+            val pool=if(state.activeTest?.purpose==TestPurpose.LEADERSHIP_PREPARE && successes >= (state.activeTest?.requiredSuccesses ?: 1)) RulesProfiles.leadershipPool(state.rulesProfile,successes) else state.leadershipPoolDice
             val assignedKey=state.leadershipAssignments.keys.firstOrNull{it.equals(state.kid.name,true)}
             val remainingAssignments=if(assignedKey!=null) state.leadershipAssignments-assignedKey else state.leadershipAssignments
             ok(state.copy(
@@ -1140,7 +1140,7 @@ object TalesReducer {
         val canonical = TalesSkillCatalog.canonicalSkill(event.skill)
         when {
           !state.sessionXpAwarded -> fail("XP só pode ser gasto fora da sessão; conclua o XP da sessão primeiro.")
-          canonical == null -> fail("Perícia inválida para Tales/Kids.")
+          canonical == null -> fail("Perícia inválida para o perfil ativo.")
           state.kid.xp < 5 -> fail("Aprimorar Perícia custa 5 XP.")
           (state.kid.skills[canonical] ?: 0) >= 5 -> fail("Perícia já atingiu o máximo 5.")
           else -> {

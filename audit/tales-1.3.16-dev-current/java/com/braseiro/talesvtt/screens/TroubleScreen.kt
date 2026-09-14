@@ -35,6 +35,7 @@ import com.braseiro.talesvtt.game.BonusEffectKind
 import com.braseiro.talesvtt.game.GameState
 import com.braseiro.talesvtt.game.TestPurpose
 import com.braseiro.talesvtt.game.RulesProfile
+import com.braseiro.talesvtt.game.RulesProfiles
 import com.braseiro.talesvtt.model.AppDestination
 import com.braseiro.talesvtt.model.ContextIconType
 import com.braseiro.talesvtt.model.ContextItemData
@@ -212,7 +213,7 @@ fun TroubleScreen(
       } else {
         RollResultPanel(gameState, onLuck, onPush, onPride, onShame, onScar)
         LeadershipComfortEffect(gameState,onLeadershipComfort)
-        if(!flood) CanonicalBonusEffects(gameState,onPurchaseBonusEffect)
+        CanonicalBonusEffects(gameState,onPurchaseBonusEffect)
         Spacer(modifier = Modifier.height(10.dp))
         val pendingComfort = test.purpose == TestPurpose.LEADERSHIP_COMFORT && result.successes >= test.requiredSuccesses && !result.baseEffectApplied
         PrimaryButton(
@@ -357,7 +358,7 @@ private fun CanonicalBonusEffects(gameState:GameState,onPurchase:(String,String?
   val credits=(result.successes-test.requiredSuccesses-result.bonusEffects.size).coerceAtLeast(0)
   if(credits<=0) return
   if(test.purpose==TestPurpose.LEADERSHIP_COMFORT && result.successes>=test.requiredSuccesses && !result.baseEffectApplied) return
-  val rules=CanonicalTalesRules.effectsForSkill(skill)
+  val rules=RulesProfiles.effectsForSkill(gameState.rulesProfile,skill)
   if(rules.isEmpty()) return
   Spacer(modifier=Modifier.height(10.dp))
   Text("SUCESSOS EXTRAS • $credits PARA GASTAR",style=AppTheme.typography.label.copy(color=AppTheme.colors.accentPurple))

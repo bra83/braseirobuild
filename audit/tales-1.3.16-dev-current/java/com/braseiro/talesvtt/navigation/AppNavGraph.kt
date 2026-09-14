@@ -103,7 +103,11 @@ fun AppNavGraph(
       )
     }
     composable(AppDestination.GROUP.route) {
-      GroupScreen(onNavigate = onNavigate, gameState = gameState)
+      GroupScreen(
+        onNavigate = onNavigate,
+        gameState = gameState,
+        onResolveFrictionIntent = { gameViewModel.submitPlayerIntent("Quero reunir os Teens em um lugar seguro e próximo para tentar resolver a Friction do grupo e recuperar Condições, se a cena cumprir os requisitos.") }
+      )
     }
     composable(AppDestination.MYSTERY.route) {
       MysteryScreen(

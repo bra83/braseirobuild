@@ -8,7 +8,7 @@ package com.braseiro.talesvtt.game
 enum class MotorProfile { TALES_KIDS, FLOOD_TEENS }
 
 enum class MotorRouteHint { NONE, SCENE, TROUBLE, CLIMAX, ENDING }
-enum class RecoveryKind { ANCHOR, HIDEOUT, COMFORT }
+enum class RecoveryKind { ANCHOR, HIDEOUT, COMFORT, FRICTION }
 
 data class PrivateClue(
   val id: String,
@@ -310,7 +310,7 @@ object MotorBarbaraFirewall {
             )?.copy(purpose=action.purpose,targetKid=action.targetKid)
           }
           if (action.requiredSuccesses !in 1..3) rejected += "ação[$index] test_request: dificuldade deve ser 1, 2 ou 3 sucessos."
-          else if (request == null) rejected += "ação[$index] test_request: Perícia não canônica para Tales/Kids."
+          else if (request == null) rejected += "ação[$index] test_request: Perícia não canônica para o perfil ativo."
           else if (reduce(GameEvent.GmRequestTest(request), "test_request")) raiseRoute(MotorRouteHint.TROUBLE)
         }
 
@@ -349,7 +349,7 @@ object MotorBarbaraFirewall {
             test.approvedItemBonus != 0 -> rejected += "ação[$index] mystery_item_approve: já existe item aplicado ao teste."
             item == null -> rejected += "ação[$index] mystery_item_approve: item não pertence ao Kid."
             item.kind != KidItemKind.MYSTERY -> rejected += "ação[$index] mystery_item_approve: objeto comum não possui bônus automático."
-            item.bonus != action.bonus || !CanonicalTalesRules.validMysteryItemBonus(action.bonus) -> rejected += "ação[$index] mystery_item_approve: bônus não corresponde ao Item real."
+            item.bonus != action.bonus || !RulesProfiles.validItem(state.rulesProfile,item) -> rejected += "ação[$index] mystery_item_approve: bônus não corresponde ao Item real do perfil ativo."
             else -> if (reduce(GameEvent.ApplyApprovedItem(item.bonus), "mystery_item_approve")) raiseRoute(MotorRouteHint.TROUBLE)
           }
         }
@@ -357,10 +357,10 @@ object MotorBarbaraFirewall {
         is MotorAction.GiveItem -> {
           val test=state.activeTest; val result=state.testResolution
           val creating=test?.purpose in setOf(TestPurpose.BUILD_ITEM,TestPurpose.PROGRAM_ITEM) && result!=null
-          val upgrades=result?.bonusEffects?.count{CanonicalTalesRules.effect(it.effectId)?.kind==BonusEffectKind.ITEM_BONUS_UPGRADE} ?: 0
+          val upgrades=result?.bonusEffects?.count{RulesProfiles.effect(state.rulesProfile,it.effectId)?.kind==BonusEffectKind.ITEM_BONUS_UPGRADE} ?: 0
           val expected=(1+upgrades).coerceAtMost(3)
           when {
-            !CanonicalTalesRules.validItem(action.item) -> rejected += "ação[$index] item_add: Item viola bônus/tipo canônico."
+            !RulesProfiles.validItem(state.rulesProfile,action.item) -> rejected += "ação[$index] item_add: Item viola bônus/tipo canônico do perfil ativo."
             creating && (action.item.kind!=KidItemKind.MYSTERY || action.item.bonus!=expected) -> rejected += "ação[$index] item_add: Item criado deve ter bônus local +$expected."
             else -> reduce(GameEvent.AddItem(action.item),"item_add")
           }
@@ -388,10 +388,14 @@ object MotorBarbaraFirewall {
             }
             RecoveryKind.COMFORT -> {
               when {
-                state.kid.broken -> rejected += "ação[$index] recovery_comfort: conforto por Perícia não cura Kid Quebrado."
+                state.kid.broken -> rejected += "ação[$index] recovery_comfort: conforto por Perícia não cura personagem Quebrado."
                 action.condition == null -> rejected += "ação[$index] recovery_comfort: informe exatamente uma Condição leve."
                 else -> if (reduce(GameEvent.HealCondition(action.condition), "recovery_comfort")) raiseRoute(MotorRouteHint.SCENE)
               }
+            }
+            RecoveryKind.FRICTION -> {
+              if (state.rulesProfile != RulesProfile.FLOOD_TEENS) rejected += "ação[$index] recovery_friction: Friction pertence somente a Flood/Teens."
+              else if (reduce(GameEvent.ResolveFriction(troubleOccurred=false), "recovery_friction")) raiseRoute(MotorRouteHint.SCENE)
             }
             null -> rejected += "ação[$index] recovery: fonte de recuperação ausente; não existe cura genérica."
           }

@@ -18,7 +18,9 @@ class FloodProfileUiV1316Test {
     assertTrue(s.contains("USAR CICATRIZ"))
     assertTrue(s.contains("!flood && !success && !result.luckUsed"))
     assertTrue(s.contains("!flood && gameState.kid.prideAvailable"))
-    assertTrue(s.contains("if(!flood) CanonicalBonusEffects"))
+    assertTrue(s.contains("CanonicalBonusEffects(gameState,onPurchaseBonusEffect)"))
+    assertTrue(s.contains("RulesProfiles.effectsForSkill(gameState.rulesProfile,skill)"))
+    assertFalse(s.contains("if(!flood) CanonicalBonusEffects"))
   }
 
   @Test fun characterSheetExposesFloodStateAndPendingScar(){

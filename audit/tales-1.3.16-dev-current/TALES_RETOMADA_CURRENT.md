@@ -110,7 +110,22 @@ Atualizado em 11/09/2026.
 - Mochila troca Kid/Teen sem alterar mecânicas.
 - Nenhum APK publicado.
 
-## Evidência executada — 1.3.16e
-- compileDebugKotlin: PASS no workflow 34811346285.
-- regressão Tales + Flood UI/lifecycle: PASS.
+## Bloco 1.3.16f-dev — efeitos e Itens Flood
+- Flood ganhou catálogo local próprio de Bonus Effects, derivado das 12 Perícias do manual e com IDs separados de Tales.
+- Reducer, Motor Barbara, UI de Trouble e validação de Itens consultam o perfil ativo via RulesProfiles.
+- Flood aceita Itens mecânicos +1..+3, Item Icônico +2, criação com upgrades até +3 e perda de Itens não icônicos na Mudança.
+- Efeitos de informação, waiver, Lead e cura usam o catálogo Flood; nenhum ID Tales é aceito no perfil Flood.
+- Nenhum APK publicado.
+
+## Bloco 1.3.16g-dev — Motor neutro por perfil + Friction jogável
+- SYSTEM_PROMPT deixou de impor Tales/Kids sobre campanhas Flood; active_profile + mechanical_contract passam a decidir a mecânica.
+- Recovery ganhou fonte Friction, aceita somente em Flood/Teens e sempre após aprovação ficcional do Motor.
+- Grupo Flood mostra Teens + Friction, não a recuperação por Esconderijo de Tales.
+- Botão de Friction pede uma cena ao Mestre; nunca cura diretamente pela UI.
+- Nenhum APK publicado.
+
+## Evidência executada — 1.3.16i
+- compileDebugKotlin: PASS no workflow 34813171564.
+- regressão completa Tales + Flood: PASS.
+- simulação determinística Flood: 33/33 sessões PASS cobrindo Trouble, Shame, efeitos, Problema Estendido 3x, Cicatriz, Push, Friction, inventário, snapshot, XP e Change.
 - nenhum APK publicado.

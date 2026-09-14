@@ -200,11 +200,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     val test = _state.value.activeTest ?: return
     if (_state.value.testResolution != null || test.approvedItemBonus != 0) return
     val item = _state.value.kid.items.firstOrNull { it.name.equals(itemName.trim(), ignoreCase = true) } ?: return
-    if (item.kind != KidItemKind.MYSTERY || !CanonicalTalesRules.validMysteryItemBonus(item.bonus)) {
-      _dataStatus.value = "Este objeto não possui bônus mecânico de Item do Mistério."
+    if (item.kind != KidItemKind.MYSTERY || !RulesProfiles.validItem(_state.value.rulesProfile,item)) {
+      _dataStatus.value = "Este objeto não possui bônus mecânico de Item no perfil ativo."
       return
     }
-    requestMotor(MotorIntent(type = "item_proposal", text = "Proponho usar o Item do Mistério '${item.name}', cujo bônus registrado no estado é +${item.bonus}."))
+    requestMotor(MotorIntent(type = "item_proposal", text = "Proponho usar o Item '${item.name}', cujo bônus registrado no estado é +${item.bonus}."))
   }
 
   fun roll() {

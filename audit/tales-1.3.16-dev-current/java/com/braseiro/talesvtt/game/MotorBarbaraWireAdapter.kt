@@ -171,6 +171,7 @@ object MotorBarbaraWireAdapter {
         "anchor", "ancora", "âncora" -> RecoveryKind.ANCHOR
         "hideout", "esconderijo" -> RecoveryKind.HIDEOUT
         "comfort", "conforto", "skill" -> RecoveryKind.COMFORT
+        "friction", "friccao", "fricção" -> RecoveryKind.FRICTION
         else -> null
       }
       val condition = when (a.optString("condition", a.optString("key")).lowercase()) {
