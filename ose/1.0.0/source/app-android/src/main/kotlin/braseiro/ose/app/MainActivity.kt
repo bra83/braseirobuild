@@ -508,6 +508,54 @@ class MainActivity : Activity() {
                             startActivityForResult(intent, REQUEST_IMPORT_CHARACTER)
                         }
 
+                        "CharacterSheetUpdate" -> {
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            val character = selectedCharacter(current)
+                            val name = payload.optString("name", "").trim()
+                            require(name.isNotBlank() && name.length <= 80) { "INVALID_CHARACTER_NAME" }
+                            val game = current.campaignState.game
+                            val updated = character.copy(name = name).canonical()
+                            val nextGame = game.copy(
+                                characters = game.characters + (updated.characterId to updated),
+                                revision = game.revision + 1
+                            ).canonical()
+                            repository.commit(CAMPAIGN_ID, StateTransition(
+                                "character-edit:${updated.characterId}:${game.revision}",
+                                current.campaignState.copy(game = nextGame)
+                            ))
+                            val persisted = session.loadSession(CAMPAIGN_ID)
+                            send(JSONObject().put("type","CharacterSheetUpdateResult").put("payload",JSONObject()
+                                .put("ok",true).put("viewState",projectForUi(persisted))))
+                        }
+
+                        "CharacterRecreateBeforeStart" -> {
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            val game = current.campaignState.game
+                            val character = selectedCharacter(current)
+                            require(game.session.visibleNarration.isBlank() && current.campaignState.time.turns == 0L) { "CHARACTER_RECREATE_AFTER_START" }
+                            repository.checkpoint(CAMPAIGN_ID, "before-character-recreate-${System.currentTimeMillis()}")
+                            val keptItems = game.inventory.items.filterValues { it.ownerId != character.characterId }
+                            val nextGame = game.copy(
+                                characters = game.characters - character.characterId,
+                                inventory = game.inventory.copy(items = keptItems),
+                                loadouts = game.loadouts - character.characterId,
+                                creationDrafts = emptyMap(),
+                                session = SessionSnapshot(phase = "ACTIVE"),
+                                revision = game.revision + 1
+                            ).canonical()
+                            val nextState = current.campaignState.copy(
+                                party = PartyState(current.campaignState.party.characterIds.filterNot { it == character.characterId }),
+                                resources = ResourceState(),
+                                game = nextGame
+                            )
+                            repository.commit(CAMPAIGN_ID, StateTransition(
+                                "character-recreate:${current.createdAtMetadata}:${game.revision}", nextState
+                            ))
+                            val persisted = session.loadSession(CAMPAIGN_ID)
+                            send(JSONObject().put("type","CharacterRecreateResult").put("payload",JSONObject()
+                                .put("ok",true).put("viewState",projectForUi(persisted))))
+                        }
+
                         "CharacterCreationStart" -> {
                             val draftId = payload.optString("draftId", "").trim()
                             require(draftId.isNotBlank()) { "draftId is required" }
@@ -827,7 +875,7 @@ class MainActivity : Activity() {
         val message = t.message.orEmpty()
         return when {
             message.startsWith("GEMINI_") -> message
-            message in setOf("EMPTY_GEMINI_KEY", "GEMINI_KEY_TOO_LONG", "INVALID_GEMINI_MODEL", "INVALID_TTS_VOICE", "UNKNOWN_GEMINI_CREDENTIAL_SLOT", "UNKNOWN_TTS_COMMAND", "EMPTY_VISIBLE_NARRATION", "INVALID_IMAGE_DATA_URL", "IMAGE_SIZE_INVALID", "UNSUPPORTED_IMAGE_TYPE", "UNKNOWN_CHARACTER_ID", "UNKNOWN_ITEM_ID", "UNSUPPORTED_PRESENTATION_SCOPE", "UNKNOWN_UI_COMMAND", "INVALID_DIE", "INVALID_DICE_COUNT", "INVALID_DICE_MODIFIER", "NO_CHARACTER", "CHARACTER_ALREADY_EXISTS", "RANDOM_CHARACTER_NO_VALID_CLASS", "INVALID_CHARACTER_SHEET", "CHARACTER_PROFILE_MISMATCH", "CHARACTER_ID_EXISTS", "CHARACTER_ITEM_PROFILE_MISMATCH", "ITEM_ID_EXISTS") -> message
+            message in setOf("EMPTY_GEMINI_KEY", "GEMINI_KEY_TOO_LONG", "INVALID_GEMINI_MODEL", "INVALID_TTS_VOICE", "UNKNOWN_GEMINI_CREDENTIAL_SLOT", "UNKNOWN_TTS_COMMAND", "EMPTY_VISIBLE_NARRATION", "INVALID_IMAGE_DATA_URL", "IMAGE_SIZE_INVALID", "UNSUPPORTED_IMAGE_TYPE", "UNKNOWN_CHARACTER_ID", "UNKNOWN_ITEM_ID", "UNSUPPORTED_PRESENTATION_SCOPE", "UNKNOWN_UI_COMMAND", "INVALID_DIE", "INVALID_DICE_COUNT", "INVALID_DICE_MODIFIER", "NO_CHARACTER", "CHARACTER_ALREADY_EXISTS", "RANDOM_CHARACTER_NO_VALID_CLASS", "INVALID_CHARACTER_SHEET", "CHARACTER_PROFILE_MISMATCH", "CHARACTER_ID_EXISTS", "CHARACTER_ITEM_PROFILE_MISMATCH", "ITEM_ID_EXISTS", "INVALID_CHARACTER_NAME", "CHARACTER_RECREATE_AFTER_START") -> message
             else -> t::class.java.simpleName
         }
     }

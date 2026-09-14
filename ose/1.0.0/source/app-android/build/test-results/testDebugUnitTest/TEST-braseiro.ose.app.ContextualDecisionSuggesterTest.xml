@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="braseiro.ose.app.ContextualDecisionSuggesterTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-09-14T08:06:45" hostname="runnervmlun5p" time="0.08">
+<testsuite name="braseiro.ose.app.ContextualDecisionSuggesterTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-09-14T08:48:21" hostname="runnervmlun5p" time="0.056">
   <properties/>
-  <testcase name="combatSuggestionsNeverMutateAnything" classname="braseiro.ose.app.ContextualDecisionSuggesterTest" time="0.077"/>
+  <testcase name="combatSuggestionsNeverMutateAnything" classname="braseiro.ose.app.ContextualDecisionSuggesterTest" time="0.054"/>
   <testcase name="alwaysReturnsExactlyThreeDistinctVisibleStateSuggestions" classname="braseiro.ose.app.ContextualDecisionSuggesterTest" time="0.002"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

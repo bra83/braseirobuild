@@ -149,7 +149,7 @@ class SessionEngine(
         val game = loaded.campaignState.game
         val nextSession = game.session.copy(phase = "ACTIVE", visibleNarration = narration, journal = game.session.journal + narration)
         val nextGame = game.copy(session = nextSession, revision = game.revision + 1)
-        repository.commit(campaignId, StateTransition("adventure-start", loaded.campaignState.copy(game = nextGame)))
+        repository.commit(campaignId, StateTransition("adventure-start:${loaded.createdAtMetadata}:${game.revision}", loaded.campaignState.copy(game = nextGame)))
         return SessionResult(campaignId.value, narration, "", false, trace)
     }
 

@@ -38,3 +38,12 @@ button.primary,button.secondary,button.small{border:1px solid #53120f;border-rad
 .world-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}.world-grid>div{border:1px solid #9b7746;background:#efd8a6;border-radius:5px;padding:8px}.world-grid span{display:block;font:8px Arial;text-transform:uppercase;color:#6d351f}.world-grid b{display:block;font-size:20px;margin-top:2px}
 .danger-zone{border-top:2px solid #8f1f1b;margin-top:14px;padding-top:12px}.danger-button{width:100%;border:1px solid #5b0d0b;border-radius:5px;background:#8f1f1b;color:#fff;padding:11px;font:700 11px Arial;cursor:pointer}.danger-button:active{transform:translateY(1px)}
 .audit-callout{border-left:4px solid #6d7d40;padding-left:9px}.audit-callout strong{color:#405022}.screen{padding-bottom:82px}
+
+/* 1.0.3 — ficha editável, ícones completos e mapa sem costuras */
+.hex-cell{width:64px;height:73.9px;background-size:100% 100%;background-position:center;background-repeat:no-repeat}
+.hex-cell.known{background-color:transparent}
+.map-grid{transform-origin:0 0}
+.sheet-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.sheet-actions button{width:100%;min-height:36px}
+.edit-character{border-left:4px solid var(--blood)}.edit-character .row{margin-top:8px}
+.equipment-art{background:radial-gradient(circle,#f4e3bc 0,#dec18a 72%,transparent 73%);padding:2px}
+@media(max-width:360px){.sheet-actions{grid-template-columns:1fr}.inventory-grid{grid-template-columns:1fr 1fr}}

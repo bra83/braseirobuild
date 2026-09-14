@@ -16,6 +16,8 @@ private val ALLOWED_BRIDGE_TYPES = setOf(
     "CharacterCreationRandom",
     "CharacterSheetExportRequest",
     "CharacterSheetImportRequest",
+    "CharacterSheetUpdate",
+    "CharacterRecreateBeforeStart",
     "GMHelp",
     "TtsCommand",
     "RuleEvidenceQuery",
