@@ -11,6 +11,7 @@ import java.nio.ByteOrder
 class GeminiTtsController(
     context: Context,
     private val credentials: GeminiCredentialStore,
+    private val settings: GeminiRuntimeSettings,
     private val client: GeminiInteractionsClient
 ) {
     enum class Result { STARTING, STOPPED, REPLAYING, MISSING_KEY, EMPTY_NARRATION }
@@ -24,7 +25,8 @@ class GeminiTtsController(
     fun playVisibleNarration(text: String): Result {
         if (text.isBlank()) return Result.EMPTY_NARRATION
         val key = credentials.get(GeminiCredentialStore.Slot.TTS_AUDIO) ?: return Result.MISSING_KEY
-        val blob = client.generateTtsAudio(key, text)
+        val runtime = settings.snapshot()
+        val blob = client.generateTtsAudio(key, runtime.ttsModel, runtime.ttsVoice, text)
         val output = File(appContext.cacheDir, "gemini-visible-narration.wav")
         val bytes = if (blob.mimeType.contains("wav", ignoreCase = true)) blob.data else pcmToWav(blob.data, blob.sampleRate ?: 24000)
         output.writeBytes(bytes)

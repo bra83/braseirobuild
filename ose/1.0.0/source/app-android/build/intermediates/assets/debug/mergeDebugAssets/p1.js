@@ -1,0 +1,170 @@
+(() => {
+'use strict';
+const A='../assets/ose-user-pack-v1/source/TALES_VTT_ASSET_PACK/assets_individuais/';
+const q=new URLSearchParams(window.__P1_CAPTURE_QUERY||location.search);
+let screen=q.get('screen')||'session';
+let stateName=q.get('state')||'active';
+let viewState=null;
+let geminiState={textSceneConfigured:false,ttsAudioConfigured:false,textModel:'',imageModel:'',ttsModel:'',ttsVoice:''};
+let mediaTarget=null;
+let mapSelection=null;
+let diceHistory=[];
+let backupBuffer='';
+let localLog=['Campanha carregada.'];
+const el=id=>document.getElementById(id);
+const main=el('screen');
+const hasNative=()=>!!(window.BraseiroBridge&&typeof window.BraseiroBridge.postMessage==='function');
+const postNative=(type,payload={})=>{if(!hasNative())return false;window.BraseiroBridge.postMessage(JSON.stringify({version:1,type,payload}));return true};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const img=(src,alt='',cls='')=>`<img ${cls?`class="${cls}"`:''} src="${esc(src)}" alt="${esc(alt)}" draggable="false">`;
+const asset=p=>A+p;
+const fallbackNarration={active:'A alvorada cobre as colinas e a luz pálida encontra o caminho entre pedras antigas, capim úmido e manchas de mata. Ao longe, o terreno se dobra em pequenas elevações e some atrás de uma linha escura de árvores. O ar ainda está frio, e nenhum caminho parece completamente seguro. O que você faz?',encounter:'Há movimento adiante. Entre o vento e os sons do terreno, alguma coisa quebra o ritmo natural da paisagem. O grupo ainda tem tempo de observar e decidir como reagir.',combat:'A ameaça ocupa a passagem e obriga a companhia a medir distância, abrigo e intenção. Ninguém age por vocês; diga como pretende reagir.',recovery:'O lugar volta a ficar relativamente quieto. A companhia pode cuidar dos ferimentos, examinar o entorno e decidir o próximo passo.'};
+const fallbackDecisions={active:[{label:'LER O TERRENO',reaction:'Examinamos o terreno e os sinais visíveis antes de escolher o caminho.'},{label:'SEGUIR COM CAUTELA',reaction:'Seguimos pelo caminho visível com cautela, atentos a qualquer mudança.'},{label:'OBSERVAR MELHOR',reaction:'Procuramos um ponto de onde seja possível observar melhor os arredores.'}],encounter:[{label:'OBSERVAR',reaction:'Observamos com atenção sem avançar ainda.'},{label:'ESCUTAR',reaction:'Ficamos em silêncio e escutamos antes de agir.'},{label:'RECUAR',reaction:'Recuamos até a última posição que parecia segura.'}],combat:[{label:'OBSERVAR A AMEAÇA',reaction:'Mantemos a formação e observamos a ameaça antes de agir.'},{label:'BUSCAR COBERTURA',reaction:'Procuramos uma posição defensável ao nosso alcance.'},{label:'TENTAR FALAR',reaction:'Tentamos comunicação antes de outra ação hostil.'}],recovery:[{label:'VERIFICAR O GRUPO',reaction:'Verificamos a condição do grupo e os equipamentos.'},{label:'EXAMINAR A ÁREA',reaction:'Examinamos a área visível em busca de mudanças recentes.'},{label:'REORGANIZAR',reaction:'Reorganizamos a companhia antes de seguir.'}]};
+const classLabels={ACROBAT:'Acrobata',ASSASSIN:'Assassino',BARBARIAN:'Bárbaro',BARD:'Bardo',CLERIC:'Clérigo',DRUID:'Druida',FIGHTER:'Guerreiro',ILLUSIONIST:'Ilusionista',KNIGHT:'Cavaleiro',MAGIC_USER:'Mago',PALADIN:'Paladino',RANGER:'Patrulheiro',THIEF:'Ladrão',DWARF:'Anão',ELF:'Elfo',HALFLING:'Halfling'};
+const raceLabels={HUMAN:'Humano',DROW:'Drow',DUERGAR:'Duergar',DWARF:'Anão',ELF:'Elfo',GNOME:'Gnomo',HALF_ELF:'Meio-elfo',HALFLING:'Halfling',HALF_ORC:'Meio-orc',SVIRFNEBLIN:'Svirfneblin'};
+const phaseLabels={ACTIVE:'EM AVENTURA',CHARACTER_LOADOUT:'EQUIPAMENTO INICIAL',READY_TO_START:'PRONTO PARA COMEÇAR',COMBAT:'COMBATE',RECOVERY:'RECUPERAÇÃO'};
+const terrainLabels={CLEAR_GRASSLANDS:'Campina',HILLS:'Colinas',MOUNTAINS:'Montanhas',FOREST:'Floresta',DESERT:'Terreno árido',SWAMP:'Pântano',JUNGLE:'Mata densa',BARREN_ADV:'Terras estéreis',BROKEN_LANDS_ADV:'Terreno acidentado',UNKNOWN:'Desconhecido'};
+
+window.BraseiroCreation=Object.freeze({start:draftId=>postNative('CharacterCreationStart',{draftId}),commit:payload=>postNative('CharacterCreationCommit',payload)});
+window.BraseiroReceive=(raw)=>{
+ try{
+  const m=typeof raw==='string'?JSON.parse(raw):raw,p=m.payload||{};
+  if(m.type==='ViewState'){viewState=p;geminiState=p.gemini||geminiState;render();}
+  else if(m.type==='SessionUpdate'){
+   if(p.viewState){viewState=p.viewState;geminiState=viewState.gemini||geminiState;}
+   localLog.push(p.mechanicalMutation?'A ação foi resolvida e o mundo foi atualizado.':'O Mestre respondeu sem alterar o estado mecânico.');
+   render();showToast('Ação concluída.');
+  }
+  else if(m.type==='CharacterCreationDraft'||m.type==='CharacterCreationResult'){if(p.viewState)viewState=p.viewState;render();showToast(p.ok===false?'Não foi possível concluir a criação.':'Criação atualizada.');}
+  else if(m.type==='UiCommandResult'){if(p.viewState)viewState=p.viewState;render();showToast(uiStatusMessage(p));}
+  else if(m.type==='GMHelpResponse')showToast(p.answer||'Sem resposta do Mestre.');
+  else if(m.type==='TtsState')showToast(ttsMessage(p.state));
+  else if(m.type==='GeminiSettingsState'){geminiState=p;updateSettingsStatus();}
+  else if(m.type==='GeminiCredentialTestResult')showToast(p.ok?'Conexão Gemini: OK':'Não foi possível usar a configuração informada.');
+  else if(m.type==='SceneImageResult'){postNative('ViewState',{request:'after-scene-image'});showToast('Ilustração da cena atualizada.');}
+  else if(m.type==='PresentationImageSaved'){postNative('ViewState',{request:'after-media-save'});showToast('Imagem salva.');}
+  else if(m.type==='ManualDiceResult'){diceHistory.unshift({rolls:p.rolls||[],total:p.total,sides:p.sides,count:p.count,modifier:p.modifier||0});diceHistory=diceHistory.slice(0,12);render();showToast(`Resultado: ${p.total}`);}
+  else if(m.type==='BackupExportResult'){backupBuffer=p.backup||'';const t=el('backupText');if(t)t.value=backupBuffer;showToast('Backup gerado. Copie e guarde o texto.');}
+  else if(m.type==='BackupImportResult'){if(p.viewState)viewState=p.viewState;render();showToast('Backup restaurado.');}
+  else if(m.type==='BridgeError')showToast(friendlyBridgeError(p.message));
+ }catch(_e){showToast('Não foi possível ler a resposta do aplicativo.');}
+};
+
+function uiStatusMessage(p){if(p.ok===false)return 'A ação não pôde ser concluída pelas regras atuais.';if(p.status==='READY_TO_START')return 'Equipamento concluído. Agora você pode começar a aventura.';return 'Equipamento atualizado.'}
+function friendlyBridgeError(code){const m={GEMINI_KEY_MISSING:'Configure a chave Gemini.',INVALID_GEMINI_MODEL:'Confira o nome do modelo Gemini.',INVALID_TTS_VOICE:'Confira o nome da voz TTS.',EMPTY_VISIBLE_NARRATION:'Ainda não há narração para ouvir.'};return m[code]||'O aplicativo encontrou um erro ao executar esta ação.'}
+function ttsMessage(s){return s==='MISSING_KEY'?'Configure a chave Gemini de voz.':s==='STARTING'?'Preparando a narração em voz.':s==='REPLAYING'?'Repetindo a narração.':s==='STOPPED'?'Áudio interrompido.':s==='EMPTY_NARRATION'?'Ainda não há narração para ouvir.':'TTS indisponível.'}
+function showToast(msg){const t=el('toast');if(!t)return;t.textContent=msg;t.classList.remove('hidden');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.add('hidden'),2600)}
+function resource(prefix,fallback='0'){const xs=viewState?.resources||[];const hit=xs.find(x=>String(x).toLowerCase().startsWith(prefix+':'));return hit?String(hit).split(':').slice(1).join(':'):fallback}
+function phase(){return viewState?.session?.phase||'ACTIVE'}
+function phaseLabel(){return phaseLabels[phase()]||'EM AVENTURA'}
+function profileLabel(){const p=viewState?.campaign?.profile||'OSE_CLASSIC_FANTASY';return p.includes('ADVANCED')?'FANTASIA AVANÇADA':'FANTASIA CLÁSSICA'}
+function classLabel(id){return classLabels[id]||String(id||'').replaceAll('_',' ')}
+function raceLabel(id){return raceLabels[id]||String(id||'').replaceAll('_',' ')}
+function updateHeader(){
+ const titles={session:'SESSÃO',map:'MAPA',sheet:'FICHA',company:'COMPANHIA'};
+ el('headerTitle').textContent=`${titles[screen]} · BRASEIRO OSE`;
+ const tm=viewState?.time||{};el('timeStatus').textContent=`DIA ${(tm.days??0)+1} · T${tm.turns??0}`;
+ el('phaseStatus').textContent=phaseLabel();el('torchStatus').textContent=resource('torch','0');el('rationStatus').textContent=resource('rations','0');
+ document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.screen===screen));
+}
+function go(s){screen=s;q.set('screen',s);try{history.replaceState(null,'',`${location.pathname}?${q}`)}catch(_e){}render()}
+function render(){updateHeader();main.innerHTML=screen==='session'?renderSession():screen==='map'?renderMap():screen==='sheet'?renderSheet():renderCompany();wireCurrentScreen();}
+
+function renderSession(){
+ if(hasNative()&&!viewState?.selectedCharacter&&phase()==='ACTIVE'&&!(viewState?.creation?.drafts||[]).length)return renderCreationStart();
+ if(hasNative()&&!viewState?.selectedCharacter&&(viewState?.creation?.drafts||[]).length)return renderCreationDraft(viewState.creation.drafts[0]);
+ if(phase()==='CHARACTER_LOADOUT'&&hasNative())return `<div class="kicker">Criação ainda não concluída</div><div class="panel"><h2>${esc(viewState?.selectedCharacter?.name||'Aventureiro')}</h2><p>Antes de começar, escolha o equipamento inicial na ficha do personagem.</p><button class="primary" data-go="sheet">Abrir equipamento inicial</button></div>`;
+ if(hasNative()&&viewState?.selectedCharacter&&(phase()==='READY_TO_START'||!String(viewState?.session?.visibleNarration||'').trim()))return renderPrestart();
+ const narration=viewState?.session?.visibleNarration||fallbackNarration[stateName]||fallbackNarration.active;
+ const sceneUrl=viewState?.presentation?.sceneImageUrl;
+ const raw=viewState?.sceneDecisions||[];
+ const ds=raw.length===3?raw:(fallbackDecisions[stateName]||fallbackDecisions.active);
+ return `<div class="kicker">Sessão ativa</div>
+  <div class="panel"><div class="row"><div><span class="pill">${profileLabel()}</span><h2 style="margin-top:7px">Cena atual</h2></div></div>
+  ${sceneUrl?img(sceneUrl,'Ilustração da cena atual','scene-image'):''}<div id="visibleNarration" class="narrative-text">${paragraphs(narration)}</div>
+  <div class="session-tools"><button class="small" data-tts="play">▶ OUVIR</button><button class="small" data-tts="stop">■ PARAR</button><button class="small" data-tts="replay">↻ REPETIR</button><button class="small" data-scene-image>▧ ILUSTRAR</button></div></div>
+  <div class="panel"><h3>O que você faz?</h3><div class="suggestions">${ds.map(x=>`<button class="suggestion" data-suggest="${esc(x.reaction||x[1]||'')}" data-intent="${esc(x.mechanicalIntent||'')}">${esc(x.label||x[0]||'AÇÃO')}</button>`).join('')}</div><textarea id="reactionInput" placeholder="Ex.: examino as pegadas, pergunto o que há por perto, sigo com cuidado..."></textarea><button class="primary" data-react>Enviar ação</button></div>
+  ${renderDicePanel()}
+  <div class="panel"><h3>Diário</h3><div class="log friendly-log">${esc(localLog.slice(-8).join('\n')||'Sem eventos registrados.')}</div></div>`;
+}
+function paragraphs(text){return String(text||'').split(/\n\s*\n/).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join('')}
+function renderPrestart(){return `<div class="kicker">Pronto para começar</div><div class="panel prestart-card"><span class="pill">${profileLabel()}</span><h2>A aventura ainda não começou</h2><p>Seu personagem e o mundo já estão preparados. Quando você tocar no botão abaixo, Barbara apresentará a cena inicial usando o estado atual da campanha.</p><button class="primary start-adventure" data-start-adventure>COMEÇAR A AVENTURA</button></div>${renderDicePanel()}`}
+function renderCreationStart(){return `<div class="kicker">Primeiro aventureiro</div><div class="panel"><h2>Criar personagem</h2><p>Os seis atributos serão rolados pelo próprio aplicativo conforme as regras OSE e ficarão registrados na campanha.</p><span class="pill">${profileLabel()}</span><button class="primary" style="margin-top:10px" data-start-draft>Rolar 6 atributos · 3d6 cada</button></div>`}
+function renderCreationDraft(d){
+ const a=d.attributes||{};const isAdv=String(d.profile||'').includes('ADVANCED');
+ const classes=isAdv?['ACROBAT','ASSASSIN','BARBARIAN','BARD','CLERIC','DRUID','FIGHTER','ILLUSIONIST','KNIGHT','MAGIC_USER','PALADIN','RANGER','THIEF']:['DWARF','CLERIC','ELF','FIGHTER','HALFLING','THIEF','MAGIC_USER'];
+ const races=['HUMAN','DROW','DUERGAR','DWARF','ELF','GNOME','HALF_ELF','HALFLING','HALF_ORC','SVIRFNEBLIN'];
+ return `<div class="kicker">Primeiro aventureiro</div><div class="panel"><h3>Criar personagem</h3><div class="attrs">${Object.entries({FOR:a.str,INT:a.int,SAB:a.wis,DES:a.dex,CON:a.con,CAR:a.cha}).map(([k,v])=>`<div class="attr"><b>${v??'—'}</b><span>${k}</span></div>`).join('')}</div>
+ ${isAdv?`<label class="field">Método de criação</label><select id="creationMethod"><option value="ADVANCED_BASIC">Básico</option><option value="ADVANCED_METHOD">Avançado</option></select><label class="field">Raça (método avançado)</label><select id="creationRace"><option value="">Nenhuma / conforme método</option>${races.map(x=>`<option value="${x}">${raceLabel(x)}</option>`).join('')}</select>`:''}
+ <label class="field">Classe</label><select id="creationClass">${classes.map(x=>`<option value="${x}">${classLabel(x)}</option>`).join('')}</select><label class="field">Nome</label><input id="creationName" placeholder="Nome do aventureiro"><button class="primary" style="margin-top:9px" data-commit-draft="${esc(d.draftId)}">Criar personagem</button></div>`;
+}
+
+const geom=Object.freeze({hexW:60,hexH:69.282,xStep:60,yStep:51.962,oddOffset:30,originX:42,originY:40});
+function terrainAsset(c){if(!c||!c.known||c.terrain==='UNKNOWN')return null;if(c.hydrology==='SEA_OCEAN'||c.hydrology==='LAKE_RIVER')return 'agua.png';const m={CLEAR_GRASSLANDS:'planicie.png',HILLS:'colinas.png',MOUNTAINS:'montanha.png',FOREST:'floresta.png',DESERT:'planicie.png',SWAMP:'pantano.png',JUNGLE:'floresta.png',BARREN_ADV:'planicie.png',BROKEN_LANDS_ADV:'colinas.png'};return m[c.terrain]||'planicie.png'}
+function terrainName(c){if(!c||!c.known||c.terrain==='UNKNOWN')return 'Área desconhecida';if(c.hydrology==='SEA_OCEAN')return 'Mar';if(c.hydrology==='LAKE_RIVER')return 'Rio ou lago';return terrainLabels[c.terrain]||'Terreno'}
+function currentMapCell(){const p=viewState?.position,m=viewState?.map?.cells||[];return m.find(c=>c.q===p?.q&&c.r===p?.r)||null}
+function renderMap(){
+ const cells=viewState?.map?.cells||[];const pos=viewState?.position||{q:0,r:0};const selected=mapSelection?cells.find(c=>c.q===mapSelection.q&&c.r===mapSelection.r):currentMapCell();
+ const width=viewState?.map?.width||6,height=viewState?.map?.height||5;
+ const cellHtml=c=>{const x=geom.originX+c.q*geom.xStep+(c.r%2?geom.oddOffset:0),y=geom.originY+c.r*geom.yStep,a=terrainAsset(c),sel=selected&&selected.q===c.q&&selected.r===c.r;return `<button class="hex-cell ${c.known?'known':'unknown'} ${sel?'selected':''}" data-map-q="${c.q}" data-map-r="${c.r}" aria-label="${esc(terrainName(c))}" style="left:${x}px;top:${y}px;${a?`background-image:url('${asset('hexes_compactos/'+a)}')`:''}">${a?'':'?'}</button>`};
+ const all=(cells.length?cells:Array.from({length:30},(_,i)=>({q:i%6,r:Math.floor(i/6),known:false,terrain:'UNKNOWN',hydrology:'UNKNOWN'}))).map(cellHtml).join('');
+ const pq=Number.isFinite(pos.q)?pos.q:0,pr=Number.isFinite(pos.r)?pos.r:0,px=geom.originX+pq*geom.xStep+(pr%2?geom.oddOffset:0)+16,py=geom.originY+pr*geom.yStep+17;
+ const travel=selected?travelForSelection(pos,selected):null;
+ const knownText=selected?.known?`Terreno conhecido: ${terrainName(selected)}.`:'Esta área ainda não foi revelada à companhia.';
+ return `<section class="map-shell"><div class="map-head"><div><div class="kicker">Mapa da campanha</div><div class="map-title">Ermos do Norte</div></div><div class="camera-tools"><button id="zoomOut">−</button><button id="zoomIn">+</button></div></div><div id="mapViewport" class="map-viewport" aria-label="Mapa da campanha"><div id="mapGrid" class="map-grid" style="width:${Math.max(620,width*65+100)}px;height:${Math.max(590,height*55+120)}px">${all}<div class="canonical-ring" style="left:${px-9}px;top:${py-9}px"></div>${img(asset('tokens_compactos/guerreiro.png'),'Companhia','party-pin').replace('<img ','<img style="left:'+px+'px;top:'+py+'px" ')}<div class="map-label" style="left:${px+30}px;top:${py+2}px">COMPANHIA</div></div></div><div class="map-inspect panel"><div>${selected&&terrainAsset(selected)?img(asset('hexes_compactos/'+terrainAsset(selected)),terrainName(selected),'inspect-hex'):'<div class="unknown-inspect">?</div>'}</div><div><div class="inspect-title">${esc(selected?terrainName(selected):'Selecione um hex')}</div><div class="inspect-copy">${esc(knownText)}</div>${travel?`<button class="small map-travel" data-map-travel="${esc(travel.intent)}" data-map-text="${esc(travel.text)}">Preparar viagem para ${travel.label}</button>`:'<div class="inspect-copy">Selecione um hex vizinho à companhia para preparar a viagem.</div>'}</div></div></section>`
+}
+function travelForSelection(pos,c){if(pos?.kind!=='HEX')return null;const dq=c.q-pos.q,dr=c.r-pos.r;const m={'1,0':['leste','WILD_TRAVEL_DAY:E'],'0,1':['sudeste','WILD_TRAVEL_DAY:SE'],'1,-1':['nordeste','WILD_TRAVEL_DAY:NE'],'-1,0':['oeste','WILD_TRAVEL_DAY:W'],'-1,1':['sudoeste','WILD_TRAVEL_DAY:SW'],'0,-1':['noroeste','WILD_TRAVEL_DAY:NW']};const x=m[`${dq},${dr}`];return x?{label:x[0],intent:x[1],text:`Viajamos para ${x[0]} com cautela, observando o terreno durante o caminho.`}:null}
+
+function hpText(c){if(!c)return'—';const d=c.hpDenominator||1,cur=c.hpCurrentNumerator??0,max=c.hpMaxNumerator??0;return d===1?`${cur}/${max}`:`${cur}/${d} / ${max}/${d}`}
+function attrPairs(a={}){return [['FOR',a.str],['INT',a.int],['SAB',a.wis],['DES',a.dex],['CON',a.con],['CAR',a.cha]]}
+function renderSheet(){
+ const c=viewState?.selectedCharacter;if(hasNative()&&!c)return `<div class="panel"><h2>Nenhum personagem ainda</h2><button class="primary" data-go="session">Abrir criação</button></div>`;
+ const demo=c||{characterId:'demo-character',name:'Aventureiro',raceId:'HUMAN',classIds:['FIGHTER'],levelByClass:{FIGHTER:1},hpCurrentNumerator:8,hpMaxNumerator:8,hpDenominator:1,armorClassDescending:9,attributes:{str:11,int:9,wis:8,dex:10,con:6,cha:9}};
+ const portrait=viewState?.presentation?.characterPortraits?.[demo.characterId];const portraitHtml=portrait?img(portrait,demo.name):'<span>⚔</span>';
+ const inv=viewState?.inventory||(!hasNative()?[{itemId:'demo-mace',catalogId:'ADV_EQUIP_WEAPON_PURCHASE_09',quantity:1,equipped:false,kind:'WEAPON'}]:[]);
+ return `<div class="hero panel"><div class="portrait">${portraitHtml}${hasNative()?'<button data-photo-character="'+esc(demo.characterId)+'">FOTO</button>':''}</div><div><div class="kicker">Personagem</div><h2>${esc(demo.name||'Aventureiro')}</h2><p><b>${esc(raceLabel(demo.raceId||'HUMAN'))}</b> · ${esc((demo.classIds||[]).map(classLabel).join(' / ')||'—')} · ${profileLabel()}</p><div class="vitals"><div class="vital"><span>HP</span><b>${hpText(demo)}</b></div><div class="vital"><span>CA</span><b>${demo.armorClassDescending??'—'}</b></div><div class="vital"><span>NÍVEL</span><b>${Object.values(demo.levelByClass||{})[0]??1}</b></div></div></div></div><div class="panel"><div class="attrs">${attrPairs(demo.attributes).map(([k,v])=>`<div class="attr"><b>${v??'—'}</b><span>${k}</span></div>`).join('')}</div></div><div class="panel"><h3>Inventário</h3><div class="inventory-grid">${inv.length?inv.map(renderInventoryItem).join(''):'<p class="note">Inventário vazio.</p>'}</div></div>${hasNative()?renderNativeLoadout():renderDemoShop()}`;
+}
+function loadoutState(){return viewState?.loadout&&viewState.loadout.characterId?viewState.loadout:null}
+function catalogEntry(id){return loadoutState()?.catalog?.find(x=>x.catalogId===id)||null}
+function catalogLabel(id){const e=catalogEntry(id);if(e?.name)return e.name;return 'Item'}
+function itemArt(name='',kind=''){const n=String(name).toLowerCase();let p;if(n.includes('mochila'))p='equipamentos/mochila.png';else if(n.includes('corda'))p='equipamentos/corda.png';else if(n.includes('tocha'))p='marca_navegacao/tocha.png';else if(n.includes('lanterna')||n.includes('lampião'))p='faixas_selos_dados/lanterna.png';else if(n.includes('flecha')||n.includes('virote'))p='equipamentos/flecha.png';else if(n.includes('arco'))p='equipamentos/arco.png';else if(n.includes('espada curta'))p='equipamentos/espada_curta.png';else if(n.includes('espada'))p='equipamentos/espada_longa.png';else if(n.includes('machado'))p='equipamentos/machado_batalha.png';else if(n.includes('martelo')||n.includes('maça'))p='equipamentos/martelo_guerra.png';else if(n.includes('cota')||kind==='ARMOR')p='equipamentos/cota_malha.png';else if(n.includes('escudo')||kind==='SHIELD')p='tesouros_escudos/escudo_redondo.png';else if(kind==='WEAPON')p='acoes_perigos/espadas_cruzadas.png';else p='equipamentos_variantes/equipamentos_variantes_01.png';return img(asset(p),name,'item-thumb')}
+function renderInventoryItem(it){const name=catalogLabel(it.catalogId),custom=viewState?.presentation?.itemThumbnails?.[it.itemId],canEquip=['WEAPON','ARMOR','SHIELD'].includes(it.kind)&&phase()==='CHARACTER_LOADOUT'&&loadoutState()&&!loadoutState().completed;return `<div class="item">${custom?img(custom,name,'item-thumb'):itemArt(name,it.kind)}<b>${esc(name)}</b><small>×${it.quantity??1}${it.equipped?' · EQUIPADO':''}</small>${hasNative()?`<div class="actions">${canEquip?`<button data-loadout-equip="${esc(it.itemId)}" data-equipped="${it.equipped?'1':'0'}">${it.equipped?'TIRAR':'EQUIPAR'}</button>`:''}<button class="photo-action" title="Trocar imagem" data-photo-item="${esc(it.itemId)}">📷</button></div>`:''}</div>`}
+function renderNativeLoadout(){const l=loadoutState();if(!hasNative()||phase()!=='CHARACTER_LOADOUT'||!l||l.completed)return'';const groups=[['Aventura',['ADVENTURING_GEAR','FOOD','LIGHT_SOURCE','OIL_FLASK']],['Armas',['WEAPON']],['Armaduras e munição',['ARMOR','SHIELD','AMMUNITION']]];return `<div class="panel"><div class="kicker">Equipamento inicial</div><h3>${l.remainingWealthGp} po restantes de ${l.startingWealthGp} po</h3><p class="note">Os preços, quantidades e estatísticas são aplicados automaticamente pelas regras OSE.</p>${groups.map(([title,kinds])=>`<h3>${title}</h3><div class="inventory-grid">${(l.catalog||[]).filter(e=>kinds.includes(e.kind)).map(e=>`<div class="item">${itemArt(e.name,e.kind)}<b>${esc(e.name)}</b><small>${e.priceGp==null?'Preço não comprovado':`${e.priceGp} po`}${e.purchaseQuantity>1?` · ×${e.purchaseQuantity}`:''}${e.ownedQuantity?` · possui ${e.ownedQuantity}`:''}</small><div class="actions"><button data-loadout-buy="${esc(e.catalogId)}" ${e.priceGp==null||e.priceGp>l.remainingWealthGp?'disabled':''}>COMPRAR</button></div></div>`).join('')}</div>`).join('')}<button class="primary" data-loadout-finish="1" style="margin-top:9px">Concluir equipamento</button></div>`}
+function renderDemoShop(){return ''}
+function renderCompany(){const party=viewState?.party||(!hasNative()?[{characterId:'demo-character',name:'Aventureiro',classIds:['FIGHTER'],hpCurrentNumerator:8,hpMaxNumerator:8,hpDenominator:1}]:[]);return `<div class="kicker">Companhia</div><div class="panel"><h2>${party.length?'Companhia atual':'Ainda vazia'}</h2>${party.length?`<div class="choice-grid">${party.map((m,i)=>{const p=viewState?.presentation?.characterPortraits?.[m.characterId];return `<div class="choice ${i===0?'active':''}">${p?img(p,m.name,'item-thumb'):''}<b>${esc(m.name)}</b><br>${esc((m.classIds||[]).map(classLabel).join(' / '))}<br>HP ${hpText(m)}</div>`}).join('')}<div class="choice">Espaço para próximo aventureiro</div></div><p class="note">A companhia viaja e ocupa o mundo como um único grupo.</p>`:'<p>Crie seu primeiro personagem para formar a companhia.</p>'}</div>`}
+
+function renderDicePanel(){return `<div class="panel dice-panel"><div class="row"><h3>🎲 Dados</h3><span class="note">Rolagem manual; não altera a campanha sozinha.</span></div><div class="dice-buttons">${[4,6,8,10,12,20,100].map(s=>`<button class="small" data-die="${s}">d${s}</button>`).join('')}</div><div class="dice-controls"><label>Quantidade<input id="diceCount" type="number" min="1" max="20" value="1"></label><label>Modificador<input id="diceModifier" type="number" min="-100" max="100" value="0"></label></div>${diceHistory.length?`<div class="dice-history">${diceHistory.map(d=>`<div><b>${d.count}d${d.sides}${d.modifier?`${d.modifier>0?'+':''}${d.modifier}`:''} = ${d.total}</b><small>${esc((d.rolls||[]).join(', '))}</small></div>`).join('')}</div>`:''}</div>`}
+
+function wireCurrentScreen(){
+ document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+ document.querySelector('[data-start-adventure]')?.addEventListener('click',()=>{if(postNative('StartAdventure',{}))showToast('Barbara está preparando a cena inicial…')});
+ document.querySelectorAll('[data-suggest]').forEach(b=>b.onclick=()=>{const t=el('reactionInput');if(t){t.value=b.dataset.suggest;t.dataset.mechanicalIntent=b.dataset.intent||'';t.focus()}});
+ el('reactionInput')?.addEventListener('input',e=>{if(e.isTrusted)delete e.currentTarget.dataset.mechanicalIntent});
+ document.querySelector('[data-react]')?.addEventListener('click',()=>{const t=el('reactionInput'),v=t?.value.trim();if(!v)return showToast('Escreva o que seu personagem faz ou pergunta.');const mechanicalIntent=t.dataset.mechanicalIntent||'';if(postNative('PlayerReaction',{reactionId:'ui-'+Date.now(),text:v,mechanicalIntent}))showToast('Enviado ao Mestre.');else{localLog.push(v);showToast('Preview sem motor nativo.')}});
+ document.querySelectorAll('[data-tts]').forEach(b=>b.onclick=()=>{if(!postNative('TtsCommand',{command:b.dataset.tts}))showToast('A narração em voz requer o app Android e uma chave configurada.');});
+ document.querySelector('[data-scene-image]')?.addEventListener('click',()=>{if(!postNative('SceneImageGenerate',{explicitUserAction:true}))showToast('Geração de cena requer o app Android.');else showToast('Criando ilustração da cena…')});
+ document.querySelectorAll('[data-die]').forEach(b=>b.onclick=()=>{const count=Math.max(1,Math.min(20,Number(el('diceCount')?.value||1))),modifier=Math.max(-100,Math.min(100,Number(el('diceModifier')?.value||0)));if(!postNative('ManualDiceRoll',{sides:Number(b.dataset.die),count,modifier})){const rolls=Array.from({length:count},()=>1+Math.floor(Math.random()*Number(b.dataset.die))),total=rolls.reduce((a,x)=>a+x,0)+modifier;diceHistory.unshift({rolls,total,sides:Number(b.dataset.die),count,modifier});render()}});
+ document.querySelector('[data-start-draft]')?.addEventListener('click',()=>postNative('CharacterCreationStart',{draftId:'draft-'+Date.now()}));
+ document.querySelector('[data-commit-draft]')?.addEventListener('click',e=>{const d=e.currentTarget.dataset.commitDraft,name=el('creationName')?.value.trim();if(!name)return showToast('Digite um nome.');const adv=String(viewState?.campaign?.profile||'').includes('ADVANCED');const method=adv?(el('creationMethod')?.value||'ADVANCED_BASIC'):'CLASSIC';const race=adv&&method==='ADVANCED_METHOD'?(el('creationRace')?.value||null):null;postNative('CharacterCreationCommit',{draftId:d,characterId:'char-'+Date.now(),name,method,classIds:[el('creationClass').value],raceId:race||'',adjustments:[]})});
+ document.querySelectorAll('[data-photo-character]').forEach(b=>b.onclick=()=>chooseMedia('CHARACTER',b.dataset.photoCharacter));
+ document.querySelectorAll('[data-photo-item]').forEach(b=>b.onclick=()=>chooseMedia('ITEM',b.dataset.photoItem));
+ document.querySelectorAll('[data-loadout-buy]').forEach(b=>b.onclick=()=>postNative('UiCommand',{command:'loadout_purchase',commandId:'buy-'+Date.now()+'-'+b.dataset.loadoutBuy,characterId:loadoutState()?.characterId||'',catalogId:b.dataset.loadoutBuy}));
+ document.querySelectorAll('[data-loadout-equip]').forEach(b=>b.onclick=()=>postNative('UiCommand',{command:'loadout_equip',commandId:'equip-'+Date.now()+'-'+b.dataset.loadoutEquip,characterId:loadoutState()?.characterId||'',itemId:b.dataset.loadoutEquip,equipped:b.dataset.equipped!=='1'}));
+ document.querySelector('[data-loadout-finish]')?.addEventListener('click',()=>postNative('UiCommand',{command:'loadout_finish',commandId:'finish-'+Date.now(),characterId:loadoutState()?.characterId||''}));
+ if(screen==='map')wireMap();
+}
+function wireMap(){let cam={x:-18,y:10,s:1},drag=null;const grid=el('mapGrid'),vp=el('mapViewport');if(!grid||!vp)return;const apply=()=>grid.style.transform=`translate(${cam.x}px,${cam.y}px) scale(${cam.s})`;apply();el('zoomIn').onclick=()=>{cam.s=Math.min(1.45,+(cam.s+.1).toFixed(2));apply()};el('zoomOut').onclick=()=>{cam.s=Math.max(.65,+(cam.s-.1).toFixed(2));apply()};vp.onpointerdown=e=>{if(e.target.closest('.hex-cell'))return;drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y};vp.setPointerCapture(e.pointerId)};vp.onpointermove=e=>{if(!drag)return;cam.x=drag.cx+e.clientX-drag.x;cam.y=drag.cy+e.clientY-drag.y;apply()};vp.onpointerup=vp.onpointercancel=()=>drag=null;document.querySelectorAll('[data-map-q]').forEach(b=>b.onclick=e=>{e.stopPropagation();mapSelection={q:Number(b.dataset.mapQ),r:Number(b.dataset.mapR)};render()});document.querySelector('[data-map-travel]')?.addEventListener('click',b=>{const text=b.currentTarget.dataset.mapText,intent=b.currentTarget.dataset.mapTravel;go('session');setTimeout(()=>{const t=el('reactionInput');if(t){t.value=text;t.dataset.mechanicalIntent=intent;t.focus()}},0)})}
+function chooseMedia(scope,id){mediaTarget={scope,id};el('mediaPicker').value='';el('mediaPicker').click()}
+el('mediaPicker').addEventListener('change',()=>{const f=el('mediaPicker').files?.[0];if(!f||!mediaTarget)return;if(f.size>5*1024*1024)return showToast('Imagem deve ter no máximo 5 MB.');const r=new FileReader();r.onload=()=>postNative('PresentationImageSave',{scope:mediaTarget.scope,id:mediaTarget.id,dataUrl:r.result});r.readAsDataURL(f)});
+
+document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.screen));
+el('settingsButton').onclick=()=>{el('settingsOverlay').classList.remove('hidden');postNative('GeminiSettingsGet',{});updateSettingsStatus()};el('settingsClose').onclick=()=>el('settingsOverlay').classList.add('hidden');
+function updateSettingsStatus(){if(!el('textSceneStatus'))return;el('textSceneStatus').textContent=geminiState.textSceneConfigured?'Chave configurada':'Chave não configurada';el('ttsAudioStatus').textContent=geminiState.ttsAudioConfigured?'Chave configurada':'Chave não configurada';if(geminiState.textModel&&!el('textModel').dataset.dirty)el('textModel').value=geminiState.textModel;if(geminiState.imageModel&&!el('imageModel').dataset.dirty)el('imageModel').value=geminiState.imageModel;if(geminiState.ttsModel&&!el('ttsModel').dataset.dirty)el('ttsModel').value=geminiState.ttsModel;if(geminiState.ttsVoice&&!el('ttsVoice').dataset.dirty)el('ttsVoice').value=geminiState.ttsVoice;const ws=viewState?.worldStatus||{};el('worldStatus').textContent=ws.active?'Ativo — mapa, NPCs persistentes e agenda de eventos carregados.':'Ainda não inicializado.';const lib=viewState?.libraryStatus||{};el('libraryStatus').textContent=lib.embedded?`Regras incorporadas: ${profileLabel()}. Autoridade carregada.`:'Biblioteca não carregada.'}
+['textModel','imageModel','ttsModel','ttsVoice'].forEach(id=>el(id)?.addEventListener('input',e=>e.currentTarget.dataset.dirty='1'));
+el('saveModels')?.addEventListener('click',()=>{const payload={textModel:el('textModel').value.trim(),imageModel:el('imageModel').value.trim(),ttsModel:el('ttsModel').value.trim(),ttsVoice:el('ttsVoice').value.trim()};if(postNative('GeminiRuntimeSettingsSet',payload)){['textModel','imageModel','ttsModel','ttsVoice'].forEach(id=>delete el(id).dataset.dirty);showToast('Modelos salvos.')}});
+document.querySelectorAll('[data-key-save]').forEach(b=>b.onclick=()=>{const slot=b.dataset.keySave,input=slot==='TEXT_SCENE'?el('textSceneKey'):el('ttsAudioKey'),key=input.value.trim();if(!key)return showToast('Cole uma chave antes de salvar.');if(postNative('GeminiCredentialSet',{slot,key})){input.value='';showToast('Chave salva no armazenamento seguro.')}});
+document.querySelectorAll('[data-key-test]').forEach(b=>b.onclick=()=>{if(postNative('GeminiCredentialTest',{slot:b.dataset.keyTest}))showToast('Testando modelo e conexão…')});
+document.querySelectorAll('[data-key-delete]').forEach(b=>b.onclick=()=>postNative('GeminiCredentialDelete',{slot:b.dataset.keyDelete}));
+el('backupExport')?.addEventListener('click',()=>postNative('BackupExport',{}));el('backupImport')?.addEventListener('click',()=>{const backup=el('backupText').value.trim();if(!backup)return showToast('Cole um backup antes de restaurar.');postNative('BackupImport',{backup})});el('backupCopy')?.addEventListener('click',async()=>{const text=el('backupText').value||backupBuffer;if(!text)return showToast('Gere um backup primeiro.');try{await navigator.clipboard.writeText(text);showToast('Backup copiado.')}catch(_e){el('backupText').focus();el('backupText').select();document.execCommand('copy');showToast('Backup copiado.')}});
+render();document.body.dataset.ready='true';postNative('ViewState',{request:'initial'});
+})();

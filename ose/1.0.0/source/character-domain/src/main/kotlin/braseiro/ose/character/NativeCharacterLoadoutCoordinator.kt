@@ -93,13 +93,13 @@ class NativeCharacterLoadoutCoordinator {
         val done=loadout.copy(completed=true).canonical()
         var game=old.copy(
             loadouts=old.loadouts + (characterId to done),
-            session=old.session.copy(phase="ACTIVE",visibleMechanicalFeedback="Equipamento inicial confirmado."),
+            session=old.session.copy(phase="READY_TO_START",visibleNarration="",visibleMechanicalFeedback="Equipamento inicial confirmado."),
             actionLog=old.actionLog + ActionLogEntry("LOADOUT_DONE:${old.revision}:$characterId","LOADOUT","Starting loadout completed",listOf(loadout.sourceRuleId)),
             revision=old.revision+1
         )
         game=withDerivedExpedition(envelope,game)
         val state=envelope.campaignState.copy(game=game,resources=deriveResources(envelope.ruleProfile,game,characterId,done.remainingWealthGp))
-        return MutationResult(envelope.copy(campaignState=state),true,"ACTIVE")
+        return MutationResult(envelope.copy(campaignState=state),true,"READY_TO_START")
     }
 
     private fun context(envelope:CampaignEnvelope, characterId:String): Pair<CharacterSnapshot,CharacterLoadoutSnapshot>? {

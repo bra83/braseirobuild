@@ -17,23 +17,26 @@ class GeminiInteractionsClientTest {
         }
     }
 
-    private fun response(type: String, mime: String, bytes: ByteArray, sampleRate: Int? = null) = JSONObject()
-        .put("steps", JSONArray().put(JSONObject()
+    private fun response(type: String, mime: String, bytes: ByteArray, sampleRate: Int? = null): JSONObject {
+        val media = JSONObject()
+            .put("type", type)
+            .put("mime_type", mime)
+            .put("data", Base64.getEncoder().encodeToString(bytes))
+        if (sampleRate != null) media.put("sample_rate", sampleRate)
+        val output = JSONObject()
             .put("type", "model_output")
-            .put("content", JSONArray().put(JSONObject()
-                .put("type", type)
-                .put("mime_type", mime)
-                .put("data", Base64.getEncoder().encodeToString(bytes))
-                .apply { if (sampleRate != null) put("sample_rate", sampleRate) })))
+            .put("content", JSONArray().put(media))
+        return JSONObject().put("steps", JSONArray().put(output))
+    }
 
     @Test fun sceneImageUsesCurrentInteractionsImageContract() {
         val transport = FakeTransport(response("image", "image/jpeg", byteArrayOf(1, 2, 3)))
         val client = GeminiInteractionsClient(transport)
-        val blob = client.generateSceneImage("secret-do-not-echo", "visible scene only")
+        val blob = client.generateSceneImage("secret-do-not-echo", "custom-image-model", "visible scene only")
         assertEquals("image/jpeg", blob.mimeType)
         assertArrayEquals(byteArrayOf(1, 2, 3), blob.data)
         val body = transport.bodySeen!!
-        assertEquals("gemini-3.1-flash-image", body.getString("model"))
+        assertEquals("custom-image-model", body.getString("model"))
         assertEquals("visible scene only", body.getString("input"))
         assertEquals("image", body.getJSONObject("response_format").getString("type"))
         assertFalse(body.toString().contains("secret-do-not-echo"))
@@ -43,11 +46,11 @@ class GeminiInteractionsClientTest {
     @Test fun ttsUsesOnlySuppliedVisibleNarrationAndAudioFormat() {
         val transport = FakeTransport(response("audio", "audio/L16", byteArrayOf(4, 5), 24000))
         val client = GeminiInteractionsClient(transport)
-        val blob = client.generateTtsAudio("tts-secret", "Narração visível")
+        val blob = client.generateTtsAudio("tts-secret", "custom-tts-model", "Kore", "Narração visível")
         assertArrayEquals(byteArrayOf(4, 5), blob.data)
         assertEquals(24000, blob.sampleRate)
         val body = transport.bodySeen!!
-        assertEquals("gemini-3.1-flash-tts-preview", body.getString("model"))
+        assertEquals("custom-tts-model", body.getString("model"))
         assertTrue(body.getString("input").endsWith("Narração visível"))
         assertEquals("audio", body.getJSONObject("response_format").getString("type"))
         assertFalse(body.toString().contains("tts-secret"))
@@ -55,11 +58,11 @@ class GeminiInteractionsClientTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun blankScenePromptIsRejectedBeforeTransport() {
-        GeminiInteractionsClient(FakeTransport(JSONObject())).generateSceneImage("key", "  ")
+        GeminiInteractionsClient(FakeTransport(JSONObject())).generateSceneImage("key", "model", "  ")
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun blankNarrationIsRejectedBeforeTransport() {
-        GeminiInteractionsClient(FakeTransport(JSONObject())).generateTtsAudio("key", "")
+        GeminiInteractionsClient(FakeTransport(JSONObject())).generateTtsAudio("key", "model", "Kore", "")
     }
 }

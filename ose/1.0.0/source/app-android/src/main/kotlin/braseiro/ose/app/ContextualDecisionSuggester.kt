@@ -10,7 +10,7 @@ import org.json.JSONObject
  * They are reaction text, never commands and never mechanical mutations.
  */
 object ContextualDecisionSuggester {
-    data class Suggestion(val label: String, val reaction: String)
+    data class Suggestion(val label: String, val reaction: String, val mechanicalIntent: String? = null)
 
     fun suggest(envelope: CampaignEnvelope): List<Suggestion> {
         val session = envelope.campaignState.game.session
@@ -56,13 +56,13 @@ object ContextualDecisionSuggester {
         val first=valid.getOrNull(0) ?: dirs[0]
         val second=valid.getOrNull(1) ?: dirs[1]
         return listOf(
-            Suggestion("VIAJAR ${first.label}","WILD_TRAVEL_DAY:${first.key}"),
-            Suggestion("FORRAGEAR ${second.label}","WILD_TRAVEL_FORAGE_DAY:${second.key}"),
-            Suggestion("DESCANSAR UM DIA","WILD_REST_DAY")
+            Suggestion("VIAJAR ${first.label}","Viajamos para ${first.label.lowercase()} com cautela, observando o caminho.","WILD_TRAVEL_DAY:${first.key}"),
+            Suggestion("FORRAGEAR ${second.label}","Seguimos para ${second.label.lowercase()} procurando alimento durante a viagem.","WILD_TRAVEL_FORAGE_DAY:${second.key}"),
+            Suggestion("DESCANSAR UM DIA","Paramos para descansar um dia inteiro e recuperar as forças.","WILD_REST_DAY")
         )
     }
 
     fun asJson(envelope: CampaignEnvelope): JSONArray = JSONArray(suggest(envelope).map {
-        JSONObject().put("label", it.label).put("reaction", it.reaction)
+        JSONObject().put("label", it.label).put("reaction", it.reaction).put("mechanicalIntent", it.mechanicalIntent ?: JSONObject.NULL)
     })
 }

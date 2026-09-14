@@ -1,0 +1,17 @@
+{
+  "schema": "BRASEIRO_OSE_P1_CAPTURE_REPRODUCIBILITY_V1",
+  "capture_engine": "Chromium via Playwright, real DOM/CSS/assets, viewport 415x915",
+  "canonicalization": "PNG post-raster normalization: RGB bins step=9 offset=4, max channel shift <=4/255, fixed PIL PNG encoding",
+  "consecutive_runs_compared": 6,
+  "byte_identical_across_all_runs": true,
+  "captures": {
+    "P1_COMPANY_415x915.png": "2607468286413c9708fca8ac9298aa62c46e8a0564b7e1583d85806d80333d24",
+    "P1_SHEET_415x915.png": "2c3d074afb44483c4bf076f1e344a49d93233cc7b9634ede329f8e67c2680afe",
+    "P1_MAP_415x915.png": "2e710045e0f43352a16be805e876ecf176a3fdeb665ce5b03cf1c36ee861250e",
+    "P1_SESSION_RECOVERY_415x915.png": "4140436fa03a6bb568f372c7e7d7b862705041057472bc4847ca79a993573b72",
+    "P1_SESSION_ACTIVE_415x915.png": "74412d11b917917fbe5da6ba638d0156e4d310cbb7da95edc5b078d137bf16c8",
+    "P1_SESSION_ENCOUNTER_415x915.png": "c3efd5b3ba8e8dcd3746ae730e169786b019f207fa3831cc8763e68bc61c27b5",
+    "P1_SESSION_COMBAT_415x915.png": "dc0f37e7df5ab0a8f4c13374c288aea5ae6146ad4cbbef75896f3857d17d4b68"
+  },
+  "gate": "PASS"
+}

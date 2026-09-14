@@ -11,12 +11,12 @@
   <header>
     <div class="top">
       <div class="logo">OLD-SCHOOL<br>ESSENTIALS</div>
-      <div class="title"><b id="headerTitle">SESSÃO · BRASEIRO OSE</b><small>MOTOR BARBARA · ESTADO CANÔNICO</small></div>
+      <div class="title"><b id="headerTitle">SESSÃO · BRASEIRO OSE</b><small>MESTRE BARBARA · CAMPANHA OSE</small></div>
       <button id="settingsButton" class="gear" title="Configurações" aria-label="Configurações">⚙</button>
     </div>
     <div class="status">
       <div class="stat"><label>Tempo</label><b id="timeStatus">DIA 1 · T0</b></div>
-      <div class="stat"><label>Estado</label><b id="phaseStatus">ACTIVE</b></div>
+      <div class="stat"><label>Estado</label><b id="phaseStatus">PRONTO</b></div>
       <div class="stat"><label>Tocha</label><b id="torchStatus">0</b></div>
       <div class="stat"><label>Rações</label><b id="rationStatus">0</b></div>
     </div>
@@ -31,21 +31,53 @@
     <button class="navbtn" data-screen="company"><span class="ico">♟♟</span>COMPANHIA</button>
   </nav>
 
-  <div id="settingsOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Configurações Gemini">
+  <div id="settingsOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Configurações do BRASEIRO OSE">
     <div class="settings panel">
-      <div class="settings-head"><h3>Configurações Gemini</h3><button id="settingsClose" class="small">FECHAR</button></div>
-      <p class="note">As duas chaves são independentes e ficam no armazenamento seguro do Android. O campo nunca exibe uma chave já salva.</p>
+      <div class="settings-head"><h3>Configurações</h3><button id="settingsClose" class="small">FECHAR</button></div>
+
       <section class="credential-block">
-        <label class="field">Gemini — Texto / cena</label>
-        <input id="textSceneKey" type="password" autocomplete="off" placeholder="Cole a chave para salvar/substituir">
+        <h3>Mestre Gemini</h3>
+        <p class="note">Você pode digitar exatamente o nome do modelo que quer usar. O aplicativo não substitui o nome por outro modelo.</p>
+        <label class="field" for="textModel">Modelo de texto / Mestre</label>
+        <input id="textModel" type="text" autocomplete="off" placeholder="ex.: gemini-3.1-flash-lite">
+        <label class="field" for="imageModel">Modelo de imagem</label>
+        <input id="imageModel" type="text" autocomplete="off" placeholder="ex.: gemini-3.1-flash-image">
+        <label class="field" for="ttsModel">Modelo TTS</label>
+        <input id="ttsModel" type="text" autocomplete="off" placeholder="ex.: gemini-3.1-flash-tts-preview">
+        <label class="field" for="ttsVoice">Voz TTS</label>
+        <input id="ttsVoice" type="text" autocomplete="off" placeholder="ex.: Kore">
+        <button id="saveModels" class="primary" style="margin-top:9px">SALVAR MODELOS</button>
+      </section>
+
+      <section class="credential-block">
+        <label class="field">Chave Gemini — Mestre / imagens</label>
+        <input id="textSceneKey" type="password" autocomplete="off" placeholder="Cole a chave para salvar ou substituir">
         <div class="row"><button class="small" data-key-save="TEXT_SCENE">SALVAR</button><button class="small" data-key-test="TEXT_SCENE">TESTAR</button><button class="small" data-key-delete="TEXT_SCENE">APAGAR</button></div>
         <div id="textSceneStatus" class="credential-status">Não configurada</div>
       </section>
       <section class="credential-block">
-        <label class="field">Gemini — TTS / áudio</label>
-        <input id="ttsAudioKey" type="password" autocomplete="off" placeholder="Cole a chave para salvar/substituir">
+        <label class="field">Chave Gemini — voz TTS</label>
+        <input id="ttsAudioKey" type="password" autocomplete="off" placeholder="Cole a chave para salvar ou substituir">
         <div class="row"><button class="small" data-key-save="TTS_AUDIO">SALVAR</button><button class="small" data-key-test="TTS_AUDIO">TESTAR</button><button class="small" data-key-delete="TTS_AUDIO">APAGAR</button></div>
         <div id="ttsAudioStatus" class="credential-status">Não configurada</div>
+      </section>
+
+      <section class="credential-block">
+        <h3>Mundo Vivo</h3>
+        <div id="worldStatus" class="settings-info">Carregando estado do mundo…</div>
+      </section>
+
+      <section class="credential-block">
+        <h3>Biblioteca de regras</h3>
+        <div id="libraryStatus" class="settings-info">Carregando biblioteca…</div>
+      </section>
+
+      <section class="credential-block">
+        <h3>Backup da campanha</h3>
+        <p class="note">O backup contém campanha, personagens, mundo e progresso. As chaves Gemini não entram no backup.</p>
+        <div class="row"><button id="backupExport" class="small">GERAR BACKUP</button><button id="backupCopy" class="small">COPIAR</button></div>
+        <textarea id="backupText" class="backup-text" placeholder="O backup gerado aparece aqui. Para restaurar, cole um backup válido neste campo."></textarea>
+        <button id="backupImport" class="secondary">RESTAURAR BACKUP</button>
       </section>
     </div>
   </div>

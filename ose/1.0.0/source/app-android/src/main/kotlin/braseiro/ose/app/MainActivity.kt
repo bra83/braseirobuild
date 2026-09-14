@@ -11,7 +11,6 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.room.Room
 import androidx.webkit.WebViewAssetLoader
-import braseiro.ose.barbara.DeterministicBarbaraSupervisor
 import braseiro.ose.backup.BackupCodec
 import braseiro.ose.character.NativeCharacterCreationCoordinator
 import braseiro.ose.character.NativeCharacterLoadoutCoordinator
@@ -32,6 +31,7 @@ import braseiro.ose.rules.api.CreationMethod
 import braseiro.ose.rules.shared.StartingEquipmentCatalog
 import braseiro.ose.session.SessionEngine
 import java.security.MessageDigest
+import java.security.SecureRandom
 import java.util.concurrent.Executors
 import org.json.JSONArray
 import org.json.JSONObject
@@ -48,9 +48,11 @@ class MainActivity : Activity() {
     private lateinit var repository: RoomCampaignRepository
     private lateinit var session: SessionEngine
     private lateinit var credentials: GeminiCredentialStore
+    private lateinit var runtimeSettings: GeminiRuntimeSettings
     private lateinit var mediaStore: PresentationMediaStore
     private lateinit var gemini: GeminiInteractionsClient
     private lateinit var tts: GeminiTtsController
+    private val manualDice = SecureRandom()
     private val evidenceRegistry = RuleEvidenceRegistry()
     private val creationCoordinator = NativeCharacterCreationCoordinator()
     private val loadoutCoordinator = NativeCharacterLoadoutCoordinator()
@@ -70,11 +72,12 @@ class MainActivity : Activity() {
             "braseiro-ose.db"
         ).addMigrations(MIGRATION_1_2).build()
         repository = RoomCampaignRepository(db)
-        session = SessionEngine(repository, RulesRefereeBoundary(), DeterministicBarbaraSupervisor())
         credentials = GeminiCredentialStore(applicationContext)
+        runtimeSettings = GeminiRuntimeSettings(applicationContext)
         mediaStore = PresentationMediaStore(applicationContext)
         gemini = GeminiInteractionsClient()
-        tts = GeminiTtsController(applicationContext, credentials, gemini)
+        session = SessionEngine(repository, RulesRefereeBoundary(), GeminiBarbaraSupervisor(credentials, runtimeSettings, gemini))
+        tts = GeminiTtsController(applicationContext, credentials, runtimeSettings, gemini)
 
         val assetLoader = WebViewAssetLoader.Builder()
             .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this))
@@ -96,6 +99,11 @@ class MainActivity : Activity() {
             addJavascriptInterface(BridgeEndpoint(), "BraseiroBridge")
         }
         setContentView(webView)
+        webView.setOnApplyWindowInsetsListener { view, insets ->
+            view.setPadding(0, insets.systemWindowInsetTop, 0, insets.systemWindowInsetBottom)
+            insets
+        }
+        webView.requestApplyInsets()
 
         io.execute {
             bootstrapIfMissing()
@@ -130,9 +138,10 @@ class MainActivity : Activity() {
                 repository.create(envelope)
             }
             is CampaignLoadResult.Loaded -> {
-                val repaired = ensureWorldBootstrap(loaded.envelope)
-                if (repaired !== loaded.envelope) {
-                    repository.commit(CAMPAIGN_ID, StateTransition("world-bootstrap-v1", repaired.campaignState))
+                var repaired = ensureWorldBootstrap(loaded.envelope)
+                repaired = repairLegacyPresentation(repaired)
+                if (repaired != loaded.envelope) {
+                    repository.commit(CAMPAIGN_ID, StateTransition("runtime-repair-v2", repaired.campaignState))
                 }
             }
             is CampaignLoadResult.ReadFailure -> throw loaded.cause
@@ -188,6 +197,31 @@ class MainActivity : Activity() {
         return envelope.copy(campaignState = envelope.campaignState.copy(game = repairedGame, playerKnowledge = knowledge))
     }
 
+    private fun repairLegacyPresentation(envelope: CampaignEnvelope): CampaignEnvelope {
+        val game = envelope.campaignState.game
+        val old = game.session
+        val technical = isTechnicalNarration(old.visibleNarration)
+        if (!technical) return envelope
+        val cleanedReceipts = old.reactionReceipts.mapValues { (_, receipt) ->
+            if (isTechnicalNarration(receipt.narration.orEmpty())) receipt.copy(narration = null) else receipt
+        }
+        val cleaned = old.copy(
+            visibleNarration = "",
+            visibleMechanicalFeedback = "",
+            journal = old.journal.filterNot(::isTechnicalNarration),
+            reactionReceipts = cleanedReceipts,
+            pendingNarrationReactionId = null
+        )
+        val repairedGame = game.copy(session = cleaned, revision = game.revision + 1)
+        return envelope.copy(campaignState = envelope.campaignState.copy(game = repairedGame))
+    }
+
+    private fun isTechnicalNarration(text: String): Boolean {
+        val t = text.uppercase()
+        return text.startsWith("Mestre: o grupo declarou:", ignoreCase = true) ||
+            listOf("PLAYER_REACTION", "WILD_TRAVEL", "WILD_REST", "RULES_DICE", "CHARACTER_LOADOUT", "POSIÇÃO CANÔNICA", "WORLD-1").any { it in t }
+    }
+
     fun webViewForTest(): WebView = webView
 
     private inner class BridgeEndpoint {
@@ -203,8 +237,9 @@ class MainActivity : Activity() {
                         "PlayerReaction" -> {
                             val reactionId = payload.optString("reactionId", "").trim()
                             require(reactionId.isNotBlank()) { "PlayerReaction.reactionId is required" }
-                            val text = payload.optString("text", "")
-                            val result = session.submitPlayerReaction(CAMPAIGN_ID, reactionId, text)
+                            val text = payload.optString("text", "").trim()
+                            val mechanicalIntent = payload.optString("mechanicalIntent", "").trim().ifBlank { text }
+                            val result = session.submitPlayerReaction(CAMPAIGN_ID, reactionId, text, mechanicalIntent)
                             val current = session.loadSession(CAMPAIGN_ID)
                             send(
                                 JSONObject().put("type", "SessionUpdate").put("payload", JSONObject()
@@ -215,6 +250,18 @@ class MainActivity : Activity() {
                                     .put("stateHash", CanonicalStateHash.sha256(current))
                                     .put("viewState", projectForUi(current)))
                             )
+                        }
+
+                        "StartAdventure" -> {
+                            val result = session.startAdventure(CAMPAIGN_ID)
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            send(JSONObject().put("type", "SessionUpdate").put("payload", JSONObject()
+                                .put("narration", result.narration)
+                                .put("feedback", "")
+                                .put("committed", true)
+                                .put("mechanicalMutation", false)
+                                .put("stateHash", CanonicalStateHash.sha256(current))
+                                .put("viewState", projectForUi(current))))
                         }
 
                         "GMHelp" -> {
@@ -239,6 +286,16 @@ class MainActivity : Activity() {
 
                         "GeminiSettingsGet" -> sendSettingsState()
 
+                        "GeminiRuntimeSettingsSet" -> {
+                            runtimeSettings.update(
+                                payload.optString("textModel", "").takeIf { it.isNotBlank() },
+                                payload.optString("imageModel", "").takeIf { it.isNotBlank() },
+                                payload.optString("ttsModel", "").takeIf { it.isNotBlank() },
+                                payload.optString("ttsVoice", "").takeIf { it.isNotBlank() }
+                            )
+                            sendSettingsState()
+                        }
+
                         "GeminiCredentialSet" -> {
                             val slot = credentialSlot(payload.getString("slot"))
                             credentials.set(slot, payload.getString("key"))
@@ -253,7 +310,11 @@ class MainActivity : Activity() {
                         "GeminiCredentialTest" -> {
                             val slot = credentialSlot(payload.getString("slot"))
                             val key = credentials.get(slot) ?: error("GEMINI_KEY_MISSING")
-                            val ok = gemini.testCredential(key)
+                            val runtime = runtimeSettings.snapshot()
+                            val ok = when (slot) {
+                                GeminiCredentialStore.Slot.TEXT_SCENE -> gemini.testCredential(key, runtime.textModel)
+                                GeminiCredentialStore.Slot.TTS_AUDIO -> gemini.testTtsCredential(key, runtime.ttsModel, runtime.ttsVoice)
+                            }
                             send(JSONObject().put("type", "GeminiCredentialTestResult").put("payload", JSONObject()
                                 .put("slot", slot.wireName).put("ok", ok)))
                         }
@@ -261,7 +322,7 @@ class MainActivity : Activity() {
                         "SceneImageGenerate" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
                             val key = credentials.get(GeminiCredentialStore.Slot.TEXT_SCENE) ?: error("GEMINI_TEXT_SCENE_KEY_MISSING")
-                            val blob = gemini.generateSceneImage(key, buildSceneImagePrompt(current))
+                            val blob = gemini.generateSceneImage(key, runtimeSettings.snapshot().imageModel, buildSceneImagePrompt(current))
                             val sceneId = scenePresentationId(current)
                             val url = mediaStore.save(PresentationMediaStore.Scope.SCENE, sceneId, blob.mimeType, blob.data)
                             send(JSONObject().put("type", "SceneImageResult").put("payload", JSONObject()
@@ -284,6 +345,21 @@ class MainActivity : Activity() {
                             val url = mediaStore.saveDataUrl(scope, stableId, payload.getString("dataUrl"))
                             send(JSONObject().put("type", "PresentationImageSaved").put("payload", JSONObject()
                                 .put("scope", scope.name).put("id", stableId).put("url", url).put("mechanicalDelta", false)))
+                        }
+
+                        "ManualDiceRoll" -> {
+                            val sides = payload.optInt("sides", 20)
+                            val count = payload.optInt("count", 1)
+                            val modifier = payload.optInt("modifier", 0)
+                            require(sides in setOf(4,6,8,10,12,20,100)) { "INVALID_DIE" }
+                            require(count in 1..20) { "INVALID_DICE_COUNT" }
+                            require(modifier in -100..100) { "INVALID_DICE_MODIFIER" }
+                            val rolls = List(count) { manualDice.nextInt(sides) + 1 }
+                            val total = rolls.sum() + modifier
+                            send(JSONObject().put("type", "ManualDiceResult").put("payload", JSONObject()
+                                .put("sides", sides).put("count", count).put("modifier", modifier)
+                                .put("rolls", JSONArray(rolls)).put("total", total)
+                                .put("mechanicalDelta", false)))
                         }
 
                         "RuleEvidenceQuery" -> {
@@ -425,12 +501,26 @@ class MainActivity : Activity() {
             .put("sceneImageUrl", mediaStore.url(PresentationMediaStore.Scope.SCENE, sceneId) ?: JSONObject.NULL)
             .put("characterPortraits", portraits)
             .put("itemThumbnails", itemThumbnails))
-        out.put("gemini", credentials.statusJson())
+        val geminiState = credentials.statusJson()
+        val runtimeState = runtimeSettings.statusJson()
+        run { val keys = runtimeState.keys(); while (keys.hasNext()) { val key = keys.next(); geminiState.put(key, runtimeState.get(key)) } }
+        out.put("gemini", geminiState)
+        out.put("worldStatus", JSONObject()
+            .put("active", game.hexWorld != null && game.npcs.isNotEmpty())
+            .put("schedulerActive", game.worldEvents.isNotEmpty())
+            .put("knownHexes", game.hexWorld?.cells?.count { it.known || it.visible } ?: 0))
+        out.put("libraryStatus", JSONObject()
+            .put("profile", current.ruleProfile.name)
+            .put("authority", current.authorityRevision.authorityId)
+            .put("embedded", true))
         return out
     }
 
     private fun sendSettingsState() {
-        send(JSONObject().put("type", "GeminiSettingsState").put("payload", credentials.statusJson()))
+        val payload = credentials.statusJson()
+        val runtime = runtimeSettings.statusJson()
+        run { val keys = runtime.keys(); while (keys.hasNext()) { val key = keys.next(); payload.put(key, runtime.get(key)) } }
+        send(JSONObject().put("type", "GeminiSettingsState").put("payload", payload))
     }
 
     private fun credentialSlot(value: String): GeminiCredentialStore.Slot = GeminiCredentialStore.Slot.values()
@@ -465,7 +555,7 @@ class MainActivity : Activity() {
         val message = t.message.orEmpty()
         return when {
             message.startsWith("GEMINI_") -> message
-            message in setOf("EMPTY_GEMINI_KEY", "GEMINI_KEY_TOO_LONG", "UNKNOWN_GEMINI_CREDENTIAL_SLOT", "UNKNOWN_TTS_COMMAND", "EMPTY_VISIBLE_NARRATION", "INVALID_IMAGE_DATA_URL", "IMAGE_SIZE_INVALID", "UNSUPPORTED_IMAGE_TYPE", "UNKNOWN_CHARACTER_ID", "UNKNOWN_ITEM_ID", "UNSUPPORTED_PRESENTATION_SCOPE", "UNKNOWN_UI_COMMAND") -> message
+            message in setOf("EMPTY_GEMINI_KEY", "GEMINI_KEY_TOO_LONG", "INVALID_GEMINI_MODEL", "INVALID_TTS_VOICE", "UNKNOWN_GEMINI_CREDENTIAL_SLOT", "UNKNOWN_TTS_COMMAND", "EMPTY_VISIBLE_NARRATION", "INVALID_IMAGE_DATA_URL", "IMAGE_SIZE_INVALID", "UNSUPPORTED_IMAGE_TYPE", "UNKNOWN_CHARACTER_ID", "UNKNOWN_ITEM_ID", "UNSUPPORTED_PRESENTATION_SCOPE", "UNKNOWN_UI_COMMAND", "INVALID_DIE", "INVALID_DICE_COUNT", "INVALID_DICE_MODIFIER") -> message
             else -> t::class.java.simpleName
         }
     }

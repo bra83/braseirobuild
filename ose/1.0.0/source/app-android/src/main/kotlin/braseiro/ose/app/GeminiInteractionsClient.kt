@@ -7,20 +7,39 @@ import org.json.JSONObject
 
 /** Interactions API only. API keys are supplied per call and are never retained by this client. */
 class GeminiInteractionsClient(private val transport: GeminiTransport = HttpsGeminiTransport()) {
+    companion object {
+        const val DEFAULT_TEXT_MODEL = "gemini-3.1-flash-lite"
+        const val DEFAULT_IMAGE_MODEL = "gemini-3.1-flash-image"
+        const val DEFAULT_TTS_MODEL = "gemini-3.1-flash-tts-preview"
+        const val DEFAULT_TTS_VOICE = "Kore"
+    }
+
     data class MediaBlob(val mimeType: String, val data: ByteArray, val sampleRate: Int? = null)
 
-    fun testCredential(apiKey: String): Boolean {
+    fun testCredential(apiKey: String, model: String = DEFAULT_TEXT_MODEL): Boolean {
         val body = JSONObject()
-            .put("model", "gemini-3.1-flash-lite")
+            .put("model", validateModel(model))
             .put("input", "Responda somente OK.")
         val response = transport.post(apiKey, body)
         return textBlocks(response).joinToString(" ").isNotBlank()
     }
 
-    fun generateSceneImage(apiKey: String, prompt: String): MediaBlob {
+    fun testTtsCredential(apiKey: String, model: String, voice: String): Boolean =
+        runCatching { generateTtsAudio(apiKey, model, voice, "Teste.").data.isNotEmpty() }.getOrDefault(false)
+
+    fun generateText(apiKey: String, model: String, prompt: String): String {
+        require(prompt.isNotBlank()) { "EMPTY_GEMINI_PROMPT" }
+        val body = JSONObject()
+            .put("model", validateModel(model))
+            .put("input", prompt)
+        val response = transport.post(apiKey, body)
+        return textBlocks(response).joinToString("\n\n").trim().ifBlank { error("GEMINI_TEXT_OUTPUT_MISSING") }
+    }
+
+    fun generateSceneImage(apiKey: String, model: String, prompt: String): MediaBlob {
         require(prompt.isNotBlank()) { "EMPTY_SCENE_PROMPT" }
         val body = JSONObject()
-            .put("model", "gemini-3.1-flash-image")
+            .put("model", validateModel(model))
             .put("input", prompt)
             .put("response_format", JSONObject()
                 .put("type", "image")
@@ -30,14 +49,21 @@ class GeminiInteractionsClient(private val transport: GeminiTransport = HttpsGem
         return firstMedia(transport.post(apiKey, body), "image")
     }
 
-    fun generateTtsAudio(apiKey: String, visibleNarration: String): MediaBlob {
+    fun generateTtsAudio(apiKey: String, model: String, voice: String, visibleNarration: String): MediaBlob {
         require(visibleNarration.isNotBlank()) { "EMPTY_VISIBLE_NARRATION" }
+        val safeVoice = voice.trim().also {
+            require(it.isNotBlank() && it.length <= 80 && it.all { c -> c.isLetterOrDigit() || c in "._-" }) { "INVALID_TTS_VOICE" }
+        }
         val body = JSONObject()
-            .put("model", "gemini-3.1-flash-tts-preview")
-            .put("input", "Narre em português do Brasil, com voz natural de mestre de RPG e sem acrescentar palavras: $visibleNarration")
+            .put("model", validateModel(model))
+            .put("input", "Narre em português do Brasil, com voz natural de mestre de RPG, ritmo expressivo e sem acrescentar nem remover informação: $visibleNarration")
             .put("response_format", JSONObject().put("type", "audio").put("sample_rate", 24000))
-            .put("generation_config", JSONObject().put("speech_config", JSONArray().put(JSONObject().put("voice", "Kore"))))
+            .put("generation_config", JSONObject().put("speech_config", JSONArray().put(JSONObject().put("voice", safeVoice))))
         return firstMedia(transport.post(apiKey, body), "audio")
+    }
+
+    private fun validateModel(raw: String): String = raw.trim().also {
+        require(it.isNotBlank() && it.length <= 160 && it.all { c -> c.isLetterOrDigit() || c in "._:/-" }) { "INVALID_GEMINI_MODEL" }
     }
 
     private fun textBlocks(response: JSONObject): List<String> {

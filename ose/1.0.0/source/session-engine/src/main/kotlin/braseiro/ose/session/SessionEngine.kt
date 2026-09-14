@@ -30,9 +30,13 @@ class SessionEngine(
         return submitPlayerReaction(campaignId, legacyId, reaction)
     }
 
-    fun submitPlayerReaction(campaignId: CampaignId, reactionId: String, reaction: String): SessionResult {
+    fun submitPlayerReaction(campaignId: CampaignId, reactionId: String, reaction: String): SessionResult =
+        submitPlayerReaction(campaignId, reactionId, reaction, reaction)
+
+    fun submitPlayerReaction(campaignId: CampaignId, reactionId: String, reaction: String, mechanicalIntent: String): SessionResult {
         require(reactionId.isNotBlank())
         require(reaction.isNotBlank())
+        require(mechanicalIntent.isNotBlank())
         val loaded = load(campaignId)
         val existing = loaded.campaignState.game.session.reactionReceipts[reactionId]
         if (existing != null) {
@@ -46,7 +50,7 @@ class SessionEngine(
         }
 
         val rng=restoreRng(loaded.campaignState.game)
-        val outcome=referee.resolve(loaded,reaction,rng)
+        val outcome=referee.resolve(loaded,mechanicalIntent,rng)
         val evidenceRefs=outcome.trace.evidence.map{it.ref()}
         val beforeGameRaw=outcome.updatedState.game
         val beforeTurn=loaded.campaignState.time.turns
@@ -126,6 +130,27 @@ class SessionEngine(
             }
         }
         return RuleTrace(status,evidence,receipt.traceNote)
+    }
+
+
+    fun startAdventure(campaignId: CampaignId): SessionResult {
+        val loaded = load(campaignId)
+        val currentSession = loaded.campaignState.game.session
+        if (currentSession.visibleNarration.isNotBlank()) {
+            return SessionResult(campaignId.value, currentSession.visibleNarration, "", false, RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, emptyList(), "Narrative opening already present"))
+        }
+        val trace = RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE, emptyList(), "Narrative opening only; no mechanical resolution")
+        val narration = barbara.narrate(
+            loaded,
+            "A aventura começa agora. Apresente a cena inicial ao jogador e descreva o que ele percebe ao redor antes da primeira decisão.",
+            "",
+            trace
+        )
+        val game = loaded.campaignState.game
+        val nextSession = game.session.copy(phase = "ACTIVE", visibleNarration = narration, journal = game.session.journal + narration)
+        val nextGame = game.copy(session = nextSession, revision = game.revision + 1)
+        repository.commit(campaignId, StateTransition("adventure-start", loaded.campaignState.copy(game = nextGame)))
+        return SessionResult(campaignId.value, narration, "", false, trace)
     }
 
     fun gmHelp(campaignId: CampaignId, question: String): GMHelpResult {
