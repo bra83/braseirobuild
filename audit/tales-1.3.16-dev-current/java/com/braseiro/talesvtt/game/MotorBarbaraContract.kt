@@ -382,7 +382,8 @@ object MotorBarbaraFirewall {
               if (reduce(GameEvent.HealAllConditions, "recovery_anchor")) raiseRoute(MotorRouteHint.SCENE)
             }
             RecoveryKind.HIDEOUT -> {
-              if (state.group.members.size < 2) rejected += "ação[$index] recovery_hideout: exige ao menos 2 Kids na cena qualificada."
+              if (state.rulesProfile == RulesProfile.FLOOD_TEENS) rejected += "ação[$index] recovery_hideout: Things from the Flood usa Âncora ou resolução de Friction, não a recuperação de Esconderijo dos Kids."
+              else if (state.group.members.size < 2) rejected += "ação[$index] recovery_hideout: exige ao menos 2 Kids na cena qualificada."
               else if (reduce(GameEvent.HealAllConditions, "recovery_hideout")) raiseRoute(MotorRouteHint.SCENE)
             }
             RecoveryKind.COMFORT -> {

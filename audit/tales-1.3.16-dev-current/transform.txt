@@ -6,3 +6,4 @@ TALES 1.3.15j GM-private world memory closure: OK
 TALES 1.3.15k 33-session deterministic simulation: OK
 TALES/FLOOD 1.3.16a profile foundation: OK
 TALES/FLOOD 1.3.16b regression fixes: OK
+TALES/FLOOD 1.3.16c core mechanics: OK

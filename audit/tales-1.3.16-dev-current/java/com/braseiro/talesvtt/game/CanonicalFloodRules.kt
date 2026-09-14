@@ -44,7 +44,7 @@ PROFILE=FLOOD/TEENS. LOCAL ENGINE IS THE ONLY MECHANICAL AUTHORITY; RAG/LLM IS N
 Teen creation: age 14..19; Attributes Body/Tech/Heart/Mind each 1..5 totaling exactly 14; 10 Skill points; Type key Skills max3, others max1 at creation.
 Test = Attribute + Skill + approved Item + information bonus + at most one Help - one die per light Condition; a non-Broken Teen always rolls at least 1 die; every 6 is one success. Broken auto-fails.
 There is NO Luck and NO Pride. Shame grants +1 automatic success once per Mystery; when a Mystery spans sessions or in Mystery Landscape it refreshes once per session.
-Each time a Teen becomes Broken, the Teen gains a Scar. An unused Scar may grant +1 automatic success once, then it is accepted. After every Scar after the first, removal risk is resolved locally; the sixth Scar inevitably removes the Teen from play.
+Each time a Teen becomes Broken, a Scar becomes mandatory before recovery. An unused Scar may grant +1 automatic success once, then it is accepted. After every Scar after the first, roll 1d6: if lower than the number of Scars the Teen is removed from play; the sixth Scar inevitably removes the Teen.
 Iconic Item +2. Other real Items +1..+3 when applicable; ordinary props +0. Non-Iconic Items are normally lost between Mysteries unless one becomes the new Iconic Item.
 Conditions: Chateado, Assustado, Exausto, Machucado. Each gives -1 die. Broken auto-fails until valid recovery.
 Anchor recovery clears Conditions in a safe close scene. Friction may be resolved only in a safe close group scene; if Trouble occurs, no Conditions are healed.

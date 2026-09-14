@@ -86,7 +86,16 @@ Atualizado em 11/09/2026.
 - Migrado teste antigo de autoridade mecânica para aceitar contrato dinâmico por perfil sem enfraquecer a separação RAG/mecânica.
 - Nenhum APK publicado.
 
-## Evidência executada — 1.3.16b
-- compileDebugKotlin: PASS no workflow 34808580154.
-- regressão Tales existente + fundação Flood: PASS.
+## Bloco 1.3.16c-dev — Cicatrizes, Friction e Problema Estendido Flood
+- Ficar Quebrado em Flood agora exige registrar uma Cicatriz antes de recuperação.
+- Cicatriz concede um único sucesso automático; ao ser usada torna-se aceita e pode ser curada após sessão com aprovação do grupo.
+- Da 2ª à 5ª Cicatriz há teste local de permanência; a 6ª remove o Teen automaticamente.
+- Friction pode curar Condições em cena segura/intimista; qualquer Trouble na mesma cena cancela toda a cura.
+- Problema Estendido Flood usa 3x/4x/5x; cena de Liderança cria pool e soma zero ao Threat; falha completa deixa todos Quebrados e exige Cicatriz do Teen ativo.
+- Recuperação por Esconderijo permanece exclusiva de Tales/Kids.
+- Nenhum APK publicado.
+
+## Evidência executada — 1.3.16c
+- compileDebugKotlin: PASS no workflow 34808933418.
+- regressão Tales + Flood core: PASS.
 - nenhum APK publicado.

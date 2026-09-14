@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets
  * GM-private memory is deliberately stored by GameViewModel in a separate private snapshot.
  */
 object GameSnapshotCodec {
-  private const val VERSION = 14
+  private const val VERSION = 15
 
   private fun enc(value: String): String = URLEncoder.encode(value, StandardCharsets.UTF_8.name())
   private fun dec(value: String): String = URLDecoder.decode(value, StandardCharsets.UTF_8.name())
@@ -42,6 +42,7 @@ object GameSnapshotCodec {
     line("kid.hooks", state.kid.hooks.joinToString("|") { enc(it) })
     line("kid.friction", enc(state.kid.friction))
     line("kid.removedFromPlay", state.kid.removedFromPlay)
+    line("kid.scarPending", state.kid.scarPending)
     line("kid.items", state.kid.items.joinToString("|") { item ->
       listOf(enc(item.name), enc(item.description), item.bonus.toString(), item.kind.name).joinToString("~")
     })
@@ -209,6 +210,7 @@ object GameSnapshotCodec {
       hooks = if (version >= 14) map["kid.hooks"].orEmpty().split('|').filter{it.isNotBlank()}.map(::dec) else emptyList(),
       friction = if (version >= 14) decoded("kid.friction") else "",
       removedFromPlay = if (version >= 14) bool("kid.removedFromPlay") else false,
+      scarPending = if (version >= 15) bool("kid.scarPending") else false,
       items = kidItems,
       relationships = kidRelationships,
       age = int("kid.age", 12),

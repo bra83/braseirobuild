@@ -47,6 +47,7 @@ data class KidState(
   val hooks: List<String> = emptyList(),
   val friction: String = "",
   val removedFromPlay: Boolean = false,
+  val scarPending: Boolean = false,
   val items: List<KidItemState> = emptyList(),
   val relationships: List<KidRelationship> = listOf(
     KidRelationship("Jonas", "melhor amigo"),
@@ -309,6 +310,11 @@ sealed interface GameEvent {
   data class PushRoll(val condition: Condition?, val rerolledNonSixDice: List<Int>) : GameEvent
   data object UsePride : GameEvent
   data object UseShame : GameEvent
+  data class RecordFloodScar(val text: String, val survivalRoll: Int? = null) : GameEvent
+  data class UseScar(val index: Int) : GameEvent
+  data class HealAcceptedScar(val index: Int, val groupApproved: Boolean) : GameEvent
+  data class SetFriction(val text: String) : GameEvent
+  data class ResolveFriction(val troubleOccurred: Boolean) : GameEvent
   data class ApplyCondition(val condition: Condition) : GameEvent
   data object BecomeBroken : GameEvent
   data object HealAllConditions : GameEvent
@@ -653,7 +659,7 @@ object TalesReducer {
               event.condition != null && state.kid.conditions.size < 4 ->
                 state.kid.copy(conditions = state.kid.conditions + event.condition)
               event.condition == null && state.kid.conditions.size == 4 ->
-                state.kid.copy(broken = true)
+                state.kid.copy(broken = true, scarPending = state.rulesProfile == RulesProfile.FLOOD_TEENS || state.kid.scarPending)
               event.condition == null ->
                 return fail("Escolha qual Condição marcar para Forçar.")
               else ->
@@ -695,16 +701,85 @@ object TalesReducer {
         }
       }
 
+      is GameEvent.RecordFloodScar -> {
+        if (state.rulesProfile != RulesProfile.FLOOD_TEENS) fail("Cicatrizes são exclusivas de Things from the Flood.")
+        else if (!state.kid.broken || !state.kid.scarPending) fail("Não há Cicatriz pendente para registrar.")
+        else if (event.text.trim().isBlank()) fail("Descreva a Cicatriz em uma frase.")
+        else {
+          val nextCount = state.kid.scars.size + 1
+          val roll = event.survivalRoll
+          val invalidRoll = nextCount in 2..5 && roll !in 1..6
+          if (invalidRoll) fail("Da segunda à quinta Cicatriz é obrigatório rolar 1d6 para permanência do Teen.")
+          else {
+            val removed = nextCount >= 6 || (nextCount >= 2 && (roll ?: 6) < nextCount)
+            val scar = FloodScarState(event.text.trim().take(500), accepted=false, usedForSuccess=false)
+            ok(state.copy(kid=state.kid.copy(
+              scars=state.kid.scars+scar,
+              scarPending=false,
+              removedFromPlay=removed
+            )))
+          }
+        }
+      }
+
+      is GameEvent.UseScar -> {
+        if (state.rulesProfile != RulesProfile.FLOOD_TEENS) fail("Cicatrizes são exclusivas de Things from the Flood.")
+        else {
+          val result=state.testResolution ?: return fail("Role antes de ativar uma Cicatriz.")
+          val scar=state.kid.scars.getOrNull(event.index) ?: return fail("Cicatriz inválida.")
+          if (scar.usedForSuccess || scar.accepted) fail("Esta Cicatriz já foi aceita e não pode conceder outro sucesso.")
+          else {
+            val scars=state.kid.scars.toMutableList()
+            scars[event.index]=scar.copy(accepted=true,usedForSuccess=true)
+            ok(state.copy(kid=state.kid.copy(scars=scars),testResolution=result.copy(successes=result.successes+1)))
+          }
+        }
+      }
+
+      is GameEvent.HealAcceptedScar -> {
+        if (state.rulesProfile != RulesProfile.FLOOD_TEENS) fail("Cicatrizes são exclusivas de Things from the Flood.")
+        else if (!state.sessionXpAwarded) fail("Cicatrizes só são curadas após a sessão.")
+        else if (!event.groupApproved) fail("A cura da Cicatriz precisa ser aprovada pelo grupo após ação heroica/sacrificial ou cena cotidiana transformadora.")
+        else {
+          val scar=state.kid.scars.getOrNull(event.index) ?: return fail("Cicatriz inválida.")
+          if (!scar.accepted || !scar.usedForSuccess) fail("Só uma Cicatriz aceita, já usada para um sucesso automático, pode ser curada.")
+          else ok(state.copy(kid=state.kid.copy(scars=state.kid.scars.filterIndexed{i,_->i!=event.index})))
+        }
+      }
+
+      is GameEvent.SetFriction -> {
+        if (state.rulesProfile != RulesProfile.FLOOD_TEENS) fail("Friction é exclusiva de Things from the Flood.")
+        else if (!state.sessionXpAwarded && state.kid.friction.isNotBlank()) fail("Friction só pode mudar entre sessões.")
+        else if (event.text.trim().isBlank()) fail("Friction não pode ficar vazia.")
+        else ok(state.copy(kid=state.kid.copy(friction=event.text.trim().take(1000))))
+      }
+
+      is GameEvent.ResolveFriction -> {
+        if (state.rulesProfile != RulesProfile.FLOOD_TEENS) fail("Friction é exclusiva de Things from the Flood.")
+        else if (state.kid.scarPending) fail("Registre primeiro a Cicatriz causada por ficar Quebrado.")
+        else if (event.troubleOccurred) ok(state) // Trouble na própria cena cancela toda a cura.
+        else ok(state.copy(kid=state.kid.copy(conditions=emptySet(),broken=false)))
+      }
+
       is GameEvent.ApplyCondition -> {
         if (state.kid.broken) fail("Kid já está Quebrado.")
         else if (event.condition in state.kid.conditions) fail("Condição já ativa.")
-        else if (state.kid.conditions.size >= 4) ok(state.copy(kid = state.kid.copy(broken = true)))
+        else if (state.kid.conditions.size >= 4) ok(state.copy(kid = state.kid.copy(
+          broken = true,
+          scarPending = state.rulesProfile == RulesProfile.FLOOD_TEENS || state.kid.scarPending
+        )))
         else ok(state.copy(kid = state.kid.copy(conditions = state.kid.conditions + event.condition)))
       }
 
-      GameEvent.BecomeBroken -> if (state.kid.broken) fail("Kid já está Quebrado.") else ok(state.copy(kid = state.kid.copy(broken = true)))
+      GameEvent.BecomeBroken -> if (state.kid.broken) fail("Kid já está Quebrado.") else ok(state.copy(kid = state.kid.copy(
+        broken = true,
+        scarPending = state.rulesProfile == RulesProfile.FLOOD_TEENS || state.kid.scarPending
+      )))
 
-      GameEvent.HealAllConditions -> ok(state.copy(kid = state.kid.copy(conditions = emptySet(), broken = false)))
+      GameEvent.HealAllConditions -> {
+        if (state.rulesProfile == RulesProfile.FLOOD_TEENS && state.kid.scarPending) fail("Registre primeiro a Cicatriz causada por ficar Quebrado.")
+        else ok(state.copy(kid = state.kid.copy(conditions = emptySet(), broken = false)))
+      }
 
       is GameEvent.RevealClue -> if (event.id.isBlank()) fail("Pista inválida.") else ok(state.copy(revealed = state.revealed.copy(clues = state.revealed.clues + event.id)))
       is GameEvent.RevealLocation -> if (event.id.isBlank()) fail("Local inválido.") else ok(state.copy(revealed = state.revealed.copy(locations = state.revealed.locations + event.id)))
@@ -759,7 +834,8 @@ object TalesReducer {
         else if (ext.scenes[index].successes != null) ok(state)
         else {
           val next = ext.scenes.toMutableList()
-          next[index] = next[index].copy(successes = result.successes)
+          val threatSuccesses = if (test.purpose == TestPurpose.LEADERSHIP_PREPARE) 0 else result.successes
+          next[index] = next[index].copy(successes = threatSuccesses)
           ok(state.copy(extended = ext.copy(scenes = next)))
         }
       }
@@ -826,7 +902,12 @@ object TalesReducer {
                 members[index] = updated
                 nextGroup = nextGroup.copy(members = members)
                 if (updated.name.equals(nextKid.name, ignoreCase = true)) {
-                  nextKid = nextKid.copy(conditions = updated.conditions, broken = updated.broken)
+                  val newlyBroken = updated.broken && !nextKid.broken
+                  nextKid = nextKid.copy(
+                    conditions = updated.conditions,
+                    broken = updated.broken,
+                    scarPending = nextKid.scarPending || (state.rulesProfile == RulesProfile.FLOOD_TEENS && newlyBroken)
+                  )
                 }
                 applied += mark.copy(kid = updated.name)
               }
@@ -856,7 +937,16 @@ object TalesReducer {
         if (!ext.active) fail("Não há Problema Estendido ativo.")
         else if (!ext.allScenesResolved) fail("O Problema Estendido só termina após todas as cenas.")
         else if (ext.compromiseAvailable) fail("O grupo precisa aceitar ou recusar o compromisso antes de encerrar.")
-        else ok(state.copy(extended = ext.copy(active = false), activeTest = null, testResolution = null))
+        else if (state.rulesProfile == RulesProfile.FLOOD_TEENS && ext.completeFailure) {
+          val members=state.group.members.map { it.copy(broken=true) }
+          ok(state.copy(
+            kid=state.kid.copy(broken=true,scarPending=true),
+            group=state.group.copy(members=members),
+            extended=ext.copy(active=false),
+            activeTest=null,
+            testResolution=null
+          ))
+        } else ok(state.copy(extended = ext.copy(active = false), activeTest = null, testResolution = null))
       }
 
       is GameEvent.SetXpAnswer -> {
