@@ -1,0 +1,8 @@
+{
+  "repository": "bra83/Braseiro",
+  "branch": "ose-batch-a",
+  "wave": 1,
+  "status": "PENDING_CI_EXECUTION",
+  "schemaVersion": 1,
+  "rngVersion": "RNG_PCG32_V1"
+}

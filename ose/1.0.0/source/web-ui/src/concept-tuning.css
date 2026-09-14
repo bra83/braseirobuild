@@ -1,0 +1,37 @@
+/* Visual-bound tuning measured directly against canonical OSE Session concepts. */
+.ose-logo-box{position:absolute;left:18px;top:6px;width:98px;height:49px;display:block;overflow:visible}
+.ose-logo-box .ose-logo{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform:scale(1.07);transform-origin:center}
+.top-icon img{transform:scale(1.06);transform-origin:center}
+
+/* PRESTART: compensate transparent margins in canonical PNGs. */
+.ready-icon{transform:scale(1.14,1.16);transform-origin:center}
+.prep-panel-art{transform:translate(-1px,-1px) scale(1.13,1.105);transform-origin:center;filter:brightness(1.055) saturate(.92) contrast(.96)!important}
+.rail-item img{transform:translateX(-2px) scale(1.09,1.20);transform-origin:center}
+.prestart-action-art{transform:scale(1.10,1.16);transform-origin:center;filter:brightness(1.04) saturate(.94)}
+.prestart-help-icon img{transform:scale(1.16);transform-origin:center}
+.prep-content dd{margin:11px 0 26px!important}
+.prep-note{bottom:25px!important}
+.start-cta{background-size:112% 108%!important;color:#f8ead0!important;text-shadow:0 1px 1px rgba(55,25,15,.55)!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important}
+.start-cta span{display:block;white-space:nowrap;transform:translateX(0)}
+.prestart-gm{left:257px!important;top:646px!important;width:78px!important;height:48px!important;background-size:114% 124%!important}
+.prestart-gm-note{left:220px!important;right:auto!important;top:716px!important;width:115px;text-align:center}
+
+/* ACTIVE: exact visible borders and status-card silhouettes. */
+.active-status img{transform:scale(1.15,1.20);transform-origin:center}
+.narration-art{transform:translateY(1px) scale(1.05,1.10);transform-origin:center}
+.active-help-icon img{transform:scale(1.08);transform-origin:center}
+.active-gm{background-size:112% 122%!important}
+.send-button{color:#f8ead0!important;text-shadow:0 1px 1px rgba(55,25,15,.45)!important}
+.active-strict:not(.kbd-open) .player-action-art{transform:scale(1.12,1.06);transform-origin:center}
+.active-strict:not(.kbd-open) .player-action-panel::before{content:"";position:absolute;left:-51px;top:101px;width:216px;height:1px;background:#806a55;z-index:2}
+.active-strict:not(.kbd-open) .player-action-content textarea{left:-51px!important;top:111px!important;width:216px!important;height:31px!important;padding:2px 0!important;line-height:14px!important;overflow:hidden!important}
+
+/* Typography measured from concept, not browser defaults. */
+.prestart-strict .ose-header h1{width:154px;font-size:17px;line-height:22px}
+.prestart-strict .ose-header p{width:206px}
+.active-strict .ose-header h1{width:220px;font-size:16px;line-height:22px}
+.narration-text{overflow:visible!important}
+.narration-text strong{font-size:9px!important;line-height:10px!important;margin-bottom:8px!important}
+.narration-text p{font-size:10.55px!important;line-height:1.25!important}
+.narration-text::after{content:"";position:absolute;right:-6px;top:29px;width:4px;height:36px;border-radius:4px;background:#8b3025;pointer-events:none}
+.history-scroll{font-size:7.6px!important;line-height:1.42!important}

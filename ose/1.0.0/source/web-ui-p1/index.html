@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>BRASEIRO OSE</title>
+  <link rel="stylesheet" href="p1.css">
+</head>
+<body>
+<div id="phone" aria-label="BRASEIRO OSE 415x915">
+  <header>
+    <div class="top">
+      <div class="logo">OLD-SCHOOL<br>ESSENTIALS</div>
+      <div class="title"><b id="headerTitle">SESSÃO · BRASEIRO OSE</b><small>MOTOR BARBARA · ESTADO CANÔNICO</small></div>
+      <button id="settingsButton" class="gear" title="Configurações" aria-label="Configurações">⚙</button>
+    </div>
+    <div class="status">
+      <div class="stat"><label>Tempo</label><b id="timeStatus">DIA 1 · T0</b></div>
+      <div class="stat"><label>Estado</label><b id="phaseStatus">ACTIVE</b></div>
+      <div class="stat"><label>Tocha</label><b id="torchStatus">0</b></div>
+      <div class="stat"><label>Rações</label><b id="rationStatus">0</b></div>
+    </div>
+  </header>
+
+  <main id="screen" class="screen" aria-live="polite"></main>
+
+  <nav class="bottom" aria-label="Navegação principal">
+    <button class="navbtn active" data-screen="session"><span class="ico">⬡</span>SESSÃO</button>
+    <button class="navbtn" data-screen="map"><span class="ico">🗺</span>MAPA</button>
+    <button class="navbtn" data-screen="sheet"><span class="ico">📜</span>FICHA</button>
+    <button class="navbtn" data-screen="company"><span class="ico">♟♟</span>COMPANHIA</button>
+  </nav>
+
+  <div id="settingsOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Configurações Gemini">
+    <div class="settings panel">
+      <div class="settings-head"><h3>Configurações Gemini</h3><button id="settingsClose" class="small">FECHAR</button></div>
+      <p class="note">As duas chaves são independentes e ficam no armazenamento seguro do Android. O campo nunca exibe uma chave já salva.</p>
+      <section class="credential-block">
+        <label class="field">Gemini — Texto / cena</label>
+        <input id="textSceneKey" type="password" autocomplete="off" placeholder="Cole a chave para salvar/substituir">
+        <div class="row"><button class="small" data-key-save="TEXT_SCENE">SALVAR</button><button class="small" data-key-test="TEXT_SCENE">TESTAR</button><button class="small" data-key-delete="TEXT_SCENE">APAGAR</button></div>
+        <div id="textSceneStatus" class="credential-status">Não configurada</div>
+      </section>
+      <section class="credential-block">
+        <label class="field">Gemini — TTS / áudio</label>
+        <input id="ttsAudioKey" type="password" autocomplete="off" placeholder="Cole a chave para salvar/substituir">
+        <div class="row"><button class="small" data-key-save="TTS_AUDIO">SALVAR</button><button class="small" data-key-test="TTS_AUDIO">TESTAR</button><button class="small" data-key-delete="TTS_AUDIO">APAGAR</button></div>
+        <div id="ttsAudioStatus" class="credential-status">Não configurada</div>
+      </section>
+    </div>
+  </div>
+  <input id="mediaPicker" class="hidden" type="file" accept="image/jpeg,image/png,image/webp">
+  <div id="toast" class="toast hidden" role="status"></div>
+</div>
+<script src="p1.js"></script>
+</body>
+</html>

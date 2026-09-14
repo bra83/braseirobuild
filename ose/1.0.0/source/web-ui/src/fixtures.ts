@@ -1,0 +1,11 @@
+export type FixtureId = 'session-prestart' | 'session-active' | 'character-sheet' | 'keyboard-open';
+export interface PresentationFixture { id: FixtureId; title: string; subtitle: string; narrative?: string; party?: string[]; character?: { name:string; classLabel:string; level:number; hp:string; ac:string; movement:string; xp:string; attributes:Array<[string,number,string]>; saves:Array<[string,number]>; inventory:string[]; }; }
+export const FIXTURE_REVISION='WAVE2_SESSION_VISUAL_LOCK_STRICT_V1';
+export const FIXED_CLOCK='2026-09-01T12:00:00Z';
+const activeNarrative='A escadaria termina num patamar de pedra onde a umidade cobre as juntas do piso. A chama da tocha deixa o corredor atrás de vocês em luz vacilante, mas à frente alcança uma porta de madeira escurecida pelo tempo. Há riscos recentes junto à fechadura e pequenas lascas espalhadas no chão. À direita, o muro afunda num arco antigo, parcialmente oculto por sombra. O ar que vem dali é mais frio e traz cheiro de terra revolvida. Nenhuma criatura está à vista. O silêncio é quebrado apenas pelo estalo da chama.';
+export const fixtures:Record<FixtureId,PresentationFixture>={
+ 'session-prestart':{id:'session-prestart',title:'Sessão',subtitle:'Prontos para entrar no mundo'},
+ 'session-active':{id:'session-active',title:'Sessão',subtitle:'Narrativa em andamento',narrative:activeNarrative},
+ 'keyboard-open':{id:'keyboard-open',title:'Sessão',subtitle:'Entrada ativa com teclado',narrative:activeNarrative},
+ 'character-sheet':{id:'character-sheet',title:'Ficha de Personagem',subtitle:'Estado demonstrativo de apresentação',character:{name:'Aldren',classLabel:'Guerreiro',level:2,hp:'11 / 14',ac:'4 [15]',movement:'90’ (30’)',xp:'2.150',attributes:[['FOR',16,'+2'],['INT',9,'0'],['SAB',11,'0'],['DES',13,'+1'],['CON',14,'+1'],['CAR',8,'−1']],saves:[['Morte/Veneno',12],['Varinhas',13],['Paralisia/Pedra',14],['Sopro',15],['Magias',16]],inventory:['Espada','Escudo','Cota de malha','Tochas × 6','Rações × 7','Corda 50’','Odre','32 po']}}
+};

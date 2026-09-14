@@ -1,0 +1,21 @@
+# SCREEN_06_SESSION_ACTIVE — EXECUTOR QA
+
+- viewport exactly 415×915: PASS
+- bottom navigation exactly SESSÃO / MAPA / FICHA / COMPANHIA: PASS
+- settings treated as global utility: PASS
+- no DADOS direct-roll control: PASS
+- no BOLSA fifth gameplay domain: PASS
+- no human GM control panel: PASS
+- dominant Master narration present: PASS
+- visible scene/location context present: PASS
+- compact day/time/weather state present: PASS
+- compact location illustration present: PASS
+- canonical PLAYER_REACTION field present: PASS
+- Master suggestions explicitly prefill reaction only: PASS
+- TTS limited by contract to visible Master narration: PASS
+- concise post-resolution feedback present: PASS
+- history/journal present: PASS
+- secret referee state exposed: NO
+- existing app.ts / CSS modified by this artifact set: NO
+- Wave 3 started: NO
+- propagation to other P1 screens: NOT_EXECUTED_PENDING_GUIDE_REAUDIT

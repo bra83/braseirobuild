@@ -1,0 +1,30 @@
+{
+  "summary": {
+    "schema": "BRASEIRO_OSE_USER_ASSET_BUILD_MANIFEST_V1",
+    "source_pack_file": "BRASEIRO_OSE_ASSET_PACK.zip",
+    "source_pack_sha256": "63639c6a36d6162d5ac955fe2c4ad6f11a7aeb74364b07cc858e028d683de8c2",
+    "manifest_csv_sha256": "858e1bcd269d84c2a6814ac13a59461f54369bff19388c73eddddd7500d72446",
+    "manifest_rows": 676,
+    "expected_individual_pngs": 676,
+    "actual_individual_pngs": 676,
+    "expected_asset_sheets": 57,
+    "actual_asset_sheets": 57,
+    "all_pngs": 734,
+    "source_file_count": 736,
+    "declared_backgrounds": {
+      "transparente": 666,
+      "opaco": 10
+    },
+    "issue_count": 0,
+    "issue_types": {},
+    "checks": {
+      "manifest_rows_676": true,
+      "individual_pngs_676": true,
+      "asset_sheets_57": true,
+      "all_manifest_paths_exist": true,
+      "decode_dimensions_alpha": true
+    },
+    "gate": "PASS"
+  },
+  "issues": []
+}
