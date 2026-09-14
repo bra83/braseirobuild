@@ -1,0 +1,177 @@
+name: Finalize Tales Flood 1.3.16 Android Studio Project
+
+on:
+  workflow_run:
+    workflows: ["Smoke Tales 1.3.16i Android Emulator"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  FINAL_ZIP: BRASEIRO_TALES_FROM_THE_LOOP_THINGS_FROM_THE_FLOOD_1.3.16_ANDROID_STUDIO.zip
+
+jobs:
+  final:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Require emulator smoke evidence
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UPSTREAM_RUN: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          test "$UPSTREAM_RUN" = "34813573980" || echo "Upstream smoke run: $UPSTREAM_RUN"
+          gh run view "$UPSTREAM_RUN" --json conclusion --jq '.conclusion' | grep -qx success
+
+      - name: Recover exact cumulative source and freeze 1.3.16
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rm -rf incoming work final-package
+          mkdir -p incoming work final-package
+          gh release download TALES-1.3.8 --pattern 'BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8.zip' --dir incoming
+          unzip -q incoming/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8.zip -d work
+          ROOT="$(dirname "$(find work -type f -name gradlew | head -n1)")"
+          test -n "$ROOT"
+          chmod +x "$ROOT/gradlew"
+          python3 -m pip install --quiet pillow
+          python3 tales-1.3.14-transform.py "$ROOT"
+          python3 tales-1.3.16-final-transform.py "$ROOT" | tee /tmp/tales-final-transform.txt
+          grep -q 'TALES/FLOOD 1.3.16 final source transform: OK' /tmp/tales-final-transform.txt
+          grep -q 'versionName = "1.3.16"' "$ROOT/app/build.gradle.kts"
+          grep -q 'versionCode = 20' "$ROOT/app/build.gradle.kts"
+          test -f "$ROOT/BRASEIRO_TALES_FLOOD_BUILD_ID.txt"
+          echo "root=$ROOT" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+      - name: Install Android platform
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Final unit regression
+        working-directory: ${{ steps.source.outputs.root }}
+        run: |
+          set -euo pipefail
+          ./gradlew testDebugUnitTest --no-daemon
+          python3 - <<'PY'
+          import glob, xml.etree.ElementTree as ET
+          total=failed=errors=0
+          for p in glob.glob('app/build/test-results/testDebugUnitTest/*.xml'):
+              r=ET.parse(p).getroot()
+              total+=int(r.attrib.get('tests',0)); failed+=int(r.attrib.get('failures',0)); errors+=int(r.attrib.get('errors',0))
+          print(f'FINAL_UNIT_TOTAL={total} FAILURES={failed} ERRORS={errors}')
+          assert total>=146 and failed==0 and errors==0
+          PY
+
+      - name: Final lint and Android build verification
+        working-directory: ${{ steps.source.outputs.root }}
+        run: |
+          set -euo pipefail
+          ./gradlew lintDebug assembleDebug --no-daemon
+          test -f app/build/reports/lint-results-debug.html
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          test -f "$APK"
+          unzip -l "$APK" >/tmp/final-apk-files.txt
+          grep -q AndroidManifest.xml /tmp/final-apk-files.txt
+          grep -q classes.dex /tmp/final-apk-files.txt
+          grep -q resources.arsc /tmp/final-apk-files.txt
+          unzip -p "$APK" classes.dex >/tmp/final-classes.dex
+          if strings /tmp/final-classes.dex | grep -Eq 'AIza[0-9A-Za-z_-]{20,}'; then
+            echo 'FAIL: possible embedded Google API key detected'
+            exit 1
+          fi
+
+      - name: Sanitize Android Studio project
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          set -euo pipefail
+          find "$ROOT" -type d \( -name build -o -name .gradle -o -name .idea \) -prune -exec rm -rf {} + || true
+          find "$ROOT" -type f \( -name local.properties -o -name .env -o -name '*.jks' -o -name '*.keystore' \) -delete
+          find "$ROOT" -type f -name '*.apk' -delete
+          test -f "$ROOT/gradlew"
+          test -f "$ROOT/settings.gradle.kts"
+          test -f "$ROOT/app/build.gradle.kts"
+          test -f "$ROOT/gradle/wrapper/gradle-wrapper.properties"
+          test -f "$ROOT/gradle/wrapper/gradle-wrapper.jar"
+          grep -q 'versionName = "1.3.16"' "$ROOT/app/build.gradle.kts"
+          if grep -RIE --exclude-dir=.git --exclude='*.md' 'AIza[0-9A-Za-z_-]{20,}' "$ROOT"; then
+            echo 'FAIL: possible Google API key pattern in final source'
+            exit 1
+          fi
+
+      - name: Package final Android Studio ZIP and checksum
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          set -euo pipefail
+          BASENAME="$(basename "$ROOT")"
+          PARENT="$(dirname "$ROOT")"
+          (cd "$PARENT" && zip -qr "$GITHUB_WORKSPACE/final-package/$FINAL_ZIP" "$BASENAME")
+          cd final-package
+          sha256sum "$FINAL_ZIP" | tee "$FINAL_ZIP.sha256"
+          BYTES=$(stat -c%s "$FINAL_ZIP")
+          test "$BYTES" -gt 1000000
+          echo "FINAL_PROJECT_BYTES=$BYTES"
+          unzip -l "$FINAL_ZIP" >/tmp/final-zip-list.txt
+          grep -q '/gradlew' /tmp/final-zip-list.txt
+          grep -q '/app/build.gradle.kts' /tmp/final-zip-list.txt
+          grep -q '/gradle/wrapper/gradle-wrapper.jar' /tmp/final-zip-list.txt
+          ! grep -q '/app/build/' /tmp/final-zip-list.txt
+          ! grep -q '/local.properties' /tmp/final-zip-list.txt
+          ! grep -q '/.env' /tmp/final-zip-list.txt
+          ! grep -q '\.apk$' /tmp/final-zip-list.txt
+
+      - name: Record final gate evidence
+        run: |
+          set -euo pipefail
+          SHA=$(awk '{print $1}' "final-package/$FINAL_ZIP.sha256")
+          BYTES=$(stat -c%s "final-package/$FINAL_ZIP")
+          cat > audit/tales-1.3.16-dev-current/FINAL_1.3.16_GATE.md <<EOF
+          # Final gate — Tales from the Loop + Things from the Flood 1.3.16
+
+          - Upstream Android emulator smoke: PASS.
+          - Final source identity: versionName 1.3.16 / versionCode 20.
+          - Full JVM regression: >=146 tests, 0 failures, 0 errors.
+          - lintDebug: PASS.
+          - assembleDebug: PASS (verification only; APK not delivered).
+          - APK structural/secret sanity: PASS.
+          - Android Studio project sanitization: PASS.
+          - Final ZIP structural check: PASS.
+          - Final ZIP bytes: $BYTES
+          - Final ZIP SHA-256: $SHA
+          - Final artifact: $FINAL_ZIP
+          EOF
+          printf '\n## FINAL 1.3.16 GATE\n- Android emulator smoke + regressão + lint + build + package sanitizado: PASS no workflow %s.\n- Projeto final: %s\n- SHA-256: %s\n' "$GITHUB_RUN_ID" "$FINAL_ZIP" "$SHA" >> TALES_RETOMADA_CURRENT.md
+          cp TALES_RETOMADA_CURRENT.md audit/tales-1.3.16-dev-current/TALES_RETOMADA_CURRENT.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add audit/tales-1.3.16-dev-current/FINAL_1.3.16_GATE.md TALES_RETOMADA_CURRENT.md audit/tales-1.3.16-dev-current/TALES_RETOMADA_CURRENT.md
+          git commit -m 'Record Tales Flood 1.3.16 final gate' || true
+          git pull --rebase origin main
+          git push
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_TALES_FLOOD_1.3.16_ANDROID_STUDIO_FINAL
+          path: |
+            final-package/${{ env.FINAL_ZIP }}
+            final-package/${{ env.FINAL_ZIP }}.sha256
+          if-no-files-found: error
+          retention-days: 30
