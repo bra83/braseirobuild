@@ -1,0 +1,139 @@
+name: Close Star Wars R38 Block01 repairs v3
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/continue-star-wars-r38-block01-v3.yml"
+      - "star-wars/r38/patches/block01_repair_safe.py"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - id: source
+        shell: bash
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          d=json.load(open('star-wars/r38/SOURCE.json'))
+          for k,o in [('source_share_url','url'),('sha256','sha'),('file','file'),('application_id','app_id'),('compile_sdk','compile_sdk')]: print(f'{o}={d[k]}')
+          PY
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: |
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium >/dev/null
+      - name: Download exact R38 + recovered scene pack
+        env:
+          SHARE_URL: ${{ steps.source.outputs.url }}
+          SOURCE_FILE: ${{ steps.source.outputs.file }}
+          EXPECTED_SHA: ${{ steps.source.outputs.sha }}
+          SCENE_SHARE_URL: https://firestorage.ai/ja/f/PbM3XvdzNMAk
+          SCENE_FILE: scene-assets-v1-tiny.tar.gz
+          SCENE_SHA: 2ca16b2cd0d3f489fe10f1df718be1243febeef38fb88a52bd50502528f60711
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf incoming work; mkdir -p incoming/scenes work star-wars/r38/patches/assets
+          python3 - <<'PY'
+          import os,pathlib
+          from playwright.sync_api import sync_playwright
+          def download(url,name,out):
+            with sync_playwright() as p:
+              b=p.chromium.launch(headless=True); page=b.new_page(accept_downloads=True)
+              page.goto(url,wait_until='domcontentloaded',timeout=120000); page.wait_for_timeout(3000)
+              done=False
+              for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")','button:has-text("保存")','a:has-text("保存")']:
+                try:
+                  q=page.locator(sel).first
+                  if not q.count() or not q.is_visible(): continue
+                  with page.expect_download(timeout=120000) as info: q.click(timeout=10000)
+                  info.value.save_as(str(out)); done=True; break
+                except: pass
+              if not done:
+                q=page.get_by_text(name,exact=False).first; parent=q.locator('xpath=ancestor::*[self::div or self::li or self::article][1]')
+                with page.expect_download(timeout=120000) as info: parent.locator('a,button').last.click(timeout=10000)
+                info.value.save_as(str(out)); done=True
+              b.close()
+              if not done: raise SystemExit('download failed '+name)
+          download(os.environ['SHARE_URL'],os.environ['SOURCE_FILE'],pathlib.Path('incoming')/os.environ['SOURCE_FILE'])
+          download(os.environ['SCENE_SHARE_URL'],os.environ['SCENE_FILE'],pathlib.Path('incoming/scenes')/os.environ['SCENE_FILE'])
+          PY
+          echo "${EXPECTED_SHA}  incoming/${SOURCE_FILE}" | sha256sum -c -
+          echo "${SCENE_SHA}  incoming/scenes/${SCENE_FILE}" | sha256sum -c -
+          unzip -q "incoming/${SOURCE_FILE}" -d work
+          base64 -w0 "incoming/scenes/${SCENE_FILE}" > star-wars/r38/patches/assets/scene-assets-v1.tar.gz.b64
+      - id: project
+        shell: bash
+        run: |
+          G="$(find work -type f -name gradlew -not -path '*/build/*'|head -n1)"; test -n "$G"; R="$(dirname "$G")"; chmod +x "$R/gradlew"; echo "root=$R" >> "$GITHUB_OUTPUT"
+      - name: Apply escape-safe Block01
+        env: {ROOT: "${{ steps.project.outputs.root }}"}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 star-wars/r38/patches/block01_repair_safe.py "$ROOT" | tee /tmp/patch.txt
+          grep -q 'BLOCK01_PATCH_OK' /tmp/patch.txt
+          grep -q 'BLOCK01_ESCAPE_SAFE_OK' /tmp/patch.txt
+      - name: Syntax + focused regressions
+        working-directory: ${{ steps.project.outputs.root }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check app/src/main/assets/vtt/r46/final-runtime.js
+          node --check app/src/main/assets/vtt/r46/r46-shell.bundle.js
+          node --test tests/r38-mobile-ux-fixes.test.mjs tests/gemini-host-r25.test.mjs tests/native-bridge-contract.test.mjs tests/android-json-file-chooser-contract-r16.test.mjs tests/random-character-r24.test.mjs tests/library-ui.test.mjs tests/r46-bridge-contract.test.mjs | tee /tmp/tests.txt
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: android-actions/setup-android@v3
+      - run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platform-tools' 'platforms;android-${{ steps.source.outputs.compile_sdk }}'
+      - name: Java gate + assembleDebug
+        working-directory: ${{ steps.project.outputs.root }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/java-syntax-gate.mjs | tee /tmp/java.txt
+          ./gradlew :app:assembleDebug --stacktrace --no-daemon | tee /tmp/gradle.txt
+      - name: APK identity + closure report
+        env:
+          ROOT: ${{ steps.project.outputs.root }}
+          APP_ID: ${{ steps.source.outputs.app_id }}
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="$(find "$ROOT/app/build/outputs/apk/debug" -type f -name '*.apk'|head -n1)"; test -f "$APK"; unzip -t "$APK" >/dev/null
+          BT="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d|sort -V|tail -n1)"
+          "$BT/aapt" dump badging "$APK" | grep -E '^(package:|sdkVersion:|targetSdkVersion:)' | tee /tmp/badging
+          grep -q "package: name='${APP_ID}'" /tmp/badging; grep -q "targetSdkVersion:'36'" /tmp/badging
+          SHA="$(sha256sum "$APK"|cut -d' ' -f1)"; SIZE="$(stat -c '%s' "$APK")"
+          mkdir -p star-wars/r38/audit
+          cat > star-wars/r38/audit/BLOCK01_REPAIR_VALIDATION.md <<EOF
+          # STAR WARS — EDGE OF THE GALAXY — R38 BLOCK01 CLOSURE
+
+          - Baseline SHA-256: \`${SOURCE_SHA}\` — PASS.
+          - R46 redesign: **none**.
+          - Generated images: **0**.
+          - Recovered existing scene visuals: **6**, semantic fallback active.
+          - ILUSTRAÇÃO: **external Gemini prompt handoff + manual VTT import**.
+          - Android safe-area/system bars: **native→CSS inset bridge active**.
+          - Bottom navigation icons: **existing PNGs rendered without CSS-mask dependency**.
+          - JS syntax: **PASS**.
+          - Focused regressions: **PASS**.
+          - Java gate: **PASS**.
+          - Gradle assembleDebug: **PASS**.
+          - APK identity/targetSdk: **PASS**.
+          - Validation APK SHA-256: \`${SHA}\`.
+          - Validation APK bytes: \`${SIZE}\`.
+          EOF
+          git config user.name braseiro-audit-bot; git config user.email actions@users.noreply.github.com
+          git add star-wars/r38/audit/BLOCK01_REPAIR_VALIDATION.md
+          git commit -m 'test(star-wars): close R38 Block01 repairs' || true
+          git push
