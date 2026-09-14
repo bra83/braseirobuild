@@ -2,13 +2,19 @@ name: Finalize Tales Flood 1.3.16 Android Studio Project
 
 on:
   workflow_run:
-    workflows: ["Smoke Tales 1.3.16i Android Emulator"]
+    workflows:
+      - "Smoke Tales 1.3.16i Android Emulator"
+      - "Verify Tales Flood 1.3.16 Android 10"
     types: [completed]
   workflow_dispatch:
 
 permissions:
   contents: write
   actions: read
+
+concurrency:
+  group: tales-flood-final-1.3.16
+  cancel-in-progress: true
 
 env:
   FINAL_ZIP: BRASEIRO_TALES_FROM_THE_LOOP_THINGS_FROM_THE_FLOOD_1.3.16_ANDROID_STUDIO.zip
@@ -21,15 +27,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Require emulator smoke evidence
-        if: ${{ github.event_name != 'workflow_dispatch' }}
+      - name: Require completed Android gates
         env:
           GH_TOKEN: ${{ github.token }}
           UPSTREAM_RUN: ${{ github.event.workflow_run.id }}
         run: |
           set -euo pipefail
-          echo "Upstream smoke run: $UPSTREAM_RUN"
-          gh run view "$UPSTREAM_RUN" --json conclusion --jq '.conclusion' | grep -qx success
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            echo "Upstream successful run: $UPSTREAM_RUN"
+            gh run view "$UPSTREAM_RUN" --json conclusion --jq '.conclusion' | grep -qx success
+          fi
+          test -f audit/tales-1.3.16-dev-current/ANDROID_EMULATOR_SMOKE.md
+          test -f audit/tales-1.3.16-dev-current/ANDROID10_COMPATIBILITY.md
+          grep -q 'Clean Android 35 emulator boot: PASS' audit/tales-1.3.16-dev-current/ANDROID_EMULATOR_SMOKE.md
+          grep -q '10 consecutive force-stop/relaunch cycles: PASS' audit/tales-1.3.16-dev-current/ANDROID_EMULATOR_SMOKE.md
+          grep -q 'APK signature verification (apksigner): PASS' audit/tales-1.3.16-dev-current/ANDROID10_COMPATIBILITY.md
+          grep -q 'ZIP alignment verification (zipalign): PASS' audit/tales-1.3.16-dev-current/ANDROID10_COMPATIBILITY.md
+          grep -q 'Clean Android 10 / API 29 emulator boot: PASS' audit/tales-1.3.16-dev-current/ANDROID10_COMPATIBILITY.md
 
       - name: Recover exact cumulative source and freeze 1.3.16
         id: source
@@ -147,7 +161,10 @@ jobs:
           cat > audit/tales-1.3.16-dev-current/FINAL_1.3.16_GATE.md <<EOF
           # Final gate — Tales from the Loop + Things from the Flood 1.3.16
 
-          - Upstream Android emulator smoke: PASS.
+          - Android 35 emulator smoke: PASS.
+          - Android 10 / API 29 compatibility: PASS.
+          - APK signature verification: PASS.
+          - APK ZIP alignment verification: PASS.
           - Final source identity: versionName 1.3.16 / versionCode 20.
           - Full JVM regression: >=146 tests, 0 failures, 0 errors.
           - lintDebug: PASS.
@@ -159,7 +176,7 @@ jobs:
           - Final ZIP SHA-256: $SHA
           - Final artifact: $FINAL_ZIP
           EOF
-          printf '\n## FINAL 1.3.16 GATE\n- Android emulator smoke + regressão + lint + build + package sanitizado: PASS no workflow %s.\n- Projeto final: %s\n- SHA-256: %s\n' "$GITHUB_RUN_ID" "$FINAL_ZIP" "$SHA" >> TALES_RETOMADA_CURRENT.md
+          printf '\n## FINAL 1.3.16 GATE\n- Android 35 + Android 10 + assinatura/zipalign + regressão + lint + build + package sanitizado: PASS no workflow %s.\n- Projeto final: %s\n- SHA-256: %s\n' "$GITHUB_RUN_ID" "$FINAL_ZIP" "$SHA" >> TALES_RETOMADA_CURRENT.md
           cp TALES_RETOMADA_CURRENT.md audit/tales-1.3.16-dev-current/TALES_RETOMADA_CURRENT.md
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
