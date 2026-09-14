@@ -98,11 +98,6 @@ jobs:
               b.close()
           finally:s.shutdown();s.server_close()
           PY
-      - name: JS + focused regressions
-        working-directory: ${{ env.ROOT }}
-        env: {ROOT: "${{ steps.project.outputs.root }}"}
-        if: ${{ false }}
-        run: echo unused
       - name: JS + regression suite
         shell: bash
         run: |
@@ -154,3 +149,4 @@ jobs:
           git config user.name braseiro-audit-bot;git config user.email actions@users.noreply.github.com
           git add star-wars/r38/audit/BLOCK02_SCENE_CONTROLS_CLOSURE.md
           git commit -m 'test(star-wars): close R38 Block02 live scene controls' || true;git push
+# rerun marker: 2026-09-14 block closure
