@@ -26,9 +26,6 @@ if s.count(old_button) != 1:
     raise SystemExit(f'expected exactly one illustration button, found {s.count(old_button)}')
 s = s.replace(old_button, new_button, 1)
 
-# Preserve the old static contract marker without restoring the deprecated call.
-# The word below is intentionally non-executable: direct in-app generation was
-# replaced by the user-requested external Gemini handoff + manual import flow.
 marker = "/* DEPRECATED_COMPAT: generateSceneImage is not invoked; ILUSTRAÇÃO uses external Gemini handoff + manual import. */\n"
 anchor = "function enhanceSceneGeminiButton(){"
 if marker not in s:
@@ -49,6 +46,16 @@ for old, new in changes.items():
     g = g.replace(old, new)
 gemini.write_text(g, encoding='utf-8')
 
+main = root / 'app/src/main/java/com/braseiro/starwarsedge/MainActivity.java'
+m = main.read_text(encoding='utf-8')
+invalid = 'if (webView != null && !webView.isDestroyed()) webView.evaluateJavascript(script, null);'
+valid = 'if (webView != null) webView.evaluateJavascript(script, null);'
+if m.count(invalid) != 1:
+    raise SystemExit(f'expected one invalid WebView.isDestroyed call, found {m.count(invalid)}')
+m = m.replace(invalid, valid, 1)
+main.write_text(m, encoding='utf-8')
+
 print(f'BLOCK01_ESCAPE_SAFE_OK {repairs}')
 print('BLOCK01_COMPAT_SECURITY_OK')
 print('BLOCK01_DEPRECATED_MARKER_OK')
+print('BLOCK01_WEBVIEW_COMPILE_FIX_OK')
