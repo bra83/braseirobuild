@@ -1,0 +1,120 @@
+name: Verify Tales 1.3.16i Android Package
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/verify-tales-1.3.16i-android-package.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Recover exact cumulative source
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rm -rf incoming work
+          mkdir -p incoming work
+          gh release download TALES-1.3.8 --pattern 'BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8.zip' --dir incoming
+          unzip -q incoming/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8.zip -d work
+          ROOT="$(dirname "$(find work -type f -name gradlew | head -n1)")"
+          chmod +x "$ROOT/gradlew"
+          python3 -m pip install --quiet pillow
+          python3 tales-1.3.14-transform.py "$ROOT"
+          python3 tales-1.3.16i-transform.py "$ROOT" | tee /tmp/tales-package-transform.txt
+          echo "root=$ROOT" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+      - name: Install Android platform
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Full unit regression before package
+        working-directory: ${{ steps.source.outputs.root }}
+        run: |
+          set -euo pipefail
+          ./gradlew testDebugUnitTest --no-daemon
+          python3 - <<'PY'
+          import glob, xml.etree.ElementTree as ET
+          total=failed=errors=0
+          for p in glob.glob('app/build/test-results/testDebugUnitTest/*.xml'):
+              r=ET.parse(p).getroot(); total+=int(r.attrib.get('tests',0)); failed+=int(r.attrib.get('failures',0)); errors+=int(r.attrib.get('errors',0))
+          print(f'UNIT_TOTAL={total} FAILURES={failed} ERRORS={errors}')
+          assert total>=146 and failed==0 and errors==0
+          PY
+
+      - name: Lint and assemble debug internally
+        working-directory: ${{ steps.source.outputs.root }}
+        run: |
+          set -euo pipefail
+          ./gradlew lintDebug assembleDebug --no-daemon
+          test -f app/build/reports/lint-results-debug.html
+          test -f app/build/outputs/apk/debug/app-debug.apk
+
+      - name: APK structural and secret sanity
+        working-directory: ${{ steps.source.outputs.root }}
+        run: |
+          set -euo pipefail
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          unzip -l "$APK" > /tmp/apk-files.txt
+          grep -q 'AndroidManifest.xml' /tmp/apk-files.txt
+          grep -q 'classes.dex' /tmp/apk-files.txt
+          grep -q 'resources.arsc' /tmp/apk-files.txt
+          unzip -p "$APK" classes.dex > /tmp/classes.dex
+          if strings /tmp/classes.dex | grep -Eq 'AIza[0-9A-Za-z_-]{20,}'; then
+            echo 'FAIL: possible embedded Google API key detected in classes.dex'
+            exit 1
+          fi
+          BYTES=$(stat -c%s "$APK")
+          test "$BYTES" -gt 1000000
+          echo "APK_INTERNAL_BYTES=$BYTES"
+          echo "APK_INTERNAL_SHA256=$(sha256sum "$APK" | awk '{print $1}')"
+          echo 'APK was built only for verification and will not be uploaded/published.'
+
+      - name: Save package-verification evidence only
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          set -euo pipefail
+          REPORT=audit/tales-1.3.16-dev-current/ANDROID_PACKAGE_VERIFICATION.md
+          APK="$ROOT/app/build/outputs/apk/debug/app-debug.apk"
+          SHA=$(sha256sum "$APK" | awk '{print $1}')
+          BYTES=$(stat -c%s "$APK")
+          cat > "$REPORT" <<EOF
+          # Android package verification — Tales/Flood 1.3.16-dev
+
+          - Workflow: $GITHUB_RUN_ID
+          - Full JVM regression: 146 tests, 0 failures, 0 errors.
+          - lintDebug: PASS.
+          - assembleDebug: PASS.
+          - APK structural check: AndroidManifest.xml, classes.dex and resources.arsc present.
+          - Secret sanity: no Google API key pattern found in classes.dex.
+          - Internal debug APK bytes: $BYTES
+          - Internal debug APK SHA-256: $SHA
+          - APK intentionally NOT uploaded or published.
+          EOF
+          printf '\n## Evidência Android interna — package gate\n- lintDebug + assembleDebug: PASS no workflow %s.\n- APK interno apenas para verificação estrutural/secret scan; NÃO publicado.\n' "$GITHUB_RUN_ID" >> TALES_RETOMADA_CURRENT.md
+          cp TALES_RETOMADA_CURRENT.md audit/tales-1.3.16-dev-current/TALES_RETOMADA_CURRENT.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "$REPORT" TALES_RETOMADA_CURRENT.md audit/tales-1.3.16-dev-current/TALES_RETOMADA_CURRENT.md
+          git commit -m 'Record Tales Flood Android package verification' || exit 0
+          git restore .
+          git pull --rebase origin main
+          git push
