@@ -570,7 +570,17 @@ class RulesRefereeBoundary : RefereeResolutionPort {
                 }
             }
         }
-        return ResolutionOutcome(envelope.campaignState,"A intenção requer arbitragem contextual do Mestre; nenhuma mecânica foi inventada.",RuleTrace(EvidenceStatus.REFEREE_JUDGMENT,emptyList(),"Free text without a proven specific procedure is not converted into a universal skill/check system."),false)
+        val judgmentSource = if (envelope.ruleProfile == RuleProfile.OSE_CLASSIC_FANTASY) "Classic Rules Tome" else "Advanced Referee's Tome v1.2"
+        return ResolutionOutcome(
+            envelope.campaignState,
+            "A ação não exigiu uma mecânica específica; o Mestre deve arbitrar pelo contexto sem inventar um sistema universal de perícias.",
+            RuleTrace(
+                EvidenceStatus.REFEREE_JUDGMENT,
+                listOf(RuleEvidence("REFEREE.JUDGMENT", envelope.ruleProfile, judgmentSource, "Referee procedures / role of the referee; GAME_SYSTEM_SPEC §40")),
+                "Free text without a proven specific procedure is handled as explicit referee judgment; no universal skill/check system is invented."
+            ),
+            false
+        )
     }
 
     private fun resolveInitialEvasion(envelope:CampaignEnvelope, encounter:EncounterSnapshot, chase:ChaseSnapshot, rng:NamedRngStreams):ResolutionOutcome = when(chase.context) {

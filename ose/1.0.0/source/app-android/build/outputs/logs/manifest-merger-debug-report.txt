@@ -42,12 +42,16 @@ MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.0] /home/runne
 		ADDED from [androidx.core:core:1.1.0] /home/runner/.gradle/caches/8.10.2/transforms/5f0a6aaf2c7e98feb6ad7d9248343526/transformed/core-1.1.0/AndroidManifest.xml:24:18-86
 	android:label
 		ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:4:45-73
+	android:roundIcon
+		ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:4:109-154
+	android:icon
+		ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:4:74-108
 	android:allowBackup
 		ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:4:18-44
 	android:theme
-		ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:4:74-137
+		ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:4:155-191
 	android:usesCleartextTraffic
-		ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:4:138-174
+		ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:4:192-228
 activity#braseiro.ose.app.MainActivity
 ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:5:9-10:20
 	android:exported

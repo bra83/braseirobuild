@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="braseiro_ember">#9B251E</color>
+    <color name="braseiro_gold">#E4C276</color>
+    <color name="braseiro_icon_bg">#241107</color>
     <color name="notification_action_color_filter">#ffffffff</color>
     <color name="notification_icon_bg_color">#ff9e9e9e</color>
     <color name="ripple_material_light">#1f000000</color>
@@ -76,6 +79,14 @@
     <item name="title" type="id"/>
     <integer name="status_bar_notification_info_maxnum">999</integer>
     <string name="status_bar_notification_info_overflow">999+</string>
+    <style name="BraseiroTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+    <item name="android:fontFamily">sans</item>
+    <item name="android:windowLightStatusBar">false</item>
+    <item name="android:statusBarColor">#241107</item>
+    <item name="android:navigationBarColor">#241107</item>
+    <item name="android:windowLightNavigationBar">false</item>
+    <item name="android:windowActionModeOverlay">true</item>
+  </style>
     <style name="TextAppearance.Compat.Notification" parent="@android:style/TextAppearance.StatusBar.EventContent"/>
     <style name="TextAppearance.Compat.Notification.Info">
         <item name="android:textSize">12sp</item>

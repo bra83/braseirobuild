@@ -2,7 +2,10 @@ package braseiro.ose.app
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
@@ -28,6 +31,8 @@ import braseiro.ose.referee.RulesRefereeBoundary
 import braseiro.ose.rules.api.AttributeAdjustment
 import braseiro.ose.rules.api.CharacterCreationResult
 import braseiro.ose.rules.api.CreationMethod
+import braseiro.ose.rules.api.RuleEvidence
+import braseiro.ose.rules.api.RuleTrace
 import braseiro.ose.rules.shared.StartingEquipmentCatalog
 import braseiro.ose.session.SessionEngine
 import java.security.MessageDigest
@@ -40,6 +45,8 @@ class MainActivity : Activity() {
     companion object {
         const val LOCAL_APP_ORIGIN = "https://appassets.androidplatform.net/assets/"
         const val START_URL = "${LOCAL_APP_ORIGIN}index.html?screen=session&state=active"
+        const val REQUEST_EXPORT_CHARACTER = 4101
+        const val REQUEST_IMPORT_CHARACTER = 4102
         val CAMPAIGN_ID = CampaignId("braseiro-ose-primary")
     }
 
@@ -57,6 +64,7 @@ class MainActivity : Activity() {
     private val creationCoordinator = NativeCharacterCreationCoordinator()
     private val loadoutCoordinator = NativeCharacterLoadoutCoordinator()
     private val io = Executors.newSingleThreadExecutor()
+    @Volatile private var pendingCharacterExport: Pair<String, String>? = null
 
     @Volatile
     var lastBridgeMessage: BridgeEnvelopeMetadata? = null
@@ -98,17 +106,68 @@ class MainActivity : Activity() {
             webChromeClient = WebChromeClient()
             addJavascriptInterface(BridgeEndpoint(), "BraseiroBridge")
         }
-        setContentView(webView)
-        webView.setOnApplyWindowInsetsListener { view, insets ->
-            view.setPadding(0, insets.systemWindowInsetTop, 0, insets.systemWindowInsetBottom)
+        val root = FrameLayout(this)
+        root.addView(webView, FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        ))
+        setContentView(root)
+        root.setOnApplyWindowInsetsListener { _, insets ->
+            val lp = webView.layoutParams as FrameLayout.LayoutParams
+            lp.topMargin = insets.systemWindowInsetTop
+            lp.bottomMargin = insets.systemWindowInsetBottom
+            lp.leftMargin = insets.systemWindowInsetLeft
+            lp.rightMargin = insets.systemWindowInsetRight
+            webView.layoutParams = lp
             insets
         }
-        webView.requestApplyInsets()
+        root.requestApplyInsets()
 
         io.execute {
             bootstrapIfMissing()
             runOnUiThread {
                 if (!isFinishing && !isDestroyed) webView.loadUrl(START_URL)
+            }
+        }
+    }
+
+    @Deprecated("Deprecated in Android API; retained for document picker compatibility on minSdk 26")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            REQUEST_EXPORT_CHARACTER -> {
+                val pending = pendingCharacterExport
+                pendingCharacterExport = null
+                if (resultCode != RESULT_OK || data?.data == null || pending == null) {
+                    send(JSONObject().put("type","CharacterSheetExportResult").put("payload",JSONObject().put("ok",false).put("cancelled",true)))
+                    return
+                }
+                runCatching {
+                    contentResolver.openOutputStream(data.data!!, "w")!!.use { it.write(pending.second.toByteArray(Charsets.UTF_8)) }
+                }.onSuccess {
+                    send(JSONObject().put("type","CharacterSheetExportResult").put("payload",JSONObject().put("ok",true).put("fileName",pending.first)))
+                }.onFailure { t ->
+                    send(JSONObject().put("type","BridgeError").put("payload",JSONObject().put("message",safeError(t))))
+                }
+            }
+            REQUEST_IMPORT_CHARACTER -> {
+                if (resultCode != RESULT_OK || data?.data == null) {
+                    send(JSONObject().put("type","CharacterSheetImportResult").put("payload",JSONObject().put("ok",false).put("cancelled",true)))
+                    return
+                }
+                val uri = data.data!!
+                io.execute {
+                    try {
+                        val raw = contentResolver.openInputStream(uri)!!.bufferedReader(Charsets.UTF_8).use { it.readText() }
+                        val current = session.loadSession(CAMPAIGN_ID)
+                        val imported = importCharacterSheet(current, raw)
+                        repository.commit(CAMPAIGN_ID, StateTransition("character-import-${System.currentTimeMillis()}", imported.campaignState))
+                        val persisted = session.loadSession(CAMPAIGN_ID)
+                        send(JSONObject().put("type","CharacterSheetImportResult").put("payload",JSONObject().put("ok",true).put("viewState",projectForUi(persisted))))
+                    } catch (t: Throwable) {
+                        send(JSONObject().put("type","BridgeError").put("payload",JSONObject().put("message",safeError(t))))
+                    }
+                }
             }
         }
     }
@@ -247,6 +306,7 @@ class MainActivity : Activity() {
                                     .put("feedback", result.feedback)
                                     .put("committed", true)
                                     .put("mechanicalMutation", result.mechanicalMutation)
+                                    .put("ruleTrace", traceJson(result.trace))
                                     .put("stateHash", CanonicalStateHash.sha256(current))
                                     .put("viewState", projectForUi(current)))
                             )
@@ -260,6 +320,7 @@ class MainActivity : Activity() {
                                 .put("feedback", "")
                                 .put("committed", true)
                                 .put("mechanicalMutation", false)
+                                .put("ruleTrace", traceJson(result.trace))
                                 .put("stateHash", CanonicalStateHash.sha256(current))
                                 .put("viewState", projectForUi(current))))
                         }
@@ -367,7 +428,32 @@ class MainActivity : Activity() {
                             val ruleId = payload.optString("ruleId", "")
                             val result = evidenceRegistry.lookup(current.ruleProfile, ruleId)
                             send(JSONObject().put("type","RuleEvidenceResult").put("payload",JSONObject()
-                                .put("ruleId",ruleId).put("text",result.text).put("status",result.trace.status.name).put("evidenceCount",result.trace.evidence.size)))
+                                .put("ruleId",ruleId).put("text",result.text).put("trace",traceJson(result.trace))))
+                        }
+
+                        "RuleEvidenceList" -> {
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            val rules = JSONArray(evidenceRegistry.registeredRuleIds().sorted().mapNotNull { id ->
+                                val result = evidenceRegistry.lookup(current.ruleProfile, id)
+                                if (result.trace.status.name == "MISSING_EVIDENCE" && result.trace.evidence.isEmpty()) null
+                                else JSONObject().put("ruleId", id).put("trace", traceJson(result.trace))
+                            })
+                            send(JSONObject().put("type","RuleEvidenceListResult").put("payload",JSONObject()
+                                .put("profile",current.ruleProfile.name).put("rules",rules)))
+                        }
+
+                        "ResetAdventure" -> {
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            repository.checkpoint(CAMPAIGN_ID, "before-reset-${System.currentTimeMillis()}")
+                            val fresh = current.copy(
+                                createdAtMetadata = "reset-${System.currentTimeMillis()}",
+                                campaignState = buildWorldBootstrap(current.ruleProfile)
+                            )
+                            repository.replace(fresh)
+                            val persisted = session.loadSession(CAMPAIGN_ID)
+                            send(JSONObject().put("type","ResetAdventureResult").put("payload",JSONObject()
+                                .put("ok",true).put("stateHash",CanonicalStateHash.sha256(persisted))
+                                .put("viewState",projectForUi(persisted))))
                         }
 
                         "BackupExport" -> {
@@ -387,6 +473,39 @@ class MainActivity : Activity() {
                             send(JSONObject().put("type","BackupImportResult").put("payload",JSONObject()
                                 .put("ok",true).put("campaignId",current.campaignId.value)
                                 .put("stateHash",CanonicalStateHash.sha256(current)).put("viewState",projectForUi(current))))
+                        }
+
+                        "CharacterCreationRandom" -> {
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            val (createdEnvelope, createdCharacter) = createRandomCharacter(current)
+                            repository.commit(CAMPAIGN_ID, StateTransition("character-random:${createdCharacter.characterId}", createdEnvelope.campaignState))
+                            val persisted = session.loadSession(CAMPAIGN_ID)
+                            send(JSONObject().put("type","CharacterCreationResult").put("payload",JSONObject()
+                                .put("ok",true).put("random",true).put("characterId",createdCharacter.characterId).put("name",createdCharacter.name)
+                                .put("stateHash",CanonicalStateHash.sha256(persisted)).put("viewState",projectForUi(persisted))))
+                        }
+
+                        "CharacterSheetExportRequest" -> {
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            val sheet = characterSheetJson(current)
+                            val character = selectedCharacter(current)
+                            pendingCharacterExport = ("${safeFileName(character.name)}_ficha.json" to sheet)
+                            runOnUiThread {
+                                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                                    addCategory(Intent.CATEGORY_OPENABLE)
+                                    type = "application/json"
+                                    putExtra(Intent.EXTRA_TITLE, pendingCharacterExport!!.first)
+                                }
+                                startActivityForResult(intent, REQUEST_EXPORT_CHARACTER)
+                            }
+                        }
+
+                        "CharacterSheetImportRequest" -> runOnUiThread {
+                            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                                addCategory(Intent.CATEGORY_OPENABLE)
+                                type = "application/json"
+                            }
+                            startActivityForResult(intent, REQUEST_IMPORT_CHARACTER)
                         }
 
                         "CharacterCreationStart" -> {
@@ -468,6 +587,154 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun traceJson(trace: RuleTrace): JSONObject {
+        // Presentation is enriched from the canonical 252-rule evidence registry.
+        // This never changes mechanics: it only replaces internal spec references with
+        // the actual OSE book/source locations that justify the already-resolved rule.
+        val evidence = trace.evidence.flatMap { original ->
+            val canonical = evidenceRegistry.lookup(original.profile, original.ruleId).trace.evidence
+            if (canonical.isNotEmpty()) canonical else listOf(original)
+        }.distinctBy { it.ref() }
+        return JSONObject()
+            .put("status", trace.status.name)
+            .put("note", trace.note)
+            .put("evidence", JSONArray(evidence.map { e ->
+                JSONObject().put("ruleId", e.ruleId).put("profile", e.profile.name)
+                    .put("source", e.source).put("location", e.location)
+            }))
+    }
+
+    private fun latestRuleTraceJson(current: CampaignEnvelope): JSONObject? {
+        val sessionState = current.campaignState.game.session
+        val lastAction = current.campaignState.game.actionLog.lastOrNull { it.channel == "PLAYER_REACTION" } ?: return null
+        val reactionId = lastAction.actionId.removePrefix("reaction:")
+        val receipt = sessionState.reactionReceipts[reactionId] ?: return null
+        val evidence = receipt.traceEvidenceRefs.mapNotNull { raw ->
+            val p = raw.split('|', limit = 4)
+            if (p.size != 4) null else runCatching { RuleEvidence(p[0], RuleProfile.valueOf(p[1]), p[2], p[3]) }.getOrNull()
+        }
+        val status = runCatching { braseiro.ose.rules.api.EvidenceStatus.valueOf(receipt.traceStatus) }.getOrDefault(braseiro.ose.rules.api.EvidenceStatus.REFEREE_JUDGMENT)
+        return traceJson(RuleTrace(status, evidence, receipt.traceNote))
+    }
+
+    private fun selectedCharacter(current: CampaignEnvelope): CharacterSnapshot {
+        val id = current.campaignState.party.characterIds.firstOrNull() ?: error("NO_CHARACTER")
+        return current.campaignState.game.characters[id] ?: error("NO_CHARACTER")
+    }
+
+    private fun createRandomCharacter(current: CampaignEnvelope): Pair<CampaignEnvelope, CharacterSnapshot> {
+        require(current.campaignState.party.characterIds.isEmpty()) { "CHARACTER_ALREADY_EXISTS" }
+        val draftId = "random-${System.currentTimeMillis()}"
+        val draft = creationCoordinator.startDraft(current, draftId)
+        val base = draft.envelope
+        val candidates = when (current.ruleProfile) {
+            RuleProfile.OSE_CLASSIC_FANTASY -> listOf("FIGHTER","CLERIC","THIEF","MAGIC_USER","DWARF","ELF","HALFLING")
+            RuleProfile.OSE_ADVANCED_FANTASY -> listOf("FIGHTER","CLERIC","THIEF","MAGIC_USER","RANGER","BARD","DRUID","ACROBAT","BARBARIAN","KNIGHT","PALADIN","ILLUSIONIST","ASSASSIN")
+        }.shuffled(kotlin.random.Random(manualDice.nextLong()))
+        val method = if (current.ruleProfile == RuleProfile.OSE_CLASSIC_FANTASY) CreationMethod.CLASSIC else CreationMethod.ADVANCED_BASIC
+        val names = listOf("Aldren","Brena","Cael","Dora","Edrik","Fenna","Garran","Helga","Ivar","Lysa","Marek","Nora","Orin","Petra","Rurik","Sela")
+        val name = names[manualDice.nextInt(names.size)]
+        val characterId = "char-${System.currentTimeMillis()}"
+        for (classId in candidates) {
+            val attempt = creationCoordinator.commit(base, draftId, characterId, name, method, listOf(classId), null, emptyList())
+            val created = attempt.result as? CharacterCreationResult.Created ?: continue
+            return attempt.envelope to created.character
+        }
+        error("RANDOM_CHARACTER_NO_VALID_CLASS")
+    }
+
+    private fun characterSheetJson(current: CampaignEnvelope): String {
+        val c = selectedCharacter(current)
+        val game = current.campaignState.game
+        val root = JSONObject().put("schema", "BRASEIRO_OSE_FICHA_V1").put("profile", current.ruleProfile.name)
+            .put("character", characterToJson(c))
+        root.put("inventory", JSONArray(game.inventory.items.values.filter { it.ownerId == c.characterId }.sortedBy { it.itemId }.map(::inventoryItemToJson)))
+        game.loadouts[c.characterId]?.let { l ->
+            root.put("loadout", JSONObject().put("characterId", l.characterId).put("startingWealthGp", l.startingWealthGp)
+                .put("remainingWealthGp", l.remainingWealthGp).put("completed", l.completed).put("sourceRuleId", l.sourceRuleId)
+                .put("purchases", JSONObject(l.purchases)))
+        }
+        return root.toString(2)
+    }
+
+    private fun characterToJson(c: CharacterSnapshot): JSONObject = JSONObject()
+        .put("characterId", c.characterId).put("name", c.name).put("creationMethod", c.creationMethod).put("raceId", c.raceId)
+        .put("classIds", JSONArray(c.classIds)).put("levelByClass", JSONObject(c.levelByClass)).put("xpByClass", JSONObject(c.xpByClass))
+        .put("attributes", JSONObject().put("str",c.attributes.str).put("int",c.attributes.int).put("wis",c.attributes.wis).put("dex",c.attributes.dex).put("con",c.attributes.con).put("cha",c.attributes.cha))
+        .put("hitPoints", JSONObject().put("currentNumerator",c.hitPoints.currentNumerator).put("maxNumerator",c.hitPoints.maxNumerator).put("denominator",c.hitPoints.denominator))
+        .put("armorClassDescending",c.armorClassDescending).put("armorClassAscending",c.armorClassAscending).put("thac0",c.thac0).put("attackBonusAscending",c.attackBonusAscending)
+        .put("savingThrows", JSONObject().put("deathPoison",c.savingThrows.deathPoison).put("wands",c.savingThrows.wands).put("paralysisPetrification",c.savingThrows.paralysisPetrification).put("breath",c.savingThrows.breath).put("spellsRodsStaves",c.savingThrows.spellsRodsStaves))
+        .put("languages",JSONArray(c.languages)).put("flags",JSONArray(c.flags.toList())).put("evidenceRefs",JSONArray(c.evidenceRefs))
+        .put("primeModifierPercentByClass",JSONObject(c.primeModifierPercentByClass)).put("weaponProficiencies",JSONArray(c.weaponProficiencies.toList()))
+        .put("weaponSpecialization",c.weaponSpecialization ?: JSONObject.NULL).put("weaponProficiencySlotsTotal",c.weaponProficiencySlotsTotal)
+        .put("weaponProficiencySlotsSpent",c.weaponProficiencySlotsSpent).put("secondarySkills",JSONArray(c.secondarySkills))
+
+    private fun inventoryItemToJson(i: InventoryItemSnapshot): JSONObject {
+        val out = JSONObject().put("itemId",i.itemId).put("ownerId",i.ownerId).put("catalogId",i.catalogId).put("profile",i.profile.name)
+            .put("sourceId",i.sourceId).put("kind",i.kind.name).put("quantity",i.quantity).put("carried",i.carried).put("equipped",i.equipped)
+            .put("unitWeightCoins",i.unitWeightCoins).put("armorLoadCategory",i.armorLoadCategory?.name ?: JSONObject.NULL)
+            .put("lightSourceKind",i.lightSourceKind?.name ?: JSONObject.NULL)
+        i.weapon?.let { w -> out.put("weapon",JSONObject().put("melee",w.melee).put("missile",w.missile).put("slow",w.slow)
+            .put("damageDiceCount",w.damageDiceCount).put("damageDieSides",w.damageDieSides).put("damageBonus",w.damageBonus)
+            .put("shortRangeMeters",w.shortRangeMeters ?: JSONObject.NULL).put("mediumRangeMeters",w.mediumRangeMeters ?: JSONObject.NULL).put("longRangeMeters",w.longRangeMeters ?: JSONObject.NULL)) }
+        return out
+    }
+
+    private fun importCharacterSheet(current: CampaignEnvelope, raw: String): CampaignEnvelope {
+        val root = JSONObject(raw)
+        require(root.getString("schema") == "BRASEIRO_OSE_FICHA_V1") { "INVALID_CHARACTER_SHEET" }
+        require(root.getString("profile") == current.ruleProfile.name) { "CHARACTER_PROFILE_MISMATCH" }
+        val c = characterFromJson(root.getJSONObject("character"))
+        require(!current.campaignState.game.characters.containsKey(c.characterId)) { "CHARACTER_ID_EXISTS" }
+        val items = mutableMapOf<String, InventoryItemSnapshot>()
+        val arr = root.optJSONArray("inventory") ?: JSONArray()
+        for (i in 0 until arr.length()) {
+            val item = inventoryItemFromJson(arr.getJSONObject(i))
+            require(item.ownerId == c.characterId && item.profile == current.ruleProfile) { "CHARACTER_ITEM_PROFILE_MISMATCH" }
+            require(!current.campaignState.game.inventory.items.containsKey(item.itemId)) { "ITEM_ID_EXISTS" }
+            items[item.itemId] = item
+        }
+        val loadout = root.optJSONObject("loadout")?.let { o ->
+            val purchases = mutableMapOf<String,Int>(); val keys=o.optJSONObject("purchases")?.keys(); if(keys!=null) while(keys.hasNext()){ val k=keys.next(); purchases[k]=o.getJSONObject("purchases").getInt(k) }
+            CharacterLoadoutSnapshot(c.characterId,o.getInt("startingWealthGp"),o.getInt("remainingWealthGp"),purchases,o.optBoolean("completed",true),o.getString("sourceRuleId"))
+        }
+        val oldGame = current.campaignState.game
+        val newPhase = if (current.campaignState.party.characterIds.isEmpty() && oldGame.session.visibleNarration.isBlank()) {
+            if (loadout == null || loadout.completed) "READY_TO_START" else "CHARACTER_LOADOUT"
+        } else oldGame.session.phase
+        val newGame = oldGame.copy(
+            characters = oldGame.characters + (c.characterId to c),
+            inventory = oldGame.inventory.copy(items = oldGame.inventory.items + items),
+            loadouts = if(loadout==null) oldGame.loadouts else oldGame.loadouts + (c.characterId to loadout),
+            session = oldGame.session.copy(phase = newPhase), revision = oldGame.revision + 1
+        ).canonical()
+        val newState = current.campaignState.copy(party = PartyState((current.campaignState.party.characterIds + c.characterId).distinct()), game = newGame)
+        return current.copy(campaignState = newState)
+    }
+
+    private fun characterFromJson(o: JSONObject): CharacterSnapshot {
+        val a=o.getJSONObject("attributes"); val hp=o.getJSONObject("hitPoints"); val sv=o.getJSONObject("savingThrows")
+        fun strings(name:String):List<String>{ val x=o.optJSONArray(name)?:JSONArray(); return (0 until x.length()).map{x.getString(it)} }
+        fun intMap(name:String):Map<String,Int>{ val x=o.getJSONObject(name); return buildMap{ val k=x.keys(); while(k.hasNext()){ val q=k.next(); put(q,x.getInt(q)) } } }
+        fun longMap(name:String):Map<String,Long>{ val x=o.getJSONObject(name); return buildMap{ val k=x.keys(); while(k.hasNext()){ val q=k.next(); put(q,x.getLong(q)) } } }
+        return CharacterSnapshot(o.getString("characterId"),o.getString("name"),o.getString("creationMethod"),o.getString("raceId"),strings("classIds"),intMap("levelByClass"),longMap("xpByClass"),
+            Attributes(a.getInt("str"),a.getInt("int"),a.getInt("wis"),a.getInt("dex"),a.getInt("con"),a.getInt("cha")),
+            HitPoints(hp.getInt("currentNumerator"),hp.getInt("maxNumerator"),hp.optInt("denominator",1)),o.getInt("armorClassDescending"),o.getInt("armorClassAscending"),o.getInt("thac0"),o.getInt("attackBonusAscending"),
+            SavingThrows(sv.getInt("deathPoison"),sv.getInt("wands"),sv.getInt("paralysisPetrification"),sv.getInt("breath"),sv.getInt("spellsRodsStaves")),
+            strings("languages"),strings("flags").toSet(),strings("evidenceRefs"),intMap("primeModifierPercentByClass"),strings("weaponProficiencies").toSet(),
+            o.optString("weaponSpecialization","").ifBlank{null},o.optInt("weaponProficiencySlotsTotal",0),o.optInt("weaponProficiencySlotsSpent",0),strings("secondarySkills")).canonical()
+    }
+
+    private fun inventoryItemFromJson(o: JSONObject): InventoryItemSnapshot {
+        val w=o.optJSONObject("weapon")?.let { x -> WeaponRuntimeSnapshot(x.optBoolean("melee"),x.optBoolean("missile"),x.optBoolean("slow"),x.optInt("damageDiceCount",1),x.optInt("damageDieSides",6),x.optInt("damageBonus",0),
+            x.optInt("shortRangeMeters").takeIf{!x.isNull("shortRangeMeters")},x.optInt("mediumRangeMeters").takeIf{!x.isNull("mediumRangeMeters")},x.optInt("longRangeMeters").takeIf{!x.isNull("longRangeMeters")}) }
+        return InventoryItemSnapshot(o.getString("itemId"),o.getString("ownerId"),o.getString("catalogId"),RuleProfile.valueOf(o.getString("profile")),o.getString("sourceId"),InventoryItemKind.valueOf(o.getString("kind")),
+            o.optInt("quantity",1),o.optBoolean("carried",true),o.optBoolean("equipped",false),o.optInt("unitWeightCoins",0),
+            o.optString("armorLoadCategory","").takeIf{it.isNotBlank()}?.let(ArmorLoadCategory::valueOf),o.optString("lightSourceKind","").takeIf{it.isNotBlank()}?.let(LightSourceKind::valueOf),w)
+    }
+
+    private fun safeFileName(name:String):String = name.lowercase().replace(Regex("[^a-z0-9_-]+"),"_").trim('_').ifBlank{"personagem"}
+
     private fun projectForUi(current: CampaignEnvelope): JSONObject {
         val out = AppViewStateProjector.project(current)
         val game = current.campaignState.game
@@ -496,6 +763,7 @@ class MainActivity : Activity() {
             )
         } else out.put("loadout", JSONObject.NULL)
         out.put("sceneDecisions", ContextualDecisionSuggester.asJson(current))
+        latestRuleTraceJson(current)?.let { out.put("lastRuleTrace", it) } ?: out.put("lastRuleTrace", JSONObject.NULL)
         out.put("presentation", JSONObject()
             .put("sceneId", sceneId)
             .put("sceneImageUrl", mediaStore.url(PresentationMediaStore.Scope.SCENE, sceneId) ?: JSONObject.NULL)
@@ -508,10 +776,14 @@ class MainActivity : Activity() {
         out.put("worldStatus", JSONObject()
             .put("active", game.hexWorld != null && game.npcs.isNotEmpty())
             .put("schedulerActive", game.worldEvents.isNotEmpty())
-            .put("knownHexes", game.hexWorld?.cells?.count { it.known || it.visible } ?: 0))
+            .put("knownHexes", game.hexWorld?.cells?.count { it.known || it.visible } ?: 0)
+            .put("npcCount", game.npcs.size)
+            .put("scheduledEventCount", game.worldEvents.size)
+            .put("revision", game.revision))
         out.put("libraryStatus", JSONObject()
             .put("profile", current.ruleProfile.name)
             .put("authority", current.authorityRevision.authorityId)
+            .put("ruleCount", evidenceRegistry.registeredRuleIds().size)
             .put("embedded", true))
         return out
     }
@@ -555,7 +827,7 @@ class MainActivity : Activity() {
         val message = t.message.orEmpty()
         return when {
             message.startsWith("GEMINI_") -> message
-            message in setOf("EMPTY_GEMINI_KEY", "GEMINI_KEY_TOO_LONG", "INVALID_GEMINI_MODEL", "INVALID_TTS_VOICE", "UNKNOWN_GEMINI_CREDENTIAL_SLOT", "UNKNOWN_TTS_COMMAND", "EMPTY_VISIBLE_NARRATION", "INVALID_IMAGE_DATA_URL", "IMAGE_SIZE_INVALID", "UNSUPPORTED_IMAGE_TYPE", "UNKNOWN_CHARACTER_ID", "UNKNOWN_ITEM_ID", "UNSUPPORTED_PRESENTATION_SCOPE", "UNKNOWN_UI_COMMAND", "INVALID_DIE", "INVALID_DICE_COUNT", "INVALID_DICE_MODIFIER") -> message
+            message in setOf("EMPTY_GEMINI_KEY", "GEMINI_KEY_TOO_LONG", "INVALID_GEMINI_MODEL", "INVALID_TTS_VOICE", "UNKNOWN_GEMINI_CREDENTIAL_SLOT", "UNKNOWN_TTS_COMMAND", "EMPTY_VISIBLE_NARRATION", "INVALID_IMAGE_DATA_URL", "IMAGE_SIZE_INVALID", "UNSUPPORTED_IMAGE_TYPE", "UNKNOWN_CHARACTER_ID", "UNKNOWN_ITEM_ID", "UNSUPPORTED_PRESENTATION_SCOPE", "UNKNOWN_UI_COMMAND", "INVALID_DIE", "INVALID_DICE_COUNT", "INVALID_DICE_MODIFIER", "NO_CHARACTER", "CHARACTER_ALREADY_EXISTS", "RANDOM_CHARACTER_NO_VALID_CLASS", "INVALID_CHARACTER_SHEET", "CHARACTER_PROFILE_MISMATCH", "CHARACTER_ID_EXISTS", "CHARACTER_ITEM_PROFILE_MISMATCH", "ITEM_ID_EXISTS") -> message
             else -> t::class.java.simpleName
         }
     }

@@ -28,6 +28,9 @@
     <button class="navbtn active" data-screen="session"><span class="ico">⬡</span>SESSÃO</button>
     <button class="navbtn" data-screen="map"><span class="ico">🗺</span>MAPA</button>
     <button class="navbtn" data-screen="sheet"><span class="ico">📜</span>FICHA</button>
+    <button class="navbtn" data-screen="dice"><span class="ico">🎲</span>DADOS</button>
+    <button class="navbtn" data-screen="library"><span class="ico">📚</span>BIBLIOTECA</button>
+    <button class="navbtn" data-screen="world"><span class="ico">🌍</span>MUNDO</button>
     <button class="navbtn" data-screen="company"><span class="ico">♟♟</span>COMPANHIA</button>
   </nav>
 
@@ -78,6 +81,12 @@
         <div class="row"><button id="backupExport" class="small">GERAR BACKUP</button><button id="backupCopy" class="small">COPIAR</button></div>
         <textarea id="backupText" class="backup-text" placeholder="O backup gerado aparece aqui. Para restaurar, cole um backup válido neste campo."></textarea>
         <button id="backupImport" class="secondary">RESTAURAR BACKUP</button>
+      </section>
+
+      <section class="credential-block danger-zone">
+        <h3>Campanha</h3>
+        <p class="note">Recomeçar apaga personagem, inventário, progresso, mapa revelado e estado do mundo desta campanha. Configurações e chaves Gemini permanecem.</p>
+        <button id="resetAdventure" class="danger-button">RECOMEÇAR A AVENTURA</button>
       </section>
     </div>
   </div>
