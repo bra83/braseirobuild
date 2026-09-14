@@ -72,8 +72,21 @@ Atualizado em 11/09/2026.
 - XP de participação não pode ser negado a um Kid presente.
 - Bloco somente código/teste; nenhum APK publicado.
 
-## Evidência executada — 1.3.15k
-- compileDebugKotlin: PASS no workflow 34802604658.
-- regressão unitária total: PASS.
-- 33/33 sessões completas determinísticas: PASS.
+## Bloco 1.3.16a-dev — fundação Things from the Flood
+- Perfil mecânico explícito TALES_KIDS / FLOOD_TEENS adicionado ao estado e ao firewall do Mestre.
+- Regras de criação Flood locais: Teens 14–19, 14 pontos de Atributos, 10 de Perícias e 10 Tipos oficiais codificados.
+- RandomTeenFactory e conversão Kid→Teen redistribuem Atributos/Perícias em vez de carregar progressão mecânica antiga.
+- Vergonha, aniversário, Cicatrizes, Hooks e Friction ganharam estado persistível; Sorte/Orgulho são bloqueados no perfil Flood.
+- Pool mínimo de 1 dado e alvos 3x/4x/5x ficam exclusivos de Flood; Tales continua isolado em 2x/3x/4x.
+- Motor/RAG recebe somente o contrato mecânico do perfil ativo.
+- Este bloco é código/teste, sem APK.
+
+## Bloco 1.3.16b-dev — correção da fundação Flood
+- Corrigida a restauração do perfil FLOOD_TEENS dentro de Problema Estendido após save/load.
+- Migrado teste antigo de autoridade mecânica para aceitar contrato dinâmico por perfil sem enfraquecer a separação RAG/mecânica.
+- Nenhum APK publicado.
+
+## Evidência executada — 1.3.16b
+- compileDebugKotlin: PASS no workflow 34808580154.
+- regressão Tales existente + fundação Flood: PASS.
 - nenhum APK publicado.
