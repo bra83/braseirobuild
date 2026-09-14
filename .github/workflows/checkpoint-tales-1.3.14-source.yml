@@ -1,0 +1,49 @@
+name: Checkpoint Tales 1.3.14 Source
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/checkpoint-tales-1.3.14-source.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  checkpoint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover current source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rm -rf incoming work audit/tales-1.3.14-current
+          mkdir -p incoming work audit/tales-1.3.14-current
+          gh release download TALES-1.3.8 --pattern 'BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8.zip' --dir incoming
+          unzip -q incoming/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8.zip -d work
+          ROOT="$(dirname "$(find work -type f -name gradlew | head -n1)")"
+          python3 -m pip install --quiet pillow
+          python3 tales-1.3.14-transform.py "$ROOT"
+          printf '%s\n' "$ROOT" > audit/tales-1.3.14-current/root.txt
+          mkdir -p audit/tales-1.3.14-current/java/com/braseiro/talesvtt/game
+          mkdir -p audit/tales-1.3.14-current/java/com/braseiro/talesvtt/screens
+          mkdir -p audit/tales-1.3.14-current/java/com/braseiro/talesvtt/data
+          for f in CanonicalTalesRules.kt TalesCore.kt GameSnapshotCodec.kt GameViewModel.kt GmPrivateSnapshotCodec.kt MotorBarbaraContract.kt MotorBarbaraTransport.kt MotorBarbaraWireAdapter.kt RandomKidFactory.kt; do
+            cp "$ROOT/app/src/main/java/com/braseiro/talesvtt/game/$f" "audit/tales-1.3.14-current/java/com/braseiro/talesvtt/game/$f"
+          done
+          for f in EndingScreen.kt KidScreen.kt BackpackScreen.kt MapScreen.kt GroupScreen.kt SceneScreen.kt TroubleScreen.kt; do
+            [ -f "$ROOT/app/src/main/java/com/braseiro/talesvtt/screens/$f" ] && cp "$ROOT/app/src/main/java/com/braseiro/talesvtt/screens/$f" "audit/tales-1.3.14-current/java/com/braseiro/talesvtt/screens/$f"
+          done
+          cp "$ROOT/TALES_RETOMADA_CURRENT.md" audit/tales-1.3.14-current/TALES_RETOMADA_CURRENT.md
+      - name: Save checkpoint
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add audit/tales-1.3.14-current
+          git commit -m 'Checkpoint Tales 1.3.14 transformed source' || exit 0
+          git push
