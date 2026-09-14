@@ -26,8 +26,8 @@ jobs:
 
       - name: Download exact 1.0.1 patch
         env:
-          PATCH_SHARE: https://firestorage.ai/ja/f/CnawQfn07X-g
-          PATCH_SHA: d0470713c2741b007a6993f45facf60d18f27b08b346948ca80b8cac57309a4b
+          PATCH_SHARE: https://firestorage.ai/ja/f/BuC0lJjx7BPk
+          PATCH_SHA: 925c723fe5dc82b86e62cd75d6e0e1b1a80c07905861694539c7cde523bd16ce
         run: |
           set -euo pipefail
           python -m pip install --quiet playwright
@@ -55,7 +55,7 @@ jobs:
                       info.value.save_as(str(out)); done=True; break
                   except Exception: pass
               if not done:
-                  card=page.get_by_text('ose-1.0.1.patch', exact=False).first
+                  card=page.get_by_text('ose-1.0.1-fixed.patch', exact=False).first
                   parent=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]')
                   with page.expect_download(timeout=120000) as info: parent.locator('a,button').last.click(timeout=10000)
                   info.value.save_as(str(out)); done=True
