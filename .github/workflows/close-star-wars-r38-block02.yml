@@ -1,0 +1,156 @@
+name: Close Star Wars R38 Block02 scene controls
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/close-star-wars-r38-block02.yml"
+      - "star-wars/r38/patches/block02_scene_controls.py"
+permissions:
+  contents: write
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - id: source
+        shell: bash
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          d=json.load(open('star-wars/r38/SOURCE.json'))
+          for k,o in [('source_share_url','url'),('sha256','sha'),('file','file'),('application_id','app_id'),('compile_sdk','compile_sdk')]:print(f'{o}={d[k]}')
+          PY
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: |
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium >/dev/null
+      - name: Download SHA-pinned R38 and recovered scenes
+        env:
+          U: ${{ steps.source.outputs.url }}
+          F: ${{ steps.source.outputs.file }}
+          S: ${{ steps.source.outputs.sha }}
+          SU: https://firestorage.ai/ja/f/PbM3XvdzNMAk
+          SF: scene-assets-v1-tiny.tar.gz
+          SS: 2ca16b2cd0d3f489fe10f1df718be1243febeef38fb88a52bd50502528f60711
+        shell: bash
+        run: |
+          set -euo pipefail;rm -rf incoming work;mkdir -p incoming work
+          python3 - <<'PY'
+          import os,pathlib
+          from playwright.sync_api import sync_playwright
+          def dl(u,n,o):
+            with sync_playwright() as p:
+              b=p.chromium.launch(headless=True);q=b.new_page(accept_downloads=True);q.goto(u,wait_until='domcontentloaded',timeout=120000);q.wait_for_timeout(3000);done=False
+              for s in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")','button:has-text("保存")','a:has-text("保存")']:
+                try:
+                  x=q.locator(s).first
+                  if not x.count() or not x.is_visible():continue
+                  with q.expect_download(timeout=120000) as i:x.click(timeout=10000)
+                  i.value.save_as(str(o));done=True;break
+                except:pass
+              if not done:
+                x=q.get_by_text(n,exact=False).first
+                with q.expect_download(timeout=120000) as i:x.locator('xpath=ancestor::*[self::div or self::li or self::article][1]').locator('a,button').last.click(timeout=10000)
+                i.value.save_as(str(o));done=True
+              b.close()
+            if not done:raise SystemExit('download failed '+n)
+          dl(os.environ['U'],os.environ['F'],pathlib.Path('incoming')/os.environ['F']);dl(os.environ['SU'],os.environ['SF'],pathlib.Path('incoming')/os.environ['SF'])
+          PY
+          echo "${S}  incoming/${F}"|sha256sum -c -;echo "${SS}  incoming/${SF}"|sha256sum -c -
+          unzip -q "incoming/${F}" -d work
+          G="$(find work -type f -name gradlew -not -path '*/build/*'|head -1)";test -n "$G";R="$(dirname "$G")";chmod +x "$R/gradlew";echo "$R">/tmp/root
+          base64 -w0 "incoming/${SF}" > star-wars/r38/patches/assets/scene-assets-v1.tar.gz.b64
+          python3 star-wars/r38/patches/block01_repair_safe.py "$R"
+          python3 star-wars/r38/patches/block02_scene_controls.py "$R"
+      - name: Runtime CENA gate
+        shell: bash
+        run: |
+          export ROOT="$(cat /tmp/root)"
+          python3 - <<'PY'
+          import os,pathlib,threading,http.server,socketserver,json
+          from playwright.sync_api import sync_playwright
+          root=pathlib.Path(os.environ['ROOT']);vtt=root/'app/src/main/assets/vtt';os.chdir(vtt)
+          class H(http.server.SimpleHTTPRequestHandler):
+            def log_message(self,*a):pass
+          s=socketserver.TCPServer(('127.0.0.1',0),H);threading.Thread(target=s.serve_forever,daemon=True).start();port=s.server_address[1]
+          try:
+            with sync_playwright() as p:
+              b=p.chromium.launch(headless=True);pg=b.new_page(viewport={'width':415,'height':915})
+              errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
+              pg.add_init_script('''window.__geminiPrompt=null;window.BraseiroGemini={openGeminiWithPrompt:(p)=>{window.__geminiPrompt=String(p||'');return JSON.stringify({ok:true,target:'gemini_app'})},pickSceneImage:(k)=>JSON.stringify({ok:true})};const h={get:(t,p)=>{if(p==='then')return undefined;return(...a)=>JSON.stringify({ok:true,items:[],data:[],state:{}})}};for(const n of ['BraseiroUiBridge','BraseiroLibrary','BraseiroImages','BraseiroFiles','BraseiroTts'])window[n]=new Proxy({},h);''')
+              pg.goto(f'http://127.0.0.1:{port}/r46-shell.html',wait_until='domcontentloaded');pg.wait_for_timeout(1500)
+              pg.locator('#sandbox-start-button').click(timeout=3000);pg.wait_for_timeout(900)
+              imgs=pg.locator('.scene-media-slot img.final-scene-library-image:visible');assert imgs.count()>=1,'recovered scene fallback not visible'
+              ill=pg.get_by_text('ILUSTRAÇÃO',exact=True);imp=pg.get_by_text('IMPORTAR',exact=True)
+              assert ill.count()==1 and ill.is_visible(),'ILUSTRAÇÃO not visible'
+              assert imp.count()==1 and imp.is_visible(),'IMPORTAR not visible'
+              ib=ill.bounding_box();pb=imp.bounding_box();assert ib and ib['height']>=44 and pb and pb['height']>=44,'scene controls below 44px tap target'
+              ill.click(timeout=2500);pg.wait_for_timeout(150)
+              prompt=pg.evaluate('window.__geminiPrompt') or ''
+              assert len(prompt)>=250,f'Gemini prompt too short: {len(prompt)}'
+              assert any(x.lower() in prompt.lower() for x in ['local','situação','narrativa','narração']),'Gemini prompt lacks scene context markers'
+              assert not errs,'page errors: '+repr(errs)
+              print('SCENE_RUNTIME_PASS',json.dumps({'prompt_len':len(prompt),'illustration_box':ib,'import_box':pb,'fallback':imgs.first.get_attribute('data-recovered-scene')},ensure_ascii=False))
+              b.close()
+          finally:s.shutdown();s.server_close()
+          PY
+      - name: JS + focused regressions
+        working-directory: ${{ env.ROOT }}
+        env: {ROOT: "${{ steps.project.outputs.root }}"}
+        if: ${{ false }}
+        run: echo unused
+      - name: JS + regression suite
+        shell: bash
+        run: |
+          R="$(cat /tmp/root)";cd "$R"
+          node --check app/src/main/assets/vtt/r46/final-runtime.js
+          node --check app/src/main/assets/vtt/r46/r46-shell.bundle.js
+          node --test tests/r38-mobile-ux-fixes.test.mjs tests/gemini-host-r25.test.mjs tests/native-bridge-contract.test.mjs tests/android-json-file-chooser-contract-r16.test.mjs tests/random-character-r24.test.mjs tests/library-ui.test.mjs tests/r46-bridge-contract.test.mjs | tee /tmp/tests.txt
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: android-actions/setup-android@v3
+      - run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platform-tools' 'platforms;android-${{ steps.source.outputs.compile_sdk }}'
+      - name: Java gate + assembleDebug
+        shell: bash
+        run: |
+          R="$(cat /tmp/root)";cd "$R"
+          node tools/java-syntax-gate.mjs | tee /tmp/java.txt
+          ./gradlew :app:assembleDebug --stacktrace --no-daemon | tee /tmp/gradle.txt
+      - name: APK identity and report
+        env:
+          APP_ID: ${{ steps.source.outputs.app_id }}
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail;R="$(cat /tmp/root)";APK="$(find "$R/app/build/outputs/apk/debug" -type f -name '*.apk'|head -1)";test -f "$APK";unzip -t "$APK" >/dev/null
+          BT="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d|sort -V|tail -1)";"$BT/aapt" dump badging "$APK"|grep -E '^(package:|sdkVersion:|targetSdkVersion:)'|tee /tmp/badging
+          grep -q "package: name='${APP_ID}'" /tmp/badging;grep -q "targetSdkVersion:'36'" /tmp/badging
+          SHA="$(sha256sum "$APK"|cut -d' ' -f1)";SIZE="$(stat -c '%s' "$APK")"
+          mkdir -p star-wars/r38/audit
+          cat > star-wars/r38/audit/BLOCK02_SCENE_CONTROLS_CLOSURE.md <<EOF
+          # STAR WARS — EDGE OF THE GALAXY — BLOCK02 SCENE CONTROLS CLOSURE
+
+          - Baseline SHA: \`${SOURCE_SHA}\` — PASS.
+          - R46 redesign: **none**.
+          - Generated images: **0**.
+          - Recovered semantic fallback visible at runtime: **PASS**.
+          - ILUSTRAÇÃO visible/tappable after CRIAR MUNDO VIVO: **PASS**.
+          - IMPORTAR visible/tappable after CRIAR MUNDO VIVO: **PASS**.
+          - ILUSTRAÇÃO prompt reaches Gemini bridge with live scene context: **PASS**.
+          - JS + focused regressions: **PASS**.
+          - Java gate: **PASS**.
+          - Gradle assembleDebug: **PASS**.
+          - APK identity/targetSdk: **PASS**.
+          - Validation APK SHA-256: \`${SHA}\`.
+          - Validation APK bytes: \`${SIZE}\`.
+          EOF
+          git checkout -- star-wars/r38/patches/assets/scene-assets-v1.tar.gz.b64
+          git config user.name braseiro-audit-bot;git config user.email actions@users.noreply.github.com
+          git add star-wars/r38/audit/BLOCK02_SCENE_CONTROLS_CLOSURE.md
+          git commit -m 'test(star-wars): close R38 Block02 live scene controls' || true;git push
