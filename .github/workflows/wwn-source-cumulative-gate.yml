@@ -1,0 +1,85 @@
+name: WWN Source Cumulative Gate
+
+on:
+  push:
+    branches:
+      - wwn-source-105-bridge
+    paths:
+      - "app/**"
+      - "tools/**"
+      - ".github/workflows/wwn-source-cumulative-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  wwn-source-cumulative-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout WWN source branch
+        uses: actions/checkout@v4
+        with:
+          ref: wwn-source-105-bridge
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Apply evidence-gated Execution Attack runtime patch
+        run: python tools/wwn_patch_execution_attack.py
+
+      - name: Certify Execution Attack
+        run: node tools/wwn_execution_stateful_smoke.mjs
+
+      - name: Run cumulative WWN stateful regression suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/wwn_stateful_smoke.mjs
+          node tools/wwn_parity_smoke.mjs
+          node tools/wwn_manual_creation_smoke.mjs
+          node tools/wwn_mod_runtime_stateful_smoke.mjs
+          node tools/wwn_automatic_reload_portability_smoke.mjs
+          node tools/wwn_charge_stateful_smoke.mjs
+          node tools/wwn_dual_wield_stateful_smoke.mjs
+          node tools/wwn_grapple_stateful_smoke.mjs
+          node tools/wwn_grapple_manipulation_smoke.mjs
+          node tools/wwn_prone_stateful_smoke.mjs
+          node tools/wwn_screen_ally_stateful_smoke.mjs
+          node tools/wwn_shove_stateful_smoke.mjs
+          node tools/wwn_shove_push_stateful_smoke.mjs
+          node tools/wwn_snap_hold_stateful_smoke.mjs
+          node tools/wwn_swarm_stateful_smoke.mjs
+          node tools/wwn_ui_mechanics_smoke.mjs
+
+      - name: Run 33-session deterministic gate
+        run: node tools/wwn_33_session_gate.mjs
+
+      - name: Run 33-session play gate
+        run: node tools/wwn_33_play_session_gate.mjs
+
+      - name: Static release guard
+        run: python tools/static_guard_release.py
+
+      - name: Persist Execution Attack runtime only after green gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- app/src/main/assets/www/core/combat-service.js app/src/main/assets/www/core/combat-session-service.js; then
+            echo "Execution runtime already persisted; nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/src/main/assets/www/core/combat-service.js app/src/main/assets/www/core/combat-session-service.js
+          git commit -m "build: apply evidence-gated WWN execution attack runtime"
+          git push origin HEAD:wwn-source-105-bridge
