@@ -70,3 +70,5 @@ jobs:
           set -euo pipefail
           chmod +x gradlew
           ./gradlew :app:compileDebugKotlin --no-daemon --stacktrace
+
+# final rerun after idempotent patcher repair
