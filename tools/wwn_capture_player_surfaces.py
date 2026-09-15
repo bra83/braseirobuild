@@ -20,7 +20,7 @@ with sync_playwright() as p:
                 cards.first.click(); page.wait_for_timeout(500)
         page.wait_for_timeout(350)
         metrics=page.evaluate('''()=>({w:innerWidth,h:innerHeight,scrollW:document.documentElement.scrollWidth,scrollH:document.documentElement.scrollHeight,bodyW:document.body.scrollWidth})''')
-        image_errors=page.locator('img').evaluate_all("els=>els.filter(e=>!e.complete||e.naturalWidth===0).map(e=>e.getAttribute('src'))")
+        image_errors=page.locator('img').evaluate_all("els=>els.filter(e=>{const src=(e.getAttribute('src')||'').trim();return src&&(!e.complete||e.naturalWidth===0)}).map(e=>e.getAttribute('src'))")
         shot=OUT/f'{label}_415x915.png'; page.screenshot(path=str(shot),full_page=False,animations='disabled')
         result={'page':page_name,'http':response.status if response else None,'metrics':metrics,'pageErrors':page_errors,'consoleErrors':console_errors,'imageErrors':image_errors,'screenshot':str(shot)}
         results.append(result); page.close()
