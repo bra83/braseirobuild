@@ -136,13 +136,17 @@ jobs:
           sha256sum "$ZIP" | tee BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip.sha256
           unzip -l "$ZIP" | tee BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.contents.txt
 
-      - name: Upload source-only Android Studio project
-        uses: actions/upload-artifact@v4
-        with:
-          name: BRASEIRO_WWN_ANDROID_STUDIO_SOURCE
-          path: |
-            BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip
-            BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip.sha256
-            BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.contents.txt
-          if-no-files-found: error
-          retention-days: 30
+      - name: Publish validated source package to delivery path
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p delivery
+          rm -f delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip.sha256 delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.contents.txt
+          mv BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip delivery/
+          mv BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip.sha256 delivery/
+          mv BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.contents.txt delivery/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip.sha256 delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.contents.txt
+          git commit -m "delivery: publish validated WWN Android Studio source package"
+          git push origin HEAD:wwn-source-105-bridge
