@@ -1,0 +1,114 @@
+name: Diagnose Star Wars R38 Full Regression
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/diagnose-star-wars-r38-full-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+
+      - name: Install download browser
+        run: |
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium >/dev/null
+
+      - name: Download pinned R38 source and visual pack
+        env:
+          SOURCE_URL: https://firestorage.ai/ja/f/qPKfDLdfrlCc
+          SOURCE_FILE: STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R38_BUILD_FIX.zip
+          SOURCE_SHA: e925d7c2885e51b4f03dfe55ec7f477deb23ee0551b7b30f3a457154db9dd872
+          VISUAL_URL: https://firestorage.ai/ja/f/qvNlG1k2Qu3e
+          VISUAL_FILE: STAR_WARS_EDGE_OF_THE_GALAXY_VISUAL_COMPLETION_PACK.zip
+          VISUAL_SHA: 4114abdfa909ea7877a655f4d929cf2b64c92681c3925e5bfd565e17221966f6
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf incoming work visual-pack diag-out
+          mkdir -p incoming work visual-pack diag-out
+          python3 - <<'PY'
+          import os,pathlib
+          from playwright.sync_api import sync_playwright
+          def dl(url,name,out):
+            with sync_playwright() as p:
+              b=p.chromium.launch(headless=True); pg=b.new_page(accept_downloads=True)
+              pg.goto(url,wait_until='domcontentloaded',timeout=120000); pg.wait_for_timeout(3000)
+              done=False
+              for s in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")','button:has-text("保存")','a:has-text("保存")']:
+                try:
+                  q=pg.locator(s).first
+                  if not q.count() or not q.is_visible(): continue
+                  with pg.expect_download(timeout=120000) as info: q.click(timeout=10000)
+                  info.value.save_as(str(out)); done=True; break
+                except Exception: pass
+              if not done:
+                q=pg.get_by_text(name,exact=False).first
+                if not q.count(): raise RuntimeError('file label not found '+name)
+                parent=q.locator('xpath=ancestor::*[self::div or self::li or self::article][1]')
+                with pg.expect_download(timeout=120000) as info: parent.locator('a,button').last.click(timeout=10000)
+                info.value.save_as(str(out)); done=True
+              b.close()
+            if not done or not out.exists(): raise SystemExit('download failed '+name)
+          dl(os.environ['SOURCE_URL'],os.environ['SOURCE_FILE'],pathlib.Path('incoming')/os.environ['SOURCE_FILE'])
+          dl(os.environ['VISUAL_URL'],os.environ['VISUAL_FILE'],pathlib.Path('incoming')/os.environ['VISUAL_FILE'])
+          PY
+          echo "${SOURCE_SHA}  incoming/${SOURCE_FILE}" | sha256sum -c -
+          echo "${VISUAL_SHA}  incoming/${VISUAL_FILE}" | sha256sum -c -
+          unzip -q "incoming/${SOURCE_FILE}" -d work
+          unzip -q "incoming/${VISUAL_FILE}" -d visual-pack
+          G="$(find work -type f -name gradlew -not -path '*/build/*' | head -1)"; test -n "$G"
+          R="$(dirname "$G")"; chmod +x "$R/gradlew"; echo "$R" >/tmp/root
+
+      - name: Apply current approved integration patches
+        shell: bash
+        run: |
+          set -euo pipefail
+          R="$(cat /tmp/root)"
+          python3 star-wars/r38/patches/block01_repair_safe.py "$R"
+          python3 star-wars/r38/patches/block02_scene_controls.py "$R"
+          python3 star-wars/r38/patches/block03_visual_completion.py "$R" "$GITHUB_WORKSPACE/visual-pack"
+
+      - name: Run full regression and persist exact failure
+        shell: bash
+        run: |
+          set +e
+          R="$(cat /tmp/root)"; cd "$R"
+          node --test tests/*.test.mjs 2>&1 | tee "$GITHUB_WORKSPACE/diag-out/full-tests.txt"
+          STATUS=${PIPESTATUS[0]}
+          cd "$GITHUB_WORKSPACE"
+          printf '%s\n' "$STATUS" > diag-out/status.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('diag-out/full-tests.txt')
+          txt=p.read_text(encoding='utf-8',errors='replace') if p.exists() else ''
+          lines=txt.splitlines()
+          needles=('not ok','AssertionError','ERR_ASSERTION','error:','failure','fail ')
+          picks=[]
+          for i,line in enumerate(lines):
+              if any(n.lower() in line.lower() for n in needles):
+                  a=max(0,i-12); b=min(len(lines),i+28)
+                  picks.extend(lines[a:b]); picks.append('---')
+          if not picks: picks=lines[-240:]
+          Path('diag-out/failure-extract.txt').write_text('\n'.join(picks[-1200:])+'\n',encoding='utf-8')
+          PY
+          mkdir -p star-wars/r38/final/diagnostics
+          cp diag-out/full-tests.txt diag-out/failure-extract.txt diag-out/status.txt star-wars/r38/final/diagnostics/
+          git config user.name braseiro-build-bot
+          git config user.email actions@users.noreply.github.com
+          git add star-wars/r38/final/diagnostics/
+          git commit -m 'test(star-wars): capture R38 full regression failure' || true
+          git push
+          exit "$STATUS"
