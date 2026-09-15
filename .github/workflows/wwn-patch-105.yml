@@ -1,0 +1,56 @@
+name: BRASEIRO WWN 1.0.5 Compile Patch
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/wwn-patch-105.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: wwn-source-105-bridge
+      - name: Patch GeminiRuntime constants in cumulative source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/src/main/java/com/braseiro/wwn/bridge/GeminiRuntime.kt')
+          s=p.read_text()
+          marker='        val VOICES: Set<String> = setOf('
+          if 'IMAGE_ASPECT_RATIOS' in s[s.find('companion object'):]:
+              print('definitions already present')
+          else:
+              i=s.index(marker)
+              line_end=s.index('\n', i)
+              defs='''\n        private val IMAGE_ASPECT_RATIOS: Set<String> = setOf("1:1","1:4","1:8","2:3","3:2","3:4","4:1","4:3","4:5","5:4","8:1","9:16","16:9","21:9")\n        private val IMAGE_SIZES: Set<String> = setOf("512","1K","2K","4K")\n        private val INTERACTION_ID_PATTERN = Regex("^v[0-9]+_[A-Za-z0-9_-]{20,512}$")\n'''
+              s=s[:line_end+1]+defs+s[line_end+1:]
+              p.write_text(s)
+          text=p.read_text()
+          for token in ('IMAGE_ASPECT_RATIOS','IMAGE_SIZES','INTERACTION_ID_PATTERN'):
+              assert text.count(token) >= 2, token
+          PY
+      - name: Compile Kotlin only
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:compileDebugKotlin --no-daemon --stacktrace
+      - name: Commit compile-proven patch to cumulative branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "BRASEIRO WWN Closure"
+          git config user.email "actions@users.noreply.github.com"
+          git add app/src/main/java/com/braseiro/wwn/bridge/GeminiRuntime.kt
+          git diff --cached --quiet && exit 0
+          git commit -m "fix: define Gemini image interaction validation constants"
+          git push origin HEAD:wwn-source-105-bridge
