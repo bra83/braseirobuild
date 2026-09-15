@@ -7,7 +7,7 @@ on:
       - ".github/workflows/wwn-source-bridge.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   WWN_SOURCE_SHARE_URL: "https://firestorage.ai/ja/f/bgLdDFFX-y7t"
@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - name: Download exact cumulative WWN source
+      - name: Download and verify exact cumulative WWN source
         shell: bash
         run: |
           set -euo pipefail
@@ -50,10 +50,23 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           unzip -t incoming/wwn.zip >/dev/null
           echo "$WWN_SOURCE_SHA256  incoming/wwn.zip" | sha256sum -c -
-      - name: Upload exact source artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: BRASEIRO_WWN_PERFORMANCE_1_0_5_SOURCE
-          path: incoming/wwn.zip
-          if-no-files-found: error
-          retention-days: 1
+          rm -rf /tmp/wwn-source && mkdir -p /tmp/wwn-source
+          unzip -q incoming/wwn.zip -d /tmp/wwn-source
+      - name: Publish exact source to temporary bridge branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/wwn-source
+          count=$(find "$ROOT" -mindepth 1 -maxdepth 1 -type d | wc -l)
+          files=$(find "$ROOT" -mindepth 1 -maxdepth 1 -type f | wc -l)
+          if [ "$count" -eq 1 ] && [ "$files" -eq 0 ]; then ROOT=$(find "$ROOT" -mindepth 1 -maxdepth 1 -type d | head -1); fi
+          git config user.name "BRASEIRO WWN Bridge"
+          git config user.email "actions@users.noreply.github.com"
+          git checkout --orphan wwn-source-105-bridge
+          git rm -rf . >/dev/null 2>&1 || true
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a "$ROOT"/. .
+          printf '%s\n' "$WWN_SOURCE_SHA256  source checkpoint sha256" > .wwn-source-checkpoint
+          git add -A
+          git commit -m "checkpoint: exact WWN Performance 1.0.5 source"
+          git push --force origin HEAD:refs/heads/wwn-source-105-bridge
