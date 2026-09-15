@@ -165,6 +165,14 @@ export function resolveAttackFromPhysicalDice({ hitFace, damageFaces = [], attac
   });
 }
 
+
+export function maximumWeaponHitDamage({attacker,weapon,damageBonus=0}){
+  validateWeapon(weapon);if(!attacker)throw new TypeError('attacker required');requireInt(damageBonus,'damageBonus');const spec=parseDiceExpression(weapon.damage),attributeScore=attacker.attributes?.[weapon.attribute],attributeMod=attributeModifier(attributeScore),skill=combatSkillContribution(attacker.skills,weapon.combatSkill);let total=spec.count*spec.sides+spec.bonus+attributeMod+damageBonus;if(weapon.punchSkillAddsToDamage&&weapon.combatSkill==='Punch'&&skill.skillLevel!==null)total+=skill.skillLevel;return Object.freeze({rule:'WWN_MAXIMUM_WEAPON_HIT_DAMAGE_V1',damage:Math.max(0,total),diceMaximum:spec.count*spec.sides+spec.bonus,attributeModifier:attributeMod,skillLevel:skill.skillLevel,damageBonus,sourceRefs:[WWN_COMBAT_SOURCES.damage,WWN_COMBAT_SOURCES.weapons]});
+}
+export function weaponShockDamageFloor({attacker,weapon,shockBonus=0}){
+  validateWeapon(weapon);if(!attacker)throw new TypeError('attacker required');requireInt(shockBonus,'shockBonus');if(!weapon.shock||weapon.melee===false)return Object.freeze({rule:'WWN_WEAPON_SHOCK_FLOOR_V1',applicable:false,damage:0,sourceRefs:[WWN_COMBAT_SOURCES.damage]});const attributeScore=attacker.attributes?.[weapon.attribute],attributeMod=attributeModifier(attributeScore);return Object.freeze({rule:'WWN_WEAPON_SHOCK_FLOOR_V1',applicable:true,damage:Math.max(0,weapon.shock.damage+attributeMod+shockBonus),attributeModifier:attributeMod,shockBonus,sourceRefs:[WWN_COMBAT_SOURCES.damage]});
+}
+
 export function resolveAutomaticWeaponHitDamage({rng,attacker,weapon,damageBonus=0,streamName='automatic-hit'}){
   if(!rng||typeof rng.die!=='function')throw new TypeError('deterministic rng required');validateWeapon(weapon);if(!attacker)throw new TypeError('attacker required');requireInt(damageBonus,'damageBonus');const attributeScore=attacker.attributes?.[weapon.attribute],attributeMod=attributeModifier(attributeScore),skill=combatSkillContribution(attacker.skills,weapon.combatSkill),damageRoll=rollDiceExpression({rng,expression:weapon.damage,streamName:`${streamName}/damage`});let damageTotal=damageRoll.total+attributeMod+damageBonus;if(weapon.punchSkillAddsToDamage&&weapon.combatSkill==='Punch'&&skill.skillLevel!==null)damageTotal+=skill.skillLevel;return Object.freeze({rule:'WWN_AUTOMATIC_WEAPON_HIT_DAMAGE_V1',rngAlgorithm:RNG_ALGORITHM,sourceRefs:[WWN_COMBAT_SOURCES.damage,WWN_COMBAT_SOURCES.weapons],attribute:weapon.attribute,attributeScore,attributeModifier:attributeMod,combatSkill:weapon.combatSkill,skillLevel:skill.skillLevel,damageRoll,damageBonus,damage:Math.max(0,damageTotal),damageKind:'AUTOMATIC_HIT'});
 }
