@@ -17,25 +17,51 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: wwn-source-105-bridge
-      - name: Integrate faction special resolution phase
+      - name: Wire crafting weapon bonuses into live combat
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('app/src/main/assets/www/core/faction-turn-service.js')
+          p=Path('app/src/main/assets/www/core/combat-service.js')
           s=p.read_text()
-          start=s.index('  resolveSpecials({campaignId,resolutions=null}){')
-          end=s.index('  takeAction({campaignId,action}){', start)
-          replacement='''  resolveSpecials({campaignId,resolutions=null}){\n    const {loaded,state}=loadState(this.persistence,campaignId);if(!state)return Object.freeze({status:loaded.status});\n    const ctx=currentContext(state);if(ctx.status!=='OK')return Object.freeze({status:`${ctx.status}_NO_MUTATION`,revision:loaded.revision});\n    if(ctx.turn.phase!=='SPECIALS_REQUIRED')return Object.freeze({status:'SPECIALS_NOT_CURRENT_PHASE_NO_MUTATION',phase:ctx.turn.phase,revision:loaded.revision});\n    const required=factionSpecialResolutionRequirements(ctx.faction);\n    if(required.length===0){const next=structuredClone(state);next.worldState.factionTurn.phase='ACTION_REQUIRED';const {receipt}=commit({persistence:this.persistence,loaded,state:next,campaignId,eventKind:'FACTION_SPECIALS_NONE',eventSuffix:'faction-specials-none',payload:{factionId:ctx.turn.currentFactionId}});return Object.freeze({status:receipt.status==='OK'?'ACTION_REQUIRED':receipt.status,receipt});}\n    if(!Array.isArray(resolutions))return Object.freeze({status:'ASSET_SPECIAL_CONTRACT_REQUIRED_NO_MUTATION',revision:loaded.revision,required,missing:required});\n    const key=x=>`${String(x?.assetId??'')}::${String(x?.specialId??'')}`;\n    const accepted=new Map();for(const r of resolutions){if(!r||typeof r!=='object')continue;const source=String(r.source??'').toUpperCase();if(!['FACTION_ASSET_EFFECT_SERVICE','GM_CONTEXT'].includes(source))continue;if(r.status!=='OK'&&r.resolved!==true)continue;accepted.set(key(r),r);}\n    const missing=required.filter(req=>!accepted.has(key(req)));if(missing.length)return Object.freeze({status:'ASSET_SPECIAL_CONTRACT_REQUIRED_NO_MUTATION',revision:loaded.revision,required,missing,resolutionsReceived:resolutions.length});\n    const next=structuredClone(state),turn=next.worldState.factionTurn;turn.phase='ACTION_REQUIRED';turn.specialResolutions=required.map(req=>structuredClone(accepted.get(key(req))));\n    const {receipt}=commit({persistence:this.persistence,loaded,state:next,campaignId,eventKind:'FACTION_SPECIALS_RESOLVED',eventSuffix:'faction-specials-resolved',payload:{factionId:turn.currentFactionId,required,resolutions:turn.specialResolutions,nextPhase:'ACTION_REQUIRED'}});\n    return Object.freeze({status:receipt.status==='OK'?'ACTION_REQUIRED':receipt.status,receipt,resolved:turn.specialResolutions});\n  }\n\n'''
-          s=s[:start]+replacement+s[end:]
+          imp="import { materializeWeaponContract } from './wwn-equipment-catalog.js';"
+          add=imp+"\nimport { weaponMechanicalBonuses } from './wwn-item-mechanics-core.js';"
+          if "wwn-item-mechanics-core.js" not in s:
+            s=s.replace(imp,add,1)
+          old="""  if(!weapon)return{status:'MISSING_EVIDENCE_WEAPON'};
+  const trait=reloadTrait(item.traits?.length?item:weapon);
+  if(tactical&&trait&&item.loaded!==true)return{status:'WEAPON_NOT_LOADED'};
+  return{status:'OK',weapon,builtIn:false,item,reloadTrait:trait};"""
+          new="""  if(!weapon)return{status:'MISSING_EVIDENCE_WEAPON'};
+  const mechanicalBonuses=weaponMechanicalBonuses(pc,item);
+  if(mechanicalBonuses.rangeMultiplier!==1&&weapon.rangeFeet){weapon=Object.freeze({...weapon,rangeFeet:Object.freeze({normal:weapon.rangeFeet.normal*mechanicalBonuses.rangeMultiplier,long:weapon.rangeFeet.long*mechanicalBonuses.rangeMultiplier})});}
+  const trait=reloadTrait(item.traits?.length?item:weapon);
+  if(tactical&&trait&&item.loaded!==true)return{status:'WEAPON_NOT_LOADED'};
+  return{status:'OK',weapon,builtIn:false,item,reloadTrait:trait,mechanicalBonuses};"""
+          if old in s:s=s.replace(old,new,1)
+          marker="const weaponResult=playerWeapon(state,actorId,weaponId,{tactical:Boolean(combat),modeId,combatSkill});if(weaponResult.status!=='OK')return Object.freeze({status:weaponResult.status,revision:loaded.revision});const weapon=weaponResult.weapon;"
+          repl=marker+"const weaponBonuses=weaponResult.mechanicalBonuses??{hitBonus:0,damageBonus:0,shockBonus:0};"
+          if "const weaponBonuses=weaponResult.mechanicalBonuses" not in s:
+            if marker not in s: raise SystemExit('attackNpc marker not found')
+            s=s.replace(marker,repl,1)
+          start=s.index('  attackNpc({')
+          try:end=s.index('\n  ',start+15)
+          except ValueError:end=len(s)
+          # Find the next class method conservatively by known method syntax after the attack block.
+          for candidate in ['\n  endTurn({','\n  enemyAttack({','\n  attackPc({','\n  reloadWeapon({','\n  moveActor({']:
+            i=s.find(candidate,start+20)
+            if i!=-1: end=min(end if end>start+20 else i,i)
+          # Whole-file replacements are safe because the exact tactical expression exists only in attackNpc.
+          s=s.replace('hitModifier:hitModifier+tacticalHitModifier,damageBonus,shockBonus','hitModifier:hitModifier+tacticalHitModifier+weaponBonuses.hitBonus,damageBonus:damageBonus+weaponBonuses.damageBonus,shockBonus:shockBonus+weaponBonuses.shockBonus')
+          s=s.replace('hitModifier:hitModifier+tacticalHitModifier, damageBonus, shockBonus','hitModifier:hitModifier+tacticalHitModifier+weaponBonuses.hitBonus, damageBonus:damageBonus+weaponBonuses.damageBonus, shockBonus:shockBonus+weaponBonuses.shockBonus')
           p.write_text(s)
           PY
           git config user.name "BRASEIRO WWN Parity"
           git config user.email "actions@users.noreply.github.com"
-          git add app/src/main/assets/www/core/faction-turn-service.js
+          git add app/src/main/assets/www/core/combat-service.js
           if ! git diff --cached --quiet; then
-            git commit -m "fix: integrate faction special resolution phase"
+            git commit -m "fix: apply crafting weapon mods in combat"
             git push origin HEAD:wwn-source-105-bridge
           fi
       - name: Check WWN JavaScript module syntax
@@ -48,6 +74,8 @@ jobs:
           node --check app/src/main/assets/www/core/wwn-expedition-services-core.js
           node --check app/src/main/assets/www/core/wwn-advanced-magic-core.js
           node --check app/src/main/assets/www/core/crafting-service.js
+          node --check app/src/main/assets/www/core/wwn-item-mechanics-core.js
+          node --check app/src/main/assets/www/core/combat-service.js
           node --check app/src/main/assets/www/core/wwn-attribute-generation-core.js
           node --check app/src/main/assets/www/core/character-creation-service.js
           node --check app/src/main/assets/www/core/advancement-spending-service.js
@@ -63,23 +91,21 @@ jobs:
           import { spellResearchPlan, spellResearchCheckPlan, workingEffectDifficulty, workingConstructionPlan, scrollCreationPlan, magicItemCreationPlan } from './app/src/main/assets/www/core/wwn-advanced-magic-core.js';
           import { validateAttributeGeneration } from './app/src/main/assets/www/core/wwn-attribute-generation-core.js';
           import { inventoryLoad, breakBundledInventoryItem } from './app/src/main/assets/www/core/wwn-inventory-core.js';
+          import { weaponMechanicalBonuses } from './app/src/main/assets/www/core/wwn-item-mechanics-core.js';
           import { foeProfile } from './app/src/main/assets/www/core/wwn-foe-catalog.js';
           import { seaTravelPlan, hirelingCost, packLoadPlan, supplyEncumbrance, privationDailyPlan } from './app/src/main/assets/www/core/wwn-expedition-services-core.js';
           const assert=(v,m)=>{if(!v)throw new Error(m)};
-          assert(moneyToCopper({copper:1})===1,'1 cp exact');
-          assert(mundaneEquipmentItem('CANDLE').costCp===1,'candle price');
-          assert(mundaneEquipmentItem('CHICKEN').costCp===5,'chicken price');
-          assert(mundaneEquipmentItem('MERCHANT_SHIP').costCp===50000,'merchant ship price');
+          assert(moneyToCopper({copper:1})===1,'1 cp exact');assert(mundaneEquipmentItem('CANDLE').costCp===1,'candle');assert(mundaneEquipmentItem('CHICKEN').costCp===5,'chicken');assert(mundaneEquipmentItem('MERCHANT_SHIP').costCp===50000,'ship');
           const buy=mundanePurchasePlan({catalogId:'TORCH',quantity:3,walletCopper:100});assert(buy.status==='OK'&&buy.costCopper===6&&buy.walletCopperAfter===94,'torch purchase exact');
-          const research=spellResearchPlan({spellLevel:1,gmApproved:true,gmAssignedLevel:true});assert(research.labCostSp===50000&&research.materialsCostSp===25000,'spell research level 1 costs');assert(spellResearchCheckPlan({spellLevel:5}).difficulty===15,'spell research check');
-          const working=workingEffectDifficulty({effectPoints:[10,3,8],area:'BUILDING'});assert(working.baseDifficulty===16&&working.finalDifficulty===64,'SRD Working example');const wc=workingConstructionPlan({difficulty:64});assert(wc.costSp===64000&&wc.baseTime.months===1&&wc.baseTime.weeks===13,'Working build cost/time');
-          assert(scrollCreationPlan({spellLevel:3}).costSp===3000,'scroll creation');assert(magicItemCreationPlan({band:'LOW_POWER_PERMANENT',difficulty:10,costSp:12500,gmApproved:true,requiredAdventureComplete:true}).status==='OK','magic item creation');
-          const arrayAttrs={Strength:14,Dexterity:12,Constitution:11,Intelligence:10,Wisdom:9,Charisma:7};assert(validateAttributeGeneration({attributes:arrayAttrs,generation:{mode:'STANDARD_ARRAY'}}).ok,'standard array legal');
-          const rolled={Strength:[1,2,3],Dexterity:[2,2,2],Constitution:[3,3,3],Intelligence:[4,4,4],Wisdom:[5,5,5],Charisma:[6,6,6]};const final={Strength:6,Dexterity:14,Constitution:9,Intelligence:12,Wisdom:15,Charisma:18};assert(validateAttributeGeneration({attributes:final,generation:{mode:'ROLL_3D6_ORDER',rolls:rolled,substitutedAttribute:'Dexterity'}}).ok,'ordered rolls plus one 14');
-          const wearer={characterId:'pc',attributes:{Strength:10},inventory:[{itemId:'boots',encumbrance:1,carryState:'WORN',weightRule:'NO_ENCUMBRANCE_WHILE_WORN'}]};assert(inventoryLoad(wearer).stowedPoints===0&&inventoryLoad(wearer).readiedPoints===0,'worn gear zero encumbrance');
-          const bundled={characterId:'pc',attributes:{Strength:10},inventory:[{itemId:'torches',name:'Torches, 3 bundled',kind:'GEAR',quantity:3,encumbrance:1,carryState:'STOWED',weightRule:'BUNDLED_THREE',sourceRefs:[]}]};const opened=breakBundledInventoryItem(bundled,{itemId:'torches'});assert(opened.status==='OK'&&opened.createdItemIds.length===3&&opened.load.stowedPoints===3,'bundle open main-action materialization');
-          assert(packLoadPlan({carrier:'MULE_OR_DONKEY',loadEncumbrance:15}).overloaded===false,'mule load');assert(supplyEncumbrance({kind:'DAY_WATER_LARGE_BEAST',units:2}).totalEncumbrance===16,'beast water encumbrance');assert(privationDailyPlan({consecutiveWaterDays:2}).strainGained===3,'privation water');
-          assert(foeProfile('LEGENDARY_GOD_TITAN')?.hitDice===20,'foe catalog');assert(seaTravelPlan({propulsion:'OAR',hours:24}).distanceMiles===48,'oar travel daily cap');assert(hirelingCost({kind:'WILDERNESS_GUIDE',days:3}).silverCost===30,'hireling cost');
+          const research=spellResearchPlan({spellLevel:1,gmApproved:true,gmAssignedLevel:true});assert(research.labCostSp===50000&&research.materialsCostSp===25000,'research');assert(spellResearchCheckPlan({spellLevel:5}).difficulty===15,'research check');
+          const working=workingEffectDifficulty({effectPoints:[10,3,8],area:'BUILDING'});assert(working.finalDifficulty===64,'Working example');assert(workingConstructionPlan({difficulty:64}).costSp===64000,'Working cost');assert(scrollCreationPlan({spellLevel:3}).costSp===3000,'scroll');assert(magicItemCreationPlan({band:'LOW_POWER_PERMANENT',difficulty:10,costSp:12500,gmApproved:true,requiredAdventureComplete:true}).status==='OK','item creation');
+          const arrayAttrs={Strength:14,Dexterity:12,Constitution:11,Intelligence:10,Wisdom:9,Charisma:7};assert(validateAttributeGeneration({attributes:arrayAttrs,generation:{mode:'STANDARD_ARRAY'}}).ok,'array');
+          const rolled={Strength:[1,2,3],Dexterity:[2,2,2],Constitution:[3,3,3],Intelligence:[4,4,4],Wisdom:[5,5,5],Charisma:[6,6,6]};const final={Strength:6,Dexterity:14,Constitution:9,Intelligence:12,Wisdom:15,Charisma:18};assert(validateAttributeGeneration({attributes:final,generation:{mode:'ROLL_3D6_ORDER',rolls:rolled,substitutedAttribute:'Dexterity'}}).ok,'rolls');
+          const wearer={characterId:'pc',attributes:{Strength:10},inventory:[{itemId:'boots',encumbrance:1,carryState:'WORN',weightRule:'NO_ENCUMBRANCE_WHILE_WORN'}]};assert(inventoryLoad(wearer).stowedPoints===0,'worn');
+          const bundled={characterId:'pc',attributes:{Strength:10},inventory:[{itemId:'torches',name:'Torches, 3 bundled',kind:'GEAR',quantity:3,encumbrance:1,carryState:'STOWED',weightRule:'BUNDLED_THREE',sourceRefs:[]}]};assert(breakBundledInventoryItem(bundled,{itemId:'torches'}).load.stowedPoints===3,'bundle');
+          assert(packLoadPlan({carrier:'MULE_OR_DONKEY',loadEncumbrance:15}).overloaded===false,'mule');assert(supplyEncumbrance({kind:'DAY_WATER_LARGE_BEAST',units:2}).totalEncumbrance===16,'water');assert(privationDailyPlan({consecutiveWaterDays:2}).strainGained===3,'privation');
+          const crafted={kind:'WEAPON',crafting:{quality:'MASTERCRAFTED',mastercraftedWeaponHitBonus:1},mods:[{modId:'CUSTOMIZED',status:'ACTIVE',specificUserId:'pc'},{modId:'OMENED_AIM',status:'ACTIVE'},{modId:'RAZOR_EDGE',status:'ACTIVE'},{modId:'LONG_ARM',status:'ACTIVE'}]};const mb=weaponMechanicalBonuses({characterId:'pc'},crafted);assert(mb.hitBonus===2&&mb.damageBonus===2&&mb.shockBonus===2&&mb.rangeMultiplier===2,'craft mods active');
+          assert(foeProfile('LEGENDARY_GOD_TITAN')?.hitDice===20,'foe');assert(seaTravelPlan({propulsion:'OAR',hours:24}).distanceMiles===48,'oar');assert(hirelingCost({kind:'WILDERNESS_GUIDE',days:3}).silverCost===30,'hireling');
           console.log('WWN parity smoke tests: OK');
           NODE
           rm package.json
