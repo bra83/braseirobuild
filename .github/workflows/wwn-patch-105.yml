@@ -25,11 +25,12 @@ jobs:
           python3 tools/wwn_patch_live_mods.py
           python3 tools/wwn_patch_crafting_lifecycle.py
           python3 tools/wwn_patch_major_projects.py
+          python3 tools/wwn_patch_mod_runtime_links.py
           git config user.name "BRASEIRO WWN Parity"
           git config user.email "actions@users.noreply.github.com"
           git add app/src/main/assets/www/core/combat-service.js app/src/main/assets/www/core/crafting-service.js app/src/main/assets/www/core/major-project-service.js
           if ! git diff --cached --quiet; then
-            git commit -m "fix: finalize WWN mechanical parity runtime"
+            git commit -m "fix: finalize WWN equipment mod runtime links"
             git push origin HEAD:wwn-source-105-bridge
           fi
 
@@ -46,6 +47,7 @@ jobs:
           node --check app/src/main/assets/www/core/advanced-magic-resolution-service.js
           node --check app/src/main/assets/www/core/crafting-service.js
           node --check app/src/main/assets/www/core/wwn-item-mechanics-core.js
+          node --check app/src/main/assets/www/core/equipment-mod-runtime-service.js
           node --check app/src/main/assets/www/core/wwn-armor-core.js
           node --check app/src/main/assets/www/core/combat-service.js
           node --check app/src/main/assets/www/core/wwn-attribute-generation-core.js
@@ -63,6 +65,7 @@ jobs:
           printf '{"type":"module"}\n' > package.json
           node tools/wwn_parity_smoke.mjs
           node tools/wwn_stateful_smoke.mjs
+          node tools/wwn_mod_runtime_stateful_smoke.mjs
 
       - name: Compile Kotlin only
         shell: bash
@@ -70,5 +73,3 @@ jobs:
           set -euo pipefail
           chmod +x gradlew
           ./gradlew :app:compileDebugKotlin --no-daemon --stacktrace
-
-# final rerun after idempotent patcher repair
