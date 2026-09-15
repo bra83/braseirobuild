@@ -12,6 +12,8 @@ export class CombatSessionService{
   async attackNpc(args){return this._narrate(args.campaignId,this.actions.attackNpc(args),'PLAYER_ATTACK');}
   async movePc(args){return this._narrate(args.campaignId,this.actions.movePc(args),'PLAYER_MOVED');}
   async fightingWithdrawal(args){return this._narrate(args.campaignId,this.actions.fightingWithdrawal(args),'FIGHTING_WITHDRAWAL');}
+  async goProne(args){return this._narrate(args.campaignId,this.actions.goProne(args),'PC_WENT_PRONE');}
+  async standUp(args){return this._narrate(args.campaignId,this.actions.standUp(args),'PC_STOOD_UP');}
   async totalDefense(args){return this._narrate(args.campaignId,this.actions.totalDefense(args),'TOTAL_DEFENSE');}
   async stabilizePc(args){return this._narrate(args.campaignId,this.actions.stabilizePc(args),'PC_STABILIZATION_ATTEMPT');}
   async reloadWeapon(args){return this._narrate(args.campaignId,this.equipment.reload(args),'WEAPON_RELOADED');}
