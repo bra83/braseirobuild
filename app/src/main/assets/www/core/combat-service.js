@@ -5,8 +5,6 @@ import { applyActionCost, applyFightingWithdrawal, freshActionEconomy, inspectAt
 import { resolveSkillCheck } from './wwn-rules-core.js';
 import { dualWieldPlan, shoveOutcome, sizePenaltyForShoveOrGrapple, resolvePcManeuverSkillRoll, resolveNpcManeuverSkillRoll } from './wwn-special-combat-core.js';
 import { isActorProne, setActorProneInPlace, proneAttackAdjustment, effectiveProneMoveFeet } from './combat-prone-state.js';
-import { dualWieldPlan } from './wwn-special-combat-core.js';
-import { isActorProne, setActorProneInPlace, proneAttackAdjustment, effectiveProneMoveFeet } from './combat-prone-state.js';
 import { materializeWeaponContract } from './wwn-equipment-catalog.js';
 import { weaponMechanicalBonuses } from './wwn-item-mechanics-core.js';
 import { reloadTrait } from './wwn-reload-core.js';
