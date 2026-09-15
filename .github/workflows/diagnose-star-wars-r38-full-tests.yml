@@ -31,6 +31,9 @@ jobs:
           SOURCE_URL: https://firestorage.ai/ja/f/qPKfDLdfrlCc
           SOURCE_FILE: STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R38_BUILD_FIX.zip
           SOURCE_SHA: e925d7c2885e51b4f03dfe55ec7f477deb23ee0551b7b30f3a457154db9dd872
+          OLD_SCENE_URL: https://firestorage.ai/ja/f/PbM3XvdzNMAk
+          OLD_SCENE_FILE: scene-assets-v1-tiny.tar.gz
+          OLD_SCENE_SHA: 2ca16b2cd0d3f489fe10f1df718be1243febeef38fb88a52bd50502528f60711
           VISUAL_URL: https://firestorage.ai/ja/f/qvNlG1k2Qu3e
           VISUAL_FILE: STAR_WARS_EDGE_OF_THE_GALAXY_VISUAL_COMPLETION_PACK.zip
           VISUAL_SHA: 4114abdfa909ea7877a655f4d929cf2b64c92681c3925e5bfd565e17221966f6
@@ -64,13 +67,28 @@ jobs:
             if not done or not out.exists(): raise SystemExit('download failed '+name)
           dl(os.environ['SOURCE_URL'],os.environ['SOURCE_FILE'],pathlib.Path('incoming')/os.environ['SOURCE_FILE'])
           dl(os.environ['VISUAL_URL'],os.environ['VISUAL_FILE'],pathlib.Path('incoming')/os.environ['VISUAL_FILE'])
+          dl(os.environ['OLD_SCENE_URL'],os.environ['OLD_SCENE_FILE'],pathlib.Path('incoming')/os.environ['OLD_SCENE_FILE'])
           PY
+          echo "${OLD_SCENE_SHA}  incoming/${OLD_SCENE_FILE}" | sha256sum -c -
+          base64 -w0 "incoming/${OLD_SCENE_FILE}" > star-wars/r38/patches/assets/scene-assets-v1.tar.gz.b64
           echo "${SOURCE_SHA}  incoming/${SOURCE_FILE}" | sha256sum -c -
           echo "${VISUAL_SHA}  incoming/${VISUAL_FILE}" | sha256sum -c -
           unzip -q "incoming/${SOURCE_FILE}" -d work
           unzip -q "incoming/${VISUAL_FILE}" -d visual-pack
           G="$(find work -type f -name gradlew -not -path '*/build/*' | head -1)"; test -n "$G"
           R="$(dirname "$G")"; chmod +x "$R/gradlew"; echo "$R" >/tmp/root
+
+      - name: Inspect historical visual contracts
+        shell: bash
+        run: |
+          R="$(cat /tmp/root)"
+          python3 - "$R" <<'PY'
+          from pathlib import Path
+          import sys
+          root=Path(sys.argv[1])
+          for p in sorted((root/'tests').glob('image-library-r*.test.mjs')):
+              print('\nSOURCE_FILE '+p.name+'\n'+p.read_text())
+          PY
 
       - name: Apply current approved integration patches
         shell: bash
