@@ -14,13 +14,14 @@ class GeminiTtsController(
     private val settings: GeminiRuntimeSettings,
     private val client: GeminiInteractionsClient
 ) {
-    enum class Result { STARTING, STOPPED, REPLAYING, MISSING_KEY, EMPTY_NARRATION }
+    enum class Result { STARTING, STOPPED, REPLAYING, MISSING_KEY, EMPTY_NARRATION, ERROR }
 
     private val appContext = context.applicationContext
     private val main = Handler(Looper.getMainLooper())
     private var player: MediaPlayer? = null
     private var lastFile: File? = null
     private var lastNarration: String? = null
+    @Volatile var onState: ((Result, String?) -> Unit)? = null
 
     fun playVisibleNarration(text: String): Result {
         if (text.isBlank()) return Result.EMPTY_NARRATION
@@ -49,7 +50,11 @@ class GeminiTtsController(
     fun playTestPhrase(): Result = playVisibleNarration("Teste de voz do Mestre Bárbara. Se você está ouvindo esta frase, o TTS está funcionando.")
 
     fun stop(): Result {
-        main.post { player?.stop(); player?.release(); player = null }
+        main.post {
+            runCatching { player?.stop() }
+            player?.release(); player = null
+            onState?.invoke(Result.STOPPED, null)
+        }
         return Result.STOPPED
     }
 
@@ -59,12 +64,28 @@ class GeminiTtsController(
 
     private fun playFile(file: File) {
         main.post {
-            player?.release()
-            player = MediaPlayer().apply {
-                setDataSource(file.absolutePath)
-                setOnCompletionListener { it.release(); if (player === it) player = null }
-                prepare()
-                start()
+            try {
+                player?.release()
+                player = MediaPlayer().apply {
+                    setDataSource(file.absolutePath)
+                    setOnPreparedListener { media ->
+                        media.start()
+                        onState?.invoke(Result.STARTING, null)
+                    }
+                    setOnCompletionListener { media ->
+                        media.release(); if (player === media) player = null
+                        onState?.invoke(Result.STOPPED, null)
+                    }
+                    setOnErrorListener { media, what, extra ->
+                        media.release(); if (player === media) player = null
+                        onState?.invoke(Result.ERROR, "MEDIA_PLAYER_${what}_$extra")
+                        true
+                    }
+                    prepareAsync()
+                }
+            } catch (t: Throwable) {
+                player?.release(); player = null
+                onState?.invoke(Result.ERROR, t.message ?: t::class.java.simpleName)
             }
         }
     }

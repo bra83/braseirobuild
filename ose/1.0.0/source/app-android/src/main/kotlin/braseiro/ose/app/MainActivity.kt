@@ -88,6 +88,12 @@ class MainActivity : Activity() {
         gemini = GeminiInteractionsClient()
         session = SessionEngine(repository, RulesRefereeBoundary(), GeminiBarbaraSupervisor(credentials, runtimeSettings, gemini))
         tts = GeminiTtsController(applicationContext, credentials, runtimeSettings, gemini)
+        tts.onState = { state, error ->
+            send(JSONObject().put("type", "TtsState").put("payload", JSONObject()
+                .put("state", state.name)
+                .put("message", error ?: JSONObject.NULL)
+                .put("configured", credentials.has(GeminiCredentialStore.Slot.TTS_AUDIO))))
+        }
 
         val assetLoader = WebViewAssetLoader.Builder()
             .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this))
@@ -342,16 +348,24 @@ class MainActivity : Activity() {
 
                         "TtsCommand" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
-                            // The WebView is not trusted to choose what TTS reads. Only canonical visible narration is accepted.
-                            val result = when (payload.optString("command")) {
-                                "play" -> tts.playVisibleNarration(current.campaignState.game.session.visibleNarration)
-                                "replay" -> tts.replayVisibleNarration(current.campaignState.game.session.visibleNarration)
-                                "stop" -> tts.stop()
-                                else -> error("UNKNOWN_TTS_COMMAND")
+                            // Only canonical visible narration can be spoken.
+                            try {
+                                val result = when (payload.optString("command")) {
+                                    "play" -> tts.playVisibleNarration(current.campaignState.game.session.visibleNarration)
+                                    "replay" -> tts.replayVisibleNarration(current.campaignState.game.session.visibleNarration)
+                                    "stop" -> tts.stop()
+                                    else -> error("UNKNOWN_TTS_COMMAND")
+                                }
+                                send(JSONObject().put("type", "TtsState").put("payload", JSONObject()
+                                    .put("state", result.name)
+                                    .put("message", JSONObject.NULL)
+                                    .put("configured", credentials.has(GeminiCredentialStore.Slot.TTS_AUDIO))))
+                            } catch (t: Throwable) {
+                                send(JSONObject().put("type", "TtsState").put("payload", JSONObject()
+                                    .put("state", "ERROR")
+                                    .put("message", safeError(t))
+                                    .put("configured", credentials.has(GeminiCredentialStore.Slot.TTS_AUDIO))))
                             }
-                            send(JSONObject().put("type", "TtsState").put("payload", JSONObject()
-                                .put("state", result.name)
-                                .put("configured", credentials.has(GeminiCredentialStore.Slot.TTS_AUDIO))))
                         }
 
                         "GeminiSettingsGet" -> sendSettingsState()

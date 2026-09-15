@@ -45,7 +45,7 @@ window.BraseiroReceive=(raw)=>{
   else if(m.type==='CharacterCreationDraft'||m.type==='CharacterCreationResult'){if(p.viewState)viewState=p.viewState;render();showToast(p.ok===false?'Não foi possível concluir a criação.':'Criação atualizada.');}
   else if(m.type==='UiCommandResult'){if(p.viewState)viewState=p.viewState;render();showToast(uiStatusMessage(p));}
   else if(m.type==='GMHelpResponse')showToast(p.answer||'Sem resposta do Mestre.');
-  else if(m.type==='TtsState')showToast(ttsMessage(p.state));
+  else if(m.type==='TtsState')showToast(p.state==='ERROR'?`TTS: ${p.message||'falha ao reproduzir o áudio.'}`:ttsMessage(p.state));
   else if(m.type==='GeminiSettingsState'){geminiState=p;updateSettingsStatus();}
   else if(m.type==='GeminiCredentialTestResult')showToast(p.ok?'Conexão Gemini: OK':'Não foi possível usar a configuração informada.');
   else if(m.type==='SceneImageResult'){postNative('ViewState',{request:'after-scene-image'});showToast('Ilustração da cena atualizada.');}
