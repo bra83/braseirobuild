@@ -18,16 +18,18 @@ jobs:
         with:
           ref: wwn-source-105-bridge
 
-      - name: Apply live-mod combat integration
+      - name: Apply parity integrations
         shell: bash
         run: |
           set -euo pipefail
           python3 tools/wwn_patch_live_mods.py
+          python3 tools/wwn_patch_crafting_lifecycle.py
+          python3 tools/wwn_patch_major_projects.py
           git config user.name "BRASEIRO WWN Parity"
           git config user.email "actions@users.noreply.github.com"
-          git add app/src/main/assets/www/core/combat-service.js
+          git add app/src/main/assets/www/core/combat-service.js app/src/main/assets/www/core/crafting-service.js app/src/main/assets/www/core/major-project-service.js
           if ! git diff --cached --quiet; then
-            git commit -m "fix: apply crafting weapon mods in combat"
+            git commit -m "fix: enforce WWN lifecycle and project parity"
             git push origin HEAD:wwn-source-105-bridge
           fi
 
@@ -48,6 +50,7 @@ jobs:
           node --check app/src/main/assets/www/core/character-creation-service.js
           node --check app/src/main/assets/www/core/advancement-spending-service.js
           node --check app/src/main/assets/www/core/faction-turn-service.js
+          node --check app/src/main/assets/www/core/major-project-service.js
           node --check app/src/main/assets/www/core/wwn-foe-catalog.js
 
       - name: Smoke test deterministic parity rules
