@@ -32,6 +32,8 @@ jobs:
           python3 tools/wwn_patch_focus_class_restrictions.py
       - name: Apply prone combat integration
         run: python3 tools/wwn_patch_prone_combat.py
+      - name: Apply dual-wield combat integration
+        run: python3 tools/wwn_patch_dual_wield.py
 
       - name: Commit player-surface integrations
         shell: bash
@@ -41,7 +43,7 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add app/src/main/assets/www/jornada.js app/src/main/assets/www/ficha.js app/src/main/assets/www/mochila.js app/src/main/assets/www/core/wwn-focus-catalog.js app/src/main/assets/www/core/combat-service.js app/src/main/assets/www/core/combat-session-service.js app/src/main/assets/www/core/combat-projection.js app/src/main/assets/www/scr022.html app/src/main/assets/www/scr022.js
           if ! git diff --cached --quiet; then
-            git commit -m "feat: expose canonical prone combat action"
+            git commit -m "feat: expose canonical special combat actions"
             git push origin HEAD:wwn-source-105-bridge
           fi
 
@@ -82,7 +84,8 @@ jobs:
           ficha=Path('app/src/main/assets/www/ficha.js').read_text()
           if 'data-manual' not in ficha or "location.href='criacao.html'" not in ficha: raise SystemExit('Ficha manual creation entry point missing')
           combat=Path('app/src/main/assets/www/scr022.html').read_text()
-          if 'id="proneButton"' not in combat: raise SystemExit('Combat prone action missing')
+          for x in ['proneButton','dualButton']:
+            if f'id="{x}"' not in combat: raise SystemExit(f'Combat special action missing: {x}')
           print('WWN player surfaces DOM contracts: OK')
           PY
 
@@ -94,6 +97,7 @@ jobs:
           printf '{"type":"module"}\n' > package.json
           node tools/wwn_manual_creation_smoke.mjs
           node tools/wwn_prone_stateful_smoke.mjs
+          node tools/wwn_dual_wield_stateful_smoke.mjs
           node tools/wwn_ui_mechanics_smoke.mjs
           node tools/wwn_parity_smoke.mjs
           node tools/wwn_stateful_smoke.mjs
@@ -106,4 +110,4 @@ jobs:
           chmod +x gradlew
           ./gradlew :app:compileDebugKotlin --no-daemon --stacktrace
 
-# Full manual creation + canonical prone combat + Jornada + Ficha + Mochila. Closure 071 remains untouched.
+# Full manual creation + Prone/Stand Up + Dual-Wield + Jornada + Ficha + Mochila. Closure 071 remains untouched.
