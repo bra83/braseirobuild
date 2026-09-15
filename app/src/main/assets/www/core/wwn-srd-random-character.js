@@ -1,6 +1,7 @@
 import { DeterministicRng } from './rng-core.js';
 import { applyCreationSkillPicks, additionalLanguageSlots, finalizeCharacterCreation, WWN_CHARACTER_CREATION_SOURCES } from './wwn-character-creation-core.js';
 import { chooseRandomClassPath, inspectLevelOneTraining } from './wwn-srd-random-class.js';
+import { WWN_BACKGROUND_LIST, legalBackgroundLearningSkills } from './wwn-background-catalog.js';
 
 const SRC=(locator)=>Object.freeze({sourceId:'SRC-WWN-SRD-1',locator});
 export const WWN_RANDOM_CHARACTER_SOURCES=Object.freeze({
@@ -14,10 +15,6 @@ export const WWN_RANDOM_CHARACTER_SOURCES=Object.freeze({
 });
 const ATTRIBUTES=Object.freeze(['Strength','Dexterity','Constitution','Intelligence','Wisdom','Charisma']);
 const EXTRA_LANGUAGE_POOL=Object.freeze(['Antigo','Mercantil','Erudito','Costeiro']);
-const BACKGROUNDS=Object.freeze([
-  Object.freeze({backgroundId:'ARTISAN',freeSkill:'Craft',learning:Object.freeze(['Connect','Convince','Exert','Know','Trade']),sourceRef:WWN_RANDOM_CHARACTER_SOURCES.artisan}),
-  Object.freeze({backgroundId:'BARBARIAN',freeSkill:'Survive',learning:Object.freeze(['Connect','Exert','Lead','Punch','Sneak']),sourceRef:WWN_RANDOM_CHARACTER_SOURCES.barbarian}),
-]);
 const FOCUS=Object.freeze({
   ANY:Object.freeze({focusId:'ALERT',name:'Alert',category:'ANY',bonusSkills:Object.freeze(['Notice']),sourceRef:WWN_RANDOM_CHARACTER_SOURCES.alert}),
   WARRIOR:Object.freeze({focusId:'ARMSMASTER',name:'Armsmaster',category:'COMBAT',bonusSkills:Object.freeze(['Stab']),sourceRef:WWN_RANDOM_CHARACTER_SOURCES.armsmaster}),
@@ -36,12 +33,12 @@ function fociFor(chassis){return Object.freeze((chassis.focusRequirements??['ANY
 function classBonusSkills(training){return training.classes.map(c=>c.bonusSkill).filter(Boolean);}
 function focusBonusSkills(foci){return foci.flatMap(f=>f.bonusSkills??[]);}
 function chooseBackground(rng,{reservedPicks=[]}={}){
-  const reserved=countPicks(reservedPicks);const legalBackgrounds=BACKGROUNDS.filter(bg=>(reserved.get(bg.freeSkill)||0)<2);if(!legalBackgrounds.length)throw new Error('no legal source-bound background for reserved skill picks');
+  const reserved=countPicks(reservedPicks);const legalBackgrounds=WWN_BACKGROUND_LIST.filter(bg=>(reserved.get(bg.freeSkill)||0)<2);if(!legalBackgrounds.length)throw new Error('no legal source-bound background for reserved skill picks');
   const bg=pick(rng,legalBackgrounds,'character/background');
-  const selected=[];const counts=countPicks([bg.freeSkill,...reservedPicks]);let pool=[...bg.learning];
+  const selected=[];const counts=countPicks([bg.freeSkill,...reservedPicks]);let pool=[...legalBackgroundLearningSkills(bg.backgroundId)];
   for(let i=0;i<2;i++){
     const legal=pool.filter(skill=>(counts.get(skill)||0)<2);if(!legal.length)throw new Error('no legal source-bound background learning pick');
-    const skill=pick(rng,legal,`character/background/learning/${i}`);selected.push(skill);counts.set(skill,(counts.get(skill)||0)+1);pool=pool.filter(x=>x!==skill);
+    const skill=pick(rng,legal,`character/background/learning/${i}`);selected.push(skill);counts.set(skill,(counts.get(skill)||0)+1);
   }
   return Object.freeze({backgroundId:bg.backgroundId,freeSkill:bg.freeSkill,mode:'PICK',learningPicks:Object.freeze(selected),sourceRef:bg.sourceRef});
 }
