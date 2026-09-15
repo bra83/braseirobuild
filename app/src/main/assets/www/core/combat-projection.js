@@ -13,6 +13,8 @@ function clone(v){return structuredClone(v)}
 function enemyVisibleStatus(npc){if(!npc||!Number.isInteger(npc.hp)||!Number.isInteger(npc.maxHp)||npc.maxHp<1)return'ESTADO DESCONHECIDO';if(npc.hp<=0)return'FORA DE COMBATE';const ratio=npc.hp/npc.maxHp;if(ratio<=.25)return'MUITO FERIDO';if(ratio<=.6)return'FERIDO';return'EM COMBATE';}
 function activeCharacterId(state){return String(state?.characterState?.characterId??state?.characterState?.id??'')}
 
+function chargeArmorClassModifier(combat,actorId){const e=combat?.chargeArmorPenalties?.[actorId];return e&&Number(e.round)===Number(combat?.round)?Number(e.modifier??0):0;}
+
 function skillPt(skill){return({Shoot:'Atirar',Stab:'Apunhalar',Exert:'Esforço',Punch:'Briga'})[skill]??skill;}
 function weaponLabel(item,mode,skill){const modeName=mode==='MELEE'?'corpo a corpo':mode==='THROWN'?'arremesso':'distância';return `${item.name} • ${modeName}${mode==='THROWN'?` • ${skillPt(skill)}`:''}`;}
 function weaponSummary(weapon){const parts=[weapon.damage];if(weapon.shock)parts.push(`Dano de choque ${weapon.shock.damage}/${weapon.shock.ac??'-'}`);if(weapon.melee===false&&weapon.rangeFeet)parts.push(`${weapon.rangeFeet.normal}/${weapon.rangeFeet.long} pés`);return parts.join(' • ');}
@@ -29,7 +31,7 @@ export function projectCombatForPlayer(state){
   const pcs=pcIds.map(id=>{
     const pc=characterById(state,id),position=combat.tactical?.actors?.[id],injury=pc?.mortalInjury??null;const armor=deriveArmorClass(pc);const movement=deriveCombatMoveFeet(pc);const proneMove=movement.status==='OK'?effectiveProneMoveFeet({combat,actorId:id,baseMoveFeet:movement.moveFeet}):null;
     return Object.freeze({
-      actorId:id,name:pc?.name??id,position:position?clone(position):null,statusBars:characterStatusProjection(pc),armorClass:armor.status==='OK'?armor.armorClass+(totalDefenseActive(combat,id)?2:0):null,baseArmorClass:armor.status==='OK'?armor.armorClass:null,armor:clone(armor),moveFeet:movement.status==='OK'?movement.moveFeet:null,
+      actorId:id,name:pc?.name??id,position:position?clone(position):null,statusBars:characterStatusProjection(pc),armorClass:armor.status==='OK'?armor.armorClass+(totalDefenseActive(combat,id)?2:0)+chargeArmorClassModifier(combat,id):null,baseArmorClass:armor.status==='OK'?armor.armorClass:null,chargeArmorClassModifier:chargeArmorClassModifier(combat,id),armor:clone(armor),moveFeet:movement.status==='OK'?movement.moveFeet:null,
       economy:clone(combat.economy?.[id]??freshActionEconomy()),totalDefense:totalDefenseActive(combat,id),mortallyInjured:isConditionActive(pc,'MORTALLY_INJURED'),stabilized:injury?.stabilized===true,dead:isConditionActive(pc,'DEAD'),
       roundsSinceDowned:Number.isInteger(injury?.roundsSinceDowned)?injury.roundsSinceDowned:null,roundsUntilDeath:injury&&!injury.stabilized&&!injury.dead?Math.max(0,6-Number(injury.roundsSinceDowned??0)):null,
       classId:pc?.classId??pc?.class??null,level:pc?.level??null,prone:isActorProne(combat,id),effectiveMoveFeet:proneMove?.moveFeet??null,grapple:actorGrappleState(combat,id),hands:inspectCharacterHands(pc),weapons:projectWeapons(pc),
