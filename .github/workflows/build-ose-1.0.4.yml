@@ -24,91 +24,51 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Download exact 1.0.4 hotfix
-        env:
-          HOTFIX_SHARE: https://firestorage.ai/ja/f/B1LcYL6gLwuw
-          HOTFIX_SHA: e904da7520ef2e2503ecccc06b98f01205c15baccb5cd5ead8f679178054c540
+      - name: Finalize TTS playback
         run: |
           set -euo pipefail
-          python -m pip install --quiet playwright pillow
-          python -m playwright install --with-deps chromium
-          python3 - <<'PY'
-          import os, pathlib
-          from playwright.sync_api import sync_playwright
-          out=pathlib.Path('/tmp/ose_1_0_4_hotfix.py')
-          with sync_playwright() as p:
-              browser=p.chromium.launch(headless=True)
-              page=browser.new_page(accept_downloads=True)
-              page.goto(os.environ['HOTFIX_SHARE'], wait_until='domcontentloaded', timeout=120000)
-              page.wait_for_timeout(3500)
-              for label in ['Accept','Aceitar','同意する','OK']:
-                  try:
-                      loc=page.get_by_text(label, exact=True)
-                      if loc.count() and loc.first.is_visible(): loc.first.click(timeout=1200)
-                  except Exception: pass
-              done=False
-              for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")']:
-                  try:
-                      loc=page.locator(sel).first
-                      if not loc.count() or not loc.is_visible(): continue
-                      with page.expect_download(timeout=120000) as info: loc.click(timeout=10000)
-                      info.value.save_as(str(out)); done=True; break
-                  except Exception: pass
-              if not done:
-                  card=page.get_by_text('ose_1_0_4_hotfix.py', exact=False).first
-                  parent=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]')
-                  with page.expect_download(timeout=120000) as info: parent.locator('a,button').last.click(timeout=10000)
-                  info.value.save_as(str(out)); done=True
-              browser.close()
-          if not done or not out.exists(): raise SystemExit('hotfix download failed')
-          PY
-          echo "$HOTFIX_SHA  /tmp/ose_1_0_4_hotfix.py" | sha256sum -c -
+          python tools/ose104_tts_finalize.py
+          node --check ose/1.0.0/source/web-ui-p1/p1.js
 
-      - name: Apply 1.0.4 hotfix
+      - name: Static QA 1.0.4
         run: |
           set -euo pipefail
-          python /tmp/ose_1_0_4_hotfix.py
+          python -m pip install --quiet pillow
           grep -q 'versionName = "1.0.4"' ose/1.0.0/source/app-android/build.gradle.kts
           grep -q 'output_audio' ose/1.0.0/source/app-android/src/main/kotlin/braseiro/ose/app/GeminiInteractionsClient.kt
           grep -q 'playTestPhrase' ose/1.0.0/source/app-android/src/main/kotlin/braseiro/ose/app/GeminiTtsController.kt
+          grep -q 'prepareAsync' ose/1.0.0/source/app-android/src/main/kotlin/braseiro/ose/app/GeminiTtsController.kt
+          grep -q 'ScenePromptShare' ose/1.0.0/source/app-android/src/main/kotlin/braseiro/ose/app/MainActivity.kt
           grep -q 'com.google.android.apps.bard' ose/1.0.0/source/app-android/src/main/kotlin/braseiro/ose/app/MainActivity.kt
           grep -q 'characterPreserved' ose/1.0.0/source/app-android/src/main/kotlin/braseiro/ose/app/MainActivity.kt
+          grep -q 'actionCostSummary' ose/1.0.0/source/web-ui-p1/p1.js
+          grep -q 'announceStateChanges' ose/1.0.0/source/web-ui-p1/p1.js
           grep -q 'android.intent.action.SEND' ose/1.0.0/source/app-android/src/main/AndroidManifest.xml
-          grep -q 'image/\*' ose/1.0.0/source/app-android/src/main/AndroidManifest.xml
-          grep -q 'A viagem fará o tempo avançar' ose/1.0.0/source/web-ui-p1/p1.js
-          grep -q 'Nova etapa da aventura' ose/1.0.0/source/web-ui-p1/p1.js
-          node --check ose/1.0.0/source/web-ui-p1/p1.js
-
-      - name: Verify directional reveal and icon isolation
-        run: |
-          set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
           from PIL import Image
           root=Path('ose/1.0.0/source')
           wild=(root/'referee-boundary/src/main/kotlin/braseiro/ose/referee/WildernessRuntimeRules.kt').read_text()
           marker='private fun reveal(w:HexWorldSnapshot,q:Int,r:Int):HexWorldSnapshot'
-          assert marker in wild
           block=wild[wild.index(marker):wild.index('private fun revealKnowledge',wild.index(marker))]
-          assert 'hexDistance' not in block, block
-          assert 'c.q==q&&c.r==r' in block.replace(' ',''), block
-          d=root/'web-ui-p1/equipment-icons'
-          png=list(d.glob('*.png'))
-          assert len(png)>=102, len(png)
-          failures=[]
-          for p in png:
+          assert 'hexDistance' not in block
+          assert 'known = c.known || here' in block and 'visible = here' in block
+          files=sorted((root/'web-ui-p1/equipment-icons').glob('*.png'))
+          assert len(files)==102, len(files)
+          bad=[]
+          for p in files:
               im=Image.open(p).convert('RGB')
-              assert im.size==(128,128), (p,im.size)
-              border=[]
-              for x in range(128):
-                  border.extend([im.getpixel((x,y)) for y in range(0,4)])
-                  border.extend([im.getpixel((x,y)) for y in range(124,128)])
-              for y in range(4,124):
-                  border.extend([im.getpixel((x,y)) for x in range(0,4)])
-                  border.extend([im.getpixel((x,y)) for x in range(124,128)])
-              if max(max(px) for px in border)>24: failures.append(p.name)
-          assert not failures, failures[:20]
-          print(f'icons_pass={len(png)}')
+              assert im.size==(128,128), (p.name,im.size)
+              # outer 16px must be black after bleed cleanup
+              px=im.load(); w,h=im.size
+              maxv=0
+              for y in range(h):
+                  for x in range(w):
+                      if x<16 or y<16 or x>=w-16 or y>=h-16:
+                          maxv=max(maxv,*px[x,y])
+              if maxv>24: bad.append((p.name,maxv))
+          assert not bad, bad[:10]
+          print('equipment_icon_bleed=PASS 102/102')
           PY
 
       - name: Setup Java 17
@@ -158,9 +118,9 @@ jobs:
           PY
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add ose/1.0.0/source "$OUT"
+          git add ose/1.0.0/source build-artifacts/ose/1.0.4
           if ! git diff --cached --quiet; then
-            git commit -m 'BRASEIRO OSE 1.0.4: TTS, Gemini share, event confirmations and persistence'
+            git commit -m 'BRASEIRO OSE 1.0.4: finalize TTS playback and UX fixes'
             git push origin HEAD:main
           fi
 
@@ -168,12 +128,12 @@ jobs:
         run: |
           {
             echo '## BRASEIRO OSE 1.0.4'
-            echo '- Gemini TTS reads top-level output_audio and performs audible test.'
-            echo '- Illustrate shares a detailed spoiler-safe prompt to Gemini; OSE accepts image share-back.'
-            echo '- Travel/rest/hunt confirmations and post-action state-change popup.'
-            echo '- Adventure reset preserves character sheet/inventory.'
-            echo '- Wilderness discovery follows traversed path only.'
-            echo '- Equipment icon bleed cleanup + 102-icon border audit.'
+            echo '- TTS: output_audio + audible test + async playback/error reporting.'
+            echo '- ILUSTRAR: prompt detalhado abre no Gemini; imagem pode ser compartilhada de volta.'
+            echo '- Confirmações antes de viagem/descanso e avisos após mudança de tempo/mundo.'
+            echo '- Personagem/inventário preservados ao recomeçar campanha.'
+            echo '- Viagem revela apenas hexes atravessados.'
+            echo '- 102/102 ícones auditados contra bleed na borda.'
             cat build-artifacts/ose/1.0.4/BRASEIRO_OSE_1_0_4_DEBUG.sha256
             cat build-artifacts/ose/1.0.4/TMPFILES_DIRECT_URL.txt
           } >> "$GITHUB_STEP_SUMMARY"
