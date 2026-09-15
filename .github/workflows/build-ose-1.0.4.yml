@@ -50,7 +50,8 @@ jobs:
           root=Path('ose/1.0.0/source')
           wild=(root/'referee-boundary/src/main/kotlin/braseiro/ose/referee/WildernessRuntimeRules.kt').read_text()
           marker='private fun reveal(w:HexWorldSnapshot,q:Int,r:Int):HexWorldSnapshot'
-          block=wild[wild.index(marker):wild.index('private fun revealKnowledge',wild.index(marker))]
+          start=wild.index(marker)
+          block=wild[start:wild.index('private fun hexDistance',start)]
           assert 'hexDistance' not in block
           assert 'known = c.known || here' in block and 'visible = here' in block
           files=sorted((root/'web-ui-p1/equipment-icons').glob('*.png'))
@@ -59,7 +60,6 @@ jobs:
           for p in files:
               im=Image.open(p).convert('RGB')
               assert im.size==(128,128), (p.name,im.size)
-              # outer 16px must be black after bleed cleanup
               px=im.load(); w,h=im.size
               maxv=0
               for y in range(h):
