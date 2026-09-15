@@ -1,5 +1,6 @@
 import { attributeModifier } from './wwn-rules-core.js';
 import { inventoryLoad } from './wwn-inventory-core.js';
+import { armorMechanicalBonuses } from './wwn-item-mechanics-core.js';
 
 export const WWN_ARMOR_SOURCES=Object.freeze({
   armor:Object.freeze({sourceId:'SRC-WWN-SRD-1',locator:'§3.3.0 Armor'}),
@@ -20,7 +21,8 @@ export function deriveArmorClass(character){
   const shield=shields.sort((a,b)=>b.shieldBaseArmorClass-a.shieldBaseArmorClass||String(a.itemId??a.catalogId).localeCompare(String(b.itemId??b.catalogId)))[0]??null;
   let base=armor?.armorClassBase??10;let shieldBonus=0;
   if(shield){if(base>=shield.shieldBaseArmorClass)shieldBonus=1;else base=shield.shieldBaseArmorClass;}
-  return Object.freeze({status:'OK',armorClass:base+shieldBonus+dexMod,baseArmorClass:base,shieldBonus,dexterityModifier:dexMod,armorItemId:armor?.itemId??null,shieldItemId:shield?.itemId??null,hasShield:Boolean(shield),sourceRefs:[WWN_ARMOR_SOURCES.armor,WWN_ARMOR_SOURCES.shields]});
+  const modBonus=armor?armorMechanicalBonuses(character,armor).armorClassBonus:0;
+  return Object.freeze({status:'OK',armorClass:base+shieldBonus+dexMod+modBonus,baseArmorClass:base,shieldBonus,modArmorClassBonus:modBonus,dexterityModifier:dexMod,armorItemId:armor?.itemId??null,shieldItemId:shield?.itemId??null,hasShield:Boolean(shield),sourceRefs:[WWN_ARMOR_SOURCES.armor,WWN_ARMOR_SOURCES.shields]});
 }
 
 export function armorSkillPenalty(character,skillName){
@@ -33,8 +35,6 @@ export function armorSkillPenalty(character,skillName){
 
 export function deriveCombatMoveFeet(character){
   if(!character||typeof character!=='object')return Object.freeze({status:'MISSING_CHARACTER'});const load=inventoryLoad(character);if(load.status==='OK')return Object.freeze({status:'OK',moveFeet:load.assessment.moveFeet,load,sourceRefs:load.sourceRefs});
-  // Existing canonical fixtures may have no item list but do have no evidence of overload; do not infer a reduced move.
-  // Callers can only use 30 as legacy explicit/default if the inventory is truly absent and no contradictory move is stored.
   if(load.status==='MISSING_EVIDENCE'&&Number.isFinite(character.moveFeet))return Object.freeze({status:'OK',moveFeet:character.moveFeet,legacyExplicit:true,sourceRefs:[]});
   if(load.status==='MISSING_EVIDENCE')return Object.freeze({status:'OK',moveFeet:30,legacyDefault:true,sourceRefs:[]});
   return Object.freeze({status:load.status,reason:load.reason??null});
