@@ -1,4 +1,4 @@
-name: BRASEIRO WWN 1.0.5 Compile Patch
+name: BRASEIRO WWN 1.0.5 Parity Validation
 
 on:
   push:
@@ -7,50 +7,64 @@ on:
       - ".github/workflows/wwn-patch-105.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  patch-and-compile:
+  parity-validation:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
           ref: wwn-source-105-bridge
-      - name: Patch GeminiRuntime constants in cumulative source
+      - name: Check WWN JavaScript module syntax
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path('app/src/main/java/com/braseiro/wwn/bridge/GeminiRuntime.kt')
-          s=p.read_text()
-          marker='        val VOICES: Set<String> = setOf('
-          if 'IMAGE_ASPECT_RATIOS' in s[s.find('companion object'):]:
-              print('definitions already present')
-          else:
-              i=s.index(marker)
-              line_end=s.index('\n', i)
-              defs='''\n        private val IMAGE_ASPECT_RATIOS: Set<String> = setOf("1:1","1:4","1:8","2:3","3:2","3:4","4:1","4:3","4:5","5:4","8:1","9:16","16:9","21:9")\n        private val IMAGE_SIZES: Set<String> = setOf("512","1K","2K","4K")\n        private val INTERACTION_ID_PATTERN = Regex("^v[0-9]+_[A-Za-z0-9_-]{20,512}$")\n'''
-              s=s[:line_end+1]+defs+s[line_end+1:]
-              p.write_text(s)
-          text=p.read_text()
-          for token in ('IMAGE_ASPECT_RATIOS','IMAGE_SIZES','INTERACTION_ID_PATTERN'):
-              assert text.count(token) >= 2, token
-          PY
+          node --check app/src/main/assets/www/core/wwn-mundane-equipment-core.js
+          node --check app/src/main/assets/www/core/wwn-advanced-magic-core.js
+          node --check app/src/main/assets/www/core/crafting-service.js
+          node --check app/src/main/assets/www/core/wwn-character-creation-core.js
+          node --check app/src/main/assets/www/core/wwn-advancement-core.js
+          node --check app/src/main/assets/www/core/wwn-travel-core.js
+          node --check app/src/main/assets/www/core/wwn-foe-catalog.js
+      - name: Smoke test deterministic parity rules
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '{"type":"module"}\n' > package.json
+          node <<'NODE'
+          import { mundaneEquipmentItem, mundanePurchasePlan, moneyToCopper } from './app/src/main/assets/www/core/wwn-mundane-equipment-core.js';
+          import { spellResearchPlan, spellResearchCheckPlan, workingEffectDifficulty, workingConstructionPlan, scrollCreationPlan, magicItemCreationPlan } from './app/src/main/assets/www/core/wwn-advanced-magic-core.js';
+          import { foeProfile } from './app/src/main/assets/www/core/wwn-foe-catalog.js';
+          import { seaTravelPlan, hirelingCost } from './app/src/main/assets/www/core/wwn-expedition-services-core.js';
+          const assert=(v,m)=>{if(!v)throw new Error(m)};
+          assert(moneyToCopper({copper:1})===1,'1 cp exact');
+          assert(mundaneEquipmentItem('CANDLE').costCp===1,'candle price');
+          assert(mundaneEquipmentItem('CHICKEN').costCp===5,'chicken price');
+          assert(mundaneEquipmentItem('MERCHANT_SHIP').costCp===50000,'merchant ship price');
+          const buy=mundanePurchasePlan({catalogId:'TORCH',quantity:3,walletCopper:100});
+          assert(buy.status==='OK'&&buy.costCopper===6&&buy.walletCopperAfter===94,'torch purchase exact');
+          const research=spellResearchPlan({spellLevel:1,gmApproved:true,gmAssignedLevel:true});
+          assert(research.labCostSp===50000&&research.materialsCostSp===25000,'spell research level 1 costs');
+          assert(spellResearchCheckPlan({spellLevel:5}).difficulty===15,'spell research check');
+          const working=workingEffectDifficulty({effectPoints:[10,3,8],area:'BUILDING'});
+          assert(working.baseDifficulty===16&&working.finalDifficulty===64,'SRD Working example');
+          const wc=workingConstructionPlan({difficulty:64});
+          assert(wc.costSp===64000&&wc.baseTime.months===1&&wc.baseTime.weeks===13,'Working build cost/time');
+          const scroll=scrollCreationPlan({spellLevel:3});
+          assert(scroll.costSp===3000&&scroll.creationDifficulty===9,'scroll creation');
+          const item=magicItemCreationPlan({band:'LOW_POWER_PERMANENT',difficulty:10,costSp:12500,gmApproved:true,requiredAdventureComplete:true});
+          assert(item.status==='OK'&&item.creationDifficulty===10,'magic item creation');
+          assert(foeProfile('LEGENDARY_GOD_TITAN')?.hitDice===20,'foe catalog');
+          assert(seaTravelPlan({propulsion:'OAR',hours:24}).distanceMiles===48,'oar travel daily cap');
+          assert(hirelingCost({kind:'WILDERNESS_GUIDE',days:3}).silverCost===30,'hireling cost');
+          console.log('WWN parity smoke tests: OK');
+          NODE
+          rm package.json
       - name: Compile Kotlin only
         shell: bash
         run: |
           set -euo pipefail
           chmod +x gradlew
           ./gradlew :app:compileDebugKotlin --no-daemon --stacktrace
-      - name: Commit compile-proven patch to cumulative branch
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "BRASEIRO WWN Closure"
-          git config user.email "actions@users.noreply.github.com"
-          git add app/src/main/java/com/braseiro/wwn/bridge/GeminiRuntime.kt
-          git diff --cached --quiet && exit 0
-          git commit -m "fix: define Gemini image interaction validation constants"
-          git push origin HEAD:wwn-source-105-bridge
