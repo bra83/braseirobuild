@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  jornada-integration:
+  player-surfaces-integration:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -18,36 +18,45 @@ jobs:
         with:
           ref: wwn-source-105-bridge
 
-      - name: Apply Jornada mechanics integration
+      - name: Apply player-surface integrations
         shell: bash
         run: |
           set -euo pipefail
           python3 tools/wwn_patch_jornada_mechanics.py
+          python3 tools/wwn_patch_ficha_canonical.py
+          python3 tools/wwn_patch_mochila_catalog.py
           git config user.name "BRASEIRO WWN UI"
           git config user.email "actions@users.noreply.github.com"
-          git add app/src/main/assets/www/jornada.js
+          git add app/src/main/assets/www/jornada.js app/src/main/assets/www/ficha.js app/src/main/assets/www/mochila.js
           if ! git diff --cached --quiet; then
-            git commit -m "feat: connect Jornada to canonical WWN mechanics"
+            git commit -m "feat: connect player surfaces to canonical WWN state"
             git push origin HEAD:wwn-source-105-bridge
           fi
 
-      - name: Validate Jornada UI contract and JavaScript
+      - name: Validate player-surface JavaScript and DOM contracts
         shell: bash
         run: |
           set -euo pipefail
           node --check app/src/main/assets/www/core/player-mechanics-facade.js
           node --check app/src/main/assets/www/jornada.js
+          node --check app/src/main/assets/www/ficha.js
+          node --check app/src/main/assets/www/mochila.js
           python3 - <<'PY'
           from pathlib import Path
-          h=Path('app/src/main/assets/www/jornada.html').read_text()
-          required=['mechanicsPanel','mechanicsAttribute','mechanicsSkill','mechanicsDifficulty','mechanicsTestButton','mechanicsSavePane','mechanicsEnemy','mechanicsWeapon','mechanicsStartCombatButton','mechanicsAttackButton','mechanicsReloadButton','mechanicsResult']
-          missing=[x for x in required if f'id="{x}"' not in h]
+          jornada=Path('app/src/main/assets/www/jornada.html').read_text()
+          req=['mechanicsPanel','mechanicsAttribute','mechanicsSkill','mechanicsDifficulty','mechanicsTestButton','mechanicsSavePane','mechanicsEnemy','mechanicsWeapon','mechanicsStartCombatButton','mechanicsAttackButton','mechanicsReloadButton','mechanicsResult']
+          missing=[x for x in req if f'id="{x}"' not in jornada]
           if missing: raise SystemExit(f'Missing Jornada mechanics ids: {missing}')
-          if 'width=415' not in h: raise SystemExit('Jornada lost 415px viewport contract')
-          print('Jornada mechanics DOM contract: OK')
+          for page in ['jornada.html','ficha.html','mochila.html']:
+            h=Path('app/src/main/assets/www/'+page).read_text()
+            if 'width=415' not in h: raise SystemExit(f'{page} lost 415px viewport contract')
+          mochila=Path('app/src/main/assets/www/mochila.html').read_text()
+          for x in ['inventoryList','marketButton','catalogList','marketSilver']:
+            if f'id="{x}"' not in mochila: raise SystemExit(f'Mochila missing {x}')
+          print('WWN player surfaces DOM contracts: OK')
           PY
 
-      - name: Run UI mechanics and parity smoke tests
+      - name: Run UI and mechanical regression smokes
         shell: bash
         run: |
           set -euo pipefail
