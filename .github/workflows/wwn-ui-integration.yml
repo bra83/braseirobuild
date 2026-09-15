@@ -47,6 +47,7 @@ jobs:
           if ! grep -q 'chargeNpc({' app/src/main/assets/www/core/combat-service.js; then python3 tools/wwn_patch_charge_combat.py; fi
           if grep -q 'chargeNpc({' app/src/main/assets/www/core/combat-service.js; then python3 tools/wwn_fix_charge_edge_cases.py; fi
           if ! grep -q 'swarmAssistNpc({' app/src/main/assets/www/core/combat-service.js; then python3 tools/wwn_patch_swarm_attack.py; fi
+          if ! grep -q 'screenAlly({' app/src/main/assets/www/core/combat-service.js; then python3 tools/wwn_patch_screen_ally.py; fi
           python3 tools/wwn_normalize_combat_imports.py
 
       - name: Commit player-surface integrations
@@ -57,7 +58,7 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add app/src/main/assets/www/jornada.js app/src/main/assets/www/ficha.js app/src/main/assets/www/mochila.js app/src/main/assets/www/core/wwn-focus-catalog.js app/src/main/assets/www/core/wwn-combat-core.js app/src/main/assets/www/core/wwn-special-combat-core.js app/src/main/assets/www/core/wwn-npc-combat.js app/src/main/assets/www/core/combat-prone-state.js app/src/main/assets/www/core/combat-grapple-state.js app/src/main/assets/www/core/combat-hand-state.js app/src/main/assets/www/core/combat-service.js app/src/main/assets/www/core/combat-session-service.js app/src/main/assets/www/core/combat-projection.js app/src/main/assets/www/scr022.html app/src/main/assets/www/scr022.js
           if ! git diff --cached --quiet; then
-            git commit -m "feat: expose canonical swarm attack flow"
+            git commit -m "feat: expose canonical screen ally flow"
             git push origin HEAD:wwn-source-105-bridge
           fi
 
@@ -103,7 +104,7 @@ jobs:
           ficha=Path('app/src/main/assets/www/ficha.js').read_text()
           if 'data-manual' not in ficha or "location.href='criacao.html'" not in ficha: raise SystemExit('Ficha manual creation entry point missing')
           combat=Path('app/src/main/assets/www/scr022.html').read_text()
-          for x in ['maneuverButton','proneButton','dualButton','swarmAssistButton','swarmAttackButton','chargeButton','shoveExertButton','shovePunchButton','shovePushExertButton','shovePushPunchButton','grappleButton','grappleMoveButton','grappleThrowButton','maneuverPopup']:
+          for x in ['maneuverButton','proneButton','dualButton','swarmAssistButton','swarmAttackButton','chargeButton','screenButton','shoveExertButton','shovePunchButton','shovePushExertButton','shovePushPunchButton','grappleButton','grappleMoveButton','grappleThrowButton','maneuverPopup']:
             if f'id="{x}"' not in combat: raise SystemExit(f'Combat special action missing: {x}')
           print('WWN player surfaces DOM contracts: OK')
           PY
@@ -123,6 +124,7 @@ jobs:
           node tools/wwn_grapple_manipulation_smoke.mjs
           node tools/wwn_charge_stateful_smoke.mjs
           node tools/wwn_swarm_stateful_smoke.mjs
+          node tools/wwn_screen_ally_stateful_smoke.mjs
           node tools/wwn_ui_mechanics_smoke.mjs
           node tools/wwn_parity_smoke.mjs
           node tools/wwn_stateful_smoke.mjs
@@ -135,4 +137,4 @@ jobs:
           chmod +x gradlew
           ./gradlew :app:compileDebugKotlin --no-daemon --stacktrace
 
-# Full manual creation + Prone/Stand Up + Dual-Wield + Shove prone/push + Grapple full flow + Charge + Swarm Attack + Jornada + Ficha + Mochila. Closure 071 remains untouched.
+# Full manual creation + Prone/Stand Up + Dual-Wield + Shove prone/push + Grapple full flow + Charge + Swarm Attack + Screen Ally + Jornada + Ficha + Mochila. Closure 071 remains untouched.
