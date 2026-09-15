@@ -67,6 +67,27 @@ jobs:
           python3 /tmp/ose104/apply104_v2.py
           python3 -m pip install --quiet pillow
           python3 /tmp/ose104/script1.py
+          # The source atlas exports include fragments from neighboring cells in the outer band.
+          # Visual QA showed an 8px crop still leaked, while 16px removed the bleed cleanly.
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          d=Path('ose/1.0.0/source/web-ui-p1/equipment-icons')
+          count=0
+          for p in sorted(d.glob('*.png')):
+              im=Image.open(p).convert('RGBA')
+              w,h=im.size
+              inset=max(16, min(w,h)//8)
+              px=im.load()
+              for y in range(h):
+                  for x in range(w):
+                      if x < inset or y < inset or x >= w-inset or y >= h-inset:
+                          px[x,y]=(0,0,0,255)
+              im.save(p,optimize=True)
+              count+=1
+          assert count==102, count
+          print(f'equipment_icons_strict_bleed_cleanup={count}/102 inset>=16px')
+          PY
 
       - name: Static QA for 1.0.4
         run: |
@@ -84,6 +105,18 @@ jobs:
           grep -q 'android.intent.action.SEND' ose/1.0.0/source/app-android/src/main/AndroidManifest.xml
           test "$(find ose/1.0.0/source/web-ui-p1/equipment-icons -maxdepth 1 -name '*.png' | wc -l)" -eq 102
           node --check ose/1.0.0/source/web-ui-p1/p1.js
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          d=Path('ose/1.0.0/source/web-ui-p1/equipment-icons')
+          files=sorted(d.glob('*.png'))
+          assert len(files)==102
+          for p in files:
+              im=Image.open(p).convert('RGBA'); w,h=im.size; inset=max(16,min(w,h)//8)
+              px=im.load()
+              assert all(px[x,y][:3]==(0,0,0) for y in range(h) for x in range(w) if x<inset or y<inset or x>=w-inset or y>=h-inset), p
+          print('equipment_icon_bleed_border=PASS 102/102')
+          PY
 
       - name: Setup Java 17
         uses: actions/setup-java@v4
@@ -91,13 +124,17 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Setup Android SDK 35
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android platform
+      - name: Use preinstalled Android SDK and install platform 35
         run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager 'platform-tools' 'platforms;android-35'
+          set -euo pipefail
+          ANDROID_HOME=/usr/local/lib/android/sdk
+          ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platform-tools' 'platforms;android-35'
 
       - name: Setup Gradle cache
         uses: gradle/actions/setup-gradle@v4
@@ -131,11 +168,11 @@ jobs:
         run: |
           {
             echo '## BRASEIRO OSE 1.0.4'
-            echo '- TTS: current Gemini Interactions output_audio + audible test.'
+            echo '- TTS: Gemini Interactions output_audio + audible test.'
             echo '- ILUSTRAR: detailed scene prompt shared to Gemini app; OSE receives shared image.'
             echo '- UX: confirmations before day/resource costs and popup after world/time changes.'
             echo '- Recomeçar: character, inventory and equipment preserved.'
             echo '- Map: travel reveals traversed path only.'
-            echo '- Equipment: 102 icons edge-bleed cleanup.'
+            echo '- Equipment: 102/102 icons with strict outer-band bleed cleanup.'
             cat build-artifacts/ose/1.0.4/BRASEIRO_OSE_1_0_4_DEBUG.sha256
           } >> "$GITHUB_STEP_SUMMARY"
