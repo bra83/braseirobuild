@@ -1,0 +1,135 @@
+name: Validate Cyberpunk RED R4.76 Android
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/validate-cyberpunk-r476.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CPRED_SOURCE_SHARE_URL: "https://firestorage.ai/ja/f/M-k-_70_g2Tt"
+  CPRED_SOURCE_SHA256: "7451cec9eb4f90ab951e5adbbe2d95bf6d424cc1fd4ba69a5f6785bd281251c5"
+  CPRED_SOURCE_NAME: "CYBERPUNK_RED_R4_76_ANDROID_HOST_SUPPLEMENT_COVERAGE_CHECKPOINT.zip"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout braseirobuild
+
+      - name: Download exact R4.76 checkpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p incoming /tmp/cpred-browser
+          ZIP="$GITHUB_WORKSPACE/incoming/$CPRED_SOURCE_NAME"
+          cd /tmp/cpred-browser
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+          cat > download.mjs <<'NODE'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch({headless:true});
+          const context = await browser.newContext({acceptDownloads:true, locale:'ja-JP'});
+          const page = await context.newPage();
+          const output = process.env.GITHUB_WORKSPACE + '/incoming/' + process.env.CPRED_SOURCE_NAME;
+          async function openShare(){await page.goto(process.env.CPRED_SOURCE_SHARE_URL,{waitUntil:'domcontentloaded',timeout:60000});await page.waitForTimeout(2500)}
+          async function attempt(){
+            const els=page.locator('a,button,[role="button"]');
+            const count=Math.min(await els.count(),120);
+            for(let i=0;i<count;i++){
+              const el=els.nth(i);let text='',href='';
+              try{text=(await el.innerText({timeout:700})).trim()}catch{}
+              try{href=(await el.getAttribute('href'))||''}catch{}
+              if(!/download|ダウンロード|一括|保存|ZIP|ファイル/i.test(text+' '+href))continue;
+              try{const pending=page.waitForEvent('download',{timeout:8000});await el.click({timeout:4000});const d=await pending;await d.saveAs(output);return true}catch{try{if(!page.url().includes('/f/'))await openShare()}catch{}}
+            }
+            return false;
+          }
+          await openShare();
+          for(let n=1;n<=24;n++){if(await attempt()){console.log('DOWNLOAD_OK attempt='+n);await browser.close();process.exit(0)}await page.waitForTimeout(5000);if(n%4===0)await openShare()}
+          await browser.close();process.exit(2);
+          NODE
+          node download.mjs
+          cd "$GITHUB_WORKSPACE"
+          unzip -t "$ZIP" >/dev/null
+          echo "$CPRED_SOURCE_SHA256  $ZIP" | sha256sum -c -
+
+      - name: Extract and detect Android root
+        id: android
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf work && mkdir work
+          unzip -q "incoming/$CPRED_SOURCE_NAME" -d work
+          ROOT=""
+          while IFS= read -r -d '' W; do D="$(dirname "$W")"; if [ -f "$D/settings.gradle.kts" ] || [ -f "$D/settings.gradle" ]; then ROOT="$D"; break; fi; done < <(find work -type f -name gradlew -print0)
+          [ -n "$ROOT" ] || { echo "::error::Android root not found"; exit 1; }
+          chmod +x "$ROOT/gradlew"
+          SDK="$(grep -hoE 'compileSdk[[:space:]]*=[[:space:]]*[0-9]+' "$ROOT/app/build.gradle.kts" | grep -oE '[0-9]+' | head -n1)"; [ -n "$SDK" ] || SDK=36
+          echo "root=$ROOT" >> "$GITHUB_OUTPUT"
+          echo "sdk=$SDK" >> "$GITHUB_OUTPUT"
+          K="$ROOT/app/src/main/java/com/braseiro/cyberpunkred/BarbaraRuntime.kt"
+          grep -F 'black_chrome_vehicle_special' "$K" >/dev/null
+          grep -F 'ANDROID_HOST_SUPPLEMENT_COVERAGE_GATE_R4_76' "$ROOT/qa/ANDROID_HOST_SUPPLEMENT_COVERAGE_GATE_R4_76.mjs" >/dev/null
+
+      - name: Run R4.76 host coverage gate
+        working-directory: ${{ steps.android.outputs.root }}
+        shell: bash
+        run: node qa/ANDROID_HOST_SUPPLEMENT_COVERAGE_GATE_R4_76.mjs
+
+      - uses: actions/setup-java@v4
+        name: Configure Java 17
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+        name: Configure Android SDK
+
+      - name: Install Android SDK
+        shell: bash
+        env:
+          SDK: ${{ steps.android.outputs.sdk }}
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-${SDK}" "build-tools;36.0.0"
+
+      - uses: gradle/actions/setup-gradle@v4
+        name: Configure Gradle cache
+
+      - name: Assemble R4.76 debug APK
+        working-directory: ${{ steps.android.outputs.root }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew clean assembleDebug --stacktrace --no-daemon
+
+      - name: Validate generated APK
+        shell: bash
+        env:
+          ROOT: ${{ steps.android.outputs.root }}
+        run: |
+          set -euo pipefail
+          APK="$(find "$ROOT" -type f -path '*/build/outputs/apk/debug/*.apk' | sort | head -n1)"
+          [ -f "$APK" ] || { echo "::error::APK not generated"; exit 1; }
+          unzip -t "$APK" >/dev/null
+          BT="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
+          "$BT/aapt" dump badging "$APK" | grep "package: name='com.braseiro.cyberpunkred'"
+          "$BT/apksigner" verify --verbose "$APK"
+          sha256sum "$APK"
+
+      - name: Summary
+        shell: bash
+        run: |
+          echo "## Cyberpunk RED R4.76 Android validation" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Source SHA-256: $CPRED_SOURCE_SHA256" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Host supplement coverage: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- assembleDebug: PASS" >> "$GITHUB_STEP_SUMMARY"
