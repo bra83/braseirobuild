@@ -24,12 +24,24 @@ jobs:
           trap 'rm -f package.json' EXIT
           printf '{"type":"module"}\n' > package.json
           node tools/wwn_33_session_gate.mjs
-      - name: Re-run core regression after sessions
+          node tools/wwn_33_play_session_gate.mjs
+      - name: Re-run full mechanical regression after sessions
         shell: bash
         run: |
           set -euo pipefail
           trap 'rm -f package.json' EXIT
           printf '{"type":"module"}\n' > package.json
+          node tools/wwn_manual_creation_smoke.mjs
+          node tools/wwn_prone_stateful_smoke.mjs
+          node tools/wwn_dual_wield_stateful_smoke.mjs
+          node tools/wwn_shove_stateful_smoke.mjs
+          node tools/wwn_shove_push_stateful_smoke.mjs
+          node tools/wwn_grapple_stateful_smoke.mjs
+          node tools/wwn_grapple_manipulation_smoke.mjs
+          node tools/wwn_charge_stateful_smoke.mjs
+          node tools/wwn_swarm_stateful_smoke.mjs
+          node tools/wwn_screen_ally_stateful_smoke.mjs
+          node tools/wwn_snap_hold_stateful_smoke.mjs
           node tools/wwn_parity_smoke.mjs
           node tools/wwn_stateful_smoke.mjs
           node tools/wwn_mod_runtime_stateful_smoke.mjs
