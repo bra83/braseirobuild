@@ -1,0 +1,47 @@
+import fs from 'node:fs';
+import { MemoryPersistenceAdapter } from '../app/src/main/assets/www/core/persistence-port.js';
+import { ensureStarterCampaign } from '../app/src/main/assets/www/core/starter-bootstrap.js';
+import { SceneSessionService } from '../app/src/main/assets/www/core/scene-session-service.js';
+import { DeterministicNarrativeProvider } from '../app/src/main/assets/www/core/narrative-provider.js';
+import { CombatSessionService } from '../app/src/main/assets/www/core/combat-session-service.js';
+import { projectCombatForPlayer } from '../app/src/main/assets/www/core/combat-projection.js';
+
+const assert=(v,m)=>{if(!v)throw new Error(m)};
+const pack=JSON.parse(fs.readFileSync(new URL('../app/src/main/assets/www/data/wwn.starter-region.v1.json',import.meta.url),'utf8'));
+const character=JSON.parse(fs.readFileSync(new URL('../app/src/main/assets/www/data/wave6.iria.canonical.fixture.json',import.meta.url),'utf8'));
+const persistence=new MemoryPersistenceAdapter();
+const boot=ensureStarterCampaign({persistence,character,pack,masterSeed:'wwn-prone-stateful-smoke'});
+assert(String(boot.status).startsWith('OK'),`boot failed: ${boot.status}`);
+const campaignId=boot.campaignId,barbara=new DeterministicNarrativeProvider();
+const scenes=new SceneSessionService({persistence,barbara});
+const session=new CombatSessionService({persistence,barbara});
+const opened=await scenes.openContentScene({campaignId,contentType:'majorSite',contentId:'site_vigilia'});
+assert(['OK','NARRATIVE_PENDING','MECHANICAL_COMMITTED_NARRATIVE_PENDING'].includes(opened.status),`scene failed: ${opened.status}`);
+const started=await session.startAtVigilia({campaignId});
+assert(started.status==='OK',`combat start failed: ${started.status}`);
+let projection=projectCombatForPlayer(JSON.parse(persistence.loadCampaign(campaignId).stateJson));
+if(projection.activeSideId==='ENEMY'){
+  const firstEnemy=await session.resolveEnemySide({campaignId});assert(firstEnemy.status==='OK',`initial enemy side failed: ${firstEnemy.status}`);
+  projection=projectCombatForPlayer(JSON.parse(persistence.loadCampaign(campaignId).stateJson));
+}
+assert(projection.activeSideId==='PC','PC side required for prone smoke');
+const pc=projection.pcs[0];assert(pc&&pc.prone===false,'PC must start standing');
+const baseMove=pc.moveFeet;assert(Number.isFinite(baseMove)&&baseMove>0,'base move required');
+const beforeEconomy=structuredClone(pc.economy);
+const prone=await session.goProne({campaignId,pcId:pc.actorId});
+assert(prone.status==='OK'&&prone.prone===true,`go prone failed: ${prone.status}`);
+projection=projectCombatForPlayer(JSON.parse(persistence.loadCampaign(campaignId).stateJson));
+let current=projection.pcs.find(x=>x.actorId===pc.actorId);assert(current.prone===true,'prone state must project');
+assert(current.effectiveMoveFeet===baseMove/2,`prone move must halve: ${current.effectiveMoveFeet} vs ${baseMove/2}`);
+assert(current.economy.mainAvailable===beforeEconomy.mainAvailable&&current.economy.moveAvailable===beforeEconomy.moveAvailable,'go prone must be On Turn with no action cost');
+const end=await session.endPcSide({campaignId});assert(end.status==='OK','PC side end failed');
+let enemy=await session.resolveEnemySide({campaignId});assert(enemy.status==='OK',`enemy side failed: ${enemy.status}`);
+const attacked=(enemy.actions??[]).find(a=>a.targetPcId===pc.actorId&&a.attack);assert(attacked,'enemy must attack prone PC');
+assert(attacked.attack.hitModifier===2,`adjacent melee attack against prone PC must be +2, got ${attacked.attack.hitModifier}`);
+projection=projectCombatForPlayer(JSON.parse(persistence.loadCampaign(campaignId).stateJson));
+assert(projection.activeSideId==='PC','PC side must return after enemy resolution');
+const stood=await session.standUp({campaignId,pcId:pc.actorId});assert(stood.status==='OK'&&stood.prone===false,`stand up failed: ${stood.status}`);
+projection=projectCombatForPlayer(JSON.parse(persistence.loadCampaign(campaignId).stateJson));
+current=projection.pcs.find(x=>x.actorId===pc.actorId);assert(current.prone===false,'stand up must clear prone');assert(current.economy.moveAvailable===false,'stand up must consume Move action when available');
+const persisted=persistence.loadCampaign(campaignId);assert(persisted.status==='OK','persisted combat missing');const state=JSON.parse(persisted.stateJson);assert(!(state.encounterState.combat.proneActorIds??[]).includes(pc.actorId),'persisted prone state must be cleared after stand up');
+console.log('WWN prone stateful smoke: OK');
