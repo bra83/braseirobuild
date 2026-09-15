@@ -17,6 +17,7 @@ export class CombatSessionService{
   async shoveNpc(args){return this._narrate(args.campaignId,this.actions.shoveNpc(args),'PLAYER_SHOVE');}
   async grappleNpc(args){return this._narrate(args.campaignId,this.actions.grappleNpc(args),'PLAYER_GRAPPLE_START');}
   async manipulateGrappledNpc(args){return this._narrate(args.campaignId,this.actions.manipulateGrappledNpc(args),'PLAYER_GRAPPLE_MANIPULATION');}
+  async screenAlly(args){return this._narrate(args.campaignId,this.actions.screenAlly(args),'PLAYER_SCREEN_ALLY');}
   async movePc(args){return this._narrate(args.campaignId,this.actions.movePc(args),'PLAYER_MOVED');}
   async fightingWithdrawal(args){return this._narrate(args.campaignId,this.actions.fightingWithdrawal(args),'FIGHTING_WITHDRAWAL');}
   async goProne(args){return this._narrate(args.campaignId,this.actions.goProne(args),'PC_WENT_PRONE');}
