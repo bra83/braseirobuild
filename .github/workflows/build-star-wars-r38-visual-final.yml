@@ -1,0 +1,237 @@
+name: Build Star Wars R38 Visual Final
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-star-wars-r38-visual-final.yml"
+      - "star-wars/r38/patches/block03_visual_completion.py"
+
+permissions:
+  contents: write
+
+jobs:
+  final:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+
+      - id: source
+        shell: bash
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          d=json.load(open('star-wars/r38/SOURCE.json'))
+          for k,o in [('source_share_url','url'),('sha256','sha'),('file','file'),('application_id','app_id'),('compile_sdk','compile_sdk')]: print(f'{o}={d[k]}')
+          PY
+
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+
+      - name: Install download browser
+        run: |
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium >/dev/null
+
+      - name: Download pinned source + recovered scenes + final visual pack
+        env:
+          SOURCE_URL: ${{ steps.source.outputs.url }}
+          SOURCE_FILE: ${{ steps.source.outputs.file }}
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+          OLD_SCENE_URL: https://firestorage.ai/ja/f/PbM3XvdzNMAk
+          OLD_SCENE_FILE: scene-assets-v1-tiny.tar.gz
+          OLD_SCENE_SHA: 2ca16b2cd0d3f489fe10f1df718be1243febeef38fb88a52bd50502528f60711
+          VISUAL_URL: https://firestorage.ai/ja/f/qvNlG1k2Qu3e
+          VISUAL_FILE: STAR_WARS_EDGE_OF_THE_GALAXY_VISUAL_COMPLETION_PACK.zip
+          VISUAL_SHA: 4114abdfa909ea7877a655f4d929cf2b64c92681c3925e5bfd565e17221966f6
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf incoming work visual-pack out
+          mkdir -p incoming work visual-pack out
+          python3 - <<'PY'
+          import os,pathlib
+          from playwright.sync_api import sync_playwright
+          def dl(url,name,out):
+            with sync_playwright() as p:
+              b=p.chromium.launch(headless=True); pg=b.new_page(accept_downloads=True)
+              pg.goto(url,wait_until='domcontentloaded',timeout=120000); pg.wait_for_timeout(3000)
+              done=False
+              for s in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")','button:has-text("保存")','a:has-text("保存")']:
+                try:
+                  q=pg.locator(s).first
+                  if not q.count() or not q.is_visible(): continue
+                  with pg.expect_download(timeout=120000) as info: q.click(timeout=10000)
+                  info.value.save_as(str(out)); done=True; break
+                except Exception: pass
+              if not done:
+                q=pg.get_by_text(name,exact=False).first
+                if not q.count(): raise RuntimeError('file label not found '+name)
+                parent=q.locator('xpath=ancestor::*[self::div or self::li or self::article][1]')
+                with pg.expect_download(timeout=120000) as info: parent.locator('a,button').last.click(timeout=10000)
+                info.value.save_as(str(out)); done=True
+              b.close()
+            if not done or not out.exists(): raise SystemExit('download failed '+name)
+          dl(os.environ['SOURCE_URL'],os.environ['SOURCE_FILE'],pathlib.Path('incoming')/os.environ['SOURCE_FILE'])
+          dl(os.environ['OLD_SCENE_URL'],os.environ['OLD_SCENE_FILE'],pathlib.Path('incoming')/os.environ['OLD_SCENE_FILE'])
+          dl(os.environ['VISUAL_URL'],os.environ['VISUAL_FILE'],pathlib.Path('incoming')/os.environ['VISUAL_FILE'])
+          PY
+          echo "${SOURCE_SHA}  incoming/${SOURCE_FILE}" | sha256sum -c -
+          echo "${OLD_SCENE_SHA}  incoming/${OLD_SCENE_FILE}" | sha256sum -c -
+          echo "${VISUAL_SHA}  incoming/${VISUAL_FILE}" | sha256sum -c -
+          unzip -q "incoming/${SOURCE_FILE}" -d work
+          unzip -q "incoming/${VISUAL_FILE}" -d visual-pack
+          G="$(find work -type f -name gradlew -not -path '*/build/*' | head -1)"; test -n "$G"
+          R="$(dirname "$G")"; chmod +x "$R/gradlew"; echo "$R" >/tmp/root
+          base64 -w0 "incoming/${OLD_SCENE_FILE}" > star-wars/r38/patches/assets/scene-assets-v1.tar.gz.b64
+
+      - name: Apply approved fixes and complete visual integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          R="$(cat /tmp/root)"
+          python3 star-wars/r38/patches/block01_repair_safe.py "$R"
+          python3 star-wars/r38/patches/block02_scene_controls.py "$R"
+          python3 star-wars/r38/patches/block03_visual_completion.py "$R" "$GITHUB_WORKSPACE/visual-pack"
+
+      - name: Static visual integrity gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ROOT="$(cat /tmp/root)"
+          node --check "$ROOT/app/src/main/assets/vtt/r46/final-runtime.js"
+          node --check "$ROOT/app/src/main/assets/vtt/r46/r46-shell.bundle.js"
+          node --check "$ROOT/app/src/main/assets/vtt/js/core/uiBridge.bundle.js"
+          python3 - <<'PY'
+          import os,json,pathlib,hashlib
+          root=pathlib.Path(os.environ['ROOT']); vtt=root/'app/src/main/assets/vtt'
+          m=json.load(open(vtt/'image-library/manifest.json',encoding='utf-8'))
+          final=[a for a in m['assets'] if str(a.get('assetId','')).startswith('local.final.')]
+          assert len(final)==42,len(final)
+          assert sum(a['category']=='scene' for a in final)==26
+          assert sum(a['category']=='vehicle' for a in final)==9
+          assert sum(a['category']=='creature' for a in final)==3
+          assert sum(a['category']=='portrait' for a in final)==2
+          assert sum(a['category']=='equipment' for a in final)==2
+          for a in final:
+            p=vtt/a['localPath']; assert p.is_file(),p
+            assert hashlib.sha256(p.read_bytes()).hexdigest()==a['sha256'],p
+          runtime=(vtt/'r46/final-runtime.js').read_text(encoding='utf-8')
+          for token in ['FINAL_SCENE_VISUALS','FINAL_EXPLICIT_VISUALS','Son Barab','Digger Crawler','Gigantic Dragonsnake','Traje espacial','Power Pack']:
+            assert token in runtime,token
+          print('VISUAL_INTEGRITY_PASS',json.dumps(m['counts'],ensure_ascii=False))
+          PY
+
+      - name: R46 runtime gate at 415x915
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ROOT="$(cat /tmp/root)"
+          python3 - <<'PY'
+          import os,pathlib,threading,http.server,socketserver,json
+          from playwright.sync_api import sync_playwright
+          root=pathlib.Path(os.environ['ROOT']);vtt=root/'app/src/main/assets/vtt';os.chdir(vtt)
+          class H(http.server.SimpleHTTPRequestHandler):
+            def log_message(self,*a): pass
+          s=socketserver.TCPServer(('127.0.0.1',0),H);threading.Thread(target=s.serve_forever,daemon=True).start();port=s.server_address[1]
+          try:
+            with sync_playwright() as p:
+              b=p.chromium.launch(headless=True);pg=b.new_page(viewport={'width':415,'height':915});errs=[]
+              pg.on('pageerror',lambda e:errs.append(str(e)))
+              pg.add_init_script('''window.__geminiPrompt=null;window.BraseiroGemini={openGeminiWithPrompt:(p)=>{window.__geminiPrompt=String(p||'');return JSON.stringify({ok:true,target:'gemini_app'})},pickSceneImage:(k)=>JSON.stringify({ok:true})};const h={get:(t,p)=>{if(p==='then')return undefined;return(...a)=>JSON.stringify({ok:true,items:[],data:[],state:{}})}};for(const n of ['BraseiroUiBridge','BraseiroLibrary','BraseiroImages','BraseiroFiles','BraseiroTts'])window[n]=new Proxy({},h);''')
+              resp=pg.goto(f'http://127.0.0.1:{port}/r46-shell.html',wait_until='domcontentloaded',timeout=30000);assert resp and resp.status<400
+              pg.wait_for_timeout(1200)
+              try: pg.locator('#sandbox-start-button').click(timeout=2500); pg.wait_for_timeout(900)
+              except Exception: pass
+              completion=pg.evaluate('window.BraseiroFinalVisualCompletion||null'); assert completion and completion['scenes']==26,completion
+              imgs=pg.locator('.scene-media-slot img.final-scene-library-image:visible')
+              if imgs.count():
+                src=imgs.first.get_attribute('src') or ''; assert 'image-library/local/final/scenes/' in src,src
+                assert imgs.first.evaluate('(i)=>i.complete&&i.naturalWidth>0'),'scene image did not render'
+              ill=pg.locator('button[data-action="gemini"]:visible'); imp=pg.locator('button[data-action="import"]:visible')
+              if ill.count():
+                assert imp.count()>=1
+                ib=ill.first.bounding_box(); pb=imp.first.bounding_box(); assert ib and ib['height']>=44 and pb and pb['height']>=44
+                ill.first.click(timeout=2000);pg.wait_for_timeout(100);prompt=pg.evaluate('window.__geminiPrompt') or ''; assert len(prompt)>=250,len(prompt)
+              assert not errs,errs
+              print('R46_VISUAL_RUNTIME_PASS',json.dumps(completion,ensure_ascii=False));b.close()
+          finally:s.shutdown();s.server_close()
+          PY
+
+      - name: Focused regression suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          R="$(cat /tmp/root)"; cd "$R"
+          node --test tests/r38-mobile-ux-fixes.test.mjs tests/gemini-host-r25.test.mjs tests/native-bridge-contract.test.mjs tests/android-json-file-chooser-contract-r16.test.mjs tests/random-character-r24.test.mjs tests/library-ui.test.mjs tests/r46-bridge-contract.test.mjs | tee "$GITHUB_WORKSPACE/out/focused-tests.txt"
+
+      - name: Full Node regression suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          R="$(cat /tmp/root)"; cd "$R"
+          node --test tests/*.test.mjs | tee "$GITHUB_WORKSPACE/out/full-tests.txt"
+
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platform-tools' 'platforms;android-${{ steps.source.outputs.compile_sdk }}'
+
+      - name: Java gate and assembleDebug
+        shell: bash
+        run: |
+          set -euo pipefail
+          R="$(cat /tmp/root)"; cd "$R"
+          node tools/java-syntax-gate.mjs | tee "$GITHUB_WORKSPACE/out/java-gate.txt"
+          ./gradlew :app:assembleDebug --stacktrace --no-daemon | tee "$GITHUB_WORKSPACE/out/gradle-build.txt"
+
+      - name: Verify APK and package Android Studio project
+        env:
+          APP_ID: ${{ steps.source.outputs.app_id }}
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+          VISUAL_SHA: 4114abdfa909ea7877a655f4d929cf2b64c92681c3925e5bfd565e17221966f6
+        shell: bash
+        run: |
+          set -euo pipefail
+          R="$(cat /tmp/root)"; APK="$(find "$R/app/build/outputs/apk/debug" -type f -name '*.apk'|head -1)"; test -f "$APK"; unzip -t "$APK" >/dev/null
+          COUNT="$(unzip -l "$APK" | grep -c 'assets/vtt/image-library/local/final/' || true)"; test "$COUNT" -ge 43
+          for f in customs_checkpoint_01.webp digger_crawler.png gigantic_dragonsnake.png son_barab_portrait.webp spacesuit.webp power_pack_reload.webp; do unzip -l "$APK" | grep -q "$f"; done
+          BT="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d|sort -V|tail -1)"; "$BT/aapt" dump badging "$APK" | grep -E '^(package:|sdkVersion:|targetSdkVersion:)' | tee out/apk-badging.txt
+          grep -q "package: name='${APP_ID}'" out/apk-badging.txt; grep -q "targetSdkVersion:'36'" out/apk-badging.txt
+          cp "$APK" out/STAR_WARS_EDGE_OF_THE_GALAXY_R38_VISUAL_FINAL_debug.apk
+          APK_SHA="$(sha256sum out/STAR_WARS_EDGE_OF_THE_GALAXY_R38_VISUAL_FINAL_debug.apk|cut -d' ' -f1)"
+          PARENT="$(dirname "$R")"; NAME="$(basename "$R")"
+          (cd "$PARENT" && zip -qr "$GITHUB_WORKSPACE/out/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R38_VISUAL_FINAL.zip" "$NAME" -x '*/.gradle/*' '*/build/*' '*/.idea/caches/*')
+          SRC_SHA="$(sha256sum out/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R38_VISUAL_FINAL.zip|cut -d' ' -f1)"
+          python3 - <<PY
+          import json,os,pathlib
+          d={'status':'PASS','baseline_sha256':os.environ['SOURCE_SHA'],'visual_pack_sha256':os.environ['VISUAL_SHA'],'new_visual_assets':42,'scenes':26,'vehicles':9,'creatures':3,'npc_assets':2,'equipment':2,'apk_sha256':'$APK_SHA','android_studio_zip_sha256':'$SRC_SHA','apk_packaged_final_visual_entries':int('$COUNT'),'r46_redesign':False,'generated_images':0}
+          pathlib.Path('out/VISUAL_FINAL_BUILD.json').write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n')
+          pathlib.Path('out/VISUAL_FINAL_BUILD.md').write_text('# STAR WARS — EDGE OF THE GALAXY — VISUAL FINAL\n\n- Status: **PASS**\n- R46 redesenhada: **não**\n- Imagens geradas nesta integração: **0**\n- Novos assets assimilados: **42** (26 cenas, 9 veículos, 3 criaturas, 2 assets Son Barab, 2 equipamentos)\n- APK SHA-256: `'+d['apk_sha256']+'`\n- Android Studio ZIP SHA-256: `'+d['android_studio_zip_sha256']+'`\n- Entradas visuais finais dentro do APK: **'+str(d['apk_packaged_final_visual_entries'])+'**\n')
+          PY
+
+      - name: Upload final deliverables
+        uses: actions/upload-artifact@v4
+        with:
+          name: STAR_WARS_EDGE_OF_THE_GALAXY_R38_VISUAL_FINAL
+          path: out/
+          retention-days: 14
+          compression-level: 0
+
+      - name: Commit final build report
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p star-wars/r38/final
+          cp out/VISUAL_FINAL_BUILD.json out/VISUAL_FINAL_BUILD.md star-wars/r38/final/
+          git checkout -- star-wars/r38/patches/assets/scene-assets-v1.tar.gz.b64
+          git config user.name braseiro-build-bot; git config user.email actions@users.noreply.github.com
+          git add star-wars/r38/final/VISUAL_FINAL_BUILD.*
+          git commit -m 'build(star-wars): record R38 visual final PASS' || true
+          git push
