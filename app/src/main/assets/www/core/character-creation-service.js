@@ -16,18 +16,19 @@ function commitCreated({persistence,campaignId,loaded,state,character,eventKind,
   const receipt=persistence.commit({campaignId,expectedRevision:loaded.revision,eventId,eventKind:event.kind,eventPayloadJson:canonicalJson(event),newStateJson:canonicalJson(next),rngCountersJson:canonicalJson(next.rngState?.counters??{})});
   return Object.freeze({status:receipt.status,receipt,character,projectedState:receipt.status==='OK'?next:null});
 }
+function validateManualDraft(draft,revision){if(draft?.classContract?.ruleset==='WWN_SRD_2024'){const attributes=validateAttributeGeneration({attributes:draft.attributes,generation:draft.attributeGeneration});if(!attributes.ok)return Object.freeze({status:attributes.status,details:attributes,revision});}return null;}
+function materializeManual({draft,masterSeed,revision}){const invalid=validateManualDraft(draft,revision);if(invalid)return invalid;const result=finalizeCharacterCreation({draft,masterSeed});if(!result.ok)return Object.freeze({status:result.status,details:result,revision});return Object.freeze({status:'OK',result});}
 
 export class CharacterCreationService{
   constructor({persistence}){if(!persistence)throw new TypeError('persistence required');this.persistence=persistence;}
   finalize({campaignId,draft,masterSeed}){
     const loaded=this.persistence.loadCampaign(campaignId);if(loaded.status!=='OK')return Object.freeze({status:loaded.status});
     const state=JSON.parse(loaded.stateJson);if(state.characterState)return Object.freeze({status:'CHARACTER_ALREADY_FINALIZED_NO_MUTATION',revision:loaded.revision});
-    if(draft?.classContract?.ruleset==='WWN_SRD_2024'){
-      const attributes=validateAttributeGeneration({attributes:draft.attributes,generation:draft.attributeGeneration});
-      if(!attributes.ok)return Object.freeze({status:attributes.status,details:attributes,revision:loaded.revision});
-    }
-    const result=finalizeCharacterCreation({draft,masterSeed:masterSeed??state.rngState?.masterSeed??campaignId});if(!result.ok)return Object.freeze({status:result.status,details:result,revision:loaded.revision});
-    return commitCreated({persistence:this.persistence,campaignId,loaded,state,character:result.character,eventKind:'CHARACTER_FINALIZED',eventSuffix:'character-finalized',setActive:true,sourceRefs:result.sourceRefs});
+    const made=materializeManual({draft,masterSeed:masterSeed??state.rngState?.masterSeed??campaignId,revision:loaded.revision});if(made.status!=='OK')return made;
+    return commitCreated({persistence:this.persistence,campaignId,loaded,state,character:made.result.character,eventKind:'CHARACTER_FINALIZED',eventSuffix:'character-finalized',setActive:true,sourceRefs:made.result.sourceRefs});
+  }
+  finalizeForRoster({campaignId,draft,masterSeed,setActive=true}={}){
+    const loaded=this.persistence.loadCampaign(campaignId);if(loaded.status!=='OK')return Object.freeze({status:loaded.status});const state=JSON.parse(loaded.stateJson);const id=String(draft?.characterId??'').trim();if(!id)return Object.freeze({status:'CHARACTER_ID_REQUIRED_NO_MUTATION',revision:loaded.revision});const roster=rosterOf(state);if(roster[id])return Object.freeze({status:'CHARACTER_ID_EXISTS_NO_MUTATION',revision:loaded.revision});const made=materializeManual({draft,masterSeed:masterSeed??`${state.rngState?.masterSeed??campaignId}:${id}:manual`,revision:loaded.revision});if(made.status!=='OK')return made;return commitCreated({persistence:this.persistence,campaignId,loaded,state,character:made.result.character,eventKind:'MANUAL_CHARACTER_CREATED',eventSuffix:`manual-character:${id}`,setActive,sourceRefs:made.result.sourceRefs});
   }
   generateRandom({campaignId,characterId,name='Aventureiro',goal='Explorar o mundo',classPath=null,allowedClassIds=null,setActive=false,linguaFranca='Comum',nativeLanguage='Comum'}={}){
     const loaded=this.persistence.loadCampaign(campaignId);if(loaded.status!=='OK')return Object.freeze({status:loaded.status});const state=JSON.parse(loaded.stateJson);const id=String(characterId??'').trim();if(!id)return Object.freeze({status:'CHARACTER_ID_REQUIRED_NO_MUTATION',revision:loaded.revision});
