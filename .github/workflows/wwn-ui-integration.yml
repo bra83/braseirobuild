@@ -30,16 +30,14 @@ jobs:
           set -euo pipefail
           python3 tools/wwn_patch_ficha_manual_link.py
           python3 tools/wwn_patch_focus_class_restrictions.py
-      - name: Apply prone combat integration
-        run: python3 tools/wwn_patch_prone_combat.py
-      - name: Apply dual-wield combat integration
-        run: python3 tools/wwn_patch_dual_wield.py
-      - name: Apply shove combat core and player integration
+      - name: Apply cumulative special-combat integrations
         shell: bash
         run: |
           set -euo pipefail
-          python3 tools/wwn_patch_shove_core.py
-          python3 tools/wwn_patch_shove_stateful.py
+          if ! grep -q 'goProne({campaignId' app/src/main/assets/www/core/combat-service.js; then python3 tools/wwn_patch_prone_combat.py; fi
+          if ! grep -q 'dualWieldAttackNpc({' app/src/main/assets/www/core/combat-service.js; then python3 tools/wwn_patch_dual_wield.py; fi
+          if ! grep -q 'resolveAttackHitOnly' app/src/main/assets/www/core/wwn-combat-core.js; then python3 tools/wwn_patch_shove_core.py; fi
+          if ! grep -q 'shoveNpc({' app/src/main/assets/www/core/combat-service.js; then python3 tools/wwn_patch_shove_stateful.py; fi
           python3 tools/wwn_normalize_combat_imports.py
 
       - name: Commit player-surface integrations
