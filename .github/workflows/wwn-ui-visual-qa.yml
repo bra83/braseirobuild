@@ -1,0 +1,41 @@
+name: BRASEIRO WWN Visual QA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/wwn-ui-visual-qa.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-visual-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: wwn-source-105-bridge
+      - name: Install browser QA runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet playwright
+          python3 -m playwright install --with-deps chromium
+      - name: Capture and validate 415x915 player surfaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --directory app/src/main/assets/www > /tmp/wwn-http.log 2>&1 &
+          server=$!
+          trap 'kill $server 2>/dev/null || true' EXIT
+          for i in {1..20}; do curl -fsS http://127.0.0.1:8765/jornada.html >/dev/null && break; sleep 0.25; done
+          python3 tools/wwn_capture_player_surfaces.py
+      - name: Confirm no Android package generated
+        shell: bash
+        run: |
+          set -euo pipefail
+          if find . -type f \( -name '*.apk' -o -name '*.aab' \) -print -quit | grep -q .; then
+            echo 'Unexpected APK/AAB present'; exit 1
+          fi
