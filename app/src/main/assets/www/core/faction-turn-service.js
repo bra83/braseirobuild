@@ -43,9 +43,13 @@ export class FactionTurnService{
     if(ctx.turn.phase!=='SPECIALS_REQUIRED')return Object.freeze({status:'SPECIALS_NOT_CURRENT_PHASE_NO_MUTATION',phase:ctx.turn.phase,revision:loaded.revision});
     const required=factionSpecialResolutionRequirements(ctx.faction);
     if(required.length===0){const next=structuredClone(state);next.worldState.factionTurn.phase='ACTION_REQUIRED';const {receipt}=commit({persistence:this.persistence,loaded,state:next,campaignId,eventKind:'FACTION_SPECIALS_NONE',eventSuffix:'faction-specials-none',payload:{factionId:ctx.turn.currentFactionId}});return Object.freeze({status:receipt.status==='OK'?'ACTION_REQUIRED':receipt.status,receipt});}
-    // Asset-specific effects vary by canonical asset text. The engine never invents them.
-    // A future source-bound asset-effect registry can consume these resolution contracts.
-    return Object.freeze({status:'ASSET_SPECIAL_CONTRACT_REQUIRED_NO_MUTATION',revision:loaded.revision,required,resolutionsReceived:Array.isArray(resolutions)?resolutions.length:0});
+    if(!Array.isArray(resolutions))return Object.freeze({status:'ASSET_SPECIAL_CONTRACT_REQUIRED_NO_MUTATION',revision:loaded.revision,required,missing:required});
+    const key=x=>`${String(x?.assetId??'')}::${String(x?.specialId??'')}`;
+    const accepted=new Map();for(const r of resolutions){if(!r||typeof r!=='object')continue;const source=String(r.source??'').toUpperCase();if(!['FACTION_ASSET_EFFECT_SERVICE','GM_CONTEXT'].includes(source))continue;if(r.status!=='OK'&&r.resolved!==true)continue;accepted.set(key(r),r);}
+    const missing=required.filter(req=>!accepted.has(key(req)));if(missing.length)return Object.freeze({status:'ASSET_SPECIAL_CONTRACT_REQUIRED_NO_MUTATION',revision:loaded.revision,required,missing,resolutionsReceived:resolutions.length});
+    const next=structuredClone(state),turn=next.worldState.factionTurn;turn.phase='ACTION_REQUIRED';turn.specialResolutions=required.map(req=>structuredClone(accepted.get(key(req))));
+    const {receipt}=commit({persistence:this.persistence,loaded,state:next,campaignId,eventKind:'FACTION_SPECIALS_RESOLVED',eventSuffix:'faction-specials-resolved',payload:{factionId:turn.currentFactionId,required,resolutions:turn.specialResolutions,nextPhase:'ACTION_REQUIRED'}});
+    return Object.freeze({status:receipt.status==='OK'?'ACTION_REQUIRED':receipt.status,receipt,resolved:turn.specialResolutions});
   }
 
   takeAction({campaignId,action}){
