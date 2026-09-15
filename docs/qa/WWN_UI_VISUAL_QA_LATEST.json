@@ -11,9 +11,7 @@
     },
     "pageErrors": [],
     "consoleErrors": [],
-    "imageErrors": [
-      null
-    ],
+    "imageErrors": [],
     "screenshot": "build/wwn-ui-captures/jornada_415x915.png"
   },
   {
@@ -28,9 +26,7 @@
     },
     "pageErrors": [],
     "consoleErrors": [],
-    "imageErrors": [
-      null
-    ],
+    "imageErrors": [],
     "screenshot": "build/wwn-ui-captures/ficha_415x915.png"
   },
   {
