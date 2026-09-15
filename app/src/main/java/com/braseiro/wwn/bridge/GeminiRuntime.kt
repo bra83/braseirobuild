@@ -411,6 +411,10 @@ class GeminiRuntime(private val context: Context) {
         private val MODEL_PATTERN = Regex("^[A-Za-z0-9._-]{3,96}$")
         private val SCENE_IMAGE_NAME = Regex("^[a-f0-9]{32}\\.(png|jpg|webp)$")
         val VOICES: Set<String> = setOf("Zephyr","Puck","Charon","Kore","Fenrir","Leda","Orus","Aoede","Callirrhoe","Autonoe","Enceladus","Iapetus","Umbriel","Algieba","Despina","Erinome","Algenib","Rasalgethi","Laomedeia","Achernar","Alnilam","Schedar","Gacrux","Pulcherrima","Achird","Zubenelgenubi","Vindemiatrix","Sadachbia","Sadaltager","Sulafat")
+
+        private val IMAGE_ASPECT_RATIOS: Set<String> = setOf("1:1","1:4","1:8","2:3","3:2","3:4","4:1","4:3","4:5","5:4","8:1","9:16","16:9","21:9")
+        private val IMAGE_SIZES: Set<String> = setOf("512","1K","2K","4K")
+        private val INTERACTION_ID_PATTERN = Regex("^v[0-9]+_[A-Za-z0-9_-]{20,512}$")
         private const val MAX_REQUEST_JSON_CHARS = 260_000
         private const val MAX_PROMPT_CHARS = 180_000
         private const val MAX_SYSTEM_CHARS = 20_000
