@@ -104,9 +104,10 @@ export function grappleEscapeOutcome({victimOpposedTotal,assailantOpposedTotals,
   return Object.freeze({rule:'WWN_GRAPPLE_ESCAPE_V1',escaped:beatsAll,actionCost:'MAIN',sourceRefs:[WWN_SPECIAL_COMBAT_SOURCES.maneuvers]});
 }
 export function grappleMoveOutcome({attackerOpposedTotal,defenderOpposedTotal,attackerIsPc=false,defenderIsPc=false,mode='MOVE'}){
-  const winner=opposedWinner({aTotal:int(attackerOpposedTotal,'attackerOpposedTotal'),bTotal:int(defenderOpposedTotal,'defenderOpposedTotal'),aIsPc:Boolean(attackerIsPc),bIsPc:Boolean(defenderIsPc)});
-  const success=winner==='A';const normalized=String(mode).toUpperCase();if(!['MOVE','THROW'].includes(normalized))throw new RangeError('mode must be MOVE or THROW');
-  return Object.freeze({rule:'WWN_GRAPPLE_MOVE_V1',success,targetEscapes:!success,actionCost:'MAIN',moveTargetFeet:success&&normalized==='MOVE'?10:0,throwTargetFeet:success&&normalized==='THROW'?5:0,targetProne:success&&normalized==='THROW',sourceRefs:[WWN_SPECIAL_COMBAT_SOURCES.maneuvers]});
+  const attacker=int(attackerOpposedTotal,'attackerOpposedTotal'),defender=int(defenderOpposedTotal,'defenderOpposedTotal');
+  const winner=attacker>defender?'A':defender>attacker?'B':'TIE';
+  const success=attacker>defender;const normalized=String(mode).toUpperCase();if(!['MOVE','THROW'].includes(normalized))throw new RangeError('mode must be MOVE or THROW');
+  return Object.freeze({rule:'WWN_GRAPPLE_MOVE_V1',success,winner,targetEscapes:!success,actionCost:'MAIN',moveTargetFeet:success&&normalized==='MOVE'?10:0,throwTargetFeet:success&&normalized==='THROW'?5:0,targetProne:success&&normalized==='THROW',sourceRefs:[WWN_SPECIAL_COMBAT_SOURCES.maneuvers]});
 }
 export function sizePenaltyForShoveOrGrapple({substantiallyLargerHumanoid=false,barelyPlausibleOrQuadruped=false}){
   return Object.freeze({rule:'WWN_GRAPPLE_SIZE_MODIFIER_V1',skillCheckModifier:barelyPlausibleOrQuadruped?-4:substantiallyLargerHumanoid?-2:0,sourceRefs:[WWN_SPECIAL_COMBAT_SOURCES.maneuvers]});

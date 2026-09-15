@@ -13,6 +13,7 @@ export class CombatSessionService{
   async dualWieldAttackNpc(args){return this._narrate(args.campaignId,this.actions.dualWieldAttackNpc(args),'PLAYER_DUAL_WIELD_ATTACK');}
   async shoveNpc(args){return this._narrate(args.campaignId,this.actions.shoveNpc(args),'PLAYER_SHOVE');}
   async grappleNpc(args){return this._narrate(args.campaignId,this.actions.grappleNpc(args),'PLAYER_GRAPPLE_START');}
+  async manipulateGrappledNpc(args){return this._narrate(args.campaignId,this.actions.manipulateGrappledNpc(args),'PLAYER_GRAPPLE_MANIPULATION');}
   async movePc(args){return this._narrate(args.campaignId,this.actions.movePc(args),'PLAYER_MOVED');}
   async fightingWithdrawal(args){return this._narrate(args.campaignId,this.actions.fightingWithdrawal(args),'FIGHTING_WITHDRAWAL');}
   async goProne(args){return this._narrate(args.campaignId,this.actions.goProne(args),'PC_WENT_PRONE');}
