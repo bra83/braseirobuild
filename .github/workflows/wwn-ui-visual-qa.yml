@@ -55,4 +55,4 @@ jobs:
           fi
 
 # Empty <img> placeholders without src are intentional and ignored; real src failures remain fatal.
-# This run certifies the consolidated MANOBRAS popup: Prone/Stand Up, Dual-Wield, Shove-to-Prone and Grapple.
+# This run certifies the consolidated MANOBRAS popup: Prone/Stand Up, Dual-Wield, Shove-to-Prone, Grapple, Grapple Move and Grapple Throw.
