@@ -1,0 +1,111 @@
+[
+  {
+    "page": "jornada.html",
+    "http": 200,
+    "metrics": {
+      "w": 415,
+      "h": 915,
+      "scrollW": 415,
+      "scrollH": 915,
+      "bodyW": 415
+    },
+    "pageErrors": [],
+    "consoleErrors": [],
+    "imageErrors": [
+      null
+    ],
+    "screenshot": "build/wwn-ui-captures/jornada_415x915.png"
+  },
+  {
+    "page": "ficha.html",
+    "http": 200,
+    "metrics": {
+      "w": 415,
+      "h": 915,
+      "scrollW": 415,
+      "scrollH": 915,
+      "bodyW": 415
+    },
+    "pageErrors": [],
+    "consoleErrors": [],
+    "imageErrors": [
+      null
+    ],
+    "screenshot": "build/wwn-ui-captures/ficha_415x915.png"
+  },
+  {
+    "page": "mochila.html",
+    "http": 200,
+    "metrics": {
+      "w": 415,
+      "h": 915,
+      "scrollW": 415,
+      "scrollH": 915,
+      "bodyW": 415
+    },
+    "pageErrors": [],
+    "consoleErrors": [],
+    "imageErrors": [],
+    "screenshot": "build/wwn-ui-captures/mochila_415x915.png"
+  },
+  {
+    "page": "scr014.html",
+    "http": 200,
+    "metrics": {
+      "w": 415,
+      "h": 915,
+      "scrollW": 415,
+      "scrollH": 915,
+      "bodyW": 415
+    },
+    "pageErrors": [],
+    "consoleErrors": [],
+    "imageErrors": [],
+    "screenshot": "build/wwn-ui-captures/mapa_415x915.png"
+  },
+  {
+    "page": "scr015.html",
+    "http": 200,
+    "metrics": {
+      "w": 415,
+      "h": 915,
+      "scrollW": 415,
+      "scrollH": 915,
+      "bodyW": 415
+    },
+    "pageErrors": [],
+    "consoleErrors": [],
+    "imageErrors": [],
+    "screenshot": "build/wwn-ui-captures/encontro_415x915.png"
+  },
+  {
+    "page": "scr022.html",
+    "http": 200,
+    "metrics": {
+      "w": 415,
+      "h": 915,
+      "scrollW": 415,
+      "scrollH": 915,
+      "bodyW": 415
+    },
+    "pageErrors": [],
+    "consoleErrors": [],
+    "imageErrors": [],
+    "screenshot": "build/wwn-ui-captures/combate_415x915.png"
+  },
+  {
+    "page": "diario.html",
+    "http": 200,
+    "metrics": {
+      "w": 415,
+      "h": 915,
+      "scrollW": 415,
+      "scrollH": 915,
+      "bodyW": 415
+    },
+    "pageErrors": [],
+    "consoleErrors": [],
+    "imageErrors": [],
+    "screenshot": "build/wwn-ui-captures/diario_415x915.png"
+  }
+]
