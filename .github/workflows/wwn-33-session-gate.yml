@@ -1,0 +1,43 @@
+name: BRASEIRO WWN 33 Session Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/wwn-33-session-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  integrated-sessions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: wwn-source-105-bridge
+      - name: Run 33 integrated sessions
+        shell: bash
+        run: |
+          set -euo pipefail
+          trap 'rm -f package.json' EXIT
+          printf '{"type":"module"}\n' > package.json
+          node tools/wwn_33_session_gate.mjs
+      - name: Re-run core regression after sessions
+        shell: bash
+        run: |
+          set -euo pipefail
+          trap 'rm -f package.json' EXIT
+          printf '{"type":"module"}\n' > package.json
+          node tools/wwn_parity_smoke.mjs
+          node tools/wwn_stateful_smoke.mjs
+          node tools/wwn_mod_runtime_stateful_smoke.mjs
+          node tools/wwn_ui_mechanics_smoke.mjs
+      - name: Confirm source-only gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          if find . -type f \( -name '*.apk' -o -name '*.aab' \) -print -quit | grep -q .; then
+            echo 'Unexpected APK/AAB present'; exit 1
+          fi
