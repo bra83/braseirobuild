@@ -9,7 +9,8 @@ if new not in s:
     s=s.replace(old,new,1)
 old="const {receipt}=commitState({persistence:this.persistence,loaded,next,campaignId,eventKind:'PLAYER_ATTACK',suffix:`attack:${actorId}:${npcId}`,payload:"
 new="const {receipt}=commitState({persistence:this.persistence,loaded,next,campaignId,eventKind:charge?'PLAYER_CHARGE':'PLAYER_ATTACK',suffix:charge?`charge:${actorId}:${npcId}`:`attack:${actorId}:${npcId}`,payload:"
-if new not in s:
+newer="eventKind:charge?'PLAYER_CHARGE':swarmPlan?'PLAYER_SWARM_ATTACK':'PLAYER_ATTACK'"
+if new not in s and newer not in s:
     if old not in s:raise SystemExit('attack event marker missing')
     s=s.replace(old,new,1)
 p.write_text(s)
