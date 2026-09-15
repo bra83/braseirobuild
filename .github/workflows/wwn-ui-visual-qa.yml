@@ -55,4 +55,4 @@ jobs:
           fi
 
 # Empty <img> placeholders without src are intentional and ignored; real src failures remain fatal.
-# This run also certifies the player-facing Prone/Stand Up combat action in scr022.
+# This run certifies the consolidated MANOBRAS popup: Prone/Stand Up, Dual-Wield and Shove-to-Prone.
