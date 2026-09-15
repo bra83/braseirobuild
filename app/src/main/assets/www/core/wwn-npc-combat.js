@@ -8,7 +8,7 @@ export const WWN_NPC_COMBAT_SOURCES=Object.freeze({
 });
 
 export const SRD_NPC_PROFILES=Object.freeze({
-  THUG_OR_MILITIA:Object.freeze({profileId:'THUG_OR_MILITIA',hitDice:1,armorClass:13,attackBonus:1,moveFeet:30,morale:8,instinct:4,skillBonus:1,saveTarget:15,importantNamed:false,sourceRefs:Object.freeze([WWN_NPC_COMBAT_SOURCES.stats])}),
+  THUG_OR_MILITIA:Object.freeze({profileId:'THUG_OR_MILITIA',hitDice:1,armorClass:13,attackBonus:1,moveFeet:30,morale:8,instinct:4,skillBonus:1,saveTarget:15,importantNamed:false,grappleSizeClass:'HUMAN_SIZED',sourceRefs:Object.freeze([WWN_NPC_COMBAT_SOURCES.stats])}),
 });
 
 export const SRD_WEAPONS=Object.freeze({
@@ -25,5 +25,5 @@ export function rollNpcHitPoints({rng,profile,streamName='npc/hp'}){
 
 export function instantiateNpcCombatant({npcId,name,profileId='THUG_OR_MILITIA',weaponId='LIGHT_SPEAR_MELEE',hp}){
   const profile=SRD_NPC_PROFILES[profileId],weapon=SRD_WEAPONS[weaponId];if(!profile)throw new RangeError('unknown NPC profile');if(!weapon)throw new RangeError('unknown weapon profile');if(!Number.isInteger(hp)||hp<1)throw new RangeError('hp required');
-  return Object.freeze({npcId,name,profileId,hitDice:profile.hitDice,hp,maxHp:hp,meleeAC:profile.armorClass,rangedAC:profile.armorClass,armorClass:profile.armorClass,attackBonus:profile.attackBonus,moveFeet:profile.moveFeet,morale:profile.morale,instinct:profile.instinct,skillBonus:profile.skillBonus,saveTarget:profile.saveTarget,importantNamed:profile.importantNamed,weaponId,weaponContract:weapon,sourceRefs:Object.freeze([...profile.sourceRefs,...weapon.sourceRefs])});
+  return Object.freeze({npcId,name,profileId,hitDice:profile.hitDice,hp,maxHp:hp,meleeAC:profile.armorClass,rangedAC:profile.armorClass,armorClass:profile.armorClass,attackBonus:profile.attackBonus,moveFeet:profile.moveFeet,morale:profile.morale,instinct:profile.instinct,skillBonus:profile.skillBonus,saveTarget:profile.saveTarget,importantNamed:profile.importantNamed,grappleSizeClass:profile.grappleSizeClass??null,weaponId,weaponContract:weapon,sourceRefs:Object.freeze([...profile.sourceRefs,...weapon.sourceRefs])});
 }

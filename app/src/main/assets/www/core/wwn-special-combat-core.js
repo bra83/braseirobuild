@@ -78,6 +78,16 @@ export function holdActionPlan({moveActionAvailable=true}){
   return Object.freeze({rule:'WWN_HOLD_ACTION_V1',legal:Boolean(moveActionAvailable),actionCost:'MOVE',triggerRestOfTurnAs:'INSTANT',expires:'END_OF_ROUND',responseResolvesBeforeTriggeringAction:true,sourceRefs:[WWN_SPECIAL_COMBAT_SOURCES.commonActions]});
 }
 
+export function resolvePcManeuverSkillRoll({rng,attributeScore,skillLevel=null,modifier=0,streamName='combat/maneuver/pc'}){
+  if(!rng||typeof rng.die!=='function')throw new TypeError('rng required');int(attributeScore,'attributeScore',{min:3,max:18});if(!(skillLevel===null||skillLevel===undefined||(Number.isInteger(skillLevel)&&skillLevel>=0)))throw new RangeError('skillLevel must be null/untrained or integer >= 0');int(modifier,'modifier');
+  const d1=rng.die(6,streamName),d2=rng.die(6,streamName),attributeMod=attributeModifier(attributeScore),skillContribution=skillLevel??-1,total=d1.result+d2.result+attributeMod+skillContribution+modifier;
+  return Object.freeze({rule:'WWN_MANEUVER_PC_OPPOSED_ROLL_V1',dice:Object.freeze([d1,d2]),attributeScore,attributeModifier:attributeMod,skillLevel:skillLevel??null,skillContribution,modifier,total,sourceRefs:[WWN_SPECIAL_COMBAT_SOURCES.maneuvers]});
+}
+export function resolveNpcManeuverSkillRoll({rng,skillBonus,modifier=0,streamName='combat/maneuver/npc'}){
+  if(!rng||typeof rng.die!=='function')throw new TypeError('rng required');int(skillBonus,'skillBonus');int(modifier,'modifier');const d1=rng.die(6,streamName),d2=rng.die(6,streamName),total=d1.result+d2.result+skillBonus+modifier;
+  return Object.freeze({rule:'WWN_MANEUVER_NPC_OPPOSED_ROLL_V1',dice:Object.freeze([d1,d2]),skillBonus,modifier,total,sourceRefs:[WWN_SPECIAL_COMBAT_SOURCES.maneuvers]});
+}
+
 export function shoveOutcome({attackHit,attackerOpposedTotal=null,defenderOpposedTotal=null,attackerIsPc=false,defenderIsPc=false}){
   if(!attackHit)return Object.freeze({rule:'WWN_SHOVE_V1',success:false,reason:'MELEE_ATTACK_MISSED',damage:0,sourceRefs:[WWN_SPECIAL_COMBAT_SOURCES.maneuvers]});
   const winner=opposedWinner({aTotal:int(attackerOpposedTotal,'attackerOpposedTotal'),bTotal:int(defenderOpposedTotal,'defenderOpposedTotal'),aIsPc:Boolean(attackerIsPc),bIsPc:Boolean(defenderIsPc)});

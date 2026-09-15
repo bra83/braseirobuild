@@ -165,6 +165,21 @@ export function resolveAttackFromPhysicalDice({ hitFace, damageFaces = [], attac
   });
 }
 
+export function resolveAttackHitOnly({ rng, attacker, weapon, target, hitModifier = 0, streamName = 'attack-hit-only' }) {
+  if (!rng || typeof rng.die !== 'function') throw new TypeError('deterministic rng required');
+  validateWeapon(weapon);
+  if (!attacker || !target) throw new TypeError('attacker and target required');
+  requireInt(attacker.baseAttackBonus, 'baseAttackBonus');requireInt(hitModifier, 'hitModifier');
+  const attributeScore = attacker.attributes?.[weapon.attribute];
+  const attributeMod = attributeModifier(attributeScore);
+  const skill = combatSkillContribution(attacker.skills, weapon.combatSkill);
+  const relevantAc = weapon.melee === false ? target.rangedAC : target.meleeAC;requireInt(relevantAc, 'target AC');
+  const hitDie = rng.die(20, `${streamName}/hit`);
+  const hitTotal = hitDie.result + attacker.baseAttackBonus + attributeMod + skill.contribution + hitModifier;
+  const hit = hitTotal >= relevantAc;
+  return Object.freeze({rule:'WWN_ATTACK_HIT_ONLY_V1',rngAlgorithm:RNG_ALGORITHM,sourceRefs:[WWN_COMBAT_SOURCES.attacks],hitDie,hitTotal,hit,relevantAc,baseAttackBonus:attacker.baseAttackBonus,attribute:weapon.attribute,attributeScore,attributeModifier:attributeMod,combatSkill:weapon.combatSkill,skillLevel:skill.skillLevel,skillContribution:skill.contribution,untrained:skill.untrained,hitModifier,damage:0,damageKind:'NONE',damageRolled:false});
+}
+
 export function resolveAttack({ rng, attacker, weapon, target, hitModifier = 0, damageBonus = 0, shockBonus = 0, streamName = 'attack' }) {
   if (!rng || typeof rng.die !== 'function') throw new TypeError('deterministic rng required');
   validateWeapon(weapon);

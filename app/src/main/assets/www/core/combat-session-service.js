@@ -11,6 +11,7 @@ export class CombatSessionService{
   async startAtVigilia({campaignId}){return this._narrate(campaignId,this.starter.startAtVigilia({campaignId}),'COMBAT_STARTED');}
   async attackNpc(args){return this._narrate(args.campaignId,this.actions.attackNpc(args),'PLAYER_ATTACK');}
   async dualWieldAttackNpc(args){return this._narrate(args.campaignId,this.actions.dualWieldAttackNpc(args),'PLAYER_DUAL_WIELD_ATTACK');}
+  async shoveNpc(args){return this._narrate(args.campaignId,this.actions.shoveNpc(args),'PLAYER_SHOVE');}
   async movePc(args){return this._narrate(args.campaignId,this.actions.movePc(args),'PLAYER_MOVED');}
   async fightingWithdrawal(args){return this._narrate(args.campaignId,this.actions.fightingWithdrawal(args),'FIGHTING_WITHDRAWAL');}
   async goProne(args){return this._narrate(args.campaignId,this.actions.goProne(args),'PC_WENT_PRONE');}
