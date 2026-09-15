@@ -43,6 +43,7 @@ function playerWeapon(state,pcId,weaponId,{tactical=false,modeId=null,combatSkil
   if(weaponId==='UNARMED')return{status:'OK',weapon:unarmedWeaponContract({attribute:chooseUnarmedAttribute(pc)}),builtIn:true};
   const inventory=pc.inventory;if(!Array.isArray(inventory))return{status:'MISSING_EVIDENCE_INVENTORY'};
   const item=inventory.find(i=>(i.itemId??i.id)===weaponId);if(!item)return{status:'MISSING_EVIDENCE_WEAPON'};
+  if(item?.modRuntime?.assassinsTrinketForm==='JEWELRY')return{status:'WEAPON_IN_JEWELRY_FORM'};
   if(tactical&&String(item.carryState??'').toUpperCase()!=='READIED')return{status:'WEAPON_NOT_READIED'};
   let weapon=item.weaponContract??null;
   if(!weapon&&item.kind==='WEAPON'&&Array.isArray(item.weaponModes)){
