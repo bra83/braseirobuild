@@ -1,11 +1,11 @@
-name: WWN Source Cumulative Gate
+name: WWN Gameplay Cumulative Gate
 
 on:
   push:
     branches:
       - wwn-source-105-bridge
     paths:
-      - "app/**"
+      - "app/src/main/assets/www/**"
       - "tools/**"
       - ".github/workflows/wwn-source-cumulative-gate.yml"
   workflow_dispatch:
@@ -14,7 +14,7 @@ permissions:
   contents: write
 
 jobs:
-  wwn-source-cumulative-gate:
+  wwn-gameplay-cumulative-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -23,12 +23,6 @@ jobs:
         with:
           ref: wwn-source-105-bridge
           fetch-depth: 0
-
-      - name: Set up Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -39,9 +33,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-
-      - name: Apply evidence-gated Execution Attack runtime patch
-        run: python tools/wwn_patch_execution_attack.py
 
       - name: Certify Execution Attack
         run: node tools/wwn_execution_stateful_smoke.mjs
@@ -73,80 +64,5 @@ jobs:
       - name: Run 33-session play gate
         run: node tools/wwn_33_play_session_gate.mjs
 
-      - name: Static release guard
+      - name: Static gameplay guard
         run: python tools/static_guard_release.py
-
-      - name: Verify Android Studio source contract
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -f settings.gradle.kts
-          test -f build.gradle.kts
-          test -f gradle.properties
-          test -f gradlew
-          test -f gradlew.bat
-          test -f gradle/wrapper/gradle-wrapper.properties
-          test -f gradle/wrapper/gradle-wrapper.jar
-          test -f app/build.gradle.kts
-          test -f app/src/main/AndroidManifest.xml
-          chmod +x gradlew
-          ./gradlew tasks --no-daemon
-
-      - name: Persist Execution Attack runtime only after green gate
-        shell: bash
-        run: |
-          set -euo pipefail
-          if git diff --quiet -- app/src/main/assets/www/core/combat-service.js app/src/main/assets/www/core/combat-session-service.js; then
-            echo "Execution runtime already persisted; nothing to commit."
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add app/src/main/assets/www/core/combat-service.js app/src/main/assets/www/core/combat-session-service.js
-            git commit -m "build: apply evidence-gated WWN execution attack runtime"
-            git push origin HEAD:wwn-source-105-bridge
-          fi
-
-      - name: Package source-only Android Studio project
-        shell: bash
-        run: |
-          set -euo pipefail
-          ROOT="BRASEIRO_WWN_ANDROID_STUDIO_SOURCE"
-          ZIP="BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip"
-          rm -rf "$ROOT" "$ZIP"
-          mkdir -p "$ROOT"
-          cp -a app gradle gradlew gradlew.bat build.gradle.kts settings.gradle.kts gradle.properties README.md README_BUILD_ANDROID.md "$ROOT"/
-          find "$ROOT" -type d \( -name build -o -name .gradle -o -name .idea \) -prune -exec rm -rf {} +
-          find "$ROOT" -type f \( -iname '*.apk' -o -iname '*.aab' -o -iname '*.jks' -o -iname '*.keystore' -o -name 'local.properties' -o -name '.env' -o -name '.env.*' \) -delete
-          test -f "$ROOT/settings.gradle.kts"
-          test -f "$ROOT/build.gradle.kts"
-          test -f "$ROOT/gradlew"
-          test -f "$ROOT/gradle/wrapper/gradle-wrapper.jar"
-          test -f "$ROOT/app/build.gradle.kts"
-          test -f "$ROOT/app/src/main/AndroidManifest.xml"
-          if find "$ROOT" -type f \( -iname '*.apk' -o -iname '*.aab' -o -iname '*.jks' -o -iname '*.keystore' -o -name 'local.properties' -o -name '.env' -o -name '.env.*' \) | grep -q .; then
-            echo "Forbidden binary/secret material found in package" >&2
-            exit 1
-          fi
-          printf '%s\n' "$(git rev-parse HEAD)" > "$ROOT/SOURCE_COMMIT.txt"
-          (
-            cd "$ROOT"
-            find . -type f ! -name SOURCE_SHA256SUMS.txt -print0 | sort -z | xargs -0 sha256sum > SOURCE_SHA256SUMS.txt
-          )
-          zip -qr "$ZIP" "$ROOT"
-          sha256sum "$ZIP" | tee BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip.sha256
-          unzip -l "$ZIP" | tee BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.contents.txt
-
-      - name: Publish validated source package to delivery path
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p delivery
-          rm -f delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip.sha256 delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.contents.txt
-          mv BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip delivery/
-          mv BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip.sha256 delivery/
-          mv BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.contents.txt delivery/
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip.sha256 delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.contents.txt
-          git commit -m "delivery: publish validated WWN Android Studio source package"
-          git push origin HEAD:wwn-source-105-bridge
