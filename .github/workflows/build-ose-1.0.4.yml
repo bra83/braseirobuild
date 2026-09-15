@@ -21,8 +21,8 @@ jobs:
 
       - name: Download exact 1.0.4 scripts
         env:
-          SCRIPT_SHARE: https://firestorage.ai/ja/f/pGOdrtUc7Fdn
-          SCRIPT_SHA: b80e15ff9fe63ab8a22272238fdf28d60c47e6e7e684b76a011379787b6b32b3
+          SCRIPT_SHARE: https://firestorage.ai/ja/f/JlcU8X1OA3q0
+          SCRIPT_SHA: 4393a9d94892637bd63f3ff32648405aac350cfc06ece768095c2b7889d100ba
         run: |
           set -euo pipefail
           python3 -m pip install --quiet playwright
@@ -50,7 +50,7 @@ jobs:
                       info.value.save_as(str(out)); done=True; break
                   except Exception: pass
               if not done:
-                  card=page.get_by_text('ose104_scripts.zip', exact=False).first
+                  card=page.get_by_text('ose104_scripts_v2.zip', exact=False).first
                   parent=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]')
                   with page.expect_download(timeout=120000) as info: parent.locator('a,button').last.click(timeout=10000)
                   info.value.save_as(str(out)); done=True
@@ -64,7 +64,7 @@ jobs:
       - name: Apply runtime and UX fixes
         run: |
           set -euo pipefail
-          python3 /tmp/ose104/apply104.py
+          python3 /tmp/ose104/apply104_v2.py
           python3 -m pip install --quiet pillow
           python3 /tmp/ose104/script1.py
 
