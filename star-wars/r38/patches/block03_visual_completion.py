@@ -173,7 +173,31 @@ for x in data['npcs']:
 for x in data['equipment']:
     visuals.append({'id':'equipment.'+x['key'],'kind':'equipment','title':x['title'],'aliases':[x['title'],*x.get('aliases',[])],'src':local_path(x['file'])})
 js_visuals=json.dumps(visuals,ensure_ascii=False,separators=(',',':'))
-completion=r'''\n/* R38 VISUAL COMPLETION — explicit user-approved assets; no R46 redesign. */\nconst FINAL_EXPLICIT_VISUALS=Object.freeze(__VISUALS__);\nfunction finalNormVisualText(v){return String(v||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR')}\nfunction finalSmallestHostForAlias(alias){\n const n=finalNormVisualText(alias), nodes=[...document.querySelectorAll('main section,main article,main [class*=card],main [class*=panel],section,article')];\n const hits=nodes.filter(el=>{const t=finalNormVisualText(el.textContent);return t.includes(n)&&t.length<7000});\n hits.sort((a,b)=>(a.textContent||'').length-(b.textContent||'').length);return hits[0]||null;\n}\nfunction finalMountExplicitVisual(v){\n const host=v.aliases.map(finalSmallestHostForAlias).find(Boolean);if(!host||host.querySelector(`[data-final-visual="${v.id}"]`))return;\n const wrap=document.createElement('figure');wrap.className='final-explicit-visual final-explicit-'+v.kind;wrap.dataset.finalVisual=v.id;\n const img=document.createElement('img');img.src=v.src;img.alt=v.title;img.decoding='async';wrap.append(img);\n const cap=document.createElement('figcaption');cap.textContent=v.title;wrap.append(cap);\n const target=host.querySelector(':scope > div:last-child')||host;target.prepend(wrap);\n}\nfunction enhanceFinalExplicitVisuals(){for(const v of FINAL_EXPLICIT_VISUALS)finalMountExplicitVisual(v)}\n(function installFinalVisualCompletion(){\n let queued=false;const schedule=()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;enhanceFinalExplicitVisuals()})};\n if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();\n new MutationObserver(schedule).observe(document.documentElement,{subtree:true,childList:true,characterData:true});\n document.addEventListener('click',()=>setTimeout(schedule,0),true);\n window.BraseiroFinalVisualCompletion=Object.freeze({scenes:26,vehicles:9,creatures:3,npcs:1,equipment:2,policy:'explicit-validated'});\n})();\n'''.replace('__VISUALS__',js_visuals)
+completion=r'''
+/* R38 VISUAL COMPLETION — explicit user-approved assets; no R46 redesign. */
+const FINAL_EXPLICIT_VISUALS=Object.freeze(__VISUALS__);
+function finalNormVisualText(v){return String(v||'').normalize('NFD').replace(/\p{M}/gu,'').toLocaleLowerCase('pt-BR')}
+function finalSmallestHostForAlias(alias){
+ const n=finalNormVisualText(alias), nodes=[...document.querySelectorAll('main section,main article,main [class*=card],main [class*=panel],section,article')];
+ const hits=nodes.filter(el=>{const t=finalNormVisualText(el.textContent);return t.includes(n)&&t.length<7000});
+ hits.sort((a,b)=>(a.textContent||'').length-(b.textContent||'').length);return hits[0]||null;
+}
+function finalMountExplicitVisual(v){
+ const host=v.aliases.map(finalSmallestHostForAlias).find(Boolean);if(!host||host.querySelector(`[data-final-visual="${v.id}"]`))return;
+ const wrap=document.createElement('figure');wrap.className='final-explicit-visual final-explicit-'+v.kind;wrap.dataset.finalVisual=v.id;
+ const img=document.createElement('img');img.src=v.src;img.alt=v.title;img.decoding='async';wrap.append(img);
+ const cap=document.createElement('figcaption');cap.textContent=v.title;wrap.append(cap);
+ const target=host.querySelector(':scope > div:last-child')||host;target.prepend(wrap);
+}
+function enhanceFinalExplicitVisuals(){for(const v of FINAL_EXPLICIT_VISUALS)finalMountExplicitVisual(v)}
+(function installFinalVisualCompletion(){
+ let queued=false;const schedule=()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;enhanceFinalExplicitVisuals()})};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
+ new MutationObserver(schedule).observe(document.documentElement,{subtree:true,childList:true,characterData:true});
+ document.addEventListener('click',()=>setTimeout(schedule,0),true);
+ window.BraseiroFinalVisualCompletion=Object.freeze({scenes:26,vehicles:9,creatures:3,npcs:1,equipment:2,policy:'explicit-validated'});
+})();
+'''.replace('__VISUALS__',js_visuals)
 if 'R38 VISUAL COMPLETION' in runtime:
     runtime=runtime.split('/* R38 VISUAL COMPLETION',1)[0].rstrip()+'\n'
 runtime += completion
