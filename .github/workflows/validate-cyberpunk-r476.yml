@@ -14,6 +14,8 @@ env:
   CPRED_SOURCE_SHARE_URL: "https://firestorage.ai/ja/f/M-k-_70_g2Tt"
   CPRED_SOURCE_SHA256: "7451cec9eb4f90ab951e5adbbe2d95bf6d424cc1fd4ba69a5f6785bd281251c5"
   CPRED_SOURCE_NAME: "CYBERPUNK_RED_R4_76_ANDROID_HOST_SUPPLEMENT_COVERAGE_CHECKPOINT.zip"
+  ANDROID_HOME: "/usr/local/lib/android/sdk"
+  ANDROID_SDK_ROOT: "/usr/local/lib/android/sdk"
 
 jobs:
   validate:
@@ -84,23 +86,26 @@ jobs:
         shell: bash
         run: node qa/ANDROID_HOST_SUPPLEMENT_COVERAGE_GATE_R4_76.mjs
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         name: Configure Java 17
         with:
           distribution: temurin
           java-version: "17"
 
-      - uses: android-actions/setup-android@v3
-        name: Configure Android SDK
-
-      - name: Install Android SDK
+      - name: Configure preinstalled Android SDK
         shell: bash
         env:
           SDK: ${{ steps.android.outputs.sdk }}
         run: |
           set -euo pipefail
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platform-tools" "platforms;android-${SDK}" "build-tools;36.0.0"
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          [ -x "$SDKMANAGER" ] || { echo "::error::sdkmanager not found"; exit 1; }
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-${SDK}" "build-tools;36.0.0"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/build-tools/36.0.0" >> "$GITHUB_PATH"
+          "$SDKMANAGER" --list_installed | grep -E "platform-tools|platforms;android-${SDK}|build-tools;36.0.0"
 
       - uses: gradle/actions/setup-gradle@v4
         name: Configure Gradle cache
@@ -110,6 +115,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          ./gradlew --version
           ./gradlew clean assembleDebug --stacktrace --no-daemon
 
       - name: Validate generated APK
@@ -121,7 +127,7 @@ jobs:
           APK="$(find "$ROOT" -type f -path '*/build/outputs/apk/debug/*.apk' | sort | head -n1)"
           [ -f "$APK" ] || { echo "::error::APK not generated"; exit 1; }
           unzip -t "$APK" >/dev/null
-          BT="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
+          BT="$ANDROID_HOME/build-tools/36.0.0"
           "$BT/aapt" dump badging "$APK" | grep "package: name='com.braseiro.cyberpunkred'"
           "$BT/apksigner" verify --verbose "$APK"
           sha256sum "$APK"
