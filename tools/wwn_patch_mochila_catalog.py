@@ -20,6 +20,8 @@ if "function walletCopper(" not in s:
     if marker not in s: raise SystemExit('itemKindLabel marker missing')
     s=s.replace(marker,helpers,1)
 
+# Rebuild these functions deterministically. This is intentionally idempotent:
+# already-patched source is accepted and rewritten to the same canonical form.
 start=s.index('function renderInventory(c){')
 end=s.index('function catalogAllowed(cat){',start)
 render_inventory="""function renderInventory(c){const list=$('inventoryList');list.replaceChildren();const known=Array.isArray(c?.inventory);$('initialBox').classList.toggle('hidden',known);$('marketButton').disabled=!known||walletCopper(c)===null;if(!known)return;for(const i of c.inventory){const row=document.createElement('article');row.className='item';row.innerHTML=`<div class=\"item-head\"><b></b><em></em></div><small></small><div class=\"item-actions\"></div>`;row.querySelector('b').textContent=i.name??i.catalogId??i.itemId;row.querySelector('em').textContent=i.loaded===false?'DESCARREGADA':carryStateLabelPtBr(i.carryState);row.querySelector('small').textContent=itemDetail(i);const actions=row.querySelector('.item-actions');const b=document.createElement('button');const ready=String(i.carryState??'').toUpperCase()==='READIED';b.textContent=ready?'GUARDAR':'PREPARAR';b.onclick=async()=>{const r=service.setCarryState({campaignId,pcId:selectedPcId,itemId:i.itemId??i.id,to:ready?'STOWED':'READIED'});showToast(r.status==='OK'?`${i.name}: ${ready?'guardado':'preparado'}.`:r.status);render()};actions.appendChild(b);list.appendChild(row)}for(const a of c.ownedAssets??[]){const row=document.createElement('article');row.className='item asset-item';row.innerHTML='<div class=\"item-head\"><b></b><em>ATIVO</em></div><small></small>';row.querySelector('b').textContent=a.name??a.catalogId??a.assetId;row.querySelector('small').textContent=`${String(a.kind??'ATIVO').replaceAll('_',' ')} • propriedade do personagem`;list.appendChild(row)}if(!c.inventory.length&&!(c.ownedAssets??[]).length){const empty=document.createElement('div');empty.className='initial';empty.style.position='static';empty.innerHTML='<b>MOCHILA VAZIA</b><p>Abra o Mercado para adquirir equipamento com a moeda do personagem.</p>';list.appendChild(empty)}}
@@ -37,8 +39,14 @@ s=s[:start]+market+s[end:]
 
 old="function render(){const s=state(),c=pc(s);$('heroName').textContent=c?.name??'—';$('silverText').textContent=Number.isInteger(c?.silver)?`${c.silver} sp`:'—';"
 new="function render(){const s=state(),c=pc(s);$('heroName').textContent=c?.name??'—';$('silverText').textContent=currencyText(c);"
-if old in s:s=s.replace(old,new,1)
-else: raise SystemExit('render wallet marker missing')
+if old in s:
+    s=s.replace(old,new,1)
+elif new not in s:
+    raise SystemExit('render wallet marker missing')
 
-s=s.replace("window.__BRASEIRO_MOCHILA__={campaignId,service,state,render};","window.__BRASEIRO_MOCHILA__={campaignId,service,mundaneService,state,render};")
+legacy="window.__BRASEIRO_MOCHILA__={campaignId,service,state,render};"
+current="window.__BRASEIRO_MOCHILA__={campaignId,service,mundaneService,state,render};"
+if legacy in s:s=s.replace(legacy,current,1)
+elif current not in s:raise SystemExit('mochila export marker missing')
+
 p.write_text(s)
