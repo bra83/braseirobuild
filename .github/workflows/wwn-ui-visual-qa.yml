@@ -55,4 +55,4 @@ jobs:
           fi
 
 # Empty <img> placeholders without src are intentional and ignored; real src failures remain fatal.
-# This run certifies the consolidated MANOBRAS popup: Prone/Stand Up, Dual-Wield, Shove-to-Prone, Shove-Push, Grapple full flow, Charge, Swarm Attack and Screen Ally.
+# This run certifies the consolidated MANOBRAS popup and off-turn controls: Prone/Stand Up, Dual-Wield, Shove-to-Prone, Shove-Push, Grapple full flow, Charge, Swarm Attack, Screen Ally, Snap Attack and Hold Action.
