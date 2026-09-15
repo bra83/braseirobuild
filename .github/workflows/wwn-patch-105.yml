@@ -18,7 +18,7 @@ jobs:
         with:
           ref: wwn-source-105-bridge
 
-      - name: Apply parity integrations
+      - name: Apply final parity integrations
         shell: bash
         run: |
           set -euo pipefail
@@ -29,7 +29,7 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add app/src/main/assets/www/core/combat-service.js app/src/main/assets/www/core/crafting-service.js app/src/main/assets/www/core/major-project-service.js
           if ! git diff --cached --quiet; then
-            git commit -m "fix: enforce WWN lifecycle and project parity"
+            git commit -m "fix: finalize WWN mechanical parity runtime"
             git push origin HEAD:wwn-source-105-bridge
           fi
 
@@ -42,6 +42,8 @@ jobs:
           node --check app/src/main/assets/www/core/wwn-inventory-core.js
           node --check app/src/main/assets/www/core/wwn-expedition-services-core.js
           node --check app/src/main/assets/www/core/wwn-advanced-magic-core.js
+          node --check app/src/main/assets/www/core/advanced-magic-service.js
+          node --check app/src/main/assets/www/core/advanced-magic-resolution-service.js
           node --check app/src/main/assets/www/core/crafting-service.js
           node --check app/src/main/assets/www/core/wwn-item-mechanics-core.js
           node --check app/src/main/assets/www/core/wwn-armor-core.js
@@ -53,13 +55,14 @@ jobs:
           node --check app/src/main/assets/www/core/major-project-service.js
           node --check app/src/main/assets/www/core/wwn-foe-catalog.js
 
-      - name: Smoke test deterministic parity rules
+      - name: Run deterministic and stateful parity smoke tests
         shell: bash
         run: |
           set -euo pipefail
+          trap 'rm -f package.json' EXIT
           printf '{"type":"module"}\n' > package.json
           node tools/wwn_parity_smoke.mjs
-          rm package.json
+          node tools/wwn_stateful_smoke.mjs
 
       - name: Compile Kotlin only
         shell: bash
