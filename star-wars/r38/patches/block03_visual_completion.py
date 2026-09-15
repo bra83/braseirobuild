@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib, json, re, shutil, sys
 from pathlib import Path
 
+# CI retrigger after validated runtime-emission fix; no gameplay or visual design changes.
 if len(sys.argv) != 3:
     raise SystemExit('usage: block03_visual_completion.py <android-project-root> <visual-pack-dir>')
 
