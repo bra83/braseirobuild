@@ -1,0 +1,66 @@
+name: BRASEIRO WWN UI Integration
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/wwn-ui-integration.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  jornada-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: wwn-source-105-bridge
+
+      - name: Apply Jornada mechanics integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/wwn_patch_jornada_mechanics.py
+          git config user.name "BRASEIRO WWN UI"
+          git config user.email "actions@users.noreply.github.com"
+          git add app/src/main/assets/www/jornada.js
+          if ! git diff --cached --quiet; then
+            git commit -m "feat: connect Jornada to canonical WWN mechanics"
+            git push origin HEAD:wwn-source-105-bridge
+          fi
+
+      - name: Validate Jornada UI contract and JavaScript
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check app/src/main/assets/www/core/player-mechanics-facade.js
+          node --check app/src/main/assets/www/jornada.js
+          python3 - <<'PY'
+          from pathlib import Path
+          h=Path('app/src/main/assets/www/jornada.html').read_text()
+          required=['mechanicsPanel','mechanicsAttribute','mechanicsSkill','mechanicsDifficulty','mechanicsTestButton','mechanicsSavePane','mechanicsEnemy','mechanicsWeapon','mechanicsStartCombatButton','mechanicsAttackButton','mechanicsReloadButton','mechanicsResult']
+          missing=[x for x in required if f'id="{x}"' not in h]
+          if missing: raise SystemExit(f'Missing Jornada mechanics ids: {missing}')
+          if 'width=415' not in h: raise SystemExit('Jornada lost 415px viewport contract')
+          print('Jornada mechanics DOM contract: OK')
+          PY
+
+      - name: Run UI mechanics and parity smoke tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          trap 'rm -f package.json' EXIT
+          printf '{"type":"module"}\n' > package.json
+          node tools/wwn_ui_mechanics_smoke.mjs
+          node tools/wwn_parity_smoke.mjs
+          node tools/wwn_stateful_smoke.mjs
+          node tools/wwn_mod_runtime_stateful_smoke.mjs
+
+      - name: Compile Kotlin only
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:compileDebugKotlin --no-daemon --stacktrace
