@@ -3,6 +3,8 @@ package braseiro.ose.app
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.ActivityNotFoundException
+import android.net.Uri
 import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -125,10 +127,17 @@ class MainActivity : Activity() {
 
         io.execute {
             bootstrapIfMissing()
+            saveSharedSceneImage(intent, notifyUi = false)
             runOnUiThread {
                 if (!isFinishing && !isDestroyed) webView.loadUrl(START_URL)
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        io.execute { saveSharedSceneImage(intent, notifyUi = true) }
     }
 
     @Deprecated("Deprecated in Android API; retained for document picker compatibility on minSdk 26")
@@ -374,10 +383,21 @@ class MainActivity : Activity() {
                             val runtime = runtimeSettings.snapshot()
                             val ok = when (slot) {
                                 GeminiCredentialStore.Slot.TEXT_SCENE -> gemini.testCredential(key, runtime.textModel)
-                                GeminiCredentialStore.Slot.TTS_AUDIO -> gemini.testTtsCredential(key, runtime.ttsModel, runtime.ttsVoice)
+                                GeminiCredentialStore.Slot.TTS_AUDIO -> runCatching {
+                                    tts.playTestPhrase()
+                                    true
+                                }.getOrDefault(false)
                             }
                             send(JSONObject().put("type", "GeminiCredentialTestResult").put("payload", JSONObject()
                                 .put("slot", slot.wireName).put("ok", ok)))
+                        }
+
+                        "ScenePromptShare" -> {
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            val prompt = buildSceneImagePrompt(current)
+                            launchGeminiWithPrompt(prompt)
+                            send(JSONObject().put("type", "ScenePromptShareResult").put("payload", JSONObject()
+                                .put("ok", true).put("promptLength", prompt.length)))
                         }
 
                         "SceneImageGenerate" -> {
@@ -445,14 +465,38 @@ class MainActivity : Activity() {
                         "ResetAdventure" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
                             repository.checkpoint(CAMPAIGN_ID, "before-reset-${System.currentTimeMillis()}")
+                            val oldState = current.campaignState
+                            val partyIds = oldState.party.characterIds
+                            val oldGame = oldState.game
+                            val keptCharacters = oldGame.characters.filterKeys { it in partyIds }
+                            val keptInventory = oldGame.inventory.items.filterValues { it.ownerId in partyIds }
+                            val keptLoadouts = oldGame.loadouts.filterKeys { it in partyIds }
+                            val base = buildWorldBootstrap(current.ruleProfile)
+                            val nextPhase = when {
+                                partyIds.isEmpty() -> "ACTIVE"
+                                keptLoadouts.values.any { !it.completed } -> "CHARACTER_LOADOUT"
+                                else -> "READY_TO_START"
+                            }
+                            val nextGame = base.game.copy(
+                                characters = keptCharacters,
+                                inventory = base.game.inventory.copy(items = keptInventory),
+                                loadouts = keptLoadouts,
+                                session = SessionSnapshot(phase = nextPhase),
+                                revision = oldGame.revision + 1
+                            ).canonical()
                             val fresh = current.copy(
                                 createdAtMetadata = "reset-${System.currentTimeMillis()}",
-                                campaignState = buildWorldBootstrap(current.ruleProfile)
+                                campaignState = base.copy(
+                                    party = oldState.party,
+                                    resources = oldState.resources,
+                                    game = nextGame
+                                )
                             )
                             repository.replace(fresh)
                             val persisted = session.loadSession(CAMPAIGN_ID)
                             send(JSONObject().put("type","ResetAdventureResult").put("payload",JSONObject()
-                                .put("ok",true).put("stateHash",CanonicalStateHash.sha256(persisted))
+                                .put("ok",true).put("characterPreserved", partyIds.isNotEmpty())
+                                .put("stateHash",CanonicalStateHash.sha256(persisted))
                                 .put("viewState",projectForUi(persisted))))
                         }
 
@@ -859,16 +903,75 @@ class MainActivity : Activity() {
 
     private fun buildSceneImagePrompt(current: CampaignEnvelope): String {
         val state = current.campaignState
-        val visibleNarration = state.game.session.visibleNarration.take(5000)
+        val game = state.game
+        val visibleNarration = game.session.visibleNarration.take(6000)
         val visiblePosition = when (val p = state.position.primary) {
-            is SpatialRef.Hex -> "hex conhecido q=${p.q}, r=${p.r}"
+            is SpatialRef.Hex -> {
+                val cell = game.hexWorld?.cells?.firstOrNull { it.q == p.q && it.r == p.r }
+                "ermos em ${cell?.terrain?.name ?: "terreno desconhecido"}; coordenada pública q=${p.q}, r=${p.r}"
+            }
             is SpatialRef.Dungeon -> "área de dungeon conhecida ${p.nodeId}"
             is SpatialRef.Settlement -> "local conhecido ${p.anchorId}"
             is SpatialRef.Scene -> "cena conhecida ${p.sceneId}"
         }
+        val party = state.party.characterIds.mapNotNull(game.characters::get).joinToString("; ") { c ->
+            "${c.name}, ${c.raceId}, ${c.classIds.joinToString("/")}, nível ${c.levelByClass.values.maxOrNull() ?: 1}"
+        }.ifBlank { "companhia sem aparência definida" }
         return """
-            Crie uma ilustração de cena para um VTT de Old-School Essentials, fantasia medieval sombria e orgânica, pintura/gravura tradicional, sem HUD, sem texto e sem aparência de videogame moderno. A imagem deve representar SOMENTE informações visíveis aos jogadores. Não acrescente inimigos, passagens, tesouros, armadilhas, objetos ocultos ou pistas que não estejam explicitamente descritos. Contexto público: $visiblePosition. Narração visível do Mestre: $visibleNarration. Composição horizontal 4:3, legível em tela móvel.
+            Gere UMA ilustração da cena atual de uma campanha de Old-School Essentials.
+
+            CENA VISÍVEL AOS JOGADORES:
+            $visibleNarration
+
+            CONTEXTO PÚBLICO:
+            - Local: $visiblePosition
+            - Tempo de jogo: dia ${state.time.days + 1}, turno ${state.time.turns}
+            - Personagens presentes: $party
+
+            DIREÇÃO VISUAL:
+            fantasia medieval old-school sombria e orgânica; pintura/gravura tradicional de livro de RPG; textura de tinta e papel; composição cinematográfica horizontal 4:3; iluminação coerente com a narração; ambiente dominante, personagens em escala natural; sem HUD, sem molduras, sem texto, sem letras, sem logotipos, sem aparência de videogame moderno.
+
+            REGRAS DE INFORMAÇÃO:
+            represente SOMENTE o que já é visível ou explicitamente conhecido pelos jogadores. Não revele inimigos ocultos, passagens secretas, armadilhas, tesouros, pistas escondidas, NPCs ainda não encontrados ou qualquer informação de bastidor. Não invente acontecimentos novos. Preserve exatamente o clima, terreno, horário, posição e personagens descritos acima.
+
+            Entregue apenas a imagem da cena.
         """.trimIndent()
+    }
+
+    private fun launchGeminiWithPrompt(prompt: String) {
+        runOnUiThread {
+            val direct = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, prompt)
+                setPackage("com.google.android.apps.bard")
+            }
+            try {
+                startActivity(direct)
+            } catch (_: ActivityNotFoundException) {
+                val fallback = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, prompt)
+                }
+                startActivity(Intent.createChooser(fallback, "Abrir prompt de ilustração"))
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun saveSharedSceneImage(incoming: Intent?, notifyUi: Boolean) {
+        if (incoming?.action != Intent.ACTION_SEND || incoming.type?.startsWith("image/") != true) return
+        val uri = incoming.getParcelableExtra<Uri>(Intent.EXTRA_STREAM) ?: return
+        val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return
+        require(bytes.isNotEmpty() && bytes.size <= 20 * 1024 * 1024) { "IMAGE_SIZE_INVALID" }
+        val mime = contentResolver.getType(uri)?.takeIf { it.startsWith("image/") } ?: "image/jpeg"
+        val current = session.loadSession(CAMPAIGN_ID)
+        val sceneId = scenePresentationId(current)
+        val url = mediaStore.save(PresentationMediaStore.Scope.SCENE, sceneId, mime, bytes)
+        if (notifyUi) {
+            send(JSONObject().put("type", "SceneImageResult").put("payload", JSONObject()
+                .put("ok", true).put("url", url).put("sceneId", sceneId)
+                .put("source", "ANDROID_SHARE").put("viewState", projectForUi(current))))
+        }
     }
 
     private fun safeError(t: Throwable): String {

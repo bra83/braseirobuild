@@ -188,8 +188,10 @@ object WildernessRuntimeRules {
     }
     private fun cell(w:HexWorldSnapshot,q:Int,r:Int)=w.cells.firstOrNull{it.q==q&&it.r==r}
     private fun reveal(w:HexWorldSnapshot,q:Int,r:Int):HexWorldSnapshot {
-        val visible=w.cells.filter{ c -> hexDistance(c.q,c.r,q,r)<=1 }.map{it.q to it.r}.toSet()
-        return w.copy(cells=w.cells.map{c->c.copy(known=c.known||(c.q to c.r) in visible,visible=(c.q to c.r) in visible)}).canonical()
+        return w.copy(cells=w.cells.map { c ->
+            val here = c.q == q && c.r == r
+            c.copy(known = c.known || here, visible = here)
+        }).canonical()
     }
     private fun hexDistance(q1:Int,r1:Int,q2:Int,r2:Int):Int { val dq=q1-q2; val dr=r1-r2; val ds=(q1+r1)-(q2+r2); return (kotlin.math.abs(dq)+kotlin.math.abs(dr)+kotlin.math.abs(ds))/2 }
     private fun revealKnowledge(k:PlayerKnowledgeState,path:List<Pair<Int,Int>>)=k.copy(knownFactIds=(k.knownFactIds+path.map{"hex:${it.first},${it.second}"}).distinct().sorted())

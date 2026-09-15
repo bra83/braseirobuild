@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:2:1-12:12
-INJECTED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:2:1-12:12
-INJECTED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:2:1-12:12
-INJECTED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:2:1-12:12
+ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:2:1-17:12
+INJECTED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:2:1-17:12
+INJECTED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:2:1-17:12
+INJECTED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:2:1-17:12
 MERGED from [:persistence-room] /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/persistence-room/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:2:1-7:12
 MERGED from [:tts-android] /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/tts-android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.webkit:webkit:1.12.1] /home/runner/.gradle/caches/8.10.2/transforms/c975d58c0dc8dde2ff9838c9c2583683/transformed/webkit-1.12.1/AndroidManifest.xml:2:1-7:12
@@ -28,8 +28,8 @@ ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-an
 	android:name
 		ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:3:22-64
 application
-ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:4:5-11:19
-INJECTED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:4:5-11:19
+ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:4:5-16:19
+INJECTED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:4:5-16:19
 MERGED from [androidx.room:room-runtime:2.6.1] /home/runner/.gradle/caches/8.10.2/transforms/992d2576da2a1768d021f8116550141a/transformed/room-runtime-2.6.1/AndroidManifest.xml:23:5-29:19
 MERGED from [androidx.room:room-runtime:2.6.1] /home/runner/.gradle/caches/8.10.2/transforms/992d2576da2a1768d021f8116550141a/transformed/room-runtime-2.6.1/AndroidManifest.xml:23:5-29:19
 MERGED from [androidx.core:core:1.1.0] /home/runner/.gradle/caches/8.10.2/transforms/5f0a6aaf2c7e98feb6ad7d9248343526/transformed/core-1.1.0/AndroidManifest.xml:24:5-89
@@ -53,7 +53,9 @@ MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.0] /home/runne
 	android:usesCleartextTraffic
 		ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:4:192-228
 activity#braseiro.ose.app.MainActivity
-ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:5:9-10:20
+ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:5:9-15:20
+	android:launchMode
+		ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:5:72-102
 	android:exported
 		ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:5:48-71
 	android:name
@@ -68,6 +70,20 @@ category#android.intent.category.LAUNCHER
 ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:8:17-77
 	android:name
 		ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:8:27-74
+intent-filter#action:name:android.intent.action.SEND+category:name:android.intent.category.DEFAULT+data:mimeType:image/*
+ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:10:13-14:29
+action#android.intent.action.SEND
+ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:11:17-69
+	android:name
+		ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:11:25-66
+category#android.intent.category.DEFAULT
+ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:12:17-76
+	android:name
+		ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:12:27-73
+data
+ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:13:17-52
+	android:mimeType
+		ADDED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml:13:23-49
 uses-sdk
 INJECTED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /home/runner/work/braseirobuild/braseirobuild/ose/1.0.0/source/app-android/src/main/AndroidManifest.xml

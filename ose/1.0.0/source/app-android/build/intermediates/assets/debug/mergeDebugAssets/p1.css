@@ -47,3 +47,6 @@ button.primary,button.secondary,button.small{border:1px solid #53120f;border-rad
 .edit-character{border-left:4px solid var(--blood)}.edit-character .row{margin-top:8px}
 .equipment-art{background:radial-gradient(circle,#f4e3bc 0,#dec18a 72%,transparent 73%);padding:2px}
 @media(max-width:360px){.sheet-actions{grid-template-columns:1fr}.inventory-grid{grid-template-columns:1fr 1fr}}
+
+/* 1.0.4 state-change popup */
+.event-popup-overlay{position:fixed;inset:0;z-index:70;background:rgba(20,10,5,.72);display:flex;align-items:center;justify-content:center;padding:18px}.event-popup{width:min(360px,100%);margin:0}.event-popup h3{font-size:20px}.event-popup p{font-size:13px;line-height:1.4}

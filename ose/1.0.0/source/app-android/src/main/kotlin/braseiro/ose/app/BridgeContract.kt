@@ -29,6 +29,7 @@ private val ALLOWED_BRIDGE_TYPES = setOf(
     "GeminiCredentialDelete",
     "GeminiCredentialTest",
     "SceneImageGenerate",
+    "ScenePromptShare",
     "PresentationImageSave",
     "ManualDiceRoll",
     // Legacy spellings remain accepted only for backward-compatible transport parsing.

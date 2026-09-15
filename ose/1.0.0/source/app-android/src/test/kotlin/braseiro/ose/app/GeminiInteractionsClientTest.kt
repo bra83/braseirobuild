@@ -65,4 +65,17 @@ class GeminiInteractionsClientTest {
     fun blankNarrationIsRejectedBeforeTransport() {
         GeminiInteractionsClient(FakeTransport(JSONObject())).generateTtsAudio("key", "model", "Kore", "")
     }
+    @Test fun ttsParsesCurrentOutputAudioField() {
+        val bytes = byteArrayOf(9, 8, 7, 6)
+        val response = JSONObject().put("output_audio", JSONObject()
+            .put("data", Base64.getEncoder().encodeToString(bytes))
+            .put("mime_type", "audio/L16")
+            .put("sample_rate", 24000))
+        val client = GeminiInteractionsClient(FakeTransport(response))
+        val blob = client.generateTtsAudio("tts-secret", "gemini-3.1-flash-tts-preview", "Kore", "Teste em português")
+        assertArrayEquals(bytes, blob.data)
+        assertEquals("audio/L16", blob.mimeType)
+        assertEquals(24000, blob.sampleRate)
+    }
+
 }

@@ -46,6 +46,8 @@ class GeminiTtsController(
         return playVisibleNarration(currentText)
     }
 
+    fun playTestPhrase(): Result = playVisibleNarration("Teste de voz do Mestre Bárbara. Se você está ouvindo esta frase, o TTS está funcionando.")
+
     fun stop(): Result {
         main.post { player?.stop(); player?.release(); player = null }
         return Result.STOPPED

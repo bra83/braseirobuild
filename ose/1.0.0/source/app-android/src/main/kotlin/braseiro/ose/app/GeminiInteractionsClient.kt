@@ -75,6 +75,18 @@ class GeminiInteractionsClient(private val transport: GeminiTransport = HttpsGem
     }
 
     private fun firstMedia(response: JSONObject, type: String): MediaBlob {
+        if (type == "audio") {
+            response.optJSONObject("output_audio")?.let { audio ->
+                val data = audio.optString("data", "")
+                if (data.isNotBlank()) {
+                    return MediaBlob(
+                        mimeType = audio.optString("mime_type", "audio/L16"),
+                        data = java.util.Base64.getDecoder().decode(data),
+                        sampleRate = audio.optInt("sample_rate", 24000).takeIf { it > 0 } ?: 24000
+                    )
+                }
+            }
+        }
         var found: MediaBlob? = null
         forEachContent(response) { content ->
             if (found == null && content.optString("type") == type) {
