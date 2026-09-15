@@ -1,0 +1,149 @@
+[
+  {
+    "source": "03_top_search.png",
+    "derived": "03_top_search.png",
+    "sha256": "d2eab990fcb74e3d03a61c2b58c8ecbae8d11ac059e7f00390f3d7f0d9905cd9",
+    "dynamic_text_removed": false,
+    "method": "exact_static_component_copy"
+  },
+  {
+    "source": "04_top_layers.png",
+    "derived": "04_top_layers.png",
+    "sha256": "11840ef884abdac3ac58354904d5bc8e707ba12543a43e8231a5df6a4ba908d6",
+    "dynamic_text_removed": false,
+    "method": "exact_static_component_copy"
+  },
+  {
+    "source": "05_top_notes.png",
+    "derived": "05_top_notes.png",
+    "sha256": "c6549d59fed3dd5e1b01ab026f61e798cac86836e5b5ddfaf9874d28d2e6f47c",
+    "dynamic_text_removed": false,
+    "method": "exact_static_component_copy"
+  },
+  {
+    "source": "16_choices_heading.png",
+    "derived": "16_choices_heading.png",
+    "sha256": "80ccb4651975a34e7a421b15f7606fabf07f784e3a5b2ead48c30c92033c2520",
+    "dynamic_text_removed": false,
+    "method": "exact_static_component_copy"
+  },
+  {
+    "source": "24_bottom_home.png",
+    "derived": "24_bottom_home.png",
+    "sha256": "898b8d8c082741e8adc5fe69db5df13634b5120a6253f62acc537d3c32621f60",
+    "dynamic_text_removed": false,
+    "method": "exact_static_component_copy"
+  },
+  {
+    "source": "25_bottom_explore_active.png",
+    "derived": "25_bottom_explore_active.png",
+    "sha256": "c80af9ee72050c59cacd634ea7c9369fef06e1156b782f52a76f8ac910bd0831",
+    "dynamic_text_removed": false,
+    "method": "exact_static_component_copy"
+  },
+  {
+    "source": "26_bottom_sessions.png",
+    "derived": "26_bottom_sessions.png",
+    "sha256": "454e5c26d3f14eb69a58bd28d1829b8d019bf4e7782852d416a34ea346346651",
+    "dynamic_text_removed": false,
+    "method": "exact_static_component_copy"
+  },
+  {
+    "source": "27_bottom_favorites.png",
+    "derived": "27_bottom_favorites.png",
+    "sha256": "1eb80d2aceea651b45d09ba702fce7f0f537a91f69f47af2929ebb0c6b952112",
+    "dynamic_text_removed": false,
+    "method": "exact_static_component_copy"
+  },
+  {
+    "source": "28_bottom_settings.png",
+    "derived": "28_bottom_settings.png",
+    "sha256": "e195821224e6b69a27894e1d56e9d70d9b8c0a16b3a9bb8dc44b2612e83ea907",
+    "dynamic_text_removed": false,
+    "method": "exact_static_component_copy"
+  },
+  {
+    "source": "08_contact_badge.png",
+    "derived": "08_contact_badge_chrome.png",
+    "sha256": "38f4229e6de3da35799fd91588bf819e63738502b4151a1ca007b651d4ba8ecd",
+    "dynamic_text_removed": true,
+    "method": "transparent_text_zone_over_native_background"
+  },
+  {
+    "source": "11_stat_perigo.png",
+    "derived": "11_stat_perigo_chrome.png",
+    "sha256": "7938b556fc24b392da8600f9d06829040a794221eee5beaf0ad881a61ffaf7cb",
+    "dynamic_text_removed": true,
+    "method": "transparent_text_zone_over_native_background"
+  },
+  {
+    "source": "12_stat_distancia.png",
+    "derived": "12_stat_distancia_chrome.png",
+    "sha256": "1076073728daac47c8296a1c165e5bef770360dafd56027fbb883d694c88ff03",
+    "dynamic_text_removed": true,
+    "method": "transparent_text_zone_over_native_background"
+  },
+  {
+    "source": "13_stat_cobertura.png",
+    "derived": "13_stat_cobertura_chrome.png",
+    "sha256": "3d88be64c5f5153e8e2e9cd27d88a8197816125cb58b9a4ea55c332823a237bf",
+    "dynamic_text_removed": true,
+    "method": "transparent_text_zone_over_native_background"
+  },
+  {
+    "source": "14_stat_reacao.png",
+    "derived": "14_stat_reacao_chrome.png",
+    "sha256": "34bebd8176ad9ca96be27f5f720251ea6f1edf37e360f1122b192e9522fdb63f",
+    "dynamic_text_removed": true,
+    "method": "transparent_text_zone_over_native_background"
+  },
+  {
+    "source": "15_narrative_panel.png",
+    "derived": "15_narrative_panel_chrome.png",
+    "sha256": "9574890af54fb70076e7fb354ff0650aeb4a8e8f1efe8ea5bf301b9021e10bb6",
+    "dynamic_text_removed": true,
+    "method": "transparent_text_zone_over_native_background"
+  },
+  {
+    "source": "17_button_observar.png",
+    "derived": "17_button_observar_chrome.png",
+    "sha256": "b96cc6e47189c351a88fa1490506aac8f2810f450134b07ea96539a9b8201aff",
+    "dynamic_text_removed": true,
+    "method": "transparent_text_zone_over_native_background"
+  },
+  {
+    "source": "18_button_abordar.png",
+    "derived": "18_button_abordar_chrome.png",
+    "sha256": "f92014fbe780af0a52f5d056c206cc196f08ca15a6fd7e651ab0ebdab6421e8c",
+    "dynamic_text_removed": true,
+    "method": "transparent_text_zone_over_native_background"
+  },
+  {
+    "source": "19_button_emboscar.png",
+    "derived": "19_button_emboscar_chrome.png",
+    "sha256": "8807966b5a7d350861070a8284d7b02c8f6f97da792fb755cdc33d99c1105c1e",
+    "dynamic_text_removed": true,
+    "method": "transparent_text_zone_over_native_background"
+  },
+  {
+    "source": "20_button_recuar.png",
+    "derived": "20_button_recuar_chrome.png",
+    "sha256": "7ed65a9c9b1f92143cffa5267748c5329c1ea4ac9c6cea8fa4e35926320d79b1",
+    "dynamic_text_removed": true,
+    "method": "transparent_text_zone_over_native_background"
+  },
+  {
+    "source": "21_button_iniciar_combate.png",
+    "derived": "21_button_iniciar_combate_chrome.png",
+    "sha256": "89d897c113a6c7eb97d1d5868968d1096cdf4f50f2f205ac088a054a54489370",
+    "dynamic_text_removed": true,
+    "method": "transparent_text_zone_over_native_background"
+  },
+  {
+    "source": "22_notes_panel.png",
+    "derived": "22_notes_panel_chrome.png",
+    "sha256": "f8be105172ba30131b46c3fbbedf35a4080a0279711eedc40b9b33090de74347",
+    "dynamic_text_removed": true,
+    "method": "transparent_text_zone_over_native_background"
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "width": 415,
+  "height": 915,
+  "tolerance": 16,
+  "changed_pixels": 77995,
+  "total_pixels": 379725,
+  "changed_ratio": 0.20539864375534927,
+  "mean_abs_error": 12.519008931902473,
+  "max_abs_error": 242
+}

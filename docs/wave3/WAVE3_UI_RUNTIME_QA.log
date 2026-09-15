@@ -1,0 +1,12 @@
+{
+  "runtime_status": "OK",
+  "initial_contact": "CONTATO INESPERADO",
+  "observe_status": "OK",
+  "observe_revision": 1,
+  "after_contact": "CONTATO INESPERADO",
+  "after_narrative": "Você tenta ler o movimento entre as ruínas, mas o teste totalizou 6 contra dificuldade 8; o contato continua difícil de avaliar.",
+  "approach_status": "DEFERRED_NO_MUTATION",
+  "approach_revision": 1,
+  "pass": true
+}
+WAVE3_UI_RUNTIME_QA_PASS

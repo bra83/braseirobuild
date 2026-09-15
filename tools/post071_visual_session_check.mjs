@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import {buildCharacterBible,buildSceneVisualPacket,buildSceneGenerationPrompt,sceneReferenceImages} from '../app/src/main/assets/www/core/scene-visual-packet.js';
+const ref='https://appassets.androidplatform.net/private-scene/0123456789abcdef0123456789abcdef.jpg';
+const state={charactersState:{a:{characterId:'a',name:'Ayla',visualProfile:{description:'mulher de cabelo preto preso, cicatriz fina na sobrancelha',mustKeep:['cabelo preto preso','cicatriz fina'],paletteNotes:'couro escuro',portraitRef:ref},inventory:[{itemId:'SPEAR',name:'Lança',carryState:'READIED'}]},b:{characterId:'b',name:'Borin',visualProfile:{description:'anão grisalho de barba curta'},inventory:[]}},characterState:{characterId:'a',name:'Ayla'},partyState:{activeGroupId:'g',groups:{g:{groupId:'g',memberIds:['a','b'],position:{name:'Colina de Pedra'}}}},worldState:{position:{name:'Colina de Pedra',terrain:'colina pedregosa'},time:{dayPhase:'fim de tarde'},weather:{label:'céu carregado'}},encounterState:{currentScene:{publicScene:{title:'Ruína da Vigília',summary:'O grupo observa a entrada rachada da torre.'}}}};
+const bible=buildCharacterBible(state);assert.equal(bible.length,2);assert.equal(bible[0].portraitRef,ref);assert.deepEqual(bible[0].currentReadiedEquipment,['Lança']);
+const packet=buildSceneVisualPacket({state,scene:state.encounterState.currentScene.publicScene,showParty:true});assert.equal(packet.partyCount,2);assert.equal(packet.location,'Colina de Pedra');assert.equal(packet.terrain,'colina pedregosa');assert.equal(packet.timeOfDay,'fim de tarde');assert.equal(packet.weather,'céu carregado');
+const prompt=buildSceneGenerationPrompt(packet);assert.match(prompt,/EXATAMENTE 2 integrante/);assert.match(prompt,/Ayla/);assert.match(prompt,/cabelo preto preso/);assert.match(prompt,/Não invente personagens/);assert.doesNotMatch(prompt,/contexto do mundo/i);assert.deepEqual(sceneReferenceImages(packet),[ref]);
+const root=path.resolve(import.meta.dirname,'..');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const bridge=read('app/src/main/java/com/braseiro/wwn/bridge/BraseiroBridge.kt');const main=read('app/src/main/java/com/braseiro/wwn/MainActivity.kt');const gemini=read('app/src/main/java/com/braseiro/wwn/bridge/GeminiRuntime.kt');const roster=read('app/src/main/assets/www/core/character-roster-service.js');const jornada=read('app/src/main/assets/www/jornada.js');const ficha=read('app/src/main/assets/www/ficha.js');
+for(const token of ['setGeminiImageModel','geminiGenerateImageAsync','geminiImageGeneration'])assert.ok(bridge.includes(token),token);
+assert.ok(main.includes('requestGeminiImageAsync'));assert.ok(gemini.includes('gemini-3.1-flash-image'));assert.ok(gemini.includes('previous_interaction_id'));assert.ok(gemini.includes('referenceImageUrls'));
+for(const token of ['updateVisualProfile','setPortrait','clearPortrait'])assert.ok(roster.includes(token),token);
+assert.ok(jornada.includes('buildSceneVisualPacket'));assert.ok(jornada.includes('previousInteractionId'));assert.ok(jornada.includes('sceneVisualSession'));assert.ok(jornada.includes('GERAR IMAGEM DA CENA'));
+assert.ok(ficha.includes('RETRATO / GEMINI'));assert.ok(ficha.includes("aspectRatio:'3:4'"));
+console.log('POST071_VISUAL_SESSION_CHECK PASS');

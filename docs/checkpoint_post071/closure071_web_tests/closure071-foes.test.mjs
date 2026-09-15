@@ -1,0 +1,9 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {WWN_FOE_CATALOG,foeProfile,foeHitPointPlan,spellcasterFoeMagicPlan} from '../work/core/wwn-foe-catalog.js';
+test('SRD foe table has all 35 baseline profiles with unique ids',()=>{assert.equal(WWN_FOE_CATALOG.length,35);assert.equal(new Set(WWN_FOE_CATALOG.map(x=>x.id)).size,35);});
+test('normal human baseline preserves Great Warrior King stat line',()=>{const p=foeProfile('GREAT_WARRIOR_KING');assert.deepEqual([p.hitDice,p.armorClass,p.attackBonus,p.attacksPerAction,p.morale,p.instinct,p.skillBonus,p.saveTarget],[12,18,14,2,10,1,3,9]);});
+test('spellcaster baseline preserves mage-level and Effort derivation contract',()=>{const m=spellcasterFoeMagicPlan('MASTER_WIZARD');assert.equal(m.status,'OK');assert.equal(m.effectiveMageLevel,8);assert.equal(m.effort,4);assert.equal(m.traditionAndPowersRequireGmSelection,true);});
+test('non-spellcaster does not invent magic plan',()=>assert.equal(spellcasterFoeMagicPlan('PEACEFUL_HUMAN').status,'NOT_SPELLCASTER'));
+test('normal animal apex predator keeps two attacks and movement',()=>{const p=foeProfile('APEX_PREDATOR');assert.equal(p.attacksPerAction,2);assert.equal(p.moveFeet,40);assert.equal(p.damage,'1D8');});
+test('unnatural warbot preserves x3 attack and high armor',()=>{const p=foeProfile('AUTOMATON_WARBOT');assert.equal(p.attacksPerAction,3);assert.equal(p.armorClass,20);assert.equal(p.damage,'1D12+5');});
+test('foe hit points roll one d8 per HD and reject wrong count',()=>{assert.equal(foeHitPointPlan({profileId:'SKILLED_VETERAN',hitDieRolls:[5,7]}).hitPoints,12);assert.throws(()=>foeHitPointPlan({profileId:'SKILLED_VETERAN',hitDieRolls:[5]}));});
+test('legendary titan source line remains extreme rather than normalized to PC scale',()=>{const p=foeProfile('LEGENDARY_GOD_TITAN');assert.equal(p.hitDice,20);assert.equal(p.armorClass,22);assert.equal(p.attackBonus,20);assert.equal(p.saveTarget,2);});

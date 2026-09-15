@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { attributeBoostStep, planSkillPurchase } from '../app/src/main/assets/www/core/wwn-advancement-core.js';
+import { inventoryLoad, moveInventoryItem } from '../app/src/main/assets/www/core/wwn-inventory-core.js';
+
+test('attribute boost costs rise 1..5 and third/fourth/fifth have level gates 3/6/9',()=>{const expected=[[1,1,1],[2,2,1],[3,3,3],[4,4,6],[5,5,9]];for(const [ordinal,cost,min] of expected){const r=attributeBoostStep({boostOrdinal:ordinal,characterLevel:10});assert.equal(r.skillPointCost,cost);assert.equal(r.minimumCharacterLevel,min);}});
+test('attribute boost refuses third boost before level 3',()=>assert.equal(attributeBoostStep({boostOrdinal:3,characterLevel:2}).allowed,false));
+test('skill purchase accumulates every intervening level cost',()=>{const r=planSkillPurchase({currentSkillLevel:null,targetSkillLevel:1,characterLevel:1,availableSkillPoints:3});assert.equal(r.status,'OK');assert.equal(r.totalCost,3);assert.equal(r.remainingSkillPoints,0);});
+test('skill level 2 cannot be bought before character level 3',()=>{const r=planSkillPurchase({currentSkillLevel:1,targetSkillLevel:2,characterLevel:2,availableSkillPoints:99});assert.equal(r.status,'CHARACTER_LEVEL_TOO_LOW');assert.equal(r.requiredLevel,3);});
+test('skill purchase reports insufficient points without partially buying a level',()=>{const r=planSkillPurchase({currentSkillLevel:0,targetSkillLevel:1,characterLevel:1,availableSkillPoints:1});assert.equal(r.status,'INSUFFICIENT_SKILL_POINTS');assert.equal(r.totalCost,2);});
+test('canonical missing IRIA inventory remains missing under load/move helpers',()=>{const iria={attributes:{Strength:7},inventory:null};assert.equal(inventoryLoad(iria).status,'MISSING_EVIDENCE');assert.equal(moveInventoryItem(iria,{itemId:'x',to:'READIED'}).status,'MISSING_EVIDENCE');});
+test('generic explicit inventory computes Readied and Stowed encumbrance without inventing items',()=>{const c={attributes:{Strength:10},inventory:[{itemId:'a',encumbrance:2,carryState:'READIED'},{itemId:'b',encumbrance:3,carryState:'STOWED'}]};const r=inventoryLoad(c);assert.equal(r.readiedPoints,2);assert.equal(r.stowedPoints,3);assert.equal(r.assessment.status,'NORMAL');});
+test('moving an existing explicit item changes only carry state and is a Main Action',()=>{const c={attributes:{Strength:10},inventory:[{itemId:'a',name:'test fixture',encumbrance:2,carryState:'STOWED'}]};const r=moveInventoryItem(c,{itemId:'a',to:'READIED'});assert.equal(r.status,'OK');assert.equal(r.actionCost,'MAIN_ACTION');assert.equal(r.character.inventory[0].name,'test fixture');assert.equal(r.character.inventory[0].carryState,'READIED');});

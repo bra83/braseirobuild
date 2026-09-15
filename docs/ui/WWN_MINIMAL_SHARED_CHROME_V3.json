@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "status": "ACTIVE",
+  "bottomNavigation": ["JORNADA", "PERSONAGEM", "MOCHILA", "MAPA", "DIÁRIO"],
+  "redBar": {"field": "hp", "fill": "current/max", "scope": "character"},
+  "blueBar": {"field": "systemStrain", "fill": "current/max", "semantics": "ACCUMULATED", "scope": "character", "not": ["mana", "effort", "remainingCapacity"]}
+}

@@ -1,0 +1,574 @@
+{
+  "layers_checked": 27,
+  "max_geometry_deviation_px": 0,
+  "pass": true,
+  "rows": [
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_01",
+      "expected": {
+        "x": 8,
+        "y": 26,
+        "w": 58,
+        "h": 59
+      },
+      "actual": {
+        "x": 8,
+        "y": 26,
+        "w": 58,
+        "h": 59
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_02",
+      "expected": {
+        "x": 71,
+        "y": 33,
+        "w": 168,
+        "h": 45
+      },
+      "actual": {
+        "x": 71,
+        "y": 33,
+        "w": 168,
+        "h": 45
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_03",
+      "expected": {
+        "x": 268,
+        "y": 29,
+        "w": 43,
+        "h": 51
+      },
+      "actual": {
+        "x": 268,
+        "y": 29,
+        "w": 43,
+        "h": 51
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_04",
+      "expected": {
+        "x": 314,
+        "y": 29,
+        "w": 43,
+        "h": 51
+      },
+      "actual": {
+        "x": 314,
+        "y": 29,
+        "w": 43,
+        "h": 51
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_05",
+      "expected": {
+        "x": 364,
+        "y": 29,
+        "w": 43,
+        "h": 51
+      },
+      "actual": {
+        "x": 364,
+        "y": 29,
+        "w": 43,
+        "h": 51
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_06",
+      "expected": {
+        "x": 13,
+        "y": 146,
+        "w": 389,
+        "h": 244
+      },
+      "actual": {
+        "x": 13,
+        "y": 146,
+        "w": 389,
+        "h": 244
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_07",
+      "expected": {
+        "x": 14,
+        "y": 94,
+        "w": 47,
+        "h": 47
+      },
+      "actual": {
+        "x": 14,
+        "y": 94,
+        "w": 47,
+        "h": 47
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_08",
+      "expected": {
+        "x": 66,
+        "y": 100,
+        "w": 200,
+        "h": 37
+      },
+      "actual": {
+        "x": 66,
+        "y": 100,
+        "w": 200,
+        "h": 37
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_09",
+      "expected": {
+        "x": 300,
+        "y": 102,
+        "w": 100,
+        "h": 42
+      },
+      "actual": {
+        "x": 300,
+        "y": 102,
+        "w": 100,
+        "h": 42
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_10",
+      "expected": {
+        "x": 16,
+        "y": 399,
+        "w": 87,
+        "h": 50
+      },
+      "actual": {
+        "x": 16,
+        "y": 399,
+        "w": 87,
+        "h": 50
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_11",
+      "expected": {
+        "x": 115,
+        "y": 402,
+        "w": 93,
+        "h": 49
+      },
+      "actual": {
+        "x": 115,
+        "y": 402,
+        "w": 93,
+        "h": 49
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_12",
+      "expected": {
+        "x": 213,
+        "y": 403,
+        "w": 92,
+        "h": 49
+      },
+      "actual": {
+        "x": 213,
+        "y": 403,
+        "w": 92,
+        "h": 49
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_13",
+      "expected": {
+        "x": 311,
+        "y": 402,
+        "w": 90,
+        "h": 49
+      },
+      "actual": {
+        "x": 311,
+        "y": 402,
+        "w": 90,
+        "h": 49
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_14",
+      "expected": {
+        "x": 15,
+        "y": 455,
+        "w": 384,
+        "h": 90
+      },
+      "actual": {
+        "x": 15,
+        "y": 455,
+        "w": 384,
+        "h": 90
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_15",
+      "expected": {
+        "x": 21,
+        "y": 532,
+        "w": 371,
+        "h": 39
+      },
+      "actual": {
+        "x": 21,
+        "y": 532,
+        "w": 371,
+        "h": 39
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_16",
+      "expected": {
+        "x": 20,
+        "y": 574,
+        "w": 180,
+        "h": 53
+      },
+      "actual": {
+        "x": 20,
+        "y": 574,
+        "w": 180,
+        "h": 53
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_17",
+      "expected": {
+        "x": 214,
+        "y": 573,
+        "w": 180,
+        "h": 53
+      },
+      "actual": {
+        "x": 214,
+        "y": 573,
+        "w": 180,
+        "h": 53
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_18",
+      "expected": {
+        "x": 19,
+        "y": 632,
+        "w": 180,
+        "h": 53
+      },
+      "actual": {
+        "x": 19,
+        "y": 632,
+        "w": 180,
+        "h": 53
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_19",
+      "expected": {
+        "x": 213,
+        "y": 632,
+        "w": 180,
+        "h": 53
+      },
+      "actual": {
+        "x": 213,
+        "y": 632,
+        "w": 180,
+        "h": 53
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_20",
+      "expected": {
+        "x": 18,
+        "y": 691,
+        "w": 381,
+        "h": 54
+      },
+      "actual": {
+        "x": 18,
+        "y": 691,
+        "w": 381,
+        "h": 54
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_21",
+      "expected": {
+        "x": 15,
+        "y": 750,
+        "w": 387,
+        "h": 82
+      },
+      "actual": {
+        "x": 15,
+        "y": 750,
+        "w": 387,
+        "h": 82
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_22",
+      "expected": {
+        "x": 345,
+        "y": 756,
+        "w": 44,
+        "h": 50
+      },
+      "actual": {
+        "x": 345,
+        "y": 756,
+        "w": 44,
+        "h": 50
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_23",
+      "expected": {
+        "x": 21,
+        "y": 847,
+        "w": 47,
+        "h": 58
+      },
+      "actual": {
+        "x": 21,
+        "y": 847,
+        "w": 47,
+        "h": 58
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_24",
+      "expected": {
+        "x": 101,
+        "y": 848,
+        "w": 46,
+        "h": 57
+      },
+      "actual": {
+        "x": 101,
+        "y": 848,
+        "w": 46,
+        "h": 57
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_25",
+      "expected": {
+        "x": 182,
+        "y": 849,
+        "w": 52,
+        "h": 56
+      },
+      "actual": {
+        "x": 182,
+        "y": 849,
+        "w": 52,
+        "h": 56
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_26",
+      "expected": {
+        "x": 256,
+        "y": 850,
+        "w": 53,
+        "h": 54
+      },
+      "actual": {
+        "x": 256,
+        "y": 850,
+        "w": 53,
+        "h": 54
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "id": "HEX_ENCOUNTER_RUINAS_27",
+      "expected": {
+        "x": 330,
+        "y": 847,
+        "w": 74,
+        "h": 58
+      },
+      "actual": {
+        "x": 330,
+        "y": 847,
+        "w": 74,
+        "h": 58
+      },
+      "delta": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
+      }
+    }
+  ]
+}

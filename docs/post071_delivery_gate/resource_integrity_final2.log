@@ -1,0 +1,3 @@
+JSON_PARSE checked=56 fail=0
+XML_PARSE checked=3 fail=0
+STATIC_ASSET_REFS checked=76 missing=0

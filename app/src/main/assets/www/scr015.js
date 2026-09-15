@@ -1,0 +1,215 @@
+import { installSharedBottomNav } from './core/shared-navigation.js';
+import { validateGeometry, applyGeometry } from './core/visual-geometry.js';
+import { AssetResolver } from './core/asset-resolver.js';
+import { createWave3Runtime } from './core/wave3-runtime.js';
+import { CombatSessionService } from './core/combat-session-service.js';
+import { DeterministicNarrativeProvider } from './core/narrative-provider.js';
+import { createRuntimeNarrativeProvider } from './core/runtime-narrative-provider.js';
+import { createNativeTtsProvider } from './core/native-tts-provider.js';
+import { TtsPresentationService } from './core/tts-presentation.js';
+import { createPhysicalDiceClient } from './core/physical-dice-client.js';
+import { createAudioSessionCoordinator } from './core/audio-session.js';
+
+const [geometry, fixture, derived, sceneRules, wave3Character] = await Promise.all([
+  fetch('./data/scr015.geometry.json').then(r => r.json()),
+  fetch('./data/scr015.fixture.json').then(r => r.json()),
+  fetch('./data/scr015.derived-assets.json').then(r => r.json()),
+  fetch('./data/scr015.rules.json').then(r => r.json()),
+  fetch('./data/wave3.core-character.fixture.json').then(r => r.json()),
+]);
+const validation = validateGeometry(geometry);
+if (!validation.ok) throw new Error(`Geometry invalid: ${validation.errors.join('; ')}`);
+const assets = new AssetResolver(derived);
+const screen = document.querySelector('#screen');
+screen.dataset.geometryLayers = String(validation.layerCount);
+screen.dataset.screenId = geometry.canonical_screen_id;
+const wave3Runtime = createWave3Runtime({ sceneRules, character: wave3Character });
+screen.dataset.wave3Runtime = wave3Runtime.status;
+const encounterBarbara = globalThis.BraseiroNative ? createRuntimeNarrativeProvider({native:globalThis.BraseiroNative}) : new DeterministicNarrativeProvider();
+const combatSession = wave3Runtime.persistence ? new CombatSessionService({ persistence:wave3Runtime.persistence, barbara:encounterBarbara }) : null;
+const physicalDice = createPhysicalDiceClient({native:globalThis.BraseiroNative});
+const audio = createAudioSessionCoordinator({native:globalThis.BraseiroNative});
+const tts = new TtsPresentationService({provider:createNativeTtsProvider({native:globalThis.BraseiroNative})});
+function masterVoiceEnabled(){try{return audio.status()?.masterVoiceEnabled!==false}catch{return true}}
+async function speakMaster(text){const clean=String(text??'').trim();if(!clean||!masterVoiceEnabled())return;try{await tts.speakVisible({text:clean,visibility:'PLAYER_VISIBLE',rate:.96,pitch:.96,role:'NARRADOR'})}catch{}}
+function stateForEncounter(){try{const l=wave3Runtime.persistence?.loadCampaign(wave3Runtime.campaignId);return l?.status==='OK'?JSON.parse(l.stateJson):null}catch{return null}}
+function syncEncounterAudio(){const st=stateForEncounter();if(st)audio.sync({state:st,scene:{title:fixture.locationName},combatActive:st?.encounterState?.combat?.active===true,journey:false});}
+function needsPhysicalRoll(intent){const contract=sceneRules.actions?.[intent];if(!contract?.physicalFormula)return false;if(intent==='retreat'){const st=stateForEncounter();const aware=st?.encounterState?.foesAware??contract.initialFoesAware??false;return aware===true;}return true;}
+async function physicalForIntent(intent){const contract=sceneRules.actions?.[intent];if(!needsPhysicalRoll(intent)||!physicalDice.available())return null;const result=await physicalDice.roll({formula:contract.physicalFormula});if(result.status!=='OK'||result.forcedSettle===true)throw new Error(result.status==='CANCELLED'?'ROLAGEM_CANCELADA':(result.reason??result.status??'FALHA_DADOS_3D'));return result;}
+
+const fixedImageById = {
+  HEX_ENCOUNTER_RUINAS_01: './assets/encounter_hex_ruinas/01_compass_icon.png',
+  HEX_ENCOUNTER_RUINAS_06: './assets/encounter_hex_ruinas/10_scene_ruins_framed.png',
+  HEX_ENCOUNTER_RUINAS_07: './assets/encounter_hex_ruinas/06_location_badge_ruins.png',
+  HEX_ENCOUNTER_RUINAS_22: './assets/encounter_hex_ruinas/23_notes_icon_button.png',
+};
+const derivedByAction = {
+  open_search: 'top_search_icon', open_layers: 'top_layers_icon', open_notes: 'top_notes_icon',
+  nav_home: 'nav_home_icon', nav_explore: 'nav_explore_icon', nav_sessions: 'nav_sessions_icon',
+  nav_favorites: 'nav_favorites_icon', nav_settings: 'nav_settings_icon',
+};
+const exactUiById = {
+  HEX_ENCOUNTER_RUINAS_03:'./assets/encounter_hex_ruinas_exact/03_top_search.png',
+  HEX_ENCOUNTER_RUINAS_04:'./assets/encounter_hex_ruinas_exact/04_top_layers.png',
+  HEX_ENCOUNTER_RUINAS_05:'./assets/encounter_hex_ruinas_exact/05_top_notes.png',
+  HEX_ENCOUNTER_RUINAS_15:'./assets/encounter_hex_ruinas_exact/16_choices_heading.png',
+  HEX_ENCOUNTER_RUINAS_23:'./assets/encounter_hex_ruinas_exact/24_bottom_home.png',
+  HEX_ENCOUNTER_RUINAS_24:'./assets/encounter_hex_ruinas_exact/25_bottom_explore_active.png',
+  HEX_ENCOUNTER_RUINAS_25:'./assets/encounter_hex_ruinas_exact/26_bottom_sessions.png',
+  HEX_ENCOUNTER_RUINAS_26:'./assets/encounter_hex_ruinas_exact/27_bottom_favorites.png',
+  HEX_ENCOUNTER_RUINAS_27:'./assets/encounter_hex_ruinas_exact/28_bottom_settings.png',
+};
+const cleanNavById = {
+  HEX_ENCOUNTER_RUINAS_23:'./assets/encounter_hex_ruinas_exact/24_bottom_home_clean.png',
+  HEX_ENCOUNTER_RUINAS_24:'./assets/encounter_hex_ruinas_exact/25_bottom_explore_active_clean.png',
+  HEX_ENCOUNTER_RUINAS_25:'./assets/encounter_hex_ruinas_exact/26_bottom_sessions_clean.png',
+  HEX_ENCOUNTER_RUINAS_26:'./assets/encounter_hex_ruinas_exact/27_bottom_favorites_clean.png',
+};
+const chromeById = {
+  HEX_ENCOUNTER_RUINAS_09:'./assets/encounter_hex_ruinas_exact/08_contact_badge_chrome.png',
+  HEX_ENCOUNTER_RUINAS_10:'./assets/encounter_hex_ruinas_exact/11_stat_perigo_chrome.png',
+  HEX_ENCOUNTER_RUINAS_11:'./assets/encounter_hex_ruinas_exact/12_stat_distancia_chrome.png',
+  HEX_ENCOUNTER_RUINAS_12:'./assets/encounter_hex_ruinas_exact/13_stat_cobertura_chrome.png',
+  HEX_ENCOUNTER_RUINAS_13:'./assets/encounter_hex_ruinas_exact/14_stat_reacao_chrome.png',
+  HEX_ENCOUNTER_RUINAS_14:'./assets/encounter_hex_ruinas_exact/15_narrative_panel_chrome.png',
+  HEX_ENCOUNTER_RUINAS_16:'./assets/encounter_hex_ruinas_exact/17_button_observar_chrome.png',
+  HEX_ENCOUNTER_RUINAS_17:'./assets/encounter_hex_ruinas_exact/18_button_abordar_chrome.png',
+  HEX_ENCOUNTER_RUINAS_18:'./assets/encounter_hex_ruinas_exact/19_button_emboscar_chrome.png',
+  HEX_ENCOUNTER_RUINAS_19:'./assets/encounter_hex_ruinas_exact/20_button_recuar_chrome.png',
+  HEX_ENCOUNTER_RUINAS_20:'./assets/encounter_hex_ruinas_exact/21_button_iniciar_combate_chrome.png',
+  HEX_ENCOUNTER_RUINAS_21:'./assets/encounter_hex_ruinas_exact/22_notes_panel_chrome.png',
+};
+function applyChrome(el,id){ const src=chromeById[id]; if(src){ el.style.backgroundImage=`url(${src})`; el.classList.add('exact-chrome'); } return el; }
+
+function div(className, text='') { const el=document.createElement('div'); el.className=className; el.textContent=text; return el; }
+function img(src, className='asset-image') { const el=document.createElement('img'); el.src=src; el.className=className; el.alt=''; el.draggable=false; return el; }
+
+function renderNative(layer) {
+  const id=layer.stable_id, role=layer.role;
+  if (id === 'HEX_ENCOUNTER_RUINAS_02') {
+    const el=div('native brand-header'); el.innerHTML=`<small>${fixture.campaignLabel}</small><strong>${fixture.screenTitle}</strong>`; return el;
+  }
+  if (id === 'HEX_ENCOUNTER_RUINAS_08') {
+    const el=div('native location-header'); el.innerHTML=`<strong>${fixture.locationName}</strong><small>${fixture.coordinates} &nbsp;†&nbsp; △ ${fixture.terrain}</small>`; return el;
+  }
+  if (id === 'HEX_ENCOUNTER_RUINAS_09') return applyChrome(div('native contact-badge', fixture.contactState), id);
+  if (role === 'status_stat') {
+    const [label,value]=fixture.stats[id]; const el=applyChrome(div('native stat'),id); el.innerHTML=`<small>${label}</small><strong>${value}</strong>`; return el;
+  }
+  if (role === 'narrative_panel') return applyChrome(div('native narrative', fixture.narrative),id);
+  if (role === 'section_heading') { const el=div('native exact-static'); el.append(img(exactUiById[id])); return el; }
+  if (role === 'gm_notes_panel') {
+    const el=applyChrome(div('native gm-notes'),id); el.innerHTML=`<strong>NOTAS DO MESTRE</strong><p>${fixture.gmNotes}</p>`; return el;
+  }
+  return div(`native ${role}`);
+}
+
+function renderInteractive(layer) {
+  const action=layer.action;
+  if (layer.role === 'choice_button' || layer.role === 'primary_action_button') {
+    const button=applyChrome(document.createElement('button'),layer.stable_id); button.className+=` native action-button ${layer.role==='primary_action_button'?'primary':''}`;
+    button.dataset.intent=action; button.setAttribute('aria-label',fixture.choices[action]); button.innerHTML=`<span class="choice-label">${fixture.choices[action]}</span>`;
+    return button;
+  }
+  if (layer.role === 'bottom_nav') {
+    const button=document.createElement('button');
+    const active=action===fixture.bottomNavActive;
+    button.className=`native nav-item ${active?'active':''}`;
+    button.dataset.route=action;
+    button.setAttribute('aria-label',fixture.bottomNav[action]);
+    button.setAttribute('aria-current',active?'page':'false');
+    if (cleanNavById[layer.stable_id]) {
+      button.append(img(cleanNavById[layer.stable_id],'nav-full'));
+    } else {
+      const record=assets.resolve(derivedByAction[action]);
+      const src=record.path.startsWith('data:')?record.path:`./${record.path}`;
+      button.append(img(src,'nav-icon'));
+      const label=document.createElement('span'); label.className='nav-label'; label.textContent=fixture.bottomNav[action];
+      button.append(label);
+    }
+    return button;
+  }
+  if (layer.role === 'button' && derivedByAction[action]) {
+    const button=document.createElement('button'); button.className='native top-button exact-static'; button.dataset.action=action;
+    const labels={open_search:'BUSCAR',open_layers:'CAMADAS',open_notes:'NOTAS'}; button.setAttribute('aria-label',labels[action] ?? action);
+    button.append(img(exactUiById[layer.stable_id])); return button;
+  }
+  if (action === 'open_gm_notes') {
+    const button=document.createElement('button'); button.className='asset-button'; button.dataset.action=action;
+    button.append(img(fixedImageById[layer.stable_id])); return button;
+  }
+  return div('native interactive-placeholder', action ?? '');
+}
+
+const bottomNavSurface=div('bottom-nav-surface');
+bottomNavSurface.setAttribute('aria-hidden','true');
+screen.append(bottomNavSurface);
+
+for (const layer of geometry.layers) {
+  let el;
+  if (layer.stable_id === 'HEX_ENCOUNTER_RUINAS_06') { el=div('scene-asset-frame'); el.append(img(fixedImageById[layer.stable_id],'scene-image')); }
+  else if (fixedImageById[layer.stable_id]) el=img(fixedImageById[layer.stable_id]);
+  else if (layer.runtime_policy === 'native_text_required') el=renderNative(layer);
+  else if (layer.runtime_policy.startsWith('interactive')) el=renderInteractive(layer);
+  else el=div(`native ${layer.role}`);
+  el.id=layer.stable_id;
+  el.dataset.role=layer.role;
+  if (layer.action) el.dataset.action=layer.action;
+  applyGeometry(el,layer.geometry);
+  screen.append(el);
+}
+
+installSharedBottomNav({root:screen,active:'mapa',zIndex:900});
+screen.addEventListener('click', async (event) => {
+  const target=event.target.closest('[data-intent],[data-action],[data-route]');
+  if (!target) return;
+  const intent=target.dataset.intent;
+  const action=target.dataset.action;
+  const route=target.dataset.route;
+  const payload={ type:intent?'PLAYER_ACTION_INTENT':route?'ROUTE':'UI_ACTION', intent, action, route, screen:'SCR-015' };
+  window.dispatchEvent(new CustomEvent('braseiro-intent',{detail:payload}));
+  document.querySelector('#debug').textContent=JSON.stringify(payload);
+  if (intent === 'start_combat' && combatSession && wave3Runtime.campaignId) {
+    const result=await combatSession.startAtVigilia({campaignId:wave3Runtime.campaignId});
+    document.querySelector('#debug').textContent=JSON.stringify({payload,status:result.status,revision:result.receipt?.newRevision ?? result.revision ?? null});
+    if (result.status === 'OK' || result.status === 'COMBAT_ALREADY_ACTIVE_NO_MUTATION') location.href='scr022.html';
+    return;
+  }
+  if (intent && wave3Runtime.actionService) {
+    try {
+      target.disabled=true;
+      const physical=await physicalForIntent(intent);
+      let result=wave3Runtime.actionService.perform({ campaignId:wave3Runtime.campaignId, screenId:'SCR-015', intent, physicalDice:physical });
+      document.querySelector('#debug').textContent=JSON.stringify({payload,status:result.status,revision:result.receipt?.newRevision ?? result.revision ?? null,diceAuthority:result.mechanicalEvent?.resolution?.diceAuthority??null});
+      if (result.status === 'MECHANICAL_COMMITTED_NARRATIVE_PENDING' && typeof wave3Runtime.actionService.recoverPendingNarrativeAsync === 'function') {
+        const narrativeBox=document.querySelector('#HEX_ENCOUNTER_RUINAS_14');
+        if(narrativeBox)narrativeBox.textContent='Barbara está narrando a consequência…';
+        const recovered=await wave3Runtime.actionService.recoverPendingNarrativeAsync({campaignId:wave3Runtime.campaignId});
+        if(recovered.status==='RECOVERED') result={...result,status:'OK',narrative:recovered.narrative,projectedState:recovered.projectedState??result.projectedState};
+        else if(recovered.status!=='ALREADY_NARRATED') result={...result,narrativeError:recovered.status};
+      }
+      if (result.status === 'OK' || result.status === 'MECHANICAL_COMMITTED_NARRATIVE_PENDING') {
+        const state=result.projectedState;
+        const badge=document.querySelector('#HEX_ENCOUNTER_RUINAS_09');
+        if (badge && state?.encounterState?.contactState) badge.textContent=state.encounterState.contactState;
+        const reaction=document.querySelector('#HEX_ENCOUNTER_RUINAS_13 strong');
+        if(reaction&&state?.encounterState?.reaction?.disposition?.label)reaction.textContent=state.encounterState.reaction.disposition.label;
+        const narrative=document.querySelector('#HEX_ENCOUNTER_RUINAS_14');
+        if (narrative && result.narrative?.text) narrative.textContent=result.narrative.text;
+        if(result.narrative?.text)void speakMaster(result.narrative.text);
+        if(intent==='retreat'&&state?.encounterState?.retreated===true)setTimeout(()=>{location.href='jornada.html'},700);
+      }
+    } catch(error) {
+      const message=String(error?.message??error);
+      document.querySelector('#debug').textContent=JSON.stringify({payload,status:message==='ROLAGEM_CANCELADA'?'ROLAGEM_CANCELADA_SEM_MUTACAO':'FALHA_DADOS_3D_SEM_MUTACAO',reason:message});
+    } finally { target.disabled=false; }
+  }
+  if (action === 'open_search') { location.href='regras.html#query'; return; }
+  if (action === 'open_layers') { location.href='scr014.html'; return; }
+  if (action === 'open_notes' || action === 'open_gm_notes') {
+    const panel=document.querySelector('#HEX_ENCOUNTER_RUINAS_21');
+    const collapsed=panel.classList.toggle('collapsed');
+    target.setAttribute('aria-expanded',String(!collapsed));
+    return;
+  }
+});

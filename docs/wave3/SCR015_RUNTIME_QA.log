@@ -1,0 +1,26 @@
+{
+  "viewport_415x915": true,
+  "document_no_outer_scroll": true,
+  "geometry_27_exact": true,
+  "geometry_errors": [],
+  "images_loaded": true,
+  "utf8_accents": true,
+  "one_active_nav": true,
+  "touch_player_actions": true,
+  "player_action_intents": [
+    "observe",
+    "approach",
+    "ambush",
+    "retreat",
+    "start_combat"
+  ],
+  "touch_top_action": true,
+  "touch_route": true,
+  "notes_collapsed": true,
+  "notes_reopened": true,
+  "long_narrative_scroll": true,
+  "long_notes_scroll": true,
+  "editable_controls": 0,
+  "keyboard_ime": "N/A_NO_EDITABLE_CONTROL_ON_SCR015"
+}
+QA_PASS []

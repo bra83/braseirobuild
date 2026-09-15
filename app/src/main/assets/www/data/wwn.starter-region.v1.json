@@ -1,0 +1,346 @@
+{
+  "pack_id": "WWN_STARTER_REGION_CONTENT_V1",
+  "campaign": "SOMBRAS DE GELO E FERRO",
+  "region": {
+    "name": "Marchas de Vár-Kel",
+    "tone": "fronteira fria, colinas pedregosas, ruínas de uma civilização anterior, autoridade fragmentada",
+    "scope": "starter_sandbox",
+    "atlas_scale": "6_miles_per_hex",
+    "starter_settlement": "Vila de Iria",
+    "design_rule": "3-4 major adventure-worthy sites; remaining POIs stay short until approached"
+  },
+  "settlement": {
+    "id": "settlement_iria",
+    "name": "Vila de Iria",
+    "type": "walled_frontier_market",
+    "summary": "Uma vila de pedra escura erguida junto a uma ponte antiga. O mercado vive de caravanas, sal, peles e sucata retirada das ruínas. A lei existe, mas termina pouco além das paliçadas.",
+    "districts": [
+      "Mercado da Ponte",
+      "Pátio dos Carroceiros",
+      "Rua das Ferrarias",
+      "Santuário das Três Velas",
+      "Muralha Velha"
+    ],
+    "services": [
+      "estalagem",
+      "ferreiro",
+      "curandeiro",
+      "mercado",
+      "guia local",
+      "caravanas",
+      "escriba e mapas incompletos"
+    ],
+    "active_problems": [
+      "caravanas desaparecem na estrada do norte",
+      "um poço antigo sob a muralha voltou a produzir água morna e metálica",
+      "duas facções disputam o direito de escavar as ruínas próximas"
+    ]
+  },
+  "major_sites": [
+    {
+      "id": "site_vigilia",
+      "name": "Ruínas da Vigília",
+      "kind": "ruin_dungeon",
+      "summary": "Torres quebradas numa colina de pedra negra. À noite, peças de metal enterradas vibram como sinos abafados.",
+      "situation": "Duas expedições rivais chegaram antes dos heróis; nenhuma voltou inteira.",
+      "hooks": [
+        "um cartógrafo oferece pagamento por uma planta parcial do subsolo",
+        "um sobrevivente afirma ter visto uma porta que só aparece quando nenhuma luz está acesa",
+        "um objeto retirado das ruínas está adoecendo quem dorme perto dele"
+      ],
+      "deeper_truth": "Uma instalação antiga ainda executa um protocolo incompleto de vigilância.",
+      "mechanics": "TBD_RULE_BOUND_DUNGEON_CONTENT"
+    },
+    {
+      "id": "site_mine",
+      "name": "Mina das Vozes Baixas",
+      "kind": "abandoned_mine",
+      "summary": "Uma mina de ferro abandonada depois que os trabalhadores começaram a ouvir instruções vindas das paredes.",
+      "situation": "Contrabandistas usam os túneis superiores, sem saber o que existe abaixo.",
+      "hooks": [
+        "um mineiro desaparecido deixou um mapa com três galerias que não constam dos registros",
+        "o preço do ferro dobrou desde o fechamento",
+        "um grupo de saqueadores vende fragmentos de minério que permanecem mornos"
+      ],
+      "deeper_truth": "As galerias interceptam uma estrutura muito mais antiga que a mina.",
+      "mechanics": "TBD_RULE_BOUND_DUNGEON_CONTENT"
+    },
+    {
+      "id": "site_monastery",
+      "name": "Mosteiro do Céu Partido",
+      "kind": "isolated_monastery",
+      "summary": "Um mosteiro quase vazio num passo de montanha, construído em torno de um observatório que ninguém mais sabe operar.",
+      "situation": "Os monges discordam sobre abrir ou selar para sempre uma câmara abaixo do observatório.",
+      "hooks": [
+        "um monge pede escolta para levar um manuscrito a Iria",
+        "luzes aparecem no observatório em noites sem estrelas",
+        "um nobre oferece muito dinheiro por um disco de bronze guardado no altar"
+      ],
+      "deeper_truth": "O observatório registra ciclos de fenômenos que não pertencem ao céu atual.",
+      "mechanics": "TBD_RULE_BOUND_SITE_CONTENT"
+    },
+    {
+      "id": "site_marsh",
+      "name": "Brejo do Vidro",
+      "kind": "wilderness_site",
+      "summary": "Água negra, juncos altos e placas de uma substância translúcida emergindo do lodo como vidro fosco.",
+      "situation": "Caçadores desapareceram; pegadas humanas terminam no meio da água rasa.",
+      "hooks": [
+        "uma família quer recuperar um corpo antes que as chuvas subam",
+        "um alquimista paga por lascas do vidro do brejo",
+        "uma patrulha local acusa uma comunidade de eremitas pelos desaparecimentos"
+      ],
+      "deeper_truth": "O brejo encobre estruturas soterradas e rotas antigas de drenagem.",
+      "mechanics": "TBD_RULE_BOUND_WILDERNESS_CONTENT"
+    }
+  ],
+  "minor_pois": [
+    {
+      "name": "Ponte dos Nove Arcos",
+      "type": "stone_bridge",
+      "situation": "um arco foi fechado com pedras recentes por alguém que não quer passagem"
+    },
+    {
+      "name": "Torre do Corvo Mudo",
+      "type": "watchtower",
+      "situation": "fogo aparece no topo, mas não há escada inteira até lá"
+    },
+    {
+      "name": "Santuário da Fonte Fria",
+      "type": "shrine",
+      "situation": "peregrinos deixam moedas e encontram outras mais antigas no lugar"
+    },
+    {
+      "name": "Cemitério dos Sem-Nome",
+      "type": "cemetery",
+      "situation": "uma fileira de túmulos novos não pertence a ninguém da vila"
+    },
+    {
+      "name": "Fazenda de Leth",
+      "type": "farm",
+      "situation": "a família se recusa a abandonar a propriedade apesar de sinais de cerco"
+    },
+    {
+      "name": "Passo da Cabra Branca",
+      "type": "mountain_pass",
+      "situation": "um deslizamento revelou degraus talhados dentro da montanha"
+    },
+    {
+      "name": "Pedreira Vermelha",
+      "type": "quarry",
+      "situation": "trabalhadores encontraram uma parede perfeitamente lisa sob a rocha"
+    },
+    {
+      "name": "Caravançarai de Dorsa",
+      "type": "caravanserai",
+      "situation": "uma caravana chegou sem animais e ninguém explica como"
+    },
+    {
+      "name": "Fortim das Três Bandeiras",
+      "type": "fort",
+      "situation": "três grupos afirmam ter direito legal sobre o mesmo posto"
+    },
+    {
+      "name": "Caverna do Eco Curto",
+      "type": "cave",
+      "situation": "sons feitos lá dentro retornam antes de serem produzidos por completo"
+    },
+    {
+      "name": "Campo das Estacas",
+      "type": "battlefield",
+      "situation": "armas enferrujadas continuam surgindo do solo depois das chuvas"
+    },
+    {
+      "name": "Casa de Chá da Estrada Velha",
+      "type": "roadside_inn",
+      "situation": "viajantes juram que a proprietária sabe quem chegará no dia seguinte"
+    }
+  ],
+  "factions": [
+    {
+      "id": "faction_salt",
+      "name": "Companhia do Sal",
+      "goal": "controlar as rotas de caravanas e cobrar proteção",
+      "public_face": "mercadores e guardas contratados",
+      "conflict": "quer exclusividade sobre a Ponte dos Nove Arcos",
+      "mechanical_stats": "TBD_SOURCE_BOUND"
+    },
+    {
+      "id": "faction_bell",
+      "name": "Irmãos do Sino",
+      "goal": "recuperar artefatos antigos antes que sejam vendidos",
+      "public_face": "religiosos, antiquários e eruditos",
+      "conflict": "consideram a exploração comercial das ruínas uma profanação",
+      "mechanical_stats": "TBD_SOURCE_BOUND"
+    },
+    {
+      "id": "faction_ash",
+      "name": "Vigias da Cinza",
+      "goal": "manter certas ruínas fechadas a qualquer custo",
+      "public_face": "batedores e veteranos da fronteira",
+      "conflict": "não explicam de onde vem sua informação sobre os locais proibidos",
+      "mechanical_stats": "TBD_SOURCE_BOUND"
+    },
+    {
+      "id": "faction_crown",
+      "name": "Cartógrafos da Coroa",
+      "goal": "mapear e registrar a região antes de uma futura anexação",
+      "public_face": "topógrafos, escribas e escoltas",
+      "conflict": "compram informações que outras facções querem manter ocultas",
+      "mechanical_stats": "TBD_SOURCE_BOUND"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "npc_mara",
+      "name": "Mara Venn",
+      "role": "estalajadeira",
+      "goal": "manter a vila fora das guerras de facção",
+      "memory_hooks": [
+        "dívidas",
+        "brigas",
+        "quem voltou vivo das ruínas"
+      ]
+    },
+    {
+      "id": "npc_oren",
+      "name": "Oren Tal",
+      "role": "cartógrafo",
+      "goal": "terminar um mapa confiável das Marchas",
+      "memory_hooks": [
+        "rotas reveladas",
+        "mapas vendidos",
+        "mentiras sobre terreno"
+      ]
+    },
+    {
+      "id": "npc_sava",
+      "name": "Sava Neri",
+      "role": "curandeira",
+      "goal": "descobrir a origem da água metálica",
+      "memory_hooks": [
+        "quem tratou",
+        "ferimentos estranhos",
+        "System Strain elevado observado"
+      ]
+    },
+    {
+      "id": "npc_darik",
+      "name": "Darik Sol",
+      "role": "capitão de caravana",
+      "goal": "reabrir a estrada norte",
+      "memory_hooks": [
+        "contratos",
+        "perdas",
+        "escoltas confiáveis"
+      ]
+    },
+    {
+      "id": "npc_elva",
+      "name": "Elva Rusk",
+      "role": "ferreira",
+      "goal": "obter metal das ruínas sem depender da Companhia do Sal",
+      "memory_hooks": [
+        "equipamento reparado",
+        "encomendas",
+        "material incomum"
+      ]
+    },
+    {
+      "id": "npc_tamon",
+      "name": "Tamon Vey",
+      "role": "monge viajante",
+      "goal": "proteger um manuscrito do Mosteiro",
+      "memory_hooks": [
+        "promessas",
+        "quem viu o manuscrito",
+        "ameaças recebidas"
+      ]
+    },
+    {
+      "id": "npc_vesh",
+      "name": "Vesh Ardan",
+      "role": "agente da Companhia do Sal",
+      "goal": "comprar ou intimidar concorrentes",
+      "memory_hooks": [
+        "acordos",
+        "insultos",
+        "informação comercial"
+      ]
+    },
+    {
+      "id": "npc_nara",
+      "name": "Nara Elt",
+      "role": "caçadora",
+      "goal": "encontrar o irmão desaparecido no Brejo do Vidro",
+      "memory_hooks": [
+        "pistas",
+        "promessas",
+        "quem recusou ajuda"
+      ]
+    }
+  ],
+  "rumors": [
+    "A porta mais funda da Vigília só abre quando ninguém está olhando diretamente para ela.",
+    "A água sob a muralha cura febre, mas causa sonhos iguais em pessoas diferentes.",
+    "Os Vigias da Cinza já conheciam o interior da Mina das Vozes Baixas antes dela ser aberta.",
+    "Há uma estrada antiga sob o Brejo do Vidro.",
+    "Um monge do Céu Partido vendeu uma peça do observatório e desapareceu no mesmo dia.",
+    "A Companhia do Sal está comprando mapas, não mercadorias.",
+    "O Fortim das Três Bandeiras recebe mensagens de uma autoridade que deixou de existir há décadas.",
+    "Alguém em Iria paga discretamente por objetos que vibram perto das ruínas."
+  ],
+  "encounter_seeds": [
+    "mercador perdido com carga intacta mas sem memória das últimas horas",
+    "patrulha local procurando um criminoso que descreve um dos aliados dos heróis por engano",
+    "explorador ferido oferecendo metade de um mapa em troca de ajuda",
+    "eremita que sabe uma rota segura mas exige que ninguém carregue metal",
+    "carroça quebrada transportando uma caixa que os donos não permitem abrir",
+    "batedores de facção observando o grupo sem iniciar conflito",
+    "caçadores fugindo de algo que não conseguem descrever",
+    "peregrinos discutindo se devem continuar até um santuário interditado",
+    "trabalhadores da pedreira carregando uma placa de pedra impossível de riscar",
+    "pequeno grupo de saqueadores oferecendo comércio antes de violência",
+    "mensageiro procurando alguém que morreu meses atrás",
+    "animais de carga abandonados com arreios cortados, mas sem sinais de luta"
+  ],
+  "starting_hooks": [
+    {
+      "id": "hook_1",
+      "title": "A Estrada que Não Devolve",
+      "premise": "Uma caravana enviada ao norte não voltou. Darik Sol oferece pagamento por descobrir o que houve, não necessariamente por recuperar a carga.",
+      "leads": [
+        "Ponte dos Nove Arcos",
+        "Ruínas da Vigília",
+        "Companhia do Sal"
+      ]
+    },
+    {
+      "id": "hook_2",
+      "title": "Água de Ferro",
+      "premise": "Sava Neri precisa de amostras de três fontes antigas antes que a vila decida fechar o poço sob a muralha.",
+      "leads": [
+        "Santuário da Fonte Fria",
+        "Mina das Vozes Baixas",
+        "Mosteiro do Céu Partido"
+      ]
+    },
+    {
+      "id": "hook_3",
+      "title": "O Mapa Rasgado",
+      "premise": "Oren Tal comprou metade de um mapa que parece mostrar uma estrada inexistente atravessando o Brejo do Vidro.",
+      "leads": [
+        "Brejo do Vidro",
+        "Casa de Chá da Estrada Velha",
+        "Cartógrafos da Coroa"
+      ]
+    }
+  ],
+  "rules_audit": {
+    "content_generation": "Original campaign content only; mechanics remain WWN-source-bound.",
+    "atlas": "Default wilderness representation is group-level; split groups become separate risk units when actually separated.",
+    "hp_and_system_strain": "Individual character state.",
+    "effort": "Not universal; shown only for characters/classes with canonical Effort pools.",
+    "mechanical_numbers": "No NPC/faction/combat stats invented in this pack."
+  }
+}

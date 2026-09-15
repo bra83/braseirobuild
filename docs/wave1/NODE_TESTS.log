@@ -1,0 +1,68 @@
+
+> test
+> node --test
+
+TAP version 13
+# Subtest: create -> load is explicit OK
+ok 1 - create -> load is explicit OK
+  ---
+  duration_ms: 2.20827
+  type: 'test'
+  ...
+# Subtest: missing is NOT_FOUND and not an empty campaign
+ok 2 - missing is NOT_FOUND and not an empty campaign
+  ---
+  duration_ms: 1.429662
+  type: 'test'
+  ...
+# Subtest: corruption is CORRUPT and never NOT_FOUND
+ok 3 - corruption is CORRUPT and never NOT_FOUND
+  ---
+  duration_ms: 0.410274
+  type: 'test'
+  ...
+# Subtest: revision conflict does not mutate state
+ok 4 - revision conflict does not mutate state
+  ---
+  duration_ms: 0.499243
+  type: 'test'
+  ...
+# Subtest: injected failure rolls back staged event/state
+ok 5 - injected failure rolls back staged event/state
+  ---
+  duration_ms: 0.774826
+  type: 'test'
+  ...
+# Subtest: same seed + stream yields same deterministic vector
+ok 6 - same seed + stream yields same deterministic vector
+  ---
+  duration_ms: 9.577979
+  type: 'test'
+  ...
+# Subtest: golden RNG vector is locked for replay compatibility
+ok 7 - golden RNG vector is locked for replay compatibility
+  ---
+  duration_ms: 0.755017
+  type: 'test'
+  ...
+# Subtest: stream interleaving does not change a stream sequence
+ok 8 - stream interleaving does not change a stream sequence
+  ---
+  duration_ms: 0.594415
+  type: 'test'
+  ...
+# Subtest: export/import resumes exact stream counters
+ok 9 - export/import resumes exact stream counters
+  ---
+  duration_ms: 0.537716
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 285.077746

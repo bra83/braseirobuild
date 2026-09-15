@@ -1,0 +1,1360 @@
+TAP version 13
+# Subtest: HP reroll applies class per-die modifier before minimum-one clamp
+ok 1 - HP reroll applies class per-die modifier before minimum-one clamp
+  ---
+  duration_ms: 1.194328
+  type: 'test'
+  ...
+# Subtest: current hp object schema, Die Hard focusId and Quick Learner human label are honored
+ok 2 - current hp object schema, Die Hard focusId and Quick Learner human label are honored
+  ---
+  duration_ms: 2.571652
+  type: 'test'
+  ...
+# Subtest: full High Mage derives two spell gains and scheduled art pick without caller flags
+ok 3 - full High Mage derives two spell gains and scheduled art pick without caller flags
+  ---
+  duration_ms: 0.594195
+  type: 'test'
+  ...
+# Subtest: full Elementalist derives one spell and full art cadence
+ok 4 - full Elementalist derives one spell and full art cadence
+  ---
+  duration_ms: 0.607355
+  type: 'test'
+  ...
+# Subtest: partial Healer advancement at level 2 derives art pick but no spell gain
+ok 5 - partial Healer advancement at level 2 derives art pick but no spell gain
+  ---
+  duration_ms: 0.700805
+  type: 'test'
+  ...
+# Subtest: Mageslayer fixed progression is automatically granted, not turned into free pick
+ok 6 - Mageslayer fixed progression is automatically granted, not turned into free pick
+  ---
+  duration_ms: 1.230693
+  type: 'test'
+  ...
+# Subtest: fast/slow XP tables exact
+ok 7 - fast/slow XP tables exact
+  ---
+  duration_ms: 0.914737
+  type: 'test'
+  ...
+# Subtest: skill point grant exact
+ok 8 - skill point grant exact
+  ---
+  duration_ms: 0.891583
+  type: 'test'
+  ...
+# Subtest: skill purchases are ordered with exact costs/gates
+ok 9 - skill purchases are ordered with exact costs/gates
+  ---
+  duration_ms: 0.264108
+  type: 'test'
+  ...
+# Subtest: attribute boosts use global escalating cost and level gates
+ok 10 - attribute boosts use global escalating cost and level gates
+  ---
+  duration_ms: 0.622577
+  type: 'test'
+  ...
+# Subtest: focus picks only at 2/5/7/10 and first-level advancement credit is 3 SP
+ok 11 - focus picks only at 2/5/7/10 and first-level advancement credit is 3 SP
+  ---
+  duration_ms: 0.164648
+  type: 'test'
+  ...
+# Subtest: spell learning grant exact high-mage/full-invoker versus other caster
+ok 12 - spell learning grant exact high-mage/full-invoker versus other caster
+  ---
+  duration_ms: 0.143706
+  type: 'test'
+  ...
+# Subtest: saving throws improve by one
+ok 13 - saving throws improve by one
+  ---
+  duration_ms: 0.144758
+  type: 'test'
+  ...
+# Subtest: HP reroll uses all new-level dice, per-die min 1, Die Hard +2, minimum +1 if roll not higher
+ok 14 - HP reroll uses all new-level dice, per-die min 1, Die Hard +2, minimum +1 if roll not higher
+  ---
+  duration_ms: 0.236696
+  type: 'test'
+  ...
+# Subtest: entitlements expose attack lookup instead of inventing class progression
+ok 15 - entitlements expose attack lookup instead of inventing class progression
+  ---
+  duration_ms: 0.320352
+  type: 'test'
+  ...
+# Subtest: AdvancementService commits active+roster atomically and never resets XP
+ok 16 - AdvancementService commits active+roster atomically and never resets XP
+  ---
+  duration_ms: 1.617134
+  type: 'test'
+  ...
+# Subtest: AdvancementService zero mutation on insufficient XP
+ok 17 - AdvancementService zero mutation on insufficient XP
+  ---
+  duration_ms: 0.217508
+  type: 'test'
+  ...
+# Subtest: all class-art rows receive an explicit effect classification
+ok 18 - all class-art rows receive an explicit effect classification
+  ---
+  duration_ms: 1.073486
+  type: 'test'
+  ...
+# Subtest: numeric passive art contracts preserve their exact caps and rounding
+ok 19 - numeric passive art contracts preserve their exact caps and rounding
+  ---
+  duration_ms: 0.307443
+  type: 'test'
+  ...
+# Subtest: Healing Touch commits scene Effort, then heals 2d6+Heal+level with Empowered Healer and adds Strain
+ok 20 - Healing Touch commits scene Effort, then heals 2d6+Heal+level with Empowered Healer and adds Strain
+  ---
+  duration_ms: 6.427898
+  type: 'test'
+  ...
+# Subtest: Healing Touch hard-blocks targets already at maximum System Strain without mutation
+ok 21 - Healing Touch hard-blocks targets already at maximum System Strain without mutation
+  ---
+  duration_ms: 0.521796
+  type: 'test'
+  ...
+# Subtest: Facile Healer activates Healing Touch without committing Effort
+ok 22 - Facile Healer activates Healing Touch without committing Effort
+  ---
+  duration_ms: 0.473964
+  type: 'test'
+  ...
+# Subtest: Pavis of Elements commits indefinite Effort and persists AC projection capped at 18
+ok 23 - Pavis of Elements commits indefinite Effort and persists AC projection capped at 18
+  ---
+  duration_ms: 5.622124
+  type: 'test'
+  ...
+# Subtest: Thermal Shield commits scene Effort and records exact single damage instance negated
+ok 24 - Thermal Shield commits scene Effort and records exact single damage instance negated
+  ---
+  duration_ms: 0.54502
+  type: 'test'
+  ...
+# Subtest: Mind Over Matter healing uses one settled d6 and day Effort
+ok 25 - Mind Over Matter healing uses one settled d6 and day Effort
+  ---
+  duration_ms: 0.456427
+  type: 'test'
+  ...
+# Subtest: high mage choices exclude known art and expose selectable catalog
+ok 26 - high mage choices exclude known art and expose selectable catalog
+  ---
+  duration_ms: 1.187337
+  type: 'test'
+  ...
+# Subtest: stateful art learning consumes exactly one pick and syncs roster
+ok 27 - stateful art learning consumes exactly one pick and syncs roster
+  ---
+  duration_ms: 0.724571
+  type: 'test'
+  ...
+# Subtest: duplicate and unknown art are zero mutation
+ok 28 - duplicate and unknown art are zero mutation
+  ---
+  duration_ms: 0.37211
+  type: 'test'
+  ...
+# Subtest: Healer expert arts require eighth level
+ok 29 - Healer expert arts require eighth level
+  ---
+  duration_ms: 0.237578
+  type: 'test'
+  ...
+# Subtest: fixed initial arts are not selectable again
+ok 30 - fixed initial arts are not selectable again
+  ---
+  duration_ms: 0.126851
+  type: 'test'
+  ...
+# Subtest: Mageslayer uses fixed progression rather than free picks
+ok 31 - Mageslayer uses fixed progression rather than free picks
+  ---
+  duration_ms: 0.108022
+  type: 'test'
+  ...
+# Subtest: Pavis stacks with Total Defense but the resulting AC never exceeds 18
+ok 32 - Pavis stacks with Total Defense but the resulting AC never exceeds 18
+  ---
+  duration_ms: 1.263993
+  type: 'test'
+  ...
+# Subtest: Vowed Unarmored Defense uses 13 + half level + Dex only when no armor or shield is readied
+ok 33 - Vowed Unarmored Defense uses 13 + half level + Dex only when no armor or shield is readied
+  ---
+  duration_ms: 0.257608
+  type: 'test'
+  ...
+# Subtest: Cold Flesh supplies its exact natural AC floor without inventing extra shield or Dexterity text
+ok 34 - Cold Flesh supplies its exact natural AC floor without inventing extra shield or Dexterity text
+  ---
+  duration_ms: 1.217043
+  type: 'test'
+  ...
+# Subtest: Cold Flesh caps a pure Shock instance at 2 damage
+ok 35 - Cold Flesh caps a pure Shock instance at 2 damage
+  ---
+  duration_ms: 0.560974
+  type: 'test'
+  ...
+# Subtest: Cold Flesh caps only the Shock floor and preserves larger ordinary hit damage
+ok 36 - Cold Flesh caps only the Shock floor and preserves larger ordinary hit damage
+  ---
+  duration_ms: 0.374684
+  type: 'test'
+  ...
+# Subtest: Elemental Resilience ignores explicitly-classified mundane cold or sub-furnace heat
+ok 37 - Elemental Resilience ignores explicitly-classified mundane cold or sub-furnace heat
+  ---
+  duration_ms: 0.18639
+  type: 'test'
+  ...
+# Subtest: Elemental Resilience halves explicit magical/extreme flame or frost damage with integer floor
+ok 38 - Elemental Resilience halves explicit magical/extreme flame or frost damage with integer floor
+  ---
+  duration_ms: 0.196716
+  type: 'test'
+  ...
+# Subtest: Elemental Resilience does not guess from an unclassified damage source
+ok 39 - Elemental Resilience does not guess from an unclassified damage source
+  ---
+  duration_ms: 0.141823
+  type: 'test'
+  ...
+# Subtest: Everlasting clamps incoming damage so an affected living ally remains at 1 HP
+ok 40 - Everlasting clamps incoming damage so an affected living ally remains at 1 HP
+  ---
+  duration_ms: 0.44459
+  type: 'test'
+  ...
+# Subtest: Everlasting is inactive outside its five-round window and never revives a target already at zero
+ok 41 - Everlasting is inactive outside its five-round window and never revives a target already at zero
+  ---
+  duration_ms: 0.433833
+  type: 'test'
+  ...
+# Subtest: Everlasting expires after its fifth completed round and leaves a living caster at exactly 1 HP
+ok 42 - Everlasting expires after its fifth completed round and leaves a living caster at exactly 1 HP
+  ---
+  duration_ms: 0.322015
+  type: 'test'
+  ...
+# Subtest: Everlasting expiration never resurrects a caster already at zero HP
+ok 43 - Everlasting expiration never resurrects a caster already at zero HP
+  ---
+  duration_ms: 0.140972
+  type: 'test'
+  ...
+# Subtest: Thermal Shield requires an explicit decision when a visible eligible caster can react
+ok 44 - Thermal Shield requires an explicit decision when a visible eligible caster can react
+  ---
+  duration_ms: 0.354725
+  type: 'test'
+  ...
+# Subtest: Thermal Shield USE commits one scene Effort and negates exactly that fire/frost damage instance
+ok 45 - Thermal Shield USE commits one scene Effort and negates exactly that fire/frost damage instance
+  ---
+  duration_ms: 0.21233
+  type: 'test'
+  ...
+# Subtest: Thermal Shield DECLINE preserves damage and spends no Effort
+ok 46 - Thermal Shield DECLINE preserves damage and spends no Effort
+  ---
+  duration_ms: 0.13932
+  type: 'test'
+  ...
+# Subtest: Thermal Shield does not invent visibility or eligibility when no visible caster evidence exists
+ok 47 - Thermal Shield does not invent visibility or eligibility when no visible caster evidence exists
+  ---
+  duration_ms: 0.145399
+  type: 'test'
+  ...
+# Subtest: combat-service A is wired to the 071 lifecycle rather than a parallel replacement engine
+ok 48 - combat-service A is wired to the 071 lifecycle rather than a parallel replacement engine
+  ---
+  duration_ms: 0.408425
+  type: 'test'
+  ...
+# Subtest: sail travels 6 mph around clock while ordinary oar crew caps at 8h
+ok 49 - sail travels 6 mph around clock while ordinary oar crew caps at 8h
+  ---
+  duration_ms: 0.738311
+  type: 'test'
+  ...
+# Subtest: sea encounters use daily/nightly d10 or d12 and trigger on 1
+ok 50 - sea encounters use daily/nightly d10 or d12 and trigger on 1
+  ---
+  duration_ms: 3.60592
+  type: 'test'
+  ...
+# Subtest: pack animal calming is Cha/Ride Move diff 8+ with professional auto success
+ok 51 - pack animal calming is Cha/Ride Move diff 8+ with professional auto success
+  ---
+  duration_ms: 0.219501
+  type: 'test'
+  ...
+# Subtest: butchering exact ration days
+ok 52 - butchering exact ration days
+  ---
+  duration_ms: 0.205198
+  type: 'test'
+  ...
+# Subtest: hireling catalog costs and adventuring obligations
+ok 53 - hireling catalog costs and adventuring obligations
+  ---
+  duration_ms: 0.528516
+  type: 'test'
+  ...
+# Subtest: services/lifestyles exact monetary and mechanical contracts
+ok 54 - services/lifestyles exact monetary and mechanical contracts
+  ---
+  duration_ms: 0.346182
+  type: 'test'
+  ...
+# Subtest: SRD faction catalog contains 81 assets split evenly by attribute
+ok 55 - SRD faction catalog contains 81 assets split evenly by attribute
+  ---
+  duration_ms: 0.728036
+  type: 'test'
+  ...
+# Subtest: cunning tier-8 Omniscient Seers preserves finite table values
+ok 56 - cunning tier-8 Omniscient Seers preserves finite table values
+  ---
+  duration_ms: 0.681046
+  type: 'test'
+  ...
+# Subtest: force Apocalypse Engine preserves high-tier attack
+ok 57 - force Apocalypse Engine preserves high-tier attack
+  ---
+  duration_ms: 0.107722
+  type: 'test'
+  ...
+# Subtest: wealth Hired Legion preserves cost hp and action quality
+ok 58 - wealth Hired Legion preserves cost hp and action quality
+  ---
+  duration_ms: 0.099099
+  type: 'test'
+  ...
+# Subtest: purchase gate enforces attribute tier magic and treasure without inventing discounts
+ok 59 - purchase gate enforces attribute tier magic and treasure without inventing discounts
+  ---
+  duration_ms: 0.273171
+  type: 'test'
+  ...
+# Subtest: assets with None attacks remain non-attacking contracts
+ok 60 - assets with None attacks remain non-attacking contracts
+  ---
+  duration_ms: 0.129856
+  type: 'test'
+  ...
+# Subtest: effect registry distinguishes deterministic, passive and context-required asset mechanics
+ok 61 - effect registry distinguishes deterministic, passive and context-required asset mechanics
+  ---
+  duration_ms: 0.927947
+  type: 'test'
+  ...
+# Subtest: Court Patronage grants exactly one Treasure per instance per turn
+ok 62 - Court Patronage grants exactly one Treasure per instance per turn
+  ---
+  duration_ms: 0.830521
+  type: 'test'
+  ...
+# Subtest: Farmers profit only on 5+
+ok 63 - Farmers profit only on 5+
+  ---
+  duration_ms: 0.607245
+  type: 'test'
+  ...
+# Subtest: Manufactory 1 with zero Treasury persists unpaid-loss state rather than silently deciding end-turn timing
+ok 64 - Manufactory 1 with zero Treasury persists unpaid-loss state rather than silently deciding end-turn timing
+  ---
+  duration_ms: 1.260428
+  type: 'test'
+  ...
+# Subtest: Ancient Workshop takes settled d6 damage and gains settled d6 Treasure
+ok 65 - Ancient Workshop takes settled d6 damage and gains settled d6 Treasure
+  ---
+  duration_ms: 0.382206
+  type: 'test'
+  ...
+# Subtest: Trade Company takes d4 and earns d6-1
+ok 66 - Trade Company takes d4 and earns d6-1
+  ---
+  duration_ms: 0.278159
+  type: 'test'
+  ...
+# Subtest: Magical Logistics repairs exactly two HP but not above Force Asset canonical max
+ok 67 - Magical Logistics repairs exactly two HP but not above Force Asset canonical max
+  ---
+  duration_ms: 0.389377
+  type: 'test'
+  ...
+# Subtest: Shapeshifters spend one Treasure for Stealth once per turn
+ok 68 - Shapeshifters spend one Treasure for Stealth once per turn
+  ---
+  duration_ms: 0.31258
+  type: 'test'
+  ...
+# Subtest: Front Merchant transfers at most one Treasure once per turn
+ok 69 - Front Merchant transfers at most one Treasure once per turn
+  ---
+  duration_ms: 0.461144
+  type: 'test'
+  ...
+# Subtest: Siege Experts transfer the settled d4 limited by target Treasury
+ok 70 - Siege Experts transfer the settled d4 limited by target Treasury
+  ---
+  duration_ms: 0.462637
+  type: 'test'
+  ...
+# Subtest: Temple Fanatics apply mandatory d4 self-damage after qualifying result
+ok 71 - Temple Fanatics apply mandatory d4 self-damage after qualifying result
+  ---
+  duration_ms: 0.291689
+  type: 'test'
+  ...
+# Subtest: Merchant Prince discount never drops below half normal price
+ok 72 - Merchant Prince discount never drops below half normal price
+  ---
+  duration_ms: 0.316857
+  type: 'test'
+  ...
+# Subtest: Usurers reduce two per unit, minimum half, and each unit takes its own d4
+ok 73 - Usurers reduce two per unit, minimum half, and each unit takes its own d4
+  ---
+  duration_ms: 0.844421
+  type: 'test'
+  ...
+# Subtest: forced settle is rejected for asset random effects
+ok 74 - forced settle is rejected for asset random effects
+  ---
+  duration_ms: 0.255454
+  type: 'test'
+  ...
+# Subtest: Closure 071 final audit has no unclassified spell, Art, faction effect, or downstream contract
+ok 75 - Closure 071 final audit has no unclassified spell, Art, faction effect, or downstream contract
+  ---
+  duration_ms: 1.050733
+  type: 'test'
+  ...
+# Subtest: Scorn 3D movement never invents z geometry and becomes legal only with explicit 3D geometry
+ok 76 - Scorn 3D movement never invents z geometry and becomes legal only with explicit 3D geometry
+  ---
+  duration_ms: 0.600795
+  type: 'test'
+  ...
+# Subtest: Scorn grounding blocks flying even when explicit 3D geometry exists
+ok 77 - Scorn grounding blocks flying even when explicit 3D geometry exists
+  ---
+  duration_ms: 0.162965
+  type: 'test'
+  ...
+# Subtest: Like the Stones Water requires explicit mouse-sized aperture evidence
+ok 78 - Like the Stones Water requires explicit mouse-sized aperture evidence
+  ---
+  duration_ms: 0.169435
+  type: 'test'
+  ...
+# Subtest: Like the Stones Fire aura requires explicit complete melee coverage and explicit roll policy
+ok 79 - Like the Stones Fire aura requires explicit complete melee coverage and explicit roll policy
+  ---
+  duration_ms: 0.386071
+  type: 'test'
+  ...
+# Subtest: Like the Stones Fire aura applies physical d6 once per round and rejects forced settle
+ok 80 - Like the Stones Fire aura applies physical d6 once per round and rejects forced settle
+  ---
+  duration_ms: 0.502687
+  type: 'test'
+  ...
+# Subtest: Combat start-turn Fire aura endpoint mutates targets without spending PC action economy
+ok 81 - Combat start-turn Fire aura endpoint mutates targets without spending PC action economy
+  ---
+  duration_ms: 1.671837
+  type: 'test'
+  ...
+# Subtest: Generic Tumefaction vigorous-action endpoint damages at most once per round without spending actions
+ok 82 - Generic Tumefaction vigorous-action endpoint damages at most once per round without spending actions
+  ---
+  duration_ms: 1.809223
+  type: 'test'
+  ...
+# Subtest: Augment Mortal Vitality Instant injury undo works during active combat without spending action economy
+ok 83 - Augment Mortal Vitality Instant injury undo works during active combat without spending action economy
+  ---
+  duration_ms: 0.984292
+  type: 'test'
+  ...
+# Subtest: Combat spatial inspection endpoint is read-only and exposes the explicit context gate
+ok 84 - Combat spatial inspection endpoint is read-only and exposes the explicit context gate
+  ---
+  duration_ms: 0.549498
+  type: 'test'
+  ...
+# Subtest: SRD common Focus catalog contains all 35 named entries from section 1.6
+ok 85 - SRD common Focus catalog contains all 35 named entries from section 1.6
+  ---
+  duration_ms: 1.080497
+  type: 'test'
+  ...
+# Subtest: Alert exact initiative/surprise contract
+ok 86 - Alert exact initiative/surprise contract
+  ---
+  duration_ms: 0.157067
+  type: 'test'
+  ...
+# Subtest: Armsmaster and Deadeye preserve non-stacking thrown restriction
+ok 87 - Armsmaster and Deadeye preserve non-stacking thrown restriction
+  ---
+  duration_ms: 0.093701
+  type: 'test'
+  ...
+# Subtest: Die Hard exact HP and daily zero-HP contracts
+ok 88 - Die Hard exact HP and daily zero-HP contracts
+  ---
+  duration_ms: 0.118368
+  type: 'test'
+  ...
+# Subtest: Unarmed Combatant damage ladder exact
+ok 89 - Unarmed Combatant damage ladder exact
+  ---
+  duration_ms: 0.681456
+  type: 'test'
+  ...
+# Subtest: class restrictions reject Developed Attribute for Mage and Polymath for non-Expert
+ok 90 - class restrictions reject Developed Attribute for Mage and Polymath for non-Expert
+  ---
+  duration_ms: 0.356607
+  type: 'test'
+  ...
+# Subtest: GM-defined Foci require explicit approval instead of invented mechanics
+ok 91 - GM-defined Foci require explicit approval instead of invented mechanics
+  ---
+  duration_ms: 0.178699
+  type: 'test'
+  ...
+# Subtest: single-level and two-level caps enforced
+ok 92 - single-level and two-level caps enforced
+  ---
+  duration_ms: 0.108183
+  type: 'test'
+  ...
+# Subtest: focus pick commits atomically and consumes exactly one pending pick
+ok 93 - focus pick commits atomically and consumes exactly one pending pick
+  ---
+  duration_ms: 1.699178
+  type: 'test'
+  ...
+# Subtest: first-level fixed bonus skill applies exactly three advancement skill points
+ok 94 - first-level fixed bonus skill applies exactly three advancement skill points
+  ---
+  duration_ms: 0.347633
+  type: 'test'
+  ...
+# Subtest: bonus skill credit from level-0 raises to level-1 and preserves one point credit
+ok 95 - bonus skill credit from level-0 raises to level-1 and preserves one point credit
+  ---
+  duration_ms: 0.266361
+  type: 'test'
+  ...
+# Subtest: choice-based focus requires a legal bonus skill choice and mutates nothing on rejection
+ok 96 - choice-based focus requires a legal bonus skill choice and mutates nothing on rejection
+  ---
+  duration_ms: 0.360303
+  type: 'test'
+  ...
+# Subtest: choice-based focus accepts combat skill
+ok 97 - choice-based focus accepts combat skill
+  ---
+  duration_ms: 2.125941
+  type: 'test'
+  ...
+# Subtest: existing focus advances to level 2 without granting level-1 bonus skill again
+ok 98 - existing focus advances to level 2 without granting level-1 bonus skill again
+  ---
+  duration_ms: 0.596177
+  type: 'test'
+  ...
+# Subtest: class-restricted focus rejects illegal character without mutation
+ok 99 - class-restricted focus rejects illegal character without mutation
+  ---
+  duration_ms: 0.324628
+  type: 'test'
+  ...
+# Subtest: GM-judgment focus requires explicit approval
+ok 100 - GM-judgment focus requires explicit approval
+  ---
+  duration_ms: 0.207642
+  type: 'test'
+  ...
+# Subtest: GM-judgment focus commits only after explicit approval
+ok 101 - GM-judgment focus commits only after explicit approval
+  ---
+  duration_ms: 0.41861
+  type: 'test'
+  ...
+# Subtest: SRD foe table has all 35 baseline profiles with unique ids
+ok 102 - SRD foe table has all 35 baseline profiles with unique ids
+  ---
+  duration_ms: 2.57666
+  type: 'test'
+  ...
+# Subtest: normal human baseline preserves Great Warrior King stat line
+ok 103 - normal human baseline preserves Great Warrior King stat line
+  ---
+  duration_ms: 0.907927
+  type: 'test'
+  ...
+# Subtest: spellcaster baseline preserves mage-level and Effort derivation contract
+ok 104 - spellcaster baseline preserves mage-level and Effort derivation contract
+  ---
+  duration_ms: 0.18594
+  type: 'test'
+  ...
+# Subtest: non-spellcaster does not invent magic plan
+ok 105 - non-spellcaster does not invent magic plan
+  ---
+  duration_ms: 0.159911
+  type: 'test'
+  ...
+# Subtest: normal animal apex predator keeps two attacks and movement
+ok 106 - normal animal apex predator keeps two attacks and movement
+  ---
+  duration_ms: 0.157707
+  type: 'test'
+  ...
+# Subtest: unnatural warbot preserves x3 attack and high armor
+ok 107 - unnatural warbot preserves x3 attack and high armor
+  ---
+  duration_ms: 0.19289
+  type: 'test'
+  ...
+# Subtest: foe hit points roll one d8 per HD and reject wrong count
+ok 108 - foe hit points roll one d8 per HD and reject wrong count
+  ---
+  duration_ms: 0.512121
+  type: 'test'
+  ...
+# Subtest: legendary titan source line remains extreme rather than normalized to PC scale
+ok 109 - legendary titan source line remains extreme rather than normalized to PC scale
+  ---
+  duration_ms: 0.149835
+  type: 'test'
+  ...
+# Subtest: Resounding Temporal Echo derives 1d4+1 duration and one bonus Main Action contract
+ok 110 - Resounding Temporal Echo derives 1d4+1 duration and one bonus Main Action contract
+  ---
+  duration_ms: 1.10277
+  type: 'test'
+  ...
+# Subtest: Velocitous and Wardpact pure contracts preserve exact movement and protection semantics
+ok 111 - Velocitous and Wardpact pure contracts preserve exact movement and protection semantics
+  ---
+  duration_ms: 0.607985
+  type: 'test'
+  ...
+# Subtest: Smite the Dead rolls caster-level d10 once and applies explicit per-target save destruction
+ok 112 - Smite the Dead rolls caster-level d10 once and applies explicit per-target save destruction
+  ---
+  duration_ms: 0.22585
+  type: 'test'
+  ...
+# Subtest: Elemental Guardian materializes exact elemental stat changes and rolls one d8 per HD for HP
+ok 113 - Elemental Guardian materializes exact elemental stat changes and rolls one d8 per HD for HP
+  ---
+  duration_ms: 0.21928
+  type: 'test'
+  ...
+# Subtest: stateful Echo and Velocitous persist effects and consume casting resources without charging Strain at cast time
+ok 114 - stateful Echo and Velocitous persist effects and consume casting resources without charging Strain at cast time
+  ---
+  duration_ms: 2.569439
+  type: 'test'
+  ...
+# Subtest: Wardpact persists creature/weapon forms and blocks the same target from a second application in one scene
+ok 115 - Wardpact persists creature/weapon forms and blocks the same target from a second application in one scene
+  ---
+  duration_ms: 1.122199
+  type: 'test'
+  ...
+# Subtest: Smite the Dead can commit Necromancer Effort for the day with zero spell slots and does not consume a slot
+ok 116 - Smite the Dead can commit Necromancer Effort for the day with zero spell slots and does not consume a slot
+  ---
+  duration_ms: 0.852163
+  type: 'test'
+  ...
+# Subtest: Elemental Guardian persists a combat-ready NPC and blocks a second guardian in the same scene
+ok 117 - Elemental Guardian persists a combat-ready NPC and blocks a second guardian in the same scene
+  ---
+  duration_ms: 0.805763
+  type: 'test'
+  ...
+# Subtest: Aeolian lost Main is satisfied only by Echo bonus Main and charges its Strain
+ok 118 - Aeolian lost Main is satisfied only by Echo bonus Main and charges its Strain
+  ---
+  duration_ms: 4.486656
+  type: 'test'
+  ...
+# Subtest: Calcifying slow removes the Move action, so movement can only spend the Main action as a second move
+ok 119 - Calcifying slow removes the Move action, so movement can only spend the Main action as a second move
+  ---
+  duration_ms: 1.634862
+  type: 'test'
+  ...
+# Subtest: Enfeebling attack refuses a single hidden roll and requests the second attack/damage roll contract
+ok 120 - Enfeebling attack refuses a single hidden roll and requests the second attack/damage roll contract
+  ---
+  duration_ms: 0.372971
+  type: 'test'
+  ...
+# Subtest: Call of the Tomb bypasses target defenses, auto-hits and maximizes weapon dice
+ok 121 - Call of the Tomb bypasses target defenses, auto-hits and maximizes weapon dice
+  ---
+  duration_ms: 1.000978
+  type: 'test'
+  ...
+# Subtest: Augment Mortal Vitality Physical save bonus reaches the canonical saving-throw service
+ok 122 - Augment Mortal Vitality Physical save bonus reaches the canonical saving-throw service
+  ---
+  duration_ms: 0.966916
+  type: 'test'
+  ...
+# Subtest: Augment Mortal Vitality auto-stabilizes a PC reduced to zero by an enemy hit
+ok 123 - Augment Mortal Vitality auto-stabilizes a PC reduced to zero by an enemy hit
+  ---
+  duration_ms: 3.145576
+  type: 'test'
+  ...
+# Subtest: Enfeebling uses two explicit physical attack/damage bundles and keeps the worse hit and worse damage
+ok 124 - Enfeebling uses two explicit physical attack/damage bundles and keeps the worse hit and worse damage
+  ---
+  duration_ms: 1.888553
+  type: 'test'
+  ...
+# Subtest: Tumefaction damages a vigorous attack only once per round even when Echo permits a second attack
+ok 125 - Tumefaction damages a vigorous attack only once per round even when Echo permits a second attack
+  ---
+  duration_ms: 1.779219
+  type: 'test'
+  ...
+# Subtest: Aeolian suppresses normal Main but Echo can supply exactly the bonus Main and charges Strain
+ok 126 - Aeolian suppresses normal Main but Echo can supply exactly the bonus Main and charges Strain
+  ---
+  duration_ms: 1.353628
+  type: 'test'
+  ...
+# Subtest: Calcifying successful-save slow suppresses Move in the active round window
+ok 127 - Calcifying successful-save slow suppresses Move in the active round window
+  ---
+  duration_ms: 0.175714
+  type: 'test'
+  ...
+# Subtest: Enfeebling halves movement and exposes worse-of-two attack/damage contract
+ok 128 - Enfeebling halves movement and exposes worse-of-two attack/damage contract
+  ---
+  duration_ms: 0.313092
+  type: 'test'
+  ...
+# Subtest: Like the Stones air grants +4 AC only against ranged attacks
+ok 129 - Like the Stones air grants +4 AC only against ranged attacks
+  ---
+  duration_ms: 0.440313
+  type: 'test'
+  ...
+# Subtest: Like the Stones stone ignores first 3 damage and Clement handles explicit elemental classification
+ok 130 - Like the Stones stone ignores first 3 damage and Clement handles explicit elemental classification
+  ---
+  duration_ms: 1.35507
+  type: 'test'
+  ...
+# Subtest: Augment Mortal Vitality exposes Physical save bonus and auto stabilization
+ok 131 - Augment Mortal Vitality exposes Physical save bonus and auto stabilization
+  ---
+  duration_ms: 0.200863
+  type: 'test'
+  ...
+# Subtest: Call of the Tomb forces hit and maximizes weapon damage deterministically
+ok 132 - Call of the Tomb forces hit and maximizes weapon damage deterministically
+  ---
+  duration_ms: 0.380723
+  type: 'test'
+  ...
+# Subtest: Tumefaction deals vigorous-action damage no more than once per round
+ok 133 - Tumefaction deals vigorous-action damage no more than once per round
+  ---
+  duration_ms: 0.373382
+  type: 'test'
+  ...
+# Subtest: successful-save Enfeebling expires after the affected target completes its next turn
+ok 134 - successful-save Enfeebling expires after the affected target completes its next turn
+  ---
+  duration_ms: 0.440323
+  type: 'test'
+  ...
+# Subtest: spell effect ledger now has 19 closed resolvers and still covers all 83 spells
+ok 135 - spell effect ledger now has 19 closed resolvers and still covers all 83 spells
+  ---
+  duration_ms: 0.857891
+  type: 'test'
+  ...
+# Subtest: Clement Clime preserves 3 allies per level, hour-per-level duration, mundane immunity and magical half/Physical save negation
+ok 136 - Clement Clime preserves 3 allies per level, hour-per-level duration, mundane immunity and magical half/Physical save negation
+  ---
+  duration_ms: 0.407474
+  type: 'test'
+  ...
+# Subtest: Scorn ally mode grants 3D scene movement and gentle descent without inventing coordinates
+ok 137 - Scorn ally mode grants 3D scene movement and gentle descent without inventing coordinates
+  ---
+  duration_ms: 0.288715
+  type: 'test'
+  ...
+# Subtest: Scorn anti-flight mode requires explicit saves and grounds only failed targets with Magic penalty
+ok 138 - Scorn anti-flight mode requires explicit saves and grounds only failed targets with Magic penalty
+  ---
+  duration_ms: 0.17268
+  type: 'test'
+  ...
+# Subtest: Like the Stones exact elemental modes remain distinct
+ok 139 - Like the Stones exact elemental modes remain distinct
+  ---
+  duration_ms: 2.383669
+  type: 'test'
+  ...
+# Subtest: Calcifying Scourge petrifies on failed save and successful creature save loses Move for settled 1d6 rounds
+ok 140 - Calcifying Scourge petrifies on failed save and successful creature save loses Move for settled 1d6 rounds
+  ---
+  duration_ms: 0.4253
+  type: 'test'
+  ...
+# Subtest: Augment Mortal Vitality is a scene buff with Magic-skill Physical save bonus, auto stabilization, one injury heal, and +1 Strain
+ok 141 - Augment Mortal Vitality is a scene buff with Magic-skill Physical save bonus, auto stabilization, one injury heal, and +1 Strain
+  ---
+  duration_ms: 0.186131
+  type: 'test'
+  ...
+# Subtest: Enfeebling Wave has exact save-dependent duration but identical half-move/worse-of-two penalties
+ok 142 - Enfeebling Wave has exact save-dependent duration but identical half-move/worse-of-two penalties
+  ---
+  duration_ms: 0.144047
+  type: 'test'
+  ...
+# Subtest: Aeolian gust only harms failed man-size targets and requires one settled d6 per failed target
+ok 143 - Aeolian gust only harms failed man-size targets and requires one settled d6 per failed target
+  ---
+  duration_ms: 1.007226
+  type: 'test'
+  ...
+# Subtest: Aeolian weather mode is quarter-mile, hour per level, seasonal-only, and forbids extreme weather
+ok 144 - Aeolian weather mode is quarter-mile, hour per level, seasonal-only, and forbids extreme weather
+  ---
+  duration_ms: 0.372201
+  type: 'test'
+  ...
+# Subtest: Tumefaction applies 2 damage per caster level once per round and lower-HD failed saves become indefinite
+ok 145 - Tumefaction applies 2 damage per caster level once per round and lower-HD failed saves become indefinite
+  ---
+  duration_ms: 0.19301
+  type: 'test'
+  ...
+# Subtest: Phobic Storm uses explicit Morale outcome, ignores fearless/Morale 12, and never kills on successful check damage
+ok 146 - Phobic Storm uses explicit Morale outcome, ignores fearless/Morale 12, and never kills on successful check damage
+  ---
+  duration_ms: 0.206741
+  type: 'test'
+  ...
+# Subtest: Call of the Tomb successful save lasts one round; failure lasts caster level rounds and keeps exact auto-hit/max-damage contract
+ok 147 - Call of the Tomb successful save lasts one round; failure lasts caster level rounds and keeps exact auto-hit/max-damage contract
+  ---
+  duration_ms: 0.169215
+  type: 'test'
+  ...
+# Subtest: Clement Clime persists caster plus visible allies and consumes one casting
+ok 148 - Clement Clime persists caster plus visible allies and consumes one casting
+  ---
+  duration_ms: 2.654948
+  type: 'test'
+  ...
+# Subtest: Scorn allies persists 3D movement without inventing z coordinates and anti-flight mode grounds only failed saves
+ok 149 - Scorn allies persists 3D movement without inventing z coordinates and anti-flight mode grounds only failed saves
+  ---
+  duration_ms: 1.811688
+  type: 'test'
+  ...
+# Subtest: Like the Stones persists exact self-only elemental mode
+ok 150 - Like the Stones persists exact self-only elemental mode
+  ---
+  duration_ms: 0.667224
+  type: 'test'
+  ...
+# Subtest: Calcifying Scourge failed save petrifies; successful creature save persists exact Move-loss rounds
+ok 151 - Calcifying Scourge failed save petrifies; successful creature save persists exact Move-loss rounds
+  ---
+  duration_ms: 1.017071
+  type: 'test'
+  ...
+# Subtest: Augment Mortal Vitality adds exactly one Strain, persists save bonus/auto-stabilize, and its injury heal is once per scene
+ok 152 - Augment Mortal Vitality adds exactly one Strain, persists save bonus/auto-stabilize, and its injury heal is once per scene
+  ---
+  duration_ms: 0.994528
+  type: 'test'
+  ...
+# Subtest: Enfeebling Wave persists failed-save scene duration and successful-save next-turn duration separately
+ok 153 - Enfeebling Wave persists failed-save scene duration and successful-save next-turn duration separately
+  ---
+  duration_ms: 0.702248
+  type: 'test'
+  ...
+# Subtest: Aeolian gust applies only explicit failed-save damage and stores push/Main-action consequence without inventing map direction
+ok 154 - Aeolian gust applies only explicit failed-save damage and stores push/Main-action consequence without inventing map direction
+  ---
+  duration_ms: 0.982279
+  type: 'test'
+  ...
+# Subtest: Tumefaction persists a source-bound curse contract but does not guess later save outcomes
+ok 155 - Tumefaction persists a source-bound curse contract but does not guess later save outcomes
+  ---
+  duration_ms: 0.689228
+  type: 'test'
+  ...
+# Subtest: Phobic Storm applies explicit Morale outcomes and successful-check damage cannot reduce a victim below 1
+ok 156 - Phobic Storm applies explicit Morale outcomes and successful-check damage cannot reduce a victim below 1
+  ---
+  duration_ms: 0.992745
+  type: 'test'
+  ...
+# Subtest: Call of the Tomb persists per-target save-dependent round windows for downstream combat
+ok 157 - Call of the Tomb persists per-target save-dependent round windows for downstream combat
+  ---
+  duration_ms: 1.067877
+  type: 'test'
+  ...
+# Subtest: Echo grants exactly one extra combat Main Action and charges one System Strain only when bonus Main is used
+ok 158 - Echo grants exactly one extra combat Main Action and charges one System Strain only when bonus Main is used
+  ---
+  duration_ms: 5.746942
+  type: 'test'
+  ...
+# Subtest: Echo bonus Main is unavailable at maximum System Strain
+ok 159 - Echo bonus Main is unavailable at maximum System Strain
+  ---
+  duration_ms: 0.492662
+  type: 'test'
+  ...
+# Subtest: Velocitous avoids a melee free attack and charges Strain when that advantage is used
+ok 160 - Velocitous avoids a melee free attack and charges Strain when that advantage is used
+  ---
+  duration_ms: 1.520259
+  type: 'test'
+  ...
+# Subtest: Velocitous does not charge Strain for movement already possible with ordinary Move+Main
+ok 161 - Velocitous does not charge Strain for movement already possible with ordinary Move+Main
+  ---
+  duration_ms: 0.656258
+  type: 'test'
+  ...
+# Subtest: Wardpact creature mode negates a successful PC weapon hit when the explicit Physical save fails
+ok 162 - Wardpact creature mode negates a successful PC weapon hit when the explicit Physical save fails
+  ---
+  duration_ms: 1.889745
+  type: 'test'
+  ...
+# Subtest: Wardpact creature mode refuses to guess a player Physical save
+ok 163 - Wardpact creature mode refuses to guess a player Physical save
+  ---
+  duration_ms: 0.431019
+  type: 'test'
+  ...
+# Subtest: Wardpact weapon mode makes the affected weapon harmless without changing hit-roll semantics
+ok 164 - Wardpact weapon mode makes the affected weapon harmless without changing hit-roll semantics
+  ---
+  duration_ms: 0.961868
+  type: 'test'
+  ...
+# Subtest: enemy attacks against a Wardpact PC resolve the attacker Physical save through the NPC save target
+ok 165 - enemy attacks against a Wardpact PC resolve the attacker Physical save through the NPC save target
+  ---
+  duration_ms: 2.753365
+  type: 'test'
+  ...
+# Subtest: round expiry closes Echo and creature Wardpact, and destroyed Elemental Guardian is marked for same-scene summon lock
+ok 166 - round expiry closes Echo and creature Wardpact, and destroyed Elemental Guardian is marked for same-scene summon lock
+  ---
+  duration_ms: 0.542907
+  type: 'test'
+  ...
+# Subtest: dual partial spellcaster table matches SRD through level 10
+ok 167 - dual partial spellcaster table matches SRD through level 10
+  ---
+  duration_ms: 1.454741
+  type: 'test'
+  ...
+# Subtest: every one of the 83 spell catalog rows has an effect classification contract
+ok 168 - every one of the 83 spell catalog rows has an effect classification contract
+  ---
+  duration_ms: 0.161643
+  type: 'test'
+  ...
+# Subtest: Coruscating Coffin resolver requires explicit rounding only when saved damage is odd
+ok 169 - Coruscating Coffin resolver requires explicit rounding only when saved damage is odd
+  ---
+  duration_ms: 0.31893
+  type: 'test'
+  ...
+# Subtest: magic runtime projects full High Mage progression from current 071 character schema
+ok 170 - magic runtime projects full High Mage progression from current 071 character schema
+  ---
+  duration_ms: 0.513222
+  type: 'test'
+  ...
+# Subtest: dual Partial Mage projection uses one shared SRD dual-partial spell table
+ok 171 - dual Partial Mage projection uses one shared SRD dual-partial spell table
+  ---
+  duration_ms: 0.176465
+  type: 'test'
+  ...
+# Subtest: Invoker projection uses spell points rather than normal casting slots
+ok 172 - Invoker projection uses spell points rather than normal casting slots
+  ---
+  duration_ms: 0.191759
+  type: 'test'
+  ...
+# Subtest: runtime initialization and preparation persist without inventing unknown spells
+ok 173 - runtime initialization and preparation persist without inventing unknown spells
+  ---
+  duration_ms: 2.280123
+  type: 'test'
+  ...
+# Subtest: Coruscating Coffin consumes one casting and kills a 1-HD NPC regardless of rolled damage
+ok 174 - Coruscating Coffin consumes one casting and kills a 1-HD NPC regardless of rolled damage
+  ---
+  duration_ms: 1.041288
+  type: 'test'
+  ...
+# Subtest: Coruscating Coffin odd saved damage without rounding contract is hard zero-mutation
+ok 175 - Coruscating Coffin odd saved damage without rounding contract is hard zero-mutation
+  ---
+  duration_ms: 0.547515
+  type: 'test'
+  ...
+# Subtest: Wind of Final Repose applies unconscious only to explicit living sleep-capable targets of 4 HD or less
+ok 176 - Wind of Final Repose applies unconscious only to explicit living sleep-capable targets of 4 HD or less
+  ---
+  duration_ms: 1.093876
+  type: 'test'
+  ...
+# Subtest: Raise Corpse requires a settled d8 for 1-HD hit points and enforces active count
+ok 177 - Raise Corpse requires a settled d8 for 1-HD hit points and enforces active count
+  ---
+  duration_ms: 1.059205
+  type: 'test'
+  ...
+# Subtest: Everlasting persists the five-round HP floor contract without prematurely changing HP
+ok 178 - Everlasting persists the five-round HP floor contract without prematurely changing HP
+  ---
+  duration_ms: 0.900246
+  type: 'test'
+  ...
+# Subtest: physical WWN skill resolver preserves settled 2d6 authority without deterministic RNG
+ok 179 - physical WWN skill resolver preserves settled 2d6 authority without deterministic RNG
+  ---
+  duration_ms: 1.371915
+  type: 'test'
+  ...
+# Subtest: physical WWN skill resolver rejects invalid or forced-settle proof
+ok 180 - physical WWN skill resolver rejects invalid or forced-settle proof
+  ---
+  duration_ms: 0.450258
+  type: 'test'
+  ...
+# Subtest: PlayerActionService persists diceAuthority instead of dropping native physical proof
+ok 181 - PlayerActionService persists diceAuthority instead of dropping native physical proof
+  ---
+  duration_ms: 0.333162
+  type: 'test'
+  ...
+# Subtest: reaction from settled 3D faces persists rule result
+ok 182 - reaction from settled 3D faces persists rule result
+  ---
+  duration_ms: 1.511305
+  type: 'test'
+  ...
+# Subtest: morale persists per NPC and uses exact 2d6 greater-than score failure
+ok 183 - morale persists per NPC and uses exact 2d6 greater-than score failure
+  ---
+  duration_ms: 1.047277
+  type: 'test'
+  ...
+# Subtest: instinct zero uses no roll and nonzero persists settled d10 outcome
+ok 184 - instinct zero uses no roll and nonzero persists settled d10 outcome
+  ---
+  duration_ms: 0.530589
+  type: 'test'
+  ...
+# Subtest: falling damage applies to current hp and syncs roster plus active character
+ok 185 - falling damage applies to current hp and syncs roster plus active character
+  ---
+  duration_ms: 0.721807
+  type: 'test'
+  ...
+# Subtest: controlled descent halves effective distance before dice count
+ok 186 - controlled descent halves effective distance before dice count
+  ---
+  duration_ms: 0.349777
+  type: 'test'
+  ...
+# Subtest: forced-settle physical dice are rejected as non-authoritative
+ok 187 - forced-settle physical dice are rejected as non-authoritative
+  ---
+  duration_ms: 0.454264
+  type: 'test'
+  ...
+# Subtest: prone and stand-up persist state with canonical action costs
+ok 188 - prone and stand-up persist state with canonical action costs
+  ---
+  duration_ms: 1.667431
+  type: 'test'
+  ...
+# Subtest: Hold Action requires an explicit trigger and persists through the round state
+ok 189 - Hold Action requires an explicit trigger and persists through the round state
+  ---
+  duration_ms: 0.446793
+  type: 'test'
+  ...
+# Subtest: Screen Ally rejects skill 0 and persists ward at skill 2 capacity
+ok 190 - Screen Ally rejects skill 0 and persists ward at skill 2 capacity
+  ---
+  duration_ms: 1.092905
+  type: 'test'
+  ...
+# Subtest: successful Shove with PRONE marks target prone without damage
+ok 191 - successful Shove with PRONE marks target prone without damage
+  ---
+  duration_ms: 0.510929
+  type: 'test'
+  ...
+# Subtest: successful grapple starts persistent restriction and later escape clears it
+ok 192 - successful grapple starts persistent restriction and later escape clears it
+  ---
+  duration_ms: 0.707265
+  type: 'test'
+  ...
+# Subtest: grapple throw records five-foot forced movement and prone
+ok 193 - grapple throw records five-foot forced movement and prone
+  ---
+  duration_ms: 0.388966
+  type: 'test'
+  ...
+# Subtest: dual wield requires both combat skills at 1+ and persists -1 hit/+2 damage plan
+ok 194 - dual wield requires both combat skills at 1+ and persists -1 hit/+2 damage plan
+  ---
+  duration_ms: 0.400243
+  type: 'test'
+  ...
+# Subtest: Snap Attack persists the -4 Instant attack plan and blocks undisciplined NPCs
+ok 195 - Snap Attack persists the -4 Instant attack plan and blocks undisciplined NPCs
+  ---
+  duration_ms: 0.42492
+  type: 'test'
+  ...
+# Subtest: Swarm Attack with four assailants persists canonical +6 hit/+3 damage and unavoidable swarm-shock flag
+ok 196 - Swarm Attack with four assailants persists canonical +6 hit/+3 damage and unavoidable swarm-shock flag
+  ---
+  duration_ms: 0.619203
+  type: 'test'
+  ...
+# Subtest: ranged Execution Attack requires unsuspecting target, minute setup, and successful range skill total
+ok 197 - ranged Execution Attack requires unsuspecting target, minute setup, and successful range skill total
+  ---
+  duration_ms: 0.534695
+  type: 'test'
+  ...
+# Subtest: failed execution Physical save sets target to zero and applies mortal wound; successful save deals maximum damage
+ok 198 - failed execution Physical save sets target to zero and applies mortal wound; successful save deals maximum damage
+  ---
+  duration_ms: 0.625372
+  type: 'test'
+  ...
+# Subtest: catalog is finite and complete by published specialist lists
+ok 199 - catalog is finite and complete by published specialist lists
+  ---
+  duration_ms: 0.795828
+  type: 'test'
+  ...
+# Subtest: spell levels stay within 1..5 and known anchor spells are exact
+ok 200 - spell levels stay within 1..5 and known anchor spells are exact
+  ---
+  duration_ms: 0.238229
+  type: 'test'
+  ...
+# Subtest: normal full and partial progression matches SRD tables
+ok 201 - normal full and partial progression matches SRD tables
+  ---
+  duration_ms: 0.240762
+  type: 'test'
+  ...
+# Subtest: Invoker spell points and prepared counts include Intelligence modifier
+ok 202 - Invoker spell points and prepared counts include Intelligence modifier
+  ---
+  duration_ms: 0.125138
+  type: 'test'
+  ...
+# Subtest: traditions and advancement gain counts enforce class rules
+ok 203 - traditions and advancement gain counts enforce class rules
+  ---
+  duration_ms: 0.655347
+  type: 'test'
+  ...
+# Subtest: art progression captures fixed Elementalist arts and class pick cadence
+ok 204 - art progression captures fixed Elementalist arts and class pick cadence
+  ---
+  duration_ms: 0.173371
+  type: 'test'
+  ...
+# Subtest: research plan follows exact table, difficulty and acceleration
+ok 205 - research plan follows exact table, difficulty and acceleration
+  ---
+  duration_ms: 0.256326
+  type: 'test'
+  ...
+# Subtest: key executable spell effect anchors are structured
+ok 206 - key executable spell effect anchors are structured
+  ---
+  duration_ms: 0.123015
+  type: 'test'
+  ...
+# Subtest: stateful learning consumes exactly one pending gain and persists active plus roster
+ok 207 - stateful learning consumes exactly one pending gain and persists active plus roster
+  ---
+  duration_ms: 0.985433
+  type: 'test'
+  ...
+# Subtest: stateful learning rejects too-high, wrong-tradition and duplicate spells without mutation
+ok 208 - stateful learning rejects too-high, wrong-tradition and duplicate spells without mutation
+  ---
+  duration_ms: 0.682728
+  type: 'test'
+  ...
+# Subtest: partial Elementalist can learn High Magic and specialist spells up to partial max level
+ok 209 - partial Elementalist can learn High Magic and specialist spells up to partial max level
+  ---
+  duration_ms: 0.548596
+  type: 'test'
+  ...
+# Subtest: renown purchase table includes the next 64 points at 32,000 sp each
+ok 210 - renown purchase table includes the next 64 points at 32,000 sp each
+  ---
+  duration_ms: 0.898142
+  type: 'test'
+  ...
+# Subtest: renown beyond 128 purchased points is explicitly prohibitively expensive
+ok 211 - renown beyond 128 purchased points is explicitly prohibitively expensive
+  ---
+  duration_ms: 0.171559
+  type: 'test'
+  ...
+# Subtest: Aid is stateful, physical-dice authoritative, and combined aid remains capped at +1
+ok 212 - Aid is stateful, physical-dice authoritative, and combined aid remains capped at +1
+  ---
+  duration_ms: 1.905639
+  type: 'test'
+  ...
+# Subtest: Aid rejects forced-settle dice without mutation
+ok 213 - Aid rejects forced-settle dice without mutation
+  ---
+  duration_ms: 0.291208
+  type: 'test'
+  ...
+# Subtest: foot chase persists escaped/caught outcome using Closure-070 contracts
+ok 214 - foot chase persists escaped/caught outcome using Closure-070 contracts
+  ---
+  duration_ms: 0.569387
+  type: 'test'
+  ...
+# Subtest: mounted chase persists exact pursuers that catch the fleeing group
+ok 215 - mounted chase persists exact pursuers that catch the fleeing group
+  ---
+  duration_ms: 1.098944
+  type: 'test'
+  ...
+# Subtest: SRD example modification catalog contains all 14 finite named mods
+ok 216 - SRD example modification catalog contains all 14 finite named mods
+  ---
+  duration_ms: 0.112399
+  type: 'test'
+  ...
+# Subtest: crafting job deducts SRD parts cost and completes into inventory
+ok 217 - crafting job deducts SRD parts cost and completes into inventory
+  ---
+  duration_ms: 1.237453
+  type: 'test'
+  ...
+# Subtest: install mod consumes silver/salvage and persists install job, then activation
+ok 218 - install mod consumes silver/salvage and persists install job, then activation
+  ---
+  duration_ms: 1.402943
+  type: 'test'
+  ...
+# Subtest: mod requiring salvage refuses to invent absent salvage resource
+ok 219 - mod requiring salvage refuses to invent absent salvage resource
+  ---
+  duration_ms: 0.474454
+  type: 'test'
+  ...
+# Subtest: maintenance capacity and 24h/week status are persisted
+ok 220 - maintenance capacity and 24h/week status are persisted
+  ---
+  duration_ms: 0.728667
+  type: 'test'
+  ...
+# Subtest: major project lifecycle: start, contribute individual Renown, become ready, GM completes
+ok 221 - major project lifecycle: start, contribute individual Renown, become ready, GM completes
+  ---
+  duration_ms: 1.138204
+  type: 'test'
+  ...
+# Subtest: Renown can be explicitly initialized from XP but is never silently invented
+ok 222 - Renown can be explicitly initialized from XP but is never silently invented
+  ---
+  duration_ms: 0.313922
+  type: 'test'
+  ...
+# Subtest: faction aid spends 1 Treasure and persistent reduction is reversible on support withdrawal
+ok 223 - faction aid spends 1 Treasure and persistent reduction is reversible on support withdrawal
+  ---
+  duration_ms: 0.947727
+  type: 'test'
+  ...
+# Subtest: extreme faction aid spends Asset HP 1-for-1 and applies the mandatory extra settled d4 damage
+ok 224 - extreme faction aid spends Asset HP 1-for-1 and applies the mandatory extra settled d4 damage
+  ---
+  duration_ms: 0.742218
+  type: 'test'
+  ...
+# Subtest: project completion cannot occur without readiness and explicit GM outcome
+ok 225 - project completion cannot occur without readiness and explicit GM outcome
+  ---
+  duration_ms: 0.413943
+  type: 'test'
+  ...
+1..225
+# tests 225
+# suites 0
+# pass 225
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 577.456572

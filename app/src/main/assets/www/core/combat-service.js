@@ -1,0 +1,283 @@
+import { canonicalJson } from './canonical-json.js';
+import { DeterministicRng } from './rng-core.js';
+import { computeSaveTargets, orderInitiativeSides, resolveAttack, resolveAttackFromPhysicalDice, resolveNpcAttack, resolveSavingThrow, resolveSideInitiative, unarmedWeaponContract } from './wwn-combat-core.js';
+import { applyActionCost, applyFightingWithdrawal, freshActionEconomy, inspectAttackRange, inspectMovement, distanceFeet } from './wwn-tactical-combat.js';
+import { resolveSkillCheck } from './wwn-rules-core.js';
+import { materializeWeaponContract } from './wwn-equipment-catalog.js';
+import { reloadTrait } from './wwn-reload-core.js';
+import { deriveArmorClass, deriveCombatMoveFeet } from './wwn-armor-core.js';
+import { applyDefensesToAttack, inspectRangedWeaponInMelee, recordShieldShockUse, setTotalDefense, clearTotalDefenseForPcSide, totalDefenseActive } from './wwn-defense-core.js';
+import { effectiveArmorClass071, applyPcDamageMitigations071, applyThermalShieldReactionInPlace071, expireRoundEffectsInPlace071, actionEconomyWithEcho071, applyActionCostWithEchoInPlace071, inspectVelocitousMovement071, applyVelocitousUseInPlace071, applyWardpactHit071, applyWardpactWeaponHarmless071, activeWardpactCreature071, markElementalGuardianDestroyedInPlace071, effectiveMoveFeet071, physicalSaveBonus071, autoStabilizeMagic071, applyCallOfTheTombToAttack071, activeCallOfTheTomb071, enfeeblingRollPenalty071, consumeTargetTurnEffectsInPlace071, applyTumefactionVigorousActionInPlace071, magicSpatialMovementContract071, applyLikeStonesFireAuraInPlace071 } from './combat-effect-lifecycle071.js';
+import {
+  activePartyCombatantIds,
+  bestPcDexterityScore,
+  characterById,
+  combatPcIds,
+  isCombatCapablePc,
+  isConditionActive,
+  addCharacterCondition,
+  hasFocus,
+  setCharacterById,
+} from './combat-roster.js';
+
+const COMBAT_SERVICE_SOURCES=Object.freeze({
+  mortalInjury:Object.freeze({sourceId:'SRC-WWN-SRD-1',locator:'§2.5.1 Mortal Injury and Stabilization'}),
+  dieHard:Object.freeze({sourceId:'SRC-WWN-SRD-1',locator:'§1.6.0 Focus List — Die Hard'}),
+  initiative:Object.freeze({sourceId:'SRC-WWN-SRD-1',locator:'§2.4.1–2.4.2 Combat Sequence / Side Initiative'}),
+});
+
+function loadState(persistence, campaignId) {
+  const loaded = persistence.loadCampaign(campaignId);
+  if (loaded.status !== 'OK') return { loaded, state: null };
+  const state = JSON.parse(loaded.stateJson);
+  if (state.revision !== loaded.revision) throw new Error('State/load revision mismatch');
+  return { loaded, state };
+}
+function clone(v){return structuredClone(v)}
+function commitState({persistence,loaded,next,campaignId,eventKind,suffix,payload}){const newRevision=loaded.revision+1;next.revision=newRevision;const eventId=`mech:${campaignId}:r${newRevision}:${suffix}`;const receipt=persistence.commit({campaignId,expectedRevision:loaded.revision,eventId,eventKind,eventPayloadJson:canonicalJson({eventId,revision:newRevision,...payload}),newStateJson:canonicalJson(next),rngCountersJson:canonicalJson(next.rngState?.counters??{})});return{receipt,eventId,newRevision};}
+function tacticalCombat(state){const c=state.encounterState?.combat;return c?.active===true&&c?.tactical?.actors?c:null;}
+function chooseUnarmedAttribute(character){return (character.attributes?.Dexterity??0)>=(character.attributes?.Strength??0)?'Dexterity':'Strength';}
+function playerWeapon(state,pcId,weaponId,{tactical=false,modeId=null,combatSkill=null}={}){
+  const pc=characterById(state,pcId);if(!pc)return{status:'CHARACTER_NOT_FOUND'};
+  if(weaponId==='UNARMED')return{status:'OK',weapon:unarmedWeaponContract({attribute:chooseUnarmedAttribute(pc)}),builtIn:true};
+  const inventory=pc.inventory;if(!Array.isArray(inventory))return{status:'MISSING_EVIDENCE_INVENTORY'};
+  const item=inventory.find(i=>(i.itemId??i.id)===weaponId);if(!item)return{status:'MISSING_EVIDENCE_WEAPON'};
+  if(tactical&&String(item.carryState??'').toUpperCase()!=='READIED')return{status:'WEAPON_NOT_READIED'};
+  let weapon=item.weaponContract??null;
+  if(!weapon&&item.kind==='WEAPON'&&Array.isArray(item.weaponModes)){
+    const materialized=materializeWeaponContract(pc,item,{modeId,combatSkill});
+    if(materialized.status!=='OK')return{status:materialized.status};weapon=materialized.weapon;
+  }
+  if(!weapon)return{status:'MISSING_EVIDENCE_WEAPON'};
+  const trait=reloadTrait(item.traits?.length?item:weapon);
+  if(tactical&&trait&&item.loaded!==true)return{status:'WEAPON_NOT_LOADED'};
+  return{status:'OK',weapon,builtIn:false,item,reloadTrait:trait};
+}
+function setWeaponLoaded(next,pcId,itemId,loaded){
+  let pc=characterById(next,pcId);if(!pc||!Array.isArray(pc.inventory))return false;const index=pc.inventory.findIndex(i=>(i.itemId??i.id)===itemId);if(index<0)return false;pc=clone(pc);pc.inventory[index].loaded=loaded;setCharacterById(next,pcId,pc);return true;
+}
+function resolvePcId(state,combat,requestedPcId=null){
+  const ids=[...combatPcIds(state,combat)];if(ids.length<1)return null;
+  if(requestedPcId!==null&&requestedPcId!==undefined){const id=String(requestedPcId);return ids.includes(id)?id:null;}
+  const active=String(state.characterState?.characterId??state.characterState?.id??'');return ids.includes(active)?active:ids[0];
+}
+function resetAllEconomies(combat){for(const id of Object.keys(combat.economy??{}))combat.economy[id]=freshActionEconomy();}
+function interruptSingleShotReloadForPc(next,pcId,{reason='MELEE',enemyId=null,round=null}={}){
+  let pc=characterById(next,pcId);if(!pc||!Array.isArray(pc.inventory))return[];
+  const interrupted=[];pc=clone(pc);
+  for(const item of pc.inventory){const progress=item?.reloadProgress;if(progress?.trait!=='SS')continue;interrupted.push({itemId:item.itemId??item.id,roundsCompleted:Number(progress.roundsCompleted??0),roundsRequired:Number(progress.roundsRequired??10),reason,enemyId,round});delete item.reloadProgress;}
+  if(interrupted.length)setCharacterById(next,pcId,pc);
+  return interrupted;
+}
+function hasHealersKit(character){
+  if(!Array.isArray(character?.inventory))return false;
+  return character.inventory.some(item=>{
+    const id=String(item?.itemId??item?.id??'').toUpperCase();
+    const tags=(item?.tags??item?.rulesTags??[]).map?.(x=>String(x).toUpperCase())??[];
+    return id==='HEALERS_KIT'||id==='HEALER_KIT'||tags.includes('HEALERS_KIT');
+  });
+}
+function mortalState(character){return character?.mortalInjury??null;}
+function markPcMortallyInjured(next,combat,pcId){
+  let pc=characterById(next,pcId);if(!pc||pc.hp?.current!==0)return null;
+  pc=addCharacterCondition(pc,'MORTALLY_INJURED');
+  const focusAuto=hasFocus(pc,'DIE_HARD',1),magicAuto=autoStabilizeMagic071(next,pcId);const autoStabilized=focusAuto||magicAuto.autoStabilized===true;
+  if(autoStabilized)pc=addCharacterCondition(pc,'STABILIZED');
+  pc.mortalInjury={...(pc.mortalInjury??{}),roundsSinceDowned:0,downedAtCombatRound:combat.round,stabilized:autoStabilized,dead:false,autoStabilizedBy:focusAuto?'DIE_HARD':(magicAuto.autoStabilized?magicAuto.source:null),recoveryMinutesRequired:10};
+  setCharacterById(next,pcId,pc);
+  const refs=[COMBAT_SERVICE_SOURCES.mortalInjury];if(focusAuto)refs.push(COMBAT_SERVICE_SOURCES.dieHard);if(magicAuto.sourceRef)refs.push(magicAuto.sourceRef);return {autoStabilized,autoStabilizedBy:pc.mortalInjury.autoStabilizedBy,sourceRefs:refs};
+}
+function standingPcIds(state,combat){return combatPcIds(state,combat).filter(id=>isCombatCapablePc(characterById(state,id)));}
+function updatePcSideOutcome(state,combat){
+  if(standingPcIds(state,combat).length>0)return false;
+  combat.active=false;combat.outcome='PC_SIDE_INCAPACITATED';combat.endedRound=combat.round;return true;
+}
+function advanceMortalInjuryClocks(next,combat){
+  const updates=[];
+  for(const pcId of combatPcIds(next,combat)){
+    let pc=characterById(next,pcId);if(!pc||pc.hp?.current!==0||isConditionActive(pc,'DEAD'))continue;
+    const mi=mortalState(pc);if(!mi||mi.stabilized===true)continue;
+    const rounds=Math.max(0,Number(mi.roundsSinceDowned??0))+1;
+    pc=clone(pc);pc.mortalInjury={...mi,roundsSinceDowned:rounds};
+    if(rounds>=6){pc=addCharacterCondition(pc,'DEAD');pc.mortalInjury={...pc.mortalInjury,dead:true,diedAtCombatRound:combat.round};}
+    setCharacterById(next,pcId,pc);updates.push({pcId,roundsSinceDowned:rounds,dead:rounds>=6});
+  }
+  updatePcSideOutcome(next,combat);
+  return updates;
+}
+function advanceSide(next,combat){
+  const i=combat.order.indexOf(combat.activeSideId);if(i<0)throw new Error('active side absent from initiative order');
+  const completedSideId=combat.activeSideId;const completedTargetIds=completedSideId==='PC'?combatPcIds(next,combat):[...(combat.enemyIds??[])];const targetTurnExpirations=[...consumeTargetTurnEffectsInPlace071({state:next,targetIds:completedTargetIds})];
+  let transition='NEXT_SIDE',mortalInjury=[],effectExpirations=[];
+  if(i===combat.order.length-1){const completedRound=combat.round;combat.round+=1;combat.activeSideId=combat.order[0];resetAllEconomies(combat);effectExpirations=[...expireRoundEffectsInPlace071({state:next,completedRound})];mortalInjury=advanceMortalInjuryClocks(next,combat);transition='NEW_ROUND';}
+  else combat.activeSideId=combat.order[i+1];
+  if(combat.activeSideId==='PC')clearTotalDefenseForPcSide(combat);
+  return{transition,mortalInjury,effectExpirations,targetTurnExpirations};
+}
+function targetArmorClass(pc,combat=null,pcId=null,{state=null,rangedAttack=false}={}){const derived=deriveArmorClass(pc);if(derived.status!=='OK'||!Number.isInteger(derived.armorClass))return null;const effective=effectiveArmorClass071({character:pc,armorProjection:derived,totalDefense:Boolean(pcId&&totalDefenseActive(combat,pcId)),state,targetId:pcId,round:combat?.round,rangedAttack});return effective.status==='OK'?effective.armorClass:null;}
+function nearestStandingPc(next,combat,enemyPosition){
+  const ids=standingPcIds(next,combat);let best=null;
+  for(const pcId of ids){const pos=combat.tactical.actors?.[pcId];if(!pos)continue;const d=distanceFeet(enemyPosition,pos);if(!best||d<best.distanceFeet-1e-9||(Math.abs(d-best.distanceFeet)<1e-9&&String(pcId)<String(best.pcId)))best={pcId,position:pos,distanceFeet:d};}
+  return best;
+}
+
+function resolveIncomingPcDefense(next,combat,targetId,weapon,resolution,{reactionDecision=null,visibleThermalShieldCasterIds=[]}={}){
+  const target=characterById(next,targetId);if(!target)return{status:'OK',resolution,defense:null,reaction:null};
+  const defense=applyDefensesToAttack({character:target,weapon,resolution,combat,targetId});
+  if(defense.consumeShieldShock)recordShieldShockUse(combat,targetId);
+  const mitigated=applyPcDamageMitigations071({state:next,combat,targetId,resolution:defense.resolution,damageContext:weapon?.damageContext??null});
+  const reaction=applyThermalShieldReactionInPlace071({state:next,targetId,resolution:mitigated.resolution,damageContext:weapon?.damageContext??null,visibleCasterIds:visibleThermalShieldCasterIds,decision:reactionDecision});
+  if(reaction.status==='THERMAL_SHIELD_DECISION_REQUIRED')return{status:reaction.status,resolution:mitigated.resolution,defense,reaction,mitigations:mitigated.applied};
+  if(['INVALID_THERMAL_SHIELD_DECISION','THERMAL_SHIELD_CASTER_NOT_ELIGIBLE'].includes(reaction.status))return{status:reaction.status,resolution:mitigated.resolution,defense,reaction,mitigations:mitigated.applied};
+  return{status:'OK',resolution:reaction.status==='USED'?reaction.resolution:mitigated.resolution,defense,reaction,mitigations:mitigated.applied};
+}
+
+function physicalWardpactSave(attacker,physicalDice){
+  const target=computeSaveTargets(attacker)?.Physical;
+  if(!Number.isInteger(target))return Object.freeze({status:'MISSING_PHYSICAL_SAVE_TARGET'});
+  const rolls=physicalDice?.rolls;
+  if(!Array.isArray(rolls)||rolls.length!==1||!Number.isInteger(rolls[0])||rolls[0]<1||rolls[0]>20||physicalDice?.forcedSettle===true)return Object.freeze({status:'SETTLED_D20_PHYSICAL_SAVE_REQUIRED'});
+  const roll=rolls[0];return Object.freeze({status:'OK',roll,target,success:roll>=target,diceAuthority:'PHYSICAL_TOP_FACE_AFTER_SETTLE'});
+}
+function npcWardpactSave({rng,npc,streamName}){
+  const target=Number(npc?.save);
+  if(!Number.isInteger(target))return Object.freeze({status:'MISSING_NPC_PHYSICAL_SAVE_TARGET'});
+  const resolution=resolveSavingThrow({rng,saveType:'PHYSICAL',target,modifier:0,streamName});
+  return Object.freeze({status:'OK',resolution,success:resolution.success});
+}
+function combatWeaponId(enemy){return enemy?.weaponContract?.weaponId??enemy?.weaponContract?.itemId??enemy?.weaponContract?.id??null;}
+function mainAvailableWithEcho(state,combat,targetId){return actionEconomyWithEcho071({state,combat,targetId,economy:combat?.economy?.[targetId]??freshActionEconomy()});}
+
+export class CombatActionService {
+  constructor({ persistence }) { this.persistence = persistence; }
+
+  startCombat({ campaignId, pcSideId = 'PC', enemySideId = 'ENEMY', enemyDexterityModifier = 0 }) {
+    const { loaded, state } = loadState(this.persistence, campaignId);if (!state) return Object.freeze({ status: loaded.status });
+    const pcIds=[...activePartyCombatantIds(state)];if(pcIds.length<1)return Object.freeze({status:'MISSING_EVIDENCE_PARTY_COMBATANTS',revision:loaded.revision});
+    const bestDexterityScore=bestPcDexterityScore(state,pcIds);if(!Number.isInteger(bestDexterityScore))return Object.freeze({status:'MISSING_EVIDENCE_CHARACTER_DEXTERITY',revision:loaded.revision});
+    const rng = DeterministicRng.fromState(state.rngState);const pc = resolveSideInitiative({ rng, bestDexterityScore, streamName: 'combat/initiative/pc' });const enemy = resolveSideInitiative({ rng, dexterityModifier: enemyDexterityModifier, streamName: 'combat/initiative/enemy' });
+    const order = orderInitiativeSides([{ sideId: pcSideId, isPcSide: true, total: pc.total, roll: pc },{ sideId: enemySideId, isPcSide: false, total: enemy.total, roll: enemy }]);
+    const next = clone(state);next.rngState = rng.exportState();next.encounterState = { ...(next.encounterState ?? {}), combat: { active: true, round: 1, order: order.map(s => s.sideId), activeSideId:order[0].sideId, initiative: { [pcSideId]: pc, [enemySideId]: enemy },pcId:pcIds[0],pcIds } };
+    const {receipt}=commitState({persistence:this.persistence,loaded,next,campaignId,eventKind:'COMBAT_STARTED',suffix:'combat-start',payload:{pcSideId,enemySideId,pcIds,order,sourceRefs:[COMBAT_SERVICE_SOURCES.initiative]}});if(receipt.status!=='OK')return Object.freeze({status:receipt.status,receipt});
+    return Object.freeze({ status: 'OK', receipt, order, pcIds:Object.freeze(pcIds), initiative: { pc, enemy } });
+  }
+
+  rollSave({ campaignId, saveType, modifier = 0 }) {
+    const { loaded, state } = loadState(this.persistence, campaignId);if (!state) return Object.freeze({ status: loaded.status });if (!state.characterState) return Object.freeze({ status: 'MISSING_EVIDENCE_CHARACTER', revision: loaded.revision });
+    const targets = computeSaveTargets(state.characterState);const key = String(saveType ?? '').toUpperCase();const map = { PHYSICAL: 'Physical', EVASION: 'Evasion', MENTAL: 'Mental', LUCK: 'Luck' };const target = targets[map[key]];
+    if (!Number.isInteger(target)) return Object.freeze({ status: 'INVALID_SAVE_TYPE', revision: loaded.revision });
+    const magicSaveBonus=key==='PHYSICAL'?physicalSaveBonus071(state,state.characterState.characterId):0;const effectiveModifier=modifier+magicSaveBonus;const rng = DeterministicRng.fromState(state.rngState);const resolution = resolveSavingThrow({ rng, saveType: key, target, modifier:effectiveModifier, streamName: `save/${key.toLowerCase()}` });
+    const next = clone(state); next.rngState = rng.exportState();next.encounterState = { ...(next.encounterState ?? {}), lastSave: resolution };
+    const {receipt}=commitState({persistence:this.persistence,loaded,next,campaignId,eventKind:'PLAYER_SAVE',suffix:`save:${key}`,payload:{resolution}});if(receipt.status!=='OK')return Object.freeze({status:receipt.status,receipt});return Object.freeze({ status:'OK', receipt, resolution });
+  }
+
+  attackNpc({ campaignId, pcId = null, npcId, weaponId, hitModifier = 0, damageBonus = 0, shockBonus = 0, modeId = null, combatSkill = null, physicalDice = null, enfeeblingPhysicalDiceSecond = null, wardpactPhysicalSaveDice = null }) {
+    const { loaded, state } = loadState(this.persistence, campaignId);if (!state) return Object.freeze({ status: loaded.status });
+    const combat=tacticalCombat(state);const actorId=combat?resolvePcId(state,combat,pcId):String(pcId??state.characterState?.characterId??'');if(!actorId)return Object.freeze({status:'PC_NOT_IN_COMBAT_NO_MUTATION',revision:loaded.revision});
+    const attacker=characterById(state,actorId);if(!attacker)return Object.freeze({status:'CHARACTER_NOT_FOUND_NO_MUTATION',revision:loaded.revision});if(combat&&!isCombatCapablePc(attacker))return Object.freeze({status:'PC_INCAPACITATED_NO_MUTATION',revision:loaded.revision});
+    const weaponResult=playerWeapon(state,actorId,weaponId,{tactical:Boolean(combat),modeId,combatSkill});if(weaponResult.status!=='OK')return Object.freeze({status:weaponResult.status,revision:loaded.revision});const weapon=weaponResult.weapon;
+    const npc = state.npcState?.[npcId];if (!npc || !Number.isInteger(npc.hp) || !Number.isInteger(npc.meleeAC) || !Number.isInteger(npc.rangedAC)) return Object.freeze({ status:'MISSING_EVIDENCE_TARGET_COMBAT_STATE', revision:loaded.revision });
+    if (!Number.isInteger(attacker.baseAttackBonus)) return Object.freeze({ status:'MISSING_EVIDENCE_BASE_ATTACK_BONUS', revision:loaded.revision });
+    let range=null;let rangedMelee=null;let tacticalHitModifier=0;
+    if(combat){
+      if(combat.activeSideId!=='PC')return Object.freeze({status:'NOT_PC_SIDE_NO_MUTATION',revision:loaded.revision});
+      const economy=mainAvailableWithEcho(state,combat,actorId);if(economy.mainAvailable!==true)return Object.freeze({status:'MAIN_ACTION_ALREADY_SPENT_NO_MUTATION',revision:loaded.revision});
+      const from=combat.tactical.actors?.[actorId],to=combat.tactical.actors?.[npcId];if(!from||!to)return Object.freeze({status:'MISSING_TACTICAL_POSITION_NO_MUTATION',revision:loaded.revision});
+      range=inspectAttackRange({attackerPosition:from,targetPosition:to,weapon});if(range.status!=='OK')return Object.freeze({status:'TARGET_OUT_OF_RANGE_NO_MUTATION',revision:loaded.revision,range});tacticalHitModifier+=range.hitModifier;
+      const enemyPositions=(combat.enemyIds??[]).filter(id=>(state.npcState?.[id]?.hp??0)>0).map(id=>({actorId:id,position:combat.tactical.actors?.[id]})).filter(x=>x.position);
+      rangedMelee=inspectRangedWeaponInMelee({weapon,attackerPosition:from,enemyPositions});if(rangedMelee.status!=='OK')return Object.freeze({status:`${rangedMelee.status}_NO_MUTATION`,revision:loaded.revision,rangedMelee});tacticalHitModifier+=rangedMelee.hitModifier;
+    }
+    const enfeebled=combat?enfeeblingRollPenalty071({state,targetId:actorId,round:combat.round}):{active:false};const rng = DeterministicRng.fromState(state.rngState);const hasPhysical=physicalDice&&Array.isArray(physicalDice.rolls);let enfeeblingPair=null;let baseResolution;
+    if(enfeebled.active&&(enfeebled.attackRollsTwiceTakeWorse||enfeebled.damageRollsTwiceTakeWorse)){if(!hasPhysical||!enfeeblingPhysicalDiceSecond||!Array.isArray(enfeeblingPhysicalDiceSecond.rolls))return Object.freeze({status:'ENFEEBLING_SECOND_ATTACK_AND_DAMAGE_ROLL_REQUIRED_NO_MUTATION',revision:loaded.revision,enfeebled});const r1=resolveAttackFromPhysicalDice({hitFace:physicalDice.rolls[0],damageFaces:physicalDice.rolls.slice(1),attacker,weapon,target:npc,hitModifier:hitModifier+tacticalHitModifier,damageBonus,shockBonus,physicalMeta:physicalDice});const r2=resolveAttackFromPhysicalDice({hitFace:enfeeblingPhysicalDiceSecond.rolls[0],damageFaces:enfeeblingPhysicalDiceSecond.rolls.slice(1),attacker,weapon,target:npc,hitModifier:hitModifier+tacticalHitModifier,damageBonus,shockBonus,physicalMeta:enfeeblingPhysicalDiceSecond});const worseHit=r1.hitTotal<=r2.hitTotal?r1:r2;let damage=worseHit.damage,preShockDamage=worseHit.preShockDamage,damageRoll=worseHit.damageRoll;if(worseHit.hit&&r1.hit&&r2.hit){const worseDamage=r1.damage<=r2.damage?r1:r2;damage=worseDamage.damage;preShockDamage=worseDamage.preShockDamage;damageRoll=worseDamage.damageRoll;}baseResolution=Object.freeze({...worseHit,damage,preShockDamage,damageRoll,enfeeblingWorseOfTwoApplied:true,enfeeblingAttackTotals:Object.freeze([r1.hitTotal,r2.hitTotal]),enfeeblingDamageTotals:Object.freeze([r1.damage,r2.damage])});enfeeblingPair=Object.freeze({first:r1,second:r2});}
+    else baseResolution = hasPhysical ? resolveAttackFromPhysicalDice({hitFace:physicalDice.rolls[0],damageFaces:physicalDice.rolls.slice(1),attacker,weapon,target:npc,hitModifier:hitModifier+tacticalHitModifier,damageBonus,shockBonus,physicalMeta:physicalDice}) : resolveAttack({ rng, attacker, weapon, target:npc, hitModifier:hitModifier+tacticalHitModifier, damageBonus, shockBonus, streamName:`combat/attack/${actorId}/${npcId}/${weaponId}` });
+    const callTomb=combat?applyCallOfTheTombToAttack071({state,targetId:npcId,round:combat.round,resolution:baseResolution,weapon}):{status:'NO_CALL_OF_TOMB_EFFECT',resolution:baseResolution};const npcDefense=callTomb.status==='APPLIED'?{resolution:callTomb.resolution,consumeShieldShock:false,grandPlate:null,shield:null,callTombBypass:true}:applyDefensesToAttack({character:npc,weapon,resolution:baseResolution,combat,targetId:npcId});let resolution=npcDefense.resolution;let wardpactSave=null,wardpact=null,wardpactWeapon=null;
+    if(combat&&callTomb.status!=='APPLIED'&&resolution.hit===true&&activeWardpactCreature071(state,npcId,combat.round)){
+      wardpactSave=physicalWardpactSave(attacker,wardpactPhysicalSaveDice);if(wardpactSave.status!=='OK')return Object.freeze({status:'WARDPACT_PHYSICAL_SAVE_REQUIRED_NO_MUTATION',revision:loaded.revision,wardpactSave});
+      wardpact=applyWardpactHit071({state,combat,targetId:npcId,attackerId:actorId,resolution,physicalSaveSucceeded:wardpactSave.success});resolution=wardpact.resolution;
+    }
+    wardpactWeapon=applyWardpactWeaponHarmless071({state,ownerId:actorId,weaponId,resolution});resolution=wardpactWeapon.resolution;
+    const next = clone(state); next.rngState = hasPhysical ? clone(state.rngState) : rng.exportState();next.npcState[npcId].hp = Math.max(0, npc.hp - resolution.damage);const nextCombat=tacticalCombat(next);let actionCost=null,guardianDestroyed=null,tumefaction=null;
+    if(nextCombat){
+      if(npcDefense.consumeShieldShock)recordShieldShockUse(nextCombat,npcId);if(weaponResult.reloadTrait)setWeaponLoaded(next,actorId,weaponId,false);
+      actionCost=applyActionCostWithEchoInPlace071({state:next,combat:nextCombat,targetId:actorId,cost:'MAIN'});if(actionCost.status!=='OK')return Object.freeze({status:`${actionCost.status}_NO_MUTATION`,revision:loaded.revision});
+      tumefaction=applyTumefactionVigorousActionInPlace071({state:next,targetId:actorId,round:nextCombat.round});if(characterById(next,actorId)?.hp?.current===0)markPcMortallyInjured(next,nextCombat,actorId);
+      if(next.npcState[npcId].hp===0){guardianDestroyed=markElementalGuardianDestroyedInPlace071({state:next,guardianNpcId:npcId,round:nextCombat.round});if(next.npcState[npcId].importantNamed!==true)next.npcState[npcId].visibleStatus='DEAD';}
+      const alive=nextCombat.enemyIds?.filter(id=>(next.npcState[id]?.hp??0)>0)??[];if(alive.length===0){nextCombat.active=false;nextCombat.outcome='PC_VICTORY';nextCombat.endedRound=nextCombat.round;}
+    }
+    next.encounterState = { ...(next.encounterState ?? {}), lastCombatResolution: { pcId:actorId,npcId, weaponId, modeId, range, rangedMelee, resolution, wardpactSave, wardpact, wardpactWeapon, targetHpBefore:npc.hp, targetHpAfter:next.npcState[npcId].hp } };
+    const {receipt}=commitState({persistence:this.persistence,loaded,next,campaignId,eventKind:'PLAYER_ATTACK',suffix:`attack:${actorId}:${npcId}`,payload:{pcId:actorId,npcId,weaponId,modeId,range,rangedMelee,resolution,enfeeblingPair:enfeeblingPair?{applied:true}:null,tumefaction:tumefaction?.status??null,callTomb:callTomb.status,wardpactSave,wardpact:wardpact?.status??null,wardpactWeapon:wardpactWeapon?.status??null,guardianDestroyed:guardianDestroyed?.status??null,actionCost,physicalDice:hasPhysical?{authority:'PHYSICAL_TOP_FACE_AFTER_SETTLE',seed:String(physicalDice.seed??''),physicsMs:Number(physicalDice.physicsMs??0),forcedSettle:false}:null,defense:{grandPlate:npcDefense.grandPlate,shield:npcDefense.shield},targetHpBefore:npc.hp,targetHpAfter:next.npcState[npcId].hp}});if(receipt.status!=='OK')return Object.freeze({status:receipt.status,receipt});
+    return Object.freeze({status:'OK',receipt,pcId:actorId,resolution,range,rangedMelee,enfeeblingPair,tumefaction,wardpactSave,actionCost,targetHpAfter:next.npcState[npcId].hp,combat:next.encounterState.combat?clone(next.encounterState.combat):null});
+  }
+
+  totalDefense({campaignId,pcId=null}){
+    const {loaded,state}=loadState(this.persistence,campaignId);if(!state)return Object.freeze({status:loaded.status});const combat=tacticalCombat(state);if(!combat)return Object.freeze({status:'NO_ACTIVE_TACTICAL_COMBAT_NO_MUTATION',revision:loaded.revision});if(combat.activeSideId!=='PC')return Object.freeze({status:'NOT_PC_SIDE_NO_MUTATION',revision:loaded.revision});const actorId=resolvePcId(state,combat,pcId);if(!actorId)return Object.freeze({status:'PC_NOT_IN_COMBAT_NO_MUTATION',revision:loaded.revision});const pc=characterById(state,actorId);if(!isCombatCapablePc(pc))return Object.freeze({status:'PC_INCAPACITATED_NO_MUTATION',revision:loaded.revision});const economy=mainAvailableWithEcho(state,combat,actorId);if(economy.mainAvailable!==true)return Object.freeze({status:'MAIN_ACTION_ALREADY_SPENT_NO_MUTATION',revision:loaded.revision});
+    const next=clone(state),c=next.encounterState.combat;const actionCost=applyActionCostWithEchoInPlace071({state:next,combat:c,targetId:actorId,cost:'MAIN'});if(actionCost.status!=='OK')return Object.freeze({status:`${actionCost.status}_NO_MUTATION`,revision:loaded.revision});c.economy[actorId]={...c.economy[actorId],totalDefense:true};setTotalDefense(c,actorId,true);const ac=targetArmorClass(characterById(next,actorId),c,actorId);
+    const {receipt}=commitState({persistence:this.persistence,loaded,next,campaignId,eventKind:'TOTAL_DEFENSE',suffix:`total-defense:${actorId}`,payload:{pcId:actorId,armorClass:ac,shockImmune:true,actionCost,sourceRefs:[{sourceId:'SRC-WWN-SRD-1',locator:'§2.4.4 Total Defense'}]}});if(receipt.status!=='OK')return Object.freeze({status:receipt.status,receipt});return Object.freeze({status:'OK',receipt,pcId:actorId,armorClass:ac,shockImmune:true,actionCost,economy:clone(c.economy[actorId])});
+  }
+
+  fightingWithdrawal({campaignId,pcId=null}){
+    const {loaded,state}=loadState(this.persistence,campaignId);if(!state)return Object.freeze({status:loaded.status});const combat=tacticalCombat(state);if(!combat)return Object.freeze({status:'NO_ACTIVE_TACTICAL_COMBAT_NO_MUTATION',revision:loaded.revision});if(combat.activeSideId!=='PC')return Object.freeze({status:'NOT_PC_SIDE_NO_MUTATION',revision:loaded.revision});const actorId=resolvePcId(state,combat,pcId);if(!actorId)return Object.freeze({status:'PC_NOT_IN_COMBAT_NO_MUTATION',revision:loaded.revision});const pc=characterById(state,actorId);if(!isCombatCapablePc(pc))return Object.freeze({status:'PC_INCAPACITATED_NO_MUTATION',revision:loaded.revision});const economy=mainAvailableWithEcho(state,combat,actorId);if(economy.mainAvailable!==true)return Object.freeze({status:'MAIN_ACTION_ALREADY_SPENT_NO_MUTATION',revision:loaded.revision});const next=clone(state),c=next.encounterState.combat;const actionCost=applyActionCostWithEchoInPlace071({state:next,combat:c,targetId:actorId,cost:'MAIN'});if(actionCost.status!=='OK')return Object.freeze({status:`${actionCost.status}_NO_MUTATION`,revision:loaded.revision});c.economy[actorId]={...c.economy[actorId],withdrewFromMelee:true};const {receipt}=commitState({persistence:this.persistence,loaded,next,campaignId,eventKind:'FIGHTING_WITHDRAWAL',suffix:`fighting-withdrawal:${actorId}`,payload:{pcId:actorId,actionCost,sourceRefs:[{sourceId:'SRC-WWN-SRD-1',locator:'§2.4.5 Fighting Withdrawal / movement'}]}});if(receipt.status!=='OK')return Object.freeze({status:receipt.status,receipt});return Object.freeze({status:'OK',receipt,pcId:actorId,actionCost,economy:clone(c.economy[actorId])});
+  }
+
+  movePc({campaignId,pcId=null,xFeet,yFeet,acceptFreeAttack=false,reactions={},usesVelocitousTraversal=false}){
+    const {loaded,state}=loadState(this.persistence,campaignId);if(!state)return Object.freeze({status:loaded.status});const combat=tacticalCombat(state);if(!combat)return Object.freeze({status:'NO_ACTIVE_TACTICAL_COMBAT_NO_MUTATION',revision:loaded.revision});if(combat.activeSideId!=='PC')return Object.freeze({status:'NOT_PC_SIDE_NO_MUTATION',revision:loaded.revision});const actorId=resolvePcId(state,combat,pcId);if(!actorId)return Object.freeze({status:'PC_NOT_IN_COMBAT_NO_MUTATION',revision:loaded.revision});const pc=characterById(state,actorId);if(!isCombatCapablePc(pc))return Object.freeze({status:'PC_INCAPACITATED_NO_MUTATION',revision:loaded.revision});
+    const from=combat.tactical.actors?.[actorId];if(!from)return Object.freeze({status:'MISSING_TACTICAL_POSITION_NO_MUTATION',revision:loaded.revision});const to={xFeet:Number(xFeet),yFeet:Number(yFeet)};if(!Number.isFinite(to.xFeet)||!Number.isFinite(to.yFeet))return Object.freeze({status:'INVALID_DESTINATION_NO_MUTATION',revision:loaded.revision});
+    const enemies=(combat.enemyIds??[]).filter(id=>(state.npcState?.[id]?.hp??0)>0).map(id=>({actorId:id,position:combat.tactical.actors?.[id]})).filter(v=>v.position&&state.npcState[v.actorId]?.weaponContract?.melee!==false);
+    const moveProfile=deriveCombatMoveFeet(pc);if(moveProfile.status!=='OK')return Object.freeze({status:'MISSING_EVIDENCE_MOVE_RATE_NO_MUTATION',revision:loaded.revision});const magicMove=effectiveMoveFeet071({state,targetId:actorId,round:combat.round,baseMoveFeet:moveProfile.moveFeet});const baseMoveFeet=magicMove.moveFeet;const moveDistance=distanceFeet(from,to);const leavingMelee=enemies.some(e=>distanceFeet(from,e.position)<=5+1e-9&&distanceFeet(to,e.position)>5+1e-9);const effectiveEconomy=mainAvailableWithEcho(state,combat,actorId);const alreadyWithdrew=combat.economy?.[actorId]?.withdrewFromMelee===true;const ordinaryInspection=inspectMovement({from,to,economy:effectiveEconomy,armedEnemyPositions:enemies,fightingWithdrawal:alreadyWithdrew,normalMoveFeet:baseMoveFeet});const movementNeedsSpell=!['OK','FREE_ATTACK_REQUIRED'].includes(ordinaryInspection.status);const velocitousAdvantageNeeded=usesVelocitousTraversal===true||(leavingMelee&&!alreadyWithdrew)||movementNeedsSpell;const velocitous=inspectVelocitousMovement071({state,targetId:actorId,normalMoveFeet:baseMoveFeet,distanceFeet:moveDistance,leavingMelee,specialTraversal:usesVelocitousTraversal===true,advantageNeededOverride:velocitousAdvantageNeeded});if(velocitous.status==='SYSTEM_STRAIN_MAXIMUM')return Object.freeze({status:'VELOCITOUS_SYSTEM_STRAIN_MAXIMUM_NO_MUTATION',revision:loaded.revision,velocitous});if(velocitous.status==='SYSTEM_STRAIN_EVIDENCE_REQUIRED')return Object.freeze({status:'VELOCITOUS_SYSTEM_STRAIN_EVIDENCE_REQUIRED_NO_MUTATION',revision:loaded.revision,velocitous});const usesVelocitous=velocitous.status==='AVAILABLE'&&velocitous.advantageNeeded===true;const normalMoveFeet=usesVelocitous?velocitous.maxMoveFeet:baseMoveFeet;const avoidsWithdrawal=usesVelocitous&&velocitous.effect?.avoidsFightingWithdrawal===true;
+    const inspection=inspectMovement({from,to,economy:effectiveEconomy,armedEnemyPositions:enemies,fightingWithdrawal:combat.economy?.[actorId]?.withdrewFromMelee===true||avoidsWithdrawal,normalMoveFeet});
+    if(inspection.status==='FREE_ATTACK_REQUIRED'&&!acceptFreeAttack)return Object.freeze({status:'FREE_ATTACK_CONFIRMATION_REQUIRED_NO_MUTATION',revision:loaded.revision,inspection});if(!['OK','FREE_ATTACK_REQUIRED'].includes(inspection.status))return Object.freeze({status:`${inspection.status}_NO_MUTATION`,revision:loaded.revision,inspection});
+    const next=clone(state);const nextCombat=next.encounterState.combat;const rng=DeterministicRng.fromState(next.rngState);const freeAttacks=[];
+    if(inspection.status==='FREE_ATTACK_REQUIRED'){
+      for(const enemyId of inspection.leavingEnemyIds){const enemy=next.npcState[enemyId];if(!enemy||enemy.hp<1)continue;const reloadInterruptions=interruptSingleShotReloadForPc(next,actorId,{reason:'ENEMY_MELEE_FREE_ATTACK',enemyId,round:nextCombat.round});let target=characterById(next,actorId);const ac=targetArmorClass(target,nextCombat,actorId,{state:next,rangedAttack:enemy.weaponContract?.melee===false});if(ac===null)return Object.freeze({status:'MISSING_EVIDENCE_ARMOR_CLASS_NO_MUTATION',revision:loaded.revision});const baseRes=resolveNpcAttack({rng,npc:enemy,weapon:enemy.weaponContract,target:{armorClass:ac,meleeAC:ac,rangedAC:ac},streamName:`combat/free-attack/${enemyId}/${actorId}`});const callTomb=applyCallOfTheTombToAttack071({state:next,targetId:actorId,round:nextCombat.round,resolution:baseRes,weapon:enemy.weaponContract});const reactionKey=`free:${enemyId}:${actorId}:r${nextCombat.round}`;const defended=callTomb.status==='APPLIED'?{status:'OK',resolution:callTomb.resolution,defense:{callTombBypass:true},reaction:null,mitigations:[]}:resolveIncomingPcDefense(next,nextCombat,actorId,enemy.weaponContract,baseRes,{reactionDecision:reactions?.thermalShield?.[reactionKey]??null,visibleThermalShieldCasterIds:reactions?.visibleThermalShieldCasterIdsByTarget?.[actorId]??[]});if(defended.status!=='OK')return Object.freeze({status:`${defended.status}_NO_MUTATION`,revision:loaded.revision,reactionKey,reaction:defended.reaction});let res=defended.resolution;let wardpactSave=null,wardpact=null,wardpactWeapon=null;if(res.hit===true&&activeWardpactCreature071(next,actorId,nextCombat.round)){wardpactSave=npcWardpactSave({rng,npc:enemy,streamName:`combat/wardpact/free/${enemyId}/${actorId}`});if(wardpactSave.status!=='OK')return Object.freeze({status:'WARDPACT_NPC_SAVE_EVIDENCE_REQUIRED_NO_MUTATION',revision:loaded.revision,enemyId});wardpact=applyWardpactHit071({state:next,combat:nextCombat,targetId:actorId,attackerId:enemyId,resolution:res,physicalSaveSucceeded:wardpactSave.success});res=wardpact.resolution;}const enemyWeaponId=combatWeaponId(enemy);if(enemyWeaponId){wardpactWeapon=applyWardpactWeaponHarmless071({state:next,ownerId:enemyId,weaponId:enemyWeaponId,resolution:res});res=wardpactWeapon.resolution;}const before=target.hp.current;target=clone(characterById(next,actorId));target.hp.current=Math.max(0,before-res.damage);setCharacterById(next,actorId,target);freeAttacks.push({enemyId,pcId:actorId,resolution:res,wardpactSave:wardpactSave?.resolution??wardpactSave,wardpact:wardpact?.status??null,wardpactWeapon:wardpactWeapon?.status??null,defense:defended.defense,mitigations:defended.mitigations,reaction:defended.reaction,hpBefore:before,hpAfter:target.hp.current,reloadInterruptions});if(target.hp.current===0){const mortal=markPcMortallyInjured(next,nextCombat,actorId);freeAttacks[freeAttacks.length-1].mortal=mortal;break;}}
+      next.rngState=rng.exportState();
+    }
+    const afterPc=characterById(next,actorId);let actionCost=null,velocitousUse=null;if(afterPc.hp.current>0){nextCombat.tactical.actors[actorId]={...nextCombat.tactical.actors[actorId],xFeet:to.xFeet,yFeet:to.yFeet};actionCost=applyActionCostWithEchoInPlace071({state:next,combat:nextCombat,targetId:actorId,cost:inspection.cost});if(actionCost.status!=='OK')return Object.freeze({status:`${actionCost.status}_NO_MUTATION`,revision:loaded.revision});velocitousUse=applyVelocitousUseInPlace071({state:next,targetId:actorId,inspection:velocitous});if(velocitousUse.status==='SYSTEM_STRAIN_MAXIMUM')return Object.freeze({status:'VELOCITOUS_SYSTEM_STRAIN_MAXIMUM_NO_MUTATION',revision:loaded.revision});}else updatePcSideOutcome(next,nextCombat);
+    const finalPc=characterById(next,actorId);const {receipt}=commitState({persistence:this.persistence,loaded,next,campaignId,eventKind:'PLAYER_MOVED',suffix:`combat-move:${actorId}`,payload:{pcId:actorId,from,to:finalPc.hp.current>0?to:from,inspection,velocitous,velocitousUse,actionCost,freeAttacks}});if(receipt.status!=='OK')return Object.freeze({status:receipt.status,receipt});return Object.freeze({status:finalPc.hp.current>0?'OK':(nextCombat.active?'PC_MORTALLY_INJURED':'PC_SIDE_INCAPACITATED'),receipt,pcId:actorId,inspection,velocitous,velocitousUse,actionCost,freeAttacks,combat:clone(nextCombat),characterState:clone(finalPc)});
+  }
+
+  inspectMagicSpatialMovement({campaignId,pcId=null,mode='GROUND',apertureMouseSized=false,explicitThreeDimensionalGeometry=false}){
+    const {loaded,state}=loadState(this.persistence,campaignId);if(!state)return Object.freeze({status:loaded.status});
+    const combat=tacticalCombat(state);const targetId=combat?resolvePcId(state,combat,pcId):String(pcId??state.characterState?.characterId??'');if(!targetId||!characterById(state,targetId))return Object.freeze({status:'CHARACTER_NOT_FOUND_NO_MUTATION',revision:loaded.revision});
+    const inspection=magicSpatialMovementContract071({state,targetId,mode,apertureMouseSized,explicitThreeDimensionalGeometry});
+    return Object.freeze({...inspection,revision:loaded.revision,targetId});
+  }
+
+  resolvePcStartOfTurnMagic({campaignId,pcId=null,targets=[],coverageConfirmed=false,rollPolicy=null,sharedPhysicalDice=null}){
+    const {loaded,state}=loadState(this.persistence,campaignId);if(!state)return Object.freeze({status:loaded.status});const combat=tacticalCombat(state);if(!combat)return Object.freeze({status:'NO_ACTIVE_TACTICAL_COMBAT_NO_MUTATION',revision:loaded.revision});if(combat.activeSideId!=='PC')return Object.freeze({status:'NOT_PC_SIDE_NO_MUTATION',revision:loaded.revision});
+    const targetId=resolvePcId(state,combat,pcId);if(!targetId)return Object.freeze({status:'PC_NOT_IN_COMBAT_NO_MUTATION',revision:loaded.revision});const next=clone(state);const resolution=applyLikeStonesFireAuraInPlace071({state:next,casterId:targetId,round:combat.round,targets,coverageConfirmed,rollPolicy,sharedPhysicalDice});
+    if(resolution.status==='NO_LIKE_STONES_FIRE_AURA')return Object.freeze({status:resolution.status,revision:loaded.revision,resolution});if(resolution.status!=='APPLIED')return Object.freeze({status:`${resolution.status}_NO_MUTATION`,revision:loaded.revision,resolution});
+    const mortal=[];for(const r of resolution.results??[]){if(r.hpAfter!==0)continue;const pc=characterById(next,r.targetId);if(pc)mortal.push({targetId:r.targetId,...(markPcMortallyInjured(next,next.encounterState.combat,r.targetId)??{})});else if(next.npcState?.[r.targetId]&&next.npcState[r.targetId].hp===0){const g=markElementalGuardianDestroyedInPlace071({state:next,guardianNpcId:r.targetId,round:combat.round});if(g.status==='MARKED_DESTROYED')mortal.push({targetId:r.targetId,guardianDestroyed:true});}}
+    updatePcSideOutcome(next,next.encounterState.combat);const {receipt}=commitState({persistence:this.persistence,loaded,next,campaignId,eventKind:'PC_START_TURN_MAGIC_RESOLVED',suffix:`start-magic:${targetId}:r${combat.round}`,payload:{pcId:targetId,round:combat.round,resolution,mortal}});if(receipt.status!=='OK')return Object.freeze({status:receipt.status,receipt});return Object.freeze({status:'OK',receipt,resolution,mortal:Object.freeze(mortal),combat:clone(next.encounterState.combat)});
+  }
+
+  declareVigorousPhysicalAction({campaignId,pcId=null,actionId}){
+    const {loaded,state}=loadState(this.persistence,campaignId);if(!state)return Object.freeze({status:loaded.status});const combat=tacticalCombat(state);if(!combat)return Object.freeze({status:'NO_ACTIVE_TACTICAL_COMBAT_NO_MUTATION',revision:loaded.revision});if(combat.activeSideId!=='PC')return Object.freeze({status:'NOT_PC_SIDE_NO_MUTATION',revision:loaded.revision});
+    const actorId=resolvePcId(state,combat,pcId);if(!actorId)return Object.freeze({status:'PC_NOT_IN_COMBAT_NO_MUTATION',revision:loaded.revision});if(!String(actionId??'').trim())return Object.freeze({status:'VIGOROUS_ACTION_ID_REQUIRED_NO_MUTATION',revision:loaded.revision});if(!isCombatCapablePc(characterById(state,actorId)))return Object.freeze({status:'PC_INCAPACITATED_NO_MUTATION',revision:loaded.revision});
+    const next=clone(state);const resolution=applyTumefactionVigorousActionInPlace071({state:next,targetId:actorId,round:combat.round});if(resolution.status==='NO_TUMEFACTION_EFFECT')return Object.freeze({status:resolution.status,revision:loaded.revision,resolution});if(resolution.status==='ALREADY_DAMAGED_THIS_ROUND')return Object.freeze({status:resolution.status,revision:loaded.revision,resolution});if(resolution.status!=='APPLIED')return Object.freeze({status:`${resolution.status}_NO_MUTATION`,revision:loaded.revision,resolution});
+    let mortal=null;if(characterById(next,actorId)?.hp?.current===0)mortal=markPcMortallyInjured(next,next.encounterState.combat,actorId);updatePcSideOutcome(next,next.encounterState.combat);const {receipt}=commitState({persistence:this.persistence,loaded,next,campaignId,eventKind:'PC_VIGOROUS_ACTION_MAGIC_CONSEQUENCE',suffix:`vigorous:${actorId}:r${combat.round}`,payload:{pcId:actorId,actionId:String(actionId),round:combat.round,resolution,mortal}});if(receipt.status!=='OK')return Object.freeze({status:receipt.status,receipt});return Object.freeze({status:'OK',receipt,resolution,mortal,combat:clone(next.encounterState.combat)});
+  }
+
+  stabilizePc({campaignId,healerPcId,targetPcId,attribute=null}){
+    const {loaded,state}=loadState(this.persistence,campaignId);if(!state)return Object.freeze({status:loaded.status});const combat=tacticalCombat(state);if(!combat)return Object.freeze({status:'NO_ACTIVE_TACTICAL_COMBAT_NO_MUTATION',revision:loaded.revision});if(combat.activeSideId!=='PC')return Object.freeze({status:'NOT_PC_SIDE_NO_MUTATION',revision:loaded.revision});
+    const healerId=resolvePcId(state,combat,healerPcId);const targetId=resolvePcId(state,combat,targetPcId);if(!healerId||!targetId)return Object.freeze({status:'PC_NOT_IN_COMBAT_NO_MUTATION',revision:loaded.revision});if(healerId===targetId)return Object.freeze({status:'CANNOT_SELF_STABILIZE_NO_MUTATION',revision:loaded.revision});
+    const healer=characterById(state,healerId),target=characterById(state,targetId);if(!isCombatCapablePc(healer))return Object.freeze({status:'HEALER_INCAPACITATED_NO_MUTATION',revision:loaded.revision});const injury=target?.mortalInjury;if(!target||target.hp?.current!==0||!isConditionActive(target,'MORTALLY_INJURED'))return Object.freeze({status:'TARGET_NOT_MORTALLY_INJURED_NO_MUTATION',revision:loaded.revision});if(injury?.stabilized===true)return Object.freeze({status:'TARGET_ALREADY_STABILIZED_NO_MUTATION',revision:loaded.revision});if(isConditionActive(target,'DEAD'))return Object.freeze({status:'TARGET_DEAD_NO_MUTATION',revision:loaded.revision});if(injury?.lastStabilizationAttemptRound===combat.round)return Object.freeze({status:'STABILIZATION_ALREADY_ATTEMPTED_THIS_ROUND_NO_MUTATION',revision:loaded.revision});
+    const economy=mainAvailableWithEcho(state,combat,healerId);if(economy.mainAvailable!==true)return Object.freeze({status:'MAIN_ACTION_ALREADY_SPENT_NO_MUTATION',revision:loaded.revision});const hp=combat.tactical.actors?.[healerId],tp=combat.tactical.actors?.[targetId];if(!hp||!tp)return Object.freeze({status:'MISSING_TACTICAL_POSITION_NO_MUTATION',revision:loaded.revision});const distance=distanceFeet(hp,tp);if(distance>5+1e-9)return Object.freeze({status:'TARGET_NOT_ADJACENT_NO_MUTATION',revision:loaded.revision,distanceFeet:distance});
+    const attr=attribute??(((healer.attributes?.Intelligence??0)>(healer.attributes?.Dexterity??0))?'Intelligence':'Dexterity');if(!['Dexterity','Intelligence'].includes(attr))return Object.freeze({status:'INVALID_STABILIZATION_ATTRIBUTE_NO_MUTATION',revision:loaded.revision});const rounds=Math.max(0,Number(injury?.roundsSinceDowned??0));const kit=hasHealersKit(healer);const difficulty=8+rounds+(kit?0:2);const rng=DeterministicRng.fromState(state.rngState);const resolution=resolveSkillCheck({rng,skillLevel:healer.skills?.Heal??null,attributeScore:healer.attributes?.[attr],difficulty,streamName:`combat/stabilize/${healerId}/${targetId}`});
+    const next=clone(state);next.rngState=rng.exportState();let nextTarget=clone(characterById(next,targetId));nextTarget.mortalInjury={...(nextTarget.mortalInjury??{}),lastStabilizationAttemptRound:combat.round,lastStabilizationAttemptBy:healerId,lastStabilizationResolution:resolution};if(resolution.success){nextTarget=addCharacterCondition(nextTarget,'STABILIZED');nextTarget.mortalInjury={...nextTarget.mortalInjury,stabilized:true,stabilizedAtCombatRound:combat.round,recoveryMinutesRequired:10};}setCharacterById(next,targetId,nextTarget);const actionCost=applyActionCostWithEchoInPlace071({state:next,combat:next.encounterState.combat,targetId:healerId,cost:'MAIN'});if(actionCost.status!=='OK')return Object.freeze({status:`${actionCost.status}_NO_MUTATION`,revision:loaded.revision});
+    const {receipt}=commitState({persistence:this.persistence,loaded,next,campaignId,eventKind:'PC_STABILIZATION_ATTEMPT',suffix:`stabilize:${healerId}:${targetId}`,payload:{healerPcId:healerId,targetPcId:targetId,attribute,distanceFeet:distance,difficulty,healersKit:kit,resolution,actionCost,sourceRefs:[COMBAT_SERVICE_SOURCES.mortalInjury]}});if(receipt.status!=='OK')return Object.freeze({status:receipt.status,receipt});return Object.freeze({status:'OK',receipt,healerPcId:healerId,targetPcId:targetId,distanceFeet:distance,difficulty,healersKit:kit,resolution,actionCost,stabilized:resolution.success});
+  }
+
+  endPcSide({campaignId}){
+    const {loaded,state}=loadState(this.persistence,campaignId);if(!state)return Object.freeze({status:loaded.status});const combat=tacticalCombat(state);if(!combat)return Object.freeze({status:'NO_ACTIVE_TACTICAL_COMBAT_NO_MUTATION',revision:loaded.revision});if(combat.activeSideId!=='PC')return Object.freeze({status:'NOT_PC_SIDE_NO_MUTATION',revision:loaded.revision});const next=clone(state);const transition=advanceSide(next,next.encounterState.combat);const {receipt}=commitState({persistence:this.persistence,loaded,next,campaignId,eventKind:'COMBAT_SIDE_ENDED',suffix:'pc-side-end',payload:{sideId:'PC',...transition,round:next.encounterState.combat.round,activeSideId:next.encounterState.combat.activeSideId,outcome:next.encounterState.combat.outcome??null}});if(receipt.status!=='OK')return Object.freeze({status:receipt.status,receipt});return Object.freeze({status:'OK',receipt,combat:clone(next.encounterState.combat),...transition});
+  }
+
+  resolveEnemySide({campaignId,reactions={}}){
+    const {loaded,state}=loadState(this.persistence,campaignId);if(!state)return Object.freeze({status:loaded.status});const combat=tacticalCombat(state);if(!combat)return Object.freeze({status:'NO_ACTIVE_TACTICAL_COMBAT_NO_MUTATION',revision:loaded.revision});if(combat.activeSideId!=='ENEMY')return Object.freeze({status:'NOT_ENEMY_SIDE_NO_MUTATION',revision:loaded.revision});
+    const next=clone(state),c=next.encounterState.combat,rng=DeterministicRng.fromState(next.rngState),actions=[];
+    for(const enemyId of c.enemyIds??[]){const enemy=next.npcState[enemyId],pos=c.tactical.actors[enemyId];if(!enemy||enemy.hp<1||!pos)continue;const targetChoice=nearestStandingPc(next,c,pos);if(!targetChoice)break;const targetId=targetChoice.pcId;let pcPos=c.tactical.actors[targetId];let movedFeet=0;let dist=distanceFeet(pos,pcPos);if(dist>5){const move=Math.min(enemy.moveFeet??30,Math.max(0,dist-5));if(move>0&&dist>0){const ux=(pcPos.xFeet-pos.xFeet)/dist,uy=(pcPos.yFeet-pos.yFeet)/dist;pos.xFeet+=ux*move;pos.yFeet+=uy*move;movedFeet=move;dist=distanceFeet(pos,pcPos);}}
+      let attack=null;let hpBefore=null,hpAfter=null,mortal=null;let reloadInterruptions=[];let wardpactSave=null,wardpact=null,wardpactWeapon=null;if(dist<=5+1e-9){if(enemy.weaponContract?.melee!==false)reloadInterruptions=interruptSingleShotReloadForPc(next,targetId,{reason:'ENEMY_MELEE',enemyId,round:c.round});let target=characterById(next,targetId);const ac=targetArmorClass(target,c,targetId,{state:next,rangedAttack:enemy.weaponContract?.melee===false});if(ac===null)return Object.freeze({status:'MISSING_EVIDENCE_ARMOR_CLASS_NO_MUTATION',revision:loaded.revision});const baseAttack=resolveNpcAttack({rng,npc:enemy,weapon:enemy.weaponContract,target:{armorClass:ac,meleeAC:ac,rangedAC:ac},streamName:`combat/enemy/${enemyId}/${targetId}`});const callTomb=applyCallOfTheTombToAttack071({state:next,targetId,round:c.round,resolution:baseAttack,weapon:enemy.weaponContract});const reactionKey=`enemy:${enemyId}:${targetId}:r${c.round}`;const defended=callTomb.status==='APPLIED'?{status:'OK',resolution:callTomb.resolution,defense:{callTombBypass:true},reaction:null,mitigations:[]}:resolveIncomingPcDefense(next,c,targetId,enemy.weaponContract,baseAttack,{reactionDecision:reactions?.thermalShield?.[reactionKey]??null,visibleThermalShieldCasterIds:reactions?.visibleThermalShieldCasterIdsByTarget?.[targetId]??[]});if(defended.status!=='OK')return Object.freeze({status:`${defended.status}_NO_MUTATION`,revision:loaded.revision,reactionKey,reaction:defended.reaction});attack=defended.resolution;if(attack.hit===true&&activeWardpactCreature071(next,targetId,c.round)){wardpactSave=npcWardpactSave({rng,npc:enemy,streamName:`combat/wardpact/enemy/${enemyId}/${targetId}`});if(wardpactSave.status!=='OK')return Object.freeze({status:'WARDPACT_NPC_SAVE_EVIDENCE_REQUIRED_NO_MUTATION',revision:loaded.revision,enemyId,targetId});wardpact=applyWardpactHit071({state:next,combat:c,targetId,attackerId:enemyId,resolution:attack,physicalSaveSucceeded:wardpactSave.success});attack=wardpact.resolution;}const enemyWeaponId=combatWeaponId(enemy);if(enemyWeaponId){wardpactWeapon=applyWardpactWeaponHarmless071({state:next,ownerId:enemyId,weaponId:enemyWeaponId,resolution:attack});attack=wardpactWeapon.resolution;}hpBefore=target.hp.current;target=clone(characterById(next,targetId));target.hp.current=Math.max(0,hpBefore-attack.damage);setCharacterById(next,targetId,target);hpAfter=target.hp.current;if(hpAfter===0)mortal=markPcMortallyInjured(next,c,targetId);actions.push({enemyId,targetPcId:targetId,movedFeet,attack,wardpactSave:wardpactSave?.resolution??wardpactSave,wardpact:wardpact?.status??null,wardpactWeapon:wardpactWeapon?.status??null,defense:defended.defense,mitigations:defended.mitigations,reaction:defended.reaction,hpBefore,hpAfter,mortal,reloadInterruptions});}else actions.push({enemyId,targetPcId:targetId,movedFeet,attack,hpBefore,hpAfter,mortal,reloadInterruptions});if(updatePcSideOutcome(next,c))break;}
+    next.rngState=rng.exportState();let transition={transition:null,mortalInjury:[]};if(c.active)transition=advanceSide(next,c);
+    const {receipt}=commitState({persistence:this.persistence,loaded,next,campaignId,eventKind:'ENEMY_SIDE_RESOLVED',suffix:'enemy-side',payload:{actions,...transition,round:c.round,activeSideId:c.activeSideId,outcome:c.outcome??null}});if(receipt.status!=='OK')return Object.freeze({status:receipt.status,receipt});return Object.freeze({status:c.active?'OK':c.outcome,receipt,actions,combat:clone(c),charactersState:clone(next.charactersState??{}),...transition});
+  }
+
+}

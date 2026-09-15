@@ -1,0 +1,31 @@
+{
+  "campaignLabel": "SOMBRAS DE GELO E FERRO",
+  "screenTitle": "ENCONTRO NO HEX",
+  "locationName": "RUÍNAS DA VIGÍLIA",
+  "coordinates": "Q 17 • R 22",
+  "terrain": "COLINAS / RUÍNAS",
+  "contactState": "CONTATO INESPERADO",
+  "stats": {
+    "HEX_ENCOUNTER_RUINAS_10": ["PERIGO", "Moderado"],
+    "HEX_ENCOUNTER_RUINAS_11": ["DISTÂNCIA", "Média"],
+    "HEX_ENCOUNTER_RUINAS_12": ["COBERTURA", "Alta"],
+    "HEX_ENCOUNTER_RUINAS_13": ["REAÇÃO", "Incerta"]
+  },
+  "narrative": "Movimento entre as ruínas chama sua atenção. Figuras esguias se esgueiram por entre os arcos quebrados — saqueadores ou goblins batedores. Eles ainda não perceberam o grupo, mas o tempo é curto. Escolha com cuidado; qualquer ruído pode mudar tudo.",
+  "choices": {
+    "observe": "OBSERVAR",
+    "approach": "ABORDAR",
+    "ambush": "EMBOSCAR",
+    "retreat": "RECUAR",
+    "start_combat": "INICIAR COMBATE"
+  },
+  "gmNotes": "Saqueadores goblins (2–4). Observação bem-sucedida revela número e posições. Abordagem pacífica pode render informações.",
+  "bottomNav": {
+    "nav_home": "INÍCIO",
+    "nav_explore": "EXPLORAR",
+    "nav_sessions": "SESSÕES",
+    "nav_favorites": "FAVORITOS",
+    "nav_settings": "CONFIGURAÇÕES"
+  },
+  "bottomNavActive": "nav_explore"
+}

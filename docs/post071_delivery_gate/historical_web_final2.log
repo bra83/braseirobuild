@@ -1,0 +1,1244 @@
+TAP version 13
+# Subtest: attribute boost costs rise 1..5 and third/fourth/fifth have level gates 3/6/9
+ok 1 - attribute boost costs rise 1..5 and third/fourth/fifth have level gates 3/6/9
+  ---
+  duration_ms: 0.732737
+  type: 'test'
+  ...
+# Subtest: attribute boost refuses third boost before level 3
+ok 2 - attribute boost refuses third boost before level 3
+  ---
+  duration_ms: 0.163633
+  type: 'test'
+  ...
+# Subtest: skill purchase accumulates every intervening level cost
+ok 3 - skill purchase accumulates every intervening level cost
+  ---
+  duration_ms: 0.195821
+  type: 'test'
+  ...
+# Subtest: skill level 2 cannot be bought before character level 3
+ok 4 - skill level 2 cannot be bought before character level 3
+  ---
+  duration_ms: 0.106558
+  type: 'test'
+  ...
+# Subtest: skill purchase reports insufficient points without partially buying a level
+ok 5 - skill purchase reports insufficient points without partially buying a level
+  ---
+  duration_ms: 0.099367
+  type: 'test'
+  ...
+# Subtest: canonical missing IRIA inventory remains missing under load/move helpers
+ok 6 - canonical missing IRIA inventory remains missing under load/move helpers
+  ---
+  duration_ms: 0.253356
+  type: 'test'
+  ...
+# Subtest: generic explicit inventory computes Readied and Stowed encumbrance without inventing items
+ok 7 - generic explicit inventory computes Readied and Stowed encumbrance without inventing items
+  ---
+  duration_ms: 0.306945
+  type: 'test'
+  ...
+# Subtest: moving an existing explicit item changes only carry state and is a Main Action
+ok 8 - moving an existing explicit item changes only carry state and is a Main Action
+  ---
+  duration_ms: 0.178225
+  type: 'test'
+  ...
+# Subtest: fast and slow XP tables reach exact canonical levels
+ok 9 - fast and slow XP tables reach exact canonical levels
+  ---
+  duration_ms: 0.984139
+  type: 'test'
+  ...
+# Subtest: Full Expert attack bonus follows class table and Quick Learner grants four skill points
+ok 10 - Full Expert attack bonus follows class table and Quick Learner grants four skill points
+  ---
+  duration_ms: 0.965853
+  type: 'test'
+  ...
+# Subtest: skill step costs and minimum levels match advancement table
+ok 11 - skill step costs and minimum levels match advancement table
+  ---
+  duration_ms: 0.297511
+  type: 'test'
+  ...
+# Subtest: level-up HP rerolls all hit dice and uses +1 fallback when candidate is not better
+ok 12 - level-up HP rerolls all hit dice and uses +1 fallback when candidate is not better
+  ---
+  duration_ms: 0.384219
+  type: 'test'
+  ...
+# Subtest: colocation is a real persisted position invariant for player-facing merge
+ok 13 - colocation is a real persisted position invariant for player-facing merge
+  ---
+  duration_ms: 1.831226
+  type: 'test'
+  ...
+# Subtest: co-located subgroups can be merged atomically with no RNG change
+ok 14 - co-located subgroups can be merged atomically with no RNG change
+  ---
+  duration_ms: 1.942741
+  type: 'test'
+  ...
+# Subtest: split keeps both new groups co-located and each is an encounter risk unit
+ok 15 - split keeps both new groups co-located and each is an encounter risk unit
+  ---
+  duration_ms: 1.891004
+  type: 'test'
+  ...
+# Subtest: System Strain bar projects accumulated strain, not remaining capacity
+ok 16 - System Strain bar projects accumulated strain, not remaining capacity
+  ---
+  duration_ms: 0.398351
+  type: 'test'
+  ...
+# Subtest: Atlas UI exposes explicit split/merge management but never drag-to-move mechanics
+ok 17 - Atlas UI exposes explicit split/merge management but never drag-to-move mechanics
+  ---
+  duration_ms: 0.594692
+  type: 'test'
+  ...
+# Subtest: content seed commits once and remains secret-safe by structure
+ok 18 - content seed commits once and remains secret-safe by structure
+  ---
+  duration_ms: 2.560157
+  type: 'test'
+  ...
+# Subtest: party service initializes, splits, merges atomically without RNG use
+ok 19 - party service initializes, splits, merges atomically without RNG use
+  ---
+  duration_ms: 2.283907
+  type: 'test'
+  ...
+# Subtest: character roster export/import provides real JSON roundtrip and joins group
+ok 20 - character roster export/import provides real JSON roundtrip and joins group
+  ---
+  duration_ms: 0.670735
+  type: 'test'
+  ...
+# Subtest: creation skill picks cap at level 1 and demand replacement on third pick
+ok 21 - creation skill picks cap at level 1 and demand replacement on third pick
+  ---
+  duration_ms: 1.279698
+  type: 'test'
+  ...
+# Subtest: language slots derive only from Know/Connect 0/1
+ok 22 - language slots derive only from Know/Connect 0/1
+  ---
+  duration_ms: 0.139767
+  type: 'test'
+  ...
+# Subtest: Full Expert creation finalizes source-bound level-1 character with deterministic HP/gear
+ok 23 - Full Expert creation finalizes source-bound level-1 character with deterministic HP/gear
+  ---
+  duration_ms: 2.813653
+  type: 'test'
+  ...
+# Subtest: creator rejects illegal focus category allocation without mutation
+ok 24 - creator rejects illegal focus category allocation without mutation
+  ---
+  duration_ms: 0.172636
+  type: 'test'
+  ...
+# Subtest: Full Warrior requires combat focus plus any focus
+ok 25 - Full Warrior requires combat focus plus any focus
+  ---
+  duration_ms: 0.869529
+  type: 'test'
+  ...
+# Subtest: Full Mage finalization requires source-bound tradition level-one table and four source-bound spells
+ok 26 - Full Mage finalization requires source-bound tradition level-one table and four source-bound spells
+  ---
+  duration_ms: 0.435736
+  type: 'test'
+  ...
+# Subtest: CharacterCreationService commits final character exactly once
+ok 27 - CharacterCreationService commits final character exactly once
+  ---
+  duration_ms: 1.295582
+  type: 'test'
+  ...
+# Subtest: Full Expert and Full Warrior class tables expose canonical BAB differences
+ok 28 - Full Expert and Full Warrior class tables expose canonical BAB differences
+  ---
+  duration_ms: 0.81599
+  type: 'test'
+  ...
+# Subtest: Full Expert has both Expert class abilities while Partial Expert lacks Masterful Expertise
+ok 29 - Full Expert has both Expert class abilities while Partial Expert lacks Masterful Expertise
+  ---
+  duration_ms: 0.16173
+  type: 'test'
+  ...
+# Subtest: Partial Warrior lacks Killing Blow and Veterans Luck
+ok 30 - Partial Warrior lacks Killing Blow and Veterans Luck
+  ---
+  duration_ms: 0.123223
+  type: 'test'
+  ...
+# Subtest: Adventurer Expert/Warrior uses d6+2 per level and canonical partial BAB
+ok 31 - Adventurer Expert/Warrior uses d6+2 per level and canonical partial BAB
+  ---
+  duration_ms: 0.226746
+  type: 'test'
+  ...
+# Subtest: Adventurer Expert/Mage uses Expert-style hit dice and BAB
+ok 32 - Adventurer Expert/Mage uses Expert-style hit dice and BAB
+  ---
+  duration_ms: 0.11477
+  type: 'test'
+  ...
+# Subtest: Mage-bearing creation never invents an Arcane Tradition
+ok 33 - Mage-bearing creation never invents an Arcane Tradition
+  ---
+  duration_ms: 0.210462
+  type: 'test'
+  ...
+# Subtest: dual Partial Mage requires two distinct source-bound traditions
+ok 34 - dual Partial Mage requires two distinct source-bound traditions
+  ---
+  duration_ms: 0.132527
+  type: 'test'
+  ...
+# Subtest: TTS contract blocks GM-only or hidden text
+ok 35 - TTS contract blocks GM-only or hidden text
+  ---
+  duration_ms: 0.116252
+  type: 'test'
+  ...
+# Subtest: TTS narration chunking preserves long visible content without one giant request
+ok 36 - TTS narration chunking preserves long visible content without one giant request
+  ---
+  duration_ms: 0.682953
+  type: 'test'
+  ...
+# Subtest: TTS service is presentation-only and sends exact visible units to provider
+ok 37 - TTS service is presentation-only and sends exact visible units to provider
+  ---
+  duration_ms: 1.068334
+  type: 'test'
+  ...
+# Subtest: contrato Barbara 1.1.3 preserva protocolo v2 e autoridade mecânica no host WWN
+ok 38 - contrato Barbara 1.1.3 preserva protocolo v2 e autoridade mecânica no host WWN
+  ---
+  duration_ms: 0.748219
+  type: 'test'
+  ...
+# Subtest: diretor de áudio não lê prosa e nunca altera estado canônico
+ok 39 - diretor de áudio não lê prosa e nunca altera estado canônico
+  ---
+  duration_ms: 0.827267
+  type: 'test'
+  ...
+# Subtest: ducking de narração segue exatamente 0.42 música e 0.62 ambiência
+ok 40 - ducking de narração segue exatamente 0.42 música e 0.62 ambiência
+  ---
+  duration_ms: 0.162211
+  type: 'test'
+  ...
+# Subtest: contexto WWN deriva chuva/dungeon de estado, não de texto narrativo
+ok 41 - contexto WWN deriva chuva/dungeon de estado, não de texto narrativo
+  ---
+  duration_ms: 0.464579
+  type: 'test'
+  ...
+# Subtest: perfil de voz de NPC é determinístico, estável e dentro dos limites do TTS
+ok 42 - perfil de voz de NPC é determinístico, estável e dentro dos limites do TTS
+  ---
+  duration_ms: 0.666489
+  type: 'test'
+  ...
+# Subtest: coordenador envia plano nativo sem mutar estado mecânico
+ok 43 - coordenador envia plano nativo sem mutar estado mecânico
+  ---
+  duration_ms: 0.486371
+  type: 'test'
+  ...
+# Subtest: TTS usa uma sessão sem vozes simultâneas e chunks seguintes entram em fila
+ok 44 - TTS usa uma sessão sem vozes simultâneas e chunks seguintes entram em fila
+  ---
+  duration_ms: 0.513251
+  type: 'test'
+  ...
+# Subtest: fonte Android contém lifecycle, stop real, áudio procedural e bridge em PT-BR
+ok 45 - fonte Android contém lifecycle, stop real, áudio procedural e bridge em PT-BR
+  ---
+  duration_ms: 0.965251
+  type: 'test'
+  ...
+# Subtest: Configurações expõe controle completo de áudio em PT-BR
+ok 46 - Configurações expõe controle completo de áudio em PT-BR
+  ---
+  duration_ms: 0.403598
+  type: 'test'
+  ...
+# Subtest: starter combat is source-bound and rolls 1 HD enemy HP exactly once
+ok 47 - starter combat is source-bound and rolls 1 HD enemy HP exactly once
+  ---
+  duration_ms: 8.235493
+  type: 'test'
+  ...
+# Subtest: unarmed attack is always available without fabricating inventory
+ok 48 - unarmed attack is always available without fabricating inventory
+  ---
+  duration_ms: 2.799271
+  type: 'test'
+  ...
+# Subtest: WWN range audit uses 5 feet melee and -2 only at long ranged distance
+ok 49 - WWN range audit uses 5 feet melee and -2 only at long ranged distance
+  ---
+  duration_ms: 0.158735
+  type: 'test'
+  ...
+# Subtest: WWN movement permits 30 feet Move or 60 feet by spending Main+Move
+ok 50 - WWN movement permits 30 feet Move or 60 feet by spending Main+Move
+  ---
+  duration_ms: 0.214008
+  type: 'test'
+  ...
+# Subtest: leaving adjacent armed enemy requires explicit free-attack confirmation and zero mutation
+ok 51 - leaving adjacent armed enemy requires explicit free-attack confirmation and zero mutation
+  ---
+  duration_ms: 0.969087
+  type: 'test'
+  ...
+# Subtest: Fighting Withdrawal spends Main Action and then permits retreat without free attack
+ok 52 - Fighting Withdrawal spends Main Action and then permits retreat without free attack
+  ---
+  duration_ms: 0.946964
+  type: 'test'
+  ...
+# Subtest: enemy side moves no more than 30 feet and attacks only after reaching melee
+ok 53 - enemy side moves no more than 30 feet and attacks only after reaching melee
+  ---
+  duration_ms: 2.942564
+  type: 'test'
+  ...
+# Subtest: player combat projection exposes distance and hero bars but hides enemy numeric HP/stat block
+ok 54 - player combat projection exposes distance and hero bars but hides enemy numeric HP/stat block
+  ---
+  duration_ms: 0.696694
+  type: 'test'
+  ...
+# Subtest: Barbara narrates after committed combat mechanics without creating a second mechanical revision
+ok 55 - Barbara narrates after committed combat mechanics without creating a second mechanical revision
+  ---
+  duration_ms: 3.696963
+  type: 'test'
+  ...
+# Subtest: SCR-022 uses only shared bottom menu and HP/Strain chrome, with no invented range-band rings
+not ok 56 - SCR-022 uses only shared bottom menu and HP/Strain chrome, with no invented range-band rings
+  ---
+  duration_ms: 10.111616
+  type: 'test'
+  location: '/mnt/data/wwn_resume/current_source_working_post071/web-tests/combat-closure029.test.js:37:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(j.includes("weaponId:'UNARMED'"))
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///mnt/data/wwn_resume/current_source_working_post071/web-tests/combat-closure029.test.js:37:513)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: SCR-015 start combat button now enters the canonical starter combat service instead of deferred UI logic
+ok 57 - SCR-015 start combat button now enters the canonical starter combat service instead of deferred UI logic
+  ---
+  duration_ms: 0.24922
+  type: 'test'
+  ...
+# Subtest: Wave6 canonical IRIA save targets are Physical15 Evasion15 Mental14 Luck15
+ok 58 - Wave6 canonical IRIA save targets are Physical15 Evasion15 Mental14 Luck15
+  ---
+  duration_ms: 1.397743
+  type: 'test'
+  ...
+# Subtest: saving throws honor natural 1 auto-fail and natural 20 auto-success
+ok 59 - saving throws honor natural 1 auto-fail and natural 20 auto-success
+  ---
+  duration_ms: 0.460794
+  type: 'test'
+  ...
+# Subtest: side initiative is d8 + Dexterity modifier and PC side wins tie
+ok 60 - side initiative is d8 + Dexterity modifier and PC side wins tie
+  ---
+  duration_ms: 0.378491
+  type: 'test'
+  ...
+# Subtest: trained melee hit uses d20 + BAB + attribute + combat skill and rolls damage
+ok 61 - trained melee hit uses d20 + BAB + attribute + combat skill and rolls damage
+  ---
+  duration_ms: 0.724184
+  type: 'test'
+  ...
+# Subtest: untrained attack applies -2 and Shock can damage on a miss
+ok 62 - untrained attack applies -2 and Shock can damage on a miss
+  ---
+  duration_ms: 0.31669
+  type: 'test'
+  ...
+# Subtest: hit damage can never be below applicable Shock
+ok 63 - hit damage can never be below applicable Shock
+  ---
+  duration_ms: 0.260547
+  type: 'test'
+  ...
+# Subtest: deterministic initiative repeats from identical seed/state
+ok 64 - deterministic initiative repeats from identical seed/state
+  ---
+  duration_ms: 0.575093
+  type: 'test'
+  ...
+# Subtest: dungeon turns are ten minutes and corridor movement is 120 feet
+ok 65 - dungeon turns are ten minutes and corridor movement is 120 feet
+  ---
+  duration_ms: 0.799005
+  type: 'test'
+  ...
+# Subtest: standard dungeon activities cost exactly one turn
+ok 66 - standard dungeon activities cost exactly one turn
+  ---
+  duration_ms: 0.156402
+  type: 'test'
+  ...
+# Subtest: wandering encounter frequency matches site alert table
+ok 67 - wandering encounter frequency matches site alert table
+  ---
+  duration_ms: 0.149372
+  type: 'test'
+  ...
+# Subtest: encounter check occurs only at required turn multiples
+ok 68 - encounter check occurs only at required turn multiples
+  ---
+  duration_ms: 0.243752
+  type: 'test'
+  ...
+# Subtest: wandering encounter triggers only on d6 result 1 and remains secret
+ok 69 - wandering encounter triggers only on d6 result 1 and remains secret
+  ---
+  duration_ms: 0.291512
+  type: 'test'
+  ...
+# Subtest: hidden area unknown to natives consumes no encounter RNG
+ok 70 - hidden area unknown to natives consumes no encounter RNG
+  ---
+  duration_ms: 0.98404
+  type: 'test'
+  ...
+# Subtest: torch lasts six turns and filled lantern twenty-four
+ok 71 - torch lasts six turns and filled lantern twenty-four
+  ---
+  duration_ms: 4.58495
+  type: 'test'
+  ...
+# Subtest: identical dungeon seed and state produces identical encounter sequence
+ok 72 - identical dungeon seed and state produces identical encounter sequence
+  ---
+  duration_ms: 0.626189
+  type: 'test'
+  ...
+# Subtest: entering a site requires explicit GM site contract and otherwise does zero mutation
+ok 73 - entering a site requires explicit GM site contract and otherwise does zero mutation
+  ---
+  duration_ms: 0.786696
+  type: 'test'
+  ...
+# Subtest: site entry persists active dungeon without rolling an encounter
+ok 74 - site entry persists active dungeon without rolling an encounter
+  ---
+  duration_ms: 0.60657
+  type: 'test'
+  ...
+# Subtest: taking a dungeon turn commits time, light and deterministic encounter state atomically
+ok 75 - taking a dungeon turn commits time, light and deterministic encounter state atomically
+  ---
+  duration_ms: 0.739647
+  type: 'test'
+  ...
+# Subtest: unknown dungeon action is a zero-mutation gate
+ok 76 - unknown dungeon action is a zero-mutation gate
+  ---
+  duration_ms: 0.307957
+  type: 'test'
+  ...
+# Subtest: leaving a site closes turn tracking without erasing the record
+ok 77 - leaving a site closes turn tracking without erasing the record
+  ---
+  duration_ms: 0.648963
+  type: 'test'
+  ...
+# Subtest: faction asset caps create one Treasure upkeep per excess asset
+ok 78 - faction asset caps create one Treasure upkeep per excess asset
+  ---
+  duration_ms: 1.433256
+  type: 'test'
+  ...
+# Subtest: explicit asset upkeep combines with excess upkeep and refuses silent insolvency
+ok 79 - explicit asset upkeep combines with excess upkeep and refuses silent insolvency
+  ---
+  duration_ms: 0.136903
+  type: 'test'
+  ...
+# Subtest: faction self-repair uses highest plus lowest attribute divided by two rounded up
+ok 80 - faction self-repair uses highest plus lowest attribute divided by two rounded up
+  ---
+  duration_ms: 0.197674
+  type: 'test'
+  ...
+# Subtest: faction attribute XP costs match canonical table
+ok 81 - faction attribute XP costs match canonical table
+  ---
+  duration_ms: 0.144374
+  type: 'test'
+  ...
+# Subtest: create asset requires own Base of Influence, sufficient attribute, Magic and Treasure
+ok 82 - create asset requires own Base of Influence, sufficient attribute, Magic and Treasure
+  ---
+  duration_ms: 0.279925
+  type: 'test'
+  ...
+# Subtest: Hide Asset requires Cunning 3, no rival base, and 2 Treasure
+ok 83 - Hide Asset requires Cunning 3, no rival base, and 2 Treasure
+  ---
+  duration_ms: 0.144464
+  type: 'test'
+  ...
+# Subtest: Sell Asset returns half purchase cost only if undamaged
+ok 84 - Sell Asset returns half purchase cost only if undamaged
+  ---
+  duration_ms: 0.176652
+  type: 'test'
+  ...
+# Subtest: Expand Influence costs one Treasure per Base HP
+ok 85 - Expand Influence costs one Treasure per Base HP
+  ---
+  duration_ms: 0.106408
+  type: 'test'
+  ...
+# Subtest: upkeep phase pays canonical due and advances to action when there are no mandatory specials
+ok 86 - upkeep phase pays canonical due and advances to action when there are no mandatory specials
+  ---
+  duration_ms: 2.40053
+  type: 'test'
+  ...
+# Subtest: insolvent upkeep is a hard no-mutation gate
+ok 87 - insolvent upkeep is a hard no-mutation gate
+  ---
+  duration_ms: 0.66129
+  type: 'test'
+  ...
+# Subtest: mandatory asset-specific special blocks rather than inventing effect
+ok 88 - mandatory asset-specific special blocks rather than inventing effect
+  ---
+  duration_ms: 0.827417
+  type: 'test'
+  ...
+# Subtest: MOVE_ASSET needs GM permission unless Subtle or Stealth
+ok 89 - MOVE_ASSET needs GM permission unless Subtle or Stealth
+  ---
+  duration_ms: 1.364253
+  type: 'test'
+  ...
+# Subtest: REPAIR_ASSET uses escalating same-turn Treasure cost and caps HP
+ok 90 - REPAIR_ASSET uses escalating same-turn Treasure cost and caps HP
+  ---
+  duration_ms: 1.372225
+  type: 'test'
+  ...
+# Subtest: CREATE_ASSET consumes canonical definition without inventing fields
+ok 91 - CREATE_ASSET consumes canonical definition without inventing fields
+  ---
+  duration_ms: 0.624216
+  type: 'test'
+  ...
+# Subtest: HIDE_ASSET costs 2 Treasure and applies Stealth only when legal
+ok 92 - HIDE_ASSET costs 2 Treasure and applies Stealth only when legal
+  ---
+  duration_ms: 0.804943
+  type: 'test'
+  ...
+# Subtest: SELL_ASSET removes asset and grants correct salvage
+ok 93 - SELL_ASSET removes asset and grants correct salvage
+  ---
+  duration_ms: 0.835909
+  type: 'test'
+  ...
+# Subtest: uncontested EXPAND_INFLUENCE pays base HP and creates Base of Influence
+ok 94 - uncontested EXPAND_INFLUENCE pays base HP and creates Base of Influence
+  ---
+  duration_ms: 0.745756
+  type: 'test'
+  ...
+# Subtest: contested EXPAND_INFLUENCE refuses to invent immediate enemy attacks
+ok 95 - contested EXPAND_INFLUENCE refuses to invent immediate enemy attacks
+  ---
+  duration_ms: 0.64766
+  type: 'test'
+  ...
+# Subtest: goal completion awards explicit difficulty XP and moves to next faction with income
+ok 96 - goal completion awards explicit difficulty XP and moves to next faction with income
+  ---
+  duration_ms: 1.006653
+  type: 'test'
+  ...
+# Subtest: abandoning a goal marks next-turn action and specials to be skipped
+ok 97 - abandoning a goal marks next-turn action and specials to be skipped
+  ---
+  duration_ms: 1.098249
+  type: 'test'
+  ...
+# Subtest: new faction turn cannot start while previous one is still active
+ok 98 - new faction turn cannot start while previous one is still active
+  ---
+  duration_ms: 0.293225
+  type: 'test'
+  ...
+# Subtest: contested Expand Influence remains zero-mutation without explicit immediate-attack decisions
+ok 99 - contested Expand Influence remains zero-mutation without explicit immediate-attack decisions
+  ---
+  duration_ms: 3.550936
+  type: 'test'
+  ...
+# Subtest: winning rival can explicitly decline its allowed immediate Attack
+ok 100 - winning rival can explicitly decline its allowed immediate Attack
+  ---
+  duration_ms: 2.099314
+  type: 'test'
+  ...
+# Subtest: winning rival immediate Attack can target the new Base with a source-bound Asset contract
+ok 101 - winning rival immediate Attack can target the new Base with a source-bound Asset contract
+  ---
+  duration_ms: 2.153233
+  type: 'test'
+  ...
+# Subtest: creator can explicitly block an immediate Attack with another present Asset
+ok 102 - creator can explicitly block an immediate Attack with another present Asset
+  ---
+  duration_ms: 1.65885
+  type: 'test'
+  ...
+# Subtest: SCR-015 geometry validates exact 415x915 and all 27 layers
+ok 103 - SCR-015 geometry validates exact 415x915 and all 27 layers
+  ---
+  duration_ms: 0.944581
+  type: 'test'
+  ...
+# Subtest: only EXPLORAR is active in geometry fixture
+ok 104 - only EXPLORAR is active in geometry fixture
+  ---
+  duration_ms: 0.570867
+  type: 'test'
+  ...
+# Subtest: derived icon resolver rejects unknown assets and resolves approved derived assets
+ok 105 - derived icon resolver rejects unknown assets and resolves approved derived assets
+  ---
+  duration_ms: 0.428215
+  type: 'test'
+  ...
+# Subtest: System Strain maximum is Constitution score
+ok 106 - System Strain maximum is Constitution score
+  ---
+  duration_ms: 0.994815
+  type: 'test'
+  ...
+# Subtest: good night natural rest heals level HP and removes one System Strain
+ok 107 - good night natural rest heals level HP and removes one System Strain
+  ---
+  duration_ms: 0.247467
+  type: 'test'
+  ...
+# Subtest: privation prevents natural HP and System Strain recovery
+ok 108 - privation prevents natural HP and System Strain recovery
+  ---
+  duration_ms: 0.145576
+  type: 'test'
+  ...
+# Subtest: Frail character gains no natural healing or strain recovery
+ok 109 - Frail character gains no natural healing or strain recovery
+  ---
+  duration_ms: 0.129562
+  type: 'test'
+  ...
+# Subtest: first aid requires a healer kit contract
+ok 110 - first aid requires a healer kit contract
+  ---
+  duration_ms: 0.636024
+  type: 'test'
+  ...
+# Subtest: first aid is deterministic, heals d6 plus Heal and adds one strain
+ok 111 - first aid is deterministic, heals d6 plus Heal and adds one strain
+  ---
+  duration_ms: 0.33704
+  type: 'test'
+  ...
+# Subtest: first aid cannot benefit a target at maximum System Strain
+ok 112 - first aid cannot benefit a target at maximum System Strain
+  ---
+  duration_ms: 0.172175
+  type: 'test'
+  ...
+# Subtest: stabilization difficulty is 8 plus full rounds and +2 without tools
+ok 113 - stabilization difficulty is 8 plus full rounds and +2 without tools
+  ---
+  duration_ms: 0.254818
+  type: 'test'
+  ...
+# Subtest: HealthService night rest commits atomically
+ok 114 - HealthService night rest commits atomically
+  ---
+  duration_ms: 1.24688
+  type: 'test'
+  ...
+# Subtest: HealthService first aid refuses invented healer kit evidence with zero mutation
+ok 115 - HealthService first aid refuses invented healer kit evidence with zero mutation
+  ---
+  duration_ms: 0.516106
+  type: 'test'
+  ...
+# Subtest: successful stabilization and ten-minute recovery create Frail and 1 HP
+ok 116 - successful stabilization and ten-minute recovery create Frail and 1 HP
+  ---
+  duration_ms: 0.832044
+  type: 'test'
+  ...
+# Subtest: full Mage Effort uses 1 + Magic + better Int/Cha modifier
+ok 117 - full Mage Effort uses 1 + Magic + better Int/Cha modifier
+  ---
+  duration_ms: 0.289128
+  type: 'test'
+  ...
+# Subtest: partial Mage Effort is one lower but never below one
+ok 118 - partial Mage Effort is one lower but never below one
+  ---
+  duration_ms: 0.082132
+  type: 'test'
+  ...
+# Subtest: Effort commit and scene/day/indefinite recovery obey separate pools
+ok 119 - Effort commit and scene/day/indefinite recovery obey separate pools
+  ---
+  duration_ms: 0.250281
+  type: 'test'
+  ...
+# Subtest: prepared spell casting gates free hand, voice, armor, damage, and castings
+ok 120 - prepared spell casting gates free hand, voice, armor, damage, and castings
+  ---
+  duration_ms: 0.164895
+  type: 'test'
+  ...
+# Subtest: spell preparation requires good rest, one hour, known spells and limit
+ok 121 - spell preparation requires good rest, one hour, known spells and limit
+  ---
+  duration_ms: 0.662302
+  type: 'test'
+  ...
+# Subtest: good-night magic recovery restores castings and day Effort only
+ok 122 - good-night magic recovery restores castings and day Effort only
+  ---
+  duration_ms: 0.174058
+  type: 'test'
+  ...
+# Subtest: MagicService never consumes a casting without a source-bound effect resolver
+ok 123 - MagicService never consumes a casting without a source-bound effect resolver
+  ---
+  duration_ms: 0.362468
+  type: 'test'
+  ...
+# Subtest: MagicService consumes casting only for explicit bound resolver contract
+ok 124 - MagicService consumes casting only for explicit bound resolver contract
+  ---
+  duration_ms: 0.408466
+  type: 'test'
+  ...
+# Subtest: Full Expert can use Masterful Expertise only after an eligible non-combat skill check
+ok 125 - Full Expert can use Masterful Expertise only after an eligible non-combat skill check
+  ---
+  duration_ms: 3.455014
+  type: 'test'
+  ...
+# Subtest: Masterful Expertise is a hard zero-mutation gate after use in same scene
+ok 126 - Masterful Expertise is a hard zero-mutation gate after use in same scene
+  ---
+  duration_ms: 1.385054
+  type: 'test'
+  ...
+# Subtest: Partial Expert does not receive Masterful Expertise even if a bad fixture lists the ability
+ok 127 - Partial Expert does not receive Masterful Expertise even if a bad fixture lists the ability
+  ---
+  duration_ms: 0.727469
+  type: 'test'
+  ...
+# Subtest: System Strain bar is accumulated strain, not remaining capacity
+ok 128 - System Strain bar is accumulated strain, not remaining capacity
+  ---
+  duration_ms: 0.664485
+  type: 'test'
+  ...
+# Subtest: party split preserves members and creates separate risk units
+ok 129 - party split preserves members and creates separate risk units
+  ---
+  duration_ms: 1.914409
+  type: 'test'
+  ...
+# Subtest: party projection is individual per hero
+ok 130 - party projection is individual per hero
+  ---
+  duration_ms: 0.353694
+  type: 'test'
+  ...
+# Subtest: starter content keeps GM deeper truth out of player projection
+ok 131 - starter content keeps GM deeper truth out of player projection
+  ---
+  duration_ms: 2.226402
+  type: 'test'
+  ...
+# Subtest: portable character JSON roundtrip keeps canonical HP/strain and scrubs credentials
+ok 132 - portable character JSON roundtrip keeps canonical HP/strain and scrubs credentials
+  ---
+  duration_ms: 0.990358
+  type: 'test'
+  ...
+# Subtest: create -> load is explicit OK
+ok 133 - create -> load is explicit OK
+  ---
+  duration_ms: 1.203314
+  type: 'test'
+  ...
+# Subtest: missing is NOT_FOUND and not an empty campaign
+ok 134 - missing is NOT_FOUND and not an empty campaign
+  ---
+  duration_ms: 1.717437
+  type: 'test'
+  ...
+# Subtest: corruption is CORRUPT and never NOT_FOUND
+ok 135 - corruption is CORRUPT and never NOT_FOUND
+  ---
+  duration_ms: 0.22923
+  type: 'test'
+  ...
+# Subtest: revision conflict does not mutate state
+ok 136 - revision conflict does not mutate state
+  ---
+  duration_ms: 0.267376
+  type: 'test'
+  ...
+# Subtest: injected failure rolls back staged event/state
+ok 137 - injected failure rolls back staged event/state
+  ---
+  duration_ms: 0.285723
+  type: 'test'
+  ...
+# Subtest: source authority rejects excluded-system contamination and reports missing evidence
+ok 138 - source authority rejects excluded-system contamination and reports missing evidence
+  ---
+  duration_ms: 1.511382
+  type: 'test'
+  ...
+# Subtest: source authority preserves primary rule and records lower-priority conflict
+ok 139 - source authority preserves primary rule and records lower-priority conflict
+  ---
+  duration_ms: 0.59387
+  type: 'test'
+  ...
+# Subtest: narrative context strips GM secrets and credentials
+ok 140 - narrative context strips GM secrets and credentials
+  ---
+  duration_ms: 0.915437
+  type: 'test'
+  ...
+# Subtest: Gemini provider fail-soft retries narrative only and never needs canonical mutation
+ok 141 - Gemini provider fail-soft retries narrative only and never needs canonical mutation
+  ---
+  duration_ms: 1.484381
+  type: 'test'
+  ...
+# Subtest: deterministic narrative mock is stable
+ok 142 - deterministic narrative mock is stable
+  ---
+  duration_ms: 1.040513
+  type: 'test'
+  ...
+# Subtest: campaign memory keeps GM facts private until revealed
+ok 143 - campaign memory keeps GM facts private until revealed
+  ---
+  duration_ms: 0.558057
+  type: 'test'
+  ...
+# Subtest: scheduled events are deterministic and ordered by time then id
+ok 144 - scheduled events are deterministic and ordered by time then id
+  ---
+  duration_ms: 7.835631
+  type: 'test'
+  ...
+# Subtest: portable backup scrubs credentials, validates, migrates v0 and restores exact revision in memory adapter
+ok 145 - portable backup scrubs credentials, validates, migrates v0 and restores exact revision in memory adapter
+  ---
+  duration_ms: 1.481507
+  type: 'test'
+  ...
+# Subtest: approved-screen bindings expose mechanics without changing geometry or inventing IRIA equipment
+ok 146 - approved-screen bindings expose mechanics without changing geometry or inventing IRIA equipment
+  ---
+  duration_ms: 0.66768
+  type: 'test'
+  ...
+# Subtest: same seed + stream yields same deterministic vector
+ok 147 - same seed + stream yields same deterministic vector
+  ---
+  duration_ms: 2.991056
+  type: 'test'
+  ...
+# Subtest: golden RNG vector is locked for replay compatibility
+ok 148 - golden RNG vector is locked for replay compatibility
+  ---
+  duration_ms: 0.246055
+  type: 'test'
+  ...
+# Subtest: stream interleaving does not change a stream sequence
+ok 149 - stream interleaving does not change a stream sequence
+  ---
+  duration_ms: 0.197844
+  type: 'test'
+  ...
+# Subtest: export/import resumes exact stream counters
+ok 150 - export/import resumes exact stream counters
+  ---
+  duration_ms: 0.230101
+  type: 'test'
+  ...
+# Subtest: WWN attribute modifier boundaries match SRD
+ok 151 - WWN attribute modifier boundaries match SRD
+  ---
+  duration_ms: 1.263854
+  type: 'test'
+  ...
+# Subtest: Wave3 minimal character subset validates level-1 core-check fixture
+ok 152 - Wave3 minimal character subset validates level-1 core-check fixture
+  ---
+  duration_ms: 0.670133
+  type: 'test'
+  ...
+# Subtest: WWN skill check is deterministic 2d6 + skill + attribute mod vs difficulty
+ok 153 - WWN skill check is deterministic 2d6 + skill + attribute mod vs difficulty
+  ---
+  duration_ms: 0.542825
+  type: 'test'
+  ...
+# Subtest: untrained pertinent skill contributes -1
+ok 154 - untrained pertinent skill contributes -1
+  ---
+  duration_ms: 0.149682
+  type: 'test'
+  ...
+# Subtest: starter bootstrap creates a source-bound playable campaign with content and one canonical group
+ok 155 - starter bootstrap creates a source-bound playable campaign with content and one canonical group
+  ---
+  duration_ms: 2.98051
+  type: 'test'
+  ...
+# Subtest: scene opening commits once, advances no RNG/time/position, then appends Barbara narrative
+ok 156 - scene opening commits once, advances no RNG/time/position, then appends Barbara narrative
+  ---
+  duration_ms: 4.94295
+  type: 'test'
+  ...
+# Subtest: scene projection never exposes GM deeper truths, faction goals, or NPC goal/memory hooks
+ok 157 - scene projection never exposes GM deeper truths, faction goals, or NPC goal/memory hooks
+  ---
+  duration_ms: 2.487239
+  type: 'test'
+  ...
+# Subtest: filtered Barbara context may receive public content but never contentState.gm
+ok 158 - filtered Barbara context may receive public content but never contentState.gm
+  ---
+  duration_ms: 0.631407
+  type: 'test'
+  ...
+# Subtest: starter playable loop closes: open Ruínas scene -> canonical Observe -> Barbara narrative -> persisted reopen
+ok 159 - starter playable loop closes: open Ruínas scene -> canonical Observe -> Barbara narrative -> persisted reopen
+  ---
+  duration_ms: 4.952495
+  type: 'test'
+  ...
+# Subtest: combat start commits deterministic side initiative and reopens without reroll
+ok 160 - combat start commits deterministic side initiative and reopens without reroll
+  ---
+  duration_ms: 3.197042
+  type: 'test'
+  ...
+# Subtest: save action commits exactly once and uses IRIA canonical target
+ok 161 - save action commits exactly once and uses IRIA canonical target
+  ---
+  duration_ms: 1.019301
+  type: 'test'
+  ...
+# Subtest: attack refuses to invent inventory when canonical inventory is absent
+ok 162 - attack refuses to invent inventory when canonical inventory is absent
+  ---
+  duration_ms: 0.646118
+  type: 'test'
+  ...
+# Subtest: attack with explicit fixture weapon commits damage and RNG atomically
+ok 163 - attack with explicit fixture weapon commits damage and RNG atomically
+  ---
+  duration_ms: 1.380037
+  type: 'test'
+  ...
+# Subtest: travel day requires GM contract and does zero mutation when absent
+ok 164 - travel day requires GM contract and does zero mutation when absent
+  ---
+  duration_ms: 0.496146
+  type: 'test'
+  ...
+# Subtest: travel day commits time, encounter RNG, supplies and GM-provided position atomically
+ok 165 - travel day commits time, encounter RNG, supplies and GM-provided position atomically
+  ---
+  duration_ms: 1.804677
+  type: 'test'
+  ...
+# Subtest: faction turn start is zero mutation with no factions
+ok 166 - faction turn start is zero mutation with no factions
+  ---
+  duration_ms: 0.461414
+  type: 'test'
+  ...
+# Subtest: faction turn start rolls initiative, grants income only to first faction, then stops at upkeep gate
+ok 167 - faction turn start rolls initiative, grants income only to first faction, then stops at upkeep gate
+  ---
+  duration_ms: 1.229313
+  type: 'test'
+  ...
+# Subtest: faction initiative tie requires GM order and performs zero mutation until supplied
+ok 168 - faction initiative tie requires GM order and performs zero mutation until supplied
+  ---
+  duration_ms: 1.541726
+  type: 'test'
+  ...
+# Subtest: forage service commits attempt but does not invent allocation; allocation is a separate atomic action
+ok 169 - forage service commits attempt but does not invent allocation; allocation is a separate atomic action
+  ---
+  duration_ms: 1.791757
+  type: 'test'
+  ...
+# Subtest: forage allocation cannot exceed found units and does zero mutation on rejection
+ok 170 - forage allocation cannot exceed found units and does zero mutation on rejection
+  ---
+  duration_ms: 4.730335
+  type: 'test'
+  ...
+# Subtest: shared bottom nav is the locked five-slot order
+not ok 171 - shared bottom nav is the locked five-slot order
+  ---
+  duration_ms: 1.653372
+  type: 'test'
+  location: '/mnt/data/wwn_resume/current_source_working_post071/web-tests/shared-navigation-closure.test.js:3:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'mochila.html'
+    - 'ficha.html#equip'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'ficha.html#equip'
+  actual: 'mochila.html'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///mnt/data/wwn_resume/current_source_working_post071/web-tests/shared-navigation-closure.test.js:3:167)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: Atlas uses the exact shared raster and five real links
+not ok 172 - Atlas uses the exact shared raster and five real links
+  ---
+  duration_ms: 12.124101
+  type: 'test'
+  location: '/mnt/data/wwn_resume/current_source_working_post071/web-tests/shared-navigation-closure.test.js:4:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+    
+      assert.ok(h.includes('ficha.html#equip'))
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///mnt/data/wwn_resume/current_source_working_post071/web-tests/shared-navigation-closure.test.js:4:280)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: SCR016 is directly wired to canonical Wave3 PlayerActionService fallback, never UI RNG
+ok 173 - SCR016 is directly wired to canonical Wave3 PlayerActionService fallback, never UI RNG
+  ---
+  duration_ms: 0.225194
+  type: 'test'
+  ...
+# Subtest: Ficha accepts \#equip deep link and all three legacy surfaces install shared nav
+ok 174 - Ficha accepts \#equip deep link and all three legacy surfaces install shared nav
+  ---
+  duration_ms: 0.388215
+  type: 'test'
+  ...
+# Subtest: full Wave3 observe flow commits mechanics, appends narrative, and reopens without reroll
+ok 175 - full Wave3 observe flow commits mechanics, appends narrative, and reopens without reroll
+  ---
+  duration_ms: 2.660846
+  type: 'test'
+  ...
+# Subtest: GM_HELP is read-only and cannot advance revision or RNG
+ok 176 - GM_HELP is read-only and cannot advance revision or RNG
+  ---
+  duration_ms: 0.37079
+  type: 'test'
+  ...
+# Subtest: narrative provider failure happens after mechanical commit and recovery does not reroll
+ok 177 - narrative provider failure happens after mechanical commit and recovery does not reroll
+  ---
+  duration_ms: 1.862392
+  type: 'test'
+  ...
+# Subtest: deferred SCR015 actions do not mutate campaign state
+not ok 178 - deferred SCR015 actions do not mutate campaign state
+  ---
+  duration_ms: 1.299827
+  type: 'test'
+  location: '/mnt/data/wwn_resume/current_source_working_post071/web-tests/vertical-slice.test.js:76:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'OK'
+    - 'DEFERRED_NO_MUTATION'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'DEFERRED_NO_MUTATION'
+  actual: 'OK'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///mnt/data/wwn_resume/current_source_working_post071/web-tests/vertical-slice.test.js:82:12)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: IRIA Strength 7 yields 7 Stowed and 3 Readied capacity
+ok 179 - IRIA Strength 7 yields 7 Stowed and 3 Readied capacity
+  ---
+  duration_ms: 1.710617
+  type: 'test'
+  ...
+# Subtest: encumbrance overload tiers yield 30/20/10 movement and impractical overflow
+ok 180 - encumbrance overload tiers yield 30/20/10 movement and impractical overflow
+  ---
+  duration_ms: 0.188249
+  type: 'test'
+  ...
+# Subtest: bundled eligible small gear counts 3 items per encumbrance point
+ok 181 - bundled eligible small gear counts 3 items per encumbrance point
+  ---
+  duration_ms: 0.201879
+  type: 'test'
+  ...
+# Subtest: missing inventory remains MISSING_EVIDENCE instead of invented equipment
+ok 182 - missing inventory remains MISSING_EVIDENCE instead of invented equipment
+  ---
+  duration_ms: 0.115001
+  type: 'test'
+  ...
+# Subtest: overland rates follow terrain and modifiers
+ok 183 - overland rates follow terrain and modifiers
+  ---
+  duration_ms: 0.169652
+  type: 'test'
+  ...
+# Subtest: six-mile hex exploration takes GM-selected 1/2/3 days and supplies scale by people
+ok 184 - six-mile hex exploration takes GM-selected 1/2/3 days and supplies scale by people
+  ---
+  duration_ms: 0.157214
+  type: 'test'
+  ...
+# Subtest: travel day uses two explicit GM encounter dice and consumes explicit supplies
+ok 185 - travel day uses two explicit GM encounter dice and consumes explicit supplies
+  ---
+  duration_ms: 0.299795
+  type: 'test'
+  ...
+# Subtest: faction income and maximum HP follow canonical tables
+ok 186 - faction income and maximum HP follow canonical tables
+  ---
+  duration_ms: 0.184844
+  type: 'test'
+  ...
+# Subtest: faction attribute-check tie belongs to defender
+ok 187 - faction attribute-check tie belongs to defender
+  ---
+  duration_ms: 0.342858
+  type: 'test'
+  ...
+# Subtest: faction attack rolls attack damage on success and counterattack damage on failure
+ok 188 - faction attack rolls attack damage on success and counterattack damage on failure
+  ---
+  duration_ms: 0.618828
+  type: 'test'
+  ...
+# Subtest: NPC player projection never leaks GM secrets and exposes only PLAYER_KNOWN memories
+ok 189 - NPC player projection never leaks GM secrets and exposes only PLAYER_KNOWN memories
+  ---
+  duration_ms: 0.374896
+  type: 'test'
+  ...
+# Subtest: travel resolution deterministic under same seed
+ok 190 - travel resolution deterministic under same seed
+  ---
+  duration_ms: 0.516486
+  type: 'test'
+  ...
+# Subtest: foraging difficulty table applies full-day -2 and repeated-hex +1
+ok 191 - foraging difficulty table applies full-day -2 and repeated-hex +1
+  ---
+  duration_ms: 0.206857
+  type: 'test'
+  ...
+# Subtest: successful foraging rolls units, caps at 10, and makes exactly one encounter check
+ok 192 - successful foraging rolls units, caps at 10, and makes exactly one encounter check
+  ---
+  duration_ms: 0.335046
+  type: 'test'
+  ...
+1..192
+# tests 192
+# suites 0
+# pass 188
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 581.716205

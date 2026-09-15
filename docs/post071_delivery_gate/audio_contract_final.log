@@ -1,0 +1,20 @@
+PASS bridge_audio_status
+PASS bridge_audio_configure
+PASS bridge_audio_scene_plan
+PASS bridge_audio_stop
+PASS capability_audio_session
+PASS main_audio_runtime
+PASS lifecycle_pause
+PASS lifecycle_resume
+PASS lifecycle_shutdown
+PASS tts_ptbr
+PASS tts_session_flush
+PASS tts_pitch
+PASS tts_duck_callback
+PASS audio_track
+PASS audio_loop
+PASS audio_narration_duck
+PASS audio_no_mechanics
+PASS procedural_no_external_assets
+PASS no_math_random_js
+CLOSURE069_NATIVE_AUDIO checks=19 pass=19 fail=0
