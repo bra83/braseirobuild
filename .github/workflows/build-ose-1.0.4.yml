@@ -16,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
-      - name: Checkout braseirobuild
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -60,8 +60,7 @@ jobs:
           for p in files:
               im=Image.open(p).convert('RGB')
               assert im.size==(128,128), (p.name,im.size)
-              px=im.load(); w,h=im.size
-              maxv=0
+              px=im.load(); w,h=im.size; maxv=0
               for y in range(h):
                   for x in range(w):
                       if x<16 or y<16 or x>=w-16 or y>=h-16:
@@ -71,21 +70,25 @@ jobs:
           print('equipment_icon_bleed=PASS 102/102')
           PY
 
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
+      - name: Java 17
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Setup Android SDK 35
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android platform
+      - name: Install Android platform from runner SDK
         run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager 'platform-tools' 'platforms;android-35'
+          set -euo pipefail
+          export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}"
+          export ANDROID_HOME="$ANDROID_SDK_ROOT"
+          SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platform-tools' 'platforms;android-35'
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
 
-      - name: Setup Gradle cache
+      - name: Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
       - name: Unit tests and compile APK
@@ -120,7 +123,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add ose/1.0.0/source build-artifacts/ose/1.0.4
           if ! git diff --cached --quiet; then
-            git commit -m 'BRASEIRO OSE 1.0.4: finalize TTS playback and UX fixes'
+            git commit -m 'BRASEIRO OSE 1.0.4: TTS, Gemini share, confirmations and persistence'
             git push origin HEAD:main
           fi
 
@@ -128,12 +131,12 @@ jobs:
         run: |
           {
             echo '## BRASEIRO OSE 1.0.4'
-            echo '- TTS: output_audio + audible test + async playback/error reporting.'
-            echo '- ILUSTRAR: prompt detalhado abre no Gemini; imagem pode ser compartilhada de volta.'
-            echo '- Confirmações antes de viagem/descanso e avisos após mudança de tempo/mundo.'
-            echo '- Personagem/inventário preservados ao recomeçar campanha.'
-            echo '- Viagem revela apenas hexes atravessados.'
-            echo '- 102/102 ícones auditados contra bleed na borda.'
+            echo '- TTS output_audio + audible test + playback/error reporting.'
+            echo '- ILUSTRAR opens detailed prompt in Gemini and accepts image share-back.'
+            echo '- Confirmations before travel/rest; popups after day/location/resource/encounter changes.'
+            echo '- Character/inventory preserved on adventure reset.'
+            echo '- Travel reveals only traversed hexes.'
+            echo '- 102/102 equipment icons passed bleed audit.'
             cat build-artifacts/ose/1.0.4/BRASEIRO_OSE_1_0_4_DEBUG.sha256
             cat build-artifacts/ose/1.0.4/TMPFILES_DIRECT_URL.txt
           } >> "$GITHUB_STEP_SUMMARY"
