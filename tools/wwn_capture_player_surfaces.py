@@ -4,7 +4,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT='http://127.0.0.1:8765'
 OUT=Path('build/wwn-ui-captures'); OUT.mkdir(parents=True,exist_ok=True)
-CASES=[('jornada.html','jornada'),('ficha.html','ficha'),('mochila.html','mochila'),('scr014.html','mapa'),('scr015.html','encontro'),('scr022.html','combate'),('diario.html','diario')]
+CASES=[('jornada.html','jornada'),('ficha.html','ficha'),('criacao.html','criacao'),('mochila.html','mochila'),('scr014.html','mapa'),('scr015.html','encontro'),('scr022.html','combate'),('diario.html','diario')]
 results=[]
 with sync_playwright() as p:
     browser=p.chromium.launch(headless=True,args=['--no-sandbox','--disable-dev-shm-usage','--disable-gpu'])
