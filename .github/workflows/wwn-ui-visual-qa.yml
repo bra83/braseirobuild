@@ -53,3 +53,5 @@ jobs:
           if find . -type f \( -name '*.apk' -o -name '*.aab' \) -print -quit | grep -q .; then
             echo 'Unexpected APK/AAB present'; exit 1
           fi
+
+# Empty <img> placeholders without src are intentional and ignored; real src failures remain fatal.
