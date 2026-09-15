@@ -24,6 +24,12 @@ jobs:
           ref: wwn-source-105-bridge
           fetch-depth: 0
 
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -70,16 +76,73 @@ jobs:
       - name: Static release guard
         run: python tools/static_guard_release.py
 
+      - name: Verify Android Studio source contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f settings.gradle.kts
+          test -f build.gradle.kts
+          test -f gradle.properties
+          test -f gradlew
+          test -f gradlew.bat
+          test -f gradle/wrapper/gradle-wrapper.properties
+          test -f gradle/wrapper/gradle-wrapper.jar
+          test -f app/build.gradle.kts
+          test -f app/src/main/AndroidManifest.xml
+          chmod +x gradlew
+          ./gradlew tasks --no-daemon
+
       - name: Persist Execution Attack runtime only after green gate
         shell: bash
         run: |
           set -euo pipefail
           if git diff --quiet -- app/src/main/assets/www/core/combat-service.js app/src/main/assets/www/core/combat-session-service.js; then
             echo "Execution runtime already persisted; nothing to commit."
-            exit 0
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add app/src/main/assets/www/core/combat-service.js app/src/main/assets/www/core/combat-session-service.js
+            git commit -m "build: apply evidence-gated WWN execution attack runtime"
+            git push origin HEAD:wwn-source-105-bridge
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app/src/main/assets/www/core/combat-service.js app/src/main/assets/www/core/combat-session-service.js
-          git commit -m "build: apply evidence-gated WWN execution attack runtime"
-          git push origin HEAD:wwn-source-105-bridge
+
+      - name: Package source-only Android Studio project
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="BRASEIRO_WWN_ANDROID_STUDIO_SOURCE"
+          ZIP="BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip"
+          rm -rf "$ROOT" "$ZIP"
+          mkdir -p "$ROOT"
+          cp -a app gradle gradlew gradlew.bat build.gradle.kts settings.gradle.kts gradle.properties README.md README_BUILD_ANDROID.md "$ROOT"/
+          find "$ROOT" -type d \( -name build -o -name .gradle -o -name .idea \) -prune -exec rm -rf {} +
+          find "$ROOT" -type f \( -iname '*.apk' -o -iname '*.aab' -o -iname '*.jks' -o -iname '*.keystore' -o -name 'local.properties' -o -name '.env' -o -name '.env.*' \) -delete
+          test -f "$ROOT/settings.gradle.kts"
+          test -f "$ROOT/build.gradle.kts"
+          test -f "$ROOT/gradlew"
+          test -f "$ROOT/gradle/wrapper/gradle-wrapper.jar"
+          test -f "$ROOT/app/build.gradle.kts"
+          test -f "$ROOT/app/src/main/AndroidManifest.xml"
+          if find "$ROOT" -type f \( -iname '*.apk' -o -iname '*.aab' -o -iname '*.jks' -o -iname '*.keystore' -o -name 'local.properties' -o -name '.env' -o -name '.env.*' \) | grep -q .; then
+            echo "Forbidden binary/secret material found in package" >&2
+            exit 1
+          fi
+          printf '%s\n' "$(git rev-parse HEAD)" > "$ROOT/SOURCE_COMMIT.txt"
+          (
+            cd "$ROOT"
+            find . -type f ! -name SOURCE_SHA256SUMS.txt -print0 | sort -z | xargs -0 sha256sum > SOURCE_SHA256SUMS.txt
+          )
+          zip -qr "$ZIP" "$ROOT"
+          sha256sum "$ZIP" | tee BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip.sha256
+          unzip -l "$ZIP" | tee BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.contents.txt
+
+      - name: Upload source-only Android Studio project
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_WWN_ANDROID_STUDIO_SOURCE
+          path: |
+            BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip
+            BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.zip.sha256
+            BRASEIRO_WWN_ANDROID_STUDIO_SOURCE.contents.txt
+          if-no-files-found: error
+          retention-days: 30
