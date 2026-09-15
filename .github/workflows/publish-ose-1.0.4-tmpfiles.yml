@@ -19,9 +19,9 @@ jobs:
       - name: Validate APK and SHA
         run: |
           set -euo pipefail
-          cd build-artifacts/ose/1.0.4
-          sha256sum -c BRASEIRO_OSE_1_0_4_DEBUG.sha256
-          unzip -t BRASEIRO_OSE_1_0_4_DEBUG.apk >/dev/null
+          test -f build-artifacts/ose/1.0.4/BRASEIRO_OSE_1_0_4_DEBUG.apk
+          sha256sum -c build-artifacts/ose/1.0.4/BRASEIRO_OSE_1_0_4_DEBUG.sha256
+          unzip -t build-artifacts/ose/1.0.4/BRASEIRO_OSE_1_0_4_DEBUG.apk >/dev/null
       - name: Upload to tmpfiles
         run: |
           set -euo pipefail
