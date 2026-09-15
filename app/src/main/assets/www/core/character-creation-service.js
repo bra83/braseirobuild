@@ -1,6 +1,7 @@
 import { canonicalJson } from './canonical-json.js';
 import { finalizeCharacterCreation } from './wwn-character-creation-core.js';
 import { materializeRandomLevelOneCharacter } from './wwn-srd-random-character.js';
+import { validateAttributeGeneration } from './wwn-attribute-generation-core.js';
 import { createPartyState } from './party-state.js';
 
 function clone(v){return structuredClone(v)}
@@ -21,6 +22,10 @@ export class CharacterCreationService{
   finalize({campaignId,draft,masterSeed}){
     const loaded=this.persistence.loadCampaign(campaignId);if(loaded.status!=='OK')return Object.freeze({status:loaded.status});
     const state=JSON.parse(loaded.stateJson);if(state.characterState)return Object.freeze({status:'CHARACTER_ALREADY_FINALIZED_NO_MUTATION',revision:loaded.revision});
+    if(draft?.classContract?.ruleset==='WWN_SRD_2024'){
+      const attributes=validateAttributeGeneration({attributes:draft.attributes,generation:draft.attributeGeneration});
+      if(!attributes.ok)return Object.freeze({status:attributes.status,details:attributes,revision:loaded.revision});
+    }
     const result=finalizeCharacterCreation({draft,masterSeed:masterSeed??state.rngState?.masterSeed??campaignId});if(!result.ok)return Object.freeze({status:result.status,details:result,revision:loaded.revision});
     return commitCreated({persistence:this.persistence,campaignId,loaded,state,character:result.character,eventKind:'CHARACTER_FINALIZED',eventSuffix:'character-finalized',setActive:true,sourceRefs:result.sourceRefs});
   }
