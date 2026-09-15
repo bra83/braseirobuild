@@ -6,6 +6,8 @@ import { inspectWeaponReadiness, reloadTrait, singleShotReloadProgress } from '.
 import { materializeWeaponContract, WWN_EQUIPMENT_SOURCES } from './wwn-equipment-catalog.js';
 import { totalDefenseActive } from './wwn-defense-core.js';
 import { isActorProne, effectiveProneMoveFeet } from './combat-prone-state.js';
+import { actorGrappleState } from './combat-grapple-state.js';
+import { inspectCharacterHands } from './combat-hand-state.js';
 
 function clone(v){return structuredClone(v)}
 function enemyVisibleStatus(npc){if(!npc||!Number.isInteger(npc.hp)||!Number.isInteger(npc.maxHp)||npc.maxHp<1)return'ESTADO DESCONHECIDO';if(npc.hp<=0)return'FORA DE COMBATE';const ratio=npc.hp/npc.maxHp;if(ratio<=.25)return'MUITO FERIDO';if(ratio<=.6)return'FERIDO';return'EM COMBATE';}
@@ -30,14 +32,14 @@ export function projectCombatForPlayer(state){
       actorId:id,name:pc?.name??id,position:position?clone(position):null,statusBars:characterStatusProjection(pc),armorClass:armor.status==='OK'?armor.armorClass+(totalDefenseActive(combat,id)?2:0):null,baseArmorClass:armor.status==='OK'?armor.armorClass:null,armor:clone(armor),moveFeet:movement.status==='OK'?movement.moveFeet:null,
       economy:clone(combat.economy?.[id]??freshActionEconomy()),totalDefense:totalDefenseActive(combat,id),mortallyInjured:isConditionActive(pc,'MORTALLY_INJURED'),stabilized:injury?.stabilized===true,dead:isConditionActive(pc,'DEAD'),
       roundsSinceDowned:Number.isInteger(injury?.roundsSinceDowned)?injury.roundsSinceDowned:null,roundsUntilDeath:injury&&!injury.stabilized&&!injury.dead?Math.max(0,6-Number(injury.roundsSinceDowned??0)):null,
-      classId:pc?.classId??pc?.class??null,level:pc?.level??null,prone:isActorProne(combat,id),effectiveMoveFeet:proneMove?.moveFeet??null,weapons:projectWeapons(pc),
+      classId:pc?.classId??pc?.class??null,level:pc?.level??null,prone:isActorProne(combat,id),effectiveMoveFeet:proneMove?.moveFeet??null,grapple:actorGrappleState(combat,id),hands:inspectCharacterHands(pc),weapons:projectWeapons(pc),
     });
   });
   const activeId=activeCharacterId(state);const legacyPc=pcs.find(p=>p.actorId===activeId)??pcs[0]??null;
   const enemies=(combat.enemyIds??[]).map(id=>{
     const npc=state.npcState?.[id],pos=combat.tactical?.actors?.[id],distances={};
     for(const pc of pcs)if(pc.position&&pos)distances[pc.actorId]=distanceFeet(pc.position,pos);
-    return Object.freeze({actorId:id,name:npc?.name??id,status:enemyVisibleStatus(npc),position:pos?clone(pos):null,distancesByPcId:Object.freeze(distances),distanceFeet:legacyPc?.actorId&&distances[legacyPc.actorId]!==undefined?distances[legacyPc.actorId]:null,defeated:(npc?.hp??0)<=0,prone:isActorProne(combat,id)});
+    return Object.freeze({actorId:id,name:npc?.name??id,status:enemyVisibleStatus(npc),position:pos?clone(pos):null,distancesByPcId:Object.freeze(distances),distanceFeet:legacyPc?.actorId&&distances[legacyPc.actorId]!==undefined?distances[legacyPc.actorId]:null,defeated:(npc?.hp??0)<=0,prone:isActorProne(combat,id),grapple:actorGrappleState(combat,id)});
   });
   return Object.freeze({
     status:'OK',active:combat.active===true,encounterId:combat.encounterId??null,round:combat.round??null,order:Object.freeze([...(combat.order??[])]),activeSideId:combat.activeSideId??null,outcome:combat.outcome??null,

@@ -165,6 +165,10 @@ export function resolveAttackFromPhysicalDice({ hitFace, damageFaces = [], attac
   });
 }
 
+export function resolveAutomaticWeaponHitDamage({rng,attacker,weapon,damageBonus=0,streamName='automatic-hit'}){
+  if(!rng||typeof rng.die!=='function')throw new TypeError('deterministic rng required');validateWeapon(weapon);if(!attacker)throw new TypeError('attacker required');requireInt(damageBonus,'damageBonus');const attributeScore=attacker.attributes?.[weapon.attribute],attributeMod=attributeModifier(attributeScore),skill=combatSkillContribution(attacker.skills,weapon.combatSkill),damageRoll=rollDiceExpression({rng,expression:weapon.damage,streamName:`${streamName}/damage`});let damageTotal=damageRoll.total+attributeMod+damageBonus;if(weapon.punchSkillAddsToDamage&&weapon.combatSkill==='Punch'&&skill.skillLevel!==null)damageTotal+=skill.skillLevel;return Object.freeze({rule:'WWN_AUTOMATIC_WEAPON_HIT_DAMAGE_V1',rngAlgorithm:RNG_ALGORITHM,sourceRefs:[WWN_COMBAT_SOURCES.damage,WWN_COMBAT_SOURCES.weapons],attribute:weapon.attribute,attributeScore,attributeModifier:attributeMod,combatSkill:weapon.combatSkill,skillLevel:skill.skillLevel,damageRoll,damageBonus,damage:Math.max(0,damageTotal),damageKind:'AUTOMATIC_HIT'});
+}
+
 export function resolveAttackHitOnly({ rng, attacker, weapon, target, hitModifier = 0, streamName = 'attack-hit-only' }) {
   if (!rng || typeof rng.die !== 'function') throw new TypeError('deterministic rng required');
   validateWeapon(weapon);
