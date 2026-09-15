@@ -1,0 +1,141 @@
+name: Build BRASEIRO OSE 1.0.4
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-ose-1.0.4.yml"
+      - "OSE_1_0_4_TRIGGER.txt"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout braseirobuild
+        uses: actions/checkout@v4
+
+      - name: Download exact 1.0.4 scripts
+        env:
+          SCRIPT_SHARE: https://firestorage.ai/ja/f/pGOdrtUc7Fdn
+          SCRIPT_SHA: b80e15ff9fe63ab8a22272238fdf28d60c47e6e7e684b76a011379787b6b32b3
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet playwright
+          python3 -m playwright install --with-deps chromium
+          python3 - <<'PY'
+          import os, pathlib
+          from playwright.sync_api import sync_playwright
+          out=pathlib.Path('/tmp/ose104_scripts.zip')
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True)
+              page=browser.new_page(accept_downloads=True)
+              page.goto(os.environ['SCRIPT_SHARE'], wait_until='domcontentloaded', timeout=120000)
+              page.wait_for_timeout(3500)
+              for label in ['Accept','Aceitar','同意する','OK']:
+                  try:
+                      loc=page.get_by_text(label, exact=True)
+                      if loc.count() and loc.first.is_visible(): loc.first.click(timeout=1200)
+                  except Exception: pass
+              done=False
+              for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")']:
+                  try:
+                      loc=page.locator(sel).first
+                      if not loc.count() or not loc.is_visible(): continue
+                      with page.expect_download(timeout=120000) as info: loc.click(timeout=10000)
+                      info.value.save_as(str(out)); done=True; break
+                  except Exception: pass
+              if not done:
+                  card=page.get_by_text('ose104_scripts.zip', exact=False).first
+                  parent=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]')
+                  with page.expect_download(timeout=120000) as info: parent.locator('a,button').last.click(timeout=10000)
+                  info.value.save_as(str(out)); done=True
+              browser.close()
+          if not done or not out.exists(): raise SystemExit('script download failed')
+          PY
+          echo "$SCRIPT_SHA  /tmp/ose104_scripts.zip" | sha256sum -c -
+          rm -rf /tmp/ose104 && mkdir -p /tmp/ose104
+          unzip -q /tmp/ose104_scripts.zip -d /tmp/ose104
+
+      - name: Apply runtime and UX fixes
+        run: |
+          set -euo pipefail
+          python3 /tmp/ose104/apply104.py
+          python3 -m pip install --quiet pillow
+          python3 /tmp/ose104/script1.py
+
+      - name: Static QA for 1.0.4
+        run: |
+          set -euo pipefail
+          grep -q 'versionName = "1.0.4"' ose/1.0.0/source/app-android/build.gradle.kts
+          grep -q 'output_audio' ose/1.0.0/source/app-android/src/main/kotlin/braseiro/ose/app/GeminiInteractionsClient.kt
+          grep -q 'playTestPhrase' ose/1.0.0/source/app-android/src/main/kotlin/braseiro/ose/app/GeminiTtsController.kt
+          grep -q 'ScenePromptShare' ose/1.0.0/source/app-android/src/main/kotlin/braseiro/ose/app/MainActivity.kt
+          grep -q 'com.google.android.apps.bard' ose/1.0.0/source/app-android/src/main/kotlin/braseiro/ose/app/MainActivity.kt
+          grep -q 'characterPreserved' ose/1.0.0/source/app-android/src/main/kotlin/braseiro/ose/app/MainActivity.kt
+          grep -q 'c.copy(known = c.known || here, visible = here)' ose/1.0.0/source/referee-boundary/src/main/kotlin/braseiro/ose/referee/WildernessRuntimeRules.kt
+          grep -q 'actionCostSummary' ose/1.0.0/source/web-ui-p1/p1.js
+          grep -q 'announceStateChanges' ose/1.0.0/source/web-ui-p1/p1.js
+          grep -q 'ScenePromptShare' ose/1.0.0/source/web-ui-p1/p1.js
+          grep -q 'android.intent.action.SEND' ose/1.0.0/source/app-android/src/main/AndroidManifest.xml
+          test "$(find ose/1.0.0/source/web-ui-p1/equipment-icons -maxdepth 1 -name '*.png' | wc -l)" -eq 102
+          node --check ose/1.0.0/source/web-ui-p1/p1.js
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK 35
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platform-tools' 'platforms;android-35'
+
+      - name: Setup Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Unit tests and compile APK
+        working-directory: ose/1.0.0/source
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app-android:testDebugUnitTest :app-android:assembleDebug --stacktrace --no-daemon
+
+      - name: Validate and publish 1.0.4
+        run: |
+          set -euo pipefail
+          APK="$(find ose/1.0.0/source/app-android/build/outputs/apk/debug -type f -name '*.apk' | sort | head -n1)"
+          test -f "$APK"
+          unzip -t "$APK" >/dev/null
+          mkdir -p build-artifacts/ose/1.0.4
+          cp "$APK" build-artifacts/ose/1.0.4/BRASEIRO_OSE_1_0_4_DEBUG.apk
+          sha256sum build-artifacts/ose/1.0.4/BRASEIRO_OSE_1_0_4_DEBUG.apk | tee build-artifacts/ose/1.0.4/BRASEIRO_OSE_1_0_4_DEBUG.sha256
+          stat -c 'size_bytes=%s' build-artifacts/ose/1.0.4/BRASEIRO_OSE_1_0_4_DEBUG.apk | tee build-artifacts/ose/1.0.4/BRASEIRO_OSE_1_0_4_DEBUG.info.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ose/1.0.0/source build-artifacts/ose/1.0.4
+          if ! git diff --cached --quiet; then
+            git commit -m 'BRASEIRO OSE 1.0.4: TTS, Gemini share, confirmation UX, persistence, fog fix'
+            git push origin HEAD:main
+          fi
+
+      - name: Summary
+        run: |
+          {
+            echo '## BRASEIRO OSE 1.0.4'
+            echo '- TTS: current Gemini Interactions output_audio + audible test.'
+            echo '- ILUSTRAR: detailed scene prompt shared to Gemini app; OSE receives shared image.'
+            echo '- UX: confirmations before day/resource costs and popup after world/time changes.'
+            echo '- Recomeçar: character, inventory and equipment preserved.'
+            echo '- Map: travel reveals traversed path only.'
+            echo '- Equipment: 102 icons edge-bleed cleanup.'
+            cat build-artifacts/ose/1.0.4/BRASEIRO_OSE_1_0_4_DEBUG.sha256
+          } >> "$GITHUB_STEP_SUMMARY"
