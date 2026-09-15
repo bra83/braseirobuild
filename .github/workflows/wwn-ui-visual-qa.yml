@@ -7,7 +7,7 @@ on:
       - ".github/workflows/wwn-ui-visual-qa.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   mobile-visual-runtime:
@@ -23,16 +23,30 @@ jobs:
           set -euo pipefail
           python3 -m pip install --quiet playwright
           python3 -m playwright install --with-deps chromium
-      - name: Capture and validate 415x915 player surfaces
+      - name: Capture validate and persist 415x915 diagnostics
         shell: bash
         run: |
-          set -euo pipefail
+          set -uo pipefail
           python3 -m http.server 8765 --directory app/src/main/assets/www > /tmp/wwn-http.log 2>&1 &
           server=$!
           trap 'kill $server 2>/dev/null || true' EXIT
           for i in {1..20}; do curl -fsS http://127.0.0.1:8765/jornada.html >/dev/null && break; sleep 0.25; done
+          set +e
           python3 tools/wwn_capture_player_surfaces.py
+          status=$?
+          set -e
+          mkdir -p docs/qa
+          cp build/wwn-ui-captures/report.json docs/qa/WWN_UI_VISUAL_QA_LATEST.json
+          git config user.name "BRASEIRO WWN Visual QA"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/qa/WWN_UI_VISUAL_QA_LATEST.json
+          if ! git diff --cached --quiet; then
+            git commit -m "qa: record latest WWN 415x915 visual audit"
+            git push origin HEAD:wwn-source-105-bridge
+          fi
+          exit $status
       - name: Confirm no Android package generated
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
