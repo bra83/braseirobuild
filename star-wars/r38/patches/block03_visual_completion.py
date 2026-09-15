@@ -50,6 +50,8 @@ if not manifest_path.is_file(): raise SystemExit(f'missing manifest {manifest_pa
 manifest=json.loads(manifest_path.read_text(encoding='utf-8'))
 assets=[a for a in manifest.get('assets',[]) if not str(a.get('assetId','')).startswith('local.final.')]
 
+baseline_assets=json.loads(json.dumps(assets))
+
 def local_path(rel): return 'image-library/local/final/'+rel.replace('\\','/')
 def base_asset(assetId,title,category,subtype,rel,sha,w,h,tags,usage,sourceRef):
     return {'assetId':assetId,'title':title,'category':category,'subtype':subtype,'sourceType':'user_generated','sourceRef':sourceRef,
@@ -152,7 +154,7 @@ keywords={
  'outer_rim_settlement':['assentamento','orla exterior','outer rim','colônia','colonia','povoado','fronteira','mercado','rua']}
 js_scene=json.dumps(scene_defs,ensure_ascii=False,separators=(',',':'))
 js_kw=json.dumps(keywords,ensure_ascii=False,separators=(',',':'))
-new_chooser=f'''const FINAL_SCENE_VISUALS=Object.freeze({js_scene});\nconst FINAL_SCENE_KEYWORDS=Object.freeze({js_kw});\nfunction finalSceneHash(text){{let h=2166136261>>>0;for(let i=0;i<text.length;i++){{h^=text.charCodeAt(i);h=Math.imul(h,16777619)}}return h>>>0}}\nfunction recoveredSceneVisual(view){{\n const scene=currentSceneRecord()||{{}}, location=view?.scene?.location||{{}};\n const context=[scene.id,scene.title,scene.narration,view?.situation,location.name,location.description,...(Array.isArray(view?.participants)?view.participants.flatMap(p=>[p?.name,p?.meta,p?.status]):[])].filter(Boolean).join(' ').toLocaleLowerCase('pt-BR');\n let best='outer_rim_settlement',score=-1;\n for(const [arch,terms] of Object.entries(FINAL_SCENE_KEYWORDS)){{let s=0;for(const term of terms)if(context.includes(String(term).toLocaleLowerCase('pt-BR')))s+=term.length+(term.includes(' ')?8:3);if(s>score){{score=s;best=arch}}}}\n const variants=FINAL_SCENE_VISUALS[best]||FINAL_SCENE_VISUALS.outer_rim_settlement;\n const seed=[scene.id,scene.title,location.name,view?.situation,scene.narration].filter(Boolean).join('|');\n const src=variants[finalSceneHash(seed||best)%variants.length];\n return {{id:'final-'+best,src,archetype:best}};\n}}\nfunction syncRecoveredSceneVisual'''
+new_chooser=f'''const FINAL_SCENE_VISUALS=Object.freeze({js_scene});\nconst FINAL_SCENE_KEYWORDS=Object.freeze({js_kw});\nfunction finalSceneHash(text){{let h=2166136261>>>0;for(let i=0;i<text.length;i++){{h^=text.charCodeAt(i);h=Math.imul(h,16777619)}}return h>>>0}}\nfunction recoveredSceneVisual(view){{\n const scene=currentSceneRecord()||{{}}, location=view?.scene?.location||{{}};\n const context=[scene.id,scene.title,scene.narration,view?.situation,location.name,location.description,...(Array.isArray(view?.participants)?view.participants.flatMap(p=>[p?.name,p?.meta,p?.status]):[])].filter(Boolean).join(' ').toLocaleLowerCase('pt-BR');\n let best='outer_rim_settlement',score=0;\n for(const [arch,terms] of Object.entries(FINAL_SCENE_KEYWORDS)){{let s=0;for(const term of terms)if(context.includes(String(term).toLocaleLowerCase('pt-BR')))s+=term.length+(term.includes(' ')?8:3);if(s>score){{score=s;best=arch}}}}\n const variants=FINAL_SCENE_VISUALS[best]||FINAL_SCENE_VISUALS.outer_rim_settlement;\n const seed=[scene.id,scene.title,location.name,view?.situation,scene.narration].filter(Boolean).join('|');\n const src=variants[finalSceneHash(seed||best)%variants.length];\n return {{id:'final-'+best,src,archetype:best}};\n}}\nfunction syncRecoveredSceneVisual'''
 pat=r'function recoveredSceneVisual\(view\)\{.*?\n\}\nfunction syncRecoveredSceneVisual'
 repl_count=len(re.findall(pat,runtime,flags=re.S))
 if repl_count!=1: raise SystemExit(f'expected one recoveredSceneVisual function, found {repl_count}')
@@ -220,3 +222,37 @@ for token in ['FINAL_SCENE_VISUALS','FINAL_EXPLICIT_VISUALS','Son Barab','Digger
     if token not in runtime: raise SystemExit('runtime token missing: '+token)
 print('BLOCK03_VISUAL_COMPLETION_OK')
 print(json.dumps({'newAssets':42,'scenes':26,'vehicles':9,'creatures':3,'npcAssets':2,'equipment':2,'manifestTotal':manifest['counts']['total']},ensure_ascii=False))
+
+
+# Update current-catalog expectations after the approved additive visual pack.
+# Historical source-wave counts and the R46 provenance freeze stay unchanged.
+changes = {
+ 'manifest.counts.local,148': 'manifest.counts.local,190',
+ 'manifest.counts.equipment,4': 'manifest.counts.equipment,6',
+ 'manifest.counts.total,369': 'manifest.counts.total,411',
+ 'ids.length,369': 'ids.length,411',
+ 'new Set(ids).size,369': 'new Set(ids).size,411',
+ 'manifest.counts.vehicles,127': 'manifest.counts.vehicles,136',
+ 'manifest.counts.creatures,17': 'manifest.counts.creatures,20',
+ 'all.data.length,204': 'all.data.length,217',
+ 'vehicles.data.length,127': 'vehicles.data.length,136',
+ 'creatures.data.length,17': 'creatures.data.length,20',
+ 'equipment.length,4': 'equipment.length,6',
+ "a.usage==='visual_only' && a.mechanicalBinding===null": "['visual_only','runtime_bound_visual'].includes(a.usage) && a.mechanicalBinding===null",
+}
+for testfile in sorted((ROOT/'tests').glob('image-library-r*.test.mjs')):
+    original=testfile.read_text(encoding='utf-8')
+    updated=original
+    for before,after in changes.items(): updated=updated.replace(before,after)
+    if updated!=original: testfile.write_text(updated,encoding='utf-8')
+# The additive pack must preserve every original manifest record exactly.
+assert [a for a in manifest['assets'] if not a['assetId'].startswith('local.final.')]==baseline_assets
+final_ids={a['assetId'] for a in final_assets}
+assert len(final_ids)==42
+assert len(assets)==411
+assert manifest['counts']['local']==190
+assert manifest['counts']['external']==221
+assert manifest['counts']['vehicles']==136
+assert manifest['counts']['creatures']==20
+assert manifest['counts']['equipment']==6
+print('VISUAL_CATALOG_EXPECTATIONS_UPDATED_WITH_EXACT_COUNTS')
