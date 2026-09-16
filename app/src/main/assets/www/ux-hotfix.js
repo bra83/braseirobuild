@@ -96,6 +96,7 @@ function normalizedItemText(text){return String(text??'').normalize('NFD').repla
 function artKind(text){
   const t=normalizedItemText(text);
   if(/\b(TOCHA|TORCH|BRANDAO)\b/.test(t))return'torch';
+  if(/\b(OLEO|OIL)\b/.test(t)&&/\b(LANTERNA|LANTERN)\b/.test(t))return'liquid';
   if(/\b(LANTERNA|LANTERN)\b/.test(t))return'lantern';
   if(/\b(OLEO|OIL|FRASCO|GARRAFA|CANTIL|WATERSKIN|AGUA)\b/.test(t))return'liquid';
   if(/\b(CORDA|ROPE|CORDAME)\b/.test(t))return'rope';
@@ -135,7 +136,7 @@ function artSvg(kind){
   return `<svg viewBox="0 0 64 64" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">${common}${shapes[kind]??shapes.gear}</svg>`;
 }
 function patchBackpack(){
-  const apply=()=>{for(const row of document.querySelectorAll('.item:not(.has-art),.catalog-item:not(.has-art)')){if(row.closest('.heroes'))continue;const visual=document.createElement('div');visual.className='item-art';visual.setAttribute('aria-hidden','true');visual.innerHTML=artSvg(artKind(row.textContent));row.classList.add('has-art');row.prepend(visual)}};apply();const root=document.getElementById('screen');if(root)new MutationObserver(()=>queueMicrotask(apply)).observe(root,{childList:true,subtree:true})
+  const apply=()=>{for(const row of document.querySelectorAll('.item:not(.has-art),.catalog-item:not(.has-art)')){if(row.closest('.heroes'))continue;const visual=document.createElement('div');visual.className='item-art';visual.setAttribute('aria-hidden','true');const kind=artKind(row.textContent);visual.dataset.artKind=kind;visual.innerHTML=artSvg(kind);row.classList.add('has-art');row.prepend(visual)}};apply();const root=document.getElementById('screen');if(root)new MutationObserver(()=>queueMicrotask(apply)).observe(root,{childList:true,subtree:true})
 }
 
 ensureCss();raf(()=>{if(page==='jornada.html')patchJourney();if(page==='ficha.html')patchCharacter();if(page==='scr014.html')patchAtlas();if(page==='criacao.html')patchCreation();if(page==='mochila.html')patchBackpack()});
