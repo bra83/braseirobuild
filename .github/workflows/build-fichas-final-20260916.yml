@@ -17,81 +17,83 @@ jobs:
     env:
       SOURCE_URL: "https://firestorage.ai/ja/f/FamlbFgCpuKz"
       SOURCE_SHA256: "a7ce356b8c478aa7c60af6a7dae2f8482b3e71f5e3feb9d1e1fbfd5b294c3bd1"
-      SOURCE_FILE_ID: "01a0a868362471ce917187aa06456a20"
-      SOURCE_PUBLIC_ID: "Nm63yEl1vDkDPZcA"
       SOURCE_NAME: "BRASEIRO_FICHAS_MULTISSISTEMA_ANDROID_STUDIO_FINAL_2026-09-16.zip"
 
     steps:
       - name: Checkout build repo
         uses: actions/checkout@v4
 
-      - name: Baixar checkpoint final e validar SHA
+      - name: Preparar navegador para baixar checkpoint
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          import hashlib, html, os, re, sys, urllib.parse, urllib.request
+          BROWSER_DIR="$RUNNER_TEMP/firestorage-browser"
+          mkdir -p "$BROWSER_DIR"
+          cd "$BROWSER_DIR"
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+          echo "BROWSER_DIR=$BROWSER_DIR" >> "$GITHUB_ENV"
 
-          source_url=os.environ['SOURCE_URL']
-          expected=os.environ['SOURCE_SHA256'].lower()
-          file_id=os.environ['SOURCE_FILE_ID']
-          public_id=os.environ['SOURCE_PUBLIC_ID']
-          source_name=os.environ['SOURCE_NAME']
-          out=os.path.join(os.environ['RUNNER_TEMP'], source_name)
-          headers={'User-Agent':'Mozilla/5.0 GitHub-Actions-BraseiroBuild/1.0','Accept':'*/*'}
+      - name: Baixar checkpoint final via navegador e validar SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/download-firestorage.cjs" <<'JS'
+          const fs = require('fs');
+          const path = require('path');
+          const { chromium } = require(path.join(process.env.BROWSER_DIR, 'node_modules', 'playwright'));
 
-          def fetch(url):
-              req=urllib.request.Request(url, headers=headers)
-              with urllib.request.urlopen(req, timeout=30) as r:
-                  return r.geturl(), r.headers.get('Content-Type',''), r.read()
+          (async () => {
+            const out = path.join(process.env.RUNNER_TEMP, process.env.SOURCE_NAME);
+            const browser = await chromium.launch({headless:true});
+            const context = await browser.newContext({acceptDownloads:true});
+            const page = await context.newPage();
+            page.on('console', m => console.log('[page]', m.type(), m.text()));
+            page.on('pageerror', e => console.log('[pageerror]', e.message));
+            await page.goto(process.env.SOURCE_URL, {waitUntil:'domcontentloaded', timeout:60000});
+            await page.waitForTimeout(7000);
+            console.log('URL:', page.url());
+            console.log('BODY:', (await page.locator('body').innerText()).slice(0,6000));
 
-          def accept(data):
-              if not data.startswith(b'PK'):
-                  return False
-              sha=hashlib.sha256(data).hexdigest().lower()
-              print('candidate zip sha256=', sha, 'bytes=', len(data))
-              if sha != expected:
-                  return False
-              with open(out,'wb') as f: f.write(data)
-              return True
-
-          final_url, ctype, data=fetch(source_url)
-          print('share status target=', final_url, 'content-type=', ctype, 'bytes=', len(data))
-          if accept(data):
-              print('ZIP obtained directly from share URL')
-              sys.exit(0)
-
-          text=data.decode('utf-8','ignore')
-          decoded=html.unescape(text)
-          raw=[]
-          raw += re.findall(r'''(?:href|src)=["']([^"']+)["']''', decoded, flags=re.I)
-          raw += re.findall(r'''https?://[^"'<>\\s]+''', decoded, flags=re.I)
-          raw += re.findall(r'''["']([^"']*(?:download|file|storage|api)[^"']*)["']''', decoded, flags=re.I)
-          candidates=[]
-          seen=set()
-          for x in raw:
-              x=x.replace('\\/','/').strip()
-              if not x or x.startswith(('javascript:','data:','#')): continue
-              u=urllib.parse.urljoin(final_url, x)
-              if u in seen: continue
-              seen.add(u)
-              score=sum(t.lower() in u.lower() for t in ('download','.zip',source_name,file_id,public_id,'api','file'))
-              if score: candidates.append((score,u))
-          candidates.sort(reverse=True)
-          print('download candidates=', len(candidates))
-          for score,u in candidates[:80]:
-              try:
-                  print('trying', score, u)
-                  _, ct, body=fetch(u)
-                  if accept(body):
-                      print('ZIP resolved from',u,'content-type=',ct)
-                      sys.exit(0)
-              except Exception as e:
-                  print('candidate failed:', type(e).__name__, str(e)[:200])
-          print('Could not resolve exact ZIP. Share page prefix follows:')
-          print(decoded[:4000])
-          sys.exit(2)
-          PY
+            const candidates = [
+              page.getByRole('button', {name:/ダウンロード|download/i}),
+              page.getByRole('link', {name:/ダウンロード|download/i}),
+              page.locator('button').filter({hasText:/ダウンロード|download/i}),
+              page.locator('a').filter({hasText:/ダウンロード|download/i})
+            ];
+            let saved = false;
+            for (const loc of candidates) {
+              const count = await loc.count();
+              for (let i=0; i<count && !saved; i++) {
+                const el = loc.nth(i);
+                if (!(await el.isVisible().catch(()=>false))) continue;
+                console.log('Trying download control:', await el.innerText().catch(()=>''));
+                const downloadPromise = page.waitForEvent('download', {timeout:30000}).catch(()=>null);
+                await el.click({timeout:15000}).catch(async e => {
+                  console.log('normal click failed:', e.message);
+                  await el.click({force:true, timeout:10000});
+                });
+                const download = await downloadPromise;
+                if (download) {
+                  console.log('Suggested filename:', download.suggestedFilename());
+                  await download.saveAs(out);
+                  saved = true;
+                } else {
+                  await page.waitForTimeout(3000);
+                }
+              }
+              if (saved) break;
+            }
+            if (!saved) {
+              const anchors = await page.locator('a').evaluateAll(as => as.map(a => ({text:a.innerText,href:a.href})).filter(x => x.href));
+              console.log('ANCHORS:', JSON.stringify(anchors.slice(0,80), null, 2));
+              throw new Error('Nenhum download foi capturado pelo navegador');
+            }
+            await browser.close();
+          })().catch(e => { console.error(e); process.exit(2); });
+          JS
+          node "$RUNNER_TEMP/download-firestorage.cjs"
           ZIP="$RUNNER_TEMP/$SOURCE_NAME"
           test -f "$ZIP"
           echo "$SOURCE_SHA256  $ZIP" | sha256sum -c -
