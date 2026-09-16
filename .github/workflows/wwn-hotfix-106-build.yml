@@ -1,0 +1,151 @@
+name: WWN 1.0.6 UX Hotfix Build
+
+on:
+  push:
+    branches:
+      - wwn-final-build-sync
+
+permissions:
+  contents: write
+
+jobs:
+  hotfix-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      TARGET_BRANCH: wwn-source-105-bridge
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+
+    steps:
+      - name: Checkout current WWN source
+        uses: actions/checkout@v4
+        with:
+          ref: wwn-source-105-bridge
+          fetch-depth: 0
+
+      - name: Apply native share, PDF and version hotfixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          manifest=Path('app/src/main/AndroidManifest.xml')
+          s=manifest.read_text(encoding='utf-8')
+          old='''            <intent-filter>\n                <action android:name="android.intent.action.MAIN" />\n                <category android:name="android.intent.category.LAUNCHER" />\n            </intent-filter>'''
+          new='''            <intent-filter>\n                <action android:name="android.intent.action.MAIN" />\n                <category android:name="android.intent.category.LAUNCHER" />\n            </intent-filter>\n            <intent-filter android:label="Importar imagem no Braseiro WWN">\n                <action android:name="android.intent.action.SEND" />\n                <category android:name="android.intent.category.DEFAULT" />\n                <data android:mimeType="image/*" />\n            </intent-filter>\n            <intent-filter android:label="Enviar para Braseiro WWN">\n                <action android:name="android.intent.action.SEND" />\n                <category android:name="android.intent.category.DEFAULT" />\n                <data android:mimeType="text/plain" />\n            </intent-filter>\n            <intent-filter android:label="Importar imagens no Braseiro WWN">\n                <action android:name="android.intent.action.SEND_MULTIPLE" />\n                <category android:name="android.intent.category.DEFAULT" />\n                <data android:mimeType="image/*" />\n            </intent-filter>'''
+          assert old in s, 'launcher intent block not found'
+          manifest.write_text(s.replace(old,new,1),encoding='utf-8')
+
+          main=Path('app/src/main/java/com/braseiro/wwn/MainActivity.kt')
+          s=main.read_text(encoding='utf-8')
+          old='''    private var pendingRagAuthorityProfile: String? = null\n    private lateinit var ragRuntime: RagRuntime'''
+          new='''    private var pendingRagAuthorityProfile: String? = null\n    private var pendingSharedSceneImport: JSONObject? = null\n    private lateinit var ragRuntime: RagRuntime'''
+          assert old in s, 'pending fields anchor not found'
+          s=s.replace(old,new,1)
+          old='''                override fun onPageFinished(view: WebView?, url: String?) {\n                    super.onPageFinished(view, url)\n                    syncWebBackState()\n                }'''
+          new='''                override fun onPageFinished(view: WebView?, url: String?) {\n                    super.onPageFinished(view, url)\n                    syncWebBackState()\n                    pendingSharedSceneImport?.let { pending ->\n                        pendingSharedSceneImport = null\n                        emitFileEvent(\n                            kind = "SCENE_IMAGE_IMPORT",\n                            status = pending.optString("status", "ERROR"),\n                            text = pending.toString(),\n                            reason = pending.optString("reason").takeIf { it.isNotBlank() },\n                        )\n                    }\n                }'''
+          assert old in s, 'onPageFinished anchor not found'
+          s=s.replace(old,new,1)
+          old='''        if (savedInstanceState == null) webView.loadUrl("${SceneImageRuntime.LOCAL_ORIGIN}/assets/www/jornada.html")\n        else webView.restoreState(savedInstanceState)\n    }\n\n    private fun syncWebBackState()'''
+          new='''        if (savedInstanceState == null) webView.loadUrl("${SceneImageRuntime.LOCAL_ORIGIN}/assets/www/jornada.html")\n        else webView.restoreState(savedInstanceState)\n        handleIncomingShare(intent)\n    }\n\n    override fun onNewIntent(intent: Intent) {\n        super.onNewIntent(intent)\n        setIntent(intent)\n        handleIncomingShare(intent)\n    }\n\n    @Suppress("DEPRECATION")\n    private fun handleIncomingShare(source: Intent?) {\n        if (source == null || source.action !in setOf(Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE)) return\n        val candidates = mutableListOf<Uri>()\n        source.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)?.let(candidates::add)\n        source.clipData?.let { clip ->\n            for (i in 0 until clip.itemCount) clip.getItemAt(i).uri?.let { if (it !in candidates) candidates += it }\n        }\n        val imageUri = candidates.firstOrNull { uri ->\n            source.type?.startsWith("image/") == true || contentResolver.getType(uri)?.startsWith("image/") == true\n        }\n        if (imageUri != null) {\n            ioExecutor.execute {\n                val result = try { sceneImageRuntime.importImage(imageUri) }\n                catch (t: Throwable) { JSONObject().put("status", "ERROR").put("reason", t.message ?: "Falha ao receber a imagem compartilhada") }\n                pendingSharedSceneImport = result\n                runOnUiThread { webView.loadUrl("${SceneImageRuntime.LOCAL_ORIGIN}/assets/www/jornada.html") }\n            }\n            return\n        }\n        val sharedText = source.getStringExtra(Intent.EXTRA_TEXT)?.trim().orEmpty()\n        if (sharedText.isNotBlank()) {\n            pendingSharedSceneImport = JSONObject()\n                .put("status", "LINK_ONLY")\n                .put("reason", "O aplicativo de origem compartilhou apenas um link, não os bytes da imagem. No Gemini, use a opção que compartilha/salva a imagem como arquivo quando disponível.")\n                .put("sharedText", sharedText.take(2000))\n            webView.loadUrl("${SceneImageRuntime.LOCAL_ORIGIN}/assets/www/jornada.html")\n        }\n    }\n\n    private fun syncWebBackState()'''
+          assert old in s, 'activity ending anchor not found'
+          main.write_text(s.replace(old,new,1),encoding='utf-8')
+
+          rag=Path('app/src/main/java/com/braseiro/wwn/bridge/RagRuntime.kt')
+          s=rag.read_text(encoding='utf-8')
+          s=s.replace('import java.io.FileOutputStream\n','import java.io.FileOutputStream\nimport java.io.FileInputStream\n',1)
+          old='''        val profile = normalizeProfile(requestedAuthorityProfile)\n        val temp = File.createTempFile("wwn-rag-", ".pdf", context.cacheDir)\n        return try {\n            val digest = MessageDigest.getInstance("SHA-256"); var total = 0L\n            context.contentResolver.openInputStream(uri)?.use { input -> FileOutputStream(temp).use { output ->\n                val buf = ByteArray(64 * 1024); while (true) { val n = input.read(buf); if (n < 0) break; total += n; require(total <= MAX_PDF_BYTES) { "PDF too large" }; digest.update(buf, 0, n); output.write(buf, 0, n) }\n            } } ?: throw IllegalStateException("Unable to read selected PDF")'''
+          new='''        val profile = normalizeProfile(requestedAuthorityProfile)\n        val importDir = File(context.cacheDir, "rag-import").apply { require(exists() || mkdirs()) { "Cannot create PDF import cache" } }\n        val temp = File.createTempFile("wwn-rag-", ".pdf", importDir)\n        return try {\n            val digest = MessageDigest.getInstance("SHA-256"); var total = 0L\n            fun copySource(input: java.io.InputStream) {\n                total = 0L; digest.reset()\n                FileOutputStream(temp, false).use { output ->\n                    val buf = ByteArray(64 * 1024)\n                    while (true) { val n = input.read(buf); if (n < 0) break; total += n; require(total <= MAX_PDF_BYTES) { "PDF too large" }; digest.update(buf, 0, n); output.write(buf, 0, n) }\n                }\n            }\n            var opened = false\n            try { context.contentResolver.openInputStream(uri)?.use { copySource(it); opened = true } } catch (_: java.io.FileNotFoundException) { }\n            if (!opened) {\n                context.contentResolver.openFileDescriptor(uri, "r")?.use { descriptor -> FileInputStream(descriptor.fileDescriptor).use { copySource(it); opened = true } }\n            }\n            require(opened) { "Não foi possível abrir o PDF selecionado. Se ele estiver na nuvem, baixe-o no aparelho e tente novamente." }'''
+          assert old in s, 'RAG PDF copy anchor not found'
+          rag.write_text(s.replace(old,new,1),encoding='utf-8')
+
+          gradle=Path('app/build.gradle.kts')
+          s=gradle.read_text(encoding='utf-8')
+          old='versionCode = 105; versionName = "1.0.5"'
+          assert old in s, 'version anchor not found'
+          gradle.write_text(s.replace(old,'versionCode = 106; versionName = "1.0.6"',1),encoding='utf-8')
+          PY
+
+      - name: Verify WWN QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          count=0
+          for test in qa/*.mjs; do
+            node "$test"
+            count=$((count + 1))
+          done
+          echo "$count WWN QA suites PASS"
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Prepare installed Android SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+          test -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+          test -f "$ANDROID_HOME/platforms/android-36/android.jar"
+
+      - name: Build WWN 1.0.6 APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew testDebugUnitTest assembleDebug --no-daemon --stacktrace
+          test -f app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Publish source ZIP and APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p delivery
+          cp app/build/outputs/apk/debug/app-debug.apk delivery/BRASEIRO_WWN_v1.0.6.apk
+          STAGE="$(mktemp -d)"
+          mkdir -p "$STAGE/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE"
+          rsync -a ./ "$STAGE/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE/" \
+            --exclude='.git/' --exclude='.github/' --exclude='delivery/' --exclude='.gradle/' --exclude='.idea/' \
+            --exclude='**/build/' --exclude='local.properties' --exclude='.env' --exclude='.env.*' \
+            --exclude='*.jks' --exclude='*.keystore' --exclude='*.apk' --exclude='*.aab'
+          (cd "$STAGE" && zip -qr "$GITHUB_WORKSPACE/delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.6.zip" BRASEIRO_WWN_ANDROID_STUDIO_SOURCE)
+          sha256sum delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.6.zip delivery/BRASEIRO_WWN_v1.0.6.apk > delivery/SHA256SUMS_WWN_1.0.6.txt
+          cat > delivery/APK_BUILD_INFO_1.0.6.md <<'EOF'
+          # Braseiro WWN Android build 1.0.6
+
+          - Application ID: `com.braseiro.wwn`
+          - Version: `1.0.6` (`versionCode 106`)
+          - Hotfix: long/sensory Barbara narration on scene openings, arrivals, exploration and travel encounters
+          - Hotfix: map travel is routed back into Jornada narration instead of allowing silent chain-travel
+          - Hotfix: visible character creation/random-generation controls and PT-BR choice labels
+          - Hotfix: labeled PV/Tensão bars and horizontal full POI labels
+          - Hotfix: Android image/text share target for Gemini and other apps
+          - Hotfix: inventory/market illustrated item thumbnails
+          - Hotfix: more robust PDF import with local cache and file-descriptor fallback
+          EOF
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "hotfix: WWN 1.0.6 playable UX, narration and Android sharing"
+          git push origin HEAD:"$TARGET_BRANCH"
+          cat delivery/SHA256SUMS_WWN_1.0.6.txt
+
+      - name: Upload hotfix artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_WWN_1_0_6_HOTFIX
+          path: |
+            delivery/BRASEIRO_WWN_v1.0.6.apk
+            delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.6.zip
+            delivery/SHA256SUMS_WWN_1.0.6.txt
+            delivery/APK_BUILD_INFO_1.0.6.md
+          if-no-files-found: error
+          retention-days: 30
