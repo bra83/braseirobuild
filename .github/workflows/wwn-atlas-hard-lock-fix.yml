@@ -1,0 +1,78 @@
+name: WWN Atlas Narrated Travel Hard Lock
+
+on:
+  push:
+    branches: [wwn-source-105-bridge]
+    paths:
+      - ".github/workflows/wwn-atlas-hard-lock-fix.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: wwn-source-105-bridge
+          fetch-depth: 0
+
+      - name: Make one Atlas action equal one narrated scene
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/src/main/assets/www/scr014.js')
+          s=p.read_text(encoding='utf-8')
+          old="let state=null,partyProjection=null,selectedGroupId=null,persistence=null,campaignId=null,partyService=null,worldService=null,selectedHexKey='0,0';"
+          new="let state=null,partyProjection=null,selectedGroupId=null,persistence=null,campaignId=null,partyService=null,worldService=null,selectedHexKey='0,0',worldActionBusy=false;"
+          if old not in s: raise SystemExit('runtime state declaration not found')
+          s=s.replace(old,new,1)
+
+          old="document.getElementById('travelHex').onclick=async()=>{\n  const button=document.getElementById('travelHex'),[q,r]=selectedHexKey.split(',').map(Number),target={q:ORIGIN.q+q,r:ORIGIN.r+r};const status=document.getElementById('worldActionStatus');\n  status.textContent='Viajando…';button.disabled=true;setWorldNarrative('');"
+          new="document.getElementById('travelHex').onclick=async()=>{\n  if(worldActionBusy)return;worldActionBusy=true;\n  const button=document.getElementById('travelHex'),exploreButton=document.getElementById('exploreHex'),[q,r]=selectedHexKey.split(',').map(Number),target={q:ORIGIN.q+q,r:ORIGIN.r+r};const status=document.getElementById('worldActionStatus');\n  status.textContent='Viajando…';button.disabled=true;exploreButton.disabled=true;setWorldNarrative('');"
+          if old not in s: raise SystemExit('travel handler start not found')
+          s=s.replace(old,new,1)
+
+          old="if(result.status!=='OK'){status.textContent=result.status==='TRAVEL_INTERRUPTED_DESTINATION_LOCKED_NO_MUTATION'?`Há uma viagem interrompida para Q${result.pendingTravel?.q} • R${result.pendingTravel?.r}. Resolva/retome esse trajeto antes de escolher outro destino.`:`Viagem não concluída: ${result.status}`;return;}"
+          new="if(result.status!=='OK'){status.textContent=result.status==='TRAVEL_INTERRUPTED_DESTINATION_LOCKED_NO_MUTATION'?`Há uma viagem interrompida para Q${result.pendingTravel?.q} • R${result.pendingTravel?.r}. Resolva/retome esse trajeto antes de escolher outro destino.`:`Viagem não concluída: ${result.status}`;worldActionBusy=false;button.disabled=false;return;}"
+          if old not in s: raise SystemExit('travel error path not found')
+          s=s.replace(old,new,1)
+
+          old="const narrative=await narrateWorldResult(result);status.textContent=result.encounterOccurred?(result.interrupted?`ENCONTRO INTERROMPEU A VIAGEM • ${Number(result.remainingHours??0).toFixed(1)} h restantes • cena pronta na Jornada.`:'ENCONTRO NO TRAJETO • cena pronta na Jornada.'):(narrative?.text?'Destino alcançado • cena narrada.':'Destino alcançado.');}catch(error){status.textContent=`Falha na viagem: ${error?.message??error}`;}finally{button.disabled=false;}"
+          new="const narrative=await narrateWorldResult(result);status.textContent=result.encounterOccurred?(result.interrupted?`ENCONTRO INTERROMPEU A VIAGEM • ${Number(result.remainingHours??0).toFixed(1)} h restantes • abrindo a cena.`:'ENCONTRO NO TRAJETO • abrindo a cena.'):(narrative?.text?'Destino alcançado • abrindo a cena narrada.':'Destino alcançado • abrindo a Jornada.');setTimeout(()=>{location.href='jornada.html'},450);}catch(error){worldActionBusy=false;button.disabled=false;exploreButton.disabled=false;status.textContent=`Falha na viagem: ${error?.message??error}`;}"
+          if old not in s: raise SystemExit('travel completion path not found')
+          s=s.replace(old,new,1)
+
+          old="document.getElementById('exploreHex').onclick=async()=>{\n  const p=state?.worldState?.position??{},button=document.getElementById('exploreHex'),status=document.getElementById('worldActionStatus');if(!Number.isInteger(p.q)||!Number.isInteger(p.r))return;status.textContent='Explorando o hex…';button.disabled=true;setWorldNarrative('');"
+          new="document.getElementById('exploreHex').onclick=async()=>{\n  if(worldActionBusy)return;worldActionBusy=true;\n  const p=state?.worldState?.position??{},button=document.getElementById('exploreHex'),travelButton=document.getElementById('travelHex'),status=document.getElementById('worldActionStatus');if(!Number.isInteger(p.q)||!Number.isInteger(p.r)){worldActionBusy=false;return;}status.textContent='Explorando o hex…';button.disabled=true;travelButton.disabled=true;setWorldNarrative('');"
+          if old not in s: raise SystemExit('explore handler start not found')
+          s=s.replace(old,new,1)
+
+          old="if(!['OK','ALREADY_EXPLORED_NO_MUTATION'].includes(result.status)){status.textContent=`Exploração não concluída: ${result.status}`;return;}"
+          new="if(!['OK','ALREADY_EXPLORED_NO_MUTATION'].includes(result.status)){status.textContent=`Exploração não concluída: ${result.status}`;worldActionBusy=false;button.disabled=false;travelButton.disabled=false;return;}"
+          if old not in s: raise SystemExit('explore error path not found')
+          s=s.replace(old,new,1)
+
+          old="if(result.status==='OK'){status.textContent=result.discovery?.poiName?`Descoberto: ${result.discovery.poiName} • Barbara está narrando…`:`Hex explorado • ${result.plan.days} dia(s) • Barbara está narrando…`;await narrateWorldResult(result);reloadState();renderMap();updateTerrainInfo(rp.q,rp.r,true);}else status.textContent='Este hex já estava explorado.';}catch(error){status.textContent=`Falha na exploração: ${error?.message??error}`;}finally{button.disabled=false;}"
+          new="if(result.status==='OK'){status.textContent=result.discovery?.poiName?`Descoberto: ${result.discovery.poiName} • Barbara está narrando…`:`Hex explorado • ${result.plan.days} dia(s) • Barbara está narrando…`;await narrateWorldResult(result);reloadState();renderMap();updateTerrainInfo(rp.q,rp.r,true);status.textContent='Exploração concluída • abrindo a cena narrada.';setTimeout(()=>{location.href='jornada.html'},450);}else{status.textContent='Este hex já estava explorado.';worldActionBusy=false;button.disabled=false;travelButton.disabled=false;}}catch(error){worldActionBusy=false;button.disabled=false;travelButton.disabled=false;status.textContent=`Falha na exploração: ${error?.message??error}`;}"
+          if old not in s: raise SystemExit('explore completion path not found')
+          s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+          PY
+          node --check app/src/main/assets/www/scr014.js
+          grep -q 'worldActionBusy=true' app/src/main/assets/www/scr014.js
+          grep -q "setTimeout(()=>{location.href='jornada.html'},450)" app/src/main/assets/www/scr014.js
+
+      - name: Commit Atlas hard lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add app/src/main/assets/www/scr014.js
+          git commit -m "fix: require narrated scene after each Atlas action"
+          git push origin HEAD:wwn-source-105-bridge
