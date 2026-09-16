@@ -1,0 +1,76 @@
+name: Mirror Braseiro APK Multihost
+
+on:
+  push:
+    branches: [fichas-final-20260916]
+    paths:
+      - ".github/workflows/mirror-apk-multihost.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fichas-final-20260916
+      - name: Tentar hosts temporários e validar SHA
+        shell: bash
+        run: |
+          set -u
+          APK="deliverables/fichas-final-20260916/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.0-final-debug.apk"
+          SHA="8b217b8122695a848297c20d4a5966bdcd34942e1ce0c3199f485fc843c60da6"
+          SIZE=318743
+          test "$(sha256sum "$APK" | awk '{print $1}')" = "$SHA" || exit 2
+          verify() {
+            U="$1"; [ -n "$U" ] || return 1
+            echo "VERIFY $U"
+            rm -f /tmp/check.apk
+            curl -A 'Mozilla/5.0' -L --fail --silent --show-error --max-time 60 "$U" -o /tmp/check.apk || return 1
+            [ "$(wc -c < /tmp/check.apk)" = "$SIZE" ] || return 1
+            [ "$(sha256sum /tmp/check.apk | awk '{print $1}')" = "$SHA" ] || return 1
+            echo "$U" > deliverables/fichas-final-20260916/DIRECT_APK_URL_VERIFIED.txt
+            return 0
+          }
+          FOUND=""
+          # transfer.sh
+          U="$(curl -A 'Mozilla/5.0' --silent --show-error --max-time 60 --upload-file "$APK" "https://transfer.sh/$(basename "$APK")" 2>/dev/null || true)"
+          if verify "$U"; then FOUND="$U"; fi
+          # temp.sh
+          if [ -z "$FOUND" ]; then
+            U="$(curl -A 'Mozilla/5.0' --silent --show-error --max-time 60 -F "file=@$APK" https://temp.sh/upload 2>/dev/null || true)"
+            if verify "$U"; then FOUND="$U"; fi
+          fi
+          # file.io
+          if [ -z "$FOUND" ]; then
+            R="$(curl -A 'Mozilla/5.0' --silent --show-error --max-time 60 -F "file=@$APK" 'https://file.io/?expires=1d' 2>/dev/null || true)"
+            U="$(printf '%s' "$R" | jq -r '.link // empty' 2>/dev/null || true)"
+            if verify "$U"; then FOUND="$U"; fi
+          fi
+          # litterbox
+          if [ -z "$FOUND" ]; then
+            U="$(curl -A 'Mozilla/5.0' --silent --show-error --max-time 60 -F reqtype=fileupload -F time=1h -F "fileToUpload=@$APK" https://litterbox.catbox.moe/resources/internals/api.php 2>/dev/null || true)"
+            if verify "$U"; then FOUND="$U"; fi
+          fi
+          # oshi.at
+          if [ -z "$FOUND" ]; then
+            R="$(curl -A 'Mozilla/5.0' --silent --show-error --max-time 60 -F "f=@$APK" https://oshi.at 2>/dev/null || true)"
+            U="$(printf '%s\n' "$R" | grep -Eo 'https://oshi.at/[A-Za-z0-9]+' | head -1 || true)"
+            if verify "$U"; then FOUND="$U"; fi
+          fi
+          # pomf.lain.la
+          if [ -z "$FOUND" ]; then
+            R="$(curl -A 'Mozilla/5.0' --silent --show-error --max-time 60 -F "files[]=@$APK" https://pomf.lain.la/upload.php 2>/dev/null || true)"
+            U="$(printf '%s' "$R" | jq -r '.files[0].url // empty' 2>/dev/null || true)"
+            if verify "$U"; then FOUND="$U"; fi
+          fi
+          [ -n "$FOUND" ] || { echo 'NO_VERIFIED_HOST'; exit 3; }
+          echo "FOUND=$FOUND"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add deliverables/fichas-final-20260916/DIRECT_APK_URL_VERIFIED.txt
+          git commit -m "build: add verified direct APK URL"
+          git push origin HEAD:fichas-final-20260916
