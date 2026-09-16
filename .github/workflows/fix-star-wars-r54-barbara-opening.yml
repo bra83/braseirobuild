@@ -1,0 +1,132 @@
+name: Fix Star Wars R54 Barbara Opening Master
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "star-wars/r54/fix_barbara_opening_master.py"
+      - ".github/workflows/fix-star-wars-r54-barbara-opening.yml"
+permissions: {contents: write}
+jobs:
+  fix-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - id: root
+        name: Recover canonical R54 and fix Barbara opening
+        run: |
+          set -euo pipefail
+          ZIP=star-wars/final-1.0.0/output-r54/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip
+          test -f "$ZIP"
+          rm -rf barbara-opening-work && mkdir barbara-opening-work
+          unzip -q "$ZIP" -d barbara-opening-work
+          SET="$(find barbara-opening-work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"
+          test -n "$SET"; ROOT="$(dirname "$SET")"
+          python3 -m py_compile star-wars/r54/fix_barbara_opening_master.py
+          python3 star-wars/r54/fix_barbara_opening_master.py "$ROOT" | tee /tmp/BARBARA_OPENING_FIX.txt
+          grep -q 'R54_BARBARA_OPENING_MASTER_PASS' /tmp/BARBARA_OPENING_FIX.txt
+          echo "path=$ROOT" >> "$GITHUB_OUTPUT"
+      - name: Static C01 gate
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          C="$ROOT/app/src/main/assets/vtt/js/core/controller.mjs"
+          R="$ROOT/app/src/main/assets/vtt/r46/final-runtime.js"
+          node --check "$C"
+          node --check "$R"
+          grep -Fq 'R54_BARBARA_OPENING_MASTER' "$C"
+          grep -Fq 'R54_BARBARA_OPENING_MASTER' "$R"
+          grep -Fq 'masterOpeningRequest' "$C"
+          grep -Fq 'awaitingMaster: true' "$C"
+          grep -Fq 'requestMasterTurn({intentText,timeoutMs:60000})' "$R"
+          ! grep -Fq 'A campanha começa em ${locationName}.' "$C"
+          ! grep -Fq "narration: parts.join(' ')" "$C"
+          python3 - "$C" "$R" <<'PY'
+          from pathlib import Path
+          import sys
+          c=Path(sys.argv[1]).read_text('utf-8'); r=Path(sys.argv[2]).read_text('utf-8')
+          assert 'proposal: null' in c and 'awaitingMaster: true' in c
+          assert 'startBarbaraOpening' in r and 'requestMasterTurn' in r
+          assert r.count("await startBarbaraOpening()") >= 2
+          print('R54_BARBARA_C01_STATIC_PASS')
+          PY
+      - name: Browser opening calls Barbara
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium >/dev/null
+          python3 -m http.server 8765 --directory "$ROOT/app/src/main/assets/vtt" >/tmp/r54-barbara-http.log 2>&1 &
+          PID=$!; trap 'kill $PID || true' EXIT; sleep 1
+          python3 - <<'PY'
+          from playwright.sync_api import sync_playwright
+          with sync_playwright() as p:
+              b=p.chromium.launch(headless=True)
+              pg=b.new_page(viewport={'width':415,'height':915})
+              pg.goto('http://127.0.0.1:8765/r46-shell.html?screen=00',wait_until='networkidle',timeout=120000)
+              pg.wait_for_timeout(800)
+              if pg.locator('#braseiro-sandbox-setup').count():
+                  pg.locator('#sandbox-start-button').click()
+                  pg.wait_for_selector('#braseiro-sandbox-setup',state='detached',timeout=10000)
+                  pg.wait_for_timeout(250)
+              if not pg.evaluate("Boolean((window.BraseiroGameBridge.readState().data||{}).player?.character)"):
+                  rnd=pg.locator('[data-random-character]').first
+                  assert rnd.count()==1
+                  rnd.click(); pg.wait_for_timeout(700)
+              pg.evaluate("""() => {
+                const bridge=window.BraseiroGameBridge;
+                if(!bridge||typeof bridge.requestMasterTurn!=='function') throw new Error('requestMasterTurn missing');
+                window.__r54OpeningCalls=[];
+                bridge.requestMasterTurn=async (opts)=>{window.__r54OpeningCalls.push(opts);return {ok:true,data:{provider:'audit'}}};
+              }""")
+              start=pg.locator('[data-start-adventure]').first
+              assert start.count()==1
+              start.click(); pg.wait_for_timeout(500)
+              calls=pg.evaluate('window.__r54OpeningCalls')
+              assert len(calls)==1,calls
+              assert 'Inicie a aventura agora como Mestre Barbara' in calls[0].get('intentText',''),calls
+              state=pg.evaluate('window.BraseiroGameBridge.readState().data') or {}
+              narration=str(((state.get('master') or {}).get('narration') or (state.get('scene') or {}).get('narration') or ''))
+              assert not narration.startswith('A campanha começa em '),narration
+              assert (state.get('session') or {}).get('status')=='ativa',state.get('session')
+              b.close()
+          print('R54_BARBARA_C01_BROWSER_PASS')
+          PY
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@v4
+        with: {gradle-version: '8.13', validate-wrappers: false}
+      - name: Configure Android SDK 36
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort | tail -n1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platform-tools' 'platforms;android-36'
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+      - name: Build patched R54 APK
+        working-directory: ${{ steps.root.outputs.path }}
+        run: gradle :app:assembleDebug --stacktrace --no-daemon
+      - name: Persist patched canonical R54
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          OUT=star-wars/final-1.0.0/output-r54
+          TMP="$(mktemp -d)"
+          APK="$(find "$ROOT/app/build/outputs/apk/debug" -type f -name '*.apk' | head -n1)"; test -f "$APK"
+          cp "$APK" "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_ASSETS_HOTFIX_DEBUG.apk"
+          unzip -t "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_ASSETS_HOTFIX_DEBUG.apk" >/dev/null
+          (cd "$ROOT" && zip -qr "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" . -x '*/build/*' '.gradle/*')
+          sha256sum "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_ASSETS_HOTFIX_DEBUG.apk" > "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_ASSETS_HOTFIX_DEBUG.apk.sha256"
+          sha256sum "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" > "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip.sha256"
+          git config user.name github-actions; git config user.email github-actions@github.com
+          git pull --rebase origin main
+          mkdir -p "$OUT"
+          cp "$TMP"/* "$OUT"/
+          printf '%s\n' 'R54_BARBARA_OPENING_MASTER_PASS local_template=0 master_request=1 browser=PASS build=PASS' > "$OUT/BARBARA_OPENING_2026-09-16.txt"
+          git add -f "$OUT"
+          git commit -m 'build: persist R54 Barbara opening master' || true
+          git push origin HEAD:main
