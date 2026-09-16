@@ -1,0 +1,20 @@
+{
+  "fixtureKind": "WAVE3_MINIMAL_LEGAL_FOR_CORE_CHECKS",
+  "fullCharacterLegalityDeferredTo": "WAVE4",
+  "characterId": "pc-wave3-iria",
+  "name": "Iria",
+  "level": 1,
+  "attributes": {
+    "Strength": 10,
+    "Dexterity": 12,
+    "Constitution": 11,
+    "Intelligence": 10,
+    "Wisdom": 14,
+    "Charisma": 9
+  },
+  "skills": {
+    "Notice": 0,
+    "Sneak": 0,
+    "Exert": 0
+  }
+}

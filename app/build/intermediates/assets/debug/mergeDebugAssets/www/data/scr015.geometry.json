@@ -1,0 +1,640 @@
+{
+  "schema": "BRASEIRO_WWN_APPROVED_COMPOSITION_GEOMETRY_V1",
+  "screen_alias": "ENCOUNTER_HEX_RUINAS_DA_VIGILIA",
+  "canonical_screen_id": "SCR-015",
+  "viewport": {
+    "width": 415,
+    "height": 915,
+    "orientation": "portrait"
+  },
+  "authority": {
+    "reference_class": "APPROVED_EXACT_USER_REFERENCE",
+    "geometry_class": "APPROVED_COMPOSITION_GEOMETRY",
+    "visual_lock_status": "NOT_YET_ESTABLISHED_REQUIRES_REAL_RUNTIME_CAPTURE_DIFF",
+    "implementation_may_not_improve_geometry": true,
+    "non_proportional_stretch_forbidden": true
+  },
+  "reference": {
+    "concept_file": "SCR_HEX_ENCOUNTER_RUINAS_CONCEPT_REFERENCE.png",
+    "forge_source_file": "braseiro-screen-forge-v3.json",
+    "forge_static_export": "braseiro-screen.html"
+  },
+  "deterministic_state": {
+    "campaign_label": "SOMBRAS DE GELO E FERRO",
+    "screen_title": "ENCONTRO NO HEX",
+    "location": "RUÍNAS DA VIGÍLIA",
+    "bottom_nav_active": "explore",
+    "bottom_nav_inactive": [
+      "home",
+      "sessions",
+      "favorites",
+      "settings"
+    ],
+    "contact_state": "CONTATO INESPERADO"
+  },
+  "layers": [
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_01",
+      "source_name": "01_compass_icon.png",
+      "asset_path": "assets/encounter_hex_ruinas/01_compass_icon.png",
+      "role": "decorative_brand",
+      "action": null,
+      "geometry": {
+        "x": 8,
+        "y": 26,
+        "w": 58,
+        "h": 59,
+        "z": 12,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "reference_or_static",
+      "sha256": "d7e7fd95be0214d4d35f490f0124099c38d00bf55434536f8cca46a67ac35245"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_02",
+      "source_name": "02_brand_title_block.png",
+      "asset_path": "assets/encounter_hex_ruinas/02_brand_title_block.png",
+      "role": "brand_header",
+      "action": null,
+      "geometry": {
+        "x": 71,
+        "y": 33,
+        "w": 168,
+        "h": 45,
+        "z": 13,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "native_text_required",
+      "sha256": "d2e8c8857ce8dec9a0cde25c79ced19866773cdbd96d931260fb9b1086a00831"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_03",
+      "source_name": "03_top_search.png",
+      "asset_path": "assets/encounter_hex_ruinas/03_top_search.png",
+      "role": "button",
+      "action": "open_search",
+      "geometry": {
+        "x": 268,
+        "y": 29,
+        "w": 43,
+        "h": 51,
+        "z": 14,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "interactive",
+      "sha256": "d2eab990fcb74e3d03a61c2b58c8ecbae8d11ac059e7f00390f3d7f0d9905cd9"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_04",
+      "source_name": "04_top_layers.png",
+      "asset_path": "assets/encounter_hex_ruinas/04_top_layers.png",
+      "role": "button",
+      "action": "open_layers",
+      "geometry": {
+        "x": 314,
+        "y": 29,
+        "w": 43,
+        "h": 51,
+        "z": 15,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "interactive",
+      "sha256": "11840ef884abdac3ac58354904d5bc8e707ba12543a43e8231a5df6a4ba908d6"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_05",
+      "source_name": "05_top_notes.png",
+      "asset_path": "assets/encounter_hex_ruinas/05_top_notes.png",
+      "role": "button",
+      "action": "open_notes",
+      "geometry": {
+        "x": 364,
+        "y": 29,
+        "w": 43,
+        "h": 51,
+        "z": 16,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "interactive",
+      "sha256": "c6549d59fed3dd5e1b01ab026f61e798cac86836e5b5ddfaf9874d28d2e6f47c"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_06",
+      "source_name": "10_scene_ruins_framed.png",
+      "asset_path": "assets/encounter_hex_ruinas/10_scene_ruins_framed.png",
+      "role": "scene_art",
+      "action": null,
+      "geometry": {
+        "x": 13,
+        "y": 146,
+        "w": 389,
+        "h": 244,
+        "z": 17,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "runtime_asset_candidate",
+      "sha256": "20db017080e62fedd2c071d8b6777031657b4aafc3c190317f71ea268e1385c5"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_07",
+      "source_name": "06_location_badge_ruins.png",
+      "asset_path": "assets/encounter_hex_ruinas/06_location_badge_ruins.png",
+      "role": "location_icon",
+      "action": null,
+      "geometry": {
+        "x": 14,
+        "y": 94,
+        "w": 47,
+        "h": 47,
+        "z": 18,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "dynamic_data_adjacent",
+      "sha256": "700e3d6b35f94b81d047bffa3b46eacaf06fba57a49fa9c17e79d64f0ddb45bc"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_08",
+      "source_name": "07_encounter_title_block.png",
+      "asset_path": "assets/encounter_hex_ruinas/07_encounter_title_block.png",
+      "role": "location_header",
+      "action": null,
+      "geometry": {
+        "x": 66,
+        "y": 100,
+        "w": 200,
+        "h": 37,
+        "z": 19,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "native_text_required",
+      "sha256": "e4bc2b5c297c1c6c3cbedf2eb105a2f17b5784702785d34965db8f8d96dccfd0"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_09",
+      "source_name": "08_contact_badge.png",
+      "asset_path": "assets/encounter_hex_ruinas/08_contact_badge.png",
+      "role": "status_badge",
+      "action": null,
+      "geometry": {
+        "x": 300,
+        "y": 102,
+        "w": 100,
+        "h": 42,
+        "z": 20,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "native_text_required",
+      "sha256": "271fb7dc08214f177a2ac763637e483181a58532e04ef427d3294fd2dab6554d"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_10",
+      "source_name": "11_stat_perigo.png",
+      "asset_path": "assets/encounter_hex_ruinas/11_stat_perigo.png",
+      "role": "status_stat",
+      "action": null,
+      "geometry": {
+        "x": 16,
+        "y": 399,
+        "w": 87,
+        "h": 50,
+        "z": 21,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "native_text_required",
+      "sha256": "442bd228b3071f95f5ebe9435b1d5a8327423f62642fb12c3a5f241d4b9c4524"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_11",
+      "source_name": "12_stat_distancia.png",
+      "asset_path": "assets/encounter_hex_ruinas/12_stat_distancia.png",
+      "role": "status_stat",
+      "action": null,
+      "geometry": {
+        "x": 115,
+        "y": 402,
+        "w": 93,
+        "h": 49,
+        "z": 22,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "native_text_required",
+      "sha256": "cad2e1ed5c999948475d8b647276b09a3813a25f89862dd68e84896d75f89e82"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_12",
+      "source_name": "13_stat_cobertura.png",
+      "asset_path": "assets/encounter_hex_ruinas/13_stat_cobertura.png",
+      "role": "status_stat",
+      "action": null,
+      "geometry": {
+        "x": 213,
+        "y": 403,
+        "w": 92,
+        "h": 49,
+        "z": 23,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "native_text_required",
+      "sha256": "ac1d5ed2238aaccf24badf54aec8a11692e7ef0774cc3f7538ae30be26f7f035"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_13",
+      "source_name": "14_stat_reacao.png",
+      "asset_path": "assets/encounter_hex_ruinas/14_stat_reacao.png",
+      "role": "status_stat",
+      "action": null,
+      "geometry": {
+        "x": 311,
+        "y": 402,
+        "w": 90,
+        "h": 49,
+        "z": 24,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "native_text_required",
+      "sha256": "b39e4bce0f7ae9dcf319ad004ed4068f966b19f2f6b7c60ca06798fc45fa4365"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_14",
+      "source_name": "15_narrative_panel.png",
+      "asset_path": "assets/encounter_hex_ruinas/15_narrative_panel.png",
+      "role": "narrative_panel",
+      "action": null,
+      "geometry": {
+        "x": 15,
+        "y": 455,
+        "w": 384,
+        "h": 90,
+        "z": 25,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "native_text_required",
+      "sha256": "6275a3e6a58dce5c510f02b47440be94848672e1778d1e012a3e8bed0ed5fba9"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_15",
+      "source_name": "16_choices_heading.png",
+      "asset_path": "assets/encounter_hex_ruinas/16_choices_heading.png",
+      "role": "section_heading",
+      "action": null,
+      "geometry": {
+        "x": 21,
+        "y": 532,
+        "w": 371,
+        "h": 39,
+        "z": 26,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "native_text_required",
+      "sha256": "80ccb4651975a34e7a421b15f7606fabf07f784e3a5b2ead48c30c92033c2520"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_16",
+      "source_name": "17_button_observar.png",
+      "asset_path": "assets/encounter_hex_ruinas/17_button_observar.png",
+      "role": "choice_button",
+      "action": "observe",
+      "geometry": {
+        "x": 20,
+        "y": 574,
+        "w": 180,
+        "h": 53,
+        "z": 27,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "interactive",
+      "sha256": "bf10a66c4d09365f44194e9fe29947bf5d4eb3dde1a26571fb8eeae8fcaa3745"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_17",
+      "source_name": "18_button_abordar.png",
+      "asset_path": "assets/encounter_hex_ruinas/18_button_abordar.png",
+      "role": "choice_button",
+      "action": "approach",
+      "geometry": {
+        "x": 214,
+        "y": 573,
+        "w": 180,
+        "h": 53,
+        "z": 28,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "interactive",
+      "sha256": "3a9312762998176954b68d04eb3c3120d8054d6556f365e02a95ce12fff55bd4"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_18",
+      "source_name": "19_button_emboscar.png",
+      "asset_path": "assets/encounter_hex_ruinas/19_button_emboscar.png",
+      "role": "choice_button",
+      "action": "ambush",
+      "geometry": {
+        "x": 19,
+        "y": 632,
+        "w": 180,
+        "h": 53,
+        "z": 29,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "interactive",
+      "sha256": "d2c18fc483ed87540d4b3b8561f803daf818f000a16b8b34b8407fe85bf15ce2"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_19",
+      "source_name": "20_button_recuar.png",
+      "asset_path": "assets/encounter_hex_ruinas/20_button_recuar.png",
+      "role": "choice_button",
+      "action": "retreat",
+      "geometry": {
+        "x": 213,
+        "y": 632,
+        "w": 180,
+        "h": 53,
+        "z": 30,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "interactive",
+      "sha256": "924da463044ed7c03ae50180c0dcb6515acaaf1711a98474702c967f6a92fad0"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_20",
+      "source_name": "21_button_iniciar_combate.png",
+      "asset_path": "assets/encounter_hex_ruinas/21_button_iniciar_combate.png",
+      "role": "primary_action_button",
+      "action": "start_combat",
+      "geometry": {
+        "x": 18,
+        "y": 691,
+        "w": 381,
+        "h": 54,
+        "z": 31,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "interactive",
+      "sha256": "cad035248a16ab530e951dbbb0f3d69b5d5677d86e6afa87235bfb026ae201f6"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_21",
+      "source_name": "22_notes_panel.png",
+      "asset_path": "assets/encounter_hex_ruinas/22_notes_panel.png",
+      "role": "gm_notes_panel",
+      "action": null,
+      "geometry": {
+        "x": 15,
+        "y": 750,
+        "w": 387,
+        "h": 82,
+        "z": 32,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "native_text_required",
+      "sha256": "49f790f396386cedbc5609721a4d56cef13118a364f3926388620b3d7a4318fb"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_22",
+      "source_name": "23_notes_icon_button.png",
+      "asset_path": "assets/encounter_hex_ruinas/23_notes_icon_button.png",
+      "role": "button",
+      "action": "open_gm_notes",
+      "geometry": {
+        "x": 345,
+        "y": 756,
+        "w": 44,
+        "h": 50,
+        "z": 33,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": true,
+        "aspect_locked": true
+      },
+      "runtime_policy": "interactive",
+      "sha256": "e35b87c3e2d812fbefeba4d0af8e339c71af983eec1f0e0828b22bf1bde9bb4b"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_23",
+      "source_name": "24_bottom_home.png",
+      "asset_path": "assets/encounter_hex_ruinas/24_bottom_home.png",
+      "role": "bottom_nav",
+      "action": "nav_home",
+      "geometry": {
+        "x": 21,
+        "y": 847,
+        "w": 47,
+        "h": 58,
+        "z": 34,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": false,
+        "aspect_locked": true
+      },
+      "runtime_policy": "interactive_inactive",
+      "sha256": "898b8d8c082741e8adc5fe69db5df13634b5120a6253f62acc537d3c32621f60"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_24",
+      "source_name": "25_bottom_explore_active.png",
+      "asset_path": "assets/encounter_hex_ruinas/25_bottom_explore_active.png",
+      "role": "bottom_nav",
+      "action": "nav_explore",
+      "geometry": {
+        "x": 101,
+        "y": 848,
+        "w": 46,
+        "h": 57,
+        "z": 35,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": false,
+        "aspect_locked": true
+      },
+      "runtime_policy": "interactive_active",
+      "sha256": "c80af9ee72050c59cacd634ea7c9369fef06e1156b782f52a76f8ac910bd0831"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_25",
+      "source_name": "26_bottom_sessions.png",
+      "asset_path": "assets/encounter_hex_ruinas/26_bottom_sessions.png",
+      "role": "bottom_nav",
+      "action": "nav_sessions",
+      "geometry": {
+        "x": 182,
+        "y": 849,
+        "w": 52,
+        "h": 56,
+        "z": 36,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": false,
+        "aspect_locked": true
+      },
+      "runtime_policy": "interactive_inactive",
+      "sha256": "454e5c26d3f14eb69a58bd28d1829b8d019bf4e7782852d416a34ea346346651"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_26",
+      "source_name": "27_bottom_favorites.png",
+      "asset_path": "assets/encounter_hex_ruinas/27_bottom_favorites.png",
+      "role": "bottom_nav",
+      "action": "nav_favorites",
+      "geometry": {
+        "x": 256,
+        "y": 850,
+        "w": 53,
+        "h": 54,
+        "z": 37,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": false,
+        "aspect_locked": true
+      },
+      "runtime_policy": "interactive_inactive",
+      "sha256": "1eb80d2aceea651b45d09ba702fce7f0f537a91f69f47af2929ebb0c6b952112"
+    },
+    {
+      "stable_id": "HEX_ENCOUNTER_RUINAS_27",
+      "source_name": "28_bottom_settings.png",
+      "asset_path": "assets/encounter_hex_ruinas/28_bottom_settings.png",
+      "role": "bottom_nav",
+      "action": "nav_settings",
+      "geometry": {
+        "x": 330,
+        "y": 847,
+        "w": 74,
+        "h": 58,
+        "z": 38,
+        "opacity": 1
+      },
+      "state": {
+        "visible": true,
+        "locked_in_forge": false,
+        "aspect_locked": true
+      },
+      "runtime_policy": "interactive_inactive",
+      "sha256": "e195821224e6b69a27894e1d56e9d70d9b8c0a16b3a9bb8dc44b2612e83ea907"
+    }
+  ],
+  "canonical_screen_mapping": {
+    "status": "RECONSTRUCTED_HIGH_CONFIDENCE_PENDING_ORIGINAL_INVENTORY_ARTIFACT_CONFIRMATION",
+    "basis": [
+      "SCR-014 is locked as Atlas in PROJECT_STATE",
+      "M3A inventory order places Wilderness/Hex immediately after Atlas",
+      "SCR-022 is locked as VTT/Combat and the intervening mandated surface sequence is consistent"
+    ],
+    "previous_value": "EXECUTOR_MUST_MAP_TO_EXISTING_SCREEN_INVENTORY"
+  }
+}

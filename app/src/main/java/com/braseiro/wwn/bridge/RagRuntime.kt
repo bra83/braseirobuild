@@ -17,6 +17,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
+import java.io.FileInputStream
 import java.security.MessageDigest
 import kotlin.math.ln
 
@@ -58,12 +59,23 @@ class RagRuntime(private val context: Context) {
 
     fun importPdf(uri: Uri, displayName: String?, requestedAuthorityProfile: String, progress: ((Int, Int) -> Unit)? = null): JSONObject {
         val profile = normalizeProfile(requestedAuthorityProfile)
-        val temp = File.createTempFile("wwn-rag-", ".pdf", context.cacheDir)
+        val importDir = File(context.cacheDir, "rag-import").apply { require(exists() || mkdirs()) { "Cannot create PDF import cache" } }
+        val temp = File.createTempFile("wwn-rag-", ".pdf", importDir)
         return try {
             val digest = MessageDigest.getInstance("SHA-256"); var total = 0L
-            context.contentResolver.openInputStream(uri)?.use { input -> FileOutputStream(temp).use { output ->
-                val buf = ByteArray(64 * 1024); while (true) { val n = input.read(buf); if (n < 0) break; total += n; require(total <= MAX_PDF_BYTES) { "PDF too large" }; digest.update(buf, 0, n); output.write(buf, 0, n) }
-            } } ?: throw IllegalStateException("Unable to read selected PDF")
+            fun copySource(input: java.io.InputStream) {
+                total = 0L; digest.reset()
+                FileOutputStream(temp, false).use { output ->
+                    val buf = ByteArray(64 * 1024)
+                    while (true) { val n = input.read(buf); if (n < 0) break; total += n; require(total <= MAX_PDF_BYTES) { "PDF too large" }; digest.update(buf, 0, n); output.write(buf, 0, n) }
+                }
+            }
+            var opened = false
+            try { context.contentResolver.openInputStream(uri)?.use { copySource(it); opened = true } } catch (_: java.io.FileNotFoundException) { }
+            if (!opened) {
+                context.contentResolver.openFileDescriptor(uri, "r")?.use { descriptor -> FileInputStream(descriptor.fileDescriptor).use { copySource(it); opened = true } }
+            }
+            require(opened) { "Não foi possível abrir o PDF selecionado. Se ele estiver na nuvem, baixe-o no aparelho e tente novamente." }
             require(total > 4 && temp.inputStream().use { val h = ByteArray(4); it.read(h); String(h, Charsets.ISO_8859_1) } == "%PDF") { "Selected file is not a PDF" }
             val sourceHash = digest.digest().joinToString("") { "%02x".format(it) }
             val documentId = "pdf-${sourceHash.take(24)}"

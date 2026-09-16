@@ -39,6 +39,7 @@ class MainActivity : ComponentActivity(), NativeFileActions, NativeDiceActions {
     private var pendingCharacterSaveJson: String? = null
     private var pendingBackupSaveJson: String? = null
     private var pendingRagAuthorityProfile: String? = null
+    private var pendingSharedSceneImport: JSONObject? = null
     private lateinit var ragRuntime: RagRuntime
     private lateinit var geminiRuntime: GeminiRuntime
     private lateinit var audioRuntime: NativeAudioRuntime
@@ -95,6 +96,15 @@ class MainActivity : ComponentActivity(), NativeFileActions, NativeDiceActions {
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
                     syncWebBackState()
+                    pendingSharedSceneImport?.let { pending ->
+                        pendingSharedSceneImport = null
+                        emitFileEvent(
+                            kind = "SCENE_IMAGE_IMPORT",
+                            status = pending.optString("status", "ERROR"),
+                            text = pending.toString(),
+                            reason = pending.optString("reason").takeIf { it.isNotBlank() },
+                        )
+                    }
                 }
 
                 override fun onRenderProcessGone(view: WebView?, detail: RenderProcessGoneDetail?): Boolean {
@@ -160,6 +170,43 @@ class MainActivity : ComponentActivity(), NativeFileActions, NativeDiceActions {
 
         if (savedInstanceState == null) webView.loadUrl("${SceneImageRuntime.LOCAL_ORIGIN}/assets/www/jornada.html")
         else webView.restoreState(savedInstanceState)
+        handleIncomingShare(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIncomingShare(intent)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun handleIncomingShare(source: Intent?) {
+        if (source == null || source.action !in setOf(Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE)) return
+        val candidates = mutableListOf<Uri>()
+        source.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)?.let(candidates::add)
+        source.clipData?.let { clip ->
+            for (i in 0 until clip.itemCount) clip.getItemAt(i).uri?.let { if (it !in candidates) candidates += it }
+        }
+        val imageUri = candidates.firstOrNull { uri ->
+            source.type?.startsWith("image/") == true || contentResolver.getType(uri)?.startsWith("image/") == true
+        }
+        if (imageUri != null) {
+            ioExecutor.execute {
+                val result = try { sceneImageRuntime.importImage(imageUri) }
+                catch (t: Throwable) { JSONObject().put("status", "ERROR").put("reason", t.message ?: "Falha ao receber a imagem compartilhada") }
+                pendingSharedSceneImport = result
+                runOnUiThread { webView.loadUrl("${SceneImageRuntime.LOCAL_ORIGIN}/assets/www/jornada.html") }
+            }
+            return
+        }
+        val sharedText = source.getStringExtra(Intent.EXTRA_TEXT)?.trim().orEmpty()
+        if (sharedText.isNotBlank()) {
+            pendingSharedSceneImport = JSONObject()
+                .put("status", "LINK_ONLY")
+                .put("reason", "O aplicativo de origem compartilhou apenas um link, não os bytes da imagem. No Gemini, use a opção que compartilha/salva a imagem como arquivo quando disponível.")
+                .put("sharedText", sharedText.take(2000))
+            webView.loadUrl("${SceneImageRuntime.LOCAL_ORIGIN}/assets/www/jornada.html")
+        }
     }
 
     private fun syncWebBackState() {
