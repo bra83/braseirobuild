@@ -34,6 +34,8 @@ jobs:
           grep -q 'globalThis.__BRASEIRO_PENDING_SCENE_IMAGE' app/src/main/assets/www/ux-hotfix.js
           grep -q 'RUMOR ATUAL' app/src/main/assets/www/jornada.js
           grep -q 'Math.min(2,starterHooks.length)' app/src/main/assets/www/jornada.js
+          grep -q 'worldActionBusy=true' app/src/main/assets/www/scr014.js
+          grep -q "setTimeout(()=>{location.href='jornada.html'},450)" app/src/main/assets/www/scr014.js
           python3 - <<'PY'
           from pathlib import Path
           ux=Path('app/src/main/assets/www/ux-hotfix.js').read_text(encoding='utf-8')
