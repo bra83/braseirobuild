@@ -70,7 +70,6 @@ jobs:
           test -n "$BSET"; test -n "$OSET"
           BROOT="$(dirname "$BSET")"; OROOT="$(dirname "$OSET")"
           cp -a "$BROOT/." work/
-          # Preserve exact approved R38/R46 Android shell/native host. Overlay only additive R45-R51 content/data.
           mkdir -p work/app/src/main/assets/vtt/js/expansion
           if [ -d "$OROOT/app/src/main/assets/vtt/js/expansion" ]; then cp -a "$OROOT/app/src/main/assets/vtt/js/expansion/." work/app/src/main/assets/vtt/js/expansion/; fi
           if [ -d "$OROOT/app/src/main/assets/vtt/assets/maps" ]; then mkdir -p work/app/src/main/assets/vtt/assets/maps; cp -a "$OROOT/app/src/main/assets/vtt/assets/maps/." work/app/src/main/assets/vtt/assets/maps/; fi
@@ -93,11 +92,7 @@ jobs:
           grep -Fq 'android:icon="@mipmap/ic_launcher"' "$R/app/src/main/AndroidManifest.xml"
           grep -Fq 'android:roundIcon="@mipmap/ic_launcher_round"' "$R/app/src/main/AndroidManifest.xml"
           find "$R/app/src/main/res" -type f \( -name 'ic_launcher*' -o -name '*launcher*' \) | grep -q .
-          grep -Fq 'CENA' "$R/app/src/main/assets/vtt/r46/r46-shell.bundle.js"
-          grep -Fq 'PERSONAGEM' "$R/app/src/main/assets/vtt/r46/r46-shell.bundle.js"
-          grep -Fq 'ITENS' "$R/app/src/main/assets/vtt/r46/r46-shell.bundle.js"
-          grep -Fq 'NAVE' "$R/app/src/main/assets/vtt/r46/r46-shell.bundle.js"
-          grep -Fq 'REGISTROS' "$R/app/src/main/assets/vtt/r46/r46-shell.bundle.js"
+          for label in CENA PERSONAGEM ITENS NAVE REGISTROS; do grep -Fq "$label" "$R/app/src/main/assets/vtt/r46/r46-shell.bundle.js"; done
           node --check "$R/app/src/main/assets/vtt/r46/r46-shell.bundle.js"
           node --check "$R/app/src/main/assets/vtt/r46/final-bootstrap.js"
           node --check "$R/app/src/main/assets/vtt/r46/final-runtime.js"
@@ -108,17 +103,16 @@ jobs:
           root=Path('work/app/src/main/assets/vtt')
           html=(root/'r46-shell.html').read_text('utf-8')
           refs=re.findall(r'(?:src|href)="([^"]+)"',html)
-          missing=[]
-          for ref in refs:
-            if ref.startswith(('http:','https:','#')): continue
-            if not (root/ref).exists(): missing.append(ref)
+          missing=[r for r in refs if not r.startswith(('http:','https:','#')) and not (root/r).exists()]
           assert not missing, f'missing local R46 deps: {missing}'
           print('R46 local dependency gate PASS:',len(refs),'refs')
           PY
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: '17'}
       - uses: gradle/actions/setup-gradle@v4
-        with: {gradle-version: '8.13'}
+        with:
+          gradle-version: '8.13'
+          validate-wrappers: false
       - name: Configure Android SDK 36
         run: |
           set -euo pipefail
