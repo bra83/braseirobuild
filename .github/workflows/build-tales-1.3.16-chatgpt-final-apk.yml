@@ -47,7 +47,21 @@ jobs:
           ROOT: ${{ steps.source.outputs.root }}
         run: |
           set -euo pipefail
-          cat tales-final-overlay/part{00..14}.txt tales-final-overlay/tail{00..05}.txt > /tmp/tales-1.3.16-chatgpt-final-overlay.py
+          {
+            cat tales-final-overlay/part00.txt
+            cat tales-final-overlay/fix/part01_0.txt tales-final-overlay/fix/part01_1_0.txt tales-final-overlay/fix/part01_1_1.txt
+            cat tales-final-overlay/part02.txt tales-final-overlay/part03.txt
+            cat tales-final-overlay/fix/part04_0.txt tales-final-overlay/fix/part04_1.txt
+            cat tales-final-overlay/part05.txt tales-final-overlay/part06.txt
+            cat tales-final-overlay/fix/part07_0.txt tales-final-overlay/fix/part07_1.txt
+            cat tales-final-overlay/part08.txt tales-final-overlay/part09.txt
+            cat tales-final-overlay/fix/part10_0.txt tales-final-overlay/fix/part10_1.txt
+            cat tales-final-overlay/part11.txt
+            cat tales-final-overlay/fix/part12_0.txt tales-final-overlay/fix/part12_1_0.txt tales-final-overlay/fix/part12_1_1.txt
+            cat tales-final-overlay/fix/part13_0_0.txt tales-final-overlay/fix/part13_0_1.txt tales-final-overlay/fix/part13_1_0.txt tales-final-overlay/fix/part13_1_1.txt
+            cat tales-final-overlay/part14.txt
+            cat tales-final-overlay/tail00.txt tales-final-overlay/tail01.txt tales-final-overlay/tail02.txt tales-final-overlay/tail03.txt tales-final-overlay/tail04.txt tales-final-overlay/tail05.txt
+          } > /tmp/tales-1.3.16-chatgpt-final-overlay.py
           test "$(wc -c < /tmp/tales-1.3.16-chatgpt-final-overlay.py)" -eq 213510
           grep -q "EXPECTED='b3e7117fd1ec5e3e27a57066dcced281ca9716f42a61d4401cea0c8920fb2614'" /tmp/tales-1.3.16-chatgpt-final-overlay.py
           python3 /tmp/tales-1.3.16-chatgpt-final-overlay.py "$ROOT" | tee /tmp/final-overlay.log
