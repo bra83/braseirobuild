@@ -1,0 +1,74 @@
+name: WWN Scene Image Import Race Fix
+
+on:
+  push:
+    branches: [wwn-source-105-bridge]
+    paths:
+      - ".github/workflows/wwn-image-import-race-fix.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: wwn-source-105-bridge
+          fetch-depth: 0
+
+      - name: Install early native image buffer
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          html=Path('app/src/main/assets/www/jornada.html')
+          s=html.read_text(encoding='utf-8')
+          marker='<script type="module" src="jornada.js"></script>'
+          early='<script>window.__BRASEIRO_PENDING_SCENE_IMAGE=null;window.addEventListener("braseiro-native-file",function(e){if(e&&e.detail&&e.detail.kind==="SCENE_IMAGE_IMPORT")window.__BRASEIRO_PENDING_SCENE_IMAGE=e.detail;},{capture:true});</script>'
+          if early not in s:
+              if marker not in s: raise SystemExit('jornada module marker missing')
+              s=s.replace(marker,early+marker,1)
+              html.write_text(s,encoding='utf-8')
+
+          js=Path('app/src/main/assets/www/ux-hotfix.js')
+          s=js.read_text(encoding='utf-8')
+          old="if(detail?.kind!=='SCENE_IMAGE_IMPORT')return;\n    try{sessionStorage.setItem(PENDING_SCENE_IMAGE_KEY,JSON.stringify(detail))}catch{}"
+          new="if(detail?.kind!=='SCENE_IMAGE_IMPORT')return;\n    globalThis.__BRASEIRO_PENDING_SCENE_IMAGE=detail;\n    try{sessionStorage.setItem(PENDING_SCENE_IMAGE_KEY,JSON.stringify(detail))}catch{}"
+          if old not in s: raise SystemExit('early UX image listener contract missing')
+          s=s.replace(old,new,1)
+          old2="let raw=null;try{raw=sessionStorage.getItem(PENDING_SCENE_IMAGE_KEY)}catch{}if(!raw)return;\n  let detail=null;try{detail=JSON.parse(raw)}catch{try{sessionStorage.removeItem(PENDING_SCENE_IMAGE_KEY)}catch{}return;}"
+          new2="let detail=globalThis.__BRASEIRO_PENDING_SCENE_IMAGE??null;let raw=null;try{raw=sessionStorage.getItem(PENDING_SCENE_IMAGE_KEY)}catch{}if(!detail&&!raw)return;\n  if(!detail&&raw){try{detail=JSON.parse(raw)}catch{try{sessionStorage.removeItem(PENDING_SCENE_IMAGE_KEY)}catch{}return;}}"
+          if old2 not in s: raise SystemExit('image replay contract missing')
+          s=s.replace(old2,new2,1)
+          old3="if(done){try{sessionStorage.removeItem(PENDING_SCENE_IMAGE_KEY)}catch{}return;}"
+          new3="if(done){globalThis.__BRASEIRO_PENDING_SCENE_IMAGE=null;try{sessionStorage.removeItem(PENDING_SCENE_IMAGE_KEY)}catch{}return;}"
+          if old3 not in s: raise SystemExit('image replay completion contract missing')
+          s=s.replace(old3,new3,1)
+          js.write_text(s,encoding='utf-8')
+          PY
+
+      - name: Validate image handoff and JS syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check app/src/main/assets/www/ux-hotfix.js
+          grep -q '__BRASEIRO_PENDING_SCENE_IMAGE' app/src/main/assets/www/jornada.html
+          grep -q 'globalThis.__BRASEIRO_PENDING_SCENE_IMAGE' app/src/main/assets/www/ux-hotfix.js
+          grep -q 'sceneImages.onImport' app/src/main/assets/www/jornada.js
+          echo IMAGE_IMPORT_HANDOFF_PASS
+
+      - name: Commit source fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add app/src/main/assets/www/jornada.html app/src/main/assets/www/ux-hotfix.js
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "fix: preserve shared scene image until Jornada is ready"
+          git push origin HEAD:wwn-source-105-bridge
