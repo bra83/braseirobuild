@@ -1,0 +1,95 @@
+name: Validate Star Wars R54 Item Visual Idempotence
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "star-wars/r54/fix_item_binding_idempotence.py"
+      - ".github/workflows/validate-star-wars-r54-item-idempotence.yml"
+permissions: {contents: read}
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      PACK_URL: https://firestorage.ai/ja/f/fpHIoZHL9wUf
+      PACK_FILE: STAR_WARS_R54_VISUAL_DATA_PACK.zip
+      PACK_SHA: f18bf92117bf00dfe6641c7ca31c8037904e79ef9816694c4e844099a4307f60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Recover exact R54 source
+        run: |
+          set -euo pipefail
+          rm -rf work pack incoming && mkdir work pack incoming
+          unzip -q star-wars/final-1.0.0/output-r53/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R53_REAL_DEVICE_HOTFIX.zip -d work
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium
+          python3 - <<'PY'
+          import os,pathlib
+          from playwright.sync_api import sync_playwright
+          out=pathlib.Path('incoming')/os.environ['PACK_FILE']
+          with sync_playwright() as p:
+            b=p.chromium.launch(headless=True); page=b.new_page(accept_downloads=True)
+            page.goto(os.environ['PACK_URL'],wait_until='domcontentloaded',timeout=120000);page.wait_for_timeout(2500)
+            done=False
+            for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")']:
+              try:
+                loc=page.locator(sel).first
+                if not loc.count() or not loc.is_visible(): continue
+                with page.expect_download(timeout=120000) as info: loc.click(timeout=10000)
+                info.value.save_as(str(out));done=True;break
+              except Exception: pass
+            if not done:
+              card=page.get_by_text(os.environ['PACK_FILE'],exact=False).first
+              ctrl=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]').locator('a,button').last
+              with page.expect_download(timeout=120000) as info: ctrl.click(timeout=10000)
+              info.value.save_as(str(out));done=True
+            b.close()
+          if not done or not out.exists(): raise SystemExit('R54 pack download failed')
+          PY
+          echo "$PACK_SHA  incoming/$PACK_FILE" | sha256sum -c -
+          unzip -q "incoming/$PACK_FILE" -d pack
+      - id: root
+        name: Apply R54 + idempotence correction
+        run: |
+          set -euo pipefail
+          SET="$(find work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"
+          ROOT="$(dirname "$SET")"; test -n "$ROOT"
+          python3 star-wars/r54/hotfix_r54.py "$ROOT" "$(pwd)/pack"
+          python3 star-wars/r54/fix_item_binding_idempotence.py "$ROOT"
+          node --check "$ROOT/app/src/main/assets/vtt/r46/final-runtime.js"
+          grep -Fq 'dataset.r54VisualBound=key' "$ROOT/app/src/main/assets/vtt/r46/final-runtime.js"
+          ! grep -Fq "host.querySelectorAll('.r53-item-visual,.r54-item-visual').forEach(x=>x.remove())" "$ROOT/app/src/main/assets/vtt/r46/final-runtime.js"
+          echo "path=$ROOT" >> "$GITHUB_OUTPUT"
+      - name: Browser stability 415x915
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --directory "$ROOT/app/src/main/assets/vtt" >/tmp/r54-idempotence-http.log 2>&1 &
+          PID=$!; trap 'kill $PID || true' EXIT
+          python3 - <<'PY'
+          from playwright.sync_api import sync_playwright
+          errors=[]
+          with sync_playwright() as p:
+            b=p.chromium.launch(headless=True)
+            pg=b.new_page(viewport={'width':415,'height':915});pg.on('pageerror',lambda e:errors.append(str(e)))
+            pg.goto('http://127.0.0.1:8765/r46-shell.html?screen=00',wait_until='networkidle',timeout=120000);pg.wait_for_timeout(800)
+            if pg.locator('#braseiro-sandbox-setup').count():
+              sh=pg.locator('#sandbox-list button[data-point]',has_text='Shantipole').first
+              if sh.count(): sh.click()
+              pg.locator('#sandbox-start-button').click();pg.wait_for_selector('#braseiro-sandbox-setup',state='detached',timeout=10000)
+            pg.goto('http://127.0.0.1:8765/r46-shell.html?screen=09',wait_until='networkidle',timeout=120000);pg.wait_for_timeout(1000)
+            visuals=pg.locator('.r54-item-visual')
+            count=visuals.count()
+            if count:
+              handle=visuals.first.element_handle();src=visuals.first.locator('img').get_attribute('src')
+              pg.wait_for_timeout(1200)
+              assert handle.evaluate('el=>el.isConnected'),'R54 visual node was replaced after observer tick'
+              assert visuals.count()==count,(count,visuals.count())
+              assert visuals.first.locator('img').get_attribute('src')==src
+            assert not errors,errors
+            b.close()
+          print('R54 ITEM IDEMPOTENCE BROWSER PASS',count)
+          PY
