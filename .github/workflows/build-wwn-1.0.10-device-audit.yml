@@ -90,14 +90,6 @@ jobs:
           sha256sum out/BRASEIRO_WWN_v1.0.10.apk | tee out/BRASEIRO_WWN_v1.0.10.apk.sha256
           stat -c 'APK_SIZE_BYTES=%s' out/BRASEIRO_WWN_v1.0.10.apk
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: BRASEIRO-WWN-1.0.10-APK
-          path: out/*
-          if-no-files-found: error
-          retention-days: 30
-
       - name: Publish APK to source branch
         shell: bash
         run: |
