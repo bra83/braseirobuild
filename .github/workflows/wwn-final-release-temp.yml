@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - wwn-final-build-sync
+  pull_request:
+    branches:
+      - wwn-source-105-bridge
 
 permissions:
   contents: write
