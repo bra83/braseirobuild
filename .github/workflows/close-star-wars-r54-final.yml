@@ -96,8 +96,9 @@ jobs:
           grep -Fq 'b.travelToLocation(to' "$V/r54-final-map-travel.js"
           grep -Fq '[VIAGEM_BARBARA]' "$V/r54-final-map-travel.js"
           grep -Fq 'dataset.r54VisualBound=key' "$V/r46/final-runtime.js"
+          grep -Fq 'dataset.r54Sig===sig' "$V/r54-final-map-travel.js"
           grep -Fq 'R54_BARBARA_OPENING_MASTER' "$V/r46/final-runtime.js"
-          grep -Fq '400–700' "$V/js/core/uiBridge.bundle.js"
+          grep -Fq '400-700 palavras em 4-7 parágrafos' "$ROOT/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java"
           grep -Fq 'R54_SUPPLEMENT_SPECIES_REFERENCE' "$V/r46/final-runtime.js"
           python3 - "$V" <<'PY'
           import json,sys
