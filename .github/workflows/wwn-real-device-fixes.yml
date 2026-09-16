@@ -1,0 +1,90 @@
+name: WWN Real Device Fixes
+
+on:
+  push:
+    branches: [wwn-source-105-bridge]
+    paths:
+      - ".github/workflows/wwn-real-device-fixes.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  apply-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: wwn-source-105-bridge
+          fetch-depth: 0
+
+      - name: Apply source-level UX flow fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          config = Path('app/src/main/assets/www/configuracoes.js')
+          s = config.read_text(encoding='utf-8')
+          old = "say('campaignManagerStatus','Campanha criada com região, NPCs e mundo vivo. Agora crie o primeiro personagem.');location.href='criacao.html';"
+          new = "say('campaignManagerStatus','Campanha criada com região, NPCs e mundo vivo. Você pode começar a explorar agora e criar um personagem quando quiser pela aba PERSONAGEM.');location.href='jornada.html';"
+          if old not in s:
+              raise SystemExit('forced character creation flow not found')
+          config.write_text(s.replace(old,new,1), encoding='utf-8')
+
+          journey = Path('app/src/main/assets/www/jornada.html')
+          s = journey.read_text(encoding='utf-8')
+          s = s.replace('<div class="section-title"><span>Ganchos disponíveis</span><small>conteúdo inicial</small></div><div id="hooks" class="cards"></div>', '<div class="section-title"><span>RUMORES E OPORTUNIDADES</span><small>opcionais • sandbox livre</small></div><div class="sandbox-freedom-note">Você não precisa escolher nenhuma destas oportunidades. Explore, visite locais conhecidos ou diga ao Mestre o que quer fazer.</div><div id="hooks" class="cards"></div>')
+          s = s.replace('<a class="ops-link" href="operacoes.html">OPERAÇÕES DO MESTRE</a>', '')
+          s = s.replace('<a href="gestao.html" style="position:fixed;right:10px;bottom:96px;z-index:50;background:#181d20;color:#d6b96d;border:1px solid #716746;border-radius:999px;padding:9px 12px;text-decoration:none;font:800 10px system-ui">GESTÃO</a>', '')
+          journey.write_text(s, encoding='utf-8')
+
+          cfg_html = Path('app/src/main/assets/www/configuracoes.html')
+          s = cfg_html.read_text(encoding='utf-8')
+          s = s.replace('<a class="ops-link" href="operacoes.html">OPERAÇÕES DO MESTRE</a>', '')
+          s = s.replace('<a href="gestao.html" style="position:fixed;right:10px;bottom:96px;z-index:50;background:#181d20;color:#d6b96d;border:1px solid #716746;border-radius:999px;padding:9px 12px;text-decoration:none;font:800 10px system-ui">GESTÃO</a>', '')
+          cfg_html.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Validate corrected contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check app/src/main/assets/www/ux-hotfix.js
+          node --check app/src/main/assets/www/configuracoes.js
+          node --check app/src/main/assets/www/jornada.js
+          node --check app/src/main/assets/www/scr014.js
+          python3 - <<'PY'
+          from pathlib import Path
+          ux=Path('app/src/main/assets/www/ux-hotfix.js').read_text(encoding='utf-8')
+          cfg=Path('app/src/main/assets/www/configuracoes.js').read_text(encoding='utf-8')
+          journey=Path('app/src/main/assets/www/jornada.html').read_text(encoding='utf-8')
+          required=["return'torch'","return'lantern'","return'liquid'","return'rope'","return'food'","return'tool'","PENDING_SCENE_IMAGE_KEY","lockWorldFlow"]
+          missing=[x for x in required if x not in ux]
+          if missing: raise SystemExit(f'missing UX contracts: {missing}')
+          if "location.href='criacao.html'" in cfg.split("$('createCampaign').onclick",1)[1].split('refreshCampaignManager()',1)[0]:
+              raise SystemExit('campaign creation still forces character creation')
+          if "location.href='jornada.html'" not in cfg.split("$('createCampaign').onclick",1)[1].split('refreshCampaignManager()',1)[0]:
+              raise SystemExit('campaign creation does not open Journey')
+          if 'OPERAÇÕES DO MESTRE' in journey or '>GESTÃO<' in journey:
+              raise SystemExit('master controls still leak into Journey')
+          if 'opcionais • sandbox livre' not in journey:
+              raise SystemExit('sandbox hook explanation missing')
+          print('REAL_DEVICE_FIX_CONTRACTS_PASS')
+          PY
+
+      - name: Commit corrected source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add app/src/main/assets/www/configuracoes.js app/src/main/assets/www/jornada.html app/src/main/assets/www/configuracoes.html
+          if git diff --cached --quiet; then
+            echo "No changes required"
+            exit 0
+          fi
+          git commit -m "fix: campaign sandbox and player-facing master controls"
+          git push origin HEAD:wwn-source-105-bridge
