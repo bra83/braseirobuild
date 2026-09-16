@@ -1,0 +1,125 @@
+name: Audit Star Wars R54 UX Fast
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/audit-star-wars-r54-ux-fast.yml"
+      - "star-wars/r54/fix_r54_ux.py"
+permissions: {contents: read}
+jobs:
+  ux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PACK_URL: https://firestorage.ai/ja/f/fpHIoZHL9wUf
+      PACK_FILE: STAR_WARS_R54_VISUAL_DATA_PACK.zip
+      PACK_SHA: f18bf92117bf00dfe6641c7ca31c8037904e79ef9816694c4e844099a4307f60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Recover current R54 runtime
+        run: |
+          set -euo pipefail
+          rm -rf ux-work ux-pack ux-incoming ux-out && mkdir -p ux-work ux-pack ux-incoming ux-out
+          unzip -q star-wars/final-1.0.0/output-r53/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R53_REAL_DEVICE_HOTFIX.zip -d ux-work
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium >/dev/null
+          python3 - <<'PY'
+          import os,pathlib
+          from playwright.sync_api import sync_playwright
+          out=pathlib.Path('ux-incoming')/os.environ['PACK_FILE']
+          with sync_playwright() as p:
+            b=p.chromium.launch(headless=True);page=b.new_page(accept_downloads=True)
+            page.goto(os.environ['PACK_URL'],wait_until='domcontentloaded',timeout=120000);page.wait_for_timeout(1200)
+            done=False
+            for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")']:
+              try:
+                loc=page.locator(sel).first
+                if not loc.count() or not loc.is_visible():continue
+                with page.expect_download(timeout=120000) as info:loc.click(timeout=10000)
+                info.value.save_as(str(out));done=True;break
+              except Exception:pass
+            if not done:
+              card=page.get_by_text(os.environ['PACK_FILE'],exact=False).first
+              ctrl=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]').locator('a,button').last
+              with page.expect_download(timeout=120000) as info:ctrl.click(timeout=10000)
+              info.value.save_as(str(out));done=True
+            b.close()
+          if not done or not out.exists():raise SystemExit('pack download failed')
+          PY
+          echo "$PACK_SHA  ux-incoming/$PACK_FILE" | sha256sum -c -
+          unzip -q "ux-incoming/$PACK_FILE" -d ux-pack
+          SET="$(find ux-work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"
+          test -n "$SET"; ROOT="$(dirname "$SET")"
+          python3 star-wars/r54/hotfix_r54.py "$ROOT" "$(pwd)/ux-pack"
+          python3 star-wars/r54/fix_map_anchor_state.py "$ROOT"
+          python3 star-wars/r54/fix_item_binding_idempotence.py "$ROOT"
+          python3 star-wars/r54/fix_aor_talent_runtime.py "$ROOT"
+          if [ -f star-wars/r54/fix_r54_ux.py ]; then python3 star-wars/r54/fix_r54_ux.py "$ROOT"; fi
+          printf '\n.final-start-list button[hidden]{display:none!important}\n' >> "$ROOT/app/src/main/assets/vtt/r46/final-runtime.css"
+          echo "$ROOT" > ux-out/root.txt
+      - name: Audit 31 routes at 415x915 and 360x800
+        run: |
+          set -euo pipefail
+          ROOT="$(cat ux-out/root.txt)"
+          python3 -m http.server 8765 --directory "$ROOT/app/src/main/assets/vtt" >/tmp/ux-http.log 2>&1 &
+          PID=$!; trap 'kill $PID || true' EXIT
+          sleep 1
+          python3 - "$ROOT" <<'PY'
+          import json,re,sys
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          root=Path(sys.argv[1]); shell=(root/'app/src/main/assets/vtt/r46/r46-shell.bundle.js').read_text('utf-8',errors='replace')
+          routes=[]
+          for m in re.finditer(r"screen\((\d+),\s*'([^']+)'",shell):
+            r=f"{int(m.group(1)):02d}"
+            if r not in [x['route'] for x in routes]: routes.append({'route':r,'expected':m.group(2)})
+          assert len(routes)==31,len(routes)
+          out={'viewports':{},'nav':{},'progression':{},'settings':{},'routes':routes}
+          init="window.confirm=()=>false;window.BraseiroGemini={getStatus:()=>JSON.stringify({configured:true}),openGeminiWithPrompt:()=>JSON.stringify({ok:true})};"
+          with sync_playwright() as p:
+            b=p.chromium.launch(headless=True)
+            for width,height in [(415,915),(360,800)]:
+              ctx=b.new_context(viewport={'width':width,'height':height});pg=ctx.new_page();errors=[];pg.on('pageerror',lambda e:errors.append(str(e)))
+              pg.add_init_script(init);pg.route('**/*',lambda route,req: route.continue_() if req.url.startswith('http://127.0.0.1:8765/') else route.abort())
+              rows={}
+              for e in routes:
+                pg.goto('http://127.0.0.1:8765/r46-shell.html?screen='+e['route'],wait_until='domcontentloaded',timeout=30000);pg.wait_for_timeout(100)
+                buttons=pg.locator('button:visible'); unnamed=[]; disabled=[]
+                for i in range(buttons.count()):
+                  x=buttons.nth(i); name=((x.inner_text() or '').strip() or (x.get_attribute('aria-label') or '').strip() or (x.get_attribute('title') or '').strip())
+                  if not name:unnamed.append(i)
+                  if x.is_disabled():disabled.append(name or f'#{i}')
+                local_broken=pg.locator('img').evaluate_all("xs=>xs.filter(x=>x.complete&&x.naturalWidth===0&&x.src.startsWith('http://127.0.0.1:8765/')).map(x=>x.getAttribute('src'))")
+                rows[e['route']]={'overflow':pg.evaluate('document.documentElement.scrollWidth-window.innerWidth'),'unnamed':unnamed,'disabled':disabled,'broken':local_broken,'h1':pg.locator('h1').first.inner_text().strip() if pg.locator('h1').count() else '','scene_title':pg.locator('.scene-context-title strong').first.inner_text().strip() if pg.locator('.scene-context-title strong').count() else ''}
+              out['viewports'][f'{width}x{height}']={'rows':rows,'errors':errors}
+              ctx.close()
+            ctx=b.new_context(viewport={'width':415,'height':915});pg=ctx.new_page();pg.add_init_script(init);pg.route('**/*',lambda route,req: route.continue_() if req.url.startswith('http://127.0.0.1:8765/') else route.abort())
+            pg.goto('http://127.0.0.1:8765/r46-shell.html?screen=00',wait_until='domcontentloaded');pg.wait_for_timeout(150)
+            if pg.locator('#braseiro-sandbox-setup').count():
+              pg.locator('#sandbox-list button[data-point]').first.click();pg.locator('#sandbox-start-button').click();pg.wait_for_selector('#braseiro-sandbox-setup',state='detached',timeout=10000)
+            for label,target in [('CENA','00'),('PERSONAGEM','06'),('ITENS','08'),('NAVE','10'),('REGISTROS','12')]:
+              btn=pg.locator('.bottom-nav-button',has_text=label).first; ok=False
+              if btn.count():btn.click();pg.wait_for_timeout(80);m=re.search(r'[?&]screen=([0-9]+)',pg.url);ok=bool(m and m.group(1)==target)
+              out['nav'][label]={'found':btn.count(),'target':target,'ok':ok}
+            pg.goto('http://127.0.0.1:8765/r46-shell.html?screen=06',wait_until='domcontentloaded');pg.wait_for_timeout(100)
+            prog=pg.locator('button',has_text=re.compile('Progressão',re.I)).first
+            ok=False
+            if prog.count():prog.click();pg.wait_for_timeout(80);ok='screen=07' in pg.url
+            out['progression']={'found':prog.count(),'ok':ok}
+            text=''
+            for rr in ['27','28','29','30']:
+              pg.goto('http://127.0.0.1:8765/r46-shell.html?screen='+rr,wait_until='domcontentloaded');pg.wait_for_timeout(60);text+=' '+pg.locator('body').inner_text()
+            out['settings']={k:bool(re.search(v,text,re.I)) for k,v in {'tts':'TTS|voz','gemini':'Gemini','library':'Biblioteca','diagnostic':'diagnóstico|diagnostico','json':'JSON'}.items()}
+            b.close()
+          Path('ux-out/UX_AUDIT.json').write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding='utf-8')
+          for vp,d in out['viewports'].items():
+            bad=[r for r,v in d['rows'].items() if v['overflow']>2 or v['unnamed'] or v['broken']]
+            print('UX_VIEWPORT',vp,'BAD',bad,'ERRORS',d['errors'])
+            for r in bad:print('UX_ROUTE',vp,r,d['rows'][r])
+          print('UX_NAV',json.dumps(out['nav'],ensure_ascii=False))
+          print('UX_PROGRESSION',out['progression'])
+          print('UX_SETTINGS',out['settings'])
+          PY
