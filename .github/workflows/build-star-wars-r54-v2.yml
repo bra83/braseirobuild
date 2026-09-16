@@ -182,7 +182,15 @@ jobs:
           (cd "$ROOT" && zip -qr "$GITHUB_WORKSPACE/$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" . -x '*/build/*' '.gradle/*')
           sha256sum "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" | tee "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip.sha256"
           git config user.name github-actions;git config user.email github-actions@github.com
+          # Keep generated build files out of the worktree while rebasing onto the latest main.
+          # This prevents the validated APK/ZIP from making `git pull --rebase` abort as a dirty tree.
+          STAGE="$(mktemp -d)"
+          cp -a "$OUT/." "$STAGE/"
+          rm -rf "$OUT"
+          git fetch origin main
+          git rebase origin/main
+          mkdir -p "$OUT"
+          cp -a "$STAGE/." "$OUT/"
           git add -f "$OUT"
-          git commit -m 'build: Star Wars R54 device and visual asset hotfix v2' || true
-          git pull --rebase origin main
+          git commit -m 'build: Star Wars R54 device and visual asset hotfix v2'
           git push origin HEAD:main
