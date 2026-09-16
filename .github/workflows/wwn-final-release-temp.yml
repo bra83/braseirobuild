@@ -1,0 +1,256 @@
+name: WWN Final Build + Publish
+
+on:
+  push:
+    branches:
+      - wwn-final-build-sync
+
+permissions:
+  contents: write
+
+jobs:
+  build-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SOURCE_SHARE_URL: https://firestorage.ai/ja/f/t7wST7E2Vp6w
+      TARGET_BRANCH: wwn-source-105-bridge
+      BASE_SHA: a57c0e2cf5a1ab67f26a3aca200d000824bf6423
+
+    steps:
+      - name: Checkout temporary build branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download final audited source ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet playwright
+          cat > /tmp/get_source.py <<'PY'
+          import os, re, shutil, sys, time
+          from pathlib import Path
+          from urllib.parse import urljoin
+          from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
+
+          share = os.environ['SOURCE_SHARE_URL']
+          out = Path('/tmp/wwn-source.zip')
+
+          chrome = (shutil.which('google-chrome') or shutil.which('google-chrome-stable') or
+                    shutil.which('chromium') or shutil.which('chromium-browser'))
+          if not chrome:
+              raise SystemExit('No Chrome/Chromium executable available on runner')
+
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True, executable_path=chrome, args=['--no-sandbox'])
+              ctx = browser.new_context(accept_downloads=True, locale='ja-JP')
+              page = ctx.new_page()
+              page.goto(share, wait_until='networkidle', timeout=120000)
+              print('PAGE_TITLE:', page.title())
+              print('PAGE_URL:', page.url)
+
+              # Prefer a direct anchor carrying the uploaded ZIP name.
+              links = page.locator('a')
+              for i in range(links.count()):
+                  a = links.nth(i)
+                  try:
+                      text = (a.inner_text(timeout=1500) or '').strip()
+                      href = a.get_attribute('href') or ''
+                  except Exception:
+                      continue
+                  print('LINK', i, repr(text[:160]), repr(href[:260]))
+                  joined = urljoin(page.url, href)
+                  if 'BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_WITH_ICON.zip' in (text + href):
+                      try:
+                          with page.expect_download(timeout=30000) as info:
+                              a.click()
+                          dl = info.value
+                          dl.save_as(str(out))
+                          print('DOWNLOADED_FROM_NAMED_LINK', dl.suggested_filename)
+                          break
+                      except Exception as e:
+                          print('named link did not directly download:', e)
+
+              # Generic download controls, including Japanese UI.
+              if not out.exists():
+                  controls = page.locator('a,button')
+                  candidates = []
+                  for i in range(controls.count()):
+                      el = controls.nth(i)
+                      try:
+                          text = (el.inner_text(timeout=1000) or '').strip()
+                          aria = el.get_attribute('aria-label') or ''
+                          title = el.get_attribute('title') or ''
+                          href = el.get_attribute('href') or ''
+                      except Exception:
+                          continue
+                      blob = ' '.join([text, aria, title, href]).lower()
+                      if ('download' in blob or 'ダウンロード' in blob or '.zip' in blob):
+                          candidates.append((i, text, aria, title, href))
+                  print('DOWNLOAD_CANDIDATES:', candidates)
+                  for i, *_ in candidates:
+                      el = controls.nth(i)
+                      try:
+                          with page.expect_download(timeout=20000) as info:
+                              el.click()
+                          dl = info.value
+                          dl.save_as(str(out))
+                          print('DOWNLOADED_FROM_CONTROL', dl.suggested_filename)
+                          break
+                      except Exception as e:
+                          print('control failed', i, e)
+
+              # Some share UIs open a second detail page before exposing Download.
+              if not out.exists():
+                  for round_no in range(2):
+                      page.wait_for_timeout(1500)
+                      labels = page.get_by_text(re.compile(r'Download|ダウンロード', re.I))
+                      for i in range(labels.count()):
+                          el = labels.nth(i)
+                          try:
+                              with page.expect_download(timeout=20000) as info:
+                                  el.click()
+                              dl = info.value
+                              dl.save_as(str(out))
+                              print('DOWNLOADED_FROM_TEXT', dl.suggested_filename)
+                              break
+                          except Exception as e:
+                              print('text control failed', i, e)
+                      if out.exists():
+                          break
+
+              if not out.exists():
+                  Path('/tmp/firestorage-page.html').write_text(page.content(), encoding='utf-8')
+                  print(page.content()[:12000])
+                  raise SystemExit('Could not obtain ZIP from firestorage share page')
+              browser.close()
+
+          if out.stat().st_size < 1000000:
+              raise SystemExit(f'Downloaded file is unexpectedly small: {out.stat().st_size}')
+          print('SOURCE_ZIP_BYTES', out.stat().st_size)
+          PY
+          python /tmp/get_source.py
+          sha256sum /tmp/wwn-source.zip
+          unzip -t /tmp/wwn-source.zip >/dev/null
+
+      - name: Replace repository project with final audited source
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wwn-final
+          mkdir -p /tmp/wwn-final
+          unzip -q /tmp/wwn-source.zip -d /tmp/wwn-final
+          SRC="/tmp/wwn-final/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE"
+          test -f "$SRC/settings.gradle.kts"
+          rsync -a --delete "$SRC/" ./ \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='delivery/'
+
+          # This workflow is only a transfer/build bridge and must not remain in final source.
+          rm -f .github/workflows/wwn-final-release-temp.yml
+
+      - name: Verify source QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          count=0
+          for test in qa/*.mjs; do
+            node "$test"
+            count=$((count + 1))
+          done
+          test "$count" -eq 31
+          echo "31/31 WWN QA suites PASS"
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android API 36
+        shell: bash
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Build installable APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew --version
+          ./gradlew testDebugUnitTest assembleDebug --no-daemon --stacktrace
+          test -f app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Create source-only ZIP and delivery manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p delivery
+          cp app/build/outputs/apk/debug/app-debug.apk delivery/BRASEIRO_WWN_v1.0.5.apk
+
+          STAGE="$(mktemp -d)"
+          mkdir -p "$STAGE/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE"
+          rsync -a ./ "$STAGE/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE/" \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='delivery/' \
+            --exclude='.gradle/' \
+            --exclude='.idea/' \
+            --exclude='**/build/' \
+            --exclude='local.properties' \
+            --exclude='.env' \
+            --exclude='.env.*' \
+            --exclude='*.jks' \
+            --exclude='*.keystore' \
+            --exclude='*.apk' \
+            --exclude='*.aab'
+          (cd "$STAGE" && zip -qr "$GITHUB_WORKSPACE/delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL.zip" BRASEIRO_WWN_ANDROID_STUDIO_SOURCE)
+
+          if zipinfo -1 delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL.zip | grep -E '(^|/)(build|\.gradle|\.idea)/|\.apk$|\.aab$|\.jks$|\.keystore$|(^|/)local\.properties$|(^|/)\.env($|\.)'; then
+            echo 'Forbidden file detected in source-only ZIP' >&2
+            exit 1
+          fi
+
+          sha256sum delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL.zip delivery/BRASEIRO_WWN_v1.0.5.apk > delivery/SHA256SUMS_FINAL_WWN.txt
+          cat > delivery/APK_BUILD_INFO.md <<'EOF'
+          # Braseiro WWN Android build
+
+          - Application ID: `com.braseiro.wwn`
+          - Version: `1.0.5` (`versionCode 105`)
+          - APK: Android debug-signed build, directly installable for testing/use outside Play Store
+          - Source gate before Android build: 31/31 QA suites PASS
+          - Launcher: professional Braseiro WWN adaptive icon (graphite + aged gold compass)
+          - Source-only ZIP excludes APK/AAB, build outputs, caches, keys, `local.properties`, and `.env` files.
+          EOF
+          cat delivery/SHA256SUMS_FINAL_WWN.txt
+
+      - name: Upload backup Actions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_WWN_FINAL_DELIVERY
+          path: |
+            delivery/BRASEIRO_WWN_v1.0.5.apk
+            delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL.zip
+            delivery/SHA256SUMS_FINAL_WWN.txt
+            delivery/APK_BUILD_INFO.md
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish final source and APK to target branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git reset --soft "$BASE_SHA"
+          git add -A
+          git commit -m "release: WWN final audited source + Android APK"
+          git push origin HEAD:"$TARGET_BRANCH"
