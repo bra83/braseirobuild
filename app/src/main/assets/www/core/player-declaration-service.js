@@ -20,9 +20,9 @@ export class PlayerDeclarationService{
     if(!declaration)return Object.freeze({status:'DECLARATION_REQUIRED_NO_MUTATION'});
     if(declaration.length>1600)return Object.freeze({status:'DECLARATION_TOO_LONG_NO_MUTATION'});
     const {loaded,state}=loadState(this.persistence,campaignId);if(!state)return Object.freeze({status:loaded.status});
-    const projection=projectSceneForPlayer(state);const scene=projection.scene;
-    if(!scene||scene.status!=='OK')return Object.freeze({status:'ACTIVE_SCENE_REQUIRED_NO_MUTATION',revision:loaded.revision});
-    const next=structuredClone(state);const newRevision=loaded.revision+1;next.revision=newRevision;
+    const projection=projectSceneForPlayer(state);let scene=projection.scene;let synthesizedScene=false;
+    if(!scene||scene.status!=='OK'){const p=state.worldState?.position??{};const name=String(p.name??(Number.isInteger(p.q)&&Number.isInteger(p.r)?`HEX Q${p.q} • R${p.r}`:'POSIÇÃO ATUAL')).trim()||'POSIÇÃO ATUAL';scene=Object.freeze({status:'OK',contentType:'sandboxPosition',contentId:Number.isInteger(p.q)&&Number.isInteger(p.r)?`position-${p.q}-${p.r}`:'position-current',title:name,summary:`Você está em ${name}.`,situation:`Você está em ${name}.`,leads:Object.freeze([])});synthesizedScene=true;}
+    const next=structuredClone(state);const newRevision=loaded.revision+1;next.revision=newRevision;if(synthesizedScene){next.encounterState={...(next.encounterState??{}),sceneId:`scene:sandbox:${scene.contentId}:r${newRevision}`,currentScene:{contentType:scene.contentType,contentId:scene.contentId,publicScene:structuredClone(scene)},scenePhase:'ACTIVE',sceneOpenedAtRevision:newRevision};}
     const eventId=`scene:${campaignId}:r${newRevision}:player-declaration`;
     next.journalState={...(next.journalState??{}),lastSceneEventId:eventId};
     next.encounterState={...(next.encounterState??{}),lastPlayerDeclaration:{text:declaration,revision:newRevision,eventId}};

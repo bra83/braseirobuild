@@ -38,7 +38,8 @@ function readCanonicalState(){
   return {characterState:fallback};
 }
 const state=readCanonicalState();
-const b=projectFichaBinding(state); const c=state.characterState||fallback;
+const hasCanonicalCharacter=Boolean(state?.characterState?.characterId);
+const b=projectFichaBinding(state); const c=hasCanonicalCharacter?state.characterState:(native?{characterId:null,name:'SEM PERSONAGEM',level:null,classId:null,attributes:{},skills:{},savingThrows:{},inventory:[],foci:[],abilities:[]} : fallback);
 const attrs=c.attributes||{}; const skills=c.skills||{};
 const pmod=(key)=>Number.isInteger(attrs?.[key])?attributeModifier(attrs[key]):c.attributeModifiers?.[key];
 const pskill=(key)=>Number.isInteger(skills?.[key])?skills[key]:undefined;
@@ -48,7 +49,7 @@ function atomic(n){return `./assets/ficha_iria/${String(n).padStart(2,'0')}_`+({
 // status/header
 text('txt_time','19:42','tiny'); img('icn_status_wifi',atomic(1)); img('icn_status_signal',atomic(2)); text('txt_status_battery','100%','tiny right'); img('icn_status_battery',atomic(3)); img('icn_compass',atomic(4)); text('txt_sub_cenario','SOMBRAS DE GELO E FERRO','tiny'); text('txt_titulo_tela','PERSONAGEM','header-title'); text('txt_breadcrumb','FICHA — RESUMO','tiny'); img('icn_buscar',atomic(5)); text('txt_btn_buscar','BUSCAR','tiny center'); img('icn_camadas',atomic(6)); text('txt_btn_camadas','CAMADAS','tiny center'); img('icn_notas',atomic(7)); text('txt_btn_notas','NOTAS','tiny center');
 // identity
-img('icn_brasao_iria',atomic(8)); text('txt_nome_iria',b.name||c.name||'IRIA','title'); text('txt_classe_nivel',`${classLabelPtBr(b.classId||c.class||'EXPERT')} • NÍVEL ${b.level||c.level||1}`,'tiny'); text('txt_label_xp','XP','label'); text('txt_val_xp',String(c.xp??0),'label right');
+img('icn_brasao_iria',atomic(8)); text('txt_nome_iria',hasCanonicalCharacter?(b.name||c.name||'PERSONAGEM'):'SEM PERSONAGEM','title'); text('txt_classe_nivel',hasCanonicalCharacter?`${classLabelPtBr(b.classId||c.class||c.classId)} • NÍVEL ${b.level||c.level||1}`:'CRIE, GERE OU IMPORTE UM PERSONAGEM','tiny'); text('txt_label_xp','XP','label'); text('txt_val_xp',String(c.xp??0),'label right');
 // stats
 img('icn_stat_pv',atomic(9)); text('txt_label_pv','PV','label center'); text('txt_val_pv',`${c.hp?.current??5} / ${c.hp?.max??5}`,'value center positive'); img('icn_stat_strain',atomic(10)); text('txt_label_strain','TENSÃO','label center'); text('txt_val_strain',`${c.systemStrain?.current??0} / ${c.systemStrain?.max??11}`,'value center'); img('icn_stat_ca',atomic(11)); text('txt_label_ca','CA','label center'); text('txt_val_ca',String(derivedArmor.status==='OK'?derivedArmor.armorClass:(c.armorClass??c.ac??10)),'value center'); img('icn_stat_ataque',atomic(12)); text('txt_label_ataque','ATAQUE','label center'); text('txt_val_ataque',String(c.attackBonus??c.baseAttackBonus??'—'),'value center');
 text('txt_header_atributos','ATRIBUTOS','label');
@@ -109,7 +110,7 @@ function renderEquipmentPane(pane,kicker,title){
 function showTab(name){document.querySelectorAll('.tab-base').forEach(x=>x.classList.remove('active-tab'));document.getElementById('tab_nav_'+name)?.classList.add('active-tab');const pane=document.getElementById('tabPane');const summary=name==='resumo';for(const id of summaryIds){const e=document.getElementById(id);if(e)e.style.visibility=summary?'visible':'hidden'}pane.hidden=summary;document.getElementById('txt_breadcrumb').textContent='FICHA — '+({'resumo':'RESUMO','pericias':'PERÍCIAS','equip':'EQUIP.','magia':'MAGIA'}[name]);if(summary){pane.innerHTML='';return} pane.innerHTML='<div class="pane-kicker"></div><div class="pane-title"></div><div class="pane-line"></div>';const kicker=pane.querySelector('.pane-kicker'),title=pane.querySelector('.pane-title');if(name==='pericias'){kicker.textContent='FICHA • LEITURA CANÔNICA';title.textContent='PERÍCIAS';const grid=document.createElement('div');grid.className='skill-grid';for(const [id,ico,key,label,lv] of skillRows){const x=document.createElement('div');x.className='skill-card';x.innerHTML=`<img src="${atomic(ico)}"><span><b>${label}</b><small>NÍVEL CANÔNICO</small></span><span class="lv">${lv}</span>`;grid.appendChild(x)}pane.appendChild(grid);const n=document.createElement('div');n.className='note-box';n.innerHTML='<strong>AÇÃO MECÂNICA</strong>Esta aba é de inspeção. Nenhuma rolagem é disparada diretamente daqui; testes continuam dependentes do Rules Engine e do fluxo PLAYER_ACTION autorizado.';pane.appendChild(n)}else if(name==='equip'){renderEquipmentPane(pane,kicker,title)}else{kicker.textContent='FICHA • PERFIL ATUAL';title.textContent='MAGIA';const e=document.createElement('div');e.className='magic-empty';e.innerHTML='<div class="diamond"></div><b>NÃO APLICÁVEL</b>IRIA é ESPECIALISTA e o estado canônico atual não possui recursos mágicos aplicáveis. Esta área permanece sem conteúdo mecânico inventado.';pane.appendChild(e)}}
 
 let liveState=state;
-let liveCharacter=state.characterState||fallback;
+let liveCharacter=hasCanonicalCharacter?state.characterState:(native?c:fallback);
 const rosterService=(nativePersistence&&nativeCampaignId)?new CharacterRosterService({persistence:nativePersistence}):null;
 const nativeCharacterUi=rosterService?{
   list:()=>rosterService.list({campaignId:nativeCampaignId}),
