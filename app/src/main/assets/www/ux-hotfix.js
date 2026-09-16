@@ -11,6 +11,7 @@ if(page==='jornada.html'){
   window.addEventListener('braseiro-native-file',event=>{
     const detail=event?.detail;
     if(detail?.kind!=='SCENE_IMAGE_IMPORT')return;
+    globalThis.__BRASEIRO_PENDING_SCENE_IMAGE=detail;
     try{sessionStorage.setItem(PENDING_SCENE_IMAGE_KEY,JSON.stringify(detail))}catch{}
   },{capture:true});
 }
@@ -18,14 +19,14 @@ if(page==='jornada.html'){
 function ensureCss(){if(document.querySelector('link[href="ux-hotfix.css"]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='ux-hotfix.css';document.head.appendChild(l)}
 
 function replayPendingSceneImage(){
-  let raw=null;try{raw=sessionStorage.getItem(PENDING_SCENE_IMAGE_KEY)}catch{}if(!raw)return;
-  let detail=null;try{detail=JSON.parse(raw)}catch{try{sessionStorage.removeItem(PENDING_SCENE_IMAGE_KEY)}catch{}return;}
+  let detail=globalThis.__BRASEIRO_PENDING_SCENE_IMAGE??null;let raw=null;try{raw=sessionStorage.getItem(PENDING_SCENE_IMAGE_KEY)}catch{}if(!detail&&!raw)return;
+  if(!detail&&raw){try{detail=JSON.parse(raw)}catch{try{sessionStorage.removeItem(PENDING_SCENE_IMAGE_KEY)}catch{}return;}}
   let attempts=0;
   const tick=()=>{
     const status=document.getElementById('sceneImageStatus');
     const image=document.getElementById('sceneImportedImage');
     const done=/imagem (importada|vinculada)/i.test(status?.textContent??'')||Boolean(image?.getAttribute('src'));
-    if(done){try{sessionStorage.removeItem(PENDING_SCENE_IMAGE_KEY)}catch{}return;}
+    if(done){globalThis.__BRASEIRO_PENDING_SCENE_IMAGE=null;try{sessionStorage.removeItem(PENDING_SCENE_IMAGE_KEY)}catch{}return;}
     window.dispatchEvent(new CustomEvent('braseiro-native-file',{detail}));
     attempts+=1;
     if(attempts<10)setTimeout(tick,650);else if(status&&!String(status.textContent??'').trim())status.textContent='A imagem chegou ao aplicativo, mas ainda não foi vinculada. Toque em IMPORTAR IMAGEM para tentar novamente.';
