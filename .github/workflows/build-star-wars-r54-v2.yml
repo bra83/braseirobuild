@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/build-star-wars-r54-v2.yml"
+      - "star-wars/r54/fix_map_anchor_state.py"
 permissions: {contents: write}
 jobs:
   build:
@@ -63,6 +64,7 @@ jobs:
           SET="$(find work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"
           test -n "$SET"; ROOT="$(dirname "$SET")"
           python3 star-wars/r54/hotfix_r54.py "$ROOT" "$(pwd)/pack"
+          python3 star-wars/r54/fix_map_anchor_state.py "$ROOT"
           printf '\n.final-start-list button[hidden]{display:none!important}\n' >> "$ROOT/app/src/main/assets/vtt/r46/final-runtime.css"
           echo "path=$ROOT" >> "$GITHUB_OUTPUT"
       - name: Static gates
@@ -80,6 +82,8 @@ jobs:
           grep -Fq "localStorage.removeItem('braseiro.starwars.edge.state.v1')" "$V/r46/final-runtime.js"
           grep -Fq 'twilek_female_blue.webp' "$V/r46/final-runtime.js"
           grep -Fq 'r54-scene-icon' "$V/r46/final-runtime.js"
+          grep -Fq 'result.world.sandbox.startMapPoint' "$V/js/core/controller.mjs"
+          grep -Fq 'result.world.sandbox.startMapPoint' "$V/js/core/uiBridge.bundle.js"
           grep -Fq '.final-start-list button[hidden]{display:none!important}' "$V/r46/final-runtime.css"
           test "$(find "$V/image-library/local/r54/weapons" -type f -name '*.webp' | wc -l)" -ge 30
           test "$(find "$V/image-library/local/r54/equipment" -type f -name '*.webp' | wc -l)" -ge 20
@@ -90,7 +94,7 @@ jobs:
           d=json.loads((v/'image-library/local/r54/r54-start-locations.json').read_text('utf-8'))
           assert len(d)==82,len(d)
           for n in ['Tatooine','Corellia','Ryloth','Dantooine','Mandalore','Kessel','Shantipole','Lothal']: assert n in rt,n
-          print('STATIC R54 PASS: 82 starts, user visual pack present')
+          print('STATIC R54 PASS: 82 starts, map anchor engine and user visual pack present')
           PY
       - name: Browser smoke 415x915
         env: {ROOT: "${{ steps.root.outputs.path }}"}
@@ -122,6 +126,9 @@ jobs:
               sh.click()
               pg.locator('#sandbox-start-button').click()
               pg.wait_for_selector('#braseiro-sandbox-setup',state='detached',timeout=10000);pg.wait_for_timeout(300)
+              state=pg.evaluate('window.BraseiroGameBridge.readState().data') or {}
+              anchor=(((state.get('world') or {}).get('sandbox') or {}).get('startMapPoint'))
+              assert isinstance(anchor,dict) and anchor.get('mapId')=='local.map.galaxy',anchor
             if pg.locator('[data-random-character]').count():
               pg.locator('[data-random-character]').click();pg.wait_for_timeout(700)
             if pg.locator('[data-start-adventure]').count():
