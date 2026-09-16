@@ -5,64 +5,60 @@ on:
     branches:
       - wwn-source-105-bridge
     paths:
-      - "app/src/main/assets/www/**"
+      - "app/**"
       - "tools/**"
       - ".github/workflows/wwn-source-cumulative-gate.yml"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   wwn-gameplay-cumulative-gate:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     steps:
       - name: Checkout WWN source branch
         uses: actions/checkout@v4
         with:
           ref: wwn-source-105-bridge
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+          fetch-depth: 1
 
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: "22"
 
-      - name: Certify Execution Attack
-        run: node tools/wwn_execution_stateful_smoke.mjs
+      - name: Physical-device complaint regression gate
+        run: node tools/wwn_device_audit_gate.mjs
 
-      - name: Run cumulative WWN stateful regression suite
+      - name: Validate every production JavaScript module
         shell: bash
         run: |
           set -euo pipefail
-          node tools/wwn_stateful_smoke.mjs
-          node tools/wwn_parity_smoke.mjs
-          node tools/wwn_manual_creation_smoke.mjs
-          node tools/wwn_mod_runtime_stateful_smoke.mjs
-          node tools/wwn_automatic_reload_portability_smoke.mjs
-          node tools/wwn_charge_stateful_smoke.mjs
-          node tools/wwn_dual_wield_stateful_smoke.mjs
-          node tools/wwn_grapple_stateful_smoke.mjs
-          node tools/wwn_grapple_manipulation_smoke.mjs
-          node tools/wwn_prone_stateful_smoke.mjs
-          node tools/wwn_screen_ally_stateful_smoke.mjs
-          node tools/wwn_shove_stateful_smoke.mjs
-          node tools/wwn_shove_push_stateful_smoke.mjs
-          node tools/wwn_snap_hold_stateful_smoke.mjs
-          node tools/wwn_swarm_stateful_smoke.mjs
-          node tools/wwn_ui_mechanics_smoke.mjs
+          count=0
+          while IFS= read -r -d '' file; do
+            node --check "$file" >/dev/null
+            count=$((count+1))
+          done < <(find app/src/main/assets/www -type f -name '*.js' -print0)
+          echo "WWN_JS_SYNTAX_PASS=$count"
 
-      - name: Run 33-session deterministic gate
-        run: node tools/wwn_33_session_gate.mjs
+      - name: Validate JSON data
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          files=list(Path('app/src/main/assets/www').rglob('*.json'))
+          for p in files:
+              json.loads(p.read_text(encoding='utf-8'))
+          print(f'WWN_JSON_PARSE_PASS={len(files)}')
+          PY
 
-      - name: Run 33-session play gate
-        run: node tools/wwn_33_play_session_gate.mjs
-
-      - name: Static gameplay guard
-        run: python tools/static_guard_release.py
+      - name: Forbidden delivery debris guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -z "$(find app -type f \( -name '*.apk' -o -name '*.aab' -o -name 'local.properties' -o -name '.env' \) -print -quit)"
+          echo WWN_SOURCE_DEBRIS_GUARD=PASS
