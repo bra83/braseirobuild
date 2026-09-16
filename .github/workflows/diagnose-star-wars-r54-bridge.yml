@@ -1,0 +1,36 @@
+name: Diagnose Star Wars R54 bridge
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/diagnose-star-wars-r54-bridge.yml"]
+permissions: {contents: write}
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect R53 source bridge
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/r53 && mkdir /tmp/r53
+          unzip -q star-wars/final-1.0.0/output-r53/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R53_REAL_DEVICE_HOTFIX.zip -d /tmp/r53
+          ROOT="$(dirname "$(find /tmp/r53 -name settings.gradle -o -name settings.gradle.kts | head -n1)")"
+          V="$ROOT/app/src/main/assets/vtt"
+          mkdir -p star-wars/r54/diagnostics
+          {
+            echo '=== final-bootstrap ==='
+            cat "$V/r46/final-bootstrap.js"
+            echo '\n=== bridge globals / storage ==='
+            grep -RniE 'BraseiroGameBridge|newCampaign|localStorage|sessionStorage|repository|clear\(' "$V/r46" "$V/js/core" | head -n 500 || true
+            echo '\n=== Gemini interface ==='
+            grep -RniE 'openGeminiWithPrompt|generateSceneImage|javascriptInterface' "$ROOT/app/src/main/java/com/braseiro/starwarsedge" | head -n 300 || true
+          } > star-wars/r54/diagnostics/bridge.txt
+          cat star-wars/r54/diagnostics/bridge.txt
+      - name: Persist
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add star-wars/r54/diagnostics/bridge.txt
+          git commit -m 'diag: R54 bridge and Gemini surface' || true
+          git push origin HEAD:main
