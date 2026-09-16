@@ -29,19 +29,11 @@ jobs:
           print('MARKER_INDEX',i)
           if i>=0:
               print('=== MARKER CONTEXT ===')
-              print(s[max(0,i-1800):i+1800])
-          print('=== AOR/TALENT FILE CANDIDATES ===')
-          for f in v.rglob('*'):
-              if not f.is_file(): continue
-              n=f.name.lower();
-              if 'aor' in n or 'talent' in n or 'specialization' in n:
-                  print(f.relative_to(v))
-          print('=== TEXT FILES WITH AOR CAREER TOKENS ===')
-          toks=('Ace','Commander','Diplomat','Engineer','Soldier','Spy')
-          for f in v.rglob('*'):
-              if not f.is_file() or f.suffix.lower() not in {'.js','.mjs','.json','.html','.txt'}: continue
-              try:t=f.read_text('utf-8',errors='replace')
-              except:continue
-              hits=sum(tok in t for tok in toks)
-              if hits>=4: print(f.relative_to(v), 'TOKENS', hits)
+              print(s[max(0,i-1200):i+1200])
+          for rel in ['js/expansion/aorTalentTreesData.mjs','js/expansion/aorProgressionIntegration.mjs','js/rules/talentTreesData.mjs']:
+              f=v/rel
+              print('=== FILE',rel,'SIZE',f.stat().st_size if f.exists() else -1,'===')
+              if f.exists():
+                  t=f.read_text('utf-8',errors='replace')
+                  print(t[:12000])
           PY
