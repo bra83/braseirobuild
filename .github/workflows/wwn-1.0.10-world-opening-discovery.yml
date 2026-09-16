@@ -1,0 +1,306 @@
+name: WWN 1.0.10 World Opening and Discovery Closure
+
+on:
+  push:
+    branches: [wwn-source-105-bridge]
+    paths:
+      - ".github/workflows/wwn-1.0.10-world-opening-discovery.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch-test-build-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: wwn-source-105-bridge
+          fetch-depth: 0
+
+      - name: Apply world-opening discovery and narrative fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def rep(path, old, new, label):
+              p=Path(path); s=p.read_text(encoding='utf-8')
+              if old not in s: raise SystemExit(f'{label}: pattern not found')
+              p.write_text(s.replace(old,new,1),encoding='utf-8')
+
+          rep('app/build.gradle.kts','versionCode = 109; versionName = "1.0.9"','versionCode = 110; versionName = "1.0.10"','version')
+
+          Path('app/src/main/assets/www/core/campaign-opening.js').write_text(r'''function clone(v){return structuredClone(v)}
+function norm(v){return String(v??'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase()}
+function currentSite(state){const name=norm(state?.worldState?.position?.name);if(!name)return null;return (state?.contentState?.public?.majorSites??[]).find(site=>norm(site?.name)===name)??null}
+
+export function prepareCampaignOpening(state,{campaignId=state?.campaignId,nextRevision=(state?.revision??0)+1}={}){
+  if(!state||typeof state!=='object')return Object.freeze({status:'STATE_REQUIRED'});
+  const position=state.worldState?.position;if(!Number.isInteger(position?.q)||!Number.isInteger(position?.r))return Object.freeze({status:'OPENING_POSITION_REQUIRED'});
+  const site=currentSite(state);const region=state.contentState?.public?.region??null;
+  const placeName=String(position.name??site?.name??`Q${position.q} • R${position.r}`).trim();
+  const summary=String(site?.summary??region?.tone??`A campanha começa em ${placeName}.`).trim();
+  const situation=String(site?.situation??'').trim()||null;
+  const contentId=`opening-${position.q}-${position.r}`;
+  const publicScene=Object.freeze({status:'OK',contentType:'campaignOpening',contentId,title:`ABERTURA • ${placeName}`,summary,situation,leads:Object.freeze([])});
+  const eventId=`scene:${campaignId}:r${nextRevision}:campaign-opening`;
+  const next=clone(state);next.revision=nextRevision;
+  next.encounterState={...(next.encounterState??{}),sceneId:`scene:campaignOpening:${contentId}:r${nextRevision}`,currentScene:{contentType:'campaignOpening',contentId,publicScene:clone(publicScene)},scenePhase:'ACTIVE',sceneOpenedAtRevision:nextRevision};
+  next.journalState={...(next.journalState??{}),lastMechanicalEventId:eventId,lastSceneEventId:eventId};
+  next.worldState=next.worldState??{};next.worldState.atlas=next.worldState.atlas??{hexes:{}};next.worldState.atlas.hexes=next.worldState.atlas.hexes??{};
+  const key=`${position.q},${position.r}`,prior=next.worldState.atlas.hexes[key]??{};
+  next.worldState.atlas.hexes[key]={...prior,q:position.q,r:position.r,discovered:true,entered:true,visited:true,poiRevealed:true,placeName,poiName:site?.name??prior.poiName??placeName,poiType:site?.kind??prior.poiType??null,enteredAtRevision:prior.enteredAtRevision??nextRevision};
+  const openingContext={campaign:state.displayName??null,region:region?{name:region.name??null,tone:region.tone??null,scope:region.scope??null}:null,position:clone(position),currentSite:site?{name:site.name,kind:site.kind,summary:site.summary,situation:site.situation}:null};
+  const event=Object.freeze({eventId,revision:nextRevision,kind:'SCENE_OPENED',contentType:'campaignOpening',contentId,scene:publicScene,openingContext,mechanicalMutation:false,timeAdvanced:false,positionChanged:false});
+  return Object.freeze({status:'OK',state:next,event,scene:publicScene,eventId});
+}
+''',encoding='utf-8')
+
+          Path('app/src/main/assets/www/core/journey-discovery.js').write_text(r'''function clone(v){return structuredClone(v)}
+function norm(v){return String(v??'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase()}
+function fnv1a(text){let h=0x811c9dc5;for(const c of String(text)){h^=c.codePointAt(0);h=Math.imul(h,0x01000193)>>>0;}return h>>>0}
+
+export function selectJourneyFeed(state,content,{hookCount=1,rumorCount=2}={}){
+  const hooks=Array.isArray(content?.startingHooks)?content.startingHooks:[];const rumors=Array.isArray(content?.rumors)?content.rumors:[];
+  const revision=Math.max(0,Number(state?.revision??0));const seed=String(state?.rngState?.masterSeed??state?.campaignId??'wwn');const base=fnv1a(seed);
+  const selectedHooks=[];if(hooks.length){const start=(base+revision)%hooks.length;for(let i=0;i<Math.min(hookCount,hooks.length);i++)selectedHooks.push(clone(hooks[(start+i)%hooks.length]));}
+  const selectedRumors=[];if(rumors.length){const start=(Math.imul(base,3)+revision*2)>>>0;for(let i=0;i<Math.min(rumorCount,rumors.length);i++)selectedRumors.push(String(rumors[(start+i*3)%rumors.length]));}
+  return Object.freeze({hooks:Object.freeze(selectedHooks),rumors:Object.freeze(selectedRumors),revision,seedDigest:base});
+}
+
+export function knownJourneyLocations(state,content){
+  const names=new Set();const add=v=>{const n=norm(v);if(n)names.add(n)};add(state?.worldState?.position?.name);
+  for(const hex of Object.values(state?.worldState?.atlas?.hexes??{})){if(!(hex?.discovered===true||hex?.entered===true||hex?.visited===true||hex?.poiRevealed===true))continue;add(hex.poiName);add(hex.placeName);}
+  const majorSites=(content?.majorSites??[]).filter(x=>names.has(norm(x?.name))).map(clone);
+  const minorPois=(content?.minorPois??[]).filter(x=>names.has(norm(x?.name))).map(clone);
+  return Object.freeze({majorSites:Object.freeze(majorSites),minorPois:Object.freeze(minorPois),knownNames:Object.freeze([...names])});
+}
+''',encoding='utf-8')
+
+          Path('app/src/main/assets/www/core/campaign-manager-service.js').write_text(r'''import { makeEmptyCampaignState, serializeCampaignState } from './campaign-state.js';
+import { setRuntimeActiveCampaignId } from './runtime-campaign.js';
+import { applyStarterContentToState } from './starter-content-service.js';
+import { makeLivingWorldInitialState } from './living-world-core.js';
+import { STARTER_POSITION } from './starter-bootstrap.js';
+import { prepareCampaignOpening } from './campaign-opening.js';
+import { canonicalJson } from './canonical-json.js';
+function clean(v,max=80){return String(v??'').replace(/\s+/g,' ').trim().slice(0,max)}
+function slug(v){return clean(v,60).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,48)}
+export class CampaignManagerService{
+  constructor({persistence,native=globalThis.BraseiroNative}={}){if(!persistence)throw new TypeError('persistence required');this.persistence=persistence;this.native=native;}
+  list(){const r=this.persistence.listCampaigns?.();if(!r||r.status&&r.status!=='OK')return Object.freeze({status:r?.status??'UNAVAILABLE',campaigns:Object.freeze([])});return Object.freeze({status:'OK',campaigns:Object.freeze((r.campaigns??[]).map(x=>Object.freeze({...x})))});}
+  create({displayName,campaignId=null,masterSeed=null,activate=true,starterPack=null}={}){
+    const name=clean(displayName,80);if(!name)return Object.freeze({status:'DISPLAY_NAME_REQUIRED_NO_MUTATION'});const base=slug(campaignId||name)||'campanha';const existing=new Set((this.list().campaigns??[]).map(x=>x.campaignId));let id=base,n=2;while(existing.has(id))id=`${base}-${n++}`;const seed=clean(masterSeed,120)||`braseiro-wwn:${id}`;
+    let state=makeEmptyCampaignState({campaignId:id,displayName:name,masterSeed:seed});if(starterPack){state=structuredClone(applyStarterContentToState(state,starterPack));state.worldState={...(state.worldState??{}),position:structuredClone(STARTER_POSITION),elapsedDays:0};state.worldState.livingWorld=makeLivingWorldInitialState(state,{seed});}
+    const receipt=this.persistence.createCampaign({campaignId:id,displayName:name,stateJson:serializeCampaignState(state),masterSeed:seed,rngAlgorithm:state.rngState.algorithm,initialSnapshotId:`snapshot:${id}:r0`});if(receipt.status!=='OK')return Object.freeze({status:receipt.status,receipt});
+    let openingStatus='NOT_APPLICABLE',openingReceipt=null;if(starterPack){const opening=prepareCampaignOpening(state,{campaignId:id,nextRevision:receipt.newRevision+1});if(opening.status==='OK'){openingReceipt=this.persistence.commit({campaignId:id,expectedRevision:receipt.newRevision,eventId:opening.eventId,eventKind:'SCENE_OPENED',eventPayloadJson:canonicalJson(opening.event),newStateJson:serializeCampaignState(opening.state),rngCountersJson:canonicalJson(opening.state.rngState?.counters??{})});openingStatus=openingReceipt.status;if(openingReceipt.status==='OK')state=opening.state;}else openingStatus=opening.status;}
+    if(activate){const active=setRuntimeActiveCampaignId(id,{native:this.native});if(active.status!=='OK')return Object.freeze({status:'CREATED_ACTIVATION_FAILED',campaignId:id,receipt,openingStatus,openingReceipt,activation:active});}
+    return Object.freeze({status:'OK',campaignId:id,receipt,openingStatus,openingReceipt,requiresCharacter:false,starterWorldSeeded:Boolean(starterPack),revision:openingReceipt?.status==='OK'?openingReceipt.newRevision:receipt.newRevision});
+  }
+  activate({campaignId}={}){const id=String(campaignId??'').trim();const found=(this.list().campaigns??[]).some(x=>x.campaignId===id);if(!found)return Object.freeze({status:'CAMPAIGN_NOT_FOUND_NO_MUTATION'});return Object.freeze(setRuntimeActiveCampaignId(id,{native:this.native}));}
+}
+''',encoding='utf-8')
+
+          Path('app/src/main/assets/www/core/starter-bootstrap.js').write_text(r'''import { makeEmptyCampaignState, serializeCampaignState } from './campaign-state.js';
+import { createPartyState } from './party-state.js';
+import { applyStarterContentToState } from './starter-content-service.js';
+import { STARTER_CAMPAIGN_ID } from './runtime-campaign.js';
+import { prepareCampaignOpening } from './campaign-opening.js';
+import { canonicalJson } from './canonical-json.js';
+
+export const STARTER_DISPLAY_NAME='SOMBRAS DE GELO E FERRO';
+export const STARTER_MASTER_SEED='braseiro-wwn-sombras-gelo-ferro-v1';
+export const STARTER_POSITION=Object.freeze({q:17,r:22,name:'RUÍNAS DA VIGÍLIA'});
+
+function clone(v){return structuredClone(v)}
+function canonicalClassId(value){const raw=String(value??'').trim();if(!raw)return null;const id=raw.toUpperCase().replace(/[^A-Z0-9]+/g,'_').replace(/^_+|_+$/g,'');if(id==='FULL_EXPERT'||id==='PARTIAL_EXPERT')return 'EXPERT';if(id==='FULL_WARRIOR'||id==='PARTIAL_WARRIOR')return 'WARRIOR';return id;}
+function normalizeCharacter(raw){if(!raw||typeof raw!=='object')throw new TypeError('canonical starter character required');const c=clone(raw);delete c.fixtureKind;delete c.authority;delete c.evidencePolicy;c.characterId=String(c.characterId??c.id??'iria');c.classId=canonicalClassId(c.classId??c.class);if(Array.isArray(c.partialClasses))c.partialClasses=c.partialClasses.map(canonicalClassId).filter(Boolean);if(!c.name)throw new Error('starter character name required');if(!c.classId)throw new Error('starter character classId required');return c;}
+
+export function makeStarterCampaignState({character,pack,campaignId=STARTER_CAMPAIGN_ID,displayName=STARTER_DISPLAY_NAME,masterSeed=STARTER_MASTER_SEED}={}){const c=normalizeCharacter(character);let state=makeEmptyCampaignState({campaignId,displayName,masterSeed});state.characterState=c;state.charactersState={[c.characterId]:clone(c)};state.worldState={...state.worldState,position:clone(STARTER_POSITION),elapsedDays:0};state.partyState=createPartyState({memberIds:[c.characterId],position:state.worldState.position});state=structuredClone(applyStarterContentToState(state,pack));return state;}
+
+export function ensureStarterCampaign({persistence,character,pack,campaignId=STARTER_CAMPAIGN_ID}={}){
+  if(!persistence)throw new TypeError('persistence required');const existing=persistence.loadCampaign(campaignId);if(existing.status==='OK')return Object.freeze({status:'OK_EXISTING',campaignId,revision:existing.revision,state:JSON.parse(existing.stateJson)});if(existing.status!=='NOT_FOUND')return Object.freeze({status:existing.status,campaignId});
+  let state=makeStarterCampaignState({character,pack,campaignId});const receipt=persistence.createCampaign({campaignId,displayName:state.displayName,stateJson:serializeCampaignState(state),masterSeed:state.rngState.masterSeed,rngAlgorithm:state.rngState.algorithm,initialSnapshotId:`snapshot:${campaignId}:r0`});if(receipt.status!=='OK')return Object.freeze({status:receipt.status,campaignId,receipt,state});
+  const opening=prepareCampaignOpening(state,{campaignId,nextRevision:receipt.newRevision+1});let openingReceipt=null,openingStatus=opening.status;if(opening.status==='OK'){openingReceipt=persistence.commit({campaignId,expectedRevision:receipt.newRevision,eventId:opening.eventId,eventKind:'SCENE_OPENED',eventPayloadJson:canonicalJson(opening.event),newStateJson:serializeCampaignState(opening.state),rngCountersJson:canonicalJson(opening.state.rngState?.counters??{})});openingStatus=openingReceipt.status;if(openingReceipt.status==='OK')state=opening.state;}
+  return Object.freeze({status:'OK_CREATED',campaignId,receipt,openingStatus,openingReceipt,revision:openingReceipt?.status==='OK'?openingReceipt.newRevision:receipt.newRevision,state});
+}
+''',encoding='utf-8')
+
+          # Journey: dynamic optional feed, fog-of-war known sites, PT-BR skills, no-character bars, pending share flush and auto opening narration.
+          p=Path('app/src/main/assets/www/jornada.js'); s=p.read_text(encoding='utf-8')
+          old="import { PlayerMechanicsFacade } from './core/player-mechanics-facade.js';"
+          new="import { PlayerMechanicsFacade } from './core/player-mechanics-facade.js';\nimport { selectJourneyFeed, knownJourneyLocations } from './core/journey-discovery.js';\nimport { skillLabelPtBr } from './core/ptbr-labels.js';"
+          if old not in s: raise SystemExit('journey imports pattern not found')
+          s=s.replace(old,new,1)
+          old="function renderBars(){const m=activeCharacter();if(!m)return;const b=m.statusBars??m;$('statusName').textContent=m.name;$('hpFill').style.width=`${Math.round((b?.hp?.fill??0)*100)}%`;$('strainFill').style.width=`${Math.round((b?.systemStrain?.fill??0)*100)}%`;$('hpText').textContent=b?.hp?`${b.hp.current} / ${b.hp.max}`:'—';$('strainText').textContent=b?.systemStrain?`${b.systemStrain.current} / ${b.systemStrain.max}`:'—'}"
+          new="function renderBars(){const m=activeCharacter();if(!m){$('statusName').textContent='SEM PERSONAGEM';$('hpFill').style.width='0%';$('strainFill').style.width='0%';$('hpText').textContent='—';$('strainText').textContent='—';return;}const b=m.statusBars??m;$('statusName').textContent=m.name;$('hpFill').style.width=`${Math.round((b?.hp?.fill??0)*100)}%`;$('strainFill').style.width=`${Math.round((b?.systemStrain?.fill??0)*100)}%`;$('hpText').textContent=b?.hp?`${b.hp.current} / ${b.hp.max}`:'—';$('strainText').textContent=b?.systemStrain?`${b.systemStrain.current} / ${b.systemStrain.max}`:'—'}"
+          if old not in s: raise SystemExit('journey no-character bars pattern not found')
+          s=s.replace(old,new,1)
+          old="selectOptions($('mechanicsSkill'),WWN_SKILLS.map(k=>({value:k,label:`${k}${known.has(k)?` ${c.skills[k]>=0?`+${c.skills[k]}`:c.skills[k]}`:' (não treinado)'}`})));"
+          new="selectOptions($('mechanicsSkill'),WWN_SKILLS.map(k=>({value:k,label:`${skillLabelPtBr(k)}${known.has(k)?` ${c.skills[k]>=0?`+${c.skills[k]}`:c.skills[k]}`:' (NÃO TREINADO)'}`})));"
+          if old not in s: raise SystemExit('journey skill PTBR pattern not found')
+          s=s.replace(old,new,1)
+          s=s.replace("`${r.success?'SAVE BEM-SUCEDIDO':'SAVE FALHOU'}", "`${r.success?'RESISTÊNCIA BEM-SUCEDIDA':'RESISTÊNCIA FALHOU'}",1)
+          s=s.replace("parts.push(`Shock ${shock}`)","parts.push(`Dano de Choque ${shock}`)",1)
+          s=s.replace("mechanicsStatus(\"Primeiros socorros exigem Healer's pouch no inventário.\",'warn')","mechanicsStatus('Primeiros socorros exigem Bolsa de curandeiro no inventário.','warn')",1)
+          old="function card(item,type){const el=document.createElement('button');el.className='card';el.innerHTML=`<span class=\"kind\">${type==='startingHook'?'OPORTUNIDADE OPCIONAL':'LOCAL'}</span><b>${item.title??item.name}</b><span>${item.premise??item.summary??item.situation??''}</span>`;el.onclick=()=>openScene(type,item.id);return el}\nfunction rumorCard(text){const el=document.createElement('article');el.className='card rumor-card';el.innerHTML=`<span class=\"kind\">RUMOR ATUAL</span><b>O mundo está falando</b><span>${String(text??'')}</span>`;return el}\nconst starterHooks=content?.startingHooks??[],campaignRevision=Number(currentCanonicalState()?.revision??0),hookHost=$('hooks');if(starterHooks.length){const visible=Math.min(2,starterHooks.length),start=((campaignRevision%starterHooks.length)+starterHooks.length)%starterHooks.length;for(let i=0;i<visible;i++)hookHost.appendChild(card(starterHooks[(start+i)%starterHooks.length],'startingHook'));}const rumorPool=Array.isArray(pack?.rumors)?pack.rumors:[];if(rumorPool.length)hookHost.appendChild(rumorCard(rumorPool[((campaignRevision*3+1)%rumorPool.length+rumorPool.length)%rumorPool.length]));for(const s of content?.majorSites??[])$('sites').appendChild(card(s,'majorSite'));"
+          new="function card(item,type){const el=document.createElement('button');el.className='card';el.innerHTML=`<span class=\"kind\">${type==='startingHook'?'OPORTUNIDADE OPCIONAL':'LOCAL CONHECIDO'}</span><b>${item.title??item.name}</b><span>${item.premise??item.summary??item.situation??''}</span>`;el.onclick=()=>openScene(type,item.id??item.name);return el}\nfunction rumorCard(text,index=0){const el=document.createElement('article');el.className='card rumor-card';el.innerHTML=`<span class=\"kind\">RUMOR ${index+1} • MUDA COM O MUNDO</span><b>Algo que você ouviu</b><span>${String(text??'')}</span>`;return el}\nconst journeyState=currentCanonicalState(),feed=selectJourneyFeed(journeyState,content),hookHost=$('hooks');for(const hook of feed.hooks)hookHost.appendChild(card(hook,'startingHook'));feed.rumors.forEach((rumor,index)=>hookHost.appendChild(rumorCard(rumor,index)));const known=knownJourneyLocations(journeyState,content),siteHost=$('sites');for(const site of known.majorSites)siteHost.appendChild(card(site,'majorSite'));for(const poi of known.minorPois)siteHost.appendChild(card(poi,'minorPoi'));if(!siteHost.children.length){const empty=document.createElement('article');empty.className='card rumor-card';empty.innerHTML='<span class=\"kind\">MAPA AINDA DESCONHECIDO</span><b>Nenhum local foi descoberto</b><span>Explore o Atlas ou siga uma pista. Locais não aparecem aqui antes de serem conhecidos.</span>';siteHost.appendChild(empty);}"
+          if old not in s: raise SystemExit('journey feed/fog pattern not found')
+          s=s.replace(old,new,1)
+          old="sceneImages.onImport(result=>{if(result.status!=='OK'){$('sceneImageStatus').textContent=result.status==='CANCELLED'?'Importação cancelada.':`Imagem não importada: ${result.reason??result.status}`;return;}if(!projection.scene||projection.scene.status!=='OK'){globalThis.__BRASEIRO_DEFERRED_SCENE_IMAGE_RESULT=result;$('sceneImageStatus').textContent='Imagem recebida. Abra uma oportunidade ou local; ela será vinculada à próxima cena.';return;}const attached=attachSceneImageResult(result,{generated:false});$('sceneImageStatus').textContent=attached.status==='OK'?'Imagem importada e vinculada à cena atual.':`Imagem importada, mas não vinculada: ${attached.status}`;});"
+          new=old+"\nconst pendingSharedImage=globalThis.__BRASEIRO_PENDING_SCENE_IMAGE??null;if(pendingSharedImage){window.dispatchEvent(new CustomEvent('braseiro-native-file',{detail:pendingSharedImage}));globalThis.__BRASEIRO_PENDING_SCENE_IMAGE=null;}"
+          if old not in s: raise SystemExit('journey pending shared image pattern not found')
+          s=s.replace(old,new,1)
+          old="renderBars();renderScene(loaded.narrative);renderMasterStatus();syncAudio();setupMechanicsUi();window.__BRASEIRO_JORNADA__={campaignId,projection:()=>structuredClone(projection),mechanicsSummary:()=>structuredClone(mechanicsSummary),refreshMechanics,openScene};"
+          new="renderBars();renderScene(loaded.narrative);renderMasterStatus();syncAudio();setupMechanicsUi();const openingNeedsNarration=projection.scene?.contentType==='campaignOpening'&&!loaded.narrative&&barbara.status?.().configured===true;if(openingNeedsNarration){const autoKey=`braseiro-opening-narration:${campaignId}:${projection.scene.contentId}`;if(sessionStorage.getItem(autoKey)!=='1'){sessionStorage.setItem(autoKey,'1');setTimeout(()=>void narrateCurrentScene(),120);}}window.__BRASEIRO_JORNADA__={campaignId,projection:()=>structuredClone(projection),mechanicsSummary:()=>structuredClone(mechanicsSummary),refreshMechanics,openScene};"
+          if old not in s: raise SystemExit('journey auto opening pattern not found')
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+
+          # Make the long-scene contract enforceable: if Gemini returns a tiny major scene, automatically request an expanded second pass.
+          p=Path('app/src/main/assets/www/core/runtime-narrative-provider.js'); s=p.read_text(encoding='utf-8')
+          old="function requestPayload(status,context,imageUrl){return {model:status.textModel??status.model,systemInstruction:SYSTEM_INSTRUCTION,userText:requestText(context,{hasImage:Boolean(imageUrl)}),imageUrl}}"
+          new="const MIN_MAJOR_WORDS=700;\nfunction wordCount(text){return String(text??'').trim().split(/\\s+/).filter(Boolean).length}\nfunction requestPayload(status,context,imageUrl){return {model:status.textModel??status.model,systemInstruction:SYSTEM_INSTRUCTION,userText:requestText(context,{hasImage:Boolean(imageUrl)}),imageUrl}}\nfunction expansionPayload(status,context,imageUrl,draft){const payload=requestPayload(status,context,imageUrl);return {...payload,userText:`${payload.userText}\\n\\nO rascunho abaixo ficou curto demais para esta cena maior (${wordCount(draft)} palavras). Reescreva e EXPANDA para 900–1400 palavras, preservando estritamente os mesmos fatos públicos e resultados, sem acrescentar nomes próprios, segredos, monstros, itens ou mecânicas não sustentados. Aprofunde presença sensorial, escala espacial, sinais visíveis e a situação imediata.\\n\\nRASCUNHO CURTO:\\n${String(draft??'').slice(0,12000)}`}}"
+          if old not in s: raise SystemExit('narrative expansion helpers pattern not found')
+          s=s.replace(old,new,1)
+          old="  async generateAsync({mechanicalEvent,state,ragSnippets=[]}){const {snippets,context}=await this._contextAsync({mechanicalEvent,state,ragSnippets});const status=this.status();if(status.status!=='OK'||status.configured!==true||(!this.native?.geminiGenerateTextAsync&&!this.native?.geminiGenerateText))return this.localFallback({mechanicalEvent,state,ragSnippets:snippets});try{const imageUrl=this._image(status,state,mechanicalEvent);const result=await awaitNativeGemini(this.native,requestPayload(status,context,imageUrl));if(result.status!=='OK'||!String(result.text??'').trim())return Object.freeze({...this.localFallback({mechanicalEvent,state,ragSnippets:snippets}),geminiFallbackReason:result.reason??result.status??'EMPTY'});return Object.freeze({status:'OK',provider:'GEMINI_NATIVE',model:result.model,imageAttached:result.imageAttached===true,parentMechanicalEventId:mechanicalEvent.eventId,mechanicalRevision:mechanicalEvent.revision,text:String(result.text).trim()})}catch(error){return Object.freeze({...this.localFallback({mechanicalEvent,state,ragSnippets:snippets}),geminiFallbackReason:String(error?.message??error)})}}"
+          new="  async generateAsync({mechanicalEvent,state,ragSnippets=[]}){const {snippets,context}=await this._contextAsync({mechanicalEvent,state,ragSnippets});const status=this.status();if(status.status!=='OK'||status.configured!==true||(!this.native?.geminiGenerateTextAsync&&!this.native?.geminiGenerateText))return this.localFallback({mechanicalEvent,state,ragSnippets:snippets});try{const imageUrl=this._image(status,state,mechanicalEvent);let result=await awaitNativeGemini(this.native,requestPayload(status,context,imageUrl));if(result.status!=='OK'||!String(result.text??'').trim())return Object.freeze({...this.localFallback({mechanicalEvent,state,ragSnippets:snippets}),geminiFallbackReason:result.reason??result.status??'EMPTY'});let majorExpanded=false;if(isMajorNarration(context)&&wordCount(result.text)<MIN_MAJOR_WORDS){const expanded=await awaitNativeGemini(this.native,expansionPayload(status,context,imageUrl,result.text));if(expanded.status==='OK'&&wordCount(expanded.text)>wordCount(result.text)){result=expanded;majorExpanded=true;}}return Object.freeze({status:'OK',provider:'GEMINI_NATIVE',model:result.model,imageAttached:result.imageAttached===true,parentMechanicalEventId:mechanicalEvent.eventId,mechanicalRevision:mechanicalEvent.revision,text:String(result.text).trim(),majorExpanded,wordCount:wordCount(result.text)})}catch(error){return Object.freeze({...this.localFallback({mechanicalEvent,state,ragSnippets:snippets}),geminiFallbackReason:String(error?.message??error)})}}"
+          if old not in s: raise SystemExit('narrative generateAsync expansion pattern not found')
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+
+          # Stronger semantic item art: expose canonical IDs/kinds to the icon layer instead of relying only on visible text.
+          p=Path('app/src/main/assets/www/mochila.js'); s=p.read_text(encoding='utf-8')
+          old="for(const i of items){const row=document.createElement('article');row.className='item';"
+          new="for(const i of items){const row=document.createElement('article');row.className='item';row.dataset.catalogId=i.catalogId??'';row.dataset.itemKind=i.kind??'';"
+          if old not in s: raise SystemExit('inventory semantic data pattern not found')
+          s=s.replace(old,new,1)
+          old="function catalogRow({name,detail,costCopper,buyAction}){const row=document.createElement('article');row.className='catalog-item';"
+          new="function catalogRow({name,detail,costCopper,buyAction,catalogId='',kind=''}){const row=document.createElement('article');row.className='catalog-item';row.dataset.catalogId=catalogId;row.dataset.itemKind=kind;"
+          if old not in s: raise SystemExit('catalog semantic signature pattern not found')
+          s=s.replace(old,new,1)
+          s=s.replace("buyAction:()=>buyCatalogItem(cat.catalogId)","catalogId:cat.catalogId,kind:cat.kind,buyAction:()=>buyCatalogItem(cat.catalogId)")
+          p.write_text(s,encoding='utf-8')
+          p=Path('app/src/main/assets/www/ux-hotfix.js'); s=p.read_text(encoding='utf-8')
+          old="const kind=artKind(row.textContent);visual.dataset.artKind=kind;"
+          new="const kind=artKind(`${row.dataset.catalogId??''} ${row.dataset.itemKind??''} ${row.textContent}`);visual.dataset.artKind=kind;"
+          if old not in s: raise SystemExit('semantic icon data pattern not found')
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+          PY
+
+      - name: Run functional and static audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          find app/src/main/assets/www -type f -name '*.js' -print0 | while IFS= read -r -d '' f; do node --check "$f" >/dev/null; done
+          cat > /tmp/wwn110.mjs <<'NODE'
+          import assert from 'node:assert/strict';
+          import fs from 'node:fs';
+          import { MemoryPersistenceAdapter } from './app/src/main/assets/www/core/persistence-port.js';
+          import { CampaignManagerService } from './app/src/main/assets/www/core/campaign-manager-service.js';
+          import { ensureStarterCampaign } from './app/src/main/assets/www/core/starter-bootstrap.js';
+          import { selectJourneyFeed, knownJourneyLocations } from './app/src/main/assets/www/core/journey-discovery.js';
+          import { RuntimeBarbaraProvider } from './app/src/main/assets/www/core/runtime-narrative-provider.js';
+          const pack=JSON.parse(fs.readFileSync('./app/src/main/assets/www/data/wwn.starter-region.v1.json','utf8'));
+          const character=JSON.parse(fs.readFileSync('./app/src/main/assets/www/data/wwn.starter-character.v1.json','utf8'));
+          const p=new MemoryPersistenceAdapter();p.listCampaigns=()=>({status:'OK',campaigns:[...p.rows.values()].map(x=>({campaignId:x.campaignId,displayName:x.displayName,revision:x.revision}))});
+          const manager=new CampaignManagerService({persistence:p,native:null});
+          const made=manager.create({displayName:'Mundo Livre',campaignId:'mundo-livre',masterSeed:'seed-mundo-livre',activate:false,starterPack:pack});
+          assert.equal(made.status,'OK');assert.equal(made.requiresCharacter,false);assert.equal(made.openingStatus,'OK');
+          const loaded=p.loadCampaign(made.campaignId);assert.equal(loaded.revision,1);const state=JSON.parse(loaded.stateJson);assert.equal(state.characterState,null);assert.equal(state.encounterState.currentScene.publicScene.contentType,'campaignOpening');assert.match(state.encounterState.currentScene.publicScene.title,/ABERTURA/);assert.equal(state.journalState.lastSceneEventId,state.journalState.lastMechanicalEventId);
+          const evt=p.getEvent(state.journalState.lastSceneEventId);assert.equal(evt.status,'OK');const event=JSON.parse(evt.event.payloadJson);assert.equal(event.kind,'SCENE_OPENED');assert.equal(event.openingContext.region.name,'Marchas de Vár-Kel');assert.equal(event.openingContext.currentSite.name,'Ruínas da Vigília');
+          const feed0=selectJourneyFeed(state,state.contentState.public);assert.equal(feed0.hooks.length,1);assert.equal(feed0.rumors.length,2);const feed1=selectJourneyFeed({...state,revision:state.revision+1},state.contentState.public);assert.notEqual(feed0.hooks[0].id,feed1.hooks[0].id);
+          const known0=knownJourneyLocations(state,state.contentState.public);assert.deepEqual(known0.majorSites.map(x=>x.name),['Ruínas da Vigília']);assert.equal(known0.minorPois.length,0);
+          const discovered=structuredClone(state);discovered.worldState.atlas.hexes['18,22']={q:18,r:22,discovered:true,poiRevealed:true,poiName:'Torre do Corvo Mudo'};const known1=knownJourneyLocations(discovered,discovered.contentState.public);assert.equal(known1.minorPois.some(x=>x.name==='Torre do Corvo Mudo'),true);
+          const p2=new MemoryPersistenceAdapter();const boot=ensureStarterCampaign({persistence:p2,character,pack,campaignId:'starter-test'});assert.equal(boot.status,'OK_CREATED');assert.equal(boot.openingStatus,'OK');assert.equal(p2.loadCampaign('starter-test').revision,1);
+          let calls=0;const native={geminiStatus:()=>JSON.stringify({status:'OK',configured:true,textModel:'test-model',visionEnabled:true}),geminiGenerateText:(payload)=>{calls++;return JSON.stringify({status:'OK',model:'test-model',text:calls===1?'Cena curta demais.':'presença '.repeat(920)});}};const provider=new RuntimeBarbaraProvider({native,ragSearch:null,ragSearchAsync:null});const narrated=await provider.generateAsync({mechanicalEvent:event,state});assert.equal(calls,2);assert.equal(narrated.majorExpanded,true);assert.ok(narrated.wordCount>=700);
+          console.log('WWN_1_0_10_FUNCTIONAL_AUDIT_PASS');
+          NODE
+          node /tmp/wwn110.mjs
+          python3 - <<'PY'
+          from pathlib import Path
+          b=Path('app/build.gradle.kts').read_text();j=Path('app/src/main/assets/www/jornada.js').read_text();r=Path('app/src/main/assets/www/core/runtime-narrative-provider.js').read_text();m=Path('app/src/main/assets/www/mochila.js').read_text();u=Path('app/src/main/assets/www/ux-hotfix.js').read_text()
+          assert 'versionCode = 110' in b and 'versionName = "1.0.10"' in b
+          assert 'selectJourneyFeed' in j and 'knownJourneyLocations' in j and 'campaignOpening' in j
+          assert "mechanics.travelAdjacent({campaignId" not in j
+          assert '__BRASEIRO_PENDING_SCENE_IMAGE' in j and '__BRASEIRO_DEFERRED_SCENE_IMAGE_RESULT' in j
+          assert 'MIN_MAJOR_WORDS=700' in r and '900–1400 palavras' in r and 'expansionPayload' in r
+          assert 'dataset.catalogId' in m and 'dataset.itemKind' in m and 'row.dataset.catalogId' in u
+          for f in ['jornada.html','ficha.html','mochila.html','diario.html','scr014.html']:
+              t=Path('app/src/main/assets/www/'+f).read_text().lower();assert 'operacoes.html' not in t and 'gestao.html' not in t,(f,'gm link leak')
+          print('WWN_1_0_10_STATIC_AUDIT_PASS')
+          PY
+
+      - name: Commit 1.0.10 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add app/build.gradle.kts app/src/main/assets/www/core/campaign-opening.js app/src/main/assets/www/core/journey-discovery.js app/src/main/assets/www/core/campaign-manager-service.js app/src/main/assets/www/core/starter-bootstrap.js app/src/main/assets/www/jornada.js app/src/main/assets/www/core/runtime-narrative-provider.js app/src/main/assets/www/mochila.js app/src/main/assets/www/ux-hotfix.js
+          git commit -m "fix: make WWN world open narratively and reveal discoveries progressively"
+          git push origin HEAD:wwn-source-105-bridge
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Prepare Android SDK 36
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(find /usr/local/lib/android /opt /home/runner -type f -name sdkmanager -perm -111 2>/dev/null | head -n1 || true)"; fi
+          test -n "$SDKMANAGER"
+          SDK_ROOT="$(cd "$(dirname "$SDKMANAGER")/../../.." && pwd)"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-36"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build installable APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew clean assembleDebug --stacktrace --no-daemon
+
+      - name: Collect validate and publish source-branch APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out delivery
+          APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | head -n1)"
+          test -f "$APK"
+          cp "$APK" out/BRASEIRO_WWN_v1.0.10.apk
+          unzip -t out/BRASEIRO_WWN_v1.0.10.apk >/dev/null
+          sha256sum out/BRASEIRO_WWN_v1.0.10.apk | tee out/BRASEIRO_WWN_v1.0.10.apk.sha256
+          cp out/BRASEIRO_WWN_v1.0.10.apk delivery/BRASEIRO_WWN_v1.0.10.apk
+          cp out/BRASEIRO_WWN_v1.0.10.apk.sha256 delivery/BRASEIRO_WWN_v1.0.10.apk.sha256
+          git add delivery/BRASEIRO_WWN_v1.0.10.apk delivery/BRASEIRO_WWN_v1.0.10.apk.sha256
+          git commit -m "build: publish WWN 1.0.10 APK"
+          git push origin HEAD:wwn-source-105-bridge
+
+      - name: Publish visible APK on main with retry
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          rm -rf /tmp/wwn-main
+          git worktree add --detach /tmp/wwn-main origin/main
+          cd /tmp/wwn-main
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          mkdir -p delivery
+          cp "$GITHUB_WORKSPACE/out/BRASEIRO_WWN_v1.0.10.apk" BRASEIRO_WWN_v1.0.10.apk
+          cp "$GITHUB_WORKSPACE/out/BRASEIRO_WWN_v1.0.10.apk" delivery/BRASEIRO_WWN_v1.0.10.apk
+          cp "$GITHUB_WORKSPACE/out/BRASEIRO_WWN_v1.0.10.apk.sha256" delivery/BRASEIRO_WWN_v1.0.10.apk.sha256
+          git add BRASEIRO_WWN_v1.0.10.apk delivery/BRASEIRO_WWN_v1.0.10.apk delivery/BRASEIRO_WWN_v1.0.10.apk.sha256
+          git commit -m "release: publish BRASEIRO WWN v1.0.10 APK"
+          for attempt in 1 2 3; do git fetch origin main;git rebase origin/main;if git push origin HEAD:main;then exit 0;fi;sleep 2;done
+          exit 1
