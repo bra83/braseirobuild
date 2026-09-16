@@ -1,67 +1,156 @@
-name: Build Star Wars Edge of the Galaxy FINAL 1.0.0 APK
+name: Build Star Wars Edge of the Galaxy R52 UI Native Hotfix APK
 on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [".github/workflows/build-star-wars-final-1.0.0.yml", "star-wars/final-1.0.0/SOURCE.json", "STAR_WARS_FINAL_BUILD_TRIGGER.txt"]
+    paths: [".github/workflows/build-star-wars-final-1.0.0.yml", "STAR_WARS_R52_BUILD_TRIGGER.txt"]
 permissions: {contents: write}
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    env:
+      BASE_URL: https://firestorage.ai/ja/f/qPKfDLdfrlCc
+      BASE_FILE: STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R38_BUILD_FIX.zip
+      BASE_SHA: e925d7c2885e51b4f03dfe55ec7f477deb23ee0551b7b30f3a457154db9dd872
+      OVERLAY_URL: https://firestorage.ai/ja/f/jX7837AeIyT-
+      OVERLAY_FILE: STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_FINAL_1.0.0_BUILD_FIX2.zip
+      OVERLAY_SHA: b017bbd3abfebad17011f9df29fcaa5c3d1fef66750add762a55f3b46d7349c4
     steps:
       - uses: actions/checkout@v4
-      - id: source
-        run: |
-          python3 - <<'PY' >> "$GITHUB_OUTPUT"
-          import json
-          d=json.load(open('star-wars/final-1.0.0/SOURCE.json'))
-          for k in ('source_share_url','sha256','file','application_id','compile_sdk'): print(f'{k}={d[k]}')
-          PY
       - uses: actions/setup-python@v5
         with: {python-version: '3.12'}
-      - name: Download source
-        env: {SHARE_URL: "${{ steps.source.outputs.source_share_url }}", EXPECTED_SHA: "${{ steps.source.outputs.sha256 }}", SOURCE_FILE: "${{ steps.source.outputs.file }}"}
+      - name: Download canonical R38 and R51 overlay
         run: |
-          set -euo pipefail; python -m pip install --quiet playwright; python -m playwright install --with-deps chromium; mkdir -p incoming
+          set -euo pipefail
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium
+          mkdir -p incoming
           python3 - <<'PY'
           import os,pathlib
           from playwright.sync_api import sync_playwright
-          out=pathlib.Path('incoming')/os.environ['SOURCE_FILE']
+          pairs=[('BASE_URL','BASE_FILE'),('OVERLAY_URL','OVERLAY_FILE')]
           with sync_playwright() as p:
-            b=p.chromium.launch(headless=True); page=b.new_page(accept_downloads=True); page.goto(os.environ['SHARE_URL'],wait_until='domcontentloaded',timeout=120000); page.wait_for_timeout(4000); done=False
-            for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")']:
-              try:
-                loc=page.locator(sel).first
-                if not loc.count() or not loc.is_visible(): continue
-                with page.expect_download(timeout=120000) as info: loc.click(timeout=10000)
-                info.value.save_as(str(out)); done=True; break
-              except Exception: pass
-            if not done:
-              card=page.get_by_text(os.environ['SOURCE_FILE'],exact=False).first; ctrl=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]').locator('a,button').last
-              with page.expect_download(timeout=120000) as info: ctrl.click(timeout=10000)
-              info.value.save_as(str(out)); done=True
+            b=p.chromium.launch(headless=True)
+            for uk,fk in pairs:
+              url=os.environ[uk]; fn=os.environ[fk]; out=pathlib.Path('incoming')/fn
+              page=b.new_page(accept_downloads=True)
+              page.goto(url,wait_until='domcontentloaded',timeout=120000); page.wait_for_timeout(3500)
+              done=False
+              for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")']:
+                try:
+                  loc=page.locator(sel).first
+                  if not loc.count() or not loc.is_visible(): continue
+                  with page.expect_download(timeout=120000) as info: loc.click(timeout=10000)
+                  info.value.save_as(str(out)); done=True; break
+                except Exception: pass
+              if not done:
+                card=page.get_by_text(fn,exact=False).first
+                ctrl=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]').locator('a,button').last
+                with page.expect_download(timeout=120000) as info: ctrl.click(timeout=10000)
+                info.value.save_as(str(out)); done=True
+              page.close()
+              if not done or not out.exists(): raise SystemExit(f'download failed: {fn}')
             b.close()
-          if not done or not out.exists(): raise SystemExit('download failed')
           PY
-          echo "${EXPECTED_SHA}  incoming/${SOURCE_FILE}" | sha256sum -c -; unzip -t "incoming/${SOURCE_FILE}" >/dev/null
+          echo "$BASE_SHA  incoming/$BASE_FILE" | sha256sum -c -
+          echo "$OVERLAY_SHA  incoming/$OVERLAY_FILE" | sha256sum -c -
+          unzip -t "incoming/$BASE_FILE" >/dev/null
+          unzip -t "incoming/$OVERLAY_FILE" >/dev/null
       - id: project
+        name: Reconstruct approved shell + content overlay
         run: |
-          rm -rf work; mkdir work; unzip -q "incoming/${{ steps.source.outputs.file }}" -d work; SETTINGS="$(find work -type f \( -name settings.gradle.kts -o -name settings.gradle \) | head -n1)"; test -n "$SETTINGS"; echo "root=$(dirname "$SETTINGS")" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          rm -rf base overlay work
+          mkdir base overlay work
+          unzip -q "incoming/$BASE_FILE" -d base
+          unzip -q "incoming/$OVERLAY_FILE" -d overlay
+          BSET="$(find base -type f \( -name settings.gradle.kts -o -name settings.gradle \) -not -path '*/build/*' | head -n1)"
+          OSET="$(find overlay -type f \( -name settings.gradle.kts -o -name settings.gradle \) -not -path '*/build/*' | head -n1)"
+          test -n "$BSET"; test -n "$OSET"
+          BROOT="$(dirname "$BSET")"; OROOT="$(dirname "$OSET")"
+          cp -a "$BROOT/." work/
+          # Preserve exact approved R38/R46 Android shell/native host. Overlay only additive R45-R51 content/data.
+          mkdir -p work/app/src/main/assets/vtt/js/expansion
+          if [ -d "$OROOT/app/src/main/assets/vtt/js/expansion" ]; then cp -a "$OROOT/app/src/main/assets/vtt/js/expansion/." work/app/src/main/assets/vtt/js/expansion/; fi
+          if [ -d "$OROOT/app/src/main/assets/vtt/assets/maps" ]; then mkdir -p work/app/src/main/assets/vtt/assets/maps; cp -a "$OROOT/app/src/main/assets/vtt/assets/maps/." work/app/src/main/assets/vtt/assets/maps/; fi
+          if [ -d "$OROOT/app/src/main/assets/vtt/image-library" ]; then mkdir -p work/app/src/main/assets/vtt/image-library; cp -an "$OROOT/app/src/main/assets/vtt/image-library/." work/app/src/main/assets/vtt/image-library/ || true; fi
+          echo "root=$(pwd)/work" >> "$GITHUB_OUTPUT"
+      - name: Gate approved R46 shell, buttons host, safe area and launcher icon
+        run: |
+          set -euo pipefail
+          R=work
+          test -f "$R/app/src/main/assets/vtt/r46-shell.html"
+          test -f "$R/app/src/main/assets/vtt/r46/r46-shell.bundle.js"
+          test -f "$R/app/src/main/assets/vtt/r46/r46.css"
+          test -f "$R/app/src/main/assets/vtt/r46/react18-vendor.js"
+          test -f "$R/app/src/main/assets/vtt/r46/final-bootstrap.js"
+          test -f "$R/app/src/main/assets/vtt/r46/final-runtime.js"
+          test -f "$R/app/src/main/assets/vtt/js/core/uiBridge.bundle.js"
+          grep -Fq 'file:///android_asset/vtt/r46-shell.html' "$R/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java"
+          grep -Fq 'setFitsSystemWindows(true)' "$R/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java"
+          grep -Fq 'requestApplyInsets' "$R/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java"
+          grep -Fq 'android:icon="@mipmap/ic_launcher"' "$R/app/src/main/AndroidManifest.xml"
+          grep -Fq 'android:roundIcon="@mipmap/ic_launcher_round"' "$R/app/src/main/AndroidManifest.xml"
+          find "$R/app/src/main/res" -type f \( -name 'ic_launcher*' -o -name '*launcher*' \) | grep -q .
+          grep -Fq 'CENA' "$R/app/src/main/assets/vtt/r46/r46-shell.bundle.js"
+          grep -Fq 'PERSONAGEM' "$R/app/src/main/assets/vtt/r46/r46-shell.bundle.js"
+          grep -Fq 'ITENS' "$R/app/src/main/assets/vtt/r46/r46-shell.bundle.js"
+          grep -Fq 'NAVE' "$R/app/src/main/assets/vtt/r46/r46-shell.bundle.js"
+          grep -Fq 'REGISTROS' "$R/app/src/main/assets/vtt/r46/r46-shell.bundle.js"
+          node --check "$R/app/src/main/assets/vtt/r46/r46-shell.bundle.js"
+          node --check "$R/app/src/main/assets/vtt/r46/final-bootstrap.js"
+          node --check "$R/app/src/main/assets/vtt/r46/final-runtime.js"
+          node --check "$R/app/src/main/assets/vtt/js/core/uiBridge.bundle.js"
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          root=Path('work/app/src/main/assets/vtt')
+          html=(root/'r46-shell.html').read_text('utf-8')
+          refs=re.findall(r'(?:src|href)="([^"]+)"',html)
+          missing=[]
+          for ref in refs:
+            if ref.startswith(('http:','https:','#')): continue
+            if not (root/ref).exists(): missing.append(ref)
+          assert not missing, f'missing local R46 deps: {missing}'
+          print('R46 local dependency gate PASS:',len(refs),'refs')
+          PY
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: '17'}
       - uses: gradle/actions/setup-gradle@v4
         with: {gradle-version: '8.13'}
-      - name: Configure Android SDK
+      - name: Configure Android SDK 36
         run: |
-          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"; SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort | tail -n1)"; yes | "$SDKMANAGER" --licenses >/dev/null || true; "$SDKMANAGER" 'platform-tools' 'platforms;android-36'; echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
-      - name: Build APK
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort | tail -n1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platform-tools' 'platforms;android-36'
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+      - name: Build corrected APK
         working-directory: ${{ steps.project.outputs.root }}
         run: gradle :app:assembleDebug --stacktrace --no-daemon
-      - name: Validate APK
-        env: {ROOT: "${{ steps.project.outputs.root }}", EXPECTED_APP_ID: "${{ steps.source.outputs.application_id }}"}
+      - name: Validate APK and reconstructed source
+        env: {ROOT: "${{ steps.project.outputs.root }}"}
         run: |
-          mkdir -p APK_SAIDA; APK="$(find "$ROOT/app/build/outputs/apk/debug" -type f -name '*.apk' | head -n1)"; test -f "$APK"; FINAL='APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_FINAL_1.0.0_DEBUG.apk'; cp "$APK" "$FINAL"; unzip -t "$FINAL" >/dev/null; BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"; "$BUILD_TOOLS/aapt" dump badging "$FINAL" | grep -q "package: name='${EXPECTED_APP_ID}'"; sha256sum "$FINAL" > APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_FINAL_1.0.0_DEBUG.apk.sha256
-      - name: Persist APK in builder repository
+          set -euo pipefail
+          mkdir -p APK_SAIDA SOURCE_SAIDA
+          APK="$(find "$ROOT/app/build/outputs/apk/debug" -type f -name '*.apk' | head -n1)"; test -f "$APK"
+          FINAL='APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R52_UI_NATIVE_HOTFIX_DEBUG.apk'
+          cp "$APK" "$FINAL"; unzip -t "$FINAL" >/dev/null
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
+          "$BUILD_TOOLS/aapt" dump badging "$FINAL" | tee APK_SAIDA/info.txt
+          grep -q "package: name='com.braseiro.starwarsedge'" APK_SAIDA/info.txt
+          sha256sum "$FINAL" | tee APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R52_UI_NATIVE_HOTFIX_DEBUG.apk.sha256
+          (cd "$ROOT" && zip -qr "$GITHUB_WORKSPACE/SOURCE_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R52_UI_NATIVE_HOTFIX.zip" . -x '*/build/*' '.gradle/*')
+          sha256sum SOURCE_SAIDA/*.zip | tee SOURCE_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R52_UI_NATIVE_HOTFIX.zip.sha256
+      - name: Persist corrected APK and source in builder repository
         run: |
-          mkdir -p star-wars/final-1.0.0/output; cp APK_SAIDA/* star-wars/final-1.0.0/output/; git config user.name github-actions; git config user.email github-actions@github.com; git add -f star-wars/final-1.0.0/output/; git commit -m 'build: Star Wars final 1.0.0 APK' || true; git push origin HEAD:main
+          set -euo pipefail
+          mkdir -p star-wars/final-1.0.0/output-r52
+          cp APK_SAIDA/* SOURCE_SAIDA/* star-wars/final-1.0.0/output-r52/
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add -f star-wars/final-1.0.0/output-r52/
+          git commit -m 'build: Star Wars R52 approved R46 UI native hotfix' || true
+          git push origin HEAD:main
