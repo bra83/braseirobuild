@@ -10,7 +10,7 @@ export function prepareCampaignOpening(state,{campaignId=state?.campaignId,nextR
   const summary=String(site?.summary??region?.tone??`A campanha começa em ${placeName}.`).trim();
   const situation=String(site?.situation??'').trim()||null;
   const contentId=`opening-${position.q}-${position.r}`;
-  const publicScene=Object.freeze({status:'OK',contentType:'campaignOpening',contentId,title:`ABERTURA • ${placeName}`,summary,situation,leads:Object.freeze([])});
+  const publicScene=Object.freeze({status:'OK',contentType:'campaignOpening',contentId,title:`ABERTURA • ${placeName}`,summary,situation,leads:Object.freeze([]),narrativeScale:'MAJOR_OPENING'});
   const eventId=`scene:${campaignId}:r${nextRevision}:campaign-opening`;
   const next=clone(state);next.revision=nextRevision;
   next.encounterState={...(next.encounterState??{}),sceneId:`scene:campaignOpening:${contentId}:r${nextRevision}`,currentScene:{contentType:'campaignOpening',contentId,publicScene:clone(publicScene)},scenePhase:'ACTIVE',sceneOpenedAtRevision:nextRevision};
@@ -19,6 +19,6 @@ export function prepareCampaignOpening(state,{campaignId=state?.campaignId,nextR
   const key=`${position.q},${position.r}`,prior=next.worldState.atlas.hexes[key]??{};
   next.worldState.atlas.hexes[key]={...prior,q:position.q,r:position.r,discovered:true,entered:true,visited:true,poiRevealed:true,placeName,poiName:site?.name??prior.poiName??placeName,poiType:site?.kind??prior.poiType??null,enteredAtRevision:prior.enteredAtRevision??nextRevision};
   const openingContext={campaign:state.displayName??null,region:region?{name:region.name??null,tone:region.tone??null,scope:region.scope??null}:null,position:clone(position),currentSite:site?{name:site.name,kind:site.kind,summary:site.summary,situation:site.situation}:null};
-  const event=Object.freeze({eventId,revision:nextRevision,kind:'SCENE_OPENED',contentType:'campaignOpening',contentId,scene:publicScene,openingContext,mechanicalMutation:false,timeAdvanced:false,positionChanged:false});
+  const event=Object.freeze({eventId,revision:nextRevision,kind:'SCENE_OPENED',contentType:'campaignOpening',contentId,scene:publicScene,openingContext,mechanicalMutation:false,timeAdvanced:false,positionChanged:false,narrativeScale:'MAJOR_OPENING'});
   return Object.freeze({status:'OK',state:next,event,scene:publicScene,eventId});
 }
