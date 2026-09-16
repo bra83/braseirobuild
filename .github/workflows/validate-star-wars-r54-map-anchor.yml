@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/validate-star-wars-r54-map-anchor.yml"
+      - "star-wars/r54/fix_map_anchor_state.py"
   workflow_dispatch:
 permissions:
   contents: read
@@ -52,15 +53,20 @@ jobs:
           PY
           echo "$PACK_SHA  map-anchor-incoming/$PACK_FILE" | sha256sum -c -
           unzip -q "map-anchor-incoming/$PACK_FILE" -d map-anchor-pack
-      - name: Apply current R54 hotfix
+      - name: Apply current R54 hotfix + map-state repair
         id: root
         run: |
           set -euo pipefail
-          python3 -m py_compile star-wars/r54/hotfix_r54.py
+          python3 -m py_compile star-wars/r54/hotfix_r54.py star-wars/r54/fix_map_anchor_state.py
           SET="$(find map-anchor-work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"
           test -n "$SET"; ROOT="$(dirname "$SET")"
           python3 star-wars/r54/hotfix_r54.py "$ROOT" "$(pwd)/map-anchor-pack"
+          python3 star-wars/r54/fix_map_anchor_state.py "$ROOT"
           printf '\n.final-start-list button[hidden]{display:none!important}\n' >> "$ROOT/app/src/main/assets/vtt/r46/final-runtime.css"
+          node --check "$ROOT/app/src/main/assets/vtt/r46/final-runtime.js"
+          node --check "$ROOT/app/src/main/assets/vtt/js/core/uiBridge.bundle.js"
+          grep -Fq "result.world.sandbox.startMapPoint" "$ROOT/app/src/main/assets/vtt/js/core/controller.mjs"
+          grep -Fq "result.world.sandbox.startMapPoint" "$ROOT/app/src/main/assets/vtt/js/core/uiBridge.bundle.js"
           echo "path=$ROOT" >> "$GITHUB_OUTPUT"
       - name: Prove Shantipole x/y persists into world state
         env:
@@ -87,6 +93,8 @@ jobs:
             assert isinstance(anchor,dict),f'startMapPoint missing: {anchor!r}'
             assert isinstance(anchor.get('x'),(int,float)) and isinstance(anchor.get('y'),(int,float)),f'invalid startMapPoint: {anchor!r}'
             assert 0 <= float(anchor['x']) <= 100 and 0 <= float(anchor['y']) <= 100,f'out-of-range startMapPoint: {anchor!r}'
+            assert anchor.get('mapId')=='local.map.galaxy',anchor
+            assert anchor.get('source')=='player_selected',anchor
             print('R54_MAP_ANCHOR_PASS',anchor)
             b.close()
           PY
