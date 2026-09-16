@@ -3,11 +3,31 @@ import { setRuntimeActiveCampaignId } from './runtime-campaign.js';
 import { applyStarterContentToState } from './starter-content-service.js';
 import { makeLivingWorldInitialState } from './living-world-core.js';
 import { STARTER_POSITION } from './starter-bootstrap.js';
+import { prepareCampaignOpening } from './campaign-opening.js';
+import { canonicalJson } from './canonical-json.js';
 function clean(v,max=80){return String(v??'').replace(/\s+/g,' ').trim().slice(0,max)}
 function slug(v){return clean(v,60).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,48)}
 export class CampaignManagerService{
   constructor({persistence,native=globalThis.BraseiroNative}={}){if(!persistence)throw new TypeError('persistence required');this.persistence=persistence;this.native=native;}
   list(){const r=this.persistence.listCampaigns?.();if(!r||r.status&&r.status!=='OK')return Object.freeze({status:r?.status??'UNAVAILABLE',campaigns:Object.freeze([])});return Object.freeze({status:'OK',campaigns:Object.freeze((r.campaigns??[]).map(x=>Object.freeze({...x})))});}
-  create({displayName,campaignId=null,masterSeed=null,activate=true,starterPack=null}={}){const name=clean(displayName,80);if(!name)return Object.freeze({status:'DISPLAY_NAME_REQUIRED_NO_MUTATION'});const base=slug(campaignId||name)||'campanha';const existing=new Set((this.list().campaigns??[]).map(x=>x.campaignId));let id=base,n=2;while(existing.has(id))id=`${base}-${n++}`;const seed=clean(masterSeed,120)||`braseiro-wwn:${id}`;let state=makeEmptyCampaignState({campaignId:id,displayName:name,masterSeed:seed});if(starterPack){state=structuredClone(applyStarterContentToState(state,starterPack));state.worldState={...(state.worldState??{}),position:structuredClone(STARTER_POSITION),elapsedDays:0};state.worldState.livingWorld=makeLivingWorldInitialState(state,{seed});}const receipt=this.persistence.createCampaign({campaignId:id,displayName:name,stateJson:serializeCampaignState(state),masterSeed:seed,rngAlgorithm:state.rngState.algorithm,initialSnapshotId:`snapshot:${id}:r0`});if(receipt.status!=='OK')return Object.freeze({status:receipt.status,receipt});if(activate){const active=setRuntimeActiveCampaignId(id,{native:this.native});if(active.status!=='OK')return Object.freeze({status:'CREATED_ACTIVATION_FAILED',campaignId:id,receipt,activation:active});}return Object.freeze({status:'OK',campaignId:id,receipt,requiresCharacter:false,starterWorldSeeded:Boolean(starterPack)});}
+  create({displayName,campaignId=null,masterSeed=null,activate=true,starterPack=null}={}){
+    const name=clean(displayName,80);if(!name)return Object.freeze({status:'DISPLAY_NAME_REQUIRED_NO_MUTATION'});
+    const base=slug(campaignId||name)||'campanha';const existing=new Set((this.list().campaigns??[]).map(x=>x.campaignId));let id=base,n=2;while(existing.has(id))id=`${base}-${n++}`;const seed=clean(masterSeed,120)||`braseiro-wwn:${id}`;
+    let state=makeEmptyCampaignState({campaignId:id,displayName:name,masterSeed:seed});
+    if(starterPack){state=structuredClone(applyStarterContentToState(state,starterPack));state.worldState={...(state.worldState??{}),position:structuredClone(STARTER_POSITION),elapsedDays:0};state.worldState.livingWorld=makeLivingWorldInitialState(state,{seed});}
+    const receipt=this.persistence.createCampaign({campaignId:id,displayName:name,stateJson:serializeCampaignState(state),masterSeed:seed,rngAlgorithm:state.rngState.algorithm,initialSnapshotId:`snapshot:${id}:r0`});
+    if(receipt.status!=='OK')return Object.freeze({status:receipt.status,receipt});
+    let openingStatus='NOT_APPLICABLE',openingReceipt=null;
+    if(starterPack){
+      const opening=prepareCampaignOpening(state,{campaignId:id,nextRevision:receipt.newRevision+1});
+      openingStatus=opening.status;
+      if(opening.status==='OK'){
+        openingReceipt=this.persistence.commit({campaignId:id,expectedRevision:receipt.newRevision,eventId:opening.eventId,eventKind:'SCENE_OPENED',eventPayloadJson:canonicalJson(opening.event),newStateJson:serializeCampaignState(opening.state),rngCountersJson:canonicalJson(opening.state.rngState?.counters??{})});
+        openingStatus=openingReceipt.status;if(openingReceipt.status==='OK')state=opening.state;
+      }
+    }
+    if(activate){const active=setRuntimeActiveCampaignId(id,{native:this.native});if(active.status!=='OK')return Object.freeze({status:'CREATED_ACTIVATION_FAILED',campaignId:id,receipt,openingStatus,openingReceipt,activation:active});}
+    return Object.freeze({status:'OK',campaignId:id,receipt,openingStatus,openingReceipt,requiresCharacter:false,starterWorldSeeded:Boolean(starterPack),revision:openingReceipt?.status==='OK'?openingReceipt.newRevision:receipt.newRevision});
+  }
   activate({campaignId}={}){const id=String(campaignId??'').trim();const found=(this.list().campaigns??[]).some(x=>x.campaignId===id);if(!found)return Object.freeze({status:'CAMPAIGN_NOT_FOUND_NO_MUTATION'});return Object.freeze(setRuntimeActiveCampaignId(id,{native:this.native}));}
 }
