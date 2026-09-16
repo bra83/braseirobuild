@@ -1,0 +1,44 @@
+name: Mirror Braseiro APK Temporary
+
+on:
+  push:
+    branches: [fichas-final-20260916]
+    paths:
+      - ".github/workflows/mirror-apk-temporary.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fichas-final-20260916
+      - name: Espelhar APK temporariamente
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="deliverables/fichas-final-20260916/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.0-final-debug.apk"
+          test -f "$APK"
+          EXPECTED="8b217b8122695a848297c20d4a5966bdcd34942e1ce0c3199f485fc843c60da6"
+          ACTUAL="$(sha256sum "$APK" | awk '{print $1}')"
+          test "$ACTUAL" = "$EXPECTED"
+          RESP="$(curl --fail --silent --show-error -F "file=@$APK" https://tmpfiles.org/api/v1/upload)"
+          echo "$RESP" > /tmp/tmpfiles-response.json
+          URL="$(python3 - <<'PY'
+import json
+x=json.load(open('/tmp/tmpfiles-response.json'))
+u=x['data']['url']
+print(u.replace('https://tmpfiles.org/','https://tmpfiles.org/dl/',1))
+PY
+)"
+          test -n "$URL"
+          echo "$URL" > deliverables/fichas-final-20260916/TEMP_DIRECT_DOWNLOAD.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add deliverables/fichas-final-20260916/TEMP_DIRECT_DOWNLOAD.txt
+          git commit -m "build: add temporary direct APK URL"
+          git push origin HEAD:fichas-final-20260916
