@@ -34,13 +34,13 @@ export function validateMinimalCoreCharacter(character) {
   const errors = [];
   const required = ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'];
   if (!character || typeof character !== 'object') return { ok: false, errors: ['character required'] };
-  if (character.level !== 1) errors.push('Wave 3 core fixture must be level 1');
+  if (!Number.isInteger(character.level) || character.level < 1 || character.level > 10) errors.push('WWN character level must be 1..10');
   for (const name of required) {
     const score = character.attributes?.[name];
     if (!Number.isInteger(score) || score < 3 || score > 18) errors.push(`${name} must be 3..18`);
   }
   for (const [skill, level] of Object.entries(character.skills ?? {})) {
-    if (!Number.isInteger(level) || level < 0 || level > 1) errors.push(`${skill} level must be 0..1 at level 1 in Wave 3 subset`);
+    if (!Number.isInteger(level) || level < 0 || level > 4) errors.push(`${skill} level must be 0..4`);
   }
   return { ok: errors.length === 0, errors };
 }

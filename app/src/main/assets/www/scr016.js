@@ -1,3 +1,4 @@
+if(globalThis.BraseiroNative){location.replace('jornada.html');throw new Error('LEGACY_REFERENCE_SCREEN_REDIRECT');}
 import { createWave3Runtime } from './core/wave3-runtime.js';
 import { installSharedBottomNav } from './core/shared-navigation.js';
 import { projectScr016Binding } from './core/release-screen-bindings.js';

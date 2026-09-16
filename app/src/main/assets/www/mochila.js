@@ -12,7 +12,7 @@ import { installSharedBottomNav } from './core/shared-navigation.js';
 import { carryStateLabelPtBr } from './core/ptbr-labels.js';
 
 const $=id=>document.getElementById(id);const native=globalThis.BraseiroNative;const persistence=native?new NativePersistencePort():new MemoryPersistenceAdapter();let campaignId=null;
-if(native)campaignId=resolveActiveCampaignId(persistence);else{const [pack,character]=await Promise.all([fetch('data/wwn.starter-region.v1.json').then(r=>r.json()),fetch('data/wave6.iria.canonical.fixture.json').then(r=>r.json())]);campaignId=ensureStarterCampaign({persistence,character,pack}).campaignId;}
+if(native)campaignId=resolveActiveCampaignId(persistence);else{const [pack,character]=await Promise.all([fetch('data/wwn.starter-region.v1.json').then(r=>r.json()),fetch('data/wwn.starter-character.v1.json').then(r=>r.json())]);campaignId=ensureStarterCampaign({persistence,character,pack}).campaignId;}
 if(!campaignId)throw new Error('Nenhuma campanha ativa');const service=new EquipmentService({persistence});const mundaneService=new MundaneEquipmentService({persistence});let selectedPcId=null;
 function state(){const x=persistence.loadCampaign(campaignId);if(x.status!=='OK')throw new Error(x.status);return JSON.parse(x.stateJson)}
 function pcIds(s){const ids=s.partyState?.groups?Object.values(s.partyState.groups).flatMap(g=>g.memberIds??[]):[];const uniq=[...new Set(ids.map(String))];const active=String(s.characterState?.characterId??'');if(active&&!uniq.includes(active))uniq.unshift(active);return uniq.length?uniq:[active].filter(Boolean)}

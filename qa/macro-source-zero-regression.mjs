@@ -1,0 +1,9 @@
+import assert from 'node:assert/strict';
+import {MemoryPersistenceAdapter} from '../app/src/main/assets/www/core/persistence-port.js';
+import {makeEmptyCampaignState,serializeCampaignState} from '../app/src/main/assets/www/core/campaign-state.js';
+import {CampaignMemoryService} from '../app/src/main/assets/www/core/campaign-memory-service.js';
+import {seaTravelPlan,packLoadPlan,privationDailyPlan,hirelingCost,lifestyleEffects} from '../app/src/main/assets/www/core/wwn-expedition-services-core.js';
+const p=new MemoryPersistenceAdapter(),campaignId='macro-zero';const s=makeEmptyCampaignState({campaignId,displayName:'Macro',masterSeed:'seed'});p.createCampaign({campaignId,displayName:'Macro',stateJson:serializeCampaignState(s),initialSnapshotId:'init',rngAlgorithm:s.rngState.algorithm,masterSeed:'seed'});const m=new CampaignMemoryService({persistence:p});
+assert.equal(m.appendFact({campaignId,factId:'secret',summary:'Segredo',visibility:'GM_ONLY'}).status,'OK');assert.equal(m.project({campaignId,gm:false}).memory.facts.length,0);assert.equal(m.revealFact({campaignId,factId:'secret'}).status,'OK');assert.equal(m.project({campaignId,gm:false}).memory.facts.length,1);
+assert.equal(m.schedule({campaignId,eventId:'e1',dueMinute:10,summary:'Relógio avança'}).status,'OK');assert.equal(m.processDue({campaignId,throughMinute:9}).status,'OK_NO_DUE_EVENTS');assert.equal(m.processDue({campaignId,throughMinute:10}).status,'OK');
+assert.equal(seaTravelPlan({propulsion:'SAIL',hours:24}).distanceMiles,144);assert.equal(packLoadPlan({carrier:'MULE_OR_DONKEY',loadEncumbrance:16}).overloaded,true);assert.equal(privationDailyPlan({consecutiveWaterDays:2}).waterStrain,3);assert.equal(hirelingCost({kind:'PORTER_WILDS',days:2}).silverCost,10);assert.equal(lifestyleEffects({tier:'NOBLE'}).sessionFavor.usesPerSession,1);console.log('macro source zero regression PASS');

@@ -1,3 +1,0 @@
-/mnt/data/BRASEIRO_WWN_WAVE1/tools/validate_scr015_runtime_assets.py:15: DeprecationWarning: Image.Image.getdata is deprecated and will be removed in Pillow 14 (2027-10-15). Use get_flattened_data instead.
-  nonzero=sum(1 for v in a.getdata() if v>0); transparent=sum(1 for v in a.getdata() if v==0)
-SCR015_RUNTIME_ASSET_QA_PASS assets= 25 errors= 0

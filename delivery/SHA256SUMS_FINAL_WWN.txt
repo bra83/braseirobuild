@@ -1,0 +1,2 @@
+79dbc0432fab69b9218eea6ffe6e442b8544140b0ec8b1c2c95f35ed3dc074cf  delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL.zip
+8abfc1aec81c57cc6eee3c59df97f94e1eaae92fad9a788eed65067ca1a2d5cb  delivery/BRASEIRO_WWN_v1.0.5.apk

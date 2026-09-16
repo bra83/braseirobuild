@@ -1,1 +1,0 @@
-SQLITE_CONTRACT_PASS schema=1 create/load=PASS revision_conflict=PASS rollback=PASS corrupt_read=PASS

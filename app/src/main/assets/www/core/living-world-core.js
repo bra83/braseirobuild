@@ -27,7 +27,7 @@ function publicFactionPool(state){return state?.contentState?.public?.factions??
 function gmFactionPool(state){return state?.contentState?.gm?.factions??[]}
 function encounterPool(state){return state?.contentState?.gm?.encounter_seeds??[]}
 function rumorPool(state){return state?.contentState?.gm?.rumors??state?.contentState?.public?.rumors??[]}
-function npcPool(state){return Object.values(state?.npcState??{})}
+function npcPool(state){return Object.values(state?.npcState??state?.worldState?.npcs??{})}
 
 export function makeLivingWorldInitialState(state,{seed=null}={}){
   const master=seed??state?.rngState?.masterSeed??state?.campaignId??'wwn';

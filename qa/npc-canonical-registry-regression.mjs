@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {makeStarterCampaignState} from '../app/src/main/assets/www/core/starter-bootstrap.js';
+import {applyStarterContentToState} from '../app/src/main/assets/www/core/starter-content-service.js';
+import {makeLivingWorldInitialState} from '../app/src/main/assets/www/core/living-world-core.js';
+import {repairCampaignState,validateCampaignState} from '../app/src/main/assets/www/core/campaign-integrity.js';
+import fs from 'node:fs';
+const pack=JSON.parse(fs.readFileSync(new URL('../app/src/main/assets/www/data/wwn.starter-region.v1.json',import.meta.url)));
+const character=JSON.parse(fs.readFileSync(new URL('../app/src/main/assets/www/data/wave6.iria.canonical.fixture.json',import.meta.url)));
+let s=structuredClone(makeStarterCampaignState({character,pack,campaignId:'qa-npc',displayName:'QA',masterSeed:'seed'}));
+s=structuredClone(applyStarterContentToState(s,pack));
+assert.ok(Object.keys(s.npcState).length>0,'starter NPCs must live in npcState');
+const lw=makeLivingWorldInitialState(s);assert.equal(lw.authority,'BRASEIRO_CAMPAIGN_PROCEDURAL');
+assert.equal(validateCampaignState(s).ok,true);
+const legacy=structuredClone(s);legacy.worldState.npcs={legacy:{npcId:'legacy',name:'Legacy',memories:[]}};delete legacy.npcState;
+const repaired=repairCampaignState(legacy);assert.equal(repaired.validation.ok,true);assert.ok(repaired.state.npcState.legacy);assert.equal(repaired.state.worldState.npcs,undefined);assert.ok(repaired.repairs.includes('LEGACY_WORLD_NPCS_MIGRATED_TO_CANONICAL_REGISTRY'));
+console.log('NPC_CANONICAL_REGISTRY_REGRESSION_PASS');

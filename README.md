@@ -1,8 +1,8 @@
 # BRASEIRO WWN — Android Studio 1.0.0
 
-Projeto Android Studio do VTT mobile BRASEIRO WWN. Esta árvore consolida as closures funcionais e visuais aprovadas até a linha 065/063 sem redesenho das telas aprovadas.
+Projeto Android Studio source-only do VTT mobile BRASEIRO WWN. A árvore de produção usa campanha/persistência canônicas, criação e progressão WWN atuais, mundo vivo, exploração, combate, facções, gestão do Mestre, diário e importação/exportação de personagens e backups.
 
-## Toolchain canônico
+## Toolchain declarado
 
 - Android Gradle Plugin: 9.4.0
 - Gradle: 9.6.0
@@ -11,24 +11,30 @@ Projeto Android Studio do VTT mobile BRASEIRO WWN. Esta árvore consolida as clo
 - SDK Build Tools: 36.0.0
 - minSdk: 28
 
-## Build
+## Abrir no Android Studio
 
-1. Abra esta pasta no Android Studio com suporte a AGP 9.4.
-2. Selecione JDK 17 para o Gradle.
+1. Abra esta pasta como projeto no Android Studio.
+2. Use JDK 17 para o Gradle.
 3. Instale Android SDK API 37 e Build Tools 36.0.0.
-4. Aguarde a sincronização do Gradle.
-5. Execute os testes e então rode o app em emulador/dispositivo Android.
+4. Faça sync/build e testes Android em um ambiente que suporte o toolchain.
 
-O projeto não contém `local.properties`, chave Gemini, keystore, APK ou AAB. A chave Gemini é configurada pelo usuário em runtime e não deve ser empacotada na árvore.
+Esta entrega é **source-only**. Não inclui `local.properties`, `.env`, chaves, keystore, APK, AAB, diretórios `build/` ou caches de IDE/Gradle. A chave Gemini é configurada pelo usuário em runtime e não deve ser empacotada no fonte.
 
-## Gates locais já executados
+## Source exit gate — 2026-09-16
 
-- regressões atuais das closures posteriores: PASS;
-- sintaxe/imports JS e guards de segurança/UTF-8: PASS;
-- 33 sessões / 4.752 turnos determinísticos: PASS;
-- persistência/Room, bridge, RAG/PDFBox e Gemini: compile-contract PASS;
-- browser smoke 415×915 e gates visuais aprovados permanecem preservados.
+- 145 arquivos JavaScript: sintaxe PASS;
+- 31 suítes QA: 31 PASS / 0 FAIL;
+- 66 sessões simuladas acumuladas (33 fechamento + 33 fechamento profundo): PASS;
+- criação manual de personagem de produção: PASS;
+- bootstrap do personagem inicial → teste → encontro → combate → progressão: PASS;
+- 398 imports ESM locais auditados: 0 alvo/símbolo ausente;
+- 15 JSONs de assets: parse PASS;
+- 14 HTMLs: referências locais válidas;
+- bridge JS/Kotlin: 38 métodos nativos usados / 45 expostos / 0 ausentes;
+- runtime de produção sem autoridade de fixtures Wave; SCR-015/SCR-016 permanecem apenas como legado isolado.
 
-## Gate que exige ambiente Android real
+Relatório detalhado: `SOURCE_FINAL_EXIT_AUDIT_2026-09-16.md`.
 
-A promoção para `BUILD_PASS / DEVICE_PASS` só é legítima depois de sync/build AGP real e execução de WebView, SAF, PDFBox, TTS, importação de imagem e Gemini em emulador/dispositivo.
+## Fora do source exit gate
+
+Gradle, APK/AAB, WebView em dispositivo, SAF, PDFBox, TTS/áudio, dados físicos 3D e chamadas externas Gemini exigem runtime Android/credenciais/hardware. Eles **não foram declarados PASS nesta entrega** e não são usados para mascarar ou reabrir o fechamento do fonte.

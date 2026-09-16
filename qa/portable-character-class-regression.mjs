@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {createPortableCharacter,exportPortableCharacterJson,importPortableCharacterJson} from '../app/src/main/assets/www/core/character-portable.js';
+import {deriveFullClassChassis,deriveAdventurerChassis} from '../app/src/main/assets/www/core/wwn-srd-class-combination.js';
+const starter=JSON.parse(fs.readFileSync(new URL('../app/src/main/assets/www/data/wwn.starter-character.v1.json',import.meta.url),'utf8'));
+const round=importPortableCharacterJson(exportPortableCharacterJson(starter));assert.equal(round.status,'OK');assert.equal(round.character.classId,'EXPERT');assert.equal(deriveFullClassChassis({classId:round.character.classId,level:1}).status,'OK');
+const legacy=structuredClone(starter);delete legacy.classId;legacy.class='FULL_EXPERT';const migrated=importPortableCharacterJson(JSON.stringify({format:'BRASEIRO_WWN_CHARACTER',version:1,system:'WWN',character:legacy}));assert.equal(migrated.status,'OK');assert.equal(migrated.character.classId,'EXPERT');
+const adv=structuredClone(starter);adv.characterId='legacy-adventurer';adv.classId='ADVENTURER';adv.class='ADVENTURER';adv.partialClasses=['PARTIAL_EXPERT','PARTIAL_WARRIOR'];const ai=importPortableCharacterJson(JSON.stringify({format:'BRASEIRO_WWN_CHARACTER',version:1,system:'WWN',character:adv}));assert.equal(ai.status,'OK');assert.deepEqual(ai.character.partialClasses,['EXPERT','WARRIOR']);assert.equal(deriveAdventurerChassis({partialClasses:ai.character.partialClasses,level:1}).status,'OK');
+const missing=structuredClone(starter);delete missing.classId;delete missing.class;const bad=importPortableCharacterJson(JSON.stringify({format:'BRASEIRO_WWN_CHARACTER',version:1,system:'WWN',character:missing}));assert.equal(bad.status,'INVALID_CHARACTER');assert.ok(bad.errors.some(e=>e.includes('classId required')));
+const ambiguous=structuredClone(starter);ambiguous.classId='FULL_MAGE';ambiguous.class='FULL_MAGE';const amb=importPortableCharacterJson(JSON.stringify({format:'BRASEIRO_WWN_CHARACTER',version:1,system:'WWN',character:ambiguous}));assert.equal(amb.status,'INVALID_CHARACTER');assert.ok(amb.errors.some(e=>e.includes('unsupported full classId')));
+assert.equal(createPortableCharacter(starter).character.classId,'EXPERT');
+console.log('PORTABLE_CHARACTER_CLASS_REGRESSION PASS');

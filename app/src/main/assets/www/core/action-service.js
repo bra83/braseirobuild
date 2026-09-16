@@ -44,7 +44,7 @@ export class PlayerActionService {
     const loaded = this.persistence.loadCampaign(campaignId);
     const state = parseState(loaded);
     const legality = validateMinimalCoreCharacter(state.characterState);
-    if (!legality.ok) throw new Error(`Character fixture invalid: ${legality.errors.join('; ')}`);
+    if (!legality.ok) throw new Error(`WWN character invalid: ${legality.errors.join('; ')}`);
 
     const rng = DeterministicRng.fromState(state.rngState);
     const character = state.characterState;

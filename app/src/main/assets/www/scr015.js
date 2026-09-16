@@ -1,3 +1,4 @@
+if(globalThis.BraseiroNative){location.replace('jornada.html');throw new Error('LEGACY_REFERENCE_SCREEN_REDIRECT');}
 import { installSharedBottomNav } from './core/shared-navigation.js';
 import { validateGeometry, applyGeometry } from './core/visual-geometry.js';
 import { AssetResolver } from './core/asset-resolver.js';

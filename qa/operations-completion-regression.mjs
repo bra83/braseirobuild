@@ -1,0 +1,15 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';
+import {MemoryPersistenceAdapter} from '../app/src/main/assets/www/core/persistence-port.js';
+import {ensureStarterCampaign} from '../app/src/main/assets/www/core/starter-bootstrap.js';
+import {RuleRuntimeService} from '../app/src/main/assets/www/core/rule-runtime-service.js';
+import {CampaignMaintenanceService} from '../app/src/main/assets/www/core/campaign-maintenance-service.js';
+import {gmHelpReadOnly} from '../app/src/main/assets/www/core/gm-help-service.js';
+const read=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));
+const persistence=new MemoryPersistenceAdapter(),boot=ensureStarterCampaign({persistence,character:read('../app/src/main/assets/www/data/wave6.iria.canonical.fixture.json'),pack:read('../app/src/main/assets/www/data/wwn.starter-region.v1.json')});assert.ok(String(boot.status).startsWith('OK'));const campaignId=boot.campaignId,rules=new RuleRuntimeService({persistence}),maint=new CampaignMaintenanceService({persistence});
+assert.equal(maint.audit({campaignId}).status,'OK');
+assert.equal(rules.reaction({campaignId,charismaScore:10,physicalDice:{rolls:[4,4]}}).status,'OK');
+assert.equal(rules.morale({campaignId,npcId:'qa-npc',moraleScore:8,physicalDice:{rolls:[3,4]}}).status,'OK');
+assert.equal(rules.instinct({campaignId,npcId:'qa-npc',instinctScore:5,physicalDice:{rolls:[5]}}).status,'OK');
+assert.equal(rules.footChase({campaignId,chaseId:'qa-foot',leaderCheckTotal:9,helperOutcomes:[],pursuerCheckTotal:7,pursuerCount:1,pursuedCount:1}).status,'OK');
+let l=persistence.loadCampaign(campaignId),s=JSON.parse(l.stateJson),pc=s.characterState;const before=JSON.stringify(s);const help=gmHelpReadOnly({state:s,question:'O que já foi resolvido?'});assert.equal(help.mutatesState,false);assert.equal(JSON.stringify(s),before);assert.ok(pc?.characterId);assert.equal(rules.falling({campaignId,characterId:pc.characterId,feet:10,physicalDice:{rolls:[2]}}).status,'OK');assert.equal(maint.audit({campaignId}).status,'OK');
+console.log('OPERATIONS_COMPLETION PASS reaction + morale + instinct + chase + falling + integrity + read-only GM help');

@@ -1,0 +1,10 @@
+import fs from 'node:fs';import path from 'node:path';
+const root=path.resolve('app/src/main/assets/www');
+const ui=fs.readFileSync(path.join(root,'gestao.js'),'utf8');const html=fs.readFileSync(path.join(root,'gestao.html'),'utf8');
+if(ui.includes('state.worldState?.npcs'))throw new Error('UI still reads obsolete worldState.npcs');
+for(const token of ['ArtRuntime071Service','MagicRuntime071Service','ART071_ACTIONS','MAGIC071_ACTIONS','runArt071','runMagic071'])if(!ui.includes(token)&&!html.includes(`id="${token}"`))throw new Error(`runtime integration missing ${token}`);
+for(const id of ['art071Action','magic071Action','runtime071Args','runArt071','runMagic071'])if(!html.includes(`id="${id}"`))throw new Error(`runtime UI missing ${id}`);
+const art=fs.readFileSync(path.join(root,'core/art-runtime071-service.js'),'utf8');const magic=fs.readFileSync(path.join(root,'core/magic-runtime071-service.js'),'utf8');
+for(const method of ['activateHealingTouch','healingTouch','activatePavis','thermalShield','mindOverMatterHeal'])if(!art.includes(` ${method}(`)||!ui.includes(`'${method}'`))throw new Error(`art not reachable ${method}`);
+for(const method of ['initialize','prepare','castCoruscatingCoffin','castRaiseCorpse','castSmiteTheDead','castElementalGuardian','castCalcifyingScourge','castEverlasting'])if(!magic.includes(` ${method}(`)||!ui.includes(`'${method}'`))throw new Error(`magic not reachable ${method}`);
+console.log('CANONICAL_RUNTIME_GLOBAL PASS');

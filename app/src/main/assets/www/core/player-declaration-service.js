@@ -19,8 +19,6 @@ export class PlayerDeclarationService{
     const declaration=String(text??'').trim();
     if(!declaration)return Object.freeze({status:'DECLARATION_REQUIRED_NO_MUTATION'});
     if(declaration.length>1600)return Object.freeze({status:'DECLARATION_TOO_LONG_NO_MUTATION'});
-    const providerStatus=typeof this.barbara.status==='function'?this.barbara.status():null;
-    if(providerStatus&&providerStatus.configured!==true)return Object.freeze({status:'GEMINI_REQUIRED_FOR_FREEFORM_DECLARATION_NO_MUTATION'});
     const {loaded,state}=loadState(this.persistence,campaignId);if(!state)return Object.freeze({status:loaded.status});
     const projection=projectSceneForPlayer(state);const scene=projection.scene;
     if(!scene||scene.status!=='OK')return Object.freeze({status:'ACTIVE_SCENE_REQUIRED_NO_MUTATION',revision:loaded.revision});

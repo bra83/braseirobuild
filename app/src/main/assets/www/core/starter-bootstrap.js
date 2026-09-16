@@ -8,12 +8,22 @@ export const STARTER_MASTER_SEED='braseiro-wwn-sombras-gelo-ferro-v1';
 export const STARTER_POSITION=Object.freeze({q:17,r:22,name:'RUÍNAS DA VIGÍLIA'});
 
 function clone(v){return structuredClone(v)}
+function canonicalClassId(value){
+  const raw=String(value??'').trim();
+  if(!raw)return null;
+  const id=raw.toUpperCase().replace(/[^A-Z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+  if(id==='FULL_EXPERT'||id==='PARTIAL_EXPERT')return 'EXPERT';
+  if(id==='FULL_WARRIOR'||id==='PARTIAL_WARRIOR')return 'WARRIOR';
+  return id;
+}
 function normalizeCharacter(raw){
   if(!raw||typeof raw!=='object')throw new TypeError('canonical starter character required');
   const c=clone(raw);delete c.fixtureKind;delete c.authority;delete c.evidencePolicy;
   c.characterId=String(c.characterId??c.id??'iria');
-  c.classId=c.classId??c.class??null;
+  c.classId=canonicalClassId(c.classId??c.class);
+  if(Array.isArray(c.partialClasses))c.partialClasses=c.partialClasses.map(canonicalClassId).filter(Boolean);
   if(!c.name)throw new Error('starter character name required');
+  if(!c.classId)throw new Error('starter character classId required');
   return c;
 }
 

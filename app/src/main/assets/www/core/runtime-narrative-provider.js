@@ -42,6 +42,13 @@ export class RuntimeBarbaraProvider{
       const visible=[scene.summary,scene.situation,scene.premise].map(v=>String(v??'').trim()).find(Boolean);
       if(visible)return Object.freeze({status:'OK',provider:'LOCAL_SCENE',parentMechanicalEventId:mechanicalEvent.eventId,mechanicalRevision:mechanicalEvent.revision,text:visible});
     }
+    if(mechanicalEvent?.kind==='PLAYER_DECLARATION'){
+      const declaration=String(mechanicalEvent?.declaration??'').trim();
+      const visible=[scene?.summary,scene?.situation,scene?.premise].map(v=>String(v??'').trim()).find(Boolean);
+      const prefix=visible?`${visible} `:'';
+      const action=declaration?`Você declara: “${declaration.replace(/[.!?]+$/,'')}”. `:'';
+      return Object.freeze({status:'OK',provider:'LOCAL_DECLARATION',parentMechanicalEventId:mechanicalEvent.eventId,mechanicalRevision:mechanicalEvent.revision,text:`${prefix}${action}A intenção foi registrada. Quando ela exigir teste, combate, gasto de recurso, deslocamento ou outra consequência mecânica, use a resolução mecânica correspondente antes de aplicar o resultado.`.trim()});
+    }
     return this.fallback.generate({mechanicalEvent,state,ragSnippets});
   }
   _context({mechanicalEvent,state,ragSnippets=[]}){

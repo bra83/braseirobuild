@@ -1,0 +1,13 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';
+import {MemoryPersistenceAdapter} from '../app/src/main/assets/www/core/persistence-port.js';
+import {ensureStarterCampaign} from '../app/src/main/assets/www/core/starter-bootstrap.js';
+import {PlayerMechanicsFacade} from '../app/src/main/assets/www/core/player-mechanics-facade.js';
+const j=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));
+const p=new MemoryPersistenceAdapter(),boot=ensureStarterCampaign({persistence:p,character:j('../app/src/main/assets/www/data/wave6.iria.canonical.fixture.json'),pack:j('../app/src/main/assets/www/data/wwn.starter-region.v1.json')});assert.ok(String(boot.status).startsWith('OK'));const f=new PlayerMechanicsFacade({persistence:p}),id=boot.campaignId;
+let s=f.summary({campaignId:id});assert.equal(s.status,'OK');assert.deepEqual([s.world.position.q,s.world.position.r],[17,22]);
+let r=f.travelAdjacent({campaignId:id,q:18,r:22});assert.equal(r.status,'OK');s=f.summary({campaignId:id});assert.deepEqual([s.world.position.q,s.world.position.r],[18,22]);
+r=f.exploreCurrentHex({campaignId:id});assert.ok(['OK','ALREADY_EXPLORED_NO_MUTATION'].includes(r.status));
+r=f.enterDungeon({campaignId:id,contract:{siteId:'qa-site',defenseState:'ABANDONED_OR_DISUSED_NOOK'}});assert.equal(r.status,'OK');
+r=f.dungeonTurn({campaignId:id,contract:{actionKind:'SEARCH_ROOM'}});assert.ok(['OK','WANDERING_ENCOUNTER_TRIGGERED'].includes(r.status));s=f.summary({campaignId:id});assert.equal(s.world.dungeon.turnNumber,1);
+r=f.leaveDungeon({campaignId:id});assert.equal(r.status,'OK');assert.equal(f.summary({campaignId:id}).world.dungeon.active,false);
+console.log('WORLD_DUNGEON_REGRESSION PASS travel + explore + dungeon lifecycle');

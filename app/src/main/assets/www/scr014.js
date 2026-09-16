@@ -1,9 +1,9 @@
 import { NativePersistencePort, MemoryPersistenceAdapter } from './core/persistence-port.js';
 import { projectPartyForPlayer, createPartyState } from './core/party-state.js';
-import { applyStarterContentToState } from './core/starter-content-service.js';
 import { PartyService, partyGroupsAreColocated } from './core/party-service.js';
 import { resolveActiveCampaignId } from './core/runtime-campaign.js';
 import { canonicalJson } from './core/canonical-json.js';
+import { makeStarterCampaignState } from './core/starter-bootstrap.js';
 import { TERRAIN_MPH } from './core/wwn-travel-core.js';
 import { WorldActionService } from './core/world-service.js';
 import { createRuntimeNarrativeProvider } from './core/runtime-narrative-provider.js';
@@ -38,7 +38,6 @@ const WWN_TERRAIN_ASSETS=Object.freeze({
   ROCKY_HIGHLAND:`${WWN_TERRAIN_ROOT}/terrain_base_16_rocky_highland.png`,
 });
 
-function canonicalIriaFixture(){return {characterId:'iria',name:'IRIA',classId:'FULL_EXPERT',level:1,attributes:{Strength:7,Dexterity:12,Constitution:11,Intelligence:10,Wisdom:14,Charisma:9},hp:{current:5,max:5},systemStrain:{current:0,max:11},skills:{Survive:1,Notice:1,Sneak:0,Exert:0},inventory:null,magic:null,effort:null};}
 const QA_FOG_MODE=globalThis.__WWN_QA_FOG__===true||new URLSearchParams(location.search).get('qaFog')==='1';
 function qaAtlasHexes(){
   if(!QA_FOG_MODE)return null;
@@ -55,19 +54,29 @@ function qaAtlasHexes(){
     '17,23':rec(17,23,'farmland','PLAINS',WWN_TERRAIN_ASSETS.CULTIVATED_FARMLAND,'CAMPOS CULTIVADOS','CAMPOS',false),
   };
 }
-async function fixtureState(){
-  const pack=await fetch('data/wwn.starter-region.v1.json').then(r=>r.json());
-  let s={campaignId:'browser-starter',displayName:'SOMBRAS DE GELO E FERRO',revision:0,characterState:canonicalIriaFixture(),charactersState:{iria:canonicalIriaFixture()},worldState:{position:{q:17,r:22,name:'RUÍNAS DA VIGÍLIA'},weather:null,time:null,atlas:{hexes:qaAtlasHexes()??{}}},npcState:{},factionState:{},encounterState:null};
-  if(new URLSearchParams(location.search).get('qaSplit')==='1'){const tor={characterId:'tor',name:'TOR',classId:'FULL_WARRIOR',level:1,attributes:{Strength:12,Dexterity:10,Constitution:13,Intelligence:8,Wisdom:9,Charisma:10},hp:{current:7,max:7},systemStrain:{current:3,max:13},skills:{Stab:1}};s.charactersState.tor=tor;s.partyState={schemaVersion:1,activeGroupId:'g1',groups:{g1:{groupId:'g1',label:'IRIA',memberIds:['iria'],position:{q:17,r:22,name:'RUÍNAS DA VIGÍLIA'},encounterRiskUnit:true},g2:{groupId:'g2',label:'TOR',memberIds:['tor'],position:{q:18,r:22,name:'HEX ADJACENTE'},encounterRiskUnit:true}}};}else{s.partyState=createPartyState({memberIds:['iria'],position:s.worldState.position});}s=applyStarterContentToState(s,pack);return s;
+
+async function browserStarterState(){
+  const [pack,character]=await Promise.all([
+    fetch('data/wwn.starter-region.v1.json').then(r=>r.json()),
+    fetch('data/wwn.starter-character.v1.json').then(r=>r.json()),
+  ]);
+  let state=makeStarterCampaignState({character,pack});
+  if(QA_FOG_MODE)state.worldState.atlas={...(state.worldState.atlas??{}),hexes:qaAtlasHexes()??{}};
+  if(new URLSearchParams(location.search).get('qaSplit')==='1'){
+    const tor={characterId:'tor',name:'TOR',classId:'WARRIOR',level:1,attributes:{Strength:12,Dexterity:10,Constitution:13,Intelligence:8,Wisdom:9,Charisma:10},hp:{current:7,max:7},systemStrain:{current:3,max:13},skills:{Stab:1}};
+    state.charactersState={...(state.charactersState??{}),tor};
+    state.partyState={schemaVersion:1,activeGroupId:'g1',groups:{g1:{groupId:'g1',label:'IRIA',memberIds:['iria'],position:{q:17,r:22,name:'RUÍNAS DA VIGÍLIA'},encounterRiskUnit:true},g2:{groupId:'g2',label:'TOR',memberIds:['tor'],position:{q:18,r:22,name:'HEX ADJACENTE'},encounterRiskUnit:true}}};
+  }
+  return state;
 }
-async function buildFixtureRuntime(){
-  const p=new MemoryPersistenceAdapter();const s=await fixtureState();
-  p.createCampaign({campaignId:s.campaignId,displayName:s.displayName,stateJson:canonicalJson(s),masterSeed:'scr014-browser-fixture',rngAlgorithm:'xoshiro128ss-v1',initialSnapshotId:'snapshot:scr014:r0'});
-  return {persistence:p,campaignId:s.campaignId,state:s};
+async function buildBrowserRuntime(){
+  const persistence=new MemoryPersistenceAdapter();const state=await browserStarterState();
+  persistence.createCampaign({campaignId:state.campaignId,displayName:state.displayName,stateJson:canonicalJson(state),masterSeed:state.rngState?.masterSeed??'braseiro-wwn-browser',rngAlgorithm:state.rngState?.algorithm??'xoshiro128ss-v1',initialSnapshotId:`snapshot:${state.campaignId}:r0`});
+  return {persistence,campaignId:state.campaignId,state};
 }
 async function loadRuntime(){
   if(globalThis.BraseiroNative){try{const p=new NativePersistencePort();const id=resolveActiveCampaignId(p);if(id){const loaded=p.loadCampaign(id);if(loaded.status==='OK')return {persistence:p,campaignId:id,state:JSON.parse(loaded.stateJson)};}}catch{}}
-  return buildFixtureRuntime();
+  return buildBrowserRuntime();
 }
 function reloadState(){const loaded=persistence.loadCampaign(campaignId);if(loaded.status!=='OK')throw new Error(`campaign reload failed: ${loaded.status}`);state=JSON.parse(loaded.stateJson);partyProjection=projectPartyForPlayer(state);if(!partyProjection.groups?.[selectedGroupId])selectedGroupId=partyProjection.activeGroupId??Object.keys(partyProjection.groups??{})[0]??null;}
 

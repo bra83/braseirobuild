@@ -1,0 +1,8 @@
+WWN MACRO ADVANCE
+- Level advancement is now exposed in the campaign management UI.
+- Pending Focus selection is wired to FocusService with bonus-skill and GM-approval inputs.
+- Pending spell learning is wired to SpellLearningService and canonical learnable choices.
+- Pending class Art learning is wired to ArtLearningService.
+- Campaign integrity now validates NPC registry, NPC memories, major projects, advancement counters, and inventory shapes.
+- All existing QA suites plus macro-completion regression pass.
+- Gradle/APK/device gate intentionally deferred.

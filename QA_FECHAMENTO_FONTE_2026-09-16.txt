@@ -1,0 +1,16 @@
+BRASEIRO WWN — FECHAMENTO DE FONTE 2026-09-16
+Baseline: BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_GRANDE_ESCALA.zip
+
+CORRECOES DESTE BLOCO
+- diario.js: removido trecho duplicado/corrompido que quebrava parsing real de ES modules.
+- Diario: busca, filtro narrativo/mecanico, contagem e navegacao preservados em uma unica inicializacao.
+- Backup portatil: validacao reforcada para identidade campaign/state, revisao, estrutura de eventos, revisoes futuras e IDs duplicados.
+- Restauracao em memoria exercitada com campaignId alternativo.
+- Regressao de fechamento adicionada em qa/closure-regression.mjs.
+
+VALIDACOES
+- 137 arquivos JavaScript verificados como ES modules: 0 falhas de sintaxe.
+- qa/large-scale-regression.mjs: PASS.
+- qa/closure-regression.mjs: PASS.
+- 33 sessoes simuladas: PASS em bootstrap, roster, party, backup, restore e journal.
+- Gradle/APK/AAB deliberadamente nao executados neste gate, por instrucao do usuario.
