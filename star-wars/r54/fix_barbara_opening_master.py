@@ -6,21 +6,24 @@ if len(sys.argv) != 2:
     raise SystemExit('usage: fix_barbara_opening_master.py <android-project-root>')
 
 root = Path(sys.argv[1]).resolve()
-controller_path = root / 'app/src/main/assets/vtt/js/core/controller.mjs'
-runtime_path = root / 'app/src/main/assets/vtt/r46/final-runtime.js'
+vtt = root / 'app/src/main/assets/vtt'
+controller_path = vtt / 'js/core/controller.mjs'
+uibridge_path = vtt / 'js/core/uiBridge.bundle.js'
+runtime_path = vtt / 'r46/final-runtime.js'
 controller = controller_path.read_text(encoding='utf-8')
+uibridge = uibridge_path.read_text(encoding='utf-8')
 runtime = runtime_path.read_text(encoding='utf-8')
 marker = 'R54_BARBARA_OPENING_MASTER'
+signature = '    startLivingAdventure({ rng = Math.random } = {}) {'
 
 
 def replace_method(src: str, signature: str, replacement: str) -> str:
     start = src.find(signature)
     if start < 0:
-        raise SystemExit(f'controller anchor not found: {signature}')
-    # Signature contains destructuring ({ rng = ... }); the final char is the real body brace.
+        raise SystemExit(f'method anchor not found: {signature}')
     brace = start + len(signature) - 1
     if brace >= len(src) or src[brace] != '{':
-        raise SystemExit('controller method opening brace not found')
+        raise SystemExit('method opening brace not found')
     depth = 0
     quote = None
     esc = False
@@ -44,10 +47,9 @@ def replace_method(src: str, signature: str, replacement: str) -> str:
                 if depth == 0:
                     return src[:start] + replacement + src[i + 1:]
         i += 1
-    raise SystemExit('controller method closing brace not found')
+    raise SystemExit('method closing brace not found')
 
-if marker not in controller:
-    new_method = r'''    startLivingAdventure({ rng = Math.random } = {}) {
+new_method = r'''    startLivingAdventure({ rng = Math.random } = {}) {
         // R54_BARBARA_OPENING_MASTER: bootstrap session/world only; Barbara owns first narration.
         if (!this.state.player?.character)
             throw new Error('Crie, gere ou importe um personagem antes de iniciar a aventura.');
@@ -87,7 +89,12 @@ if marker not in controller:
             state: structuredClone(this.state)
         };
     }'''
-    controller = replace_method(controller, '    startLivingAdventure({ rng = Math.random } = {}) {', new_method)
+
+# controller.mjs is audit/source authority; uiBridge.bundle.js is the live bridge loaded by the shell.
+if marker not in controller:
+    controller = replace_method(controller, signature, new_method)
+if marker not in uibridge:
+    uibridge = replace_method(uibridge, signature, new_method)
 
 if marker not in runtime:
     anchor = "function adventureStarted(){const st=currentState();return Boolean(String(st?.master?.narration||st?.scene?.narration||'').trim())}\n"
@@ -119,13 +126,17 @@ if marker not in runtime:
         raise SystemExit('secondary start-adventure handler anchor not found')
     runtime = runtime.replace(bar_old, bar_new, 1)
 
-if 'A campanha começa em ${locationName}.' in controller or "narration: parts.join(' ')" in controller:
-    raise SystemExit('short local opening template still present in controller')
-if marker not in controller or marker not in runtime:
-    raise SystemExit('Barbara opening marker missing after patch')
+for label, src in [('controller', controller), ('uiBridge', uibridge)]:
+    if 'A campanha começa em ${locationName}.' in src or "narration: parts.join(' ')" in src:
+        raise SystemExit(f'short local opening template still present in {label}')
+    if marker not in src:
+        raise SystemExit(f'Barbara opening marker missing in {label}')
+if marker not in runtime:
+    raise SystemExit('Barbara opening marker missing in runtime')
 if "game.submitPlayerIntent(intentText)" not in runtime:
     raise SystemExit('runtime does not use canonical Master submitPlayerIntent channel')
 
 controller_path.write_text(controller, encoding='utf-8')
+uibridge_path.write_text(uibridge, encoding='utf-8')
 runtime_path.write_text(runtime, encoding='utf-8')
-print('R54_BARBARA_OPENING_MASTER_PASS local_template=0 master_channel=submitPlayerIntent')
+print('R54_BARBARA_OPENING_MASTER_PASS local_template=0 live_bundle=1 master_channel=submitPlayerIntent')

@@ -34,25 +34,30 @@ jobs:
         run: |
           set -euo pipefail
           C="$ROOT/app/src/main/assets/vtt/js/core/controller.mjs"
+          U="$ROOT/app/src/main/assets/vtt/js/core/uiBridge.bundle.js"
           R="$ROOT/app/src/main/assets/vtt/r46/final-runtime.js"
           node --check "$C"
+          node --check "$U"
           node --check "$R"
           grep -Fq 'R54_BARBARA_OPENING_MASTER' "$C"
+          grep -Fq 'R54_BARBARA_OPENING_MASTER' "$U"
           grep -Fq 'R54_BARBARA_OPENING_MASTER' "$R"
-          grep -Fq 'masterOpeningRequest' "$C"
-          grep -Fq 'awaitingMaster: true' "$C"
+          grep -Fq 'masterOpeningRequest' "$U"
+          grep -Fq 'awaitingMaster: true' "$U"
           grep -Fq 'game.submitPlayerIntent(intentText)' "$R"
           grep -Fq '[ABERTURA_BARBARA]' "$R"
           ! grep -Fq 'A campanha começa em ${locationName}.' "$C"
+          ! grep -Fq 'A campanha começa em ${locationName}.' "$U"
           ! grep -Fq "narration: parts.join(' ')" "$C"
-          python3 - "$C" "$R" <<'PY'
+          ! grep -Fq "narration: parts.join(' ')" "$U"
+          python3 - "$C" "$U" "$R" <<'PY'
           from pathlib import Path
           import sys
-          c=Path(sys.argv[1]).read_text('utf-8'); r=Path(sys.argv[2]).read_text('utf-8')
-          assert 'proposal: null' in c and 'awaitingMaster: true' in c
+          c=Path(sys.argv[1]).read_text('utf-8'); u=Path(sys.argv[2]).read_text('utf-8'); r=Path(sys.argv[3]).read_text('utf-8')
+          for src in (c,u): assert 'proposal: null' in src and 'awaitingMaster: true' in src
           assert 'startBarbaraOpening' in r and 'submitPlayerIntent' in r
           assert r.count("await startBarbaraOpening()") >= 2
-          print('R54_BARBARA_C01_STATIC_PASS')
+          print('R54_BARBARA_C01_STATIC_PASS live_bundle=1')
           PY
       - name: Browser opening calls canonical Barbara channel
         env: {ROOT: "${{ steps.root.outputs.path }}"}
@@ -77,6 +82,9 @@ jobs:
                   rnd=pg.locator('[data-random-character]').first
                   assert rnd.count()==1
                   rnd.click(); pg.wait_for_timeout(700)
+              before=pg.evaluate('window.BraseiroGameBridge.readState().data') or {}
+              before_narration=str(((before.get('master') or {}).get('narration') or (before.get('scene') or {}).get('narration') or ''))
+              assert not before_narration.startswith('A campanha começa em '),before_narration
               pg.evaluate("""() => {
                 const bridge=window.BraseiroGameBridge;
                 if(!bridge||typeof bridge.submitPlayerIntent!=='function') throw new Error('submitPlayerIntent missing');
@@ -95,7 +103,7 @@ jobs:
               assert not narration.startswith('A campanha começa em '),narration
               assert (state.get('session') or {}).get('status')=='ativa',state.get('session')
               b.close()
-          print('R54_BARBARA_C01_BROWSER_PASS channel=submitPlayerIntent')
+          print('R54_BARBARA_C01_BROWSER_PASS channel=submitPlayerIntent live_bundle=1')
           PY
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: '17'}
@@ -128,7 +136,7 @@ jobs:
           git pull --rebase origin main
           mkdir -p "$OUT"
           cp "$TMP"/* "$OUT"/
-          printf '%s\n' 'R54_BARBARA_OPENING_MASTER_PASS local_template=0 master_channel=submitPlayerIntent browser=PASS build=PASS' > "$OUT/BARBARA_OPENING_2026-09-16.txt"
+          printf '%s\n' 'R54_BARBARA_OPENING_MASTER_PASS local_template=0 live_bundle=1 master_channel=submitPlayerIntent browser=PASS build=PASS' > "$OUT/BARBARA_OPENING_2026-09-16.txt"
           git add -f "$OUT"
           git commit -m 'build: persist R54 Barbara opening master' || true
           git push origin HEAD:main
