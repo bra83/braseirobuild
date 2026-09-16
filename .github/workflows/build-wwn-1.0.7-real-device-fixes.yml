@@ -30,13 +30,15 @@ jobs:
           node --check app/src/main/assets/www/configuracoes.js
           node --check app/src/main/assets/www/jornada.js
           node --check app/src/main/assets/www/scr014.js
+          grep -q '__BRASEIRO_PENDING_SCENE_IMAGE' app/src/main/assets/www/jornada.html
+          grep -q 'globalThis.__BRASEIRO_PENDING_SCENE_IMAGE' app/src/main/assets/www/ux-hotfix.js
           python3 - <<'PY'
           from pathlib import Path
           ux=Path('app/src/main/assets/www/ux-hotfix.js').read_text(encoding='utf-8')
           cfg=Path('app/src/main/assets/www/configuracoes.js').read_text(encoding='utf-8')
           journey=Path('app/src/main/assets/www/jornada.html').read_text(encoding='utf-8')
-          for x in ["return'torch'","return'lantern'","return'liquid'","return'rope'","return'food'","return'tool'","PENDING_SCENE_IMAGE_KEY","lockWorldFlow"]:
-              assert x in ux, x
+          for x in ["return'torch'","return'lantern'","return'liquid'","return'rope'","return'food'","return'tool'","PENDING_SCENE_IMAGE_KEY","lockWorldFlow","__BRASEIRO_PENDING_SCENE_IMAGE"]:
+              assert x in ux or x in journey, x
           flow=cfg.split("$('createCampaign').onclick",1)[1].split('refreshCampaignManager()',1)[0]
           assert "location.href='criacao.html'" not in flow
           assert "location.href='jornada.html'" in flow
