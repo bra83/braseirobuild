@@ -9,6 +9,7 @@ on:
       - "star-wars/r54/fix_aor_talent_runtime.py"
       - "star-wars/r54/fix_map_anchor_state.py"
       - "star-wars/r54/fix_item_binding_idempotence.py"
+      - "star-wars/r54/fix_r54_ux.py"
 permissions: {contents: write}
 jobs:
   deep-audit:
@@ -61,11 +62,12 @@ jobs:
           set -euo pipefail
           SET="$(find deep-work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"
           test -n "$SET"; ROOT="$(dirname "$SET")"
-          python3 -m py_compile star-wars/r54/hotfix_r54.py star-wars/r54/fix_map_anchor_state.py star-wars/r54/fix_item_binding_idempotence.py star-wars/r54/fix_aor_talent_runtime.py
+          python3 -m py_compile star-wars/r54/hotfix_r54.py star-wars/r54/fix_map_anchor_state.py star-wars/r54/fix_item_binding_idempotence.py star-wars/r54/fix_aor_talent_runtime.py star-wars/r54/fix_r54_ux.py
           python3 star-wars/r54/hotfix_r54.py "$ROOT" "$(pwd)/deep-pack"
           python3 star-wars/r54/fix_map_anchor_state.py "$ROOT"
           python3 star-wars/r54/fix_item_binding_idempotence.py "$ROOT"
           python3 star-wars/r54/fix_aor_talent_runtime.py "$ROOT"
+          python3 star-wars/r54/fix_r54_ux.py "$ROOT"
           printf '\n.final-start-list button[hidden]{display:none!important}\n' >> "$ROOT/app/src/main/assets/vtt/r46/final-runtime.css"
           echo "path=$ROOT" >> "$GITHUB_OUTPUT"
       - name: Run full Node regression again
