@@ -1,0 +1,184 @@
+name: WWN 1.0.8 Real Device Audit Closure
+
+on:
+  push:
+    branches: [wwn-source-105-bridge]
+    paths:
+      - ".github/workflows/wwn-1.0.8-audit-closure.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch-build-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: wwn-source-105-bridge
+          fetch-depth: 0
+
+      - name: Apply audited real-device fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          def replace_once(path, old, new, label):
+              p=Path(path); s=p.read_text(encoding='utf-8')
+              if old not in s:
+                  raise SystemExit(f'{label}: pattern not found')
+              p.write_text(s.replace(old,new,1),encoding='utf-8')
+
+          # Distinct version so the physical-device tester cannot confuse it with 1.0.6/1.0.7.
+          replace_once('app/build.gradle.kts','versionCode = 107; versionName = "1.0.7"','versionCode = 108; versionName = "1.0.8"','version')
+
+          # A campaign is a world. A character is optional until the player decides to create/import one.
+          replace_once('app/src/main/assets/www/core/campaign-manager-service.js','requiresCharacter:true','requiresCharacter:false','campaign optional character')
+
+          # Close the second travel path: Journey/MUNDO must never mutate hex position directly.
+          p=Path('app/src/main/assets/www/jornada.js'); s=p.read_text(encoding='utf-8')
+          pattern=re.compile(r"for\(const b of document\.querySelectorAll\('\[data-hex-step\]'\)\)b\.onclick=\(\)=>\{const \[dq,dr\]=b\.dataset\.hexStep\.split\(','\)\.map\(Number\),p=mechanicsSummary\?\.world\?\.position;if\(!Number\.isInteger\(p\?\.q\)\|\|!Number\.isInteger\(p\?\.r\)\)\{mechanicsStatus\('Posição mundial ausente\.',\s*'warn'\);return\}applyMechanicsResult\(mechanics\.travelAdjacent\(\{campaignId,q:p\.q\+dq,r:p\.r\+dr\}\),'TRAVEL'\)\};\$\('mechanicsExploreButton'\)\.onclick=\(\)=>applyMechanicsResult\(mechanics\.exploreCurrentHex\(\{campaignId\}\),'EXPLORE'\);")
+          replacement="for(const b of document.querySelectorAll('[data-hex-step]'))b.onclick=()=>{mechanicsStatus('VIAGEM: escolha o hex no MAPA. O deslocamento será resolvido uma vez e abrirá a cena narrada antes de outro movimento.','warn');setTimeout(()=>{location.href='scr014.html'},180)};$('mechanicsExploreButton').onclick=()=>{mechanicsStatus('EXPLORAÇÃO: use o MAPA. A exploração gera a cena do Mestre antes de liberar outra ação de mundo.','warn');setTimeout(()=>{location.href='scr014.html'},180)};"
+          s2,n=pattern.subn(replacement,s,count=1)
+          if n!=1: raise SystemExit(f'journey travel lock: replaced {n}')
+
+          # If Android/Gemini sends an image before a scene is open, hold it for the next scene instead of writing it into nowhere.
+          old_open="async function openScene(contentType,contentId){const result=await scenes.openContentScene({campaignId,contentType,contentId});if(!['OK','SCENE_ALREADY_OPEN_NO_MUTATION'].includes(result.status))return;loaded=scenes.load({campaignId});projection=loaded.projection;renderScene(result.narrative??loaded.narrative);syncAudio();document.querySelector('.content').scrollTo({top:0,behavior:'smooth'})}"
+          new_open="async function openScene(contentType,contentId){const result=await scenes.openContentScene({campaignId,contentType,contentId});if(!['OK','SCENE_ALREADY_OPEN_NO_MUTATION'].includes(result.status))return;loaded=scenes.load({campaignId});projection=loaded.projection;renderScene(result.narrative??loaded.narrative);const deferred=globalThis.__BRASEIRO_DEFERRED_SCENE_IMAGE_RESULT??null;if(deferred){const attached=attachSceneImageResult(deferred,{generated:false});if(attached.status==='OK'){globalThis.__BRASEIRO_DEFERRED_SCENE_IMAGE_RESULT=null;$('sceneImageStatus').textContent='Imagem recebida anteriormente e vinculada a esta cena.';}}syncAudio();document.querySelector('.content').scrollTo({top:0,behavior:'smooth'})}"
+          if old_open not in s2: raise SystemExit('deferred image openScene pattern not found')
+          s2=s2.replace(old_open,new_open,1)
+          old_import="sceneImages.onImport(result=>{if(result.status!=='OK'){$('sceneImageStatus').textContent=result.status==='CANCELLED'?'Importação cancelada.':`Imagem não importada: ${result.reason??result.status}`;return;}const attached=attachSceneImageResult(result,{generated:false});$('sceneImageStatus').textContent=attached.status==='OK'?'Imagem importada e vinculada à cena atual.':`Imagem importada, mas não vinculada: ${attached.status}`;});"
+          new_import="sceneImages.onImport(result=>{if(result.status!=='OK'){$('sceneImageStatus').textContent=result.status==='CANCELLED'?'Importação cancelada.':`Imagem não importada: ${result.reason??result.status}`;return;}if(!projection.scene||projection.scene.status!=='OK'){globalThis.__BRASEIRO_DEFERRED_SCENE_IMAGE_RESULT=result;$('sceneImageStatus').textContent='Imagem recebida. Abra uma oportunidade ou local; ela será vinculada à próxima cena.';return;}const attached=attachSceneImageResult(result,{generated:false});$('sceneImageStatus').textContent=attached.status==='OK'?'Imagem importada e vinculada à cena atual.':`Imagem importada, mas não vinculada: ${attached.status}`;});"
+          if old_import not in s2: raise SystemExit('deferred image listener pattern not found')
+          p.write_text(s2.replace(old_import,new_import,1),encoding='utf-8')
+
+          # Semantic item art: oil for a lantern is a liquid, not a lantern. Expose kind for QA/debugging.
+          p=Path('app/src/main/assets/www/ux-hotfix.js'); s=p.read_text(encoding='utf-8')
+          old="if(/\\b(LANTERNA|LANTERN)\\b/.test(t))return'lantern';\n  if(/\\b(OLEO|OIL|FRASCO|GARRAFA|CANTIL|WATERSKIN|AGUA)\\b/.test(t))return'liquid';"
+          new="if(/\\b(OLEO|OIL)\\b/.test(t)&&/\\b(LANTERNA|LANTERN)\\b/.test(t))return'liquid';\n  if(/\\b(LANTERNA|LANTERN)\\b/.test(t))return'lantern';\n  if(/\\b(OLEO|OIL|FRASCO|GARRAFA|CANTIL|WATERSKIN|AGUA)\\b/.test(t))return'liquid';"
+          if old not in s: raise SystemExit('item semantic ordering pattern not found')
+          s=s.replace(old,new,1)
+          old2="visual.innerHTML=artSvg(artKind(row.textContent));row.classList.add('has-art');row.prepend(visual)"
+          new2="const kind=artKind(row.textContent);visual.dataset.artKind=kind;visual.innerHTML=artSvg(kind);row.classList.add('has-art');row.prepend(visual)"
+          if old2 not in s: raise SystemExit('item art injection pattern not found')
+          p.write_text(s.replace(old2,new2,1),encoding='utf-8')
+          PY
+
+      - name: Audit source contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check app/src/main/assets/www/jornada.js
+          node --check app/src/main/assets/www/ux-hotfix.js
+          node --check app/src/main/assets/www/configuracoes.js
+          node --check app/src/main/assets/www/scr014.js
+          python3 - <<'PY'
+          from pathlib import Path
+          build=Path('app/build.gradle.kts').read_text(encoding='utf-8')
+          manager=Path('app/src/main/assets/www/core/campaign-manager-service.js').read_text(encoding='utf-8')
+          journey=Path('app/src/main/assets/www/jornada.js').read_text(encoding='utf-8')
+          journey_html=Path('app/src/main/assets/www/jornada.html').read_text(encoding='utf-8')
+          atlas=Path('app/src/main/assets/www/scr014.js').read_text(encoding='utf-8')
+          ux=Path('app/src/main/assets/www/ux-hotfix.js').read_text(encoding='utf-8')
+          manifest=Path('app/src/main/AndroidManifest.xml').read_text(encoding='utf-8')
+          main=Path('app/src/main/java/com/braseiro/wwn/MainActivity.kt').read_text(encoding='utf-8')
+          narrative=Path('app/src/main/assets/www/core/runtime-narrative-provider.js').read_text(encoding='utf-8')
+          assert 'versionCode = 108' in build and 'versionName = "1.0.8"' in build
+          assert 'requiresCharacter:false' in manager and 'requiresCharacter:true' not in manager
+          assert "mechanics.travelAdjacent({campaignId" not in journey
+          assert "location.href='scr014.html'" in journey
+          assert '__BRASEIRO_DEFERRED_SCENE_IMAGE_RESULT' in journey
+          assert 'OPERAÇÕES DO MESTRE' not in journey_html and '>GESTÃO<' not in journey_html
+          assert 'RUMORES E OPORTUNIDADES' in journey_html and 'sandbox livre' in journey_html
+          assert 'worldActionBusy=true' in atlas and "location.href='jornada.html'" in atlas
+          assert "return'torch'" in ux and "return'liquid'" in ux and 'visual.dataset.artKind=kind' in ux
+          assert ux.index("if(/\\b(OLEO|OIL)\\b/.test(t)&&/\\b(LANTERNA|LANTERN)\\b/.test(t))return'liquid';") < ux.index("if(/\\b(LANTERNA|LANTERN)\\b/.test(t))return'lantern';")
+          assert 'android.intent.action.SEND' in manifest and 'image/*' in manifest
+          assert 'pendingSharedSceneImport' in main and 'SCENE_IMAGE_IMPORT' in main
+          assert '900–1400 palavras' in narrative and 'NÃO seja concisa' in narrative
+          print('WWN_1_0_8_AUDIT_CONTRACTS_PASS')
+          PY
+
+      - name: Commit audited source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add app/build.gradle.kts app/src/main/assets/www/core/campaign-manager-service.js app/src/main/assets/www/jornada.js app/src/main/assets/www/ux-hotfix.js
+          git commit -m "fix: close WWN real-device travel image campaign and item-art gaps"
+          git push origin HEAD:wwn-source-105-bridge
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Prepare Android SDK 36
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(find /usr/local/lib/android /opt /home/runner -type f -name sdkmanager -perm -111 2>/dev/null | head -n1 || true)"; fi
+          test -n "$SDKMANAGER"
+          SDK_ROOT="$(cd "$(dirname "$SDKMANAGER")/../../.." && pwd)"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-36"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build installable APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew clean assembleDebug --stacktrace --no-daemon
+
+      - name: Collect and validate APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | head -n1)"
+          test -f "$APK"
+          cp "$APK" out/BRASEIRO_WWN_v1.0.8.apk
+          unzip -t out/BRASEIRO_WWN_v1.0.8.apk >/dev/null
+          sha256sum out/BRASEIRO_WWN_v1.0.8.apk | tee out/BRASEIRO_WWN_v1.0.8.apk.sha256
+          stat -c 'APK_SIZE_BYTES=%s' out/BRASEIRO_WWN_v1.0.8.apk
+
+      - name: Publish APK to source branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p delivery
+          cp out/BRASEIRO_WWN_v1.0.8.apk delivery/BRASEIRO_WWN_v1.0.8.apk
+          cp out/BRASEIRO_WWN_v1.0.8.apk.sha256 delivery/BRASEIRO_WWN_v1.0.8.apk.sha256
+          git add delivery/BRASEIRO_WWN_v1.0.8.apk delivery/BRASEIRO_WWN_v1.0.8.apk.sha256
+          git commit -m "build: publish WWN 1.0.8 APK"
+          git push origin HEAD:wwn-source-105-bridge
+
+      - name: Publish visible APK on main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          rm -rf /tmp/wwn-main
+          git worktree add /tmp/wwn-main origin/main
+          cd /tmp/wwn-main
+          git switch -c publish-wwn-108
+          mkdir -p delivery
+          cp "$GITHUB_WORKSPACE/out/BRASEIRO_WWN_v1.0.8.apk" BRASEIRO_WWN_v1.0.8.apk
+          cp "$GITHUB_WORKSPACE/out/BRASEIRO_WWN_v1.0.8.apk" delivery/BRASEIRO_WWN_v1.0.8.apk
+          cp "$GITHUB_WORKSPACE/out/BRASEIRO_WWN_v1.0.8.apk.sha256" delivery/BRASEIRO_WWN_v1.0.8.apk.sha256
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add BRASEIRO_WWN_v1.0.8.apk delivery/BRASEIRO_WWN_v1.0.8.apk delivery/BRASEIRO_WWN_v1.0.8.apk.sha256
+          git commit -m "release: publish BRASEIRO WWN v1.0.8 APK"
+          git push origin HEAD:main
