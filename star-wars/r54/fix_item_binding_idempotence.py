@@ -12,14 +12,14 @@ if not runtime.is_file():
     raise SystemExit(f'missing runtime: {runtime}')
 
 text = runtime.read_text(encoding='utf-8')
-old = r'''  const exact=idx.get(r54Norm(name));if(!exact)continue;
-  host.querySelectorAll('.r53-item-visual,.r54-item-visual').forEach(x=>x.remove());const fig=document.createElement('figure');fig.className='r54-item-visual';fig.innerHTML=`<img loading=\"lazy\" alt=\"${name.replace(/[\"<&]/g,'')}\" src=\"${exact}\">`;host.insertBefore(fig,host.firstChild);
+old = '''  const exact=idx.get(r54Norm(name));if(!exact)continue;
+  host.querySelectorAll('.r53-item-visual,.r54-item-visual').forEach(x=>x.remove());const fig=document.createElement('figure');fig.className='r54-item-visual';fig.innerHTML=`<img loading="lazy" alt="${name.replace(/["<&]/g,'')}" src="${exact}">`;host.insertBefore(fig,host.firstChild);
 '''
-new = r'''  const exact=idx.get(r54Norm(name));if(!exact)continue;
+new = '''  const exact=idx.get(r54Norm(name));if(!exact)continue;
   const key=r54Norm(name),current=host.querySelector(':scope > .r54-item-visual');
   if(current){const img=current.querySelector('img');if(current.dataset.r54VisualBound===key&&img?.getAttribute('src')===exact)continue;current.remove()}
   host.querySelectorAll(':scope > .r53-item-visual').forEach(x=>x.remove());
-  const fig=document.createElement('figure');fig.className='r54-item-visual';fig.dataset.r54VisualBound=key;fig.innerHTML=`<img loading=\"lazy\" alt=\"${name.replace(/[\"<&]/g,'')}\" src=\"${exact}\">`;host.insertBefore(fig,host.firstChild);
+  const fig=document.createElement('figure');fig.className='r54-item-visual';fig.dataset.r54VisualBound=key;fig.innerHTML=`<img loading="lazy" alt="${name.replace(/["<&]/g,'')}" src="${exact}">`;host.insertBefore(fig,host.firstChild);
 '''
 
 count = text.count(old)
