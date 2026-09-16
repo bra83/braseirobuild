@@ -4,8 +4,7 @@ on:
   push:
     branches: [main]
     paths: [".github/workflows/build-star-wars-final-1.0.0.yml", "star-wars/final-1.0.0/SOURCE.json", "STAR_WARS_FINAL_BUILD_TRIGGER.txt"]
-permissions:
-  contents: read
+permissions: {contents: read}
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,7 +13,6 @@ jobs:
       - uses: actions/checkout@v4
       - id: source
         name: Read final source manifest
-        shell: bash
         run: |
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json
@@ -28,10 +26,7 @@ jobs:
           python -m pip install --quiet playwright
           python -m playwright install --with-deps chromium
       - name: Download and verify final ZIP
-        env:
-          SHARE_URL: ${{ steps.source.outputs.source_share_url }}
-          EXPECTED_SHA: ${{ steps.source.outputs.sha256 }}
-          SOURCE_FILE: ${{ steps.source.outputs.file }}
+        env: {SHARE_URL: "${{ steps.source.outputs.source_share_url }}", EXPECTED_SHA: "${{ steps.source.outputs.sha256 }}", SOURCE_FILE: "${{ steps.source.outputs.file }}"}
         run: |
           set -euo pipefail; mkdir -p incoming
           python3 - <<'PY'
@@ -39,9 +34,7 @@ jobs:
           from playwright.sync_api import sync_playwright
           out=pathlib.Path('incoming')/os.environ['SOURCE_FILE']
           with sync_playwright() as p:
-            b=p.chromium.launch(headless=True); page=b.new_page(accept_downloads=True)
-            page.goto(os.environ['SHARE_URL'],wait_until='domcontentloaded',timeout=120000); page.wait_for_timeout(4000)
-            done=False
+            b=p.chromium.launch(headless=True); page=b.new_page(accept_downloads=True); page.goto(os.environ['SHARE_URL'],wait_until='domcontentloaded',timeout=120000); page.wait_for_timeout(4000); done=False
             for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")']:
               try:
                 loc=page.locator(sel).first
@@ -50,51 +43,36 @@ jobs:
                 info.value.save_as(str(out)); done=True; break
               except Exception: pass
             if not done:
-              card=page.get_by_text(os.environ['SOURCE_FILE'],exact=False).first
-              ctrl=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]').locator('a,button').last
+              card=page.get_by_text(os.environ['SOURCE_FILE'],exact=False).first; ctrl=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]').locator('a,button').last
               with page.expect_download(timeout=120000) as info: ctrl.click(timeout=10000)
               info.value.save_as(str(out)); done=True
             b.close()
           if not done or not out.exists(): raise SystemExit('download failed')
           PY
-          echo "${EXPECTED_SHA}  incoming/${SOURCE_FILE}" | sha256sum -c -
-          unzip -t "incoming/${SOURCE_FILE}" >/dev/null
+          echo "${EXPECTED_SHA}  incoming/${SOURCE_FILE}" | sha256sum -c -; unzip -t "incoming/${SOURCE_FILE}" >/dev/null
       - id: project
         name: Extract Android project
         env: {SOURCE_FILE: "${{ steps.source.outputs.file }}"}
         run: |
           set -euo pipefail; rm -rf work; mkdir work; unzip -q "incoming/$SOURCE_FILE" -d work
-          SETTINGS="$(find work -type f \( -name settings.gradle.kts -o -name settings.gradle \) -not -path '*/build/*' | head -n1)"
-          [ -n "$SETTINGS" ] || { echo '::error::settings.gradle not found'; exit 1; }
-          ROOT="$(dirname "$SETTINGS")"; test -f "$ROOT/app/build.gradle.kts" || test -f "$ROOT/app/build.gradle"
-          echo "root=$ROOT" >> "$GITHUB_OUTPUT"; echo "Project root: $ROOT"
+          SETTINGS="$(find work -type f \( -name settings.gradle.kts -o -name settings.gradle \) -not -path '*/build/*' | head -n1)"; test -n "$SETTINGS"
+          ROOT="$(dirname "$SETTINGS")"; test -f "$ROOT/app/build.gradle.kts" || test -f "$ROOT/app/build.gradle"; echo "root=$ROOT" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: '17'}
       - uses: gradle/actions/setup-gradle@v4
         with: {gradle-version: '8.13'}
-      - uses: android-actions/setup-android@v3
-      - name: Install Android SDK 36
+      - name: Verify Android SDK and install platform 36
         run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager 'platform-tools' 'platforms;android-${{ steps.source.outputs.compile_sdk }}'
+          set -euo pipefail
+          echo "ANDROID_HOME=$ANDROID_HOME"; command -v sdkmanager; yes | sdkmanager --licenses >/dev/null || true; sdkmanager 'platform-tools' 'platforms;android-${{ steps.source.outputs.compile_sdk }}'
       - name: Build debug APK
         working-directory: ${{ steps.project.outputs.root }}
         run: gradle :app:assembleDebug --stacktrace --no-daemon
       - name: Validate and stage APK
-        env:
-          ROOT: ${{ steps.project.outputs.root }}
-          EXPECTED_APP_ID: ${{ steps.source.outputs.application_id }}
+        env: {ROOT: "${{ steps.project.outputs.root }}", EXPECTED_APP_ID: "${{ steps.source.outputs.application_id }}"}
         run: |
-          set -euo pipefail; mkdir -p APK_SAIDA
-          APK="$(find "$ROOT/app/build/outputs/apk/debug" -type f -name '*.apk' | head -n1)"; test -f "$APK"
+          set -euo pipefail; mkdir -p APK_SAIDA; APK="$(find "$ROOT/app/build/outputs/apk/debug" -type f -name '*.apk' | head -n1)"; test -f "$APK"
           FINAL='APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_FINAL_1.0.0_DEBUG.apk'; cp "$APK" "$FINAL"; unzip -t "$FINAL" >/dev/null
-          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
-          "$BUILD_TOOLS/aapt" dump badging "$FINAL" | grep -E '^(package:|sdkVersion:|targetSdkVersion:)' | tee APK_SAIDA/info.txt
-          grep -q "package: name='${EXPECTED_APP_ID}'" APK_SAIDA/info.txt
-          sha256sum "$FINAL" | tee APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_FINAL_1.0.0_DEBUG.apk.sha256
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: STAR-WARS-EDGE-OF-THE-GALAXY-FINAL-1.0.0-APK
-          path: APK_SAIDA/*
-          retention-days: 30
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"; "$BUILD_TOOLS/aapt" dump badging "$FINAL" | grep -E '^(package:|sdkVersion:|targetSdkVersion:)' | tee APK_SAIDA/info.txt; grep -q "package: name='${EXPECTED_APP_ID}'" APK_SAIDA/info.txt; sha256sum "$FINAL" | tee APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_FINAL_1.0.0_DEBUG.apk.sha256
+      - uses: actions/upload-artifact@v4
+        with: {name: STAR-WARS-EDGE-OF-THE-GALAXY-FINAL-1.0.0-APK, path: "APK_SAIDA/*", retention-days: 30}
