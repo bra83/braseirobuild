@@ -66,7 +66,7 @@ Resumo: **15 PASS · 2 WARN · 1 FAIL**
 - `27` Ajustes — Interface / acessibilidade: h1=`Interface / acessibilidade` · buttons=12 · broken=0 · overflow=0 · errors=0
 - `28` Ajustes — Narração / voz: h1=`Narração / voz` · buttons=14 · broken=0 · overflow=0 · errors=0
 - `29` Ajustes — Gemini / provedor: h1=`Gemini / provedor` · buttons=19 · broken=0 · overflow=0 · errors=0
-- `30` Ajustes — Dados / diagnóstico: h1=`Dados / diagnóstico` · buttons=79 · broken=0 · overflow=0 · errors=0
+- `30` Ajustes — Dados / diagnóstico: h1=`Dados / diagnóstico` · buttons=80 · broken=0 · overflow=0 · errors=0
 
 ## Botões-chave
 - Menu inferior: `{"CENA": {"found": 1, "target": "00", "ok": true}, "PERSONAGEM": {"found": 1, "target": "06", "ok": true}, "ITENS": {"found": 1, "target": "08", "ok": true}, "NAVE": {"found": 1, "target": "10", "ok": true}, "REGISTROS": {"found": 1, "target": "12", "ok": true}}`
@@ -74,7 +74,7 @@ Resumo: **15 PASS · 2 WARN · 1 FAIL**
 - Dados: `{"found": 1, "overlay": true}`
 - Reiniciar: `{"found": 1, "returned_setup": true}`
 - Progressão: `{"found": 1, "ok": true}`
-- Ajustes: `{"tts": true, "gemini": true, "library": true, "diagnostic": true, "json": false}`
+- Ajustes: `{"tts": true, "gemini": true, "library": true, "diagnostic": true, "json": true}`
 
 ## Arquivos de prova
 - `DEEP_AUDIT.json`: inventário completo de telas, botões, assets, regras e runtime.

@@ -1,3 +1,4 @@
+not ok 23 - R46 usa file picker apenas para os dois imports JSON conhecidos
 not ok 402 - R39 baseline remains present in current additive image-library manifest
 not ok 403 - R39 visual wave3 contains exactly 10 confirmed assets
 not ok 404 - R39 totals add 3 NPC portraits and 7 beasts without changing maps or droids
@@ -44,6 +45,6 @@ not ok 560 - R38: Biblioteca é descoberta por utilidade e atalho de Ajustes
 not ok 670 - catálogo EotE Core cobre 18 especializações e 360 posições de talento
 not ok 671 - API de primeira linha preserva 72 talentos Core e adiciona 4 do Exilado universal
 # tests 752
-# pass 707
-# fail 45
-# duration_ms 73425.394851
+# pass 706
+# fail 46
+# duration_ms 71104.440447
