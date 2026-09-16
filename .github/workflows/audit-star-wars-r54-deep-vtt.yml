@@ -1,0 +1,104 @@
+name: Audit Star Wars R54 Deep VTT
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/audit-star-wars-r54-deep-vtt.yml"]
+permissions: {contents: write}
+jobs:
+  deep-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      PACK_URL: https://firestorage.ai/ja/f/fpHIoZHL9wUf
+      PACK_FILE: STAR_WARS_R54_VISUAL_DATA_PACK.zip
+      PACK_SHA: f18bf92117bf00dfe6641c7ca31c8037904e79ef9816694c4e844099a4307f60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Recover exact R53 baseline and R54 pack
+        run: |
+          set -euo pipefail
+          rm -rf deep-work deep-pack deep-incoming deep-out
+          mkdir -p deep-work deep-pack deep-incoming deep-out
+          unzip -q star-wars/final-1.0.0/output-r53/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R53_REAL_DEVICE_HOTFIX.zip -d deep-work
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium
+          python3 - <<'PY'
+          import os,pathlib
+          from playwright.sync_api import sync_playwright
+          out=pathlib.Path('deep-incoming')/os.environ['PACK_FILE']
+          with sync_playwright() as p:
+            b=p.chromium.launch(headless=True);page=b.new_page(accept_downloads=True)
+            page.goto(os.environ['PACK_URL'],wait_until='domcontentloaded',timeout=120000);page.wait_for_timeout(2000)
+            done=False
+            for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")']:
+              try:
+                loc=page.locator(sel).first
+                if not loc.count() or not loc.is_visible(): continue
+                with page.expect_download(timeout=120000) as info:loc.click(timeout=10000)
+                info.value.save_as(str(out));done=True;break
+              except Exception:pass
+            if not done:
+              card=page.get_by_text(os.environ['PACK_FILE'],exact=False).first
+              ctrl=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]').locator('a,button').last
+              with page.expect_download(timeout=120000) as info:ctrl.click(timeout=10000)
+              info.value.save_as(str(out));done=True
+            b.close()
+          if not done or not out.exists():raise SystemExit('pack download failed')
+          PY
+          echo "$PACK_SHA  deep-incoming/$PACK_FILE" | sha256sum -c -
+          unzip -q "deep-incoming/$PACK_FILE" -d deep-pack
+      - id: root
+        name: Apply exact R54 under audit
+        run: |
+          set -euo pipefail
+          SET="$(find deep-work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"
+          test -n "$SET"; ROOT="$(dirname "$SET")"
+          python3 star-wars/r54/hotfix_r54.py "$ROOT" "$(pwd)/deep-pack"
+          printf '\n.final-start-list button[hidden]{display:none!important}\n' >> "$ROOT/app/src/main/assets/vtt/r46/final-runtime.css"
+          echo "path=$ROOT" >> "$GITHUB_OUTPUT"
+      - name: Run full Node regression again
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set +e
+          cd "$ROOT"
+          node --test tests/*.test.mjs > "$GITHUB_WORKSPACE/deep-out/node-tests.tap" 2>&1
+          echo $? > "$GITHUB_WORKSPACE/deep-out/node-exit.txt"
+          exit 0
+      - name: Run 31-screen assets rules buttons runtime audit
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          cp star-wars/r54/audit_deep_vtt.py /tmp/audit_deep_vtt.py
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/audit_deep_vtt.py')
+          s=p.read_text('utf-8')
+          s=s.replace("ok=(new URL(page.url)).searchParams.get('screen')==target","ok=False")
+          p.write_text(s,encoding='utf-8')
+          PY
+          python3 -m py_compile /tmp/audit_deep_vtt.py
+          python3 -m http.server 8765 --directory "$ROOT/app/src/main/assets/vtt" >/tmp/deep-http.log 2>&1 &
+          PID=$!; trap 'kill $PID || true' EXIT
+          sleep 1
+          python3 /tmp/audit_deep_vtt.py "$ROOT" "$GITHUB_WORKSPACE/deep-out"
+          cat deep-out/DEEP_AUDIT.md
+      - name: Persist deep audit evidence
+        if: always()
+        run: |
+          set -euo pipefail
+          DEST=star-wars/r54/audit
+          mkdir -p "$DEST"
+          [ ! -f deep-out/DEEP_AUDIT.md ] || cp deep-out/DEEP_AUDIT.md "$DEST/DEEP_VTT_AUDIT_2026-09-16.md"
+          [ ! -f deep-out/DEEP_AUDIT.json ] || cp deep-out/DEEP_AUDIT.json "$DEST/DEEP_VTT_AUDIT_2026-09-16.json"
+          if [ -f deep-out/node-tests.tap ]; then
+            grep -E '^# (tests|pass|fail|duration_ms)|^not ok ' deep-out/node-tests.tap > "$DEST/DEEP_NODE_TEST_SUMMARY.txt" || true
+          fi
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add "$DEST"
+          git commit -m 'audit: persist deep Star Wars R54 VTT evidence' || true
+          git pull --rebase origin main
+          git push origin HEAD:main
