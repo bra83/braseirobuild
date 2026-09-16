@@ -24,8 +24,14 @@ with sync_playwright() as p:
   h1=page.locator('h1').first.inner_text() if page.locator('h1').count() else ''
   runtime[route]={'h1':h1,'overflow':page.evaluate('document.documentElement.scrollWidth-window.innerWidth'),'broken':page.locator('img').evaluate_all('xs=>xs.filter(x=>x.complete&&x.naturalWidth===0).length')}
  checks['runtime_routes']=all(v['h1'] and v['overflow']<=2 and v['broken']==0 for v in runtime.values()) and not errors
- # NAVE bottom navigation must really navigate to route 10.
+ # NAVE bottom navigation is blocked by the first-run sandbox modal by design.
+ # Complete that real setup flow, then prove the bottom navigation reaches route 10.
  page.goto(base+'?screen=00',wait_until='networkidle',timeout=120000);page.wait_for_timeout(250)
+ overlay=page.locator('#braseiro-sandbox-setup')
+ if overlay.count() and overlay.is_visible():
+  start=page.locator('#sandbox-start-button').first
+  if start.count():
+   start.click(); page.wait_for_selector('#braseiro-sandbox-setup',state='detached',timeout=10000)
  nav=page.locator('.bottom-nav-button',has_text='NAVE').first
  if nav.count(): nav.click();page.wait_for_timeout(150)
  checks['nav_to_nave']=bool(nav.count() and re.search(r'[?&]screen=10(?:&|$)',page.url))
