@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths: [".github/workflows/build-star-wars-final-1.0.0.yml", "star-wars/final-1.0.0/SOURCE.json", "STAR_WARS_FINAL_BUILD_TRIGGER.txt"]
-permissions: {contents: read}
+permissions: {contents: write}
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,7 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: source
-        name: Read source
         run: |
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json
@@ -47,27 +46,22 @@ jobs:
           PY
           echo "${EXPECTED_SHA}  incoming/${SOURCE_FILE}" | sha256sum -c -; unzip -t "incoming/${SOURCE_FILE}" >/dev/null
       - id: project
-        name: Extract project
-        env: {SOURCE_FILE: "${{ steps.source.outputs.file }}"}
         run: |
-          set -euo pipefail; rm -rf work; mkdir work; unzip -q "incoming/$SOURCE_FILE" -d work; SETTINGS="$(find work -type f \( -name settings.gradle.kts -o -name settings.gradle \) -not -path '*/build/*' | head -n1)"; test -n "$SETTINGS"; ROOT="$(dirname "$SETTINGS")"; echo "root=$ROOT" >> "$GITHUB_OUTPUT"
+          rm -rf work; mkdir work; unzip -q "incoming/${{ steps.source.outputs.file }}" -d work; SETTINGS="$(find work -type f \( -name settings.gradle.kts -o -name settings.gradle \) | head -n1)"; test -n "$SETTINGS"; echo "root=$(dirname "$SETTINGS")" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: '17'}
       - uses: gradle/actions/setup-gradle@v4
         with: {gradle-version: '8.13'}
-      - name: Configure Android SDK 36
+      - name: Configure Android SDK
         run: |
-          set -euo pipefail
-          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"; echo "SDK_ROOT=$SDK_ROOT"; test -d "$SDK_ROOT"
-          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager 2>/dev/null | sort | tail -n1)"; test -x "$SDKMANAGER"
-          yes | "$SDKMANAGER" --licenses >/dev/null || true; "$SDKMANAGER" 'platform-tools' 'platforms;android-${{ steps.source.outputs.compile_sdk }}'
-          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"; echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
-      - name: Build debug APK
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"; SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort | tail -n1)"; yes | "$SDKMANAGER" --licenses >/dev/null || true; "$SDKMANAGER" 'platform-tools' 'platforms;android-36'; echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+      - name: Build APK
         working-directory: ${{ steps.project.outputs.root }}
         run: gradle :app:assembleDebug --stacktrace --no-daemon
       - name: Validate APK
         env: {ROOT: "${{ steps.project.outputs.root }}", EXPECTED_APP_ID: "${{ steps.source.outputs.application_id }}"}
         run: |
-          set -euo pipefail; mkdir -p APK_SAIDA; APK="$(find "$ROOT/app/build/outputs/apk/debug" -type f -name '*.apk' | head -n1)"; test -f "$APK"; FINAL='APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_FINAL_1.0.0_DEBUG.apk'; cp "$APK" "$FINAL"; unzip -t "$FINAL" >/dev/null; BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"; "$BUILD_TOOLS/aapt" dump badging "$FINAL" | grep -E '^(package:|sdkVersion:|targetSdkVersion:)' | tee APK_SAIDA/info.txt; grep -q "package: name='${EXPECTED_APP_ID}'" APK_SAIDA/info.txt; sha256sum "$FINAL" | tee APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_FINAL_1.0.0_DEBUG.apk.sha256
-      - uses: actions/upload-artifact@v4
-        with: {name: STAR-WARS-EDGE-OF-THE-GALAXY-FINAL-1.0.0-APK, path: "APK_SAIDA/*", retention-days: 30}
+          mkdir -p APK_SAIDA; APK="$(find "$ROOT/app/build/outputs/apk/debug" -type f -name '*.apk' | head -n1)"; test -f "$APK"; FINAL='APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_FINAL_1.0.0_DEBUG.apk'; cp "$APK" "$FINAL"; unzip -t "$FINAL" >/dev/null; BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"; "$BUILD_TOOLS/aapt" dump badging "$FINAL" | grep -q "package: name='${EXPECTED_APP_ID}'"; sha256sum "$FINAL" > APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_FINAL_1.0.0_DEBUG.apk.sha256
+      - name: Persist APK in builder repository
+        run: |
+          mkdir -p star-wars/final-1.0.0/output; cp APK_SAIDA/* star-wars/final-1.0.0/output/; git config user.name github-actions; git config user.email github-actions@github.com; git add -f star-wars/final-1.0.0/output/; git commit -m 'build: Star Wars final 1.0.0 APK' || true; git push origin HEAD:main
