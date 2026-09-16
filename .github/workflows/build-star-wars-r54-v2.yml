@@ -1,0 +1,164 @@
+name: Build Star Wars Edge of the Galaxy R54 Device + Assets APK v2
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-star-wars-r54-v2.yml"
+permissions: {contents: write}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      PACK_URL: https://firestorage.ai/ja/f/fpHIoZHL9wUf
+      PACK_FILE: STAR_WARS_R54_VISUAL_DATA_PACK.zip
+      PACK_SHA: f18bf92117bf00dfe6641c7ca31c8037904e79ef9816694c4e844099a4307f60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Recover R53 source and R54 user asset pack
+        run: |
+          set -euo pipefail
+          test -f star-wars/final-1.0.0/output-r53/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R53_REAL_DEVICE_HOTFIX.zip
+          rm -rf work pack incoming && mkdir work pack incoming
+          unzip -q star-wars/final-1.0.0/output-r53/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R53_REAL_DEVICE_HOTFIX.zip -d work
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium
+          python3 - <<'PY'
+          import os,pathlib
+          from playwright.sync_api import sync_playwright
+          out=pathlib.Path('incoming')/os.environ['PACK_FILE']
+          with sync_playwright() as p:
+            b=p.chromium.launch(headless=True);page=b.new_page(accept_downloads=True)
+            page.goto(os.environ['PACK_URL'],wait_until='domcontentloaded',timeout=120000);page.wait_for_timeout(2500)
+            done=False
+            for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")']:
+              try:
+                loc=page.locator(sel).first
+                if not loc.count() or not loc.is_visible(): continue
+                with page.expect_download(timeout=120000) as info: loc.click(timeout=10000)
+                info.value.save_as(str(out));done=True;break
+              except Exception: pass
+            if not done:
+              card=page.get_by_text(os.environ['PACK_FILE'],exact=False).first
+              ctrl=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]').locator('a,button').last
+              with page.expect_download(timeout=120000) as info: ctrl.click(timeout=10000)
+              info.value.save_as(str(out));done=True
+            b.close()
+          if not done or not out.exists(): raise SystemExit('R54 pack download failed')
+          PY
+          echo "$PACK_SHA  incoming/$PACK_FILE" | sha256sum -c -
+          unzip -q "incoming/$PACK_FILE" -d pack
+          test "$(find pack/weapons -type f -name '*.webp' | wc -l)" -ge 30
+          test "$(find pack/equipment -type f -name '*.webp' | wc -l)" -ge 20
+          test -f pack/portraits/twilek_female_blue.webp
+          test -f pack/maps/shantipole_base.webp
+          test -f pack/r54-start-locations.json
+      - id: root
+        name: Apply R54 focused hotfix
+        run: |
+          set -euo pipefail
+          SET="$(find work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"
+          test -n "$SET"; ROOT="$(dirname "$SET")"
+          python3 star-wars/r54/hotfix_r54.py "$ROOT" "$(pwd)/pack"
+          printf '\n.final-start-list button[hidden]{display:none!important}\n' >> "$ROOT/app/src/main/assets/vtt/r46/final-runtime.css"
+          echo "path=$ROOT" >> "$GITHUB_OUTPUT"
+      - name: Static gates
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          V="$ROOT/app/src/main/assets/vtt"; JAVA="$ROOT/app/src/main/java/com/braseiro/starwarsedge"
+          node --check "$V/r46/final-runtime.js"
+          node --check "$V/r46/r46-shell.bundle.js"
+          node --check "$V/js/core/uiBridge.bundle.js"
+          grep -Fq 'systemInsetTop / density' "$JAVA/MainActivity.java"
+          grep -Fq 'openGeminiWithPrompt' "$JAVA/GeminiBridge.java"
+          grep -Fq 'g.openGeminiWithPrompt(prompt)' "$V/r46/final-runtime.js"
+          ! grep -Fq 'g.generateSceneImage(prompt,currentSceneKey())' "$V/r46/final-runtime.js"
+          grep -Fq "localStorage.removeItem('braseiro.starwars.edge.state.v1')" "$V/r46/final-runtime.js"
+          grep -Fq 'twilek_female_blue.webp' "$V/r46/final-runtime.js"
+          grep -Fq 'r54-scene-icon' "$V/r46/final-runtime.js"
+          grep -Fq '.final-start-list button[hidden]{display:none!important}' "$V/r46/final-runtime.css"
+          test "$(find "$V/image-library/local/r54/weapons" -type f -name '*.webp' | wc -l)" -ge 30
+          test "$(find "$V/image-library/local/r54/equipment" -type f -name '*.webp' | wc -l)" -ge 20
+          python3 - "$V" <<'PY'
+          import json,sys
+          from pathlib import Path
+          v=Path(sys.argv[1]);rt=(v/'r46/final-runtime.js').read_text('utf-8')
+          d=json.loads((v/'image-library/local/r54/r54-start-locations.json').read_text('utf-8'))
+          assert len(d)==82,len(d)
+          for n in ['Tatooine','Corellia','Ryloth','Dantooine','Mandalore','Kessel','Shantipole','Lothal']: assert n in rt,n
+          print('STATIC R54 PASS: 82 starts, user visual pack present')
+          PY
+      - name: Browser smoke 415x915
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --directory "$ROOT/app/src/main/assets/vtt" >/tmp/r54-http.log 2>&1 &
+          PID=$!; trap 'kill $PID || true' EXIT
+          python3 - <<'PY'
+          from playwright.sync_api import sync_playwright
+          errors=[]
+          init=r'''
+          window.__r54Prompt='';
+          window.BraseiroGemini={openGeminiWithPrompt:(p)=>{window.__r54Prompt=String(p||'');return JSON.stringify({ok:true,target:'gemini_app'})},getStatus:()=>JSON.stringify({configured:true})};
+          window.confirm=()=>false;
+          '''
+          with sync_playwright() as p:
+            b=p.chromium.launch(headless=True);pg=b.new_page(viewport={'width':415,'height':915});pg.on('pageerror',lambda e:errors.append(str(e)));pg.add_init_script(init)
+            pg.goto('http://127.0.0.1:8765/r46-shell.html?screen=00',wait_until='networkidle',timeout=120000);pg.wait_for_timeout(1000)
+            pg.evaluate("document.documentElement.style.setProperty('--android-safe-top','24px');document.documentElement.style.setProperty('--android-safe-bottom','24px')")
+            assert pg.locator('.bottom-nav-button').count()==5
+            assert pg.locator('.bottom-nav-button:first-child .r54-scene-icon svg').count()==1,'clean scene SVG icon missing'
+            if pg.locator('#braseiro-sandbox-setup').count():
+              assert pg.locator('#sandbox-list button[data-point]').count()==82,pg.locator('#sandbox-list button[data-point]').count()
+              pg.locator('#sandbox-point-search').fill('Shantipole');pg.wait_for_timeout(100)
+              assert pg.locator('#sandbox-list button[data-point]:visible').count()==1,pg.locator('#sandbox-list button[data-point]:visible').count()
+            if pg.locator('.final-scene-gemini button').count():
+              pg.locator('.final-scene-gemini button').click();pg.wait_for_timeout(100)
+              prompt=pg.evaluate('window.__r54Prompt')
+              assert len(prompt)>80 and 'Não coloque texto' in prompt,prompt[:200]
+            safe=pg.evaluate("parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--android-safe-top'))")
+            assert safe==24,safe
+            assert not errors,errors
+            b.close()
+          print('R54 browser smoke PASS')
+          PY
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+          validate-wrappers: false
+      - name: Configure Android SDK 36
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort | tail -n1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platform-tools' 'platforms;android-36'
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+      - name: Build R54 APK
+        working-directory: ${{ steps.root.outputs.path }}
+        run: gradle :app:assembleDebug --stacktrace --no-daemon
+      - name: Validate and persist R54
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          OUT=star-wars/final-1.0.0/output-r54; rm -rf "$OUT"; mkdir -p "$OUT"
+          APK="$(find "$ROOT/app/build/outputs/apk/debug" -type f -name '*.apk' | head -n1)"; test -f "$APK"
+          DEST="$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_ASSETS_HOTFIX_DEBUG.apk"
+          cp "$APK" "$DEST"; unzip -t "$DEST" >/dev/null
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
+          "$BUILD_TOOLS/aapt" dump badging "$DEST" | tee "$OUT/info.txt"
+          grep -q "package: name='com.braseiro.starwarsedge'" "$OUT/info.txt"
+          sha256sum "$DEST" | tee "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_ASSETS_HOTFIX_DEBUG.apk.sha256"
+          (cd "$ROOT" && zip -qr "$GITHUB_WORKSPACE/$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" . -x '*/build/*' '.gradle/*')
+          sha256sum "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" | tee "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip.sha256"
+          git config user.name github-actions;git config user.email github-actions@github.com
+          git add -f "$OUT"
+          git commit -m 'build: Star Wars R54 device and visual asset hotfix v2' || true
+          git pull --rebase origin main
+          git push origin HEAD:main
