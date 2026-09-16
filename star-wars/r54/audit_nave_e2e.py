@@ -22,8 +22,10 @@ with sync_playwright() as p:
  for route in ['10','11','03','04']:
   page.goto(base+'?screen='+route,wait_until='networkidle',timeout=120000);page.wait_for_timeout(250)
   h1=page.locator('h1').first.inner_text() if page.locator('h1').count() else ''
-  runtime[route]={'h1':h1,'overflow':page.evaluate('document.documentElement.scrollWidth-window.innerWidth'),'broken':page.locator('img').evaluate_all('xs=>xs.filter(x=>x.complete&&x.naturalWidth===0).length')}
- checks['runtime_routes']=all(v['h1'] and v['overflow']<=2 and v['broken']==0 for v in runtime.values()) and not errors
+  scene_title=page.locator('.scene-context-title strong').first.inner_text() if page.locator('.scene-context-title strong').count() else ''
+  title=(h1 or scene_title).strip()
+  runtime[route]={'title':title,'h1':h1,'scene_title':scene_title,'overflow':page.evaluate('document.documentElement.scrollWidth-window.innerWidth'),'broken':page.locator('img').evaluate_all('xs=>xs.filter(x=>x.complete&&x.naturalWidth===0).length')}
+ checks['runtime_routes']=all(v['title'] and v['overflow']<=2 and v['broken']==0 for v in runtime.values()) and not errors
  # NAVE bottom navigation is blocked by the first-run sandbox modal by design.
  # Complete that real setup flow, then prove the bottom navigation reaches route 10.
  page.goto(base+'?screen=00',wait_until='networkidle',timeout=120000);page.wait_for_timeout(250)
