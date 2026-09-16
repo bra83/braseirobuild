@@ -1,0 +1,150 @@
+name: Audit Star Wars Edge of the Galaxy R54 Complete
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/audit-star-wars-r54-complete.yml"
+permissions: {contents: write}
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      PACK_URL: https://firestorage.ai/ja/f/fpHIoZHL9wUf
+      PACK_FILE: STAR_WARS_R54_VISUAL_DATA_PACK.zip
+      PACK_SHA: f18bf92117bf00dfe6641c7ca31c8037904e79ef9816694c4e844099a4307f60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+
+      - name: Recover baseline and visual pack
+        run: |
+          set -euo pipefail
+          rm -rf audit-work audit-pack audit-incoming audit-out
+          mkdir -p audit-work audit-pack audit-incoming audit-out
+          test -f star-wars/final-1.0.0/output-r53/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R53_REAL_DEVICE_HOTFIX.zip
+          unzip -q star-wars/final-1.0.0/output-r53/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R53_REAL_DEVICE_HOTFIX.zip -d audit-work
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium
+          python3 - <<'PY'
+          import os,pathlib
+          from playwright.sync_api import sync_playwright
+          out=pathlib.Path('audit-incoming')/os.environ['PACK_FILE']
+          with sync_playwright() as p:
+            b=p.chromium.launch(headless=True); page=b.new_page(accept_downloads=True)
+            page.goto(os.environ['PACK_URL'],wait_until='domcontentloaded',timeout=120000); page.wait_for_timeout(2500)
+            done=False
+            for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")']:
+              try:
+                loc=page.locator(sel).first
+                if not loc.count() or not loc.is_visible(): continue
+                with page.expect_download(timeout=120000) as info: loc.click(timeout=10000)
+                info.value.save_as(str(out)); done=True; break
+              except Exception: pass
+            if not done:
+              card=page.get_by_text(os.environ['PACK_FILE'],exact=False).first
+              ctrl=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]').locator('a,button').last
+              with page.expect_download(timeout=120000) as info: ctrl.click(timeout=10000)
+              info.value.save_as(str(out)); done=True
+            b.close()
+          if not done or not out.exists(): raise SystemExit('R54 pack download failed')
+          PY
+          echo "$PACK_SHA  audit-incoming/$PACK_FILE" | sha256sum -c -
+          unzip -q "audit-incoming/$PACK_FILE" -d audit-pack
+
+      - id: root
+        name: Apply exact current R54 hotfix
+        run: |
+          set -euo pipefail
+          python3 -m py_compile star-wars/r54/audit_complete.py star-wars/r54/hotfix_r54.py
+          SET="$(find audit-work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"
+          test -n "$SET"; ROOT="$(dirname "$SET")"
+          python3 star-wars/r54/hotfix_r54.py "$ROOT" "$(pwd)/audit-pack"
+          printf '\n.final-start-list button[hidden]{display:none!important}\n' >> "$ROOT/app/src/main/assets/vtt/r46/final-runtime.css"
+          echo "path=$ROOT" >> "$GITHUB_OUTPUT"
+
+      - name: Run complete Node regression suite
+        id: node
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set +e
+          cd "$ROOT"
+          node --test tests/*.test.mjs > "$GITHUB_WORKSPACE/audit-out/node-tests.tap" 2>&1
+          CODE=$?
+          echo "$CODE" > "$GITHUB_WORKSPACE/audit-out/node-exit.txt"
+          echo "exit=$CODE" >> "$GITHUB_OUTPUT"
+          tail -n 80 "$GITHUB_WORKSPACE/audit-out/node-tests.tap" || true
+          exit 0
+
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+          validate-wrappers: false
+
+      - name: Configure Android SDK 36
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort | tail -n1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platform-tools' 'platforms;android-36'
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+
+      - name: Compile Android project
+        id: android
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set +e
+          cd "$ROOT"
+          gradle :app:assembleDebug --stacktrace --no-daemon > "$GITHUB_WORKSPACE/audit-out/android-build.log" 2>&1
+          CODE=$?
+          echo "$CODE" > "$GITHUB_WORKSPACE/audit-out/android-exit.txt"
+          echo "exit=$CODE" >> "$GITHUB_OUTPUT"
+          tail -n 100 "$GITHUB_WORKSPACE/audit-out/android-build.log" || true
+          exit 0
+
+      - name: Run static + 415x915 + 360x800 end-to-end audit
+        env:
+          ROOT: "${{ steps.root.outputs.path }}"
+          ANDROID_EXIT: "${{ steps.android.outputs.exit }}"
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --directory "$ROOT/app/src/main/assets/vtt" >/tmp/r54-audit-http.log 2>&1 &
+          PID=$!; trap 'kill $PID || true' EXIT
+          sleep 1
+          python3 star-wars/r54/audit_complete.py "$ROOT" "$GITHUB_WORKSPACE/audit-out" "$GITHUB_WORKSPACE/audit-out/node-tests.tap" "$ANDROID_EXIT"
+          cat audit-out/FULL_AUDIT.md
+
+      - name: Persist audit report
+        if: always()
+        run: |
+          set -euo pipefail
+          DEST=star-wars/r54/audit
+          mkdir -p "$DEST"
+          if [ -f audit-out/FULL_AUDIT.md ]; then cp audit-out/FULL_AUDIT.md "$DEST/FULL_AUDIT_2026-09-16.md"; fi
+          if [ -f audit-out/FULL_AUDIT.json ]; then cp audit-out/FULL_AUDIT.json "$DEST/FULL_AUDIT_2026-09-16.json"; fi
+          if [ -f audit-out/opening-narration.txt ]; then cp audit-out/opening-narration.txt "$DEST/OPENING_NARRATION_ACTUAL.txt"; fi
+          if [ -f audit-out/node-tests.tap ]; then
+            python3 - <<'PY'
+          from pathlib import Path
+          src=Path('audit-out/node-tests.tap')
+          if src.exists():
+              text=src.read_text(encoding='utf-8',errors='replace')
+              fails=[ln for ln in text.splitlines() if ln.startswith('not ok ')]
+              summary=[ln for ln in text.splitlines() if ln.startswith('# tests ') or ln.startswith('# pass ') or ln.startswith('# fail ') or ln.startswith('# duration_ms ')]
+              Path('star-wars/r54/audit/NODE_TEST_SUMMARY.txt').write_text('\n'.join(summary+['']+fails[:100])+'\n',encoding='utf-8')
+          PY
+          fi
+          if [ -f audit-out/android-build.log ]; then tail -n 120 audit-out/android-build.log > "$DEST/ANDROID_BUILD_TAIL.txt"; fi
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add "$DEST"
+          git commit -m 'audit: Star Wars R54 complete runtime and narrative report' || true
+          git pull --rebase origin main
+          git push origin HEAD:main
