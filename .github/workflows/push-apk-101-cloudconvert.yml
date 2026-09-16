@@ -1,0 +1,31 @@
+name: Push Braseiro APK 1.0.1 to Transfer Session
+
+on:
+  push:
+    branches: [fichas-final-20260916]
+    paths:
+      - ".github/workflows/push-apk-101-cloudconvert.yml"
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validar e enviar APK 1.0.1
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="deliverables/fichas-1.0.1-ui-fix/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.1-ui-fix-debug.apk"
+          test -f "$APK"
+          echo "72e5dc7aace36147482f56f8528cfd2695bcb9177f6110c2291b9fac682b4746  $APK" | sha256sum -c -
+          curl --fail --show-error --silent \
+            -X POST "https://eu-central.storage.cloudconvert.com/tasks" \
+            -F "acl=private" \
+            -F "key=e9540a24-10ea-4781-9b6b-80ca331c628f/${filename}" \
+            -F "success_action_status=201" \
+            -F "X-Amz-Credential=cloudconvert-production/20260916/fra/s3/aws4_request" \
+            -F "X-Amz-Algorithm=AWS4-HMAC-SHA256" \
+            -F "X-Amz-Date=20260916T055701Z" \
+            -F "Policy=eyJleHBpcmF0aW9uIjoiMjAyNi0wOS0xNlQxNzo1NzowMVoiLCJjb25kaXRpb25zIjpbeyJhY2wiOiJwcml2YXRlIn0seyJidWNrZXQiOiJ0YXNrcyJ9LFsic3RhcnRzLXdpdGgiLCIka2V5IiwiZTk1NDBhMjQtMTBlYS00NzgxLTliNmItODBjYTMzMWM2MjhmXC8iXSx7InN1Y2Nlc3NfYWN0aW9uX3N0YXR1cyI6IjIwMSJ9LHsiWC1BbXotRGF0ZSI6IjIwMjYwOTE2VDA1NTcwMVoifSx7IlgtQW16LUNyZWRlbnRpYWwiOiJjbG91ZGNvbnZlcnQtcHJvZHVjdGlvblwvMjAyNjA5MTZcL2ZyYVwvczNcL2F3czRfcmVxdWVzdCJ9LHsiWC1BbXotQWxnb3JpdGhtIjoiQVdTNC1ITUFDLVNIQTI1NiJ9XX0=" \
+            -F "X-Amz-Signature=9657598a892cf8a55ccf1e1f65194dbcb9a993e942c41720c4d5963720cbca2e" \
+            -F "file=@$APK;type=application/vnd.android.package-archive;filename=BRASEIRO_FICHAS_MULTISSISTEMA-1.0.1-ui-fix-debug.apk"
