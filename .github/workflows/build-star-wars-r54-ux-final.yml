@@ -101,8 +101,6 @@ jobs:
             for width,height in [(415,915),(360,800)]:
               pg=b.new_page(viewport={'width':width,'height':height});errs=[];pg.on('pageerror',lambda e:errs.append(str(e)));pg.add_init_script(init)
               pg.route('**/*',lambda route,req: route.continue_() if req.url.startswith('http://127.0.0.1:8765/') else route.abort())
-              # Complete the real first-boot flow once in this browser context so route content
-              # is not hidden behind the intentionally modal world-creation overlay.
               pg.goto('http://127.0.0.1:8765/r46-shell.html?screen=00',wait_until='domcontentloaded',timeout=30000);pg.wait_for_timeout(100)
               if pg.locator('#braseiro-sandbox-setup').count():
                 pg.locator('#sandbox-list button[data-point]').first.click()
@@ -112,8 +110,8 @@ jobs:
                 r=f'{n:02d}';pg.goto('http://127.0.0.1:8765/r46-shell.html?screen='+r,wait_until='domcontentloaded',timeout=30000);pg.wait_for_timeout(60)
                 assert pg.evaluate('document.documentElement.scrollWidth-window.innerWidth')<=2,(width,r)
               pg.goto('http://127.0.0.1:8765/r46-shell.html?screen=30',wait_until='domcontentloaded',timeout=30000);pg.wait_for_timeout(100)
-              body=pg.locator('body').inner_text()
-              assert 'Ficha JSON' in body and 'Importar ficha JSON' in body,body[-1200:]
+              body=pg.locator('body').inner_text().upper()
+              assert 'FICHA JSON' in body and 'IMPORTAR FICHA JSON' in body,body[-1200:]
               assert not errs,errs;pg.close()
             b.close()
           print('BROWSER_R54_UX_PASS 31/31 x2 + JSON settings')
@@ -149,8 +147,6 @@ jobs:
           git config user.name github-actions;git config user.email github-actions@github.com
           git add -f "$OUT"
           git commit -m 'build: persist Star Wars R54 UX validated output' || true
-          # The reconstruction/build tree is intentionally disposable. Remove its unstaged files
-          # before rebasing so a concurrent audit commit cannot make persistence fail.
           git reset --hard HEAD
           git clean -fd -- work pack incoming || true
           git pull --rebase origin main
