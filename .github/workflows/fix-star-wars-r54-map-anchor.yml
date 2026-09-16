@@ -1,0 +1,42 @@
+name: Fix Star Wars R54 map anchor
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/fix-star-wars-r54-map-anchor.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wire selected x/y into startMapPoint
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('star-wars/r54/hotfix_r54.py')
+          s=p.read_text(encoding='utf-8')
+          old="rt=rt.replace(\"const r=bridgeResult('initializeLivingSandbox',{startingPoint:point,regionLabel:`Região de ${point}`});\", \"const chosen=START_POINTS[pointIndex];const r=bridgeResult('initializeLivingSandbox',{startingPoint:point,regionLabel:chosen.region||`Região de ${point}`});\",1)"
+          new="rt=rt.replace(\"const r=bridgeResult('initializeLivingSandbox',{startingPoint:point,regionLabel:`Região de ${point}`});\", \"const chosen=START_POINTS[pointIndex];const r=bridgeResult('initializeLivingSandbox',{startingPoint:point,regionLabel:chosen.region||`Região de ${point}`,startMapPoint:{x:chosen.x,y:chosen.y}});\",1)"
+          if old not in s:
+              if new in s:
+                  print('map anchor already patched')
+              else:
+                  raise SystemExit('expected R54 initializeLivingSandbox replacement not found')
+          else:
+              p.write_text(s.replace(old,new,1),encoding='utf-8')
+          PY
+          python3 -m py_compile star-wars/r54/hotfix_r54.py
+          grep -F 'startMapPoint:{x:chosen.x,y:chosen.y}' star-wars/r54/hotfix_r54.py
+      - name: Commit correction
+        run: |
+          set -euo pipefail
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add star-wars/r54/hotfix_r54.py
+          git commit -m 'fix: persist selected R54 galactic start coordinates' || exit 0
+          git pull --rebase origin main
+          git push origin HEAD:main
