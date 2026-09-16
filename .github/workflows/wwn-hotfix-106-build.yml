@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: wwn-hotfix-106
+  cancel-in-progress: true
+
 jobs:
   hotfix-build:
     runs-on: ubuntu-latest
@@ -55,7 +59,8 @@ jobs:
 
           rag=Path('app/src/main/java/com/braseiro/wwn/bridge/RagRuntime.kt')
           s=rag.read_text(encoding='utf-8')
-          s=s.replace('import java.io.FileOutputStream\n','import java.io.FileOutputStream\nimport java.io.FileInputStream\n',1)
+          if 'import java.io.FileInputStream\n' not in s:
+              s=s.replace('import java.io.FileOutputStream\n','import java.io.FileOutputStream\nimport java.io.FileInputStream\n',1)
           old='''        val profile = normalizeProfile(requestedAuthorityProfile)\n        val temp = File.createTempFile("wwn-rag-", ".pdf", context.cacheDir)\n        return try {\n            val digest = MessageDigest.getInstance("SHA-256"); var total = 0L\n            context.contentResolver.openInputStream(uri)?.use { input -> FileOutputStream(temp).use { output ->\n                val buf = ByteArray(64 * 1024); while (true) { val n = input.read(buf); if (n < 0) break; total += n; require(total <= MAX_PDF_BYTES) { "PDF too large" }; digest.update(buf, 0, n); output.write(buf, 0, n) }\n            } } ?: throw IllegalStateException("Unable to read selected PDF")'''
           new='''        val profile = normalizeProfile(requestedAuthorityProfile)\n        val importDir = File(context.cacheDir, "rag-import").apply { require(exists() || mkdirs()) { "Cannot create PDF import cache" } }\n        val temp = File.createTempFile("wwn-rag-", ".pdf", importDir)\n        return try {\n            val digest = MessageDigest.getInstance("SHA-256"); var total = 0L\n            fun copySource(input: java.io.InputStream) {\n                total = 0L; digest.reset()\n                FileOutputStream(temp, false).use { output ->\n                    val buf = ByteArray(64 * 1024)\n                    while (true) { val n = input.read(buf); if (n < 0) break; total += n; require(total <= MAX_PDF_BYTES) { "PDF too large" }; digest.update(buf, 0, n); output.write(buf, 0, n) }\n                }\n            }\n            var opened = false\n            try { context.contentResolver.openInputStream(uri)?.use { copySource(it); opened = true } } catch (_: java.io.FileNotFoundException) { }\n            if (!opened) {\n                context.contentResolver.openFileDescriptor(uri, "r")?.use { descriptor -> FileInputStream(descriptor.fileDescriptor).use { copySource(it); opened = true } }\n            }\n            require(opened) { "Não foi possível abrir o PDF selecionado. Se ele estiver na nuvem, baixe-o no aparelho e tente novamente." }'''
           assert old in s, 'RAG PDF copy anchor not found'
@@ -64,14 +69,19 @@ jobs:
           gradle=Path('app/build.gradle.kts')
           s=gradle.read_text(encoding='utf-8')
           old='versionCode = 105; versionName = "1.0.5"'
-          assert old in s, 'version anchor not found'
-          gradle.write_text(s.replace(old,'versionCode = 106; versionName = "1.0.6"',1),encoding='utf-8')
+          if old in s: s=s.replace(old,'versionCode = 106; versionName = "1.0.6"',1)
+          assert 'versionCode = 106; versionName = "1.0.6"' in s
+          gradle.write_text(s,encoding='utf-8')
           PY
 
-      - name: Verify WWN QA
+      - name: Verify WWN QA in clean tree
         shell: bash
         run: |
           set -euo pipefail
+          rm -rf /tmp/wwn-qa-clean
+          mkdir -p /tmp/wwn-qa-clean
+          rsync -a ./ /tmp/wwn-qa-clean/ --exclude='.git/' --exclude='.github/' --exclude='delivery/' --exclude='.gradle/' --exclude='.idea/' --exclude='**/build/'
+          cd /tmp/wwn-qa-clean
           count=0
           for test in qa/*.mjs; do
             node "$test"
@@ -103,6 +113,7 @@ jobs:
           chmod +x gradlew
           ./gradlew testDebugUnitTest assembleDebug --no-daemon --stacktrace
           test -f app/build/outputs/apk/debug/app-debug.apk
+          ls -lh app/build/outputs/apk/debug/app-debug.apk
 
       - name: Publish source ZIP and APK
         shell: bash
@@ -123,13 +134,13 @@ jobs:
 
           - Application ID: `com.braseiro.wwn`
           - Version: `1.0.6` (`versionCode 106`)
-          - Hotfix: long/sensory Barbara narration on scene openings, arrivals, exploration and travel encounters
-          - Hotfix: map travel is routed back into Jornada narration instead of allowing silent chain-travel
-          - Hotfix: visible character creation/random-generation controls and PT-BR choice labels
-          - Hotfix: labeled PV/Tensão bars and horizontal full POI labels
-          - Hotfix: Android image/text share target for Gemini and other apps
-          - Hotfix: inventory/market illustrated item thumbnails
-          - Hotfix: more robust PDF import with local cache and file-descriptor fallback
+          - Long/sensory Barbara narration on scene openings, arrivals, exploration and travel encounters
+          - Map travel routes back into Jornada narration instead of silent chain-travel
+          - Visible character creation/random-generation controls and PT-BR choice labels
+          - Labeled PV/Tensão bars and horizontal full POI labels
+          - Android image/text share target for Gemini and other apps
+          - Inventory/market illustrated item thumbnails
+          - More robust PDF import with local cache and file-descriptor fallback
           EOF
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
