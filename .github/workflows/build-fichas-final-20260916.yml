@@ -1,4 +1,4 @@
-name: Build Braseiro Fichas Final 2026-09-16
+name: Build Braseiro Fichas UI Hotfix 1.0.1
 
 on:
   push:
@@ -15,9 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      SOURCE_URL: "https://firestorage.ai/ja/f/FamlbFgCpuKz"
-      SOURCE_SHA256: "a7ce356b8c478aa7c60af6a7dae2f8482b3e71f5e3feb9d1e1fbfd5b294c3bd1"
-      SOURCE_NAME: "BRASEIRO_FICHAS_MULTISSISTEMA_ANDROID_STUDIO_FINAL_2026-09-16.zip"
+      SOURCE_URL: "https://firestorage.ai/ja/f/lj4nioP5sJSH"
+      SOURCE_SHA256: "4c0122f02bee0c730514c6f4b6509a62e515d882ce6d428e148d03dca2f20072"
+      SOURCE_NAME: "BRASEIRO_FICHAS_MULTISSISTEMA_ANDROID_STUDIO_UI_HOTFIX_1.0.1_2026-09-16.zip"
 
     steps:
       - name: Checkout build repo
@@ -92,6 +92,13 @@ jobs:
           test -f "$ROOT/app/build.gradle.kts" -o -f "$ROOT/app/build.gradle"
           echo "ANDROID_PROJECT_ROOT=$ROOT" >> "$GITHUB_ENV"
 
+      - name: Rodar gate cumulativo antes do Android build
+        working-directory: ${{ env.ANDROID_PROJECT_ROOT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/*.test.js
+
       - name: Configurar Java 17
         uses: actions/setup-java@v4
         with:
@@ -139,13 +146,13 @@ jobs:
           test -f "$APK"
           OUT="$GITHUB_WORKSPACE/deliverables/fichas-final-20260916"
           mkdir -p "$OUT"
-          unzip -t "$APK" > "$OUT/unzip-apk.txt"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee "$OUT/aapt.txt"
-          grep -q "package: name='com.braseiro.fichas' versionCode='1' versionName='1.0.0'" "$OUT/aapt.txt"
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee "$OUT/apksigner.txt"
-          cp "$APK" "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.0-final-debug.apk"
-          sha256sum "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.0-final-debug.apk" | tee "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.0-final-debug.apk.sha256"
-          echo "$SOURCE_SHA256  $SOURCE_NAME" > "$OUT/source-project.sha256"
+          unzip -t "$APK" > "$OUT/unzip-apk-1.0.1.txt"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee "$OUT/aapt-1.0.1.txt"
+          grep -q "package: name='com.braseiro.fichas' versionCode='2' versionName='1.0.1'" "$OUT/aapt-1.0.1.txt"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee "$OUT/apksigner-1.0.1.txt"
+          cp "$APK" "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.1-ui-hotfix-debug.apk"
+          sha256sum "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.1-ui-hotfix-debug.apk" | tee "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.1-ui-hotfix-debug.apk.sha256"
+          echo "$SOURCE_SHA256  $SOURCE_NAME" > "$OUT/source-project-1.0.1.sha256"
 
       - name: Publicar APK na branch isolada
         shell: bash
@@ -154,5 +161,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f deliverables/fichas-final-20260916
-          git commit -m "build: publish Braseiro Fichas 1.0.0 APK"
+          git commit -m "build: publish Braseiro Fichas 1.0.1 UI hotfix"
           git push origin HEAD:fichas-final-20260916
