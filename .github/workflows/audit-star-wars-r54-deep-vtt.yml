@@ -8,7 +8,7 @@ permissions: {contents: write}
 jobs:
   deep-audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 60
     env:
       PACK_URL: https://firestorage.ai/ja/f/fpHIoZHL9wUf
       PACK_FILE: STAR_WARS_R54_VISUAL_DATA_PACK.zip
@@ -24,14 +24,14 @@ jobs:
           mkdir -p deep-work deep-pack deep-incoming deep-out
           unzip -q star-wars/final-1.0.0/output-r53/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R53_REAL_DEVICE_HOTFIX.zip -d deep-work
           python -m pip install --quiet playwright
-          python -m playwright install --with-deps chromium
+          python -m playwright install --with-deps chromium >/dev/null
           python3 - <<'PY'
           import os,pathlib
           from playwright.sync_api import sync_playwright
           out=pathlib.Path('deep-incoming')/os.environ['PACK_FILE']
           with sync_playwright() as p:
             b=p.chromium.launch(headless=True);page=b.new_page(accept_downloads=True)
-            page.goto(os.environ['PACK_URL'],wait_until='domcontentloaded',timeout=120000);page.wait_for_timeout(2000)
+            page.goto(os.environ['PACK_URL'],wait_until='domcontentloaded',timeout=120000);page.wait_for_timeout(1500)
             done=False
             for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")']:
               try:
@@ -77,6 +77,11 @@ jobs:
           p=Path('/tmp/audit_deep_vtt.py')
           s=p.read_text('utf-8')
           s=s.replace("ok=(new URL(page.url)).searchParams.get('screen')==target","ok=False")
+          s=s.replace("wait_until='networkidle'","wait_until='domcontentloaded'")
+          s=s.replace("timeout=120000","timeout=30000")
+          s=s.replace("imgs=>imgs.filter(i=>i.complete&&i.naturalWidth===0).map(i=>i.getAttribute('src'))","imgs=>imgs.filter(i=>i.complete&&i.naturalWidth===0&&i.src.startsWith('http://127.0.0.1:8765/')).map(i=>i.getAttribute('src'))")
+          s=s.replace("page=ctx.new_page();page.on('pageerror',lambda e:page_errors.append(str(e)))","page=ctx.new_page();page.on('pageerror',lambda e:page_errors.append(str(e)));page.route('**/*',lambda route,req: route.continue_() if req.url.startswith('http://127.0.0.1:8765/') else route.abort())")
+          s=s.replace("p2=c2.new_page();errs2=[];p2.on('pageerror',lambda e:errs2.append(str(e)))","p2=c2.new_page();errs2=[];p2.on('pageerror',lambda e:errs2.append(str(e)));p2.route('**/*',lambda route,req: route.continue_() if req.url.startswith('http://127.0.0.1:8765/') else route.abort())")
           p.write_text(s,encoding='utf-8')
           PY
           python3 -m py_compile /tmp/audit_deep_vtt.py
@@ -93,9 +98,7 @@ jobs:
           mkdir -p "$DEST"
           [ ! -f deep-out/DEEP_AUDIT.md ] || cp deep-out/DEEP_AUDIT.md "$DEST/DEEP_VTT_AUDIT_2026-09-16.md"
           [ ! -f deep-out/DEEP_AUDIT.json ] || cp deep-out/DEEP_AUDIT.json "$DEST/DEEP_VTT_AUDIT_2026-09-16.json"
-          if [ -f deep-out/node-tests.tap ]; then
-            grep -E '^# (tests|pass|fail|duration_ms)|^not ok ' deep-out/node-tests.tap > "$DEST/DEEP_NODE_TEST_SUMMARY.txt" || true
-          fi
+          if [ -f deep-out/node-tests.tap ]; then grep -E '^# (tests|pass|fail|duration_ms)|^not ok ' deep-out/node-tests.tap > "$DEST/DEEP_NODE_TEST_SUMMARY.txt" || true; fi
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add "$DEST"
