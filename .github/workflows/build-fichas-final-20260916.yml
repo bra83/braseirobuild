@@ -40,58 +40,36 @@ jobs:
         run: |
           set -euo pipefail
           cat > "$RUNNER_TEMP/download-firestorage.cjs" <<'JS'
-          const fs = require('fs');
           const path = require('path');
           const { chromium } = require(path.join(process.env.BROWSER_DIR, 'node_modules', 'playwright'));
-
           (async () => {
             const out = path.join(process.env.RUNNER_TEMP, process.env.SOURCE_NAME);
             const browser = await chromium.launch({headless:true});
             const context = await browser.newContext({acceptDownloads:true});
             const page = await context.newPage();
-            page.on('console', m => console.log('[page]', m.type(), m.text()));
-            page.on('pageerror', e => console.log('[pageerror]', e.message));
             await page.goto(process.env.SOURCE_URL, {waitUntil:'domcontentloaded', timeout:60000});
             await page.waitForTimeout(7000);
-            console.log('URL:', page.url());
-            console.log('BODY:', (await page.locator('body').innerText()).slice(0,6000));
-
-            const candidates = [
+            const controls = [
               page.getByRole('button', {name:/ダウンロード|download/i}),
               page.getByRole('link', {name:/ダウンロード|download/i}),
               page.locator('button').filter({hasText:/ダウンロード|download/i}),
               page.locator('a').filter({hasText:/ダウンロード|download/i})
             ];
-            let saved = false;
-            for (const loc of candidates) {
-              const count = await loc.count();
-              for (let i=0; i<count && !saved; i++) {
-                const el = loc.nth(i);
+            let saved=false;
+            for (const loc of controls) {
+              for (let i=0;i<await loc.count() && !saved;i++) {
+                const el=loc.nth(i);
                 if (!(await el.isVisible().catch(()=>false))) continue;
-                console.log('Trying download control:', await el.innerText().catch(()=>''));
-                const downloadPromise = page.waitForEvent('download', {timeout:30000}).catch(()=>null);
-                await el.click({timeout:15000}).catch(async e => {
-                  console.log('normal click failed:', e.message);
-                  await el.click({force:true, timeout:10000});
-                });
-                const download = await downloadPromise;
-                if (download) {
-                  console.log('Suggested filename:', download.suggestedFilename());
-                  await download.saveAs(out);
-                  saved = true;
-                } else {
-                  await page.waitForTimeout(3000);
-                }
+                const p=page.waitForEvent('download',{timeout:30000}).catch(()=>null);
+                await el.click({timeout:15000}).catch(()=>el.click({force:true,timeout:10000}));
+                const d=await p;
+                if (d) { await d.saveAs(out); saved=true; }
               }
               if (saved) break;
             }
-            if (!saved) {
-              const anchors = await page.locator('a').evaluateAll(as => as.map(a => ({text:a.innerText,href:a.href})).filter(x => x.href));
-              console.log('ANCHORS:', JSON.stringify(anchors.slice(0,80), null, 2));
-              throw new Error('Nenhum download foi capturado pelo navegador');
-            }
             await browser.close();
-          })().catch(e => { console.error(e); process.exit(2); });
+            if (!saved) throw new Error('Download do checkpoint não foi capturado');
+          })().catch(e=>{console.error(e);process.exit(2)});
           JS
           node "$RUNNER_TEMP/download-firestorage.cjs"
           ZIP="$RUNNER_TEMP/$SOURCE_NAME"
@@ -121,15 +99,28 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Configurar Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Usar Android SDK preinstalado do runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}"
+          SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          test -x "$SDKMANAGER"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "$SDK_ROOT/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
+          echo "SDKMANAGER=$SDKMANAGER" >> "$GITHUB_ENV"
+          "$SDKMANAGER" --version
 
       - name: Instalar Android 35
         shell: bash
         run: |
           set -euo pipefail
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          test -x "$ANDROID_HOME/build-tools/35.0.0/aapt"
+          test -x "$ANDROID_HOME/build-tools/35.0.0/apksigner"
 
       - name: Configurar cache Gradle
         uses: gradle/actions/setup-gradle@v4
