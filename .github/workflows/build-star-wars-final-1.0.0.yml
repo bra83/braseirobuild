@@ -1,9 +1,9 @@
-name: Build Star Wars Edge of the Galaxy R52 UI Native Hotfix APK
+name: Build Star Wars Edge of the Galaxy R53 Real Device Hotfix APK
 on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [".github/workflows/build-star-wars-final-1.0.0.yml", "STAR_WARS_R52_BUILD_TRIGGER.txt"]
+    paths: [".github/workflows/build-star-wars-final-1.0.0.yml", "star-wars/r53/hotfix_r53.py", "STAR_WARS_R53_BUILD_TRIGGER.txt"]
 permissions: {contents: write}
 jobs:
   build:
@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: '3.12'}
-      - name: Download canonical R38 and R51 overlay
+      - name: Download canonical R38 and R51 content overlay
         run: |
           set -euo pipefail
           python -m pip install --quiet playwright
@@ -35,7 +35,7 @@ jobs:
             for uk,fk in pairs:
               url=os.environ[uk]; fn=os.environ[fk]; out=pathlib.Path('incoming')/fn
               page=b.new_page(accept_downloads=True)
-              page.goto(url,wait_until='domcontentloaded',timeout=120000); page.wait_for_timeout(3500)
+              page.goto(url,wait_until='domcontentloaded',timeout=120000); page.wait_for_timeout(3000)
               done=False
               for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")']:
                 try:
@@ -58,7 +58,7 @@ jobs:
           unzip -t "incoming/$BASE_FILE" >/dev/null
           unzip -t "incoming/$OVERLAY_FILE" >/dev/null
       - id: project
-        name: Reconstruct approved shell + content overlay
+        name: Reconstruct approved R46 shell + R51 content + R53 focused hotfix
         run: |
           set -euo pipefail
           rm -rf base overlay work
@@ -70,42 +70,79 @@ jobs:
           test -n "$BSET"; test -n "$OSET"
           BROOT="$(dirname "$BSET")"; OROOT="$(dirname "$OSET")"
           cp -a "$BROOT/." work/
+          # Content-only overlay. R46 shell remains the visual authority.
           mkdir -p work/app/src/main/assets/vtt/js/expansion
           if [ -d "$OROOT/app/src/main/assets/vtt/js/expansion" ]; then cp -a "$OROOT/app/src/main/assets/vtt/js/expansion/." work/app/src/main/assets/vtt/js/expansion/; fi
           if [ -d "$OROOT/app/src/main/assets/vtt/assets/maps" ]; then mkdir -p work/app/src/main/assets/vtt/assets/maps; cp -a "$OROOT/app/src/main/assets/vtt/assets/maps/." work/app/src/main/assets/vtt/assets/maps/; fi
-          if [ -d "$OROOT/app/src/main/assets/vtt/image-library" ]; then mkdir -p work/app/src/main/assets/vtt/image-library; cp -an "$OROOT/app/src/main/assets/vtt/image-library/." work/app/src/main/assets/vtt/image-library/ || true; fi
+          # Manifest + visual binaries are content and must not be silently discarded.
+          if [ -d "$OROOT/app/src/main/assets/vtt/image-library" ]; then mkdir -p work/app/src/main/assets/vtt/image-library; cp -a "$OROOT/app/src/main/assets/vtt/image-library/." work/app/src/main/assets/vtt/image-library/; fi
+          python3 star-wars/r53/hotfix_r53.py "$(pwd)/work"
           echo "root=$(pwd)/work" >> "$GITHUB_OUTPUT"
-      - name: Gate approved R46 shell, buttons host, safe area and launcher icon
+      - name: Gate R53 source fixes
         run: |
           set -euo pipefail
-          R=work
-          test -f "$R/app/src/main/assets/vtt/r46-shell.html"
-          test -f "$R/app/src/main/assets/vtt/r46/r46-shell.bundle.js"
-          test -f "$R/app/src/main/assets/vtt/r46/r46.css"
-          test -f "$R/app/src/main/assets/vtt/r46/react18-vendor.js"
-          test -f "$R/app/src/main/assets/vtt/r46/final-bootstrap.js"
-          test -f "$R/app/src/main/assets/vtt/r46/final-runtime.js"
-          test -f "$R/app/src/main/assets/vtt/js/core/uiBridge.bundle.js"
+          R=work; V="$R/app/src/main/assets/vtt"
+          test -f "$V/r46-shell.html"; test -f "$V/r46/r46-shell.bundle.js"; test -f "$V/r46/r46.css"; test -f "$V/r46/react18-vendor.js"; test -f "$V/r46/final-bootstrap.js"; test -f "$V/r46/final-runtime.js"; test -f "$V/js/core/uiBridge.bundle.js"
           grep -Fq 'file:///android_asset/vtt/r46-shell.html' "$R/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java"
-          grep -Fq 'setFitsSystemWindows(true)' "$R/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java"
-          grep -Fq 'requestApplyInsets' "$R/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java"
-          grep -Fq 'android:icon="@mipmap/ic_launcher"' "$R/app/src/main/AndroidManifest.xml"
-          grep -Fq 'android:roundIcon="@mipmap/ic_launcher_round"' "$R/app/src/main/AndroidManifest.xml"
-          find "$R/app/src/main/res" -type f \( -name 'ic_launcher*' -o -name '*launcher*' \) | grep -q .
-          for label in CENA PERSONAGEM ITENS NAVE REGISTROS; do grep -Fq "$label" "$R/app/src/main/assets/vtt/r46/r46-shell.bundle.js"; done
-          node --check "$R/app/src/main/assets/vtt/r46/r46-shell.bundle.js"
-          node --check "$R/app/src/main/assets/vtt/r46/final-bootstrap.js"
-          node --check "$R/app/src/main/assets/vtt/r46/final-runtime.js"
-          node --check "$R/app/src/main/assets/vtt/js/core/uiBridge.bundle.js"
+          grep -Fq 'setFitsSystemWindows(false)' "$R/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java"
+          grep -Fq -- '--android-safe-top' "$R/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java"
+          grep -Fq 'background-image:var(--ref-image)!important' "$V/r46/final-runtime.css"
+          grep -Fq 'r53OpenLibrary' "$V/r46/final-runtime.js"
+          grep -Fq 'ROLAR DADOS' "$V/r46/final-runtime.js"
+          grep -Fq 'REINICIAR' "$V/r46/final-runtime.js"
+          grep -Fq 'external.kainrath.map.mos-eisley-city' "$V/r46/r46-shell.bundle.js"
+          grep -Fq 'selectedImageAsset.remoteReady && selectedImageAsset.remoteUrl' "$V/r46/r46-shell.bundle.js"
+          grep -Fq 'Array.isArray(asset.tags)' "$V/r46/r46-shell.bundle.js"
+          for label in CENA PERSONAGEM ITENS NAVE REGISTROS; do grep -Fq "$label" "$V/r46/r46-shell.bundle.js"; done
+          node --check "$V/r46/r46-shell.bundle.js"
+          node --check "$V/r46/final-bootstrap.js"
+          node --check "$V/r46/final-runtime.js"
+          node --check "$V/js/core/uiBridge.bundle.js"
           python3 - <<'PY'
           from pathlib import Path
-          import re
+          import json,re
           root=Path('work/app/src/main/assets/vtt')
-          html=(root/'r46-shell.html').read_text('utf-8')
-          refs=re.findall(r'(?:src|href)="([^"]+)"',html)
+          html=(root/'r46-shell.html').read_text('utf-8');refs=re.findall(r'(?:src|href)="([^"]+)"',html)
           missing=[r for r in refs if not r.startswith(('http:','https:','#')) and not (root/r).exists()]
           assert not missing, f'missing local R46 deps: {missing}'
-          print('R46 local dependency gate PASS:',len(refs),'refs')
+          m=json.loads((root/'image-library/manifest.json').read_text('utf-8'))
+          ids={a.get('assetId') for a in m.get('assets',[])}
+          for required in ['local.map.galaxy','external.kainrath.map.galaxy-v24','external.kainrath.map.mos-eisley-city']:
+            assert required in ids, required
+          print('R53 static gates PASS; manifest assets',len(ids))
+          PY
+      - name: 415x915 browser smoke test for regressions
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --directory work/app/src/main/assets/vtt >/tmp/r53-http.log 2>&1 &
+          SERVER_PID=$!; trap 'kill $SERVER_PID || true' EXIT
+          python3 - <<'PY'
+          from playwright.sync_api import sync_playwright
+          errors=[]
+          with sync_playwright() as p:
+            b=p.chromium.launch(headless=True)
+            page=b.new_page(viewport={"width":415,"height":915})
+            page.on('pageerror',lambda e: errors.append(str(e)))
+            page.goto('http://127.0.0.1:8765/r46-shell.html?screen=00',wait_until='networkidle',timeout=120000)
+            page.wait_for_timeout(1000)
+            assert page.locator('.app-shell').count()==1, 'R46 app shell missing'
+            assert page.locator('.bottom-nav-button').count()==5, 'bottom navigation count'
+            assert page.locator('.r53-dice-fab').count()==1, 'dice launcher missing'
+            assert page.locator('.final-utility-shortcuts').count()==0, 'duplicate utility shortcuts survived'
+            icon_values=page.locator('.bottom-nav-button .reference-icon-mask').evaluate_all("els=>els.map(e=>getComputedStyle(e).backgroundImage)")
+            assert len(icon_values)==5 and all(v and v!='none' for v in icon_values), icon_values
+            page.evaluate("document.querySelector('.r53-dice-fab').click()")
+            assert page.locator('.r53-dice-overlay').count()==1, 'dice modal did not open'
+            page.locator('.r53-dice-overlay .r53-close').click()
+            page.evaluate("b=>{const x=document.createElement('button');x.id='r53-lib-test';x.textContent='BIBLIOTECA';document.body.appendChild(x);x.click()}",None)
+            assert page.locator('.r53-library-overlay').count()==1, 'library safe overlay did not open'
+            page.locator('.r53-library-overlay .r53-close').click()
+            page.goto('http://127.0.0.1:8765/r46-shell.html?screen=16',wait_until='networkidle',timeout=120000)
+            page.wait_for_timeout(800)
+            assert page.locator('.app-shell').count()==1, 'map route blank'
+            assert not errors, 'page errors: '+repr(errors)
+            b.close()
+          print('R53 415x915 browser smoke PASS')
           PY
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: '17'}
@@ -121,7 +158,7 @@ jobs:
           yes | "$SDKMANAGER" --licenses >/dev/null || true
           "$SDKMANAGER" 'platform-tools' 'platforms;android-36'
           echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
-      - name: Build corrected APK
+      - name: Build R53 APK
         working-directory: ${{ steps.project.outputs.root }}
         run: gradle :app:assembleDebug --stacktrace --no-daemon
       - name: Validate APK and reconstructed source
@@ -130,21 +167,22 @@ jobs:
           set -euo pipefail
           mkdir -p APK_SAIDA SOURCE_SAIDA
           APK="$(find "$ROOT/app/build/outputs/apk/debug" -type f -name '*.apk' | head -n1)"; test -f "$APK"
-          FINAL='APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R52_UI_NATIVE_HOTFIX_DEBUG.apk'
+          FINAL='APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R53_REAL_DEVICE_HOTFIX_DEBUG.apk'
           cp "$APK" "$FINAL"; unzip -t "$FINAL" >/dev/null
           BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
           "$BUILD_TOOLS/aapt" dump badging "$FINAL" | tee APK_SAIDA/info.txt
           grep -q "package: name='com.braseiro.starwarsedge'" APK_SAIDA/info.txt
-          sha256sum "$FINAL" | tee APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R52_UI_NATIVE_HOTFIX_DEBUG.apk.sha256
-          (cd "$ROOT" && zip -qr "$GITHUB_WORKSPACE/SOURCE_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R52_UI_NATIVE_HOTFIX.zip" . -x '*/build/*' '.gradle/*')
-          sha256sum SOURCE_SAIDA/*.zip | tee SOURCE_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R52_UI_NATIVE_HOTFIX.zip.sha256
-      - name: Persist corrected APK and source in builder repository
+          sha256sum "$FINAL" | tee APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_R53_REAL_DEVICE_HOTFIX_DEBUG.apk.sha256
+          (cd "$ROOT" && zip -qr "$GITHUB_WORKSPACE/SOURCE_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R53_REAL_DEVICE_HOTFIX.zip" . -x '*/build/*' '.gradle/*')
+          sha256sum SOURCE_SAIDA/*.zip | tee SOURCE_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R53_REAL_DEVICE_HOTFIX.zip.sha256
+      - name: Persist R53 APK and Android Studio source
         run: |
           set -euo pipefail
-          mkdir -p star-wars/final-1.0.0/output-r52
-          cp APK_SAIDA/* SOURCE_SAIDA/* star-wars/final-1.0.0/output-r52/
+          mkdir -p star-wars/final-1.0.0/output-r53
+          cp APK_SAIDA/* SOURCE_SAIDA/* star-wars/final-1.0.0/output-r53/
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add -f star-wars/final-1.0.0/output-r52/
-          git commit -m 'build: Star Wars R52 approved R46 UI native hotfix' || true
+          git add -f star-wars/final-1.0.0/output-r53/
+          git commit -m 'build: Star Wars R53 real-device hotfix' || true
+          git pull --rebase origin main
           git push origin HEAD:main
