@@ -34,6 +34,7 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           p=Path('/tmp/audit_deep_vtt.py');s=p.read_text('utf-8')
+          s=s.replace("ok=(new URL(page.url)).searchParams.get('screen')==target","ok=(re.search(r'[?&]screen=([0-9]+)',page.url).group(1)==target)")
           s=s.replace("wait_until='networkidle'","wait_until='domcontentloaded'")
           s=s.replace("timeout=120000","timeout=30000")
           s=s.replace("imgs=>imgs.filter(i=>i.complete&&i.naturalWidth===0).map(i=>i.getAttribute('src'))","imgs=>imgs.filter(i=>i.complete&&i.naturalWidth===0&&i.src.startsWith('http://127.0.0.1:8765/')).map(i=>i.getAttribute('src'))")
