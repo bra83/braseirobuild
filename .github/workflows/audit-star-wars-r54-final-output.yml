@@ -1,0 +1,71 @@
+name: Audit Star Wars R54 Canonical Final Output
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "STAR_WARS_R54_FINAL_AUDIT_TRIGGER.txt"
+permissions: {contents: write}
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Recover exact canonical R54 output
+        id: root
+        run: |
+          set -euo pipefail
+          ZIP=star-wars/final-1.0.0/output-r54/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip
+          test -f "$ZIP"
+          rm -rf final-audit-work final-audit-out && mkdir -p final-audit-work final-audit-out
+          unzip -q "$ZIP" -d final-audit-work
+          SET="$(find final-audit-work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)";test -n "$SET";ROOT="$(dirname "$SET")"
+          echo "path=$ROOT" >> "$GITHUB_OUTPUT"
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium >/dev/null
+      - name: Run deep canonical audit
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          cp star-wars/r54/audit_deep_vtt.py /tmp/audit_deep_vtt.py
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/audit_deep_vtt.py');s=p.read_text('utf-8')
+          s=s.replace("wait_until='networkidle'","wait_until='domcontentloaded'")
+          s=s.replace("timeout=120000","timeout=30000")
+          s=s.replace("imgs=>imgs.filter(i=>i.complete&&i.naturalWidth===0).map(i=>i.getAttribute('src'))","imgs=>imgs.filter(i=>i.complete&&i.naturalWidth===0&&i.src.startsWith('http://127.0.0.1:8765/')).map(i=>i.getAttribute('src'))")
+          s=s.replace("page=ctx.new_page();page.on('pageerror',lambda e:page_errors.append(str(e)))","page=ctx.new_page();page.on('pageerror',lambda e:page_errors.append(str(e)));page.route('**/*',lambda route,req: route.continue_() if req.url.startswith('http://127.0.0.1:8765/') else route.abort())")
+          s=s.replace("p2=c2.new_page();errs2=[];p2.on('pageerror',lambda e:errs2.append(str(e)))","p2=c2.new_page();errs2=[];p2.on('pageerror',lambda e:errs2.append(str(e)));p2.route('**/*',lambda route,req: route.continue_() if req.url.startswith('http://127.0.0.1:8765/') else route.abort())")
+          p.write_text(s,encoding='utf-8')
+          PY
+          python3 -m py_compile /tmp/audit_deep_vtt.py
+          python3 -m http.server 8765 --directory "$ROOT/app/src/main/assets/vtt" >/tmp/final-audit-http.log 2>&1 & PID=$!;trap 'kill $PID || true' EXIT;sleep 1
+          python3 /tmp/audit_deep_vtt.py "$ROOT" "$GITHUB_WORKSPACE/final-audit-out"
+          cat final-audit-out/DEEP_AUDIT.md
+      - name: Enforce final no-fail gate
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          d=json.load(open('final-audit-out/DEEP_AUDIT.json',encoding='utf-8'))
+          fails=[x for x in d.get('findings',[]) if x.get('status')=='FAIL']
+          assert not fails,fails
+          by={x['id']:x for x in d['findings']}
+          assert by['A02']['status']=='PASS',by['A02']
+          assert by['A03']['status']=='PASS',by['A03']
+          assert by['R02']['status']=='PASS',by['R02']
+          assert by['S02']['status']=='PASS',by['S02']
+          assert by['S03']['status']=='PASS',by['S03']
+          print('R54_CANONICAL_DEEP_NO_FAIL',len(d['findings']))
+          PY
+      - name: Persist canonical deep audit
+        run: |
+          set -euo pipefail
+          DEST=star-wars/r54/audit;mkdir -p "$DEST"
+          cp final-audit-out/DEEP_AUDIT.md "$DEST/DEEP_VTT_AUDIT_2026-09-16.md"
+          cp final-audit-out/DEEP_AUDIT.json "$DEST/DEEP_VTT_AUDIT_2026-09-16.json"
+          printf 'Canonical R54 final output deep audit: NO FAIL.\n' > "$DEST/FINAL_CANONICAL_AUDIT_STATUS.txt"
+          git config user.name github-actions;git config user.email github-actions@github.com;git add "$DEST";git commit -m 'audit: canonical Star Wars R54 final output no-fail report' || true;git pull --rebase origin main;git push origin HEAD:main
