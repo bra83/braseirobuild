@@ -1,0 +1,1 @@
+Trigger canonical final R54 audit after persisted visual closure.
