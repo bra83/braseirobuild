@@ -1,0 +1,85 @@
+name: Fix Star Wars R54 Barbara Narration Contract
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "star-wars/r54/fix_barbara_narration_contract.py"
+      - ".github/workflows/fix-star-wars-r54-barbara-narration.yml"
+permissions: {contents: write}
+jobs:
+  fix-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - id: root
+        name: Recover canonical R54 and apply Barbara narration fix
+        run: |
+          set -euo pipefail
+          ZIP=star-wars/final-1.0.0/output-r54/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip
+          test -f "$ZIP"
+          rm -rf barbara-work && mkdir barbara-work
+          unzip -q "$ZIP" -d barbara-work
+          SET="$(find barbara-work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"
+          test -n "$SET"; ROOT="$(dirname "$SET")"
+          python3 -m py_compile star-wars/r54/fix_barbara_narration_contract.py
+          python3 star-wars/r54/fix_barbara_narration_contract.py "$ROOT" | tee /tmp/BARBARA_FIX.txt
+          grep -q 'R54_BARBARA_NARRATION_CONTRACT_PASS' /tmp/BARBARA_FIX.txt
+          echo "path=$ROOT" >> "$GITHUB_OUTPUT"
+      - name: Barbara contract gate
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          G="$ROOT/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java"
+          grep -Fq '400-700 palavras' "$G"
+          grep -Fq '4-7 parágrafos' "$G"
+          grep -Fq 'sons, cheiros, temperatura, texturas e sensações físicas' "$G"
+          ! grep -Fq 'A narração deve ser cinematográfica, concisa e em português do Brasil.' "$G"
+          python3 - "$G" <<'PY'
+          from pathlib import Path
+          import sys
+          s=Path(sys.argv[1]).read_text('utf-8')
+          assert '400-700 palavras' in s
+          assert '4-7 parágrafos' in s
+          for term in ['sons','cheiros','temperatura','texturas','sensações']:
+              assert term in s.casefold(), term
+          print('R54_BARBARA_CONTRACT_STATIC_PASS')
+          PY
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@v4
+        with: {gradle-version: '8.13', validate-wrappers: false}
+      - name: Configure Android SDK 36
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort | tail -n1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platform-tools' 'platforms;android-36'
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+      - name: Build patched R54 APK
+        working-directory: ${{ steps.root.outputs.path }}
+        run: gradle :app:assembleDebug --stacktrace --no-daemon
+      - name: Persist patched canonical R54
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          OUT=star-wars/final-1.0.0/output-r54
+          TMP="$(mktemp -d)"
+          APK="$(find "$ROOT/app/build/outputs/apk/debug" -type f -name '*.apk' | head -n1)"; test -f "$APK"
+          cp "$APK" "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_ASSETS_HOTFIX_DEBUG.apk"
+          unzip -t "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_ASSETS_HOTFIX_DEBUG.apk" >/dev/null
+          (cd "$ROOT" && zip -qr "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" . -x '*/build/*' '.gradle/*')
+          sha256sum "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_ASSETS_HOTFIX_DEBUG.apk" > "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_ASSETS_HOTFIX_DEBUG.apk.sha256"
+          sha256sum "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" > "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip.sha256"
+          git config user.name github-actions; git config user.email github-actions@github.com
+          git pull --rebase origin main
+          mkdir -p "$OUT"
+          cp "$TMP"/* "$OUT"/
+          printf '%s\n' 'R54_BARBARA_NARRATION_CONTRACT_PASS words=400-700 paragraphs=4-7 sensory=5' > "$OUT/BARBARA_NARRATION_2026-09-16.txt"
+          git add -f "$OUT"
+          git commit -m 'build: persist R54 Barbara narration contract' || true
+          git push origin HEAD:main
