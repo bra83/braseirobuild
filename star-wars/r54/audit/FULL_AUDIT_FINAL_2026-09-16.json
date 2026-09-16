@@ -1,0 +1,295 @@
+{
+  "counts": {
+    "PASS": 17,
+    "WARN": 2,
+    "FAIL": 9
+  },
+  "findings": [
+    {
+      "id": "01",
+      "title": "82 pontos iniciais",
+      "status": "PASS",
+      "detail": "82 locais no catálogo.",
+      "evidence": null
+    },
+    {
+      "id": "02",
+      "title": "Safe-area Android",
+      "status": "PASS",
+      "detail": "Insets físicos são convertidos por densidade antes de virar CSS.",
+      "evidence": null
+    },
+    {
+      "id": "03",
+      "title": "Menu inferior / CENA",
+      "status": "PASS",
+      "detail": "SVG limpo e seleção sem deslocamento encontrados no R54.",
+      "evidence": null
+    },
+    {
+      "id": "04",
+      "title": "Reiniciar campanha",
+      "status": "PASS",
+      "detail": "Não usa mais newCampaign não exposto; limpa estado persistido.",
+      "evidence": null
+    },
+    {
+      "id": "05",
+      "title": "Gerar ilustração → Gemini externo",
+      "status": "PASS",
+      "detail": "O VTT monta prompt e faz handoff para Gemini; não gera a imagem dentro do VTT.",
+      "evidence": null
+    },
+    {
+      "id": "06",
+      "title": "Prompt visual da cena",
+      "status": "PASS",
+      "detail": "Prompt usa fatos visíveis e proíbe texto/HUD.",
+      "evidence": null
+    },
+    {
+      "id": "07",
+      "title": "Armas com assets",
+      "status": "PASS",
+      "detail": "32 imagens de armas extraídas.",
+      "evidence": null
+    },
+    {
+      "id": "08",
+      "title": "Equipamentos com assets",
+      "status": "PASS",
+      "detail": "22 imagens de equipamento extraídas.",
+      "evidence": null
+    },
+    {
+      "id": "09",
+      "title": "Retrato Veya/Twi’lek",
+      "status": "PASS",
+      "detail": "1 retrato(s) R54; binding Twi’lek encontrado.",
+      "evidence": null
+    },
+    {
+      "id": "10",
+      "title": "Local inicial ancora coordenadas no mapa galáctico",
+      "status": "FAIL",
+      "detail": "O motor suporta startMapPoint, mas a UI R54 não envia x/y do local escolhido.",
+      "evidence": null
+    },
+    {
+      "id": "11",
+      "title": "Mapas existentes do acervo são aproveitados",
+      "status": "WARN",
+      "detail": "Foram localizadas 34 referências de mapa na biblioteca; o hook R54 explicita preview apenas para Shantipole, Mos Eisley e Tatooine. A exposição ainda não cobre toda a biblioteca.",
+      "evidence": null
+    },
+    {
+      "id": "12",
+      "title": "Binding de imagens de itens é idempotente",
+      "status": "FAIL",
+      "detail": "O MutationObserver chama r54Tick; r54EnhanceItemImages remove e reinsere a imagem em toda mutação, podendo criar ciclo contínuo de DOM/reload.",
+      "evidence": null
+    },
+    {
+      "id": "13",
+      "title": "Assets visuais de todas as categorias do VTT",
+      "status": "WARN",
+      "detail": "Binding R54 indexa explicitamente: ['weapons', 'equipment']. NPCs, criaturas, droides, veículos/cenário do acervo não estão todos ligados por esse hotfix.",
+      "evidence": null
+    },
+    {
+      "id": "14",
+      "title": "Abertura é narrativa longa, não resumo-template",
+      "status": "PASS",
+      "detail": "Abertura não usa o resumo curto antigo.",
+      "evidence": null
+    },
+    {
+      "id": "15",
+      "title": "Mestre Gemini exige texto grande",
+      "status": "FAIL",
+      "detail": "O system prompt atual manda explicitamente: “A narração deve ser cinematográfica, concisa”. Isso contradiz o requisito de narração grande.",
+      "evidence": null
+    },
+    {
+      "id": "16",
+      "title": "Contrato mínimo de extensão narrativa",
+      "status": "FAIL",
+      "detail": "Não há mínimo de palavras/parágrafos; há somente teto de até 5000 caracteres no schema.",
+      "evidence": null
+    },
+    {
+      "id": "17",
+      "title": "Contrato sensorial do Mestre",
+      "status": "FAIL",
+      "detail": "Não existe checklist sensorial suficiente no prompt Star Wars. Termos encontrados: [].",
+      "evidence": null
+    },
+    {
+      "id": "18",
+      "title": "Ponte Barbara ↔ Gemini",
+      "status": "FAIL",
+      "detail": "Request/callback do Mestre nativo estão implementados.",
+      "evidence": null
+    },
+    {
+      "id": "19",
+      "title": "Suite Node completa",
+      "status": "FAIL",
+      "detail": "tests=752, pass=709, fail=43",
+      "evidence": [
+        "R39 baseline remains present in current additive image-library manifest",
+        "R39 visual wave3 contains exactly 10 confirmed assets",
+        "R39 totals add 3 NPC portraits and 7 beasts without changing maps or droids",
+        "R39 source metadata keeps prior waves and records wave3 separately",
+        "generic visual bridge automatically exposes R39 expanded totals",
+        "R40 manifest V3.3 has 282 unique assets",
+        "R40 vehicle wave contains exactly 43 Kainrath vehicles/ships",
+        "R40 source metadata records vehicle wave separately without mutating prior visual waves",
+        "R40 generic visual bridge exposes vehicles and keeps prior visual categories",
+        "R40 searchImageLibrary can query vehicle subtype without touching map catalog",
+        "R41 manifest V3.4 has 329 unique assets",
+        "R41 vehicle wave2 adds exactly 47 direct-URL assets",
+        "R41 wave2 grouping is 28 freighter/transport page assets + 12 landspeeders + 7 airspeeders",
+        "R41 bridge exposes all 90 vehicles while preserving maps and old visual entities",
+        "R41 category searches expose surface subtypes without mechanics",
+        "R41 previous R40 vehicle wave remains present and unchanged",
+        "R42 manifest V3.5 baseline remains preserved after later library promotions",
+        "R42 vehicle wave3 adds exactly 27 direct-URL assets",
+        "R42 wave3 grouping is 19 landspeeders page2 plus 8 walkers",
+        "R42 bridge preserves at least the R42 vehicle/visual baseline"
+      ]
+    },
+    {
+      "id": "20",
+      "title": "Compilação Android",
+      "status": "PASS",
+      "detail": "Gradle exit=0; APK debug presente=True",
+      "evidence": null
+    },
+    {
+      "id": "21",
+      "title": "Fluxo first-boot/lista/busca",
+      "status": "PASS",
+      "detail": "points=82; filtro=1",
+      "evidence": null
+    },
+    {
+      "id": "22",
+      "title": "Âncora real do local inicial",
+      "status": "FAIL",
+      "detail": "startMapPoint=None",
+      "evidence": null
+    },
+    {
+      "id": "23",
+      "title": "Abertura real longa/sensorial",
+      "status": "FAIL",
+      "detail": "73 palavras / 468 caracteres / sentidos=[]. O piso de 250 palavras é apenas um teste conservador; o problema principal é o contrato atual mandar ser conciso.",
+      "evidence": null
+    },
+    {
+      "id": "24",
+      "title": "Handoff de ilustração em runtime",
+      "status": "PASS",
+      "detail": "button=1; prompt=1393 chars",
+      "evidence": null
+    },
+    {
+      "id": "25",
+      "title": "Alinhamento runtime do menu inferior",
+      "status": "PASS",
+      "detail": "y-span=0.0; h-span=0.0",
+      "evidence": null
+    },
+    {
+      "id": "26",
+      "title": "Retrato Twi’lek carrega em runtime",
+      "status": "PASS",
+      "detail": "count=1; loaded=True",
+      "evidence": null
+    },
+    {
+      "id": "27",
+      "title": "REINICIAR ponta a ponta",
+      "status": "PASS",
+      "detail": "button=1; voltou setup=True",
+      "evidence": null
+    },
+    {
+      "id": "28",
+      "title": "Sem erro JS em 415×915 e 360×800",
+      "status": "PASS",
+      "detail": "exception=None; 415=[]; 360=[]",
+      "evidence": null
+    }
+  ],
+  "metrics": {
+    "start_locations": 82,
+    "weapon_assets": 32,
+    "equipment_assets": 22,
+    "portrait_assets": 1,
+    "map_assets": 1,
+    "catalogued_map_refs": 34,
+    "node_tests": 752,
+    "node_pass": 709,
+    "node_fail": 43,
+    "node_fail_names": [
+      "R39 baseline remains present in current additive image-library manifest",
+      "R39 visual wave3 contains exactly 10 confirmed assets",
+      "R39 totals add 3 NPC portraits and 7 beasts without changing maps or droids",
+      "R39 source metadata keeps prior waves and records wave3 separately",
+      "generic visual bridge automatically exposes R39 expanded totals",
+      "R40 manifest V3.3 has 282 unique assets",
+      "R40 vehicle wave contains exactly 43 Kainrath vehicles/ships",
+      "R40 source metadata records vehicle wave separately without mutating prior visual waves",
+      "R40 generic visual bridge exposes vehicles and keeps prior visual categories",
+      "R40 searchImageLibrary can query vehicle subtype without touching map catalog",
+      "R41 manifest V3.4 has 329 unique assets",
+      "R41 vehicle wave2 adds exactly 47 direct-URL assets",
+      "R41 wave2 grouping is 28 freighter/transport page assets + 12 landspeeders + 7 airspeeders",
+      "R41 bridge exposes all 90 vehicles while preserving maps and old visual entities",
+      "R41 category searches expose surface subtypes without mechanics",
+      "R41 previous R40 vehicle wave remains present and unchanged",
+      "R42 manifest V3.5 baseline remains preserved after later library promotions",
+      "R42 vehicle wave3 adds exactly 27 direct-URL assets",
+      "R42 wave3 grouping is 19 landspeeders page2 plus 8 walkers",
+      "R42 bridge preserves at least the R42 vehicle/visual baseline",
+      "R42 subtype searches expose walkers and added surface vehicle classes without mechanics",
+      "R42 preserves both previous vehicle waves unchanged",
+      "R43 manifest V3.6 baseline remains preserved after later visual promotions",
+      "R43 wave4 indexes exactly 3 vehicles plus 1 droid",
+      "R43 wave4 contains only the direct-proven recovery set",
+      "R43 bridge exposes 120 vehicles and 75 Kainrath visual entities",
+      "R43 direct-recovery group is searchable without affecting old walker wave",
+      "R43 preserves R40-R42 vehicle waves unchanged",
+      "R44 manifest V3.7 baseline remains preserved after later visual promotions",
+      "R44 wave5 indexes exactly Skekfish and Nerf"
+    ],
+    "browser": {
+      "overlay": 1,
+      "points": 82,
+      "filter": 1,
+      "anchor": null,
+      "narration_words": 73,
+      "narration_chars": 468,
+      "senses": [],
+      "illustration_button": 1,
+      "illustration_prompt_chars": 1393,
+      "illustration_ok": true,
+      "nav_y_span": 0.0,
+      "nav_h_span": 0.0,
+      "portrait_count": 1,
+      "portrait_loaded": true,
+      "restart_button": 1,
+      "restart_setup": true,
+      "nav360": 5,
+      "errors360": [],
+      "errors415": []
+    },
+    "counts": {
+      "PASS": 17,
+      "WARN": 2,
+      "FAIL": 9
+    }
+  }
+}
