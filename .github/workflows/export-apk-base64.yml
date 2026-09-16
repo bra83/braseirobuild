@@ -1,0 +1,36 @@
+name: Export Braseiro APK Base64
+
+on:
+  push:
+    branches: [fichas-final-20260916]
+    paths:
+      - ".github/workflows/export-apk-base64.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fichas-final-20260916
+      - name: Exportar APK em partes de texto
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="deliverables/fichas-final-20260916/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.0-final-debug.apk"
+          test -f "$APK"
+          OUT="deliverables/fichas-final-20260916/base64"
+          rm -rf "$OUT"
+          mkdir -p "$OUT"
+          base64 -w0 "$APK" | split -b 30000 -d -a 2 - "$OUT/part-"
+          sha256sum "$APK" > "$OUT/apk.sha256"
+          wc -c "$APK" > "$OUT/apk.size"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$OUT"
+          git commit -m "build: export APK base64 chunks"
+          git push origin HEAD:fichas-final-20260916
