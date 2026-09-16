@@ -1,0 +1,169 @@
+=== final-bootstrap ===
+(function(){
+'use strict';
+try{
+  const bridge=window.BraseiroGameBridge;
+  if(!bridge||typeof bridge.readState!=='function'||typeof bridge.initializeCampaign!=='function')return;
+  const current=bridge.readState();
+  if(current&&current.ok===true&&current.data===null){
+    const created=bridge.initializeCampaign();
+    window.__BRASEIRO_FIRST_BOOT__={ok:!!created?.ok,created:!!created?.data?.created};
+  }else{
+    window.__BRASEIRO_FIRST_BOOT__={ok:!!current?.ok,created:false};
+  }
+}catch(error){
+  window.__BRASEIRO_FIRST_BOOT__={ok:false,created:false,error:String(error&&error.message||error)};
+}
+})();
+\n=== bridge globals / storage ===
+/tmp/r53/app/src/main/assets/vtt/r46/final-runtime.js:6:const prefs={...defaults,...safeParse(localStorage.getItem(PREF_KEY),{})};
+/tmp/r53/app/src/main/assets/vtt/r46/final-runtime.js:7:function save(){try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs))}catch{}}
+/tmp/r53/app/src/main/assets/vtt/r46/final-runtime.js:83: const b=window.BraseiroGameBridge;
+/tmp/r53/app/src/main/assets/vtt/r46/final-runtime.js:253:function currentSceneRecord(){try{const state=safeParse(localStorage.getItem('braseiro.starwars.edge.state.v1'),null);return state&&state.scene&&typeof state.scene==='object'?state.scene:null}catch{return null}}
+/tmp/r53/app/src/main/assets/vtt/r46/final-runtime.js:278:function r53Bridge(){return (typeof window!=='undefined'&&window.BraseiroGameBridge&&typeof window.BraseiroGameBridge==='object')?window.BraseiroGameBridge:null}
+/tmp/r53/app/src/main/assets/vtt/r46/final-runtime.js:304: const b=r53Bridge();if(!b||typeof b.newCampaign!=='function'){alert('O motor não expôs o comando de nova campanha.');return}
+/tmp/r53/app/src/main/assets/vtt/r46/final-runtime.js:306: try{const raw=b.newCampaign('Edge of the Galaxy');if(raw&&raw.ok===false)throw new Error(raw.message||'Falha ao reiniciar campanha.');location.reload()}catch(err){alert(String(err?.message||err))}
+/tmp/r53/app/src/main/assets/vtt/r46/r46-shell.bundle.js:444:    const source = storage ?? (typeof window !== 'undefined' ? window.localStorage : null);
+/tmp/r53/app/src/main/assets/vtt/r46/r46-shell.bundle.js:497:    return window.BraseiroGameBridge;
+/tmp/r53/app/src/main/assets/vtt/r46/final-bootstrap.js:4:  const bridge=window.BraseiroGameBridge;
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:96:    constructor({ repository = null, storage = globalThis.localStorage, snapshots = null } = {}) {
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:97:        this.repository = repository ?? new storage_mjs_1.LocalStorageRepository(storage);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:98:        const snapshotStorage = this.repository?.storage ?? storage;
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:99:        this.snapshots = snapshots ?? new snapshots_mjs_1.LocalSnapshotRepository(snapshotStorage);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:103:            const state = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:112:            const existing = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:115:            const game = new controller_mjs_1.GameController(this.repository);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:167:            state = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:276:            existing = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:284:            return ok(new controller_mjs_1.GameController(this.repository));
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:356:            state = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:383:            existing = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:392:            this.repository.save(imported);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:410:            state = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:427:            const state = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:467:            const state = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:670:            before = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:679:            this.repository.save(restored);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:848:    if (target.BraseiroGameBridge)
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:849:        return target.BraseiroGameBridge;
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:851:    Object.defineProperty(target, 'BraseiroGameBridge', {
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:1:import { LocalStorageRepository, exportStateJson, importStateJson } from './storage.mjs';
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:2:import { LocalSnapshotRepository } from './snapshots.mjs';
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:25:  constructor({ repository = null, storage = globalThis.localStorage, snapshots = null } = {}) {
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:26:    this.repository = repository ?? new LocalStorageRepository(storage);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:27:    const snapshotStorage = this.repository?.storage ?? storage;
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:28:    this.snapshots = snapshots ?? new LocalSnapshotRepository(snapshotStorage);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:33:      const state = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:43:      existing = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:49:      return ok(new GameController(this.repository));
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:113:    try { state = this.repository.load(); }
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:132:    try { existing = this.repository.load(); }
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:138:      this.repository.save(imported);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:155:    try { state = this.repository.load(); }
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:168:    try { before = this.repository.load(); }
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:173:      this.repository.save(restored);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:215:  if (target.BraseiroGameBridge) return target.BraseiroGameBridge;
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:217:  Object.defineProperty(target, 'BraseiroGameBridge', {
+/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:322:    constructor(repository) {
+/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:323:        this.repository = repository;
+/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:324:        this.state = repository.load() ?? state_mjs_1.createCampaign('Rebelião - campanha local');
+/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:325:        repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:331:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:334:    newCampaign(name) {
+/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:336:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:469:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:480:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:507:            this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:530:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:543:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:573:            this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:587:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:836:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:1088:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/snapshots.mjs:3:export class LocalSnapshotRepository {
+/tmp/r53/app/src/main/assets/vtt/js/core/snapshots.mjs:4:  constructor(storage=globalThis.localStorage, key='braseiro.starwars.edge.snapshots.v1', max=10){ this.storage=storage; this.key=key; this.max=max; }
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:109:    constructor({ repository = null, storage = globalThis.localStorage, snapshots = null } = {}) {
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:110:        this.repository = repository ?? new storage_mjs_1.LocalStorageRepository(storage);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:111:        const snapshotStorage = this.repository?.storage ?? storage;
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:112:        this.snapshots = snapshots ?? new snapshots_mjs_1.LocalSnapshotRepository(snapshotStorage);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:116:            const state = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:125:            const existing = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:128:            const game = new controller_mjs_1.GameController(this.repository);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:215:            state = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:324:            existing = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:332:            return ok(new controller_mjs_1.GameController(this.repository));
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:404:            state = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:431:            existing = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:440:            this.repository.save(imported);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:458:            state = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:475:            const state = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:517:            const state = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:837:            before = this.repository.load();
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:846:            this.repository.save(restored);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1016:    if (target.BraseiroGameBridge)
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1017:        return target.BraseiroGameBridge;
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1019:    Object.defineProperty(target, 'BraseiroGameBridge', {
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1359:    constructor(repository) {
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1360:        this.repository = repository;
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1361:        this.state = repository.load() ?? state_mjs_1.createCampaign('Rebelião - campanha local');
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1362:        repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1368:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1371:    newCampaign(name) {
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1373:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1507:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1518:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1545:            this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1568:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1581:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1611:            this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1625:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1898:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:2159:        this.repository.save(this.state);
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:2865:exports.LocalSnapshotRepository = void 0;
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:2867:class LocalSnapshotRepository {
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:2868:    constructor(storage = globalThis.localStorage, key = 'braseiro.starwars.edge.snapshots.v1', max = 10) { this.storage = storage; this.key = key; this.max = max; }
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:2883:exports.LocalSnapshotRepository = LocalSnapshotRepository;
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:3047:exports.LocalStorageRepository = exports.R21_STATE_CHANGED_EVENT = void 0;
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:3076:class LocalStorageRepository {
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:3077:    constructor(storage = globalThis.localStorage, key = 'braseiro.starwars.edge.state.v1', eventTarget = globalThis) {
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:3096:    clear() {
+/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:3101:exports.LocalStorageRepository = LocalStorageRepository;
+/tmp/r53/app/src/main/assets/vtt/js/core/storage.mjs:24:export class LocalStorageRepository {
+/tmp/r53/app/src/main/assets/vtt/js/core/storage.mjs:25:  constructor(storage = globalThis.localStorage, key = 'braseiro.starwars.edge.state.v1', eventTarget = globalThis) {
+/tmp/r53/app/src/main/assets/vtt/js/core/storage.mjs:43:  clear() {
+\n=== Gemini interface ===
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:9:import android.webkit.JavascriptInterface;
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:146:        webView.addJavascriptInterface(new LibraryBridge(), "BraseiroLibrary");
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:147:        webView.addJavascriptInterface(geminiBridge.javascriptInterface(), "BraseiroGemini");
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:148:        webView.addJavascriptInterface(imageLibraryBridge, "BraseiroImages");
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:149:        webView.addJavascriptInterface(ttsBridge, "BraseiroTts");
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:150:        webView.addJavascriptInterface(fileBridge, "BraseiroFiles");
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:206:        @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:227:        @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:232:        @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:237:        @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:257:        @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:281:        @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/ImageLibraryBridge.java:5:import android.webkit.JavascriptInterface;
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/ImageLibraryBridge.java:55:    @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/ImageLibraryBridge.java:66:    @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/ImageLibraryBridge.java:89:    @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:12:import android.webkit.JavascriptInterface;
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:84:    Object javascriptInterface() {
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:122:        @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:128:        @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:139:        @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:157:        @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:180:        @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:187:        @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:199:        @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:200:        public String generateSceneImage(String prompt, String sceneKey) {
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:220:        @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:241:        @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:265:        @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/FileBridge.java:9:import android.webkit.JavascriptInterface;
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/FileBridge.java:25:    @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/TtsBridge.java:5:import android.webkit.JavascriptInterface;
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/TtsBridge.java:48:    @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/TtsBridge.java:62:    @JavascriptInterface
+/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/TtsBridge.java:89:    @JavascriptInterface
