@@ -116,7 +116,7 @@ start_literal='const START_POINTS='+json.dumps(js_starts,ensure_ascii=False,sepa
 rt,n=re.subn(r'const START_POINTS=\[.*?\n\];',lambda m:start_literal,rt,count=1,flags=re.S)
 if n!=1: raise SystemExit(f'START_POINTS replacement failed: {n}')
 # Correct region passed to sandbox when catalog knows it.
-rt=rt.replace("const r=bridgeResult('initializeLivingSandbox',{startingPoint:point,regionLabel:`Região de ${point}`});", "const chosen=START_POINTS[pointIndex];const r=bridgeResult('initializeLivingSandbox',{startingPoint:point,regionLabel:chosen.region||`Região de ${point}`});",1)
+rt=rt.replace("const r=bridgeResult('initializeLivingSandbox',{startingPoint:point,regionLabel:`Região de ${point}`});", "const chosen=START_POINTS[pointIndex];const r=bridgeResult('initializeLivingSandbox',{startingPoint:point,regionLabel:chosen.region||`Região de ${point}`,startMapPoint:{x:chosen.x,y:chosen.y}});",1)
 # 82 markers must be compact dots, not a wall of giant numbered circles.
 rt=rt.replace("${i+1}</button>`).join('')}<div class=\"final-map-caption\"", "<span class=\"sr-only\">${i+1}</span></button>`).join('')}<div class=\"final-map-caption\"",1)
 # Use user's packaged galaxy map as the coordinate authority instead of forcing the English Kainrath map.
