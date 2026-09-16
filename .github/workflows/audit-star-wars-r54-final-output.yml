@@ -26,6 +26,13 @@ jobs:
           echo "path=$ROOT" >> "$GITHUB_OUTPUT"
           python -m pip install --quiet playwright
           python -m playwright install --with-deps chromium >/dev/null
+      - name: Run NAVE end-to-end audit
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --directory "$ROOT/app/src/main/assets/vtt" >/tmp/nave-audit-http.log 2>&1 & PID=$!;trap 'kill $PID || true' EXIT;sleep 1
+          python3 star-wars/r54/audit_nave_e2e.py "$ROOT" | tee final-audit-out/NAVE_E2E.txt
+          grep -q 'R54_NAVE_E2E_PASS' final-audit-out/NAVE_E2E.txt
       - name: Run deep canonical audit
         env: {ROOT: "${{ steps.root.outputs.path }}"}
         run: |
@@ -68,5 +75,6 @@ jobs:
           DEST=star-wars/r54/audit;mkdir -p "$DEST"
           cp final-audit-out/DEEP_AUDIT.md "$DEST/DEEP_VTT_AUDIT_2026-09-16.md"
           cp final-audit-out/DEEP_AUDIT.json "$DEST/DEEP_VTT_AUDIT_2026-09-16.json"
+          cp final-audit-out/NAVE_E2E.txt "$DEST/NAVE_E2E_2026-09-16.txt"
           printf 'Canonical R54 final output deep audit: NO FAIL.\n' > "$DEST/FINAL_CANONICAL_AUDIT_STATUS.txt"
           git config user.name github-actions;git config user.email github-actions@github.com;git add "$DEST";git commit -m 'audit: canonical Star Wars R54 final output no-fail report' || true;git pull --rebase origin main;git push origin HEAD:main
