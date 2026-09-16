@@ -27,15 +27,9 @@ jobs:
           ACTUAL="$(sha256sum "$APK" | awk '{print $1}')"
           test "$ACTUAL" = "$EXPECTED"
           RESP="$(curl --fail --silent --show-error -F "file=@$APK" https://tmpfiles.org/api/v1/upload)"
-          echo "$RESP" > /tmp/tmpfiles-response.json
-          URL="$(python3 - <<'PY'
-import json
-x=json.load(open('/tmp/tmpfiles-response.json'))
-u=x['data']['url']
-print(u.replace('https://tmpfiles.org/','https://tmpfiles.org/dl/',1))
-PY
-)"
+          URL="$(printf '%s' "$RESP" | jq -r '.data.url' | sed 's#https://tmpfiles.org/#https://tmpfiles.org/dl/#')"
           test -n "$URL"
+          test "$URL" != "null"
           echo "$URL" > deliverables/fichas-final-20260916/TEMP_DIRECT_DOWNLOAD.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
