@@ -1,0 +1,42 @@
+name: Push Braseiro APK to Transfer Session
+
+on:
+  push:
+    branches: [fichas-final-20260916]
+    paths:
+      - ".github/workflows/push-apk-cloudconvert.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fichas-final-20260916
+      - name: Validar e enviar APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="deliverables/fichas-final-20260916/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.0-final-debug.apk"
+          SHA="8b217b8122695a848297c20d4a5966bdcd34942e1ce0c3199f485fc843c60da6"
+          test -f "$APK"
+          test "$(wc -c < "$APK")" = "318743"
+          test "$(sha256sum "$APK" | awk '{print $1}')" = "$SHA"
+          curl --fail --silent --show-error \
+            -F 'acl=private' \
+            -F 'key=7587d0c3-140c-4e74-a0e5-33df89e9fe1a/${filename}' \
+            -F 'success_action_status=201' \
+            -F 'X-Amz-Credential=cloudconvert-production/20260916/fra/s3/aws4_request' \
+            -F 'X-Amz-Algorithm=AWS4-HMAC-SHA256' \
+            -F 'X-Amz-Date=20260916T050820Z' \
+            -F 'Policy=eyJleHBpcmF0aW9uIjoiMjAyNi0wOS0xNlQxNzowODoyMFoiLCJjb25kaXRpb25zIjpbeyJhY2wiOiJwcml2YXRlIn0seyJidWNrZXQiOiJ0YXNrcyJ9LFsic3RhcnRzLXdpdGgiLCIka2V5IiwiNzU4N2QwYzMtMTQwYy00ZTc0LWEwZTUtMzNkZjg5ZTlmZTFhXC8iXSx7InN1Y2Nlc3NfYWN0aW9uX3N0YXR1cyI6IjIwMSJ9LHsiWC1BbXotRGF0ZSI6IjIwMjYwOTE2VDA1MDgyMFoifSx7IlgtQW16LUNyZWRlbnRpYWwiOiJjbG91ZGNvbnZlcnQtcHJvZHVjdGlvblwvMjAyNjA5MTZcL2ZyYVwvczNcL2F3czRfcmVxdWVzdCJ9LHsiWC1BbXotQWxnb3JpdGhtIjoiQVdTNC1ITUFDLVNIQTI1NiJ9XX0=' \
+            -F 'X-Amz-Signature=e1b508c6148da85ffc3e6e11a5c32c13703dd8af080a0b6045bab8ccdd7083ee' \
+            -F "file=@$APK;filename=BRASEIRO_FICHAS_MULTISSISTEMA-1.0.0-final-debug.apk" \
+            https://eu-central.storage.cloudconvert.com/tasks \
+            -o /tmp/upload-response.xml
+          grep -q '<PostResponse>' /tmp/upload-response.xml
+          echo 'APK enviado para a sessão de transferência.'
