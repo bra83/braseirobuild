@@ -1,3 +1,4 @@
+# Audit rerun 2026-09-16 — no product changes
 name: Audit Star Wars Edge of the Galaxy R54 Complete
 on:
   workflow_dispatch:
