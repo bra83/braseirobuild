@@ -1,0 +1,1 @@
+R54 UX validated: 31 screens; character JSON exposed in Dados/diagnóstico; AoR 12/36/720.
