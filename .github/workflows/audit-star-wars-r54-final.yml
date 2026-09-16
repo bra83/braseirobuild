@@ -1,0 +1,86 @@
+name: Audit Star Wars R54 Final
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/audit-star-wars-r54-final.yml"]
+permissions: {contents: write}
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PACK_URL: https://firestorage.ai/ja/f/fpHIoZHL9wUf
+      PACK_FILE: STAR_WARS_R54_VISUAL_DATA_PACK.zip
+      PACK_SHA: f18bf92117bf00dfe6641c7ca31c8037904e79ef9816694c4e844099a4307f60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Recover exact R54 candidate
+        run: |
+          set -euo pipefail
+          rm -rf fast-work fast-pack fast-in fast-out; mkdir fast-work fast-pack fast-in fast-out
+          unzip -q star-wars/final-1.0.0/output-r53/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R53_REAL_DEVICE_HOTFIX.zip -d fast-work
+          python -m pip install --quiet playwright
+          python -m playwright install chromium
+          python3 - <<'PY'
+          import os,pathlib
+          from playwright.sync_api import sync_playwright
+          out=pathlib.Path('fast-in')/os.environ['PACK_FILE'];done=False
+          with sync_playwright() as p:
+            b=p.chromium.launch(headless=True);pg=b.new_page(accept_downloads=True);pg.goto(os.environ['PACK_URL'],wait_until='domcontentloaded',timeout=120000);pg.wait_for_timeout(2000)
+            for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")']:
+              try:
+                x=pg.locator(sel).first
+                if not x.count() or not x.is_visible():continue
+                with pg.expect_download(timeout=120000) as di:x.click(timeout=10000)
+                di.value.save_as(str(out));done=True;break
+              except Exception:pass
+            if not done:
+              card=pg.get_by_text(os.environ['PACK_FILE'],exact=False).first;ctrl=card.locator('xpath=ancestor::*[self::div or self::li or self::article][1]').locator('a,button').last
+              with pg.expect_download(timeout=120000) as di:ctrl.click(timeout=10000)
+              di.value.save_as(str(out));done=True
+            b.close()
+          if not done:raise SystemExit('download failed')
+          PY
+          echo "$PACK_SHA  fast-in/$PACK_FILE" | sha256sum -c -
+          unzip -q fast-in/$PACK_FILE -d fast-pack
+          SET="$(find fast-work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"; ROOT="$(dirname "$SET")"
+          python3 star-wars/r54/hotfix_r54.py "$ROOT" "$(pwd)/fast-pack"
+          printf '\n.final-start-list button[hidden]{display:none!important}\n' >> "$ROOT/app/src/main/assets/vtt/r46/final-runtime.css"
+          echo "$ROOT" > fast-out/root.txt
+      - name: Full Node tests
+        run: |
+          set +e; ROOT="$(cat fast-out/root.txt)"; cd "$ROOT"; node --test tests/*.test.mjs > "$GITHUB_WORKSPACE/fast-out/node.tap" 2>&1; echo $? > "$GITHUB_WORKSPACE/fast-out/node.exit"; exit 0
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@v4
+        with: {gradle-version: '8.13', validate-wrappers: false}
+      - name: Android build
+        run: |
+          set +e
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"; SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort | tail -n1)"; yes | "$SDKMANAGER" --licenses >/dev/null || true; "$SDKMANAGER" 'platform-tools' 'platforms;android-36' >/dev/null
+          ROOT="$(cat fast-out/root.txt)"; cd "$ROOT"; gradle :app:assembleDebug --no-daemon > "$GITHUB_WORKSPACE/fast-out/android.log" 2>&1; echo $? > "$GITHUB_WORKSPACE/fast-out/android.exit"; exit 0
+      - name: Bounded mobile E2E + narrative audit
+        run: |
+          set -euo pipefail
+          ROOT="$(cat fast-out/root.txt)"; ANDROID="$(cat fast-out/android.exit)"
+          python3 -m http.server 8765 --directory "$ROOT/app/src/main/assets/vtt" >/tmp/fast-http.log 2>&1 & PID=$!; trap 'kill $PID || true' EXIT; sleep 1
+          timeout 90s python3 star-wars/r54/audit_fast.py "$ROOT" fast-out fast-out/node.tap "$ANDROID"
+          cat fast-out/FULL_AUDIT_FINAL.md
+      - name: Persist final report
+        if: always()
+        run: |
+          set -euo pipefail
+          D=star-wars/r54/audit;mkdir -p "$D"
+          [ ! -f fast-out/FULL_AUDIT_FINAL.md ] || cp fast-out/FULL_AUDIT_FINAL.md "$D/FULL_AUDIT_FINAL_2026-09-16.md"
+          [ ! -f fast-out/FULL_AUDIT_FINAL.json ] || cp fast-out/FULL_AUDIT_FINAL.json "$D/FULL_AUDIT_FINAL_2026-09-16.json"
+          [ ! -f fast-out/OPENING_NARRATION_ACTUAL.txt ] || cp fast-out/OPENING_NARRATION_ACTUAL.txt "$D/OPENING_NARRATION_FINAL.txt"
+          if [ -f fast-out/node.tap ]; then python3 - <<'PY'
+          from pathlib import Path
+          t=Path('fast-out/node.tap').read_text('utf-8',errors='replace');lines=t.splitlines();out=[x for x in lines if x.startswith('# tests ') or x.startswith('# pass ') or x.startswith('# fail ') or x.startswith('not ok ')];Path('star-wars/r54/audit/NODE_FINAL_SUMMARY.txt').write_text('\n'.join(out)+'\n','utf-8')
+          PY
+          fi
+          [ ! -f fast-out/android.log ] || tail -n 80 fast-out/android.log > "$D/ANDROID_FINAL_TAIL.txt"
+          git config user.name github-actions;git config user.email github-actions@github.com;git add "$D";git commit -m 'audit: persist final Star Wars R54 findings' || true;git pull --rebase origin main;git push origin HEAD:main
