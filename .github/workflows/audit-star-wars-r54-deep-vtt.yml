@@ -3,7 +3,12 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [".github/workflows/audit-star-wars-r54-deep-vtt.yml"]
+    paths:
+      - ".github/workflows/audit-star-wars-r54-deep-vtt.yml"
+      - "star-wars/r54/audit_deep_vtt.py"
+      - "star-wars/r54/fix_aor_talent_runtime.py"
+      - "star-wars/r54/fix_map_anchor_state.py"
+      - "star-wars/r54/fix_item_binding_idempotence.py"
 permissions: {contents: write}
 jobs:
   deep-audit:
@@ -51,12 +56,16 @@ jobs:
           echo "$PACK_SHA  deep-incoming/$PACK_FILE" | sha256sum -c -
           unzip -q "deep-incoming/$PACK_FILE" -d deep-pack
       - id: root
-        name: Apply exact R54 under audit
+        name: Apply exact current R54 under audit
         run: |
           set -euo pipefail
           SET="$(find deep-work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"
           test -n "$SET"; ROOT="$(dirname "$SET")"
+          python3 -m py_compile star-wars/r54/hotfix_r54.py star-wars/r54/fix_map_anchor_state.py star-wars/r54/fix_item_binding_idempotence.py star-wars/r54/fix_aor_talent_runtime.py
           python3 star-wars/r54/hotfix_r54.py "$ROOT" "$(pwd)/deep-pack"
+          python3 star-wars/r54/fix_map_anchor_state.py "$ROOT"
+          python3 star-wars/r54/fix_item_binding_idempotence.py "$ROOT"
+          python3 star-wars/r54/fix_aor_talent_runtime.py "$ROOT"
           printf '\n.final-start-list button[hidden]{display:none!important}\n' >> "$ROOT/app/src/main/assets/vtt/r46/final-runtime.css"
           echo "path=$ROOT" >> "$GITHUB_OUTPUT"
       - name: Run full Node regression again
