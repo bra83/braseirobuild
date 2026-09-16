@@ -21,7 +21,7 @@ jobs:
           curl --fail --show-error --silent \
             -X POST "https://eu-central.storage.cloudconvert.com/tasks" \
             -F "acl=private" \
-            -F "key=e9540a24-10ea-4781-9b6b-80ca331c628f/${filename}" \
+            -F 'key=e9540a24-10ea-4781-9b6b-80ca331c628f/${filename}' \
             -F "success_action_status=201" \
             -F "X-Amz-Credential=cloudconvert-production/20260916/fra/s3/aws4_request" \
             -F "X-Amz-Algorithm=AWS4-HMAC-SHA256" \
