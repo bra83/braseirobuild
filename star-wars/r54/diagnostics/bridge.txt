@@ -15,155 +15,981 @@ try{
   window.__BRASEIRO_FIRST_BOOT__={ok:false,created:false,error:String(error&&error.message||error)};
 }
 })();
-\n=== bridge globals / storage ===
-/tmp/r53/app/src/main/assets/vtt/r46/final-runtime.js:6:const prefs={...defaults,...safeParse(localStorage.getItem(PREF_KEY),{})};
-/tmp/r53/app/src/main/assets/vtt/r46/final-runtime.js:7:function save(){try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs))}catch{}}
-/tmp/r53/app/src/main/assets/vtt/r46/final-runtime.js:83: const b=window.BraseiroGameBridge;
-/tmp/r53/app/src/main/assets/vtt/r46/final-runtime.js:253:function currentSceneRecord(){try{const state=safeParse(localStorage.getItem('braseiro.starwars.edge.state.v1'),null);return state&&state.scene&&typeof state.scene==='object'?state.scene:null}catch{return null}}
-/tmp/r53/app/src/main/assets/vtt/r46/final-runtime.js:278:function r53Bridge(){return (typeof window!=='undefined'&&window.BraseiroGameBridge&&typeof window.BraseiroGameBridge==='object')?window.BraseiroGameBridge:null}
-/tmp/r53/app/src/main/assets/vtt/r46/final-runtime.js:304: const b=r53Bridge();if(!b||typeof b.newCampaign!=='function'){alert('O motor não expôs o comando de nova campanha.');return}
-/tmp/r53/app/src/main/assets/vtt/r46/final-runtime.js:306: try{const raw=b.newCampaign('Edge of the Galaxy');if(raw&&raw.ok===false)throw new Error(raw.message||'Falha ao reiniciar campanha.');location.reload()}catch(err){alert(String(err?.message||err))}
-/tmp/r53/app/src/main/assets/vtt/r46/r46-shell.bundle.js:444:    const source = storage ?? (typeof window !== 'undefined' ? window.localStorage : null);
-/tmp/r53/app/src/main/assets/vtt/r46/r46-shell.bundle.js:497:    return window.BraseiroGameBridge;
-/tmp/r53/app/src/main/assets/vtt/r46/final-bootstrap.js:4:  const bridge=window.BraseiroGameBridge;
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:96:    constructor({ repository = null, storage = globalThis.localStorage, snapshots = null } = {}) {
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:97:        this.repository = repository ?? new storage_mjs_1.LocalStorageRepository(storage);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:98:        const snapshotStorage = this.repository?.storage ?? storage;
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:99:        this.snapshots = snapshots ?? new snapshots_mjs_1.LocalSnapshotRepository(snapshotStorage);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:103:            const state = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:112:            const existing = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:115:            const game = new controller_mjs_1.GameController(this.repository);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:167:            state = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:276:            existing = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:284:            return ok(new controller_mjs_1.GameController(this.repository));
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:356:            state = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:383:            existing = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:392:            this.repository.save(imported);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:410:            state = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:427:            const state = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:467:            const state = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:670:            before = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:679:            this.repository.save(restored);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:848:    if (target.BraseiroGameBridge)
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:849:        return target.BraseiroGameBridge;
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.mjs:851:    Object.defineProperty(target, 'BraseiroGameBridge', {
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:1:import { LocalStorageRepository, exportStateJson, importStateJson } from './storage.mjs';
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:2:import { LocalSnapshotRepository } from './snapshots.mjs';
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:25:  constructor({ repository = null, storage = globalThis.localStorage, snapshots = null } = {}) {
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:26:    this.repository = repository ?? new LocalStorageRepository(storage);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:27:    const snapshotStorage = this.repository?.storage ?? storage;
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:28:    this.snapshots = snapshots ?? new LocalSnapshotRepository(snapshotStorage);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:33:      const state = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:43:      existing = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:49:      return ok(new GameController(this.repository));
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:113:    try { state = this.repository.load(); }
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:132:    try { existing = this.repository.load(); }
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:138:      this.repository.save(imported);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:155:    try { state = this.repository.load(); }
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:168:    try { before = this.repository.load(); }
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:173:      this.repository.save(restored);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:215:  if (target.BraseiroGameBridge) return target.BraseiroGameBridge;
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.R31_PRE_RUN82_EQUIPMENT_BRIDGE.mjs:217:  Object.defineProperty(target, 'BraseiroGameBridge', {
-/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:322:    constructor(repository) {
-/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:323:        this.repository = repository;
-/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:324:        this.state = repository.load() ?? state_mjs_1.createCampaign('Rebelião - campanha local');
-/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:325:        repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:331:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:334:    newCampaign(name) {
-/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:336:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:469:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:480:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:507:            this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:530:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:543:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:573:            this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:587:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:836:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/controller.mjs:1088:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/snapshots.mjs:3:export class LocalSnapshotRepository {
-/tmp/r53/app/src/main/assets/vtt/js/core/snapshots.mjs:4:  constructor(storage=globalThis.localStorage, key='braseiro.starwars.edge.snapshots.v1', max=10){ this.storage=storage; this.key=key; this.max=max; }
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:109:    constructor({ repository = null, storage = globalThis.localStorage, snapshots = null } = {}) {
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:110:        this.repository = repository ?? new storage_mjs_1.LocalStorageRepository(storage);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:111:        const snapshotStorage = this.repository?.storage ?? storage;
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:112:        this.snapshots = snapshots ?? new snapshots_mjs_1.LocalSnapshotRepository(snapshotStorage);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:116:            const state = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:125:            const existing = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:128:            const game = new controller_mjs_1.GameController(this.repository);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:215:            state = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:324:            existing = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:332:            return ok(new controller_mjs_1.GameController(this.repository));
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:404:            state = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:431:            existing = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:440:            this.repository.save(imported);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:458:            state = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:475:            const state = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:517:            const state = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:837:            before = this.repository.load();
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:846:            this.repository.save(restored);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1016:    if (target.BraseiroGameBridge)
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1017:        return target.BraseiroGameBridge;
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1019:    Object.defineProperty(target, 'BraseiroGameBridge', {
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1359:    constructor(repository) {
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1360:        this.repository = repository;
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1361:        this.state = repository.load() ?? state_mjs_1.createCampaign('Rebelião - campanha local');
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1362:        repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1368:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1371:    newCampaign(name) {
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1373:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1507:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1518:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1545:            this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1568:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1581:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1611:            this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1625:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:1898:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:2159:        this.repository.save(this.state);
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:2865:exports.LocalSnapshotRepository = void 0;
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:2867:class LocalSnapshotRepository {
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:2868:    constructor(storage = globalThis.localStorage, key = 'braseiro.starwars.edge.snapshots.v1', max = 10) { this.storage = storage; this.key = key; this.max = max; }
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:2883:exports.LocalSnapshotRepository = LocalSnapshotRepository;
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:3047:exports.LocalStorageRepository = exports.R21_STATE_CHANGED_EVENT = void 0;
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:3076:class LocalStorageRepository {
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:3077:    constructor(storage = globalThis.localStorage, key = 'braseiro.starwars.edge.state.v1', eventTarget = globalThis) {
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:3096:    clear() {
-/tmp/r53/app/src/main/assets/vtt/js/core/uiBridge.bundle.js:3101:exports.LocalStorageRepository = LocalStorageRepository;
-/tmp/r53/app/src/main/assets/vtt/js/core/storage.mjs:24:export class LocalStorageRepository {
-/tmp/r53/app/src/main/assets/vtt/js/core/storage.mjs:25:  constructor(storage = globalThis.localStorage, key = 'braseiro.starwars.edge.state.v1', eventTarget = globalThis) {
-/tmp/r53/app/src/main/assets/vtt/js/core/storage.mjs:43:  clear() {
-\n=== Gemini interface ===
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:9:import android.webkit.JavascriptInterface;
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:146:        webView.addJavascriptInterface(new LibraryBridge(), "BraseiroLibrary");
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:147:        webView.addJavascriptInterface(geminiBridge.javascriptInterface(), "BraseiroGemini");
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:148:        webView.addJavascriptInterface(imageLibraryBridge, "BraseiroImages");
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:149:        webView.addJavascriptInterface(ttsBridge, "BraseiroTts");
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:150:        webView.addJavascriptInterface(fileBridge, "BraseiroFiles");
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:206:        @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:227:        @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:232:        @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:237:        @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:257:        @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java:281:        @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/ImageLibraryBridge.java:5:import android.webkit.JavascriptInterface;
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/ImageLibraryBridge.java:55:    @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/ImageLibraryBridge.java:66:    @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/ImageLibraryBridge.java:89:    @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:12:import android.webkit.JavascriptInterface;
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:84:    Object javascriptInterface() {
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:122:        @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:128:        @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:139:        @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:157:        @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:180:        @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:187:        @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:199:        @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:200:        public String generateSceneImage(String prompt, String sceneKey) {
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:220:        @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:241:        @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java:265:        @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/FileBridge.java:9:import android.webkit.JavascriptInterface;
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/FileBridge.java:25:    @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/TtsBridge.java:5:import android.webkit.JavascriptInterface;
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/TtsBridge.java:48:    @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/TtsBridge.java:62:    @JavascriptInterface
-/tmp/r53/app/src/main/java/com/braseiro/starwarsedge/TtsBridge.java:89:    @JavascriptInterface
+
+
+=== RUNTIME CONTEXT Mos Eisley ===
+bView será usado se disponível.'))};refreshStatus();
+ enabled.addEventListener('change',()=>{prefs.ttsEnabled=enabled.checked;save()});
+ provider.addEventListener('change',()=>{prefs.ttsProvider=provider.value;save();refreshStatus()});
+ rate.addEventListener('change',()=>{prefs.ttsRate=rate.value;save()});
+ voice.addEventListener('change',()=>{prefs.geminiVoice=voice.value;save()});
+ content.querySelector('#final-tts-test').addEventListener('click',()=>{const r=speak('Teste de narração do Mestre.');status.textContent=r.ok?(provider.value==='gemini'?'Gemini TTS iniciado.':'Voz reproduzida.'):(r.message||'Não foi possível reproduzir a voz.')});
+ content.querySelector('#final-tts-stop').addEventListener('click',()=>{stop();status.textContent='Voz interrompida.'});
+ const stateCard=cardByTitle('Estado');if(stateCard){const body=stateCard.children[1];if(body)body.textContent='Somente o texto visível da Narração do Mestre é lido. Android TTS funciona offline quando instalado; Gemini TTS usa a chave configurada no aparelho.'}
+}
+function campaignMode(){const r=bridgeResult('campaignModeSummary');return r&&r.ok?String(r.data?.campaignMode||'EOTE').toUpperCase():'EOTE'}
+function relabelCreationForCampaign(){
+ const mode=campaignMode();if(mode!=='AOR')return;
+ const replacements=new Map([
+  ['Obligation / vínculo de campanha','Duty / vínculo com a Aliança'],['Tipo de Obligation','Tipo de Duty'],['Selecione uma Obligation','Selecione um Duty'],
+  ['+5 Obligation → +5 PE','−5 Duty → +5 PE'],['+10 Obligation → +10 PE','−10 Duty → +10 PE'],['+5 Obligation → +1.000 créditos','−5 Duty → +1.000 créditos'],['+10 Obligation → +2.500 créditos','−10 Duty → +2.500 créditos'],
+  ['Obligation inicial','Duty inicial'],['Obligation adicional','Duty gasto'],['Obligation final','Duty final'],['Obligation','Duty']
+ ]);
+ const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;
+ while((n=walker.nextNode())){const v=String(n.nodeValue||'').trim();if(replacements.has(v))n.nodeValue=String(n.nodeValue).replace(v,replacements.get(v));}
+}
+function currentState(){const r=bridgeResult('readState');return r&&r.ok?r.data:null}
+function sandboxReady(){const r=bridgeResult('livingSandboxStatus');return Boolean(r&&r.ok&&r.data?.sandbox?.initialized)}
+function hasCharacter(){return Boolean(currentState()?.player?.character)}
+function adventureStarted(){const st=currentState();return Boolean(String(st?.master?.narration||st?.scene?.narration||'').trim())}
+function navigateRoute(route){const u=new URL(location.href);u.searchParams.set('screen',String(route));history.pushState({},'',u);window.dispatchEvent(new PopStateEvent('popstate'));window.scrollTo(0,0)}
+function randomCharacterIdentity(){
+ const names=['Nera Vos','Kellan Rook','Syla Venn','Dax Marr','Tarin Vale','Mira Kest','Joren Nox','Kael Sorn','Veya Tann','Rian Korr','Lysa Renn','Bren Tal'];
+ const motivations=['Pagar uma dívida sem perder a própria liberdade.','Proteger alguém que ficou para trás.','Encontrar uma oportunidade grande o bastante para mudar de vida.','Descobrir quem sabotou seu antigo grupo.','Construir reputação entre contrabandistas e pilotos.','Ajudar pessoas esmagadas pelo poder do Império.'];
+ return {name:names[Math.floor(Math.random()*names.length)],motivation:motivations[Math.floor(Math.random()*motivations.length)]};
+}
+function quickRandomCharacter(statusEl){const id=randomCharacterIdentity();const r=bridgeResult('generateRandomCharacter',id,{createSnapshot:true});if(!r.ok){if(statusEl)statusEl.textContent=r.message||'Não foi possível gerar a ficha.';return false}if(statusEl)statusEl.textContent=`Ficha criada: ${id.name}.`;setTimeout(enhance,0);return true}
+function quickImportCharacter(statusEl){
+ const input=document.createElement('input');input.type='file';input.accept='application/json,.json';input.hidden=true;document.body.appendChild(input);
+ input.onchange=()=>{const f=input.files?.[0];if(!f){input.remove();return}if(f.size>16*1024*1024){if(statusEl)statusEl.textContent='O JSON excede 16 MB.';input.remove();return}const reader=new FileReader();reader.onload=()=>{const r=bridgeResult('importCharacterJson',String(reader.result||''),{createSnapshot:true});if(statusEl)statusEl.textContent=r.ok?'Ficha importada.':(r.message||'Falha ao importar ficha.');input.remove();setTimeout(enhance,0)};reader.onerror=()=>{if(statusEl)statusEl.textContent='Falha ao ler o arquivo JSON.';input.remove()};reader.readAsText(f)};input.click();
+}
+const START_POINTS=[
+ {name:'Mos Eisley · Tatooine',x:65,y:55,desc:'Porto do deserto, contrabando e oportunidades no Borda Exterior.'},
+ {name:'Nar Shaddaa',x:48,y:43,desc:'Lua dos contrabandistas, cartéis, caçadores e mercados clandestinos.'},
+ {name:'Ord Mantell',x:39,y:31,desc:'Sucata, mercenários, rotas de guerra e negócios cinzentos.'},
+ {name:'Corellia',x:43,y:48,desc:'Estaleiros, pilotos, sindicatos e tráfego interestelar intenso.'},
+ {name:'Ryloth',x:57,y:52,desc:'Rotas de especiarias, ocupação imperial e redes locais.'},
+ {name:'Eriadu',x:60,y:67,desc:'Mundo industrial estratégico entre o Núcleo e a Borda Exterior.'},
+ {name:'Socorro',x:71,y:62,desc:'Refúgio periférico de pilotos, oficinas e contrabandistas.'},
+ {name:'Bespin',x:51,y:58,desc:'Cidade das Nuvens, tibanna, comércio e interesses imperiais.'}
+];
+function setupOverlay(){
+ if(document.getElementById('braseiro-sandbox-setup')||sandboxReady())return;
+ const modeResult=bridgeResult('campaignModeSummary');if(!modeResult.ok)return;
+ const host=document.createElement('div');host.id='braseiro-sandbox-setup';host.setAttribute('role','dialog');host.setAttribute('aria-modal','true');host.setAttribute('aria-label','Configurar campanha sandbox');host.className='final-sandbox-overlay';
+ host.innerHTML=`<div class="final-sandbox-card"><div class="final-kicker">MUNDO LIVRE</div><h2>Começar sem roteiro</h2><p>Escolha o perfil da campanha e onde a história começa. Você não precisa escrever o ponto inicial.</p>
+ <label class="final-field"><span>Campanha</span><select id="sandbox-mode"><option value="EOTE">Edge of the Empire</option><option value="AOR">Age of Rebellion</option><option value="MIXED">Mista · EotE + AoR</option></select></label>
+ <div class="final-field"><span>Ponto inicial</span><div class="final-mode-tabs"><button type="button" data-start-mode="list" class="is-active">LISTA</button><button type="button" data-start-mode="map">MAPA</button><button type="button" data-start-mode="random">ALEATÓRIO</button></div></div>
+ <div id="sandbox-list" class="final-start-list">${START_POINTS.map((p,i)=>`<button type="button" data-point="${i}" class="${i===0?'is-selected':''}"><strong>${p.name}</strong><small>${p.desc}</small></button>`).join('')}</div>
+ <div id="sandbox-map" class="final-start-map" hidden><img src="https://kainrath.wordpress.com/wp-content/uploads/2016/06/galaxy_map-v2.4-1.png" onerror="this.onerror=null;this.src='assets/maps/galaxy_map.jpg'" alt="Mapa da galáxia para escolher o ponto inicial">${START_POINTS.map((p,i)=>`<button type="button" data-point="${i}" style="left:${p.x}%;top:${p.y}%" aria-label="Escolher ${p.name}">${i+1}</button>`).join('')}<div class="final-map-caption" id="sandbox-map-caption">${START_POINTS[0].name}</div></div>
+ <div class="final-selected-point"><span>Selecionado</span><strong id="sandbox-selected-point">${START_POINTS[0].name}</strong></div>
+ <div id="sandbox-setup-status" role="status" class="final-status"></div><button id="sandbox-start-button" type="button" class="final-primary-button">CRIAR MUNDO VIVO</button>
+ <p class="final-footnote">Seed inicial: 6 facções, 36 NPCs persistentes, 12 locais, relógios, mercados e oportunidades. Sem roteiro obrigatório; aventuras publicadas são opcionais.</p></div>`;
+ document.body.appendChild(host);
+ const select=host.querySelector('#sandbox-mode'),button=host.querySelector('#sandbox-start-button'),status=host.querySelector('#sandbox-setup-status'),list=host.querySelector('#sandbox-list'),map=host.querySelector('#sandbox-map'),selected=host.querySelector('#sandbox-selected-point'),caption=host.querySelector('#sandbox-map-caption');select.value=String(modeResult.data?.campaignMode||'EOTE');let pointIndex=0,mode='list';
+ const choose=i=>{pointIndex=Math.max(0,Math.min(START_POINTS.length-1,Number(i)||0));host.querySelectorAll('[data-point]').forEach(x=>x.classList.toggle('is-selected',Number(x.dataset.point)===pointIndex));selected.textContent=START_POINTS[pointIndex].name;caption.textContent=START_POINTS[pointIndex].name};host.querySelectorAll('[data-point]').forEach(x=>x.onclick=()=>choose(x.dataset.point));
+ host.querySelectorAll('[data-start-mode]').forEach(x=>x.onclick=()=>{mode=x.dataset.startMode;host.querySelectorAll('[data-start-mode]').forEach(y=>y.classList.toggle('is-active',y===x));if(mode==='random'){choose(Math.floor(Math.random()*START_POINTS.length));list.hidden=false;map.hidden=true}else{list.hidden=mode!=='list';map.hidden=mode!=='map'}});
+ button.onclick=()=>{const point=START_POINTS[pointIndex].name;button.disabled=true;status.textContent='Criando mundo persistente…';const m=bridgeResult('setCampaignMode',select.value);if(!m.ok){status.textContent=m.message||'Modo inválido.';button.disabled=false;return}const r=bridgeResult('initializeLivingSandbox',{startingPoint:point,regionLabel:`Região de ${point}`});if(!r.ok){status.textContent=r.message||'Falha ao criar mundo.';button.disabled=false;return}status.textContent='Mundo criado.';host.remove();setTimeout(()=>{relabelCreationForCampaign();enhance()},0)};
+}
+function enhanceAdventureGate(){
+ const existing=document.querySelector('.final-adventure-gate');
+ if(!sandboxReady()||adventureStarted()){document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());return}
+ const route=new URLSearchParams(location.search).get('screen')||'00';const character=hasCharacter(),gateKey=`${route}:${character?'character':'empty'}`;
+ if(existing?.dataset?.gateKey===gateKey)return;
+ document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());
+ if(route==='00'){
+  const root=document.querySelector('.scene-concept-shell');if(!root)return;const gate=document.createElement('section');gate.className='final-adventure-gate final-adventure-card';gate.dataset.gateKey=gateKey;
+  gate.innerHTML=character?`<div><span>PRONTO PARA JOGAR</span><strong>Seu mundo vivo está criado.</strong><small>Barbara vai gerar a situação inicial a partir do local, facções, NPCs e oportunidades persistentes.</small></div><button type="button" data-start-adventure>INICIAR AVENTURA</button>`:`<div><span>ANTES DE COMEÇAR</span><strong>Crie ou carregue um personagem.</strong><small>Você pode criar manualmente, gerar uma ficha completa aleatória ou importar .json.</small></div><div class="final-adventure-actions"><button type="button" data-manual-character>CRIAR FICHA</button><button type="button" data-random-character>ALEATÓRIA</button><button type="button" data-import-character>IMPORTAR JSON</button></div><output></output>`;
+  root.prepend(gate);const out=gate.querySelector('output');gate.querySelector('[data-manual-character]')?.addEventListener('click',()=>navigateRoute('18'));gate.querySelector('[data-random-character]')?.addEventListener('click',()=>quickRandomCharacter(out));gate.querySelector('[data-import-character]')?.addEventListener('click',()=>quickImportCharacter(out));gate.querySelector('[data-start-adventure]')?.addEventListener('click',()=>{const b=gate.querySelector('[data-start-adventure]');b.disabled=t
+
+=== RUNTIME CONTEXT sceneGeminiPrompt ===
+=host.querySelector('#sandbox-list'),map=host.querySelector('#sandbox-map'),selected=host.querySelector('#sandbox-selected-point'),caption=host.querySelector('#sandbox-map-caption');select.value=String(modeResult.data?.campaignMode||'EOTE');let pointIndex=0,mode='list';
+ const choose=i=>{pointIndex=Math.max(0,Math.min(START_POINTS.length-1,Number(i)||0));host.querySelectorAll('[data-point]').forEach(x=>x.classList.toggle('is-selected',Number(x.dataset.point)===pointIndex));selected.textContent=START_POINTS[pointIndex].name;caption.textContent=START_POINTS[pointIndex].name};host.querySelectorAll('[data-point]').forEach(x=>x.onclick=()=>choose(x.dataset.point));
+ host.querySelectorAll('[data-start-mode]').forEach(x=>x.onclick=()=>{mode=x.dataset.startMode;host.querySelectorAll('[data-start-mode]').forEach(y=>y.classList.toggle('is-active',y===x));if(mode==='random'){choose(Math.floor(Math.random()*START_POINTS.length));list.hidden=false;map.hidden=true}else{list.hidden=mode!=='list';map.hidden=mode!=='map'}});
+ button.onclick=()=>{const point=START_POINTS[pointIndex].name;button.disabled=true;status.textContent='Criando mundo persistente…';const m=bridgeResult('setCampaignMode',select.value);if(!m.ok){status.textContent=m.message||'Modo inválido.';button.disabled=false;return}const r=bridgeResult('initializeLivingSandbox',{startingPoint:point,regionLabel:`Região de ${point}`});if(!r.ok){status.textContent=r.message||'Falha ao criar mundo.';button.disabled=false;return}status.textContent='Mundo criado.';host.remove();setTimeout(()=>{relabelCreationForCampaign();enhance()},0)};
+}
+function enhanceAdventureGate(){
+ const existing=document.querySelector('.final-adventure-gate');
+ if(!sandboxReady()||adventureStarted()){document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());return}
+ const route=new URLSearchParams(location.search).get('screen')||'00';const character=hasCharacter(),gateKey=`${route}:${character?'character':'empty'}`;
+ if(existing?.dataset?.gateKey===gateKey)return;
+ document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());
+ if(route==='00'){
+  const root=document.querySelector('.scene-concept-shell');if(!root)return;const gate=document.createElement('section');gate.className='final-adventure-gate final-adventure-card';gate.dataset.gateKey=gateKey;
+  gate.innerHTML=character?`<div><span>PRONTO PARA JOGAR</span><strong>Seu mundo vivo está criado.</strong><small>Barbara vai gerar a situação inicial a partir do local, facções, NPCs e oportunidades persistentes.</small></div><button type="button" data-start-adventure>INICIAR AVENTURA</button>`:`<div><span>ANTES DE COMEÇAR</span><strong>Crie ou carregue um personagem.</strong><small>Você pode criar manualmente, gerar uma ficha completa aleatória ou importar .json.</small></div><div class="final-adventure-actions"><button type="button" data-manual-character>CRIAR FICHA</button><button type="button" data-random-character>ALEATÓRIA</button><button type="button" data-import-character>IMPORTAR JSON</button></div><output></output>`;
+  root.prepend(gate);const out=gate.querySelector('output');gate.querySelector('[data-manual-character]')?.addEventListener('click',()=>navigateRoute('18'));gate.querySelector('[data-random-character]')?.addEventListener('click',()=>quickRandomCharacter(out));gate.querySelector('[data-import-character]')?.addEventListener('click',()=>quickImportCharacter(out));gate.querySelector('[data-start-adventure]')?.addEventListener('click',()=>{const b=gate.querySelector('[data-start-adventure]');b.disabled=true;b.textContent='INICIANDO…';const r=bridgeResult('startLivingAdventure',{});if(!r.ok){b.disabled=false;b.textContent='INICIAR AVENTURA';alert(r.message||'Não foi possível iniciar a aventura.');return}setTimeout(()=>{enhanceSceneFromEngine();enhanceNarration();enhanceSceneGeminiButton()},0)});
+ }else if(character){
+  const bar=document.createElement('button');bar.type='button';bar.className='final-adventure-gate final-adventure-fab';bar.dataset.gateKey=gateKey;bar.textContent='▶ INICIAR AVENTURA';bar.onclick=()=>{const r=bridgeResult('startLivingAdventure',{});if(!r.ok){alert(r.message||'Não foi possível iniciar a aventura.');return}navigateRoute('00')};document.body.appendChild(bar);
+ }
+}
+function currentSceneRecord(){try{const state=safeParse(localStorage.getItem('braseiro.starwars.edge.state.v1'),null);return state&&state.scene&&typeof state.scene==='object'?state.scene:null}catch{return null}}
+function sceneGeminiPrompt(){const narration=narrationText(),situation=String(document.querySelector('.scene-situation-paper p')?.textContent||'').trim(),scene=currentSceneRecord(),title=String(scene?.title||'Cena').trim()||'Cena';const text=[title,narration,situation].filter(Boolean).join('\n\n');return text?`Ilustração cinematográfica de uma cena de Star Wars para VTT. Sem texto na imagem. Preserve exatamente os fatos visíveis desta cena, sem inventar personagens nomeados ou eventos: ${text}`:''}
+function sceneKeyFor(value){const text=String(value??'Cena').trim()||'Cena';let h=2166136261;for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619)}return `scene_${(h>>>0).toString(16).padStart(8,'0')}`}
+function currentSceneKey(){const scene=currentSceneRecord();return sceneKeyFor(scene?.id??scene?.sceneId??scene?.title??'Cena')}
+function enhanceSceneGeminiButton(){
+ const media=document.querySelector('.scene-media-slot');if(!media||media.querySelector('.final-scene-gemini'))return;const wrap=document.createElement('div');wrap.className='final-scene-gemini';wrap.innerHTML='<button type="button">✦ GERAR ILUSTRAÇÃO</button><small></small>';media.appendChild(wrap);const btn=wrap.querySelector('button'),msg=wrap.querySelector('small');btn.onclick=()=>{const g=window.BraseiroGemini,st=geminiStatus(),prompt=sceneGeminiPrompt();if(!g||typeof g.generateSceneImage!=='function'){msg.textContent='Gemini indisponível neste host.';return}if(!st.configured){msg.textContent='Configure a chave Gemini em AJUSTES → Gemini.';return}if(!prompt){msg.textContent='Inicie a aventura para gerar a cena.';return}btn.disabled=true;msg.textContent='Enviando prompt ao Gemini…';try{const r=safeParse(g.generateSceneImage(prompt,currentSceneKey()),{});if(!r.ok){btn.disabled=false;msg.textContent=r.message||'Falha ao iniciar geração.'}else{msg.textContent='Gerando imagem…'}}catch{btn.disabled=false;msg.textContent='Falha ao chamar Gemini.'}};
+}
+function enhanceGeminiModels(){
+ const card=cardByTitle('Chave da API Gemini');if(!card||card.querySelector('.final-gemini-models'))return;const g=window.BraseiroGemini;if(!g||typeof g.configureModels!=='function')return;const st=geminiStatus();const box=document.createElement('div');box.className='final-gemini-models';box.innerHTML=`<div class="final-model-title">Modelos Gemini</div><label>Texto / Mestre<input data-model="master" value="${String(st.masterModel||'gemini-3.8-flash')}"></label><label>Imagem de cena<input data-model="image" value="${String(st.model||'gemini-3.1-flash-image')}"></label><label>TTS<input data-model="tts" value="${String(st.ttsModel||'gemini-3.1-flash-tts-preview')}"></label><button type="button">SALVAR MODELOS</button><output></output>`;card.children[1]?.appendChild(box);box.querySelector('button').onclick=()=>{const vals=[...box.querySelectorAll('input')].map(x=>x.value.trim());try{const r=safeParse(g.configureModels(vals[0],vals[1],vals[2]),{});box.querySelector('output').textContent=r.ok?'Modelos salvos no aparelho.':(r.message||'Falha ao salvar modelos.')}catch{box.querySelector('output').textContent='Falha ao salvar modelos.'}};
+}
+function enhanceCharacterEmptyActions(){
+ const route=new URLSearchParams(location.search).get('screen')||'00';if(route!=='06')return;const headings=[...document.querySelectorAll('section')].find(s=>String(s.firstElementChild?.textContent||'').trim()==='Personagem');if(!headings||!String(headings.textContent||'').includes('Nenhum personagem carregado'))return;if(document.querySelector('.final-empty-character-actions'))return;const existing=[...document.querySelectorAll('button')].find(b=>String(b.textContent||'').includes('Abrir fluxo de criação'));if(!existing)return;const box=document.createElement('div');box.className='final-empty-character-actions';box.innerHTML='<button type="button" data-random>GERAR FICHA ALEATÓRIA</button><button type="button" data-import>IMPORTAR .JSON</button><output></output>';existing.insertAdjacentElement('afterend',box);const out=box.querySelector('output');box.querySelector('[data-random]').onclick=()=>quickRandomCharacter(out);box.querySelector('[data-import]').onclick=()=>quickImportCharacter(out);
+}
+function enhanceUtilityShortcuts(){document.querySelectorAll('.final-utility-shortcuts').forEach(el=>el.remove());}
+function enhance(){enhanceNarration();enhanceSceneFromEngine();enhanceAccessibility();enhanceTtsSettings();relabelCreationForCampaign();setupOverlay();enhanceAdventureGate();enhanceSceneGeminiButton();enhanceGeminiModels();enhanceCharacterEmptyActions();enhanceUtilityShortcuts()}
+let scheduled=false;const observer=new MutationObserver(()=>{if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;enhance()})});
+observer.observe(document.documentElement,{subtree:true,childList:true});
+window.addEventListener('popstate',()=>setTimeout(enhance,0));
+window.addEventListener('DOMContentLoaded',enhance);setTimeout(enhance,0);
+window.BraseiroFinalRuntime={version:'1.0.0',speakVisibleNarration:()=>speak(narrationText()),stopNarration:stop,refreshScene:enhanceSceneFromEngine,preferences:prefs};
+
+
+/* R53 targeted runtime fixes: no R46 redesign. */
+const R53_PATCH_ID='r53-real-device-2026-09-16';
+function r53Norm(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\s+/g,' ').trim()}
+function r53Bridge(){return (typeof window!=='undefined'&&window.BraseiroGameBridge&&typeof window.BraseiroGameBridge==='object')?window.BraseiroGameBridge:null}
+function r53Unwrap(raw){if(raw&&raw.ok===false)throw new Error(raw.message||raw.error||'Operação recusada pelo motor.');let data=raw&&raw.ok===true?raw.data:raw;if(data&&data.check)data=data.check;return data}
+function r53Close(selector){document.querySelector(selector)?.remove()}
+function r53OpenDice(){
+ if(document.querySelector('.r53-dice-overlay'))return;
+ const ov=document.createElement('div');ov.className='r53-overlay r53-dice-overlay';
+ ov.innerHTML='<div class="r53-modal"><div class="r53-modal-head"><div><small>DADOS NARRATIVOS</small><h2>Rolagem livre</h2></div><button class="r53-close" aria-label="Fechar">×</button></div><p style="margin:0;color:#aeb7bc;font-size:.78rem">Usa o mesmo motor de dados narrativos do jogo. Característica + perícia montam os dados positivos; dificuldade, desafio, bônus e contratempo completam a parada.</p><div class="r53-dice-grid"><label>Característica<input data-die="characteristic" type="number" min="0" max="5" value="2"></label><label>Perícia<input data-die="skill" type="number" min="0" max="5" value="1"></label><label>Dificuldade<input data-die="difficulty" type="number" min="0" max="5" value="2"></label><label>Desafio<input data-die="challenge" type="number" min="0" max="5" value="0"></label><label>Bônus<input data-die="boost" type="number" min="0" max="5" value="0"></label><label>Contratempo<input data-die="setback" type="number" min="0" max="5" value="0"></label></div><button class="r53-primary r53-roll">RO
+
+=== RUNTIME CONTEXT generateSceneImage ===
+onLabel:`Região de ${point}`});if(!r.ok){status.textContent=r.message||'Falha ao criar mundo.';button.disabled=false;return}status.textContent='Mundo criado.';host.remove();setTimeout(()=>{relabelCreationForCampaign();enhance()},0)};
+}
+function enhanceAdventureGate(){
+ const existing=document.querySelector('.final-adventure-gate');
+ if(!sandboxReady()||adventureStarted()){document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());return}
+ const route=new URLSearchParams(location.search).get('screen')||'00';const character=hasCharacter(),gateKey=`${route}:${character?'character':'empty'}`;
+ if(existing?.dataset?.gateKey===gateKey)return;
+ document.querySelectorAll('.final-adventure-gate').forEach(el=>el.remove());
+ if(route==='00'){
+  const root=document.querySelector('.scene-concept-shell');if(!root)return;const gate=document.createElement('section');gate.className='final-adventure-gate final-adventure-card';gate.dataset.gateKey=gateKey;
+  gate.innerHTML=character?`<div><span>PRONTO PARA JOGAR</span><strong>Seu mundo vivo está criado.</strong><small>Barbara vai gerar a situação inicial a partir do local, facções, NPCs e oportunidades persistentes.</small></div><button type="button" data-start-adventure>INICIAR AVENTURA</button>`:`<div><span>ANTES DE COMEÇAR</span><strong>Crie ou carregue um personagem.</strong><small>Você pode criar manualmente, gerar uma ficha completa aleatória ou importar .json.</small></div><div class="final-adventure-actions"><button type="button" data-manual-character>CRIAR FICHA</button><button type="button" data-random-character>ALEATÓRIA</button><button type="button" data-import-character>IMPORTAR JSON</button></div><output></output>`;
+  root.prepend(gate);const out=gate.querySelector('output');gate.querySelector('[data-manual-character]')?.addEventListener('click',()=>navigateRoute('18'));gate.querySelector('[data-random-character]')?.addEventListener('click',()=>quickRandomCharacter(out));gate.querySelector('[data-import-character]')?.addEventListener('click',()=>quickImportCharacter(out));gate.querySelector('[data-start-adventure]')?.addEventListener('click',()=>{const b=gate.querySelector('[data-start-adventure]');b.disabled=true;b.textContent='INICIANDO…';const r=bridgeResult('startLivingAdventure',{});if(!r.ok){b.disabled=false;b.textContent='INICIAR AVENTURA';alert(r.message||'Não foi possível iniciar a aventura.');return}setTimeout(()=>{enhanceSceneFromEngine();enhanceNarration();enhanceSceneGeminiButton()},0)});
+ }else if(character){
+  const bar=document.createElement('button');bar.type='button';bar.className='final-adventure-gate final-adventure-fab';bar.dataset.gateKey=gateKey;bar.textContent='▶ INICIAR AVENTURA';bar.onclick=()=>{const r=bridgeResult('startLivingAdventure',{});if(!r.ok){alert(r.message||'Não foi possível iniciar a aventura.');return}navigateRoute('00')};document.body.appendChild(bar);
+ }
+}
+function currentSceneRecord(){try{const state=safeParse(localStorage.getItem('braseiro.starwars.edge.state.v1'),null);return state&&state.scene&&typeof state.scene==='object'?state.scene:null}catch{return null}}
+function sceneGeminiPrompt(){const narration=narrationText(),situation=String(document.querySelector('.scene-situation-paper p')?.textContent||'').trim(),scene=currentSceneRecord(),title=String(scene?.title||'Cena').trim()||'Cena';const text=[title,narration,situation].filter(Boolean).join('\n\n');return text?`Ilustração cinematográfica de uma cena de Star Wars para VTT. Sem texto na imagem. Preserve exatamente os fatos visíveis desta cena, sem inventar personagens nomeados ou eventos: ${text}`:''}
+function sceneKeyFor(value){const text=String(value??'Cena').trim()||'Cena';let h=2166136261;for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619)}return `scene_${(h>>>0).toString(16).padStart(8,'0')}`}
+function currentSceneKey(){const scene=currentSceneRecord();return sceneKeyFor(scene?.id??scene?.sceneId??scene?.title??'Cena')}
+function enhanceSceneGeminiButton(){
+ const media=document.querySelector('.scene-media-slot');if(!media||media.querySelector('.final-scene-gemini'))return;const wrap=document.createElement('div');wrap.className='final-scene-gemini';wrap.innerHTML='<button type="button">✦ GERAR ILUSTRAÇÃO</button><small></small>';media.appendChild(wrap);const btn=wrap.querySelector('button'),msg=wrap.querySelector('small');btn.onclick=()=>{const g=window.BraseiroGemini,st=geminiStatus(),prompt=sceneGeminiPrompt();if(!g||typeof g.generateSceneImage!=='function'){msg.textContent='Gemini indisponível neste host.';return}if(!st.configured){msg.textContent='Configure a chave Gemini em AJUSTES → Gemini.';return}if(!prompt){msg.textContent='Inicie a aventura para gerar a cena.';return}btn.disabled=true;msg.textContent='Enviando prompt ao Gemini…';try{const r=safeParse(g.generateSceneImage(prompt,currentSceneKey()),{});if(!r.ok){btn.disabled=false;msg.textContent=r.message||'Falha ao iniciar geração.'}else{msg.textContent='Gerando imagem…'}}catch{btn.disabled=false;msg.textContent='Falha ao chamar Gemini.'}};
+}
+function enhanceGeminiModels(){
+ const card=cardByTitle('Chave da API Gemini');if(!card||card.querySelector('.final-gemini-models'))return;const g=window.BraseiroGemini;if(!g||typeof g.configureModels!=='function')return;const st=geminiStatus();const box=document.createElement('div');box.className='final-gemini-models';box.innerHTML=`<div class="final-model-title">Modelos Gemini</div><label>Texto / Mestre<input data-model="master" value="${String(st.masterModel||'gemini-3.8-flash')}"></label><label>Imagem de cena<input data-model="image" value="${String(st.model||'gemini-3.1-flash-image')}"></label><label>TTS<input data-model="tts" value="${String(st.ttsModel||'gemini-3.1-flash-tts-preview')}"></label><button type="button">SALVAR MODELOS</button><output></output>`;card.children[1]?.appendChild(box);box.querySelector('button').onclick=()=>{const vals=[...box.querySelectorAll('input')].map(x=>x.value.trim());try{const r=safeParse(g.configureModels(vals[0],vals[1],vals[2]),{});box.querySelector('output').textContent=r.ok?'Modelos salvos no aparelho.':(r.message||'Falha ao salvar modelos.')}catch{box.querySelector('output').textContent='Falha ao salvar modelos.'}};
+}
+function enhanceCharacterEmptyActions(){
+ const route=new URLSearchParams(location.search).get('screen')||'00';if(route!=='06')return;const headings=[...document.querySelectorAll('section')].find(s=>String(s.firstElementChild?.textContent||'').trim()==='Personagem');if(!headings||!String(headings.textContent||'').includes('Nenhum personagem carregado'))return;if(document.querySelector('.final-empty-character-actions'))return;const existing=[...document.querySelectorAll('button')].find(b=>String(b.textContent||'').includes('Abrir fluxo de criação'));if(!existing)return;const box=document.createElement('div');box.className='final-empty-character-actions';box.innerHTML='<button type="button" data-random>GERAR FICHA ALEATÓRIA</button><button type="button" data-import>IMPORTAR .JSON</button><output></output>';existing.insertAdjacentElement('afterend',box);const out=box.querySelector('output');box.querySelector('[data-random]').onclick=()=>quickRandomCharacter(out);box.querySelector('[data-import]').onclick=()=>quickImportCharacter(out);
+}
+function enhanceUtilityShortcuts(){document.querySelectorAll('.final-utility-shortcuts').forEach(el=>el.remove());}
+function enhance(){enhanceNarration();enhanceSceneFromEngine();enhanceAccessibility();enhanceTtsSettings();relabelCreationForCampaign();setupOverlay();enhanceAdventureGate();enhanceSceneGeminiButton();enhanceGeminiModels();enhanceCharacterEmptyActions();enhanceUtilityShortcuts()}
+let scheduled=false;const observer=new MutationObserver(()=>{if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;enhance()})});
+observer.observe(document.documentElement,{subtree:true,childList:true});
+window.addEventListener('popstate',()=>setTimeout(enhance,0));
+window.addEventListener('DOMContentLoaded',enhance);setTimeout(enhance,0);
+window.BraseiroFinalRuntime={version:'1.0.0',speakVisibleNarration:()=>speak(narrationText()),stopNarration:stop,refreshScene:enhanceSceneFromEngine,preferences:prefs};
+
+
+/* R53 targeted runtime fixes: no R46 redesign. */
+const R53_PATCH_ID='r53-real-device-2026-09-16';
+function r53Norm(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\s+/g,' ').trim()}
+function r53Bridge(){return (typeof window!=='undefined'&&window.BraseiroGameBridge&&typeof window.BraseiroGameBridge==='object')?window.BraseiroGameBridge:null}
+function r53Unwrap(raw){if(raw&&raw.ok===false)throw new Error(raw.message||raw.error||'Operação recusada pelo motor.');let data=raw&&raw.ok===true?raw.data:raw;if(data&&data.check)data=data.check;return data}
+function r53Close(selector){document.querySelector(selector)?.remove()}
+function r53OpenDice(){
+ if(document.querySelector('.r53-dice-overlay'))return;
+ const ov=document.createElement('div');ov.className='r53-overlay r53-dice-overlay';
+ ov.innerHTML='<div class="r53-modal"><div class="r53-modal-head"><div><small>DADOS NARRATIVOS</small><h2>Rolagem livre</h2></div><button class="r53-close" aria-label="Fechar">×</button></div><p style="margin:0;color:#aeb7bc;font-size:.78rem">Usa o mesmo motor de dados narrativos do jogo. Característica + perícia montam os dados positivos; dificuldade, desafio, bônus e contratempo completam a parada.</p><div class="r53-dice-grid"><label>Característica<input data-die="characteristic" type="number" min="0" max="5" value="2"></label><label>Perícia<input data-die="skill" type="number" min="0" max="5" value="1"></label><label>Dificuldade<input data-die="difficulty" type="number" min="0" max="5" value="2"></label><label>Desafio<input data-die="challenge" type="number" min="0" max="5" value="0"></label><label>Bônus<input data-die="boost" type="number" min="0" max="5" value="0"></label><label>Contratempo<input data-die="setback" type="number" min="0" max="5" value="0"></label></div><button class="r53-primary r53-roll">ROLAR DADOS</button><div class="r53-result" aria-live="polite">Aguardando rolagem.</div></div>';
+ document.body.appendChild(ov);
+ ov.querySelector('.r53-close').onclick=()=>ov.remove();
+ ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()});
+ ov.querySelector('.r53-roll').onclick=()=>{
+  const out=ov.querySelector('.r53-result');const b=r53Bridge();
+  if(!b||typeof b.resolveCheck!=='function'){out.innerHTML='<span class="bad">Motor de dados indisponível.</span>';return}
+  const n=k=>Math.max(0,Math.min(5,Number(ov.querySelector(`[data-die="${k}"]`).value)||0));
+  try{
+   const d=r53Unwrap(b.resolveCheck({characteristic:n('characteristic'),skill:n('skill'),difficulty:n('difficulty'),challenge:n('challenge'),boost:n('boost'),setback:n('setback')}))||{};
+   const success=Number(d.netSuccess||0),adv=Number(d.netAdvantage||0),tri=Number(d.triumph||0),des=Number(d.despair||0);
+   out.innerHTML=`<strong>Resultado</strong><br><span class="${success>0?'ok':'bad'}">${success>0?'SUCESSO':'FALHA'} · ${success} sucesso(s) líquido(s)</span><br>${adv} vantagem(ns) líquida(s) · ${tri} triunfo(s) · ${des} desespero(s)`;
+  }catch(err){out.innerHTML='<span class="bad">'+String(err?.message||err)+'</span>'}
+ };
+}
+function r53EnsureDiceFab(){
+ if(document.querySelector('.r53-dice-fab'))return;
+ const b=document.createElement('button');b.type='button';b.classN
+
+=== RUNTIME CONTEXT openGeminiWithPrompt ===
+NOT FOUND
+
+=== RUNTIME CONTEXT r53RestartAdventure ===
+or('output');box.querySelector('[data-random]').onclick=()=>quickRandomCharacter(out);box.querySelector('[data-import]').onclick=()=>quickImportCharacter(out);
+}
+function enhanceUtilityShortcuts(){document.querySelectorAll('.final-utility-shortcuts').forEach(el=>el.remove());}
+function enhance(){enhanceNarration();enhanceSceneFromEngine();enhanceAccessibility();enhanceTtsSettings();relabelCreationForCampaign();setupOverlay();enhanceAdventureGate();enhanceSceneGeminiButton();enhanceGeminiModels();enhanceCharacterEmptyActions();enhanceUtilityShortcuts()}
+let scheduled=false;const observer=new MutationObserver(()=>{if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;enhance()})});
+observer.observe(document.documentElement,{subtree:true,childList:true});
+window.addEventListener('popstate',()=>setTimeout(enhance,0));
+window.addEventListener('DOMContentLoaded',enhance);setTimeout(enhance,0);
+window.BraseiroFinalRuntime={version:'1.0.0',speakVisibleNarration:()=>speak(narrationText()),stopNarration:stop,refreshScene:enhanceSceneFromEngine,preferences:prefs};
+
+
+/* R53 targeted runtime fixes: no R46 redesign. */
+const R53_PATCH_ID='r53-real-device-2026-09-16';
+function r53Norm(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\s+/g,' ').trim()}
+function r53Bridge(){return (typeof window!=='undefined'&&window.BraseiroGameBridge&&typeof window.BraseiroGameBridge==='object')?window.BraseiroGameBridge:null}
+function r53Unwrap(raw){if(raw&&raw.ok===false)throw new Error(raw.message||raw.error||'Operação recusada pelo motor.');let data=raw&&raw.ok===true?raw.data:raw;if(data&&data.check)data=data.check;return data}
+function r53Close(selector){document.querySelector(selector)?.remove()}
+function r53OpenDice(){
+ if(document.querySelector('.r53-dice-overlay'))return;
+ const ov=document.createElement('div');ov.className='r53-overlay r53-dice-overlay';
+ ov.innerHTML='<div class="r53-modal"><div class="r53-modal-head"><div><small>DADOS NARRATIVOS</small><h2>Rolagem livre</h2></div><button class="r53-close" aria-label="Fechar">×</button></div><p style="margin:0;color:#aeb7bc;font-size:.78rem">Usa o mesmo motor de dados narrativos do jogo. Característica + perícia montam os dados positivos; dificuldade, desafio, bônus e contratempo completam a parada.</p><div class="r53-dice-grid"><label>Característica<input data-die="characteristic" type="number" min="0" max="5" value="2"></label><label>Perícia<input data-die="skill" type="number" min="0" max="5" value="1"></label><label>Dificuldade<input data-die="difficulty" type="number" min="0" max="5" value="2"></label><label>Desafio<input data-die="challenge" type="number" min="0" max="5" value="0"></label><label>Bônus<input data-die="boost" type="number" min="0" max="5" value="0"></label><label>Contratempo<input data-die="setback" type="number" min="0" max="5" value="0"></label></div><button class="r53-primary r53-roll">ROLAR DADOS</button><div class="r53-result" aria-live="polite">Aguardando rolagem.</div></div>';
+ document.body.appendChild(ov);
+ ov.querySelector('.r53-close').onclick=()=>ov.remove();
+ ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()});
+ ov.querySelector('.r53-roll').onclick=()=>{
+  const out=ov.querySelector('.r53-result');const b=r53Bridge();
+  if(!b||typeof b.resolveCheck!=='function'){out.innerHTML='<span class="bad">Motor de dados indisponível.</span>';return}
+  const n=k=>Math.max(0,Math.min(5,Number(ov.querySelector(`[data-die="${k}"]`).value)||0));
+  try{
+   const d=r53Unwrap(b.resolveCheck({characteristic:n('characteristic'),skill:n('skill'),difficulty:n('difficulty'),challenge:n('challenge'),boost:n('boost'),setback:n('setback')}))||{};
+   const success=Number(d.netSuccess||0),adv=Number(d.netAdvantage||0),tri=Number(d.triumph||0),des=Number(d.despair||0);
+   out.innerHTML=`<strong>Resultado</strong><br><span class="${success>0?'ok':'bad'}">${success>0?'SUCESSO':'FALHA'} · ${success} sucesso(s) líquido(s)</span><br>${adv} vantagem(ns) líquida(s) · ${tri} triunfo(s) · ${des} desespero(s)`;
+  }catch(err){out.innerHTML='<span class="bad">'+String(err?.message||err)+'</span>'}
+ };
+}
+function r53EnsureDiceFab(){
+ if(document.querySelector('.r53-dice-fab'))return;
+ const b=document.createElement('button');b.type='button';b.className='r53-fab r53-dice-fab';b.innerHTML='<img src="assets/ui/icons-v2/dice.png" alt="">DADOS';b.onclick=r53OpenDice;document.body.appendChild(b);
+}
+function r53RestartAdventure(){
+ const b=r53Bridge();if(!b||typeof b.newCampaign!=='function'){alert('O motor não expôs o comando de nova campanha.');return}
+ if(!confirm('Reiniciar a aventura? Isto apaga o estado atual da campanha neste aparelho e volta à criação do mundo.'))return;
+ try{const raw=b.newCampaign('Edge of the Galaxy');if(raw&&raw.ok===false)throw new Error(raw.message||'Falha ao reiniciar campanha.');location.reload()}catch(err){alert(String(err?.message||err))}
+}
+function r53EnsureRestart(){
+ const old=document.querySelector('.r53-restart-fab');
+ if(!adventureStarted()){old?.remove();return}
+ if(old)return;
+ const b=document.createElement('button');b.type='button';b.className='r53-fab r53-restart-fab';b.textContent='↻ REINICIAR';b.onclick=r53RestartAdventure;document.body.appendChild(b);
+}
+function r53OpenLibrary(){
+ if(document.querySelector('.r53-library-overlay'))return;
+ const ov=document.createElement('div');ov.className='r53-overlay r53-library-overlay';
+ ov.innerHTML='<div class="r53-modal"><div class="r53-modal-head"><div><small>BIBLIOTECA LOCAL</small><h2>Fontes e PDFs</h2></div><button class="r53-close" aria-label="Fechar">×</button></div><div class="r53-library-tools"><input type="search" placeholder="Buscar nas fontes locais…" aria-label="Buscar na biblioteca"><button class="r53-secondary r53-search">BUSCAR</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><button class="r53-primary r53-import">IMPORTAR PDF</button><button class="r53-secondary r53-refresh">ATUALIZAR</button></div><div class="r53-lib-status" style="font-size:.72rem;color:#9ccbd7"></div><div class="r53-docs"></div></div>';
+ document.body.appendChild(ov);const docs=ov.querySelector('.r53-docs'),status=ov.querySelector('.r53-lib-status');
+ const native=()=>window.BraseiroLibrary;
+ const render=(rows)=>{docs.innerHTML='';if(!Array.isArray(rows)||!rows.length){docs.innerHTML='<div class="r53-empty">Nenhum PDF importado.</div>';return}for(const d of rows){const el=document.createElement('div');el.className='r53-doc';const title=String(d.title||d.fileName||'PDF');const st=String(d.status||'ANEXADO');const pages=Number(d.pageCount||0);const auth=String(d.authorityType||'SUPLEMENTO');el.innerHTML=`<strong>${title.replace(/[<&]/g,'')}</strong><small>${st} · ${pages?pages+' pág. · ':''}${auth}</small>`;docs.appendChild(el)}};
+ const refresh=()=>{try{const api=native();if(!api||typeof api.listDocuments!=='function'){status.textContent='Biblioteca Android indisponível neste host.';render([]);return}const raw=api.listDocuments();render(typeof raw==='string'?JSON.parse(raw):raw);status.textContent='Biblioteca pronta.'}catch(err){status.textContent=String(err?.message||err);render([])}};
+ ov.querySelector('.r53-close').onclick=()=>ov.remove();ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()});ov.querySelector('.r53-refresh').onclick=refresh;
+ ov.querySelector('.r53-import').onclick=()=>{try{const api=native();if(!api||typeof api.pickPdf!=='function')throw new Error('Importação de PDF indisponível.');api.pickPdf();status.textContent='Selecione o PDF…'}catch(err){status.textContent=String(err?.message||err)}};
+ ov.querySelector('.r53-search').onclick=()=>{try{const q=ov.querySelector('input').value.trim();const api=native();if(!q){refresh();return}if(!api||typeof api.searchDocuments!=='function')throw new Error('Busca local indisponível.');const raw=api.searchDocuments(q,25),data=typeof raw==='string'?JSON.parse(raw):raw;render(data?.results||[]);status.textContent=data?.grounded?'Resultados encontrados nas fontes locais.':'Busca concluída.'}catch(err){status.textContent=String(err?.message||err)}};
+ const previous=window.braseiroLibraryNativeEvent;window.braseiroLibraryNativeEvent=(raw)=>{try{if(typeof previous==='function')previous(raw)}finally{setTimeout(refresh,120)}};
+ refresh();
+}
+function r53InterceptLibrary(){
+ if(document.documentElement.dataset.r53LibraryCapture)return;document.documentElement.dataset.r53LibraryCapture='1';
+ document.addEventListener('click',e=>{const hit=e.target?.closest?.('button,a,[role="button"],.list-item');if(!hit)return;const t=r53Norm(hit.textContent);if(!t.startsWith('biblioteca'))return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();r53OpenLibrary()},true);
+}
+function r53FindItemHost(button){let el=button.parentElement,best=null;for(let i=0;el&&i<7;i++,el=el.parentElement){const proposes=[...el.querySelectorAll('button')].filter(x=>r53Norm(x.textContent).includes('propor ao mestre'));const strong=el.querySelector('strong');if(proposes.length===1&&strong)best=el;if(proposes.length>1)break}return best||button.parentElement}
+const r53ImageCache=new Map();
+function r53PickAsset(name){
+ const key=r53Norm(name);if(r53ImageCache.has(key))return r53ImageCache.get(key);const b=r53Bridge();let assets=[];
+ try{if(b&&typeof b.searchImageLibrary==='function'){const raw=b.searchImageLibrary({query:name,category:'equipment',limit:30});const d=raw?.ok===true?raw.data:raw;if(Array.isArray(d))assets=d}}catch(_){ }
+ const words=key.split(/[^a-z0-9]+/).filter(x=>x.length>2);let best=null,score=-1;
+ for(const a of assets){if(a?.category!=='equipment')continue;const title=r53Norm(a.title),tags=r53Norm(Array.isArray(a.tags)?a.tags.join(' '):'');let s=0;if(title===key)s+=100;if(title.includes(key)||key.includes(title))s+=35;for(const w of words)if((title+' '+tags).includes(w))s+=5;if(a.sourceType!=='external_reference')s+=3;if(s>score){score=s;best=a}}
+ const picked=score>=10?best:null;r53ImageCache.set(key,picked);return picked;
+}
+function r53AssetUrl(a){if(!a)return null;if(a.sourceType==='external_reference')return a.remoteReady&&a.remoteUrl?a.remoteUrl:null;return a.localPath||null}
+function r53EnhanceItemImages(){
+ const params=new URLSearchParams(location.search),route=params.get('screen')||'00';if(route!=='09'&&route!=='08')return;
+ for(const btn of [...document.querySelectorAll('button')].filter(x=>r53Norm(x.textContent).includes('propor ao mestre'))){const host=r53FindItemHost(btn);if(!host||host.querySelector('.r53-item-visual'))continue;const strong=host.querySelector('strong');const name=strong?.textContent?.trim();if(!name)continue;const asset=r53PickAsset(name),src=r53AssetUrl(asset)||'assets/ui/icons-v2/inventory.png';const fig=document.createElement('figure');fig.className='r53-item-visual'+(asset?'':' is-fallback');fig.innerHTML=`<img loading="lazy" alt="${name.replace(/["<&]/g,'')}" src="${src}"><figcaption>${asset?asset.title:'Sem imagem específica associada'}</figcaption>`;host.insertBefore(fig,host.firstChild)}
+}
+function r53RemoveBadShortcuts(){document.querySelectorAll('.final-utility-shortcuts').forEach(el=>el.remove())}
+function r53Tick(){r53RemoveBadShortcuts();r53EnsureDiceFab();r53EnsureRestart();r53EnhanceItemImages()}
+r53InterceptLibrary();r53Tick();new MutationObserver(()=>r53Tick()).observe(document.documentElement,{subtree:true,childList:true});addEventListener('popstate',()=>setTimeout(r53Tick
+
+=== GEMINI CONTEXT generateSceneImage ===
+ONObject().put("ok", true).put("masterModel", master).put("model", image).put("ttsModel", tts).toString();
+            } catch (Exception e) { return fail("Não foi possível salvar os modelos Gemini."); }
+        }
+
+        @JavascriptInterface
+        public String speakTts(String rawText, String rawVoice) {
+            String text = String.valueOf(rawText == null ? "" : rawText).trim();
+            String voice = normalizeVoice(rawVoice);
+            if (text.isEmpty()) return fail("Não há narração visível para ler.");
+            if (text.length() > 12000) text = text.substring(0, 12000);
+            if (voice == null) return fail("Voz Gemini inválida.");
+            if (ttsGenerating) return fail("Já existe uma narração Gemini em processamento.");
+            try {
+                String apiKey = decryptStoredKey();
+                if (apiKey == null || apiKey.isBlank()) return fail("Configure a chave Gemini antes de usar Gemini TTS.");
+                ttsGenerating = true;
+                stopTtsPlayer();
+                notifyEvent("tts_generating", new JSONObject().put("voice", voice).put("ttsModel", currentTtsModel()));
+                final String finalText = text;
+                executor.submit(() -> generateTtsRemote(finalText, voice));
+                return new JSONObject().put("ok", true).put("status", "started").put("ttsModel", currentTtsModel()).put("voice", voice).toString();
+            } catch (Exception e) {
+                ttsGenerating = false;
+                return fail("Não foi possível iniciar Gemini TTS.");
+            }
+        }
+
+        @JavascriptInterface
+        public String stopTts() {
+            ttsGenerating = false;
+            stopTtsPlayer();
+            return "{\"ok\":true}";
+        }
+
+        @JavascriptInterface
+        public String clearApiKey() {
+            try {
+                if (secretFile.exists() && !secretFile.delete()) throw new IllegalStateException("Falha ao remover segredo local.");
+                KeyStore store = KeyStore.getInstance("AndroidKeyStore");
+                store.load(null);
+                if (store.containsAlias(KEY_ALIAS)) store.deleteEntry(KEY_ALIAS);
+                notifyEvent("cleared", new JSONObject().put("configured", false));
+                return new JSONObject().put("ok", true).put("configured", false).toString();
+            } catch (Exception e) { return fail("Não foi possível remover a chave Gemini."); }
+        }
+
+        @JavascriptInterface
+        public String generateSceneImage(String prompt, String sceneKey) {
+            String cleanPrompt = String.valueOf(prompt == null ? "" : prompt).trim();
+            String cleanSceneKey = normalizeSceneKey(sceneKey);
+            if (cleanPrompt.length() < 20 || cleanPrompt.length() > 5000) return fail("Prompt de cena inválido.");
+            if (cleanSceneKey == null) return fail("Identificador da cena inválido.");
+            if (generating) return fail("Já existe uma geração de imagem em andamento.");
+            try {
+                String apiKey = decryptStoredKey();
+                if (apiKey == null || apiKey.isBlank()) return fail("Configure a chave Gemini antes de gerar a imagem.");
+                generating = true;
+                long imageGeneration = nextSceneImageGeneration();
+                notifyEvent("generating", new JSONObject().put("sceneKey", cleanSceneKey));
+                executor.submit(() -> generateRemote(cleanPrompt, cleanSceneKey, imageGeneration));
+                return new JSONObject().put("ok", true).put("status", "started").put("sceneKey", cleanSceneKey).toString();
+            } catch (Exception e) {
+                generating = false;
+                return fail("Não foi possível iniciar a geração de imagem.");
+            }
+        }
+
+        @JavascriptInterface
+        public String requestMasterProposal(String requestId, String requestJson) {
+            String cleanId = normalizeMasterRequestId(requestId);
+            String cleanRequest = String.valueOf(requestJson == null ? "" : requestJson).trim();
+            if (cleanId == null) return fail("Identificador da solicitação do Mestre inválido.");
+            if (cleanRequest.length() < 20 || cleanRequest.length() > 1_500_000) return fail("Contexto do Mestre inválido ou excessivo.");
+            if (masterGenerating) return fail("O Mestre Gemini já está processando uma ação.");
+            try {
+                JSONObject request = new JSONObject(cleanRequest);
+                if (!request.has("context") || !request.has("instruction")) return fail("Contexto estruturado do Motor Barbara incompleto.");
+                String apiKey = decryptStoredKey();
+                if (apiKey == null || apiKey.isBlank()) return fail("Configure a chave Gemini antes de usar o Mestre.");
+                masterGenerating = true;
+                executor.submit(() -> generateMasterRemote(cleanId, request));
+                return new JSONObject().put("ok", true).put("status", "started").put("requestId", cleanId).put("model", currentMasterModel()).toString();
+            } catch (Exception e) {
+                masterGenerating = false;
+                return fail("Não foi possível iniciar o Mestre Gemini.");
+            }
+        }
+
+        @JavascriptInterface
+        public String pickSceneImage(String sceneKey) {
+            String cleanSceneKey = normalizeSceneKey(sceneKey);
+            if (cleanSceneKey == null) return fail("Identificador da cena inválido.");
+            try {
+                pendingImportSceneKey = cleanSceneKey;
+                activity.runOnUiThread(() -> {
+                    try {
+                        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent.setType("image/*");
+                        activity.startActivityForResult(intent, PICK_SCENE_IMAGE_REQUEST);
+                    } catch (Exception e) {
+                        pendingImportSceneKey = null;
+                        notifyEvent("image_error", jsonObject("message", "Não foi possível abrir o seletor de imagem."));
+                    }
+                });
+                return new JSONObject().put("ok", true).put("status", "picker_opened").put("sceneKey", cleanSceneKey).toString();
+            } catch (Exception e) {
+                pendingImportSceneKey = null;
+                return fail("Não foi possível abrir o seletor de imagem.");
+            }
+        }
+
+        @JavascriptInterface
+        public String clearSceneImage() {
+            try {
+                boolean had;
+                synchronized (sceneImageCommitLock) {
+                    nextSceneImageGeneration();
+                    had = imageFile.exists() || imageMetaFile.exists();
+                    File temp = new File(imageDir, "current.tmp");
+                    if (imageFile.exists() && !imageFile.delete()) throw new IllegalStateException("Falha ao remover imagem.");
+                    if (imageMetaFile.exists() && !imageMetaFile.delete()) throw new IllegalStateException("Falha ao remover metadados.");
+                    if (temp.exists() && !temp.delete()) throw new IllegalStateException("Falha ao remover imagem temporária.");
+                    notifyEvent("image_cleared", new JSONObject().put("cleared", true).put("hadImage", had));
+                }
+                return new JSONObject().put("ok", true).put("cleared", true).toString();
+            } catch (Exception e) { return fail("Não foi possível remover a imagem de cena."); }
+        }
+    }
+
+    private JSONObject statusJson() throws Exception {
+        JSONObject out = new JSONObject()
+                .put("configured", hasStoredKey())
+                .put("model", currentImageModel())
+                .put("masterModel", currentMasterModel())
+                .put("ttsModel", currentTtsModel())
+                .put("generating", generating)
+                .put("masterGenerating", masterGenerating)
+                .put("ttsGenerating", ttsGenerating);
+        synchronized (sceneImageCommitLock) {
+            JSONObject meta = readJson(imageMetaFile);
+            if (imageFile.exists() && meta != null) {
+                out.put("imageUrl", "https://" + SCENE_IMAGE_HOST + SCENE_IMAGE_PATH + "?v=" + imageFile.lastModified());
+                out.put("imageSceneKey", meta.optString("sceneKey", null));
+                out.put("imageMimeType", meta.optString("mimeType", null));
+                out.put("imageUpdatedAt", meta.optString("updatedAt", null));
+            }
+        }
+        return out;
+    }
+
+    private boolean hasStoredKey() {
+        if (!secretFile.exists()) return false;
+        try { return decryptStoredKey() != null; }
+        catch (Exception e) { return false; }
+    }
+
+    private SecretKey getOrCreateSecretKey() throws Exception {
+        KeyStore store = KeyStore.getInstance("AndroidKeyStore");
+        store.load(null);
+        KeyStore.Entry entry = store.getEntry(KEY_AL
+
+=== GEMINI CONTEXT openGeminiWithPrompt ===
+NOT FOUND
+
+=== GEMINI CONTEXT final class JavascriptApi ===
+NOT FOUND
+
+=== GEMINI CONTEXT Object javascriptInterface ===
+omicLong;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
+
+final class GeminiBridge {
+    static final int PICK_SCENE_IMAGE_REQUEST = 4191;
+    static final String SCENE_IMAGE_HOST = "braseiro.local";
+    static final String SCENE_IMAGE_PATH = "/scene-image/current";
+
+    private static final String DEFAULT_IMAGE_MODEL = "gemini-3.1-flash-image";
+    private static final String DEFAULT_MASTER_MODEL = "gemini-3.8-flash";
+    private static final String DEFAULT_TTS_MODEL = "gemini-3.1-flash-tts-preview";
+    private static final String MODEL_PREFS = "braseiro.starwars.gemini.models.v1";
+    private static final String ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions";
+    private static final String KEY_ALIAS = "braseiro.starwars.gemini.api.v1";
+    private static final long MAX_IMAGE_BYTES = 12L * 1024L * 1024L;
+    private static final long MAX_REMOTE_BYTES = 20L * 1024L * 1024L;
+
+    private final Activity activity;
+    private final WebView webView;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final File secretFile;
+    private final File imageDir;
+    private final File imageFile;
+    private final File imageMetaFile;
+    private final File ttsAudioFile;
+    private final SharedPreferences modelPreferences;
+    private volatile boolean generating = false;
+    private volatile boolean masterGenerating = false;
+    private volatile boolean ttsGenerating = false;
+    private final Object ttsPlayerLock = new Object();
+    private MediaPlayer ttsPlayer = null;
+    private volatile String pendingImportSceneKey = null;
+    private final Object sceneImageCommitLock = new Object();
+    private final AtomicLong sceneImageGeneration = new AtomicLong();
+
+    GeminiBridge(Activity activity, WebView webView) {
+        this.activity = activity;
+        this.webView = webView;
+        this.secretFile = new File(activity.getNoBackupFilesDir(), "gemini-api-key.enc.json");
+        this.imageDir = new File(activity.getFilesDir(), "scene-image");
+        if (!imageDir.exists()) imageDir.mkdirs();
+        this.imageFile = new File(imageDir, "current.image");
+        this.imageMetaFile = new File(imageDir, "current.json");
+        this.ttsAudioFile = new File(activity.getCacheDir(), "gemini-narration.wav");
+        this.modelPreferences = activity.getSharedPreferences(MODEL_PREFS, Activity.MODE_PRIVATE);
+    }
+
+    Object javascriptInterface() {
+        return new Interface();
+    }
+
+    void shutdown() {
+        stopTtsPlayer();
+        executor.shutdownNow();
+    }
+
+    boolean handleActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode != PICK_SCENE_IMAGE_REQUEST) return false;
+        String sceneKey = pendingImportSceneKey;
+        pendingImportSceneKey = null;
+        if (resultCode != Activity.RESULT_OK || data == null || data.getData() == null) {
+            notifyEvent("cancelado", new JSONObject());
+            return true;
+        }
+        Uri uri = data.getData();
+        long imageGeneration = nextSceneImageGeneration();
+        executor.submit(() -> importSceneImage(uri, sceneKey, imageGeneration));
+        return true;
+    }
+
+    WebResourceResponse openSceneImageResponse(Uri uri) {
+        try {
+            if (uri == null || !"https".equalsIgnoreCase(uri.getScheme()) || !SCENE_IMAGE_HOST.equalsIgnoreCase(uri.getHost()) || !SCENE_IMAGE_PATH.equals(uri.getPath())) return null;
+            synchronized (sceneImageCommitLock) {
+                if (!imageFile.exists() || !imageMetaFile.exists()) return new WebResourceResponse("text/plain", "UTF-8", 404, "Not Found", null, new ByteArrayInputStream(new byte[0]));
+                JSONObject meta = readJson(imageMetaFile);
+                String mime = meta == null ? "image/jpeg" : meta.optString("mimeType", "image/jpeg");
+                return new WebResourceResponse(mime, null, new FileInputStream(imageFile));
+            }
+        } catch (Exception e) {
+            return new WebResourceResponse("text/plain", "UTF-8", 500, "Error", null, new ByteArrayInputStream(new byte[0]));
+        }
+    }
+
+    private final class Interface {
+        @JavascriptInterface
+        public String getStatus() {
+            try { return statusJson().toString(); }
+            catch (Exception e) { return "{\"configured\":false,\"model\":\"gemini-3.1-flash-image\",\"masterModel\":\"gemini-3.8-flash\",\"ttsModel\":\"gemini-3.1-flash-tts-preview\",\"generating\":false}"; }
+        }
+
+        @JavascriptInterface
+        public String configureApiKey(String apiKey) {
+            try {
+                String clean = String.valueOf(apiKey == null ? "" : apiKey).trim();
+                if (clean.length() < 20 || clean.length() > 256 || clean.matches(".*\\s+.*")) return fail("Informe uma chave Gemini válida, sem espaços.");
+                encryptAndStore(clean);
+                notifyEvent("configured", new JSONObject().put("configured", true));
+                return new JSONObject().put("ok", true).put("configured", true).toString();
+            } catch (Exception e) { return fail("Não foi possível proteger a chave Gemini neste dispositivo."); }
+        }
+
+        @JavascriptInterface
+        public String configureModels(String masterModel, String imageModel, String ttsModel) {
+            try {
+                String master = normalizeModel(masterModel, DEFAULT_MASTER_MODEL);
+                String image = normalizeModel(imageModel, DEFAULT_IMAGE_MODEL);
+                String tts = normalizeModel(ttsModel, DEFAULT_TTS_MODEL);
+                if (master == null || image == null || tts == null) return fail("Nome de modelo Gemini inválido.");
+                modelPreferences.edit()
+                        .putString("masterModel", master)
+                        .putString("imageModel", image)
+                        .putString("ttsModel", tts)
+                        .apply();
+                notifyEvent("models_configured", new JSONObject()
+                        .put("masterModel", master).put("model", image).put("ttsModel", tts));
+                return new JSONObject().put("ok", true).put("masterModel", master).put("model", image).put("ttsModel", tts).toString();
+            } catch (Exception e) { return fail("Não foi possível salvar os modelos Gemini."); }
+        }
+
+        @JavascriptInterface
+        public String speakTts(String rawText, String rawVoice) {
+            String text = String.valueOf(rawText == null ? "" : rawText).trim();
+            String voice = normalizeVoice(rawVoice);
+            if (text.isEmpty()) return fail("Não há narração visível para ler.");
+            if (text.length() > 12000) text = text.substring(0, 12000);
+            if (voice == null) return fail("Voz Gemini inválida.");
+            if (ttsGenerating) return fail("Já existe uma narração Gemini em processamento.");
+            try {
+                String apiKey = decryptStoredKey();
+                if (apiKey == null || apiKey.isBlank()) return fail("Configure a chave Gemini antes de usar Gemini TTS.");
+                ttsGenerating = true;
+                stopTtsPlayer();
+                notifyEvent("tts_generating", new JSONObject().put("voice", voice).put("ttsModel", currentTtsModel()));
+                final String finalText = text;
+                executor.submit(() -> generateTtsRemote(finalText, voice));
+                return new JSONObject().put("ok", true).put("status", "started").put("ttsModel", currentTtsModel()).put("voice", voice).toString();
+            } catch (Exception e) {
+                ttsGenerating = false;
+                return fail("Não foi possível iniciar Gemini TTS.");
+            }
+        }
+
+        @JavascriptInterface
+        public String stopTts() {
+            ttsGenerating = false;
+            stopTtsPlayer();
+            return "{\"ok\":true}";
+        }
+
+        @JavascriptInterface
+        public String clearApiKey() {
+            try {
+                if (secretFile.exists() && !secretFile.delete()) throw new IllegalStateException("Falha ao remover segredo local.");
+                KeyStore store = KeyStore.getInstance("AndroidKeyStore");
+                store.load(null);
+                if (store.containsAlias(KEY_ALIAS)) store.deleteEntry(KEY_ALIAS);
+                notifyEvent("cleared", new JSONObject().put("configured", false));
+                return new JSONObject().put("ok", true).put("configured", false).toString();
+            } catch (Exception e) { return fail("Não foi possível remover a chave Gemini."); }
+        }
+
+        @JavascriptInterface
+        public String generateSceneImage(String prompt, String sceneKey) {
+            String cleanPrompt = String.valueOf(prompt == null ? "" : prompt).trim();
+            String cleanSceneKey = normalizeSceneKey(sceneKey);
+            if (cleanPrompt.length() < 20 || cleanPrompt.length() > 5000) return fail("Prompt de cena inv
+
+=== UIBRIDGE CONTEXT export class ===
+terRequests.get(requestId);
+        if (!pending)
+            return;
+        nativeMasterRequests.delete(requestId);
+        clearTimeout(pending.timer);
+        if (event?.ok === true && event.proposal && typeof event.proposal === 'object')
+            pending.resolve({ proposal: event.proposal, model: event.model ?? null });
+        else
+            pending.reject(new Error(String(event?.message ?? 'O Mestre Gemini não retornou uma proposta válida.')));
+    };
+}
+function requestNativeGeminiMaster(providerPayload, { timeoutMs = 60000, target = globalThis } = {}) {
+    const status = nativeGeminiStatus(target);
+    if (!status.available)
+        return Promise.reject(new Error('Host Gemini nativo indisponível.'));
+    if (!status.configured)
+        return Promise.reject(new Error('Configure a chave Gemini em AJUSTES → Gemini / provedor antes de iniciar a narração.'));
+    ensureNativeMasterHook(target);
+    const requestId = `master_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+    return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => { nativeMasterRequests.delete(requestId); reject(new Error('Tempo limite do Mestre Gemini excedido.')); }, Math.max(5000, Number(timeoutMs) || 60000));
+        nativeMasterRequests.set(requestId, { resolve, reject, timer });
+        try {
+            const raw = target.BraseiroGemini.requestMasterProposal(requestId, JSON.stringify(providerPayload));
+            const started = typeof raw === 'string' ? JSON.parse(raw) : raw;
+            if (!started?.ok) {
+                nativeMasterRequests.delete(requestId);
+                clearTimeout(timer);
+                reject(new Error(String(started?.message ?? 'Não foi possível iniciar o Mestre Gemini.')));
+            }
+        }
+        catch (error) {
+            nativeMasterRequests.delete(requestId);
+            clearTimeout(timer);
+            reject(error instanceof Error ? error : new Error(String(error)));
+        }
+    });
+}
+export class BraseiroUiBridge {
+    constructor({ repository = null, storage = globalThis.localStorage, snapshots = null } = {}) {
+        this.repository = repository ?? new storage_mjs_1.LocalStorageRepository(storage);
+        const snapshotStorage = this.repository?.storage ?? storage;
+        this.snapshots = snapshots ?? new snapshots_mjs_1.LocalSnapshotRepository(snapshotStorage);
+    }
+    readState() {
+        try {
+            const state = this.repository.load();
+            return ok(state ? clone(state) : null);
+        }
+        catch (error) {
+            return fail('STATE_READ_FAILED', messageOf(error));
+        }
+    }
+    initializeCampaign() {
+        try {
+            const existing = this.repository.load();
+            if (existing)
+                return ok({ created: false, state: clone(existing) });
+            const game = new controller_mjs_1.GameController(this.repository);
+            return ok({ created: true, state: clone(game.state) });
+        }
+        catch (error) {
+            return fail('CAMPAIGN_INIT_FAILED', messageOf(error));
+        }
+    }
+    campaignModeSummary() {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.campaignModeSummary())); }
+        catch (error) { return fail('CAMPAIGN_MODE_FAILED', messageOf(error)); }
+    }
+    setCampaignMode(mode = 'EOTE') {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.setCampaignMode(mode))); }
+        catch (error) { return fail('CAMPAIGN_MODE_FAILED', messageOf(error)); }
+    }
+    initializeLivingSandbox(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.initializeLivingSandbox(options ?? {}))); }
+        catch (error) { return fail('SANDBOX_INIT_FAILED', messageOf(error)); }
+    }
+    livingSandboxStatus() {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.livingSandboxStatus())); }
+        catch (error) { return fail('SANDBOX_READ_FAILED', messageOf(error)); }
+    }
+    sandboxOpening(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.sandboxOpening(options ?? {}))); }
+        catch (error) { return fail('SANDBOX_READ_FAILED', messageOf(error)); }
+    }
+    startLivingAdventure(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.startLivingAdventure(options ?? {}))); }
+        catch (error) { return fail('ADVENTURE_START_FAILED', messageOf(error)); }
+    }
+    travelToLocation(locationId, options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.travelToLocation(String(locationId ?? ''), options ?? {}))); }
+        catch (error) { return fail('TRAVEL_FAILED', messageOf(error)); }
+    }
+    scenePlayerView() {
+        let state;
+        try {
+            state = this.repository.load();
+        }
+        catch (error) {
+            return fail('STATE_READ_FAILED', messageOf(error));
+        }
+        if (!state)
+            return fail('NO_CAMPAIGN', 'Nenhuma campanha carregada.');
+        try {
+            const world = state.world ?? {};
+            const sceneLocationId = state.scene?.locationId ?? null;
+            const locationCandidate = sceneLocationId ? world.locations?.[sceneLocationId] ?? null : null;
+            const location = locationCandidate?.knownToPlayer
+                ? { id: locationCandidate.id, name: String(locationCandidate.name ?? ''), description: String(locationCandidate.description ?? '') }
+                : null;
+            const participants = [];
+            const seenNames = new Set();
+            const pushParticipant = (value) => {
+                const name = String(value?.name ?? '').trim();
+                if (!name || seenNames.has(name.toLocaleLowerCase('pt-BR')) || participants.length >= 3)
+                    return;
+                seenNames.add(name.toLocaleLowerCase('pt-BR'));
+                participants.push({
+                    name,
+                    meta: String(value?.meta ?? '').trim(),
+                    status: String(value?.status ?? '').trim(),
+                });
+            };
+            for (const npc of Object.values(world.npcs ?? {})) {
+                if (!npc?.knownToPlayer)
+                    continue;
+                if (sceneLocationId && npc.locationId && npc.locationId !== sceneLocationId)
+                    continue;
+                pushParticipant({ name: npc.name, meta: npc.relation || 'Conhecido', status: npc.status || '' });
+            }
+            if (state.combat?.active) {
+                for (const adversary of state.combat.adversaries ?? []) {
+                    pushParticipant({ name: adversary.name || adversary.id, meta: 'Em confronto', status: adversa
+
+=== UIBRIDGE CONTEXT initializeCampaign() ===
+      return Promise.reject(new Error('Host Gemini nativo indisponível.'));
+    if (!status.configured)
+        return Promise.reject(new Error('Configure a chave Gemini em AJUSTES → Gemini / provedor antes de iniciar a narração.'));
+    ensureNativeMasterHook(target);
+    const requestId = `master_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+    return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => { nativeMasterRequests.delete(requestId); reject(new Error('Tempo limite do Mestre Gemini excedido.')); }, Math.max(5000, Number(timeoutMs) || 60000));
+        nativeMasterRequests.set(requestId, { resolve, reject, timer });
+        try {
+            const raw = target.BraseiroGemini.requestMasterProposal(requestId, JSON.stringify(providerPayload));
+            const started = typeof raw === 'string' ? JSON.parse(raw) : raw;
+            if (!started?.ok) {
+                nativeMasterRequests.delete(requestId);
+                clearTimeout(timer);
+                reject(new Error(String(started?.message ?? 'Não foi possível iniciar o Mestre Gemini.')));
+            }
+        }
+        catch (error) {
+            nativeMasterRequests.delete(requestId);
+            clearTimeout(timer);
+            reject(error instanceof Error ? error : new Error(String(error)));
+        }
+    });
+}
+export class BraseiroUiBridge {
+    constructor({ repository = null, storage = globalThis.localStorage, snapshots = null } = {}) {
+        this.repository = repository ?? new storage_mjs_1.LocalStorageRepository(storage);
+        const snapshotStorage = this.repository?.storage ?? storage;
+        this.snapshots = snapshots ?? new snapshots_mjs_1.LocalSnapshotRepository(snapshotStorage);
+    }
+    readState() {
+        try {
+            const state = this.repository.load();
+            return ok(state ? clone(state) : null);
+        }
+        catch (error) {
+            return fail('STATE_READ_FAILED', messageOf(error));
+        }
+    }
+    initializeCampaign() {
+        try {
+            const existing = this.repository.load();
+            if (existing)
+                return ok({ created: false, state: clone(existing) });
+            const game = new controller_mjs_1.GameController(this.repository);
+            return ok({ created: true, state: clone(game.state) });
+        }
+        catch (error) {
+            return fail('CAMPAIGN_INIT_FAILED', messageOf(error));
+        }
+    }
+    campaignModeSummary() {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.campaignModeSummary())); }
+        catch (error) { return fail('CAMPAIGN_MODE_FAILED', messageOf(error)); }
+    }
+    setCampaignMode(mode = 'EOTE') {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.setCampaignMode(mode))); }
+        catch (error) { return fail('CAMPAIGN_MODE_FAILED', messageOf(error)); }
+    }
+    initializeLivingSandbox(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.initializeLivingSandbox(options ?? {}))); }
+        catch (error) { return fail('SANDBOX_INIT_FAILED', messageOf(error)); }
+    }
+    livingSandboxStatus() {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.livingSandboxStatus())); }
+        catch (error) { return fail('SANDBOX_READ_FAILED', messageOf(error)); }
+    }
+    sandboxOpening(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.sandboxOpening(options ?? {}))); }
+        catch (error) { return fail('SANDBOX_READ_FAILED', messageOf(error)); }
+    }
+    startLivingAdventure(options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.startLivingAdventure(options ?? {}))); }
+        catch (error) { return fail('ADVENTURE_START_FAILED', messageOf(error)); }
+    }
+    travelToLocation(locationId, options = {}) {
+        const controllerResult = this._controllerForExistingCampaign();
+        if (!controllerResult.ok) return controllerResult;
+        try { return ok(clone(controllerResult.data.travelToLocation(String(locationId ?? ''), options ?? {}))); }
+        catch (error) { return fail('TRAVEL_FAILED', messageOf(error)); }
+    }
+    scenePlayerView() {
+        let state;
+        try {
+            state = this.repository.load();
+        }
+        catch (error) {
+            return fail('STATE_READ_FAILED', messageOf(error));
+        }
+        if (!state)
+            return fail('NO_CAMPAIGN', 'Nenhuma campanha carregada.');
+        try {
+            const world = state.world ?? {};
+            const sceneLocationId = state.scene?.locationId ?? null;
+            const locationCandidate = sceneLocationId ? world.locations?.[sceneLocationId] ?? null : null;
+            const location = locationCandidate?.knownToPlayer
+                ? { id: locationCandidate.id, name: String(locationCandidate.name ?? ''), description: String(locationCandidate.description ?? '') }
+                : null;
+            const participants = [];
+            const seenNames = new Set();
+            const pushParticipant = (value) => {
+                const name = String(value?.name ?? '').trim();
+                if (!name || seenNames.has(name.toLocaleLowerCase('pt-BR')) || participants.length >= 3)
+                    return;
+                seenNames.add(name.toLocaleLowerCase('pt-BR'));
+                participants.push({
+                    name,
+                    meta: String(value?.meta ?? '').trim(),
+                    status: String(value?.status ?? '').trim(),
+                });
+            };
+            for (const npc of Object.values(world.npcs ?? {})) {
+                if (!npc?.knownToPlayer)
+                    continue;
+                if (sceneLocationId && npc.locationId && npc.locationId !== sceneLocationId)
+                    continue;
+                pushParticipant({ name: npc.name, meta: npc.relation || 'Conhecido', status: npc.status || '' });
+            }
+            if (state.combat?.active) {
+                for (const adversary of state.combat.adversaries ?? []) {
+                    pushParticipant({ name: adversary.name || adversary.id, meta: 'Em confronto', status: adversary.status || '' });
+                }
+            }
+            if (state.vehicles?.combat?.active) {
+                const targetId = state.vehicles.combat.targetVehicleId;
+                const target = targetId ? state.vehicles.vehicles?.[targetId] ?? null : null;
+                if (target)
+                    pushParticipant({ name: target.name, meta: 'Veículo / nave alvo', status: 'Em confronto' });
+            }
+            const activeVehicleId = state.vehicles?.activeVehicleId ?? null;
+            const activeVehicle = activeVehicleId ? state.vehicles?.vehicles?.[activeVehicleId] ?? null : null;
+            const defense = activeVeh
+
+=== UIBRIDGE CONTEXT installGameBridge ===
+NOT FOUND
+
+=== UIBRIDGE CONTEXT BraseiroGameBridge ===
+ {
+                        throw new Error('Contexto serializado do Motor Barbara inválido.');
+                    }
+                    const remote = await requestNativeGeminiMaster(providerPayload, { timeoutMs, target: globalThis });
+                    return { ok: true, status: 200, json: async () => ({ proposal: remote.proposal, meta: { provider: 'gemini-native', model: remote.model ?? native.model ?? null } }) };
+                };
+                const result = await game.requestMasterTurn({
+                    intentText,
+                    endpoint: 'https://braseiro.native/master',
+                    fetchImpl: nativeFetch,
+                    timeoutMs,
+                    signal,
+                });
+                return ok({ mode: 'gemini-native', result: clone(result), state: clone(game.state) });
+            }
+            // Fallback local deliberadamente não inventa prosa: registra a intenção, consulta o
+            // contexto/regras canônicas e mantém a campanha utilizável mesmo sem rede/chave.
+            const result = game.submitIntent(intentText);
+            return ok({
+                mode: 'local',
+                result: clone(result),
+                state: clone(game.state),
+                masterNotice: native.available && !native.configured
+                    ? 'Configure a chave Gemini em AJUSTES → Gemini / provedor para habilitar a narração automática.'
+                    : 'Narrador remoto indisponível; o Motor Barbara local preservou estado e contexto de regras.',
+            });
+        }
+        catch (error) {
+            return fail('ENGINE_REJECTED', messageOf(error));
+        }
+    }
+}
+export function createBraseiroUiBridge(options = {}) {
+    return new BraseiroUiBridge(options);
+}
+export function installBraseiroUiBridge(target = globalThis, options = {}) {
+    if (!target || (typeof target !== 'object' && typeof target !== 'function'))
+        throw new Error('Alvo global inválido para a ponte de UI.');
+    if (target.BraseiroGameBridge)
+        return target.BraseiroGameBridge;
+    const bridge = createBraseiroUiBridge(options);
+    Object.defineProperty(target, 'BraseiroGameBridge', {
+        value: bridge,
+        configurable: false,
+        enumerable: false,
+        writable: false,
+    });
+    return bridge;
+}
+
