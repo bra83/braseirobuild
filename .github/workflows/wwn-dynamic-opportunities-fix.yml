@@ -1,0 +1,47 @@
+name: WWN Dynamic Sandbox Opportunities Fix
+
+on:
+  push:
+    branches: [wwn-source-105-bridge]
+    paths:
+      - ".github/workflows/wwn-dynamic-opportunities-fix.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: wwn-source-105-bridge
+          fetch-depth: 0
+
+      - name: Rotate optional opportunities by campaign revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/src/main/assets/www/jornada.js')
+          s=p.read_text(encoding='utf-8')
+          old="function card(item,type){const el=document.createElement('button');el.className='card';el.innerHTML=`<span class=\"kind\">${type==='startingHook'?'GANCHO':'LOCAL'}</span><b>${item.title??item.name}</b><span>${item.premise??item.summary??item.situation??''}</span>`;el.onclick=()=>openScene(type,item.id);return el}\nfor(const h of content?.startingHooks??[])$('hooks').appendChild(card(h,'startingHook'));for(const s of content?.majorSites??[])$('sites').appendChild(card(s,'majorSite'));"
+          new="function card(item,type){const el=document.createElement('button');el.className='card';el.innerHTML=`<span class=\"kind\">${type==='startingHook'?'OPORTUNIDADE OPCIONAL':'LOCAL'}</span><b>${item.title??item.name}</b><span>${item.premise??item.summary??item.situation??''}</span>`;el.onclick=()=>openScene(type,item.id);return el}\nfunction rumorCard(text){const el=document.createElement('article');el.className='card rumor-card';el.innerHTML=`<span class=\"kind\">RUMOR ATUAL</span><b>O mundo está falando</b><span>${String(text??'')}</span>`;return el}\nconst starterHooks=content?.startingHooks??[],campaignRevision=Number(currentCanonicalState()?.revision??0),hookHost=$('hooks');if(starterHooks.length){const visible=Math.min(2,starterHooks.length),start=((campaignRevision%starterHooks.length)+starterHooks.length)%starterHooks.length;for(let i=0;i<visible;i++)hookHost.appendChild(card(starterHooks[(start+i)%starterHooks.length],'startingHook'));}const rumorPool=Array.isArray(pack?.rumors)?pack.rumors:[];if(rumorPool.length)hookHost.appendChild(rumorCard(rumorPool[((campaignRevision*3+1)%rumorPool.length+rumorPool.length)%rumorPool.length]));for(const s of content?.majorSites??[])$('sites').appendChild(card(s,'majorSite'));"
+          if old not in s: raise SystemExit('hook render block not found')
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+          PY
+          node --check app/src/main/assets/www/jornada.js
+          grep -q 'RUMOR ATUAL' app/src/main/assets/www/jornada.js
+          grep -q 'Math.min(2,starterHooks.length)' app/src/main/assets/www/jornada.js
+
+      - name: Commit dynamic sandbox source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add app/src/main/assets/www/jornada.js
+          git commit -m "fix: rotate optional sandbox opportunities and rumors"
+          git push origin HEAD:wwn-source-105-bridge
