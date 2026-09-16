@@ -114,8 +114,18 @@ jobs:
             assert pg.locator('.bottom-nav-button:first-child .r54-scene-icon svg').count()==1,'clean scene SVG icon missing'
             if pg.locator('#braseiro-sandbox-setup').count():
               assert pg.locator('#sandbox-list button[data-point]').count()==82,pg.locator('#sandbox-list button[data-point]').count()
-              pg.locator('#sandbox-point-search').fill('Shantipole');pg.wait_for_timeout(100)
+              search=pg.locator('#sandbox-point-search');search.fill('Shantipole');pg.wait_for_timeout(100)
               assert pg.locator('#sandbox-list button[data-point]:visible').count()==1,pg.locator('#sandbox-list button[data-point]:visible').count()
+              search.fill('')
+              sh=pg.locator('#sandbox-list button[data-point]',has_text='Shantipole').first
+              assert sh.count()==1,'Shantipole start point missing'
+              sh.click()
+              pg.locator('#sandbox-start-button').click()
+              pg.wait_for_selector('#braseiro-sandbox-setup',state='detached',timeout=10000);pg.wait_for_timeout(300)
+            if pg.locator('[data-random-character]').count():
+              pg.locator('[data-random-character]').click();pg.wait_for_timeout(700)
+            if pg.locator('[data-start-adventure]').count():
+              pg.locator('[data-start-adventure]').click();pg.wait_for_timeout(900)
             if pg.locator('.final-scene-gemini button').count():
               pg.locator('.final-scene-gemini button').click();pg.wait_for_timeout(100)
               prompt=pg.evaluate('window.__r54Prompt')
