@@ -1,0 +1,115 @@
+name: Audit Star Wars R54 Historical Visual Restore
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/audit-star-wars-r54-restore-historical-visuals.yml"
+      - "star-wars/r38/patches/block03_visual_completion.py"
+permissions: {contents: read}
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      R54_URL: https://firestorage.ai/ja/f/fpHIoZHL9wUf
+      R54_FILE: STAR_WARS_R54_VISUAL_DATA_PACK.zip
+      R54_SHA: f18bf92117bf00dfe6641c7ca31c8037904e79ef9816694c4e844099a4307f60
+      FINAL_URL: https://firestorage.ai/ja/f/qvNlG1k2Qu3e
+      FINAL_FILE: STAR_WARS_EDGE_OF_THE_GALAXY_VISUAL_COMPLETION_PACK.zip
+      FINAL_SHA: 4114abdfa909ea7877a655f4d929cf2b64c92681c3925e5bfd565e17221966f6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Recover baseline and both pinned visual packs
+        run: |
+          set -euo pipefail
+          rm -rf work incoming r54-pack final-pack && mkdir -p work incoming r54-pack final-pack
+          unzip -q star-wars/final-1.0.0/output-r53/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R53_REAL_DEVICE_HOTFIX.zip -d work
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium >/dev/null
+          python3 - <<'PY'
+          import os,pathlib
+          from playwright.sync_api import sync_playwright
+          def dl(url,name,out):
+            with sync_playwright() as p:
+              b=p.chromium.launch(headless=True);pg=b.new_page(accept_downloads=True)
+              pg.goto(url,wait_until='domcontentloaded',timeout=120000);pg.wait_for_timeout(1200)
+              done=False
+              for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")']:
+                try:
+                  q=pg.locator(sel).first
+                  if not q.count() or not q.is_visible():continue
+                  with pg.expect_download(timeout=120000) as info:q.click(timeout=10000)
+                  info.value.save_as(str(out));done=True;break
+                except Exception:pass
+              if not done:
+                q=pg.get_by_text(name,exact=False).first
+                parent=q.locator('xpath=ancestor::*[self::div or self::li or self::article][1]')
+                with pg.expect_download(timeout=120000) as info:parent.locator('a,button').last.click(timeout=10000)
+                info.value.save_as(str(out));done=True
+              b.close()
+            if not done or not out.exists():raise SystemExit('download failed '+name)
+          dl(os.environ['R54_URL'],os.environ['R54_FILE'],pathlib.Path('incoming')/os.environ['R54_FILE'])
+          dl(os.environ['FINAL_URL'],os.environ['FINAL_FILE'],pathlib.Path('incoming')/os.environ['FINAL_FILE'])
+          PY
+          echo "$R54_SHA  incoming/$R54_FILE" | sha256sum -c -
+          echo "$FINAL_SHA  incoming/$FINAL_FILE" | sha256sum -c -
+          unzip -q "incoming/$R54_FILE" -d r54-pack
+          unzip -q "incoming/$FINAL_FILE" -d final-pack
+      - id: root
+        name: Apply current R54 stack then approved R38 visual completion
+        run: |
+          set -euo pipefail
+          SET="$(find work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)";test -n "$SET";ROOT="$(dirname "$SET")"
+          python3 star-wars/r54/hotfix_r54.py "$ROOT" "$(pwd)/r54-pack"
+          python3 star-wars/r54/fix_map_anchor_state.py "$ROOT"
+          python3 star-wars/r54/fix_item_binding_idempotence.py "$ROOT"
+          python3 star-wars/r54/fix_aor_talent_runtime.py "$ROOT"
+          python3 star-wars/r54/fix_r54_ux.py "$ROOT"
+          python3 star-wars/r38/patches/block03_visual_completion.py "$ROOT" "$(pwd)/final-pack"
+          echo "path=$ROOT" >> "$GITHUB_OUTPUT"
+      - name: Validate 42 physical assets, manifest, linkage and syntax
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          V="$ROOT/app/src/main/assets/vtt"
+          node --check "$V/r46/final-runtime.js"
+          node --check "$V/r46/r46-shell.bundle.js"
+          node --check "$V/js/core/uiBridge.bundle.js"
+          python3 - "$V" <<'PY'
+          import json,hashlib,sys
+          from pathlib import Path
+          v=Path(sys.argv[1]);m=json.loads((v/'image-library/manifest.json').read_text('utf-8'))
+          final=[a for a in m.get('assets',[]) if str(a.get('assetId','')).startswith('local.final.')]
+          assert len(final)==42,len(final)
+          counts={k:sum(a.get('category')==k for a in final) for k in ['scene','vehicle','creature','portrait','equipment']}
+          assert counts=={'scene':26,'vehicle':9,'creature':3,'portrait':2,'equipment':2},counts
+          for a in final:
+            p=v/a['localPath'];assert p.is_file(),p
+            assert hashlib.sha256(p.read_bytes()).hexdigest()==a['sha256'],p
+          rt=(v/'r46/final-runtime.js').read_text('utf-8')
+          for token in ['FINAL_SCENE_VISUALS','FINAL_EXPLICIT_VISUALS','Son Barab','Digger Crawler','Gigantic Dragonsnake','Traje espacial','Power Pack']:
+            assert token in rt,token
+          print('R54_HISTORICAL_VISUAL_RESTORE_PASS',counts)
+          PY
+      - name: Browser smoke restored visual runtime
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --directory "$ROOT/app/src/main/assets/vtt" >/tmp/visual-http.log 2>&1 & PID=$!;trap 'kill $PID || true' EXIT;sleep 1
+          python3 - <<'PY'
+          from playwright.sync_api import sync_playwright
+          with sync_playwright() as p:
+            b=p.chromium.launch(headless=True);pg=b.new_page(viewport={'width':415,'height':915});errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
+            pg.add_init_script("window.confirm=()=>false;window.BraseiroGemini={getStatus:()=>JSON.stringify({configured:true}),openGeminiWithPrompt:()=>JSON.stringify({ok:true})};")
+            pg.route('**/*',lambda route,req:route.continue_() if req.url.startswith('http://127.0.0.1:8765/') else route.abort())
+            pg.goto('http://127.0.0.1:8765/r46-shell.html?screen=00',wait_until='domcontentloaded',timeout=30000);pg.wait_for_timeout(150)
+            if pg.locator('#braseiro-sandbox-setup').count():
+              pg.locator('#sandbox-list button[data-point]').first.click();pg.locator('#sandbox-start-button').click();pg.wait_for_selector('#braseiro-sandbox-setup',state='detached',timeout=10000)
+            completion=pg.evaluate('window.BraseiroFinalVisualCompletion||null');assert completion and completion['scenes']==26,completion
+            assert not errs,errs
+            print('R54_HISTORICAL_VISUAL_BROWSER_PASS',completion)
+            b.close()
+          PY
