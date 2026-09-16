@@ -17,8 +17,10 @@ def replace_method(src: str, signature: str, replacement: str) -> str:
     start = src.find(signature)
     if start < 0:
         raise SystemExit(f'controller anchor not found: {signature}')
-    brace = src.find('{', start)
-    if brace < 0:
+    # The signature itself contains a destructuring brace ({ rng = ... }).
+    # Start at the final brace in the exact signature: that is the method body.
+    brace = start + len(signature) - 1
+    if brace >= len(src) or src[brace] != '{':
         raise SystemExit('controller method opening brace not found')
     depth = 0
     quote = None
