@@ -10,27 +10,42 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect R53 source bridge
+      - name: Inspect R53 source bridge and start overlay
         run: |
           set -euo pipefail
           rm -rf /tmp/r53 && mkdir /tmp/r53
           unzip -q star-wars/final-1.0.0/output-r53/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R53_REAL_DEVICE_HOTFIX.zip -d /tmp/r53
-          ROOT="$(dirname "$(find /tmp/r53 -name settings.gradle -o -name settings.gradle.kts | head -n1)")"
+          ROOT="$(dirname "$(find /tmp/r53 \( -name settings.gradle -o -name settings.gradle.kts \) | head -n1)")"
           V="$ROOT/app/src/main/assets/vtt"
           mkdir -p star-wars/r54/diagnostics
-          {
-            echo '=== final-bootstrap ==='
-            cat "$V/r46/final-bootstrap.js"
-            echo '\n=== bridge globals / storage ==='
-            grep -RniE 'BraseiroGameBridge|newCampaign|localStorage|sessionStorage|repository|clear\(' "$V/r46" "$V/js/core" | head -n 500 || true
-            echo '\n=== Gemini interface ==='
-            grep -RniE 'openGeminiWithPrompt|generateSceneImage|javascriptInterface' "$ROOT/app/src/main/java/com/braseiro/starwarsedge" | head -n 300 || true
-          } > star-wars/r54/diagnostics/bridge.txt
+          python3 - "$V" "$ROOT" <<'PY' > star-wars/r54/diagnostics/bridge.txt
+          from pathlib import Path
+          import sys
+          V=Path(sys.argv[1]); R=Path(sys.argv[2])
+          print('=== final-bootstrap ===')
+          print((V/'r46/final-bootstrap.js').read_text('utf-8'))
+          rt=(V/'r46/final-runtime.js').read_text('utf-8')
+          for term in ['Mos Eisley','sceneGeminiPrompt','generateSceneImage','openGeminiWithPrompt','r53RestartAdventure']:
+              print('\n=== RUNTIME CONTEXT',term,'===')
+              i=rt.find(term)
+              print(rt[max(0,i-4500):i+7000] if i>=0 else 'NOT FOUND')
+          gb=R/'app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java'
+          gs=gb.read_text('utf-8')
+          for term in ['generateSceneImage','openGeminiWithPrompt','final class JavascriptApi','Object javascriptInterface']:
+              print('\n=== GEMINI CONTEXT',term,'===')
+              i=gs.find(term)
+              print(gs[max(0,i-2500):i+6500] if i>=0 else 'NOT FOUND')
+          ui=(V/'js/core/uiBridge.mjs').read_text('utf-8')
+          for term in ['export class','initializeCampaign()','installGameBridge','BraseiroGameBridge']:
+              print('\n=== UIBRIDGE CONTEXT',term,'===')
+              i=ui.find(term)
+              print(ui[max(0,i-2000):i+5500] if i>=0 else 'NOT FOUND')
+          PY
           cat star-wars/r54/diagnostics/bridge.txt
       - name: Persist
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add star-wars/r54/diagnostics/bridge.txt
-          git commit -m 'diag: R54 bridge and Gemini surface' || true
+          git commit -m 'diag: R54 start map and Gemini surface' || true
           git push origin HEAD:main
