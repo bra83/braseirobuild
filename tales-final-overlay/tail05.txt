@@ -1,0 +1,39 @@
+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'
+)
+EXPECTED='b3e7117fd1ec5e3e27a57066dcced281ca9716f42a61d4401cea0c8920fb2614'
+raw=base64.b64decode(PAYLOAD)
+assert hashlib.sha256(raw).hexdigest()==EXPECTED,'overlay payload checksum mismatch'
+with tarfile.open(fileobj=io.BytesIO(raw),mode='r:gz') as tf:
+    manifest=json.loads(tf.extractfile('_binary_sha256.json').read().decode())
+    members=[m for m in tf.getmembers() if m.name!='_binary_sha256.json']
+    for m in members:
+        target=(ROOT/m.name).resolve()
+        if ROOT not in target.parents and target!=ROOT: raise SystemExit('unsafe overlay path: '+m.name)
+    tf.extractall(ROOT,members=members)
+missing=[];mismatch=[]
+for rel,expected in manifest.items():
+    p=ROOT/rel
+    if not p.is_file(): missing.append(rel);continue
+    got=hashlib.sha256(p.read_bytes()).hexdigest()
+    if got!=expected:mismatch.append([rel,expected,got])
+if missing or mismatch:
+    print('BINARY_PARITY_MISSING',json.dumps(missing,ensure_ascii=False))
+    print('BINARY_PARITY_MISMATCH',json.dumps(mismatch,ensure_ascii=False))
+    raise SystemExit('binary asset parity failed')
+print('TALES 1.3.16 ChatGPT final overlay: OK')
+print('TEXT_FILES_OVERLAID=101')
+print('BINARY_FILES_VERIFIED=208')
