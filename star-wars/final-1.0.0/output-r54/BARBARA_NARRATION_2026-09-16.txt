@@ -1,0 +1,1 @@
+R54_BARBARA_NARRATION_CONTRACT_PASS words=400-700 paragraphs=4-7 sensory=5
