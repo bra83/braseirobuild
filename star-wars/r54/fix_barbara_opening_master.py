@@ -17,8 +17,7 @@ def replace_method(src: str, signature: str, replacement: str) -> str:
     start = src.find(signature)
     if start < 0:
         raise SystemExit(f'controller anchor not found: {signature}')
-    # The signature itself contains a destructuring brace ({ rng = ... }).
-    # Start at the final brace in the exact signature: that is the method body.
+    # Signature contains destructuring ({ rng = ... }); the final char is the real body brace.
     brace = start + len(signature) - 1
     if brace >= len(src) or src[brace] != '{':
         raise SystemExit('controller method opening brace not found')
@@ -95,12 +94,15 @@ if marker not in runtime:
     if anchor not in runtime:
         raise SystemExit('runtime adventureStarted anchor not found')
     helper = r'''async function startBarbaraOpening(){
- // R54_BARBARA_OPENING_MASTER: no local opening narration; request the real Barbara/Gemini Master turn.
+ // R54_BARBARA_OPENING_MASTER: no local opening narration; use the canonical public Master channel.
  const prep=bridgeResult('startLivingAdventure',{});if(!prep?.ok)return prep;
- const game=globalThis.BraseiroGameBridge;if(!game||typeof game.requestMasterTurn!=='function')return {ok:false,message:'Ponte do Mestre Barbara indisponível.'};
+ const game=globalThis.BraseiroGameBridge;if(!game||typeof game.submitPlayerIntent!=='function')return {ok:false,message:'Ponte do Mestre Barbara indisponível.'};
  const req=prep.data?.masterOpeningRequest||{};const location=String(req.locationName||'o ponto inicial');
- const intentText=`Inicie a aventura agora como Mestre Barbara em ${location}. Gere a primeira cena a partir do mundo vivo persistente, dos NPCs, facções e oportunidades já existentes. Não resuma nem escolha pelo personagem; apresente a situação e termine perguntando o que o jogador faz.`;
- try{const result=await game.requestMasterTurn({intentText,timeoutMs:60000});if(result?.ok===false)return result;return {ok:true,data:result}}catch(error){return {ok:false,message:String(error?.message||error)}}
+ const opportunity=String(req.opportunity?.summary||req.opportunity?.title||'').trim();
+ const npc=String(req.npc?.name||'').trim();const faction=String(req.faction?.name||'').trim();
+ const facts=[`Local inicial: ${location}.`,opportunity?`Situação ativa: ${opportunity}.`:'',npc?`NPC conhecido/presente: ${npc}.`:'',faction?`Facção relevante: ${faction}.`:''].filter(Boolean).join(' ');
+ const intentText=`[ABERTURA_BARBARA] Inicie a aventura agora como Mestre Barbara. ${facts} Gere a primeira cena a partir do mundo vivo persistente, sem inventar uma missão obrigatória. Não resuma, não escolha nem aja pelo personagem. Narre a situação em português do Brasil conforme o contrato do Mestre e termine deixando a decisão ao jogador.`;
+ try{const result=await game.submitPlayerIntent(intentText);if(result?.ok===false)return result;return result?.ok===true?result:{ok:true,data:result}}catch(error){return {ok:false,message:String(error?.message||error)}}
 }
 '''
     runtime = runtime.replace(anchor, anchor + helper, 1)
@@ -121,9 +123,9 @@ if 'A campanha começa em ${locationName}.' in controller or "narration: parts.j
     raise SystemExit('short local opening template still present in controller')
 if marker not in controller or marker not in runtime:
     raise SystemExit('Barbara opening marker missing after patch')
-if "requestMasterTurn({intentText,timeoutMs:60000})" not in runtime:
-    raise SystemExit('runtime does not call requestMasterTurn for opening')
+if "game.submitPlayerIntent(intentText)" not in runtime:
+    raise SystemExit('runtime does not use canonical Master submitPlayerIntent channel')
 
 controller_path.write_text(controller, encoding='utf-8')
 runtime_path.write_text(runtime, encoding='utf-8')
-print('R54_BARBARA_OPENING_MASTER_PASS local_template=0 master_request=1')
+print('R54_BARBARA_OPENING_MASTER_PASS local_template=0 master_channel=submitPlayerIntent')

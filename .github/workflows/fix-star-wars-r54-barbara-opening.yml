@@ -41,7 +41,8 @@ jobs:
           grep -Fq 'R54_BARBARA_OPENING_MASTER' "$R"
           grep -Fq 'masterOpeningRequest' "$C"
           grep -Fq 'awaitingMaster: true' "$C"
-          grep -Fq 'requestMasterTurn({intentText,timeoutMs:60000})' "$R"
+          grep -Fq 'game.submitPlayerIntent(intentText)' "$R"
+          grep -Fq '[ABERTURA_BARBARA]' "$R"
           ! grep -Fq 'A campanha começa em ${locationName}.' "$C"
           ! grep -Fq "narration: parts.join(' ')" "$C"
           python3 - "$C" "$R" <<'PY'
@@ -49,11 +50,11 @@ jobs:
           import sys
           c=Path(sys.argv[1]).read_text('utf-8'); r=Path(sys.argv[2]).read_text('utf-8')
           assert 'proposal: null' in c and 'awaitingMaster: true' in c
-          assert 'startBarbaraOpening' in r and 'requestMasterTurn' in r
+          assert 'startBarbaraOpening' in r and 'submitPlayerIntent' in r
           assert r.count("await startBarbaraOpening()") >= 2
           print('R54_BARBARA_C01_STATIC_PASS')
           PY
-      - name: Browser opening calls Barbara
+      - name: Browser opening calls canonical Barbara channel
         env: {ROOT: "${{ steps.root.outputs.path }}"}
         run: |
           set -euo pipefail
@@ -78,22 +79,23 @@ jobs:
                   rnd.click(); pg.wait_for_timeout(700)
               pg.evaluate("""() => {
                 const bridge=window.BraseiroGameBridge;
-                if(!bridge||typeof bridge.requestMasterTurn!=='function') throw new Error('requestMasterTurn missing');
+                if(!bridge||typeof bridge.submitPlayerIntent!=='function') throw new Error('submitPlayerIntent missing');
                 window.__r54OpeningCalls=[];
-                bridge.requestMasterTurn=async (opts)=>{window.__r54OpeningCalls.push(opts);return {ok:true,data:{provider:'audit'}}};
+                bridge.submitPlayerIntent=async (intent)=>{window.__r54OpeningCalls.push(String(intent||''));return {ok:true,data:{provider:'audit-master'}}};
               }""")
               start=pg.locator('[data-start-adventure]').first
               assert start.count()==1
               start.click(); pg.wait_for_timeout(500)
               calls=pg.evaluate('window.__r54OpeningCalls')
               assert len(calls)==1,calls
-              assert 'Inicie a aventura agora como Mestre Barbara' in calls[0].get('intentText',''),calls
+              assert '[ABERTURA_BARBARA]' in calls[0],calls
+              assert 'Inicie a aventura agora como Mestre Barbara' in calls[0],calls
               state=pg.evaluate('window.BraseiroGameBridge.readState().data') or {}
               narration=str(((state.get('master') or {}).get('narration') or (state.get('scene') or {}).get('narration') or ''))
               assert not narration.startswith('A campanha começa em '),narration
               assert (state.get('session') or {}).get('status')=='ativa',state.get('session')
               b.close()
-          print('R54_BARBARA_C01_BROWSER_PASS')
+          print('R54_BARBARA_C01_BROWSER_PASS channel=submitPlayerIntent')
           PY
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: '17'}
@@ -126,7 +128,7 @@ jobs:
           git pull --rebase origin main
           mkdir -p "$OUT"
           cp "$TMP"/* "$OUT"/
-          printf '%s\n' 'R54_BARBARA_OPENING_MASTER_PASS local_template=0 master_request=1 browser=PASS build=PASS' > "$OUT/BARBARA_OPENING_2026-09-16.txt"
+          printf '%s\n' 'R54_BARBARA_OPENING_MASTER_PASS local_template=0 master_channel=submitPlayerIntent browser=PASS build=PASS' > "$OUT/BARBARA_OPENING_2026-09-16.txt"
           git add -f "$OUT"
           git commit -m 'build: persist R54 Barbara opening master' || true
           git push origin HEAD:main
