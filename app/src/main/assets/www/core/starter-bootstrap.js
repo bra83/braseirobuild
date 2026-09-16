@@ -2,6 +2,8 @@ import { makeEmptyCampaignState, serializeCampaignState } from './campaign-state
 import { createPartyState } from './party-state.js';
 import { applyStarterContentToState } from './starter-content-service.js';
 import { STARTER_CAMPAIGN_ID } from './runtime-campaign.js';
+import { prepareCampaignOpening } from './campaign-opening.js';
+import { canonicalJson } from './canonical-json.js';
 
 export const STARTER_DISPLAY_NAME='SOMBRAS DE GELO E FERRO';
 export const STARTER_MASTER_SEED='braseiro-wwn-sombras-gelo-ferro-v1';
@@ -41,7 +43,14 @@ export function ensureStarterCampaign({persistence,character,pack,campaignId=STA
   const existing=persistence.loadCampaign(campaignId);
   if(existing.status==='OK')return Object.freeze({status:'OK_EXISTING',campaignId,revision:existing.revision,state:JSON.parse(existing.stateJson)});
   if(existing.status!=='NOT_FOUND')return Object.freeze({status:existing.status,campaignId});
-  const state=makeStarterCampaignState({character,pack,campaignId});
+  let state=makeStarterCampaignState({character,pack,campaignId});
   const receipt=persistence.createCampaign({campaignId,displayName:state.displayName,stateJson:serializeCampaignState(state),masterSeed:state.rngState.masterSeed,rngAlgorithm:state.rngState.algorithm,initialSnapshotId:`snapshot:${campaignId}:r0`});
-  return Object.freeze({status:receipt.status==='OK'?'OK_CREATED':receipt.status,campaignId,receipt,state});
+  if(receipt.status!=='OK')return Object.freeze({status:receipt.status,campaignId,receipt,state});
+  const opening=prepareCampaignOpening(state,{campaignId,nextRevision:receipt.newRevision+1});
+  let openingReceipt=null,openingStatus=opening.status;
+  if(opening.status==='OK'){
+    openingReceipt=persistence.commit({campaignId,expectedRevision:receipt.newRevision,eventId:opening.eventId,eventKind:'SCENE_OPENED',eventPayloadJson:canonicalJson(opening.event),newStateJson:serializeCampaignState(opening.state),rngCountersJson:canonicalJson(opening.state.rngState?.counters??{})});
+    openingStatus=openingReceipt.status;if(openingReceipt.status==='OK')state=opening.state;
+  }
+  return Object.freeze({status:'OK_CREATED',campaignId,receipt,openingStatus,openingReceipt,revision:openingReceipt?.status==='OK'?openingReceipt.newRevision:receipt.newRevision,state});
 }
