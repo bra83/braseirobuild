@@ -1,0 +1,211 @@
+name: WWN 1.0.9 Player Surface Sandbox Closure
+
+on:
+  push:
+    branches: [wwn-source-105-bridge]
+    paths:
+      - ".github/workflows/wwn-1.0.9-player-surface-sandbox-closure.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch-build-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: wwn-source-105-bridge
+          fetch-depth: 0
+
+      - name: Apply player-surface and sandbox fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def rep(path, old, new, label):
+              p=Path(path); s=p.read_text(encoding='utf-8')
+              if old not in s: raise SystemExit(f'{label}: pattern not found')
+              p.write_text(s.replace(old,new,1),encoding='utf-8')
+
+          rep('app/build.gradle.kts','versionCode = 108; versionName = "1.0.8"','versionCode = 109; versionName = "1.0.9"','version')
+
+          # Player-facing surfaces must not expose GM/admin links.
+          p=Path('app/src/main/assets/www/ficha.html'); s=p.read_text(encoding='utf-8')
+          s=s.replace('<a class="ops-link" href="operacoes.html">OPERAÇÕES DO MESTRE</a>','')
+          s=s.replace('<a href="gestao.html" style="position:fixed;right:10px;bottom:96px;z-index:50;background:#181d20;color:#d6b96d;border:1px solid #716746;border-radius:999px;padding:9px 12px;text-decoration:none;font:800 10px system-ui">GESTÃO</a>','')
+          p.write_text(s,encoding='utf-8')
+
+          p=Path('app/src/main/assets/www/mochila.html'); s=p.read_text(encoding='utf-8')
+          s=s.replace('Preços e estatísticas vêm da tabela do WWN. Hurlants não aparecem sem confirmação de que a campanha os inclui.<a href="operacoes.html">OPERAÇÕES</a>','Preços e estatísticas vêm da tabela do WWN. Hurlants não aparecem sem confirmação de que a campanha os inclui.')
+          s=s.replace('<a href="gestao.html" style="position:fixed;right:10px;bottom:96px;z-index:50;background:#181d20;color:#d6b96d;border:1px solid #716746;border-radius:999px;padding:9px 12px;text-decoration:none;font:800 10px system-ui">GESTÃO</a>','')
+          p.write_text(s,encoding='utf-8')
+
+          # A free sandbox declaration must work even before choosing an opportunity/site.
+          p=Path('app/src/main/assets/www/core/player-declaration-service.js'); s=p.read_text(encoding='utf-8')
+          old="const projection=projectSceneForPlayer(state);const scene=projection.scene;\n    if(!scene||scene.status!=='OK')return Object.freeze({status:'ACTIVE_SCENE_REQUIRED_NO_MUTATION',revision:loaded.revision});\n    const next=structuredClone(state);const newRevision=loaded.revision+1;next.revision=newRevision;"
+          new="const projection=projectSceneForPlayer(state);let scene=projection.scene;let synthesizedScene=false;\n    if(!scene||scene.status!=='OK'){const p=state.worldState?.position??{};const name=String(p.name??(Number.isInteger(p.q)&&Number.isInteger(p.r)?`HEX Q${p.q} • R${p.r}`:'POSIÇÃO ATUAL')).trim()||'POSIÇÃO ATUAL';scene=Object.freeze({status:'OK',contentType:'sandboxPosition',contentId:Number.isInteger(p.q)&&Number.isInteger(p.r)?`position-${p.q}-${p.r}`:'position-current',title:name,summary:`Você está em ${name}.`,situation:`Você está em ${name}.`,leads:Object.freeze([])});synthesizedScene=true;}\n    const next=structuredClone(state);const newRevision=loaded.revision+1;next.revision=newRevision;if(synthesizedScene){next.encounterState={...(next.encounterState??{}),sceneId:`scene:sandbox:${scene.contentId}:r${newRevision}`,currentScene:{contentType:scene.contentType,contentId:scene.contentId,publicScene:structuredClone(scene)},scenePhase:'ACTIVE',sceneOpenedAtRevision:newRevision};}"
+          if old not in s: raise SystemExit('free sandbox declaration pattern not found')
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+
+          # In Journey, action declaration is always visible; opening a hook is optional.
+          p=Path('app/src/main/assets/www/ux-hotfix.js'); s=p.read_text(encoding='utf-8')
+          old="  relabelHooks();if(hooks)new MutationObserver(relabelHooks).observe(hooks,{childList:true,subtree:true});\n\n  const scene=document.getElementById('sceneCard'),narrative=document.getElementById('sceneNarrative'),title=document.getElementById('sceneTitle'),master=document.getElementById('sceneMasterButton');"
+          new="  relabelHooks();if(hooks)new MutationObserver(relabelHooks).observe(hooks,{childList:true,subtree:true});\n\n  const scene=document.getElementById('sceneCard'),freeAction=document.querySelector('.player-reaction');if(scene&&freeAction&&freeAction.parentElement===scene){freeAction.classList.add('sandbox-action');scene.after(freeAction);const actionLabel=freeAction.querySelector('label');if(actionLabel)actionLabel.textContent='O QUE VOCÊ FAZ? • AÇÃO LIVRE';const actionHelp=freeAction.querySelector('small');if(actionHelp)actionHelp.textContent='Você pode agir sem escolher nenhum gancho. Se a intenção exigir regra, risco, viagem ou gasto de recurso, o Mestre para antes do resultado e encaminha para a resolução mecânica.';}\n  const narrative=document.getElementById('sceneNarrative'),title=document.getElementById('sceneTitle'),master=document.getElementById('sceneMasterButton');"
+          if old not in s: raise SystemExit('always-visible action pattern not found')
+          s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+
+          # No phantom starter character in a newly-created characterless campaign.
+          p=Path('app/src/main/assets/www/ficha.js'); s=p.read_text(encoding='utf-8')
+          old="const state=readCanonicalState();\nconst b=projectFichaBinding(state); const c=state.characterState||fallback;"
+          new="const state=readCanonicalState();\nconst hasCanonicalCharacter=Boolean(state?.characterState?.characterId);\nconst b=projectFichaBinding(state); const c=hasCanonicalCharacter?state.characterState:(native?{characterId:null,name:'SEM PERSONAGEM',level:null,classId:null,attributes:{},skills:{},savingThrows:{},inventory:[],foci:[],abilities:[]} : fallback);"
+          if old not in s: raise SystemExit('ficha no-character state pattern not found')
+          s=s.replace(old,new,1)
+          old2="text('txt_nome_iria',b.name||c.name||'IRIA','title'); text('txt_classe_nivel',`${classLabelPtBr(b.classId||c.class||'EXPERT')} • NÍVEL ${b.level||c.level||1}`,'tiny');"
+          new2="text('txt_nome_iria',hasCanonicalCharacter?(b.name||c.name||'PERSONAGEM'):'SEM PERSONAGEM','title'); text('txt_classe_nivel',hasCanonicalCharacter?`${classLabelPtBr(b.classId||c.class||c.classId)} • NÍVEL ${b.level||c.level||1}`:'CRIE, GERE OU IMPORTE UM PERSONAGEM','tiny');"
+          if old2 not in s: raise SystemExit('ficha no-character identity pattern not found')
+          s=s.replace(old2,new2,1)
+          old3="let liveState=state;\nlet liveCharacter=state.characterState||fallback;"
+          new3="let liveState=state;\nlet liveCharacter=hasCanonicalCharacter?state.characterState:(native?c:fallback);"
+          if old3 not in s: raise SystemExit('ficha live no-character pattern not found')
+          p.write_text(s.replace(old3,new3,1),encoding='utf-8')
+
+          # Character empty-state presentation overlays misleading fixed starter-sheet decorations.
+          p=Path('app/src/main/assets/www/ux-hotfix.js'); s=p.read_text(encoding='utf-8')
+          old="function patchCharacter(){\n  if(document.getElementById('characterQuickActions'))return;const screen=document.getElementById('screen');if(!screen)return;const panel=document.createElement('section');"
+          new="function patchCharacter(){\n  if(document.getElementById('characterQuickActions'))return;const screen=document.getElementById('screen');if(!screen)return;const noCharacter=document.getElementById('txt_nome_iria')?.textContent?.trim()==='SEM PERSONAGEM';if(noCharacter){screen.classList.add('character-empty');const notice=document.createElement('section');notice.className='character-empty-notice';notice.innerHTML='<small>CAMPANHA SEM PERSONAGEM</small><b>COMECE QUANDO QUISER</b><p>Este mundo já existe. Crie manualmente, gere um personagem aleatório pelas regras WWN ou importe uma ficha JSON.</p>';screen.appendChild(notice);}const panel=document.createElement('section');"
+          if old not in s: raise SystemExit('character empty overlay pattern not found')
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+
+          # Translate all mundane-market names and kinds at presentation level without changing canonical IDs.
+          p=Path('app/src/main/assets/www/mochila.js'); s=p.read_text(encoding='utf-8')
+          old="const ITEM_KIND_PTBR=Object.freeze({WEAPON:'ARMA',ARMOR:'ARMADURA',SHIELD:'ESCUDO',AMMO:'MUNIÇÃO'});\nfunction itemKindLabel(kind){const k=String(kind??'').toUpperCase();return ITEM_KIND_PTBR[k]??k}"
+          new="const ITEM_KIND_PTBR=Object.freeze({WEAPON:'ARMA',ARMOR:'ARMADURA',SHIELD:'ESCUDO',AMMO:'MUNIÇÃO',GEAR:'EQUIPAMENTO',BUNDLE:'KIT',BEAST:'ANIMAL',TRANSPORT:'TRANSPORTE',SERVICE:'SERVIÇO'});\nconst MUNDANE_NAME_PTBR=Object.freeze({ARROWS_20:'Flechas, 20',BACKPACK:'Mochila',BOOTS:'Botas',CANDLE:'Vela',CART_ONE_HORSE:'Carroça de um cavalo',CLOTHES_COMMON:'Roupas comuns',CLOTHES_FINE:'Roupas finas',CLOTHES_NOBLE:'Roupas nobres',COOKING_UTENSILS:'Utensílios de cozinha',CROWBAR:'Pé de cabra',FIREWOOD_NIGHT:'Lenha para uma noite',FLASK_METAL_PINT:'Frasco metálico, 1 pinta',GRAPPLING_HOOK:'Gancho de escalada',HAMMER_SMALL_TOOL:'Martelo ou ferramenta pequena',HEALERS_POUCH:'Bolsa de curandeiro',IRON_SPIKES_10:'Cravos de ferro, 10',LANTERN:'Lanterna',MIRROR_HAND:'Espelho de mão',OIL_PINT:'Óleo, 1 pinta',OIL_3_BUNDLE:'Óleo, 3 frascos de 1 pinta',PAPER_10:'Papel, 10 folhas',RATIONS_WEEK:'Rações, 1 semana',ROPE_50:'Corda, 50 pés',SACK:'Saco',SHOVEL_PICK:'Pá, picareta ou ferramenta similar',TINDER_BOX:'Pederneira e isca',TORCH:'Tocha',TORCHES_3_BUNDLE:'Tochas, 3 amarradas',WATERSKIN_GALLON:'Cantil de couro, 1 galão',WRITING_KIT:'Kit de escrita',HORSE_RIDING:'Cavalo de montaria',HORSE_DRAFT:'Cavalo de tração',HORSE_BATTLE_TRAINED:'Cavalo treinado para batalha',MULE:'Mula',COW:'Vaca',OX_PLOW_TRAINED:'Boi treinado para arado',CHICKEN:'Galinha',PIG:'Porco',DOG_WORKING:'Cão de trabalho',SHEEP_OR_GOAT:'Ovelha ou cabra',RIVER_FERRY_PASSENGER:'Balsa fluvial, por passageiro',SHIP_PASSAGE_DAY:'Passagem de navio, por dia previsto',CARRIAGE_TRAVEL_MILE:'Viagem de carruagem, por milha',ROWBOAT:'Barco a remo',SMALL_FISHING_BOAT:'Pequeno barco de pesca',MERCHANT_SHIP:'Navio mercante',WAR_GALLEON:'Galeão de guerra',ARTISANS_EQUIPMENT:'Equipamento de artesão',CRIMINAL_TOOLS:'Ferramentas de atividades ilícitas',DUNGEONEERING_KIT:'Kit de exploração de masmorras',NOBLE_COURTIER_OUTFIT:'Traje de cortesão nobre',PERFORMERS_IMPLEMENTS:'Instrumentos de artista',WILDERNESS_TRAVEL_GEAR:'Equipamento de viagem selvagem'});\nfunction itemKindLabel(kind){const k=String(kind??'').toUpperCase();return ITEM_KIND_PTBR[k]??k}\nfunction itemNamePtBr(item){const id=String(item?.catalogId??'').toUpperCase();return MUNDANE_NAME_PTBR[id]??item?.name??item?.catalogId??item?.itemId??'ITEM'}"
+          if old not in s: raise SystemExit('market PTBR mapping pattern not found')
+          s=s.replace(old,new,1)
+          s=s.replace("row.querySelector('b').textContent=i.name??i.catalogId??i.itemId;","row.querySelector('b').textContent=itemNamePtBr(i);",1)
+          s=s.replace("name:cat.name,detail:`${itemKindLabel(cat.kind)}", "name:itemNamePtBr(cat),detail:`${itemKindLabel(cat.kind)}",1)
+          s=s.replace("name:cat.name,detail:`${itemKindLabel(cat.kind??'GEAR')}", "name:itemNamePtBr(cat),detail:`${itemKindLabel(cat.kind??'GEAR')}",1)
+          p.write_text(s,encoding='utf-8')
+
+          # Styling for always-visible sandbox action and empty character campaign.
+          p=Path('app/src/main/assets/www/ux-hotfix.css'); s=p.read_text(encoding='utf-8')
+          s += "\n.player-reaction.sandbox-action{margin:0 0 16px;padding:12px;border:1px solid #745f3f;background:linear-gradient(180deg,#0b1c18,#07120f);clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px)}.player-reaction.sandbox-action label{color:#d4b978;font-weight:800}.character-empty #layers{opacity:.20;filter:grayscale(.55)}.character-empty-notice{position:absolute;left:24px;right:24px;top:252px;z-index:82;padding:16px;background:linear-gradient(180deg,rgba(8,25,21,.98),rgba(5,14,12,.98));border:1px solid #8b7048;box-shadow:0 10px 24px #000b;color:#d9c9a5}.character-empty-notice small{display:block;color:#b9975e;font:800 8px Arial;letter-spacing:.12em}.character-empty-notice b{display:block;margin:6px 0;font:18px Georgia,serif;color:#eee1c3}.character-empty-notice p{margin:0;font:10px/1.5 Arial;color:#b8aa8b}\n"
+          p.write_text(s,encoding='utf-8')
+          PY
+
+      - name: Audit player-facing contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check app/src/main/assets/www/jornada.js
+          node --check app/src/main/assets/www/ux-hotfix.js
+          node --check app/src/main/assets/www/ficha.js
+          node --check app/src/main/assets/www/mochila.js
+          node --check app/src/main/assets/www/core/player-declaration-service.js
+          python3 - <<'PY'
+          from pathlib import Path
+          build=Path('app/build.gradle.kts').read_text(encoding='utf-8')
+          ficha=Path('app/src/main/assets/www/ficha.html').read_text(encoding='utf-8')
+          mochila=Path('app/src/main/assets/www/mochila.html').read_text(encoding='utf-8')
+          fjs=Path('app/src/main/assets/www/ficha.js').read_text(encoding='utf-8')
+          mjs=Path('app/src/main/assets/www/mochila.js').read_text(encoding='utf-8')
+          ux=Path('app/src/main/assets/www/ux-hotfix.js').read_text(encoding='utf-8')
+          decl=Path('app/src/main/assets/www/core/player-declaration-service.js').read_text(encoding='utf-8')
+          journey=Path('app/src/main/assets/www/jornada.js').read_text(encoding='utf-8')
+          assert 'versionCode = 109' in build and 'versionName = "1.0.9"' in build
+          for html in (ficha,mochila):
+              assert 'operacoes.html' not in html.lower()
+              assert 'gestao.html' not in html.lower()
+          assert 'hasCanonicalCharacter' in fjs and 'SEM PERSONAGEM' in fjs
+          assert 'character-empty-notice' in ux
+          assert 'sandboxPosition' in decl and 'ACTIVE_SCENE_REQUIRED_NO_MUTATION' not in decl
+          assert 'sandbox-action' in ux and 'AÇÃO LIVRE' in ux
+          assert "mechanics.travelAdjacent({campaignId" not in journey
+          assert 'MUNDANE_NAME_PTBR' in mjs and "GEAR:'EQUIPAMENTO'" in mjs and "SERVICE:'SERVIÇO'" in mjs
+          for pt in ['Mochila','Tocha','Lanterna','Óleo, 1 pinta','Corda, 50 pés','Cavalo de montaria','Barco a remo']:
+              assert pt in mjs
+          print('WWN_1_0_9_PLAYER_SURFACE_AUDIT_PASS')
+          PY
+
+      - name: Commit 1.0.9 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add app/build.gradle.kts app/src/main/assets/www/ficha.html app/src/main/assets/www/mochila.html app/src/main/assets/www/core/player-declaration-service.js app/src/main/assets/www/ux-hotfix.js app/src/main/assets/www/ux-hotfix.css app/src/main/assets/www/ficha.js app/src/main/assets/www/mochila.js
+          git commit -m "fix: close WWN player surface sandbox character and PT-BR gaps"
+          git push origin HEAD:wwn-source-105-bridge
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Prepare Android SDK 36
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(find /usr/local/lib/android /opt /home/runner -type f -name sdkmanager -perm -111 2>/dev/null | head -n1 || true)"; fi
+          test -n "$SDKMANAGER"
+          SDK_ROOT="$(cd "$(dirname "$SDKMANAGER")/../../.." && pwd)"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-36"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build installable APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew clean assembleDebug --stacktrace --no-daemon
+
+      - name: Collect validate and publish source-branch APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out delivery
+          APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | head -n1)"
+          test -f "$APK"
+          cp "$APK" out/BRASEIRO_WWN_v1.0.9.apk
+          unzip -t out/BRASEIRO_WWN_v1.0.9.apk >/dev/null
+          sha256sum out/BRASEIRO_WWN_v1.0.9.apk | tee out/BRASEIRO_WWN_v1.0.9.apk.sha256
+          cp out/BRASEIRO_WWN_v1.0.9.apk delivery/BRASEIRO_WWN_v1.0.9.apk
+          cp out/BRASEIRO_WWN_v1.0.9.apk.sha256 delivery/BRASEIRO_WWN_v1.0.9.apk.sha256
+          git add delivery/BRASEIRO_WWN_v1.0.9.apk delivery/BRASEIRO_WWN_v1.0.9.apk.sha256
+          git commit -m "build: publish WWN 1.0.9 APK"
+          git push origin HEAD:wwn-source-105-bridge
+
+      - name: Publish visible APK on main with retry
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          rm -rf /tmp/wwn-main
+          git worktree add --detach /tmp/wwn-main origin/main
+          cd /tmp/wwn-main
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          mkdir -p delivery
+          cp "$GITHUB_WORKSPACE/out/BRASEIRO_WWN_v1.0.9.apk" BRASEIRO_WWN_v1.0.9.apk
+          cp "$GITHUB_WORKSPACE/out/BRASEIRO_WWN_v1.0.9.apk" delivery/BRASEIRO_WWN_v1.0.9.apk
+          cp "$GITHUB_WORKSPACE/out/BRASEIRO_WWN_v1.0.9.apk.sha256" delivery/BRASEIRO_WWN_v1.0.9.apk.sha256
+          git add BRASEIRO_WWN_v1.0.9.apk delivery/BRASEIRO_WWN_v1.0.9.apk delivery/BRASEIRO_WWN_v1.0.9.apk.sha256
+          git commit -m "release: publish BRASEIRO WWN v1.0.9 APK"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then exit 0; fi
+            sleep 2
+          done
+          exit 1
