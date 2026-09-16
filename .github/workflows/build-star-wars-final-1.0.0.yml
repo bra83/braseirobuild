@@ -1,17 +1,11 @@
 name: Build Star Wars Edge of the Galaxy FINAL 1.0.0 APK
-
 on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths:
-      - ".github/workflows/build-star-wars-final-1.0.0.yml"
-      - "star-wars/final-1.0.0/SOURCE.json"
-      - "STAR_WARS_FINAL_BUILD_TRIGGER.txt"
-
+    paths: [".github/workflows/build-star-wars-final-1.0.0.yml", "star-wars/final-1.0.0/SOURCE.json", "STAR_WARS_FINAL_BUILD_TRIGGER.txt"]
 permissions:
   contents: read
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,12 +19,10 @@ jobs:
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json
           d=json.load(open('star-wars/final-1.0.0/SOURCE.json'))
-          for k in ('source_share_url','sha256','file','application_id','compile_sdk'):
-              print(f'{k}={d[k]}')
+          for k in ('source_share_url','sha256','file','application_id','compile_sdk'): print(f'{k}={d[k]}')
           PY
       - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+        with: {python-version: '3.12'}
       - name: Install Chromium downloader
         run: |
           python -m pip install --quiet playwright
@@ -41,8 +33,7 @@ jobs:
           EXPECTED_SHA: ${{ steps.source.outputs.sha256 }}
           SOURCE_FILE: ${{ steps.source.outputs.file }}
         run: |
-          set -euo pipefail
-          mkdir -p incoming
+          set -euo pipefail; mkdir -p incoming
           python3 - <<'PY'
           import os,pathlib
           from playwright.sync_api import sync_playwright
@@ -70,18 +61,17 @@ jobs:
           unzip -t "incoming/${SOURCE_FILE}" >/dev/null
       - id: project
         name: Extract Android project
-        env:
-          SOURCE_FILE: ${{ steps.source.outputs.file }}
+        env: {SOURCE_FILE: "${{ steps.source.outputs.file }}"}
         run: |
-          set -euo pipefail
-          mkdir work; unzip -q "incoming/$SOURCE_FILE" -d work
-          GRADLEW="$(find work -type f -name gradlew -not -path '*/build/*' | head -n1)"
-          [ -n "$GRADLEW" ] || { echo '::error::gradlew not found'; exit 1; }
-          ROOT="$(dirname "$GRADLEW")"; chmod +x "$ROOT/gradlew"; echo "root=$ROOT" >> "$GITHUB_OUTPUT"
+          set -euo pipefail; rm -rf work; mkdir work; unzip -q "incoming/$SOURCE_FILE" -d work
+          SETTINGS="$(find work -type f \( -name settings.gradle.kts -o -name settings.gradle \) -not -path '*/build/*' | head -n1)"
+          [ -n "$SETTINGS" ] || { echo '::error::settings.gradle not found'; exit 1; }
+          ROOT="$(dirname "$SETTINGS")"; test -f "$ROOT/app/build.gradle.kts" || test -f "$ROOT/app/build.gradle"
+          echo "root=$ROOT" >> "$GITHUB_OUTPUT"; echo "Project root: $ROOT"
       - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@v4
+        with: {gradle-version: '8.13'}
       - uses: android-actions/setup-android@v3
       - name: Install Android SDK 36
         run: |
@@ -89,19 +79,15 @@ jobs:
           sdkmanager 'platform-tools' 'platforms;android-${{ steps.source.outputs.compile_sdk }}'
       - name: Build debug APK
         working-directory: ${{ steps.project.outputs.root }}
-        run: ./gradlew :app:assembleDebug --stacktrace --no-daemon
-      - id: apk
-        name: Validate and stage APK
+        run: gradle :app:assembleDebug --stacktrace --no-daemon
+      - name: Validate and stage APK
         env:
           ROOT: ${{ steps.project.outputs.root }}
           EXPECTED_APP_ID: ${{ steps.source.outputs.application_id }}
         run: |
-          set -euo pipefail
-          mkdir -p APK_SAIDA
-          APK="$(find "$ROOT/app/build/outputs/apk/debug" -type f -name '*.apk' | head -n1)"
-          [ -f "$APK" ] || exit 1
-          FINAL='APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_FINAL_1.0.0_DEBUG.apk'
-          cp "$APK" "$FINAL"; unzip -t "$FINAL" >/dev/null
+          set -euo pipefail; mkdir -p APK_SAIDA
+          APK="$(find "$ROOT/app/build/outputs/apk/debug" -type f -name '*.apk' | head -n1)"; test -f "$APK"
+          FINAL='APK_SAIDA/STAR_WARS_EDGE_OF_THE_GALAXY_FINAL_1.0.0_DEBUG.apk'; cp "$APK" "$FINAL"; unzip -t "$FINAL" >/dev/null
           BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
           "$BUILD_TOOLS/aapt" dump badging "$FINAL" | grep -E '^(package:|sdkVersion:|targetSdkVersion:)' | tee APK_SAIDA/info.txt
           grep -q "package: name='${EXPECTED_APP_ID}'" APK_SAIDA/info.txt
