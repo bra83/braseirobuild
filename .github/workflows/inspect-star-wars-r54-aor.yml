@@ -1,0 +1,47 @@
+name: Inspect Star Wars R54 AoR runtime
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/inspect-star-wars-r54-aor.yml"
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover R53 source and inspect AoR runtime
+        run: |
+          set -euo pipefail
+          rm -rf aor-work && mkdir aor-work
+          unzip -q star-wars/final-1.0.0/output-r53/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R53_REAL_DEVICE_HOTFIX.zip -d aor-work
+          SET="$(find aor-work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"
+          test -n "$SET"; ROOT="$(dirname "$SET")"
+          V="$ROOT/app/src/main/assets/vtt"
+          python3 - "$V" <<'PY'
+          from pathlib import Path
+          import re,sys
+          v=Path(sys.argv[1]); p=v/'js/core/uiBridge.bundle.js'; s=p.read_text('utf-8',errors='replace')
+          marker='no active Age of Rebellion tree data'
+          i=s.find(marker)
+          print('MARKER_INDEX',i)
+          if i>=0:
+              print('=== MARKER CONTEXT ===')
+              print(s[max(0,i-1800):i+1800])
+          print('=== AOR/TALENT FILE CANDIDATES ===')
+          for f in v.rglob('*'):
+              if not f.is_file(): continue
+              n=f.name.lower();
+              if 'aor' in n or 'talent' in n or 'specialization' in n:
+                  print(f.relative_to(v))
+          print('=== TEXT FILES WITH AOR CAREER TOKENS ===')
+          toks=('Ace','Commander','Diplomat','Engineer','Soldier','Spy')
+          for f in v.rglob('*'):
+              if not f.is_file() or f.suffix.lower() not in {'.js','.mjs','.json','.html','.txt'}: continue
+              try:t=f.read_text('utf-8',errors='replace')
+              except:continue
+              hits=sum(tok in t for tok in toks)
+              if hits>=4: print(f.relative_to(v), 'TOKENS', hits)
+          PY
