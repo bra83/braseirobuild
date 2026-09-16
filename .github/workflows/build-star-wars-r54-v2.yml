@@ -6,6 +6,7 @@ on:
     paths:
       - ".github/workflows/build-star-wars-r54-v2.yml"
       - "star-wars/r54/fix_map_anchor_state.py"
+      - "star-wars/r54/fix_aor_talent_runtime.py"
 permissions: {contents: write}
 jobs:
   build:
@@ -65,6 +66,7 @@ jobs:
           test -n "$SET"; ROOT="$(dirname "$SET")"
           python3 star-wars/r54/hotfix_r54.py "$ROOT" "$(pwd)/pack"
           python3 star-wars/r54/fix_map_anchor_state.py "$ROOT"
+          python3 star-wars/r54/fix_aor_talent_runtime.py "$ROOT"
           printf '\n.final-start-list button[hidden]{display:none!important}\n' >> "$ROOT/app/src/main/assets/vtt/r46/final-runtime.css"
           echo "path=$ROOT" >> "$GITHUB_OUTPUT"
       - name: Static gates
@@ -84,6 +86,8 @@ jobs:
           grep -Fq 'r54-scene-icon' "$V/r46/final-runtime.js"
           grep -Fq 'result.world.sandbox.startMapPoint' "$V/js/core/controller.mjs"
           grep -Fq 'result.world.sandbox.startMapPoint' "$V/js/core/uiBridge.bundle.js"
+          ! grep -Fq 'no active Age of Rebellion tree data' "$V/js/core/uiBridge.bundle.js"
+          grep -Fq '"ace":{"gunner"' "$V/js/core/uiBridge.bundle.js"
           grep -Fq '.final-start-list button[hidden]{display:none!important}' "$V/r46/final-runtime.css"
           test "$(find "$V/image-library/local/r54/weapons" -type f -name '*.webp' | wc -l)" -ge 30
           test "$(find "$V/image-library/local/r54/equipment" -type f -name '*.webp' | wc -l)" -ge 20
@@ -94,7 +98,10 @@ jobs:
           d=json.loads((v/'image-library/local/r54/r54-start-locations.json').read_text('utf-8'))
           assert len(d)==82,len(d)
           for n in ['Tatooine','Corellia','Ryloth','Dantooine','Mandalore','Kessel','Shantipole','Lothal']: assert n in rt,n
-          print('STATIC R54 PASS: 82 starts, map anchor engine and user visual pack present')
+          s=(v/'js/rules/talentTreesData.mjs').read_text('utf-8');m='export const TALENT_TREES = Object.freeze(';i=s.index(m);j=s.index('{',i+len(m));trees=json.JSONDecoder().raw_decode(s[j:])[0]
+          counts=(len(trees),sum(len(x) for x in trees.values()),sum(len(t['nodes']) for x in trees.values() for t in x.values()))
+          assert counts==(12,36,720),counts
+          print('STATIC R54 PASS: 82 starts, map anchor, visuals and active AoR talent trees',counts)
           PY
       - name: Browser smoke 415x915
         env: {ROOT: "${{ steps.root.outputs.path }}"}
