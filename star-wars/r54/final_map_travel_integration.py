@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Closeout retrigger after the living-world E2E collection-shape fix.
 from __future__ import annotations
 import sys
 from pathlib import Path
@@ -17,7 +18,7 @@ js = r'''/* R54_FINAL_MAP_TRAVEL_V1 — map is a live campaign surface, not a de
 (()=>{'use strict';
 const GUARD='__R54_FINAL_MAP_TRAVEL_V1__';if(window[GUARD])return;window[GUARD]=true;
 const STATE_EVENT='braseiro:r21-state-changed';
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
 const route=()=>new URLSearchParams(location.search).get('screen')||'00';
 const bridge=()=>window.BraseiroGameBridge&&typeof window.BraseiroGameBridge.readState==='function'?window.BraseiroGameBridge:null;
 function state(){try{const b=bridge(),r=b?.readState?.();return r?.ok?r.data:null}catch{return null}}
