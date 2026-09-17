@@ -13,23 +13,29 @@ with sync_playwright() as p:
     page.wait_for_function("()=>window.BraseiroGameBridge&&typeof window.BraseiroGameBridge.readState==='function'",timeout=15000)
     result=page.evaluate("""()=>{
       const b=window.BraseiroGameBridge;
+      const collectionValues=v=>Array.isArray(v)?v:(v&&typeof v==='object'?Object.values(v):[]);
+      const collectionShape=v=>Array.isArray(v)?'array':(v&&typeof v==='object'?'object':typeof v);
       let s=b.readState();
       if(s.ok&&s.data===null){const c=b.initializeCampaign();if(!c.ok)throw Error(JSON.stringify(c));}
       s=b.readState().data;
       if(!s?.world?.sandbox?.initialized){const r=b.initializeLivingSandbox({startingPoint:'Mos Eisley · Tatooine',regionLabel:'Borda Exterior',startMapPoint:{x:65,y:55}});if(!r.ok)throw Error(JSON.stringify(r));}
       const before=b.readState().data;
       const world=before.world||{}, sandbox=world.sandbox||{};
-      const factions=Array.isArray(world.factions)?world.factions:[];
-      const npcs=Array.isArray(world.npcs)?world.npcs:[];
-      const locations=Array.isArray(world.locations)?world.locations:[];
-      const routes=Array.isArray(world.routes)?world.routes:[];
+      const factions=collectionValues(world.factions);
+      const npcs=collectionValues(world.npcs);
+      const locations=collectionValues(world.locations);
+      const routes=collectionValues(world.routes);
       const from=before.scene?.locationId;
-      const route=routes.find(r=>r.fromLocationId===from||r.toLocationId===from);
+      const route=routes.find(r=>r?.fromLocationId===from||r?.toLocationId===from);
       if(!route)throw Error('living world has no route from current location');
       const to=route.fromLocationId===from?route.toLocationId:route.fromLocationId;
       const tr=b.travelToLocation(to);if(!tr.ok)throw Error(JSON.stringify(tr));
       const after=b.readState().data;
-      return {factions:factions.length,npcs:npcs.length,locations:locations.length,routes:routes.length,initialized:!!sandbox.initialized,from,to,travelPersisted:after.scene?.locationId===to,startMapPoint:after.world?.sandbox?.startMapPoint||null};
+      return {
+        factions:factions.length,npcs:npcs.length,locations:locations.length,routes:routes.length,
+        shapes:{factions:collectionShape(world.factions),npcs:collectionShape(world.npcs),locations:collectionShape(world.locations),routes:collectionShape(world.routes)},
+        initialized:!!sandbox.initialized,from,to,travelPersisted:after.scene?.locationId===to,startMapPoint:after.world?.sandbox?.startMapPoint||null
+      };
     }""")
     page.reload(wait_until='domcontentloaded',timeout=30000)
     page.wait_for_function("()=>window.BraseiroGameBridge&&window.BraseiroGameBridge.readState().ok",timeout=15000)
