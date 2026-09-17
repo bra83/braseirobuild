@@ -37,29 +37,24 @@ with sync_playwright() as p:
  if nav.count(): nav.click();page.wait_for_timeout(150)
  checks['nav_to_nave']=bool(nav.count() and re.search(r'[?&]screen=10(?:&|$)',page.url))
 
- # Persistence gate: NAVE must project canonical campaign state, and a full reload
- # must preserve the same active ship instead of relying on UI-local state.
- before=page.evaluate("""() => {
-   const b=window.BraseiroGameBridge;
-   if(!b||typeof b.readState!=='function') return {bridge:false};
-   const r=b.readState(), s=r&&r.ok?r.data:null, v=s&&s.vehicles;
-   const id=v&&v.activeVehicleId;
-   const ship=id&&v.vehicles?v.vehicles[id]:null;
-   return {bridge:true,id:id||null,name:ship&&ship.name||null,
-     hull:(ship&&ship.hullDamage)??null,strain:(ship&&ship.systemStrain)??null,
-     hyperdrive:(ship&&ship.hyperdrive)??null};
- }""")
+ def vehicle_snapshot():
+  return page.evaluate("""() => {
+    const b=window.BraseiroGameBridge;
+    if(!b||typeof b.readState!=='function') return {bridge:false};
+    const r=b.readState(), s=r&&r.ok?r.data:null, v=s&&s.vehicles;
+    const owned=v&&v.vehicles&&typeof v.vehicles==='object'?v.vehicles:{};
+    const ids=Object.keys(owned);
+    const id=v&&v.activeVehicleId;
+    const ship=id&&owned[id]?owned[id]:null;
+    return {bridge:true,id:id||null,vehicleCount:ids.length,vehicleIds:ids,
+      vehicleNames:ids.map(k=>owned[k]&&owned[k].name||k),name:ship&&ship.name||null,
+      hull:(ship&&ship.hullDamage)??null,strain:(ship&&ship.systemStrain)??null,
+      hyperdrive:(ship&&ship.hyperdrive)??null};
+  }""")
+
+ before=vehicle_snapshot()
  page.reload(wait_until='networkidle',timeout=120000);page.wait_for_timeout(250)
- after=page.evaluate("""() => {
-   const b=window.BraseiroGameBridge;
-   if(!b||typeof b.readState!=='function') return {bridge:false};
-   const r=b.readState(), s=r&&r.ok?r.data:null, v=s&&s.vehicles;
-   const id=v&&v.activeVehicleId;
-   const ship=id&&v.vehicles?v.vehicles[id]:null;
-   return {bridge:true,id:id||null,name:ship&&ship.name||null,
-     hull:(ship&&ship.hullDamage)??null,strain:(ship&&ship.systemStrain)??null,
-     hyperdrive:(ship&&ship.hyperdrive)??null};
- }""")
+ after=vehicle_snapshot()
  checks['canonical_vehicle_state']=bool(before.get('bridge') and before.get('id') and before.get('name'))
  checks['vehicle_persists_reload']=bool(checks['canonical_vehicle_state'] and before==after)
  runtime['vehicle_before_reload']=before; runtime['vehicle_after_reload']=after
