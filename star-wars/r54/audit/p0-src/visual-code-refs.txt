@@ -1,0 +1,785 @@
+index.html:152:             <div id="catalogWeapons" class="equipment-catalog"></div>
+index.html:289:               <label class="wide">Arma<select id="weaponSelect"></select></label>
+index.html:386:             <label class="starter-label" for="vehicleWeaponSelect">Arma da nave</label><select id="vehicleWeaponSelect" class="starter-select"></select>
+image-library/R37_KAINRATH_VISUAL_ENTITY_INDEX.json:314:       "category": "portrait",
+image-library/R37_KAINRATH_VISUAL_ENTITY_INDEX.json:330:       "category": "portrait",
+image-library/R37_KAINRATH_VISUAL_ENTITY_INDEX.json:346:       "category": "portrait",
+image-library/R37_KAINRATH_VISUAL_ENTITY_INDEX.json:362:       "category": "portrait",
+image-library/R37_KAINRATH_VISUAL_ENTITY_INDEX.json:378:       "category": "portrait",
+image-library/R37_KAINRATH_VISUAL_ENTITY_INDEX.json:394:       "category": "portrait",
+image-library/R37_KAINRATH_VISUAL_ENTITY_INDEX.json:410:       "category": "portrait",
+image-library/R37_KAINRATH_VISUAL_ENTITY_INDEX.json:426:       "category": "portrait",
+image-library/R37_KAINRATH_VISUAL_ENTITY_INDEX.json:442:       "category": "portrait",
+image-library/R37_KAINRATH_VISUAL_ENTITY_INDEX.json:458:       "category": "portrait",
+image-library/R37_KAINRATH_VISUAL_ENTITY_INDEX.json:474:       "category": "portrait",
+image-library/R37_KAINRATH_VISUAL_ENTITY_INDEX.json:490:       "category": "portrait",
+image-library/R37_KAINRATH_VISUAL_ENTITY_INDEX.json:506:       "category": "portrait",
+image-library/R37_KAINRATH_VISUAL_ENTITY_INDEX.json:522:       "category": "portrait",
+image-library/R37_KAINRATH_VISUAL_ENTITY_INDEX.json:538:       "category": "portrait",
+image-library/R37_KAINRATH_VISUAL_ENTITY_INDEX.json:554:       "category": "portrait",
+image-library/manifest.json:33:     "portraits": 36,
+image-library/manifest.json:2759:       "assetId": "local.weapon.mine",
+image-library/manifest.json:2762:       "subtype": "weapon",
+image-library/manifest.json:2765:       "localPath": "image-library/local/equipment/weapons/mina_scifi.png",
+image-library/manifest.json:2769:         "weapon",
+image-library/manifest.json:2779:       "assetId": "local.weapon.stun-grenade",
+image-library/manifest.json:2782:       "subtype": "weapon",
+image-library/manifest.json:2785:       "localPath": "image-library/local/equipment/weapons/granada_stun.png",
+image-library/manifest.json:2789:         "weapon",
+image-library/manifest.json:2799:       "assetId": "local.weapon.carbine",
+image-library/manifest.json:2802:       "subtype": "weapon",
+image-library/manifest.json:2805:       "localPath": "image-library/local/equipment/weapons/carabina.png",
+image-library/manifest.json:2809:         "weapon",
+image-library/manifest.json:2819:       "assetId": "local.weapon.disruptor-pistol",
+image-library/manifest.json:2822:       "subtype": "weapon",
+image-library/manifest.json:2825:       "localPath": "image-library/local/equipment/weapons/pistola_disruptora.png",
+image-library/manifest.json:2829:         "weapon",
+image-library/manifest.json:3777:       "category": "portrait",
+image-library/manifest.json:3801:       "category": "portrait",
+image-library/manifest.json:3825:       "category": "portrait",
+image-library/manifest.json:3849:       "category": "portrait",
+image-library/manifest.json:3873:       "category": "portrait",
+image-library/manifest.json:3897:       "category": "portrait",
+image-library/manifest.json:3921:       "category": "portrait",
+image-library/manifest.json:3945:       "category": "portrait",
+image-library/manifest.json:3969:       "category": "portrait",
+image-library/manifest.json:3993:       "category": "portrait",
+image-library/manifest.json:4017:       "category": "portrait",
+image-library/manifest.json:4041:       "category": "portrait",
+image-library/manifest.json:4065:       "category": "portrait",
+image-library/manifest.json:4089:       "category": "portrait",
+image-library/manifest.json:4113:       "category": "portrait",
+image-library/manifest.json:4137:       "category": "portrait",
+image-library/manifest.json:4353:       "category": "portrait",
+image-library/manifest.json:4375:       "category": "portrait",
+image-library/manifest.json:4419:       "category": "portrait",
+image-library/manifest.json:4441:       "category": "portrait",
+image-library/manifest.json:4463:       "category": "portrait",
+image-library/manifest.json:4485:       "category": "portrait",
+image-library/manifest.json:4507:       "category": "portrait",
+image-library/manifest.json:4529:       "category": "portrait",
+image-library/manifest.json:4551:       "category": "portrait",
+image-library/manifest.json:4573:       "category": "portrait",
+image-library/manifest.json:4595:       "category": "portrait",
+image-library/manifest.json:4617:       "category": "portrait",
+image-library/manifest.json:4639:       "category": "portrait",
+image-library/manifest.json:4661:       "category": "portrait",
+image-library/manifest.json:4705:       "category": "portrait",
+image-library/manifest.json:4727:       "category": "portrait",
+image-library/manifest.json:4749:       "category": "portrait",
+image-library/manifest.json:4771:       "category": "portrait",
+image-library/manifest.json:5580:       "assetId": "local.final.npc.son_barab.portrait",
+image-library/manifest.json:5582:       "category": "portrait",
+image-library/manifest.json:5590:         "portrait",
+image-library/manifest.json:5595:       "localPath": "image-library/local/final/npcs/son_barab_portrait.webp",
+image-library/manifest.json:5603:       "category": "portrait",
+image-library/R39_KAINRATH_VISUAL_WAVE3_INDEX.json:7:     "npcPortraits": 3,
+image-library/R39_KAINRATH_VISUAL_WAVE3_INDEX.json:16:       "category": "portrait",
+image-library/R39_KAINRATH_VISUAL_WAVE3_INDEX.json:30:       "category": "portrait",
+image-library/R39_KAINRATH_VISUAL_WAVE3_INDEX.json:44:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:7:     "npcPortraits": 18,
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:14:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:28:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:56:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:70:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:84:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:98:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:112:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:126:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:140:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:154:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:168:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:182:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:196:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:210:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:238:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:252:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:266:       "category": "portrait",
+image-library/R38_KAINRATH_NPC_WAVE2_INDEX.json:280:       "category": "portrait",
+r46/final-runtime.js:380: function r54Bindings(){if(!r54BindingsPromise)r54BindingsPromise=fetch(R54_ASSET_ROOT+'bindings.json').then(r=>{if(!r.ok)throw new Error('bindings');return r.json()}).catch(()=>({weapons:{},equipment:{},portraits:{},maps:{}}));return r54BindingsPromise}
+r46/final-runtime.js:382: function r54AssetIndex(bind){const map=new Map();for(const group of ['weapons','equipment'])for(const item of Object.values(bind?.[group]||{}))for(const a of item.aliases||[])map.set(r54Norm(a),R54_ASSET_ROOT+item.file);return map}
+r46/final-runtime.js:395: function r54CharacterPortrait(){
+r46/final-runtime.js:397:  if(document.querySelector('.r54-character-portrait'))return;const state=currentState(),c=state?.player?.character;if(!c)return;
+r46/final-runtime.js:398:  const species=r54Norm(c.species||c.speciesName||'');let src='';if(species.includes('twi lek')||species.includes('twilek'))src=R54_ASSET_ROOT+'portraits/twilek_female_blue.webp';
+r46/final-runtime.js:400:  const fig=document.createElement('figure');fig.className='r54-character-portrait';fig.innerHTML=`<img src="${src}" alt="Retrato visual de ${String(c.name||'personagem').replace(/["<&]/g,'')}"><figcaption>${String(c.name||'Personagem')}</figcaption>`;heading.insertAdjacentElement('afterend',fig);
+r46/final-runtime.js:411: function r54Tick(){r54FixSceneIcon();r54CharacterPortrait();r54ContextMapPreview();r54EnhanceItemImages();r54SupplementSpeciesPanel()}
+r46/final-runtime.js:448: const FINAL_EXPLICIT_VISUALS=Object.freeze([{"id":"vehicle.digger_crawler","kind":"vehicle","title":"Digger Crawler","aliases":["Digger Crawler","digger crawler"],"src":"image-library/local/final/vehicles/digger_crawler.png"},{"id":"vehicle.at_est","kind":"vehicle","title":"AT-EST Exploration and Survey Walker","aliases":["AT-EST Exploration and Survey Walker","at est"],"src":"image-library/local/final/vehicles/at_est.png"},{"id":"vehicle.cloakshape","kind":"vehicle","title":"CloakShape","aliase
+r46/r46-shell.bundle.js:167:     weapon: 'Arma', armor: 'Armadura', gear: 'Equipamento',
+r46/r46-shell.bundle.js:196:     if (category === 'weapon') {
+r46/r46-shell.bundle.js:282:         ['weapon', array(c?.weapons)],
+r46/r46-shell.bundle.js:316:         return { active: false, name: null, summary: [], weapons: [], crew: [], criticalHits: [] };
+r46/r46-shell.bundle.js:323:     const weapons = array(vehicle.weapons).map(itemProjection).filter((v) => Boolean(v));
+r46/r46-shell.bundle.js:347:         weapons,
+r46/r46-shell.bundle.js:485: exports.proposeWeaponAcquisitionThroughBridge = proposeWeaponAcquisitionThroughBridge;
+r46/r46-shell.bundle.js:491: exports.getImageAssetThroughBridge = getImageAssetThroughBridge;
+r46/r46-shell.bundle.js:492: exports.getImageAssetRuntimeThroughBridge = getImageAssetRuntimeThroughBridge;
+r46/r46-shell.bundle.js:696: function normalizeCatalogWeapon(value) {
+r46/r46-shell.bundle.js:809:         return { catalog: false, proposeWeapon: false };
+r46/r46-shell.bundle.js:810:     return { catalog: typeof bridge.equipmentCatalog === 'function', proposeWeapon: typeof bridge.proposeWeaponAcquisition === 'function' };
+r46/r46-shell.bundle.js:816:     if (!isRecord(result.data) || !Array.isArray(result.data.weapons))
+r46/r46-shell.bundle.js:818:     const weapons = [];
+r46/r46-shell.bundle.js:820:     for (const raw of result.data.weapons) {
+r46/r46-shell.bundle.js:821:         const item = normalizeCatalogWeapon(raw);
+r46/r46-shell.bundle.js:825:         weapons.push(item);
+r46/r46-shell.bundle.js:827:     return { ok: true, data: { weapons } };
+r46/r46-shell.bundle.js:829: function proposeWeaponAcquisitionThroughBridge(itemId) {
+r46/r46-shell.bundle.js:833:     const result = callOptional('proposeWeaponAcquisition', [id]);
+r46/r46-shell.bundle.js:845: function validateImageAssetValue(value) {
+r46/r46-shell.bundle.js:888: function validateImageAssetListResult(result, message) {
+r46/r46-shell.bundle.js:896:         const item = validateImageAssetValue(raw);
+r46/r46-shell.bundle.js:910:         asset: typeof bridge.imageAsset === 'function', runtime: typeof bridge.imageAssetRuntime === 'function',
+r46/r46-shell.bundle.js:929:     return validateImageAssetListResult(callOptional('searchImageLibrary', [criteria]), 'Busca da biblioteca de imagens inválida.');
+r46/r46-shell.bundle.js:932:     const result = validateImageAssetListResult(callOptional('imageMapCatalog', [criteria]), 'Catálogo de mapas inválido retornado pelo motor.');
+r46/r46-shell.bundle.js:940:     const result = validateImageAssetListResult(callOptional('imageVisualEntityCatalog', [criteria]), 'Catálogo visual de NPCs/droides/criaturas/veículos inválido retornado pelo motor.');
+r46/r46-shell.bundle.js:943:     const allowed = new Set(['portrait', 'droid', 'creature', 'vehicle']);
+r46/r46-shell.bundle.js:948: function getImageAssetThroughBridge(assetId) {
+r46/r46-shell.bundle.js:952:     const result = callOptional('imageAsset', [id]);
+r46/r46-shell.bundle.js:955:     const asset = validateImageAssetValue(result.data);
+r46/r46-shell.bundle.js:958: function getImageAssetRuntimeThroughBridge(assetId) {
+r46/r46-shell.bundle.js:962:     const result = callOptional('imageAssetRuntime', [id]);
+r46/r46-shell.bundle.js:1147:     inventory: 'inventory', items: 'inventory', weapon: 'combat', party: 'party', contacts: 'party', faction: 'party', mission: 'mission', rumor: 'mission', records: 'journal',
+r46/r46-shell.bundle.js:1165: exports.TopBar = exports.AppShell = exports.NarrativePanel = exports.ExpandableCard = exports.MissingImage = exports.PartialState = exports.OfflineState = exports.ErrorState = exports.EmptyState = exports.LoadingState = exports.Toast = exports.Tooltip = exports.Dialog = exports.Drawer = exports.SegmentedControl = exports.ShipListItem = exports.LocationListItem = exports.RumorListItem = exports.QuestListItem = exports.NPCListItem = exports.EquipmentItem = exports.ArmorItem = exports.WeaponItem = 
+r46/r46-shell.bundle.js:1170: exports.Portrait = Portrait;
+r46/r46-shell.bundle.js:1209: function Portrait({ name, kind = 'character' }) { return (0, jsx_runtime_1.jsxs)("figure", { className: `portrait ${kind}`, "aria-label": `Retrato de referência visual de ${name}`, children: [(0, jsx_runtime_1.jsx)(Icon_1.Icon, { name: kind === 'location' ? 'location' : kind }), (0, jsx_runtime_1.jsx)("figcaption", { children: name.split(' ').map((part) => part[0]).join('').slice(0, 2) })] }); }
+r46/r46-shell.bundle.js:1210: exports.CharacterPortrait = Portrait;
+r46/r46-shell.bundle.js:1211: exports.NPCPortrait = Portrait;
+r46/r46-shell.bundle.js:1212: exports.LocationPortrait = Portrait;
+r46/r46-shell.bundle.js:1213: exports.ShipPortrait = Portrait;
+r46/r46-shell.bundle.js:1221: exports.WeaponItem = ListItem;
+r46/r46-shell.bundle.js:1526:     const canPropose = model.status === 'ready' && Boolean(model.character) && props.equipmentCapabilities.proposeWeapon && !pending && props.equipmentActionState !== 'working';
+r46/r46-shell.bundle.js:1527:     const weaponMeta = (item) => {
+r46/r46-shell.bundle.js:1533:                             : (0, jsx_runtime_1.jsx)("p", { style: { margin: 0 }, children: "Nenhum pedido de aquisi\u00E7\u00E3o pendente." }) }), (0, jsx_runtime_1.jsx)(Card, { title: "Cat\u00E1logo sustentado", tone: "soft", children: !props.equipmentCapabilities.catalog ? ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)("p", { style: { margin: 0 }, children: "O Motor Barbara conectado ainda n\u00E3o exp\u00F5e o cat\u00E1logo auditado para esta shell." }),
+r46/r46-shell.bundle.js:1543:                             : (0, jsx_runtime_1.jsx)("p", { style: { margin: 0, color: '#A9B0B5' }, children: "Nenhum dado t\u00E9cnico da nave registrado." }) }), (0, jsx_runtime_1.jsx)(Card, { title: "Armamentos", children: (0, jsx_runtime_1.jsx)(DisplayList, { items: vehicle.weapons, emptyText: "Nenhum armamento registrado." }) }), (0, jsx_runtime_1.jsx)(Card, { title: "Tripula\u00E7\u00E3o", tone: "soft", children: (0, jsx_runtime_1.jsx)(DisplayList, { items: vehicle.crew, emptyText: "Nenhum
+r46/r46-shell.bundle.js:1580:     const selected = props.selectedImageAsset;
+r46/r46-shell.bundle.js:1640:         manualContent = (0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)(Card, { title: "Or\u00E7amento atual", tone: "soft", children: props.campaignRead.status === 'ready' && props.campaignRead.character ? (props.campaignRead.inventory?.credits === null || props.campaignRead.inventory?.credits === undefined ? (0, jsx_runtime_1.jsx)("p", { style: { margin: 0, color: '#A9B0B5' }, children: "Saldo de cr\u00E9ditos n\u00E3o registrado." }) : (0, jsx_runtime_1.jsx
+r46/r46-shell.bundle.js:1646:     const visualKindMatches = (asset) => props.imageVisualKind === 'all' || (props.imageVisualKind === 'npc' && asset.category === 'portrait') || (props.imageVisualKind === 'droid' && asset.category === 'droid') || (props.imageVisualKind === 'beast' && asset.category === 'creature') || (props.imageVisualKind === 'vehicle' && asset.category === 'vehicle');
+r46/r46-shell.bundle.js:1661:                                                     setGeminiApiKey(''); }, children: "Salvar chave" }), (0, jsx_runtime_1.jsx)("button", { type: "button", style: { ...mutedButton, opacity: props.geminiCapabilities.clearKey && props.geminiStatus?.configured ? 1 : .45 }, disabled: !props.geminiCapabilities.clearKey || !props.geminiStatus?.configured || props.geminiActionState === 'working', onClick: props.clearGeminiApiKey, children: "Remover chave" })] })] })] }), (0, jsx_runtime_1.jsxs)(Card, {
+r46/r46-shell.bundle.js:1663:                                     return (0, jsx_runtime_1.jsxs)("div", { style: { border: '1px solid #40484D', borderRadius: 6, padding: 9, display: 'grid', gap: 6, minWidth: 0 }, children: [(0, jsx_runtime_1.jsxs)("div", { style: { display: 'grid', gridTemplateColumns: '1fr auto', gap: 8, minWidth: 0 }, children: [(0, jsx_runtime_1.jsx)("strong", { style: { overflowWrap: 'anywhere' }, children: asset.title }), (0, jsx_runtime_1.jsx)("span", { style: { color: '#A9B0B5', fontSize: 12 }, childr
+r46/r46-shell.bundle.js:1761:     const [equipmentCapabilities, setEquipmentCapabilities] = (0, react_1.useState)({ catalog: false, proposeWeapon: false });
+r46/r46-shell.bundle.js:1762:     const [equipmentWeapons, setEquipmentWeapons] = (0, react_1.useState)([]);
+r46/r46-shell.bundle.js:1779:     const [selectedImageAssetId, setSelectedImageAssetId] = (0, react_1.useState)(null);
+r46/r46-shell.bundle.js:1798:     const selectedImageAsset = (0, react_1.useMemo)(() => selectedImageAssetId ? imageMaps.find(item => item.assetId === selectedImageAssetId) ?? null : null, [imageMaps, selectedImageAssetId]);
+r46/r46-shell.bundle.js:1799:     const selectedImageCache = selectedImageAssetId ? imageCacheStatuses[selectedImageAssetId] ?? null : null;
+r46/r46-shell.bundle.js:1801:         if (!selectedImageAsset)
+r46/r46-shell.bundle.js:1803:         if (selectedImageAsset.sourceType !== 'external_reference') {
+r46/r46-shell.bundle.js:1805:                 return selectedImageAsset.localPath ? `/${selectedImageAsset.localPath.replace(/^\/+/, '')}` : null;
+r46/r46-shell.bundle.js:1806:             return (0, imageLibraryBridgeClient_1.packagedImageUrl)(selectedImageAsset);
+r46/r46-shell.bundle.js:1810:         if (selectedImageAsset.remoteReady && selectedImageAsset.remoteUrl)
+r46/r46-shell.bundle.js:1811:             return selectedImageAsset.remoteUrl;
+r46/r46-shell.bundle.js:1812:         return imageLibraryNative === 'unavailable' ? (0, imageLibraryBridgeClient_1.browserExternalFallbackUrl)(selectedImageAsset) : null;
+r46/r46-shell.bundle.js:1813:     }, [selectedImageAsset, selectedImageCache, imageLibraryNative]);
+r46/r46-shell.bundle.js:1839:             setEquipmentWeapons([]);
+r46/r46-shell.bundle.js:1848:             setEquipmentWeapons([]);
+r46/r46-shell.bundle.js:1855:         setEquipmentWeapons(result.data.weapons);
+r46/r46-shell.bundle.js:1915:         setSelectedImageAssetId(current => current && maps.some(item => item.assetId === current) ? current : null);
+r46/r46-shell.bundle.js:2027:             setSelectedImageAssetId(contextualMap);
+r46/r46-shell.bundle.js:2031:         if (selectedImageAssetId && imageLibraryNative === 'available')
+r46/r46-shell.bundle.js:2032:             refreshImageCacheStatus(selectedImageAssetId, true);
+r46/r46-shell.bundle.js:2033:     }, [selectedImageAssetId, imageLibraryNative, refreshImageCacheStatus]);
+r46/r46-shell.bundle.js:2323:     const proposeWeaponAcquisition = (0, react_1.useCallback)((itemId) => {
+r46/r46-shell.bundle.js:2336:         const result = (0, gameBridgeClient_1.proposeWeaponAcquisitionThroughBridge)(itemId);
+r46/r46-shell.bundle.js:2353:         setSelectedImageAssetId(id);
+r46/r46-shell.bundle.js:2358:         if (!selectedImageAsset) {
+r46/r46-shell.bundle.js:2365:         const result = (0, imageLibraryBridgeClient_1.cacheExternalImage)(selectedImageAsset);
+r46/r46-shell.bundle.js:2374:             refreshImageCacheStatus(selectedImageAsset.assetId, true);
+r46/r46-shell.bundle.js:2377:     }, [selectedImageAsset, refreshImageCacheStatus]);
+r46/r46-shell.bundle.js:2379:         if (!selectedImageAssetId)
+r46/r46-shell.bundle.js:2381:         const result = (0, imageLibraryBridgeClient_1.clearCachedImage)(selectedImageAssetId);
+r46/r46-shell.bundle.js:2387:         setImageCacheStatuses(current => ({ ...current, [selectedImageAssetId]: { assetId: selectedImageAssetId, cached: false } }));
+r46/r46-shell.bundle.js:2391:     }, [selectedImageAssetId]);
+r46/r46-shell.bundle.js:2571:         equipmentWeapons,
+r46/r46-shell.bundle.js:2575:         proposeWeaponAcquisition,
+r46/r46-shell.bundle.js:2586:         selectedImageAsset,
+image-library/sources/kainrath.json:9:       "id": "weapons-armor",
+image-library/sources/kainrath.json:11:       "url": "https://kainrath.wordpress.com/category/weapons-and-armor/"
+image-library/sources/kainrath.json:14:       "id": "energy-weapons",
+image-library/sources/kainrath.json:16:       "url": "https://kainrath.wordpress.com/category/weapons-and-armor/energy-weapons/"
+image-library/sources/kainrath.json:21:       "url": "https://kainrath.wordpress.com/category/weapons-and-armor/armor/"
+image-library/sources/kainrath.json:24:       "id": "melee-weapons",
+image-library/sources/kainrath.json:26:       "url": "https://kainrath.wordpress.com/category/weapons-and-armor/melee-weapons/"
+image-library/sources/kainrath.json:29:       "id": "weapon-attachments",
+image-library/sources/kainrath.json:31:       "url": "https://kainrath.wordpress.com/category/weapon-attachments/"
+image-library/sources/kainrath.json:107:       "category": "energy-weapons",
+image-library/sources/kainrath.json:688:       "category": "portrait",
+image-library/sources/kainrath.json:704:       "category": "portrait",
+image-library/sources/kainrath.json:720:       "category": "portrait",
+image-library/sources/kainrath.json:736:       "category": "portrait",
+image-library/sources/kainrath.json:752:       "category": "portrait",
+image-library/sources/kainrath.json:768:       "category": "portrait",
+image-library/sources/kainrath.json:784:       "category": "portrait",
+image-library/sources/kainrath.json:800:       "category": "portrait",
+image-library/sources/kainrath.json:816:       "category": "portrait",
+image-library/sources/kainrath.json:832:       "category": "portrait",
+image-library/sources/kainrath.json:848:       "category": "portrait",
+image-library/sources/kainrath.json:864:       "category": "portrait",
+image-library/sources/kainrath.json:880:       "category": "portrait",
+image-library/sources/kainrath.json:896:       "category": "portrait",
+image-library/sources/kainrath.json:912:       "category": "portrait",
+image-library/sources/kainrath.json:928:       "category": "portrait",
+image-library/sources/kainrath.json:1076:       "category": "portrait",
+image-library/sources/kainrath.json:1090:       "category": "portrait",
+image-library/sources/kainrath.json:1118:       "category": "portrait",
+image-library/sources/kainrath.json:1132:       "category": "portrait",
+image-library/sources/kainrath.json:1146:       "category": "portrait",
+image-library/sources/kainrath.json:1160:       "category": "portrait",
+image-library/sources/kainrath.json:1174:       "category": "portrait",
+image-library/sources/kainrath.json:1188:       "category": "portrait",
+image-library/sources/kainrath.json:1202:       "category": "portrait",
+image-library/sources/kainrath.json:1216:       "category": "portrait",
+image-library/sources/kainrath.json:1230:       "category": "portrait",
+image-library/sources/kainrath.json:1244:       "category": "portrait",
+image-library/sources/kainrath.json:1258:       "category": "portrait",
+image-library/sources/kainrath.json:1272:       "category": "portrait",
+image-library/sources/kainrath.json:1300:       "category": "portrait",
+image-library/sources/kainrath.json:1314:       "category": "portrait",
+image-library/sources/kainrath.json:1328:       "category": "portrait",
+image-library/sources/kainrath.json:1342:       "category": "portrait",
+image-library/local/r54/bindings.json:2:   "weapons": {
+image-library/local/r54/bindings.json:4:       "file": "weapons/blaster_de_bolso.webp",
+image-library/local/r54/bindings.json:11:       "file": "weapons/pistola_blaster.webp",
+image-library/local/r54/bindings.json:19:       "file": "weapons/pistola_blaster_pesada.webp",
+image-library/local/r54/bindings.json:26:       "file": "weapons/carabina_blaster.webp",
+image-library/local/r54/bindings.json:33:       "file": "weapons/fuzil_blaster.webp",
+image-library/local/r54/bindings.json:41:       "file": "weapons/fuzil_blaster_pesado.webp",
+image-library/local/r54/bindings.json:48:       "file": "weapons/blaster_repeticao_leve.webp",
+image-library/local/r54/bindings.json:55:       "file": "weapons/blaster_repeticao_pesado.webp",
+image-library/local/r54/bindings.json:62:       "file": "weapons/blaster_ionizador.webp",
+image-library/local/r54/bindings.json:69:       "file": "weapons/pistola_disruptora.webp",
+image-library/local/r54/bindings.json:76:       "file": "weapons/fuzil_disruptor.webp",
+image-library/local/r54/bindings.json:83:       "file": "weapons/pistola_projeteis_solidos.webp",
+image-library/local/r54/bindings.json:90:       "file": "weapons/fuzil_projeteis_solidos.webp",
+image-library/local/r54/bindings.json:97:       "file": "weapons/lanca_chamas.webp",
+image-library/local/r54/bindings.json:104:       "file": "weapons/lanca_misseis.webp",
+image-library/local/r54/bindings.json:112:       "file": "weapons/granada_atordoante.webp",
+image-library/local/r54/bindings.json:119:       "file": "weapons/mina_antipessoal.webp",
+image-library/local/r54/bindings.json:125:       "file": "weapons/mina_antiveiculo.webp",
+image-library/local/r54/bindings.json:131:       "file": "weapons/luvas_choque.webp",
+image-library/local/r54/bindings.json:138:       "file": "weapons/soqueiras.webp",
+image-library/local/r54/bindings.json:144:       "file": "weapons/pique_forca.webp",
+image-library/local/r54/bindings.json:151:       "file": "weapons/cassetete.webp",
+image-library/local/r54/bindings.json:158:       "file": "weapons/vibrofaca.webp",
+image-library/local/r54/bindings.json:165:       "file": "weapons/vibroespada.webp",
+image-library/local/r54/bindings.json:172:       "file": "weapons/vibromachado.webp",
+image-library/local/r54/bindings.json:179:       "file": "weapons/granada_fragmentacao.webp",
+image-library/local/r54/bindings.json:186:       "file": "weapons/granada_perfurante.webp",
+image-library/local/r54/bindings.json:192:       "file": "weapons/detonador_termico.webp",
+image-library/local/r54/bindings.json:199:       "file": "weapons/granada_fumaca.webp",
+image-library/local/r54/bindings.json:206:       "file": "weapons/granada_luz.webp",
+image-library/local/r54/bindings.json:213:       "file": "weapons/granada_gas.webp",
+image-library/local/r54/bindings.json:220:       "file": "weapons/mina_direcional.webp",
+image-library/local/r54/bindings.json:390:   "portraits": {
+image-library/local/r54/bindings.json:392:       "file": "portraits/twilek_female_blue.webp",
+image-library/local/final/final-visual-bindings.json:375:       "file": "npcs/son_barab_portrait.webp",
+js/expansion/adversaries.mjs:35:     weapons:[
+js/expansion/adversaries.mjs:56:     weapons:[{name:'Pistola blaster',skill:'armas_distancia_ligeras',range:'Médio',damage:6,crit:3}],
+js/expansion/adversaries.mjs:70:     weapons:[{name:'Pistola blaster leve',skill:'armas_distancia_ligeras',range:'Médio',damage:5,crit:4}],
+js/expansion/adversaries.mjs:83:     weapons:[
+js/expansion/adversaries.mjs:102:     weapons:[{name:'Pistola blaster',skill:'armas_distancia_ligeras',range:'Médio',damage:6,crit:3}],
+js/expansion/adversaries.mjs:131:     soak:2, wounds:{current:0,threshold:8,perMember:8}, strain:null, membersTotal:1, skills, groupSkills:[], talents:[], abilities:[], weapons:[], criticalInjuries:[], status:'active',
+js/expansion/adversaries.mjs:162:     weapons:clone(profile.weapons),
+js/expansion/adversaries.mjs:296:   const weapons=(profile.weapons??[]).map(w=>({
+js/expansion/adversaries.mjs:306:     membersTotal:members, skills:clone(profile.skills??{}), groupSkills:clone(profile.groupSkills??[]), talents, abilities, weapons,
+js/expansion/recovery-r47-heavy.test.mjs:13: ok('equipment weapons',()=>assert.ok(equipmentCoverage().weapons>=31));
+js/expansion/npcCardCatalog.mjs:3: export const NPC_CARD_CATALOG = Object.freeze([{"key":"aleena_wanderer_2","name":"Aleena Wanderer","kind":"minion","characteristics":{"fortaleza":1,"agilidad":3,"intelecto":3,"astucia":2,"voluntad":3,"presencia":3},"soak":4,"woundsThreshold":15,"strainThreshold":null,"defense":{"melee":0,"ranged":0},"groupSkills":["carisma","coordinacion","saber_arcaico","mecanica","medicina","supervivencia"],"skills":{},"unmappedSkills":[],"weapons":[],"talents":[],"abilitiesText":"Silhouette 0","gearText":"Tra
+js/expansion/npcCardCatalog.mjs:7: export function searchNpcCards(query){ const q=String(query??'').trim().toLocaleLowerCase(); if(!q)return NPC_CARD_CATALOG.slice(); return NPC_CARD_CATALOG.filter(v=>[v.name,v.sourceCard,v.gearText,v.abilitiesText,...(v.weapons??[]).map(w=>w.name)].filter(Boolean).join(' \n').toLocaleLowerCase().includes(q)); }
+js/expansion/galacticWorldCatalogWave6.mjs:1: export const GALACTIC_WORLD_CATALOG=Object.freeze([{"key":"coruscant","name":"Coruscant","region":"Core Worlds","grid":"L10","mapPoint":{"x":53.4,"y":51.2},"known":true,"coordinateSource":"visual_map_reference","source":{"title":"Star Wars — mapa galáctico do acervo do usuário","asset":"star-wars-maps.zip","authority":"CATALOG_REFERENCE","kind":"map_visual_reference"},"detail":{"key":"coruscant","name":"Coruscant","kind":"planet","astrogationData":"Coruscant System, Corusca Sector, Core Worlds",
+js/expansion/galacticWorldCatalogWave6.json:127:       "majorExports": "Alcohol, finished starships, starship components (hulls, weapon systems, sensors, drives, etc.), agricultural products (raw and processed foodstuffs, fibers and textiles, fuels)",
+js/expansion/galacticWorldCatalogWave6.json:128:       "majorImports": "Luxury goods,, raw materials, per- sonal weapons",
+js/expansion/weaponCompendium.mjs:1: // Generated from user-owned weapons.pdf compendium.
+js/expansion/weaponCompendium.mjs:2: const ROWS=[{"id":"compendium_holdout_blaster","name":"Holdout Blaster","category":"weapon","skill":"armas_distancia_ligeras","skills":["armas_distancia_ligeras"],"skillRaw":"Ranged (Light)","damage":5,"damageBonus":null,"damageFormula":null,"variableDamage":null,"nonDamageEffect":false,"crit":4,"range":"Curto","rangeRaw":"Short","encumbrance":1,"hardPoints":1,"price":200,"priceText":null,"rarity":4,"restricted":false,"qualities":["Modo atordoante"],"qualitiesRaw":"Stun Setting","notes":"Add 1 S
+js/expansion/weaponCompendium.mjs:3: export const WEAPON_COMPENDIUM=Object.freeze(ROWS.map(v=>Object.freeze(v)));
+js/expansion/weaponCompendium.mjs:4: export const WEAPON_COMPENDIUM_COUNT=ROWS.length;
+js/expansion/weaponCompendium.mjs:5: export function weaponCompendium({query='',skill=null,restricted=null,limit=1000}={}){const q=String(query??'').trim().toLocaleLowerCase('pt-BR');const s=String(skill??'').trim();const max=Math.max(1,Math.min(2000,Number(limit)||1000));return ROWS.filter(v=>(!q||[v.name,v.qualitiesRaw,v.notes].some(x=>String(x??'').toLocaleLowerCase('pt-BR').includes(q)))&&(!s||v.skill===s)&& (restricted===null||restricted===undefined||v.restricted===Boolean(restricted))).slice(0,max).map(v=>structuredClone(v));
+js/expansion/weaponCompendium.mjs:6: export function weaponCompendiumEntry(id){const v=ROWS.find(x=>x.id===String(id??''));return v?structuredClone(v):null;}
+js/expansion/equipmentBulkIntegration.mjs:1: import {equipmentCatalog,weaponCatalogEntry,armorCatalogEntry,generalGearCatalogEntry,CORE_WEAPON_CATALOG,EOTE_CORE_ARMOR_CATALOG,EOTE_CORE_GENERAL_GEAR,STARTER_GENERAL_GEAR_REFERENCE} from './equipmentCatalog.mjs';
+js/expansion/equipmentBulkIntegration.mjs:4: export function masterEquipmentSearch(query='',{mode='MIXED',kind='all',mechanicalOnly=false}={}){if(!EQUIPMENT_MODES.includes(mode))throw new Error('campaign mode');const q=String(query).trim().toLowerCase(),c=equipmentCatalog(),sets=[['weapon',c.weapons],['armor',c.armor],['gear',c.generalGear]],rows=[];for(const[k,arr]of sets){if(kind!=='all'&&kind!==k)continue;for(const x of arr){if(q&&!`${x.id} ${x.name} ${x.sourceNameEs||''}`.toLowerCase().includes(q))continue;if(mechanicalOnly&&!trusted(x
+js/expansion/equipmentBulkIntegration.mjs:5: export function creationEquipmentReference(kind,id){const f=kind==='weapon'?weaponCatalogEntry:kind==='armor'?armorCatalogEntry:kind==='gear'?generalGearCatalogEntry:null;if(!f)throw new Error('kind');const x=f(id);if(!x)throw new Error('item');return {kind,id,record:x,mechanicallyActive:trusted(x),purchaseRequiresMaster:true};}
+js/expansion/equipmentBulkIntegration.mjs:6: export function equipmentCoverage(){return {weapons:CORE_WEAPON_CATALOG.length,armor:EOTE_CORE_ARMOR_CATALOG.length,gear:EOTE_CORE_GENERAL_GEAR.length,aorStarterGearReference:STARTER_GENERAL_GEAR_REFERENCE.length,modes:[...EQUIPMENT_MODES]};}
+js/expansion/character.mjs:24:     credits:0, weapons:[], armor:[], gear:[], criticalInjuries:[], statusEffects:[], talents:[], description:{},
+js/expansion/character.mjs:52:   for(const key of ['specializations','careerSkills','motivations','obligations','weapons','armor','gear','criticalInjuries','statusEffects','talents','customSkills']){
+js/expansion/equipmentCatalog.mjs:1: import { WEAPON_COMPENDIUM, WEAPON_COMPENDIUM_COUNT, weaponCompendium, weaponCompendiumEntry } from "./weaponCompendium.mjs";
+js/expansion/equipmentCatalog.mjs:4: const SRC_WEAPONS=aorReference({book:'La Era de la Rebelión - Pantalla',screenPage:6,printedPages:'173/182',section:'Armas a distância / Armas corpo a corpo'});
+js/expansion/equipmentCatalog.mjs:49:   return Object.freeze({id,name,category:'weapon',skill,damage,damageBonus,crit,range,encumbrance,hardPoints,price,rarity,restricted,qualities:Object.freeze([...qualities]),source:SRC_WEAPONS});
+js/expansion/equipmentCatalog.mjs:52: export const CORE_WEAPON_CATALOG=Object.freeze([
+js/expansion/equipmentCatalog.mjs:123: export const ALL_WEAPON_CATALOG=Object.freeze((()=>{const byName=new Map(); for(const v of CORE_WEAPON_CATALOG) byName.set(String(v.name).toLocaleLowerCase('pt-BR'),v); for(const v of WEAPON_COMPENDIUM) if(!byName.has(String(v.name).toLocaleLowerCase('pt-BR'))) byName.set(String(v.name).toLocaleLowerCase('pt-BR'),v); return [...byName.values()];})());
+js/expansion/equipmentCatalog.mjs:124: export const FULL_WEAPON_CATALOG_COUNT=ALL_WEAPON_CATALOG.length;
+js/expansion/equipmentCatalog.mjs:125: export { WEAPON_COMPENDIUM_COUNT, weaponCompendium };
+js/expansion/equipmentCatalog.mjs:126: export function equipmentCatalog(){ return {weapons:ALL_WEAPON_CATALOG.map(v=>structuredClone(v)),armor:EOTE_CORE_ARMOR_CATALOG.map(v=>structuredClone(v)),generalGear:EOTE_CORE_GENERAL_GEAR.map(v=>structuredClone(v))}; }
+js/expansion/equipmentCatalog.mjs:127: export function weaponCatalogEntry(id){ return CORE_WEAPON_CATALOG.find(v=>v.id===id) ?? weaponCompendiumEntry(id) ?? null; }
+js/expansion/sandboxEconomyWave21.mjs:2: const CATS=new Set(["weapon","armor","gear","vehicle"]);
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:42:       "effect": "Increases weapon damage by 1.",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:87:       "compatibility": "pistol-sized weapons",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:106:       "effect": "Decreases the additional difficulty of making Ranged (Heavy) checks with the weapon while engaged at an additional target.",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:107:       "compatibility": "rifle and carbine-sized weapons, not heavy rifles",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:129:       "effect": "Increases weapon damage by 1; adds the source-listed automatic negative symbols to combat checks with the weapon.",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:152:       "effect": "While aiming, designate one target; weapon cannot fire at another until disengaged; checks against designated target cancel one additional source-listed negative result after normal cancellation.",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:153:       "compatibility": "ranged weapon without Blast or Auto-fire",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:175:       "compatibility": "any ranged weapon",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:196:       "effect": "Requires an additional source-listed negative result for the GM to make the weapon run out of ammunition.",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:197:       "compatibility": "any energy weapon",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:216:       "effect": "Weapon gains Auto-fire and Inaccurate 3.",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:239:       "compatibility": "Ranged (Light) or Ranged (Heavy) weapon with removable safety elements",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:281:       "effect": "Weapon cannot be detected by standard weapon-detecting technologies; physical searches still work; source-listed negative symbols may render it inoperable until major repair.",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:282:       "compatibility": "any weapon",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:284:         "1 Reduce weapon encumbrance by 1 Mod",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:305:       "compatibility": "Ranged (Heavy) weapon",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:368:       "effect": "Allows observing and targeting enemies completely hidden by solid objects the weapon can penetrate, subject to GM defense/soak adjudication.",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:369:       "compatibility": "Ranged (Heavy) weapon",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:414:       "effect": "Increases weapon range by one band; adds Inaccurate 2.",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:438:       "compatibility": "rifle-sized Ranged (Heavy) weapons",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:458:       "compatibility": "any ranged weapon",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:478:       "compatibility": "pistol-sized Ranged (Light) and rifle-sized Ranged (Heavy) weapons",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:498:       "compatibility": "Ranged (Heavy) weapon capable of mounting a bayonet",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:599:       "compatibility": "lightsabers or Melee weapons with a hilt",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:984:       "effect": "Encumbrance threshold +4; holster up to two encumbrance-5-or-lower weapons without counting them toward encumbrance.",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:986:         "2 Add setback to others' Perception checks to find stored weapons Mods",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:987:         "3 Holster one additional encumbrance-3-or-lower weapon Mods",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:1008:       "effect": "Increases armor soak by +3 against weapons with Ion quality.",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:1140:       "effect": "Gauntlets become Brawl weapon: Damage +1, Critical 4, Engaged, Disorient 3.",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:1257:       "name": "VX Hands-Free Weapon System",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:1270:       "compatibility": "armor; mounted Ranged (Light)/(Heavy) weapon encumbrance 4 or less, GM discretion",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:1271:       "effect": "Mounts one weapon on armor, allowing aim and fire without using hands or arms; weapon itself requires 1 hard point to be modified for mounting.",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:1290:       "compatibility": "Wookiee bowcasters; not purchasable, must be built by owner/weaponsmith",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:1312:       "compatibility": "any handheld weapon",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:1313:       "effect": "Weapon functions only in hands of its authorized owner.",
+js/expansion/gadgets_gear_mechanical_crosswalk_wave40.json:1379:       "effect": "Enables the lightsaber hilt to fire a short-range stun-blaster profile while blade is not in use; switching weapon mode requires a maneuver. Exact profile is retained from the primary continuation page.",
+js/library/sceneLibrary.mjs:65:     const existingId = String(state?.scene?.imageAssetId ?? '').trim();
+js/library/sceneLibrary.mjs:69:             return { asset: existing, descriptor: imageLibrary_mjs_1.imageAssetRuntimeDescriptor(manifest, existing), source: state.scene?.imageSource ?? 'library', locked: Boolean(state.scene?.imageLocked), score: null, hits: [] };
+js/library/sceneLibrary.mjs:73:     return { asset: selected.asset, descriptor: selected.asset ? imageLibrary_mjs_1.imageAssetRuntimeDescriptor(manifest, selected.asset) : null, source: selected.asset ? 'library' : 'gemini_fallback', locked: false, score: selected.score, hits: selected.hits, context };
+js/library/sceneLibrary.mjs:77:     next.scene = { title: 'Abertura', narration: '', locationId: null, imageAssetId: null, imageSource: null, imageLocked: false, imagePrompt: null, ...(next.scene ?? {}) };
+js/library/sceneLibrary.mjs:78:     if (next.scene.imageLocked && next.scene.imageAssetId)
+js/library/sceneLibrary.mjs:80:     const resolved = resolveSceneVisualForState({ ...next, scene: { ...next.scene, imageAssetId: null } }, { manifest, minScore });
+js/library/sceneLibrary.mjs:82:     const changed = next.scene.imageAssetId !== assetId || next.scene.imageSource !== (assetId ? 'library' : 'gemini_fallback');
+js/library/sceneLibrary.mjs:83:     next.scene.imageAssetId = assetId;
+js/library/imageLibraryData.mjs:1: export const IMAGE_LIBRARY_MANIFEST = Object.freeze({"schemaVersion":2,"libraryId":"braseiro.starwars.image-library.v3","title":"Star Wars — Edge of the Galaxy Image Library","policy":{"localAssetsAreOfflineReady":true,"externalAssetsDefault":"reference_and_cache_on_demand","externalFetchMode":"explicit_user_or_master_action","externalCache":"native_private_cache","allowedRemoteHosts":["kainrath.wordpress.com"],"allowedRemotePathPrefixes":["/wp-content/uploads/"],"generatedSceneImages":"campaign
+js/library/imageLibrary.mjs:1: const ALLOWED_CATEGORIES = new Set(['token', 'equipment', 'map', 'scene', 'portrait', 'vehicle', 'creature', 'droid', 'template']);
+js/library/imageLibrary.mjs:80: export function getImageAsset(manifest, assetId) {
+js/library/imageLibrary.mjs:83: export function searchImageAssets(manifest, { query = '', category = null, subtype = null, mapKind = null, tags = [], usage = null, sourceType = null, remoteReady = null, offlineReady = null, limit = 100 } = {}) {
+js/library/imageLibrary.mjs:103: export function chooseImageAsset(manifest, criteria = {}) {
+js/library/imageLibrary.mjs:104:     const candidates = searchImageAssets(manifest, { ...criteria, limit: 500 });
+js/library/imageLibrary.mjs:110: export function imageAssetRuntimeDescriptor(manifest, asset) {
+js/ui/app.mjs:6: import { availableTargetRanges, attackDifficultyForWeapon } from '../rules/attackDifficulty.mjs';
+js/ui/app.mjs:16: import { getImageAsset, searchImageAssets, imageAssetRuntimeDescriptor } from '../library/imageLibrary.mjs';
+js/ui/app.mjs:41:   return searchImageAssets(IMAGE_LIBRARY_MANIFEST,{category:'map',query,limit:200});
+js/ui/app.mjs:71:   const asset=getImageAsset(IMAGE_LIBRARY_MANIFEST,mapLibraryUi.selectedAssetId);
+js/ui/app.mjs:87:   const asset=getImageAsset(IMAGE_LIBRARY_MANIFEST,mapLibraryUi.selectedAssetId); const bridge=nativeImageLibrary();
+js/ui/app.mjs:89:   const descriptor=imageAssetRuntimeDescriptor(IMAGE_LIBRARY_MANIFEST,asset);
+js/ui/app.mjs:95:   const asset=getImageAsset(IMAGE_LIBRARY_MANIFEST,mapLibraryUi.selectedAssetId); const bridge=nativeImageLibrary(); if(!asset||!bridge) return;
+js/ui/app.mjs:104:   if(kind==='all'||kind==='npc') items.push(...searchImageAssets(IMAGE_LIBRARY_MANIFEST,{...common,category:'portrait',subtype:'npc'}));
+js/ui/app.mjs:105:   if(kind==='all'||kind==='droid') items.push(...searchImageAssets(IMAGE_LIBRARY_MANIFEST,{...common,category:'droid'}));
+js/ui/app.mjs:106:   if(kind==='all'||kind==='beast') items.push(...searchImageAssets(IMAGE_LIBRARY_MANIFEST,{...common,category:'creature',subtype:'beast'}));
+js/ui/app.mjs:107:   if(kind==='all'||kind==='vehicle') items.push(...searchImageAssets(IMAGE_LIBRARY_MANIFEST,{...common,category:'vehicle'}));
+js/ui/app.mjs:123:     const cached=getMapCacheStatus(asset.assetId); const kind=asset.category==='portrait'?'NPC':asset.category==='droid'?'droide':asset.category==='vehicle'?'veículo/nave':'criatura';
+js/ui/app.mjs:129:   const asset=getImageAsset(IMAGE_LIBRARY_MANIFEST,visualLibraryUi.selectedAssetId);
+js/ui/app.mjs:132:   const status=getMapCacheStatus(asset.assetId); const url=visualEntityImageUrl(asset); const kind=asset.category==='portrait'?'NPC':asset.category==='droid'?'droide':asset.category==='vehicle'?'veículo/nave':'criatura';
+js/ui/app.mjs:141:   const asset=getImageAsset(IMAGE_LIBRARY_MANIFEST,visualLibraryUi.selectedAssetId), bridge=nativeImageLibrary(); if(!asset||!bridge) return;
+js/ui/app.mjs:142:   const descriptor=imageAssetRuntimeDescriptor(IMAGE_LIBRARY_MANIFEST,asset); if(!descriptor?.remoteReady) return;
+js/ui/app.mjs:147:   const asset=getImageAsset(IMAGE_LIBRARY_MANIFEST,visualLibraryUi.selectedAssetId), bridge=nativeImageLibrary(); if(!asset||!bridge) return;
+js/ui/app.mjs:486: function selectedWeapon(character) {
+js/ui/app.mjs:488:   return character.weapons?.[Number($('weaponSelect').value)] ?? character.weapons?.[0] ?? null;
+js/ui/app.mjs:497:   const weapon=selectedWeapon(character);
+js/ui/app.mjs:501:   if (!weapon) {
+js/ui/app.mjs:511:       const difficulty=attackDifficultyForWeapon(weapon, adversary.range);
+js/ui/app.mjs:521:   const ranges=availableTargetRanges(weapon);
+js/ui/app.mjs:525:   const preferred=[previous, weapon.range, 'Médio', 'Curto', 'Interação'].find(v=>ranges.includes(v));
+js/ui/app.mjs:528:     const difficulty=attackDifficultyForWeapon(weapon, rangeSelect.value);
+js/ui/app.mjs:567:   for (const w of character.weapons) {
+js/ui/app.mjs:598:   const weaponsHost=$('catalogWeapons'), armorHost=$('catalogArmor'); if(!weaponsHost||!armorHost) return;
+js/ui/app.mjs:599:   weaponsHost.innerHTML=''; armorHost.innerHTML='';
+js/ui/app.mjs:602:   for(const item of catalog.weapons){
+js/ui/app.mjs:606:     row.innerHTML=`<div><strong>${escapeHtml(item.name)}</strong><small>Dano ${escapeHtml(damage)} · Crítico ${item.crit??'—'} · ${escapeHtml(item.range)} · ${item.price.toLocaleString('pt-BR')} créditos · raridade ${item.rarity}${restriction}</small>${item.qualities?.length?`<small>${escapeHtml(item.qualities.join(' · '))}</small>`:''}</div><button class="secondary propose-weapon" data-item-id="${escapeHtml(item.id)}" ${character&&!pending?'':'disabled'}>${pending?.itemId===item.id?'Aguardando 
+js/ui/app.mjs:607:     weaponsHost.append(row);
+js/ui/app.mjs:758:   const select=$('weaponSelect');
+js/ui/app.mjs:761:   character.weapons.forEach((weapon,index)=>{
+js/ui/app.mjs:762:     const opt=document.createElement('option'); opt.value=String(index); opt.textContent=`${weapon.name} · Dano ${weapon.damage} · ${weapon.range}`; select.append(opt);
+js/ui/app.mjs:766:   $('attackButton').disabled=!character.weapons.length || health.unconscious || (combat.active && (!ready || combat.playerTurn.actionUsed));
+js/ui/app.mjs:813:   $('startVehicleCombat').disabled=combat.active; $('nextVehicleRound').disabled=!combat.active; $('endVehicleCombat').disabled=!combat.active; $('vehicleAttack').disabled=!combat.active || combat.actionUsed || !status.weaponsOnline;
+js/ui/app.mjs:819:   const weapons=$('vehicleWeaponSelect'); const prev=weapons.value; weapons.innerHTML=''; const combatRangeIndex=PLANETARY_RANGE_BANDS.indexOf(combat.range); let firstInRange=null; for(const [i,w] of vehicle.weapons.entries()){const o=document.createElement('option');o.value=i; const maxRangeIndex=PLANETARY_RANGE_BANDS.indexOf(w.range); const inRange=!combat.active || combatRangeIndex<=maxRangeIndex; o.textContent=`${w.name} · dano ${w.damage} · alcance ${w.range}${inRange?'':' · FORA DE ALCANCE
+js/ui/app.mjs:956: $('weaponSelect').addEventListener('change',()=>renderAttackRangeControls(game.state.player.character));
+js/ui/app.mjs:966:     const attack=game.resolveWeaponAttack({
+js/ui/app.mjs:967:       weaponIndex:$('weaponSelect').value,
+js/ui/app.mjs:1030: $('vehicleAttack').addEventListener('click',()=>{ try{ const attack=game.resolveVehicleAttack({weaponIndex:Number($('vehicleWeaponSelect').value)}); renderVehicleAttack(attack); render(); }catch(e){const el=$('vehicleAttackResult');el.className='result fail';el.textContent=e.message;} });
+js/ui/app.mjs:1081: $('catalogWeapons').addEventListener('click',e=>{
+js/ui/app.mjs:1082:   const button=e.target.closest('.propose-weapon'); if(!button) return;
+js/ui/app.mjs:1083:   try{ const result=game.proposeWeaponAcquisition(button.dataset.itemId); showFeedback('equipmentCatalogFeedback',result.master.playerMessage); render(); }
+js/rag/rulesCorpus.mjs:168:     "function": "rarityDifficulty / effectiveRarity / availabilityProfile / rarityModifierReferenceById / weaponAcquisitionAvailability / setPendingWeaponAcquisitionRarityModifier",
+js/rag/rulesCorpus.mjs:182:     "function": "availabilityProfile / weaponAcquisitionAvailability",
+js/rag/rulesCorpus.mjs:378:     "function": "createPendingWeaponAcquisition / validateMasterProposal / resolvePendingWeaponAcquisition",
+js/rag/rulesCorpus.mjs:560:     "function": "prepareDestinyPool / flipDestiny / upgradePositivePool / upgradeNegativePool / GameController.startSession / resolveSkillCheck / resolveWeaponAttack",
+js/rag/rulesCorpus.mjs:658:     "function": "applyTractorLock / tractorLockDifficulty / tractorEscapeCheck / resolveVehicleWeaponAttack / GameController.attemptTractorEscape",
+js/core/uiBridge.mjs:247:                 scene: { title: String(state.scene?.title ?? ''), location, imageAssetId: sceneVisual.asset?.assetId ?? null, imageSource: sceneVisual.source, image: sceneVisual.descriptor, imageFallback: sceneVisual.asset ? null : 'gemini' },
+js/core/uiBridge.mjs:647:     proposeWeaponAcquisition(itemId) {
+js/core/uiBridge.mjs:656:             const result = game.proposeWeaponAcquisition(id);
+js/core/uiBridge.mjs:707:             return ok(clone(imageLibrary_mjs_1.searchImageAssets(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, criteria)));
+js/core/uiBridge.mjs:713:     imageAsset(assetId) {
+js/core/uiBridge.mjs:718:             const asset = imageLibrary_mjs_1.getImageAsset(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, id);
+js/core/uiBridge.mjs:732:             return ok(clone(imageLibrary_mjs_1.searchImageAssets(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, { ...criteria, category: 'map', limit: criteria?.limit ?? 500 })));
+js/core/uiBridge.mjs:749:                 groups.push(...imageLibrary_mjs_1.searchImageAssets(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, { ...common, category: 'portrait', subtype: 'npc', limit: 500 }));
+js/core/uiBridge.mjs:751:                 groups.push(...imageLibrary_mjs_1.searchImageAssets(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, { ...common, category: 'droid', limit: 500 }));
+js/core/uiBridge.mjs:753:                 groups.push(...imageLibrary_mjs_1.searchImageAssets(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, { ...common, category: 'creature', subtype: 'beast', limit: 500 }));
+js/core/uiBridge.mjs:755:                 groups.push(...imageLibrary_mjs_1.searchImageAssets(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, { ...common, category: 'vehicle', limit: 500 }));
+js/core/uiBridge.mjs:765:     imageAssetRuntime(assetId) {
+js/core/uiBridge.mjs:770:             const asset = imageLibrary_mjs_1.getImageAsset(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, id);
+js/core/uiBridge.mjs:773:             return ok(clone(imageLibrary_mjs_1.imageAssetRuntimeDescriptor(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, asset)));
+js/core/state.mjs:22:         scene: { title: 'Abertura', narration: 'Mestre de IA ainda não conectado.', locationId: null, imageAssetId: null, imageSource: null, imageLocked: false, imagePrompt: null },
+js/core/state.mjs:114:     next.scene = { title: 'Abertura', narration: '', locationId: null, imageAssetId: null, imageSource: null, imageLocked: false, imagePrompt: null, ...(next.scene ?? {}) };
+js/core/controller.mjs:9: import * as weapons_mjs_1 from "../rules/weapons.mjs";
+js/core/controller.mjs:242: function defenseSetback(character, weapon) {
+js/core/controller.mjs:243:     const melee = weapon?.skill === 'pelea' || weapon?.skill === 'armas_cuerpo_a_cuerpo';
+js/core/controller.mjs:246: function chooseNpcWeapon(adversary) {
+js/core/controller.mjs:247:     for (const weapon of adversary.weapons ?? []) {
+js/core/controller.mjs:249:             attackDifficulty_mjs_1.attackDifficultyForWeapon(weapon, adversary.range);
+js/core/controller.mjs:250:             return weapon;
+js/core/controller.mjs:672:     weaponAcquisitionAvailability(itemId, { rarityModifier = null } = {}) {
+js/core/controller.mjs:673:         return this.acquisitionAvailability('weapon', itemId, { rarityModifier });
+js/core/controller.mjs:675:     setPendingWeaponAcquisitionRarityModifier(rarityModifier) {
+js/core/controller.mjs:678:     proposeWeaponAcquisition(itemId) { return this.proposeAcquisition('weapon', itemId); }
+js/core/controller.mjs:932:         const weapon = chooseNpcWeapon(adversary);
+js/core/controller.mjs:933:         if (!weapon) {
+js/core/controller.mjs:936:         const characteristic = adversaries_mjs_1.adversaryCharacteristicForSkill(adversary, weapon.skill);
+js/core/controller.mjs:937:         const skill = adversaries_mjs_1.adversarySkillRank(adversary, weapon.skill);
+js/core/controller.mjs:939:         const difficulty = attackDifficulty_mjs_1.attackDifficultyForWeapon(weapon, adversary.range);
+js/core/controller.mjs:946:             setback: defenseSetback(character, weapon)
+js/core/controller.mjs:948:         let attack = weapons_mjs_1.resolveWeaponHit(weapon, check);
+js/core/controller.mjs:980:         nextCombat.log.push({ type: 'TURNO_NPC', round: nextCombat.round, actorId: adversary.id, weapon: weapon.name, check: clone(check), summary: targetText });
+js/core/controller.mjs:1177:     resolveWeaponAttack({ weaponIndex = 0, targetAdversaryId = null, targetRange = null, difficulty = 2, challenge = 0, boost = 0, setback = 0, useLightDestiny = false, useDarkDestiny = false, rng = Math.random }) {
+js/core/controller.mjs:1181:         const weapon = character.weapons?.[Number(weaponIndex)];
+js/core/controller.mjs:1182:         if (!weapon)
+js/core/controller.mjs:1184:         const characteristicKey = character_mjs_1.SKILLS[weapon.skill];
+js/core/controller.mjs:1191:             combat = combat_mjs_1.spendAction(combat, `Ataque: ${weapon.name}`);
+js/core/controller.mjs:1192:         const critical = critical_mjs_1.criticalCheckModifiers(character, { skillKey: weapon.skill, characteristicKey, consume: true });
+js/core/controller.mjs:1195:         let positive = narrativeDice_mjs_1.buildPositivePool(effectiveCharacteristic, character.skills[weapon.skill] ?? 0);
+js/core/controller.mjs:1203:         const automaticDifficulty = resolvedRange ? attackDifficulty_mjs_1.attackDifficultyForWeapon(weapon, resolvedRange) : Number(difficulty);
+js/core/controller.mjs:1216:         let attack = { ...weapons_mjs_1.resolveWeaponHit(weapon, check), targetRange: resolvedRange, difficulty: upgraded.difficulty, challenge: upgraded.challenge, quickStrikeBoost: quickStrike.boost };
+js/core/controller.mjs:1217:         const talentDamageBonus = attack.hit ? talents_mjs_1.talentCloseRangeDamageBonus(character, { weapon, targetRange: resolvedRange }) : 0;
+js/core/controller.mjs:1230:                 combat.pendingPlayerCritical = { adversaryId: targetAdversary.id, weapon: weapon.name, cost: attack.criticalCost, byTriumph: Boolean(attack.criticalByTriumph) };
+js/core/controller.mjs:1516:     resolveVehicleAttack({ weaponIndex = 0, facing = 'proa', rng = Math.random } = {}) {
+js/core/controller.mjs:1526:         const attack = vehicles_mjs_1.resolveVehicleWeaponAttack({ character, attacker, target, facing, weaponIndex, targetRange: vehicles.combat.range, rng });
+js/core/uiBridge.bundle.js:295:                 scene: { title: String(state.scene?.title ?? ''), location, imageAssetId: sceneVisual.asset?.assetId ?? null, imageSource: sceneVisual.source, image: sceneVisual.descriptor, imageFallback: sceneVisual.asset ? null : 'gemini' },
+js/core/uiBridge.bundle.js:814:     proposeWeaponAcquisition(itemId) {
+js/core/uiBridge.bundle.js:823:             const result = game.proposeWeaponAcquisition(id);
+js/core/uiBridge.bundle.js:874:             return ok(clone(imageLibrary_mjs_1.searchImageAssets(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, criteria)));
+js/core/uiBridge.bundle.js:880:     imageAsset(assetId) {
+js/core/uiBridge.bundle.js:885:             const asset = imageLibrary_mjs_1.getImageAsset(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, id);
+js/core/uiBridge.bundle.js:899:             return ok(clone(imageLibrary_mjs_1.searchImageAssets(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, { ...criteria, category: 'map', limit: criteria?.limit ?? 500 })));
+js/core/uiBridge.bundle.js:916:                 groups.push(...imageLibrary_mjs_1.searchImageAssets(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, { ...common, category: 'portrait', subtype: 'npc', limit: 500 }));
+js/core/uiBridge.bundle.js:918:                 groups.push(...imageLibrary_mjs_1.searchImageAssets(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, { ...common, category: 'droid', limit: 500 }));
+js/core/uiBridge.bundle.js:920:                 groups.push(...imageLibrary_mjs_1.searchImageAssets(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, { ...common, category: 'creature', subtype: 'beast', limit: 500 }));
+js/core/uiBridge.bundle.js:922:                 groups.push(...imageLibrary_mjs_1.searchImageAssets(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, { ...common, category: 'vehicle', limit: 500 }));
+js/core/uiBridge.bundle.js:932:     imageAssetRuntime(assetId) {
+js/core/uiBridge.bundle.js:937:             const asset = imageLibrary_mjs_1.getImageAsset(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, id);
+js/core/uiBridge.bundle.js:940:             return ok(clone(imageLibrary_mjs_1.imageAssetRuntimeDescriptor(imageLibraryData_mjs_1.IMAGE_LIBRARY_MANIFEST, asset)));
+js/core/uiBridge.bundle.js:1040: const weapons_mjs_1 = require("../rules/weapons.mjs");
+js/core/uiBridge.bundle.js:1273: function defenseSetback(character, weapon) {
+js/core/uiBridge.bundle.js:1274:     const melee = weapon?.skill === 'pelea' || weapon?.skill === 'armas_cuerpo_a_cuerpo';
+js/core/uiBridge.bundle.js:1277: function chooseNpcWeapon(adversary) {
+js/core/uiBridge.bundle.js:1278:     for (const weapon of adversary.weapons ?? []) {
+js/core/uiBridge.bundle.js:1280:             attackDifficulty_mjs_1.attackDifficultyForWeapon(weapon, adversary.range);
+js/core/uiBridge.bundle.js:1281:             return weapon;
+js/core/uiBridge.bundle.js:1713:     weaponAcquisitionAvailability(itemId, { rarityModifier = null } = {}) {
+js/core/uiBridge.bundle.js:1714:         return this.acquisitionAvailability('weapon', itemId, { rarityModifier });
+js/core/uiBridge.bundle.js:1716:     setPendingWeaponAcquisitionRarityModifier(rarityModifier) {
+js/core/uiBridge.bundle.js:1719:     proposeWeaponAcquisition(itemId) { return this.proposeAcquisition('weapon', itemId); }
+js/core/uiBridge.bundle.js:1987:         const weapon = chooseNpcWeapon(adversary);
+js/core/uiBridge.bundle.js:1988:         if (!weapon) {
+js/core/uiBridge.bundle.js:1991:         const characteristic = adversaries_mjs_1.adversaryCharacteristicForSkill(adversary, weapon.skill);
+js/core/uiBridge.bundle.js:1992:         const skill = adversaries_mjs_1.adversarySkillRank(adversary, weapon.skill);
+js/core/uiBridge.bundle.js:1994:         const difficulty = attackDifficulty_mjs_1.attackDifficultyForWeapon(weapon, adversary.range);
+js/core/uiBridge.bundle.js:2001:             setback: defenseSetback(character, weapon)
+js/core/uiBridge.bundle.js:2003:         let attack = weapons_mjs_1.resolveWeaponHit(weapon, check);
+js/core/uiBridge.bundle.js:2035:         nextCombat.log.push({ type: 'TURNO_NPC', round: nextCombat.round, actorId: adversary.id, weapon: weapon.name, check: clone(check), summary: targetText });
+js/core/uiBridge.bundle.js:2249:     resolveWeaponAttack({ weaponIndex = 0, targetAdversaryId = null, targetRange = null, difficulty = 2, challenge = 0, boost = 0, setback = 0, useLightDestiny = false, useDarkDestiny = false, rng = Math.random }) {
+js/core/uiBridge.bundle.js:2253:         const weapon = character.weapons?.[Number(weaponIndex)];
+js/core/uiBridge.bundle.js:2254:         if (!weapon)
+js/core/uiBridge.bundle.js:2256:         const characteristicKey = character_mjs_1.SKILLS[weapon.skill];
+js/core/uiBridge.bundle.js:2263:             combat = combat_mjs_1.spendAction(combat, `Ataque: ${weapon.name}`);
+js/core/uiBridge.bundle.js:2264:         const critical = critical_mjs_1.criticalCheckModifiers(character, { skillKey: weapon.skill, characteristicKey, consume: true });
+js/core/uiBridge.bundle.js:2267:         let positive = narrativeDice_mjs_1.buildPositivePool(effectiveCharacteristic, character.skills[weapon.skill] ?? 0);
+js/core/uiBridge.bundle.js:2279:         const automaticDifficulty = resolvedRange ? attackDifficulty_mjs_1.attackDifficultyForWeapon(weapon, resolvedRange) : Number(difficulty);
+js/core/uiBridge.bundle.js:2296:         let attack = { ...weapons_mjs_1.resolveWeaponHit(weapon, check), targetRange: resolvedRange, difficulty: upgraded.difficulty, challenge: upgraded.challenge, quickStrikeBoost: quickStrike.boost };
+js/core/uiBridge.bundle.js:2297:         const talentDamageBonus = attack.hit ? talents_mjs_1.talentCloseRangeDamageBonus(character, { weapon, targetRange: resolvedRange }) : 0;
+js/core/uiBridge.bundle.js:2310:                 combat.pendingPlayerCritical = { adversaryId: targetAdversary.id, weapon: weapon.name, cost: attack.criticalCost, byTriumph: Boolean(attack.criticalByTriumph) };
+js/core/uiBridge.bundle.js:2596:     resolveVehicleAttack({ weaponIndex = 0, facing = 'proa', rng = Math.random } = {}) {
+js/core/uiBridge.bundle.js:2606:         const attack = vehicles_mjs_1.resolveVehicleWeaponAttack({ character, attacker, target, facing, weaponIndex, targetRange: vehicles.combat.range, rng });
+js/core/uiBridge.bundle.js:2913:         scene: { title: 'Abertura', narration: 'Mestre de IA ainda não conectado.', locationId: null, imageAssetId: null, imageSource: null, imageLocked: false, imagePrompt: null },
+js/core/uiBridge.bundle.js:3005:     next.scene = { title: 'Abertura', narration: '', locationId: null, imageAssetId: null, imageSource: null, imageLocked: false, imagePrompt: null, ...(next.scene ?? {}) };
+js/core/uiBridge.bundle.js:3117: exports.getImageAsset = getImageAsset;
+js/core/uiBridge.bundle.js:3118: exports.searchImageAssets = searchImageAssets;
+js/core/uiBridge.bundle.js:3119: exports.chooseImageAsset = chooseImageAsset;
+js/core/uiBridge.bundle.js:3120: exports.imageAssetRuntimeDescriptor = imageAssetRuntimeDescriptor;
+js/core/uiBridge.bundle.js:3121: const ALLOWED_CATEGORIES = new Set(['token', 'equipment', 'map', 'scene', 'portrait', 'vehicle', 'creature', 'droid', 'template']);
+js/core/uiBridge.bundle.js:3200: function getImageAsset(manifest, assetId) {
+js/core/uiBridge.bundle.js:3203: function searchImageAssets(manifest, { query = '', category = null, subtype = null, mapKind = null, tags = [], usage = null, sourceType = null, remoteReady = null, offlineReady = null, limit = 100 } = {}) {
+js/core/uiBridge.bundle.js:3223: function chooseImageAsset(manifest, criteria = {}) {
+js/core/uiBridge.bundle.js:3224:     const candidates = searchImageAssets(manifest, { ...criteria, limit: 500 });
+js/core/uiBridge.bundle.js:3230: function imageAssetRuntimeDescriptor(manifest, asset) {
+js/core/uiBridge.bundle.js:3256: exports.IMAGE_LIBRARY_MANIFEST = Object.freeze({"schemaVersion":2,"libraryId":"braseiro.starwars.image-library.v3","title":"Star Wars — Edge of the Galaxy Image Library","policy":{"localAssetsAreOfflineReady":true,"externalAssetsDefault":"reference_and_cache_on_demand","externalFetchMode":"explicit_user_or_master_action","externalCache":"native_private_cache","allowedRemoteHosts":["kainrath.wordpress.com"],"allowedRemotePathPrefixes":["/wp-content/uploads/"],"generatedSceneImages":"campaign_runt
+js/core/uiBridge.bundle.js:3434:     const existingId = String(state?.scene?.imageAssetId ?? '').trim();
+js/core/uiBridge.bundle.js:3438:             return { asset: existing, descriptor: imageLibrary_mjs_1.imageAssetRuntimeDescriptor(manifest, existing), source: state.scene?.imageSource ?? 'library', locked: Boolean(state.scene?.imageLocked), score: null, hits: [] };
+js/core/uiBridge.bundle.js:3442:     return { asset: selected.asset, descriptor: selected.asset ? imageLibrary_mjs_1.imageAssetRuntimeDescriptor(manifest, selected.asset) : null, source: selected.asset ? 'library' : 'gemini_fallback', locked: false, score: selected.score, hits: selected.hits, context };
+js/core/uiBridge.bundle.js:3446:     next.scene = { title: 'Abertura', narration: '', locationId: null, imageAssetId: null, imageSource: null, imageLocked: false, imagePrompt: null, ...(next.scene ?? {}) };
+js/core/uiBridge.bundle.js:3447:     if (next.scene.imageLocked && next.scene.imageAssetId)
+js/core/uiBridge.bundle.js:3449:     const resolved = resolveSceneVisualForState({ ...next, scene: { ...next.scene, imageAssetId: null } }, { manifest, minScore });
+js/core/uiBridge.bundle.js:3451:     const changed = next.scene.imageAssetId !== assetId || next.scene.imageSource !== (assetId ? 'library' : 'gemini_fallback');
+js/core/uiBridge.bundle.js:3452:     next.scene.imageAssetId = assetId;
+js/core/uiBridge.bundle.js:3710:         if (!['weapon', 'armor', 'gear', 'vehicle'].includes(kind))
+js/core/uiBridge.bundle.js:3930:                 if (!['weapon', 'armor', 'gear', 'vehicle'].includes(kind))
+js/core/uiBridge.bundle.js:4455:         "function": "rarityDifficulty / effectiveRarity / availabilityProfile / rarityModifierReferenceById / weaponAcquisitionAvailability / setPendingWeaponAcquisitionRarityModifier",
+js/core/uiBridge.bundle.js:4469:         "function": "availabilityProfile / weaponAcquisitionAvailability",
+js/core/uiBridge.bundle.js:4665:         "function": "createPendingWeaponAcquisition / validateMasterProposal / resolvePendingWeaponAcquisition",
+js/core/uiBridge.bundle.js:4847:         "function": "prepareDestinyPool / flipDestiny / upgradePositivePool / upgradeNegativePool / GameController.startSession / resolveSkillCheck / resolveWeaponAttack",
+js/core/uiBridge.bundle.js:4945:         "function": "applyTractorLock / tractorLockDifficulty / tractorEscapeCheck / resolveVehicleWeaponAttack / GameController.attemptTractorEscape",
+js/core/uiBridge.bundle.js:5145: exports.createPendingWeaponAcquisition = createPendingWeaponAcquisition;
+js/core/uiBridge.bundle.js:5146: exports.weaponAcquisitionAvailability = weaponAcquisitionAvailability;
+js/core/uiBridge.bundle.js:5147: exports.setPendingWeaponAcquisitionRarityModifier = setPendingWeaponAcquisitionRarityModifier;
+js/core/uiBridge.bundle.js:5148: exports.catalogWeaponToCharacterWeapon = catalogWeaponToCharacterWeapon;
+js/core/uiBridge.bundle.js:5149: exports.resolvePendingWeaponAcquisition = resolvePendingWeaponAcquisition;
+js/core/uiBridge.bundle.js:5166: function createPendingWeaponAcquisition(itemId, character, { requestId, at = new Date().toISOString() } = {}) {
+js/core/uiBridge.bundle.js:5167:     const item = (0, equipmentCatalog_mjs_1.weaponCatalogEntry)(itemId);
+js/core/uiBridge.bundle.js:5177: function weaponAcquisitionAvailability(itemId, { rarityModifier = null } = {}) {
+js/core/uiBridge.bundle.js:5178:     const item = (0, equipmentCatalog_mjs_1.weaponCatalogEntry)(itemId);
+js/core/uiBridge.bundle.js:5183: function setPendingWeaponAcquisitionRarityModifier(pending, rarityModifier) {
+js/core/uiBridge.bundle.js:5188: function catalogWeaponToCharacterWeapon(itemId, character) {
+js/core/uiBridge.bundle.js:5189:     const item = (0, equipmentCatalog_mjs_1.weaponCatalogEntry)(itemId);
+js/core/uiBridge.bundle.js:5204: function resolvePendingWeaponAcquisition(character, pending, { approved, finalPrice = null, reason = null, sourceRuleIds = [] } = {}) {
+js/core/uiBridge.bundle.js:5220:     next.weapons = Array.isArray(next.weapons) ? next.weapons : [];
+js/core/uiBridge.bundle.js:5221:     next.weapons.push(catalogWeaponToCharacterWeapon(pending.itemId, next));
+js/core/uiBridge.bundle.js:5267:         weapons: [
+js/core/uiBridge.bundle.js:5288:         weapons: [{ name: 'Pistola blaster', skill: 'armas_distancia_ligeras', range: 'Médio', damage: 6, crit: 3 }],
+js/core/uiBridge.bundle.js:5302:         weapons: [{ name: 'Pistola blaster leve', skill: 'armas_distancia_ligeras', range: 'Médio', damage: 5, crit: 4 }],
+js/core/uiBridge.bundle.js:5315:         weapons: [
+js/core/uiBridge.bundle.js:5334:         weapons: [{ name: 'Pistola blaster', skill: 'armas_distancia_ligeras', range: 'Médio', damage: 6, crit: 3 }],
+js/core/uiBridge.bundle.js:5361:         soak: 2, wounds: { current: 0, threshold: 8, perMember: 8 }, strain: null, membersTotal: 1, skills, groupSkills: [], talents: [], abilities: [], weapons: [], criticalInjuries: [], status: 'active',
+js/core/uiBridge.bundle.js:5393:         weapons: clone(profile.weapons),
+js/core/uiBridge.bundle.js:5518: exports.attackDifficultyForWeapon = attackDifficultyForWeapon;
+js/core/uiBridge.bundle.js:5522: function attackDifficultyForWeapon(weapon, targetRange) {
+js/core/uiBridge.bundle.js:5523:     if (!weapon)
+js/core/uiBridge.bundle.js:5527:     if (!(weapon.range in RANGE_ORDER))
+js/core/uiBridge.bundle.js:5529:     if (RANGE_ORDER[targetRange] > RANGE_ORDER[weapon.range])
+js/core/uiBridge.bundle.js:5531:     if (weapon.skill === 'pelea' || weapon.skill === 'armas_cuerpo_a_cuerpo') {
+js/core/uiBridge.bundle.js:5538:         if (weapon.skill === 'armas_distancia_ligeras')
+js/core/uiBridge.bundle.js:5540:         else if (weapon.skill === 'armas_distancia_pesadas')
+js/core/uiBridge.bundle.js:5542:         else if (weapon.skill === 'artilleria')
+js/core/uiBridge.bundle.js:5547: function availableTargetRanges(weapon) {
+js/core/uiBridge.bundle.js:5548:     if (!weapon || !(weapon.range in RANGE_ORDER))
+js/core/uiBridge.bundle.js:5550:     if (weapon.skill === 'pelea' || weapon.skill === 'armas_cuerpo_a_cuerpo')
+js/core/uiBridge.bundle.js:5552:     return Object.keys(RANGE_ORDER).filter(r => RANGE_ORDER[r] <= RANGE_ORDER[weapon.range]);
+js/core/uiBridge.bundle.js:5690:         credits: 0, weapons: [], armor: [], gear: [], criticalInjuries: [], statusEffects: [], talents: [], description: {},
+js/core/uiBridge.bundle.js:5723:     for (const key of ['specializations', 'careerSkills', 'motivations', 'obligations', 'weapons', 'armor', 'gear', 'criticalInjuries', 'statusEffects', 'talents', 'customSkills']) {
+js/core/uiBridge.bundle.js:6474: const KINDS = new Set(['weapon', 'armor', 'gear', 'vehicle']);
+js/core/uiBridge.bundle.js:6486:     if (k === 'weapon')
+js/core/uiBridge.bundle.js:6487:         return (0, equipmentCatalog_mjs_1.weaponCatalogEntry)(id);
+js/core/uiBridge.bundle.js:6498:     return { weapons: base.weapons.filter(mechanicallyAvailable), armor: base.armor.filter(mechanicallyAvailable), gear: base.generalGear.filter(mechanicallyAvailable), vehicles };
+js/core/uiBridge.bundle.js:6518:     return { ...clone(pending), availability: assetAvailability(pending.kind ?? 'weapon', pending.itemId, { rarityModifier }) };
+js/core/uiBridge.bundle.js:6522:     throw new Error('Carregue um personagem antes desta operação.'); const c = clone(character); c.weapons = Array.isArray(c.weapons) ? c.weapons : []; c.armor = Array.isArray(c.armor) ? c.armor : []; c.gear = Array.isArray(c.gear) ? c.gear : []; return c; }
+js/core/uiBridge.bundle.js:6533:     if (entry.kind === 'weapon') {
+js/core/uiBridge.bundle.js:6534:         const w = (0, acquisition_mjs_1.catalogWeaponToCharacterWeapon)(item.id, c);
+js/core/uiBridge.bundle.js:6536:         c.weapons.push(w);
+js/core/uiBridge.bundle.js:6569: function removeMechanical(next, asset) { const c = ensureCharacter(next.player?.character); next.player = { ...(next.player ?? {}), character: c }; if (asset.kind === 'weapon')
+js/core/uiBridge.bundle.js:6570:     c.weapons = c.weapons.filter(x => x.ownedAssetId !== asset.assetId);
+js/core/uiBridge.bundle.js:6628:     const granted = grantCatalogAsset(base, { kind: pending.kind ?? 'weapon', itemId: pending.itemId, method: 'purchase', locationId: pending.locationId, note: reason ?? '', sourceRuleIds, at, ownedAssetId: assetId(pending.kind ?? 'weapon', pending.itemId, pending.requestId) });
+js/core/uiBridge.bundle.js:6631: function economySummary(state, { market = null } = {}) { const catalog = genericEconomyCatalog(); const compact = x => ({ id: x.id, name: x.name, price: x.price, rarity: x.rarity, restricted: Boolean(x.restricted) }); return { market: market ? clone(market) : null, catalog: { weapons: catalog.weapons.map(compact), armor: catalog.armor.map(compact), gear: catalog.gear.map(compact), vehicles: catalog.vehicles.map(compact) }, ownedAssets: ensureGroup(state.group).ownedAssets.map(a => ({ assetId: a.
+js/core/uiBridge.bundle.js:6782: exports.weaponEncumbrance = weaponEncumbrance;
+js/core/uiBridge.bundle.js:6786: exports.weaponCatalogEntryByName = weaponCatalogEntryByName;
+js/core/uiBridge.bundle.js:6815: function weaponEncumbrance(item) {
+js/core/uiBridge.bundle.js:6818:     const ref = (item?.id && (0, equipmentCatalog_mjs_1.weaponCatalogEntry)(item.id)) || weaponCatalogEntryByName(item?.name);
+js/core/uiBridge.bundle.js:6838: function weaponCatalogEntryByName(name) {
+js/core/uiBridge.bundle.js:6842:         const e = (0, equipmentCatalog_mjs_1.weaponCatalogEntry)(id);
+js/core/uiBridge.bundle.js:6861:     for (const item of character?.weapons ?? []) {
+js/core/uiBridge.bundle.js:6862:         const v = weaponEncumbrance(item) * quantity(item);
+js/core/uiBridge.bundle.js:6864:         details.push({ kind: 'weapon', name: item.name, value: v });
+js/core/uiBridge.bundle.js:7193: exports.EOTE_CORE_ARMOR_CATALOG = exports.EOTE_CORE_GENERAL_GEAR = exports.CORE_ARMOR_REFERENCE = exports.CORE_WEAPON_CATALOG = exports.STARTER_GENERAL_GEAR_REFERENCE = void 0;
+js/core/uiBridge.bundle.js:7195: exports.weaponCatalogEntry = weaponCatalogEntry;
+js/core/uiBridge.bundle.js:7199: const SRC_WEAPONS = aorReference({ book: 'La Era de la Rebelión - Pantalla', screenPage: 6, printedPages: '173/182', section: 'Armas a distância / Armas corpo a corpo' });
+js/core/uiBridge.bundle.js:7240:     return Object.freeze({ id, name, category: 'weapon', skill, damage, damageBonus, crit, range, encumbrance, hardPoints, price, rarity, restricted, qualities: Object.freeze([...qualities]), source: SRC_WEAPONS });
+js/core/uiBridge.bundle.js:7242: exports.CORE_WEAPON_CATALOG = Object.freeze([
+js/core/uiBridge.bundle.js:7313: function equipmentCatalog() { return { weapons: exports.CORE_WEAPON_CATALOG.map(v => structuredClone(v)), armor: exports.EOTE_CORE_ARMOR_CATALOG.map(v => structuredClone(v)), generalGear: exports.EOTE_CORE_GENERAL_GEAR.map(v => structuredClone(v)) }; }
+js/core/uiBridge.bundle.js:7314: function weaponCatalogEntry(id) { return exports.CORE_WEAPON_CATALOG.find(v => v.id === id) ?? null; }
+js/core/uiBridge.bundle.js:8483: function baseStarter({ id, name, species, profession, specialization, characteristics, skills, careerSkills = [], soak, wounds, strain, credits, weapons, gear }) {
+js/core/uiBridge.bundle.js:8503:     c.weapons = weapons;
+js/core/uiBridge.bundle.js:8514:         weapons: [
+js/core/uiBridge.bundle.js:8530:         weapons: [
+js/core/uiBridge.bundle.js:8545:         weapons: [
+js/core/uiBridge.bundle.js:8560:         weapons: [
+js/core/uiBridge.bundle.js:8574:         weapons: [
+js/core/uiBridge.bundle.js:8590:         weapons: [
+js/core/uiBridge.bundle.js:8921: function talentCloseRangeDamageBonus(character, { weapon = null, targetRange = null } = {}) {
+js/core/uiBridge.bundle.js:8922:     if (!weapon)
+js/core/uiBridge.bundle.js:8925:     if (!ranged.includes(weapon.skill))
+js/core/uiBridge.bundle.js:9067: exports.resolveVehicleWeaponAttack = resolveVehicleWeaponAttack;
+js/core/uiBridge.bundle.js:9095: exports.SMALL_VEHICLE_COMPONENTS = Object.freeze(['support_droid', 'ejection_system', 'landing_gear', 'weapon_system', 'sensors', 'comms', 'hyperdrive', 'shield_generator', 'engines']);
+js/core/uiBridge.bundle.js:9096: exports.LARGE_VEHICLE_COMPONENTS = Object.freeze(['life_support', 'sublight_engines', 'hyperdrive', 'shield_generator', 'navigation', 'weapon_system', 'bridge', 'hangar', 'power_core']);
+js/core/uiBridge.bundle.js:9255:         crew: ['1 piloto'], passengers: 1, encumbranceCapacity: 15, price: 4500, rarity: 2, hardPoints: 2, weapons: [],
+js/core/uiBridge.bundle.js:9262:         crew: ['50 mineiros e engenheiros'], alternateCrew: '100 Jawas', passengers: 30, alternatePassengers: 60, encumbranceCapacity: 400, price: 50000, rarity: 7, hardPoints: 5, weapons: [],
+js/core/uiBridge.bundle.js:9269:         crew: ['1 piloto', '1 copiloto'], passengers: '4-15', encumbranceCapacity: 100, encumbranceNote: 'sem passageiros', price: 3000, rarity: 2, hardPoints: 3, weapons: [],
+js/core/uiBridge.bundle.js:9276:         weapons: [
+js/core/uiBridge.bundle.js:9286:         weapons: [{ name: 'Canhão blaster leve frontal', skill: 'artilleria', damage: 4, crit: 4, range: 'Bocajarro', fireArc: 'proa', qualities: {} }],
+js/core/uiBridge.bundle.js:9293:         weapons: [
+js/core/uiBridge.bundle.js:9303:         weapons: [{ name: 'Canhão laser leve frontal', skill: 'artilleria', damage: 5, crit: 3, range: 'Bocajarro', fireArc: 'proa', qualities: {} }],
+js/core/uiBridge.bundle.js:9311:         weapons: [{ name: 'Canhão laser quádruplo dorsal', skill: 'artilleria', damage: 5, crit: 3, range: 'Bocajarro', fireArc: 'proa', qualities: { accurate: 1, linked: 3 } }],
+js/core/uiBridge.bundle.js:9319:         weapons: [
+js/core/uiBridge.bundle.js:9330:         weapons: [
+js/core/uiBridge.bundle.js:9340:         weapons: [
+js/core/uiBridge.bundle.js:9351:         weapons: [
+js/core/uiBridge.bundle.js:9362:         weapons: [{ name: 'Canhões blaster duplos frontais', skill: 'artilleria', damage: 4, crit: 4, range: 'Bocajarro', fireArc: 'proa', qualities: { linked: 1 } }],
+js/core/uiBridge.bundle.js:9369:         weapons: [{ name: 'Canhão laser médio em torre', skill: 'artilleria', damage: 6, crit: 5, range: 'Bocajarro', fireArc: 'todos', qualities: {} }],
+js/core/uiBridge.bundle.js:9376:         weapons: [
+js/core/uiBridge.bundle.js:9388:         weapons: [{ name: 'Canhão laser pesado dorsal em torre', skill: 'artilleria', damage: 6, crit: 3, range: 'Curto', fireArc: 'todos', qualities: {} }],
+js/core/uiBridge.bundle.js:9395:         weapons: [{ name: 'Canhão laser médio em torre', skill: 'artilleria', damage: 6, crit: 3, range: 'Bocajarro', fireArc: 'todos', qualities: {} }],
+js/core/uiBridge.bundle.js:9402:         weapons: [
+js/core/uiBridge.bundle.js:9414:         hyperdrive: true, hyperdriveClass: 1, backupHyperdriveClass: 12, navComputer: true, astromechPort: false, sensorRange: 'Curto', crew: ['1 piloto', '1 copiloto/navegador'], passengers: 4, encumbranceCapacity: 100, autonomy: '6 meses', price: 120000, rarity: 10, restricted: true, hardPoints: 5, weapons: [],
+js/core/uiBridge.bundle.js:9421:         weapons: [
+js/core/uiBridge.bundle.js:9431:         weapons: [
+js/core/uiBridge.bundle.js:9440:         weapons: [{ name: 'Canhões laser médios frontais', skill: 'artilleria', damage: 6, crit: 3, range: 'Bocajarro', fireArc: 'proa', qualities: { linked: 1 } }],
+js/core/uiBridge.bundle.js:9447:         weapons: [
+js/core/uiBridge.bundle.js:9458:         weapons: [
+js/core/uiBridge.bundle.js:9469:         weapons: [
+js/core/uiBridge.bundle.js:9479:         weapons: [
+js/core/uiBridge.bundle.js:9546:     if (!Array.isArray(vehicle.weapons) || !Array.isArray(vehicle.criticalHits) || !Array.isArray(vehicle.disabledComponents))
+js/core/uiBridge.bundle.js:9585:         weaponsOnline: !systemsShutdown && !destroyed,
+js/core/uiBridge.bundle.js:9927: function vehicleAttackPool({ character, attacker, target, targetOperator = null, facing = 'proa', weaponIndex = 0, targetRange = 'Bocajarro', rng = Math.random, extraBoost = 0, extraSetback = 0 } = {}) {
+js/core/uiBridge.bundle.js:9932:     const weapon = attacker.weapons?.[weaponIndex];
+js/core/uiBridge.bundle.js:9933:     if (!weapon)
+js/core/uiBridge.bundle.js:9935:     if (vehicleStatus(attacker).weaponsOnline === false)
+js/core/uiBridge.bundle.js:9937:     if (rangeIndex(targetRange) > rangeIndex(weapon.range))
+js/core/uiBridge.bundle.js:9938:         throw new Error(`Alvo fora do alcance desta arma (${weapon.range}).`);
+js/core/uiBridge.bundle.js:9939:     const rank = Number(character.skills?.[weapon.skill] ?? 0), characteristic = Number(character.characteristics?.agilidad ?? 0);
+js/core/uiBridge.bundle.js:9953:     const nonDamage = Boolean(weapon.nonDamage);
+js/core/uiBridge.bundle.js:9954:     const damage = hit && !nonDamage ? Number(weapon.damage ?? 0) + check.netSuccess : 0;
+js/core/uiBridge.bundle.js:9955:     const criticalAvailable = hit && !nonDamage && Number.isFinite(Number(weapon.crit)) && (check.netAdvantage >= Number(weapon.crit) || check.triumph > 0);
+js/core/uiBridge.bundle.js:9956:     const specialEffect = hit && Number(weapon.qualities?.tractor ?? 0) > 0 ? { type: 'tractor', rating: Number(weapon.qualities.tractor), sourceId: attacker.id } : null;
+js/core/uiBridge.bundle.js:9957:     return { weapon, check, hit, damage, nonDamage, specialEffect, breach: Number(weapon.qualities?.breach ?? 0), criticalAvailable, criticalCost: weapon.crit, difficulty: negative.difficulty, challenge: negative.challenge, baseDifficulty, targetDefense, targetRange, targetSilhouette, pilotedTargetSilhouette, controlledFireBonus, positiveUpgrades, difficultyUpgrades };
+js/core/uiBridge.bundle.js:9959: function resolveVehicleWeaponAttack(args = {}) {
+js/core/uiBridge.bundle.js:9991: define("js/rules/weapons.mjs",function(module,exports,require){
+js/core/uiBridge.bundle.js:9994: exports.resolveWeaponHit = resolveWeaponHit;
+js/core/uiBridge.bundle.js:9995: function resolveWeaponHit(weapon, check) {
+js/core/uiBridge.bundle.js:9996:     if (!weapon || typeof weapon !== 'object')
+js/core/uiBridge.bundle.js:10000:     const damage = Number(weapon.damage);
+js/core/uiBridge.bundle.js:10009:             weapon: structuredClone(weapon),
+js/core/uiBridge.bundle.js:10018:         pierce: Number(weapon.pierce ?? 0),
+js/core/uiBridge.bundle.js:10019:         damageType: weapon.damageType ?? 'wounds',
+js/core/uiBridge.bundle.js:10020:         criticalAvailable: Number.isInteger(weapon.crit) ? (Number(check.triumph ?? 0) > 0 || netAdvantage >= weapon.crit) : false,
+js/core/uiBridge.bundle.js:10021:         criticalCost: Number.isInteger(weapon.crit) ? weapon.crit : null,
+js/core/uiBridge.bundle.js:10022:         criticalByTriumph: Number.isInteger(weapon.crit) ? Number(check.triumph ?? 0) > 0 : false,
+js/core/uiBridge.bundle.js:10023:         blastAvailable: Number.isInteger(weapon.blast) && netAdvantage >= Number(weapon.blastActivationCost ?? 2),
+js/core/uiBridge.bundle.js:10024:         blastDamage: Number.isInteger(weapon.blast) ? weapon.blast + netSuccess : null,
+js/core/uiBridge.bundle.js:10025:         weapon: structuredClone(weapon),
+js/master/proposal.mjs:88:     const kind=String(r.kind??''); if(!['weapon','armor','gear','vehicle'].includes(kind)) throw new Error('Tipo de aquisição inválido.');
+js/master/proposal.mjs:216:       if(type==='grant_asset'){const kind=String(raw.kind??'');if(!['weapon','armor','gear','vehicle'].includes(kind))throw new Error('Tipo de recompensa/saque inválido.');const itemId=cleanText(raw.itemId,'Item econômico',160);if(!itemId)throw new Error('Recompensa/saque exige item catalogado.');const method=String(raw.method??'reward');if(!['reward','loot','stolen','gift'].includes(method))throw new Error('Método de aquisição narrativa inválido.');return {type,kind,itemId,method,note:cleanText
+js/rules/adversaries.mjs:34:     weapons:[
+js/rules/adversaries.mjs:55:     weapons:[{name:'Pistola blaster',skill:'armas_distancia_ligeras',range:'Médio',damage:6,crit:3}],
+js/rules/adversaries.mjs:69:     weapons:[{name:'Pistola blaster leve',skill:'armas_distancia_ligeras',range:'Médio',damage:5,crit:4}],
+js/rules/adversaries.mjs:82:     weapons:[
+js/rules/adversaries.mjs:101:     weapons:[{name:'Pistola blaster',skill:'armas_distancia_ligeras',range:'Médio',damage:6,crit:3}],
+js/rules/adversaries.mjs:130:     soak:2, wounds:{current:0,threshold:8,perMember:8}, strain:null, membersTotal:1, skills, groupSkills:[], talents:[], abilities:[], weapons:[], criticalInjuries:[], status:'active',
+js/rules/adversaries.mjs:161:     weapons:clone(profile.weapons),
+js/rules/starterPresets.mjs:3: function baseStarter({id,name,species,profession,specialization,characteristics,skills,careerSkills=[],soak,wounds,strain,credits,weapons,gear}) {
+js/rules/starterPresets.mjs:18:   c.credits=credits; c.weapons=weapons; c.gear=gear;
+js/rules/starterPresets.mjs:29:     weapons:[
+js/rules/starterPresets.mjs:46:     weapons:[
+js/rules/starterPresets.mjs:62:     weapons:[
+js/rules/starterPresets.mjs:78:     weapons:[
+js/rules/starterPresets.mjs:93:     weapons:[
+js/rules/starterPresets.mjs:110:     weapons:[
+js/rules/weapons.mjs:1: export function resolveWeaponHit(weapon, check) {
+js/rules/weapons.mjs:2:     if (!weapon || typeof weapon !== 'object')
+js/rules/weapons.mjs:6:     const damage = Number(weapon.damage);
+js/rules/weapons.mjs:15:             weapon: structuredClone(weapon),
+js/rules/weapons.mjs:24:         pierce: Number(weapon.pierce ?? 0),
+js/rules/weapons.mjs:25:         damageType: weapon.damageType ?? 'wounds',
+js/rules/weapons.mjs:26:         criticalAvailable: Number.isInteger(weapon.crit) ? (Number(check.triumph ?? 0) > 0 || netAdvantage >= weapon.crit) : false,
+js/rules/weapons.mjs:27:         criticalCost: Number.isInteger(weapon.crit) ? weapon.crit : null,
+js/rules/weapons.mjs:28:         criticalByTriumph: Number.isInteger(weapon.crit) ? Number(check.triumph ?? 0) > 0 : false,
+js/rules/weapons.mjs:29:         blastAvailable: Number.isInteger(weapon.blast) && netAdvantage >= Number(weapon.blastActivationCost ?? 2),
+js/rules/weapons.mjs:30:         blastDamage: Number.isInteger(weapon.blast) ? weapon.blast + netSuccess : null,
+js/rules/weapons.mjs:31:         weapon: structuredClone(weapon),
+js/rules/vehicles.mjs:30: export const SMALL_VEHICLE_COMPONENTS = Object.freeze(['support_droid','ejection_system','landing_gear','weapon_system','sensors','comms','hyperdrive','shield_generator','engines']);
+js/rules/vehicles.mjs:31: export const LARGE_VEHICLE_COMPONENTS = Object.freeze(['life_support','sublight_engines','hyperdrive','shield_generator','navigation','weapon_system','bridge','hangar','power_core']);
+js/rules/vehicles.mjs:148:     crew:['1 piloto'], passengers:1, encumbranceCapacity:15, price:4500, rarity:2, hardPoints:2, weapons:[],
+js/rules/vehicles.mjs:155:     crew:['50 mineiros e engenheiros'], alternateCrew:'100 Jawas', passengers:30, alternatePassengers:60, encumbranceCapacity:400, price:50000, rarity:7, hardPoints:5, weapons:[],
+js/rules/vehicles.mjs:162:     crew:['1 piloto','1 copiloto'], passengers:'4-15', encumbranceCapacity:100, encumbranceNote:'sem passageiros', price:3000, rarity:2, hardPoints:3, weapons:[],
+js/rules/vehicles.mjs:169:     weapons:[
+js/rules/vehicles.mjs:179:     weapons:[{name:'Canhão blaster leve frontal',skill:'artilleria',damage:4,crit:4,range:'Bocajarro',fireArc:'proa',qualities:{}}],
+js/rules/vehicles.mjs:186:     weapons:[
+js/rules/vehicles.mjs:196:     weapons:[{name:'Canhão laser leve frontal',skill:'artilleria',damage:5,crit:3,range:'Bocajarro',fireArc:'proa',qualities:{}}],
+js/rules/vehicles.mjs:204:     weapons:[{name:'Canhão laser quádruplo dorsal',skill:'artilleria',damage:5,crit:3,range:'Bocajarro',fireArc:'proa',qualities:{accurate:1,linked:3}}],
+js/rules/vehicles.mjs:212:     weapons:[
+js/rules/vehicles.mjs:223:     weapons:[
+js/rules/vehicles.mjs:233:     weapons:[
+js/rules/vehicles.mjs:244:     weapons:[
+js/rules/vehicles.mjs:255:     weapons:[{name:'Canhões blaster duplos frontais',skill:'artilleria',damage:4,crit:4,range:'Bocajarro',fireArc:'proa',qualities:{linked:1}}],
+js/rules/vehicles.mjs:262:     weapons:[{name:'Canhão laser médio em torre',skill:'artilleria',damage:6,crit:5,range:'Bocajarro',fireArc:'todos',qualities:{}}],
+js/rules/vehicles.mjs:269:     weapons:[
+js/rules/vehicles.mjs:281:     weapons:[{name:'Canhão laser pesado dorsal em torre',skill:'artilleria',damage:6,crit:3,range:'Curto',fireArc:'todos',qualities:{}}],
+js/rules/vehicles.mjs:288:     weapons:[{name:'Canhão laser médio em torre',skill:'artilleria',damage:6,crit:3,range:'Bocajarro',fireArc:'todos',qualities:{}}],
+js/rules/vehicles.mjs:295:     weapons:[
+js/rules/vehicles.mjs:307:     hyperdrive:true, hyperdriveClass:1, backupHyperdriveClass:12, navComputer:true, astromechPort:false, sensorRange:'Curto', crew:['1 piloto','1 copiloto/navegador'], passengers:4, encumbranceCapacity:100, autonomy:'6 meses', price:120000, rarity:10, restricted:true, hardPoints:5, weapons:[],
+js/rules/vehicles.mjs:314:     weapons:[
+js/rules/vehicles.mjs:324:     weapons:[
+js/rules/vehicles.mjs:333:     weapons:[{name:'Canhões laser médios frontais',skill:'artilleria',damage:6,crit:3,range:'Bocajarro',fireArc:'proa',qualities:{linked:1}}],
+js/rules/vehicles.mjs:340:     weapons:[
+js/rules/vehicles.mjs:351:     weapons:[
+js/rules/vehicles.mjs:362:     weapons:[
+js/rules/vehicles.mjs:372:     weapons:[
+js/rules/vehicles.mjs:433:   if(!Array.isArray(vehicle.weapons)||!Array.isArray(vehicle.criticalHits)||!Array.isArray(vehicle.disabledComponents)) throw new Error('Coleções do veículo inválidas.');
+js/rules/vehicles.mjs:469:     weaponsOnline:!systemsShutdown&&!destroyed,
+js/rules/vehicles.mjs:730: export function vehicleAttackPool({character,attacker,target,targetOperator=null,facing='proa',weaponIndex=0,targetRange='Bocajarro',rng=Math.random,extraBoost=0,extraSetback=0}={}){
+js/rules/vehicles.mjs:732:   const weapon=attacker.weapons?.[weaponIndex]; if(!weapon) throw new Error('Arma de veículo inválida.');
+js/rules/vehicles.mjs:733:   if(vehicleStatus(attacker).weaponsOnline===false) throw new Error('As armas estão offline por sobrecarga dos sistemas.');
+js/rules/vehicles.mjs:734:   if(rangeIndex(targetRange)>rangeIndex(weapon.range)) throw new Error(`Alvo fora do alcance desta arma (${weapon.range}).`);
+js/rules/vehicles.mjs:735:   const rank=Number(character.skills?.[weapon.skill] ?? 0), characteristic=Number(character.characteristics?.agilidad ?? 0);
+js/rules/vehicles.mjs:748:   const hit=check.success; const nonDamage=Boolean(weapon.nonDamage);
+js/rules/vehicles.mjs:749:   const damage=hit&&!nonDamage?Number(weapon.damage??0)+check.netSuccess:0;
+js/rules/vehicles.mjs:750:   const criticalAvailable=hit && !nonDamage && Number.isFinite(Number(weapon.crit)) && (check.netAdvantage>=Number(weapon.crit) || check.triumph>0);
+js/rules/vehicles.mjs:751:   const specialEffect=hit&&Number(weapon.qualities?.tractor??0)>0?{type:'tractor',rating:Number(weapon.qualities.tractor),sourceId:attacker.id}:null;
+js/rules/vehicles.mjs:752:   return {weapon,check,hit,damage,nonDamage,specialEffect,breach:Number(weapon.qualities?.breach ?? 0),criticalAvailable,criticalCost:weapon.crit,difficulty:negative.difficulty,challenge:negative.challenge,baseDifficulty,targetDefense,targetRange,targetSilhouette,pilotedTargetSilhouette,controlledFireBonus,positiveUpgrades,difficultyUpgrades};
+js/rules/vehicles.mjs:755: export function resolveVehicleWeaponAttack(args={}){
+js/rules/economy.mjs:2: import { weaponCatalogEntry, armorCatalogEntry, generalGearCatalogEntry, equipmentCatalog } from './equipmentCatalog.mjs';
+js/rules/economy.mjs:3: import { catalogWeaponToCharacterWeapon } from './acquisition.mjs';
+js/rules/economy.mjs:7: const KINDS=new Set(['weapon','armor','gear','vehicle']);
+js/rules/economy.mjs:16:   if(k==='weapon') return weaponCatalogEntry(id);
+js/rules/economy.mjs:25:   return {weapons:base.weapons.filter(mechanicallyAvailable),armor:base.armor.filter(mechanicallyAvailable),gear:base.generalGear.filter(mechanicallyAvailable),vehicles};
+js/rules/economy.mjs:39:   return {...clone(pending),availability:assetAvailability(pending.kind??'weapon',pending.itemId,{rarityModifier})};
+js/rules/economy.mjs:42: function ensureCharacter(character){if(!character)throw new Error('Carregue um personagem antes desta operação.');const c=clone(character);c.weapons=Array.isArray(c.weapons)?c.weapons:[];c.armor=Array.isArray(c.armor)?c.armor:[];c.gear=Array.isArray(c.gear)?c.gear:[];return c;}
+js/rules/economy.mjs:51:   if(entry.kind==='weapon'){const w=catalogWeaponToCharacterWeapon(item.id,c);w.ownedAssetId=entry.assetId;c.weapons.push(w);}
+js/rules/economy.mjs:64: function removeMechanical(next,asset){const c=ensureCharacter(next.player?.character);next.player={...(next.player??{}),character:c};if(asset.kind==='weapon')c.weapons=c.weapons.filter(x=>x.ownedAssetId!==asset.assetId);else if(asset.kind==='armor')c.armor=c.armor.filter(x=>x.ownedAssetId!==asset.assetId);else if(asset.kind==='gear')c.gear=c.gear.filter(x=>x.ownedAssetId!==asset.assetId);else {const runtime=ensureVehicleRuntime(next.vehicles);delete runtime.vehicles[asset.assetId];if(runtime.act
+js/rules/economy.mjs:74:   const granted=grantCatalogAsset(base,{kind:pending.kind??'weapon',itemId:pending.itemId,method:'purchase',locationId:pending.locationId,note:reason??'',sourceRuleIds,at,ownedAssetId:assetId(pending.kind??'weapon',pending.itemId,pending.requestId)});
+js/rules/economy.mjs:77: export function economySummary(state,{market=null}={}){const catalog=genericEconomyCatalog();const compact=x=>({id:x.id,name:x.name,price:x.price,rarity:x.rarity,restricted:Boolean(x.restricted)});return {market:market?clone(market):null,catalog:{weapons:catalog.weapons.map(compact),armor:catalog.armor.map(compact),gear:catalog.gear.map(compact),vehicles:catalog.vehicles.map(compact)},ownedAssets:ensureGroup(state.group).ownedAssets.map(a=>({assetId:a.assetId,kind:a.kind,catalogId:a.catalogId,na
+js/rules/attackDifficulty.mjs:3: export function attackDifficultyForWeapon(weapon, targetRange) {
+js/rules/attackDifficulty.mjs:4:     if (!weapon)
+js/rules/attackDifficulty.mjs:8:     if (!(weapon.range in RANGE_ORDER))
+js/rules/attackDifficulty.mjs:10:     if (RANGE_ORDER[targetRange] > RANGE_ORDER[weapon.range])
+js/rules/attackDifficulty.mjs:12:     if (weapon.skill === 'pelea' || weapon.skill === 'armas_cuerpo_a_cuerpo') {
+js/rules/attackDifficulty.mjs:19:         if (weapon.skill === 'armas_distancia_ligeras')
+js/rules/attackDifficulty.mjs:21:         else if (weapon.skill === 'armas_distancia_pesadas')
+js/rules/attackDifficulty.mjs:23:         else if (weapon.skill === 'artilleria')
+js/rules/attackDifficulty.mjs:28: export function availableTargetRanges(weapon) {
+js/rules/attackDifficulty.mjs:29:     if (!weapon || !(weapon.range in RANGE_ORDER))
+js/rules/attackDifficulty.mjs:31:     if (weapon.skill === 'pelea' || weapon.skill === 'armas_cuerpo_a_cuerpo')
+js/rules/attackDifficulty.mjs:33:     return Object.keys(RANGE_ORDER).filter(r => RANGE_ORDER[r] <= RANGE_ORDER[weapon.range]);
+js/rules/talents.mjs:211: export function talentCloseRangeDamageBonus(character,{weapon=null,targetRange=null}={}){
+js/rules/talents.mjs:212:   if(!weapon) return 0;
+js/rules/talents.mjs:214:   if(!ranged.includes(weapon.skill)) return 0;
+js/rules/acquisition.mjs:13: export function createPendingWeaponAcquisition(itemId, character, { requestId, at = new Date().toISOString() } = {}) {
+js/rules/acquisition.mjs:14:     const item = (0, equipmentCatalog_mjs_1.weaponCatalogEntry)(itemId);
+js/rules/acquisition.mjs:24: export function weaponAcquisitionAvailability(itemId, { rarityModifier = null } = {}) {
+js/rules/acquisition.mjs:25:     const item = (0, equipmentCatalog_mjs_1.weaponCatalogEntry)(itemId);
+js/rules/acquisition.mjs:30: export function setPendingWeaponAcquisitionRarityModifier(pending, rarityModifier) {
+js/rules/acquisition.mjs:35: export function catalogWeaponToCharacterWeapon(itemId, character) {
+js/rules/acquisition.mjs:36:     const item = (0, equipmentCatalog_mjs_1.weaponCatalogEntry)(itemId);
+js/rules/acquisition.mjs:51: export function resolvePendingWeaponAcquisition(character, pending, { approved, finalPrice = null, reason = null, sourceRuleIds = [] } = {}) {
+js/rules/acquisition.mjs:67:     next.weapons = Array.isArray(next.weapons) ? next.weapons : [];
+js/rules/acquisition.mjs:68:     next.weapons.push(catalogWeaponToCharacterWeapon(pending.itemId, next));
+js/rules/character.mjs:24:     credits:0, weapons:[], armor:[], gear:[], criticalInjuries:[], statusEffects:[], talents:[], description:{},
+js/rules/character.mjs:52:   for(const key of ['specializations','careerSkills','motivations','obligations','weapons','armor','gear','criticalInjuries','statusEffects','talents','customSkills']){
+js/rules/encumbrance.mjs:1: import { generalGearCatalogEntry, weaponCatalogEntry, armorCatalogEntry } from './equipmentCatalog.mjs';
+js/rules/encumbrance.mjs:28: export function weaponEncumbrance(item){
+js/rules/encumbrance.mjs:30:   const ref=(item?.id&&weaponCatalogEntry(item.id))||weaponCatalogEntryByName(item?.name);
+js/rules/encumbrance.mjs:52: export function weaponCatalogEntryByName(name){
+js/rules/encumbrance.mjs:54:   for(const id of ['pocket_blaster','light_blaster_pistol','blaster_pistol','heavy_blaster_pistol','blaster_carbine','blaster_rifle','heavy_blaster_rifle','light_repeating_blaster','heavy_repeating_blaster','ion_blaster','disruptor_pistol','disruptor_rifle','slugthrower_pistol','slugthrower_rifle','flamethrower','missile_tube','stun_grenade','frag_grenade','concussion_grenade','anti_personnel_mine','anti_vehicle_mine','thermal_detonator','shock_gloves','brass_knuckles','combat_knife','force_pike
+js/rules/encumbrance.mjs:63:   for(const item of character?.weapons??[]){const v=weaponEncumbrance(item)*quantity(item);total+=v;details.push({kind:'weapon',name:item.name,value:v});}
+js/rules/equipmentCatalog.mjs:3: const SRC_WEAPONS=aorReference({book:'La Era de la Rebelión - Pantalla',screenPage:6,printedPages:'173/182',section:'Armas a distância / Armas corpo a corpo'});
+js/rules/equipmentCatalog.mjs:48:   return Object.freeze({id,name,category:'weapon',skill,damage,damageBonus,crit,range,encumbrance,hardPoints,price,rarity,restricted,qualities:Object.freeze([...qualities]),source:SRC_WEAPONS});
+js/rules/equipmentCatalog.mjs:51: export const CORE_WEAPON_CATALOG=Object.freeze([
+js/rules/equipmentCatalog.mjs:122: export function equipmentCatalog(){ return {weapons:CORE_WEAPON_CATALOG.map(v=>structuredClone(v)),armor:EOTE_CORE_ARMOR_CATALOG.map(v=>structuredClone(v)),generalGear:EOTE_CORE_GENERAL_GEAR.map(v=>structuredClone(v))}; }
+js/rules/equipmentCatalog.mjs:123: export function weaponCatalogEntry(id){ return CORE_WEAPON_CATALOG.find(v=>v.id===id) ?? null; }
