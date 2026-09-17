@@ -14,7 +14,8 @@ vtt = root / 'app/src/main/assets/vtt'
 source = vtt / 'js/rules/talentTreesData.mjs'
 aor_source = vtt / 'js/expansion/aorTalentTreesData.mjs'
 bundle = vtt / 'js/core/uiBridge.bundle.js'
-for p in (source, aor_source, bundle):
+shell = vtt / 'r46/r46-shell.bundle.js'
+for p in (source, aor_source, bundle, shell):
     if not p.is_file():
         raise SystemExit(f'missing AoR runtime input: {p}')
 
@@ -68,6 +69,7 @@ def merge_catalog(text: str, marker: str) -> tuple[str, tuple[int, int, int], tu
     payload = json.dumps(merged, ensure_ascii=False, separators=(',', ':'))
     return text[:start] + payload + text[end:], eote_counts, merged_counts
 
+
 # Keep the standalone rules module and the embedded browser bundle identical.
 src_text = source.read_text('utf-8')
 src_text, eote_counts, merged_counts = merge_catalog(
@@ -95,6 +97,26 @@ bundle_text = bundle_text.replace(
 )
 bundle.write_text(bundle_text, 'utf-8')
 
+# AoR activation must also reach the creation shell. The R46 validator was
+# hard-coded to EOTE_CORE, so a canonical AoR/MIXED catalog returned by the
+# engine was rejected before the creation screens could render it.
+shell_text = shell.read_text('utf-8')
+old_guard = "if (!isRecord(data) || data.profile !== 'EOTE_CORE' || !Array.isArray(data.species) || !Array.isArray(data.careers) || !validStringArray(data.obligationTypes) || !isRecord(data.characteristicLabels) || !isRecord(data.skillLabels)) {"
+new_guard = "const profile = typeof data?.profile === 'string' ? data.profile.trim().toUpperCase() : '';\\n    if (!isRecord(data) || !['EOTE_CORE', 'AOR_CORE', 'MIXED_CORE'].includes(profile) || !Array.isArray(data.species) || !Array.isArray(data.careers) || !validStringArray(data.obligationTypes) || !isRecord(data.characteristicLabels) || !isRecord(data.skillLabels)) {"
+if old_guard in shell_text:
+    shell_text = shell_text.replace(old_guard, new_guard, 1)
+elif "['EOTE_CORE', 'AOR_CORE', 'MIXED_CORE'].includes(profile)" not in shell_text:
+    raise SystemExit('AoR creation catalog validator marker not found')
+
+old_return = "return { ok: true, data: { profile: 'EOTE_CORE', species, careers, obligationTypes: [...data.obligationTypes], characteristicLabels, skillLabels } };"
+new_return = "return { ok: true, data: { profile, species, careers, obligationTypes: [...data.obligationTypes], characteristicLabels, skillLabels } };"
+if old_return in shell_text:
+    shell_text = shell_text.replace(old_return, new_return, 1)
+elif "return { ok: true, data: { profile, species, careers, obligationTypes:" not in shell_text:
+    raise SystemExit('AoR creation catalog profile preservation marker not found')
+
+shell.write_text(shell_text, 'utf-8')
+
 # Functional gates on a real AoR tree and preservation of the original EotE catalog.
 merged_source, _, _ = decode_object_after(source.read_text('utf-8'), 'export const TALENT_TREES = Object.freeze(')
 merged_bundle, _, _ = decode_object_after(bundle.read_text('utf-8'), 'exports.TALENT_TREES = Object.freeze(')
@@ -107,9 +129,18 @@ for label, catalog in [('source', merged_source), ('bundle', merged_bundle)]:
     if 'no active Age of Rebellion tree data' in (source.read_text('utf-8') if label == 'source' else bundle.read_text('utf-8')):
         raise SystemExit(f'{label}: inactive AoR marker still present')
 
+shell_after = shell.read_text('utf-8')
+if "['EOTE_CORE', 'AOR_CORE', 'MIXED_CORE'].includes(profile)" not in shell_after:
+    raise SystemExit('shell: AoR/MIXED creation profiles are still blocked')
+if "data.profile !== 'EOTE_CORE'" in shell_after:
+    raise SystemExit('shell: legacy EOTE-only creation profile guard still present')
+if "data: { profile, species, careers, obligationTypes:" not in shell_after:
+    raise SystemExit('shell: validated creation profile is not preserved')
+
 print('R54_AOR_TALENT_RUNTIME_PASS', {
     'eote': eote_counts,
     'aor': aor_counts,
     'merged': merged_counts,
     'sample': 'ace/gunner',
+    'creation_profiles': ['EOTE_CORE', 'AOR_CORE', 'MIXED_CORE'],
 })
