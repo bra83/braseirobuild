@@ -783,7 +783,7 @@
       "06": {
         "expected": "Personagem — Ficha",
         "rendered_h1": "Ficha",
-        "body_head": "BRASEIRO STAR WARS · EDGE OF THE GALAXY PERSONAGEM Ficha Dados atuais do personagem. Ficha Progressão IDENTIDADE NOME Tarin Vale ESPÉCIE Trandoshano CARREIRA Contrabandista ESPECIALIZAÇÃO Ladrão ESTADO FERIMENTOS 0/15 TENSÃO 0/11 OBLIGATION 20 · Dívida MOTIVAÇÃO Encontrar uma oportunidade grande o b",
+        "body_head": "BRASEIRO STAR WARS · EDGE OF THE GALAXY PERSONAGEM Ficha Dados atuais do personagem. Ficha Progressão IDENTIDADE NOME Dax Marr ESPÉCIE Droide CARREIRA Mercenário ESPECIALIZAÇÃO Guarda-costas ESTADO FERIMENTOS 0/11 TENSÃO 0/11 OBLIGATION 20 · Dever assumido MOTIVAÇÃO Encontrar uma oportunidade grande",
         "buttons": [
           {
             "route": "06",
@@ -860,7 +860,7 @@
       "07": {
         "expected": "Personagem — Progressão",
         "rendered_h1": "Progressão",
-        "body_head": "BRASEIRO STAR WARS · EDGE OF THE GALAXY PERSONAGEM Progressão Experiência e opções de progressão disponíveis. Ficha Progressão PROGRESSÃO PE DISPONÍVEL 90 PE GASTO 0 ESCOLHAS ELEGÍVEIS — HISTÓRICO DE PROGRESSÃO — PROGRESSÃO Valores exibidos são do estado atual. Nenhuma compra é aplicada por esta tel",
+        "body_head": "BRASEIRO STAR WARS · EDGE OF THE GALAXY PERSONAGEM Progressão Experiência e opções de progressão disponíveis. Ficha Progressão PROGRESSÃO PE DISPONÍVEL 175 PE GASTO 0 ESCOLHAS ELEGÍVEIS — HISTÓRICO DE PROGRESSÃO — PROGRESSÃO Valores exibidos são do estado atual. Nenhuma compra é aplicada por esta te",
         "buttons": [
           {
             "route": "07",
