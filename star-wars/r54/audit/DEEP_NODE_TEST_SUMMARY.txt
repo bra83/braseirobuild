@@ -47,4 +47,4 @@ not ok 671 - API de primeira linha preserva 72 talentos Core e adiciona 4 do Exi
 # tests 752
 # pass 706
 # fail 46
-# duration_ms 71104.440447
+# duration_ms 67761.182112
