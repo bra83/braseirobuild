@@ -1,0 +1,72 @@
+name: Repair Star Wars R54 AoR Canonical and Close
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/repair-star-wars-r54-aor-canonical-and-close.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+jobs:
+  repair-and-dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Repair canonical R54 AoR source and bundle
+        run: |
+          set -euo pipefail
+          ZIP=star-wars/final-1.0.0/output-r54/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip
+          SHA_FILE="$ZIP.sha256"
+          test -f "$ZIP"
+          rm -rf aor-canonical-work && mkdir -p aor-canonical-work
+          unzip -q "$ZIP" -d aor-canonical-work
+          SET="$(find aor-canonical-work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"
+          test -n "$SET"
+          ROOT="$(dirname "$SET")"
+          python3 star-wars/r54/fix_aor_talent_runtime.py "$ROOT"
+          python3 - "$ROOT" <<'PY'
+          import json,sys
+          from pathlib import Path
+          root=Path(sys.argv[1]);v=root/'app/src/main/assets/vtt'
+          def decode(path,marker):
+              s=path.read_text('utf-8');i=s.index(marker);j=s.index('{',i+len(marker));return json.JSONDecoder().raw_decode(s[j:])[0]
+          def counts(t):return (len(t),sum(len(v) for v in t.values()),sum(len(tree['nodes']) for v in t.values() for tree in v.values()))
+          src=decode(v/'js/rules/talentTreesData.mjs','export const TALENT_TREES = Object.freeze(')
+          bun=decode(v/'js/core/uiBridge.bundle.js','exports.TALENT_TREES = Object.freeze(')
+          assert counts(src)==(12,36,720),counts(src)
+          assert counts(bun)==(12,36,720),counts(bun)
+          assert src==bun,'source/bundle talent catalogs differ'
+          print('R54_AOR_CANONICAL_SYNC_PASS',counts(src))
+          PY
+          TMP="$(mktemp -d)"
+          NEWZIP="$TMP/$(basename "$ZIP")"
+          (cd "$ROOT" && zip -qr "$GITHUB_WORKSPACE/$NEWZIP" . -x '*/build/*' '.gradle/*')
+          mv "$NEWZIP" "$ZIP"
+          sha256sum "$ZIP" > "$SHA_FILE"
+          unzip -t "$ZIP" >/dev/null
+      - name: Persist canonical AoR-synchronized R54
+        run: |
+          set -euo pipefail
+          ZIP=star-wars/final-1.0.0/output-r54/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add -f "$ZIP" "$ZIP.sha256"
+          git commit -m 'build(star-wars): synchronize AoR talent source in canonical R54' || true
+          git pull --rebase origin main
+          git push origin HEAD:main
+      - name: Dispatch integrated R54 closeout
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/close-star-wars-r54-final.yml/dispatches" \
+            -d '{"ref":"main"}'
+          echo R54_AOR_CANONICAL_CLOSEOUT_DISPATCHED
