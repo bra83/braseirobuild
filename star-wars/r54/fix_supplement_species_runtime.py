@@ -91,7 +91,12 @@ async function r54SupplementSpeciesPanel(){
 }
 '''
 if MARKER not in rt:
-    end=rt.rfind('})();')
+    # The historical visual restorer appends its own IIFE after the main runtime.
+    # Insert supplement integration into the main runtime IIFE, never inside the
+    # historical block, so a later visual refresh cannot truncate supplements.
+    hist=rt.find('/* R54 HISTORICAL VISUAL RESTORE')
+    prefix=rt[:hist] if hist>=0 else rt
+    end=prefix.rfind('})();')
     if end<0: raise SystemExit('runtime IIFE end missing')
     rt=rt[:end]+js+'\n'+rt[end:]
 old='function r54Tick(){r54FixSceneIcon();r54CharacterPortrait();r54ContextMapPreview();r54EnhanceItemImages()}'
