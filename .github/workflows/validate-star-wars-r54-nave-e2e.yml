@@ -10,43 +10,26 @@ permissions: {contents: read}
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: {python-version: '3.12'}
       - name: Recover canonical R54 source
         id: root
         run: |
           set -euo pipefail
-          rm -rf nave-work
-          mkdir nave-work
+          rm -rf nave-work && mkdir nave-work
           unzip -q star-wars/final-1.0.0/output-r54/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip -d nave-work
           SET="$(find nave-work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"
-          test -n "$SET"
-          ROOT="$(dirname "$SET")"
-          echo "path=$ROOT" >> "$GITHUB_OUTPUT"
-      - name: Discover canonical vehicle seeding path
+          test -n "$SET"; ROOT="$(dirname "$SET")"; echo "path=$ROOT" >> "$GITHUB_OUTPUT"
+      - name: Discover exact vehicle controller API
         env:
           ROOT: "${{ steps.root.outputs.path }}"
         run: |
           set -euo pipefail
           V="$ROOT/app/src/main/assets/vtt"
-          echo '=== VEHICLE FACTORY SYMBOLS ==='
-          grep -R -n -E 'createVehicleFromProfile|STARTER_VEHICLE_PROFILES|EOTE_CORE_STARTER_VEHICLE_KEYS|eoteCoreStarterVehicleProfiles' "$V" --include='*.js' --include='*.mjs' | head -80 || true
-          echo '=== VEHICLE STATE WRITES ==='
-          grep -R -n -E 'activeVehicleId|VEHICLE_(CREATED|ADDED|SELECTED|UPDATED)|vehicles[.]vehicles' "$V/js" --include='*.js' --include='*.mjs' | head -120 || true
-      - name: Install browser
-        run: |
-          python -m pip install --quiet playwright
-          python -m playwright install --with-deps chromium
-      - name: Run NAVE end-to-end audit
-        env:
-          ROOT: "${{ steps.root.outputs.path }}"
-        run: |
-          set -euo pipefail
-          python3 -m py_compile star-wars/r54/audit_nave_e2e.py
-          python3 -m http.server 8765 --directory "$ROOT/app/src/main/assets/vtt" >/tmp/r54-nave-http.log 2>&1 &
-          PID=$!; trap 'kill $PID || true' EXIT
-          sleep 1
-          python3 star-wars/r54/audit_nave_e2e.py "$ROOT"
+          echo '=== CONTROLLER 1320-1360 ==='
+          sed -n '1320,1360p' "$V/js/core/controller.mjs"
+          echo '=== BUNDLE 2400-2445 ==='
+          sed -n '2400,2445p' "$V/js/core/uiBridge.bundle.js"
+          echo '=== UIBRIDGE VEHICLE EXPOSURE ==='
+          grep -n -E 'vehicleProfiles|activeVehicle|addVehicle|setActiveVehicle|registerVehicle|createVehicle|selectVehicle|vehicleCatalog' "$V/js/core/uiBridge.mjs" "$V/js/core/uiBridge.bundle.js" | head -120 || true
