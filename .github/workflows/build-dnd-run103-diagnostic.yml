@@ -1,0 +1,141 @@
+name: Braseiro DnD 6.6.2 RUN103 Diagnostic Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-dnd-run103-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SHARE_00: 'https://firestorage.ai/ja/f/qe47r3Xkf4KX'
+  SHARE_01: 'https://firestorage.ai/ja/f/_8f3hylcei_H'
+  SHARE_02: 'https://firestorage.ai/ja/f/FCyXOcjcnGTJ'
+  SHARE_03: 'https://firestorage.ai/ja/f/0s-YBpoGQYUj'
+  SHARE_04: 'https://firestorage.ai/ja/f/vmO1EweC_whK'
+  SOURCE_SHA256: '91ae5ea70b0e309b6c381b77fb63497e43fecd6eda2dd54974f49b2be04a06d5'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download exact RUN103 source chunks
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p incoming /tmp/dnd-download
+          cd /tmp/dnd-download
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+          cat > download.mjs <<'NODE'
+          import { chromium } from 'playwright';
+          import fs from 'fs';
+          const urls=[process.env.SHARE_00,process.env.SHARE_01,process.env.SHARE_02,process.env.SHARE_03,process.env.SHARE_04];
+          const names=['dnd103.part.00','dnd103.part.01','dnd103.part.02','dnd103.part.03','dnd103.part.04'];
+          const browser=await chromium.launch({headless:true});
+          for(let j=0;j<urls.length;j++){
+            const ctx=await browser.newContext({acceptDownloads:true,locale:'ja-JP'});
+            const page=await ctx.newPage();
+            await page.goto(urls[j],{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForTimeout(2000);
+            const out=process.env.GITHUB_WORKSPACE+'/incoming/'+names[j];
+            let ok=false;
+            for(const sel of ['text=/一括ダウンロード/i','text=/ダウンロード/i','text=/Download/i','button','a']){
+              const loc=page.locator(sel), n=Math.min(await loc.count(),60);
+              for(let i=0;i<n;i++){
+                const el=loc.nth(i); let text=''; try{text=(await el.innerText({timeout:800})).trim()}catch{}
+                if((sel==='button'||sel==='a')&&!/download|ダウンロード|一括|保存|ZIP|ファイル/i.test(text)) continue;
+                try{const p=page.waitForEvent('download',{timeout:10000}); await el.click({timeout:5000}); const d=await p; await d.saveAs(out); ok=true; break}catch{}
+              }
+              if(ok) break;
+            }
+            await ctx.close();
+            if(!ok || !fs.existsSync(out)) throw new Error('download failed '+j);
+          }
+          await browser.close();
+          NODE
+          node download.mjs
+          cd "$GITHUB_WORKSPACE"
+          printf '%s  %s\n' \
+            'b6a3077453ff9d2c39530fc06f92e075cbbe425a07e45ba839222cf83db7fcc6' incoming/dnd103.part.00 \
+            '82ad86f5f4ff2e8982a5feb7ec42b1e732bbce0c0e954e2f9916c6dbb832666d' incoming/dnd103.part.01 \
+            'd6ae22e94795fe7f0dd1d3c15f6a0c970690231835b5a015494138ae5513c59b' incoming/dnd103.part.02 \
+            '28e5dbd396c0614786e9c0fb9aa092035ad4a1c4c2391eccf612e329c7462c05' incoming/dnd103.part.03 \
+            '1ba22b88f845e501af30454be3fd3762c9c18653976dcd01c54ed99517217e85' incoming/dnd103.part.04 | sha256sum -c -
+          cat incoming/dnd103.part.* > incoming/BRASEIRO_DND_6.6.2_RUN103_DND5E_ANDROID_STUDIO.zip
+          echo "$SOURCE_SHA256  incoming/BRASEIRO_DND_6.6.2_RUN103_DND5E_ANDROID_STUDIO.zip" | sha256sum -c -
+          unzip -t incoming/BRASEIRO_DND_6.6.2_RUN103_DND5E_ANDROID_STUDIO.zip >/dev/null
+
+      - name: Extract source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p work
+          unzip -q incoming/BRASEIRO_DND_6.6.2_RUN103_DND5E_ANDROID_STUDIO.zip -d work
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android 35
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build APK and capture full log
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p "$GITHUB_WORKSPACE/out"
+          WRAPPER="$(find work -type f -path '*/android/gradlew' | head -n1)"
+          test -n "$WRAPPER"
+          ROOT="$(dirname "$WRAPPER")"
+          chmod +x "$ROOT/gradlew"
+          cd "$ROOT"
+          set +e
+          ./gradlew clean :app:assembleDebug --stacktrace --console=plain --no-daemon 2>&1 | tee "$GITHUB_WORKSPACE/out/GRADLE_BUILD.log"
+          RC=${PIPESTATUS[0]}
+          set -e
+          echo "$RC" > "$GITHUB_WORKSPACE/out/BUILD_EXIT_CODE.txt"
+          if [ "$RC" -eq 0 ]; then
+            APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | head -n1)"
+            test -f "$APK"
+            cp "$APK" "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN103_DEBUG.apk"
+            sha256sum "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN103_DEBUG.apk" > "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN103_DEBUG.apk.sha256"
+            "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN103_DEBUG.apk" | tee "$GITHUB_WORKSPACE/out/APK_BADGING.txt"
+            grep -q "package: name='com.braseiro.dnd5e'" "$GITHUB_WORKSPACE/out/APK_BADGING.txt"
+            unzip -t "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN103_DEBUG.apk" >/dev/null
+          fi
+
+      - name: Upload APK or diagnostic log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO-DND-6.6.2-RUN103-DIAGNOSTIC
+          path: out/
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Mark build failure after artifact upload
+        shell: bash
+        run: |
+          test "$(cat out/BUILD_EXIT_CODE.txt)" = "0"
