@@ -1,0 +1,428 @@
+Braseiro DnD 6.6.2 RUN103 build diagnostic
+source_sha256=91ae5ea70b0e309b6c381b77fb63497e43fecd6eda2dd54974f49b2be04a06d5
+gradle_exit_code=1
+package=com.braseiro.dnd5e
+
+=== relevant errors ===
+472:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2192: error: class, interface, enum, or record expected
+475:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2192: error: class, interface, enum, or record expected
+478:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2192: error: class, interface, enum, or record expected
+481:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2193: error: class, interface, enum, or record expected
+484:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+487:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+490:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+493:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+496:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+499:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+502:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+505:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+508:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+511:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+514:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+517:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+520:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+523:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+526:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+529:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+532:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+535:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+538:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+541:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+544:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+547:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+550:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+553:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+556:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+559:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+562:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+565:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+568:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2198: error: class, interface, enum, or record expected
+571:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2198: error: class, interface, enum, or record expected
+574:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2198: error: class, interface, enum, or record expected
+577:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2198: error: class, interface, enum, or record expected
+580:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2198: error: class, interface, enum, or record expected
+583:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+586:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+589:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+592:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+595:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+598:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+601:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+604:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+607:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+610:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2200: error: class, interface, enum, or record expected
+613:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2201: error: class, interface, enum, or record expected
+616:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2202: error: class, interface, enum, or record expected
+619:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2205: error: class, interface, enum, or record expected
+622:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2205: error: class, interface, enum, or record expected
+625:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2205: error: class, interface, enum, or record expected
+628:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2205: error: class, interface, enum, or record expected
+631:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2205: error: class, interface, enum, or record expected
+634:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2206: error: class, interface, enum, or record expected
+637:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2206: error: class, interface, enum, or record expected
+640:  /home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2206: error: class, interface, enum, or record expected
+650:org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':app:compileDebugJavaWithJavac'.
+711:Caused by: org.gradle.api.internal.tasks.compile.CompilationFailedException: Compilation failed; see the compiler output below.
+712:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2181: error: class, interface, enum, or record expected
+715:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2181: error: class, interface, enum, or record expected
+718:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2181: error: class, interface, enum, or record expected
+721:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2181: error: class, interface, enum, or record expected
+724:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2183: error: class, interface, enum, or record expected
+727:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2183: error: class, interface, enum, or record expected
+730:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2183: error: class, interface, enum, or record expected
+733:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2183: error: class, interface, enum, or record expected
+736:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2183: error: class, interface, enum, or record expected
+739:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2183: error: class, interface, enum, or record expected
+742:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2183: error: class, interface, enum, or record expected
+745:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2185: error: class, interface, enum, or record expected
+748:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+751:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+754:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+757:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+760:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+763:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+766:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+769:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+772:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+775:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+778:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+781:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+784:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+787:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+790:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+793:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+796:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+799:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+802:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+805:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+808:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2188: error: class, interface, enum, or record expected
+811:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2189: error: class, interface, enum, or record expected
+814:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2192: error: class, interface, enum, or record expected
+817:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2192: error: class, interface, enum, or record expected
+820:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2192: error: class, interface, enum, or record expected
+823:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2192: error: class, interface, enum, or record expected
+826:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2192: error: class, interface, enum, or record expected
+829:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2192: error: class, interface, enum, or record expected
+832:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2192: error: class, interface, enum, or record expected
+835:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2192: error: class, interface, enum, or record expected
+838:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2192: error: class, interface, enum, or record expected
+841:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2192: error: class, interface, enum, or record expected
+844:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2192: error: class, interface, enum, or record expected
+847:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2192: error: class, interface, enum, or record expected
+850:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2193: error: class, interface, enum, or record expected
+853:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+856:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+859:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+862:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+865:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+868:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+871:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+874:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+877:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+880:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+883:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+886:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+889:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+892:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+895:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+898:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+901:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+904:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+907:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+910:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+913:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+916:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+919:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+922:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+925:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+928:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+931:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+934:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2195: error: class, interface, enum, or record expected
+937:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2198: error: class, interface, enum, or record expected
+940:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2198: error: class, interface, enum, or record expected
+943:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2198: error: class, interface, enum, or record expected
+946:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2198: error: class, interface, enum, or record expected
+949:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2198: error: class, interface, enum, or record expected
+952:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+955:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+958:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+961:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+964:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+967:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+970:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+973:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+976:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+979:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2200: error: class, interface, enum, or record expected
+982:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2201: error: class, interface, enum, or record expected
+985:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2202: error: class, interface, enum, or record expected
+988:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2205: error: class, interface, enum, or record expected
+991:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2205: error: class, interface, enum, or record expected
+994:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2205: error: class, interface, enum, or record expected
+997:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2205: error: class, interface, enum, or record expected
+1000:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2205: error: class, interface, enum, or record expected
+1003:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2206: error: class, interface, enum, or record expected
+1006:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2206: error: class, interface, enum, or record expected
+1009:/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2206: error: class, interface, enum, or record expected
+1206:BUILD FAILED in 17s
+
+=== log tail ===
+                                                                                                                                                                                        ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2198: error: class, interface, enum, or record expected
+        String question=rawQuestion==null?"":rawQuestion.trim();if(question.length()==0){toast("Escreva uma pergunta ao Mestre.");return;}if(aiBusy){toast("Aguarde a resposta atual.");return;}
+                                                                                                                                                                                               ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+        masterSideQueryActive=true;masterSideQueryText=question;masterSidePreviousAiMode=lastAiMode;masterSidePreviousPrompt=lastPrompt;masterSidePreviousUsedRag=lastAiUsedRag;masterSidePreviousCitations=copyJsonArray(lastRagCitations);masterSidePreviousRuleRetrieval=copyJsonObject(activeRuleRetrieval);masterSidePreviousManuals=copyJsonArray(lastAiManuals);masterSidePreviousManualContext=prefs.getString("last_manual_context","");masterSidePreviousSourceAudit=prefs.getString("last_source_audit","{}");
+                                   ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+        masterSideQueryActive=true;masterSideQueryText=question;masterSidePreviousAiMode=lastAiMode;masterSidePreviousPrompt=lastPrompt;masterSidePreviousUsedRag=lastAiUsedRag;masterSidePreviousCitations=copyJsonArray(lastRagCitations);masterSidePreviousRuleRetrieval=copyJsonObject(activeRuleRetrieval);masterSidePreviousManuals=copyJsonArray(lastAiManuals);masterSidePreviousManualContext=prefs.getString("last_manual_context","");masterSidePreviousSourceAudit=prefs.getString("last_source_audit","{}");
+                                                                ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+        masterSideQueryActive=true;masterSideQueryText=question;masterSidePreviousAiMode=lastAiMode;masterSidePreviousPrompt=lastPrompt;masterSidePreviousUsedRag=lastAiUsedRag;masterSidePreviousCitations=copyJsonArray(lastRagCitations);masterSidePreviousRuleRetrieval=copyJsonObject(activeRuleRetrieval);masterSidePreviousManuals=copyJsonArray(lastAiManuals);masterSidePreviousManualContext=prefs.getString("last_manual_context","");masterSidePreviousSourceAudit=prefs.getString("last_source_audit","{}");
+                                                                                                    ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+        masterSideQueryActive=true;masterSideQueryText=question;masterSidePreviousAiMode=lastAiMode;masterSidePreviousPrompt=lastPrompt;masterSidePreviousUsedRag=lastAiUsedRag;masterSidePreviousCitations=copyJsonArray(lastRagCitations);masterSidePreviousRuleRetrieval=copyJsonObject(activeRuleRetrieval);masterSidePreviousManuals=copyJsonArray(lastAiManuals);masterSidePreviousManualContext=prefs.getString("last_manual_context","");masterSidePreviousSourceAudit=prefs.getString("last_source_audit","{}");
+                                                                                                                                        ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+        masterSideQueryActive=true;masterSideQueryText=question;masterSidePreviousAiMode=lastAiMode;masterSidePreviousPrompt=lastPrompt;masterSidePreviousUsedRag=lastAiUsedRag;masterSidePreviousCitations=copyJsonArray(lastRagCitations);masterSidePreviousRuleRetrieval=copyJsonObject(activeRuleRetrieval);masterSidePreviousManuals=copyJsonArray(lastAiManuals);masterSidePreviousManualContext=prefs.getString("last_manual_context","");masterSidePreviousSourceAudit=prefs.getString("last_source_audit","{}");
+                                                                                                                                                                                ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+        masterSideQueryActive=true;masterSideQueryText=question;masterSidePreviousAiMode=lastAiMode;masterSidePreviousPrompt=lastPrompt;masterSidePreviousUsedRag=lastAiUsedRag;masterSidePreviousCitations=copyJsonArray(lastRagCitations);masterSidePreviousRuleRetrieval=copyJsonObject(activeRuleRetrieval);masterSidePreviousManuals=copyJsonArray(lastAiManuals);masterSidePreviousManualContext=prefs.getString("last_manual_context","");masterSidePreviousSourceAudit=prefs.getString("last_source_audit","{}");
+                                                                                                                                                                                                                                            ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+        masterSideQueryActive=true;masterSideQueryText=question;masterSidePreviousAiMode=lastAiMode;masterSidePreviousPrompt=lastPrompt;masterSidePreviousUsedRag=lastAiUsedRag;masterSidePreviousCitations=copyJsonArray(lastRagCitations);masterSidePreviousRuleRetrieval=copyJsonObject(activeRuleRetrieval);masterSidePreviousManuals=copyJsonArray(lastAiManuals);masterSidePreviousManualContext=prefs.getString("last_manual_context","");masterSidePreviousSourceAudit=prefs.getString("last_source_audit","{}");
+                                                                                                                                                                                                                                                                                                                ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+        masterSideQueryActive=true;masterSideQueryText=question;masterSidePreviousAiMode=lastAiMode;masterSidePreviousPrompt=lastPrompt;masterSidePreviousUsedRag=lastAiUsedRag;masterSidePreviousCitations=copyJsonArray(lastRagCitations);masterSidePreviousRuleRetrieval=copyJsonObject(activeRuleRetrieval);masterSidePreviousManuals=copyJsonArray(lastAiManuals);masterSidePreviousManualContext=prefs.getString("last_manual_context","");masterSidePreviousSourceAudit=prefs.getString("last_source_audit","{}");
+                                                                                                                                                                                                                                                                                                                                                                       ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2199: error: class, interface, enum, or record expected
+        masterSideQueryActive=true;masterSideQueryText=question;masterSidePreviousAiMode=lastAiMode;masterSidePreviousPrompt=lastPrompt;masterSidePreviousUsedRag=lastAiUsedRag;masterSidePreviousCitations=copyJsonArray(lastRagCitations);masterSidePreviousRuleRetrieval=copyJsonObject(activeRuleRetrieval);masterSidePreviousManuals=copyJsonArray(lastAiManuals);masterSidePreviousManualContext=prefs.getString("last_manual_context","");masterSidePreviousSourceAudit=prefs.getString("last_source_audit","{}");
+                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2200: error: class, interface, enum, or record expected
+        String routed="CONSULTA AUXILIAR FORA DA FICÇÃO. Responda no quadro separado e não altere a aventura. Se houver várias perguntas, responda uma por uma. Não invente distância, presença, conhecimento ou regra que não esteja no estado/manuais. Se a pergunta for sobre uma possibilidade de ação (por exemplo: posso/consigo subir, abrir, convencer, atravessar), explique primeiro o que é observável e se a tentativa parece possível. Se houver incerteza com consequência e as regras recuperadas sustentarem isso, diga qual atributo/perícia provavelmente seria testado; NÃO fixe CD, não role e não crie teste pendente no canal GM_HELP. A rolagem só nasce depois de o jogador confirmar TENTAR NA HISTÓRIA, quando a mensagem será promovida a PLAYER_ACTION. PERGUNTA DO JOGADOR: "+question;
+        ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2201: error: class, interface, enum, or record expected
+        sendAi("Narrador",routed);
+        ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2202: error: class, interface, enum, or record expected
+    }
+    ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2205: error: class, interface, enum, or record expected
+        lastAiMode=masterSidePreviousAiMode;lastPrompt=masterSidePreviousPrompt;lastAiUsedRag=masterSidePreviousUsedRag;lastRagCitations=copyJsonArray(masterSidePreviousCitations);activeRuleRetrieval=copyJsonObject(masterSidePreviousRuleRetrieval);lastAiManuals=copyJsonArray(masterSidePreviousManuals);
+                                            ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2205: error: class, interface, enum, or record expected
+        lastAiMode=masterSidePreviousAiMode;lastPrompt=masterSidePreviousPrompt;lastAiUsedRag=masterSidePreviousUsedRag;lastRagCitations=copyJsonArray(masterSidePreviousCitations);activeRuleRetrieval=copyJsonObject(masterSidePreviousRuleRetrieval);lastAiManuals=copyJsonArray(masterSidePreviousManuals);
+                                                                                ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2205: error: class, interface, enum, or record expected
+        lastAiMode=masterSidePreviousAiMode;lastPrompt=masterSidePreviousPrompt;lastAiUsedRag=masterSidePreviousUsedRag;lastRagCitations=copyJsonArray(masterSidePreviousCitations);activeRuleRetrieval=copyJsonObject(masterSidePreviousRuleRetrieval);lastAiManuals=copyJsonArray(masterSidePreviousManuals);
+                                                                                                                        ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2205: error: class, interface, enum, or record expected
+        lastAiMode=masterSidePreviousAiMode;lastPrompt=masterSidePreviousPrompt;lastAiUsedRag=masterSidePreviousUsedRag;lastRagCitations=copyJsonArray(masterSidePreviousCitations);activeRuleRetrieval=copyJsonObject(masterSidePreviousRuleRetrieval);lastAiManuals=copyJsonArray(masterSidePreviousManuals);
+                                                                                                                                                                                    ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2205: error: class, interface, enum, or record expected
+        lastAiMode=masterSidePreviousAiMode;lastPrompt=masterSidePreviousPrompt;lastAiUsedRag=masterSidePreviousUsedRag;lastRagCitations=copyJsonArray(masterSidePreviousCitations);activeRuleRetrieval=copyJsonObject(masterSidePreviousRuleRetrieval);lastAiManuals=copyJsonArray(masterSidePreviousManuals);
+                                                                                                                                                                                                                                                        ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2206: error: class, interface, enum, or record expected
+        SharedPreferences.Editor edit=prefs.edit().putString("last_manual_context",masterSidePreviousManualContext).putString("last_source_audit",masterSidePreviousSourceAudit).putString("last_ai_response_mode",lastAiMode);if(lastRagCitations.length()>0)edit.putString("last_rag_citations",lastRagCitations.toString());else edit.remove("last_rag_citations");edit.apply();
+        ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2206: error: class, interface, enum, or record expected
+        SharedPreferences.Editor edit=prefs.edit().putString("last_manual_context",masterSidePreviousManualContext).putString("last_source_audit",masterSidePreviousSourceAudit).putString("last_ai_response_mode",lastAiMode);if(lastRagCitations.length()>0)edit.putString("last_rag_citations",lastRagCitations.toString());else edit.remove("last_rag_citations");edit.apply();
+                                                                                                                                                                                                                               ^
+/home/runner/work/braseirobuild/braseirobuild/work/Braseiro_DnD_6.6.2_BUILD_FIX5_MOTOR_BARBARA_1.1.3_STRIXHAVEN_ASSETS_COMPLETE_ANDROID_STUDIO/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java:2206: error: class, interface, enum, or record expected
+        SharedPreferences.Editor edit=prefs.edit().putString("last_manual_context",masterSidePreviousManualContext).putString("last_source_audit",masterSidePreviousSourceAudit).putString("last_ai_response_mode",lastAiMode);if(lastRagCitations.length()>0)edit.putString("last_rag_citations",lastRagCitations.toString());else edit.remove("last_rag_citations");edit.apply();
+                                                                                                                                                                                                                                                                                                                               ^
+100 errors
+	at org.gradle.api.internal.tasks.compile.JdkJavaCompiler.execute(JdkJavaCompiler.java:84)
+	at org.gradle.api.internal.tasks.compile.JdkJavaCompiler.execute(JdkJavaCompiler.java:46)
+	at org.gradle.api.internal.tasks.compile.NormalizingJavaCompiler.delegateAndHandleErrors(NormalizingJavaCompiler.java:98)
+	at org.gradle.api.internal.tasks.compile.NormalizingJavaCompiler.execute(NormalizingJavaCompiler.java:52)
+	at org.gradle.api.internal.tasks.compile.NormalizingJavaCompiler.execute(NormalizingJavaCompiler.java:38)
+	at org.gradle.api.internal.tasks.compile.AnnotationProcessorDiscoveringCompiler.execute(AnnotationProcessorDiscoveringCompiler.java:52)
+	at org.gradle.api.internal.tasks.compile.AnnotationProcessorDiscoveringCompiler.execute(AnnotationProcessorDiscoveringCompiler.java:38)
+	at org.gradle.api.internal.tasks.compile.ModuleApplicationNameWritingCompiler.execute(ModuleApplicationNameWritingCompiler.java:46)
+	at org.gradle.api.internal.tasks.compile.ModuleApplicationNameWritingCompiler.execute(ModuleApplicationNameWritingCompiler.java:36)
+	at org.gradle.jvm.toolchain.internal.DefaultToolchainJavaCompiler.execute(DefaultToolchainJavaCompiler.java:57)
+	at org.gradle.api.tasks.compile.JavaCompile.lambda$createToolchainCompiler$3(JavaCompile.java:205)
+	at org.gradle.api.internal.tasks.compile.CleaningJavaCompiler.execute(CleaningJavaCompiler.java:53)
+	at org.gradle.api.internal.tasks.compile.incremental.IncrementalCompilerFactory.lambda$createRebuildAllCompiler$0(IncrementalCompilerFactory.java:52)
+	at org.gradle.api.internal.tasks.compile.incremental.SelectiveCompiler.execute(SelectiveCompiler.java:70)
+	at org.gradle.api.internal.tasks.compile.incremental.SelectiveCompiler.execute(SelectiveCompiler.java:44)
+	at org.gradle.api.internal.tasks.compile.incremental.IncrementalResultStoringCompiler.execute(IncrementalResultStoringCompiler.java:66)
+	at org.gradle.api.internal.tasks.compile.incremental.IncrementalResultStoringCompiler.execute(IncrementalResultStoringCompiler.java:52)
+	at org.gradle.api.internal.tasks.compile.CompileJavaBuildOperationReportingCompiler$1.call(CompileJavaBuildOperationReportingCompiler.java:64)
+	at org.gradle.api.internal.tasks.compile.CompileJavaBuildOperationReportingCompiler$1.call(CompileJavaBuildOperationReportingCompiler.java:48)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:209)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:204)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:66)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:166)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:53)
+	at org.gradle.api.internal.tasks.compile.CompileJavaBuildOperationReportingCompiler.execute(CompileJavaBuildOperationReportingCompiler.java:48)
+	at org.gradle.api.tasks.compile.JavaCompile.performCompilation(JavaCompile.java:223)
+	at org.gradle.api.tasks.compile.JavaCompile.performIncrementalCompilation(JavaCompile.java:164)
+	at org.gradle.api.tasks.compile.JavaCompile.compile(JavaCompile.java:149)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at org.gradle.internal.reflect.JavaMethod.invoke(JavaMethod.java:125)
+	at org.gradle.api.internal.project.taskfactory.IncrementalTaskAction.doExecute(IncrementalTaskAction.java:45)
+	at org.gradle.api.internal.project.taskfactory.StandardTaskAction.execute(StandardTaskAction.java:51)
+	at org.gradle.api.internal.project.taskfactory.IncrementalTaskAction.execute(IncrementalTaskAction.java:26)
+	at org.gradle.api.internal.project.taskfactory.StandardTaskAction.execute(StandardTaskAction.java:29)
+	at org.gradle.api.internal.tasks.execution.TaskExecution$3.run(TaskExecution.java:244)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:29)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:26)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:66)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:166)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.run(DefaultBuildOperationRunner.java:47)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeAction(TaskExecution.java:229)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeActions(TaskExecution.java:212)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeWithPreviousOutputFiles(TaskExecution.java:195)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.execute(TaskExecution.java:162)
+	at org.gradle.internal.execution.steps.ExecuteStep.executeInternal(ExecuteStep.java:105)
+	at org.gradle.internal.execution.steps.ExecuteStep.access$000(ExecuteStep.java:44)
+	at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:59)
+	at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:56)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:209)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:204)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:66)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:166)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:53)
+	at org.gradle.internal.execution.steps.ExecuteStep.execute(ExecuteStep.java:56)
+	at org.gradle.internal.execution.steps.ExecuteStep.execute(ExecuteStep.java:44)
+	at org.gradle.internal.execution.steps.CancelExecutionStep.execute(CancelExecutionStep.java:42)
+	at org.gradle.internal.execution.steps.TimeoutStep.executeWithoutTimeout(TimeoutStep.java:75)
+	at org.gradle.internal.execution.steps.TimeoutStep.execute(TimeoutStep.java:55)
+	at org.gradle.internal.execution.steps.PreCreateOutputParentsStep.execute(PreCreateOutputParentsStep.java:50)
+	at org.gradle.internal.execution.steps.PreCreateOutputParentsStep.execute(PreCreateOutputParentsStep.java:28)
+	at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.execute(RemovePreviousOutputsStep.java:67)
+	at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.execute(RemovePreviousOutputsStep.java:37)
+	at org.gradle.internal.execution.steps.BroadcastChangingOutputsStep.execute(BroadcastChangingOutputsStep.java:61)
+	at org.gradle.internal.execution.steps.BroadcastChangingOutputsStep.execute(BroadcastChangingOutputsStep.java:26)
+	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:69)
+	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:46)
+	at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:40)
+	at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:29)
+	at org.gradle.internal.execution.steps.BuildCacheStep.executeWithoutCache(BuildCacheStep.java:189)
+	at org.gradle.internal.execution.steps.BuildCacheStep.executeAndStoreInCache(BuildCacheStep.java:145)
+	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$executeWithCache$4(BuildCacheStep.java:101)
+	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$executeWithCache$5(BuildCacheStep.java:101)
+	at org.gradle.internal.Try$Success.map(Try.java:175)
+	at org.gradle.internal.execution.steps.BuildCacheStep.executeWithCache(BuildCacheStep.java:85)
+	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$execute$0(BuildCacheStep.java:74)
+	at org.gradle.internal.Either$Left.fold(Either.java:115)
+	at org.gradle.internal.execution.caching.CachingState.fold(CachingState.java:62)
+	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:73)
+	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:48)
+	at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:46)
+	at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:35)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.executeBecause(SkipUpToDateStep.java:75)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.lambda$execute$2(SkipUpToDateStep.java:53)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:53)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:35)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:37)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:27)
+	at org.gradle.internal.execution.steps.ResolveIncrementalCachingStateStep.executeDelegate(ResolveIncrementalCachingStateStep.java:49)
+	at org.gradle.internal.execution.steps.ResolveIncrementalCachingStateStep.executeDelegate(ResolveIncrementalCachingStateStep.java:27)
+	at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:71)
+	at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:39)
+	at org.gradle.internal.execution.steps.ResolveChangesStep.execute(ResolveChangesStep.java:65)
+	at org.gradle.internal.execution.steps.ResolveChangesStep.execute(ResolveChangesStep.java:36)
+	at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:107)
+	at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:56)
+	at org.gradle.internal.execution.steps.AbstractCaptureStateBeforeExecutionStep.execute(AbstractCaptureStateBeforeExecutionStep.java:64)
+	at org.gradle.internal.execution.steps.AbstractCaptureStateBeforeExecutionStep.execute(AbstractCaptureStateBeforeExecutionStep.java:43)
+	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.executeWithNonEmptySources(AbstractSkipEmptyWorkStep.java:125)
+	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.execute(AbstractSkipEmptyWorkStep.java:61)
+	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.execute(AbstractSkipEmptyWorkStep.java:36)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsStartedStep.execute(MarkSnapshottingInputsStartedStep.java:38)
+	at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.execute(LoadPreviousExecutionStateStep.java:36)
+	at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.execute(LoadPreviousExecutionStateStep.java:23)
+	at org.gradle.internal.execution.steps.HandleStaleOutputsStep.execute(HandleStaleOutputsStep.java:75)
+	at org.gradle.internal.execution.steps.HandleStaleOutputsStep.execute(HandleStaleOutputsStep.java:41)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.lambda$execute$0(AssignMutableWorkspaceStep.java:35)
+	at org.gradle.api.internal.tasks.execution.TaskExecution$4.withWorkspace(TaskExecution.java:289)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.execute(AssignMutableWorkspaceStep.java:31)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.execute(AssignMutableWorkspaceStep.java:22)
+	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:40)
+	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:23)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.lambda$execute$2(ExecuteWorkBuildOperationFiringStep.java:67)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:67)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:39)
+	at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:46)
+	at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:34)
+	at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:48)
+	at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:35)
+	at org.gradle.internal.execution.impl.DefaultExecutionEngine$1.execute(DefaultExecutionEngine.java:61)
+	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.executeIfValid(ExecuteActionsTaskExecuter.java:127)
+	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.execute(ExecuteActionsTaskExecuter.java:116)
+	at org.gradle.api.internal.tasks.execution.FinalizePropertiesTaskExecuter.execute(FinalizePropertiesTaskExecuter.java:46)
+	at org.gradle.api.internal.tasks.execution.ResolveTaskExecutionModeExecuter.execute(ResolveTaskExecutionModeExecuter.java:51)
+	at org.gradle.api.internal.tasks.execution.SkipTaskWithNoActionsExecuter.execute(SkipTaskWithNoActionsExecuter.java:57)
+	at org.gradle.api.internal.tasks.execution.SkipOnlyIfTaskExecuter.execute(SkipOnlyIfTaskExecuter.java:74)
+	at org.gradle.api.internal.tasks.execution.CatchExceptionTaskExecuter.execute(CatchExceptionTaskExecuter.java:36)
+	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.executeTask(EventFiringTaskExecuter.java:77)
+	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:55)
+	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:52)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:209)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:204)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:66)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:166)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:53)
+	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter.execute(EventFiringTaskExecuter.java:52)
+	at org.gradle.execution.plan.LocalTaskNodeExecutor.execute(LocalTaskNodeExecutor.java:42)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:331)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:318)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.lambda$execute$0(DefaultTaskExecutionGraph.java:314)
+	at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:85)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:314)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:303)
+	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.execute(DefaultPlanExecutor.java:459)
+	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:376)
+	at org.gradle.execution.plan.DefaultPlanExecutor.process(DefaultPlanExecutor.java:111)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph.executeWithServices(DefaultTaskExecutionGraph.java:138)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph.execute(DefaultTaskExecutionGraph.java:123)
+	at org.gradle.execution.SelectedTaskExecutionAction.execute(SelectedTaskExecutionAction.java:35)
+	at org.gradle.execution.DryRunBuildExecutionAction.execute(DryRunBuildExecutionAction.java:51)
+	at org.gradle.execution.BuildOperationFiringBuildWorkerExecutor$ExecuteTasks.call(BuildOperationFiringBuildWorkerExecutor.java:54)
+	at org.gradle.execution.BuildOperationFiringBuildWorkerExecutor$ExecuteTasks.call(BuildOperationFiringBuildWorkerExecutor.java:43)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:209)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:204)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:66)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:166)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:53)
+	at org.gradle.execution.BuildOperationFiringBuildWorkerExecutor.execute(BuildOperationFiringBuildWorkerExecutor.java:40)
+	at org.gradle.internal.build.DefaultBuildLifecycleController.lambda$executeTasks$10(DefaultBuildLifecycleController.java:313)
+	at org.gradle.internal.model.StateTransitionController.doTransition(StateTransitionController.java:266)
+	at org.gradle.internal.model.StateTransitionController.lambda$tryTransition$8(StateTransitionController.java:177)
+	at org.gradle.internal.work.DefaultSynchronizer.withLock(DefaultSynchronizer.java:46)
+	at org.gradle.internal.model.StateTransitionController.tryTransition(StateTransitionController.java:177)
+	at org.gradle.internal.build.DefaultBuildLifecycleController.executeTasks(DefaultBuildLifecycleController.java:304)
+	at org.gradle.internal.build.DefaultBuildWorkGraphController$DefaultBuildWorkGraph.runWork(DefaultBuildWorkGraphController.java:220)
+	at org.gradle.internal.work.DefaultWorkerLeaseService.withLocks(DefaultWorkerLeaseService.java:263)
+	at org.gradle.internal.work.DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:127)
+	at org.gradle.composite.internal.DefaultBuildController.doRun(DefaultBuildController.java:181)
+	at org.gradle.composite.internal.DefaultBuildController.access$000(DefaultBuildController.java:50)
+	at org.gradle.composite.internal.DefaultBuildController$BuildOpRunnable.lambda$run$0(DefaultBuildController.java:198)
+	at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:85)
+	at org.gradle.composite.internal.DefaultBuildController$BuildOpRunnable.run(DefaultBuildController.java:198)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
+
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 17s
+22 actionable tasks: 10 executed, 12 from cache
