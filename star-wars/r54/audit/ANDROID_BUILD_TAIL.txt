@@ -12,24 +12,24 @@ Daemon will be stopped at the end of the build
 > Task :app:generateDebugResources
 > Task :app:createDebugCompatibleScreenManifests
 > Task :app:extractDeepLinksDebug
-> Task :app:processDebugMainManifest
 > Task :app:mergeDebugResources
-> Task :app:processDebugManifest
+> Task :app:processDebugMainManifest
 > Task :app:packageDebugResources
-> Task :app:processDebugManifestForPackage
+> Task :app:parseDebugLocalResources
+> Task :app:processDebugManifest
 > Task :app:mergeDebugShaders
+> Task :app:processDebugManifestForPackage
 > Task :app:compileDebugShaders NO-SOURCE
 > Task :app:generateDebugAssets UP-TO-DATE
-> Task :app:parseDebugLocalResources
-> Task :app:mergeDebugAssets
 > Task :app:processDebugResources
-> Task :app:compressDebugAssets
+> Task :app:mergeDebugAssets
 
 > Task :app:compileDebugJavaWithJavac
 Note: /home/runner/work/braseirobuild/braseirobuild/audit-work/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java uses or overrides a deprecated API.
 Note: Recompile with -Xlint:deprecation for details.
 
 > Task :app:desugarDebugFileDependencies
+> Task :app:compressDebugAssets
 > Task :app:dexBuilderDebug
 > Task :app:processDebugJavaRes NO-SOURCE
 > Task :app:mergeDebugGlobalSynthetics
@@ -47,9 +47,9 @@ Note: Recompile with -Xlint:deprecation for details.
 > Task :app:packageDebug
 > Task :app:createDebugApkListingFileRedirect
 > Task :app:assembleDebug
-gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/android-1789612984458.json
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/android-1789614674429.json
 
 [Incubating] Problems report is available at: file:///home/runner/work/braseirobuild/braseirobuild/audit-work/build/reports/problems/problems-report.html
 
-BUILD SUCCESSFUL in 26s
+BUILD SUCCESSFUL in 25s
 34 actionable tasks: 34 executed

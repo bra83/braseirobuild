@@ -4,9 +4,9 @@ Auditoria executada sobre o projeto R53 reconstruído + hotfix R54 atual, inclui
 
 ## Resultado
 
-- PASS: **20**
+- PASS: **19**
 - WARN: **3**
-- FAIL: **5**
+- FAIL: **6**
 
 ## Achados
 
@@ -144,9 +144,9 @@ prompt chars=1393
 
 y-span=0.0, height-span=0.0
 
-### PASS — E06 — Retrato do personagem carrega em runtime
+### FAIL — E06 — Retrato do personagem carrega em runtime
 
-count=1, loaded=True
+count=0, loaded=None
 
 ### PASS — E07 — Imagens de itens aparecem e carregam em runtime
 
@@ -259,8 +259,7 @@ button=1, returned_to_setup=True
     ],
     "nav_icon_y_span": 0.0,
     "nav_icon_height_span": 0.0,
-    "character_portrait_count": 1,
-    "character_portrait_loaded": true,
+    "character_portrait_count": 0,
     "item_visual_count": 29,
     "item_visual_loaded_first20": 9,
     "restart_button_found": 1,

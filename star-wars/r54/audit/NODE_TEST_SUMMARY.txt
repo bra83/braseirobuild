@@ -1,7 +1,7 @@
 # tests 752
 # pass 707
 # fail 45
-# duration_ms 43070.420059
+# duration_ms 53626.107757
 
 not ok 402 - R39 baseline remains present in current additive image-library manifest
 not ok 403 - R39 visual wave3 contains exactly 10 confirmed assets
