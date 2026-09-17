@@ -29,21 +29,24 @@ function normalizeCharacter(raw){
   return c;
 }
 
-export function makeStarterCampaignState({character,pack,campaignId=STARTER_CAMPAIGN_ID,displayName=STARTER_DISPLAY_NAME,masterSeed=STARTER_MASTER_SEED}={}){
-  const c=normalizeCharacter(character);let state=makeEmptyCampaignState({campaignId,displayName,masterSeed});
-  state.characterState=c;state.charactersState={[c.characterId]:clone(c)};
+export function makeStarterCampaignState({character=null,pack,campaignId=STARTER_CAMPAIGN_ID,displayName=STARTER_DISPLAY_NAME,masterSeed=STARTER_MASTER_SEED}={}){
+  let state=makeEmptyCampaignState({campaignId,displayName,masterSeed});
   state.worldState={...state.worldState,position:clone(STARTER_POSITION),elapsedDays:0};
-  state.partyState=createPartyState({memberIds:[c.characterId],position:state.worldState.position});
+  if(character){
+    const c=normalizeCharacter(character);
+    state.characterState=c;state.charactersState={[c.characterId]:clone(c)};
+    state.partyState=createPartyState({memberIds:[c.characterId],position:state.worldState.position});
+  }
   state=structuredClone(applyStarterContentToState(state,pack));
   return state;
 }
 
-export function ensureStarterCampaign({persistence,character,pack,campaignId=STARTER_CAMPAIGN_ID}={}){
+export function ensureStarterCampaign({persistence,character,pack,campaignId=STARTER_CAMPAIGN_ID,startWithCharacter=false}={}){
   if(!persistence)throw new TypeError('persistence required');
   const existing=persistence.loadCampaign(campaignId);
   if(existing.status==='OK')return Object.freeze({status:'OK_EXISTING',campaignId,revision:existing.revision,state:JSON.parse(existing.stateJson)});
   if(existing.status!=='NOT_FOUND')return Object.freeze({status:existing.status,campaignId});
-  let state=makeStarterCampaignState({character,pack,campaignId});
+  let state=makeStarterCampaignState({character:startWithCharacter?character:null,pack,campaignId});
   const receipt=persistence.createCampaign({campaignId,displayName:state.displayName,stateJson:serializeCampaignState(state),masterSeed:state.rngState.masterSeed,rngAlgorithm:state.rngState.algorithm,initialSnapshotId:`snapshot:${campaignId}:r0`});
   if(receipt.status!=='OK')return Object.freeze({status:receipt.status,campaignId,receipt,state});
   const opening=prepareCampaignOpening(state,{campaignId,nextRevision:receipt.newRevision+1});
