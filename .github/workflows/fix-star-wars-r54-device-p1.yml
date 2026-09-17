@@ -35,6 +35,8 @@ jobs:
           node --check "$V/r46/final-runtime.js"
           grep -Fq 'boolean wantsImage' "$ROOT/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java"
           grep -Fq 'R54_DEVICE_P1_KEY_FALLBACK' "$ROOT/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java"
+          grep -Fq 'private String readApiKey()' "$ROOT/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java"
+          grep -Fq 'private static final String MODEL_PREFS' "$ROOT/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java"
       - name: Browser regression 415x915 for requested P1 features
         env: {ROOT: "${{ steps.root.outputs.path }}"}
         run: |
@@ -50,18 +52,34 @@ jobs:
               pg=b.new_page(viewport={'width':415,'height':915}); errors=[]; dialogs=[]
               pg.on('pageerror',lambda e: errors.append(str(e)))
               pg.on('dialog',lambda d:(dialogs.append(d.message),d.dismiss()))
+              # Simulate the Android Gemini JavascriptInterface BEFORE every document loads.
+              # The previous regression injected it before a navigation, which erased the stub
+              # and incorrectly left the key field disabled under HTTP.
+              pg.add_init_script("""
+                window.__p1key='';
+                window.__p1models={master:'gemini-3.1-flash-lite',image:'gemini-3.1-flash-image',tts:'gemini-3.1-flash-tts-preview'};
+                window.BraseiroGemini={
+                  getStatus:()=>JSON.stringify({configured:!!window.__p1key,model:window.__p1models.image,masterModel:window.__p1models.master,ttsModel:window.__p1models.tts}),
+                  configureApiKey:k=>{window.__p1key=String(k);return JSON.stringify({ok:true,configured:true,storage:'test'});},
+                  clearApiKey:()=>{window.__p1key='';return JSON.stringify({ok:true,configured:false});},
+                  configureModels:(master,image,tts)=>{window.__p1models={master:String(master),image:String(image),tts:String(tts)};return JSON.stringify({ok:true,masterModel:String(master),model:String(image),ttsModel:String(tts)});}
+                };
+              """)
               pg.goto(base+'?screen=00',wait_until='domcontentloaded',timeout=30000);pg.wait_for_timeout(700)
               pg.wait_for_function("()=>window.BraseiroGameBridge&&typeof window.BraseiroGameBridge.initializeLivingSandbox==='function'",timeout=15000)
-              # Create the same persistent world shape used by the real flow if needed.
               pg.evaluate("""()=>{const b=window.BraseiroGameBridge;const st=b.readState();if(!st?.data?.world?.sandbox?.initialized){try{b.setCampaignMode('EOTE')}catch(e){};b.initializeLivingSandbox({startingPoint:'Mos Eisley · Tatooine',regionLabel:'Região de Mos Eisley · Tatooine',startMapPoint:{x:65,y:55},startLocationId:'mos_eisley'});}if(!b.readState()?.data?.player?.character)b.generateRandomCharacter({name:'Veya Tann',motivation:'Sobreviver sem perder a liberdade.'},{createSnapshot:true});}""")
               pg.wait_for_timeout(400)
-              # In-game galactic map: approved image, actual marker and working zoom control.
+
+              # In-game galactic map: approved image, current marker, zoom and pan surface.
               pg.goto(base+'?screen=16',wait_until='domcontentloaded',timeout=30000);pg.wait_for_timeout(900)
               viewer=pg.locator('.r54-p1-world-map');assert viewer.count()==1,'P1 world map missing'
               img=viewer.locator('img');assert img.evaluate('(i)=>i.complete&&i.naturalWidth>=2000'),img.get_attribute('src')
+              assert '9752360iy2h61.png' in (img.get_attribute('src') or '')
               marker=viewer.locator('.r54-p1-you');assert marker.count()==1 and not marker.is_hidden(),'current-location marker missing'
               before=float(viewer.get_attribute('data-zoom') or '1');viewer.locator('[data-zin]').click();pg.wait_for_timeout(100);after=float(viewer.get_attribute('data-zoom') or '1');assert after>before,(before,after)
-              # Character portrait 3:4 and editable sheet.
+              assert viewer.locator('.r54-p1-map-viewport').evaluate("e=>getComputedStyle(e).touchAction=='none'")
+
+              # Character portrait 3:4, replace-photo entry point and editable sheet.
               pg.goto(base+'?screen=06',wait_until='domcontentloaded',timeout=30000);pg.wait_for_timeout(800)
               portrait=pg.locator('.r54-character-portrait img');assert portrait.count()==1 and portrait.evaluate('(i)=>i.complete&&i.naturalWidth>0')
               ratio=portrait.evaluate('(i)=>{const r=i.getBoundingClientRect();return r.width/r.height}');assert .70<ratio<.80,ratio
@@ -70,28 +88,41 @@ jobs:
               modal=pg.locator('.r54-p1-modal').last;assert modal.count()==1
               name=modal.locator('input[name=name]');name.fill('Veya Tann Editada');modal.locator('button',has_text='SALVAR FICHA').click();pg.wait_for_load_state('domcontentloaded');pg.wait_for_timeout(700)
               st=pg.evaluate('()=>window.BraseiroGameBridge.readState()');assert st['data']['player']['character']['name']=='Veya Tann Editada',st['data']['player']['character'].get('name')
-              # World menu must be exposed and contain NPC/robot tabs.
+
+              # World menu must expose actual persistent categories.
               pg.locator('.r54-p1-world-open').click();pg.wait_for_timeout(150)
               wm=pg.locator('.r54-p1-modal[data-world]');assert wm.count()==1
-              assert wm.locator('button',has_text='NPCS').count()==1 and wm.locator('button',has_text='ROBÔS').count()==1
+              for label in ('NPCS','ROBÔS','FACÇÕES','LOCAIS'):
+                  assert wm.locator('button',has_text=label).count()==1,label
               wm.locator('.r54-p1-close').click()
-              # Gemini key UI: stub the Android interface and prove the P1 handler saves/configures.
-              pg.evaluate("""()=>{window.__p1key='';window.BraseiroGemini={getStatus:()=>JSON.stringify({configured:!!window.__p1key,model:'gemini-3.1-flash-image',masterModel:'gemini-3.1-flash-lite',ttsModel:'gemini-3.1-flash-tts-preview'}),configureApiKey:k=>{window.__p1key=String(k);return JSON.stringify({ok:true,configured:true,storage:'test'});},clearApiKey:()=>JSON.stringify({ok:true})};}""")
+
+              # Gemini key UI with Android-like bridge already present at document initialization.
               pg.goto(base+'?screen=29',wait_until='domcontentloaded',timeout=30000);pg.wait_for_timeout(900)
-              card=pg.locator('text=CHAVE DA API GEMINI').first
-              inp=pg.locator('input').filter(has=pg.locator('')).first if False else None
               inputs=pg.locator('input');target=None
               for i in range(inputs.count()):
                   ph=inputs.nth(i).get_attribute('placeholder') or ''
                   if 'chave' in ph.lower() or 'gemini' in ph.lower(): target=inputs.nth(i);break
               assert target is not None,'Gemini key input missing'
+              assert target.is_enabled(),'Gemini key input unexpectedly disabled with native bridge available'
               target.fill('AIzaSyDUMMY_KEY_FOR_DEVICE_P1_1234567890')
-              save=pg.locator('button',has_text='Salvar chave').first;assert save.count()==1;save.click();pg.wait_for_timeout(200)
+              save=pg.locator('button',has_text='Salvar chave').first;assert save.count()==1 and save.is_enabled();save.click();pg.wait_for_timeout(200)
               assert pg.evaluate('()=>window.__p1key')=='AIzaSyDUMMY_KEY_FOR_DEVICE_P1_1234567890'
               assert 'salva' in (pg.locator('.r54-p1-save-status').first.inner_text().lower())
+
+              # Text/Master and voice/TTS model controls must be distinct, editable and saved independently.
+              master=pg.locator('input[data-model="master"]'); tts=pg.locator('input[data-model="tts"]'); image=pg.locator('input[data-model="image"]')
+              assert master.count()==1 and tts.count()==1,'separate master/TTS model inputs missing'
+              master.fill('gemini-3.1-pro-text-test'); tts.fill('gemini-3.1-tts-test')
+              if image.count(): image.fill('gemini-3.1-image-test')
+              model_save=pg.locator('button',has_text='SALVAR MODELOS')
+              assert model_save.count()==1;model_save.click();pg.wait_for_timeout(150)
+              models=pg.evaluate('()=>window.__p1models')
+              assert models['master']=='gemini-3.1-pro-text-test' and models['tts']=='gemini-3.1-tts-test',models
+              assert models['master']!=models['tts'],models
+
               serious=[e for e in errors if 'favicon' not in e.lower()]
               assert not serious,serious
-              print('R54_DEVICE_P1_BROWSER_PASS',{'map_zoom':True,'current_marker':True,'portrait_3x4':True,'edit_character':True,'world_menu':True,'gemini_save_ui':True,'errors':serious,'dialogs':dialogs})
+              print('R54_DEVICE_P1_BROWSER_PASS',{'map_zoom':True,'current_marker':True,'portrait_3x4':True,'edit_character':True,'world_menu':True,'gemini_save_ui':True,'separate_master_tts_models':True,'errors':serious,'dialogs':dialogs})
               b.close()
           PY
       - uses: actions/setup-java@v4
@@ -119,7 +150,7 @@ jobs:
           cp /tmp/R54_DEVICE_P1_PATCH.txt "$P/audit/DEVICE_P1_PATCH_2026-09-17.txt"
           cp /tmp/R54_DEVICE_P1_BROWSER.txt "$P/audit/DEVICE_P1_BROWSER_2026-09-17.txt"
           cat > "$P/out/DEVICE_P1_STATUS_2026-09-17.txt" <<'EOF'
-          DEVICE P1: in-game approved galaxy map with touch zoom/pan and current-location marker; character portrait 3:4 with replace-photo picker; editable character sheet; Gemini key persistence hardened with AndroidKeyStore + app-private fallback and verified save UI; placeholder opening can be retried after provider setup; visible MUNDO VIVO menu with NPC/robot/faction/location tabs. Browser regression PASS. Gradle assembleDebug PASS.
+          DEVICE P1: approved in-game galaxy map with touch zoom/pan and current-location marker; character portrait 3:4 with replace-photo picker; editable character sheet; Gemini key persistence hardened with AndroidKeyStore + app-private fallback; separate Mestre/text and voice/TTS model controls validated; placeholder opening can be retried after provider setup; visible MUNDO VIVO menu with NPC/robot/faction/location tabs. Browser regression PASS. Gradle assembleDebug PASS.
           EOF
           git config user.name github-actions; git config user.email github-actions@github.com
           git reset --hard HEAD; git clean -fd; git fetch origin main; git reset --hard origin/main
