@@ -1,0 +1,90 @@
+name: Build Star Wars R54 Direct Gradle
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-star-wars-r54-direct.yml"
+permissions:
+  contents: write
+jobs:
+  build-direct:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - id: root
+        name: Recover canonical R54
+        run: |
+          set -euo pipefail
+          ZIP=star-wars/final-1.0.0/output-r54/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip
+          rm -rf direct-r54-work
+          mkdir -p direct-r54-work
+          unzip -q "$ZIP" -d direct-r54-work
+          SET="$(find direct-r54-work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"
+          test -n "$SET"
+          ROOT="$(dirname "$SET")"
+          echo "path=$ROOT" >> "$GITHUB_OUTPUT"
+      - name: Apply current R54 runtime fixes
+        env:
+          ROOT: ${{ steps.root.outputs.path }}
+        run: |
+          set -euo pipefail
+          V="$ROOT/app/src/main/assets/vtt"
+          python3 star-wars/r54/final_map_travel_integration.py "$ROOT"
+          python3 star-wars/r54/fix_map_anchor_state.py "$ROOT"
+          if ! grep -Fq 'dataset.r54VisualBound=key' "$V/r46/final-runtime.js"; then
+            python3 star-wars/r54/fix_item_binding_idempotence.py "$ROOT"
+          fi
+          if grep -Fq 'no active Age of Rebellion tree data' "$V/js/core/uiBridge.bundle.js"; then
+            python3 star-wars/r54/fix_aor_talent_runtime.py "$ROOT"
+          fi
+          python3 star-wars/r54/fix_r54_ux.py "$ROOT"
+          python3 star-wars/r54/fix_supplement_species_runtime.py "$ROOT"
+          python3 star-wars/r54/fix_barbara_narration_contract.py "$ROOT"
+          python3 star-wars/r54/fix_barbara_opening_master.py "$ROOT"
+          sed -i 's/let r54SupplementSpeciesPromise=null;/var r54SupplementSpeciesPromise=null;/' "$V/r46/final-runtime.js"
+          grep -Fq 'var r54SupplementSpeciesPromise=null;' "$V/r46/final-runtime.js"
+          node --check "$V/r46/final-runtime.js"
+          node --check "$V/js/core/uiBridge.bundle.js"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+          validate-wrappers: false
+      - name: Configure Android SDK 36
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort | tail -n1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platform-tools' 'platforms;android-36'
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+      - name: Direct Gradle compile
+        working-directory: ${{ steps.root.outputs.path }}
+        run: gradle :app:assembleDebug --stacktrace --no-daemon
+      - name: Persist compiled Android Studio R54 to GitHub
+        env:
+          ROOT: ${{ steps.root.outputs.path }}
+        run: |
+          set -euo pipefail
+          OUT=star-wars/final-1.0.0/output-r54
+          TMP="$(mktemp -d)"
+          (cd "$ROOT" && zip -qr "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" . -x '*/build/*' '.gradle/*')
+          sha256sum "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" > "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip.sha256"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git fetch origin main
+          git rebase origin/main
+          cp "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" "$OUT/"
+          cp "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip.sha256" "$OUT/"
+          printf '%s\n' 'R54 DIRECT GRADLE BUILD PASS — Java 17 / Gradle 8.13 / Android SDK 36. Runtime TDZ fix applied.' > "$OUT/GRADLE_DIRECT_BUILD_STATUS.txt"
+          git add -f "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip.sha256" "$OUT/GRADLE_DIRECT_BUILD_STATUS.txt"
+          git commit -m 'build(star-wars): direct compile R54 after supplement TDZ fix' || true
+          git push origin HEAD:main
