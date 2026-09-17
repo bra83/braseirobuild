@@ -6,7 +6,7 @@ on:
     paths:
       - ".github/workflows/audit-star-wars-r54-restore-historical-visuals-v2.yml"
       - "star-wars/r54/restore_historical_visuals.py"
-permissions: {contents: read}
+permissions: {contents: write}
 jobs:
   audit:
     runs-on: ubuntu-latest
@@ -101,3 +101,19 @@ jobs:
             imgs=pg.locator('.scene-media-slot img.final-scene-library-image:visible');assert imgs.count()>=1,imgs.count();src=imgs.first.get_attribute('src') or '';assert 'image-library/local/final/scenes/' in src,src;assert imgs.first.evaluate('(i)=>i.complete&&i.naturalWidth>0'),src
             assert not errs,errs;print('R54_HISTORICAL_BROWSER_PASS',completion,src);b.close()
           PY
+      - name: Persist restored R54 Android Studio build
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          OUT=star-wars/r54/output
+          mkdir -p "$OUT"
+          ZIP="$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54.zip"
+          rm -f "$ZIP" "$ZIP.sha256"
+          (cd "$ROOT" && zip -qr "$GITHUB_WORKSPACE/$ZIP" . -x '*/build/*' '.gradle/*')
+          sha256sum "$ZIP" > "$ZIP.sha256"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add "$ZIP" "$ZIP.sha256"
+          git commit -m 'build(star-wars): persist R54 with restored historical visuals' || true
+          git pull --rebase origin main
+          git push origin HEAD:main
