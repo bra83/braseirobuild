@@ -12,9 +12,15 @@ files = [vtt / 'js/core/controller.mjs', vtt / 'js/core/uiBridge.bundle.js']
 old_sig = "initializeLivingSandbox({ startingPoint = 'Porto de Fronteira', regionLabel = 'Região de Fronteira' } = {}) {"
 new_sig = "initializeLivingSandbox({ startingPoint = 'Porto de Fronteira', regionLabel = 'Região de Fronteira', startMapPoint = null } = {}) {"
 old_seed = "const result = sandbox_mjs_1.seedLivingRegion(this.state.world, { startingPoint, regionLabel });"
-new_seed = """if (startMapPoint !== null && (!Number.isFinite(startMapPoint.x) || !Number.isFinite(startMapPoint.y) || startMapPoint.x < 0 || startMapPoint.x > 100 || startMapPoint.y < 0 || startMapPoint.y > 100)) throw new Error('Ponto do mapa inválido.');
+legacy_patched_seed = """if (startMapPoint !== null && (!Number.isFinite(startMapPoint.x) || !Number.isFinite(startMapPoint.y) || startMapPoint.x < 0 || startMapPoint.x > 100 || startMapPoint.y < 0 || startMapPoint.y > 100)) throw new Error('Ponto do mapa inválido.');
         const result = sandbox_mjs_1.seedLivingRegion(this.state.world, { startingPoint, regionLabel });
         if (result.created && startMapPoint !== null) result.world.sandbox.startMapPoint = { x: startMapPoint.x, y: startMapPoint.y, mapId: 'local.map.galaxy', source: 'player_selected' };"""
+new_seed = """if (startMapPoint !== null && (!Number.isFinite(startMapPoint.x) || !Number.isFinite(startMapPoint.y) || startMapPoint.x < 0 || startMapPoint.x > 100 || startMapPoint.y < 0 || startMapPoint.y > 100)) throw new Error('Ponto do mapa inválido.');
+        const result = sandbox_mjs_1.seedLivingRegion(this.state.world, { startingPoint, regionLabel });
+        if (result.created) {
+            result.world.sandbox.startLocationId = result.startLocationId;
+            if (startMapPoint !== null) result.world.sandbox.startMapPoint = { x: startMapPoint.x, y: startMapPoint.y, mapId: 'local.map.galaxy', source: 'player_selected' };
+        }"""
 
 for path in files:
     if not path.is_file():
@@ -24,13 +30,17 @@ for path in files:
         if text.count(old_sig) != 1:
             raise SystemExit(f'{path}: map signature anchor count={text.count(old_sig)}')
         text = text.replace(old_sig, new_sig, 1)
-    if "result.world.sandbox.startMapPoint" not in text:
-        if text.count(old_seed) != 1:
-            raise SystemExit(f'{path}: sandbox seed anchor count={text.count(old_seed)}')
-        text = text.replace(old_seed, new_seed, 1)
+    if "result.world.sandbox.startLocationId = result.startLocationId" not in text:
+        if legacy_patched_seed in text:
+            text = text.replace(legacy_patched_seed, new_seed, 1)
+        elif text.count(old_seed) == 1:
+            text = text.replace(old_seed, new_seed, 1)
+        else:
+            raise SystemExit(f'{path}: sandbox seed upgrade anchor unavailable')
     path.write_text(text, encoding='utf-8')
     verify = path.read_text(encoding='utf-8')
     assert new_sig in verify
+    assert "result.world.sandbox.startLocationId = result.startLocationId" in verify
     assert "result.world.sandbox.startMapPoint" in verify
     assert "source: 'player_selected'" in verify
 
@@ -39,4 +49,4 @@ rt = runtime.read_text(encoding='utf-8')
 if "startMapPoint:{x:chosen.x,y:chosen.y}" not in rt:
     raise SystemExit('R54 UI does not forward chosen map coordinates')
 
-print('R54 MAP ANCHOR STATE PATCH PASS')
+print('R54 MAP ANCHOR STATE PATCH PASS startLocationId=canonical startMapPoint=canonical')
