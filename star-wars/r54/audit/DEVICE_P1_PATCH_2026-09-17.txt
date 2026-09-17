@@ -1,0 +1,1 @@
+R54_DEVICE_P1_PATCH_PASS {'image chooser': True, 'gemini fallback': True, 'adventure retry': True, 'p1 mounted': True, 'map zoom': True, 'portrait edit': True, 'world menu': True, 'api save': True}
