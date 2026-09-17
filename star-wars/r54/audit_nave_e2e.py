@@ -46,8 +46,8 @@ with sync_playwright() as p:
    const id=v&&v.activeVehicleId;
    const ship=id&&v.vehicles?v.vehicles[id]:null;
    return {bridge:true,id:id||null,name:ship&&ship.name||null,
-     hull:ship&&ship.hullDamage??null,strain:ship&&ship.systemStrain??null,
-     hyperdrive:ship&&ship.hyperdrive??null};
+     hull:(ship&&ship.hullDamage)??null,strain:(ship&&ship.systemStrain)??null,
+     hyperdrive:(ship&&ship.hyperdrive)??null};
  }""")
  page.reload(wait_until='networkidle',timeout=120000);page.wait_for_timeout(250)
  after=page.evaluate("""() => {
@@ -57,8 +57,8 @@ with sync_playwright() as p:
    const id=v&&v.activeVehicleId;
    const ship=id&&v.vehicles?v.vehicles[id]:null;
    return {bridge:true,id:id||null,name:ship&&ship.name||null,
-     hull:ship&&ship.hullDamage??null,strain:ship&&ship.systemStrain??null,
-     hyperdrive:ship&&ship.hyperdrive??null};
+     hull:(ship&&ship.hullDamage)??null,strain:(ship&&ship.systemStrain)??null,
+     hyperdrive:(ship&&ship.hyperdrive)??null};
  }""")
  checks['canonical_vehicle_state']=bool(before.get('bridge') and before.get('id') and before.get('name'))
  checks['vehicle_persists_reload']=bool(checks['canonical_vehicle_state'] and before==after)
