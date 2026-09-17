@@ -5,6 +5,9 @@ on:
     branches: [wwn-source-105-bridge]
     paths:
       - ".github/workflows/wwn-real-flow-source-closeout.yml"
+      - "tools/wwn_device_audit_gate.mjs"
+      - "tools/wwn_real_flow_runtime_gate.mjs"
+      - "tools/wwn_apply_real_flow_closeout.py"
 
 permissions:
   contents: write
