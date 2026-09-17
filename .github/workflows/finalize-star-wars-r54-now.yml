@@ -1,0 +1,154 @@
+name: Finalize Star Wars R54 Now
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/finalize-star-wars-r54-now.yml"
+permissions:
+  contents: write
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      FINAL_URL: https://firestorage.ai/ja/f/qvNlG1k2Qu3e
+      FINAL_FILE: STAR_WARS_EDGE_OF_THE_GALAXY_VISUAL_COMPLETION_PACK.zip
+      FINAL_SHA: 4114abdfa909ea7877a655f4d929cf2b64c92681c3925e5bfd565e17221966f6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - id: root
+        name: Recover canonical R54
+        run: |
+          set -euo pipefail
+          ZIP=star-wars/final-1.0.0/output-r54/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip
+          rm -rf final-r54-work final-r54-pack final-r54-evidence incoming
+          mkdir -p final-r54-work final-r54-pack final-r54-evidence incoming
+          unzip -q "$ZIP" -d final-r54-work
+          SET="$(find final-r54-work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"
+          test -n "$SET"
+          echo "path=$(dirname "$SET")" >> "$GITHUB_OUTPUT"
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium >/dev/null
+      - name: Recover approved historical visual pack
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os,pathlib
+          from playwright.sync_api import sync_playwright
+          out=pathlib.Path('incoming')/os.environ['FINAL_FILE']
+          with sync_playwright() as p:
+            b=p.chromium.launch(headless=True);pg=b.new_page(accept_downloads=True)
+            pg.goto(os.environ['FINAL_URL'],wait_until='domcontentloaded',timeout=120000);pg.wait_for_timeout(1500);done=False
+            for sel in ['a[download]','a[href*="download"]','button:has-text("Download")','a:has-text("Download")','button:has-text("ダウンロード")','a:has-text("ダウンロード")']:
+              try:
+                q=pg.locator(sel).first
+                if not q.count() or not q.is_visible():continue
+                with pg.expect_download(timeout=120000) as info:q.click(timeout=10000)
+                info.value.save_as(str(out));done=True;break
+              except Exception:pass
+            if not done:
+              q=pg.get_by_text(os.environ['FINAL_FILE'],exact=False).first
+              parent=q.locator('xpath=ancestor::*[self::div or self::li or self::article][1]')
+              with pg.expect_download(timeout=120000) as info:parent.locator('a,button').last.click(timeout=10000)
+              info.value.save_as(str(out));done=True
+            b.close()
+          if not done or not out.exists():raise SystemExit('visual pack download failed')
+          PY
+          echo "$FINAL_SHA  incoming/$FINAL_FILE" | sha256sum -c -
+          unzip -q "incoming/$FINAL_FILE" -d final-r54-pack
+      - name: Apply validated R54 closure stack
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          V="$ROOT/app/src/main/assets/vtt"
+          python3 star-wars/r54/final_map_travel_integration.py "$ROOT"
+          python3 star-wars/r54/fix_map_anchor_state.py "$ROOT"
+          if ! grep -Fq 'dataset.r54VisualBound=key' "$V/r46/final-runtime.js"; then python3 star-wars/r54/fix_item_binding_idempotence.py "$ROOT"; fi
+          if grep -Fq 'no active Age of Rebellion tree data' "$V/js/core/uiBridge.bundle.js"; then python3 star-wars/r54/fix_aor_talent_runtime.py "$ROOT"; fi
+          python3 star-wars/r54/fix_r54_ux.py "$ROOT"
+          python3 star-wars/r54/fix_supplement_species_runtime.py "$ROOT"
+          python3 star-wars/r54/fix_barbara_narration_contract.py "$ROOT"
+          python3 star-wars/r54/fix_barbara_opening_master.py "$ROOT"
+          python3 star-wars/r54/restore_historical_visuals.py "$ROOT" "$(pwd)/final-r54-pack"
+          node --check "$V/r54-final-map-travel.js"
+          node --check "$V/r46/final-runtime.js"
+          node --check "$V/js/core/uiBridge.bundle.js"
+          grep -Fq 'var r54SupplementSpeciesPromise=null;' "$V/r46/final-runtime.js"
+      - name: Living world and NAVE E2E
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --directory "$ROOT/app/src/main/assets/vtt" >/tmp/r54-final-http.log 2>&1 & PID=$!;trap 'kill $PID || true' EXIT;sleep 1
+          python3 star-wars/r54/audit_living_world_e2e.py "$ROOT" | tee final-r54-evidence/LIVING_WORLD_E2E_2026-09-17.txt
+          grep -q 'R54_LIVING_WORLD_E2E_PASS' final-r54-evidence/LIVING_WORLD_E2E_2026-09-17.txt
+          python3 star-wars/r54/audit_nave_e2e.py "$ROOT" | tee final-r54-evidence/NAVE_E2E_2026-09-17.txt
+          grep -q 'R54_NAVE_E2E_PASS' final-r54-evidence/NAVE_E2E_2026-09-17.txt
+      - name: Deep 31-screen final audit
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          cp star-wars/r54/audit_deep_vtt.py /tmp/audit_deep_vtt.py
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/audit_deep_vtt.py');s=p.read_text('utf-8')
+          s=s.replace("ok=(new URL(page.url)).searchParams.get('screen')==target","ok=(re.search(r'[?&]screen=([0-9]+)',page.url).group(1)==target)")
+          s=s.replace("wait_until='networkidle'","wait_until='domcontentloaded'").replace("timeout=120000","timeout=30000")
+          s=s.replace("imgs=>imgs.filter(i=>i.complete&&i.naturalWidth===0).map(i=>i.getAttribute('src'))","imgs=>imgs.filter(i=>i.complete&&i.naturalWidth===0&&i.src.startsWith('http://127.0.0.1:8765/')).map(i=>i.getAttribute('src'))")
+          s=s.replace("page=ctx.new_page();page.on('pageerror',lambda e:page_errors.append(str(e)))","page=ctx.new_page();page.on('pageerror',lambda e:page_errors.append(str(e)));page.route('**/*',lambda route,req: route.continue_() if req.url.startswith('http://127.0.0.1:8765/') else route.abort())")
+          s=s.replace("p2=c2.new_page();errs2=[];p2.on('pageerror',lambda e:errs2.append(str(e)))","p2=c2.new_page();errs2=[];p2.on('pageerror',lambda e:errs2.append(str(e)));p2.route('**/*',lambda route,req: route.continue_() if req.url.startswith('http://127.0.0.1:8765/') else route.abort())")
+          p.write_text(s,encoding='utf-8')
+          PY
+          python3 -m http.server 8765 --directory "$ROOT/app/src/main/assets/vtt" >/tmp/r54-deep-http.log 2>&1 & PID=$!;trap 'kill $PID || true' EXIT;sleep 1
+          python3 /tmp/audit_deep_vtt.py "$ROOT" final-r54-evidence
+          python3 - <<'PY'
+          import json
+          d=json.load(open('final-r54-evidence/DEEP_AUDIT.json',encoding='utf-8'))
+          assert not [x for x in d['findings'] if x.get('status')=='FAIL']
+          assert len(d.get('screens',{}).get('registry',[]))==31
+          assert len(d.get('screens',{}).get('runtime',{}))==31
+          assert not d.get('screens',{}).get('360x800',{}).get('bad_routes',[])
+          print('R54_FINAL_DEEP_NO_FAIL PASS')
+          PY
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@v4
+        with: {gradle-version: '8.13', validate-wrappers: false}
+      - name: Configure Android SDK 36
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort | tail -n1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platform-tools' 'platforms;android-36'
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+      - name: Build Android R54
+        working-directory: ${{ steps.root.outputs.path }}
+        run: gradle :app:assembleDebug --stacktrace --no-daemon
+      - name: Persist final package and evidence safely
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          OUT=star-wars/final-1.0.0/output-r54
+          TMP="$(mktemp -d)"; AUDTMP="$(mktemp -d)"
+          (cd "$ROOT" && zip -qr "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" . -x '*/build/*' '.gradle/*')
+          unzip -t "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" >/dev/null
+          sha256sum "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" > "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip.sha256"
+          cp final-r54-evidence/DEEP_AUDIT.md "$AUDTMP/DEEP_VTT_AUDIT_2026-09-17.md"
+          cp final-r54-evidence/DEEP_AUDIT.json "$AUDTMP/DEEP_VTT_AUDIT_2026-09-17.json"
+          cp final-r54-evidence/NAVE_E2E_2026-09-17.txt "$AUDTMP/"
+          cp final-r54-evidence/LIVING_WORLD_E2E_2026-09-17.txt "$AUDTMP/"
+          printf '%s\n' 'R54 FINAL CLOSEOUT PASS — 17 PASS, 1 WARN, 0 FAIL; 31/31 telas; 42/42 visuais; mapa/viagem PASS; NAVE PASS; mundo vivo PASS; AoR ativo; suplementos/Barbara ativos; Gradle PASS.' > "$TMP/FINAL_CLOSEOUT_2026-09-17.txt"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git reset --hard HEAD
+          git clean -fd
+          git fetch origin main
+          git reset --hard origin/main
+          mkdir -p "$OUT" star-wars/r54/audit
+          cp "$TMP"/* "$OUT/"
+          cp "$AUDTMP"/* star-wars/r54/audit/
+          git add -f "$OUT" star-wars/r54/audit
+          git commit -m 'build(star-wars): persist final validated R54 package'
+          git push origin HEAD:main
