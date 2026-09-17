@@ -68,10 +68,11 @@ class CampaignRepositoryInstrumentedTest {
         assertEquals(1, db.dao().countEvents("c1"))
     }
 
-    @Test fun campaignStateSurvivesDatabaseCloseAndReopen() {
+    @Test fun campaignStateAndActiveSelectionSurviveDatabaseCloseAndReopen() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val dbName = "braseiro_wwn_reopen_gate.db"
         context.deleteDatabase(dbName)
+        val campaignId = "reopen-campaign"
         val characterId = "pc:reopen-gate"
         val persistedState = """{
             "revision":1,
@@ -84,16 +85,17 @@ class CampaignRepositoryInstrumentedTest {
         try {
             val firstRepository = CampaignRepository(fileDb)
             firstRepository.createCampaign(
-                campaignId = "reopen-campaign",
+                campaignId = campaignId,
                 displayName = "Reopen fixture",
                 stateJson = "{\"revision\":0}",
                 masterSeed = "reopen-seed",
                 initialSnapshotId = "reopen-s0",
                 auditTimeMs = 10L,
             )
+            firstRepository.setActiveCampaignId(campaignId)
             firstRepository.commit(
                 CommitRequest(
-                    campaignId = "reopen-campaign",
+                    campaignId = campaignId,
                     expectedRevision = 0L,
                     eventId = "character-created:reopen",
                     eventKind = "RANDOM_CHARACTER_CREATED",
@@ -108,13 +110,15 @@ class CampaignRepositoryInstrumentedTest {
 
         fileDb = Room.databaseBuilder(context, BraseiroDatabase::class.java, dbName).build()
         try {
-            val reopened = CampaignRepository(fileDb).loadCampaign("reopen-campaign")
+            val reopenedRepository = CampaignRepository(fileDb)
+            assertEquals(campaignId, reopenedRepository.getActiveCampaignId())
+            val reopened = reopenedRepository.loadCampaign(campaignId)
             assertTrue(reopened is CampaignLoadResult.Ok)
             val ok = reopened as CampaignLoadResult.Ok
             assertEquals(1L, ok.revision)
             assertTrue(ok.stateJson.contains("\"characterId\":\"$characterId\""))
             assertTrue(ok.stateJson.contains("\"memberIds\":[\"$characterId\"]"))
-            assertEquals(1, fileDb.dao().countEvents("reopen-campaign"))
+            assertEquals(1, fileDb.dao().countEvents(campaignId))
         } finally {
             fileDb.close()
             context.deleteDatabase(dbName)
