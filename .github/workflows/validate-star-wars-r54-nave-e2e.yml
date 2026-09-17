@@ -26,6 +26,16 @@ jobs:
           test -n "$SET"
           ROOT="$(dirname "$SET")"
           echo "path=$ROOT" >> "$GITHUB_OUTPUT"
+      - name: Discover canonical vehicle seeding path
+        env:
+          ROOT: "${{ steps.root.outputs.path }}"
+        run: |
+          set -euo pipefail
+          V="$ROOT/app/src/main/assets/vtt"
+          echo '=== VEHICLE FACTORY SYMBOLS ==='
+          grep -R -n -E 'createVehicleFromProfile|STARTER_VEHICLE_PROFILES|EOTE_CORE_STARTER_VEHICLE_KEYS|eoteCoreStarterVehicleProfiles' "$V" --include='*.js' --include='*.mjs' | head -80 || true
+          echo '=== VEHICLE STATE WRITES ==='
+          grep -R -n -E 'activeVehicleId|VEHICLE_(CREATED|ADDED|SELECTED|UPDATED)|vehicles[.]vehicles' "$V/js" --include='*.js' --include='*.mjs' | head -120 || true
       - name: Install browser
         run: |
           python -m pip install --quiet playwright
