@@ -7,6 +7,11 @@ on:
       - ".github/workflows/wwn-final-real-flow-build.yml"
       - "tools/wwn_finish_real_flow.py"
       - "tools/wwn_finish_real_flow_gate.mjs"
+      - "tools/wwn_character_persistence_gate.mjs"
+      - "app/src/main/assets/www/core/character-creation-service.js"
+      - "app/src/main/assets/www/core/character-roster-service.js"
+      - "app/src/main/assets/www/core/persistence-port.js"
+      - "app/src/main/assets/www/ficha.js"
   workflow_dispatch:
 
 permissions:
@@ -44,6 +49,9 @@ jobs:
 
       - name: Run final real-flow state gate
         run: node tools/wwn_finish_real_flow_gate.mjs
+
+      - name: Run character persistence gate
+        run: node tools/wwn_character_persistence_gate.mjs
 
       - name: Run existing real-flow regression gates
         shell: bash
