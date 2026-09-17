@@ -28,6 +28,12 @@ jobs:
           test -n "$SET"
           ROOT="$(dirname "$SET")"
           echo "path=$ROOT" >> "$GITHUB_OUTPUT"
+      - name: Persist supplement TDZ fix in source
+        run: |
+          set -euo pipefail
+          SRC=star-wars/r54/fix_supplement_species_runtime.py
+          sed -i 's/let r54SupplementSpeciesPromise=null;/var r54SupplementSpeciesPromise=null;/' "$SRC"
+          grep -Fq 'var r54SupplementSpeciesPromise=null;' "$SRC"
       - name: Apply current R54 runtime fixes
         env:
           ROOT: ${{ steps.root.outputs.path }}
@@ -46,7 +52,6 @@ jobs:
           python3 star-wars/r54/fix_supplement_species_runtime.py "$ROOT"
           python3 star-wars/r54/fix_barbara_narration_contract.py "$ROOT"
           python3 star-wars/r54/fix_barbara_opening_master.py "$ROOT"
-          sed -i 's/let r54SupplementSpeciesPromise=null;/var r54SupplementSpeciesPromise=null;/' "$V/r46/final-runtime.js"
           grep -Fq 'var r54SupplementSpeciesPromise=null;' "$V/r46/final-runtime.js"
           node --check "$V/r46/final-runtime.js"
           node --check "$V/js/core/uiBridge.bundle.js"
@@ -84,7 +89,7 @@ jobs:
           git rebase origin/main
           cp "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" "$OUT/"
           cp "$TMP/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip.sha256" "$OUT/"
-          printf '%s\n' 'R54 DIRECT GRADLE BUILD PASS — Java 17 / Gradle 8.13 / Android SDK 36. Runtime TDZ fix applied.' > "$OUT/GRADLE_DIRECT_BUILD_STATUS.txt"
-          git add -f "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip.sha256" "$OUT/GRADLE_DIRECT_BUILD_STATUS.txt"
-          git commit -m 'build(star-wars): direct compile R54 after supplement TDZ fix' || true
+          printf '%s\n' 'R54 DIRECT GRADLE BUILD PASS — Java 17 / Gradle 8.13 / Android SDK 36. Supplement TDZ fixed at source.' > "$OUT/GRADLE_DIRECT_BUILD_STATUS.txt"
+          git add -f "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip" "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip.sha256" "$OUT/GRADLE_DIRECT_BUILD_STATUS.txt" star-wars/r54/fix_supplement_species_runtime.py
+          git commit -m 'build(star-wars): persist R54 supplement TDZ source fix' || true
           git push origin HEAD:main
