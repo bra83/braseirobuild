@@ -1,0 +1,55 @@
+name: Diagnose Star Wars R54 Device P0
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/diag-star-wars-r54-device-p0.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect canonical R54 APK source
+        run: |
+          set -euo pipefail
+          ZIP=star-wars/final-1.0.0/output-r54/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_ASSETS_HOTFIX.zip
+          rm -rf /tmp/r54 && mkdir -p /tmp/r54
+          unzip -q "$ZIP" -d /tmp/r54
+          ROOT="$(dirname "$(find /tmp/r54 -type f \( -name settings.gradle -o -name settings.gradle.kts \) | head -n1)")"
+          V="$ROOT/app/src/main/assets/vtt"
+          OUT=star-wars/r54/audit/DEVICE_P0_DIAG.txt
+          mkdir -p "$(dirname "$OUT")"
+          {
+            echo '=== ROOT ==='; echo "$ROOT"
+            echo '=== MANIFEST ==='; cat "$ROOT/app/src/main/AndroidManifest.xml" || true
+            echo '=== MAIN ACTIVITY ==='; find "$ROOT/app/src/main" -type f \( -name '*.java' -o -name '*.kt' \) -print0 | xargs -0 grep -nE 'class MainActivity|WebView|loadUrl|loadDataWithBaseURL|shouldOverrideUrlLoading|DownloadListener|setDownloadListener|file://|pdf|PDF|ACTION_VIEW|FileProvider|onShowFileChooser' || true
+            echo '=== JAVA/KOTLIN FULL MAIN ==='; MAIN="$(find "$ROOT/app/src/main" -type f \( -name 'MainActivity.java' -o -name 'MainActivity.kt' \) | head -n1)"; test -n "$MAIN" && sed -n '1,320p' "$MAIN" || true
+            echo '=== PDF/OPEN LINKS IN VTT ==='; grep -RniE 'pdf|window\.open|location\.href|target=.blank|file://|openDocument|download' "$V" --include='*.js' --include='*.html' --include='*.mjs' | head -n 300 || true
+            echo '=== MAP FILES ==='; find "$V" -type f | grep -Ei 'map|galax|sector|planet' | head -n 300 || true
+            echo '=== MAP REFERENCES ==='; grep -RniE 'galaxy_map|local\.map\.galaxy|mapId|r54-live-map-anchor|startMapPoint' "$V" --include='*.js' --include='*.html' --include='*.json' | head -n 300 || true
+            echo '=== PORTRAIT FILES ==='; find "$V" -type f | grep -Ei 'portrait|character|hero|personagem|gand' | head -n 300 || true
+            echo '=== PORTRAIT REFERENCES ==='; grep -RniE 'portrait|avatar|characterImage|personagem.*img|foto|imageAsset' "$V" --include='*.js' --include='*.html' --include='*.json' | head -n 300 || true
+            echo '=== WEAPON FILES ==='; find "$V" -type f | grep -Ei 'weapon|blaster|rifle|pistol|carbine|vibro|saber|arma' | head -n 400 || true
+            echo '=== WEAPON REFERENCES ==='; grep -RniE 'weapons|weapon.*image|image.*weapon|local\.weapon|assetId.*weapon|inventory' "$V" --include='*.js' --include='*.html' --include='*.json' | head -n 500 || true
+            echo '=== IMAGE MANIFEST SUMMARY ==='; python3 - "$V" <<'PY'
+          import json,sys
+          from pathlib import Path
+          v=Path(sys.argv[1]); p=v/'image-library/manifest.json'
+          if not p.exists(): print('NO MANIFEST'); raise SystemExit
+          m=json.loads(p.read_text('utf-8')); a=m.get('assets',[])
+          print('total',len(a))
+          for key in ('weapon','portrait','map','scene','vehicle','equipment'):
+              xs=[x for x in a if key in str(x.get('category','')).lower() or key in str(x.get('assetId','')).lower()]
+              print('\n--',key,len(xs))
+              for x in xs[:100]: print(x.get('assetId'),x.get('category'),x.get('path') or x.get('src') or x.get('file'))
+          PY
+            echo '=== SHELL SCRIPTS ==='; grep -n '<script' "$V/r46-shell.html" || true
+          } > "$OUT"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add "$OUT"
+          git commit -m 'audit(star-wars): capture R54 device P0 diagnostics' || true
+          git push origin HEAD:main
