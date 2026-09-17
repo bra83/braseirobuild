@@ -13,7 +13,7 @@ permissions:
 jobs:
   build-publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 55
     steps:
       - name: Checkout current WWN source
         uses: actions/checkout@v4
@@ -26,25 +26,52 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Run physical-device complaint regression gate
-        run: node tools/wwn_device_audit_gate.mjs
+      - name: Apply final real-flow source corrections
+        run: python3 tools/wwn_finish_real_flow.py
 
-      - name: Validate production JavaScript and JSON
+      - name: Validate every production JavaScript and JSON file
         shell: bash
         run: |
           set -euo pipefail
           count=0
-          while IFS= read -r -d '' file; do node --check "$file" >/dev/null; count=$((count+1)); done < <(find app/src/main/assets/www -type f -name '*.js' -print0)
+          while IFS= read -r -d '' file; do
+            node --check "$file" >/dev/null
+            count=$((count+1))
+          done < <(find app/src/main/assets/www -type f -name '*.js' -print0)
           echo "WWN_JS_SYNTAX_PASS=$count"
           python3 - <<'PY'
           import json
           from pathlib import Path
           files=list(Path('app/src/main/assets/www').rglob('*.json'))
-          for p in files: json.loads(p.read_text(encoding='utf-8'))
+          for p in files:
+              json.loads(p.read_text(encoding='utf-8'))
           print(f'WWN_JSON_PARSE_PASS={len(files)}')
           PY
           grep -q 'versionCode = 110' app/build.gradle.kts
           grep -q 'versionName = "1.0.10"' app/build.gradle.kts
+
+      - name: Run final real-flow state gate
+        run: node tools/wwn_finish_real_flow_gate.mjs
+
+      - name: Run established regression gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/wwn_real_flow_runtime_gate.mjs
+          node tools/wwn_device_audit_gate.mjs
+          if [ -f tools/wwn_post_106_gate.mjs ]; then node tools/wwn_post_106_gate.mjs; fi
+
+      - name: Commit validated source corrections
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add app/src/main/assets/www/jornada.js app/src/main/assets/www/core/starter-bootstrap.js
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(wwn): finish empty-campaign and jornada real flow"
+            git push origin HEAD:wwn-source-105-bridge
+          fi
 
       - name: Set up Java 17
         uses: actions/setup-java@v5
@@ -71,14 +98,14 @@ jobs:
       - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build installable APK
+      - name: Build installable APK and run Android tests
         shell: bash
         run: |
           set -euo pipefail
           chmod +x gradlew
           ./gradlew clean test assembleDebug --stacktrace --no-daemon
 
-      - name: Collect and hash APK
+      - name: Collect APK and Android Studio source with SHA-256
         shell: bash
         run: |
           set -euo pipefail
@@ -87,37 +114,37 @@ jobs:
           test -f "$APK"
           cp "$APK" out/BRASEIRO_WWN_v1.0.10.apk
           unzip -t out/BRASEIRO_WWN_v1.0.10.apk >/dev/null
+          git archive --format=zip --output=out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip HEAD app build.gradle.kts settings.gradle.kts gradle.properties gradle gradlew gradlew.bat
+          unzip -t out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip >/dev/null
           sha256sum out/BRASEIRO_WWN_v1.0.10.apk | tee out/BRASEIRO_WWN_v1.0.10.apk.sha256
+          sha256sum out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip | tee out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip.sha256
           stat -c 'APK_SIZE_BYTES=%s' out/BRASEIRO_WWN_v1.0.10.apk
+          stat -c 'SOURCE_ZIP_SIZE_BYTES=%s' out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip
 
-      - name: Publish APK to source branch
+      - name: Publish final APK and source ZIP to source branch
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p delivery
           cp out/BRASEIRO_WWN_v1.0.10.apk delivery/BRASEIRO_WWN_v1.0.10.apk
           cp out/BRASEIRO_WWN_v1.0.10.apk.sha256 delivery/BRASEIRO_WWN_v1.0.10.apk.sha256
+          cp out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip
+          cp out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip.sha256 delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip.sha256
           git config user.name github-actions
           git config user.email github-actions@users.noreply.github.com
-          git add delivery/BRASEIRO_WWN_v1.0.10.apk delivery/BRASEIRO_WWN_v1.0.10.apk.sha256
-          git commit -m "build: publish WWN 1.0.10 audited APK"
-          git push origin HEAD:wwn-source-105-bridge
+          git add delivery/BRASEIRO_WWN_v1.0.10.apk delivery/BRASEIRO_WWN_v1.0.10.apk.sha256 delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip.sha256
+          if ! git diff --cached --quiet; then
+            git commit -m "release: publish WWN 1.0.10 final real-flow artifacts"
+            git push origin HEAD:wwn-source-105-bridge
+          fi
 
-      - name: Publish visible APK on main
-        shell: bash
-        run: |
-          set -euo pipefail
-          git fetch origin main
-          rm -rf /tmp/wwn-main
-          git worktree add /tmp/wwn-main origin/main
-          cd /tmp/wwn-main
-          git switch -c publish-wwn-110
-          mkdir -p delivery
-          cp "$GITHUB_WORKSPACE/out/BRASEIRO_WWN_v1.0.10.apk" BRASEIRO_WWN_v1.0.10.apk
-          cp "$GITHUB_WORKSPACE/out/BRASEIRO_WWN_v1.0.10.apk" delivery/BRASEIRO_WWN_v1.0.10.apk
-          cp "$GITHUB_WORKSPACE/out/BRASEIRO_WWN_v1.0.10.apk.sha256" delivery/BRASEIRO_WWN_v1.0.10.apk.sha256
-          git config user.name github-actions
-          git config user.email github-actions@users.noreply.github.com
-          git add BRASEIRO_WWN_v1.0.10.apk delivery/BRASEIRO_WWN_v1.0.10.apk delivery/BRASEIRO_WWN_v1.0.10.apk.sha256
-          git commit -m "release: publish BRASEIRO WWN v1.0.10 audited APK"
-          git push origin HEAD:main
+      - name: Upload final workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_WWN_v1.0.10_FINAL
+          path: |
+            out/BRASEIRO_WWN_v1.0.10.apk
+            out/BRASEIRO_WWN_v1.0.10.apk.sha256
+            out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip
+            out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip.sha256
+          retention-days: 30
