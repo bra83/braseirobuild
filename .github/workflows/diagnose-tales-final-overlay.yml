@@ -1,0 +1,76 @@
+name: Diagnose Tales Final Overlay
+
+on:
+  push:
+    branches:
+      - build/tales-1.3.17-apk-final
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  diagnose-overlay:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Recover 1.3.16 baseline
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rm -rf incoming work
+          mkdir -p incoming work
+          gh release download TALES-1.3.8 --pattern 'BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8.zip' --dir incoming
+          unzip -q incoming/BRASEIRO_TALES_VTT_GITHUB_BUILD_1.3.8.zip -d work
+          ROOT="$(dirname "$(find work -type f -name gradlew | head -n1)")"
+          test -n "$ROOT"
+          python3 -m pip install --quiet pillow
+          python3 tales-1.3.14-transform.py "$ROOT"
+          python3 tales-1.3.16-final-transform.py "$ROOT"
+          grep -q 'versionName = "1.3.16"' "$ROOT/app/build.gradle.kts"
+          echo "root=$ROOT" >> "$GITHUB_OUTPUT"
+
+      - name: Assemble overlay fragments
+        run: |
+          set -euo pipefail
+          {
+            cat tales-final-overlay/part00.txt
+            cat tales-final-overlay/fix/part01_0.txt tales-final-overlay/fix/part01_1_0.txt tales-final-overlay/fix/part01_1_1.txt
+            cat tales-final-overlay/part02.txt tales-final-overlay/part03.txt
+            cat tales-final-overlay/fix/part04_0.txt tales-final-overlay/fix/part04_1.txt
+            cat tales-final-overlay/part05.txt tales-final-overlay/part06.txt
+            cat tales-final-overlay/fix/part07_0.txt tales-final-overlay/fix/part07_1.txt
+            cat tales-final-overlay/part08.txt tales-final-overlay/part09.txt
+            cat tales-final-overlay/fix/part10_0.txt tales-final-overlay/fix/part10_1.txt
+            cat tales-final-overlay/part11.txt
+            cat tales-final-overlay/fix/part12_0.txt tales-final-overlay/fix/part12_1_0.txt tales-final-overlay/fix/part12_1_1.txt
+            cat tales-final-overlay/fix/part13_0_0.txt tales-final-overlay/fix/part13_0_1.txt tales-final-overlay/fix/part13_1_0.txt tales-final-overlay/fix/part13_1_1.txt
+            cat tales-final-overlay/part14.txt
+            cat tales-final-overlay/tail00.txt tales-final-overlay/tail01.txt tales-final-overlay/tail02.txt tales-final-overlay/tail03.txt tales-final-overlay/tail04.txt tales-final-overlay/tail05.txt
+          } > /tmp/tales-final-overlay.py
+
+      - name: Validate overlay byte size
+        run: test "$(wc -c < /tmp/tales-final-overlay.py)" -eq 213510
+
+      - name: Validate overlay expected marker
+        run: grep -q "EXPECTED='b3e7117fd1ec5e3e27a57066dcced281ca9716f42a61d4401cea0c8920fb2614'" /tmp/tales-final-overlay.py
+
+      - name: Execute overlay
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: python3 /tmp/tales-final-overlay.py "$ROOT" | tee /tmp/final-overlay.log
+
+      - name: Validate overlay result
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          set -euo pipefail
+          grep -q 'TALES 1.3.16 ChatGPT final overlay: OK' /tmp/final-overlay.log
+          grep -q 'TEXT_FILES_OVERLAID=101' /tmp/final-overlay.log
+          grep -q 'BINARY_FILES_VERIFIED=208' /tmp/final-overlay.log
+          grep -q 'versionName = "1.3.16"' "$ROOT/app/build.gradle.kts"
