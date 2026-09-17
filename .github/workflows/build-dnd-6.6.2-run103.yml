@@ -145,3 +145,5 @@ jobs:
             out/BRASEIRO_DND_6.6.2_RUN103_DEBUG.apk \
             out/BRASEIRO_DND_6.6.2_RUN103_DEBUG.apk.sha256 \
             out/APK_BADGING.txt --clobber
+
+# Manual redispatch 2026-09-17 after local package verification.
