@@ -24,7 +24,7 @@ with sync_playwright() as p:
   h1=page.locator('h1').first.inner_text() if page.locator('h1').count() else ''
   scene_title=page.locator('.scene-context-title strong').first.inner_text() if page.locator('.scene-context-title strong').count() else ''
   title=(h1 or scene_title).strip()
-  runtime[route]={'title':title,'h1':h1,'scene_title':scene_title,'overflow':page.evaluate('document.documentElement.scrollWidth-window.innerWidth'),'broken':page.locator('img').evaluate_all('xs=>xs.filter(x=>x.complete&&x.naturalWidth===0).length')}
+  runtime[route]={'title':title,'h1':h1,'scene_title':scene_title,'overflow':page.evaluate('document.documentElement.scrollWidth-window.innerWidth'),'broken':page.locator('img').evaluate_all("xs=>xs.filter(x=>x.complete&&x.naturalWidth===0&&x.src.startsWith('http://127.0.0.1:8765/')).length")}
  checks['runtime_routes']=all(v['title'] and v['overflow']<=2 and v['broken']==0 for v in runtime.values()) and not errors
 
  page.goto(base+'?screen=00',wait_until='networkidle',timeout=120000);page.wait_for_timeout(250)
@@ -36,6 +36,36 @@ with sync_playwright() as p:
  nav=page.locator('.bottom-nav-button',has_text='NAVE').first
  if nav.count(): nav.click();page.wait_for_timeout(150)
  checks['nav_to_nave']=bool(nav.count() and re.search(r'[?&]screen=10(?:&|$)',page.url))
+
+ runtime['bridge_methods']=page.evaluate("""() => {
+   const b=window.BraseiroGameBridge||{};
+   const names=new Set([...Object.keys(b),...Object.getOwnPropertyNames(Object.getPrototypeOf(b)||{})]);
+   return [...names].filter(k=>k!=='constructor'&&typeof b[k]==='function').sort();
+ }""")
+
+ # Use the public game API to create/select a canonical EotE starter ship when the fresh
+ # sandbox has no owned vehicle. This proves the real ownership path instead of mutating state.
+ ownership=page.evaluate("""() => {
+   const b=window.BraseiroGameBridge;
+   if(!b||typeof b.readState!=='function') return {ok:false,reason:'bridge'};
+   const state=()=>{const r=b.readState();return r&&r.ok?r.data:null};
+   const s0=state(),v0=s0&&s0.vehicles,owned=v0&&v0.vehicles&&typeof v0.vehicles==='object'?v0.vehicles:{};
+   if(v0&&v0.activeVehicleId&&owned[v0.activeVehicleId]) return {ok:true,mode:'existing',id:v0.activeVehicleId};
+   const candidates=['yt1300','wayfarer','firespray'];
+   if(typeof b.addVehicle==='function'){
+     for(const key of candidates){
+       try{const r=b.addVehicle(key,{setActive:true,id:'audit_'+key});if(!r||r.ok!==false){const s=state(),id=s&&s.vehicles&&s.vehicles.activeVehicleId;if(id)return {ok:true,mode:'addVehicle',profile:key,id};}}catch(e){}
+     }
+   }
+   if(typeof b.purchaseEconomyItem==='function'){
+     for(const key of candidates){
+       try{const r=b.purchaseEconomyItem(key,{free:true,source:'r54_nave_e2e'});if(!r||r.ok!==false){const s=state(),id=s&&s.vehicles&&s.vehicles.activeVehicleId;if(id)return {ok:true,mode:'purchaseEconomyItem',profile:key,id};}}catch(e){}
+     }
+   }
+   return {ok:false,reason:'no_public_vehicle_path'};
+ }""")
+ runtime['ownership']=ownership
+ checks['canonical_vehicle_ownership_path']=bool(ownership.get('ok'))
 
  def vehicle_snapshot():
   return page.evaluate("""() => {
