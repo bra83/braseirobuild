@@ -26,8 +26,7 @@ with sync_playwright() as p:
   title=(h1 or scene_title).strip()
   runtime[route]={'title':title,'h1':h1,'scene_title':scene_title,'overflow':page.evaluate('document.documentElement.scrollWidth-window.innerWidth'),'broken':page.locator('img').evaluate_all('xs=>xs.filter(x=>x.complete&&x.naturalWidth===0).length')}
  checks['runtime_routes']=all(v['title'] and v['overflow']<=2 and v['broken']==0 for v in runtime.values()) and not errors
- # NAVE bottom navigation is blocked by the first-run sandbox modal by design.
- # Complete that real setup flow, then prove the bottom navigation reaches route 10.
+
  page.goto(base+'?screen=00',wait_until='networkidle',timeout=120000);page.wait_for_timeout(250)
  overlay=page.locator('#braseiro-sandbox-setup')
  if overlay.count() and overlay.is_visible():
@@ -37,6 +36,33 @@ with sync_playwright() as p:
  nav=page.locator('.bottom-nav-button',has_text='NAVE').first
  if nav.count(): nav.click();page.wait_for_timeout(150)
  checks['nav_to_nave']=bool(nav.count() and re.search(r'[?&]screen=10(?:&|$)',page.url))
+
+ # Persistence gate: NAVE must project canonical campaign state, and a full reload
+ # must preserve the same active ship instead of relying on UI-local state.
+ before=page.evaluate("""() => {
+   const b=window.BraseiroGameBridge;
+   if(!b||typeof b.readState!=='function') return {bridge:false};
+   const r=b.readState(), s=r&&r.ok?r.data:null, v=s&&s.vehicles;
+   const id=v&&v.activeVehicleId;
+   const ship=id&&v.vehicles?v.vehicles[id]:null;
+   return {bridge:true,id:id||null,name:ship&&ship.name||null,
+     hull:ship&&ship.hullDamage??null,strain:ship&&ship.systemStrain??null,
+     hyperdrive:ship&&ship.hyperdrive??null};
+ }""")
+ page.reload(wait_until='networkidle',timeout=120000);page.wait_for_timeout(250)
+ after=page.evaluate("""() => {
+   const b=window.BraseiroGameBridge;
+   if(!b||typeof b.readState!=='function') return {bridge:false};
+   const r=b.readState(), s=r&&r.ok?r.data:null, v=s&&s.vehicles;
+   const id=v&&v.activeVehicleId;
+   const ship=id&&v.vehicles?v.vehicles[id]:null;
+   return {bridge:true,id:id||null,name:ship&&ship.name||null,
+     hull:ship&&ship.hullDamage??null,strain:ship&&ship.systemStrain??null,
+     hyperdrive:ship&&ship.hyperdrive??null};
+ }""")
+ checks['canonical_vehicle_state']=bool(before.get('bridge') and before.get('id') and before.get('name'))
+ checks['vehicle_persists_reload']=bool(checks['canonical_vehicle_state'] and before==after)
+ runtime['vehicle_before_reload']=before; runtime['vehicle_after_reload']=after
  b.close()
 
 failed=[k for k,v in checks.items() if not v]
