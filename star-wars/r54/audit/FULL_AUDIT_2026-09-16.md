@@ -4,9 +4,9 @@ Auditoria executada sobre o projeto R53 reconstruído + hotfix R54 atual, inclui
 
 ## Resultado
 
-- PASS: **14**
+- PASS: **20**
 - WARN: **3**
-- FAIL: **11**
+- FAIL: **5**
 
 ## Achados
 
@@ -93,11 +93,10 @@ Request/retorno nativo do Mestre estão presentes.
 
 ### FAIL — D01 — Suite Node completa do projeto
 
-752 testes; 706 passaram; 46 falharam.
+752 testes; 707 passaram; 45 falharam.
 
 ```json
 [
-  "FINAL EotE: shell Android compilada não contém criação Duty/AoR nem Contribution",
   "R39 baseline remains present in current additive image-library manifest",
   "R39 visual wave3 contains exactly 10 confirmed assets",
   "R39 totals add 3 NPC portraits and 7 beasts without changing maps or droids",
@@ -116,7 +115,8 @@ Request/retorno nativo do Mestre estão presentes.
   "R41 previous R40 vehicle wave remains present and unchanged",
   "R42 manifest V3.5 baseline remains preserved after later library promotions",
   "R42 vehicle wave3 adds exactly 27 direct-URL assets",
-  "R42 wave3 grouping is 19 landspeeders page2 plus 8 walkers"
+  "R42 wave3 grouping is 19 landspeeders page2 plus 8 walkers",
+  "R42 bridge preserves at least the R42 vehicle/visual baseline"
 ]
 ```
 
@@ -134,31 +134,31 @@ startMapPoint={'x': 80, 'y': 45, 'mapId': 'local.map.galaxy', 'source': 'player_
 
 ### FAIL — E03 — Abertura real é longa e sensorial
 
-Abertura medida: 0 palavras, 0 caracteres, grupos sensoriais=[]. Critério conservador de auditoria: >=250 palavras e >=3 grupos sensoriais.
+Abertura medida: 73 palavras, 468 caracteres, grupos sensoriais=[]. Critério conservador de auditoria: >=250 palavras e >=3 grupos sensoriais.
 
-### FAIL — E04 — Handoff de ilustração funciona depois de iniciar o jogo
+### PASS — E04 — Handoff de ilustração funciona depois de iniciar o jogo
 
-prompt chars=0
+prompt chars=1393
 
-### FAIL — E05 — Ícones inferiores ficam nivelados em runtime
+### PASS — E05 — Ícones inferiores ficam nivelados em runtime
 
-y-span=None, height-span=None
+y-span=0.0, height-span=0.0
 
-### FAIL — E06 — Retrato do personagem carrega em runtime
+### PASS — E06 — Retrato do personagem carrega em runtime
 
-count=0, loaded=None
+count=1, loaded=True
 
-### FAIL — E07 — Imagens de itens aparecem e carregam em runtime
+### PASS — E07 — Imagens de itens aparecem e carregam em runtime
 
-count=0, loaded first20=0
+count=29, loaded first20=9
 
-### FAIL — E08 — REINICIAR funciona de ponta a ponta
+### PASS — E08 — REINICIAR funciona de ponta a ponta
 
-button=0, returned_to_setup=False
+button=1, returned_to_setup=True
 
-### FAIL — E09 — Sem erros JS nos viewports móveis
+### PASS — E09 — Sem erros JS nos viewports móveis
 
-415x915=['Invalid or unexpected token', 'Invalid or unexpected token', 'Invalid or unexpected token', 'Invalid or unexpected token']; 360x800=['Invalid or unexpected token']; exception=None
+415x915=[]; 360x800=[]; exception=None
 
 ## Métricas
 
@@ -171,10 +171,9 @@ button=0, returned_to_setup=False
   "map_assets_r54": 1,
   "manifest_map_refs_approx": 35,
   "node_tests": 752,
-  "node_pass": 706,
-  "node_fail": 46,
+  "node_pass": 707,
+  "node_fail": 45,
   "node_fail_names": [
-    "FINAL EotE: shell Android compilada não contém criação Duty/AoR nem Contribution",
     "R39 baseline remains present in current additive image-library manifest",
     "R39 visual wave3 contains exactly 10 confirmed assets",
     "R39 totals add 3 NPC portraits and 7 beasts without changing maps or droids",
@@ -203,7 +202,8 @@ button=0, returned_to_setup=False
     "R43 bridge exposes 120 vehicles and 75 Kainrath visual entities",
     "R43 direct-recovery group is searchable without affecting old walker wave",
     "R43 preserves R40-R42 vehicle waves unchanged",
-    "R44 manifest V3.7 baseline remains preserved after later visual promotions"
+    "R44 manifest V3.7 baseline remains preserved after later visual promotions",
+    "R44 wave5 indexes exactly Skekfish and Nerf"
   ],
   "android_exit": 0,
   "apk_candidates": [
@@ -219,28 +219,55 @@ button=0, returned_to_setup=False
       "mapId": "local.map.galaxy",
       "source": "player_selected"
     },
-    "character_created": false,
-    "opening_narration_chars": 0,
-    "opening_narration_words": 0,
+    "character_created": true,
+    "opening_narration_chars": 468,
+    "opening_narration_words": 73,
     "opening_sensory_groups": [],
-    "illustration_prompt_chars": 0,
-    "illustration_handoff_dynamic": false,
-    "nav_icon_boxes": [],
-    "character_portrait_count": 0,
-    "item_visual_count": 0,
-    "item_visual_loaded_first20": 0,
-    "restart_button_found": 0,
-    "restart_returned_to_setup": false,
-    "360x800_nav_count": 0,
-    "360x800_errors": [
-      "Invalid or unexpected token"
+    "illustration_prompt_chars": 1393,
+    "illustration_handoff_dynamic": true,
+    "nav_icon_boxes": [
+      {
+        "x": 26.890625,
+        "y": 855.46875,
+        "width": 32.796875,
+        "height": 32.796875
+      },
+      {
+        "x": 108.984375,
+        "y": 855.46875,
+        "width": 32.796875,
+        "height": 32.796875
+      },
+      {
+        "x": 191.09375,
+        "y": 855.46875,
+        "width": 32.796875,
+        "height": 32.796875
+      },
+      {
+        "x": 273.1875,
+        "y": 855.46875,
+        "width": 32.796875,
+        "height": 32.796875
+      },
+      {
+        "x": 355.296875,
+        "y": 855.46875,
+        "width": 32.796875,
+        "height": 32.796875
+      }
     ],
-    "page_errors": [
-      "Invalid or unexpected token",
-      "Invalid or unexpected token",
-      "Invalid or unexpected token",
-      "Invalid or unexpected token"
-    ]
+    "nav_icon_y_span": 0.0,
+    "nav_icon_height_span": 0.0,
+    "character_portrait_count": 1,
+    "character_portrait_loaded": true,
+    "item_visual_count": 29,
+    "item_visual_loaded_first20": 9,
+    "restart_button_found": 1,
+    "restart_returned_to_setup": true,
+    "360x800_nav_count": 5,
+    "360x800_errors": [],
+    "page_errors": []
   }
 }
 ```
