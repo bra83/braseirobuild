@@ -1,4 +1,5 @@
 name: Trigger Star Wars R54 Final Closeout
+# retrigger after persisted supplement-species TDZ source correction
 on:
   push:
     branches: [main]
