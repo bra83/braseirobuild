@@ -1,4 +1,4 @@
-name: Braseiro DnD 6.6.2 RUN103 APK FIX2
+name: Braseiro DnD 6.6.2 RUN103 APK FIX3
 on:
   push:
     branches: [main]
@@ -22,12 +22,12 @@ jobs:
         run: bash ci/dnd-run103/build_fix2.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO-DND-6.6.2-RUN103-FIX2-APK
+          name: BRASEIRO-DND-6.6.2-RUN103-FIX3-APK
           path: out/*
           retention-days: 30
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view DND-6.6.2-RUN103-FIX2 >/dev/null 2>&1 || gh release create DND-6.6.2-RUN103-FIX2 --target main --title 'Braseiro DnD 6.6.2 RUN103 FIX2' --notes 'Package com.braseiro.dnd5e; compile-only fixes; maps/assets/gameplay unchanged.'
-          gh release upload DND-6.6.2-RUN103-FIX2 out/* --clobber
+          gh release view DND-6.6.2-RUN103-FIX3 >/dev/null 2>&1 || gh release create DND-6.6.2-RUN103-FIX3 --target main --title 'Braseiro DnD 6.6.2 RUN103 FIX3' --notes 'Package com.braseiro.dnd5e; compile-only fixes; maps/assets/gameplay unchanged.'
+          gh release upload DND-6.6.2-RUN103-FIX3 out/* --clobber
