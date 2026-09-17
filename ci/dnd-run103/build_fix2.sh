@@ -47,7 +47,9 @@ echo "$SOURCE_SHA256  incoming/BRASEIRO_DND_6.6.2_RUN103_DND5E_ANDROID_STUDIO.zi
 unzip -q incoming/BRASEIRO_DND_6.6.2_RUN103_DND5E_ANDROID_STUDIO.zip -d work
 MAIN="$(find work -type f -path '*/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java' | head -n1)"
 SRD="$(find work -type f -path '*/android/app/src/main/java/com/braseiro/dnd5e/Srd51BestiaryBatchEngine.java' | head -n1)"
-python3 ci/dnd-run103/fix2_compile.py "$MAIN" "$SRD"
+ORCH="$(find work -type f -path '*/android/app/src/main/java/com/braseiro/dnd5e/MasterOrchestrator.java' | head -n1)"
+test -f "$MAIN" && test -f "$SRD" && test -f "$ORCH"
+python3 ci/dnd-run103/fix2_compile.py "$MAIN" "$SRD" "$ORCH"
 export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
 export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
@@ -60,9 +62,9 @@ cd "$ROOT"
 ./gradlew clean :app:assembleDebug --stacktrace --console=plain --no-daemon
 APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | head -n1)"
 test -f "$APK"
-cp "$APK" "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN103_FIX2_DEBUG.apk"
-sha256sum "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN103_FIX2_DEBUG.apk" > "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN103_FIX2_DEBUG.apk.sha256"
-"$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN103_FIX2_DEBUG.apk" | tee "$GITHUB_WORKSPACE/out/APK_BADGING.txt"
+cp "$APK" "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN103_FIX3_DEBUG.apk"
+sha256sum "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN103_FIX3_DEBUG.apk" > "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN103_FIX3_DEBUG.apk.sha256"
+"$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN103_FIX3_DEBUG.apk" | tee "$GITHUB_WORKSPACE/out/APK_BADGING.txt"
 grep -q "package: name='com.braseiro.dnd5e'" "$GITHUB_WORKSPACE/out/APK_BADGING.txt"
-unzip -t "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN103_FIX2_DEBUG.apk" >/dev/null
-printf '%s\n' 'RUN103 FIX2 compile-only; maps/assets/gameplay unchanged.' > "$GITHUB_WORKSPACE/out/BUILD_FIX.txt"
+unzip -t "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN103_FIX3_DEBUG.apk" >/dev/null
+printf '%s\n' 'RUN103 FIX3 compile-only; maps/assets/gameplay unchanged.' > "$GITHUB_WORKSPACE/out/BUILD_FIX.txt"
