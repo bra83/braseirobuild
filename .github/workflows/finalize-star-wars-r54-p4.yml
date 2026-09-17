@@ -1,0 +1,46 @@
+name: Finalize Star Wars R54 P4
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/finalize-star-wars-r54-p4.yml']
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  final-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover P3
+        id: root
+        run: |
+          set -euo pipefail
+          ZIP=star-wars/final-1.0.0/output-r54/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_P3.zip
+          test -f "$ZIP"; rm -rf /tmp/r54-p4; mkdir /tmp/r54-p4; unzip -q "$ZIP" -d /tmp/r54-p4
+          SET=$(find /tmp/r54-p4 -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -1); ROOT=$(dirname "$SET"); echo "path=$ROOT" >> "$GITHUB_OUTPUT"
+          python3 star-wars/r54/audit_final_candidate_p4.py "$ROOT" | tee /tmp/P4_AUDIT.txt
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@v4
+        with: {gradle-version: '8.13', validate-wrappers: false}
+      - name: Compile final-candidate APK
+        working-directory: ${{ steps.root.outputs.path }}
+        run: gradle :app:assembleDebug --stacktrace --no-daemon
+      - name: Persist P4 candidate
+        env: {ROOT: '${{ steps.root.outputs.path }}'}
+        run: |
+          set -euo pipefail; OUT=star-wars/final-1.0.0/output-r54
+          APK=$(find "$ROOT/app/build/outputs/apk/debug" -name '*.apk' | head -1); test -f "$APK"
+          cp "$APK" /tmp/P4.apk; (cd "$ROOT" && zip -qr /tmp/P4.zip . -x '*/build/*' '.gradle/*')
+          sha256sum /tmp/P4.apk >/tmp/P4.apk.sha256; sha256sum /tmp/P4.zip >/tmp/P4.zip.sha256
+          git config user.name github-actions; git config user.email github-actions@github.com
+          git reset --hard HEAD; git clean -fd; git fetch origin main; git reset --hard origin/main
+          mkdir -p "$OUT" star-wars/r54/audit
+          cp /tmp/P4.apk "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_P4_FINAL_CANDIDATE_DEBUG.apk"
+          cp /tmp/P4.zip "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_P4_FINAL_CANDIDATE.zip"
+          cp /tmp/P4.apk.sha256 "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_P4_FINAL_CANDIDATE_DEBUG.apk.sha256"
+          cp /tmp/P4.zip.sha256 "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_P4_FINAL_CANDIDATE.zip.sha256"
+          cp /tmp/P4_AUDIT.txt star-wars/r54/audit/DEVICE_P4_FINAL_CANDIDATE_2026-09-17.txt
+          git add -f "$OUT" star-wars/r54/audit
+          git commit -m 'build(star-wars): persist R54 P4 final candidate' || exit 0
+          git push origin HEAD:main
