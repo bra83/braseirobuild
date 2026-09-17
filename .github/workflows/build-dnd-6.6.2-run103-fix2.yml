@@ -31,3 +31,4 @@ jobs:
         run: |
           gh release view DND-6.6.2-RUN103-FIX3 >/dev/null 2>&1 || gh release create DND-6.6.2-RUN103-FIX3 --target main --title 'Braseiro DnD 6.6.2 RUN103 FIX3' --notes 'Package com.braseiro.dnd5e; compile-only fixes; maps/assets/gameplay unchanged.'
           gh release upload DND-6.6.2-RUN103-FIX3 out/* --clobber
+# hardened downloader trigger 2026-09-17T09:23Z
