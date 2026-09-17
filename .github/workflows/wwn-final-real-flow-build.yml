@@ -12,6 +12,7 @@ on:
       - "app/src/main/assets/www/core/character-roster-service.js"
       - "app/src/main/assets/www/core/persistence-port.js"
       - "app/src/main/assets/www/ficha.js"
+      - "app/src/androidTest/**"
   workflow_dispatch:
 
 permissions:
@@ -20,7 +21,7 @@ permissions:
 jobs:
   validate-build-publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 55
+    timeout-minutes: 70
     steps:
       - name: Checkout current WWN source
         uses: actions/checkout@v4
@@ -113,12 +114,30 @@ jobs:
       - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build and run Android tests
+      - name: Build JVM, APK and instrumentation test APK
         shell: bash
         run: |
           set -euo pipefail
           chmod +x gradlew
-          ./gradlew clean test assembleDebug --stacktrace --no-daemon
+          ./gradlew clean test assembleDebug assembleDebugAndroidTest --stacktrace --no-daemon
+
+      - name: Enable KVM for Android emulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm || true
+
+      - name: Prove Room persistence across database reopen on Android
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: ./gradlew connectedDebugAndroidTest --stacktrace --no-daemon
 
       - name: Package APK and Android Studio source
         shell: bash
@@ -137,6 +156,7 @@ jobs:
             echo "BRASEIRO WWN 1.0.10 — FINAL REAL-FLOW BUILD"
             echo "SOURCE_COMMIT=$(git rev-parse HEAD)"
             echo "WORKFLOW_RUN=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "ANDROID_ROOM_REOPEN_GATE=PASS"
             echo
             cat out/BRASEIRO_WWN_v1.0.10.apk.sha256
             cat out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip.sha256
