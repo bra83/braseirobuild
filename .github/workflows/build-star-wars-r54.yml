@@ -8,6 +8,7 @@ on:
       - "star-wars/r54/hotfix_r54.py"
       - "star-wars/r54/fix_map_anchor_state.py"
       - "star-wars/r54/fix_item_binding_idempotence.py"
+      - "star-wars/r54/fix_visual_library_fallback.py"
       - "star-wars/r54/fix_aor_talent_runtime.py"
       - "STAR_WARS_R54_BUILD_TRIGGER.txt"
 permissions: {contents: write}
@@ -70,6 +71,7 @@ jobs:
           python3 star-wars/r54/hotfix_r54.py "$ROOT" "$(pwd)/pack"
           python3 star-wars/r54/fix_map_anchor_state.py "$ROOT"
           python3 star-wars/r54/fix_item_binding_idempotence.py "$ROOT"
+          python3 star-wars/r54/fix_visual_library_fallback.py "$ROOT"
           python3 star-wars/r54/fix_aor_talent_runtime.py "$ROOT"
           echo "path=$ROOT" >> "$GITHUB_OUTPUT"
       - name: Static gates
@@ -90,6 +92,8 @@ jobs:
           grep -Fq 'startMapPoint = null' "$V/js/core/controller.mjs"
           grep -Fq 'startMapPoint = null' "$V/js/core/uiBridge.bundle.js"
           grep -Fq 'dataset.r54VisualBound=key' "$V/r46/final-runtime.js"
+          grep -Fq 'idx.get(r54Norm(name))||r53PickAsset(name)' "$V/r46/final-runtime.js"
+          grep -Fq 'Object.keys(bind||{})' "$V/r46/final-runtime.js"
           ! grep -Fq 'no active Age of Rebellion tree data' "$V/js/core/uiBridge.bundle.js"
           grep -Fq '"ace":{"gunner"' "$V/js/core/uiBridge.bundle.js"
           test "$(find "$V/image-library/local/r54/weapons" -type f -name '*.webp' | wc -l)" -ge 30
@@ -105,7 +109,7 @@ jobs:
           s=(v/'js/rules/talentTreesData.mjs').read_text('utf-8');m='export const TALENT_TREES = Object.freeze(';i=s.index(m);j=s.index('{',i+len(m));trees=json.JSONDecoder().raw_decode(s[j:])[0]
           counts=(len(trees),sum(len(x) for x in trees.values()),sum(len(t['nodes']) for x in trees.values() for t in x.values()))
           assert counts==(12,36,720),counts
-          print('STATIC R54 PASS: 82 starts + map anchor + idempotent visuals + AoR talent trees',counts)
+          print('STATIC R54 PASS: 82 starts + map anchor + idempotent visuals + R39-R46 visual fallback + AoR talent trees',counts)
           PY
       - name: Browser smoke 415x915
         env: {ROOT: "${{ steps.root.outputs.path }}"}
