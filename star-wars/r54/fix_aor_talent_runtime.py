@@ -102,7 +102,7 @@ bundle.write_text(bundle_text, 'utf-8')
 # engine was rejected before the creation screens could render it.
 shell_text = shell.read_text('utf-8')
 old_guard = "if (!isRecord(data) || data.profile !== 'EOTE_CORE' || !Array.isArray(data.species) || !Array.isArray(data.careers) || !validStringArray(data.obligationTypes) || !isRecord(data.characteristicLabels) || !isRecord(data.skillLabels)) {"
-new_guard = "const profile = typeof data?.profile === 'string' ? data.profile.trim().toUpperCase() : '';\\n    if (!isRecord(data) || !['EOTE_CORE', 'AOR_CORE', 'MIXED_CORE'].includes(profile) || !Array.isArray(data.species) || !Array.isArray(data.careers) || !validStringArray(data.obligationTypes) || !isRecord(data.characteristicLabels) || !isRecord(data.skillLabels)) {"
+new_guard = "const profile = typeof data?.profile === 'string' ? data.profile.trim().toUpperCase() : '';\n    if (!isRecord(data) || !['EOTE_CORE', 'AOR_CORE', 'MIXED_CORE'].includes(profile) || !Array.isArray(data.species) || !Array.isArray(data.careers) || !validStringArray(data.obligationTypes) || !isRecord(data.characteristicLabels) || !isRecord(data.skillLabels)) {"
 if old_guard in shell_text:
     shell_text = shell_text.replace(old_guard, new_guard, 1)
 elif "['EOTE_CORE', 'AOR_CORE', 'MIXED_CORE'].includes(profile)" not in shell_text:
