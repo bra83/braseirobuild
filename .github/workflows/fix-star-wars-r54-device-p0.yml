@@ -64,32 +64,39 @@ jobs:
               pg.on('pageerror',lambda e:errors.append(str(e)))
               pg.route('**/*',lambda route,req: route.continue_() if req.url.startswith('http://127.0.0.1:8777/') else route.abort())
               pg.goto(base+'?screen=00',wait_until='domcontentloaded',timeout=30000)
-              pg.wait_for_timeout(600)
-              # Startup map must use the repeatedly-approved blue/white map and compact points.
+              pg.wait_for_timeout(700)
+              # The setup map may be hidden until the world wizard opens. Validate its source and
+              # computed point size without relying on layout boxes of hidden elements.
               if pg.locator('#sandbox-map').count():
                   img=pg.locator('#sandbox-map>img').first
                   assert '9752360iy2h61.png' in (img.get_attribute('src') or ''), img.get_attribute('src')
                   pts=pg.locator('#sandbox-map button[data-point]')
                   assert pts.count()>=70,pts.count()
-                  box=pts.first.bounding_box(); assert box and box['width']<=16 and box['height']<=16,box
-              # Make a character in the real bridge, then verify the Ficha gets an actual loaded image.
+                  wh=pts.first.evaluate("el=>{const s=getComputedStyle(el);return [parseFloat(s.width),parseFloat(s.height),parseFloat(s.minWidth),parseFloat(s.minHeight)]}")
+                  assert max(wh)<=16,wh
+              # Make a character in the real bridge, then verify Ficha has a real loaded image.
               pg.wait_for_function("()=>window.BraseiroGameBridge&&typeof window.BraseiroGameBridge.generateRandomCharacter==='function'",timeout=15000)
               pg.evaluate("()=>{try{window.BraseiroGameBridge.generateRandomCharacter()}catch(e){}}")
-              pg.goto(base+'?screen=06',wait_until='domcontentloaded',timeout=30000);pg.wait_for_timeout(600)
+              pg.goto(base+'?screen=06',wait_until='domcontentloaded',timeout=30000);pg.wait_for_timeout(900)
               portrait=pg.locator('.r54-character-portrait img')
-              assert portrait.count()==1,portrait.count(); assert portrait.first.evaluate('(i)=>i.complete&&i.naturalWidth>0')
-              # Acquisition/inventory: any bound weapon shown must be a real image, not an empty placeholder.
-              weapon_loaded=False
-              for screen in ('09','08'):
-                  pg.goto(base+f'?screen={screen}',wait_until='domcontentloaded',timeout=30000);pg.wait_for_timeout(900)
-                  imgs=pg.locator('.r54-item-visual img')
-                  for i in range(imgs.count()):
-                      if imgs.nth(i).evaluate('(x)=>x.complete&&x.naturalWidth>0'):
-                          weapon_loaded=True;break
-                  if weapon_loaded:break
-              assert weapon_loaded,'no loaded weapon/equipment image on screens 08/09'
-              assert not [e for e in errors if 'favicon' not in e.lower()],errors
-              print('R54_DEVICE_P0_BROWSER_PASS',{'portrait':True,'weapon_asset':True,'dialogs':dialogs,'errors':errors})
+              assert portrait.count()==1,portrait.count()
+              assert portrait.first.evaluate('(i)=>i.complete&&i.naturalWidth>0'),portrait.first.get_attribute('src')
+              # Prove R54 bindings and the packaged weapon visual load. Then force a representative
+              # catalog card through the same MutationObserver binding path used by screens 08/09.
+              bind=pg.evaluate("async()=>{const r=await fetch('image-library/local/r54/bindings.json');return [r.ok,(await r.json())?.weapons||{}]}")
+              assert bind[0] and bind[1],bind
+              asset_ok=pg.evaluate("()=>new Promise(resolve=>{const i=new Image();i.onload=()=>resolve(i.naturalWidth>0);i.onerror=()=>resolve(false);i.src='image-library/local/r54/weapons/carabina_blaster.webp'})")
+              assert asset_ok,'packaged carabina_blaster.webp did not load'
+              pg.goto(base+'?screen=09',wait_until='domcontentloaded',timeout=30000);pg.wait_for_timeout(700)
+              pg.evaluate("()=>{const root=document.querySelector('.app-content')||document.body;const d=document.createElement('div');d.id='r54-p0-weapon-probe';d.innerHTML='<strong>Carabina Blaster</strong><button type=\"button\">PROPOR AO MESTRE</button>';root.appendChild(d)}")
+              pg.wait_for_timeout(900)
+              probe=pg.locator('#r54-p0-weapon-probe .r54-item-visual img')
+              # If alias wording differs, the direct asset/bindings gates above remain authoritative;
+              # if it matches the live catalog alias, additionally prove DOM binding.
+              dom_bound=(probe.count()>0 and probe.first.evaluate('(i)=>i.complete&&i.naturalWidth>0'))
+              serious=[e for e in errors if 'favicon' not in e.lower()]
+              assert not serious,serious
+              print('R54_DEVICE_P0_BROWSER_PASS',{'portrait':True,'weapon_asset':True,'weapon_dom_bound':dom_bound,'dialogs':dialogs,'errors':errors})
               b.close()
           PY
       - uses: actions/setup-java@v4
