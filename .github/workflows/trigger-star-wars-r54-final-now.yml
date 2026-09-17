@@ -1,0 +1,21 @@
+name: Trigger Star Wars R54 Final Closeout
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/trigger-star-wars-r54-final-now.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch canonical R54 final closeout at current main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run close-star-wars-r54-final.yml --repo "${{ github.repository }}" --ref main
+          echo "R54_FINAL_CLOSEOUT_DISPATCHED head=${{ github.sha }}"
