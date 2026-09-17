@@ -1,0 +1,130 @@
+name: Fix Star Wars R54 Real Device P1
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-star-wars-r54-device-p1.yml'
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Recover validated P0 Android Studio project
+        id: root
+        run: |
+          set -euo pipefail
+          ZIP=star-wars/final-1.0.0/output-r54/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_P0.zip
+          test -f "$ZIP"
+          rm -rf /tmp/r54-p1 && mkdir -p /tmp/r54-p1
+          unzip -q "$ZIP" -d /tmp/r54-p1
+          SET="$(find /tmp/r54-p1 -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"; test -n "$SET"
+          ROOT="$(dirname "$SET")"; echo "path=$ROOT" >> "$GITHUB_OUTPUT"
+      - name: Apply P1 map character Gemini and world-menu repair
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          python3 star-wars/r54/fix_device_p1.py "$ROOT" | tee /tmp/R54_DEVICE_P1_PATCH.txt
+          V="$ROOT/app/src/main/assets/vtt"
+          node --check "$V/r54-device-p0.js"
+          node --check "$V/r54-device-p1.js"
+          node --check "$V/r46/final-runtime.js"
+          grep -Fq 'boolean wantsImage' "$ROOT/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java"
+          grep -Fq 'R54_DEVICE_P1_KEY_FALLBACK' "$ROOT/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java"
+      - name: Browser regression 415x915 for requested P1 features
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet playwright
+          python -m playwright install --with-deps chromium >/dev/null
+          python3 -m http.server 8781 --directory "$ROOT/app/src/main/assets/vtt" >/tmp/r54-p1-http.log 2>&1 & PID=$!; trap 'kill $PID || true' EXIT; sleep 1
+          python3 - <<'PY' | tee /tmp/R54_DEVICE_P1_BROWSER.txt
+          from playwright.sync_api import sync_playwright
+          base='http://127.0.0.1:8781/r46-shell.html'
+          with sync_playwright() as p:
+              b=p.chromium.launch(headless=True)
+              pg=b.new_page(viewport={'width':415,'height':915}); errors=[]; dialogs=[]
+              pg.on('pageerror',lambda e: errors.append(str(e)))
+              pg.on('dialog',lambda d:(dialogs.append(d.message),d.dismiss()))
+              pg.goto(base+'?screen=00',wait_until='domcontentloaded',timeout=30000);pg.wait_for_timeout(700)
+              pg.wait_for_function("()=>window.BraseiroGameBridge&&typeof window.BraseiroGameBridge.initializeLivingSandbox==='function'",timeout=15000)
+              # Create the same persistent world shape used by the real flow if needed.
+              pg.evaluate("""()=>{const b=window.BraseiroGameBridge;const st=b.readState();if(!st?.data?.world?.sandbox?.initialized){try{b.setCampaignMode('EOTE')}catch(e){};b.initializeLivingSandbox({startingPoint:'Mos Eisley · Tatooine',regionLabel:'Região de Mos Eisley · Tatooine',startMapPoint:{x:65,y:55},startLocationId:'mos_eisley'});}if(!b.readState()?.data?.player?.character)b.generateRandomCharacter({name:'Veya Tann',motivation:'Sobreviver sem perder a liberdade.'},{createSnapshot:true});}""")
+              pg.wait_for_timeout(400)
+              # In-game galactic map: approved image, actual marker and working zoom control.
+              pg.goto(base+'?screen=16',wait_until='domcontentloaded',timeout=30000);pg.wait_for_timeout(900)
+              viewer=pg.locator('.r54-p1-world-map');assert viewer.count()==1,'P1 world map missing'
+              img=viewer.locator('img');assert img.evaluate('(i)=>i.complete&&i.naturalWidth>=2000'),img.get_attribute('src')
+              marker=viewer.locator('.r54-p1-you');assert marker.count()==1 and not marker.is_hidden(),'current-location marker missing'
+              before=float(viewer.get_attribute('data-zoom') or '1');viewer.locator('[data-zin]').click();pg.wait_for_timeout(100);after=float(viewer.get_attribute('data-zoom') or '1');assert after>before,(before,after)
+              # Character portrait 3:4 and editable sheet.
+              pg.goto(base+'?screen=06',wait_until='domcontentloaded',timeout=30000);pg.wait_for_timeout(800)
+              portrait=pg.locator('.r54-character-portrait img');assert portrait.count()==1 and portrait.evaluate('(i)=>i.complete&&i.naturalWidth>0')
+              ratio=portrait.evaluate('(i)=>{const r=i.getBoundingClientRect();return r.width/r.height}');assert .70<ratio<.80,ratio
+              assert pg.locator('button',has_text='TROCAR FOTO').count()==1
+              pg.locator('button',has_text='EDITAR FICHA').click();pg.wait_for_timeout(150)
+              modal=pg.locator('.r54-p1-modal').last;assert modal.count()==1
+              name=modal.locator('input[name=name]');name.fill('Veya Tann Editada');modal.locator('button',has_text='SALVAR FICHA').click();pg.wait_for_load_state('domcontentloaded');pg.wait_for_timeout(700)
+              st=pg.evaluate('()=>window.BraseiroGameBridge.readState()');assert st['data']['player']['character']['name']=='Veya Tann Editada',st['data']['player']['character'].get('name')
+              # World menu must be exposed and contain NPC/robot tabs.
+              pg.locator('.r54-p1-world-open').click();pg.wait_for_timeout(150)
+              wm=pg.locator('.r54-p1-modal[data-world]');assert wm.count()==1
+              assert wm.locator('button',has_text='NPCS').count()==1 and wm.locator('button',has_text='ROBÔS').count()==1
+              wm.locator('.r54-p1-close').click()
+              # Gemini key UI: stub the Android interface and prove the P1 handler saves/configures.
+              pg.evaluate("""()=>{window.__p1key='';window.BraseiroGemini={getStatus:()=>JSON.stringify({configured:!!window.__p1key,model:'gemini-3.1-flash-image',masterModel:'gemini-3.1-flash-lite',ttsModel:'gemini-3.1-flash-tts-preview'}),configureApiKey:k=>{window.__p1key=String(k);return JSON.stringify({ok:true,configured:true,storage:'test'});},clearApiKey:()=>JSON.stringify({ok:true})};}""")
+              pg.goto(base+'?screen=29',wait_until='domcontentloaded',timeout=30000);pg.wait_for_timeout(900)
+              card=pg.locator('text=CHAVE DA API GEMINI').first
+              inp=pg.locator('input').filter(has=pg.locator('')).first if False else None
+              inputs=pg.locator('input');target=None
+              for i in range(inputs.count()):
+                  ph=inputs.nth(i).get_attribute('placeholder') or ''
+                  if 'chave' in ph.lower() or 'gemini' in ph.lower(): target=inputs.nth(i);break
+              assert target is not None,'Gemini key input missing'
+              target.fill('AIzaSyDUMMY_KEY_FOR_DEVICE_P1_1234567890')
+              save=pg.locator('button',has_text='Salvar chave').first;assert save.count()==1;save.click();pg.wait_for_timeout(200)
+              assert pg.evaluate('()=>window.__p1key')=='AIzaSyDUMMY_KEY_FOR_DEVICE_P1_1234567890'
+              assert 'salva' in (pg.locator('.r54-p1-save-status').first.inner_text().lower())
+              serious=[e for e in errors if 'favicon' not in e.lower()]
+              assert not serious,serious
+              print('R54_DEVICE_P1_BROWSER_PASS',{'map_zoom':True,'current_marker':True,'portrait_3x4':True,'edit_character':True,'world_menu':True,'gemini_save_ui':True,'errors':serious,'dialogs':dialogs})
+              b.close()
+          PY
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@v4
+        with: {gradle-version: '8.13', validate-wrappers: false}
+      - name: Configure Android SDK 36
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"; SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort | tail -n1)"; yes | "$SDKMANAGER" --licenses >/dev/null || true; "$SDKMANAGER" 'platform-tools' 'platforms;android-36'; echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+      - name: Compile repaired Android APK
+        working-directory: ${{ steps.root.outputs.path }}
+        run: gradle :app:assembleDebug --stacktrace --no-daemon
+      - name: Persist P1 APK Android Studio project and evidence to GitHub
+        env: {ROOT: "${{ steps.root.outputs.path }}"}
+        run: |
+          set -euo pipefail
+          P=/tmp/r54-p1-persist; rm -rf "$P"; mkdir -p "$P/out" "$P/audit"
+          APK="$(find "$ROOT/app/build/outputs/apk/debug" -type f -name '*.apk' | head -n1)"; test -f "$APK"
+          cp "$APK" "$P/out/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_P1_DEBUG.apk"
+          unzip -t "$P/out/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_P1_DEBUG.apk" >/dev/null
+          (cd "$ROOT" && zip -qr "$P/out/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_P1.zip" . -x '*/build/*' '.gradle/*')
+          sha256sum "$P/out/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_P1_DEBUG.apk" > "$P/out/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_P1_DEBUG.apk.sha256"
+          sha256sum "$P/out/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_P1.zip" > "$P/out/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_P1.zip.sha256"
+          cp /tmp/R54_DEVICE_P1_PATCH.txt "$P/audit/DEVICE_P1_PATCH_2026-09-17.txt"
+          cp /tmp/R54_DEVICE_P1_BROWSER.txt "$P/audit/DEVICE_P1_BROWSER_2026-09-17.txt"
+          cat > "$P/out/DEVICE_P1_STATUS_2026-09-17.txt" <<'EOF'
+          DEVICE P1: in-game approved galaxy map with touch zoom/pan and current-location marker; character portrait 3:4 with replace-photo picker; editable character sheet; Gemini key persistence hardened with AndroidKeyStore + app-private fallback and verified save UI; placeholder opening can be retried after provider setup; visible MUNDO VIVO menu with NPC/robot/faction/location tabs. Browser regression PASS. Gradle assembleDebug PASS.
+          EOF
+          git config user.name github-actions; git config user.email github-actions@github.com
+          git reset --hard HEAD; git clean -fd; git fetch origin main; git reset --hard origin/main
+          OUT=star-wars/final-1.0.0/output-r54; mkdir -p "$OUT" star-wars/r54/audit
+          cp "$P/out"/* "$OUT/"; cp "$P/audit"/* star-wars/r54/audit/
+          git add -f "$OUT" star-wars/r54/audit
+          git commit -m 'build(star-wars): persist R54 device P1 repair'
+          git push origin HEAD:main
