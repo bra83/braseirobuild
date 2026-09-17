@@ -125,24 +125,16 @@ jobs:
           unzip -t out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip >/dev/null
           sha256sum out/BRASEIRO_WWN_v1.0.10.apk > out/BRASEIRO_WWN_v1.0.10.apk.sha256
           sha256sum out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip > out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip.sha256
-          cat out/*.sha256
+          {
+            echo "BRASEIRO WWN 1.0.10 — FINAL REAL-FLOW BUILD"
+            echo "SOURCE_COMMIT=$(git rev-parse HEAD)"
+            echo "WORKFLOW_RUN=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            cat out/BRASEIRO_WWN_v1.0.10.apk.sha256
+            cat out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip.sha256
+          } | tee out/BRASEIRO_WWN_v1.0.10_RELEASE_MANIFEST.txt
 
-      - name: Publish final artifacts on source branch
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p delivery
-          cp out/BRASEIRO_WWN_v1.0.10.apk delivery/BRASEIRO_WWN_v1.0.10.apk
-          cp out/BRASEIRO_WWN_v1.0.10.apk.sha256 delivery/BRASEIRO_WWN_v1.0.10.apk.sha256
-          cp out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip
-          cp out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip.sha256 delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip.sha256
-          git add delivery/BRASEIRO_WWN_v1.0.10.apk delivery/BRASEIRO_WWN_v1.0.10.apk.sha256 delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip delivery/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip.sha256
-          if ! git diff --cached --quiet; then
-            git commit -m "release: publish WWN 1.0.10 final real-flow build"
-            git push origin HEAD:wwn-source-105-bridge
-          fi
-
-      - name: Upload workflow artifacts
+      - name: Upload final workflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: BRASEIRO_WWN_v1.0.10_FINAL
@@ -151,4 +143,25 @@ jobs:
             out/BRASEIRO_WWN_v1.0.10.apk.sha256
             out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip
             out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip.sha256
+            out/BRASEIRO_WWN_v1.0.10_RELEASE_MANIFEST.txt
           retention-days: 30
+
+      - name: Publish final GitHub release assets
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="wwn-v1.0.10-real-flow-final"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --target wwn-source-105-bridge --title "BRASEIRO WWN v1.0.10 — Final Real Flow" --notes-file out/BRASEIRO_WWN_v1.0.10_RELEASE_MANIFEST.txt
+          else
+            gh release create "$TAG" --target wwn-source-105-bridge --title "BRASEIRO WWN v1.0.10 — Final Real Flow" --notes-file out/BRASEIRO_WWN_v1.0.10_RELEASE_MANIFEST.txt
+          fi
+          gh release upload "$TAG" \
+            out/BRASEIRO_WWN_v1.0.10.apk \
+            out/BRASEIRO_WWN_v1.0.10.apk.sha256 \
+            out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip \
+            out/BRASEIRO_WWN_ANDROID_STUDIO_SOURCE_FINAL_1.0.10.zip.sha256 \
+            out/BRASEIRO_WWN_v1.0.10_RELEASE_MANIFEST.txt \
+            --clobber
