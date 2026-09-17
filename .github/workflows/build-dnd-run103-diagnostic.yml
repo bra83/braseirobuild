@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   SHARE_00: 'https://firestorage.ai/ja/f/qe47r3Xkf4KX'
@@ -17,6 +17,7 @@ env:
   SHARE_03: 'https://firestorage.ai/ja/f/0s-YBpoGQYUj'
   SHARE_04: 'https://firestorage.ai/ja/f/vmO1EweC_whK'
   SOURCE_SHA256: '91ae5ea70b0e309b6c381b77fb63497e43fecd6eda2dd54974f49b2be04a06d5'
+  RELEASE_TAG: 'dnd-6.6.2-run103-debug'
 
 jobs:
   build:
@@ -109,6 +110,7 @@ jobs:
           WRAPPER="$(find work -type f -path '*/android/gradlew' | head -n1)"
           test -n "$WRAPPER"
           ROOT="$(dirname "$WRAPPER")"
+          echo "$ROOT" > "$GITHUB_WORKSPACE/out/ANDROID_ROOT.txt"
           chmod +x "$ROOT/gradlew"
           cd "$ROOT"
           set +e
@@ -126,16 +128,52 @@ jobs:
             unzip -t "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN103_DEBUG.apk" >/dev/null
           fi
 
-      - name: Upload APK or diagnostic log
+      - name: Persist concise diagnostic in repository
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: BRASEIRO-DND-6.6.2-RUN103-DIAGNOSTIC
-          path: out/
-          retention-days: 7
-          if-no-files-found: error
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci/dnd-run103
+          RC="$(cat out/BUILD_EXIT_CODE.txt 2>/dev/null || echo missing)"
+          {
+            echo "Braseiro DnD 6.6.2 RUN103 build diagnostic"
+            echo "source_sha256=$SOURCE_SHA256"
+            echo "gradle_exit_code=$RC"
+            echo "package=com.braseiro.dnd5e"
+            echo
+            echo "=== relevant errors ==="
+            grep -nEi '(^|[[:space:]])error:|FAILURE:|FAILED|What went wrong|Execution failed|Caused by:|A problem occurred' out/GRADLE_BUILD.log 2>/dev/null | tail -n 160 || true
+            echo
+            echo "=== log tail ==="
+            tail -n 260 out/GRADLE_BUILD.log 2>/dev/null || true
+          } > ci/dnd-run103/BUILD_DIAGNOSTIC.txt
+          if [ -f out/APK_BADGING.txt ]; then cp out/APK_BADGING.txt ci/dnd-run103/APK_BADGING.txt; fi
+          if [ -f out/BRASEIRO_DND_6.6.2_RUN103_DEBUG.apk.sha256 ]; then cp out/BRASEIRO_DND_6.6.2_RUN103_DEBUG.apk.sha256 ci/dnd-run103/APK_SHA256.txt; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ci/dnd-run103
+          if ! git diff --cached --quiet; then
+            git commit -m 'ci(dnd): persist RUN103 build result [skip ci]'
+            git push
+          fi
 
-      - name: Mark build failure after artifact upload
+      - name: Publish validated APK to GitHub Release
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          RC="$(cat out/BUILD_EXIT_CODE.txt 2>/dev/null || echo 999)"
+          if [ "$RC" != "0" ]; then exit 0; fi
+          test -f out/BRASEIRO_DND_6.6.2_RUN103_DEBUG.apk
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --title 'Braseiro DnD 6.6.2 RUN103 Debug APK' --notes 'RUN103 validated debug build. applicationId: com.braseiro.dnd5e. Source SHA-256: 91ae5ea70b0e309b6c381b77fb63497e43fecd6eda2dd54974f49b2be04a06d5.'
+          fi
+          gh release upload "$RELEASE_TAG" out/BRASEIRO_DND_6.6.2_RUN103_DEBUG.apk out/BRASEIRO_DND_6.6.2_RUN103_DEBUG.apk.sha256 --clobber
+
+      - name: Mark Gradle failure
+        if: always()
         shell: bash
         run: |
           test "$(cat out/BUILD_EXIT_CODE.txt)" = "0"
