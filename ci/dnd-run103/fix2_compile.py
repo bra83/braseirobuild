@@ -66,4 +66,19 @@ for line in o.splitlines(True):
 orch.write_text(''.join(out),encoding='utf-8')
 if wrapped < 1:
     raise SystemExit('MasterOrchestrator: no JSONObject adapter methods wrapped')
-print(f'FIX4_OK master_orchestrator_wrapped={wrapped} json_exception_imported=true')
+
+# Authorized content ingestion: retain existing error semantics while containing Android's checked JSONException.
+ingest=orch.parent/'AuthorizedContentIngestionBatchEngine.java'
+if not ingest.exists():
+    raise SystemExit('AuthorizedContentIngestionBatchEngine.java not found')
+a=ingest.read_text(encoding='utf-8')
+if 'import org.json.JSONException;' not in a:
+    a=a.replace('import org.json.JSONArray;import org.json.JSONObject;','import org.json.JSONArray;import org.json.JSONObject;import org.json.JSONException;',1)
+old_catch='}catch(Exception e){return o.put("requested",n).put("installed",accepted.length()).put("blocked",blocked.length()+1).put("authority","blocked_batch_error");}}'
+new_catch='}catch(Exception e){try{return o.put("requested",n).put("installed",accepted.length()).put("blocked",blocked.length()+1).put("authority","blocked_batch_error");}catch(JSONException ignored){return o;}}}'
+if old_catch in a:
+    a=a.replace(old_catch,new_catch,1)
+a=a.replace('private static JSONObject wrap(String k,String n,boolean ok,JSONObject detail){','private static JSONObject wrap(String k,String n,boolean ok,JSONObject detail) throws JSONException{',1)
+a=a.replace('private static JSONObject block(String k,String n,String why){','private static JSONObject block(String k,String n,String why) throws JSONException{',1)
+ingest.write_text(a,encoding='utf-8')
+print(f'FIX5_OK master_orchestrator_wrapped={wrapped} authorized_ingestion_patched=true')
