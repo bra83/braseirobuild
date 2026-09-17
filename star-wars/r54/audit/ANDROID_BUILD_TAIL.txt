@@ -6,30 +6,30 @@ Daemon will be stopped at the end of the build
 > Task :app:javaPreCompileDebug
 > Task :app:checkDebugAarMetadata
 > Task :app:processDebugNavigationResources
-> Task :app:compileDebugNavigationResources
 > Task :app:generateDebugResValues
+> Task :app:compileDebugNavigationResources
 > Task :app:mapDebugSourceSetPaths
 > Task :app:generateDebugResources
 > Task :app:createDebugCompatibleScreenManifests
 > Task :app:extractDeepLinksDebug
-> Task :app:mergeDebugResources
 > Task :app:processDebugMainManifest
-> Task :app:packageDebugResources
-> Task :app:parseDebugLocalResources
+> Task :app:mergeDebugResources
 > Task :app:processDebugManifest
-> Task :app:mergeDebugShaders
+> Task :app:packageDebugResources
 > Task :app:processDebugManifestForPackage
+> Task :app:mergeDebugShaders
 > Task :app:compileDebugShaders NO-SOURCE
 > Task :app:generateDebugAssets UP-TO-DATE
-> Task :app:processDebugResources
+> Task :app:parseDebugLocalResources
 > Task :app:mergeDebugAssets
+> Task :app:compressDebugAssets
+> Task :app:processDebugResources
+> Task :app:desugarDebugFileDependencies
 
 > Task :app:compileDebugJavaWithJavac
 Note: /home/runner/work/braseirobuild/braseirobuild/audit-work/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java uses or overrides a deprecated API.
 Note: Recompile with -Xlint:deprecation for details.
 
-> Task :app:desugarDebugFileDependencies
-> Task :app:compressDebugAssets
 > Task :app:dexBuilderDebug
 > Task :app:processDebugJavaRes NO-SOURCE
 > Task :app:mergeDebugGlobalSynthetics
@@ -47,9 +47,9 @@ Note: Recompile with -Xlint:deprecation for details.
 > Task :app:packageDebug
 > Task :app:createDebugApkListingFileRedirect
 > Task :app:assembleDebug
-gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/android-1789615217661.json
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/android-1789624847063.json
 
 [Incubating] Problems report is available at: file:///home/runner/work/braseirobuild/braseirobuild/audit-work/build/reports/problems/problems-report.html
 
-BUILD SUCCESSFUL in 32s
+BUILD SUCCESSFUL in 30s
 34 actionable tasks: 34 executed

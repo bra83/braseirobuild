@@ -1,8 +1,8 @@
 {
   "counts": {
-    "PASS": 20,
+    "PASS": 19,
     "WARN": 3,
-    "FAIL": 5
+    "FAIL": 6
   },
   "findings": [
     {
@@ -206,8 +206,8 @@
     {
       "id": "E06",
       "title": "Retrato do personagem carrega em runtime",
-      "status": "PASS",
-      "detail": "count=1, loaded=True",
+      "status": "FAIL",
+      "detail": "count=0, loaded=None",
       "evidence": null
     },
     {
@@ -328,8 +328,7 @@
       ],
       "nav_icon_y_span": 0.0,
       "nav_icon_height_span": 0.0,
-      "character_portrait_count": 1,
-      "character_portrait_loaded": true,
+      "character_portrait_count": 0,
       "item_visual_count": 29,
       "item_visual_loaded_first20": 9,
       "restart_button_found": 1,
