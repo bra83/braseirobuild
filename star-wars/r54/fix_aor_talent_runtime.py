@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-import re
 import sys
 from pathlib import Path
 
@@ -50,29 +49,46 @@ def counts(trees: dict) -> tuple[int, int, int]:
 aor_text = aor_source.read_text('utf-8')
 aor, _, _ = decode_object_after(aor_text, 'export const AOR_TALENT_TREES=Object.freeze(')
 aor_counts = counts(aor)
-if aor_counts[0] < 6 or aor_counts[1] < 18 or aor_counts[2] < 360:
+if aor_counts != (6, 18, 360):
     raise SystemExit(f'AoR catalog unexpectedly incomplete: {aor_counts}')
 
 
-def merge_catalog(text: str, marker: str) -> tuple[str, tuple[int, int, int], tuple[int, int, int]]:
-    eote, start, end = decode_object_after(text, marker)
-    eote_counts = counts(eote)
-    overlap = sorted(set(eote).intersection(aor))
+def merge_catalog(text: str, marker: str, label: str) -> tuple[str, tuple[int, int, int], tuple[int, int, int], bool]:
+    catalog, start, end = decode_object_after(text, marker)
+    before_counts = counts(catalog)
+    overlap = set(catalog).intersection(aor)
+    aor_keys = set(aor)
+
     if overlap:
-        raise SystemExit('career key collision while activating AoR: ' + ', '.join(overlap))
-    merged = dict(eote)
+        if overlap != aor_keys:
+            raise SystemExit(f'{label}: partial AoR career overlap: {sorted(overlap)}')
+        for key in sorted(aor_keys):
+            if catalog.get(key) != aor.get(key):
+                raise SystemExit(f'{label}: AoR career payload diverged: {key}')
+        merged_counts = counts(catalog)
+        if merged_counts != (12, 36, 720):
+            raise SystemExit(f'{label}: AoR keys present but combined counts are wrong: {merged_counts}')
+        base_counts = tuple(a - b for a, b in zip(merged_counts, aor_counts))
+        if base_counts != (6, 18, 360):
+            raise SystemExit(f'{label}: inferred EotE baseline counts are wrong: {base_counts}')
+        return text, base_counts, merged_counts, False
+
+    if before_counts != (6, 18, 360):
+        raise SystemExit(f'{label}: unexpected EotE-only baseline: {before_counts}')
+    merged = dict(catalog)
     merged.update(aor)
     merged_counts = counts(merged)
-    if merged_counts != tuple(a + b for a, b in zip(eote_counts, aor_counts)):
-        raise SystemExit(f'merged talent catalog count mismatch: {merged_counts}')
+    if merged_counts != (12, 36, 720):
+        raise SystemExit(f'{label}: merged talent catalog count mismatch: {merged_counts}')
     payload = json.dumps(merged, ensure_ascii=False, separators=(',', ':'))
-    return text[:start] + payload + text[end:], eote_counts, merged_counts
+    return text[:start] + payload + text[end:], before_counts, merged_counts, True
 
-# Keep the standalone rules module and the embedded browser bundle identical.
+
 src_text = source.read_text('utf-8')
-src_text, eote_counts, merged_counts = merge_catalog(
+src_text, eote_counts, merged_counts, source_changed = merge_catalog(
     src_text,
-    'export const TALENT_TREES = Object.freeze('
+    'export const TALENT_TREES = Object.freeze(',
+    'source',
 )
 src_text = src_text.replace(
     '// Generated EotE Core talent trees. Source: Edge of the Empire Core specialization trees.\n// 6 careers / 18 specializations / 360 positions; no active Age of Rebellion tree data.',
@@ -82,9 +98,10 @@ src_text = src_text.replace(
 source.write_text(src_text, 'utf-8')
 
 bundle_text = bundle.read_text('utf-8')
-bundle_text, bundle_eote_counts, bundle_merged_counts = merge_catalog(
+bundle_text, bundle_eote_counts, bundle_merged_counts, bundle_changed = merge_catalog(
     bundle_text,
-    'exports.TALENT_TREES = Object.freeze('
+    'exports.TALENT_TREES = Object.freeze(',
+    'bundle',
 )
 if bundle_eote_counts != eote_counts or bundle_merged_counts != merged_counts:
     raise SystemExit('source/bundle talent catalog counts diverge')
@@ -99,17 +116,22 @@ bundle.write_text(bundle_text, 'utf-8')
 merged_source, _, _ = decode_object_after(source.read_text('utf-8'), 'export const TALENT_TREES = Object.freeze(')
 merged_bundle, _, _ = decode_object_after(bundle.read_text('utf-8'), 'exports.TALENT_TREES = Object.freeze(')
 for label, catalog in [('source', merged_source), ('bundle', merged_bundle)]:
+    if counts(catalog) != (12, 36, 720):
+        raise SystemExit(f'{label}: final combined counts are wrong: {counts(catalog)}')
     ace_gunner = catalog.get('ace', {}).get('gunner')
     if not isinstance(ace_gunner, dict) or len(ace_gunner.get('nodes', [])) != 20 or not ace_gunner.get('edges'):
         raise SystemExit(f'{label}: AoR ace/gunner tree is not active')
     if 'bounty_hunter' not in catalog:
         raise SystemExit(f'{label}: EotE talent trees were not preserved')
-    if 'no active Age of Rebellion tree data' in (source.read_text('utf-8') if label == 'source' else bundle.read_text('utf-8')):
+    text = source.read_text('utf-8') if label == 'source' else bundle.read_text('utf-8')
+    if 'no active Age of Rebellion tree data' in text:
         raise SystemExit(f'{label}: inactive AoR marker still present')
 
 print('R54_AOR_TALENT_RUNTIME_PASS', {
     'eote': eote_counts,
     'aor': aor_counts,
     'merged': merged_counts,
+    'source_changed': source_changed,
+    'bundle_changed': bundle_changed,
     'sample': 'ace/gunner',
 })
