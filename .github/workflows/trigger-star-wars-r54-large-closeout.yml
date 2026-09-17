@@ -1,0 +1,26 @@
+name: Trigger Star Wars R54 Large Closeout
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/trigger-star-wars-r54-large-closeout.yml"
+  workflow_dispatch:
+permissions:
+  actions: write
+  contents: read
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch integrated R54 closeout
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/close-star-wars-r54-final.yml/dispatches" \
+            -d '{"ref":"main"}'
+          echo "R54_LARGE_CLOSEOUT_DISPATCHED"
