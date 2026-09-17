@@ -63,7 +63,7 @@ export function speciesSupplementCoverage(){
 rt=RUNTIME.read_text('utf-8')
 js=r'''
 /* R54_SUPPLEMENT_SPECIES_REFERENCE */
-let r54SupplementSpeciesPromise=null;
+var r54SupplementSpeciesPromise=null;
 function r54SupplementSpeciesCatalog(){
  if(!r54SupplementSpeciesPromise)r54SupplementSpeciesPromise=fetch('js/reference/speciesCreationReferenceCatalog.json').then(r=>{if(!r.ok)throw new Error('species supplement reference');return r.json()}).catch(()=>[]);
  return r54SupplementSpeciesPromise;
