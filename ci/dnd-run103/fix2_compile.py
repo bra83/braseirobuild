@@ -19,7 +19,11 @@ main.write_text(s,encoding='utf-8')
 # SRD bestiary: Android org.json put() is checked; keep public API stable and contain it here.
 t=srd.read_text(encoding='utf-8')
 if 'import org.json.JSONException;' not in t:
-    t=t.replace('import org.json.JSONArray;import org.json.JSONObject;','import org.json.JSONArray;import org.json.JSONObject;import org.json.JSONException;',1)
+    if 'import org.json.JSONArray;import org.json.JSONObject;' in t:
+        t=t.replace('import org.json.JSONArray;import org.json.JSONObject;','import org.json.JSONArray;import org.json.JSONObject;import org.json.JSONException;',1)
+    else:
+        pos=t.find('\n',t.find('package '))+1
+        t=t[:pos]+'import org.json.JSONException;\n'+t[pos:]
 if 'public static JSONObject install(){try{' not in t:
     t=t.replace('public static JSONObject install(){','public static JSONObject install(){try{',1)
 old='return new JSONObject().put("scope_declared",scoped).put("statblocks_installed",installed).put("coverage",AuthorizedBestiaryScopeEngine.coverage()).put("license","CC-BY-4.0").put("source","official D&D SRD 5.1");}'
@@ -38,6 +42,12 @@ srd.write_text(t,encoding='utf-8')
 # MasterOrchestrator: preserve signatures/behavior. Only one-line JSONObject-building adapters
 # are wrapped so Android's checked JSONException cannot leak through their existing API.
 o=orch.read_text(encoding='utf-8')
+if 'import org.json.JSONException;' not in o:
+    if 'import org.json.JSONObject;' in o:
+        o=o.replace('import org.json.JSONObject;','import org.json.JSONObject;\nimport org.json.JSONException;',1)
+    else:
+        pos=o.find('\n',o.find('package '))+1
+        o=o[:pos]+'import org.json.JSONException;\n'+o[pos:]
 out=[]; wrapped=0
 for line in o.splitlines(True):
     raw=line.rstrip('\r\n')
@@ -49,11 +59,11 @@ for line in o.splitlines(True):
         'catch(JSONException' not in stripped):
         p=raw.index('{return ')
         prefix=raw[:p]
-        body=raw[p+1:-1]  # return ...;
+        body=raw[p+1:-1]
         raw=prefix+'{try{'+body+'}catch(JSONException e){throw new IllegalStateException(e);}}'
         wrapped+=1
     out.append(raw+nl)
 orch.write_text(''.join(out),encoding='utf-8')
 if wrapped < 1:
     raise SystemExit('MasterOrchestrator: no JSONObject adapter methods wrapped')
-print(f'FIX3_OK master_orchestrator_wrapped={wrapped}')
+print(f'FIX4_OK master_orchestrator_wrapped={wrapped} json_exception_imported=true')
