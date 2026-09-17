@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+import subprocess
 import sys
 from pathlib import Path
 
@@ -49,4 +50,9 @@ rt = runtime.read_text(encoding='utf-8')
 if "startMapPoint:{x:chosen.x,y:chosen.y}" not in rt:
     raise SystemExit('R54 UI does not forward chosen map coordinates')
 
-print('R54 MAP ANCHOR STATE PATCH PASS startLocationId=canonical startMapPoint=canonical')
+vehicle_patch = Path(__file__).with_name('fix_vehicle_bridge_runtime.py')
+if not vehicle_patch.is_file():
+    raise SystemExit(f'missing NAVE bridge patch: {vehicle_patch}')
+subprocess.run([sys.executable, str(vehicle_patch), str(root)], check=True)
+
+print('R54 MAP ANCHOR STATE PATCH PASS startLocationId=canonical startMapPoint=canonical vehicleBridge=canonical')
