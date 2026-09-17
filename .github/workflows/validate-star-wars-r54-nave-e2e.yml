@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - "star-wars/r54/audit_nave_e2e.py"
+      - "star-wars/r54/fix_vehicle_bridge_runtime.py"
       - ".github/workflows/validate-star-wars-r54-nave-e2e.yml"
   workflow_dispatch:
 permissions: {contents: read}
@@ -26,6 +27,13 @@ jobs:
           test -n "$SET"
           ROOT="$(dirname "$SET")"
           echo "path=$ROOT" >> "$GITHUB_OUTPUT"
+      - name: Apply canonical NAVE bridge closure
+        env:
+          ROOT: "${{ steps.root.outputs.path }}"
+        run: |
+          set -euo pipefail
+          python3 star-wars/r54/fix_vehicle_bridge_runtime.py "$ROOT"
+          node --check "$ROOT/app/src/main/assets/vtt/r54-vehicle-runtime.js"
       - name: Install browser
         run: |
           python -m pip install --quiet playwright
