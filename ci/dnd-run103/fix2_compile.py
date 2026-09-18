@@ -152,6 +152,15 @@ if atomic.exists():
         src=src[:pos]+'try{'+src[pos:end]+'}catch(Exception e){throw new IllegalStateException(e);}'+src[end:]
         atomic.write_text(src,encoding='utf-8')
 
+# Release closure diagnostic helper: contain Android's checked JSONException.
+closure=orch.parent/'ReleaseClosureDiagnosticEngine.java'
+if closure.exists():
+    src=closure.read_text(encoding='utf-8')
+    old='private static JSONObject line(JSONObject x){if(x==null)x=new JSONObject();return new JSONObject().put("known",x.optInt("known",0)).put("executable",x.optInt("executable",0)).put("expected",x.opt("expected")).put("pending",x.opt("pending")).put("complete",x.optBoolean("complete",x.optBoolean("feature_effects_compiled",false)));}'
+    new='private static JSONObject line(JSONObject x){try{if(x==null)x=new JSONObject();return new JSONObject().put("known",x.optInt("known",0)).put("executable",x.optInt("executable",0)).put("expected",x.opt("expected")).put("pending",x.opt("pending")).put("complete",x.optBoolean("complete",x.optBoolean("feature_effects_compiled",false)));}catch(Exception e){throw new IllegalStateException(e);}}'
+    if old in src:
+        closure.write_text(src.replace(old,new,1),encoding='utf-8')
+
 # Faerun SRD monster batch: contain Android's checked JSONException without changing data or public API.
 faerun=orch.parent/'Srd51FaerunCoreMonsterEngine.java'
 if not faerun.exists():
