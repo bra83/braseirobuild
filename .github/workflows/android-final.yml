@@ -1,0 +1,89 @@
+name: Cyberpunk RED Android Final R5.34
+
+on:
+  workflow_run:
+    workflows: ['Cyberpunk RED Android Diagnóstico R5.34']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  RELEASE_TAG: cyberpunk-red-r5.34-android-green
+
+jobs:
+  publicar:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Resolver run verde e baixar artifact
+        id: source
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          RUN_ID="${EVENT_RUN_ID:-}"
+          if [ -z "$RUN_ID" ]; then
+            RUN_ID="$(gh run list --workflow android-diagnostico.yml --branch main --status success --limit 1 --json databaseId --jq '.[0].databaseId')"
+          fi
+          test -n "$RUN_ID"
+          mkdir -p incoming-artifact
+          gh run download "$RUN_ID" -n cyberpunk-red-r5.34-diagnostico -D incoming-artifact
+          test -f incoming-artifact/DIAGNOSTICO_GREEN.txt
+          grep -F 'ASSEMBLE_DEBUG=PASS' incoming-artifact/DIAGNOSTICO_GREEN.txt
+          (cd incoming-artifact && sha256sum -c CYBERPUNK_RED_R5_34_DEBUG.apk.sha256)
+          (cd incoming-artifact && sha256sum -c CYBERPUNK_RED_R5_34_ANDROID_STUDIO_GREEN.zip.sha256)
+          unzip -t incoming-artifact/CYBERPUNK_RED_R5_34_ANDROID_STUDIO_GREEN.zip >/dev/null
+          unzip -t incoming-artifact/CYBERPUNK_RED_R5_34_DEBUG.apk >/dev/null
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Publicar baseline e APK em GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ steps.source.outputs.run_id }}
+        run: |
+          set -euo pipefail
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --target main --title 'Cyberpunk RED R5.34 Android GREEN' --notes "Baseline Android Studio congelado após diagnóstico verde. Diagnostic run: $RUN_ID"
+          fi
+          gh release upload "$RELEASE_TAG" incoming-artifact/* --clobber
+
+      - name: Publicar APK em deliverables
+        shell: bash
+        env:
+          RUN_ID: ${{ steps.source.outputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p deliverables/cyberpunk-red
+          APK=incoming-artifact/CYBERPUNK_RED_R5_34_DEBUG.apk
+          SIZE="$(stat -c '%s' "$APK")"
+          cp incoming-artifact/CYBERPUNK_RED_R5_34_DEBUG.apk.sha256 deliverables/cyberpunk-red/
+          cp incoming-artifact/DIAGNOSTICO_GREEN.txt deliverables/cyberpunk-red/
+          if [ "$SIZE" -lt 95000000 ]; then
+            cp "$APK" deliverables/cyberpunk-red/CYBERPUNK_RED_R5_34_DEBUG.apk
+            rm -f deliverables/cyberpunk-red/CYBERPUNK_RED_R5_34_DEBUG.apk.part*
+          else
+            rm -f deliverables/cyberpunk-red/CYBERPUNK_RED_R5_34_DEBUG.apk
+            split -b 95000000 -d -a 3 "$APK" deliverables/cyberpunk-red/CYBERPUNK_RED_R5_34_DEBUG.apk.part
+            printf '%s\n' 'cat CYBERPUNK_RED_R5_34_DEBUG.apk.part* > CYBERPUNK_RED_R5_34_DEBUG.apk' 'sha256sum -c CYBERPUNK_RED_R5_34_DEBUG.apk.sha256' > deliverables/cyberpunk-red/RECOMPOSE_APK.txt
+          fi
+          printf '# Cyberpunk RED R5.34 Android GREEN\n\nDiagnostic run: %s\nRelease tag: %s\nAPK size: %s bytes\n' "$RUN_ID" "$RELEASE_TAG" "$SIZE" > deliverables/cyberpunk-red/README.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add deliverables/cyberpunk-red
+          git diff --cached --quiet && exit 0
+          git commit -m 'deliverables: Cyberpunk RED R5.34 Android GREEN'
+          git push origin HEAD:main
