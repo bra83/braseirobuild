@@ -422,6 +422,10 @@ function repairDiceButton(){
     b.setAttribute("aria-label","Abrir dados narrativos");
     document.body.appendChild(b);
   }
+  b.onpointerdown=function(e){
+    if(e){e.stopPropagation();}
+    dicePanel();
+  };
   b.onclick=function(e){
     if(e){e.preventDefault();e.stopPropagation();}
     dicePanel();
