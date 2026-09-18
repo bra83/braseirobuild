@@ -6,7 +6,7 @@ plugins {
 android {
     namespace = "com.braseiro.wwn"
     compileSdk = 36
-    defaultConfig { applicationId = "com.braseiro.wwn"; minSdk = 28; targetSdk = 36; versionCode = 110; versionName = "1.0.10"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
+    defaultConfig { applicationId = "com.braseiro.wwn"; minSdk = 28; targetSdk = 36; versionCode = 111; versionName = "1.0.11"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     buildTypes { release { isMinifyEnabled = false; proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro") } }
 }
