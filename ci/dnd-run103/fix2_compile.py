@@ -88,6 +88,16 @@ if old_block in a:
     a=a.replace(old_block,new_block,1)
 ingest.write_text(a,encoding='utf-8')
 
+# Exact compile repair for ReleaseInvariantEngine fallback. Preserve fail-closed metadata when possible.
+release_inv=orch.parent/'ReleaseInvariantEngine.java'
+if release_inv.exists():
+    ri=release_inv.read_text(encoding='utf-8')
+    old='}catch(Exception e){return o.put("schema","release_invariants_v1").put("valid",false).put("problem_count",1).put("authority","invariant_audit_error");}}'
+    new='}catch(Exception e){try{o.put("schema","release_invariants_v1").put("valid",false).put("problem_count",1).put("authority","invariant_audit_error");}catch(Exception ignored){}return o;}}'
+    if old in ri:
+        ri=ri.replace(old,new,1)
+        release_inv.write_text(ri,encoding='utf-8')
+
 # Package-wide fail-closed repair for one-line catch fallbacks which return a chained JSONObject.put().
 # Android's org.json.JSONException is checked, so a put() inside the catch body itself must also be contained.
 catch_fallbacks=0
