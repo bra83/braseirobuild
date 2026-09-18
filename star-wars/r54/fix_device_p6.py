@@ -396,7 +396,7 @@ function dicePanel(){
   '<div class="back"><section class="sheet" role="dialog" aria-modal="true" aria-label="Dados narrativos"><div class="head"><div><small>DADOS NARRATIVOS</small><h2>Rolagem livre</h2></div><button class="close" aria-label="Fechar">×</button></div>'+
   '<div class="grid"><label>Característica<input data-die="characteristic" type="number" min="0" max="5" value="2"></label><label>Perícia<input data-die="skill" type="number" min="0" max="5" value="1"></label><label>Dificuldade<input data-die="difficulty" type="number" min="0" max="5" value="2"></label><label>Desafio<input data-die="challenge" type="number" min="0" max="5" value="0"></label><label>Bônus<input data-die="boost" type="number" min="0" max="5" value="0"></label><label>Contratempo<input data-die="setback" type="number" min="0" max="5" value="0"></label></div>'+
   '<button class="roll">ROLAR DADOS</button><div class="result">Aguardando rolagem.</div></section></div>';
-  document.body.appendChild(host);
+  document.documentElement.appendChild(host);
   var close=function(){host.remove();};
   sh.querySelector(".close").onclick=close; sh.querySelector(".back").addEventListener("click",function(e){if(e.target===e.currentTarget)close();});
   sh.querySelector(".roll").onclick=function(){
