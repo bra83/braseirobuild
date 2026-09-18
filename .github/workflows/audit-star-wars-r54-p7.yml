@@ -45,3 +45,18 @@ jobs:
           git add star-wars/r54/audit ci-results/STAR_WARS_R54_P7_STATUS.txt
           git commit -m 'audit(star-wars): persist R54 P7 semantic results' || exit 0
           git push origin HEAD:main
+      - name: Persist failure diagnostics
+        if: failure()
+        shell: bash
+        run: |
+          set +e
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git fetch origin main && git reset --hard origin/main
+          mkdir -p ci-results star-wars/r54/audit
+          printf 'R54_P7_STATUS=FAIL\nPHYSICAL_DEVICE=NOT_RUN\n' > ci-results/STAR_WARS_R54_P7_STATUS.txt
+          cp /tmp/P7_PATCH.txt star-wars/r54/audit/DEVICE_P7_PATCH_FAILED_2026-09-18.txt 2>/dev/null || true
+          cp /tmp/P7_AUDIT.txt star-wars/r54/audit/DEVICE_P7_SEMANTIC_FAILED_2026-09-18.txt 2>/dev/null || true
+          git add ci-results/STAR_WARS_R54_P7_STATUS.txt star-wars/r54/audit
+          git commit -m 'ci(star-wars): persist R54 P7 failure diagnostics' || exit 0
+          git push origin HEAD:main
