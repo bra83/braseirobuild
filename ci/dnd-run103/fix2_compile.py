@@ -284,7 +284,7 @@ def _method_openings(mask):
     return found
 
 json_wrapped=0
-for jp in [orch.parent/'TashaWorldPhenomenaEngine.java']:
+for jp in [orch.parent/'TashaWorldPhenomenaEngine.java', orch.parent/'StatblockCombatFlowEngine.java']:
     if not jp.exists():
         continue
     src=jp.read_text(encoding='utf-8')
