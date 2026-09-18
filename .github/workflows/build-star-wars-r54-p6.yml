@@ -308,3 +308,5 @@ jobs:
 # retrigger: clean P6 browser gate 2026-09-18T02:54:16.424Z
 
 # retrigger: target-capture DADOS ownership
+
+# retrigger: dice capture fix 2026-09-18T02:56:36.030Z
