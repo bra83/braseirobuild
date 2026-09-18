@@ -1,0 +1,256 @@
+name: Build Star Wars R54 P6 Device Closure
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/build-star-wars-r54-p6.yml']
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Recover P5 and apply P6
+        id: root
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP=star-wars/final-1.0.0/output-r54/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_P5.zip
+          test -f "$ZIP"
+          rm -rf /tmp/r54-p6
+          mkdir -p /tmp/r54-p6
+          unzip -q "$ZIP" -d /tmp/r54-p6
+          SET=$(find /tmp/r54-p6 -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -1)
+          test -n "$SET"
+          ROOT=$(dirname "$SET")
+          echo "path=$ROOT" >> "$GITHUB_OUTPUT"
+          python3 star-wars/r54/fix_device_p6.py "$ROOT" | tee /tmp/P6_PATCH.txt
+
+      - name: Install browser gate
+        run: |
+          python3 -m pip install --quiet playwright
+          python3 -m playwright install chromium
+
+      - name: P6 415x915 visual and interaction gate
+        env:
+          ROOT: '\${{ steps.root.outputs.path }}'
+        shell: bash
+        run: |
+          set -euo pipefail
+          VTT="$ROOT/app/src/main/assets/vtt"
+          python3 -m http.server 8765 --directory "$VTT" >/tmp/p6-http.log 2>&1 &
+          SERVER=$!
+          trap 'kill $SERVER || true' EXIT
+          sleep 1
+          python3 - <<'PY' | tee /tmp/P6_BROWSER.txt
+          import json, os, re
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+
+          root=Path(os.environ["ROOT"]).resolve()
+          vtt=root/"app/src/main/assets/vtt"
+          r54=vtt/"image-library/local/r54"
+          idx=json.loads((r54/"p6-visual-index.json").read_text("utf-8"))
+          cov=json.loads((r54/"p6-coverage.json").read_text("utf-8"))
+
+          names={v["name"] for v in (idx.get("locations") or {}).values()}
+          assert cov["LOCATIONS_TOTAL"]==82, cov
+          assert len(names)==82, len(names)
+          for v in (idx.get("locations") or {}).values():
+              p=vtt/v["path"]
+              assert p.is_file(), p
+              assert not re.search(r"inventory\.png|placeholder|fallback|generic|(?:^|/)robot(?:[_.\-/]|$)", v["path"], re.I), v["path"]
+          assert not cov["WEAPONS_MISSING"], cov["WEAPONS_MISSING"]
+          assert not cov["ITEMS_MISSING"], cov["ITEMS_MISSING"]
+
+          base="http://127.0.0.1:8765/r46-shell.html"
+          bad_routes=[]
+          evidence={}
+          init=r'''
+          window.confirm=()=>true;
+          window.BraseiroGemini={
+            getStatus:()=>JSON.stringify({configured:true,masterModel:"audit-master",model:"audit-image",ttsModel:"audit-tts"}),
+            requestMasterProposal:(id,p)=>JSON.stringify({ok:true,status:"started",requestId:id}),
+            openGeminiWithPrompt:(p)=>JSON.stringify({ok:true,target:"gemini_app"}),
+            configureApiKey:(k)=>JSON.stringify({ok:true,configured:true}),
+            configureModels:()=>JSON.stringify({ok:true}),
+            pickSceneImage:()=>JSON.stringify({ok:true})
+          };
+          '''
+          with sync_playwright() as pw:
+              b=pw.chromium.launch(headless=True)
+              ctx=b.new_context(viewport={"width":415,"height":915})
+              p=ctx.new_page()
+              errs=[]
+              p.on("pageerror", lambda e: errs.append(str(e)))
+              p.add_init_script(init)
+
+              p.goto(base+"?screen=00",wait_until="domcontentloaded",timeout=120000)
+              p.wait_for_timeout(1600)
+              points=p.locator("#sandbox-list button[data-point]").count()
+              thumbs=p.locator("#sandbox-list .r54-p6-location-thumb").count()
+              loaded=p.locator("#sandbox-list .r54-p6-location-thumb").evaluate_all("els=>els.every(i=>i.complete&&i.naturalWidth>0)")
+              evidence["start_points"]=points
+              evidence["location_thumbs"]=thumbs
+              evidence["location_thumbs_loaded"]=loaded
+              assert points==82,(points,thumbs)
+              assert thumbs==82,(points,thumbs)
+              assert loaded
+
+              world=p.locator(".r54-p6-world-open")
+              assert world.count()>=1
+              world_pos=world.first.evaluate("e=>getComputedStyle(e).position")
+              evidence["world_position"]=world_pos
+              assert world_pos!="fixed",world_pos
+              fixed_old=p.locator(".r54-p1-world-open")
+              if fixed_old.count():
+                  assert fixed_old.first.evaluate("e=>getComputedStyle(e).display")=="none"
+
+              dice=p.locator(".r53-dice-fab")
+              assert dice.count()>=1
+              dice.first.click(force=True)
+              p.wait_for_timeout(150)
+              d=p.evaluate("""()=>{
+                const h=document.querySelector('#r54-p6-dice'),s=h?.shadowRoot;
+                const sheet=s?.querySelector('.sheet'),roll=s?.querySelector('.roll');
+                if(!h||!s||!sheet||!roll)return null;
+                const cs=getComputedStyle(sheet),r=sheet.getBoundingClientRect();
+                return {text:sheet.textContent,overflowY:cs.overflowY,w:r.width,h:r.height,visible:r.width>100&&r.height>100};
+              }""")
+              evidence["dice"]=d
+              assert d and d["visible"] and "ROLAR DADOS" in d["text"]
+              assert d["overflowY"]=="auto",d
+
+              p.goto(base+"?screen=09",wait_until="domcontentloaded",timeout=120000)
+              p.wait_for_timeout(1800)
+              item_imgs=p.locator(".r54-p6-item-visual img")
+              n=item_imgs.count()
+              evidence["catalog_item_images"]=n
+              assert n>0,n
+              item_status=item_imgs.evaluate_all("""els=>({
+                loaded:els.every(i=>i.complete&&i.naturalWidth>0),
+                bad:els.filter(i=>/inventory\.png|placeholder|fallback|generic|\/robot(?:[_.\/-]|$)/i.test(i.getAttribute('src')||'')).map(i=>i.getAttribute('src'))
+              })""")
+              evidence["catalog_item_loaded"]=item_status["loaded"]
+              assert item_status["loaded"],item_status
+              assert not item_status["bad"],item_status
+
+              p.goto(base+"?screen=29",wait_until="domcontentloaded",timeout=120000)
+              p.wait_for_timeout(900)
+              gs=p.locator(".r54-p6-gemini-status")
+              assert gs.count()>=1
+              evidence["gemini_status"]=gs.first.inner_text()
+              assert gs.first.get_attribute("data-configured")=="true"
+
+              for r in range(31):
+                  p.goto(base+f"?screen={r:02d}",wait_until="domcontentloaded",timeout=120000)
+                  p.wait_for_timeout(220)
+                  chk=p.evaluate("""()=>({
+                    broken:[...document.images].filter(i=>i.complete&&i.naturalWidth===0).map(i=>i.getAttribute('src')),
+                    bad:[...document.images].filter(i=>/inventory\.png|placeholder|fallback|generic|\/robot(?:[_.\/-]|$)/i.test(i.getAttribute('src')||'')).map(i=>i.getAttribute('src')),
+                    overflow:document.documentElement.scrollWidth>innerWidth+3
+                  })""")
+                  if chk["broken"] or chk["bad"] or chk["overflow"]:
+                      bad_routes.append({"route":f"{r:02d}",**chk})
+              evidence["bad_routes"]=bad_routes
+              evidence["page_errors"]=errs
+              assert not bad_routes,bad_routes
+              assert not errs,errs
+              ctx.close();b.close()
+
+          runtime=(vtt/"r46/final-runtime.js").read_text("utf-8",errors="replace")
+          gem=(root/"app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java").read_text("utf-8",errors="replace")
+          assert "submitPlayerIntent(intentText)" in runtime
+          assert "narra[cç][aã]o livre exige provedor" in runtime
+          assert "R54_DEVICE_P5_KEY_PERSIST" in gem
+          assert "keyPreferences.edit().putString(KEY_FALLBACK, clean).commit()" in gem
+          assert "readApiKey()" in gem
+
+          final={
+            "WEAPONS_TOTAL":cov["WEAPONS_TOTAL"],
+            "WEAPONS_WITH_REAL_IMAGE":cov["WEAPONS_WITH_REAL_IMAGE"],
+            "WEAPONS_MISSING":cov["WEAPONS_MISSING"],
+            "ITEMS_TOTAL":cov["ITEMS_TOTAL"],
+            "ITEMS_WITH_REAL_IMAGE":cov["ITEMS_WITH_REAL_IMAGE"],
+            "ITEMS_MISSING":cov["ITEMS_MISSING"],
+            "LOCATIONS_TOTAL":cov["LOCATIONS_TOTAL"],
+            "LOCATIONS_WITH_REAL_IMAGE":cov["LOCATIONS_WITH_REAL_IMAGE"],
+            "LOCATIONS_MISSING":cov["LOCATIONS_MISSING"],
+            "PLACEHOLDERS":0,
+            "BROKEN_IMAGES":0,
+            "DICE_MODAL":"PASS",
+            "GEMINI_RESTART_PERSISTENCE":"CODE_PASS_DEVICE_RETEST_REQUIRED",
+            "ADVENTURE_REAL_START":"REAL_MASTER_PATH_STATIC_PASS_DEVICE_GEMINI_RETEST_REQUIRED",
+            "VISUAL_415x915":"PASS",
+            "evidence":evidence,
+          }
+          Path("/tmp/P6_REPORT.json").write_text(json.dumps(final,ensure_ascii=False,indent=2)+"\n","utf-8")
+          Path("/tmp/P6_REPORT.txt").write_text("\n".join([
+            f"WEAPONS_TOTAL = {final['WEAPONS_TOTAL']}",
+            f"WEAPONS_WITH_REAL_IMAGE = {final['WEAPONS_WITH_REAL_IMAGE']}",
+            f"WEAPONS_MISSING = {final['WEAPONS_MISSING']}",
+            "",
+            f"ITEMS_TOTAL = {final['ITEMS_TOTAL']}",
+            f"ITEMS_WITH_REAL_IMAGE = {final['ITEMS_WITH_REAL_IMAGE']}",
+            f"ITEMS_MISSING = {final['ITEMS_MISSING']}",
+            "",
+            f"LOCATIONS_TOTAL = {final['LOCATIONS_TOTAL']}",
+            f"LOCATIONS_WITH_REAL_IMAGE = {final['LOCATIONS_WITH_REAL_IMAGE']}",
+            f"LOCATIONS_MISSING = {final['LOCATIONS_MISSING']}",
+            "",
+            "PLACEHOLDERS = 0",
+            "BROKEN_IMAGES = 0",
+            "DICE_MODAL = PASS",
+            "GEMINI_RESTART_PERSISTENCE = CODE_PASS_DEVICE_RETEST_REQUIRED",
+            "ADVENTURE_REAL_START = REAL_MASTER_PATH_STATIC_PASS_DEVICE_GEMINI_RETEST_REQUIRED",
+            "VISUAL_415x915 = PASS",
+          ])+"\n","utf-8")
+          print(json.dumps(final,ensure_ascii=False))
+          PY
+
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+
+      - uses: gradle/actions/setup-gradle@v4
+        with: {gradle-version: '8.13', validate-wrappers: false}
+
+      - name: Compile APK
+        working-directory: \${{ steps.root.outputs.path }}
+        run: gradle :app:assembleDebug --stacktrace --no-daemon
+
+      - name: Persist P6
+        env:
+          ROOT: '\${{ steps.root.outputs.path }}'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT=star-wars/final-1.0.0/output-r54
+          APK=$(find "$ROOT/app/build/outputs/apk/debug" -name '*.apk' | head -1)
+          test -f "$APK"
+          cp "$APK" /tmp/P6.apk
+          (cd "$ROOT" && zip -qr /tmp/P6.zip . -x '*/build/*' '.gradle/*')
+          sha256sum /tmp/P6.apk >/tmp/P6.apk.sha256
+          sha256sum /tmp/P6.zip >/tmp/P6.zip.sha256
+
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git reset --hard HEAD
+          git clean -fd
+          git fetch origin main
+          git reset --hard origin/main
+
+          mkdir -p "$OUT" star-wars/r54/audit
+          cp /tmp/P6.apk "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_P6_DEBUG.apk"
+          cp /tmp/P6.zip "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_P6.zip"
+          cp /tmp/P6.apk.sha256 "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_P6_DEBUG.apk.sha256"
+          cp /tmp/P6.zip.sha256 "$OUT/STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_P6.zip.sha256"
+          cp /tmp/P6_PATCH.txt star-wars/r54/audit/DEVICE_P6_PATCH_2026-09-17.txt
+          cp /tmp/P6_BROWSER.txt star-wars/r54/audit/DEVICE_P6_BROWSER_2026-09-17.txt
+          cp /tmp/P6_REPORT.txt star-wars/r54/audit/DEVICE_P6_REPORT_2026-09-17.txt
+          cp /tmp/P6_REPORT.json star-wars/r54/audit/DEVICE_P6_REPORT_2026-09-17.json
+
+          git add -f "$OUT" star-wars/r54/audit
+          git commit -m 'build(star-wars): persist R54 device P6 closure' || exit 0
+          git push origin HEAD:main
