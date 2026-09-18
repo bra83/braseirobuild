@@ -5,6 +5,9 @@ on:
     paths: ['.github/workflows/build-star-wars-r54-p6.yml']
   workflow_dispatch:
 permissions: {contents: write}
+concurrency:
+  group: star-wars-r54-p6
+  cancel-in-progress: true
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,10 +19,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p ci-results
-          printf 'R54_P6_STATUS=RUNNING\nSOURCE_COMMIT=%s\n' "$GITHUB_SHA" > ci-results/STAR_WARS_R54_P6_STATUS.txt
           git config user.name github-actions
           git config user.email github-actions@github.com
+          git fetch origin main
+          git reset --hard origin/main
+          mkdir -p ci-results
+          printf 'R54_P6_STATUS=RUNNING\nSOURCE_COMMIT=%s\n' "$GITHUB_SHA" > ci-results/STAR_WARS_R54_P6_STATUS.txt
           git add ci-results/STAR_WARS_R54_P6_STATUS.txt
           git commit -m 'ci(star-wars): mark R54 P6 running' || true
           git push origin HEAD:main
