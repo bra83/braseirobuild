@@ -254,7 +254,6 @@ def _method_openings(mask):
         if ch!='{': continue
         j=p-1
         while j>=0 and mask[j].isspace(): j-=1
-        # optional throws clause before {
         if j>=0 and mask[j]!=')':
             k=j
             while k>=0 and mask[k] not in ';{}': k-=1
@@ -271,13 +270,17 @@ def _method_openings(mask):
         while k>=0 and (mask[k].isalnum() or mask[k] in "_$"): k-=1
         name=mask[k+1:e+1]
         if not name or name in controls: continue
-        # declaration starts after previous statement/class delimiter
         d=k
         while d>=0 and mask[d] not in ';{}': d-=1
         head=mask[d+1:p]
         if '=' in head or '->' in head: continue
+        # Never interpret an anonymous-class constructor as a method declaration.
+        if re.search(r'\\bnew\\s+[\\w.$<>?]+\\s*\\([^{};]*\\)\\s*$',head):
+            continue
+        before_name=mask[d+1:k+1].strip()
+        if before_name.endswith('.') or before_name.startswith('return '):
+            continue
         if not any(x in head for x in ('public ','private ','protected ','static ','final ','synchronized ','native ','abstract ','default ','strictfp ')):
-            # allow package-private typed methods, but reject control-flow fragments
             toks=head.strip().split()
             if len(toks)<2: continue
         found.append(p)
@@ -285,7 +288,7 @@ def _method_openings(mask):
 
 json_wrapped=0
 for jp in orch.parent.glob('*.java'):
-    if jp.name == 'MainActivity.java':
+    if jp.name in ('MainActivity.java','AppDb.java'):
         continue
     src=jp.read_text(encoding='utf-8')
     mask=_mask_java(src)
