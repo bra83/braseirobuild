@@ -298,4 +298,5 @@ jobs:
 
 
 
-# retrigger: P6 canonical DADOS capture after disabling P5 interception
+
+# retrigger: P6 unmounts superseded P5 browser interceptor
