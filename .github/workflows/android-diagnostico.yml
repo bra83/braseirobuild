@@ -9,7 +9,7 @@ on:
       - 'cyberpunk-red/android-baseline-r5.34.json'
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   BASELINE_ID: cpred-r5.34-android-green-p1
@@ -32,6 +32,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Baixar baseline R5.34 congelado
+        id: download
         shell: bash
         run: |
           set -euo pipefail
@@ -48,6 +49,7 @@ jobs:
           unzip -t incoming/source.zip >/dev/null
 
       - name: Extrair e aplicar hotfix Kotlin congelado
+        id: extract
         id: project
         shell: bash
         run: |
@@ -74,6 +76,7 @@ jobs:
           echo "root=$ROOT" >> "$GITHUB_OUTPUT"
 
       - name: 1 - Conferir estrutura do projeto
+        id: structure
         shell: bash
         env:
           ROOT: ${{ steps.project.outputs.root }}
@@ -101,6 +104,7 @@ jobs:
           java-version: '17'
 
       - name: 2b - Validar settings/build/wrapper/JDK
+        id: toolchain
         shell: bash
         env:
           ROOT: ${{ steps.project.outputs.root }}
@@ -121,6 +125,7 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Instalar platform/build-tools
+        id: sdk_install
         shell: bash
         run: |
           set -euo pipefail
@@ -131,6 +136,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: 3 - Validar Manifest
+        id: manifest
         working-directory: ${{ steps.project.outputs.root }}
         shell: bash
         run: |
@@ -143,6 +149,7 @@ jobs:
           ./gradlew :app:processDebugMainManifest --stacktrace --no-daemon
 
       - name: 4 - Compilar resources/AAPT
+        id: resources
         working-directory: ${{ steps.project.outputs.root }}
         shell: bash
         run: |
@@ -150,6 +157,7 @@ jobs:
           ./gradlew :app:processDebugResources --stacktrace --no-daemon
 
       - name: 5 - Compilar Kotlin e Java
+        id: compile
         working-directory: ${{ steps.project.outputs.root }}
         shell: bash
         run: |
@@ -157,6 +165,7 @@ jobs:
           ./gradlew :app:compileDebugKotlin :app:compileDebugJavaWithJavac --stacktrace --no-daemon
 
       - name: 6 - Gerar APK somente após diagnóstico verde
+        id: apk
         working-directory: ${{ steps.project.outputs.root }}
         shell: bash
         run: |
@@ -170,6 +179,7 @@ jobs:
           sha256sum "$GITHUB_WORKSPACE/diagnostico-out/CYBERPUNK_RED_R5_34_DEBUG.apk" | tee "$GITHUB_WORKSPACE/diagnostico-out/CYBERPUNK_RED_R5_34_DEBUG.apk.sha256"
 
       - name: Congelar fonte que compilou
+        id: freeze
         shell: bash
         env:
           ROOT: ${{ steps.project.outputs.root }}
@@ -204,6 +214,7 @@ jobs:
           EOF
 
       - name: Publicar artifact do diagnóstico
+        id: artifact
         uses: actions/upload-artifact@v4
         with:
           name: cyberpunk-red-r5.34-diagnostico
@@ -211,3 +222,46 @@ jobs:
           if-no-files-found: error
           retention-days: 30
           compression-level: 0
+
+      - name: Registrar resultado do diagnóstico no repositório
+        if: always()
+        shell: bash
+        env:
+          DOWNLOAD: ${{ steps.download.outcome }}
+          EXTRACT: ${{ steps.extract.outcome }}
+          STRUCTURE: ${{ steps.structure.outcome }}
+          TOOLCHAIN: ${{ steps.toolchain.outcome }}
+          SDK_INSTALL: ${{ steps.sdk_install.outcome }}
+          MANIFEST: ${{ steps.manifest.outcome }}
+          RESOURCES: ${{ steps.resources.outcome }}
+          COMPILE: ${{ steps.compile.outcome }}
+          APK: ${{ steps.apk.outcome }}
+          FREEZE: ${{ steps.freeze.outcome }}
+          ARTIFACT: ${{ steps.artifact.outcome }}
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout -B main origin/main
+          mkdir -p cyberpunk-red
+          cat > cyberpunk-red/diagnostico-latest.txt <<EOF
+          BASELINE_ID=$BASELINE_ID
+          RUN_ID=$GITHUB_RUN_ID
+          COMMIT=$GITHUB_SHA
+          DOWNLOAD=$DOWNLOAD
+          EXTRACT=$EXTRACT
+          STRUCTURE=$STRUCTURE
+          TOOLCHAIN=$TOOLCHAIN
+          SDK_INSTALL=$SDK_INSTALL
+          MANIFEST=$MANIFEST
+          RESOURCES_AAPT=$RESOURCES
+          KOTLIN_JAVA=$COMPILE
+          ASSEMBLE_APK=$APK
+          FREEZE_SOURCE=$FREEZE
+          UPLOAD_ARTIFACT=$ARTIFACT
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add cyberpunk-red/diagnostico-latest.txt
+          git diff --cached --quiet && exit 0
+          git commit -m "diagnostico: Cyberpunk RED Android run $GITHUB_RUN_ID"
+          git push origin main
