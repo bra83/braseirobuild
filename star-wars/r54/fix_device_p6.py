@@ -26,14 +26,10 @@ for p in (SHELL, BIND, STARTS, MANIFEST):
     if not p.is_file():
         raise SystemExit("missing P6 input: " + str(p))
 
-# P5's document-capture listener preempts every later DADOS handler.
-# Disable only that legacy selector; P6 owns the canonical .r53-dice-fab click.
+# P5 browser interception is fully superseded by P6.
+# Native P5 persistence fixes live in GeminiBridge.java and remain intact.
 if P5.is_file():
-    p5s = P5.read_text("utf-8")
-    old_dice_capture = "closest('.r53-dice-fab')"
-    if old_dice_capture in p5s:
-        p5s = p5s.replace(old_dice_capture, "closest('.r53-dice-fab.__r54_p5_dice_disabled')", 1)
-        P5.write_text(p5s, "utf-8")
+    P5.write_text("/* R54 P5 browser runtime superseded by P6; intentionally no-op. */\n", "utf-8")
 
 IMG_EXT = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif"}
 BAD_VISUAL = re.compile(r"(?:^|[/_. -])(inventory|placeholder|fallback|generic|default|robot)(?:[/_. -]|$)", re.I)
@@ -419,21 +415,12 @@ function repairDiceButton(){
   document.querySelectorAll(".r53-dice-fab").forEach(function(b){
     b.dataset.p6DiceOwned="1";
     b.onpointerdown=function(){setTimeout(dicePanel,0);};
+    b.onclick=function(e){
+      if(e){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();}
+      dicePanel();
+      return false;
+    };
   });
-  if(window.__R54_P6_DICE_CAPTURE__)return;
-  window.__R54_P6_DICE_CAPTURE__=true;
-  var hit=function(e){return e.target&&e.target.closest&&e.target.closest(".r53-dice-fab");};
-  window.addEventListener("pointerdown",function(e){
-    if(!hit(e))return;
-    setTimeout(dicePanel,0);
-  },true);
-  window.addEventListener("click",function(e){
-    if(!hit(e))return;
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    setTimeout(dicePanel,0);
-  },true);
 }
 function geminiConfigured(){
   try{var r=parse(window.BraseiroGemini&&window.BraseiroGemini.getStatus&&window.BraseiroGemini.getStatus())||{};return !!r.configured;}catch(e){return false;}
