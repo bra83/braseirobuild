@@ -137,7 +137,8 @@ jobs:
                 return {text:sheet.textContent,overflowY:cs.overflowY,w:r.width,h:r.height,visible:r.width>100&&r.height>100};
               }""")
               evidence["dice"]=d
-              dice_diag=dice.first.evaluate("e=>({outer:e.outerHTML,onclick:typeof e.onclick,owned:e.dataset.p6DiceOwned||null})")\n              assert d and d["visible"] and "ROLAR DADOS" in d["text"], {"modal":d,"button":dice_diag}
+              dice_diag=dice.first.evaluate("e=>({outer:e.outerHTML,onclick:typeof e.onclick,owned:e.dataset.p6DiceOwned||null})")
+              assert d and d["visible"] and "ROLAR DADOS" in d["text"], {"modal":d,"button":dice_diag}
               assert d["overflowY"]=="auto",d
 
               p.goto(base+"?screen=09",wait_until="domcontentloaded",timeout=120000)
