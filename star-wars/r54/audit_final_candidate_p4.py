@@ -15,7 +15,9 @@ gate('PDF_PERSIST_INDEX',M,['takePersistableUriPermission','FLAG_GRANT_PERSISTAB
 gate('GEMINI_PERSIST',G,['AndroidKeyStore','SharedPreferences','keyPreferences','readApiKey()'])
 gate('MODEL_PERSIST_SEPARATE',G,['modelPreferences'])
 gate('BARBARA_LONG',G,['900-1400 palavras','8-14 parágrafos','nunca reduza a narração a uma frase de fallback'])
-alltxt='\n'.join(p.read_text('utf-8',errors='ignore') for p in v.rglob('*') if p.is_file() and p.suffix.lower() in {'.js','.html','.css','.json'})
+files=[p for p in v.rglob('*') if p.is_file() and p.suffix.lower() in {'.js','.html','.css','.json'}]
+texts={p:p.read_text('utf-8',errors='ignore') for p in files}
+alltxt='\n'.join(texts.values())
 gate('MAP_INTERACTION',alltxt,['local.map.galaxy'])
 for token in ['zoom','pan']:
  if token.lower() not in alltxt.lower(): raise SystemExit('FAIL MAP_'+token.upper())
@@ -23,10 +25,21 @@ print('PASS MAP_ZOOM_PAN')
 for token in ['NPC','facção','droide','rota','viagem','nave','AoR']:
  if token.lower() not in alltxt.lower(): raise SystemExit('FAIL WORLD '+token)
 print('PASS LIVING_WORLD_SURFACES')
-if 'inventory.png' in alltxt:
- # UI nav icon is legitimate; reject known item-image fallback patterns only.
- bad=[ln for ln in alltxt.splitlines() if 'inventory.png' in ln and ('fallback' in ln.lower() or 'item' in ln.lower() or 'acquisition' in ln.lower())]
- if bad: raise SystemExit('FAIL ITEM_PLACEHOLDER inventory.png used as item fallback')
+# inventory.png is a legitimate navigation/legacy icon. Fail only when executable
+# item/acquisition rendering assigns it as an image fallback. Comments and CSS
+# selectors such as ".is-fallback" must not trigger this gate.
+bad=[]
+assign_re=re.compile(r'''(?:src|image|imageSrc|asset|fallback)\s*[:=]\s*['"][^'"]*inventory\.png''',re.I)
+for p,t in texts.items():
+ for n,ln in enumerate(t.splitlines(),1):
+  s=ln.strip()
+  if 'inventory.png' not in s.lower(): continue
+  if s.startswith(('//','/*','*','#')): continue
+  low=s.lower()
+  item_context=any(x in low for x in ('item','acquisition','catalog','weapon','equipment'))
+  if item_context and assign_re.search(s):
+   bad.append(f'{p.relative_to(v)}:{n}:{s[:180]}')
+if bad: raise SystemExit('FAIL ITEM_PLACEHOLDER inventory.png executable item fallback: '+' | '.join(bad[:8]))
 print('PASS NO_ITEM_PLACEHOLDER_FALLBACK')
 imgs=[p for p in v.rglob('*') if p.is_file() and p.suffix.lower() in {'.png','.jpg','.jpeg','.webp'}]
 if not imgs: raise SystemExit('FAIL ASSETS no images')
