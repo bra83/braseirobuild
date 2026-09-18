@@ -12,6 +12,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Mark P6 running
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci-results
+          printf 'R54_P6_STATUS=RUNNING\nSOURCE_COMMIT=%s\n' "$GITHUB_SHA" > ci-results/STAR_WARS_R54_P6_STATUS.txt
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add ci-results/STAR_WARS_R54_P6_STATUS.txt
+          git commit -m 'ci(star-wars): mark R54 P6 running' || true
+          git push origin HEAD:main
+
       - name: Recover P5 and apply P6
         id: root
         shell: bash
@@ -250,7 +262,31 @@ jobs:
           cp /tmp/P6_BROWSER.txt star-wars/r54/audit/DEVICE_P6_BROWSER_2026-09-17.txt
           cp /tmp/P6_REPORT.txt star-wars/r54/audit/DEVICE_P6_REPORT_2026-09-17.txt
           cp /tmp/P6_REPORT.json star-wars/r54/audit/DEVICE_P6_REPORT_2026-09-17.json
+          mkdir -p ci-results
+          printf 'R54_P6_STATUS=PASS\nAPK=STAR_WARS_EDGE_OF_THE_GALAXY_R54_DEVICE_P6_DEBUG.apk\nZIP=STAR_WARS_EDGE_OF_THE_GALAXY_ANDROID_STUDIO_R54_DEVICE_P6.zip\n' > ci-results/STAR_WARS_R54_P6_STATUS.txt
 
-          git add -f "$OUT" star-wars/r54/audit
+          git add -f "$OUT" star-wars/r54/audit ci-results/STAR_WARS_R54_P6_STATUS.txt
           git commit -m 'build(star-wars): persist R54 device P6 closure' || exit 0
+          git push origin HEAD:main
+
+      - name: Persist P6 failure marker
+        if: failure()
+        shell: bash
+        run: |
+          set +e
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git fetch origin main
+          git reset --hard origin/main
+          mkdir -p ci-results star-wars/r54/audit
+          {
+            echo 'R54_P6_STATUS=FAIL'
+            echo "SOURCE_COMMIT=$GITHUB_SHA"
+            if test -f /tmp/P6_PATCH.txt; then echo '--- PATCH ---'; cat /tmp/P6_PATCH.txt; fi
+            if test -f /tmp/P6_BROWSER.txt; then echo '--- BROWSER ---'; cat /tmp/P6_BROWSER.txt; fi
+          } > ci-results/STAR_WARS_R54_P6_STATUS.txt
+          cp /tmp/P6_PATCH.txt star-wars/r54/audit/DEVICE_P6_PATCH_FAILED_2026-09-17.txt 2>/dev/null || true
+          cp /tmp/P6_BROWSER.txt star-wars/r54/audit/DEVICE_P6_BROWSER_FAILED_2026-09-17.txt 2>/dev/null || true
+          git add ci-results/STAR_WARS_R54_P6_STATUS.txt star-wars/r54/audit
+          git commit -m 'ci(star-wars): persist R54 P6 failure diagnostics' || exit 0
           git push origin HEAD:main
