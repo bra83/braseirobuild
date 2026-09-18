@@ -2,4 +2,4 @@
 <stdin>:104: SyntaxWarning: invalid escape sequence '\.'
 Traceback (most recent call last):
   File "<stdin>", line 77, in <module>
-AssertionError: {'modal': None, 'button': {'outer': '<button type="button" class="r53-fab r54-p6-dice-fab" aria-label="Abrir dados narrativos">DADOS</button>', 'onclick': 'function', 'owned': None}}
+AssertionError: {'modal': None, 'button': {'outer': '<input type="button" value="DADOS" class="r53-fab r54-p6-dice-fab" aria-label="Abrir dados narrativos">', 'onclick': 'function', 'owned': None}}
