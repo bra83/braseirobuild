@@ -1,0 +1,41 @@
+OPEN 0 https://firestorage.ai/ja/f/qe47r3Xkf4KX
+PAGE 共有ファイル | firestorage.ai https://firestorage.ai/ja/f/qe47r3Xkf4KX
+CANDIDATE_LINK {"href":"https://firestorage.ai/ja/","text":"","download":""}
+CANDIDATE_LINK {"href":"https://firestorage.ai/ja/f/qe47r3Xkf4KX","text":"日本語","download":""}
+CANDIDATE_LINK {"href":"https://firestorage.ai/en/f/qe47r3Xkf4KX","text":"English","download":""}
+CANDIDATE_LINK {"href":"https://firestorage.ai/ja/","text":"","download":""}
+CANDIDATE_LINK {"href":"https://firestorage.ai/ja/privacy.html","text":"プライバシー","download":""}
+CANDIDATE_LINK {"href":"https://firestorage.ai/ja/company.html","text":"会社概要","download":""}
+CANDIDATE_LINK {"href":"https://firestorage.ai/ja/terms.html","text":"利用規約","download":""}
+CANDIDATE_LINK {"href":"https://firestorage.ai/ja/firestorage_privacyall.html","text":"個人情報の取扱いについて","download":""}
+CLICK_CANDIDATES []
+BODY_SNAPSHOT 🌐
+日本語
+|English
+共有ファイル
+公開終了
+ファイルは削除されました
+
+この共有ファイルの保存期限は終了しています。
+
+AIが直接使えるオンラインストレージ
+
+プライバシー
+会社概要
+利用規約
+個人情報の取扱いについて
+© 2026 Logic Factory Co., Ltd. All rights reserved.
+DOM_CONTROLS [{"tag":"A","text":"","href":"https://firestorage.ai/ja/","aria":"firestorage.ai トップへ"},{"tag":"A","text":"日本語","href":"https://firestorage.ai/ja/f/qe47r3Xkf4KX","aria":""},{"tag":"A","text":"English","href":"https://firestorage.ai/en/f/qe47r3Xkf4KX","aria":""},{"tag":"A","text":"","href":"https://firestorage.ai/ja/","aria":"firestorage.ai トップへ"},{"tag":"A","text":"プライバシー","href":"https://firestorage.ai/ja/privacy.html","aria":""},{"tag":"A","text":"会社概要","href":"https://firestorage.ai/ja/company.html","aria":""},{"tag":"A","text":"利用規約","href":"https://firestorage.ai/ja/terms.html","aria":""},{"tag":"A","text":"個人情報の取扱いについて","href":"https://firestorage.ai/ja/firestorage_privacyall.html","aria":""}]
+file:///tmp/dnd-download/download.mjs:105
+    throw new Error('download failed '+j);
+          ^
+
+Error: download failed 0
+    at file:///tmp/dnd-download/download.mjs:105:11
+
+Node.js v22.23.2
+
+===== META =====
+SOURCE_COMMIT=0f2771893037684889a0430877fe79b9699331cc
+EXIT_CODE=1
+WORKFLOW=RUN103_FIX5
