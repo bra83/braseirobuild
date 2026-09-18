@@ -415,10 +415,10 @@ function repairDiceButton(){
   document.querySelectorAll(".r53-dice-fab").forEach(function(old){old.remove();});
   var b=document.querySelector(".r54-p6-dice-fab");
   if(!b){
-    b=document.createElement("button");
+    b=document.createElement("input");
     b.type="button";
+    b.value="DADOS";
     b.className="r53-fab r54-p6-dice-fab";
-    b.textContent="DADOS";
     b.setAttribute("aria-label","Abrir dados narrativos");
     document.body.appendChild(b);
   }
