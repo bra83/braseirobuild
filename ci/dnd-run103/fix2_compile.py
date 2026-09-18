@@ -275,7 +275,7 @@ def _method_openings(mask):
         head=mask[d+1:p]
         if '=' in head or '->' in head: continue
         # Never interpret an anonymous-class constructor as a method declaration.
-        if re.search(r'\bnew\s+[\w.$<>?]+\s*\([^{};]*\)\s*
+        if 'new ' in head and head.strip().endswith(')'):
             continue
         before_name=mask[d+1:k+1].strip()
         if before_name.endswith('.') or before_name.startswith('return '):
