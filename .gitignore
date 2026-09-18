@@ -1,0 +1,15 @@
+# Android / Gradle generated files
+.gradle/
+build/
+**/build/
+local.properties
+*.apk
+*.aab
+
+# IDE / local machine
+.idea/
+*.iml
+
+# Secrets / local environment
+.env
+.env.*

@@ -1,5 +1,0 @@
-com.braseiro.wwn
-mipmap ic_launcher
-mipmap ic_launcher_round
-style Theme_BraseiroWWN
-xml backup_rules
