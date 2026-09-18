@@ -54,5 +54,8 @@ jobs:
       - name: Fail workflow when build failed
         if: steps.build.outputs.exit_code != '0'
         run: |
-          tail -n 200 out/FULL_BUILD_LOG.txt
+          echo '===== COMPILER ERRORS ====='
+          grep -n -E -B2 -A4 'error:|unreported exception|cannot find symbol|FAILURE:|Execution failed for task|What went wrong' out/FULL_BUILD_LOG.txt | tail -n 260 || true
+          echo '===== BUILD TAIL ====='
+          tail -n 80 out/FULL_BUILD_LOG.txt
           exit 1
