@@ -416,16 +416,23 @@ function dicePanel(){
   };
 }
 function repairDiceButton(){
-  document.querySelectorAll(".r53-dice-fab").forEach(function(b){b.dataset.p6DiceOwned="1";});
+  document.querySelectorAll(".r53-dice-fab").forEach(function(b){
+    b.dataset.p6DiceOwned="1";
+    b.onpointerdown=function(){setTimeout(dicePanel,0);};
+  });
   if(window.__R54_P6_DICE_CAPTURE__)return;
   window.__R54_P6_DICE_CAPTURE__=true;
+  var hit=function(e){return e.target&&e.target.closest&&e.target.closest(".r53-dice-fab");};
+  window.addEventListener("pointerdown",function(e){
+    if(!hit(e))return;
+    setTimeout(dicePanel,0);
+  },true);
   window.addEventListener("click",function(e){
-    var b=e.target&&e.target.closest&&e.target.closest(".r53-dice-fab");
-    if(!b)return;
+    if(!hit(e))return;
     e.preventDefault();
     e.stopPropagation();
     e.stopImmediatePropagation();
-    dicePanel();
+    setTimeout(dicePanel,0);
   },true);
 }
 function geminiConfigured(){
