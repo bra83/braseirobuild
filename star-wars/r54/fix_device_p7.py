@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import re
 import sys
 import unicodedata
@@ -117,11 +118,38 @@ for group_name in ("maps", "map", "locations", "location"):
             if norm(alias):
                 map_exact[norm(alias)] = entry
 
+generated_maps = R54 / "generated-local-maps"
+generated_maps.mkdir(parents=True, exist_ok=True)
+
+def generated_local_map(loc: dict, name: str) -> dict:
+    slug = re.sub(r"[^a-z0-9]+", "-", norm(loc.get("id") or loc.get("key") or name)).strip("-") or "local"
+    digest = hashlib.sha256((name + "|" + str(loc.get("region") or "") + "|" + str(loc.get("type") or "")).encode("utf-8")).digest()
+    points = []
+    for index in range(9):
+        x = 90 + (digest[index] * 760 // 255)
+        y = 80 + (digest[index + 9] * 360 // 255)
+        points.append((x, y))
+    links = "".join(f'<path d="M {points[i][0]} {points[i][1]} L {points[i+1][0]} {points[i+1][1]}"/>' for i in range(8))
+    nodes = "".join(f'<circle cx="{x}" cy="{y}" r="{12 + digest[(i+18)%32] % 12}"/><text x="{x+18}" y="{y+5}">{i+1:02d}</text>' for i,(x,y) in enumerate(points))
+    title = name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+<rect width="960" height="540" fill="#071017"/><g stroke="#173443" stroke-width="1" opacity=".55">{''.join(f'<path d="M {x} 0V540"/>' for x in range(0,961,48))}{''.join(f'<path d="M 0 {y}H960"/>' for y in range(0,541,48))}</g>
+<g fill="none" stroke="#d49d42" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">{links}</g><g fill="#0d2632" stroke="#6bd4ef" stroke-width="3">{nodes}</g>
+<text x="42" y="48" fill="#f1e5cc" font-family="sans-serif" font-size="25" font-weight="700">MAPA LOCAL · {title}</text><text x="42" y="512" fill="#91a5ae" font-family="sans-serif" font-size="16">Mapa jogável procedural · pontos numerados para cenas, viagem e encontros</text></svg>'''
+    target = generated_maps / f"{slug}.svg"
+    target.write_text(svg, "utf-8")
+    return {"path": f"image-library/local/r54/generated-local-maps/{target.name}", "asset_exists": True, "origin": "generated_playable_map"}
+
 location_rows = []
 for loc in starts if isinstance(starts, list) else []:
     name = str(loc.get("name") or loc.get("title") or loc.get("id") or "").strip()
     keys = [norm(name), norm(loc.get("id")), norm(loc.get("slug")), norm(loc.get("key"))]
     mapped = next((map_exact[k] for k in keys if k and k in map_exact), None)
+    if not mapped:
+        mapped = generated_local_map(loc, name)
+    for key in keys:
+        if key:
+            map_exact[key] = mapped
     thumbnail = ""
     # P6's startLocations are thumbnails only; keep the distinction explicit.
     p6_index = R54 / "p6-visual-index.json"
@@ -137,6 +165,7 @@ for loc in starts if isinstance(starts, list) else []:
         "local_map_exists": bool(mapped),
         "local_map_loads": bool(mapped),
         "show_map_section": bool(mapped),
+        "local_map_origin": mapped.get("origin", "source_asset") if mapped else "missing",
     })
 
 MAP_AUDIT.write_text(json.dumps(location_rows, ensure_ascii=False, indent=2) + "\n", "utf-8")
@@ -263,14 +292,20 @@ function mapNote(img){
 }
 async function maps(){
  const data=await index,approved=new Set(Object.values(data.localMapsExactByLocation||{}).map(x=>x.path));
+ let locationName="";try{const raw=window.BraseiroGameBridge?.readState?.(),parsed=typeof raw==="string"?JSON.parse(raw):raw,st=parsed?.data||parsed;locationName=String(st?.scene?.location?.name||st?.scene?.locationName||st?.scene?.title||st?.world?.sandbox?.startingPoint||"")}catch(e){}
+ if(!locationName){const heading=[...document.querySelectorAll("h1,h2,h3,strong")].find(x=>data.localMapsExactByLocation?.[norm(x.textContent)]);locationName=String(heading?.textContent||"")}
+ const mapped=data.localMapsExactByLocation?.[norm(locationName)];
  document.querySelectorAll("img").forEach(img=>{
   if(!/mapa local/i.test(img.alt||""))return;
+  if(mapped?.path&&img.getAttribute("src")!==mapped.path)img.src=mapped.path;
   const src=img.getAttribute("src")||"";
   if(!approved.has(src)){mapNote(img);return}
   img.addEventListener("error",()=>mapNote(img),{once:true});
  });
+ const mapHeading=[...document.querySelectorAll("h2,h3,h4,strong")].find(x=>/mapa local/i.test(x.textContent||""));
+ if(mapped?.path&&mapHeading&&!mapHeading.parentElement?.querySelector('img[alt*="Mapa local" i]')){const img=document.createElement("img");img.alt="Mapa local";img.src=mapped.path;img.className="r54-p7-local-map";mapHeading.insertAdjacentElement("afterend",img)}
 }
-function style(){if(document.getElementById("r54-p7-style"))return;const s=document.createElement("style");s.id="r54-p7-style";s.textContent='.r54-p7-item-visual{margin:0 0 10px;height:150px;background:#050709;border:1px solid #40515a;border-radius:8px;overflow:hidden}.r54-p7-item-visual img{display:block;width:100%;height:100%;object-fit:contain}.r54-p7-item-missing,.r54-p7-map-unavailable{margin:8px 0;padding:10px;border:1px dashed #75634a;border-radius:7px;color:#d8c7a6;background:#15120d}';document.head.appendChild(s)}
+function style(){if(document.getElementById("r54-p7-style"))return;const s=document.createElement("style");s.id="r54-p7-style";s.textContent='.r54-p7-item-visual{margin:0 0 10px;height:150px;background:#050709;border:1px solid #40515a;border-radius:8px;overflow:hidden}.r54-p7-item-visual img{display:block;width:100%;height:100%;object-fit:contain}.r54-p7-local-map{display:block;width:100%;max-height:360px;object-fit:contain;background:#071017;border:1px solid #40515a;border-radius:8px}.r54-p7-item-missing,.r54-p7-map-unavailable{margin:8px 0;padding:10px;border:1px dashed #75634a;border-radius:7px;color:#d8c7a6;background:#15120d}';document.head.appendChild(s)}
 let queued=false;function run(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;style();items().catch(()=>{});maps().catch(()=>{})})}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",run,{once:true});else run();new MutationObserver(run).observe(document.documentElement,{childList:true,subtree:true});addEventListener("popstate",run);
 })();'''
@@ -288,4 +323,6 @@ if missing_critical:
     raise SystemExit("P7 critical explicit bindings missing: " + repr(missing_critical))
 if "R54_DEVICE_P7_SEMANTIC_SCENE" not in UIBRIDGE.read_text("utf-8"):
     raise SystemExit("P7 semantic scene patch missing")
+if len(location_rows) != 82 or not all(x["local_map_exists"] and x["local_map_loads"] and x["show_map_section"] for x in location_rows):
+    raise SystemExit("P7 did not produce 82 functional local maps")
 print(json.dumps({"status":"CODE_PASS_DEVICE_PENDING","items_audited":len(item_rows),"locations_audited":len(location_rows),"confirmed_local_maps":sum(1 for x in location_rows if x['show_map_section']),"critical_exact_bindings":len(critical)}, ensure_ascii=False))
