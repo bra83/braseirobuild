@@ -268,8 +268,7 @@ def _method_openings(mask):
         k=q-1
         while k>=0 and mask[k].isspace(): k-=1
         e=k
-        while k>=0 and (mask[k].isalnum() or mask[k] in '_
-): k-=1
+        while k>=0 and (mask[k].isalnum() or mask[k] in "_$"): k-=1
         name=mask[k+1:e+1]
         if not name or name in controls: continue
         # declaration starts after previous statement/class delimiter
