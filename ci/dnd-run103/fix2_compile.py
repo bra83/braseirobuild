@@ -284,8 +284,8 @@ def _method_openings(mask):
     return found
 
 json_wrapped=0
-for jp in [orch.parent/'TashaWorldPhenomenaEngine.java', orch.parent/'StatblockCombatFlowEngine.java', orch.parent/'TashaFeatCompiledRulesEngine.java', orch.parent/'StatblockEncounterStateEngine.java']:
-    if not jp.exists():
+for jp in orch.parent.glob('*.java'):
+    if jp.name == 'MainActivity.java':
         continue
     src=jp.read_text(encoding='utf-8')
     mask=_mask_java(src)
@@ -309,4 +309,4 @@ for jp in [orch.parent/'TashaWorldPhenomenaEngine.java', orch.parent/'StatblockC
         jp.write_text(src,encoding='utf-8')
 
 
-print(f'FIX8_OK master_orchestrator_wrapped={wrapped} authorized_ingestion_patched=true helpers_contained=true catch_fallbacks={catch_fallbacks} faerun_json_checked=true json_wrapped={json_wrapped}')
+print(f'FIX9_BULK_OK master_orchestrator_wrapped={wrapped} authorized_ingestion_patched=true helpers_contained=true catch_fallbacks={catch_fallbacks} faerun_json_checked=true json_wrapped={json_wrapped}')
