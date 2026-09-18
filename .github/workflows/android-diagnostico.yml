@@ -1,0 +1,213 @@
+name: Cyberpunk RED Android Diagnóstico R5.34
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/android-diagnostico.yml'
+      - 'cyberpunk-red/android-baseline-r5.34.json'
+
+permissions:
+  contents: read
+
+env:
+  BASELINE_ID: cpred-r5.34-android-green-p1
+  SOURCE_ZIP_SHA256: e6adf2be9cccd455cb4f8b3c0c504a623145c84df6dc44277b208ba66fae9687
+  PART000_ID: 1q5_hnsSFft5WR9nZsg8EwktrfGZt0f31
+  PART001_ID: 1oR2LEo0NLgGJyzO6ImL0prHli0V5C3IY
+  PART002_ID: 1j6FV1tfCDlLUfAmJNnqPuFbxtfujz5q5
+  PART000_SHA256: ae62cca3a92684926a0cb5a6465799ac0e7e6d086f9646e0afca9bc6ceabf9a0
+  PART001_SHA256: 1af7e4a352e68ea53c5c4c56f72a1edd49c8908bc1ea75b77d32a7bbb6c1d0a7
+  PART002_SHA256: 5af4acf2613c35a67d01561142040f0d72f80420d07ecb278d913c013d2595a5
+  ANDROID_HOME: /usr/local/lib/android/sdk
+  ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+
+jobs:
+  diagnostico:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout braseirobuild
+        uses: actions/checkout@v4
+
+      - name: Baixar baseline R5.34 congelado
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet gdown
+          mkdir -p incoming
+          gdown --id "$PART000_ID" -O incoming/source.zip.part000
+          gdown --id "$PART001_ID" -O incoming/source.zip.part001
+          gdown --id "$PART002_ID" -O incoming/source.zip.part002
+          echo "$PART000_SHA256  incoming/source.zip.part000" | sha256sum -c -
+          echo "$PART001_SHA256  incoming/source.zip.part001" | sha256sum -c -
+          echo "$PART002_SHA256  incoming/source.zip.part002" | sha256sum -c -
+          cat incoming/source.zip.part000 incoming/source.zip.part001 incoming/source.zip.part002 > incoming/source.zip
+          echo "$SOURCE_ZIP_SHA256  incoming/source.zip" | sha256sum -c -
+          unzip -t incoming/source.zip >/dev/null
+
+      - name: Extrair e aplicar hotfix Kotlin congelado
+        id: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf work && mkdir work
+          unzip -q incoming/source.zip -d work
+          ROOT="$(find work -type f -name gradlew -print0 | while IFS= read -r -d '' W; do D="$(dirname "$W")"; if [ -f "$D/settings.gradle.kts" ] || [ -f "$D/settings.gradle" ]; then printf '%s\n' "$D"; break; fi; done)"
+          [ -n "$ROOT" ] || { echo '::error::Android root não encontrado'; exit 1; }
+          K="$ROOT/app/src/main/java/com/braseiro/cyberpunkred/BarbaraRuntime.kt"
+          python3 - "$K" <<'PY'
+          from pathlib import Path
+          import sys
+          p=Path(sys.argv[1])
+          s=p.read_text(encoding='utf-8')
+          bad='val enhancementId = evidence.optString("enhancementId"), targetInstanceId = evidence.optString("targetInstanceId")'
+          good='val enhancementId = evidence.optString("enhancementId")\n                    val targetInstanceId = evidence.optString("targetInstanceId")'
+          if bad in s:
+              s=s.replace(bad,good,1)
+              p.write_text(s,encoding='utf-8')
+          if good not in p.read_text(encoding='utf-8'):
+              raise SystemExit('hotfix Kotlin R5.34 não aplicado')
+          PY
+          chmod +x "$ROOT/gradlew"
+          echo "root=$ROOT" >> "$GITHUB_OUTPUT"
+
+      - name: 1 - Conferir estrutura do projeto
+        shell: bash
+        env:
+          ROOT: ${{ steps.project.outputs.root }}
+        run: |
+          set -euo pipefail
+          test -x "$ROOT/gradlew"
+          test -f "$ROOT/settings.gradle.kts"
+          test -f "$ROOT/build.gradle.kts"
+          test -f "$ROOT/app/build.gradle.kts"
+          test -f "$ROOT/gradle/wrapper/gradle-wrapper.properties"
+          test -f "$ROOT/gradle/wrapper/gradle-wrapper.jar"
+          test -f "$ROOT/app/src/main/AndroidManifest.xml"
+          test -d "$ROOT/app/src/main/java"
+          test -d "$ROOT/app/src/main/res"
+          test -d "$ROOT/app/src/main/assets/web/app"
+          test -f "$ROOT/app/wheels/motor_barbara-1.1.2-py3-none-any.whl"
+          grep -F 'include(":app")' "$ROOT/settings.gradle.kts"
+          grep -F 'applicationId = "com.braseiro.cyberpunkred"' "$ROOT/app/build.gradle.kts"
+          echo 'STRUCTURE_PASS'
+
+      - name: 2 - Conferir Gradle wrapper e JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: 2b - Validar settings/build/wrapper/JDK
+        shell: bash
+        env:
+          ROOT: ${{ steps.project.outputs.root }}
+        run: |
+          set -euo pipefail
+          java -version
+          grep -F 'version "8.9.1"' "$ROOT/build.gradle.kts"
+          grep -F 'version "2.0.21"' "$ROOT/build.gradle.kts"
+          grep -F 'version "16.1.0"' "$ROOT/build.gradle.kts"
+          grep -F 'gradle-8.11.1-all.zip' "$ROOT/gradle/wrapper/gradle-wrapper.properties"
+          grep -F 'compileSdk = 36' "$ROOT/app/build.gradle.kts"
+          grep -F 'minSdk = 24' "$ROOT/app/build.gradle.kts"
+          grep -F 'targetSdk = 36' "$ROOT/app/build.gradle.kts"
+          (cd "$ROOT" && ./gradlew --version)
+          (cd "$ROOT" && ./gradlew projects --stacktrace --no-daemon)
+
+      - name: Configurar Android SDK 36
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar platform/build-tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0'
+
+      - name: Configurar cache Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: 3 - Validar Manifest
+        working-directory: ${{ steps.project.outputs.root }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+          ET.parse('app/src/main/AndroidManifest.xml')
+          print('MANIFEST_XML_PASS')
+          PY
+          ./gradlew :app:processDebugMainManifest --stacktrace --no-daemon
+
+      - name: 4 - Compilar resources/AAPT
+        working-directory: ${{ steps.project.outputs.root }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew :app:processDebugResources --stacktrace --no-daemon
+
+      - name: 5 - Compilar Kotlin e Java
+        working-directory: ${{ steps.project.outputs.root }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew :app:compileDebugKotlin :app:compileDebugJavaWithJavac --stacktrace --no-daemon
+
+      - name: 6 - Gerar APK somente após diagnóstico verde
+        working-directory: ${{ steps.project.outputs.root }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew :app:assembleDebug --stacktrace --no-daemon
+          APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | sort | head -n1)"
+          test -f "$APK"
+          mkdir -p "$GITHUB_WORKSPACE/diagnostico-out"
+          cp "$APK" "$GITHUB_WORKSPACE/diagnostico-out/CYBERPUNK_RED_R5_34_DEBUG.apk"
+          unzip -t "$GITHUB_WORKSPACE/diagnostico-out/CYBERPUNK_RED_R5_34_DEBUG.apk" >/dev/null
+          sha256sum "$GITHUB_WORKSPACE/diagnostico-out/CYBERPUNK_RED_R5_34_DEBUG.apk" | tee "$GITHUB_WORKSPACE/diagnostico-out/CYBERPUNK_RED_R5_34_DEBUG.apk.sha256"
+
+      - name: Congelar fonte que compilou
+        shell: bash
+        env:
+          ROOT: ${{ steps.project.outputs.root }}
+        run: |
+          set -euo pipefail
+          mkdir -p green-source/CYBERPUNK_RED_R5_34_ANDROID_STUDIO_GREEN
+          cp -a "$ROOT" green-source/CYBERPUNK_RED_R5_34_ANDROID_STUDIO_GREEN/android
+          cat > green-source/CYBERPUNK_RED_R5_34_ANDROID_STUDIO_GREEN/BASELINE_PROVENANCE.txt <<EOF
+          BASELINE_ID=$BASELINE_ID
+          SOURCE_ZIP_SHA256=$SOURCE_ZIP_SHA256
+          DIAGNOSTIC_RUN_ID=$GITHUB_RUN_ID
+          DIAGNOSTIC_COMMIT=$GITHUB_SHA
+          JDK=17
+          GRADLE=8.11.1
+          AGP=8.9.1
+          KOTLIN=2.0.21
+          COMPILE_SDK=36
+          EOF
+          (cd green-source && zip -qr "$GITHUB_WORKSPACE/diagnostico-out/CYBERPUNK_RED_R5_34_ANDROID_STUDIO_GREEN.zip" CYBERPUNK_RED_R5_34_ANDROID_STUDIO_GREEN)
+          unzip -t diagnostico-out/CYBERPUNK_RED_R5_34_ANDROID_STUDIO_GREEN.zip >/dev/null
+          sha256sum diagnostico-out/CYBERPUNK_RED_R5_34_ANDROID_STUDIO_GREEN.zip | tee diagnostico-out/CYBERPUNK_RED_R5_34_ANDROID_STUDIO_GREEN.zip.sha256
+          cat > diagnostico-out/DIAGNOSTICO_GREEN.txt <<EOF
+          BASELINE_ID=$BASELINE_ID
+          RUN_ID=$GITHUB_RUN_ID
+          COMMIT=$GITHUB_SHA
+          STRUCTURE=PASS
+          GRADLE_WRAPPER_JDK=PASS
+          MANIFEST=PASS
+          RESOURCES_AAPT=PASS
+          KOTLIN_JAVA=PASS
+          ASSEMBLE_DEBUG=PASS
+          EOF
+
+      - name: Publicar artifact do diagnóstico
+        uses: actions/upload-artifact@v4
+        with:
+          name: cyberpunk-red-r5.34-diagnostico
+          path: diagnostico-out/*
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
