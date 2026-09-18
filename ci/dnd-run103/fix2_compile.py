@@ -119,6 +119,24 @@ for jp in orch.parent.glob('*.java'):
     if changed:
         jp.write_text(''.join(out),encoding='utf-8')
 
+# Statblock turn runtime: contain Android's checked JSONException without changing successful-path behavior.
+turn=orch.parent/'StatblockTurnEngine.java'
+if turn.exists():
+    src=turn.read_text(encoding='utf-8')
+    out=[]; turn_wrapped=0
+    for line in src.splitlines(True):
+        raw=line.rstrip('\r\n'); nl=line[len(raw):]
+        s=raw.lstrip()
+        if '.put(' in raw and s.startswith(('public ','private ','protected ')) and 'try{' not in raw and raw.rstrip().endswith('}'):
+            brace=raw.find('{')
+            if brace>=0:
+                raw=raw[:brace+1]+'try{'+raw[brace+1:-1]+'}catch(Exception e){throw new IllegalStateException(e);}}'
+                turn_wrapped+=1
+        out.append(raw+nl)
+    turn.write_text(''.join(out),encoding='utf-8')
+else:
+    turn_wrapped=0
+
 # Faerun SRD monster batch: contain Android's checked JSONException without changing data or public API.
 faerun=orch.parent/'Srd51FaerunCoreMonsterEngine.java'
 if not faerun.exists():
