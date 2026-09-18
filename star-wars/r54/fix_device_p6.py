@@ -412,11 +412,7 @@ function dicePanel(){
   };
 }
 function repairDiceButton(){
-  document.querySelectorAll(".r53-dice-fab").forEach(function(old){
-    old.style.setProperty("display","none","important");
-    old.setAttribute("aria-hidden","true");
-    old.tabIndex=-1;
-  });
+  document.querySelectorAll(".r53-dice-fab").forEach(function(old){old.remove();});
   var b=document.querySelector(".r54-p6-dice-fab");
   if(!b){
     b=document.createElement("button");
