@@ -130,7 +130,7 @@ if 'public static JSONObject install(){try{' not in f:
     f=f.replace('public static JSONObject install(){','public static JSONObject install(){try{',1)
 boundary='    }\n\n    private static JSONObject monster'
 if boundary in f:
-    f=f.replace(boundary,'    }catch(JSONException e){throw new IllegalStateException(e);}\n\n    private static JSONObject monster',1)
+    f=f.replace(boundary,'    }catch(JSONException e){throw new IllegalStateException(e);}}\n\n    private static JSONObject monster',1)
 for a,b in [
 ('private static JSONObject monster(String id,int ac,int hp,String type,double cr,JSONObject movement,JSONObject abilities,int passive,JSONArray actions,JSONArray traits){','private static JSONObject monster(String id,int ac,int hp,String type,double cr,JSONObject movement,JSONObject abilities,int passive,JSONArray actions,JSONArray traits) throws JSONException{'),
 ('private static JSONObject multi(JSONObject s,String... sequence){','private static JSONObject multi(JSONObject s,String... sequence) throws JSONException{'),
