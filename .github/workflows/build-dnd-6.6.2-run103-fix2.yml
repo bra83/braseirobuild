@@ -1,4 +1,4 @@
-name: Braseiro DnD 6.6.2 RUN103 APK FIX7
+name: Braseiro DnD 6.6.2 RUN103 APK FIX8
 on:
   push:
     branches: [main]
@@ -35,33 +35,24 @@ jobs:
             echo "SOURCE_COMMIT=$GITHUB_SHA"
             echo "RUN_ID=$GITHUB_RUN_ID"
             echo "EXIT_CODE=$code"
-            echo "WORKFLOW=RUN103_FIX7"
+            echo "WORKFLOW=RUN103_FIX8"
           } >> out/FULL_BUILD_LOG.txt
           exit 0
 
-      - name: Upload build diagnostics
-        uses: actions/upload-artifact@v4
-        with:
-          name: DND-RUN103-FIX7-DIAGNOSTICS-${{ github.run_id }}
-          path: out/FULL_BUILD_LOG.txt
-          retention-days: 30
-
-      - name: Upload APK artifact
-        if: steps.build.outputs.exit_code == '0'
-        uses: actions/upload-artifact@v4
-        with:
-          name: BRASEIRO-DND-6.6.2-RUN103-FIX7-APK
-          path: out/*
-          retention-days: 30
-
-      - name: Publish release
+      - name: Publish APK release
         if: steps.build.outputs.exit_code == '0'
         env:
           GH_TOKEN: ${{ github.token }}
+        shell: bash
         run: |
-          gh release view DND-6.6.2-RUN103-FIX7 >/dev/null 2>&1 || gh release create DND-6.6.2-RUN103-FIX7 --target main --title 'Braseiro DnD 6.6.2 RUN103 FIX7' --notes 'Package com.braseiro.dnd5e; compile-only fixes; maps/assets/gameplay unchanged.'
-          gh release upload DND-6.6.2-RUN103-FIX7 out/* --clobber
+          set -e
+          TAG=DND-6.6.2-RUN103-FIX8
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" --title 'Braseiro DnD 6.6.2 RUN103 FIX8' --notes 'Validated debug APK. Package com.braseiro.dnd5e. Compile-only repair; maps/assets/gameplay unchanged.'
+          gh release upload "$TAG" out/* --clobber
+          gh release view "$TAG" --json url,tagName,name
 
       - name: Fail workflow when build failed
         if: steps.build.outputs.exit_code != '0'
-        run: exit 1
+        run: |
+          tail -n 200 out/FULL_BUILD_LOG.txt
+          exit 1
