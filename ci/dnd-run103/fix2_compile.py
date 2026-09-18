@@ -119,6 +119,28 @@ for jp in orch.parent.glob('*.java'):
     if changed:
         jp.write_text(''.join(out),encoding='utf-8')
 
+# Generic compile-only containment for generated one-line Java methods using Android org.json.put().
+# Successful-path behavior is unchanged; checked JSON failures become unchecked IllegalStateException.
+json_method_wrapped=0
+for jp in orch.parent.glob('*.java'):
+    src=jp.read_text(encoding='utf-8')
+    out=[]; changed=False
+    for line in src.splitlines(True):
+        raw=line.rstrip('\r\n'); nl=line[len(raw):]
+        s=raw.lstrip()
+        brace=raw.find('{')
+        head=raw[:brace] if brace>=0 else ''
+        if (
+            brace>=0 and raw.rstrip().endswith('}') and '.put(' in raw and 'try{' not in raw
+            and s.startswith(('public ','private ','protected '))
+            and ')' in head and '=' not in head
+        ):
+            raw=raw[:brace+1]+'try{'+raw[brace+1:-1]+'}catch(Exception e){throw new IllegalStateException(e);}}'
+            json_method_wrapped+=1; changed=True
+        out.append(raw+nl)
+    if changed:
+        jp.write_text(''.join(out),encoding='utf-8')
+
 # Statblock turn runtime: contain Android's checked JSONException without changing successful-path behavior.
 turn=orch.parent/'StatblockTurnEngine.java'
 if turn.exists():
