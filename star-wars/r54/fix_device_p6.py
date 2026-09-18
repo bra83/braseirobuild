@@ -208,6 +208,7 @@ def choose(name: str, prefer: str, allow_scene_fallback: bool = False) -> tuple[
 # Authoritative per-location image mapping. Every location gets a physical real asset;
 # exact/semantic matches are preferred, then a deterministic real scene/map illustration.
 location_map = {}
+location_rows = []
 location_missing = []
 for loc in starts if isinstance(starts, list) else []:
     if not isinstance(loc, dict):
@@ -228,6 +229,7 @@ for loc in starts if isinstance(starts, list) else []:
         "score": round(sc, 2),
         "assetId": rec.get("assetId") or "",
     }
+    location_rows.append(entry)
     for key in {norm(name), norm(loc.get("id")), norm(loc.get("slug"))}:
         if key:
             location_map[key] = entry
@@ -274,6 +276,7 @@ index = {
     "records": records,
     "exactByName": exact_by_name,
     "locations": location_map,
+    "startLocations": location_rows,
     "groupCounts": group_counts,
     "locationCount": len({v["name"] for v in location_map.values()}),
 }
@@ -365,7 +368,9 @@ async function bindStartLocations(){
   var data=await idx();
   document.querySelectorAll("#sandbox-list button[data-point]").forEach(function(b){
     if(b.querySelector(".r54-p6-location-thumb"))return;
-    var name=String(b.textContent||"").trim(), rec=(data.locations||{})[norm(name)];
+    var pointIndex=Number(b.dataset.point);
+    var name=String(b.querySelector("strong")?.textContent||b.textContent||"").trim();
+    var rec=(Number.isInteger(pointIndex)&&(data.startLocations||[])[pointIndex])||(data.locations||{})[norm(name)];
     if(!rec||!rec.path)return;
     var im=document.createElement("img"); im.className="r54-p6-location-thumb"; im.src=rec.path; im.alt="";
     b.insertBefore(im,b.firstChild); b.dataset.p6Visual=rec.strategy||"real";
