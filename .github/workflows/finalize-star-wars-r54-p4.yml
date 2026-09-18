@@ -44,3 +44,4 @@ jobs:
           git add -f "$OUT" star-wars/r54/audit
           git commit -m 'build(star-wars): persist R54 P4 final candidate' || exit 0
           git push origin HEAD:main
+# retrigger: runtime-specific placeholder gate fixed 2026-09-17
