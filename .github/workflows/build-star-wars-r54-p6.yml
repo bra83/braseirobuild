@@ -193,7 +193,7 @@ jobs:
           runtime=(vtt/"r46/final-runtime.js").read_text("utf-8",errors="replace")
           gem=(root/"app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java").read_text("utf-8",errors="replace")
           assert "submitPlayerIntent(intentText)" in runtime
-          assert re.search(r"narra[cç][aã]o livre exige provedor", runtime, re.I)
+          assert "[ABERTURA_BARBARA]" in runtime and "Mestre Barbara" in runtime
           assert "R54_DEVICE_P5_KEY_PERSIST" in gem
           assert "keyPreferences.edit().putString(KEY_FALLBACK, clean).commit()" in gem
           assert "readApiKey()" in gem
@@ -344,3 +344,5 @@ jobs:
 # retrigger: static dice control 2026-09-18T03:17:54.632Z
 
 # retrigger: complete sandbox before DADOS 2026-09-18T03:23:01.165Z
+
+# retrigger: replace stale provider text assertion 2026-09-18T03:25:28.490Z
