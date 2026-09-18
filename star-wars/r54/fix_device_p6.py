@@ -412,15 +412,25 @@ function dicePanel(){
   };
 }
 function repairDiceButton(){
-  document.querySelectorAll(".r53-dice-fab").forEach(function(b){
-    b.dataset.p6DiceOwned="1";
-    b.onpointerdown=function(){setTimeout(dicePanel,0);};
-    b.onclick=function(e){
-      if(e){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();}
-      dicePanel();
-      return false;
-    };
+  document.querySelectorAll(".r53-dice-fab").forEach(function(old){
+    old.style.setProperty("display","none","important");
+    old.setAttribute("aria-hidden","true");
+    old.tabIndex=-1;
   });
+  var b=document.querySelector(".r54-p6-dice-fab");
+  if(!b){
+    b=document.createElement("button");
+    b.type="button";
+    b.className="r53-fab r54-p6-dice-fab";
+    b.textContent="DADOS";
+    b.setAttribute("aria-label","Abrir dados narrativos");
+    document.body.appendChild(b);
+  }
+  b.onclick=function(e){
+    if(e){e.preventDefault();e.stopPropagation();}
+    dicePanel();
+    return false;
+  };
 }
 function geminiConfigured(){
   try{var r=parse(window.BraseiroGemini&&window.BraseiroGemini.getStatus&&window.BraseiroGemini.getStatus())||{};return !!r.configured;}catch(e){return false;}
@@ -462,7 +472,7 @@ function mountWorldEntry(){
 function addStyle(){
   if(document.getElementById("r54-p6-style"))return;
   var s=document.createElement("style");s.id="r54-p6-style";s.textContent=
-  '.r54-p1-world-open{display:none!important}.r54-p6-world-open{display:block!important;position:static!important;margin:10px 18px!important;min-height:44px!important;padding:0 14px!important;border:1px solid #45c9f5!important;border-radius:9px!important;background:#081820!important;color:#78ddff!important;font-weight:900!important}'+
+  '.r54-p1-world-open{display:none!important}.r53-dice-fab{display:none!important}.r54-p6-dice-fab{left:max(10px,var(--safe-left))!important}.r54-p6-world-open{display:block!important;position:static!important;margin:10px 18px!important;min-height:44px!important;padding:0 14px!important;border:1px solid #45c9f5!important;border-radius:9px!important;background:#081820!important;color:#78ddff!important;font-weight:900!important}'+
   '#sandbox-list button[data-point]{display:flex!important;align-items:center!important;gap:9px!important}.r54-p6-location-thumb{width:58px!important;height:42px!important;flex:0 0 58px!important;object-fit:cover!important;border-radius:6px!important;border:1px solid rgba(255,255,255,.24)!important}'+
   '.r54-p6-item-visual{margin:0 0 10px!important;width:100%!important;max-height:180px!important;overflow:hidden!important;border-radius:8px!important;background:#050709!important}.r54-p6-item-visual img{display:block!important;width:100%!important;height:150px!important;object-fit:contain!important;background:#050709!important}'+
   '.r54-p6-gemini-status{margin-top:10px!important;padding:9px 10px!important;border:1px solid #42545e!important;border-radius:8px!important;color:#8ee9b0!important;background:#0e1714!important;font-weight:800!important}'+
