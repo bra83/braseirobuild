@@ -125,7 +125,7 @@ jobs:
               if fixed_old.count():
                   assert fixed_old.first.evaluate("e=>getComputedStyle(e).display")=="none"
 
-              dice=p.locator(".r53-dice-fab")
+              dice=p.locator(".r54-p6-dice-fab")
               assert dice.count()>=1
               dice.first.click(force=True)
               p.wait_for_timeout(150)
@@ -314,3 +314,5 @@ jobs:
 # retrigger: pointerdown dice fix 2026-09-18T02:58:44.807Z
 
 # retrigger: retire P5 interceptor 2026-09-18T03:01:08.382Z
+
+# retrigger: isolated P6 DADOS 2026-09-18T03:03:36.439Z
