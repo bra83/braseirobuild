@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-import hashlib
 import re
 import sys
 import unicodedata
@@ -118,27 +117,35 @@ for group_name in ("maps", "map", "locations", "location"):
             if norm(alias):
                 map_exact[norm(alias)] = entry
 
-generated_maps = R54 / "generated-local-maps"
-generated_maps.mkdir(parents=True, exist_ok=True)
+real_map_crops = R54 / "real-location-maps"
+real_map_crops.mkdir(parents=True, exist_ok=True)
+galaxy_map = VTT / "assets/maps/galaxy_map.jpg"
 
-def generated_local_map(loc: dict, name: str) -> dict:
+def real_galaxy_crop(loc: dict, name: str) -> dict:
+    if not galaxy_map.is_file():
+        raise SystemExit(f"real packaged galaxy map missing: {galaxy_map}")
+    try:
+        from PIL import Image, ImageDraw
+    except ImportError as exc:
+        raise SystemExit("P7 requires Pillow to create real coordinate map crops") from exc
     slug = re.sub(r"[^a-z0-9]+", "-", norm(loc.get("id") or loc.get("key") or name)).strip("-") or "local"
-    digest = hashlib.sha256((name + "|" + str(loc.get("region") or "") + "|" + str(loc.get("type") or "")).encode("utf-8")).digest()
-    points = []
-    for index in range(9):
-        x = 90 + (digest[index] * 760 // 255)
-        y = 80 + (digest[index + 9] * 360 // 255)
-        points.append((x, y))
-    links = "".join(f'<path d="M {points[i][0]} {points[i][1]} L {points[i+1][0]} {points[i+1][1]}"/>' for i in range(8))
-    nodes = "".join(f'<circle cx="{x}" cy="{y}" r="{12 + digest[(i+18)%32] % 12}"/><text x="{x+18}" y="{y+5}">{i+1:02d}</text>' for i,(x,y) in enumerate(points))
-    title = name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
-<rect width="960" height="540" fill="#071017"/><g stroke="#173443" stroke-width="1" opacity=".55">{''.join(f'<path d="M {x} 0V540"/>' for x in range(0,961,48))}{''.join(f'<path d="M 0 {y}H960"/>' for y in range(0,541,48))}</g>
-<g fill="none" stroke="#d49d42" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">{links}</g><g fill="#0d2632" stroke="#6bd4ef" stroke-width="3">{nodes}</g>
-<text x="42" y="48" fill="#f1e5cc" font-family="sans-serif" font-size="25" font-weight="700">MAPA LOCAL · {title}</text><text x="42" y="512" fill="#91a5ae" font-family="sans-serif" font-size="16">Mapa jogável procedural · pontos numerados para cenas, viagem e encontros</text></svg>'''
-    target = generated_maps / f"{slug}.svg"
-    target.write_text(svg, "utf-8")
-    return {"path": f"image-library/local/r54/generated-local-maps/{target.name}", "asset_exists": True, "origin": "generated_playable_map"}
+    with Image.open(galaxy_map) as source:
+        source = source.convert("RGB")
+        width, height = source.size
+        px = float(loc.get("x", 50)); py = float(loc.get("y", 50))
+        if px <= 1 and py <= 1: px *= 100; py *= 100
+        cx = int(max(0, min(100, px)) * width / 100)
+        cy = int(max(0, min(100, py)) * height / 100)
+        crop_w, crop_h = min(width, max(720, width // 4)), min(height, max(405, height // 4))
+        left = max(0, min(width - crop_w, cx - crop_w // 2)); top = max(0, min(height - crop_h, cy - crop_h // 2))
+        crop = source.crop((left, top, left + crop_w, top + crop_h)).resize((960, 540), Image.Resampling.LANCZOS)
+        draw = ImageDraw.Draw(crop)
+        mx = int((cx - left) * 960 / crop_w); my = int((cy - top) * 540 / crop_h)
+        draw.ellipse((mx-15, my-15, mx+15, my+15), fill=(8, 15, 20), outline=(255, 196, 72), width=5)
+        draw.line((mx-26, my, mx+26, my), fill=(255, 196, 72), width=3); draw.line((mx, my-26, mx, my+26), fill=(255, 196, 72), width=3)
+        target = real_map_crops / f"{slug}.jpg"
+        crop.save(target, "JPEG", quality=92, optimize=True)
+    return {"path": f"image-library/local/r54/real-location-maps/{target.name}", "asset_exists": True, "origin": "real_galaxy_map_coordinate_crop", "source": "assets/maps/galaxy_map.jpg", "source_url": "https://thedarkelf007.home.blog/blog/star-wars/star-wars-rpg-galaxy-map/"}
 
 location_rows = []
 for loc in starts if isinstance(starts, list) else []:
@@ -146,7 +153,7 @@ for loc in starts if isinstance(starts, list) else []:
     keys = [norm(name), norm(loc.get("id")), norm(loc.get("slug")), norm(loc.get("key"))]
     mapped = next((map_exact[k] for k in keys if k and k in map_exact), None)
     if not mapped:
-        mapped = generated_local_map(loc, name)
+        mapped = real_galaxy_crop(loc, name)
     for key in keys:
         if key:
             map_exact[key] = mapped
