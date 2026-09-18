@@ -87,4 +87,26 @@ new_block='private static JSONObject block(String k,String n,String why){try{ret
 if old_block in a:
     a=a.replace(old_block,new_block,1)
 ingest.write_text(a,encoding='utf-8')
-print(f'FIX6_OK master_orchestrator_wrapped={wrapped} authorized_ingestion_patched=true helpers_contained=true')
+
+# Package-wide fail-closed repair for one-line catch fallbacks which return a chained JSONObject.put().
+# Android's org.json.JSONException is checked, so a put() inside the catch body itself must also be contained.
+catch_fallbacks=0
+for jp in orch.parent.glob('*.java'):
+    src=jp.read_text(encoding='utf-8')
+    out=[]; changed=False
+    for line in src.splitlines(True):
+        raw=line.rstrip('\\r\\n'); nl=line[len(raw):]
+        ci=raw.find('catch(')
+        if ci>=0:
+            marker=raw.find('){return ',ci)
+            if marker>=0 and '.put(' in raw[marker:] and raw.endswith(';}}') and '){try{return ' not in raw[ci:]:
+                expr=raw[marker+9:-3]
+                var=expr.split('.put(',1)[0].strip()
+                if var.replace('_','').isalnum() and var[0].isalpha():
+                    raw=raw[:marker+2]+'try{return '+expr+';}catch(Exception ignoredJson){return '+var+';}}}'
+                    catch_fallbacks+=1; changed=True
+        out.append(raw+nl)
+    if changed:
+        jp.write_text(''.join(out),encoding='utf-8')
+
+print(f'FIX7_OK master_orchestrator_wrapped={wrapped} authorized_ingestion_patched=true helpers_contained=true catch_fallbacks={catch_fallbacks}')
