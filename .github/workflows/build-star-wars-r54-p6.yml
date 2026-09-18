@@ -125,7 +125,7 @@ jobs:
               if fixed_old.count():
                   assert fixed_old.first.evaluate("e=>getComputedStyle(e).display")=="none"
 
-              dice=p.locator(".r53-dice-fab")
+              dice=p.locator(".r54-p6-dice-fab")
               assert dice.count()>=1
               dice.first.click(force=True)
               p.wait_for_timeout(150)
@@ -296,4 +296,5 @@ jobs:
           git commit -m 'ci(star-wars): persist R54 P6 failure diagnostics' || exit 0
           git push origin HEAD:main
 
-# retrigger: P6 location binding by data-point index
+
+# retrigger: P6 isolated DADOS button
