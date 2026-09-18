@@ -411,6 +411,24 @@ function dicePanel(){
     }catch(err){out.innerHTML='<span class="bad">'+esc(err&&err.message||err)+'</span>';}
   };
 }
+
+if(!window.__R54_P6_DICE_EARLY_CAPTURE__){
+  window.__R54_P6_DICE_EARLY_CAPTURE__=true;
+  var r54P6DiceHit=function(e){return e.target&&e.target.closest&&e.target.closest(".r54-p6-dice-fab");};
+  window.addEventListener("pointerdown",function(e){
+    if(!r54P6DiceHit(e))return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    dicePanel();
+  },true);
+  window.addEventListener("click",function(e){
+    if(!r54P6DiceHit(e))return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    dicePanel();
+  },true);
+}
+
 function repairDiceButton(){
   document.querySelectorAll(".r53-dice-fab").forEach(function(old){old.remove();});
   var b=document.querySelector(".r54-p6-dice-fab");
@@ -504,11 +522,16 @@ shell = SHELL.read_text("utf-8")
 # load the legacy browser interceptor that steals DADOS clicks and hides maps.
 shell = re.sub(r'<script[^>]+src=["\'](?:\./)?r54-device-p5\.js(?:\?[^"\']*)?["\'][^>]*></script>\s*', '', shell, flags=re.I)
 tag = '<script src="r54-device-p6.js"></script>'
-if tag not in shell:
-    shell = shell.replace("</body>", tag + "\n</body>", 1)
+shell = re.sub(r'<script[^>]+src=["\'](?:\./)?r54-device-p6\.js(?:\?[^"\']*)?["\'][^>]*></script>\s*', '', shell, flags=re.I)
+if "<head" in shell.lower():
+    shell = re.sub(r'(<head[^>]*>)', r'\1\n' + tag, shell, count=1, flags=re.I)
+else:
+    shell = tag + "\n" + shell
 SHELL.write_text(shell, "utf-8")
 if "r54-device-p5.js" in shell:
     raise SystemExit("P6: legacy P5 browser script still mounted")
+if SHELL.read_text("utf-8").count("r54-device-p6.js") != 1:
+    raise SystemExit("P6: runtime must be mounted exactly once")
 
 weapon_total = len(binding_rows("weapons"))
 item_groups = [g for g in bindings if norm(g) not in {"weapons","weapon","maps","map","portraits","portrait","locations","location"}]
