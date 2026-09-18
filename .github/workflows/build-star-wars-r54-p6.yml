@@ -304,6 +304,7 @@ jobs:
 # P6 diagnostic gate fix 2026-09-17
 
 
-# retrigger: fix diagnostic newline and test direct DADOS onclick
 
 # retrigger: clean P6 browser gate 2026-09-18T02:54:16.424Z
+
+# retrigger: target-capture DADOS ownership
