@@ -114,7 +114,7 @@ check('icone da tocha nunca cai em garrafa',()=>{
   assert.match(ux,/patchBackpack/);
 });
 check('versao corrente nao foi regredida',()=>{
-  const code=Number(gradle.match(/versionCode = (\\d+)/)?.[1]??0);
+  const code=Number(gradle.match(/versionCode = (\d+)/)?.[1]??0);
   const name=gradle.match(/versionName = \"([^\"]+)\"/)?.[1]??'';
   assert.ok(code>=111,'versionCode regredido: '+code);
   assert.equal(name,'1.0.11');
