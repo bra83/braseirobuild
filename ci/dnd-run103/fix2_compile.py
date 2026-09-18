@@ -95,7 +95,7 @@ for jp in orch.parent.glob('*.java'):
     src=jp.read_text(encoding='utf-8')
     out=[]; changed=False
     for line in src.splitlines(True):
-        raw=line.rstrip('\\r\\n'); nl=line[len(raw):]
+        raw=line.rstrip('\r\n'); nl=line[len(raw):]
         ci=raw.find('catch(')
         if ci>=0:
             marker=raw.find('){return ',ci)
