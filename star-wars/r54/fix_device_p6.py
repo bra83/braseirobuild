@@ -383,6 +383,8 @@ async function bindStartLocations(){
   });
 }
 function dicePanel(){
+  document.documentElement.dataset.p6DicePhase="enter";
+  document.documentElement.dataset.p6DiceError="";
   var old=document.getElementById("r54-p6-dice"); if(old)old.remove();
   document.querySelectorAll(".r53-dice-overlay").forEach(function(x){x.remove();});
   var host=document.createElement("div");host.id="r54-p6-dice";
@@ -397,6 +399,7 @@ function dicePanel(){
   '<div class="grid"><label>Característica<input data-die="characteristic" type="number" min="0" max="5" value="2"></label><label>Perícia<input data-die="skill" type="number" min="0" max="5" value="1"></label><label>Dificuldade<input data-die="difficulty" type="number" min="0" max="5" value="2"></label><label>Desafio<input data-die="challenge" type="number" min="0" max="5" value="0"></label><label>Bônus<input data-die="boost" type="number" min="0" max="5" value="0"></label><label>Contratempo<input data-die="setback" type="number" min="0" max="5" value="0"></label></div>'+
   '<button class="roll">ROLAR DADOS</button><div class="result">Aguardando rolagem.</div></section></div>';
   document.documentElement.appendChild(host);
+  document.documentElement.dataset.p6DicePhase="mounted";
   var close=function(){host.remove();};
   sh.querySelector(".close").onclick=close; sh.querySelector(".back").addEventListener("click",function(e){if(e.target===e.currentTarget)close();});
   sh.querySelector(".roll").onclick=function(){
@@ -412,17 +415,20 @@ function dicePanel(){
   };
 }
 
+window.__R54P6DicePanel=dicePanel;
 if(!window.__R54_P6_DICE_EARLY_CAPTURE__){
   window.__R54_P6_DICE_EARLY_CAPTURE__=true;
   var r54P6DiceHit=function(e){return e.target&&e.target.closest&&e.target.closest(".r54-p6-dice-fab");};
   window.addEventListener("pointerdown",function(e){
     if(!r54P6DiceHit(e))return;
+    document.documentElement.dataset.p6DiceEvent="window-pointerdown";
     e.preventDefault();
     e.stopImmediatePropagation();
     dicePanel();
   },true);
   window.addEventListener("click",function(e){
     if(!r54P6DiceHit(e))return;
+    document.documentElement.dataset.p6DiceEvent="window-click";
     e.preventDefault();
     e.stopImmediatePropagation();
     dicePanel();
@@ -441,10 +447,16 @@ function repairDiceButton(){
     document.body.appendChild(b);
   }
   b.onpointerdown=function(e){
+    document.documentElement.dataset.p6DiceEvent="target-pointerdown";
     if(e){e.stopPropagation();}
     dicePanel();
   };
+  b.onfocus=function(){
+    document.documentElement.dataset.p6DiceEvent="target-focus";
+    dicePanel();
+  };
   b.onclick=function(e){
+    document.documentElement.dataset.p6DiceEvent="target-click";
     if(e){e.preventDefault();e.stopPropagation();}
     dicePanel();
     return false;
