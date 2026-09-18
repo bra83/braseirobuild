@@ -1,4 +1,5 @@
-  File "<stdin>", line 76
-    dice_diag=dice.first.evaluate("e=>({outer:e.outerHTML,onclick:typeof e.onclick,owned:e.dataset.p6DiceOwned||null})")\n              assert d and d["visible"] and "ROLAR DADOS" in d["text"], {"modal":d,"button":dice_diag}
-                                                                                                                         ^
-SyntaxError: unexpected character after line continuation character
+<stdin>:86: SyntaxWarning: invalid escape sequence '\.'
+<stdin>:104: SyntaxWarning: invalid escape sequence '\.'
+Traceback (most recent call last):
+  File "<stdin>", line 77, in <module>
+AssertionError: {'modal': None, 'button': {'outer': '<button type="button" class="r53-fab r53-dice-fab" data-p6-dice-owned="1"><img src="assets/ui/icons-v2/dice.png" alt="" data-p6-err="1">DADOS</button>', 'onclick': 'function', 'owned': '1'}}
