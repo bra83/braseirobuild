@@ -416,16 +416,17 @@ function dicePanel(){
   };
 }
 function repairDiceButton(){
-  document.querySelectorAll(".r53-dice-fab").forEach(function(b){
-    if(b.dataset.p6DiceOwned==="1")return;
-    b.dataset.p6DiceOwned="1";
-    b.addEventListener("click",function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      dicePanel();
-    },true);
-  });
+  document.querySelectorAll(".r53-dice-fab").forEach(function(b){b.dataset.p6DiceOwned="1";});
+  if(window.__R54_P6_DICE_CAPTURE__)return;
+  window.__R54_P6_DICE_CAPTURE__=true;
+  window.addEventListener("click",function(e){
+    var b=e.target&&e.target.closest&&e.target.closest(".r53-dice-fab");
+    if(!b)return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    dicePanel();
+  },true);
 }
 function geminiConfigured(){
   try{var r=parse(window.BraseiroGemini&&window.BraseiroGemini.getStatus&&window.BraseiroGemini.getStatus())||{};return !!r.configured;}catch(e){return false;}
