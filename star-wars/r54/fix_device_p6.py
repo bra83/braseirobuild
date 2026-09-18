@@ -416,13 +416,15 @@ function dicePanel(){
   };
 }
 function repairDiceButton(){
-  if(document.documentElement.dataset.p6DiceBound)return;
-  document.documentElement.dataset.p6DiceBound="1";
-  document.addEventListener("click",function(e){
-    var b=e.target&&e.target.closest&&e.target.closest(".r53-dice-fab");
-    if(!b)return;
-    e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();dicePanel();
-  },true);
+  document.querySelectorAll(".r53-dice-fab").forEach(function(b){
+    if(b.dataset.p6DiceOwned==="1")return;
+    b.dataset.p6DiceOwned="1";
+    b.onclick=function(e){
+      if(e){e.preventDefault();e.stopPropagation();}
+      dicePanel();
+      return false;
+    };
+  });
 }
 function geminiConfigured(){
   try{var r=parse(window.BraseiroGemini&&window.BraseiroGemini.getStatus&&window.BraseiroGemini.getStatus())||{};return !!r.configured;}catch(e){return false;}
