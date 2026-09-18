@@ -419,11 +419,12 @@ function repairDiceButton(){
   document.querySelectorAll(".r53-dice-fab").forEach(function(b){
     if(b.dataset.p6DiceOwned==="1")return;
     b.dataset.p6DiceOwned="1";
-    b.onclick=function(e){
-      if(e){e.preventDefault();e.stopPropagation();}
+    b.addEventListener("click",function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
       dicePanel();
-      return false;
-    };
+    },true);
   });
 }
 function geminiConfigured(){
