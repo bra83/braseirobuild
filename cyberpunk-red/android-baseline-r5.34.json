@@ -1,0 +1,16 @@
+{
+  "schema": "BRASEIRO_CYBERPUNK_RED_ANDROID_BASELINE_V1",
+  "baseline_id": "cpred-r5.34-android-green-p1",
+  "source": {
+    "name": "CYBERPUNK_RED_R5_34_FINAL_CONTENT_RUNTIME_CLOSURE.zip",
+    "sha256": "e6adf2be9cccd455cb4f8b3c0c504a623145c84df6dc44277b208ba66fae9687",
+    "parts": [
+      {"drive_id":"1q5_hnsSFft5WR9nZsg8EwktrfGZt0f31","sha256":"ae62cca3a92684926a0cb5a6465799ac0e7e6d086f9646e0afca9bc6ceabf9a0"},
+      {"drive_id":"1oR2LEo0NLgGJyzO6ImL0prHli0V5C3IY","sha256":"1af7e4a352e68ea53c5c4c56f72a1edd49c8908bc1ea75b77d32a7bbb6c1d0a7"},
+      {"drive_id":"1j6FV1tfCDlLUfAmJNnqPuFbxtfujz5q5","sha256":"5af4acf2613c35a67d01561142040f0d72f80420d07ecb278d913c013d2595a5"}
+    ]
+  },
+  "frozen_hotfixes": ["BarbaraRuntime.kt: split enhancementId/targetInstanceId local declarations to valid Kotlin syntax"],
+  "toolchain": {"jdk":"17","gradle":"8.11.1","android_gradle_plugin":"8.9.1","kotlin":"2.0.21","chaquopy":"16.1.0","compile_sdk":36,"min_sdk":24,"target_sdk":36},
+  "status": "PENDING_GITHUB_DIAGNOSTIC_GREEN"
+}
