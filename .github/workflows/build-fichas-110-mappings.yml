@@ -1,0 +1,91 @@
+name: Build Braseiro Fichas 1.1.0 Mappings
+
+on:
+  push:
+    branches:
+      - fichas-final-20260916
+    paths:
+      - ".github/workflows/build-fichas-110-mappings.yml"
+      - "android/fichas-multissistema/**"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fichas-110-mappings
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: fichas-final-20260916
+          fetch-depth: 0
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Validate JavaScript and mapping contracts
+        working-directory: android/fichas-multissistema
+        run: |
+          set -euo pipefail
+          node --check app/src/main/assets/www/systems-data.js
+          node --check app/src/main/assets/www/rules-engine.js
+          node --check app/src/main/assets/www/import-adapters.js
+          node --check app/src/main/assets/www/app.js
+          node --check app/src/main/assets/www/launcher.js
+          node --test import-adapters.contract.test.mjs
+
+      - name: Build debug APK
+        working-directory: android/fichas-multissistema
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew --no-daemon :app:assembleDebug
+
+      - name: Verify APK and launcher icon
+        run: |
+          set -euo pipefail
+          APK="android/fichas-multissistema/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          unzip -t "$APK" >/dev/null
+          unzip -l "$APK" | grep -E "ic_launcher|mipmap" >/dev/null
+          sha256sum "$APK"
+
+      - name: Publish APK into deliverables
+        run: |
+          set -euo pipefail
+          APK="android/fichas-multissistema/app/build/outputs/apk/debug/app-debug.apk"
+          OUT="deliverables/fichas-final-20260916"
+          NAME="BRASEIRO_FICHAS_MULTISSISTEMA-1.1.0-mapped-imports-debug.apk"
+          mkdir -p "$OUT"
+          cp "$APK" "$OUT/$NAME"
+          sha256sum "$OUT/$NAME" > "$OUT/$NAME.sha256"
+          {
+            echo "Build: Braseiro Fichas 1.1.0 mapped imports"
+            echo "Branch: fichas-final-20260916"
+            echo "Commit: $GITHUB_SHA"
+            echo "Mapping contracts: Tales, WWN, D&D, O Um Anel 2e, PF2e, Forbidden Lands, Traveller"
+          } > "$OUT/BUILD_1.1.0_MAPPED_IMPORTS.txt"
+
+      - name: Commit deliverable
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add deliverables/fichas-final-20260916/
+          if git diff --cached --quiet; then
+            echo "No deliverable changes to commit."
+            exit 0
+          fi
+          git commit -m "Build Braseiro Fichas 1.1.0 mapped imports APK"
+          git push origin HEAD:fichas-final-20260916
