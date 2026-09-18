@@ -284,7 +284,9 @@ def _method_openings(mask):
     return found
 
 json_wrapped=0
-for jp in orch.parent.glob('*.java'):
+for jp in [orch.parent/'TashaWorldPhenomenaEngine.java']:
+    if not jp.exists():
+        continue
     src=jp.read_text(encoding='utf-8')
     mask=_mask_java(src)
     edits=[]
