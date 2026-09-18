@@ -49,7 +49,6 @@ jobs:
           unzip -t incoming/source.zip >/dev/null
 
       - name: Extrair e aplicar hotfix Kotlin congelado
-        id: extract
         id: project
         shell: bash
         run: |
@@ -228,7 +227,7 @@ jobs:
         shell: bash
         env:
           DOWNLOAD: ${{ steps.download.outcome }}
-          EXTRACT: ${{ steps.extract.outcome }}
+          EXTRACT: ${{ steps.project.outcome }}
           STRUCTURE: ${{ steps.structure.outcome }}
           TOOLCHAIN: ${{ steps.toolchain.outcome }}
           SDK_INSTALL: ${{ steps.sdk_install.outcome }}
