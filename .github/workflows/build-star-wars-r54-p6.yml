@@ -116,6 +116,17 @@ jobs:
               assert thumbs==82,(points,thumbs)
               assert loaded
 
+              # DADOS is intentionally behind the first-run sandbox setup modal.
+              # Complete the real initial setup before testing post-start controls.
+              setup=p.locator("#braseiro-sandbox-setup")
+              if setup.count() and setup.is_visible():
+                  start=p.locator("#sandbox-start-button").first
+                  assert start.count()==1
+                  start.click()
+                  p.wait_for_selector("#braseiro-sandbox-setup",state="detached",timeout=10000)
+                  p.wait_for_timeout(350)
+              evidence["sandbox_setup_completed"]=True
+
               world=p.locator(".r54-p6-world-open")
               assert world.count()>=1
               world_pos=world.first.evaluate("e=>getComputedStyle(e).position")
@@ -331,3 +342,5 @@ jobs:
 # retrigger: persistent dice launcher 2026-09-18T03:15:33.807Z
 
 # retrigger: static dice control 2026-09-18T03:17:54.632Z
+
+# retrigger: complete sandbox before DADOS 2026-09-18T03:23:01.165Z
