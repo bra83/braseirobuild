@@ -16,6 +16,7 @@ for place in ['Tatooine','Corellia','Kashyyyk','Naboo']:
     row=next((x for x in locations if x['location_name'].lower()==place.lower()),None);assert row,place
     assert row['show_map_section']==row['local_map_exists']==row['local_map_loads'],row
     if row['local_map_exists']:assert (vtt/row['local_map_asset']).is_file(),row
+assert len(locations)==82 and all(x['local_map_exists'] and x['local_map_loads'] and x['show_map_section'] for x in locations)
 assert 'R54_DEVICE_P7_SEMANTIC_SCENE' in bridge
 assert 'visibleParticipantNames: localNpcs.map' in bridge
 assert '.filter(item => atLocation(item) && visible(item))' in bridge
@@ -23,5 +24,5 @@ assert "suggestions.push(`Conversar com ${knownNpc.name}`)" in bridge
 assert "braseiro.starwars.edge.scene.v1" in final and "sessionStorage.clear()" in final
 assert 'Mapa local indisponível para este local.' in runtime
 assert 'itemsExactByName' in runtime and 'pickVisual' not in runtime
-report={'status':'CODE_PASS_DEVICE_PENDING','critical_item_bindings':'PASS','local_map_policy':'PASS','npc_scene_scope':'PASS','action_scene_scope':'PASS','reset_state':'PASS','physical_device':'NOT_RUN'}
+report={'status':'CODE_PASS_DEVICE_PENDING','critical_item_bindings':'PASS','all_82_local_maps':'PASS','npc_scene_scope':'PASS','action_scene_scope':'PASS','reset_state':'PASS','physical_device':'NOT_RUN'}
 print(json.dumps(report,ensure_ascii=False,indent=2))
