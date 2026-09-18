@@ -1,9 +1,2 @@
-R54_P6_STATUS=FAIL
-SOURCE_COMMIT=54c5b4e64166a96fd90563fb125af93c94e3b8d8
---- PATCH ---
-R54_DEVICE_P6_PATCH_PASS {"WEAPONS_TOTAL": 32, "WEAPONS_WITH_REAL_IMAGE": 32, "WEAPONS_MISSING": [], "ITEMS_TOTAL": 22, "ITEMS_WITH_REAL_IMAGE": 22, "ITEMS_MISSING": [], "LOCATIONS_TOTAL": 82, "LOCATIONS_WITH_REAL_IMAGE": 82, "LOCATIONS_MISSING": [], "PHYSICAL_REAL_ASSETS_INDEXED": 263, "PLACEHOLDERS": 0, "BROKEN_IMAGES": 0, "DICE_MODAL": "PATCHED_SHADOW_DOM", "GEMINI_RESTART_PERSISTENCE": "CODE_PATH_P5_SHARED_PREFS_PLUS_KEYSTORE", "ADVENTURE_REAL_START": "REQUIRES_REAL_GEMINI_RUNTIME", "VISUAL_415x915": "PENDING_BROWSER_GATE"}
---- BROWSER ---
-  File "<stdin>", line 76
-    dice_diag=dice.first.evaluate("e=>({outer:e.outerHTML,onclick:typeof e.onclick,owned:e.dataset.p6DiceOwned||null})")\n              assert d and d["visible"] and "ROLAR DADOS" in d["text"], {"modal":d,"button":dice_diag}
-                                                                                                                         ^
-SyntaxError: unexpected character after line continuation character
+R54_P6_STATUS=RUNNING
+SOURCE_COMMIT=ae1aad5b850ccc61fe42c22d9be7bded506cef95
