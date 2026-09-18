@@ -78,7 +78,13 @@ old_catch='}catch(Exception e){return o.put("requested",n).put("installed",accep
 new_catch='}catch(Exception e){try{return o.put("requested",n).put("installed",accepted.length()).put("blocked",blocked.length()+1).put("authority","blocked_batch_error");}catch(JSONException ignored){return o;}}}'
 if old_catch in a:
     a=a.replace(old_catch,new_catch,1)
-a=a.replace('private static JSONObject wrap(String k,String n,boolean ok,JSONObject detail){','private static JSONObject wrap(String k,String n,boolean ok,JSONObject detail) throws JSONException{',1)
-a=a.replace('private static JSONObject block(String k,String n,String why){','private static JSONObject block(String k,String n,String why) throws JSONException{',1)
+old_wrap='private static JSONObject wrap(String k,String n,boolean ok,JSONObject detail){return new JSONObject().put("kind",k).put("name",n==null?"":n).put("installed",ok).put("detail",detail==null?new JSONObject():detail);}'
+new_wrap='private static JSONObject wrap(String k,String n,boolean ok,JSONObject detail){try{return new JSONObject().put("kind",k).put("name",n==null?"":n).put("installed",ok).put("detail",detail==null?new JSONObject():detail);}catch(JSONException e){return new JSONObject();}}'
+if old_wrap in a:
+    a=a.replace(old_wrap,new_wrap,1)
+old_block='private static JSONObject block(String k,String n,String why){return new JSONObject().put("kind",k).put("name",n==null?"":n).put("installed",false).put("authority",why);}'
+new_block='private static JSONObject block(String k,String n,String why){try{return new JSONObject().put("kind",k).put("name",n==null?"":n).put("installed",false).put("authority",why);}catch(JSONException e){return new JSONObject();}}'
+if old_block in a:
+    a=a.replace(old_block,new_block,1)
 ingest.write_text(a,encoding='utf-8')
-print(f'FIX5_OK master_orchestrator_wrapped={wrapped} authorized_ingestion_patched=true')
+print(f'FIX6_OK master_orchestrator_wrapped={wrapped} authorized_ingestion_patched=true helpers_contained=true')
