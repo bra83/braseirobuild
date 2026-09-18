@@ -109,4 +109,29 @@ for jp in orch.parent.glob('*.java'):
     if changed:
         jp.write_text(''.join(out),encoding='utf-8')
 
-print(f'FIX7_OK master_orchestrator_wrapped={wrapped} authorized_ingestion_patched=true helpers_contained=true catch_fallbacks={catch_fallbacks}')
+# Faerun SRD monster batch: contain Android's checked JSONException without changing data or public API.
+faerun=orch.parent/'Srd51FaerunCoreMonsterEngine.java'
+if not faerun.exists():
+    raise SystemExit('Srd51FaerunCoreMonsterEngine.java not found')
+f=faerun.read_text(encoding='utf-8')
+if 'import org.json.JSONException;' not in f:
+    f=f.replace('import org.json.JSONObject;','import org.json.JSONObject;\nimport org.json.JSONException;',1)
+if 'public static JSONObject install(){try{' not in f:
+    f=f.replace('public static JSONObject install(){','public static JSONObject install(){try{',1)
+boundary='    }\n\n    private static JSONObject monster'
+if boundary in f:
+    f=f.replace(boundary,'    }catch(JSONException e){throw new IllegalStateException(e);}\n\n    private static JSONObject monster',1)
+for a,b in [
+('private static JSONObject monster(String id,int ac,int hp,String type,double cr,JSONObject movement,JSONObject abilities,int passive,JSONArray actions,JSONArray traits){','private static JSONObject monster(String id,int ac,int hp,String type,double cr,JSONObject movement,JSONObject abilities,int passive,JSONArray actions,JSONArray traits) throws JSONException{'),
+('private static JSONObject multi(JSONObject s,String... sequence){','private static JSONObject multi(JSONObject s,String... sequence) throws JSONException{'),
+('private static JSONObject movement(int walk,int fly,int climb,int swim){','private static JSONObject movement(int walk,int fly,int climb,int swim) throws JSONException{'),
+('private static JSONObject abilities(int str,int dex,int con,int intel,int wis,int cha){','private static JSONObject abilities(int str,int dex,int con,int intel,int wis,int cha) throws JSONException{'),
+('private static JSONObject trait(String name,String mechanic){','private static JSONObject trait(String name,String mechanic) throws JSONException{'),
+('private static JSONObject attack(String name,int toHit,String damage,String type,int reach){','private static JSONObject attack(String name,int toHit,String damage,String type,int reach) throws JSONException{'),
+('private static JSONObject attackSaveRider(String name,int toHit,String damage,String type,int reach,String saveAbility,int dc,String condition,String effect){','private static JSONObject attackSaveRider(String name,int toHit,String damage,String type,int reach,String saveAbility,int dc,String condition,String effect) throws JSONException{'),
+('private static JSONObject save(String name,String ability,int dc,String damage,String onSave,String condition,String effect,String recharge){','private static JSONObject save(String name,String ability,int dc,String damage,String onSave,String condition,String effect,String recharge) throws JSONException{')
+]:
+    f=f.replace(a,b,1)
+faerun.write_text(f,encoding='utf-8')
+
+print(f'FIX8_OK master_orchestrator_wrapped={wrapped} authorized_ingestion_patched=true helpers_contained=true catch_fallbacks={catch_fallbacks} faerun_json_checked=true')
