@@ -492,10 +492,15 @@ addEventListener("popstate",schedule);addEventListener("braseiroGeminiNativeEven
 P6.write_text(js, "utf-8")
 
 shell = SHELL.read_text("utf-8")
+# P5 JS is now superseded by P6. Keep its native Java persistence fixes, but do not
+# load the legacy browser interceptor that steals DADOS clicks and hides maps.
+shell = re.sub(r'<script[^>]+src=["\'](?:\./)?r54-device-p5\.js(?:\?[^"\']*)?["\'][^>]*></script>\s*', '', shell, flags=re.I)
 tag = '<script src="r54-device-p6.js"></script>'
 if tag not in shell:
     shell = shell.replace("</body>", tag + "\n</body>", 1)
 SHELL.write_text(shell, "utf-8")
+if "r54-device-p5.js" in shell:
+    raise SystemExit("P6: legacy P5 browser script still mounted")
 
 weapon_total = len(binding_rows("weapons"))
 item_groups = [g for g in bindings if norm(g) not in {"weapons","weapon","maps","map","portraits","portrait","locations","location"}]
