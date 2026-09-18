@@ -125,7 +125,7 @@ jobs:
               if fixed_old.count():
                   assert fixed_old.first.evaluate("e=>getComputedStyle(e).display")=="none"
 
-              dice=p.locator(".r54-p6-dice-fab")
+              dice=p.locator(".r53-dice-fab")
               assert dice.count()>=1
               dice.first.click(force=True)
               p.wait_for_timeout(150)
@@ -297,4 +297,5 @@ jobs:
           git push origin HEAD:main
 
 
-# retrigger: P6 isolated DADOS button
+
+# retrigger: P6 canonical DADOS capture after disabling P5 interception
