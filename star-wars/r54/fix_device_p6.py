@@ -19,11 +19,21 @@ BIND = R54 / "bindings.json"
 STARTS = R54 / "r54-start-locations.json"
 MANIFEST = VTT / "image-library/manifest.json"
 P6 = VTT / "r54-device-p6.js"
+P5 = VTT / "r54-device-p5.js"
 P6_INDEX = R54 / "p6-visual-index.json"
 
 for p in (SHELL, BIND, STARTS, MANIFEST):
     if not p.is_file():
         raise SystemExit("missing P6 input: " + str(p))
+
+# P5's document-capture listener preempts every later DADOS handler.
+# Disable only that legacy selector; P6 owns the canonical .r53-dice-fab click.
+if P5.is_file():
+    p5s = P5.read_text("utf-8")
+    old_dice_capture = "closest('.r53-dice-fab')"
+    if old_dice_capture in p5s:
+        p5s = p5s.replace(old_dice_capture, "closest('.r53-dice-fab.__r54_p5_dice_disabled')", 1)
+        P5.write_text(p5s, "utf-8")
 
 IMG_EXT = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif"}
 BAD_VISUAL = re.compile(r"(?:^|[/_. -])(inventory|placeholder|fallback|generic|default|robot)(?:[/_. -]|$)", re.I)
@@ -406,17 +416,13 @@ function dicePanel(){
   };
 }
 function repairDiceButton(){
-  document.querySelectorAll(".r53-dice-fab").forEach(function(old){
-    if(old.dataset.p6Replaced==="1")return;
-    var b=old.cloneNode(true);
-    b.classList.remove("r53-dice-fab");
-    b.classList.add("r54-p6-dice-fab");
-    b.dataset.p6Replaced="1";
-    b.addEventListener("click",function(e){
-      e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();dicePanel();
-    },false);
-    old.replaceWith(b);
-  });
+  if(document.documentElement.dataset.p6DiceBound)return;
+  document.documentElement.dataset.p6DiceBound="1";
+  document.addEventListener("click",function(e){
+    var b=e.target&&e.target.closest&&e.target.closest(".r53-dice-fab");
+    if(!b)return;
+    e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();dicePanel();
+  },true);
 }
 function geminiConfigured(){
   try{var r=parse(window.BraseiroGemini&&window.BraseiroGemini.getStatus&&window.BraseiroGemini.getStatus())||{};return !!r.configured;}catch(e){return false;}
