@@ -1,5 +1,4 @@
-<stdin>:85: SyntaxWarning: invalid escape sequence '\.'
-<stdin>:103: SyntaxWarning: invalid escape sequence '\.'
-Traceback (most recent call last):
-  File "<stdin>", line 76, in <module>
-AssertionError
+  File "<stdin>", line 76
+    dice_diag=dice.first.evaluate("e=>({outer:e.outerHTML,onclick:typeof e.onclick,owned:e.dataset.p6DiceOwned||null})")\n              assert d and d["visible"] and "ROLAR DADOS" in d["text"], {"modal":d,"button":dice_diag}
+                                                                                                                         ^
+SyntaxError: unexpected character after line continuation character
