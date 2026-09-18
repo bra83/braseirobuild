@@ -295,3 +295,5 @@ jobs:
           git add ci-results/STAR_WARS_R54_P6_STATUS.txt star-wars/r54/audit
           git commit -m 'ci(star-wars): persist R54 P6 failure diagnostics' || exit 0
           git push origin HEAD:main
+
+# retrigger: P6 location binding by data-point index
