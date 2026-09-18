@@ -9,6 +9,7 @@ on:
       - "tools/wwn_finish_real_flow_gate.mjs"
       - "tools/wwn_character_persistence_gate.mjs"
       - "tools/wwn_device_audit_gate.mjs"
+      - "tools/wwn_post_106_gate.mjs"
       - "app/src/main/assets/www/core/character-creation-service.js"
       - "app/src/main/assets/www/core/character-roster-service.js"
       - "app/src/main/assets/www/core/persistence-port.js"
