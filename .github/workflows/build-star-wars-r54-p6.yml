@@ -35,7 +35,7 @@ jobs:
 
       - name: P6 415x915 visual and interaction gate
         env:
-          ROOT: '\${{ steps.root.outputs.path }}'
+          ROOT: '${{ steps.root.outputs.path }}'
         shell: bash
         run: |
           set -euo pipefail
@@ -217,12 +217,12 @@ jobs:
         with: {gradle-version: '8.13', validate-wrappers: false}
 
       - name: Compile APK
-        working-directory: \${{ steps.root.outputs.path }}
+        working-directory: ${{ steps.root.outputs.path }}
         run: gradle :app:assembleDebug --stacktrace --no-daemon
 
       - name: Persist P6
         env:
-          ROOT: '\${{ steps.root.outputs.path }}'
+          ROOT: '${{ steps.root.outputs.path }}'
         shell: bash
         run: |
           set -euo pipefail
