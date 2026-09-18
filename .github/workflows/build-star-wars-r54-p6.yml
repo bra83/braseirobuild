@@ -302,4 +302,5 @@ jobs:
 
 # P6 diagnostic gate fix 2026-09-17
 
-# retrigger: direct canonical DADOS onclick ownership
+
+# retrigger: fix diagnostic newline and test direct DADOS onclick
