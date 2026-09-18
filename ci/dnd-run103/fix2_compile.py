@@ -186,4 +186,126 @@ for a,b in [
     f=f.replace(a,b,1)
 faerun.write_text(f,encoding='utf-8')
 
-print(f'FIX8_OK master_orchestrator_wrapped={wrapped} authorized_ingestion_patched=true helpers_contained=true catch_fallbacks={catch_fallbacks} faerun_json_checked=true')
+
+# Robust package-wide containment for remaining methods that contain JSON put() calls.
+# This parser works by brace positions, so multiple methods on the same physical line are handled safely.
+def _mask_java(src):
+    out=list(src)
+    i=0; n=len(src); state='code'
+    while i<n:
+        if state=='code':
+            if src.startswith('//',i):
+                out[i]=out[i+1]=' '; i+=2; state='line'; continue
+            if src.startswith('/*',i):
+                out[i]=out[i+1]=' '; i+=2; state='block'; continue
+            if src[i]=='"':
+                out[i]=' '; i+=1; state='string'; continue
+            if src[i]=="'":
+                out[i]=' '; i+=1; state='char'; continue
+            i+=1
+        elif state=='line':
+            if src[i]=='\n': state='code'
+            else: out[i]=' '
+            i+=1
+        elif state=='block':
+            if src.startswith('*/',i):
+                out[i]=out[i+1]=' '; i+=2; state='code'
+            else:
+                if src[i] not in '\r\n': out[i]=' '
+                i+=1
+        elif state in ('string','char'):
+            q='"' if state=='string' else "'"
+            if src[i]=='\\':
+                out[i]=' '
+                if i+1<n:
+                    out[i+1]=' '; i+=2
+                else: i+=1
+            elif src[i]==q:
+                out[i]=' '; i+=1; state='code'
+            else:
+                if src[i] not in '\r\n': out[i]=' '
+                i+=1
+    return ''.join(out)
+
+def _matching_open(mask, close_pos, op='(', cl=')'):
+    d=0
+    for j in range(close_pos,-1,-1):
+        ch=mask[j]
+        if ch==cl: d+=1
+        elif ch==op:
+            d-=1
+            if d==0: return j
+    return -1
+
+def _matching_close(mask, open_pos, op='{', cl='}'):
+    d=0
+    for j in range(open_pos,len(mask)):
+        ch=mask[j]
+        if ch==op: d+=1
+        elif ch==cl:
+            d-=1
+            if d==0: return j
+    return -1
+
+def _method_openings(mask):
+    controls={'if','for','while','switch','catch','synchronized','try','do','else','new'}
+    found=[]
+    for p,ch in enumerate(mask):
+        if ch!='{': continue
+        j=p-1
+        while j>=0 and mask[j].isspace(): j-=1
+        # optional throws clause before {
+        if j>=0 and mask[j]!=')':
+            k=j
+            while k>=0 and mask[k] not in ';{}': k-=1
+            seg=mask[k+1:j+1]
+            idx=seg.rfind(')')
+            if idx<0: continue
+            j=k+1+idx
+        if j<0 or mask[j]!=')': continue
+        q=_matching_open(mask,j,'(',')')
+        if q<0: continue
+        k=q-1
+        while k>=0 and mask[k].isspace(): k-=1
+        e=k
+        while k>=0 and (mask[k].isalnum() or mask[k] in '_
+): k-=1
+        name=mask[k+1:e+1]
+        if not name or name in controls: continue
+        # declaration starts after previous statement/class delimiter
+        d=k
+        while d>=0 and mask[d] not in ';{}': d-=1
+        head=mask[d+1:p]
+        if '=' in head or '->' in head: continue
+        if not any(x in head for x in ('public ','private ','protected ','static ','final ','synchronized ','native ','abstract ','default ','strictfp ')):
+            # allow package-private typed methods, but reject control-flow fragments
+            toks=head.strip().split()
+            if len(toks)<2: continue
+        found.append(p)
+    return found
+
+json_wrapped=0
+for jp in orch.parent.glob('*.java'):
+    src=jp.read_text(encoding='utf-8')
+    mask=_mask_java(src)
+    edits=[]
+    for op in _method_openings(mask):
+        cl=_matching_close(mask,op,'{','}')
+        if cl<0: continue
+        body_mask=mask[op+1:cl]
+        body_src=src[op+1:cl]
+        if '.put(' not in body_mask: continue
+        if '/*BR_JSON_WRAP*/' in body_src: continue
+        # Preserve existing RuntimeException behavior; only checked exceptions are converted.
+        pre='/*BR_JSON_WRAP*/try{'
+        post='}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}'
+        edits.append((op+1,pre))
+        edits.append((cl,post))
+        json_wrapped+=1
+    if edits:
+        for pos,txt in sorted(edits,reverse=True):
+            src=src[:pos]+txt+src[pos:]
+        jp.write_text(src,encoding='utf-8')
+
+
+print(f'FIX8_OK master_orchestrator_wrapped={wrapped} authorized_ingestion_patched=true helpers_contained=true catch_fallbacks={catch_fallbacks} faerun_json_checked=true json_wrapped={json_wrapped}')
