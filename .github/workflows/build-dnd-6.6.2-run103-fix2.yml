@@ -1,4 +1,4 @@
-name: Braseiro DnD 6.6.2 RUN103 APK FIX5
+name: Braseiro DnD 6.6.2 RUN103 APK FIX7
 on:
   push:
     branches: [main]
@@ -25,39 +25,32 @@ jobs:
         shell: bash
         run: |
           set +e
-          mkdir -p out ci-results
+          mkdir -p out
           bash ci/dnd-run103/build_fix2.sh > out/FULL_BUILD_LOG.txt 2>&1
           code=$?
           echo "exit_code=$code" >> "$GITHUB_OUTPUT"
-          tail -n 260 out/FULL_BUILD_LOG.txt > ci-results/DND_RUN103_LATEST_BUILD.txt
           {
             echo
             echo "===== META ====="
             echo "SOURCE_COMMIT=$GITHUB_SHA"
+            echo "RUN_ID=$GITHUB_RUN_ID"
             echo "EXIT_CODE=$code"
-            echo "WORKFLOW=RUN103_FIX5"
-          } >> ci-results/DND_RUN103_LATEST_BUILD.txt
+            echo "WORKFLOW=RUN103_FIX7"
+          } >> out/FULL_BUILD_LOG.txt
           exit 0
 
-      - name: Persist build status
-        shell: bash
-        run: |
-          set -e
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ci-results/DND_RUN103_LATEST_BUILD.txt
-          git commit -m "ci(dnd): persist RUN103 latest build result" || exit 0
-          for i in 1 2 3 4; do
-            git pull --rebase origin main || true
-            if git push origin HEAD:main; then exit 0; fi
-            sleep $((i*3))
-          done
-          exit 1
-
-      - uses: actions/upload-artifact@v4
-        if: steps.build.outputs.exit_code == '0'
+      - name: Upload build diagnostics
+        uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO-DND-6.6.2-RUN103-FIX5-APK
+          name: DND-RUN103-FIX7-DIAGNOSTICS-${{ github.run_id }}
+          path: out/FULL_BUILD_LOG.txt
+          retention-days: 30
+
+      - name: Upload APK artifact
+        if: steps.build.outputs.exit_code == '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO-DND-6.6.2-RUN103-FIX7-APK
           path: out/*
           retention-days: 30
 
@@ -66,8 +59,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view DND-6.6.2-RUN103-FIX5 >/dev/null 2>&1 || gh release create DND-6.6.2-RUN103-FIX5 --target main --title 'Braseiro DnD 6.6.2 RUN103 FIX5' --notes 'Package com.braseiro.dnd5e; compile-only fixes; maps/assets/gameplay unchanged.'
-          gh release upload DND-6.6.2-RUN103-FIX5 out/* --clobber
+          gh release view DND-6.6.2-RUN103-FIX7 >/dev/null 2>&1 || gh release create DND-6.6.2-RUN103-FIX7 --target main --title 'Braseiro DnD 6.6.2 RUN103 FIX7' --notes 'Package com.braseiro.dnd5e; compile-only fixes; maps/assets/gameplay unchanged.'
+          gh release upload DND-6.6.2-RUN103-FIX7 out/* --clobber
 
       - name: Fail workflow when build failed
         if: steps.build.outputs.exit_code != '0'
