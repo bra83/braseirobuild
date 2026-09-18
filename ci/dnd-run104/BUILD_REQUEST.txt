@@ -1,0 +1,4 @@
+RUN104 build request
+Package: com.braseiro.dnd5e
+Version: 6.6.2-r104 / 606204
+Functional delta: blue Master cancelled same-scene retry + stale trace reset.
