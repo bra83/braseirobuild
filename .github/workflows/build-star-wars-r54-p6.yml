@@ -61,7 +61,7 @@ jobs:
           SERVER=$!
           trap 'kill $SERVER || true' EXIT
           sleep 1
-          python3 - <<'PY' | tee /tmp/P6_BROWSER.txt
+          python3 - <<'PY' 2>&1 | tee /tmp/P6_BROWSER.txt
           import json, os, re
           from pathlib import Path
           from playwright.sync_api import sync_playwright
@@ -180,7 +180,7 @@ jobs:
           runtime=(vtt/"r46/final-runtime.js").read_text("utf-8",errors="replace")
           gem=(root/"app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java").read_text("utf-8",errors="replace")
           assert "submitPlayerIntent(intentText)" in runtime
-          assert "narra[cç][aã]o livre exige provedor" in runtime
+          assert re.search(r"narra[cç][aã]o livre exige provedor", runtime, re.I)
           assert "R54_DEVICE_P5_KEY_PERSIST" in gem
           assert "keyPreferences.edit().putString(KEY_FALLBACK, clean).commit()" in gem
           assert "readApiKey()" in gem
@@ -300,3 +300,5 @@ jobs:
 
 
 # retrigger: P6 unmounts superseded P5 browser interceptor
+
+# P6 diagnostic gate fix 2026-09-17
