@@ -444,7 +444,7 @@ function repairDiceButton(){
     b.value="DADOS";
     b.className="r53-fab r54-p6-dice-fab";
     b.setAttribute("aria-label","Abrir dados narrativos");
-    document.body.appendChild(b);
+    document.documentElement.appendChild(b);
   }
   b.onpointerdown=function(e){
     document.documentElement.dataset.p6DiceEvent="target-pointerdown";
