@@ -1,10 +1,2 @@
-R54_P6_STATUS=FAIL
-SOURCE_COMMIT=9f0595b151911010154191a8be710fa42fb9f3f7
---- PATCH ---
-R54_DEVICE_P6_PATCH_PASS {"WEAPONS_TOTAL": 32, "WEAPONS_WITH_REAL_IMAGE": 32, "WEAPONS_MISSING": [], "ITEMS_TOTAL": 22, "ITEMS_WITH_REAL_IMAGE": 22, "ITEMS_MISSING": [], "LOCATIONS_TOTAL": 82, "LOCATIONS_WITH_REAL_IMAGE": 82, "LOCATIONS_MISSING": [], "PHYSICAL_REAL_ASSETS_INDEXED": 263, "PLACEHOLDERS": 0, "BROKEN_IMAGES": 0, "DICE_MODAL": "PATCHED_SHADOW_DOM", "GEMINI_RESTART_PERSISTENCE": "CODE_PATH_P5_SHARED_PREFS_PLUS_KEYSTORE", "ADVENTURE_REAL_START": "REQUIRES_REAL_GEMINI_RUNTIME", "VISUAL_415x915": "PENDING_BROWSER_GATE"}
---- BROWSER ---
-<stdin>:86: SyntaxWarning: invalid escape sequence '\.'
-<stdin>:104: SyntaxWarning: invalid escape sequence '\.'
-Traceback (most recent call last):
-  File "<stdin>", line 77, in <module>
-AssertionError: {'modal': None, 'button': {'outer': '<button type="button" class="r53-fab r54-p6-dice-fab" aria-label="Abrir dados narrativos">DADOS</button>', 'onclick': 'function', 'owned': None}}
+R54_P6_STATUS=RUNNING
+SOURCE_COMMIT=f09359101ffe79167419aec2e0f28f918972b20d
