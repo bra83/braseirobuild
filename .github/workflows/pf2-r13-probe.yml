@@ -1,0 +1,48 @@
+name: PF2 R13 Firestorage Probe
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/pf2-r13-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Probe temporary source share
+        shell: bash
+        env:
+          SOURCE_URL: https://firestorage.ai/ja/f/uPz1-yd-YBIO
+        run: |
+          set -euo pipefail
+          mkdir -p ci/pf2-r13
+          python3 - <<'PY'
+          import os, urllib.request, urllib.parse, re, html
+          url=os.environ['SOURCE_URL']
+          req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'})
+          with urllib.request.urlopen(req,timeout=30) as r:
+              data=r.read().decode('utf-8','replace')
+              final=r.geturl()
+          out=[]
+          out.append('FINAL_URL='+final)
+          out.append('HTML_LEN='+str(len(data)))
+          for m in re.findall(r'''(?:href|src)=["']([^"']+)''',data,re.I):
+              out.append('LINK='+urllib.parse.urljoin(final,html.unescape(m)))
+          open('ci/pf2-r13/firestorage_probe.txt','w',encoding='utf-8').write('\n'.join(out)+'\n')
+          open('ci/pf2-r13/firestorage_probe.html','w',encoding='utf-8').write(data[:200000])
+          PY
+      - name: Commit probe
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ci/pf2-r13/firestorage_probe.txt ci/pf2-r13/firestorage_probe.html
+          git commit -m 'ci: probe PF2 R13 temporary source share' || exit 0
+          git push origin HEAD:main
