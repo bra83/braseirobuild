@@ -182,3 +182,5 @@ jobs:
           git add ci/starwars-r54-p24-release-status.txt
           git commit -m "ci: record Star Wars R54 P24 release status" || exit 0
           git push origin HEAD:main
+
+# retrigger after workflow activation
