@@ -50,11 +50,24 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          unzip -q incoming/source.zip -d work
-          WRAPPER="$(find work -type f -name gradlew -not -path '*/.gradle/*' -not -path '*/build/*' | head -n1)"
-          test -n "$WRAPPER"
-          ANDROID_ROOT="$(dirname "$WRAPPER")"
-          PROJECT_ROOT="$(dirname "$ANDROID_ROOT")"
+          SRC="$GITHUB_WORKSPACE/incoming/source.zip"
+          ANDROID_ROOT=""
+          PROJECT_ROOT=""
+          for N in 1 2 3; do
+            DEST="$GITHUB_WORKSPACE/work/layer$N"
+            mkdir -p "$DEST"
+            unzip -q "$SRC" -d "$DEST"
+            WRAPPER="$(find "$DEST" -type f -name gradlew -not -path '*/.gradle/*' -not -path '*/build/*' | head -n1 || true)"
+            if [ -n "$WRAPPER" ]; then
+              ANDROID_ROOT="$(dirname "$WRAPPER")"
+              PROJECT_ROOT="$(dirname "$ANDROID_ROOT")"
+              break
+            fi
+            NEXT="$(find "$DEST" -type f -name '*.zip' | head -n1 || true)"
+            [ -n "$NEXT" ] || { echo '::error::Android Gradle project not found'; exit 1; }
+            SRC="$NEXT"
+          done
+          test -n "$ANDROID_ROOT"
           test -f "$PROJECT_ROOT/App.tsx"
           test -f "$PROJECT_ROOT/components/immersive/ImmersiveJourneyView.tsx"
           echo "android_root=$ANDROID_ROOT" >> "$GITHUB_OUTPUT"
