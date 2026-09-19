@@ -1,0 +1,22 @@
+{
+  "source": "ADAPTACOES/GURPS/Braseiro_GURPS_10.6.0_MOTOR_BARBARA_1.1.0_ANDROID_STUDIO.zip",
+  "classes": {
+    "PhysicalDiceEngine.java": "846868db17541978f00ced636723de3e656bc7a4151f198513cae3a8fa356260",
+    "Dice3DView.java": "3e9eac5914b6ec3747ab7d73404dfb2be341e5cdb44314ec05ac6501ee42a3cd",
+    "DiceAppearance.java": "5a33217d42a550f9c03390ae3dc50a0fe0fbf5864f5139e4c6d69d0eb2dff73d",
+    "DiceAppearanceStore.java": "e353b0557d46de2cf8fce2c07728df472e07468fa86063bd8c28c7ae6b4b62e1",
+    "DiceSoundEngine.java": "b7873c1b27eec50be2caad6d0049c64c952c8131205e6047abde7e55fd29cf33"
+  },
+  "sounds": {
+    "dice_plastic.wav": "32a078f534c42bcae2113f12dfd42f0147b8c1f1b24e8c1ef9eb2e4813e91fdf",
+    "dice_stone.wav": "851b883601aa193f01f874d203e7360a051623b4e8d2947f39148c5c216b2042",
+    "dice_metal.wav": "63b5922685fc01656d4672140b5f17c711f48248ca2689e09152f3a87633ca1b",
+    "dice_bone.wav": "7ba1713cbb9415c32b45b19a0e9d9d7a8feea6b2bde37eb9b99dfc656ea4a828",
+    "dice_wood.wav": "151db0314b2e43e6bd78b3d689008df8a6419f24e718fb50a97f4cdedccf5f1d",
+    "dice_crystal.wav": "885f677dbe23e0cdbac277048cb6de02527fc3e87dc356a3bc1718fc26d32e83",
+    "dice_glass.wav": "31243a68f52cfafd4071a7a4b599f9be2ca60bf9cc1717f2308bcf741a97ffb5",
+    "dice_obsidian.wav": "87a70fe07c3c5b5b44201b5728c3035ad3aee4036153765fd5661297bb148b64",
+    "dice_ivory.wav": "03239032733eca46a47154d3b82df579fb5aed8c4aadf495950290cac6cbfc89",
+    "dice_leather.wav": "0f0108f6f81ce1e01a66d56fae16a52904e529cb62dc7358a5e3e2723e184cba"
+  }
+}
