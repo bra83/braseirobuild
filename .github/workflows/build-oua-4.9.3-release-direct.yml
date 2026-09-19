@@ -128,26 +128,27 @@ jobs:
             'className="pointer-events-none absolute left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ top: \'46%\', zIndex: 40, height: \'142px\', width: \'166px\' }}')
 
           app=Path('App.tsx')
-          marker="""      markBootStage('ui:first-paint');
-      window.clearTimeout(bootWatchdog);"""
-          guard="""      markBootStage('ui:first-paint');
-      const immersiveRoot = document.querySelector<HTMLElement>('[data-braseiro-immersive-root="true"]');
-      if (immersiveRoot) {
-        const rect = immersiveRoot.getBoundingClientRect();
-        const minimumVisibleHeight = Math.min(320, Math.max(180, window.innerHeight * 0.45));
-        if (rect.height < minimumVisibleHeight) {
-          console.error(`[BRASEIRO_BOOT_LAYOUT] immersive-root-collapsed height=${rect.height} viewport=${window.innerHeight}`);
-          localStorage.setItem('braseiro.tor2e.immersiveUi', '0');
-          const safeUrl = new URL(window.location.href);
-          safeUrl.searchParams.set('classic', '1');
-          safeUrl.searchParams.set('immersive', '0');
-          window.clearTimeout(bootWatchdog);
-          window.location.replace(safeUrl.toString());
-          return;
-        }
-      }
-      markBootStage('ui:verified');
-      window.clearTimeout(bootWatchdog);"""
+          marker = "      markBootStage('ui:first-paint');\\n      window.clearTimeout(bootWatchdog);"
+          guard = "\\n".join([
+              "      markBootStage('ui:first-paint');",
+              "      const immersiveRoot = document.querySelector<HTMLElement>('[data-braseiro-immersive-root=\\\"true\\\"]');",
+              "      if (immersiveRoot) {",
+              "        const rect = immersiveRoot.getBoundingClientRect();",
+              "        const minimumVisibleHeight = Math.min(320, Math.max(180, window.innerHeight * 0.45));",
+              "        if (rect.height < minimumVisibleHeight) {",
+              "          console.error(\\`[BRASEIRO_BOOT_LAYOUT] immersive-root-collapsed height=\\${rect.height} viewport=\\${window.innerHeight}\\`);",
+              "          localStorage.setItem('braseiro.tor2e.immersiveUi', '0');",
+              "          const safeUrl = new URL(window.location.href);",
+              "          safeUrl.searchParams.set('classic', '1');",
+              "          safeUrl.searchParams.set('immersive', '0');",
+              "          window.clearTimeout(bootWatchdog);",
+              "          window.location.replace(safeUrl.toString());",
+              "          return;",
+              "        }",
+              "      }",
+              "      markBootStage('ui:verified');",
+              "      window.clearTimeout(bootWatchdog);",
+          ])
           replace(app, marker, guard)
 
           print('PATCH_4.9.3_OK')
