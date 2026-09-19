@@ -19,9 +19,6 @@ jobs:
       ARCHIVE_NAME: BRASEIRO_WWN_1.0.21_ANDROID_STUDIO_DEVICE_CANDIDATE.zip
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
