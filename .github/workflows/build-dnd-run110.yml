@@ -70,7 +70,7 @@ jobs:
           unzip -t /tmp/run110-overlay.zip >/dev/null
           rm -rf "$PROJECT_ROOT/android/app/src/main/java/com/braseiro/dnd5e"
           rm -rf "$PROJECT_ROOT/android/app/src/main/java/com/braseiro/dnd"
-          unzip -q /tmp/run110-overlay.zip -d "$PROJECT_ROOT"
+          unzip -oq /tmp/run110-overlay.zip -d "$PROJECT_ROOT"
 
       - name: Verify RUN110 contracts
         shell: bash
