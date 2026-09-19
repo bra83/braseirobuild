@@ -1,0 +1,15 @@
+BRASEIRO WWN 1.0.21 DEVICE CANDIDATE BUILD INPUT
+Generated: 2026-09-19
+Branch: wwn-1.0.21-device-build
+
+Archive:
+BRASEIRO_WWN_1.0.21_ANDROID_STUDIO_DEVICE_CANDIDATE.zip
+
+SHA-256:
+d0ce8e27231a35981a6750c80583dfb2acb2acd1c3e0612583b8a93d8c19d482
+
+Temporary build transport:
+https://firestorage.ai/ja/f/rib86wLwDhxF
+Expires: 2026-09-20T22:34:36Z
+
+The workflow verifies SHA-256 before extracting/building.
