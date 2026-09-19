@@ -3,8 +3,7 @@ name: Audit OUA 4.9.4 Runtime
 on:
   push:
     branches: [main]
-    paths:
-      - '.github/workflows/audit-oua-4.9.4-runtime.yml'
+    paths: ['.github/workflows/audit-oua-4.9.4-runtime.yml']
   workflow_dispatch:
 
 permissions:
@@ -25,28 +24,16 @@ jobs:
           gh release download OUA-v4.9.4 -R bra83/braseirobuild --pattern 'OUA_4.9.4_VISUAL_FIX_ANDROID_STUDIO.zip' --dir incoming
           unzip -q incoming/OUA_4.9.4_VISUAL_FIX_ANDROID_STUDIO.zip -d work
           ROOT="$(dirname "$(find work -maxdepth 3 -type f -name package.json | head -n1)")"
-          test -n "$ROOT"
           echo "ROOT=$ROOT" >> "$GITHUB_ENV"
-      - name: Focused source dump
+      - name: Bridge audit
         shell: bash
         run: |
           set -euo pipefail
-          echo '===== App.tsx 1940-2055 ====='
-          sed -n '1940,2055p' "$ROOT/App.tsx"
-          echo '===== App.tsx 2100-2185 ====='
-          sed -n '2100,2185p' "$ROOT/App.tsx"
-          echo '===== App.tsx currentImage state/handlers ====='
-          grep -n -B8 -A18 'currentImage\|setCurrentImage\|handleImportSceneImage\|handleRegenerateImage' "$ROOT/App.tsx" | head -n 700 || true
-          echo '===== SettingsView.tsx ====='
-          sed -n '1,240p' "$ROOT/components/SettingsView.tsx"
-          echo '===== ImmersiveJourneyView.tsx ====='
-          sed -n '1,260p' "$ROOT/components/immersive/ImmersiveJourneyView.tsx"
-          echo '===== GameView immersive section ====='
-          sed -n '300,430p' "$ROOT/components/GameView.tsx"
-          echo '===== GameView adventure section ====='
-          sed -n '450,525p' "$ROOT/components/GameView.tsx"
-          echo '===== geminiService models ====='
-          sed -n '60,115p' "$ROOT/services/geminiService.ts"
-          sed -n '430,585p' "$ROOT/services/geminiService.ts"
-          echo '===== apiKey ====='
-          sed -n '1,180p' "$ROOT/lib/apiKey.ts"
+          echo '===== geminiTransport ====='
+          sed -n '1,180p' "$ROOT/lib/geminiTransport.ts"
+          echo '===== bridge callback search ====='
+          grep -RniE --include='*.ts' --include='*.tsx' --include='*.kt' '__braseiroGeminiCallbacks|geminiRequest\(' "$ROOT" | grep -vE '/dist/|/android/app/src/main/assets/' | head -n 400 || true
+          echo '===== MainActivity bridge ====='
+          sed -n '2128,2170p' "$ROOT/android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt"
+          echo '===== declarations ====='
+          grep -RniE --include='*.d.ts' --include='*.ts' 'BraseiroAndroid|geminiRequest' "$ROOT" | grep -vE '/dist/|/android/app/src/main/assets/' | head -n 400 || true
