@@ -14,48 +14,104 @@ env:
   TAG: 'DND-6.6.2-RUN109'
   PACKAGE_ID: 'com.braseiro.dnd5e'
   APK_NAME: 'BRASEIRO_DND_6.6.2_RUN109_DEBUG.apk'
-  SOURCE_SHA256: 'be1565cf347c37c46b4c2d33d0053bb25c71d382fdaa8f39752f0397c4d1cad7'
+  BASELINE_SHA256: '2acf32fe57437c5d2472f7a65104791828a5305f44fb722ee545af0a01a52937'
+  OVERLAY_SHA256: 'd01a499af985e493d2b6e8c2855c716966ae163df04c8b950f0c6b986082371a'
+  FIRE_API: 'https://api.firestorage.ai/dev/file'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
-      - name: Download RUN109 Android Studio source from Drive
+      - name: Checkout build scripts
+        uses: actions/checkout@v4
+
+      - name: Download frozen baseline chunks
         shell: bash
         run: |
           set -euo pipefail
-          python3 -m pip install --quiet gdown
-          mkdir -p source_parts work out
+          mkdir -p incoming work out
 
-          gdown '1wPsqaaeTHOLpw9FuLjEKMuBDKQ1pHYwE' -O source_parts/part000
-          gdown '1T7vxDWu0biCV0K4i2gY8IT_YQc7tGyNr' -O source_parts/part001
-          gdown '1L_9_JMXrAkNNOqR-UkMnr4rtH8AtJM8b' -O source_parts/part002
-          gdown '1TtqFuRIXaMiMH-qg8AOY441rxmEF-F_f' -O source_parts/part003
+          fetch_share() {
+            local share="$1" out="$2"
+            curl -fsSL "$FIRE_API/shares/$share/files?maxResults=1000" -o /tmp/list.json
+            local fid
+            fid="$(python3 - <<'PY'
+import json
+d=json.load(open('/tmp/list.json', encoding='utf-8'))
+fs=d.get('files') or []
+if not fs: raise SystemExit('no files in share')
+print(fs[0]['fileId'])
+PY
+)"
+            curl -fsSL -X POST "$FIRE_API/shares/$share/files/$fid/download" -o /tmp/dl.json
+            local url
+            url="$(python3 - <<'PY'
+import json
+d=json.load(open('/tmp/dl.json', encoding='utf-8'))
+u=d.get('downloadUrl') or ''
+if not u: raise SystemExit('missing downloadUrl')
+print(u)
+PY
+)"
+            curl -fL --retry 3 --connect-timeout 20 --max-time 240 "$url" -o "$out"
+          }
 
-          test "$(stat -c %s source_parts/part000)" -eq 78643200
-          test "$(stat -c %s source_parts/part001)" -eq 78643200
-          test "$(stat -c %s source_parts/part002)" -eq 78643200
-          test "$(stat -c %s source_parts/part003)" -eq 77031667
+          fetch_share 'QRFGq33xocDC' incoming/part.00
+          fetch_share 'v7WCbOWJt2l0' incoming/part.01
+          fetch_share 'tyVmjxfKwbWS' incoming/part.02
+          fetch_share 'JtFk5UVAOYbD' incoming/part.03
+          fetch_share 'PQpyJskFB702' incoming/part.04
 
-          cat source_parts/part000 source_parts/part001 source_parts/part002 source_parts/part003 > source.zip
-          echo "$SOURCE_SHA256  source.zip" | sha256sum -c -
-          unzip -t source.zip >/dev/null
-          unzip -q source.zip -d work
+          printf '%s  %s\n'             '7799a6d20fa5b0f362cf4ab386139c31130b5807da44afd4841b9b6bb8fe2ac6' incoming/part.00             '06864dd74d1c3ef62a2010210cbd63275bd3046476d7c1e1af3b15ed6bdeb61d' incoming/part.01             '86534362f7892834b7de98e154a6d122bf7e73f95cb2d6a80d8c2884c9434ebc' incoming/part.02             '8ba61dc700efc75aa1499621cd502ed46bab5e0f59952850aad5c89af3f5d7d5' incoming/part.03             'c3984239c2db218db020180c71a67069276abe6c0ea8f8085a0c1cee0131e5fc' incoming/part.04 | sha256sum -c -
 
-          ROOT="$GITHUB_WORKSPACE/work/BRASEIRO_DND_6.6.2_RUN109_ANDROID_STUDIO"
-          test -f "$ROOT/gradlew"
-          test -f "$ROOT/settings.gradle.kts"
-          test -f "$ROOT/android/app/build.gradle.kts"
-          test -f "$ROOT/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java"
+          cat incoming/part.* > incoming/baseline.zip
+          echo "$BASELINE_SHA256  incoming/baseline.zip" | sha256sum -c -
+          unzip -t incoming/baseline.zip >/dev/null
+          unzip -q incoming/baseline.zip -d work
 
+          ROOT="$GITHUB_WORKSPACE/work/BRASEIRO_DND_6.6.2_ANDROID_STUDIO"
+          test -d "$ROOT/android/app/src/main"
+          echo "ROOT=$ROOT" >> "$GITHUB_ENV"
+
+      - name: Apply RUN104 cumulative functional patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 ci/dnd-run104/apply_run104.py "$ROOT"
+
+      - name: Apply cumulative RUN105-RUN109 build overlay
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHARE='gpAcq0ARX7bi'
+          curl -fsSL "$FIRE_API/shares/$SHARE/files?maxResults=1000" -o /tmp/overlay_list.json
+          FID="$(python3 - <<'PY'
+import json
+d=json.load(open('/tmp/overlay_list.json', encoding='utf-8'))
+fs=d.get('files') or []
+if not fs: raise SystemExit('overlay share empty')
+print(fs[0]['fileId'])
+PY
+)"
+          curl -fsSL -X POST "$FIRE_API/shares/$SHARE/files/$FID/download" -o /tmp/overlay_dl.json
+          URL="$(python3 - <<'PY'
+import json
+d=json.load(open('/tmp/overlay_dl.json', encoding='utf-8'))
+u=d.get('downloadUrl') or ''
+if not u: raise SystemExit('overlay missing downloadUrl')
+print(u)
+PY
+)"
+          curl -fL --retry 3 "$URL" -o /tmp/run109-overlay.zip
+          echo "$OVERLAY_SHA256  /tmp/run109-overlay.zip" | sha256sum -c -
+          unzip -t /tmp/run109-overlay.zip >/dev/null
+          unzip -oq /tmp/run109-overlay.zip -d "$ROOT"
+
+          grep -q '^VERSION_NAME=6.6.2-r109$' "$ROOT/version.properties"
+          grep -q '^VERSION_CODE=606209$' "$ROOT/version.properties"
           grep -q 'RUN109' "$ROOT/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java"
           grep -q 'RUN108' "$ROOT/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java"
-
-          sed -i 's/^VERSION_NAME=.*/VERSION_NAME=6.6.2-r109/' "$ROOT/version.properties"
-          sed -i 's/^VERSION_CODE=.*/VERSION_CODE=606209/' "$ROOT/version.properties"
-
-          echo "ROOT=$ROOT" >> "$GITHUB_ENV"
 
       - name: Set up JDK 17
         uses: actions/setup-java@v5
@@ -79,15 +135,16 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Build RUN109 APK
+      - name: Build and validate RUN109 APK
         shell: bash
         run: |
           set -euo pipefail
-          cd "$ROOT"
-          chmod +x gradlew
+          ANDROID="$ROOT/android"
+          chmod +x "$ANDROID/gradlew"
+          cd "$ANDROID"
           ./gradlew :app:assembleDebug --no-daemon --console=plain 2>&1 | tee "$GITHUB_WORKSPACE/assemble-run109.log"
 
-          APK="$(find android/app/build/outputs/apk/debug -type f -name '*.apk' | head -n1)"
+          APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | head -n1)"
           test -f "$APK"
           cp "$APK" "$GITHUB_WORKSPACE/out/$APK_NAME"
 
