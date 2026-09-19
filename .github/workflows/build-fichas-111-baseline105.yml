@@ -5,6 +5,8 @@ on:
     branches: [fichas-final-20260916]
     paths:
       - ".github/workflows/build-fichas-111-baseline105.yml"
+      - "android/fichas-multissistema/app/src/main/assets/www/import-adapters.js"
+      - "android/fichas-multissistema/import-adapters.contract.test.mjs"
   workflow_dispatch:
 
 permissions:
