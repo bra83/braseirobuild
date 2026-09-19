@@ -1,4 +1,5 @@
 name: Forbidden Lands 3.3.1 APK Release
+# release-trigger: 2026-09-19
 
 on:
   push:
