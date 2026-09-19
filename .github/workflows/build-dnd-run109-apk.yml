@@ -11,12 +11,12 @@ permissions:
   contents: write
 
 env:
-  TAG: 'DND-6.6.2-RUN109'
-  PACKAGE_ID: 'com.braseiro.dnd5e'
-  APK_NAME: 'BRASEIRO_DND_6.6.2_RUN109_DEBUG.apk'
-  BASELINE_SHA256: '2acf32fe57437c5d2472f7a65104791828a5305f44fb722ee545af0a01a52937'
-  OVERLAY_SHA256: 'd01a499af985e493d2b6e8c2855c716966ae163df04c8b950f0c6b986082371a'
-  FIRE_API: 'https://api.firestorage.ai/dev/file'
+  TAG: DND-6.6.2-RUN109
+  PACKAGE_ID: com.braseiro.dnd5e
+  APK_NAME: BRASEIRO_DND_6.6.2_RUN109_DEBUG.apk
+  BASELINE_SHA256: 2acf32fe57437c5d2472f7a65104791828a5305f44fb722ee545af0a01a52937
+  OVERLAY_SHA256: d01a499af985e493d2b6e8c2855c716966ae163df04c8b950f0c6b986082371a
+  FIRE_API: https://api.firestorage.ai/dev/file
 
 jobs:
   build:
@@ -31,41 +31,31 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p incoming work out
-
           fetch_share() {
-            local share="$1" out="$2"
+            local share="$1"
+            local out="$2"
             curl -fsSL "$FIRE_API/shares/$share/files?maxResults=1000" -o /tmp/list.json
             local fid
-            fid="$(python3 - <<'PY'
-import json
-d=json.load(open('/tmp/list.json', encoding='utf-8'))
-fs=d.get('files') or []
-if not fs: raise SystemExit('no files in share')
-print(fs[0]['fileId'])
-PY
-)"
+            fid="$(python3 -c "import json; d=json.load(open('/tmp/list.json')); fs=d.get('files') or []; assert fs, 'no files in share'; print(fs[0]['fileId'])")"
             curl -fsSL -X POST "$FIRE_API/shares/$share/files/$fid/download" -o /tmp/dl.json
             local url
-            url="$(python3 - <<'PY'
-import json
-d=json.load(open('/tmp/dl.json', encoding='utf-8'))
-u=d.get('downloadUrl') or ''
-if not u: raise SystemExit('missing downloadUrl')
-print(u)
-PY
-)"
+            url="$(python3 -c "import json; d=json.load(open('/tmp/dl.json')); u=d.get('downloadUrl') or ''; assert u, 'missing downloadUrl'; print(u)")"
             curl -fL --retry 3 --connect-timeout 20 --max-time 240 "$url" -o "$out"
           }
 
-          fetch_share 'QRFGq33xocDC' incoming/part.00
-          fetch_share 'v7WCbOWJt2l0' incoming/part.01
-          fetch_share 'tyVmjxfKwbWS' incoming/part.02
-          fetch_share 'JtFk5UVAOYbD' incoming/part.03
-          fetch_share 'PQpyJskFB702' incoming/part.04
+          fetch_share QRFGq33xocDC incoming/part.00
+          fetch_share v7WCbOWJt2l0 incoming/part.01
+          fetch_share tyVmjxfKwbWS incoming/part.02
+          fetch_share JtFk5UVAOYbD incoming/part.03
+          fetch_share PQpyJskFB702 incoming/part.04
 
-          printf '%s  %s\n'             '7799a6d20fa5b0f362cf4ab386139c31130b5807da44afd4841b9b6bb8fe2ac6' incoming/part.00             '06864dd74d1c3ef62a2010210cbd63275bd3046476d7c1e1af3b15ed6bdeb61d' incoming/part.01             '86534362f7892834b7de98e154a6d122bf7e73f95cb2d6a80d8c2884c9434ebc' incoming/part.02             '8ba61dc700efc75aa1499621cd502ed46bab5e0f59952850aad5c89af3f5d7d5' incoming/part.03             'c3984239c2db218db020180c71a67069276abe6c0ea8f8085a0c1cee0131e5fc' incoming/part.04 | sha256sum -c -
+          echo '7799a6d20fa5b0f362cf4ab386139c31130b5807da44afd4841b9b6bb8fe2ac6  incoming/part.00' | sha256sum -c -
+          echo '06864dd74d1c3ef62a2010210cbd63275bd3046476d7c1e1af3b15ed6bdeb61d  incoming/part.01' | sha256sum -c -
+          echo '86534362f7892834b7de98e154a6d122bf7e73f95cb2d6a80d8c2884c9434ebc  incoming/part.02' | sha256sum -c -
+          echo '8ba61dc700efc75aa1499621cd502ed46bab5e0f59952850aad5c89af3f5d7d5  incoming/part.03' | sha256sum -c -
+          echo 'c3984239c2db218db020180c71a67069276abe6c0ea8f8085a0c1cee0131e5fc  incoming/part.04' | sha256sum -c -
 
-          cat incoming/part.* > incoming/baseline.zip
+          cat incoming/part.00 incoming/part.01 incoming/part.02 incoming/part.03 incoming/part.04 > incoming/baseline.zip
           echo "$BASELINE_SHA256  incoming/baseline.zip" | sha256sum -c -
           unzip -t incoming/baseline.zip >/dev/null
           unzip -q incoming/baseline.zip -d work
@@ -84,30 +74,15 @@ PY
         shell: bash
         run: |
           set -euo pipefail
-          SHARE='gpAcq0ARX7bi'
+          SHARE=gpAcq0ARX7bi
           curl -fsSL "$FIRE_API/shares/$SHARE/files?maxResults=1000" -o /tmp/overlay_list.json
-          FID="$(python3 - <<'PY'
-import json
-d=json.load(open('/tmp/overlay_list.json', encoding='utf-8'))
-fs=d.get('files') or []
-if not fs: raise SystemExit('overlay share empty')
-print(fs[0]['fileId'])
-PY
-)"
+          FID="$(python3 -c "import json; d=json.load(open('/tmp/overlay_list.json')); fs=d.get('files') or []; assert fs, 'overlay share empty'; print(fs[0]['fileId'])")"
           curl -fsSL -X POST "$FIRE_API/shares/$SHARE/files/$FID/download" -o /tmp/overlay_dl.json
-          URL="$(python3 - <<'PY'
-import json
-d=json.load(open('/tmp/overlay_dl.json', encoding='utf-8'))
-u=d.get('downloadUrl') or ''
-if not u: raise SystemExit('overlay missing downloadUrl')
-print(u)
-PY
-)"
+          URL="$(python3 -c "import json; d=json.load(open('/tmp/overlay_dl.json')); u=d.get('downloadUrl') or ''; assert u, 'overlay missing downloadUrl'; print(u)")"
           curl -fL --retry 3 "$URL" -o /tmp/run109-overlay.zip
           echo "$OVERLAY_SHA256  /tmp/run109-overlay.zip" | sha256sum -c -
           unzip -t /tmp/run109-overlay.zip >/dev/null
           unzip -oq /tmp/run109-overlay.zip -d "$ROOT"
-
           grep -q '^VERSION_NAME=6.6.2-r109$' "$ROOT/version.properties"
           grep -q '^VERSION_CODE=606209$' "$ROOT/version.properties"
           grep -q 'RUN109' "$ROOT/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java"
@@ -133,7 +108,8 @@ PY
           echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
           echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
 
-      - uses: gradle/actions/setup-gradle@v4
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Build and validate RUN109 APK
         shell: bash
@@ -143,11 +119,9 @@ PY
           chmod +x "$ANDROID/gradlew"
           cd "$ANDROID"
           ./gradlew :app:assembleDebug --no-daemon --console=plain 2>&1 | tee "$GITHUB_WORKSPACE/assemble-run109.log"
-
           APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | head -n1)"
           test -f "$APK"
           cp "$APK" "$GITHUB_WORKSPACE/out/$APK_NAME"
-
           sha256sum "$GITHUB_WORKSPACE/out/$APK_NAME" | tee "$GITHUB_WORKSPACE/out/$APK_NAME.sha256"
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$GITHUB_WORKSPACE/out/$APK_NAME" | tee "$GITHUB_WORKSPACE/out/APK_BADGING_RUN109.txt"
           grep -q "package: name='$PACKAGE_ID'" "$GITHUB_WORKSPACE/out/APK_BADGING_RUN109.txt"
@@ -162,5 +136,5 @@ PY
         run: |
           set -euo pipefail
           gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null
-          gh release upload "$TAG"             "out/$APK_NAME"             "out/$APK_NAME.sha256"             "out/APK_BADGING_RUN109.txt"             "out/APK_SIZE_RUN109.txt"             --repo "$GITHUB_REPOSITORY"             --clobber
+          gh release upload "$TAG" "out/$APK_NAME" "out/$APK_NAME.sha256" "out/APK_BADGING_RUN109.txt" "out/APK_SIZE_RUN109.txt" --repo "$GITHUB_REPOSITORY" --clobber
           gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url,assets
