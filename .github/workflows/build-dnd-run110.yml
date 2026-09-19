@@ -103,6 +103,12 @@ jobs:
           set -euo pipefail
           python3 ci/dnd-run109/apply_compile_hotfix.py "$ROOT"
 
+      - name: Apply RUN110 compile hotfix
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 ci/dnd-run110/apply_compile_hotfix.py "$ROOT"
+
       - name: Verify RUN110 contracts
         shell: bash
         run: |
