@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/build-starwars-r54-p24-release.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-starwars-r54-p24-release.yml'
   workflow_dispatch:
 
 permissions:
@@ -156,7 +160,7 @@ jobs:
         run: |
           set -euo pipefail
           NOTES='Star Wars Edge of the Galaxy R54 P24 — debug APK para teste físico. Inclui o runtime autoritativo de imagens de itens/armas no React, preservando as correções P23/P22/P21. applicationId: com.braseiro.starwarsedge. Source SHA-256: 909df10ae58c45891508629ec54f1ce54a9f9ebdc42e0832582b3d0f46f0ad4e.'
-          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" --title 'Braseiro Star Wars Edge R54 P24 — Debug APK' --notes "$NOTES"
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target main --title 'Braseiro Star Wars Edge R54 P24 — Debug APK' --notes "$NOTES"
           gh release upload "$TAG"             "out/$APK_NAME"             "out/$APK_NAME.sha256"             out/APK_BADGING.txt             out/GRADLE_BUILD.log --clobber
           gh release view "$TAG" --json url --jq .url | tee out/RELEASE_URL.txt
 
@@ -184,3 +188,5 @@ jobs:
           git push origin HEAD:main
 
 # retrigger after workflow activation
+
+# PR-triggered monitored build
