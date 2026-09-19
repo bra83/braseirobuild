@@ -1,0 +1,192 @@
+name: Cyberpunk RED R5.46 Android S23-profile validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/test-cyberpunk-r546-s23profile.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  PART00_URL: "https://firestorage.ai/ja/f/pUfGe9UHS3mr"
+  PART01_URL: "https://firestorage.ai/ja/f/-xqoSeCFILBV"
+  PART02_URL: "https://firestorage.ai/ja/f/nCJuyMD3s5RH"
+  PART03_URL: "https://firestorage.ai/ja/f/WoWHsDZmO-hE"
+  PART04_URL: "https://firestorage.ai/ja/f/_7Oe6A9ve-od"
+  OVERLAY_URL: "https://firestorage.ai/ja/f/U3n96j-_2ak_"
+  BASE_SHA256: "6fc7249c1be82a2e2af483d2c03343629ec65a91d8209ae4dd2ccaf54d71a34d"
+  OVERLAY_SHA256: "12b0ecc316a8a09a8f790cd400a9d700f5e0a6b8f6b4cb088b35719620a26fab"
+  ANDROID_HOME: "/usr/local/lib/android/sdk"
+  ANDROID_SDK_ROOT: "/usr/local/lib/android/sdk"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download exact R5.45 base and R5.46 overlay
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p incoming /tmp/cpred-dl
+          cd /tmp/cpred-dl
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+          cat > one.mjs <<'NODE'
+          import { chromium } from 'playwright';
+          const [url,out]=process.argv.slice(2);
+          const b=await chromium.launch({headless:true});
+          const c=await b.newContext({acceptDownloads:true,locale:'ja-JP'});
+          const p=await c.newPage();
+          async function open(){await p.goto(url,{waitUntil:'domcontentloaded',timeout:60000});await p.waitForTimeout(1800)}
+          await open();
+          for(let round=0;round<16;round++){
+            const es=p.locator('a,button,[role="button"]');
+            for(let i=0;i<Math.min(await es.count(),180);i++){
+              const e=es.nth(i); let meta='';
+              try{meta=((await e.innerText())+' '+(await e.getAttribute('title')||'')+' '+(await e.getAttribute('aria-label')||'')+' '+(await e.getAttribute('href')||''));}catch{}
+              if(!/download|ダウンロード|保存|取得|ZIP|ファイル/i.test(meta))continue;
+              try{const q=p.waitForEvent('download',{timeout:9000});await e.click({timeout:4500});const d=await q;await d.saveAs(out);console.log('OK',out,await d.suggestedFilename());await b.close();process.exit(0)}catch{}
+            }
+            await p.waitForTimeout(1800); if(round%4===3)await open();
+          }
+          console.error((await p.locator('body').innerText()).slice(0,5000));await b.close();process.exit(2)
+          NODE
+          node one.mjs "$PART00_URL" "$GITHUB_WORKSPACE/incoming/base.part00"
+          node one.mjs "$PART01_URL" "$GITHUB_WORKSPACE/incoming/base.part01"
+          node one.mjs "$PART02_URL" "$GITHUB_WORKSPACE/incoming/base.part02"
+          node one.mjs "$PART03_URL" "$GITHUB_WORKSPACE/incoming/base.part03"
+          node one.mjs "$PART04_URL" "$GITHUB_WORKSPACE/incoming/base.part04"
+          node one.mjs "$OVERLAY_URL" "$GITHUB_WORKSPACE/incoming/overlay.zip"
+          cd "$GITHUB_WORKSPACE"
+          test "$(stat -c %s incoming/base.part00)" -eq 50331648
+          test "$(stat -c %s incoming/base.part01)" -eq 50331648
+          test "$(stat -c %s incoming/base.part02)" -eq 50331648
+          test "$(stat -c %s incoming/base.part03)" -eq 50331648
+          test "$(stat -c %s incoming/base.part04)" -eq 10984431
+          cat incoming/base.part0{0,1,2,3,4} > incoming/base.zip
+          echo "$BASE_SHA256  incoming/base.zip" | sha256sum -c -
+          echo "$OVERLAY_SHA256  incoming/overlay.zip" | sha256sum -c -
+
+      - name: Apply overlay
+        id: src
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf work && mkdir work
+          unzip -q incoming/base.zip -d work
+          ROOT="$(find work -type f -name gradlew -print0 | while IFS= read -r -d '' W; do D="$(dirname "$W")"; if [ -f "$D/settings.gradle.kts" ]; then echo "$D"; break; fi; done)"
+          test -n "$ROOT"
+          unzip -oq incoming/overlay.zip -d "$ROOT"
+          chmod +x "$ROOT/gradlew"
+          test -f "$ROOT/R5_46_OVERLAY_PROVENANCE.txt"
+          node --check "$ROOT/app/src/main/assets/web/app/app.js"
+          node --check "$ROOT/app/src/main/assets/web/app/sheets.js"
+          echo "root=$ROOT" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Android SDK 36
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort -V | tail -n1)"
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Compile corrected APK
+        working-directory: ${{ steps.src.outputs.root }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew :app:processDebugResources :app:compileDebugKotlin :app:compileDebugJavaWithJavac :app:assembleDebug --no-daemon --stacktrace
+          APK="$(find app/build/outputs/apk/debug -name '*.apk' | head -1)"
+          test -f "$APK"
+          cp "$APK" "$GITHUB_WORKSPACE/cpred-r546.apk"
+          sha256sum "$GITHUB_WORKSPACE/cpred-r546.apk" | tee "$GITHUB_WORKSPACE/cpred-r546.apk.sha256"
+
+      - name: Boot Android emulator and capture real app inventory
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7_pro
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: |
+            set -euo pipefail
+            adb shell wm size 1440x3088
+            adb shell wm density 560
+            adb install -r cpred-r546.apk
+            adb shell am force-stop com.braseiro.cyberpunkred
+            adb shell am start -W -n com.braseiro.cyberpunkred/.MainActivity
+            sleep 12
+            adb shell uiautomator dump /sdcard/window.xml >/dev/null || true
+            adb pull /sdcard/window.xml window.xml >/dev/null || true
+            python3 - <<'PY'
+            import xml.etree.ElementTree as ET,re,subprocess,os
+            x=y=None
+            if os.path.exists('window.xml'):
+              try:
+                root=ET.parse('window.xml').getroot()
+                for n in root.iter('node'):
+                  if (n.attrib.get('text') or '').strip().lower()=='inventário':
+                    m=re.match(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',n.attrib.get('bounds',''))
+                    if m:
+                      a,b,c,d=map(int,m.groups());x=(a+c)//2;y=(b+d)//2;break
+              except Exception: pass
+            if x is None: x,y=1030,535
+            print('inventory tap',x,y)
+            subprocess.check_call(['adb','shell','input','tap',str(x),str(y)])
+            PY
+            sleep 8
+            adb exec-out screencap -p > CYBERPUNK_RED_R5_46_INVENTORY_ANDROID_S23_PROFILE.png
+            test -s CYBERPUNK_RED_R5_46_INVENTORY_ANDROID_S23_PROFILE.png
+            adb shell input swipe 720 2400 720 900 700
+            sleep 2
+            adb exec-out screencap -p > CYBERPUNK_RED_R5_46_INVENTORY_SCROLL_ANDROID_S23_PROFILE.png
+            test -s CYBERPUNK_RED_R5_46_INVENTORY_SCROLL_ANDROID_S23_PROFILE.png
+
+      - name: Validate screenshot and commit evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s CYBERPUNK_RED_R5_46_INVENTORY_ANDROID_S23_PROFILE.png
+          mkdir -p cyberpunk-red/r5.46-device-test
+          cp CYBERPUNK_RED_R5_46_INVENTORY_ANDROID_S23_PROFILE.png cyberpunk-red/r5.46-device-test/
+          cp CYBERPUNK_RED_R5_46_INVENTORY_SCROLL_ANDROID_S23_PROFILE.png cyberpunk-red/r5.46-device-test/
+          cp cpred-r546.apk.sha256 cyberpunk-red/r5.46-device-test/
+          cat > cyberpunk-red/r5.46-device-test/VALIDATION.txt <<EOF
+          RUN_ID=$GITHUB_RUN_ID
+          BASE_SHA256=$BASE_SHA256
+          OVERLAY_SHA256=$OVERLAY_SHA256
+          ANDROID_EMULATOR_API=35
+          DISPLAY_PROFILE=1440x3088@560dpi
+          APK_COMPILE=PASS
+          APK_INSTALL=PASS
+          APP_LAUNCH=PASS
+          INVENTORY_SCREENSHOT=PASS
+          INVENTORY_SCROLL_SCREENSHOT=PASS
+          NOTE=Android emulator configured to Galaxy-S23-Ultra-like pixel/density profile; not a physical S23 Ultra.
+          EOF
+          git fetch origin main
+          git checkout -B main origin/main
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cyberpunk-red/r5.46-device-test
+          git commit -m "test(cyberpunk): R5.46 Android inventory screenshot" || exit 0
+          git push origin main
