@@ -99,6 +99,7 @@ jobs:
         run: |
           set -euo pipefail
           cd "$ROOT"
+          npm install --ignore-scripts --no-save --package-lock=false typescript@5.8.3
           npm run build:offline
           node scripts/use-offline-dist.mjs
           node scripts/sync-android-assets.mjs
