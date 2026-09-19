@@ -100,8 +100,6 @@ jobs:
           SRC="$GITHUB_WORKSPACE/android/fichas-multissistema/app/src/main/assets/www"
           DST="$ANDROID_PROJECT_ROOT/app/src/main/assets/www"
           cp "$SRC/import-adapters.js" "$DST/import-adapters.js"
-          cp "$SRC/app.js" "$DST/app.js"
-          cp "$SRC/systems-data.js" "$DST/systems-data.js"
           python3 - <<'PY'
           from pathlib import Path
           import os,re
@@ -115,6 +113,17 @@ jobs:
                   raise SystemExit("app.js script anchor nao encontrado")
               html=html.replace(needle,repl,1)
           p.write_text(html,encoding="utf-8")
+          p=root/"app/src/main/assets/www/app.js"
+          app=p.read_text(encoding="utf-8")
+          start=app.find("function importJson(file){")
+          if start < 0: raise SystemExit("canonical importJson nao encontrado")
+          end=app.find("\n", start)
+          if end < 0: end=len(app)
+          bridge=r'''function normalizeImportPayload(raw){if(raw?.schema==='braseiro.multisheet.v3'||raw?.schema==='braseiro.multisheet.v4')return {payload:raw,sourceLabel:null};const mapped=globalThis.BRASEIRO_IMPORT_ADAPTERS?.map?.(raw);if(!mapped)throw Error('Formato de ficha não reconhecido por esta build.');if(mapped.native)return {payload:mapped.payload,sourceLabel:null};const sys=SYSTEMS.find(x=>x.id===mapped.system);return {payload:{schema:'braseiro.multisheet.v4',engineVersion:RULES.VERSION,system:mapped.system,systemName:sys?.name||mapped.system,importedAt:new Date().toISOString(),importedFrom:mapped.sourceLabel||raw.format||raw.system||raw.profile||'externo',character:mapped.character||{}},sourceLabel:mapped.sourceLabel||null}}
+function importJson(file){if(!file)return;if(file.size>16*1024*1024){toast('Importação rejeitada: JSON maior que 16 MB.');return}const r=new FileReader();r.onload=()=>{try{const raw=JSON.parse(r.result),normalized=normalizeImportPayload(raw),p=normalized.payload;if(current&&p.system!==current.id)throw Error(`A ficha é ${p.system}, mas o perfil aberto é ${current.id}. Troca silenciosa é proibida.`);const audit=RULES.auditImport(p,null);if(!normalized.sourceLabel&&audit.status==='INVALID')throw Error(`${audit.status}: ${[...audit.errors,...audit.missing,...audit.needsReferee].join(' | ')}`);state[p.system]=p.character||{};saveState();openSystem(p.system);toast(normalized.sourceLabel?`${normalized.sourceLabel}: ficha mapeada (${audit.status})`:`Ficha importada e revalidada (${audit.status})`)}catch(e){toast('Importação rejeitada: '+e.message)}};r.onerror=()=>toast('Importação rejeitada: falha de leitura.');r.readAsText(file)}
+'''
+          app=app[:start]+bridge+app[end+1:]
+          p.write_text(app,encoding="utf-8")
           p=root/"app/build.gradle.kts"
           g=p.read_text(encoding="utf-8")
           g=re.sub(r'versionCode\s*=\s*\d+', 'versionCode = 7', g)
@@ -132,7 +141,6 @@ jobs:
           set -euo pipefail
           node --check app/src/main/assets/www/import-adapters.js
           node --check app/src/main/assets/www/app.js
-          node --check app/src/main/assets/www/systems-data.js
           node --test import-adapters.contract.test.mjs
           cat > "$RUNNER_TEMP/launcher-smoke.cjs" <<'JS'
           const path=require('path');
