@@ -1,0 +1,151 @@
+name: O Um Anel 4.9.3 APK Release V3
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-oua-4.9.3-release-v3.yml'
+      - '.github/scripts/patch-oua-4.9.3.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TAG: 'OUA-v4.9.3-test'
+  APK_NAME: 'BRASEIRO_O_UM_ANEL_4.9.3_IMMERSIVE_LAYOUT_HOTFIX_DEBUG.apk'
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve source URL
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_URL="$(python3 - <<'PY'
+          import re
+          from pathlib import Path
+          s=Path('.github/workflows/build-oua-4.9.2-release.yml').read_text(encoding='utf-8')
+          m=re.search(r"(?m)^\s*SOURCE_URL:\s*'([^']+)'\s*$", s)
+          if not m: raise SystemExit('SOURCE_URL not found')
+          print(m.group(1))
+          PY
+          )"
+          echo "SOURCE_URL=$SOURCE_URL" >> "$GITHUB_ENV"
+
+      - name: Download source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p incoming work out
+          curl -fL --retry 5 --retry-delay 3 "$SOURCE_URL" -o incoming/source.zip
+          unzip -t incoming/source.zip >/dev/null
+          sha256sum incoming/source.zip | tee out/SOURCE_4.9.2_SHA256.txt
+
+      - name: Extract Android Studio project
+        id: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$GITHUB_WORKSPACE/incoming/source.zip"
+          ANDROID_ROOT=""
+          PROJECT_ROOT=""
+          for N in 1 2 3; do
+            DEST="$GITHUB_WORKSPACE/work/layer$N"
+            mkdir -p "$DEST"
+            unzip -q "$SRC" -d "$DEST"
+            WRAPPER="$(find "$DEST" -type f -name gradlew -not -path '*/.gradle/*' -not -path '*/build/*' | head -n1 || true)"
+            if [ -n "$WRAPPER" ]; then
+              ANDROID_ROOT="$(dirname "$WRAPPER")"
+              PROJECT_ROOT="$(dirname "$ANDROID_ROOT")"
+              break
+            fi
+            NEXT="$(find "$DEST" -type f -name '*.zip' | head -n1 || true)"
+            [ -n "$NEXT" ] || { echo '::error::Android Gradle project not found'; exit 1; }
+            SRC="$NEXT"
+          done
+          test -n "$PROJECT_ROOT"
+          test -f "$PROJECT_ROOT/App.tsx"
+          test -f "$PROJECT_ROOT/components/immersive/ImmersiveJourneyView.tsx"
+          echo "project_root=$PROJECT_ROOT" >> "$GITHUB_OUTPUT"
+          echo "android_root=$ANDROID_ROOT" >> "$GITHUB_OUTPUT"
+
+      - name: Apply verified 4.9.3 hotfix
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/patch-oua-4.9.3.py "${{ steps.source.outputs.project_root }}"
+          grep -q "APP_VERSION = '4.9.3'" "${{ steps.source.outputs.project_root }}/lib/version.ts"
+          grep -q 'data-braseiro-immersive-root="true"' "${{ steps.source.outputs.project_root }}/components/immersive/ImmersiveJourneyView.tsx"
+          grep -q 'BRASEIRO_BOOT_LAYOUT' "${{ steps.source.outputs.project_root }}/App.tsx"
+
+      - name: Rebuild offline web runtime
+        shell: bash
+        working-directory: ${{ steps.source.outputs.project_root }}
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts
+          npm run android:sync:offline
+          grep -q 'data-braseiro-immersive-root' android/app/src/main/assets/esm/components/immersive/ImmersiveJourneyView.js
+          grep -q 'BRASEIRO_BOOT_LAYOUT' android/app/src/main/assets/esm/App.js
+
+      - name: Record fix
+        shell: bash
+        run: |
+          cat > out/FIX_4.9.3.txt <<'EOF'
+          O Um Anel 4.9.3
+          - mantém o hotfix 4.9.2 da thread JavaBridge/WebView;
+          - corrige a raiz imersiva que dependia de h-[100dvh] ausente do CSS estático;
+          - geometria crítica da tela imersiva agora é CSS inline explícito;
+          - se a raiz imersiva colapsar, o boot troca automaticamente para UI clássica em vez de tela azul.
+          EOF
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configure Android SDK 35
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Assemble and validate APK
+        shell: bash
+        working-directory: ${{ steps.source.outputs.android_root }}
+        run: |
+          set -euo pipefail
+          chmod +x ./gradlew
+          ./gradlew clean :app:assembleDebug --stacktrace --console=plain --no-daemon 2>&1 | tee "$GITHUB_WORKSPACE/out/GRADLE_BUILD.log"
+          APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | head -n1)"
+          test -f "$APK"
+          cp "$APK" "$GITHUB_WORKSPACE/out/$APK_NAME"
+          sha256sum "$GITHUB_WORKSPACE/out/$APK_NAME" > "$GITHUB_WORKSPACE/out/$APK_NAME.sha256"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$GITHUB_WORKSPACE/out/$APK_NAME" | tee "$GITHUB_WORKSPACE/out/APK_BADGING.txt"
+          grep -q "package: name='com.braseiro.oumanel'" "$GITHUB_WORKSPACE/out/APK_BADGING.txt"
+          unzip -t "$GITHUB_WORKSPACE/out/$APK_NAME" >/dev/null
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          NOTES='O Um Anel 4.9.3: corrige a tela azul após o primeiro paint eliminando a dependência crítica de utilities Tailwind ausentes do CSS estático; inclui fallback automático para UI clássica e o hotfix 4.9.2 da thread do WebView.'
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target main --title 'Braseiro O Um Anel 4.9.3 — Immersive Layout Hotfix' --notes "$NOTES"
+          gh release upload "$TAG"             "out/$APK_NAME"             "out/$APK_NAME.sha256"             out/APK_BADGING.txt             out/GRADLE_BUILD.log             out/FIX_4.9.3.txt             --clobber
