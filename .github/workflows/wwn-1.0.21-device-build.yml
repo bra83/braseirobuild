@@ -1,0 +1,197 @@
+name: WWN 1.0.21 Device Build
+
+on:
+  push:
+    branches:
+      - wwn-1.0.21-device-build
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SOURCE_SHARE_URL: https://firestorage.ai/ja/f/rib86wLwDhxF
+      EXPECTED_SHA256: d0ce8e27231a35981a6750c80583dfb2acb2acd1c3e0612583b8a93d8c19d482
+      ARCHIVE_NAME: BRASEIRO_WWN_1.0.21_ANDROID_STUDIO_DEVICE_CANDIDATE.zip
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Recover build input
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import html, os, re, sys, urllib.parse, urllib.request, http.cookiejar
+
+          share = os.environ["SOURCE_SHARE_URL"]
+          out = os.environ["ARCHIVE_NAME"]
+
+          cj = http.cookiejar.CookieJar()
+          opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
+          opener.addheaders = [("User-Agent", "Mozilla/5.0 GitHubActions WWN Builder")]
+
+          def fetch(url, data=None):
+              req = urllib.request.Request(url, data=data)
+              return opener.open(req, timeout=30)
+
+          def save_if_zip(resp, body, label):
+              cd = resp.headers.get("Content-Disposition", "")
+              ct = resp.headers.get("Content-Type", "")
+              print("probe", label, resp.geturl(), ct, cd)
+              if body[:4] == b"PK\x03\x04" or "application/zip" in ct.lower() or ".zip" in cd.lower():
+                  with open(out, "wb") as f:
+                      f.write(body)
+                  return True
+              return False
+
+          r = fetch(share)
+          body = r.read()
+          if save_if_zip(r, body, "share"):
+              sys.exit(0)
+
+          text = body.decode("utf-8", "replace")
+          with open("firestorage_landing.html", "w", encoding="utf-8") as f:
+              f.write(text)
+
+          candidates = []
+          def add(u):
+              u = html.unescape(u).replace("\\/", "/")
+              u = urllib.parse.urljoin(r.geturl(), u)
+              if u not in candidates and u.startswith("http"):
+                  candidates.append(u)
+
+          for m in re.findall(r'''(?:href|src|action)=["']([^"']+)''', text, re.I):
+              if any(k in m.lower() for k in ("download", ".zip", "/file", "/api/", "attachment")):
+                  add(m)
+
+          for m in re.findall(r'''https?:\\?/\\?/[^"'<>\\s]+''', text, re.I):
+              if any(k in m.lower() for k in ("download", ".zip", "file", "api")):
+                  add(m)
+
+          exact_name = os.environ["ARCHIVE_NAME"]
+          for m in re.finditer(re.escape(exact_name), text):
+              s = max(0, m.start()-800)
+              e = min(len(text), m.end()+1200)
+              chunk = text[s:e]
+              print("FOUND_FILENAME_CONTEXT_BEGIN")
+              print(chunk)
+              print("FOUND_FILENAME_CONTEXT_END")
+              for u in re.findall(r'''https?:\\?/\\?/[^"'<>\\s]+''', chunk, re.I):
+                  add(u)
+              for u in re.findall(r'''["']([^"']*(?:download|file|api)[^"']*)["']''', chunk, re.I):
+                  add(u)
+
+          # Common relative endpoints visible in JS/html around public shares.
+          sid = share.rstrip("/").split("/")[-1]
+          origin = urllib.parse.urlsplit(share)
+          base = f"{origin.scheme}://{origin.netloc}"
+          for p in (
+              f"/api/share/{sid}",
+              f"/api/shares/{sid}",
+              f"/api/public/share/{sid}",
+              f"/api/public/shares/{sid}",
+              f"/api/download/{sid}",
+              f"/download/{sid}",
+          ):
+              add(base + p)
+
+          print("candidate_count", len(candidates))
+          for i,u in enumerate(candidates[:80]):
+              print("candidate", i, u)
+
+          # Probe candidates. JSON/HTML responses may themselves reveal a direct URL.
+          queue = list(candidates[:80])
+          seen = set()
+          while queue and len(seen) < 120:
+              u = queue.pop(0)
+              if u in seen: continue
+              seen.add(u)
+              try:
+                  rr = fetch(u)
+                  bb = rr.read()
+                  if save_if_zip(rr, bb, u):
+                      sys.exit(0)
+                  ctype = rr.headers.get("Content-Type", "")
+                  if len(bb) <= 2_000_000 and ("json" in ctype.lower() or "text" in ctype.lower() or b"http" in bb[:5000]):
+                      tt = bb.decode("utf-8", "replace")
+                      for x in re.findall(r'''https?:\\?/\\?/[^"'<>\\s]+''', tt, re.I):
+                          x = x.replace("\\/", "/")
+                          if any(k in x.lower() for k in ("download", ".zip", "file")):
+                              add(x)
+                              if x not in seen:
+                                  queue.append(x)
+              except Exception as e:
+                  print("probe_error", u, repr(e))
+
+          print("Unable to resolve ZIP from public share page", file=sys.stderr)
+          sys.exit(12)
+          PY
+
+          sha256sum "$ARCHIVE_NAME"
+          echo "$EXPECTED_SHA256  $ARCHIVE_NAME" | sha256sum -c -
+
+      - name: Unpack candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _wwn_build
+          mkdir _wwn_build
+          unzip -q "$ARCHIVE_NAME" -d _wwn_build
+          ANDROID_DIR="$(find _wwn_build -type f -name gradlew -printf '%h\n' | head -1)"
+          test -n "$ANDROID_DIR"
+          echo "ANDROID_DIR=$ANDROID_DIR" >> "$GITHUB_ENV"
+          echo "Android root: $ANDROID_DIR"
+          test -f "$ANDROID_DIR/gradle/wrapper/gradle-wrapper.jar"
+          test -f "$ANDROID_DIR/app/build.gradle.kts"
+
+      - name: Build debug APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$ANDROID_DIR"
+          chmod +x gradlew
+          java -version
+          ./gradlew --version
+          ./gradlew --no-daemon --stacktrace assembleDebug
+
+      - name: Collect APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="$(find "$ANDROID_DIR/app/build/outputs/apk" -type f -name '*.apk' | head -1)"
+          test -n "$APK"
+          mkdir -p dist
+          cp "$APK" dist/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk
+          sha256sum dist/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk | tee dist/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk.sha256
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE_APK
+          path: |
+            dist/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk
+            dist/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk.sha256
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload download diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: WWN_1.0.21_BUILD_DIAGNOSTICS
+          path: |
+            firestorage_landing.html
+          if-no-files-found: ignore
+          retention-days: 1
