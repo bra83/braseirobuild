@@ -1,4 +1,4 @@
-name: Audit OUA 4.9.4 Runtime
+name: Audit OUA 4.9.5 Runtime
 
 on:
   push:
@@ -21,19 +21,30 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p incoming work
-          gh release download OUA-v4.9.4 -R bra83/braseirobuild --pattern 'OUA_4.9.4_VISUAL_FIX_ANDROID_STUDIO.zip' --dir incoming
-          unzip -q incoming/OUA_4.9.4_VISUAL_FIX_ANDROID_STUDIO.zip -d work
-          ROOT="$(dirname "$(find work -maxdepth 3 -type f -name package.json | head -n1)")"
+          gh release download OUA-v4.9.5 -R bra83/braseirobuild --pattern 'OUA_4.9.5_ATLAS_RECOVERY_ANDROID_STUDIO.zip' --dir incoming
+          unzip -q incoming/OUA_4.9.5_ATLAS_RECOVERY_ANDROID_STUDIO.zip -d work
+          ROOT="$(dirname "$(find work -maxdepth 4 -type f -name package.json | head -n1)")"
+          test -n "$ROOT"
           echo "ROOT=$ROOT" >> "$GITHUB_ENV"
-      - name: Bridge audit
+          echo "ROOT=$ROOT"
+      - name: Inspect 4.9.5
         shell: bash
         run: |
           set -euo pipefail
-          echo '===== geminiTransport ====='
-          sed -n '1,180p' "$ROOT/lib/geminiTransport.ts"
-          echo '===== bridge callback search ====='
-          grep -RniE --include='*.ts' --include='*.tsx' --include='*.kt' '__braseiroGeminiCallbacks|geminiRequest\(' "$ROOT" | grep -vE '/dist/|/android/app/src/main/assets/' | head -n 400 || true
-          echo '===== MainActivity bridge ====='
-          sed -n '2128,2170p' "$ROOT/android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt"
-          echo '===== declarations ====='
-          grep -RniE --include='*.d.ts' --include='*.ts' 'BraseiroAndroid|geminiRequest' "$ROOT" | grep -vE '/dist/|/android/app/src/main/assets/' | head -n 400 || true
+          echo '===== package/version ====='
+          cat "$ROOT/package.json" | head -n 30
+          grep -n "APP_VERSION" "$ROOT/lib/version.ts" || true
+          echo '===== Settings ====='
+          sed -n '1,180p' "$ROOT/components/SettingsView.tsx"
+          echo '===== models ====='
+          grep -n -B4 -A8 "ECONOMY_MODEL\|CINEMATIC_MODEL" "$ROOT/services/geminiService.ts" || true
+          echo '===== immersive background ====='
+          sed -n '1,190p' "$ROOT/components/immersive/ImmersiveJourneyView.tsx"
+          echo '===== GameView immersive ====='
+          sed -n '315,355p' "$ROOT/components/GameView.tsx"
+          echo '===== start/reset ====='
+          grep -n -B8 -A55 "handleStartAdventure\|handleResetCampaign" "$ROOT/App.tsx" | head -n 260
+          echo '===== map exports ====='
+          grep -nE "^export (async )?function|^export const" "$ROOT/lib/map.ts" | grep -E "Discovery|Map|Hex|Location" | head -n 180
+          echo '===== map discovery persistence refs ====='
+          grep -RniE --include='*.ts' --include='*.tsx' "saveMapDiscovery|loadMapDiscovery|currentHexId" "$ROOT/App.tsx" "$ROOT/components" "$ROOT/lib" | head -n 400
