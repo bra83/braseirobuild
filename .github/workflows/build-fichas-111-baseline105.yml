@@ -108,12 +108,12 @@ jobs:
           root=Path(os.environ["ANDROID_PROJECT_ROOT"])
           p=root/"app/src/main/assets/www/index.html"
           html=p.read_text(encoding="utf-8")
-          needle='<script src="systems-data.js"></script><script src="rules-engine.js"></script><script src="app.js"></script>'
-          repl='<script src="systems-data.js"></script><script src="rules-engine.js"></script><script src="import-adapters.js"></script><script src="app.js"></script>'
           if 'import-adapters.js' not in html:
+              needle='<script src="app.js"></script>'
+              repl='<script src="import-adapters.js"></script><script src="app.js"></script>'
               if needle not in html:
-                  raise SystemExit("anchor de scripts nao encontrado")
-              html=html.replace(needle,repl)
+                  raise SystemExit("app.js script anchor nao encontrado")
+              html=html.replace(needle,repl,1)
           p.write_text(html,encoding="utf-8")
           p=root/"app/build.gradle.kts"
           g=p.read_text(encoding="utf-8")
