@@ -90,8 +90,8 @@ jobs:
           ROOT="$(dirname "$GRADLEW")"
           echo "ANDROID_PROJECT_ROOT=$ROOT" >> "$GITHUB_ENV"
           test -s "$ROOT/app/src/main/assets/www/launcher-data.css"
-          test -s "$ROOT/app/src/main/res/drawable/ic_launcher.xml"
-          sha256sum "$ROOT/app/src/main/res/drawable/ic_launcher.xml" | awk '{print $1}' > "$RUNNER_TEMP/icon-before.sha"
+          test -s "$ROOT/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml"
+          sha256sum "$ROOT/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" | awk '{print $1}' > "$RUNNER_TEMP/icon-before.sha"
 
       - name: Aplicar somente mapeamentos sobre baseline 1.0.5
         shell: bash
@@ -123,7 +123,7 @@ jobs:
           PY
           cp "$GITHUB_WORKSPACE/android/fichas-multissistema/import-adapters.contract.test.mjs" "$ANDROID_PROJECT_ROOT/import-adapters.contract.test.mjs"
           test -s "$DST/launcher-data.css"
-          test "$(sha256sum "$ANDROID_PROJECT_ROOT/app/src/main/res/drawable/ic_launcher.xml" | awk '{print $1}')" = "$(cat "$RUNNER_TEMP/icon-before.sha")"
+          test "$(sha256sum "$ANDROID_PROJECT_ROOT/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" | awk '{print $1}')" = "$(cat "$RUNNER_TEMP/icon-before.sha")"
 
       - name: Gate de abertura do launcher e mapeamentos
         working-directory: ${{ env.ANDROID_PROJECT_ROOT }}
