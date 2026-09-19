@@ -1,0 +1,168 @@
+name: Braseiro O Um Anel 4.9.5 Atlas Recovery Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-oua-4.9.5-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TAG: 'OUA-v4.9.5'
+  SOURCE_NAME: 'OUA_4.9.5_ATLAS_RECOVERY_ANDROID_STUDIO.zip'
+  SOURCE_SHA256: '8ffc2a8966d32cfe3a067ea0c3211b2223eb375fa2ca09cab42bb6af15b86f93'
+  APK_NAME: 'BRASEIRO_O_UM_ANEL_4.9.5_DEBUG.apk'
+  SHARE_000: 'https://firestorage.ai/ja/f/CEJI4rQrLhN_'
+  SHARE_001: 'https://firestorage.ai/ja/f/qQEk9JP4pbFd'
+  SHARE_002: 'https://firestorage.ai/ja/f/0ST_hBIgk7uf'
+  SHARE_003: 'https://firestorage.ai/ja/f/7ahG-IkXWF8y'
+  SHARE_004: 'https://firestorage.ai/ja/f/kvJhwPLXdRhJ'
+  SHA_000: 'bfabd4d0c33539305bb884ab9ae5a5e4d7d059995bd6acd1abd73bd6f6a578ea'
+  SHA_001: 'ad50de5562826447116c466e6cffafdcdcdebe01fdc80f2342f932547a5d1e15'
+  SHA_002: '326c9b11348a7bc95d20024f47e3b154d1a1a24da94308f5825a27685308c605'
+  SHA_003: 'aee6c36fc092b7238cbb31a13476e8f98560053216cc28116401b4838b57899a'
+  SHA_004: '03b3b314aca1ed9a68fa50a772c0d5de73ca83e70fd83ed8af5d7e42e62fcd08'
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download exact 4.9.5 source parts
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf incoming work out /tmp/oua495-download
+          mkdir -p incoming work out /tmp/oua495-download
+          cd /tmp/oua495-download
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+          cat > download.mjs <<'NODE'
+          import { chromium } from 'playwright';
+          import fs from 'fs';
+          const [url,out] = process.argv.slice(2);
+          const browser=await chromium.launch({headless:true});
+          const ctx=await browser.newContext({acceptDownloads:true,locale:'ja-JP'});
+          const page=await ctx.newPage();
+          async function openShare(){
+            await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForTimeout(2500);
+          }
+          async function attempt(){
+            const candidates=page.locator('a,button,[role="button"],input[type="submit"]');
+            const n=Math.min(await candidates.count(),180);
+            for(let i=0;i<n;i++){
+              const el=candidates.nth(i);
+              let text='',href='',aria='',title='';
+              try{text=((await el.innerText({timeout:400}))||'').trim()}catch{}
+              try{href=(await el.getAttribute('href'))||''}catch{}
+              try{aria=(await el.getAttribute('aria-label'))||''}catch{}
+              try{title=(await el.getAttribute('title'))||''}catch{}
+              if(!/download|ダウンロード|一括|保存|zip|part|ファイル/i.test(text+' '+href+' '+aria+' '+title)) continue;
+              try{
+                const pending=page.waitForEvent('download',{timeout:10000});
+                await el.click({timeout:5000});
+                const d=await pending;
+                await d.saveAs(out);
+                return true;
+              }catch{}
+            }
+            return false;
+          }
+          await openShare();
+          let done=false;
+          for(let i=0;i<30;i++){
+            if(await attempt()){done=true;break}
+            await page.waitForTimeout(4000);
+            if(i%5===4) await openShare();
+          }
+          await browser.close();
+          if(!done || !fs.existsSync(out) || fs.statSync(out).size<1000000) throw new Error('download failed '+url);
+          console.log('OK',out,fs.statSync(out).size);
+          NODE
+
+          for n in 000 001 002 003 004; do
+            var="SHARE_$n"; sha="SHA_$n"
+            url="${!var}"; expected="${!sha}"
+            out="$GITHUB_WORKSPACE/incoming/$SOURCE_NAME.part$n"
+            node download.mjs "$url" "$out"
+            echo "$expected  $out" | sha256sum -c -
+          done
+
+          cd "$GITHUB_WORKSPACE"
+          cat incoming/$SOURCE_NAME.part000 incoming/$SOURCE_NAME.part001 incoming/$SOURCE_NAME.part002 incoming/$SOURCE_NAME.part003 incoming/$SOURCE_NAME.part004 > "out/$SOURCE_NAME"
+          echo "$SOURCE_SHA256  out/$SOURCE_NAME" | sha256sum -c -
+          unzip -t "out/$SOURCE_NAME" >/dev/null
+
+      - name: Extract and validate Atlas recovery
+        id: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          unzip -q "out/$SOURCE_NAME" -d work
+          ROOT="$(dirname "$(find work -type f -name gradlew -not -path '*/.gradle/*' -not -path '*/build/*' | head -n1)")"
+          test -n "$ROOT"
+          test -f "$ROOT/app/build.gradle.kts"
+          grep -R -q 'com.braseiro.oumanel' "$ROOT/app"
+          test -f "$ROOT/../scripts/test-atlas-campaign-recovery-4.9.5.mjs"
+          cd "$ROOT/.."
+          node scripts/test-atlas-campaign-recovery-4.9.5.mjs | tee "$GITHUB_WORKSPACE/out/ATLAS_RECOVERY_GATE.txt"
+          node scripts/test-poi-atlas-4.6.1.mjs | tee "$GITHUB_WORKSPACE/out/POI_ATLAS_GATE.txt"
+          node scripts/test-party-assets-4.7.0.mjs | tee "$GITHUB_WORKSPACE/out/PARTY_ASSETS_GATE.txt"
+          echo "android_root=$ROOT" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configure Android SDK 35
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build 4.9.5 debug APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="${{ steps.source.outputs.android_root }}"
+          cd "$ROOT"
+          chmod +x gradlew
+          ./gradlew clean :app:assembleDebug --stacktrace --console=plain --no-daemon 2>&1 | tee "$GITHUB_WORKSPACE/out/GRADLE_BUILD.log"
+          APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | head -n1)"
+          test -f "$APK"
+          cp "$APK" "$GITHUB_WORKSPACE/out/$APK_NAME"
+          sha256sum "$GITHUB_WORKSPACE/out/$APK_NAME" > "$GITHUB_WORKSPACE/out/$APK_NAME.sha256"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$GITHUB_WORKSPACE/out/$APK_NAME" | tee "$GITHUB_WORKSPACE/out/APK_BADGING.txt"
+          grep -q "package: name='com.braseiro.oumanel'" "$GITHUB_WORKSPACE/out/APK_BADGING.txt"
+          unzip -t "$GITHUB_WORKSPACE/out/$APK_NAME" >/dev/null
+
+      - name: Publish single GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release delete "$TAG" -y --cleanup-tag || true
+          fi
+          gh release create "$TAG" --target main             --title 'Braseiro O Um Anel 4.9.5 — Atlas/Campanha Recovery'             --notes 'Restaura Atlas interativo, pan/pinch/zoom, seleção de hex, Posicionar/Mover/Planejar rota, início real da campanha após posicionamento, Companhia ancorada ao hex e artes de POI. Preserva Motor Barbara 1.1.3 e hotfixes Android anteriores.'
+          gh release upload "$TAG"             "out/$SOURCE_NAME"             "out/$APK_NAME"             "out/$APK_NAME.sha256"             out/APK_BADGING.txt             out/GRADLE_BUILD.log             out/ATLAS_RECOVERY_GATE.txt             out/POI_ATLAS_GATE.txt             out/PARTY_ASSETS_GATE.txt
