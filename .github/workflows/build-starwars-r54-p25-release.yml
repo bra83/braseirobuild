@@ -129,7 +129,7 @@ jobs:
           test('Android TTS encadeia blocos somente após onDone',()=>{
             assert.match(native,/UtteranceProgressListener/);
             assert.match(native,/onDone\(String id\)/);
-            assert.match(native,/advance\(id,false\)/);
+            assert.match(native,/advance\(id,\s*false\)/);
             assert.match(native,/activeIndex\+\+/);
             assert.match(native,/speakCurrent\(\)/);
             assert.match(native,/getMaxSpeechInputLength/);
