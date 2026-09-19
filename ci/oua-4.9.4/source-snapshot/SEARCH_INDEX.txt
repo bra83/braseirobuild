@@ -1,0 +1,709 @@
+./services/geminiService.ts:1:import { GeminiStoryResponse, StoryChoice, TtsVoiceName } from '../types';
+./services/geminiService.ts:5:import { generateGemini, responseText } from '../lib/geminiTransport';
+./services/geminiService.ts:28:   - Ao sair de um ambiente, marque stopPreviousAmbience=true. Não mantenha taverna, combate, cavalo ou multidão depois de a cena ter mudado.
+./services/geminiService.ts:68:- choices: 2 a 4 sugestões opcionais de ação, sempre requiresTest=false e sem objeto test. O Diretor avaliará a ação depois que ela for escolhida.
+./services/geminiService.ts:77:const ECONOMY_MODEL = 'gemini-3.1-flash-lite';
+./services/geminiService.ts:78:const CINEMATIC_MODEL = 'gemini-3.5-flash';
+./services/geminiService.ts:79:const FAST_IMAGE_MODEL = 'gemini-3.1-flash-lite-image';
+./services/geminiService.ts:80:const QUALITY_IMAGE_MODEL = 'gemini-3.1-flash-image';
+./services/geminiService.ts:81:const TTS_MODELS = ['gemini-3.1-flash-tts-preview', 'gemini-2.5-flash-preview-tts'];
+./services/geminiService.ts:105:  if (!raw) throw new Error(`${label}: o Gemini devolveu uma resposta vazia.`);
+./services/geminiService.ts:365:function normalizeResponse(raw: GeminiStoryResponse, allowEmptyNarration = false): GeminiStoryResponse {
+./services/geminiService.ts:438:  const response = await generateGemini(ECONOMY_MODEL, [{ parts: [{ text: prompt }] }], {
+./services/geminiService.ts:448:): Promise<GeminiStoryResponse> {
+./services/geminiService.ts:491:      const response = await generateGemini(model, [{ parts: [{ text: prompt }] }], {
+./services/geminiService.ts:494:      return normalizeResponse(parseJsonResponse<GeminiStoryResponse>(response as any, 'Narração'), isFrozenReply);
+./services/geminiService.ts:504:  const response = await generateGemini(ECONOMY_MODEL, [{ parts: [{ text: `[CONSULTA DE REGRAS]\n${context}\n\nPERGUNTA: ${question}` }] }], {
+./services/geminiService.ts:519:): Promise<GeminiStoryResponse> {
+./services/geminiService.ts:533:      const response = await generateGemini(
+./services/geminiService.ts:546:      const parsed = parseJsonResponse<GeminiStoryResponse>(response as any, 'Cena');
+./services/geminiService.ts:567:      const response = await generateGemini(model, [{ parts: [{ text: visualPrompt }] }], {
+./services/geminiService.ts:667:          const response = await generateGemini(
+./vite.config.ts:12:      'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY || ''),
+./vite.config.ts:13:      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY || '')
+./geminiService.ts:1:import { hasGeminiApiKey } from './lib/apiKey';
+./geminiService.ts:2:import { generateGemini, responseText } from './lib/geminiTransport';
+./geminiService.ts:9:  poi: string | null;
+./geminiService.ts:29:    return 'A cota do Gemini está esgotada para a análise do mapa. Aguarde a renovação da cota ou use outra chave em Configurações.';
+./geminiService.ts:32:    return 'A chave Gemini não foi aceita para analisar o mapa. Confira a chave em Configurações.';
+./geminiService.ts:35:    return 'Não foi possível acessar o Gemini. Confira a conexão com a internet e tente novamente.';
+./geminiService.ts:79:    poi: typeof value.poi === 'string' && value.poi.trim() ? value.poi.trim() : null,
+./geminiService.ts:99:  if (!hasGeminiApiKey()) throw new Error('Configure uma chave Gemini em Configurações antes de identificar o terreno.');
+./geminiService.ts:110:poi: ponto de interesse visível; caso contrário null.
+./geminiService.ts:122:      poi: { type: Type.STRING, nullable: true },
+./geminiService.ts:128:    required: ['terrain', 'name', 'poi', 'region', 'placeType', 'tags', 'confidence'],
+./geminiService.ts:133:  const models = ['gemini-3.1-flash-lite', 'gemini-3.5-flash'];
+./geminiService.ts:145:        const response = await generateGemini(model, [{ parts }], config);
+./lib/map.ts:22:export interface MapPoint {
+./lib/map.ts:37:  polygon: MapPoint[];
+./lib/map.ts:38:  normalizedPolygon: MapPoint[];
+./lib/map.ts:46:  poi?: string;
+./lib/map.ts:67:    orientation: 'pointy-top';
+./lib/map.ts:70:    origin: MapPoint;
+./lib/map.ts:77:    vectorQ: MapPoint;
+./lib/map.ts:78:    vectorR: MapPoint;
+./lib/map.ts:120:  representativePoint: [number, number] | null;
+./lib/map.ts:138:  currentHexId: string | null;
+./lib/map.ts:234:  const horizontalStep = Number(layout.horizontalStep || (layout.vectorQ as MapPoint | undefined)?.x || 88.26884803);
+./lib/map.ts:235:  const rowStep = Number(layout.rowStep || (layout.vectorR as MapPoint | undefined)?.y || 76.2721723);
+./lib/map.ts:236:  const oddRowOffsetX = Number(layout.oddRowOffsetX || (layout.vectorR as MapPoint | undefined)?.x || horizontalStep / 2);
+./lib/map.ts:252:      orientation: 'pointy-top',
+./lib/map.ts:330:        normalizedPolygon: polygon.map(point => ({ x: point.x / ERIADOR_IMAGE_WIDTH, y: point.y / ERIADOR_IMAGE_HEIGHT })),
+./lib/map.ts:340:  const point = Array.isArray(value.representativePoint) && value.representativePoint.length >= 2
+./lib/map.ts:341:    ? [Number(value.representativePoint[0]), Number(value.representativePoint[1])] as [number, number]
+./lib/map.ts:355:    representativePoint: point,
+./lib/map.ts:384:    if (location.representativePoint) {
+./lib/map.ts:385:      const [x, y] = location.representativePoint;
+./lib/map.ts:643:  const text = normalizedCartographicText(`${placeName} ${hex.region || ''} ${hex.name || ''} ${hex.poi || ''}`);
+./lib/map.ts:667:  const explicitName = String(hex.name || hex.poi || '').trim();
+./lib/map.ts:740:  if (manifest.layout?.orientation !== 'pointy-top' || manifest.layout?.coordinateSystem !== 'odd-r-offset') {
+./lib/map.ts:741:    throw new Error('O manifesto deve usar grade pointy-top no sistema odd-r-offset medido no mapa original.');
+./lib/map.ts:780:export function pointInPolygon(point: MapPoint, polygon: MapPoint[]): boolean {
+./lib/map.ts:785:    const crosses = ((a.y > point.y) !== (b.y > point.y))
+./lib/map.ts:786:      && point.x < ((b.x - a.x) * (point.y - a.y)) / ((b.y - a.y) || Number.EPSILON) + a.x;
+./lib/map.ts:792:export function findHexAtPoint(manifest: EriadorMapManifest, point: MapPoint): EriadorHex | null {
+./lib/map.ts:794:  const approximateRow = Math.round((point.y - manifest.layout.origin.y) / manifest.layout.rowStep);
+./lib/map.ts:798:    const approximateColumn = Math.round((point.x - manifest.layout.origin.x - rowOffset) / manifest.layout.horizontalStep);
+./lib/map.ts:801:      if (hex?.enabled && pointInPolygon(point, hex.polygon)) return hex;
+./lib/map.ts:829:        poi: old.poi || hex.poi,
+./lib/map.ts:959:    currentHexId: null,
+./lib/map.ts:977:  const currentHexId = found.currentHexId || route.at(-1) || visited.at(-1) || discovered.at(-1) || null;
+./lib/map.ts:982:    currentHexId,
+./lib/map.ts:995:      detail: { campaignId: updated.campaignId, mapId: updated.mapId, currentHexId: updated.currentHexId },
+./lib/map.ts:1042:    ...hex.polygon.flatMap(point => [point.x, point.y]),
+./lib/map.ts:1052:  hex.polygon.forEach((point, index) => {
+./lib/map.ts:1053:    const x = point.x - hex.crop.x;
+./lib/map.ts:1054:    const y = point.y - hex.crop.y;
+./lib/map.ts:1092:  hex.polygon.forEach((point, index) => {
+./lib/map.ts:1093:    const x = (point.x - sourceX) * scaleFactor;
+./lib/map.ts:1094:    const y = (point.y - sourceY) * scaleFactor;
+./lib/backup.ts:281:  const checkpoint: Row = {
+./lib/backup.ts:282:    id: `checkpoint:${persisted.id}:${persisted.revision}`,
+./lib/backup.ts:284:    eventType: 'CAMPAIGN_CHECKPOINT',
+./lib/backup.ts:306:      event_journal: { put: [...(valid.eventJournal || []), checkpoint], delete: await idsForCampaign('event_journal', valid.campaign.id) },
+./lib/sfxPlaybackPolicy.ts:2:  /** Impede que um efeito preparado por uma cena antiga toque depois de PARAR/trocar de cena. */
+./lib/AudioEngine.ts:428:        AudioDiagnostics.log({ action: 'voice-started', channel: 'voice', level: 'success', message: 'Voz Gemini/Charon iniciada pelo Android.', backend: 'Android MediaPlayer', actualAtMs: Date.now(), volume: this.volumes.voice, result: 'reproduzindo', details: { durationSeconds: durationMs / 1000, timedCues: options.timedCues?.length || 0, token: nativeReference.token } });
+./lib/AudioEngine.ts:439:      window.addEventListener('braseiro-native-gemini-voice-start', onNativeStart as EventListener);
+./lib/AudioEngine.ts:442:        AudioDiagnostics.log({ action: 'voice-ended', channel: 'voice', level: 'success', message: 'Voz Gemini/Charon concluída pelo Android.', backend: 'Android MediaPlayer', actualAtMs: Date.now(), result: 'concluído' });
+./lib/AudioEngine.ts:444:        window.removeEventListener('braseiro-native-gemini-voice-start', onNativeStart as EventListener);
+./lib/AudioEngine.ts:469:        AudioDiagnostics.log({ action: 'voice-ended', channel: 'voice', level: 'success', message: 'Voz Gemini/Charon concluída.', backend: 'WebAudio', actualAtMs: Date.now(), result: 'concluído' });
+./lib/AudioEngine.ts:481:      AudioDiagnostics.log({ action: 'voice-started', channel: 'voice', level: 'success', message: 'Voz Gemini/Charon iniciada.', backend: 'WebAudio', actualAtMs: Date.now(), volume: this.volumes.voice, result: 'reproduzindo', details: { durationSeconds: buffer.duration, timedCues: options.timedCues?.length || 0 } });
+./lib/drive.ts:59:    if (!token && firebaseConfig.apiKey) params.set('key', firebaseConfig.apiKey);
+./lib/drive.ts:102:    if (!token && firebaseConfig.apiKey) params.set('key', firebaseConfig.apiKey);
+./lib/consistency.ts:77:      status: (discovery.currentHexId || null) === (state.position.currentHexId || null) ? 'pass' : 'fail',
+./lib/consistency.ts:78:      detail: `${discovery.currentHexId || 'nenhum'} / ${state.position.currentHexId || 'nenhum'}`,
+./lib/consistency.ts:146:  const mapHex = discovery.currentHexId || discovery.routeHexIds?.at(-1) || null;
+./lib/consistency.ts:147:  const canonicalHex = options.mapWins && mapHex ? mapHex : state.position.currentHexId || mapHex;
+./lib/consistency.ts:149:  state.position = { ...state.position, currentHexId: canonicalHex, routeHexIds: route };
+./lib/consistency.ts:154:  discovery.currentHexId = canonicalHex;
+./lib/narrativeEngine.ts:3:import type { GeminiStoryResponse } from '../types';
+./lib/narrativeEngine.ts:23:export interface NarrativeCheckpoint {
+./lib/narrativeEngine.ts:131:export function buildNarrativeCheckpoint(campaign: CampaignState, npcs: Npc[]): NarrativeCheckpoint {
+./lib/narrativeEngine.ts:162:export function narrativeCheckpointPrompt(checkpoint: NarrativeCheckpoint, decision: NarrativeIntentDecision, action: string): string {
+./lib/narrativeEngine.ts:164:    '\n--- CHECKPOINT NARRATIVO PROFISSIONAL ---',
+./lib/narrativeEngine.ts:168:    `Local: ${checkpoint.location}.`,
+./lib/narrativeEngine.ts:169:    `Horário conhecido: ${checkpoint.timeOfDay || 'usar relógio canônico abaixo'}.`,
+./lib/narrativeEngine.ts:170:    `Clima conhecido: ${checkpoint.weather || 'usar clima canônico abaixo'}.`,
+./lib/narrativeEngine.ts:171:    `Presentes: ${checkpoint.presentNpcNames.join(', ') || checkpoint.presentNpcIds.join(', ') || 'nenhum NPC formalizado'}.`,
+./lib/narrativeEngine.ts:172:    `Posições táticas conhecidas: ${checkpoint.positions.join('; ') || 'nenhuma posição tática relevante'}.`,
+./lib/narrativeEngine.ts:173:    `Objetos/pistas visíveis já estabelecidos: ${checkpoint.visibleObjectsAndClues.join(' | ') || 'nenhum além do contexto atual'}.`,
+./lib/narrativeEngine.ts:174:    `Última fala direta reconhecível: ${checkpoint.lastSpeech || 'nenhuma'}.`,
+./lib/narrativeEngine.ts:175:    `Ação que levou ao ponto atual: ${checkpoint.actionInProgress || 'nenhuma'}.`,
+./lib/narrativeEngine.ts:176:    `Final da cena ficcional: ${checkpoint.previousNarrationTail || 'primeira cena'}.`,
+./lib/narrativeEngine.ts:180:    lines.push('REGRA DE CONGELAMENTO INTERNO: responda a consulta/planejamento sem avançar relógio, NPCs, ameaças, mapa, cena, clima, acontecimentos ou consequências. Depois de responder, o checkpoint ficcional continua exatamente igual. Não exponha esta regra ao jogador.');
+./lib/narrativeEngine.ts:221:  response: Pick<GeminiStoryResponse, 'atmospheric_narration' | 'action_result'>,
+./lib/narrativeEngine.ts:234:    if (/\b(ent[aã]o|de repente|nesse momento|logo depois|minutos depois|horas depois|mais tarde)\b/.test(normalized)) flags.push('consulta sem avanço introduziu progressão temporal ou acontecimento');
+./lib/narrativeEngine.ts:264:  return `REPARO NARRATIVO PROFISSIONAL — preserve todos os fatos, regras, falas válidas e consequências já decididas; reescreva somente a apresentação.\nProblemas detectados:\n${issues || '- qualidade abaixo do padrão'}\nUse: CONTEXTO → ESPAÇO → MOVIMENTO → FOCO → IMPLICAÇÃO → ABERTURA PARA AÇÃO. Mostre emoção e suspeita por gesto, silêncio, objeto, escolha de palavras ou comportamento. Não explique a conclusão que o jogador ainda pode inferir. ${decision.advancesFiction ? 'Pare assim que existir uma decisão real.' : 'Não avance a ficção; responda e preserve o checkpoint.'}`;
+./lib/autonomy/environment.ts:61:  currentHexId: string | null;
+./lib/autonomy/environment.ts:66:  currentHex?: EriadorHex;
+./lib/autonomy/environment.ts:148:  return classifySettlement([hex.placeType, hex.poi, hex.name, hex.region, ...(hex.tags || [])].join(' '));
+./lib/autonomy/environment.ts:212:  const directText = [hex.terrain, hex.region, hex.name, hex.poi, hex.placeType, ...(hex.tags || []), extraText].join(' ');
+./lib/autonomy/environment.ts:407:    const name = hex.name || hex.poi || hex.region || hex.id;
+./lib/autonomy/environment.ts:607:  const currentHexId = discovery.currentHexId || master?.position.currentHexId || null;
+./lib/autonomy/environment.ts:609:  const currentHex = currentHexId ? byId.get(currentHexId) : undefined;
+./lib/autonomy/environment.ts:611:  if (!manifest || !currentHex) {
+./lib/autonomy/environment.ts:613:      campaignId: campaign.id, profile, scopeKey, currentHexId, worldTimeKey, season, hour, byId, currentHex, allLocations, relevantLocations: [], currentLocations: [], influential: [],
+./lib/autonomy/environment.ts:618:  const rings = collectHexRings(currentHex, byId, 12);
+./lib/autonomy/environment.ts:620:  const currentLocations = relevantLocations.filter(location => location.hexIds.includes(currentHex.id));
+./lib/autonomy/environment.ts:621:  const influential = influentialLocationsForHex(currentHex, byId, relevantLocations).map(item => item.location);
+./lib/autonomy/environment.ts:622:  const resolvedLocation = resolveHexNarrativeLocationFromIndex(currentHex, byId, allLocations);
+./lib/autonomy/environment.ts:624:  const terrainReading = readTerrain(currentHex, byId, relevantLocations, extraText);
+./lib/autonomy/environment.ts:625:  const routeHexIds = validatePlannedRoute(currentHex, discovery.plannedRouteHexIds || [], byId);
+./lib/autonomy/environment.ts:626:  const route = buildRoutePreview(currentHex, routeHexIds, byId, relevantLocations, extraText);
+./lib/autonomy/environment.ts:628:  const seed = `${scopeKey}|${currentHex.id}|${worldTimeKey}|${terrainReading.climateZone}|${routeHexIds.join(',')}`;
+./lib/autonomy/environment.ts:630:  const previousHexId = [...(discovery.routeHexIds || [])].reverse().find(id => id !== currentHex.id);
+./lib/autonomy/environment.ts:632:  const nearby = nearbySettlements(currentHex, byId, relevantLocations, route, previousHex);
+./lib/autonomy/environment.ts:642:    `Hex atual ${currentHex.id}.`,
+./lib/autonomy/environment.ts:649:  return { campaignId: campaign.id, profile, scopeKey, currentHexId, worldTimeKey, season, hour, byId, currentHex, allLocations, relevantLocations, currentLocations, influential, terrainReading, route, routeHexIds, possibleWeather, nearbySettlements: nearby, adjacentHexSummary, evidence: Array.from(new Set(evidence)).slice(0, 16), humanTrafficLoreSupported, loreEvidence };
+./lib/autonomy/environment.ts:658:    if (existing.hexId !== data.currentHexId || existing.worldTimeKey !== data.worldTimeKey) {
+./lib/autonomy/environment.ts:659:      const reconciled = { ...existing, hexId: data.currentHexId, worldTimeKey: data.worldTimeKey, generatedAt: Date.now() };
+./lib/autonomy/environment.ts:667:  const initial = weightedWeather(data.possibleWeather, `${data.scopeKey}|${data.currentHexId || 'sem-hex'}|${data.worldTimeKey}|initial`);
+./lib/autonomy/environment.ts:681:    id, scopeKey: data.scopeKey, rulesProfileId: data.profile.id, campaignId: data.campaignId, hexId: data.currentHexId,
+./lib/autonomy/environment.ts:697:  ], memory, `${data.scopeKey}|${data.currentHexId}|${state.travelStep}|opportunities`, 9);
+./lib/autonomy/environment.ts:709:  const resolvedLocation = data.currentHex
+./lib/autonomy/environment.ts:710:    ? resolveHexNarrativeLocationFromIndex(data.currentHex, data.byId, data.allLocations)
+./lib/autonomy/environment.ts:718:    currentHexId: data.currentHexId,
+./lib/autonomy/environment.ts:723:    terrain: data.currentHex && normalize(data.currentHex.terrain) !== 'unknown' ? data.currentHex.terrain : TERRAIN_LABELS[terrain.terrainClass],
+./lib/autonomy/environment.ts:764: * Única porta que avança o clima. Deve ser chamada depois que o movimento foi
+./lib/autonomy/environment.ts:793:    ...state, hexId: data.currentHexId, worldTimeKey: data.worldTimeKey, weather: nextWeather,
+./lib/autonomy/environment.ts:823:      recentHexIds: Array.from(new Set([context.currentHexId || '', ...(previous?.recentHexIds || [])].filter(Boolean))).slice(0, 8),
+./lib/autonomy/environment.ts:841:      id: `auto-weather:${context.rulesProfileId}:${context.campaignId}:${context.currentHexId}:${context.currentWeather.id}:${context.currentWeather.stage}`,
+./lib/autonomy/environment.ts:844:      hexId: context.currentHexId,
+./lib/autonomy/environment.ts:859:      id: `auto-settlement:${context.rulesProfileId}:${context.campaignId}:${settlement.id}:${context.currentHexId}`,
+./lib/autonomy/environment.ts:862:      hexId: context.currentHexId,
+./lib/autonomy/environment.ts:876:      id: `auto-opportunity:${context.rulesProfileId}:${context.campaignId}:${context.currentHexId}:${item.id}`,
+./lib/autonomy/environment.ts:879:      hexId: context.currentHexId,
+./lib/autonomy/localFallbackDirector.ts:2:import type { GeminiStoryResponse, StoryChoice } from '../../types';
+./lib/autonomy/localFallbackDirector.ts:12:export function isRecoverableGeminiFailure(error: unknown): boolean {
+./lib/autonomy/localFallbackDirector.ts:54:    narrationBrief: 'Continue com fatos ambientais e estado já persistido, em prosa natural de O Um Anel. Não revele segredo nem mencione falha de rede, Gemini, fallback, índice ou banco de dados.',
+./lib/autonomy/localFallbackDirector.ts:70:    if (weather.kind === 'blizzard') return 'A neve começa a correr rente ao chão e a visibilidade diminui aos poucos. A nevasca está em formação; ela só poderá se tornar ativa depois de outro deslocamento confirmado.';
+./lib/autonomy/localFallbackDirector.ts:136:): GeminiStoryResponse {
+./lib/autonomy/localFallbackDirector.ts:188:      data: { localFallback: true, weather: environment.currentWeather.kind, hexId: environment.currentHexId || '' },
+./lib/autonomy/weatherStateMachine.ts:91:            reason: `${current.reason} O fenômeno perde força depois de alguns avanços.`,
+./lib/autonomy/eventJournal.ts:153:    currentHexId: campaign.masterState?.position.currentHexId || null,
+./lib/autonomy/ragIndex.ts:17:  'para','com','uma','uns','umas','que','por','como','seu','sua','seus','suas','dos','das','de','do','da','em','no','na','nos','nas','ao','aos','pela','pelo','pelos','pelas','este','esta','isso','isto','ele','ela','eles','elas','mais','menos','muito','muita','entre','sobre','sem','quando','onde','qual','quais','agora','depois','antes','ainda','the','and','for','with','from','into','that','this','these','those','are','was','were','have','has','had','not','but','you','your','their','his','her','its','can','may','will','would','should',
+./lib/autonomy/assetRegistry.ts:80:    currentHexId: campaign.masterState?.position.currentHexId || null,
+./lib/autonomy/recoveryManager.ts:9:  source: 'database' | 'emergency-mirror' | 'snapshot' | 'event-checkpoint' | 'android-recovery';
+./lib/autonomy/recoveryManager.ts:22:    location: campaign.currentLocation, hex: campaign.masterState?.position.currentHexId || null,
+./lib/autonomy/recoveryManager.ts:39:  if (!candidateTransaction && currentTransaction && source !== 'event-checkpoint') return false;
+./lib/autonomy/recoveryManager.ts:41:  if (!sameCanonicalCommit && source !== 'event-checkpoint') return false;
+./lib/autonomy/recoveryManager.ts:47:  return digest(candidate) !== digest(current) && sameCanonicalCommit && source === 'event-checkpoint';
+./lib/autonomy/recoveryManager.ts:50:async function latestCheckpoint(campaignId: string): Promise<{ campaign: CampaignState; state: CanonicalStateSnapshot | null } | null> {
+./lib/autonomy/recoveryManager.ts:53:  // Compatibilidade com checkpoints 3.4, que continham apenas a campanha.
+./lib/autonomy/recoveryManager.ts:55:  const row = rows.filter(item => item.campaignId === campaignId && item.eventType === 'CAMPAIGN_CHECKPOINT' && item.payload?.campaign)
+./lib/autonomy/recoveryManager.ts:75:  const checkpoint = await latestCheckpoint(campaign.id);
+./lib/autonomy/recoveryManager.ts:82:  if (checkpoint && checkpoint.campaign.id === campaign.id) candidates.push({ campaign: checkpoint.campaign, source: 'event-checkpoint' });
+./lib/autonomy/recoveryManager.ts:91:    const checkpointState = source === 'event-checkpoint' ? checkpoint?.state : source === 'android-recovery' ? nativeState : null;
+./lib/autonomy/recoveryManager.ts:94:      characters: checkpointState?.characters,
+./lib/autonomy/recoveryManager.ts:95:      npcs: checkpointState?.npcs,
+./lib/autonomy/recoveryManager.ts:96:      mapDiscovery: checkpointState?.mapDiscovery,
+./lib/autonomy/recoveryManager.ts:97:      environmentState: checkpointState?.environmentState,
+./lib/autonomy/recoveryManager.ts:98:      environmentMemory: checkpointState?.environmentMemory,
+./lib/autonomy/recoveryManager.ts:99:      autonomousEvents: checkpointState?.autonomousEvents,
+./lib/autonomy/recoveryManager.ts:102:        payload: { source, previousRevision: campaign.revision || 0, recoveredRevision: selected.revision || 0, previousDigest: digest(campaign), recoveredDigest: digest(selected), restoredCanonicalState: Boolean(checkpointState) }, createdAt: Date.now(), applied: true }],
+./lib/autonomy/types.ts:126:  currentHexId: string | null;
+./lib/autonomy/startupSupervisor.ts:6:import { hasGeminiApiKey } from '../apiKey';
+./lib/autonomy/startupSupervisor.ts:36:      error: 'A aplicação foi encerrada depois da validação e antes da transação de restauração; o estado anterior permaneceu intacto.',
+./lib/autonomy/startupSupervisor.ts:61:    const gemini = status.gemini || {};
+./lib/autonomy/startupSupervisor.ts:72:      check('native-gemini', 'Gemini nativo', gemini.status === 'configured_not_tested' ? 'untested' : 'warning', gemini.freeKey || gemini.paidKey ? 'Chave protegida configurada; quota/conectividade não foram testadas nesta abertura.' : 'Nenhuma chave nativa configurada.'),
+./lib/autonomy/startupSupervisor.ts:118:  const mapHex = discovery.currentHexId || null;
+./lib/autonomy/startupSupervisor.ts:119:  const masterHex = campaign.masterState?.position.currentHexId || null;
+./lib/autonomy/startupSupervisor.ts:125:      repairs.push(`Posição reconciliada em ${reconciled.discovery.currentHexId || 'nenhum hex'}.`);
+./lib/autonomy/startupSupervisor.ts:126:      items.push(check('map-position', 'Posição canónica', 'ok', `Mapa e campanha alinhados em ${reconciled.discovery.currentHexId || 'nenhum hex'}.`, true));
+./lib/autonomy/startupSupervisor.ts:153:    repairs.push('Campanha, elenco, mapa e ambiente foram reconstruídos pelo último checkpoint canónico completo.');
+./lib/autonomy/startupSupervisor.ts:182:  const geminiReady = hasGeminiApiKey('free') || hasGeminiApiKey('paid');
+./lib/autonomy/startupSupervisor.ts:183:  items.push(check('gemini', 'Gemini', geminiReady ? 'ok' : 'warning', geminiReady ? 'Ao menos uma chave está configurada.' : 'Sem chave; o modo local degradado permanece disponível.'));
+./lib/autonomy/startupSupervisor.ts:187:  if (environment?.currentHexId) {
+./lib/autonomy/startupSupervisor.ts:189:    items.push(check('environment', 'Leitura ambiental do mapa', 'ok', `${environment.currentHexId} · ${environment.climateZone} · ${environment.currentWeather.kind}${environment.snowEligible ? ' · neve elegível' : ' · neve bloqueada'}${nearest ? ` · ${nearest.name} a ${nearest.distanceHexes} hex(es)` : ''}.`));
+./lib/autonomy/canonicalProjector.ts:10:interface CanonicalCheckpointRow {
+./lib/autonomy/canonicalProjector.ts:40:  const rows = await getStoreData<CanonicalCheckpointRow>('event_journal').catch(() => []);
+./lib/autonomy/canonicalProjector.ts:41:  const checkpoint = rows
+./lib/autonomy/canonicalProjector.ts:42:    .filter(row => row.campaignId === campaignId && row.eventType === 'CAMPAIGN_CHECKPOINT' && row.payload?.state?.campaign)
+./lib/autonomy/canonicalProjector.ts:44:  return checkpoint?.payload?.state || null;
+./lib/autonomy/canonicalProjector.ts:48: * Confere se o estado materializado ainda corresponde ao último checkpoint
+./lib/autonomy/canonicalProjector.ts:63:  if (!snapshot) return { status: 'missing', detail: 'Ainda não existe checkpoint canónico completo para esta campanha.', snapshot: null, liveCharacters, liveNpcs };
+./lib/autonomy/canonicalProjector.ts:65:  const checkpointRevision = Number(snapshot.campaign.revision || 0);
+./lib/autonomy/canonicalProjector.ts:66:  if (checkpointRevision < liveRevision) {
+./lib/autonomy/canonicalProjector.ts:67:    return { status: 'stale', detail: `Checkpoint na revisão ${checkpointRevision}; banco na revisão ${liveRevision}.`, snapshot, liveCharacters, liveNpcs };
+./lib/autonomy/canonicalProjector.ts:71:  const diverged = checkpointRevision !== liveRevision
+./lib/autonomy/canonicalProjector.ts:75:    || String(snapshot.mapDiscovery?.currentHexId || '') !== String(liveMap?.currentHexId || '')
+./lib/autonomy/canonicalProjector.ts:79:    return { status: 'diverged', detail: `A projeção materializada divergiu do checkpoint da revisão ${checkpointRevision}.`, snapshot, liveCharacters, liveNpcs };
+./lib/autonomy/canonicalProjector.ts:81:  return { status: 'ok', detail: `Campanha, elenco, mapa e ambiente correspondem ao checkpoint canónico da revisão ${checkpointRevision}.`, snapshot, liveCharacters, liveNpcs };
+./lib/apiKey.ts:4:export type GeminiKeyTier = 'free' | 'paid';
+./lib/apiKey.ts:6:const LEGACY_KEY = 'braseiro.geminiApiKey';
+./lib/apiKey.ts:7:const KEYS: Record<GeminiKeyTier, string> = {
+./lib/apiKey.ts:8:  free: 'braseiro.geminiApiKey.free',
+./lib/apiKey.ts:9:  paid: 'braseiro.geminiApiKey.paid',
+./lib/apiKey.ts:13:export function getBrowserGeminiApiKey(tier: GeminiKeyTier): string {
+./lib/apiKey.ts:15:  const environment = tier === 'free' ? (process.env.API_KEY || process.env.GEMINI_API_KEY || '') : '';
+./lib/apiKey.ts:19:export function saveGeminiApiKey(tier: GeminiKeyTier, value: string) {
+./lib/apiKey.ts:21:  if (window.BraseiroAndroid?.setGeminiApiKey) {
+./lib/apiKey.ts:22:    window.BraseiroAndroid.setGeminiApiKey(tier, clean);
+./lib/apiKey.ts:29:export function hasGeminiApiKey(tier?: GeminiKeyTier): boolean {
+./lib/apiKey.ts:30:  if (window.BraseiroAndroid?.hasGeminiApiKey) {
+./lib/apiKey.ts:31:    return tier ? window.BraseiroAndroid.hasGeminiApiKey(tier) : window.BraseiroAndroid.hasGeminiApiKey('free') || window.BraseiroAndroid.hasGeminiApiKey('paid');
+./lib/apiKey.ts:33:  return tier ? Boolean(getBrowserGeminiApiKey(tier)) : Boolean(getBrowserGeminiApiKey('free') || getBrowserGeminiApiKey('paid'));
+./lib/organizations.ts:164:        : ['convoca representantes', 'procura apoio entre famílias', 'reage a notícias vindas da estrada'];
+./lib/characterFactory.ts:98:  if(s.resources.coins!==0||s.resources.treasure!==0||s.resources.experience!==0||s.resources.adventurePoints!==0||s.resources.skillPoints!==0)issues.push('Recursos de progressão/tesouro devem começar zerados.');
+./lib/characterFactory.ts:149:  const sheet:CharacterSheet={identity:{name,culture:culture.culture,vocation:calling.name,lifestyle:culture.lifestyle,age:Math.floor(culture.ages[0]+Math.random()*(culture.ages[1]-culture.ages[0]+1)),description:`${features.join(' e ')}.`,patron:'',company:''},attributes:{strength,heart,wits,enduranceCurrent:endurance,enduranceMax:endurance,hopeCurrent:hope,hopeMax:hope,shadow:0,fatigue:0,load:0,wounded:false,weary:false,miserable:false,supplies:100,valor:1,wisdom:1,protection:0,tnModifiers},skills:CANONICAL_SKILLS.map(name=>({name,rank:ranks[name],specialization:'',favorite:favourite.has(name)})),combat:{parry:parry+(reward==='Reforçado'?2:0),armor:'Camisa de Couro',helmet:'Nenhum',shield:reward==='Reforçado'?'Broquel':'Nenhum',proficiencies:prof,weapons},resources:{coins:0,treasure:0,experience:0,adventurePoints:0,skillPoints:0},inventory,other:{virtues:virtue,rewards:`${reward} (${reward==='Reforçado'?'Broquel':reward==='Ajustado'||reward==='Fabricação Habilidosa'?'Camisa de Couro':weapons[0]?.name||'arma inicial'})`,flaws:'',notes:`Herói criado automaticamente por fontes 2e autorizadas (${sourceForCulture(culture.culture)}). Experiência Prévia: 10/10 pontos. Patrono e Refúgio Seguro ficam para a formação da Companhia.`,narrativeConditions:'Sem Ferimento; Sombra 0; Fadiga 0.',culturalBlessing:culture.blessing,shadowPath:calling.shadow,callingFeature:calling.feature,distinctiveFeatures:features,creationTrace:trace},tokenId:null,historyLog:[]};
+./lib/geminiTransport.ts:1:import { getBrowserGeminiApiKey, hasGeminiApiKey, GeminiKeyTier } from './apiKey';
+./lib/geminiTransport.ts:3:export interface GeminiPart { text?: string; inlineData?: { mimeType?: string; data?: string } }
+./lib/geminiTransport.ts:4:export interface GeminiRestResponse {
+./lib/geminiTransport.ts:5:  candidates?: Array<{ content?: { parts?: GeminiPart[] }; finishReason?: string }>;
+./lib/geminiTransport.ts:7:  _braseiroTier?: GeminiKeyTier;
+./lib/geminiTransport.ts:13:  const error = new Error(`Gemini HTTP ${status}: ${body.slice(0, 900)}`) as Error & { status?: number };
+./lib/geminiTransport.ts:18:async function browserRequest(model: string, body: object, tier: GeminiKeyTier): Promise<GeminiRestResponse> {
+./lib/geminiTransport.ts:19:  const key = getBrowserGeminiApiKey(tier);
+./lib/geminiTransport.ts:26:  return { ...(JSON.parse(text) as GeminiRestResponse), _braseiroTier: tier };
+./lib/geminiTransport.ts:29:async function nativeRequest(model: string, body: object, paidOnly: boolean): Promise<GeminiRestResponse> {
+./lib/geminiTransport.ts:30:  if (!window.BraseiroAndroid?.geminiRequest) throw new Error('Ponte Gemini nativa indisponível.');
+./lib/geminiTransport.ts:31:  const raw = await window.BraseiroAndroid.geminiRequest(model, JSON.stringify(body), paidOnly);
+./lib/geminiTransport.ts:32:  const envelope = JSON.parse(raw) as { status: number; body: string; tier: GeminiKeyTier };
+./lib/geminiTransport.ts:34:  return { ...(JSON.parse(envelope.body) as GeminiRestResponse), _braseiroTier: envelope.tier };
+./lib/geminiTransport.ts:41:export async function generateGemini(
+./lib/geminiTransport.ts:47:): Promise<GeminiRestResponse> {
+./lib/geminiTransport.ts:50:  if (window.BraseiroAndroid?.geminiRequest) return nativeRequest(model, body, paidOnly);
+./lib/geminiTransport.ts:52:  const canTryFree = !paidOnly && hasGeminiApiKey('free') && Date.now() >= freeCircuitOpenUntil;
+./lib/geminiTransport.ts:64:  if (hasGeminiApiKey('paid')) return browserRequest(model, body, 'paid');
+./lib/geminiTransport.ts:65:  throw new Error(canTryFree ? 'A cota gratuita está esgotada e não há chave paga configurada.' : 'Nenhuma chave Gemini está configurada.');
+./lib/geminiTransport.ts:68:export function responseText(response: GeminiRestResponse): string {
+./lib/geminiTransport.ts:71:  if (finish === 'MAX_TOKENS') throw new Error('A resposta do Gemini foi truncada por limite de tokens.');
+./lib/geminiTransport.ts:72:  if (finish === 'SAFETY' || finish === 'RECITATION') throw new Error(`O Gemini interrompeu a resposta (${finish}).`);
+./lib/narrativeSanitizer.ts:1:import type { GeminiStoryResponse, StoryChoice, VoiceSegment } from '../types';
+./lib/narrativeSanitizer.ts:7:const OPERATIONAL_PARAGRAPH = /(?:modo local degradado|fallback local|gemini (?:estiver|esta|está|ficou|indisponivel|indisponível)|aplicativo est[aá] em modo|regra recuperada ou uma rolagem|estado, as fichas, o mapa e o diario|estado, as fichas, o mapa e o diário|cota gratuita|chave gemini|indice local|índice local|banco de dados)/i;
+./lib/narrativeSanitizer.ts:39:  const nearbyAtCurrentHex = context.nearbySettlements?.find(item => item.distanceHexes === 0);
+./lib/narrativeSanitizer.ts:40:  return region || cleanPlaceName(nearbyAtCurrentHex?.name) || canonical || 'Eriador';
+./lib/narrativeSanitizer.ts:118:  response: GeminiStoryResponse,
+./lib/narrativeSanitizer.ts:121:): GeminiStoryResponse {
+./lib/db.ts:130:    adventurePoints: number;
+./lib/db.ts:131:    skillPoints: number;
+./lib/db.ts:183:  checkpointSceneId?: string | null;
+./lib/db.ts:644:      const destructiveWriteAllowed = /restaur|nova crônica|nova cronica|reiniciar|importar backup/i.test(reason);
+./lib/db.ts:796:function cleanCampaignCheckpoint(campaign: CampaignState): CampaignState {
+./lib/db.ts:819: * Captura o estado canónico correlacionado com a campanha. O checkpoint não
+./lib/db.ts:863:    campaign: cleanCampaignCheckpoint(campaign),
+./lib/db.ts:874:async function pruneCampaignCheckpoints(campaignId: string): Promise<void> {
+./lib/db.ts:876:    .filter(row => row.campaignId === campaignId && row.eventType === 'CAMPAIGN_CHECKPOINT')
+./lib/db.ts:935:    const checkpoint = {
+./lib/db.ts:936:      id: `checkpoint:${campaign.id}:${campaign.revision}`,
+./lib/db.ts:938:      eventType: 'CAMPAIGN_CHECKPOINT',
+./lib/db.ts:963:        tx.objectStore('event_journal').put(checkpoint);
+./lib/db.ts:1027:    void pruneCampaignCheckpoints(campaign.id);
+./lib/db.ts:1056:  mapDiscovery?: { id: string; campaignId: string; mapId: string; currentHexId?: string | null },
+./lib/db.ts:1108:  'para','com','uma','uns','umas','que','por','como','seu','sua','seus','suas','dos','das','de','do','da','em','no','na','nos','nas','ao','aos','pela','pelo','pelos','pelas','este','esta','isso','isto','ele','ela','eles','elas','mais','menos','muito','muita','entre','sobre','sem','quando','onde','qual','quais','agora','depois','antes','ainda','jogador','personagem','acao','ação','cena','atual'
+./lib/soundPlanner.ts:162:  return /\b(?:nao|nunca|nada|sem|nenhum|nenhuma|nothing|never|without|no sound|did not|didnt|lembrava|recordava|contava|falava|disse que|contou que|ouviu falar|historia de|vestigios de|marcas de|depois da|apos a|antiga|antigo|silencio de|esperava ouvir|esperou ouvir|expected to hear|would hear)\b/.test(before)
+./lib/master/state.ts:45:    position: { currentHexId: null, locationName: campaign.currentLocation || 'Eriador', routeHexIds: [] },
+./lib/master/planNormalizer.ts:31: * turno depois de uma rolagem.
+./lib/master/types.ts:69:  currentHexId: string | null;
+./lib/rulesEngine.ts:65:  // depois que o jogador realmente escolhe ou escreve uma ação e o Diretor a
+./lib/barbaraBridge.ts:26:  const currentHexId = position.currentHexId || mapDiscovery?.currentHexId || (campaign as any).mapDiscovery?.currentHexId || null;
+./lib/barbaraBridge.ts:48:    discovery: { namespace: 'the_one_ring:terra_media', campaign_started: fictionHistory.length > 0, campaign_introduction_delivered: fictionHistory.length > 0, last_location_id: fictionHistory.at(-1)?.location || null, locations: introducedLocations, current_hex_id: currentHexId, map_discovery_current_hex_id: mapDiscovery?.currentHexId || null, q: position.q ?? null, r: position.r ?? null },
+./lib/barbaraBridge.ts:131:export async function getBarbaraVisiblePois(canonical: Record<string, unknown>[], campaign: Record<string, unknown>[], procedural: Record<string, unknown>[], gm = false): Promise<Record<string, unknown>[]> {
+./lib/barbaraBridge.ts:132:  const fn = bridge()?.barbaraVisiblePois;
+./lib/contextBuilder.ts:61:Moedas: ${sheet.resources.coins}; tesouro=${sheet.resources.treasure}; experiência=${sheet.resources.experience}; pontos de aventura=${sheet.resources.adventurePoints}; pontos de perícia=${sheet.resources.skillPoints}
+./lib/contextBuilder.ts:134:    if (!manifest || !discovery.currentHexId) return '';
+./lib/contextBuilder.ts:135:    const currentHex = manifest.hexes.find(hex => hex.id === discovery.currentHexId);
+./lib/contextBuilder.ts:136:    if (!currentHex) return '';
+./lib/contextBuilder.ts:137:    const currentLocations = allLocations.filter(location => location.hexIds.includes(currentHex.id));
+./lib/contextBuilder.ts:138:    const resolvedLocation = resolveHexNarrativeLocation(manifest, allLocations, currentHex.id);
+./lib/contextBuilder.ts:139:    const neighborIds = new Set(currentHex.neighbors);
+./lib/contextBuilder.ts:375:    position: { ...master.position, currentHexId: null, routeHexIds: [] },
+./lib/contextBuilder.ts:442:  const directorContext = `${contextText}\n\n--- ESTADO CANÔNICO DO MESTRE (OCULTO) ---\n${JSON.stringify(masterForPrompt)}\n\n--- FICHAS COMPLETAS DA COMPANHIA ---\n${partyFull || 'Nenhuma ficha carregada.'}\n\n--- NPCS PRESENTES: ESTADO COMPLETO E SEGREDOS ---\n${activeNpcs.map(formatNpcForDirector).join('\n') || 'Nenhum NPC presente.'}\n\n--- DECISÕES DE REGRA ANTERIORES DA MESA ---\n${priorRulesText}\n\nREGRA DE AUTORIDADE: o Diretor pode planejar mudanças, mas o aplicativo validará cada comando. Deve indicar targetCharacterId em toda consequência individual. Um único jogador humano controla todos os Heróis-jogadores; nunca trate a Companhia como protagonista único. O estado formal da cena define participantes, objetivo, tensão e foco. NPC novo deve ser criado por upsert_npc com descrição detalhada; o aplicativo aplica uma das 300 personalidades e escolhe ou gera um retrato persistente automaticamente. Poderes, Patronos, casas, clãs, Guardiões, guildas de ofício, ordens, cultos, bandos e conselhos podem ser atualizados com upsert_organization; refúgios, salões, acampamentos, torres, ruínas ocupadas, covis e fortalezas relevantes usam upsert_stronghold e devem se tornar persistentes quando entram de verdade na ficção. Depois de conquista validada e combate encerrado use claim_stronghold; nunca coloque o loot diretamente na ficha. O estoque conquistado permanece no local para decisão do jogador. Nunca use classes, magias, CA, PV ou mecânicas de outros RPGs.`;
+./lib/narrativeRhythm.ts:3:import type { GeminiStoryResponse } from '../types';
+./lib/narrativeRhythm.ts:94:      handoffRule: 'Termine depois da resposta necessária; o instante ficcional permanece congelado.',
+./lib/narrativeRhythm.ts:96:      observationRule: 'Use apenas fatos já conhecidos ou perceptíveis no checkpoint.',
+./lib/narrativeRhythm.ts:122:      handoffRule: 'Depois da resposta e de no máximo uma complicação social observável, devolva a palavra ao jogador.',
+./lib/narrativeRhythm.ts:138:      observationRule: 'Mudança de atitude deve ser perceptível em falas, silêncio, apoio, interrupção ou postura; não mostre placares invisíveis.',
+./lib/narrativeRhythm.ts:177:      firstBeat: 'Mostre a mudança de ritmo depois do esforço: uma tarefa, conversa, refeição, reparo, silêncio ou chegada a abrigo.',
+./lib/narrativeRhythm.ts:229:  response: Pick<GeminiStoryResponse, 'atmospheric_narration' | 'action_result'>,
+./lib/narrativeRhythm.ts:238:  const transitionMatches = text.match(/\b(?:entao|depois|logo depois|em seguida|pouco depois|minutos depois|horas depois|mais tarde|ao fim de|quando finalmente)\b/g) || [];
+./lib/rules/journey.ts:27:      originHexId: state.position.currentHexId,
+./lib/rules/journey.ts:39:  const fromHexId = state.position.currentHexId;
+./lib/rules/journey.ts:45:      currentHexId: toHexId,
+./lib/rules/journey.ts:71:    journey: { ...state.journey, status: 'completed', destinationHexId: state.position.currentHexId, pendingEvent: null },
+./lib/sourceAuthority.ts:3:const CORE_IDS=new Set(['15umbJCMoLAortDPoicWeIHOzaREI9PBg','1mOdsOfqQASmLNqMZZIOz6aPatJHV1zhq','1M1rIXVz1L4Qzz98l5_aTF1c8sOokW4uA']);
+./lib/sceneContinuity.ts:3:import type { GeminiStoryResponse } from '../types';
+./lib/sceneContinuity.ts:99:export function narrationNeedsContinuityRepair(response: GeminiStoryResponse, anchor: SceneContinuityAnchor): boolean {
+./lib/sceneContinuity.ts:190:export function ensureEnvironmentAnchoredResponse(response: GeminiStoryResponse, binding: SceneEnvironmentBinding): GeminiStoryResponse {
+./lib/immersiveAssets.ts:6:  poi?: Record<string, string>;
+./lib/immersiveAssets.ts:7:  poiByHex?: Record<string, string[]>;
+./lib/immersiveAssets.ts:22:      return { schemaVersion: 1, packId: String(raw.packId || 'tor2e-immersive-ui'), basePath: raw.basePath, assets: { ...raw.assets }, poi: { ...(raw.poi || {}) }, poiByHex: { ...(raw.poiByHex || {}) } };
+./lib/immersiveAssets.ts:33:export function resolvePoiAsset(manifest: ImmersiveAssetManifest | null, poiId?: string | null): string | null {
+./lib/immersiveAssets.ts:34:  const relative = poiId ? manifest?.poi?.[poiId] : null;
+./lib/immersiveAssets.ts:38:export function normalizePoiAssetKey(value?: string | null): string | null {
+./lib/immersiveAssets.ts:50:export function resolvePoiAssetsForHex(manifest: ImmersiveAssetManifest | null, hexId?: string | null): string[] {
+./lib/immersiveAssets.ts:52:  const relatives = manifest.poiByHex?.[hexId] || [];
+./lib/characterPortability.ts:83:    resources: { coins: bounded(raw.resources?.coins,0,1_000_000), treasure: bounded(raw.resources?.treasure,0,1_000_000), experience: bounded(raw.resources?.experience,0,1_000_000), adventurePoints: bounded(raw.resources?.adventurePoints,0,1_000_000), skillPoints: bounded(raw.resources?.skillPoints,0,1_000_000) },
+./lib/homologation.ts:37:  checks.push(check('mapa', 'map-position', 'Posição persistida no atlas', discovery.currentHexId || !campaign.history.length ? 'pass' : 'warning', discovery.currentHexId || 'A Companhia ainda não foi posicionada.'));
+./global.d.ts:16:      hasGeminiApiKey?: (tier: 'free' | 'paid') => boolean;
+./global.d.ts:17:      setGeminiApiKey?: (tier: 'free' | 'paid', value: string) => void;
+./global.d.ts:18:      geminiRequest?: (model: string, body: string, paidOnly?: boolean) => Promise<string>;
+./global.d.ts:56:      barbaraVisiblePois?: (canonical?: Record<string, unknown>[], campaign?: Record<string, unknown>[], procedural?: Record<string, unknown>[], gm?: boolean) => Promise<Record<string, any>[]>;
+./utils/audio.ts:1:// Utility to decode raw PCM data from Gemini TTS
+./utils/audio.ts:28:    // Gemini 2.5 TTS is typically 24kHz
+./android/app/src/main/java/com/braseiro/oumanel/PhysicalDiceEngine.java:18: * calculado da face que termina orientada para cima depois que o corpo rígido
+./android/app/src/main/java/com/braseiro/oumanel/SharedImageInbox.kt:18: * da tarefa do Gemini, nem de uma permissão de URI que pode desaparecer quando o
+./android/app/src/main/java/com/braseiro/oumanel/Dice3DView.java:11:import android.graphics.PointF;
+./android/app/src/main/java/com/braseiro/oumanel/Dice3DView.java:57:    private void drawFloor(Canvas c){Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);p.setColor(Color.argb(28,15,14,13));c.drawRect(0,0,getWidth(),getHeight(),p);if(quality==0)return;Path plane=new Path();PointF a=project(new PhysicalDiceEngine.Vec3(-4,-2.8,0)),b=project(new PhysicalDiceEngine.Vec3(4,-2.8,0)),d=project(new PhysicalDiceEngine.Vec3(4,3,0)),e=project(new PhysicalDiceEngine.Vec3(-4,3,0));if(a==null||b==null||d==null||e==null)return;plane.moveTo(a.x,a.y);plane.lineTo(b.x,b.y);plane.lineTo(d.x,d.y);plane.lineTo(e.x,e.y);plane.close();p.setColor(Color.argb(150,38,33,28));c.drawPath(plane,p);if(quality>=2){p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(1);p.setColor(Color.argb(34,220,190,120));for(int i=-3;i<=3;i++){PointF p1=project(new PhysicalDiceEngine.Vec3(i,-2.5,.005)),p2=project(new PhysicalDiceEngine.Vec3(i,2.8,.005));if(p1!=null&&p2!=null)c.drawLine(p1.x,p1.y,p2.x,p2.y,p);}for(int i=-2;i<=2;i++){PointF p1=project(new PhysicalDiceEngine.Vec3(-3.8,i,.005)),p2=project(new PhysicalDiceEngine.Vec3(3.8,i,.005));if(p1!=null&&p2!=null)c.drawLine(p1.x,p1.y,p2.x,p2.y,p);}}}
+./android/app/src/main/java/com/braseiro/oumanel/Dice3DView.java:58:    private void drawShadow(Canvas c,PhysicalDiceEngine.DieBody d){PointF p=project(new PhysicalDiceEngine.Vec3(d.position.x,d.position.y,.015));if(p==null)return;PointF px=project(new PhysicalDiceEngine.Vec3(d.position.x+d.scale,d.position.y,.015));if(px==null)return;float r=Math.max(8,Math.abs(px.x-p.x));float height=(float)Math.max(0,d.position.z-d.scale);float alpha=(float)(85/(1+height*.8));shadow.setColor(Color.argb((int)alpha,0,0,0));RectF oval=new RectF(p.x-r*1.12f,p.y-r*.34f,p.x+r*1.12f,p.y+r*.34f);c.drawOval(oval,shadow);}
+./android/app/src/main/java/com/braseiro/oumanel/Dice3DView.java:59:    private void collectFaces(PhysicalDiceEngine.DieBody body,List<FaceDraw> out){DiceAppearance style=appearances.containsKey(body.id)?appearances.get(body.id):DiceAppearance.defaults();for(PhysicalDiceEngine.Face f:body.mesh.faces){PhysicalDiceEngine.Vec3 center=body.position.add(body.orientation.rotate(f.center.mul(body.scale)));PhysicalDiceEngine.Vec3 normal=body.worldNormal(f);PhysicalDiceEngine.Vec3 toCam=camera.sub(center);if(normal.dot(toCam)<=0)continue;PointF[] pts=new PointF[f.indices.length];double depth=0;boolean valid=true;for(int i=0;i<f.indices.length;i++){PhysicalDiceEngine.Vec3 w=body.worldVertex(f.indices[i]);Projected q=projectFull(w);if(q==null){valid=false;break;}pts[i]=new PointF(q.x,q.y);depth+=q.depth;}if(!valid)continue;out.add(new FaceDraw(body,f,style,pts,center,normal,depth/f.indices.length));}}
+./android/app/src/main/java/com/braseiro/oumanel/Dice3DView.java:60:    private void drawFace(Canvas c,FaceDraw fd){Path path=new Path();path.moveTo(fd.points[0].x,fd.points[0].y);for(int i=1;i<fd.points.length;i++)path.lineTo(fd.points[i].x,fd.points[i].y);path.close();float light=(float)Math.max(0,fd.normal.dot(new PhysicalDiceEngine.Vec3(-.35,-.45,.82).normalized()));float facing=(float)Math.max(0,fd.normal.dot(camera.sub(fd.center).normalized()));int base=fd.style.baseColor;float brightness=.48f+.46f*light;int col=scaleColor(base,brightness);int alpha=(int)(255*(1-Math.max(0,Math.min(.82,fd.style.transparency))));fill.setShader(null);if(quality>=1&&fd.style.shine>.35f){RectF bb=bounds(fd.points);int hi=blend(col,Color.WHITE,Math.min(.34f,fd.style.shine*.26f*facing));fill.setShader(new LinearGradient(bb.left,bb.top,bb.right,bb.bottom,hi,col,Shader.TileMode.CLAMP));}else fill.setColor(withAlpha(col,alpha));fill.setAlpha(alpha);c.drawPath(path,fill);fill.setShader(null);drawPattern(c,path,fd);drawFaceImage(c,path,fd);edge.setStrokeWidth(Math.max(1,fd.style.edgeWidth*getResources().getDisplayMetrics().density));edge.setColor(withAlpha(fd.style.edgeColor,Math.max(90,alpha)));c.drawPath(path,edge);drawLabel(c,fd);}
+./android/app/src/main/java/com/braseiro/oumanel/Dice3DView.java:61:    private void drawPattern(Canvas c,Path clip,FaceDraw fd){if(quality==0)return;String p=fd.style.pattern==null?"":fd.style.pattern.toLowerCase();if((p.length()==0||"smooth".equals(p))&&fd.style.wear<.2f)return;RectF b=bounds(fd.points);c.save();c.clipPath(clip);Paint q=new Paint(Paint.ANTI_ALIAS_FLAG);q.setStrokeWidth(1.2f);long seed=fd.body.id*1009L+fd.face.value*7919L;Random r=new Random(seed);int count=quality>=2?10:5;float wear=fd.style.wear;if("speckled".equals(p)||wear>.35f){q.setColor(Color.argb((int)(18+wear*45),255,255,255));for(int i=0;i<count;i++){float x=b.left+r.nextFloat()*b.width(),y=b.top+r.nextFloat()*b.height();c.drawCircle(x,y,1+r.nextFloat()*2,q);}}if("grain".equals(p)||"brushed".equals(p)){q.setColor(Color.argb("brushed".equals(p)?35:24,255,255,255));for(int i=0;i<(quality>=2?6:3);i++){float y=b.top+(i+1)*b.height()/7;c.drawLine(b.left,y,b.right,y+(r.nextFloat()-.5f)*8,q);}}if("cracked".equals(p)||wear>.68f){q.setColor(Color.argb(60,10,10,10));for(int i=0;i<3;i++){float x=b.centerX(),y=b.centerY();c.drawLine(x,y,b.left+r.nextFloat()*b.width(),b.top+r.nextFloat()*b.height(),q);}}c.restore();}
+./android/app/src/main/java/com/braseiro/oumanel/Dice3DView.java:62:    private void drawFaceImage(Canvas c,Path clip,FaceDraw fd){RectF full=bounds(fd.points);if(fd.style.textureImageUri!=null&&fd.style.textureImageUri.length()>0&&quality>0){Bitmap tex=bitmap(fd.style.textureImageUri);if(tex!=null){c.save();c.clipPath(clip);Paint tp=new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG);tp.setAlpha(quality>=2?90:55);c.drawBitmap(tex,null,full,tp);c.restore();}}String uri="";if(fd.face.value==1)uri=fd.style.faceOneImageUri;if(fd.face.value==fd.body.sides&&fd.style.maxFaceImageUri!=null&&fd.style.maxFaceImageUri.length()>0)uri=fd.style.maxFaceImageUri;if(uri==null||uri.length()==0)return;Bitmap bm=bitmap(uri);if(bm==null)return;RectF b=new RectF(full);float pad=Math.min(b.width(),b.height())*.16f;b.inset(pad,pad);c.save();c.clipPath(clip);Paint p=new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG);p.setAlpha(220);c.drawBitmap(bm,null,b,p);c.restore();}
+./android/app/src/main/java/com/braseiro/oumanel/Dice3DView.java:63:    private void drawLabel(Canvas c,FaceDraw fd){PointF pc=project(fd.center);if(pc==null)return;RectF b=bounds(fd.points);float size=Math.max(9,Math.min(b.width(),b.height())*.43f);String glyph="";if(fd.face.value==1)glyph=fd.style.faceOneGlyph;if(fd.face.value==fd.body.sides&&fd.style.maxFaceGlyph!=null&&fd.style.maxFaceGlyph.length()>0)glyph=fd.style.maxFaceGlyph;String label=faceLabelOverrides.containsKey(fd.body.id+":"+fd.face.value)?faceLabelOverrides.get(fd.body.id+":"+fd.face.value):fd.body.displayValue(fd.face);if(faceLabelOverrides.containsKey(fd.body.id+":"+fd.face.value))glyph="";text.setTypeface(fd.style.typeface());text.setColor(fd.style.numberColor);text.setShadowLayer(2,0,1,Color.argb(150,0,0,0));if(glyph!=null&&glyph.trim().length()>0){text.setTextSize(size*.82f);c.drawText(glyph.trim(),pc.x,pc.y+size*.18f,text);text.setTextSize(Math.max(8,size*.28f));c.drawText(label,pc.x,pc.y+size*.54f,text);}else{text.setTextSize(size);Paint.FontMetrics fm=text.getFontMetrics();c.drawText(label,pc.x,pc.y-(fm.ascent+fm.descent)/2,text);}text.clearShadowLayer();}
+./android/app/src/main/java/com/braseiro/oumanel/Dice3DView.java:65:    private RectF bounds(PointF[] p){float l=Float.MAX_VALUE,t=Float.MAX_VALUE,r=-Float.MAX_VALUE,b=-Float.MAX_VALUE;for(PointF q:p){l=Math.min(l,q.x);t=Math.min(t,q.y);r=Math.max(r,q.x);b=Math.max(b,q.y);}return new RectF(l,t,r,b);}
+./android/app/src/main/java/com/braseiro/oumanel/Dice3DView.java:66:    private PointF project(PhysicalDiceEngine.Vec3 w){Projected p=projectFull(w);return p==null?null:new PointF(p.x,p.y);}
+./android/app/src/main/java/com/braseiro/oumanel/Dice3DView.java:75:    private static final class FaceDraw{PhysicalDiceEngine.DieBody body;PhysicalDiceEngine.Face face;DiceAppearance style;PointF[] points;PhysicalDiceEngine.Vec3 center,normal;double depth;FaceDraw(PhysicalDiceEngine.DieBody b,PhysicalDiceEngine.Face f,DiceAppearance s,PointF[] p,PhysicalDiceEngine.Vec3 c,PhysicalDiceEngine.Vec3 n,double d){body=b;face=f;style=s;points=p;center=c;normal=n;depth=d;}}
+./android/app/src/main/java/com/braseiro/oumanel/Dice3DOverlay.java:22:/** Overlay de rolagem 3D. A física produz o resultado; o sistema de RPG o interpreta depois. */
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:172:    private var freeGeminiCircuitOpenUntil = 0L
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:173:    private val geminiTtsDir by lazy { File(filesDir, "gemini_tts_cache").apply { mkdirs() } }
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:174:    @Volatile private var activeGeminiVoiceRequestId: String? = null
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:990:              window.__braseiroGeminiTtsCallbacks = window.__braseiroGeminiTtsCallbacks || {};
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:991:              window.__braseiroGeminiVoiceCallbacks = window.__braseiroGeminiVoiceCallbacks || {};
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:994:              // Depois da cópia para o cofre Android, remove o texto do localStorage.
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:996:                const freeNames = ['braseiro.geminiApiKey.free', 'braseiro.geminiApiKey', 'geminiApiKey', 'GEMINI_API_KEY', 'API_KEY'];
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:997:                const paidNames = ['braseiro.geminiApiKey.paid', 'geminiApiKeyPaid'];
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:999:                  if (BraseiroNative.hasGeminiApiKey(tier)) return;
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1003:                      BraseiroNative.setGeminiApiKey(tier, value);
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1015:                hasGeminiApiKey: tier => BraseiroNative.hasGeminiApiKey(String(tier||'free')),
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1016:                setGeminiApiKey: (tier,value) => BraseiroNative.setGeminiApiKey(String(tier||'free'), value || ''),
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1017:                geminiRequest: (model,body,paidOnly=false) => new Promise((resolve,reject) => { const id='gemini_'+Date.now()+'_'+Math.random().toString(36).slice(2); window.__braseiroGeminiCallbacks=window.__braseiroGeminiCallbacks||{}; window.__braseiroGeminiCallbacks[id]={resolve,reject}; BraseiroNative.geminiRequest(String(model),String(body),Boolean(paidOnly),id); }),
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1018:                generateTts: (model,text,voice,style,paidOnly=false) => new Promise((resolve,reject) => { const id='gemini_tts_'+Date.now()+'_'+Math.random().toString(36).slice(2); window.__braseiroGeminiTtsCallbacks[id]={resolve,reject}; BraseiroNative.generateTts(String(model),String(text||''),String(voice||'Charon'),String(style||'natural'),Boolean(paidOnly),id); }),
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1019:                playGeneratedVoice: (token,volume=1) => new Promise((resolve,reject) => { const id='gemini_voice_'+Date.now()+'_'+Math.random().toString(36).slice(2); window.__braseiroGeminiVoiceCallbacks[id]={resolve,reject}; BraseiroNative.playGeneratedVoice(String(token||''),Number(volume||1),id); }),
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1061:                barbaraVisiblePois: (canonical=[],campaign=[],procedural=[],gm=false) => Promise.resolve(JSON.parse(BraseiroNative.barbaraVisiblePois(JSON.stringify(canonical||[]),JSON.stringify(campaign||[]),JSON.stringify(procedural||[]),Boolean(gm)) || '[]')),
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1081:        // depois que a WebView retomou, sem criar uma segunda campanha/tela.
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1654:                if (key == "voice:gemini") finishGeneratedVoice(activeGeminiVoiceRequestId, null)
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1662:        (store.getKey("braseiro_gemini_keys", null) as? SecretKey)?.let { return it }
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1664:            init(KeyGenParameterSpec.Builder("braseiro_gemini_keys", KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1688:    private fun setGeminiSecret(tier: String, value: String) {
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1689:        val name = if (tier == "paid") "gemini_api_key_paid_encrypted" else "gemini_api_key_free_encrypted"
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1693:    private fun getGeminiSecret(tier: String): String {
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1694:        val name = if (tier == "paid") "gemini_api_key_paid_encrypted" else "gemini_api_key_free_encrypted"
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1699:            val legacy = privatePreferences.getString("gemini_api_key", "") ?: ""
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1701:                setGeminiSecret("free", legacy)
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1702:                privatePreferences.edit().remove("gemini_api_key").apply()
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1709:    private data class GeminiHttpResult(val status: Int, val body: String)
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1711:    private fun callGemini(model: String, body: String, key: String): GeminiHttpResult {
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1712:        require(Regex("^[A-Za-z0-9._-]{3,80}$").matches(model)) { "Modelo Gemini inválido." }
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1724:            GeminiHttpResult(status, stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() } ?: "")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1728:    private fun performGeminiRequest(model: String, body: String, paidOnly: Boolean): JSONObject {
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1729:        val free = getGeminiSecret("free")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1730:        val paid = getGeminiSecret("paid")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1731:        if (!paidOnly && free.isNotBlank() && System.currentTimeMillis() >= freeGeminiCircuitOpenUntil) {
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1733:                val result = callGemini(model, body, free)
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1737:            freeGeminiCircuitOpenUntil = System.currentTimeMillis() + 5 * 60_000
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1740:            val result = callGemini(model, body, paid)
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1745:            free.isBlank() && paid.isBlank() -> "Nenhuma chave Gemini está configurada neste aparelho. Abra Configurações > Chaves Gemini."
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1746:            freeGeminiCircuitOpenUntil > System.currentTimeMillis() -> "A chave gratuita atingiu o limite temporário e não há chave paga configurada."
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1747:            else -> "Nenhuma chave Gemini utilizável está disponível."
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1786:    private fun storeGeminiAudioAsWav(target: File, audioBytes: ByteArray): Long {
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1800:    private fun cleanupGeminiTtsCache(maxFiles: Int = 48) {
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1801:        geminiTtsDir.listFiles { file -> file.isFile && file.extension.equals("wav", true) }
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1807:    private fun performGeminiTtsRequest(model: String, text: String, voice: String, style: String, paidOnly: Boolean): JSONObject {
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1813:        val cached = File(geminiTtsDir, "$cacheId.wav")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1834:        val envelope = performGeminiRequest(model, body, paidOnly)
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1837:        if (status !in 200..299) throw IllegalStateException("Gemini TTS HTTP $status: ${responseBody.take(700)}")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1839:        val candidates = response.optJSONArray("candidates") ?: throw IllegalStateException("O Gemini TTS não devolveu candidatos.")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1850:        if (audioBase64.isBlank()) throw IllegalStateException("O Gemini TTS respondeu sem áudio.")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1852:        if (audioBytes.size < 4_800) throw IllegalStateException("O áudio devolvido pelo Gemini TTS está vazio ou incompleto.")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1853:        val durationMs = storeGeminiAudioAsWav(cached, audioBytes)
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1854:        cleanupGeminiTtsCache()
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1859:    private fun resolveGeminiTtsFile(token: String): File? {
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1861:        return File(geminiTtsDir, "$token.wav").takeIf { it.exists() && it.isFile && it.length() > 44L }
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1866:        if (activeGeminiVoiceRequestId == requestId) activeGeminiVoiceRequestId = null
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1868:        if (error == null) evaluate("window.__braseiroGeminiVoiceCallbacks?.[$id]?.resolve?.(); delete window.__braseiroGeminiVoiceCallbacks?.[$id];")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1869:        else evaluate("window.__braseiroGeminiVoiceCallbacks?.[$id]?.reject?.(new Error(${JSONObject.quote(error)})); delete window.__braseiroGeminiVoiceCallbacks?.[$id];")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1873:        val file = resolveGeminiTtsFile(token) ?: run { finishGeneratedVoice(requestId, "Arquivo da voz Charon não encontrado."); return }
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1875:        val key = "voice:gemini"
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1876:        val previousRequest = activeGeminiVoiceRequestId
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1879:        activeGeminiVoiceRequestId = requestId
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1887:                    evaluate("window.dispatchEvent(new CustomEvent('braseiro-native-gemini-voice-start',{detail:$detail}));")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1888:                    emitAudioDiagnostic("native-charon-started", "voice", "Voz Charon iniciada pelo Android.", "success", token, "Charon", "MediaPlayer", "gemini", System.currentTimeMillis(), "reproduzindo")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:1894:                    emitAudioDiagnostic("native-charon-ended", "voice", "Voz Charon concluída.", "success", token, "Charon", "MediaPlayer", "gemini", result = "concluído")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2146:        @JavascriptInterface fun hasGeminiApiKey(tier: String): Boolean = getGeminiSecret(tier).isNotBlank()
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2147:        @JavascriptInterface fun setGeminiApiKey(tier: String, value: String) = setGeminiSecret(tier, value)
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2148:        @JavascriptInterface fun geminiRequest(model: String, body: String, paidOnly: Boolean, requestId: String) {
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2151:                    val result = withContext(Dispatchers.IO) { performGeminiRequest(model, body, paidOnly) }
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2154:                    evaluate("window.__braseiroGeminiCallbacks?.[$id]?.resolve?.($payload); delete window.__braseiroGeminiCallbacks?.[$id];")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2156:                    Log.e("BRASEIRO_GEMINI", "request failed", error)
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2158:                    val message = JSONObject.quote(error.message ?: "Falha na requisição Gemini.")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2159:                    evaluate("window.__braseiroGeminiCallbacks?.[$id]?.reject?.(new Error($message)); delete window.__braseiroGeminiCallbacks?.[$id];")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2166:                    val result = withContext(Dispatchers.IO) { performGeminiTtsRequest(model, text, voice, style, paidOnly) }
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2168:                    evaluate("window.__braseiroGeminiTtsCallbacks?.[$id]?.resolve?.(${result}); delete window.__braseiroGeminiTtsCallbacks?.[$id];")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2170:                    Log.e("BRASEIRO_TTS", "Gemini TTS failed", error)
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2172:                    evaluate("window.__braseiroGeminiTtsCallbacks?.[$id]?.reject?.(new Error(${JSONObject.quote(error.message ?: "Falha na voz Charon.")})); delete window.__braseiroGeminiTtsCallbacks?.[$id];")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2369:            put("gemini", JSONObject().apply {
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2370:                put("freeKey", getGeminiSecret("free").isNotBlank())
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2371:                put("paidKey", getGeminiSecret("paid").isNotBlank())
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2372:                put("status", if (getGeminiSecret("free").isNotBlank() || getGeminiSecret("paid").isNotBlank()) "configured_not_tested" else "untested")
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2403:            startActivity(Intent.createChooser(sendIntent, "Enviar prompt ao Gemini"))
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2424:        @JavascriptInterface fun barbaraVisiblePois(canonicalJson: String, campaignJson: String, proceduralJson: String, gm: Boolean): String = try {
+./android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt:2425:            barbaraSupervisor.visiblePois(JSONArray(canonicalJson.ifBlank { "[]" }), JSONArray(campaignJson.ifBlank { "[]" }), JSONArray(proceduralJson.ifBlank { "[]" }), gm).toString()
+./android/app/src/main/java/com/braseiro/oumanel/IncomingImageActivity.kt:14: * criar uma segunda mesa dentro da tarefa do Gemini.
+./android/app/src/main/java/com/braseiro/oumanel/OneRingDice3DOverlay.java:27: * A física determina as faces; só depois o host interpreta as regras.
+./android/app/src/main/java/com/braseiro/oumanel/AppLog.java:24:    private static final Pattern JSON_SECRET = Pattern.compile("(?i)(\\\"?(?:gemini_key|api[_-]?key|x-goog-api-key|access_token|refresh_token)\\\"?\\s*[:=]\\s*\\\"?)([^\\\"\\s,}]+)");
+./android/app/src/main/java/com/braseiro/oumanel/BarbaraSupervisor.java:17: * Gemini e commits. Barbara só supervisiona contrato/política e valida projeções.
+./android/app/src/main/java/com/braseiro/oumanel/BarbaraSupervisor.java:105:            fallback.put("available",available).put("story_occasion",occasion).put("host_world_authority",true).put("duplicate_gemini_call",false).put("input_channel",inputChannel);
+./android/app/src/main/java/com/braseiro/oumanel/BarbaraSupervisor.java:202:public JSONArray visiblePois(JSONArray canonical,JSONArray campaign,JSONArray procedural,boolean gm){
+./android/app/src/main/java/com/braseiro/oumanel/BarbaraSupervisor.java:205:        return new JSONArray(module.callAttr("poi_visible_json",canonical==null?"[]":canonical.toString(),campaign==null?"[]":campaign.toString(),procedural==null?"[]":procedural.toString(),gm).toString());
+./App.tsx:21:import { answerRulesQuestion, generateDirectorPlan, generateNarration, generateNarrationFromPlan, generateSceneImage } from './services/geminiService';
+./App.tsx:35:import { CampaignEvent, GeminiStoryResponse, SceneAudioPlan, StoryChoice, VoiceSegment, TtsVoiceName } from './types';
+./App.tsx:58:import { createLocalDirectorPlan, createLocalNarration, isRecoverableGeminiFailure } from './lib/autonomy/localFallbackDirector';
+./App.tsx:68:import { assessNarrativeQuality, buildNarrativeCheckpoint, classifyNarrativeIntent, enforceNarrativeIntent, narrativeCheckpointPrompt, professionalRepairBrief } from './lib/narrativeEngine';
+./App.tsx:126:  resources: { coins: 0, treasure: 0, experience: 0, adventurePoints: 0, skillPoints: 0 },
+./App.tsx:243:    const currentHexId = discovery.currentHexId || campaign.masterState?.position.currentHexId || null;
+./App.tsx:244:    if (!manifest || !currentHexId) return campaign;
+./App.tsx:245:    const resolved = resolveHexNarrativeLocation(manifest, locations, currentHexId);
+./App.tsx:250:      && state.position.currentHexId === currentHexId;
+./App.tsx:252:    state.position = { ...state.position, currentHexId, locationName: resolved.name };
+./App.tsx:269:    return 'O Gemini não está disponível: confira a chave em Configurações. A campanha não foi alterada.';
+./App.tsx:272:    return 'A cota do Gemini está temporariamente esgotada. Tente novamente mais tarde; a campanha não foi alterada.';
+./App.tsx:275:    return 'O Gemini devolveu uma resposta incompleta. O turno foi cancelado com segurança; tente novamente.';
+./App.tsx:313:function sanitizeModelEvents(response: GeminiStoryResponse, base: CampaignState, sceneId: string): CampaignEvent[] {
+./App.tsx:392:  const [currentImage, setCurrentImage] = useState<string | null>(null);
+./App.tsx:527:      setCurrentImage(firstVisibleNode?.imageData || null);
+./App.tsx:577:        setCurrentImage(last?.imageData || null);
+./App.tsx:690:    // A sugestão é apenas uma ação livre pré-escrita. O Diretor decide depois,
+./App.tsx:771:        imprint: base.masterState?.position.currentHexId || '',
+./App.tsx:782:      const narrativeCheckpoint = buildNarrativeCheckpoint(base, allNpcs);
+./App.tsx:783:      const narrativeContext = narrativeCheckpointPrompt(narrativeCheckpoint, narrativeIntent, userAction);
+./App.tsx:836:        if (!isRecoverableGeminiFailure(error)) throw error;
+./App.tsx:874:      // Movimento do mapa nunca é autorizado por texto do Gemini. A máquina local
+./App.tsx:951:      let response: GeminiStoryResponse;
+./App.tsx:961:A resposta anterior perdeu a continuidade. Comece pela reação imediata dos NPCs já presentes à ação do jogador, preserve o assunto e só depois avance a situação.`,
+./App.tsx:1080:          checkpointSceneId: narrativeCheckpoint.sceneId,
+./App.tsx:1162:            payload: { inputChannel, localFallback: localFallbackActive, narrativeIntent: narrativeIntent.intentClass, advancesFiction: narrativeIntent.advancesFiction, currentHexId: updated.masterState?.position.currentHexId || null, weather: environmentBinding.weatherLabel, timeOfDay: environmentBinding.period, worldHour: environmentBinding.hour },
+./App.tsx:1172:        setCurrentImage(null);
+./App.tsx:1175:        // planejamento preservam imagem e áudio do checkpoint.
+./App.tsx:1269:      detail: { campaignId: discovery.campaignId, mapId: discovery.mapId, currentHexId: discovery.currentHexId },
+./App.tsx:1304:    window.dispatchEvent(new CustomEvent(MAP_DISCOVERY_CHANGED_EVENT, { detail: { campaignId: reconciled.discovery.campaignId, mapId: reconciled.discovery.mapId, currentHexId: reconciled.discovery.currentHexId } }));
+./App.tsx:1331:    const [runtime, manifest] = discovery?.currentHexId
+./App.tsx:1333:          loadTerraMediaRuntimeContext(discovery.currentHexId).catch(() => null),
+./App.tsx:1337:    const currentHex = discovery?.currentHexId ? manifest?.hexes.find(hex => hex.id === discovery.currentHexId) : undefined;
+./App.tsx:1339:      currentHex?.terrain, currentHex?.region, currentHex?.name, currentHex?.poi, currentHex?.placeType,
+./App.tsx:1340:      ...(currentHex?.tags || []),
+./App.tsx:1362:    return { base: forced || tavern, evidence: `${discovery?.currentHexId || 'sem-hex'}: ${mapped || formal || 'sem evidência cartográfica'}` };
+./App.tsx:1646:      AudioDiagnostics.log({ action: 'charon-synthesis-request', channel: 'voice', level: 'info', message: `Solicitando a cena inteira ao Gemini TTS (${provisionalUnits[0].text.length} caracteres).`, backend: 'Gemini TTS', result: 'solicitado', details: { voice: firstProfile.voice, units: provisionalUnits.length, continuousSceneVoice: true } });
+./App.tsx:1648:      AudioDiagnostics.log({ action: 'charon-synthesis-ready', channel: 'voice', level: firstAudio ? 'success' : 'error', message: firstAudio ? 'Primeiro bloco do Gemini TTS recebido.' : 'Gemini TTS não devolveu áudio.', backend: 'Gemini TTS', actualAtMs: Date.now(), latencyMs: Date.now() - firstSynthesisStartedAt, result: firstAudio ? 'pronto' : 'vazio' });
+./App.tsx:1650:      if (!firstAudio) throw new Error('O Gemini TTS não devolveu áudio.');
+./App.tsx:1658:        if (!currentAudio) throw new Error('O Gemini TTS não devolveu áudio.');
+./App.tsx:1675:            // Reproduzi-lo depois da frase quebraria a sincronização.
+./App.tsx:1685:      AudioDiagnostics.log({ action: 'charon-narration-error', channel: 'voice', level: 'error', message: error instanceof Error ? error.message : 'Falha na narração.', backend: 'Gemini TTS/WebAudio', result: 'falha' });
+./App.tsx:1768:      if (history.at(-1)?.id === node.id) setCurrentImage(image);
+./App.tsx:1974:  const handleStartAdventure = async () => {
+./App.tsx:1980:    if (!discovery.currentHexId) {
+./App.tsx:2004:    await processTurn(`[INICIAR AVENTURA GUIADA] A Companhia já está no hex ${discovery.currentHexId}; use exclusivamente o contexto cartográfico desse hex como ponto inicial.${companyText} Perfil: ${profile.label}. ${profile.prompt} ${openingInstruction(architecture)} O horário inicial canônico é ${String(openingClock.hour).padStart(2, '0')}:${String(openingClock.minute).padStart(2, '0')} (${timePeriodFromHour(openingClock.hour)}). Não substitua esse horário por manhã por hábito.`, false, sourceCampaign);
+./App.tsx:2015:    if (safeIndex === history.length - 1) setCurrentImage(image);
+./App.tsx:2092:      setCurrentImage(committed.history.at(-1)?.imageData || null);
+./App.tsx:2101:      setCurrentImage(committed.history.at(-1)?.imageData || null);
+./App.tsx:2133:    setCurrentImage(null); setCustomAction(''); setActiveTab('jogo');
+./App.tsx:2164:      case 'jogo': return <GameView campaignId={campaign.id} history={campaign.history} currentNode={campaign.history.at(-1) || null} currentImage={currentImage} isStoryLoading={isStoryLoading} isImageLoading={isImageLoading} isNarrationLoading={isNarrationLoading} storyError={storyError} onDismissStoryError={() => setStoryError(null)} imageError={imageError} narrationError={narrationError} customAction={customAction} setCustomAction={setCustomAction} onChoice={handleChoice} onCustomActionSubmit={handleCustomActionSubmit} onRegenerateImage={handleRegenerateImage} onImportSceneImage={handleImportSceneImage} onStartAdventure={handleStartAdventure} canStartAdventure={Boolean(normalizeMasterState(campaign).position.currentHexId)} adventureProfile={adventureProfile} onAdventureProfileChange={setAdventureProfile} imageImportStatus={imageImportStatus} onCreateRandomCharacter={createCompleteRandomCharacter} onPlayNarration={handlePlayNarration} onPlayAndroidNarration={playAndroidNarration} onStopNarration={handleStopNarration} partyCharacterIds={campaign.partyCharacterIds || []} partyCharacters={characters.filter(character => (campaign.partyCharacterIds || []).includes(character.id))} activeCharacterId={campaign.activeCharacterId} onActiveCharacterChange={activateCharacter} onCompanySave={handleCompanySave} pendingTest={campaign.pendingTest} pendingRoll={campaign.pendingDiceRoll} onOpenDice={() => setActiveTab('dados')} onResolvePendingRoll={handleResolvePendingRoll} onNpcTokenChange={handleNpcTokenChange} allNpcs={allNpcs} presentNpcs={allNpcs.filter(npc => (campaign.presentNpcIds || []).includes(npc.id))} masterState={normalizeMasterState(campaign)} ruleAnswer={ruleAnswer} onCloseRuleAnswer={() => setRuleAnswer(null)} onPartyMoved={handlePartyMoved} onMapDiscoveryChanged={handleMapDiscoveryChanged} immersiveMode={immersiveJourneyMode} onNavigate={tab => { setActiveTab(tab); AudioEngine.init(); }} />;
+./App.tsx:2179:      default: return <GameView campaignId={campaign.id} history={campaign.history} currentNode={campaign.history.at(-1) || null} currentImage={currentImage} isStoryLoading={false} isImageLoading={false} isNarrationLoading={false} storyError={null} imageError={null} narrationError={null} customAction={customAction} setCustomAction={setCustomAction} onChoice={handleChoice} onCustomActionSubmit={handleCustomActionSubmit} onRegenerateImage={handleRegenerateImage} onImportSceneImage={handleImportSceneImage} onStartAdventure={handleStartAdventure} canStartAdventure={Boolean(normalizeMasterState(campaign).position.currentHexId)} adventureProfile={adventureProfile} onAdventureProfileChange={setAdventureProfile} imageImportStatus={imageImportStatus} onCreateRandomCharacter={createCompleteRandomCharacter} onPlayNarration={handlePlayNarration} onPlayAndroidNarration={playAndroidNarration} onStopNarration={handleStopNarration} partyCharacterIds={campaign.partyCharacterIds || []} partyCharacters={characters.filter(character => (campaign.partyCharacterIds || []).includes(character.id))} activeCharacterId={campaign.activeCharacterId} onActiveCharacterChange={activateCharacter} onCompanySave={handleCompanySave} pendingTest={campaign.pendingTest} pendingRoll={campaign.pendingDiceRoll} onOpenDice={() => setActiveTab('dados')} onResolvePendingRoll={handleResolvePendingRoll} onNpcTokenChange={handleNpcTokenChange} allNpcs={allNpcs} presentNpcs={allNpcs.filter(npc => (campaign.presentNpcIds || []).includes(npc.id))} masterState={normalizeMasterState(campaign)} ruleAnswer={ruleAnswer} onCloseRuleAnswer={() => setRuleAnswer(null)} onPartyMoved={handlePartyMoved} onMapDiscoveryChanged={handleMapDiscoveryChanged} immersiveMode={immersiveJourneyMode} onNavigate={tab => { setActiveTab(tab); AudioEngine.init(); }} />;
+./App.tsx:2185:      {atmosphereActive && <div className="fixed inset-0 medieval-background pointer-events-none" />}
+./types.ts:126:export interface GeminiStoryResponse {
+./components/immersive/ImmersiveJourneyView.tsx:14:  currentImage?: string | null;
+./components/immersive/ImmersiveJourneyView.tsx:94:        ? <EriadorMap currentLocation={locationName} campaignId={props.campaignId} currentHexId={props.masterState.position.currentHexId} onPartyMoved={props.onPartyMoved} onDiscoveryChanged={props.onMapDiscoveryChanged} onPartyRested={props.onPartyRested} strongholds={props.masterState.livingWorld.strongholds || []} immersive partyMarkerMode="none" followParty />
+./components/immersive/ImmersiveJourneyView.tsx:95:        : <img src={props.currentImage || './terra-media-map/map_preview_boot_1536.webp'} alt="" draggable={false} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />}
+./components/immersive/ImmersiveJourneyView.tsx:103:      display: 'flex', alignItems: 'stretch', gap: 8, pointerEvents: 'none',
+./components/immersive/PartyCluster.tsx:73:      pointerEvents: 'none', position: 'absolute', left: '50%', top: '42%', transform: 'translate(-50%, -50%)',
+./components/ManualLibraryView.tsx:237:                className="w-full mt-1.5 py-1.5 px-2 bg-zinc-900 border border-blue-900/40 rounded text-blue-300 focus:outline-none cursor-pointer"
+./components/ManualLibraryView.tsx:257:              className="flex-1 py-3 bg-blue-950/20 hover:bg-blue-600/20 border-2 border-blue-600 text-blue-400 font-bold hover:text-blue-100 uppercase tracking-widest font-serif rounded cursor-pointer transition-all"
+./components/ManualLibraryView.tsx:264:              className="px-4 py-3 bg-blue-950/20 hover:bg-blue-600/20 border-2 border-blue-600 text-blue-400 font-bold hover:text-blue-100 uppercase tracking-widest font-serif rounded cursor-pointer transition-all flex items-center gap-2"
+./components/ManualLibraryView.tsx:277:              className="hover:text-blue-400 underline cursor-pointer"
+./components/ManualLibraryView.tsx:359:                    className="p-1.5 bg-zinc-900 border border-blue-950 hover:border-red-900 text-blue-800 hover:text-red-500 rounded cursor-pointer shrink-0"
+./components/ManualLibraryView.tsx:375:        {/* Card 3: Sources Sent to Gemini on last action */}
+./components/MasterVirtualPanel.tsx:47:        <div className="rounded border border-slate-800 bg-black/30 p-2"><MapPinned className="mb-1 h-4 w-4 text-blue-400" />{masterState.position.currentHexId || 'sem hex'}</div>
+./components/AudioDiagnosticsPanel.tsx:8:import { generateNarration } from '../services/geminiService';
+./components/AudioDiagnosticsPanel.tsx:10:import { hasGeminiApiKey } from '../lib/apiKey';
+./components/AudioDiagnosticsPanel.tsx:83:    if (!hasGeminiApiKey()) throw new Error('Nenhuma chave Gemini está configurada para testar Charon.');
+./components/AudioDiagnosticsPanel.tsx:85:    AudioDiagnostics.log({ action: 'diagnostic-charon-request', channel: 'voice', level: 'info', message: 'Solicitando uma frase curta à voz Charon.', backend: 'Gemini TTS', scheduledAtMs: requestedAt, result: 'solicitado' });
+./components/AudioDiagnosticsPanel.tsx:88:    AudioDiagnostics.log({ action: 'diagnostic-charon-ready', channel: 'voice', level: 'success', message: 'Áudio de Charon recebido.', backend: 'Gemini TTS', scheduledAtMs: requestedAt, actualAtMs: Date.now(), latencyMs: Date.now() - requestedAt, result: 'pronto' });
+./components/AudioDiagnosticsPanel.tsx:145:    if (hasGeminiApiKey()) {
+./components/AudioDiagnosticsPanel.tsx:148:      else AudioDiagnostics.log({ action: 'autotest-charon-empty', channel: 'voice', level: 'error', message: 'Charon não devolveu áudio durante o autoteste.', backend: 'Gemini TTS', result: 'vazio' });
+./components/AudioDiagnosticsPanel.tsx:149:    } else AudioDiagnostics.log({ action: 'autotest-charon-skipped', channel: 'voice', level: 'warning', message: 'Charon não foi testado porque não há chave Gemini configurada.', backend: 'Gemini TTS', result: 'ignorado' });
+./components/NpcRegistryView.tsx:247:            className="min-h-12 w-full py-2.5 px-3 bg-zinc-950 border border-blue-900/40 rounded text-sm text-blue-300 focus:outline-none cursor-pointer"
+./components/NpcRegistryView.tsx:257:            className="min-h-12 w-full py-2.5 bg-blue-950/20 hover:bg-blue-600/20 border border-blue-600 text-blue-400 font-bold uppercase tracking-wider text-xs rounded flex items-center justify-center gap-2 cursor-pointer transition-colors font-serif"
+./components/NpcRegistryView.tsx:305:                    p-3.5 border rounded-md flex flex-col justify-between cursor-pointer transition-all duration-200 relative group
+./components/NpcRegistryView.tsx:317:                      className="relative flex h-14 w-14 max-h-14 max-w-14 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-blue-800/80 bg-zinc-950 shadow-md hover:border-blue-400"
+./components/NpcRegistryView.tsx:348:                        flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-bold tracking-wider font-serif border cursor-pointer transition-colors
+./components/NpcRegistryView.tsx:363:                        className="p-1 bg-zinc-900 border border-blue-950 hover:border-blue-600 rounded text-blue-500 cursor-pointer"
+./components/NpcRegistryView.tsx:370:                        className="p-1 bg-zinc-900 border border-blue-950 hover:border-red-900 text-blue-800 hover:text-red-500 rounded cursor-pointer"
+./components/NpcRegistryView.tsx:394:                className="px-2 py-0.5 border border-blue-900 hover:bg-blue-950 text-blue-700 hover:text-blue-400 rounded text-[9px] uppercase font-bold font-serif cursor-pointer"
+./components/NpcRegistryView.tsx:581:                className="px-4 py-1.5 bg-red-950/20 hover:bg-red-950 border border-red-900 hover:border-red-600 text-red-500 hover:text-red-100 rounded text-[10px] uppercase font-bold font-serif cursor-pointer"
+./components/NpcRegistryView.tsx:587:                className="px-6 py-1.5 bg-blue-950/40 hover:bg-blue-600/20 border border-blue-600 text-blue-400 hover:text-blue-100 rounded text-[10px] uppercase font-bold font-serif cursor-pointer"
+./components/CharacterSheetView.tsx:211:          {sheet.other.creationTrace?.length ? <details className="mt-2"><summary className="cursor-pointer text-cyan-300">Auditoria da criação automática</summary><ul className="mt-2 list-disc space-y-1 pl-5">{sheet.other.creationTrace.map((line,index) => <li key={`${line}-${index}`}>{line}</li>)}</ul></details> : null}
+./components/CharacterSheetView.tsx:230:                className="w-20 h-20 rounded-full border-2 border-blue-800/80 hover:border-blue-400 bg-zinc-950 overflow-hidden relative shrink-0 flex items-center justify-center cursor-pointer shadow-md mb-2"
+./components/CharacterSheetView.tsx:452:                <label className="flex items-center gap-1.5 p-1.5 bg-zinc-900 rounded border border-blue-900/10 cursor-pointer">
+./components/CharacterSheetView.tsx:457:                    className="accent-blue-500 cursor-pointer"
+./components/CharacterSheetView.tsx:461:                <label className="flex items-center gap-1.5 p-1.5 bg-zinc-900 rounded border border-blue-900/10 cursor-pointer">
+./components/CharacterSheetView.tsx:466:                    className="accent-blue-500 cursor-pointer"
+./components/CharacterSheetView.tsx:470:                <label className="flex items-center gap-1.5 p-1.5 bg-zinc-900 rounded border border-blue-900/10 cursor-pointer">
+./components/CharacterSheetView.tsx:475:                    className="accent-blue-500 cursor-pointer"
+./components/CharacterSheetView.tsx:505:                  className="p-1 bg-blue-950/40 hover:bg-blue-600/20 border border-blue-600 text-blue-400 rounded cursor-pointer"
+./components/CharacterSheetView.tsx:531:                          className="bg-zinc-900 border border-blue-900/40 rounded text-xs text-blue-300 py-0.5 px-1.5 cursor-pointer"
+./components/CharacterSheetView.tsx:552:                          className="accent-blue-500 cursor-pointer"
+./components/CharacterSheetView.tsx:558:                          className="text-blue-800 hover:text-red-500 cursor-pointer p-0.5"
+./components/CharacterSheetView.tsx:588:                  className="p-1 bg-blue-950/40 hover:bg-blue-600/20 border border-blue-600 text-blue-400 rounded cursor-pointer"
+./components/CharacterSheetView.tsx:675:                    <label className="flex items-center gap-1 cursor-pointer">
+./components/CharacterSheetView.tsx:680:                        className="accent-blue-500 cursor-pointer"
+./components/CharacterSheetView.tsx:686:                      className="text-blue-800 hover:text-red-500 cursor-pointer p-0.5 ml-1"
+./components/CharacterSheetView.tsx:737:                  value={sheet.resources.adventurePoints}
+./components/CharacterSheetView.tsx:738:                  onChange={(e) => handleResourceChange('adventurePoints', parseInt(e.target.value) || 0)}
+./components/CharacterSheetView.tsx:746:                  value={sheet.resources.skillPoints}
+./components/CharacterSheetView.tsx:747:                  onChange={(e) => handleResourceChange('skillPoints', parseInt(e.target.value) || 0)}
+./components/CharacterSheetView.tsx:846:                      className="bg-zinc-900 border border-blue-900/30 text-[10px] text-blue-300 rounded p-1 cursor-pointer w-full"
+./components/CharacterSheetView.tsx:852:                    <label className="flex items-center justify-center gap-1 cursor-pointer" title="Equipado">
+./components/CharacterSheetView.tsx:857:                        className="accent-blue-500 cursor-pointer"
+./components/CharacterSheetView.tsx:865:                      className="text-blue-800 hover:text-red-500 cursor-pointer p-0.5"
+./components/MainNavigation.tsx:25:  return <nav className="w-full border-b border-blue-900/30 bg-zinc-950/60"><div className="mx-auto max-w-7xl px-2 md:px-4"><ul className="no-scrollbar -mb-px flex select-none items-center gap-1 overflow-x-auto scroll-smooth py-2">{tabs.map(tab=>{const Icon=tab.icon,isActive=activeTab===tab.id;return <li key={tab.id} className="shrink-0"><button onClick={()=>onTabChange(tab.id)} className={`flex min-h-[48px] cursor-pointer items-center gap-1.5 rounded border-2 px-3 py-2 font-serif text-xs font-semibold tracking-wider transition-all duration-200 ${isActive?'border-blue-500 bg-blue-950/30 font-bold text-blue-300 shadow-[0_0_10px_rgba(59,130,246,0.18)]':'border-transparent text-blue-700/80 hover:bg-blue-950/10 hover:text-blue-400'}`}><Icon className={`h-4 w-4 ${isActive?'text-blue-400':'text-blue-800'}`}/><span>{tab.label}</span></button></li>})}</ul></div></nav>;
+./components/Controls.tsx:21:            : 'cursor-pointer border-slate-700/80 bg-slate-950/55 text-slate-200 hover:border-blue-600 hover:bg-blue-950/20 hover:text-white active:scale-[0.99]'
+./components/SettingsView.tsx:3:import { getBrowserGeminiApiKey, hasGeminiApiKey, saveGeminiApiKey } from '../lib/apiKey';
+./components/SettingsView.tsx:29:  const [freeKey, setFreeKey] = useState(() => window.BraseiroAndroid ? '' : getBrowserGeminiApiKey('free'));
+./components/SettingsView.tsx:30:  const [paidKey, setPaidKey] = useState(() => window.BraseiroAndroid ? '' : getBrowserGeminiApiKey('paid'));
+./components/SettingsView.tsx:31:  const [freeConfigured, setFreeConfigured] = useState(() => hasGeminiApiKey('free'));
+./components/SettingsView.tsx:32:  const [paidConfigured, setPaidConfigured] = useState(() => hasGeminiApiKey('paid'));
+./components/SettingsView.tsx:69:            <span className="flex items-center gap-2 font-bold text-blue-200"><KeyRound className="h-4 w-4" /> Chaves Gemini</span>
+./components/SettingsView.tsx:70:            <p className="mt-1 text-xs leading-relaxed text-slate-400">O app tenta a gratuita primeiro. Só usa a paga depois de dois erros 429. No Android, as chaves ficam criptografadas e não são entregues à WebView.</p>
+./components/SettingsView.tsx:76:              if (freeKey.trim()) { saveGeminiApiKey('free', freeKey); setFreeConfigured(true); setFreeKey(''); }
+./components/SettingsView.tsx:77:              if (paidKey.trim()) { saveGeminiApiKey('paid', paidKey); setPaidConfigured(true); setPaidKey(''); }
+./components/GoogleDriveExplorer.tsx:330:            className="p-1 text-blue-700 hover:text-blue-300 rounded cursor-pointer transition-colors"
+./components/GoogleDriveExplorer.tsx:359:                  className="px-5 py-3 bg-blue-950/20 hover:bg-blue-600/20 border-2 border-blue-600 text-blue-400 font-bold hover:text-blue-100 uppercase tracking-widest font-serif text-xs rounded cursor-pointer transition-all flex items-center gap-2"
+./components/GoogleDriveExplorer.tsx:403:                    className="px-2 py-1 bg-zinc-900 border border-blue-950 hover:border-red-900/60 text-blue-700 hover:text-red-400 font-serif rounded cursor-pointer transition-colors"
+./components/GoogleDriveExplorer.tsx:415:                  className="p-1 hover:bg-blue-950/20 disabled:opacity-35 disabled:hover:bg-transparent rounded cursor-pointer shrink-0"
+./components/GoogleDriveExplorer.tsx:432:                        style={{ cursor: index === folderHistory.length - 1 ? 'default' : 'pointer' }}
+./components/GoogleDriveExplorer.tsx:479:                          className={`group py-3 px-2.5 flex items-center justify-between gap-3 text-xs transition-colors rounded hover:bg-blue-950/10 cursor-pointer ${
+./components/GoogleDriveExplorer.tsx:517:                                className="p-1.5 bg-zinc-900 border border-blue-950 hover:border-blue-900 text-blue-700 hover:text-blue-400 rounded cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+./components/GameView.tsx:22:  currentImage: string | null;
+./components/GameView.tsx:36:  onStartAdventure: () => void | Promise<void>;
+./components/GameView.tsx:37:  canStartAdventure: boolean;
+./components/GameView.tsx:96:  currentImage,
+./components/GameView.tsx:110:  onStartAdventure,
+./components/GameView.tsx:111:  canStartAdventure,
+./components/GameView.tsx:165:  const activeImage = isViewingHistory ? (history[selectedHistoryIndex!]?.imageData || null) : currentImage;
+./components/GameView.tsx:282:  const sendPromptToGemini = async () => {
+./components/GameView.tsx:291:        setImageShareMessage('Prompt enviado. Gere a imagem no Gemini e compartilhe-a para O Um Anel; ela será colocada automaticamente nesta cena.');
+./components/GameView.tsx:297:        setImageShareMessage('Prompt copiado. Abra o Gemini, gere a imagem e compartilhe-a para O Um Anel.');
+./components/GameView.tsx:331:      currentImage={currentImage}
+./components/GameView.tsx:368:              className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-zinc-950 font-bold text-[10px] uppercase font-serif rounded cursor-pointer transition-colors shadow-md shrink-0 animate-pulse"
+./components/GameView.tsx:417:          <div className="absolute top-2 left-2 w-3 h-3 border-l-2 border-t-2 border-blue-700/60 pointer-events-none"></div>
+./components/GameView.tsx:418:          <div className="absolute top-2 right-2 w-3 h-3 border-r-2 border-t-2 border-blue-700/60 pointer-events-none"></div>
+./components/GameView.tsx:472:                  <p className="mt-2 text-sm leading-relaxed text-slate-400">Escolha o estilo da crônica. A aventura só começa depois que a Companhia tiver um hex definido no Atlas.</p>
+./components/GameView.tsx:481:                  {!canStartAdventure && <p className="mt-4 rounded border border-amber-800/60 bg-amber-950/20 p-3 text-xs leading-relaxed text-amber-200">Defina primeiro a posição da Companhia no Atlas. O Mestre não inventará um hex inicial.</p>}
+./components/GameView.tsx:483:                    <button disabled={!canStartAdventure} onClick={() => void onStartAdventure()} className="flex items-center justify-center gap-2 rounded border border-cyan-600 bg-cyan-950/35 px-4 py-3 text-sm font-bold text-cyan-100 disabled:cursor-not-allowed disabled:opacity-35"><Compass className="h-4 w-4" /> Começar aventura</button>
+./components/GameView.tsx:484:                    {!canStartAdventure && <button type="button" onClick={() => document.getElementById('atlas-terra-media')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="flex items-center justify-center gap-2 rounded border border-amber-700 bg-amber-950/25 px-4 py-3 text-sm font-bold text-amber-100"><MapPin className="h-4 w-4" /> Abrir Atlas</button>}
+./components/GameView.tsx:644:                    <p className="mt-2">Nas cenas novas, o Mestre só prossegue depois de recuperar trechos do perfil O Um Anel 2e; consequências mecânicas sem evidência compatível são bloqueadas.</p>
+./components/GameView.tsx:672:                  className="text-blue-800 hover:text-blue-400 cursor-pointer"
+./components/GameView.tsx:707:                  className="px-4 py-1 bg-blue-950/20 border border-blue-900 hover:bg-blue-600/20 text-blue-400 font-bold text-[10px] uppercase font-serif rounded cursor-pointer"
+./components/GameView.tsx:734:            <summary className="cursor-pointer text-[9px] font-bold uppercase tracking-widest text-blue-600">
+./components/GameView.tsx:763:                  onClick={() => void sendPromptToGemini()}
+./components/GameView.tsx:767:                  <ExternalLink className="h-4 w-4" /> Abrir Gemini com prompt
+./components/GameView.tsx:778:                No Gemini, gere a imagem e use Compartilhar → O Um Anel. O app recebe a imagem e a liga automaticamente à cena atual.
+./components/GameView.tsx:802:                className={`text-[10px] px-3 py-1.5 rounded flex items-center gap-1.5 cursor-pointer border ${isAskDmMode ? 'bg-sky-950/60 text-sky-300 border-sky-700 shadow-md shadow-sky-900/30' : 'bg-blue-950/40 text-blue-500 border-blue-800'}`}
+./components/GameView.tsx:832:                  className="flex items-center gap-1.5 px-4 py-2 bg-blue-950/40 hover:bg-blue-600/30 border-2 border-blue-600/50 hover:border-blue-400 text-blue-300 hover:text-white font-bold uppercase font-serif rounded-md cursor-pointer tracking-wider text-[10px] disabled:opacity-30 disabled:pointer-events-none transition-all shadow-md hover:shadow-blue-900/40"
+./components/GameView.tsx:850:          currentHexId={masterState.position.currentHexId}
+./components/GameView.tsx:858:          <div className="absolute top-2 left-2 w-3.5 h-3.5 border-l-2 border-t-2 border-blue-800/45 pointer-events-none"></div>
+./components/GameView.tsx:878:                  className={`w-[180px] md:w-full shrink-0 text-left p-2.5 rounded border transition-all duration-300 cursor-pointer flex flex-col gap-1 relative overflow-hidden ${
+./components/GameView.tsx:886:                    <div className="absolute right-[-10px] bottom-[-10px] opacity-[0.06] pointer-events-none">
+./components/GameView.tsx:918:              className="mt-2 w-full py-2 bg-blue-950/20 hover:bg-blue-600/20 border border-blue-600 text-blue-400 hover:text-blue-100 rounded text-[10px] font-serif font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+./components/CombatTacticalView.tsx:252:          onPointerMove={event => { if (draggingId) { const token = event.currentTarget.querySelector<HTMLElement>(`[data-actor="${CSS.escape(draggingId)}"]`); const rect = event.currentTarget.getBoundingClientRect(); if (token) { token.style.left = `${Math.max(4, Math.min(96, (event.clientX - rect.left) / rect.width * 100))}%`; token.style.top = `${Math.max(6, Math.min(94, (event.clientY - rect.top) / rect.height * 100))}%`; } } }}
+./components/CombatTacticalView.tsx:253:          onPointerUp={event => { if (draggingId) { void moveActor(draggingId, event.clientX, event.clientY); setDraggingId(null); } }}
+./components/CombatTacticalView.tsx:254:          onPointerCancel={() => setDraggingId(null)}
+./components/CombatTacticalView.tsx:265:            return <div key={actor.actorId} data-actor={actor.actorId} onPointerDown={event => { if (!(event.target as HTMLElement).closest('button')) { event.preventDefault(); (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId); setDraggingId(actor.actorId); } }} className={`absolute -translate-x-1/2 -translate-y-1/2 select-none ${actor.defeated ? 'opacity-40 grayscale' : ''}`} style={{ left: `${position.x * 100}%`, top: `${position.y * 100}%`, touchAction: 'none', cursor: draggingId === actor.actorId ? 'grabbing' : 'grab' }}>
+./components/CombatTacticalView.tsx:267:                {token ? <img src={token} alt={name} draggable={false} className="h-full w-full rounded-full object-cover pointer-events-none" /> : <span className="flex h-full w-full items-center justify-center rounded-full bg-slate-900 font-serif text-3xl font-black text-slate-200">{name.slice(0, 1).toUpperCase()}</span>}
+./components/AdventureCastAndHexes.tsx:85:function mapPoint(point: { x: number; y: number }, bounds: { left: number; top: number; width: number; height: number }, width: number, height: number) {
+./components/AdventureCastAndHexes.tsx:87:    x: (point.x - bounds.left) / bounds.width * width,
+./components/AdventureCastAndHexes.tsx:88:    y: (point.y - bounds.top) / bounds.height * height,
+./components/AdventureCastAndHexes.tsx:99:  const points = polygon.map(point => mapPoint(point, bounds, width, height));
+./components/AdventureCastAndHexes.tsx:101:  ctx.moveTo(points[0].x, points[0].y);
+./components/AdventureCastAndHexes.tsx:102:  points.slice(1).forEach(point => ctx.lineTo(point.x, point.y));
+./components/AdventureCastAndHexes.tsx:184:            polygon: state.current.polygon.map(point => ({ x: point.x + vector.x, y: point.y + vector.y })),
+./components/AdventureCastAndHexes.tsx:189:      const allPoints = displayCells.flatMap(cell => cell.polygon);
+./components/AdventureCastAndHexes.tsx:190:      const minX = Math.min(...allPoints.map(point => point.x));
+./components/AdventureCastAndHexes.tsx:191:      const maxX = Math.max(...allPoints.map(point => point.x));
+./components/AdventureCastAndHexes.tsx:192:      const minY = Math.min(...allPoints.map(point => point.y));
+./components/AdventureCastAndHexes.tsx:193:      const maxY = Math.max(...allPoints.map(point => point.y));
+./components/AdventureCastAndHexes.tsx:226:      const center = mapPoint({ x: state.current.centerX, y: state.current.centerY }, bounds, cssWidth, cssHeight);
+./components/AdventureCastAndHexes.tsx:252:  const points = '0,-28 24,-14 24,14 0,28 -24,14 -24,-14';
+./components/AdventureCastAndHexes.tsx:261:            <polygon points={points} fill="#000" stroke="#b93434" strokeWidth="2" strokeDasharray="6 5" />
+./components/AdventureCastAndHexes.tsx:324:          discovery.currentHexId,
+./components/CampaignView.tsx:184:              O backup JSON abre o seletor nativo do Android e só confirma depois que o arquivo é realmente gravado.
+./components/EriadorMap.tsx:14:  findHexAtPoint,
+./components/EriadorMap.tsx:23:  MapPoint,
+./components/EriadorMap.tsx:30:import { identifyHex } from '../geminiService';
+./components/EriadorMap.tsx:33:import { loadImmersiveAssetManifest, normalizePoiAssetKey, resolvePoiAsset, resolvePoiAssetsForHex, type ImmersiveAssetManifest } from '../lib/immersiveAssets';
+./components/EriadorMap.tsx:46:  currentHexId?: string | null;
+./components/EriadorMap.tsx:109:    hex.poi || '',
+./components/EriadorMap.tsx:150:export const EriadorMap: React.FC<EriadorMapProps> = ({ currentLocation, campaignId, currentHexId, onPartyMoved, onDiscoveryChanged, onPartyRested, strongholds = [], immersive = false, partyMarkerMode = 'footprints', followParty = false }) => {
+./components/EriadorMap.tsx:155:  const pointers = useRef<Map<number, MapPoint>>(new Map());
+./components/EriadorMap.tsx:156:  const pointerStart = useRef<MapPoint | null>(null);
+./components/EriadorMap.tsx:204:    if (!discovery || !currentHexId || discovery.currentHexId === currentHexId) return;
+./components/EriadorMap.tsx:207:      currentHexId,
+./components/EriadorMap.tsx:208:      discoveredHexIds: Array.from(new Set([...discovery.discoveredHexIds, currentHexId])),
+./components/EriadorMap.tsx:209:      visitedHexIds: Array.from(new Set([...discovery.visitedHexIds, currentHexId])),
+./components/EriadorMap.tsx:210:      plannedRouteHexIds: discovery.plannedRouteHexIds?.[0] === currentHexId
+./components/EriadorMap.tsx:220:  }, [currentHexId, discovery?.currentHexId, onDiscoveryChanged]);
+./components/EriadorMap.tsx:257:        || discovery?.currentHexId === hexId,
+./components/EriadorMap.tsx:269:        || discovery?.currentHexId === hex.id;
+./components/EriadorMap.tsx:271:      const currentLocationAlias = discovery?.currentHexId === hex.id ? normalizeSearchText(currentLocation) : '';
+./components/EriadorMap.tsx:298:    const point = location.representativePoint;
+./components/EriadorMap.tsx:300:    if (!point && !hex) {
+./components/EriadorMap.tsx:304:    const targetX = point?.[0] ?? hex!.centerX;
+./components/EriadorMap.tsx:305:    const targetY = point?.[1] ?? hex!.centerY;
+./components/EriadorMap.tsx:313:    setSelected(hex || findHexAtPoint(manifest, { x: targetX, y: targetY }));
+./components/EriadorMap.tsx:402:          if (!savedDiscovery.currentHexId || !validIds.has(savedDiscovery.currentHexId)) {
+./components/EriadorMap.tsx:404:            savedDiscovery.currentHexId = validRoute.at(-1) || validVisited.at(-1) || validDiscovered.at(-1) || null;
+./components/EriadorMap.tsx:424:  const polygonPath = (ctx: CanvasRenderingContext2D, polygon: MapPoint[]) => {
+./components/EriadorMap.tsx:427:    polygon.slice(1).forEach(point => ctx.lineTo(point.x, point.y));
+./components/EriadorMap.tsx:431:  const toMapPoint = useCallback((clientX: number, clientY: number): MapPoint => {
+./components/EriadorMap.tsx:504:      if (discovery.currentHexId) revealed.add(discovery.currentHexId);
+./components/EriadorMap.tsx:511:        hex.polygon.slice(1).forEach(point => ctx.lineTo(point.x, point.y));
+./components/EriadorMap.tsx:617:      const planned = [discovery.currentHexId, ...plannedIds]
+./components/EriadorMap.tsx:684:    if (partyMarkerMode === 'footprints' && discovery?.currentHexId) {
+./components/EriadorMap.tsx:685:      const current = byId.get(discovery.currentHexId);
+./components/EriadorMap.tsx:734:    if (selectedLocation?.representativePoint) {
+./components/EriadorMap.tsx:735:      const [mapX, mapY] = selectedLocation.representativePoint;
+./components/EriadorMap.tsx:779:    const point = toMapPoint(clientX, clientY);
+./components/EriadorMap.tsx:780:    if (point.x < 0 || point.y < 0 || point.x > size.width || point.y > size.height) return;
+./components/EriadorMap.tsx:782:    const hex = findHexAtPoint(manifest, point);
+./components/EriadorMap.tsx:793:  const pointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
+./components/EriadorMap.tsx:794:    if (event.pointerType === 'mouse' && event.button !== 0) return;
+./components/EriadorMap.tsx:795:    event.currentTarget.setPointerCapture(event.pointerId);
+./components/EriadorMap.tsx:796:    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+./components/EriadorMap.tsx:797:    pointerStart.current = { x: event.clientX, y: event.clientY };
+./components/EriadorMap.tsx:798:    if (pointers.current.size > 1) wasGesture.current = true;
+./components/EriadorMap.tsx:802:  const pointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
+./components/EriadorMap.tsx:803:    const previous = pointers.current.get(event.pointerId);
+./components/EriadorMap.tsx:805:    const before: MapPoint[] = Array.from(pointers.current.values());
+./components/EriadorMap.tsx:806:    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+./components/EriadorMap.tsx:807:    const after: MapPoint[] = Array.from(pointers.current.values());
+./components/EriadorMap.tsx:821:  const pointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
+./components/EriadorMap.tsx:822:    const start = pointerStart.current;
+./components/EriadorMap.tsx:824:    pointers.current.delete(event.pointerId);
+./components/EriadorMap.tsx:826:    if (!pointers.current.size) {
+./components/EriadorMap.tsx:827:      wasGesture.current = false; pointerStart.current = null;
+./components/EriadorMap.tsx:828:      if (followParty && discovery?.currentHexId) centerOnHex(discovery.currentHexId);
+./components/EriadorMap.tsx:898:    if (!selected || !discovery?.currentHexId) {
+./components/EriadorMap.tsx:902:    const route = findPlannedRoute(discovery.currentHexId, selected.id);
+./components/EriadorMap.tsx:904:      setError(selected.id === discovery.currentHexId ? 'A Companhia já está neste hex.' : 'Não foi encontrada uma rota jogável até o hex selecionado.');
+./components/EriadorMap.tsx:924:      setError('O descanso deve ser resolvido pelo Mestre Virtual, pois Fadiga pertence às fichas dos Heróis.');
+./components/EriadorMap.tsx:938:    const current = discovery.currentHexId ? byId.get(discovery.currentHexId) : null;
+./components/EriadorMap.tsx:981:      currentHexId: selected.id,
+./components/EriadorMap.tsx:1061:      if (result.terrain || result.name || result.poi) {
+./components/EriadorMap.tsx:1069:        if (result.poi) nextHex.poi = result.poi;
+./components/EriadorMap.tsx:1086:        if (result.poi) msg += ` [POI: ${result.poi}]`;
+./components/EriadorMap.tsx:1120:    if (manifest && discovery?.currentHexId && size.width > 0 && !hasInitialCentered.current) {
+./components/EriadorMap.tsx:1123:        centerOnHex(discovery.currentHexId!, 0.7);
+./components/EriadorMap.tsx:1128:  }, [manifest, discovery?.currentHexId, size.width, centerOnHex]);
+./components/EriadorMap.tsx:1131:    if (!followParty || !manifest || !discovery?.currentHexId || size.width <= 0) return;
+./components/EriadorMap.tsx:1132:    const timer = window.setTimeout(() => centerOnHex(discovery.currentHexId!), 60);
+./components/EriadorMap.tsx:1134:  }, [followParty, manifest, discovery?.currentHexId, size.width, centerOnHex]);
+./components/EriadorMap.tsx:1174:        currentHexId: savedDiscovery.currentHexId && validIds.has(savedDiscovery.currentHexId) ? savedDiscovery.currentHexId : null,
+./components/EriadorMap.tsx:1199:  const currentPoiPresentation = useMemo(() => {
+./components/EriadorMap.tsx:1200:    if (!immersive || !discovery?.currentHexId) return null;
+./components/EriadorMap.tsx:1201:    const hex = byId.get(discovery.currentHexId);
+./components/EriadorMap.tsx:1203:    const locationKey = normalizePoiAssetKey(currentLocation);
+./components/EriadorMap.tsx:1204:    const asset = resolvePoiAsset(immersiveAssets, locationKey) || resolvePoiAssetsForHex(immersiveAssets, discovery.currentHexId)[0] || null;
+./components/EriadorMap.tsx:1211:  }, [immersive, discovery?.currentHexId, byId, immersiveAssets, currentLocation, camera.x, camera.y, camera.scale]);
+./components/EriadorMap.tsx:1279:                              {location ? location.name : (hex!.name || hex!.poi || shortHexLabel(hex!))}
+./components/EriadorMap.tsx:1350:          onPointerDown={pointerDown}
+./components/EriadorMap.tsx:1351:          onPointerMove={pointerMove}
+./components/EriadorMap.tsx:1352:          onPointerUp={pointerUp}
+./components/EriadorMap.tsx:1353:          onPointerCancel={pointerUp}
+./components/EriadorMap.tsx:1356:        {immersive && currentPoiPresentation && (
+./components/EriadorMap.tsx:1358:            src={currentPoiPresentation.asset}
+./components/EriadorMap.tsx:1361:            className="pointer-events-none absolute z-[12] max-h-[30vh] w-[min(48vw,250px)] select-none object-contain opacity-[0.86]"
+./components/EriadorMap.tsx:1363:              left: currentPoiPresentation.left,
+./components/EriadorMap.tsx:1364:              top: currentPoiPresentation.top,
+./components/EriadorMap.tsx:1375:          {discovery?.currentHexId && (
+./components/EriadorMap.tsx:1377:              onClick={() => centerOnHex(discovery.currentHexId!)} 
+./components/EriadorMap.tsx:1398:              {discovery?.currentHexId === selected.id && (
+./components/EriadorMap.tsx:1405:              {selected.poi && <div className="text-[9px] italic text-blue-500/80 mt-0.5">POI: {selected.poi}</div>}
+./components/EriadorMap.tsx:1474:                  {discovery?.currentHexId ? 'Mover aqui' : 'Posicionar'}
+./components/EriadorMap.tsx:1479:                  disabled={!discovery?.currentHexId || discovery.currentHexId === selected.id}
+./components/SoundLibraryView.tsx:259:          <label className="mt-4 flex cursor-pointer items-center justify-center gap-2 rounded border border-blue-500 bg-blue-950/50 px-4 py-3 font-bold text-blue-100">
+./components/ThemeSelector.tsx:14:        className="p-1.5 bg-blue-950/30 hover:bg-blue-900/25 border border-blue-900/40 rounded text-blue-300 hover:text-blue-100 cursor-pointer transition-colors"
+./components/ThemeSelector.tsx:33:                className={`border rounded p-4 ${isSelected ? 'border-blue-500 bg-blue-950/20' : 'border-blue-900 bg-zinc-950'} cursor-pointer hover:border-blue-500`}
+./components/SceneVisualizer.tsx:8:      <div className="pointer-events-none absolute inset-0 z-20 bg-[linear-gradient(rgba(217,119,6,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(217,119,6,0.02)_1px,transparent_1px)] bg-[size:16px_16px]" />
+./components/SceneVisualizer.tsx:12:      <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-transparent to-black/35"/>
+./components/OrganizationsView.tsx:66:    await onApplyCommands([{ type: 'upsert_stronghold', stronghold: { id: uid('stronghold'), name, locationId: masterState.position.locationName, hexId: masterState.position.currentHexId, ownerOrganizationId: owner, ownerKind: owner ? 'organization' : 'unclaimed', status: 'discovered', knownToCompany: true, autoGenerated: false, facilities, defenders: Number(prompt('Defensores', '0')) || 0, supplies: Number(prompt('Suprimentos', '0')) || 0, treasure: Number(prompt('Tesouro', '0')) || 0, threats: (prompt('Ameaças separadas por vírgulas', '') || '').split(',').map(value => value.trim()).filter(Boolean), projects: [], loot: [], ownershipHistory: [], updatedAt: Date.now() }, reason: 'Criar local persistente da crônica. O estoque mundano é distribuído pelo gerador local conforme instalações e ocupantes.' }], 'criar refúgio ou fortaleza');
+./components/CompanyManager.tsx:45:      <summary className="cursor-pointer list-none text-xs font-bold uppercase tracking-wider text-blue-300">
