@@ -28,6 +28,7 @@ jobs:
         name: Checkout braseirobuild
 
       - name: Download exact R5.45 source parts
+        id: download
         shell: bash
         run: |
           set -euo pipefail
@@ -183,6 +184,7 @@ jobs:
           echo "ANDROID_ROOT=$ROOT"
 
       - name: Run R5.45 runtime gates
+        id: runtime
         shell: bash
         env:
           ROOT: ${{ steps.android.outputs.root }}
@@ -221,6 +223,7 @@ jobs:
         name: Configure Gradle cache
 
       - name: Gradle project and resource checks
+        id: gradle_checks
         working-directory: ${{ steps.android.outputs.root }}
         shell: bash
         run: |
@@ -230,6 +233,7 @@ jobs:
           ./gradlew :app:processDebugMainManifest :app:processDebugResources --stacktrace --no-daemon
 
       - name: Compile and build debug APK
+        id: compile
         working-directory: ${{ steps.android.outputs.root }}
         shell: bash
         run: |
@@ -260,6 +264,7 @@ jobs:
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
 
       - name: Upload GitHub Actions artifact
+        id: artifact
         uses: actions/upload-artifact@v4
         with:
           name: cyberpunk-red-r5.45-apk
@@ -298,3 +303,42 @@ jobs:
           echo "- Version: 4.0.5 (4005)" >> "$GITHUB_STEP_SUMMARY"
           echo "- APK: ${{ steps.apk.outputs.name }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Release: ${{ steps.release.outputs.release_url }}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Record verifiable build status
+        if: always()
+        shell: bash
+        env:
+          DOWNLOAD: ${{ steps.download.outcome }}
+          EXTRACT: ${{ steps.android.outcome }}
+          RUNTIME: ${{ steps.runtime.outcome }}
+          GRADLE_CHECKS: ${{ steps.gradle_checks.outcome }}
+          COMPILE: ${{ steps.compile.outcome }}
+          APK: ${{ steps.apk.outcome }}
+          ARTIFACT: ${{ steps.artifact.outcome }}
+          RELEASE: ${{ steps.release.outcome }}
+        run: |
+          set -euo pipefail
+          git fetch origin cyberpunk-r5-45-build
+          git checkout -B cyberpunk-r5-45-build origin/cyberpunk-r5-45-build
+          mkdir -p cyberpunk-red
+          STATUS="cyberpunk-red/r5.45-build-status-${GITHUB_RUN_ID}.txt"
+          {
+            echo "RUN_ID=$GITHUB_RUN_ID"
+            echo "RUN_ATTEMPT=$GITHUB_RUN_ATTEMPT"
+            echo "COMMIT=$GITHUB_SHA"
+            echo "JOB_STATUS=${{ job.status }}"
+            echo "DOWNLOAD=$DOWNLOAD"
+            echo "EXTRACT=$EXTRACT"
+            echo "RUNTIME=$RUNTIME"
+            echo "GRADLE_CHECKS=$GRADLE_CHECKS"
+            echo "COMPILE=$COMPILE"
+            echo "APK=$APK"
+            echo "ARTIFACT=$ARTIFACT"
+            echo "RELEASE=$RELEASE"
+            if [ -f out/BRASEIRO-CYBERPUNK-RED-R5.45-DEBUG.apk.sha256 ]; then cat out/BRASEIRO-CYBERPUNK-RED-R5.45-DEBUG.apk.sha256; fi
+          } > "$STATUS"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$STATUS"
+          git commit -m "build(cyberpunk): record R5.45 run $GITHUB_RUN_ID" || exit 0
+          git push origin HEAD:cyberpunk-r5-45-build
