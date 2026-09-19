@@ -1,0 +1,106 @@
+name: DnD 6.6.2 RUN109 Release Publisher
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-dnd-run109.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TAG: 'DND-6.6.2-RUN109'
+  ASSET_NAME: 'BRASEIRO_DND_6.6.2_RUN109_STARTUP_ANR_HOTFIX_PATCH.zip'
+  EXPECTED_SHA256: '317894b07717f9180f5724896b1c34187c1e80fafda78b5278c326ff9b0291cf'
+  SHARE_URL: 'https://firestorage.ai/ja/f/-ixtpPOskWLY'
+  SHARE_ID: '-ixtpPOskWLY'
+  PUBLIC_ID: 'LnDd9nglgCDjt8Vq'
+  FILE_ID: '01a0b8da565674c698bc9d2144257d92'
+  SUBDIR: 'QNEKXz'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve temporary transfer URL
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out probe
+          try_url() {
+            local u="$1" n="$2"
+            echo "TRY $u"
+            if curl -fL --retry 2 --connect-timeout 15 --max-time 60 "$u" -o "probe/$n" 2>"probe/$n.curl.log"; then
+              if unzip -t "probe/$n" >/dev/null 2>&1; then
+                cp "probe/$n" "out/$ASSET_NAME"
+                echo "RESOLVED_URL=$u" >> "$GITHUB_ENV"
+                return 0
+              fi
+            fi
+            return 1
+          }
+
+          try_url "$SHARE_URL" direct && exit 0 || true
+
+          curl -fL --retry 2 "$SHARE_URL" -o probe/page.html || true
+          python3 - <<'PY' > probe/candidates.txt
+          import re, html
+          from pathlib import Path
+          s=Path('probe/page.html').read_text('utf-8',errors='ignore') if Path('probe/page.html').exists() else ''
+          vals=[]
+          for pat in [r'https?://[^"\'<> ]+', r'href=["\']([^"\']+)["\']', r'src=["\']([^"\']+)["\']']:
+              for m in re.finditer(pat,s):
+                  v=m.group(1) if m.lastindex else m.group(0)
+                  v=html.unescape(v)
+                  if any(k in v.lower() for k in ['download','zip','file','api']):
+                      vals.append(v)
+          seen=set()
+          for v in vals:
+              if v.startswith('/'):
+                  v='https://firestorage.ai'+v
+              if v not in seen:
+                  seen.add(v); print(v)
+          PY
+
+          i=0
+          while IFS= read -r u; do
+            i=$((i+1))
+            try_url "$u" "candidate_$i" && exit 0 || true
+          done < probe/candidates.txt
+
+          for u in             "https://firestorage.ai/api/public/shares/$SHARE_ID/download"             "https://firestorage.ai/api/shares/$SHARE_ID/download"             "https://firestorage.ai/api/share/$SHARE_ID/download"             "https://firestorage.ai/api/public/files/$FILE_ID/download"             "https://firestorage.ai/api/files/$FILE_ID/download"             "https://firestorage.ai/api/download/$FILE_ID"             "https://firestorage.ai/api/public/files/$PUBLIC_ID/download"             "https://firestorage.ai/api/files/$PUBLIC_ID/download"             "https://firestorage.ai/download/$SHARE_ID/$SUBDIR/$FILE_ID"             "https://firestorage.ai/f/$SHARE_ID/download/$FILE_ID"
+          do
+            i=$((i+1))
+            try_url "$u" "guess_$i" && exit 0 || true
+          done
+
+          echo '::error::Could not resolve temporary transfer to a ZIP.'
+          echo '--- page headers/body type ---'
+          file probe/page.html || true
+          head -c 2000 probe/page.html || true
+          exit 1
+
+      - name: Validate asset
+        shell: bash
+        run: |
+          set -euo pipefail
+          unzip -t "out/$ASSET_NAME" >/dev/null
+          ACTUAL="$(sha256sum "out/$ASSET_NAME" | awk '{print $1}')"
+          test "$ACTUAL" = "$EXPECTED_SHA256"
+          printf '%s  %s\n' "$ACTUAL" "$ASSET_NAME" > "out/$ASSET_NAME.sha256"
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          NOTES='Braseiro DnD 6.6.2 RUN109. Hotfix de ANR no início da aventura: preflight/Atlas/contexto pesado removidos da UI thread. Inclui as correções cumulativas RUN105–RUN108. Package Android: com.braseiro.dnd5e. Regressão autoritativa local: 78/78 PASS. O build físico no aparelho continua sendo o gate final.'
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target main --title 'Braseiro DnD 6.6.2 RUN109 — Startup ANR Hotfix' --notes "$NOTES"
+          gh release upload "$TAG" "out/$ASSET_NAME" "out/$ASSET_NAME.sha256" --clobber
+          gh release view "$TAG" --json url,tagName,name,assets
