@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
       - name: Download source
         env:
           GH_TOKEN: ${{ github.token }}
@@ -23,7 +22,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p incoming work
-          gh release download OUA-v4.9.4 --pattern 'OUA_4.9.4_VISUAL_FIX_ANDROID_STUDIO.zip' --dir incoming
+          gh release download OUA-v4.9.4 -R bra83/braseirobuild --pattern 'OUA_4.9.4_VISUAL_FIX_ANDROID_STUDIO.zip' --dir incoming
           unzip -q incoming/OUA_4.9.4_VISUAL_FIX_ANDROID_STUDIO.zip -d work
           ROOT="$(dirname "$(find work -maxdepth 3 -type f -name package.json | head -n1)")"
           test -n "$ROOT"
@@ -45,7 +44,7 @@ jobs:
           grep -RniE --include='*.ts' --include='*.tsx' --include='*.kt' --include='*.java' \
             'gemini|modelName|selectedModel|apiKey|Começar aventura|Comecar aventura|reiniciar crônica|reiniciar cronica|startAdventure|startCampaign|restartChron|newCampaign' "$ROOT" \
             | grep -vE '/node_modules/|/dist/|/android/app/src/main/assets/' \
-            | head -n 1200 || true
+            | head -n 1600 || true
       - name: Current image and illustration flow
         shell: bash
         run: |
@@ -54,7 +53,7 @@ jobs:
           grep -RniE --include='*.ts' --include='*.tsx' \
             'currentImage|locationImage|sceneImage|poi.*image|image.*poi|backgroundImage|opacity|resolve.*Image|currentNode' "$ROOT" \
             | grep -vE '/node_modules/|/dist/|/android/app/src/main/assets/' \
-            | head -n 1200 || true
+            | head -n 1600 || true
       - name: Dump key files
         shell: bash
         run: |
@@ -70,6 +69,6 @@ jobs:
             App.tsx; do
             if [ -f "$ROOT/$f" ]; then
               echo "===== FILE: $f ====="
-              sed -n '1,260p' "$ROOT/$f"
+              sed -n '1,420p' "$ROOT/$f"
             fi
           done
