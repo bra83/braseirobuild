@@ -1,0 +1,164 @@
+name: Build Braseiro Fichas 1.1.1 Baseline 1.0.5
+on:
+  push:
+    branches: [fichas-final-20260916]
+    paths:
+      - ".github/workflows/build-fichas-111-baseline105.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      SOURCE_URL: "https://firestorage.ai/ja/f/MjEGdbeiEQvk"
+      SOURCE_SHA256: "641e33c63454b0580c64b578f47cd9610b2215cd100dfd58f24e208a2c849228"
+      SOURCE_NAME: "BRASEIRO_FICHAS_MULTISSISTEMA_ANDROID_STUDIO_TRAVELLER_FIX_1.0.5_2026-09-17.zip"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fichas-final-20260916
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Prepare Playwright
+        shell: bash
+        run: |
+          set -euo pipefail
+          BROWSER_DIR="$RUNNER_TEMP/firestorage-browser"
+          mkdir -p "$BROWSER_DIR"
+          cd "$BROWSER_DIR"
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+          echo "BROWSER_DIR=$BROWSER_DIR" >> "$GITHUB_ENV"
+      - name: Download exact 1.0.5 source baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/download-firestorage.cjs" <<'JS'
+          const path = require('path');
+          const { chromium } = require(path.join(process.env.BROWSER_DIR, 'node_modules', 'playwright'));
+          (async () => {
+            const out = path.join(process.env.RUNNER_TEMP, process.env.SOURCE_NAME);
+            const browser = await chromium.launch({headless:true});
+            const context = await browser.newContext({acceptDownloads:true});
+            const page = await context.newPage();
+            await page.goto(process.env.SOURCE_URL, {waitUntil:'domcontentloaded', timeout:60000});
+            await page.waitForTimeout(7000);
+            const rx=/\u30c0\u30a6\u30f3\u30ed\u30fc\u30c9|download/i;
+            const controls = [
+              page.getByRole('button', {name:rx}),
+              page.getByRole('link', {name:rx}),
+              page.locator('button').filter({hasText:rx}),
+              page.locator('a').filter({hasText:rx})
+            ];
+            let saved=false;
+            for (const loc of controls) {
+              for (let i=0;i<await loc.count() && !saved;i++) {
+                const el=loc.nth(i);
+                if (!(await el.isVisible().catch(()=>false))) continue;
+                const p=page.waitForEvent('download',{timeout:30000}).catch(()=>null);
+                await el.click({timeout:15000}).catch(()=>el.click({force:true,timeout:10000}));
+                const d=await p;
+                if (d) { await d.saveAs(out); saved=true; }
+              }
+              if (saved) break;
+            }
+            await browser.close();
+            if (!saved) throw new Error('Source download not captured');
+          })().catch(e=>{console.error(e);process.exit(2)});
+          JS
+          node "$RUNNER_TEMP/download-firestorage.cjs"
+          ZIP="$RUNNER_TEMP/$SOURCE_NAME"
+          echo "$SOURCE_SHA256  $ZIP" | sha256sum -c -
+      - name: Extract baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/fichas-111"
+          mkdir -p "$WORK"
+          unzip -q "$RUNNER_TEMP/$SOURCE_NAME" -d "$WORK"
+          GRADLEW="$(find "$WORK" -type f -name gradlew -print -quit)"
+          ROOT="$(dirname "$GRADLEW")"
+          echo "ANDROID_PROJECT_ROOT=$ROOT" >> "$GITHUB_ENV"
+          test -s "$ROOT/app/src/main/assets/www/launcher-data.css"
+          test -s "$ROOT/app/src/main/res/drawable/ic_launcher.xml"
+          sha256sum "$ROOT/app/src/main/res/drawable/ic_launcher.xml" | awk '{print $1}' > "$RUNNER_TEMP/icon-before.sha"
+      - name: Overlay mapped-import changes only
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$GITHUB_WORKSPACE/android/fichas-multissistema/app/src/main/assets/www"
+          DST="$ANDROID_PROJECT_ROOT/app/src/main/assets/www"
+          cp "$SRC/import-adapters.js" "$DST/import-adapters.js"
+          cp "$SRC/app.js" "$DST/app.js"
+          cp "$SRC/systems-data.js" "$DST/systems-data.js"
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          p=Path(os.environ["ANDROID_PROJECT_ROOT"])/"app/src/main/assets/www/index.html"
+          s=p.read_text(encoding="utf-8")
+          needle='<script src="systems-data.js"></script><script src="rules-engine.js"></script><script src="app.js"></script>'
+          repl='<script src="systems-data.js"></script><script src="rules-engine.js"></script><script src="import-adapters.js"></script><script src="app.js"></script>'
+          if 'import-adapters.js' not in s:
+              if needle not in s: raise SystemExit("index script anchor not found")
+              s=s.replace(needle,repl)
+          p.write_text(s,encoding="utf-8")
+          PY
+          cp "$GITHUB_WORKSPACE/android/fichas-multissistema/import-adapters.contract.test.mjs" "$ANDROID_PROJECT_ROOT/import-adapters.contract.test.mjs"
+          test -s "$DST/launcher-data.css"
+          test "$(sha256sum "$ANDROID_PROJECT_ROOT/app/src/main/res/drawable/ic_launcher.xml" | awk '{print $1}')" = "$(cat "$RUNNER_TEMP/icon-before.sha")"
+      - name: Set version 1.1.1
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os,re
+          root=Path(os.environ["ANDROID_PROJECT_ROOT"])
+          p=root/"app/build.gradle.kts"
+          s=p.read_text()
+          s=re.sub(r'versionCode\s*=\s*\d+', 'versionCode = 7'', s)
+          s=re.sub(r'versionName\s*=\s*"[^"]+"', 'versionName = "1.1.1"', s)
+          p.write_text(s)
+          PY
+      - name: Validate
+        working-directory: ${{ env.ANDROID_PROJECT_ROOT }}
+        run: |
+          set -euo pipefail
+          node --check app/src/main/assets/www/import-adapters.js
+          node --check app/src/main/assets/www/app.js
+          node --check app/src/main/assets/www/systems-data.js
+          node --test tests/*.test.js
+          node --test import-adapters.contract.test.mjs
+      - name: Launcher smoke
+        shell: bash
+        run: |
+          cat > "$RUNNER_TEMP/launcher-smoke.cjs" <<'JS'
+          const path=require('path');
+          const {pathToFileURL}=require('url');
+         ÛÛÝØÚÛZ][_O\\]Z\J]Ú[ØÙ\ÜË[ÕÔÑTÑT	ÛÙWÛ[Ù[\ÉË	Ü^]ÜYÚ	ÊJNÂ
+\Þ[Ê
+OOÂÛÛÝÝÜÙ\X]ØZ]ÚÛZ][K][Ú
+ÚXY\ÜÎY_JNÂÛÛÝYÙOX]ØZ]ÝÜÙ\]ÔYÙJÝY]ÜÜÝÚYMKZYÚLM__JNÂÛÛÝ\ÜÏV×NÈYÙKÛ	ÜYÙY\ÜËOO\ÜË\Ú
+Ý[ÊJJJNÂÛÛÝ\\]Ñ[UT
+]Ú[ØÙ\ÜË[SÒQÔÒPÕÔÓÕ	Ø\ÜÜËÛXZ[Ø\ÜÙ]ËÝÝÝËÚ[^[	ÊJKYÂ]ØZ]YÙKÛÝÊ\ÝØZ][[ÛØY	Ë[Y[Ý]ÌJNÈ]ØZ]YÙKØZ]Ü[Y[Ý]
+L
+NÂÛÛÝX]ØZ]YÙK][X]J
+
+OOØÛÛÝÏYØÝ[Y[]Y\TÙ[XÝÜ	Ë][Ú\XØ[\ÉÊKXËÙ]Ý[[ÐÛY[XÝ
+
+NÜ]\ÛNØÝ[Y[ÙKÛ\ÜÓ\ÝÛÛZ[Ê	Û][Ú\[[ÙIÊKØÝ[Y[]Y\TÙ[XÝÜ	ÈÛ][Ú\ÊKÛ\ÜÓ\ÝÛÛZ[Ê	ÚY[ÊKÙ]ÛÛ\]YÝ[JÊKXÚÙÜÝ[[XYÙKÎØÝ[Y[]Y\TÙ[XÝÜ[
+	ËË\Ý\	ÊK[ÝÎÚYZYÚ_JNÂÛÛÛÛKÙÊNÈY\ÜË[Ý\_ÏÍLÌ
+OOIÛÛIÉÏOOL
+JHÝÈ]È\Ü	Û][Ú\Û[ÚÙHZ[Y	ÊÙ\ÜËÚ[	ß	ÊJNÂ]ØZ]ÝÜÙ\ÛÜÙJ
+NÂJJ
+KØ]Ú
+OOØÛÛÛÛK\ÜJNÜØÙ\ÜË^]
+Ê_JNÂÂÙHSTÕSTÛ][Ú\\Û[ÚÙKÚÈH[YNÛÛYÝ\H[ÚYÑÂÚ[\Ú[Ñ×ÔÓÕHÐSÒQÔÑ×ÔÓÕKÝ\ÜÛØØ[ÛXØ[ÚYÜÙßHÑÓPSQÑTHÑ×ÔÓÕØÛY[K]ÛÛËÛ]\ÝØ[ÜÙÛX[YÙ\XÚÈSÒQÒÓQOIÑ×ÔÓÕÒUPÑSY\ÈÑÓPSQÑTK[XÙ[Ù\ÈÙ]Û[YBÑÓPSQÑT]ÜK]ÛÛÈ]Ü\ÎØ[ÚYLÍHZ[]ÛÛÎÌÍKH[YNZ[TÂÛÜÚ[ËY\XÝÜN	ÞÈ[SÒQÔÒPÕÔÓÕ_B[Ú[Ù
+ÞÜY]ÂÙÜY]ÈÛX[\\ÜÙ[XQXYÈK\ÝXÚÝXÙHK[ËYY[[ÛH[YNX\ÚÚ[\Ú[Ù]Y][È\YZ[TÏH
+[SÒQÔÒPÕÔÓÕØ\ØZ[ÛÝ]]ËØ\ËÙXYÈ]\H[[YH	Ê\ÉÈ\[\]Z]
+HÕUHÒUPÕÓÔÔÔPÑKÙ[]\X\ËÙXÚ\ËY[[LLMSQOHTÑRT×ÑPÒT×ÓUSTÔÒTÕSPKLKKKX\Ù[[LLK[X\YYXYË\ÈZÙ\\ÕUSÒQÒÓQKØZ[]ÛÛËÌÍKØX\[\YÚ[ÈTÈYHÕUØX\LKKKÜ\\H\Ú[ÛÛÙOIÍÉÈ\Ú[Û[YOIÌKKIÈÕUØX\LKKKÜ\\H\XØ][ÛZXÛÛKX×Û][Ú\[ÕUØX\LKKKSÒQÒÓQKØZ[]ÛÛËÌÍKØ\ÜÚYÛ\\YHK]\ÜÙHTÈÜTÈÕUÉSQHÚLMÝ[HÕUÉSQHÕUÉSQKÚLM[\Ù[[N^XÝKHÛÝ\ÙHT][Ú\\\Ù\Y][Ú\XÛÛ\Ù\Y]KYÜX]WÕUÐRSÌKKWÐTÑSSLLKÚ]ÛÛYÈ\Ù\[YHÚ]XXXÝ[ÛÖØÝHÚ]ÛÛYÈ\Ù\[XZ[NNÙÚ]XXXÝ[ÛÖØÝP\Ù\ËÜ\KÚ]XÛÛHÚ]YYÕUÚ]ÛÛ[Z][HZ[X\Ú\ÙZ\ÈXÚ\ÈKKH\Ù[[HKHX\YÚ]\ÚÜYÚ[PQXÚ\ËY[[LLM
