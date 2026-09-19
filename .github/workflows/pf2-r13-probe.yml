@@ -20,15 +20,27 @@ jobs:
       - name: Fetch firestorage client chunk
         shell: bash
         run: |
-          set -euxo pipefail
+          set +e
           mkdir -p ci/pf2-r13
-          curl -L --fail --retry 3 -A 'Mozilla/5.0'             'https://firestorage.ai/_next/static/chunks/app/%28files%29/ja/f/page-4d19ae0a4ce39d79.js'             -o ci/pf2-r13/firestorage-page.js
-          wc -c ci/pf2-r13/firestorage-page.js
-          grep -Eo 'https?://[^" ]+|/[A-Za-z0-9_?=&./:-]*(api|download|share|file)[A-Za-z0-9_?=&./:-]*' ci/pf2-r13/firestorage-page.js             | sort -u > ci/pf2-r13/firestorage-endpoints.txt || true
+          URL='https://firestorage.ai/_next/static/chunks/app/(files)/ja/f/page-4d19ae0a4ce39d79.js'
+          {
+            echo "URL=$URL"
+            curl -L -v --retry 2 -A 'Mozilla/5.0' "$URL" -o ci/pf2-r13/firestorage-page.js
+            echo "CURL_RC=$?"
+            test -f ci/pf2-r13/firestorage-page.js && wc -c ci/pf2-r13/firestorage-page.js
+          } > ci/pf2-r13/firestorage-curl.log 2>&1
+          if [ -f ci/pf2-r13/firestorage-page.js ]; then
+            grep -Eo 'https?://[^" ]+|/[A-Za-z0-9_?=&./:-]*(api|download|share|file)[A-Za-z0-9_?=&./:-]*' ci/pf2-r13/firestorage-page.js               | sort -u > ci/pf2-r13/firestorage-endpoints.txt || true
+          else
+            echo "NO_PAGE_JS" > ci/pf2-r13/firestorage-endpoints.txt
+          fi
+          exit 0
       - name: Commit probe
+        if: always()
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add ci/pf2-r13/firestorage-page.js ci/pf2-r13/firestorage-endpoints.txt
-          git commit -m 'ci: capture firestorage client endpoint' || exit 0
+          git add ci/pf2-r13/firestorage-curl.log ci/pf2-r13/firestorage-endpoints.txt
+          test -f ci/pf2-r13/firestorage-page.js && git add ci/pf2-r13/firestorage-page.js || true
+          git commit -m 'ci: capture firestorage endpoint diagnostics' || exit 0
           git push origin HEAD:main
