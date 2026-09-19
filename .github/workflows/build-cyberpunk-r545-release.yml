@@ -21,6 +21,8 @@ env:
   CPRED_SOURCE_SHA256: "6fc7249c1be82a2e2af483d2c03343629ec65a91d8209ae4dd2ccaf54d71a34d"
   CPRED_SOURCE_NAME: "CYBERPUNK_RED_R5_45_DEVICE_RUNTIME_FIX_CHECKPOINT.zip"
   RELEASE_TAG: "cyberpunk-red-r5.45-device-runtime-fix"
+  ANDROID_HOME: "/usr/local/lib/android/sdk"
+  ANDROID_SDK_ROOT: "/usr/local/lib/android/sdk"
 
 jobs:
   build:
@@ -157,9 +159,6 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-
-      - uses: android-actions/setup-android@v3
-        name: Configure Android SDK
 
       - name: Install Android SDK 36
         shell: bash
