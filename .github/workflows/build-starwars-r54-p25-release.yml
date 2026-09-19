@@ -1,0 +1,155 @@
+name: Braseiro Star Wars R54 P25 APK Release
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-starwars-r54-p25-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  SOURCE_SHARE_URL: 'https://firestorage.ai/ja/f/PpO4v-y3UHQ0'
+  SOURCE_SHA256: '909df10ae58c45891508629ec54f1ce54a9f9ebdc42e0832582b3d0f46f0ad4e'
+  SOURCE_NAME: 'STAR_WARS_EDGE_OF_THE_GALAXY_R54_P24_ITEM_WEAPON_IMAGES_FIXED.zip'
+  PATCH_SHARE_URL: 'https://firestorage.ai/ja/f/m17E5egrnZYP'
+  PATCH_SHA256: 'df85f2f93ee9ea18c7f265382cb91964d2efd0bf799feffbc0a089dd4070d14a'
+  APK_NAME: 'BRASEIRO_STAR_WARS_EDGE_R54_P25_DEBUG.apk'
+  TAG: 'STAR-WARS-EDGE-R54-P25'
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: starwars-r54-p25-release-run
+          fetch-depth: 0
+
+      - name: Download exact P24 source and P25 patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf incoming work out downloader
+          mkdir -p incoming work out downloader
+          cd downloader
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+          cat > download.mjs <<'NODE'
+          import { chromium } from 'playwright';
+          import fs from 'fs';
+          const jobs=[
+            [process.env.SOURCE_SHARE_URL,process.env.GITHUB_WORKSPACE+'/incoming/source.zip'],
+            [process.env.PATCH_SHARE_URL,process.env.GITHUB_WORKSPACE+'/incoming/patch.zip']
+          ];
+          const browser=await chromium.launch({headless:true});
+          for(const [url,out] of jobs){
+            const ctx=await browser.newContext({acceptDownloads:true,locale:'ja-JP'});
+            const page=await ctx.newPage();
+            let ok=false;
+            for(let attempt=1;attempt<=30&&!ok;attempt++){
+              await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
+              await page.waitForTimeout(2500);
+              const candidates=page.locator('a,button,[role="button"],input[type="submit"]');
+              const n=Math.min(await candidates.count(),160);
+              for(let i=0;i<n;i++){
+                const el=candidates.nth(i);let text='',href='',aria='';
+                try{text=((await el.innerText({timeout:400}))||'').trim()}catch{}
+                try{href=(await el.getAttribute('href'))||''}catch{}
+                try{aria=(await el.getAttribute('aria-label'))||''}catch{}
+                if(!/download|ダウンロード|一括|保存|zip|ファイル/i.test(text+' '+href+' '+aria))continue;
+                try{const pending=page.waitForEvent('download',{timeout:10000});await el.click({timeout:5000});const d=await pending;await d.saveAs(out);ok=true;break}catch{}
+              }
+              if(!ok)await page.waitForTimeout(2500);
+            }
+            await ctx.close();
+            if(!ok||!fs.existsSync(out))throw new Error('download failed '+url);
+          }
+          await browser.close();
+          NODE
+          node download.mjs
+          cd "$GITHUB_WORKSPACE"
+          echo "$SOURCE_SHA256  incoming/source.zip" | sha256sum -c -
+          echo "$PATCH_SHA256  incoming/patch.zip" | sha256sum -c -
+          unzip -t incoming/source.zip >/dev/null
+          unzip -t incoming/patch.zip >/dev/null
+          unzip -q incoming/source.zip -d work
+          unzip -q incoming/patch.zip -d incoming/patch
+
+      - name: Copy Pathfinder 2e R13 dice engine and apply P25 patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin pf2-dice-reference-extract:refs/remotes/origin/pf2-dice-reference-extract
+          BASE='ci/pf2-dice-reference/files/android/app/src/main/java/com/braseiro/pathfinder2e'
+          DEST='work/android/app/src/main/java/com/braseiro/starwarsedge'
+          for f in PhysicalDiceEngine.java Dice3DView.java DiceAppearance.java; do
+            git show "origin/pf2-dice-reference-extract:$BASE/$f" > "$DEST/$f"
+            sed -i 's/package com\.braseiro\.pathfinder2e;/package com.braseiro.starwarsedge;/' "$DEST/$f"
+          done
+          cp incoming/patch/java/AppLog.java "$DEST/AppLog.java"
+          cp incoming/patch/java/TtsBridge.java "$DEST/TtsBridge.java"
+          cp incoming/patch/java/StarWarsDiceBridge.java "$DEST/StarWarsDiceBridge.java"
+          python3 incoming/patch/patch.py
+          grep -q 'BraseiroDice' work/android/app/src/main/java/com/braseiro/starwarsedge/MainActivity.java
+          grep -q 'handleIncomingShareIntent' work/android/app/src/main/java/com/braseiro/starwarsedge/GeminiBridge.java
+          grep -q 'Física nativa Pathfinder 2e R13' work/android/app/src/main/java/com/braseiro/starwarsedge/StarWarsDiceBridge.java
+          grep -q 'MESTRE OFFLINE' work/android/app/src/main/assets/vtt/r46/final-runtime.js
+
+      - name: Rebuild bundle and run regular regression
+        shell: bash
+        working-directory: work/android
+        run: |
+          set -euo pipefail
+          node tools/build-ui-bridge-bundle.mjs
+          python3 tools/run-node-suite.py | tee "$GITHUB_WORKSPACE/out/P25_REGULAR.txt"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configure Android SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ANDROID_HOME=/usr/local/lib/android/sdk
+          export ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0'
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
+
+      - name: Build and validate P25 APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd work/android
+          chmod +x gradlew
+          ./gradlew clean :app:assembleDebug --stacktrace --no-daemon 2>&1 | tee "$GITHUB_WORKSPACE/out/GRADLE_BUILD.log"
+          APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | head -n1)"
+          test -f "$APK"
+          cp "$APK" "$GITHUB_WORKSPACE/out/$APK_NAME"
+          sha256sum "$GITHUB_WORKSPACE/out/$APK_NAME" > "$GITHUB_WORKSPACE/out/$APK_NAME.sha256"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$GITHUB_WORKSPACE/out/$APK_NAME" | tee "$GITHUB_WORKSPACE/out/APK_BADGING.txt"
+          grep -q "package: name='com.braseiro.starwarsedge'" "$GITHUB_WORKSPACE/out/APK_BADGING.txt"
+          unzip -t "$GITHUB_WORKSPACE/out/$APK_NAME" >/dev/null
+          cd "$GITHUB_WORKSPACE/work"
+          zip -qr "$GITHUB_WORKSPACE/out/STAR_WARS_EDGE_OF_THE_GALAXY_R54_P25_ANDROID_STUDIO.zip" android
+          sha256sum "$GITHUB_WORKSPACE/out/STAR_WARS_EDGE_OF_THE_GALAXY_R54_P25_ANDROID_STUDIO.zip" > "$GITHUB_WORKSPACE/out/STAR_WARS_EDGE_OF_THE_GALAXY_R54_P25_ANDROID_STUDIO.zip.sha256"
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          NOTES='R54 P25 para teste físico: ilustração de cena com retorno por share/singleTask, token NPC em close-up, mapa com marcador reduzido, selo GEMINI/MESTRE OFFLINE, TTS Android encadeado por onDone e dados nativos baseados no PhysicalDiceEngine/Dice3DView do Pathfinder 2e R13. Baseline P24 preservada.'
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target main --title 'Braseiro Star Wars Edge R54 P25 — Device Fixes' --notes "$NOTES"
+          gh release upload "$TAG" "out/$APK_NAME" "out/$APK_NAME.sha256" out/APK_BADGING.txt out/GRADLE_BUILD.log out/P25_REGULAR.txt out/STAR_WARS_EDGE_OF_THE_GALAXY_R54_P25_ANDROID_STUDIO.zip out/STAR_WARS_EDGE_OF_THE_GALAXY_R54_P25_ANDROID_STUDIO.zip.sha256 --clobber
+          gh release view "$TAG" --json url --jq .url
