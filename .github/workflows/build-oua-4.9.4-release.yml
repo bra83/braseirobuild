@@ -39,8 +39,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          base64 -d ci/oua-4.9.4/ImmersiveJourneyView.tsx.gz.b64 | gzip -dc > "$ROOT/components/immersive/ImmersiveJourneyView.tsx"
-          base64 -d ci/oua-4.9.4/PartyCluster.tsx.gz.b64 | gzip -dc > "$ROOT/components/immersive/PartyCluster.tsx"
+          cat ci/oua-4.9.4/chunks/imm{0,1,2,3,4,5}.txt | base64 -d | gzip -dc > "$ROOT/components/immersive/ImmersiveJourneyView.tsx"
+          cat ci/oua-4.9.4/chunks/party{0,1,2}.txt | base64 -d | gzip -dc > "$ROOT/components/immersive/PartyCluster.tsx"
           python3 - <<'PY'
           from pathlib import Path
           import json, re, os
