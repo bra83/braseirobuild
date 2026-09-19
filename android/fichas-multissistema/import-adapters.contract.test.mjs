@@ -10,7 +10,7 @@ test('maps native Tales Kid JSON into tftl sheet fields',()=>{
 
 test('maps native WWN JSON without flattening class path, arts and magic',()=>{
  const p={format:'BRASEIRO_WWN_CHARACTER',system:'WWN',version:1,character:{name:'Aventureiro 2',classId:'ADVENTURER',partialClasses:['INVOKER','BLOOD_PRIEST'],level:1,xp:0,attributes:{Charisma:11,Constitution:6,Dexterity:14,Intelligence:9,Strength:13,Wisdom:8},baseAttackBonus:0,hp:{current:2,max:2},savingThrows:{Evasion:14,Luck:15,Mental:15,Physical:15},skills:{Magic:0,Notice:0,Pray:0,Shoot:0,Stab:0,Survive:0,Work:0},foci:[{focusId:'ALERT',name:'Alert'}],arts:[{name:'The Light of Faith'}],magic:{startingSpells:[{name:'Imperceptible Cerebral Divulgence'}]},effort:{BLOOD_PRIEST:{current:1,max:1}},languages:['Comum'],silver:80,systemStrain:{current:0,max:6},inventory:[]}};
- const r=A.map(p); assert.equal(r.system,'wwn'); assert.equal(r.character.class,'Aventureiro (classes parciais)'); assert.match(r.character.partial_classes,/INVOKER/); assert.equal(r.character.magic,'0'); assert.equal(r.character.hp,'2 / 2'); assert.match(r.character.arts_spells,/The Light of Faith/); assert.equal(r.character.system_strain,'0 / 6');
+ const r=A.map(p); assert.equal(r.system,'wwn'); assert.equal(r.character.class_path,'ADV:INVOKER+BLOOD_PRIEST'); assert.equal(r.character.magic,'0'); assert.equal(r.character.hp,'2'); assert.match(r.character.notes,/Classes parciais: INVOKER \+ BLOOD_PRIEST/); assert.match(r.character.notes,/The Light of Faith/); assert.match(r.character.notes,/System Strain: 0 \/ 6/);
 });
 
 
