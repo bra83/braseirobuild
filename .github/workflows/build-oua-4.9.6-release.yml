@@ -13,7 +13,7 @@ permissions:
 env:
   BASE_TAG: 'OUA-v4.9.5'
   BASE_SOURCE: 'OUA_4.9.5_ATLAS_RECOVERY_ANDROID_STUDIO.zip'
-  PATCH_SHARE: 'https://firestorage.ai/ja/f/7EFA2VAqzZp-'
+  PATCH_SHARE: 'https://firestorage.ai/ja/f/quxaqjksLmgT'
   TAG: 'OUA-v4.9.6'
   SOURCE_NAME: 'OUA_4.9.6_GEMINI_START_POI_FIX_ANDROID_STUDIO.zip'
   APK_NAME: 'BRASEIRO_O_UM_ANEL_4.9.6_DEBUG.apk'
