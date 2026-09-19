@@ -1,0 +1,12 @@
+RUN_ID=35454341489
+RUN_ATTEMPT=1
+COMMIT=1f9abacd9a491eefe6625572f1fe9f748a6aea1b
+JOB_STATUS=failure
+DOWNLOAD=success
+EXTRACT=success
+RUNTIME=success
+GRADLE_CHECKS=skipped
+COMPILE=skipped
+APK=skipped
+ARTIFACT=skipped
+RELEASE=skipped
