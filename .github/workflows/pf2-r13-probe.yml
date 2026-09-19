@@ -17,68 +17,18 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-      - name: Probe temporary source share
+      - name: Fetch firestorage client chunk
         shell: bash
-        env:
-          SOURCE_URL: https://firestorage.ai/ja/f/uPz1-yd-YBIO
         run: |
-          set -euo pipefail
+          set -euxo pipefail
           mkdir -p ci/pf2-r13
-          python3 - <<'PY'
-          import os, urllib.request, urllib.parse, re, html, json
-          url=os.environ['SOURCE_URL']
-          headers={'User-Agent':'Mozilla/5.0'}
-          def get(u):
-              req=urllib.request.Request(u,headers=headers)
-              with urllib.request.urlopen(req,timeout=30) as r:
-                  return r.read(), r.geturl(), r.headers
-          raw, final, hdr=get(url)
-          data=raw.decode('utf-8','replace')
-          out=['FINAL_URL='+final,'HTML_LEN='+str(len(data))]
-          links=[]
-          for m in re.findall(r'''(?:href|src)=["']([^"']+)''',data,re.I):
-              u=urllib.parse.urljoin(final,html.unescape(m))
-              links.append(u); out.append('LINK='+u)
-          chunks=[u for u in links if '/_next/static/chunks/' in u and u.endswith('.js')]
-          jsall=''
-          for i,u in enumerate(chunks):
-              try:
-                  b,fu,h=get(u)
-                  s=b.decode('utf-8','replace')
-                  jsall += '\n/* '+fu+' */\n'+s
-              except Exception as e:
-                  out.append('JSERR='+u+' '+repr(e))
-          pats=[
-              r'https?://[^"\'\\\s]+',
-              r'/(?:api|download|files?|shares?)/[^"\'\\\s]{1,200}',
-              r'["\']([^"\']*(?:download|presign|share|file)[^"\']*)["\']'
-          ]
-          found=set()
-          for p in pats:
-              for m in re.findall(p,jsall,re.I):
-                  if isinstance(m,tuple): m=' '.join(m)
-                  if len(m) < 400: found.add(m)
-          for x in sorted(found):
-              out.append('CANDIDATE='+x)
-          # save snippets around public share/API keywords
-          snippets=[]
-          low=jsall.lower()
-          for needle in ['download','shareid','publicid','presign','api/','/api','file_id','share_id']:
-              pos=0
-              while True:
-                  i=low.find(needle,pos)
-                  if i<0: break
-                  snippets.append(jsall[max(0,i-300):i+700])
-                  pos=i+len(needle)
-                  if len(snippets)>120: break
-              if len(snippets)>120: break
-          open('ci/pf2-r13/firestorage_probe.txt','w',encoding='utf-8').write('\n'.join(out)+'\n')
-          open('ci/pf2-r13/firestorage_js_snippets.txt','w',encoding='utf-8').write('\n\n---SNIP---\n\n'.join(snippets))
-          PY
+          curl -L --fail --retry 3 -A 'Mozilla/5.0'             'https://firestorage.ai/_next/static/chunks/app/%28files%29/ja/f/page-4d19ae0a4ce39d79.js'             -o ci/pf2-r13/firestorage-page.js
+          wc -c ci/pf2-r13/firestorage-page.js
+          grep -Eo 'https?://[^" ]+|/[A-Za-z0-9_?=&./:-]*(api|download|share|file)[A-Za-z0-9_?=&./:-]*' ci/pf2-r13/firestorage-page.js             | sort -u > ci/pf2-r13/firestorage-endpoints.txt || true
       - name: Commit probe
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add ci/pf2-r13/firestorage_probe.txt ci/pf2-r13/firestorage_js_snippets.txt
-          git commit -m 'ci: inspect PF2 R13 transfer download endpoint' || exit 0
+          git add ci/pf2-r13/firestorage-page.js ci/pf2-r13/firestorage-endpoints.txt
+          git commit -m 'ci: capture firestorage client endpoint' || exit 0
           git push origin HEAD:main
