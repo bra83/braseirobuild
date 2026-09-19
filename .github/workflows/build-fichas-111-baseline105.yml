@@ -6,6 +6,7 @@ on:
     paths:
       - ".github/workflows/build-fichas-111-baseline105.yml"
       - "android/fichas-multissistema/app/src/main/assets/www/import-adapters.js"
+      - "android/fichas-multissistema/app/src/main/assets/www/import-bridge.js"
       - "android/fichas-multissistema/import-adapters.contract.test.mjs"
   workflow_dispatch:
 
@@ -92,16 +93,19 @@ jobs:
           ROOT="$(dirname "$GRADLEW")"
           echo "ANDROID_PROJECT_ROOT=$ROOT" >> "$GITHUB_ENV"
           test -s "$ROOT/app/src/main/assets/www/launcher-data.css"
+          test -s "$ROOT/app/src/main/assets/www/launcher-braseiro.webp"
           test -s "$ROOT/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml"
           sha256sum "$ROOT/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" | awk '{print $1}' > "$RUNNER_TEMP/icon-before.sha"
 
-      - name: Aplicar somente mapeamentos sobre baseline 1.0.5
+      - name: Aplicar mapeamentos sem alterar launcher
         shell: bash
         run: |
           set -euo pipefail
           SRC="$GITHUB_WORKSPACE/android/fichas-multissistema/app/src/main/assets/www"
           DST="$ANDROID_PROJECT_ROOT/app/src/main/assets/www"
           cp "$SRC/import-adapters.js" "$DST/import-adapters.js"
+          cp "$SRC/import-bridge.js" "$DST/import-bridge.js"
+          cp "$GITHUB_WORKSPACE/android/fichas-multissistema/import-adapters.contract.test.mjs" "$ANDROID_PROJECT_ROOT/import-adapters.contract.test.mjs"
           python3 - <<'PY'
           from pathlib import Path
           import os,re
@@ -110,39 +114,28 @@ jobs:
           html=p.read_text(encoding="utf-8")
           if 'import-adapters.js' not in html:
               needle='<script src="app.js"></script>'
-              repl='<script src="import-adapters.js"></script><script src="app.js"></script>'
+              repl='<script src="import-adapters.js"></script><script src="app.js"></script><script src="import-bridge.js"></script>'
               if needle not in html:
                   raise SystemExit("app.js script anchor nao encontrado")
               html=html.replace(needle,repl,1)
           p.write_text(html,encoding="utf-8")
-          p=root/"app/src/main/assets/www/app.js"
-          app=p.read_text(encoding="utf-8")
-          start=app.find("function importJson(file){")
-          if start < 0: raise SystemExit("canonical importJson nao encontrado")
-          end=app.find("\n", start)
-          if end < 0: end=len(app)
-          bridge=r'''function normalizeImportPayload(raw){if(raw?.schema==='braseiro.multisheet.v3'||raw?.schema==='braseiro.multisheet.v4')return {payload:raw,sourceLabel:null};const mapped=globalThis.BRASEIRO_IMPORT_ADAPTERS?.map?.(raw);if(!mapped)throw Error('Formato de ficha não reconhecido por esta build.');if(mapped.native)return {payload:mapped.payload,sourceLabel:null};const sys=SYSTEMS.find(x=>x.id===mapped.system);return {payload:{schema:'braseiro.multisheet.v4',engineVersion:RULES.VERSION,system:mapped.system,systemName:sys?.name||mapped.system,importedAt:new Date().toISOString(),importedFrom:mapped.sourceLabel||raw.format||raw.system||raw.profile||'externo',character:mapped.character||{}},sourceLabel:mapped.sourceLabel||null}}
-function importJson(file){if(!file)return;if(file.size>16*1024*1024){toast('Importação rejeitada: JSON maior que 16 MB.');return}const r=new FileReader();r.onload=()=>{try{const raw=JSON.parse(r.result),normalized=normalizeImportPayload(raw),p=normalized.payload;if(current&&p.system!==current.id)throw Error(`A ficha é ${p.system}, mas o perfil aberto é ${current.id}. Troca silenciosa é proibida.`);const audit=RULES.auditImport(p,null);if(!normalized.sourceLabel&&audit.status==='INVALID')throw Error(`${audit.status}: ${[...audit.errors,...audit.missing,...audit.needsReferee].join(' | ')}`);state[p.system]=p.character||{};saveState();openSystem(p.system);toast(normalized.sourceLabel?`${normalized.sourceLabel}: ficha mapeada (${audit.status})`:`Ficha importada e revalidada (${audit.status})`)}catch(e){toast('Importação rejeitada: '+e.message)}};r.onerror=()=>toast('Importação rejeitada: falha de leitura.');r.readAsText(file)}
-'''
-          app=app[:start]+bridge+app[end+1:]
-          p.write_text(app,encoding="utf-8")
           p=root/"app/build.gradle.kts"
           g=p.read_text(encoding="utf-8")
           g=re.sub(r'versionCode\s*=\s*\d+', 'versionCode = 7', g)
           g=re.sub(r'versionName\s*=\s*"[^"]+"', 'versionName = "1.1.1"', g)
           p.write_text(g,encoding="utf-8")
           PY
-          cp "$GITHUB_WORKSPACE/android/fichas-multissistema/import-adapters.contract.test.mjs" "$ANDROID_PROJECT_ROOT/import-adapters.contract.test.mjs"
           test -s "$DST/launcher-data.css"
+          test -s "$DST/launcher-braseiro.webp"
           test "$(sha256sum "$ANDROID_PROJECT_ROOT/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" | awk '{print $1}')" = "$(cat "$RUNNER_TEMP/icon-before.sha")"
 
-      - name: Gate de abertura do launcher e mapeamentos
+      - name: Gate de mapeamentos e abertura do launcher
         working-directory: ${{ env.ANDROID_PROJECT_ROOT }}
         shell: bash
         run: |
           set -euo pipefail
           node --check app/src/main/assets/www/import-adapters.js
-          node --check app/src/main/assets/www/app.js
+          node --check app/src/main/assets/www/import-bridge.js
           node --test import-adapters.contract.test.mjs
           cat > "$RUNNER_TEMP/launcher-smoke.cjs" <<'JS'
           const path=require('path');
@@ -155,15 +148,15 @@ function importJson(file){if(!file)return;if(file.size>16*1024*1024){toast('Impo
             const url=pathToFileURL(path.join(process.env.ANDROID_PROJECT_ROOT,'app/src/main/assets/www/index.html')).href;
             await page.goto(url,{waitUntil:'load',timeout:30000});
             await page.waitForTimeout(1200);
-            const r=await page.evaluate(()=>{const c=document.querySelector('.launcher-canvas'),x=c.getBoundingClientRect();return{mode:document.body.classList.contains('launcher-mode'),hidden:document.querySelector('#launcher').classList.contains('hidden'),bg:getComputedStyle(c).backgroundImage,strips:document.querySelectorAll('.bg-strip').length,w:x.width,h:x.height}});
+            const r=await page.evaluate(()=>{const c=document.querySelector('.launcher-canvas'),x=c.getBoundingClientRect();return{mode:document.body.classList.contains('launcher-mode'),hidden:document.querySelector('#launcher').classList.contains('hidden'),bg:getComputedStyle(c).backgroundImage,w:x.width,h:x.height}});
             console.log(r);
-            if(errors.length||!r.mode||r.hidden||r.w<350||r.h<700||(r.bg==='none'&&r.strips===0)) throw new Error('launcher smoke falhou: '+errors.join('|'));
+            if(errors.length||!r.mode||r.hidden||r.w<350||r.h<700||r.bg==='none')throw new Error('launcher smoke falhou: '+errors.join('|'));
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(3)});
           JS
           node "$RUNNER_TEMP/launcher-smoke.cjs"
 
-      - name: Rodar regressao cumulativa do baseline 1.0.5
+      - name: Rodar regressão cumulativa 1.0.5
         working-directory: ${{ env.ANDROID_PROJECT_ROOT }}
         shell: bash
         run: |
