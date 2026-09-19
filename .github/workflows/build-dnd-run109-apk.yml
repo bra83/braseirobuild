@@ -1,0 +1,109 @@
+name: Build DnD 6.6.2 RUN109 APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-dnd-run109-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TAG: 'DND-6.6.2-RUN109'
+  PACKAGE_ID: 'com.braseiro.dnd5e'
+  APK_NAME: 'BRASEIRO_DND_6.6.2_RUN109_DEBUG.apk'
+  SOURCE_SHA256: 'be1565cf347c37c46b4c2d33d0053bb25c71d382fdaa8f39752f0397c4d1cad7'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Download RUN109 Android Studio source from Drive
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet gdown
+          mkdir -p source_parts work out
+
+          gdown '1wPsqaaeTHOLpw9FuLjEKMuBDKQ1pHYwE' -O source_parts/part000
+          gdown '1T7vxDWu0biCV0K4i2gY8IT_YQc7tGyNr' -O source_parts/part001
+          gdown '1L_9_JMXrAkNNOqR-UkMnr4rtH8AtJM8b' -O source_parts/part002
+          gdown '1TtqFuRIXaMiMH-qg8AOY441rxmEF-F_f' -O source_parts/part003
+
+          test "$(stat -c %s source_parts/part000)" -eq 78643200
+          test "$(stat -c %s source_parts/part001)" -eq 78643200
+          test "$(stat -c %s source_parts/part002)" -eq 78643200
+          test "$(stat -c %s source_parts/part003)" -eq 77031667
+
+          cat source_parts/part000 source_parts/part001 source_parts/part002 source_parts/part003 > source.zip
+          echo "$SOURCE_SHA256  source.zip" | sha256sum -c -
+          unzip -t source.zip >/dev/null
+          unzip -q source.zip -d work
+
+          ROOT="$GITHUB_WORKSPACE/work/BRASEIRO_DND_6.6.2_RUN109_ANDROID_STUDIO"
+          test -f "$ROOT/gradlew"
+          test -f "$ROOT/settings.gradle.kts"
+          test -f "$ROOT/android/app/build.gradle.kts"
+          test -f "$ROOT/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java"
+
+          grep -q 'RUN109' "$ROOT/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java"
+          grep -q 'RUN108' "$ROOT/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java"
+
+          sed -i 's/^VERSION_NAME=.*/VERSION_NAME=6.6.2-r109/' "$ROOT/version.properties"
+          sed -i 's/^VERSION_CODE=.*/VERSION_CODE=606209/' "$ROOT/version.properties"
+
+          echo "ROOT=$ROOT" >> "$GITHUB_ENV"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK 35
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0' >/dev/null
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build RUN109 APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$ROOT"
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --no-daemon --console=plain 2>&1 | tee "$GITHUB_WORKSPACE/assemble-run109.log"
+
+          APK="$(find android/app/build/outputs/apk/debug -type f -name '*.apk' | head -n1)"
+          test -f "$APK"
+          cp "$APK" "$GITHUB_WORKSPACE/out/$APK_NAME"
+
+          sha256sum "$GITHUB_WORKSPACE/out/$APK_NAME" | tee "$GITHUB_WORKSPACE/out/$APK_NAME.sha256"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$GITHUB_WORKSPACE/out/$APK_NAME" | tee "$GITHUB_WORKSPACE/out/APK_BADGING_RUN109.txt"
+          grep -q "package: name='$PACKAGE_ID'" "$GITHUB_WORKSPACE/out/APK_BADGING_RUN109.txt"
+          grep -q "versionName='6.6.2-r109-debug'" "$GITHUB_WORKSPACE/out/APK_BADGING_RUN109.txt"
+          unzip -t "$GITHUB_WORKSPACE/out/$APK_NAME" >/dev/null
+          stat -c 'APK_BYTES=%s' "$GITHUB_WORKSPACE/out/$APK_NAME" | tee "$GITHUB_WORKSPACE/out/APK_SIZE_RUN109.txt"
+
+      - name: Publish APK to RUN109 Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null
+          gh release upload "$TAG"             "out/$APK_NAME"             "out/$APK_NAME.sha256"             "out/APK_BADGING_RUN109.txt"             "out/APK_SIZE_RUN109.txt"             --repo "$GITHUB_REPOSITORY"             --clobber
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url,assets
