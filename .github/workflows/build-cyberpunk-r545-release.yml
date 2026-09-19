@@ -1,0 +1,344 @@
+name: BRASEIRO Cyberpunk RED R5.45 APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-cyberpunk-r545.yml"
+      - "CYBERPUNK_RED_R5_45_BUILD_TRIGGER.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  CPRED_SOURCE_SHARE_URL: "https://firestorage.ai/ja/f/Qs9TFAE72oye"
+  CPRED_SOURCE_SHA256: "6fc7249c1be82a2e2af483d2c03343629ec65a91d8209ae4dd2ccaf54d71a34d"
+  CPRED_SOURCE_NAME: "CYBERPUNK_RED_R5_45_DEVICE_RUNTIME_FIX_CHECKPOINT.zip"
+  RELEASE_TAG: "cyberpunk-red-r5.45-device-runtime-fix"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout braseirobuild
+
+      - name: Download exact R5.45 source parts
+        id: download
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p incoming /tmp/cpred-browser
+          cd /tmp/cpred-browser
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+
+          cat > download-parts.mjs <<'NODE'
+          import { chromium } from 'playwright';
+          import fs from 'fs';
+
+          const share = process.env.CPRED_SOURCE_SHARE_URL;
+          const outDir = process.env.GITHUB_WORKSPACE + '/incoming';
+          fs.mkdirSync(outDir, {recursive:true});
+
+          const browser = await chromium.launch({headless:true});
+          const context = await browser.newContext({acceptDownloads:true, locale:'ja-JP'});
+          const page = await context.newPage();
+
+          async function openShare() {
+            await page.goto(share,{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForTimeout(2500);
+          }
+
+          function safe(s){ return String(s || '').replace(/\s+/g,' ').trim(); }
+
+          async function tryElement(el, needle, output) {
+            let text='', href='', title='', aria='', ctx='';
+            try { text=safe(await el.innerText({timeout:400})); } catch {}
+            try { href=safe(await el.getAttribute('href')); } catch {}
+            try { title=safe(await el.getAttribute('title')); } catch {}
+            try { aria=safe(await el.getAttribute('aria-label')); } catch {}
+            try {
+              ctx=safe(await el.evaluate((e)=>{
+                let n=e, parts=[];
+                for(let d=0; d<6 && n; d++, n=n.parentElement) {
+                  const t=(n.innerText||'').replace(/\s+/g,' ').trim();
+                  if(t) parts.push(t.slice(0,1500));
+                }
+                return parts.join(' ');
+              }));
+            } catch {}
+            const meta=(text+' '+href+' '+title+' '+aria).toLowerCase();
+            const contextText=(ctx+' '+meta).toLowerCase();
+            if (!contextText.includes(needle.toLowerCase())) return false;
+            if (!/download|ダウンロード|保存|取得|file|ファイル/.test(meta)) return false;
+            try {
+              const pending=page.waitForEvent('download',{timeout:10000});
+              await el.click({timeout:5000});
+              const d=await pending;
+              await d.saveAs(output);
+              return true;
+            } catch {
+              return false;
+            }
+          }
+
+          async function downloadNeedle(needle, output) {
+            for (let attempt=1; attempt<=8; attempt++) {
+              if (attempt===1 || attempt===5) await openShare();
+
+              const candidates=page.locator('a,button,[role="button"]');
+              const count=Math.min(await candidates.count(),300);
+              for(let i=0;i<count;i++) {
+                if(await tryElement(candidates.nth(i),needle,output)) return true;
+              }
+
+              const labels=page.getByText(new RegExp(needle,'i'));
+              const lc=Math.min(await labels.count(),10);
+              for(let li=0;li<lc;li++) {
+                let root=labels.nth(li);
+                for(let depth=0; depth<7; depth++) {
+                  const btns=root.locator('a,button,[role="button"]');
+                  const bc=Math.min(await btns.count(),50);
+                  for(let bi=0;bi<bc;bi++) {
+                    let meta='';
+                    const b=btns.nth(bi);
+                    try { meta=safe(await b.innerText())+' '+safe(await b.getAttribute('title'))+' '+safe(await b.getAttribute('aria-label'))+' '+safe(await b.getAttribute('href')); } catch {}
+                    if(!/download|ダウンロード|保存|取得|file|ファイル/i.test(meta)) continue;
+                    try {
+                      const pending=page.waitForEvent('download',{timeout:10000});
+                      await b.click({timeout:5000});
+                      const d=await pending;
+                      await d.saveAs(output);
+                      return true;
+                    } catch {}
+                  }
+                  root=root.locator('xpath=..');
+                }
+              }
+
+              await page.waitForTimeout(2500);
+            }
+            return false;
+          }
+
+          await openShare();
+          for(let i=0;i<5;i++) {
+            const n=String(i).padStart(2,'0');
+            const needle='part-'+n;
+            const output=outDir+'/source.zip.part'+n;
+            const ok=await downloadNeedle(needle,output);
+            if(!ok) {
+              console.error('DOWNLOAD_FAILED '+needle);
+              console.error((await page.locator('body').innerText()).slice(0,10000));
+              await browser.close();
+              process.exit(2);
+            }
+            console.log('DOWNLOAD_OK '+needle+' '+fs.statSync(output).size);
+            await openShare();
+          }
+          await browser.close();
+          NODE
+
+          node download-parts.mjs
+          cd "$GITHUB_WORKSPACE"
+          test "$(stat -c %s incoming/source.zip.part00)" -eq 50331648
+          test "$(stat -c %s incoming/source.zip.part01)" -eq 50331648
+          test "$(stat -c %s incoming/source.zip.part02)" -eq 50331648
+          test "$(stat -c %s incoming/source.zip.part03)" -eq 50331648
+          test "$(stat -c %s incoming/source.zip.part04)" -eq 10984431
+          cat incoming/source.zip.part00 incoming/source.zip.part01 incoming/source.zip.part02 incoming/source.zip.part03 incoming/source.zip.part04 > "incoming/$CPRED_SOURCE_NAME"
+          echo "$CPRED_SOURCE_SHA256  incoming/$CPRED_SOURCE_NAME" | sha256sum -c -
+          unzip -t "incoming/$CPRED_SOURCE_NAME" >/dev/null
+          ls -lh "incoming/$CPRED_SOURCE_NAME"
+
+      - name: Extract project and detect Android root
+        id: android
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf work
+          mkdir -p work
+          unzip -q "incoming/$CPRED_SOURCE_NAME" -d work
+          ROOT=""
+          while IFS= read -r -d '' W; do
+            D="$(dirname "$W")"
+            if [ -f "$D/settings.gradle.kts" ] || [ -f "$D/settings.gradle" ]; then ROOT="$D"; break; fi
+          done < <(find work -type f -name gradlew -print0)
+          [ -n "$ROOT" ] || { echo "::error::Android root not found"; exit 1; }
+          chmod +x "$ROOT/gradlew"
+          test -f "$ROOT/gradle/wrapper/gradle-wrapper.jar"
+          test -f "$ROOT/app/src/main/AndroidManifest.xml"
+          grep -F 'applicationId = "com.braseiro.cyberpunkred"' "$ROOT/app/build.gradle.kts"
+          grep -F 'versionCode = 4005' "$ROOT/app/build.gradle.kts"
+          grep -F 'versionName = "4.0.5"' "$ROOT/app/build.gradle.kts"
+          grep -F 'compileSdk = 36' "$ROOT/app/build.gradle.kts"
+          grep -F 'minSdk = 24' "$ROOT/app/build.gradle.kts"
+          grep -F 'targetSdk = 36' "$ROOT/app/build.gradle.kts"
+          echo "root=$ROOT" >> "$GITHUB_OUTPUT"
+          echo "ANDROID_ROOT=$ROOT"
+
+      - name: Run R5.45 runtime gates
+        id: runtime
+        shell: bash
+        env:
+          ROOT: ${{ steps.android.outputs.root }}
+        run: |
+          set -euo pipefail
+          (cd "$ROOT" && node qa/DEVICE_RUNTIME_RECOVERY_GATE_R5_45.mjs)
+          find "$ROOT" -type f \( -name '*.js' -o -name '*.mjs' \) -print0 | while IFS= read -r -d '' F; do node --check "$F" >/dev/null; done
+          python3 - "$ROOT" <<'PY'
+          import json, pathlib, sys, xml.etree.ElementTree as ET
+          root=pathlib.Path(sys.argv[1])
+          for p in root.rglob('*.json'):
+              json.loads(p.read_text(encoding='utf-8'))
+          for p in root.rglob('*.xml'):
+              try: ET.parse(p)
+              except ET.ParseError as e: raise SystemExit(f'XML_FAIL {p}: {e}')
+          print('STATIC_PARSE_PASS')
+          PY
+
+      - uses: actions/setup-java@v4
+        name: Configure Java 17
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+        name: Configure Android SDK
+
+      - name: Install Android SDK 36
+        shell: bash
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
+      - uses: gradle/actions/setup-gradle@v4
+        name: Configure Gradle cache
+
+      - name: Gradle project and resource checks
+        id: gradle_checks
+        working-directory: ${{ steps.android.outputs.root }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew --version
+          ./gradlew projects --stacktrace --no-daemon
+          ./gradlew :app:processDebugMainManifest :app:processDebugResources --stacktrace --no-daemon
+
+      - name: Compile and build debug APK
+        id: compile
+        working-directory: ${{ steps.android.outputs.root }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew :app:compileDebugKotlin :app:compileDebugJavaWithJavac --stacktrace --no-daemon
+          ./gradlew :app:assembleDebug --stacktrace --no-daemon
+
+      - name: Collect and validate APK
+        id: apk
+        shell: bash
+        env:
+          ROOT: ${{ steps.android.outputs.root }}
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          APK="$(find "$ROOT" -type f -path '*/build/outputs/apk/debug/*.apk' | sort | head -n1)"
+          [ -n "${APK:-}" ] && [ -f "$APK" ] || { echo "::error::Debug APK not found"; exit 1; }
+          NAME="BRASEIRO-CYBERPUNK-RED-R5.45-DEBUG.apk"
+          FINAL="out/$NAME"
+          cp "$APK" "$FINAL"
+          unzip -t "$FINAL" >/dev/null
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
+          "$BUILD_TOOLS/aapt" dump badging "$FINAL" | grep -E '^(package:|sdkVersion:|targetSdkVersion:|native-code:)' | tee out/APK_BADGING.txt
+          "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$FINAL" | tee out/APK_SIGNATURE.txt
+          grep -q "package: name='com.braseiro.cyberpunkred' versionCode='4005' versionName='4.0.5'" out/APK_BADGING.txt
+          sha256sum "$FINAL" | tee "out/$NAME.sha256"
+          stat -c 'APK_SIZE_BYTES=%s' "$FINAL" | tee out/APK_SIZE.txt
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Upload GitHub Actions artifact
+        id: artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cyberpunk-red-r5.45-apk
+          path: out/*
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+
+      - name: Publish APK in GitHub Release
+        id: release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APK_NAME: ${{ steps.apk.outputs.name }}
+        run: |
+          set -euo pipefail
+          TITLE="BRASEIRO Cyberpunk RED R5.45 Device Runtime Fix APK"
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --target "$GITHUB_SHA" --title "$TITLE" --notes "Cyberpunk RED R5.45 Device Runtime Fix. Source SHA-256: $CPRED_SOURCE_SHA256. Java 17 / Gradle Wrapper / SDK 36. R5.45 runtime gate, manifest/resources, Kotlin/Java compile, assembleDebug, aapt and apksigner validated by this workflow."
+          fi
+          gh release upload "$RELEASE_TAG" out/* --clobber
+          RELEASE_URL="$(gh release view "$RELEASE_TAG" --json url --jq .url)"
+          echo "release_url=$RELEASE_URL" >> "$GITHUB_OUTPUT"
+          echo "RELEASE_URL=$RELEASE_URL"
+
+      - name: Summary
+        shell: bash
+        run: |
+          echo "## BRASEIRO Cyberpunk RED R5.45" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Source SHA-256: $CPRED_SOURCE_SHA256" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Runtime gate: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Android manifest/resources: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Kotlin/Java compile: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- assembleDebug: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Package: com.braseiro.cyberpunkred" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Version: 4.0.5 (4005)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- APK: ${{ steps.apk.outputs.name }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Release: ${{ steps.release.outputs.release_url }}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Record verifiable build status
+        if: always()
+        shell: bash
+        env:
+          DOWNLOAD: ${{ steps.download.outcome }}
+          EXTRACT: ${{ steps.android.outcome }}
+          RUNTIME: ${{ steps.runtime.outcome }}
+          GRADLE_CHECKS: ${{ steps.gradle_checks.outcome }}
+          COMPILE: ${{ steps.compile.outcome }}
+          APK: ${{ steps.apk.outcome }}
+          ARTIFACT: ${{ steps.artifact.outcome }}
+          RELEASE: ${{ steps.release.outcome }}
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout -B main origin/main
+          mkdir -p cyberpunk-red
+          STATUS="cyberpunk-red/r5.45-build-status-${GITHUB_RUN_ID}.txt"
+          {
+            echo "RUN_ID=$GITHUB_RUN_ID"
+            echo "RUN_ATTEMPT=$GITHUB_RUN_ATTEMPT"
+            echo "COMMIT=$GITHUB_SHA"
+            echo "JOB_STATUS=${{ job.status }}"
+            echo "DOWNLOAD=$DOWNLOAD"
+            echo "EXTRACT=$EXTRACT"
+            echo "RUNTIME=$RUNTIME"
+            echo "GRADLE_CHECKS=$GRADLE_CHECKS"
+            echo "COMPILE=$COMPILE"
+            echo "APK=$APK"
+            echo "ARTIFACT=$ARTIFACT"
+            echo "RELEASE=$RELEASE"
+            if [ -f out/BRASEIRO-CYBERPUNK-RED-R5.45-DEBUG.apk.sha256 ]; then cat out/BRASEIRO-CYBERPUNK-RED-R5.45-DEBUG.apk.sha256; fi
+          } > "$STATUS"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$STATUS"
+          git commit -m "build(cyberpunk): record R5.45 run $GITHUB_RUN_ID" || exit 0
+          git push origin HEAD:main
