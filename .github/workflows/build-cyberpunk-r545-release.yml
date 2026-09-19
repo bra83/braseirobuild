@@ -13,7 +13,11 @@ permissions:
   actions: read
 
 env:
-  CPRED_SOURCE_SHARE_URL: "https://firestorage.ai/ja/f/Qs9TFAE72oye"
+  PART00_URL: "https://firestorage.ai/ja/f/pUfGe9UHS3mr"
+  PART01_URL: "https://firestorage.ai/ja/f/-xqoSeCFILBV"
+  PART02_URL: "https://firestorage.ai/ja/f/nCJuyMD3s5RH"
+  PART03_URL: "https://firestorage.ai/ja/f/WoWHsDZmO-hE"
+  PART04_URL: "https://firestorage.ai/ja/f/_7Oe6A9ve-od"
   CPRED_SOURCE_SHA256: "6fc7249c1be82a2e2af483d2c03343629ec65a91d8209ae4dd2ccaf54d71a34d"
   CPRED_SOURCE_NAME: "CYBERPUNK_RED_R5_45_DEVICE_RUNTIME_FIX_CHECKPOINT.zip"
   RELEASE_TAG: "cyberpunk-red-r5.45-device-runtime-fix"
@@ -38,114 +42,59 @@ jobs:
           npm install --silent playwright@1.55.0
           npx playwright install chromium
 
-          cat > download-parts.mjs <<'NODE'
+          cat > download-one.mjs <<'NODE'
           import { chromium } from 'playwright';
-          import fs from 'fs';
+          const url=process.argv[2];
+          const output=process.argv[3];
+          const browser=await chromium.launch({headless:true});
+          const context=await browser.newContext({acceptDownloads:true,locale:'ja-JP'});
+          const page=await context.newPage();
 
-          const share = process.env.CPRED_SOURCE_SHARE_URL;
-          const outDir = process.env.GITHUB_WORKSPACE + '/incoming';
-          fs.mkdirSync(outDir, {recursive:true});
-
-          const browser = await chromium.launch({headless:true});
-          const context = await browser.newContext({acceptDownloads:true, locale:'ja-JP'});
-          const page = await context.newPage();
-
-          async function openShare() {
-            await page.goto(share,{waitUntil:'domcontentloaded',timeout:60000});
-            await page.waitForTimeout(2500);
+          async function openShare(){
+            await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForTimeout(2200);
           }
 
-          function safe(s){ return String(s || '').replace(/\s+/g,' ').trim(); }
-
-          async function tryElement(el, needle, output) {
-            let text='', href='', title='', aria='', ctx='';
-            try { text=safe(await el.innerText({timeout:400})); } catch {}
-            try { href=safe(await el.getAttribute('href')); } catch {}
-            try { title=safe(await el.getAttribute('title')); } catch {}
-            try { aria=safe(await el.getAttribute('aria-label')); } catch {}
-            try {
-              ctx=safe(await el.evaluate((e)=>{
-                let n=e, parts=[];
-                for(let d=0; d<6 && n; d++, n=n.parentElement) {
-                  const t=(n.innerText||'').replace(/\s+/g,' ').trim();
-                  if(t) parts.push(t.slice(0,1500));
-                }
-                return parts.join(' ');
-              }));
-            } catch {}
-            const meta=(text+' '+href+' '+title+' '+aria).toLowerCase();
-            const contextText=(ctx+' '+meta).toLowerCase();
-            if (!contextText.includes(needle.toLowerCase())) return false;
-            if (!/download|ダウンロード|保存|取得|file|ファイル/.test(meta)) return false;
-            try {
-              const pending=page.waitForEvent('download',{timeout:10000});
-              await el.click({timeout:5000});
-              const d=await pending;
-              await d.saveAs(output);
-              return true;
-            } catch {
-              return false;
-            }
-          }
-
-          async function downloadNeedle(needle, output) {
-            for (let attempt=1; attempt<=8; attempt++) {
-              if (attempt===1 || attempt===5) await openShare();
-
-              const candidates=page.locator('a,button,[role="button"]');
-              const count=Math.min(await candidates.count(),300);
-              for(let i=0;i<count;i++) {
-                if(await tryElement(candidates.nth(i),needle,output)) return true;
-              }
-
-              const labels=page.getByText(new RegExp(needle,'i'));
-              const lc=Math.min(await labels.count(),10);
-              for(let li=0;li<lc;li++) {
-                let root=labels.nth(li);
-                for(let depth=0; depth<7; depth++) {
-                  const btns=root.locator('a,button,[role="button"]');
-                  const bc=Math.min(await btns.count(),50);
-                  for(let bi=0;bi<bc;bi++) {
-                    let meta='';
-                    const b=btns.nth(bi);
-                    try { meta=safe(await b.innerText())+' '+safe(await b.getAttribute('title'))+' '+safe(await b.getAttribute('aria-label'))+' '+safe(await b.getAttribute('href')); } catch {}
-                    if(!/download|ダウンロード|保存|取得|file|ファイル/i.test(meta)) continue;
-                    try {
-                      const pending=page.waitForEvent('download',{timeout:10000});
-                      await b.click({timeout:5000});
-                      const d=await pending;
-                      await d.saveAs(output);
-                      return true;
-                    } catch {}
-                  }
-                  root=root.locator('xpath=..');
-                }
-              }
-
-              await page.waitForTimeout(2500);
+          async function attempt(){
+            const candidates=page.locator('a,button,[role="button"]');
+            const count=Math.min(await candidates.count(),150);
+            for(let i=0;i<count;i++){
+              const el=candidates.nth(i);
+              let text='',href='',title='',aria='';
+              try{text=(await el.innerText({timeout:500})).trim();}catch{}
+              try{href=(await el.getAttribute('href'))||'';}catch{}
+              try{title=(await el.getAttribute('title'))||'';}catch{}
+              try{aria=(await el.getAttribute('aria-label'))||'';}catch{}
+              if(!/download|ダウンロード|保存|取得|ZIP|ファイル/i.test(text+' '+href+' '+title+' '+aria)) continue;
+              try{
+                const pending=page.waitForEvent('download',{timeout:10000});
+                await el.click({timeout:5000});
+                const d=await pending;
+                await d.saveAs(output);
+                console.log('DOWNLOAD_OK '+output+' '+(await d.suggestedFilename()));
+                return true;
+              }catch{}
             }
             return false;
           }
 
           await openShare();
-          for(let i=0;i<5;i++) {
-            const n=String(i).padStart(2,'0');
-            const needle='part-'+n;
-            const output=outDir+'/source.zip.part'+n;
-            const ok=await downloadNeedle(needle,output);
-            if(!ok) {
-              console.error('DOWNLOAD_FAILED '+needle);
-              console.error((await page.locator('body').innerText()).slice(0,10000));
-              await browser.close();
-              process.exit(2);
-            }
-            console.log('DOWNLOAD_OK '+needle+' '+fs.statSync(output).size);
-            await openShare();
+          for(let attemptNo=1;attemptNo<=18;attemptNo++){
+            if(await attempt()){await browser.close();process.exit(0);}
+            await page.waitForTimeout(2500);
+            if(attemptNo%4===0) await openShare();
           }
+          console.error((await page.locator('body').innerText()).slice(0,8000));
           await browser.close();
+          process.exit(2);
           NODE
 
-          node download-parts.mjs
+          node download-one.mjs "$PART00_URL" "$GITHUB_WORKSPACE/incoming/source.zip.part00"
+          node download-one.mjs "$PART01_URL" "$GITHUB_WORKSPACE/incoming/source.zip.part01"
+          node download-one.mjs "$PART02_URL" "$GITHUB_WORKSPACE/incoming/source.zip.part02"
+          node download-one.mjs "$PART03_URL" "$GITHUB_WORKSPACE/incoming/source.zip.part03"
+          node download-one.mjs "$PART04_URL" "$GITHUB_WORKSPACE/incoming/source.zip.part04"
+
           cd "$GITHUB_WORKSPACE"
           test "$(stat -c %s incoming/source.zip.part00)" -eq 50331648
           test "$(stat -c %s incoming/source.zip.part01)" -eq 50331648
