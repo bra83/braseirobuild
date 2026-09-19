@@ -20,24 +20,44 @@ function mapTales(p){
  out.conditions=lines(k.conditions||[]);
  out.broken=k.broken===true?'Sim':k.broken===false?'Não':text(k.broken);
  out.gear=lines((k.inventory||[]).map(i=>`${text(i?.name)}${i?.bonus!==undefined?` (+${i.bonus})`:''}${i?.iconic?' — Item Icônico':''}`));
- out.notes=lines([k.pride_available===false?'Orgulho já utilizado nesta sessão.':'',p.version!==undefined?`Formato importado: ${text(p.format)} v${p.version}`:'']);
+ out.notes=lines([k.xp!==undefined?`XP importado: ${k.xp}`:'',k.portrait_asset?`Retrato: ${k.portrait_asset}`:'',k.pride_available===false?'Orgulho já utilizado nesta sessão.':'',p.version!==undefined?`Formato importado: ${text(p.format)} v${p.version}`:'']);
  out._externalSource={format:p.format||'braseiro-tales-kid',version:p.version??null,profile:p.profile||'tales_kid'};
  return {system:'tftl',sourceLabel:'Tales from the Loop',character:out};
 }
 function mapWwn(p){
  const c=p.character||{},out={};
- out.name=text(c.name);out.concept=text(c.goal);out.class=WWN_CLASS[c.classId]||text(c.classId);out.level=num(c.level);out.xp=num(c.xp);
- out.partial_classes=lines(c.partialClasses||c.classPath?.partialClasses||[]);
- const focus=(c.foci||[])[0];out.foci=focus?(WWN_FOCUS[focus.focusId]||WWN_FOCUS[focus.name]||text(focus.name||focus.focusId)):'';
+ out.name=text(c.name);out.goal=text(c.goal);
+ const partial=(c.partialClasses||c.classPath?.partialClasses||[]).map(x=>String(x).toUpperCase()).filter(Boolean);
+ if(String(c.classId||'').toUpperCase()==='ADVENTURER'&&partial.length>=2)out.class_path='ADV:'+partial.slice(0,2).join('+');
+ else if(String(c.classId||'').toUpperCase()==='WARRIOR')out.class_path='FULL:WARRIOR';
+ else if(String(c.classId||'').toUpperCase()==='EXPERT')out.class_path='FULL:EXPERT';
+ else {const full=String(c.classPath?.fullClass||c.classPath?.classId||'').toUpperCase();if(full)out.class_path='FULL:'+full;}
+ const bg=typeof c.background==='string'?c.background:(c.background?.id||c.backgroundId||'');if(bg)out.background=text(bg);
+ const focus=(c.foci||[])[0];if(focus)out.focus_any=text(focus.focusId||focus.id||focus.name);
  for(const [src,dst] of Object.entries(WWN_ATTR))if(c.attributes&&c.attributes[src]!==undefined)out[dst]=num(c.attributes[src]);
- out.hp=c.hp?`${num(c.hp.current)} / ${num(c.hp.max)}`:'';out.attack_bonus=num(c.baseAttackBonus);
+ out.hp=num(c.hp?.current??c.hp?.max);out.attack_bonus=num(c.baseAttackBonus);
  out.physical_save=num(c.savingThrows?.Physical);out.evasion_save=num(c.savingThrows?.Evasion);out.mental_save=num(c.savingThrows?.Mental);out.luck_save=num(c.savingThrows?.Luck);
  for(const [src,dst] of Object.entries(WWN_SKILLS))if(c.skills&&c.skills[src]!==undefined)out[dst]=num(c.skills[src]);
- const effort=Object.entries(c.effort||{}).map(([id,e])=>`${id}: ${num(e?.current)} / ${num(e?.max)}`);out.effort=lines(effort);
- const arts=(c.arts||[]).map(a=>`Arte: ${text(a?.name||a?.artId)}`);const spells=(c.magic?.startingSpells||[]).map(s=>`Magia: ${text(s?.name||s?.spellId)}`);out.arts_spells=lines([...arts,...spells]);
- out.languages=lines(c.languages||[]);out.silver=num(c.silver);out.system_strain=c.systemStrain?`${num(c.systemStrain.current)} / ${num(c.systemStrain.max)}`:'';
- out.gear=lines((c.inventory||[]).map(i=>typeof i==='string'?i:text(i?.name||i?.id||JSON.stringify(i))));
- out.notes=lines([c.characterId?`ID: ${c.characterId}`:'',out.partial_classes?`Classes parciais: ${out.partial_classes.replaceAll('\n',' + ')}`:'',c.creationProvenance?.rule?`Criação: ${c.creationProvenance.rule}`:'',p.version!==undefined?`Formato importado: ${text(p.format)} v${p.version}`:'']);
+ const spells=(c.magic?.startingSpells||[]).map(x=>text(x?.name||x?.spellId||x)).filter(Boolean);if(spells.length)out.starting_spells=spells;
+ const effort=Object.entries(c.effort||{}).map(([id,e])=>id+': '+num(e?.current)+' / '+num(e?.max));
+ const arts=(c.arts||[]).map(a=>'Arte: '+text(a?.name||a?.artId));
+ const gear=(c.inventory||[]).map(i=>typeof i==='string'?i:text(i?.name||i?.id||JSON.stringify(i)));
+ out.notes=lines([
+   c.characterId?'ID: '+c.characterId:'',
+   c.level!==undefined?'Nível importado: '+c.level:'',
+   c.xp!==undefined?'XP importado: '+c.xp:'',
+   partial.length?'Classes parciais: '+partial.join(' + '):'',
+   c.hp?'HP importado: '+num(c.hp.current)+' / '+num(c.hp.max):'',
+   effort.length?'Effort importado:\n'+effort.join('\n'):'',
+   arts.length?'Arts importadas:\n'+arts.join('\n'):'',
+   spells.length?'Magias iniciais importadas:\n'+spells.join('\n'):'',
+   (c.languages||[]).length?'Idiomas: '+(c.languages||[]).join(', '):'',
+   c.silver!==undefined?'Prata: '+c.silver:'',
+   c.systemStrain?'System Strain: '+num(c.systemStrain.current)+' / '+num(c.systemStrain.max):'',
+   gear.length?'Inventário importado:\n'+gear.join('\n'):'',
+   c.creationProvenance?.rule?'Criação: '+c.creationProvenance.rule:'',
+   p.version!==undefined?'Formato importado: '+text(p.format)+' v'+p.version:''
+ ]);
  out._externalSource={format:p.format||'BRASEIRO_WWN_CHARACTER',version:p.version??null,system:p.system||'WWN'};
  return {system:'wwn',sourceLabel:'Worlds Without Number',character:out};
 }
@@ -95,7 +115,7 @@ function mapTraveller(p){
  const other=[];for(const [name,val] of Object.entries(c.skills||{})){const dst=TRAV_SKILLS[name];if(dst)out[dst]=num(val);else other.push(name+' '+val);}out.other_skills=lines(other);
  out.contacts=lines((c.relations||[]).map(r=>(r.name||'Sem nome')+' — '+(r.type||'Relação')+(r.note?' — '+r.note:'')));out.benefits=lines(c.benefits||[]);out.finances=lines(['Créditos: '+(c.credits??0),'Pensão: '+(c.pension??0),'Dívida médica: '+(c.medicalDebt??0)]);out.ship='Ship Shares: '+(c.shipShares??0);
  const fmt=(arr,label)=>(arr||[]).map(x=>label+': '+text(x?.name||x?.id)+(x?.quantity!==undefined?' x'+x.quantity:'')+(x?.mass!==undefined?' — massa '+x.mass:''));out.equipment=lines([...fmt(c.weapons,'Arma'),...fmt(c.armor,'Armadura'),...fmt(c.gear,'Item')]);
- out.notes=lines([c.injuries?.length?'Ferimentos: '+c.injuries.map(x=>typeof x==='string'?x:text(x?.name||JSON.stringify(x))).join('; '):'',c.notes,c.portraitPrompt?'Retrato: '+c.portraitPrompt:'',...(c.creationLog||[]).map(x=>x.label+': '+x.detail+(x.manualReference?' ['+x.manualReference+']':'')),p.ruleset?.title?'Fonte: '+p.ruleset.title:'']);out._externalSource={format:p.format,version:p.version??null,profile:p.ruleset?.system};return {system:'traveller',sourceLabel:'Traveller 2ª edição',character:out};
+ out.notes=lines([out.other_skills?`Outras perícias / especializações:\n${out.other_skills}`:'',c.injuries?.length?'Ferimentos: '+c.injuries.map(x=>typeof x==='string'?x:text(x?.name||JSON.stringify(x))).join('; '):'',c.notes,c.portraitPrompt?'Retrato: '+c.portraitPrompt:'',...(c.creationLog||[]).map(x=>x.label+': '+x.detail+(x.manualReference?' ['+x.manualReference+']':'')),p.ruleset?.title?'Fonte: '+p.ruleset.title:'']);out._externalSource={format:p.format,version:p.version??null,profile:p.ruleset?.system};return {system:'traveller',sourceLabel:'Traveller 2ª edição',character:out};
 }
 function mapGenericSheet(p){const profile=String(p.system_id||p.rules_profile||'').toLowerCase(),c=p.character||{};if(profile.includes('pathfinder')||profile==='pf2e')return mapPf2(p);if(!profile&&c.class_name&&c.species&&c.background&&(c.saving_throws||c.spellcasting||c.proficiency_bonus))return mapDndSheet(p);if(profile.includes('dnd')||profile.includes('5e'))return mapDndSheet(p);return null;}
 function map(payload){
