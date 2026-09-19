@@ -27,48 +27,26 @@ jobs:
           ROOT="$(dirname "$(find work -maxdepth 3 -type f -name package.json | head -n1)")"
           test -n "$ROOT"
           echo "ROOT=$ROOT" >> "$GITHUB_ENV"
-          echo "ROOT=$ROOT"
-      - name: Relevant file inventory
+      - name: Focused source dump
         shell: bash
         run: |
           set -euo pipefail
-          echo '=== CANDIDATE FILES ==='
-          find "$ROOT" -type f \( -name '*.ts' -o -name '*.tsx' -o -name '*.kt' -o -name '*.java' \) \
-            | grep -Ei 'gemini|config|setting|gameview|immersive|campaign|chron|adventure|location|map' \
-            | sed "s#^$ROOT/##" | sort | head -n 300
-      - name: Gemini and start flow
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo '=== GEMINI MODEL / KEY / START / RESTART HITS ==='
-          grep -RniE --include='*.ts' --include='*.tsx' --include='*.kt' --include='*.java' \
-            'gemini|modelName|selectedModel|apiKey|Começar aventura|Comecar aventura|reiniciar crônica|reiniciar cronica|startAdventure|startCampaign|restartChron|newCampaign' "$ROOT" \
-            | grep -vE '/node_modules/|/dist/|/android/app/src/main/assets/' \
-            | head -n 1600 || true
-      - name: Current image and illustration flow
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo '=== CURRENT IMAGE / LOCATION ART HITS ==='
-          grep -RniE --include='*.ts' --include='*.tsx' \
-            'currentImage|locationImage|sceneImage|poi.*image|image.*poi|backgroundImage|opacity|resolve.*Image|currentNode' "$ROOT" \
-            | grep -vE '/node_modules/|/dist/|/android/app/src/main/assets/' \
-            | head -n 1600 || true
-      - name: Dump key files
-        shell: bash
-        run: |
-          set -euo pipefail
-          for f in \
-            components/GameView.tsx \
-            components/immersive/ImmersiveJourneyView.tsx \
-            components/SettingsView.tsx \
-            components/SettingsModal.tsx \
-            services/geminiService.ts \
-            services/gemini.ts \
-            lib/gemini.ts \
-            App.tsx; do
-            if [ -f "$ROOT/$f" ]; then
-              echo "===== FILE: $f ====="
-              sed -n '1,420p' "$ROOT/$f"
-            fi
-          done
+          echo '===== App.tsx 1940-2055 ====='
+          sed -n '1940,2055p' "$ROOT/App.tsx"
+          echo '===== App.tsx 2100-2185 ====='
+          sed -n '2100,2185p' "$ROOT/App.tsx"
+          echo '===== App.tsx currentImage state/handlers ====='
+          grep -n -B8 -A18 'currentImage\|setCurrentImage\|handleImportSceneImage\|handleRegenerateImage' "$ROOT/App.tsx" | head -n 700 || true
+          echo '===== SettingsView.tsx ====='
+          sed -n '1,240p' "$ROOT/components/SettingsView.tsx"
+          echo '===== ImmersiveJourneyView.tsx ====='
+          sed -n '1,260p' "$ROOT/components/immersive/ImmersiveJourneyView.tsx"
+          echo '===== GameView immersive section ====='
+          sed -n '300,430p' "$ROOT/components/GameView.tsx"
+          echo '===== GameView adventure section ====='
+          sed -n '450,525p' "$ROOT/components/GameView.tsx"
+          echo '===== geminiService models ====='
+          sed -n '60,115p' "$ROOT/services/geminiService.ts"
+          sed -n '430,585p' "$ROOT/services/geminiService.ts"
+          echo '===== apiKey ====='
+          sed -n '1,180p' "$ROOT/lib/apiKey.ts"
