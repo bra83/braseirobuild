@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - ".github/workflows/build-cyberpunk-r545.yml"
+      - ".github/workflows/build-cyberpunk-r545-release.yml"
       - "CYBERPUNK_RED_R5_45_BUILD_TRIGGER.txt"
   workflow_dispatch:
 
