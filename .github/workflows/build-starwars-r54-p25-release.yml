@@ -14,8 +14,8 @@ env:
   SOURCE_SHARE_URL: 'https://firestorage.ai/ja/f/PpO4v-y3UHQ0'
   SOURCE_SHA256: '909df10ae58c45891508629ec54f1ce54a9f9ebdc42e0832582b3d0f46f0ad4e'
   SOURCE_NAME: 'STAR_WARS_EDGE_OF_THE_GALAXY_R54_P24_ITEM_WEAPON_IMAGES_FIXED.zip'
-  PATCH_SHARE_URL: 'https://firestorage.ai/ja/f/m17E5egrnZYP'
-  PATCH_SHA256: 'df85f2f93ee9ea18c7f265382cb91964d2efd0bf799feffbc0a089dd4070d14a'
+  PATCH_SHARE_URL: 'https://firestorage.ai/ja/f/p-bbMuR_Xvzm'
+  PATCH_SHA256: '3864012679e24c3c67ce78c4ff0280535c3ebec609cf63139bf0a109f422d063'
   APK_NAME: 'BRASEIRO_STAR_WARS_EDGE_R54_P25_DEBUG.apk'
   TAG: 'STAR-WARS-EDGE-R54-P25'
 
@@ -105,6 +105,18 @@ jobs:
         working-directory: work/android
         run: |
           set -euo pipefail
+          npm install --silent --no-save typescript@5.7.3
+          python3 - <<'PY'
+          from pathlib import Path
+          for rel in ['build-ui-bridge-bundle.mjs','tools/build-ui-bridge-bundle.mjs']:
+              p=Path(rel);s=p.read_text()
+              s=s.replace("const ts=require('/opt/nvm/versions/node/v22.16.0/lib/node_modules/typescript/lib/typescript.js');","const ts=require('typescript');")
+              p.write_text(s)
+          p=Path('tests/r54-p23-persistent-npc-tokens.test.mjs');s=p.read_text()
+          s=s.replace("assert.match(runtime,/TORSO PARA CIMA/);","assert.match(runtime,/CLOSE-UP DE CABEÇA E OMBROS/);")
+          s=s.replace("assert.match(runtime,/ROSTO inteiro claramente visível/);","assert.match(runtime,/ROSTO inteiro claramente visível/); assert.match(runtime,/65%/);")
+          p.write_text(s)
+          PY
           cat > tests/tts-multiblock-p9.test.mjs <<'TEST'
           import test from 'node:test';
           import assert from 'node:assert/strict';
@@ -136,6 +148,7 @@ jobs:
           });
           TEST
           python3 tools/run-node-suite.py --regular | tee "$GITHUB_WORKSPACE/out/P25_REGULAR.txt"
+          rm -rf node_modules
 
       - uses: actions/setup-java@v5
         with:
