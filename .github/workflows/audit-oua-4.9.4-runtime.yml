@@ -1,0 +1,75 @@
+name: Audit OUA 4.9.4 Runtime
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-oua-4.9.4-runtime.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p incoming work
+          gh release download OUA-v4.9.4 --pattern 'OUA_4.9.4_VISUAL_FIX_ANDROID_STUDIO.zip' --dir incoming
+          unzip -q incoming/OUA_4.9.4_VISUAL_FIX_ANDROID_STUDIO.zip -d work
+          ROOT="$(dirname "$(find work -maxdepth 3 -type f -name package.json | head -n1)")"
+          test -n "$ROOT"
+          echo "ROOT=$ROOT" >> "$GITHUB_ENV"
+          echo "ROOT=$ROOT"
+      - name: Relevant file inventory
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '=== CANDIDATE FILES ==='
+          find "$ROOT" -type f \( -name '*.ts' -o -name '*.tsx' -o -name '*.kt' -o -name '*.java' \) \
+            | grep -Ei 'gemini|config|setting|gameview|immersive|campaign|chron|adventure|location|map' \
+            | sed "s#^$ROOT/##" | sort | head -n 300
+      - name: Gemini and start flow
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '=== GEMINI MODEL / KEY / START / RESTART HITS ==='
+          grep -RniE --include='*.ts' --include='*.tsx' --include='*.kt' --include='*.java' \
+            'gemini|modelName|selectedModel|apiKey|Começar aventura|Comecar aventura|reiniciar crônica|reiniciar cronica|startAdventure|startCampaign|restartChron|newCampaign' "$ROOT" \
+            | grep -vE '/node_modules/|/dist/|/android/app/src/main/assets/' \
+            | head -n 1200 || true
+      - name: Current image and illustration flow
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '=== CURRENT IMAGE / LOCATION ART HITS ==='
+          grep -RniE --include='*.ts' --include='*.tsx' \
+            'currentImage|locationImage|sceneImage|poi.*image|image.*poi|backgroundImage|opacity|resolve.*Image|currentNode' "$ROOT" \
+            | grep -vE '/node_modules/|/dist/|/android/app/src/main/assets/' \
+            | head -n 1200 || true
+      - name: Dump key files
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in \
+            components/GameView.tsx \
+            components/immersive/ImmersiveJourneyView.tsx \
+            components/SettingsView.tsx \
+            components/SettingsModal.tsx \
+            services/geminiService.ts \
+            services/gemini.ts \
+            lib/gemini.ts \
+            App.tsx; do
+            if [ -f "$ROOT/$f" ]; then
+              echo "===== FILE: $f ====="
+              sed -n '1,260p' "$ROOT/$f"
+            fi
+          done
