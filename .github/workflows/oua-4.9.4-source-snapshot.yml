@@ -1,0 +1,71 @@
+name: OUA 4.9.4 Source Snapshot
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/oua-4.9.4-source-snapshot.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download 4.9.4 source release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf incoming work ci/oua-4.9.4/source-snapshot
+          mkdir -p incoming work ci/oua-4.9.4/source-snapshot
+          gh release download OUA-v4.9.4 --pattern 'OUA_4.9.4_VISUAL_FIX_ANDROID_STUDIO.zip' --dir incoming
+          unzip -q incoming/OUA_4.9.4_VISUAL_FIX_ANDROID_STUDIO.zip -d work
+          ROOT="$(dirname "$(find work -maxdepth 4 -type f -name package.json | head -n1)")"
+          test -n "$ROOT"
+          echo "ROOT=$ROOT" >> "$GITHUB_ENV"
+
+      - name: Capture relevant source
+        shell: bash
+        run: |
+          set -euo pipefail
+          SNAP="$GITHUB_WORKSPACE/ci/oua-4.9.4/source-snapshot"
+          cd "$ROOT"
+          for f in             App.tsx             components/GameView.tsx             components/immersive/ImmersiveJourneyView.tsx             components/immersive/PartyCluster.tsx             android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt             package.json; do
+            if [ -f "$f" ]; then
+              mkdir -p "$SNAP/$(dirname "$f")"
+              cp "$f" "$SNAP/$f"
+            fi
+          done
+
+          find . -type f \( -name '*.ts' -o -name '*.tsx' -o -name '*.kt' -o -name '*.java' \)             ! -path './node_modules/*' ! -path './android/.gradle/*' ! -path './android/app/build/*'             -print0 | while IFS= read -r -d '' f; do
+              if grep -qiE 'gemini|currentImage|startCampaign|startAdventure|restartChron|reiniciar|começar aventura|comecar aventura|selectedModel|modelName|geminiModel|apiKey|location image|locationImage|POI|currentHex|selectedHex' "$f"; then
+                rel="${f#./}"
+                mkdir -p "$SNAP/$(dirname "$rel")"
+                cp "$f" "$SNAP/$rel"
+              fi
+            done
+
+          grep -RniE --include='*.ts' --include='*.tsx' --include='*.kt' --include='*.java'             'gemini|currentImage|startCampaign|startAdventure|restartChron|reiniciar|começar aventura|comecar aventura|selectedModel|modelName|geminiModel|apiKey|locationImage|POI|currentHex|selectedHex'             . --exclude-dir=node_modules --exclude-dir=.gradle --exclude-dir=build             > "$SNAP/SEARCH_INDEX.txt" || true
+
+          find "$SNAP" -type f | sort > "$SNAP/FILES.txt"
+
+      - name: Commit snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ci/oua-4.9.4/source-snapshot
+          if git diff --cached --quiet; then
+            echo 'No snapshot changes'
+            exit 0
+          fi
+          git commit -m 'chore(oua): snapshot 4.9.4 runtime sources for repair'
+          git push
