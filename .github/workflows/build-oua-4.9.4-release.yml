@@ -103,7 +103,7 @@ jobs:
           npm run build:offline
           node scripts/use-offline-dist.mjs
           node scripts/sync-android-assets.mjs
-          node scripts/test-android-module-graph.mjs
+          node --experimental-vm-modules scripts/test-android-module-graph.mjs
           cat > VALIDACAO_OUA_4.9.4_VISUAL_FIX.txt <<'EOF'
           O Um Anel 4.9.4 VISUAL FIX
           PASS — runtime offline recompilado
