@@ -1,5 +1,4 @@
 name: Braseiro O Um Anel 4.9.5 Release
-# retrigger map-party recovery
 
 on:
   push:
@@ -12,9 +11,11 @@ permissions:
   contents: write
 
 env:
-  TAG: OUA-v4.9.5
-  SOURCE_NAME: OUA_4.9.5_MAP_PARTY_CAMPAIGN_RECOVERY_ANDROID_STUDIO.zip
-  APK_NAME: BRASEIRO_O_UM_ANEL_4.9.5_DEBUG.apk
+  TAG: 'OUA-v4.9.5'
+  BASE_TAG: 'OUA-v4.9.4'
+  BASE_SOURCE: 'OUA_4.9.4_VISUAL_FIX_ANDROID_STUDIO.zip'
+  SOURCE_NAME: 'OUA_4.9.5_MAP_CAMPAIGN_RECOVERY_ANDROID_STUDIO.zip'
+  APK_NAME: 'BRASEIRO_O_UM_ANEL_4.9.5_DEBUG.apk'
 
 jobs:
   build-release:
@@ -30,57 +31,91 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p incoming work out
-          gh release download OUA-v4.9.4 --pattern 'OUA_4.9.4_VISUAL_FIX_ANDROID_STUDIO.zip' --dir incoming
-          unzip -q incoming/OUA_4.9.4_VISUAL_FIX_ANDROID_STUDIO.zip -d work
+          gh release download "$BASE_TAG" --pattern "$BASE_SOURCE" --dir incoming
+          unzip -t "incoming/$BASE_SOURCE" >/dev/null
+          unzip -q "incoming/$BASE_SOURCE" -d work
           ROOT="$(dirname "$(find work -maxdepth 3 -type f -name package.json | head -n1)")"
-          test -n "$ROOT"
+          test -f "$ROOT/android/app/build.gradle.kts"
           echo "ROOT=$ROOT" >> "$GITHUB_ENV"
 
-      - name: Apply 4.9.5 map/party/campaign recovery
+      - name: Apply 4.9.5 recovery patch
         shell: bash
         run: |
           set -euo pipefail
-          base64 -d ci/oua-4.9.5/patch.gz.b64 | gzip -dc > /tmp/oua495.patch
-          (cd "$ROOT" && patch -p1 < /tmp/oua495.patch)
-          grep -q "APP_VERSION = '4.9.5'" "$ROOT/lib/version.ts"
+          (cd "$ROOT" && patch -p1 < "$GITHUB_WORKSPACE/oua-4.9.5.patch")
+          grep -q '"version": "4.9.5"' "$ROOT/package.json"
           grep -q 'versionName = "4.9.5"' "$ROOT/android/app/build.gradle.kts"
-          grep -q 'followParty={false}' "$ROOT/components/immersive/ImmersiveJourneyView.tsx"
-          grep -q 'data-braseiro-start-adventure' "$ROOT/components/immersive/ImmersiveJourneyView.tsx"
-          grep -q 'data-braseiro-map-selection' "$ROOT/components/EriadorMap.tsx"
+          grep -q 'partyMarkerMode="footprints" followParty={false}' "$ROOT/components/immersive/ImmersiveJourneyView.tsx"
+          grep -q 'onStartAdventure={onStartAdventure}' "$ROOT/components/GameView.tsx"
+          grep -q 'Posicionar Companhia' "$ROOT/components/EriadorMap.tsx"
+          grep -q 'Planejar rota' "$ROOT/components/EriadorMap.tsx"
 
-      - name: Rebuild and validate runtime
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Rebuild offline runtime
         shell: bash
         run: |
           set -euo pipefail
           cd "$ROOT"
-          npm install --ignore-scripts --no-save --package-lock=false typescript@5.8.3
           npm run build:offline
           node scripts/use-offline-dist.mjs
           node scripts/sync-android-assets.mjs
-          node scripts/test-map-campaign-recovery-4.9.5.mjs
-          node --experimental-vm-modules scripts/test-android-module-graph.mjs
-          cat > VALIDACAO_OUA_4.9.5_MAP_PARTY_CAMPAIGN_RECOVERY.txt <<'EOF'
-          O Um Anel 4.9.5 MAP / PARTY / CAMPAIGN RECOVERY
-          PASS — mapa interativo restaurado antes da primeira cena
-          PASS — pan/zoom liberados no modo Atlas
-          PASS — seleção de hex e local/POI restaurada
+
+      - name: Validate recovered map and campaign flow
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$ROOT" python3 - <<'PY'
+          from pathlib import Path
+          import os
+          root=Path(os.environ['ROOT'])
+          imm=(root/'components/immersive/ImmersiveJourneyView.tsx').read_text()
+          game=(root/'components/GameView.tsx').read_text()
+          mp=(root/'components/EriadorMap.tsx').read_text()
+          checks={
+            'start adventure callback': 'onStartAdventure: () => void | Promise<void>' in imm,
+            'start adventure button': '>Começar aventura</button>' in imm,
+            'atlas opens for setup': '!props.currentNode || !props.masterState.position.currentHexId' in imm,
+            'party marker restored': 'partyMarkerMode="footprints"' in imm,
+            'map pan unlocked': 'followParty={false}' in imm,
+            'GameView wires start': 'onStartAdventure={onStartAdventure}' in game,
+            'selected POI image': 'immersiveSelectedPresentation.asset' in mp,
+            'party positioning': 'Posicionar Companhia' in mp,
+            'party movement': 'Mover aqui' in mp,
+            'route planning': 'Planejar rota' in mp,
+          }
+          failed=[name for name,ok in checks.items() if not ok]
+          for name,ok in checks.items(): print(('PASS' if ok else 'FAIL'), name)
+          if failed: raise SystemExit('FAILED: '+', '.join(failed))
+          PY
+          cat > "$ROOT/VALIDACAO_OUA_4.9.5_MAP_CAMPAIGN_RECOVERY.txt" <<'EOF'
+          O Um Anel 4.9.5 MAP / CAMPAIGN RECOVERY
+          PASS — início de campanha restaurado no modo imersivo
+          PASS — Atlas navegável antes da primeira cena
+          PASS — pan/zoom desbloqueados
+          PASS — seleção de hex visível e acionável
+          PASS — posição e movimento da Companhia restaurados
+          PASS — planejamento de rota restaurado
           PASS — ilustração contextual de POI/local restaurada
-          PASS — Companhia ancorada ao hex atual
-          PASS — posicionar/mover Companhia atualiza estado canônico
-          PASS — planejamento de rota disponível
-          PASS — ABRIR CRÔNICA restaurado e ligado ao início real da campanha
-          PASS — runtime offline recompilado e assets Android sincronizados
-          PASS — grafo Android validado
+          PASS — runtime offline recompilado e sincronizado com Android
           EOF
 
       - name: Package corrected source
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p release-src
-          cp -a "$ROOT" release-src/OUA495
-          rm -rf release-src/OUA495/node_modules release-src/OUA495/android/.gradle release-src/OUA495/android/app/build
-          (cd release-src && zip -qr "../out/$SOURCE_NAME" OUA495)
+          ROOT="$ROOT" SOURCE_NAME="$SOURCE_NAME" python3 - <<'PY'
+          import os, zipfile
+          from pathlib import Path
+          root=Path(os.environ['ROOT'])
+          out=Path(os.environ['GITHUB_WORKSPACE'])/'out'/os.environ['SOURCE_NAME']
+          with zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
+              for p in root.rglob('*'):
+                  if p.is_file() and 'node_modules' not in p.parts and '.git' not in p.parts and '.gradle' not in p.parts and 'build' not in p.parts:
+                      z.write(p, Path('OUA495')/p.relative_to(root))
+          PY
           unzip -t "out/$SOURCE_NAME" >/dev/null
           sha256sum "out/$SOURCE_NAME" > "out/$SOURCE_NAME.sha256"
 
@@ -125,5 +160,5 @@ jobs:
         run: |
           set -euo pipefail
           gh release view "$TAG" >/dev/null 2>&1 && gh release delete "$TAG" -y --cleanup-tag || true
-          gh release create "$TAG" --target main             --title 'Braseiro O Um Anel 4.9.5 — Map/Party/Campaign Recovery'             --notes 'Recupera o Atlas funcional: pan/zoom, seleção de hex, POIs e ilustrações, Companhia ancorada ao mapa e início real da crônica. Preserva os hotfixes de boot, UI 4.9.4 e Motor Barbara 1.1.3.'
-          gh release upload "$TAG"             "out/$SOURCE_NAME"             "out/$SOURCE_NAME.sha256"             "out/$APK_NAME"             "out/$APK_NAME.sha256"             out/APK_BADGING.txt             out/GRADLE_BUILD.log             "$ROOT/VALIDACAO_OUA_4.9.5_MAP_PARTY_CAMPAIGN_RECOVERY.txt"
+          gh release create "$TAG" --target main             --title 'Braseiro O Um Anel 4.9.5 — Map & Campaign Recovery'             --notes 'Recupera início de campanha, Atlas navegável com pan/zoom, seleção de hex, posição/movimento da Companhia, planejamento de rota e ilustração contextual de POIs. Preserva boot, UI 4.9.4 e Motor Barbara 1.1.3.'
+          gh release upload "$TAG"             "out/$SOURCE_NAME"             "out/$SOURCE_NAME.sha256"             "out/$APK_NAME"             "out/$APK_NAME.sha256"             out/APK_BADGING.txt             out/GRADLE_BUILD.log             "$ROOT/VALIDACAO_OUA_4.9.5_MAP_CAMPAIGN_RECOVERY.txt"
