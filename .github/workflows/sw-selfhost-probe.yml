@@ -8,11 +8,28 @@ jobs:
   probe:
     runs-on: self-hosted
     steps:
-      - name: Probe
+      - name: Probe Android build environment
         shell: powershell
         run: |
+          $ErrorActionPreference='Continue'
           Write-Host "SELF_HOSTED_OK"
-          Write-Host "OS=$env:OS"
           Write-Host "RUNNER_NAME=$env:RUNNER_NAME"
-          java -version
-          if (Test-Path "$env:LOCALAPPDATA\Android\Sdk") { Write-Host "ANDROID_SDK=$env:LOCALAPPDATA\Android\Sdk" }
+          $candidates = @(
+            'C:\Program Files\Android\Android Studio\jbr\bin\java.exe',
+            'C:\Program Files\Android\Android Studio\jre\bin\java.exe',
+            'C:\Program Files\Java\jdk-17\bin\java.exe',
+            'C:\Program Files\Java\jdk-21\bin\java.exe'
+          )
+          foreach($p in $candidates){ Write-Host "JAVA_CANDIDATE $p = $(Test-Path $p)" }
+          $sdks=@(
+            "$env:LOCALAPPDATA\Android\Sdk",
+            "$env:ANDROID_HOME",
+            "$env:ANDROID_SDK_ROOT",
+            'C:\Android\Sdk'
+          )
+          foreach($p in $sdks){ if($p){ Write-Host "SDK_CANDIDATE $p = $(Test-Path $p)" } }
+          Get-Command node -ErrorAction SilentlyContinue | Format-List Source
+          Get-Command npm -ErrorAction SilentlyContinue | Format-List Source
+          Get-Command python -ErrorAction SilentlyContinue | Format-List Source
+          Get-Command git -ErrorAction SilentlyContinue | Format-List Source
+          Get-Command gh -ErrorAction SilentlyContinue | Format-List Source
