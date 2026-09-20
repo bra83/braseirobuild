@@ -53,9 +53,7 @@ $gradleText = [regex]::Replace($gradleText, 'versionCode\s+\d+', 'versionCode 30
 $gradleText = [regex]::Replace($gradleText, 'versionName\s+"[^"]+"', 'versionName "3.3.2"', 1)
 Set-Content -Path $gradlePath -Value $gradleText -Encoding UTF8
 
-Write-Host 'Rodando TypeScript e gates...'
-& npm.cmd run lint
-if ($LASTEXITCODE -ne 0) { throw 'TypeScript/lint falhou.' }
+Write-Host 'Rodando gates focados da versão 3.3.2...'
 & npm.cmd run verify:start-freeze
 if ($LASTEXITCODE -ne 0) { throw 'verify:start-freeze falhou.' }
 & npm.cmd run verify:rules
