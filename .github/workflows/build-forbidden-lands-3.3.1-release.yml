@@ -1,5 +1,5 @@
-name: Forbidden Lands 3.3.1 APK Release
-# release-trigger: 2026-09-19-v2
+name: Forbidden Lands 3.3.2 APK Release
+# release-trigger: 2026-09-20-v1
 
 on:
   push:
@@ -12,25 +12,25 @@ permissions:
   contents: write
 
 env:
-  TAG: 'FORBIDDEN-LANDS-3.3.1-HOTFIX'
-  APK_NAME: 'BRASEIRO_FORBIDDEN_LANDS_3.3.1_DEBUG.apk'
-  SOURCE_NAME: 'Braseiro_Forbidden_Lands_3.3.1_BARBARA_TTS_HOTFIX_ANDROID_STUDIO.zip'
-  SOURCE_SHA256: 'fd4542bafe63911c750eb2dc6aedc9a9848c1e1a883665dc7aaef30408b72b4c'
+  TAG: 'FORBIDDEN-LANDS-3.3.2-TTS-IMAGE'
+  APK_NAME: 'BRASEIRO_FORBIDDEN_LANDS_3.3.2.apk'
+  SOURCE_NAME: 'Braseiro_Forbidden_Lands_3.3.2_TTS_IMAGE_PROMPT_PATCH_ANDROID_STUDIO.zip'
+  SOURCE_SHA256: '83b99e4ced2f635b1c93d79c0dbb9ef5093545ea1c67cf8af2dc88331ce0061c'
   FIRE_API: 'https://api.firestorage.ai/dev/file'
-  SHARE_ID: 'QfQkfhJlnJSH'
-  FILE_ID: '01a0bb9045a771ec9058764e79d9f5a7'
+  SHARE_ID: 'sJUeoArUdSIJ'
+  FILE_ID: '01a0bd4313427307bc87a8337de35d13'
 
 jobs:
   build-release:
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    timeout-minutes: 90
 
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
 
-      - name: Download exact Forbidden Lands 3.3.1 source
+      - name: Download exact Forbidden Lands 3.3.2 source
         shell: bash
         run: |
           set -euo pipefail
@@ -62,72 +62,72 @@ jobs:
           unzip -t "incoming/$SOURCE_NAME" >/dev/null
           unzip -q "incoming/$SOURCE_NAME" -d unpacked
 
-          PROJECT_ROOT="$(find unpacked -mindepth 1 -maxdepth 1 -type d | head -n1)"
-          test -n "$PROJECT_ROOT"
+          if [ -f unpacked/package.json ]; then
+            PROJECT_ROOT="$GITHUB_WORKSPACE/unpacked"
+          else
+            FIRST_DIR="$(find unpacked -mindepth 1 -maxdepth 1 -type d | head -n1)"
+            test -n "$FIRST_DIR"
+            PROJECT_ROOT="$GITHUB_WORKSPACE/$FIRST_DIR"
+          fi
           test -f "$PROJECT_ROOT/package.json"
           test -f "$PROJECT_ROOT/android/gradlew"
-          echo "PROJECT_ROOT=$GITHUB_WORKSPACE/$PROJECT_ROOT" >> "$GITHUB_ENV"
+          echo "PROJECT_ROOT=$PROJECT_ROOT" >> "$GITHUB_ENV"
 
-      - name: Set Android release version 3.3.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install web dependencies from public npm
+        shell: bash
+        working-directory: ${{ env.PROJECT_ROOT }}
+        run: |
+          set -euo pipefail
+          npm config set registry https://registry.npmjs.org/
+          npm config set fetch-retries 5
+          npm config set fetch-retry-mintimeout 2000
+          npm config set fetch-retry-maxtimeout 20000
+          npm config set fetch-timeout 120000
+          npm ci --no-audit --no-fund
+
+      - name: Set Android release version 3.3.2
         shell: bash
         working-directory: ${{ env.PROJECT_ROOT }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          import json
-
+          import json, re
           pkg = Path('package.json')
           data = json.loads(pkg.read_text(encoding='utf-8'))
-          data['version'] = '3.3.1'
+          data['version'] = '3.3.2'
           pkg.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-
           gradle = Path('android/app/build.gradle')
           text = gradle.read_text(encoding='utf-8')
-          text = text.replace('versionCode 303000', 'versionCode 303001')
-          text = text.replace('versionName "3.3.0"', 'versionName "3.3.1"')
+          text = re.sub(r'versionCode\s+\d+', 'versionCode 303002', text, count=1)
+          text = re.sub(r'versionName\s+"[^"]+"', 'versionName "3.3.2"', text, count=1)
           gradle.write_text(text, encoding='utf-8')
           PY
-          grep -q 'versionCode 303001' android/app/build.gradle
-          grep -q 'versionName "3.3.1"' android/app/build.gradle
+          grep -q 'versionCode 303002' android/app/build.gradle
+          grep -q 'versionName "3.3.2"' android/app/build.gradle
 
-      - name: Run Forbidden Lands regression gates
+      - name: TypeScript and Forbidden Lands gates
         shell: bash
         working-directory: ${{ env.PROJECT_ROOT }}
         run: |
           set -euo pipefail
-          node scripts/verify-start-freeze-hotfix.mjs
-          node scripts/verify-block2-p0.mjs
-          node scripts/verify-block3-p0.mjs
-          node --experimental-strip-types scripts/verify-block4-p0.mjs
-          node --experimental-strip-types scripts/verify-block5-rules.mjs
+          npm run lint
+          npm run verify:start-freeze
+          npm run verify:rules
 
-      - name: Seal packaged Android assets against current source
+      - name: Build web runtime and synchronize Android assets
         shell: bash
         working-directory: ${{ env.PROJECT_ROOT }}
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          import hashlib
-          root=Path('.').resolve()
-          files=[]
-          src=root/'src'
-          for p in src.rglob('*'):
-              if p.is_file() and p.suffix.lower() in {'.ts','.tsx','.js','.jsx','.css','.json'}:
-                  files.append(p)
-          files.append(root/'package.json')
-          h=hashlib.sha256()
-          for p in sorted((p for p in files if p.exists()), key=lambda x:str(x.resolve())):
-              rel=p.relative_to(root).as_posix()
-              h.update(rel.encode('utf-8')); h.update(b'\0')
-              h.update(p.read_bytes()); h.update(b'\0')
-          marker=root/'android/app/src/main/assets/public/.braseiro-source-sha256'
-          marker.parent.mkdir(parents=True, exist_ok=True)
-          marker.write_text(h.hexdigest()+'\n', encoding='utf-8')
-          print('Android asset source fingerprint:', h.hexdigest())
-          PY
-          test -f android/app/src/main/assets/public/.braseiro-source-sha256
+          npm run android:sync
+          test -f android/app/src/main/assets/public/index.html
+          grep -R -q 'Modelo TTS' android/app/src/main/assets/public/assets
+          grep -R -q 'Prompt visual da cena' android/app/src/main/assets/public/assets
 
       - uses: actions/setup-java@v5
         with:
@@ -150,7 +150,7 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Assemble installable debug APK
+      - name: Assemble installable APK
         shell: bash
         working-directory: ${{ env.PROJECT_ROOT }}/android
         run: |
@@ -169,8 +169,8 @@ jobs:
           sha256sum "out/$APK_NAME" > "out/$APK_NAME.sha256"
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "out/$APK_NAME" | tee out/APK_BADGING.txt
           grep -q "package: name='com.braseiro.forbiddenlands'" out/APK_BADGING.txt
-          grep -q "versionCode='303001'" out/APK_BADGING.txt
-          grep -q "versionName='3.3.1'" out/APK_BADGING.txt
+          grep -q "versionCode='303002'" out/APK_BADGING.txt
+          grep -q "versionName='3.3.2'" out/APK_BADGING.txt
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "out/$APK_NAME" | tee out/APK_SIGNATURE.txt
 
       - name: Publish GitHub Release
@@ -179,7 +179,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          NOTES='Braseiro Forbidden Lands 3.3.1 — Barbara/TTS hotfix. Inclui correção do bloqueio editorial da abertura, remoção do seletor duplicado de estilo de campanha, continuidade da fila Charon TTS, correções BLOCK5 auditadas, sincronização real dos assets Android e gates BLOCK2–5. Package: com.braseiro.forbiddenlands. APK debug assinado e instalável.'
-          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target main --title 'Braseiro Forbidden Lands 3.3.1 — Barbara + TTS Hotfix' --notes "$NOTES"
+          NOTES='Braseiro Forbidden Lands 3.3.2 — TTS e imagens de cena. TTS Gemini com modelo, voz e direção configuráveis; teste usando a configuração escolhida; modelo de imagem configurável; geração manual ou automática; prompt visual editável por cena; imagem retornada e persistida no card da cena. Web runtime recompilado e sincronizado com Android antes da geração do APK.'
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target main --title 'Braseiro Forbidden Lands 3.3.2 — TTS + Imagem de Cena' --notes "$NOTES"
           gh release upload "$TAG" "out/$APK_NAME" "out/$APK_NAME.sha256" out/APK_BADGING.txt out/APK_SIGNATURE.txt out/GRADLE_BUILD.log --repo "$GITHUB_REPOSITORY" --clobber
           gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url,tagName,name,assets
