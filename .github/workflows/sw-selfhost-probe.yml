@@ -1,35 +1,245 @@
-name: SW Self-hosted Probe
+name: Star Wars R54 P26 Self-hosted APK Release
+
 on:
   pull_request:
     branches: [main]
     paths:
       - '.github/workflows/sw-selfhost-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  P25_RELEASE_URL: 'https://github.com/bra83/braseirobuild/releases/download/STAR-WARS-EDGE-R54-P25/STAR_WARS_EDGE_OF_THE_GALAXY_R54_P25_ANDROID_STUDIO.zip'
+  P26_PATCH_URL: 'https://firestorage.ai/ja/f/EFAOHjYASsBi'
+  P26_PATCH_SHA256: 'bef342d81c7a125bf6a9562ed5c1ff6dce35b62f99ee71daf8ec6c2a767eb6bb'
+  APK_NAME: 'BRASEIRO_STAR_WARS_EDGE_R54_P26_DEBUG.apk'
+  TAG: 'STAR-WARS-EDGE-R54-P26'
+
 jobs:
-  probe:
+  build-release:
     runs-on: self-hosted
+    timeout-minutes: 90
+
     steps:
-      - name: Probe Android build environment
+      - name: Prepare workspace
         shell: powershell
         run: |
-          $ErrorActionPreference='Continue'
-          Write-Host "SELF_HOSTED_OK"
-          Write-Host "RUNNER_NAME=$env:RUNNER_NAME"
-          $candidates = @(
-            'C:\Program Files\Android\Android Studio\jbr\bin\java.exe',
-            'C:\Program Files\Android\Android Studio\jre\bin\java.exe',
-            'C:\Program Files\Java\jdk-17\bin\java.exe',
-            'C:\Program Files\Java\jdk-21\bin\java.exe'
-          )
-          foreach($p in $candidates){ Write-Host "JAVA_CANDIDATE $p = $(Test-Path $p)" }
-          $sdks=@(
-            "$env:LOCALAPPDATA\Android\Sdk",
-            "$env:ANDROID_HOME",
-            "$env:ANDROID_SDK_ROOT",
-            'C:\Android\Sdk'
-          )
-          foreach($p in $sdks){ if($p){ Write-Host "SDK_CANDIDATE $p = $(Test-Path $p)" } }
-          Get-Command node -ErrorAction SilentlyContinue | Format-List Source
-          Get-Command npm -ErrorAction SilentlyContinue | Format-List Source
-          Get-Command python -ErrorAction SilentlyContinue | Format-List Source
-          Get-Command git -ErrorAction SilentlyContinue | Format-List Source
-          Get-Command gh -ErrorAction SilentlyContinue | Format-List Source
+          $ErrorActionPreference='Stop'
+          $root = Join-Path $env:RUNNER_TEMP 'starwars-r54-p26'
+          if(Test-Path $root){ Remove-Item $root -Recurse -Force }
+          New-Item -ItemType Directory -Force -Path $root | Out-Null
+          New-Item -ItemType Directory -Force -Path (Join-Path $root 'incoming') | Out-Null
+          New-Item -ItemType Directory -Force -Path (Join-Path $root 'work') | Out-Null
+          New-Item -ItemType Directory -Force -Path (Join-Path $root 'out') | Out-Null
+          "P26_ROOT=$root" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "ROOT=$root"
+
+      - name: Download exact P25 Android Studio baseline
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $dest = Join-Path $env:P26_ROOT 'incoming\p25.zip'
+          Invoke-WebRequest -Uri $env:P25_RELEASE_URL -OutFile $dest -UseBasicParsing
+          if(!(Test-Path $dest)){ throw 'P25 ZIP not downloaded' }
+          $size=(Get-Item $dest).Length
+          Write-Host "P25_BYTES=$size"
+          if($size -lt 1000000){ throw "P25 ZIP too small: $size" }
+          Expand-Archive -Path $dest -DestinationPath (Join-Path $env:P26_ROOT 'work') -Force
+          $android = Join-Path $env:P26_ROOT 'work\android'
+          if(!(Test-Path (Join-Path $android 'gradlew.bat'))){ throw 'P25 Android Studio source missing gradlew.bat' }
+          if(!(Test-Path (Join-Path $android 'app\src\main\java\com\braseiro\starwarsedge\StarWarsDiceBridge.java'))){ throw 'P25 native dice bridge missing' }
+          if(!(Select-String -Path (Join-Path $android 'app\src\main\java\com\braseiro\starwarsedge\TtsBridge.java') -Pattern 'onDone' -Quiet)){ throw 'P25 sequential TTS missing' }
+
+      - name: Download validated P26 patch
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $dl = Join-Path $env:P26_ROOT 'downloader'
+          New-Item -ItemType Directory -Force -Path $dl | Out-Null
+          Push-Location $dl
+          npm init -y | Out-Null
+          npm install --silent playwright@1.55.0
+          @'
+          const { chromium } = require('playwright');
+          const fs = require('fs');
+          (async()=>{
+            const url=process.env.P26_PATCH_URL;
+            const out=process.env.P26_ROOT+'\\incoming\\p26.zip';
+            let browser;
+            try {
+              browser=await chromium.launch({headless:true,channel:'chrome'});
+            } catch(e) {
+              console.log('Chrome channel unavailable');
+              process.exitCode=42;
+              return;
+            }
+            const ctx=await browser.newContext({acceptDownloads:true,locale:'ja-JP'});
+            const page=await ctx.newPage();
+            let ok=false;
+            for(let attempt=1;attempt<=30 && !ok;attempt++){
+              await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
+              await page.waitForTimeout(2500);
+              const els=page.locator('a,button,[role="button"],input[type="submit"]');
+              const n=Math.min(await els.count(),180);
+              for(let i=0;i<n;i++){
+                const el=els.nth(i);
+                let text='',href='',aria='',title='';
+                try{text=((await el.innerText({timeout:400}))||'').trim()}catch{}
+                try{href=(await el.getAttribute('href'))||''}catch{}
+                try{aria=(await el.getAttribute('aria-label'))||''}catch{}
+                try{title=(await el.getAttribute('title'))||''}catch{}
+                if(!/download|ダウンロード|一括|保存|zip|ファイル/i.test(text+' '+href+' '+aria+' '+title)) continue;
+                try{
+                  const pending=page.waitForEvent('download',{timeout:10000});
+                  await el.click({timeout:5000});
+                  const d=await pending;
+                  await d.saveAs(out);
+                  ok=true;
+                  break;
+                }catch{}
+              }
+              if(!ok) await page.waitForTimeout(2500);
+            }
+            await browser.close();
+            if(!ok || !fs.existsSync(out) || fs.statSync(out).size<1000000) throw new Error('P26 patch download failed');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          '@ | Set-Content -Path download.js -Encoding UTF8
+          node download.js
+          if($LASTEXITCODE -eq 42){
+            npx playwright install chromium
+            (Get-Content download.js -Raw).Replace("chromium.launch({headless:true,channel:'chrome'})","chromium.launch({headless:true})") | Set-Content download.js -Encoding UTF8
+            node download.js
+          }
+          if($LASTEXITCODE -ne 0){ throw "P26 patch browser download failed: $LASTEXITCODE" }
+          Pop-Location
+
+          $zip=Join-Path $env:P26_ROOT 'incoming\p26.zip'
+          $actual=(Get-FileHash -Algorithm SHA256 $zip).Hash.ToLower()
+          Write-Host "P26_SHA256=$actual"
+          if($actual -ne $env:P26_PATCH_SHA256){ throw "P26 SHA mismatch: $actual" }
+          Expand-Archive -Path $zip -DestinationPath (Join-Path $env:P26_ROOT 'incoming\p26') -Force
+
+      - name: Apply P26 validated patch over P25
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $android=Join-Path $env:P26_ROOT 'work\android'
+          $src=Join-Path $env:P26_ROOT 'incoming\p26\p26_patch\files'
+          $vtt=Join-Path $android 'app\src\main\assets\vtt'
+
+          Copy-Item (Join-Path $src 'r46\final-runtime.js') (Join-Path $vtt 'r46\final-runtime.js') -Force
+          Copy-Item (Join-Path $src 'r46\final-runtime.css') (Join-Path $vtt 'r46\final-runtime.css') -Force
+          Copy-Item (Join-Path $src 'r46\r46-shell.bundle.js') (Join-Path $vtt 'r46\r46-shell.bundle.js') -Force
+
+          $planetDest=Join-Path $vtt 'assets\planet-cards'
+          if(Test-Path $planetDest){ Remove-Item $planetDest -Recurse -Force }
+          New-Item -ItemType Directory -Force -Path $planetDest | Out-Null
+          Copy-Item (Join-Path $src 'assets\planet-cards\PLANETA_*.png') $planetDest -Force
+          Copy-Item (Join-Path $src 'tests\*.mjs') (Join-Path $android 'tests') -Force
+
+          $count=(Get-ChildItem $planetDest -Filter 'PLANETA_*.png').Count
+          Write-Host "PLANET_CARDS=$count"
+          if($count -ne 26){ throw "Expected 26 planet cards, got $count" }
+
+          $runtime=Get-Content (Join-Path $vtt 'r46\final-runtime.js') -Raw
+          $shell=Get-Content (Join-Path $vtt 'r46\r46-shell.bundle.js') -Raw
+          foreach($needle in @('sandbox-planet-carousel','openPlanetCardViewer','MESTRE OFFLINE','MESTRE REMOTO','GEMINI','Você ainda não possui uma nave ativa')){
+            if(-not $runtime.Contains($needle)){ throw "P26 runtime contract missing: $needle" }
+          }
+          if(-not $shell.Contains('Não copie a narração')){ throw 'P26 Gemini visual prompt sanitizer missing' }
+
+      - name: Run P26 regression
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $android=Join-Path $env:P26_ROOT 'work\android'
+          Push-Location $android
+          python tools\run-node-suite.py --regular | Tee-Object -FilePath (Join-Path $env:P26_ROOT 'out\P26_REGULAR.txt')
+          if($LASTEXITCODE -ne 0){ throw "Regular regression failed: $LASTEXITCODE" }
+          Pop-Location
+
+      - name: Configure Android Studio JBR and SDK
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $javaHome='C:\Program Files\Android\Android Studio\jbr'
+          $sdk="$env:LOCALAPPDATA\Android\Sdk"
+          if(!(Test-Path "$javaHome\bin\java.exe")){ throw "Android Studio JBR not found: $javaHome" }
+          if(!(Test-Path $sdk)){ throw "Android SDK not found: $sdk" }
+          "JAVA_HOME=$javaHome" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_HOME=$sdk" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdk" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "$javaHome\bin" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          "$sdk\platform-tools" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          & "$javaHome\bin\java.exe" -version
+
+      - name: Build P26 APK
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $android=Join-Path $env:P26_ROOT 'work\android'
+          Push-Location $android
+          .\gradlew.bat clean :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath (Join-Path $env:P26_ROOT 'out\GRADLE_BUILD.log')
+          if($LASTEXITCODE -ne 0){ throw "Gradle build failed: $LASTEXITCODE" }
+
+          $apk=Get-ChildItem -Path 'app\build\outputs\apk\debug' -Filter '*.apk' | Select-Object -First 1
+          if(-not $apk){ throw 'Debug APK not found' }
+          $dest=Join-Path $env:P26_ROOT ('out\'+$env:APK_NAME)
+          Copy-Item $apk.FullName $dest -Force
+          $sha=(Get-FileHash -Algorithm SHA256 $dest).Hash.ToLower()
+          $sha | Set-Content (Join-Path $env:P26_ROOT ('out\'+$env:APK_NAME+'.sha256')) -Encoding ASCII
+          Write-Host "APK_SHA256=$sha"
+
+          $bt=Get-ChildItem "$env:ANDROID_HOME\build-tools" -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          $aapt=Join-Path $bt.FullName 'aapt.exe'
+          if(Test-Path $aapt){
+            & $aapt dump badging $dest | Tee-Object -FilePath (Join-Path $env:P26_ROOT 'out\APK_BADGING.txt')
+            if($LASTEXITCODE -ne 0){ throw 'aapt validation failed' }
+            $badging=Get-Content (Join-Path $env:P26_ROOT 'out\APK_BADGING.txt') -Raw
+            if(-not $badging.Contains("package: name='com.braseiro.starwarsedge'")){ throw 'Unexpected applicationId' }
+          }
+          Pop-Location
+
+      - name: Publish APK to GitHub Release
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $headers=@{
+            Authorization="Bearer $env:GH_TOKEN"
+            Accept='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+          }
+          $repo=$env:GITHUB_REPOSITORY
+          $tag=$env:TAG
+          $api="https://api.github.com/repos/$repo"
+          try{
+            $release=Invoke-RestMethod -Headers $headers -Uri "$api/releases/tags/$tag" -Method Get
+          } catch {
+            $body=@{
+              tag_name=$tag
+              target_commitish='sw-selfhost-apk-build'
+              name='Braseiro Star Wars Edge R54 P26 — Planet Carousel'
+              body='R54 P26: carrossel das 26 fichas de planeta com ampliação/zoom, prompt visual Gemini sanitizado, selo GEMINI/MESTRE REMOTO/MESTRE OFFLINE, token NPC refinado e estado vazio de NAVE. Preserva P25 com dados físicos nativos e TTS sequencial.'
+              draft=$false
+              prerelease=$false
+            } | ConvertTo-Json
+            $release=Invoke-RestMethod -Headers $headers -Uri "$api/releases" -Method Post -Body $body -ContentType 'application/json'
+          }
+
+          $assetPath=Join-Path $env:P26_ROOT ('out\'+$env:APK_NAME)
+          foreach($asset in @($release.assets)){
+            if($asset.name -eq $env:APK_NAME){
+              Invoke-RestMethod -Headers $headers -Uri "$api/releases/assets/$($asset.id)" -Method Delete
+            }
+          }
+          $uploadBase=($release.upload_url -replace '\{\?name,label\}$','')
+          $name=[uri]::EscapeDataString($env:APK_NAME)
+          $uploadUri="$uploadBase?name=$name"
+          $bytes=[System.IO.File]::ReadAllBytes($assetPath)
+          $assetResult=Invoke-RestMethod -Headers $headers -Uri $uploadUri -Method Post -Body $bytes -ContentType 'application/vnd.android.package-archive'
+          Write-Host "RELEASE_URL=$($release.html_url)"
+          Write-Host "APK_URL=$($assetResult.browser_download_url)"
