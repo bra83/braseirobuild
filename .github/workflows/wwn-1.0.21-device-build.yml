@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -69,9 +69,39 @@ jobs:
               if u not in candidates and u.startswith("http"):
                   candidates.append(u)
 
+          # Inspect page scripts too: firestorage is a JS app and the public API path
+          # is defined in its bundles rather than directly in the landing HTML.
+          script_urls = []
+          for m in re.findall(r'''<script[^>]+src=["']([^"']+)''', text, re.I):
+              su = urllib.parse.urljoin(r.geturl(), html.unescape(m))
+              if su not in script_urls:
+                  script_urls.append(su)
+
           for m in re.findall(r'''(?:href|src|action)=["']([^"']+)''', text, re.I):
               if any(k in m.lower() for k in ("download", ".zip", "/file", "/api/", "attachment")):
                   add(m)
+
+          print("landing_len", len(text))
+          print("script_count", len(script_urls))
+          for su in script_urls:
+              print("script", su)
+              try:
+                  sr = fetch(su)
+                  sb = sr.read()
+                  if len(sb) > 5_000_000:
+                      continue
+                  st = sb.decode("utf-8", "replace")
+                  # Pull URL-ish strings and relative API paths from application bundles.
+                  for x in re.findall(r'''https?:\\?/\\?/[^"'<>\\s]+''', st, re.I):
+                      x = x.replace("\\/", "/")
+                      if any(k in x.lower() for k in ("download", "share", "file", "/api/")):
+                          add(x)
+                  for x in re.findall(r'''["']([^"']{1,300})["']''', st):
+                      lx = x.lower()
+                      if ("/api/" in lx or "download" in lx) and ("share" in lx or "file" in lx or "download" in lx):
+                          add(x)
+              except Exception as e:
+                  print("script_probe_error", su, repr(e))
 
           for m in re.findall(r'''https?:\\?/\\?/[^"'<>\\s]+''', text, re.I):
               if any(k in m.lower() for k in ("download", ".zip", "file", "api")):
@@ -173,22 +203,52 @@ jobs:
           cp "$APK" dist/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk
           sha256sum dist/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk | tee dist/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk.sha256
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE_APK
-          path: |
-            dist/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk
-            dist/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk.sha256
-          if-no-files-found: error
-          retention-days: 7
+      - name: Publish APK directly to build branch
+        if: success()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64, json, os, urllib.request
+          token=os.environ["GH_TOKEN"]
+          repo=os.environ["GITHUB_REPOSITORY"]
+          branch=os.environ["GITHUB_REF_NAME"]
+          for local, path in [
+              ("dist/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk","wwn-builds/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk"),
+              ("dist/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk.sha256","wwn-builds/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk.sha256"),
+          ]:
+              data=base64.b64encode(open(local,"rb").read()).decode()
+              api=f"https://api.github.com/repos/{repo}/contents/{path}"
+              headers={"Authorization":f"Bearer {token}","Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"}
+              sha=None
+              try:
+                  rr=urllib.request.urlopen(urllib.request.Request(api+"?ref="+branch,headers=headers),timeout=30)
+                  sha=json.load(rr).get("sha")
+              except Exception:
+                  pass
+              payload={"message":"build(wwn): publish 1.0.21 device APK","content":data,"branch":branch}
+              if sha: payload["sha"]=sha
+              req=urllib.request.Request(api,data=json.dumps(payload).encode(),headers={**headers,"Content-Type":"application/json"},method="PUT")
+              with urllib.request.urlopen(req,timeout=120) as rr:
+                  out=json.load(rr)
+                  print("published", path, out.get("content",{}).get("html_url"))
+          PY
 
-      - name: Upload download diagnostics on failure
+      - name: Dump firestorage discovery context on failure
         if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: WWN_1.0.21_BUILD_DIAGNOSTICS
-          path: |
-            firestorage_landing.html
-          if-no-files-found: ignore
-          retention-days: 1
+        shell: bash
+        run: |
+          echo "=== FIRESTORAGE LANDING SIGNALS ==="
+          if [ -f firestorage_landing.html ]; then
+            python3 - <<'PY'
+          import re
+          t=open("firestorage_landing.html",encoding="utf-8",errors="replace").read()
+          print("len",len(t))
+          for pat in ("__NEXT_DATA__","download","share","file","api","rib86wLwDhxF"):
+              print("\nPATTERN",pat)
+              for m in list(re.finditer(pat,t,re.I))[:10]:
+                  print(t[max(0,m.start()-400):min(len(t),m.end()+800)])
+          PY
+          fi
