@@ -12,44 +12,89 @@ permissions:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    runs-on: self-hosted
+    timeout-minutes: 45
+
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Download verified R5.48 outputs
-        shell: bash
+      - name: Download and verify R5.48 outputs
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
-          set -euo pipefail
-          BASE="https://github.com/bra83/hello-world/releases/download/cyberpunk-red-r5.48-complete-fix-worker"
-          files=(
-            "BRASEIRO-CYBERPUNK-RED-R5.48-DEBUG.apk"
-            "BRASEIRO-CYBERPUNK-RED-R5.48-DEBUG.apk.sha256"
-            "APK_BADGING.txt"
-            "APK_SIGNATURE.txt"
-            "CYBERPUNK_RED_R5_48_COMPLETE_FIX_CHECKPOINT.zip"
-            "CYBERPUNK_RED_R5_48_COMPLETE_FIX_CHECKPOINT.zip.sha256"
-            "R5_48_ZIP_INTEGRITY.txt"
-            "R5_48_SESSION_ANDROID_S23_PROFILE.png"
-            "R5_48_INVENTORY_ANDROID_S23_PROFILE.png"
-            "R5_48_INVENTORY_SCROLL_ANDROID_S23_PROFILE.png"
-            "R5_48_SCREENSHOTS.sha256"
-            "R5_48_LOGCAT.txt"
+          $ErrorActionPreference = 'Stop'
+          $base = 'https://github.com/bra83/hello-world/releases/download/cyberpunk-red-r5.48-complete-fix-worker'
+          $files = @(
+            'BRASEIRO-CYBERPUNK-RED-R5.48-DEBUG.apk',
+            'BRASEIRO-CYBERPUNK-RED-R5.48-DEBUG.apk.sha256',
+            'APK_BADGING.txt',
+            'APK_SIGNATURE.txt',
+            'CYBERPUNK_RED_R5_48_COMPLETE_FIX_CHECKPOINT.zip',
+            'CYBERPUNK_RED_R5_48_COMPLETE_FIX_CHECKPOINT.zip.sha256',
+            'R5_48_ZIP_INTEGRITY.txt',
+            'R5_48_SESSION_ANDROID_S23_PROFILE.png',
+            'R5_48_INVENTORY_ANDROID_S23_PROFILE.png',
+            'R5_48_INVENTORY_SCROLL_ANDROID_S23_PROFILE.png',
+            'R5_48_SCREENSHOTS.sha256',
+            'R5_48_LOGCAT.txt'
           )
-          for f in "${files[@]}"; do
-            curl -fL --retry 4 --retry-delay 2 -o "$f" "$BASE/$f"
-            test -s "$f"
-          done
-          echo "b380d5a3eb767a16bea2fc485486db8f64db81662c801d8f534b526b6f9bb8c0  BRASEIRO-CYBERPUNK-RED-R5.48-DEBUG.apk" | sha256sum -c -
-          echo "d929a71a050a03cd812eead22dbe76b023f0bad4f248c89ca2fab1292e99b6f2  CYBERPUNK_RED_R5_48_COMPLETE_FIX_CHECKPOINT.zip" | sha256sum -c -
+          $out = Join-Path $env:RUNNER_TEMP 'cpred-r548-release'
+          Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          foreach ($name in $files) {
+            $dest = Join-Path $out $name
+            & curl.exe -L --fail --retry 4 --retry-delay 2 -o $dest "$base/$name"
+            if ($LASTEXITCODE -ne 0 -or -not (Test-Path $dest)) { throw "Download failed: $name" }
+          }
+          $apk = Join-Path $out 'BRASEIRO-CYBERPUNK-RED-R5.48-DEBUG.apk'
+          $zip = Join-Path $out 'CYBERPUNK_RED_R5_48_COMPLETE_FIX_CHECKPOINT.zip'
+          $apkHash = (Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          $zipHash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($apkHash -ne 'b380d5a3eb767a16bea2fc485486db8f64db81662c801d8f534b526b6f9bb8c0') { throw "APK SHA mismatch: $apkHash" }
+          if ($zipHash -ne 'd929a71a050a03cd812eead22dbe76b023f0bad4f248c89ca2fab1292e99b6f2') { throw "ZIP SHA mismatch: $zipHash" }
+          "OUTPUT_DIR=$out" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host 'DOWNLOAD_AND_SHA_PASS'
 
-      - name: Publish braseirobuild release
-        shell: bash
+      - name: Create release and upload verified assets
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
-          set -euo pipefail
-          TAG="cyberpunk-red-r5.48-complete-fix"
-          gh release delete "$TAG" -y --cleanup-tag >/dev/null 2>&1 || true
-          gh release create "$TAG" --target "$GITHUB_SHA"             --title "BRASEIRO Cyberpunk RED R5.48 Complete Fix"             --notes "R5.48 verified build. 155/155 runtime weapon entries pass the non-placeholder asset gate. Motor Barbara wheel metadata was repaired for clean Chaquopy builds. Gradle resources, Kotlin/Java compile, assembleDebug, APK signature/badging, install, launch, inventory navigation and scroll all passed. Android emulator used a 1440x3088@560dpi S23-Ultra-like display profile; this is not falsely represented as a physical S23 Ultra. Live production Gemini-key and audible hardware TTS still require the user's physical device."
-          gh release upload "$TAG"             BRASEIRO-CYBERPUNK-RED-R5.48-DEBUG.apk             BRASEIRO-CYBERPUNK-RED-R5.48-DEBUG.apk.sha256             APK_BADGING.txt APK_SIGNATURE.txt             CYBERPUNK_RED_R5_48_COMPLETE_FIX_CHECKPOINT.zip             CYBERPUNK_RED_R5_48_COMPLETE_FIX_CHECKPOINT.zip.sha256             R5_48_ZIP_INTEGRITY.txt             R5_48_SESSION_ANDROID_S23_PROFILE.png             R5_48_INVENTORY_ANDROID_S23_PROFILE.png             R5_48_INVENTORY_SCROLL_ANDROID_S23_PROFILE.png             R5_48_SCREENSHOTS.sha256 R5_48_LOGCAT.txt
+          $ErrorActionPreference = 'Stop'
+          $repo = $env:GITHUB_REPOSITORY
+          $tag = 'cyberpunk-red-r5.48-complete-fix'
+          $headers = @{
+            'Authorization' = "Bearer $env:GITHUB_TOKEN"
+            'Accept' = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'braseiro-self-hosted-release'
+          }
+
+          try {
+            $old = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"
+            if ($old.id) {
+              Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$($old.id)" | Out-Null
+            }
+          } catch {}
+
+          $payload = @{
+            tag_name = $tag
+            target_commitish = 'main'
+            name = 'BRASEIRO Cyberpunk RED R5.48 Complete Fix'
+            body = 'R5.48 verified build. 155/155 runtime weapon entries pass the non-placeholder asset gate. Motor Barbara wheel metadata was repaired for clean Chaquopy builds. Gradle resources, Kotlin/Java compile, assembleDebug, APK signature/badging, install, launch, inventory navigation and scroll all passed. Android emulator used a 1440x3088@560dpi S23-Ultra-like display profile; this is not a physical S23 Ultra. Live production Gemini-key and audible hardware TTS still require the user device.'
+            draft = $false
+            prerelease = $false
+          } | ConvertTo-Json
+
+          $release = Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $payload -Uri "https://api.github.com/repos/$repo/releases"
+          if (-not $release.id) { throw 'Release creation failed' }
+
+          $files = Get-ChildItem $env:OUTPUT_DIR -File
+          foreach ($file in $files) {
+            $encoded = [uri]::EscapeDataString($file.Name)
+            $uploadUrl = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$encoded"
+            & curl.exe -L --fail --retry 3 --retry-delay 2 -X POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: application/octet-stream" --data-binary "@$($file.FullName)" $uploadUrl | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw "Upload failed: $($file.Name)" }
+            Write-Host "UPLOADED $($file.Name)"
+          }
+
+          $verify = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$($release.id)"
+          if ($verify.assets.Count -lt 12) { throw "Release asset count too low: $($verify.assets.Count)" }
+          Write-Host "RELEASE_PASS $($verify.html_url) assets=$($verify.assets.Count)"
