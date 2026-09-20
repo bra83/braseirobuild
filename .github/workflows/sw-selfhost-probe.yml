@@ -38,10 +38,31 @@ jobs:
 
       - name: Download exact P25 Android Studio baseline
         shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference='Stop'
+          $headers=@{
+            Authorization="Bearer $env:GH_TOKEN"
+            Accept='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+          }
+          $repo=$env:GITHUB_REPOSITORY
+          $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/STAR-WARS-EDGE-R54-P25" -Method Get
+          $asset=$release.assets | Where-Object { $_.name -like '*P25*ANDROID*STUDIO*.zip' -or $_.name -like '*P25*.zip' } | Sort-Object size -Descending | Select-Object -First 1
+          if(-not $asset){ 
+            Write-Host "P25 release assets:"
+            $release.assets | ForEach-Object { Write-Host "$($_.name) $($_.size)" }
+            throw 'P25 Android Studio release asset not found'
+          }
+          Write-Host "P25_ASSET=$($asset.name) BYTES=$($asset.size)"
           $dest = Join-Path $env:P26_ROOT 'incoming\p25.zip'
-          Invoke-WebRequest -Uri $env:P25_RELEASE_URL -OutFile $dest -UseBasicParsing
+          $downloadHeaders=@{
+            Authorization="Bearer $env:GH_TOKEN"
+            Accept='application/octet-stream'
+            'X-GitHub-Api-Version'='2022-11-28'
+          }
+          Invoke-WebRequest -Headers $downloadHeaders -Uri "https://api.github.com/repos/$repo/releases/assets/$($asset.id)" -OutFile $dest -UseBasicParsing
           if(!(Test-Path $dest)){ throw 'P25 ZIP not downloaded' }
           $size=(Get-Item $dest).Length
           Write-Host "P25_BYTES=$size"
