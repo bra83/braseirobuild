@@ -10,36 +10,88 @@ on:
 jobs:
   probe:
     runs-on: self-hosted
-    timeout-minutes: 10
+    timeout-minutes: 20
 
     steps:
-      - name: Runner online
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare Windows runner tools
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $gitBin = 'C:\Program Files\Git\bin'
+          if (-not (Test-Path (Join-Path $gitBin 'bash.exe'))) {
+            throw "Git Bash not found at $gitBin"
+          }
+          $gitBin | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+
+          if (-not (Get-Command gh.exe -ErrorAction SilentlyContinue)) {
+            $release = Invoke-RestMethod -Headers @{ 'User-Agent'='braseiro-self-hosted-runner' } -Uri 'https://api.github.com/repos/cli/cli/releases/latest'
+            $asset = $release.assets | Where-Object { $_.name -match 'windows_amd64\.zip$' } | Select-Object -First 1
+            if (-not $asset) { throw 'GitHub CLI Windows amd64 ZIP not found' }
+
+            $ghZip = Join-Path $env:RUNNER_TEMP 'gh-cli.zip'
+            $ghRoot = Join-Path $env:RUNNER_TEMP 'gh-cli'
+            Remove-Item $ghRoot -Recurse -Force -ErrorAction SilentlyContinue
+            Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $ghZip
+            Expand-Archive -Path $ghZip -DestinationPath $ghRoot -Force
+            $ghExe = Get-ChildItem $ghRoot -Filter gh.exe -Recurse | Select-Object -First 1
+            if (-not $ghExe) { throw 'gh.exe not found after extraction' }
+            $ghExe.Directory.FullName | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          }
+
+      - name: Configure Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Configure Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Windows diagnostics
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
           Write-Host "RUNNER_NAME=$env:RUNNER_NAME"
           Write-Host "RUNNER_OS=$env:RUNNER_OS"
           Write-Host "RUNNER_ARCH=$env:RUNNER_ARCH"
           Write-Host "WORKSPACE=$env:GITHUB_WORKSPACE"
-          Write-Host "Self-hosted runner is executing this job."
 
-      - name: Tool diagnostics
-        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
-        run: |
-          $tools = @('git','java','node','npm','gh','adb','sdkmanager')
-          foreach ($tool in $tools) {
+          foreach ($tool in @('git.exe','bash.exe','java.exe','python.exe','node.exe','npm.cmd','gh.exe','adb.exe','sdkmanager.bat')) {
             $cmd = Get-Command $tool -ErrorAction SilentlyContinue
-            if ($cmd) {
-              Write-Host "$tool => $($cmd.Source)"
-            } else {
-              Write-Warning "$tool => NOT FOUND"
-            }
+            if (-not $cmd) { throw "$tool not found" }
+            Write-Host "$tool => $($cmd.Source)"
           }
 
+          java -version
+          python --version
+          gh --version
+          sdkmanager.bat --version
           Write-Host "ANDROID_HOME=$env:ANDROID_HOME"
           Write-Host "ANDROID_SDK_ROOT=$env:ANDROID_SDK_ROOT"
+
+      - name: Git Bash compatibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "BASH=$BASH_VERSION"
+          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
+          cd "$GITHUB_WORKSPACE"
+          pwd
+          git --version
+          java -version
+          python --version
+          gh --version
+          sdkmanager --version
+          echo "GIT_BASH_COMPAT_OK"
 
       - name: Success
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
-          "SELF_HOSTED_WINDOWS_PROBE_OK" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
-          Write-Host "SELF_HOSTED_WINDOWS_PROBE_OK"
+          "SELF_HOSTED_WINDOWS_ANDROID_ENV_OK" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          Write-Host "SELF_HOSTED_WINDOWS_ANDROID_ENV_OK"
