@@ -13,9 +13,6 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Prepare Windows runner tools
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
@@ -81,7 +78,6 @@ jobs:
           set -euo pipefail
           echo "BASH=$BASH_VERSION"
           echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
-          cd "$GITHUB_WORKSPACE"
           pwd
           git --version
           java -version
