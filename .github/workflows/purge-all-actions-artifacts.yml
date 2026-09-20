@@ -1,11 +1,10 @@
 name: Purge all GitHub Actions artifacts
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/purge-all-actions-artifacts.yml"
+  pull_request:
+    types:
+      - opened
+      - synchronize
   workflow_dispatch:
 
 permissions:
@@ -41,22 +40,5 @@ jobs:
               echo "Deleted artifact $id — total $deleted"
             done <<< "$ids"
           done
-
-          completed_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          result="run_id=$GITHUB_RUN_ID
-repository=$REPO
-deleted=$deleted
-completed_at=$completed_at
-"
-
-          encoded="$(printf '%s' "$result" | base64 -w0)"
-          path=".github/purge-artifacts-result.txt"
-          sha="$(gh api "/repos/$REPO/contents/$path?ref=$GITHUB_REF_NAME" --jq '.sha' 2>/dev/null || true)"
-
-          if [ -n "$sha" ]; then
-            gh api               --method PUT               "/repos/$REPO/contents/$path"               -f message="chore: record artifact purge result"               -f content="$encoded"               -f sha="$sha"               -f branch="$GITHUB_REF_NAME" >/dev/null
-          else
-            gh api               --method PUT               "/repos/$REPO/contents/$path"               -f message="chore: record artifact purge result"               -f content="$encoded"               -f branch="$GITHUB_REF_NAME" >/dev/null
-          fi
 
           echo "PURGE COMPLETE: $deleted artifact(s) deleted."
