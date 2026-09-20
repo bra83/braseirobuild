@@ -1,5 +1,9 @@
 name: Self-hosted Windows probe
 
+concurrency:
+  group: self-hosted-windows-probe
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main]
@@ -33,11 +37,6 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Configure Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
       - name: Configure Android SDK
         uses: android-actions/setup-android@v3
 
@@ -51,14 +50,13 @@ jobs:
           Write-Host "RUNNER_ARCH=$env:RUNNER_ARCH"
           Write-Host "WORKSPACE=$env:GITHUB_WORKSPACE"
 
-          foreach ($tool in @('git.exe','java.exe','python.exe','node.exe','npm.cmd','adb.exe','sdkmanager.bat')) {
+          foreach ($tool in @('git.exe','java.exe','node.exe','npm.cmd','adb.exe','sdkmanager.bat')) {
             $cmd = Get-Command $tool -ErrorAction SilentlyContinue
             if (-not $cmd) { throw "$tool not found" }
             Write-Host "$tool => $($cmd.Source)"
           }
 
           java -version
-          python --version
           sdkmanager.bat --version
           Write-Host "ANDROID_HOME=$env:ANDROID_HOME"
           Write-Host "ANDROID_SDK_ROOT=$env:ANDROID_SDK_ROOT"
