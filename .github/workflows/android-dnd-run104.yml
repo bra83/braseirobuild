@@ -1,5 +1,5 @@
-name: Forbidden Lands 3.3.2 Clean Release Build
-# clean-github-runner: 2026-09-20
+name: Forbidden Lands 3.3.2 Direct Release Build
+# direct-selfhosted-no-checkout: 2026-09-20
 
 on:
   push:
@@ -13,168 +13,207 @@ permissions:
 
 jobs:
   build-forbidden-lands:
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
-
-    env:
-      TAG: FORBIDDEN-LANDS-3.3.2-TTS-IMAGE
-      APK_NAME: BRASEIRO_FORBIDDEN_LANDS_3.3.2.apk
-      SOURCE_NAME: Braseiro_Forbidden_Lands_3.3.2_TTS_IMAGE_PROMPT_PATCH_ANDROID_STUDIO.zip
-      SOURCE_SHA256: 83b99e4ced2f635b1c93d79c0dbb9ef5093545ea1c67cf8af2dc88331ce0061c
-      FIRE_API: https://api.firestorage.ai/dev/file
-      SHARE_ID: sJUeoArUdSIJ
-      FILE_ID: 01a0bd4313427307bc87a8337de35d13
+    runs-on: self-hosted
+    timeout-minutes: 120
 
     steps:
-      - name: Node 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Java 21
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: '21'
-
-      - name: Gradle setup
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Download exact 3.3.2 source only
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p "$GITHUB_WORKSPACE/fl-src" "$GITHUB_WORKSPACE/fl-out"
-
-          curl -fsSL "$FIRE_API/shares/$SHARE_ID/files?maxResults=1000" -o /tmp/fl-files.json
-          python3 - <<'PY'
-          import json, os
-          data = json.load(open('/tmp/fl-files.json', encoding='utf-8'))
-          wanted = os.environ['FILE_ID']
-          if not any(str(x.get('fileId')) == wanted for x in (data.get('files') or [])):
-              raise SystemExit('Forbidden Lands 3.3.2 source not found in temporary share')
-          PY
-
-          curl -fsSL -X POST "$FIRE_API/shares/$SHARE_ID/files/$FILE_ID/download" -o /tmp/fl-download.json
-          DOWNLOAD_URL="$(python3 - <<'PY'
-          import json
-          print(json.load(open('/tmp/fl-download.json', encoding='utf-8')).get('downloadUrl') or '')
-          PY
-          )"
-          test -n "$DOWNLOAD_URL"
-
-          curl -fL --retry 5 --retry-delay 3 --connect-timeout 20 --max-time 300             "$DOWNLOAD_URL" -o "$GITHUB_WORKSPACE/$SOURCE_NAME"
-
-          echo "$SOURCE_SHA256  $GITHUB_WORKSPACE/$SOURCE_NAME" | sha256sum -c -
-          unzip -t "$GITHUB_WORKSPACE/$SOURCE_NAME" >/dev/null
-          unzip -q "$GITHUB_WORKSPACE/$SOURCE_NAME" -d "$GITHUB_WORKSPACE/fl-src"
-
-          test -f "$GITHUB_WORKSPACE/fl-src/package.json"
-          test -f "$GITHUB_WORKSPACE/fl-src/android/gradlew"
-          echo "FL_ROOT=$GITHUB_WORKSPACE/fl-src" >> "$GITHUB_ENV"
-
-      - name: Install web dependencies
-        shell: bash
-        working-directory: ${{ env.FL_ROOT }}
-        run: |
-          set -euo pipefail
-          npm config set registry https://registry.npmjs.org/
-          npm config set fetch-retries 5
-          npm config set fetch-retry-mintimeout 2000
-          npm config set fetch-retry-maxtimeout 20000
-          npm config set fetch-timeout 120000
-          npm ci --no-audit --no-fund
-
-      - name: Set app version 3.3.2 without touching legacy source
-        shell: bash
-        working-directory: ${{ env.FL_ROOT }}
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          import json, re
-
-          pkg = Path('package.json')
-          data = json.loads(pkg.read_text(encoding='utf-8-sig'))
-          data['version'] = '3.3.2'
-          pkg.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-
-          gradle = Path('android/app/build.gradle')
-          text = gradle.read_text(encoding='utf-8-sig')
-          text = re.sub(r'versionCode\s+\d+', 'versionCode 303002', text, count=1)
-          text = re.sub(r'versionName\s+"[^"]+"', 'versionName "3.3.2"', text, count=1)
-          gradle.write_text(text, encoding='utf-8')
-          PY
-
-          grep -q 'versionCode 303002' android/app/build.gradle
-          grep -q 'versionName "3.3.2"' android/app/build.gradle
-
-      - name: Run focused Forbidden Lands gates
-        shell: bash
-        working-directory: ${{ env.FL_ROOT }}
-        run: |
-          set -euo pipefail
-          npm run verify:start-freeze
-          npm run verify:rules
-
-      - name: Build web runtime and sync Android
-        shell: bash
-        working-directory: ${{ env.FL_ROOT }}
-        run: |
-          set -euo pipefail
-          npm run android:sync
-          test -f android/app/src/main/assets/public/index.html
-          grep -R -q 'Modelo TTS' android/app/src/main/assets/public/assets
-          grep -R -q 'Prompt visual da cena' android/app/src/main/assets/public/assets
-
-      - name: Configure Android SDK 36
-        shell: bash
-        run: |
-          set -euo pipefail
-          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
-          export ANDROID_SDK_ROOT="$ANDROID_HOME"
-          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0'
-          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
-          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
-          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
-          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
-
-      - name: Assemble APK
-        shell: bash
-        working-directory: ${{ env.FL_ROOT }}/android
-        run: |
-          set -euo pipefail
-          chmod +x ./gradlew
-          ./gradlew :app:assembleDebug --stacktrace --console=plain --no-daemon             2>&1 | tee "$GITHUB_WORKSPACE/fl-out/GRADLE_BUILD.log"
-
-          APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | head -n1)"
-          test -f "$APK"
-          cp "$APK" "$GITHUB_WORKSPACE/fl-out/$APK_NAME"
-
-      - name: Validate APK
-        shell: bash
-        run: |
-          set -euo pipefail
-          unzip -t "fl-out/$APK_NAME" >/dev/null
-          sha256sum "fl-out/$APK_NAME" > "fl-out/$APK_NAME.sha256"
-
-          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "fl-out/$APK_NAME" | tee fl-out/APK_BADGING.txt
-          grep -q "package: name='com.braseiro.forbiddenlands'" fl-out/APK_BADGING.txt
-          grep -q "versionCode='303002'" fl-out/APK_BADGING.txt
-          grep -q "versionName='3.3.2'" fl-out/APK_BADGING.txt
-
-          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs             "fl-out/$APK_NAME" | tee fl-out/APK_SIGNATURE.txt
-
-      - name: Publish GitHub Release
+      - name: Build 3.3.2 in short clean path and publish Release
+        shell: powershell
         env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
-          set -euo pipefail
-          NOTES='Braseiro Forbidden Lands 3.3.2. TTS Gemini com modelo, voz e direção configuráveis. Modelo de imagem configurável. Geração manual ou automática de imagem de cena com prompt editável. Runtime web recompilado e sincronizado com Android em runner limpo do GitHub antes da geração do APK.'
+          $ErrorActionPreference = 'Stop'
+          Set-StrictMode -Version Latest
 
-          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 ||             gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA"               --title 'Braseiro Forbidden Lands 3.3.2 — TTS + Imagem de Cena'               --notes "$NOTES"
+          $Tag = 'FORBIDDEN-LANDS-3.3.2-TTS-IMAGE'
+          $ApkName = 'BRASEIRO_FORBIDDEN_LANDS_3.3.2.apk'
+          $SourceName = 'Braseiro_Forbidden_Lands_3.3.2_TTS_IMAGE_PROMPT_PATCH_ANDROID_STUDIO.zip'
+          $SourceSha = '83b99e4ced2f635b1c93d79c0dbb9ef5093545ea1c67cf8af2dc88331ce0061c'
+          $FireApi = 'https://api.firestorage.ai/dev/file'
+          $ShareId = 'sJUeoArUdSIJ'
+          $FileId = '01a0bd4313427307bc87a8337de35d13'
 
-          gh release upload "$TAG"             "fl-out/$APK_NAME"             "fl-out/$APK_NAME.sha256"             fl-out/APK_BADGING.txt             fl-out/APK_SIGNATURE.txt             fl-out/GRADLE_BUILD.log             --repo "$GITHUB_REPOSITORY" --clobber
+          $base = 'C:\FL332'
+          $src = Join-Path $base 'src'
+          $out = Join-Path $base 'out'
+          $zip = Join-Path $base $SourceName
+
+          Set-Location C:\
+          Remove-Item $base -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path $src,$out | Out-Null
+
+          Write-Host '1/8 Baixando somente a fonte Forbidden Lands 3.3.2...'
+          $list = Invoke-RestMethod -Uri "$FireApi/shares/$ShareId/files?maxResults=1000" -Method Get
+          if (-not ($list.files | Where-Object { [string]$_.fileId -eq $FileId })) {
+            throw 'Fonte 3.3.2 não encontrada no share temporário.'
+          }
+          $download = Invoke-RestMethod -Uri "$FireApi/shares/$ShareId/files/$FileId/download" -Method Post
+          if (-not $download.downloadUrl) { throw 'Firestorage não retornou URL de download.' }
+          Invoke-WebRequest -Uri $download.downloadUrl -OutFile $zip
+
+          $actualSha = (Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant()
+          if ($actualSha -ne $SourceSha) { throw "SHA incorreto da fonte: $actualSha" }
+          Expand-Archive -Path $zip -DestinationPath $src -Force
+
+          if (-not (Test-Path (Join-Path $src 'package.json'))) { throw 'package.json ausente.' }
+          if (-not (Test-Path (Join-Path $src 'android\gradlew.bat'))) { throw 'Projeto Android ausente.' }
+
+          Write-Host '2/8 Instalando dependências...'
+          Set-Location $src
+          if (-not (Get-Command npm.cmd -ErrorAction SilentlyContinue)) { throw 'npm.cmd não encontrado no BRELGA.' }
+          & npm.cmd config set registry https://registry.npmjs.org/
+          & npm.cmd config set fetch-retries 5
+          & npm.cmd config set fetch-timeout 120000
+          & npm.cmd ci --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw "npm ci falhou: $LASTEXITCODE" }
+
+          Write-Host '3/8 Fixando versão 3.3.2 sem BOM...'
+          $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+          $pkgPath = Join-Path $src 'package.json'
+          $pkg = Get-Content $pkgPath -Raw | ConvertFrom-Json
+          $pkg.version = '3.3.2'
+          $pkgJson = $pkg | ConvertTo-Json -Depth 50
+          [System.IO.File]::WriteAllText($pkgPath, $pkgJson + [Environment]::NewLine, $utf8NoBom)
+
+          $gradlePath = Join-Path $src 'android\app\build.gradle'
+          $gradleText = Get-Content $gradlePath -Raw
+          $gradleText = [regex]::Replace($gradleText, 'versionCode\s+\d+', 'versionCode 303002', 1)
+          $gradleText = [regex]::Replace($gradleText, 'versionName\s+"[^"]+"', 'versionName "3.3.2"', 1)
+          [System.IO.File]::WriteAllText($gradlePath, $gradleText, $utf8NoBom)
+
+          Write-Host '4/8 Rodando gates focados...'
+          & npm.cmd run verify:start-freeze
+          if ($LASTEXITCODE -ne 0) { throw 'verify:start-freeze falhou.' }
+          & npm.cmd run verify:rules
+          if ($LASTEXITCODE -ne 0) { throw 'verify:rules falhou.' }
+
+          Write-Host '5/8 Recompilando web e sincronizando Android...'
+          & npm.cmd run android:sync
+          if ($LASTEXITCODE -ne 0) { throw 'android:sync falhou.' }
+
+          $assets = Join-Path $src 'android\app\src\main\assets\public\assets'
+          if (-not (Test-Path (Join-Path $src 'android\app\src\main\assets\public\index.html'))) {
+            throw 'index.html Android não foi sincronizado.'
+          }
+          $bundleText = ''
+          Get-ChildItem $assets -Filter *.js -File -Recurse | ForEach-Object {
+            $bundleText += (Get-Content $_.FullName -Raw -ErrorAction SilentlyContinue)
+          }
+          if ($bundleText -notmatch 'Modelo TTS') { throw 'Bundle Android não contém Modelo TTS.' }
+          if ($bundleText -notmatch 'Prompt visual da cena') { throw 'Bundle Android não contém Prompt visual da cena.' }
+
+          Write-Host '6/8 Preparando Java e Android SDK...'
+          if (-not (Get-Command java.exe -ErrorAction SilentlyContinue)) {
+            $javaCandidates = @(
+              'C:\Program Files\Android\Android Studio\jbr',
+              "$env:LOCALAPPDATA\Programs\Android Studio\jbr"
+            )
+            foreach ($candidate in $javaCandidates) {
+              if (Test-Path (Join-Path $candidate 'bin\java.exe')) {
+                $env:JAVA_HOME = $candidate
+                $env:Path = "$candidate\bin;$env:Path"
+                break
+              }
+            }
+          }
+          if (-not (Get-Command java.exe -ErrorAction SilentlyContinue)) { throw 'JDK não encontrado.' }
+          & java.exe -version
+
+          if (-not $env:ANDROID_HOME) {
+            $sdkCandidate = "$env:LOCALAPPDATA\Android\Sdk"
+            if (Test-Path $sdkCandidate) { $env:ANDROID_HOME = $sdkCandidate }
+          }
+          if (-not $env:ANDROID_HOME -or -not (Test-Path $env:ANDROID_HOME)) { throw 'Android SDK não encontrado.' }
+          $env:ANDROID_SDK_ROOT = $env:ANDROID_HOME
+
+          $sdkManager = Join-Path $env:ANDROID_HOME 'cmdline-tools\latest\bin\sdkmanager.bat'
+          if (Test-Path $sdkManager) {
+            & $sdkManager 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0'
+            if ($LASTEXITCODE -ne 0) { Write-Host 'sdkmanager retornou erro; continuando com SDK já instalado.' }
+          }
+
+          Write-Host '7/8 Gerando e validando APK...'
+          Set-Location (Join-Path $src 'android')
+          $gradleLog = Join-Path $out 'GRADLE_BUILD.log'
+          & .\gradlew.bat :app:assembleDebug --stacktrace --console=plain --no-daemon 2>&1 | Tee-Object -FilePath $gradleLog
+          if ($LASTEXITCODE -ne 0) { throw "Gradle falhou: $LASTEXITCODE" }
+
+          $apk = Get-ChildItem (Join-Path $src 'android\app\build\outputs\apk\debug') -Filter *.apk -File | Select-Object -First 1
+          if (-not $apk) { throw 'APK não encontrado após assembleDebug.' }
+
+          $finalApk = Join-Path $out $ApkName
+          Copy-Item $apk.FullName $finalApk -Force
+          $apkSha = (Get-FileHash -Algorithm SHA256 $finalApk).Hash.ToLowerInvariant()
+          "$apkSha  $ApkName" | Out-File (Join-Path $out "$ApkName.sha256") -Encoding ascii
+
+          $buildToolsRoot = Join-Path $env:ANDROID_HOME 'build-tools'
+          $toolDir = Get-ChildItem $buildToolsRoot -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          if (-not $toolDir) { throw 'Android build-tools não encontrados.' }
+
+          $aapt = Join-Path $toolDir.FullName 'aapt.exe'
+          $apksigner = Join-Path $toolDir.FullName 'apksigner.bat'
+          if (-not (Test-Path $aapt)) { throw 'aapt.exe não encontrado.' }
+          if (-not (Test-Path $apksigner)) { throw 'apksigner.bat não encontrado.' }
+
+          $badgingPath = Join-Path $out 'APK_BADGING.txt'
+          $badging = (& $aapt dump badging $finalApk) -join [Environment]::NewLine
+          [System.IO.File]::WriteAllText($badgingPath, $badging, $utf8NoBom)
+          if ($badging -notmatch "package: name='com\.braseiro\.forbiddenlands'") { throw 'Package ID incorreto.' }
+          if ($badging -notmatch "versionCode='303002'") { throw 'versionCode incorreto.' }
+          if ($badging -notmatch "versionName='3\.3\.2'") { throw 'versionName incorreto.' }
+
+          $signaturePath = Join-Path $out 'APK_SIGNATURE.txt'
+          & $apksigner verify --verbose --print-certs $finalApk 2>&1 | Tee-Object -FilePath $signaturePath
+          if ($LASTEXITCODE -ne 0) { throw 'Assinatura do APK inválida.' }
+
+          Write-Host '8/8 Publicando diretamente na GitHub Release...'
+          $headers = @{
+            Authorization = "Bearer $env:GITHUB_TOKEN"
+            Accept = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'braseirobuild-brelga-direct-release'
+          }
+          $apiBase = "https://api.github.com/repos/$env:GITHUB_REPOSITORY"
+
+          $release = $null
+          try {
+            $release = Invoke-RestMethod -Headers $headers -Uri "$apiBase/releases/tags/$Tag" -Method Get
+          } catch {
+            if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw }
+          }
+
+          if (-not $release) {
+            $body = @{
+              tag_name = $Tag
+              target_commitish = $env:GITHUB_SHA
+              name = 'Braseiro Forbidden Lands 3.3.2 — TTS + Imagem de Cena'
+              body = 'APK 3.3.2 compilado diretamente da fonte isolada. TTS Gemini com modelo, voz e direção configuráveis; geração de imagem de cena manual/automática com prompt editável.'
+              draft = $false
+              prerelease = $false
+            } | ConvertTo-Json
+
+            $release = Invoke-RestMethod -Headers $headers -Uri "$apiBase/releases" -Method Post -Body $body -ContentType 'application/json'
+          }
+
+          $existingAssets = Invoke-RestMethod -Headers $headers -Uri "$apiBase/releases/$($release.id)/assets" -Method Get
+          $assetNames = @($ApkName, "$ApkName.sha256", 'APK_BADGING.txt', 'APK_SIGNATURE.txt', 'GRADLE_BUILD.log')
+          foreach ($name in $assetNames) {
+            foreach ($asset in ($existingAssets | Where-Object { $_.name -eq $name })) {
+              Invoke-RestMethod -Headers $headers -Uri "$apiBase/releases/assets/$($asset.id)" -Method Delete | Out-Null
+            }
+          }
+
+          $uploadBase = ($release.upload_url -replace '\{\?name,label\}$','')
+          function Upload-Asset([string]$Path,[string]$Name,[string]$ContentType) {
+            $uri = "$uploadBase?name=$([uri]::EscapeDataString($Name))"
+            Invoke-WebRequest -Headers $headers -Uri $uri -Method Post -InFile $Path -ContentType $ContentType | Out-Null
+          }
+
+          Upload-Asset $finalApk $ApkName 'application/vnd.android.package-archive'
+          Upload-Asset (Join-Path $out "$ApkName.sha256") "$ApkName.sha256" 'text/plain'
+          Upload-Asset $badgingPath 'APK_BADGING.txt' 'text/plain'
+          Upload-Asset $signaturePath 'APK_SIGNATURE.txt' 'text/plain'
+          Upload-Asset $gradleLog 'GRADLE_BUILD.log' 'text/plain'
+
+          Write-Host "RELEASE_URL=$($release.html_url)"
+          Write-Host "APK_SHA256=$apkSha"
