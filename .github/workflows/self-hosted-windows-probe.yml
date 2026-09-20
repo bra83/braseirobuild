@@ -1,0 +1,45 @@
+name: Self-hosted Windows probe
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/self-hosted-windows-probe.yml'
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+
+    steps:
+      - name: Runner online
+        shell: pwsh
+        run: |
+          Write-Host "RUNNER_NAME=$env:RUNNER_NAME"
+          Write-Host "RUNNER_OS=$env:RUNNER_OS"
+          Write-Host "RUNNER_ARCH=$env:RUNNER_ARCH"
+          Write-Host "WORKSPACE=$env:GITHUB_WORKSPACE"
+          Write-Host "Self-hosted runner is executing this job."
+
+      - name: Tool diagnostics
+        shell: pwsh
+        run: |
+          $tools = @('git','java','node','npm','gh','adb','sdkmanager')
+          foreach ($tool in $tools) {
+            $cmd = Get-Command $tool -ErrorAction SilentlyContinue
+            if ($cmd) {
+              Write-Host "$tool => $($cmd.Source)"
+            } else {
+              Write-Warning "$tool => NOT FOUND"
+            }
+          }
+
+          Write-Host "ANDROID_HOME=$env:ANDROID_HOME"
+          Write-Host "ANDROID_SDK_ROOT=$env:ANDROID_SDK_ROOT"
+
+      - name: Success
+        shell: pwsh
+        run: |
+          "SELF_HOSTED_WINDOWS_PROBE_OK" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          Write-Host "SELF_HOSTED_WINDOWS_PROBE_OK"
