@@ -95,6 +95,27 @@ jobs:
           $ErrorActionPreference='Stop'
           $android=Join-Path $env:P26_ROOT 'work\android'
           Push-Location $android
+
+          npm install --silent --no-save typescript@5.7.3
+          if($LASTEXITCODE -ne 0){throw "TypeScript bootstrap failed: $LASTEXITCODE"}
+
+          foreach($file in @('build-ui-bridge-bundle.mjs','tools\build-ui-bridge-bundle.mjs')){
+            if(Test-Path $file){
+              $txt=Get-Content $file -Raw
+              $txt=$txt.Replace("const ts=require('/opt/nvm/versions/node/v22.16.0/lib/node_modules/typescript/lib/typescript.js');","const ts=require('typescript');")
+              Set-Content $file $txt -Encoding UTF8
+            }
+          }
+
+          $test='tests\bundle-builder-p20.test.mjs'
+          $txt=Get-Content $test -Raw
+          if(-not $txt.Contains("fileURLToPath")){
+            $replacement="import { readFileSync } from 'node:fs';"+[Environment]::NewLine+"import { fileURLToPath } from 'node:url';"
+            $txt=$txt.Replace("import { readFileSync } from 'node:fs';",$replacement)
+          }
+          $txt=$txt.Replace("cwd:new URL('..',import.meta.url).pathname","cwd:fileURLToPath(new URL('..',import.meta.url))")
+          Set-Content $test $txt -Encoding UTF8
+
           python tools\run-node-suite.py --regular | Tee-Object -FilePath (Join-Path $env:P26_ROOT 'out\P26_REGULAR.txt')
           if($LASTEXITCODE -ne 0){throw "Regression failed: $LASTEXITCODE"}
           Pop-Location
