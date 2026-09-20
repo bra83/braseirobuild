@@ -19,6 +19,7 @@ env:
 
 jobs:
   diagnostico-e-publicacao:
+    if: ${{ !contains(github.event.head_commit.message, 'trigger forbidden lands 3.3.2') }}
     runs-on: ubuntu-latest
     timeout-minutes: 75
 
@@ -591,3 +592,156 @@ jobs:
           git push origin HEAD:main
           echo "RELEASE_URL=$RELEASE_URL" >> "$GITHUB_STEP_SUMMARY"
           echo "DELIVERABLE=deliverables/$APK_NAME" >> "$GITHUB_STEP_SUMMARY"
+
+
+  forbidden-lands-3-3-2:
+    if: ${{ contains(github.event.head_commit.message, 'trigger forbidden lands 3.3.2') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      FL_TAG: 'FORBIDDEN-LANDS-3.3.2-TTS-IMAGE'
+      FL_APK: 'BRASEIRO_FORBIDDEN_LANDS_3.3.2.apk'
+      FL_SOURCE: 'Braseiro_Forbidden_Lands_3.3.2_TTS_IMAGE_PROMPT_PATCH_ANDROID_STUDIO.zip'
+      FL_SHA: '83b99e4ced2f635b1c93d79c0dbb9ef5093545ea1c67cf8af2dc88331ce0061c'
+      FIRE_API: 'https://api.firestorage.ai/dev/file'
+      SHARE_ID: 'sJUeoArUdSIJ'
+      FILE_ID: '01a0bd4313427307bc87a8337de35d13'
+
+    steps:
+      - name: FL - Checkout
+        uses: actions/checkout@v4
+
+      - name: FL - Baixar fonte 3.3.2
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p fl-incoming fl-work fl-out
+          curl -fsSL "$FIRE_API/shares/$SHARE_ID/files?maxResults=1000" -o /tmp/fl-files.json
+          python3 - <<'PY'
+          import json, os
+          data=json.load(open('/tmp/fl-files.json', encoding='utf-8'))
+          wanted=os.environ['FILE_ID']
+          if not any(str(x.get('fileId'))==wanted for x in (data.get('files') or [])):
+              raise SystemExit('Fonte Forbidden Lands 3.3.2 não encontrada no share temporário')
+          PY
+          curl -fsSL -X POST "$FIRE_API/shares/$SHARE_ID/files/$FILE_ID/download" -o /tmp/fl-download.json
+          URL="$(python3 - <<'PY'
+          import json
+          print(json.load(open('/tmp/fl-download.json', encoding='utf-8')).get('downloadUrl') or '')
+          PY
+          )"
+          test -n "$URL"
+          curl -fL --retry 4 --retry-delay 2 --connect-timeout 20 --max-time 300 "$URL" -o "fl-incoming/$FL_SOURCE"
+          echo "$FL_SHA  fl-incoming/$FL_SOURCE" | sha256sum -c -
+          unzip -t "fl-incoming/$FL_SOURCE" >/dev/null
+          unzip -q "fl-incoming/$FL_SOURCE" -d fl-work
+          test -f fl-work/package.json
+          test -f fl-work/android/gradlew
+          echo "FL_ROOT=$GITHUB_WORKSPACE/fl-work" >> "$GITHUB_ENV"
+
+      - name: FL - Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: FL - Instalar dependências
+        shell: bash
+        working-directory: ${{ env.FL_ROOT }}
+        run: |
+          set -euo pipefail
+          npm config set registry https://registry.npmjs.org/
+          npm config set fetch-retries 5
+          npm config set fetch-timeout 120000
+          npm ci --no-audit --no-fund
+
+      - name: FL - Fixar versão 3.3.2
+        shell: bash
+        working-directory: ${{ env.FL_ROOT }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,re
+          p=Path('package.json')
+          d=json.loads(p.read_text(encoding='utf-8')); d['version']='3.3.2'
+          p.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          g=Path('android/app/build.gradle')
+          s=g.read_text(encoding='utf-8')
+          s=re.sub(r'versionCode\s+\d+','versionCode 303002',s,count=1)
+          s=re.sub(r'versionName\s+"[^"]+"','versionName "3.3.2"',s,count=1)
+          g.write_text(s,encoding='utf-8')
+          PY
+
+      - name: FL - Validar TypeScript e regras
+        shell: bash
+        working-directory: ${{ env.FL_ROOT }}
+        run: |
+          set -euo pipefail
+          npm run lint
+          npm run verify:start-freeze
+          npm run verify:rules
+
+      - name: FL - Recompilar web e sincronizar Android
+        shell: bash
+        working-directory: ${{ env.FL_ROOT }}
+        run: |
+          set -euo pipefail
+          npm run android:sync
+          test -f android/app/src/main/assets/public/index.html
+          grep -R -q 'Modelo TTS' android/app/src/main/assets/public/assets
+          grep -R -q 'Prompt visual da cena' android/app/src/main/assets/public/assets
+
+      - name: FL - Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: FL - Android SDK 36
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0'
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
+
+      - name: FL - Gradle setup
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: FL - Gerar APK
+        shell: bash
+        working-directory: ${{ env.FL_ROOT }}/android
+        run: |
+          set -euo pipefail
+          chmod +x ./gradlew
+          ./gradlew :app:assembleDebug --stacktrace --console=plain --no-daemon 2>&1 | tee "$GITHUB_WORKSPACE/fl-out/GRADLE_BUILD.log"
+          APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | head -n1)"
+          test -f "$APK"
+          cp "$APK" "$GITHUB_WORKSPACE/fl-out/$FL_APK"
+
+      - name: FL - Validar APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          unzip -t "fl-out/$FL_APK" >/dev/null
+          sha256sum "fl-out/$FL_APK" > "fl-out/$FL_APK.sha256"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "fl-out/$FL_APK" | tee fl-out/APK_BADGING.txt
+          grep -q "package: name='com.braseiro.forbiddenlands'" fl-out/APK_BADGING.txt
+          grep -q "versionCode='303002'" fl-out/APK_BADGING.txt
+          grep -q "versionName='3.3.2'" fl-out/APK_BADGING.txt
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "fl-out/$FL_APK" | tee fl-out/APK_SIGNATURE.txt
+
+      - name: FL - Publicar Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          NOTES='Braseiro Forbidden Lands 3.3.2. TTS Gemini com modelo, voz e direção configuráveis. Modelo de imagem configurável. Imagem de cena manual ou automática, com prompt visual editável e retorno persistido no card. Runtime web recompilado e sincronizado com Android antes do APK.'
+          gh release view "$FL_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create "$FL_TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title 'Braseiro Forbidden Lands 3.3.2 — TTS + Imagem de Cena' --notes "$NOTES"
+          gh release upload "$FL_TAG" "fl-out/$FL_APK" "fl-out/$FL_APK.sha256" fl-out/APK_BADGING.txt fl-out/APK_SIGNATURE.txt fl-out/GRADLE_BUILD.log --repo "$GITHUB_REPOSITORY" --clobber
+          gh release view "$FL_TAG" --repo "$GITHUB_REPOSITORY" --json url,tagName,name,assets
