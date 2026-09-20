@@ -1,0 +1,260 @@
+name: Braseiro Self-Hosted Release Android Builder
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-release-self-hosted.yml'
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag containing the Android Studio source ZIP'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  DEFAULT_TAG: '12r'
+
+jobs:
+  build:
+    runs-on: self-hosted
+    timeout-minutes: 90
+
+    steps:
+      - name: Prepare GitHub CLI
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          if (-not (Get-Command gh.exe -ErrorAction SilentlyContinue)) {
+            $headers = @{
+              'User-Agent' = 'braseiro-self-hosted-runner'
+              'Authorization' = "Bearer $env:GITHUB_TOKEN"
+              'Accept' = 'application/vnd.github+json'
+            }
+            $release = Invoke-RestMethod -Headers $headers -Uri 'https://api.github.com/repos/cli/cli/releases/latest'
+            $asset = $release.assets | Where-Object { $_.name -match 'windows_amd64\.zip$' } | Select-Object -First 1
+            if (-not $asset) { throw 'GitHub CLI Windows amd64 ZIP not found' }
+
+            $ghZip = Join-Path $env:RUNNER_TEMP 'gh-cli.zip'
+            $ghRoot = Join-Path $env:RUNNER_TEMP 'gh-cli'
+            Remove-Item $ghRoot -Recurse -Force -ErrorAction SilentlyContinue
+            Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $ghZip
+            Expand-Archive -Path $ghZip -DestinationPath $ghRoot -Force
+            $ghExe = Get-ChildItem $ghRoot -Filter gh.exe -Recurse | Select-Object -First 1
+            if (-not $ghExe) { throw 'gh.exe not found after extraction' }
+            $ghExe.Directory.FullName | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          }
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Configure Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configure Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Configure Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Select release and download source ZIP
+        id: source
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          MANUAL_TAG: ${{ inputs.tag }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $tag = $env:RELEASE_TAG
+          if ([string]::IsNullOrWhiteSpace($tag)) { $tag = $env:MANUAL_TAG }
+          if ([string]::IsNullOrWhiteSpace($tag)) { $tag = $env:DEFAULT_TAG }
+
+          $incoming = Join-Path $env:RUNNER_TEMP 'braseiro-release-source'
+          Remove-Item $incoming -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming -Force | Out-Null
+
+          gh release download $tag --repo $env:GITHUB_REPOSITORY --pattern '*.zip' --dir $incoming
+
+          $zip = Get-ChildItem $incoming -File -Filter '*.zip' |
+            Sort-Object Length -Descending |
+            Select-Object -First 1
+
+          if (-not $zip) { throw "No ZIP asset found in release $tag" }
+
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $test = [System.IO.Compression.ZipFile]::OpenRead($zip.FullName)
+          $entries = $test.Entries.Count
+          $test.Dispose()
+
+          $hash = (Get-FileHash $zip.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          Write-Host "TAG=$tag"
+          Write-Host "ZIP=$($zip.FullName)"
+          Write-Host "ZIP_BYTES=$($zip.Length)"
+          Write-Host "ZIP_ENTRIES=$entries"
+          Write-Host "ZIP_SHA256=$hash"
+
+          "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "zip=$($zip.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Extract and detect Android Studio project
+        id: project
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          SOURCE_ZIP: ${{ steps.source.outputs.zip }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $work = Join-Path $env:RUNNER_TEMP 'braseiro-android-work'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $work -Force | Out-Null
+
+          & tar.exe -xf $env:SOURCE_ZIP -C $work
+          if ($LASTEXITCODE -ne 0) { throw 'ZIP extraction failed' }
+
+          $settings = Get-ChildItem $work -Recurse -File -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -in @('settings.gradle','settings.gradle.kts') -and $_.FullName -notmatch '[\\/]build[\\/]' } |
+            Select-Object -First 1
+
+          if (-not $settings) {
+            Write-Host 'Top-level extracted files:'
+            Get-ChildItem $work -Force | Select-Object Name,Length,Mode | Format-Table -AutoSize
+            Write-Host 'Candidate Gradle-related files:'
+            Get-ChildItem $work -Recurse -File -ErrorAction SilentlyContinue |
+              Where-Object { $_.Name -match 'gradle|AndroidManifest' } |
+              Select-Object -First 80 FullName |
+              Format-Table -AutoSize
+            throw 'Release ZIP does not contain a complete Android Studio project (settings.gradle/settings.gradle.kts not found). It may be a patch-only ZIP.'
+          }
+
+          $root = $settings.Directory.FullName
+          $wrapperBat = Join-Path $root 'gradlew.bat'
+          if (-not (Test-Path $wrapperBat)) {
+            throw "Android root found at $root, but gradlew.bat is missing"
+          }
+
+          $sdk = 35
+          $gradleFiles = Get-ChildItem $root -Recurse -File -Include '*.gradle','*.gradle.kts' -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -notmatch '[\\/](build|\.gradle)[\\/]' }
+
+          $values = New-Object System.Collections.Generic.List[int]
+          foreach ($f in $gradleFiles) {
+            $text = Get-Content $f.FullName -Raw -ErrorAction SilentlyContinue
+            if ($null -eq $text) { continue }
+            foreach ($m in [regex]::Matches($text, 'compileSdk(?:Version)?\s*(?:=|\s)\s*(\d+)')) {
+              [void]$values.Add([int]$m.Groups[1].Value)
+            }
+          }
+          if ($values.Count -gt 0) { $sdk = ($values | Measure-Object -Maximum).Maximum }
+
+          Write-Host "ANDROID_ROOT=$root"
+          Write-Host "COMPILE_SDK=$sdk"
+          "root=$root" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "sdk=$sdk" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Install required Android platform
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          REQUESTED_SDK: ${{ steps.project.outputs.sdk }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $sdkmanager = Get-Command sdkmanager.bat -ErrorAction Stop
+          1..100 | ForEach-Object { 'y' } | & $sdkmanager.Source --licenses | Out-Null
+
+          & $sdkmanager.Source 'platform-tools' "platforms;android-$env:REQUESTED_SDK" 'build-tools;35.0.0' 'build-tools;36.0.0'
+          if ($LASTEXITCODE -ne 0) { throw 'sdkmanager failed' }
+
+          Write-Host "ANDROID_HOME=$env:ANDROID_HOME"
+          Write-Host "ANDROID_SDK_ROOT=$env:ANDROID_SDK_ROOT"
+
+      - name: Build debug APK
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        working-directory: ${{ steps.project.outputs.root }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & .\gradlew.bat --version --no-daemon
+          if ($LASTEXITCODE -ne 0) { throw 'Gradle wrapper validation failed' }
+
+          & .\gradlew.bat clean assembleDebug --stacktrace --no-daemon
+          if ($LASTEXITCODE -ne 0) { throw 'assembleDebug failed' }
+
+      - name: Validate and collect APK
+        id: apk
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          ROOT: ${{ steps.project.outputs.root }}
+          TAG: ${{ steps.source.outputs.tag }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $apk = Get-ChildItem $env:ROOT -Recurse -File -Filter '*.apk' |
+            Where-Object { $_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]debug[\\/]' } |
+            Sort-Object FullName |
+            Select-Object -First 1
+
+          if (-not $apk) { throw 'Debug APK not found after build' }
+
+          $out = Join-Path $env:RUNNER_TEMP 'braseiro-apk-out'
+          Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+
+          $safeTag = ($env:TAG -replace '[^A-Za-z0-9._-]','_')
+          $name = "$safeTag-SELFHOSTED-DEBUG.apk"
+          $dest = Join-Path $out $name
+          Copy-Item $apk.FullName $dest -Force
+
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $test = [System.IO.Compression.ZipFile]::OpenRead($dest)
+          $test.Dispose()
+
+          $hash = (Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant()
+          $shaFile = "$dest.sha256"
+          "$hash  $name" | Set-Content -Path $shaFile -Encoding ascii
+
+          $buildTools = Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory |
+            Sort-Object { [version]($_.Name -replace '[^0-9.]','') } -Descending |
+            Select-Object -First 1
+          if ($buildTools) {
+            $aapt = Join-Path $buildTools.FullName 'aapt.exe'
+            if (Test-Path $aapt) {
+              & $aapt dump badging $dest | Tee-Object -FilePath (Join-Path $out 'APK_BADGING.txt')
+            }
+          }
+
+          Write-Host "APK=$dest"
+          Write-Host "APK_BYTES=$((Get-Item $dest).Length)"
+          Write-Host "APK_SHA256=$hash"
+
+          "name=$name" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "dir=$out" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Attach APK to the same GitHub Release
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.source.outputs.tag }}
+          OUT_DIR: ${{ steps.apk.outputs.dir }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $files = Get-ChildItem $env:OUT_DIR -File | ForEach-Object { $_.FullName }
+          if (-not $files) { throw 'No output files to upload' }
+
+          & gh release upload $env:TAG --repo $env:GITHUB_REPOSITORY @files --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'GitHub Release upload failed' }
+
+          $url = (& gh release view $env:TAG --repo $env:GITHUB_REPOSITORY --json url --jq '.url').Trim()
+          Write-Host "RELEASE_URL=$url"
+          "## Self-hosted Android build" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          "- Runner: `$env:RUNNER_NAME`" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          "- Release: `$env:TAG`" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          "- APK: `${{ steps.apk.outputs.name }}`" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          "- URL: $url" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
