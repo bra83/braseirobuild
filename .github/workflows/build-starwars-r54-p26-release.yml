@@ -15,8 +15,8 @@ env:
   SOURCE_SHA256: '909df10ae58c45891508629ec54f1ce54a9f9ebdc42e0832582b3d0f46f0ad4e'
   P25_PATCH_SHARE_URL: 'https://firestorage.ai/ja/f/p-bbMuR_Xvzm'
   P25_PATCH_SHA256: '3864012679e24c3c67ce78c4ff0280535c3ebec609cf63139bf0a109f422d063'
-  P26_PATCH_SHARE_URL: 'https://firestorage.ai/ja/f/owfXWYPGIY7G'
-  P26_PATCH_SHA256: '2ef3ea9f33b99bc88d3aae40fa214a25d480720c3f2f55459ad24103990df382'
+  P26_PATCH_SHARE_URL: 'https://firestorage.ai/ja/f/EFAOHjYASsBi'
+  P26_PATCH_SHA256: 'bef342d81c7a125bf6a9562ed5c1ff6dce35b62f99ee71daf8ec6c2a767eb6bb'
   APK_NAME: 'BRASEIRO_STAR_WARS_EDGE_R54_P26_DEBUG.apk'
   SOURCE_ZIP_NAME: 'STAR_WARS_EDGE_OF_THE_GALAXY_R54_P26_ANDROID_STUDIO.zip'
   TAG: 'STAR-WARS-EDGE-R54-P26'
@@ -247,3 +247,5 @@ jobs:
             out/P26_REGULAR.txt \
             --clobber
           gh release view "$TAG" --json url --jq .url
+
+# retrigger with validated P26 patch
