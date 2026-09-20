@@ -7,14 +7,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      SOURCE_DIRECT_URL: https://eu-central.storage.cloudconvert.com/tasks/983dd00c-4706-48cf-8f65-77348789530c/BRASEIRO_WWN_1.0.21_ANDROID_STUDIO_DEVICE_CANDIDATE.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cloudconvert-production%2F20260920%2Ffra%2Fs3%2Faws4_request&X-Amz-Date=20260920T001631Z&X-Amz-Expires=86400&X-Amz-Signature=80459a5781a5b9a649a83292b0b4f4f7df1885fb33005cc729911131bc8a9b6a&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3D%22BRASEIRO_WWN_1.0.21_ANDROID_STUDIO_DEVICE_CANDIDATE.zip%22&response-content-type=application%2Fzip&x-amz-checksum-mode=ENABLED&x-id=GetObject
+      SOURCE_DIRECT_URL: "https://eu-central.storage.cloudconvert.com/tasks/983dd00c-4706-48cf-8f65-77348789530c/BRASEIRO_WWN_1.0.21_ANDROID_STUDIO_DEVICE_CANDIDATE.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cloudconvert-production%2F20260920%2Ffra%2Fs3%2Faws4_request&X-Amz-Date=20260920T001631Z&X-Amz-Expires=86400&X-Amz-Signature=80459a5781a5b9a649a83292b0b4f4f7df1885fb33005cc729911131bc8a9b6a&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3D%22BRASEIRO_WWN_1.0.21_ANDROID_STUDIO_DEVICE_CANDIDATE.zip%22&response-content-type=application%2Fzip&x-amz-checksum-mode=ENABLED&x-id=GetObject"
       EXPECTED_SHA256: d0ce8e27231a35981a6750c80583dfb2acb2acd1c3e0612583b8a93d8c19d482
       ARCHIVE_NAME: BRASEIRO_WWN_1.0.21_ANDROID_STUDIO_DEVICE_CANDIDATE.zip
 
@@ -72,37 +72,4 @@ jobs:
           mkdir -p dist
           cp "$APK" dist/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk
           sha256sum dist/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk | tee dist/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk.sha256
-
-      - name: Publish APK directly to build branch
-        if: success()
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          import base64, json, os, urllib.request
-          token=os.environ["GH_TOKEN"]
-          repo=os.environ["GITHUB_REPOSITORY"]
-          branch=os.environ["GITHUB_REF_NAME"]
-          for local, path in [
-              ("dist/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk","wwn-builds/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk"),
-              ("dist/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk.sha256","wwn-builds/BRASEIRO_WWN_1.0.21_DEVICE_CANDIDATE.apk.sha256"),
-          ]:
-              data=base64.b64encode(open(local,"rb").read()).decode()
-              api=f"https://api.github.com/repos/{repo}/contents/{path}"
-              headers={"Authorization":f"Bearer {token}","Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"}
-              sha=None
-              try:
-                  rr=urllib.request.urlopen(urllib.request.Request(api+"?ref="+branch,headers=headers),timeout=30)
-                  sha=json.load(rr).get("sha")
-              except Exception:
-                  pass
-              payload={"message":"build(wwn): publish 1.0.21 device APK","content":data,"branch":branch}
-              if sha: payload["sha"]=sha
-              req=urllib.request.Request(api,data=json.dumps(payload).encode(),headers={**headers,"Content-Type":"application/json"},method="PUT")
-              with urllib.request.urlopen(req,timeout=120) as rr:
-                  out=json.load(rr)
-                  print("published", path, out.get("content",{}).get("html_url"))
-          PY
 
