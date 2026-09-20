@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Runner online
-        shell: powershell
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
           Write-Host "RUNNER_NAME=$env:RUNNER_NAME"
           Write-Host "RUNNER_OS=$env:RUNNER_OS"
@@ -23,7 +23,7 @@ jobs:
           Write-Host "Self-hosted runner is executing this job."
 
       - name: Tool diagnostics
-        shell: powershell
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
           $tools = @('git','java','node','npm','gh','adb','sdkmanager')
           foreach ($tool in $tools) {
@@ -39,7 +39,7 @@ jobs:
           Write-Host "ANDROID_SDK_ROOT=$env:ANDROID_SDK_ROOT"
 
       - name: Success
-        shell: powershell
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
           "SELF_HOSTED_WINDOWS_PROBE_OK" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
           Write-Host "SELF_HOSTED_WINDOWS_PROBE_OK"
