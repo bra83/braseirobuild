@@ -15,8 +15,16 @@ jobs:
     runs-on: self-hosted
     timeout-minutes: 120
     steps:
+      - name: Enable Windows long paths for Git
+        shell: powershell
+        run: |
+          git config --global core.longpaths true
+
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          clean: true
+          fetch-depth: 1
 
       - name: Build and publish Forbidden Lands 3.3.2
         shell: powershell
