@@ -45,13 +45,15 @@ Write-Host 'Fixando versão Android 3.3.2...'
 $pkgPath = Join-Path $work 'package.json'
 $pkg = Get-Content $pkgPath -Raw | ConvertFrom-Json
 $pkg.version = '3.3.2'
-$pkg | ConvertTo-Json -Depth 50 | Set-Content -Path $pkgPath -Encoding UTF8
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+$pkgJson = $pkg | ConvertTo-Json -Depth 50
+[System.IO.File]::WriteAllText($pkgPath, $pkgJson + [Environment]::NewLine, $utf8NoBom)
 
 $gradlePath = Join-Path $work 'android\app\build.gradle'
 $gradleText = Get-Content $gradlePath -Raw
 $gradleText = [regex]::Replace($gradleText, 'versionCode\s+\d+', 'versionCode 303002', 1)
 $gradleText = [regex]::Replace($gradleText, 'versionName\s+"[^"]+"', 'versionName "3.3.2"', 1)
-Set-Content -Path $gradlePath -Value $gradleText -Encoding UTF8
+[System.IO.File]::WriteAllText($gradlePath, $gradleText, $utf8NoBom)
 
 Write-Host 'Rodando gates focados da versão 3.3.2...'
 & npm.cmd run verify:start-freeze
