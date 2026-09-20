@@ -94,6 +94,13 @@ jobs:
         run: |
           $ErrorActionPreference='Stop'
           $android=Join-Path $env:P26_ROOT 'work\android'
+          $java='C:\Program Files\Android\Android Studio\jbr'
+          $sdk="$env:LOCALAPPDATA\Android\Sdk"
+          if(!(Test-Path "$java\bin\java.exe")){throw 'Android Studio JBR missing before regression'}
+          $env:JAVA_HOME=$java
+          $env:ANDROID_HOME=$sdk
+          $env:ANDROID_SDK_ROOT=$sdk
+          $env:Path="$java\bin;$sdk\platform-tools;$env:Path"
           Push-Location $android
 
           npm install --silent --no-save typescript@5.7.3
