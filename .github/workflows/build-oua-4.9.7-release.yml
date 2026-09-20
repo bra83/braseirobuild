@@ -183,3 +183,5 @@ jobs:
             out/PATCH_GATE.txt \
             out/VISUAL_REGRESSION.txt \
             "$ROOT/VALIDACAO_OUA_4.9.7_VISUAL_POI_OVERLAY.txt"
+
+# build trigger: visual correction 4.9.7
