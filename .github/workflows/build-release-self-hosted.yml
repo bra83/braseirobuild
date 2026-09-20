@@ -55,38 +55,72 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
 
-          $sdkRoot = Join-Path $env:RUNNER_TEMP 'android-sdk'
-          $cmdline = Join-Path $sdkRoot 'cmdline-tools\latest\bin\sdkmanager.bat'
+          $candidates = @()
+          if ($env:ANDROID_SDK_ROOT) { $candidates += $env:ANDROID_SDK_ROOT }
+          if ($env:ANDROID_HOME) { $candidates += $env:ANDROID_HOME }
+          if ($env:LOCALAPPDATA) { $candidates += (Join-Path $env:LOCALAPPDATA 'Android\Sdk') }
+          if ($env:RUNNER_TOOL_CACHE) { $candidates += (Join-Path $env:RUNNER_TOOL_CACHE 'AndroidSdk') }
+          $candidates += 'C:\Android\Sdk'
 
-          if (-not (Test-Path $cmdline)) {
-            Remove-Item $sdkRoot -Recurse -Force -ErrorAction SilentlyContinue
-            New-Item -ItemType Directory -Path $sdkRoot -Force | Out-Null
+          $sdkRoot = $null
+          $sdkmanager = $null
 
-            $zip = Join-Path $env:RUNNER_TEMP 'android-commandlinetools.zip'
-            $extract = Join-Path $env:RUNNER_TEMP 'android-commandlinetools-extract'
-            Remove-Item $extract -Recurse -Force -ErrorAction SilentlyContinue
+          foreach ($candidate in ($candidates | Select-Object -Unique)) {
+            if ([string]::IsNullOrWhiteSpace($candidate) -or -not (Test-Path $candidate)) { continue }
+            $found = Get-ChildItem $candidate -Recurse -Filter sdkmanager.bat -File -ErrorAction SilentlyContinue |
+              Select-Object -First 1
+            if ($found) {
+              $sdkRoot = $candidate
+              $sdkmanager = $found.FullName
+              Write-Host "Reusing Android SDK: $sdkRoot"
+              break
+            }
+          }
 
-            $url = 'https://dl.google.com/android/repository/commandlinetools-win-15859902_latest.zip'
-            Invoke-WebRequest -Uri $url -OutFile $zip
-
-            $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
-            if ($hash -ne '90ae805d20434428bffcb699c290860f19bb5f66a67e6b330067e3de801fb04a') {
-              throw "Android command-line tools checksum mismatch: $hash"
+          if (-not $sdkmanager) {
+            if ($env:RUNNER_TOOL_CACHE) {
+              $sdkRoot = Join-Path $env:RUNNER_TOOL_CACHE 'AndroidSdk'
+            } else {
+              $sdkRoot = 'C:\actions-runner\android-sdk'
             }
 
-            Expand-Archive -Path $zip -DestinationPath $extract -Force
-            $latest = Join-Path $sdkRoot 'cmdline-tools\latest'
-            New-Item -ItemType Directory -Path (Split-Path $latest) -Force | Out-Null
-            Move-Item (Join-Path $extract 'cmdline-tools') $latest -Force
+            $cmdline = Join-Path $sdkRoot 'cmdline-tools\latest\bin\sdkmanager.bat'
+
+            if (-not (Test-Path $cmdline)) {
+              Remove-Item $sdkRoot -Recurse -Force -ErrorAction SilentlyContinue
+              New-Item -ItemType Directory -Path $sdkRoot -Force | Out-Null
+
+              $zip = Join-Path $env:RUNNER_TEMP 'android-commandlinetools.zip'
+              $extract = Join-Path $env:RUNNER_TEMP 'android-commandlinetools-extract'
+              Remove-Item $zip -Force -ErrorAction SilentlyContinue
+              Remove-Item $extract -Recurse -Force -ErrorAction SilentlyContinue
+              New-Item -ItemType Directory -Path $extract -Force | Out-Null
+
+              $url = 'https://dl.google.com/android/repository/commandlinetools-win-15859902_latest.zip'
+              & curl.exe -L --fail --retry 3 --retry-delay 2 -o $zip $url
+              if ($LASTEXITCODE -ne 0 -or -not (Test-Path $zip)) { throw 'Android command-line tools download failed' }
+
+              $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+              if ($hash -ne '90ae805d20434428bffcb699c290860f19bb5f66a67e6b330067e3de801fb04a') {
+                throw "Android command-line tools checksum mismatch: $hash"
+              }
+
+              Expand-Archive -Path $zip -DestinationPath $extract -Force
+              $latest = Join-Path $sdkRoot 'cmdline-tools\latest'
+              New-Item -ItemType Directory -Path (Split-Path $latest) -Force | Out-Null
+              Move-Item (Join-Path $extract 'cmdline-tools') $latest -Force
+            }
+
+            $sdkmanager = $cmdline
           }
 
           "ANDROID_HOME=$sdkRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "ANDROID_SDK_ROOT=$sdkRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          (Join-Path $sdkRoot 'cmdline-tools\latest\bin') | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          (Split-Path $sdkmanager) | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
           (Join-Path $sdkRoot 'platform-tools') | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
 
           Write-Host "ANDROID_SDK_ROOT=$sdkRoot"
-          & $cmdline --version
+          & $sdkmanager --version
           if ($LASTEXITCODE -ne 0) { throw 'sdkmanager validation failed' }
 
       - name: Select release and download source ZIP
