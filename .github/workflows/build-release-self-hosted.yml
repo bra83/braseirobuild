@@ -1,5 +1,9 @@
 name: Braseiro Self-Hosted Release Android Builder
 
+concurrency:
+  group: braseiro-self-hosted-release-builder
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main]
