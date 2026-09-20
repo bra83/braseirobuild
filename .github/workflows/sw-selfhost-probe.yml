@@ -1,0 +1,18 @@
+name: SW Self-hosted Probe
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/sw-selfhost-probe.yml'
+jobs:
+  probe:
+    runs-on: self-hosted
+    steps:
+      - name: Probe
+        shell: powershell
+        run: |
+          Write-Host "SELF_HOSTED_OK"
+          Write-Host "OS=$env:OS"
+          Write-Host "RUNNER_NAME=$env:RUNNER_NAME"
+          java -version
+          if (Test-Path "$env:LOCALAPPDATA\Android\Sdk") { Write-Host "ANDROID_SDK=$env:LOCALAPPDATA\Android\Sdk" }
