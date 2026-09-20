@@ -26,6 +26,12 @@ jobs:
     timeout-minutes: 90
 
     steps:
+      - name: Allow runner PowerShell scripts
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
+          Write-Host "ExecutionPolicy(CurrentUser)=$(Get-ExecutionPolicy -Scope CurrentUser)"
+
       - name: Configure Java 17
         uses: actions/setup-java@v4
         with:
