@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import sys,json
+import sys,json,re
 root=Path(sys.argv[1]).resolve() if len(sys.argv)>1 else Path.cwd()
 vtt=root/'app/src/main/assets/vtt'
 ui=vtt/'js/core/uiBridge.bundle.js'; rt=vtt/'r46/final-runtime.js'; shell=vtt/'r46-shell.html'
@@ -14,10 +14,13 @@ if not errors:
     r=rt.read_text(encoding='utf-8',errors='replace')
     h=shell.read_text(encoding='utf-8',errors='replace')
     e=engine.read_text(encoding='utf-8',errors='replace')
-    bridge_start=u.find('export class BraseiroUiBridge')
-    bridge_end=u.find('export function createBraseiroUiBridge',bridge_start if bridge_start>=0 else 0)
+    class_match=re.search(r'(?m)^\s*(?:export\s+)?class\s+BraseiroUiBridge\b',u)
+    bridge_start=class_match.start() if class_match else u.find('    initializeCampaign() {')
+    bridge_end=u.find('function createBraseiroUiBridge',bridge_start if bridge_start>=0 else 0)
+    if bridge_end<0: bridge_end=u.find('function installBraseiroUiBridge',bridge_start if bridge_start>=0 else 0)
+    if bridge_end<0: bridge_end=len(u)
     bridge_segment=u[bridge_start:bridge_end] if bridge_start>=0 and bridge_end>bridge_start else ''
-    published_bridge_ok='R54_P28_PUBLISHED_SESSION' in bridge_segment and 'startPublishedAdventureSession' in bridge_segment
+    published_bridge_ok='R54_P28_PUBLISHED_SESSION' in bridge_segment and 'startPublishedAdventureSession' in bridge_segment and '_controllerForExistingCampaign' in bridge_segment
     checks={
       'ui marcador P28':'R54_P28_MIXED_CREATION' in u,
       'controller random por origem':'R54_P28_RANDOM_CREATION' in controller and 'createRandomAorCoreCharacter' in controller and 'createRandomEoteCoreCharacter' in controller,
