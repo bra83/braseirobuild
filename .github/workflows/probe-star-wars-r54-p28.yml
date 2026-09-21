@@ -1,4 +1,4 @@
-name: Probe Star Wars R54 P28 source on BRELGA
+name: Probe Star Wars R54 P28 compiled source on BRELGA
 
 on:
   push:
