@@ -156,10 +156,15 @@ jobs:
         run: |
           $ErrorActionPreference='Stop'
           python -m py_compile star-wars/r54/p28/apply_p28_mixed_creation.py star-wars/r54/p28/apply_p28_adventure_engine.py star-wars/r54/p28/apply_p28_bonds_ui.py star-wars/r54/p28/apply_p28_random_creation.py star-wars/r54/p28/gate_p28.py
+          if($LASTEXITCODE -ne 0){throw 'P28 Python compile failed'}
           python star-wars/r54/p28/apply_p28_mixed_creation.py "$env:WORK_ROOT"
+          if($LASTEXITCODE -ne 0){throw 'apply_p28_mixed_creation failed'}
           python star-wars/r54/p28/apply_p28_adventure_engine.py "$env:WORK_ROOT"
+          if($LASTEXITCODE -ne 0){throw 'apply_p28_adventure_engine failed'}
           python star-wars/r54/p28/apply_p28_bonds_ui.py "$env:WORK_ROOT"
+          if($LASTEXITCODE -ne 0){throw 'apply_p28_bonds_ui failed'}
           python star-wars/r54/p28/apply_p28_random_creation.py "$env:WORK_ROOT"
+          if($LASTEXITCODE -ne 0){throw 'apply_p28_random_creation failed'}
 
       - name: P28 semantic and syntax gates
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
