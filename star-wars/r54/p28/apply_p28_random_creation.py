@@ -10,7 +10,9 @@ for p in (controller,rt):
 def replace_js_block(text, signature, replacement):
     start=text.find(signature)
     if start<0: raise SystemExit('FAIL: assinatura não encontrada: '+signature)
-    brace=text.find('{',start);depth=0;quote=None;esc=False
+    brace=start+len(signature)-1
+    if brace>=len(text) or text[brace]!='{': raise SystemExit('FAIL: assinatura precisa terminar no corpo JS: '+signature)
+    depth=0;quote=None;esc=False
     for i in range(brace,len(text)):
         ch=text[i]
         if quote:
