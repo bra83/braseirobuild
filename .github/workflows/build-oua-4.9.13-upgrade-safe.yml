@@ -214,8 +214,8 @@ jobs:
 
           if ($baseBadging -notmatch "package: name='com\.braseiro\.oumanel'") { throw 'Baseline package differs' }
           if ($newBadging -notmatch "package: name='com\.braseiro\.oumanel'") { throw 'New package differs' }
-          if ($baseBadging -notmatch "versionCode='49013'") { throw 'Baseline versionCode is not 49012' }
-          if ($newBadging -notmatch "versionCode='49012'") { throw 'New versionCode is not 49013' }
+          if ($baseBadging -notmatch "versionCode='49012'") { throw 'Baseline versionCode is not 49012' }
+          if ($newBadging -notmatch "versionCode='49013'") { throw 'New versionCode is not 49013' }
 
           & $apksigner verify --verbose --print-certs $env:BASE_APK_PATH 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'BASE_APK_SIGNATURE.txt')
           if ($LASTEXITCODE -ne 0) { throw 'Baseline APK signature invalid' }
