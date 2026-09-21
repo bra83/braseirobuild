@@ -77,10 +77,11 @@ if marker not in src:
             const prefix=value=>{const m=/^(EOTE_CORE|AOR_CORE)::(.+)$/.exec(String(value??''));return m?{profile:m[1],key:m[2]}:null};
             const aorResult=opts=>{const mapped={...clone(opts),dutyType:opts.obligationType,dutyReductions:clone(opts.obligationBenefits??{})};const p=characterCreation_mjs_1.creationPreview(mapped);if(!p)return fail('INVALID_INPUT','Selecione uma espécie válida para calcular o orçamento de criação.');return ok({xpBudget:p.xpBudget,characteristicCost:p.characteristicCost,xpRemaining:p.xpRemaining,credits:p.credits,obligation:p.duty,startingObligation:p.duty+p.dutySpent,additionalObligation:-p.dutySpent,obligationOfficial:p.dutyOfficial,obligationNote:p.dutyNote??null,speciesXpBonus:0,activeProfile:'AOR_CORE',duty:p.duty,dutySpent:p.dutySpent,mixed:mode==='MIXED'});};
             if(mode==='MIXED'){
-                const sp=prefix(options.speciesKey),cp=prefix(options.careerKey);
-                if(!sp||!cp||sp.profile!==cp.profile)return fail('INVALID_INPUT','Em campanha MISTA, espécie e carreira devem usar a mesma origem de criação: EotE ou AoR.');
+                const sp=prefix(options.speciesKey),cp=options.careerKey?prefix(options.careerKey):null;
+                if(!sp)return fail('INVALID_INPUT','Selecione uma espécie EotE ou AoR válida.');
+                if(options.careerKey&&(!cp||sp.profile!==cp.profile))return fail('INVALID_INPUT','Em campanha MISTA, espécie e carreira devem usar a mesma origem de criação: EotE ou AoR.');
                 const rawType=String(options.obligationType??'');
-                const native={...clone(options),speciesKey:sp.key,careerKey:cp.key};
+                const native={...clone(options),speciesKey:sp.key,careerKey:cp?.key??''};
                 if(sp.profile==='AOR_CORE'){
                     if(rawType&& !rawType.startsWith('Dever · '))return fail('INVALID_INPUT','Escolha um Dever AoR para uma criação AoR.');
                     native.obligationType=rawType.replace(/^Dever · /,'');
