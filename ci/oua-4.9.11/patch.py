@@ -22,7 +22,7 @@ imm = imm.replace(
 if "  pendingTest?: PendingTest | null;\n" not in imm:
     imm = imm.replace(
         "  isStoryLoading?: boolean;\n",
-        "  isStoryLoading?: boolean;\n  pendingTest?: PendingTest | null;\n",
+        "  isStoryLoading?: boolean;\n  pendingTest?: PendingTest | null;\n  isNarrationLoading?: boolean;\n  onPlayNarration: () => void | Promise<void>;\n  onStopNarration: () => void;\n",
         1,
     )
 
@@ -74,6 +74,25 @@ imm = imm.replace(location_anchor, helper, 1)
 imm = imm.replace(
     "display: 'flex', flexDirection: 'column', overflowY: 'auto', overflowX: 'hidden',",
     "display: 'flex', flexDirection: 'column', overflowY: 'auto', overflowX: 'hidden', pointerEvents: 'auto', touchAction: 'pan-y', WebkitOverflowScrolling: 'touch',",
+    1,
+)
+
+# Add one compact play/stop control beside the Master narration title.
+narration_label_plain = """      <div style={{ flex: '0 0 auto', marginBottom: 5, fontSize: 10, fontWeight: 900, letterSpacing: '.08em', textTransform: 'uppercase', color: '#745432' }}>Narração do Mestre</div>
+"""
+if narration_label_plain not in imm:
+    raise SystemExit("master narration label anchor missing")
+imm = imm.replace(
+    narration_label_plain,
+    """      <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6 }}>
+        <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '.08em', textTransform: 'uppercase', color: '#745432' }}>Narração do Mestre</div>
+        <button
+          type="button"
+          onClick={() => props.isNarrationLoading ? props.onStopNarration() : void props.onPlayNarration()}
+          style={{ minHeight: 36, padding: '6px 11px', borderRadius: 999, border: '1px solid #7b562d', background: props.isNarrationLoading ? '#5e2b22' : '#5b3d20', color: '#fff0cf', fontFamily: 'inherit', fontSize: 11, fontWeight: 900, touchAction: 'manipulation', whiteSpace: 'nowrap' }}
+        >{props.isNarrationLoading ? '■ Parar narração' : '🔊 Ouvir narração'}</button>
+      </div>
+""",
     1,
 )
 
@@ -205,6 +224,7 @@ checks = {
     "pending test routes to dice": "Teste pendente — abrir Dados" in imm and "props.pendingTest" in imm,
     "custom action responsive": "<form onSubmit={submitSceneAction}" in imm,
     "GameView passes pending test": "pendingTest={pendingTest}" in game,
+    "narration button wired": "🔊 Ouvir narração" in imm and "onPlayNarration={() => onPlayNarration(currentNode || undefined)}" in game,
     "version 4.9.11": "4.9.11" in read(version_rel) and "49011" in read(gradle_rel),
 }
 for name, ok in checks.items():
