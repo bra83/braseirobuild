@@ -21,19 +21,40 @@ jobs:
       - name: Download private release assets
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = 'Stop'
           $out = Join-Path $env:RUNNER_TEMP 'oua-498-export'
           Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $out -Force | Out-Null
-          gh release download OUA-v4.9.8 --repo $env:GITHUB_REPOSITORY --dir $out
-          if ($LASTEXITCODE -ne 0) { throw 'gh release download failed' }
+
+          $headers = @{
+            'Authorization' = "Bearer $env:GITHUB_TOKEN"
+            'Accept' = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'oua-498-export'
+          }
+          $repo = $env:GITHUB_REPOSITORY
+          $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/OUA-v4.9.8"
+          $wanted = @(
+            'BRASEIRO_O_UM_ANEL_4.9.8_DEBUG.apk',
+            'BRASEIRO_O_UM_ANEL_4.9.8_DEBUG.apk.sha256',
+            'OUA_4.9.8_SCENE_ENTITIES_GEMINI_ANDROID_STUDIO.zip',
+            'OUA_4.9.8_SCENE_ENTITIES_GEMINI_ANDROID_STUDIO.zip.sha256',
+            'GRADLE_BUILD.log',
+            'OFFLINE_BUILD.log',
+            'VALIDACAO_OUA_4.9.8.txt'
+          )
+          foreach ($name in $wanted) {
+            $asset = @($release.assets | Where-Object { $_.name -eq $name -and $_.state -eq 'uploaded' }) | Select-Object -First 1
+            if (-not $asset) { throw "Missing release asset: $name" }
+            $dest = Join-Path $out $name
+            & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $dest $asset.url
+            if ($LASTEXITCODE -ne 0 -or -not (Test-Path $dest)) { throw "Download failed: $name" }
+          }
 
           $apk = Join-Path $out 'BRASEIRO_O_UM_ANEL_4.9.8_DEBUG.apk'
           $zip = Join-Path $out 'OUA_4.9.8_SCENE_ENTITIES_GEMINI_ANDROID_STUDIO.zip'
-          if (-not (Test-Path $apk)) { throw 'APK missing from export' }
-          if (-not (Test-Path $zip)) { throw 'ZIP missing from export' }
           $apkHash = (Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
           $zipHash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
           if ($apkHash -ne '3e15d620fc4555c668abef095b1751288c0c92b04153f1bef63022145784dccb') { throw "APK SHA mismatch: $apkHash" }
