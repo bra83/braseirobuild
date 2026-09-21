@@ -1,0 +1,101 @@
+name: WWN audit Forbidden Lands 3.3.2 dice donor
+
+on:
+  push:
+    branches: [wwn-fl332-dice-donor-audit]
+    paths:
+      - '.github/workflows/wwn-fl332-dice-donor-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  FIRE_API: 'https://api.firestorage.ai/dev/file'
+  SHARE_ID: 'sJUeoArUdSIJ'
+  FILE_ID: '01a0bd4313427307bc87a8337de35d13'
+  SOURCE_NAME: 'Braseiro_Forbidden_Lands_3.3.2_TTS_IMAGE_PROMPT_PATCH_ANDROID_STUDIO.zip'
+  SOURCE_SHA256: '83b99e4ced2f635b1c93d79c0dbb9ef5093545ea1c67cf8af2dc88331ce0061c'
+
+jobs:
+  extract-dice-donor:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: wwn-fl332-dice-donor-audit
+
+      - name: Download donor
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $incoming=Join-Path $env:RUNNER_TEMP 'fl332-donor'
+          Remove-Item $incoming -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming -Force | Out-Null
+          $files=Invoke-RestMethod -Uri "$env:FIRE_API/shares/$env:SHARE_ID/files?maxResults=1000"
+          if(-not @($files.files|Where-Object{[string]$_.fileId -eq $env:FILE_ID})){throw 'Donor file not found'}
+          $dl=Invoke-RestMethod -Method Post -Uri "$env:FIRE_API/shares/$env:SHARE_ID/files/$env:FILE_ID/download"
+          $zip=Join-Path $incoming $env:SOURCE_NAME
+          & curl.exe -L --fail --retry 3 -o $zip $dl.downloadUrl
+          if($LASTEXITCODE -ne 0){throw 'donor download failed'}
+          $hash=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($hash -ne $env:SOURCE_SHA256){throw "SHA mismatch $hash"}
+          $unpack=Join-Path $incoming 'unpacked';New-Item -ItemType Directory -Path $unpack -Force|Out-Null
+          & tar.exe -xf $zip -C $unpack
+          if($LASTEXITCODE -ne 0){throw 'extract failed'}
+          "DONOR_ROOT=$unpack" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Extract dice UX source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $out=Join-Path $env:GITHUB_WORKSPACE 'ci\fl332-dice-donor'
+          Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $out -Force|Out-Null
+          $project=(Get-ChildItem $env:DONOR_ROOT -Directory|Select-Object -First 1)
+          if(-not $project){$project=Get-Item $env:DONOR_ROOT}
+          $root=$project.FullName
+          $manifest=New-Object System.Collections.Generic.List[string]
+          $files=Get-ChildItem $root -Recurse -File -ErrorAction SilentlyContinue |
+            Where-Object {
+              $_.Length -lt 400000 -and
+              $_.Extension -in @('.ts','.tsx','.js','.jsx','.css','.html','.java','.kt') -and
+              $_.FullName -notmatch '[\\/](node_modules|build|dist|\.gradle)[\\/]'
+            }
+          $selected=@()
+          foreach($f in $files){
+            $content=''
+            try{$content=Get-Content $f.FullName -Raw -ErrorAction Stop}catch{continue}
+            if($f.Name -match '(?i)dice|roll|die' -or $content -match '(?i)dice.{0,40}(roll|pool|tray)|roll.{0,40}(dice|die)|physical.?dice|push.?roll|base.?dice|skill.?dice|gear.?dice'){
+              $selected += $f
+            }
+          }
+          $selected=$selected|Sort-Object FullName -Unique|Select-Object -First 80
+          foreach($f in $selected){
+            $rel=$f.FullName.Substring($root.Length).TrimStart('\','/')
+            $safe=($rel -replace '[:*?"<>|]','_')
+            $dest=Join-Path $out $safe
+            New-Item -ItemType Directory -Path (Split-Path $dest) -Force|Out-Null
+            Copy-Item $f.FullName $dest -Force
+            $manifest.Add("$rel | $($f.Length)")
+          }
+          $manifest | Set-Content (Join-Path $out 'MANIFEST.txt') -Encoding utf8
+          @"
+          DONOR=Forbidden Lands 3.3.2
+          SOURCE_SHA256=$env:SOURCE_SHA256
+          FILES=$($selected.Count)
+          PURPOSE=UX/presentation architecture only; do not port Year Zero mechanics into WWN.
+          "@ | Set-Content (Join-Path $out 'DONOR_INFO.txt') -Encoding utf8
+          Get-Content (Join-Path $out 'MANIFEST.txt')
+
+      - name: Commit donor audit
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          git config user.name 'BRELGA donor audit'
+          git config user.email 'actions@users.noreply.github.com'
+          git add ci/fl332-dice-donor
+          if((git status --porcelain).Length -eq 0){throw 'No donor dice files selected'}
+          git commit -m 'audit: extract Forbidden Lands 3.3.2 dice UX donor'
+          git push origin HEAD:wwn-fl332-dice-donor-audit
