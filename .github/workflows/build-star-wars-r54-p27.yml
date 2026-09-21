@@ -7,7 +7,7 @@ on:
       - '.github/workflows/build-star-wars-r54-p27.yml'
       - 'star-wars/r54/p27/**'
   workflow_dispatch:
-permissions: {contents: read}
+permissions: {contents: write}
 env:
   P25_ASSET_ID: '575165387'
   P25_SHA256: '7bfab40d0b021872cf3132cba5fd49848a3424f274ecd633e02c512e0efe3585'
@@ -170,10 +170,39 @@ jobs:
             foreach($apk in $apks){$dest=Join-Path $out $apk.Name;Copy-Item $apk.FullName $dest -Force;$hash=(Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant();"$hash  $($apk.Name)"|Set-Content "$dest.sha256" -Encoding ascii}
           }
 
-      - uses: actions/upload-artifact@v4
+      - name: Persist APKs on BRELGA
         if: always()
-        with:
-          name: STAR-WARS-R54-P27-EVIDENCE
-          path: ${{ runner.temp }}\sw-r54-p27\out
-          if-no-files-found: warn
-          retention-days: 14
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          $src=Join-Path $env:P27_BASE 'out'
+          if(-not(Test-Path $src)){throw 'P27 output folder missing'}
+          $dst='C:\actions-runner\artifacts\star-wars\r54\p27'
+          New-Item -ItemType Directory -Path $dst -Force | Out-Null
+          Copy-Item (Join-Path $src '*') $dst -Recurse -Force
+          Write-Host "BRELGA_PERSISTED=$dst"
+          Get-ChildItem $dst -File | ForEach-Object { Write-Host "$($_.Name) bytes=$($_.Length)" }
+
+      - name: Publish P27 Release assets
+        if: always()
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $out=Join-Path $env:P27_BASE 'out'
+          $files=@(Get-ChildItem $out -File)
+          if($files.Count -eq 0){throw 'No P27 output files to publish'}
+          $tag='STAR-WARS-EDGE-R54-P27'
+          $release=$null
+          try {
+            $release=gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/$tag" | ConvertFrom-Json
+          } catch {
+            gh release create $tag --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Braseiro Star Wars R54 P27' --notes 'P27 built on self-hosted BRELGA. EotE/AoR/MIXED + Sob um Sol Negro. Debug and release builds validated.'
+            $release=gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/$tag" | ConvertFrom-Json
+          }
+          foreach($f in $files){
+            gh release upload $tag $f.FullName --repo $env:GITHUB_REPOSITORY --clobber
+            if($LASTEXITCODE -ne 0){throw "Release upload failed: $($f.Name)"}
+          }
+          Write-Host "RELEASE_URL=$($release.html_url)"
