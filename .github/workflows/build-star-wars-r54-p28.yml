@@ -40,18 +40,27 @@ jobs:
           $incoming=Join-Path $base 'incoming'
           $work=Join-Path $base 'work'
           $patch=Join-Path $base 'p26'
-          Remove-Item $base -Recurse -Force -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Path $incoming,$work,$patch -Force | Out-Null
+          New-Item -ItemType Directory -Path $base,$incoming -Force | Out-Null
+          Remove-Item $work,$patch -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $work,$patch -Force | Out-Null
           Add-Content $env:GITHUB_ENV "P28_BASE=$base"
           $headers=@{Authorization="Bearer $env:GITHUB_TOKEN";Accept='application/octet-stream';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='BRELGA-Star-Wars-P28'}
           $p25=Join-Path $incoming 'p25.zip'
           $p26=Join-Path $incoming 'p26.zip'
-          Invoke-WebRequest -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/assets/$env:P25_ASSET_ID" -OutFile $p25
-          Invoke-WebRequest -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/assets/$env:P26_ASSET_ID" -OutFile $p26
+          function Ensure-Asset([string]$path,[string]$id,[string]$expected){
+            if(Test-Path $path){
+              $existing=(Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant()
+              if($existing -eq $expected){Write-Host "REUSE_VERIFIED $path sha=$existing";return}
+              Remove-Item $path -Force
+            }
+            Invoke-WebRequest -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/assets/$id" -OutFile $path
+            $actual=(Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant()
+            if($actual -ne $expected){throw "Asset SHA mismatch id=$id actual=$actual"}
+          }
+          Ensure-Asset $p25 $env:P25_ASSET_ID $env:P25_SHA256
+          Ensure-Asset $p26 $env:P26_ASSET_ID $env:P26_SHA256
           $h25=(Get-FileHash $p25 -Algorithm SHA256).Hash.ToLowerInvariant()
           $h26=(Get-FileHash $p26 -Algorithm SHA256).Hash.ToLowerInvariant()
-          if($h25 -ne $env:P25_SHA256){throw "P25 SHA mismatch $h25"}
-          if($h26 -ne $env:P26_SHA256){throw "P26 SHA mismatch $h26"}
           & tar.exe -xf $p25 -C $work
           if($LASTEXITCODE -ne 0){throw 'P25 extraction failed'}
           & tar.exe -xf $p26 -C $patch
