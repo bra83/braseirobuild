@@ -308,3 +308,5 @@ jobs:
 # retry after JSX provenance fix
 
 # retry after recoverable start-state fix
+
+# retry after robust native TTS integrity patch
