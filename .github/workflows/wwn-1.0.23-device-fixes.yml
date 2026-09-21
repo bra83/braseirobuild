@@ -80,7 +80,7 @@ jobs:
           if(-not $settings){ throw 'Android Studio project not found' }
           $root=$settings.Directory.FullName
           $vp=Get-Content (Join-Path $root 'version.properties') -Raw
-          if($vp -notmatch 'VERSION_NAME=1\.0\.22'){ throw 'Wrong VERSION_NAME' }
+          if($vp -notmatch 'VERSION_NAME=1\.0\.23'){ throw 'Wrong VERSION_NAME' }
           if($vp -notmatch 'VERSION_CODE=10023'){ throw 'Wrong VERSION_CODE' }
           "ANDROID_ROOT=$root" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           Write-Host "ANDROID_ROOT=$root"
