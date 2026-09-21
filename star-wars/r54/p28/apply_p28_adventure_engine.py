@@ -128,13 +128,11 @@ opening=r'''async function startBarbaraOpening(){
      state.flags={...(state.flags||{}),worldAnchored:true,worldAnchor:'Coruscant'};
      state=engine.write(localStorage,state);
    }
+   prep=bridgeResult('startPublishedAdventureSession',{playerCount:1});
+   if(prep&&prep.ok===false)return prep;
    if(!state.flags?.sessionStarted){
-     prep=bridgeResult('startPublishedAdventureSession',{playerCount:1});
-     if(prep&&prep.ok===false)return prep;
      state.flags={...(state.flags||{}),sessionStarted:true};
      state=engine.write(localStorage,state);
-   } else {
-     try{prep=bridgeResult('livingSandboxStatus',{})}catch{prep={ok:true,data:{}}}
    }
    const ctx=blackSunPromptContext(state);
    if(!ctx){if(state.completed)return {ok:false,message:'Sob um Sol Negro já foi concluída.'};return {ok:false,message:'Nenhuma etapa da aventura está selecionada.'}}
