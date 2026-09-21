@@ -42,6 +42,7 @@
   function select(storage,nodeId){
     let s=read(storage);const id=String(nodeId||'');
     if(!s.started||s.completed)throw new Error('A aventura não está disponível para seleção.');
+    if(s.currentNode&&s.currentNode!==id)throw new Error('Conclua a etapa atual antes de escolher outro caminho.');
     if(!s.availableNodes.includes(id))throw new Error('Esta etapa ainda não foi desbloqueada.');
     s.currentNode=id;s.visitedNodes=cleanList([...s.visitedNodes,id]);s.availableNodes=s.availableNodes.filter(x=>x!==id);
     return write(storage,s);
