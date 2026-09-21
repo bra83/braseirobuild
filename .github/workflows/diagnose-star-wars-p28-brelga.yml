@@ -15,6 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Reproduce P28 syntax from exact P27 APK
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
           $ErrorActionPreference='Stop'
@@ -24,7 +26,8 @@ jobs:
           $root=Join-Path $base 'root'
           New-Item -ItemType Directory -Path $extract,(Join-Path $root 'app\src\main\assets') -Force | Out-Null
           $apk=Join-Path $base 'p27.apk'
-          Invoke-WebRequest -Uri 'https://github.com/bra83/braseirobuild/releases/download/STAR-WARS-EDGE-R54-P27/app-debug.apk' -OutFile $apk
+          $headers=@{Authorization="Bearer $env:GITHUB_TOKEN";Accept='application/octet-stream';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='BRELGA-P28-DIAG'}
+          Invoke-WebRequest -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/assets/579226597" -OutFile $apk
           $sha=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
           Write-Host "P27_SHA=$sha"
           if($sha -ne '45683d734e91974663262da8f62abb7d92d6a04ec76f4b7df5dca14440bdd6a8'){throw 'P27 APK SHA mismatch'}
