@@ -314,7 +314,7 @@ checks = {
     "map toast above nav": "bottom: 92, zIndex: 115" in emap,
     "gemini text test": "Testar modelo de texto principal" in settings and "generateGemini(cinematicModel" in settings,
     "all text routes manual": "generateGemini(getGeminiTextModel('economy')" in svc and "[getGeminiTextModel('cinematic'), getGeminiTextModel('economy')]" in svc,
-    "gemini tts test": "Testar modelo TTS com Charon" in settings and "window.BraseiroAndroid?.generateTts" in settings,
+    "gemini tts test": "Testar modelo TTS com Charon" in settings and "window.BraseiroAndroid?.generateTts" in settings and "playGeneratedVoice(artifact.token, 1)" in settings,
     "version": "4.9.13" in read(version_rel) and "49013" in read(gradle_rel),
 }
 for name, ok in checks.items():
