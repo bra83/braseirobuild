@@ -168,8 +168,13 @@ jobs:
           $headers=@{'Authorization'="Bearer $env:GITHUB_TOKEN";'Accept'='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='braseiro-wwn-brelga'}
           try{$release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"}
           catch{
-            $body=@{tag_name=$tag;target_commitish=$env:GITHUB_REF_NAME;name='BRASEIRO WWN 1.0.22 Device Hotfix';body='Device hotfix: scene-consistent NPCs, Atlas bottom navigation fix, explicit COMEÇAR AVENTURA flow.';draft=$false;prerelease=$true}|ConvertTo-Json
-            $release=Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $body -Uri "https://api.github.com/repos/$repo/releases"
+            $body=@{tag_name=$tag;target_commitish=$env:GITHUB_REF_NAME;name='BRASEIRO WWN 1.0.22 Device Hotfix';body='Device hotfix: scene-consistent NPCs, Atlas bottom navigation fix, explicit start-adventure flow.';draft=$false;prerelease=$true}|ConvertTo-Json -Compress
+            $payload=Join-Path $env:RUNNER_TEMP 'wwn-1022-release.json'
+            $response=Join-Path $env:RUNNER_TEMP 'wwn-1022-release-response.json'
+            [System.IO.File]::WriteAllText($payload,$body,(New-Object System.Text.UTF8Encoding($false)))
+            & curl.exe -sS -L --fail --retry 3 --retry-delay 2 --request POST --header "Authorization: Bearer $env:GITHUB_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" --header "Content-Type: application/json" --data-binary "@$payload" -o $response "https://api.github.com/repos/$repo/releases"
+            if($LASTEXITCODE -ne 0){throw 'Release creation failed'}
+            $release=Get-Content $response -Raw | ConvertFrom-Json
           }
           foreach($file in (Get-ChildItem $env:OUT_DIR -File)){
             $existing=@($release.assets|Where-Object{$_.name -eq $file.Name}|Select-Object -First 1)
