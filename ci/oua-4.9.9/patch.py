@@ -20,12 +20,15 @@ imm = imm.replace(
     1,
 )
 
-# Mapa must not hide narration/actions.
-imm = imm.replace(
-    "            if (tab === 'jogo') { setChronicleOpen(false); return; }",
-    "            if (tab === 'jogo') { if (node) setChronicleOpen(true); return; }",
-    1,
+# Mapa must not hide narration/actions. Accept older/newer variants of this branch.
+imm, map_nav_count = re.subn(
+    r"if \(tab === 'jogo'\) \{[^\n]*return; \}",
+    "if (tab === 'jogo') { if (node) setChronicleOpen(true); return; }",
+    imm,
+    count=1,
 )
+if map_nav_count != 1:
+    raise SystemExit("map navigation chronicle anchor missing")
 
 # Remove explicit close-cronica action: map + narration coexist.
 imm = imm.replace(
@@ -134,7 +137,7 @@ main = main.replace("index.html?v=49008&immersive=1", "index.html?v=49009&immers
 write(main_rel, main)
 
 checks = {
-    "map keeps chronicle": "if (node) setChronicleOpen(true)" in imm,
+    "map keeps chronicle": "if (tab === 'jogo') { if (node) setChronicleOpen(true); return; }" in imm,
     "master narration label": "Narração do Mestre" in imm,
     "suggested actions label": "Ações sugeridas" in imm,
     "party currentHex fallback": "discovery?.currentHexId || currentHexId" in emap,
