@@ -30,6 +30,7 @@ interface Props {
   onDismissStoryError?: () => void;
   pendingTest?: PendingTest | null;
   isNarrationLoading?: boolean;
+  narrationError?: string | null;
   onPlayNarration: () => void | Promise<void>;
   onStopNarration: () => void;
   onShareSceneImagePrompt: () => void | Promise<void>;
@@ -293,6 +294,12 @@ export const ImmersiveJourneyView: React.FC<Props> = props => {
           {props.isNarrationLoading ? '■ Parar narração' : '🔊 Ouvir narração'}
         </button>
       </div>
+
+      {props.narrationError && <div role="alert" style={{
+        marginBottom: 8, borderRadius: 7, border: '1px solid rgba(158,55,42,.5)',
+        background: 'rgba(94,28,20,.12)', color: '#7a2d22', padding: '7px 9px',
+        fontSize: 11, lineHeight: 1.35, fontWeight: 700
+      }}>TTS: {props.narrationError}</div>}
 
       <div style={{ minHeight: 92, maxHeight: 160, overflowY: 'auto', paddingRight: 4, fontSize: 15, lineHeight: 1.48 }}>
         {narrative ? narrative.split(/\n\s*\n/).map((paragraph, index) => <p key={index} style={{ margin: index ? '10px 0 0' : 0 }}>{paragraph}</p>) : <p style={{ margin: 0, fontStyle: 'italic', opacity: .72 }}>A crônica aguarda o próximo passo da Companhia.</p>}
