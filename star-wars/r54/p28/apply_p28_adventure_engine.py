@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import shutil,sys,re
+import shutil,sys
 ROOT=Path(sys.argv[1]).resolve() if len(sys.argv)>1 else Path.cwd()
 VTT=ROOT/'app/src/main/assets/vtt'
 rt=VTT/'r46/final-runtime.js'; shell=VTT/'r46-shell.html'; ui=VTT/'js/core/uiBridge.bundle.js'
@@ -39,21 +39,15 @@ if tag not in html:
 ui_src=ui.read_text(encoding='utf-8')
 if 'R54_P28_PUBLISHED_SESSION' not in ui_src:
     anchor='    startLivingAdventure(options = {}) {'
-    class_match=re.search(r'(?m)^\s*(?:export\s+)?class\s+BraseiroUiBridge\b',ui_src)
-    if not class_match:
-        # Bundles antigos podem remover o nome exportado; ancore pela sequência exclusiva da ponte.
-        init_pos=ui_src.find('    initializeCampaign() {')
-        controller_helper=ui_src.find('    _controllerForExistingCampaign()',init_pos if init_pos>=0 else 0)
-        if init_pos<0 or controller_helper<0:
-            raise SystemExit('FAIL: classe/contrato BraseiroUiBridge ausente')
-        bridge_class=init_pos
-    else:
-        bridge_class=class_match.start()
-    pos=ui_src.find(anchor,bridge_class)
-    if pos<0: raise SystemExit('FAIL: startLivingAdventure da BraseiroUiBridge ausente')
-    next_class=re.search(r'(?m)^\s*(?:export\s+)?class\s+\w+',ui_src[pos+len(anchor):])
-    if next_class and pos+len(anchor)+next_class.start()<pos:
-        raise SystemExit('FAIL: âncora startLivingAdventure escapou da classe de UI')
+    bridge_contract=ui_src.find('    initializeCampaign() {')
+    if bridge_contract<0:
+        raise SystemExit('FAIL: contrato initializeCampaign da BraseiroUiBridge ausente')
+    helper_pos=ui_src.find('_controllerForExistingCampaign',bridge_contract)
+    pos=ui_src.find(anchor,bridge_contract)
+    if helper_pos<0 or pos<0:
+        raise SystemExit('FAIL: contrato BraseiroUiBridge incompleto')
+    if helper_pos<pos:
+        raise SystemExit('FAIL: startLivingAdventure resolvido fora da BraseiroUiBridge')
     method=r'''    startPublishedAdventureSession(options = {}) {
         // R54_P28_PUBLISHED_SESSION — inicia regras de sessão sem gerar abertura sandbox genérica.
         const controllerResult=this._controllerForExistingCampaign();
