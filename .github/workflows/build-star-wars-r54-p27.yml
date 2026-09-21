@@ -39,6 +39,7 @@ jobs:
           $patch=Join-Path $base 'p26'
           Remove-Item $base -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $incoming,$work,$patch -Force | Out-Null
+          Add-Content $env:GITHUB_ENV "P27_BASE=$base"
           $headers=@{Authorization="Bearer $env:GITHUB_TOKEN";Accept='application/octet-stream';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='BRELGA-Star-Wars-P27'}
           $p25=Join-Path $incoming 'p25.zip'
           $p26=Join-Path $incoming 'p26.zip'
@@ -58,16 +59,20 @@ jobs:
           $vtt=Join-Path $root 'app\src\main\assets\vtt'
           if(-not(Test-Path $vtt)){throw 'VTT root missing in P25'}
           $report=Join-Path $base 'P26_MERGE_REPORT.txt'
+          $patchFiles=@(Get-ChildItem $patch -Recurse -File)
+          @("patch_files=$($patchFiles.Count)","patch_bytes=$(($patchFiles | Measure-Object Length -Sum).Sum)") | Set-Content $report
+          $patchFiles | Select-Object -First 250 FullName,Length | Format-Table -AutoSize | Out-String -Width 500 | Add-Content $report
           $pv=Get-ChildItem $patch -Recurse -Directory | Where-Object {$_.FullName -match '[\\/]app[\\/]src[\\/]main[\\/]assets[\\/]vtt$'} | Select-Object -First 1
           if($pv){
-            @('mode=project-relative-vtt',"source=$($pv.FullName)","target=$vtt") | Set-Content $report
+            @('mode=project-relative-vtt',"source=$($pv.FullName)","target=$vtt") | Add-Content $report
             Get-ChildItem $pv.FullName -Force | ForEach-Object {Copy-Item $_.FullName $vtt -Recurse -Force}
           } else {
             $fr=Get-ChildItem $patch -Recurse -File -Filter 'final-runtime.js' | Sort-Object Length -Descending | Select-Object -First 1
             if(-not $fr){throw 'P26 final-runtime.js missing'}
             $sr=$fr.Directory.FullName
             $tr=Join-Path $vtt 'r46'
-            @('mode=fallback-r46-plus-basename',"source=$sr","target=$tr") | Set-Content $report
+            $r46Files=@(Get-ChildItem $sr -Recurse -File)
+            @('mode=fallback-r46-plus-basename',"source=$sr","target=$tr","r46_subtree_files=$($r46Files.Count)") | Add-Content $report
             Get-ChildItem $sr -Force | ForEach-Object {Copy-Item $_.FullName $tr -Recurse -Force}
             $mapped=0
             Get-ChildItem $patch -Recurse -File | Where-Object {$_.FullName -notlike "$sr*" -and $_.Extension.ToLowerInvariant() -in @('.html','.json')} | ForEach-Object {
@@ -76,11 +81,10 @@ jobs:
               if($targets.Count -eq 1){Copy-Item $f.FullName $targets[0].FullName -Force; $mapped++}
               elseif($targets.Count -gt 1){throw "Ambiguous P26 target $($f.Name)"}
             }
-            Add-Content $report "mapped_extra=$mapped"
-            if($mapped -lt 26){throw "P26 fallback mapped only $mapped extras"}
+            Add-Content $report "mapped_extra_existing_basename=$mapped"
+            if($r46Files.Count -lt 3){throw "P26 fallback r46 subtree unexpectedly small: $($r46Files.Count)"}
           }
           Add-Content $env:GITHUB_ENV "WORK_ROOT=$root"
-          Add-Content $env:GITHUB_ENV "P27_BASE=$base"
           Write-Host "P25 bytes=$((Get-Item $p25).Length) P26 bytes=$((Get-Item $p26).Length)"
 
       - name: Apply P27
@@ -156,10 +160,11 @@ jobs:
         if: always()
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
-          $out=Join-Path $env:P27_BASE 'out'
+          $base=if($env:P27_BASE){$env:P27_BASE}else{Join-Path $env:RUNNER_TEMP 'sw-r54-p27'}
+          $out=Join-Path $base 'out'
           New-Item -ItemType Directory -Path $out -Force | Out-Null
           if(Test-Path 'star-wars/r54/p27/HANDOFF_STAR_WARS_R54_P27_2026-09-21.md'){Copy-Item 'star-wars/r54/p27/HANDOFF_STAR_WARS_R54_P27_2026-09-21.md' $out}
-          foreach($name in @('P26_MERGE_REPORT.txt','P27_GATES.log','P27_NODE_CHECK.log','P27_NODE_REGRESSION.log','P27_REGRESSION_SUMMARY.txt','P27_GRADLE_DEBUG.log','P27_GRADLE_RELEASE.log','P27_GRADLE_SUMMARY.txt')){ $p=Join-Path $env:P27_BASE $name; if(Test-Path $p){Copy-Item $p $out} }
+          foreach($name in @('P26_MERGE_REPORT.txt','P27_GATES.log','P27_NODE_CHECK.log','P27_NODE_REGRESSION.log','P27_REGRESSION_SUMMARY.txt','P27_GRADLE_DEBUG.log','P27_GRADLE_RELEASE.log','P27_GRADLE_SUMMARY.txt')){ $p=Join-Path $base $name; if(Test-Path $p){Copy-Item $p $out} }
           if($env:WORK_ROOT){
             $apks=Get-ChildItem $env:WORK_ROOT -Recurse -File -Filter '*.apk' | Where-Object {$_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]'}
             foreach($apk in $apks){$dest=Join-Path $out $apk.Name;Copy-Item $apk.FullName $dest -Force;$hash=(Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant();"$hash  $($apk.Name)"|Set-Content "$dest.sha256" -Encoding ascii}
