@@ -108,6 +108,13 @@ jobs:
           python star-wars/r54/p27/apply_p27_under_black_sun.py "$env:WORK_ROOT"
 
 
+      - name: Validate inherited P27 before P28
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          python star-wars/r54/p27/gate_p27.py "$env:WORK_ROOT" 2>&1 | Tee-Object -FilePath (Join-Path $env:P28_BASE 'P27_GATE_ON_P28.log')
+          if($LASTEXITCODE -ne 0){throw 'Inherited P27 gate failed before P28 mutation'}
+
       - name: Apply P28
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
@@ -118,12 +125,10 @@ jobs:
           python star-wars/r54/p28/apply_p28_bonds_ui.py "$env:WORK_ROOT"
           python star-wars/r54/p28/apply_p28_random_creation.py "$env:WORK_ROOT"
 
-      - name: P27 and P28 semantic gates
+      - name: P28 semantic and syntax gates
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
           $ErrorActionPreference='Stop'
-          python star-wars/r54/p27/gate_p27.py "$env:WORK_ROOT" 2>&1 | Tee-Object -FilePath (Join-Path $env:P28_BASE 'P27_GATE_ON_P28.log')
-          if($LASTEXITCODE -ne 0){throw 'Inherited P27 gate failed'}
           python star-wars/r54/p28/gate_p28.py "$env:WORK_ROOT" 2>&1 | Tee-Object -FilePath (Join-Path $env:P28_BASE 'P28_GATES.log')
           if($LASTEXITCODE -ne 0){throw 'P28 gate failed'}
           $vtt=Join-Path $env:WORK_ROOT 'app\src\main\assets\vtt'
@@ -131,6 +136,8 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'final-runtime syntax failed'}
           node --check (Join-Path $vtt 'js\core\uiBridge.bundle.js') 2>&1 | Tee-Object -FilePath (Join-Path $env:P28_BASE 'P28_UIBRIDGE_CHECK.log')
           if($LASTEXITCODE -ne 0){throw 'uiBridge syntax failed'}
+          node --check (Join-Path $vtt 'js\core\controller.mjs') 2>&1 | Tee-Object -FilePath (Join-Path $env:P28_BASE 'P28_CONTROLLER_CHECK.log')
+          if($LASTEXITCODE -ne 0){throw 'controller syntax failed'}
           node --check (Join-Path $vtt 'adventures\under-a-black-sun-engine.js') 2>&1 | Tee-Object -FilePath (Join-Path $env:P28_BASE 'P28_ENGINE_CHECK.log')
           if($LASTEXITCODE -ne 0){throw 'adventure engine syntax failed'}
 
@@ -199,7 +206,7 @@ jobs:
           $out=Join-Path $base 'out'
           New-Item -ItemType Directory -Path $out -Force | Out-Null
           if(Test-Path 'star-wars/r54/p28/HANDOFF_STAR_WARS_R54_P28_2026-09-21.md'){Copy-Item 'star-wars/r54/p28/HANDOFF_STAR_WARS_R54_P28_2026-09-21.md' $out}
-          foreach($name in @('P26_MERGE_REPORT.txt','P27_GATE_ON_P28.log','P28_GATES.log','P28_RUNTIME_CHECK.log','P28_UIBRIDGE_CHECK.log','P28_ENGINE_CHECK.log','P28_ENGINE_TEST.log','P28_NODE_REGRESSION.log','P28_REGRESSION_SUMMARY.txt','P28_GRADLE_DEBUG.log','P28_GRADLE_RELEASE.log','P28_GRADLE_SUMMARY.txt')){
+          foreach($name in @('P26_MERGE_REPORT.txt','P27_GATE_ON_P28.log','P28_GATES.log','P28_RUNTIME_CHECK.log','P28_UIBRIDGE_CHECK.log','P28_CONTROLLER_CHECK.log','P28_ENGINE_CHECK.log','P28_ENGINE_TEST.log','P28_NODE_REGRESSION.log','P28_REGRESSION_SUMMARY.txt','P28_GRADLE_DEBUG.log','P28_GRADLE_RELEASE.log','P28_GRADLE_SUMMARY.txt')){
             $p=Join-Path $base $name;if(Test-Path $p){Copy-Item $p $out}
           }
           if($env:WORK_ROOT){
