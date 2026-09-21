@@ -76,9 +76,10 @@ opening=r'''async function startBarbaraOpening(){
  if(adventureKey==='under-a-black-sun'){
    const mode=campaignMode();if(mode==='AOR')return {ok:false,message:'Sob um Sol Negro é uma aventura de Edge of the Empire. Use campanha EotE ou MISTA.'};
    const engine=blackSunEngine();if(!engine)return {ok:false,message:'Motor de Sob um Sol Negro indisponível.'};
-   let prep={ok:true,data:{}};try{prep=sandboxReady()?bridgeResult('livingSandboxStatus',{}):bridgeResult('startLivingAdventure',{})}catch{prep={ok:true,data:{}}}
-   if(prep&&prep.ok===false)return prep;
-   const state=engine.start(localStorage),ctx=blackSunPromptContext(state);
+   let state=engine.start(localStorage),prep={ok:true,data:{}};
+   if(!state.flags?.worldStarted){prep=bridgeResult('startLivingAdventure',{});if(prep&&prep.ok===false)return prep;state.flags={...(state.flags||{}),worldStarted:true};state=engine.write(localStorage,state)}
+   else {try{prep=bridgeResult('livingSandboxStatus',{})}catch{prep={ok:true,data:{}}}}
+   const ctx=blackSunPromptContext(state);
    if(!ctx){if(state.completed)return {ok:false,message:'Sob um Sol Negro já foi concluída.'};return {ok:false,message:'Nenhuma etapa da aventura está selecionada.'}}
    window.__BRASEIRO_PUBLISHED_ADVENTURE__={id:'under-a-black-sun',title:'Sob um Sol Negro',mode,nodeId:ctx.id,episode:state.episode};
    const checks=ctx.checks.length?'Testes previstos no material para esta etapa: '+ctx.checks.join('; ')+'.':'';
