@@ -3,7 +3,7 @@ const code=fs.readFileSync(process.argv[2]||require('path').join(__dirname,'unde
 const box={module:{exports:{}},exports:{},console,Date,JSON,Set,Error};box.globalThis=box;vm.createContext(box);vm.runInContext(code,box);
 const E=box.module.exports.STORAGE_KEY?box.module.exports:box.BraseiroBlackSunEngine;
 const mem=new Map();const storage={getItem:k=>mem.has(k)?mem.get(k):null,setItem:(k,v)=>mem.set(k,String(v))};
-let s=E.start(storage);assert.equal(s.currentNode,'hot-pursuit');assert.equal(E.currentContext(s).gm.includes('Setor 943'),false);
+let s=E.start(storage);assert.equal(s.currentNode,'hot-pursuit');assert.equal(E.currentContext(s).gm.includes('Setor 943'),false);let lockGuard=false;try{E.select(storage,'umbra-club')}catch{lockGuard=true}assert.equal(lockGuard,true);
 s=E.completeCurrent(storage);assert.equal(s.currentNode,'chop-talk');
 s=E.completeCurrent(storage);assert.equal(s.episode,'ep2');assert.equal(s.currentNode,null);assert.deepEqual([...s.availableNodes].sort(),['spyder','umbra-club','zelcomm-tower'].sort());
 s=E.select(storage,'umbra-club');s=E.completeCurrent(storage);assert.equal(s.availableNodes.includes('sector-943'),false);
@@ -14,4 +14,5 @@ s=E.completeCurrent(storage);assert.equal(s.completed,true);assert.equal(s.curre
 s=E.setOutcome(storage,'devolver aos Pykes');assert.equal(s.outcome,'devolver aos Pykes');
 let bad=false;try{E.select(storage,'umbra-club')}catch{bad=true}assert.equal(bad,true);
 const restored=E.read(storage);assert.equal(restored.completed,true);assert.equal(restored.outcome,'devolver aos Pykes');
-console.log('P28_BLACK_SUN_ENGINE 17/17 PASS');
+const reset=E.reset(storage);assert.equal(reset.started,false);assert.equal(reset.completed,false);assert.equal(reset.currentNode,'hot-pursuit');
+console.log('P28_BLACK_SUN_ENGINE 21/21 PASS');
