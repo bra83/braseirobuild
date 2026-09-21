@@ -14,6 +14,10 @@ if not errors:
     r=rt.read_text(encoding='utf-8',errors='replace')
     h=shell.read_text(encoding='utf-8',errors='replace')
     e=engine.read_text(encoding='utf-8',errors='replace')
+    bridge_start=u.find('export class BraseiroUiBridge')
+    bridge_end=u.find('export function createBraseiroUiBridge',bridge_start if bridge_start>=0 else 0)
+    bridge_segment=u[bridge_start:bridge_end] if bridge_start>=0 and bridge_end>bridge_start else ''
+    published_bridge_ok='R54_P28_PUBLISHED_SESSION' in bridge_segment and 'startPublishedAdventureSession' in bridge_segment
     checks={
       'ui marcador P28':'R54_P28_MIXED_CREATION' in u,
       'controller random por origem':'R54_P28_RANDOM_CREATION' in controller and 'createRandomAorCoreCharacter' in controller and 'createRandomEoteCoreCharacter' in controller,
@@ -29,7 +33,7 @@ if not errors:
       'runtime contexto por nó':'[NO:${ctx.id}]' in r,
       'runtime anti-spoiler':'Não revele nós futuros' in r,
       'world anchor Coruscant':"restartSandboxPreservingParty" in r and "startingPoint:'Coruscant'" in r and "startLocationId:'coruscant'" in r and 'startMapPoint:{x:53.4,y:51.2}' in r and 'worldAnchored' in r and "worldAnchor:'Coruscant'" in r,
-      'published session sem opening genérica':'R54_P28_PUBLISHED_SESSION' in u and "startPublishedAdventureSession" in u and 'publishedAnchorId' in u and 'game.repository.save(game.state)' in u and "bridgeResult('startPublishedAdventureSession'" in r and 'sessionStarted' in r,
+      'published session sem opening genérica':published_bridge_ok and 'publishedAnchorId' in bridge_segment and 'game.repository.save(game.state)' in bridge_segment and "bridgeResult('startPublishedAdventureSession'" in r and 'sessionStarted' in r,
       'painel continuar':'Continuar com Barbara' in r,
       'painel concluir':'Marcar etapa concluída' in r,
       'sem literal slash-n em handlers':"startBarbaraOpening());\\\\n panel.querySelector" not in r,
