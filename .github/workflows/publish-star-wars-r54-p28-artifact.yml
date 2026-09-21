@@ -1,0 +1,60 @@
+name: Publish Star Wars R54 P28 Verified Artifact
+
+on:
+  push:
+    branches: [star-wars-r54-p28-adventure-engine]
+    paths:
+      - '.github/workflows/publish-star-wars-r54-p28-artifact.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify persisted P28 evidence on BRELGA
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Expected BRELGA, got $env:RUNNER_NAME"}
+          $dir='C:\actions-runner\artifacts\star-wars\r54\p28'
+          if(-not(Test-Path $dir)){throw 'Persisted P28 directory missing on BRELGA'}
+          $debug=Join-Path $dir 'Braseiro-Star-Wars-R54-P28-debug.apk'
+          $release=Join-Path $dir 'Braseiro-Star-Wars-R54-P28-release-unsigned.apk'
+          $handoff=Join-Path $dir 'HANDOFF_STAR_WARS_R54_P28_2026-09-21.md'
+          foreach($f in @($debug,$release,$handoff)){if(-not(Test-Path $f)){throw "Required P28 evidence missing: $f"}}
+          $debugHash=(Get-FileHash $debug -Algorithm SHA256).Hash.ToLowerInvariant()
+          $releaseHash=(Get-FileHash $release -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($debugHash -ne '0fca1c4e648c8da9bb6e0632424c56d4d7989ca99218b65352d3fe6a73ac55d4'){throw "Debug APK hash mismatch: $debugHash"}
+          if($releaseHash -ne 'bf03c04d1556d5a9290dbd30e2faa46140158e202dca236c4311833258e82bf1'){throw "Release APK hash mismatch: $releaseHash"}
+          $gate=Get-Content (Join-Path $dir 'P28_GATES.log') -Raw
+          $engine=Get-Content (Join-Path $dir 'P28_ENGINE_TEST.log') -Raw
+          $reg=Get-Content (Join-Path $dir 'P28_REGRESSION_SUMMARY.txt') -Raw
+          $gradle=Get-Content (Join-Path $dir 'P28_GRADLE_SUMMARY.txt') -Raw
+          if(-not $gate.Contains('PASS: P28 MIXED native creation + persistent Under a Black Sun engine')){throw 'P28 semantic PASS evidence missing'}
+          if(-not $engine.Contains('21/21 PASS')){throw 'P28 adventure 21/21 evidence missing'}
+          if(-not ($reg.Contains('node_exit=0') -and $reg.Contains('fail=0'))){throw 'P28 regression evidence invalid'}
+          if(-not ($gradle.Contains('debug_exit=0') -and $gradle.Contains('release_exit=0'))){throw 'P28 Gradle evidence invalid'}
+          Write-Host "VERIFIED_P28 debug_sha=$debugHash release_sha=$releaseHash"
+      - name: Stage verified artifact
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          $src='C:\actions-runner\artifacts\star-wars\r54\p28'
+          $dst=Join-Path $env:RUNNER_TEMP 'star-wars-r54-p28-verified'
+          Remove-Item $dst -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $dst -Force | Out-Null
+          Copy-Item (Join-Path $src '*') $dst -Recurse -Force
+          Add-Content $env:GITHUB_ENV "P28_PUBLISH_DIR=$dst"
+      - name: Upload verified P28 bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: Braseiro-Star-Wars-R54-P28-VERIFIED
+          path: ${{ env.P28_PUBLISH_DIR }}
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
