@@ -58,16 +58,12 @@ if 'R54_P28_PUBLISHED_SESSION' not in ui_src:
             }
             const publishedAnchorId=String(game.state.world?.sandbox?.startLocationId??'').trim();
             if(publishedAnchorId){
-                const anchored=clone(game.state);
-                const location=anchored.world?.locations?.[publishedAnchorId]??null;
-                anchored.scene={
-                    ...(anchored.scene??{}),
+                const location=game.state.world?.locations?.[publishedAnchorId]??null;
+                game.commit('SCENE_UPDATED',{scene:{
+                    ...(game.state.scene??{}),
                     locationId:publishedAnchorId,
-                    title:String(location?.name??anchored.scene?.title??'Coruscant')
-                };
-                anchored.updatedAt=new Date().toISOString();
-                game.state=anchored;
-                game.repository.save(game.state);
+                    title:String(location?.name??game.state.scene?.title??'Coruscant')
+                }});
             }
             return ok(clone({started,...result,state:game.state,publishedAnchorId:publishedAnchorId||null}));
         } catch(error){
