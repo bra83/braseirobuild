@@ -1,14 +1,14 @@
 name: WWN 1.0.23 BRELGA Device Fixes
 
 concurrency:
-  group: wwn-1.0.23-device-hotfix
+  group: wwn-1.0.23-device-fixes
   cancel-in-progress: true
 
 on:
   push:
-    branches: [wwn-1.0.23-device-hotfix]
+    branches: [wwn-1.0.23-device-fixes]
     paths:
-      - '.github/workflows/wwn-1.0.23-device-hotfix.yml'
+      - '.github/workflows/wwn-1.0.23-device-fixes.yml'
   workflow_dispatch:
 
 permissions:
@@ -17,10 +17,10 @@ permissions:
 env:
   SOURCE_SHARE_ID: '3KDg2OcQ58yQ'
   SOURCE_FILE_ID: '01a0c2718090727786495183fdc7212e'
-  SOURCE_NAME: 'BRASEIRO_WWN_1.0.23_DEVICE_HOTFIX_SOURCE.zip'
+  SOURCE_NAME: 'BRASEIRO_WWN_1.0.23_DEVICE_FIXES_SOURCE.zip'
   SOURCE_SHA256: 'ab9501f298d13eb1d50524a81c44b63115472aab43dfd39a5ebe7a0a1f4d05d3'
-  APK_NAME: 'BRASEIRO_WWN_1.0.23_DEVICE_HOTFIX_DEBUG.apk'
-  RELEASE_TAG: 'WWN-1.0.23-DEVICE-HOTFIX'
+  APK_NAME: 'BRASEIRO_WWN_1.0.23_DEVICE_FIXES_DEBUG.apk'
+  RELEASE_TAG: 'WWN-1.0.23-DEVICE-FIXES'
   FIRE_API: 'https://api.firestorage.ai/dev/file'
 
 jobs:
