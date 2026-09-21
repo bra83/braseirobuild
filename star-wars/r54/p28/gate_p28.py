@@ -22,6 +22,7 @@ if not errors:
       'Obligation usa criador EotE':'game.createCustomCharacter(native)' in u,
       'não empilha economia':"origin==='AOR_CORE'" in u and "eoteCharacterCreation_mjs_1.createEoteCoreCharacter(native)" in u,
       'runtime engine P28':'R54_P28_BLACK_SUN_ENGINE' in r,
+      'UI simultânea de vínculos':'R54_P28_BONDS_UI' in r and 'Obrigação total:' in r and 'Dever total:' in r and 'Faixa de Contribuição:' in r,
       'runtime contexto por nó':'[NO:${ctx.id}]' in r,
       'runtime anti-spoiler':'Não revele nós futuros' in r,
       'painel continuar':'Continuar com Barbara' in r,
