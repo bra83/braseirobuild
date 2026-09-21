@@ -75,7 +75,7 @@ jobs:
           }
 
           if (-not $sdkManager) {
-            $sdkRoot = 'C:\\actions-runner\\android-sdk'
+            $sdkRoot = 'C:\actions-runner\android-sdk'
             $latest = Join-Path $sdkRoot 'cmdline-tools\\latest'
             $sdkManager = Join-Path $latest 'bin\\sdkmanager.bat'
             $zip = Join-Path $env:RUNNER_TEMP 'android-commandlinetools-15859902.zip'
@@ -111,12 +111,19 @@ jobs:
           (Split-Path $sdkManager) | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
           (Join-Path $sdkRoot 'platform-tools') | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
 
+          $licenseInput = Join-Path $env:RUNNER_TEMP 'android-sdk-license-accept.txt'
+          1..200 | ForEach-Object { 'y' } | Set-Content -Path $licenseInput -Encoding ascii
+          $licenseCommand = "`"$sdkManager`" --licenses < `"$licenseInput`""
+
           $previousPreference = $ErrorActionPreference
           $ErrorActionPreference = 'Continue'
-          1..200 | ForEach-Object { 'y' } | & $sdkManager --licenses | Out-Null
+          & cmd.exe /d /s /c $licenseCommand
+          $licenseExit = $LASTEXITCODE
           & $sdkManager 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0'
           $sdkExit = $LASTEXITCODE
           $ErrorActionPreference = $previousPreference
+
+          if ($licenseExit -ne 0) { throw "Android SDK license acceptance failed with exit code $licenseExit" }
           if ($sdkExit -ne 0) { throw "sdkmanager failed with exit code $sdkExit" }
 
           foreach ($required in @(
