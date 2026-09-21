@@ -80,8 +80,9 @@ jobs:
           $root = $pkg.Directory.FullName
           Write-Host "ROOT=$root"
 
-          & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.7\patch.py" $root
-          if ($LASTEXITCODE -ne 0) { throw '4.9.7 visual overlay patch failed' }
+          $map497 = "$env:GITHUB_WORKSPACE\ci\oua-4.9.7\source-snapshot\components\EriadorMap.tsx"
+          if (-not (Test-Path $map497)) { throw 'Materialized 4.9.7 EriadorMap source is missing' }
+          Copy-Item $map497 (Join-Path $root 'components\EriadorMap.tsx') -Force
           & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.8\patch_core.py" $root
           if ($LASTEXITCODE -ne 0) { throw '4.9.8 core patch failed' }
           & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.8\patch_app.py" $root
@@ -189,4 +190,4 @@ jobs:
           Write-Host "APK_SHA256=$apkHash"
           Write-Host "SOURCE_SHA256=$sourceHash"
 
-# trigger 4.9.8 build retry 2
+# trigger 4.9.8 build retry 3
