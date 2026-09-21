@@ -1,0 +1,22 @@
+{
+  "id": "under-a-black-sun",
+  "title": "Sob um Sol Negro",
+  "source": {
+    "kind": "user-drive-material",
+    "driveFileId": "1UI9JILrFoRIYv0FNh_ZhHNFmCEFWIIVZ",
+    "originalTitle": "Under a Black Sun.pdf"
+  },
+  "locale": "pt-BR",
+  "rulesProfile": "EOTE",
+  "campaignCompatibility": ["EOTE", "MIXED"],
+  "setting": {"planet": "Coruscant", "focus": "submundo e Sol Negro"},
+  "contentPolicy": "Referenciar/adaptar para execução; não substituir as regras do sistema nem inventar regras.",
+  "entityBindings": [
+    "external.kainrath.npc.black-sun-lackey",
+    "external.kainrath.npc.verannis-black-sun-underboss"
+  ],
+  "implementation": {
+    "status": "scaffold-grounded",
+    "next": ["extrair estrutura de cenas do material do usuário", "ligar NPCs e locais existentes", "preservar testes narrativos e mecânicos EotE"]
+  }
+}
