@@ -153,7 +153,7 @@ jobs:
 
           $javaText = (& java.exe --version) -join [Environment]::NewLine
           $javaFirstLine = ($javaText -split [Environment]::NewLine)[0]
-          if ($javaText -notmatch '21\\.') { throw "Java 21 is not active: $javaText" }
+          if ($javaText -notmatch '21\.') { throw "Java 21 is not active: $javaText" }
 
           $nodeMajor = [int]((& node.exe --version).TrimStart('v').Split('.')[0])
           if ($nodeMajor -ne 22) { throw "Node 22 is not active: $(& node.exe --version)" }
