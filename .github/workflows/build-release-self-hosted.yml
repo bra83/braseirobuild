@@ -140,7 +140,9 @@ jobs:
           }
 
           $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$encodedTag"
-          $zipAssets = @($release.assets | Where-Object { $_.name -match '\.zip
+          $zipAssets = @($release.assets | Where-Object { $_.name -match '\.zip$' -and $_.state -eq 'uploaded' })
+          if ($zipAssets.Count -ne 1) { throw "Release $tag must contain exactly one uploaded ZIP; found $($zipAssets.Count)" }
+          $asset = $zipAssets[0]
 
           $incoming = Join-Path $env:RUNNER_TEMP 'braseiro-release-source'
           Remove-Item $incoming -Recurse -Force -ErrorAction SilentlyContinue
