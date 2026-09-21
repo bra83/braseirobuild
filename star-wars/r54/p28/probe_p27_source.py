@@ -2,11 +2,12 @@
 from pathlib import Path
 import sys
 root=Path(sys.argv[1]) if len(sys.argv)>1 else Path(r"C:\actions-runner\_work\_temp\sw-r54-p27\work\android")
+vtt=(root/'app/src/main/assets/vtt') if (root/'app/src/main/assets/vtt').is_dir() else (root/'assets/vtt')
 targets=[
- root/'app/src/main/assets/vtt/js/core/controller.mjs',
- root/'app/src/main/assets/vtt/js/core/uiBridge.bundle.js',
- root/'app/src/main/assets/vtt/r46/r46-shell.bundle.js',
- root/'app/src/main/assets/vtt/r46/final-runtime.js',
+ vtt/'js/core/controller.mjs',
+ vtt/'js/core/uiBridge.bundle.js',
+ vtt/'r46/r46-shell.bundle.js',
+ vtt/'r46/final-runtime.js',
 ]
 terms=['campaignModeSummary','setCampaignMode','creationPreview','createCustomCharacter','obligationBenefits','additionalObligation','Duty','Contribution','MIXED','obligationType']
 for p in targets:
