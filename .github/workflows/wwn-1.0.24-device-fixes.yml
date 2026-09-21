@@ -1,0 +1,187 @@
+name: WWN 1.0.24 BRELGA Device Fixes
+
+concurrency:
+  group: wwn-1.0.24-device-fixes
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [wwn-1.0.24-device-fixes]
+    paths:
+      - '.github/workflows/wwn-1.0.24-device-fixes.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  SOURCE_SHARE_ID: 'Qcff4ote90h5'
+  SOURCE_FILE_ID: '01a0c2e1b901731eaeb5fc2625503736'
+  SOURCE_NAME: 'BRASEIRO_WWN_1.0.24_DEVICE_FIXES_SOURCE.zip'
+  SOURCE_SHA256: 'c9ebc3d5547a7c9119fb6bbec2718c24bb96535bcad065f25d40bdbc0f71bd4c'
+  APK_NAME: 'BRASEIRO_WWN_1.0.24_DEVICE_FIXES_DEBUG.apk'
+  RELEASE_TAG: 'WWN-1.0.24-DEVICE-FIXES'
+  FIRE_API: 'https://api.firestorage.ai/dev/file'
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 90
+    steps:
+      - name: Verify BRELGA
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA, got $env:RUNNER_NAME" }
+          Write-Host "RUNNER=$env:RUNNER_NAME OS=$env:RUNNER_OS ARCH=$env:RUNNER_ARCH"
+
+      - name: Configure Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Download exact hotfix source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $incoming=Join-Path $env:RUNNER_TEMP 'wwn-1024-incoming'
+          Remove-Item $incoming -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming -Force | Out-Null
+          $files=Invoke-RestMethod -Uri "$env:FIRE_API/shares/$env:SOURCE_SHARE_ID/files?maxResults=1000" -Method Get
+          $match=@($files.files | Where-Object { [string]$_.fileId -eq $env:SOURCE_FILE_ID })
+          if($match.Count -ne 1){ throw 'Source file not found in Firestorage share' }
+          $dl=Invoke-RestMethod -Uri "$env:FIRE_API/shares/$env:SOURCE_SHARE_ID/files/$env:SOURCE_FILE_ID/download" -Method Post
+          if([string]::IsNullOrWhiteSpace($dl.downloadUrl)){ throw 'No downloadUrl returned' }
+          $zip=Join-Path $incoming $env:SOURCE_NAME
+          & curl.exe -L --fail --retry 4 --retry-delay 2 --connect-timeout 20 --max-time 300 -o $zip $dl.downloadUrl
+          if($LASTEXITCODE -ne 0 -or -not(Test-Path $zip)){ throw 'Source download failed' }
+          $hash=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($hash -ne $env:SOURCE_SHA256){ throw "Source SHA mismatch: $hash" }
+          "SOURCE_ZIP=$zip" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "SOURCE_SHA256_OK=$hash"
+
+      - name: Extract and locate Android project
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $work=Join-Path $env:RUNNER_TEMP 'wwn-1024-work'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $work -Force | Out-Null
+          & tar.exe -xf $env:SOURCE_ZIP -C $work
+          if($LASTEXITCODE -ne 0){ throw 'ZIP extraction failed' }
+          $settings=Get-ChildItem $work -Recurse -File -ErrorAction SilentlyContinue |
+            Where-Object {
+              $_.Name -in @('settings.gradle','settings.gradle.kts') -and
+              (Test-Path (Join-Path $_.Directory.FullName 'gradlew.bat')) -and
+              (Test-Path (Join-Path $_.Directory.FullName 'gradle\wrapper\gradle-wrapper.jar')) -and
+              (Test-Path (Join-Path $_.Directory.FullName 'app\src\main\AndroidManifest.xml'))
+            } | Sort-Object { $_.FullName.Length } | Select-Object -First 1
+          if(-not $settings){ throw 'Android Studio project not found' }
+          $root=$settings.Directory.FullName
+          $vp=Get-Content (Join-Path $root 'version.properties') -Raw
+          if($vp -notmatch 'VERSION_NAME=1\.0\.23'){ throw 'Wrong VERSION_NAME' }
+          if($vp -notmatch 'VERSION_CODE=10024'){ throw 'Wrong VERSION_CODE' }
+          "ANDROID_ROOT=$root" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "ANDROID_ROOT=$root"
+
+      - name: Configure Android SDK 35
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $candidates=@()
+          if($env:ANDROID_SDK_ROOT){$candidates+=$env:ANDROID_SDK_ROOT}
+          if($env:ANDROID_HOME){$candidates+=$env:ANDROID_HOME}
+          $candidates+='C:\actions-runner\android-sdk'
+          if($env:LOCALAPPDATA){$candidates+=(Join-Path $env:LOCALAPPDATA 'Android\Sdk')}
+          $candidates+='C:\Android\Sdk'
+          $sdkRoot=$null;$sdkmanager=$null
+          foreach($candidate in ($candidates|Select-Object -Unique)){
+            if([string]::IsNullOrWhiteSpace($candidate)-or -not(Test-Path $candidate)){continue}
+            $found=Get-ChildItem $candidate -Recurse -Filter sdkmanager.bat -File -ErrorAction SilentlyContinue | Select-Object -First 1
+            if($found){$sdkRoot=$candidate;$sdkmanager=$found.FullName;break}
+          }
+          if(-not $sdkmanager){throw 'sdkmanager.bat not found'}
+          "ANDROID_HOME=$sdkRoot"|Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdkRoot"|Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          (Split-Path $sdkmanager)|Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          (Join-Path $sdkRoot 'platform-tools')|Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          $license=Join-Path $env:RUNNER_TEMP 'wwn-sdk-license.txt'
+          1..100|ForEach-Object{'y'}|Set-Content -Path $license -Encoding ascii
+          & cmd.exe /d /s /c "`"$sdkmanager`" --licenses < `"$license`""
+          if($LASTEXITCODE -ne 0){throw 'Android SDK licenses failed'}
+          & $sdkmanager 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
+          if($LASTEXITCODE -ne 0){throw 'Android SDK install failed'}
+
+      - name: Build debug APK
+        shell: powershell
+        working-directory: ${{ env.ANDROID_ROOT }}
+        run: |
+          $ErrorActionPreference='Continue'
+          if(Test-Path variable:PSNativeCommandUseErrorActionPreference){$PSNativeCommandUseErrorActionPreference=$false}
+          $log=Join-Path $env:RUNNER_TEMP 'WWN_1.0.24_GRADLE_BUILD.log'
+          & .\gradlew.bat --version --no-daemon 2>&1 | Tee-Object -FilePath $log
+          if($LASTEXITCODE -ne 0){throw "Gradle wrapper failed: $LASTEXITCODE"}
+          & .\gradlew.bat clean test lint assembleDebug --stacktrace --no-daemon --console=plain 2>&1 | Tee-Object -FilePath $log -Append
+          if($LASTEXITCODE -ne 0){throw "Build failed: $LASTEXITCODE"}
+          "GRADLE_LOG=$log"|Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Validate APK
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $apk=Get-ChildItem $env:ANDROID_ROOT -Recurse -File -Filter '*.apk' |
+            Where-Object { $_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]debug[\\/]' } |
+            Sort-Object FullName | Select-Object -First 1
+          if(-not $apk){throw 'Debug APK not found'}
+          $out=Join-Path $env:RUNNER_TEMP 'wwn-1024-out'
+          Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $out -Force|Out-Null
+          $dest=Join-Path $out $env:APK_NAME
+          Copy-Item $apk.FullName $dest -Force
+          if(Test-Path $env:GRADLE_LOG){Copy-Item $env:GRADLE_LOG (Join-Path $out 'GRADLE_BUILD.log') -Force}
+          $hash=(Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:APK_NAME"|Set-Content -Path "$dest.sha256" -Encoding ascii
+          $bt=Join-Path $env:ANDROID_HOME 'build-tools\35.0.0'
+          $aapt=Join-Path $bt 'aapt.exe';$signer=Join-Path $bt 'apksigner.bat'
+          $badging=Join-Path $out 'APK_BADGING.txt'
+          & $aapt dump badging $dest 2>&1 | Tee-Object -FilePath $badging
+          if($LASTEXITCODE -ne 0){throw 'aapt failed'}
+          $badge=Get-Content $badging -Raw
+          if($badge -notmatch "package: name='com\.braseiro\.wwn'"){throw 'Wrong applicationId'}
+          if($badge -notmatch "versionCode='10024'"){throw 'Wrong versionCode'}
+          if($badge -notmatch "versionName='1\.0\.23-debug'"){throw 'Wrong versionName'}
+          $sig=Join-Path $out 'APK_SIGNATURE.txt'
+          & $signer verify --verbose --print-certs $dest 2>&1 | Tee-Object -FilePath $sig
+          if($LASTEXITCODE -ne 0){throw 'APK signature invalid'}
+          "OUT_DIR=$out"|Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "APK_SHA256=$hash"
+          Write-Host "APK_BYTES=$((Get-Item $dest).Length)"
+
+      - name: Publish GitHub pre-release
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $repo=$env:GITHUB_REPOSITORY;$tag=$env:RELEASE_TAG
+          $headers=@{'Authorization'="Bearer $env:GITHUB_TOKEN";'Accept'='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='braseiro-wwn-brelga'}
+          try{$release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"}
+          catch{
+            $body=@{tag_name=$tag;target_commitish=$env:GITHUB_REF_NAME;name='BRASEIRO WWN 1.0.24 Device Fixes';body='Device fixes: INICIAR AVENTURA rolls an independent random hex and terrain, TTS Gemini-to-Android session continuity through the final chunk, and Forbidden Lands 3.3.2 mixed physical dice tray UX with WWN mechanics isolated.';draft=$false;prerelease=$true}|ConvertTo-Json -Compress
+            $payload=Join-Path $env:RUNNER_TEMP 'wwn-1024-release.json'
+            $response=Join-Path $env:RUNNER_TEMP 'wwn-1024-release-response.json'
+            [System.IO.File]::WriteAllText($payload,$body,(New-Object System.Text.UTF8Encoding($false)))
+            & curl.exe -sS -L --fail --retry 3 --retry-delay 2 --request POST --header "Authorization: Bearer $env:GITHUB_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" --header "Content-Type: application/json" --data-binary "@$payload" -o $response "https://api.github.com/repos/$repo/releases"
+            if($LASTEXITCODE -ne 0){throw 'Release creation failed'}
+            $release=Get-Content $response -Raw | ConvertFrom-Json
+          }
+          foreach($file in (Get-ChildItem $env:OUT_DIR -File)){
+            $existing=@($release.assets|Where-Object{$_.name -eq $file.Name}|Select-Object -First 1)
+            if($existing.Count -gt 0){Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($existing[0].id)"|Out-Null}
+            $encoded=[uri]::EscapeDataString($file.Name)
+            $upload="https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$encoded"
+            & curl.exe -L --fail --retry 4 --retry-delay 2 --request POST --header "Authorization: Bearer $env:GITHUB_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" --header "Content-Type: application/octet-stream" --data-binary "@$($file.FullName)" $upload
+            if($LASTEXITCODE -ne 0){throw "Upload failed for $($file.Name)"}
+          }
+          Write-Host "RELEASE_URL=$($release.html_url)"
