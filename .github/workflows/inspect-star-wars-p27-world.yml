@@ -1,0 +1,40 @@
+name: Inspect Star Wars P27 world contracts
+on:
+  push:
+    branches: [star-wars-r54-p28-adventure-engine]
+    paths: ['.github/workflows/inspect-star-wars-p27-world.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download compiled P27 and inspect world contracts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L --fail --silent --show-error             -H "Authorization: Bearer $GH_TOKEN"             -H "Accept: application/octet-stream"             -o /tmp/p27.apk             "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/assets/579226597"
+          mkdir -p /tmp/p27
+          unzip -q /tmp/p27.apk 'assets/vtt/js/world/*' 'assets/vtt/js/core/controller.mjs' 'assets/vtt/js/core/uiBridge.bundle.js' -d /tmp/p27
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('/tmp/p27/assets/vtt')
+          files=[root/'js/world/world.mjs',root/'js/world/sandbox.mjs',root/'js/core/controller.mjs',root/'js/core/uiBridge.bundle.js']
+          terms=['export function createLocation','function createLocation','travelToLocation(','addWorldLocation(','startLivingAdventure(','initializeLivingSandbox(']
+          for p in files:
+              print('\n###FILE',p)
+              if not p.exists():
+                  print('MISSING');continue
+              s=p.read_text('utf-8',errors='replace')
+              for term in terms:
+                  start=0
+                  while True:
+                      i=s.find(term,start)
+                      if i<0: break
+                      print('\n--',term,'@',i)
+                      print(s[max(0,i-2500):min(len(s),i+10000)])
+                      start=i+len(term)
+          PY
