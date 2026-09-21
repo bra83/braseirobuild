@@ -35,67 +35,35 @@ jobs:
 
       - name: Download exact R18 source
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          FIRE_API: 'https://api.firestorage.ai/dev/file'
+          SHARE_ID: 'CUAMX1N0PSqg'
+          FILE_ID: '01a0c27e3f07736fb6034023d817510d'
         run: |
           $ErrorActionPreference = 'Stop'
           if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA runner, got $env:RUNNER_NAME" }
 
           $incoming = Join-Path $env:RUNNER_TEMP 'pf2-r18-incoming'
           $work = Join-Path $env:RUNNER_TEMP 'pf2-r18-work'
-          $node = Join-Path $env:RUNNER_TEMP 'pf2-r18-downloader'
-          Remove-Item $incoming,$work,$node -Recurse -Force -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Path $incoming,$work,$node -Force | Out-Null
+          Remove-Item $incoming,$work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming,$work -Force | Out-Null
 
-          Push-Location $node
-          npm init -y | Out-Null
-          npm install playwright@1.55.0 | Out-Null
-          npx playwright install chromium
-          @'
-          const { chromium } = require("playwright");
-          const fs = require("fs");
-          (async()=>{
-            const browser=await chromium.launch({headless:true});
-            const page=await browser.newPage({acceptDownloads:true});
-            await page.goto(process.env.SHARE_URL,{waitUntil:"domcontentloaded",timeout:120000});
-            await page.waitForTimeout(4000);
-            const filename=process.env.SOURCE_FILENAME;
-            let saved=false;
-            const exact=page.getByText(filename,{exact:false}).first();
-            if(await exact.count()){
-              const p=page.waitForEvent("download",{timeout:120000});
-              await exact.click();
-              const d=await p;
-              await d.saveAs(process.env.SOURCE_ZIP);
-              saved=true;
-            }
-            if(!saved){
-              const as=page.locator("a");
-              for(let i=0;i<await as.count();i++){
-                const a=as.nth(i);
-                const txt=(await a.innerText().catch(()=>''))||'';
-                const href=(await a.getAttribute("href"))||'';
-                if(txt.includes(filename)||/download/i.test(txt)||/download/i.test(href)){
-                  const p=page.waitForEvent("download",{timeout:120000});
-                  await a.click();
-                  const d=await p;
-                  await d.saveAs(process.env.SOURCE_ZIP);
-                  saved=true; break;
-                }
-              }
-            }
-            await browser.close();
-            if(!saved || !fs.existsSync(process.env.SOURCE_ZIP)) throw new Error("source.zip not saved");
-          })();
-          '@ | Set-Content -Path download.js -Encoding utf8
-          $env:SOURCE_ZIP = Join-Path $incoming 'source.zip'
-          node download.js
-          Pop-Location
+          $list = Invoke-RestMethod -Uri "$env:FIRE_API/shares/$env:SHARE_ID/files?maxResults=1000" -Method Get
+          if (-not ($list.files | Where-Object { [string]$_.fileId -eq $env:FILE_ID })) {
+            throw "Source file not found in Firestorage share."
+          }
+          $download = Invoke-RestMethod -Uri "$env:FIRE_API/shares/$env:SHARE_ID/files/$env:FILE_ID/download" -Method Post
+          if (-not $download.downloadUrl) { throw 'Firestorage did not return downloadUrl' }
 
-          $hash=(Get-FileHash $env:SOURCE_ZIP -Algorithm SHA256).Hash.ToLowerInvariant()
+          $zip = Join-Path $incoming 'source.zip'
+          Invoke-WebRequest -Uri $download.downloadUrl -OutFile $zip
+          $hash=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
           if($hash -ne $env:SOURCE_SHA256){ throw "Source SHA mismatch: $hash" }
-          & tar.exe -xf $env:SOURCE_ZIP -C $work
-          if($LASTEXITCODE -ne 0){ throw 'ZIP extraction failed' }
 
+          & tar.exe -xf $zip -C $work
+          if($LASTEXITCODE -ne 0){ throw 'ZIP extraction failed' }
           if(-not (Test-Path (Join-Path $work 'gradlew.bat'))){ throw 'gradlew.bat missing' }
+
           $vp = Get-Content (Join-Path $work 'version.properties') -Raw
           if($vp -notmatch 'VERSION_NAME=9\.0\.19'){ throw 'VERSION_NAME mismatch' }
           if($vp -notmatch 'VERSION_CODE=90019'){ throw 'VERSION_CODE mismatch' }
