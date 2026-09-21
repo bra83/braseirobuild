@@ -1,0 +1,216 @@
+name: Pathfinder 2e 9.0.19 R18 Self-Hosted APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-pf2-9.0.19-r18-selfhosted.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TAG: 'PATHFINDER2E-9.0.19-R18'
+  APK_NAME: 'Braseiro_Pathfinder2e_9.0.19_R18_DEBUG.apk'
+  SOURCE_SHA256: 'e1622e460a7b7fe93d90f84ecb5937806b6a1484ff863117e4b3dee120c213b1'
+  SHARE_URL: 'https://firestorage.ai/ja/f/CUAMX1N0PSqg'
+  SOURCE_FILENAME: 'Braseiro_Pathfinder2e_9.0.19_MOTOR_BARBARA_1.1.2_TTS_PORTRAIT_ACTIONS_R18_ATLAS_V6_ANDROID_STUDIO.zip'
+
+jobs:
+  build-release:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 120
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Configure Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Download exact R18 source
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA runner, got $env:RUNNER_NAME" }
+
+          $incoming = Join-Path $env:RUNNER_TEMP 'pf2-r18-incoming'
+          $work = Join-Path $env:RUNNER_TEMP 'pf2-r18-work'
+          $node = Join-Path $env:RUNNER_TEMP 'pf2-r18-downloader'
+          Remove-Item $incoming,$work,$node -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming,$work,$node -Force | Out-Null
+
+          Push-Location $node
+          npm init -y | Out-Null
+          npm install playwright@1.55.0 | Out-Null
+          npx playwright install chromium
+          @'
+          const { chromium } = require("playwright");
+          const fs = require("fs");
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({acceptDownloads:true});
+            await page.goto(process.env.SHARE_URL,{waitUntil:"domcontentloaded",timeout:120000});
+            await page.waitForTimeout(4000);
+            const filename=process.env.SOURCE_FILENAME;
+            let saved=false;
+            const exact=page.getByText(filename,{exact:false}).first();
+            if(await exact.count()){
+              const p=page.waitForEvent("download",{timeout:120000});
+              await exact.click();
+              const d=await p;
+              await d.saveAs(process.env.SOURCE_ZIP);
+              saved=true;
+            }
+            if(!saved){
+              const as=page.locator("a");
+              for(let i=0;i<await as.count();i++){
+                const a=as.nth(i);
+                const txt=(await a.innerText().catch(()=>''))||'';
+                const href=(await a.getAttribute("href"))||'';
+                if(txt.includes(filename)||/download/i.test(txt)||/download/i.test(href)){
+                  const p=page.waitForEvent("download",{timeout:120000});
+                  await a.click();
+                  const d=await p;
+                  await d.saveAs(process.env.SOURCE_ZIP);
+                  saved=true; break;
+                }
+              }
+            }
+            await browser.close();
+            if(!saved || !fs.existsSync(process.env.SOURCE_ZIP)) throw new Error("source.zip not saved");
+          })();
+          '@ | Set-Content -Path download.js -Encoding utf8
+          $env:SOURCE_ZIP = Join-Path $incoming 'source.zip'
+          node download.js
+          Pop-Location
+
+          $hash=(Get-FileHash $env:SOURCE_ZIP -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($hash -ne $env:SOURCE_SHA256){ throw "Source SHA mismatch: $hash" }
+          & tar.exe -xf $env:SOURCE_ZIP -C $work
+          if($LASTEXITCODE -ne 0){ throw 'ZIP extraction failed' }
+
+          if(-not (Test-Path (Join-Path $work 'gradlew.bat'))){ throw 'gradlew.bat missing' }
+          $vp = Get-Content (Join-Path $work 'version.properties') -Raw
+          if($vp -notmatch 'VERSION_NAME=9\.0\.19'){ throw 'VERSION_NAME mismatch' }
+          if($vp -notmatch 'VERSION_CODE=90019'){ throw 'VERSION_CODE mismatch' }
+
+          $atlas=Join-Path $work 'android\app\src\main\assets\pathfinder\atlas\inner_sea_canonical_v6_grid_native_hires_compat.zip'
+          $atlasHash=(Get-FileHash $atlas -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($atlasHash -ne '341c8468de88fcd7dc888419a7c2323383118185f94f4893af4672b53dc683c6'){ throw "Atlas SHA mismatch: $atlasHash" }
+
+          "WORK_ROOT=$work" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Configure Android SDK
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          $candidates=@('C:\actions-runner\android-sdk')
+          if($env:ANDROID_SDK_ROOT){$candidates += $env:ANDROID_SDK_ROOT}
+          if($env:ANDROID_HOME){$candidates += $env:ANDROID_HOME}
+          if($env:LOCALAPPDATA){$candidates += (Join-Path $env:LOCALAPPDATA 'Android\Sdk')}
+          $candidates += 'C:\Android\Sdk'
+
+          $sdkRoot=$null; $sdkmanager=$null
+          foreach($candidate in ($candidates|Select-Object -Unique)){
+            if([string]::IsNullOrWhiteSpace($candidate)-or -not(Test-Path $candidate)){continue}
+            $found=Get-ChildItem $candidate -Recurse -Filter sdkmanager.bat -File -ErrorAction SilentlyContinue|Select-Object -First 1
+            if($found){$sdkRoot=$candidate;$sdkmanager=$found.FullName;break}
+          }
+          if(-not $sdkmanager){throw 'Android SDK/sdmanager not found on BRELGA'}
+          "ANDROID_HOME=$sdkRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdkRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          (Split-Path $sdkmanager) | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          (Join-Path $sdkRoot 'platform-tools') | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+
+          1..100 | ForEach-Object {'y'} | & $sdkmanager --licenses | Out-Null
+          & $sdkmanager 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
+          if($LASTEXITCODE -ne 0){throw 'sdkmanager failed'}
+
+      - name: Build debug APK
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Continue'
+          $log=Join-Path $env:RUNNER_TEMP 'PF2_R18_GRADLE_BUILD.log'
+          Remove-Item $log -Force -ErrorAction SilentlyContinue
+          & .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath $log
+          $code=$LASTEXITCODE
+          if($code -ne 0){throw "assembleDebug failed with exit code $code"}
+          "BUILD_LOG=$log" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Validate and collect APK
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          $apk=Get-ChildItem $env:WORK_ROOT -Recurse -File -Filter '*.apk' |
+            Where-Object {$_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]debug[\\/]'} |
+            Select-Object -First 1
+          if(-not $apk){throw 'Debug APK not found'}
+
+          $out=Join-Path $env:RUNNER_TEMP 'pf2-r18-out'
+          Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $dest=Join-Path $out $env:APK_NAME
+          Copy-Item $apk.FullName $dest -Force
+
+          $hash=(Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:APK_NAME" | Set-Content "$dest.sha256" -Encoding ascii
+
+          $bt=Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory |
+            Sort-Object {[version]($_.Name -replace '[^0-9.]','')} -Descending | Select-Object -First 1
+          $aapt=Join-Path $bt.FullName 'aapt.exe'
+          $badging=Join-Path $out 'APK_BADGING.txt'
+          & $aapt dump badging $dest 2>&1 | Tee-Object -FilePath $badging
+          $text=Get-Content $badging -Raw
+          if($text -notmatch "package: name='com\.braseiro\.pathfinder2e'"){throw 'applicationId mismatch'}
+          if($text -notmatch "versionCode='90019'"){throw 'versionCode mismatch'}
+
+          Copy-Item $env:BUILD_LOG (Join-Path $out 'GRADLE_BUILD.log') -Force
+          "APK_OUT=$out" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "APK_SHA256=$hash" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "APK_SHA256=$hash"
+          Write-Host "APK_BYTES=$((Get-Item $dest).Length)"
+
+      - name: Create or update GitHub Release and upload APK
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $repo=$env:GITHUB_REPOSITORY
+          $headers=@{
+            'Authorization'="Bearer $env:GITHUB_TOKEN"
+            'Accept'='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='BRELGA-PF2-R18'
+          }
+          $encoded=[uri]::EscapeDataString($env:TAG)
+          try {
+            $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$encoded"
+          } catch {
+            $body=@{
+              tag_name=$env:TAG
+              target_commitish='main'
+              name='Braseiro Pathfinder 2e 9.0.19 R18'
+              body='TTS hardening, NPC portrait persistence, roster sync and contextual actions.'
+              draft=$false
+              prerelease=$false
+            }|ConvertTo-Json
+            $release=Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $body -Uri "https://api.github.com/repos/$repo/releases"
+          }
+
+          foreach($file in Get-ChildItem $env:APK_OUT -File){
+            $existing=$release.assets|Where-Object {$_.name -eq $file.Name}|Select-Object -First 1
+            if($existing){Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($existing.id)"|Out-Null}
+            $encodedName=[uri]::EscapeDataString($file.Name)
+            $upload="https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$encodedName"
+            & curl.exe -L --fail --retry 5 --retry-delay 3 --request POST --header "Authorization: Bearer $env:GITHUB_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" --header "Content-Type: application/octet-stream" --data-binary "@$($file.FullName)" $upload
+            if($LASTEXITCODE -ne 0){throw "upload failed for $($file.Name)"}
+          }
+          Write-Host "RELEASE_URL=$($release.html_url)"
