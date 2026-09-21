@@ -275,3 +275,5 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw "Upload failed: $($file.Name)" }
           }
           Write-Host "RELEASE_URL=$($release.html_url)"
+
+# retry after robust map/chronicle patch
