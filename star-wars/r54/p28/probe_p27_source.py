@@ -6,10 +6,14 @@ vtt=(root/'app/src/main/assets/vtt') if (root/'app/src/main/assets/vtt').is_dir(
 targets=[
  vtt/'js/core/controller.mjs',
  vtt/'js/core/uiBridge.bundle.js',
+ vtt/'js/rules/eoteCharacterCreation.mjs',
+ vtt/'js/rules/characterCreation.mjs',
+ vtt/'js/rules/fringeGroup.mjs',
+ vtt/'js/model/character.mjs',
  vtt/'r46/r46-shell.bundle.js',
  vtt/'r46/final-runtime.js',
 ]
-terms=['campaignModeSummary','setCampaignMode','creationPreview','createCustomCharacter','obligationBenefits','additionalObligation','Duty','Contribution','MIXED','obligationType']
+terms=['campaignModeSummary','setCampaignMode','creationPreview','createCustomCharacter','createAorCoreCharacter','createEoteCoreCharacter','obligationBenefits','additionalObligation','obligations','duties','dutyType','dutyReductions','Duty','Contribution','MIXED','obligationType','addDutyEntry','addObligationEntry','validateCharacter']
 for p in targets:
     print("\n###FILE",p)
     if not p.is_file():
