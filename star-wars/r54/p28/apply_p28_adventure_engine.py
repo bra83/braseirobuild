@@ -61,7 +61,8 @@ function renderBlackSunProgress(){
    (available?'<div><b>Próximos caminhos desbloqueados:</b></div><div style="display:grid;gap:6px">'+available+'</div>':'')+
    (!info.completed&&info.currentNode?'<div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" data-bs-resume>Continuar com Barbara</button><button type="button" data-bs-complete>Marcar etapa concluída</button></div>':'')+
    (info.completed?'<div>Desfecho alcançado. Consequências de Obrigação/Dever continuam sendo resolvidas pelo sistema.</div><button type="button" data-bs-reset>Reiniciar Sob um Sol Negro</button>':'');
- panel.querySelector('[data-bs-resume]')?.addEventListener('click',()=>void startBarbaraOpening());\n panel.querySelector('[data-bs-reset]')?.addEventListener('click',()=>{if(confirm('Reiniciar o progresso de Sob um Sol Negro?')){e.reset(localStorage);renderBlackSunProgress();void startBarbaraOpening()}});
+ panel.querySelector('[data-bs-resume]')?.addEventListener('click',()=>void startBarbaraOpening());
+ panel.querySelector('[data-bs-reset]')?.addEventListener('click',()=>{if(confirm('Reiniciar o progresso de Sob um Sol Negro?')){e.reset(localStorage);renderBlackSunProgress();void startBarbaraOpening()}});
  panel.querySelector('[data-bs-complete]')?.addEventListener('click',()=>{try{const next=e.completeCurrent(localStorage);renderBlackSunProgress();if(next.currentNode)void startBarbaraOpening()}catch(err){alert(String(err?.message||err))}});
  panel.querySelectorAll('[data-bs-node]').forEach(b=>b.addEventListener('click',()=>{try{e.select(localStorage,b.dataset.bsNode);renderBlackSunProgress();void startBarbaraOpening()}catch(err){alert(String(err?.message||err))}}));
 }'''
@@ -77,8 +78,22 @@ opening=r'''async function startBarbaraOpening(){
    const mode=campaignMode();if(mode==='AOR')return {ok:false,message:'Sob um Sol Negro é uma aventura de Edge of the Empire. Use campanha EotE ou MISTA.'};
    const engine=blackSunEngine();if(!engine)return {ok:false,message:'Motor de Sob um Sol Negro indisponível.'};
    let state=engine.start(localStorage),prep={ok:true,data:{}};
-   if(!state.flags?.worldStarted){prep=bridgeResult('startLivingAdventure',{});if(prep&&prep.ok===false)return prep;state.flags={...(state.flags||{}),worldStarted:true};state=engine.write(localStorage,state)}
-   else {try{prep=bridgeResult('livingSandboxStatus',{})}catch{prep={ok:true,data:{}}}}
+   if(!state.flags?.worldAnchored){
+     const reset=bridgeResult('restartSandboxPreservingParty');
+     if(!reset?.ok)return reset||{ok:false,message:'Não foi possível preparar o Mundo Vivo para Coruscant.'};
+     const init=bridgeResult('initializeLivingSandbox',{startingPoint:'Coruscant',regionLabel:'Coruscant · Núcleo'});
+     if(!init?.ok)return init||{ok:false,message:'Não foi possível criar Coruscant como ponto inicial da aventura.'};
+     state.flags={...(state.flags||{}),worldAnchored:true,worldAnchor:'Coruscant'};
+     state=engine.write(localStorage,state);
+   }
+   if(!state.flags?.worldStarted){
+     prep=bridgeResult('startLivingAdventure',{});
+     if(prep&&prep.ok===false)return prep;
+     state.flags={...(state.flags||{}),worldStarted:true};
+     state=engine.write(localStorage,state);
+   } else {
+     try{prep=bridgeResult('livingSandboxStatus',{})}catch{prep={ok:true,data:{}}}
+   }
    const ctx=blackSunPromptContext(state);
    if(!ctx){if(state.completed)return {ok:false,message:'Sob um Sol Negro já foi concluída.'};return {ok:false,message:'Nenhuma etapa da aventura está selecionada.'}}
    window.__BRASEIRO_PUBLISHED_ADVENTURE__={id:'under-a-black-sun',title:'Sob um Sol Negro',mode,nodeId:ctx.id,episode:state.episode};
