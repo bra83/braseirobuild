@@ -79,9 +79,19 @@ export const ImmersiveJourneyView: React.FC<Props> = props => {
   const [moreOpen, setMoreOpen] = useState(false);
   const [npcTokenUrls, setNpcTokenUrls] = useState<Record<string, string>>({});
   const [selectedNpc, setSelectedNpc] = useState<Npc | null>(null);
+  const [startRequested, setStartRequested] = useState(false);
 
   useEffect(() => { void loadImmersiveAssetManifest().then(setAssets); }, []);
-  useEffect(() => { if (props.currentNode?.id) setChronicleOpen(true); }, [props.currentNode?.id]);
+  useEffect(() => {
+    if (!props.currentNode?.id) return;
+    setChronicleOpen(true);
+    setStartRequested(false);
+  }, [props.currentNode?.id]);
+  useEffect(() => {
+    if (!props.storyError || !startRequested) return;
+    setStartRequested(false);
+    setChronicleOpen(false);
+  }, [props.storyError, startRequested]);
 
   useEffect(() => {
     let disposed = false;
@@ -136,12 +146,17 @@ export const ImmersiveJourneyView: React.FC<Props> = props => {
   const actionPanelBottom = 'calc(' + (navHeight + 8) + 'px + env(safe-area-inset-bottom, 0px))';
 
   const startAdventureFromMap = async () => {
-    if (props.isStoryLoading) return;
+    if (props.isStoryLoading || startRequested) return;
     setMoreOpen(false);
-    setChronicleOpen(true);
-    await props.onStartAdventure();
-    // Mantém a intenção de abrir a cena mesmo que a atualização de props chegue no frame seguinte.
-    setChronicleOpen(true);
+    setChronicleOpen(false);
+    setStartRequested(true);
+    try {
+      await props.onStartAdventure();
+    } catch (error) {
+      setStartRequested(false);
+      setChronicleOpen(false);
+      throw error;
+    }
   };
 
   const dispatchChoice = (choice: StoryChoice) => {
@@ -211,6 +226,14 @@ export const ImmersiveJourneyView: React.FC<Props> = props => {
         </div>
       </div>
     </header>
+
+    {(startRequested || (props.isStoryLoading && !node)) && <div aria-live="polite" style={{
+      position: 'absolute', left: '50%', bottom: actionPanelBottom, zIndex: 74, transform: 'translateX(-50%)',
+      width: 'min(86vw, 350px)', borderRadius: 10, border: '1px solid rgba(183,145,91,.62)',
+      background: 'rgba(49,31,15,.96)', color: '#fff0cf', padding: '11px 14px', textAlign: 'center',
+      pointerEvents: 'none', boxShadow: '0 8px 20px rgba(0,0,0,.42)', fontSize: 12, fontWeight: 900,
+      letterSpacing: '.04em'
+    }}>Gemini criando a cena inicial…</div>}
 
     {props.storyError && <div role="alert" style={{
       position: 'absolute', left: 12, right: 12, bottom: actionPanelBottom, zIndex: 96,
@@ -302,13 +325,13 @@ export const ImmersiveJourneyView: React.FC<Props> = props => {
       <button type="button" onClick={() => setChronicleOpen(false)} style={{ ...touchButton, width: '100%', minHeight: 40, marginTop: 8, borderRadius: 8, border: '1px solid rgba(83,53,25,.35)', background: 'rgba(255,248,231,.28)', color: '#5b3d20', fontFamily: 'inherit', fontSize: 11, fontWeight: 900 }}>Voltar ao mapa</button>
     </aside>}
 
-    {!chronicleOpen && <div style={{ position: 'absolute', left: '50%', bottom: actionPanelBottom, zIndex: 72, transform: 'translateX(-50%)', width: 'min(88vw, 360px)', pointerEvents: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7 }}>
+    {!chronicleOpen && !startRequested && <div style={{ position: 'absolute', left: '50%', bottom: actionPanelBottom, zIndex: 72, transform: 'translateX(-50%)', width: 'min(88vw, 360px)', pointerEvents: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7 }}>
       {!node && !props.canStartAdventure && <div style={{ ...glassPanel, width: '100%', boxSizing: 'border-box', borderRadius: 10, padding: '8px 12px', textAlign: 'center', fontSize: 12, color: '#ead9b7' }}>Selecione um hex no mapa e toque <strong>Posicionar</strong> para definir onde a Companhia começa.</div>}
       <button type="button" disabled={!node && (!props.canStartAdventure || props.isStoryLoading)} onClick={() => {
         setMoreOpen(false);
         if (node) { setChronicleOpen(true); return; }
         if (props.canStartAdventure && !props.isStoryLoading) void startAdventureFromMap();
-      }} style={{ ...touchButton, minWidth: 180, minHeight: 48, borderRadius: 10, border: '1px solid #9a6b34', background: 'linear-gradient(180deg,#6f4a24,#4c3018)', color: '#fff0cf', boxShadow: '0 8px 18px rgba(0,0,0,.42)', fontFamily: 'inherit', fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', opacity: !node && (!props.canStartAdventure || props.isStoryLoading) ? .55 : 1 }}>{props.isStoryLoading ? 'Gemini criando a cena…' : node ? 'Abrir crônica' : 'Começar aventura'}</button>
+      }} style={{ ...touchButton, minWidth: 180, minHeight: 48, borderRadius: 10, border: '1px solid #9a6b34', background: 'linear-gradient(180deg,#6f4a24,#4c3018)', color: '#fff0cf', boxShadow: '0 8px 18px rgba(0,0,0,.42)', fontFamily: 'inherit', fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', opacity: !node && (!props.canStartAdventure || props.isStoryLoading) ? .55 : 1 }}>{props.isStoryLoading || startRequested ? 'Gemini criando a cena…' : node ? 'Abrir crônica' : 'Começar aventura'}</button>
     </div>}
 
     {moreOpen && <div style={{ ...glassPanel, position: 'absolute', left: 10, right: 10, bottom: actionPanelBottom, zIndex: 95, borderRadius: 12, padding: 8, pointerEvents: 'auto' }}>
