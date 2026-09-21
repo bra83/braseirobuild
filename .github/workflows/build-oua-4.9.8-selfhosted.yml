@@ -119,8 +119,19 @@ jobs:
 
           Push-Location $root
           try {
-            & npm.cmd ci --ignore-scripts
-            if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
+            $env:npm_config_registry = 'https://registry.npmjs.org/'
+            $env:npm_config_replace_registry_host = 'always'
+            $env:npm_config_fetch_retries = '5'
+            $env:npm_config_fetch_retry_mintimeout = '2000'
+            $env:npm_config_fetch_retry_maxtimeout = '20000'
+            $npmOk = $false
+            for ($attempt = 1; $attempt -le 3; $attempt++) {
+              Write-Host "npm ci attempt $attempt using $env:npm_config_registry"
+              & npm.cmd ci --ignore-scripts --registry=https://registry.npmjs.org/
+              if ($LASTEXITCODE -eq 0) { $npmOk = $true; break }
+              Start-Sleep -Seconds (3 * $attempt)
+            }
+            if (-not $npmOk) { throw 'npm ci failed after 3 public-registry attempts' }
             & npm.cmd run build:offline 2>&1 | Tee-Object -FilePath (Join-Path $out 'OFFLINE_BUILD.log')
             if ($LASTEXITCODE -ne 0) { throw 'offline frontend build failed' }
             & node.exe scripts/use-offline-dist.mjs
@@ -190,4 +201,4 @@ jobs:
           Write-Host "APK_SHA256=$apkHash"
           Write-Host "SOURCE_SHA256=$sourceHash"
 
-# trigger 4.9.8 build retry 3
+# trigger 4.9.8 build retry 4
