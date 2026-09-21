@@ -218,11 +218,6 @@ if old_prepared_events not in app:
     raise SystemExit("Charon prepared-event range anchor missing")
 app = app.replace(old_prepared_events, new_prepared_events, 1)
 
-app = app.replace(
-    "message: \`Solicitando a cena inteira ao Gemini TTS (\${provisionalUnits[0].text.length} caracteres).\`, backend: 'Gemini TTS', result: 'solicitado', details: { voice: firstProfile.voice, units: provisionalUnits.length, continuousSceneVoice: true }",
-    "message: \`Solicitando o primeiro bloco ao Gemini TTS (\${provisionalUnits[0].text.length} caracteres; \${provisionalUnits.length} bloco(s) no total).\`, backend: 'Gemini TTS', result: 'solicitado', details: { voice: firstProfile.voice, units: provisionalUnits.length, chunkedContinuousVoice: true }",
-    1,
-)
 
 write(app_rel, app)
 
@@ -269,26 +264,21 @@ main_rel = "android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt"
 main = read(main_rel)
 main = main.replace("index.html?v=49012&immersive=1", "index.html?v=49013&immersive=1")
 main = main.replace('tts-v8|$model|$safeVoice|pt-BR|$stableStyle|$text', 'tts-v9|$model|$safeVoice|pt-BR|$stableStyle|$text')
-old_duration_store = """        val durationMs = storeGeminiAudioAsWav(cached, audioBytes)
-        cleanupGeminiTtsCache()
-        Log.i("BRASEIRO_TTS", "Charon salvo localmente: \${audioBytes.size} bytes, \${durationMs}ms, $mimeType")
-        return JSONObject().put("token", cacheId).put("durationMs", durationMs).put("model", model).put("tier", envelope.optString("tier", "free"))"""
-new_duration_store = """        val durationMs = storeGeminiAudioAsWav(cached, audioBytes)
-        val spokenWords = text.trim().split(Regex("\\\\s+")).count { it.isNotBlank() }
-        // Extremely lenient lower bound (~375 wpm). It only detects a small
-        // prefix of a long request being returned as if the whole narration
-        // had been synthesized.
+duration_anchor = """        val durationMs = storeGeminiAudioAsWav(cached, audioBytes)
+        cleanupGeminiTtsCache()"""
+duration_replacement = r"""        val durationMs = storeGeminiAudioAsWav(cached, audioBytes)
+        val spokenWords = text.trim().split(Regex("\\s+")).count { it.isNotBlank() }
+        // Very permissive lower bound (~375 wpm). This is only an integrity
+        // guard against a tiny prefix being accepted as the complete request.
         val minimumCompleteDurationMs = if (spokenWords < 18) 900L else (spokenWords * 160L).coerceAtLeast(2_800L)
         if (durationMs < minimumCompleteDurationMs) {
             cached.delete()
-            throw IllegalStateException("O Gemini TTS devolveu áudio truncado: \${durationMs}ms para $spokenWords palavras (mínimo de integridade \${minimumCompleteDurationMs}ms).")
+            throw IllegalStateException("Gemini TTS returned truncated audio: duration=${durationMs}ms words=$spokenWords minimum=${minimumCompleteDurationMs}ms.")
         }
-        cleanupGeminiTtsCache()
-        Log.i("BRASEIRO_TTS", "Charon salvo localmente e validado: \${audioBytes.size} bytes, \${durationMs}ms, $spokenWords palavras, $mimeType")
-        return JSONObject().put("token", cacheId).put("durationMs", durationMs).put("model", model).put("tier", envelope.optString("tier", "free"))"""
-if old_duration_store not in main:
-    raise SystemExit("native Gemini TTS duration-store anchor missing")
-main = main.replace(old_duration_store, new_duration_store, 1)
+        cleanupGeminiTtsCache()"""
+if duration_anchor not in main:
+    raise SystemExit("native Gemini TTS duration anchor missing")
+main = main.replace(duration_anchor, duration_replacement, 1)
 write(main_rel, main)
 
 imm = read("components/immersive/ImmersiveJourneyView.tsx")
@@ -302,7 +292,7 @@ checks = {
     "tts runtime override": "getGeminiTtsModel" in svc and "getTtsModels()" in svc,
     "tts cache v9": "tts-v9-" in svc and "tts-v9|" in main,
     "tts chunked prefetch": "splitRange(text, 0, text.length, 680)" in app and "const nextAudio = index + 1 < provisionalUnits.length" in app,
-    "tts completeness guard": "minimumCompleteDurationMs" in main and "áudio truncado" in main,
+    "tts completeness guard": "minimumCompleteDurationMs" in main and "returned truncated audio" in main,
     "important scene main model": "const importantScene" in svc and "maxOutputTokens: importantScene ? 6800 : 4200" in svc,
     "opening no silent local fallback": "Nenhum texto local curto foi usado" in app,
     "opening rag safe": "abertura narrativa sem regra aplicável" in app and "abertura narrativa liberada sem índice pronto" in app,
