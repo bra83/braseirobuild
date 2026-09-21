@@ -222,8 +222,8 @@ jobs:
             $g=Get-Content $gradleSummary -Raw
             $gradleOk=($g -match '(?m)^debug_exit=0\s*
 
-      - name: Persist P28 on BRELGA
-        if: always()
+      - name: Persist successful P28 on BRELGA
+        if: success()
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
           $ErrorActionPreference='Stop'
@@ -236,6 +236,22 @@ jobs:
           $persistedApks=@(Get-ChildItem $dst -File -Filter '*.apk')
           Write-Host "PERSISTED_APK_COUNT=$($persistedApks.Count)"
           Write-Host "BRELGA_PERSISTED=$dst"
+          Get-ChildItem $dst -File | ForEach-Object {Write-Host "$($_.Name) bytes=$($_.Length)"}
+
+      - name: Persist P28 failure evidence
+        if: failure()
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          $src=Join-Path $env:P28_BASE 'out'
+          if(-not(Test-Path $src)){throw 'P28 failure output folder missing'}
+          $dst='C:\actions-runner\artifacts\star-wars\r54\p28-last-failure'
+          Remove-Item $dst -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $dst -Force | Out-Null
+          Copy-Item (Join-Path $src '*') $dst -Recurse -Force
+          $badApks=@(Get-ChildItem $dst -File -Filter '*.apk' -ErrorAction SilentlyContinue)
+          if($badApks.Count -gt 0){throw "Failure evidence unexpectedly contains APK(s): $($badApks.Count)"}
+          Write-Host "BRELGA_FAILURE_EVIDENCE=$dst"
           Get-ChildItem $dst -File | ForEach-Object {Write-Host "$($_.Name) bytes=$($_.Length)"}
 
       - name: Publish P28 release via REST
