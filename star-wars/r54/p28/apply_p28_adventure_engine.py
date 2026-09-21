@@ -3,10 +3,10 @@ from pathlib import Path
 import shutil,sys
 ROOT=Path(sys.argv[1]).resolve() if len(sys.argv)>1 else Path.cwd()
 VTT=ROOT/'app/src/main/assets/vtt'
-rt=VTT/'r46/final-runtime.js'; shell=VTT/'r46-shell.html'
+rt=VTT/'r46/final-runtime.js'; shell=VTT/'r46-shell.html'; ui=VTT/'js/core/uiBridge.bundle.js'
 engine_src=Path(__file__).with_name('under-a-black-sun-engine.js')
 engine_dst=VTT/'adventures/under-a-black-sun-engine.js'
-for p in (rt,shell,engine_src):
+for p in (rt,shell,ui,engine_src):
     if not p.is_file(): raise SystemExit(f'FAIL: ausente {p}')
 engine_dst.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(engine_src,engine_dst)
 
@@ -35,6 +35,31 @@ if tag not in html:
     if needle not in html: raise SystemExit('FAIL: tag final-runtime não encontrada')
     html=html.replace(needle,tag+'\n'+needle,1)
     shell.write_text(html,encoding='utf-8')
+
+ui_src=ui.read_text(encoding='utf-8')
+if 'R54_P28_PUBLISHED_SESSION' not in ui_src:
+    anchor='    startLivingAdventure(options = {}) {'
+    pos=ui_src.find(anchor)
+    if pos<0: raise SystemExit('FAIL: startLivingAdventure bridge anchor ausente')
+    method=r'''    startPublishedAdventureSession(options = {}) {
+        // R54_P28_PUBLISHED_SESSION — inicia regras de sessão sem gerar abertura sandbox genérica.
+        const controllerResult=this._controllerForExistingCampaign();
+        if(!controllerResult.ok)return controllerResult;
+        try {
+            const game=controllerResult.data;
+            if(!game.state?.player?.character)return fail('NO_CHARACTER','Crie, gere ou importe um personagem antes de iniciar a aventura.');
+            if(game.state.session?.status==='ativa'){
+                return ok(clone({started:false,session:game.state.session,state:game.state,campaignMode:game.state.campaignMode}));
+            }
+            const result=game.startSession(options??{});
+            return ok(clone({started:true,...result,state:game.state}));
+        } catch(error){
+            return fail('PUBLISHED_SESSION_START_FAILED',messageOf(error));
+        }
+    }
+'''
+    ui_src=ui_src[:pos]+method+ui_src[pos:]
+    ui.write_text(ui_src,encoding='utf-8')
 
 src=rt.read_text(encoding='utf-8')
 marker='R54_P28_BLACK_SUN_ENGINE'
@@ -86,10 +111,10 @@ opening=r'''async function startBarbaraOpening(){
      state.flags={...(state.flags||{}),worldAnchored:true,worldAnchor:'Coruscant'};
      state=engine.write(localStorage,state);
    }
-   if(!state.flags?.worldStarted){
-     prep=bridgeResult('startLivingAdventure',{});
+   if(!state.flags?.sessionStarted){
+     prep=bridgeResult('startPublishedAdventureSession',{playerCount:1});
      if(prep&&prep.ok===false)return prep;
-     state.flags={...(state.flags||{}),worldStarted:true};
+     state.flags={...(state.flags||{}),sessionStarted:true};
      state=engine.write(localStorage,state);
    } else {
      try{prep=bridgeResult('livingSandboxStatus',{})}catch{prep={ok:true,data:{}}}
