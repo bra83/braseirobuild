@@ -80,6 +80,14 @@ if legacy_return in svc:
       return normalized;""", 1)
 svc = svc.replace("for (const model of TTS_MODELS) {", "for (const model of getTtsModels()) {")
 svc = svc.replace("${TTS_MODELS.join(',')}", "${getTtsModels().join(',')}")
+# Every text-generation path must honor the manual model settings, not only
+# the visible narrator. Director/rules/legacy story therefore use the same
+# runtime-selected IDs from Configurações.
+svc = svc.replace("generateGemini(ECONOMY_MODEL,", "generateGemini(getGeminiTextModel('economy'),")
+svc = svc.replace(
+    "    ? [ECONOMY_MODEL, CINEMATIC_MODEL]\n    : cinematic\n      ? [CINEMATIC_MODEL, ECONOMY_MODEL]\n      : [ECONOMY_MODEL, CINEMATIC_MODEL];",
+    "    ? [getGeminiTextModel('economy'), getGeminiTextModel('cinematic')]\n    : cinematic\n      ? [getGeminiTextModel('cinematic'), getGeminiTextModel('economy')]\n      : [getGeminiTextModel('economy'), getGeminiTextModel('cinematic')];",
+)
 svc = svc.replace("tts-v8-", "tts-v9-")
 write(svc_rel, svc)
 
@@ -303,6 +311,7 @@ checks = {
     "story error visible": "Falha ao iniciar/continuar" in imm and "storyError={storyError}" in game,
     "map toast above nav": "bottom: 92, zIndex: 115" in emap,
     "gemini text test": "Testar modelo de texto principal" in settings and "generateGemini(cinematicModel" in settings,
+    "all text routes manual": "generateGemini(getGeminiTextModel('economy')" in svc and "[getGeminiTextModel('cinematic'), getGeminiTextModel('economy')]" in svc,
     "gemini tts test": "Testar modelo TTS com Charon" in settings and "window.BraseiroAndroid?.generateTts" in settings,
     "version": "4.9.13" in read(version_rel) and "49013" in read(gradle_rel),
 }
