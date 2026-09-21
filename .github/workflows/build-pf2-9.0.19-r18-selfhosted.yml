@@ -13,9 +13,9 @@ permissions:
 env:
   TAG: 'PATHFINDER2E-9.0.19-R18'
   APK_NAME: 'Braseiro_Pathfinder2e_9.0.19_R18_DEBUG.apk'
-  SOURCE_SHA256: 'e1622e460a7b7fe93d90f84ecb5937806b6a1484ff863117e4b3dee120c213b1'
+  SOURCE_SHA256: 'bdf52dbe3de85ec30f62f11c73c63906909a53be1048bf98faf044b3a648864e'
   SHARE_URL: 'https://firestorage.ai/ja/f/CUAMX1N0PSqg'
-  SOURCE_FILENAME: 'Braseiro_Pathfinder2e_9.0.19_MOTOR_BARBARA_1.1.2_TTS_PORTRAIT_ACTIONS_R18_ATLAS_V6_ANDROID_STUDIO.zip'
+  SOURCE_FILENAME: 'Braseiro_Pathfinder2e_9.0.19_MOTOR_BARBARA_1.1.2_TTS_PORTRAIT_ACTIONS_R18_BUILD_FIX1_ATLAS_V6_ANDROID_STUDIO.zip'
 
 jobs:
   build-release:
@@ -37,8 +37,7 @@ jobs:
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         env:
           FIRE_API: 'https://api.firestorage.ai/dev/file'
-          SHARE_ID: 'CUAMX1N0PSqg'
-          FILE_ID: '01a0c27e3f07736fb6034023d817510d'
+          SHARE_ID: '_qGha_34RMFG'
         run: |
           $ErrorActionPreference = 'Stop'
           if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA runner, got $env:RUNNER_NAME" }
@@ -49,10 +48,12 @@ jobs:
           New-Item -ItemType Directory -Path $incoming,$work -Force | Out-Null
 
           $list = Invoke-RestMethod -Uri "$env:FIRE_API/shares/$env:SHARE_ID/files?maxResults=1000" -Method Get
-          if (-not ($list.files | Where-Object { [string]$_.fileId -eq $env:FILE_ID })) {
-            throw "Source file not found in Firestorage share."
-          }
-          $download = Invoke-RestMethod -Uri "$env:FIRE_API/shares/$env:SHARE_ID/files/$env:FILE_ID/download" -Method Post
+          $asset = @($list.files | Where-Object { [string]$_.fileName -eq $env:SOURCE_FILENAME -or [string]$_.name -eq $env:SOURCE_FILENAME } | Select-Object -First 1)
+          if (-not $asset) { $asset = @($list.files | Select-Object -First 1) }
+          if (-not $asset) { throw "Source file not found in Firestorage share." }
+          $fileId = [string]$asset.fileId
+          if ([string]::IsNullOrWhiteSpace($fileId)) { throw "Firestorage fileId missing." }
+          $download = Invoke-RestMethod -Uri "$env:FIRE_API/shares/$env:SHARE_ID/files/$fileId/download" -Method Post
           if (-not $download.downloadUrl) { throw 'Firestorage did not return downloadUrl' }
 
           $zip = Join-Path $incoming 'source.zip'
