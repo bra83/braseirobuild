@@ -55,13 +55,13 @@ function renderBlackSunProgress(){
  const info=e.status(st);const sig=JSON.stringify(info);if(panel&&panel.dataset.signature===sig)return;
  if(!panel){panel=document.createElement('section');panel.className='final-black-sun-progress';anchor.insertAdjacentElement('afterend',panel)}
  panel.dataset.signature=sig;panel.style.cssText='margin:10px 0;padding:12px;border:1px solid rgba(160,180,190,.35);border-radius:12px;background:rgba(10,15,20,.92);color:#eee;display:grid;gap:8px';
- const available=(info.availableNodes||[]).map(n=>'<button type="button" data-bs-node="'+n.id+'">'+n.title+'</button>').join('');
+ const available=!info.currentNode?(info.availableNodes||[]).map(n=>'<button type="button" data-bs-node="'+n.id+'">'+n.title+'</button>').join(''):'';
  panel.innerHTML='<strong>Sob um Sol Negro</strong><small>'+(info.completed?'Aventura concluída':(info.episodeTitle||''))+'</small>'+
    (info.currentTitle?'<div><b>Etapa atual:</b> '+info.currentTitle+'</div>':'')+
    (available?'<div><b>Próximos caminhos desbloqueados:</b></div><div style="display:grid;gap:6px">'+available+'</div>':'')+
    (!info.completed&&info.currentNode?'<div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" data-bs-resume>Continuar com Barbara</button><button type="button" data-bs-complete>Marcar etapa concluída</button></div>':'')+
-   (info.completed?'<div>Desfecho alcançado. Consequências de Obrigação/Dever continuam sendo resolvidas pelo sistema.</div>':'');
- panel.querySelector('[data-bs-resume]')?.addEventListener('click',()=>void startBarbaraOpening());
+   (info.completed?'<div>Desfecho alcançado. Consequências de Obrigação/Dever continuam sendo resolvidas pelo sistema.</div><button type="button" data-bs-reset>Reiniciar Sob um Sol Negro</button>':'');
+ panel.querySelector('[data-bs-resume]')?.addEventListener('click',()=>void startBarbaraOpening());\n panel.querySelector('[data-bs-reset]')?.addEventListener('click',()=>{if(confirm('Reiniciar o progresso de Sob um Sol Negro?')){e.reset(localStorage);renderBlackSunProgress();void startBarbaraOpening()}});
  panel.querySelector('[data-bs-complete]')?.addEventListener('click',()=>{try{const next=e.completeCurrent(localStorage);renderBlackSunProgress();if(next.currentNode)void startBarbaraOpening()}catch(err){alert(String(err?.message||err))}});
  panel.querySelectorAll('[data-bs-node]').forEach(b=>b.addEventListener('click',()=>{try{e.select(localStorage,b.dataset.bsNode);renderBlackSunProgress();void startBarbaraOpening()}catch(err){alert(String(err?.message||err))}}));
 }'''
