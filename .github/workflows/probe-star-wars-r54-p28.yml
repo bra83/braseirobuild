@@ -5,6 +5,7 @@ on:
     branches: [star-wars-r54-p28-adventure-engine]
     paths:
       - '.github/workflows/probe-star-wars-r54-p28.yml'
+      - 'star-wars/r54/p28/**'
   workflow_dispatch:
 
 permissions:
