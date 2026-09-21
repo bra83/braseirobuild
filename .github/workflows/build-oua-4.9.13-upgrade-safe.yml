@@ -104,7 +104,7 @@ jobs:
             'tts-chunked-prefetch' = $whole.Contains('splitRange(text, 0, text.length, 680)')
             'tts-completeness-guard' = $whole.Contains('minimumCompleteDurationMs')
             'gemini-text-test-control' = $whole.Contains('Testar modelo de texto principal')
-            'gemini-tts-test-control' = $whole.Contains('Testar modelo TTS com Charon')
+            'gemini-tts-test-control' = $whole.Contains('Testar modelo TTS com Charon') -and $whole.Contains('playGeneratedVoice(artifact.token, 1)')
             'important-scene-main-model' = $whole.Contains('const importantScene') -and $whole.Contains('maxOutputTokens: importantScene ? 6800 : 4200')
             'opening-no-silent-fallback' = $whole.Contains('Nenhum texto local curto foi usado')
             'opening-rag-safe' = $whole.Contains('abertura narrativa sem regra aplicável')
@@ -318,3 +318,5 @@ jobs:
 # retry after all Gemini text routes use manual model IDs
 
 # retry after immersive TTS error visibility audit
+
+# final audit: TTS test must synthesize and actually play Charon
