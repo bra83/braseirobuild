@@ -1,0 +1,4 @@
+﻿app\src\main\assets\public\assets\AdventureScreenV3-DgZk15iz.js | 203164
+app\src\main\assets\public\assets\braseiro-final-enhancements.js | 22724
+app\src\main\assets\public\assets\DiceScreenV2-Doz_1_cE.js | 12214
+app\src\main\assets\public\assets\NarrativeDirectorService-Bsv2jj3W.js | 32852

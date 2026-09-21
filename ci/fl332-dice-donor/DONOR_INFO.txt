@@ -1,0 +1,4 @@
+﻿DONOR=Forbidden Lands 3.3.2
+SOURCE_SHA256=83b99e4ced2f635b1c93d79c0dbb9ef5093545ea1c67cf8af2dc88331ce0061c
+FILES=4
+PURPOSE=UX/presentation architecture only; do not port Year Zero mechanics into WWN.
