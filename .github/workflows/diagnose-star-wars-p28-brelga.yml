@@ -1,0 +1,32 @@
+name: Diagnose Star Wars P28 on BRELGA
+on:
+  push:
+    branches: [star-wars-r54-p28-adventure-engine]
+    paths: ['.github/workflows/diagnose-star-wars-p28-brelga.yml']
+permissions:
+  contents: read
+concurrency:
+  group: star-wars-r54-p28-diagnostic
+  cancel-in-progress: true
+jobs:
+  diagnose:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect generated uiBridge from last P28 run
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Continue'
+          $root=Join-Path $env:RUNNER_TEMP 'sw-r54-p28\work\android'
+          $u=Join-Path $root 'app\src\main\assets\vtt\js\core\uiBridge.bundle.js'
+          if(-not(Test-Path $u)){throw "Generated uiBridge missing: $u"}
+          Write-Host "UIBRIDGE=$u"
+          node --check $u 2>&1 | ForEach-Object {Write-Host "NODE_CHECK $_"}
+          Write-Host "NODE_EXIT=$LASTEXITCODE"
+          $lines=Get-Content $u
+          for($n=545;$n -le [Math]::Min(610,$lines.Count);$n++){
+            Write-Host ("LINE {0}: {1}" -f $n,$lines[$n-1])
+          }
+          $hit=Select-String -Path $u -Pattern 'R54_P28_PUBLISHED_SESSION' -Context 12,45
+          if($hit){$hit.Context.PreContext | ForEach-Object {Write-Host "CTX $_"};Write-Host "CTX $($hit.Line)";$hit.Context.PostContext | ForEach-Object {Write-Host "CTX $_"}}
