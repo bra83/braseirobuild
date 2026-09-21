@@ -4,7 +4,7 @@ on:
     branches: [star-wars-r54-p28-adventure-engine]
     paths: ['.github/workflows/diagnose-star-wars-p28-syntax.yml']
 permissions:
-  contents: read
+  contents: write
 jobs:
   diagnose:
     runs-on: ubuntu-latest
@@ -15,32 +15,44 @@ jobs:
         with: {python-version: '3.12'}
       - uses: actions/setup-node@v4
         with: {node-version: '22'}
-      - name: Download P27 APK and extract VTT
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Reproduce P28 from released P27
         shell: bash
         run: |
-          set -euo pipefail
+          set -u
+          OUT=star-wars/r54/diagnostics/P28_UIBRIDGE_SYNTAX_DIAG.txt
+          mkdir -p "$(dirname "$OUT")"
+          exec > >(tee "$OUT") 2>&1
+          echo "DIAG_START $(date -u +%FT%TZ)"
+          rm -rf /tmp/p28-root /tmp/p27 /tmp/app-debug.apk
           mkdir -p /tmp/p28-root/app/src/main/assets
-          gh release download STAR-WARS-EDGE-R54-P27 -R "$GITHUB_REPOSITORY" -p 'app-debug.apk' -D /tmp
+          curl -L --fail --retry 3 --silent --show-error             -o /tmp/app-debug.apk             "https://github.com/$GITHUB_REPOSITORY/releases/download/STAR-WARS-EDGE-R54-P27/app-debug.apk"
+          echo "APK_BYTES=$(stat -c%s /tmp/app-debug.apk)"
           unzip -q /tmp/app-debug.apk 'assets/vtt/*' -d /tmp/p27
           cp -a /tmp/p27/assets/vtt /tmp/p28-root/app/src/main/assets/vtt
-          test -f /tmp/p28-root/app/src/main/assets/vtt/js/core/uiBridge.bundle.js
-      - name: Apply P28 patches
-        shell: bash
-        run: |
-          set -euo pipefail
           python star-wars/r54/p28/apply_p28_mixed_creation.py /tmp/p28-root
           python star-wars/r54/p28/apply_p28_adventure_engine.py /tmp/p28-root
           python star-wars/r54/p28/apply_p28_bonds_ui.py /tmp/p28-root
           python star-wars/r54/p28/apply_p28_random_creation.py /tmp/p28-root
-      - name: Show syntax context
+          U=/tmp/p28-root/app/src/main/assets/vtt/js/core/uiBridge.bundle.js
+          echo "=== NODE CHECK ==="
+          node --check "$U"
+          CODE=$?
+          echo "NODE_EXIT=$CODE"
+          echo "=== LINES 545-610 ==="
+          nl -ba "$U" | sed -n '545,610p'
+          echo "=== METHOD CONTEXT ==="
+          grep -n -A45 -B12 'R54_P28_PUBLISHED_SESSION' "$U" || true
+          echo "DIAG_END"
+          exit 0
+      - name: Commit diagnostic
         shell: bash
         run: |
-          set +e
-          U=/tmp/p28-root/app/src/main/assets/vtt/js/core/uiBridge.bundle.js
-          node --check "$U" 2>&1 | tee /tmp/check.log
-          code=${PIPESTATUS[0]}
-          echo "NODE_EXIT=$code"
-          nl -ba "$U" | sed -n '545,600p'
-          exit $code
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add star-wars/r54/diagnostics/P28_UIBRIDGE_SYNTAX_DIAG.txt
+          if git diff --cached --quiet; then
+            echo "No diagnostic changes"
+          else
+            git commit -m "diag(star-wars): persist P28 uiBridge syntax context"
+            git push origin HEAD:star-wars-r54-p28-adventure-engine
+          fi
