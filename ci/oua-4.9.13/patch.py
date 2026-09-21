@@ -238,6 +238,7 @@ if anchor not in game:
 game = game.replace(anchor, """      isStoryLoading={isStoryLoading}
       storyError={storyError}
       onDismissStoryError={onDismissStoryError}
+      narrationError={narrationError}
       pendingTest={pendingTest}""", 1)
 write(game_rel, game)
 
@@ -309,6 +310,7 @@ checks = {
     "auto open after start": "await props.onStartAdventure();" in imm and "startAdventureFromMap" in imm,
     "footprint pre-start party post-start": 'partyMarkerMode={node && props.characters.length ? "none" : "footprints"}' in imm,
     "story error visible": "Falha ao iniciar/continuar" in imm and "storyError={storyError}" in game,
+    "tts error visible": "TTS: {props.narrationError}" in imm and "narrationError={narrationError}" in game,
     "map toast above nav": "bottom: 92, zIndex: 115" in emap,
     "gemini text test": "Testar modelo de texto principal" in settings and "generateGemini(cinematicModel" in settings,
     "all text routes manual": "generateGemini(getGeminiTextModel('economy')" in svc and "[getGeminiTextModel('cinematic'), getGeminiTextModel('economy')]" in svc,
