@@ -8,6 +8,9 @@ on:
       - 'star-wars/r54/p28/**'
   workflow_dispatch:
 permissions: {contents: write}
+concurrency:
+  group: star-wars-r54-p28
+  cancel-in-progress: true
 env:
   P25_ASSET_ID: '575165387'
   P25_SHA256: '7bfab40d0b021872cf3132cba5fd49848a3424f274ecd633e02c512e0efe3585'
