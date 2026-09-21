@@ -39,8 +39,10 @@ if tag not in html:
 ui_src=ui.read_text(encoding='utf-8')
 if 'R54_P28_PUBLISHED_SESSION' not in ui_src:
     anchor='    startLivingAdventure(options = {}) {'
-    pos=ui_src.find(anchor)
-    if pos<0: raise SystemExit('FAIL: startLivingAdventure bridge anchor ausente')
+    bridge_class=ui_src.find('export class BraseiroUiBridge')
+    if bridge_class<0: raise SystemExit('FAIL: classe BraseiroUiBridge ausente')
+    pos=ui_src.find(anchor,bridge_class)
+    if pos<0: raise SystemExit('FAIL: startLivingAdventure da BraseiroUiBridge ausente')
     method=r'''    startPublishedAdventureSession(options = {}) {
         // R54_P28_PUBLISHED_SESSION — inicia regras de sessão sem gerar abertura sandbox genérica.
         const controllerResult=this._controllerForExistingCampaign();
