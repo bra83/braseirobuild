@@ -33,7 +33,7 @@ if not errors:
       'runtime contexto por nó':'[NO:${ctx.id}]' in r,
       'runtime anti-spoiler':'Não revele nós futuros' in r,
       'world anchor Coruscant':"restartSandboxPreservingParty" in r and "startingPoint:'Coruscant'" in r and "startLocationId:'coruscant'" in r and 'startMapPoint:{x:53.4,y:51.2}' in r and 'worldAnchored' in r and "worldAnchor:'Coruscant'" in r,
-      'published session sem opening genérica':published_bridge_ok and 'publishedAnchorId' in bridge_segment and 'game.repository.save(game.state)' in bridge_segment and "bridgeResult('startPublishedAdventureSession'" in r and 'sessionStarted' in r,
+      'published session sem opening genérica':published_bridge_ok and 'publishedAnchorId' in bridge_segment and "game.commit('SCENE_UPDATED'" in bridge_segment and "bridgeResult('startPublishedAdventureSession'" in r and 'sessionStarted' in r,
       'painel continuar':'Continuar com Barbara' in r,
       'painel concluir':'Marcar etapa concluída' in r,
       'sem literal slash-n em handlers':"startBarbaraOpening());\\\\n panel.querySelector" not in r,
