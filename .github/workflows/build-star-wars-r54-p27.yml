@@ -1,0 +1,77 @@
+name: Build Star Wars R54 P27 EotE AoR Mixed
+on:
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  build:
+    runs-on: self-hosted
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: star-wars-r54-p27-eote-aor-mixed}
+      - name: Recover exact P25 + P26
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          set -euo pipefail
+          rm -rf work p26 && mkdir work p26
+          gh release download STAR-WARS-EDGE-R54-P25 -p 'STAR_WARS_EDGE_OF_THE_GALAXY_R54_P25_ANDROID_STUDIO.zip' -D .
+          echo '7bfab40d0b021872cf3132cba5fd49848a3424f274ecd633e02c512e0efe3585  STAR_WARS_EDGE_OF_THE_GALAXY_R54_P25_ANDROID_STUDIO.zip' | sha256sum -c -
+          unzip -q STAR_WARS_EDGE_OF_THE_GALAXY_R54_P25_ANDROID_STUDIO.zip -d work
+          gh release download 12r -p 'STAR_WARS_R54_P26_PLANET_CAROUSEL_VALIDATED_PATCH.zip' -D .
+          echo 'bef342d81c7a125bf6a9562ed5c1ff6dce35b62f99ee71daf8ec6c2a767eb6bb  STAR_WARS_R54_P26_PLANET_CAROUSEL_VALIDATED_PATCH.zip' | sha256sum -c -
+          unzip -q STAR_WARS_R54_P26_PLANET_CAROUSEL_VALIDATED_PATCH.zip -d p26
+          SET="$(find work -type f \( -name settings.gradle -o -name settings.gradle.kts \) -not -path '*/build/*' | head -n1)"; test -n "$SET"; ROOT="$(dirname "$SET")"
+          python3 - "$ROOT" <<'PY'
+          from pathlib import Path
+          import shutil,sys
+          root=Path(sys.argv[1]); patch=Path('p26')
+          files=list(patch.rglob('*'))
+          copied=0
+          for p in files:
+            if not p.is_file(): continue
+            rel=None
+            parts=p.parts
+            for anchor in ('app','gradle'):
+              if anchor in parts:
+                rel=Path(*parts[parts.index(anchor):]); break
+            if rel is None and p.name in ('settings.gradle','settings.gradle.kts','build.gradle','build.gradle.kts','gradle.properties'):
+              rel=Path(p.name)
+            if rel is not None:
+              dst=root/rel; dst.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(p,dst); copied+=1
+          if copied<1: raise SystemExit('P26 patch layout not recognized')
+          print('P26 files applied',copied)
+          PY
+          echo "ROOT=$ROOT" >> "$GITHUB_ENV"
+      - name: Apply P27 campaign + published adventure
+        run: |
+          set -euo pipefail
+          python3 star-wars/r54/p27/apply_p27_campaign_ui.py "$ROOT"
+          python3 star-wars/r54/p27/apply_p27_under_black_sun.py "$ROOT"
+      - name: P27 gates
+        run: |
+          set -euo pipefail
+          python3 star-wars/r54/p27/gate_p27.py "$ROOT"
+          V="$ROOT/app/src/main/assets/vtt"
+          node --check "$V/r46/final-runtime.js"
+          node --check "$V/js/core/uiBridge.bundle.js"
+          test -f "$V/adventures/under-a-black-sun.pt-BR.json"
+          grep -Fq 'R54_P27_UNDER_BLACK_SUN' "$V/r46/final-runtime.js"
+          grep -Fq 'Obrigação e Dever' "$V/r46/final-runtime.js"
+      - name: Gradle debug
+        working-directory: ${{ env.ROOT }}
+        run: |
+          set -euo pipefail
+          if [ -x ./gradlew ]; then ./gradlew :app:assembleDebug --stacktrace --no-daemon; else gradle :app:assembleDebug --stacktrace --no-daemon; fi
+      - name: Package evidence
+        run: |
+          set -euo pipefail
+          mkdir -p p27-out
+          APK="$(find "$ROOT/app/build/outputs/apk/debug" -type f -name '*.apk' | head -n1)"; test -f "$APK"
+          cp "$APK" p27-out/BRASEIRO_STAR_WARS_R54_P27_DEBUG.apk
+          sha256sum p27-out/BRASEIRO_STAR_WARS_R54_P27_DEBUG.apk > p27-out/BRASEIRO_STAR_WARS_R54_P27_DEBUG.apk.sha256
+          cp star-wars/r54/p27/HANDOFF_STAR_WARS_R54_P27_2026-09-21.md p27-out/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: STAR-WARS-R54-P27-EOTE-AOR-MIXED
+          path: p27-out/
+          retention-days: 14
