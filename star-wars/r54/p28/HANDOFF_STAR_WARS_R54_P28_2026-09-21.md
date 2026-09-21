@@ -32,3 +32,9 @@ P28:
 
 ## Critério de fechamento
 Gate P27 + gate P28 + teste do engine + regressão Node + node --check + assembleDebug + assembleRelease no BRELGA + persistência/publicação.
+
+
+## Checkpoint de validação 2
+- P27 gate movido para antes das mutações P28, porque P28 evolui intencionalmente a função startBarbaraOpening e substitui o marcador interno do P27.
+- P28 valida runtime, uiBridge, controller e adventure engine separadamente.
+- Baseline P25/P26 continua verificada por SHA-256 antes da montagem.
