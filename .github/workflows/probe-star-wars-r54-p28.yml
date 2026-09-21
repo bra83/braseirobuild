@@ -29,4 +29,6 @@ jobs:
           & tar.exe -xf $apk -C $dest
           if($LASTEXITCODE -ne 0){throw 'APK extraction failed'}
           $root=Join-Path $dest 'assets\vtt'
+          $env:PYTHONIOENCODING='utf-8'
+          [Console]::OutputEncoding=[System.Text.Encoding]::UTF8
           python star-wars/r54/p28/probe_p27_source.py "$dest"
