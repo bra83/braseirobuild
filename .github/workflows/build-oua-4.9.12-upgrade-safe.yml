@@ -99,7 +99,7 @@ jobs:
             'fixed-actions-real' = $whole.Contains('Ações rápidas')
             'master-suggestions-separated' = $whole.Contains('Sugestões do Mestre')
             'party-fallback' = $whole.Contains('configuredPartyCharacters.length ? configuredPartyCharacters : characters')
-            'party-follow-camera' = $whole.Contains('followParty={true}')
+            'map-pan-unlocked' = $whole.Contains('followParty={false}')
             'map-button-closes-chronicle' = $whole.Contains("if (tab === 'jogo') { setChronicleOpen(false); return; }")
             'map-primary-pointer-layer' = $whole.Contains("zIndex: 0, background: '#100d09', pointerEvents: 'auto'")
             'nav-above-sheet' = $whole.Contains('bottom: 0, zIndex: 100')
