@@ -10,6 +10,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: oua-4.9.13-upgrade-safe
+  cancel-in-progress: true
+
 env:
   BASE_TAG: "OUA-v4.9.12"
   BASE_APK: "BRASEIRO_O_UM_ANEL_4.9.12_UPDATE.apk"
