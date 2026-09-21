@@ -301,3 +301,5 @@ jobs:
 # retry after full offline-build diagnostics + hardened opening
 
 # retry after JSX provenance fix
+
+# retry after recoverable start-state fix
