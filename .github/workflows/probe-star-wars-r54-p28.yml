@@ -16,11 +16,17 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - name: Probe persisted P27 source
+      - name: Probe persisted P27 APK assets
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
           $ErrorActionPreference='Stop'
           if($env:RUNNER_NAME -ne 'BRELGA'){throw "Expected BRELGA"}
-          $root='C:\actions-runner\_work\_temp\sw-r54-p27\work\android'
-          if(-not(Test-Path $root)){throw "Persisted P27 source missing at $root"}
-          python star-wars/r54/p28/probe_p27_source.py "$root"
+          $apk='C:\actions-runner\artifacts\star-wars\r54\p27\app-debug.apk'
+          if(-not(Test-Path $apk)){throw "Persisted P27 APK missing: $apk"}
+          $dest=Join-Path $env:RUNNER_TEMP 'p28-probe-apk'
+          Remove-Item $dest -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $dest -Force | Out-Null
+          & tar.exe -xf $apk -C $dest
+          if($LASTEXITCODE -ne 0){throw 'APK extraction failed'}
+          $root=Join-Path $dest 'assets\vtt'
+          python star-wars/r54/p28/probe_p27_source.py "$dest"
