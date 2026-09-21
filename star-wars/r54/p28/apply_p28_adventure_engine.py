@@ -48,11 +48,26 @@ if 'R54_P28_PUBLISHED_SESSION' not in ui_src:
         try {
             const game=controllerResult.data;
             if(!game.state?.player?.character)return fail('NO_CHARACTER','Crie, gere ou importe um personagem antes de iniciar a aventura.');
-            if(game.state.session?.status==='ativa'){
-                return ok(clone({started:false,session:game.state.session,state:game.state,campaignMode:game.state.campaignMode}));
+            let started=false;
+            let result={session:game.state.session,campaignMode:game.state.campaignMode};
+            if(game.state.session?.status!=='ativa'){
+                result=game.startSession(options??{});
+                started=true;
             }
-            const result=game.startSession(options??{});
-            return ok(clone({started:true,...result,state:game.state}));
+            const publishedAnchorId=String(game.state.world?.sandbox?.startLocationId??'').trim();
+            if(publishedAnchorId){
+                const anchored=clone(game.state);
+                const location=anchored.world?.locations?.[publishedAnchorId]??null;
+                anchored.scene={
+                    ...(anchored.scene??{}),
+                    locationId:publishedAnchorId,
+                    title:String(location?.name??anchored.scene?.title??'Coruscant')
+                };
+                anchored.updatedAt=new Date().toISOString();
+                game.state=anchored;
+                game.repository.save(game.state);
+            }
+            return ok(clone({started,...result,state:game.state,publishedAnchorId:publishedAnchorId||null}));
         } catch(error){
             return fail('PUBLISHED_SESSION_START_FAILED',messageOf(error));
         }
@@ -106,7 +121,7 @@ opening=r'''async function startBarbaraOpening(){
    if(!state.flags?.worldAnchored){
      const reset=bridgeResult('restartSandboxPreservingParty');
      if(!reset?.ok)return reset||{ok:false,message:'Não foi possível preparar o Mundo Vivo para Coruscant.'};
-     const init=bridgeResult('initializeLivingSandbox',{startingPoint:'Coruscant',regionLabel:'Coruscant · Núcleo'});
+     const init=bridgeResult('initializeLivingSandbox',{startingPoint:'Coruscant',regionLabel:'Coruscant · Núcleo',startLocationId:'coruscant',startMapPoint:{x:53.4,y:51.2}});
      if(!init?.ok)return init||{ok:false,message:'Não foi possível criar Coruscant como ponto inicial da aventura.'};
      state.flags={...(state.flags||{}),worldAnchored:true,worldAnchor:'Coruscant'};
      state=engine.write(localStorage,state);
