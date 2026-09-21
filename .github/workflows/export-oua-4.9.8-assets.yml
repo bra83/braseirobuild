@@ -13,25 +13,36 @@ permissions:
 
 jobs:
   export:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+
       - name: Download private release assets
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         env:
           GH_TOKEN: ${{ github.token }}
-        shell: bash
         run: |
-          set -euo pipefail
-          rm -rf out
-          mkdir -p out
-          gh release download OUA-v4.9.8 --repo "$GITHUB_REPOSITORY" --dir out
-          test -f out/BRASEIRO_O_UM_ANEL_4.9.8_DEBUG.apk
-          test -f out/OUA_4.9.8_SCENE_ENTITIES_GEMINI_ANDROID_STUDIO.zip
-          echo "3e15d620fc4555c668abef095b1751288c0c92b04153f1bef63022145784dccb  out/BRASEIRO_O_UM_ANEL_4.9.8_DEBUG.apk" | sha256sum -c -
-          echo "72e6e928ca2132761a1b920e49619a74a226dc4da0704b80cdacedde916c2092  out/OUA_4.9.8_SCENE_ENTITIES_GEMINI_ANDROID_STUDIO.zip" | sha256sum -c -
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:RUNNER_TEMP 'oua-498-export'
+          Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          gh release download OUA-v4.9.8 --repo $env:GITHUB_REPOSITORY --dir $out
+          if ($LASTEXITCODE -ne 0) { throw 'gh release download failed' }
+
+          $apk = Join-Path $out 'BRASEIRO_O_UM_ANEL_4.9.8_DEBUG.apk'
+          $zip = Join-Path $out 'OUA_4.9.8_SCENE_ENTITIES_GEMINI_ANDROID_STUDIO.zip'
+          if (-not (Test-Path $apk)) { throw 'APK missing from export' }
+          if (-not (Test-Path $zip)) { throw 'ZIP missing from export' }
+          $apkHash = (Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          $zipHash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($apkHash -ne '3e15d620fc4555c668abef095b1751288c0c92b04153f1bef63022145784dccb') { throw "APK SHA mismatch: $apkHash" }
+          if ($zipHash -ne '72e6e928ca2132761a1b920e49619a74a226dc4da0704b80cdacedde916c2092') { throw "ZIP SHA mismatch: $zipHash" }
+          "EXPORT_DIR=$out" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
       - uses: actions/upload-artifact@v4
         with:
           name: OUA_4_9_8_BRELGA_RELEASE
           compression-level: 0
           retention-days: 7
-          path: out/*
+          path: ${{ env.EXPORT_DIR }}\*
