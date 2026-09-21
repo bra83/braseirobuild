@@ -1,0 +1,46 @@
+name: Diagnose Star Wars P28 Syntax
+on:
+  push:
+    branches: [star-wars-r54-p28-adventure-engine]
+    paths: ['.github/workflows/diagnose-star-wars-p28-syntax.yml']
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Download P27 APK and extract VTT
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/p28-root/app/src/main/assets
+          gh release download STAR-WARS-EDGE-R54-P27 -R "$GITHUB_REPOSITORY" -p 'app-debug.apk' -D /tmp
+          unzip -q /tmp/app-debug.apk 'assets/vtt/*' -d /tmp/p27
+          cp -a /tmp/p27/assets/vtt /tmp/p28-root/app/src/main/assets/vtt
+          test -f /tmp/p28-root/app/src/main/assets/vtt/js/core/uiBridge.bundle.js
+      - name: Apply P28 patches
+        shell: bash
+        run: |
+          set -euo pipefail
+          python star-wars/r54/p28/apply_p28_mixed_creation.py /tmp/p28-root
+          python star-wars/r54/p28/apply_p28_adventure_engine.py /tmp/p28-root
+          python star-wars/r54/p28/apply_p28_bonds_ui.py /tmp/p28-root
+          python star-wars/r54/p28/apply_p28_random_creation.py /tmp/p28-root
+      - name: Show syntax context
+        shell: bash
+        run: |
+          set +e
+          U=/tmp/p28-root/app/src/main/assets/vtt/js/core/uiBridge.bundle.js
+          node --check "$U" 2>&1 | tee /tmp/check.log
+          code=${PIPESTATUS[0]}
+          echo "NODE_EXIT=$code"
+          nl -ba "$U" | sed -n '545,600p'
+          exit $code
