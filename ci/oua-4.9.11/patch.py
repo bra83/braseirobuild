@@ -181,7 +181,7 @@ if anchor not in game:
     raise SystemExit("GameView immersive pending-test anchor missing")
 game = game.replace(
     anchor,
-    "      isStoryLoading={isStoryLoading}\n      pendingTest={pendingTest}\n      onNavigate={onNavigate}\n",
+    "      isStoryLoading={isStoryLoading}\n      pendingTest={pendingTest}\n      isNarrationLoading={isNarrationLoading}\n      onPlayNarration={() => onPlayNarration(currentNode || undefined)}\n      onStopNarration={onStopNarration}\n      onNavigate={onNavigate}\n",
     1,
 )
 write(game_rel, game)
@@ -225,7 +225,7 @@ checks = {
     "pending test routes to dice": "Teste pendente — abrir Dados" in imm and "props.pendingTest" in imm,
     "custom action responsive": "<form onSubmit={submitSceneAction}" in imm,
     "GameView passes pending test": "pendingTest={pendingTest}" in game,
-    "narration button wired": "🔊 Ouvir narração" in imm and "onPlayNarration={() => onPlayNarration(currentNode || undefined)}" in game,
+    "narration button wired": "🔊 Ouvir narração" in imm and "isNarrationLoading={isNarrationLoading}" in game and "onPlayNarration={() => onPlayNarration(currentNode || undefined)}" in game and "onStopNarration={onStopNarration}" in game,
     "version 4.9.11": "4.9.11" in read(version_rel) and "49011" in read(gradle_rel),
 }
 for name, ok in checks.items():
