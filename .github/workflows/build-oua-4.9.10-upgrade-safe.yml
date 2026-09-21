@@ -11,10 +11,10 @@ permissions:
   contents: write
 
 env:
-  BASE_TAG: "OUA-v4.9.10"
+  BASE_TAG: "OUA-v4.9.9"
   BASE_APK: "BRASEIRO_O_UM_ANEL_4.9.9_UPDATE.apk"
   BASE_SOURCE: "OUA_4.9.9_UPGRADE_SAFE_ANDROID_STUDIO.zip"
-  TAG: "OUA-v4.9.9"
+  TAG: "OUA-v4.9.10"
   APK_NAME: "BRASEIRO_O_UM_ANEL_4.9.10_UPDATE.apk"
   SOURCE_NAME: "OUA_4.9.10_UPGRADE_SAFE_ANDROID_STUDIO.zip"
 
@@ -197,8 +197,8 @@ jobs:
 
           if ($baseBadging -notmatch "package: name='com\.braseiro\.oumanel'") { throw 'Baseline package differs' }
           if ($newBadging -notmatch "package: name='com\.braseiro\.oumanel'") { throw 'New package differs' }
-          if ($baseBadging -notmatch "versionCode='49010'") { throw 'Baseline versionCode is not 49009' }
-          if ($newBadging -notmatch "versionCode='49009'") { throw 'New versionCode is not 49010' }
+          if ($baseBadging -notmatch "versionCode='49009'") { throw 'Baseline versionCode is not 49009' }
+          if ($newBadging -notmatch "versionCode='49010'") { throw 'New versionCode is not 49010' }
 
           & $apksigner verify --verbose --print-certs $env:BASE_APK_PATH 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'BASE_APK_SIGNATURE.txt')
           if ($LASTEXITCODE -ne 0) { throw 'Baseline APK signature invalid' }
@@ -280,3 +280,5 @@ jobs:
           Write-Host "RELEASE_URL=$($release.html_url)"
 
 # 4.9.10 real behavior build
+
+# retry with corrected baseline and target
