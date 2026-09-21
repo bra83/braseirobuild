@@ -1,0 +1,88 @@
+name: Pathfinder 2e 9.0.21 R20 APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-pf2-9.0.21-r20.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Download exact source
+        shell: powershell
+        env:
+          SHARE_ID: 'eyhwqffiVSiD'
+          FILE_ID: '01a0c2cf4e2c75ffb84829247c6dbec3'
+          SOURCE_SHA256: '2ca4f2eed1221a3b0929e5e1b0eb35ad7b3186fb6f41ea9256422a1deeac8e28'
+        run: |
+          $ErrorActionPreference='Stop'
+          $incoming=Join-Path $env:RUNNER_TEMP 'pf2-r20-in'
+          $work=Join-Path $env:RUNNER_TEMP 'pf2-r20-work'
+          Remove-Item $incoming,$work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming,$work -Force | Out-Null
+          $api='https://api.firestorage.ai/dev/file'
+          $d=Invoke-RestMethod -Method Post -Uri "$api/shares/$env:SHARE_ID/files/$env:FILE_ID/download"
+          if(-not $d.downloadUrl){throw 'downloadUrl missing'}
+          $zip=Join-Path $incoming 'source.zip'
+          Invoke-WebRequest -Uri $d.downloadUrl -OutFile $zip
+          $hash=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($hash -ne $env:SOURCE_SHA256){throw "SHA mismatch $hash"}
+          & tar.exe -xf $zip -C $work
+          if($LASTEXITCODE -ne 0){throw 'extract failed'}
+          "WORK_ROOT=$work" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Configure Android SDK
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $candidates=@('C:\actions-runner\android-sdk')
+          if($env:ANDROID_SDK_ROOT){$candidates += $env:ANDROID_SDK_ROOT}
+          if($env:ANDROID_HOME){$candidates += $env:ANDROID_HOME}
+          if($env:LOCALAPPDATA){$candidates += (Join-Path $env:LOCALAPPDATA 'Android\Sdk')}
+          $candidates += 'C:\Android\Sdk'
+          $sdk=$null;$mgr=$null
+          foreach($c in ($candidates|Select-Object -Unique)){
+            if(-not(Test-Path $c)){continue}
+            $f=Get-ChildItem $c -Recurse -Filter sdkmanager.bat -File -ErrorAction SilentlyContinue|Select-Object -First 1
+            if($f){$sdk=$c;$mgr=$f.FullName;break}
+          }
+          if(-not $mgr){throw 'Android SDK not found'}
+          "ANDROID_HOME=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          1..100 | % {'y'} | & $mgr --licenses | Out-Null
+          & $mgr 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
+          if($LASTEXITCODE -ne 0){throw 'sdkmanager failed'}
+      - name: Build APK
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon
+          if($LASTEXITCODE -ne 0){throw 'assembleDebug failed'}
+      - name: Collect APK
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $apk=Get-ChildItem $env:WORK_ROOT -Recurse -Filter '*.apk' -File | Where-Object {$_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]debug[\\/]'} | Select-Object -First 1
+          if(-not $apk){throw 'APK not found'}
+          $out=Join-Path $env:RUNNER_TEMP 'pf2-r20-out'
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $dest=Join-Path $out 'Braseiro_Pathfinder2e_9.0.21_R20_DEBUG.apk'
+          Copy-Item $apk.FullName $dest -Force
+          $hash=(Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  Braseiro_Pathfinder2e_9.0.21_R20_DEBUG.apk" | Set-Content "$dest.sha256" -Encoding ascii
+          "APK_OUT=$out" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "APK_SHA256=$hash"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Pathfinder2e-9.0.21-R20-APK
+          path: ${{ env.APK_OUT }}\*
+          if-no-files-found: error
