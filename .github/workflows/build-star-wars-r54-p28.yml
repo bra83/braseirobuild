@@ -257,10 +257,14 @@ jobs:
             $body=@{tag_name=$tag;target_commitish=$env:GITHUB_SHA;name='Braseiro Star Wars R54 P28';body='P28: native EotE/AoR creation routing in MIXED plus persistent Sob um Sol Negro progression engine. Built on self-hosted BRELGA.';draft=$false;prerelease=$true}|ConvertTo-Json
             $release=Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases" -Method Post -ContentType 'application/json' -Body $body
           }
+          $updateBody=@{target_commitish=$env:GITHUB_SHA;name='Braseiro Star Wars R54 P28';body='P28: native EotE/AoR creation routing in MIXED plus persistent Sob um Sol Negro progression engine. Built and validated on self-hosted BRELGA.';draft=$false;prerelease=$true}|ConvertTo-Json
+          $release=Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/$($release.id)" -Method Patch -ContentType 'application/json' -Body $updateBody
           $existing=@(Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/$($release.id)/assets?per_page=100" -Method Get)
+          foreach($old in $existing){
+            Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/assets/$($old.id)" -Method Delete|Out-Null
+            Write-Host "DELETED_OLD_ASSET $($old.name)"
+          }
           foreach($f in $files){
-            $old=$existing|Where-Object{$_.name -eq $f.Name}|Select-Object -First 1
-            if($old){Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/assets/$($old.id)" -Method Delete|Out-Null}
             $escaped=[uri]::EscapeDataString($f.Name)
             $asset=Invoke-RestMethod -Headers $headers -Uri "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$escaped" -Method Post -ContentType 'application/octet-stream' -InFile $f.FullName
             Write-Host "UPLOADED $($asset.name) bytes=$($asset.size)"
