@@ -1,0 +1,314 @@
+{
+  "schemaVersion": 1,
+  "id": "under-a-black-sun",
+  "title": "Sob um Sol Negro",
+  "locale": "pt-BR",
+  "source": {
+    "kind": "user-drive-material",
+    "driveFileId": "1UI9JILrFoRIYv0FNh_ZhHNFmCEFWIIVZ",
+    "originalTitle": "Under a Black Sun.pdf",
+    "productCode": "SWEP01"
+  },
+  "rules": {
+    "profile": "EOTE",
+    "compatibleCampaignModes": [
+      "EOTE",
+      "MIXED"
+    ],
+    "aorPureModeAllowed": false,
+    "obligationRelevant": true,
+    "dutyRelevant": false,
+    "contributionRelevant": false
+  },
+  "setting": {
+    "planet": "Coruscant",
+    "era": "Era da Rebelião",
+    "themes": [
+      "submundo",
+      "Sol Negro",
+      "Pykes",
+      "caçador de recompensas"
+    ]
+  },
+  "opening": {
+    "location": "Instalação do Sol Negro / plataforma de tráfego aéreo",
+    "situation": "Os personagens escapam com dados roubados enquanto agentes do Sol Negro iniciam uma perseguição.",
+    "next": "Chopper, contato dos Pykes, ajuda a decifrar os dados e aponta pistas sobre Kaa’to Leeachos."
+  },
+  "episodes": [
+    {
+      "id": "ep1",
+      "title": "Sem trabalhos fáceis",
+      "nodes": [
+        {
+          "id": "hot-pursuit",
+          "title": "Perseguição intensa",
+          "kind": "chase",
+          "checks": [
+            {
+              "skill": "Piloting (Planetary)",
+              "difficulty": "AVERAGE"
+            },
+            {
+              "skill": "Perception",
+              "difficulty": "AVERAGE"
+            },
+            {
+              "skill": "Stealth",
+              "difficulty": "EASY_OR_AVERAGE"
+            }
+          ],
+          "modifiers": [
+            "1 Setback enquanto o speeder permanece no tráfego intenso"
+          ],
+          "entities": [
+            "Black Sun thugs",
+            "Coruscant Underworld Police"
+          ],
+          "next": [
+            "chop-talk"
+          ]
+        },
+        {
+          "id": "chop-talk",
+          "title": "Conversa com Chopper",
+          "kind": "social/investigation",
+          "entities": [
+            "Cho’pa’ailor (Chopper)",
+            "Pyke Syndicate",
+            "Kaa’to Leeachos"
+          ],
+          "reveals": [
+            "Umbra Club",
+            "Spyder",
+            "Zelcomm Tower"
+          ],
+          "next": [
+            "ep2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ep2",
+      "title": "Cidade de agulhas e conflitos",
+      "ordering": "open",
+      "minimumLocationsRecommended": 1,
+      "nodes": [
+        {
+          "id": "umbra-club",
+          "title": "Umbra Club",
+          "kind": "social/investigation",
+          "entities": [
+            "Omacala",
+            "Speng",
+            "Club Hired Guards"
+          ],
+          "checks": [
+            {
+              "skill": "Deception",
+              "difficulty": "AVERAGE"
+            },
+            {
+              "skill": "Perception",
+              "difficulty": "HARD",
+              "setback": 1
+            },
+            {
+              "skill": "Survival",
+              "difficulty": "AVERAGE",
+              "setback": 1
+            }
+          ],
+          "clues": [
+            "Ligação de Kaa’to com o Spyder",
+            "dívidas de jogo",
+            "operações da Zelcomm"
+          ]
+        },
+        {
+          "id": "spyder",
+          "title": "The Spyder",
+          "kind": "social/gambling",
+          "entities": [
+            "Pillaat e Nerro",
+            "Korsin Fenn",
+            "Verannis",
+            "Black Sun lackeys"
+          ],
+          "checks": [
+            {
+              "skill": "Charm",
+              "difficulty": "AVERAGE"
+            },
+            {
+              "skill": "Negotiation",
+              "difficulty": "AVERAGE"
+            },
+            {
+              "skill": "Streetwise",
+              "difficulty": "HARD"
+            },
+            {
+              "skill": "Charm or Deception",
+              "difficulty": "HARD",
+              "setback": 1
+            }
+          ],
+          "clues": [
+            "Kaa’to usa o Setor 943",
+            "grande dívida no Spyder",
+            "possível pressão do Sol Negro"
+          ]
+        },
+        {
+          "id": "zelcomm-tower",
+          "title": "Zelcomm Tower",
+          "kind": "infiltration/investigation",
+          "entities": [
+            "Coruum Sa’dia",
+            "Zelcomm Enforcers"
+          ],
+          "clues": [
+            "frente de contrabando de armas",
+            "entradas alternativas",
+            "negócios ligados a Kaa’to"
+          ]
+        },
+        {
+          "id": "first-impressions",
+          "title": "Primeiras impressões",
+          "kind": "optional-hit-and-run",
+          "entities": [
+            "Kaa’to Leeachos"
+          ],
+          "purpose": "Kaa’to pode tentar intimidar ou ferir o grupo sem substituir o confronto final."
+        }
+      ]
+    },
+    {
+      "id": "ep3",
+      "title": "Fim de jogo",
+      "nodes": [
+        {
+          "id": "sector-943",
+          "title": "Setor 943 — The Works",
+          "kind": "approach",
+          "location": "NovaCORE kelerium processing plant"
+        },
+        {
+          "id": "novacore",
+          "title": "Fábrica NovaCORE",
+          "kind": "dungeon/site",
+          "subLocations": [
+            {
+              "id": "A",
+              "title": "Plataforma de pouso"
+            },
+            {
+              "id": "B",
+              "title": "Escritórios",
+              "checks": [
+                {
+                  "skill": "Charm",
+                  "difficulty": "AVERAGE"
+                }
+              ]
+            },
+            {
+              "id": "C",
+              "title": "Planta de processamento de kelerium",
+              "checks": [
+                {
+                  "skill": "Resilience",
+                  "difficulty": "AVERAGE"
+                }
+              ],
+              "hazards": [
+                "calor extremo",
+                "kelerium fundido",
+                "maquinário industrial"
+              ]
+            },
+            {
+              "id": "D",
+              "title": "Entulho",
+              "checks": [
+                {
+                  "skill": "Perception",
+                  "difficulty": "EASY"
+                },
+                {
+                  "skill": "Perception",
+                  "difficulty": "AVERAGE"
+                },
+                {
+                  "skill": "Cool",
+                  "difficulty": "HARD"
+                }
+              ]
+            },
+            {
+              "id": "E",
+              "title": "Seção abandonada",
+              "checks": [
+                {
+                  "skill": "Mechanics",
+                  "difficulty": "HARD"
+                },
+                {
+                  "skill": "Perception",
+                  "difficulty": "HARD"
+                },
+                {
+                  "skill": "Cool",
+                  "difficulty": "AVERAGE"
+                }
+              ]
+            },
+            {
+              "id": "F",
+              "title": "Esconderijo de Kaa’to"
+            },
+            {
+              "id": "G",
+              "title": "Hangar / nave de Kaa’to"
+            }
+          ]
+        },
+        {
+          "id": "showdown",
+          "title": "Confronto final",
+          "kind": "combat/social",
+          "entities": [
+            "Kaa’to Leeachos"
+          ],
+          "outcomes": [
+            "capturar ou derrotar Kaa’to",
+            "recuperar parte da especiaria",
+            "decidir entre devolver aos Pykes ou trair os empregadores com efeitos em Obligation"
+          ]
+        }
+      ]
+    }
+  ],
+  "entityBindings": [
+    {
+      "name": "Verannis",
+      "assetId": "external.kainrath.npc.verannis-black-sun-underboss"
+    },
+    {
+      "name": "Black Sun Lackey",
+      "assetId": "external.kainrath.npc.black-sun-lackey"
+    }
+  ],
+  "gmSafety": {
+    "doNotRevealAhead": [
+      "localização exata de Kaa’to antes das pistas",
+      "segredos de encontros futuros",
+      "consequências específicas de Obligation antes de dispararem"
+    ],
+    "preserveBranching": true,
+    "doNotReplaceSystemRules": true
+  }
+}
