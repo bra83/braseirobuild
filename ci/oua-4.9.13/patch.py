@@ -46,7 +46,7 @@ old_cinematic = "  const cinematic = shouldUseCinematicModel(publicContext, user
 if old_cinematic not in svc:
     old_cinematic = "  const cinematic = shouldUseCinematicModel(publicContext, userAction, false);\n  const models = cinematic ? [CINEMATIC_MODEL, ECONOMY_MODEL] : [ECONOMY_MODEL, CINEMATIC_MODEL];"
 new_cinematic = """  const importantScene = /^\\[INICIAR AVENTURA GUIADA\\]/i.test(userAction)
-    || /\\b(primeira chegada|chegada importante|mudan[cç]a de local|nova regi[aã]o|revela[cç][aã]o|cl[ií]max|descoberta importante|cena importante)\\b/i.test(userAction + ' ' + publicContext.slice(-2400));
+    || /\\b(primeira chegada|chegada importante|mudan[cç]a de local|nova regi[aã]o|revela[cç][aã]o|cl[ií]max|descoberta importante|cena importante|campaign_opening|first_arrival|location_changed|meaningful)\\b/i.test(userAction + ' ' + publicContext.slice(-3200));
   const cinematic = importantScene || shouldUseCinematicModel(publicContext, userAction, false);
   const models = cinematic
     ? [getGeminiTextModel('cinematic'), getGeminiTextModel('economy')]
@@ -97,6 +97,19 @@ new_minimums = """    quick: { words: 200, paragraphs: 3 },
 if old_minimums not in app:
     raise SystemExit("opening minimums anchor missing")
 app = app.replace(old_minimums, new_minimums, 1)
+old_ready = """      if (rulesConsultation.readyManualCount === 0) {
+        throw new Error('Nenhum manual de O Um Anel 2e está pronto para a consulta obrigatória. Abra Manuais e conclua a indexação antes de resolver a cena.');
+      }"""
+new_ready = """      if (rulesConsultation.readyManualCount === 0 && !isOpeningScene) {
+        throw new Error('Nenhum manual de O Um Anel 2e está pronto para uma resolução mecânica. Abra Manuais para conferir a indexação.');
+      }
+      if (rulesConsultation.readyManualCount === 0 && isOpeningScene) {
+        console.warn('[BRASEIRO_RAG] abertura narrativa liberada sem índice pronto; nenhuma regra mecânica será inventada.');
+      }"""
+if old_ready not in app:
+    raise SystemExit("readyManualCount gate anchor missing")
+app = app.replace(old_ready, new_ready, 1)
+
 old_rag = """      if (selectedManuals.length === 0) {
         throw new Error('Os manuais estão indexados, mas a busca obrigatória não recuperou um trecho aplicável. A cena não foi avançada; refine a ação ou reindexe os manuais.');
       }"""
@@ -216,7 +229,7 @@ checks = {
     "tts runtime override": "getGeminiTtsModel" in svc and "getTtsModels()" in svc,
     "important scene main model": "const importantScene" in svc and "maxOutputTokens: importantScene ? 6800 : 4200" in svc,
     "opening no silent local fallback": "Nenhum texto local curto foi usado" in app,
-    "opening rag safe": "abertura narrativa sem regra aplicável" in app,
+    "opening rag safe": "abertura narrativa sem regra aplicável" in app and "abertura narrativa liberada sem índice pronto" in app,
     "opening depth": "balanced: { words: 280, paragraphs: 4 }" in app and "REPARO FINAL DE ABERTURA" in app,
     "provenance": "generationModel" in app and "generationModel" in imm,
     "auto open after start": "await props.onStartAdventure();" in imm and "startAdventureFromMap" in imm,
