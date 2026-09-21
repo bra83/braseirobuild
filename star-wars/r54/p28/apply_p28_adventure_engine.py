@@ -42,12 +42,15 @@ if 'R54_P28_PUBLISHED_SESSION' not in ui_src:
     bridge_contract=ui_src.find('    initializeCampaign() {')
     if bridge_contract<0:
         raise SystemExit('FAIL: contrato initializeCampaign da BraseiroUiBridge ausente')
-    helper_pos=ui_src.find('_controllerForExistingCampaign',bridge_contract)
     pos=ui_src.find(anchor,bridge_contract)
-    if helper_pos<0 or pos<0:
-        raise SystemExit('FAIL: contrato BraseiroUiBridge incompleto')
-    if helper_pos<pos:
-        raise SystemExit('FAIL: startLivingAdventure resolvido fora da BraseiroUiBridge')
+    if pos<0:
+        raise SystemExit('FAIL: startLivingAdventure da BraseiroUiBridge ausente')
+    bridge_end=ui_src.find('function createBraseiroUiBridge',bridge_contract)
+    if bridge_end<0: bridge_end=ui_src.find('function installBraseiroUiBridge',bridge_contract)
+    if bridge_end<0: bridge_end=len(ui_src)
+    helper_pos=ui_src.find('_controllerForExistingCampaign',bridge_contract,bridge_end)
+    if helper_pos<0:
+        raise SystemExit('FAIL: _controllerForExistingCampaign ausente da BraseiroUiBridge')
     method=r'''    startPublishedAdventureSession(options = {}) {
         // R54_P28_PUBLISHED_SESSION — inicia regras de sessão sem gerar abertura sandbox genérica.
         const controllerResult=this._controllerForExistingCampaign();
@@ -131,10 +134,7 @@ opening=r'''async function startBarbaraOpening(){
    }
    prep=bridgeResult('startPublishedAdventureSession',{playerCount:1});
    if(prep&&prep.ok===false)return prep;
-   if(!state.flags?.sessionStarted){
-     state.flags={...(state.flags||{}),sessionStarted:true};
-     state=engine.write(localStorage,state);
-   }
+   if(!state.flags?.sessionStarted){state.flags={...(state.flags||{}),sessionStarted:true};state=engine.write(localStorage,state)}
    const ctx=blackSunPromptContext(state);
    if(!ctx){if(state.completed)return {ok:false,message:'Sob um Sol Negro já foi concluída.'};return {ok:false,message:'Nenhuma etapa da aventura está selecionada.'}}
    window.__BRASEIRO_PUBLISHED_ADVENTURE__={id:'under-a-black-sun',title:'Sob um Sol Negro',mode,nodeId:ctx.id,episode:state.episode};
