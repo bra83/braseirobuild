@@ -145,8 +145,14 @@ jobs:
             }
             if (-not $ok) { throw 'npm ci failed' }
 
+            $previousErrorAction = $ErrorActionPreference
+            $ErrorActionPreference = 'Continue'
+            if (Test-Path variable:PSNativeCommandUseErrorActionPreference) { $PSNativeCommandUseErrorActionPreference = $false }
             & npm.cmd run build:offline 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'OFFLINE_BUILD.log')
-            if ($LASTEXITCODE -ne 0) { throw 'build:offline failed' }
+            $offlineExit = $LASTEXITCODE
+            $ErrorActionPreference = $previousErrorAction
+            if ($offlineExit -ne 0) { throw "build:offline failed with exit code $offlineExit" }
+
             & node.exe scripts/use-offline-dist.mjs
             if ($LASTEXITCODE -ne 0) { throw 'use-offline-dist failed' }
             & node.exe scripts/sync-android-assets.mjs
@@ -291,3 +297,5 @@ jobs:
           Write-Host "RELEASE_URL=$($release.html_url)"
 
 # 4.9.13 senior RPG/UI recovery build
+
+# retry after full offline-build diagnostics + hardened opening
