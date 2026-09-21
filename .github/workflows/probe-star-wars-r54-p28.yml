@@ -1,0 +1,55 @@
+name: Probe Star Wars R54 P28 source on BRELGA
+
+on:
+  push:
+    branches: [star-wars-r54-p28-adventure-engine]
+    paths:
+      - '.github/workflows/probe-star-wars-r54-p28.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe persisted P27 source
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Expected BRELGA"}
+          $root='C:\actions-runner\_work\_temp\sw-r54-p27\work\android'
+          if(-not(Test-Path $root)){throw "Persisted P27 source missing at $root"}
+          python - <<'PY'
+          from pathlib import Path
+          root=Path(r'C:\actions-runner\_work\_temp\sw-r54-p27\work\android')
+          targets=[
+            root/'app/src/main/assets/vtt/js/core/controller.mjs',
+            root/'app/src/main/assets/vtt/js/core/uiBridge.bundle.js',
+            root/'app/src/main/assets/vtt/r46/r46-shell.bundle.js',
+            root/'app/src/main/assets/vtt/r46/final-runtime.js',
+          ]
+          terms=['campaignModeSummary','setCampaignMode','creationPreview','createCustomCharacter','obligationBenefits','additionalObligation','Duty','Contribution','MIXED','obligationType']
+          for p in targets:
+              print('\n###FILE',p)
+              if not p.is_file():
+                  print('MISSING'); continue
+              s=p.read_text(encoding='utf-8',errors='replace')
+              print('SIZE',len(s))
+              for term in terms:
+                  start=0; hits=[]
+                  while True:
+                      i=s.find(term,start)
+                      if i<0: break
+                      hits.append(i); start=i+len(term)
+                      if len(hits)>=4: break
+                  if hits:
+                      print(f'\n--TERM {term} HITS {hits}')
+                      for i in hits[:2]:
+                          a=max(0,i-1200); b=min(len(s),i+4200)
+                          print(s[a:b])
+                          print('\n--SNIP-END--')
+          PY
