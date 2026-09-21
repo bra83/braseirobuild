@@ -265,7 +265,7 @@ export const ImmersiveJourneyView: React.FC<Props> = props => {
         <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '.08em', textTransform: 'uppercase', color: '#745432' }}>Narração do Mestre</div>
         {(generationSource || generationModel) && <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: generationSource === 'gemini' ? '#365f45' : '#8a3b2f' }}>
           {generationSource === 'gemini' ? 'Gemini' : generationSource === 'local-fallback' ? 'Fallback local' : generationSource}{generationModel ? ' · ' + generationModel : ''}
-        </span>
+        </span>}
         <button type="button" onClick={() => props.isNarrationLoading ? props.onStopNarration() : void props.onPlayNarration()} style={{ ...touchButton, minHeight: 36, padding: '6px 11px', borderRadius: 999, border: '1px solid #7b562d', background: props.isNarrationLoading ? '#5e2b22' : '#5b3d20', color: '#fff0cf', fontFamily: 'inherit', fontSize: 11, fontWeight: 900, whiteSpace: 'nowrap' }}>
           {props.isNarrationLoading ? '■ Parar narração' : '🔊 Ouvir narração'}
         </button>
