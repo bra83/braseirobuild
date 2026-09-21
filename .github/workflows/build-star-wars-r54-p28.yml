@@ -42,6 +42,8 @@ jobs:
           $patch=Join-Path $base 'p26'
           New-Item -ItemType Directory -Path $base,$incoming -Force | Out-Null
           Remove-Item $work,$patch -Recurse -Force -ErrorAction SilentlyContinue
+          Get-ChildItem $base -File -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+          Remove-Item (Join-Path $base 'out') -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $work,$patch -Force | Out-Null
           Add-Content $env:GITHUB_ENV "P28_BASE=$base"
           $headers=@{Authorization="Bearer $env:GITHUB_TOKEN";Accept='application/octet-stream';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='BRELGA-Star-Wars-P28'}
@@ -204,6 +206,7 @@ jobs:
         run: |
           $base=if($env:P28_BASE){$env:P28_BASE}else{Join-Path $env:RUNNER_TEMP 'sw-r54-p28'}
           $out=Join-Path $base 'out'
+          Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $out -Force | Out-Null
           if(Test-Path 'star-wars/r54/p28/HANDOFF_STAR_WARS_R54_P28_2026-09-21.md'){Copy-Item 'star-wars/r54/p28/HANDOFF_STAR_WARS_R54_P28_2026-09-21.md' $out}
           foreach($name in @('P26_MERGE_REPORT.txt','P27_GATE_ON_P28.log','P28_GATES.log','P28_RUNTIME_CHECK.log','P28_UIBRIDGE_CHECK.log','P28_CONTROLLER_CHECK.log','P28_ENGINE_CHECK.log','P28_ENGINE_TEST.log','P28_NODE_REGRESSION.log','P28_REGRESSION_SUMMARY.txt','P28_GRADLE_DEBUG.log','P28_GRADLE_RELEASE.log','P28_GRADLE_SUMMARY.txt')){
@@ -211,7 +214,17 @@ jobs:
           }
           if($env:WORK_ROOT){
             $apks=Get-ChildItem $env:WORK_ROOT -Recurse -File -Filter '*.apk' | Where-Object {$_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]'}
-            foreach($apk in $apks){$dest=Join-Path $out $apk.Name;Copy-Item $apk.FullName $dest -Force;$hash=(Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant();"$hash  $($apk.Name)"|Set-Content "$dest.sha256" -Encoding ascii;Write-Host "$($apk.Name) bytes=$($apk.Length) sha=$hash"}
+            foreach($apk in $apks){
+              $lower=$apk.Name.ToLowerInvariant()
+              if($lower -like '*debug*'){$name='Braseiro-Star-Wars-R54-P28-debug.apk'}
+              elseif($lower -like '*unsigned*'){$name='Braseiro-Star-Wars-R54-P28-release-unsigned.apk'}
+              elseif($lower -like '*release*'){$name='Braseiro-Star-Wars-R54-P28-release.apk'}
+              else{$name="Braseiro-Star-Wars-R54-P28-$($apk.Name)"}
+              $dest=Join-Path $out $name;Copy-Item $apk.FullName $dest -Force
+              $hash=(Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant()
+              "$hash  $name"|Set-Content "$dest.sha256" -Encoding ascii
+              Write-Host "$name bytes=$($apk.Length) sha=$hash"
+            }
           }
 
       - name: Persist P28 on BRELGA
@@ -222,6 +235,7 @@ jobs:
           $src=Join-Path $env:P28_BASE 'out'
           if(-not(Test-Path $src)){throw 'P28 output folder missing'}
           $dst='C:\actions-runner\artifacts\star-wars\r54\p28'
+          Remove-Item $dst -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $dst -Force | Out-Null
           Copy-Item (Join-Path $src '*') $dst -Recurse -Force
           Write-Host "BRELGA_PERSISTED=$dst"
