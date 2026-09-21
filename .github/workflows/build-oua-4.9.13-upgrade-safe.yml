@@ -299,3 +299,5 @@ jobs:
 # 4.9.13 senior RPG/UI recovery build
 
 # retry after full offline-build diagnostics + hardened opening
+
+# retry after JSX provenance fix
