@@ -1,0 +1,37 @@
+name: Export OUA 4.9.8 release assets
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/export-oua-4.9.8-assets.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download private release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out
+          mkdir -p out
+          gh release download OUA-v4.9.8 --repo "$GITHUB_REPOSITORY" --dir out
+          test -f out/BRASEIRO_O_UM_ANEL_4.9.8_DEBUG.apk
+          test -f out/OUA_4.9.8_SCENE_ENTITIES_GEMINI_ANDROID_STUDIO.zip
+          echo "3e15d620fc4555c668abef095b1751288c0c92b04153f1bef63022145784dccb  out/BRASEIRO_O_UM_ANEL_4.9.8_DEBUG.apk" | sha256sum -c -
+          echo "72e6e928ca2132761a1b920e49619a74a226dc4da0704b80cdacedde916c2092  out/OUA_4.9.8_SCENE_ENTITIES_GEMINI_ANDROID_STUDIO.zip" | sha256sum -c -
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OUA_4_9_8_BRELGA_RELEASE
+          compression-level: 0
+          retention-days: 7
+          path: out/*
