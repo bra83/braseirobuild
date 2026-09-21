@@ -75,7 +75,35 @@ jobs:
           }
 
           if (-not $sdkManager) {
-            throw 'Android SDK cmdline-tools not found. Install Android SDK command-line tools for the BRELGA service account.'
+            $sdkRoot = 'C:\\actions-runner\\android-sdk'
+            $latest = Join-Path $sdkRoot 'cmdline-tools\\latest'
+            $sdkManager = Join-Path $latest 'bin\\sdkmanager.bat'
+            $zip = Join-Path $env:RUNNER_TEMP 'android-commandlinetools-15859902.zip'
+            $extract = Join-Path $env:RUNNER_TEMP 'android-commandlinetools-15859902'
+
+            Remove-Item $zip -Force -ErrorAction SilentlyContinue
+            Remove-Item $extract -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item $latest -Recurse -Force -ErrorAction SilentlyContinue
+            New-Item -ItemType Directory -Path $sdkRoot -Force | Out-Null
+            New-Item -ItemType Directory -Path $extract -Force | Out-Null
+            New-Item -ItemType Directory -Path (Split-Path $latest) -Force | Out-Null
+
+            $url = 'https://dl.google.com/android/repository/commandlinetools-win-15859902_latest.zip'
+            & curl.exe -L --fail --retry 3 --retry-delay 2 -o $zip $url
+            if ($LASTEXITCODE -ne 0 -or -not (Test-Path $zip)) {
+              throw 'Android command-line tools download failed'
+            }
+
+            $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($hash -ne '90ae805d20434428bffcb699c290860f19bb5f66a67e6b330067e3de801fb04a') {
+              throw "Android command-line tools checksum mismatch: $hash"
+            }
+
+            Expand-Archive -LiteralPath $zip -DestinationPath $extract -Force
+            Move-Item (Join-Path $extract 'cmdline-tools') $latest -Force
+            if (-not (Test-Path $sdkManager)) {
+              throw 'sdkmanager was not installed in the expected BRELGA path'
+            }
           }
 
           "ANDROID_HOME=$sdkRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
