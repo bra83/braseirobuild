@@ -310,3 +310,5 @@ jobs:
 # retry after recoverable start-state fix
 
 # retry after robust native TTS integrity patch
+
+# retry after all Gemini text routes use manual model IDs
