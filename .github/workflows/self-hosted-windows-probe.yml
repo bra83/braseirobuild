@@ -151,8 +151,9 @@ jobs:
             Write-Host "$tool => $($command.Source)"
           }
 
-          $javaText = (& java.exe -version 2>&1) -join [Environment]::NewLine
-          if ($javaText -notmatch 'version "21\.') { throw "Java 21 is not active: $javaText" }
+          $javaText = (& java.exe --version) -join [Environment]::NewLine
+          $javaFirstLine = ($javaText -split [Environment]::NewLine)[0]
+          if ($javaText -notmatch '21\\.') { throw "Java 21 is not active: $javaText" }
 
           $nodeMajor = [int]((& node.exe --version).TrimStart('v').Split('.')[0])
           if ($nodeMajor -ne 22) { throw "Node 22 is not active: $(& node.exe --version)" }
@@ -177,7 +178,7 @@ jobs:
 
           - Runner: **$env:RUNNER_NAME**
           - OS/architecture: **$env:RUNNER_OS / $env:RUNNER_ARCH**
-          - Java: **$(& java.exe -version 2>&1 | Select-Object -First 1)**
+          - Java: **$javaFirstLine**
           - Node: **$(& node.exe --version)**
           - npm: **$(& npm.cmd --version)**
           - Android SDK: **$env:ANDROID_SDK_ROOT**
