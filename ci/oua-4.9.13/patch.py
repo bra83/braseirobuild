@@ -80,6 +80,7 @@ if legacy_return in svc:
       return normalized;""", 1)
 svc = svc.replace("for (const model of TTS_MODELS) {", "for (const model of getTtsModels()) {")
 svc = svc.replace("${TTS_MODELS.join(',')}", "${getTtsModels().join(',')}")
+svc = svc.replace("tts-v8-", "tts-v9-")
 write(svc_rel, svc)
 
 app_rel = "App.tsx"
@@ -172,6 +173,57 @@ app = app.replace(node_close, node_close + """
         generationModel: localFallbackActive ? 'mestre-local' : String((response as any)._braseiroModel || ''),
         narrationWordCount: String(response.atmospheric_narration || '').trim().split(/\\s+/).filter(Boolean).length,
       });""", 1)
+
+# Charon: long scenes are synthesized in bounded chunks. The next chunk is
+# prefetched while the current one plays, reducing first-audio latency and
+# preventing a truncated first sentence from being accepted as a full scene.
+old_charon_units = """      // A primeira síntese e o catálogo sonoro começam juntos. A voz nunca
+      // aguarda mapa, ambiente, SQLite ou pré-carga de SFX. O botão Charon usa
+      // uma única síntese para a cena inteira: várias requisições independentes
+      // faziam o timbre variar entre parágrafos e multiplicavam pontos de falha.
+      const provisionalPlan = planSounds(node.location || '', text, node.playerAction || '', node.audioPlan, node.events || []);
+      const provisionalUnits: NarrationUnit[] = [{
+        start: 0,
+        text,
+        segment: narratorSegment(text),
+        events: provisionalPlan.sfx.filter(event => Number.isFinite(event.charIndex) && event.charIndex >= 0 && event.charIndex < text.length),
+      }];
+      if (!provisionalUnits.length) return;"""
+new_charon_units = """      // A voz começa com um bloco curto o bastante para reduzir a latência.
+      // Enquanto esse bloco toca, o próximo é sintetizado em paralelo.
+      // Todos os blocos usam Charon + o mesmo perfil fixo, preservando a voz,
+      // mas uma resposta truncada da API não encerra silenciosamente a cena.
+      const provisionalPlan = planSounds(node.location || '', text, node.playerAction || '', node.audioPlan, node.events || []);
+      const provisionalUnits: NarrationUnit[] = splitRange(text, 0, text.length, 680).map(piece => {
+        const end = piece.start + piece.text.length;
+        return {
+          ...piece,
+          segment: narratorSegment(piece.text),
+          events: provisionalPlan.sfx.filter(event => Number.isFinite(event.charIndex) && event.charIndex >= piece.start && event.charIndex < end),
+        };
+      });
+      if (!provisionalUnits.length) return;"""
+if old_charon_units not in app:
+    raise SystemExit("Charon single-scene synthesis anchor missing")
+app = app.replace(old_charon_units, new_charon_units, 1)
+
+old_prepared_events = """        const unit = prepared
+          ? { ...provisionalUnits[index], events: prepared.plan.sfx.filter(event => Number.isFinite(event.charIndex) && event.charIndex >= 0 && event.charIndex < text.length) }
+          : provisionalUnits[index];"""
+new_prepared_events = """        const unitEnd = provisionalUnits[index].start + provisionalUnits[index].text.length;
+        const unit = prepared
+          ? { ...provisionalUnits[index], events: prepared.plan.sfx.filter(event => Number.isFinite(event.charIndex) && event.charIndex >= provisionalUnits[index].start && event.charIndex < unitEnd) }
+          : provisionalUnits[index];"""
+if old_prepared_events not in app:
+    raise SystemExit("Charon prepared-event range anchor missing")
+app = app.replace(old_prepared_events, new_prepared_events, 1)
+
+app = app.replace(
+    "message: \`Solicitando a cena inteira ao Gemini TTS (\${provisionalUnits[0].text.length} caracteres).\`, backend: 'Gemini TTS', result: 'solicitado', details: { voice: firstProfile.voice, units: provisionalUnits.length, continuousSceneVoice: true }",
+    "message: \`Solicitando o primeiro bloco ao Gemini TTS (\${provisionalUnits[0].text.length} caracteres; \${provisionalUnits.length} bloco(s) no total).\`, backend: 'Gemini TTS', result: 'solicitado', details: { voice: firstProfile.voice, units: provisionalUnits.length, chunkedContinuousVoice: true }",
+    1,
+)
+
 write(app_rel, app)
 
 game_rel = "components/GameView.tsx"
@@ -216,6 +268,27 @@ write(gradle_rel, gradle)
 main_rel = "android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt"
 main = read(main_rel)
 main = main.replace("index.html?v=49012&immersive=1", "index.html?v=49013&immersive=1")
+main = main.replace('tts-v8|$model|$safeVoice|pt-BR|$stableStyle|$text', 'tts-v9|$model|$safeVoice|pt-BR|$stableStyle|$text')
+old_duration_store = """        val durationMs = storeGeminiAudioAsWav(cached, audioBytes)
+        cleanupGeminiTtsCache()
+        Log.i("BRASEIRO_TTS", "Charon salvo localmente: \${audioBytes.size} bytes, \${durationMs}ms, $mimeType")
+        return JSONObject().put("token", cacheId).put("durationMs", durationMs).put("model", model).put("tier", envelope.optString("tier", "free"))"""
+new_duration_store = """        val durationMs = storeGeminiAudioAsWav(cached, audioBytes)
+        val spokenWords = text.trim().split(Regex("\\\\s+")).count { it.isNotBlank() }
+        // Extremely lenient lower bound (~375 wpm). It only detects a small
+        // prefix of a long request being returned as if the whole narration
+        // had been synthesized.
+        val minimumCompleteDurationMs = if (spokenWords < 18) 900L else (spokenWords * 160L).coerceAtLeast(2_800L)
+        if (durationMs < minimumCompleteDurationMs) {
+            cached.delete()
+            throw IllegalStateException("O Gemini TTS devolveu áudio truncado: \${durationMs}ms para $spokenWords palavras (mínimo de integridade \${minimumCompleteDurationMs}ms).")
+        }
+        cleanupGeminiTtsCache()
+        Log.i("BRASEIRO_TTS", "Charon salvo localmente e validado: \${audioBytes.size} bytes, \${durationMs}ms, $spokenWords palavras, $mimeType")
+        return JSONObject().put("token", cacheId).put("durationMs", durationMs).put("model", model).put("tier", envelope.optString("tier", "free"))"""
+if old_duration_store not in main:
+    raise SystemExit("native Gemini TTS duration-store anchor missing")
+main = main.replace(old_duration_store, new_duration_store, 1)
 write(main_rel, main)
 
 imm = read("components/immersive/ImmersiveJourneyView.tsx")
@@ -227,6 +300,9 @@ checks = {
     "manual text model": "Texto principal / cenas importantes — ID manual" in settings,
     "manual tts model": "TTS — ID manual" in settings and "Testar modelo TTS com Charon" in settings,
     "tts runtime override": "getGeminiTtsModel" in svc and "getTtsModels()" in svc,
+    "tts cache v9": "tts-v9-" in svc and "tts-v9|" in main,
+    "tts chunked prefetch": "splitRange(text, 0, text.length, 680)" in app and "const nextAudio = index + 1 < provisionalUnits.length" in app,
+    "tts completeness guard": "minimumCompleteDurationMs" in main and "áudio truncado" in main,
     "important scene main model": "const importantScene" in svc and "maxOutputTokens: importantScene ? 6800 : 4200" in svc,
     "opening no silent local fallback": "Nenhum texto local curto foi usado" in app,
     "opening rag safe": "abertura narrativa sem regra aplicável" in app and "abertura narrativa liberada sem índice pronto" in app,
@@ -236,6 +312,8 @@ checks = {
     "footprint pre-start party post-start": 'partyMarkerMode={node && props.characters.length ? "none" : "footprints"}' in imm,
     "story error visible": "Falha ao iniciar/continuar" in imm and "storyError={storyError}" in game,
     "map toast above nav": "bottom: 92, zIndex: 115" in emap,
+    "gemini text test": "Testar modelo de texto principal" in settings and "generateGemini(cinematicModel" in settings,
+    "gemini tts test": "Testar modelo TTS com Charon" in settings and "window.BraseiroAndroid?.generateTts" in settings,
     "version": "4.9.13" in read(version_rel) and "49013" in read(gradle_rel),
 }
 for name, ok in checks.items():
