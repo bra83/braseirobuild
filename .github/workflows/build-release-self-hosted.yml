@@ -348,7 +348,8 @@ jobs:
 
             $encodedName = [uri]::EscapeDataString($file.Name)
             $upload = "https://uploads.github.com/repos/$repo/releases/$env:RELEASE_ID/assets?name=$encodedName"
-            Invoke-RestMethod -Method Post -Headers $headers -Uri $upload -ContentType 'application/octet-stream' -InFile $file.FullName | Out-Null
+            & curl.exe -L --fail --retry 5 --retry-delay 3 --retry-all-errors --connect-timeout 30 --request POST --header "Authorization: Bearer $env:GITHUB_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" --header "Content-Type: application/octet-stream" --data-binary "@$($file.FullName)" $upload
+            if ($LASTEXITCODE -ne 0) { throw "Release upload failed for $($file.Name) with exit code $LASTEXITCODE" }
             Write-Host "Uploaded release asset: $($file.Name)"
           }
 
