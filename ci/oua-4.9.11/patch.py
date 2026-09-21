@@ -27,13 +27,14 @@ if "  pendingTest?: PendingTest | null;\n" not in imm:
     )
 
 # Map button must CLOSE the chronicle, never reopen it.
+# 4.9.10 may format this handler over one or several lines, so patch semantically.
 imm, map_count = re.subn(
-    r"if \(tab === 'jogo'\) \{[^\\n]*return; \}",
+    r"if\s*\(tab\s*===\s*'jogo'\)\s*\{[\s\S]{0,240}?return;\s*\}",
     "if (tab === 'jogo') { setChronicleOpen(false); return; }",
     imm,
     count=1,
 )
-if map_count != 1:
+if map_count == 0 and "if (tab === 'jogo') { setChronicleOpen(false); return; }" not in imm:
     raise SystemExit("map navigation branch not found")
 
 # Choice dispatch: provide visible result for taps and route pending tests to Dice.
