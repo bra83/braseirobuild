@@ -77,8 +77,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     try {
       const model = ttsModel.trim();
       if (window.BraseiroAndroid?.generateTts) {
-        const artifact = await window.BraseiroAndroid.generateTts(model, 'Teste de voz do Braseiro.', 'Charon', 'natural', false);
+        const artifact = await window.BraseiroAndroid.generateTts(model, 'Teste completo da voz Charon no Braseiro.', 'Charon', 'natural', false);
         if (!artifact?.token) throw new Error('O Android não devolveu artefato de áudio.');
+        if (!window.BraseiroAndroid.playGeneratedVoice) throw new Error('A ponte de reprodução da voz Gemini não está disponível.');
+        await window.BraseiroAndroid.playGeneratedVoice(artifact.token, 1);
       } else {
         const response = await generateGemini(model, [{ parts: [{ text: 'Leia exatamente: Teste de voz do Braseiro.' }] }], {
           responseModalities: ['AUDIO'],
@@ -87,7 +89,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         const hasAudio = Boolean(response.candidates?.[0]?.content?.parts?.some(part => part.inlineData?.data));
         if (!hasAudio) throw new Error('O modelo não devolveu áudio.');
       }
-      setStatus('TTS OK — ' + model + ' respondeu com áudio.');
+      setStatus('TTS OK — ' + model + ' gerou e reproduziu a voz Charon até o fim.');
     } catch (error) {
       setStatus('Falha no TTS ' + ttsModel + ': ' + (error instanceof Error ? error.message : String(error)));
     } finally {
