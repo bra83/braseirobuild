@@ -1,0 +1,75 @@
+name: Publish Star Wars R54 P27 from BRELGA
+
+on:
+  push:
+    branches: [star-wars-r54-p27-eote-aor-mixed]
+    paths:
+      - '.github/workflows/publish-star-wars-r54-p27-selfhosted.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 30
+    steps:
+      - name: Publish persisted P27 files with GitHub REST API
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Expected BRELGA, got $env:RUNNER_NAME"}
+          $dir='C:\actions-runner\artifacts\star-wars\r54\p27'
+          if(-not(Test-Path $dir)){throw "Persisted P27 directory missing: $dir"}
+          $files=@(Get-ChildItem $dir -File)
+          if($files.Count -eq 0){throw 'No persisted P27 files found'}
+          foreach($required in @('app-debug.apk','app-debug.apk.sha256','app-release-unsigned.apk','app-release-unsigned.apk.sha256','P27_GATES.log','P27_REGRESSION_SUMMARY.txt','P27_GRADLE_SUMMARY.txt')){
+            if(-not(Test-Path (Join-Path $dir $required))){throw "Required persisted file missing: $required"}
+          }
+          $repo=$env:GITHUB_REPOSITORY
+          $tag='STAR-WARS-EDGE-R54-P27'
+          $api='https://api.github.com'
+          $headers=@{
+            Authorization="Bearer $env:GITHUB_TOKEN"
+            Accept='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='BRELGA-Star-Wars-P27'
+          }
+          $release=$null
+          try {
+            $release=Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/tags/$tag" -Method Get
+          } catch {
+            $body=@{
+              tag_name=$tag
+              target_commitish=$env:GITHUB_SHA
+              name='Braseiro Star Wars R54 P27'
+              body='P27 built and validated on self-hosted BRELGA. EotE/AoR/MIXED integration + Sob um Sol Negro.'
+              draft=$false
+              prerelease=$true
+            } | ConvertTo-Json
+            $release=Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases" -Method Post -ContentType 'application/json' -Body $body
+          }
+          $existing=@(Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/$($release.id)/assets?per_page=100" -Method Get)
+          foreach($f in $files){
+            $old=$existing | Where-Object {$_.name -eq $f.Name} | Select-Object -First 1
+            if($old){
+              Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/assets/$($old.id)" -Method Delete | Out-Null
+            }
+            $escaped=[uri]::EscapeDataString($f.Name)
+            $uploadHeaders=@{
+              Authorization="Bearer $env:GITHUB_TOKEN"
+              Accept='application/vnd.github+json'
+              'X-GitHub-Api-Version'='2022-11-28'
+              'User-Agent'='BRELGA-Star-Wars-P27'
+            }
+            $asset=Invoke-RestMethod -Headers $uploadHeaders -Uri "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$escaped" -Method Post -ContentType 'application/octet-stream' -InFile $f.FullName
+            Write-Host "UPLOADED $($asset.name) bytes=$($asset.size)"
+          }
+          $verify=@(Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/$($release.id)/assets?per_page=100" -Method Get)
+          foreach($required in @('app-debug.apk','app-debug.apk.sha256','app-release-unsigned.apk','app-release-unsigned.apk.sha256')){
+            if(-not($verify | Where-Object {$_.name -eq $required})){throw "Release verification missing: $required"}
+          }
+          Write-Host "RELEASE_URL=$($release.html_url)"
