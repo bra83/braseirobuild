@@ -1,5 +1,5 @@
-
 name: Star Wars R54 P28 Adventure Engine
+
 on:
   push:
     branches: [star-wars-r54-p28-adventure-engine]
@@ -7,27 +7,39 @@ on:
       - '.github/workflows/build-star-wars-r54-p28.yml'
       - 'star-wars/r54/p28/**'
   workflow_dispatch:
-permissions: {contents: write}
+
+permissions:
+  contents: write
+
 concurrency:
   group: star-wars-r54-p28
   cancel-in-progress: true
+
 env:
   P25_ASSET_ID: '575165387'
   P25_SHA256: '7bfab40d0b021872cf3132cba5fd49848a3424f274ecd633e02c512e0efe3585'
   P26_ASSET_ID: '576013007'
   P26_SHA256: 'bef342d81c7a125bf6a9562ed5c1ff6dce35b62f99ee71daf8ec6c2a767eb6bb'
+
 jobs:
   build:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
-        with: {python-version: '3.12'}
+        with:
+          python-version: '3.12'
+
       - uses: actions/setup-node@v4
-        with: {node-version: '22'}
+        with:
+          node-version: '22'
+
       - uses: actions/setup-java@v4
-        with: {distribution: temurin, java-version: '17'}
+        with:
+          distribution: temurin
+          java-version: '17'
 
       - name: Recover exact P25 and P26
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
@@ -46,37 +58,53 @@ jobs:
           Remove-Item (Join-Path $base 'out') -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $work,$patch -Force | Out-Null
           Add-Content $env:GITHUB_ENV "P28_BASE=$base"
-          $headers=@{Authorization="Bearer $env:GITHUB_TOKEN";Accept='application/octet-stream';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='BRELGA-Star-Wars-P28'}
+
+          $headers=@{
+            Authorization="Bearer $env:GITHUB_TOKEN"
+            Accept='application/octet-stream'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='BRELGA-Star-Wars-P28'
+          }
           $p25=Join-Path $incoming 'p25.zip'
           $p26=Join-Path $incoming 'p26.zip'
-          function Ensure-Asset([string]$path,[string]$id,[string]$expected){
-            if(Test-Path $path){
-              $existing=(Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant()
-              if($existing -eq $expected){Write-Host "REUSE_VERIFIED $path sha=$existing";return}
-              Remove-Item $path -Force
+
+          function Ensure-Asset([string]$assetPath,[string]$assetId,[string]$expected){
+            if(Test-Path $assetPath){
+              $existing=(Get-FileHash $assetPath -Algorithm SHA256).Hash.ToLowerInvariant()
+              if($existing -eq $expected){
+                Write-Host "REUSE_VERIFIED $assetPath sha=$existing"
+                return
+              }
+              Remove-Item $assetPath -Force
             }
-            Invoke-WebRequest -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/assets/$id" -OutFile $path
-            $actual=(Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant()
-            if($actual -ne $expected){throw "Asset SHA mismatch id=$id actual=$actual"}
+            Invoke-WebRequest -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/assets/$assetId" -OutFile $assetPath
+            $actual=(Get-FileHash $assetPath -Algorithm SHA256).Hash.ToLowerInvariant()
+            if($actual -ne $expected){throw "Asset SHA mismatch id=$assetId actual=$actual"}
           }
+
           Ensure-Asset $p25 $env:P25_ASSET_ID $env:P25_SHA256
           Ensure-Asset $p26 $env:P26_ASSET_ID $env:P26_SHA256
-          $h25=(Get-FileHash $p25 -Algorithm SHA256).Hash.ToLowerInvariant()
-          $h26=(Get-FileHash $p26 -Algorithm SHA256).Hash.ToLowerInvariant()
+
           & tar.exe -xf $p25 -C $work
           if($LASTEXITCODE -ne 0){throw 'P25 extraction failed'}
           & tar.exe -xf $p26 -C $patch
           if($LASTEXITCODE -ne 0){throw 'P26 extraction failed'}
-          $settings=Get-ChildItem $work -Recurse -File | Where-Object {$_.Name -in @('settings.gradle','settings.gradle.kts') -and $_.FullName -notmatch '[\\/]build[\\/]'} | Select-Object -First 1
+
+          $settings=Get-ChildItem $work -Recurse -File |
+            Where-Object {$_.Name -in @('settings.gradle','settings.gradle.kts') -and $_.FullName -notmatch '[\\/]build[\\/]'} |
+            Select-Object -First 1
           if(-not $settings){throw 'Android root not found in P25'}
           $root=$settings.Directory.FullName
           $vtt=Join-Path $root 'app\src\main\assets\vtt'
           if(-not(Test-Path $vtt)){throw 'VTT root missing in P25'}
+
           $report=Join-Path $base 'P26_MERGE_REPORT.txt'
           $patchFiles=@(Get-ChildItem $patch -Recurse -File)
           @("patch_files=$($patchFiles.Count)","patch_bytes=$(($patchFiles | Measure-Object Length -Sum).Sum)") | Set-Content $report
-          $patchFiles | Select-Object -First 250 FullName,Length | Format-Table -AutoSize | Out-String -Width 500 | Add-Content $report
-          $pv=Get-ChildItem $patch -Recurse -Directory | Where-Object {$_.FullName -match '[\\/]app[\\/]src[\\/]main[\\/]assets[\\/]vtt$'} | Select-Object -First 1
+
+          $pv=Get-ChildItem $patch -Recurse -Directory |
+            Where-Object {$_.FullName -match '[\\/]app[\\/]src[\\/]main[\\/]assets[\\/]vtt$'} |
+            Select-Object -First 1
           if($pv){
             @('mode=project-relative-vtt',"source=$($pv.FullName)","target=$vtt") | Add-Content $report
             Get-ChildItem $pv.FullName -Force | ForEach-Object {Copy-Item $_.FullName $vtt -Recurse -Force}
@@ -86,24 +114,27 @@ jobs:
             $sr=$fr.Directory.FullName
             $tr=Join-Path $vtt 'r46'
             $r46Files=@(Get-ChildItem $sr -Recurse -File)
-            @('mode=fallback-r46-plus-basename',"source=$sr","target=$tr","r46_subtree_files=$($r46Files.Count)") | Add-Content $report
             Get-ChildItem $sr -Force | ForEach-Object {Copy-Item $_.FullName $tr -Recurse -Force}
             $mapped=0
-            Get-ChildItem $patch -Recurse -File | Where-Object {$_.FullName -notlike "$sr*" -and $_.Extension.ToLowerInvariant() -in @('.html','.json')} | ForEach-Object {
-              $f=$_
-              $targets=@(Get-ChildItem $vtt -Recurse -File -Filter $f.Name)
-              if($targets.Count -eq 1){Copy-Item $f.FullName $targets[0].FullName -Force; $mapped++}
-              elseif($targets.Count -gt 1){throw "Ambiguous P26 target $($f.Name)"}
-            }
-            Add-Content $report "mapped_extra_existing_basename=$mapped"
+            Get-ChildItem $patch -Recurse -File |
+              Where-Object {$_.FullName -notlike "$sr*" -and $_.Extension.ToLowerInvariant() -in @('.html','.json')} |
+              ForEach-Object {
+                $targets=@(Get-ChildItem $vtt -Recurse -File -Filter $_.Name)
+                if($targets.Count -eq 1){Copy-Item $_.FullName $targets[0].FullName -Force;$mapped++}
+                elseif($targets.Count -gt 1){throw "Ambiguous P26 target $($_.Name)"}
+              }
+            @('mode=fallback-r46-plus-basename',"source=$sr","target=$tr","r46_subtree_files=$($r46Files.Count)","mapped_extra_existing_basename=$mapped") | Add-Content $report
             if($r46Files.Count -lt 3){throw "P26 fallback r46 subtree unexpectedly small: $($r46Files.Count)"}
           }
+
           $staleApkDir=Join-Path $root 'app\build\outputs\apk'
           if(Test-Path $staleApkDir){Remove-Item $staleApkDir -Recurse -Force}
-          $staleApks=@(Get-ChildItem $root -Recurse -File -Filter '*.apk' -ErrorAction SilentlyContinue | Where-Object {$_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]'})
+          $staleApks=@(Get-ChildItem $root -Recurse -File -Filter '*.apk' -ErrorAction SilentlyContinue |
+            Where-Object {$_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]'})
           if($staleApks.Count -gt 0){throw "Baseline APK cleanup failed: $($staleApks.Count) stale APK(s) remain"}
+
           Add-Content $env:GITHUB_ENV "WORK_ROOT=$root"
-          Write-Host "P25 bytes=$((Get-Item $p25).Length) P26 bytes=$((Get-Item $p26).Length) stale_apks=0"
+          Write-Host "BASELINE_READY root=$root stale_apks=0"
 
       - name: Apply P27
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
@@ -112,7 +143,6 @@ jobs:
           python -m py_compile star-wars/r54/p27/apply_p27_campaign_ui.py star-wars/r54/p27/apply_p27_under_black_sun.py star-wars/r54/p27/gate_p27.py
           python star-wars/r54/p27/apply_p27_campaign_ui.py "$env:WORK_ROOT"
           python star-wars/r54/p27/apply_p27_under_black_sun.py "$env:WORK_ROOT"
-
 
       - name: Validate inherited P27 before P28
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
@@ -138,14 +168,16 @@ jobs:
           python star-wars/r54/p28/gate_p28.py "$env:WORK_ROOT" 2>&1 | Tee-Object -FilePath (Join-Path $env:P28_BASE 'P28_GATES.log')
           if($LASTEXITCODE -ne 0){throw 'P28 gate failed'}
           $vtt=Join-Path $env:WORK_ROOT 'app\src\main\assets\vtt'
-          node --check (Join-Path $vtt 'r46\final-runtime.js') 2>&1 | Tee-Object -FilePath (Join-Path $env:P28_BASE 'P28_RUNTIME_CHECK.log')
-          if($LASTEXITCODE -ne 0){throw 'final-runtime syntax failed'}
-          node --check (Join-Path $vtt 'js\core\uiBridge.bundle.js') 2>&1 | Tee-Object -FilePath (Join-Path $env:P28_BASE 'P28_UIBRIDGE_CHECK.log')
-          if($LASTEXITCODE -ne 0){throw 'uiBridge syntax failed'}
-          node --check (Join-Path $vtt 'js\core\controller.mjs') 2>&1 | Tee-Object -FilePath (Join-Path $env:P28_BASE 'P28_CONTROLLER_CHECK.log')
-          if($LASTEXITCODE -ne 0){throw 'controller syntax failed'}
-          node --check (Join-Path $vtt 'adventures\under-a-black-sun-engine.js') 2>&1 | Tee-Object -FilePath (Join-Path $env:P28_BASE 'P28_ENGINE_CHECK.log')
-          if($LASTEXITCODE -ne 0){throw 'adventure engine syntax failed'}
+          $checks=@(
+            @{File=(Join-Path $vtt 'r46\final-runtime.js');Log='P28_RUNTIME_CHECK.log'},
+            @{File=(Join-Path $vtt 'js\core\uiBridge.bundle.js');Log='P28_UIBRIDGE_CHECK.log'},
+            @{File=(Join-Path $vtt 'js\core\controller.mjs');Log='P28_CONTROLLER_CHECK.log'},
+            @{File=(Join-Path $vtt 'adventures\under-a-black-sun-engine.js');Log='P28_ENGINE_CHECK.log'}
+          )
+          foreach($check in $checks){
+            node --check $check.File 2>&1 | Tee-Object -FilePath (Join-Path $env:P28_BASE $check.Log)
+            if($LASTEXITCODE -ne 0){throw "JavaScript syntax failed: $($check.File)"}
+          }
 
       - name: Focused P28 adventure engine test
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
@@ -181,7 +213,12 @@ jobs:
           if($env:LOCALAPPDATA){$candidates+=(Join-Path $env:LOCALAPPDATA 'Android\Sdk')}
           $candidates+='C:\Android\Sdk'
           $sdk=$null;$mgr=$null
-          foreach($c in ($candidates|Select-Object -Unique)){if(Test-Path $c){$f=Get-ChildItem $c -Recurse -Filter sdkmanager.bat -File -ErrorAction SilentlyContinue|Select-Object -First 1;if($f){$sdk=$c;$mgr=$f.FullName;break}}}
+          foreach($candidate in ($candidates|Select-Object -Unique)){
+            if(Test-Path $candidate){
+              $found=Get-ChildItem $candidate -Recurse -Filter sdkmanager.bat -File -ErrorAction SilentlyContinue | Select-Object -First 1
+              if($found){$sdk=$candidate;$mgr=$found.FullName;break}
+            }
+          }
           if(-not $mgr){throw 'Android SDK not found'}
           Add-Content $env:GITHUB_ENV "ANDROID_HOME=$sdk"
           Add-Content $env:GITHUB_ENV "ANDROID_SDK_ROOT=$sdk"
@@ -194,33 +231,66 @@ jobs:
         working-directory: ${{ env.WORK_ROOT }}
         run: |
           $ErrorActionPreference='Continue'
-          $dl=Join-Path $env:P28_BASE 'P28_GRADLE_DEBUG.log'
-          & .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath $dl
-          $dc=$LASTEXITCODE
-          if($dc -ne 0){throw "assembleDebug failed $dc"}
-          $rl=Join-Path $env:P28_BASE 'P28_GRADLE_RELEASE.log'
-          & .\gradlew.bat :app:assembleRelease --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath $rl
-          $rc=$LASTEXITCODE
-          @("debug_exit=$dc","release_exit=$rc") | Set-Content (Join-Path $env:P28_BASE 'P28_GRADLE_SUMMARY.txt')
-          if($rc -ne 0){throw "assembleRelease failed $rc"}
+          $debugLog=Join-Path $env:P28_BASE 'P28_GRADLE_DEBUG.log'
+          & .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath $debugLog
+          $debugExit=$LASTEXITCODE
+          if($debugExit -ne 0){throw "assembleDebug failed $debugExit"}
+
+          $releaseLog=Join-Path $env:P28_BASE 'P28_GRADLE_RELEASE.log'
+          & .\gradlew.bat :app:assembleRelease --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath $releaseLog
+          $releaseExit=$LASTEXITCODE
+          @("debug_exit=$debugExit","release_exit=$releaseExit") | Set-Content (Join-Path $env:P28_BASE 'P28_GRADLE_SUMMARY.txt')
+          if($releaseExit -ne 0){throw "assembleRelease failed $releaseExit"}
 
       - name: Collect P28 evidence
         if: always()
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
+          $ErrorActionPreference='Stop'
           $base=if($env:P28_BASE){$env:P28_BASE}else{Join-Path $env:RUNNER_TEMP 'sw-r54-p28'}
           $out=Join-Path $base 'out'
           Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $out -Force | Out-Null
-          if(Test-Path 'star-wars/r54/p28/HANDOFF_STAR_WARS_R54_P28_2026-09-21.md'){Copy-Item 'star-wars/r54/p28/HANDOFF_STAR_WARS_R54_P28_2026-09-21.md' $out}
-          foreach($name in @('P26_MERGE_REPORT.txt','P27_GATE_ON_P28.log','P28_GATES.log','P28_RUNTIME_CHECK.log','P28_UIBRIDGE_CHECK.log','P28_CONTROLLER_CHECK.log','P28_ENGINE_CHECK.log','P28_ENGINE_TEST.log','P28_NODE_REGRESSION.log','P28_REGRESSION_SUMMARY.txt','P28_GRADLE_DEBUG.log','P28_GRADLE_RELEASE.log','P28_GRADLE_SUMMARY.txt')){
-            $p=Join-Path $base $name;if(Test-Path $p){Copy-Item $p $out}
+
+          if(Test-Path 'star-wars/r54/p28/HANDOFF_STAR_WARS_R54_P28_2026-09-21.md'){
+            Copy-Item 'star-wars/r54/p28/HANDOFF_STAR_WARS_R54_P28_2026-09-21.md' $out
           }
+          foreach($name in @(
+            'P26_MERGE_REPORT.txt','P27_GATE_ON_P28.log','P28_GATES.log',
+            'P28_RUNTIME_CHECK.log','P28_UIBRIDGE_CHECK.log','P28_CONTROLLER_CHECK.log','P28_ENGINE_CHECK.log',
+            'P28_ENGINE_TEST.log','P28_NODE_REGRESSION.log','P28_REGRESSION_SUMMARY.txt',
+            'P28_GRADLE_DEBUG.log','P28_GRADLE_RELEASE.log','P28_GRADLE_SUMMARY.txt'
+          )){
+            $candidate=Join-Path $base $name
+            if(Test-Path $candidate){Copy-Item $candidate $out}
+          }
+
           $gradleSummary=Join-Path $base 'P28_GRADLE_SUMMARY.txt'
           $gradleOk=$false
           if(Test-Path $gradleSummary){
-            $g=Get-Content $gradleSummary -Raw
-            $gradleOk=($g -match '(?m)^debug_exit=0\s*
+            $summaryText=Get-Content $gradleSummary -Raw
+            $gradleOk=$summaryText.Contains('debug_exit=0') -and $summaryText.Contains('release_exit=0')
+          }
+
+          if($env:WORK_ROOT -and $gradleOk){
+            $apks=@(Get-ChildItem $env:WORK_ROOT -Recurse -File -Filter '*.apk' |
+              Where-Object {$_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]'})
+            if($apks.Count -lt 2){throw "Gradle marked success but only $($apks.Count) APK(s) found"}
+            foreach($apk in $apks){
+              $lower=$apk.Name.ToLowerInvariant()
+              if($lower -like '*debug*'){$name='Braseiro-Star-Wars-R54-P28-debug.apk'}
+              elseif($lower -like '*unsigned*'){$name='Braseiro-Star-Wars-R54-P28-release-unsigned.apk'}
+              elseif($lower -like '*release*'){$name='Braseiro-Star-Wars-R54-P28-release.apk'}
+              else{$name="Braseiro-Star-Wars-R54-P28-$($apk.Name)"}
+              $dest=Join-Path $out $name
+              Copy-Item $apk.FullName $dest -Force
+              $hash=(Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant()
+              "$hash  $name" | Set-Content "$dest.sha256" -Encoding ascii
+              Write-Host "$name bytes=$($apk.Length) sha=$hash"
+            }
+          } elseif($env:WORK_ROOT) {
+            Write-Host 'NO_P28_APK_COLLECTED: Gradle success evidence absent.'
+          }
 
       - name: Persist successful P28 on BRELGA
         if: success()
@@ -234,6 +304,7 @@ jobs:
           New-Item -ItemType Directory -Path $dst -Force | Out-Null
           Copy-Item (Join-Path $src '*') $dst -Recurse -Force
           $persistedApks=@(Get-ChildItem $dst -File -Filter '*.apk')
+          if($persistedApks.Count -lt 2){throw "Successful run must persist two APKs; found $($persistedApks.Count)"}
           Write-Host "PERSISTED_APK_COUNT=$($persistedApks.Count)"
           Write-Host "BRELGA_PERSISTED=$dst"
           Get-ChildItem $dst -File | ForEach-Object {Write-Host "$($_.Name) bytes=$($_.Length)"}
@@ -252,7 +323,6 @@ jobs:
           $badApks=@(Get-ChildItem $dst -File -Filter '*.apk' -ErrorAction SilentlyContinue)
           if($badApks.Count -gt 0){throw "Failure evidence unexpectedly contains APK(s): $($badApks.Count)"}
           Write-Host "BRELGA_FAILURE_EVIDENCE=$dst"
-          Get-ChildItem $dst -File | ForEach-Object {Write-Host "$($_.Name) bytes=$($_.Length)"}
 
       - name: Publish P28 release via REST
         if: success()
@@ -263,131 +333,50 @@ jobs:
           $ErrorActionPreference='Stop'
           $dir='C:\actions-runner\artifacts\star-wars\r54\p28'
           $files=@(Get-ChildItem $dir -File)
-          if($files.Count -eq 0){throw 'No P28 files to publish'}
-          $repo=$env:GITHUB_REPOSITORY;$tag='STAR-WARS-EDGE-R54-P28';$api='https://api.github.com'
-          $headers=@{Authorization="Bearer $env:GITHUB_TOKEN";Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='BRELGA-Star-Wars-P28'}
-          try{$release=Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/tags/$tag" -Method Get}catch{
-            $body=@{tag_name=$tag;target_commitish=$env:GITHUB_SHA;name='Braseiro Star Wars R54 P28';body='P28: native EotE/AoR creation routing in MIXED plus persistent Sob um Sol Negro progression engine. Built on self-hosted BRELGA.';draft=$false;prerelease=$true}|ConvertTo-Json
+          $apkFiles=@($files | Where-Object {$_.Extension -eq '.apk'})
+          if($apkFiles.Count -lt 2){throw "Refusing release without two P28 APKs; found $($apkFiles.Count)"}
+
+          $repo=$env:GITHUB_REPOSITORY
+          $tag='STAR-WARS-EDGE-R54-P28'
+          $api='https://api.github.com'
+          $headers=@{
+            Authorization="Bearer $env:GITHUB_TOKEN"
+            Accept='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='BRELGA-Star-Wars-P28'
+          }
+
+          try{
+            $release=Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/tags/$tag" -Method Get
+          }catch{
+            $body=@{
+              tag_name=$tag
+              target_commitish=$env:GITHUB_SHA
+              name='Braseiro Star Wars R54 P28'
+              body='P28: native EotE/AoR creation routing in MIXED plus persistent Sob um Sol Negro progression engine. Built and validated on self-hosted BRELGA.'
+              draft=$false
+              prerelease=$true
+            } | ConvertTo-Json
             $release=Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases" -Method Post -ContentType 'application/json' -Body $body
           }
-          $updateBody=@{target_commitish=$env:GITHUB_SHA;name='Braseiro Star Wars R54 P28';body='P28: native EotE/AoR creation routing in MIXED plus persistent Sob um Sol Negro progression engine. Built and validated on self-hosted BRELGA.';draft=$false;prerelease=$true}|ConvertTo-Json
-          $release=Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/$($release.id)" -Method Patch -ContentType 'application/json' -Body $updateBody
+
+          $update=@{
+            target_commitish=$env:GITHUB_SHA
+            name='Braseiro Star Wars R54 P28'
+            body='P28: native EotE/AoR creation routing in MIXED plus persistent Sob um Sol Negro progression engine. Built and validated on self-hosted BRELGA.'
+            draft=$false
+            prerelease=$true
+          } | ConvertTo-Json
+          $release=Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/$($release.id)" -Method Patch -ContentType 'application/json' -Body $update
+
           $existing=@(Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/$($release.id)/assets?per_page=100" -Method Get)
-          foreach($old in $existing){
-            Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/assets/$($old.id)" -Method Delete|Out-Null
-            Write-Host "DELETED_OLD_ASSET $($old.name)"
-          }
-          foreach($f in $files){
-            $escaped=[uri]::EscapeDataString($f.Name)
-            $asset=Invoke-RestMethod -Headers $headers -Uri "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$escaped" -Method Post -ContentType 'application/octet-stream' -InFile $f.FullName
-            Write-Host "UPLOADED $($asset.name) bytes=$($asset.size)"
-          }
-          Write-Host "RELEASE_URL=$($release.html_url)"
-) -and ($g -match '(?m)^release_exit=0\s*
-
-      - name: Persist P28 on BRELGA
-        if: always()
-        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
-        run: |
-          $ErrorActionPreference='Stop'
-          $src=Join-Path $env:P28_BASE 'out'
-          if(-not(Test-Path $src)){throw 'P28 output folder missing'}
-          $dst='C:\actions-runner\artifacts\star-wars\r54\p28'
-          Remove-Item $dst -Recurse -Force -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Path $dst -Force | Out-Null
-          Copy-Item (Join-Path $src '*') $dst -Recurse -Force
-          Write-Host "BRELGA_PERSISTED=$dst"
-          Get-ChildItem $dst -File | ForEach-Object {Write-Host "$($_.Name) bytes=$($_.Length)"}
-
-      - name: Publish P28 release via REST
-        if: success()
-        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          $ErrorActionPreference='Stop'
-          $dir='C:\actions-runner\artifacts\star-wars\r54\p28'
-          $files=@(Get-ChildItem $dir -File)
-          if($files.Count -eq 0){throw 'No P28 files to publish'}
-          $repo=$env:GITHUB_REPOSITORY;$tag='STAR-WARS-EDGE-R54-P28';$api='https://api.github.com'
-          $headers=@{Authorization="Bearer $env:GITHUB_TOKEN";Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='BRELGA-Star-Wars-P28'}
-          try{$release=Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/tags/$tag" -Method Get}catch{
-            $body=@{tag_name=$tag;target_commitish=$env:GITHUB_SHA;name='Braseiro Star Wars R54 P28';body='P28: native EotE/AoR creation routing in MIXED plus persistent Sob um Sol Negro progression engine. Built on self-hosted BRELGA.';draft=$false;prerelease=$true}|ConvertTo-Json
-            $release=Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases" -Method Post -ContentType 'application/json' -Body $body
-          }
-          $updateBody=@{target_commitish=$env:GITHUB_SHA;name='Braseiro Star Wars R54 P28';body='P28: native EotE/AoR creation routing in MIXED plus persistent Sob um Sol Negro progression engine. Built and validated on self-hosted BRELGA.';draft=$false;prerelease=$true}|ConvertTo-Json
-          $release=Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/$($release.id)" -Method Patch -ContentType 'application/json' -Body $updateBody
-          $existing=@(Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/$($release.id)/assets?per_page=100" -Method Get)
-          foreach($old in $existing){
-            Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/assets/$($old.id)" -Method Delete|Out-Null
-            Write-Host "DELETED_OLD_ASSET $($old.name)"
-          }
-          foreach($f in $files){
-            $escaped=[uri]::EscapeDataString($f.Name)
-            $asset=Invoke-RestMethod -Headers $headers -Uri "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$escaped" -Method Post -ContentType 'application/octet-stream' -InFile $f.FullName
-            Write-Host "UPLOADED $($asset.name) bytes=$($asset.size)"
-          }
-          Write-Host "RELEASE_URL=$($release.html_url)"
-)
-          }
-          if($env:WORK_ROOT -and $gradleOk){
-            $apks=@(Get-ChildItem $env:WORK_ROOT -Recurse -File -Filter '*.apk' | Where-Object {$_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]'})
-            if($apks.Count -lt 2){throw "Gradle marked success but only $($apks.Count) APK(s) found"}
-            foreach($apk in $apks){
-              $lower=$apk.Name.ToLowerInvariant()
-              if($lower -like '*debug*'){$name='Braseiro-Star-Wars-R54-P28-debug.apk'}
-              elseif($lower -like '*unsigned*'){$name='Braseiro-Star-Wars-R54-P28-release-unsigned.apk'}
-              elseif($lower -like '*release*'){$name='Braseiro-Star-Wars-R54-P28-release.apk'}
-              else{$name="Braseiro-Star-Wars-R54-P28-$($apk.Name)"}
-              $dest=Join-Path $out $name;Copy-Item $apk.FullName $dest -Force
-              $hash=(Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant()
-              "$hash  $name"|Set-Content "$dest.sha256" -Encoding ascii
-              Write-Host "$name bytes=$($apk.Length) sha=$hash"
-            }
-          } elseif($env:WORK_ROOT) {
-            Write-Host 'NO_P28_APK_COLLECTED: Gradle success evidence absent; refusing baseline/stale APK.'
+          foreach($asset in $existing){
+            Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/assets/$($asset.id)" -Method Delete | Out-Null
           }
 
-      - name: Persist P28 on BRELGA
-        if: always()
-        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
-        run: |
-          $ErrorActionPreference='Stop'
-          $src=Join-Path $env:P28_BASE 'out'
-          if(-not(Test-Path $src)){throw 'P28 output folder missing'}
-          $dst='C:\actions-runner\artifacts\star-wars\r54\p28'
-          Remove-Item $dst -Recurse -Force -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Path $dst -Force | Out-Null
-          Copy-Item (Join-Path $src '*') $dst -Recurse -Force
-          Write-Host "BRELGA_PERSISTED=$dst"
-          Get-ChildItem $dst -File | ForEach-Object {Write-Host "$($_.Name) bytes=$($_.Length)"}
-
-      - name: Publish P28 release via REST
-        if: success()
-        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          $ErrorActionPreference='Stop'
-          $dir='C:\actions-runner\artifacts\star-wars\r54\p28'
-          $files=@(Get-ChildItem $dir -File)
-          if($files.Count -eq 0){throw 'No P28 files to publish'}
-          $repo=$env:GITHUB_REPOSITORY;$tag='STAR-WARS-EDGE-R54-P28';$api='https://api.github.com'
-          $headers=@{Authorization="Bearer $env:GITHUB_TOKEN";Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='BRELGA-Star-Wars-P28'}
-          try{$release=Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/tags/$tag" -Method Get}catch{
-            $body=@{tag_name=$tag;target_commitish=$env:GITHUB_SHA;name='Braseiro Star Wars R54 P28';body='P28: native EotE/AoR creation routing in MIXED plus persistent Sob um Sol Negro progression engine. Built on self-hosted BRELGA.';draft=$false;prerelease=$true}|ConvertTo-Json
-            $release=Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases" -Method Post -ContentType 'application/json' -Body $body
-          }
-          $updateBody=@{target_commitish=$env:GITHUB_SHA;name='Braseiro Star Wars R54 P28';body='P28: native EotE/AoR creation routing in MIXED plus persistent Sob um Sol Negro progression engine. Built and validated on self-hosted BRELGA.';draft=$false;prerelease=$true}|ConvertTo-Json
-          $release=Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/$($release.id)" -Method Patch -ContentType 'application/json' -Body $updateBody
-          $existing=@(Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/$($release.id)/assets?per_page=100" -Method Get)
-          foreach($old in $existing){
-            Invoke-RestMethod -Headers $headers -Uri "$api/repos/$repo/releases/assets/$($old.id)" -Method Delete|Out-Null
-            Write-Host "DELETED_OLD_ASSET $($old.name)"
-          }
-          foreach($f in $files){
-            $escaped=[uri]::EscapeDataString($f.Name)
-            $asset=Invoke-RestMethod -Headers $headers -Uri "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$escaped" -Method Post -ContentType 'application/octet-stream' -InFile $f.FullName
+          foreach($file in $files){
+            $escaped=[uri]::EscapeDataString($file.Name)
+            $asset=Invoke-RestMethod -Headers $headers -Uri "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$escaped" -Method Post -ContentType 'application/octet-stream' -InFile $file.FullName
             Write-Host "UPLOADED $($asset.name) bytes=$($asset.size)"
           }
           Write-Host "RELEASE_URL=$($release.html_url)"
