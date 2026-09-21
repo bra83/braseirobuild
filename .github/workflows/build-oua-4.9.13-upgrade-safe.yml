@@ -96,6 +96,7 @@ jobs:
             'manual-text-model' = $whole.Contains('Texto principal / cenas importantes — ID manual')
             'manual-tts-model' = $whole.Contains('TTS — ID manual')
             'tts-runtime-override' = $whole.Contains('getGeminiTtsModel') -and $whole.Contains('getTtsModels()')
+            'tts-cache-v9' = $whole.Contains('tts-v9-')
             'important-scene-main-model' = $whole.Contains('const importantScene') -and $whole.Contains('maxOutputTokens: importantScene ? 6800 : 4200')
             'opening-no-silent-fallback' = $whole.Contains('Nenhum texto local curto foi usado')
             'opening-rag-safe' = $whole.Contains('abertura narrativa sem regra aplicável')
