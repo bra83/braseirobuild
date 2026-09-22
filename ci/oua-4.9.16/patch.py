@@ -93,6 +93,39 @@ if changed != 1:
     if 'data-party-world-anchored="true"' not in emap:
         raise SystemExit("PartyCluster world-layer render anchor missing")
 
+# Center the atlas from the same canonical currentHexId used by the party
+# marker. This removes a race where an empty discovery record could leave the
+# world-space marker outside the initial viewport even though master state
+# already had the correct hex.
+center_pattern = re.compile(
+    r"""  const hasInitialCentered = useRef\(false\);
+  useEffect\(\(\) => \{
+    if \(manifest && discovery\?\.currentHexId && size\.width > 0 && !hasInitialCentered\.current\) \{
+      // Small timeout to ensure container dimensions are settled
+      const timer = setTimeout\(\(\) => \{
+        centerOnHex\(discovery\.currentHexId!, 0\.7\);
+        hasInitialCentered\.current = true;
+      \}, 100\);
+      return \(\) => clearTimeout\(timer\);
+    \}
+  \}, \[manifest, discovery\?\.currentHexId, size\.width, centerOnHex\]\);""",
+    re.M,
+)
+center_replacement = """  const hasInitialCentered = useRef(false);
+  const canonicalPartyHexId = currentHexId || discovery?.currentHexId || null;
+  useEffect(() => {
+    if (manifest && canonicalPartyHexId && size.width > 0 && !hasInitialCentered.current) {
+      const timer = setTimeout(() => {
+        centerOnHex(canonicalPartyHexId, 0.7);
+        hasInitialCentered.current = true;
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [manifest, canonicalPartyHexId, size.width, centerOnHex]);"""
+emap, center_changed = center_pattern.subn(center_replacement, emap, count=1)
+if center_changed != 1 and "const canonicalPartyHexId = currentHexId || discovery?.currentHexId || null;" not in emap:
+    raise SystemExit("canonical initial-centering anchor missing")
+
 write(map_rel, emap)
 
 cluster_rel = "components/immersive/PartyCluster.tsx"
@@ -171,6 +204,7 @@ checks = {
     "party world transform": 'data-party-world-anchored="true"' in emap and "translate3d(" in emap and "scale(" in emap,
     "screen-space projection removed": "currentPartyPresentation.left" not in emap and "currentPartyPresentation.top" not in emap,
     "party map marker scales with camera": "position={{ left: currentPartyPresentation.mapX, top: currentPartyPresentation.mapY }}" in emap,
+    "initial camera uses canonical party hex": "const canonicalPartyHexId = currentHexId || discovery?.currentHexId || null;" in emap,
     "hard shadow strips removed for map marker": 'data-party-soft-shadow="true"' in cluster,
     "base breathing room": 'data-party-base="true"' in cluster and "width: '98%'" in cluster and "left: '1%'" in cluster,
     "version": "4.9.16" in read(version_rel) and "49016" in read(gradle_rel),
