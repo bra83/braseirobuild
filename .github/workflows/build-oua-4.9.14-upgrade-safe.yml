@@ -350,3 +350,5 @@ jobs:
 # retry capture with runtime bundled map manifest
 
 # retry capture with persisted audit party token
+
+# retry with resilient stored-party token path
