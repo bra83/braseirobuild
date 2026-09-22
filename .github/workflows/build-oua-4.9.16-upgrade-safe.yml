@@ -350,3 +350,4 @@ jobs:
           Write-Host "RELEASE_URL=$($release.html_url)"
 
 # 4.9.16 world-anchored party pan/zoom validation
+# trigger after real map-marker sizing fix
