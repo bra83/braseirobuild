@@ -99,18 +99,18 @@ cluster_rel = "components/immersive/PartyCluster.tsx"
 cluster = read(cluster_rel)
 
 # Root marker: slightly larger world-space box, no viewport max-size clamps,
-# explicit visible overflow. The parent world layer now supplies map zoom.
-cluster = cluster.replace(
-"""      zIndex: mapMarker ? 45 : 35,
-      height: mapMarker ? 96 : 122, width: mapMarker ? 116 : 148,
-      maxWidth: mapMarker ? '30vw' : '38vw', maxHeight: mapMarker ? '14vh' : '18vh', overflow: 'visible',
-      filter: mapMarker ? 'drop-shadow(0 5px 5px rgba(0,0,0,.65))' : undefined,""",
-"""      zIndex: mapMarker ? 45 : 35,
-      height: mapMarker ? 112 : 122, width: mapMarker ? 136 : 148,
+# explicit visible overflow. Use regex because 4.9.15 may carry small formatting
+# differences from earlier source snapshots.
+cluster, root_changed = re.subn(
+    r"""(\s*zIndex:\s*mapMarker\s*\?\s*45\s*:\s*35,\s*\n)\s*height:\s*mapMarker\s*\?\s*\d+\s*:\s*122,\s*width:\s*mapMarker\s*\?\s*\d+\s*:\s*148,\s*\n\s*maxWidth:\s*mapMarker\s*\?\s*'30vw'\s*:\s*'38vw',\s*maxHeight:\s*mapMarker\s*\?\s*'14vh'\s*:\s*'18vh',\s*overflow:\s*'visible',\s*\n""",
+    r"""\1      height: mapMarker ? 112 : 122, width: mapMarker ? 136 : 148,
       maxWidth: mapMarker ? undefined : '38vw', maxHeight: mapMarker ? undefined : '18vh', overflow: 'visible',
-      filter: mapMarker ? 'drop-shadow(0 5px 5px rgba(0,0,0,.65))' : undefined,""",
-1,
+""",
+    cluster,
+    count=1,
 )
+if root_changed != 1 and "maxWidth: mapMarker ? undefined" not in cluster:
+    raise SystemExit("PartyCluster root size/clamp anchor missing")
 
 # Replace the map-marker shadow image with a soft CSS ellipse. The original
 # shadow asset is the source of the hard/cropped horizontal strips visible on
