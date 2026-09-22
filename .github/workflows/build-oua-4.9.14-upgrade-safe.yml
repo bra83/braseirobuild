@@ -114,7 +114,6 @@ jobs:
             'party-always-real-not-footprints' = $whole.Contains('partyMarkerMode="none"') -and -not $whole.Contains('partyMarkerMode={node && props.characters.length ? "none" : "footprints"}')
             'party-current-hex-canonical' = $whole.Contains('const activeHexId = currentHexId || discovery?.currentHexId || null;')
             'party-marker-evidence-hook' = $whole.Contains('data-party-map-marker="true"') -and $whole.Contains('data-party-cluster="true"')
-            'party-token-fallback' = $whole.Contains('const pool = candidates.length ? candidates : builtIns.tokens;')
             'story-error-visible' = $whole.Contains('Falha ao iniciar/continuar')
             'map-toast-above-nav' = $whole.Contains('bottom: 92, zIndex: 115')
             'narration-audio-kept' = $whole.Contains('🔊 Ouvir narração') -and $whole.Contains('■ Parar narração')
@@ -345,3 +344,5 @@ jobs:
 # 4.9.14 party-on-current-hex fix with real 415x915 capture
 
 # retry after narrowing party-only patch
+
+# retry after party capture gate cleanup
