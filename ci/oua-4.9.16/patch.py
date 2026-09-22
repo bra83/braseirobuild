@@ -131,6 +131,23 @@ write(map_rel, emap)
 cluster_rel = "components/immersive/PartyCluster.tsx"
 cluster = read(cluster_rel)
 
+# 4.9.16 uses mapMarker for map-only base/shadow behavior. Older upgrade
+# baselines may retain the prop in the interface while omitting it from the
+# component destructuring, which would become a runtime ReferenceError.
+if "mapMarker = false" not in cluster:
+    signature_patterns = [
+        ("({ characters, manifest, position }) =>", "({ characters, manifest, position, mapMarker = false }) =>"),
+        ("({ characters, manifest, position, mapMarker }) =>", "({ characters, manifest, position, mapMarker = false }) =>"),
+    ]
+    repaired = False
+    for old_sig, new_sig in signature_patterns:
+        if old_sig in cluster:
+            cluster = cluster.replace(old_sig, new_sig, 1)
+            repaired = True
+            break
+    if not repaired:
+        raise SystemExit("PartyCluster mapMarker prop is not in component scope")
+
 # Never let an empty/late portrait list suppress the map marker. 4.9.15 added
 # visiblePortraits fallback, but remove any surviving legacy early-return from
 # older source variants as well.
@@ -201,6 +218,7 @@ cluster = read(cluster_rel)
 checks = {
     "party world coordinates": "mapX: hex.centerX, mapY: hex.centerY" in emap,
     "party never suppressed by empty portraits": not re.search(r"if\s*\(\s*!portraits\.length\s*\)\s*return\s+null", cluster),
+    "PartyCluster mapMarker prop scoped": "mapMarker = false" in cluster,
     "party world transform": 'data-party-world-anchored="true"' in emap and "translate3d(" in emap and "scale(" in emap,
     "screen-space projection removed": "currentPartyPresentation.left" not in emap and "currentPartyPresentation.top" not in emap,
     "party map marker scales with camera": "position={{ left: currentPartyPresentation.mapX, top: currentPartyPresentation.mapY }}" in emap,
