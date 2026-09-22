@@ -1,0 +1,178 @@
+name: Pathfinder 2e 9.0.25 R24 APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-pf2-9.0.25-r24.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TAG: 'PATHFINDER2E-9.0.25-R24'
+  APK_NAME: 'Braseiro_Pathfinder2e_9.0.25_R24_DEBUG.apk'
+  SOURCE_SHA256: '94154c248cccfeee8e596df7a629597b66bd6076709f06c5fb06c9a9cdf55374'
+
+jobs:
+  build-release:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Download exact R24 source
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          SHARE_ID: 'YaXO0_od5lc_'
+          FILE_ID: '01a0c70a2204720c848788b759100904'
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA runner, got $env:RUNNER_NAME" }
+
+          $incoming=Join-Path $env:RUNNER_TEMP 'pf2-r24-in'
+          $work=Join-Path $env:RUNNER_TEMP 'pf2-r24-work'
+          Remove-Item $incoming,$work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming,$work -Force | Out-Null
+
+          $api='https://api.firestorage.ai/dev/file'
+          $d=Invoke-RestMethod -Method Post -Uri "$api/shares/$env:SHARE_ID/files/$env:FILE_ID/download"
+          if(-not $d.downloadUrl){throw 'downloadUrl missing'}
+          $zip=Join-Path $incoming 'source.zip'
+          Invoke-WebRequest -Uri $d.downloadUrl -OutFile $zip
+
+          $hash=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($hash -ne $env:SOURCE_SHA256){throw "SHA mismatch $hash"}
+
+          & tar.exe -xf $zip -C $work
+          if($LASTEXITCODE -ne 0){throw 'extract failed'}
+          if(-not (Test-Path (Join-Path $work 'gradlew.bat'))){throw 'gradlew.bat missing'}
+
+          $vp=Get-Content (Join-Path $work 'version.properties') -Raw
+          if($vp -notmatch 'VERSION_NAME=9\.0\.25'){throw 'VERSION_NAME mismatch'}
+          if($vp -notmatch 'VERSION_CODE=90025'){throw 'VERSION_CODE mismatch'}
+
+          $atlas=Join-Path $work 'android\app\src\main\assets\pathfinder\atlas\inner_sea_canonical_v6_grid_native_hires_compat.zip'
+          $atlasHash=(Get-FileHash $atlas -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($atlasHash -ne '341c8468de88fcd7dc888419a7c2323383118185f94f4893af4672b53dc683c6'){throw "Atlas SHA mismatch: $atlasHash"}
+
+          "WORK_ROOT=$work" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Configure Android SDK
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          $candidates=@('C:\actions-runner\android-sdk')
+          if($env:ANDROID_SDK_ROOT){$candidates += $env:ANDROID_SDK_ROOT}
+          if($env:ANDROID_HOME){$candidates += $env:ANDROID_HOME}
+          if($env:LOCALAPPDATA){$candidates += (Join-Path $env:LOCALAPPDATA 'Android\Sdk')}
+          $candidates += 'C:\Android\Sdk'
+          $sdk=$null;$mgr=$null
+          foreach($c in ($candidates|Select-Object -Unique)){
+            if(-not(Test-Path $c)){continue}
+            $f=Get-ChildItem $c -Recurse -Filter sdkmanager.bat -File -ErrorAction SilentlyContinue|Select-Object -First 1
+            if($f){$sdk=$c;$mgr=$f.FullName;break}
+          }
+          if(-not $mgr){throw 'Android SDK not found'}
+          "ANDROID_HOME=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          (Split-Path $mgr) | Out-File $env:GITHUB_PATH -Append -Encoding utf8
+          (Join-Path $sdk 'platform-tools') | Out-File $env:GITHUB_PATH -Append -Encoding utf8
+          1..100 | % {'y'} | & $mgr --licenses | Out-Null
+          & $mgr 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
+          if($LASTEXITCODE -ne 0){throw 'sdkmanager failed'}
+
+      - name: Build APK
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Continue'
+          $log=Join-Path $env:RUNNER_TEMP 'PF2_R24_GRADLE_BUILD.log'
+          Remove-Item $log -Force -ErrorAction SilentlyContinue
+          & .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath $log
+          $code=$LASTEXITCODE
+          if($code -ne 0){throw "assembleDebug failed with exit code $code"}
+          "BUILD_LOG=$log" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Validate and collect APK
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          $apk=Get-ChildItem $env:WORK_ROOT -Recurse -Filter '*.apk' -File |
+            Where-Object {$_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]debug[\\/]'} |
+            Select-Object -First 1
+          if(-not $apk){throw 'APK not found'}
+
+          $out=Join-Path $env:RUNNER_TEMP 'pf2-r24-out'
+          Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $dest=Join-Path $out $env:APK_NAME
+          Copy-Item $apk.FullName $dest -Force
+
+          $hash=(Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:APK_NAME" | Set-Content "$dest.sha256" -Encoding ascii
+
+          $bt=Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory |
+            Sort-Object {[version]($_.Name -replace '[^0-9.]','')} -Descending | Select-Object -First 1
+          $aapt=Join-Path $bt.FullName 'aapt.exe'
+          $badging=Join-Path $out 'APK_BADGING.txt'
+          & $aapt dump badging $dest 2>&1 | Tee-Object -FilePath $badging
+          $text=Get-Content $badging -Raw
+          if($text -notmatch "package: name='com\.braseiro\.pathfinder2e'"){throw 'applicationId mismatch'}
+          if($text -notmatch "versionCode='90025'"){throw 'versionCode mismatch'}
+
+          Copy-Item $env:BUILD_LOG (Join-Path $out 'GRADLE_BUILD.log') -Force
+          "APK_OUT=$out" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "APK_SHA256=$hash" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "APK_SHA256=$hash"
+          Write-Host "APK_BYTES=$((Get-Item $dest).Length)"
+
+      - name: Create or update GitHub Release and upload APK
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $repo=$env:GITHUB_REPOSITORY
+          $headers=@{
+            'Authorization'="Bearer $env:GITHUB_TOKEN"
+            'Accept'='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='BRELGA-PF2-R24'
+          }
+
+          $encoded=[uri]::EscapeDataString($env:TAG)
+          try {
+            $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$encoded"
+          } catch {
+            $body=@{
+              tag_name=$env:TAG
+              target_commitish='main'
+              name='Braseiro Pathfinder 2e 9.0.25 R24'
+              body='Kingmaker Solo R24. Motor Barbara hard-gates the first scene at 500-850 words and 5-7 substantial paragraphs, with no cache/offline/partial substitute. Named NPCs require structured persistent physical identity before portrait generation. R23 TTS Director preserved. Exact source SHA verified before build.'
+              draft=$false
+              prerelease=$false
+            }|ConvertTo-Json
+            $release=Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $body -Uri "https://api.github.com/repos/$repo/releases"
+          }
+
+          foreach($file in Get-ChildItem $env:APK_OUT -File){
+            $existing=$release.assets|Where-Object {$_.name -eq $file.Name}|Select-Object -First 1
+            if($existing){
+              Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($existing.id)" | Out-Null
+            }
+            $encodedName=[uri]::EscapeDataString($file.Name)
+            $upload="https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$encodedName"
+            & curl.exe -L --fail --retry 5 --retry-delay 3 --request POST --header "Authorization: Bearer $env:GITHUB_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" --header "Content-Type: application/octet-stream" --data-binary "@$($file.FullName)" $upload
+            if($LASTEXITCODE -ne 0){throw "upload failed for $($file.Name)"}
+          }
+
+          Write-Host "RELEASE_URL=$($release.html_url)"
