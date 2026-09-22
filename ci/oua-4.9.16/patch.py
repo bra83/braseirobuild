@@ -103,15 +103,17 @@ cluster = read(cluster_rel)
 # older source variants as well.
 cluster = re.sub(r"\s*if\s*\(\s*!portraits\.length\s*\)\s*return\s+null\s*;\s*", "\n", cluster, count=1)
 
-# The PartyCluster now lives under the map/world transform, so its legacy
-# viewport max-size values are resolved BEFORE the parent transform and no
-# longer pin it to screen space. Keep the stable baseline layout untouched.
-# These validation tokens document the effective world-layer policy used by
-# the real pan/zoom gate below.
-if "maxWidth: mapMarker ? undefined" not in cluster:
-    cluster += "\n// OUA_4_9_16_WORLD_LAYER_POLICY: maxWidth: mapMarker ? undefined\n"
-if "maxHeight: mapMarker ? undefined" not in cluster:
-    cluster += "// OUA_4_9_16_WORLD_LAYER_POLICY: maxHeight: mapMarker ? undefined\n"
+# In map-marker mode the party must scale only with the atlas camera. Remove
+# viewport caps and enlarge the world-space marker box enough for the complete
+# base silhouette. Non-map usages keep the old responsive caps.
+marker_box_old = """      height: mapMarker ? 96 : 122, width: mapMarker ? 116 : 148,
+      maxWidth: mapMarker ? '30vw' : '38vw', maxHeight: mapMarker ? '14vh' : '18vh', overflow: 'visible',"""
+marker_box_new = """      height: mapMarker ? 122 : 122, width: mapMarker ? 148 : 148,
+      maxWidth: mapMarker ? undefined : '38vw', maxHeight: mapMarker ? undefined : '18vh', overflow: 'visible',"""
+if marker_box_old in cluster:
+    cluster = cluster.replace(marker_box_old, marker_box_new, 1)
+elif "maxWidth: mapMarker ? undefined" not in cluster or "maxHeight: mapMarker ? undefined" not in cluster:
+    raise SystemExit("PartyCluster map-marker sizing anchor missing")
 
 # Replace the map-marker shadow image with a soft CSS ellipse. The original
 # shadow asset is the source of the hard/cropped horizontal strips visible on
