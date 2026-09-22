@@ -1,0 +1,352 @@
+name: OUA 4.9.16 World-Anchored Party
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-oua-4.9.16-upgrade-safe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: oua-4.9.16-upgrade-safe
+  cancel-in-progress: true
+
+env:
+  BASE_TAG: "OUA-v4.9.15"
+  BASE_APK: "BRASEIRO_O_UM_ANEL_4.9.15_UPDATE.apk"
+  BASE_SOURCE: "OUA_4.9.15_UPGRADE_SAFE_ANDROID_STUDIO.zip"
+  TAG: "OUA-v4.9.16"
+  APK_NAME: "BRASEIRO_O_UM_ANEL_4.9.16_UPDATE.apk"
+  SOURCE_NAME: "OUA_4.9.16_UPGRADE_SAFE_ANDROID_STUDIO.zip"
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 120
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Prepare 4.9.15 installed-compatible baseline
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA; got $env:RUNNER_NAME" }
+
+          $python = Get-Command python.exe -ErrorAction SilentlyContinue
+          if (-not $python) { $python = Get-Command python -ErrorAction Stop }
+
+          $work = Join-Path $env:RUNNER_TEMP 'oua-4916-upgrade'
+          $incoming = Join-Path $work 'incoming'
+          $extract = Join-Path $work 'extract'
+          $out = Join-Path $work 'out'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming,$extract,$out -Force | Out-Null
+
+          $headers = @{
+            'Authorization' = "Bearer $env:GITHUB_TOKEN"
+            'Accept' = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'oua-4916-upgrade-safe'
+          }
+          $repo = $env:GITHUB_REPOSITORY
+          $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:BASE_TAG"
+
+          foreach ($name in @($env:BASE_APK, $env:BASE_SOURCE)) {
+            $asset = @($release.assets | Where-Object { $_.name -eq $name -and $_.state -eq 'uploaded' }) | Select-Object -First 1
+            if (-not $asset) { throw "Missing baseline asset: $name" }
+            $dest = Join-Path $incoming $name
+            & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $dest $asset.url
+            if ($LASTEXITCODE -ne 0 -or -not (Test-Path $dest)) { throw "Baseline download failed: $name" }
+          }
+
+          & tar.exe -xf (Join-Path $incoming $env:BASE_SOURCE) -C $extract
+          if ($LASTEXITCODE -ne 0) { throw 'Could not extract 4.9.15 source' }
+
+          $pkg = Get-ChildItem $extract -Recurse -File -Filter package.json |
+            Where-Object { Test-Path (Join-Path $_.Directory.FullName 'android') } |
+            Sort-Object { $_.FullName.Length } |
+            Select-Object -First 1
+          if (-not $pkg) { throw '4.9.15 Android Studio root not found' }
+          $root = $pkg.Directory.FullName
+
+          & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.16\patch.py" $root
+          if ($LASTEXITCODE -ne 0) { throw '4.9.16 patch failed' }
+
+          $db = Get-Content (Join-Path $root 'lib\db.ts') -Raw
+          $gradle = Get-Content (Join-Path $root 'android\app\build.gradle.kts') -Raw
+          $manifest = Get-Content (Join-Path $root 'android\app\src\main\AndroidManifest.xml') -Raw
+          $whole = (Get-ChildItem $root -Recurse -File -Include *.ts,*.tsx,*.kt,*.java | ForEach-Object { Get-Content $_.FullName -Raw }) -join "`n"
+
+          $gates = @{
+            'same-db-name' = $db.Contains("const DB_NAME = 'braseiro-db';")
+            'same-db-version' = $db.Contains('const DB_VERSION = 19;')
+            'no-indexeddb-delete' = -not $whole.Contains('indexedDB.deleteDatabase')
+            'no-app-data-clear' = (-not $whole.Contains('clearApplicationUserData')) -and (-not $whole.Contains('pm clear'))
+            'version-4.9.16' = $gradle.Contains('versionName = "4.9.16"')
+            'version-code-49016' = $gradle.Contains('versionCode = 49016')
+            'gemini-flow-kept' = $whole.Contains('com.google.android.apps.bard')
+            'map-first-shell-kept' = $whole.Contains('data-braseiro-chronicle-sheet')
+            'manual-text-model' = $whole.Contains('Texto principal / cenas importantes — ID manual')
+            'manual-tts-model' = $whole.Contains('TTS — ID manual')
+            'tts-runtime-override' = $whole.Contains('getGeminiTtsModel') -and $whole.Contains('getTtsModels()')
+            'tts-cache-v9' = $whole.Contains('tts-v9-')
+            'tts-chunked-prefetch' = $whole.Contains('splitRange(text, 0, text.length, 680)')
+            'tts-completeness-guard' = $whole.Contains('minimumCompleteDurationMs')
+            'gemini-text-test-control' = $whole.Contains('Testar modelo de texto principal')
+            'gemini-tts-test-control' = $whole.Contains('Testar modelo TTS com Charon') -and $whole.Contains('playGeneratedVoice(artifact.token, 1)')
+            'important-scene-main-model' = $whole.Contains('const importantScene') -and $whole.Contains('maxOutputTokens: importantScene ? 6800 : 4200')
+            'opening-no-silent-fallback' = $whole.Contains('Nenhum texto local curto foi usado')
+            'opening-rag-safe' = $whole.Contains('abertura narrativa sem regra aplicável')
+            'opening-long-default' = $whole.Contains('balanced: { words: 280, paragraphs: 4 }')
+            'generation-provenance' = $whole.Contains('generationModel') -and $whole.Contains('generationSource')
+            'auto-open-after-start' = $whole.Contains('await props.onStartAdventure();') -and $whole.Contains('startAdventureFromMap')
+            'party-always-real-not-footprints' = $whole.Contains('partyMarkerMode="none"') -and -not $whole.Contains('partyMarkerMode={node && props.characters.length ? "none" : "footprints"}')
+            'party-current-hex-canonical' = $whole.Contains('const activeHexId = currentHexId || discovery?.currentHexId || null;')
+            'party-marker-evidence-hook' = $whole.Contains('data-party-map-marker="true"') -and $whole.Contains('data-party-cluster="true"')
+            'current-hex-excludes-route-footprints' = $whole.Contains('if (immersive && activePartyHexId && hex.id === activePartyHexId) return;')
+            'party-fallback-visible' = $whole.Contains('FALLBACK_TRAVELER') -and $whole.Contains('visiblePortraits')
+            'party-does-not-wait-for-token-hydration' = $whole.Contains('if (!immersive || !activeHexId) return null;')
+            'map-redraw-marker-dependencies' = $whole.Contains('currentHexId, discovery') -and $whole.Contains('partyMarkerMode, selected')
+            'party-world-coordinates' = $whole.Contains('mapX: hex.centerX, mapY: hex.centerY')
+            'party-world-layer-transform' = $whole.Contains('data-party-world-anchored="true"') -and $whole.Contains('translate3d(') -and $whole.Contains('scale(')
+            'party-no-screen-space-left-top' = (-not $whole.Contains('currentPartyPresentation.left')) -and (-not $whole.Contains('currentPartyPresentation.top'))
+            'party-map-marker-no-viewport-clamp' = $whole.Contains('maxWidth: mapMarker ? undefined') -and $whole.Contains('maxHeight: mapMarker ? undefined')
+            'party-soft-shadow-no-hard-wings' = $whole.Contains('data-party-soft-shadow="true"')
+            'party-base-breathing-room' = $whole.Contains('data-party-base="true"') -and $whole.Contains("width: '98%'") -and $whole.Contains("left: '1%'")
+            'story-error-visible' = $whole.Contains('Falha ao iniciar/continuar')
+            'map-toast-above-nav' = $whole.Contains('bottom: 92, zIndex: 115')
+            'narration-audio-kept' = $whole.Contains('🔊 Ouvir narração') -and $whole.Contains('■ Parar narração')
+            'fixed-actions-kept' = $whole.Contains('Ações rápidas')
+            'npc-entities-kept' = $whole.Contains('NPCs presentes')
+          }
+
+          $validation = Join-Path $out 'UPGRADE_COMPATIBILITY_SOURCE.txt'
+          foreach ($entry in $gates.GetEnumerator() | Sort-Object Name) {
+            $status = if ($entry.Value) { 'PASS' } else { 'FAIL' }
+            ($status + ' - ' + $entry.Name) | Tee-Object -FilePath $validation -Append
+          }
+          if (@($gates.GetEnumerator() | Where-Object { -not $_.Value }).Count -gt 0) { throw 'Upgrade-safety source gate failed' }
+
+          $lockPath = Join-Path $root 'package-lock.json'
+          if (Test-Path $lockPath) {
+            $lockText = Get-Content $lockPath -Raw
+            $lockText = [regex]::Replace($lockText, 'https://[^"]*/artifactory/api/npm/npm-public/', 'https://registry.npmjs.org/')
+            [System.IO.File]::WriteAllText($lockPath, $lockText, (New-Object System.Text.UTF8Encoding($false)))
+          }
+
+          "OUA_ROOT=$root" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "OUA_OUT=$out" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "BASE_APK_PATH=$(Join-Path $incoming $env:BASE_APK)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build web runtime
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Push-Location $env:OUA_ROOT
+          try {
+            $env:npm_config_registry = 'https://registry.npmjs.org/'
+            $env:npm_config_replace_registry_host = 'always'
+            $env:npm_config_fetch_retries = '5'
+            $ok = $false
+            for ($attempt = 1; $attempt -le 3; $attempt++) {
+              & npm.cmd ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
+              if ($LASTEXITCODE -eq 0) { $ok = $true; break }
+              Start-Sleep -Seconds (3 * $attempt)
+            }
+            if (-not $ok) { throw 'npm ci failed' }
+
+            $previousErrorAction = $ErrorActionPreference
+            $ErrorActionPreference = 'Continue'
+            if (Test-Path variable:PSNativeCommandUseErrorActionPreference) { $PSNativeCommandUseErrorActionPreference = $false }
+            & npm.cmd run build:offline 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'OFFLINE_BUILD.log')
+            $offlineExit = $LASTEXITCODE
+            $ErrorActionPreference = $previousErrorAction
+            if ($offlineExit -ne 0) { throw "build:offline failed with exit code $offlineExit" }
+
+            & node.exe scripts/use-offline-dist.mjs
+            if ($LASTEXITCODE -ne 0) { throw 'use-offline-dist failed' }
+            & node.exe scripts/sync-android-assets.mjs
+            if ($LASTEXITCODE -ne 0) { throw 'sync-android-assets failed' }
+          } finally { Pop-Location }
+
+      - name: Capture world-anchored party pan+zoom evidence 415x915
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Push-Location $env:OUA_ROOT
+          try {
+            [IO.File]::WriteAllText((Join-Path $env:OUA_ROOT 'party-app-audit.html'), [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('PCFkb2N0eXBlIGh0bWw+CjxodG1sPjxoZWFkPjxtZXRhIGNoYXJzZXQ9IlVURi04Ii8+PG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCxpbml0aWFsLXNjYWxlPTEiLz48dGl0bGU+T1VBIDQuOS4xNSBhcHAgYXVkaXQ8L3RpdGxlPjwvaGVhZD4KPGJvZHkgc3R5bGU9Im1hcmdpbjowO2JhY2tncm91bmQ6IzBkMGEwNyI+PGRpdiBpZD0icm9vdCI+PC9kaXY+PHNjcmlwdCB0eXBlPSJtb2R1bGUiIHNyYz0iL3BhcnR5LWFwcC1hdWRpdC50c3giPjwvc2NyaXB0PjwvYm9keT48L2h0bWw+Cg==')))
+            [IO.File]::WriteAllText((Join-Path $env:OUA_ROOT 'party-app-audit.tsx'), [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('aW1wb3J0IFJlYWN0LCB7IHVzZUVmZmVjdCwgdXNlU3RhdGUgfSBmcm9tICdyZWFjdCc7CmltcG9ydCB7IGNyZWF0ZVJvb3QgfSBmcm9tICdyZWFjdC1kb20vY2xpZW50JzsKaW1wb3J0IHsgSW1tZXJzaXZlSm91cm5leVZpZXcgfSBmcm9tICcuL2NvbXBvbmVudHMvaW1tZXJzaXZlL0ltbWVyc2l2ZUpvdXJuZXlWaWV3JzsKaW1wb3J0IHsgbG9hZFJ1bnRpbWVNYXBNYW5pZmVzdCB9IGZyb20gJy4vbGliL21hcCc7CmltcG9ydCAnLi9pbmRleC5jc3MnOwoKZnVuY3Rpb24gQXVkaXQoKSB7CiAgY29uc3QgW2hleElkLCBzZXRIZXhJZF0gPSB1c2VTdGF0ZTxzdHJpbmcgfCBudWxsPihudWxsKTsKICB1c2VFZmZlY3QoKCkgPT4gewogICAgdm9pZCBsb2FkUnVudGltZU1hcE1hbmlmZXN0KCkudGhlbihtYW5pZmVzdCA9PiB7CiAgICAgIGNvbnN0IGhleCA9IG1hbmlmZXN0Py5oZXhlcy5maW5kKChpdGVtOmFueSkgPT4gaXRlbS5wbGF5YWJsZSkgfHwgbWFuaWZlc3Q/LmhleGVzWzBdIHx8IG51bGw7CiAgICAgIHNldEhleElkKGhleD8uaWQgfHwgbnVsbCk7CiAgICB9KTsKICB9LCBbXSk7CiAgaWYgKCFoZXhJZCkgcmV0dXJuIDxkaXYgc3R5bGU9e3tjb2xvcjonI2ZmZicscGFkZGluZzoyNH19PkNhcnJlZ2FuZG8gbWFwYSByZWFsLi4uPC9kaXY+OwoKICBjb25zdCBtYXN0ZXJTdGF0ZTphbnkgPSB7CiAgICBwb3NpdGlvbjogeyBjdXJyZW50SGV4SWQ6IGhleElkLCBsb2NhdGlvbk5hbWU6ICdBIENhbXBpbmEnIH0sCiAgICB3b3JsZENsb2NrOiB7IGhvdXI6IDEyLCBzZWFzb246ICdzcHJpbmcnIH0sCiAgICB0aHJlYXRDbG9ja3M6IFtdLAogICAgbGl2aW5nV29ybGQ6IHsgc3Ryb25naG9sZHM6IFtdIH0sCiAgICBzY2VuZTogeyB0ZW5zaW9uOiAwIH0sCiAgfTsKICBjb25zdCBub2RlOmFueSA9IHsKICAgIGlkOiAnYXVkaXQtc2NlbmUnLAogICAgbG9jYXRpb246ICdBIENhbXBpbmEnLAogICAgd2VhdGhlcjogJ1RlbXBvIGFiZXJ0bycsCiAgICBhdG1vc3BoZXJpY19uYXJyYXRpb246ICdBIENvbXBhbmhpYSBvYnNlcnZhIGEgY2FtcGluYSBhbnRlcyBkZSBzZWd1aXIgdmlhZ2VtLicsCiAgICBhY3Rpb25fcmVzdWx0OiAnJywKICAgIGNob2ljZXM6IFtdLAogICAgbmFycmF0aXZlTWV0YTogeyBnZW5lcmF0aW9uU291cmNlOiAnZ2VtaW5pJywgZ2VuZXJhdGlvbk1vZGVsOiAnYXVkaXQtcnVudGltZScgfSwKICB9OwoKICByZXR1cm4gPEltbWVyc2l2ZUpvdXJuZXlWaWV3CiAgICBjYW1wYWlnbklkPSJwYXJ0eS1hcHAtdmlzdWFsLWF1ZGl0IgogICAgY3VycmVudE5vZGU9e25vZGV9CiAgICBjdXJyZW50SW1hZ2U9e251bGx9CiAgICBjaGFyYWN0ZXJzPXtbXX0KICAgIHByZXNlbnROcGNzPXtbXX0KICAgIG1hc3RlclN0YXRlPXttYXN0ZXJTdGF0ZX0KICAgIGN1c3RvbUFjdGlvbj0iIgogICAgc2V0Q3VzdG9tQWN0aW9uPXsoKSA9PiB7fX0KICAgIG9uQ2hvaWNlPXsoKSA9PiB7fX0KICAgIG9uQ3VzdG9tQWN0aW9uU3VibWl0PXsoZXZlbnQ6YW55KSA9PiBldmVudC5wcmV2ZW50RGVmYXVsdCgpfQogICAgb25QYXJ0eU1vdmVkPXthc3luYyAoKSA9PiB7fX0KICAgIG9uTWFwRGlzY292ZXJ5Q2hhbmdlZD17YXN5bmMgKCkgPT4ge319CiAgICBvblBhcnR5UmVzdGVkPXthc3luYyAoKSA9PiB7fX0KICAgIG9uT3BlbkRpY2U9eygpID0+IHt9fQogICAgb25TdGFydEFkdmVudHVyZT17YXN5bmMgKCkgPT4ge319CiAgICBjYW5TdGFydEFkdmVudHVyZT17dHJ1ZX0KICAgIGlzU3RvcnlMb2FkaW5nPXtmYWxzZX0KICAgIHN0b3J5RXJyb3I9e251bGx9CiAgICBvbkRpc21pc3NTdG9yeUVycm9yPXsoKSA9PiB7fX0KICAgIHBlbmRpbmdUZXN0PXtudWxsfQogICAgaXNOYXJyYXRpb25Mb2FkaW5nPXtmYWxzZX0KICAgIG5hcnJhdGlvbkVycm9yPXtudWxsfQogICAgb25QbGF5TmFycmF0aW9uPXthc3luYyAoKSA9PiB7fX0KICAgIG9uU3RvcE5hcnJhdGlvbj17KCkgPT4ge319CiAgICBvblNoYXJlU2NlbmVJbWFnZVByb21wdD17YXN5bmMgKCkgPT4ge319CiAgICBvblNoYXJlTnBjUG9ydHJhaXRQcm9tcHQ9e2FzeW5jICgpID0+IHt9fQogICAgb25OYXZpZ2F0ZT17KCkgPT4ge319CiAgLz47Cn0KY3JlYXRlUm9vdChkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgncm9vdCcpISkucmVuZGVyKDxBdWRpdC8+KTsK')))
+            [IO.File]::WriteAllText((Join-Path $env:OUA_ROOT 'party-app-audit.mjs'), [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('aW1wb3J0IGZzIGZyb20gJ25vZGU6ZnMnOwppbXBvcnQgeyBjaHJvbWl1bSB9IGZyb20gJ3BsYXl3cmlnaHQtY29yZSc7CmNvbnN0IGNhbmRpZGF0ZXMgPSBbCiAgJ0M6L1Byb2dyYW0gRmlsZXMvR29vZ2xlL0Nocm9tZS9BcHBsaWNhdGlvbi9jaHJvbWUuZXhlJywKICAnQzovUHJvZ3JhbSBGaWxlcyAoeDg2KS9Hb29nbGUvQ2hyb21lL0FwcGxpY2F0aW9uL2Nocm9tZS5leGUnLAogICdDOi9Qcm9ncmFtIEZpbGVzICh4ODYpL01pY3Jvc29mdC9FZGdlL0FwcGxpY2F0aW9uL21zZWRnZS5leGUnLAogICdDOi9Qcm9ncmFtIEZpbGVzL01pY3Jvc29mdC9FZGdlL0FwcGxpY2F0aW9uL21zZWRnZS5leGUnCl07CmNvbnN0IGV4ZSA9IGNhbmRpZGF0ZXMuZmluZChwID0+IGZzLmV4aXN0c1N5bmMocCkpOwppZiAoIWV4ZSkgdGhyb3cgbmV3IEVycm9yKCdDaHJvbWUvRWRnZSBub3QgZm91bmQgZm9yIHJlYWwgY2FwdHVyZScpOwoKY29uc3QgYnJvd3NlciA9IGF3YWl0IGNocm9taXVtLmxhdW5jaCh7aGVhZGxlc3M6dHJ1ZSwgZXhlY3V0YWJsZVBhdGg6ZXhlfSk7CmNvbnN0IHBhZ2UgPSBhd2FpdCBicm93c2VyLm5ld1BhZ2Uoe3ZpZXdwb3J0Ont3aWR0aDo0MTUsaGVpZ2h0OjkxNX0sIGRldmljZVNjYWxlRmFjdG9yOjF9KTsKY29uc3QgZXJyb3JzPVtdOwpwYWdlLm9uKCdwYWdlZXJyb3InLCBlID0+IGVycm9ycy5wdXNoKFN0cmluZyhlKSkpOwphd2FpdCBwYWdlLmdvdG8oJ2h0dHA6Ly8xMjcuMC4wLjE6NDE3OC9wYXJ0eS1hcHAtYXVkaXQuaHRtbCcse3dhaXRVbnRpbDonbmV0d29ya2lkbGUnfSk7Cgpjb25zdCBzaGVldCA9IHBhZ2UubG9jYXRvcignW2RhdGEtYnJhc2Vpcm8tY2hyb25pY2xlLXNoZWV0PSJ0cnVlIl0nKTsKaWYgKGF3YWl0IHNoZWV0LmNvdW50KCkpIGF3YWl0IHNoZWV0LmxvY2F0b3IoJ2J1dHRvblthcmlhLWxhYmVsPSJGZWNoYXIgY3LDtG5pY2EiXScpLmNsaWNrKCk7Cgpjb25zdCBtYXJrZXIgPSBwYWdlLmxvY2F0b3IoJ1tkYXRhLXBhcnR5LW1hcC1tYXJrZXI9InRydWUiXScpOwpjb25zdCBjbHVzdGVyID0gcGFnZS5sb2NhdG9yKCdbZGF0YS1wYXJ0eS1jbHVzdGVyPSJ0cnVlIl0nKTsKY29uc3QgYmFzZSA9IHBhZ2UubG9jYXRvcignW2RhdGEtcGFydHktYmFzZT0idHJ1ZSJdJyk7CmNvbnN0IHNvZnRTaGFkb3cgPSBwYWdlLmxvY2F0b3IoJ1tkYXRhLXBhcnR5LXNvZnQtc2hhZG93PSJ0cnVlIl0nKTsKYXdhaXQgY2x1c3Rlci53YWl0Rm9yKHtzdGF0ZTondmlzaWJsZScsIHRpbWVvdXQ6MzAwMDB9KTsKYXdhaXQgbWFya2VyLndhaXRGb3Ioe3N0YXRlOidhdHRhY2hlZCcsIHRpbWVvdXQ6MzAwMDB9KTsKYXdhaXQgYmFzZS53YWl0Rm9yKHtzdGF0ZTondmlzaWJsZScsIHRpbWVvdXQ6MzAwMDB9KTsKYXdhaXQgc29mdFNoYWRvdy53YWl0Rm9yKHtzdGF0ZTonYXR0YWNoZWQnLCB0aW1lb3V0OjMwMDAwfSk7Cgpjb25zdCB3b3JsZEFuY2hvcmVkID0gYXdhaXQgbWFya2VyLmdldEF0dHJpYnV0ZSgnZGF0YS1wYXJ0eS13b3JsZC1hbmNob3JlZCcpOwpjb25zdCBjdXJyZW50SGV4SWQgPSBhd2FpdCBtYXJrZXIuZ2V0QXR0cmlidXRlKCdkYXRhLXBhcnR5LWN1cnJlbnQtaGV4Jyk7CmlmICh3b3JsZEFuY2hvcmVkICE9PSAndHJ1ZScgfHwgIWN1cnJlbnRIZXhJZCkgdGhyb3cgbmV3IEVycm9yKCdQYXJ0eSBpcyBub3QgYXR0YWNoZWQgdG8gYSBjYW5vbmljYWwgd29ybGQtc3BhY2UgaGV4Jyk7Cgpjb25zdCBib3gwID0gYXdhaXQgY2x1c3Rlci5ib3VuZGluZ0JveCgpOwpjb25zdCBiYXNlMCA9IGF3YWl0IGJhc2UuYm91bmRpbmdCb3goKTsKaWYgKCFib3gwIHx8ICFiYXNlMCB8fCBib3gwLndpZHRoIDwgMjAgfHwgYm94MC5oZWlnaHQgPCAyMCkgdGhyb3cgbmV3IEVycm9yKCdQYXJ0eUNsdXN0ZXIvYmFzZSBpcyBub3QgdmlzaWJseSByZW5kZXJlZCcpOwoKY29uc3Qgb3ZlcmZsb3cgPSBhd2FpdCBjbHVzdGVyLmV2YWx1YXRlKGVsID0+IGdldENvbXB1dGVkU3R5bGUoZWwpLm92ZXJmbG93KTsKaWYgKG92ZXJmbG93ICE9PSAndmlzaWJsZScpIHRocm93IG5ldyBFcnJvcignUGFydHlDbHVzdGVyIGlzIGNsaXBwaW5nIGl0cyBvd24gYmFzZScpOwoKY29uc3QgY2FudmFzID0gcGFnZS5sb2NhdG9yKCdjYW52YXMnKTsKY29uc3QgY2IgPSBhd2FpdCBjYW52YXMuYm91bmRpbmdCb3goKTsKaWYgKCFjYikgdGhyb3cgbmV3IEVycm9yKCdNYXAgY2FudmFzIG1pc3NpbmcnKTsKCi8vIFBBTjogdGhlIHBhcnR5IG11c3QgbW92ZSB3aXRoIHRoZSBtYXAsIG5vdCByZW1haW4gcGlubmVkIHRvIHRoZSB2aWV3cG9ydC4KY29uc3Qgc3ggPSBjYi54ICsgTWF0aC5taW4oY2Iud2lkdGggLSA4MCwgTWF0aC5tYXgoODAsIGNiLndpZHRoICogMC40MikpOwpjb25zdCBzeSA9IGNiLnkgKyBNYXRoLm1pbihjYi5oZWlnaHQgLSAxNTAsIE1hdGgubWF4KDE4MCwgY2IuaGVpZ2h0ICogMC41OCkpOwphd2FpdCBwYWdlLm1vdXNlLm1vdmUoc3gsIHN5KTsKYXdhaXQgcGFnZS5tb3VzZS5kb3duKCk7CmF3YWl0IHBhZ2UubW91c2UubW92ZShzeCArIDY0LCBzeSArIDQ2LCB7c3RlcHM6OH0pOwphd2FpdCBwYWdlLm1vdXNlLnVwKCk7CmF3YWl0IHBhZ2Uud2FpdEZvclRpbWVvdXQoMTgwKTsKY29uc3QgYm94UGFuID0gYXdhaXQgY2x1c3Rlci5ib3VuZGluZ0JveCgpOwppZiAoIWJveFBhbikgdGhyb3cgbmV3IEVycm9yKCdQYXJ0eUNsdXN0ZXIgZGlzYXBwZWFyZWQgYWZ0ZXIgcGFuJyk7CmNvbnN0IHBhbkR4ID0gYm94UGFuLnggLSBib3gwLng7CmNvbnN0IHBhbkR5ID0gYm94UGFuLnkgLSBib3gwLnk7CmlmIChNYXRoLmFicyhwYW5EeCkgPCAyNCAmJiBNYXRoLmFicyhwYW5EeSkgPCAyNCkgewogIHRocm93IG5ldyBFcnJvcignUGFydHkgc3RheWVkIHBpbm5lZCB0byB0aGUgc2NyZWVuIGR1cmluZyBtYXAgcGFuJyk7Cn0KCi8vIFpPT006IG1hcmtlciBkaW1lbnNpb25zIG11c3QgY2hhbmdlIHdpdGggYXRsYXMgem9vbS4KYXdhaXQgcGFnZS5tb3VzZS5tb3ZlKGJveFBhbi54ICsgYm94UGFuLndpZHRoLzIsIGJveFBhbi55ICsgYm94UGFuLmhlaWdodC8yKTsKYXdhaXQgcGFnZS5tb3VzZS53aGVlbCgwLCAtNTIwKTsKYXdhaXQgcGFnZS53YWl0Rm9yVGltZW91dCgyNDApOwpjb25zdCBib3hab29tID0gYXdhaXQgY2x1c3Rlci5ib3VuZGluZ0JveCgpOwppZiAoIWJveFpvb20pIHRocm93IG5ldyBFcnJvcignUGFydHlDbHVzdGVyIGRpc2FwcGVhcmVkIGFmdGVyIHpvb20nKTsKY29uc3Qgem9vbVJhdGlvID0gYm94Wm9vbS53aWR0aCAvIGJveFBhbi53aWR0aDsKaWYgKHpvb21SYXRpbyA8IDEuMDgpIHRocm93IG5ldyBFcnJvcignUGFydHkgc2l6ZSBzdGF5ZWQgZml4ZWQgd2hpbGUgbWFwIHpvb21lZCcpOwoKLy8gQ2FwdHVyZSB0aGUgY29ycmVjdGVkIHJlYWwgZnVsbC1hcHAgcGF0aCBhZnRlciBwYW4rem9vbS4KY29uc3Qgb3V0ID0gcHJvY2Vzcy5lbnYuT1VBX09VVCArICcvT1VBXzQuOS4xNl9QQVJUWV9XT1JMRF9BTkNIT1JFRF80MTV4OTE1LnBuZyc7CmF3YWl0IHBhZ2Uuc2NyZWVuc2hvdCh7cGF0aDpvdXQsZnVsbFBhZ2U6ZmFsc2UsYW5pbWF0aW9uczonZGlzYWJsZWQnfSk7CmZzLndyaXRlRmlsZVN5bmMocHJvY2Vzcy5lbnYuT1VBX09VVCArICcvT1VBXzQuOS4xNl9QQVJUWV9XT1JMRF9BTkNIT1JFRF9DQVBUVVJFLmpzb24nLCBKU09OLnN0cmluZ2lmeSh7CiAgZW5naW5lOidDaHJvbWl1bS9FZGdlIHZpYSBQbGF5d3JpZ2h0JywKICB2aWV3cG9ydDonNDE1eDkxNScsCiAgYWN0dWFsQ29tcG9uZW50OidJbW1lcnNpdmVKb3VybmV5VmlldyArIEVyaWFkb3JNYXAgKyBQYXJ0eUNsdXN0ZXInLAogIGN1cnJlbnRIZXhJZCwKICB3b3JsZEFuY2hvcmVkLAogIGluaXRpYWxCb3g6Ym94MCwKICBhZnRlclBhbkJveDpib3hQYW4sCiAgcGFuRHgsCiAgcGFuRHksCiAgYWZ0ZXJab29tQm94OmJveFpvb20sCiAgem9vbVJhdGlvLAogIGJhc2VCb3g6YmFzZTAsCiAgY2x1c3Rlck92ZXJmbG93Om92ZXJmbG93LAogIHNvZnRTaGFkb3c6dHJ1ZSwKICBwYWdlRXJyb3JzOmVycm9ycwp9LG51bGwsMikpOwoKaWYgKGVycm9ycy5sZW5ndGgpIHRocm93IG5ldyBFcnJvcigncGFnZSBlcnJvcnM6ICcrZXJyb3JzLmpvaW4oJyB8ICcpKTsKYXdhaXQgYnJvd3Nlci5jbG9zZSgpOwo=')))
+            & npm.cmd install --no-save --no-package-lock playwright-core@1.55.0
+            if ($LASTEXITCODE -ne 0) { throw 'playwright-core install failed' }
+            $stdout = Join-Path $env:OUA_OUT 'PARTY_APP_CAPTURE_VITE.stdout.log'
+            $stderr = Join-Path $env:OUA_OUT 'PARTY_APP_CAPTURE_VITE.stderr.log'
+            $server = Start-Process -FilePath "node.exe" -ArgumentList @("node_modules/vite/bin/vite.js","--host","127.0.0.1","--port","4178") -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+            try {
+              $ready = $false
+              for ($i=0; $i -lt 60; $i++) {
+                Start-Sleep -Milliseconds 500
+                try {
+                  $resp = Invoke-WebRequest -UseBasicParsing "http://127.0.0.1:4178/party-app-audit.html" -TimeoutSec 2
+                  if ($resp.StatusCode -eq 200) { $ready = $true; break }
+                } catch {}
+              }
+              if (-not $ready) { throw 'Vite full-app visual-audit server did not start' }
+              & node.exe "party-app-audit.mjs"
+              if ($LASTEXITCODE -ne 0) { throw 'world-anchored party capture failed' }
+              if (-not (Test-Path (Join-Path $env:OUA_OUT 'OUA_4.9.16_PARTY_WORLD_ANCHORED_415x915.png'))) { throw 'world-anchored screenshot missing' }
+            } finally {
+              if ($server -and -not $server.HasExited) { Stop-Process -Id $server.Id -Force -ErrorAction SilentlyContinue }
+            }
+          } finally { Pop-Location }
+
+      - name: Configure Android SDK
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $candidates = @('C:\actions-runner\android-sdk')
+          if ($env:ANDROID_SDK_ROOT) { $candidates += $env:ANDROID_SDK_ROOT }
+          if ($env:ANDROID_HOME) { $candidates += $env:ANDROID_HOME }
+          if ($env:LOCALAPPDATA) { $candidates += (Join-Path $env:LOCALAPPDATA 'Android\Sdk') }
+          $sdkRoot = $candidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+          if (-not $sdkRoot) { throw 'Android SDK not found' }
+          $sdkmanager = Get-ChildItem $sdkRoot -Recurse -Filter sdkmanager.bat -File -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $sdkmanager) { throw 'sdkmanager.bat not found' }
+          $env:ANDROID_HOME = $sdkRoot
+          $env:ANDROID_SDK_ROOT = $sdkRoot
+          "ANDROID_HOME=$sdkRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdkRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          1..100 | ForEach-Object { 'y' } | & $sdkmanager.FullName --licenses | Out-Null
+          & $sdkmanager.FullName 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
+          if ($LASTEXITCODE -ne 0) { throw 'Android SDK setup failed' }
+
+      - name: Build update APK and verify install-over compatibility
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $android = Join-Path $env:OUA_ROOT 'android'
+          Push-Location $android
+          try {
+            $previous = $ErrorActionPreference
+            $ErrorActionPreference = 'Continue'
+            if (Test-Path variable:PSNativeCommandUseErrorActionPreference) { $PSNativeCommandUseErrorActionPreference = $false }
+            & .\gradlew.bat clean :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'GRADLE_BUILD.log')
+            $exit = $LASTEXITCODE
+            $ErrorActionPreference = $previous
+            if ($exit -ne 0) { throw "Gradle failed: $exit" }
+          } finally { Pop-Location }
+
+          $apk = Get-ChildItem (Join-Path $android 'app\build\outputs\apk\debug') -File -Filter '*.apk' | Select-Object -First 1
+          if (-not $apk) { throw '4.9.16 APK not found' }
+          $newApk = Join-Path $env:OUA_OUT $env:APK_NAME
+          Copy-Item $apk.FullName $newApk -Force
+
+          $buildTools = Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory |
+            Sort-Object { [version]($_.Name -replace '[^0-9.]','') } -Descending |
+            Select-Object -First 1
+          if (-not $buildTools) { throw 'build-tools missing' }
+          $aapt = Join-Path $buildTools.FullName 'aapt.exe'
+          $apksigner = Join-Path $buildTools.FullName 'apksigner.bat'
+
+          & $aapt dump badging $env:BASE_APK_PATH | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'BASE_APK_BADGING.txt')
+          & $aapt dump badging $newApk | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'NEW_APK_BADGING.txt')
+          $baseBadging = Get-Content (Join-Path $env:OUA_OUT 'BASE_APK_BADGING.txt') -Raw
+          $newBadging = Get-Content (Join-Path $env:OUA_OUT 'NEW_APK_BADGING.txt') -Raw
+
+          if ($baseBadging -notmatch "package: name='com\.braseiro\.oumanel'") { throw 'Baseline package differs' }
+          if ($newBadging -notmatch "package: name='com\.braseiro\.oumanel'") { throw 'New package differs' }
+          if ($baseBadging -notmatch "versionCode='49015'") { throw 'Baseline versionCode is not 49014' }
+          if ($newBadging -notmatch "versionCode='49016'") { throw 'New versionCode is not 49016' }
+
+          & $apksigner verify --verbose --print-certs $env:BASE_APK_PATH 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'BASE_APK_SIGNATURE.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'Baseline APK signature invalid' }
+          & $apksigner verify --verbose --print-certs $newApk 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'NEW_APK_SIGNATURE.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'New APK signature invalid' }
+
+          $baseSig = (Get-Content (Join-Path $env:OUA_OUT 'BASE_APK_SIGNATURE.txt') | Where-Object { $_ -match 'certificate SHA-256 digest:' } | Select-Object -First 1)
+          $newSig = (Get-Content (Join-Path $env:OUA_OUT 'NEW_APK_SIGNATURE.txt') | Where-Object { $_ -match 'certificate SHA-256 digest:' } | Select-Object -First 1)
+          if (-not $baseSig -or -not $newSig) { throw 'Could not read signer SHA-256' }
+          $baseDigest = ($baseSig -replace '.*digest:\s*','').Trim().ToLowerInvariant()
+          $newDigest = ($newSig -replace '.*digest:\s*','').Trim().ToLowerInvariant()
+          if ($baseDigest -ne $newDigest) { throw "SIGNATURE MISMATCH: installed update would fail. base=$baseDigest new=$newDigest" }
+
+          @(
+            'PASS - same applicationId com.braseiro.oumanel',
+            'PASS - versionCode increased 49015 -> 49016',
+            'PASS - signing certificate SHA-256 unchanged',
+            'PASS - IndexedDB name unchanged: braseiro-db',
+            'PASS - IndexedDB schema version unchanged: 19',
+            'PASS - no automatic app-data clearing code detected',
+            'RESULT - APK is eligible for Android install-over update without uninstalling the existing app.'
+          ) | Set-Content (Join-Path $env:OUA_OUT 'INSTALL_OVER_EXISTING_APP.txt') -Encoding utf8
+
+          $hash = (Get-FileHash $newApk -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:APK_NAME" | Set-Content "$newApk.sha256" -Encoding ascii
+
+      - name: Package upgrade-safe source
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Remove-Item (Join-Path $env:OUA_ROOT 'node_modules') -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item (Join-Path $env:OUA_ROOT 'android\.gradle') -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item (Join-Path $env:OUA_ROOT 'android\build') -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item (Join-Path $env:OUA_ROOT 'android\app\build') -Recurse -Force -ErrorAction SilentlyContinue
+          $zip = Join-Path $env:OUA_OUT $env:SOURCE_NAME
+          $parent = Split-Path $env:OUA_ROOT -Parent
+          $leaf = Split-Path $env:OUA_ROOT -Leaf
+          & tar.exe -a -c -f $zip -C $parent $leaf
+          if ($LASTEXITCODE -ne 0) { throw 'Source ZIP failed' }
+          $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:SOURCE_NAME" | Set-Content "$zip.sha256" -Encoding ascii
+
+      - name: Publish upgrade-safe release
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $repo = $env:GITHUB_REPOSITORY
+          $headers = @{
+            'Authorization' = "Bearer $env:GITHUB_TOKEN"
+            'Accept' = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'oua-499-upgrade-safe'
+          }
+
+          try {
+            $old = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:TAG"
+            if ($old.id) { Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$($old.id)" | Out-Null }
+          } catch {}
+
+          $payload = @{
+            tag_name = $env:TAG
+            target_commitish = $env:GITHUB_SHA
+            name = 'Braseiro O Um Anel 4.9.16 - PARTY ANCORADA AO HEX / UPDATE'
+            body = 'Upgrade-safe update over 4.9.14. Fixes the actual immersive Android runtime path shown by the user: route-history footprints are no longer drawn over the canonical current hex, the current PartyCluster is always projected from currentHexId, and a deterministic visible fallback keeps the party on-map even while character/token art is unavailable. Includes a real 415x915 capture of the full ImmersiveJourneyView + EriadorMap + PartyCluster path with no fake stored token. Package, signing certificate and IndexedDB identity/schema remain unchanged.'
+            draft = $false
+            prerelease = $false
+          } | ConvertTo-Json
+          $release = Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $payload -Uri "https://api.github.com/repos/$repo/releases"
+          if (-not $release.id) { throw 'Release creation failed' }
+
+          foreach ($file in Get-ChildItem $env:OUA_OUT -File) {
+            $encoded = [uri]::EscapeDataString($file.Name)
+            $url = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$encoded"
+            & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors --request POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: application/octet-stream" --data-binary "@$($file.FullName)" $url
+            if ($LASTEXITCODE -ne 0) { throw "Upload failed: $($file.Name)" }
+          }
+          Write-Host "RELEASE_URL=$($release.html_url)"
+
+# 4.9.16 world-anchored party pan/zoom validation
