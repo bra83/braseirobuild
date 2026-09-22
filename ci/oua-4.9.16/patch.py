@@ -106,13 +106,18 @@ cluster = re.sub(r"\s*if\s*\(\s*!portraits\.length\s*\)\s*return\s+null\s*;\s*",
 # In map-marker mode the party must scale only with the atlas camera. Remove
 # viewport caps and enlarge the world-space marker box enough for the complete
 # base silhouette. Non-map usages keep the old responsive caps.
-marker_box_old = """      height: mapMarker ? 96 : 122, width: mapMarker ? 116 : 148,
-      maxWidth: mapMarker ? '30vw' : '38vw', maxHeight: mapMarker ? '14vh' : '18vh', overflow: 'visible',"""
-marker_box_new = """      height: mapMarker ? 122 : 122, width: mapMarker ? 148 : 148,
-      maxWidth: mapMarker ? undefined : '38vw', maxHeight: mapMarker ? undefined : '18vh', overflow: 'visible',"""
-if marker_box_old in cluster:
-    cluster = cluster.replace(marker_box_old, marker_box_new, 1)
-elif "maxWidth: mapMarker ? undefined" not in cluster or "maxHeight: mapMarker ? undefined" not in cluster:
+marker_box_pattern = re.compile(
+    r"""      height:\s*mapMarker\s*\?\s*\d+\s*:\s*122,\s*width:\s*mapMarker\s*\?\s*\d+\s*:\s*148,\s*
+      maxWidth:\s*mapMarker\s*\?\s*'[^']+'\s*:\s*'38vw',\s*maxHeight:\s*mapMarker\s*\?\s*'[^']+'\s*:\s*'18vh',\s*overflow:\s*'visible',""",
+    re.M,
+)
+cluster, marker_box_changed = marker_box_pattern.subn(
+    """      height: mapMarker ? 122 : 122, width: mapMarker ? 148 : 148,
+      maxWidth: mapMarker ? undefined : '38vw', maxHeight: mapMarker ? undefined : '18vh', overflow: 'visible',""",
+    cluster,
+    count=1,
+)
+if marker_box_changed != 1 and ("maxWidth: mapMarker ? undefined" not in cluster or "maxHeight: mapMarker ? undefined" not in cluster):
     raise SystemExit("PartyCluster map-marker sizing anchor missing")
 
 # Replace the map-marker shadow image with a soft CSS ellipse. The original
