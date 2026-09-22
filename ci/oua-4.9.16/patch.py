@@ -103,22 +103,9 @@ cluster = read(cluster_rel)
 # older source variants as well.
 cluster = re.sub(r"\s*if\s*\(\s*!portraits\.length\s*\)\s*return\s+null\s*;\s*", "\n", cluster, count=1)
 
-# In map-marker mode the party must scale only with the atlas camera. Remove
-# viewport caps and enlarge the world-space marker box enough for the complete
-# base silhouette. Non-map usages keep the old responsive caps.
-marker_box_pattern = re.compile(
-    r"""      height:\s*mapMarker\s*\?\s*\d+\s*:\s*122,\s*width:\s*mapMarker\s*\?\s*\d+\s*:\s*148,\s*
-      maxWidth:\s*mapMarker\s*\?\s*'[^']+'\s*:\s*'38vw',\s*maxHeight:\s*mapMarker\s*\?\s*'[^']+'\s*:\s*'18vh',\s*overflow:\s*'visible',""",
-    re.M,
-)
-cluster, marker_box_changed = marker_box_pattern.subn(
-    """      height: mapMarker ? 122 : 122, width: mapMarker ? 148 : 148,
-      maxWidth: mapMarker ? undefined : '38vw', maxHeight: mapMarker ? undefined : '18vh', overflow: 'visible',""",
-    cluster,
-    count=1,
-)
-if marker_box_changed != 1 and ("maxWidth: mapMarker ? undefined" not in cluster or "maxHeight: mapMarker ? undefined" not in cluster):
-    raise SystemExit("PartyCluster map-marker sizing anchor missing")
+# The PartyCluster is scaled by the parent world layer. Keep its existing marker
+# box dimensions; the regression is fixed by moving that box into the exact map
+# transform rather than by mutating viewport sizing here.
 
 # Replace the map-marker shadow image with a soft CSS ellipse. The original
 # shadow asset is the source of the hard/cropped horizontal strips visible on
@@ -184,7 +171,6 @@ checks = {
     "party world transform": 'data-party-world-anchored="true"' in emap and "translate3d(" in emap and "scale(" in emap,
     "screen-space projection removed": "currentPartyPresentation.left" not in emap and "currentPartyPresentation.top" not in emap,
     "party map marker scales with camera": "position={{ left: currentPartyPresentation.mapX, top: currentPartyPresentation.mapY }}" in emap,
-    "map marker viewport clamps removed": "maxWidth: mapMarker ? undefined" in cluster and "maxHeight: mapMarker ? undefined" in cluster,
     "hard shadow strips removed for map marker": 'data-party-soft-shadow="true"' in cluster,
     "base breathing room": 'data-party-base="true"' in cluster and "width: '98%'" in cluster and "left: '1%'" in cluster,
     "version": "4.9.16" in read(version_rel) and "49016" in read(gradle_rel),
