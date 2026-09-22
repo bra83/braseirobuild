@@ -1,4 +1,4 @@
-name: OUA 4.9.15 Party Hex Fix + Real Capture
+name: OUA 4.9.15 Real Party Current Hex
 
 on:
   push:
@@ -450,7 +450,7 @@ await browser.close();
             tag_name = $env:TAG
             target_commitish = $env:GITHUB_SHA
             name = 'Braseiro O Um Anel 4.9.15 - PARTY REAL NO HEX ATUAL / UPDATE'
-            body = 'Upgrade-safe update over 4.9.14. Fixes the actual immersive Android runtime path shown by the user: route-history footprints are no longer drawn over the canonical current hex, the current PartyCluster is always projected from currentHexId, and a deterministic visible fallback keeps the party on-map even while character/token art is unavailable. Includes a real 415x915 capture of the full ImmersiveJourneyView + EriadorMap + PartyCluster path with no fake stored token. Package, signing certificate and IndexedDB identity/schema remain unchanged.'nly the party presentation on the map: the actual PartyCluster is rendered on the canonical current hex at all times, including before the first scene; the immersive footprint placeholder is removed; missing token/culture mappings fall back to deterministic party art and finally to a visible medallion instead of disappearing. Includes a real 415x915 Chromium capture of the patched EriadorMap/PartyCluster. Package, signing certificate and IndexedDB identity/schema remain unchanged.'
+            body = 'Upgrade-safe update over 4.9.14. Fixes the actual immersive Android runtime path shown by the user: route-history footprints are no longer drawn over the canonical current hex, the current PartyCluster is always projected from currentHexId, and a deterministic visible fallback keeps the party on-map even while character/token art is unavailable. Includes a real 415x915 capture of the full ImmersiveJourneyView + EriadorMap + PartyCluster path with no fake stored token. Package, signing certificate and IndexedDB identity/schema remain unchanged.'
             draft = $false
             prerelease = $false
           } | ConvertTo-Json
@@ -465,18 +465,4 @@ await browser.close();
           }
           Write-Host "RELEASE_URL=$($release.html_url)"
 
-# 4.9.15 party-on-current-hex fix with real 415x915 capture
-
-# retry after narrowing party-only patch
-
-# retry after party capture gate cleanup
-
-# retry capture with runtime bundled map manifest
-
-# retry capture with persisted audit party token
-
-# retry with resilient stored-party token path
-
-# publish real party capture as workflow artifact for inspection
-
-# artifact upload removed: GitHub Actions storage quota was blocking APK build
+# 4.9.15 full-app party-current-hex validation
