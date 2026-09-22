@@ -13,7 +13,7 @@ permissions:
 env:
   TAG: 'PATHFINDER2E-9.0.29-R28'
   APK_NAME: 'Braseiro_Pathfinder2e_9.0.29_R28_DEBUG.apk'
-  SOURCE_SHA256: '2fcd87375b43296d9ee5f4aecd3a569639bf2e1320a0b76d1e02438499081a28'
+  SOURCE_SHA256: '3a635ae10d9e37a3ed75068c27539a36485470848112784717ed9ef2d3768e11'
 
 jobs:
   build-release:
@@ -32,8 +32,8 @@ jobs:
       - name: Download exact R28 source
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         env:
-          SHARE_ID: '7NS3baffMpN6'
-          FILE_ID: '01a0c81619e577ba8ffed32ff34ea5f7'
+          SHARE_ID: 'Q9EaqosxeXXK'
+          FILE_ID: '01a0c81d60a375449668e568a4163539'
         run: |
           $ErrorActionPreference='Stop'
           if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA runner, got $env:RUNNER_NAME" }
