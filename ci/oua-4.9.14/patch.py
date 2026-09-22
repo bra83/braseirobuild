@@ -77,6 +77,16 @@ if old_render not in emap:
 emap = emap.replace(old_render, new_render, 1)
 write(map_rel, emap)
 
+# Non-visual DOM hook used only by the real 415x915 capture gate.
+cluster_rel = "components/immersive/PartyCluster.tsx"
+cluster = read(cluster_rel)
+if 'data-party-cluster="true"' not in cluster:
+    marker = '    aria-label="Companhia no hex atual"\n'
+    if marker not in cluster:
+        raise SystemExit("PartyCluster root anchor missing")
+    cluster = cluster.replace(marker, marker + '    data-party-cluster="true"\n', 1)
+write(cluster_rel, cluster)
+
 pkg = root / "package.json"
 data = json.loads(pkg.read_text(encoding="utf-8"))
 data["version"] = "4.9.14"
@@ -111,7 +121,7 @@ checks = {
     "immersive footprints removed": 'partyMarkerMode="none"' in imm and 'partyMarkerMode={node && props.characters.length ? "none" : "footprints"}' not in imm,
     "party uses canonical current hex": "const activeHexId = currentHexId || discovery?.currentHexId || null;" in emap,
     "actual PartyCluster retained": "<PartyCluster" in emap and "mapMarker" in emap,
-    "visual evidence hook": 'data-party-map-marker="true"' in emap and "data-party-current-hex" in emap,
+    "visual evidence hook": 'data-party-map-marker="true"' in emap and "data-party-current-hex" in emap and 'data-party-cluster="true"' in read(cluster_rel),
     "version": "4.9.14" in read(version_rel) and "49014" in read(gradle_rel),
 }
 for name, ok in checks.items():
