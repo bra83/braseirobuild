@@ -177,63 +177,16 @@ jobs:
           $ErrorActionPreference = 'Stop'
           Push-Location $env:OUA_ROOT
           try {
-            @'
-<!doctype html>
-<html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/></head>
-<body style="margin:0;background:#0d0a07"><div id="root"></div><script type="module" src="/party-audit.tsx"></script></body></html>
-'@ | Set-Content -Path "party-audit.html" -Encoding utf8
-
-            @'
-import React, { useEffect, useState } from 'react';
-import { createRoot } from 'react-dom/client';
-import { EriadorMap } from './components/EriadorMap';
-import { loadMapManifest } from './lib/map';
-import './index.css';
-
-const hero:any = {
-  id: 'audit-hero',
-  name: 'Trotter',
-  culture: 'Bree',
-  sheet: {
-    identity: { name: 'Trotter', culture: 'Bree', vocation: 'Warden' },
-    tokenId: null
-  },
-  createdAt: Date.now(),
-  updatedAt: Date.now()
-};
-
-function Audit() {
-  const [hexId, setHexId] = useState<string | null>(null);
-  useEffect(() => {
-    void loadMapManifest().then(manifest => {
-      const hex = manifest?.hexes.find((item:any) => item.playable) || manifest?.hexes[0] || null;
-      setHexId(hex?.id || null);
-    });
-  }, []);
-  if (!hexId) return <div style={{color:'#fff',padding:24}}>Carregando mapa real…</div>;
-  return <div style={{position:'fixed',inset:0,width:'100vw',height:'100vh',overflow:'hidden'}}>
-    <EriadorMap
-      currentLocation="Auditoria visual da Companhia"
-      campaignId="party-visual-audit"
-      currentHexId={hexId}
-      onPartyMoved={async()=>{}}
-      onDiscoveryChanged={async()=>{}}
-      strongholds={[]}
-      immersive
-      partyMarkerMode="none"
-      followParty={false}
-      partyCharacters={[hero]}
-    />
-  </div>;
-}
-createRoot(document.getElementById('root')!).render(<Audit/>);
-'@ | Set-Content -Path "party-audit.tsx" -Encoding utf8
+            [IO.File]::WriteAllText((Join-Path $env:OUA_ROOT 'party-audit.html'), [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('PCFkb2N0eXBlIGh0bWw+CjxodG1sPjxoZWFkPjxtZXRhIGNoYXJzZXQ9IlVURi04Ii8+PG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCxpbml0aWFsLXNjYWxlPTEiLz48L2hlYWQ+Cjxib2R5IHN0eWxlPSJtYXJnaW46MDtiYWNrZ3JvdW5kOiMwZDBhMDciPjxkaXYgaWQ9InJvb3QiPjwvZGl2PjxzY3JpcHQgdHlwZT0ibW9kdWxlIiBzcmM9Ii9wYXJ0eS1hdWRpdC50c3giPjwvc2NyaXB0PjwvYm9keT48L2h0bWw+Cg==')))
+            [IO.File]::WriteAllText((Join-Path $env:OUA_ROOT 'party-audit.tsx'), [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('aW1wb3J0IFJlYWN0LCB7IHVzZUVmZmVjdCwgdXNlU3RhdGUgfSBmcm9tICdyZWFjdCc7CmltcG9ydCB7IGNyZWF0ZVJvb3QgfSBmcm9tICdyZWFjdC1kb20vY2xpZW50JzsKaW1wb3J0IHsgRXJpYWRvck1hcCB9IGZyb20gJy4vY29tcG9uZW50cy9FcmlhZG9yTWFwJzsKaW1wb3J0IHsgbG9hZE1hcE1hbmlmZXN0IH0gZnJvbSAnLi9saWIvbWFwJzsKaW1wb3J0ICcuL2luZGV4LmNzcyc7Cgpjb25zdCBoZXJvOmFueSA9IHsKICBpZDogJ2F1ZGl0LWhlcm8nLAogIG5hbWU6ICdUcm90dGVyJywKICBjdWx0dXJlOiAnQnJlZScsCiAgc2hlZXQ6IHsKICAgIGlkZW50aXR5OiB7IG5hbWU6ICdUcm90dGVyJywgY3VsdHVyZTogJ0JyZWUnLCB2b2NhdGlvbjogJ1dhcmRlbicgfSwKICAgIHRva2VuSWQ6IG51bGwKICB9LAogIGNyZWF0ZWRBdDogRGF0ZS5ub3coKSwKICB1cGRhdGVkQXQ6IERhdGUubm93KCkKfTsKCmZ1bmN0aW9uIEF1ZGl0KCkgewogIGNvbnN0IFtoZXhJZCwgc2V0SGV4SWRdID0gdXNlU3RhdGU8c3RyaW5nIHwgbnVsbD4obnVsbCk7CiAgdXNlRWZmZWN0KCgpID0+IHsKICAgIHZvaWQgbG9hZE1hcE1hbmlmZXN0KCkudGhlbihtYW5pZmVzdCA9PiB7CiAgICAgIGNvbnN0IGhleCA9IG1hbmlmZXN0Py5oZXhlcy5maW5kKChpdGVtOmFueSkgPT4gaXRlbS5wbGF5YWJsZSkgfHwgbWFuaWZlc3Q/LmhleGVzWzBdIHx8IG51bGw7CiAgICAgIHNldEhleElkKGhleD8uaWQgfHwgbnVsbCk7CiAgICB9KTsKICB9LCBbXSk7CiAgaWYgKCFoZXhJZCkgcmV0dXJuIDxkaXYgc3R5bGU9e3tjb2xvcjonI2ZmZicscGFkZGluZzoyNH19PkNhcnJlZ2FuZG8gbWFwYSByZWFs4oCmPC9kaXY+OwogIHJldHVybiA8ZGl2IHN0eWxlPXt7cG9zaXRpb246J2ZpeGVkJyxpbnNldDowLHdpZHRoOicxMDB2dycsaGVpZ2h0OicxMDB2aCcsb3ZlcmZsb3c6J2hpZGRlbid9fT4KICAgIDxFcmlhZG9yTWFwCiAgICAgIGN1cnJlbnRMb2NhdGlvbj0iQXVkaXRvcmlhIHZpc3VhbCBkYSBDb21wYW5oaWEiCiAgICAgIGNhbXBhaWduSWQ9InBhcnR5LXZpc3VhbC1hdWRpdCIKICAgICAgY3VycmVudEhleElkPXtoZXhJZH0KICAgICAgb25QYXJ0eU1vdmVkPXthc3luYygpPT57fX0KICAgICAgb25EaXNjb3ZlcnlDaGFuZ2VkPXthc3luYygpPT57fX0KICAgICAgc3Ryb25naG9sZHM9e1tdfQogICAgICBpbW1lcnNpdmUKICAgICAgcGFydHlNYXJrZXJNb2RlPSJub25lIgogICAgICBmb2xsb3dQYXJ0eT17ZmFsc2V9CiAgICAgIHBhcnR5Q2hhcmFjdGVycz17W2hlcm9dfQogICAgLz4KICA8L2RpdjsKfQpjcmVhdGVSb290KGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdyb290JykhKS5yZW5kZXIoPEF1ZGl0Lz4pOwo=')))
+            [IO.File]::WriteAllText((Join-Path $env:OUA_ROOT 'party-audit.mjs'), [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('aW1wb3J0IGZzIGZyb20gJ25vZGU6ZnMnOwppbXBvcnQgeyBjaHJvbWl1bSB9IGZyb20gJ3BsYXl3cmlnaHQtY29yZSc7CmNvbnN0IGNhbmRpZGF0ZXMgPSBbCiAgJ0M6L1Byb2dyYW0gRmlsZXMvR29vZ2xlL0Nocm9tZS9BcHBsaWNhdGlvbi9jaHJvbWUuZXhlJywKICAnQzovUHJvZ3JhbSBGaWxlcyAoeDg2KS9Hb29nbGUvQ2hyb21lL0FwcGxpY2F0aW9uL2Nocm9tZS5leGUnLAogICdDOi9Qcm9ncmFtIEZpbGVzICh4ODYpL01pY3Jvc29mdC9FZGdlL0FwcGxpY2F0aW9uL21zZWRnZS5leGUnLAogICdDOi9Qcm9ncmFtIEZpbGVzL01pY3Jvc29mdC9FZGdlL0FwcGxpY2F0aW9uL21zZWRnZS5leGUnCl07CmNvbnN0IGV4ZSA9IGNhbmRpZGF0ZXMuZmluZChwID0+IGZzLmV4aXN0c1N5bmMocCkpOwppZiAoIWV4ZSkgdGhyb3cgbmV3IEVycm9yKCdDaHJvbWUvRWRnZSBub3QgZm91bmQgZm9yIHJlYWwgY2FwdHVyZScpOwpjb25zdCBicm93c2VyID0gYXdhaXQgY2hyb21pdW0ubGF1bmNoKHtoZWFkbGVzczp0cnVlLCBleGVjdXRhYmxlUGF0aDpleGV9KTsKY29uc3QgcGFnZSA9IGF3YWl0IGJyb3dzZXIubmV3UGFnZSh7dmlld3BvcnQ6e3dpZHRoOjQxNSxoZWlnaHQ6OTE1fSwgZGV2aWNlU2NhbGVGYWN0b3I6MX0pOwpjb25zdCBlcnJvcnM9W107CnBhZ2Uub24oJ3BhZ2VlcnJvcicsZT0+ZXJyb3JzLnB1c2goU3RyaW5nKGUpKSk7CmF3YWl0IHBhZ2UuZ290bygnaHR0cDovLzEyNy4wLjAuMTo0MTc4L3BhcnR5LWF1ZGl0Lmh0bWwnLHt3YWl0VW50aWw6J25ldHdvcmtpZGxlJ30pOwphd2FpdCBwYWdlLmxvY2F0b3IoJ1tkYXRhLXBhcnR5LWNsdXN0ZXI9InRydWUiXScpLndhaXRGb3Ioe3N0YXRlOid2aXNpYmxlJyx0aW1lb3V0OjMwMDAwfSk7CmNvbnN0IG1hcmtlcj1wYWdlLmxvY2F0b3IoJ1tkYXRhLXBhcnR5LW1hcC1tYXJrZXI9InRydWUiXScpOwpjb25zdCBjbHVzdGVyPXBhZ2UubG9jYXRvcignW2RhdGEtcGFydHktY2x1c3Rlcj0idHJ1ZSJdJyk7CmNvbnN0IGhleD1hd2FpdCBtYXJrZXIuZ2V0QXR0cmlidXRlKCdkYXRhLXBhcnR5LWN1cnJlbnQtaGV4Jyk7CmNvbnN0IG1lbWJlcnM9YXdhaXQgY2x1c3Rlci5nZXRBdHRyaWJ1dGUoJ2RhdGEtcGFydHktbWVtYmVycycpOwpjb25zdCBib3g9YXdhaXQgY2x1c3Rlci5ib3VuZGluZ0JveCgpOwppZighaGV4KSB0aHJvdyBuZXcgRXJyb3IoJ3BhcnR5IG1hcmtlciBoYXMgbm8gY3VycmVudCBoZXgnKTsKaWYoIWJveCB8fCBib3gud2lkdGg8MjAgfHwgYm94LmhlaWdodDwyMCkgdGhyb3cgbmV3IEVycm9yKCdwYXJ0eSBtYXJrZXIgaXMgbm90IHZpc2libHkgcmVuZGVyZWQnKTsKaWYoZXJyb3JzLmxlbmd0aCkgdGhyb3cgbmV3IEVycm9yKCdwYWdlIGVycm9yczogJytlcnJvcnMuam9pbignIHwgJykpOwpjb25zdCBvdXQ9cHJvY2Vzcy5lbnYuT1VBX09VVCsnL09VQV80LjkuMTRfUEFSVFlfSEVYX1JFQUxfNDE1eDkxNS5wbmcnOwphd2FpdCBwYWdlLnNjcmVlbnNob3Qoe3BhdGg6b3V0LGZ1bGxQYWdlOmZhbHNlLGFuaW1hdGlvbnM6J2Rpc2FibGVkJ30pOwpmcy53cml0ZUZpbGVTeW5jKHByb2Nlc3MuZW52Lk9VQV9PVVQrJy9PVUFfNC45LjE0X1BBUlRZX0hFWF9SRUFMX0NBUFRVUkUuanNvbicsSlNPTi5zdHJpbmdpZnkoewogIGVuZ2luZTonQ2hyb21pdW0vRWRnZSB2aWEgUGxheXdyaWdodCcsCiAgdmlld3BvcnQ6JzQxNXg5MTUnLAogIGFjdHVhbENvbXBvbmVudDonRXJpYWRvck1hcCArIFBhcnR5Q2x1c3RlcicsCiAgY3VycmVudEhleElkOmhleCwKICBwYXJ0eU1lbWJlcnM6TnVtYmVyKG1lbWJlcnN8fDApLAogIG1hcmtlckJveDpib3gsCiAgcGFnZUVycm9yczplcnJvcnMKfSxudWxsLDIpKTsKYXdhaXQgYnJvd3Nlci5jbG9zZSgpOwo=')))
 
             & npm.cmd install --no-save --no-package-lock playwright-core@1.55.0
             if ($LASTEXITCODE -ne 0) { throw 'playwright-core install failed' }
 
-            $serverOut = Join-Path $env:OUA_OUT 'PARTY_CAPTURE_VITE.log'
-            $server = Start-Process -FilePath "node.exe" -ArgumentList @("node_modules/vite/bin/vite.js","--host","127.0.0.1","--port","4178") -PassThru -RedirectStandardOutput $serverOut -RedirectStandardError $serverOut
+            $stdout = Join-Path $env:OUA_OUT 'PARTY_CAPTURE_VITE.stdout.log'
+            $stderr = Join-Path $env:OUA_OUT 'PARTY_CAPTURE_VITE.stderr.log'
+            $server = Start-Process -FilePath "node.exe" -ArgumentList @("node_modules/vite/bin/vite.js","--host","127.0.0.1","--port","4178") -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
             try {
               $ready = $false
               for ($i=0; $i -lt 60; $i++) {
@@ -244,46 +197,6 @@ createRoot(document.getElementById('root')!).render(<Audit/>);
                 } catch {}
               }
               if (-not $ready) { throw 'Vite visual-audit server did not start' }
-
-              @'
-import fs from 'node:fs';
-import { chromium } from 'playwright-core';
-const candidates = [
-  'C:/Program Files/Google/Chrome/Application/chrome.exe',
-  'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',
-  'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
-  'C:/Program Files/Microsoft/Edge/Application/msedge.exe'
-];
-const exe = candidates.find(p => fs.existsSync(p));
-if (!exe) throw new Error('Chrome/Edge not found for real capture');
-const browser = await chromium.launch({headless:true, executablePath:exe});
-const page = await browser.newPage({viewport:{width:415,height:915}, deviceScaleFactor:1});
-const errors=[];
-page.on('pageerror',e=>errors.push(String(e)));
-await page.goto('http://127.0.0.1:4178/party-audit.html',{waitUntil:'networkidle'});
-await page.locator('[data-party-cluster="true"]').waitFor({state:'visible',timeout:30000});
-const marker=page.locator('[data-party-map-marker="true"]');
-const cluster=page.locator('[data-party-cluster="true"]');
-const hex=await marker.getAttribute('data-party-current-hex');
-const members=await cluster.getAttribute('data-party-members');
-const box=await cluster.boundingBox();
-if(!hex) throw new Error('party marker has no current hex');
-if(!box || box.width<20 || box.height<20) throw new Error('party marker is not visibly rendered');
-if(errors.length) throw new Error('page errors: '+errors.join(' | '));
-const out=process.env.OUA_OUT+'/OUA_4.9.14_PARTY_HEX_REAL_415x915.png';
-await page.screenshot({path:out,fullPage:false,animations:'disabled'});
-fs.writeFileSync(process.env.OUA_OUT+'/OUA_4.9.14_PARTY_HEX_REAL_CAPTURE.json',JSON.stringify({
-  engine:'Chromium/Edge via Playwright',
-  viewport:'415x915',
-  actualComponent:'EriadorMap + PartyCluster',
-  currentHexId:hex,
-  partyMembers:Number(members||0),
-  markerBox:box,
-  pageErrors:errors
-},null,2));
-await browser.close();
-'@ | Set-Content -Path "party-audit.mjs" -Encoding utf8
-
               & node.exe "party-audit.mjs"
               if ($LASTEXITCODE -ne 0) { throw 'real party capture failed' }
               if (-not (Test-Path (Join-Path $env:OUA_OUT 'OUA_4.9.14_PARTY_HEX_REAL_415x915.png'))) { throw 'real screenshot missing' }
