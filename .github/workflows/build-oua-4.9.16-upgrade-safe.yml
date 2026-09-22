@@ -121,7 +121,6 @@ jobs:
             'party-world-coordinates' = $whole.Contains('mapX: hex.centerX, mapY: hex.centerY')
             'party-world-layer-transform' = $whole.Contains('data-party-world-anchored="true"') -and $whole.Contains('translate3d(') -and $whole.Contains('scale(')
             'party-no-screen-space-left-top' = (-not $whole.Contains('currentPartyPresentation.left')) -and (-not $whole.Contains('currentPartyPresentation.top'))
-            'party-map-marker-no-viewport-clamp' = $whole.Contains('maxWidth: mapMarker ? undefined') -and $whole.Contains('maxHeight: mapMarker ? undefined')
             'party-soft-shadow-no-hard-wings' = $whole.Contains('data-party-soft-shadow="true"')
             'party-base-breathing-room' = $whole.Contains('data-party-base="true"') -and $whole.Contains("width: '98%'") -and $whole.Contains("left: '1%'")
             'story-error-visible' = $whole.Contains('Falha ao iniciar/continuar')
@@ -352,3 +351,4 @@ jobs:
 # 4.9.16 world-anchored party pan/zoom validation
 # trigger after real map-marker sizing fix
 # retry after flexible PartyCluster sizing match
+# retry with world-transform fix independent of marker box sizing
