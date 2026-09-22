@@ -98,6 +98,11 @@ write(map_rel, emap)
 cluster_rel = "components/immersive/PartyCluster.tsx"
 cluster = read(cluster_rel)
 
+# Never let an empty/late portrait list suppress the map marker. 4.9.15 added
+# visiblePortraits fallback, but remove any surviving legacy early-return from
+# older source variants as well.
+cluster = re.sub(r"\s*if\s*\(\s*!portraits\.length\s*\)\s*return\s+null\s*;\s*", "\n", cluster, count=1)
+
 # The PartyCluster now lives under the map/world transform, so its legacy
 # viewport max-size values are resolved BEFORE the parent transform and no
 # longer pin it to screen space. Keep the stable baseline layout untouched.
@@ -168,6 +173,7 @@ emap = read(map_rel)
 cluster = read(cluster_rel)
 checks = {
     "party world coordinates": "mapX: hex.centerX, mapY: hex.centerY" in emap,
+    "party never suppressed by empty portraits": not re.search(r"if\s*\(\s*!portraits\.length\s*\)\s*return\s+null", cluster),
     "party world transform": 'data-party-world-anchored="true"' in emap and "translate3d(" in emap and "scale(" in emap,
     "screen-space projection removed": "currentPartyPresentation.left" not in emap and "currentPartyPresentation.top" not in emap,
     "party map marker scales with camera": "position={{ left: currentPartyPresentation.mapX, top: currentPartyPresentation.mapY }}" in emap,
