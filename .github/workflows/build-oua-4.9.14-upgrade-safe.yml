@@ -204,6 +204,15 @@ jobs:
             }
           } finally { Pop-Location }
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OUA_4_9_14_PARTY_CAPTURE
+          retention-days: 7
+          if-no-files-found: error
+          path: |
+            ${{ env.OUA_OUT }}\OUA_4.9.14_PARTY_HEX_REAL_415x915.png
+            ${{ env.OUA_OUT }}\OUA_4.9.14_PARTY_HEX_REAL_CAPTURE.json
+
       - name: Configure Android SDK
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
@@ -352,3 +361,5 @@ jobs:
 # retry capture with persisted audit party token
 
 # retry with resilient stored-party token path
+
+# publish real party capture as workflow artifact for inspection
