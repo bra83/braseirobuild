@@ -131,24 +131,69 @@ write(map_rel, emap)
 cluster_rel = "components/immersive/PartyCluster.tsx"
 cluster = read(cluster_rel)
 
-# 4.9.16 uses mapMarker for map-only base/shadow behavior. Repair the
-# destructuring structurally instead of assuming one exact formatting variant.
-sig_match = re.search(
-    r"(export const PartyCluster[\\s\\S]{0,260}?=\\s*\\(\\{)([\\s\\S]{0,420}?)(\\}\\)\\s*=>\\s*\\{)",
+# The 4.9.15 upgrade baseline can still carry the older 4.9.4 PartyCluster
+# contract: it only destructures characters/manifest and hard-codes 50%/42%.
+# EriadorMap may pass position/mapMarker, but React simply ignores those props,
+# which is exactly why the party remains pinned to screen-space. Restore the
+# 4.9.5 positional contract before placing the component in the world layer.
+if "position?: { left: number | string; top: number | string };" not in cluster:
+    one_line_props = "interface PartyClusterProps { characters: Character[]; manifest: ImmersiveAssetManifest | null; }"
+    expanded_props = """interface PartyClusterProps {
+  characters: Character[];
+  manifest: ImmersiveAssetManifest | null;
+  position?: { left: number | string; top: number | string };
+  mapMarker?: boolean;
+}"""
+    if one_line_props in cluster:
+        cluster = cluster.replace(one_line_props, expanded_props, 1)
+    else:
+        props_match = re.search(r"interface PartyClusterProps\\s*\\{([\\s\\S]*?)\\}", cluster)
+        if not props_match:
+            raise SystemExit("PartyClusterProps interface missing")
+        props_body = props_match.group(1)
+        extra = ""
+        if "position?:" not in props_body:
+            extra += "\\n  position?: { left: number | string; top: number | string };"
+        if "mapMarker?:" not in props_body:
+            extra += "\\n  mapMarker?: boolean;"
+        cluster = cluster[:props_match.end(1)] + extra + cluster[props_match.end(1):]
+
+signature = re.search(
+    r"export const PartyCluster:\\s*React\\.FC<PartyClusterProps>\\s*=\\s*\\(\\{([\\s\\S]{0,320}?)\\}\\)\\s*=>\\s*\\{",
     cluster,
 )
-if not sig_match:
+if not signature:
     raise SystemExit("PartyCluster component signature not found")
-sig_params = sig_match.group(2)
-if not re.search(r"\\bmapMarker\\b", sig_params):
-    repaired_params = sig_params.rstrip()
-    if repaired_params.strip() and not repaired_params.rstrip().endswith(","):
-        repaired_params += ","
-    repaired_params += " mapMarker = false "
-    cluster = cluster[:sig_match.start(2)] + repaired_params + cluster[sig_match.end(2):]
-elif not re.search(r"\\bmapMarker\\s*=", sig_params):
-    repaired_params = re.sub(r"\\bmapMarker\\b", "mapMarker = false", sig_params, count=1)
-    cluster = cluster[:sig_match.start(2)] + repaired_params + cluster[sig_match.end(2):]
+params = signature.group(1)
+if "position" not in params or "mapMarker" not in params:
+    cleaned = params.strip()
+    names = [item.strip() for item in cleaned.split(",") if item.strip()]
+    if not any(item.startswith("position") for item in names):
+        names.append("position")
+    if not any(item.startswith("mapMarker") for item in names):
+        names.append("mapMarker = false")
+    else:
+        names = ["mapMarker = false" if item == "mapMarker" else item for item in names]
+    new_params = " " + ", ".join(names) + " "
+    cluster = cluster[:signature.start(1)] + new_params + cluster[signature.end(1):]
+
+old_fixed_position = "      pointerEvents: 'none', position: 'absolute', left: '50%', top: '42%', transform: 'translate(-50%, -50%)',"
+new_position = """      pointerEvents: 'none', position: 'absolute',
+      left: position?.left ?? '50%', top: position?.top ?? '42%', transform: 'translate(-50%, -50%)',"""
+if old_fixed_position in cluster:
+    cluster = cluster.replace(old_fixed_position, new_position, 1)
+elif "left: position?.left ?? '50%'" not in cluster:
+    raise SystemExit("PartyCluster fixed-position style anchor missing")
+
+old_fixed_box = "      zIndex: 35, height: 122, width: 148, maxWidth: '38vw', maxHeight: '18vh', overflow: 'visible',"
+new_box = """      zIndex: mapMarker ? 45 : 35,
+      height: mapMarker ? 96 : 122, width: mapMarker ? 116 : 148,
+      maxWidth: mapMarker ? '30vw' : '38vw', maxHeight: mapMarker ? '14vh' : '18vh', overflow: 'visible',
+      filter: mapMarker ? 'drop-shadow(0 5px 5px rgba(0,0,0,.65))' : undefined,"""
+if old_fixed_box in cluster:
+    cluster = cluster.replace(old_fixed_box, new_box, 1)
+elif "zIndex: mapMarker ? 45 : 35" not in cluster:
+    raise SystemExit("PartyCluster map-marker sizing anchor missing")
 
 # Never let an empty/late portrait list suppress the map marker. 4.9.15 added
 # visiblePortraits fallback, but remove any surviving legacy early-return from
@@ -220,7 +265,8 @@ cluster = read(cluster_rel)
 checks = {
     "party world coordinates": "mapX: hex.centerX, mapY: hex.centerY" in emap,
     "party never suppressed by empty portraits": not re.search(r"if\s*\(\s*!portraits\.length\s*\)\s*return\s+null", cluster),
-    "PartyCluster mapMarker prop scoped": bool(re.search(r"export const PartyCluster[\\s\\S]{0,700}?\\bmapMarker\\b[\\s\\S]{0,180}?=>", cluster)),
+    "PartyCluster accepts world position": "position?: { left: number | string; top: number | string };" in cluster and "left: position?.left ?? '50%'" in cluster,
+    "PartyCluster mapMarker prop scoped": "mapMarker = false" in cluster and "zIndex: mapMarker ? 45 : 35" in cluster,
     "party world transform": 'data-party-world-anchored="true"' in emap and "translate3d(" in emap and "scale(" in emap,
     "screen-space projection removed": "currentPartyPresentation.left" not in emap and "currentPartyPresentation.top" not in emap,
     "party map marker scales with camera": "position={{ left: currentPartyPresentation.mapX, top: currentPartyPresentation.mapY }}" in emap,
