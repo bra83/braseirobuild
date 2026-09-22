@@ -147,19 +147,19 @@ if "position?: { left: number | string; top: number | string };" not in cluster:
     if one_line_props in cluster:
         cluster = cluster.replace(one_line_props, expanded_props, 1)
     else:
-        props_match = re.search(r"interface PartyClusterProps\\s*\\{([\\s\\S]*?)\\}", cluster)
+        props_match = re.search(r"interface PartyClusterProps\s*\{([\s\S]*?)\}", cluster)
         if not props_match:
             raise SystemExit("PartyClusterProps interface missing")
         props_body = props_match.group(1)
         extra = ""
         if "position?:" not in props_body:
-            extra += "\\n  position?: { left: number | string; top: number | string };"
+            extra += "\n  position?: { left: number | string; top: number | string };"
         if "mapMarker?:" not in props_body:
-            extra += "\\n  mapMarker?: boolean;"
+            extra += "\n  mapMarker?: boolean;"
         cluster = cluster[:props_match.end(1)] + extra + cluster[props_match.end(1):]
 
 signature = re.search(
-    r"export const PartyCluster:\\s*React\\.FC<PartyClusterProps>\\s*=\\s*\\(\\{([\\s\\S]{0,320}?)\\}\\)\\s*=>\\s*\\{",
+    r"export const PartyCluster:\s*React\.FC<PartyClusterProps>\s*=\s*\(\{([\s\S]{0,320}?)\}\)\s*=>\s*\{",
     cluster,
 )
 if not signature:
