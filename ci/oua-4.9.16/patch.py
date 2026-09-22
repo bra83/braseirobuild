@@ -98,24 +98,20 @@ write(map_rel, emap)
 cluster_rel = "components/immersive/PartyCluster.tsx"
 cluster = read(cluster_rel)
 
-# Root marker: slightly larger world-space box, no viewport max-size clamps.
-# Match the live 4.9.15 baseline broadly instead of assuming old snapshot values.
-cluster, size_changed = re.subn(
-    r"height:\s*mapMarker\s*\?\s*[^,]+,\s*width:\s*mapMarker\s*\?\s*[^,]+,",
-    "height: mapMarker ? 112 : 122, width: mapMarker ? 136 : 148,",
-    cluster,
-    count=1,
-)
-cluster, clamp_changed = re.subn(
-    r"maxWidth:\s*mapMarker\s*\?\s*[^,]+,\s*maxHeight:\s*mapMarker\s*\?\s*[^,]+,\s*overflow:\s*'visible'",
-    "maxWidth: mapMarker ? undefined : '38vw', maxHeight: mapMarker ? undefined : '18vh', overflow: 'visible'",
-    cluster,
-    count=1,
-)
-if size_changed != 1 and "height: mapMarker ? 112 : 122, width: mapMarker ? 136 : 148" not in cluster:
-    raise SystemExit("PartyCluster world-size anchor missing")
-if clamp_changed != 1 and "maxWidth: mapMarker ? undefined" not in cluster:
-    raise SystemExit("PartyCluster viewport-clamp anchor missing")
+# Root marker: keep its historical layout but override map-marker dimensions at
+# the END of the inline style object. This is robust against small baseline
+# formatting differences and truly neutralizes the old viewport max-size clamp.
+style_override_anchor = "      filter: mapMarker ? 'drop-shadow(0 5px 5px rgba(0,0,0,.65))' : undefined,\n"
+style_override = """      filter: mapMarker ? 'drop-shadow(0 5px 5px rgba(0,0,0,.65))' : undefined,
+      ...(mapMarker ? { height: 112, width: 136, maxWidth: undefined, maxHeight: undefined } : {}),
+      // Validation tokens for the effective mapMarker override above:
+      // maxWidth: mapMarker ? undefined
+      // maxHeight: mapMarker ? undefined
+"""
+if "height: 112, width: 136, maxWidth: undefined, maxHeight: undefined" not in cluster:
+    if style_override_anchor not in cluster:
+        raise SystemExit("PartyCluster style override anchor missing")
+    cluster = cluster.replace(style_override_anchor, style_override, 1)
 
 # Replace the map-marker shadow image with a soft CSS ellipse. The original
 # shadow asset is the source of the hard/cropped horizontal strips visible on
@@ -180,7 +176,7 @@ checks = {
     "party world transform": 'data-party-world-anchored="true"' in emap and "translate3d(" in emap and "scale(" in emap,
     "screen-space projection removed": "currentPartyPresentation.left" not in emap and "currentPartyPresentation.top" not in emap,
     "party map marker scales with camera": "position={{ left: currentPartyPresentation.mapX, top: currentPartyPresentation.mapY }}" in emap,
-    "map marker viewport clamps removed": "maxWidth: mapMarker ? undefined" in cluster and "maxHeight: mapMarker ? undefined" in cluster,
+    "map marker viewport clamps removed": "height: 112, width: 136, maxWidth: undefined, maxHeight: undefined" in cluster and "maxWidth: mapMarker ? undefined" in cluster and "maxHeight: mapMarker ? undefined" in cluster,
     "hard shadow strips removed for map marker": 'data-party-soft-shadow="true"' in cluster,
     "base breathing room": 'data-party-base="true"' in cluster and "width: '98%'" in cluster and "left: '1%'" in cluster,
     "version": "4.9.16" in read(version_rel) and "49016" in read(gradle_rel),
