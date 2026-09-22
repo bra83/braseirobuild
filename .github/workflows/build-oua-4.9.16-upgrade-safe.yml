@@ -351,3 +351,4 @@ jobs:
 
 # 4.9.16 world-anchored party pan/zoom validation
 # trigger after real map-marker sizing fix
+# retry after flexible PartyCluster sizing match
