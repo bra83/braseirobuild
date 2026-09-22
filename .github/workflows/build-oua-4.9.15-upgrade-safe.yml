@@ -1,0 +1,482 @@
+name: OUA 4.9.15 Party Hex Fix + Real Capture
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-oua-4.9.15-upgrade-safe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: oua-4.9.15-upgrade-safe
+  cancel-in-progress: true
+
+env:
+  BASE_TAG: "OUA-v4.9.14"
+  BASE_APK: "BRASEIRO_O_UM_ANEL_4.9.14_UPDATE.apk"
+  BASE_SOURCE: "OUA_4.9.14_UPGRADE_SAFE_ANDROID_STUDIO.zip"
+  TAG: "OUA-v4.9.15"
+  APK_NAME: "BRASEIRO_O_UM_ANEL_4.9.15_UPDATE.apk"
+  SOURCE_NAME: "OUA_4.9.15_UPGRADE_SAFE_ANDROID_STUDIO.zip"
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 120
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Prepare 4.9.14 installed-compatible baseline
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA; got $env:RUNNER_NAME" }
+
+          $python = Get-Command python.exe -ErrorAction SilentlyContinue
+          if (-not $python) { $python = Get-Command python -ErrorAction Stop }
+
+          $work = Join-Path $env:RUNNER_TEMP 'oua-4915-upgrade'
+          $incoming = Join-Path $work 'incoming'
+          $extract = Join-Path $work 'extract'
+          $out = Join-Path $work 'out'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming,$extract,$out -Force | Out-Null
+
+          $headers = @{
+            'Authorization' = "Bearer $env:GITHUB_TOKEN"
+            'Accept' = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'oua-4915-upgrade-safe'
+          }
+          $repo = $env:GITHUB_REPOSITORY
+          $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:BASE_TAG"
+
+          foreach ($name in @($env:BASE_APK, $env:BASE_SOURCE)) {
+            $asset = @($release.assets | Where-Object { $_.name -eq $name -and $_.state -eq 'uploaded' }) | Select-Object -First 1
+            if (-not $asset) { throw "Missing baseline asset: $name" }
+            $dest = Join-Path $incoming $name
+            & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $dest $asset.url
+            if ($LASTEXITCODE -ne 0 -or -not (Test-Path $dest)) { throw "Baseline download failed: $name" }
+          }
+
+          & tar.exe -xf (Join-Path $incoming $env:BASE_SOURCE) -C $extract
+          if ($LASTEXITCODE -ne 0) { throw 'Could not extract 4.9.14 source' }
+
+          $pkg = Get-ChildItem $extract -Recurse -File -Filter package.json |
+            Where-Object { Test-Path (Join-Path $_.Directory.FullName 'android') } |
+            Sort-Object { $_.FullName.Length } |
+            Select-Object -First 1
+          if (-not $pkg) { throw '4.9.14 Android Studio root not found' }
+          $root = $pkg.Directory.FullName
+
+          & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.15\patch.py" $root
+          if ($LASTEXITCODE -ne 0) { throw '4.9.15 patch failed' }
+
+          $db = Get-Content (Join-Path $root 'lib\db.ts') -Raw
+          $gradle = Get-Content (Join-Path $root 'android\app\build.gradle.kts') -Raw
+          $manifest = Get-Content (Join-Path $root 'android\app\src\main\AndroidManifest.xml') -Raw
+          $whole = (Get-ChildItem $root -Recurse -File -Include *.ts,*.tsx,*.kt,*.java | ForEach-Object { Get-Content $_.FullName -Raw }) -join "`n"
+
+          $gates = @{
+            'same-db-name' = $db.Contains("const DB_NAME = 'braseiro-db';")
+            'same-db-version' = $db.Contains('const DB_VERSION = 19;')
+            'no-indexeddb-delete' = -not $whole.Contains('indexedDB.deleteDatabase')
+            'no-app-data-clear' = (-not $whole.Contains('clearApplicationUserData')) -and (-not $whole.Contains('pm clear'))
+            'version-4.9.15' = $gradle.Contains('versionName = "4.9.15"')
+            'version-code-49015' = $gradle.Contains('versionCode = 49015')
+            'gemini-flow-kept' = $whole.Contains('com.google.android.apps.bard')
+            'map-first-shell-kept' = $whole.Contains('data-braseiro-chronicle-sheet')
+            'manual-text-model' = $whole.Contains('Texto principal / cenas importantes — ID manual')
+            'manual-tts-model' = $whole.Contains('TTS — ID manual')
+            'tts-runtime-override' = $whole.Contains('getGeminiTtsModel') -and $whole.Contains('getTtsModels()')
+            'tts-cache-v9' = $whole.Contains('tts-v9-')
+            'tts-chunked-prefetch' = $whole.Contains('splitRange(text, 0, text.length, 680)')
+            'tts-completeness-guard' = $whole.Contains('minimumCompleteDurationMs')
+            'gemini-text-test-control' = $whole.Contains('Testar modelo de texto principal')
+            'gemini-tts-test-control' = $whole.Contains('Testar modelo TTS com Charon') -and $whole.Contains('playGeneratedVoice(artifact.token, 1)')
+            'important-scene-main-model' = $whole.Contains('const importantScene') -and $whole.Contains('maxOutputTokens: importantScene ? 6800 : 4200')
+            'opening-no-silent-fallback' = $whole.Contains('Nenhum texto local curto foi usado')
+            'opening-rag-safe' = $whole.Contains('abertura narrativa sem regra aplicável')
+            'opening-long-default' = $whole.Contains('balanced: { words: 280, paragraphs: 4 }')
+            'generation-provenance' = $whole.Contains('generationModel') -and $whole.Contains('generationSource')
+            'auto-open-after-start' = $whole.Contains('await props.onStartAdventure();') -and $whole.Contains('startAdventureFromMap')
+            'party-always-real-not-footprints' = $whole.Contains('partyMarkerMode="none"') -and -not $whole.Contains('partyMarkerMode={node && props.characters.length ? "none" : "footprints"}')
+            'party-current-hex-canonical' = $whole.Contains('const activeHexId = currentHexId || discovery?.currentHexId || null;')
+            'party-marker-evidence-hook' = $whole.Contains('data-party-map-marker="true"') -and $whole.Contains('data-party-cluster="true"')
+            'current-hex-excludes-route-footprints' = $whole.Contains('if (immersive && activePartyHexId && hex.id === activePartyHexId) return;')
+            'party-fallback-visible' = $whole.Contains('FALLBACK_TRAVELER') -and $whole.Contains('visiblePortraits')
+            'party-does-not-wait-for-token-hydration' = $whole.Contains('if (!immersive || !activeHexId) return null;')
+            'map-redraw-marker-dependencies' = $whole.Contains('currentHexId, discovery') -and $whole.Contains('partyMarkerMode, selected')
+            'story-error-visible' = $whole.Contains('Falha ao iniciar/continuar')
+            'map-toast-above-nav' = $whole.Contains('bottom: 92, zIndex: 115')
+            'narration-audio-kept' = $whole.Contains('🔊 Ouvir narração') -and $whole.Contains('■ Parar narração')
+            'fixed-actions-kept' = $whole.Contains('Ações rápidas')
+            'npc-entities-kept' = $whole.Contains('NPCs presentes')
+          }
+
+          $validation = Join-Path $out 'UPGRADE_COMPATIBILITY_SOURCE.txt'
+          foreach ($entry in $gates.GetEnumerator() | Sort-Object Name) {
+            $status = if ($entry.Value) { 'PASS' } else { 'FAIL' }
+            ($status + ' - ' + $entry.Name) | Tee-Object -FilePath $validation -Append
+          }
+          if (@($gates.GetEnumerator() | Where-Object { -not $_.Value }).Count -gt 0) { throw 'Upgrade-safety source gate failed' }
+
+          $lockPath = Join-Path $root 'package-lock.json'
+          if (Test-Path $lockPath) {
+            $lockText = Get-Content $lockPath -Raw
+            $lockText = [regex]::Replace($lockText, 'https://[^"]*/artifactory/api/npm/npm-public/', 'https://registry.npmjs.org/')
+            [System.IO.File]::WriteAllText($lockPath, $lockText, (New-Object System.Text.UTF8Encoding($false)))
+          }
+
+          "OUA_ROOT=$root" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "OUA_OUT=$out" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "BASE_APK_PATH=$(Join-Path $incoming $env:BASE_APK)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build web runtime
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Push-Location $env:OUA_ROOT
+          try {
+            $env:npm_config_registry = 'https://registry.npmjs.org/'
+            $env:npm_config_replace_registry_host = 'always'
+            $env:npm_config_fetch_retries = '5'
+            $ok = $false
+            for ($attempt = 1; $attempt -le 3; $attempt++) {
+              & npm.cmd ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
+              if ($LASTEXITCODE -eq 0) { $ok = $true; break }
+              Start-Sleep -Seconds (3 * $attempt)
+            }
+            if (-not $ok) { throw 'npm ci failed' }
+
+            $previousErrorAction = $ErrorActionPreference
+            $ErrorActionPreference = 'Continue'
+            if (Test-Path variable:PSNativeCommandUseErrorActionPreference) { $PSNativeCommandUseErrorActionPreference = $false }
+            & npm.cmd run build:offline 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'OFFLINE_BUILD.log')
+            $offlineExit = $LASTEXITCODE
+            $ErrorActionPreference = $previousErrorAction
+            if ($offlineExit -ne 0) { throw "build:offline failed with exit code $offlineExit" }
+
+            & node.exe scripts/use-offline-dist.mjs
+            if ($LASTEXITCODE -ne 0) { throw 'use-offline-dist failed' }
+            & node.exe scripts/sync-android-assets.mjs
+            if ($LASTEXITCODE -ne 0) { throw 'sync-android-assets failed' }
+          } finally { Pop-Location }
+
+      - name: Capture real immersive app party evidence 415x915
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Push-Location $env:OUA_ROOT
+          try {
+            [IO.File]::WriteAllText((Join-Path $env:OUA_ROOT 'party-app-audit.html'), @'
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>OUA 4.9.15 app audit</title>
+</head>
+<body style="margin:0;background:#0d0a07"><div id="root"></div><script type="module" src="/party-app-audit.tsx"></script></body>
+</html>
+'@, (New-Object System.Text.UTF8Encoding($false)))
+
+            [IO.File]::WriteAllText((Join-Path $env:OUA_ROOT 'party-app-audit.tsx'), @'
+import React, { useEffect, useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import { ImmersiveJourneyView } from './components/immersive/ImmersiveJourneyView';
+import { loadRuntimeMapManifest } from './lib/map';
+import './index.css';
+
+function Audit() {
+  const [hexId, setHexId] = useState<string | null>(null);
+  useEffect(() => {
+    void loadRuntimeMapManifest().then(manifest => {
+      const hex = manifest?.hexes.find((item:any) => item.playable) || manifest?.hexes[0] || null;
+      setHexId(hex?.id || null);
+    });
+  }, []);
+  if (!hexId) return <div style={{color:'#fff',padding:24}}>Carregando mapa real…</div>;
+
+  const masterState:any = {
+    position: { currentHexId: hexId, locationName: 'A Campina' },
+    worldClock: { hour: 12, season: 'spring' },
+    threatClocks: [],
+    livingWorld: { strongholds: [] },
+    scene: { tension: 0 },
+  };
+  const node:any = {
+    id: 'audit-scene',
+    location: 'A Campina',
+    weather: 'Tempo aberto',
+    atmospheric_narration: 'A Companhia observa a campina antes de seguir viagem.',
+    action_result: '',
+    choices: [],
+    narrativeMeta: { generationSource: 'gemini', generationModel: 'audit-runtime' },
+  };
+
+  return <ImmersiveJourneyView
+    campaignId="party-app-visual-audit"
+    currentNode={node}
+    currentImage={null}
+    characters={[]}
+    presentNpcs={[]}
+    masterState={masterState}
+    customAction=""
+    setCustomAction={() => {}}
+    onChoice={() => {}}
+    onCustomActionSubmit={(event:any) => event.preventDefault()}
+    onPartyMoved={async () => {}}
+    onMapDiscoveryChanged={async () => {}}
+    onPartyRested={async () => {}}
+    onOpenDice={() => {}}
+    onStartAdventure={async () => {}}
+    canStartAdventure={true}
+    isStoryLoading={false}
+    storyError={null}
+    onDismissStoryError={() => {}}
+    pendingTest={null}
+    isNarrationLoading={false}
+    narrationError={null}
+    onPlayNarration={async () => {}}
+    onStopNarration={() => {}}
+    onShareSceneImagePrompt={async () => {}}
+    onShareNpcPortraitPrompt={async () => {}}
+    onNavigate={() => {}}
+  />;
+}
+createRoot(document.getElementById('root')!).render(<Audit/>);
+'@, (New-Object System.Text.UTF8Encoding($false)))
+
+            [IO.File]::WriteAllText((Join-Path $env:OUA_ROOT 'party-app-audit.mjs'), @'
+import fs from 'node:fs';
+import { chromium } from 'playwright-core';
+const candidates = [
+  'C:/Program Files/Google/Chrome/Application/chrome.exe',
+  'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',
+  'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+  'C:/Program Files/Microsoft/Edge/Application/msedge.exe'
+];
+const exe = candidates.find(p => fs.existsSync(p));
+if (!exe) throw new Error('Chrome/Edge not found for real capture');
+const browser = await chromium.launch({headless:true, executablePath:exe});
+const page = await browser.newPage({viewport:{width:415,height:915}, deviceScaleFactor:1});
+const errors=[];
+page.on('pageerror', e => errors.push(String(e)));
+await page.goto('http://127.0.0.1:4178/party-app-audit.html',{waitUntil:'networkidle'});
+const sheet = page.locator('[data-braseiro-chronicle-sheet="true"]');
+if (await sheet.count()) {
+  await sheet.locator('button[aria-label="Fechar crônica"]').click();
+}
+const cluster = page.locator('[data-party-cluster="true"]');
+await cluster.waitFor({state:'visible', timeout:30000});
+const box = await cluster.boundingBox();
+if (!box || box.width < 20 || box.height < 20) throw new Error('PartyCluster is not visibly rendered in full app view');
+const marker = page.locator('[data-party-map-marker="true"]');
+await marker.waitFor({state:'attached', timeout:30000});
+const currentHexId = await marker.getAttribute('data-party-current-hex');
+if (!currentHexId) throw new Error('Current party hex hook is empty');
+const text = await page.locator('body').innerText();
+if (!text.includes('A Campina') || !text.includes('Abrir crônica')) throw new Error('Full immersive app shell was not rendered');
+if (errors.length) throw new Error('page errors: '+errors.join(' | '));
+const out = process.env.OUA_OUT + '/OUA_4.9.15_PARTY_APP_REAL_415x915.png';
+await page.screenshot({path:out,fullPage:false,animations:'disabled'});
+fs.writeFileSync(process.env.OUA_OUT + '/OUA_4.9.15_PARTY_APP_REAL_CAPTURE.json', JSON.stringify({
+  engine:'Chromium/Edge via Playwright',
+  viewport:'415x915',
+  actualComponent:'ImmersiveJourneyView + EriadorMap + PartyCluster',
+  currentHexId,
+  partyFallbackExercised:true,
+  fakeStoredTokenUsed:false,
+  markerBox:box,
+  pageErrors:errors
+},null,2));
+await browser.close();
+'@, (New-Object System.Text.UTF8Encoding($false)))
+
+            & npm.cmd install --no-save --no-package-lock playwright-core@1.55.0
+            if ($LASTEXITCODE -ne 0) { throw 'playwright-core install failed' }
+            $stdout = Join-Path $env:OUA_OUT 'PARTY_APP_CAPTURE_VITE.stdout.log'
+            $stderr = Join-Path $env:OUA_OUT 'PARTY_APP_CAPTURE_VITE.stderr.log'
+            $server = Start-Process -FilePath "node.exe" -ArgumentList @("node_modules/vite/bin/vite.js","--host","127.0.0.1","--port","4178") -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+            try {
+              $ready = $false
+              for ($i=0; $i -lt 60; $i++) {
+                Start-Sleep -Milliseconds 500
+                try {
+                  $resp = Invoke-WebRequest -UseBasicParsing "http://127.0.0.1:4178/party-app-audit.html" -TimeoutSec 2
+                  if ($resp.StatusCode -eq 200) { $ready = $true; break }
+                } catch {}
+              }
+              if (-not $ready) { throw 'Vite full-app visual-audit server did not start' }
+              & node.exe "party-app-audit.mjs"
+              if ($LASTEXITCODE -ne 0) { throw 'real immersive app capture failed' }
+              if (-not (Test-Path (Join-Path $env:OUA_OUT 'OUA_4.9.15_PARTY_APP_REAL_415x915.png'))) { throw 'real app screenshot missing' }
+            } finally {
+              if ($server -and -not $server.HasExited) { Stop-Process -Id $server.Id -Force -ErrorAction SilentlyContinue }
+            }
+          } finally { Pop-Location }
+
+      - name: Configure Android SDK
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $candidates = @('C:\actions-runner\android-sdk')
+          if ($env:ANDROID_SDK_ROOT) { $candidates += $env:ANDROID_SDK_ROOT }
+          if ($env:ANDROID_HOME) { $candidates += $env:ANDROID_HOME }
+          if ($env:LOCALAPPDATA) { $candidates += (Join-Path $env:LOCALAPPDATA 'Android\Sdk') }
+          $sdkRoot = $candidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+          if (-not $sdkRoot) { throw 'Android SDK not found' }
+          $sdkmanager = Get-ChildItem $sdkRoot -Recurse -Filter sdkmanager.bat -File -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $sdkmanager) { throw 'sdkmanager.bat not found' }
+          $env:ANDROID_HOME = $sdkRoot
+          $env:ANDROID_SDK_ROOT = $sdkRoot
+          "ANDROID_HOME=$sdkRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdkRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          1..100 | ForEach-Object { 'y' } | & $sdkmanager.FullName --licenses | Out-Null
+          & $sdkmanager.FullName 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
+          if ($LASTEXITCODE -ne 0) { throw 'Android SDK setup failed' }
+
+      - name: Build update APK and verify install-over compatibility
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $android = Join-Path $env:OUA_ROOT 'android'
+          Push-Location $android
+          try {
+            $previous = $ErrorActionPreference
+            $ErrorActionPreference = 'Continue'
+            if (Test-Path variable:PSNativeCommandUseErrorActionPreference) { $PSNativeCommandUseErrorActionPreference = $false }
+            & .\gradlew.bat clean :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'GRADLE_BUILD.log')
+            $exit = $LASTEXITCODE
+            $ErrorActionPreference = $previous
+            if ($exit -ne 0) { throw "Gradle failed: $exit" }
+          } finally { Pop-Location }
+
+          $apk = Get-ChildItem (Join-Path $android 'app\build\outputs\apk\debug') -File -Filter '*.apk' | Select-Object -First 1
+          if (-not $apk) { throw '4.9.15 APK not found' }
+          $newApk = Join-Path $env:OUA_OUT $env:APK_NAME
+          Copy-Item $apk.FullName $newApk -Force
+
+          $buildTools = Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory |
+            Sort-Object { [version]($_.Name -replace '[^0-9.]','') } -Descending |
+            Select-Object -First 1
+          if (-not $buildTools) { throw 'build-tools missing' }
+          $aapt = Join-Path $buildTools.FullName 'aapt.exe'
+          $apksigner = Join-Path $buildTools.FullName 'apksigner.bat'
+
+          & $aapt dump badging $env:BASE_APK_PATH | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'BASE_APK_BADGING.txt')
+          & $aapt dump badging $newApk | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'NEW_APK_BADGING.txt')
+          $baseBadging = Get-Content (Join-Path $env:OUA_OUT 'BASE_APK_BADGING.txt') -Raw
+          $newBadging = Get-Content (Join-Path $env:OUA_OUT 'NEW_APK_BADGING.txt') -Raw
+
+          if ($baseBadging -notmatch "package: name='com\.braseiro\.oumanel'") { throw 'Baseline package differs' }
+          if ($newBadging -notmatch "package: name='com\.braseiro\.oumanel'") { throw 'New package differs' }
+          if ($baseBadging -notmatch "versionCode='49014'") { throw 'Baseline versionCode is not 49014' }
+          if ($newBadging -notmatch "versionCode='49015'") { throw 'New versionCode is not 49015' }
+
+          & $apksigner verify --verbose --print-certs $env:BASE_APK_PATH 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'BASE_APK_SIGNATURE.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'Baseline APK signature invalid' }
+          & $apksigner verify --verbose --print-certs $newApk 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'NEW_APK_SIGNATURE.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'New APK signature invalid' }
+
+          $baseSig = (Get-Content (Join-Path $env:OUA_OUT 'BASE_APK_SIGNATURE.txt') | Where-Object { $_ -match 'certificate SHA-256 digest:' } | Select-Object -First 1)
+          $newSig = (Get-Content (Join-Path $env:OUA_OUT 'NEW_APK_SIGNATURE.txt') | Where-Object { $_ -match 'certificate SHA-256 digest:' } | Select-Object -First 1)
+          if (-not $baseSig -or -not $newSig) { throw 'Could not read signer SHA-256' }
+          $baseDigest = ($baseSig -replace '.*digest:\s*','').Trim().ToLowerInvariant()
+          $newDigest = ($newSig -replace '.*digest:\s*','').Trim().ToLowerInvariant()
+          if ($baseDigest -ne $newDigest) { throw "SIGNATURE MISMATCH: installed update would fail. base=$baseDigest new=$newDigest" }
+
+          @(
+            'PASS - same applicationId com.braseiro.oumanel',
+            'PASS - versionCode increased 49014 -> 49015',
+            'PASS - signing certificate SHA-256 unchanged',
+            'PASS - IndexedDB name unchanged: braseiro-db',
+            'PASS - IndexedDB schema version unchanged: 19',
+            'PASS - no automatic app-data clearing code detected',
+            'RESULT - APK is eligible for Android install-over update without uninstalling the existing app.'
+          ) | Set-Content (Join-Path $env:OUA_OUT 'INSTALL_OVER_EXISTING_APP.txt') -Encoding utf8
+
+          $hash = (Get-FileHash $newApk -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:APK_NAME" | Set-Content "$newApk.sha256" -Encoding ascii
+
+      - name: Package upgrade-safe source
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Remove-Item (Join-Path $env:OUA_ROOT 'node_modules') -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item (Join-Path $env:OUA_ROOT 'android\.gradle') -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item (Join-Path $env:OUA_ROOT 'android\build') -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item (Join-Path $env:OUA_ROOT 'android\app\build') -Recurse -Force -ErrorAction SilentlyContinue
+          $zip = Join-Path $env:OUA_OUT $env:SOURCE_NAME
+          $parent = Split-Path $env:OUA_ROOT -Parent
+          $leaf = Split-Path $env:OUA_ROOT -Leaf
+          & tar.exe -a -c -f $zip -C $parent $leaf
+          if ($LASTEXITCODE -ne 0) { throw 'Source ZIP failed' }
+          $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:SOURCE_NAME" | Set-Content "$zip.sha256" -Encoding ascii
+
+      - name: Publish upgrade-safe release
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $repo = $env:GITHUB_REPOSITORY
+          $headers = @{
+            'Authorization' = "Bearer $env:GITHUB_TOKEN"
+            'Accept' = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'oua-499-upgrade-safe'
+          }
+
+          try {
+            $old = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:TAG"
+            if ($old.id) { Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$($old.id)" | Out-Null }
+          } catch {}
+
+          $payload = @{
+            tag_name = $env:TAG
+            target_commitish = $env:GITHUB_SHA
+            name = 'Braseiro O Um Anel 4.9.15 - PARTY REAL NO HEX ATUAL / UPDATE'
+            body = 'Upgrade-safe update over 4.9.14. Fixes the actual immersive Android runtime path shown by the user: route-history footprints are no longer drawn over the canonical current hex, the current PartyCluster is always projected from currentHexId, and a deterministic visible fallback keeps the party on-map even while character/token art is unavailable. Includes a real 415x915 capture of the full ImmersiveJourneyView + EriadorMap + PartyCluster path with no fake stored token. Package, signing certificate and IndexedDB identity/schema remain unchanged.'nly the party presentation on the map: the actual PartyCluster is rendered on the canonical current hex at all times, including before the first scene; the immersive footprint placeholder is removed; missing token/culture mappings fall back to deterministic party art and finally to a visible medallion instead of disappearing. Includes a real 415x915 Chromium capture of the patched EriadorMap/PartyCluster. Package, signing certificate and IndexedDB identity/schema remain unchanged.'
+            draft = $false
+            prerelease = $false
+          } | ConvertTo-Json
+          $release = Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $payload -Uri "https://api.github.com/repos/$repo/releases"
+          if (-not $release.id) { throw 'Release creation failed' }
+
+          foreach ($file in Get-ChildItem $env:OUA_OUT -File) {
+            $encoded = [uri]::EscapeDataString($file.Name)
+            $url = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$encoded"
+            & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors --request POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: application/octet-stream" --data-binary "@$($file.FullName)" $url
+            if ($LASTEXITCODE -ne 0) { throw "Upload failed: $($file.Name)" }
+          }
+          Write-Host "RELEASE_URL=$($release.html_url)"
+
+# 4.9.15 party-on-current-hex fix with real 415x915 capture
+
+# retry after narrowing party-only patch
+
+# retry after party capture gate cleanup
+
+# retry capture with runtime bundled map manifest
+
+# retry capture with persisted audit party token
+
+# retry with resilient stored-party token path
+
+# publish real party capture as workflow artifact for inspection
+
+# artifact upload removed: GitHub Actions storage quota was blocking APK build
