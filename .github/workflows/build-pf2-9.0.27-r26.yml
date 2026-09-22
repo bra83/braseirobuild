@@ -57,7 +57,7 @@ jobs:
           if(-not (Test-Path (Join-Path $work 'gradlew.bat'))){throw 'gradlew.bat missing'}
 
           $vp=Get-Content (Join-Path $work 'version.properties') -Raw
-          if($vp -notmatch 'VERSION_NAME=9\.0\.26'){throw 'VERSION_NAME mismatch'}
+          if($vp -notmatch 'VERSION_NAME=9\.0\.27'){throw 'VERSION_NAME mismatch'}
           if($vp -notmatch 'VERSION_CODE=90027'){throw 'VERSION_CODE mismatch'}
 
           $atlas=Join-Path $work 'android\app\src\main\assets\pathfinder\atlas\inner_sea_canonical_v6_grid_native_hires_compat.zip'
