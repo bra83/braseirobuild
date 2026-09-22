@@ -79,12 +79,23 @@ new_render = """        {immersive && currentPartyPresentation && (
               willChange: 'transform',
             }}
           >
-            <PartyCluster
-              characters={partyCharacters}
-              manifest={immersiveAssets}
-              position={{ left: currentPartyPresentation.mapX, top: currentPartyPresentation.mapY }}
-              mapMarker
-            />
+            <div
+              data-party-world-point="true"
+              style={{
+                position: 'absolute',
+                left: currentPartyPresentation.mapX,
+                top: currentPartyPresentation.mapY,
+                width: 0,
+                height: 0,
+                overflow: 'visible',
+                pointerEvents: 'none',
+              }}
+            >
+              <PartyCluster
+                characters={partyCharacters}
+                manifest={immersiveAssets}
+              />
+            </div>
           </div>
         )}"""
 emap, changed = old_render_pattern.subn(new_render, emap, count=1)
@@ -131,69 +142,10 @@ write(map_rel, emap)
 cluster_rel = "components/immersive/PartyCluster.tsx"
 cluster = read(cluster_rel)
 
-# The 4.9.15 upgrade baseline can still carry the older 4.9.4 PartyCluster
-# contract: it only destructures characters/manifest and hard-codes 50%/42%.
-# EriadorMap may pass position/mapMarker, but React simply ignores those props,
-# which is exactly why the party remains pinned to screen-space. Restore the
-# 4.9.5 positional contract before placing the component in the world layer.
-if "position?: { left: number | string; top: number | string };" not in cluster:
-    one_line_props = "interface PartyClusterProps { characters: Character[]; manifest: ImmersiveAssetManifest | null; }"
-    expanded_props = """interface PartyClusterProps {
-  characters: Character[];
-  manifest: ImmersiveAssetManifest | null;
-  position?: { left: number | string; top: number | string };
-  mapMarker?: boolean;
-}"""
-    if one_line_props in cluster:
-        cluster = cluster.replace(one_line_props, expanded_props, 1)
-    else:
-        props_match = re.search(r"interface PartyClusterProps\s*\{([\s\S]*?)\}", cluster)
-        if not props_match:
-            raise SystemExit("PartyClusterProps interface missing")
-        props_body = props_match.group(1)
-        extra = ""
-        if "position?:" not in props_body:
-            extra += "\n  position?: { left: number | string; top: number | string };"
-        if "mapMarker?:" not in props_body:
-            extra += "\n  mapMarker?: boolean;"
-        cluster = cluster[:props_match.end(1)] + extra + cluster[props_match.end(1):]
-
-signature = re.search(
-    r"export const PartyCluster:\s*React\.FC<PartyClusterProps>\s*=\s*\(\{([\s\S]{0,320}?)\}\)\s*=>\s*\{",
-    cluster,
-)
-if not signature:
-    raise SystemExit("PartyCluster component signature not found")
-params = signature.group(1)
-if "position" not in params or "mapMarker" not in params:
-    cleaned = params.strip()
-    names = [item.strip() for item in cleaned.split(",") if item.strip()]
-    if not any(item.startswith("position") for item in names):
-        names.append("position")
-    if not any(item.startswith("mapMarker") for item in names):
-        names.append("mapMarker = false")
-    else:
-        names = ["mapMarker = false" if item == "mapMarker" else item for item in names]
-    new_params = " " + ", ".join(names) + " "
-    cluster = cluster[:signature.start(1)] + new_params + cluster[signature.end(1):]
-
-old_fixed_position = "      pointerEvents: 'none', position: 'absolute', left: '50%', top: '42%', transform: 'translate(-50%, -50%)',"
-new_position = """      pointerEvents: 'none', position: 'absolute',
-      left: position?.left ?? '50%', top: position?.top ?? '42%', transform: 'translate(-50%, -50%)',"""
-if old_fixed_position in cluster:
-    cluster = cluster.replace(old_fixed_position, new_position, 1)
-elif "left: position?.left ?? '50%'" not in cluster:
-    raise SystemExit("PartyCluster fixed-position style anchor missing")
-
-old_fixed_box = "      zIndex: 35, height: 122, width: 148, maxWidth: '38vw', maxHeight: '18vh', overflow: 'visible',"
-new_box = """      zIndex: mapMarker ? 45 : 35,
-      height: mapMarker ? 96 : 122, width: mapMarker ? 116 : 148,
-      maxWidth: mapMarker ? '30vw' : '38vw', maxHeight: mapMarker ? '14vh' : '18vh', overflow: 'visible',
-      filter: mapMarker ? 'drop-shadow(0 5px 5px rgba(0,0,0,.65))' : undefined,"""
-if old_fixed_box in cluster:
-    cluster = cluster.replace(old_fixed_box, new_box, 1)
-elif "zIndex: mapMarker ? 45 : 35" not in cluster:
-    raise SystemExit("PartyCluster map-marker sizing anchor missing")
+# Keep the legacy PartyCluster contract intact. The world point wrapper in
+# EriadorMap supplies the canonical map coordinate, so no position/mapMarker
+# prop is required and 4.9.15 formatting/signature differences cannot break
+# this upgrade.
 
 # Never let an empty/late portrait list suppress the map marker. 4.9.15 added
 # visiblePortraits fallback, but remove any surviving legacy early-return from
@@ -208,7 +160,7 @@ cluster = re.sub(r"\s*if\s*\(\s*!portraits\.length\s*\)\s*return\s+null\s*;\s*",
 # shadow asset is the source of the hard/cropped horizontal strips visible on
 # the upper left/right of the base in the Android capture.
 shadow_old = """    {shadow && <img src={shadow} alt="" draggable={false} style={{ position: 'absolute', bottom: 1, left: '4%', height: '68%', width: '92%', objectFit: 'contain', opacity: .45, mixBlendMode: 'multiply' }}/>}"""
-shadow_new = """    {mapMarker ? <div data-party-soft-shadow="true" aria-hidden="true" style={{ position: 'absolute', left: '12%', right: '12%', bottom: 5, height: '31%', zIndex: 0, borderRadius: '50%', background: 'radial-gradient(ellipse at center, rgba(0,0,0,.58) 0%, rgba(0,0,0,.34) 47%, rgba(0,0,0,0) 76%)', filter: 'blur(2px)', transform: 'scaleX(1.06)' }} /> : (shadow && <img src={shadow} alt="" draggable={false} style={{ position: 'absolute', bottom: 1, left: '4%', height: '68%', width: '92%', objectFit: 'contain', opacity: .45, mixBlendMode: 'multiply' }}/>) }"""
+shadow_new = """    <div data-party-soft-shadow="true" aria-hidden="true" style={{ position: 'absolute', left: '12%', right: '12%', bottom: 5, height: '31%', zIndex: 0, borderRadius: '50%', background: 'radial-gradient(ellipse at center, rgba(0,0,0,.58) 0%, rgba(0,0,0,.34) 47%, rgba(0,0,0,0) 76%)', filter: 'blur(2px)', transform: 'scaleX(1.06)' }} />"""
 if shadow_old in cluster:
     cluster = cluster.replace(shadow_old, shadow_new, 1)
 elif 'data-party-soft-shadow="true"' not in cluster:
@@ -226,7 +178,7 @@ if 'data-party-world-child="true"' not in cluster:
     marker = '    data-party-cluster="true"\n'
     if marker not in cluster:
         raise SystemExit("PartyCluster data hook missing")
-    cluster = cluster.replace(marker, marker + '    data-party-world-child={mapMarker ? "true" : undefined}\n', 1)
+    cluster = cluster.replace(marker, marker + '    data-party-world-child="true"\n', 1)
 
 write(cluster_rel, cluster)
 
@@ -265,11 +217,11 @@ cluster = read(cluster_rel)
 checks = {
     "party world coordinates": "mapX: hex.centerX, mapY: hex.centerY" in emap,
     "party never suppressed by empty portraits": not re.search(r"if\s*\(\s*!portraits\.length\s*\)\s*return\s+null", cluster),
-    "PartyCluster accepts world position": "position?: { left: number | string; top: number | string };" in cluster and "left: position?.left ?? '50%'" in cluster,
-    "PartyCluster mapMarker prop scoped": "mapMarker = false" in cluster and "zIndex: mapMarker ? 45 : 35" in cluster,
+    "party world point wrapper": 'data-party-world-point="true"' in emap and "width: 0" in emap and "height: 0" in emap,
+    "legacy PartyCluster contract preserved": "position={{ left: currentPartyPresentation.mapX" not in emap and "\n              mapMarker\n" not in emap,
     "party world transform": 'data-party-world-anchored="true"' in emap and "translate3d(" in emap and "scale(" in emap,
     "screen-space projection removed": "currentPartyPresentation.left" not in emap and "currentPartyPresentation.top" not in emap,
-    "party map marker scales with camera": "position={{ left: currentPartyPresentation.mapX, top: currentPartyPresentation.mapY }}" in emap,
+    "party map marker scales with camera": 'data-party-world-point="true"' in emap and "transform: `translate3d(" in emap and "scale(${camera.scale})" in emap,
     "initial camera uses canonical party hex": "const canonicalPartyHexId = currentHexId || discovery?.currentHexId || null;" in emap,
     "hard shadow strips removed for map marker": 'data-party-soft-shadow="true"' in cluster,
     "base breathing room": 'data-party-base="true"' in cluster and "width: '98%'" in cluster and "left: '1%'" in cluster,
