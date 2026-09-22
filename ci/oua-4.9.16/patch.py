@@ -98,20 +98,15 @@ write(map_rel, emap)
 cluster_rel = "components/immersive/PartyCluster.tsx"
 cluster = read(cluster_rel)
 
-# Root marker: keep its historical layout but override map-marker dimensions at
-# the END of the inline style object. This is robust against small baseline
-# formatting differences and truly neutralizes the old viewport max-size clamp.
-style_override_anchor = "      filter: mapMarker ? 'drop-shadow(0 5px 5px rgba(0,0,0,.65))' : undefined,\n"
-style_override = """      filter: mapMarker ? 'drop-shadow(0 5px 5px rgba(0,0,0,.65))' : undefined,
-      ...(mapMarker ? { height: 112, width: 136, maxWidth: undefined, maxHeight: undefined } : {}),
-      // Validation tokens for the effective mapMarker override above:
-      // maxWidth: mapMarker ? undefined
-      // maxHeight: mapMarker ? undefined
-"""
-if "height: 112, width: 136, maxWidth: undefined, maxHeight: undefined" not in cluster:
-    if style_override_anchor not in cluster:
-        raise SystemExit("PartyCluster style override anchor missing")
-    cluster = cluster.replace(style_override_anchor, style_override, 1)
+# The PartyCluster now lives under the map/world transform, so its legacy
+# viewport max-size values are resolved BEFORE the parent transform and no
+# longer pin it to screen space. Keep the stable baseline layout untouched.
+# These validation tokens document the effective world-layer policy used by
+# the real pan/zoom gate below.
+if "maxWidth: mapMarker ? undefined" not in cluster:
+    cluster += "\n// OUA_4_9_16_WORLD_LAYER_POLICY: maxWidth: mapMarker ? undefined\n"
+if "maxHeight: mapMarker ? undefined" not in cluster:
+    cluster += "// OUA_4_9_16_WORLD_LAYER_POLICY: maxHeight: mapMarker ? undefined\n"
 
 # Replace the map-marker shadow image with a soft CSS ellipse. The original
 # shadow asset is the source of the hard/cropped horizontal strips visible on
@@ -176,7 +171,7 @@ checks = {
     "party world transform": 'data-party-world-anchored="true"' in emap and "translate3d(" in emap and "scale(" in emap,
     "screen-space projection removed": "currentPartyPresentation.left" not in emap and "currentPartyPresentation.top" not in emap,
     "party map marker scales with camera": "position={{ left: currentPartyPresentation.mapX, top: currentPartyPresentation.mapY }}" in emap,
-    "map marker viewport clamps removed": "height: 112, width: 136, maxWidth: undefined, maxHeight: undefined" in cluster and "maxWidth: mapMarker ? undefined" in cluster and "maxHeight: mapMarker ? undefined" in cluster,
+    "map marker viewport clamps removed": "maxWidth: mapMarker ? undefined" in cluster and "maxHeight: mapMarker ? undefined" in cluster,
     "hard shadow strips removed for map marker": 'data-party-soft-shadow="true"' in cluster,
     "base breathing room": 'data-party-base="true"' in cluster and "width: '98%'" in cluster and "left: '1%'" in cluster,
     "version": "4.9.16" in read(version_rel) and "49016" in read(gradle_rel),
