@@ -238,25 +238,22 @@ new_button="""              {onPartyRested && (
               )}"""
 mp=replace_required(mp,old_button,new_button,"classic rest buttons")
 
-# Add immersive rest controls after movement guidance if present.
-guide="""            {discovery?.currentHexId && <div style={{ marginTop: 7, fontSize: 10, lineHeight: 1.35, opacity: .72 }}>
-              Destino distante: Planejar rota → Avançar 1 hex pela rota.
-            </div>}"""
+# Add immersive rest controls after movement guidance.
+guide = """            {discovery?.currentHexId && (
+              <div style={{ marginTop: 7, fontSize: 10, lineHeight: 1.35, opacity: .72 }}>
+                Destino distante: Planejar rota → Avançar 1 hex pela rota.
+              </div>
+            )}"""
 if guide not in mp:
-    guide="""            {discovery?.currentHexId && <div style={{ marginTop: 7, fontSize: 10, lineHeight: 1.35, opacity: .72 }}>
-              A viagem ocorre um hex por vez. Para um destino distante: Planejar rota → Avançar 1 hex pela rota.
-            </div>}"""
-if guide in mp:
-    immersive_rest=guide+"""
+    raise SystemExit("immersive movement guidance anchor missing")
+immersive_rest = guide + """
             {onPartyRested && discovery?.currentHexId && (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7, marginTop: 7 }}>
                 <button type="button" onClick={() => void restGroup('short')} style={{ minHeight: 42, borderRadius: 8, border: '1px solid rgba(117,151,175,.45)', background: 'rgba(23,48,66,.62)', color: '#d8e9f2', fontWeight: 700 }}>Descanso Curto</button>
                 <button type="button" onClick={() => void restGroup('long')} style={{ minHeight: 42, borderRadius: 8, border: '1px solid rgba(117,151,175,.45)', background: 'rgba(23,48,66,.62)', color: '#d8e9f2', fontWeight: 700 }}>Descanso Prolongado</button>
               </div>
             )}"""
-    mp=mp.replace(guide,immersive_rest,1)
-else:
-    raise SystemExit("immersive movement guidance anchor missing")
+mp = mp.replace(guide, immersive_rest, 1)
 
 write(map_rel,mp)
 
