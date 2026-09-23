@@ -2,27 +2,21 @@ name: P70 transfer probe on BRELGA
 on:
   push:
     branches: [main]
-    paths:
-      - '.github/workflows/p70-transfer-probe.yml'
+    paths: ['.github/workflows/p70-transfer-probe.yml']
   workflow_dispatch:
-permissions:
-  contents: read
+permissions: {contents: read}
 jobs:
   probe:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 10
     steps:
-      - name: Inspect firestorage client API
+      - name: Inspect firestorage client chunk
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
-          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA, got $env:RUNNER_NAME" }
-          $base='https://firestorage.ai'
-          $jsUrl=$base+'/_next/static/chunks/app/(files)/ja/f/page-4d19ae0a4ce39d79.js'
-          $js=Join-Path $env:RUNNER_TEMP 'firestorage-page.js'
-          & curl.exe -L --fail --retry 3 -o $js $jsUrl
+          $url='https://firestorage.ai/_next/static/chunks/app/%28files%29/ja/f/page-4d19ae0a4ce39d79.js'
+          $out=Join-Path $env:RUNNER_TEMP 'fs.js'
+          & curl.exe -L --fail --retry 3 -o $out $url
           if ($LASTEXITCODE -ne 0) { throw "curl failed $LASTEXITCODE" }
-          $text=Get-Content $js -Raw
-          Write-Host "JS_BYTES=$((Get-Item $js).Length)"
-          [regex]::Matches($text,'[^,;{}]{0,180}(?:/api/|download|public_id|publicId|share_url|shareUrl|file_id|fileId)[^,;{}]{0,260}') |
-            ForEach-Object { Write-Host ("MATCH="+$_.Value) }
+          Write-Host "BYTES=$((Get-Item $out).Length)"
+          Write-Host (Get-Content $out -Raw)
