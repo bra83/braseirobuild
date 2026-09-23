@@ -8,7 +8,7 @@ on:
       - ".github/workflows/audit-oua-4.9.20-mechanics.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: oua-4.9.20-mechanics-audit
@@ -34,7 +34,7 @@ jobs:
           $work=Join-Path $env:RUNNER_TEMP 'oua-4920-mechanics-audit'
           $incoming=Join-Path $work 'incoming'
           $extract=Join-Path $work 'extract'
-          $audit=Join-Path $env:GITHUB_WORKSPACE 'mechanics-audit'
+          $audit=Join-Path $env:GITHUB_WORKSPACE 'ci\oua-4.9.20\mechanics-snapshot'
           Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
           Remove-Item $audit -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $incoming,$extract,$audit -Force | Out-Null
@@ -88,9 +88,17 @@ jobs:
 
           Get-ChildItem $audit -Recurse -File | Select-Object FullName,Length | Format-Table -AutoSize | Out-String | Set-Content (Join-Path $audit 'FILES.txt') -Encoding UTF8
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: OUA_4.9.20_MECHANICS_AUDIT_SOURCE
-          path: mechanics-audit
-          if-no-files-found: error
-          retention-days: 7
+      - name: Commit mechanics snapshot
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          git config user.name "braseiro-audit-bot"
+          git config user.email "braseiro-audit-bot@users.noreply.github.com"
+          git add ci/oua-4.9.20/mechanics-snapshot
+          $changed = git status --porcelain -- ci/oua-4.9.20/mechanics-snapshot
+          if ($changed) {
+            git commit -m "OUA 4.9.20: snapshot mechanics source for audit"
+            git push origin HEAD:main
+          } else {
+            Write-Host "Mechanics snapshot unchanged."
+          }
