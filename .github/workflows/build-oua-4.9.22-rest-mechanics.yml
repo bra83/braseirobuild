@@ -1,0 +1,355 @@
+name: OUA 4.9.22 Rest Mechanics
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-oua-4.9.22-rest-mechanics.yml"
+      - "ci/oua-4.9.22/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: oua-4.9.22-rest-mechanics
+  cancel-in-progress: true
+
+env:
+  BASE_TAG: "OUA-v4.9.21"
+  BASE_APK: "BRASEIRO_O_UM_ANEL_4.9.21_UPDATE.apk"
+  BASE_SOURCE: "OUA_4.9.21_UPGRADE_SAFE_ANDROID_STUDIO.zip"
+  TAG: "OUA-v4.9.22"
+  APK_NAME: "BRASEIRO_O_UM_ANEL_4.9.22_UPDATE.apk"
+  SOURCE_NAME: "OUA_4.9.22_UPGRADE_SAFE_ANDROID_STUDIO.zip"
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 120
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Prepare 4.9.21 installed-compatible baseline
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA; got $env:RUNNER_NAME" }
+
+          $python = Get-Command python.exe -ErrorAction SilentlyContinue
+          if (-not $python) { $python = Get-Command python -ErrorAction Stop }
+
+          $work = Join-Path $env:RUNNER_TEMP 'oua-4922-upgrade'
+          $incoming = Join-Path $work 'incoming'
+          $extract = Join-Path $work 'extract'
+          $out = Join-Path $work 'out'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming,$extract,$out -Force | Out-Null
+
+          $headers = @{
+            'Authorization' = "Bearer $env:GITHUB_TOKEN"
+            'Accept' = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'oua-4922-upgrade-safe'
+          }
+          $repo = $env:GITHUB_REPOSITORY
+          $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:BASE_TAG"
+
+          foreach ($name in @($env:BASE_APK, $env:BASE_SOURCE)) {
+            $asset = @($release.assets | Where-Object { $_.name -eq $name -and $_.state -eq 'uploaded' }) | Select-Object -First 1
+            if (-not $asset) { throw "Missing baseline asset: $name" }
+            $dest = Join-Path $incoming $name
+            & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $dest $asset.url
+            if ($LASTEXITCODE -ne 0 -or -not (Test-Path $dest)) { throw "Baseline download failed: $name" }
+          }
+
+          & tar.exe -xf (Join-Path $incoming $env:BASE_SOURCE) -C $extract
+          if ($LASTEXITCODE -ne 0) { throw 'Could not extract 4.9.21 source' }
+
+          $pkg = Get-ChildItem $extract -Recurse -File -Filter package.json |
+            Where-Object { Test-Path (Join-Path $_.Directory.FullName 'android') } |
+            Sort-Object { $_.FullName.Length } |
+            Select-Object -First 1
+          if (-not $pkg) { throw '4.9.21 Android Studio root not found' }
+          $root = $pkg.Directory.FullName
+
+          $patch = "$env:GITHUB_WORKSPACE\ci\oua-4.9.22\patch.py"
+          & $python.Source $patch $root
+          if ($LASTEXITCODE -ne 0) { throw '4.9.22 patch failed' }
+
+          $db = Get-Content (Join-Path $root 'lib\db.ts') -Raw
+          $gradle = Get-Content (Join-Path $root 'android\app\build.gradle.kts') -Raw
+          $manifest = Get-Content (Join-Path $root 'android\app\src\main\AndroidManifest.xml') -Raw
+          $whole = (Get-ChildItem $root -Recurse -File -Include *.ts,*.tsx,*.kt,*.java | ForEach-Object { Get-Content $_.FullName -Raw }) -join "`n"
+
+          $gates = @{
+            'same-db-name' = $db.Contains("const DB_NAME = 'braseiro-db';")
+            'same-db-version' = $db.Contains('const DB_VERSION = 19;')
+            'no-indexeddb-delete' = -not $whole.Contains('indexedDB.deleteDatabase')
+            'no-app-data-clear' = (-not $whole.Contains('clearApplicationUserData')) -and (-not $whole.Contains('pm clear'))
+            'version-4.9.22' = $gradle.Contains('versionName = "4.9.22"')
+            'version-code-49022' = $gradle.Contains('versionCode = 49022')
+            'gemini-flow-kept' = $whole.Contains('com.google.android.apps.bard')
+            'map-first-shell-kept' = $whole.Contains('data-braseiro-chronicle-sheet')
+            'single-master-model-ui' = $whole.Contains('Modelo do Mestre — texto — ID manual') -and (-not $whole.Contains('Texto econômico — ID manual'))
+            'manual-tts-model' = $whole.Contains('TTS — ID manual')
+            'tts-runtime-override' = $whole.Contains('getGeminiTtsModel') -and $whole.Contains('getTtsModels()')
+            'tts-cache-v9' = $whole.Contains('tts-v9-')
+            'tts-chunked-prefetch' = $whole.Contains('splitRange(text, 0, text.length, 680)')
+            'tts-completeness-guard' = $whole.Contains('minimumCompleteDurationMs')
+            'gemini-text-test-control' = $whole.Contains('Testar modelo de texto principal')
+            'gemini-tts-test-control' = $whole.Contains('Testar modelo TTS com Charon') -and $whole.Contains('playGeneratedVoice(artifact.token, 1)')
+            'single-text-model-runtime' = $whole.Contains('const models = [getGeminiTextModel()];') -and (-not $whole.Contains("getGeminiTextModel('economy')")) -and (-not $whole.Contains("getGeminiTextModel('cinematic')"))
+            'opening-no-silent-fallback' = $whole.Contains('Nenhum texto local curto foi usado')
+            'opening-rag-safe' = $whole.Contains('abertura narrativa sem regra aplicável')
+            'long-master-narration' = $whole.Contains('temperature: 0.78, maxOutputTokens: 6800') -and $whole.Contains('280 a 520 palavras') -and $whole.Contains('Fale como um Mestre sentado à mesa')
+            'generation-provenance' = $whole.Contains('generationModel') -and $whole.Contains('generationSource')
+            'auto-open-after-start' = $whole.Contains('await props.onStartAdventure();') -and $whole.Contains('startAdventureFromMap')
+            'party-always-real-not-footprints' = $whole.Contains('partyMarkerMode="none"') -and -not $whole.Contains('partyMarkerMode={node && props.characters.length ? "none" : "footprints"}')
+            'party-current-hex-canonical' = $whole.Contains('const activeHexId = currentHexId || discovery?.currentHexId || null;')
+            'party-marker-evidence-hook' = $whole.Contains('data-party-map-marker="true"') -and $whole.Contains('data-party-cluster="true"')
+            'current-hex-excludes-route-footprints' = $whole.Contains('if (immersive && activePartyHexId && hex.id === activePartyHexId) return;')
+            'party-fallback-visible' = $whole.Contains('FALLBACK_TRAVELER') -and $whole.Contains('visiblePortraits')
+            'party-does-not-wait-for-token-hydration' = $whole.Contains('if (!immersive || !activeHexId) return null;')
+            'map-redraw-marker-dependencies' = $whole.Contains('currentHexId, discovery') -and $whole.Contains('partyMarkerMode, selected')
+            'party-world-coordinates' = $whole.Contains('mapX: hex.centerX, mapY: hex.centerY')
+            'party-world-layer-transform' = $whole.Contains('data-party-world-anchored="true"') -and $whole.Contains('translate3d(') -and $whole.Contains('scale(')
+            'party-no-screen-space-left-top' = (-not $whole.Contains('currentPartyPresentation.left')) -and (-not $whole.Contains('currentPartyPresentation.top'))
+            'party-soft-shadow-no-hard-wings' = $whole.Contains('data-party-soft-shadow="true"')
+            'party-base-breathing-room' = $whole.Contains('data-party-base="true"') -and $whole.Contains("width: '98%'") -and $whole.Contains("left: '1%'")
+            'story-error-visible' = $whole.Contains('Falha ao iniciar/continuar')
+            'map-toast-above-nav' = $whole.Contains('bottom: 92, zIndex: 115')
+            'narration-audio-kept' = $whole.Contains('🔊 Ouvir narração') -and $whole.Contains('■ Parar narração')
+            'scene-latch-clears-with-existing-node' = $whole.Contains('if (startRequested) setStartRequested(false);') -and $whole.Contains('[props.currentNode, startRequested]')
+            'creating-overlay-only-without-node' = $whole.Contains('((startRequested || props.isStoryLoading) && !node)')
+            'audio-default-not-number-null' = $whole.Contains("raw == null || raw.trim() === ''") -and $whole.Contains('return DEFAULT_VOLUMES[channel]')
+            'voice-default-audible' = $whole.Contains('voice: 1')
+            'sensory-master-contract' = $whole.Contains('SENSORIALIDADE')
+            'short-narration-repair' = $whole.Contains('softWordMin')
+            'fixed-actions-kept' = $whole.Contains('Ações rápidas')
+            'npc-entities-kept' = $whole.Contains('NPCs presentes')
+            'gemini-network-retry' = $whole.Contains('isTransientGeminiNetworkError') -and $whole.Contains('callGeminiOnce') -and $whole.Contains('repeat(3)')
+            'shared-target-native' = $whole.Contains('setSharedImageTarget') -and $whole.Contains('getSharedImageTarget') -and $whole.Contains('KEY_TARGET_JSON')
+            'npc-import-verified' = $whole.Contains('verifiedToken') -and $whole.Contains('verifiedNpc')
+            'npc-portrait-refresh-event' = $whole.Contains('braseiro-npc-portrait-updated') -and $whole.Contains('npcTokenOverrides')
+            'npc-import-fresh-db' = $whole.Contains("const latestNpcs = await getStoreData<Npc>('npcs');")
+            'master-repeat-hard-abort-removed' = (-not $whole.Contains('O Mestre devolveu a cena anterior')) -and (-not $whole.Contains('O Gemini devolveu praticamente a mesma narração'))
+            'master-repeat-ordered-shingles' = $whole.Contains('function sceneShingleSet') -and $whole.Contains('sceneLooksRepeated')
+            'route-execution-button' = $whole.Contains('Avançar 1 hex pela rota') -and $whole.Contains('advancePlannedRoute')
+            'route-movement-guidance' = $whole.Contains('Destino distante: Planejar rota')
+            'hope-success-die' = $whole.Contains('bonusSuccessDice: 1') -and $whole.Contains('setOneRingSuccessCount(current => current + bonusDice)')
+            'hope-inspired-two-dice' = $whole.Contains('inspiredForRoll ? 2 : 1')
+            'miserable-roll-enforced' = $whole.Contains('rollMode, weary, miserable')
+            'journey-four-roles' = $whole.Contains("['guide', 'scout', 'hunter', 'lookout']")
+            'journey-terrain-time' = $whole.Contains('journeyTravelDaysForTerrain') -and $whole.Contains('travelDays * 1440')
+            'journey-world-clock' = $whole.Contains('advanceWorldClock(state.worldClock, travelDays * 1440)')
+            'journey-living-world' = $whole.Contains('simulateLivingWorldDetailed(nextState, nextCampaign, nextNpcs, travelDays * 1440)')
+            'journey-route-estimate' = $whole.Contains('estimatedDays = route.reduce')
+            'council-resistance-time-limit' = $whole.Contains('council.timeLimit = resistance + (success ? icons : 0)')
+            'council-no-failure-tolerance' = (-not $whole.Contains('council.failures >= council.tolerance'))
+            'fellowship-hope-heart' = $whole.Contains('adjustHope(sheet, Math.max(0, Number(sheet.attributes.heart)')
+            'rest-command' = $whole.Contains("type: 'resolve_rest'") -and $whole.Contains("case 'resolve_rest'")
+            'short-rest-strength' = $whole.Contains("if (!next.attributes.wounded)") -and $whole.Contains("enduranceCurrent + strength")
+            'short-rest-hour' = $whole.Contains("advanceWorldClock(nextState.worldClock, 60)")
+            'long-rest-full' = $whole.Contains("next.attributes.enduranceCurrent = next.attributes.enduranceMax")
+            'long-rest-zero-hope' = $whole.Contains("next.attributes.hopeCurrent <= 0") -and $whole.Contains("hopeCurrent = Math.min(next.attributes.hopeMax, 1)")
+            'rest-daily-limit' = $whole.Contains("lastShortRestDayKey") -and $whole.Contains("lastLongRestDayKey")
+            'rest-wired-app' = $whole.Contains("onPartyRested={handlePartyRested}")
+            'rest-explicit-ui' = $whole.Contains("Descanso Curto") -and $whole.Contains("Descanso Prolongado")
+            'rest-no-visual-fatigue-clear' = (-not $whole.Contains("sincronização visual após descanso"))
+          }
+
+          $validation = Join-Path $out 'UPGRADE_COMPATIBILITY_SOURCE.txt'
+          foreach ($entry in $gates.GetEnumerator() | Sort-Object Name) {
+            $status = if ($entry.Value) { 'PASS' } else { 'FAIL' }
+            ($status + ' - ' + $entry.Name) | Tee-Object -FilePath $validation -Append
+          }
+          if (@($gates.GetEnumerator() | Where-Object { -not $_.Value }).Count -gt 0) { throw 'Upgrade-safety source gate failed' }
+
+          $lockPath = Join-Path $root 'package-lock.json'
+          if (Test-Path $lockPath) {
+            $lockText = Get-Content $lockPath -Raw
+            $lockText = [regex]::Replace($lockText, 'https://[^"]*/artifactory/api/npm/npm-public/', 'https://registry.npmjs.org/')
+            [System.IO.File]::WriteAllText($lockPath, $lockText, (New-Object System.Text.UTF8Encoding($false)))
+          }
+
+          "OUA_ROOT=$root" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "OUA_OUT=$out" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "BASE_APK_PATH=$(Join-Path $incoming $env:BASE_APK)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build web runtime
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Push-Location $env:OUA_ROOT
+          try {
+            $env:npm_config_registry = 'https://registry.npmjs.org/'
+            $env:npm_config_replace_registry_host = 'always'
+            $env:npm_config_fetch_retries = '5'
+            $ok = $false
+            for ($attempt = 1; $attempt -le 3; $attempt++) {
+              & npm.cmd ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
+              if ($LASTEXITCODE -eq 0) { $ok = $true; break }
+              Start-Sleep -Seconds (3 * $attempt)
+            }
+            if (-not $ok) { throw 'npm ci failed' }
+
+            $previousErrorAction = $ErrorActionPreference
+            $ErrorActionPreference = 'Continue'
+            if (Test-Path variable:PSNativeCommandUseErrorActionPreference) { $PSNativeCommandUseErrorActionPreference = $false }
+            & npm.cmd run build:offline 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'OFFLINE_BUILD.log')
+            $offlineExit = $LASTEXITCODE
+            $ErrorActionPreference = $previousErrorAction
+            if ($offlineExit -ne 0) { throw "build:offline failed with exit code $offlineExit" }
+
+            & node.exe scripts/use-offline-dist.mjs
+            if ($LASTEXITCODE -ne 0) { throw 'use-offline-dist failed' }
+            & node.exe scripts/sync-android-assets.mjs
+            if ($LASTEXITCODE -ne 0) { throw 'sync-android-assets failed' }
+          } finally { Pop-Location }
+
+      - name: Configure Android SDK
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $candidates = @('C:\actions-runner\android-sdk')
+          if ($env:ANDROID_SDK_ROOT) { $candidates += $env:ANDROID_SDK_ROOT }
+          if ($env:ANDROID_HOME) { $candidates += $env:ANDROID_HOME }
+          if ($env:LOCALAPPDATA) { $candidates += (Join-Path $env:LOCALAPPDATA 'Android\Sdk') }
+          $sdkRoot = $candidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+          if (-not $sdkRoot) { throw 'Android SDK not found' }
+          $sdkmanager = Get-ChildItem $sdkRoot -Recurse -Filter sdkmanager.bat -File -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $sdkmanager) { throw 'sdkmanager.bat not found' }
+          $env:ANDROID_HOME = $sdkRoot
+          $env:ANDROID_SDK_ROOT = $sdkRoot
+          "ANDROID_HOME=$sdkRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdkRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          1..100 | ForEach-Object { 'y' } | & $sdkmanager.FullName --licenses | Out-Null
+          & $sdkmanager.FullName 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
+          if ($LASTEXITCODE -ne 0) { throw 'Android SDK setup failed' }
+
+      - name: Build update APK and verify install-over compatibility
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $android = Join-Path $env:OUA_ROOT 'android'
+          Push-Location $android
+          try {
+            $previous = $ErrorActionPreference
+            $ErrorActionPreference = 'Continue'
+            if (Test-Path variable:PSNativeCommandUseErrorActionPreference) { $PSNativeCommandUseErrorActionPreference = $false }
+            & .\gradlew.bat clean :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'GRADLE_BUILD.log')
+            $exit = $LASTEXITCODE
+            $ErrorActionPreference = $previous
+            if ($exit -ne 0) { throw "Gradle failed: $exit" }
+          } finally { Pop-Location }
+
+          $apk = Get-ChildItem (Join-Path $android 'app\build\outputs\apk\debug') -File -Filter '*.apk' | Select-Object -First 1
+          if (-not $apk) { throw '4.9.22 APK not found' }
+          $newApk = Join-Path $env:OUA_OUT $env:APK_NAME
+          Copy-Item $apk.FullName $newApk -Force
+
+          $buildTools = Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory |
+            Sort-Object { [version]($_.Name -replace '[^0-9.]','') } -Descending |
+            Select-Object -First 1
+          if (-not $buildTools) { throw 'build-tools missing' }
+          $aapt = Join-Path $buildTools.FullName 'aapt.exe'
+          $apksigner = Join-Path $buildTools.FullName 'apksigner.bat'
+
+          & $aapt dump badging $env:BASE_APK_PATH | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'BASE_APK_BADGING.txt')
+          & $aapt dump badging $newApk | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'NEW_APK_BADGING.txt')
+          $baseBadging = Get-Content (Join-Path $env:OUA_OUT 'BASE_APK_BADGING.txt') -Raw
+          $newBadging = Get-Content (Join-Path $env:OUA_OUT 'NEW_APK_BADGING.txt') -Raw
+
+          if ($baseBadging -notmatch "package: name='com\.braseiro\.oumanel'") { throw 'Baseline package differs' }
+          if ($newBadging -notmatch "package: name='com\.braseiro\.oumanel'") { throw 'New package differs' }
+          if ($baseBadging -notmatch "versionCode='49021'") { throw 'Baseline versionCode is not 49021' }
+          if ($newBadging -notmatch "versionCode='49022'") { throw 'New versionCode is not 49022' }
+
+          & $apksigner verify --verbose --print-certs $env:BASE_APK_PATH 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'BASE_APK_SIGNATURE.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'Baseline APK signature invalid' }
+          & $apksigner verify --verbose --print-certs $newApk 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'NEW_APK_SIGNATURE.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'New APK signature invalid' }
+
+          $baseSig = (Get-Content (Join-Path $env:OUA_OUT 'BASE_APK_SIGNATURE.txt') | Where-Object { $_ -match 'certificate SHA-256 digest:' } | Select-Object -First 1)
+          $newSig = (Get-Content (Join-Path $env:OUA_OUT 'NEW_APK_SIGNATURE.txt') | Where-Object { $_ -match 'certificate SHA-256 digest:' } | Select-Object -First 1)
+          if (-not $baseSig -or -not $newSig) { throw 'Could not read signer SHA-256' }
+          $baseDigest = ($baseSig -replace '.*digest:\s*','').Trim().ToLowerInvariant()
+          $newDigest = ($newSig -replace '.*digest:\s*','').Trim().ToLowerInvariant()
+          if ($baseDigest -ne $newDigest) { throw "SIGNATURE MISMATCH: installed update would fail. base=$baseDigest new=$newDigest" }
+
+          @(
+            'PASS - same applicationId com.braseiro.oumanel',
+            'PASS - versionCode increased 49021 -> 49022',
+            'PASS - signing certificate SHA-256 unchanged',
+            'PASS - IndexedDB name unchanged: braseiro-db',
+            'PASS - IndexedDB schema version unchanged: 19',
+            'PASS - no automatic app-data clearing code detected',
+            'RESULT - APK is eligible for Android install-over update without uninstalling the existing app.'
+          ) | Set-Content (Join-Path $env:OUA_OUT 'INSTALL_OVER_EXISTING_APP.txt') -Encoding utf8
+
+          $hash = (Get-FileHash $newApk -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:APK_NAME" | Set-Content "$newApk.sha256" -Encoding ascii
+
+      - name: Package upgrade-safe source
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Remove-Item (Join-Path $env:OUA_ROOT 'node_modules') -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item (Join-Path $env:OUA_ROOT 'android\.gradle') -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item (Join-Path $env:OUA_ROOT 'android\build') -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item (Join-Path $env:OUA_ROOT 'android\app\build') -Recurse -Force -ErrorAction SilentlyContinue
+          $zip = Join-Path $env:OUA_OUT $env:SOURCE_NAME
+          $parent = Split-Path $env:OUA_ROOT -Parent
+          $leaf = Split-Path $env:OUA_ROOT -Leaf
+          & tar.exe -a -c -f $zip -C $parent $leaf
+          if ($LASTEXITCODE -ne 0) { throw 'Source ZIP failed' }
+          $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:SOURCE_NAME" | Set-Content "$zip.sha256" -Encoding ascii
+
+      - name: Publish upgrade-safe release
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $repo = $env:GITHUB_REPOSITORY
+          $headers = @{
+            'Authorization' = "Bearer $env:GITHUB_TOKEN"
+            'Accept' = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'oua-499-upgrade-safe'
+          }
+
+          try {
+            $old = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:TAG"
+            if ($old.id) { Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$($old.id)" | Out-Null }
+          } catch {}
+
+          $payload = @{
+            tag_name = $env:TAG
+            target_commitish = $env:GITHUB_SHA
+            name = 'Braseiro O Um Anel 4.9.22 - DESCANSO CANONICO'
+            body = 'Upgrade-safe follow-up over validated 4.9.21. Wires canonical Short and Long Rest mechanics into the actual App/map flow: Short Rest normally once per day, at least one hour, recovers Endurance equal to Strength only if not Wounded; Long Rest normally once per day, restores full Endurance if unwounded or Strength if Wounded, and restores 1 Hope when current Hope is zero. Ordinary rest no longer clears travel Fatigue visually. Journey, Hope, Council, Fellowship, party, Master, TTS, network, NPC portrait, signer and database fixes remain preserved.'
+            draft = $false
+            prerelease = $false
+          } | ConvertTo-Json
+          $release = Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $payload -Uri "https://api.github.com/repos/$repo/releases"
+          if (-not $release.id) { throw 'Release creation failed' }
+
+          foreach ($file in Get-ChildItem $env:OUA_OUT -File) {
+            $encoded = [uri]::EscapeDataString($file.Name)
+            $url = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$encoded"
+            & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors --request POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: application/octet-stream" --data-binary "@$($file.FullName)" $url
+            if ($LASTEXITCODE -ne 0) { throw "Upload failed: $($file.Name)" }
+          }
+          Write-Host "RELEASE_URL=$($release.html_url)"
+
