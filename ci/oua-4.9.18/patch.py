@@ -78,41 +78,83 @@ export function resetGeminiModels(): void {
 }
 """)
 
-# Settings: one Master model field.
+# Settings: one Master model field. Use structural regexes because the 4.9.17
+# source can differ slightly in spacing from the older snapshot.
 settings_rel = "components/SettingsView.tsx"
 settings = read(settings_rel)
-settings = settings.replace(
-"  const [economyModel, setEconomyModel] = useState(() => getGeminiTextModel('economy'));\n  const [cinematicModel, setCinematicModel] = useState(() => getGeminiTextModel('cinematic'));",
-"  const [textModel, setTextModel] = useState(() => getGeminiTextModel());",
-)
-settings = settings.replace(
-"    saveGeminiTextModel('economy', economyModel);\n    saveGeminiTextModel('cinematic', cinematicModel);",
-"    saveGeminiTextModel(textModel);",
-)
-settings = settings.replace("cinematicModel.trim()", "textModel.trim()")
-settings = settings.replace("cinematicModel +", "textModel +")
+
+# State: delete economy entirely and rename the former principal state.
 settings = re.sub(
-    r'\s*<label className="mt-4 block text-xs font-bold text-cyan-200">Texto econômico — ID manual</label>\s*<input[^>]*value=\{economyModel\}[^>]*/>\s*',
+    r"^\s*const \[economyModel,\s*setEconomyModel\]\s*=\s*useState\([^\n]*\);\s*$\n?",
+    "",
+    settings,
+    count=1,
+    flags=re.M,
+)
+settings = re.sub(
+    r"^\s*const \[cinematicModel,\s*setCinematicModel\]\s*=\s*useState\([^\n]*\);\s*$",
+    "  const [textModel, setTextModel] = useState(() => getGeminiTextModel());",
+    settings,
+    count=1,
+    flags=re.M,
+)
+
+# Saving: remove economy route; principal becomes the single text route.
+settings = re.sub(
+    r"^\s*saveGeminiTextModel\(\s*['\"]economy['\"]\s*,\s*economyModel\s*\);\s*$\n?",
+    "",
+    settings,
+    count=1,
+    flags=re.M,
+)
+settings = re.sub(
+    r"^\s*saveGeminiTextModel\(\s*['\"]cinematic['\"]\s*,\s*cinematicModel\s*\);\s*$",
+    "    saveGeminiTextModel(textModel);",
+    settings,
+    count=1,
+    flags=re.M,
+)
+
+# Remove the whole economy field regardless of className/spacing drift.
+settings = re.sub(
+    r'\s*<label[^>]*>\s*Texto econ[oô]mico\s*—\s*ID manual\s*</label>\s*<input[\s\S]*?value=\{economyModel\}[\s\S]*?/>\s*',
     "\n",
     settings,
     count=1,
+    flags=re.I,
 )
+
+# Former principal field becomes the only Master field.
+settings = settings.replace('Texto principal / cenas importantes — ID manual', 'Modelo do Mestre — texto — ID manual')
+settings = settings.replace("cinematicModel", "textModel")
+settings = settings.replace("setCinematicModel", "setTextModel")
+settings = re.sub(r"getGeminiTextModel\(\s*['\"]cinematic['\"]\s*\)", "getGeminiTextModel()", settings)
+
+# Reset handler: economy line is deleted; principal/text is kept once.
+settings = re.sub(
+    r"^\s*setEconomyModel\([^\n]*\);\s*$\n?",
+    "",
+    settings,
+    flags=re.M,
+)
+settings = re.sub(
+    r"setTextModel\(getGeminiTextModel\(\)\);(?:\s*setTextModel\(getGeminiTextModel\(\)\);)+",
+    "setTextModel(getGeminiTextModel());",
+    settings,
+)
+
 settings = settings.replace(
-'Texto principal / cenas importantes — ID manual',
-'Modelo do Mestre — texto — ID manual',
+    "Aberturas, mudanças de local, revelações e cenas importantes usam o modelo principal e recebem uma meta narrativa maior. Cena rotineira continua compacta.",
+    "Todas as cenas usam o mesmo modelo do Mestre. A narração segue o Motor Barbara: cinematográfica, substancial, sensorial e falada como Mestre para os jogadores, sem decidir ações pela Companhia.",
 )
-settings = settings.replace("value={cinematicModel}", "value={textModel}")
-settings = settings.replace("setCinematicModel(event.target.value)", "setTextModel(event.target.value)")
-settings = settings.replace(
-"              setEconomyModel(getGeminiTextModel('economy'));\n              setCinematicModel(getGeminiTextModel('cinematic'));",
-"              setTextModel(getGeminiTextModel());",
-)
-settings = settings.replace(
-"Aberturas, mudanças de local, revelações e cenas importantes usam o modelo principal e recebem uma meta narrativa maior. Cena rotineira continua compacta.",
-"Todas as cenas usam o mesmo modelo do Mestre. A narração segue o Motor Barbara: cinematográfica, substancial, sensorial e falada como Mestre para os jogadores, sem decidir ações pela Companhia.",
-)
-if "economyModel" in settings or "cinematicModel" in settings or "Texto econômico" in settings:
-    raise SystemExit("dual text-model UI survived")
+
+# If any economy UI/runtime symbol survived, remove only its own line/block
+# rather than silently shipping a second route.
+survivors = [token for token in ("economyModel", "setEconomyModel", "Texto econômico", "Texto econômico") if token in settings]
+if survivors:
+    raise SystemExit("dual text-model UI survived: " + ", ".join(survivors))
+if "const [textModel, setTextModel]" not in settings or "saveGeminiTextModel(textModel)" not in settings:
+    raise SystemExit("single Master text-model state/save missing")
 write(settings_rel, settings)
 
 # Service: collapse all role lookups and text fallback routing to one selected model.
