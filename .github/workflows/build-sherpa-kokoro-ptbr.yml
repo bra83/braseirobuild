@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -64,6 +64,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Gradle build failed with $LASTEXITCODE" }
 
       - name: Validate APK
+        id: apk
         shell: powershell
         run: |
           $apk = Join-Path $env:RUNNER_TEMP 'jing332-sherpa-kokoro\app\build\outputs\apk\debug\app-debug.apk'
@@ -78,11 +79,63 @@ jobs:
           "$hash  Sherpa-Kokoro-PTBR-1.13.8-debug.apk" | Set-Content (Join-Path $out 'SHA256.txt') -Encoding ascii
           Write-Host "APK=$dest"
           Write-Host "SHA256=$hash"
+          "path=$dest" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "sha256=$hash" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Sherpa-Kokoro-PTBR-1.13.8
-          path: ${{ runner.temp }}\sherpa-kokoro-output\*
-          if-no-files-found: error
-          retention-days: 7
+      - name: Publish APK to GitHub Release
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          APK_PATH: ${{ steps.apk.outputs.path }}
+          APK_SHA256: ${{ steps.apk.outputs.sha256 }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $repo = $env:GITHUB_REPOSITORY
+          $tag = 'sherpa-kokoro-ptbr-v1'
+          $assetName = 'Sherpa-Kokoro-PTBR-1.13.8-debug.apk'
+          $headers = @{
+            'Authorization' = "Bearer $env:GITHUB_TOKEN"
+            'Accept' = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'braseiro-sherpa-publisher'
+          }
+
+          $release = $null
+          try {
+            $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"
+          } catch {
+            if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw }
+          }
+
+          if (-not $release) {
+            $body = @{
+              tag_name = $tag
+              target_commitish = 'sherpa-kokoro-ptbr'
+              name = 'Sherpa Kokoro PT-BR 1.13.8'
+              body = "jing332 SherpaOnnxTtsEngineAndroid atualizado para sherpa-onnx 1.13.8 com Kokoro multi-lang pt-BR. Vozes: Dora (42), Alex (43), Santa (44). SHA256: $env:APK_SHA256"
+              draft = $false
+              prerelease = $true
+            } | ConvertTo-Json
+            $release = Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $body -Uri "https://api.github.com/repos/$repo/releases"
+          }
+
+          $existing = @($release.assets) | Where-Object { $_.name -eq $assetName } | Select-Object -First 1
+          if ($existing) {
+            Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($existing.id)" | Out-Null
+          }
+
+          $uploadUrl = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$assetName"
+          $curlArgs = @(
+            '-L','--fail','--retry','4','--retry-delay','3',
+            '-X','POST',
+            '-H',"Authorization: Bearer $env:GITHUB_TOKEN",
+            '-H','Accept: application/vnd.github+json',
+            '-H','X-GitHub-Api-Version: 2022-11-28',
+            '-H','Content-Type: application/vnd.android.package-archive',
+            '--data-binary',"@$env:APK_PATH",
+            $uploadUrl
+          )
+          & curl.exe @curlArgs
+          if ($LASTEXITCODE -ne 0) { throw 'Release asset upload failed' }
+
+          Write-Host "Release=$($release.html_url)"
