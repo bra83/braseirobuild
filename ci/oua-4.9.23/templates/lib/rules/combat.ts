@@ -17,11 +17,14 @@ export function orderedCombatActors(state:MasterState):CombatActorState[]{
     return (a.initiative||0)-(b.initiative||0);
   });
 }
-export function startCombat(state:MasterState,actorIds:string[],enduranceById:Record<string,{current:number;max:number}>):MasterState{
+export function startCombat(state:MasterState,characters:Array<{id:string;sheet:CharacterSheet}>,actorIds:string[]):MasterState{
   const existing=new Map(state.combat.actors.map(a=>[a.actorId,a]));
   const actors=actorIds.map((id,index)=>{
     const old=existing.get(id); if(old) return {...old,defeated:false,engagedWith:[],stateNotes:[]};
-    const hp=enduranceById[id]||{current:1,max:1}; return {...heroActor(id,hp.current,hp.max),position:{x:25+(index%4)*13,y:62+Math.floor(index/4)*9}};
+    const hero=characters.find(character=>character.id===id); const hp={current:Number(hero?.sheet.attributes.enduranceCurrent)||1,max:Number(hero?.sheet.attributes.enduranceMax)||1};
+    const actor={...heroActor(id,hp.current,hp.max),position:{x:25+(index%4)*13,y:62+Math.floor(index/4)*9}};
+    if(hero){actor.parry=Number(hero.sheet.combat.parry)||0;actor.protection=Number(hero.sheet.attributes.protection)||0;actor.hope=Number(hero.sheet.attributes.hopeCurrent)||0;actor.shadow=Number(hero.sheet.attributes.shadow)||0;actor.fatigue=Number(hero.sheet.attributes.fatigue)||0;actor.wounded=Boolean(hero.sheet.attributes.wounded);}
+    return actor;
   });
   return {...state,activeMode:'combat',combat:{status:'opening-volley',id:'combat_'+Date.now(),round:0,actors,advantageDice:0,complicationDice:0,turnIndex:0,backgroundImage:state.combat.backgroundImage||null,narrativeBlocks:[],rolls:[],updatedAt:Date.now()},updatedAt:Date.now()};
 }
