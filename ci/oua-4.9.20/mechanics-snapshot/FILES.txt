@@ -11,6 +11,8 @@ C:\actions-runner\_work\braseirobuild\braseirobuild\ci\oua-4.9.20\mechanics-snap
 C:\actions-runner\_work\braseirobuild\braseirobuild\ci\oua-4.9.20\mechanics-snapshot\components\EriadorMap.tsx         
 C:\actions-runner\_work\braseirobuild\braseirobuild\ci\oua-4.9.20\mechanics-snapshot\components\GameView.tsx           
 C:\actions-runner\_work\braseirobuild\braseirobuild\ci\oua-4.9.20\mechanics-snapshot\lib\characterFactory.ts           
+C:\actions-runner\_work\braseirobuild\braseirobuild\ci\oua-4.9.20\mechanics-snapshot\lib\characterRules.ts             
+C:\actions-runner\_work\braseirobuild\braseirobuild\ci\oua-4.9.20\mechanics-snapshot\lib\dice.ts                       
 C:\actions-runner\_work\braseirobuild\braseirobuild\ci\oua-4.9.20\mechanics-snapshot\lib\rulesEngine.ts                
 C:\actions-runner\_work\braseirobuild\braseirobuild\ci\oua-4.9.20\mechanics-snapshot\lib\master\commands.ts            
 C:\actions-runner\_work\braseirobuild\braseirobuild\ci\oua-4.9.20\mechanics-snapshot\lib\master\state.ts               
