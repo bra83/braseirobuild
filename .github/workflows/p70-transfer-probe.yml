@@ -12,17 +12,17 @@ jobs:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 10
     steps:
-      - name: Probe firestorage share
+      - name: Inspect firestorage client API
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
           if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA, got $env:RUNNER_NAME" }
-          $url='https://firestorage.ai/ja/f/UIPwpTBvtyqi'
-          $out=Join-Path $env:RUNNER_TEMP 'p70-share.html'
-          & curl.exe -L --fail --retry 3 -o $out $url
+          $base='https://firestorage.ai'
+          $jsUrl=$base+'/_next/static/chunks/app/(files)/ja/f/page-4d19ae0a4ce39d79.js'
+          $js=Join-Path $env:RUNNER_TEMP 'firestorage-page.js'
+          & curl.exe -L --fail --retry 3 -o $js $jsUrl
           if ($LASTEXITCODE -ne 0) { throw "curl failed $LASTEXITCODE" }
-          $text=Get-Content $out -Raw
-          Write-Host "HTML_BYTES=$((Get-Item $out).Length)"
-          Write-Host '---BEGIN_HTML---'
-          Write-Host $text
-          Write-Host '---END_HTML---'
+          $text=Get-Content $js -Raw
+          Write-Host "JS_BYTES=$((Get-Item $js).Length)"
+          [regex]::Matches($text,'[^,;{}]{0,180}(?:/api/|download|public_id|publicId|share_url|shareUrl|file_id|fileId)[^,;{}]{0,260}') |
+            ForEach-Object { Write-Host ("MATCH="+$_.Value) }
