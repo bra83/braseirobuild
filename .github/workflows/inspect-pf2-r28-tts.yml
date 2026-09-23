@@ -1,0 +1,106 @@
+name: Inspect Pathfinder R28 TTS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/inspect-pf2-r28-tts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  SOURCE_SHA256: '3a635ae10d9e37a3ed75068c27539a36485470848112784717ed9ef2d3768e11'
+
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download exact Pathfinder R28 source
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          SHARE_ID: 'Q9EaqosxeXXK'
+          FILE_ID: '01a0c81d60a375449668e568a4163539'
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA runner, got $env:RUNNER_NAME" }
+          $root=Join-Path $env:RUNNER_TEMP 'pf2-r28-inspect'
+          Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $root -Force | Out-Null
+          $zip=Join-Path $root 'source.zip'
+          $api='https://api.firestorage.ai/dev/file'
+          $d=Invoke-RestMethod -Method Post -Uri "$api/shares/$env:SHARE_ID/files/$env:FILE_ID/download"
+          if(-not $d.downloadUrl){throw 'downloadUrl missing'}
+          Invoke-WebRequest -Uri $d.downloadUrl -OutFile $zip
+          $hash=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($hash -ne $env:SOURCE_SHA256){throw "SHA mismatch $hash"}
+          $work=Join-Path $root 'src'
+          New-Item -ItemType Directory -Path $work -Force | Out-Null
+          & tar.exe -xf $zip -C $work
+          if($LASTEXITCODE -ne 0){throw 'extract failed'}
+          "WORK_ROOT=$work" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build TTS inspection report
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          $outDir=Join-Path $env:GITHUB_WORKSPACE 'audit'
+          New-Item -ItemType Directory -Path $outDir -Force | Out-Null
+          $report=Join-Path $outDir 'PF2_R28_TTS_INSPECTION.txt'
+          $patterns='TextToSpeech|UtteranceProgressListener|QUEUE_ADD|QUEUE_FLUSH|onDone|onError|speechRate|setSpeechRate|setPitch|getVoices|getEngines|engine|voice|voz|tts|TTS|Charon|narrat|fala|speech|Gemini'
+          $exts=@('.kt','.java','.ts','.tsx','.js','.jsx','.html','.json','.xml','.gradle','.kts','.properties')
+          $files=Get-ChildItem $env:WORK_ROOT -Recurse -File | Where-Object { $exts -contains $_.Extension.ToLowerInvariant() }
+          "PATHFINDER R28 TTS INSPECTION`r`nGenerated: $(Get-Date -Format o)`r`nSource SHA256: $env:SOURCE_SHA256`r`n" | Set-Content $report -Encoding utf8
+          "=== CANDIDATE FILES ===" | Add-Content $report -Encoding utf8
+          $hits=@()
+          foreach($f in $files){
+            $m=Select-String -Path $f.FullName -Pattern $patterns -AllMatches -ErrorAction SilentlyContinue
+            if($m){
+              $rel=$f.FullName.Substring($env:WORK_ROOT.Length).TrimStart('\\','/')
+              $hits += [pscustomobject]@{File=$rel;Count=$m.Count}
+            }
+          }
+          $hits | Sort-Object Count -Descending,File | Format-Table -AutoSize | Out-String -Width 240 | Add-Content $report -Encoding utf8
+          "`r`n=== CONTEXT ===" | Add-Content $report -Encoding utf8
+          foreach($h in ($hits | Sort-Object File)){
+            $full=Join-Path $env:WORK_ROOT $h.File
+            "`r`n--- FILE: $($h.File) ---" | Add-Content $report -Encoding utf8
+            $lines=Get-Content $full -ErrorAction SilentlyContinue
+            $matchIdx=@()
+            for($i=0;$i -lt $lines.Count;$i++){
+              if($lines[$i] -match $patterns){$matchIdx += $i}
+            }
+            $selected=New-Object 'System.Collections.Generic.HashSet[int]'
+            foreach($idx in $matchIdx){
+              $start=[Math]::Max(0,$idx-4); $end=[Math]::Min($lines.Count-1,$idx+8)
+              for($j=$start;$j -le $end;$j++){[void]$selected.Add($j)}
+            }
+            foreach($j in ($selected | Sort-Object)){
+              ('{0,5}: {1}' -f ($j+1),$lines[$j]) | Add-Content $report -Encoding utf8
+            }
+          }
+          "`r`n=== ANDROID MANIFEST ===" | Add-Content $report -Encoding utf8
+          Get-ChildItem $env:WORK_ROOT -Recurse -Filter AndroidManifest.xml -File | ForEach-Object {
+            "`r`n--- $($_.FullName.Substring($env:WORK_ROOT.Length).TrimStart('\\','/')) ---" | Add-Content $report -Encoding utf8
+            Get-Content $_.FullName | Add-Content $report -Encoding utf8
+          }
+          "`r`n=== VERSION ===" | Add-Content $report -Encoding utf8
+          Get-ChildItem $env:WORK_ROOT -Recurse -Filter version.properties -File | ForEach-Object { Get-Content $_.FullName | Add-Content $report -Encoding utf8 }
+          Write-Host "REPORT=$report"
+
+      - name: Commit inspection report
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add audit/PF2_R28_TTS_INSPECTION.txt
+          if(git diff --cached --quiet){ Write-Host 'No report changes'; exit 0 }
+          git commit -m 'audit: inspect Pathfinder R28 TTS implementation'
+          git push origin HEAD:main
