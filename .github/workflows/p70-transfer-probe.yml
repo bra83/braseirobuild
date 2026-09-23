@@ -1,0 +1,30 @@
+name: P70 transfer probe on BRELGA
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/p70-transfer-probe.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    steps:
+      - name: Probe firestorage share
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA, got $env:RUNNER_NAME" }
+          $url='https://firestorage.ai/ja/f/UIPwpTBvtyqi'
+          $out=Join-Path $env:RUNNER_TEMP 'p70-share.html'
+          & curl.exe -L --fail --retry 3 -o $out $url
+          if ($LASTEXITCODE -ne 0) { throw "curl failed $LASTEXITCODE" }
+          Write-Host "HTML_BYTES=$((Get-Item $out).Length)"
+          $text=Get-Content $out -Raw
+          [regex]::Matches($text,'href=["'']([^"'']+)["'']') | ForEach-Object { Write-Host ("HREF="+$_.Groups[1].Value) }
+          [regex]::Matches($text,'https?://[^"'' <>]+') | ForEach-Object { 
+            $v=$_.Value
+            if ($v -match 'firestorage|download|p70') { Write-Host ("URL="+$v) }
+          }
