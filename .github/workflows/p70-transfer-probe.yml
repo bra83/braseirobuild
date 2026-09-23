@@ -10,23 +10,23 @@ jobs:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 10
     steps:
-      - name: Inspect firestorage chunks
+      - name: Inspect exact firestorage download logic
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
-          $base='https://firestorage.ai/_next/static/chunks/'
-          $chunks=@(
-            '8500-f4d7bfbe7500f274.js',
-            '8437-d65cc193dc908afa.js',
-            '5841-1160578ba9bb4f3e.js',
-            '4899-d89df949f2dbd5af.js'
-          )
-          foreach($c in $chunks){
-            $out=Join-Path $env:RUNNER_TEMP $c
-            & curl.exe -L --fail --retry 3 -o $out ($base+$c)
-            if($LASTEXITCODE -ne 0){ throw "curl failed $c" }
-            $text=Get-Content $out -Raw
-            Write-Host "CHUNK=$c BYTES=$((Get-Item $out).Length)"
-            [regex]::Matches($text,'[^,;{}]{0,180}(?:/api/|download|public_id|publicId|share_url|shareUrl|file_id|fileId|presign|signed)[^,;{}]{0,320}') |
-              ForEach-Object { Write-Host ("MATCH="+$_.Value) }
+          $url='https://firestorage.ai/_next/static/chunks/4899-d89df949f2dbd5af.js'
+          $out=Join-Path $env:RUNNER_TEMP 'fs4899.js'
+          & curl.exe -L --fail --retry 3 -o $out $url
+          if($LASTEXITCODE -ne 0){ throw "curl failed $LASTEXITCODE" }
+          $text=Get-Content $out -Raw
+          $needles=@('window.location.assign','/download','fileId','fetch(')
+          foreach($needle in $needles){
+            $start=0
+            while(($idx=$text.IndexOf($needle,$start,[System.StringComparison]::Ordinal)) -ge 0){
+              $a=[Math]::Max(0,$idx-1400)
+              $len=[Math]::Min(3200,$text.Length-$a)
+              Write-Host ("---NEEDLE="+$needle+" IDX="+$idx+"---")
+              Write-Host $text.Substring($a,$len)
+              $start=$idx+$needle.Length
+            }
           }
