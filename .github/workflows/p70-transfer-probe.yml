@@ -21,10 +21,8 @@ jobs:
           $out=Join-Path $env:RUNNER_TEMP 'p70-share.html'
           & curl.exe -L --fail --retry 3 -o $out $url
           if ($LASTEXITCODE -ne 0) { throw "curl failed $LASTEXITCODE" }
-          Write-Host "HTML_BYTES=$((Get-Item $out).Length)"
           $text=Get-Content $out -Raw
-          [regex]::Matches($text,'href=["'']([^"'']+)["'']') | ForEach-Object { Write-Host ("HREF="+$_.Groups[1].Value) }
-          [regex]::Matches($text,'https?://[^"'' <>]+') | ForEach-Object { 
-            $v=$_.Value
-            if ($v -match 'firestorage|download|p70') { Write-Host ("URL="+$v) }
-          }
+          Write-Host "HTML_BYTES=$((Get-Item $out).Length)"
+          Write-Host '---BEGIN_HTML---'
+          Write-Host $text
+          Write-Host '---END_HTML---'
