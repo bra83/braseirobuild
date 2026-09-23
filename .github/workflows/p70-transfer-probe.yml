@@ -10,23 +10,31 @@ jobs:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 10
     steps:
-      - name: Inspect exact firestorage download logic
+      - name: Resolve firestorage API base and share metadata
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
           $url='https://firestorage.ai/_next/static/chunks/4899-d89df949f2dbd5af.js'
           $out=Join-Path $env:RUNNER_TEMP 'fs4899.js'
           & curl.exe -L --fail --retry 3 -o $out $url
-          if($LASTEXITCODE -ne 0){ throw "curl failed $LASTEXITCODE" }
+          if($LASTEXITCODE -ne 0){ throw "curl failed" }
           $text=Get-Content $out -Raw
-          $needles=@('window.location.assign','/download','fileId','fetch(')
-          foreach($needle in $needles){
+          foreach($needle in @('/shares/','const f','let f','f=','/objects/')){
             $start=0
             while(($idx=$text.IndexOf($needle,$start,[System.StringComparison]::Ordinal)) -ge 0){
-              $a=[Math]::Max(0,$idx-1400)
-              $len=[Math]::Min(3200,$text.Length-$a)
-              Write-Host ("---NEEDLE="+$needle+" IDX="+$idx+"---")
+              $a=[Math]::Max(0,$idx-700); $len=[Math]::Min(1700,$text.Length-$a)
+              Write-Host ("---"+$needle+" @"+$idx+"---")
               Write-Host $text.Substring($a,$len)
               $start=$idx+$needle.Length
+              if($start -gt 19000){ break }
             }
+          }
+          foreach($api in @(
+            'https://firestorage.ai/api/shares/UIPwpTBvtyqi/files?maxResults=1000',
+            'https://firestorage.ai/shares/UIPwpTBvtyqi/files?maxResults=1000',
+            'https://api.firestorage.ai/shares/UIPwpTBvtyqi/files?maxResults=1000'
+          )){
+            Write-Host ("TRY="+$api)
+            & curl.exe -L -sS -D - $api -o (Join-Path $env:RUNNER_TEMP 'resp.tmp')
+            Write-Host ("BODY="+(Get-Content (Join-Path $env:RUNNER_TEMP 'resp.tmp') -Raw))
           }
