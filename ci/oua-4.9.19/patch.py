@@ -147,20 +147,12 @@ if clear_old not in inbox:
 inbox = inbox.replace(clear_old, clear_new, 1)
 write(inbox_rel, inbox)
 
-# Native bridge methods + JS wrapper.
-bridge_methods_anchor = """        @JavascriptInterface fun shareText(title: String, text: String) = runOnUiThread {
-            val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_SUBJECT, title)
-                putExtra(Intent.EXTRA_TITLE, title)
-                putExtra(Intent.EXTRA_TEXT, text)
-            }
-            startActivity(Intent.createChooser(sendIntent, "Enviar prompt ao Gemini"))
-        }
-"""
-if bridge_methods_anchor not in main:
-    raise SystemExit("shareText bridge anchor missing")
-bridge_methods = bridge_methods_anchor + """        @JavascriptInterface fun setSharedImageTarget(json: String): Boolean = try {
+# Native bridge methods + JS wrapper. Insert relative to the stable consumeSharedImage
+# bridge instead of depending on the exact formatting of shareText.
+native_consume_anchor = '        @JavascriptInterface fun consumeSharedImage(): String = pendingSharedImageReference.orEmpty()\n'
+if native_consume_anchor not in main:
+    raise SystemExit("native consumeSharedImage anchor missing")
+native_methods = """        @JavascriptInterface fun setSharedImageTarget(json: String): Boolean = try {
             SharedImageInbox.setTarget(this@MainActivity, json)
         } catch (error: Exception) {
             Log.e("BRASEIRO_SHARE", "Falha ao persistir destino da imagem", error)
@@ -169,18 +161,18 @@ bridge_methods = bridge_methods_anchor + """        @JavascriptInterface fun set
         @JavascriptInterface fun getSharedImageTarget(): String = SharedImageInbox.pendingTarget(this@MainActivity)
         @JavascriptInterface fun clearSharedImageTarget(): Boolean = SharedImageInbox.clearTarget(this@MainActivity)
 """
-main = main.replace(bridge_methods_anchor, bridge_methods, 1)
+if "@JavascriptInterface fun setSharedImageTarget" not in main:
+    main = main.replace(native_consume_anchor, native_methods + native_consume_anchor, 1)
 
-js_anchor = """                shareText: (title,text) => Promise.resolve(BraseiroNative.shareText(String(title||''),String(text||''))),
-                consumeSharedImage: () => Promise.resolve(BraseiroNative.consumeSharedImage() || null),"""
-if js_anchor not in main:
-    raise SystemExit("JS shared-image bridge anchor missing")
-js_new = """                shareText: (title,text) => Promise.resolve(BraseiroNative.shareText(String(title||''),String(text||''))),
-                setSharedImageTarget: json => Promise.resolve(BraseiroNative.setSharedImageTarget(String(json||''))),
+js_consume_anchor = "                consumeSharedImage: () => Promise.resolve(BraseiroNative.consumeSharedImage() || null),"
+if js_consume_anchor not in main:
+    raise SystemExit("JS consumeSharedImage anchor missing")
+js_methods = """                setSharedImageTarget: json => Promise.resolve(BraseiroNative.setSharedImageTarget(String(json||''))),
                 getSharedImageTarget: () => Promise.resolve(BraseiroNative.getSharedImageTarget() || null),
                 clearSharedImageTarget: () => Promise.resolve(BraseiroNative.clearSharedImageTarget()),
-                consumeSharedImage: () => Promise.resolve(BraseiroNative.consumeSharedImage() || null),"""
-main = main.replace(js_anchor, js_new, 1)
+"""
+if "setSharedImageTarget: json =>" not in main:
+    main = main.replace(js_consume_anchor, js_methods + js_consume_anchor, 1)
 
 # Version cache-buster later after version bump.
 write(main_rel, main)
