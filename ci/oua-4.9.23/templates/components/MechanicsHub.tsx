@@ -27,7 +27,7 @@ export const MechanicsHub:React.FC<Props>=({masterState,characters,onApplyComman
   const [hope,setHope]=useState(false);
   const [inspired,setInspired]=useState(false);
   const [region,setRegion]=useState<'border'|'wild'|'dark'>('wild');
-  const [danger,setDanger]=useState(1);
+  const [danger,setDanger]=useState(1);\n  const [mounted,setMounted]=useState(false);\n  const [forcedMarch,setForcedMarch]=useState(false);\n  const [mountVigourByHero,setMountVigourByHero]=useState<Record<string,number>>({});
   const [shadowHero,setShadowHero]=useState(characters[0]?.id||'');
   const [shadowSource,setShadowSource]=useState<'dread'|'greed'|'sorcery'|'transgression'>('dread');
   const [shadowAmount,setShadowAmount]=useState(1);
@@ -55,7 +55,7 @@ export const MechanicsHub:React.FC<Props>=({masterState,characters,onApplyComman
 
   const startJourney=()=>run([{
     type:'start_journey',destinationHexId:planned.at(-1)||masterState.journey.destinationHexId||null,
-    roles:masterState.company.journeyRoles,routeHexIds:planned,mounted:Boolean(masterState.journey.mounted),forcedMarch:Boolean(masterState.journey.forcedMarch),
+    roles:masterState.company.journeyRoles,routeHexIds:planned,mounted,forcedMarch,
     reason:'Jornada iniciada pela rota planejada do Atlas.',
   } as MasterCommand],'iniciar Jornada');
 
@@ -80,7 +80,7 @@ export const MechanicsHub:React.FC<Props>=({masterState,characters,onApplyComman
     const endRolls:Record<string,{success:boolean;successIcons:number;mountVigour:number}>={};
     for(const hero of characters){
       const roll=rollSkill(hero,'Viagem');
-      endRolls[hero.id]={success:Boolean(roll.success),successIcons:Number(roll.tengwarCount)||0,mountVigour:0};
+      endRolls[hero.id]={success:Boolean(roll.success),successIcons:Number(roll.tengwarCount)||0,mountVigour:mounted?Math.max(0,Number(mountVigourByHero[hero.id])||0):0};
     }
     void run([{type:'complete_journey',endRolls,reason:'Encerramento canônico da Jornada: montaria e jogadas de Viagem reduzem Fadiga.'} as MasterCommand],'encerrar Jornada');
   };
@@ -104,10 +104,17 @@ export const MechanicsHub:React.FC<Props>=({masterState,characters,onApplyComman
           :<button disabled={busy||Boolean(event)||Boolean(masterState.journey.awaitingEventGeneration)||Boolean(masterState.journey.awaitingEndRoll)||Number(masterState.journey.marchHexesRemaining||0)>0} onClick={march} className="rounded border border-cyan-700 px-3 py-2 text-cyan-100 disabled:opacity-40">Jogada de Marcha</button>}
         <label className="flex items-center gap-2 rounded border border-slate-800 px-2 text-xs"><input type="checkbox" checked={hope} onChange={e=>setHope(e.target.checked)}/> Esperança</label>
         <label className="flex items-center gap-2 rounded border border-slate-800 px-2 text-xs"><input type="checkbox" checked={inspired} disabled={!hope} onChange={e=>setInspired(e.target.checked)}/> Inspirado</label>
+        {(masterState.journey.status==='idle'||masterState.journey.status==='completed')&&<>
+          <label className="flex items-center gap-2 rounded border border-slate-800 px-2 py-2 text-xs"><input type="checkbox" checked={mounted} onChange={e=>setMounted(e.target.checked)}/> Toda a Companhia montada</label>
+          <label className="flex items-center gap-2 rounded border border-slate-800 px-2 py-2 text-xs"><input type="checkbox" checked={forcedMarch} onChange={e=>setForcedMarch(e.target.checked)}/> Marcha Forçada</label>
+        </>}
         {masterState.journey.awaitingEventGeneration&&<><select value={region} onChange={e=>setRegion(e.target.value as any)} className="rounded border border-slate-700 bg-black px-2 py-2 text-xs"><option value="border">Terra de Fronteira</option><option value="wild">Terra Erma</option><option value="dark">Terra Sombria</option></select><button disabled={busy} onClick={generateEvent} className="rounded border border-amber-700 px-3 py-2 text-amber-100">Gerar Evento</button></>}
         {event&&<button disabled={busy||!eventTarget} onClick={resolveEvent} className="col-span-2 rounded border border-amber-600 bg-amber-950/30 px-3 py-2 text-amber-100">Resolver {event.description} · {event.skill} · {eventTarget?heroName(eventTarget):'papel sem Herói'}</button>}
         {masterState.journey.stageComplete&&<button disabled={busy} onClick={()=>void run([{type:'continue_journey_stage',reason:'Nova etapa após 20 hexes.'} as MasterCommand],'continuar etapa da Jornada')} className="col-span-2 rounded border border-violet-700 px-3 py-2">Continuar próxima etapa</button>}
-        {masterState.journey.awaitingEndRoll&&<button disabled={busy} onClick={finishJourney} className="col-span-2 rounded border border-emerald-700 px-3 py-2 text-emerald-200">Encerrar Jornada e reduzir Fadiga</button>}
+        {masterState.journey.awaitingEndRoll&&<>
+          {Boolean(masterState.journey.mounted)&&<div className="col-span-2 rounded border border-emerald-900/60 p-2"><div className="mb-1 text-[10px] uppercase text-emerald-300">Vigor das montarias</div>{characters.map(hero=><label key={hero.id} className="mb-1 flex items-center justify-between gap-2 text-xs"><span>{heroName(hero)}</span><input type="number" min={0} max={12} value={mountVigourByHero[hero.id]||0} onChange={e=>setMountVigourByHero(current=>({...current,[hero.id]:Math.max(0,Number(e.target.value)||0)}))} className="w-16 rounded bg-black p-1"/></label>)}</div>}
+          <button disabled={busy} onClick={finishJourney} className="col-span-2 rounded border border-emerald-700 px-3 py-2 text-emerald-200">Encerrar Jornada e aplicar Fadiga restante</button>
+        </>}
       </div>
       <div className="mt-3 flex items-center gap-2"><input type="number" min={1} max={9} value={danger} onChange={e=>setDanger(Math.max(1,Number(e.target.value)||1))} className="w-16 rounded bg-black p-2"/><button disabled={busy} onClick={()=>void run([{type:'set_journey_danger',danger,reason:'Área Perigosa encontrada.'} as MasterCommand],'Área Perigosa '+danger)} className="rounded border border-red-900 px-3 py-2 text-xs text-red-200">Área Perigosa</button></div>
     </section>
