@@ -1,22 +1,39 @@
-name: P70 transfer probe on BRELGA
+name: Export Star Wars P70 APK from BRELGA
 on:
   push:
     branches: [main]
     paths: ['.github/workflows/p70-transfer-probe.yml']
   workflow_dispatch:
-permissions: {contents: read}
+
+permissions:
+  contents: write
+
 jobs:
-  probe:
+  export:
     runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
-      - name: Check visitor upload on P70 transfer share
+      - name: Publish validated APK as release asset
         shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference='Stop'
-          $uri='https://api.firestorage.ai/dev/file/shares/UIPwpTBvtyqi/files?maxResults=1000'
-          $meta=Invoke-RestMethod -Method Get -Uri $uri
-          Write-Host ("allowVisitorUpload="+$meta.allowVisitorUpload)
-          Write-Host ("visitorUploadRetentionHours="+$meta.visitorUploadRetentionHours)
-          Write-Host ("passwordProtected="+$meta.passwordProtected)
-          Write-Host ("title="+$meta.title)
+          $apk='C:\actions-runner\_work\_temp\sw-p70-apk-out\BRASEIRO_STAR_WARS_EDGE_R54_P70_DEBUG.apk'
+          if(-not(Test-Path $apk)){throw "Validated APK no longer present at $apk"}
+          $hash=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($hash -ne '01db7506611f189952f114b2e2ead28d4ae948d9def8cb40dc031ada487f4145'){
+            throw "APK SHA mismatch: $hash"
+          }
+          Write-Host "APK_BYTES=$((Get-Item $apk).Length)"
+          Write-Host "APK_SHA256=$hash"
+
+          $tag='star-wars-r54-p70-apk'
+          gh release view $tag --repo bra83/braseirobuild *> $null
+          if($LASTEXITCODE -ne 0){
+            gh release create $tag --repo bra83/braseirobuild --title 'Braseiro Star Wars R54 P70 APK' --notes 'APK debug compilado no BRELGA a partir do checkpoint P70 verificado por SHA-256.'
+            if($LASTEXITCODE -ne 0){throw 'Failed to create release'}
+          }
+          gh release upload $tag $apk --repo bra83/braseirobuild --clobber
+          if($LASTEXITCODE -ne 0){throw 'Failed to upload APK release asset'}
+          gh release view $tag --repo bra83/braseirobuild --json url,assets
