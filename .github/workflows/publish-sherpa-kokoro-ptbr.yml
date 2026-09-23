@@ -1,0 +1,84 @@
+name: Publish Sherpa Kokoro PT-BR APK
+
+on:
+  push:
+    branches:
+      - sherpa-kokoro-ptbr
+    paths:
+      - '.github/workflows/publish-sherpa-kokoro-ptbr.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 15
+    steps:
+      - name: Locate built APK and publish release asset
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA runner, got $env:RUNNER_NAME" }
+
+          $candidates = @(
+            (Join-Path $env:RUNNER_TEMP 'sherpa-kokoro-output\Sherpa-Kokoro-PTBR-1.13.8-debug.apk'),
+            (Join-Path $env:RUNNER_TEMP 'jing332-sherpa-kokoro\app\build\outputs\apk\debug\app-debug.apk')
+          )
+          $apk = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $apk) { throw 'Built APK from previous successful compile is no longer present on BRELGA.' }
+
+          $assetName = 'Sherpa-Kokoro-PTBR-1.13.8-debug.apk'
+          $repo = $env:GITHUB_REPOSITORY
+          $tag = 'sherpa-kokoro-ptbr-v1'
+          $headers = @{
+            'Authorization' = "Bearer $env:GITHUB_TOKEN"
+            'Accept' = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'braseiro-sherpa-publisher'
+          }
+
+          $release = $null
+          try {
+            $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"
+          } catch {
+            if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw }
+          }
+
+          if (-not $release) {
+            $body = @{
+              tag_name = $tag
+              target_commitish = 'sherpa-kokoro-ptbr'
+              name = 'Sherpa Kokoro PT-BR 1.13.8'
+              body = 'jing332 SherpaOnnxTtsEngineAndroid atualizado para sherpa-onnx 1.13.8 com Kokoro multi-lang pt-BR e vozes Dora/Alex/Santa.'
+              draft = $false
+              prerelease = $true
+            } | ConvertTo-Json
+            $release = Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $body -Uri "https://api.github.com/repos/$repo/releases"
+          }
+
+          $existing = @($release.assets) | Where-Object { $_.name -eq $assetName } | Select-Object -First 1
+          if ($existing) {
+            Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($existing.id)" | Out-Null
+          }
+
+          $uploadUrl = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$assetName"
+          $args = @(
+            '-L','--fail','--retry','4','--retry-delay','3',
+            '-X','POST',
+            '-H',"Authorization: Bearer $env:GITHUB_TOKEN",
+            '-H','Accept: application/vnd.github+json',
+            '-H','X-GitHub-Api-Version: 2022-11-28',
+            '-H','Content-Type: application/vnd.android.package-archive',
+            '--data-binary',"@$apk",
+            $uploadUrl
+          )
+          & curl.exe @args
+          if ($LASTEXITCODE -ne 0) { throw 'Release asset upload failed' }
+
+          $hash = (Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          Write-Host "SHA256=$hash"
+          Write-Host "Release=$($release.html_url)"
