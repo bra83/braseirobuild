@@ -1,0 +1,96 @@
+name: Inspect Pathfinder R28 TTS Fast
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/inspect-pf2-r28-tts-fast.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  SOURCE_SHA256: '3a635ae10d9e37a3ed75068c27539a36485470848112784717ed9ef2d3768e11'
+
+jobs:
+  inspect:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download exact Pathfinder R28 source
+        shell: powershell
+        env:
+          SHARE_ID: 'Q9EaqosxeXXK'
+          FILE_ID: '01a0c81d60a375449668e568a4163539'
+        run: |
+          $ErrorActionPreference='Stop'
+          $root=Join-Path $env:RUNNER_TEMP 'pf2-r28-fast'
+          Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $root -Force | Out-Null
+          $zip=Join-Path $root 'source.zip'
+          $api='https://api.firestorage.ai/dev/file'
+          $d=Invoke-RestMethod -Method Post -Uri "$api/shares/$env:SHARE_ID/files/$env:FILE_ID/download"
+          if(-not $d.downloadUrl){throw 'downloadUrl missing'}
+          Invoke-WebRequest -Uri $d.downloadUrl -OutFile $zip
+          $hash=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($hash -ne $env:SOURCE_SHA256){throw "SHA mismatch $hash"}
+          $work=Join-Path $root 'src'
+          New-Item -ItemType Directory -Path $work -Force | Out-Null
+          & tar.exe -xf $zip -C $work
+          if($LASTEXITCODE -ne 0){throw 'extract failed'}
+          "WORK_ROOT=$work" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Inspect only code and configuration
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $outDir=Join-Path $env:GITHUB_WORKSPACE 'audit'
+          New-Item -ItemType Directory -Path $outDir -Force | Out-Null
+          $report=Join-Path $outDir 'PF2_R28_TTS_INSPECTION_FAST.txt'
+          $patterns='TextToSpeech|UtteranceProgressListener|QUEUE_ADD|QUEUE_FLUSH|onDone|onError|setSpeechRate|setPitch|getVoices|getEngines|Charon|tts|TTS|voice|voz|speech'
+          $allowed=@('.kt','.java','.ts','.tsx','.js','.jsx','.html','.xml','.gradle','.kts','.properties')
+          $files=Get-ChildItem $env:WORK_ROOT -Recurse -File | Where-Object {
+            $allowed -contains $_.Extension.ToLowerInvariant() -and
+            $_.Length -lt 2097152 -and
+            $_.FullName -notmatch '[\\/](node_modules|build|dist|\.gradle|\.git)[\\/]' -and
+            $_.FullName -notmatch '[\\/]assets[\\/](pathfinder|atlas|data|datasets)[\\/]'
+          }
+          "PATHFINDER R28 FAST TTS INSPECTION" | Set-Content $report -Encoding utf8
+          "Source SHA256: $env:SOURCE_SHA256" | Add-Content $report -Encoding utf8
+          foreach($f in $files){
+            $matches=Select-String -Path $f.FullName -Pattern $patterns -AllMatches -ErrorAction SilentlyContinue
+            if(-not $matches){continue}
+            $rel=$f.FullName.Substring($env:WORK_ROOT.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar,[System.IO.Path]::AltDirectorySeparatorChar)
+            "" | Add-Content $report -Encoding utf8
+            "===== FILE: $rel =====" | Add-Content $report -Encoding utf8
+            $lines=Get-Content $f.FullName
+            $idxs=@()
+            for($i=0;$i -lt $lines.Count;$i++){ if($lines[$i] -match $patterns){$idxs += $i} }
+            $sel=New-Object 'System.Collections.Generic.HashSet[int]'
+            foreach($idx in $idxs){
+              for($j=[Math]::Max(0,$idx-6);$j -le [Math]::Min($lines.Count-1,$idx+12);$j++){[void]$sel.Add($j)}
+            }
+            foreach($j in ($sel | Sort-Object)){ ('{0,5}: {1}' -f ($j+1),$lines[$j]) | Add-Content $report -Encoding utf8 }
+          }
+          "" | Add-Content $report -Encoding utf8
+          "===== MANIFESTS =====" | Add-Content $report -Encoding utf8
+          Get-ChildItem $env:WORK_ROOT -Recurse -Filter AndroidManifest.xml -File | Where-Object {$_.FullName -notmatch '[\\/]build[\\/]'} | ForEach-Object {
+            "" | Add-Content $report -Encoding utf8
+            "--- $($_.FullName.Substring($env:WORK_ROOT.Length)) ---" | Add-Content $report -Encoding utf8
+            Get-Content $_.FullName | Add-Content $report -Encoding utf8
+          }
+
+      - name: Commit report
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add audit/PF2_R28_TTS_INSPECTION_FAST.txt
+          git commit -m 'audit: fast Pathfinder R28 TTS inspection'
+          git push origin HEAD:main
