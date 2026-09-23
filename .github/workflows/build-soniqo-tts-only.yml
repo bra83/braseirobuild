@@ -1,0 +1,116 @@
+name: Build Soniqo TTS Only
+
+on:
+  push:
+    branches:
+      - soniqo-tts-only
+    paths:
+      - '.github/workflows/build-soniqo-tts-only.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout helper repo
+        uses: actions/checkout@v4
+
+      - name: Clone Soniqo Speech Android v0.0.22
+        run: |
+          git clone --branch v0.0.22 --depth 1 --recurse-submodules https://github.com/soniqo/speech-android.git soniqo
+          cd soniqo
+          git submodule update --init --recursive
+
+      - name: Remove accessibility and dictation surfaces
+        run: |
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          p = Path("soniqo/app/src/main/AndroidManifest.xml")
+          ET.register_namespace("android", "http://schemas.android.com/apk/res/android")
+          tree = ET.parse(p)
+          root = tree.getroot()
+          ns = "{http://schemas.android.com/apk/res/android}"
+
+          remove_permissions = {
+              "android.permission.RECORD_AUDIO",
+              "android.permission.SYSTEM_ALERT_WINDOW",
+              "android.permission.FOREGROUND_SERVICE_MICROPHONE",
+          }
+          for node in list(root.findall("uses-permission")):
+              if node.get(ns + "name") in remove_permissions:
+                  root.remove(node)
+
+          app = root.find("application")
+          remove_components = {
+              ".DictationActivity",
+              ".SpeechRecognizerTestActivity",
+              ".overlay.VoiceOverlayActivity",
+              ".overlay.OverlayBubbleService",
+              ".overlay.DictationAccessibilityService",
+              ".SpeechRecognitionSettingsActivity",
+              "audio.soniqo.speech.service.SpeechRecognitionService",
+          }
+          for tag in ("activity", "service"):
+              for node in list(app.findall(tag)):
+                  if node.get(ns + "name") in remove_components:
+                      app.remove(node)
+
+          app.set(ns + "label", "Soniqo TTS Only")
+          tree.write(p, encoding="utf-8", xml_declaration=True)
+          PY
+
+          echo "=== Sanitized manifest ==="
+          cat soniqo/app/src/main/AndroidManifest.xml
+
+          if grep -R "BIND_ACCESSIBILITY_SERVICE" -n soniqo/app/src/main/AndroidManifest.xml; then
+            echo "::error::Accessibility service still present"
+            exit 1
+          fi
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Run upstream setup
+        working-directory: soniqo
+        run: ./setup.sh
+
+      - name: Build debug APK
+        working-directory: soniqo
+        run: ./gradlew :app:assembleDebug --stacktrace
+
+      - name: Verify APK manifest
+        run: |
+          APK="soniqo/app/build/outputs/apk/debug/app-debug.apk"
+          test -f "$APK"
+          if command -v aapt >/dev/null 2>&1; then
+            aapt dump xmltree "$APK" AndroidManifest.xml | tee /tmp/manifest.txt
+            if grep -q "BIND_ACCESSIBILITY_SERVICE" /tmp/manifest.txt; then
+              echo "::error::Built APK still advertises accessibility service"
+              exit 1
+            fi
+          fi
+          cp "$APK" /tmp/Soniqo-TTS-Only-v0.0.22-debug.apk
+          sha256sum /tmp/Soniqo-TTS-Only-v0.0.22-debug.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Soniqo-TTS-Only-v0.0.22
+          path: /tmp/Soniqo-TTS-Only-v0.0.22-debug.apk
+          if-no-files-found: error
+          retention-days: 7
