@@ -1,0 +1,113 @@
+name: Inspect PF2 R28 vs Forbidden Lands TTS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/inspect-pf2-fl-tts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download exact sources
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $api='https://api.firestorage.ai/dev/file'
+          $root=Join-Path $env:RUNNER_TEMP 'pf2-fl-tts-inspect'
+          Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $root -Force | Out-Null
+
+          function Get-ShareZip($share,$dest,$expectedHash=$null) {
+            $list=Invoke-RestMethod -Method Get -Uri "$api/shares/$share/files?maxResults=1000"
+            $files=@($list.files)
+            if(-not $files){ throw "No files in share $share" }
+            $f=$files | Where-Object { $_.fileName -match '\.zip$' -or $_.name -match '\.zip$' } | Sort-Object @{Expression={ if($_.updatedAt){[datetime]$_.updatedAt}else{[datetime]'2000-01-01'} };Descending=$true}, @{Expression={ if($_.size){[int64]$_.size}else{0} };Descending=$true} | Select-Object -First 1
+            if(-not $f){ $f=$files | Sort-Object @{Expression={ if($_.size){[int64]$_.size}else{0} };Descending=$true} | Select-Object -First 1 }
+            $id=$f.fileId
+            if(-not $id){ throw "fileId missing for share $share" }
+            $d=Invoke-RestMethod -Method Post -Uri "$api/shares/$share/files/$id/download"
+            if(-not $d.downloadUrl){ throw "downloadUrl missing for $share/$id" }
+            Invoke-WebRequest -Uri $d.downloadUrl -OutFile $dest
+            if($expectedHash){
+              $h=(Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant()
+              if($h -ne $expectedHash){ throw "SHA mismatch for $share: $h" }
+            }
+            return $id
+          }
+
+          $pfzip=Join-Path $root 'pf.zip'
+          Get-ShareZip 'Q9EaqosxeXXK' $pfzip '3a635ae10d9e37a3ed75068c27539a36485470848112784717ed9ef2d3768e11' | Out-Null
+          $pf=Join-Path $root 'pf'
+          New-Item -ItemType Directory -Path $pf -Force | Out-Null
+          tar.exe -xf $pfzip -C $pf
+          if($LASTEXITCODE -ne 0){ throw 'PF extract failed' }
+
+          $flzip=Join-Path $root 'fl.zip'
+          $flid=Get-ShareZip 'CkNebEIJ7XWy' $flzip
+          $fl=Join-Path $root 'fl'
+          New-Item -ItemType Directory -Path $fl -Force | Out-Null
+          tar.exe -xf $flzip -C $fl
+          if($LASTEXITCODE -ne 0){ throw 'FL extract failed' }
+
+          "PF_ROOT=$pf" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "FL_ROOT=$fl" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "FL_FILE_ID=$flid" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build comparison report
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $out=Join-Path $env:GITHUB_WORKSPACE 'audit/PF2_FL_TTS_COMPARE.txt'
+          New-Item -ItemType Directory -Path (Split-Path $out) -Force | Out-Null
+          $patterns='TextToSpeech|getVoices|getEngines|QUEUE_ADD|QUEUE_FLUSH|UtteranceProgressListener|setEngine|enginePackage|ttsEngine|androidTts|voice|voz|maxNumSentences|silenceScale|numThreads|prewarm|warm|speak|speech'
+          'PF2 R28 vs FORBIDDEN LANDS TTS' | Set-Content $out -Encoding utf8
+          "FL_FILE_ID=$env:FL_FILE_ID" | Add-Content $out -Encoding utf8
+          "Generated=$(Get-Date -Format o)" | Add-Content $out -Encoding utf8
+
+          function Dump-Hits($label,$root){
+            '' | Add-Content $out -Encoding utf8
+            "================ $label ================" | Add-Content $out -Encoding utf8
+            $files=Get-ChildItem $root -Recurse -File -ErrorAction SilentlyContinue | Where-Object {
+              $_.Extension -in '.kt','.java','.ts','.tsx','.js','.jsx','.html','.xml','.json','.gradle','.kts','.properties' -and
+              $_.Length -lt 2097152 -and
+              $_.FullName -notmatch '[\\/](node_modules|build|dist|\.gradle|\.git)[\\/]'
+            }
+            foreach($f in $files){
+              $m=Select-String -Path $f.FullName -Pattern $patterns -AllMatches -ErrorAction SilentlyContinue
+              if(-not $m){ continue }
+              $rel=$f.FullName.Substring($root.Length).TrimStart('\\','/')
+              '' | Add-Content $out -Encoding utf8
+              "--- FILE: $rel ---" | Add-Content $out -Encoding utf8
+              $lines=Get-Content $f.FullName
+              $idx=@()
+              for($i=0;$i -lt $lines.Count;$i++){ if($lines[$i] -match $patterns){ $idx += $i } }
+              $sel=New-Object 'System.Collections.Generic.HashSet[int]'
+              foreach($n in $idx){ for($j=[Math]::Max(0,$n-8);$j -le [Math]::Min($lines.Count-1,$n+18);$j++){ [void]$sel.Add($j) } }
+              foreach($j in ($sel | Sort-Object)){ ('{0,5}: {1}' -f ($j+1),$lines[$j]) | Add-Content $out -Encoding utf8 }
+            }
+          }
+
+          Dump-Hits 'PATHFINDER_R28' $env:PF_ROOT
+          Dump-Hits 'FORBIDDEN_LANDS_LATEST' $env:FL_ROOT
+
+      - name: Commit report
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add audit/PF2_FL_TTS_COMPARE.txt
+          if(git diff --cached --quiet){ exit 0 }
+          git commit -m 'audit: compare Pathfinder and Forbidden Lands TTS'
+          git push origin HEAD:main
