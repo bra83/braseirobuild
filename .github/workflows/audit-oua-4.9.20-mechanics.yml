@@ -65,6 +65,8 @@ jobs:
             'lib\master\commands.ts',
             'lib\master\worldClock.ts',
             'lib\rulesEngine.ts',
+            'lib\dice.ts',
+            'lib\characterRules.ts',
             'lib\characterFactory.ts',
             'components\CombatTacticalView.tsx',
             'components\DiceView.tsx',
