@@ -390,11 +390,8 @@ move_handler="""  const handlePartyMoved = async (move: PartyMapMove) => {
 app=app[:start]+move_handler+app[end:]
 
 # Add calendar hard contract to every narrative generation.
-needle="""Comandos rejeitados: ${JSON.stringify(mechanical.rejected)}
-NPCs presentes validados:"""
-replacement="""Calendário canônico: ano ${finalClock.year}; dia ${finalClock.day}; estação ${finalClock.season}; horário ${String(finalClock.hour).padStart(2,'0')}:${String(finalClock.minute).padStart(2,'0')}. REGRA DURA: nunca mencione outra estação, outro dia ou outro período do dia.
-Comandos rejeitados: ${JSON.stringify(mechanical.rejected)}
-NPCs presentes validados:"""
+needle="Comandos rejeitados: ${JSON.stringify(mechanical.rejected)}\\nNPCs presentes validados:"
+replacement="Calendário canônico: ano ${finalClock.year}; dia ${finalClock.day}; estação ${finalClock.season}; horário ${String(finalClock.hour).padStart(2,'0')}:${String(finalClock.minute).padStart(2,'0')}. REGRA DURA: nunca mencione outra estação, outro dia ou outro período do dia.\\nComandos rejeitados: ${JSON.stringify(mechanical.rejected)}\\nNPCs presentes validados:"
 app=req(app,needle,replacement,"calendar narrative contract")
 write(app_rel,app)
 
