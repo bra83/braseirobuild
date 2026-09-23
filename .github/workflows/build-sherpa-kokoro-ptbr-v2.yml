@@ -86,11 +86,15 @@ jobs:
         shell: powershell
         env:
           NEW_APK: ${{ steps.apk.outputs.path }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = 'Stop'
-          $old = Join-Path $env:RUNNER_TEMP 'Sherpa-Kokoro-PTBR-1.13.8-debug-old.apk'
-          & curl.exe -L --fail --retry 4 --retry-delay 2 -o $old "https://github.com/bra83/braseirobuild/releases/download/sherpa-kokoro-ptbr-v1/Sherpa-Kokoro-PTBR-1.13.8-debug.apk"
-          if ($LASTEXITCODE -ne 0 -or -not (Test-Path $old)) { throw 'Could not download working baseline APK' }
+          $oldDir = Join-Path $env:RUNNER_TEMP 'old-sherpa-apk'
+          New-Item -ItemType Directory -Force -Path $oldDir | Out-Null
+          gh release download sherpa-kokoro-ptbr-v1 --repo $env:GITHUB_REPOSITORY --pattern "Sherpa-Kokoro-PTBR-1.13.8-debug.apk" --dir $oldDir --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Could not download working baseline APK through GitHub API' }
+          $old = Join-Path $oldDir 'Sherpa-Kokoro-PTBR-1.13.8-debug.apk'
+          if (-not (Test-Path $old)) { throw 'Working baseline APK missing after gh download' }
 
           $sdkRoot = $env:ANDROID_SDK_ROOT
           $apksigner = Get-ChildItem $sdkRoot -Recurse -Filter apksigner.bat -File -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1
