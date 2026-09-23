@@ -191,7 +191,7 @@ state_rel="lib/master/state.ts"
 state=read(state_rel)
 state=state.replace(
 "journey: { status: 'idle', originHexId: null, destinationHexId: null, day: 0, segments: [], pendingEvent: null },",
-"journey: { status: 'idle', originHexId: null, destinationHexId: null, day: 0, segments: [], pendingEvent: null, plannedRouteHexIds: [], stageRouteHexIds: [], stageNumber: 1, marchHexesRemaining: 0, marchRollCount: 0, awaitingEventGeneration: false, awaitingEndRoll: false, durationAdjustmentDays: 0, mounted: false, forcedMarch: false, dangerEventsRemaining: 0 },"
+"journey: { status: 'idle', originHexId: null, destinationHexId: null, day: 0, segments: [], pendingEvent: null, plannedRouteHexIds: [], stageRouteHexIds: [], stageNumber: 1, marchHexesRemaining: 0, marchRollCount: 0, awaitingEventGeneration: false, awaitingEndRoll: false, durationAdjustmentDays: 0, mounted: false, forcedMarch: false, dangerEventsRemaining: 0, travelFatigueByHero: {} },"
 )
 state=state.replace(
 "fellowshipPhase: { status: 'idle', durationDays: 0, undertakings: {} },",
@@ -403,7 +403,12 @@ move_block="""    case 'move_party': {
       }
       if (wasJourney && nextState.journey.forcedMarch && elapsed > 0) {
         const forcedDays = Math.max(1, Math.ceil(elapsed / 1440));
-        for (const characterId of partyIds) updateHero(characterId, sheet => rangerIgnoresJourneyFatigue(sheet) ? sheet : adjustFatigue(sheet, forcedDays));
+        const pending = { ...(nextState.journey.travelFatigueByHero || {}) };
+        for (const characterId of partyIds) {
+          const hero = nextCharacters.find(character => character.id === characterId);
+          if (hero && !rangerIgnoresJourneyFatigue(hero.sheet)) pending[characterId] = Math.max(0, Number(pending[characterId]) || 0) + forcedDays;
+        }
+        nextState.journey = { ...nextState.journey, travelFatigueByHero: pending };
       }
       nextCampaign.currentLocation = nextState.position.locationName;
       nextState.scene = { ...nextState.scene, locationName: nextState.position.locationName, updatedAt: Date.now() };
@@ -435,12 +440,21 @@ journey_cases="""    case 'start_journey': {
       const resolved = resolveJourneyEvent(nextState, command.success, command.successIcons);
       nextState = resolved.state;
       const fx = resolved.effects;
+      const pendingFatigue = { ...(nextState.journey.travelFatigueByHero || {}) };
       for (const characterId of partyIds) {
-        if (fx.allFatigue) updateHero(characterId, sheet => rangerIgnoresJourneyFatigue(sheet) ? sheet : adjustFatigue(sheet, fx.allFatigue));
+        const hero = nextCharacters.find(character => character.id === characterId);
+        if (fx.allFatigue && hero && !rangerIgnoresJourneyFatigue(hero.sheet)) {
+          const cramReduction = /\\bcram\\b/i.test(hero.sheet.other.virtues || '') ? 1 : 0;
+          pendingFatigue[characterId] = Math.max(0, Number(pendingFatigue[characterId]) || 0) + Math.max(0, fx.allFatigue - cramReduction);
+        }
         if (fx.allShadow) updateHero(characterId, sheet => adjustShadowCanonical(sheet, fx.allShadow));
         if (fx.allHope) updateHero(characterId, sheet => adjustHope(sheet, fx.allHope));
       }
-      if (fx.targetFatigue) updateHero(command.targetCharacterId, sheet => rangerIgnoresJourneyFatigue(sheet) ? sheet : adjustFatigue(sheet, fx.targetFatigue));
+      if (fx.targetFatigue) {
+        const hero = nextCharacters.find(character => character.id === command.targetCharacterId);
+        if (hero && !rangerIgnoresJourneyFatigue(hero.sheet)) pendingFatigue[command.targetCharacterId] = Math.max(0, Number(pendingFatigue[command.targetCharacterId]) || 0) + fx.targetFatigue;
+      }
+      nextState.journey = { ...nextState.journey, travelFatigueByHero: pendingFatigue };
       if (fx.targetShadow) updateHero(command.targetCharacterId, sheet => adjustShadowCanonical(sheet, fx.targetShadow));
       if (fx.woundTarget) updateHero(command.targetCharacterId, sheet => applyHeroWound(sheet).sheet);
       if (fx.dayAdjustment > 0) {
@@ -459,11 +473,12 @@ journey_cases="""    case 'start_journey': {
       if (!nextState.journey.awaitingEndRoll && nextState.journey.status !== 'paused') throw new Error('A Companhia ainda não alcançou o final da Jornada.');
       for (const characterId of partyIds) {
         const result = command.endRolls?.[characterId];
-        if (!result) continue;
-        const reduction = Math.max(0, Number(result.mountVigour) || 0) + (result.success ? 1 + Math.max(0, Number(result.successIcons) || 0) : 0);
-        if (reduction > 0) updateHero(characterId, sheet => adjustFatigue(sheet, -reduction));
+        const accumulated = Math.max(0, Number(nextState.journey.travelFatigueByHero?.[characterId]) || 0);
+        const reduction = result ? Math.max(0, Number(result.mountVigour) || 0) + (result.success ? 1 + Math.max(0, Number(result.successIcons) || 0) : 0) : 0;
+        const remaining = Math.max(0, accumulated - reduction);
+        if (remaining > 0) updateHero(characterId, sheet => adjustFatigue(sheet, remaining));
       }
-      nextState = completeJourney(nextState);
+      nextState = completeJourney({ ...nextState, journey: { ...nextState.journey, travelFatigueByHero: {} } });
       nextState.scene = { ...nextState.scene, status: 'closed', updatedAt: Date.now() };
       break;
     }"""
@@ -819,7 +834,7 @@ checks={
  "journey-danger": "dangerEventsRemaining" in whole and "setDangerousArea" in whole,
  "journey-20hex": "slice(0,20)" in whole and "stageComplete" in whole,
  "journey-mounted-forced": "mounted" in whole and "forcedMarch" in whole and "Math.ceil(hexes/2)" in whole,
- "journey-end-fatigue": "mountVigour" in whole and "1 + Math.max(0, Number(result.successIcons)" in whole,
+ "journey-end-fatigue": "mountVigour" in whole and "travelFatigueByHero" in whole and "accumulated - reduction" in whole,
  "safe-refuge-fatigue": "command.safeRefuge" in whole and "fatigue - 1" in whole,
  "combat-attack": "rollHeroAttack" in whole and "heroAttackDamage" in whole and "heroAttackTargetNumber" in whole,
  "combat-piercing": "attackIsPiercing" in whole and "rollHeroProtection" in whole,
