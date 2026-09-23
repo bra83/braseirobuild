@@ -53,7 +53,7 @@ export function startJourney(
       status:'planned',originHexId:state.position.currentHexId,destinationHexId:destinationHexId||route.at(-1)||null,
       startedAt:Date.now(),day:0,segments:[],pendingEvent:null,
       plannedRouteHexIds:route,stageRouteHexIds:stage,stageNumber:1,marchHexesRemaining:0,marchRollCount:0,
-      awaitingEventGeneration:false,awaitingEndRoll:false,durationAdjustmentDays:0,mounted,forcedMarch,dangerEventsRemaining:0,
+      awaitingEventGeneration:false,awaitingEndRoll:false,durationAdjustmentDays:0,mounted,forcedMarch,dangerEventsRemaining:0,travelFatigueByHero:{},
     },
     updatedAt:Date.now(),
   };
