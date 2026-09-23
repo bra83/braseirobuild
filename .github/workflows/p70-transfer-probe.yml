@@ -10,13 +10,23 @@ jobs:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 10
     steps:
-      - name: Inspect firestorage client chunk
+      - name: Inspect firestorage chunks
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
-          $url='https://firestorage.ai/_next/static/chunks/app/%28files%29/ja/f/page-4d19ae0a4ce39d79.js'
-          $out=Join-Path $env:RUNNER_TEMP 'fs.js'
-          & curl.exe -L --fail --retry 3 -o $out $url
-          if ($LASTEXITCODE -ne 0) { throw "curl failed $LASTEXITCODE" }
-          Write-Host "BYTES=$((Get-Item $out).Length)"
-          Write-Host (Get-Content $out -Raw)
+          $base='https://firestorage.ai/_next/static/chunks/'
+          $chunks=@(
+            '8500-f4d7bfbe7500f274.js',
+            '8437-d65cc193dc908afa.js',
+            '5841-1160578ba9bb4f3e.js',
+            '4899-d89df949f2dbd5af.js'
+          )
+          foreach($c in $chunks){
+            $out=Join-Path $env:RUNNER_TEMP $c
+            & curl.exe -L --fail --retry 3 -o $out ($base+$c)
+            if($LASTEXITCODE -ne 0){ throw "curl failed $c" }
+            $text=Get-Content $out -Raw
+            Write-Host "CHUNK=$c BYTES=$((Get-Item $out).Length)"
+            [regex]::Matches($text,'[^,;{}]{0,180}(?:/api/|download|public_id|publicId|share_url|shareUrl|file_id|fileId|presign|signed)[^,;{}]{0,320}') |
+              ForEach-Object { Write-Host ("MATCH="+$_.Value) }
+          }
