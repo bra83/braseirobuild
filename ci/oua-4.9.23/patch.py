@@ -110,6 +110,7 @@ journey_state="""export interface JourneyState {
   mounted?: boolean;
   forcedMarch?: boolean;
   dangerEventsRemaining?: number;
+  travelFatigueByHero?: Record<string, number>;
 }"""
 types=types[:start]+journey_state+types[end:]
 
