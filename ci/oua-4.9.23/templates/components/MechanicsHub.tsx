@@ -27,7 +27,10 @@ export const MechanicsHub:React.FC<Props>=({masterState,characters,onApplyComman
   const [hope,setHope]=useState(false);
   const [inspired,setInspired]=useState(false);
   const [region,setRegion]=useState<'border'|'wild'|'dark'>('wild');
-  const [danger,setDanger]=useState(1);\n  const [mounted,setMounted]=useState(false);\n  const [forcedMarch,setForcedMarch]=useState(false);\n  const [mountVigourByHero,setMountVigourByHero]=useState<Record<string,number>>({});
+  const [danger,setDanger]=useState(1);
+  const [mounted,setMounted]=useState(false);
+  const [forcedMarch,setForcedMarch]=useState(false);
+  const [mountVigourByHero,setMountVigourByHero]=useState<Record<string,number>>({});
   const [shadowHero,setShadowHero]=useState(characters[0]?.id||'');
   const [shadowSource,setShadowSource]=useState<'dread'|'greed'|'sorcery'|'transgression'>('dread');
   const [shadowAmount,setShadowAmount]=useState(1);
