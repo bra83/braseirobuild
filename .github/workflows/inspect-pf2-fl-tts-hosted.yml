@@ -1,0 +1,98 @@
+name: Inspect PF2 vs FL TTS Hosted
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/inspect-pf2-fl-tts-hosted.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download sources and compare TTS
+        shell: bash
+        run: |
+          set -euo pipefail
+          API='https://api.firestorage.ai/dev/file'
+          mkdir -p /tmp/pf /tmp/fl audit
+
+          python3 - <<'PY'
+          import json, urllib.request, hashlib, zipfile, os
+
+          API='https://api.firestorage.ai/dev/file'
+          def get_json(url, method='GET'):
+              req=urllib.request.Request(url, method=method)
+              with urllib.request.urlopen(req, timeout=60) as r:
+                  return json.load(r)
+
+          def download_share(share, out, expected=None):
+              data=get_json(f'{API}/shares/{share}/files?maxResults=1000')
+              files=data.get('files') or []
+              if not files: raise SystemExit(f'empty share {share}')
+              z=[f for f in files if str(f.get('fileName') or f.get('name') or '').lower().endswith('.zip')]
+              candidates=z or files
+              candidates.sort(key=lambda f:(str(f.get('updatedAt') or ''), int(f.get('size') or 0)), reverse=True)
+              f=candidates[0]
+              fid=f.get('fileId')
+              d=get_json(f'{API}/shares/{share}/files/{fid}/download', 'POST')
+              url=d.get('downloadUrl')
+              if not url: raise SystemExit('downloadUrl missing')
+              urllib.request.urlretrieve(url,out)
+              h=hashlib.sha256(open(out,'rb').read()).hexdigest()
+              if expected and h != expected: raise SystemExit(f'SHA mismatch {share}: {h}')
+              return fid,h,str(f.get('fileName') or f.get('name') or '')
+
+          pfid,pfh,pfn=download_share('Q9EaqosxeXXK','/tmp/pf.zip','3a635ae10d9e37a3ed75068c27539a36485470848112784717ed9ef2d3768e11')
+          flid,flh,fln=download_share('CkNebEIJ7XWy','/tmp/fl.zip')
+          print('PF',pfid,pfh,pfn)
+          print('FL',flid,flh,fln)
+          open('/tmp/meta.txt','w').write(f'PF_FILE_ID={pfid}\nFL_FILE_ID={flid}\nFL_SHA256={flh}\nFL_NAME={fln}\n')
+          with zipfile.ZipFile('/tmp/pf.zip') as z: z.extractall('/tmp/pf')
+          with zipfile.ZipFile('/tmp/fl.zip') as z: z.extractall('/tmp/fl')
+          PY
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          patterns=re.compile(r'TextToSpeech|getVoices|getEngines|QUEUE_ADD|QUEUE_FLUSH|UtteranceProgressListener|setEngine|enginePackage|ttsEngine|androidTts|maxNumSentences|silenceScale|numThreads|prewarm|warm|speak|speech|voz|voice',re.I)
+          exts={'.kt','.java','.ts','.tsx','.js','.jsx','.html','.xml','.json','.gradle','.kts','.properties'}
+          out=Path('audit/PF2_FL_TTS_COMPARE_HOSTED.txt')
+          meta=Path('/tmp/meta.txt').read_text()
+          chunks=['PF2 R28 vs FORBIDDEN LANDS LATEST TTS',meta]
+          for label,root in [('PATHFINDER_R28',Path('/tmp/pf')),('FORBIDDEN_LANDS_LATEST',Path('/tmp/fl'))]:
+              chunks.append('\n================ '+label+' ================')
+              for p in root.rglob('*'):
+                  if not p.is_file() or p.suffix.lower() not in exts or p.stat().st_size>2_000_000: continue
+                  s=str(p)
+                  if any(x in s for x in ['/node_modules/','/build/','/dist/','/.gradle/','/.git/']): continue
+                  try: lines=p.read_text(encoding='utf-8',errors='ignore').splitlines()
+                  except: continue
+                  hits=[i for i,l in enumerate(lines) if patterns.search(l)]
+                  if not hits: continue
+                  chosen=set()
+                  for i in hits:
+                      chosen.update(range(max(0,i-8), min(len(lines),i+19)))
+                  chunks.append('\n--- FILE: '+str(p.relative_to(root))+' ---')
+                  for i in sorted(chosen): chunks.append(f'{i+1:5}: {lines[i]}')
+          out.write_text('\n'.join(chunks),encoding='utf-8')
+          PY
+
+      - name: Commit report
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add audit/PF2_FL_TTS_COMPARE_HOSTED.txt
+          git commit -m 'audit: hosted compare PF2 and Forbidden Lands TTS'
+          git push origin HEAD:main
