@@ -171,8 +171,9 @@ export function resolveJourneyEvent(state:MasterState,success:boolean,successIco
   const adjustment=(Number(state.journey.durationAdjustmentDays)||0)+effects.dayAdjustment;
   const effective=journeyDurationFromSegments(state.journey.segments,Boolean(state.journey.mounted),Boolean(state.journey.forcedMarch),adjustment);
   const danger=Math.max(0,Number(state.journey.dangerEventsRemaining||0)-(Number(state.journey.dangerEventsRemaining||0)>0?1:0));
+  const shifted=effects.dayAdjustment!==0?advanceWorldClock(state.worldClock,effects.dayAdjustment*1440).clock:state.worldClock;
   return {
-    state:{...state,journey:{...state.journey,pendingEvent:null,durationAdjustmentDays:adjustment,day:effective,dangerEventsRemaining:danger,awaitingEventGeneration:danger>0},updatedAt:Date.now()},
+    state:{...state,worldClock:shifted,journey:{...state.journey,pendingEvent:null,durationAdjustmentDays:adjustment,day:effective,dangerEventsRemaining:danger,awaitingEventGeneration:danger>0},updatedAt:Date.now()},
     effects,
   };
 }
