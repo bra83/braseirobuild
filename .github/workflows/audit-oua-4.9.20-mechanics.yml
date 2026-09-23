@@ -1,0 +1,96 @@
+name: OUA 4.9.20 Mechanics Audit Snapshot
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/audit-oua-4.9.20-mechanics.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oua-4.9.20-mechanics-audit
+  cancel-in-progress: true
+
+env:
+  BASE_TAG: "OUA-v4.9.20"
+  BASE_SOURCE: "OUA_4.9.20_UPGRADE_SAFE_ANDROID_STUDIO.zip"
+
+jobs:
+  audit:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract validated 4.9.20 source
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $work=Join-Path $env:RUNNER_TEMP 'oua-4920-mechanics-audit'
+          $incoming=Join-Path $work 'incoming'
+          $extract=Join-Path $work 'extract'
+          $audit=Join-Path $env:GITHUB_WORKSPACE 'mechanics-audit'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item $audit -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming,$extract,$audit -Force | Out-Null
+
+          $headers=@{
+            'Authorization'="Bearer $env:GITHUB_TOKEN"
+            'Accept'='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='oua-mechanics-audit'
+          }
+          $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/tags/$env:BASE_TAG"
+          $asset=@($release.assets | Where-Object { $_.name -eq $env:BASE_SOURCE -and $_.state -eq 'uploaded' }) | Select-Object -First 1
+          if(-not $asset){throw "Missing $env:BASE_SOURCE"}
+          $zip=Join-Path $incoming $env:BASE_SOURCE
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $zip $asset.url
+          if($LASTEXITCODE -ne 0){throw 'download failed'}
+          & tar.exe -xf $zip -C $extract
+          if($LASTEXITCODE -ne 0){throw 'extract failed'}
+
+          $pkg=Get-ChildItem $extract -Recurse -File -Filter package.json | Where-Object {Test-Path (Join-Path $_.Directory.FullName 'android')} | Sort-Object {$_.FullName.Length} | Select-Object -First 1
+          if(-not $pkg){throw 'project root not found'}
+          $root=$pkg.Directory.FullName
+          Set-Content -Path (Join-Path $audit 'ROOT.txt') -Value $root -Encoding UTF8
+
+          $paths=@(
+            'lib\rules',
+            'lib\master\types.ts',
+            'lib\master\commands.ts',
+            'lib\master\worldClock.ts',
+            'lib\rulesEngine.ts',
+            'lib\characterFactory.ts',
+            'components\CombatTacticalView.tsx',
+            'components\EriadorMap.tsx',
+            'components\GameView.tsx',
+            'App.tsx',
+            'types.ts'
+          )
+          foreach($rel in $paths){
+            $src=Join-Path $root $rel
+            if(Test-Path $src){
+              $dest=Join-Path $audit $rel
+              if((Get-Item $src).PSIsContainer){
+                New-Item -ItemType Directory -Path $dest -Force | Out-Null
+                Copy-Item (Join-Path $src '*') $dest -Recurse -Force
+              } else {
+                New-Item -ItemType Directory -Path (Split-Path $dest -Parent) -Force | Out-Null
+                Copy-Item $src $dest -Force
+              }
+            }
+          }
+
+          Get-ChildItem $audit -Recurse -File | Select-Object FullName,Length | Format-Table -AutoSize | Out-String | Set-Content (Join-Path $audit 'FILES.txt') -Encoding UTF8
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OUA_4.9.20_MECHANICS_AUDIT_SOURCE
+          path: mechanics-audit
+          if-no-files-found: error
+          retention-days: 7
