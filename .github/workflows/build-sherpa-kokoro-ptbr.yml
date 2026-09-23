@@ -1,0 +1,88 @@
+name: Build Sherpa Kokoro PT-BR
+
+on:
+  push:
+    branches:
+      - sherpa-kokoro-ptbr
+    paths:
+      - 'tools/patch_jing332_kokoro_ptbr.ps1'
+      - '.github/workflows/build-sherpa-kokoro-ptbr.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configure Android SDK
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA runner, got $env:RUNNER_NAME" }
+
+          $candidates = @()
+          if ($env:ANDROID_SDK_ROOT) { $candidates += $env:ANDROID_SDK_ROOT }
+          if ($env:ANDROID_HOME) { $candidates += $env:ANDROID_HOME }
+          $candidates += 'C:\actions-runner\android-sdk'
+          if ($env:LOCALAPPDATA) { $candidates += (Join-Path $env:LOCALAPPDATA 'Android\Sdk') }
+
+          $sdkRoot = $candidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+          if (-not $sdkRoot) { throw 'Android SDK not found on BRELGA' }
+
+          $sdkmanager = Get-ChildItem $sdkRoot -Recurse -Filter sdkmanager.bat -File -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $sdkmanager) { throw "sdkmanager.bat not found under $sdkRoot" }
+
+          "ANDROID_HOME=$sdkRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdkRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+          1..100 | ForEach-Object { 'y' } | & $sdkmanager.FullName --licenses | Out-Null
+          & $sdkmanager.FullName 'platform-tools' 'platforms;android-34' 'build-tools;34.0.0'
+          if ($LASTEXITCODE -ne 0) { throw 'Android SDK package install failed' }
+
+      - name: Prepare updated jing332 engine
+        shell: powershell
+        run: |
+          .\tools\patch_jing332_kokoro_ptbr.ps1
+
+      - name: Build APK
+        shell: powershell
+        working-directory: ${{ runner.temp }}\jing332-sherpa-kokoro
+        run: |
+          .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon
+          if ($LASTEXITCODE -ne 0) { throw "Gradle build failed with $LASTEXITCODE" }
+
+      - name: Validate APK
+        shell: powershell
+        run: |
+          $apk = Join-Path $env:RUNNER_TEMP 'jing332-sherpa-kokoro\app\build\outputs\apk\debug\app-debug.apk'
+          if (-not (Test-Path $apk)) { throw 'APK not found' }
+
+          $out = Join-Path $env:RUNNER_TEMP 'sherpa-kokoro-output'
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          $dest = Join-Path $out 'Sherpa-Kokoro-PTBR-1.13.8-debug.apk'
+          Copy-Item $apk $dest -Force
+
+          $hash = (Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  Sherpa-Kokoro-PTBR-1.13.8-debug.apk" | Set-Content (Join-Path $out 'SHA256.txt') -Encoding ascii
+          Write-Host "APK=$dest"
+          Write-Host "SHA256=$hash"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sherpa-Kokoro-PTBR-1.13.8
+          path: ${{ runner.temp }}\sherpa-kokoro-output\*
+          if-no-files-found: error
+          retention-days: 7
