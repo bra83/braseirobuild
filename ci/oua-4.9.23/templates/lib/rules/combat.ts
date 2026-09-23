@@ -145,6 +145,8 @@ export function applyHeroWound(input:CharacterSheet):{sheet:CharacterSheet;sever
     return {sheet:next,severity:'second-wound',feat:0};
   }
   next.attributes.wounded=true;
+  (next.other as any).lastFirstAidSuccessDay=undefined;
+  (next.other as any).lastFirstAidFailureDay=undefined;
   const feat=secureRoll(1,12);
   if(feat===12){
     (next.attributes as any).woundSeverity='moderate';(next.attributes as any).woundDays=0;(next.attributes as any).temporaryWound=true;
