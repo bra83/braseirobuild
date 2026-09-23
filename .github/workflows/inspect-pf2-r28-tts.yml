@@ -62,7 +62,7 @@ jobs:
           foreach($f in $files){
             $m=Select-String -Path $f.FullName -Pattern $patterns -AllMatches -ErrorAction SilentlyContinue
             if($m){
-              $rel=$f.FullName.Substring($env:WORK_ROOT.Length).TrimStart('\\','/')
+              $rel=$f.FullName.Substring($env:WORK_ROOT.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar,[System.IO.Path]::AltDirectorySeparatorChar)
               $hits += [pscustomobject]@{File=$rel;Count=$m.Count}
             }
           }
@@ -87,7 +87,7 @@ jobs:
           }
           "`r`n=== ANDROID MANIFEST ===" | Add-Content $report -Encoding utf8
           Get-ChildItem $env:WORK_ROOT -Recurse -Filter AndroidManifest.xml -File | ForEach-Object {
-            "`r`n--- $($_.FullName.Substring($env:WORK_ROOT.Length).TrimStart('\\','/')) ---" | Add-Content $report -Encoding utf8
+            "`r`n--- $($_.FullName.Substring($env:WORK_ROOT.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar,[System.IO.Path]::AltDirectorySeparatorChar)) ---" | Add-Content $report -Encoding utf8
             Get-Content $_.FullName | Add-Content $report -Encoding utf8
           }
           "`r`n=== VERSION ===" | Add-Content $report -Encoding utf8
