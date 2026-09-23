@@ -10,18 +10,13 @@ jobs:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 10
     steps:
-      - name: Validate exact P70 transfer files
+      - name: Check visitor upload on P70 transfer share
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
-          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA, got $env:RUNNER_NAME" }
-          $base='https://api.firestorage.ai/dev/file/shares/UIPwpTBvtyqi'
-          $meta=Invoke-RestMethod -Method Get -Uri ($base+'/files?maxResults=1000')
-          if (-not $meta.files -or $meta.files.Count -ne 4) { throw "Expected 4 files, got $($meta.files.Count)" }
-          foreach($f in ($meta.files | Sort-Object fileName)){
-            Write-Host "FILE=$($f.fileName) ID=$($f.fileId) BYTES=$($f.sizeBytes)"
-            $ticket=Invoke-RestMethod -Method Post -Uri ($base+'/files/'+$f.fileId+'/download')
-            if (-not $ticket.downloadUrl) { throw "No download URL for $($f.fileName)" }
-            $head=Invoke-WebRequest -Method Head -Uri $ticket.downloadUrl -UseBasicParsing
-            Write-Host "HEAD=$($head.StatusCode) LENGTH=$($head.Headers['Content-Length'])"
-          }
+          $uri='https://api.firestorage.ai/dev/file/shares/UIPwpTBvtyqi/files?maxResults=1000'
+          $meta=Invoke-RestMethod -Method Get -Uri $uri
+          Write-Host ("allowVisitorUpload="+$meta.allowVisitorUpload)
+          Write-Host ("visitorUploadRetentionHours="+$meta.visitorUploadRetentionHours)
+          Write-Host ("passwordProtected="+$meta.passwordProtected)
+          Write-Host ("title="+$meta.title)
