@@ -66,7 +66,7 @@ jobs:
               $hits += [pscustomobject]@{File=$rel;Count=$m.Count}
             }
           }
-          $hits | Sort-Object Count -Descending,File | Format-Table -AutoSize | Out-String -Width 240 | Add-Content $report -Encoding utf8
+          $hits | Sort-Object -Property @{Expression='Count';Descending=$true},File | Format-Table -AutoSize | Out-String -Width 240 | Add-Content $report -Encoding utf8
           "`r`n=== CONTEXT ===" | Add-Content $report -Encoding utf8
           foreach($h in ($hits | Sort-Object File)){
             $full=Join-Path $env:WORK_ROOT $h.File
