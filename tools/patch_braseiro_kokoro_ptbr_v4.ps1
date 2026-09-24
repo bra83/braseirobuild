@@ -24,8 +24,8 @@ Get-ChildItem "app\src\main\res" -Recurse -File -Filter "strings.xml" | ForEach-
   $localized = Get-Content $_.FullName -Raw
   $localized = [regex]::Replace(
     $localized,
-    '<string\s+name="app_name"[^>]*>.*?</string>',
-    '<string name="app_name" translatable="false">Braseiro Kokoro PT-BR V4</string>'
+    '(<string\s+name="app_name"[^>]*>).*?(</string>)',
+    '$1Braseiro Kokoro PT-BR V4$2'
   )
   Set-Content -Path $_.FullName -Value $localized -Encoding utf8
 }
