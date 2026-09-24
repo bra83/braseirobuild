@@ -418,7 +418,7 @@ object SynthesizerManager {
             tts.free()
         }
 
-        override fun canDestroy(): Boolean = !tts.isRunning
+        override fun canDestroy(): Boolean = true
     }
 }
 '@
@@ -507,17 +507,15 @@ class TtsService : TextToSpeechService() {
 
         val tts = SynthesizerManager.getTTS(model.toOfflineTtsConfig())
         synchronized(generationLock) {
-            if (!tts.isRunning) {
-                tts.generateWithConfigAndCallback(
-                    text = "Olá.",
-                    config = GenerationConfig(
-                        sid = voice.id,
-                        speed = 1.0f,
-                        silenceScale = 0.06f,
-                    ),
-                    callback = { 1 },
-                )
-            }
+            tts.generateWithConfigAndCallback(
+                text = "Olá.",
+                config = GenerationConfig(
+                    sid = voice.id,
+                    speed = 1.0f,
+                    silenceScale = 0.06f,
+                ),
+                callback = { 1 },
+            )
         }
     }
 
