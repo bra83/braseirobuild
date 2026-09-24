@@ -163,7 +163,7 @@ jobs:
           Move-Item (Join-Path $tmp 'KokoroChunkTest.java') (Join-Path $tmp 'com\braseiro\pathfinder2e\KokoroChunkTest.java')
 
           Push-Location $tmp
-          javac com\braseiro\pathfinder2e\PortugueseNarrationSanitizer.java com\braseiro\pathfinder2e\NarrationChunker.java com\braseiro\pathfinder2e\KokoroChunkTest.java
+          javac -encoding UTF-8 com\braseiro\pathfinder2e\PortugueseNarrationSanitizer.java com\braseiro\pathfinder2e\NarrationChunker.java com\braseiro\pathfinder2e\KokoroChunkTest.java
           if($LASTEXITCODE -ne 0){throw 'Kokoro chunker javac failed'}
           java com.braseiro.pathfinder2e.KokoroChunkTest | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R30_KOKORO_CHUNK_TEST.log"
           if($LASTEXITCODE -ne 0){throw 'Kokoro chunker test failed'}
