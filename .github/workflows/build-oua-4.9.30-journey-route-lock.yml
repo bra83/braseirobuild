@@ -144,7 +144,7 @@ jobs:
             'master-repeat-hard-abort-removed' = (-not $whole.Contains('O Mestre devolveu a cena anterior')) -and (-not $whole.Contains('O Gemini devolveu praticamente a mesma narração'))
             'master-repeat-ordered-shingles' = $whole.Contains('function sceneShingleSet') -and $whole.Contains('sceneLooksRepeated')
             'route-execution-button' = $whole.Contains('Avançar 1 hex pela rota') -and $whole.Contains('advancePlannedRoute')
-            'route-movement-guidance' = $whole.Contains('Destino distante: Planejar rota')
+            'route-movement-guidance' = $whole.Contains('Movimento livre bloqueado. Escolha um destino')
             'route-no-free-hop' = (-not $whole.Contains("'Mover aqui'")) -and $whole.Contains('Movimento livre bloqueado')
             'route-next-hex-hard-gate' = $whole.Contains('a Companhia só pode avançar para o próximo hex da rota planejada')
             'route-march-hard-gate' = $whole.Contains('Jogada de Marcha do Guia precisa ser resolvida')
