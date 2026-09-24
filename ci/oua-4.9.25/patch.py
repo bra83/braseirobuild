@@ -231,7 +231,7 @@ main=read(main_rel).replace("index.html?v=49024&immersive=1","index.html?v=49025
 
 main=read(main_rel);s=read(settings_rel);g=read(global_rel);a=read(app_rel);db=read("lib/db.ts");emap=read("components/EriadorMap.tsx")
 checks={
-"engines":"engine?.engines" in main and "getTtsCatalog" in main,
+"engines":"engines.orEmpty()" in main and "getTtsCatalog" in main and "selectTtsEngine" in main,
 "voices":"e?.voices" in main and "selectTtsVoice" in main,
 "neural":"com.k2fsa.sherpa.onnx.tts.engine" in main,
 "chunk":"neuralMinChars = 250" in main and "neuralTargetChars = 450" in main and "neuralMaxChars = 650" in main,
