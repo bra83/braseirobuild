@@ -13,7 +13,7 @@ permissions:
 env:
   R28_SHA: '3a635ae10d9e37a3ed75068c27539a36485470848112784717ed9ef2d3768e11'
   MECH_SHA: '5e0d25547afe3fc1e56c4c3758f4cbb099efa48519e194256663bba0bb5ce392'
-  AUDIO_SHA: 'a49945246b6ad00a26ccab1293ae9ce1d3130f6acdff0af286a2551fdd357714'
+  AUDIO_SHA: '657f5e3157c95032cc6bc2b307f0f14144137071ecac899ba7b04d71d8091775'
   PYTHONUTF8: '1'
   PYTHONIOENCODING: 'utf-8'
 
@@ -40,8 +40,8 @@ jobs:
           SRC_FILE: '01a0c81d60a375449668e568a4163539'
           MECH_SHARE: 'uVfisfPLsxkc'
           MECH_FILE: '01a0d0d336f87594a1e775ddda91b3d4'
-          AUDIO_SHARE: '_nVVmoEDc85E'
-          AUDIO_FILE: '01a0d1f3a255747cad9e3398afc09349'
+          AUDIO_SHARE: 'ugufpP3bcFtM'
+          AUDIO_FILE: '01a0d2035962772f91d414dcdc274ca2'
         run: |
           $ErrorActionPreference='Stop'
           if($env:RUNNER_NAME -ne 'BRELGA'){throw "Expected BRELGA, got $env:RUNNER_NAME"}
@@ -251,7 +251,7 @@ jobs:
               tag_name=$tag
               target_commitish='main'
               name='Braseiro Pathfinder 2e 9.0.31 R30'
-              body='R30 Android/Kokoro sobre a R29 mecânica. Descoberta dinâmica de engines/vozes; Google/Samsung preservados; Sherpa/Kokoro com blocos 250-650 alvo 450, QUEUE_ADD, onDone real, sem watchdog neural, prewarm, silêncio inicial de 50 ms, maxNumSentences=2, silenceScale=0.06, numThreads=4 e velocidade neural própria 1.0x neutra. Mantém as correções mecânicas da R29 e passa a suíte PF2.'
+              body='R30 Android/Kokoro sobre a R29 mecânica. Descoberta dinâmica de engines e vozes reais expostas pelo Android; Google/Samsung preservados; Sherpa/Kokoro com blocos 250-650 alvo 450, fronteiras naturais, primeiro bloco limpa sessão e blocos seguintes usam QUEUE_ADD, avanço somente por onDone, sem watchdog neural, velocidade neural própria 1.0x neutra e parâmetros maxNumSentences=2, silenceScale=0.06 e numThreads=4. O VTT não fabrica nomes/speakerId e mantém a instância TextToSpeech viva. Mantém as correções mecânicas da R29 e passa a suíte PF2.'
               draft=$false
               prerelease=$false
             } | ConvertTo-Json
