@@ -167,24 +167,82 @@ jobs:
           Write-Host "APK_SHA256=$hash"
           "dir=$outDir" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
-      - name: Publish APK release asset
+      - name: Publish APK release asset via GitHub API
+        id: publish
         shell: powershell
         env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
           APK_DIR: ${{ steps.apk.outputs.dir }}
         run: |
           $ErrorActionPreference = 'Stop'
-          $apk = Join-Path $env:APK_DIR 'BRASEIRO_STAR_WARS_EDGE_R54_P72_DEBUG.apk'
-          if (-not (Test-Path $apk)) { throw 'Validated APK missing before release upload' }
+          $repo = 'bra83/braseirobuild'
           $tag = 'star-wars-r54-p72-apk'
-          gh release view $tag --repo bra83/braseirobuild *> $null
-          if ($LASTEXITCODE -ne 0) {
-            gh release create $tag --repo bra83/braseirobuild --title 'Braseiro Star Wars R54 P72 APK' --notes 'APK debug compilado no BRELGA a partir do checkpoint P72 verificado por SHA-256.'
-            if ($LASTEXITCODE -ne 0) { throw 'Failed to create release' }
-          }
-          gh release upload $tag $apk --repo bra83/braseirobuild --clobber
-          if ($LASTEXITCODE -ne 0) { throw 'Failed to upload APK release asset' }
+          $apk = Join-Path $env:APK_DIR 'BRASEIRO_STAR_WARS_EDGE_R54_P72_DEBUG.apk'
           $shaFile = Join-Path $env:APK_DIR 'BRASEIRO_STAR_WARS_EDGE_R54_P72_DEBUG.apk.sha256'
-          gh release upload $tag $shaFile --repo bra83/braseirobuild --clobber
-          if ($LASTEXITCODE -ne 0) { throw 'Failed to upload SHA release asset' }
-          gh release view $tag --repo bra83/braseirobuild --json url,assets
+          if (-not (Test-Path $apk)) { throw 'Validated APK missing before release upload' }
+          if (-not (Test-Path $shaFile)) { throw 'SHA file missing before release upload' }
+
+          $actual = (Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actual -ne '7f567b22479d7070b5b25644de7ab0faff0e11fa5b93d108efda8f41f97fa8d9') {
+            throw "Validated APK changed before publish: $actual"
+          }
+
+          $headers = @{
+            Authorization = "Bearer $env:GITHUB_TOKEN"
+            Accept = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'BRELGA-Star-Wars-P72'
+          }
+
+          $release = $null
+          try {
+            $release = Invoke-RestMethod -Method Get -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"
+          } catch {
+            if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw }
+          }
+
+          if (-not $release) {
+            $payload = @{
+              tag_name = $tag
+              target_commitish = 'main'
+              name = 'Braseiro Star Wars R54 P72 APK'
+              body = 'APK debug compilado no BRELGA a partir do checkpoint P72 verificado por SHA-256.'
+              draft = $false
+              prerelease = $false
+            } | ConvertTo-Json
+            $payloadBytes = [System.Text.Encoding]::UTF8.GetBytes($payload)
+            $release = Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json; charset=utf-8' -Body $payloadBytes -Uri "https://api.github.com/repos/$repo/releases"
+          }
+          if (-not $release.id) { throw 'Release create/read failed' }
+
+          $assets = Invoke-RestMethod -Method Get -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$($release.id)/assets?per_page=100"
+          foreach ($name in @('BRASEIRO_STAR_WARS_EDGE_R54_P72_DEBUG.apk','BRASEIRO_STAR_WARS_EDGE_R54_P72_DEBUG.apk.sha256')) {
+            $existing = $assets | Where-Object { $_.name -eq $name } | Select-Object -First 1
+            if ($existing) {
+              Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($existing.id)" | Out-Null
+            }
+          }
+
+          $uploadBase = ($release.upload_url -replace '\{.*$','')
+          $apkName = [uri]::EscapeDataString('BRASEIRO_STAR_WARS_EDGE_R54_P72_DEBUG.apk')
+          $shaName = [uri]::EscapeDataString('BRASEIRO_STAR_WARS_EDGE_R54_P72_DEBUG.apk.sha256')
+
+          $apkAsset = Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/vnd.android.package-archive' -InFile $apk -Uri ($uploadBase + '?name=' + $apkName)
+          if (-not $apkAsset.id) { throw 'APK release upload failed' }
+          $shaAsset = Invoke-RestMethod -Method Post -Headers $headers -ContentType 'text/plain' -InFile $shaFile -Uri ($uploadBase + '?name=' + $shaName)
+          if (-not $shaAsset.id) { throw 'SHA release upload failed' }
+
+          Write-Host "RELEASE_URL=$($release.html_url)"
+          Write-Host "APK_ASSET_URL=$($apkAsset.browser_download_url)"
+          Write-Host "APK_ASSET_ID=$($apkAsset.id)"
+          "release_url=$($release.html_url)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "asset_id=$($apkAsset.id)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Upload verified APK as workflow artifact
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_STAR_WARS_EDGE_R54_P72_DEBUG
+          path: ${{ steps.apk.outputs.dir }}/BRASEIRO_STAR_WARS_EDGE_R54_P72_DEBUG.apk
+          if-no-files-found: error
+          retention-days: 7
