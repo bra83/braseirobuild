@@ -1,4 +1,4 @@
-name: Build Star Wars R54 P74 APK on BRELGA split transfer
+name: Build Star Wars R54 P74 APK on BRELGA split fallback
 
 on:
   push:
@@ -9,44 +9,37 @@ on:
 
 permissions:
   contents: write
-  actions: write
 
 jobs:
-  free_brelga:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Cancel stalled direct-transfer run
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          code="$(curl -sS -o /tmp/cancel.json -w '%{http_code}' -X POST \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/35947227336/cancel" || true)"
-          echo "cancel_http=$code"
-          if [ "$code" != "202" ] && [ "$code" != "409" ]; then
-            cat /tmp/cancel.json || true
-            exit 1
-          fi
-          sleep 12
-
   build:
-    needs: free_brelga
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 120
 
     steps:
+      - name: Skip fallback when P74 APK already exists
+        id: precheck
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $headers = @{ Authorization = "Bearer $env:GITHUB_TOKEN"; Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28' }
+          $skip = 'false'
+          try {
+            $r = Invoke-RestMethod -Headers $headers -Uri 'https://api.github.com/repos/bra83/braseirobuild/releases/tags/star-wars-r54-p74-apk'
+            if ($r.assets | Where-Object { $_.name -eq 'BRASEIRO_STAR_WARS_EDGE_R54_P74_DEBUG.apk' }) { $skip = 'true' }
+          } catch {}
+          "skip=$skip" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "P74_FALLBACK_SKIP=$skip"
+
       - name: Configure Java 21
+        if: steps.precheck.outputs.skip != 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
 
       - name: Locate Android SDK
+        if: steps.precheck.outputs.skip != 'true'
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
@@ -70,6 +63,7 @@ jobs:
 
       - name: Download and reconstruct exact P74
         id: src
+        if: steps.precheck.outputs.skip != 'true'
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
@@ -79,29 +73,19 @@ jobs:
           New-Item -ItemType Directory -Path $work -Force | Out-Null
 
           $meta = Invoke-RestMethod -Method Get -Uri ($api + '/files?maxResults=100')
-          if (-not $meta.files -or $meta.files.Count -ne 4) {
-            throw "Expected 4 P74 transfer files, got $($meta.files.Count)"
-          }
+          if (-not $meta.files -or $meta.files.Count -ne 4) { throw "Expected 4 P74 transfer files, got $($meta.files.Count)" }
 
           foreach ($file in ($meta.files | Sort-Object fileName)) {
-            if ($file.fileName -notmatch '^p74[.]part[.]0[0-3][.]zip$') {
-              throw "Unexpected transfer file $($file.fileName)"
-            }
-
+            if ($file.fileName -notmatch '^p74[.]part[.]0[0-3][.]zip$') { throw "Unexpected transfer file $($file.fileName)" }
             $ticket = Invoke-RestMethod -Method Post -Uri ($api + '/files/' + $file.fileId + '/download')
             if (-not $ticket.downloadUrl) { throw "No download URL for $($file.fileName)" }
-
             $containerZip = Join-Path $work $file.fileName
             & curl.exe -L --fail --connect-timeout 20 --max-time 180 --retry 3 --retry-delay 2 --retry-all-errors -o $containerZip $ticket.downloadUrl
             if ($LASTEXITCODE -ne 0) { throw "Download failed for $($file.fileName): $LASTEXITCODE" }
-            if ((Get-Item $containerZip).Length -ne [int64]$file.sizeBytes) {
-              throw "Container size mismatch for $($file.fileName)"
-            }
-
+            if ((Get-Item $containerZip).Length -ne [int64]$file.sizeBytes) { throw "Container size mismatch for $($file.fileName)" }
             $extractDir = Join-Path $work ('extract-' + [IO.Path]::GetFileNameWithoutExtension($file.fileName))
             New-Item -ItemType Directory -Path $extractDir -Force | Out-Null
             Expand-Archive -Path $containerZip -DestinationPath $extractDir -Force
-
             $rawName = [IO.Path]::GetFileNameWithoutExtension($file.fileName)
             $raw = Get-ChildItem $extractDir -Recurse -File | Where-Object { $_.Name -eq $rawName } | Select-Object -First 1
             if (-not $raw) { throw "Raw part not found inside $($file.fileName)" }
@@ -109,9 +93,7 @@ jobs:
           }
 
           $parts = 0..3 | ForEach-Object { Join-Path $work ("p74.part.{0:d2}" -f $_) }
-          foreach ($part in $parts) {
-            if (-not (Test-Path $part)) { throw "Missing reconstructed part $part" }
-          }
+          foreach ($part in $parts) { if (-not (Test-Path $part)) { throw "Missing reconstructed part $part" } }
 
           $zip = Join-Path $work 'BRASEIRO_STAR_WARS_EDGE_R54_P74_SOURCE_CHECKPOINT.zip'
           $output = [IO.File]::Open($zip, [IO.FileMode]::Create)
@@ -120,22 +102,18 @@ jobs:
               $input = [IO.File]::OpenRead($part)
               try { $input.CopyTo($output) } finally { $input.Dispose() }
             }
-          } finally {
-            $output.Dispose()
-          }
+          } finally { $output.Dispose() }
 
           $bytes = (Get-Item $zip).Length
           if ($bytes -ne 78951636) { throw "P74 byte count mismatch after reconstruction: $bytes" }
           $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($hash -ne 'e6718642d1044bc3bf9e8e05ad142f697ef937c4927398a958dd286037d5f70b') {
-            throw "P74 SHA mismatch after reconstruction: $hash"
-          }
-
+          if ($hash -ne 'e6718642d1044bc3bf9e8e05ad142f697ef937c4927398a958dd286037d5f70b') { throw "P74 SHA mismatch after reconstruction: $hash" }
           Write-Host "P74_RECONSTRUCTED_BYTES=$bytes"
           Write-Host "P74_RECONSTRUCTED_SHA256=$hash"
           "zip=$zip" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
       - name: Extract and detect Android Studio project
+        if: steps.precheck.outputs.skip != 'true'
         id: project
         shell: powershell
         env:
@@ -165,6 +143,7 @@ jobs:
           "root=$root" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
       - name: Build debug APK
+        if: steps.precheck.outputs.skip != 'true'
         shell: powershell
         working-directory: ${{ steps.project.outputs.root }}
         run: |
@@ -176,6 +155,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "assembleDebug failed: $LASTEXITCODE" }
 
       - name: Validate and stage APK
+        if: steps.precheck.outputs.skip != 'true'
         id: apk
         shell: powershell
         env:
@@ -224,6 +204,7 @@ jobs:
           "dir=$outDir" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
       - name: Publish APK release asset via GitHub API
+        if: steps.precheck.outputs.skip != 'true'
         id: publish
         shell: powershell
         env:
@@ -292,6 +273,7 @@ jobs:
           "asset_id=$($apkAsset.id)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
       - name: Upload verified APK as workflow artifact
+        if: steps.precheck.outputs.skip != 'true'
         continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
