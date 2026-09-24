@@ -194,6 +194,7 @@ jobs:
           "dir=$outDir" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
       - name: Upload P78 APK and proof
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: BRASEIRO_STAR_WARS_EDGE_R54_P78_BRELGA
