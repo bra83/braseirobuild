@@ -4,8 +4,13 @@ on:
   push:
     branches: [main]
     paths:
-      - ".github/workflows/build-oua-4.9.35-current-braseiro-kokoro.yml"      - "ci/oua-4.9.30/**"
-      - "ci/oua-4.9.31/**"      - "ci/oua-4.9.30/**"      - "ci/oua-4.9.31/**"      - "ci/oua-4.9.32/**"      - "ci/oua-4.9.33/**"      - "ci/oua-4.9.35/**"
+      - ".github/workflows/build-oua-4.9.35-current-braseiro-kokoro.yml"
+      - "ci/oua-4.9.30/**"
+      - "ci/oua-4.9.31/**"
+      - "ci/oua-4.9.32/**"
+      - "ci/oua-4.9.33/**"
+      - "ci/oua-4.9.34/**"
+      - "ci/oua-4.9.35/**"
   workflow_dispatch:
 
 permissions:
