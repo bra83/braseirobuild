@@ -54,7 +54,18 @@ jobs:
             $body=@{tag_name=$tag;target_commitish='main';name='Braseiro Star Wars R54 P77 APK';body='APK compilado e validado no BRELGA a partir do checkpoint P77 do Google Drive.';draft=$false;prerelease=$false}|ConvertTo-Json
             $release=Invoke-RestMethod -Method Post -Headers $h -ContentType 'application/json' -Body $body -Uri "https://api.github.com/repos/$repo/releases"
           }
-          $base=($release.upload_url -replace '\\{.*$','')
+          $base=($release.upload_url -replace '\{.*
+          $assets=Invoke-RestMethod -Headers $h -Uri "https://api.github.com/repos/$repo/releases/$($release.id)/assets?per_page=100"
+          foreach($name in @('BRASEIRO_STAR_WARS_EDGE_R54_P77_DEBUG.apk','BRASEIRO_STAR_WARS_EDGE_R54_P77_DEBUG.apk.sha256','APK_BADGING.txt','APK_SIGNATURE.txt','P77_BUILD_PROOF.txt')){
+            $p=Join-Path $env:APK_DIR $name
+            if(-not (Test-Path $p)){continue}
+            $old=$assets|Where-Object {$_.name -eq $name}|Select-Object -First 1
+            if($old){Invoke-RestMethod -Method Delete -Headers $h -Uri "https://api.github.com/repos/$repo/releases/assets/$($old.id)"|Out-Null}
+            $ct=if($name -like '*.apk'){'application/vnd.android.package-archive'}else{'text/plain'}
+            Invoke-RestMethod -Method Post -Headers $h -ContentType $ct -InFile $p -Uri ($base+'?name='+[uri]::EscapeDataString($name))|Out-Null
+          }
+          Write-Host $release.html_url
+,'')
           $assets=Invoke-RestMethod -Headers $h -Uri "https://api.github.com/repos/$repo/releases/$($release.id)/assets?per_page=100"
           foreach($name in @('BRASEIRO_STAR_WARS_EDGE_R54_P77_DEBUG.apk','BRASEIRO_STAR_WARS_EDGE_R54_P77_DEBUG.apk.sha256','APK_BADGING.txt','APK_SIGNATURE.txt','P77_BUILD_PROOF.txt')){
             $p=Join-Path $env:APK_DIR $name
