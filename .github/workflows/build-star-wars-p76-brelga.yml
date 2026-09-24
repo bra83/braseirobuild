@@ -47,7 +47,7 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          $api = 'https://api.firestorage.ai/dev/file/shares/HX5PJo0AXHG0'
+          $api = 'https://api.firestorage.ai/dev/file/shares/iuF6tQnjI8Vu'
           $work = Join-Path $env:RUNNER_TEMP 'sw-p76-transfer'
           Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $work -Force | Out-Null
@@ -61,9 +61,9 @@ jobs:
           & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o $zip $ticket.downloadUrl
           if ($LASTEXITCODE -ne 0) { throw "Download failed: $LASTEXITCODE" }
           $bytes = (Get-Item $zip).Length
-          if ($bytes -ne 79331588) { throw "P76 byte count mismatch: $bytes" }
+          if ($bytes -ne 79331922) { throw "P76 byte count mismatch: $bytes" }
           $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($hash -ne 'd69d7812dc37acef2b85f7874ddd11d99afde1b15221c0589cde0c792deb7504') { throw "P76 SHA mismatch: $hash" }
+          if ($hash -ne 'd271c960d3567950eba634e6076eb94fa5a9aa442c7dc5aefda1c48238f0de02') { throw "P76 SHA mismatch: $hash" }
           "zip=$zip" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
       - name: Extract and detect Android project
@@ -170,8 +170,8 @@ jobs:
             "RUNNER_NAME=$env:RUNNER_NAME",
             "GITHUB_RUN_ID=$env:GITHUB_RUN_ID",
             'SOURCE_NAME=BRASEIRO_STAR_WARS_EDGE_R54_P76_SOURCE_CHECKPOINT.zip',
-            'SOURCE_BYTES=79331588',
-            'SOURCE_SHA256=d69d7812dc37acef2b85f7874ddd11d99afde1b15221c0589cde0c792deb7504',
+            'SOURCE_BYTES=79331922',
+            'SOURCE_SHA256=d271c960d3567950eba634e6076eb94fa5a9aa442c7dc5aefda1c48238f0de02',
             'APK_NAME=BRASEIRO_STAR_WARS_EDGE_R54_P76_DEBUG.apk',
             "APK_BYTES=$((Get-Item $dest).Length)",
             "APK_SHA256=$hash",
