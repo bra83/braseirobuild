@@ -22,7 +22,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          code="$(curl -sS -o /tmp/cancel.json -w '%{http_code}' -X POST             -H "Authorization: Bearer $GH_TOKEN"             -H "Accept: application/vnd.github+json"             -H "X-GitHub-Api-Version: 2022-11-28"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/35947227336/cancel" || true)"
+          code="$(curl -sS -o /tmp/cancel.json -w '%{http_code}' -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/35947227336/cancel" || true)"
           echo "cancel_http=$code"
           if [ "$code" != "202" ] && [ "$code" != "409" ]; then
             cat /tmp/cancel.json || true
@@ -80,171 +84,7 @@ jobs:
           }
 
           foreach ($file in ($meta.files | Sort-Object fileName)) {
-            if ($file.fileName -notmatch '^p74[.]part[.]0[0-3][.]zip      - name: Extract and detect Android Studio project
-        id: project
-        shell: powershell
-        env:
-          SOURCE_ZIP: ${{ steps.src.outputs.zip }}
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $extractRoot = Join-Path $env:RUNNER_TEMP 'sw-p74-project'
-          Remove-Item $extractRoot -Recurse -Force -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Path $extractRoot -Force | Out-Null
-          & tar.exe -xf $env:SOURCE_ZIP -C $extractRoot
-          if ($LASTEXITCODE -ne 0) { throw 'P74 extraction failed' }
-
-          $settings = Get-ChildItem $extractRoot -Recurse -File -ErrorAction SilentlyContinue |
-            Where-Object {
-              $_.Name -in @('settings.gradle', 'settings.gradle.kts') -and
-              $_.FullName -notmatch '[\\/](build|[.]gradle)[\\/]' -and
-              (Test-Path (Join-Path $_.Directory.FullName 'gradlew.bat')) -and
-              (Test-Path (Join-Path $_.Directory.FullName 'gradle\wrapper\gradle-wrapper.jar')) -and
-              (Test-Path (Join-Path $_.Directory.FullName 'app\src\main\AndroidManifest.xml'))
-            } |
-            Sort-Object FullName |
-            Select-Object -First 1
-
-          if (-not $settings) { throw 'Complete Android Studio project not found in P74' }
-          $root = $settings.Directory.FullName
-          Write-Host "ANDROID_ROOT=$root"
-          "root=$root" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-
-      - name: Build debug APK
-        shell: powershell
-        working-directory: ${{ steps.project.outputs.root }}
-        run: |
-          $ErrorActionPreference = 'Continue'
-          if (Test-Path variable:PSNativeCommandUseErrorActionPreference) { $PSNativeCommandUseErrorActionPreference = $false }
-          & .\gradlew.bat --version --no-daemon
-          if ($LASTEXITCODE -ne 0) { throw "Gradle wrapper failed: $LASTEXITCODE" }
-          & .\gradlew.bat clean assembleDebug --stacktrace --no-daemon
-          if ($LASTEXITCODE -ne 0) { throw "assembleDebug failed: $LASTEXITCODE" }
-
-      - name: Validate and stage APK
-        id: apk
-        shell: powershell
-        env:
-          ROOT: ${{ steps.project.outputs.root }}
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $apk = Get-ChildItem $env:ROOT -Recurse -File -Filter '*.apk' |
-            Where-Object { $_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]debug[\\/]' } |
-            Sort-Object FullName | Select-Object -First 1
-          if (-not $apk) { throw 'Debug APK not found' }
-
-          $outDir = Join-Path $env:RUNNER_TEMP 'sw-p74-apk-out'
-          Remove-Item $outDir -Recurse -Force -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Path $outDir -Force | Out-Null
-          $dest = Join-Path $outDir 'BRASEIRO_STAR_WARS_EDGE_R54_P74_DEBUG.apk'
-          Copy-Item $apk.FullName $dest -Force
-
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          $zipTest = [IO.Compression.ZipFile]::OpenRead($dest)
-          $zipTest.Dispose()
-
-          $hash = (Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  BRASEIRO_STAR_WARS_EDGE_R54_P74_DEBUG.apk" |
-            Set-Content -Path (Join-Path $outDir 'BRASEIRO_STAR_WARS_EDGE_R54_P74_DEBUG.apk.sha256') -Encoding ascii
-
-          $buildTools = Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory -ErrorAction SilentlyContinue |
-            Sort-Object Name -Descending | Select-Object -First 1
-          if (-not $buildTools) { throw 'Android build-tools not found' }
-          $aapt = Join-Path $buildTools.FullName 'aapt.exe'
-          $apksigner = Join-Path $buildTools.FullName 'apksigner.bat'
-          if (-not (Test-Path $aapt)) { throw 'aapt.exe not found' }
-
-          & $aapt dump badging $dest 2>&1 | Tee-Object -FilePath (Join-Path $outDir 'APK_BADGING.txt')
-          if ($LASTEXITCODE -ne 0) { throw 'aapt validation failed' }
-          $badging = Get-Content (Join-Path $outDir 'APK_BADGING.txt') -Raw
-          if ($badging -notmatch "package: name='com[.]braseiro[.]starwarsedge'") { throw 'Wrong applicationId in APK' }
-
-          if (Test-Path $apksigner) {
-            & $apksigner verify --verbose --print-certs $dest 2>&1 |
-              Tee-Object -FilePath (Join-Path $outDir 'APK_SIGNATURE.txt')
-            if ($LASTEXITCODE -ne 0) { throw 'APK signature validation failed' }
-          }
-
-          Write-Host "APK_BYTES=$((Get-Item $dest).Length)"
-          Write-Host "APK_SHA256=$hash"
-          "dir=$outDir" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-
-      - name: Publish APK release asset via GitHub API
-        id: publish
-        shell: powershell
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          APK_DIR: ${{ steps.apk.outputs.dir }}
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $repo = 'bra83/braseirobuild'
-          $tag = 'star-wars-r54-p74-apk'
-          $apk = Join-Path $env:APK_DIR 'BRASEIRO_STAR_WARS_EDGE_R54_P74_DEBUG.apk'
-          $shaFile = Join-Path $env:APK_DIR 'BRASEIRO_STAR_WARS_EDGE_R54_P74_DEBUG.apk.sha256'
-          if (-not (Test-Path $apk)) { throw 'Validated APK missing before release upload' }
-          if (-not (Test-Path $shaFile)) { throw 'SHA file missing before release upload' }
-          $actual = (Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
-          Write-Host "P74_APK_SHA256=$actual"
-
-          $headers = @{
-            Authorization = "Bearer $env:GITHUB_TOKEN"
-            Accept = 'application/vnd.github+json'
-            'X-GitHub-Api-Version' = '2022-11-28'
-            'User-Agent' = 'BRELGA-Star-Wars-P74'
-          }
-
-          $release = $null
-          try {
-            $release = Invoke-RestMethod -Method Get -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"
-          } catch {
-            if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw }
-          }
-
-          if (-not $release) {
-            $payload = @{
-              tag_name = $tag
-              target_commitish = 'main'
-              name = 'Braseiro Star Wars R54 P74 APK'
-              body = 'APK debug compilado no BRELGA a partir do checkpoint P74 verificado por SHA-256.'
-              draft = $false
-              prerelease = $false
-            } | ConvertTo-Json
-            $payloadBytes = [System.Text.Encoding]::UTF8.GetBytes($payload)
-            $release = Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json; charset=utf-8' -Body $payloadBytes -Uri "https://api.github.com/repos/$repo/releases"
-          }
-          if (-not $release.id) { throw 'Release create/read failed' }
-
-          $assets = Invoke-RestMethod -Method Get -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$($release.id)/assets?per_page=100"
-          foreach ($name in @('BRASEIRO_STAR_WARS_EDGE_R54_P74_DEBUG.apk','BRASEIRO_STAR_WARS_EDGE_R54_P74_DEBUG.apk.sha256')) {
-            $existing = $assets | Where-Object { $_.name -eq $name } | Select-Object -First 1
-            if ($existing) {
-              Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($existing.id)" | Out-Null
-            }
-          }
-
-          $uploadBase = ($release.upload_url -replace '\{.*$','')
-          $apkName = [uri]::EscapeDataString('BRASEIRO_STAR_WARS_EDGE_R54_P74_DEBUG.apk')
-          $shaName = [uri]::EscapeDataString('BRASEIRO_STAR_WARS_EDGE_R54_P74_DEBUG.apk.sha256')
-
-          $apkAsset = Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/vnd.android.package-archive' -InFile $apk -Uri ($uploadBase + '?name=' + $apkName)
-          if (-not $apkAsset.id) { throw 'APK release upload failed' }
-          $shaAsset = Invoke-RestMethod -Method Post -Headers $headers -ContentType 'text/plain' -InFile $shaFile -Uri ($uploadBase + '?name=' + $shaName)
-          if (-not $shaAsset.id) { throw 'SHA release upload failed' }
-
-          Write-Host "RELEASE_URL=$($release.html_url)"
-          Write-Host "APK_ASSET_URL=$($apkAsset.browser_download_url)"
-          Write-Host "APK_ASSET_ID=$($apkAsset.id)"
-          "release_url=$($release.html_url)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-          "asset_id=$($apkAsset.id)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-
-      - name: Upload verified APK as workflow artifact
-        continue-on-error: true
-        uses: actions/upload-artifact@v4
-        with:
-          name: BRASEIRO_STAR_WARS_EDGE_R54_P74_DEBUG
-          path: ${{ steps.apk.outputs.dir }}/BRASEIRO_STAR_WARS_EDGE_R54_P74_DEBUG.apk
-          if-no-files-found: error
-          retention-days: 7
-) {
+            if ($file.fileName -notmatch '^p74[.]part[.]0[0-3][.]zip$') {
               throw "Unexpected transfer file $($file.fileName)"
             }
 
