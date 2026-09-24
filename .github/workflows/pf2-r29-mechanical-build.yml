@@ -78,6 +78,8 @@ jobs:
           python -m pip install -q pytest
           python -m pytest tests_pf2 -q | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R29_TESTS.log"
           if($LASTEXITCODE -ne 0){throw 'Mechanical tests failed'}
+          $t=Get-Content "$env:RUNNER_TEMP\PF2_R29_TESTS.log" -Raw
+          if($t -notmatch '201 passed'){throw "Expected 201 passing tests; got: $t"}
 
       - name: Set R29 release version after tests
         shell: powershell
