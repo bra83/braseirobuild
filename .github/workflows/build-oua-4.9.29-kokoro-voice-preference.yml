@@ -208,12 +208,12 @@ jobs:
             'tts-kokoro-profile' = $whole.Contains('com.k2fsa.sherpa.onnx.tts.engine') -and $whole.Contains('TTS local neural / Kokoro')
             'tts-kokoro-chunk-range' = $whole.Contains('neuralMinChars = 250') -and $whole.Contains('neuralTargetChars = 450') -and $whole.Contains('neuralMaxChars = 650')
             'tts-kokoro-punctuation-first' = $whole.Contains("setOf('.','!','?')") -and $whole.Contains("setOf(';',',')")
-            'tts-kokoro-queue-add' = $whole.Contains('if(neural)TextToSpeech.QUEUE_ADD else TextToSpeech.QUEUE_FLUSH')
+            'tts-kokoro-queue-add' = $whole.Contains('if(neural&&p.index>0)TextToSpeech.QUEUE_ADD else TextToSpeech.QUEUE_FLUSH')
             'tts-kokoro-on-done-chain' = $whole.Contains('override fun onDone') -and $whole.Contains('advanceSpeechQueue(p.rootId)')
             'tts-kokoro-no-watchdog' = $whole.Contains('if(isNeuralTtsProfile())return')
             'tts-kokoro-profile-values' = $whole.Contains('putInt("maxNumSentences",2)') -and $whole.Contains('putFloat("silenceScale",.06f)') -and $whole.Contains('putInt("numThreads",4)')
             'tts-kokoro-prewarm' = $whole.Contains('prewarmNeuralTts') -and $whole.Contains('prewarmTts')
-            'tts-kokoro-prime-silence' = $whole.Contains('playSilentUtterance(50L,TextToSpeech.QUEUE_ADD')
+            'tts-kokoro-prime-silence-removed' = (-not $whole.Contains('playSilentUtterance(50L,TextToSpeech.QUEUE_ADD'))
             'tts-kokoro-neutral-rate' = $whole.Contains('speechRate=if(neural)neuralTtsRate else rate.coerceIn') -and $whole.Contains('1.00× = velocidade neutra')
             'tts-normal-android-preserved' = $whole.Contains('NarrationSegmenter.splitForAndroidTts(chapter,180.coerceAtMost(max))')
             'long-rest-advances-eight-hours' = $whole.Contains("const restMinutes = command.kind === 'short' ? 60 : 480;")
@@ -394,7 +394,7 @@ jobs:
             tag_name = $env:TAG
             target_commitish = $env:GITHUB_SHA
             name = 'Braseiro O Um Anel 4.9.29 - KOKORO VOZ + PREFERENCIA'
-            body = 'Upgrade-safe update over validated 4.9.28. Fixes Android 11+ TTS package visibility so the installed SherpaOnnx/Kokoro engine com.k2fsa.sherpa.onnx.tts.engine appears in the VTT engine selector. Runtime discovery now merges TextToSpeech engines with PackageManager TTS services and a verified Sherpa package fallback. Existing Kokoro queue/chunking/prewarm behavior, normal Android TTS, mechanics, package, signer and database identity are preserved.'
+            body = 'Upgrade-safe update over validated 4.9.28. Fixes the Android bridge recursion that prevented selecting a Kokoro voice, clears stale/prewarm queue only before neural block 0 while preserving QUEUE_ADD between later blocks and real onDone chaining, and adds a persistent user choice between Charon/Gemini TTS and Kokoro/local TTS for the main narration button. Engine discovery, mechanics, package, signer and database identity are preserved.'
             draft = $false
             prerelease = $false
           } | ConvertTo-Json
