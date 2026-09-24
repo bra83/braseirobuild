@@ -155,7 +155,7 @@ jobs:
               System.out.println("KOKORO_CHUNK_TEST_OK blocks="+parts.size());
             }
           }
-          '@ | Set-Content (Join-Path $tmp 'KokoroChunkTest.java') -Encoding utf8
+          '@ | ForEach-Object { [System.IO.File]::WriteAllText((Join-Path $tmp 'KokoroChunkTest.java'), $_, (New-Object System.Text.UTF8Encoding($false))) }
 
           New-Item -ItemType Directory -Path (Join-Path $tmp 'com\braseiro\pathfinder2e') -Force | Out-Null
           Move-Item (Join-Path $tmp 'NarrationChunker.java') (Join-Path $tmp 'com\braseiro\pathfinder2e\NarrationChunker.java')
