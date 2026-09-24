@@ -47,7 +47,7 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          $api = 'https://api.firestorage.ai/dev/file/shares/tsXF2Zd9b3Go86e1'
+          $api = 'https://api.firestorage.ai/dev/file/shares/tc9KTTZ6oSai'
           $work = Join-Path $env:RUNNER_TEMP 'sw-p77-transfer'
           Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $work -Force | Out-Null
