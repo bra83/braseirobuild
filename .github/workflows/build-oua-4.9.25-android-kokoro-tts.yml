@@ -198,7 +198,7 @@ jobs:
             'calendar-hard-contract' = $whole.Contains('Calendário canônico: ano') -and $whole.Contains('nunca mencione outra estação')
             'journey-day-event' = $whole.Contains('journey_day_completed')
             'journey-residual-fatigue-warning' = $whole.Contains('Fadiga residual') -and $whole.Contains('refúgio protegido e seguro')
-            'tts-installed-engines-dynamic' = $whole.Contains('getTtsCatalog') -and $whole.Contains('engine?.engines') -and $whole.Contains('selectTtsEngine')
+            'tts-installed-engines-dynamic' = $whole.Contains('getTtsCatalog') -and $whole.Contains('engines.orEmpty()') -and $whole.Contains('selectTtsEngine')
             'tts-installed-voices-dynamic' = $whole.Contains('selectTtsVoice') -and $whole.Contains('Voz do motor selecionado')
             'tts-kokoro-profile' = $whole.Contains('com.k2fsa.sherpa.onnx.tts.engine') -and $whole.Contains('TTS local neural / Kokoro')
             'tts-kokoro-chunk-range' = $whole.Contains('neuralMinChars = 250') -and $whole.Contains('neuralTargetChars = 450') -and $whole.Contains('neuralMaxChars = 650')
