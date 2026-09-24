@@ -1,0 +1,100 @@
+name: PF2 R29 Mechanical Linux
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/pf2-r29-mechanical-linux.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  R28_SHA: '3a635ae10d9e37a3ed75068c27539a36485470848112784717ed9ef2d3768e11'
+  PATCH_SHA: '5e0d25547afe3fc1e56c4c3758f4cbb099efa48519e194256663bba0bb5ce392'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Recover exact R28 and apply patch
+        env:
+          SRC_SHARE: 'Q9EaqosxeXXK'
+          SRC_FILE: '01a0c81d60a375449668e568a4163539'
+          PATCH_SHARE: 'uVfisfPLsxkc'
+          PATCH_FILE: '01a0d0d336f87594a1e775ddda91b3d4'
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/pf2-r29-linux"
+          WORK="$ROOT/work"
+          PATCHDIR="$ROOT/patch"
+          mkdir -p "$WORK" "$PATCHDIR"
+          python - <<'PY'
+          import json, os, urllib.request, hashlib
+          api='https://api.firestorage.ai/dev/file'
+          root=os.path.join(os.environ['RUNNER_TEMP'],'pf2-r29-linux')
+          def grab(share,file,dest):
+              req=urllib.request.Request(f'{api}/shares/{share}/files/{file}/download',method='POST')
+              with urllib.request.urlopen(req,timeout=60) as r: d=json.load(r)
+              urllib.request.urlretrieve(d['downloadUrl'],dest)
+          grab(os.environ['SRC_SHARE'],os.environ['SRC_FILE'],root+'/source.zip')
+          grab(os.environ['PATCH_SHARE'],os.environ['PATCH_FILE'],root+'/patch.zip')
+          for p,e in [(root+'/source.zip',os.environ['R28_SHA']),(root+'/patch.zip',os.environ['PATCH_SHA'])]:
+              h=hashlib.sha256(open(p,'rb').read()).hexdigest()
+              if h!=e: raise SystemExit(f'SHA mismatch {p}: {h}')
+          PY
+          unzip -q "$ROOT/source.zip" -d "$WORK"
+          unzip -q "$ROOT/patch.zip" -d "$PATCHDIR"
+          grep -q 'VERSION_NAME=9.0.29' "$WORK/version.properties"
+          grep -q 'VERSION_CODE=90029' "$WORK/version.properties"
+          cd "$WORK"
+          git apply --check --whitespace=nowarn "$PATCHDIR/PATHFINDER2E_R28_MECHANICAL_AUDIT_PATCH.patch"
+          git apply --whitespace=nowarn "$PATCHDIR/PATHFINDER2E_R28_MECHANICAL_AUDIT_PATCH.patch"
+          cp "$PATCHDIR/tests_pf2/test_mechanical_audit_r29.py" "$WORK/tests_pf2/test_mechanical_audit_r29.py"
+          echo "WORK_ROOT=$WORK" >> "$GITHUB_ENV"
+
+      - name: Mechanical tests
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          set -euo pipefail
+          python -m pip install -q pytest
+          python -m pytest tests_pf2 -q | tee "$RUNNER_TEMP/PF2_R29_TESTS.log"
+          grep -q '201 passed' "$RUNNER_TEMP/PF2_R29_TESTS.log"
+
+      - name: Build APK and source
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          set -euo pipefail
+          sed -i 's/VERSION_NAME=9.0.29/VERSION_NAME=9.0.30/' version.properties
+          sed -i 's/VERSION_CODE=90029/VERSION_CODE=90030/' version.properties
+          chmod +x ./gradlew
+          ./gradlew :app:assembleDebug --stacktrace --no-daemon 2>&1 | tee "$RUNNER_TEMP/PF2_R29_GRADLE.log"
+          OUT="$RUNNER_TEMP/pf2-r29-out"
+          mkdir -p "$OUT"
+          APK="$(find . -type f -path '*/build/outputs/apk/debug/*.apk' | head -n1)"
+          test -n "$APK"
+          cp "$APK" "$OUT/Braseiro_Pathfinder2e_9.0.30_R29_DEBUG.apk"
+          sha256sum "$OUT/Braseiro_Pathfinder2e_9.0.30_R29_DEBUG.apk" > "$OUT/Braseiro_Pathfinder2e_9.0.30_R29_DEBUG.apk.sha256"
+          cp "$RUNNER_TEMP/PF2_R29_TESTS.log" "$OUT/MECHANICAL_TESTS.log"
+          cp "$RUNNER_TEMP/PF2_R29_GRADLE.log" "$OUT/GRADLE_BUILD.log"
+          zip -qr "$OUT/Braseiro_Pathfinder2e_9.0.30_R29_MECHANICAL_ANDROID_STUDIO.zip" .
+          sha256sum "$OUT/Braseiro_Pathfinder2e_9.0.30_R29_MECHANICAL_ANDROID_STUDIO.zip" > "$OUT/Braseiro_Pathfinder2e_9.0.30_R29_MECHANICAL_ANDROID_STUDIO.zip.sha256"
+          echo "OUT_DIR=$OUT" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PF2_R29_MECHANICAL_LINUX
+          path: ${{ env.OUT_DIR }}/*
+          if-no-files-found: error
+          retention-days: 7
