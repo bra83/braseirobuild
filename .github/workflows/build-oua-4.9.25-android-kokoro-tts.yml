@@ -210,7 +210,7 @@ jobs:
             'tts-kokoro-prewarm' = $whole.Contains('prewarmNeuralTts') -and $whole.Contains('prewarmTts')
             'tts-kokoro-prime-silence' = $whole.Contains('playSilentUtterance(50L,TextToSpeech.QUEUE_ADD')
             'tts-kokoro-neutral-rate' = $whole.Contains('speechRate=if(neural)neuralTtsRate else rate.coerceIn') -and $whole.Contains('1.00× = velocidade neutra')
-            'tts-normal-android-preserved' = $whole.Contains('NarrationSegmenter.splitForAndroidTts(chapter,180.coerceAtMost(max))'
+            'tts-normal-android-preserved' = $whole.Contains('NarrationSegmenter.splitForAndroidTts(chapter,180.coerceAtMost(max))')
           }
 
           $validation = Join-Path $out 'UPGRADE_COMPATIBILITY_SOURCE.txt'
