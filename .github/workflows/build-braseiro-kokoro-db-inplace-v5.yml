@@ -1,0 +1,181 @@
+name: Build Braseiro Kokoro V5 DB Model Host
+
+on:
+  push:
+    branches:
+      - sherpa-kokoro-ptbr
+    paths:
+      - 'tools/patch_braseiro_kokoro_db_inplace_v5.ps1'
+      - '.github/workflows/build-braseiro-kokoro-db-inplace-v5.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: braseiro-kokoro-db-inplace-v5
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configure Android SDK
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA runner, got $env:RUNNER_NAME" }
+
+          $candidates = @()
+          if ($env:ANDROID_SDK_ROOT) { $candidates += $env:ANDROID_SDK_ROOT }
+          if ($env:ANDROID_HOME) { $candidates += $env:ANDROID_HOME }
+          $candidates += 'C:\actions-runner\android-sdk'
+          if ($env:LOCALAPPDATA) { $candidates += (Join-Path $env:LOCALAPPDATA 'Android\Sdk') }
+          $sdkRoot = $candidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+          if (-not $sdkRoot) { throw 'Android SDK not found on BRELGA' }
+
+          $sdkmanager = Get-ChildItem $sdkRoot -Recurse -Filter sdkmanager.bat -File -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $sdkmanager) { throw "sdkmanager.bat not found under $sdkRoot" }
+
+          "ANDROID_HOME=$sdkRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdkRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+          1..100 | ForEach-Object { 'y' } | & $sdkmanager.FullName --licenses | Out-Null
+          & $sdkmanager.FullName 'platform-tools' 'platforms;android-34' 'build-tools;34.0.0'
+          if ($LASTEXITCODE -ne 0) { throw 'Android SDK setup failed' }
+
+      - name: Prepare in-place Braseiro Kokoro engine
+        shell: powershell
+        run: |
+          .\tools\patch_braseiro_kokoro_db_inplace_v5.ps1
+          if ($LASTEXITCODE -ne 0) { throw 'Braseiro Kokoro V5 patch failed' }
+
+      - name: Build debug APK on same BRELGA signer
+        shell: powershell
+        working-directory: ${{ runner.temp }}\braseiro-kokoro-db-inplace-v5
+        run: |
+          .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon
+          if ($LASTEXITCODE -ne 0) { throw "Gradle build failed: $LASTEXITCODE" }
+
+      - name: Verify package, model policy and install-over signature
+        id: apk
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $root = Join-Path $env:RUNNER_TEMP 'braseiro-kokoro-db-inplace-v5'
+          $apk = Join-Path $root 'app\build\outputs\apk\debug\app-debug.apk'
+          if (-not (Test-Path $apk)) { throw 'New APK missing' }
+
+          $sdkRoot = $env:ANDROID_SDK_ROOT
+          $aapt = Get-ChildItem $sdkRoot -Recurse -Filter aapt.exe -File | Sort-Object FullName -Descending | Select-Object -First 1
+          $apksigner = Get-ChildItem $sdkRoot -Recurse -Filter apksigner.bat -File | Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $aapt -or -not $apksigner) { throw 'Android validation tools missing' }
+
+          $badging = & $aapt.FullName dump badging $apk
+          $badging | Write-Host
+          $b = $badging -join "`n"
+          if ($b -notmatch "package: name='com\.k2fsa\.sherpa\.onnx\.tts\.engine\.debug'") {
+            throw 'Wrong package: model sandbox would not be preserved'
+          }
+          if ($b -notmatch "application-label.*Braseiro Kokoro PT-BR") {
+            throw 'Braseiro Kokoro label missing'
+          }
+
+          $entries = & jar tf $apk
+          if ($entries | Where-Object { $_ -match 'assets/.*(kokoro.*\.(zip|onnx|bin)|model\.onnx|voices\.bin)' }) {
+            throw 'APK incorrectly embeds a duplicate Kokoro model'
+          }
+
+          # Download the exact V3 debug APK previously used as DB·Next-gen.
+          $headers = @{
+            'Authorization' = "Bearer $env:GITHUB_TOKEN"
+            'Accept' = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'braseiro-kokoro-v5-signing-gate'
+          }
+          $repo = $env:GITHUB_REPOSITORY
+          $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/sherpa-kokoro-ptbr-v1"
+          $baseAsset = @($release.assets | Where-Object { $_.name -eq 'Sherpa-Kokoro-PTBR-FlowFix-V3-debug.apk' -and $_.state -eq 'uploaded' }) | Select-Object -First 1
+          if (-not $baseAsset) { throw 'Previous FlowFix V3 APK not found for signing comparison' }
+          $baseApk = Join-Path $env:RUNNER_TEMP 'Sherpa-Kokoro-PTBR-FlowFix-V3-debug.apk'
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $baseApk $baseAsset.url
+          if ($LASTEXITCODE -ne 0 -or -not (Test-Path $baseApk)) { throw 'Previous V3 APK download failed' }
+
+          $baseBadging = (& $aapt.FullName dump badging $baseApk) -join "`n"
+          if ($baseBadging -notmatch "package: name='com\.k2fsa\.sherpa\.onnx\.tts\.engine\.debug'") {
+            throw 'Previous V3 is not the DB debug package expected'
+          }
+
+          & $apksigner.FullName verify --verbose --print-certs $baseApk | Set-Content (Join-Path $env:RUNNER_TEMP 'base-sig.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'Previous V3 signature invalid' }
+          & $apksigner.FullName verify --verbose --print-certs $apk | Set-Content (Join-Path $env:RUNNER_TEMP 'new-sig.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'New V5 signature invalid' }
+
+          $baseLine = Get-Content (Join-Path $env:RUNNER_TEMP 'base-sig.txt') | Where-Object { $_ -match 'certificate SHA-256 digest:' } | Select-Object -First 1
+          $newLine = Get-Content (Join-Path $env:RUNNER_TEMP 'new-sig.txt') | Where-Object { $_ -match 'certificate SHA-256 digest:' } | Select-Object -First 1
+          if (-not $baseLine -or -not $newLine) { throw 'Could not read signer digests' }
+          $baseSig = ($baseLine -replace '.*digest:\s*','').Trim().ToLowerInvariant()
+          $newSig = ($newLine -replace '.*digest:\s*','').Trim().ToLowerInvariant()
+          Write-Host "BASE_SIGNER=$baseSig"
+          Write-Host "NEW_SIGNER=$newSig"
+          if ($baseSig -ne $newSig) { throw 'SIGNATURE MISMATCH: installing would lose install-over path' }
+
+          $out = Join-Path $env:RUNNER_TEMP 'braseiro-kokoro-v5-output'
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          $dest = Join-Path $out 'BRASEIRO_KOKORO_PTBR_DB_MODELHOST_V5-debug.apk'
+          Copy-Item $apk $dest -Force
+          $hash = (Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  BRASEIRO_KOKORO_PTBR_DB_MODELHOST_V5-debug.apk" | Set-Content (Join-Path $out 'BRASEIRO_KOKORO_PTBR_DB_MODELHOST_V5-debug.apk.sha256') -Encoding ascii
+          @(
+            'PASS - same package as DB Next-gen debug',
+            'PASS - same signing certificate as FlowFix V3',
+            'PASS - Android install-over preserves app-specific files/model directory',
+            'PASS - no embedded duplicate model',
+            'PASS - Braseiro Kokoro PT-BR label',
+            'PASS - Kokoro FlowFix V3 runtime preserved'
+          ) | Set-Content (Join-Path $out 'INSTALL_OVER_DB_MODEL_HOST.txt') -Encoding utf8
+
+          "path=$dest" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "sha256=$hash" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Publish V5 APK
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          APK_PATH: ${{ steps.apk.outputs.path }}
+          APK_SHA256: ${{ steps.apk.outputs.sha256 }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $repo = $env:GITHUB_REPOSITORY
+          $tag = 'sherpa-kokoro-ptbr-v1'
+          $assetName = 'BRASEIRO_KOKORO_PTBR_DB_MODELHOST_V5-debug.apk'
+          $headers = @{
+            'Authorization' = "Bearer $env:GITHUB_TOKEN"
+            'Accept' = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'braseiro-kokoro-db-v5-publisher'
+          }
+          $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"
+          if (-not $release.id) { throw 'Kokoro release missing' }
+
+          $existing = @($release.assets | Where-Object { $_.name -eq $assetName }) | Select-Object -First 1
+          if ($existing) {
+            Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($existing.id)" | Out-Null
+          }
+
+          $uploadUrl = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$assetName"
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -X POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: application/vnd.android.package-archive" --data-binary "@$env:APK_PATH" $uploadUrl
+          if ($LASTEXITCODE -ne 0) { throw 'V5 APK upload failed' }
+          Write-Host "SHA256=$env:APK_SHA256"
+          Write-Host "APK_URL=https://github.com/$repo/releases/download/$tag/$assetName"
