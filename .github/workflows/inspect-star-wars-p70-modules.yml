@@ -1,0 +1,112 @@
+name: Inspect Star Wars P70 source on BRELGA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/inspect-star-wars-p70-modules.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct exact P70 source
+        id: src
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $api = 'https://api.firestorage.ai/dev/file/shares/UIPwpTBvtyqi'
+          $work = Join-Path $env:RUNNER_TEMP 'sw-p70-inspect'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $work -Force | Out-Null
+          $meta = Invoke-RestMethod -Method Get -Uri ($api + '/files?maxResults=1000')
+          if (-not $meta.files -or $meta.files.Count -ne 4) { throw "Expected 4 transfer files, got $($meta.files.Count)" }
+          foreach ($file in ($meta.files | Sort-Object fileName)) {
+            if ($file.fileName -notmatch '^p70[.]part[.]0[0-3][.]zip$') { throw "Unexpected transfer file $($file.fileName)" }
+            $ticket = Invoke-RestMethod -Method Post -Uri ($api + '/files/' + $file.fileId + '/download')
+            if (-not $ticket.downloadUrl) { throw "No download URL for $($file.fileName)" }
+            $containerZip = Join-Path $work $file.fileName
+            & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o $containerZip $ticket.downloadUrl
+            if ($LASTEXITCODE -ne 0) { throw "Download failed for $($file.fileName)" }
+            $extractDir = Join-Path $work ('extract-' + [IO.Path]::GetFileNameWithoutExtension($file.fileName))
+            New-Item -ItemType Directory -Path $extractDir -Force | Out-Null
+            Expand-Archive -Path $containerZip -DestinationPath $extractDir -Force
+            $rawName = [IO.Path]::GetFileNameWithoutExtension($file.fileName)
+            $raw = Get-ChildItem $extractDir -Recurse -File | Where-Object { $_.Name -eq $rawName } | Select-Object -First 1
+            if (-not $raw) { throw "Raw part not found inside $($file.fileName)" }
+            Copy-Item $raw.FullName (Join-Path $work $rawName) -Force
+          }
+          $zip = Join-Path $work 'BRASEIRO_STAR_WARS_EDGE_R54_P70_SOURCE_CHECKPOINT.zip'
+          $output = [IO.File]::Open($zip, [IO.FileMode]::Create)
+          try {
+            foreach ($i in 0..3) {
+              $part = Join-Path $work ("p70.part.{0:d2}" -f $i)
+              $input = [IO.File]::OpenRead($part)
+              try { $input.CopyTo($output) } finally { $input.Dispose() }
+            }
+          } finally { $output.Dispose() }
+          $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($hash -ne '839ec1f649a9128585d71d6197e9f123904b50e5591c023c9410487220c5bc47') { throw "P70 SHA mismatch: $hash" }
+          "zip=$zip" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Extract and dump adventure modules
+        shell: powershell
+        env:
+          SOURCE_ZIP: ${{ steps.src.outputs.zip }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $root = Join-Path $env:RUNNER_TEMP 'sw-p70-inspect-project'
+          Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $root -Force | Out-Null
+          & tar.exe -xf $env:SOURCE_ZIP -C $root
+          if ($LASTEXITCODE -ne 0) { throw 'P70 extraction failed' }
+          $settings = Get-ChildItem $root -Recurse -File | Where-Object {
+            $_.Name -in @('settings.gradle','settings.gradle.kts') -and
+            (Test-Path (Join-Path $_.Directory.FullName 'gradlew.bat')) -and
+            (Test-Path (Join-Path $_.Directory.FullName 'app\src\main\AndroidManifest.xml'))
+          } | Select-Object -First 1
+          if (-not $settings) { throw 'Android project not found' }
+          $project = $settings.Directory.FullName
+          $candidates = Get-ChildItem $project -Recurse -File -Include *.mjs,*.js,*.json,*.html |
+            Where-Object { $_.FullName -notmatch '[\\/](build|[.]gradle)[\\/]' }
+          $hits = New-Object System.Collections.Generic.List[System.IO.FileInfo]
+          foreach ($f in $candidates) {
+            $txt = Get-Content $f.FullName -Raw -ErrorAction SilentlyContinue
+            if ($txt -match '(?i)Cholganna|Sa Nalaor|Raxus|Beyond the Rim|Além da Orla|Black Sun|Sol Negro|Teemo|Geonosis') {
+              $hits.Add($f)
+            }
+          }
+          New-Item -ItemType Directory -Path 'diagnostics' -Force | Out-Null
+          $out = 'diagnostics/sw-p70-adventure-modules.txt'
+          "P70_SHA256=839ec1f649a9128585d71d6197e9f123904b50e5591c023c9410487220c5bc47" | Set-Content $out -Encoding utf8
+          "PROJECT_ROOT=$project" | Add-Content $out -Encoding utf8
+          "MATCHED_FILES=$($hits.Count)" | Add-Content $out -Encoding utf8
+          foreach ($f in ($hits | Sort-Object FullName)) {
+            $rel = $f.FullName.Substring($project.Length).TrimStart('\\','/')
+            "" | Add-Content $out -Encoding utf8
+            ("===== FILE: " + $rel + " =====") | Add-Content $out -Encoding utf8
+            "" | Add-Content $out -Encoding utf8
+            Get-Content $f.FullName -Raw | Add-Content $out -Encoding utf8
+          }
+          if ((Get-Item $out).Length -gt 3000000) { throw 'Diagnostic dump unexpectedly large' }
+
+      - name: Commit diagnostic dump
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          git config user.name "BRELGA Builder"
+          git config user.email "brelga-builder@users.noreply.github.com"
+          git add diagnostics/sw-p70-adventure-modules.txt
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) { Write-Host 'No diagnostic change'; exit 0 }
+          git commit -m "diagnostic: inspect Star Wars P70 adventure modules"
+          git push origin HEAD:main
