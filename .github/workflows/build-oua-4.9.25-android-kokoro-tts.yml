@@ -388,7 +388,8 @@ jobs:
             draft = $false
             prerelease = $false
           } | ConvertTo-Json
-          $release = Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $payload -Uri "https://api.github.com/repos/$repo/releases"
+          $payloadBytes = [System.Text.Encoding]::UTF8.GetBytes($payload)
+          $release = Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json; charset=utf-8' -Body $payloadBytes -Uri "https://api.github.com/repos/$repo/releases"
           if (-not $release.id) { throw 'Release creation failed' }
 
           foreach ($file in Get-ChildItem $env:OUA_OUT -File) {
