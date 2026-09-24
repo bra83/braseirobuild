@@ -20,9 +20,16 @@ $gradle = $gradle.Replace('applicationIdSuffix = ".debug"', '// dedicated Brasei
 Set-Content -Path $gradlePath -Value $gradle -Encoding utf8
 
 $stringsPath = "app\src\main\res\values\strings.xml"
+Get-ChildItem "app\src\main\res" -Recurse -File -Filter "strings.xml" | ForEach-Object {
+  $localized = Get-Content $_.FullName -Raw
+  $localized = [regex]::Replace(
+    $localized,
+    '<string\s+name="app_name"[^>]*>.*?</string>',
+    '<string name="app_name" translatable="false">Braseiro Kokoro PT-BR V4</string>'
+  )
+  Set-Content -Path $_.FullName -Value $localized -Encoding utf8
+}
 $strings = Get-Content $stringsPath -Raw
-$strings = $strings.Replace('<string name="app_name" translatable="false">Next-gen Kaldi: TTS</string>', '<string name="app_name" translatable="false">Braseiro Kokoro PT-BR V4</string>')
-Set-Content -Path $stringsPath -Value $strings -Encoding utf8
 
 $manifestPath = "app\src\main\AndroidManifest.xml"
 $manifest = Get-Content $manifestPath -Raw
