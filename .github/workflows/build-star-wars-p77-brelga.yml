@@ -47,7 +47,7 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          $api = 'https://api.firestorage.ai/dev/file/shares/iuF6tQnjI8Vu'
+          $api = 'https://api.firestorage.ai/dev/file/shares/tsXF2Zd9b3Go86e1'
           $work = Join-Path $env:RUNNER_TEMP 'sw-p77-transfer'
           Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $work -Force | Out-Null
@@ -61,9 +61,9 @@ jobs:
           & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o $zip $ticket.downloadUrl
           if ($LASTEXITCODE -ne 0) { throw "Download failed: $LASTEXITCODE" }
           $bytes = (Get-Item $zip).Length
-          if ($bytes -ne 79331922) { throw "P77 byte count mismatch: $bytes" }
+          if ($bytes -ne 79377122) { throw "P77 byte count mismatch: $bytes" }
           $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($hash -ne 'd271c960d3567950eba634e6076eb94fa5a9aa442c7dc5aefda1c48238f0de02') { throw "P77 SHA mismatch: $hash" }
+          if ($hash -ne '3703dff112a097a2fa4a71d46639ba3a7a2515139121dd8c737a6d6ada08d46') { throw "P77 SHA mismatch: $hash" }
           "zip=$zip" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
       - name: Extract and detect Android project
@@ -98,7 +98,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'final-runtime syntax failed' }
           node --check app/src/main/assets/vtt/js/core/uiBridge.bundle.js
           if ($LASTEXITCODE -ne 0) { throw 'uiBridge bundle syntax failed' }
-          node --test tests/r54-p77-tts-kokoro-pipeline.test.mjs
+          node --test tests/r54-p76-tts-kokoro-pipeline.test.mjs tests/r54-p77-android-build-fix.test.mjs
           if ($LASTEXITCODE -ne 0) { throw 'P77 TTS focal failed' }
 
       - name: Build debug APK
@@ -170,8 +170,8 @@ jobs:
             "RUNNER_NAME=$env:RUNNER_NAME",
             "GITHUB_RUN_ID=$env:GITHUB_RUN_ID",
             'SOURCE_NAME=BRASEIRO_STAR_WARS_EDGE_R54_P77_SOURCE_CHECKPOINT.zip',
-            'SOURCE_BYTES=79331922',
-            'SOURCE_SHA256=d271c960d3567950eba634e6076eb94fa5a9aa442c7dc5aefda1c48238f0de02',
+            'SOURCE_BYTES=79377122',
+            'SOURCE_SHA256=3703dff112a097a2fa4a71d46639ba3a7a2515139121dd8c737a6d6ada08d46',
             'APK_NAME=BRASEIRO_STAR_WARS_EDGE_R54_P77_DEBUG.apk',
             "APK_BYTES=$((Get-Item $dest).Length)",
             "APK_SHA256=$hash",
