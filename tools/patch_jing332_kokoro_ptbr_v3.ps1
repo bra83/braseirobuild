@@ -7,12 +7,10 @@ $ErrorActionPreference = "Stop"
 $nl = [Environment]::NewLine
 
 if (Test-Path $WorkDir) { Remove-Item $WorkDir -Recurse -Force }
-git clone --no-checkout https://github.com/jing332/SherpaOnnxTtsEngineAndroid.git $WorkDir
+git clone --depth 1 https://github.com/jing332/SherpaOnnxTtsEngineAndroid.git $WorkDir
 Set-Location $WorkDir
-git fetch --depth 1 origin 5d91a72ee8a58dadeb191120d34df54d52fb190b
-git checkout --detach 5d91a72ee8a58dadeb191120d34df54d52fb190b
 
-Write-Host "Using exact upstream commit:"
+Write-Host "Using upstream commit:"
 git rev-parse HEAD
 
 Remove-Item "app\src\main\java\com\k2fsa\sherpa\onnx\Tts.kt" -Force
@@ -333,32 +331,34 @@ Select-String -Path "app\build.gradle.kts" -Pattern "sherpa-onnx-1.13.8.aar"
 
 
 # ============================================================
-# FLOW FIX V2 -- preserve the already-working external-model
-# architecture and only fix Kokoro flow/runtime behavior.
+# FLOW FIX V3
+# Keep the V1 external-model architecture above, then replace only the
+# runtime flow with a real Kokoro streaming implementation.
 # ============================================================
 
-Write-Host "Applying Kokoro PT-BR flow fix V3..."
+Write-Host "Applying Kokoro PT-BR Flow Fix V3..."
 
-# Make the update install above 1.26.092312_debug while preserving the same
-# package and the BRELGA debug signing identity.
 $gradlePath = "app\build.gradle.kts"
 $gradle = Get-Content $gradlePath -Raw
-$gradle = $gradle.Replace("versionCode = gitCommits", "versionCode = gitCommits + 1000")
+$gradle = $gradle.Replace("versionCode = gitCommits", "versionCode = gitCommits + 2000")
 Set-Content -Path $gradlePath -Value $gradle -Encoding utf8
 
-# 1) Sherpa sentence/pause profile.
 $configPath = "app\src\main\java\com\k2fsa\sherpa\onnx\tts\engine\synthesizer\ConfigModelManager.kt"
 $config = Get-Content $configPath -Raw
-$needle = '            ruleFsts = if (kokoro) "" else format(ruleFsts),' + [Environment]::NewLine + '        )'
-$replacement = '            ruleFsts = if (kokoro) "" else format(ruleFsts),' + [Environment]::NewLine +
-  '            maxNumSentences = if (kokoro) 2 else 1,' + [Environment]::NewLine +
-  '            silenceScale = if (kokoro) 0.06f else 0.2f,' + [Environment]::NewLine +
-  '        )'
-if (-not $config.Contains($needle)) { throw "ConfigModelManager OfflineTtsConfig marker not found" }
-$config = $config.Replace($needle, $replacement)
+$oldConfigTail = @'
+            ruleFsts = if (kokoro) "" else format(ruleFsts),
+        )
+'@
+$newConfigTail = @'
+            ruleFsts = if (kokoro) "" else format(ruleFsts),
+            maxNumSentences = if (kokoro) 2 else 1,
+            silenceScale = if (kokoro) 0.06f else 0.2f,
+        )
+'@
+if (-not $config.Contains($oldConfigTail)) { throw "OfflineTtsConfig profile marker not found" }
+$config = $config.Replace($oldConfigTail, $newConfigTail)
 Set-Content -Path $configPath -Value $config -Encoding utf8
 
-# 2) Keep Kokoro resident permanently; other engines keep normal cache behavior.
 $synthManager = @'
 package com.k2fsa.sherpa.onnx.tts.engine.synthesizer
 
@@ -375,9 +375,8 @@ object SynthesizerManager {
     private val cacheManager = SynthesizerCache()
     private val persistentKokoro = ConcurrentHashMap<String, OfflineTts>()
 
-    private fun key(cfg: OfflineTtsConfig): String {
-        return cfg.model.kokoro.model.ifBlank { cfg.model.vits.model }
-    }
+    private fun key(cfg: OfflineTtsConfig): String =
+        cfg.model.kokoro.model.ifBlank { cfg.model.vits.model }
 
     private fun isKokoro(cfg: OfflineTtsConfig): Boolean =
         cfg.model.kokoro.model.isNotBlank()
@@ -393,19 +392,18 @@ object SynthesizerManager {
 
         if (isKokoro(cfg)) {
             persistentKokoro[cacheKey]?.let {
-                Log.d(TAG, "getTTS Kokoro resident: " + it.config)
+                Log.d(TAG, "getTTS Kokoro resident: ${it.config}")
                 return it
             }
-
             val created = OfflineTts(config = withThreads(cfg))
             persistentKokoro[cacheKey] = created
-            Log.d(TAG, "Kokoro loaded and pinned resident: " + created.config)
+            Log.d(TAG, "Kokoro loaded and pinned resident: ${created.config}")
             return created
         }
 
         val cached = (cacheManager.getById(cacheKey) as Synthesizer?)?.tts
         cached?.let {
-            Log.d(TAG, "getTTS (from cache): " + it.config)
+            Log.d(TAG, "getTTS from cache: ${it.config}")
             return it
         }
 
@@ -426,80 +424,209 @@ object SynthesizerManager {
 '@
 Set-Content -Path "app\src\main\java\com\k2fsa\sherpa\onnx\tts\engine\synthesizer\SynthesizerManager.kt" -Value $synthManager -Encoding utf8
 
-# 3) Default thread setting shown by the engine also becomes 4.
 $ttsConfigPath = "app\src\main\java\com\k2fsa\sherpa\onnx\tts\engine\conf\TtsConfig.kt"
 $ttsConfig = Get-Content $ttsConfigPath -Raw
 $ttsConfig = $ttsConfig.Replace("initialValue = 2", "initialValue = 4")
 Set-Content -Path $ttsConfigPath -Value $ttsConfig -Encoding utf8
 
-# 4) Native TTS service: pre-load/prewarm off the UI thread, stream immediately,
-# protect the first phoneme, and only stop when Android explicitly asks to stop.
-$ttsServicePath = "app\src\main\java\com\k2fsa\sherpa\onnx\tts\engine\service\TtsService.kt"
-$ttsService = Get-Content $ttsServicePath -Raw
+$ttsService = @'
+package com.k2fsa.sherpa.onnx.tts.engine.service
 
-if ($ttsService -notmatch 'com\.k2fsa\.sherpa\.onnx\.GenerationConfig') {
-  $ttsService = $ttsService.Replace(
-    "import android.util.Log",
-    "import android.util.Log" + [Environment]::NewLine + "import com.k2fsa.sherpa.onnx.GenerationConfig"
-  )
-}
+import android.media.AudioFormat
+import android.speech.tts.SynthesisCallback
+import android.speech.tts.SynthesisRequest
+import android.speech.tts.TextToSpeech
+import android.speech.tts.TextToSpeechService
+import android.speech.tts.Voice
+import android.util.Log
+import com.k2fsa.sherpa.onnx.GenerationConfig
+import com.k2fsa.sherpa.onnx.tts.engine.R
+import com.k2fsa.sherpa.onnx.tts.engine.conf.TtsConfig
+import com.k2fsa.sherpa.onnx.tts.engine.synthesizer.ConfigModelManager
+import com.k2fsa.sherpa.onnx.tts.engine.synthesizer.ConfigModelManager.toOfflineTtsConfig
+import com.k2fsa.sherpa.onnx.tts.engine.synthesizer.ConfigVoiceManager
+import com.k2fsa.sherpa.onnx.tts.engine.synthesizer.SynthesizerManager
+import com.k2fsa.sherpa.onnx.tts.engine.synthesizer.config.Model
+import com.k2fsa.sherpa.onnx.tts.engine.synthesizer.config.Voice as EngineVoice
+import com.k2fsa.sherpa.onnx.tts.engine.ui.TAG
+import com.k2fsa.sherpa.onnx.tts.engine.utils.longToast
+import com.k2fsa.sherpa.onnx.tts.engine.utils.newLocaleFromCode
+import com.k2fsa.sherpa.onnx.tts.engine.utils.toByteArray
+import java.io.File
+import java.util.Locale
+import kotlin.math.min
 
-$ttsService = $ttsService.Replace(
-  "    private var languages: List<Locale> = emptyList()",
-  "    private var languages: List<Locale> = emptyList()" + [Environment]::NewLine +
-  "    @Volatile private var stopRequested = false" + [Environment]::NewLine +
-  "    private val generationLock = Any()"
-)
+class TtsService : TextToSpeechService() {
+    companion object {
+        const val NOT_SET_VOICE_NAME = "NOT_SET_VOICE"
+    }
 
-$createNeedle = "        languages = ConfigModelManager.languages().map { newLocaleFromCode(it) }" +
-  [Environment]::NewLine + [Environment]::NewLine + "        super.onCreate()"
-$createReplacement = "        languages = ConfigModelManager.languages().map { newLocaleFromCode(it) }" +
-  [Environment]::NewLine + [Environment]::NewLine + "        super.onCreate()" +
-  [Environment]::NewLine + [Environment]::NewLine +
-  "        Thread({" + [Environment]::NewLine +
-  "            runCatching {" + [Environment]::NewLine +
-  "                val selectedModelId = TtsConfig.voice.value.model" + [Environment]::NewLine +
-  "                val model = ConfigModelManager.models().firstOrNull { it.id == selectedModelId }" + [Environment]::NewLine +
-  "                    ?: ConfigModelManager.models().firstOrNull()" + [Environment]::NewLine +
-  "                if (model != null && java.io.File(com.k2fsa.sherpa.onnx.tts.engine.FileConst.modelDir, model.id + \"/voices.bin\").isFile) {" + [Environment]::NewLine +
-  "                    val tts = SynthesizerManager.getTTS(model.toOfflineTtsConfig())" + [Environment]::NewLine +
-  "                    synchronized(generationLock) {" + [Environment]::NewLine +
-  "                        if (!tts.isRunning) {" + [Environment]::NewLine +
-  "                            tts.generateWithConfigAndCallback(" + [Environment]::NewLine +
-  "                                text = \"Olá.\"," + [Environment]::NewLine +
-  "                                config = GenerationConfig(" + [Environment]::NewLine +
-  "                                    sid = TtsConfig.voice.value.id," + [Environment]::NewLine +
-  "                                    speed = 1.0f," + [Environment]::NewLine +
-  "                                    silenceScale = 0.06f," + [Environment]::NewLine +
-  "                                )," + [Environment]::NewLine +
-  "                                callback = { 1 }," + [Environment]::NewLine +
-  "                            )" + [Environment]::NewLine +
-  "                        }" + [Environment]::NewLine +
-  "                    }" + [Environment]::NewLine +
-  "                }" + [Environment]::NewLine +
-  "            }.onFailure { Log.w(TAG, \"Kokoro prewarm skipped/failed\", it) }" + [Environment]::NewLine +
-  "        }, \"kokoro-prewarm\").start()"
+    private var languages: List<Locale> = emptyList()
+    @Volatile private var stopRequested = false
+    private val generationLock = Any()
 
-if (-not $ttsService.Contains($createNeedle)) { throw "TtsService onCreate marker not found" }
-$ttsService = $ttsService.Replace($createNeedle, $createReplacement)
+    override fun onCreate() {
+        Log.i(TAG, "onCreate tts service FlowFixV3")
 
-$ttsService = $ttsService.Replace(
-  "    override fun onStop() {}",
-  "    override fun onStop() {" + [Environment]::NewLine +
-  "        stopRequested = true" + [Environment]::NewLine +
-  "    }"
-)
+        ConfigVoiceManager.load()
+        ConfigModelManager.load()
 
-$startNeedle = "        if (request == null || callback == null) {" + [Environment]::NewLine +
-  "            return" + [Environment]::NewLine +
-  "        }"
-$startReplacement = $startNeedle + [Environment]::NewLine +
-  "        stopRequested = false"
-if (-not $ttsService.Contains($startNeedle)) { throw "TtsService request marker not found" }
-$ttsService = $ttsService.Replace($startNeedle, $startReplacement)
+        val configured = ConfigVoiceManager.speakers()
+        val selected = TtsConfig.voice.value
+        if (configured.none { it.toString() == selected.toString() }) {
+            configured.firstOrNull()?.let { TtsConfig.voice.value = it }
+        }
 
-$callbackPattern = '(?s)        val ttsCallback = \{ floatSamples: FloatArray ->.*?        callback\.done\(\)'
-$callbackReplacement = @'
+        languages = ConfigModelManager.languages().map { newLocaleFromCode(it) }
+        super.onCreate()
+
+        Thread({
+            runCatching { prewarmSelectedKokoro() }
+                .onFailure { Log.w(TAG, "Kokoro internal prewarm skipped/failed", it) }
+        }, "kokoro-prewarm").start()
+    }
+
+    override fun onDestroy() {
+        stopRequested = true
+        Log.i(TAG, "onDestroy tts service")
+        super.onDestroy()
+    }
+
+    private fun validSelectedVoice(): EngineVoice? {
+        val configured = ConfigVoiceManager.speakers()
+        val selected = TtsConfig.voice.value
+        return configured.firstOrNull { it.toString() == selected.toString() }
+            ?: configured.firstOrNull()
+    }
+
+    private fun prewarmSelectedKokoro() {
+        val voice = validSelectedVoice() ?: return
+        val model = ConfigModelManager.models().firstOrNull { it.id == voice.model } ?: return
+        val modelDir = File(com.k2fsa.sherpa.onnx.tts.engine.FileConst.modelDir, model.id)
+        if (!File(modelDir, "voices.bin").isFile) return
+
+        val tts = SynthesizerManager.getTTS(model.toOfflineTtsConfig())
+        synchronized(generationLock) {
+            if (!tts.isRunning) {
+                tts.generateWithConfigAndCallback(
+                    text = "Olá.",
+                    config = GenerationConfig(
+                        sid = voice.id,
+                        speed = 1.0f,
+                        silenceScale = 0.06f,
+                    ),
+                    callback = { 1 },
+                )
+            }
+        }
+    }
+
+    override fun onIsLanguageAvailable(_lang: String?, _country: String?, _variant: String?): Int {
+        val lang = _lang ?: ""
+        val country = _country ?: ""
+        languages.forEach {
+            val l = it.isO3Language
+            val c = it.isO3Country
+            if (l == lang && c == country) return TextToSpeech.LANG_COUNTRY_AVAILABLE
+            if (l == lang) return TextToSpeech.LANG_AVAILABLE
+        }
+        return TextToSpeech.LANG_NOT_SUPPORTED
+    }
+
+    override fun onLoadLanguage(_lang: String?, _country: String?, _variant: String?): Int =
+        onIsLanguageAvailable(_lang, _country, _variant)
+
+    override fun onGetLanguage(): Array<String> {
+        val locale = languages.firstOrNull() ?: Locale("pt", "BR")
+        return arrayOf(locale.isO3Language, locale.isO3Country, "")
+    }
+
+    override fun onLoadVoice(voiceName: String?): Int = onIsValidVoiceName(voiceName)
+
+    override fun onGetVoices(): MutableList<Voice> {
+        val list = mutableListOf<Voice>()
+        ConfigVoiceManager.speakers().forEach { speaker ->
+            val model = ConfigModelManager.models().find { it.id == speaker.model } ?: return@forEach
+            list.add(
+                Voice(
+                    model.id + "_" + speaker.id,
+                    newLocaleFromCode(model.lang),
+                    Voice.QUALITY_NORMAL,
+                    Voice.LATENCY_NORMAL,
+                    false,
+                    setOf(speaker.name),
+                )
+            )
+        }
+        Log.i(TAG, "onGetVoices FlowFixV3: ${list.size}")
+        return list
+    }
+
+    override fun onIsValidVoiceName(voiceName: String?): Int {
+        if (voiceName.isNullOrBlank()) return TextToSpeech.ERROR
+        if (voiceName == NOT_SET_VOICE_NAME) {
+            return if (validSelectedVoice() != null) TextToSpeech.SUCCESS else TextToSpeech.ERROR
+        }
+        val parsed = EngineVoice.from(voiceName)
+        return if (
+            ConfigVoiceManager.speakers().any { it.toString() == parsed.toString() } &&
+            ConfigModelManager.models().any { it.id == parsed.model }
+        ) TextToSpeech.SUCCESS else TextToSpeech.ERROR
+    }
+
+    override fun onGetDefaultVoiceNameFor(lang: String?, country: String?, variant: String?): String =
+        validSelectedVoice()?.toString() ?: NOT_SET_VOICE_NAME
+
+    override fun onStop() {
+        stopRequested = true
+    }
+
+    private fun resolveRequestVoice(voiceName: String?): EngineVoice? {
+        if (voiceName.isNullOrBlank() || voiceName == NOT_SET_VOICE_NAME) {
+            return validSelectedVoice()
+        }
+        val parsed = EngineVoice.from(voiceName)
+        return ConfigVoiceManager.speakers().firstOrNull { it.toString() == parsed.toString() }
+    }
+
+    private fun getTtsModel(voice: EngineVoice): Model? =
+        ConfigModelManager.models().firstOrNull { it.id == voice.model }
+
+    override fun onSynthesizeText(request: SynthesisRequest?, callback: SynthesisCallback?) {
+        if (request == null || callback == null) return
+        stopRequested = false
+
+        val ret = onIsLanguageAvailable(request.language, request.country, request.variant)
+        if (ret == TextToSpeech.LANG_NOT_SUPPORTED) {
+            callback.error()
+            return
+        }
+
+        val voice = resolveRequestVoice(request.voiceName)
+        if (voice == null) {
+            Log.e(TAG, "No valid configured voice for ${request.voiceName}")
+            longToast(R.string.tts_config_not_set)
+            callback.error()
+            return
+        }
+
+        val model = getTtsModel(voice)
+        if (model == null) {
+            Log.e(TAG, "Model not found for voice $voice")
+            longToast(R.string.tts_config_not_set)
+            callback.error()
+            return
+        }
+
+        val tts = SynthesizerManager.getTTS(model.toOfflineTtsConfig())
+        callback.start(tts.sampleRate(), AudioFormat.ENCODING_PCM_16BIT, 1)
+
+        val text = request.charSequenceText.toString()
+        if (text.isBlank()) {
+            callback.done()
+            return
+        }
+
         var firstAudio = true
         val ttsCallback: (FloatArray) -> Int = { floatSamples ->
             if (stopRequested) {
@@ -508,7 +635,7 @@ $callbackReplacement = @'
                 val samples = floatSamples.toByteArray()
                 val targetBytes = min(
                     callback.maxBufferSize,
-                    maxOf(2048, (tts.sampleRate() * 2 * 0.12f).toInt())
+                    maxOf(2048, (tts.sampleRate() * 2 * 0.12f).toInt()),
                 )
 
                 if (firstAudio) {
@@ -524,20 +651,17 @@ $callbackReplacement = @'
 
                 var offset = 0
                 while (offset < samples.size && !stopRequested) {
-                    val bytesToWrite = min(targetBytes, samples.size - offset)
-                    callback.audioAvailable(samples, offset, bytesToWrite)
-                    offset += bytesToWrite
+                    val n = min(targetBytes, samples.size - offset)
+                    callback.audioAvailable(samples, offset, n)
+                    offset += n
                 }
 
                 if (stopRequested) 0 else 1
             }
         }
 
-        val speed = (request.speechRate / 100f).coerceIn(0.55f, 1.20f)
-        Log.i(
-            TAG,
-            "voice: ${voice}, text: $text, speechRate: ${request.speechRate} (speed: $speed)"
-        )
+        val speed = (request.speechRate / 100f).coerceIn(0.55f, 1.50f)
+        Log.i(TAG, "FlowFixV3 voice=$voice rate=${request.speechRate} speed=$speed chars=${text.length}")
 
         synchronized(generationLock) {
             if (!stopRequested) {
@@ -553,82 +677,14 @@ $callbackReplacement = @'
             }
         }
 
-        if (!stopRequested) {
-            callback.done()
-        }
+        if (!stopRequested) callback.done()
+    }
+}
 '@
+Set-Content -Path "app\src\main\java\com\k2fsa\sherpa\onnx\tts\engine\service\TtsService.kt" -Value $ttsService -Encoding utf8
 
-$newTtsService = [regex]::Replace($ttsService, $callbackPattern, $callbackReplacement, 1)
-if ($newTtsService -eq $ttsService) { throw "TtsService streaming block replacement failed" }
-Set-Content -Path $ttsServicePath -Value $newTtsService -Encoding utf8
-
-Write-Host "Flow fix V3 base checks:"
-Select-String -Path $configPath -Pattern "maxNumSentences = if \(kokoro\) 2 else 1|silenceScale = if \(kokoro\) 0.06f"
+Write-Host "Flow Fix V3 checks:"
+Select-String -Path $configPath -Pattern "maxNumSentences = if \(kokoro\) 2|silenceScale = if \(kokoro\) 0.06f"
 Select-String -Path "app\src\main\java\com\k2fsa\sherpa\onnx\tts\engine\synthesizer\SynthesizerManager.kt" -Pattern "persistentKokoro|numThreads"
-Select-String -Path $ttsServicePath -Pattern "generateWithConfigAndCallback|kokoro-prewarm|0.05f|0.12f"
-Select-String -Path $gradlePath -Pattern "versionCode = gitCommits \+ 1000"
-
-
-# ============================================================
-# FLOW FIX V3 -- make Android Voice selection real and reliable.
-# The Android TTS API exposes each Sherpa voice as <modelId>_<speakerId>.
-# Ensure there is always a valid default and return that real name to Android.
-# ============================================================
-
-Write-Host "Applying Android Voice/default fix V3..."
-
-$ttsServicePath = "app\src\main\java\com\k2fsa\sherpa\onnx\tts\engine\service\TtsService.kt"
-$ttsService = Get-Content $ttsServicePath -Raw
-
-$loadMarker = "        ConfigVoiceManager.load()" + [Environment]::NewLine +
-  "        ConfigModelManager.load()" + [Environment]::NewLine +
-  "        languages = ConfigModelManager.languages().map { newLocaleFromCode(it) }"
-
-$loadReplacement = "        ConfigVoiceManager.load()" + [Environment]::NewLine +
-  "        ConfigModelManager.load()" + [Environment]::NewLine +
-  "        val configuredVoices = ConfigVoiceManager.speakers()" + [Environment]::NewLine +
-  "        val selectedVoice = TtsConfig.voice.value" + [Environment]::NewLine +
-  "        if (configuredVoices.none { it.toString() == selectedVoice.toString() }) {" + [Environment]::NewLine +
-  "            configuredVoices.firstOrNull()?.let { TtsConfig.voice.value = it }" + [Environment]::NewLine +
-  "        }" + [Environment]::NewLine +
-  "        languages = ConfigModelManager.languages().map { newLocaleFromCode(it) }"
-
-if (-not $ttsService.Contains($loadMarker)) { throw "V3 ConfigVoice/default marker not found" }
-$ttsService = $ttsService.Replace($loadMarker, $loadReplacement)
-
-$defaultOld = @'
-    override fun onGetDefaultVoiceNameFor(
-        lang: String?,
-        country: String?,
-        variant: String?
-    ): String {
-        Log.i(TAG, "onGetDefaultVoiceNameFor: $lang, $country, $variant")
-        return NOT_SET_VOICE_NAME
-    }
-'@
-
-$defaultNew = @'
-    override fun onGetDefaultVoiceNameFor(
-        lang: String?,
-        country: String?,
-        variant: String?
-    ): String {
-        Log.i(TAG, "onGetDefaultVoiceNameFor: $lang, $country, $variant")
-        val configured = ConfigVoiceManager.speakers()
-        val selected = TtsConfig.voice.value
-        return configured.firstOrNull { it.toString() == selected.toString() }?.toString()
-            ?: configured.firstOrNull()?.toString()
-            ?: NOT_SET_VOICE_NAME
-    }
-'@
-
-if (-not $ttsService.Contains($defaultOld)) { throw "V3 default voice method marker not found" }
-$ttsService = $ttsService.Replace($defaultOld, $defaultNew)
-
-Set-Content -Path $ttsServicePath -Value $ttsService -Encoding utf8
-
-Write-Host "V3 final checks:"
-Select-String -Path $ttsServicePath -Pattern "configuredVoices|onGetDefaultVoiceNameFor|generateWithConfigAndCallback|stopRequested"
-Select-String -Path "app\src\main\java\com\k2fsa\sherpa\onnx\tts\engine\synthesizer\SynthesizerManager.kt" -Pattern "persistentKokoro"
-
-# V3 build trigger: real Android Voice names are authoritative.
+Select-String -Path "app\src\main\java\com\k2fsa\sherpa\onnx\tts\engine\service\TtsService.kt" -Pattern "generateWithConfigAndCallback|kokoro-prewarm|onGetDefaultVoiceNameFor|speaker.id"
+Select-String -Path $gradlePath -Pattern "versionCode = gitCommits \+ 2000"
