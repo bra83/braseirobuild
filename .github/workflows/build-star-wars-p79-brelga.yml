@@ -145,7 +145,7 @@ jobs:
             $shellText = $sr.ReadToEnd(); $sr.Dispose()
             $rr = New-Object IO.StreamReader($runtimeEntry.Open())
             $runtimeText = $rr.ReadToEnd(); $rr.Dispose()
-            if ($shellText -notmatch 'data-version="1[.]0[.]78"') { throw 'APK shell is not 1.0.79' }
+            if ($shellText -notmatch 'data-version="1[.]0[.]79"') { throw 'APK shell is not 1.0.79' }
             if ($runtimeText -notmatch 'R54 P79') { throw 'APK runtime is not P79' }
             if ($shellText -notmatch 'r54-dom-scheduler[.]js') { throw 'APK shell missing P79 scheduler' }
             foreach ($needle in @('campaignSetup','boundedVisualRoll','MESTRE LOCAL','final-published-last-roll','CAMPANHA','final-tts-engine','Velocidade Kokoro')) {
@@ -165,7 +165,7 @@ jobs:
           $badging = Get-Content (Join-Path $outDir 'APK_BADGING.txt') -Raw
           if ($badging -notmatch "package: name='com[.]braseiro[.]starwarsedge'") { throw 'Wrong applicationId' }
           if ($badging -notmatch "versionCode='10079'") { throw 'Wrong versionCode' }
-          if ($badging -notmatch "versionName='1[.]0[.]78'") { throw 'Wrong versionName' }
+          if ($badging -notmatch "versionName='1[.]0[.]79'") { throw 'Wrong versionName' }
 
           $sig='not-checked'
           if (Test-Path $signer) {
