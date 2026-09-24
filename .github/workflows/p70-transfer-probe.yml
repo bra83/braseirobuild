@@ -1,4 +1,4 @@
-name: Export Star Wars P70 APK from BRELGA
+name: BRELGA Star Wars live probe
 on:
   push:
     branches: [main]
@@ -9,31 +9,27 @@ permissions:
   contents: write
 
 jobs:
-  export:
+  probe:
     runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
-      - name: Publish validated APK as release asset
+      - uses: actions/checkout@v4
+      - name: Persist runner proof
         shell: powershell
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference='Stop'
-          $apk='C:\actions-runner\_work\_temp\sw-p70-apk-out\BRASEIRO_STAR_WARS_EDGE_R54_P70_DEBUG.apk'
-          if(-not(Test-Path $apk)){throw "Validated APK no longer present at $apk"}
-          $hash=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
-          if($hash -ne '01db7506611f189952f114b2e2ead28d4ae948d9def8cb40dc031ada487f4145'){
-            throw "APK SHA mismatch: $hash"
-          }
-          Write-Host "APK_BYTES=$((Get-Item $apk).Length)"
-          Write-Host "APK_SHA256=$hash"
-
-          $tag='star-wars-r54-p70-apk'
-          gh release view $tag --repo bra83/braseirobuild *> $null
-          if($LASTEXITCODE -ne 0){
-            gh release create $tag --repo bra83/braseirobuild --title 'Braseiro Star Wars R54 P70 APK' --notes 'APK debug compilado no BRELGA a partir do checkpoint P70 verificado por SHA-256.'
-            if($LASTEXITCODE -ne 0){throw 'Failed to create release'}
-          }
-          gh release upload $tag $apk --repo bra83/braseirobuild --clobber
-          if($LASTEXITCODE -ne 0){throw 'Failed to upload APK release asset'}
-          gh release view $tag --repo bra83/braseirobuild --json url,assets
+          New-Item -ItemType Directory -Path diagnostics -Force | Out-Null
+          @(
+            "RUNNER_NAME=$env:RUNNER_NAME",
+            "RUNNER_OS=$env:RUNNER_OS",
+            "RUNNER_ARCH=$env:RUNNER_ARCH",
+            "GITHUB_RUN_ID=$env:GITHUB_RUN_ID",
+            "GITHUB_RUN_ATTEMPT=$env:GITHUB_RUN_ATTEMPT"
+          ) | Set-Content diagnostics/brelga-live.txt -Encoding utf8
+          git config user.name "BRELGA Builder"
+          git config user.email "brelga-builder@users.noreply.github.com"
+          git add diagnostics/brelga-live.txt
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) { exit 0 }
+          git commit -m "diagnostic: BRELGA live proof"
+          git push origin HEAD:main
