@@ -630,3 +630,5 @@ Set-Content -Path $ttsServicePath -Value $ttsService -Encoding utf8
 Write-Host "V3 final checks:"
 Select-String -Path $ttsServicePath -Pattern "configuredVoices|onGetDefaultVoiceNameFor|generateWithConfigAndCallback|stopRequested"
 Select-String -Path "app\src\main\java\com\k2fsa\sherpa\onnx\tts\engine\synthesizer\SynthesizerManager.kt" -Pattern "persistentKokoro"
+
+# V3 build trigger: real Android Voice names are authoritative.
