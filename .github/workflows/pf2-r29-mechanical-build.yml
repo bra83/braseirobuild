@@ -111,9 +111,11 @@ jobs:
         shell: powershell
         working-directory: ${{ env.WORK_ROOT }}
         run: |
+          $ErrorActionPreference='Continue'
+          & .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R29_GRADLE.log"
+          $gradleCode=$LASTEXITCODE
           $ErrorActionPreference='Stop'
-          .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R29_GRADLE.log"
-          if($LASTEXITCODE -ne 0){throw 'Gradle build failed'}
+          if($gradleCode -ne 0){throw "Gradle build failed with exit code $gradleCode"}
           $out=Join-Path $env:RUNNER_TEMP 'pf2-r29-out'
           New-Item -ItemType Directory -Path $out -Force | Out-Null
           $apk=Get-ChildItem . -Recurse -Filter '*.apk' -File|Where-Object {$_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]debug[\\/]'}|Select-Object -First 1
