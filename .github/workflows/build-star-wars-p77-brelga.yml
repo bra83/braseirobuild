@@ -63,7 +63,7 @@ jobs:
           $bytes = (Get-Item $zip).Length
           if ($bytes -ne 79377122) { throw "P77 byte count mismatch: $bytes" }
           $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($hash -ne '3703dff112a097a2fa4a71d46639ba3a7a2515139121dd8c737a6d6ada08d46') { throw "P77 SHA mismatch: $hash" }
+          if ($hash -ne '3703dff112a097a2fa4a71d46639ba3a7a2515139121dd8c737a6d6ada08d46c') { throw "P77 SHA mismatch: $hash" }
           "zip=$zip" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
       - name: Extract and detect Android project
@@ -171,7 +171,7 @@ jobs:
             "GITHUB_RUN_ID=$env:GITHUB_RUN_ID",
             'SOURCE_NAME=BRASEIRO_STAR_WARS_EDGE_R54_P77_SOURCE_CHECKPOINT.zip',
             'SOURCE_BYTES=79377122',
-            'SOURCE_SHA256=3703dff112a097a2fa4a71d46639ba3a7a2515139121dd8c737a6d6ada08d46',
+            'SOURCE_SHA256=3703dff112a097a2fa4a71d46639ba3a7a2515139121dd8c737a6d6ada08d46c',
             'APK_NAME=BRASEIRO_STAR_WARS_EDGE_R54_P77_DEBUG.apk',
             "APK_BYTES=$((Get-Item $dest).Length)",
             "APK_SHA256=$hash",
