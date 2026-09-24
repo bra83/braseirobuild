@@ -40,11 +40,12 @@ critical=[
 for area,item,ok,evidence,detail in critical:
     add(area,item,"PASSOU" if ok else "FALHOU",evidence,detail)
 
-generated_names={"node_modules","build","dist","dist-offline",".offline-vendor"}\nfiles=[p for p in root.rglob("*") if p.is_file() and p.suffix.lower() in {".ts",".tsx",".kt",".java",".js",".mjs"} and not any(part in generated_names for part in p.parts) and not ("android" in p.parts and "assets" in p.parts and "vendor" in p.parts)]
+generated_names={"node_modules","build","dist","dist-offline",".offline-vendor"}
+files=[p for p in root.rglob("*") if p.is_file() and p.suffix.lower() in {".ts",".tsx",".kt",".java",".js",".mjs"} and not any(part in generated_names for part in p.parts) and not ("android" in p.parts and "assets" in p.parts and "vendor" in p.parts)]
 patterns={
- "TODO/FIXME":re.compile(r"\b(?:TODO|FIXME|HACK)\b",re.I),
- "empty-click":re.compile(r"onClick\s*=\s*\{\s*\(\s*\)\s*=>\s*\{\s*\}\s*\}"),
- "not-implemented":re.compile(r"not implemented|não implementad[oa]|throw new Error\([\"'][^\"']*(?:TODO|implementar)",re.I),
+ "TODO/FIXME":re.compile(r"\\b(?:TODO|FIXME|HACK)\\b"),
+ "empty-click":re.compile(r"onClick\\s*=\\s*\\{\\s*\\(\\s*\\)\\s*=>\\s*\\{\\s*\\}\\s*\\}"),
+ "not-implemented":re.compile(r"not implemented|não implementad[oa]|throw new Error\\([\\\"'][^\\\"']*(?:TODO|implementar)",re.I),
 }
 for label,rx in patterns.items():
     hits=[]
