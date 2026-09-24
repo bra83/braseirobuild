@@ -1,0 +1,109 @@
+name: PF2 R29 Mechanical Hosted
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/pf2-r29-mechanical-hosted.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  R28_SHA: '3a635ae10d9e37a3ed75068c27539a36485470848112784717ed9ef2d3768e11'
+  PATCH_SHA: '5e0d25547afe3fc1e56c4c3758f4cbb099efa48519e194256663bba0bb5ce392'
+  PYTHONUTF8: '1'
+  PYTHONIOENCODING: 'utf-8'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Recover exact R28 and patch
+        shell: powershell
+        env:
+          SRC_SHARE: 'Q9EaqosxeXXK'
+          SRC_FILE: '01a0c81d60a375449668e568a4163539'
+          PATCH_SHARE: 'uVfisfPLsxkc'
+          PATCH_FILE: '01a0d0d336f87594a1e775ddda91b3d4'
+        run: |
+          $ErrorActionPreference='Stop'
+          $api='https://api.firestorage.ai/dev/file'
+          $root=Join-Path $env:RUNNER_TEMP 'pf2-r29'
+          $work=Join-Path $root 'work'; $patchDir=Join-Path $root 'patch'
+          New-Item -ItemType Directory -Path $work,$patchDir -Force | Out-Null
+          function Grab($share,$file,$dest){$d=Invoke-RestMethod -Method Post -Uri "$api/shares/$share/files/$file/download";if(-not $d.downloadUrl){throw 'downloadUrl missing'};Invoke-WebRequest -Uri $d.downloadUrl -OutFile $dest}
+          $src=Join-Path $root 'source.zip';$patch=Join-Path $root 'patch.zip'
+          Grab $env:SRC_SHARE $env:SRC_FILE $src;Grab $env:PATCH_SHARE $env:PATCH_FILE $patch
+          if((Get-FileHash $src -Algorithm SHA256).Hash.ToLowerInvariant() -ne $env:R28_SHA){throw 'R28 SHA mismatch'}
+          if((Get-FileHash $patch -Algorithm SHA256).Hash.ToLowerInvariant() -ne $env:PATCH_SHA){throw 'patch SHA mismatch'}
+          tar.exe -xf $src -C $work;tar.exe -xf $patch -C $patchDir
+          Push-Location $work
+          git apply --check --whitespace=nowarn (Join-Path $patchDir 'PATHFINDER2E_R28_MECHANICAL_AUDIT_PATCH.patch')
+          if($LASTEXITCODE -ne 0){throw 'patch does not apply to R28'}
+          git apply --whitespace=nowarn (Join-Path $patchDir 'PATHFINDER2E_R28_MECHANICAL_AUDIT_PATCH.patch')
+          Pop-Location
+          Copy-Item (Join-Path $patchDir 'tests_pf2\test_mechanical_audit_r29.py') (Join-Path $work 'tests_pf2\test_mechanical_audit_r29.py') -Force
+          $vp=Get-Content (Join-Path $work 'version.properties') -Raw
+          if($vp -notmatch 'VERSION_NAME=9\.0\.29' -or $vp -notmatch 'VERSION_CODE=90029'){throw 'not exact R28'}
+          $vp=$vp -replace 'VERSION_NAME=9\.0\.29','VERSION_NAME=9.0.30' -replace 'VERSION_CODE=90029','VERSION_CODE=90030'
+          Set-Content (Join-Path $work 'version.properties') $vp -Encoding ascii
+          "WORK_ROOT=$work" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Test
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          python -m pip install -q pytest
+          python -m pytest tests_pf2 -q 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R29_TESTS.log"
+          if($LASTEXITCODE -ne 0){throw 'tests failed'}
+
+      - name: Android SDK
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $candidates=@($env:ANDROID_SDK_ROOT,$env:ANDROID_HOME)
+          if($env:LOCALAPPDATA){$candidates+=(Join-Path $env:LOCALAPPDATA 'Android\Sdk')}
+          $mgr=$null;$sdk=$null
+          foreach($c in ($candidates|Where-Object {$_}|Select-Object -Unique)){if(Test-Path $c){$f=Get-ChildItem $c -Recurse -Filter sdkmanager.bat -File -ErrorAction SilentlyContinue|Select-Object -First 1;if($f){$sdk=$c;$mgr=$f.FullName;break}}}
+          if(-not $mgr){throw 'Android SDK not found'}
+          "ANDROID_HOME=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          1..100|%{'y'}|& $mgr --licenses|Out-Null
+          & $mgr 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
+
+      - name: Build and collect
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R29_GRADLE.log"
+          if($LASTEXITCODE -ne 0){throw 'Gradle failed'}
+          $out=Join-Path $env:RUNNER_TEMP 'pf2-r29-out';New-Item -ItemType Directory -Path $out -Force|Out-Null
+          $apk=Get-ChildItem . -Recurse -Filter '*.apk' -File|Where-Object {$_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]debug[\\/]'}|Select-Object -First 1
+          if(-not $apk){throw 'APK missing'}
+          $apkOut=Join-Path $out 'Braseiro_Pathfinder2e_9.0.30_R29_DEBUG.apk';Copy-Item $apk.FullName $apkOut
+          (Get-FileHash $apkOut -Algorithm SHA256).Hash.ToLowerInvariant()|Set-Content "$apkOut.sha256"
+          Copy-Item "$env:RUNNER_TEMP\PF2_R29_TESTS.log" (Join-Path $out 'MECHANICAL_TESTS.log')
+          Copy-Item "$env:RUNNER_TEMP\PF2_R29_GRADLE.log" (Join-Path $out 'GRADLE_BUILD.log')
+          $srcOut=Join-Path $out 'Braseiro_Pathfinder2e_9.0.30_R29_MECHANICAL_ANDROID_STUDIO.zip';tar.exe -a -cf $srcOut *
+          (Get-FileHash $srcOut -Algorithm SHA256).Hash.ToLowerInvariant()|Set-Content "$srcOut.sha256"
+          "OUT_DIR=$out"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PF2_R29_MECHANICAL_HOSTED
+          path: ${{ env.OUT_DIR }}/*
+          if-no-files-found: error
+          retention-days: 7
