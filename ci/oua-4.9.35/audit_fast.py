@@ -25,7 +25,7 @@ commands=read("lib/master/commands.ts")
 critical=[
 ("Integração","Rules Engine ligado à ação","applyMasterCommands(" in commands and "applyOne(" in commands and "rejected.push" in commands,"lib/master/commands.ts","Comandos passam por dispatcher com rejeição explícita."),
 ("Persistência","IndexedDB estável","const DB_NAME = 'braseiro-db';" in db and "const DB_VERSION = 19;" in db,"lib/db.ts","Nome/schema preservados."),
-("Viagem","Movimento livre bloqueado","Movimento livre bloqueado" in app and "advancePlannedRoute" in app and "resolveJourneyMarch" in app,"App.tsx","Mapa exige fluxo de rota/marcha."),
+("Viagem","Movimento livre bloqueado","Movimento livre bloqueado" in mapview and "advancePlannedRoute" in mapview and "Jogada de Marcha do Guia antes de avançar a Jornada" in journey,"components/EriadorMap.tsx + lib/rules/journey.ts","UI não oferece salto livre e o Rules Engine rejeita avanço sem Marcha."),
 ("Descanso","Descanso altera relógio","resolve_rest" in commands and "advanceWorldClock" in commands,"lib/master/commands.ts","Descanso está no Rules Engine e avança relógio."),
 ("Combate","Combate canônico conectado","rollHeroAttack" in (commands+app) and "rollHeroProtection" in (commands+app),"Rules/UI","Ataque/proteção existem no fluxo atual."),
 ("Conselho","Conselho conectado","record_council_result" in (commands+app) and "resolveCouncil" in commands,"Rules/UI","Resultado do conselho chega ao estado."),
@@ -40,7 +40,7 @@ critical=[
 for area,item,ok,evidence,detail in critical:
     add(area,item,"PASSOU" if ok else "FALHOU",evidence,detail)
 
-files=[p for p in root.rglob("*") if p.is_file() and p.suffix.lower() in {".ts",".tsx",".kt",".java",".js",".mjs"} and "node_modules" not in p.parts and "build" not in p.parts]
+generated_names={"node_modules","build","dist","dist-offline",".offline-vendor"}\nfiles=[p for p in root.rglob("*") if p.is_file() and p.suffix.lower() in {".ts",".tsx",".kt",".java",".js",".mjs"} and not any(part in generated_names for part in p.parts) and not ("android" in p.parts and "assets" in p.parts and "vendor" in p.parts)]
 patterns={
  "TODO/FIXME":re.compile(r"\b(?:TODO|FIXME|HACK)\b",re.I),
  "empty-click":re.compile(r"onClick\s*=\s*\{\s*\(\s*\)\s*=>\s*\{\s*\}\s*\}"),
