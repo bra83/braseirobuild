@@ -1,0 +1,29 @@
+name: Kokoro Flow V3 Compile Test
+
+on:
+  push:
+    branches: [sherpa-kokoro-ptbr]
+    paths:
+      - ".github/workflows/test-kokoro-flow-v3.yml"
+      - "tools/patch_jing332_kokoro_ptbr_v3.ps1"
+  workflow_dispatch:
+
+jobs:
+  compile:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Apply Flow V3 patch
+        shell: powershell
+        run: |
+          .\tools\patch_jing332_kokoro_ptbr_v3.ps1 -WorkDir "$env:RUNNER_TEMP\jing332-v3-test"
+      - name: Compile debug APK
+        shell: powershell
+        run: |
+          Set-Location "$env:RUNNER_TEMP\jing332-v3-test"
+          .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon
