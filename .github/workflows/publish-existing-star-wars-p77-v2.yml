@@ -1,0 +1,81 @@
+name: Publish existing Star Wars P77 APK v2
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-existing-star-wars-p77-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 20
+    steps:
+      - name: Validate existing P77
+        id: apk
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $dir = Join-Path $env:RUNNER_TEMP 'sw-p77-apk-out'
+          $apk = Join-Path $dir 'BRASEIRO_STAR_WARS_EDGE_R54_P77_DEBUG.apk'
+          if (-not (Test-Path $apk)) { throw "P77 APK not found: $apk" }
+          $sdk = 'C:\actions-runner\android-sdk'
+          $bt = Get-ChildItem (Join-Path $sdk 'build-tools') -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          $aapt = Join-Path $bt.FullName 'aapt.exe'
+          $signer = Join-Path $bt.FullName 'apksigner.bat'
+          $badging = (& $aapt dump badging $apk 2>&1) -join "`n"
+          if ($badging -notmatch "package: name='com[.]braseiro[.]starwarsedge'") { throw 'Wrong package' }
+          if ($badging -notmatch "versionCode='10077'") { throw 'Wrong versionCode' }
+          if ($badging -notmatch "versionName='1[.]0[.]77'") { throw 'Wrong versionName' }
+          & $signer verify --verbose --print-certs $apk | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'Signature verification failed' }
+          Write-Host "APK SHA256: $((Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant())"
+          "dir=$dir" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Publish release files
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          APK_DIR: ${{ steps.apk.outputs.dir }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $repo = 'bra83/braseirobuild'
+          $tag = 'star-wars-r54-p77-apk'
+          $apiHeaders = @{
+            Authorization = "Bearer $env:GITHUB_TOKEN"
+            Accept = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'BRELGA-P77-v2'
+          }
+          try {
+            $release = Invoke-RestMethod -Headers $apiHeaders -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"
+          } catch {
+            if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw }
+            $payload = @{
+              tag_name = $tag
+              target_commitish = 'main'
+              name = 'Braseiro Star Wars R54 P77 APK'
+              body = 'APK compilado e validado no BRELGA a partir do checkpoint P77 do Google Drive.'
+              draft = $false
+              prerelease = $false
+            } | ConvertTo-Json
+            $release = Invoke-RestMethod -Method Post -Headers $apiHeaders -ContentType 'application/json' -Body $payload -Uri "https://api.github.com/repos/$repo/releases"
+          }
+          $assets = Invoke-RestMethod -Headers $apiHeaders -Uri "https://api.github.com/repos/$repo/releases/$($release.id)/assets?per_page=100"
+          foreach ($name in @('BRASEIRO_STAR_WARS_EDGE_R54_P77_DEBUG.apk','BRASEIRO_STAR_WARS_EDGE_R54_P77_DEBUG.apk.sha256','APK_BADGING.txt','APK_SIGNATURE.txt','P77_BUILD_PROOF.txt')) {
+            $path = Join-Path $env:APK_DIR $name
+            if (-not (Test-Path $path)) { continue }
+            $old = $assets | Where-Object { $_.name -eq $name } | Select-Object -First 1
+            if ($old) {
+              Invoke-RestMethod -Method Delete -Headers $apiHeaders -Uri "https://api.github.com/repos/$repo/releases/assets/$($old.id)" | Out-Null
+            }
+            $ct = if ($name -like '*.apk') { 'application/vnd.android.package-archive' } else { 'text/plain' }
+            $url = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$([uri]::EscapeDataString($name))"
+            & curl.exe -L --fail -X POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: $ct" --data-binary "@$path" $url
+            if ($LASTEXITCODE -ne 0) { throw "Upload failed for $name" }
+          }
+          Write-Host "Published: $($release.html_url)"
