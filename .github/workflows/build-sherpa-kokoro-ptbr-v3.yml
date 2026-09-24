@@ -115,15 +115,7 @@ jobs:
 
           Write-Host 'PASS: same signing certificate as working 1.26.092312_debug baseline.'
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Sherpa-Kokoro-PTBR-FlowFix-V3
-          path: ${{ steps.apk.outputs.path }}
-          if-no-files-found: error
-          retention-days: 30
-
-      - name: Publish APK to GitHub Release
+      - name: Publish V3 APK asset
         shell: powershell
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -132,33 +124,17 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $repo = $env:GITHUB_REPOSITORY
-          $tag = 'sherpa-kokoro-ptbr-flow-v3'
+          $tag = 'sherpa-kokoro-ptbr-v1'
           $assetName = 'Sherpa-Kokoro-PTBR-FlowFix-V3-debug.apk'
           $headers = @{
             'Authorization' = "Bearer $env:GITHUB_TOKEN"
             'Accept' = 'application/vnd.github+json'
             'X-GitHub-Api-Version' = '2022-11-28'
-            'User-Agent' = 'braseiro-sherpa-publisher'
+            'User-Agent' = 'braseiro-sherpa-v3-asset'
           }
 
-          $release = $null
-          try {
-            $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"
-          } catch {
-            if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw }
-          }
-
-          if (-not $release) {
-            $body = @{
-              tag_name = $tag
-              target_commitish = 'sherpa-kokoro-ptbr'
-              name = 'Sherpa Kokoro PT-BR Flow Fix V3'
-              body = "Flow Fix V3 sobre a mesma base 1.26.092312_debug: upstream fixado em 5d91a72, modelo externo preservado, vozes Android reais <model>_42/_43/_44, default válido, maxNumSentences=2, silenceScale=0.06, 4 threads, OfflineTts Kokoro residente, prewarm interno assíncrono e streaming em chunks. SHA256: $env:APK_SHA256"
-              draft = $false
-              prerelease = $true
-            } | ConvertTo-Json
-            $release = Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $body -Uri "https://api.github.com/repos/$repo/releases"
-          }
+          $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"
+          if (-not $release.id) { throw 'Existing Kokoro baseline release not found' }
 
           $existing = @($release.assets) | Where-Object { $_.name -eq $assetName } | Select-Object -First 1
           if ($existing) {
@@ -166,17 +142,8 @@ jobs:
           }
 
           $uploadUrl = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$assetName"
-          $curlArgs = @(
-            '-L','--fail','--retry','4','--retry-delay','3',
-            '-X','POST',
-            '-H',"Authorization: Bearer $env:GITHUB_TOKEN",
-            '-H','Accept: application/vnd.github+json',
-            '-H','X-GitHub-Api-Version: 2022-11-28',
-            '-H','Content-Type: application/vnd.android.package-archive',
-            '--data-binary',"@$env:APK_PATH",
-            $uploadUrl
-          )
-          & curl.exe @curlArgs
-          if ($LASTEXITCODE -ne 0) { throw 'Release asset upload failed' }
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -X POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: application/vnd.android.package-archive" --data-binary "@$env:APK_PATH" $uploadUrl
+          if ($LASTEXITCODE -ne 0) { throw 'Kokoro V3 asset upload failed' }
 
-          Write-Host "Release=$($release.html_url)"
+          Write-Host "SHA256=$env:APK_SHA256"
+          Write-Host "APK_URL=https://github.com/$repo/releases/download/$tag/$assetName"
