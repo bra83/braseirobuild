@@ -36,6 +36,10 @@ $manifest = Get-Content $manifestPath -Raw
 if ($manifest -notmatch 'android:largeHeap=') {
   $manifest = $manifest.Replace('android:allowBackup="true"', 'android:allowBackup="true"' + [Environment]::NewLine + '        android:largeHeap="true"')
 }
+# Use a literal label for both application and TTS service. The upstream
+# project has generated/localized app_name resources that can otherwise keep
+# exposing "DB·Next-gen Kaldi: TTS" even after values.xml is rewritten.
+$manifest = $manifest.Replace('android:label="@string/app_name"', 'android:label="Braseiro Kokoro PT-BR V4"')
 Set-Content -Path $manifestPath -Value $manifest -Encoding utf8
 
 Write-Host "Downloading embedded pt-BR Kokoro model..."
