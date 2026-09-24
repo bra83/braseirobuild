@@ -159,7 +159,7 @@ jobs:
             'audio-preview-toggle-stop' = $whole.Contains('if (previewingId === sound.id)') -and $whole.Contains('Toque novamente para parar')
             'audio-manual-music-persists-scenes' = $whole.Contains("isLoopActive('music', 'library-preview')") -and $whole.Contains('scene-music-preserved-manual')
             'audio-scene-no-global-stop' = $whole.Contains("AudioEngine.stopChannel('music', 'base')") -and $whole.Contains("AudioEngine.stopChannel('ambience', 'base')")
-            'braseiro-kokoro-v4-visible' = $manifest.Contains('com.braseiro.kokoro.ptbr') -and $whole.Contains('val braseiroKokoroPackage = "com.braseiro.kokoro.ptbr"')
+            'braseiro-kokoro-profile-db-hosted' = $whole.Contains('braseiro.profile.kokoro.ptbr') -and $whole.Contains('backendTtsPackageFor') -and $whole.Contains('installedDbNextGenTtsPackage')
             'audio-default-not-number-null' = $whole.Contains("raw == null || raw.trim() === ''") -and $whole.Contains('return DEFAULT_VOLUMES[channel]')
             'voice-default-audible' = $whole.Contains('voice: 1')
             'sensory-master-contract' = $whole.Contains('SENSORIALIDADE')
