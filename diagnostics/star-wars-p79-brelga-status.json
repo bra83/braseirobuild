@@ -1,0 +1,13 @@
+{
+    "project":  "BRASEIRO_STAR_WARS_EDGE_R54_P79",
+    "runner":  "BRELGA",
+    "run_id":  "35970826766",
+    "run_attempt":  "1",
+    "status":  "failure",
+    "source_name":  "BRASEIRO_STAR_WARS_EDGE_R54_P79_SOURCE_CHECKPOINT.zip",
+    "source_bytes":  89821923,
+    "source_sha256":  "9089bd9494834486cf249a78ddb2bf156acbbdcfadaed2ffdc8cc734fd016d75",
+    "version_code":  10079,
+    "version_name":  "1.0.79",
+    "timestamp_utc":  "2026-09-24T07:42:07.3817278Z"
+}
