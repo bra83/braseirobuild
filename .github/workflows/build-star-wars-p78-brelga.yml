@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -201,3 +201,51 @@ jobs:
             ${{ steps.apk.outputs.dir }}/P78_BRELGA_BUILD_PROOF.txt
           if-no-files-found: error
           retention-days: 7
+
+
+      - name: Publish validated P78 release assets
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          APK_DIR: ${{ steps.apk.outputs.dir }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $repo = 'bra83/braseirobuild'
+          $tag = 'star-wars-r54-p78-apk'
+          $headers = @{
+            Authorization = "Bearer $env:GITHUB_TOKEN"
+            Accept = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'BRELGA-Star-Wars-P78'
+          }
+          $release = $null
+          try {
+            $release = Invoke-RestMethod -Method Get -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"
+          } catch {
+            if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw }
+          }
+          if (-not $release) {
+            $payload = @{
+              tag_name = $tag
+              target_commitish = 'main'
+              name = 'Braseiro Star Wars R54 P78 APK'
+              body = 'APK debug compilado e validado no BRELGA a partir do checkpoint P78 congelado no Google Drive. GitHub usado somente como esteira de compilação.'
+              draft = $false
+              prerelease = $false
+            } | ConvertTo-Json
+            $release = Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $payload -Uri "https://api.github.com/repos/$repo/releases"
+          }
+          $uploadBase = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets"
+          $assets = Invoke-RestMethod -Method Get -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$($release.id)/assets?per_page=100"
+          foreach ($name in @('BRASEIRO_STAR_WARS_EDGE_R54_P78_DEBUG.apk','BRASEIRO_STAR_WARS_EDGE_R54_P78_DEBUG.apk.sha256','APK_BADGING.txt','APK_SIGNATURE.txt','P78_BRELGA_BUILD_PROOF.txt')) {
+            $existing = $assets | Where-Object { $_.name -eq $name } | Select-Object -First 1
+            if ($existing) { Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($existing.id)" | Out-Null }
+            $path = Join-Path $env:APK_DIR $name
+            if (Test-Path $path) {
+              $type = if ($name -like '*.apk') {'application/vnd.android.package-archive'} else {'text/plain'}
+              $assetUrl = $uploadBase + '?name=' + [uri]::EscapeDataString($name)
+              & curl.exe -L --fail -X POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: $type" --data-binary "@$path" $assetUrl
+              if ($LASTEXITCODE -ne 0) { throw "Release asset upload failed for $name" }
+            }
+          }
+          Write-Host "P78 release: $($release.html_url)"
