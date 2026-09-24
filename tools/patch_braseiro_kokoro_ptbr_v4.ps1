@@ -20,7 +20,7 @@ $gradle = $gradle.Replace('applicationIdSuffix = ".debug"', '// dedicated Brasei
 Set-Content -Path $gradlePath -Value $gradle -Encoding utf8
 
 $stringsPath = "app\src\main\res\values\strings.xml"
-Get-ChildItem "app\src\main\res" -Recurse -File -Filter "strings.xml" | ForEach-Object {
+Get-ChildItem "app\src" -Recurse -File -Filter "strings.xml" | Where-Object { $_.FullName -match "[\\/]res[\\/]" } | ForEach-Object {
   $localized = Get-Content $_.FullName -Raw
   $localized = [regex]::Replace(
     $localized,
