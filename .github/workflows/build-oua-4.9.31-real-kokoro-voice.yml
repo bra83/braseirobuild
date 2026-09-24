@@ -369,34 +369,7 @@ jobs:
           $hash = (Get-FileHash $newApk -Algorithm SHA256).Hash.ToLowerInvariant()
           "$hash  $env:APK_NAME" | Set-Content "$newApk.sha256" -Encoding ascii
 
-      - name: Package upgrade-safe source
-        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
-        run: |
-          $ErrorActionPreference = 'Stop'
-          Remove-Item (Join-Path $env:OUA_ROOT 'node_modules') -Recurse -Force -ErrorAction SilentlyContinue
-          Remove-Item (Join-Path $env:OUA_ROOT 'android\.gradle') -Recurse -Force -ErrorAction SilentlyContinue
-          Remove-Item (Join-Path $env:OUA_ROOT 'android\build') -Recurse -Force -ErrorAction SilentlyContinue
-          Remove-Item (Join-Path $env:OUA_ROOT 'android\app\build') -Recurse -Force -ErrorAction SilentlyContinue
-          $zip = Join-Path $env:OUA_OUT $env:SOURCE_NAME
-          $parent = Split-Path $env:OUA_ROOT -Parent
-          $leaf = Split-Path $env:OUA_ROOT -Leaf
-          & tar.exe -a -c -f $zip -C $parent $leaf
-          if ($LASTEXITCODE -ne 0) { throw 'Source ZIP failed' }
-          $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  $env:SOURCE_NAME" | Set-Content "$zip.sha256" -Encoding ascii
-
-      - name: Upload 4.9.31 APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: BRASEIRO_O_UM_ANEL_4.9.31_UPDATE
-          path: |
-            ${{ runner.temp }}\oua-4931-upgrade\out\BRASEIRO_O_UM_ANEL_4.9.31_UPDATE.apk
-            ${{ runner.temp }}\oua-4931-upgrade\out\BRASEIRO_O_UM_ANEL_4.9.31_UPDATE.apk.sha256
-          if-no-files-found: error
-          retention-days: 30
-
-      - name: Publish upgrade-safe release
-        continue-on-error: true
+      - name: Publish 4.9.31 APK asset
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -407,31 +380,23 @@ jobs:
             'Authorization' = "Bearer $env:GITHUB_TOKEN"
             'Accept' = 'application/vnd.github+json'
             'X-GitHub-Api-Version' = '2022-11-28'
-            'User-Agent' = 'oua-499-upgrade-safe'
+            'User-Agent' = 'oua-4931-asset-publisher'
           }
 
-          try {
-            $old = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:TAG"
-            if ($old.id) { Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$($old.id)" | Out-Null }
-          } catch {}
+          $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:BASE_TAG"
+          if (-not $release.id) { throw 'Existing baseline release not found' }
 
-          $payload = @{
-            tag_name = $env:TAG
-            target_commitish = $env:GITHUB_SHA
-            name = 'Braseiro O Um Anel 4.9.31 - KOKORO VOZ REAL + JORNADA'
-            body = 'Upgrade-safe update over validated 4.9.29. Fixes the Android bridge recursion that prevented selecting a Kokoro voice, clears stale/prewarm queue only before neural block 0 while preserving QUEUE_ADD between later blocks and real onDone chaining, and adds a persistent user choice between Charon/Gemini TTS and Kokoro/local TTS for the main narration button. Engine discovery, mechanics, package, signer and database identity are preserved.'
-            draft = $false
-            prerelease = $false
-          } | ConvertTo-Json
-          $payloadBytes = [System.Text.Encoding]::UTF8.GetBytes($payload)
-          $release = Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json; charset=utf-8' -Body $payloadBytes -Uri "https://api.github.com/repos/$repo/releases"
-          if (-not $release.id) { throw 'Release creation failed' }
-
-          foreach ($file in Get-ChildItem $env:OUA_OUT -File) {
-            $encoded = [uri]::EscapeDataString($file.Name)
+          foreach ($name in @($env:APK_NAME, "$env:APK_NAME.sha256")) {
+            $existing = @($release.assets | Where-Object { $_.name -eq $name }) | Select-Object -First 1
+            if ($existing) {
+              Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($existing.id)" | Out-Null
+            }
+            $file = Join-Path $env:OUA_OUT $name
+            if (-not (Test-Path $file)) { throw "Output missing: $name" }
+            $encoded = [uri]::EscapeDataString($name)
             $url = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$encoded"
-            & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors --request POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: application/octet-stream" --data-binary "@$($file.FullName)" $url
-            if ($LASTEXITCODE -ne 0) { throw "Upload failed: $($file.Name)" }
+            & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors --request POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: application/octet-stream" --data-binary "@$file" $url
+            if ($LASTEXITCODE -ne 0) { throw "Upload failed: $name" }
           }
-          Write-Host "RELEASE_URL=$($release.html_url)"
 
+          Write-Host "APK_URL=https://github.com/$repo/releases/download/$env:BASE_TAG/$env:APK_NAME"
