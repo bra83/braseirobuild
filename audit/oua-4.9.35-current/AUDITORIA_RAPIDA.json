@@ -1,0 +1,150 @@
+﻿{
+    "counts":  {
+                   "PASSOU":  16,
+                   "CORRIGIDO E RETESTADO":  0,
+                   "FALHOU":  1,
+                   "SEM EVIDÃŠNCIA":  3
+               },
+    "rows":  [
+                 {
+                     "area":  "IntegraÃ§Ã£o",
+                     "item":  "Rules Engine ligado Ã  aÃ§Ã£o",
+                     "status":  "PASSOU",
+                     "evidence":  "lib/master/commands.ts",
+                     "detail":  "Comandos passam por dispatcher com rejeiÃ§Ã£o explÃ­cita."
+                 },
+                 {
+                     "area":  "PersistÃªncia",
+                     "item":  "IndexedDB estÃ¡vel",
+                     "status":  "PASSOU",
+                     "evidence":  "lib/db.ts",
+                     "detail":  "Nome/schema preservados."
+                 },
+                 {
+                     "area":  "Viagem",
+                     "item":  "Movimento livre bloqueado",
+                     "status":  "FALHOU",
+                     "evidence":  "App.tsx",
+                     "detail":  "Mapa exige fluxo de rota/marcha."
+                 },
+                 {
+                     "area":  "Descanso",
+                     "item":  "Descanso altera relÃ³gio",
+                     "status":  "PASSOU",
+                     "evidence":  "lib/master/commands.ts",
+                     "detail":  "Descanso estÃ¡ no Rules Engine e avanÃ§a relÃ³gio."
+                 },
+                 {
+                     "area":  "Combate",
+                     "item":  "Combate canÃ´nico conectado",
+                     "status":  "PASSOU",
+                     "evidence":  "Rules/UI",
+                     "detail":  "Ataque/proteÃ§Ã£o existem no fluxo atual."
+                 },
+                 {
+                     "area":  "Conselho",
+                     "item":  "Conselho conectado",
+                     "status":  "PASSOU",
+                     "evidence":  "Rules/UI",
+                     "detail":  "Resultado do conselho chega ao estado."
+                 },
+                 {
+                     "area":  "Mundo",
+                     "item":  "Mundo vivo persiste",
+                     "status":  "PASSOU",
+                     "evidence":  "lib/master/commands.ts",
+                     "detail":  "Tempo/comandos propagam mundo vivo."
+                 },
+                 {
+                     "area":  "Android",
+                     "item":  "TTS engines dinÃ¢micas",
+                     "status":  "PASSOU",
+                     "evidence":  "MainActivity.kt",
+                     "detail":  "CatÃ¡logo vem do Android."
+                 },
+                 {
+                     "area":  "Android",
+                     "item":  "Braseiro Kokoro deduplicado",
+                     "status":  "PASSOU",
+                     "evidence":  "MainActivity.kt",
+                     "detail":  "Debug/release Sherpa colapsam para um backend visÃ­vel."
+                 },
+                 {
+                     "area":  "Android",
+                     "item":  "Somente Voice real",
+                     "status":  "PASSOU",
+                     "evidence":  "MainActivity.kt",
+                     "detail":  "SeleÃ§Ã£o usa Voice real."
+                 },
+                 {
+                     "area":  "Android",
+                     "item":  "Kokoro multi-bloco",
+                     "status":  "PASSOU",
+                     "evidence":  "MainActivity.kt",
+                     "detail":  "Primeiro bloco flush; sequÃªncia por onDone; sem watchdog neural."
+                 },
+                 {
+                     "area":  "Ãudio",
+                     "item":  "MÃºsica manual persiste entre cenas",
+                     "status":  "PASSOU",
+                     "evidence":  "App.tsx/lib/AudioEngine.ts",
+                     "detail":  "MÃºsica manual usa slot independente."
+                 },
+                 {
+                     "area":  "Ãudio",
+                     "item":  "Faixa longa nÃ£o usa SoundPool",
+                     "status":  "PASSOU",
+                     "evidence":  "lib/AudioEngine.ts",
+                     "detail":  "Faixas longas usam player contÃ­nuo."
+                 },
+                 {
+                     "area":  "Varredura",
+                     "item":  "TODO/FIXME",
+                     "status":  "SEM EVIDÃŠNCIA",
+                     "evidence":  ".offline-vendor\\index-BgM8hFyV.js:625; scripts\\test-cold-start-freeze-4.7.4-r2.mjs:47; scripts\\test-structural-3.5.mjs:139; dist-offline\\vendor\\vendor-old.js:625; dist\\vendor\\vendor-old.js:625; android\\app\\src\\main\\java\\com\\braseiro\\oumanel\\MainActivity.kt:518; android\\app\\src\\main\\assets\\vendor\\vendor-old.js:625",
+                     "detail":  "OcorrÃªncias exigem inspeÃ§Ã£o; nÃ£o sÃ£o erro automaticamente."
+                 },
+                 {
+                     "area":  "Varredura",
+                     "item":  "empty-click",
+                     "status":  "PASSOU",
+                     "evidence":  "nenhum",
+                     "detail":  "OcorrÃªncias exigem inspeÃ§Ã£o; nÃ£o sÃ£o erro automaticamente."
+                 },
+                 {
+                     "area":  "Varredura",
+                     "item":  "not-implemented",
+                     "status":  "SEM EVIDÃŠNCIA",
+                     "evidence":  ".offline-vendor\\index-BgM8hFyV.js:553; .offline-vendor\\index-BgM8hFyV.js:582; .offline-vendor\\index-BgM8hFyV.js:582; .offline-vendor\\index-BgM8hFyV.js:582; .offline-vendor\\index-BgM8hFyV.js:635; .offline-vendor\\index-BgM8hFyV.js:635; .offline-vendor\\index-BgM8hFyV.js:635; .offline-vendor\\index-BgM8hFyV.js:635; .offline-vendor\\index-BgM8hFyV.js:635; .offline-vendor\\index-BgM8hFyV.js:1250; .offline-vendor\\index-BgM8hFyV.js:1445; .offline-vendor\\index-BgM8hFyV.js:1445; .offline-vendor\\index-BgM8hFyV.js:1445; .offline-vendor\\index-BgM8hFyV.js:1445; .offline-vendor\\pdf.worker.min-DEtVeC4l.mjs:29; .offline-vendor\\pdf.worker.min-DEtVeC4l.mjs:29; dist-offline\\vendor\\pdf.worker.min-DEtVeC4l.mjs:29; dist-offline\\vendor\\pdf.worker.min-DEtVeC4l.mjs:29; dist-offline\\vendor\\vendor-old.js:553; dist-offline\\vendor\\vendor-old.js:582",
+                     "detail":  "OcorrÃªncias exigem inspeÃ§Ã£o; nÃ£o sÃ£o erro automaticamente."
+                 },
+                 {
+                     "area":  "Android",
+                     "item":  "Sem acesso/cÃ³pia de modelo Kokoro",
+                     "status":  "PASSOU",
+                     "evidence":  "MainActivity.kt/AndroidManifest.xml",
+                     "detail":  "nenhum acesso proibido"
+                 },
+                 {
+                     "area":  "Testes",
+                     "item":  "Harness determinÃ­stico",
+                     "status":  "SEM EVIDÃŠNCIA",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "file:///C:/Users/bcruz/AppData/Local/Temp/tmpihrn7m4n/audit_runtime.mjs:125\n    throw new Error(\"Fa\\xE7a a Jogada de Marcha do Guia antes de avan\\xE7ar a Jornada.\");\n          ^\n\nError: FaÃƒÂ§a a Jogada de Marcha do Guia antes de avanÃƒÂ§ar a Jornada.\n    at recordJourneyMove (file:///C:/Users/bcruz/AppData/Local/Temp/tmpihrn7m4n/audit_runtime.mjs:125:11)\n    at file:///C:/Users/bcruz/AppData/Local/Temp/tmpihrn7m4n/audit_runtime.mjs:201:13\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v24.18.0\n"
+                 },
+                 {
+                     "area":  "Build",
+                     "item":  "VersÃ£o atual",
+                     "status":  "PASSOU",
+                     "evidence":  "android/app/build.gradle.kts",
+                     "detail":  "Esperado 4.9.35 / 49035."
+                 },
+                 {
+                     "area":  "Build",
+                     "item":  "Android completo",
+                     "status":  "PASSOU",
+                     "evidence":  "BRELGA :app:assembleDebug",
+                     "detail":  "Build Android completo apÃ³s as correÃ§Ãµes agrupadas."
+                 }
+             ]
+}
