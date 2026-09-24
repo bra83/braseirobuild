@@ -69,8 +69,6 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'Patch apply failed'}
           Pop-Location
           Copy-Item (Join-Path $patchDir 'tests_pf2\test_mechanical_audit_r29.py') (Join-Path $work 'tests_pf2\test_mechanical_audit_r29.py') -Force
-          $vp=$vp -replace 'VERSION_NAME=9\.0\.29','VERSION_NAME=9.0.30' -replace 'VERSION_CODE=90029','VERSION_CODE=90030'
-          Set-Content (Join-Path $work 'version.properties') $vp -Encoding ascii
           "WORK_ROOT=$work" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Run PF2 mechanical suite
@@ -80,6 +78,16 @@ jobs:
           python -m pip install -q pytest
           python -m pytest tests_pf2 -q | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R29_TESTS.log"
           if($LASTEXITCODE -ne 0){throw 'Mechanical tests failed'}
+
+      - name: Set R29 release version after tests
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $vp=Get-Content 'version.properties' -Raw
+          if($vp -notmatch 'VERSION_NAME=9\.0\.29' -or $vp -notmatch 'VERSION_CODE=90029'){throw 'Unexpected pre-release version'}
+          $vp=$vp -replace 'VERSION_NAME=9\.0\.29','VERSION_NAME=9.0.30' -replace 'VERSION_CODE=90029','VERSION_CODE=90030'
+          Set-Content 'version.properties' $vp -Encoding ascii
 
       - name: Configure Android SDK
         shell: powershell
