@@ -1,0 +1,142 @@
+name: OUA 4.9.35 Complete Fast Audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/audit-oua-4.9.35-complete-fast.yml"
+      - "ci/oua-4.9.35/audit_fast.py"
+      - "ci/oua-4.9.35/audit_runtime.ts"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: oua-4.9.35-complete-fast-audit
+  cancel-in-progress: true
+
+env:
+  BASE_TAG: "OUA-v4.9.29"
+  BASE_SOURCE: "OUA_4.9.29_UPGRADE_SAFE_ANDROID_STUDIO.zip"
+
+jobs:
+  audit:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Reconstruct current 4.9.35 source
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA; got $env:RUNNER_NAME" }
+          $python=Get-Command python.exe -ErrorAction SilentlyContinue
+          if(-not $python){$python=Get-Command python -ErrorAction Stop}
+
+          $work=Join-Path $env:RUNNER_TEMP 'oua-4935-fast-audit'
+          $incoming=Join-Path $work 'incoming'
+          $extract=Join-Path $work 'extract'
+          $report=Join-Path $env:GITHUB_WORKSPACE 'audit\oua-4.9.35-current'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item $report -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming,$extract,$report -Force | Out-Null
+
+          $headers=@{
+            'Authorization'="Bearer $env:GITHUB_TOKEN"
+            'Accept'='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='oua-4935-fast-audit'
+          }
+          $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/tags/$env:BASE_TAG"
+          $asset=@($release.assets | Where-Object {$_.name -eq $env:BASE_SOURCE -and $_.state -eq 'uploaded'}) | Select-Object -First 1
+          if(-not $asset){throw "Missing baseline source $env:BASE_SOURCE"}
+          $zip=Join-Path $incoming $env:BASE_SOURCE
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $zip $asset.url
+          if($LASTEXITCODE -ne 0){throw 'baseline download failed'}
+          & tar.exe -xf $zip -C $extract
+          if($LASTEXITCODE -ne 0){throw 'baseline extraction failed'}
+
+          $pkg=Get-ChildItem $extract -Recurse -File -Filter package.json |
+            Where-Object {Test-Path (Join-Path $_.Directory.FullName 'android')} |
+            Sort-Object {$_.FullName.Length} | Select-Object -First 1
+          if(-not $pkg){throw 'project root not found'}
+          $root=$pkg.Directory.FullName
+
+          foreach($v in @('4.9.30','4.9.31','4.9.32','4.9.33','4.9.34','4.9.35')){
+            $patch=Join-Path $env:GITHUB_WORKSPACE ("ci\oua-"+$v+"\patch.py")
+            if(-not (Test-Path $patch)){throw "Missing patch $patch"}
+            & $python.Source $patch $root
+            if($LASTEXITCODE -ne 0){throw "Patch $v failed"}
+          }
+
+          "OUA_AUDIT_ROOT=$root" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "OUA_AUDIT_REPORT=$report" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Run functional matrix and deterministic rule cases
+        id: audit
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $python=Get-Command python.exe -ErrorAction SilentlyContinue
+          if(-not $python){$python=Get-Command python -ErrorAction Stop}
+          $ErrorActionPreference='Continue'
+          & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.35\audit_fast.py" $env:OUA_AUDIT_ROOT $env:OUA_AUDIT_REPORT
+          $code=$LASTEXITCODE
+          "exit_code=$code" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "AUDIT_EXIT=$code"
+          exit 0
+
+      - name: Android full build after grouped audit
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          $candidates=@('C:\actions-runner\android-sdk')
+          if($env:ANDROID_SDK_ROOT){$candidates+=$env:ANDROID_SDK_ROOT}
+          if($env:ANDROID_HOME){$candidates+=$env:ANDROID_HOME}
+          if($env:LOCALAPPDATA){$candidates+=(Join-Path $env:LOCALAPPDATA 'Android\Sdk')}
+          $sdk=$candidates | Where-Object {$_ -and (Test-Path $_)} | Select-Object -First 1
+          if(-not $sdk){throw 'Android SDK not found'}
+          $env:ANDROID_HOME=$sdk
+          $env:ANDROID_SDK_ROOT=$sdk
+          Push-Location (Join-Path $env:OUA_AUDIT_ROOT 'android')
+          try {
+            & .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon
+            if($LASTEXITCODE -ne 0){throw 'Android build failed'}
+          } finally {Pop-Location}
+
+          $md=Join-Path $env:OUA_AUDIT_REPORT 'AUDITORIA_RAPIDA.md'
+          Add-Content -Path $md -Value ([Environment]::NewLine + '- **PASSOU** — Build / Android completo — :app:assembleDebug concluído no BRELGA.')
+          $jsonPath=Join-Path $env:OUA_AUDIT_REPORT 'AUDITORIA_RAPIDA.json'
+          $j=Get-Content $jsonPath -Raw | ConvertFrom-Json
+          $j.rows += [pscustomobject]@{area='Build';item='Android completo';status='PASSOU';evidence='BRELGA :app:assembleDebug';detail='Build Android completo após as correções agrupadas.'}
+          $j.counts.PASSOU=[int]$j.counts.PASSOU+1
+          $j | ConvertTo-Json -Depth 20 | Set-Content $jsonPath -Encoding utf8
+
+      - name: Commit audit evidence
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          git config user.name "braseiro-audit-bot"
+          git config user.email "braseiro-audit-bot@users.noreply.github.com"
+          git add audit/oua-4.9.35-current
+          $changed=git status --porcelain -- audit/oua-4.9.35-current
+          if($changed){
+            git commit -m "OUA 4.9.35: complete fast functional audit evidence"
+            git push origin HEAD:main
+          } else {
+            Write-Host 'Audit evidence unchanged.'
+          }
+
+      - name: Audit failure gate
+        if: always()
+        shell: powershell
+        run: |
+          if ('${{ steps.audit.outputs.exit_code }}' -ne '0') { throw 'Functional audit contains FALHOU rows. Inspect audit/oua-4.9.35-current/AUDITORIA_RAPIDA.md' }
