@@ -686,3 +686,5 @@ Select-String -Path $configPath -Pattern "maxNumSentences = if \(kokoro\) 2|sile
 Select-String -Path "app\src\main\java\com\k2fsa\sherpa\onnx\tts\engine\synthesizer\SynthesizerManager.kt" -Pattern "persistentKokoro|numThreads"
 Select-String -Path "app\src\main\java\com\k2fsa\sherpa\onnx\tts\engine\service\TtsService.kt" -Pattern "generateWithConfigAndCallback|kokoro-prewarm|onGetDefaultVoiceNameFor|speaker.id"
 Select-String -Path $gradlePath -Pattern "versionCode = gitCommits \+ 2000"
+
+# Trigger direct-asset V3 build after 1.13.8 compatibility fix.
