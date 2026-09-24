@@ -31,10 +31,15 @@ check('condition-miserable-recomputed',s.attributes.hopeCurrent===1 && s.attribu
 s=adjustFatigue(sheet,-99);
 check('fatigue-never-negative',s.attributes.fatigue===0,'Fadiga nao fica negativa.');
 
-const state:any={activeMode:'adventure',position:{currentHexId:'A',locationName:'A',routeHexIds:['A']},journey:{status:'travelling',segments:[],pendingEvent:null},company:{fellowshipCurrent:1},combat:{actors:[{actorId:'h',position:{x:.5,y:.5}}],updatedAt:0},updatedAt:0};
+const state:any={activeMode:'adventure',position:{currentHexId:'A',locationName:'A',routeHexIds:['A']},journey:{status:'travelling',segments:[],pendingEvent:null,marchHexesRemaining:1},company:{fellowshipCurrent:1},combat:{actors:[{actorId:'h',position:{x:.5,y:.5}}],updatedAt:0},updatedAt:0};
 
 const spent=spendFellowship(state,2);
 check('fellowship-insufficient-no-mutation',spent.spent===false && spent.state===state,'Sociedade insuficiente nao altera estado.');
+
+
+let blocked=false;
+try { recordJourneyMove({...state,journey:{...state.journey,marchHexesRemaining:0}},'B','B',10,'road'); } catch { blocked=true; }
+check('journey-march-gate-blocks-free-move',blocked,'Jornada ativa sem Marcha disponível rejeita avanço de hex.');
 
 const moved=recordJourneyMove(state,'B','B',10,'road');
 const moved2=recordJourneyMove(moved,'B','B',0,'road');
