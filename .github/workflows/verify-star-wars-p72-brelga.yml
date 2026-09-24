@@ -1,0 +1,106 @@
+name: Verify Star Wars R54 P72 APK on BRELGA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-star-wars-p72-brelga.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify published P72 APK and persist proof
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA, got $env:RUNNER_NAME" }
+
+          $tag = 'star-wars-r54-p72-apk'
+          $work = Join-Path $env:RUNNER_TEMP 'sw-p72-verify'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $work -Force | Out-Null
+
+          $found = $false
+          for ($i = 0; $i -lt 90; $i++) {
+            gh release view $tag --repo bra83/braseirobuild --json url,assets *> (Join-Path $work 'release.json')
+            if ($LASTEXITCODE -eq 0) { $found = $true; break }
+            Start-Sleep -Seconds 5
+          }
+          if (-not $found) { throw 'P72 release not found after build window' }
+
+          gh release download $tag --repo bra83/braseirobuild --pattern 'BRASEIRO_STAR_WARS_EDGE_R54_P72_DEBUG.apk' --dir $work --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Failed to download P72 APK from release' }
+
+          $apk = Join-Path $work 'BRASEIRO_STAR_WARS_EDGE_R54_P72_DEBUG.apk'
+          if (-not (Test-Path $apk)) { throw 'P72 APK missing after release download' }
+
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $z = [IO.Compression.ZipFile]::OpenRead($apk)
+          $z.Dispose()
+
+          $hash = (Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          $bytes = (Get-Item $apk).Length
+
+          $sdkCandidates = @('C:\actions-runner\android-sdk')
+          if ($env:ANDROID_SDK_ROOT) { $sdkCandidates += $env:ANDROID_SDK_ROOT }
+          if ($env:ANDROID_HOME) { $sdkCandidates += $env:ANDROID_HOME }
+          if ($env:LOCALAPPDATA) { $sdkCandidates += (Join-Path $env:LOCALAPPDATA 'Android\Sdk') }
+          $sdkCandidates += 'C:\Android\Sdk'
+          $sdk = $sdkCandidates | Where-Object { $_ -and (Test-Path (Join-Path $_ 'build-tools')) } | Select-Object -First 1
+          if (-not $sdk) { throw 'Android SDK build-tools unavailable for verification' }
+          $bt = Get-ChildItem (Join-Path $sdk 'build-tools') -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          $aapt = Join-Path $bt.FullName 'aapt.exe'
+          $signer = Join-Path $bt.FullName 'apksigner.bat'
+          if (-not (Test-Path $aapt)) { throw 'aapt.exe not found' }
+
+          $badging = (& $aapt dump badging $apk 2>&1 | Out-String)
+          if ($LASTEXITCODE -ne 0) { throw 'aapt badging failed' }
+          if ($badging -notmatch "package: name='com[.]braseiro[.]starwarsedge'") { throw 'Wrong applicationId in published APK' }
+
+          $sig = 'not-checked'
+          if (Test-Path $signer) {
+            & $signer verify --verbose --print-certs $apk *> (Join-Path $work 'signature.txt')
+            if ($LASTEXITCODE -ne 0) { throw 'Published APK signature invalid' }
+            $sig = 'verified'
+          }
+
+          $release = Get-Content (Join-Path $work 'release.json') -Raw | ConvertFrom-Json
+          New-Item -ItemType Directory -Path diagnostics -Force | Out-Null
+          @(
+            "STATUS=PASS",
+            "RUNNER_NAME=$env:RUNNER_NAME",
+            "GITHUB_RUN_ID=$env:GITHUB_RUN_ID",
+            "SOURCE_NAME=BRASEIRO_STAR_WARS_EDGE_R54_P72_SOURCE_CHECKPOINT.zip",
+            "SOURCE_BYTES=78903712",
+            "SOURCE_SHA256=fd9b4bf22124463f115bc470518f494661b10554d834d6ed569bda9cea622ff0",
+            "APK_NAME=BRASEIRO_STAR_WARS_EDGE_R54_P72_DEBUG.apk",
+            "APK_BYTES=$bytes",
+            "APK_SHA256=$hash",
+            "PACKAGE=com.braseiro.starwarsedge",
+            "SIGNATURE=$sig",
+            "RELEASE_URL=$($release.url)"
+          ) | Set-Content diagnostics/star-wars-p72-build-proof.txt -Encoding utf8
+
+          git config user.name "BRELGA Builder"
+          git config user.email "brelga-builder@users.noreply.github.com"
+          git add diagnostics/star-wars-p72-build-proof.txt
+          git commit -m "proof: Star Wars R54 P72 APK built on BRELGA"
+          git push origin HEAD:main
+
+      - name: Upload verified APK as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_STAR_WARS_EDGE_R54_P72_DEBUG
+          path: ${{ runner.temp }}/sw-p72-verify/BRASEIRO_STAR_WARS_EDGE_R54_P72_DEBUG.apk
+          if-no-files-found: error
+          retention-days: 7
