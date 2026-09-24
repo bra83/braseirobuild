@@ -118,7 +118,7 @@ jobs:
             'same-db-version' = $db.Contains('const DB_VERSION = 19;')
             'no-indexeddb-delete' = -not $whole.Contains('indexedDB.deleteDatabase')
             'no-app-data-clear' = (-not $whole.Contains('clearApplicationUserData')) -and (-not $whole.Contains('pm clear'))
-            'version-4.9.34' = $gradle.Contains('versionName = "4.9.33"')
+            'version-4.9.34' = $gradle.Contains('versionName = "4.9.34"')
             'version-code-49034' = $gradle.Contains('versionCode = 49034')
             'gemini-flow-kept' = $whole.Contains('com.google.android.apps.bard')
             'map-first-shell-kept' = $whole.Contains('data-braseiro-chronicle-sheet')
@@ -372,7 +372,7 @@ jobs:
           if ($baseBadging -notmatch "package: name='com\.braseiro\.oumanel'") { throw 'Baseline package differs' }
           if ($newBadging -notmatch "package: name='com\.braseiro\.oumanel'") { throw 'New package differs' }
           if ($baseBadging -notmatch "versionCode='49029'") { throw 'Baseline versionCode is not 49029' }
-          if ($newBadging -notmatch "versionCode='49034'") { throw 'New versionCode is not 49033' }
+          if ($newBadging -notmatch "versionCode='49034'") { throw 'New versionCode is not 49034' }
 
           & $apksigner verify --verbose --print-certs $env:BASE_APK_PATH 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'BASE_APK_SIGNATURE.txt')
           if ($LASTEXITCODE -ne 0) { throw 'Baseline APK signature invalid' }
@@ -388,7 +388,7 @@ jobs:
 
           @(
             'PASS - same applicationId com.braseiro.oumanel',
-            'PASS - versionCode increased 49029 -> 49033',
+            'PASS - versionCode increased 49029 -> 49034',
             'PASS - signing certificate SHA-256 unchanged',
             'PASS - IndexedDB name unchanged: braseiro-db',
             'PASS - IndexedDB schema version unchanged: 19',
@@ -410,7 +410,7 @@ jobs:
             'Authorization' = "Bearer $env:GITHUB_TOKEN"
             'Accept' = 'application/vnd.github+json'
             'X-GitHub-Api-Version' = '2022-11-28'
-            'User-Agent' = 'oua-4933-persistent-music-publisher'
+            'User-Agent' = 'oua-4934-kokoro-db-profile-publisher'
           }
 
           $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:BASE_TAG"
