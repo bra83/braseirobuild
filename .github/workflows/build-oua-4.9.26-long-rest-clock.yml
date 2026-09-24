@@ -177,7 +177,7 @@ jobs:
             'safe-refuge-fatigue' = $whole.Contains('command.safeRefuge') -and $whole.Contains('next.attributes.fatigue = Math.max(0, next.attributes.fatigue - 1)')
             'rest-command' = $whole.Contains("type: 'resolve_rest'") -and $whole.Contains("case 'resolve_rest'")
             'short-rest-strength' = $whole.Contains("if (!next.attributes.wounded)") -and $whole.Contains("enduranceCurrent + strength + cramWisdom")
-            'short-rest-hour' = $whole.Contains("advanceWorldClock(nextState.worldClock, 60)")
+            'short-rest-hour' = $whole.Contains("const restMinutes = command.kind === 'short' ? 60 : 480;") -and $whole.Contains('advanceWorldClock(nextState.worldClock, restMinutes)')
             'long-rest-full' = $whole.Contains("next.attributes.enduranceCurrent = next.attributes.enduranceMax")
             'long-rest-zero-hope' = $whole.Contains("next.attributes.hopeCurrent <= 0") -and $whole.Contains("hopeCurrent = Math.min(next.attributes.hopeMax, 1)")
             'rest-daily-limit' = $whole.Contains("lastShortRestDayKey") -and $whole.Contains("lastLongRestDayKey")
