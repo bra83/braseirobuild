@@ -1,0 +1,130 @@
+name: Build Star Wars R54 P77 APK fallback
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-star-wars-p77-fallback.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Download exact P77 checkpoint
+        id: src
+        shell: bash
+        run: |
+          set -euo pipefail
+          api='https://api.firestorage.ai/dev/file/shares/tsXF2Zd9b3Go86e1'
+          mkdir -p "$RUNNER_TEMP/sw-p77-transfer"
+          meta="$(curl -fsSL "$api/files?maxResults=100")"
+          file_id="$(python3 -c 'import json,sys; d=json.load(sys.stdin); xs=[x for x in d.get("files",[]) if x.get("fileName")=="BRASEIRO_STAR_WARS_EDGE_R54_P77_SOURCE_CHECKPOINT.zip"]; print(xs[0]["fileId"] if len(xs)==1 else "")' <<<"$meta")"
+          test -n "$file_id"
+          ticket="$(curl -fsSL -X POST "$api/files/$file_id/download")"
+          url="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("downloadUrl",""))' <<<"$ticket")"
+          test -n "$url"
+          zip="$RUNNER_TEMP/sw-p77-transfer/BRASEIRO_STAR_WARS_EDGE_R54_P77_SOURCE_CHECKPOINT.zip"
+          curl -fL --retry 5 --retry-delay 2 -o "$zip" "$url"
+          test "$(stat -c%s "$zip")" = "79377122"
+          echo '3703dff112a097a2fa4a71d46639ba3a7a2515139121dd8c737a6d6ada08d46  '"$zip" | sha256sum -c -
+          echo "zip=$zip" >> "$GITHUB_OUTPUT"
+
+      - name: Extract source
+        id: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/sw-p77-project"
+          mkdir -p "$root"
+          unzip -q "${{ steps.src.outputs.zip }}" -d "$root"
+          project="$root/sw_p74"
+          test -f "$project/settings.gradle.kts"
+          test -x "$project/gradlew" || chmod +x "$project/gradlew"
+          echo "root=$project" >> "$GITHUB_OUTPUT"
+
+      - name: Source gates
+        working-directory: ${{ steps.project.outputs.root }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check app/src/main/assets/vtt/r46/final-runtime.js
+          node --check app/src/main/assets/vtt/js/core/uiBridge.bundle.js
+          node --test tests/r54-p76-tts-kokoro-pipeline.test.mjs tests/r54-p77-android-build-fix.test.mjs
+
+      - name: Build APK
+        working-directory: ${{ steps.project.outputs.root }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew clean assembleDebug --stacktrace --no-daemon
+
+      - name: Validate APK
+        id: apk
+        shell: bash
+        env:
+          ROOT: ${{ steps.project.outputs.root }}
+        run: |
+          set -euo pipefail
+          apk="$(find "$ROOT/app/build/outputs/apk/debug" -name '*.apk' -type f | head -1)"
+          test -n "$apk"
+          out="$RUNNER_TEMP/sw-p77-out"
+          mkdir -p "$out"
+          dest="$out/BRASEIRO_STAR_WARS_EDGE_R54_P77_DEBUG.apk"
+          cp "$apk" "$dest"
+          sha256sum "$dest" | sed 's# .*/#  #' > "$out/BRASEIRO_STAR_WARS_EDGE_R54_P77_DEBUG.apk.sha256"
+
+          unzip -p "$dest" assets/vtt/r46-shell.html | grep -q 'data-version="1.0.77"'
+          unzip -p "$dest" assets/vtt/r46/final-runtime.js | grep -q 'R54 P77'
+          unzip -p "$dest" assets/vtt/r46/final-runtime.js | grep -q 'CAMPANHA'
+          unzip -p "$dest" assets/vtt/r46/final-runtime.js | grep -q 'final-tts-engine'
+          unzip -p "$dest" assets/vtt/r46/final-runtime.js | grep -q 'Velocidade Kokoro'
+
+          build_tools="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          aapt="$build_tools/aapt"
+          signer="$build_tools/apksigner"
+          "$aapt" dump badging "$dest" | tee "$out/APK_BADGING.txt"
+          grep -q "package: name='com.braseiro.starwarsedge'" "$out/APK_BADGING.txt"
+          grep -q "versionCode='10077'" "$out/APK_BADGING.txt"
+          grep -q "versionName='1.0.77'" "$out/APK_BADGING.txt"
+          "$signer" verify --verbose --print-certs "$dest" | tee "$out/APK_SIGNATURE.txt"
+
+          hash="$(sha256sum "$dest" | awk '{print $1}')"
+          bytes="$(stat -c%s "$dest")"
+          cat > "$out/P77_BUILD_PROOF.txt" <<PROOF
+STATUS=PASS
+RUNNER=ubuntu-latest-fallback
+SOURCE_SHA256=3703dff112a097a2fa4a71d46639ba3a7a2515139121dd8c737a6d6ada08d46
+APK_NAME=BRASEIRO_STAR_WARS_EDGE_R54_P77_DEBUG.apk
+APK_BYTES=$bytes
+APK_SHA256=$hash
+PACKAGE=com.braseiro.starwarsedge
+VERSION_CODE=10077
+VERSION_NAME=1.0.77
+PACKAGED_CAMPAIGN_HUB=PASS
+PACKAGED_TTS_P77=PASS
+SIGNATURE=verified
+PROOF
+          echo "dir=$out" >> "$GITHUB_OUTPUT"
+
+      - name: Upload verified APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_STAR_WARS_EDGE_R54_P77_DELIVERY
+          path: |
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_STAR_WARS_EDGE_R54_P77_DEBUG.apk
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_STAR_WARS_EDGE_R54_P77_DEBUG.apk.sha256
+            ${{ steps.apk.outputs.dir }}/APK_BADGING.txt
+            ${{ steps.apk.outputs.dir }}/APK_SIGNATURE.txt
+            ${{ steps.apk.outputs.dir }}/P77_BUILD_PROOF.txt
+          if-no-files-found: error
+          retention-days: 7
