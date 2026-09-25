@@ -31,7 +31,7 @@ check('condition-miserable-recomputed',s.attributes.hopeCurrent===1 && s.attribu
 s=adjustFatigue(sheet,-99);
 check('fatigue-never-negative',s.attributes.fatigue===0,'Fadiga nao fica negativa.');
 
-const state:any={activeMode:'adventure',position:{currentHexId:'A',locationName:'A',routeHexIds:['A']},journey:{status:'travelling',segments:[],pendingEvent:null,marchHexesRemaining:1},company:{fellowshipCurrent:1},combat:{actors:[{actorId:'h',position:{x:.5,y:.5}}],updatedAt:0},updatedAt:0};
+const state:any={activeMode:'adventure',worldClock:{year:2965,season:'spring',day:1,hour:8,minute:0,elapsedMinutes:480},position:{currentHexId:'A',locationName:'A',routeHexIds:['A']},journey:{status:'travelling',segments:[],pendingEvent:null,marchHexesRemaining:1,plannedRouteHexIds:['B']},company:{fellowshipCurrent:1},combat:{actors:[{actorId:'h',position:{x:.5,y:.5}}],updatedAt:0},updatedAt:0};
 
 const spent=spendFellowship(state,2);
 check('fellowship-insufficient-no-mutation',spent.spent===false && spent.state===state,'Sociedade insuficiente nao altera estado.');
