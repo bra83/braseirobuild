@@ -1,0 +1,95 @@
+name: OUA 4.9.38 Journey Turn HUD Probe
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/audit-oua-4.9.38-journey-probe.yml"
+      - "ci/oua-4.9.38/probe.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: oua-4.9.38-journey-probe
+  cancel-in-progress: true
+
+env:
+  BASE_TAG: "OUA-v4.9.29"
+  BASE_SOURCE: "OUA_4.9.29_UPGRADE_SAFE_ANDROID_STUDIO.zip"
+
+jobs:
+  probe:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct current 4.9.37 source
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA; got $env:RUNNER_NAME" }
+
+          $python = Get-Command python.exe -ErrorAction SilentlyContinue
+          if (-not $python) { $python = Get-Command python -ErrorAction Stop }
+
+          $work = Join-Path $env:RUNNER_TEMP 'oua-4938-probe'
+          $incoming = Join-Path $work 'incoming'
+          $extract = Join-Path $work 'extract'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming,$extract -Force | Out-Null
+
+          $headers = @{
+            'Authorization' = "Bearer $env:GITHUB_TOKEN"
+            'Accept' = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'oua-4938-probe'
+          }
+          $repo = $env:GITHUB_REPOSITORY
+          $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:BASE_TAG"
+          $asset = @($release.assets | Where-Object { $_.name -eq $env:BASE_SOURCE -and $_.state -eq 'uploaded' }) | Select-Object -First 1
+          if (-not $asset) { throw "Missing baseline source: $env:BASE_SOURCE" }
+
+          $zip = Join-Path $incoming $env:BASE_SOURCE
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $zip $asset.url
+          if ($LASTEXITCODE -ne 0 -or -not (Test-Path $zip)) { throw 'Baseline source download failed' }
+
+          & tar.exe -xf $zip -C $extract
+          if ($LASTEXITCODE -ne 0) { throw 'Could not extract baseline source' }
+
+          $pkg = Get-ChildItem $extract -Recurse -File -Filter package.json |
+            Where-Object { Test-Path (Join-Path $_.Directory.FullName 'android') } |
+            Sort-Object { $_.FullName.Length } |
+            Select-Object -First 1
+          if (-not $pkg) { throw 'Android Studio root not found' }
+          $root = $pkg.Directory.FullName
+
+          foreach ($v in 30..37) {
+            $patch = "$env:GITHUB_WORKSPACE\ci\oua-4.9.$v\patch.py"
+            if (-not (Test-Path $patch)) { throw "Missing cumulative patch $patch" }
+            & $python.Source $patch $root
+            if ($LASTEXITCODE -ne 0) { throw "Cumulative patch 4.9.$v failed" }
+          }
+
+          $report = "$env:GITHUB_WORKSPACE\ci-results\OUA_4938_JOURNEY_TURN_HUD_PROBE.md"
+          & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.38\probe.py" $root $report
+          if ($LASTEXITCODE -ne 0 -or -not (Test-Path $report)) { throw 'Probe failed' }
+
+      - name: Publish probe report
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          git config user.name "braseiro-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add ci-results/OUA_4938_JOURNEY_TURN_HUD_PROBE.md
+          if ((git status --porcelain).Length -eq 0) {
+            Write-Host "Probe report unchanged."
+            exit 0
+          }
+          git commit -m "OUA 4.9.38 publish journey turn HUD probe [skip ci]"
+          git push origin HEAD:main
