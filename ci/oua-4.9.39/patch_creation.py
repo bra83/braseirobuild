@@ -82,9 +82,18 @@ t=req(
   if(rulesMode==='strider') features.push('Peregrino');""",
     "strider feature",
 )
-old="notes:\`Herói criado automaticamente por fontes 2e autorizadas (\${sourceForCulture(culture.culture)}). Experiência Prévia: 10/10 pontos. Patrono e Refúgio Seguro ficam para a formação da Companhia.\`,narrativeConditions:'Sem Ferimento; Sombra 0; Fadiga 0.',culturalBlessing:culture.blessing,shadowPath:calling.shadow,callingFeature:calling.feature,distinctiveFeatures:features,creationTrace:trace}"
-new="notes:\`Herói criado automaticamente por fontes 2e autorizadas (\${sourceForCulture(culture.culture)}). Experiência Prévia: \${previousExperienceBudget}/\${previousExperienceBudget} pontos. Patrono e Refúgio Seguro ficam para a formação da Companhia.\`,narrativeConditions:'Sem Ferimento; Sombra 0; Fadiga 0.',culturalBlessing:culture.blessing,shadowPath:calling.shadow,callingFeature:calling.feature,distinctiveFeatures:features,creationTrace:trace,rulesMode}"
-t=req(t,old,new,"creation rules mode metadata")
+t=req(
+    t,
+    "Experiência Prévia: 10/10 pontos. Patrono e Refúgio Seguro ficam para a formação da Companhia.",
+    "Experiência Prévia: ${previousExperienceBudget}/${previousExperienceBudget} pontos. Patrono e Refúgio Seguro ficam para a formação da Companhia.",
+    "creation note XP budget",
+)
+t=req(
+    t,
+    "distinctiveFeatures:features,creationTrace:trace}",
+    "distinctiveFeatures:features,creationTrace:trace,rulesMode}",
+    "creation rules mode metadata",
+)
 write(rel,t)
 
 print("PATCH_4939_CREATION_OK")
