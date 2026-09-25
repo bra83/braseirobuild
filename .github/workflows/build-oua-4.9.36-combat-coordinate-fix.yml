@@ -10,6 +10,7 @@ on:
       - "ci/oua-4.9.32/**"
       - "ci/oua-4.9.33/**"
       - "ci/oua-4.9.34/**"
+      - "ci/oua-4.9.35/**"
       - "ci/oua-4.9.36/**"
   workflow_dispatch:
 
