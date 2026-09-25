@@ -69,6 +69,7 @@ treasure_types="""export interface TreasureIndexStateEntry {
   origin?: 'Elven' | 'Dwarven' | 'Numenorean';
   banes?: string[];
   qualities: string[];
+  baseItemName?: string;
   curse?: string;
   curseTrigger?: string;
   curseRemoval?: string;
@@ -104,7 +105,8 @@ extra="""
   | { type: 'add_treasure_index_entry'; entry: TreasureIndexStateEntry; reason: string }
   | { type: 'update_treasure_index_entry'; entry: TreasureIndexStateEntry; reason: string }
   | { type: 'roll_magical_treasure'; rating: 'lesser' | 'greater' | 'marvellous'; reason: string }
-  | { type: 'claim_magical_treasure'; discoveryId: string; targetCharacterId: string; reason: string }
+  | { type: 'claim_magical_treasure'; discoveryId: string; treasureIndexEntryId: string; targetCharacterId: string; reason: string }
+  | { type: 'identify_magical_item'; targetCharacterId: string; inventoryItemId: string; reason: string }
   | { type: 'unlock_famous_quality'; targetCharacterId: string; inventoryItemId: string; count?: number; reason: string }
   | { type: 'remove_magical_curse'; targetCharacterId: string; inventoryItemId: string; reason: string }"""
 t=req(t,anchor,anchor+extra,"Treasure commands")
