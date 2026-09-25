@@ -1,0 +1,227 @@
+name: OUA 4.9.38 Manual Journey NPC Continuity
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-oua-4.9.38-manual-journey.yml"
+      - "ci/oua-4.9.38/patch.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: oua-4.9.38-manual-journey
+  cancel-in-progress: true
+
+env:
+  BASE_TAG: "OUA-v4.9.29"
+  BASE_APK: "BRASEIRO_O_UM_ANEL_4.9.29_UPDATE.apk"
+  BASE_SOURCE: "OUA_4.9.29_UPGRADE_SAFE_ANDROID_STUDIO.zip"
+  APK_NAME: "BRASEIRO_O_UM_ANEL_4.9.38_UPDATE.apk"
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Reconstruct and patch 4.9.38
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){ throw "Expected BRELGA; got $env:RUNNER_NAME" }
+          $python=Get-Command python.exe -ErrorAction SilentlyContinue
+          if(-not $python){ $python=Get-Command python -ErrorAction Stop }
+
+          $work=Join-Path $env:RUNNER_TEMP 'oua-4938-manual-journey'
+          $incoming=Join-Path $work 'incoming'
+          $extract=Join-Path $work 'extract'
+          $out=Join-Path $work 'out'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming,$extract,$out -Force | Out-Null
+
+          $headers=@{
+            'Authorization'="Bearer $env:GITHUB_TOKEN"
+            'Accept'='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='oua-4938-manual-journey'
+          }
+          $repo=$env:GITHUB_REPOSITORY
+          $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:BASE_TAG"
+          foreach($name in @($env:BASE_APK,$env:BASE_SOURCE)){
+            $asset=@($release.assets|Where-Object{$_.name -eq $name -and $_.state -eq 'uploaded'})|Select-Object -First 1
+            if(-not $asset){ throw "Missing baseline asset: $name" }
+            $dest=Join-Path $incoming $name
+            & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $dest $asset.url
+            if($LASTEXITCODE -ne 0){ throw "Download failed: $name" }
+          }
+
+          & tar.exe -xf (Join-Path $incoming $env:BASE_SOURCE) -C $extract
+          if($LASTEXITCODE -ne 0){ throw 'Could not extract baseline source' }
+          $pkg=Get-ChildItem $extract -Recurse -File -Filter package.json | Where-Object{Test-Path (Join-Path $_.Directory.FullName 'android')} | Sort-Object{$_.FullName.Length} | Select-Object -First 1
+          if(-not $pkg){ throw 'Android Studio root not found' }
+          $root=$pkg.Directory.FullName
+
+          foreach($v in 30..38){
+            $patch="$env:GITHUB_WORKSPACE\ci\oua-4.9.$v\patch.py"
+            if(-not (Test-Path $patch)){ throw "Missing cumulative patch: $patch" }
+            & $python.Source $patch $root
+            if($LASTEXITCODE -ne 0){ throw "Patch 4.9.$v failed" }
+          }
+
+          $db=Get-Content (Join-Path $root 'lib\db.ts') -Raw
+          $gradle=Get-Content (Join-Path $root 'android\app\build.gradle.kts') -Raw
+          $manifest=Get-Content (Join-Path $root 'android\app\src\main\AndroidManifest.xml') -Raw
+          $whole=(Get-ChildItem $root -Recurse -File -Include *.ts,*.tsx,*.kt,*.java | ForEach-Object{Get-Content $_.FullName -Raw}) -join "`n"
+
+          $gates=@{
+            'manual-journey-preparation'=$whole.Contains('Preparação da Jornada')
+            'manual-journey-role-choice'=$whole.Contains('Confirmar papéis e iniciar')
+            'no-auto-first-march'= -not $whole.Contains('Primeira Jogada de Marcha automática')
+            'no-auto-next-march'= -not $whole.Contains('Nova Jogada de Marcha automática')
+            'no-auto-event-resolution'= -not $whole.Contains('resolvido automaticamente pelo motor local')
+            'manual-final-travel-rolls'=$whole.Contains('Jogadas finais de Viagem')
+            'npc-carry-context'=$whole.Contains('carriedNpcIds')
+            'npc-no-global-clear'=(-not $whole.Contains('workingNpcs = workingNpcs.map(npc => ({ ...npc, presentInScene: false }))')) -and (-not $whole.Contains('setPresentNpcs([])'))
+            'journey-hard-movement-gate'=$whole.Contains('Movimento livre bloqueado')
+            'pending-event-blocks-move'=$whole.Contains('há um Evento de Jornada aguardando resolução manual')
+            'tts-current'=$whole.Contains('kokoroBackendPackages') -and $whole.Contains('Braseiro Kokoro PT-BR · neural') -and (-not $manifest.Contains('com.braseiro.kokoro.ptbr'))
+            'music-persistence'=$whole.Contains('scene-music-preserved-manual')
+            'combat-context-percent'=$whole.Contains('actor.position!.x * 100')
+            'db-name'=$db.Contains("const DB_NAME = 'braseiro-db';")
+            'db-schema'=$db.Contains('const DB_VERSION = 19;')
+            'version-name'=$gradle.Contains('versionName = "4.9.38"')
+            'version-code'=$gradle.Contains('versionCode = 49038')
+          }
+          $validation=Join-Path $out 'SOURCE_GATES.txt'
+          foreach($entry in $gates.GetEnumerator()|Sort-Object Name){
+            $status=if($entry.Value){'PASS'}else{'FAIL'}
+            ($status+' - '+$entry.Name)|Tee-Object -FilePath $validation -Append
+          }
+          if(@($gates.GetEnumerator()|Where-Object{-not $_.Value}).Count -gt 0){ throw '4.9.38 source gates failed' }
+
+          $lock=Join-Path $root 'package-lock.json'
+          if(Test-Path $lock){
+            $t=Get-Content $lock -Raw
+            $t=[regex]::Replace($t,'https://[^"]*/artifactory/api/npm/npm-public/','https://registry.npmjs.org/')
+            [IO.File]::WriteAllText($lock,$t,(New-Object Text.UTF8Encoding($false)))
+          }
+
+          "OUA_ROOT=$root"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "OUA_OUT=$out"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "BASE_APK_PATH=$(Join-Path $incoming $env:BASE_APK)"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build web runtime
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          Push-Location $env:OUA_ROOT
+          try{
+            $env:npm_config_registry='https://registry.npmjs.org/'
+            & npm.cmd ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
+            if($LASTEXITCODE -ne 0){ throw 'npm ci failed' }
+            & npm.cmd run build:offline
+            if($LASTEXITCODE -ne 0){ throw 'build:offline failed' }
+            & node.exe scripts/use-offline-dist.mjs
+            if($LASTEXITCODE -ne 0){ throw 'use-offline-dist failed' }
+            & node.exe scripts/sync-android-assets.mjs
+            if($LASTEXITCODE -ne 0){ throw 'sync-android-assets failed' }
+          }finally{Pop-Location}
+
+      - name: Configure Android SDK
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $candidates=@('C:\actions-runner\android-sdk')
+          if($env:ANDROID_SDK_ROOT){$candidates+=$env:ANDROID_SDK_ROOT}
+          if($env:ANDROID_HOME){$candidates+=$env:ANDROID_HOME}
+          if($env:LOCALAPPDATA){$candidates+=(Join-Path $env:LOCALAPPDATA 'Android\Sdk')}
+          $sdk=$candidates|Where-Object{$_ -and (Test-Path $_)}|Select-Object -First 1
+          if(-not $sdk){throw 'Android SDK not found'}
+          "ANDROID_HOME=$sdk"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdk"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build APK and verify install-over
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          Push-Location (Join-Path $env:OUA_ROOT 'android')
+          try{
+            & .\gradlew.bat clean :app:assembleDebug --stacktrace --no-daemon
+            if($LASTEXITCODE -ne 0){throw 'Gradle failed'}
+          }finally{Pop-Location}
+
+          $apk=Get-ChildItem (Join-Path $env:OUA_ROOT 'android\app\build\outputs\apk\debug') -File -Filter '*.apk'|Select-Object -First 1
+          if(-not $apk){throw 'APK not found'}
+          $newApk=Join-Path $env:OUA_OUT $env:APK_NAME
+          Copy-Item $apk.FullName $newApk -Force
+
+          $buildTools=Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory|Sort-Object{[version]($_.Name -replace '[^0-9.]','')} -Descending|Select-Object -First 1
+          $aapt=Join-Path $buildTools.FullName 'aapt.exe'
+          $apksigner=Join-Path $buildTools.FullName 'apksigner.bat'
+
+          & $aapt dump badging $newApk | Set-Content (Join-Path $env:OUA_OUT 'NEW_BADGING.txt')
+          $newBadging=Get-Content (Join-Path $env:OUA_OUT 'NEW_BADGING.txt') -Raw
+          if($newBadging -notmatch "package: name='com\.braseiro\.oumanel'"){throw 'Package mismatch'}
+          if($newBadging -notmatch "versionCode='49038'"){throw 'versionCode mismatch'}
+
+          & $apksigner verify --verbose --print-certs $env:BASE_APK_PATH 2>&1 | Set-Content (Join-Path $env:OUA_OUT 'BASE_SIG.txt')
+          & $apksigner verify --verbose --print-certs $newApk 2>&1 | Set-Content (Join-Path $env:OUA_OUT 'NEW_SIG.txt')
+          $baseDigest=((Get-Content (Join-Path $env:OUA_OUT 'BASE_SIG.txt')|Where-Object{$_ -match 'certificate SHA-256 digest:'}|Select-Object -First 1)-replace '.*digest:\s*','').Trim().ToLowerInvariant()
+          $newDigest=((Get-Content (Join-Path $env:OUA_OUT 'NEW_SIG.txt')|Where-Object{$_ -match 'certificate SHA-256 digest:'}|Select-Object -First 1)-replace '.*digest:\s*','').Trim().ToLowerInvariant()
+          if(-not $baseDigest -or $baseDigest -ne $newDigest){throw 'Signing certificate mismatch'}
+
+          $hash=(Get-FileHash $newApk -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:APK_NAME"|Set-Content "$newApk.sha256" -Encoding ascii
+
+      - name: Publish APK on success
+        if: success()
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $repo=$env:GITHUB_REPOSITORY
+          $headers=@{'Authorization'="Bearer $env:GITHUB_TOKEN";'Accept'='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='oua-4938-publisher'}
+          $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:BASE_TAG"
+          foreach($name in @($env:APK_NAME,"$env:APK_NAME.sha256")){
+            $existing=@($release.assets|Where-Object{$_.name -eq $name})|Select-Object -First 1
+            if($existing){Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($existing.id)"|Out-Null}
+            $file=Join-Path $env:OUA_OUT $name
+            $url="https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$([uri]::EscapeDataString($name))"
+            & curl.exe -L --fail --request POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: application/octet-stream" --data-binary "@$file" $url
+            if($LASTEXITCODE -ne 0){throw "Upload failed: $name"}
+          }
+
+      - name: Publish CI result
+        if: always()
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $status='${{ job.status }}'
+          $path="$env:GITHUB_WORKSPACE\ci-results\OUA_4938_BUILD_RESULT.md"
+          @(
+            '# OUA 4.9.38 — build result',
+            '',
+            "- status: **$status**",
+            "- workflow: $env:GITHUB_WORKFLOW",
+            "- run: $env:GITHUB_RUN_ID",
+            "- commit: $env:GITHUB_SHA"
+          )|Set-Content $path -Encoding utf8
+          git config user.name "braseiro-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add ci-results/OUA_4938_BUILD_RESULT.md
+          if((git status --porcelain).Length -gt 0){
+            git commit -m "OUA 4.9.38 publish build result [skip ci]"
+            git push origin HEAD:main
+          }
