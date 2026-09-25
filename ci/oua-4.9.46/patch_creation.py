@@ -115,16 +115,9 @@ export function createHeirCharacter(options:HeirCreationOptions):Character {
     item.id=id('inheritance');
     item.tags=Array.from(new Set([...(item.tags||[]),'Herança']));
     item.equipped=false;
-    // Famous gear starts again with its first listed Reward/quality active.
-    if(item.magicalKind==='famous-war-gear'){
-      if(item.magicalRewards?.length){
-        item.magicalRewardsUnlocked=1;
-        item.magicalQualitiesUnlocked=item.magicalRewards[0]?.kind==='enchanted'?1:0;
-      }else if(item.magicalQualities?.length){
-        item.magicalQualitiesUnlocked=1;
-      }
-    }
-    // Wondrous artefact blessings are revealed when inherited.
+    // Heranças mantêm todas as Recompensas/qualidades já despertadas no item.
+    // Artefatos abençoados revelam suas Bênçãos ao herdeiro.
+
     if(item.magicalKind==='magnificent-artefact'||item.magicalKind==='wondrous-item'){
       item.magicalIdentified=true;
     }
