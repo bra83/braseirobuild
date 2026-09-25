@@ -66,7 +66,7 @@ new_attack="""export function rollHeroAttack(
   if(actor.stance!=='rearward'&&actor.stance!=='skirmish'&&ranged&&actor.engagedWith.length>0) throw new Error('Um combatente engajado não pode usar livremente uma arma à distância.');
   const rank=Math.max(0,Number(sheet.combat.proficiencies?.[weapon.group]||0));
   const supplementIsInspired=supplementInspired(sheet,{kind:'attack',terrain:context.terrain,isNight:context.isNight,stance:actor.stance,weaponName:weapon.name,weaponGroup:weapon.group});
-  const inspiredDice=inspired||automaticInspired(sheet)||supplementIsInspired?Math.max(hopeDice,2):hopeDice;
+  const inspiredDice=hopeDice>0&&(inspired||automaticInspired(sheet)||supplementIsInspired)?Math.max(hopeDice,2):hopeDice;
   const gainNote=(actor.stateNotes||[]).find(note=>note.startsWith('gain-ground:'));
   const gainGround=Math.max(0,Number(gainNote?.split(':')[1])||0);
   const skirmish=skirmishHeroAttackDiceModifier(String(actor.stance||''),ranged,Boolean(context.escaping));
