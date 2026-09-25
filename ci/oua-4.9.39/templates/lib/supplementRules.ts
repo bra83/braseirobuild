@@ -158,7 +158,7 @@ export const SUPPLEMENT_PATRONS: SupplementPatron[] = [
     id:'elrond-half-elven',
     name:'Elrond Meio-Elfo',
     sourceId:'tor2e-rivendell',
-    favouredCallings:['Sábio','Erudito','Guardião'],
+    favouredCallings:['Sábio','Guardião'],
     fellowshipBonus:1,
     agenda:'Proteger a terra e preservar o legado das eras.',
     benefit:'Ao Encontrar Patrono para visitar Elrond, a Companhia recebe +1 nas rolagens de Façanha usadas para determinar Eventos de Jornada e aprende as qualidades de todos os Artefatos Maravilhosos e Itens Maravilhosos em sua posse.',
