@@ -1,0 +1,215 @@
+name: PF2 R31 Complete Fast Audit Fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-pf2-r31-complete-fast-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pf2-r31-complete-fast-audit
+  cancel-in-progress: true
+
+env:
+  AUDIO_SHA: '030b807acebbc05471b67d0b61228dfc221f814637247593bebb20e166de141f'
+  AUDIT_SHA: '6cf30573e8952e97eb0e1e8ce66bb2017d226db2a2f627290b4c89814eecad89'
+  PYTHONUTF8: '1'
+  PYTHONIOENCODING: 'utf-8'
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Recover R29 baseline and apply R30 audio plus audit fixes
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          AUDIO_SHARE: 'bXE49-WofMfp'
+          AUDIO_FILE: '01a0d617a20d75e5b561194b0c7fe976'
+          AUDIT_SHARE: 'whtyXvlstOFJ'
+          AUDIT_FILE: '01a0d6b95d5e77d0b26b4e8e3e6e9136'
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Expected BRELGA, got $env:RUNNER_NAME"}
+          $root=Join-Path $env:RUNNER_TEMP 'pf2-r31-audit'
+          $work=Join-Path $root 'work'
+          $audio=Join-Path $root 'audio'
+          $audit=Join-Path $root 'auditfix'
+          Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $work,$audio,$audit -Force | Out-Null
+
+          $srcZip=Join-Path $root 'r29.zip'
+          & curl.exe -L --fail --retry 5 --retry-delay 3 -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $srcZip "https://api.github.com/repos/bra83/braseirobuild/releases/assets/585242045"
+          if($LASTEXITCODE -ne 0){throw 'R29 source download failed'}
+          tar.exe -xf $srcZip -C $work
+          if($LASTEXITCODE -ne 0){throw 'R29 source extract failed'}
+
+          function GrabShare($share,$file,$dest,$sha){
+            $api='https://api.firestorage.ai/dev/file'
+            $d=Invoke-RestMethod -Method Post -Uri "$api/shares/$share/files/$file/download"
+            if(-not $d.downloadUrl){throw "downloadUrl missing $share/$file"}
+            Invoke-WebRequest -Uri $d.downloadUrl -OutFile $dest
+            $h=(Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant()
+            if($h -ne $sha){throw "SHA mismatch: $h"}
+          }
+
+          $audioZip=Join-Path $root 'audio.zip'
+          GrabShare $env:AUDIO_SHARE $env:AUDIO_FILE $audioZip $env:AUDIO_SHA
+          tar.exe -xf $audioZip -C $audio
+          python (Join-Path $audio 'patch.py') $work
+          if($LASTEXITCODE -ne 0){throw 'R30 current Kokoro patch failed'}
+
+          $auditZip=Join-Path $root 'audit.zip'
+          GrabShare $env:AUDIT_SHARE $env:AUDIT_FILE $auditZip $env:AUDIT_SHA
+          tar.exe -xf $auditZip -C $audit
+          Push-Location $work
+          git apply --check --whitespace=nowarn (Join-Path $audit 'PF2_R31_FAST_AUDIT_FIX.patch')
+          if($LASTEXITCODE -ne 0){throw 'Audit patch check failed'}
+          git apply --whitespace=nowarn (Join-Path $audit 'PF2_R31_FAST_AUDIT_FIX.patch')
+          if($LASTEXITCODE -ne 0){throw 'Audit patch apply failed'}
+          Pop-Location
+          Copy-Item (Join-Path $audit 'tests_pf2\test_r30_fast_audit_fixes.py') (Join-Path $work 'tests_pf2\test_r30_fast_audit_fixes.py') -Force
+
+          "WORK_ROOT=$work" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "AUDIT_ROOT=$audit" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Mechanical and audit regression suite
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          python -m pip install -q pytest
+          $vp=Get-Content 'version.properties' -Raw
+          $compat=$vp -replace 'VERSION_NAME=9\.0\.30','VERSION_NAME=9.0.29' -replace 'VERSION_CODE=90030','VERSION_CODE=90029'
+          Set-Content 'version.properties' $compat -Encoding ascii
+          try {
+            python -m pytest tests_pf2 -q 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R31_TESTS.log"
+            if($LASTEXITCODE -ne 0){throw 'PF2 R31 tests failed'}
+            $t=Get-Content "$env:RUNNER_TEMP\PF2_R31_TESTS.log" -Raw
+            if($t -notmatch '201 passed'){throw "Expected 201 passing tests; got: $t"}
+          } finally {
+            Set-Content 'version.properties' $vp -Encoding ascii
+          }
+
+      - name: Verify audit corrections structurally
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $app=Get-Content 'android\app\src\main\java\com\braseiro\pathfinder2e\AppDb.java' -Raw
+          $main=Get-Content 'android\app\src\main\java\com\braseiro\pathfinder2e\MainActivity.java' -Raw
+          $checks=@{
+            'hero-hp-routes-combat'=$app.Contains('if(getCombatState().optInt("running",0)==1)') -and $app.Contains('applyCombatantDamagePf2(combatant.optLong("id"),-delta,false,false)')
+            'pf2-state-persists'=$app.Contains('sheet.put("pf2_combat_state",durable)') -and $app.Contains('for(JSONObject c:listCombatants())persistPlayerCombatantState(c)')
+            'pf2-state-restores'=$app.Contains('persistedCharacterPf2CombatState(ch)') -and $app.Contains('v.put("resources_json",state.toString())')
+            'travel-false-control-disabled'=$main.Contains('Controle automático de provisões/água indisponível — registrar manualmente') -and $main.Contains('trackTravelResources.setEnabled(false)')
+            'combat-manual-gaps-disclosed'=$main.Contains('Dano persistente e efeitos de quickened/slowed/stunned ficam registrados, mas ainda exigem resolução manual.')
+            'current-kokoro-preserved'=$main.Contains('Braseiro Kokoro PT-BR · neural') -and $main.Contains('com.k2fsa.sherpa.onnx.tts.engine')
+          }
+          $log=Join-Path $env:RUNNER_TEMP 'PF2_R31_AUDIT_GATES.log'
+          foreach($x in $checks.GetEnumerator()|Sort-Object Name){$status=if($x.Value){'PASS'}else{'FAIL'};"$status - $($x.Name)"|Tee-Object -FilePath $log -Append}
+          if(@($checks.GetEnumerator()|Where-Object{-not $_.Value}).Count -gt 0){throw 'Audit correction gate failed'}
+          "AUDIT_GATES=$log" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Set R31 version
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $vp=Get-Content 'version.properties' -Raw
+          $vp=$vp -replace 'VERSION_NAME=9\.0\.30','VERSION_NAME=9.0.32' -replace 'VERSION_CODE=90030','VERSION_CODE=90032'
+          Set-Content 'version.properties' $vp -Encoding ascii
+
+      - name: Configure Android SDK
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $candidates=@('C:\actions-runner\android-sdk',$env:ANDROID_SDK_ROOT,$env:ANDROID_HOME)
+          if($env:LOCALAPPDATA){$candidates+=(Join-Path $env:LOCALAPPDATA 'Android\Sdk')}
+          $sdk=$null;$mgr=$null
+          foreach($c in ($candidates|Where-Object{$_}|Select-Object -Unique)){
+            if(Test-Path $c){
+              $f=Get-ChildItem $c -Recurse -Filter sdkmanager.bat -File -ErrorAction SilentlyContinue|Select-Object -First 1
+              if($f){$sdk=$c;$mgr=$f.FullName;break}
+            }
+          }
+          if(-not $mgr){throw 'Android SDK not found'}
+          "ANDROID_HOME=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          1..100|%{'y'}|& $mgr --licenses|Out-Null
+          & $mgr 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
+          if($LASTEXITCODE -ne 0){throw 'sdkmanager failed'}
+
+      - name: Build R31 APK
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Continue'
+          & .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R31_GRADLE.log"
+          $code=$LASTEXITCODE
+          $ErrorActionPreference='Stop'
+          if($code -ne 0){throw "Gradle failed: $code"}
+          $out=Join-Path $env:RUNNER_TEMP 'pf2-r31-out'
+          Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $apk=Get-ChildItem . -Recurse -Filter '*.apk' -File|Where-Object{$_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]debug[\\/]'}|Select-Object -First 1
+          if(-not $apk){throw 'APK missing'}
+          $apkOut=Join-Path $out 'Braseiro_Pathfinder2e_9.0.32_R31_FAST_AUDIT_DEBUG.apk'
+          Copy-Item $apk.FullName $apkOut -Force
+          (Get-FileHash $apkOut -Algorithm SHA256).Hash.ToLowerInvariant()|Set-Content "$apkOut.sha256" -Encoding ascii
+          Copy-Item "$env:RUNNER_TEMP\PF2_R31_TESTS.log" (Join-Path $out 'MECHANICAL_AUDIT_TESTS.log')
+          Copy-Item "$env:RUNNER_TEMP\PF2_R31_GRADLE.log" (Join-Path $out 'GRADLE_BUILD.log')
+          Copy-Item $env:AUDIT_GATES (Join-Path $out 'AUDIT_GATES.log')
+          Copy-Item (Join-Path $env:AUDIT_ROOT 'PF2_R31_FAST_AUDIT_FIX.patch') (Join-Path $out 'PF2_R31_FAST_AUDIT_FIX.patch')
+          "OUT_DIR=$out" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Publish R31
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $repo=$env:GITHUB_REPOSITORY
+          $tag='PATHFINDER2E-9.0.32-R31'
+          $headers=@{
+            'Authorization'="Bearer $env:GITHUB_TOKEN"
+            'Accept'='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='BRELGA-PF2-R31-AUDIT'
+          }
+          try{$release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"}
+          catch{
+            $body=@{
+              tag_name=$tag
+              target_commitish='main'
+              name='Braseiro Pathfinder 2e 9.0.32 R31'
+              body='R31 complete-fast-audit fixes sobre R30. Mantém Braseiro Kokoro atual. Corrige bypass de PV da tela Heróis durante combate, persiste/restaura estado PF2e do herói ao encerrar/reabrir encontros, desativa controle de viagem que prometia consumo automático sem implementação e torna explícitas as lacunas manuais de condições. 201 testes passam e Gradle completo obrigatório.'
+              draft=$false
+              prerelease=$false
+            }|ConvertTo-Json
+            $release=Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $body -Uri "https://api.github.com/repos/$repo/releases"
+          }
+          foreach($file in Get-ChildItem $env:OUT_DIR -File){
+            $existing=$release.assets|Where-Object{$_.name -eq $file.Name}|Select-Object -First 1
+            if($existing){Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($existing.id)"|Out-Null}
+            $encoded=[uri]::EscapeDataString($file.Name)
+            $upload="https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$encoded"
+            & curl.exe -L --fail --retry 5 --retry-delay 2 --request POST --header "Authorization: Bearer $env:GITHUB_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" --header "Content-Type: application/octet-stream" --data-binary "@$($file.FullName)" $upload
+            if($LASTEXITCODE -ne 0){throw "upload failed: $($file.Name)"}
+          }
+          Write-Host "RELEASE_URL=$($release.html_url)"
