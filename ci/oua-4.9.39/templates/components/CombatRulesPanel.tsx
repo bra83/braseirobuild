@@ -38,6 +38,7 @@ export const CombatRulesPanel:React.FC<Props>=({masterState,characters,onApplyCo
   const [status,setStatus]=useState('');
   const [busy,setBusy]=useState(false);
   const attacker=characters.find(c=>c.id===attackerId);
+  const healerHero=characters.find(c=>c.id===healer);
   const weapons=attacker?.sheet.combat.weapons||[];
   const strider=masterState.company.rulesMode==='strider';
 
@@ -108,7 +109,7 @@ export const CombatRulesPanel:React.FC<Props>=({masterState,characters,onApplyCo
         <select value={healTarget} onChange={e=>setHealTarget(e.target.value)} className="rounded border border-slate-700 bg-black p-2 text-xs">{heroes.map(a=><option key={a.actorId} value={a.actorId}>{nameOf(a,characters)}</option>)}</select>
         <select value={firstAidSkill} onChange={e=>setFirstAidSkill(e.target.value as any)} className="rounded border border-slate-700 bg-black p-2 text-xs">
           <option value="Cura">Cura</option>
-          {hasVirtue(characters.find(c=>c.id===healer)?.sheet as any,'Música de Estancamento')&&<option value="Música">Música de Estancamento · Música</option>}
+          {healerHero&&hasVirtue(healerHero.sheet,'Música de Estancamento')&&<option value="Música">Música de Estancamento · Música</option>}
         </select>
         <button disabled={busy||!healer||!healTarget} onClick={()=>void run([{type:'resolve_first_aid',healerCharacterId:healer,targetCharacterId:healTarget,skill:firstAidSkill,reason:'Primeiros Socorros em combate.'} as MasterCommand],'Primeiros Socorros')} className="rounded border border-emerald-700 px-3 py-2 text-xs text-emerald-100">Rolar {firstAidSkill}</button>
       </div>
