@@ -12,6 +12,7 @@ type Props = {
   onSetEyeEnabled: (enabled: boolean) => Promise<void>;
   onStartJourney: (roles: Partial<Record<JourneyRole, string>>, mounted: boolean, forcedMarch: boolean) => Promise<void>;
   onRollJourney: (kind: 'march' | 'event' | 'end', characterId: string, skill: string, extraDice?: number, forcedMode?: RollMode, mountVigour?: number, spendHope?: boolean) => Promise<void>;
+  onOpenNotableEvent: () => Promise<void>;
   onResolveNotableEvent: (success: boolean) => Promise<void>;
   onApplyMarch: () => Promise<void>;
   onGenerateEvent: () => Promise<void>;
@@ -75,7 +76,7 @@ export const JourneyResolutionPanel: React.FC<Props> = props => {
   const [forcedMarch, setForcedMarch] = useState(Boolean(masterState.journey.forcedMarch));
   const [mountVigour, setMountVigour] = useState<Record<string, number>>({});
   const [spendHope, setSpendHope] = useState(false);
-  const strider = masterState.company.rulesMode === 'strider';
+  const strider = masterState.company.rulesMode === 'strider' && characters.length <= 2;
 
   useEffect(() => {
     setRoles(masterState.company.journeyRoles || {});
@@ -120,15 +121,14 @@ export const JourneyResolutionPanel: React.FC<Props> = props => {
   }
 
   if (route.length > 0 && !activeJourney) {
-    const valid = strider ? characters.length === 1 : roleInfo.every(item => Boolean(roles[item.role]));
+    const valid = strider ? characters.length >= 1 && characters.length <= 2 : roleInfo.every(item => Boolean(roles[item.role]));
     return (
       <div style={box}>
         <div style={{ fontSize: 10, letterSpacing: '.12em', opacity: .72 }}>PREPARAÇÃO DA JORNADA</div>
-        <h3 style={{ margin: '3px 0 8px', fontSize: 18 }}>{strider ? 'Modo Peregrino · Jornada solo' : 'Escolha os papéis'}</h3>
+        <h3 style={{ margin: '3px 0 8px', fontSize: 18 }}>{strider ? 'Modo Peregrino · Jornada sem papéis' : 'Escolha os papéis'}</h3>
         {strider ? (
           <div style={{ border: '1px solid rgba(191,151,91,.28)', borderRadius: 8, padding: 9, fontSize: 12, lineHeight: 1.45 }}>
-            Não há papéis de Jornada. <strong>{characters[0]?.sheet.identity.name || characters[0]?.name || 'O Herói'}</strong> cuida de todos os aspectos da viagem. Os Eventos desafiam diretamente Caçada, Exploração ou Vigilância.
-            {characters.length !== 1 ? <div style={{ marginTop: 6, color: '#e8a47d' }}>O modo solo exige exatamente um Herói ativo.</div> : null}
+            Não há papéis de Jornada nesta variante para um ou dois Heróis. Os Eventos desafiam diretamente Caçada, Exploração ou Vigilância; com dois Heróis, o alvo é determinado quando o Evento é gerado.
           </div>
         ) : (
           <>
@@ -280,6 +280,7 @@ export const JourneyResolutionPanel: React.FC<Props> = props => {
         {event.notable && !staged ? (
           <>
             <p style={{ fontSize: 11, lineHeight: 1.45, opacity: .8 }}>Encontro Notável: resolva a cena estendida. Depois informe se o resultado geral foi favorável ou desfavorável para aplicar as consequências da Jornada.</p>
+            <button disabled={props.busy} onClick={() => void props.onOpenNotableEvent()} style={{...primaryButton, marginBottom:7}}>Abrir cena do Encontro Notável</button>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7 }}>
               <button disabled={props.busy} onClick={() => void props.onResolveNotableEvent(true)} style={primaryButton}>Resultado favorável</button>
               <button disabled={props.busy} onClick={() => void props.onResolveNotableEvent(false)} style={{...primaryButton, background:'#40231c'}}>Resultado desfavorável</button>
