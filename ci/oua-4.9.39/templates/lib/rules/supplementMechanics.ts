@@ -73,7 +73,8 @@ export function supplementBonusDice(sheet: CharacterSheet, context: SupplementRo
   if(hasVirtue(sheet,'Cão da Floresta das Trevas') && context.dogAvailable!==false && (skill==='vigilancia' || skill==='cacada')) dice+=1;
   if(hasVirtue(sheet,'Contra o Invisível') && context.kind==='shadow' && ['spirit','ghost','possessed'].includes(String(context.dreadSource))) dice+=1;
   if(hasVirtue(sheet,'Casaco de Pele') && context.kind==='protection' && isLeatherOrNoArmor(sheet)) dice+=1;
-  if(context.journeyMode==='strider' && context.kind==='journey') dice+=1; // Peregrino: Inspirado durante a Jornada.
+  // Peregrino is Inspired during Journey rolls; that changes Hope from +1d to +2d,
+  // but never grants a free die by itself.
   return dice;
 }
 
