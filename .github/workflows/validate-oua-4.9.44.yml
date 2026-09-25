@@ -1,0 +1,186 @@
+name: OUA 4.9.44 Validate Mixed Famous Rewards
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/validate-oua-4.9.44.yml"
+      - "ci/oua-4.9.38/**"
+      - "ci/oua-4.9.39/**"
+      - "ci/oua-4.9.40/**"
+      - "ci/oua-4.9.41/**"
+      - "ci/oua-4.9.42/**"
+      - "ci/oua-4.9.44/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: oua-4.9.44-validate
+  cancel-in-progress: true
+
+env:
+  BASE_TAG: "OUA-v4.9.29"
+  BASE_SOURCE: "OUA_4.9.29_UPGRADE_SAFE_ANDROID_STUDIO.zip"
+
+jobs:
+  validate:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct canonical source through 4.9.44
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Expected BRELGA; got $env:RUNNER_NAME"}
+          $python=Get-Command python.exe -ErrorAction SilentlyContinue
+          if(-not $python){$python=Get-Command python -ErrorAction Stop}
+
+          $work=Join-Path $env:RUNNER_TEMP 'oua-4944-validate'
+          $incoming=Join-Path $work 'incoming'
+          $extract=Join-Path $work 'extract'
+          $out=Join-Path $work 'out'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming,$extract,$out -Force | Out-Null
+
+          $headers=@{
+            Authorization="Bearer $env:GITHUB_TOKEN"
+            Accept='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='oua-4944-validate'
+          }
+          $repo=$env:GITHUB_REPOSITORY
+          $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:BASE_TAG"
+          $asset=@($release.assets | Where-Object { $_.name -eq $env:BASE_SOURCE -and $_.state -eq 'uploaded' }) | Select-Object -First 1
+          if(-not $asset){throw "Missing baseline source: $env:BASE_SOURCE"}
+          $zip=Join-Path $incoming $env:BASE_SOURCE
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $zip $asset.url
+          if($LASTEXITCODE -ne 0){throw 'Baseline download failed'}
+          & tar.exe -xf $zip -C $extract
+          if($LASTEXITCODE -ne 0){throw 'Baseline extract failed'}
+
+          $pkg=Get-ChildItem $extract -Recurse -File -Filter package.json |
+            Where-Object { Test-Path (Join-Path $_.Directory.FullName 'android') } |
+            Sort-Object { $_.FullName.Length } |
+            Select-Object -First 1
+          if(-not $pkg){throw 'Project root not found'}
+          $root=$pkg.Directory.FullName
+
+          foreach($v in 30..37){
+            & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.$v\patch.py" $root
+            if($LASTEXITCODE -ne 0){throw "4.9.$v failed"}
+          }
+          foreach($script in @('patch_model.py','patch_commands.py','patch_finalize.py','patch_app.py')){
+            & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.38\$script" $root
+            if($LASTEXITCODE -ne 0){throw "4.9.38 failed at $script"}
+          }
+          foreach($script in @('patch_model.py','patch_creation.py','patch_rules.py','patch_commands.py','patch_ui.py','patch_magic.py','patch_virtues.py','patch_finalize.py')){
+            & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.39\$script" $root
+            if($LASTEXITCODE -ne 0){throw "4.9.39 failed at $script"}
+          }
+          foreach($script in @('patch_model.py','patch_rules.py','patch_commands.py','patch_ui.py','patch_finalize.py')){
+            & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.40\$script" $root
+            if($LASTEXITCODE -ne 0){throw "4.9.40 failed at $script"}
+          }
+          foreach($script in @('patch_model.py','patch_rules.py','patch_creation.py','patch_commands.py','patch_runtime.py','patch_treasure_runtime.py','patch_ui.py','patch_finalize.py')){
+            & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.41\$script" $root
+            if($LASTEXITCODE -ne 0){throw "4.9.41 failed at $script"}
+          }
+          foreach($script in @('patch_model.py','patch_rules.py','patch_commands.py','patch_runtime.py','patch_ui.py','patch_finalize.py')){
+            & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.42\$script" $root
+            if($LASTEXITCODE -ne 0){throw "4.9.42 failed at $script"}
+          }
+          foreach($script in @('patch_model.py','patch_rules.py','patch_commands.py','patch_runtime.py','patch_ui.py','patch_finalize.py')){
+            & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.43\$script" $root
+            if($LASTEXITCODE -ne 0){throw "4.9.43 failed at $script"}
+          }
+          foreach($script in @('patch_model.py','patch_rules.py','patch_commands.py','patch_ui.py','patch_finalize.py')){
+            & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.44\$script" $root
+            if($LASTEXITCODE -ne 0){throw "4.9.44 failed at $script"}
+          }
+
+          "OUA_ROOT=$root" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "OUA_OUT=$out" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Source gates
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          $root=$env:OUA_ROOT
+          $out=$env:OUA_OUT
+          $all=(Get-ChildItem $root -Recurse -File -Include *.ts,*.tsx,*.kt,*.java | Where-Object { $_.FullName -notmatch '\\node_modules\\|\\build\\|\\dist\\' } | ForEach-Object { Get-Content $_.FullName -Raw }) -join [Environment]::NewLine
+          $commands=Get-Content (Join-Path $root 'lib\master\commands.ts') -Raw
+          $types=Get-Content (Join-Path $root 'lib\master\types.ts') -Raw
+          $app=Get-Content (Join-Path $root 'App.tsx') -Raw
+          $panel=Get-Content (Join-Path $root 'components\LoneLandsPanel.tsx') -Raw
+          $gradle=Get-Content (Join-Path $root 'android\app\build.gradle.kts') -Raw
+          $db=Get-Content (Join-Path $root 'lib\db.ts') -Raw
+          $main=Get-Content (Join-Path $root 'android\app\src\main\java\com\braseiro\oumanel\MainActivity.kt') -Raw
+
+          $gates=@{
+            'version-4944'=$gradle.Contains('versionName = "4.9.44"') -and $gradle.Contains('versionCode = 49044')
+            'db-preserved'=$db.Contains("const DB_NAME = 'braseiro-db';") -and $db.Contains('const DB_VERSION = 19;')
+            'tts-preserved'=$main.Contains('Braseiro Kokoro PT-BR · neural')
+            'mixed-model'=$all.Contains('magicalRewards?:') -and $types.Contains("rewards?: Array<{ kind:'common'|'enchanted'; id:string }>")
+            'mixed-validation'=$all.Contains('validateFamousRewardSequence') -and $all.Contains('ENHANCED_CONFLICTS')
+            'common-runtime'=$all.Contains('activeCommonRewardNames') -and $all.Contains("itemReward(sheet,item")
+            'enchanted-runtime'=$all.Contains('activeEnchantedRewardIds')
+            'first-awake'=$commands.Contains("magicalRewardsUnlocked:entry.kind==='famous-war-gear'?1:0")
+            'valor-awakening'=$all.Contains('advanceValorForFamousQuality') -and $all.Contains('item.magicalRewardsUnlocked')
+            'treasury-awakening'=$commands.Contains('famous.magicalRewardsUnlocked')
+            'ordered-ui'=$all.Contains('Recompensas da peça · 1 a 3 · ordem de despertar') -and $all.Contains('+ Comum') -and $all.Contains('+ Encantada')
+            'lone-lands-preserved'=$all.Contains('LoneLandsPanel') -and $types.Contains('LoneLandsState')
+            'manual-journey'=$commands.Contains('Decisão de Jornada bloqueada no fluxo automático')
+            'no-data-clear'=(-not $all.Contains('indexedDB.deleteDatabase')) -and (-not $all.Contains('clearApplicationUserData')) -and (-not $all.Contains('pm clear'))
+          }
+          $report=Join-Path $out 'OUA_4944_MECHANICS_GATES.txt'
+          foreach($entry in $gates.GetEnumerator()|Sort-Object Name){
+            $status=if($entry.Value){'PASS'}else{'FAIL'}
+            ($status+' - '+$entry.Name)|Tee-Object -FilePath $report -Append
+          }
+          $failed=@($gates.GetEnumerator()|Where-Object{-not $_.Value})
+          if($failed.Count -gt 0){throw ('Source gates failed: '+(($failed|ForEach-Object Name)-join ', '))}
+
+      - name: Compile offline runtime
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          Push-Location $env:OUA_ROOT
+          try {
+            $env:npm_config_registry='https://registry.npmjs.org/'
+            $lock='package-lock.json'
+            if(Test-Path $lock){
+              $txt=Get-Content $lock -Raw
+              $txt=[regex]::Replace($txt,'https://[^"]*/artifactory/api/npm/npm-public/','https://registry.npmjs.org/')
+              [System.IO.File]::WriteAllText((Resolve-Path $lock),$txt,(New-Object System.Text.UTF8Encoding($false)))
+            }
+            & npm.cmd ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
+            if($LASTEXITCODE -ne 0){throw 'npm ci failed'}
+            & npm.cmd run build:offline 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'OUA_4944_OFFLINE_BUILD.log')
+            if($LASTEXITCODE -ne 0){throw 'build:offline failed'}
+          } finally { Pop-Location }
+
+      - name: Publish validation reports
+        if: always()
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Continue'
+          if($env:OUA_OUT -and (Test-Path $env:OUA_OUT)){
+            New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\ci-results" -Force | Out-Null
+            foreach($name in @('OUA_4944_MECHANICS_GATES.txt','OUA_4944_OFFLINE_BUILD.log')){
+              $src=Join-Path $env:OUA_OUT $name
+              if(Test-Path $src){Copy-Item $src (Join-Path "$env:GITHUB_WORKSPACE\ci-results" $name) -Force}
+            }
+            git config user.name "braseiro-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add ci-results/OUA_4944_MECHANICS_GATES.txt ci-results/OUA_4944_OFFLINE_BUILD.log 2>$null
+            if((git status --porcelain).Length -gt 0){
+              git commit -m "OUA 4.9.44 validation report [skip ci]"
+              git push origin HEAD:main
+            }
+          }
