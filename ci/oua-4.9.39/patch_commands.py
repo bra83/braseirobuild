@@ -30,6 +30,7 @@ import {
   supplementEnemyHateLossOnSuccessfulAttack,
   supplementParryBonus,
   supplementProtectionIllFavouredForTarget,
+  supplementRollMode,
   skirmishIncomingAttackDiceModifier,
 } from '../rules/supplementMechanics';
 import { striderJourneyEventDetail, striderMilestoneAward, type StriderMilestone } from '../rules/striderMode';""",
@@ -222,7 +223,8 @@ new="""    case 'player_generate_journey_event': {
         const pending = nextState.journey.pendingEvent;
         const sourceType = String(pending.eventType || '') === 'ill-choices' ? 'poor-choices' : String(pending.eventType || '');
         const detail = striderJourneyEventDetail(sourceType as any, command.targetDie);
-        const heroId = Array.from(partyIds)[0] || '';
+        const partyHeroIds = Array.from(partyIds);
+        const heroId = partyHeroIds.length ? partyHeroIds[(Math.max(1, Number(command.targetDie) || 1) - 1) % partyHeroIds.length] : '';
         nextState.journey = {
           ...nextState.journey,
           striderEvent: true,
@@ -259,7 +261,7 @@ cmd=cmd.replace(
 )
 cmd=cmd.replace(
 "if (hero && !rangerIgnoresJourneyFatigue(hero.sheet)) pendingFatigue[staged.characterId] = Math.max(0, Number(pendingFatigue[staged.characterId]) || 0) + fx.targetFatigue;",
-"if (hero && !rangerIgnoresJourneyFatigue(hero.sheet)) pendingFatigue[staged.characterId] = Math.max(0, Number(pendingFatigue[staged.characterId]) || 0) + journeyFatigueAfterSupplementReduction(hero.sheet, fx.targetFatigue);"
+"if (hero && !rangerIgnoresJourneyFatigue(hero.sheet)) { const extra = fx.allFatigue > 0 ? Math.max(0, Number(fx.targetFatigue) || 0) : journeyFatigueAfterSupplementReduction(hero.sheet, fx.targetFatigue); pendingFatigue[staged.characterId] = Math.max(0, Number(pendingFatigue[staged.characterId]) || 0) + extra; }"
 )
 
 # ---------------------------------------------------------------------------
@@ -299,6 +301,7 @@ combat_cases="""    case 'resolve_hero_attack': {
       const terrain = String(nextState.journey.segments?.at(-1)?.terrain || '');
       const isNight = nextState.worldClock.hour < 6 || nextState.worldClock.hour >= 20;
       const escaping = command.special === 'escape';
+      if (escaping && (nextState.company.rulesMode !== 'strider' || actor.stance !== 'skirmish')) throw new Error('Escapar com ataque à distância exige a Postura de Escaramuça do Modo Peregrino.');
       const result = rollHeroAttack(freshAttacker.sheet, actor, target, command.weaponIndex, hopeDice, Boolean(command.inspired), { terrain, isNight, escaping });
       const weapon = result.weapon;
       const wantsSpecial = Boolean(command.special && ['heavy','pierce','defend'].includes(command.special));
@@ -338,7 +341,11 @@ combat_cases="""    case 'resolve_hero_attack': {
           if (target.actorType === 'hero' && partyIds.has(target.actorId)) {
             const targetHero = nextCharacters.find(character => character.id === target.actorId);
             if (targetHero) {
-              const protection = rollHeroProtection(targetHero.sheet, weapon.injury, result.ranged);
+              const targetTerrain = String(nextState.journey.segments?.at(-1)?.terrain || '');
+              const protectionBase = targetHero.sheet.attributes.shadow >= targetHero.sheet.attributes.hopeMax ? 'ill-favoured' : 'normal';
+              const protectionMode = supplementRollMode(targetHero.sheet, { kind:'protection', terrain:targetTerrain, combatRound:nextState.combat.round, stance:target.stance }, protectionBase);
+              const protectionDice = supplementBonusDice(targetHero.sheet, { kind:'protection', terrain:targetTerrain, combatRound:nextState.combat.round, stance:target.stance });
+              const protection = rollHeroProtection(targetHero.sheet, weapon.injury, result.ranged, protectionDice, protectionMode);
               nextState = recordCombatRoll(nextState, { id: protection.id, actorId: target.actorId, label: 'Proteção', featDie: protection.featResult === 12 ? 'gandalf' : protection.featResult === 11 ? 'eye' : (protection.featResult || 1), successDice: protection.successResults || [], total: protection.total, targetNumber: protection.targetNumber, success: protection.success, tengwar: protection.tengwarCount || 0, createdAt: protection.timestamp });
               if (!protection.success) updateHero(target.actorId, sheet => applyHeroWound(sheet).sheet);
             }
@@ -366,6 +373,16 @@ combat_cases="""    case 'resolve_hero_attack': {
       let targetActor = nextState.combat.actors.find(item => item.actorId === command.targetCharacterId);
       const targetHero = nextCharacters.find(character => character.id === command.targetCharacterId);
       if (!attacker || !targetActor || !targetHero || !partyIds.has(targetHero.id)) throw new Error('Ataque de adversário inválido.');
+      if (command.deadlyAbility && (targetActor.stateNotes || []).includes('firstborn-armed')) {
+        if (!hasVirtue(targetHero.sheet, 'Poder do Primogênito') || targetHero.sheet.attributes.hopeCurrent <= 0) throw new Error('Poder do Primogênito preparado sem Esperança disponível.');
+        updateHero(targetHero.id, sheet => adjustHope(sheet, -1));
+        const hateCost = Math.max(0, Number(command.hateCost) || 0);
+        if (hateCost > 0) nextState = upsertCombatActor(nextState, { ...attacker, hate: Math.max(0, Number(attacker.hate) || 0) - hateCost });
+        targetActor = { ...targetActor, stateNotes: (targetActor.stateNotes || []).filter(note => note !== 'firstborn-armed') };
+        nextState = upsertCombatActor(nextState, targetActor);
+        nextState = recordCombatNarrative(nextState, 'Poder do Primogênito: 1 Esperança gasta; a Habilidade Mortal foi cancelada.');
+        break;
+      }
       let dice = Math.max(0, Math.trunc(Number(command.successDice) || 0));
       if (!command.ranged && targetActor.stance === 'forward') dice += 1;
       if (!command.ranged && targetActor.stance === 'defensive') dice = Math.max(0, dice - 1);
@@ -385,7 +402,10 @@ combat_cases="""    case 'resolve_hero_attack': {
       if (roll.success) updateHero(targetHero.id, sheet => adjustEndurance(sheet, -Math.max(0, Number(command.damage) || 0)));
       const piercing = Boolean(roll.success) && (roll.featResult === 12 || (Number(roll.featResult) >= 10 && Number(roll.featResult) !== 11));
       if (piercing) {
-        const protection = rollHeroProtection(targetHero.sheet, Math.max(2, Number(command.injury) || 2), Boolean(command.ranged));
+        const protectionBase = targetHero.sheet.attributes.shadow >= targetHero.sheet.attributes.hopeMax ? 'ill-favoured' : 'normal';
+        const protectionMode = supplementRollMode(targetHero.sheet, { kind:'protection', terrain, combatRound:nextState.combat.round, stance:targetActor.stance }, protectionBase);
+        const protectionDice = supplementBonusDice(targetHero.sheet, { kind:'protection', terrain, combatRound:nextState.combat.round, stance:targetActor.stance });
+        const protection = rollHeroProtection(targetHero.sheet, Math.max(2, Number(command.injury) || 2), Boolean(command.ranged), protectionDice, protectionMode);
         nextState = recordCombatRoll(nextState, { id: protection.id, actorId: targetHero.id, label: 'Proteção', featDie: protection.featResult === 12 ? 'gandalf' : protection.featResult === 11 ? 'eye' : (protection.featResult || 1), successDice: protection.successResults || [], total: protection.total, targetNumber: protection.targetNumber, success: protection.success, tengwar: protection.tengwarCount || 0, createdAt: protection.timestamp });
         if (!protection.success) updateHero(targetHero.id, sheet => applyHeroWound(sheet).sheet);
       }
@@ -406,6 +426,18 @@ combat_cases="""    case 'resolve_hero_attack': {
       break;
     }"""
 cmd=cmd[:combat_start]+combat_cases+cmd[combat_end:]
+
+cmd=req(
+    cmd,
+    """        const hero = nextCharacters.find(character => character.id === command.targetCharacterId);
+        const smallFolk = Boolean(hero && /povo pequeno/i.test(hero.sheet.other.virtues || ''));
+        nextState = setStance(nextState, command.targetCharacterId, command.stance, smallFolk);""",
+    """        const hero = nextCharacters.find(character => character.id === command.targetCharacterId);
+        const smallFolk = Boolean(hero && /povo pequeno/i.test(hero.sheet.other.virtues || ''));
+        if (command.stance === 'skirmish' && nextState.company.rulesMode !== 'strider') throw new Error('Postura de Escaramuça exige Modo Peregrino.');
+        nextState = setStance(nextState, command.targetCharacterId, command.stance, smallFolk);""",
+    "Skirmish stance gate",
+)
 
 write(rel,cmd)
 print("PATCH_4939_COMMANDS_OK")
