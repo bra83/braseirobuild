@@ -1,0 +1,182 @@
+name: OUA 4.9.39 Validate Supplements
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/validate-oua-4.9.39.yml"
+      - "ci/oua-4.9.39/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: oua-4.9.39-validate
+  cancel-in-progress: true
+
+env:
+  BASE_TAG: "OUA-v4.9.29"
+  BASE_SOURCE: "OUA_4.9.29_UPGRADE_SAFE_ANDROID_STUDIO.zip"
+
+jobs:
+  validate:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct canonical source and apply 4.9.39
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA; got $env:RUNNER_NAME" }
+          $python = Get-Command python.exe -ErrorAction SilentlyContinue
+          if (-not $python) { $python = Get-Command python -ErrorAction Stop }
+
+          $work = Join-Path $env:RUNNER_TEMP 'oua-4939-validate'
+          $incoming = Join-Path $work 'incoming'
+          $extract = Join-Path $work 'extract'
+          $out = Join-Path $work 'out'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming,$extract,$out -Force | Out-Null
+
+          $headers = @{
+            Authorization = "Bearer $env:GITHUB_TOKEN"
+            Accept = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'oua-4939-validate'
+          }
+          $repo = $env:GITHUB_REPOSITORY
+          $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:BASE_TAG"
+          $asset = @($release.assets | Where-Object { $_.name -eq $env:BASE_SOURCE -and $_.state -eq 'uploaded' }) | Select-Object -First 1
+          if (-not $asset) { throw "Missing baseline source: $env:BASE_SOURCE" }
+          $zip = Join-Path $incoming $env:BASE_SOURCE
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $zip $asset.url
+          if ($LASTEXITCODE -ne 0) { throw 'Baseline download failed' }
+          & tar.exe -xf $zip -C $extract
+          if ($LASTEXITCODE -ne 0) { throw 'Baseline extract failed' }
+
+          $pkg = Get-ChildItem $extract -Recurse -File -Filter package.json |
+            Where-Object { Test-Path (Join-Path $_.Directory.FullName 'android') } |
+            Sort-Object { $_.FullName.Length } |
+            Select-Object -First 1
+          if (-not $pkg) { throw 'Project root not found' }
+          $root = $pkg.Directory.FullName
+
+          foreach ($v in 30..37) {
+            $patch = "$env:GITHUB_WORKSPACE\ci\oua-4.9.$v\patch.py"
+            & $python.Source $patch $root
+            if ($LASTEXITCODE -ne 0) { throw "Cumulative patch 4.9.$v failed" }
+          }
+
+          foreach ($script in @('patch_model.py','patch_commands.py','patch_finalize.py','patch_app.py')) {
+            & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.38\$script" $root
+            if ($LASTEXITCODE -ne 0) { throw "4.9.38 failed at $script" }
+          }
+
+          foreach ($script in @('patch_model.py','patch_creation.py','patch_rules.py','patch_commands.py','patch_ui.py','patch_finalize.py')) {
+            & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.39\$script" $root
+            if ($LASTEXITCODE -ne 0) { throw "4.9.39 failed at $script" }
+          }
+
+          $all = (Get-ChildItem $root -Recurse -File -Include *.ts,*.tsx,*.kt,*.java | Where-Object { $_.FullName -notmatch '\\node_modules\\|\\build\\|\\dist\\' } | ForEach-Object { Get-Content $_.FullName -Raw }) -join [Environment]::NewLine
+          $types = Get-Content (Join-Path $root 'lib\master\types.ts') -Raw
+          $commands = Get-Content (Join-Path $root 'lib\master\commands.ts') -Raw
+          $supp = Get-Content (Join-Path $root 'lib\rules\supplementMechanics.ts') -Raw
+          $strider = Get-Content (Join-Path $root 'lib\rules\striderMode.ts') -Raw
+          $factory = Get-Content (Join-Path $root 'lib\characterFactory.ts') -Raw
+          $panel = Get-Content (Join-Path $root 'components\JourneyResolutionPanel.tsx') -Raw
+          $combat = Get-Content (Join-Path $root 'components\CombatRulesPanel.tsx') -Raw
+          $source = Get-Content (Join-Path $root 'lib\sourceAuthority.ts') -Raw
+          $db = Get-Content (Join-Path $root 'lib\db.ts') -Raw
+          $main = Get-Content (Join-Path $root 'android\app\src\main\java\com\braseiro\oumanel\MainActivity.kt') -Raw
+          $gradle = Get-Content (Join-Path $root 'android\app\build.gradle.kts') -Raw
+
+          $gates = @{
+            'version-4939' = $gradle.Contains('versionName = "4.9.39"') -and $gradle.Contains('versionCode = 49039')
+            'db-preserved' = $db.Contains("const DB_NAME = 'braseiro-db';") -and $db.Contains('const DB_VERSION = 19;')
+            'tts-preserved' = $main.Contains('Braseiro Kokoro PT-BR · neural') -and $main.Contains('com.k2fsa.sherpa.onnx.tts.engine')
+            'solo-source-authority' = $source.Contains("a==='solo-2e'")
+            'supplement-cultures' = $all.Contains('Alto Elfo de Valfenda') -and $all.Contains('Beorning') -and $all.Contains('Elfo da Floresta das Trevas') -and $all.Contains('Homem da Floresta das Terras Ermas')
+            'strider-xp15' = $factory.Contains("previousExperienceBudget=rulesMode==='strider'?15:10")
+            'strider-peregrino' = $factory.Contains("features.push('Peregrino')")
+            'strider-tn18' = $all.Contains("base = sheet.other.rulesMode === 'strider' ? 18 : 20")
+            'strider-oracles' = $strider.Contains('resolveNarrationTable') -and $strider.Contains('striderLore') -and $strider.Contains('striderFortune') -and $strider.Contains('striderMisfortune')
+            'strider-event-details' = $strider.Contains('chance-meeting') -and $strider.Contains('joyful-sight') -and $strider.Contains('notable:true')
+            'strider-two-hero' = $commands.Contains('partyIds.size > 2') -and $commands.Contains('partyIds.size <= 2')
+            'strider-no-role-ui' = $panel.Contains('Jornada sem papéis') -or $panel.Contains('Não há papéis de Jornada')
+            'strider-hope-inspired' = $panel.Contains('Peregrino fica Inspirado (+2d)') -and $all.Contains("journeyMode: 'strider'")
+            'strider-no-free-die' = -not $supp.Contains("journeyMode==='strider' && context.kind==='journey') dice+=1")
+            'skirmish-stance' = $types.Contains("'skirmish'") -and $all.Contains('Postura de Escaramuça')
+            'skirmish-melee-defense' = $all.Contains('skirmishIncomingAttackDiceModifier')
+            'skirmish-escape-no-penalty' = $all.Contains("context.escaping&&actor.stance==='skirmish'?0")
+            'gain-ground' = $commands.Contains("case 'gain_ground'") -and $combat.Contains('Rolar Ganhar Terreno')
+            'furious' = $supp.Contains("isCulture(sheet,'beornings')") -and $supp.Contains("context.kind==='attack' || context.kind==='protection'")
+            'honey-cakes' = $commands.Contains('journeyFatigueAfterSupplementReduction')
+            'elven-dreams' = $commands.Contains('effectiveRestKind')
+            'gleam-wrath' = $commands.Contains('supplementEnemyHateLossOnSuccessfulAttack')
+            'breaking-blow' = $commands.Contains('supplementProtectionIllFavouredForTarget')
+            'woodmen-parry' = $commands.Contains('supplementParryBonus')
+            'herbal-remedies' = $commands.Contains("kind:'first-aid'")
+            'song-first-aid' = $commands.Contains('canUseSongForFirstAid') -and $combat.Contains('Música de Estancamento')
+            'hunters-resolve' = $commands.Contains("case 'use_hunters_resolve'")
+            'firstborn-power' = $commands.Contains('firstborn-armed') -and $commands.Contains('Habilidade Mortal foi cancelada')
+            'notable-not-single-roll' = $panel.Contains('Encontro Notável') -and $all.Contains('não resolva automaticamente o resultado geral')
+            'journey-auto-hard-gate-preserved' = $commands.Contains('Decisão de Jornada bloqueada no fluxo automático')
+            'npc-preservation-preserved' = $all.Contains('preservePresenceUnion: true')
+            'no-data-clear' = (-not $all.Contains('indexedDB.deleteDatabase')) -and (-not $all.Contains('clearApplicationUserData')) -and (-not $all.Contains('pm clear'))
+          }
+
+          $report = Join-Path $out 'OUA_4939_MECHANICS_GATES.txt'
+          foreach ($entry in $gates.GetEnumerator() | Sort-Object Name) {
+            $status = if ($entry.Value) { 'PASS' } else { 'FAIL' }
+            ($status + ' - ' + $entry.Name) | Tee-Object -FilePath $report -Append
+          }
+          $failed = @($gates.GetEnumerator() | Where-Object { -not $_.Value })
+          if ($failed.Count -gt 0) { throw ('Source gates failed: ' + (($failed | ForEach-Object Name) -join ', ')) }
+
+          $lockPath = Join-Path $root 'package-lock.json'
+          if (Test-Path $lockPath) {
+            $lockText = Get-Content $lockPath -Raw
+            $lockText = [regex]::Replace($lockText, 'https://[^"]*/artifactory/api/npm/npm-public/', 'https://registry.npmjs.org/')
+            [System.IO.File]::WriteAllText($lockPath, $lockText, (New-Object System.Text.UTF8Encoding($false)))
+          }
+
+          "OUA_ROOT=$root" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "OUA_OUT=$out" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Compile offline runtime
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Push-Location $env:OUA_ROOT
+          try {
+            $env:npm_config_registry = 'https://registry.npmjs.org/'
+            & npm.cmd ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
+            if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
+            & npm.cmd run build:offline 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'OUA_4939_OFFLINE_BUILD.log')
+            if ($LASTEXITCODE -ne 0) { throw 'build:offline failed' }
+          } finally { Pop-Location }
+
+      - name: Publish reports
+        if: always()
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Continue'
+          if (Test-Path $env:OUA_OUT) {
+            New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\ci-results" -Force | Out-Null
+            foreach ($name in @('OUA_4939_MECHANICS_GATES.txt','OUA_4939_OFFLINE_BUILD.log')) {
+              $src = Join-Path $env:OUA_OUT $name
+              if (Test-Path $src) { Copy-Item $src (Join-Path "$env:GITHUB_WORKSPACE\ci-results" $name) -Force }
+            }
+            git config user.name "braseiro-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add ci-results/OUA_4939_MECHANICS_GATES.txt ci-results/OUA_4939_OFFLINE_BUILD.log 2>$null
+            if ((git status --porcelain).Length -gt 0) {
+              git commit -m "OUA 4.9.39 validation report [skip ci]"
+              git push origin HEAD:main
+            }
+          }
