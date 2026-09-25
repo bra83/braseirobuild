@@ -80,9 +80,13 @@ export function createCharacterFromPath(options:CharacterPathCreationOptions):Ch
     for(const skill of sample(CANONICAL_SKILLS.filter(name=>!favourite.has(name)),2)) favourite.add(skill);
   }
 
-  const requestedAdds=Array.from(new Set((options.addedFavouredSkills||[]).map(String)));
-  const requestedRemovals=Array.from(new Set((options.removedFavouredSkills||[]).map(String)));
+  let requestedAdds=Array.from(new Set((options.addedFavouredSkills||[]).map(String)));
+  let requestedRemovals=Array.from(new Set((options.removedFavouredSkills||[]).map(String)));
   if(event.addFavouredSkills){
+    if(requestedAdds.length===0){
+      requestedAdds=sample(CANONICAL_SKILLS.filter(skill=>!favourite.has(skill)),event.addFavouredSkills);
+      trace.push('Escolha automática legal de Perícia Favorecida adicional: '+requestedAdds.join(', ')+'.');
+    }
     if(requestedAdds.length!==event.addFavouredSkills) throw new Error('O Evento '+event.title+' exige escolher '+event.addFavouredSkills+' Perícia adicional para ficar Favorecida.');
     for(const skill of requestedAdds){
       if(!CANONICAL_SKILLS.includes(skill as SkillName)) throw new Error('Perícia adicional inválida: '+skill);
@@ -91,6 +95,10 @@ export function createCharacterFromPath(options:CharacterPathCreationOptions):Ch
   } else if(requestedAdds.length) throw new Error('Este Evento não permite adicionar Perícias Favorecidas.');
 
   if(event.removeFavouredSkills){
+    if(requestedRemovals.length===0){
+      requestedRemovals=sample(Array.from(favourite),event.removeFavouredSkills);
+      trace.push('Escolha automática legal de Perícia(s) que deixa(m) de ser Favorecida(s): '+requestedRemovals.join(', ')+'.');
+    }
     if(requestedRemovals.length!==event.removeFavouredSkills) throw new Error('O Evento '+event.title+' exige retirar '+event.removeFavouredSkills+' Perícia(s) Favorecida(s).');
     for(const skill of requestedRemovals){
       if(!favourite.has(skill)) throw new Error(skill+' não está Favorecida e não pode ser retirada.');
@@ -116,9 +124,10 @@ export function createCharacterFromPath(options:CharacterPathCreationOptions):Ch
   }
   if(event.chooseTnImprovement){
     const penalized=event.fixedTnModifier?.attribute;
-    const chosen=options.tnImprovementAttribute;
-    if(!chosen||chosen===penalized) throw new Error(event.title+' exige escolher outro NA de Atributo para diminuir em 1.');
+    const chosen=options.tnImprovementAttribute || pick((['strength','heart','wits'] as const).filter(value=>value!==penalized));
+    if(chosen===penalized) throw new Error(event.title+' exige escolher outro NA de Atributo para diminuir em 1.');
     tnModifiers[chosen]=(tnModifiers[chosen]||0)-1;
+    if(!options.tnImprovementAttribute) trace.push('Escolha automática legal: NA de '+chosen+' reduzido em 1.');
   } else if(options.tnImprovementAttribute) throw new Error('Este Evento não pede uma escolha de redução de NA.');
 
   endurance=Math.max(1,endurance+Number(event.enduranceMaxDelta||0));
