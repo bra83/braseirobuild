@@ -186,7 +186,7 @@ cases=r"""    case 'set_combat_actor_power': {
       const hero=nextCharacters.find(character=>character.id===command.targetCharacterId);
       if(!hero||!hasVirtue(hero.sheet,'Artífice de Eregion')) throw new Error('O Herói não possui Artífice de Eregion.');
       const used=Number(hero.sheet.other.supplementState?.artificerStudyUsedPhaseStartedAt)||0;
-      if(used===Number(nextState.fellowshipPhase.startedAt)||0) throw new Error('Artífice de Eregion já estudou um item nesta Fase de Sociedade.');
+      if(used>0 && used===Number(nextState.fellowshipPhase.startedAt||0)) throw new Error('Artífice de Eregion já estudou um item nesta Fase de Sociedade.');
       const owner=nextCharacters.find(character=>character.sheet.inventory.some(item=>item.id===command.inventoryItemId));
       const item=owner?.sheet.inventory.find(entry=>entry.id===command.inventoryItemId);
       if(!owner||!item||!item.magicalKind) throw new Error('Item mágico da Companhia não encontrado.');
@@ -321,23 +321,7 @@ cmd=req(cmd,
         nextState = upsertCombatActor(nextState, { ...actor, stateNotes: (actor.stateNotes || []).filter(note => !note.startsWith('gain-ground:') && !(result.ranged && note.startsWith('prepared-shot:'))) });""",
 "consume Prepare Shot")
 
-# Herbal Remedies end-of-Journey roll.
-complete_anchor="    case 'player_complete_journey': {"
-herbal_case=r"""    case 'record_journey_herbal_roll': {
-      if(!nextState.journey.awaitingEndRoll) throw new Error('Remédios Herbais é resolvido no encerramento da Jornada.');
-      const hero=nextCharacters.find(character=>character.id===command.targetCharacterId);
-      if(!hero||!hasVirtue(hero.sheet,'Remédios Herbais')) throw new Error('O Herói não possui Remédios Herbais.');
-      if(Math.max(0,Number(nextState.journey.travelFatigueByHero?.[hero.id])||0)<=0) throw new Error('Não há Fadiga acumulada para reduzir.');
-      const skill=findSkill(hero.sheet,'Cura');
-      const extra=supplementBonusDice(hero.sheet,{kind:'journey',skill:'Cura'});
-      const mode=hero.sheet.attributes.shadow>=hero.sheet.attributes.hopeMax?'ill-favoured':skill?.favorite?'favoured':'normal';
-      const roll=rollOneRing(Math.max(0,Number(skill?.rank)||0)+extra,0,targetNumberForSkill(hero.sheet,'Cura'),'Cura',mode,Boolean(hero.sheet.attributes.weary),Boolean(hero.sheet.attributes.miserable));
-      nextState.journey={...nextState.journey,herbalRecoveryByHero:{...(nextState.journey.herbalRecoveryByHero||{}),[hero.id]:{success:Boolean(roll.success),successIcons:Math.max(0,Number(roll.tengwarCount)||0),roll,createdAt:Date.now()}}};
-      break;
-    }
-
-"""
-cmd=req(cmd,complete_anchor,herbal_case+complete_anchor,"Herbal Journey command")
+# Herbal Remedies is recorded by the stateful command case above.
 cmd=req(cmd,
 """        const reduction = result ? Math.max(0, Number(result.mountVigour) || 0) + (result.success ? 1 + Math.max(0, Number(result.successIcons) || 0) : 0) : 0;
         const remaining = Math.max(0, accumulated - reduction);""",
