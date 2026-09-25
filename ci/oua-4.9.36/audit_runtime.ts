@@ -1,7 +1,10 @@
 import { interpretOneRingObservation } from '../../TEMP_ROOT/lib/dice';
 import { adjustEndurance, adjustHope, adjustShadow, adjustFatigue } from '../../TEMP_ROOT/lib/rules/hopeShadow';
 import { spendFellowship } from '../../TEMP_ROOT/lib/rules/fellowship';
-import { recordJourneyMove } from '../../TEMP_ROOT/lib/rules/journey';
+import { recordJourneyMove, resolveJourneyMarch, validateJourneyRoles, journeyTravelDaysForTerrain } from '../../TEMP_ROOT/lib/rules/journey';
+import { advanceSkill, advanceCombatProficiency } from '../../TEMP_ROOT/lib/rules/progression';
+import { normalizeEquipmentMechanics } from '../../TEMP_ROOT/lib/rules/equipment';
+import { firmWill, resolveBoutOfMadness } from '../../TEMP_ROOT/lib/rules/shadow';
 import { moveCombatActor, startCombat, upsertCombatActor } from '../../TEMP_ROOT/lib/rules/combat';
 import { normalizeMasterState } from '../../TEMP_ROOT/lib/master/state';
 
@@ -36,6 +39,33 @@ const state:any={activeMode:'adventure',worldClock:{year:2965,season:'spring',da
 
 const spent=spendFellowship(state,2);
 check('fellowship-insufficient-no-mutation',spent.spent===false && spent.state===state,'Sociedade insuficiente nao altera estado.');
+
+const roleErrors=validateJourneyRoles({guide:'h'},['h']);
+check('journey-four-roles-required',roleErrors.length===3,'Jornada exige Guia, Batedor, Cacador e Vigia.');
+
+const marched=resolveJourneyMarch(state,true,2);
+check('journey-march-success-distance',marched.journey.marchHexesRemaining===1 && marched.journey.marchRollCount===1,'Marcha bem-sucedida respeita rota restante e registra a jogada.');
+
+check('journey-difficult-terrain-time',journeyTravelDaysForTerrain('forest')===2 && journeyTravelDaysForTerrain('road')===1,'Terreno dificil custa dois dias; estrada normal custa um.');
+
+const progressionSheet:any={...sheet,skills:[{name:'Viagem',rank:1,specialization:'',favorite:false}],resources:{coins:0,treasure:0,experience:0,adventurePoints:20,skillPoints:20},combat:{...sheet.combat,proficiencies:{Espadas:1},weapons:[]},inventory:[]};
+const advSkill=advanceSkill(progressionSheet,'Viagem');
+check('progression-skill-cost-deducted',advSkill.allowed===true && advSkill.cost===8 && advSkill.sheet.skills[0].rank===2 && advSkill.sheet.resources.skillPoints===12,'Elevar pericia para 2 custa 8 pontos e persiste o novo nivel.');
+
+const advCombat=advanceCombatProficiency(progressionSheet,'Espadas');
+check('progression-combat-cost-deducted',advCombat.allowed===true && advCombat.cost===8 && advCombat.sheet.combat.proficiencies.Espadas===2 && advCombat.sheet.resources.adventurePoints===12,'Elevar proficiencia para 2 custa 8 Pontos de Aventura.');
+
+const equipmentSheet:any={...progressionSheet,attributes:{...progressionSheet.attributes,enduranceCurrent:20,fatigue:0,load:0},combat:{...progressionSheet.combat,parry:2,weapons:[]},inventory:[{id:'armor',name:'Camisa de couro',category:'Armadura',quantity:1,load:99,weight:99,equipped:true,tags:[]}]};
+const eq=normalizeEquipmentMechanics(equipmentSheet);
+check('equipment-derived-load-protection',eq.attributes.load===3 && eq.attributes.protection===1,'Carga e Protecao sao recalculadas pelo equipamento canonico, ignorando valor manual incorreto.');
+
+const shadowSheet:any={...progressionSheet,attributes:{...progressionSheet.attributes,hopeCurrent:5,hopeMax:10,shadow:3,shadowScars:1},other:{...progressionSheet.other,shadowPath:'Caminho do Desespero',flaws:''}};
+const firm=firmWill(shadowSheet);
+check('shadow-firm-will-scar',firm.allowed===true && firm.sheet.attributes.shadow===2 && firm.sheet.attributes.shadowScars===2,'Firme Vontade converte Sombra em cicatriz permanente.');
+
+const madnessInput:any={...shadowSheet,attributes:{...shadowSheet.attributes,shadow:10,shadowScars:1},other:{...shadowSheet.other,shadowPathStep:0}};
+const madness=resolveBoutOfMadness(madnessInput);
+check('shadow-bout-adds-flaw',madness.allowed===true && madness.retired===false && madness.flaw==='Perturbado' && madness.sheet.attributes.shadow===1,'Crise de Loucura avanca o Caminho da Sombra e reseta Sombra ate cicatrizes.');
 
 
 let blocked=false;
