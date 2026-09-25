@@ -221,6 +221,14 @@ export function ownershipSuppressesItem(item:InventoryItem):boolean {
   return magicalItemSuppressed(item);
 }
 
+export function curseBlocksHopeForWeapon(
+  sheet:CharacterSheet,
+  weapon:{name:string;treasureIndexEntryId?:string;magicalBaseItemName?:string}|undefined|null,
+):boolean {
+  const item=famousItemForWeapon(sheet,weapon);
+  return Boolean(item && item.magicalCurse==='malice' && item.magicalCurseActive);
+}
+
 export function curseDarkeningDicePenalty(sheet:CharacterSheet):number {
   return (sheet.inventory||[]).some(item=>
     item.magicalCurse==='darkening'
