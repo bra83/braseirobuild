@@ -228,8 +228,6 @@ t=req(t,
 """  const [spendHope,setSpendHope]=useState(false);
   const [useMagicalSuccess,setUseMagicalSuccess]=useState(false);
 ""","Journey magic state")
-start=t.index("  const hopeToggle=") if "  const hopeToggle=" in t else t.index("  const hopeControls=")
-end=t.index("\n\n  if(masterState.company.eyeAwarenessEnabled",start)
 helper="""  const hopeControls=(hero:Character|undefined,skill:string)=>{
     const terrain=masterState.journey.segments?.at(-1)?.terrain||'';
     const isNight=masterState.worldClock.hour<6||masterState.worldClock.hour>=20;
@@ -246,12 +244,52 @@ helper="""  const hopeControls=(hero:Character|undefined,skill:string)=>{
         Gastar 1 Esperança · Sucesso Mágico{source?' · '+source:''}
       </label>}
     </div>;
-  };"""
-t=t[:start]+helper+t[end:]
-t=t.replace(",spendHope)}",",spendHope,useMagicalSuccess)}")
-t=t.replace("{hopeToggle(hero)}","{hopeControls(hero,'Viagem')}")
-t=t.replace("{hopeToggle(target)}","{hopeControls(target,event.skill)}")
-t=t.replace("{hopeToggle(guide)}","{hopeControls(guide,'Viagem')}")
+  };
+"""
+t=req(t,"  const endDone = masterState.journey.endRollsByHero || {};\n","  const endDone = masterState.journey.endRollsByHero || {};\n\n"+helper,"Journey magic controls helper")
+# End-of-Journey global Hope checkbox becomes per-hero controls.
+t=t.replace(
+"""        <label style={{ display:'flex', alignItems:'center', gap:7, margin:'0 0 8px', fontSize:11 }}>
+          <input type="checkbox" checked={spendHope} onChange={change=>setSpendHope(change.target.checked)} />
+          Gastar 1 Esperança na próxima rolagem {strider ? '· Inspirado (+2d)' : ''}
+        </label>
+""","")
+t=t.replace(
+"""                    <button disabled={props.busy} onClick={() => void props.onRollJourney('end', hero.id, 'Viagem', 0, undefined, mountVigour[hero.id] || 0, spendHope)} style={{ ...primaryButton, minHeight: 38 }}>
+                      Rolar Viagem
+                    </button>
+                  </div>""",
+"""                    <button disabled={props.busy} onClick={() => void props.onRollJourney('end', hero.id, 'Viagem', 0, undefined, mountVigour[hero.id] || 0, spendHope, useMagicalSuccess)} style={{ ...primaryButton, minHeight: 38 }}>
+                      Rolar Viagem
+                    </button>
+                  </div>
+                  {hopeControls(hero,'Viagem')}""")
+# Event controls.
+t=t.replace(
+"""            <label style={{ display:'flex', alignItems:'center', gap:7, margin:'0 0 7px', fontSize:11 }}>
+              <input type="checkbox" checked={spendHope} onChange={change=>setSpendHope(change.target.checked)} />
+              Gastar 1 Esperança {strider ? '· Peregrino fica Inspirado (+2d)' : ''}
+            </label>
+            <button
+              disabled={!target || props.busy}
+              onClick={() => target && void props.onRollJourney('event', target.id, event.skill, Number(event.successDiceModifier || 0), event.rollMode, 0, spendHope)}
+""",
+"""            {hopeControls(target,event.skill)}
+            <button
+              disabled={!target || props.busy}
+              onClick={() => target && void props.onRollJourney('event', target.id, event.skill, Number(event.successDiceModifier || 0), event.rollMode, 0, spendHope, useMagicalSuccess)}
+""")
+# March controls.
+t=t.replace(
+"""            <label style={{ display:'flex', alignItems:'center', gap:7, margin:'0 0 7px', fontSize:11 }}>
+              <input type="checkbox" checked={spendHope} onChange={change=>setSpendHope(change.target.checked)} />
+              Gastar 1 Esperança {strider ? '· Peregrino fica Inspirado (+2d)' : ''}
+            </label>
+            <button disabled={!guide || props.busy} onClick={() => guide && void props.onRollJourney('march', guide.id, 'Viagem', 0, undefined, 0, spendHope)} style={primaryButton}>Rolar Marcha</button>
+""",
+"""            {hopeControls(guide,'Viagem')}
+            <button disabled={!guide || props.busy} onClick={() => guide && void props.onRollJourney('march', guide.id, 'Viagem', 0, undefined, 0, spendHope, useMagicalSuccess)} style={primaryButton}>Rolar Marcha</button>
+""")
 write(rel,t)
 
 print("PATCH_4939_MAGIC_OK")
