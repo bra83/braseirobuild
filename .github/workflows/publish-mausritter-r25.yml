@@ -11,8 +11,8 @@ permissions:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 30
     env:
       TAG: mausritter-6.1.0-r25
       ZIP_NAME: Mausritter_Mestre_Vivo_6.1.0-r25_TTS_KOKORO_ANDROID_STUDIO.zip
@@ -25,52 +25,117 @@ jobs:
       PART2_URL: 'https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-e1d8-820e-96b0-8f183440d012/raw?se=2026-09-25T02%3A36%3A11Z&sp=r&sv=2026-02-06&sr=b&scid=9a79a034-31e8-5e30-92ee-2c78a9b5f18e&skoid=4a431cd2-eafd-49c7-90be-bbb4d45e696d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-25T02%3A07%3A47Z&ske=2026-09-26T02%3A07%3A47Z&sks=b&skv=2026-02-06&sig=0%2B8oAg5%2BlUtGjivCJ/o%2BK9nidVit3qWba9C1P54KidQ%3D'
 
     steps:
-      - name: Download exact source parts
-        shell: bash
+      - name: Confirm BRELGA
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
-          set -euo pipefail
-          curl -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o part.00 "$PART0_URL"
-          curl -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o part.01 "$PART1_URL"
-          curl -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o part.02 "$PART2_URL"
-          echo "$PART0_SHA256  part.00" | sha256sum -c -
-          echo "$PART1_SHA256  part.01" | sha256sum -c -
-          echo "$PART2_SHA256  part.02" | sha256sum -c -
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA; got $env:RUNNER_NAME" }
+          Write-Host "Runner: $env:RUNNER_NAME"
+
+      - name: Download exact source parts
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & curl.exe -L --fail --retry 5 --retry-delay 2 -o part.00 $env:PART0_URL
+          if ($LASTEXITCODE -ne 0) { throw "part.00 download failed" }
+          & curl.exe -L --fail --retry 5 --retry-delay 2 -o part.01 $env:PART1_URL
+          if ($LASTEXITCODE -ne 0) { throw "part.01 download failed" }
+          & curl.exe -L --fail --retry 5 --retry-delay 2 -o part.02 $env:PART2_URL
+          if ($LASTEXITCODE -ne 0) { throw "part.02 download failed" }
+          $parts = @(
+            @{ Path='part.00'; Hash=$env:PART0_SHA256 },
+            @{ Path='part.01'; Hash=$env:PART1_SHA256 },
+            @{ Path='part.02'; Hash=$env:PART2_SHA256 }
+          )
+          foreach ($p in $parts) {
+            $h = (Get-FileHash $p.Path -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($h -ne $p.Hash) { throw "Hash mismatch for $($p.Path): $h" }
+            Write-Host "$($p.Path) OK $h"
+          }
 
       - name: Reconstruct and verify exact ZIP
-        shell: bash
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
-          set -euo pipefail
-          cat part.00 part.01 part.02 > "$ZIP_NAME"
-          echo "$WHOLE_SHA256  $ZIP_NAME" | sha256sum -c -
-          unzip -t "$ZIP_NAME" >/dev/null
-          printf '%s  %s\n' "$WHOLE_SHA256" "$ZIP_NAME" > "$ZIP_NAME.sha256"
-          ls -lh "$ZIP_NAME" "$ZIP_NAME.sha256"
+          $ErrorActionPreference = 'Stop'
+          cmd.exe /c "copy /b part.00+part.01+part.02 $env:ZIP_NAME >nul"
+          if ($LASTEXITCODE -ne 0 -or -not (Test-Path $env:ZIP_NAME)) { throw "ZIP reconstruction failed" }
+          $hash = (Get-FileHash $env:ZIP_NAME -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($hash -ne $env:WHOLE_SHA256) { throw "Final ZIP hash mismatch: $hash" }
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $z = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path $env:ZIP_NAME))
+          $entries = $z.Entries.Count
+          $z.Dispose()
+          if ($entries -le 0) { throw "ZIP has no entries" }
+          "$hash  $env:ZIP_NAME" | Set-Content -Path "$env:ZIP_NAME.sha256" -Encoding ascii
+          Write-Host "ZIP OK SHA256=$hash ENTRIES=$entries BYTES=$((Get-Item $env:ZIP_NAME).Length)"
 
       - name: Create draft release
-        shell: bash
+        id: release
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
-          set -euo pipefail
-          gh release create "$TAG" \
-            --target main \
-            --title 'Mausritter Mestre Vivo 6.1.0 R25 — TTS Kokoro' \
-            --notes 'Android Studio source baseline R25. Braseiro Kokoro PT-BR / Android TextToSpeech integration. Exact source ZIP SHA-256: eff615ac96ad77449c27e04778d732fc20cd039b767ff92310ebd23d9841e8df' \
-            --draft
+          $ErrorActionPreference = 'Stop'
+          $repo = $env:GITHUB_REPOSITORY
+          $headers = @{
+            'Authorization' = "Bearer $env:GITHUB_TOKEN"
+            'Accept' = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'braseiro-brelga'
+          }
+          try {
+            $old = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:TAG"
+            if ($old) { throw "Release tag already exists: $env:TAG" }
+          } catch {
+            if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw }
+          }
+          $body = @{
+            tag_name = $env:TAG
+            target_commitish = 'main'
+            name = 'Mausritter Mestre Vivo 6.1.0 R25 - TTS Kokoro'
+            body = 'Android Studio source baseline R25. Braseiro Kokoro PT-BR / Android TextToSpeech integration. Exact source ZIP SHA-256: eff615ac96ad77449c27e04778d732fc20cd039b767ff92310ebd23d9841e8df'
+            draft = $true
+            prerelease = $false
+          } | ConvertTo-Json
+          $release = Invoke-RestMethod -Method Post -Headers $headers -Uri "https://api.github.com/repos/$repo/releases" -Body $body -ContentType 'application/json'
+          "release_id=$($release.id)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "release_url=$($release.html_url)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "Draft release: $($release.html_url)"
 
-      - name: Attach source ZIP before publishing
-        shell: bash
+      - name: Attach ZIP and checksum
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ steps.release.outputs.release_id }}
         run: |
-          set -euo pipefail
-          gh release upload "$TAG" "$ZIP_NAME" "$ZIP_NAME.sha256" --clobber
+          $ErrorActionPreference = 'Stop'
+          $repo = $env:GITHUB_REPOSITORY
+          $files = @($env:ZIP_NAME, "$env:ZIP_NAME.sha256")
+          foreach ($file in $files) {
+            $encoded = [uri]::EscapeDataString([IO.Path]::GetFileName($file))
+            $upload = "https://uploads.github.com/repos/$repo/releases/$env:RELEASE_ID/assets?name=$encoded"
+            & curl.exe -L --fail --retry 5 --retry-delay 2 --request POST --header "Authorization: Bearer $env:GITHUB_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" --header "Content-Type: application/octet-stream" --data-binary "@$file" $upload
+            if ($LASTEXITCODE -ne 0) { throw "Release asset upload failed: $file" }
+            Write-Host "Uploaded: $file"
+          }
 
-      - name: Publish release
-        shell: bash
+      - name: Publish release only after assets exist
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ steps.release.outputs.release_id }}
         run: |
-          set -euo pipefail
-          gh release edit "$TAG" --draft=false
-          gh release view "$TAG" --json url,tagName,name,isDraft,assets
+          $ErrorActionPreference = 'Stop'
+          $repo = $env:GITHUB_REPOSITORY
+          $headers = @{
+            'Authorization' = "Bearer $env:GITHUB_TOKEN"
+            'Accept' = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'braseiro-brelga'
+          }
+          $check = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$env:RELEASE_ID"
+          $zipAsset = @($check.assets | Where-Object { $_.name -eq $env:ZIP_NAME })
+          if ($zipAsset.Count -ne 1) { throw "ZIP asset missing before publish" }
+          $body = @{ draft = $false } | ConvertTo-Json
+          $published = Invoke-RestMethod -Method Patch -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$env:RELEASE_ID" -Body $body -ContentType 'application/json'
+          Write-Host "PUBLISHED=$($published.html_url)"
+          Write-Host "ASSETS=$($published.assets.Count)"
