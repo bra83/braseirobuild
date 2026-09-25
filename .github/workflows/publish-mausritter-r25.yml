@@ -1,0 +1,76 @@
+name: Publish Mausritter R25 source release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-mausritter-r25.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TAG: mausritter-6.1.0-r25
+      ZIP_NAME: Mausritter_Mestre_Vivo_6.1.0-r25_TTS_KOKORO_ANDROID_STUDIO.zip
+      WHOLE_SHA256: eff615ac96ad77449c27e04778d732fc20cd039b767ff92310ebd23d9841e8df
+      PART0_SHA256: 59988d5de3559a9fb5759d10b284906da7dbdd4cde28302c5ac3dd2971bc575d
+      PART1_SHA256: 14320a664a6aea255467441ed7ae3463fbfd71cc21d40bbc9a1c63e5a2168389
+      PART2_SHA256: 390694eb940882f4b8e8eef429b898495f24b4b89da548e8b93c181102d1c216
+      PART0_URL: 'https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-b76c-820e-b757-8254eea81301/raw?se=2026-09-25T02%3A35%3A48Z&sp=r&sv=2026-02-06&sr=b&scid=2f49d32a-7785-5454-bba0-96505c60287b&skoid=4a431cd2-eafd-49c7-90be-bbb4d45e696d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-25T00%3A53%3A26Z&ske=2026-09-26T00%3A53%3A26Z&sks=b&skv=2026-02-06&sig=HhHPLDUCsuNXGVYa%2Bug2/RoYnW95NyGUn%2BTWGg/uIhg%3D'
+      PART1_URL: 'https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-1dd0-820e-ad77-82a1e324bc2d/raw?se=2026-09-25T02%3A36%3A08Z&sp=r&sv=2026-02-06&sr=b&scid=ee5e311f-37e8-57de-967b-360fb0e748ec&skoid=4a431cd2-eafd-49c7-90be-bbb4d45e696d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-25T01%3A35%3A28Z&ske=2026-09-26T01%3A35%3A28Z&sks=b&skv=2026-02-06&sig=097zJjRGyX%2BiUT5ol7yZ9UK0E%2BDM6xl7fu2aybx92lQ%3D'
+      PART2_URL: 'https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-e1d8-820e-96b0-8f183440d012/raw?se=2026-09-25T02%3A36%3A11Z&sp=r&sv=2026-02-06&sr=b&scid=9a79a034-31e8-5e30-92ee-2c78a9b5f18e&skoid=4a431cd2-eafd-49c7-90be-bbb4d45e696d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-25T02%3A07%3A47Z&ske=2026-09-26T02%3A07%3A47Z&sks=b&skv=2026-02-06&sig=0%2B8oAg5%2BlUtGjivCJ/o%2BK9nidVit3qWba9C1P54KidQ%3D'
+
+    steps:
+      - name: Download exact source parts
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o part.00 "$PART0_URL"
+          curl -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o part.01 "$PART1_URL"
+          curl -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o part.02 "$PART2_URL"
+          echo "$PART0_SHA256  part.00" | sha256sum -c -
+          echo "$PART1_SHA256  part.01" | sha256sum -c -
+          echo "$PART2_SHA256  part.02" | sha256sum -c -
+
+      - name: Reconstruct and verify exact ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat part.00 part.01 part.02 > "$ZIP_NAME"
+          echo "$WHOLE_SHA256  $ZIP_NAME" | sha256sum -c -
+          unzip -t "$ZIP_NAME" >/dev/null
+          printf '%s  %s\n' "$WHOLE_SHA256" "$ZIP_NAME" > "$ZIP_NAME.sha256"
+          ls -lh "$ZIP_NAME" "$ZIP_NAME.sha256"
+
+      - name: Create draft release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release create "$TAG" \
+            --target main \
+            --title 'Mausritter Mestre Vivo 6.1.0 R25 — TTS Kokoro' \
+            --notes 'Android Studio source baseline R25. Braseiro Kokoro PT-BR / Android TextToSpeech integration. Exact source ZIP SHA-256: eff615ac96ad77449c27e04778d732fc20cd039b767ff92310ebd23d9841e8df' \
+            --draft
+
+      - name: Attach source ZIP before publishing
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release upload "$TAG" "$ZIP_NAME" "$ZIP_NAME.sha256" --clobber
+
+      - name: Publish release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release edit "$TAG" --draft=false
+          gh release view "$TAG" --json url,tagName,name,isDraft,assets
