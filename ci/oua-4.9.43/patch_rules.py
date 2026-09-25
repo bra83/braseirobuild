@@ -28,8 +28,9 @@ if "loneLandsOathHeroAttackBonus" not in t:
     )
 t=req(t,
 """  const count=Math.max(0,rank+stanceModifier+inspiredDice+gainGround+preparedShot-complications);""",
-"""  const count=Math.max(0,rank+stanceModifier+inspiredDice+gainGround+preparedShot+ loneLandsOathHeroAttackBonus(actor)-complications);""",
-"oath Hero attack +1d")
+"""  const combatTaskInspired=(actor.stateNotes||[]).includes('combat-task-inspired-next-attack:1')?1:0;
+  const count=Math.max(0,rank+stanceModifier+inspiredDice+gainGround+preparedShot+combatTaskInspired+loneLandsOathHeroAttackBonus(actor)-complications);""",
+"oath and Inspire Hero attack dice")
 write(rel,t)
 
 print("PATCH_4943_RULES_OK")
