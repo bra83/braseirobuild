@@ -17,13 +17,13 @@ jobs:
       TAG: mausritter-6.1.0-r25
       ZIP_NAME: Mausritter_Mestre_Vivo_6.1.0-r25_TTS_KOKORO_ANDROID_STUDIO.zip
       WHOLE_SHA256: eff615ac96ad77449c27e04778d732fc20cd039b767ff92310ebd23d9841e8df
-      P00_ID: 6RbL702IjPe8ve27
-      P01_ID: TOSIaw3WrrnXMRjU
-      P02_ID: uZk8oYd9CIWylmgY
-      P03_ID: vn91zBFqpOkU6qx3
-      P04_ID: MxjUv7gQ2AB9LM04
-      P05_ID: trCKg1f1PTEadqZo
-      P06_ID: k1a2LOmhbfCLds7C
+      P00_ID: OC02BLgGoWSs
+      P01_ID: cXiBG-s6bGks
+      P02_ID: C2-BjzH2_5T8
+      P03_ID: bDRfED7abhKp
+      P04_ID: 0DYVvkxMoVB8
+      P05_ID: 3ZC0iHvrGN_n
+      P06_ID: X74_qiMJHyrJ
       P00_SHA: b134eb810199167d2ef938d7d51b4ce2ae6e4a0c94a12d2e617dcd13e23b728d
       P01_SHA: 074e2973201d78fc5361e3787464e032e5e7f1b7ac404d64f3db203c5d663ca5
       P02_SHA: 6ad64dc9d608f6ff840af41c38fec24d3a7756b195b51fd000cb32be8a0beb4b
@@ -44,13 +44,13 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
 
-          function Get-FirePart([string]$PublicId, [string]$OutFile) {
-            $api = "https://api.firestorage.ai/dev/file/shares/$PublicId"
+          function Get-FirePart([string]$ShareId, [string]$OutFile) {
+            $api = "https://api.firestorage.ai/dev/file/shares/$ShareId"
             $meta = Invoke-RestMethod -Uri "$api/files?maxResults=100"
             $files = @($meta.files)
-            if ($files.Count -ne 1) { throw "Expected exactly one file for $PublicId; found $($files.Count)" }
+            if ($files.Count -ne 1) { throw "Expected exactly one file for $ShareId; found $($files.Count)" }
             $fileId = $files[0].fileId
-            if ([string]::IsNullOrWhiteSpace($fileId)) { throw "Missing fileId for $PublicId" }
+            if ([string]::IsNullOrWhiteSpace($fileId)) { throw "Missing fileId for $ShareId" }
             $ticket = Invoke-RestMethod -Method Post -Uri "$api/files/$fileId/download"
             $url = $ticket.downloadUrl
             if ([string]::IsNullOrWhiteSpace($url)) { throw "Missing downloadUrl for $PublicId" }
