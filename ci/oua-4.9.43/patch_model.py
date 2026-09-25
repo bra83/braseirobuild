@@ -22,6 +22,7 @@ t=req(t,
   heirCharacterId?: string;
   ancestorName?: string;
   estelangClaimedBy?: string;
+  estelangWraithAttraction?: boolean;
   heirOathBound?: boolean;
   hillDreamerIds?: string[];
   hillDestroyed?: boolean;
@@ -117,7 +118,7 @@ extra="""
   | { type: 'start_lone_lands_dwarven_council'; participants: string[]; npcIds: string[]; reason: string }
   | { type: 'set_lone_lands_council_request'; resistance: 3|6|9; objective: string; reason: string }
   | { type: 'start_egel_council'; participants: string[]; npcIds: string[]; request: 'reasonable'|'bold'|'outrageous'; relation: 'reluctant'|'jagat-vouches'|'friendly'; reason: string }
-  | { type: 'resolve_combat_task'; actorCharacterId: string; task: 'intimidate'|'inspire'|'protect'; protectedCharacterId?: string; spendHope?: boolean; inspired?: boolean; reason: string }
+  | { type: 'resolve_combat_task'; actorCharacterId: string; task: 'intimidate'|'inspire'|'protect'; protectedCharacterId?: string; spendHope?: boolean; inspired?: boolean; useMagicalSuccess?: boolean; reason: string }
   | { type: 'resolve_lossoth_safe_refuge_rest'; reason: string }"""
 t=req(t,anchor,anchor+extra,"Lone-lands commands")
 write(rel,t)
