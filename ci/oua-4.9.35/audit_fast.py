@@ -17,6 +17,8 @@ def read(rel):
 
 main=read("android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt")
 app=read("App.tsx")
+mapview=read("components/EriadorMap.tsx")
+journey=read("lib/rules/journey.ts")
 audio=read("lib/AudioEngine.ts")
 db=read("lib/db.ts")
 manifest=read("android/app/src/main/AndroidManifest.xml")
@@ -43,8 +45,8 @@ for area,item,ok,evidence,detail in critical:
 generated_names={"node_modules","build","dist","dist-offline",".offline-vendor"}
 files=[p for p in root.rglob("*") if p.is_file() and p.suffix.lower() in {".ts",".tsx",".kt",".java",".js",".mjs"} and not any(part in generated_names for part in p.parts) and not ("android" in p.parts and "assets" in p.parts and "vendor" in p.parts)]
 patterns={
- "TODO/FIXME":re.compile(r"\\b(?:TODO|FIXME|HACK)\\b"),
- "empty-click":re.compile(r"onClick\\s*=\\s*\\{\\s*\\(\\s*\\)\\s*=>\\s*\\{\\s*\\}\\s*\\}"),
+ "TODO/FIXME":re.compile(r"\b(?:TODO|FIXME|HACK)\b"),
+ "empty-click":re.compile(r"onClick\s*=\s*\{\s*\(\s*\)\s*=>\s*\{\s*\}\s*\}"),
  "not-implemented":re.compile(r"not implemented|não implementad[oa]|throw new Error\\([\\\"'][^\\\"']*(?:TODO|implementar)",re.I),
 }
 for label,rx in patterns.items():
