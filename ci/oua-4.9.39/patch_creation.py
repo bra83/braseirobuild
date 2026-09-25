@@ -13,6 +13,12 @@ def req(text,old,new,label):
 rel="lib/characterFactory.ts"
 t=read(rel)
 
+t=t.replace(
+    "    culturalFavoured: supplemental.culturalFavouredOptions[0],\n    culturalFavouredOptions: [...supplemental.culturalFavouredOptions],",
+    "    culturalFavoured: supplemental.culturalFavouredOptions[0] as SkillName,\n    culturalFavouredOptions: [...supplemental.culturalFavouredOptions] as SkillName[],"
+)
+
+
 t=req(
     t,
     "function spendPreviousExperience(ranks:Record<string,number>, prof:Record<string,number>):string[]{",
