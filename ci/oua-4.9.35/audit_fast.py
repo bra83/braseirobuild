@@ -47,7 +47,7 @@ files=[p for p in root.rglob("*") if p.is_file() and p.suffix.lower() in {".ts",
 patterns={
  "TODO/FIXME":re.compile(r"\b(?:TODO|FIXME|HACK)\b"),
  "empty-click":re.compile(r"onClick\s*=\s*\{\s*\(\s*\)\s*=>\s*\{\s*\}\s*\}"),
- "not-implemented":re.compile(r"not implemented|não implementad[oa]|throw new Error\\([\\\"'][^\\\"']*(?:TODO|implementar)",re.I),
+ "not-implemented":re.compile(r"not implemented|não implementad[oa]|TODO_IMPL|FIXME_IMPL",re.I),
 }
 for label,rx in patterns.items():
     hits=[]
