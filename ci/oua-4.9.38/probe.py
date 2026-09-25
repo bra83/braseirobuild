@@ -37,6 +37,8 @@ parts.append(section("App.tsx", [
     r"const handleMapDiscoveryChanged",
     r"const handlePartyMoved",
     r"const processTurn",
+    r"const handleWorldCommands",
+    r"applyMasterCommands",
     r"async function processTurn",
     r"function processTurn",
     r"handlePartyRested",
