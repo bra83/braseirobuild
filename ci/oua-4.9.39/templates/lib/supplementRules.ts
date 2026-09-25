@@ -1,5 +1,7 @@
+import { CANONICAL_SKILLS } from './skillRegistry';
 type Lifestyle = 'Frugal'|'Comum'|'Próspero';
 type Proficiency = 'Machados'|'Arcos'|'Lanças'|'Espadas';
+type SkillName = typeof CANONICAL_SKILLS[number];
 
 export type SupplementSource = {
   id: string;
@@ -18,7 +20,7 @@ export type SupplementCulture = {
   attributes: Array<[number,number,number]>;
   derived: [number,number,number];
   skills: number[];
-  culturalFavouredOptions: string[];
+  culturalFavouredOptions: SkillName[];
   prof2: Proficiency[];
   features: string[];
   names: string[];
