@@ -17,12 +17,20 @@ jobs:
       TAG: mausritter-6.1.0-r25
       ZIP_NAME: Mausritter_Mestre_Vivo_6.1.0-r25_TTS_KOKORO_ANDROID_STUDIO.zip
       WHOLE_SHA256: eff615ac96ad77449c27e04778d732fc20cd039b767ff92310ebd23d9841e8df
-      PART0_SHA256: 59988d5de3559a9fb5759d10b284906da7dbdd4cde28302c5ac3dd2971bc575d
-      PART1_SHA256: 14320a664a6aea255467441ed7ae3463fbfd71cc21d40bbc9a1c63e5a2168389
-      PART2_SHA256: 390694eb940882f4b8e8eef429b898495f24b4b89da548e8b93c181102d1c216
-      PART0_URL: 'https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-b76c-820e-b757-8254eea81301/raw?se=2026-09-25T02%3A35%3A48Z&sp=r&sv=2026-02-06&sr=b&scid=2f49d32a-7785-5454-bba0-96505c60287b&skoid=4a431cd2-eafd-49c7-90be-bbb4d45e696d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-25T00%3A53%3A26Z&ske=2026-09-26T00%3A53%3A26Z&sks=b&skv=2026-02-06&sig=HhHPLDUCsuNXGVYa%2Bug2/RoYnW95NyGUn%2BTWGg/uIhg%3D'
-      PART1_URL: 'https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-1dd0-820e-ad77-82a1e324bc2d/raw?se=2026-09-25T02%3A36%3A08Z&sp=r&sv=2026-02-06&sr=b&scid=ee5e311f-37e8-57de-967b-360fb0e748ec&skoid=4a431cd2-eafd-49c7-90be-bbb4d45e696d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-25T01%3A35%3A28Z&ske=2026-09-26T01%3A35%3A28Z&sks=b&skv=2026-02-06&sig=097zJjRGyX%2BiUT5ol7yZ9UK0E%2BDM6xl7fu2aybx92lQ%3D'
-      PART2_URL: 'https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-e1d8-820e-96b0-8f183440d012/raw?se=2026-09-25T02%3A36%3A11Z&sp=r&sv=2026-02-06&sr=b&scid=9a79a034-31e8-5e30-92ee-2c78a9b5f18e&skoid=4a431cd2-eafd-49c7-90be-bbb4d45e696d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-25T02%3A07%3A47Z&ske=2026-09-26T02%3A07%3A47Z&sks=b&skv=2026-02-06&sig=0%2B8oAg5%2BlUtGjivCJ/o%2BK9nidVit3qWba9C1P54KidQ%3D'
+      P00_ID: 6RbL702IjPe8ve27
+      P01_ID: TOSIaw3WrrnXMRjU
+      P02_ID: uZk8oYd9CIWylmgY
+      P03_ID: vn91zBFqpOkU6qx3
+      P04_ID: MxjUv7gQ2AB9LM04
+      P05_ID: trCKg1f1PTEadqZo
+      P06_ID: k1a2LOmhbfCLds7C
+      P00_SHA: b134eb810199167d2ef938d7d51b4ce2ae6e4a0c94a12d2e617dcd13e23b728d
+      P01_SHA: 074e2973201d78fc5361e3787464e032e5e7f1b7ac404d64f3db203c5d663ca5
+      P02_SHA: 6ad64dc9d608f6ff840af41c38fec24d3a7756b195b51fd000cb32be8a0beb4b
+      P03_SHA: c63257b79988554921d1b3eed8301a515e53374b9467945a97feec5927c1090f
+      P04_SHA: 395d7d431bcedd526e3f42fd64a6fd190f2f550fad0e011460db3f8f913a5d95
+      P05_SHA: 7a5af8765876bf1812cce9acf728b43a89931d8a8d424e2b9a40dfd31653f40e
+      P06_SHA: 390694eb940882f4b8e8eef429b898495f24b4b89da548e8b93c181102d1c216
 
     steps:
       - name: Confirm BRELGA
@@ -31,20 +39,41 @@ jobs:
           if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA; got $env:RUNNER_NAME" }
           Write-Host "Runner: $env:RUNNER_NAME"
 
-      - name: Download exact source parts
+      - name: Download stable firestorage parts
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
           $ErrorActionPreference = 'Stop'
-          & curl.exe -L --fail --retry 5 --retry-delay 2 -o part.00 $env:PART0_URL
-          if ($LASTEXITCODE -ne 0) { throw "part.00 download failed" }
-          & curl.exe -L --fail --retry 5 --retry-delay 2 -o part.01 $env:PART1_URL
-          if ($LASTEXITCODE -ne 0) { throw "part.01 download failed" }
-          & curl.exe -L --fail --retry 5 --retry-delay 2 -o part.02 $env:PART2_URL
-          if ($LASTEXITCODE -ne 0) { throw "part.02 download failed" }
+
+          function Get-FirePart([string]$PublicId, [string]$OutFile) {
+            $api = "https://api.firestorage.ai/dev/file/shares/$PublicId"
+            $meta = Invoke-RestMethod -Uri "$api/files?maxResults=100"
+            $files = @($meta.files)
+            if ($files.Count -ne 1) { throw "Expected exactly one file for $PublicId; found $($files.Count)" }
+            $fileId = $files[0].fileId
+            if ([string]::IsNullOrWhiteSpace($fileId)) { throw "Missing fileId for $PublicId" }
+            $ticket = Invoke-RestMethod -Method Post -Uri "$api/files/$fileId/download"
+            $url = $ticket.downloadUrl
+            if ([string]::IsNullOrWhiteSpace($url)) { throw "Missing downloadUrl for $PublicId" }
+            & curl.exe -L --fail --retry 5 --retry-delay 2 -o $OutFile $url
+            if ($LASTEXITCODE -ne 0 -or -not (Test-Path $OutFile)) { throw "Download failed for $PublicId" }
+          }
+
+          Get-FirePart $env:P00_ID 'part.00'
+          Get-FirePart $env:P01_ID 'part.01'
+          Get-FirePart $env:P02_ID 'part.02'
+          Get-FirePart $env:P03_ID 'part.03'
+          Get-FirePart $env:P04_ID 'part.04'
+          Get-FirePart $env:P05_ID 'part.05'
+          Get-FirePart $env:P06_ID 'part.06'
+
           $parts = @(
-            @{ Path='part.00'; Hash=$env:PART0_SHA256 },
-            @{ Path='part.01'; Hash=$env:PART1_SHA256 },
-            @{ Path='part.02'; Hash=$env:PART2_SHA256 }
+            @{ Path='part.00'; Hash=$env:P00_SHA },
+            @{ Path='part.01'; Hash=$env:P01_SHA },
+            @{ Path='part.02'; Hash=$env:P02_SHA },
+            @{ Path='part.03'; Hash=$env:P03_SHA },
+            @{ Path='part.04'; Hash=$env:P04_SHA },
+            @{ Path='part.05'; Hash=$env:P05_SHA },
+            @{ Path='part.06'; Hash=$env:P06_SHA }
           )
           foreach ($p in $parts) {
             $h = (Get-FileHash $p.Path -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -56,15 +85,18 @@ jobs:
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         run: |
           $ErrorActionPreference = 'Stop'
-          cmd.exe /c "copy /b part.00+part.01+part.02 $env:ZIP_NAME >nul"
+          cmd.exe /c "copy /b part.00+part.01+part.02+part.03+part.04+part.05+part.06 $env:ZIP_NAME >nul"
           if ($LASTEXITCODE -ne 0 -or -not (Test-Path $env:ZIP_NAME)) { throw "ZIP reconstruction failed" }
+
           $hash = (Get-FileHash $env:ZIP_NAME -Algorithm SHA256).Hash.ToLowerInvariant()
           if ($hash -ne $env:WHOLE_SHA256) { throw "Final ZIP hash mismatch: $hash" }
+
           Add-Type -AssemblyName System.IO.Compression.FileSystem
           $z = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path $env:ZIP_NAME))
           $entries = $z.Entries.Count
           $z.Dispose()
           if ($entries -le 0) { throw "ZIP has no entries" }
+
           "$hash  $env:ZIP_NAME" | Set-Content -Path "$env:ZIP_NAME.sha256" -Encoding ascii
           Write-Host "ZIP OK SHA256=$hash ENTRIES=$entries BYTES=$((Get-Item $env:ZIP_NAME).Length)"
 
@@ -82,12 +114,7 @@ jobs:
             'X-GitHub-Api-Version' = '2022-11-28'
             'User-Agent' = 'braseiro-brelga'
           }
-          try {
-            $old = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:TAG"
-            if ($old) { throw "Release tag already exists: $env:TAG" }
-          } catch {
-            if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw }
-          }
+
           $body = @{
             tag_name = $env:TAG
             target_commitish = 'main'
@@ -96,12 +123,13 @@ jobs:
             draft = $true
             prerelease = $false
           } | ConvertTo-Json
+
           $release = Invoke-RestMethod -Method Post -Headers $headers -Uri "https://api.github.com/repos/$repo/releases" -Body $body -ContentType 'application/json'
           "release_id=$($release.id)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
           "release_url=$($release.html_url)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
           Write-Host "Draft release: $($release.html_url)"
 
-      - name: Attach ZIP and checksum
+      - name: Attach source ZIP and checksum
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -110,6 +138,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $repo = $env:GITHUB_REPOSITORY
           $files = @($env:ZIP_NAME, "$env:ZIP_NAME.sha256")
+
           foreach ($file in $files) {
             $encoded = [uri]::EscapeDataString([IO.Path]::GetFileName($file))
             $upload = "https://uploads.github.com/repos/$repo/releases/$env:RELEASE_ID/assets?name=$encoded"
@@ -118,7 +147,7 @@ jobs:
             Write-Host "Uploaded: $file"
           }
 
-      - name: Publish release only after assets exist
+      - name: Publish only after verified asset exists
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -132,9 +161,12 @@ jobs:
             'X-GitHub-Api-Version' = '2022-11-28'
             'User-Agent' = 'braseiro-brelga'
           }
+
           $check = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$env:RELEASE_ID"
           $zipAsset = @($check.assets | Where-Object { $_.name -eq $env:ZIP_NAME })
-          if ($zipAsset.Count -ne 1) { throw "ZIP asset missing before publish" }
+          $shaAsset = @($check.assets | Where-Object { $_.name -eq "$env:ZIP_NAME.sha256" })
+          if ($zipAsset.Count -ne 1 -or $shaAsset.Count -ne 1) { throw "Release assets missing before publish" }
+
           $body = @{ draft = $false } | ConvertTo-Json
           $published = Invoke-RestMethod -Method Patch -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$env:RELEASE_ID" -Body $body -ContentType 'application/json'
           Write-Host "PUBLISHED=$($published.html_url)"
