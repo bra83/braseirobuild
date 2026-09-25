@@ -46,13 +46,27 @@ cases=r"""    case 'set_combat_actor_banes': {
       const allowed=new Set(['Orcs','Trolls','Wolves','Evil Men','Undead','Spiders']);
       const baneTags=Array.from(new Set((command.baneTags||[]).filter(value=>allowed.has(value))));
       let notes=(actor.stateNotes||[]).filter(note=>!note.startsWith('hunted-curse-detected:')&&!note.startsWith('luminous-warning:'));
+      const luminousHeroIds:string[]=[];
       for(const hero of nextCharacters.filter(character=>partyIds.has(character.id))){
         for(const tag of baneTags){
           if(curseHuntedBy(hero.sheet,tag)) notes.push('hunted-curse-detected:'+hero.id+':'+tag);
         }
-        if(luminousAutoAvoidAmbush(hero.sheet,baneTags as any)) notes.push('luminous-warning:'+hero.id);
+        if(luminousAutoAvoidAmbush(hero.sheet,baneTags as any)){
+          notes.push('luminous-warning:'+hero.id);
+          luminousHeroIds.push(hero.id);
+        }
       }
       nextState=upsertCombatActor(nextState,{...actor,baneTags:baneTags as any,stateNotes:Array.from(new Set(notes))});
+      if(luminousHeroIds.length){
+        nextState.combat={
+          ...nextState.combat,
+          actors:nextState.combat.actors.map(item=>luminousHeroIds.includes(item.actorId)
+            ? {...item,stateNotes:[...(item.stateNotes||[]).filter(note=>note!=='surprised'),'luminous-ambush-avoided']}
+            : item),
+          updatedAt:Date.now(),
+        };
+        nextState=recordCombatNarrative(nextState,'Luminosa: a presença de uma criatura Flagelo foi revelada; a Companhia evita automaticamente a emboscada dessas criaturas.');
+      }
       break;
     }
 
