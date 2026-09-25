@@ -1,0 +1,97 @@
+{
+  "product": "Braseiro Pathfinder 2e",
+  "version_name": "8.0.0",
+  "version_code": 80000,
+  "db_schema": 56,
+  "backup_format": 20,
+  "application_id": "com.braseiro.pathfinder2e",
+  "rules_profile": "pathfinder_2e",
+  "rules_authority": "Pathfinder 2e Remaster only",
+  "android": {
+    "compile_sdk": 35,
+    "target_sdk": 35,
+    "min_sdk": 24,
+    "java": 17
+  },
+  "validation": {
+    "pytest_pf2": "20/20",
+    "java_structural": "135/135",
+    "final_audit": "102/102",
+    "behavioral_pf2": 22,
+    "dice3d_stress_simulations": 1180,
+    "dice3d_extreme_cases": 11730,
+    "long_campaign_scenes": 500,
+    "npc_profiles": 300,
+    "scene_consequence_atomicity": "4/4",
+    "gradle_attempt": "network-blocked: services.gradle.org DNS unavailable in runtime"
+  },
+  "atlas": {
+    "bundle_path": "android/app/src/main/assets/pathfinder/atlas/inner_sea_canonical_v2.zip",
+    "bundle_sha256": "3b3305a257466910752d936cd824a696836557cef1506bb10114d194f6ebe936",
+    "hexes": 3300,
+    "locations": 67,
+    "nations": 41,
+    "metaregions": 10,
+    "files": {
+      "map.png": {
+        "sha256": "7a1f6ebf7fad337f82a6119c2df711a93cd8a95262eaf9876b57e73bc41f0965",
+        "bytes": 11831951
+      },
+      "hex_ids_overlay.png": {
+        "sha256": "9a6cfbeddafbf2e15c16582f8c051f1bf1e39946a7471f100fa3f1b7e63df617",
+        "bytes": 395875
+      },
+      "map_regions_ptbr_overlay.png": {
+        "sha256": "e96938f7fb8ff8c848e5275f044ff504f4f5e45cfdeadca32713f9bc96b27d9c",
+        "bytes": 195454
+      },
+      "nation_labels_ptbr_overlay.png": {
+        "sha256": "843aea047b1195f73ceb357fbb5572791d60fc2187d1db49bc3ec75d5cdf31f6",
+        "bytes": 126907
+      },
+      "map_manifest_pathfinder2e_inner_sea_2135x2720.json": {
+        "sha256": "ce2df9e1d5920efd336e942f5c57efbb73fa1c9e41b91bd505189a04e71218b4",
+        "bytes": 1463
+      },
+      "pathfinder2e_inner_sea_hex_atlas_v1.json": {
+        "sha256": "1746a02c65ad6e7b8f96b97226da79d3d2def5613fae2134078bc95bfdbb5ffd",
+        "bytes": 2033501
+      },
+      "pathfinder2e_inner_sea_locations_v1.json": {
+        "sha256": "6ad593f10d8a6fe20c3c6d709c07e3fc167a939cdc6f7ed81bfd008525671f86",
+        "bytes": 40010
+      },
+      "pathfinder2e_inner_sea_nations_v1.json": {
+        "sha256": "72a23a833d183c61b0e28fd559bf0a97ef23181364acf2dca6102165c045d919",
+        "bytes": 70901
+      }
+    }
+  },
+  "launcher_icons": {
+    "mdpi": {
+      "path": "android/app/src/main/res/mipmap-mdpi/ic_launcher.png",
+      "sha256": "8269b65312ccd088511fc840e2c5b1486f2ff2c6c8f72d71ee9de630083d3fca",
+      "bytes": 4431
+    },
+    "hdpi": {
+      "path": "android/app/src/main/res/mipmap-hdpi/ic_launcher.png",
+      "sha256": "decc4dc1f9046a9da54c5e31b8370e02723b45c7a15b00c90d6a8b150efbdea5",
+      "bytes": 8307
+    },
+    "xhdpi": {
+      "path": "android/app/src/main/res/mipmap-xhdpi/ic_launcher.png",
+      "sha256": "e10c0d973005d6c3ed07c9ad2ac729f4d29d11a2c2b4eeb665a438b7999121c0",
+      "bytes": 12633
+    },
+    "xxhdpi": {
+      "path": "android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png",
+      "sha256": "95be0ea6f4420eb2bb026e53eacff4cec142dfc894c402b61bc718b6d7b59c0e",
+      "bytes": 22621
+    },
+    "xxxhdpi": {
+      "path": "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+      "sha256": "a954c196b4ffc22f60519685dec19133a4daa242ca7f1c2264e730b91fd15e5e",
+      "bytes": 33536
+    }
+  }
+}

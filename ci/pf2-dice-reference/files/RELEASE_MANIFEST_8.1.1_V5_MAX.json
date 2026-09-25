@@ -1,0 +1,53 @@
+{
+  "product": "Braseiro Pathfinder 2e",
+  "version_name": "8.1.1",
+  "version_code": 80101,
+  "db_schema": 57,
+  "backup_format": 20,
+  "application_id": "com.braseiro.pathfinder2e",
+  "mechanics_authority": "Pathfinder2eRulesEngine",
+  "barbara": {
+    "version": "1.1.0",
+    "official_checkpoint": "LATEST/barbara-local-checkpoint-latest.tar.gz",
+    "official_checkpoint_sha256": "9f5197bc2f88c3c74c0843955be215501fe11f77d9e69832e8d507a16c2648a7",
+    "embedded_modules": 58,
+    "role": "narrative/agency/intent/atlas/living-world/rag/vtt/audio/validation supervisor",
+    "input_channels": [
+      "PLAYER_ACTION",
+      "GM_HELP"
+    ]
+  },
+  "atlas": {
+    "package": "PACOTE_MAPA_PATHFINDER_2E_INNER_SEA_CANONICO_V5_MAX_COMPAT.zip",
+    "map_id": "pathfinder2e-inner-sea-2135x2720-canonical-v5-max-compat",
+    "data_revision": "V5-MAX",
+    "asset": "android/app/src/main/assets/pathfinder/atlas/inner_sea_canonical_v5_max_compat.zip",
+    "image_size": [
+      2135,
+      2720
+    ],
+    "orientation": "flat-top",
+    "hexes": 3300,
+    "placed_locations": 67,
+    "nations": 41,
+    "metaregions": 10,
+    "regional_profiles": 10,
+    "canonical_gazetteer_entries": 239,
+    "hex_scale_miles": 40,
+    "source_package_sha256": "37a7e69ace7baf1131fe19c937ed781a6f180c391d44538cabc48b76b9a89cfa",
+    "runtime_asset_sha256": "dbd7262e44a6c614f8262ed23c88bc0080bce91dc3ffc8991a25b84887149c83",
+    "runtime_packaging": "android-runtime: preview PNGs excluded; map/data/used overlays retained byte-identical to source"
+  },
+  "validation": {
+    "pytest": "29/29 PASS",
+    "pathfinder_release_gate": "139/139 PASS",
+    "tool_suites": "17/17 PASS",
+    "java_syntax": "135/135 PASS; 0 syntax errors",
+    "java_ast_unresolved_local_calls": 0,
+    "dice3d_stress": 1180,
+    "dice3d_extreme_cases": 11730,
+    "long_campaign_scenes": 500,
+    "npc_profiles": 300
+  },
+  "external_release_gate_not_executed": "Gradle assemble/install and physical-device homologation are outside this environment"
+}
