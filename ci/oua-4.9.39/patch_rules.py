@@ -16,7 +16,7 @@ t=read(rel)
 t=req(
     t,
     "import { automaticInspired, heavyBlowBonus, isPierceCapable, isRangedWeapon, pierceFeatBonus, protectionRollBonus, protectionRollMode, weaponPiercingThreshold } from './equipment';",
-    "import { automaticInspired, heavyBlowBonus, isPierceCapable, isRangedWeapon, pierceFeatBonus, protectionRollBonus, protectionRollMode, weaponPiercingThreshold } from './equipment';\nimport { supplementHeavyBlowStrengthBonus, supplementProtectionIllFavouredForTarget } from './supplementMechanics';",
+    "import { automaticInspired, heavyBlowBonus, isPierceCapable, isRangedWeapon, pierceFeatBonus, protectionRollBonus, protectionRollMode, weaponPiercingThreshold } from './equipment';\nimport { supplementHeavyBlowStrengthBonus, supplementInspired, supplementRollMode } from './supplementMechanics';",
     "combat supplement imports",
 )
 t=req(
@@ -81,9 +81,7 @@ t=req(
 ):{roll:RollResult;weapon:NonNullable<CharacterSheet['combat']['weapons'][number]>;ranged:boolean}{""",
     """  hopeDice=0,
   inspired=false,
-  extraDice=0,
-  forcedMode?:'normal'|'favoured'|'ill-favoured',
-  ignoreSkirmishPenalty=false,
+  context:{terrain?:string;isNight?:boolean;escaping?:boolean}={},
 ):{roll:RollResult;weapon:NonNullable<CharacterSheet['combat']['weapons'][number]>;ranged:boolean}{""",
     "attack extra args",
 )
@@ -96,10 +94,15 @@ t=req(
 t=req(
     t,
     "  const inspiredDice=inspired||automaticInspired(sheet)?Math.max(hopeDice,2):hopeDice;\n  const count=Math.max(0,rank+heroAttackDiceModifier(actor)+inspiredDice);\n  const mode=Number(sheet.attributes.shadow)>=Number(sheet.attributes.hopeMax)?'ill-favoured':'normal';",
-    """  const inspiredDice=(hopeDice>0&&(inspired||automaticInspired(sheet)))?Math.max(hopeDice,2):hopeDice;
-  const stanceModifier=ignoreSkirmishPenalty&&actor.stance==='skirmish'?0:heroAttackDiceModifier(actor);
-  const count=Math.max(0,rank+stanceModifier+inspiredDice+Math.trunc(Number(extraDice)||0));
-  const mode=forcedMode||(Number(sheet.attributes.shadow)>=Number(sheet.attributes.hopeMax)?'ill-favoured':'normal');""",
+    """  const supplementContext={kind:'attack' as const,terrain:context.terrain,isNight:context.isNight,combatRound:undefined,stance:actor.stance,weaponName:weapon.name,weaponGroup:weapon.group};
+  const isInspired=Boolean(inspired||automaticInspired(sheet)||supplementInspired(sheet,supplementContext));
+  const inspiredDice=hopeDice>0&&isInspired?Math.max(hopeDice,2):hopeDice;
+  const gainGroundNote=(actor.stateNotes||[]).find(note=>note.startsWith('gain-ground:'));
+  const gainGround=Math.max(0,Number(gainGroundNote?.split(':')[1])||0);
+  const stanceModifier=context.escaping&&actor.stance==='skirmish'?0:heroAttackDiceModifier(actor);
+  const count=Math.max(0,rank+stanceModifier+inspiredDice+gainGround);
+  const baseMode=Number(sheet.attributes.shadow)>=Number(sheet.attributes.hopeMax)?'ill-favoured':'normal';
+  const mode=supplementRollMode(sheet,supplementContext,baseMode);""",
     "attack modifiers",
 )
 t=req(
@@ -118,6 +121,14 @@ t=req(
   return rollOneRing(Math.max(0,dice),protectionRollBonus(sheet),Math.max(2,Number(injury)||2),'Proteção',mode,Boolean(sheet.attributes.weary),Boolean(sheet.attributes.miserable));
 }""",
     "protection modifiers",
+)
+t=req(
+    t,
+    "export function rollActorProtection(actor:CombatActorState,injury:number):RollResult{\n  return rollOneRing(Math.max(0,Number(actor.protection)||0),0,Math.max(2,Number(injury)||2),'Proteção','normal',false,false);\n}",
+    """export function rollActorProtection(actor:CombatActorState,injury:number,mode:'normal'|'favoured'|'ill-favoured'='normal'):RollResult{
+  return rollOneRing(Math.max(0,Number(actor.protection)||0),0,Math.max(2,Number(injury)||2),'Proteção',mode,false,false);
+}""",
+    "actor protection mode",
 )
 write(rel,t)
 
