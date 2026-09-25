@@ -110,20 +110,21 @@ extra="""
 t=req(t,anchor,anchor+extra,"Treasure commands")
 write(rel,t)
 
-# Defaults.
+# Defaults + old-save normalization.
 rel="lib/master/state.ts"
 t=read(rel)
-# Insert at stable MasterState default tail if possible.
-t=t.replace(
-"      currentSessionId: '',\n",
-"      currentSessionId: '',\n      treasureIndex: [],\n      pendingMagicalTreasure: [],\n",
-1)
-# Normalize old saves near currentSessionId fallback if present.
-if "treasureIndex:" not in t.split("export function normalizeMasterState",1)[-1]:
-    t=t.replace(
-        "    currentSessionId: incoming.currentSessionId || base.currentSessionId,",
-        "    currentSessionId: incoming.currentSessionId || base.currentSessionId,\n    treasureIndex: Array.isArray(incoming.treasureIndex) ? incoming.treasureIndex : [],\n    pendingMagicalTreasure: Array.isArray(incoming.pendingMagicalTreasure) ? incoming.pendingMagicalTreasure : [],",
-        1)
+t=req(
+    t,
+    "    currentSessionId: `session_${campaign.id}_${now}`,\n",
+    "    currentSessionId: `session_${campaign.id}_${now}`,\n    treasureIndex: [],\n    pendingMagicalTreasure: [],\n",
+    "Treasure defaults",
+)
+t=req(
+    t,
+    "    schemaVersion: 3,\n    updatedAt: incoming.updatedAt || Date.now(),",
+    "    treasureIndex: Array.isArray(incoming.treasureIndex) ? incoming.treasureIndex : [],\n    pendingMagicalTreasure: Array.isArray(incoming.pendingMagicalTreasure) ? incoming.pendingMagicalTreasure : [],\n    schemaVersion: 3,\n    updatedAt: incoming.updatedAt || Date.now(),",
+    "Treasure normalization",
+)
 write(rel,t)
 
 print("PATCH_4941_MODEL_OK")
