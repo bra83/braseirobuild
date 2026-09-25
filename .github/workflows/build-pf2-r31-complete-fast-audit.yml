@@ -16,7 +16,7 @@ concurrency:
 
 env:
   AUDIO_SHA: '030b807acebbc05471b67d0b61228dfc221f814637247593bebb20e166de141f'
-  AUDIT_SHA: '3d486f2595dd94df1374ff9a96eae496d45624536967ade1c559c19df105d47e'
+  AUDIT_SHA: '6b6d0b92163f25609ea488d7e5697b3661c595935ada13119478378322d8dfb6'
   PYTHONUTF8: '1'
   PYTHONIOENCODING: 'utf-8'
 
@@ -42,8 +42,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           AUDIO_SHARE: 'bXE49-WofMfp'
           AUDIO_FILE: '01a0d617a20d75e5b561194b0c7fe976'
-          AUDIT_SHARE: 'WNHQ31CBAOzn'
-          AUDIT_FILE: '01a0d6bd4a3d71a6ab010660e66305d7'
+          AUDIT_SHARE: 'QTgZNilmb-BQ'
+          AUDIT_FILE: '01a0d6c1dcf977d79bfcbf14d6d047a9'
         run: |
           $ErrorActionPreference='Stop'
           if($env:RUNNER_NAME -ne 'BRELGA'){throw "Expected BRELGA, got $env:RUNNER_NAME"}
@@ -102,7 +102,7 @@ jobs:
             python -m pytest tests_pf2 -q 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R31_TESTS.log"
             if($LASTEXITCODE -ne 0){throw 'PF2 R31 tests failed'}
             $t=Get-Content "$env:RUNNER_TEMP\PF2_R31_TESTS.log" -Raw
-            if($t -notmatch '202 passed'){throw "Expected 202 passing tests; got: $t"}
+            if($t -notmatch '203 passed'){throw "Expected 203 passing tests; got: $t"}
           } finally {
             Set-Content 'version.properties' $vp -Encoding ascii
           }
@@ -199,7 +199,7 @@ jobs:
               tag_name=$tag
               target_commitish='main'
               name='Braseiro Pathfinder 2e 9.0.32 R31'
-              body='R31 complete-fast-audit fixes sobre R30. Mantém Braseiro Kokoro atual. Corrige bypass de PV da tela Heróis durante combate, persiste/restaura estado PF2e do herói ao encerrar/reabrir encontros, desativa controle de viagem que prometia consumo automático sem implementação e torna explícitas as lacunas manuais de condições. 201 testes passam e Gradle completo obrigatório.'
+              body='R31 complete-fast-audit fixes sobre R30. Mantém Braseiro Kokoro atual. Corrige bypass de PV da tela Heróis durante combate, persiste/restaura estado PF2e do herói ao encerrar/reabrir encontros, remove meia velocidade genérica incorreta de exploração, liga CharacterRulesValidator antes de qualquer gravação de ficha, desativa controle de viagem que prometia consumo automático sem implementação e torna explícitas as lacunas manuais de condições. 203 testes passam e Gradle completo obrigatório.'
               draft=$false
               prerelease=$false
             }|ConvertTo-Json
