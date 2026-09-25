@@ -92,17 +92,28 @@ export function supplementInspired(sheet: CharacterSheet, context: SupplementRol
   return false;
 }
 
-export function canSpendHopeForSupplementMagicalSuccess(sheet: CharacterSheet, context: SupplementRollContext): boolean {
-  if(sheet.attributes.hopeCurrent<=0 || sheet.attributes.miserable) return false;
+export function magicalSuccessSource(sheet: CharacterSheet, context: SupplementRollContext): string | null {
+  if(context.kind!=='skill') return null;
   const skill=norm(context.skill);
-  if(isCulture(sheet,'high-elves-rivendell') && context.kind==='skill') return true;
-  if(isCulture(sheet,'mirkwood-elves') && context.kind==='skill' && (context.isNight || isForest(context.terrain))) return true;
-  if(hasVirtue(sheet,'Vigilância Natural') && ['vigilancia','exploracao','busca'].includes(skill)) return true;
+  const culture=norm(sheet.identity.culture);
+  if(culture==='elfo de lindon' && !sheet.attributes.miserable) return 'Perícia Élfica';
+  if(isCulture(sheet,'high-elves-rivendell') && !sheet.attributes.miserable) return 'Elfo de Valfenda';
+  if(isCulture(sheet,'mirkwood-elves') && (context.isNight || isForest(context.terrain))) return 'Povo Crepuscular';
+  if(hasVirtue(sheet,'Vida nos Ermos') && ['exploracao','cacada','viagem'].includes(skill)) return 'Vida nos Ermos';
+  if(hasVirtue(sheet,'Vigilância Natural') && ['vigilancia','exploracao','busca'].includes(skill)) return 'Vigilância Natural';
   if(hasVirtue(sheet,'O Encantamento de Beorn')) {
     const selected=sheet.other.supplementSelections?.beornEnchantedSkills || [];
-    if(selected.some(value=>norm(value)===skill)) return true;
+    if(selected.some(value=>norm(value)===skill)) return 'O Encantamento de Beorn';
   }
-  return false;
+  if(hasVirtue(sheet,'Pedaços de Encantamentos')) {
+    const selected=(sheet.other.supplementSelections?.magicalSuccessSkills as string[] | undefined) || [];
+    if(selected.some(value=>norm(value)===skill)) return 'Pedaços de Encantamentos';
+  }
+  return null;
+}
+
+export function canSpendHopeForSupplementMagicalSuccess(sheet: CharacterSheet, context: SupplementRollContext): boolean {
+  return sheet.attributes.hopeCurrent>0 && Boolean(magicalSuccessSource(sheet,context));
 }
 
 export function gandalfIsAutomaticMagicalSuccess(sheet: CharacterSheet, featResult: number): boolean {
