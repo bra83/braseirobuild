@@ -22,6 +22,7 @@ t=req(t,
   const [lightOwner,setLightOwner]=useState('');""",
 """  const [actorPower,setActorPower]=useState(1);
   const [actorAttributeLevel,setActorAttributeLevel]=useState(1);
+  const [actorDetermination,setActorDetermination]=useState(0);
   const [actorBanes,setActorBanes]=useState<string[]>([]);
   const [cleaveTargetByHero,setCleaveTargetByHero]=useState<Record<string,string>>({});
   const [lightOwner,setLightOwner]=useState('');""",
@@ -40,13 +41,15 @@ t=req(t,
 # Keep local metadata in sync when choosing a different enemy.
 t=req(t,
 """        <select value={enemyId} onChange={e=>setEnemyId(e.target.value)} className="rounded border border-slate-700 bg-black p-2 text-xs">{enemies.map(a=><option key={a.actorId} value={a.actorId}>{nameOf(a,characters)}</option>)}</select>""",
-"""        <select value={enemyId} onChange={e=>{const id=e.target.value;setEnemyId(id);const chosen=enemies.find(a=>a.actorId===id);setActorPower(Math.max(1,Number(chosen?.power)||1));setActorAttributeLevel(Math.max(1,Number(chosen?.attributeLevel)||1));setActorBanes([...(chosen?.baneTags||[])]);}} className="rounded border border-slate-700 bg-black p-2 text-xs">{enemies.map(a=><option key={a.actorId} value={a.actorId}>{nameOf(a,characters)}</option>)}</select>""",
+"""        <select value={enemyId} onChange={e=>{const id=e.target.value;setEnemyId(id);const chosen=enemies.find(a=>a.actorId===id);setActorPower(Math.max(1,Number(chosen?.power)||1));setActorAttributeLevel(Math.max(1,Number(chosen?.attributeLevel)||1));setActorDetermination(Math.max(0,Number(chosen?.determination)||0));setActorBanes([...(chosen?.baneTags||[])]);}} className="rounded border border-slate-700 bg-black p-2 text-xs">{enemies.map(a=><option key={a.actorId} value={a.actorId}>{nameOf(a,characters)}</option>)}</select>""",
 "enemy metadata sync")
 
 anchor="""        <button disabled={busy||!enemyId} onClick={()=>void run([{type:'set_combat_actor_power',actorId:enemyId,power:actorPower,reason:'Poder do adversário configurado para regras que dependem de Poder.'} as MasterCommand],'Configurar Poder')} className="rounded border border-violet-800 px-2 py-2 text-xs">Salvar Poder</button>
 """
 extra="""        <label className="text-[10px] text-slate-400">Nível de Atributo<input type="number" min={1} max={12} value={actorAttributeLevel} onChange={e=>setActorAttributeLevel(Math.max(1,Number(e.target.value)||1))} className="mt-1 w-full rounded bg-black p-2"/></label>
         <button disabled={busy||!enemyId} onClick={()=>void run([{type:'set_combat_actor_attribute_level',actorId:enemyId,attributeLevel:actorAttributeLevel,reason:'Nível de Atributo configurado para Pesada e outras regras de equipamento famoso.'} as MasterCommand],'Configurar Nível de Atributo')} className="rounded border border-violet-800 px-2 py-2 text-xs">Salvar Nível</button>
+        <label className="text-[10px] text-slate-400">Determinação<input type="number" min={0} max={30} value={actorDetermination} onChange={e=>setActorDetermination(Math.max(0,Number(e.target.value)||0))} className="mt-1 w-full rounded bg-black p-2"/></label>
+        <button disabled={busy||!enemyId} onClick={()=>void run([{type:'set_combat_actor_determination',actorId:enemyId,determination:actorDetermination,reason:'Determinação configurada para efeitos que drenam Ódio ou Determinação.'} as MasterCommand],'Configurar Determinação')} className="rounded border border-violet-800 px-2 py-2 text-xs">Salvar Determinação</button>
         <div className="col-span-2 rounded border border-slate-800 p-2">
           <div className="text-[10px] text-slate-400">Categorias de Flagelo do adversário</div>
           <div className="mt-1 flex flex-wrap gap-2">{baneOptions.map(tag=><label key={tag} className="text-[10px]"><input className="mr-1" type="checkbox" checked={actorBanes.includes(tag)} onChange={e=>setActorBanes(cur=>e.target.checked?Array.from(new Set([...cur,tag])):cur.filter(value=>value!==tag))}/>{tag}</label>)}</div>
