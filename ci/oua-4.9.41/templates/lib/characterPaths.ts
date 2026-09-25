@@ -1,3 +1,4 @@
+import type { Character } from './db';
 export type CharacterPathCultureId = 'bardings'|'dwarves'|'elves'|'hobbits'|'bree'|'rangers';
 
 export interface CharacterPathBackground {
@@ -109,4 +110,28 @@ export function shiftLifestyle(value: 'Frugal'|'Comum'|'Próspero', delta: numbe
   const order:['Frugal','Comum','Próspero']=['Frugal','Comum','Próspero'];
   const index=order.indexOf(value);
   return order[Math.max(0,Math.min(order.length-1,index+Math.trunc(Number(delta)||0)))];
+}
+
+
+export function importantEventForCharacter(character:Character): ImportantEvent | null {
+  const feat=Number(character.sheet.other.characterPath?.importantEventFeat);
+  if(!feat) return null;
+  return importantEventByFeat(feat);
+}
+
+export function characterPathCompanyDeltas(characters:Character[],partyIds:string[]):{fellowship:number;eye:number} {
+  const party=new Set(partyIds);
+  let fellowship=0,eye=0;
+  for(const character of characters){
+    if(!party.has(character.id)) continue;
+    const event=importantEventForCharacter(character);
+    if(!event) continue;
+    fellowship+=Number(event.fellowshipDelta)||0;
+    eye+=Number(event.eyeAwarenessDelta)||0;
+  }
+  return {fellowship,eye};
+}
+
+export function featOneBecomesEye(character:Character|undefined|null):boolean {
+  return Boolean(character && importantEventForCharacter(character)?.featOneBecomesEye);
 }
