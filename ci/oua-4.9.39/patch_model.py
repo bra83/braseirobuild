@@ -64,6 +64,8 @@ types=req(
   preStriderFellowshipCurrent?: number;
   preStriderFellowshipMax?: number;
   preStriderFellowshipFocus?: Record<string, string>;
+  elrondJourneyFeatBonusActive?: boolean;
+  elrondItemsIdentified?: boolean;
 }""",
     "company strider state",
 )
@@ -120,6 +122,10 @@ types=types.replace(
     "| { type: 'resolve_adversary_attack'; attackerId: string; targetCharacterId: string; successDice: number; damage: number; injury: number; ranged?: boolean; deadlyAbility?: boolean; hateCost?: number; reason: string }"
 )
 types=types.replace(
+    "| { type: 'record_undertaking'; targetCharacterId: string; undertaking: 'strengthen-fellowship' | 'heal-scars' | 'narrative'; reason: string }",
+    "| { type: 'record_undertaking'; targetCharacterId: string; undertaking: 'strengthen-fellowship' | 'heal-scars' | 'meet-patron' | 'narrative'; reason: string }"
+)
+types=types.replace(
     "| { type: 'resolve_first_aid'; healerCharacterId: string; targetCharacterId: string; reason: string }",
     "| { type: 'resolve_first_aid'; healerCharacterId: string; targetCharacterId: string; skill?: 'Cura' | 'Música'; reason: string }"
 )
@@ -135,6 +141,8 @@ state=req(
       rulesMode: 'standard',
       striderUseMilestones: false,
       striderMilestones: [],
+      elrondJourneyFeatBonusActive: false,
+      elrondItemsIdentified: false,
 """,
     "company mode defaults",
 )
