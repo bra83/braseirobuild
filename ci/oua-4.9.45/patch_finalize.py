@@ -50,7 +50,7 @@ checks={
   "tts-preserved":"Braseiro Kokoro PT-BR · neural" in read("android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt"),
   "skill-session-state":"export interface SkillTestSession" in types and "skillTestSession?: SkillTestSession | null" in types,
   "support-command":"case 'roll_skill_test_session'" in commands and "Suporte exige uma Perícia apropriada com pelo menos 1 ponto" in commands,
-  "support-cost":"updateHero(supporter.id,sheet=>adjustHope(sheet,-1))" in commands and "supportDice=1" in commands,
+  "support-cost":"updateHero(supporter.id,sheet=>adjustHope(sheet,-1))" in commands and "fellowshipFocus?.[supporter.id]===hero.id?2:1" in commands,
   "one-supporter":"supporterCharacterId?: string" in types and "Um Herói não pode prestar Suporte a si mesmo" in commands,
   "cancel-failure":"choice==='cancel-failure'" in commands and "cancelledFailureBy" in types,
   "additional-success":"choice==='additional-success'" in commands and "additionalSuccesses+=1" in commands,
