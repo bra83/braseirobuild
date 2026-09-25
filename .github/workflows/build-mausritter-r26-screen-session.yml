@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/build-mausritter-r26-screen-session.yml'
+      - '.github/workflows/trigger-mausritter-r26.txt'
 
 permissions:
   contents: write
@@ -114,8 +115,14 @@ jobs:
           Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $dir -Force | Out-Null
           $zip=Join-Path $dir $env:SOURCE_NAME
-          cmd.exe /c "copy /b part.00+part.01+part.02+part.03+part.04+part.05+part.06 \"$zip\" >nul"
-          if($LASTEXITCODE -ne 0 -or -not(Test-Path $zip)){throw 'R26 source reconstruction failed'}
+          $out=[System.IO.File]::Open($zip,[System.IO.FileMode]::Create,[System.IO.FileAccess]::Write,[System.IO.FileShare]::None)
+          try {
+            foreach($part in @('part.00','part.01','part.02','part.03','part.04','part.05','part.06')) {
+              $input=[System.IO.File]::OpenRead((Resolve-Path $part))
+              try { $input.CopyTo($out) } finally { $input.Dispose() }
+            }
+          } finally { $out.Dispose() }
+          if(-not(Test-Path $zip)){throw 'R26 source reconstruction failed'}
           $bytes=(Get-Item $zip).Length
           $hash=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
           if($bytes -ne [int64]$env:SOURCE_BYTES){throw "Source size mismatch $bytes"}
