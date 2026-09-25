@@ -140,6 +140,10 @@ jobs:
             [System.IO.File]::WriteAllText($lockPath, $lockText, (New-Object System.Text.UTF8Encoding($false)))
           }
 
+          $supplementReport = Join-Path $out 'OUA_4938_SUPPLEMENT_MECHANICS_AUDIT.md'
+          & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.38\supplement_audit.py" $root $supplementReport
+          if ($LASTEXITCODE -ne 0 -or -not (Test-Path $supplementReport)) { throw 'Supplement mechanics audit failed' }
+
           "OUA_ROOT=$root" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           "OUA_OUT=$out" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
@@ -165,9 +169,10 @@ jobs:
             New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\ci-results" -Force | Out-Null
             if (Test-Path (Join-Path $env:OUA_OUT 'OUA_4938_SOURCE_GATES.txt')) { Copy-Item (Join-Path $env:OUA_OUT 'OUA_4938_SOURCE_GATES.txt') "$env:GITHUB_WORKSPACE\ci-results\OUA_4938_SOURCE_GATES.txt" -Force }
             if (Test-Path (Join-Path $env:OUA_OUT 'OFFLINE_BUILD.log')) { Copy-Item (Join-Path $env:OUA_OUT 'OFFLINE_BUILD.log') "$env:GITHUB_WORKSPACE\ci-results\OUA_4938_OFFLINE_BUILD.log" -Force }
+            if (Test-Path (Join-Path $env:OUA_OUT 'OUA_4938_SUPPLEMENT_MECHANICS_AUDIT.md')) { Copy-Item (Join-Path $env:OUA_OUT 'OUA_4938_SUPPLEMENT_MECHANICS_AUDIT.md') "$env:GITHUB_WORKSPACE\ci-results\OUA_4938_SUPPLEMENT_MECHANICS_AUDIT.md" -Force }
             git config user.name "braseiro-bot"
             git config user.email "actions@users.noreply.github.com"
-            git add ci-results/OUA_4938_SOURCE_GATES.txt ci-results/OUA_4938_OFFLINE_BUILD.log 2>$null
+            git add ci-results/OUA_4938_SOURCE_GATES.txt ci-results/OUA_4938_OFFLINE_BUILD.log ci-results/OUA_4938_SUPPLEMENT_MECHANICS_AUDIT.md 2>$null
             if ((git status --porcelain).Length -gt 0) {
               git commit -m "OUA 4.9.38 validation report [skip ci]"
               git push origin HEAD:main
