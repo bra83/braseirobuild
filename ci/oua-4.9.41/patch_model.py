@@ -70,6 +70,13 @@ write(rel,t)
 # Master state: campaign Treasure Index + unresolved discoveries.
 rel="lib/master/types.ts"
 t=read(rel)
+t=req(t,
+"  elrondItemsIdentified?: boolean;\n",
+"""  elrondItemsIdentified?: boolean;
+  characterPathFellowshipDelta?: number;
+  characterPathEyeDelta?: number;
+""",
+"Character Paths company deltas")
 master_anchor="export interface MasterState {\n"
 treasure_types="""export interface TreasureIndexStateEntry {
   id: string;
