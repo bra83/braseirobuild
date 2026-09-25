@@ -199,6 +199,18 @@ cases=r"""    case 'set_combat_actor_power': {
       }else{
         if(nextState.council.memoryVeil) throw new Error('O véu de memória já foi aplicado neste Conselho.');
         nextState.council={...nextState.council,memoryVeil:true};
+        const mortalNpcIds=new Set(nextState.council.interlocutorNpcIds||[]);
+        const memoryDay=Math.max(1,Number(nextState.worldClock.day)||1);
+        nextNpcs=nextNpcs.map(npc=>{
+          if(!mortalNpcIds.has(npc.id)||/elf|elfo/i.test(String(npc.culture||'')+' '+String(npc.peoples||''))) return npc;
+          const vague='O Conselho mais recente ficou apenas como uma lembrança vaga; detalhes do que foi dito ou acordado não podem ser recordados com precisão.';
+          return {
+            ...npc,
+            memorySummary:[npc.memorySummary||'',vague].filter(Boolean).join(' '),
+            memoryEvents:[...(npc.memoryEvents||[]),{day:memoryDay,summary:vague,createdAt:Date.now()}].slice(-80),
+            updatedAt:Date.now(),
+          };
+        });
         if(nextState.company.eyeAwarenessEnabled) raiseEyeAwareness(1,'+1 por magia menor: Beleza das Estrelas ocultou as memórias dos Mortais do Conselho.');
       }
       break;
