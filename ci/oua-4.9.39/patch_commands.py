@@ -427,6 +427,38 @@ combat_cases="""    case 'resolve_hero_attack': {
     }"""
 cmd=cmd[:combat_start]+combat_cases+cmd[combat_end:]
 
+# Patron Elrond: Encontrar Patrono grants a +1 Feat modifier to Journey Event determination
+# and identifies the Company's Wondrous Artefacts/Items until the next Fellowship Phase.
+cmd=req(
+    cmd,
+    """      const oldBonus = Math.max(0, Number(nextState.company.fellowshipBonusFromUndertaking) || 0);
+      if (oldBonus) nextState.company = { ...nextState.company, fellowshipCurrent: Math.max(0, nextState.company.fellowshipCurrent - oldBonus), fellowshipMax: Math.max(0, nextState.company.fellowshipMax - oldBonus), fellowshipBonusFromUndertaking: 0 };
+      nextState = startFellowshipPhase(nextState, command.locationId);""",
+    """      const oldBonus = Math.max(0, Number(nextState.company.fellowshipBonusFromUndertaking) || 0);
+      if (oldBonus) nextState.company = { ...nextState.company, fellowshipCurrent: Math.max(0, nextState.company.fellowshipCurrent - oldBonus), fellowshipMax: Math.max(0, nextState.company.fellowshipMax - oldBonus), fellowshipBonusFromUndertaking: 0 };
+      nextState.company = { ...nextState.company, elrondJourneyFeatBonusActive: false, elrondItemsIdentified: false };
+      nextState = startFellowshipPhase(nextState, command.locationId);""",
+    "reset Elrond patron benefit at next Fellowship Phase",
+)
+cmd=req(
+    cmd,
+    """      if (command.undertaking === 'strengthen-fellowship') {
+        if (nextState.company.fellowshipBonusFromUndertaking) throw new Error('Fortalecer Sociedade já está ativo.');
+        nextState.company = { ...nextState.company, fellowshipMax: nextState.company.fellowshipMax + 1, fellowshipCurrent: nextState.company.fellowshipCurrent + 1, fellowshipBonusFromUndertaking: 1 };
+      }
+      nextState.fellowshipPhase.undertakings = { ...nextState.fellowshipPhase.undertakings, [command.targetCharacterId]: command.undertaking };""",
+    """      if (command.undertaking === 'strengthen-fellowship') {
+        if (nextState.company.fellowshipBonusFromUndertaking) throw new Error('Fortalecer Sociedade já está ativo.');
+        nextState.company = { ...nextState.company, fellowshipMax: nextState.company.fellowshipMax + 1, fellowshipCurrent: nextState.company.fellowshipCurrent + 1, fellowshipBonusFromUndertaking: 1 };
+      }
+      if (command.undertaking === 'meet-patron') {
+        if (!/elrond/i.test(String(nextState.company.patron || ''))) throw new Error('A vantagem adicional implementada aqui exige Elrond como Patrono da Companhia.');
+        nextState.company = { ...nextState.company, elrondJourneyFeatBonusActive: true, elrondItemsIdentified: true };
+      }
+      nextState.fellowshipPhase.undertakings = { ...nextState.fellowshipPhase.undertakings, [command.targetCharacterId]: command.undertaking };""",
+    "Elrond meet patron undertaking",
+)
+
 cmd=req(
     cmd,
     """        const hero = nextCharacters.find(character => character.id === command.targetCharacterId);
