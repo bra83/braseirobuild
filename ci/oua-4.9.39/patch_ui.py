@@ -188,6 +188,21 @@ notable="""  const handleOpenJourneyNotable = async () => {
 """
 app=req(app,anchor,notable+anchor,"Notable Journey handler")
 
+# Elrond Patron: +1 modifier to numeric Feat-die results used to determine Journey Events.
+app=req(
+    app,
+    """    const targetDie = secureRoll(1, 6);
+    const featResults = journeyFeatResults(region);
+    await commitJourneyAction([{""",
+    """    const targetDie = secureRoll(1, 6);
+    const rawFeatResults = journeyFeatResults(region);
+    const featResults = master.company.elrondJourneyFeatBonusActive
+      ? rawFeatResults.map(value => value >= 1 && value <= 10 ? Math.min(10, value + 1) : value)
+      : rawFeatResults;
+    await commitJourneyAction([{""",
+    "Elrond Journey Feat bonus",
+)
+
 # Mode-aware random character creation.
 app=app.replace(
 "const character = createRandomCharacter(characters.map(item => item.sheet.identity.name || item.name));",
