@@ -1,0 +1,231 @@
+name: PF2 R30 Current Braseiro Kokoro PT-BR Final
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/pf2-r30-current-braseiro-kokoro-final.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pf2-r30-current-braseiro-kokoro-final
+  cancel-in-progress: true
+
+env:
+  AUDIO_SHA: '030b807acebbc05471b67d0b61228dfc221f814637247593bebb20e166de141f'
+  PYTHONUTF8: '1'
+  PYTHONIOENCODING: 'utf-8'
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Recover approved R29 and apply final current Kokoro patch
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          AUDIO_SHARE: 'bXE49-WofMfp'
+          AUDIO_FILE: '01a0d617a20d75e5b561194b0c7fe976'
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Expected BRELGA, got $env:RUNNER_NAME"}
+          $root=Join-Path $env:RUNNER_TEMP 'pf2-r30-current-kokoro-final'
+          $work=Join-Path $root 'work'
+          $audio=Join-Path $root 'audio'
+          Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $work,$audio -Force | Out-Null
+
+          $srcZip=Join-Path $root 'r29.zip'
+          & curl.exe -L --fail --retry 5 --retry-delay 3 -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $srcZip "https://api.github.com/repos/bra83/braseirobuild/releases/assets/585242045"
+          if($LASTEXITCODE -ne 0 -or -not (Test-Path $srcZip)){throw 'R29 source download failed'}
+          tar.exe -xf $srcZip -C $work
+          if($LASTEXITCODE -ne 0){throw 'R29 source extract failed'}
+
+          $api='https://api.firestorage.ai/dev/file'
+          $d=Invoke-RestMethod -Method Post -Uri "$api/shares/$env:AUDIO_SHARE/files/$env:AUDIO_FILE/download"
+          if(-not $d.downloadUrl){throw 'Audio bundle downloadUrl missing'}
+          $audioZip=Join-Path $root 'audio.zip'
+          Invoke-WebRequest -Uri $d.downloadUrl -OutFile $audioZip
+          if((Get-FileHash $audioZip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $env:AUDIO_SHA){throw 'Audio bundle SHA mismatch'}
+          tar.exe -xf $audioZip -C $audio
+          if($LASTEXITCODE -ne 0){throw 'Audio bundle extract failed'}
+
+          $vp=Get-Content (Join-Path $work 'version.properties') -Raw
+          if($vp -notmatch 'VERSION_NAME=9\.0\.30' -or $vp -notmatch 'VERSION_CODE=90030'){throw 'Not approved R29 source'}
+
+          python (Join-Path $audio 'patch.py') $work
+          if($LASTEXITCODE -ne 0){throw 'Final current Kokoro patch failed'}
+
+          "WORK_ROOT=$work" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "AUDIO_ROOT=$audio" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Mechanical regression gate
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          python -m pip install -q pytest
+          python -m pytest tests_pf2 -q 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R30_MECHANICAL_TESTS.log"
+          if($LASTEXITCODE -ne 0){throw 'Mechanical suite failed'}
+          $t=Get-Content "$env:RUNNER_TEMP\PF2_R30_MECHANICAL_TESTS.log" -Raw
+          if($t -notmatch '201 passed'){throw "Expected 201 passed; got: $t"}
+
+      - name: Current Braseiro Kokoro source gates
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          python "$env:AUDIO_ROOT\test_audio.py" .
+          if($LASTEXITCODE -ne 0){throw 'Current Kokoro source gates failed'}
+
+      - name: Test Kokoro block continuity
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $tmp=Join-Path $env:RUNNER_TEMP 'pf2-current-kokoro-java-test'
+          Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path (Join-Path $tmp 'com\braseiro\pathfinder2e') -Force | Out-Null
+          Copy-Item 'android\app\src\main\java\com\braseiro\pathfinder2e\NarrationChunker.java' (Join-Path $tmp 'com\braseiro\pathfinder2e\NarrationChunker.java')
+          Copy-Item 'android\app\src\main\java\com\braseiro\pathfinder2e\PortugueseNarrationSanitizer.java' (Join-Path $tmp 'com\braseiro\pathfinder2e\PortugueseNarrationSanitizer.java')
+
+          $test=@'
+          package com.braseiro.pathfinder2e;
+          import java.util.*;
+          public final class KokoroChunkTest {
+            static void req(boolean v,String m){if(!v)throw new RuntimeException(m);}
+            public static void main(String[] a){
+              String shortText="A porta range. Há marcas no chão. Algo se move no corredor.";
+              List<String> one=NarrationChunker.kokoro(shortText);
+              req(one.size()==1,"short continuity must be one block: "+one.size());
+              String oneNorm=one.get(0).toLowerCase(Locale.ROOT);
+              req(oneNorm.contains("porta range") && oneNorm.contains("corredor"),"short content missing");
+
+              String sentence="A porta range lentamente. Há marcas recentes no chão, e alguma coisa se move além do corredor enquanto a chama vacila junto à parede. ";
+              StringBuilder b=new StringBuilder();
+              for(int i=0;i<18;i++)b.append(sentence);
+              String longText=b.toString().trim();
+              List<String> parts=NarrationChunker.kokoro(longText);
+              req(parts.size()>=3,"expected 3+ blocks");
+              int total=0;
+              for(int i=0;i<parts.size();i++){
+                String part=parts.get(i);
+                int n=part.length();
+                req(n>0 && n<=650,"block out of range "+i+": "+n);
+                if(i<parts.size()-1)req(n>=250,"non-final block too small "+i+": "+n);
+                req(!Character.isWhitespace(part.charAt(0)),"leading whitespace");
+                total+=n;
+              }
+              req(total >= (int)(longText.length()*0.90),"text appears truncated: "+total+"/"+longText.length());
+              System.out.println("KOKORO_CHUNK_TEST_OK blocks="+parts.size()+" chars="+total);
+            }
+          }
+          '@
+          [System.IO.File]::WriteAllText((Join-Path $tmp 'com\braseiro\pathfinder2e\KokoroChunkTest.java'),$test,(New-Object System.Text.UTF8Encoding($false)))
+          Push-Location $tmp
+          javac -encoding UTF-8 com\braseiro\pathfinder2e\PortugueseNarrationSanitizer.java com\braseiro\pathfinder2e\NarrationChunker.java com\braseiro\pathfinder2e\KokoroChunkTest.java
+          if($LASTEXITCODE -ne 0){throw 'Kokoro chunker javac failed'}
+          java com.braseiro.pathfinder2e.KokoroChunkTest | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R30_KOKORO_CHUNK_TEST.log"
+          if($LASTEXITCODE -ne 0){throw 'Kokoro chunker test failed'}
+          Pop-Location
+
+      - name: Set R30 version
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $vp=Get-Content 'version.properties' -Raw
+          $vp=$vp -replace 'VERSION_NAME=9\.0\.30','VERSION_NAME=9.0.31' -replace 'VERSION_CODE=90030','VERSION_CODE=90031'
+          Set-Content 'version.properties' $vp -Encoding ascii
+
+      - name: Configure Android SDK
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $candidates=@('C:\actions-runner\android-sdk',$env:ANDROID_SDK_ROOT,$env:ANDROID_HOME)
+          if($env:LOCALAPPDATA){$candidates+=(Join-Path $env:LOCALAPPDATA 'Android\Sdk')}
+          $sdk=$null;$mgr=$null
+          foreach($c in ($candidates|Where-Object {$_}|Select-Object -Unique)){
+            if(Test-Path $c){
+              $f=Get-ChildItem $c -Recurse -Filter sdkmanager.bat -File -ErrorAction SilentlyContinue|Select-Object -First 1
+              if($f){$sdk=$c;$mgr=$f.FullName;break}
+            }
+          }
+          if(-not $mgr){throw 'Android SDK not found'}
+          "ANDROID_HOME=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          1..100|%{'y'}|& $mgr --licenses|Out-Null
+          & $mgr 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
+          if($LASTEXITCODE -ne 0){throw 'sdkmanager failed'}
+
+      - name: Gradle build
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Continue'
+          & .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R30_GRADLE.log"
+          $code=$LASTEXITCODE
+          $ErrorActionPreference='Stop'
+          if($code -ne 0){throw "Gradle build failed: $code"}
+          $out=Join-Path $env:RUNNER_TEMP 'pf2-r30-current-final-out'
+          Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $apk=Get-ChildItem . -Recurse -Filter '*.apk' -File | Where-Object {$_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]debug[\\/]'} | Select-Object -First 1
+          if(-not $apk){throw 'APK missing'}
+          $apkOut=Join-Path $out 'Braseiro_Pathfinder2e_9.0.31_R30_CURRENT_KOKORO_DEBUG.apk'
+          Copy-Item $apk.FullName $apkOut -Force
+          (Get-FileHash $apkOut -Algorithm SHA256).Hash.ToLowerInvariant() | Set-Content "$apkOut.sha256" -Encoding ascii
+          Copy-Item "$env:RUNNER_TEMP\PF2_R30_MECHANICAL_TESTS.log" (Join-Path $out 'MECHANICAL_TESTS.log')
+          Copy-Item "$env:RUNNER_TEMP\PF2_R30_KOKORO_CHUNK_TEST.log" (Join-Path $out 'KOKORO_CHUNK_TEST.log')
+          Copy-Item "$env:RUNNER_TEMP\PF2_R30_GRADLE.log" (Join-Path $out 'GRADLE_BUILD.log')
+          "OUT_DIR=$out" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Publish R30 APK
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $repo=$env:GITHUB_REPOSITORY
+          $tag='PATHFINDER2E-9.0.31-R30'
+          $headers=@{
+            'Authorization'="Bearer $env:GITHUB_TOKEN"
+            'Accept'='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='BRELGA-PF2-R30-KOKORO'
+          }
+          try{$release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"}
+          catch{
+            $body=@{
+              tag_name=$tag
+              target_commitish='main'
+              name='Braseiro Pathfinder 2e 9.0.31 R30'
+              body='Braseiro Kokoro PT-BR atual: packages Sherpa debug/release consolidados em uma única opção; migração DB Next-gen/pacote antigo; somente TextToSpeech.voices reais, sem aliases fabricados; persistência por package + voice.name; mesmo engine não é recriado; blocos 250-650 alvo 450; QUEUE_FLUSH apenas no primeiro bloco, QUEUE_ADD nos seguintes; avanço por onDone real; sem watchdog, stop ou prewarm oculto do VTT. Samsung/Google preservados. Mecânicas R29 inalteradas.'
+              draft=$false
+              prerelease=$false
+            }|ConvertTo-Json
+            $release=Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $body -Uri "https://api.github.com/repos/$repo/releases"
+          }
+          foreach($file in Get-ChildItem $env:OUT_DIR -File){
+            $existing=$release.assets|Where-Object {$_.name -eq $file.Name}|Select-Object -First 1
+            if($existing){Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($existing.id)"|Out-Null}
+            $encoded=[uri]::EscapeDataString($file.Name)
+            $upload="https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$encoded"
+            & curl.exe -L --fail --retry 5 --retry-delay 2 --request POST --header "Authorization: Bearer $env:GITHUB_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" --header "Content-Type: application/octet-stream" --data-binary "@$($file.FullName)" $upload
+            if($LASTEXITCODE -ne 0){throw "release upload failed for $($file.Name)"}
+          }
+          Write-Host "RELEASE_URL=$($release.html_url)"
