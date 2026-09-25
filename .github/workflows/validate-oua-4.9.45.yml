@@ -131,7 +131,7 @@ jobs:
             'db-preserved'=$db.Contains("const DB_NAME = 'braseiro-db';") -and $db.Contains('const DB_VERSION = 19;')
             'tts-preserved'=$main.Contains('Braseiro Kokoro PT-BR · neural')
             'skill-session'=$types.Contains('export interface SkillTestSession') -and $types.Contains('skillTestSession?: SkillTestSession | null')
-            'support-cost'=$commands.Contains("updateHero(supporter.id,sheet=>adjustHope(sheet,-1))") -and $commands.Contains('supportDice=1')
+            'support-cost'=$commands.Contains("updateHero(supporter.id,sheet=>adjustHope(sheet,-1))") -and $commands.Contains('fellowshipFocus?.[supporter.id]===hero.id?2:1')
             'support-min-rank'=$commands.Contains('Suporte exige uma Perícia apropriada com pelo menos 1 ponto')
             'special-six'=$commands.Contains("choice==='cancel-failure'") -and $commands.Contains("choice==='additional-success'") -and $commands.Contains("choice==='information'") -and $commands.Contains("choice==='silent'") -and $commands.Contains("choice==='hurry'") -and $commands.Contains("choice==='influence'")
             'icons-preserved-grade'=$commands.Contains('iconsSpent:source.iconsSpent+1')
