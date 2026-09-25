@@ -218,9 +218,9 @@ export const STRIDER_JOURNEY_EVENT: Record<StriderJourneyEventType,{
   'joyful-sight':{label:'Visão Alegre',fatigue:0,onSuccess:'+1 Esperança'},
 };
 
-export const STRIDER_JOURNEY_DETAILS: Record<Exclude<StriderJourneyEventType,'chance-meeting'|'joyful-sight'>,Array<{detail:string;skill:'Caçada'|'Exploração'|'Vigilância'}>> = {
+export const STRIDER_JOURNEY_DETAILS: Record<StriderJourneyEventType,Array<{detail:string;skill?:'Caçada'|'Exploração'|'Vigilância';notable?:boolean}>> = {
   'terrible-misfortune':[
-    {detail:'Encontro Notável',skill:'Vigilância'},
+    {detail:'Encontro Notável',notable:true},
     {detail:'Predador rival',skill:'Caçada'},
     {detail:'Clima violento',skill:'Exploração'},
     {detail:'Perigo oculto',skill:'Vigilância'},
@@ -229,7 +229,7 @@ export const STRIDER_JOURNEY_DETAILS: Record<Exclude<StriderJourneyEventType,'ch
   ],
   'despair':[
     {detail:'Servos do Inimigo',skill:'Vigilância'},
-    {detail:'Encontro Notável',skill:'Vigilância'},
+    {detail:'Encontro Notável',notable:true},
     {detail:'Presença de pesadelo',skill:'Vigilância'},
     {detail:'Vigor desaparecendo',skill:'Caçada'},
     {detail:'Local corrompido',skill:'Exploração'},
@@ -259,6 +259,22 @@ export const STRIDER_JOURNEY_DETAILS: Record<Exclude<StriderJourneyEventType,'ch
     {detail:'Clima favorável',skill:'Exploração'},
     {detail:'Ponto de referência familiar',skill:'Vigilância'},
   ],
+  'chance-meeting':[
+    {detail:'Caçador solitário',skill:'Caçada'},
+    {detail:'Companheiro de viagem',skill:'Exploração'},
+    {detail:'Observador discreto',skill:'Vigilância'},
+    {detail:'Nobre besta',skill:'Caçada'},
+    {detail:'Acampamento afastado',skill:'Exploração'},
+    {detail:'Reunião auspiciosa',notable:true},
+  ],
+  'joyful-sight':[
+    {detail:'Criaturas majestosas',skill:'Caçada'},
+    {detail:'Vista inspiradora',skill:'Exploração'},
+    {detail:'Ser benévolo',skill:'Vigilância'},
+    {detail:'Forragem abundante',skill:'Caçada'},
+    {detail:'Monumento antigo',skill:'Exploração'},
+    {detail:'Santuário pacífico',notable:true},
+  ],
 };
 
 export function striderJourneyEventFromFeat(featResult: number): StriderJourneyEventType {
@@ -273,7 +289,6 @@ export function striderJourneyEventFromFeat(featResult: number): StriderJourneyE
 }
 
 export function striderJourneyEventDetail(type: StriderJourneyEventType, detailDie: number) {
-  if(type==='chance-meeting' || type==='joyful-sight') return null;
   const die=Math.max(1,Math.min(6,Math.trunc(Number(detailDie)||1)));
   return STRIDER_JOURNEY_DETAILS[type][die-1];
 }
