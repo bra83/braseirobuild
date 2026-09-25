@@ -96,6 +96,7 @@ extra="""
   | { type: 'resolve_hound_piercing_choice'; targetCharacterId: string; choice: 'hound' | 'hero'; reason: string }
   | { type: 'resolve_hound_recovery'; targetCharacterId: string; reason: string }
   | { type: 'record_journey_herbal_roll'; targetCharacterId: string; reason: string }
+  | { type: 'set_council_spokesperson'; targetCharacterId: string; reason: string }
   | { type: 'apply_beauty_of_stars'; targetCharacterId: string; choice: 'time-limit' | 'memory-veil'; reason: string }
   | { type: 'artificer_study_item'; targetCharacterId: string; inventoryItemId: string; skill: 'Ofício' | 'História'; reason: string }
   | { type: 'artificer_yule_craft'; targetCharacterId: string; kind: 'enchanted-reward' | 'wondrous-artefact'; inventoryItemId?: string; name?: string; reason: string }"""
