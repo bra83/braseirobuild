@@ -49,7 +49,7 @@ types=read(types_rel)
 types=req(types,"export type CombatStance = 'forward' | 'open' | 'defensive' | 'rearward';","export type CombatStance = 'forward' | 'open' | 'defensive' | 'rearward' | 'skirmish';","skirmish stance")
 types=req(
     types,
-    "  spotlightByHero: Record<string, number>;\n}",
+    "  spotlightByHero: Record<string, number>;\n",
     """  spotlightByHero: Record<string, number>;
   rulesMode?: 'standard' | 'strider';
   striderUseMilestones?: boolean;
@@ -66,7 +66,7 @@ types=req(
   preStriderFellowshipFocus?: Record<string, string>;
   elrondJourneyFeatBonusActive?: boolean;
   elrondItemsIdentified?: boolean;
-}""",
+""",
     "company strider state",
 )
 types=req(
