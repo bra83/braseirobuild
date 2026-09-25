@@ -16,7 +16,7 @@ concurrency:
 
 env:
   AUDIO_SHA: '030b807acebbc05471b67d0b61228dfc221f814637247593bebb20e166de141f'
-  AUDIT_SHA: '6cf30573e8952e97eb0e1e8ce66bb2017d226db2a2f627290b4c89814eecad89'
+  AUDIT_SHA: '3d486f2595dd94df1374ff9a96eae496d45624536967ade1c559c19df105d47e'
   PYTHONUTF8: '1'
   PYTHONIOENCODING: 'utf-8'
 
@@ -42,8 +42,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           AUDIO_SHARE: 'bXE49-WofMfp'
           AUDIO_FILE: '01a0d617a20d75e5b561194b0c7fe976'
-          AUDIT_SHARE: 'whtyXvlstOFJ'
-          AUDIT_FILE: '01a0d6b95d5e77d0b26b4e8e3e6e9136'
+          AUDIT_SHARE: 'WNHQ31CBAOzn'
+          AUDIT_FILE: '01a0d6bd4a3d71a6ab010660e66305d7'
         run: |
           $ErrorActionPreference='Stop'
           if($env:RUNNER_NAME -ne 'BRELGA'){throw "Expected BRELGA, got $env:RUNNER_NAME"}
@@ -102,7 +102,7 @@ jobs:
             python -m pytest tests_pf2 -q 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R31_TESTS.log"
             if($LASTEXITCODE -ne 0){throw 'PF2 R31 tests failed'}
             $t=Get-Content "$env:RUNNER_TEMP\PF2_R31_TESTS.log" -Raw
-            if($t -notmatch '201 passed'){throw "Expected 201 passing tests; got: $t"}
+            if($t -notmatch '202 passed'){throw "Expected 202 passing tests; got: $t"}
           } finally {
             Set-Content 'version.properties' $vp -Encoding ascii
           }
@@ -120,6 +120,7 @@ jobs:
             'pf2-state-restores'=$app.Contains('persistedCharacterPf2CombatState(ch)') -and $app.Contains('v.put("resources_json",state.toString())')
             'travel-false-control-disabled'=$main.Contains('Controle automático de provisões/água indisponível — registrar manualmente') -and $main.Contains('trackTravelResources.setEnabled(false)')
             'combat-manual-gaps-disclosed'=$main.Contains('Dano persistente e efeitos de quickened/slowed/stunned ficam registrados, mas ainda exigem resolução manual.')
+            'generic-exploration-not-half-speed'=(-not (Get-Content 'android\app\src\main\java\com\braseiro\pathfinder2e\TravelRulesEngine.java' -Raw).Contains('n.contains("explor")'))
             'current-kokoro-preserved'=$main.Contains('Braseiro Kokoro PT-BR · neural') -and $main.Contains('com.k2fsa.sherpa.onnx.tts.engine')
           }
           $log=Join-Path $env:RUNNER_TEMP 'PF2_R31_AUDIT_GATES.log'
