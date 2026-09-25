@@ -136,7 +136,7 @@ if "sheetFeatOneBecomesEye" not in t:
         "import { allowedBanes, maxBanes, requiredBlessingCount, rollMagicalTreasureDiscoveries } from '../rules/magicalTreasure';",
         "import { allowedBanes, maxBanes, requiredBlessingCount, rollMagicalTreasureDiscoveries } from '../rules/magicalTreasure';\nimport { sheetFeatOneBecomesEye } from '../characterPaths';",
         1)
-# Targeted replacements for named Hero rolls introduced by mechanics patches.
+# Targeted replacements for Hero rolls introduced by mechanics patches.
 repls=[
 ("const roll=rollOneRing(Math.max(0,Number(skill?.rank)||0),0,targetNumberForSkill(hero.sheet,'Busca'),'Busca',baseMode,Boolean(hero.sheet.attributes.weary),Boolean(hero.sheet.attributes.miserable));",
  "let roll=rollOneRing(Math.max(0,Number(skill?.rank)||0),0,targetNumberForSkill(hero.sheet,'Busca'),'Busca',baseMode,Boolean(hero.sheet.attributes.weary),Boolean(hero.sheet.attributes.miserable)); roll=applyFeatOneAsEye(roll,sheetFeatOneBecomesEye(hero.sheet));"),
@@ -144,9 +144,33 @@ repls=[
  "let roll=rollOneRing(Math.max(0,Number(skill?.rank)||0)+extra,0,targetNumberForSkill(hero.sheet,'Cura'),'Cura',mode,Boolean(hero.sheet.attributes.weary),Boolean(hero.sheet.attributes.miserable)); roll=applyFeatOneAsEye(roll,sheetFeatOneBecomesEye(hero.sheet));"),
 ("const shadowRoll=rollOneRing(rank,0,targetNumberForSkill(next,'Sabedoria'),'Sabedoria',baseMode,Boolean(next.attributes.weary),Boolean(next.attributes.miserable));",
  "let shadowRoll=rollOneRing(rank,0,targetNumberForSkill(next,'Sabedoria'),'Sabedoria',baseMode,Boolean(next.attributes.weary),Boolean(next.attributes.miserable)); shadowRoll=applyFeatOneAsEye(shadowRoll,sheetFeatOneBecomesEye(next));"),
+("const roll = rollOneRing(Math.max(0, Number(skill?.rank) || 0), 0, targetNumberForSkill(hero.sheet, command.skill), command.skill, baseMode, Boolean(hero.sheet.attributes.weary), Boolean(hero.sheet.attributes.miserable));",
+ "let roll = rollOneRing(Math.max(0, Number(skill?.rank) || 0), 0, targetNumberForSkill(hero.sheet, command.skill), command.skill, baseMode, Boolean(hero.sheet.attributes.weary), Boolean(hero.sheet.attributes.miserable)); roll=applyFeatOneAsEye(roll,sheetFeatOneBecomesEye(hero.sheet));"),
+("const roll = rollOneRing(Math.max(0, Number(skill?.rank) || 0) + extra, 0, targetNumberForSkill(healer.sheet, requestedSkill), requestedSkill, baseMode, Boolean(healer.sheet.attributes.weary), Boolean(healer.sheet.attributes.miserable));",
+ "let roll = rollOneRing(Math.max(0, Number(skill?.rank) || 0) + extra, 0, targetNumberForSkill(healer.sheet, requestedSkill), requestedSkill, baseMode, Boolean(healer.sheet.attributes.weary), Boolean(healer.sheet.attributes.miserable)); roll=applyFeatOneAsEye(roll,sheetFeatOneBecomesEye(healer.sheet));"),
+("const roll=rollOneRing(Math.max(0,Number(skill?.rank)||0),0,targetNumberForSkill(hero.sheet,command.skill),command.skill,mode,Boolean(hero.sheet.attributes.weary),Boolean(hero.sheet.attributes.miserable));",
+ "let roll=rollOneRing(Math.max(0,Number(skill?.rank)||0),0,targetNumberForSkill(hero.sheet,command.skill),command.skill,mode,Boolean(hero.sheet.attributes.weary),Boolean(hero.sheet.attributes.miserable)); roll=applyFeatOneAsEye(roll,sheetFeatOneBecomesEye(hero.sheet));"),
 ]
 for old,new in repls:
     t=t.replace(old,new)
+write(rel,t)
+
+rel="components/MechanicsHub.tsx"
+t=read(rel)
+if "applyFeatOneAsEye" not in t:
+    t=t.replace("import { rollOneRing } from '../lib/dice';","import { applyFeatOneAsEye, rollOneRing } from '../lib/dice';",1)
+if "sheetFeatOneBecomesEye" not in t:
+    t=t.replace("import { shadowAtLimit } from '../lib/rules/shadow';","import { shadowAtLimit } from '../lib/rules/shadow';\nimport { sheetFeatOneBecomesEye } from '../lib/characterPaths';",1)
+t=t.replace(
+    "const roll=shadowSource==='transgression'?null:rollOneRing(",
+    "let roll=shadowSource==='transgression'?null:rollOneRing(",
+    1,
+)
+t=t.replace(
+    "    void run([{type:'resolve_shadow_gain'",
+    "    if(roll) roll=applyFeatOneAsEye(roll,sheetFeatOneBecomesEye(selectedShadow.sheet));\n    void run([{type:'resolve_shadow_gain'",
+    1,
+)
 write(rel,t)
 
 print("PATCH_4941_RUNTIME_OK")
