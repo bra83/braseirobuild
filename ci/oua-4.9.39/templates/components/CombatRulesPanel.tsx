@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import type { Character } from '../lib/db';
 import type { CombatActorState, MasterCommand, MasterState } from '../lib/master/types';
-import { findSkill, targetNumberForSkill } from '../lib/characterRules';
-import { rollOneRing } from '../lib/dice';
 import { hasVirtue } from '../lib/rules/supplementMechanics';
 
 interface Props {
@@ -30,6 +28,8 @@ export const CombatRulesPanel:React.FC<Props>=({masterState,characters,onApplyCo
   const [enemyDamage,setEnemyDamage]=useState(4);
   const [enemyInjury,setEnemyInjury]=useState(14);
   const [enemyRanged,setEnemyRanged]=useState(false);
+  const [deadlyAbility,setDeadlyAbility]=useState(false);
+  const [hateCost,setHateCost]=useState(1);
   const [healer,setHealer]=useState(heroes[0]?.actorId||'');
   const [healTarget,setHealTarget]=useState(heroes[0]?.actorId||'');
   const [firstAidSkill,setFirstAidSkill]=useState<'Cura'|'Música'>('Cura');
@@ -50,12 +50,8 @@ export const CombatRulesPanel:React.FC<Props>=({masterState,characters,onApplyCo
   };
 
   const gainGround=async()=>{
-    const hero=characters.find(c=>c.id===gainHero);
-    if(!hero)return;
-    const skill=findSkill(hero.sheet,gainSkill);
-    const mode=hero.sheet.attributes.shadow>=hero.sheet.attributes.hopeMax?'ill-favoured':skill?.favorite?'favoured':'normal';
-    const roll=rollOneRing(Math.max(0,Number(skill?.rank)||0),0,targetNumberForSkill(hero.sheet,gainSkill),gainSkill,mode,Boolean(hero.sheet.attributes.weary),Boolean(hero.sheet.attributes.miserable));
-    await run([{type:'gain_ground',targetCharacterId:hero.id,success:Boolean(roll.success),successIcons:Number(roll.tengwarCount)||0,reason:'Ganhar Terreno no Modo Peregrino.'} as MasterCommand],'Ganhar Terreno · '+(roll.success?'sucesso':'falha'));
+    if(!gainHero)return;
+    await run([{type:'gain_ground',targetCharacterId:gainHero,skill:gainSkill,reason:'Ganhar Terreno no Modo Peregrino.'} as MasterCommand],'Ganhar Terreno');
   };
 
   if(masterState.combat.status==='idle'||masterState.combat.status==='resolved') return null;
@@ -98,7 +94,9 @@ export const CombatRulesPanel:React.FC<Props>=({masterState,characters,onApplyCo
         <label className="text-[10px] text-slate-400">Dano<input type="number" min={0} max={30} value={enemyDamage} onChange={e=>setEnemyDamage(Math.max(0,Number(e.target.value)||0))} className="mt-1 w-full rounded bg-black p-2"/></label>
         <label className="text-[10px] text-slate-400">Ferimento<input type="number" min={2} max={30} value={enemyInjury} onChange={e=>setEnemyInjury(Math.max(2,Number(e.target.value)||2))} className="mt-1 w-full rounded bg-black p-2"/></label>
         <label className="flex items-center gap-2 rounded border border-slate-800 px-2 text-xs"><input type="checkbox" checked={enemyRanged} onChange={e=>setEnemyRanged(e.target.checked)}/> À distância</label>
-        <button disabled={busy||!enemyId||!heroTarget} onClick={()=>void run([{type:'resolve_adversary_attack',attackerId:enemyId,targetCharacterId:heroTarget,successDice:enemyDice,damage:enemyDamage,injury:enemyInjury,ranged:enemyRanged,reason:'Ataque do adversário resolvido pelo motor canônico.'} as MasterCommand],'ataque do adversário')} className="col-span-2 rounded border border-amber-700 px-3 py-2 text-xs text-amber-100">Resolver ataque do adversário</button>
+        <label className="flex items-center gap-2 rounded border border-slate-800 px-2 text-xs"><input type="checkbox" checked={deadlyAbility} onChange={e=>setDeadlyAbility(e.target.checked)}/> Habilidade Mortal</label>
+        <label className="text-[10px] text-slate-400">Custo de Ódio/Determinação<input type="number" min={0} max={9} value={hateCost} onChange={e=>setHateCost(Math.max(0,Number(e.target.value)||0))} className="mt-1 w-full rounded bg-black p-2"/></label>
+        <button disabled={busy||!enemyId||!heroTarget} onClick={()=>void run([{type:'resolve_adversary_attack',attackerId:enemyId,targetCharacterId:heroTarget,successDice:enemyDice,damage:enemyDamage,injury:enemyInjury,ranged:enemyRanged,deadlyAbility,hateCost,reason:'Ataque do adversário resolvido pelo motor canônico.'} as MasterCommand],'ataque do adversário')} className="col-span-2 rounded border border-amber-700 px-3 py-2 text-xs text-amber-100">Resolver ataque do adversário</button>
       </div>
     </div>
 
