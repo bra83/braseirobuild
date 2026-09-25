@@ -1,0 +1,175 @@
+name: OUA 4.9.38 Validate Manual Journey
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/validate-oua-4.9.38.yml"
+      - "ci/oua-4.9.38/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: oua-4.9.38-validate
+  cancel-in-progress: true
+
+env:
+  BASE_TAG: "OUA-v4.9.29"
+  BASE_SOURCE: "OUA_4.9.29_UPGRADE_SAFE_ANDROID_STUDIO.zip"
+
+jobs:
+  validate:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct and patch
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA; got $env:RUNNER_NAME" }
+          $python = Get-Command python.exe -ErrorAction SilentlyContinue
+          if (-not $python) { $python = Get-Command python -ErrorAction Stop }
+
+          $work = Join-Path $env:RUNNER_TEMP 'oua-4938-validate'
+          $incoming = Join-Path $work 'incoming'
+          $extract = Join-Path $work 'extract'
+          $out = Join-Path $work 'out'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming,$extract,$out -Force | Out-Null
+
+          $headers = @{
+            'Authorization' = "Bearer $env:GITHUB_TOKEN"
+            'Accept' = 'application/vnd.github+json'
+            'X-GitHub-Api-Version' = '2022-11-28'
+            'User-Agent' = 'oua-4938-validate'
+          }
+          $repo = $env:GITHUB_REPOSITORY
+          $release = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:BASE_TAG"
+          $asset = @($release.assets | Where-Object { $_.name -eq $env:BASE_SOURCE -and $_.state -eq 'uploaded' }) | Select-Object -First 1
+          if (-not $asset) { throw "Missing baseline source: $env:BASE_SOURCE" }
+
+          $zip = Join-Path $incoming $env:BASE_SOURCE
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $zip $asset.url
+          if ($LASTEXITCODE -ne 0 -or -not (Test-Path $zip)) { throw 'Baseline download failed' }
+
+          & tar.exe -xf $zip -C $extract
+          if ($LASTEXITCODE -ne 0) { throw 'Could not extract baseline source' }
+
+          $pkg = Get-ChildItem $extract -Recurse -File -Filter package.json |
+            Where-Object { Test-Path (Join-Path $_.Directory.FullName 'android') } |
+            Sort-Object { $_.FullName.Length } |
+            Select-Object -First 1
+          if (-not $pkg) { throw 'Android Studio root not found' }
+          $root = $pkg.Directory.FullName
+
+          foreach ($v in 30..37) {
+            $patch = "$env:GITHUB_WORKSPACE\ci\oua-4.9.$v\patch.py"
+            & $python.Source $patch $root
+            if ($LASTEXITCODE -ne 0) { throw "Cumulative patch 4.9.$v failed" }
+          }
+
+          foreach ($script in @('patch_model.py','patch_commands.py','patch_finalize.py','patch_app.py')) {
+            $path = "$env:GITHUB_WORKSPACE\ci\oua-4.9.38\$script"
+            & $python.Source $path $root
+            if ($LASTEXITCODE -ne 0) { throw "4.9.38 failed at $script" }
+          }
+
+          $app = Get-Content (Join-Path $root 'App.tsx') -Raw
+          $cmd = Get-Content (Join-Path $root 'lib\master\commands.ts') -Raw
+          $types = Get-Content (Join-Path $root 'lib\master\types.ts') -Raw
+          $journey = Get-Content (Join-Path $root 'lib\rules\journey.ts') -Raw
+          $panel = Get-Content (Join-Path $root 'components\JourneyResolutionPanel.tsx') -Raw
+          $hud = Get-Content (Join-Path $root 'components\MechanicalStatusStrip.tsx') -Raw
+          $imm = Get-Content (Join-Path $root 'components\immersive\ImmersiveJourneyView.tsx') -Raw
+          $db = Get-Content (Join-Path $root 'lib\db.ts') -Raw
+          $main = Get-Content (Join-Path $root 'android\app\src\main\java\com\braseiro\oumanel\MainActivity.kt') -Raw
+          $gradle = Get-Content (Join-Path $root 'android\app\build.gradle.kts') -Raw
+          $allFiles = Get-ChildItem $root -Recurse -File -Include *.ts,*.tsx,*.kt,*.java
+          $all = ($allFiles | ForEach-Object { Get-Content $_.FullName -Raw }) -join [Environment]::NewLine
+
+          $gates = @{
+            'version-4938' = $gradle.Contains('versionName = "4.9.38"') -and $gradle.Contains('versionCode = 49038')
+            'db-unchanged' = $db.Contains("const DB_NAME = 'braseiro-db';") -and $db.Contains('const DB_VERSION = 19;')
+            'manual-preparation' = $panel.Contains('PREPARAÇÃO DA JORNADA') -and $panel.Contains('Escolha os papéis')
+            'manual-march' = $panel.Contains('JOGADA DE MARCHA') -and $panel.Contains('Aplicar resultado da Marcha')
+            'manual-event' = $panel.Contains('Rolar alvo e Evento') -and $panel.Contains('Aplicar consequência do Evento')
+            'manual-end-rolls' = $panel.Contains('Chegada · Fadiga de Jornada') -and $panel.Contains('Aplicar Fadiga restante e encerrar Jornada')
+            'old-auto-command-gated' = $cmd.Contains('Decisão de Jornada bloqueada no fluxo automático')
+            'manual-command-path' = $cmd.Contains("case 'player_confirm_journey_march'") -and $cmd.Contains("case 'player_confirm_journey_event'") -and $cmd.Contains("case 'player_complete_journey'")
+            'old-auto-start-removed' = -not $app.Contains('Jornada iniciada automaticamente.')
+            'old-auto-first-march-removed' = -not $app.Contains('Primeira Jogada de Marcha automática')
+            'old-auto-event-removed' = -not $app.Contains('resolvido automaticamente pelo motor local')
+            'old-auto-next-march-removed' = -not $app.Contains('Nova Jogada de Marcha automática')
+            'old-auto-end-removed' = -not $app.Contains('Fadiga de Viagem final foi calculada')
+            'npc-blanket-clear-removed' = (-not $app.Contains('presentNpcIds: []')) -and (-not $app.Contains('setPresentNpcs([])'))
+            'npc-presence-preserved' = $app.Contains('preservePresenceUnion: true') -and $app.Contains('Reavalie explicitamente os NPCs')
+            'event-roll-visible' = $journey.Contains('targetDie:targetRoll') -and $journey.Contains('featResults:[...featResults]')
+            'eye-optional' = $types.Contains('eyeAwarenessEnabled?: boolean') -and $panel.Contains('REGRA OPCIONAL')
+            'eye-real-hud' = $imm.Contains('masterState.company.eyeAwareness') -and (-not $imm.Contains('Math.round((masterState.scene.tension'))
+            'eye-roll-trigger' = $app.Contains('uma rolagem do jogador fora de combate mostrou o Olho de Sauron')
+            'eye-shadow-trigger' = $cmd.Contains('por Sombra ganha fora de combate') -and $cmd.Contains('por Sombra ganha no Evento de Jornada')
+            'eye-magic-manual' = $panel.Contains('Magia +1') -and $panel.Contains('Magia +2') -and $panel.Contains('Magia +3')
+            'mechanical-hud' = $hud.Contains('Endurance') -and $hud.Contains('Fadiga Jornada') -and $hud.Contains('Esperança') -and $hud.Contains('Sombra') -and $hud.Contains('Sociedade') -and $hud.Contains('Marcha') -and $hud.Contains('Evento') -and $hud.Contains('Tempo')
+            'turn-summary' = $hud.Contains('FIM DO TURNO') -and $types.Contains('lastResolutionSummary') -and $app.Contains('attachResolutionSummary')
+            'route-hard-gate-preserved' = $app.Contains('a Companhia só pode avançar para o próximo hex da rota planejada')
+            'forced-march-fatigue-preserved' = $cmd.Contains('nextState.journey.forcedMarch') -and $cmd.Contains('forcedDays')
+            'tts-kokoro-preserved' = $main.Contains('Braseiro Kokoro PT-BR · neural') -and $main.Contains('com.k2fsa.sherpa.onnx.tts.engine')
+            'music-persistence-preserved' = $app.Contains('scene-music-preserved-manual')
+            'no-data-clear' = (-not $all.Contains('indexedDB.deleteDatabase')) -and (-not $all.Contains('clearApplicationUserData')) -and (-not $all.Contains('pm clear'))
+          }
+
+          $report = Join-Path $out 'OUA_4938_SOURCE_GATES.txt'
+          foreach ($entry in $gates.GetEnumerator() | Sort-Object Name) {
+            $status = if ($entry.Value) { 'PASS' } else { 'FAIL' }
+            ($status + ' - ' + $entry.Name) | Tee-Object -FilePath $report -Append
+          }
+          $failed = @($gates.GetEnumerator() | Where-Object { -not $_.Value })
+          if ($failed.Count -gt 0) { throw ('4.9.38 source gates failed: ' + (($failed | ForEach-Object Name) -join ', ')) }
+
+          $lockPath = Join-Path $root 'package-lock.json'
+          if (Test-Path $lockPath) {
+            $lockText = Get-Content $lockPath -Raw
+            $lockText = [regex]::Replace($lockText, 'https://[^"]*/artifactory/api/npm/npm-public/', 'https://registry.npmjs.org/')
+            [System.IO.File]::WriteAllText($lockPath, $lockText, (New-Object System.Text.UTF8Encoding($false)))
+          }
+
+          "OUA_ROOT=$root" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "OUA_OUT=$out" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Compile web runtime
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Push-Location $env:OUA_ROOT
+          try {
+            $env:npm_config_registry = 'https://registry.npmjs.org/'
+            & npm.cmd ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
+            if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
+            & npm.cmd run build:offline 2>&1 | Tee-Object -FilePath (Join-Path $env:OUA_OUT 'OFFLINE_BUILD.log')
+            if ($LASTEXITCODE -ne 0) { throw 'build:offline failed' }
+          } finally { Pop-Location }
+
+      - name: Publish validation report
+        if: always()
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference = 'Continue'
+          if (Test-Path $env:OUA_OUT) {
+            New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\ci-results" -Force | Out-Null
+            if (Test-Path (Join-Path $env:OUA_OUT 'OUA_4938_SOURCE_GATES.txt')) { Copy-Item (Join-Path $env:OUA_OUT 'OUA_4938_SOURCE_GATES.txt') "$env:GITHUB_WORKSPACE\ci-results\OUA_4938_SOURCE_GATES.txt" -Force }
+            if (Test-Path (Join-Path $env:OUA_OUT 'OFFLINE_BUILD.log')) { Copy-Item (Join-Path $env:OUA_OUT 'OFFLINE_BUILD.log') "$env:GITHUB_WORKSPACE\ci-results\OUA_4938_OFFLINE_BUILD.log" -Force }
+            git config user.name "braseiro-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add ci-results/OUA_4938_SOURCE_GATES.txt ci-results/OUA_4938_OFFLINE_BUILD.log 2>$null
+            if ((git status --porcelain).Length -gt 0) {
+              git commit -m "OUA 4.9.38 validation report [skip ci]"
+              git push origin HEAD:main
+            }
+          }
