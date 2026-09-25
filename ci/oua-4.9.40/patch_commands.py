@@ -31,6 +31,29 @@ cmd=req(cmd,
   houndAvailable,""",
 "stateful supplement imports")
 
+# Artífice de Eregion: acquiring the Virtue arms one craft for a later Yule.
+cmd=req(
+    cmd,
+    """        if(!hadHoney && afterHero && hasVirtue(afterHero.sheet,'Bolos de Mel Duas Vezes Assados')){
+          nextState.company={...nextState.company,fellowshipMax:nextState.company.fellowshipMax+1,fellowshipCurrent:nextState.company.fellowshipCurrent+1};
+        }
+      }
+      nextState.fellowshipPhase.valorWisdomAdvance""",
+    """        if(!hadHoney && afterHero && hasVirtue(afterHero.sheet,'Bolos de Mel Duas Vezes Assados')){
+          nextState.company={...nextState.company,fellowshipMax:nextState.company.fellowshipMax+1,fellowshipCurrent:nextState.company.fellowshipCurrent+1};
+        }
+        if(beforeHero && !hasVirtue(beforeHero.sheet,'Artífice de Eregion') && afterHero && hasVirtue(afterHero.sheet,'Artífice de Eregion')){
+          updateHero(afterHero.id,sheet=>{
+            const next=structuredClone(sheet);
+            next.other.supplementState={...(next.other.supplementState||{}),artificerYuleReady:true,artificerAcquiredPhaseStartedAt:Number(nextState.fellowshipPhase.startedAt)||Date.now()};
+            return next;
+          });
+        }
+      }
+      nextState.fellowshipPhase.valorWisdomAdvance""",
+    "arm Artificer next Yule",
+)
+
 # Player-authoritative stateful virtue commands.
 anchor="    case 'player_start_journey': {"
 cases=r"""    case 'set_combat_actor_power': {
@@ -206,14 +229,16 @@ cases=r"""    case 'set_combat_actor_power': {
       if(nextState.fellowshipPhase.status!=='active'||!nextState.fellowshipPhase.isYule) throw new Error('Artífice de Eregion cria seu item durante Yule.');
       const hero=nextCharacters.find(character=>character.id===command.targetCharacterId);
       if(!hero||!hasVirtue(hero.sheet,'Artífice de Eregion')) throw new Error('O Herói não possui Artífice de Eregion.');
+      if(!hero.sheet.other.supplementState?.artificerYuleReady) throw new Error('A criação única de Artífice de Eregion já foi usada ou ainda não foi preparada.');
+      if(Number(hero.sheet.other.supplementState?.artificerAcquiredPhaseStartedAt||0)===Number(nextState.fellowshipPhase.startedAt||0)) throw new Error('Artífice de Eregion só pode criar no próximo Yule, não na Fase em que a Virtude foi adquirida.');
       if(Number(hero.sheet.other.supplementState?.artificerUsedYuleYear)===Number(nextState.worldClock.year)) throw new Error('Artífice de Eregion já foi usado neste Yule.');
       if(command.kind==='enchanted-reward'){
         const item=hero.sheet.inventory.find(entry=>entry.id===command.inventoryItemId);
         if(!item||!/(weapon|arma|sword|spear|axe|bow|espada|lança|machado|arco)/i.test(item.category+' '+item.name)) throw new Error('Selecione uma arma do Herói para receber a Recompensa Encantada.');
-        updateHero(hero.id,sheet=>({...sheet,inventory:sheet.inventory.map(entry=>entry.id===item.id?{...entry,magicalKind:'enchanted-reward' as const,magicalIdentified:true,craftsmanship:'Élfica',magicalQualities:entry.magicalQualities||[]}:entry),other:{...sheet.other,supplementState:{...(sheet.other.supplementState||{}),artificerUsedYuleYear:Number(nextState.worldClock.year)}}}));
+        updateHero(hero.id,sheet=>({...sheet,inventory:sheet.inventory.map(entry=>entry.id===item.id?{...entry,magicalKind:'enchanted-reward' as const,magicalIdentified:true,craftsmanship:'Élfica',magicalQualities:entry.magicalQualities||[]}:entry),other:{...sheet.other,supplementState:{...(sheet.other.supplementState||{}),artificerUsedYuleYear:Number(nextState.worldClock.year),artificerYuleReady:false}}}));
       }else{
         const name=(command.name||'Artefato Maravilhoso de Eregion').trim();
-        updateHero(hero.id,sheet=>({...sheet,inventory:[...sheet.inventory,{id:'artificer_'+Date.now(),name,quantity:1,weight:0,category:'Artefato Maravilhoso',description:'Criado durante Yule com Artífice de Eregion.',equipped:false,tags:['mágico','Eregion'],magicalKind:'wondrous-artefact' as const,magicalIdentified:true,craftsmanship:'Élfica',magicalQualities:[]}],other:{...sheet.other,supplementState:{...(sheet.other.supplementState||{}),artificerUsedYuleYear:Number(nextState.worldClock.year)}}}));
+        updateHero(hero.id,sheet=>({...sheet,inventory:[...sheet.inventory,{id:'artificer_'+Date.now(),name,quantity:1,weight:0,category:'Artefato Maravilhoso',description:'Criado durante Yule com Artífice de Eregion.',equipped:false,tags:['mágico','Eregion'],magicalKind:'wondrous-artefact' as const,magicalIdentified:true,craftsmanship:'Élfica',magicalQualities:[]}],other:{...sheet.other,supplementState:{...(sheet.other.supplementState||{}),artificerUsedYuleYear:Number(nextState.worldClock.year),artificerYuleReady:false}}}));
       }
       break;
     }
