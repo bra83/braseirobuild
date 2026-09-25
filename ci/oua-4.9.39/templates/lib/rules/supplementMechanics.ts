@@ -117,7 +117,8 @@ export function canSpendHopeForSupplementMagicalSuccess(sheet: CharacterSheet, c
 }
 
 export function gandalfIsAutomaticMagicalSuccess(sheet: CharacterSheet, featResult: number): boolean {
-  return hasVirtue(sheet,'Habilidade dos Eldar') && Number(featResult)===12;
+  const feat=Number(featResult);
+  return hasVirtue(sheet,'Habilidade dos Eldar') && (feat===10 || feat===12);
 }
 
 export function journeyFatigueAfterSupplementReduction(sheet: CharacterSheet, gained: number): number {
