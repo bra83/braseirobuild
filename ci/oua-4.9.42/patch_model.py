@@ -35,6 +35,7 @@ t=req(t,
 """  power?: number;
 }""",
 """  power?: number;
+  determination?: number;
   attributeLevel?: number;
   baneTags?: Array<'Orcs'|'Trolls'|'Wolves'|'Evil Men'|'Undead'|'Spiders'>;
 }""",
@@ -65,6 +66,7 @@ anchor="  | { type: 'remove_magical_curse'; targetCharacterId: string; inventory
 extra="""
   | { type: 'set_combat_actor_banes'; actorId: string; baneTags: Array<'Orcs'|'Trolls'|'Wolves'|'Evil Men'|'Undead'|'Spiders'>; reason: string }
   | { type: 'set_combat_actor_attribute_level'; actorId: string; attributeLevel: number; reason: string }
+  | { type: 'set_combat_actor_determination'; actorId: string; determination: number; reason: string }
   | { type: 'resolve_cleaving_attack'; attackerId: string; targetActorId: string; reason: string }
   | { type: 'stand_up_combat_actor'; actorId: string; reason: string }
   | { type: 'set_magical_curse_state'; targetCharacterId: string; inventoryItemId: string; active: boolean; revealed?: boolean; ownerPresent?: boolean; weakeningAttribute?: 'strength'|'heart'|'wits'; hunterTag?: string; reason: string }"""
