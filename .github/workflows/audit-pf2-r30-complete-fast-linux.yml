@@ -1,0 +1,149 @@
+name: PF2 R30 Complete Fast Audit Linux
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-pf2-r30-complete-fast-linux.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  AUDIO_SHA: '030b807acebbc05471b67d0b61228dfc221f814637247593bebb20e166de141f'
+  PYTHONUTF8: '1'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Recover exact R30 source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AUDIO_SHARE: 'bXE49-WofMfp'
+          AUDIO_FILE: '01a0d617a20d75e5b561194b0c7fe976'
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/pf2-r30-audit-linux"
+          WORK="$ROOT/work"
+          AUDIO="$ROOT/audio"
+          mkdir -p "$WORK" "$AUDIO"
+          curl -L --fail --retry 5 --retry-delay 2             -H "Authorization: Bearer $GH_TOKEN"             -H "Accept: application/octet-stream"             -H "X-GitHub-Api-Version: 2022-11-28"             -o "$ROOT/r29.zip"             "https://api.github.com/repos/bra83/braseirobuild/releases/assets/585242045"
+          unzip -q "$ROOT/r29.zip" -d "$WORK"
+
+          python - <<'PY'
+          import json, os, urllib.request, hashlib
+          api='https://api.firestorage.ai/dev/file'
+          share=os.environ['AUDIO_SHARE']; fid=os.environ['AUDIO_FILE']
+          req=urllib.request.Request(f'{api}/shares/{share}/files/{fid}/download',method='POST')
+          with urllib.request.urlopen(req,timeout=60) as r: d=json.load(r)
+          dest=os.path.join(os.environ['RUNNER_TEMP'],'pf2-r30-audit-linux','audio.zip')
+          urllib.request.urlretrieve(d['downloadUrl'],dest)
+          h=hashlib.sha256(open(dest,'rb').read()).hexdigest()
+          if h != os.environ['AUDIO_SHA']: raise SystemExit(f'audio SHA mismatch {h}')
+          PY
+          unzip -q "$ROOT/audio.zip" -d "$AUDIO"
+          python "$AUDIO/patch.py" "$WORK"
+          echo "WORK_ROOT=$WORK" >> "$GITHUB_ENV"
+
+      - name: Existing mechanical suite
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          set -euo pipefail
+          python -m pip install -q pytest
+          cp version.properties "$RUNNER_TEMP/version.properties.real"
+          sed -i 's/VERSION_NAME=9.0.30/VERSION_NAME=9.0.29/' version.properties
+          sed -i 's/VERSION_CODE=90030/VERSION_CODE=90029/' version.properties
+          python -m pytest tests_pf2 -q | tee "$RUNNER_TEMP/PF2_R30_AUDIT_TESTS_LINUX.log"
+          mv "$RUNNER_TEMP/version.properties.real" version.properties
+
+      - name: Generate semantic audit report
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re, os, collections
+          root=Path(os.environ['WORK_ROOT'])
+          out=Path(os.environ['RUNNER_TEMP'])/'PF2_R30_COMPLETE_AUDIT_REPORT_LINUX.txt'
+          exts={'.ts','.tsx','.js','.jsx','.kt','.java','.py','.json','.html','.xml'}
+          skip={'node_modules','build','dist','.gradle','.git'}
+          files=[p for p in root.rglob('*') if p.is_file() and p.suffix.lower() in exts and p.stat().st_size<3_000_000 and not any(x in skip for x in p.parts)]
+          def read(p):
+              try:return p.read_text(encoding='utf-8',errors='ignore')
+              except:return ''
+          alltxt={p:read(p) for p in files}
+          lines=['PF2 R30 COMPLETE FAST AUDIT LINUX',f'FILES_SCANNED={len(files)}']
+          pats={
+            'TODO_STUB':r'TODO|FIXME|NotImplemented|not implemented|throw new Error\([^)]*(?:TODO|implement)',
+            'HP_DYING':r'dying|wounded|doomed|temporary.?hp|temp.?hp|massive damage|nonlethal',
+            'CONDITIONS':r'frightened|clumsy|enfeebled|drained|stupefied|slowed|stunned|quickened|persistent damage|persistentDamage|off-guard|flat-footed',
+            'DAMAGE_TYPES':r'resistance|weakness|immunity|damageType|damage type',
+            'TRAVEL':r'travel|exploration|hustle|difficult terrain|greater difficult|movement speed|Speed',
+            'REST':r'rest|daily preparation|Treat Wounds|Refocus|fatigued|fatigue',
+            'PROGRESSION':r'\bxp\b|experience|level.?up|levelUp|feat|proficiency',
+            'INVENTORY':r'bulk|encumbered|invested|ammo|ammunition|charges|stowed|worn|held',
+            'KINGMAKER':r'kingdom|event phase|warfare|army|armies|rout|routed|kingmaker',
+            'PERSISTENCE':r'localStorage|IndexedDB|indexedDB|SharedPreferences|save|load|persist|backup|restore'
+          }
+          for label,pat in pats.items():
+              rx=re.compile(pat,re.I); hits=[]
+              for p,t in alltxt.items():
+                  for m in rx.finditer(t):
+                      ln=t.count('\n',0,m.start())+1
+                      hits.append((str(p.relative_to(root)),ln,t[m.start():m.start()+220].splitlines()[0]))
+                      if len(hits)>=260:break
+                  if len(hits)>=260:break
+              lines.append(f'\n=== {label} ({len(hits)}) ===')
+              lines += [f'{p}:{ln}: {sn}' for p,ln,sn in hits]
+
+          emit=collections.Counter(); handle=collections.Counter()
+          er=re.compile(r"type\s*:\s*['\"]([A-Za-z0-9_\-]+)['\"]")
+          cr=re.compile(r"case\s+['\"]([A-Za-z0-9_\-]+)['\"]")
+          for p,t in alltxt.items():
+              for m in er.finditer(t): emit[m.group(1)]+=1
+              for m in cr.finditer(t): handle[m.group(1)]+=1
+          lines.append('\n=== COMMAND_MATRIX ===')
+          for k in sorted(set(emit)|set(handle)):
+              lines.append(f"{k}\temit={emit[k]}\thandle={handle[k]}\tstatus={'OK' if handle[k] else 'NO_HANDLER'}")
+
+          focus=['applyDamage','hp_delta','hp_set','recovery','persistentDamage','frightened','slowed','stunned','quickened','hustle','rest','daily preparation','Treat Wounds','Refocus','bulk','encumbered','levelUp','experience','event phase','warfare','army','saveGame','loadGame']
+          lines.append('\n=== FOCUSED_CONTEXT ===')
+          for needle in focus:
+              rx=re.compile(re.escape(needle),re.I); count=0
+              for p,t in alltxt.items():
+                  for m in rx.finditer(t):
+                      ls=t.splitlines(); ln=t.count('\n',0,m.start()); a=max(0,ln-10); b=min(len(ls),ln+24)
+                      lines.append(f'\n--- {needle} @ {p.relative_to(root)}:{ln+1} ---')
+                      lines += [f'{i+1:5}: {ls[i]}' for i in range(a,b)]
+                      count+=1
+                      if count>=14:break
+                  if count>=14:break
+
+          tests=[]
+          for p,t in alltxt.items():
+              if 'tests_pf2' not in str(p): continue
+              tests += [(str(p.relative_to(root)),m.group(1)) for m in re.finditer(r'def\s+(test_[A-Za-z0-9_]+)',t)]
+          lines.append('\n=== TEST_INDEX ===')
+          lines += [f'{p}\t{n}' for p,n in tests]
+          out.write_text('\n'.join(lines),encoding='utf-8')
+          print(out)
+          PY
+
+      - name: Commit audit report
+        run: |
+          set -euo pipefail
+          mkdir -p audit
+          cp "$RUNNER_TEMP/PF2_R30_COMPLETE_AUDIT_REPORT_LINUX.txt" audit/PF2_R30_COMPLETE_AUDIT_REPORT_LINUX.txt
+          cp "$RUNNER_TEMP/PF2_R30_AUDIT_TESTS_LINUX.log" audit/PF2_R30_AUDIT_TESTS_LINUX.log
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add audit/PF2_R30_COMPLETE_AUDIT_REPORT_LINUX.txt audit/PF2_R30_AUDIT_TESTS_LINUX.log
+          git commit -m 'audit: PF2 R30 complete fast Linux inventory'
+          git push origin HEAD:main
