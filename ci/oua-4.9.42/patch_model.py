@@ -23,6 +23,7 @@ t=req(t,
     magicalCurseOwnerPresent?: boolean;
     magicalCurseHunterTag?: string;
     magicalCurseWeaknessFlaw?: string;
+    magicalCurseShadowApplied?: number;
     magicalCurseTrigger?: string;""",
 "curse runtime state")
 write(rel,t)
