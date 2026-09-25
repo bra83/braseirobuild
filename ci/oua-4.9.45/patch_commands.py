@@ -65,7 +65,7 @@ cases=r"""    case 'start_skill_test_session': {
         if(!requested||!supportSkill||Math.max(0,Number(supportSkill.rank)||0)<1) throw new Error('Suporte exige uma Perícia apropriada com pelo menos 1 ponto.');
         if(supporter.sheet.attributes.hopeCurrent<=0) throw new Error('O apoiador não possui Esperança para prestar Suporte.');
         updateHero(supporter.id,sheet=>adjustHope(sheet,-1));
-        supportDice=1;
+        supportDice=nextState.company.fellowshipFocus?.[supporter.id]===hero.id?2:1;
         supportHopeSpent=true;
         supporterCharacterId=supporter.id;
         supporterSkill=requested;
