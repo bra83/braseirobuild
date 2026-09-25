@@ -18,7 +18,7 @@ cmd=req(cmd,
 "import { rollOneRing } from '../dice';",
 """import { rollOneRing } from '../dice';
 import { attributeForSkill } from '../characterRules';
-import { supplementFellowshipBonus, supplementPatronFellowshipBonus } from '../supplementRules';
+import { supplementFellowshipBonus, supplementPatronFellowshipBonus } from '../rules/supplementMechanics';
 import {
   applyHuntersResolve,
   canUseSongForFirstAid,
@@ -74,21 +74,37 @@ cmd=req(cmd,old,new,"Eye decrement")
 # ---------------------------------------------------------------------------
 anchor="    case 'resolve_eye_revelation': {"
 insert="""    case 'set_rules_mode': {
-      if (command.mode === 'strider' && partyIds.size !== 1) throw new Error('Modo Peregrino exige um único Herói-jogador nesta implementação solo. Use o modo padrão para uma Companhia.');
-      nextState.company = { ...nextState.company, rulesMode: command.mode };
-      if (command.mode === 'strider') {
-        const heroId = Array.from(partyIds)[0];
-        const hero = nextCharacters.find(character => character.id === heroId);
-        const heroBonus = hero ? supplementFellowshipBonus(hero.sheet) : 0;
-        const patronBonus = supplementPatronFellowshipBonus(nextState.company.patron || '');
-        const fellowship = Math.max(0, 3 + heroBonus + patronBonus);
+      if (command.mode === 'strider' && partyIds.size > 2) throw new Error('A variante de Jornada do Modo Peregrino é indicada para um ou dois Heróis; Companhias com três ou mais usam as regras padrão de Jornada.');
+      const oldMode = nextState.company.rulesMode === 'strider' ? 'strider' : 'standard';
+      if (command.mode === 'strider' && oldMode !== 'strider') {
         nextState.company = {
           ...nextState.company,
-          fellowshipCurrent: fellowship,
-          fellowshipMax: fellowship,
-          fellowshipFocus: {},
-          journeyRoles: heroId ? { guide: heroId, scout: heroId, hunter: heroId, lookout: heroId } : {},
+          rulesMode: 'strider',
+          preStriderFellowshipCurrent: nextState.company.fellowshipCurrent,
+          preStriderFellowshipMax: nextState.company.fellowshipMax,
+          preStriderFellowshipFocus: { ...(nextState.company.fellowshipFocus || {}) },
         };
+        if (partyIds.size === 1) {
+          const heroId = Array.from(partyIds)[0];
+          const hero = nextCharacters.find(character => character.id === heroId);
+          const heroBonus = hero ? supplementFellowshipBonus(hero.sheet) : 0;
+          const patronBonus = supplementPatronFellowshipBonus(nextState.company.patron || '');
+          const fellowship = Math.max(0, 3 + heroBonus + patronBonus);
+          nextState.company = { ...nextState.company, fellowshipCurrent: fellowship, fellowshipMax: fellowship, fellowshipFocus: {} };
+        }
+      } else if (command.mode === 'standard' && oldMode === 'strider') {
+        nextState.company = {
+          ...nextState.company,
+          rulesMode: 'standard',
+          fellowshipCurrent: Math.max(0, Number(nextState.company.preStriderFellowshipCurrent) || Math.max(1, partyIds.size)),
+          fellowshipMax: Math.max(1, Number(nextState.company.preStriderFellowshipMax) || Math.max(1, partyIds.size)),
+          fellowshipFocus: { ...(nextState.company.preStriderFellowshipFocus || {}) },
+          preStriderFellowshipCurrent: undefined,
+          preStriderFellowshipMax: undefined,
+          preStriderFellowshipFocus: undefined,
+        };
+      } else {
+        nextState.company = { ...nextState.company, rulesMode: command.mode };
       }
       for (const characterId of partyIds) {
         updateHero(characterId, sheet => {
@@ -142,10 +158,15 @@ insert="""    case 'set_rules_mode': {
 
     case 'gain_ground': {
       if (nextState.company.rulesMode !== 'strider' || nextState.activeMode !== 'combat') throw new Error('Ganhar Terreno só está disponível no combate do Modo Peregrino.');
+      const hero = nextCharacters.find(character => character.id === command.targetCharacterId);
       const actor = nextState.combat.actors.find(item => item.actorId === command.targetCharacterId);
-      if (!actor || actor.actorType !== 'hero') throw new Error('Herói de combate inválido para Ganhar Terreno.');
+      if (!hero || !actor || actor.actorType !== 'hero' || actor.stance !== 'skirmish') throw new Error('Ganhar Terreno exige um Herói na Postura de Escaramuça.');
+      const skill = findSkill(hero.sheet, command.skill);
+      const baseMode = hero.sheet.attributes.shadow >= hero.sheet.attributes.hopeMax ? 'ill-favoured' : skill?.favorite ? 'favoured' : 'normal';
+      const roll = rollOneRing(Math.max(0, Number(skill?.rank) || 0), 0, targetNumberForSkill(hero.sheet, command.skill), command.skill, baseMode, Boolean(hero.sheet.attributes.weary), Boolean(hero.sheet.attributes.miserable));
+      nextState = recordCombatRoll(nextState, { id: roll.id, actorId: hero.id, label: 'Ganhar Terreno · ' + command.skill, featDie: roll.featResult === 12 ? 'gandalf' : roll.featResult === 11 ? 'eye' : (roll.featResult || 1), successDice: roll.successResults || [], total: roll.total, targetNumber: roll.targetNumber, success: roll.success, tengwar: roll.tengwarCount || 0, createdAt: roll.timestamp });
       const notes = (actor.stateNotes || []).filter(note => !note.startsWith('gain-ground:'));
-      const bonus = gainGroundBonusDice(Boolean(command.success), Math.max(0, Number(command.successIcons) || 0));
+      const bonus = gainGroundBonusDice(Boolean(roll.success), Math.max(0, Number(roll.tengwarCount) || 0));
       nextState = upsertCombatActor(nextState, { ...actor, stateNotes: bonus > 0 ? [...notes, 'gain-ground:' + String(bonus)] : notes });
       break;
     }
@@ -175,10 +196,9 @@ old="""    case 'player_start_journey': {
       nextState = startJourney(nextState, command.destinationHexId, roles, route, Boolean(command.mounted), Boolean(command.forcedMarch));"""
 new="""    case 'player_start_journey': {
       let roles = command.roles || {};
-      if (nextState.company.rulesMode === 'strider') {
-        if (partyIds.size !== 1) throw new Error('A Jornada do Modo Peregrino solo exige um único Herói.');
+      if (nextState.company.rulesMode === 'strider' && partyIds.size <= 2) {
         const heroId = Array.from(partyIds)[0];
-        roles = { guide: heroId, scout: heroId, hunter: heroId, lookout: heroId };
+        roles = heroId ? { guide: heroId, scout: heroId, hunter: heroId, lookout: heroId } : {};
       } else {
         const roleErrors = validateJourneyRoles(roles, Array.from(partyIds));
         if (roleErrors.length) throw new Error('Jornada não pode começar: ' + roleErrors.join(' '));
