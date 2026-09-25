@@ -23,6 +23,16 @@ for src_rel,dst_rel in [
 rel="lib/db.ts"
 t=read(rel)
 t=req(t,
+"""      active: boolean;
+    }>;""",
+"""      active: boolean;
+      magicalBaseItemName?: string;
+      treasureIndexEntryId?: string;
+      magicalQualities?: string[];
+      magicalQualitiesUnlocked?: number;
+    }>;""",
+"combat weapon magical metadata")
+t=req(t,
 """    supplementState?: {
       houndWounded?: boolean;""",
 """    characterPath?: {
@@ -40,7 +50,8 @@ t=req(t,
     magicalQualities?: string[];
     magicalIdentified?: boolean;
     craftsmanship?: string;""",
-"""    magicalKind?: 'magnificent-artefact' | 'wondrous-item' | 'famous-war-gear' | 'enchanted-reward';
+"""    magicalBaseItemName?: string;
+    magicalKind?: 'magnificent-artefact' | 'wondrous-item' | 'famous-war-gear' | 'enchanted-reward';
     magicalBlessings?: string[];
     magicalOrigin?: 'Elven' | 'Dwarven' | 'Numenorean';
     magicalBanes?: string[];
@@ -107,7 +118,7 @@ extra="""
   | { type: 'roll_magical_treasure'; rating: 'lesser' | 'greater' | 'marvellous'; reason: string }
   | { type: 'claim_magical_treasure'; discoveryId: string; treasureIndexEntryId: string; targetCharacterId: string; reason: string }
   | { type: 'identify_magical_item'; targetCharacterId: string; inventoryItemId: string; reason: string }
-  | { type: 'unlock_famous_quality'; targetCharacterId: string; inventoryItemId: string; count?: number; reason: string }
+  | { type: 'unlock_famous_quality'; targetCharacterId: string; inventoryItemId: string; source: 'valor' | 'treasury'; sacrificedInventoryItemId?: string; reason: string }
   | { type: 'remove_magical_curse'; targetCharacterId: string; inventoryItemId: string; reason: string }"""
 t=req(t,anchor,anchor+extra,"Treasure commands")
 write(rel,t)
