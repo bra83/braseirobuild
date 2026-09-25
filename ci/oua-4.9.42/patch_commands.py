@@ -63,6 +63,13 @@ cases=r"""    case 'set_combat_actor_banes': {
       break;
     }
 
+    case 'set_combat_actor_determination': {
+      const actor=nextState.combat.actors.find(item=>item.actorId===command.actorId);
+      if(!actor) throw new Error('Combatente não encontrado.');
+      nextState=upsertCombatActor(nextState,{...actor,determination:Math.max(0,Math.trunc(Number(command.determination)||0))});
+      break;
+    }
+
     case 'stand_up_combat_actor': {
       const actor=nextState.combat.actors.find(item=>item.actorId===command.actorId);
       if(!actor||(actor.stateNotes||[]).indexOf('knocked-down')<0) throw new Error('Este combatente não está derrubado.');
@@ -192,9 +199,14 @@ cmd=req(
     cmd,
 """        if (result.roll.success && target.actorType !== 'hero') {
           const hateLoss = supplementEnemyHateLossOnSuccessfulAttack(freshAttacker.sheet, Number(result.roll.tengwarCount) || 0);
-          if (hateLoss > 0 && Number(target.hate || 0) > 0) {
-            target = { ...target, hate: Math.max(0, Number(target.hate || 0) - hateLoss) };
-            nextState = upsertCombatActor(nextState, target);
+          if (hateLoss > 0) {
+            if (target.hate !== undefined) {
+              target = { ...target, hate: Math.max(0, Number(target.hate || 0) - hateLoss) };
+              nextState = upsertCombatActor(nextState, target);
+            } else if (target.determination !== undefined) {
+              target = { ...target, determination: Math.max(0, Number(target.determination || 0) - hateLoss) };
+              nextState = upsertCombatActor(nextState, target);
+            }
           }
         }""",
 """        if (result.roll.success && target.actorType !== 'hero') {
