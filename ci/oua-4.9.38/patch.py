@@ -51,7 +51,7 @@ map_handler="""  const handleMapDiscoveryChanged = async (discovery: MapDiscover
     const committed = await saveCanonicalTransaction({
       campaign: synced,
       mapDiscovery: discovery,
-      reason: \`estado do atlas: \${reason}\`,
+      reason: `estado do atlas: ${reason}`,
     });
     saveEmergencyCampaignMirror(committed);
     campaignRef.current = committed;
@@ -137,7 +137,7 @@ move_handler="""  const handlePartyMoved = async (move: PartyMapMove) => {
           ...master.scene,
           kind: master.activeMode === 'journey' ? 'journey' : 'exploration',
           status: 'active',
-          title: master.activeMode === 'journey' ? 'Jornada' : \`Chegada a \${move.locationName}\`,
+          title: master.activeMode === 'journey' ? 'Jornada' : `Chegada a ${move.locationName}`,
           objective: master.activeMode === 'journey'
             ? 'Prosseguir somente após resolver as próximas exigências da Jornada'
             : 'Orientar-se no novo local',
@@ -195,7 +195,7 @@ move_handler="""  const handlePartyMoved = async (move: PartyMapMove) => {
     const pendingFatigue = Object.entries(finalMaster.journey.travelFatigueByHero || {})
       .reduce((sum, [,value]) => sum + Math.max(0, Number(value) || 0), 0);
     const nextRequirement = finalMaster.journey.pendingEvent
-      ? \`Resolver Evento: \${finalMaster.journey.pendingEvent.description}\`
+      ? `Resolver Evento: ${finalMaster.journey.pendingEvent.description}`
       : finalMaster.journey.awaitingEventGeneration
         ? 'Gerar e resolver manualmente o próximo Evento de Jornada'
         : finalMaster.journey.awaitingEndRoll
@@ -205,19 +205,19 @@ move_handler="""  const handlePartyMoved = async (move: PartyMapMove) => {
             : 'Pode avançar pela Marcha já resolvida';
 
     const mechanicalSummary = [
-      \`Tempo: +\${elapsedMinutes} min (\${elapsedDays} dia(s))\`,
-      \`Posição: \${move.toHexId}\`,
-      \`Marcha restante: \${finalMaster.journey.marchHexesRemaining || 0}\`,
-      \`Rota restante: \${finalMaster.journey.plannedRouteHexIds?.length || 0}\`,
-      \`Fadiga de Jornada pendente: \${pendingFatigue}\`,
-      \`Próximo passo: \${nextRequirement}\`,
+      `Tempo: +${elapsedMinutes} min (${elapsedDays} dia(s))`,
+      `Posição: ${move.toHexId}`,
+      `Marcha restante: ${finalMaster.journey.marchHexesRemaining || 0}`,
+      `Rota restante: ${finalMaster.journey.plannedRouteHexIds?.length || 0}`,
+      `Fadiga de Jornada pendente: ${pendingFatigue}`,
+      `Próximo passo: ${nextRequirement}`,
     ].join(' | ');
 
     setIsStoryLoading(true);
     setStoryError(null);
     setNarrationError(null);
     await processTurn(
-      \`[TRECHO DE JORNADA RESOLVIDO ATÉ O LIMITE AUTORIZADO] A Companhia chegou a \${move.locationName}. \${mechanicalSummary}. NÃO faça rolagens, NÃO atribua papéis, NÃO gere/solucione Evento, NÃO faça nova Marcha e NÃO encerre a Jornada automaticamente. Decida explicitamente quais NPCs permanecem, quais saem e quais entram na nova cena; não zere o elenco por padrão. Narre apenas o que já ocorreu e deixe claro o próximo requisito mecânico.\`,
+      `[TRECHO DE JORNADA RESOLVIDO ATÉ O LIMITE AUTORIZADO] A Companhia chegou a ${move.locationName}. ${mechanicalSummary}. NÃO faça rolagens, NÃO atribua papéis, NÃO gere/solucione Evento, NÃO faça nova Marcha e NÃO encerre a Jornada automaticamente. Decida explicitamente quais NPCs permanecem, quais saem e quais entram na nova cena; não zere o elenco por padrão. Narre apenas o que já ocorreu e deixe claro o próximo requisito mecânico.`,
       false,
       committed,
     );
