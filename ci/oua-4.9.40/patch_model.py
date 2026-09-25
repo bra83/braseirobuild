@@ -38,6 +38,7 @@ t=req(t,
       houndRecoveryPending?: boolean;
       houndRecoveryFailed?: boolean;
       artificerYuleReady?: boolean;
+      artificerAcquiredPhaseStartedAt?: number;
       artificerUsedYuleYear?: number;
       artificerStudyUsedPhaseStartedAt?: number;
       [key: string]: unknown;
