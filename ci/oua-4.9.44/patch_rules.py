@@ -120,6 +120,7 @@ export function famousRewardSequence(item:CharacterSheet['inventory'][number]):F
 }
 
 export function activeFamousRewardSequence(item:CharacterSheet['inventory'][number]):FamousRewardRef[] {
+  if(item.magicalCurse==='ownership'&&item.magicalCurseActive&&item.magicalCurseOwnerPresent) return [];
   const sequence=famousRewardSequence(item);
   const count=Math.max(0,Math.min(sequence.length,Math.trunc(Number(item.magicalRewardsUnlocked ?? item.magicalQualitiesUnlocked)||0)));
   return sequence.slice(0,count);
