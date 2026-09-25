@@ -223,11 +223,21 @@ t=t.replace(
 "onRollJourney: (kind: 'march' | 'event' | 'end', characterId: string, skill: string, extraDice?: number, forcedMode?: RollMode, mountVigour?: number, spendHope?: boolean) => Promise<void>;",
 "onRollJourney: (kind: 'march' | 'event' | 'end', characterId: string, skill: string, extraDice?: number, forcedMode?: RollMode, mountVigour?: number, spendHope?: boolean, useMagicalSuccess?: boolean) => Promise<void>;",
 1)
-t=req(t,
-"  const [spendHope,setSpendHope]=useState(false);\n",
-"""  const [spendHope,setSpendHope]=useState(false);
-  const [useMagicalSuccess,setUseMagicalSuccess]=useState(false);
-""","Journey magic state")
+if "const [useMagicalSuccess" not in t:
+    if "  const [spendHope, setSpendHope] = useState(false);\n" in t:
+        t=t.replace(
+            "  const [spendHope, setSpendHope] = useState(false);\n",
+            "  const [spendHope, setSpendHope] = useState(false);\n  const [useMagicalSuccess, setUseMagicalSuccess] = useState(false);\n",
+            1,
+        )
+    elif "  const [spendHope,setSpendHope]=useState(false);\n" in t:
+        t=t.replace(
+            "  const [spendHope,setSpendHope]=useState(false);\n",
+            "  const [spendHope,setSpendHope]=useState(false);\n  const [useMagicalSuccess,setUseMagicalSuccess]=useState(false);\n",
+            1,
+        )
+    else:
+        raise SystemExit("missing anchor: Journey magic state")
 helper="""  const hopeControls=(hero:Character|undefined,skill:string)=>{
     const terrain=masterState.journey.segments?.at(-1)?.terrain||'';
     const isNight=masterState.worldClock.hour<6||masterState.worldClock.hour>=20;
