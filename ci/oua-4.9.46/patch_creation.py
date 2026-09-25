@@ -28,6 +28,11 @@ t=req(
     "  const previousExperienceBudget=options.previousExperienceBudget!==undefined?Math.max(0,Math.min(20,Math.trunc(options.previousExperienceBudget))):(rulesMode==='strider'?15:10);",
     "heir previous Experience budget",
 )
+t=t.replace(
+    "distinctiveFeatures:features,creationTrace:trace,rulesMode}",
+    "distinctiveFeatures:features,creationTrace:trace,rulesMode,creationPreviousExperienceBudget:previousExperienceBudget}",
+    1,
+)
 
 # Creation validator: an Heir may legally have 10–20 Previous Experience.
 # The chosen budget is persisted in heirOrigin and checked against the same
@@ -35,7 +40,7 @@ t=req(
 t=req(
     t,
     "  const expectedXp=s.other.rulesMode==='strider'?15:10;",
-    "  const expectedXp=Math.max(0,Math.min(20,Math.trunc(Number(s.other.heirOrigin?.previousExperienceBudget ?? (s.other.rulesMode==='strider'?15:10)))));",
+    "  const expectedXp=Math.max(0,Math.min(20,Math.trunc(Number(s.other.heirOrigin?.previousExperienceBudget ?? s.other.creationPreviousExperienceBudget ?? (s.other.rulesMode==='strider'?15:10)))));",
     "heir validation budget",
 )
 t=req(
@@ -125,6 +130,26 @@ export function createHeirCharacter(options:HeirCreationOptions):Character {
     }
   }
   sheet.inventory=[...sheet.inventory,...inherited];
+  for(const item of inherited){
+    if(String(item.category||'').toLowerCase()==='arma'){
+      const group=(item.tags||[]).find(tag=>['Machados','Arcos','Lanças','Espadas'].includes(tag)) as Proficiency|undefined;
+      if(group){
+        sheet.combat.weapons=[...(sheet.combat.weapons||[]),{
+          name:item.name,
+          damage:Number(item.damage)||0,
+          injury:Number(item.injury)||0,
+          group,
+          active:false,
+          magicalBaseItemName:item.magicalBaseItemName,
+          treasureIndexEntryId:item.treasureIndexEntryId,
+          magicalQualities:[...(item.magicalQualities||[])],
+          magicalQualitiesUnlocked:item.magicalQualitiesUnlocked,
+          magicalRewards:item.magicalRewards?[...item.magicalRewards]:undefined,
+          magicalRewardsUnlocked:item.magicalRewardsUnlocked,
+        }];
+      }
+    }
+  }
   sheet.attributes.load=sheet.inventory.reduce((sum,item)=>sum+Number(item.load||item.weight||0)*Math.max(1,Number(item.quantity)||1),0);
   sheet.other.heirOrigin={
     predecessorCharacterId:predecessor.id,
@@ -163,7 +188,8 @@ t=read(rel)
 t=req(t,
 """    heirState?: {
       name?: string;""",
-"""    heirOrigin?: {
+"""    creationPreviousExperienceBudget?: number;
+    heirOrigin?: {
       predecessorCharacterId: string;
       previousExperienceBudget: number;
       inheritedFavouredSkill: string;
