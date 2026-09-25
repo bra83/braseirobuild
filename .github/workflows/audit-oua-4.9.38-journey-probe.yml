@@ -92,4 +92,5 @@ jobs:
             exit 0
           }
           git commit -m "OUA 4.9.38 publish journey turn HUD probe [skip ci]"
+          git pull --rebase origin main
           git push origin HEAD:main
