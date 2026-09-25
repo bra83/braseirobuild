@@ -333,7 +333,7 @@ write(hub_rel,hub)
 imm_rel="components/immersive/ImmersiveJourneyView.tsx"
 imm=read(imm_rel)
 old_status="""        Jornada · rota {props.masterState.journey.plannedRouteHexIds?.length || 0} hex(es) · marcha {props.masterState.journey.marchHexesRemaining || 0} · fadiga pendente {Object.values(props.masterState.journey.travelFatigueByHero || {}).reduce((sum, value) => sum + Math.max(0, Number(value) || 0), 0)} · {props.masterState.journey.pendingEvent || props.masterState.journey.awaitingEventGeneration ? 'Evento' : props.masterState.journey.awaitingEndRoll ? 'Chegada' : 'Em marcha'}"""
-new_status="""        <span>Sociedade {props.masterState.company.fellowshipPool ?? 0}/{props.masterState.company.fellowshipMax ?? 0}</span>
+new_status="""        <span>Sociedade {Number((props.masterState.company as any).fellowshipPool ?? (props.masterState.company as any).fellowshipPoints ?? 0)}</span>
         <span> · Olho {props.masterState.company.eyeAwareness ?? 0}</span>
         <span> · Rota {props.masterState.journey.plannedRouteHexIds?.length || 0}</span>
         <span> · Marcha {props.masterState.journey.marchHexesRemaining || 0}</span>
