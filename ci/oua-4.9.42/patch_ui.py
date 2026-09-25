@@ -32,7 +32,7 @@ t=req(t,
 """  const activeLight=masterState.combat.elvenLight;
 """,
 """  const activeLight=masterState.combat.elvenLight;
-  const cleavingReady=Object.entries(masterState.combat.cleavingReadyByHero||{}).filter((entry):entry is [string,NonNullable<typeof entry[1]>]=>Boolean(entry[1]));
+  const cleavingReady=Object.entries(masterState.combat.cleavingReadyByHero||{}).filter(([,value])=>Boolean(value)) as Array<[string,{weaponIndex:number;sourceTargetId:string;createdAt:number}]>;
   const knockedDown=actors.filter(actor=>(actor.stateNotes||[]).includes('knocked-down'));
   const baneOptions=['Orcs','Trolls','Wolves','Evil Men','Undead','Spiders'] as const;
 """,
