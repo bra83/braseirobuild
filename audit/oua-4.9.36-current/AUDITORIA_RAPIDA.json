@@ -1,0 +1,311 @@
+﻿{
+    "counts":  {
+                   "PASSOU":  43,
+                   "CORRIGIDO E RETESTADO":  0,
+                   "FALHOU":  0,
+                   "SEM EVIDÃŠNCIA":  0
+               },
+    "rows":  [
+                 {
+                     "area":  "IntegraÃ§Ã£o",
+                     "item":  "Rules Engine ligado Ã  aÃ§Ã£o",
+                     "status":  "PASSOU",
+                     "evidence":  "lib/master/commands.ts",
+                     "detail":  "Comandos passam por dispatcher com rejeiÃ§Ã£o explÃ­cita."
+                 },
+                 {
+                     "area":  "PersistÃªncia",
+                     "item":  "IndexedDB estÃ¡vel",
+                     "status":  "PASSOU",
+                     "evidence":  "lib/db.ts",
+                     "detail":  "Nome/schema preservados."
+                 },
+                 {
+                     "area":  "Viagem",
+                     "item":  "Movimento livre bloqueado",
+                     "status":  "PASSOU",
+                     "evidence":  "components/EriadorMap.tsx + lib/rules/journey.ts",
+                     "detail":  "UI nÃ£o oferece salto livre e o Rules Engine rejeita avanÃ§o sem Marcha."
+                 },
+                 {
+                     "area":  "Descanso",
+                     "item":  "Descanso altera relÃ³gio",
+                     "status":  "PASSOU",
+                     "evidence":  "lib/master/commands.ts",
+                     "detail":  "Descanso estÃ¡ no Rules Engine e avanÃ§a relÃ³gio."
+                 },
+                 {
+                     "area":  "Combate",
+                     "item":  "Combate canÃ´nico conectado",
+                     "status":  "PASSOU",
+                     "evidence":  "Rules/UI",
+                     "detail":  "Ataque/proteÃ§Ã£o existem no fluxo atual."
+                 },
+                 {
+                     "area":  "Combate",
+                     "item":  "Coordenadas tÃ¡ticas coerentes",
+                     "status":  "PASSOU",
+                     "evidence":  "lib/rules/combat.ts + lib/master/state.ts",
+                     "detail":  "Rules e UI usam coordenadas normalizadas 0..1; saves legados 0..100 sÃ£o migrados."
+                 },
+                 {
+                     "area":  "Conselho",
+                     "item":  "Conselho conectado",
+                     "status":  "PASSOU",
+                     "evidence":  "Rules/UI",
+                     "detail":  "Resultado do conselho chega ao estado."
+                 },
+                 {
+                     "area":  "Mundo",
+                     "item":  "Mundo vivo persiste",
+                     "status":  "PASSOU",
+                     "evidence":  "lib/master/commands.ts",
+                     "detail":  "Tempo/comandos propagam mundo vivo."
+                 },
+                 {
+                     "area":  "Android",
+                     "item":  "TTS engines dinÃ¢micas",
+                     "status":  "PASSOU",
+                     "evidence":  "MainActivity.kt",
+                     "detail":  "CatÃ¡logo vem do Android."
+                 },
+                 {
+                     "area":  "Android",
+                     "item":  "Braseiro Kokoro deduplicado",
+                     "status":  "PASSOU",
+                     "evidence":  "MainActivity.kt",
+                     "detail":  "Debug/release Sherpa colapsam para um backend visÃ­vel."
+                 },
+                 {
+                     "area":  "Android",
+                     "item":  "Somente Voice real",
+                     "status":  "PASSOU",
+                     "evidence":  "MainActivity.kt",
+                     "detail":  "SeleÃ§Ã£o usa Voice real."
+                 },
+                 {
+                     "area":  "Android",
+                     "item":  "Kokoro multi-bloco",
+                     "status":  "PASSOU",
+                     "evidence":  "MainActivity.kt",
+                     "detail":  "Primeiro bloco flush; sequÃªncia por onDone; sem watchdog neural."
+                 },
+                 {
+                     "area":  "Ãudio",
+                     "item":  "MÃºsica manual persiste entre cenas",
+                     "status":  "PASSOU",
+                     "evidence":  "App.tsx/lib/AudioEngine.ts",
+                     "detail":  "MÃºsica manual usa slot independente."
+                 },
+                 {
+                     "area":  "Ãudio",
+                     "item":  "Faixa longa nÃ£o usa SoundPool",
+                     "status":  "PASSOU",
+                     "evidence":  "lib/AudioEngine.ts",
+                     "detail":  "Faixas longas usam player contÃ­nuo."
+                 },
+                 {
+                     "area":  "Varredura",
+                     "item":  "TODO/FIXME",
+                     "status":  "PASSOU",
+                     "evidence":  "nenhum",
+                     "detail":  "OcorrÃªncias exigem inspeÃ§Ã£o; nÃ£o sÃ£o erro automaticamente."
+                 },
+                 {
+                     "area":  "Varredura",
+                     "item":  "empty-click",
+                     "status":  "PASSOU",
+                     "evidence":  "nenhum",
+                     "detail":  "OcorrÃªncias exigem inspeÃ§Ã£o; nÃ£o sÃ£o erro automaticamente."
+                 },
+                 {
+                     "area":  "Varredura",
+                     "item":  "not-implemented",
+                     "status":  "PASSOU",
+                     "evidence":  "nenhum",
+                     "detail":  "OcorrÃªncias exigem inspeÃ§Ã£o; nÃ£o sÃ£o erro automaticamente."
+                 },
+                 {
+                     "area":  "Android",
+                     "item":  "Sem acesso/cÃ³pia de modelo Kokoro",
+                     "status":  "PASSOU",
+                     "evidence":  "MainActivity.kt/AndroidManifest.xml",
+                     "detail":  "nenhum acesso proibido"
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "dice-gandalf-auto-success",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Runa de Gandalf vence TN alto sem dado de sucesso."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "dice-eye-miserable-auto-fail",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Arrasado + Olho de Sauron falha mesmo com soma alta."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "dice-weary-zeroes-1-3",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Cansado ignora 1-3 nos dados de sucesso."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "dice-favoured-illfavoured-selection",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Favorecido pega melhor; desfavorecido pega pior, com Olho ranqueado abaixo."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "condition-weary-recomputed",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Endurance mudou e Cansado foi recalculado contra carga+fadiga."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "condition-miserable-recomputed",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Esperanca/Sombra recalculam Arrasado."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "fatigue-never-negative",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Fadiga nao fica negativa."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "fellowship-insufficient-no-mutation",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Sociedade insuficiente nao altera estado."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "journey-four-roles-required",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Jornada exige Guia, Batedor, Cacador e Vigia."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "journey-march-success-distance",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Marcha bem-sucedida respeita rota restante e registra a jogada."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "journey-difficult-terrain-time",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Terreno dificil custa dois dias; estrada normal custa um."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "progression-skill-cost-deducted",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Elevar pericia para 2 custa 8 pontos e persiste o novo nivel."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "progression-combat-cost-deducted",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Elevar proficiencia para 2 custa 8 Pontos de Aventura."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "equipment-derived-load-protection",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Carga e Protecao sao recalculadas pelo equipamento canonico, ignorando valor manual incorreto."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "shadow-firm-will-scar",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Firme Vontade converte Sombra em cicatriz permanente."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "shadow-bout-adds-flaw",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Crise de Loucura avanca o Caminho da Sombra e reseta Sombra ate cicatrizes."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "journey-march-gate-blocks-free-move",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Jornada ativa sem Marcha disponÃƒÂ­vel rejeita avanÃƒÂ§o de hex."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "journey-route-no-consecutive-duplicate",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Movimento persiste rota sem duplicar hex consecutivo."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "combat-position-clamped",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Posicao normalizada permanece dentro do tabuleiro."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "combat-legacy-percent-normalized",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Coordenadas legadas em percentual sao convertidas para 0..1."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "combat-start-position-normalized",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Inicio de combate cria tokens em coordenadas 0..1."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "combat-upsert-legacy-normalized",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Upsert converte posicoes percentuais antigas."
+                 },
+                 {
+                     "area":  "Regras",
+                     "item":  "combat-save-migration",
+                     "status":  "PASSOU",
+                     "evidence":  "audit_runtime.ts",
+                     "detail":  "Save legado com posicao 0..100 migra para 0..1 ao reabrir."
+                 },
+                 {
+                     "area":  "Build",
+                     "item":  "VersÃ£o atual",
+                     "status":  "PASSOU",
+                     "evidence":  "android/app/build.gradle.kts",
+                     "detail":  "Esperado 4.9.36 / 49036."
+                 },
+                 {
+                     "area":  "Build",
+                     "item":  "Android completo",
+                     "status":  "PASSOU",
+                     "evidence":  "BRELGA :app:assembleDebug",
+                     "detail":  "Build Android completo apÃ³s as correÃ§Ãµes agrupadas."
+                 }
+             ]
+}
