@@ -77,7 +77,7 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw "4.9.38 failed at $script" }
           }
 
-          foreach ($script in @('patch_model.py','patch_creation.py','patch_rules.py','patch_commands.py','patch_ui.py','patch_finalize.py')) {
+          foreach ($script in @('patch_model.py','patch_creation.py','patch_rules.py','patch_commands.py','patch_ui.py','patch_magic.py','patch_virtues.py','patch_finalize.py')) {
             & $python.Source "$env:GITHUB_WORKSPACE\ci\oua-4.9.39\$script" $root
             if ($LASTEXITCODE -ne 0) { throw "4.9.39 failed at $script" }
           }
