@@ -131,6 +131,8 @@ jobs:
           $changed=git status --porcelain -- audit/oua-4.9.36-current
           if($changed){
             git commit -m "OUA 4.9.36: complete fast functional audit evidence"
+            git fetch origin main
+            git rebase origin/main
             git push origin HEAD:main
           } else {
             Write-Host 'Audit evidence unchanged.'
