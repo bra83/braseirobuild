@@ -61,6 +61,9 @@ types=req(
     skillPoints: number;
     createdAt: number;
   }>;
+  preStriderFellowshipCurrent?: number;
+  preStriderFellowshipMax?: number;
+  preStriderFellowshipFocus?: Record<string, string>;
 }""",
     "company strider state",
 )
