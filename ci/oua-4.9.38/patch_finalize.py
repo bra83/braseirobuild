@@ -46,21 +46,21 @@ imm = req(imm, old_eye, new_eye, "real Eye HUD")
 
 old_card = """      <div style={{ ...glassPanel, width: 100, borderRadius: 12, padding: '7px 8px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, opacity: .78 }}>
-          {sauronEye && <img src={sauronEye} alt="" style={{ width: 18, height: 18, objectFit: 'contain', flex: '0 0 auto' }} />}
+          {sauronEye && <img src={sauronEye} alt="" style={{ width: 18, height: 18, objectFit: 'contain' }} />}
           <span>Olho</span><strong style={{ marginLeft: 'auto', fontSize: 11 }}>{eye.current}/{eye.max}</strong>
         </div>
         <div style={{ height: 5, borderRadius: 99, overflow: 'hidden', marginTop: 5, background: 'rgba(255,255,255,.12)' }}>
-          <div style={{ height: '100%', width: {`${Math.max(0, Math.min(100, eye.current / eye.max * 100))}%`}, background: 'linear-gradient(90deg,#8f6e45,#b8793d,#b84026)', borderRadius: 99 }} />
+          <div style={{ height: '100%', width: Math.max(0, Math.min(100, eye.current / eye.max * 100)) + '%', background: 'linear-gradient(90deg,#8f6e45,#b8793d,#b84026)', borderRadius: 99 }} />
         </div>
       </div>"""
 new_card = """      {props.masterState.company.eyeAwarenessEnabled && (
         <div style={{ ...glassPanel, width: 100, borderRadius: 12, padding: '7px 8px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, opacity: .78 }}>
-            {sauronEye && <img src={sauronEye} alt="" style={{ width: 18, height: 18, objectFit: 'contain', flex: '0 0 auto' }} />}
+            {sauronEye && <img src={sauronEye} alt="" style={{ width: 18, height: 18, objectFit: 'contain' }} />}
             <span>Olho</span><strong style={{ marginLeft: 'auto', fontSize: 11 }}>{eye.current}/{eye.max}</strong>
           </div>
           <div style={{ height: 5, borderRadius: 99, overflow: 'hidden', marginTop: 5, background: 'rgba(255,255,255,.12)' }}>
-            <div style={{ height: '100%', width: {`${Math.max(0, Math.min(100, eye.current / eye.max * 100))}%`}, background: 'linear-gradient(90deg,#8f6e45,#b8793d,#b84026)', borderRadius: 99 }} />
+            <div style={{ height: '100%', width: Math.max(0, Math.min(100, eye.current / eye.max * 100)) + '%', background: 'linear-gradient(90deg,#8f6e45,#b8793d,#b84026)', borderRadius: 99 }} />
           </div>
         </div>
       )}"""
