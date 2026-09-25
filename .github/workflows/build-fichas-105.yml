@@ -1,0 +1,151 @@
+name: Build Braseiro Fichas Traveller Fix 1.0.5
+
+on:
+  push:
+    branches: [fichas-final-20260916]
+    paths:
+      - ".github/workflows/build-fichas-105.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      SOURCE_URL: "https://firestorage.ai/ja/f/MjEGdbeiEQvk"
+      SOURCE_SHA256: "641e33c63454b0580c64b578f47cd9610b2215cd100dfd58f24e208a2c849228"
+      SOURCE_NAME: "BRASEIRO_FICHAS_MULTISSISTEMA_ANDROID_STUDIO_TRAVELLER_FIX_1.0.5_2026-09-17.zip"
+
+    steps:
+      - name: Checkout build repo
+        uses: actions/checkout@v4
+
+      - name: Preparar navegador para baixar fonte
+        shell: bash
+        run: |
+          set -euo pipefail
+          BROWSER_DIR="$RUNNER_TEMP/firestorage-browser"
+          mkdir -p "$BROWSER_DIR"
+          cd "$BROWSER_DIR"
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+          echo "BROWSER_DIR=$BROWSER_DIR" >> "$GITHUB_ENV"
+
+      - name: Baixar fonte 1.0.5 e validar SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/download-firestorage.cjs" <<'JS'
+          const path = require('path');
+          const { chromium } = require(path.join(process.env.BROWSER_DIR, 'node_modules', 'playwright'));
+          (async () => {
+            const out = path.join(process.env.RUNNER_TEMP, process.env.SOURCE_NAME);
+            const browser = await chromium.launch({headless:true});
+            const context = await browser.newContext({acceptDownloads:true});
+            const page = await context.newPage();
+            await page.goto(process.env.SOURCE_URL, {waitUntil:'domcontentloaded', timeout:60000});
+            await page.waitForTimeout(7000);
+            const controls = [
+              page.getByRole('button', {name:/ダウンロード|download/i}),
+              page.getByRole('link', {name:/ダウンロード|download/i}),
+              page.locator('button').filter({hasText:/ダウンロード|download/i}),
+              page.locator('a').filter({hasText:/ダウンロード|download/i})
+            ];
+            let saved=false;
+            for (const loc of controls) {
+              for (let i=0;i<await loc.count() && !saved;i++) {
+                const el=loc.nth(i);
+                if (!(await el.isVisible().catch(()=>false))) continue;
+                const p=page.waitForEvent('download',{timeout:30000}).catch(()=>null);
+                await el.click({timeout:15000}).catch(()=>el.click({force:true,timeout:10000}));
+                const d=await p;
+                if (d) { await d.saveAs(out); saved=true; }
+              }
+              if (saved) break;
+            }
+            await browser.close();
+            if (!saved) throw new Error('Download da fonte não foi capturado');
+          })().catch(e=>{console.error(e);process.exit(2)});
+          JS
+          node "$RUNNER_TEMP/download-firestorage.cjs"
+          ZIP="$RUNNER_TEMP/$SOURCE_NAME"
+          test -f "$ZIP"
+          echo "$SOURCE_SHA256  $ZIP" | sha256sum -c -
+          unzip -t "$ZIP"
+
+      - name: Extrair projeto Android Studio
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/fichas-105"
+          rm -rf "$WORK"
+          mkdir -p "$WORK"
+          unzip -q "$RUNNER_TEMP/$SOURCE_NAME" -d "$WORK"
+          GRADLEW="$(find "$WORK" -type f -name gradlew -print -quit)"
+          test -n "$GRADLEW"
+          ROOT="$(dirname "$GRADLEW")"
+          echo "ANDROID_PROJECT_ROOT=$ROOT" >> "$GITHUB_ENV"
+
+      - name: Rodar regressão cumulativa e gate Traveller
+        working-directory: ${{ env.ANDROID_PROJECT_ROOT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/*.test.js
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Configurar Android SDK 35
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}"
+          SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          test -x "$SDKMANAGER"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "$SDK_ROOT/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Configurar cache Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Compilar APK debug
+        working-directory: ${{ env.ANDROID_PROJECT_ROOT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew clean :app:assembleDebug --stacktrace --no-daemon
+
+      - name: Validar e publicar APK 1.0.5
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="$(find "$ANDROID_PROJECT_ROOT/app/build/outputs/apk/debug" -type f -name '*.apk' -print -quit)"
+          test -f "$APK"
+          OUT="$GITHUB_WORKSPACE/deliverables/fichas-final-20260916"
+          mkdir -p "$OUT"
+          unzip -t "$APK" > "$OUT/unzip-apk-1.0.5.txt"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee "$OUT/aapt-1.0.5.txt"
+          grep -q "package: name='com.braseiro.fichas' versionCode='6' versionName='1.0.5'" "$OUT/aapt-1.0.5.txt"
+          grep -q "application-icon-.*ic_launcher.xml" "$OUT/aapt-1.0.5.txt"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee "$OUT/apksigner-1.0.5.txt"
+          cp "$APK" "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.5-traveller-fix-debug.apk"
+          sha256sum "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.5-traveller-fix-debug.apk" | tee "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.5-traveller-fix-debug.apk.sha256"
+          echo "$SOURCE_SHA256  $SOURCE_NAME" > "$OUT/source-project-1.0.5.sha256"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f deliverables/fichas-final-20260916
+          git commit -m "build: publish Braseiro Fichas 1.0.5 Traveller fix"
+          git push origin HEAD:fichas-final-20260916

@@ -1,0 +1,31 @@
+name: Export Braseiro Fichas 1.0.1 APK
+
+on:
+  push:
+    branches: [fichas-final-20260916]
+    paths:
+      - ".github/workflows/export-fichas-101.yml"
+  workflow_dispatch:
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify APK and SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="deliverables/fichas-final-20260916/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.1-ui-hotfix-debug.apk"
+          test -f "$APK"
+          echo "bb1eb422efb406927684a1a65d4764681e9d73a8b3a632b2ffe32695c66877ef  $APK" | sha256sum -c -
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_FICHAS_MULTISSISTEMA-1.0.1-ui-hotfix-debug
+          path: |
+            deliverables/fichas-final-20260916/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.1-ui-hotfix-debug.apk
+            deliverables/fichas-final-20260916/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.1-ui-hotfix-debug.apk.sha256
+            deliverables/fichas-final-20260916/aapt-1.0.1.txt
+            deliverables/fichas-final-20260916/apksigner-1.0.1.txt
+          retention-days: 14

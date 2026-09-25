@@ -1,0 +1,4 @@
+Build: Braseiro Fichas 1.1.0 mapped imports
+Branch: fichas-final-20260916
+Commit: 8136c3feaa10c1b5ab0c6d21234e84be5c47fcf2
+Mapping contracts: Tales, WWN, D&D, O Um Anel 2e, PF2e, Forbidden Lands, Traveller

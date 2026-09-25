@@ -1,0 +1,18 @@
+Verifies
+Verified using v1 scheme (JAR signing): true
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): false
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: C=US, O=Android, CN=Android Debug
+Signer #1 certificate SHA-256 digest: f40fee0dd7d2ed99e3b8104e7945b7f51be8f7c94ce982a7e1bda8145bd48f53
+Signer #1 certificate SHA-1 digest: c3b83ab0f08c0cadb402fe400efcb69f328f49a1
+Signer #1 certificate MD5 digest: ed4775c8160833bd6a924ac7c570499e
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 2048
+Signer #1 public key SHA-256 digest: 528c9bef97bc5e2317d523ff27000aa890bf6ebcbcdfd681e20e17b263b123dc
+Signer #1 public key SHA-1 digest: 9533a45bb43cb0c9f4689afb0c9e7e9a8501cb33
+Signer #1 public key MD5 digest: cdf0c608c93767cee60fdc540abca1b0
+WARNING: META-INF/com/android/build/gradle/app-metadata.properties not protected by signature. Unauthorized modifications to this JAR entry will not be detected. Delete or move the entry outside of META-INF/.
