@@ -52,6 +52,13 @@ checks={
   "db-preserved": "const DB_NAME = 'braseiro-db';" in read("lib/db.ts") and "const DB_VERSION = 19;" in read("lib/db.ts"),
   "tts-preserved": "Braseiro Kokoro PT-BR · neural" in read("android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt"),
   "version": "4.9.39" in read("lib/version.ts") and "49039" in read("android/app/build.gradle.kts"),
+  "magical-success-result": "rollMagicalSuccess" in read("lib/dice.ts") and "magicalSuccess?: boolean" in read("lib/dice.ts"),
+  "magical-success-ui": "Gastar 1 Esperança · Sucesso Mágico" in read("components/DiceView.tsx") and "Sucesso Mágico" in read("components/JourneyResolutionPanel.tsx"),
+  "eldar-auto-magical": "gandalfIsAutomaticMagicalSuccess" in read("components/DiceView.tsx"),
+  "virtue-max-effects": "supplementMaxHopeBonus" in read("lib/rules/progression.ts") and "supplementMaxEnduranceBonus" in read("lib/rules/progression.ts"),
+  "beorn-choice": "set_beorn_enchanted_skills" in read("lib/master/commands.ts") and "Salvar 3 Perícias" in read("components/SupplementRulesPanel.tsx"),
+  "natural-watchfulness-role": "naturalWatchfulnessIds" in read("lib/rules/journey.ts"),
+  "elrond-undertaking": "meet-patron" in read("lib/master/commands.ts") and "Encontrar Patrono · Elrond" in read("components/MechanicsHub.tsx"),
 }
 for name,ok in checks.items():
     print(("PASS" if ok else "FAIL"),name)
