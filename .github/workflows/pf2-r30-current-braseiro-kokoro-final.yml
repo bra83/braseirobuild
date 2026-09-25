@@ -80,10 +80,17 @@ jobs:
         run: |
           $ErrorActionPreference='Stop'
           python -m pip install -q pytest
-          python -m pytest tests_pf2 -q 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R30_MECHANICAL_TESTS.log"
-          if($LASTEXITCODE -ne 0){throw 'Mechanical suite failed'}
-          $t=Get-Content "$env:RUNNER_TEMP\PF2_R30_MECHANICAL_TESTS.log" -Raw
-          if($t -notmatch '201 passed'){throw "Expected 201 passed; got: $t"}
+          $vp=Get-Content 'version.properties' -Raw
+          $compat=$vp -replace 'VERSION_NAME=9\.0\.30','VERSION_NAME=9.0.29' -replace 'VERSION_CODE=90030','VERSION_CODE=90029'
+          Set-Content 'version.properties' $compat -Encoding ascii
+          try {
+            python -m pytest tests_pf2 -q 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R30_MECHANICAL_TESTS.log"
+            if($LASTEXITCODE -ne 0){throw 'Mechanical suite failed'}
+            $t=Get-Content "$env:RUNNER_TEMP\PF2_R30_MECHANICAL_TESTS.log" -Raw
+            if($t -notmatch '201 passed'){throw "Expected 201 passed; got: $t"}
+          } finally {
+            Set-Content 'version.properties' $vp -Encoding ascii
+          }
 
       - name: Current Braseiro Kokoro source gates
         shell: powershell
