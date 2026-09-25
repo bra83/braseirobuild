@@ -69,6 +69,24 @@ types=req(
 )
 types=req(
     types,
+    "    featResults?: number[];\n",
+    """    featResults?: number[];
+    detail?: string;
+    notable?: boolean;
+""",
+    "strider event metadata",
+)
+types=req(
+    types,
+    "  lastEventResult?: { eventType: string; description: string; success: boolean; targetCharacterId: string; createdAt: number } | null;\n}",
+    """  lastEventResult?: { eventType: string; description: string; success: boolean; targetCharacterId: string; createdAt: number } | null;
+  striderEvent?: boolean;
+  striderDetailDie?: number;
+}""",
+    "strider journey flags",
+)
+types=req(
+    types,
     "  rolls?: CombatRollRecord[];\n",
     """  rolls?: CombatRollRecord[];
   gainGroundDiceByHero?: Record<string, number>;
@@ -90,8 +108,21 @@ extra="""  | { type: 'set_rules_mode'; mode: 'standard' | 'strider'; reason: str
   | { type: 'arm_firstborn_power'; targetCharacterId: string; reason: string }
   | { type: 'gain_ground'; targetCharacterId: string; skill: 'Atletismo' | 'Busca'; reason: string }
   | { type: 'escape_skirmish'; targetCharacterId: string; weaponIndex: number; reason: string }
+  | { type: 'set_beorn_enchanted_skills'; targetCharacterId: string; skills: string[]; reason: string }
   | { type: 'player_generate_strider_journey_event'; region: 'border' | 'wild' | 'dark'; featResults: number[]; detailDie: number; terrain?: string; reason: string }"""
 types=req(types,anchor,anchor+"\n"+extra,"supplement commands")
+types=types.replace(
+    "| { type: 'resolve_hero_attack'; attackerId: string; targetActorId: string; weaponIndex: number; spendHope?: boolean; inspired?: boolean; special?: 'heavy' | 'pierce' | 'defend'; reason: string }",
+    "| { type: 'resolve_hero_attack'; attackerId: string; targetActorId: string; weaponIndex: number; spendHope?: boolean; inspired?: boolean; special?: 'heavy' | 'pierce' | 'defend' | 'escape'; reason: string }"
+)
+types=types.replace(
+    "| { type: 'resolve_adversary_attack'; attackerId: string; targetCharacterId: string; successDice: number; damage: number; injury: number; ranged?: boolean; reason: string }",
+    "| { type: 'resolve_adversary_attack'; attackerId: string; targetCharacterId: string; successDice: number; damage: number; injury: number; ranged?: boolean; deadlyAbility?: boolean; hateCost?: number; reason: string }"
+)
+types=types.replace(
+    "| { type: 'resolve_first_aid'; healerCharacterId: string; targetCharacterId: string; reason: string }",
+    "| { type: 'resolve_first_aid'; healerCharacterId: string; targetCharacterId: string; skill?: 'Cura' | 'Música'; reason: string }"
+)
 write(types_rel,types)
 
 # Defaults + normalization.
