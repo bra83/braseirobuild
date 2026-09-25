@@ -1,0 +1,193 @@
+name: PF2 R30 Complete Fast Audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-pf2-r30-complete-fast.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  AUDIO_SHA: '030b807acebbc05471b67d0b61228dfc221f814637247593bebb20e166de141f'
+  PYTHONUTF8: '1'
+  PYTHONIOENCODING: 'utf-8'
+
+jobs:
+  audit:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Recover exact R30 working source
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          AUDIO_SHARE: 'bXE49-WofMfp'
+          AUDIO_FILE: '01a0d617a20d75e5b561194b0c7fe976'
+        run: |
+          $ErrorActionPreference='Stop'
+          $root=Join-Path $env:RUNNER_TEMP 'pf2-r30-audit'
+          $work=Join-Path $root 'work'
+          $audio=Join-Path $root 'audio'
+          Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $work,$audio -Force | Out-Null
+
+          $srcZip=Join-Path $root 'r29.zip'
+          & curl.exe -L --fail --retry 5 --retry-delay 3 -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $srcZip "https://api.github.com/repos/bra83/braseirobuild/releases/assets/585242045"
+          if($LASTEXITCODE -ne 0){throw 'R29 source download failed'}
+          tar.exe -xf $srcZip -C $work
+          if($LASTEXITCODE -ne 0){throw 'R29 extract failed'}
+
+          $api='https://api.firestorage.ai/dev/file'
+          $d=Invoke-RestMethod -Method Post -Uri "$api/shares/$env:AUDIO_SHARE/files/$env:AUDIO_FILE/download"
+          $audioZip=Join-Path $root 'audio.zip'
+          Invoke-WebRequest -Uri $d.downloadUrl -OutFile $audioZip
+          if((Get-FileHash $audioZip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $env:AUDIO_SHA){throw 'Audio bundle SHA mismatch'}
+          tar.exe -xf $audioZip -C $audio
+          python (Join-Path $audio 'patch.py') $work
+          if($LASTEXITCODE -ne 0){throw 'R30 Kokoro patch failed'}
+
+          "WORK_ROOT=$work" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Run existing mechanical suite
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          python -m pip install -q pytest
+          $vp=Get-Content 'version.properties' -Raw
+          $compat=$vp -replace 'VERSION_NAME=9\.0\.30','VERSION_NAME=9.0.29' -replace 'VERSION_CODE=90030','VERSION_CODE=90029'
+          Set-Content 'version.properties' $compat -Encoding ascii
+          try {
+            python -m pytest tests_pf2 -q 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R30_AUDIT_TESTS.log"
+            if($LASTEXITCODE -ne 0){throw 'Existing PF2 suite failed'}
+          } finally {
+            Set-Content 'version.properties' $vp -Encoding ascii
+          }
+
+      - name: Generate semantic audit inventory
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $py = @'
+          from pathlib import Path
+          import re, json, os, collections, textwrap
+          root=Path(os.environ["WORK_ROOT"])
+          out=Path(os.environ["RUNNER_TEMP"])/"PF2_R30_COMPLETE_AUDIT_REPORT.txt"
+          exts={".ts",".tsx",".js",".jsx",".kt",".java",".py",".json",".html",".xml"}
+          skip={"node_modules","build","dist",".gradle",".git"}
+          files=[]
+          for p in root.rglob("*"):
+              if not p.is_file() or p.suffix.lower() not in exts or p.stat().st_size>3_000_000: continue
+              if any(part in skip for part in p.parts): continue
+              files.append(p)
+
+          def read(p):
+              try:return p.read_text(encoding="utf-8",errors="ignore")
+              except:return ""
+
+          alltxt={p:read(p) for p in files}
+          lines=[]
+          lines.append("PF2 R30 COMPLETE FAST AUDIT")
+          lines.append("ROOT="+str(root))
+          lines.append("FILES_SCANNED="+str(len(files)))
+
+          patterns={
+            "TODO_STUB":r"TODO|FIXME|NotImplemented|not implemented|throw new Error\([^)]*(?:TODO|implement)|return null\s*//|pass\s*(?:#.*)?$",
+            "HP_DYING":r"dying|wounded|doomed|temporary.?hp|temp.?hp|massive damage|nonlethal",
+            "CONDITIONS":r"frightened|clumsy|enfeebled|drained|stupefied|slowed|stunned|quickened|persistent damage|persistentDamage|off-guard|flat-footed",
+            "DAMAGE_TYPES":r"resistance|weakness|immunity|damageType|damage type",
+            "ACTIONS":r"action[s]? remaining|actionsRemaining|quickened|slowed|stunned",
+            "TRAVEL":r"travel|exploration|hustle|difficult terrain|greater difficult|Speed|movement",
+            "REST":r"rest|daily preparation|Treat Wounds|Refocus|fatigued|fatigue",
+            "PROGRESSION":r"\bxp\b|experience|level.?up|levelUp|feat|proficiency",
+            "INVENTORY":r"bulk|encumbered|invested|investiture|ammo|ammunition|charges|stowed|worn|held",
+            "KINGMAKER":r"kingdom|event phase|warfare|army|armies|rout|routed|kingmaker",
+            "PERSISTENCE":r"localStorage|IndexedDB|indexedDB|SharedPreferences|save|load|persist|backup|restore",
+            "UI_COMMAND":r"type\s*:\s*['\"][a-zA-Z0-9_\-]+['\"]|case\s+['\"][a-zA-Z0-9_\-]+['\"]",
+          }
+
+          for label,pat in patterns.items():
+              rx=re.compile(pat,re.I|re.M)
+              hits=[]
+              for p,t in alltxt.items():
+                  for m in rx.finditer(t):
+                      ln=t.count("\n",0,m.start())+1
+                      snippet=t[m.start():m.start()+220].splitlines()[0]
+                      hits.append((str(p.relative_to(root)),ln,snippet))
+                      if len(hits)>=180: break
+                  if len(hits)>=180: break
+              lines.append("\n=== "+label+" ("+str(len(hits))+") ===")
+              for h in hits: lines.append(f"{h[0]}:{h[1]}: {h[2]}")
+
+          # Command emit/handler matrix
+          emit=collections.Counter()
+          handle=collections.Counter()
+          emit_rx=re.compile(r"type\s*:\s*['\"]([a-zA-Z0-9_\-]+)['\"]")
+          case_rx=re.compile(r"case\s+['\"]([a-zA-Z0-9_\-]+)['\"]")
+          for p,t in alltxt.items():
+              for m in emit_rx.finditer(t): emit[m.group(1)]+=1
+              for m in case_rx.finditer(t): handle[m.group(1)]+=1
+          lines.append("\n=== COMMAND_MATRIX ===")
+          for k in sorted(set(emit)|set(handle)):
+              lines.append(f"{k}\temit={emit[k]}\thandle={handle[k]}\tstatus={'OK' if handle[k] else 'NO_HANDLER'}")
+
+          # Focused full function neighborhoods
+          focus=[
+            "applyDamage","takeDamage","hp_delta","hp_set","recovery","dying","wounded",
+            "persistentDamage","frightened","slowed","stunned","quickened",
+            "travel","hustle","rest","daily","bulk","encumbered","levelUp","experience",
+            "event phase","warfare","army","saveGame","loadGame","persist"
+          ]
+          lines.append("\n=== FOCUSED_CONTEXT ===")
+          for needle in focus:
+              rx=re.compile(re.escape(needle),re.I)
+              count=0
+              for p,t in alltxt.items():
+                  for m in rx.finditer(t):
+                      if count>=12: break
+                      ls=t.splitlines()
+                      ln=t.count("\n",0,m.start())
+                      a=max(0,ln-8); b=min(len(ls),ln+18)
+                      lines.append(f"\n--- {needle} @ {p.relative_to(root)}:{ln+1} ---")
+                      for i in range(a,b): lines.append(f"{i+1:5}: {ls[i]}")
+                      count+=1
+                  if count>=12: break
+
+          # Test names to map evidence
+          tests=[]
+          for p,t in alltxt.items():
+              if "tests_pf2" not in str(p): continue
+              for m in re.finditer(r"def\s+(test_[A-Za-z0-9_]+)",t):
+                  tests.append((str(p.relative_to(root)),m.group(1)))
+          lines.append("\n=== TEST_INDEX ===")
+          for p,n in tests: lines.append(f"{p}\t{n}")
+
+          out.write_text("\n".join(lines),encoding="utf-8")
+          print(out)
+          '@
+          $script=Join-Path $env:RUNNER_TEMP 'pf2_audit_inventory.py'
+          [System.IO.File]::WriteAllText($script,$py,(New-Object System.Text.UTF8Encoding($false)))
+          python $script
+
+      - name: Commit audit report and test log
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\audit" -Force | Out-Null
+          Copy-Item "$env:RUNNER_TEMP\PF2_R30_COMPLETE_AUDIT_REPORT.txt" "$env:GITHUB_WORKSPACE\audit\PF2_R30_COMPLETE_AUDIT_REPORT.txt" -Force
+          Copy-Item "$env:RUNNER_TEMP\PF2_R30_AUDIT_TESTS.log" "$env:GITHUB_WORKSPACE\audit\PF2_R30_AUDIT_TESTS.log" -Force
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add audit/PF2_R30_COMPLETE_AUDIT_REPORT.txt audit/PF2_R30_AUDIT_TESTS.log
+          git commit -m 'audit: PF2 R30 complete fast functional inventory'
+          git push origin HEAD:main
