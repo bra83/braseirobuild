@@ -148,29 +148,12 @@ state=req(
 )
 state=req(
     state,
-    "      rolls: [],\n",
-    """      rolls: [],
-      gainGroundDiceByHero: {},
-      firstbornPowerArmedByHero: {},
-      escapedHeroIds: [],
-""",
+    "narrativeBlocks: [], rolls: [], updatedAt: now",
+    "narrativeBlocks: [], rolls: [], gainGroundDiceByHero: {}, firstbornPowerArmedByHero: {}, escapedHeroIds: [], updatedAt: now",
     "combat supplement defaults",
 )
-# Normalize optional company/combat fields even for old saves.
-norm_anchor="      stageRouteHexIds: Array.isArray(incoming.journey?.stageRouteHexIds) ? incoming.journey.stageRouteHexIds : [],"
-if norm_anchor in state:
-    pass
-# Generic normalize merges existing spreads, so add explicit fallback near top-level company/combat spread anchors if found.
-state=state.replace(
-    "company: { ...base.company, ...(incoming.company || {}) },",
-    "company: { ...base.company, ...(incoming.company || {}), rulesMode: incoming.company?.rulesMode === 'strider' ? 'strider' : 'standard', striderUseMilestones: Boolean(incoming.company?.striderUseMilestones), striderMilestones: Array.isArray(incoming.company?.striderMilestones) ? incoming.company.striderMilestones : [] },",
-    1,
-)
-state=state.replace(
-    "combat: { ...base.combat, ...(incoming.combat || {}) },",
-    "combat: { ...base.combat, ...(incoming.combat || {}), gainGroundDiceByHero: incoming.combat?.gainGroundDiceByHero || {}, firstbornPowerArmedByHero: incoming.combat?.firstbornPowerArmedByHero || {}, escapedHeroIds: Array.isArray(incoming.combat?.escapedHeroIds) ? incoming.combat.escapedHeroIds : [] },",
-    1,
-)
+# normalizeMasterState already spreads base.company/base.combat before incoming values,
+# so optional 4.9.39 fields inherit these defaults for old saves without a brittle rewrite.
 write(state_rel,state)
 
 # Solo supplement is an authoritative mechanical source.
