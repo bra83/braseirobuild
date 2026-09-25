@@ -39,6 +39,12 @@ t=t.replace(
 "| { type: 'adjust_eye_awareness'; amount: number; source: 'eye-roll' | 'shadow' | 'magic-minor' | 'magic-major' | 'magic-powerful' | 'dramatic'; direction?: 'increase' | 'decrease'; reason: string }"
 )
 
+# Strider detail tables can yield an extended Notable Encounter instead of one skill test.
+t=t.replace(
+"    featResults?: number[];\n",
+"    featResults?: number[];\n    detail?: string;\n    notable?: boolean;\n"
+)
+
 # First Aid may use Song via Staunching Song.
 t=t.replace(
 "| { type: 'resolve_first_aid'; healerCharacterId: string; targetCharacterId: string; reason: string }",
