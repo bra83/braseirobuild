@@ -68,6 +68,8 @@ write(rel,t)
 
 rel="lib/characterFactory.ts"
 t=read(rel)
+t=t.replace("import { CANONICAL_SKILLS } from './skillRegistry';","import { CANONICAL_SKILLS, attributeForCanonicalSkill } from './skillRegistry';")
+t=t.replace("import { SUPPLEMENT_CULTURES, sourceForCulture } from './supplementRules';","import { SUPPLEMENT_CULTURES, sourceForCulture, virtuesForCulture } from './supplementRules';")
 t=req(t,
 "function spendPreviousExperience(ranks:Record<string,number>, prof:Record<string,number>):string[]{",
 "function spendPreviousExperience(ranks:Record<string,number>, prof:Record<string,number>, totalBudget=10):string[]{",
@@ -122,7 +124,7 @@ t=req(t,
 
 dynamic = chr(36)+"{previousExperience}/"+chr(36)+"{previousExperience}"
 t=t.replace("Experiência Prévia: 10/10 pontos.","Experiência Prévia: "+dynamic+" pontos.")
-t=t.replace("creationTrace:trace},tokenId:null","creationTrace:trace,rulesMode,supplementSelections:{}},tokenId:null")
+t=t.replace("creationTrace:trace},tokenId:null","creationTrace:trace,rulesMode,supplementSelections:{houndAvailable:virtue==='Cão da Floresta das Trevas',beornEnchantedSkills:virtue==='O Encantamento de Beorn'?sample(CANONICAL_SKILLS.filter(skill=>attributeForCanonicalSkill(skill)==='strength'),3):undefined}},tokenId:null")
 write(rel,t)
 
 print("PATCH_4939_CORE_OK")
