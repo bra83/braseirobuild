@@ -131,13 +131,23 @@ app=req(app,old,new,"Journey manual Hope")
 
 # Insert Notable Event resolver before standard Apply Event.
 anchor="""  const handleApplyJourneyEvent = async () => {"""
-notable="""  const handleResolveJourneyNotable = async (success: boolean) => {
+notable="""  const handleOpenJourneyNotable = async () => {
+    const base = campaignRef.current;
+    if (!base) return;
+    const event = normalizeMasterState(base).journey.pendingEvent;
+    if (!event?.notable) throw new Error('O Evento atual não é um Encontro Notável.');
+    setIsStoryLoading(true);
+    setStoryError(null);
+    await processTurn('[ENCONTRO NOTÁVEL DA JORNADA] Desenvolva este encontro como uma cena estendida e significativa. Não reduza o encontro a uma única rolagem, não resolva automaticamente o resultado geral e não avance Marcha/Evento/Jornada. O jogador decidirá depois se o desfecho global foi favorável ou desfavorável.', false, base);
+  };
+
+  const handleResolveJourneyNotable = async (success: boolean) => {
     const base = campaignRef.current;
     if (!base) return;
     const master = normalizeMasterState(base);
     const event = master.journey.pendingEvent;
     if (!event?.notable) throw new Error('O Evento atual não é um Encontro Notável.');
-    const heroId = base.partyCharacterIds?.[0] || base.activeCharacterId;
+    const heroId = master.company.journeyRoles[event.targetRole] || base.partyCharacterIds?.[0] || base.activeCharacterId;
     const hero = characters.find(character => character.id === heroId);
     if (!hero) throw new Error('Herói do Encontro Notável não encontrado.');
     const syntheticRoll = {
