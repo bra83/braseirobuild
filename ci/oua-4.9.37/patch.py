@@ -17,8 +17,8 @@ def req(s,a,b,label):
 # percentages while preserving normalized state.
 narr_rel="lib/narrativeEngine.ts"
 narr=read(narr_rel)
-old='''.map(actor => \`\${actor.actorId}: x=\${Math.round(actor.position!.x)}, y=\${Math.round(actor.position!.y)}\`);'''
-new='''.map(actor => \`\${actor.actorId}: x=\${Math.round(actor.position!.x * 100)}%, y=\${Math.round(actor.position!.y * 100)}%\`);'''
+old='''.map(actor => `${actor.actorId}: x=${Math.round(actor.position!.x)}, y=${Math.round(actor.position!.y)}`);'''
+new='''.map(actor => `${actor.actorId}: x=${Math.round(actor.position!.x * 100)}%, y=${Math.round(actor.position!.y * 100)}%`);'''
 narr=req(narr,old,new,"combat narrative coordinate context")
 write(narr_rel,narr)
 
