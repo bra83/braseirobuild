@@ -174,4 +174,30 @@ t=req(t,
 "awakened common Reward effects")
 write(rel,t)
 
+# Progression awakens the next entry in the unified Reward sequence.
+rel="lib/rules/progression.ts"
+t=read(rel)
+t=req(t,
+"""  const total=(item.magicalQualities||[]).length;
+  const unlocked=Math.max(0,Math.trunc(Number(item.magicalQualitiesUnlocked)||0));
+  if(unlocked>=total) return {sheet:input,cost,allowed:false,reason:'Todas as qualidades desta peça já estão ativas.'};
+  next.resources.adventurePoints-=cost;
+  next.attributes.valor=target;
+  item.magicalQualitiesUnlocked=Math.min(total,unlocked+1);
+  next.combat.weapons=(next.combat.weapons||[]).map(weapon=>weapon.treasureIndexEntryId===item.treasureIndexEntryId?{...weapon,magicalQualitiesUnlocked:item.magicalQualitiesUnlocked}:weapon);""",
+"""  const total=(item.magicalRewards||[]).length || (item.magicalQualities||[]).length;
+  const unlocked=Math.max(0,Math.trunc(Number(item.magicalRewardsUnlocked ?? item.magicalQualitiesUnlocked)||0));
+  if(unlocked>=total) return {sheet:input,cost,allowed:false,reason:'Todas as qualidades desta peça já estão ativas.'};
+  next.resources.adventurePoints-=cost;
+  next.attributes.valor=target;
+  item.magicalRewardsUnlocked=Math.min(total,unlocked+1);
+  if(!item.magicalRewards?.length) item.magicalQualitiesUnlocked=item.magicalRewardsUnlocked;
+  next.combat.weapons=(next.combat.weapons||[]).map(weapon=>weapon.treasureIndexEntryId===item.treasureIndexEntryId?{
+    ...weapon,
+    magicalRewardsUnlocked:item.magicalRewardsUnlocked,
+    magicalQualitiesUnlocked:item.magicalRewards?.length?weapon.magicalQualitiesUnlocked:item.magicalQualitiesUnlocked,
+  }:weapon);""",
+"Valor mixed Reward awakening")
+write(rel,t)
+
 print("PATCH_4944_RULES_OK")
