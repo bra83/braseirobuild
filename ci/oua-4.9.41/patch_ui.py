@@ -53,7 +53,7 @@ helper="""function reconcileCharacterPathPartyEffects(campaign:CampaignState,cha
   const next=characterPathCompanyDeltas(characters,partyCharacterIds);
   const oldFellowship=Number(master.company.characterPathFellowshipDelta)||0;
   const oldEye=Number(master.company.characterPathEyeDelta)||0;
-  const fellowshipMax=Math.max(0,Number(master.company.fellowshipMax)||0-oldFellowship+next.fellowship);
+  const fellowshipMax=Math.max(0,(Number(master.company.fellowshipMax)||0)-oldFellowship+next.fellowship);
   const fellowshipCurrent=Math.max(0,Math.min(fellowshipMax,(Number(master.company.fellowshipCurrent)||0)-oldFellowship+next.fellowship));
   const eyeAwareness=Math.max(0,(Number(master.company.eyeAwareness)||0)-oldEye+next.eye);
   return {
