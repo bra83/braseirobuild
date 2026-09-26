@@ -1,0 +1,101 @@
+name: OUA 4.9.46 Cloud Preflight
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/preflight-oua-4.9.46.yml"
+      - "ci/oua-4.9.38/**"
+      - "ci/oua-4.9.39/**"
+      - "ci/oua-4.9.40/**"
+      - "ci/oua-4.9.41/**"
+      - "ci/oua-4.9.42/**"
+      - "ci/oua-4.9.43/**"
+      - "ci/oua-4.9.44/**"
+      - "ci/oua-4.9.45/**"
+      - "ci/oua-4.9.46/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct canonical source
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/oua-4946-cloud"
+          rm -rf "$WORK"
+          mkdir -p "$WORK/incoming" "$WORK/extract"
+          cd "$WORK/incoming"
+          gh release download OUA-v4.9.29 --repo "$GITHUB_REPOSITORY" --pattern "OUA_4.9.29_UPGRADE_SAFE_ANDROID_STUDIO.zip"
+          unzip -q OUA_4.9.29_UPGRADE_SAFE_ANDROID_STUDIO.zip -d "$WORK/extract"
+          ROOT="$(find "$WORK/extract" -type f -name package.json -print0 | while IFS= read -r -d '' f; do d="$(dirname "$f")"; if [ -d "$d/android" ]; then echo "$d"; fi; done | awk 'NR==1{print;exit}')"
+          test -n "$ROOT"
+          echo "OUA_ROOT=$ROOT" >> "$GITHUB_ENV"
+
+          for v in $(seq 30 37); do
+            python "$GITHUB_WORKSPACE/ci/oua-4.9.$v/patch.py" "$ROOT"
+          done
+
+          for s in patch_model.py patch_commands.py patch_finalize.py patch_app.py; do
+            python "$GITHUB_WORKSPACE/ci/oua-4.9.38/$s" "$ROOT"
+          done
+
+          for s in patch_model.py patch_creation.py patch_rules.py patch_commands.py patch_ui.py patch_magic.py patch_virtues.py patch_finalize.py; do
+            python "$GITHUB_WORKSPACE/ci/oua-4.9.39/$s" "$ROOT"
+          done
+
+          for s in patch_model.py patch_rules.py patch_commands.py patch_ui.py patch_finalize.py; do
+            python "$GITHUB_WORKSPACE/ci/oua-4.9.40/$s" "$ROOT"
+          done
+
+          for s in patch_model.py patch_rules.py patch_creation.py patch_commands.py patch_runtime.py patch_treasure_runtime.py patch_ui.py patch_finalize.py; do
+            python "$GITHUB_WORKSPACE/ci/oua-4.9.41/$s" "$ROOT"
+          done
+
+          for s in patch_model.py patch_rules.py patch_commands.py patch_runtime.py patch_ui.py patch_finalize.py; do
+            python "$GITHUB_WORKSPACE/ci/oua-4.9.42/$s" "$ROOT"
+          done
+
+          for s in patch_model.py patch_rules.py patch_commands.py patch_runtime.py patch_ui.py patch_finalize.py; do
+            python "$GITHUB_WORKSPACE/ci/oua-4.9.43/$s" "$ROOT"
+          done
+
+          for s in patch_model.py patch_rules.py patch_commands.py patch_ui.py patch_finalize.py; do
+            python "$GITHUB_WORKSPACE/ci/oua-4.9.44/$s" "$ROOT"
+          done
+
+          for s in patch_model.py patch_commands.py patch_ui.py patch_finalize.py; do
+            python "$GITHUB_WORKSPACE/ci/oua-4.9.45/$s" "$ROOT"
+          done
+
+          for s in patch_model.py patch_creation.py patch_commands.py patch_ui.py patch_finalize.py; do
+            python "$GITHUB_WORKSPACE/ci/oua-4.9.46/$s" "$ROOT"
+          done
+
+      - name: Compile offline runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$OUA_ROOT"
+          if [ -f package-lock.json ]; then
+            python - <<'PY'
+          from pathlib import Path
+          p=Path("package-lock.json")
+          t=p.read_text(encoding="utf-8")
+          import re
+          t=re.sub(r'https://[^"]*/artifactory/api/npm/npm-public/','https://registry.npmjs.org/',t)
+          p.write_text(t,encoding="utf-8")
+          PY
+          fi
+          npm ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
+          npm run build:offline
