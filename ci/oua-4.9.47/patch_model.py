@@ -20,7 +20,7 @@ export interface CompanyMountState {
   id: string;
   sourceCharacterId: string;
   riderCharacterId?: string;
-  vigour: 1|2|3;
+  vigour: 1|2|3|4;
   description: string;
   treasureLoad: number;
   updatedAt: number;
