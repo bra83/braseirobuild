@@ -87,14 +87,7 @@ jobs:
 
             cd "$ROOT"
             if [ -f package-lock.json ]; then
-              python - <<'PY'
-from pathlib import Path
-import re
-p=Path("package-lock.json")
-t=p.read_text(encoding="utf-8")
-t=re.sub(r'https://[^"]*/artifactory/api/npm/npm-public/','https://registry.npmjs.org/',t)
-p.write_text(t,encoding="utf-8")
-PY
+              python -c "from pathlib import Path; import re; p=Path('package-lock.json'); t=p.read_text(encoding='utf-8'); t=re.sub(r'https://[^\" ]*/artifactory/api/npm/npm-public/','https://registry.npmjs.org/',t); p.write_text(t,encoding='utf-8')"
             fi
             npm ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/ || exit $?
             npm run build:offline || exit $?
