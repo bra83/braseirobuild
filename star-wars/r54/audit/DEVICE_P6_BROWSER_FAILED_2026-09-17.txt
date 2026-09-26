@@ -1,5 +1,0 @@
-<stdin>:98: SyntaxWarning: invalid escape sequence '\.'
-<stdin>:116: SyntaxWarning: invalid escape sequence '\.'
-Traceback (most recent call last):
-  File "<stdin>", line 132, in <module>
-AssertionError

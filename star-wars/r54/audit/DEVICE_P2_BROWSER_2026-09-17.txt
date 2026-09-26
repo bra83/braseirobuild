@@ -1,1 +1,0 @@
-P2_BROWSER_PASS {'catalog_cards': 31, 'all_card_images_loaded': True, 'dice_connected': True}

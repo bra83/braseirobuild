@@ -1,1 +1,0 @@
-trigger Mausritter R26 SCREEN_SESSION build

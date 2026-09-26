@@ -1,1 +1,0 @@
-R54_DEVICE_P5_PATCH_PASS key=1 dice=1 world_relocated=1 local_map_broken_state=1

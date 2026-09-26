@@ -1,2 +1,0 @@
-page=https://tmpfiles.org/wywhqpZCgAhy/braseiro_ose_1_0_4_debug.apk
-direct=https://tmpfiles.org/dl/wywhqpZCgAhy/braseiro_ose_1_0_4_debug.apk

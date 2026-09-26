@@ -1,1 +1,0 @@
-R54_DEVICE_P3_PATCH_PASS barbara_words=900-1400 pdf_persistent=1 gemini_persistent=1

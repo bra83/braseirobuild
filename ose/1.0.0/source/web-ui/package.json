@@ -1,8 +1,0 @@
-{
-  "name":"braseiro-ose-web-ui","private":true,"version":"1.0.0","type":"module",
-  "scripts":{
-    "build":"rm -rf dist && mkdir -p dist/assets && cp ../web-ui-p1/index.html dist/index.html && cp ../web-ui-p1/p1.css dist/p1.css && cp p1.runtime.js dist/p1.js && ln -s ../../../assets/ose-user-pack-v1 dist/assets/ose-user-pack-v1 && cp ../assets/ASSET_MANIFEST.json dist/ASSET_MANIFEST.json",
-    "test:capture":"playwright test"
-  },
-  "devDependencies":{"@playwright/test":"1.55.0"}
-}

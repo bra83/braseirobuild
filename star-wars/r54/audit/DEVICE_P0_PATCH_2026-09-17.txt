@@ -1,1 +1,0 @@
-R54_DEVICE_P0_PATCH_PASS {'file fetch enabled': True, 'startup nonblocking': True, 'device layer mounted': True, 'approved map ref': True, 'portrait fallback': True, 'weapon binding': True}

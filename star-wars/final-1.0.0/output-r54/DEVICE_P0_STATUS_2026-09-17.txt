@@ -1,1 +1,0 @@
-R54 DEVICE P0 REPAIR BUILT: local file:// fetch enabled; game start no longer waits for Barbara/network; approved 9752360iy2h61 blue/white galaxy map installed with compact points; character portrait visible; weapon/equipment binding visible; PDF document URI permission hardened; Android build PASS.

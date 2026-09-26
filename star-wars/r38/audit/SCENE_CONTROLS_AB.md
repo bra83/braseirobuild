@@ -1,7 +1,0 @@
-# R38 SCENE CONTROLS A/B
-
-## Block01 only
-- `{'fallback': 1, 'gemini': {'count': 1, 'visible': True, 'box': {'x': 18, 'y': 369.03125, 'width': 87.3125, 'height': 32}, 'text': '✦ ILUSTRAÇÃO', 'computed': {'display': 'block', 'visibility': 'visible', 'opacity': '1', 'pointerEvents': 'auto', 'parentDisplay': 'flex', 'wrapDisplay': 'flex', 'wrapPosition': 'absolute', 'wrapBottom': '7px', 'wrapZ': '5'}}, 'import': {'count': 1, 'visible': True, 'box': {'x': 110.3125, 'y': 369.03125, 'width': 75.3125, 'height': 32}, 'text': '⇧ IMPORTAR', 'computed': {'display': 'block', 'visibility': 'visible', 'opacity': '1', 'pointerEvents': 'auto', 'parentDisplay': 'flex', 'wrapDisplay': 'flex', 'wrapPosition': 'absolute', 'wrapBottom': '7px', 'wrapZ': '5'}}}`
-
-## Block01 + Block02
-- `{'fallback': 1, 'gemini': {'count': 1, 'visible': True, 'box': {'x': 18, 'y': 356.03125, 'width': 87.3125, 'height': 44}, 'text': '✦ ILUSTRAÇÃO', 'computed': {'display': 'block', 'visibility': 'visible', 'opacity': '1', 'pointerEvents': 'auto', 'parentDisplay': 'flex', 'wrapDisplay': 'flex', 'wrapPosition': 'absolute', 'wrapBottom': '8px', 'wrapZ': '5'}}, 'import': {'count': 1, 'visible': True, 'box': {'x': 110.3125, 'y': 356.03125, 'width': 75.3125, 'height': 44}, 'text': '⇧ IMPORTAR', 'computed': {'display': 'block', 'visibility': 'visible', 'opacity': '1', 'pointerEvents': 'auto', 'parentDisplay': 'flex', 'wrapDisplay': 'flex', 'wrapPosition': 'absolute', 'wrapBottom': '8px', 'wrapZ': '5'}}}`

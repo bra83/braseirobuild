@@ -1,1 +1,0 @@
-R54_BARBARA_OPENING_MASTER_PASS local_template=0 live_bundle=1 master_channel=submitPlayerIntent browser=PASS build=PASS

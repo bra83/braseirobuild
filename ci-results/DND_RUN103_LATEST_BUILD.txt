@@ -1,22 +1,0 @@
-DOWNLOAD_PART 0
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0   489    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-curl: (22) The requested URL returned error: 403
-Warning: Problem (retrying all errors). Will retry in 1 seconds. 3 retries 
-Warning: left.
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0   489    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-curl: (22) The requested URL returned error: 403
-Warning: Problem (retrying all errors). Will retry in 2 seconds. 2 retries 
-Warning: left.
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0   489    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-curl: (22) The requested URL returned error: 403
-Warning: Problem (retrying all errors). Will retry in 4 seconds. 1 retries 
-Warning: left.
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0   489    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-curl: (22) The requested URL returned error: 403
-
-===== META =====
-SOURCE_COMMIT=d52112e4ee21657772374c1dde5a9251654c2969
-EXIT_CODE=22
-WORKFLOW=RUN103_FIX5
