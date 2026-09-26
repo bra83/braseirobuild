@@ -145,3 +145,17 @@ export const BRAWL_WEAPONS:Record<BrawlWeapon,{name:string;damage:number;injury:
   club:{name:'Tacape',damage:4,injury:14,piercing:true},
   improvised:{name:'Arma improvisada / pedra',damage:1,injury:null,piercing:false},
 };
+
+
+export function assignedMountVigour(company:{mounts?:Array<{riderCharacterId?:string;vigour:number}>},characterId:string):number{
+  const mount=(company.mounts||[]).find(item=>item.riderCharacterId===characterId);
+  return mount?Math.max(0,Math.min(3,Math.trunc(Number(mount.vigour)||0))):0;
+}
+
+export function totalMountTreasureCapacity(company:{mounts?:Array<{treasureLoad:number}>}):number{
+  return (company.mounts||[]).length*10;
+}
+
+export function usedMountTreasureCapacity(company:{mounts?:Array<{treasureLoad:number}>}):number{
+  return (company.mounts||[]).reduce((sum,item)=>sum+Math.max(0,Math.min(10,Number(item.treasureLoad)||0)),0);
+}
