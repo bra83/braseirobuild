@@ -85,8 +85,16 @@ t=req(
   patronMission?: PatronMissionState|null;
   patronRumourPending?: boolean;
   patronInterventionPending?: boolean;
+  patronGandalfShadowFavouredHeroId?: string;
 """,
     "company core47 state",
+)
+
+t=req(
+    t,
+    "  pendingEvent?: {\n",
+    "  oldArnor?: boolean;\n  pendingEvent?: {\n",
+    "journey old Arnor flag",
 )
 
 t=req(
@@ -111,7 +119,8 @@ extra=r"""
   | { type: 'abandon_patron_mission'; reason: string }
   | { type: 'resolve_surprise'; mode: 'heroes-ambushed'|'heroes-ambush'; automatic?: boolean; participantHeroIds?: string[]; reason: string }
   | { type: 'resolve_brawl_attack'; attackerId: string; targetActorId: string; weapon: 'unarmed'|'dagger'|'cudgel'|'club'|'improvised'; spendHope?: boolean; inspired?: boolean; reason: string }
-  | { type: 'use_patron_advantage'; kind: 'balin-combat-favoured'|'gandalf-shadow-favoured'|'tom-intervention'; targetCharacterId?: string; reason: string }"""
+  | { type: 'use_patron_advantage'; kind: 'balin-combat-favoured'|'gandalf-shadow-favoured'|'tom-intervention'; targetCharacterId?: string; confirmInTomLand?: boolean; reason: string }
+  | { type: 'set_journey_old_arnor'; value: boolean; reason: string }"""
 t=req(t,command_anchor,command_anchor+extra,"core47 commands")
 write(rel,t)
 
