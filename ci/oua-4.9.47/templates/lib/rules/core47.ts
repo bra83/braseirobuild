@@ -44,6 +44,7 @@ export function mountVigourForLifestyle(lifestyle:string):0|1|2|3{
 }
 
 export function mountDescription(vigour:number):string{
+  if(vigour>=4)return 'Pônei de Bri · Vigor 4';
   if(vigour>=3)return 'bela criatura';
   if(vigour===2)return 'criatura decente';
   if(vigour===1)return 'cavalo velho ou pônei mal alimentado';
@@ -149,7 +150,7 @@ export const BRAWL_WEAPONS:Record<BrawlWeapon,{name:string;damage:number;injury:
 
 export function assignedMountVigour(company:{mounts?:Array<{riderCharacterId?:string;vigour:number}>},characterId:string):number{
   const mount=(company.mounts||[]).find(item=>item.riderCharacterId===characterId);
-  return mount?Math.max(0,Math.min(3,Math.trunc(Number(mount.vigour)||0))):0;
+  return mount?Math.max(0,Math.min(4,Math.trunc(Number(mount.vigour)||0))):0;
 }
 
 export function totalMountTreasureCapacity(company:{mounts?:Array<{treasureLoad:number}>}):number{
