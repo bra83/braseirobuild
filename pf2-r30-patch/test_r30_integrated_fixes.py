@@ -30,8 +30,8 @@ def test_character_gemini_image_has_dedicated_target():
 
 def test_tts_tom_tags_unicode_regex_is_runtime_safe():
     playback=read("NarrationPlaybackPolicy.java")
-    assert '.replaceAll("\\\\p{M}+","")' not in playback
-    assert '.replaceAll("\\p{M}+","")' in playback
+    assert r'.replaceAll("\\\\p{M}+","")' not in playback
+    assert r'.replaceAll("\\p{M}+","")' in playback
 
 def test_android_kokoro_contract_preserved():
     main=read("MainActivity.java")
