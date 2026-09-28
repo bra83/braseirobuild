@@ -1,0 +1,1094 @@
+{
+  "schema": "braseiro-pathfinder2e-chapter-v1",
+  "chapter_key": "chapter_11_hex_atlas_pois",
+  "chapterKey": "chapter_11_hex_atlas_pois",
+  "chapter_number": 11,
+  "chapterNumber": 11,
+  "title": "Atlas Regional das Terras Roubadas e Pontos de Interesse",
+  "locale": "pt-BR",
+  "level_min": 1,
+  "levelMin": 1,
+  "level_max": 20,
+  "levelMax": 20,
+  "summary": "Compêndio geográfico, cartográfico e de exploração de todas as macro-regiões das Terras Roubadas (Stolen Lands) de acordo com o cânone oficial Kingmaker PZO2020. Abrange os cinco grandes setores territoriais: o Cinturão Verde (Greenbelt), as Colinas Nomen (Nomen Heights), as Estepes de Dunsward, as Planícies de Glenebon e o Brejo da Língua em Gancho (Hooktongue Slough). Catalogação unificada de dezenas de hexágonos com coordenadas axiais (q, r), status dinâmicos (ativo, abandonado, arruinado, destruído, ocupado, em reconstrução), nós de recursos estratégicos vitais para a economia e estabilidade do reino (minas de ouro, pedreiras de mármore e granito, bosques sagrados de Erastil, entrepostos fluviais e rotas de caravanas), perigos ambientais regionais e pontos de interesse para o Diretor Solo e jogo em mesa.",
+  "quests": [
+    {
+      "quest_key": "q_cartografia_cinturao_verde",
+      "questKey": "q_cartografia_cinturao_verde",
+      "title": "Mapeamento Completo do Cinturão Verde",
+      "status": "unstarted",
+      "stage": "cartografia_inicial",
+      "objective": "Explorar sistematicamente e mapear todos os hexágonos florestais e de planície do Cinturão Verde entre o Posto de Oleg e o Rio Skunk.",
+      "stakes": "Rotas comerciais desprotegidas no Cinturão Verde continuam atraindo emboscadas de bandoleiros remanescentes e feras selvagens.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 300,
+      "milestoneXp": 300,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_cgv_1",
+          "desc": "Concluir o levantamento topográfico das matas ao longo das margens do Rio Shrike",
+          "description": "Concluir o levantamento topográfico das matas ao longo das margens do Rio Shrike",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_cgv_2",
+          "desc": "Catalogar as fontes de madeira de lei e clareiras seguras para assentamentos pioneiros",
+          "description": "Catalogar as fontes de madeira de lei e clareiras seguras para assentamentos pioneiros",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_cgv_3",
+          "desc": "Registrar a carta topográfica oficial junto à Chancelaria Real da Baronia",
+          "description": "Registrar a carta topográfica oficial junto à Chancelaria Real da Baronia",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 1200,
+        "xp": 300,
+        "items": ["bussola_de_agrimensura_magica", "mapa_detalhado_do_cinturao_verde"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_exploracao_colinas_nomen",
+      "questKey": "q_exploracao_colinas_nomen",
+      "title": "Exploração Cartográfica das Colinas Nomen",
+      "status": "unstarted",
+      "stage": "topografia_nomen",
+      "objective": "Desbravar os platôs acidentados das Colinas Nomen, estabelecer marcos geodésicos e documentar os monólitos da antiga civilização de Ghol-Gan.",
+      "stakes": "Sem cartas náuticas e terrestres precisas, patrulhas do reino sofrem emboscadas nas gargantas desérticas.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 450,
+      "milestoneXp": 450,
+      "prerequisites": ["q_cartografia_cinturao_verde"],
+      "objectives": [
+        {
+          "id": "obj_nom_1",
+          "desc": "Mapear as trilhas tradicionais de caça das tribos de centauros de Nomen",
+          "description": "Mapear as trilhas tradicionais de caça das tribos de centauros de Nomen",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_nom_2",
+          "desc": "Localizar e fixar o marco geodésico na Colina dos Três Montes",
+          "description": "Localizar e fixar o marco geodésico na Colina dos Três Montes",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_nom_3",
+          "desc": "Identificar depósitos de minerais pesados e veios de quartzo bruto",
+          "description": "Identificar depósitos de minerais pesados e veios de quartzo bruto",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 2500,
+        "xp": 450,
+        "items": ["teodolito_de_precisao_gnomico", "botas_de_marcha_nas_colinas"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_reconhecimento_terras_dunsward",
+      "questKey": "q_reconhecimento_terras_dunsward",
+      "title": "Reconhecimento das Estepes de Dunsward",
+      "status": "unstarted",
+      "stage": "varredura_dunsward",
+      "objective": "Catalogar as vastas estepes abertas de Dunsward a leste, mapeando poços d'água potável e pastagens férteis para rebanhos da coroa.",
+      "stakes": "A falta de postos d'água catalogados inviabiliza o comércio terrestre com a nação de Iobaria e reinos vizinhos.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 550,
+      "milestoneXp": 550,
+      "prerequisites": ["q_exploracao_colinas_nomen"],
+      "objectives": [
+        {
+          "id": "obj_dun_1",
+          "desc": "Mapear as rotas de migração de cavalos selvagens e manadas de bisões",
+          "description": "Mapear as rotas de migração de cavalos selvagens e manadas de bisões",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_dun_2",
+          "desc": "Demarcar os poços de água doce essenciais para caravanas mercantes",
+          "description": "Demarcar os poços de água doce essenciais para caravanas mercantes",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_dun_3",
+          "desc": "Neutralizar ninhos de aves carniceiras monstruosas que atacam topógrafos",
+          "description": "Neutralizar ninhos de aves carniceiras monstruosas que atacam topógrafos",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 3500,
+        "xp": 550,
+        "items": ["sela_de_viagem_infinita", "carta_de_navegacao_de_dunsward"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_levantamento_glenebon_lingua_gancho",
+      "questKey": "q_levantamento_glenebon_lingua_gancho",
+      "title": "Levantamento de Glenebon e do Brejo da Língua em Gancho",
+      "status": "unstarted",
+      "stage": "expedicao_pantano",
+      "objective": "Mapear os perigosos pântanos da Língua em Gancho e as terras fronteiriças ocidentais de Glenebon em direção a Pitax.",
+      "stakes": "O brejo abriga enclaves hostis de boggards e rotas fluviais clandestinas utilizadas por contrabandistas de armas.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 650,
+      "milestoneXp": 650,
+      "prerequisites": ["q_reconhecimento_terras_dunsward"],
+      "objectives": [
+        {
+          "id": "obj_gle_1",
+          "desc": "Sondar a profundidade dos canais navegáveis no Brejo da Língua em Gancho",
+          "description": "Sondar a profundidade dos canais navegáveis no Brejo da Língua em Gancho",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_gle_2",
+          "desc": "Catalogar as ruínas fortificadas abandonadas de Glenebon para possível refortificação",
+          "description": "Catalogar as ruínas fortificadas abandonadas de Glenebon para possível refortificação",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_gle_3",
+          "desc": "Fincar sinalizadores de rota luminosos para guiar balsas e barcaças comerciais",
+          "description": "Fincar sinalizadores de rota luminosos para guiar balsas e barcaças comerciais",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 5000,
+        "xp": 650,
+        "items": ["balsa_dobravel_encantada", "elixir_de_imunidade_a_febre_do_brejo"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_catalogo_recursos_estrategicos",
+      "questKey": "q_catalogo_recursos_estrategicos",
+      "title": "Catalogação de Nós de Recursos Estratégicos",
+      "status": "unstarted",
+      "stage": "levantamento_recursos",
+      "objective": "Localizar, reivindicar e incorporar à economia do reino os quatro grandes tipos de recursos: minas de ouro, pedreiras, bosques sagrados e entrepostos fluviais.",
+      "stakes": "A expansão urbana da capital entrará em estagnação sem o suprimento garantido de pedra nobre, madeira e metais preciosos.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 800,
+      "milestoneXp": 800,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_rec_1",
+          "desc": "Reivindicar a Mina de Ouro das Colinas Nomen e estabelecer escolta de mineradores",
+          "description": "Reivindicar a Mina de Ouro das Colinas Nomen e estabelecer escolta de mineradores",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_rec_2",
+          "desc": "Reabrir a Pedreira Imperial de Mármore Branco nas colinas de Glenebon",
+          "description": "Reabrir a Pedreira Imperial de Mármore Branco nas colinas de Glenebon",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_rec_3",
+          "desc": "Consagrar o Bosque Sagrado de Erastil protegendo as árvores medicinais centenárias",
+          "description": "Consagrar o Bosque Sagrado de Erastil protegendo as árvores medicinais centenárias",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_rec_4",
+          "desc": "Conectar o Entreposto Fluvial à malha alfandegária e fiscal da Baronia",
+          "description": "Conectar o Entreposto Fluvial à malha alfandegária e fiscal da Baronia",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 8000,
+        "xp": 800,
+        "items": ["titulo_de_concessao_mineral_real", "martelo_de_geologia_runico"]
+      },
+      "progress_json": {}
+    }
+  ],
+  "hazards": [
+    {
+      "hazard_key": "hazard_pantano_movedico_lingua_gancho",
+      "hazardKey": "hazard_pantano_movedico_lingua_gancho",
+      "name": "Areia Movediça Ácida do Brejo da Língua em Gancho",
+      "level": 5,
+      "traits": ["complexo", "ambiental"],
+      "stealth_dc": 20,
+      "stealthDc": 20,
+      "perception_dc": 20,
+      "perceptionDc": 20,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 21,
+      "savingThrowDc": 21,
+      "disable_skills": [
+        {
+          "skill": "Natureza",
+          "dc": 21,
+          "proficiency": "treinado",
+          "description": "Reconhecer a vegetação de junco ralo que oculta a fossa de lama sulfurosa"
+        },
+        {
+          "skill": "Sobrevivência",
+          "dc": 21,
+          "proficiency": "treinado",
+          "description": "Lançar cordas e galhos estáveis para formar uma prancha de apoio e resgate"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "ambiental",
+      "complexity": "complexo",
+      "ac": 15,
+      "hardness": 5,
+      "hp": 30,
+      "bt": 15,
+      "reaction": "Dispara quando uma criatura Médica ou maior entra no hexágono de turfa submersa.",
+      "reset": "Naturalmente se fecha após 1 hora.",
+      "xp": 60,
+      "description": "Fossa de lodo negro borbulhante disfarçada por lentilhas d'água verdes, sugando vítimas para o fundo com gases ácidos.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Sucção do Lodo Ácido",
+          "description": "Puxa as criaturas presas 1,5 metros para baixo causando 2d6 de dano de ácido e sufocamento se submersas."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_desmoronamento_minas_nomen",
+      "hazardKey": "hazard_desmoronamento_minas_nomen",
+      "name": "Desmoronamento Instável nas Minas de Nomen",
+      "level": 8,
+      "traits": ["complexo", "ambiental", "mecanico"],
+      "stealth_dc": 25,
+      "stealthDc": 25,
+      "perception_dc": 25,
+      "perceptionDc": 25,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 26,
+      "savingThrowDc": 26,
+      "disable_skills": [
+        {
+          "skill": "Ladroagem",
+          "dc": 27,
+          "proficiency": "especialista",
+          "description": "Fixar escoras de madeira de lei nos pontos de fratura estrutural do teto"
+        },
+        {
+          "skill": "Sobrevivência",
+          "dc": 27,
+          "proficiency": "especialista",
+          "description": "Identificar linhas de falha sísmica e guiar a equipe para nichos seguros de abrigo"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "armadilha",
+      "complexity": "complexo",
+      "ac": 22,
+      "hardness": 12,
+      "hp": 50,
+      "bt": 25,
+      "reaction": "Desaba quando vibrações de picaretas ou explosões alquímicas abalam a galeria.",
+      "reset": "Não reseta após o colapso completo do teto.",
+      "xp": 100,
+      "description": "Vigas podres e estalactites pesadas que desabam em cascata de pedregulhos afiados.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Chuva de Pedregulhos e Cascalho",
+          "description": "Causa 4d10 de dano de concussão e soterramento parcial (Reflexos CD 26 para metade)."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_nevoeiro_pesonhento_glenebon",
+      "hazardKey": "hazard_nevoeiro_pesonhento_glenebon",
+      "name": "Nevoeiro Peçonhento das Planícies de Glenebon",
+      "level": 11,
+      "traits": ["complexo", "ambiental", "veneno"],
+      "stealth_dc": 29,
+      "stealthDc": 29,
+      "perception_dc": 29,
+      "perceptionDc": 29,
+      "saving_throw_type": "Fortitude",
+      "savingThrowType": "Fortitude",
+      "saving_throw_dc": 30,
+      "savingThrowDc": 30,
+      "disable_skills": [
+        {
+          "skill": "Sobrevivência",
+          "dc": 31,
+          "proficiency": "mestre",
+          "description": "Acender fogueiras alquímicas de enxofre que queimam as partículas nocivas da névoa"
+        },
+        {
+          "skill": "Medicina",
+          "dc": 31,
+          "proficiency": "mestre",
+          "description": "Distribuir unguentos de cânfora nas vias respiratórias dos exploradores"
+        }
+      ],
+      "routine_actions": 2,
+      "routineActions": 2,
+      "hazard_type": "ambiental",
+      "complexity": "complexo",
+      "ac": 28,
+      "hardness": 10,
+      "hp": 70,
+      "bt": 35,
+      "reaction": "Levanta-se da vegetação pantanosa ao crepúsculo cobrindo um raio de 30 metros.",
+      "reset": "Dispersa com a luz solar do amanhecer.",
+      "xp": 140,
+      "description": "Bruma espessa de tom amarelado exalada por carcaças antigas de feras da estepe, carregada de esporos necróticos.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Inalação de Esporos Tóxicos",
+          "description": "Criaturas na névoa sofrem 3d8 de dano de veneno e ficam enjoadas 1 em falha de Fortitude CD 30."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Ofuscação da Visão Terrestre",
+          "description": "Reduz o alcance de visão para 1,5 metros, concedendo camuflagem total a todas as criaturas."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_geiser_sulfuroso_dunsward",
+      "hazardKey": "hazard_geiser_sulfuroso_dunsward",
+      "name": "Gêiser Sulfuroso Explosivo de Dunsward",
+      "level": 13,
+      "traits": ["complexo", "ambiental", "fogo"],
+      "stealth_dc": 32,
+      "stealthDc": 32,
+      "perception_dc": 32,
+      "perceptionDc": 32,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 33,
+      "savingThrowDc": 33,
+      "disable_skills": [
+        {
+          "skill": "Sobrevivência",
+          "dc": 33,
+          "proficiency": "mestre",
+          "description": "Interpretar os murmúrios do vapor subterrâneo para cronometrar a passagem segura"
+        },
+        {
+          "skill": "Natureza",
+          "dc": 33,
+          "proficiency": "mestre",
+          "description": "Desviar o duto termal através da quebra controlada de diques de argila"
+        }
+      ],
+      "routine_actions": 2,
+      "routineActions": 2,
+      "hazard_type": "ambiental",
+      "complexity": "complexo",
+      "ac": 30,
+      "hardness": 16,
+      "hp": 90,
+      "bt": 45,
+      "reaction": "Erompe violentamente quando a pressão de calor acumulada atinge o limiar crítico.",
+      "reset": "Rearma-se a cada 1d6 rodadas com novo acúmulo de vapor.",
+      "xp": 180,
+      "description": "Coluna titânica de vapor e água fervente carregada de cinzas minerais que explode a 20 metros de altura.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Jato Escaldante de Vapor",
+          "description": "Causa 5d10 de dano de fogo e empurra alvos 4,5 metros para trás (Reflexos CD 33)."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Nuvem de Cinzas Sufocantes",
+          "description": "Espalha fumaça ardente no raio de 9 metros deixando alvos deslumbrados e ofegantes."
+        }
+      ]
+    }
+  ],
+  "pois": [
+    {
+      "poi_key": "poi_mina_ouro_colinas_nomen",
+      "poiKey": "poi_mina_ouro_colinas_nomen",
+      "poi_id": "poi_mina_ouro_colinas_nomen",
+      "poiId": "poi_mina_ouro_colinas_nomen",
+      "campaign_key": "chapter_11_hex_atlas_pois",
+      "campaignKey": "chapter_11_hex_atlas_pois",
+      "map_id": "stolen_lands",
+      "name": "Mina de Ouro das Colinas Nomen",
+      "name_key": "mina_de_ouro_das_colinas_nomen",
+      "type": "resource_site",
+      "hex_id": "H_NOMEN_GOLD_MINE",
+      "hexId": "H_NOMEN_GOLD_MINE",
+      "location_id": "loc_nomen_gold_mine",
+      "q": 4,
+      "r": -2,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Riquíssimo veio de ouro incrustado nas encostas rochosas de Nomen, capaz de sustentar a tesouraria real por décadas.",
+      "tags": ["recurso", "ouro", "mineracao", "nomen"],
+      "development_level": 3,
+      "icon": "⛏️",
+      "notes": "Nó de recurso estratégico vital para o tesouro da Baronia."
+    },
+    {
+      "poi_key": "poi_pedreira_marmore_glenebon",
+      "poiKey": "poi_pedreira_marmore_glenebon",
+      "poi_id": "poi_pedreira_marmore_glenebon",
+      "poiId": "poi_pedreira_marmore_glenebon",
+      "campaign_key": "chapter_11_hex_atlas_pois",
+      "campaignKey": "chapter_11_hex_atlas_pois",
+      "map_id": "stolen_lands",
+      "name": "Pedreira Imperial de Mármore Branco",
+      "name_key": "pedreira_imperial_de_marmore_branco",
+      "type": "resource_site",
+      "hex_id": "H_GLENEBON_QUARRY",
+      "hexId": "H_GLENEBON_QUARRY",
+      "location_id": "loc_glenebon_quarry",
+      "q": -4,
+      "r": 1,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Enorme lavra de mármore translúcido de alta resistência utilizada na construção de muralhas, templos e estátuas monumentais.",
+      "tags": ["recurso", "pedreira", "marmore", "glenebon"],
+      "development_level": 2,
+      "icon": "🏛️",
+      "notes": "Reduz o custo de construções de pedra na capital."
+    },
+    {
+      "poi_key": "poi_bosque_sagrado_erastil",
+      "poiKey": "poi_bosque_sagrado_erastil",
+      "poi_id": "poi_bosque_sagrado_erastil",
+      "poiId": "poi_bosque_sagrado_erastil",
+      "campaign_key": "chapter_11_hex_atlas_pois",
+      "campaignKey": "chapter_11_hex_atlas_pois",
+      "map_id": "stolen_lands",
+      "name": "Bosque Sagrado do Velho Caçador Erastil",
+      "name_key": "bosque_sagrado_do_velho_cacador_erastil",
+      "type": "landmark",
+      "hex_id": "H_ERASTIL_GROVE",
+      "hexId": "H_ERASTIL_GROVE",
+      "location_id": "loc_erastil_grove",
+      "q": 0,
+      "r": 1,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Floresta primordial de carvalhos gigantes protegida por clérigos e guardas-florestais dedicados ao deus da família e da caça justa.",
+      "tags": ["sagrado", "erastil", "bosque", "cura"],
+      "development_level": 2,
+      "icon": "🦌",
+      "notes": "Santuário de bênçãos para fertilidade de colheitas e cura de epidemias."
+    },
+    {
+      "poi_key": "poi_porto_entreposto_fluvial",
+      "poiKey": "poi_porto_entreposto_fluvial",
+      "poi_id": "poi_porto_entreposto_fluvial",
+      "poiId": "poi_porto_entreposto_fluvial",
+      "campaign_key": "chapter_11_hex_atlas_pois",
+      "campaignKey": "chapter_11_hex_atlas_pois",
+      "map_id": "stolen_lands",
+      "name": "Entreposto e Doca Fluvial do Rio Shrike",
+      "name_key": "entreposto_e_doca_fluvial_do_rio_shrike",
+      "type": "settlement",
+      "hex_id": "H_SHRIKE_RIVER_PORT",
+      "hexId": "H_SHRIKE_RIVER_PORT",
+      "location_id": "loc_shrike_river_port",
+      "q": -1,
+      "r": 0,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Comunidade ribeirinha com cais de madeira reforçada, armazéns de grãos e oficinas de carpintaria naval para barcaças.",
+      "tags": ["porto", "comercio", "shrike", "rio"],
+      "development_level": 3,
+      "icon": "⚓",
+      "notes": "Pólo central de arrecadação tarifária fluvial."
+    },
+    {
+      "poi_key": "poi_fortaleza_abandonada_tessari",
+      "poiKey": "poi_fortaleza_abandonada_tessari",
+      "poi_id": "poi_fortaleza_abandonada_tessari",
+      "poiId": "poi_fortaleza_abandonada_tessari",
+      "campaign_key": "chapter_11_hex_atlas_pois",
+      "campaignKey": "chapter_11_hex_atlas_pois",
+      "map_id": "stolen_lands",
+      "name": "Ruínas do Forte Tessari dos Senhores dos Rios",
+      "name_key": "ruinas_do_forte_tessari_dos_senhores_dos_rios",
+      "type": "dungeon",
+      "hex_id": "H_FORT_TESSARI",
+      "hexId": "H_FORT_TESSARI",
+      "location_id": "loc_fort_tessari",
+      "q": 3,
+      "r": -3,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "ruined",
+      "description": "Fortaleza secular arruinada com muralhas desmoronadas e calabouços infestados de espíritos inquietos de soldados caídos.",
+      "tags": ["ruina", "forte", "dungeon", "militar"],
+      "development_level": 1,
+      "icon": "🏰",
+      "notes": "Ponto com potencial estratégico de restauração como bastião de fronteira."
+    },
+    {
+      "poi_key": "poi_brejo_sombrio_lingua_gancho",
+      "poiKey": "poi_brejo_sombrio_lingua_gancho",
+      "poi_id": "poi_brejo_sombrio_lingua_gancho",
+      "poiId": "poi_brejo_sombrio_lingua_gancho",
+      "campaign_key": "chapter_11_hex_atlas_pois",
+      "campaignKey": "chapter_11_hex_atlas_pois",
+      "map_id": "stolen_lands",
+      "name": "Brejo Sombrio da Língua em Gancho",
+      "name_key": "brejo_sombrio_da_lingua_em_gancho",
+      "type": "landmark",
+      "hex_id": "H_HOOKTONGUE_BOG",
+      "hexId": "H_HOOKTONGUE_BOG",
+      "location_id": "loc_hooktongue_bog",
+      "q": -3,
+      "r": 2,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "occupied",
+      "description": "Labirinto de pântanos com salgueiros chorões cobertos de musgo acinzentado e águas turvas ocupadas por tribos de boggards.",
+      "tags": ["pantano", "lingua_gancho", "boggards", "ermo"],
+      "development_level": 1,
+      "icon": "🐊",
+      "notes": "Território de conflito constante que demanda pacificações periódicas."
+    },
+    {
+      "poi_key": "poi_posto_comercial_dunsward",
+      "poiKey": "poi_posto_comercial_dunsward",
+      "poi_id": "poi_posto_comercial_dunsward",
+      "poiId": "poi_posto_comercial_dunsward",
+      "campaign_key": "chapter_11_hex_atlas_pois",
+      "campaignKey": "chapter_11_hex_atlas_pois",
+      "map_id": "stolen_lands",
+      "name": "Posto Comercial das Estepes de Dunsward",
+      "name_key": "posto_comercial_das_estepes_de_dunsward",
+      "type": "settlement",
+      "hex_id": "H_DUNSWARD_OUTPOST",
+      "hexId": "H_DUNSWARD_OUTPOST",
+      "location_id": "loc_dunsward_outpost",
+      "q": 5,
+      "r": -1,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Entreposto de caravanas fortificado com paliçadas de madeira, onde mercadores de Rostland e Dunsward negociam cavalos e tecidos.",
+      "tags": ["comercio", "dunsward", "caravanas", "cavalos"],
+      "development_level": 2,
+      "icon": "⛺",
+      "notes": "Parada obrigatória para rotas de comércio a leste."
+    },
+    {
+      "poi_key": "poi_colina_tumulos_ghol_gan",
+      "poiKey": "poi_colina_tumulos_ghol_gan",
+      "poi_id": "poi_colina_tumulos_ghol_gan",
+      "poiId": "poi_colina_tumulos_ghol_gan",
+      "campaign_key": "chapter_11_hex_atlas_pois",
+      "campaignKey": "chapter_11_hex_atlas_pois",
+      "map_id": "stolen_lands",
+      "name": "Colina dos Túmulos Ciclópicos de Ghol-Gan",
+      "name_key": "colina_dos_tumulos_ciclopicos_de_ghol_gan",
+      "type": "landmark",
+      "hex_id": "H_GHOL_GAN_MOUNDS",
+      "hexId": "H_GHOL_GAN_MOUNDS",
+      "location_id": "loc_ghol_gan_mounds",
+      "q": 4,
+      "r": -4,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "abandoned",
+      "description": "Túmulos colossais de pedra talhada erguidos por ciclopes há milhares de anos, hoje cercados por estátuas decapitadas e silêncio sepulcral.",
+      "tags": ["tumulo", "ghol_gan", "ciclope", "arqueologia"],
+      "development_level": 1,
+      "icon": "🗿",
+      "notes": "Local de escavação arqueológica e estudo de magia ancestral."
+    },
+    {
+      "poi_key": "poi_ninho_roc_glenebon",
+      "poiKey": "poi_ninho_roc_glenebon",
+      "poi_id": "poi_ninho_roc_glenebon",
+      "poiId": "poi_ninho_roc_glenebon",
+      "campaign_key": "chapter_11_hex_atlas_pois",
+      "campaignKey": "chapter_11_hex_atlas_pois",
+      "map_id": "stolen_lands",
+      "name": "Pináculo dos Rocs Gigantes de Glenebon",
+      "name_key": "pinaculo_dos_rocs_gigantes_de_glenebon",
+      "type": "lair",
+      "hex_id": "H_ROC_PINNACLE",
+      "hexId": "H_ROC_PINNACLE",
+      "location_id": "loc_roc_pinnacle",
+      "q": -5,
+      "r": 0,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "occupied",
+      "description": "Agulha rochosa escarpada habitada por pássaros titânicos capazes de carregar elefantes e cavalos em suas garras.",
+      "tags": ["covil", "rocs", "monstro", "glenebon"],
+      "development_level": 1,
+      "icon": "🦅",
+      "notes": "Perigo constante para viajantes até que os monstros sejam domados ou repelidos."
+    },
+    {
+      "poi_key": "poi_bosque_ervas_medicinais",
+      "poiKey": "poi_bosque_ervas_medicinais",
+      "poi_id": "poi_bosque_ervas_medicinais",
+      "poiId": "poi_bosque_ervas_medicinais",
+      "campaign_key": "chapter_11_hex_atlas_pois",
+      "campaignKey": "chapter_11_hex_atlas_pois",
+      "map_id": "stolen_lands",
+      "name": "Clareira das Ervas Raras e Flor de Fangberry",
+      "name_key": "clareira_das_ervas_raras_e_flor_de_fangberry",
+      "type": "resource_site",
+      "hex_id": "H_FANGBERRY_GROVE",
+      "hexId": "H_FANGBERRY_GROVE",
+      "location_id": "loc_fangberry_grove",
+      "q": 1,
+      "r": 2,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Vale fértil irrigado por córregos límpidos onde crescem os raros arbustos de amora-de-presa (fangberry) e flores alquímicas.",
+      "tags": ["recurso", "fangberry", "alquimia", "ervas"],
+      "development_level": 2,
+      "icon": "🌿",
+      "notes": "Suprimento constante de matéria-prima para a botica de Bokken."
+    }
+  ],
+  "npcs": [
+    {
+      "npc_key": "npc_mestre_cartografo_alois",
+      "npcKey": "npc_mestre_cartografo_alois",
+      "stable_id": "npc_mestre_cartografo_alois",
+      "stableId": "npc_mestre_cartografo_alois",
+      "name": "Mestre Cartógrafo Alois Von Hender",
+      "summary": "Geógrafo veterano contratado de Nova Cheliax para desenhar os mapas oficiais da expansão territorial do reino.",
+      "goals": "Criar a carta topográfica mais precisa da história das Nações Fluviais.",
+      "secrets": "Perdeu uma expedição inteira nas Colinas Nomen e esconde um mapa incompleto de veios de ouro.",
+      "attitude": "indiferente",
+      "relationship": "Chefe da divisão cartográfica da Baronia",
+      "knowledge": "Cartografia avançada, triangulação geográfica e geologia de Golarion.",
+      "debts": "Salário régio pago pela corte.",
+      "last_seen": "Gabinete de Agrimensura da Capital",
+      "hex_id": "H_SHRIKE_RIVER_PORT",
+      "faction": "Guilda dos Cartógrafos e Agrimensores das Terras Roubadas",
+      "visual_description": "Homem corpulento de monóculo de latão e dedos sempre manchados de tinta nanquim azul.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "indiferente",
+          "text": "Cada hexágono sem medição é uma vergonha para a coroa e um risco para os nossos colonos!",
+          "topic": "missao_cartografica",
+          "quest_key": "q_cartografia_cinturao_verde"
+        },
+        {
+          "attitude_req": "amistoso",
+          "text": "Com esses novos dados de Dunsward e Nomen, posso traçar estradas seguras que dobrarão a renda das caravanas!",
+          "topic": "expansao_estradas",
+          "quest_key": "q_catalogo_recursos_estrategicos"
+        }
+      ],
+      "stats": {
+        "ac": 22,
+        "hp": 65,
+        "max_hp": 65
+      }
+    },
+    {
+      "npc_key": "npc_batedor_chefe_boris",
+      "npcKey": "npc_batedor_chefe_boris",
+      "stable_id": "npc_batedor_chefe_boris",
+      "stableId": "npc_batedor_chefe_boris",
+      "name": "Batedor Chefe Boris Passo-Largo",
+      "summary": "Ranger veterano dos ermos que conhece cada pântano e colina entre o Lago Candlemere e o Brejo da Língua em Gancho.",
+      "goals": "Garantir que nenhum grupo de colonos seja surpreendido por monstros nas fronteiras.",
+      "secrets": "Possui amizade secreta com um chefe boggard dissidente que o alerta sobre incursões.",
+      "attitude": "amistoso",
+      "relationship": "Batedor de confiança dos heróis",
+      "knowledge": "Rastreamento em pântanos, trilhas secretas e hábitos de feras selvagens.",
+      "debts": "Gratidão por ter sido salvo de uma matilha de lobos-da-estepe.",
+      "last_seen": "Posto Avançado de Dunsward",
+      "hex_id": "H_DUNSWARD_OUTPOST",
+      "faction": "Guilda dos Cartógrafos e Agrimensores das Terras Roubadas",
+      "visual_description": "Caçador alto e magro trajando gibão de couro batido e arco composto reforçado com tendões de urso.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "amistoso",
+          "text": "O Brejo da Língua em Gancho não perdoa passos em falso. Deixem-me marcar os atoleiros no mapa antes de vocês marcharem.",
+          "topic": "dicas_pantano",
+          "quest_key": "q_levantamento_glenebon_lingua_gancho"
+        }
+      ],
+      "stats": {
+        "ac": 26,
+        "hp": 95,
+        "max_hp": 95
+      }
+    },
+    {
+      "npc_key": "npc_herbalista_elena",
+      "npcKey": "npc_herbalista_elena",
+      "stable_id": "npc_herbalista_elena",
+      "stableId": "npc_herbalista_elena",
+      "name": "Mestra Herbalista Elena Folha-de-Prata",
+      "summary": "Botânica e devota de Erastil dedicada à coleta sustentável e cultivo de plantas medicinais raras.",
+      "goals": "Criar jardins medicinais em cada distrito do reino para erradicar a febre dos pântanos.",
+      "secrets": "Descobriu que certas raízes da Língua em Gancho curam até mesmo venenos feéricos graves.",
+      "attitude": "prestativo",
+      "relationship": "Fornecedora de medicamentos da corte",
+      "knowledge": "Fitoterapia, botânica de Golarion e poções de restauração.",
+      "debts": "Desejo de paz nas aldeias rurais.",
+      "last_seen": "Bosque Sagrado de Erastil",
+      "hex_id": "H_ERASTIL_GROVE",
+      "faction": "Sindicato dos Mineradores e Pioneiros",
+      "visual_description": "Elfa de sorriso gentil vestindo manto verde-oliva com sachês de ervas perfumadas presos à cintura.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "prestativo",
+          "text": "A terra nos dá tudo que precisamos se a tratarmos com reverência. Tragam-me as sementes do vale e farei bálsamos milagrosos.",
+          "topic": "coleta_recursos",
+          "quest_key": "q_catalogo_recursos_estrategicos"
+        }
+      ],
+      "stats": {
+        "ac": 24,
+        "hp": 75,
+        "max_hp": 75
+      }
+    },
+    {
+      "npc_key": "npc_mineiro_veterano_duran",
+      "npcKey": "npc_mineiro_veterano_duran",
+      "stable_id": "npc_mineiro_veterano_duran",
+      "stableId": "npc_mineiro_veterano_duran",
+      "name": "Engenheiro de Minas Duran Quebra-Pedra",
+      "summary": "Anão especialista em prospecção subterrânea, escoramento de túneis e lavra de mármore e ouro.",
+      "goals": "Operar a mina mais produtiva do continente sob os estandartes da Baronia.",
+      "secrets": "Sabe exatamente onde uma antiga veia de adamante cruza a pedreira de Glenebon.",
+      "attitude": "indiferente",
+      "relationship": "Supervisor de extração mineral",
+      "knowledge": "Engenharia de minas, detonação segura e metalurgia de ligas preciosas.",
+      "debts": "Contrato comercial assinado.",
+      "last_seen": "Mina de Ouro das Colinas Nomen",
+      "hex_id": "H_NOMEN_GOLD_MINE",
+      "faction": "Sindicato dos Mineradores e Pioneiros",
+      "visual_description": "Anão barbudo de braços musculosos carregando uma marreta pesada de mithral.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "indiferente",
+          "text": "Se a coroa me der cem homens com picaretas e carroças suficientes, eu encho a tesouraria com ouro até o teto!",
+          "topic": "plano_extracao",
+          "quest_key": "q_catalogo_recursos_estrategicos"
+        }
+      ],
+      "stats": {
+        "ac": 28,
+        "hp": 120,
+        "max_hp": 120
+      }
+    }
+  ],
+  "scenes": [
+    {
+      "scene_key": "scene_encruzilhada_rotas_caravanas",
+      "sceneKey": "scene_encruzilhada_rotas_caravanas",
+      "title": "Encruzilhada das Grandes Rotas de Caravanas",
+      "location": "Estepes de Dunsward - Cruzamento das Estradas Leste",
+      "hex_id": "H_DUNSWARD_OUTPOST",
+      "environment": "planicie",
+      "width_cells": 14,
+      "widthCells": 14,
+      "height_cells": 10,
+      "heightCells": 10,
+      "seed": 11101,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "leito_estrada_carrocas",
+          "name": "Leito da Estrada Batida de Terra",
+          "x": 2,
+          "y": 4,
+          "width": 10,
+          "height": 2,
+          "terrain": "normal",
+          "description": "Via de terra firme ladeada por marcos de pedra onde carroças mercantes trafegam"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "carroca_mercador_virada",
+          "x": 6,
+          "y": 4,
+          "width": 2,
+          "height": 2,
+          "type": "madeira_carroca",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "padrao"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "entrada_oeste_estrada",
+          "x": 1,
+          "y": 5,
+          "team": "player",
+          "description": "Aproximação pela estrada que vem da capital"
+        }
+      ],
+      "hazards": [],
+      "combatants": []
+    },
+    {
+      "scene_key": "scene_depressao_brejo_brumoso",
+      "sceneKey": "scene_depressao_brejo_brumoso",
+      "title": "Depressão do Brejo Brumoso e Águas Ácidas",
+      "location": "Brejo da Língua em Gancho - Vale das Águas Mortas",
+      "hex_id": "H_HOOKTONGUE_BOG",
+      "environment": "pantano",
+      "width_cells": 16,
+      "widthCells": 16,
+      "height_cells": 10,
+      "heightCells": 10,
+      "seed": 11102,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "ilhas_lama_firme",
+          "name": "Ilhotas de Lama e Raízes de Salgueiro",
+          "x": 3,
+          "y": 2,
+          "width": 10,
+          "height": 6,
+          "terrain": "dificil",
+          "description": "Montículos de vegetação cercados por canais de lama movediça ácida"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "tronco_salgueiro_caido",
+          "x": 8,
+          "y": 5,
+          "width": 3,
+          "height": 1,
+          "type": "tronco_madeira",
+          "blocks_movement": false,
+          "blocks_vision": false,
+          "cover": "padrao"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "pouso_balsa_sul",
+          "x": 2,
+          "y": 8,
+          "team": "player",
+          "description": "Ponto de atracação de balsa de exploração no pântano"
+        }
+      ],
+      "hazards": [],
+      "combatants": []
+    }
+  ],
+  "factions": [
+    {
+      "name": "Guilda dos Cartógrafos e Agrimensores das Terras Roubadas",
+      "agenda": "Mapear cada palmo do território, produzir atlas geográficos detalhados e demarcar fronteiras com segurança.",
+      "resources": "Bússolas de agrimensura, teodolitos de precisão gnomicos e patrulhas de batedores veteranos.",
+      "relationship": 4,
+      "current_plan": "Completar a triangulação geodésica de todos os setores das Terras Roubadas.",
+      "location": "Gabinete Central de Agrimensura na Capital",
+      "active": true
+    },
+    {
+      "name": "Sindicato dos Mineradores e Pioneiros",
+      "agenda": "Extrair riquezas minerais com segurança, abrir estradas e abastecer a infraestrutura do reino.",
+      "resources": "Companhias de mineradores anões, picaretas encantadas e carroças de transporte pesado.",
+      "relationship": 4,
+      "current_plan": "Operar a pleno vapor a Mina de Ouro de Nomen e a Pedreira de Glenebon.",
+      "location": "Colinas Nomen e Glenebon",
+      "active": true
+    },
+    {
+      "name": "Caravanas Livres dos Rios e Estepes",
+      "agenda": "Garantir o livre comércio sem taxas abusivas e com patrulhas da guarda real nas encruzilhadas.",
+      "resources": "Trens de carga terrestres, barcaças fluviais e batedores experientes em rotas desérticas.",
+      "relationship": 3,
+      "current_plan": "Expandir o comércio entre o Entreposto do Rio Shrike e os entrepostos de Dunsward.",
+      "location": "Rotas Fluviais e Terrestres",
+      "active": true
+    }
+  ],
+  "clocks": [
+    {
+      "name": "Mapeamento das Rotas Seguras da Baronia",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "Todas as rotas principais tornam-se completamente patrulhadas, reduzindo a inquietação e custos de viagem.",
+      "automatic": false,
+      "active": true
+    },
+    {
+      "name": "Reivindicação Hostil de Nós Minerais por Corsários",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "Bandos de salteadores e piratas fluviais ocupam pedreiras e minas desprotegidas, confiscando os lucros.",
+      "automatic": true,
+      "active": true
+    }
+  ],
+  "events": [
+    {
+      "title": "Descoberta de Veio Maciço de Ouro nas Colinas",
+      "description": "Mineradores pioneiros localizam uma galeria secreta com pepitas do tamanho de punhos nas encostas de Nomen, atraindo uma corrida do ouro.",
+      "due_at": 40000,
+      "due_day": 8,
+      "status": "scheduled",
+      "consequence_json": {
+        "treasury_bonus": 2500,
+        "scene": "scene_encruzilhada_rotas_caravanas"
+      }
+    },
+    {
+      "title": "Grande Feira Comercial das Nações Fluviais",
+      "description": "Barcaças e caravanas de mais de cinco reinos vizinhos atracam simultaneamente na doca fluvial, celebrando a prosperidade das rotas mapeadas.",
+      "due_at": 85000,
+      "due_day": 20,
+      "status": "scheduled",
+      "consequence_json": {
+        "economy_bonus": 3,
+        "scene": "scene_encruzilhada_rotas_caravanas"
+      }
+    }
+  ],
+  "milestones": [
+    {
+      "milestone_key": "milestone_cinturao_verde_mapeado",
+      "milestoneKey": "milestone_cinturao_verde_mapeado",
+      "name": "A Cartografia Completa do Cinturão Verde",
+      "xp": 300,
+      "source_ref": "Kingmaker PZO2020 Capítulo 11",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 11"
+    },
+    {
+      "milestone_key": "milestone_colinas_nomen_desbravadas",
+      "milestoneKey": "milestone_colinas_nomen_desbravadas",
+      "name": "O Mapeamento Geodésico das Colinas Nomen",
+      "xp": 450,
+      "source_ref": "Kingmaker PZO2020 Capítulo 11",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 11"
+    },
+    {
+      "milestone_key": "milestone_dunsward_conquistado",
+      "milestoneKey": "milestone_dunsward_conquistado",
+      "name": "O Reconhecimento das Estepes de Dunsward",
+      "xp": 550,
+      "source_ref": "Kingmaker PZO2020 Capítulo 11",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 11"
+    },
+    {
+      "milestone_key": "milestone_atlas_stolen_lands_completo",
+      "milestoneKey": "milestone_atlas_stolen_lands_completo",
+      "name": "A Conclusão do Atlas Real das Terras Roubadas",
+      "xp": 800,
+      "source_ref": "Kingmaker PZO2020 Capítulo 11",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 11"
+    }
+  ],
+  "metadata": {
+    "author": "Braseiro PF2e Engine",
+    "ruleset": "Pathfinder 2e Remaster",
+    "source": "Kingmaker Adventure Path PZO2020",
+    "version": "1.0.0",
+    "locale": "pt-BR"
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "schema": "braseiro-pathfinder2e-kingmaker-catalog-v1",
+  "profile": "Pathfinder 2e Kingmaker",
+  "locale": "pt-BR",
+  "authority": {
+    "degrees_of_success": "Pathfinder2eRulesEngine",
+    "kingdom_and_warfare": "KingmakerRulesEngine",
+    "persistent_state": "AppDb",
+    "source_specific_effects": "manual indexed by the user plus stored source_ref"
+  },
+  "turn": {
+    "phases": [
+      {"key": "UPKEEP", "label": "Manutenção"},
+      {"key": "COMMERCE", "label": "Comércio"},
+      {"key": "ACTIVITY", "label": "Atividade"},
+      {"key": "EVENT", "label": "Evento"}
+    ],
+    "activity_record": ["phase", "actor_role", "skill_key", "natural_roll", "modifier", "dc", "costs_json", "effects_json", "source_ref", "notes"]
+  },
+  "abilities": [
+    {"key": "culture", "label": "Cultura"},
+    {"key": "economy", "label": "Economia"},
+    {"key": "loyalty", "label": "Lealdade"},
+    {"key": "stability", "label": "Estabilidade"}
+  ],
+  "skills": [
+    {"key": "agriculture", "label": "Agricultura", "ability": "stability"},
+    {"key": "arts", "label": "Artes", "ability": "culture"},
+    {"key": "boating", "label": "Navegação", "ability": "economy"},
+    {"key": "defense", "label": "Defesa", "ability": "stability"},
+    {"key": "engineering", "label": "Engenharia", "ability": "stability"},
+    {"key": "exploration", "label": "Exploração", "ability": "economy"},
+    {"key": "folklore", "label": "Folclore", "ability": "culture"},
+    {"key": "industry", "label": "Indústria", "ability": "economy"},
+    {"key": "intrigue", "label": "Intriga", "ability": "loyalty"},
+    {"key": "magic", "label": "Magia", "ability": "culture"},
+    {"key": "politics", "label": "Política", "ability": "loyalty"},
+    {"key": "scholarship", "label": "Erudição", "ability": "culture"},
+    {"key": "statecraft", "label": "Administração", "ability": "loyalty"},
+    {"key": "trade", "label": "Comércio", "ability": "economy"},
+    {"key": "warfare", "label": "Guerra", "ability": "loyalty"},
+    {"key": "wilderness", "label": "Ermos", "ability": "stability"}
+  ],
+  "leadership_roles": [
+    {"key": "ruler", "label": "Governante", "ability": "loyalty", "vacancy": "-1 em todos os testes, +2 na CD de Controle e 1d4 Unrest no início do turno"},
+    {"key": "counselor", "label": "Conselheiro", "ability": "culture", "vacancy": "-1 em testes de Cultura"},
+    {"key": "general", "label": "General", "ability": "stability", "vacancy": "-4 em atividades de Guerra"},
+    {"key": "emissary", "label": "Emissário", "ability": "loyalty", "vacancy": "-1 em testes de Lealdade"},
+    {"key": "magister", "label": "Magíster", "ability": "culture", "vacancy": "-4 em atividades de Guerra"},
+    {"key": "treasurer", "label": "Tesoureiro", "ability": "economy", "vacancy": "-1 em testes de Economia"},
+    {"key": "viceroy", "label": "Vice-rei", "ability": "economy", "vacancy": "-1 em testes de Estabilidade"},
+    {"key": "warden", "label": "Guardião", "ability": "stability", "vacancy": "-4 em atividades de Região"}
+  ],
+  "resources": {
+    "points": "resource_points",
+    "dice_count": "kingdom level + 4",
+    "die_by_size": {"1-9": "d4", "10-24": "d6", "25-49": "d8", "50-99": "d10", "100+": "d12"},
+    "commodity_storage_by_size": {"1-9": 4, "10-24": 8, "25-49": 12, "50-99": 16, "100+": 20},
+    "commodities": ["food", "lumber", "luxuries", "ore", "stone"],
+    "pressures": ["unrest", "corruption", "crime", "decay", "strife"],
+    "reputation": ["fame", "infamy"],
+    "unrest_penalties": {"1-4": -1, "5-9": -2, "10-14": -3, "15+": -4, "15-19": -4, "20+": "Anarquia"},
+    "anarchy": {
+      "threshold": 20,
+      "effect": "O Reino entra em Anarquia em Unrest 20+. Fica proibido realizar qualquer atividade de Reino que não seja Acalmar Agitação ou restauradora.",
+      "restorative_activities": ["quell_unrest", "rest_and_relax", "proclamation", "supernatural_solution", "improve_lifestyle"]
+    },
+    "ruin_penalties": {
+      "corruption": "Penalidade em testes de Cultura",
+      "crime": "Penalidade em testes de Economia",
+      "decay": "Penalidade em testes de Estabilidade",
+      "strife": "Penalidade em testes de Lealdade"
+    },
+    "consumption": "settlement consumption + army consumption - influenced Farmland + explicit modifiers",
+    "consumption_payment": ["Food equal to Consumption", "5 RP per Consumption", "1d4 Unrest"],
+    "overcrowding": "cada assentamento superlotado gera 1 Unrest no início do turno",
+    "end_turn": "até 120 RP restantes viram XP; RP e reputação temporária voltam a zero; apenas um nível pode ser ganho por turno",
+    "xp_party_cap": "XP excedente é preservado quando o Reino atingiu o nível do grupo"
+  },
+  "milestones": {
+    "first_landmark": 40,
+    "first_refuge": 40,
+    "first_village": 40,
+    "size_10": 40,
+    "first_diplomatic_relation": 60,
+    "first_town": 60,
+    "all_leadership_roles": 60,
+    "size_25": 60,
+    "first_trade_agreement": 80,
+    "first_city": 80,
+    "size_50": 80,
+    "spent_100_rp_in_turn": 80,
+    "first_metropolis": 120,
+    "size_100": 120,
+    "random_event": 30
+  },
+  "territory": {
+    "states": ["reconnoitered", "cleared", "claimed"],
+    "improvements": ["road", "farmland", "landmark", "refuge", "resource_site", "improvement"],
+    "claim_requirements": ["active canonical Atlas", "reconnoitered", "cleared", "adjacent to claimed territory except the first claim", "resource point"]
+  },
+  "settlements": {
+    "types": ["village", "town", "city", "metropolis"],
+    "foundation": "todo assentamento novo começa como village de nível 1",
+    "limits": {
+      "village": {"minimum_kingdom_level": 1, "settlement_level": "1", "blocks": "1", "population": "até 400", "consumption": 1, "influence": 0},
+      "town": {"minimum_kingdom_level": 3, "settlement_level": "2-4", "blocks": "2-4", "population": "401-2000", "consumption": 2, "influence": 1},
+      "city": {"minimum_kingdom_level": 9, "settlement_level": "5-9", "blocks": "5-9", "population": "2001-25000", "consumption": 4, "influence": 2},
+      "metropolis": {"minimum_kingdom_level": 15, "settlement_level": "10-20", "blocks": "10+", "population": "25001+", "consumption": 6, "influence": 3}
+    },
+    "fields": ["level", "population", "consumption", "influence", "developed_blocks", "occupied_lots", "residential_lots", "overcrowded", "max_item_bonus", "grid_json", "storage_json"],
+    "promotion_requirements": ["one category at a time", "not overcrowded", "village: 4 occupied lots", "town: 4 developed blocks and 8 occupied lots", "city: 9 developed blocks and 18 occupied lots"],
+    "structures": ["name", "count", "lots", "construction_rp", "commodity_costs_json", "effects_json", "source_ref"]
+  },
+  "warfare": {
+    "army_fields": ["type", "allegiance", "level", "size", "ac", "attack", "maneuver", "morale", "hp", "rout", "ammunition", "supplies", "consumption", "commander", "location", "conditions", "tactics"],
+    "resolution": ["four degrees of success", "multiple attack penalty", "hits", "weakness", "resistance", "defeated at 0 HP", "conditions only when explicitly resolved"],
+    "encounter": ["participants", "active army", "round", "battlefield hex", "append-only log", "status"]
+  },
+  "companions": {
+    "assignments": ["adventure", "camping", "kingdom", "reserve"],
+    "fields": ["npc link", "influence", "attitude", "leadership role", "availability", "personal quest"]
+  },
+  "events": {
+    "random_event_xp": 30,
+    "story_event_xp": "registrado explicitamente na resolução conforme a fonte",
+    "duplicate_resolution": "bloqueada",
+    "event_phase_check": {
+      "initial_dc": 16,
+      "decay_on_no_event": 5,
+      "minimum_dc": 1,
+      "reset_dc_on_event": 16
+    }
+  },
+  "camping": {
+    "procedure": ["choose campsite", "Prepare Camp", "camp activities by hour", "meal and watch", "sleep and finish camp"],
+    "fields": ["hex", "day", "zone_name", "zone_dc", "encounter_dc", "current_encounter_dc", "prepare_degree", "reused", "elapsed_hours", "special_ingredients", "watch", "activities", "weather", "encounter_checks", "encounter", "result"],
+    "encounter_check": "registre um d20 por hora contra a CD atual; a próxima CD diminui em 1",
+    "effects_policy": "efeitos de atividade, refeição e descanso são registrados conforme a fonte; não existe qualidade automática inventada"
+  },
+  "integration": ["Atlas overlay", "campaign POI settlement link", "LivingSettlementEngine link", "MasterGameContext", "Motor Barbara game bus", "manual retrieval", "backup v22", "audit log"]
+}
