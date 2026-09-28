@@ -91,8 +91,8 @@ def test_kingdom_guide_is_not_a_parallel_manual():
 def test_narrative_layer_does_not_replace_mechanical_authority():
     orchestrator = read("MasterOrchestrator.java")
     profile = read("HumanMasterNarrativeProfile.java")
-    assert "SourceOfTruthRegistry" in orchestrator
     assert "authority" in orchestrator
+    assert "O aplicativo é a autoridade mecânica e persistente" in orchestrator
     assert "truth_priority" in profile
     assert "estado mecânico real" in profile
     assert "regras implementadas" in profile
