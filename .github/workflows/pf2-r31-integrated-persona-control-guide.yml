@@ -105,7 +105,7 @@ jobs:
             'persona-runtime'=$narr.Contains('HumanGmNarrativeProfile.prompt()')
             'persona-full-asset'=(Test-Path 'android\app\src\main\assets\pathfinder\master\PERFIL_TECNICO_MESTRE_HUMANO_IMERSIVO_VTT.md')
             'character-image-target'=$main.Contains('applyReceivedCharacterImage') -and $main.Contains('sharePromptToGeminiForCharacter')
-            'tts-regex-fixed'=(-not $play.Contains('replaceAll("\\\\p{M}+","")')) -and $play.Contains('replaceAll("\\p{M}+","")')
+            'tts-regex-fixed'=(-not $play.Contains('replaceAll("\\\\\\\\p{M}+","")')) -and $play.Contains('replaceAll("\\\\p{M}+","")')
             'player-gm-ui'=$main.Contains('new String[]{"Jogador","Mestre"}') -and $main.Contains('showCharacterControlChoice')
             'player-gm-guard'=$cog.Contains('Controle PLAYER/Jogador')
             'kingdom-guide-engine'=$guide.Contains('rules.activityCatalog()') -and $guide.Contains('repository.activeTurn()')
