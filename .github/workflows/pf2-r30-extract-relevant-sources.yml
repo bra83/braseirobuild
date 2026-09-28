@@ -1,0 +1,131 @@
+name: PF2 R30 Extract Relevant Sources
+
+on:
+  push:
+    branches: [audit-pf2-kingmaker-r30-20260928]
+    paths:
+      - '.github/workflows/pf2-r30-extract-relevant-sources.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-pf2-kingmaker-r30-20260928
+
+      - name: Download and extract exact R30 post-Antigravity
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){ throw "Expected BRELGA, got $env:RUNNER_NAME" }
+          $root=Join-Path $env:RUNNER_TEMP 'pf2-r30-source-inspect'
+          Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $root -Force | Out-Null
+          $rar=Join-Path $root 'pf2e_r30_work.rar'
+          & curl.exe -L --fail --retry 5 --retry-delay 3 "https://drive.usercontent.google.com/download?id=1UbJq8m518f1jIQkkXASvEp0j0Uf6qNkR&export=download&confirm=t" -o $rar
+          if($LASTEXITCODE -ne 0){throw 'download failed'}
+          if((Get-Item $rar).Length -ne 553809972){throw 'wrong archive size'}
+          $out=Join-Path $root 'extracted'
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $unrar='C:\Program Files\WinRAR\UnRAR.exe'
+          if(-not (Test-Path $unrar)){throw 'UnRAR missing'}
+          & $unrar x -y $rar "$out\"
+          if($LASTEXITCODE -ne 0){throw 'extract failed'}
+          $work=Join-Path $out 'pf2e_r30_work'
+          if(-not (Test-Path (Join-Path $work 'version.properties'))){throw 'work root missing'}
+          "WORK_ROOT=$work" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Collect relevant source files and grep map
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $dest=Join-Path $env:GITHUB_WORKSPACE 'pf2-r30-inspect'
+          Remove-Item $dest -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $dest -Force | Out-Null
+          $work=$env:WORK_ROOT
+
+          $must=@(
+            'version.properties',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\MainActivity.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\AppDb.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerRulesEngine.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerRepository.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerWarfareEngine.java'
+          )
+          foreach($rel in $must){
+            $src=Join-Path $work $rel
+            if(Test-Path $src){
+              $to=Join-Path $dest $rel
+              New-Item -ItemType Directory -Path (Split-Path $to) -Force | Out-Null
+              Copy-Item $src $to -Force
+            }
+          }
+
+          $patterns=@(
+            'DESCREVER PERSONAGEM PARA O GEMINI',
+            'Descrever personagem para o Gemini',
+            'TESTAR CHARON',
+            'Tom + Tags',
+            'Iniciar o próximo turno do Reino',
+            'INICIAR TURNO QUANDO VOLTAR AO REINO',
+            'Imagem recebida, validada, salva e vinculada à cena atual',
+            'Braseiro Kokoro PT-BR',
+            'com.k2fsa.sherpa.onnx.tts.engine',
+            '\\p\{M\}',
+            'Kingmaker Solo',
+            'controle',
+            'character',
+            'portrait',
+            'token'
+          )
+          $roots=@(
+            (Join-Path $work 'android\app\src\main\java\com\braseiro\pathfinder2e'),
+            (Join-Path $work 'android\app\src\main\assets')
+          )
+          $matches=New-Object System.Collections.Generic.List[string]
+          foreach($root in $roots){
+            if(-not (Test-Path $root)){continue}
+            $files=Get-ChildItem $root -Recurse -File -Include *.java,*.json,*.html,*.js,*.ts,*.tsx,*.md
+            foreach($p in $patterns){
+              $found=$files | Select-String -Pattern $p -SimpleMatch:$false -ErrorAction SilentlyContinue
+              foreach($m in $found){
+                $rel=$m.Path.Substring($work.Length).TrimStart('\')
+                $matches.Add("$rel:$($m.LineNumber):$($m.Line.Trim())")
+                $src=$m.Path
+                $to=Join-Path $dest $rel
+                if(-not (Test-Path $to)){
+                  New-Item -ItemType Directory -Path (Split-Path $to) -Force | Out-Null
+                  Copy-Item $src $to -Force
+                }
+              }
+            }
+          }
+          $matches | Sort-Object -Unique | Set-Content (Join-Path $dest 'SOURCE_MAP.txt') -Encoding utf8
+
+          # tests useful for preserving behavior
+          $testRoot=Join-Path $work 'tests_pf2'
+          if(Test-Path $testRoot){
+            $td=Join-Path $dest 'tests_pf2'
+            New-Item -ItemType Directory -Path $td -Force | Out-Null
+            Get-ChildItem $testRoot -File -Filter 'test_kingmaker*.py' | ForEach-Object { Copy-Item $_.FullName (Join-Path $td $_.Name) -Force }
+            Get-ChildItem $testRoot -File | Where-Object {$_.Name -match 'tts|kokoro|gemini|narrat|character|hero'} | ForEach-Object { Copy-Item $_.FullName (Join-Path $td $_.Name) -Force }
+          }
+
+          Write-Host "Collected files:"
+          Get-ChildItem $dest -Recurse -File | ForEach-Object {$_.FullName.Substring($dest.Length+1)}
+
+      - name: Commit inspection snapshot to temporary branch
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          git config user.name "BRELGA PF2 Inspector"
+          git config user.email "actions@users.noreply.github.com"
+          git add pf2-r30-inspect
+          if(git diff --cached --quiet){Write-Host 'No changes'; exit 0}
+          git commit -m "audit: snapshot relevant R30 post-Antigravity sources"
+          git push origin HEAD:audit-pf2-kingmaker-r30-20260928
