@@ -1432,6 +1432,184 @@ public final class KingmakerRulesEngine {
     // =========================================================================
     // Catálogo Canônico de Atividades do Reino (Kingmaker PF2e)
     // =========================================================================
+    /**
+     * Metadados didáticos fazem parte do próprio motor de regras. A UI do guia
+     * lê estes dados; não mantém um segundo catálogo.
+     */
+    public JSONArray turnProcedureGuide(){
+        JSONArray phases=new JSONArray();
+        try{
+            phases.put(new JSONObject().put("key","UPKEEP").put("name","1. Manutenção").put("steps",new JSONArray()
+                    .put(step("leadership","Verificar liderança e vacâncias",true,"O motor verifica cargos vagos e aplica as consequências configuradas antes de seguir.","Unrest, CD de Controle e penalidades de vacância"))
+                    .put(step("resources","Gerar Recursos do Reino",true,"Ao iniciar o turno, os dados de recurso são rolados/validados pelo motor local.","Resource Points disponíveis no turno"))
+                    .put(step("consumption","Cobrir Consumo",true,"Escolha como pagar o Consumo: Alimento, RP ou aceitar Unrest quando permitido.","Alimento, RP ou Unrest"))));
+            phases.put(new JSONObject().put("key","COMMERCE").put("name","2. Comércio").put("steps",new JSONArray()
+                    .put(step("collect_taxes","Coletar Impostos",false,"Você decide se arrecada impostos; o resolver específico aplica o grau de sucesso.","RP e, em falha crítica, Unrest"))
+                    .put(step("lifestyle_or_treasury","Estilo de Vida / Tesouro",false,"Escolha investir no bem-estar do Reino ou recorrer ao tesouro quando fizer sentido.","RP, Unrest e Crime"))
+                    .put(step("trade_commodities","Negociar Commodities",false,"Compre ou venda mercadorias dentro de estoque e capacidade válidos.","RP e Food/Lumber/Luxuries/Ore/Stone"))
+                    .put(step("trade_agreements","Gerenciar Acordos Comerciais",false,"Gerencie acordos existentes ou tente estabelecer um novo acordo válido.","RP, Unrest e acordos comerciais"))));
+            phases.put(new JSONObject().put("key","ACTIVITY").put("name","3. Atividades").put("steps",new JSONArray()
+                    .put(step("leadership_activities","Atividades de Liderança",false,"Escolha entre as atividades de liderança permitidas pelo estado atual.","Liderança, Unrest, RP, relações e outros efeitos específicos"))
+                    .put(step("region_activities","Atividades de Região",false,"Escolha ações sobre hexes válidos: reconhecimento, reivindicação, estrada, irrigação e outras.","Território, tamanho, RP, melhorias e hexes"))
+                    .put(step("civic_activities","Atividades Cívicas",false,"Escolha ações válidas em assentamentos e estruturas.","RP, commodities, lotes, estruturas e assentamentos"))));
+            phases.put(new JSONObject().put("key","EVENT").put("name","4. Evento").put("steps",new JSONArray()
+                    .put(step("event_flat_check","Teste simples de Evento",true,"Use a CD de Evento persistida. Sem evento, a próxima CD cai 5; quando ocorre, volta a 16.","CD de Evento e possível evento pendente"))
+                    .put(step("event_resolution","Resolver evento ocorrido",true,"Se um evento surgir, ele precisa ser resolvido pelo resolver antes do fechamento do turno.","Estado indicado pelo evento, como Unrest/Ruin/recursos"))
+                    .put(step("complete_turn","Fechar o turno",true,"Somente depois dos passos obrigatórios o turno é concluído e persistido.","Número do turno e estado de continuidade"))));
+        }catch(Exception ignored){}
+        return phases;
+    }
+
+    private static JSONObject step(String key,String name,boolean required,String explanation,String changes)throws Exception{
+        return new JSONObject().put("key",key).put("name",name).put("required",required).put("explanation",explanation).put("changes",changes);
+    }
+
+    public JSONArray activityGuideCatalog(){
+        JSONArray out=new JSONArray();
+        for(String key:ACTIVITIES){
+            JSONObject a=activityGuide(key);
+            if(a!=null&&a.length()>0)out.put(a);
+        }
+        return out;
+    }
+
+    /**
+     * Enriquecimento do catálogo executável. Os nomes de parâmetros refletem
+     * resolveKingdomActivity(), e "changes" documenta apenas famílias de estado
+     * que os resolvers oficiais podem alterar.
+     */
+    public JSONObject activityGuide(String activityKey){
+        JSONObject a=activity(activityKey);
+        if(a==null||a.length()==0)return new JSONObject();
+        String k=key(activityKey);
+        try{
+            JSONArray params=new JSONArray();
+            String requirements="";
+            String changes="";
+            if("new_leadership".equals(k)){
+                params.put("cargo").put("personagem/companheiro").put("investido ou não");
+                requirements="Escolher um cargo e um candidato válido.";
+                changes="liderança, vacância e bônus/penalidades associados";
+            }else if("proclamation".equals(k)){
+                params.put("perícia").put("rolagem");
+                requirements="Fase de Atividades; atividade permitida pelo estado atual.";
+                changes="Unrest e efeitos de lealdade conforme o grau";
+            }else if("rest_and_relax".equals(k)){
+                params.put("perícia").put("rolagem");
+                requirements="Fase de Atividades; atividade permitida pelo estado atual.";
+                changes="Unrest e bem-estar do Reino";
+            }else if("supernatural_solution".equals(k)){
+                params.put("perícia").put("rolagem");
+                requirements="Fase de Atividades; acesso ficcional compatível.";
+                changes="pressões/Unrest e efeitos específicos do resultado";
+            }else if("take_charge".equals(k)){
+                params.put("cargo").put("perícia").put("rolagem");
+                requirements="Escolher cargo/líder aplicável.";
+                changes="resultado da atividade liderada e estado associado";
+            }else if("send_diplomatic_envoy".equals(k)){
+                params.put("nação/facção alvo").put("perícia").put("rolagem");
+                requirements="Alvo diplomático identificável.";
+                changes="relações diplomáticas, RP/Unrest quando o resolver determinar";
+            }else if("pledge_of_fealty".equals(k)){
+                params.put("comunidade alvo").put("perícia").put("rolagem");
+                requirements="Comunidade alvo válida.";
+                changes="relação política, território/estado quando o resolver determinar";
+            }else if("request_foreign_aid".equals(k)){
+                params.put("aliado/nação").put("perícia").put("rolagem");
+                requirements="Aliado ou nação alvo válida.";
+                changes="recursos/pressões e relações externas";
+            }else if("quell_unrest".equals(k)){
+                params.put("perícia").put("rolagem");
+                requirements="Pode ser usada para combater Agitação; em Anarquia é uma das opções restaurativas permitidas.";
+                changes="Unrest";
+            }else if("claim_hex".equals(k)){
+                params.put("hex").put("perícia").put("rolagem");
+                requirements="Hex válido, adjacente e preparado conforme o estado de exploração.";
+                changes="território, tamanho, RP, XP e Unrest conforme o grau";
+            }else if("abandon_hex".equals(k)){
+                params.put("hex");
+                requirements="Hex atualmente reivindicado.";
+                changes="território, tamanho e estado do hex";
+            }else if("clear_hex".equals(k)){
+                params.put("hex").put("perícia").put("rolagem");
+                requirements="Hex válido e reconhecido quando exigido.";
+                changes="estado de limpeza do hex e efeitos do resultado";
+            }else if("reconnoiter_hex".equals(k)){
+                params.put("hex").put("perícia").put("rolagem");
+                requirements="Hex explorável pelo grupo/Reino.";
+                changes="estado de reconhecimento e informação territorial";
+            }else if("build_roads".equals(k)){
+                params.put("hex").put("perícia").put("rolagem");
+                requirements="Hex controlado e elegível para melhoria.";
+                changes="RP/commodities quando aplicáveis e melhoria de estrada do hex";
+            }else if("irrigate".equals(k)){
+                params.put("hex").put("perícia").put("rolagem");
+                requirements="Hex controlado e elegível.";
+                changes="melhoria/farmland e estado territorial";
+            }else if("establish_settlement".equals(k)){
+                params.put("hex").put("nome do assentamento");
+                requirements="Hex válido para fundação.";
+                changes="assentamentos, território e consumo";
+            }else if("work_sites".equals(k)){
+                params.put("hex").put("tipo de sítio").put("perícia").put("rolagem");
+                requirements="Hex com recurso/terreno compatível.";
+                changes="resource site, commodities e estado do hex";
+            }else if("fortify_hex".equals(k)){
+                params.put("hex").put("perícia").put("rolagem");
+                requirements="Hex controlado elegível.";
+                changes="fortificação/melhoria defensiva do hex";
+            }else if("build_structure".equals(k)){
+                params.put("assentamento").put("estrutura").put("perícia").put("rolagem");
+                requirements="Assentamento, nível, lotes, RP, commodities e pré-requisitos válidos.";
+                changes="RP, commodities, lotes, estrutura e bônus do assentamento";
+            }else if("demolish".equals(k)){
+                params.put("assentamento").put("estrutura");
+                requirements="Estrutura existente no assentamento.";
+                changes="estrutura e lotes ocupados";
+            }else if("repair_structure".equals(k)){
+                params.put("assentamento").put("estrutura");
+                requirements="Estrutura existente e reparável.";
+                changes="estado operacional da estrutura";
+            }else if("upgrade_settlement".equals(k)){
+                params.put("assentamento").put("próxima categoria");
+                requirements="Assentamento existente e categoria seguinte válida.";
+                changes="nível/tipo, capacidade e efeitos do assentamento";
+            }else if("collect_taxes".equals(k)){
+                params.put("perícia").put("rolagem");
+                requirements="Fase de Comércio.";
+                changes="RP; falha crítica pode aumentar Unrest";
+            }else if("improve_lifestyle".equals(k)){
+                params.put("RP a investir").put("perícia").put("rolagem");
+                requirements="RP suficiente.";
+                changes="RP e Unrest";
+            }else if("tap_treasury".equals(k)){
+                params.put("quantidade de RP");
+                requirements="Fase de Comércio e decisão explícita.";
+                changes="RP e Crime";
+            }else if("trade_commodities".equals(k)){
+                params.put("comprar/vender").put("commodity").put("quantidade");
+                requirements="Estoque/capacidade e RP suficientes para a operação.";
+                changes="RP e Food/Lumber/Luxuries/Ore/Stone";
+            }else if("manage_trade_agreements".equals(k)){
+                params.put("perícia").put("rolagem");
+                requirements="Acordos comerciais existentes quando a operação depender deles.";
+                changes="RP; falha crítica pode aumentar Unrest";
+            }else if("establish_trade_agreement".equals(k)){
+                params.put("assentamento de origem").put("destino").put("perícia").put("rolagem");
+                requirements="Origem válida e destino identificável.";
+                changes="acordos comerciais e, conforme resultado, Unrest";
+            }else if("capital_investment".equals(k)){
+                params.put("PO a investir");
+                requirements="Ouro suficiente; custo por RP depende do nível do Reino.";
+                changes="RP";
+            }
+            a.put("parameters",params).put("requirements",requirements).put("changes",changes)
+                    .put("resolver","KingmakerRepository.resolveKingdomActivity")
+                    .put("mechanical_authority",true);
+        }catch(Exception ignored){}
+        return a;
+    }
+
     public JSONArray activityCatalog(){
         JSONArray arr=new JSONArray();
         for(String key:ACTIVITIES){
