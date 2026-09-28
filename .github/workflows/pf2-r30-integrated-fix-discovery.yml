@@ -1,0 +1,79 @@
+name: PF2 R30 Integrated Fix Discovery
+
+on:
+  push:
+    branches: [audit-pf2-kingmaker-r30-20260928]
+    paths:
+      - '.github/workflows/pf2-r30-integrated-fix-discovery.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 90
+    steps:
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Download and extract exact R30 post-Antigravity
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){ throw "Expected BRELGA, got $env:RUNNER_NAME" }
+          $root=Join-Path $env:RUNNER_TEMP 'pf2-r30-integrated-fix'
+          $work=Join-Path $root 'extracted'
+          Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $work -Force | Out-Null
+          $rar=Join-Path $root 'pf2e_r30_work.rar'
+          & curl.exe -L --fail --retry 5 --retry-delay 3 "https://drive.usercontent.google.com/download?id=1UbJq8m518f1jIQkkXASvEp0j0Uf6qNkR&export=download&confirm=t" -o $rar
+          if($LASTEXITCODE -ne 0){throw 'download failed'}
+          $size=(Get-Item $rar).Length
+          if($size -ne 553809972){throw "Unexpected archive size: $size"}
+          $seven='C:\Program Files\7-Zip\7z.exe'
+          if(-not (Test-Path $seven)){ $seven=(Get-Command 7z.exe -ErrorAction Stop).Source }
+          & $seven x -y $rar "-o$work"
+          if($LASTEXITCODE -ne 0){throw 'extract failed'}
+          $project=Join-Path $work 'pf2e_r30_work'
+          if(-not (Test-Path (Join-Path $project 'version.properties'))){throw 'project root missing'}
+          "PROJECT_ROOT=$project" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Inventory integration points
+        shell: powershell
+        working-directory: ${{ env.PROJECT_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          function Hit($label,$pattern){
+            Write-Host "===== $label ====="
+            Get-ChildItem android -Recurse -File -Include *.java,*.kt,*.xml,*.json,*.html,*.js,*.ts,*.tsx |
+              Select-String -Pattern $pattern -CaseSensitive:$false |
+              Select-Object -First 120 |
+              ForEach-Object { "$($_.Path):$($_.LineNumber): $($_.Line.Trim())" }
+          }
+          Hit 'CHARACTER GEMINI / TOKEN' 'DESCREVER PERSONAGEM|descrever personagem|token|portrait|retrato|imagem do personagem|Gemini'
+          Hit 'SCENE IMAGE IMPORT' 'imagem de cena|scene.?image|imagem recebida|vinculada à cena|ACTION_SEND|onNewIntent|Intent'
+          Hit 'TTS TAGS / REGEX' 'tom \+ tags|tom.*tags|\\p\{M\}|Pattern|Normalizer|combining|charon'
+          Hit 'ANDROID KOKORO' 'Braseiro Kokoro|k2fsa|TextToSpeech|QUEUE_ADD|QUEUE_FLUSH|setVoice|voices'
+          Hit 'KINGDOM TURN UI' 'Turno do Reino|Kingdom Turn|Iniciar o próximo turno|Commerce|Activity Phase|Event Phase'
+          Hit 'CHARACTER CONTROL' 'control_mode|controlMode|player_control|gm_control|character.*control|hero.*control'
+          Hit 'NARRATIVE MASTER' 'Barbara|Bárbara|Narrative|Narrativa|Mestre|Gemini|prompt|scene_type|intensity'
+
+      - name: Print likely core file sizes
+        shell: powershell
+        working-directory: ${{ env.PROJECT_ROOT }}
+        run: |
+          $files=@(
+            'android\app\src\main\java\com\braseiro\pathfinder2e\MainActivity.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\AppDb.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerRulesEngine.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerRepository.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerWarfareEngine.java'
+          )
+          foreach($f in $files){
+            if(Test-Path $f){
+              $i=Get-Item $f
+              Write-Host ($f + " :: " + $i.Length)
+            }
+          }
