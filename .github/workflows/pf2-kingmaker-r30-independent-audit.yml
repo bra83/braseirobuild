@@ -7,7 +7,7 @@ on:
       - '.github/workflows/pf2-kingmaker-r30-independent-audit.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   audit:
@@ -147,6 +147,70 @@ jobs:
           $code=$LASTEXITCODE
           "pytest_full_exit_code=$code" | Set-Content 'audit-results\pytest-full-exit.txt' -Encoding ascii
           if($code -ne 0){ throw "Full PF2 pytest failed: $code" }
+
+      - name: Snapshot relevant live R30 source
+        if: always()
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $dest=Join-Path $env:GITHUB_WORKSPACE 'ci\pf2-r30-live-src'
+          Remove-Item $dest -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $dest -Force | Out-Null
+          function Copy-Rel([string]$rel){
+            $src=Join-Path $env:WORK_ROOT $rel
+            if(Test-Path $src){
+              $to=Join-Path $dest $rel
+              New-Item -ItemType Directory -Path (Split-Path $to -Parent) -Force | Out-Null
+              Copy-Item $src $to -Force
+            }
+          }
+          $known=@(
+            'version.properties',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\MainActivity.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\AppDb.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerRulesEngine.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerRepository.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerWarfareEngine.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\NarrationChunker.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\PortugueseNarrationSanitizer.java',
+            'KINGMAKER_RULE_COVERAGE_MATRIX.json',
+            'VALIDACAO_KINGMAKER_MECHANICS_COMPLETE.md'
+          )
+          foreach($k in $known){Copy-Rel $k}
+          $roots=@(
+            'android\app\src\main\java\com\braseiro\pathfinder2e',
+            'android\app\src\main\assets',
+            'tests_pf2'
+          )
+          $patterns='DESCREVER PERSONAGEM|Gemini|token|portrait|retrato|imagem de cena|Kingmaker|Reino|narrat|Barbara|Bárbara|TTS|Charon|Kokoro|voice|tom|tags|\\p\{M\}|character|personagem|companion|solo'
+          $paths=@()
+          foreach($root in $roots){
+            if(Test-Path $root){
+              $hits=Get-ChildItem $root -Recurse -File -Include *.java,*.json,*.xml,*.html,*.js,*.ts,*.py,*.md |
+                Select-String -Pattern $patterns -CaseSensitive:$false -ErrorAction SilentlyContinue
+              $paths += $hits | ForEach-Object {$_.Path}
+            }
+          }
+          foreach($abs in ($paths | Sort-Object -Unique)){
+            $rel=$abs.Substring($env:WORK_ROOT.Length).TrimStart('\','/')
+            Copy-Rel $rel
+          }
+          $inventory=Get-ChildItem $dest -Recurse -File | ForEach-Object {$_.FullName.Substring($dest.Length).TrimStart('\','/')} | Sort-Object
+          $inventory | Set-Content (Join-Path $dest 'INVENTORY.txt') -Encoding utf8
+          Write-Host "SNAPSHOT_FILES=$($inventory.Count)"
+
+      - name: Commit live source snapshot
+        if: always()
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          git config user.name "BRELGA Audit"
+          git config user.email "actions@braseiro.local"
+          git add ci/pf2-r30-live-src
+          if(git diff --cached --quiet){Write-Host 'No live snapshot changes'; exit 0}
+          git commit -m "audit: snapshot PF2 R30 post-Antigravity live source"
+          git push origin HEAD:audit-pf2-kingmaker-r30-20260928
 
       - name: Upload independent audit logs
         if: always()
