@@ -208,23 +208,22 @@ jobs:
           Copy-Item $apk.FullName $apkOut -Force
           (Get-FileHash $apkOut -Algorithm SHA256).Hash.ToLowerInvariant() | Set-Content "$apkOut.sha256" -Encoding ascii
 
-          $validation=@"
-# VALIDAÇÃO R31 INTEGRATED
-Baseline: RAR pós-Antigravity R30 exato (553809972 bytes).
-Implementado:
-- controle persistente JOGADOR/MESTRE por personagem, com migração dos modos antigos sem novo subsistema;
-- Barbara recebe política de controle e só decide ações voluntárias dos heróis MESTRE; efeitos mecânicos continuam no protocolo PF2;
-- Guia completo do Turno do Reino derivado do KingmakerRulesEngine + KingmakerRepository;
-- perfil canônico Mestre Humano Imersivo integrado como DIREÇÃO NARRATIVA no MasterOrchestrator;
-- perfil MD empacotado e validado por SHA-256.
-Validação obrigatória:
-- teste focado: PASS
-- suítes Kingmaker: PASS
-- regressão PF2 completa: PASS
-- gates de integração: PASS
-- Gradle :app:assembleDebug: PASS
-"@
-          Set-Content (Join-Path $out 'VALIDACAO_R31_INTEGRATED_FIXES.md') $validation -Encoding utf8
+          @(
+            '# VALIDAÇÃO R31 INTEGRATED',
+            'Baseline: RAR pós-Antigravity R30 exato (553809972 bytes).',
+            'Implementado:',
+            '- controle persistente JOGADOR/MESTRE por personagem, com migração dos modos antigos sem novo subsistema;',
+            '- Barbara recebe política de controle e só decide ações voluntárias dos heróis MESTRE; efeitos mecânicos continuam no protocolo PF2;',
+            '- Guia completo do Turno do Reino derivado do KingmakerRulesEngine + KingmakerRepository;',
+            '- perfil canônico Mestre Humano Imersivo integrado como DIREÇÃO NARRATIVA no MasterOrchestrator;',
+            '- perfil MD empacotado e validado por SHA-256.',
+            'Validação obrigatória:',
+            '- teste focado: PASS',
+            '- suítes Kingmaker: PASS',
+            '- regressão PF2 completa: PASS',
+            '- gates de integração: PASS',
+            '- Gradle :app:assembleDebug: PASS'
+          ) | Set-Content (Join-Path $out 'VALIDACAO_R31_INTEGRATED_FIXES.md') -Encoding utf8
 
           @(
             'android/app/src/main/java/com/braseiro/pathfinder2e/AppDb.java',
@@ -246,16 +245,15 @@ Validação obrigatória:
           Copy-Item "$env:RUNNER_TEMP\PF2_R31_GRADLE.log" (Join-Path $out 'GRADLE_BUILD.log')
           Copy-Item $env:GATES_LOG (Join-Path $out 'INTEGRATION_GATES.log')
 
-          $handoff=@"
-# HANDOFF R31 INTEGRATED
-Usar esta versão como continuação da baseline pós-Antigravity.
-Não reaplicar R29/R30 antigo.
-Controle de personagem: player/gm em character_control_profiles.
-Guia do Reino: KingmakerTurnGuide -> KingmakerRulesEngine.activityGuideCatalog/turnProcedureGuide + KingmakerRepository.
-Narrativa: HumanMasterNarrativeProfile -> MasterOrchestrator.human_master_narrative_direction.
-Todos os testes e build passaram nesta entrega.
-"@
-          Set-Content (Join-Path $out 'HANDOFF_R31_INTEGRATED_FIXES.md') $handoff -Encoding utf8
+          @(
+            '# HANDOFF R31 INTEGRATED',
+            'Usar esta versão como continuação da baseline pós-Antigravity.',
+            'Não reaplicar R29/R30 antigo.',
+            'Controle de personagem: player/gm em character_control_profiles.',
+            'Guia do Reino: KingmakerTurnGuide -> KingmakerRulesEngine.activityGuideCatalog/turnProcedureGuide + KingmakerRepository.',
+            'Narrativa: HumanMasterNarrativeProfile -> MasterOrchestrator.human_master_narrative_direction.',
+            'Todos os testes e build passaram nesta entrega.'
+          ) | Set-Content (Join-Path $out 'HANDOFF_R31_INTEGRATED_FIXES.md') -Encoding utf8
 
           # O ZIP de source não precisa de build caches; continua sendo projeto Android Studio completo.
           Remove-Item (Join-Path $env:WORK_ROOT 'android\app\build') -Recurse -Force -ErrorAction SilentlyContinue
