@@ -1,5 +1,5 @@
 name: PF2 R31 Integrated Final
-# rerun-after-focused-test-fix
+# rerun-regression-under-original-version-and-windows-encoding
 
 on:
   push:
@@ -17,8 +17,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PYTHONUTF8: '1'
-  PYTHONIOENCODING: 'utf-8'
   BASE_RAR_BYTES: '553809972'
   PROFILE_SHA: '8e63dbdf963abd1bed88e7173de3adc22d1501557647bcf4a9d95ee096f75852'
   RELEASE_TAG: 'PATHFINDER2E-9.0.32-R31-INTEGRATED'
@@ -115,16 +113,6 @@ jobs:
           New-Item -ItemType Directory -Path $dest -Force | Out-Null
           Copy-Item $tmp (Join-Path $dest 'PERFIL_TECNICO_MESTRE_HUMANO_IMERSIVO_VTT.md') -Force
 
-      - name: Set version 9.0.32 R31
-        shell: powershell
-        working-directory: ${{ env.WORK_ROOT }}
-        run: |
-          $ErrorActionPreference='Stop'
-          $vp=Get-Content 'version.properties' -Raw
-          $vp=[regex]::Replace($vp,'VERSION_NAME=\d+\.\d+\.\d+','VERSION_NAME=9.0.32')
-          $vp=[regex]::Replace($vp,'VERSION_CODE=\d+','VERSION_CODE=90032')
-          Set-Content 'version.properties' $vp -Encoding ascii
-
       - name: Focused integration tests
         shell: powershell
         working-directory: ${{ env.WORK_ROOT }}
@@ -179,6 +167,16 @@ jobs:
           }
           if(@($checks.GetEnumerator()|Where-Object{-not $_.Value}).Count -gt 0){throw 'Integration gate failed'}
           "GATES_LOG=$log" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Set version 9.0.32 R31
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $vp=Get-Content 'version.properties' -Raw
+          $vp=[regex]::Replace($vp,'VERSION_NAME=\d+\.\d+\.\d+','VERSION_NAME=9.0.32')
+          $vp=[regex]::Replace($vp,'VERSION_CODE=\d+','VERSION_CODE=90032')
+          Set-Content 'version.properties' $vp -Encoding ascii
 
       - name: Configure Android SDK
         shell: powershell
