@@ -63,7 +63,13 @@ jobs:
           if(-not $tool){$cmd=Get-Command 7z.exe -ErrorAction SilentlyContinue;if($cmd){$tool=$cmd.Source}}
           if(-not $tool){throw 'No RAR extraction tool found on BRELGA'}
           Write-Host "EXTRACTOR=$tool"
-          if($tool -match '7z\.exe
+          if($tool.EndsWith('7z.exe')){& $tool x -y $rar "-o$extract"}
+          elseif($tool.EndsWith('UnRAR.exe')){& $tool x -y $rar "$extract\"}
+          else{& $tool x -ibck -y $rar "$extract\"}
+          if($LASTEXITCODE -ne 0){throw 'R30 archive extraction failed'}
+          $work=Join-Path $extract 'pf2e_r30_work'
+          if(-not(Test-Path (Join-Path $work 'version.properties'))){throw 'R30 extracted work root invalid'}
+          "WORK_ROOT=$work" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Overlay only integrated live-source changes
         shell: powershell
