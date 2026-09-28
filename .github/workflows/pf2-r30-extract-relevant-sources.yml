@@ -95,7 +95,7 @@ jobs:
               $found=$files | Select-String -Pattern $p -SimpleMatch:$false -ErrorAction SilentlyContinue
               foreach($m in $found){
                 $rel=$m.Path.Substring($work.Length).TrimStart('\')
-                $matches.Add("$rel:$($m.LineNumber):$($m.Line.Trim())")
+                $matches.Add("${rel}:$($m.LineNumber):$($m.Line.Trim())")
                 $src=$m.Path
                 $to=Join-Path $dest $rel
                 if(-not (Test-Path $to)){
