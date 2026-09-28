@@ -1,0 +1,112 @@
+name: PF2 R30 TTS Regex Diagnostic
+
+on:
+  push:
+    branches: [audit-pf2-kingmaker-r30-20260928]
+    paths:
+      - '.github/workflows/pf2-r30-tts-regex-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  diag:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-pf2-kingmaker-r30-20260928
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Download and extract exact R30
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root=Join-Path $env:RUNNER_TEMP 'pf2-r30-regexdiag'
+          Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $root -Force|Out-Null
+          $rar=Join-Path $root 'pf2e_r30_work.rar'
+          & curl.exe -L --fail --retry 5 --retry-delay 3 "https://drive.usercontent.google.com/download?id=1UbJq8m518f1jIQkkXASvEp0j0Uf6qNkR&export=download&confirm=t" -o $rar
+          if($LASTEXITCODE -ne 0){throw 'download failed'}
+          if((Get-Item $rar).Length -ne 553809972){throw 'archive size mismatch'}
+          $out=Join-Path $root 'extracted';New-Item -ItemType Directory -Path $out -Force|Out-Null
+          $seven='C:\Program Files\7-Zip\7z.exe';if(-not(Test-Path $seven)){$seven=(Get-Command 7z.exe).Source}
+          & $seven x -y $rar "-o$out"|Out-Null
+          if($LASTEXITCODE -ne 0){throw 'extract failed'}
+          $work=Join-Path $out 'pf2e_r30_work'
+          "WORK_ROOT=$work"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Scan regex sources
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $report=Join-Path $env:GITHUB_WORKSPACE 'ci\pf2-r30-live-src\TTS_REGEX_SCAN.txt'
+          $all=Get-ChildItem 'android\app\src\main\java\com\braseiro\pathfinder2e' -Recurse -File -Filter '*.java'
+          $lines=New-Object System.Collections.Generic.List[string]
+          foreach($f in $all){
+            $n=0
+            foreach($line in Get-Content $f.FullName){
+              $n++
+              if($line -match 'p\{M\}|Pattern\.compile|replaceAll|Normalizer\.normalize'){
+                $rel=$f.FullName.Substring($env:WORK_ROOT.Length).TrimStart('\','/')
+                $lines.Add("$rel:$n:$line")
+              }
+            }
+          }
+          $lines|Set-Content $report -Encoding utf8
+          Get-Content $report
+
+      - name: Run direct Tom+Tags Java harness
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $src='android\app\src\main\java\com\braseiro\pathfinder2e'
+          $tmp=Join-Path $env:RUNNER_TEMP 'pf2-tts-harness'
+          Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path (Join-Path $tmp 'com\braseiro\pathfinder2e') -Force|Out-Null
+          Copy-Item (Join-Path $src 'GeminiTtsMarkupDirector.java') (Join-Path $tmp 'com\braseiro\pathfinder2e')
+          Copy-Item (Join-Path $src 'PortugueseNarrationSanitizer.java') (Join-Path $tmp 'com\braseiro\pathfinder2e')
+          @'
+          package com.braseiro.pathfinder2e;
+          public final class TtsRegexHarness {
+            public static void main(String[] args) {
+              String[] samples={
+                "O coração da floresta sussurra baixo.",
+                "O corac\u0327a\u0303o da floresta sussurra baixo.",
+                "— NÃO! — gritou Valéria. Então suspirou.",
+                "São João, bênção, ação, informação, ruína, herói."
+              };
+              for(String s:samples){
+                String marked=GeminiTtsMarkupDirector.annotateForModel("gemini-2.5-flash-preview-tts",s,"tenso",3,"dramatico","Narrador");
+                if(marked==null||marked.isEmpty())throw new AssertionError("empty");
+                if(!GeminiTtsMarkupDirector.validate(marked))throw new AssertionError("invalid markup: "+marked);
+                System.out.println(marked);
+              }
+              System.out.println("TTS_REGEX_HARNESS_PASS");
+            }
+          }
+'@ | Set-Content (Join-Path $tmp 'com\braseiro\pathfinder2e\TtsRegexHarness.java') -Encoding utf8
+          Push-Location $tmp
+          javac -encoding UTF-8 com\braseiro\pathfinder2e\PortugueseNarrationSanitizer.java com\braseiro\pathfinder2e\GeminiTtsMarkupDirector.java com\braseiro\pathfinder2e\TtsRegexHarness.java
+          if($LASTEXITCODE -ne 0){throw 'javac failed'}
+          java com.braseiro.pathfinder2e.TtsRegexHarness
+          if($LASTEXITCODE -ne 0){throw 'harness failed'}
+          Pop-Location
+
+      - name: Commit diagnostic report
+        shell: powershell
+        run: |
+          git config user.name "BRELGA Audit"
+          git config user.email "actions@braseiro.local"
+          git add ci/pf2-r30-live-src/TTS_REGEX_SCAN.txt
+          if(-not(git diff --cached --quiet)){
+            git commit -m "audit: capture R30 TTS regex paths"
+            git push origin HEAD:audit-pf2-kingmaker-r30-20260928
+          }
