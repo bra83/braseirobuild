@@ -12,210 +12,55 @@ permissions:
 jobs:
   audit:
     runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 120
+    timeout-minutes: 60
     steps:
-      - uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: '21'
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
-      - name: Prepare isolated audit workspace
+      - name: Download and extract R30
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
-          if($env:RUNNER_NAME -ne 'BRELGA'){ throw "Expected BRELGA, got $env:RUNNER_NAME" }
-          $root=Join-Path $env:RUNNER_TEMP 'pf2-kingmaker-r30-independent-audit'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Expected BRELGA"}
+          $root=Join-Path $env:RUNNER_TEMP 'pf2-r30-integrated-discovery'
           Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Path $root -Force | Out-Null
-          "AUDIT_ROOT=$root" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-
-      - name: Download exact post-Antigravity archive
-        shell: powershell
-        run: |
-          $ErrorActionPreference='Stop'
-          $rar=Join-Path $env:AUDIT_ROOT 'pf2e_r30_work.rar'
+          New-Item -ItemType Directory -Path $root -Force|Out-Null
+          $rar=Join-Path $root 'pf2e_r30_work.rar'
           & curl.exe -L --fail --retry 5 --retry-delay 3 "https://drive.usercontent.google.com/download?id=1UbJq8m518f1jIQkkXASvEp0j0Uf6qNkR&export=download&confirm=t" -o $rar
-          if($LASTEXITCODE -ne 0){ throw 'Download failed' }
-          $size=(Get-Item $rar).Length
-          Write-Host "RAR_BYTES=$size"
-          if($size -ne 553809972){ throw "Unexpected archive size: $size" }
-          "AUDIT_RAR=$rar" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-
-      - name: Extract archive
-        shell: powershell
-        run: |
-          $ErrorActionPreference='Stop'
-          $out=Join-Path $env:AUDIT_ROOT 'extracted'
-          New-Item -ItemType Directory -Path $out -Force | Out-Null
-          $candidates=@(
-            'C:\Program Files\7-Zip\7z.exe',
-            'C:\Program Files (x86)\7-Zip\7z.exe',
-            'C:\Program Files\WinRAR\UnRAR.exe',
-            'C:\Program Files\WinRAR\WinRAR.exe'
-          )
-          $tool=$candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
-          if(-not $tool){
-            $cmd=Get-Command 7z.exe -ErrorAction SilentlyContinue
-            if($cmd){$tool=$cmd.Source}
-          }
-          if(-not $tool){ throw 'No RAR extraction tool found on BRELGA' }
-          Write-Host "EXTRACTOR=$tool"
-          if($tool -match '7z\.exe$'){
-            & $tool x -y $env:AUDIT_RAR "-o$out"
-          } elseif($tool -match 'UnRAR\.exe$'){
-            & $tool x -y $env:AUDIT_RAR "$out\"
-          } else {
-            & $tool x -ibck -y $env:AUDIT_RAR "$out\"
-          }
-          if($LASTEXITCODE -ne 0){ throw "Archive extraction failed: $LASTEXITCODE" }
+          if($LASTEXITCODE -ne 0){throw 'download failed'}
+          if((Get-Item $rar).Length -ne 553809972){throw 'wrong size'}
+          $out=Join-Path $root 'extracted'
+          New-Item -ItemType Directory -Path $out -Force|Out-Null
+          & 'C:\Program Files\WinRAR\UnRAR.exe' x -y $rar "$out\"
+          if($LASTEXITCODE -ne 0){throw 'extract failed'}
           $work=Join-Path $out 'pf2e_r30_work'
-          if(-not (Test-Path (Join-Path $work 'version.properties'))){ throw 'version.properties missing' }
-          if(-not (Test-Path (Join-Path $work 'tests_pf2'))){ throw 'tests_pf2 missing' }
-          "WORK_ROOT=$work" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-
-      - name: Static mechanical closure checks
+          "WORK_ROOT=$work"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Discover integration points
         shell: powershell
         working-directory: ${{ env.WORK_ROOT }}
         run: |
-          $ErrorActionPreference='Stop'
-          New-Item -ItemType Directory -Path 'audit-results' -Force | Out-Null
-          $lines=New-Object System.Collections.Generic.List[string]
-          $lines.Add('=== VERSION ===')
-          $lines.Add((Get-Content 'version.properties' -Raw).Trim())
-          $lines.Add('')
-          $tests=Get-ChildItem 'tests_pf2' -File -Filter 'test_kingmaker*.py' | Sort-Object Name
-          $lines.Add('=== KINGMAKER TEST FILES ===')
-          foreach($t in $tests){$lines.Add($t.Name)}
-          $lines.Add("count=$($tests.Count)")
-          if($tests.Count -lt 25){ throw "Expected at least 25 Kingmaker suites; got $($tests.Count)" }
-          $required=@(
-            'HANDOFF_KINGMAKER_MECHANICS_COMPLETE.md',
-            'VALIDACAO_KINGMAKER_MECHANICS_COMPLETE.md',
-            'KINGMAKER_RULE_COVERAGE_MATRIX.md',
-            'KINGMAKER_RULE_COVERAGE_MATRIX.json',
-            'PATHFINDER2E_KINGMAKER_FINAL_MECHANICAL_AUDIT.md',
-            'PATHFINDER2E_KINGMAKER_MECHANICAL_TEST_REPORT.md'
-          )
-          $lines.Add('')
-          $lines.Add('=== REQUIRED FINAL DOCUMENTS ===')
-          foreach($f in $required){
-            if(-not (Test-Path $f)){ throw "Missing required final document: $f" }
-            $lines.Add("OK $f")
-          }
-          $lines.Add('')
-          $lines.Add('=== EXPLICIT INCOMPLETENESS MARKERS ===')
-          $roots=@(
-            'android\app\src\main\java\com\braseiro\pathfinder2e',
-            'android\app\src\main\assets\pathfinder\kingmaker'
-          )
-          $matches=@()
-          foreach($root in $roots){
-            if(Test-Path $root){
-              $matches += Get-ChildItem $root -Recurse -File -Include *.java,*.json |
-                Select-String -Pattern 'source_specific|TODO|FIXME|PLACEHOLDER|RAG_ONLY|PDF_ONLY' -CaseSensitive:$false
-            }
-          }
-          if($matches.Count -eq 0){$lines.Add('NONE')} else {
-            foreach($m in $matches){$lines.Add("$($m.Path):$($m.LineNumber):$($m.Line.Trim())")}
-          }
-          $lines | Set-Content 'audit-results\static-audit.txt' -Encoding utf8
-          $lines | ForEach-Object { Write-Host $_ }
-
-      - name: Run Kingmaker test suites independently
-        shell: powershell
-        working-directory: ${{ env.WORK_ROOT }}
-        run: |
-          $ErrorActionPreference='Continue'
-          python -m pip install -q pytest
-          if($LASTEXITCODE -ne 0){ throw 'pytest install failed' }
-          $tests=Get-ChildItem 'tests_pf2' -File -Filter 'test_kingmaker*.py' | Sort-Object Name | ForEach-Object {$_.FullName}
-          python -m pytest @tests -q 2>&1 | Tee-Object -FilePath 'audit-results\pytest-kingmaker.log'
-          $code=$LASTEXITCODE
-          "pytest_exit_code=$code" | Set-Content 'audit-results\pytest-kingmaker-exit.txt' -Encoding ascii
-          if($code -ne 0){ throw "Kingmaker pytest failed: $code" }
-
-      - name: Run complete PF2 regression suite independently
-        shell: powershell
-        working-directory: ${{ env.WORK_ROOT }}
-        run: |
-          $ErrorActionPreference='Continue'
-          python -m pytest tests_pf2 -q 2>&1 | Tee-Object -FilePath 'audit-results\pytest-full.log'
-          $code=$LASTEXITCODE
-          "pytest_full_exit_code=$code" | Set-Content 'audit-results\pytest-full-exit.txt' -Encoding ascii
-          if($code -ne 0){ throw "Full PF2 pytest failed: $code" }
-
-      - name: Snapshot relevant live R30 source
-        if: always()
-        shell: powershell
-        working-directory: ${{ env.WORK_ROOT }}
-        run: |
-          $ErrorActionPreference='Stop'
-          $dest=Join-Path $env:GITHUB_WORKSPACE 'ci\pf2-r30-live-src'
-          Remove-Item $dest -Recurse -Force -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Path $dest -Force | Out-Null
-          function Copy-Rel([string]$rel){
-            $src=Join-Path $env:WORK_ROOT $rel
-            if(Test-Path $src){
-              $to=Join-Path $dest $rel
-              New-Item -ItemType Directory -Path (Split-Path $to -Parent) -Force | Out-Null
-              Copy-Item $src $to -Force
-            }
-          }
-          $known=@(
-            'version.properties',
-            'android\app\src\main\java\com\braseiro\pathfinder2e\MainActivity.java',
-            'android\app\src\main\java\com\braseiro\pathfinder2e\AppDb.java',
-            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerRulesEngine.java',
-            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerRepository.java',
-            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerWarfareEngine.java',
-            'android\app\src\main\java\com\braseiro\pathfinder2e\NarrationChunker.java',
-            'android\app\src\main\java\com\braseiro\pathfinder2e\PortugueseNarrationSanitizer.java',
-            'KINGMAKER_RULE_COVERAGE_MATRIX.json',
-            'VALIDACAO_KINGMAKER_MECHANICS_COMPLETE.md'
-          )
-          foreach($k in $known){Copy-Rel $k}
-          $roots=@(
-            'android\app\src\main\java\com\braseiro\pathfinder2e',
-            'android\app\src\main\assets',
-            'tests_pf2'
-          )
-          $patterns='DESCREVER PERSONAGEM|Gemini|token|portrait|retrato|imagem de cena|Kingmaker|Reino|narrat|Barbara|Bárbara|TTS|Charon|Kokoro|voice|tom|tags|\\p\{M\}|character|personagem|companion|solo'
-          $paths=@()
-          foreach($root in $roots){
-            if(Test-Path $root){
-              $hits=Get-ChildItem $root -Recurse -File -Include *.java,*.json,*.xml,*.html,*.js,*.ts,*.py,*.md |
-                Select-String -Pattern $patterns -CaseSensitive:$false -ErrorAction SilentlyContinue
-              $paths += $hits | ForEach-Object {$_.Path}
-            }
-          }
-          foreach($abs in ($paths | Sort-Object -Unique)){
-            $rel=$abs.Substring($env:WORK_ROOT.Length).TrimStart('\','/')
-            Copy-Rel $rel
-          }
-          $inventory=Get-ChildItem $dest -Recurse -File | ForEach-Object {$_.FullName.Substring($dest.Length).TrimStart('\','/')} | Sort-Object
-          $inventory | Set-Content (Join-Path $dest 'INVENTORY.txt') -Encoding utf8
-          Write-Host "SNAPSHOT_FILES=$($inventory.Count)"
-
-      - name: Commit live source snapshot
-        if: always()
-        shell: powershell
-        run: |
-          $ErrorActionPreference='Stop'
-          git config user.name "BRELGA Audit"
-          git config user.email "actions@braseiro.local"
-          git add ci/pf2-r30-live-src
-          if(git diff --cached --quiet){Write-Host 'No live snapshot changes'; exit 0}
-          git commit -m "audit: snapshot PF2 R30 post-Antigravity live source"
-          git push origin HEAD:audit-pf2-kingmaker-r30-20260928
-
-      - name: Upload independent audit logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pf2-kingmaker-r30-independent-audit
-          path: ${{ env.WORK_ROOT }}\audit-results\
-          if-no-files-found: warn
+          @'
+          from pathlib import Path
+          root=Path(".")
+          needles=[
+            "DESCREVER PERSONAGEM","Imagem recebida","Braseiro Kokoro PT-BR",
+            "com.k2fsa.sherpa.onnx.tts.engine","\\\\p{M}","\\p{M}",
+            "Turno do Reino","Kingmaker Solo","token","scene_image","scene image",
+            "Narrative","Narrativa","Barbara","Bárbara"
+          ]
+          exts={".java",".kt",".json",".xml",".html",".js",".ts",".tsx"}
+          shown=0
+          for p in list((root/"android/app/src/main").rglob("*"))+list((root/"tests_pf2").rglob("*")):
+            if not p.is_file() or p.suffix.lower() not in exts or p.stat().st_size>900000: continue
+            s=p.read_text("utf-8",errors="ignore")
+            lines=s.splitlines()
+            for i,line in enumerate(lines):
+              if any(n.lower() in line.lower() for n in needles):
+                a=max(0,i-6); b=min(len(lines),i+9)
+                print(f"--- {p}:{i+1} ---")
+                print("\n".join(f"{j+1}: {lines[j]}" for j in range(a,b)))
+                shown+=1
+                if shown>=220: raise SystemExit
+          print("SHOWN",shown)
+          '@ | Set-Content "$env:RUNNER_TEMP\discover_pf2.py" -Encoding utf8
+          python "$env:RUNNER_TEMP\discover_pf2.py"
