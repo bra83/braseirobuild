@@ -1,0 +1,930 @@
+{
+  "schema": "braseiro-pathfinder2e-chapter-v1",
+  "chapter_key": "chapter_01_stolen_lands_part1",
+  "chapterKey": "chapter_01_stolen_lands_part1",
+  "chapter_number": 1,
+  "chapterNumber": 1,
+  "title": "Terras Roubadas - Parte 1: Posto Avançado de Oleg e Ermos do Norte",
+  "locale": "pt-BR",
+  "level_min": 1,
+  "levelMin": 1,
+  "level_max": 2,
+  "levelMax": 2,
+  "summary": "A expedição pioneira dos heróis ao extremo norte das Terras Roubadas sob a Carta de Concessão de Restov. Estabelecimento de base estratégica no entreposto comercial de Oleg e Svetlana Leveton, emboscada e defesa contra extorquidores bandoleiros de Happs Bydon e Kressle, reconhecimento tático do Vau do Espinheiro e apoio alquímico ao ermitão Bokken.",
+  "quests": [
+    {
+      "quest_key": "q_oleg",
+      "questKey": "q_oleg",
+      "title": "Defesa do Posto Avançado de Oleg",
+      "status": "unstarted",
+      "stage": "emboscada_preparada",
+      "objective": "Defender o entreposto comercial fortificado de Oleg e Svetlana Leveton contra o bando invasor de Happs Bydon e cessar a cobrança criminosa.",
+      "stakes": "A perda do entreposto priva a comitiva de heróis de sua única rota de abastecimento e deixa Svetlana à mercê da brutalidade dos bandidos.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 100,
+      "milestoneXp": 100,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_oleg_1",
+          "desc": "Armar posições de emboscada, barris de piche e armadilhas no pátio do entreposto",
+          "description": "Armar posições de emboscada, barris de piche e armadilhas no pátio do entreposto",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_oleg_2",
+          "desc": "Confrontar e neutralizar Happs Bydon e seus capangas durante a tentativa de extorsão",
+          "description": "Confrontar e neutralizar Happs Bydon e seus capangas durante a tentativa de extorsão",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_oleg_3",
+          "desc": "Interrogar bandidos capturados para descobrir as coordenadas do acampamento de Kressle",
+          "description": "Interrogar bandidos capturados para descobrir as coordenadas do acampamento de Kressle",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 50,
+        "xp": 100,
+        "items": ["armaduras_de_couro_batido", "arco_composto_de_happs", "provisoes_comerciais"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_kressle",
+      "questKey": "q_kressle",
+      "title": "O Covil dos Bandidos do Rio",
+      "status": "unstarted",
+      "stage": "localizar_acampamento",
+      "objective": "Rastrear os bandidos do rio até o acampamento avançado no Vau do Espinheiro e neutralizar a comandante Kressle.",
+      "stakes": "Enquanto o acampamento de Kressle subsistir, patrulhas de bandoleiros interceptarão colonos e impedirão o mapeamento do Cinturão Verde.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 100,
+      "milestoneXp": 100,
+      "prerequisites": ["q_oleg"],
+      "objectives": [
+        {
+          "id": "obj_kressle_1",
+          "desc": "Seguir os rastros de cavalos e carroças ao longo das margens arborizadas do Rio Shrike",
+          "description": "Seguir os rastros de cavalos e carroças ao longo das margens arborizadas do Rio Shrike",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_kressle_2",
+          "desc": "Assaltar ou infiltrar o acampamento fortificado no Vau do Espinheiro",
+          "description": "Assaltar ou infiltrar o acampamento fortificado no Vau do Espinheiro",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_kressle_3",
+          "desc": "Derrotar Kressle em combate ou forçar sua rendição através de negociação",
+          "description": "Derrotar Kressle em combate ou forçar sua rendição através de negociação",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_kressle_4",
+          "desc": "Recuperar o anel de casamento roubado de Svetlana Leveton e os bens pilhados",
+          "description": "Recuperar o anel de casamento roubado de Svetlana Leveton e os bens pilhados",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 80,
+        "xp": 100,
+        "items": ["machadinhas_gemeas_de_kressle", "anel_de_casamento_de_svetlana", "mapa_de_trilhas_fluviais"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_bokken",
+      "questKey": "q_bokken",
+      "title": "Frutas-de-Presa Frescas para Bokken",
+      "status": "unstarted",
+      "stage": "exploracao_ravina",
+      "objective": "Colher bagas intactas de frutas-de-presa na ravina espinhosa infestada de aranhas para a produção de poções de Bokken.",
+      "stakes": "O ermitão Bokken não fornecerá elixires alquímicos e poções curativas sem as bagas frescas não fermentadas.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 80,
+      "milestoneXp": 80,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_bokken_1",
+          "desc": "Localizar a ravina de frutas-de-presa a sudoeste do Posto de Oleg",
+          "description": "Localizar a ravina de frutas-de-presa a sudoeste do Posto de Oleg",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_bokken_2",
+          "desc": "Superar o ninho e os enxames de aranhas de teia-de-funil sem destruir os arbustos",
+          "description": "Superar o ninho e os enxames de aranhas de teia-de-funil sem destruir os arbustos",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_bokken_3",
+          "desc": "Entregar as frutas intactas a Bokken antes do entardecer",
+          "description": "Entregar as frutas intactas a Bokken antes do entardecer",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 25,
+        "xp": 80,
+        "items": ["pocao_de_cura_menor", "desconto_vitalicio_em_pocoes_de_bokken"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_carta_restov",
+      "questKey": "q_carta_restov",
+      "title": "O Chamado aos Heróis de Restov",
+      "status": "unstarted",
+      "stage": "exploracao_fronteira",
+      "objective": "Cumprir as determinações da Carta Régia de Restov, mapeando quatro hexágonos estratégicos e expulsando a escória bandoleira.",
+      "stakes": "Caso as exigências da carta não sejam demonstradas perante os Lordes da Espada, a expedição perde o patrocínio e apoio militar.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 120,
+      "milestoneXp": 120,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_carta_1",
+          "desc": "Explorar e registrar formalmente quatro hexágonos ao norte do Cinturão Verde",
+          "description": "Explorar e registrar formalmente quatro hexágonos ao norte do Cinturão Verde",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_carta_2",
+          "desc": "Assegurar a rota segura de caravanas mercantes entre Restov e o entreposto",
+          "description": "Assegurar a rota segura de caravanas mercantes entre Restov e o entreposto",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 100,
+        "xp": 120,
+        "items": ["selo_de_reconhecimento_de_rostland"]
+      },
+      "progress_json": {}
+    }
+  ],
+  "hazards": [
+    {
+      "hazard_key": "hazard_laco_espinheiro",
+      "hazardKey": "hazard_laco_espinheiro",
+      "name": "Laço de Presa Oculto",
+      "level": 1,
+      "traits": ["complexo", "mecanico", "armadilha"],
+      "stealth_dc": 16,
+      "stealthDc": 16,
+      "perception_dc": 16,
+      "perceptionDc": 16,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 17,
+      "savingThrowDc": 17,
+      "disable_skills": [
+        {
+          "skill": "Ladroagem",
+          "dc": 17,
+          "proficiency": "treinado",
+          "description": "Cortar o contrapeso de galho vergado e desarmar o disparador de corda"
+        },
+        {
+          "skill": "Sobrevivência",
+          "dc": 16,
+          "proficiency": "treinado",
+          "description": "Identificar a dobra da vegetação e afrouxar o laço com segurança"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "armadilha",
+      "complexity": "complexo",
+      "ac": 16,
+      "hardness": 4,
+      "hp": 16,
+      "bt": 8,
+      "reaction": "Dispara quando uma criatura média ou pequena pisa no laço encoberto por folhagem.",
+      "reset": "Manual (1 minuto para rearmar o contrapeso).",
+      "xp": 30,
+      "description": "Um laço artesanal confeccionado com cipós trançados e corda de cânhamo, preso a uma árvore arqueada sob forte tensão mecânica.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "name": "Içamento Brutal",
+          "description": "O laço puxa o alvo de ponta-cabeça 3 metros no ar, infligindo 1d6 de dano de concussão e impondo a condição imobilizado até que se liberte (CD 17 para Escapar)."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_fosso_camuflado",
+      "hazardKey": "hazard_fosso_camuflado",
+      "name": "Fosso Camuflado do Vau",
+      "level": 1,
+      "traits": ["mecanico", "armadilha"],
+      "stealth_dc": 15,
+      "stealthDc": 15,
+      "perception_dc": 15,
+      "perceptionDc": 15,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 16,
+      "savingThrowDc": 16,
+      "disable_skills": [
+        {
+          "skill": "Ladroagem",
+          "dc": 16,
+          "proficiency": "treinado",
+          "description": "Calçar a estrutura quebradiça com estacas de madeira para sustentar travessia"
+        },
+        {
+          "skill": "Atletismo",
+          "dc": 15,
+          "proficiency": "treinado",
+          "description": "Saltar além da área desmoronável e advertir o grupo a tempo"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "armadilha",
+      "complexity": "simples",
+      "ac": 15,
+      "hardness": 2,
+      "hp": 12,
+      "bt": 6,
+      "reaction": "Cede sob peso superior a 20 kg, fazendo a criatura despencar 3 metros no fosso.",
+      "reset": "Não se rearma automaticamente.",
+      "xp": 30,
+      "description": "Fosso escavado de 3 metros de profundidade com estacas de carvalho aguçadas no fundo, coberto por galhos delgados e musgo falso.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "name": "Queda nas Estacas",
+          "description": "A criatura em queda sofre 1d6 de dano de queda mais 1d6 de dano perfurante das estacas pontiagudas."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_moita_frutas_presa",
+      "hazardKey": "hazard_moita_frutas_presa",
+      "name": "Moita Urticante de Frutas-de-Presa",
+      "level": 1,
+      "traits": ["ambiental", "flora"],
+      "stealth_dc": 16,
+      "stealthDc": 16,
+      "perception_dc": 16,
+      "perceptionDc": 16,
+      "saving_throw_type": "Fortitude",
+      "savingThrowType": "Fortitude",
+      "saving_throw_dc": 15,
+      "savingThrowDc": 15,
+      "disable_skills": [
+        {
+          "skill": "Natureza",
+          "dc": 16,
+          "proficiency": "treinado",
+          "description": "Podar cirurgicamente os espinhos venenosos usando ferramentas de herbologia"
+        },
+        {
+          "skill": "Sobrevivência",
+          "dc": 15,
+          "proficiency": "treinado",
+          "description": "Improvisar varas de bambu e luvas grossas para colheita sem contato dérmico"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "ambiental",
+      "complexity": "simples",
+      "ac": 14,
+      "hardness": 0,
+      "hp": 20,
+      "bt": 10,
+      "reaction": "Reage ao toque desprotegido ou movimentação brusca em meio aos galhos.",
+      "reset": "Regenera farpas em 24 horas.",
+      "xp": 30,
+      "description": "Mata densa de espinhos recurvados com bagas azuis venenosas se colhidas indevidamente, liberando óleo urticante doloroso.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "name": "Seiva Irritante",
+          "description": "Espinhos finos perfuram a pele causando 1d4 de dano de veneno e condição nauseado 1 em falha no teste de Fortitude."
+        }
+      ]
+    }
+  ],
+  "pois": [
+    {
+      "poi_key": "poi_posto_oleg",
+      "poiKey": "poi_posto_oleg",
+      "poi_id": "poi_posto_oleg",
+      "poiId": "poi_posto_oleg",
+      "campaign_key": "chapter_01_stolen_lands_part1",
+      "campaignKey": "chapter_01_stolen_lands_part1",
+      "map_id": "stolen_lands",
+      "name": "Posto Avançado de Oleg",
+      "name_key": "posto_avancado_de_oleg",
+      "type": "settlement",
+      "hex_id": "H_OLEG",
+      "hexId": "H_OLEG",
+      "location_id": "loc_posto_oleg",
+      "q": 0,
+      "r": 0,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Entreposto comercial fortificado com paliçadas de madeira e quatro catapultas arruinadas, gerido por Oleg e Svetlana Leveton no extremo norte das Terras Roubadas.",
+      "tags": ["entreposto", "comercio", "refugio", "seguro"],
+      "development_level": 1,
+      "icon": "🏰",
+      "notes": "Base operacional segura contendo estalagem, comércio de suprimentos e estábulo."
+    },
+    {
+      "poi_key": "poi_vau_espinheiro",
+      "poiKey": "poi_vau_espinheiro",
+      "poi_id": "poi_vau_espinheiro",
+      "poiId": "poi_vau_espinheiro",
+      "campaign_key": "chapter_01_stolen_lands_part1",
+      "campaignKey": "chapter_01_stolen_lands_part1",
+      "map_id": "stolen_lands",
+      "name": "Vau do Espinheiro",
+      "name_key": "vau_do_espinheiro",
+      "type": "landmark",
+      "hex_id": "H_THORN",
+      "hexId": "H_THORN",
+      "location_id": "loc_vau_espinheiro",
+      "q": 1,
+      "r": 1,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Ponto de travessia rasa do Rio Shrike cercado por arbustos densos, onde Kressle e seus bandoleiros mantêm um acampamento camuflado.",
+      "tags": ["rio", "acampamento", "bandidos", "combate"],
+      "development_level": 1,
+      "icon": "🏕️",
+      "notes": "Acampamento fluvial com tendas de couro, fogueiras ocultas e caixotes de pilhagem."
+    },
+    {
+      "poi_key": "poi_ninho_frutas_presa",
+      "poiKey": "poi_ninho_frutas_presa",
+      "poi_id": "poi_ninho_frutas_presa",
+      "poiId": "poi_ninho_frutas_presa",
+      "campaign_key": "chapter_01_stolen_lands_part1",
+      "campaignKey": "chapter_01_stolen_lands_part1",
+      "map_id": "stolen_lands",
+      "name": "Ravina das Frutas-de-Presa",
+      "name_key": "ravina_das_frutas_de_presa",
+      "type": "resource_site",
+      "hex_id": "H_FANGBERRY",
+      "hexId": "H_FANGBERRY",
+      "location_id": "loc_ravina_frutas_presa",
+      "q": -1,
+      "r": 2,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Garganta rochosa úmida e sombria repleta de arbustos espinhosos com frutas raras, infestada por enxames de aranhas de teia-de-funil.",
+      "tags": ["recurso", "alquimia", "perigo", "aranhas"],
+      "development_level": 1,
+      "icon": "🫐",
+      "notes": "Local chave para a coleta de ingredientes da poção medicinal do alquimista Bokken."
+    },
+    {
+      "poi_key": "poi_acampamento_carriceiros",
+      "poiKey": "poi_acampamento_carriceiros",
+      "poi_id": "poi_acampamento_carriceiros",
+      "poiId": "poi_acampamento_carriceiros",
+      "campaign_key": "chapter_01_stolen_lands_part1",
+      "campaignKey": "chapter_01_stolen_lands_part1",
+      "map_id": "stolen_lands",
+      "name": "Acampamento Abandonado dos Caçadores",
+      "name_key": "acampamento_abandonado_dos_cacadores",
+      "type": "refuge",
+      "hex_id": "H_04",
+      "hexId": "H_04",
+      "location_id": "loc_acampamento_cacadores",
+      "q": 0,
+      "r": 2,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Pequeno abrigo de toras e pedra construído por caçadores de peles de Restov, oferecendo proteção contra intempéries e fogueira protegida.",
+      "tags": ["refugio", "descanso", "ermos"],
+      "development_level": 1,
+      "icon": "🛖",
+      "notes": "Permite acampamento sem penalidade de terreno aberto."
+    }
+  ],
+  "scenes": [
+    {
+      "scene_key": "scene_posto_oleg",
+      "sceneKey": "scene_posto_oleg",
+      "title": "Pátio Fortificado do Posto de Oleg",
+      "location": "Posto Avançado de Oleg",
+      "hex_id": "H_OLEG",
+      "hexId": "H_OLEG",
+      "environment": "fortificacao",
+      "width_cells": 14,
+      "widthCells": 14,
+      "height_cells": 10,
+      "heightCells": 10,
+      "seed": 1001,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "patio_central",
+          "name": "Pátio Central de Carga",
+          "x": 2,
+          "y": 2,
+          "width": 10,
+          "height": 6,
+          "terrain": "normal",
+          "description": "Chão de cascalho e terra batida cercado por fardos de feno, barris de azeite e caixotes de provisões"
+        },
+        {
+          "zone_key": "estabulos",
+          "name": "Estábulo e Baias Cobertas",
+          "x": 0,
+          "y": 0,
+          "width": 4,
+          "height": 3,
+          "terrain": "dificil",
+          "description": "Piso forrado de palha com cochos de madeira e ferramentas de forja"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "palicada_norte",
+          "x": 0,
+          "y": 0,
+          "width": 14,
+          "height": 1,
+          "type": "madeira",
+          "blocks_movement": true,
+          "blocks_vision": true,
+          "cover": "maior"
+        },
+        {
+          "obstacle_key": "carroca_abastecimento",
+          "x": 4,
+          "y": 4,
+          "width": 3,
+          "height": 2,
+          "type": "carroca",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "padrao"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "portao_sul",
+          "x": 7,
+          "y": 9,
+          "team": "enemy",
+          "description": "Portão reforçado de carvalho por onde cavalos dos bandidos entram"
+        },
+        {
+          "point_key": "varanda_estalagem",
+          "x": 3,
+          "y": 2,
+          "team": "player",
+          "description": "Posição elevada na varanda de Oleg oferecendo visão privilegiada do pátio"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "ataque_happs_bydon",
+        "weather": "ceu_nublado"
+      }
+    },
+    {
+      "scene_key": "scene_vau_espinheiro",
+      "sceneKey": "scene_vau_espinheiro",
+      "title": "Acampamento do Vau do Espinheiro",
+      "location": "Vau do Espinheiro",
+      "hex_id": "H_THORN",
+      "hexId": "H_THORN",
+      "environment": "rio_ermos",
+      "width_cells": 16,
+      "widthCells": 16,
+      "height_cells": 10,
+      "heightCells": 10,
+      "seed": 1002,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "vau_fluvial",
+          "name": "Águas Rasas do Rio Shrike",
+          "x": 0,
+          "y": 4,
+          "width": 16,
+          "height": 3,
+          "terrain": "agua_baixa",
+          "description": "Correnteza rápida com nível de água pelos joelhos e fundo de seixos escorregadios"
+        },
+        {
+          "zone_key": "acampamento_tendas",
+          "name": "Clareira das Tendas de Kressle",
+          "x": 3,
+          "y": 0,
+          "width": 10,
+          "height": 4,
+          "terrain": "normal",
+          "description": "Tendas rústicas de couro de alce armadas em torno de uma grande fogueira central"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "tronco_gigante_caido",
+          "x": 5,
+          "y": 3,
+          "width": 5,
+          "height": 1,
+          "type": "madeira",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "padrao"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "trilha_norte",
+          "x": 2,
+          "y": 1,
+          "team": "player",
+          "description": "Aproximação silenciosa por entre as acácias e arbustos espinhosos"
+        },
+        {
+          "point_key": "margem_oposta",
+          "x": 8,
+          "y": 8,
+          "team": "enemy",
+          "description": "Margem sul onde sentinelas bandidas mantêm vigília"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "emboscada_kressle",
+        "weather": "neblina_matinal"
+      }
+    }
+  ],
+  "npcs": [
+    {
+      "npc_key": "npc_oleg_leveton",
+      "npcKey": "npc_oleg_leveton",
+      "stable_id": "npc_oleg_leveton",
+      "stableId": "npc_oleg_leveton",
+      "name": "Oleg Leveton",
+      "summary": "Comerciante austero e obstinado, antigo morador de Restov que investiu todas as suas economias no entreposto.",
+      "goals": "Proteger sua esposa Svetlana, reconstruir o posto e expulsar os bandidos para estabelecer comércio próspero.",
+      "secrets": "Ocultou uma pequena caixa forte sob o piso do celeiro com economias de emergência.",
+      "attitude": "indiferente",
+      "relationship": "Comerciante e anfitrião cauteloso",
+      "knowledge": "Conhece as rotas mercantes até Restov e o padrão de extorsão dos bandidos do Senhor dos Cervos.",
+      "debts": "Oferece desconto vitalício e estadia gratuita aos que libertarem o posto dos bandoleiros.",
+      "last_seen": "Posto Avançado de Oleg",
+      "hex_id": "H_OLEG",
+      "hexId": "H_OLEG",
+      "faction": "Mercadores de Rostland",
+      "token_uri": "tokens/oleg_leveton.png",
+      "visual_description": "Homem corpulento de meia-idade, barba espessa grisalha e avental de couro reforçado manchado de óleo.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "indiferente",
+          "text": "Se vieram negociar suprimentos, mostrem as moedas. Se forem comparsas daqueles patifes do rio, dou um tiro de besta em suas fuças.",
+          "topic": "apresentacao",
+          "quest_key": "q_oleg"
+        },
+        {
+          "attitude_req": "amistoso",
+          "text": "Bendita seja a Carta de Restov! Se nos ajudarem a preparar uma recepção sangrenta para Happs Bydon amanhã, o posto é de vocês.",
+          "topic": "plano_defesa",
+          "quest_key": "q_oleg"
+        },
+        {
+          "attitude_req": "prestativo",
+          "text": "Vocês salvaram a vida de Svetlana e o meu sustento. Qualquer suprimento que precisarem terá preço de custo, e contem com o meu martelo.",
+          "topic": "gratidao",
+          "quest_key": "q_oleg"
+        }
+      ],
+      "stats": {
+        "hp": 24,
+        "max_hp": 24,
+        "ac": 16,
+        "perception": 7
+      }
+    },
+    {
+      "npc_key": "npc_svetlana_leveton",
+      "npcKey": "npc_svetlana_leveton",
+      "stable_id": "npc_svetlana_leveton",
+      "stableId": "npc_svetlana_leveton",
+      "name": "Svetlana Leveton",
+      "summary": "Esposa amorosa de Oleg, generosa, resiliente e uma cozinheira talentosa que cuida do bem-estar de todos no posto.",
+      "goals": "Viver em paz nas Terras Roubadas e recuperar seu amado anel de casamento levado por Kressle.",
+      "secrets": "Mantém contato epistolar com parentes em Restov que podem enviar remédios raros.",
+      "attitude": "amistoso",
+      "relationship": "Anfitriã calorosa e cozinheira",
+      "knowledge": "Conhece receitas com ervas locais e os hábitos alimentares dos caçadores que passam pelo entreposto.",
+      "debts": "Prepara banquetes revigorantes para o grupo após cada expedição.",
+      "last_seen": "Cozinha do Posto de Oleg",
+      "hex_id": "H_OLEG",
+      "hexId": "H_OLEG",
+      "faction": "Mercadores de Rostland",
+      "token_uri": "tokens/svetlana_leveton.png",
+      "visual_description": "Mulher jovem de cabelos castanhos trançados, sorriso acolhedor e olhar corajoso apesar das dificuldades.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "amistoso",
+          "text": "Por favor, comam uma tigela de ensopado quente. Vocês enfrentaram uma longa cavalgada desde Restov e precisam recuperar as forças.",
+          "topic": "acolhimento",
+          "quest_key": "q_oleg"
+        },
+        {
+          "attitude_req": "prestativo",
+          "text": "Kressle arrancou minha aliança do dedo no último ataque... Se vocês recuperarem o anel da minha avó, serei eternamente grata.",
+          "topic": "anel_perdido",
+          "quest_key": "q_kressle"
+        }
+      ],
+      "stats": {
+        "hp": 16,
+        "max_hp": 16,
+        "ac": 14,
+        "perception": 8
+      }
+    },
+    {
+      "npc_key": "npc_bokken",
+      "npcKey": "npc_bokken",
+      "stable_id": "npc_bokken",
+      "stableId": "npc_bokken",
+      "name": "Bokken, o Ermitão Alquimista",
+      "summary": "Alquimista idoso, recluso e volúvel que vive numa choupana escavada a poucas milhas do posto.",
+      "goals": "Aperfeiçoar elixires experimentais e obter bagas frescas de frutas-de-presa intactas.",
+      "secrets": "Seu passado conturbado envolve um irmão ciumento e trágico em Brevoy.",
+      "attitude": "indiferente",
+      "relationship": "Fornecedor alquímico excêntrico",
+      "knowledge": "Mestre na botânica do Cinturão Verde, cogumelos medicinais e venenos de aranha.",
+      "debts": "Oferece fórmulas alquímicas e poções em troca de ingredientes raros.",
+      "last_seen": "Choupana do Ermitão",
+      "hex_id": "H_OLEG",
+      "hexId": "H_OLEG",
+      "faction": "Terras Roubadas",
+      "token_uri": "tokens/bokken.png",
+      "visual_description": "Ancião magro de vestes esfarrapadas com manchas de ácido, cabelos desgrenhados e olhos brilhando de obsessão científica.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "indiferente",
+          "text": "Não pisem nos meus frascos! As frutas-de-presa devem ser colhidas verdes na base e maduras na ponta, entenderam?",
+          "topic": "frutas_presa",
+          "quest_key": "q_bokken"
+        },
+        {
+          "attitude_req": "amistoso",
+          "text": "Vocês trouxeram as bagas sem amassá-las? Notável! Tomem esta poção de cura e voltem quando tiverem mais componentes.",
+          "topic": "recompensa_alquimica",
+          "quest_key": "q_bokken"
+        }
+      ],
+      "stats": {
+        "hp": 18,
+        "max_hp": 18,
+        "ac": 15,
+        "perception": 9
+      }
+    },
+    {
+      "npc_key": "npc_kressle",
+      "npcKey": "npc_kressle",
+      "stable_id": "npc_kressle",
+      "stableId": "npc_kressle",
+      "name": "Kressle, Líder Bandida",
+      "summary": "Subcomandante bandida experiente e feroz que domina o Vau do Espinheiro com machadinhas gêmeas afiadas.",
+      "goals": "Garantir sua cota de pilhagem e sobreviver às cobranças tirânicas do Senhor dos Cervos.",
+      "secrets": "Conhece a rota secreta pelas colinas e as fraquezas das defesas do forte do Senhor dos Cervos.",
+      "attitude": "hostil",
+      "relationship": "Antagonista militar transicional",
+      "knowledge": "Domina a rede de patrulhas do Rio Shrike e os hábitos brutais de Dovan de Nisroch.",
+      "debts": "Se poupada com honra, promete trair o Senhor dos Cervos e revelar as defesas da fortaleza.",
+      "last_seen": "Vau do Espinheiro",
+      "hex_id": "H_THORN",
+      "hexId": "H_THORN",
+      "faction": "Bandidos do Senhor dos Cervos",
+      "token_uri": "tokens/kressle.png",
+      "visual_description": "Guerreira atlética de armadura de couro tachonado, cabelos ruivos rebeldes e um par de machadinhas balanceadas no cinto.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "Mais idiotas mandados por Restov? Vão adubar a grama do rio antes do pôr do sol!",
+          "topic": "confronto",
+          "quest_key": "q_kressle"
+        },
+        {
+          "attitude_req": "desfavoravel",
+          "text": "Abaixe as armas... Eu rendo o acampamento. O Senhor dos Cervos nos trata como lixo de qualquer forma.",
+          "topic": "rendicao",
+          "quest_key": "q_kressle"
+        },
+        {
+          "attitude_req": "indiferente",
+          "text": "Se me deixarem cruzar a fronteira viva, dou o mapa das passagens secretas da fortaleza do Cervo.",
+          "topic": "confissao",
+          "quest_key": "q_kressle"
+        }
+      ],
+      "stats": {
+        "hp": 30,
+        "max_hp": 30,
+        "ac": 17,
+        "perception": 8
+      }
+    },
+    {
+      "npc_key": "npc_happs_bydon",
+      "npcKey": "npc_happs_bydon",
+      "stable_id": "npc_happs_bydon",
+      "stableId": "npc_happs_bydon",
+      "name": "Happs Bydon",
+      "summary": "Arqueiro arrogante e sádico que comanda a quadrilha de cobrança de dízimo enviada a Oleg.",
+      "goals": "Enriquecer fácil extorquindo pioneiros indefesos.",
+      "secrets": "Tem pavor mórbido de ser punido por falhar com o Senhor dos Cervos.",
+      "attitude": "hostil",
+      "relationship": "Inimigo direto",
+      "knowledge": "Rotas de fuga ao longo da borda da floresta de Narlmarches.",
+      "debts": "Nenhuma.",
+      "last_seen": "Posto de Oleg",
+      "hex_id": "H_OLEG",
+      "hexId": "H_OLEG",
+      "faction": "Bandidos do Senhor dos Cervos",
+      "token_uri": "tokens/happs_bydon.png",
+      "visual_description": "Homem esguio com manto verde manchado, olhar desdenhoso e arco longo de teixo empunhado com confiança.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "Oleg, seu velho tolo! Onde estão as peles e o ouro deste mês? Entregue tudo antes que eu queime o telhado!",
+          "topic": "extorsao",
+          "quest_key": "q_oleg"
+        }
+      ],
+      "stats": {
+        "hp": 20,
+        "max_hp": 20,
+        "ac": 16,
+        "perception": 7
+      }
+    }
+  ],
+  "factions": [
+    {
+      "name": "Bandidos do Senhor dos Cervos",
+      "agenda": "Controlar o comércio clandestino, extorquir postos avançados e aniquilar emissários de Brevoy.",
+      "resources": "Quadrilhas montadas de saqueadores, acampamentos ocultos em vaus fluviais e fortaleza central.",
+      "relationship": -3,
+      "current_plan": "Aterrorizar o entreposto de Oleg e subjugar todos os colonos do Cinturão Verde.",
+      "location": "Cinturão Verde e Lago Tuskwater",
+      "active": true
+    },
+    {
+      "name": "Espadas Livres de Restov",
+      "agenda": "Consolidar a autoridade colonial dos Lordes da Espada e assegurar a fronteira sul de Rostland.",
+      "resources": "Cartas régias de concessão, veteranos de combate e fundos de incentivo colonial.",
+      "relationship": 2,
+      "current_plan": "Apoiar a comitiva de aventureiros para mapear as terras e erradicar o banditismo.",
+      "location": "Restov e Terras Roubadas",
+      "active": true
+    },
+    {
+      "name": "Mercadores de Rostland",
+      "agenda": "Abrir rotas de troca e abastecer novos assentamentos nas Terras Roubadas.",
+      "resources": "Caravanas mercantes, provisões agrícolas, armaduras e ferramentas.",
+      "relationship": 1,
+      "current_plan": "Estabelecer linha regular de abastecimento até o entreposto de Oleg.",
+      "location": "Posto Avançado de Oleg",
+      "active": true
+    }
+  ],
+  "clocks": [
+    {
+      "name": "Retaliação do Senhor dos Cervos",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "Bandidos enviam uma expedição punitiva com tochas e reforços para queimar o entreposto de Oleg.",
+      "automatic": false,
+      "active": true
+    },
+    {
+      "name": "Caravana de Suprimentos de Restov",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "Chegam reforços civis, armamentos pesados e ferramentas de alvenaria de Rostland.",
+      "automatic": true,
+      "active": true
+    }
+  ],
+  "events": [
+    {
+      "title": "O Primeiro Ataque ao Posto de Oleg",
+      "description": "Happs Bydon e três bandoleiros chegam a cavalo exigindo a entrega imediata de bens sob ameaça de fogo.",
+      "due_at": 1000,
+      "due_day": 1,
+      "status": "scheduled",
+      "consequence_json": {
+        "scene": "scene_posto_oleg",
+        "combatants": ["npc_happs_bydon"]
+      }
+    },
+    {
+      "title": "Cobrança da Carta de Restov",
+      "description": "Um mensageiro dos Lordes da Espada chega para avaliar os mapas cartográficos dos primeiros quatro hexágonos.",
+      "due_at": 20000,
+      "due_day": 14,
+      "status": "scheduled",
+      "consequence_json": {
+        "xp_bonus": 120
+      }
+    }
+  ],
+  "milestones": [
+    {
+      "milestone_key": "milestone_defesa_oleg",
+      "milestoneKey": "milestone_defesa_oleg",
+      "name": "A Defesa Vitoriosa do Posto de Oleg",
+      "xp": 100,
+      "source_ref": "Kingmaker PZO2020 Capítulo 1",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 1"
+    },
+    {
+      "milestone_key": "milestone_vau_espinheiro",
+      "milestoneKey": "milestone_vau_espinheiro",
+      "name": "A Pacificação do Vau do Espinheiro",
+      "xp": 100,
+      "source_ref": "Kingmaker PZO2020 Capítulo 1",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 1"
+    },
+    {
+      "milestone_key": "milestone_frutas_presa",
+      "milestoneKey": "milestone_frutas_presa",
+      "name": "A Coleta Alquímica das Frutas-de-Presa",
+      "xp": 80,
+      "source_ref": "Kingmaker PZO2020 Capítulo 1",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 1"
+    }
+  ],
+  "metadata": {
+    "author": "Braseiro PF2e Engine",
+    "ruleset": "Pathfinder 2e Remaster",
+    "source": "Kingmaker Adventure Path PZO2020",
+    "version": "1.0.0",
+    "locale": "pt-BR"
+  }
+}

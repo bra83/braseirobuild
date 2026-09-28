@@ -1,0 +1,976 @@
+{
+  "schema": "braseiro-pathfinder2e-chapter-v1",
+  "chapter_key": "chapter_09_sound_thousand_screams",
+  "chapterKey": "chapter_09_sound_thousand_screams",
+  "chapter_number": 9,
+  "chapterNumber": 9,
+  "title": "O Som de Mil Gritos: A Casa no Limiar do Tempo",
+  "locale": "pt-BR",
+  "level_min": 16,
+  "levelMin": 16,
+  "level_max": 18,
+  "levelMax": 18,
+  "summary": "O ápice do plano milenar da ninfa Nyrissa atinge o clímax com a Incursão do Primeiro Mundo sobre as Terras Roubadas. A névoa feérica e a vegetação colossal transbordam pelas fendas dimensionais, sobrepondo as leis físicas de Golarion às energias imortais e maleáveis do reino feérico. Para salvar seu reino da obliteração e da fusão planar eterna, os heróis devem penetrar a fortaleza móvel de Nyrissa — a lendária Casa no Limiar do Tempo, uma mansão que existe simultaneamente no passado, presente e futuro. Lá dentro, enfrentarão os campeões juramentados de Nyrissa: o engenhoso e impiedoso Valete de Ouros (Knave of Diamonds), o repugnante e imortal Homem Serpenteante (Wriggling Man), e a prisioneira Evindra, ninfa dos espelhos d'água. Em posse da sagrada lâmina Briar — a personificação do amor e da compaixão arrancados de Nyrissa —, os heróis enfrentam o dilema supremo: redimir a ninfa corrompida devolvendo-lhe sua alma ou destruí-la em um confronto titânico.",
+  "quests": [
+    {
+      "quest_key": "q_incursao_primeiro_mundo",
+      "questKey": "q_incursao_primeiro_mundo",
+      "title": "A Incursão do Primeiro Mundo nas Terras Roubadas",
+      "status": "unstarted",
+      "stage": "conter_incursao",
+      "objective": "Defender as capitais e os povoados das Terras Roubadas contra a sobreposição planar do Primeiro Mundo e selar as três grandes fendas prismáticas.",
+      "stakes": "Se as fendas não forem seladas, todo o reino será absorvido para dentro do Primeiro Mundo, transformando os súditos em sombras e feéricos sem memórias mortais.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 550,
+      "milestoneXp": 550,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_inc_1",
+          "desc": "Repelir a vanguarda de feras feéricas e linnormens que assaltam as muralhas da capital",
+          "description": "Repelir a vanguarda de feras feéricas e linnormens que assaltam as muralhas da capital",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_inc_2",
+          "desc": "Conduzir rituais de estabilização planar nas três fontes primordiais corrompidas",
+          "description": "Conduzir rituais de estabilização planar nas três fontes primordiais corrompidas",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_inc_3",
+          "desc": "Rastrear o ponto focal de convergência onde a Casa no Limiar do Tempo ancora sua sombra",
+          "description": "Rastrear o ponto focal de convergência onde a Casa no Limiar do Tempo ancora sua sombra",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 5000,
+        "xp": 550,
+        "items": ["manto_das_estrelas_feericas", "pedra_ancora_planar_suprema"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_casa_limiar_tempo",
+      "questKey": "q_casa_limiar_tempo",
+      "title": "A Casa no Limiar do Tempo",
+      "status": "unstarted",
+      "stage": "infiltracao_temporal",
+      "objective": "Adentrar a mansão extradimensional de Nyrissa e navegar por suas múltiplas linhas temporais sobrepostas para alcançar o santuário da Rainha das Flores.",
+      "stakes": "Ficar preso no labirinto temporal condena o grupo a existir eternamente como ecos fantasmagóricos nos salões da casa.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 650,
+      "milestoneXp": 650,
+      "prerequisites": ["q_incursao_primeiro_mundo"],
+      "objectives": [
+        {
+          "id": "obj_clt_1",
+          "desc": "Atravessar o portal limiar utilizando a frequência harmônica da chave da flor de espinhos",
+          "description": "Atravessar o portal limiar utilizando a frequência harmônica da chave da flor de espinhos",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_clt_2",
+          "desc": "Sincronizar os relógios de areia fluida nas alas oriental e ocidental da mansão",
+          "description": "Sincronizar os relógios de areia fluida nas alas oriental e ocidental da mansão",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_clt_3",
+          "desc": "Desbloquear o grande portal do Santuário Interior desfazendo as três fechaduras do tempo",
+          "description": "Desbloquear o grande portal do Santuário Interior desfazendo as três fechaduras do tempo",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 8000,
+        "xp": 650,
+        "items": ["ampulheta_do_tempo_suspenso", "chave_mestra_das_fadas"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_campeoes_nyrissa",
+      "questKey": "q_campeoes_nyrissa",
+      "title": "O Julgamento dos Campeões de Nyrissa",
+      "status": "unstarted",
+      "stage": "derrotar_tenentes",
+      "objective": "Superar os tenentes supremos de Nyrissa: o astuto Valete de Ouros, a massa repugnante do Homem Serpenteante, e libertar Evindra de sua prisão lacrada.",
+      "stakes": "Os campeões mantêm as defesas arcanas e a força vital que blindam Nyrissa contra qualquer agressão ou intervenção.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 600,
+      "milestoneXp": 600,
+      "prerequisites": ["q_casa_limiar_tempo"],
+      "objectives": [
+        {
+          "id": "obj_cmp_1",
+          "desc": "Superar o labirinto de pedras preciosas e duelar com o Valete de Ouros em sua galeria de gemas",
+          "description": "Superar o labirinto de pedras preciosas e duelar com o Valete de Ouros em sua galeria de gemas",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_cmp_2",
+          "desc": "Destruir a horda de vermes imortais do Homem Serpenteante e expurgar seu covil",
+          "description": "Destruir a horda de vermes imortais do Homem Serpenteante e expurgar seu covil",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_cmp_3",
+          "desc": "Romper os espelhos espectrais para resgatar a ninfa Evindra e obter seus segredos sobre Nyrissa",
+          "description": "Romper os espelhos espectrais para resgatar a ninfa Evindra e obter seus segredos sobre Nyrissa",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 10000,
+        "xp": 600,
+        "items": ["cetro_de_diamantes_do_valete", "amuleto_de_imunidade_a_vermes"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_redencao_espada_briar",
+      "questKey": "q_redencao_espada_briar",
+      "title": "O Destino da Espada Briar e a Salvação das Almas",
+      "status": "unstarted",
+      "stage": "confronto_final_nyrissa",
+      "objective": "Despertar o pleno potencial da espada mágica Briar e confrontar Nyrissa no Pináculo da Meia-Noite, decidindo entre sua redenção ou aniquilação.",
+      "stakes": "O fracasso sela a colheita de mil gritos, destruindo as almas dos colonos para encher o graal de penitência de Nyrissa.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 800,
+      "milestoneXp": 800,
+      "prerequisites": ["q_campeoes_nyrissa"],
+      "objectives": [
+        {
+          "id": "obj_bri_1",
+          "desc": "Conectar a essência de Briar com as lágrimas imaculadas entregues por Evindra",
+          "description": "Conectar a essência de Briar com as lágrimas imaculadas entregues por Evindra",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_bri_2",
+          "desc": "Enfrentar Nyrissa em sua forma de rainha feérica tempestuosa no Pináculo do Tempo",
+          "description": "Enfrentar Nyrissa em sua forma de rainha feérica tempestuosa no Pináculo do Tempo",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_bri_3",
+          "desc": "Devolver o coração espiritual de Nyrissa através da lâmina ou desferir o golpe de misericórdia",
+          "description": "Devolver o coração espiritual de Nyrissa através da lâmina ou desferir o golpe de misericórdia",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 15000,
+        "xp": 800,
+        "items": ["espada_briar_despertada", "coroa_das_mil_rosas_esmeralda"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_labirinto_espelhos_tempo",
+      "questKey": "q_labirinto_espelhos_tempo",
+      "title": "O Labirinto dos Espelhos Fractais",
+      "status": "unstarted",
+      "stage": "navegacao_espelhos",
+      "objective": "Encontrar a rota através do grande labirinto de espelhos que projeta reflexos hostis do próprio grupo e distorce as dimensões espaciais.",
+      "stakes": "Os reflexos escaparão para os salões da casa e atacarão os aliados retidos na retaguarda.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 500,
+      "milestoneXp": 500,
+      "prerequisites": ["q_casa_limiar_tempo"],
+      "objectives": [
+        {
+          "id": "obj_esp_1",
+          "desc": "Identificar os espelhos verdadeiros utilizando vidência e visão da verdade",
+          "description": "Identificar os espelhos verdadeiros utilizando vidência e visão da verdade",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_esp_2",
+          "desc": "Derrotar as sombras espelhadas de cada membro do grupo geradas pelas reflexões corrompidas",
+          "description": "Derrotar as sombras espelhadas de cada membro do grupo geradas pelas reflexões corrompidas",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 4000,
+        "xp": 500,
+        "items": ["espelho_de_revelacao_da_verdade"]
+      },
+      "progress_json": {}
+    }
+  ],
+  "hazards": [
+    {
+      "hazard_key": "hazard_distorcedor_realidade_eldritch",
+      "hazardKey": "hazard_distorcedor_realidade_eldritch",
+      "name": "Distorcedor da Realidade Primordial",
+      "level": 16,
+      "traits": ["complexo", "magico", "planar", "transmutacao"],
+      "stealth_dc": 37,
+      "stealthDc": 37,
+      "perception_dc": 37,
+      "perceptionDc": 37,
+      "saving_throw_type": "Vontade",
+      "savingThrowType": "Vontade",
+      "saving_throw_dc": 37,
+      "savingThrowDc": 37,
+      "disable_skills": [
+        {
+          "skill": "Arcanismo",
+          "dc": 38,
+          "proficiency": "mestre",
+          "description": "Ancorar as matrizes geométricas euclidianas repelindo a geometria feérica impossível"
+        },
+        {
+          "skill": "Ocultismo",
+          "dc": 38,
+          "proficiency": "mestre",
+          "description": "Harmonizar a percepção mental do ambiente dispersando a loucura dimensional"
+        }
+      ],
+      "routine_actions": 2,
+      "routineActions": 2,
+      "hazard_type": "magico",
+      "complexity": "complexo",
+      "ac": 38,
+      "hardness": 24,
+      "hp": 130,
+      "bt": 65,
+      "reaction": "Dispara quando qualquer criatura não nativa do Primeiro Mundo ingressa na câmara dimensional.",
+      "reset": "Não reseta após a ancoragem arcana ser firmada.",
+      "xp": 200,
+      "description": "Uma esfera oscilante de matéria iridescente que distorce a gravidade, cores e conceitos lógicos no aposento.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Onda de Mutação Caótica",
+          "description": "Todas as criaturas na câmara sofrem 6d8 de dano de essência e ficam entorpecidas 2 em caso de falha na salvaguarda de Vontade (CD 37)."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Dobra Espacial Vertiginosa",
+          "description": "Teletransporta criaturas aleatoriamente para o alcance de perigos adjacentes causando 4d10 de dano de força."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_campo_distorcao_temporal",
+      "hazardKey": "hazard_campo_distorcao_temporal",
+      "name": "Campo de Distorção Temporal Acelerada",
+      "level": 17,
+      "traits": ["complexo", "magico", "temporal"],
+      "stealth_dc": 39,
+      "stealthDc": 39,
+      "perception_dc": 39,
+      "perceptionDc": 39,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 38,
+      "savingThrowDc": 38,
+      "disable_skills": [
+        {
+          "skill": "Ocultismo",
+          "dc": 39,
+          "proficiency": "mestre",
+          "description": "Cantar as rimas de desaceleração cronológica que reajustam o fluxo temporal local"
+        },
+        {
+          "skill": "Ladroagem",
+          "dc": 39,
+          "proficiency": "mestre",
+          "description": "Desconectar o pêndulo estelar de adamante que impulsiona o turbilhão de areia cronomântica"
+        }
+      ],
+      "routine_actions": 2,
+      "routineActions": 2,
+      "hazard_type": "magico",
+      "complexity": "complexo",
+      "ac": 39,
+      "hardness": 26,
+      "hp": 140,
+      "bt": 70,
+      "reaction": "Reage imediatamente quando uma criatura tenta cruzar o umbral do salão dos relógios.",
+      "reset": "Rearma-se após 1 hora caso o pêndulo não seja danificado além do limiar de quebra.",
+      "xp": 240,
+      "description": "Engrenagens de luz pura e filamentos de areia dourada giram furiosamente no ar, acelerando o tempo de forma letal.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Rajada de Envelhecimento Precoce",
+          "description": "Causa 5d10+12 de dano de energia temporal em todas as criaturas a até 9 metros (Reflexos CD 38 para metade)."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Estase Cronológica Local",
+          "description": "Prende o alvo mais próximo em uma bolha de tempo desacelerado, deixando-o lento 2 por 1 rodada."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_espinhos_estranguladores_briar",
+      "hazardKey": "hazard_espinhos_estranguladores_briar",
+      "name": "Espinhos Estranguladores de Briar",
+      "level": 16,
+      "traits": ["complexo", "vegetal", "fada"],
+      "stealth_dc": 37,
+      "stealthDc": 37,
+      "perception_dc": 37,
+      "perceptionDc": 37,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 36,
+      "savingThrowDc": 36,
+      "disable_skills": [
+        {
+          "skill": "Natureza",
+          "dc": 37,
+          "proficiency": "mestre",
+          "description": "Acalmar o espírito vingativo da vegetação primordial utilizando comunhão floral"
+        },
+        {
+          "skill": "Sobrevivência",
+          "dc": 37,
+          "proficiency": "mestre",
+          "description": "Cortar com precisão as raízes-mestras que bombeiam seiva venenosa para as gavinhas"
+        },
+        {
+          "skill": "Atletismo",
+          "dc": 38,
+          "proficiency": "mestre",
+          "description": "Arrancar fisicamente as sarças de ferro que estrangulam o caminho"
+        }
+      ],
+      "routine_actions": 2,
+      "routineActions": 2,
+      "hazard_type": "ambiental",
+      "complexity": "complexo",
+      "ac": 37,
+      "hardness": 22,
+      "hp": 125,
+      "bt": 62,
+      "reaction": "Dispara quando qualquer criatura pisa sobre a grama de espinhos esmeraldas.",
+      "reset": "Cresce novamente em 24 horas se a raiz-mãe no Primeiro Mundo não for purificada.",
+      "xp": 200,
+      "description": "Vinhas negras e esmeraldas com espinhos do tamanho de adagas de ferro que se movem como serpentes famintas.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Constrição Violenta de Gavinhas",
+          "description": "As vinhas agarram e esmagam criaturas causando 4d8+10 de dano perfurante e 2d6 de dano de veneno feérico persistente."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Chicote de Espinhos da Meia-Noite",
+          "description": "Açoita até dois alvos à distância causando 4d10 de dano cortante e derrubando-os ao solo."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_labirinto_espelhos_ilusorios",
+      "hazardKey": "hazard_labirinto_espelhos_ilusorios",
+      "name": "Labirinto Perigoso de Espelhos Fractais",
+      "level": 17,
+      "traits": ["complexo", "ilusao", "mental"],
+      "stealth_dc": 38,
+      "stealthDc": 38,
+      "perception_dc": 38,
+      "perceptionDc": 38,
+      "saving_throw_type": "Vontade",
+      "savingThrowType": "Vontade",
+      "saving_throw_dc": 38,
+      "savingThrowDc": 38,
+      "disable_skills": [
+        {
+          "skill": "Ladroagem",
+          "dc": 39,
+          "proficiency": "mestre",
+          "description": "Cobrir ou quebrar os nós ópticos de cristal que alimentam os reflexos multidimensionais"
+        },
+        {
+          "skill": "Ocultismo",
+          "dc": 39,
+          "proficiency": "mestre",
+          "description": "Dissipar a ressonância ilusória através de contra-encantamento psíquico"
+        }
+      ],
+      "routine_actions": 2,
+      "routineActions": 2,
+      "hazard_type": "armadilha",
+      "complexity": "complexo",
+      "ac": 38,
+      "hardness": 20,
+      "hp": 110,
+      "bt": 55,
+      "reaction": "Ativa-se assim que o grupo olha para os reflexos nas paredes espelhadas.",
+      "reset": "Não reseta após a destruição dos prismas angulares centrais.",
+      "xp": 240,
+      "description": "Espelhos de prata encantada que se multiplicam infinitamente, prendendo a mente das testemunhas em um ciclo de loucura.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Grito Estilhaçado das Almas Refletidas",
+          "description": "Uma explosão sonora e psíquica ecoa dos vidros causando 6d6 de dano sônico e 4d6 de dano mental (Vontade CD 38)."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Falsa Imagem Confusa",
+          "description": "Força os alvos a atacarem seus próprios reflexos ou aliados adjacentes se falharem no teste de salvaguarda."
+        }
+      ]
+    }
+  ],
+  "pois": [
+    {
+      "poi_key": "poi_casa_limiar_tempo",
+      "poiKey": "poi_casa_limiar_tempo",
+      "poi_id": "poi_casa_limiar_tempo",
+      "poiId": "poi_casa_limiar_tempo",
+      "campaign_key": "chapter_09_sound_thousand_screams",
+      "campaignKey": "chapter_09_sound_thousand_screams",
+      "map_id": "stolen_lands",
+      "name": "Casa no Limiar do Tempo",
+      "name_key": "casa_no_limiar_do_tempo",
+      "type": "dungeon",
+      "hex_id": "H_HOUSE_EDGE_TIME",
+      "hexId": "H_HOUSE_EDGE_TIME",
+      "location_id": "loc_house_edge_time",
+      "q": 2,
+      "r": -5,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Mansão impossível erguida nos confins do tempo e do espaço pelo poder de Nyrissa, existindo simultaneamente em três épocas distintas.",
+      "tags": ["dungeon", "nyrissa", "tempo", "primeiro_mundo", "climax"],
+      "development_level": 5,
+      "icon": "🏰",
+      "notes": "Covil supremo de Nyrissa e fortaleza das provações finais."
+    },
+    {
+      "poi_key": "poi_nexo_incursao_planar",
+      "poiKey": "poi_nexo_incursao_planar",
+      "poi_id": "poi_nexo_incursao_planar",
+      "poiId": "poi_nexo_incursao_planar",
+      "campaign_key": "chapter_09_sound_thousand_screams",
+      "campaignKey": "chapter_09_sound_thousand_screams",
+      "map_id": "stolen_lands",
+      "name": "Nexo da Incursão Primordial",
+      "name_key": "nexo_da_incursao_primordial",
+      "type": "landmark",
+      "hex_id": "H_FIRST_WORLD_NEXUS",
+      "hexId": "H_FIRST_WORLD_NEXUS",
+      "location_id": "loc_first_world_nexus",
+      "q": 3,
+      "r": -5,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Vórtice cósmico onde a vegetação do Primeiro Mundo e céus multicoloridos rasgam o firmamento de Golarion.",
+      "tags": ["landmark", "planar", "fendas", "incursao"],
+      "development_level": 3,
+      "icon": "🌀",
+      "notes": "Ponto de entrada primordial das hostes feéricas invasoras."
+    },
+    {
+      "poi_key": "poi_bosque_espinhos_briar",
+      "poiKey": "poi_bosque_espinhos_briar",
+      "poi_id": "poi_bosque_espinhos_briar",
+      "poiId": "poi_bosque_espinhos_briar",
+      "campaign_key": "chapter_09_sound_thousand_screams",
+      "campaignKey": "chapter_09_sound_thousand_screams",
+      "map_id": "stolen_lands",
+      "name": "Bosque dos Espinhos da Rosa da Meia-Noite",
+      "name_key": "bosque_dos_espinhos_da_rosa_da_meia_noite",
+      "type": "resource_site",
+      "hex_id": "H_BRIAR_GROVE",
+      "hexId": "H_BRIAR_GROVE",
+      "location_id": "loc_briar_grove",
+      "q": 1,
+      "r": -4,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Clareira silvestre cercada de sarças intransponíveis onde a essência da lâmina Briar reverbera em harmonia floral.",
+      "tags": ["recursos", "briar", "sagrado", "fey"],
+      "development_level": 2,
+      "icon": "🌹",
+      "notes": "Local de despertar espiritual e consagração da espada Briar."
+    },
+    {
+      "poi_key": "poi_espelho_afogado_evindra",
+      "poiKey": "poi_espelho_afogado_evindra",
+      "poi_id": "poi_espelho_afogado_evindra",
+      "poiId": "poi_espelho_afogado_evindra",
+      "campaign_key": "chapter_09_sound_thousand_screams",
+      "campaignKey": "chapter_09_sound_thousand_screams",
+      "map_id": "stolen_lands",
+      "name": "Espelho D'Água das Lamentações de Evindra",
+      "name_key": "espelho_dagua_das_lamentacoes_de_evindra",
+      "type": "refuge",
+      "hex_id": "H_EVINDRA_MIRROR",
+      "hexId": "H_EVINDRA_MIRROR",
+      "location_id": "loc_evindra_mirror",
+      "q": 2,
+      "r": -4,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Pequeno lago subterrâneo cristalino nas fundações da mansão onde a ninfa Evindra chora aprisionada em correntes de gelo d'água.",
+      "tags": ["refugio", "evindra", "aliado", "agua"],
+      "development_level": 2,
+      "icon": "💧",
+      "notes": "Refúgio de descanso temporário e revelação de segredos capitais."
+    },
+    {
+      "poi_key": "poi_bastiao_valete_ouros",
+      "poiKey": "poi_bastiao_valete_ouros",
+      "poi_id": "poi_bastiao_valete_ouros",
+      "poiId": "poi_bastiao_valete_ouros",
+      "campaign_key": "chapter_09_sound_thousand_screams",
+      "campaignKey": "chapter_09_sound_thousand_screams",
+      "map_id": "stolen_lands",
+      "name": "Bastião das Joias do Valete de Ouros",
+      "name_key": "bastiao_das_joias_do_valete_de_ouros",
+      "type": "lair",
+      "hex_id": "H_KNAVE_BASTION",
+      "hexId": "H_KNAVE_BASTION",
+      "location_id": "loc_knave_bastion",
+      "q": 3,
+      "r": -4,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Salão fortificado repleto de armadilhas de joias lapidadas e autômatos de cristal comandados pelo Valete de Ouros.",
+      "tags": ["covil", "valete", "tenente", "gemas"],
+      "development_level": 3,
+      "icon": "💎",
+      "notes": "Área de combate contra o primeiro grande campeão da Casa."
+    }
+  ],
+  "npcs": [
+    {
+      "npc_key": "npc_nyrissa",
+      "npcKey": "npc_nyrissa",
+      "stable_id": "npc_nyrissa",
+      "stableId": "npc_nyrissa",
+      "name": "Nyrissa, a Ninfa Esmeralda",
+      "summary": "Rainha feérica banida do Primeiro Mundo, desesperada para colher mil reinos mortais destruídos em seu graal para pagar o resgate de sua soberania.",
+      "goals": "Completar a absorção das Terras Roubadas no graal de penitência e reconquistar seu lugar entre os Mais Velhos.",
+      "secrets": "Sua crueldade nasce do vazio insuportável deixado pela extirpação de sua capacidade de amar e compadecer, presa na espada Briar.",
+      "attitude": "hostil",
+      "relationship": "Vilã principal de Kingmaker",
+      "knowledge": "Segredos ancestrais do Primeiro Mundo, magia primordial das plantas e maldições de reinos.",
+      "debts": "Nenhuma.",
+      "last_seen": "Santuário do Pináculo do Tempo",
+      "hex_id": "H_HOUSE_EDGE_TIME",
+      "faction": "Corte Feérica do Primeiro Mundo de Nyrissa",
+      "visual_description": "Ninfa esguia de beleza sobrenatural estarrecedora, com cabelos esmeraldas que flutuam como hera ao vento e olhar dilacerado por séculos de mágoa.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "Vocês construíram sua baronia sobre a terra que eu reguei com sangue e lágrimas por mil anos. Ela me pertence por direito de sacrifício!",
+          "topic": "confronto_final",
+          "quest_key": "q_redencao_espada_briar"
+        },
+        {
+          "attitude_req": "indiferente",
+          "text": "Essa lâmina... Briar... como vocês ousam trazer de volta a memória daquilo que os deuses me arrancaram?",
+          "topic": "briar_revelacao",
+          "quest_key": "q_redencao_espada_briar"
+        },
+        {
+          "attitude_req": "amistoso",
+          "text": "Eu me lembro... do aroma das primaveras puras... o que eu fiz com tantas almas inocentes?",
+          "topic": "redencao_aceita",
+          "quest_key": "q_redencao_espada_briar"
+        }
+      ],
+      "stats": {
+        "ac": 42,
+        "hp": 380,
+        "max_hp": 380
+      }
+    },
+    {
+      "npc_key": "npc_valete_ouros",
+      "npcKey": "npc_valete_ouros",
+      "stable_id": "npc_valete_ouros",
+      "stableId": "npc_valete_ouros",
+      "name": "O Valete de Ouros",
+      "summary": "Mestre espadachim e trapaceiro feérico blindado por armadura de diamantes lapidados, leal executor das punições de Nyrissa.",
+      "goals": "Proteger as passagens da Casa no Limiar do Tempo e colecionar as joias e crânios dos heróis mortais.",
+      "secrets": "Teme a espada Briar mais do que a própria morte, pois ela dissipa seus escudos cristalinos.",
+      "attitude": "hostil",
+      "relationship": "Campeão supremo de Nyrissa",
+      "knowledge": "Esgrima feérica magistral, redes de espelhos e armadilhas de pedras preciosas.",
+      "debts": "Juramento de fidelidade mágica.",
+      "last_seen": "Bastião das Joias",
+      "hex_id": "H_KNAVE_BASTION",
+      "faction": "Corte Feérica do Primeiro Mundo de Nyrissa",
+      "visual_description": "Guerreiro feérico esbelto usando cota de malha de diamantes polidos e capa rubra acetinada.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "Cada aventureiro que pisou aqui virou cascalho para os meus pisos de diamante. Vocês não serão diferentes.",
+          "topic": "desafio_armas",
+          "quest_key": "q_campeoes_nyrissa"
+        }
+      ],
+      "stats": {
+        "ac": 39,
+        "hp": 290,
+        "max_hp": 290
+      }
+    },
+    {
+      "npc_key": "npc_homem_serpenteante",
+      "npcKey": "npc_homem_serpenteante",
+      "stable_id": "npc_homem_serpenteante",
+      "stableId": "npc_homem_serpenteante",
+      "name": "O Homem Serpenteante",
+      "summary": "Entidade aberrante feérica formada por uma colônia viva de milhares de vermes e centopeias sob roupas de nobreza.",
+      "goals": "Alimentar-se da decomposição dos mundos mortais e servir cegamente à vontade de Nyrissa.",
+      "secrets": "Deseja consumir o graal caso Nyrissa falhe, herdando o poder de mil almas absorvidas.",
+      "attitude": "hostil",
+      "relationship": "Comandante dos horrores subterrâneos da Casa",
+      "knowledge": "Feitiçaria de vermes, venenos decompositores e arquitetura orgânica.",
+      "debts": "Nenhuma.",
+      "last_seen": "Câmara das Vermes",
+      "hex_id": "H_HOUSE_EDGE_TIME",
+      "faction": "Corte Feérica do Primeiro Mundo de Nyrissa",
+      "visual_description": "Figura vestida em casaco aristocrático puído cuja pele se retorce e serpenteia incessantemente em vermes rastejantes.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "Nós somos legião... rastejamos em seus ossos antes mesmo de vocês nascerem!",
+          "topic": "ameaca_vermes",
+          "quest_key": "q_campeoes_nyrissa"
+        }
+      ],
+      "stats": {
+        "ac": 38,
+        "hp": 310,
+        "max_hp": 310
+      }
+    },
+    {
+      "npc_key": "npc_evindra",
+      "npcKey": "npc_evindra",
+      "stable_id": "npc_evindra",
+      "stableId": "npc_evindra",
+      "name": "Evindra, a Ninfa dos Espelhos",
+      "summary": "Irmã espiritual e antiga conselheira de Nyrissa, mantida em agonia aprisionada por tentar impedi-la de cometer atrocidades.",
+      "goals": "Ser libertada das amarras de gelo espectral e guiar mortais honrados para redimir ou destruir sua irmã.",
+      "secrets": "Conhece a rota exata pelo labirinto de espelhos e a palavra de comando que purifica a espada Briar.",
+      "attitude": "amistoso",
+      "relationship": "Aliada vital dentro da Casa no Limiar do Tempo",
+      "knowledge": "História pregressa de Nyrissa, pontos fracos dos campeões e segredos temporais da mansão.",
+      "debts": "Gratidão imensa pela libertação.",
+      "last_seen": "Espelho D'Água das Lamentações",
+      "hex_id": "H_EVINDRA_MIRROR",
+      "faction": "Espíritos Prisioneiros da Casa no Limiar do Tempo",
+      "visual_description": "Ninfa lacrimosa de pele azulada translúcida envolta em véus de vapor aquático reluzente.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "indiferente",
+          "text": "Vocês conseguiram descer até este abismo... mas a loucura de Nyrissa não terá fim a menos que toquem o coração dela.",
+          "topic": "revelacao_nyrissa",
+          "quest_key": "q_campeoes_nyrissa"
+        },
+        {
+          "attitude_req": "amistoso",
+          "text": "Tirem-me destas correntes e entregarei a chave de água viva para que a lâmina Briar possa brilhar em sua plenitude.",
+          "topic": "chave_briar",
+          "quest_key": "q_redencao_espada_briar"
+        }
+      ],
+      "stats": {
+        "ac": 36,
+        "hp": 220,
+        "max_hp": 220
+      }
+    }
+  ],
+  "scenes": [
+    {
+      "scene_key": "scene_sala_trono_nyrissa",
+      "sceneKey": "scene_sala_trono_nyrissa",
+      "title": "Sala do Trono da Flor do Tempo",
+      "location": "Casa no Limiar do Tempo - Pináculo Superior",
+      "hex_id": "H_HOUSE_EDGE_TIME",
+      "environment": "planar",
+      "width_cells": 16,
+      "widthCells": 16,
+      "height_cells": 12,
+      "heightCells": 12,
+      "seed": 9101,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "estrado_trono_esmeralda",
+          "name": "Estrado do Trono de Madrepérola e Vinhas",
+          "x": 6,
+          "y": 1,
+          "width": 4,
+          "height": 3,
+          "terrain": "normal",
+          "description": "Plataforma elevada coberta por pétalas de lótus luminosas onde Nyrissa preside o julgamento do reino"
+        },
+        {
+          "zone_key": "abismo_temporal_circundante",
+          "name": "Bordas do Abismo Temporal",
+          "x": 0,
+          "y": 0,
+          "width": 16,
+          "height": 1,
+          "terrain": "dificil",
+          "description": "Fenda aberta para o vácuo onde o tempo corre em velocidades desconexas"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "pilares_cristal_tempo",
+          "x": 4,
+          "y": 5,
+          "width": 2,
+          "height": 2,
+          "type": "cristal",
+          "blocks_movement": true,
+          "blocks_vision": true,
+          "cover": "superior"
+        },
+        {
+          "obstacle_key": "pilares_cristal_tempo_2",
+          "x": 10,
+          "y": 5,
+          "width": 2,
+          "height": 2,
+          "type": "cristal",
+          "blocks_movement": true,
+          "blocks_vision": true,
+          "cover": "superior"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "portal_limiar_entrada",
+          "x": 8,
+          "y": 11,
+          "team": "player",
+          "description": "Arco dourado de acesso à cúpula do trono"
+        }
+      ],
+      "hazards": [],
+      "combatants": []
+    },
+    {
+      "scene_key": "scene_jardim_espelhos_briar",
+      "sceneKey": "scene_jardim_espelhos_briar",
+      "title": "Jardim dos Espelhos e Espinhos de Briar",
+      "location": "Casa no Limiar do Tempo - Pátio Central",
+      "hex_id": "H_HOUSE_EDGE_TIME",
+      "environment": "feerico",
+      "width_cells": 14,
+      "widthCells": 14,
+      "height_cells": 10,
+      "heightCells": 10,
+      "seed": 9102,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "labirinto_sarças",
+          "name": "Alamedas de Sarças Negras",
+          "x": 2,
+          "y": 2,
+          "width": 10,
+          "height": 6,
+          "terrain": "dificil",
+          "description": "Corredores ladeados por roseiras venenosas gigantes e espelhos de prata viva"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "espelho_monolitico",
+          "x": 6,
+          "y": 4,
+          "width": 2,
+          "height": 2,
+          "type": "espelho_magico",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "padrao"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "portao_roseiras",
+          "x": 1,
+          "y": 8,
+          "team": "player",
+          "description": "Abertura escavada entre as roseiras de Briar"
+        }
+      ],
+      "hazards": [],
+      "combatants": []
+    }
+  ],
+  "factions": [
+    {
+      "name": "Corte Feérica do Primeiro Mundo de Nyrissa",
+      "agenda": "Consumir a soberania das Terras Roubadas no graal para libertar Nyrissa de seu banimento cósmico.",
+      "resources": "Hostes de ninfas corrompidas, autômatos de gemas, horrores de vermes e distorções da realidade.",
+      "relationship": -5,
+      "current_plan": "Mesclar as três eras da Casa no Limiar do Tempo com o plano material para erradicar a Baronia.",
+      "location": "Casa no Limiar do Tempo",
+      "active": true
+    },
+    {
+      "name": "Espíritos Prisioneiros da Casa no Limiar do Tempo",
+      "agenda": "Libertar-se das amarras de Nyrissa e auxiliar os heróis mortais a pôr fim à maldição secular.",
+      "resources": "Segredos arcanos esquecidos, chaves de água pura e relíquias de reinos passados.",
+      "relationship": 4,
+      "current_plan": "Orientar o grupo de aventureiros pelos pontos cegos do labirinto de espelhos.",
+      "location": "Fundações Subterrâneas da Casa",
+      "active": true
+    }
+  ],
+  "clocks": [
+    {
+      "name": "Fusão Total do Primeiro Mundo com as Terras Roubadas",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "As leis naturais de Golarion colapsam totalmente, tornando as Terras Roubadas um anexo inóspito do Primeiro Mundo.",
+      "automatic": true,
+      "active": true
+    },
+    {
+      "name": "Colapso Temporal da Casa no Limiar do Tempo",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "A mansão se estilhaça através do éter, banindo todos os intrusos para o vácuo eterno do tempo perdido.",
+      "automatic": false,
+      "active": true
+    }
+  ],
+  "events": [
+    {
+      "title": "O Grito dos Mil Mortos nas Fronteiras",
+      "description": "Um eco ensurdecedor ressoa pelos céus do reino, enquanto as memórias das antigas nações destruídas se materializam como tempestades esmeraldas.",
+      "due_at": 95000,
+      "due_day": 12,
+      "status": "scheduled",
+      "consequence_json": {
+        "unrest_increase": 4,
+        "scene": "scene_sala_trono_nyrissa"
+      }
+    },
+    {
+      "title": "A Manifestação Esmeralda de Briar",
+      "description": "A espada Briar pulsa com luz ofuscante, alertando que o coração de Nyrissa está próximo do ponto de ruptura irreversível.",
+      "due_at": 140000,
+      "due_day": 28,
+      "status": "scheduled",
+      "consequence_json": {
+        "scene": "scene_jardim_espelhos_briar"
+      }
+    }
+  ],
+  "milestones": [
+    {
+      "milestone_key": "milestone_incursao_estabilizada",
+      "milestoneKey": "milestone_incursao_estabilizada",
+      "name": "A Contenção da Incursão do Primeiro Mundo",
+      "xp": 550,
+      "source_ref": "Kingmaker PZO2020 Capítulo 9",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 9"
+    },
+    {
+      "milestone_key": "milestone_campeoes_derrotados",
+      "milestoneKey": "milestone_campeoes_derrotados",
+      "name": "A Queda dos Campeões da Flor de Espinhos",
+      "xp": 600,
+      "source_ref": "Kingmaker PZO2020 Capítulo 9",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 9"
+    },
+    {
+      "milestone_key": "milestone_briar_despertada",
+      "milestoneKey": "milestone_briar_despertada",
+      "name": "O Despertar do Amor da Espada Briar",
+      "xp": 700,
+      "source_ref": "Kingmaker PZO2020 Capítulo 9",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 9"
+    },
+    {
+      "milestone_key": "milestone_casa_limiar_conquistada",
+      "milestoneKey": "milestone_casa_limiar_conquistada",
+      "name": "A Vitória Suprema na Casa no Limiar do Tempo",
+      "xp": 800,
+      "source_ref": "Kingmaker PZO2020 Capítulo 9",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 9"
+    }
+  ],
+  "metadata": {
+    "author": "Braseiro PF2e Engine",
+    "ruleset": "Pathfinder 2e Remaster",
+    "source": "Kingmaker Adventure Path PZO2020",
+    "version": "1.0.0",
+    "locale": "pt-BR"
+  }
+}

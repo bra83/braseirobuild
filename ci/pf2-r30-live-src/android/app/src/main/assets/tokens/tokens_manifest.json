@@ -1,0 +1,249 @@
+{
+  "manifestVersion": 2,
+  "game": "Pathfinder 2e Remaster",
+  "source": {
+    "type": "google-drive-folder",
+    "folderId": "1gfBQfV6x0KAri0pdyKXpMhVlQYblLD-W",
+    "folderUrl": "https://drive.google.com/drive/folders/1gfBQfV6x0KAri0pdyKXpMhVlQYblLD-W",
+    "layout": "individual-files",
+    "recursive": false
+  },
+  "sync": {
+    "strategy": "scan-on-demand",
+    "detectNewFiles": true,
+    "updateExistingBy": "driveId",
+    "pageSize": 1000,
+    "acceptedMimeTypes": [
+      "image/png",
+      "image/jpeg",
+      "image/webp"
+    ],
+    "removeMissingFromLibrary": false,
+    "preserveLocalAssignments": true
+  },
+  "filenamePolicy": {
+    "stripPrefixes": [
+      "Cópia de ",
+      "Copy of "
+    ],
+    "stripExtension": true,
+    "normalizeHyphensAndUnderscores": true,
+    "speciesFromFilename": true,
+    "creatureTypeFromFilename": true,
+    "roleFromFilename": true
+  },
+  "classification": {
+    "priority": [
+      "manualCorrection",
+      "specificSpeciesRule",
+      "creatureTypeRule",
+      "roleRule",
+      "fallback"
+    ],
+    "speciesExamples": {
+      "Elfo": [
+        "elf",
+        "elven"
+      ],
+      "Elfo cavernícola (visual legado)": [
+        "drow",
+        "dark elf",
+        "dusk elf"
+      ],
+      "Anão": [
+        "dwarf",
+        "dward",
+        "dwerym"
+      ],
+      "Humano": [
+        "human"
+      ],
+      "Gnomo": [
+        "gnome"
+      ],
+      "Sangue dracônico (visual legado)": [
+        "dragonborn",
+        "draconato"
+      ],
+      "Nephilim (visual legado)": [
+        "tiefling",
+        "aasimar"
+      ],
+      "Halfling": [
+        "halfling"
+      ],
+      "Orc": [
+        "orc"
+      ],
+      "Goblin": [
+        "goblin"
+      ],
+      "Kobold": [
+        "kobold"
+      ],
+      "Tengu": [
+        "tengu"
+      ],
+      "Leshy": [
+        "leshy"
+      ]
+    },
+    "creatureTypeExamples": {
+      "Aberração": [
+        "aberration",
+        "aboleth",
+        "tentacled horror"
+      ],
+      "Elemental": [
+        "elemental"
+      ],
+      "Dragão": [
+        "dragon",
+        "drake"
+      ],
+      "Morto-vivo": [
+        "undead",
+        "zombie",
+        "skeleton",
+        "lich",
+        "vampire",
+        "wraith",
+        "ghost",
+        "banshee"
+      ],
+      "Corruptor": [
+        "fiend",
+        "demon",
+        "devil"
+      ],
+      "Celestial": [
+        "celestial",
+        "angel"
+      ],
+      "Constructo": [
+        "construct",
+        "golem"
+      ],
+      "Planta": [
+        "plant",
+        "blight",
+        "shrieker"
+      ],
+      "Limo": [
+        "ooze",
+        "slime",
+        "gelatinous"
+      ],
+      "Fera": [
+        "wolf",
+        "bear",
+        "fox",
+        "elk",
+        "stag",
+        "hound",
+        "hawk",
+        "panther",
+        "beast"
+      ],
+      "Monstruosidade": [
+        "griffin",
+        "werewolf",
+        "nightmare",
+        "monster"
+      ]
+    },
+    "roleExamples": {
+      "Alquimista": [
+        "alchemist",
+        "potion maker"
+      ],
+      "Bárbaro": [
+        "barbarian"
+      ],
+      "Bardo": [
+        "bard"
+      ],
+      "Bruxa": [
+        "witch",
+        "warlock"
+      ],
+      "Campeão": [
+        "champion",
+        "paladin"
+      ],
+      "Clérigo": [
+        "cleric",
+        "priest"
+      ],
+      "Druida": [
+        "druid"
+      ],
+      "Feiticeiro": [
+        "sorcerer"
+      ],
+      "Guerreiro": [
+        "fighter",
+        "warrior",
+        "duelist"
+      ],
+      "Inventor": [
+        "inventor",
+        "artificer",
+        "armorsmith"
+      ],
+      "Investigador": [
+        "investigator",
+        "detective"
+      ],
+      "Ladino": [
+        "rogue",
+        "thief",
+        "assassin"
+      ],
+      "Mago": [
+        "wizard",
+        "mage"
+      ],
+      "Magus": [
+        "magus",
+        "spellblade"
+      ],
+      "Monge": [
+        "monk"
+      ],
+      "Oráculo": [
+        "oracle"
+      ],
+      "Patrulheiro": [
+        "ranger",
+        "archer",
+        "scout"
+      ],
+      "Pistoleiro": [
+        "gunslinger"
+      ],
+      "Psíquico": [
+        "psychic"
+      ],
+      "Taumaturgo": [
+        "thaumaturge"
+      ],
+      "Invocador": [
+        "summoner"
+      ]
+    },
+    "fallback": {
+      "species": "Não identificada",
+      "creatureType": "Não identificado",
+      "role": "Geral",
+      "category": "Criatura"
+    }
+  },
+  "notes": [
+    "Classificação por nome serve somente para escolher imagens; não concede ancestralidade, classe, talento ou regra.",
+    "Identidade visual persistente do personagem prevalece sobre inferência por nome de arquivo.",
+    "Vínculos manuais já feitos são preservados."
+  ],
+  "mechanicalAuthority": false,
+  "purpose": "visual_only"
+}
