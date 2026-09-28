@@ -9,17 +9,17 @@ public final class KingmakerTurnGuideRulesHarness {
 
         JSONArray phases = rules.turnProcedureGuide();
         require(phases.length() == 4, "turnProcedureGuide precisa conter 4 fases");
-        require("UPKEEP".equals(phases.getJSONObject(0).getString("key")), "fase 1");
-        require("COMMERCE".equals(phases.getJSONObject(1).getString("key")), "fase 2");
-        require("ACTIVITY".equals(phases.getJSONObject(2).getString("key")), "fase 3");
-        require("EVENT".equals(phases.getJSONObject(3).getString("key")), "fase 4");
+        require("UPKEEP".equals(phases.optJSONObject(0).optString("key")), "fase 1");
+        require("COMMERCE".equals(phases.optJSONObject(1).optString("key")), "fase 2");
+        require("ACTIVITY".equals(phases.optJSONObject(2).optString("key")), "fase 3");
+        require("EVENT".equals(phases.optJSONObject(3).optString("key")), "fase 4");
 
         JSONArray catalog = rules.activityGuideCatalog();
         require(catalog.length() == KingmakerRulesEngine.ACTIVITIES.length, "catálogo didático deve espelhar ACTIVITIES");
         require(catalog.length() >= 29, "catálogo incompleto");
 
         for (int i=0;i<catalog.length();i++) {
-            JSONObject a=catalog.getJSONObject(i);
+            JSONObject a=catalog.optJSONObject(i);
             require(a.optBoolean("mechanical_authority", false), "atividade sem autoridade mecânica: "+a.optString("key"));
             require("KingmakerRepository.resolveKingdomActivity".equals(a.optString("resolver")), "resolver divergente: "+a.optString("key"));
             require(a.optString("name").length()>0, "nome ausente");
