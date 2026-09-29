@@ -1,0 +1,44 @@
+name: PF2 R30 Diff Requested Features
+
+on:
+  push:
+    branches: [audit-pf2-kingmaker-r30-20260928]
+    paths:
+      - '.github/workflows/pf2-r30-diff-requested-features.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  diff:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-pf2-kingmaker-r30-20260928
+          fetch-depth: 1
+      - name: Generate diffs
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $base='ci\pf2-r30-clean-baseline\android\app\src\main\java\com\braseiro\pathfinder2e'
+          $live='ci\pf2-r30-live-src\android\app\src\main\java\com\braseiro\pathfinder2e'
+          $out='ci\pf2-r30-feature-diffs'
+          Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $files=@('MainActivity.java','PartyDirector.java','AppDb.java','BraseiroNarrativeDirector.java','MasterOrchestrator.java','KingmakerRulesEngine.java')
+          foreach($f in $files){
+            git diff --no-index -- "$base\$f" "$live\$f" > "$out\$f.diff"
+            if($LASTEXITCODE -gt 1){throw "diff failed $f"}
+          }
+          Copy-Item "$live\HumanGmNarrativeProfile.java" "$out\HumanGmNarrativeProfile.java" -Force
+          Copy-Item "$live\KingmakerTurnGuide.java" "$out\KingmakerTurnGuide.java" -Force
+      - name: Commit diffs
+        shell: powershell
+        run: |
+          git config user.name "BRELGA PF2 Diff"
+          git config user.email "actions@braseiro.local"
+          git add ci/pf2-r30-feature-diffs
+          git commit -m "audit: diff requested PF2 R30 features"
+          git push origin HEAD:audit-pf2-kingmaker-r30-20260928
