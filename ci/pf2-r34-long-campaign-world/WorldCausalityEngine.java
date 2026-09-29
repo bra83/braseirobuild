@@ -420,8 +420,12 @@ public final class WorldCausalityEngine {
             double best=0d;
             for(JSONObject w:wars){
                 String battle=w.optString("battlefield_hex"),raw=w.toString().toLowerCase(Locale.ROOT);
-                boolean local=(hex.length()>0&&hex.equals(battle))||(region.length()>0&&raw.contains(region.toLowerCase(Locale.ROOT)))||(name.length()>0&&raw.contains(name.toLowerCase(Locale.ROOT)));
-                if(local)best=Math.max(best,.78d);else if(best<.30d)best=.18d;
+                boolean exactHex=hex.length()>0&&hex.equals(battle);
+                boolean sameArea=(region.length()>0&&raw.contains(region.toLowerCase(Locale.ROOT)))||(name.length()>0&&raw.contains(name.toLowerCase(Locale.ROOT)));
+                if(exactHex)best=Math.max(best,.78d);
+                else if(sameArea)best=Math.max(best,.45d);
+                // Regiões distantes não recebem mortalidade de guerra direta.
+                // Elas sentem a guerra por abastecimento, migração, preços, política e eventos encadeados.
             }
             return best;
         }catch(Exception ignored){return 0d;}
