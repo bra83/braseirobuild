@@ -481,13 +481,17 @@ write(main_path, main)
 # ---------------------------------------------------------------------------
 profile_path = JAVA / "HumanGmNarrativeProfile.java"
 profile = read(profile_path)
-profile = replace_once(
-    profile,
-    '        p.append("o necessário para criar presença, sem transformar o jogador em espectador por tempo excessivo.\\n");',
-    '        p.append("o necessário para criar presença, sem transformar o jogador em espectador por tempo excessivo.\\n");\n'
-    '        p.append("Nas CENAS PRINCIPAIS — especialmente abertura de aventura, grande chegada, revelação, clímax ou acontecimento equivalente — o alvo usual do usuário é aproximadamente 5.000 a 6.000 caracteres quando a cena sustenta essa densidade. Não aplique essa extensão a cenas rotineiras, combate batida a batida ou transições menores.\\n");',
-    "human GM major scene length",
-)
+needle = 'o necessário para criar presença, sem transformar o jogador em espectador por tempo excessivo.'
+idx = profile.find(needle)
+if idx < 0:
+    raise RuntimeError("anchor missing: human GM major scene length")
+java_line_start = profile.rfind('        p.append(', 0, idx)
+java_line_end = profile.find(');', idx)
+if java_line_start < 0 or java_line_end < 0:
+    raise RuntimeError("line bounds missing: human GM major scene length")
+java_line_end += 2
+addition = '\n        p.append("Nas CENAS PRINCIPAIS — especialmente abertura de aventura, grande chegada, revelação, clímax ou acontecimento equivalente — o alvo usual do usuário é aproximadamente 5.000 a 6.000 caracteres quando a cena sustenta essa densidade. Não aplique essa extensão a cenas rotineiras, combate batida a batida ou transições menores.\\\\n");'
+profile = profile[:java_line_end] + addition + profile[java_line_end:]
 write(profile_path, profile)
 
 # ---------------------------------------------------------------------------
