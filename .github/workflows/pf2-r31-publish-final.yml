@@ -1,0 +1,31 @@
+name: Publish PF2 R31 Integrated
+on:
+  push:
+    branches: [audit-pf2-kingmaker-r30-20260928]
+    paths: ['.github/workflows/pf2-r31-publish-final.yml']
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: [self-hosted, Windows, X64]
+    steps:
+      - name: Publish validated APK
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $dir=Join-Path ([Environment]::GetFolderPath('Desktop')) 'BRASEIRO_PATHFINDER2E_R31_INTEGRATED'
+          $apk=Join-Path $dir 'Braseiro_Pathfinder2e_9.0.32_R31_INTEGRATED_DEBUG.apk'
+          $sha="$apk.sha256"
+          $val=Join-Path $dir 'VALIDACAO.txt'
+          if(-not(Test-Path $apk)){throw 'APK final não encontrado'}
+          $tag='PATHFINDER2E-9.0.32-R31-INTEGRATED'
+          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if($LASTEXITCODE -ne 0){
+            gh release create $tag --repo $env:GITHUB_REPOSITORY --target audit-pf2-kingmaker-r30-20260928 --title 'Braseiro Pathfinder 2e 9.0.32 R31 - Controle + Guia + Narrador' --notes 'Upgrade direto sobre o R30 pós-Antigravity. Controle Jogador/Mestre por personagem, Guia Completo do Turno do Reino e perfil Mestre Humano Imersivo. TTS preservado sem alterações. Testes: 6/6 focados, 207/207 Kingmaker, 360/360 PF2, Gradle PASS.'
+            if($LASTEXITCODE -ne 0){throw 'Falha ao criar release'}
+          }
+          gh release upload $tag $apk $sha $val --clobber --repo $env:GITHUB_REPOSITORY
+          if($LASTEXITCODE -ne 0){throw 'Falha ao enviar APK'}
+          gh release view $tag --repo $env:GITHUB_REPOSITORY --json url --jq .url
