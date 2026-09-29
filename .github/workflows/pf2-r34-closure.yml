@@ -84,7 +84,7 @@ jobs:
 
       - name: R34 feature gates
         shell: powershell
-        working-directory: \${{ env.WORK_ROOT }}
+        working-directory: ${{ env.WORK_ROOT }}
         run: |
           $ErrorActionPreference='Stop'
           $main=Get-Content 'android\app\src\main\java\com\braseiro\pathfinder2e\MainActivity.java' -Raw
@@ -118,7 +118,7 @@ jobs:
 
       - name: Run focused R34 tests
         shell: powershell
-        working-directory: \${{ env.WORK_ROOT }}
+        working-directory: ${{ env.WORK_ROOT }}
         run: |
           $ErrorActionPreference='Continue'
           python -m pip install -q pytest
@@ -129,7 +129,7 @@ jobs:
 
       - name: Run all Kingmaker tests
         shell: powershell
-        working-directory: \${{ env.WORK_ROOT }}
+        working-directory: ${{ env.WORK_ROOT }}
         run: |
           $ErrorActionPreference='Continue'
           $tests=Get-ChildItem tests_pf2 -File -Filter 'test_kingmaker*.py' | Sort-Object Name | ForEach-Object {$_.FullName}
@@ -139,7 +139,7 @@ jobs:
 
       - name: Run full PF2 regression
         shell: powershell
-        working-directory: \${{ env.WORK_ROOT }}
+        working-directory: ${{ env.WORK_ROOT }}
         run: |
           $ErrorActionPreference='Continue'
           python -m pytest tests_pf2 -q 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R34_FULL_TESTS.log"
@@ -163,7 +163,7 @@ jobs:
 
       - name: Build APK
         shell: powershell
-        working-directory: \${{ env.WORK_ROOT }}
+        working-directory: ${{ env.WORK_ROOT }}
         run: |
           $ErrorActionPreference='Continue'
           & .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R34_GRADLE.log"
@@ -176,7 +176,7 @@ jobs:
 
       - name: Package outputs
         shell: powershell
-        working-directory: \${{ env.WORK_ROOT }}
+        working-directory: ${{ env.WORK_ROOT }}
         run: |
           $ErrorActionPreference='Stop'
           $out=Join-Path $env:RUNNER_TEMP 'pf2-r34-output'
