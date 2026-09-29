@@ -526,9 +526,9 @@ for name in ["test_r25_startup_nonblocking.py", "test_r26_long_opening_actions.p
         continue
     legacy = read(path)
     legacy = legacy.replace("650 A 900 PALAVRAS EM 6 A 8 PARÁGRAFOS", "5.000 A 6.000 CARACTERES")
-    legacy = legacy.replace("650 E 900 PALAVRAS EM 6 A 8 PARÁGRAFOS SUBSTANCIAIS", "5.000 E 6.000 CARACTERES")
+    legacy = legacy.replace("650 E 900 PALAVRAS EM 6 A 8 PARÁGRAFOS SUBSTANCIAIS", "5.000 A 6.000 CARACTERES")
     legacy = legacy.replace("650 a 900 palavras em 6 a 8 parágrafos", "5.000 a 6.000 caracteres")
-    legacy = legacy.replace("650 e 900 palavras em 6 a 8 parágrafos substanciais", "5.000 e 6.000 caracteres")
+    legacy = legacy.replace("650 e 900 palavras em 6 a 8 parágrafos substanciais", "5.000 a 6.000 caracteres")
     write(path, legacy)
 
 print("PF2 R33 Restov/Kokoro patch applied successfully.")
