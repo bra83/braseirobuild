@@ -70,9 +70,9 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
-          python ci\pf2-r34-long-campaign-world\patch.py $env:WORK_ROOT
+          python ci\pf2-r33-restov-kokoro\patch.py $env:WORK_ROOT
           if($LASTEXITCODE -ne 0){throw 'R33 patch failed'}
-          Copy-Item ci\pf2-r34-long-campaign-world\test_r33_restov_kokoro.py (Join-Path $env:WORK_ROOT 'tests_pf2\test_r33_restov_kokoro.py') -Force
+          Copy-Item ci\pf2-r33-restov-kokoro\test_r33_restov_kokoro.py (Join-Path $env:WORK_ROOT 'tests_pf2\test_r33_restov_kokoro.py') -Force
 
       - name: Apply R34 long-campaign causal world
         shell: powershell
