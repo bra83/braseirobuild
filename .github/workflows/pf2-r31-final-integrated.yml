@@ -1,0 +1,27 @@
+name: PF2 R31 Final Integrated Build
+on:
+  push:
+    branches: [audit-pf2-kingmaker-r30-20260928]
+    paths:
+      - 'ci/pf2-r31-integrated-final/build.ps1'
+      - '.github/workflows/pf2-r31-final-integrated.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-pf2-kingmaker-r30-20260928
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build validated R31
+        shell: powershell
+        run: .\ci\pf2-r31-integrated-final\build.ps1
