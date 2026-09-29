@@ -193,7 +193,7 @@ campaign_flow_method = r'''    private JSONArray campaignFlow(JSONObject story,J
         if(explorationEvents!=null&&!explorationEvents.isEmpty())steps.put(step("exploration_event","Concluir a exploração em andamento",explorationEvents.get(0).optString("title")+" aguarda o resultado da cena antes de atualizar o estado do hex.","atlas",true));
         int active=0,quest=0;for(JSONObject c:companions){if(c.optInt("available",1)==1){active++;String q=c.optString("personal_quest_status","unknown");if(!"unknown".equals(q)&&!"complete".equals(q)&&!"completed".equals(q))quest++;}}
         if(active>0)steps.put(step("companions","Dar espaço aos companheiros",quest>0?quest+" arco(s) pessoal(is) podem emergir organicamente durante viagem, descanso ou retorno ao Reino.":"Use os companheiros disponíveis como participantes ativos da exploração, não como inventário.","adventure",false));
-        if(explorationGuide!=null){String current=explorationGuide.optString("current_hex"),next=explorationGuide.optString("next_hex"),destination=explorationGuide.optString("destination_hex"),status=explorationGuide.optString("current_status","desconhecido");if(next.length()>0)steps.put(step("expedition_travel","Avançar a expedição para "+next,"O destino "+destination+" já está planejado. O movimento continua no motor PF2e existente, um hex por vez.","atlas",false));else if(current.length()>0&&("desconhecido".equals(status)||"reconnoiterado".equals(status)))steps.put(step("explore_current","Explorar o hex "+current,"Jogue a exploração em cena; reconhecimento e limpeza só são persistidos depois de confirmação explícita.","atlas",false));else{String exploreText=current.length()>0?"Escolha um dos vizinhos canônicos de "+current+" e planeje somente o próximo trecho.":"O Atlas das Terras Roubadas aguarda a chegada narrativa ao primeiro ponto canônico; não invente teleporte.";steps.put(step("plan_expedition","Expedição às Terras Roubadas",exploreText,"atlas",false).put("legacy_key","explore"));}}
+        if(explorationGuide!=null){String current=explorationGuide.optString("current_hex"),next=explorationGuide.optString("next_hex"),destination=explorationGuide.optString("destination_hex"),status=explorationGuide.optString("current_status","desconhecido");if(next.length()>0)steps.put(step("expedition_travel","Avançar a expedição para "+next,"O destino "+destination+" já está planejado. O movimento continua no motor PF2e existente, um hex por vez.","atlas",false));else if(current.length()>0&&("desconhecido".equals(status)||"reconnoiterado".equals(status)))steps.put(step("explore_current","Explorar o hex "+current,"Jogue a exploração em cena; reconhecimento e limpeza só são persistidos depois de confirmação explícita.","atlas",false));else{String exploreText=current.length()>0?"Escolha um dos vizinhos canônicos de "+current+" e planeje somente o próximo trecho.":"O Atlas das Terras Roubadas aguarda a chegada narrativa ao primeiro ponto canônico; não invente teleporte.";steps.put(step("plan_expedition","Explorar pelo Atlas — Expedição às Terras Roubadas",exploreText,"atlas",false).put("legacy_key","explore"));}}
         if(turn.length()>0&&"active".equals(turn.optString("status")))steps.put(step("kingdom_turn",kingdomGuide.optString("title","Resolver o Reino quando a ficção pedir"),kingdomGuide.optString("text","Mostre apenas a próxima escolha humana; cálculos permanecem no motor."),"kingdom",false));
         else steps.put(step("kingdom_transition","Retornar ao Reino sem burocracia","Quando a aventura alcançar downtime apropriado, o modo guiado pode iniciar o próximo turno com rolagens locais automáticas e nenhuma ficha administrativa.","kingdom",false));
         return steps;
@@ -502,5 +502,16 @@ version = read(version_path)
 version = version.replace("VERSION_NAME=9.0.33", "VERSION_NAME=9.0.34")
 version = version.replace("VERSION_CODE=90033", "VERSION_CODE=90034")
 write(version_path, version)
+
+# R33 updates the legacy identity lock only; the old test was intentionally
+# pinned to historical 9.0.31/9.0.29 and would reject every valid successor.
+legacy_identity_test = ROOT / "tests_pf2/test_kingmaker_solo_r12_audit.py"
+if legacy_identity_test.exists():
+    legacy = read(legacy_identity_test)
+    legacy = legacy.replace("VERSION_NAME=9.0.31", "VERSION_NAME=9.0.34")
+    legacy = legacy.replace("VERSION_NAME=9.0.29", "VERSION_NAME=9.0.34")
+    legacy = legacy.replace("VERSION_CODE=90031", "VERSION_CODE=90034")
+    legacy = legacy.replace("VERSION_CODE=90029", "VERSION_CODE=90034")
+    write(legacy_identity_test, legacy)
 
 print("PF2 R33 Restov/Kokoro patch applied successfully.")
