@@ -253,7 +253,7 @@ main = read(main_path)
 new_adventure_block = r'''    private void beginAdventure(final boolean reset){
         if(adventureStartRunning||aiBusy){toast("A abertura já está sendo preparada.");return;}
         if(db.listActiveCharacters().isEmpty()){toast("Ative ao menos um personagem antes de começar.");navigate("Personagens");return;}
-        if(reset){safety.beforeDestructiveChange("começar uma nova aventura");db.clearStoryState();lastNarration="";lastVisualPrompt="";currentOptions=new JSONArray();pendingTest=new JSONObject();sharedImageUri=null;prefs.edit().remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT).remove(PREF_PENDING_IMAGE_FINGERPRINT).remove(PREF_RECENT_SCENE_OPTIONS).apply();db.saveSceneOptionHistory("[]");db.addAuditEvent("campanha","Nova aventura iniciada","História anterior preservada em snapshot","{}","{}",true);if(kingmakerRepository!=null)kingmakerRepository.resetCampaignPrelude();}
+        if(reset){try{safety.beforeDestructiveChange("começar uma nova aventura");db.clearStoryState();lastNarration="";lastVisualPrompt="";currentOptions=new JSONArray();pendingTest=new JSONObject();sharedImageUri=null;prefs.edit().remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT).remove(PREF_PENDING_IMAGE_FINGERPRINT).remove(PREF_RECENT_SCENE_OPTIONS).apply();db.saveSceneOptionHistory("[]");db.addAuditEvent("campanha","Nova aventura iniciada","História anterior preservada em snapshot","{}","{}",true);if(kingmakerRepository!=null)kingmakerRepository.resetCampaignPrelude();}catch(Exception error){adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.BLOCKED,"Falha ao reiniciar: "+safeMessage(error));toast("Falha ao reiniciar: "+safeMessage(error));return;}}
         launchAdventure(reset,"");
     }
 
