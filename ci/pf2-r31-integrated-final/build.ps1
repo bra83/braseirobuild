@@ -1,10 +1,22 @@
 $ErrorActionPreference='Stop'
 if($env:RUNNER_NAME -ne 'BRELGA'){throw 'Runner incorreto'}
-$baseline=Join-Path $env:RUNNER_TEMP 'pf2-kingmaker-r30-independent-audit\extracted\pf2e_r30_work'
-if(-not(Test-Path (Join-Path $baseline 'version.properties'))){throw 'Baseline R30 auditada nao encontrada no BRELGA'}
 $root=Join-Path $env:RUNNER_TEMP 'pf2-r31-integrated-final'
 Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Path $root -Force|Out-Null
+$rar=Join-Path $root 'pf2e_r30_work.rar'
+& curl.exe -L --fail --retry 5 --retry-delay 2 "https://drive.usercontent.google.com/download?id=1UbJq8m518f1jIQkkXASvEp0j0Uf6qNkR&export=download&confirm=t" -o $rar
+if($LASTEXITCODE -ne 0 -or (Get-Item $rar).Length -ne 553809972){throw 'RAR canonico invalido'}
+$extract=Join-Path $root 'extract'
+New-Item -ItemType Directory -Path $extract -Force|Out-Null
+$tools=@('C:\Program Files\7-Zip\7z.exe','C:\Program Files (x86)\7-Zip\7z.exe','C:\Program Files\WinRAR\UnRAR.exe','C:\Program Files\WinRAR\WinRAR.exe')
+$tool=$tools|Where-Object{Test-Path $_}|Select-Object -First 1
+if(-not $tool){throw 'Extrator RAR nao encontrado'}
+if($tool -match '7z\.exe$'){& $tool x -y $rar "-o$extract"|Out-Null}
+elseif($tool -match 'UnRAR\.exe$'){& $tool x -y $rar "$extract\"|Out-Null}
+else{& $tool x -ibck -y $rar "$extract\"|Out-Null}
+if($LASTEXITCODE -ne 0){throw 'Extracao R30 falhou'}
+$baseline=Join-Path $extract 'pf2e_r30_work'
+if(-not(Test-Path (Join-Path $baseline 'version.properties'))){throw 'Projeto R30 extraido invalido'}
 $work=Join-Path $root 'work'
 Copy-Item $baseline $work -Recurse -Force
 $src=Join-Path $env:GITHUB_WORKSPACE 'ci\pf2-r30-live-src'
