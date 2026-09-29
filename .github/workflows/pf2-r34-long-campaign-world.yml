@@ -31,7 +31,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Recover exact post-Antigravity R30
+      - name: Recover exact published R33 source
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
@@ -40,39 +40,31 @@ jobs:
           $work=Join-Path $root 'work'
           Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $root,$work -Force | Out-Null
-          $rar=Join-Path $root 'pf2e_r30_work.rar'
-          & curl.exe -L --fail --retry 5 --retry-delay 3 "https://drive.usercontent.google.com/download?id=1UbJq8m518f1jIQkkXASvEp0j0Uf6qNkR&export=download&confirm=t" -o $rar
-          if($LASTEXITCODE -ne 0){throw 'R30 archive download failed'}
-          $size=(Get-Item $rar).Length
-          if($size -ne 553809972){throw "Unexpected R30 archive size: $size"}
-          $candidates=@('C:\Program Files\7-Zip\7z.exe','C:\Program Files (x86)\7-Zip\7z.exe','C:\Program Files\WinRAR\UnRAR.exe','C:\Program Files\WinRAR\WinRAR.exe')
+          $zip=Join-Path $root 'r33-published-source.zip'
+          $shaFile=Join-Path $root 'r33-published-source.sha256'
+          $url='https://github.com/bra83/braseirobuild/releases/download/PATHFINDER2E-9.0.34-R33/BRASEIRO_PATHFINDER2E_9.0.34_R33_RESTOV_KOKORO_ANDROID_STUDIO.zip'
+          $shaUrl='https://github.com/bra83/braseirobuild/releases/download/PATHFINDER2E-9.0.34-R33/BRASEIRO_PATHFINDER2E_9.0.34_R33_RESTOV_KOKORO_ANDROID_STUDIO.zip.sha256'
+          & curl.exe -L --fail --retry 5 --retry-delay 3 $url -o $zip
+          if($LASTEXITCODE -ne 0){throw 'R33 source download failed'}
+          & curl.exe -L --fail --retry 5 --retry-delay 3 $shaUrl -o $shaFile
+          if($LASTEXITCODE -ne 0){throw 'R33 checksum download failed'}
+          $expected=((Get-Content $shaFile -Raw).Trim().Split()[0]).ToLowerInvariant()
+          $actual=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($expected -ne $actual){throw "R33 source checksum mismatch: $actual != $expected"}
+          Expand-Archive -Path $zip -DestinationPath $work -Force
+          $project=$work
+          if(-not(Test-Path (Join-Path $project 'version.properties'))){
+            $vp=Get-ChildItem $work -Recurse -Filter version.properties -File | Select-Object -First 1
+            if(-not $vp){throw 'Published R33 source root missing'}
+            $project=$vp.DirectoryName
+          }
+          $version=Get-Content (Join-Path $project 'version.properties') -Raw
+          if(-not $version.Contains('VERSION_NAME=9.0.34')){throw 'Published baseline is not R33 / 9.0.34'}
+          $candidates=@('C:\Program Files\7-Zip\7z.exe','C:\Program Files (x86)\7-Zip\7z.exe')
           $extractor=$candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
           if(-not $extractor){$cmd=Get-Command 7z.exe -ErrorAction SilentlyContinue;if($cmd){$extractor=$cmd.Source}}
-          if(-not $extractor){throw 'No RAR extractor found'}
-          if($extractor -match '7z\.exe$'){& $extractor x -y $rar "-o$work"}
-          elseif($extractor -match 'UnRAR\.exe$'){& $extractor x -y $rar "$work\"}
-          else{& $extractor x -ibck -y $rar "$work\"}
-          if($LASTEXITCODE -ne 0){throw 'R30 extract failed'}
-          $project=Join-Path $work 'pf2e_r30_work'
-          if(-not(Test-Path (Join-Path $project 'version.properties'))){throw 'R30 project root missing'}
           "WORK_ROOT=$project" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          "ARCHIVE_TOOL=$extractor" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-
-      - name: Rebuild exact R32 baseline
-        shell: powershell
-        run: |
-          $ErrorActionPreference='Stop'
-          python ci\pf2-r32-integrated\patch.py $env:WORK_ROOT
-          if($LASTEXITCODE -ne 0){throw 'R32 patch failed'}
-          Copy-Item ci\pf2-r32-integrated\test_r32_integrated.py (Join-Path $env:WORK_ROOT 'tests_pf2\test_r32_integrated.py') -Force
-
-      - name: Apply R33 Restov + Kokoro corrections
-        shell: powershell
-        run: |
-          $ErrorActionPreference='Stop'
-          python ci\pf2-r33-restov-kokoro\patch.py $env:WORK_ROOT
-          if($LASTEXITCODE -ne 0){throw 'R33 patch failed'}
-          Copy-Item ci\pf2-r33-restov-kokoro\test_r33_restov_kokoro.py (Join-Path $env:WORK_ROOT 'tests_pf2\test_r33_restov_kokoro.py') -Force
+          if($extractor){"ARCHIVE_TOOL=$extractor" | Out-File $env:GITHUB_ENV -Append -Encoding utf8}
 
       - name: Apply R34 long-campaign causal world
         shell: powershell
@@ -82,6 +74,7 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'R34 patch failed'}
           Copy-Item ci\pf2-r34-long-campaign-world\test_r34_long_campaign_world.py (Join-Path $env:WORK_ROOT 'tests_pf2\test_r34_long_campaign_world.py') -Force
           $r33Test=Join-Path $env:WORK_ROOT 'tests_pf2\test_r33_restov_kokoro.py'
+          if(-not(Test-Path $r33Test)){throw 'Published R33 regression test missing from source package'}
           $r33Text=Get-Content $r33Test -Raw
           $r33Text=$r33Text.Replace('VERSION_NAME=9.0.34','VERSION_NAME=9.0.35').Replace('VERSION_CODE=90034','VERSION_CODE=90035')
           [System.IO.File]::WriteAllText($r33Test,$r33Text,(New-Object System.Text.UTF8Encoding($false)))
@@ -207,7 +200,47 @@ jobs:
           @('# VALIDAÇÃO — BRASEIRO PATHFINDER 2E 9.0.35 / R34','','- Tudo da 9.0.34/R33 foi reconstruído antes deste patch.','- 4.096 padrões causais estruturados: guerra, agricultura, saúde, clima, comércio, infraestrutura, política, crime, religião, cultura, magia, monstros, trabalho, migração, diplomacia e ecologia.','- Demografia persistente inclui população, homens adultos, mulheres adultas, crianças, idosos, soldados e deslocados.','- Guerra afeta alimentos, comércio, infraestrutura, doença, migração, mortalidade e recrutáveis; batalhas Warfare ativas alimentam exposição regional.','- Choques de commodities propagam até três ondas entre regiões dependentes.','- Calendário de Golarion: dias, meses, estações e anos; feiras/festivais/marcos sazonais entram automaticamente no mundo causal.','- NPCs locais recebem urgência e ações diante de crises de fundo.','- Assentamentos não descartam mais tempo acima de 180 dias.','- Facções preservam backlog de ações em grandes saltos de tempo.','- Backup/restore valida fase Kingmaker e fingerprint do mundo causal.','- Sincronização offline é habilitada para configuração ainda intocada, sem reativar opção que já tenha sido configurada manualmente.','- Teste de referência cobre dez anos e cadeia de abastecimento; suíte Kingmaker/PF2 completa também é executada.','','Gates: FEATURE_GATES.log, FOCUSED_TESTS.log, KINGMAKER_TESTS.log, FULL_PF2_TESTS.log, GRADLE_BUILD.log.') | Set-Content (Join-Path $out 'VALIDACAO_R34.md') -Encoding utf8
           @('android/app/src/main/java/com/braseiro/pathfinder2e/WorldCalendarEngine.java','android/app/src/main/java/com/braseiro/pathfinder2e/WorldCausalCatalog.java','android/app/src/main/java/com/braseiro/pathfinder2e/WorldCausalityEngine.java','android/app/src/main/java/com/braseiro/pathfinder2e/AppDb.java','android/app/src/main/java/com/braseiro/pathfinder2e/LivingSettlementEngine.java','android/app/src/main/java/com/braseiro/pathfinder2e/LivingWorldSimulationEngine.java','android/app/src/main/java/com/braseiro/pathfinder2e/LivingWorldEngine.java','android/app/src/main/java/com/braseiro/pathfinder2e/WorldSixCoordinator.java','android/app/src/main/java/com/braseiro/pathfinder2e/WorldEventConsequenceEngine.java','android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerRepository.java','android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerSoloDirector.java','android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerContinuityContract.java','tests_pf2/test_r34_long_campaign_world.py','version.properties') | Set-Content (Join-Path $out 'CHANGED_FILES_R34.txt') -Encoding utf8
           $zip=Join-Path $out 'BRASEIRO_PATHFINDER2E_9.0.35_R34_LONG_CAMPAIGN_WORLD_ANDROID_STUDIO.zip'
-          if($env:ARCHIVE_TOOL -match '7z\.exe$'){& $env:ARCHIVE_TOOL a -tzip -mx=5 $zip . '-xr!**\build\*' '-xr!**\.gradle\*' '-xr!local.properties'}else{& tar.exe -a -c -f $zip --exclude='*/build/*' --exclude='*/.gradle/*' --exclude='local.properties' .}
+          if($env:ARCHIVE_TOOL -and $env:ARCHIVE_TOOL -match '7z\.exe
+          if($LASTEXITCODE -ne 0){throw 'Source zip failed'}
+          (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() | Set-Content "$zip.sha256" -Encoding ascii
+          "OUT_DIR=$out" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Publish R34 release
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $repo=$env:GITHUB_REPOSITORY
+          $tag='PATHFINDER2E-9.0.35-R34'
+          $headers=@{'Authorization'="Bearer $env:GITHUB_TOKEN";'Accept'='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='BRELGA-PF2-R34'}
+          try{$release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"}
+          catch{
+            $payload=@{
+              tag_name=$tag
+              target_commitish='pf2-r34-long-campaign-world-20260929'
+              name='Braseiro Pathfinder 2e 9.0.35 R34 - Long Campaign Causal World'
+              body='Construcao incremental sobre 9.0.34/R33. Adiciona persistencia de campanha longa, calendario com estacoes/anos, 4096 padroes causais, demografia, alimentos, saude, comercio, migracao, politica, guerras e propagacao de choques entre regioes; corrige perda de tempo >180 dias e backlog de faccoes; backup/restore passa a validar o fingerprint causal.'
+              draft=$false
+              prerelease=$false
+            }|ConvertTo-Json -Compress
+            $payloadFile=Join-Path $env:RUNNER_TEMP 'pf2-r34-release.json'
+            $responseFile=Join-Path $env:RUNNER_TEMP 'pf2-r34-release-response.json'
+            [System.IO.File]::WriteAllText($payloadFile,$payload,(New-Object System.Text.UTF8Encoding($false)))
+            & curl.exe -L --fail --silent --show-error --request POST --header "Authorization: Bearer $env:GITHUB_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" --header "Content-Type: application/json; charset=utf-8" --data-binary "@$payloadFile" "https://api.github.com/repos/$repo/releases" --output $responseFile
+            if($LASTEXITCODE -ne 0){throw 'release creation failed'}
+            $release=Get-Content $responseFile -Raw -Encoding UTF8 | ConvertFrom-Json
+          }
+          foreach($file in Get-ChildItem $env:OUT_DIR -File){
+            $existing=$release.assets|Where-Object{$_.name -eq $file.Name}|Select-Object -First 1
+            if($existing){Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($existing.id)"|Out-Null}
+            $encoded=[uri]::EscapeDataString($file.Name)
+            $upload="https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$encoded"
+            & curl.exe -L --fail --retry 5 --retry-delay 2 --request POST --header "Authorization: Bearer $env:GITHUB_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" --header "Content-Type: application/octet-stream" --data-binary "@$($file.FullName)" $upload
+            if($LASTEXITCODE -ne 0){throw "upload failed: $($file.Name)"}
+          }
+          Write-Host "RELEASE_URL=$($release.html_url)"
+){& $env:ARCHIVE_TOOL a -tzip -mx=5 $zip . '-xr!**\build\*' '-xr!**\.gradle\*' '-xr!local.properties'}else{& tar.exe -a -c -f $zip --exclude='*/build/*' --exclude='*/.gradle/*' --exclude='local.properties' .}
           if($LASTEXITCODE -ne 0){throw 'Source zip failed'}
           (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() | Set-Content "$zip.sha256" -Encoding ascii
           "OUT_DIR=$out" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
