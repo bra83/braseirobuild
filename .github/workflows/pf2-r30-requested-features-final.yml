@@ -1,0 +1,169 @@
+name: PF2 R30 Requested Features Final
+
+on:
+  push:
+    branches: [audit-pf2-kingmaker-r30-20260928]
+    paths:
+      - '.github/workflows/pf2-r30-requested-features-final.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  final:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-pf2-kingmaker-r30-20260928
+          fetch-depth: 1
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Prepare exact R30 post-Antigravity
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Runner inesperado: $env:RUNNER_NAME"}
+          $root=Join-Path $env:RUNNER_TEMP 'pf2-r30-requested-final'
+          Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $root -Force | Out-Null
+          $rar=Join-Path $root 'pf2e_r30_work.rar'
+          & curl.exe -L --fail --retry 5 --retry-delay 3 "https://drive.usercontent.google.com/download?id=1UbJq8m518f1jIQkkXASvEp0j0Uf6qNkR&export=download&confirm=t" -o $rar
+          if($LASTEXITCODE -ne 0){throw 'Falha ao baixar R30'}
+          $size=(Get-Item $rar).Length
+          if($size -ne 553809972){throw "RAR divergente: $size"}
+          $seven='C:\Program Files\7-Zip\7z.exe'
+          if(-not(Test-Path $seven)){ $seven=(Get-Command 7z.exe -ErrorAction SilentlyContinue).Source }
+          if(-not $seven){throw '7-Zip ausente'}
+          $out=Join-Path $root 'extracted'
+          & $seven x -y $rar "-o$out"
+          if($LASTEXITCODE -ne 0){throw 'Falha ao extrair R30'}
+          $work=Join-Path $out 'pf2e_r30_work'
+          if(-not(Test-Path (Join-Path $work 'android\app\src\main'))){throw 'Projeto Android ausente'}
+          "WORK_ROOT=$work" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "SEVENZIP=$seven" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Apply only requested integrated changes
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $patch=Join-Path $env:GITHUB_WORKSPACE 'ci\pf2-r30-live-src'
+          $files=@(
+            'android\app\src\main\java\com\braseiro\pathfinder2e\BraseiroNarrativeDirector.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\HumanGmNarrativeProfile.java',
+            'tests_pf2\test_r30_requested_features.py'
+          )
+          foreach($rel in $files){
+            $src=Join-Path $patch $rel
+            if(-not(Test-Path $src)){throw "Patch ausente: $rel"}
+            $dst=Join-Path $env:WORK_ROOT $rel
+            New-Item -ItemType Directory -Path (Split-Path $dst -Parent) -Force | Out-Null
+            Copy-Item $src $dst -Force
+          }
+          @'
+          R30 pós-Antigravity preservado.
+          Mudanças deste lote:
+          - perfil técnico canônico do Mestre ligado ao BraseiroNarrativeDirector;
+          - controle multi-personagem Solo validado (Jogador/Mestre, persistente, reversível, mesmo motor PF2e);
+          - Guia Completo do Turno do Reino validado como interface sobre KingmakerRepository/KingmakerRulesEngine;
+          - TTS não alterado neste lote.
+          '@ | Set-Content (Join-Path $env:WORK_ROOT 'CHANGED_FILES_R30_REQUESTED_FEATURES.txt') -Encoding utf8
+
+      - name: Verify requested features
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          python -m pip install -q pytest
+          python -m pytest tests_pf2/test_r30_requested_features.py -q
+          if($LASTEXITCODE -ne 0){throw 'Falha nos testes dos recursos solicitados'}
+
+      - name: Run all Kingmaker tests
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $tests=Get-ChildItem tests_pf2 -File -Filter 'test_kingmaker*.py' | Sort-Object Name | ForEach-Object {$_.FullName}
+          python -m pytest @tests -q 2>&1 | Tee-Object -FilePath TEST_KINGMAKER_R30_REQUESTED_FEATURES.txt
+          if($LASTEXITCODE -ne 0){throw 'Regressão Kingmaker'}
+
+      - name: Run full PF2 regression
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          python -m pytest tests_pf2 -q 2>&1 | Tee-Object -FilePath TEST_PF2_FULL_R30_REQUESTED_FEATURES.txt
+          if($LASTEXITCODE -ne 0){throw 'Regressão PF2'}
+
+      - name: Build Android debug APK
+        shell: powershell
+        working-directory: ${{ env.WORK_ROOT }}\android
+        run: |
+          $ErrorActionPreference='Stop'
+          if(Test-Path '.\gradlew.bat'){
+            .\gradlew.bat :app:assembleDebug --no-daemon
+          } elseif(Test-Path '.\gradlew'){
+            .\gradlew :app:assembleDebug --no-daemon
+          } else {throw 'Gradle wrapper ausente'}
+          if($LASTEXITCODE -ne 0){throw 'Build Android falhou'}
+          $apk='app\build\outputs\apk\debug\app-debug.apk'
+          if(-not(Test-Path $apk)){throw 'APK não produzido'}
+          $sha=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLower()
+          "APK_SHA256=$sha" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "APK_SHA256=$sha"
+
+      - name: Package corrected Android Studio source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $deliver=Join-Path $env:RUNNER_TEMP 'pf2-r30-delivery'
+          Remove-Item $deliver -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $deliver -Force | Out-Null
+          $apk=Join-Path $env:WORK_ROOT 'android\app\build\outputs\apk\debug\app-debug.apk'
+          Copy-Item $apk (Join-Path $deliver 'BRASEIRO_PATHFINDER2E_R30_REQUESTED_FEATURES_debug.apk') -Force
+          $zip=Join-Path $deliver 'BRASEIRO_PATHFINDER2E_R30_REQUESTED_FEATURES_ANDROID_STUDIO.zip'
+          Push-Location (Split-Path $env:WORK_ROOT -Parent)
+          & $env:SEVENZIP a -tzip -mx=5 $zip (Split-Path $env:WORK_ROOT -Leaf)
+          Pop-Location
+          if($LASTEXITCODE -ne 0){throw 'ZIP final falhou'}
+          $zipSha=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLower()
+          $report=@"
+          BASELINE: R30 pós-Antigravity, RAR Drive 1UbJq8m518f1jIQkkXASvEp0j0Uf6qNkR
+          RAR_BYTES: 553809972
+          TTS: preservado, não alterado.
+          SOLO MULTI-PERSONAGEM: validado no runtime existente.
+          GUIA TURNO DO REINO: validado no runtime existente.
+          PERFIL NARRATIVO: integrado ao BraseiroNarrativeDirector.
+          APK_SHA256: $env:APK_SHA256
+          ZIP_SHA256: $zipSha
+          "@
+          $report | Set-Content (Join-Path $deliver 'VALIDACAO_R30_REQUESTED_FEATURES.txt') -Encoding utf8
+          Copy-Item (Join-Path $env:WORK_ROOT 'TEST_KINGMAKER_R30_REQUESTED_FEATURES.txt') $deliver
+          Copy-Item (Join-Path $env:WORK_ROOT 'TEST_PF2_FULL_R30_REQUESTED_FEATURES.txt') $deliver
+          "DELIVERY=$deliver" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Publish delivery release
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $tag='PATHFINDER2E-R30-REQUESTED-FEATURES'
+          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if($LASTEXITCODE -ne 0){
+            gh release create $tag --repo $env:GITHUB_REPOSITORY --target audit-pf2-kingmaker-r30-20260928 --title 'Pathfinder2e R30 Requested Features' --notes 'R30 pós-Antigravity: perfil narrativo canônico integrado; controle Solo multi-personagem e Guia do Turno do Reino validados; TTS preservado.'
+          }
+          Get-ChildItem $env:DELIVERY -File | ForEach-Object {
+            gh release upload $tag $_.FullName --repo $env:GITHUB_REPOSITORY --clobber
+            if($LASTEXITCODE -ne 0){throw "Falha ao publicar $($_.Name)"}
+          }
