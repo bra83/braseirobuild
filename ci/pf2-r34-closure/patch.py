@@ -575,4 +575,23 @@ for path in tests_dir.glob("test_*.py"):
     if updated != legacy:
         write(path, updated)
 
+# R33's regression test intentionally inspected the old five-phase implementation
+# by literal constant names inside KingmakerRepository. R34 moves phase authority
+# into KingmakerPreludePolicy and expands the mansion into staged checkpoints.
+r33_test = tests_dir / "test_r33_restov_kokoro.py"
+if r33_test.exists():
+    legacy = read(r33_test)
+    old = '''    assert "PHASE_RESTOV_SANDBOX" in repo
+    assert "PHASE_JAMANDI_MANSION" in repo
+    assert "PHASE_CHARTER_RECEIVED" in repo
+    assert "PHASE_STOLEN_LANDS_EXPEDITION" in repo
+'''
+    new = '''    assert "KingmakerPreludePolicy.isKnownPhase" in repo
+    assert "PHASE_JAMANDI_APPROACH" in repo
+    assert "ensurePreludeQuestState" in repo
+'''
+    if old not in legacy:
+        raise RuntimeError("R33 phase-literal test anchor missing")
+    write(r33_test, legacy.replace(old, new, 1))
+
 print("PF2 R34 closure patch applied successfully.")
