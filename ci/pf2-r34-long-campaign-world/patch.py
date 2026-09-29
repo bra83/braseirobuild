@@ -73,6 +73,26 @@ s=s.replace('"settlement_states","world_history_events"', '"settlement_states","
 needle='''            JSONObject kingmakerRestoreAudit=restoredKingmaker.validateRestoreAgainst(root);if(!kingmakerRestoreAudit.optBoolean("healthy",false))throw new IllegalStateException("A restauração foi revertida pela auditoria Kingmaker: "+kingmakerRestoreAudit.optJSONArray("problems"));'''
 replacement=needle+'''\n            JSONObject causalRestoreAudit=new WorldCausalityEngine(this).audit();if(!causalRestoreAudit.optBoolean("healthy",false))throw new IllegalStateException("A restauração foi revertida pela auditoria causal: "+causalRestoreAudit.optJSONArray("problems"));'''
 s=once(s,needle,replacement,"causal restore audit")
+s=s.replace("private static final int DB_VERSION = 59;","private static final int DB_VERSION = 60;")
+s=once(s,
+'''        if (oldVersion < 59) {
+            // Kingmaker usa o mesmo AppDb e mantém o Atlas oficial somente leitura.
+            KingmakerRepository.ensureSchema(db);
+        }
+    }''',
+'''        if (oldVersion < 59) {
+            // Kingmaker usa o mesmo AppDb e mantém o Atlas oficial somente leitura.
+            KingmakerRepository.ensureSchema(db);
+        }
+        if (oldVersion < 60) {
+            // R34: persistência causal de campanha longa.
+            ensureLivingWorldTables(db);
+            ensureMasterIntegrationColumns(db);
+            ensureSixZeroSchema(db);
+            KingmakerRepository.ensureSchema(db);
+        }
+    }''',
+"db60 migration")
 write(p,s)
 
 # ------------------------------------------------------------------
@@ -213,7 +233,7 @@ write(p,s)
 # Version
 # ------------------------------------------------------------------
 p=ROOT/"version.properties"; s=read(p)
-s=s.replace("VERSION_NAME=9.0.34","VERSION_NAME=9.0.35").replace("VERSION_CODE=90034","VERSION_CODE=90035")
+s=s.replace("VERSION_NAME=9.0.34","VERSION_NAME=9.0.35").replace("VERSION_CODE=90034","VERSION_CODE=90035").replace("DB_SCHEMA=59","DB_SCHEMA=60")
 write(p,s)
 
 print("PF2 9.0.35 R34 long-campaign causal world patch applied.")
