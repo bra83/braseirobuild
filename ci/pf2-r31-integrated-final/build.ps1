@@ -48,11 +48,6 @@ if($sha -ne '8e63dbdf963abd1bed88e7173de3adc22d1501557647bcf4a9d95ee096f75852'){
 $assetDir=Join-Path $work 'android\app\src\main\assets\narrative'
 New-Item -ItemType Directory -Path $assetDir -Force|Out-Null
 Copy-Item $profile (Join-Path $assetDir 'PERFIL_TECNICO_MESTRE_HUMANO_IMERSIVO_VTT.md') -Force
-$vp=Join-Path $work 'version.properties'
-$v=Get-Content $vp -Raw
-$v=[regex]::Replace($v,'VERSION_NAME=\d+\.\d+\.\d+','VERSION_NAME=9.0.32')
-$v=[regex]::Replace($v,'VERSION_CODE=\d+','VERSION_CODE=90032')
-Set-Content $vp $v -Encoding ascii
 Push-Location $work
 python -m pip install -q pytest
 python -m pytest tests_pf2\test_r30_user_requested_integrated_features.py -q
@@ -63,6 +58,11 @@ if($LASTEXITCODE -ne 0){throw 'Regressao Kingmaker'}
 python -m pytest tests_pf2 -q
 if($LASTEXITCODE -ne 0){throw 'Regressao PF2'}
 Pop-Location
+$vp=Join-Path $work 'version.properties'
+$v=Get-Content $vp -Raw
+$v=[regex]::Replace($v,'VERSION_NAME=\d+\.\d+\.\d+','VERSION_NAME=9.0.32')
+$v=[regex]::Replace($v,'VERSION_CODE=\d+','VERSION_CODE=90032')
+Set-Content $vp $v -Encoding ascii
 $candidates=@('C:\actions-runner\android-sdk',$env:ANDROID_SDK_ROOT,$env:ANDROID_HOME)
 if($env:LOCALAPPDATA){$candidates+=(Join-Path $env:LOCALAPPDATA 'Android\Sdk')}
 $sdk=$null
