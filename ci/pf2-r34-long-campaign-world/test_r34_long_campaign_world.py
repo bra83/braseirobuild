@@ -39,6 +39,9 @@ def test_war_has_demographic_food_health_trade_and_second_order_effects():
     assert "world_history_events" in engine
     assert 'last_event_day' in engine
     assert 'interval=pressureMax>=70?7:pressureMax>=45?14:21' in engine
+    assert "resolveThresholdChains" in engine
+    for chain in ["fome","epidemia","deslocados","deficit_demografico","crise_politica","crise_comercial","crime_alto","medicina_baixa"]:
+        assert chain in engine
 
 def test_long_settlement_simulation_never_discards_time_after_180_days():
     text = src("LivingSettlementEngine.java")
