@@ -29,13 +29,6 @@ Write-Host '=== APPLY R34 ==='
 python (Join-Path $PSScriptRoot 'patch.py') $project
 if($LASTEXITCODE -ne 0){throw 'R34 patch failed'}
 Copy-Item (Join-Path $PSScriptRoot 'test_r34_long_campaign_world.py') (Join-Path $project 'tests_pf2\test_r34_long_campaign_world.py') -Force
-$r33Test=Join-Path $project 'tests_pf2\test_r33_restov_kokoro.py'
-if(Test-Path $r33Test){
-  $r33Text=Get-Content $r33Test -Raw
-  $r33Text=$r33Text.Replace('VERSION_NAME=9.0.34','VERSION_NAME=9.0.35').Replace('VERSION_CODE=90034','VERSION_CODE=90035')
-  [System.IO.File]::WriteAllText($r33Test,$r33Text,(New-Object System.Text.UTF8Encoding($false)))
-}
-
 Write-Host '=== FEATURE GATES ==='
 $java=Join-Path $project 'android\app\src\main\java\com\braseiro\pathfinder2e'
 $main=Get-Content (Join-Path $java 'MainActivity.java') -Raw
