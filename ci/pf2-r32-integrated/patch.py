@@ -30,7 +30,6 @@ version.write_text(vp, encoding="utf-8")
 
 required = [
     'HumanGmNarrativeProfile.prompt()',
-    'new KingmakerTurnGuide(db,kingmakerRepository,kingmakerRules)',
     'ⓘ GUIA COMPLETO DO TURNO',
     'saveCharacterControl(id,controlMode(String.valueOf(characterControl.getSelectedItem()))',
     'Mestre — Barbara controla',
