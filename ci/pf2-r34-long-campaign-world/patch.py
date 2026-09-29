@@ -284,6 +284,7 @@ write(p,profile)
 r33_test=ROOT/"tests_pf2/test_r33_restov_kokoro.py"
 if r33_test.exists():
     t=read(r33_test)
+    t=t.replace("VERSION_NAME=9.0.34","VERSION_NAME=9.0.35").replace("VERSION_CODE=90034","VERSION_CODE=90035")
     t=t.replace('assert "jogador decidir ir até lá" in solo',
                 'assert "go_jamandi_mansion" in solo or "jamandi_mansion" in solo')
     write(r33_test,t)
