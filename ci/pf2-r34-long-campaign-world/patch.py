@@ -304,6 +304,22 @@ for _test_name in [
         _tt=_tt.replace("VERSION_CODE=90034","VERSION_CODE=90035")
         write(_tp,_tt)
 
+# The same published-release identity lock exists in non-Kingmaker regression
+# files. Migrate only version/schema literals; feature assertions remain intact.
+for _test_name in [
+    "test_gemini_api_failover_r19.py","test_r19_tts_portrait_actions.py",
+    "test_r20_gemini25_tts_tags.py","test_r25_startup_nonblocking.py",
+    "test_r27_tts_performance_recovery_actions.py","test_r28_charon_safe_expressive_recovery.py",
+    "test_scene_entity_grounding_r16.py"
+]:
+    _tp=ROOT/"tests_pf2"/_test_name
+    if _tp.exists():
+        _tt=read(_tp)
+        _tt=_tt.replace("VERSION_NAME=9.0.34","VERSION_NAME=9.0.35")
+        _tt=_tt.replace("VERSION_CODE=90034","VERSION_CODE=90035")
+        _tt=_tt.replace("DB_SCHEMA=59","DB_SCHEMA=60")
+        write(_tp,_tt)
+
 # ------------------------------------------------------------------
 # Version
 # ------------------------------------------------------------------
