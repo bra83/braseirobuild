@@ -50,6 +50,8 @@ public final class WorldCausalCatalog {
 
     public static void seed(SQLiteDatabase db){
         if(db==null)return;
+        android.database.Cursor existing=null;
+        try{existing=db.rawQuery("SELECT COUNT(*) FROM world_causal_patterns",null);if(existing.moveToFirst()&&existing.getInt(0)>=EXPECTED_PATTERN_COUNT)return;}catch(Exception ignored){}finally{if(existing!=null)existing.close();}
         for(int f=0;f<FAMILIES.length;f++){
             for(int e=0;e<EVENTS[f].length;e++){
                 for(int c=0;c<CONTEXTS.length;c++){
