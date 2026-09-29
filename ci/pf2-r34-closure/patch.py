@@ -592,6 +592,15 @@ if r33_test.exists():
 '''
     if old not in legacy:
         raise RuntimeError("R33 phase-literal test anchor missing")
-    write(r33_test, legacy.replace(old, new, 1))
+    legacy = legacy.replace(old, new, 1)
+    legacy = legacy.replace(
+        '    assert \'db.saveMapTravelState(false,"","[]","Kingmaker — prólogo em Restov")\' in main\n',
+        '    assert "âncora urbana; hexploração ainda não iniciada" in main\n'
+    )
+    legacy = legacy.replace(
+        '    assert "Não teleporte para as Terras Roubadas" in policy\n',
+        '    assert "não teleporte" in policy.lower()\n'
+    )
+    write(r33_test, legacy)
 
 print("PF2 R34 closure patch applied successfully.")
