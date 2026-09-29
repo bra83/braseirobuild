@@ -107,6 +107,8 @@ public final class BraseiroNarrativeDirector {
     public static String contract(JSONObject campaignConfig,JSONObject scene,JSONArray recentNarrations){
         StringBuilder p=new StringBuilder();
         p.append(PathfinderNarrativeContract.prompt()).append("\n");
+        p.append("\n=== PERFIL TÉCNICO CANÔNICO DO MESTRE HUMANO ===\n").append(HumanGmNarrativeProfile.prompt()).append("\n=== FIM DO PERFIL CANÔNICO ===\n");
+        p.append("HIERARQUIA: este perfil governa SOMENTE apresentação narrativa, foco, ritmo, câmera, densidade e ponto de interrupção. Resultado mecânico, estado persistido, regras PF2e/Kingmaker e decisões do jogador sempre têm precedência. O perfil nunca autoriza inventar resultado, alterar estado ou escolher por personagem controlado pelo jogador.\n");
         String tone=campaignConfig==null?"":campaignConfig.optString("tone","");
         String rules=campaignConfig==null?"":campaignConfig.optString("rules_profile","");
         if(tone.length()+rules.length()>0)p.append("PERFIL DA CAMPANHA: regras=").append(rules).append("; tom=").append(tone).append(". Cenário e gênero alteram vocabulário, ritmo, perigos e conteúdo; nunca alteram agência, continuidade, informação ou percepção.\n");
