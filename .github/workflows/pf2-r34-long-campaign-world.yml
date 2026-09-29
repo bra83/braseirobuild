@@ -81,6 +81,10 @@ jobs:
           python ci\pf2-r34-long-campaign-world\patch.py $env:WORK_ROOT
           if($LASTEXITCODE -ne 0){throw 'R34 patch failed'}
           Copy-Item ci\pf2-r34-long-campaign-world\test_r34_long_campaign_world.py (Join-Path $env:WORK_ROOT 'tests_pf2\test_r34_long_campaign_world.py') -Force
+          $r33Test=Join-Path $env:WORK_ROOT 'tests_pf2\test_r33_restov_kokoro.py'
+          $r33Text=Get-Content $r33Test -Raw
+          $r33Text=$r33Text.Replace('VERSION_NAME=9.0.34','VERSION_NAME=9.0.35').Replace('VERSION_CODE=90034','VERSION_CODE=90035')
+          [System.IO.File]::WriteAllText($r33Test,$r33Text,(New-Object System.Text.UTF8Encoding($false)))
 
       - name: R34 feature gates
         shell: powershell
