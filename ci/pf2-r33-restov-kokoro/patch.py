@@ -283,7 +283,7 @@ new_adventure_block = r'''    private void beginAdventure(final boolean reset){
                         +openingInstruction+" Horário e clima já foram sorteados e estão no scene_state; respeite-os. "
                         +"Depois da entrada, Restov é SANDBOX. NPCs, rumores, trabalhos, pequenos conflitos e acontecimentos podem surgir organicamente e variar entre campanhas. "
                         +"A mansão de Lady Jamandi Aldori pode existir como destino conhecido, convite, rumor ou possibilidade, mas NÃO leve os personagens até lá, NÃO aceite a convocação por eles e NÃO comece a campanha principal até o jogador escolher explicitamente ir à mansão. "
-                        +"Não mencione Oleg nem coloque o grupo nas Terras Roubadas nesta abertura. Não transforme a cidade em menu de opções ou tutorial. "
+                        +"Não mencione Oleg nem coloque o grupo nas Terras Roubadas nesta abertura. Não transforme a cidade em menu de opções ou tutorial. Não transforme profissão, ferramenta, material ou rotina cotidiana em assunto principal só para parecer detalhado; detalhe só permanece se ajudar espaço, pessoa, pista, risco, humor ou consequência. "
                         +"Esta é uma CENA PRINCIPAL: escreva aproximadamente 5.000 a 6.000 caracteres de prosa PT-BR, em parágrafos substanciais, com câmera narrativa, sensorialidade funcional, pessoas agindo e espaço jogável. "
                         +"A chegada precisa ser concreta e variar naturalmente; exemplos como esconder-se sob feno, vir a cavalo ou chegar a pé são apenas exemplos, nunca uma lista fechada. "
                         +"Preserve a agência: descreva estímulos e circunstâncias, não sentimentos ou decisões voluntárias dos personagens. "
@@ -505,13 +505,30 @@ write(version_path, version)
 
 # R33 updates the legacy identity lock only; the old test was intentionally
 # pinned to historical 9.0.31/9.0.29 and would reject every valid successor.
-legacy_identity_test = ROOT / "tests_pf2/test_kingmaker_solo_r12_audit.py"
-if legacy_identity_test.exists():
+# Historical regression tests carried hard-coded release identities. R33 is a
+# legitimate successor, so keep their feature assertions while updating only
+# obsolete identity literals across the test suite.
+tests_dir = ROOT / "tests_pf2"
+for legacy_identity_test in tests_dir.glob("test_*.py"):
     legacy = read(legacy_identity_test)
-    legacy = legacy.replace("VERSION_NAME=9.0.31", "VERSION_NAME=9.0.34")
-    legacy = legacy.replace("VERSION_NAME=9.0.29", "VERSION_NAME=9.0.34")
-    legacy = legacy.replace("VERSION_CODE=90031", "VERSION_CODE=90034")
-    legacy = legacy.replace("VERSION_CODE=90029", "VERSION_CODE=90034")
-    write(legacy_identity_test, legacy)
+    updated = legacy.replace("VERSION_NAME=9.0.31", "VERSION_NAME=9.0.34")
+    updated = updated.replace("VERSION_NAME=9.0.29", "VERSION_NAME=9.0.34")
+    updated = updated.replace("VERSION_CODE=90031", "VERSION_CODE=90034")
+    updated = updated.replace("VERSION_CODE=90029", "VERSION_CODE=90034")
+    if updated != legacy:
+        write(legacy_identity_test, updated)
+
+# R25/R26 encoded the superseded opening-size contract. Preserve the behavioral
+# tests but make them assert the user's new 5–6k-character scene contract.
+for name in ["test_r25_startup_nonblocking.py", "test_r26_long_opening_actions.py"]:
+    path = tests_dir / name
+    if not path.exists():
+        continue
+    legacy = read(path)
+    legacy = legacy.replace("650 A 900 PALAVRAS EM 6 A 8 PARÁGRAFOS", "5.000 A 6.000 CARACTERES")
+    legacy = legacy.replace("650 E 900 PALAVRAS EM 6 A 8 PARÁGRAFOS SUBSTANCIAIS", "5.000 E 6.000 CARACTERES")
+    legacy = legacy.replace("650 a 900 palavras em 6 a 8 parágrafos", "5.000 a 6.000 caracteres")
+    legacy = legacy.replace("650 e 900 palavras em 6 a 8 parágrafos substanciais", "5.000 e 6.000 caracteres")
+    write(path, legacy)
 
 print("PF2 R33 Restov/Kokoro patch applied successfully.")
