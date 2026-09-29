@@ -26,7 +26,8 @@ def test_r33_version_and_restov_opening_contract():
     assert "campaign_story_phase" in repo
     assert "main_adventure_started" in repo
     assert "go_jamandi_mansion" in solo
-    assert "A mansão de Lady Jamandi só começa quando o jogador decidir ir até lá" in solo
+    assert "Restov permanece sandbox" in solo
+    assert "jogador decidir ir até lá" in solo
     assert "Começar no Atlas" not in solo
     assert "iniciar a aventura no posto comercial de Oleg." not in solo
 
