@@ -301,6 +301,7 @@ for _test_name in [
         _tt=read(_tp)
         _tt=_tt.replace("DB_SCHEMA=59","DB_SCHEMA=60")
         _tt=_tt.replace("VERSION_NAME=9.0.34","VERSION_NAME=9.0.35")
+        _tt=_tt.replace("VERSION_CODE=90034","VERSION_CODE=90035")
         write(_tp,_tt)
 
 # ------------------------------------------------------------------
