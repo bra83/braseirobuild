@@ -154,36 +154,36 @@ jobs:
           Copy-Item $env:APK_PATH $apkOut -Force
           (Get-FileHash $apkOut -Algorithm SHA256).Hash.ToLowerInvariant() | Set-Content "$apkOut.sha256" -Encoding ascii
 
-          $validation=@"
-# VALIDAÇÃO R32 — POST-ANTIGRAVITY
-
-Baseline: pf2e_r30_work.rar (553809972 bytes)
-Versão: 9.0.33 / R32
-Package preservado: com.braseiro.pathfinder2e
-
-## Entregas
-- Controle JOGADOR/MESTRE por personagem visível na criação/edição.
-- Solo continua significando 1 jogador humano com múltiplos personagens.
-- Barbara só decide intenção/fala/ação voluntária dos personagens marcados MESTRE.
-- Toda consequência mecânica continua no mesmo motor PF2e.
-- Guia completo do Turno do Reino preservado e ligado ao KingmakerRulesEngine/KingmakerRepository.
-- Perfil técnico canônico do Mestre Humano preservado e ligado ao BraseiroNarrativeDirector.
-- TTS/Kokoro não alterado nesta rodada.
-
-## Testes
-Ver KINGMAKER_TESTS.log, FULL_PF2_TESTS.log, FEATURE_GATES.log e GRADLE_BUILD.log.
-"@
+          $validation=@(
+            '# VALIDAÇÃO R32 — POST-ANTIGRAVITY',
+            '',
+            'Baseline: pf2e_r30_work.rar (553809972 bytes)',
+            'Versão: 9.0.33 / R32',
+            'Package preservado: com.braseiro.pathfinder2e',
+            '',
+            '## Entregas',
+            '- Controle JOGADOR/MESTRE por personagem visível na criação/edição.',
+            '- Solo continua significando 1 jogador humano com múltiplos personagens.',
+            '- Barbara só decide intenção/fala/ação voluntária dos personagens marcados MESTRE.',
+            '- Toda consequência mecânica continua no mesmo motor PF2e.',
+            '- Guia completo do Turno do Reino preservado e ligado ao KingmakerRulesEngine/KingmakerRepository.',
+            '- Perfil técnico canônico do Mestre Humano preservado e ligado ao BraseiroNarrativeDirector.',
+            '- TTS/Kokoro não alterado nesta rodada.',
+            '',
+            '## Testes',
+            'Ver KINGMAKER_TESTS.log, FULL_PF2_TESTS.log, FEATURE_GATES.log e GRADLE_BUILD.log.'
+          )
           $validation | Set-Content (Join-Path $out 'VALIDACAO_R32_POST_ANTIGRAVITY.md') -Encoding utf8
           Copy-Item $env:FEATURE_GATES (Join-Path $out 'FEATURE_GATES.log')
           Copy-Item "$env:RUNNER_TEMP\PF2_R32_KINGMAKER_TESTS.log" (Join-Path $out 'KINGMAKER_TESTS.log')
           Copy-Item "$env:RUNNER_TEMP\PF2_R32_FULL_TESTS.log" (Join-Path $out 'FULL_PF2_TESTS.log')
           Copy-Item "$env:RUNNER_TEMP\PF2_R32_GRADLE.log" (Join-Path $out 'GRADLE_BUILD.log')
 
-          $changed=@'
-android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java
-version.properties
-tests_pf2/test_r32_integrated.py
-'@
+          $changed=@(
+            'android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java',
+            'version.properties',
+            'tests_pf2/test_r32_integrated.py'
+          )
           $changed | Set-Content (Join-Path $out 'CHANGED_FILES_R32.txt') -Encoding utf8
 
           $zip=Join-Path $out 'BRASEIRO_PATHFINDER2E_9.0.33_R32_POST_ANTIGRAVITY_ANDROID_STUDIO.zip'
