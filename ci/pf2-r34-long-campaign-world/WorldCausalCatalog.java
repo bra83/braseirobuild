@@ -52,22 +52,27 @@ public final class WorldCausalCatalog {
         if(db==null)return;
         android.database.Cursor existing=null;
         try{existing=db.rawQuery("SELECT COUNT(*) FROM world_causal_patterns",null);if(existing.moveToFirst()&&existing.getInt(0)>=EXPECTED_PATTERN_COUNT)return;}catch(Exception ignored){}finally{if(existing!=null)existing.close();}
-        for(int f=0;f<FAMILIES.length;f++){
-            for(int e=0;e<EVENTS[f].length;e++){
-                for(int c=0;c<CONTEXTS.length;c++){
-                    for(int s=0;s<SEVERITIES.length;s++){
-                        String family=FAMILIES[f],name=EVENTS[f][e],context=CONTEXTS[c],severity=SEVERITIES[s];
-                        String key=patternKey(family,name,context,severity);
-                        ContentValues v=new ContentValues();
-                        v.put("pattern_key",key);v.put("family",family);v.put("event_name",name);v.put("context",context);
-                        v.put("severity",severity);v.put("polarity",isPositive(name)?1:-1);
-                        try{v.put("base_effect_json",effectVector(family,name,s+1,context).toString());v.put("tags_json",new JSONArray().put(family).put(context).put(severity).toString());}
-                        catch(Exception ignored){v.put("base_effect_json","{}");v.put("tags_json","[]");}
-                        db.insertWithOnConflict("world_causal_patterns",null,v,SQLiteDatabase.CONFLICT_IGNORE);
+        boolean owner=!db.inTransaction();
+        if(owner)db.beginTransaction();
+        try{
+            for(int f=0;f<FAMILIES.length;f++){
+                for(int e=0;e<EVENTS[f].length;e++){
+                    for(int c=0;c<CONTEXTS.length;c++){
+                        for(int s=0;s<SEVERITIES.length;s++){
+                            String family=FAMILIES[f],name=EVENTS[f][e],context=CONTEXTS[c],severity=SEVERITIES[s];
+                            String key=patternKey(family,name,context,severity);
+                            ContentValues v=new ContentValues();
+                            v.put("pattern_key",key);v.put("family",family);v.put("event_name",name);v.put("context",context);
+                            v.put("severity",severity);v.put("polarity",isPositive(name)?1:-1);
+                            try{v.put("base_effect_json",effectVector(family,name,s+1,context).toString());v.put("tags_json",new JSONArray().put(family).put(context).put(severity).toString());}
+                            catch(Exception ignored){v.put("base_effect_json","{}");v.put("tags_json","[]");}
+                            db.insertWithOnConflict("world_causal_patterns",null,v,SQLiteDatabase.CONFLICT_IGNORE);
+                        }
                     }
                 }
             }
-        }
+            if(owner)db.setTransactionSuccessful();
+        }finally{if(owner)db.endTransaction();}
     }
 
     public static JSONObject choose(String regionKey,String context,int day,JSONObject pressure){
