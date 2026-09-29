@@ -58,7 +58,15 @@ jobs:
             if($cmd){$extractor=$cmd.Source}
           }
           if(-not $extractor){throw 'No RAR extractor found'}
-          if($extractor -match '7z\.exe          $project=Join-Path $work 'pf2e_r30_work'
+          if($extractor -match '7z\.exe$'){
+            & $extractor x -y $rar "-o$work"
+          } elseif($extractor -match 'UnRAR\.exe$'){
+            & $extractor x -y $rar "$work\"
+          } else {
+            & $extractor x -ibck -y $rar "$work\"
+          }
+          if($LASTEXITCODE -ne 0){throw 'R30 extract failed'}
+          $project=Join-Path $work 'pf2e_r30_work'
           if(-not(Test-Path (Join-Path $project 'version.properties'))){throw 'R30 project root missing'}
           "WORK_ROOT=$project" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           "ARCHIVE_TOOL=$extractor" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
@@ -195,7 +203,14 @@ jobs:
 
           $zip=Join-Path $out 'BRASEIRO_PATHFINDER2E_9.0.33_R32_POST_ANTIGRAVITY_ANDROID_STUDIO.zip'
           $seven=$null
-          if($env:ARCHIVE_TOOL -match '7z\.exe          (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() | Set-Content "$zip.sha256" -Encoding ascii
+          if($env:ARCHIVE_TOOL -match '7z\.exe$'){$seven=$env:ARCHIVE_TOOL}
+          if($seven){
+            & $seven a -tzip -mx=5 $zip . '-xr!**\build\*' '-xr!**\.gradle\*' '-xr!local.properties'
+          } else {
+            & tar.exe -a -c -f $zip --exclude='*/build/*' --exclude='*/.gradle/*' --exclude='local.properties' .
+          }
+          if($LASTEXITCODE -ne 0){throw 'Source zip failed'}
+          (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() | Set-Content "$zip.sha256" -Encoding ascii
           "OUT_DIR=$out" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Publish R32 release
