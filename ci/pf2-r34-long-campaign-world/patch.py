@@ -190,6 +190,23 @@ s=once(s,
 "continuity stable fields")
 s=s.replace('if (field.endsWith("_json")) return new JSONObject();','if (field.endsWith("_json") || "causal_world_fingerprint".equals(field)) return new JSONObject();')
 s=s.replace('|| "story_started".equals(field)) return 0;','|| "story_started".equals(field) || "main_adventure_started".equals(field) || "living_world_day".equals(field)) return 0;')
+s=once(s,
+'''        for (String field : STABLE_FIELDS) if (!same(expected.opt(field), actual.opt(field))) differences.put(field);''',
+'''        for (String field : STABLE_FIELDS) {
+            if (isBackwardCompatibleOptional(field) && (before == null || !before.has(field))) continue;
+            if (!same(expected.opt(field), actual.opt(field))) differences.put(field);
+        }''',
+"continuity optional fields")
+s=once(s,
+'''    private static Object defaultValue(String field) {''',
+'''    private static boolean isBackwardCompatibleOptional(String field) {
+        return "campaign_story_phase".equals(field) || "main_adventure_started".equals(field)
+                || "living_world_day".equals(field) || "living_world_calendar".equals(field)
+                || "causal_world_fingerprint".equals(field);
+    }
+
+    private static Object defaultValue(String field) {''',
+"continuity optional helper")
 write(p,s)
 
 # ------------------------------------------------------------------
