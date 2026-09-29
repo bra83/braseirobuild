@@ -37,6 +37,8 @@ def test_war_has_demographic_food_health_trade_and_second_order_effects():
     assert "Pedido de ajuda de " in engine
     assert "nudgeNpcs" in engine
     assert "world_history_events" in engine
+    assert 'last_event_day' in engine
+    assert 'interval=pressureMax>=70?7:pressureMax>=45?14:21' in engine
 
 def test_long_settlement_simulation_never_discards_time_after_180_days():
     text = src("LivingSettlementEngine.java")
@@ -97,6 +99,7 @@ def test_kingmaker_restore_contract_includes_new_story_phase_and_causal_fingerpr
                   "living_world_calendar","causal_world_fingerprint"]:
         assert field in solo
         assert field in contract
+    assert "isBackwardCompatibleOptional" in contract
 
 def test_background_world_is_enabled_for_untouched_default_only():
     app = src("AppDb.java")
