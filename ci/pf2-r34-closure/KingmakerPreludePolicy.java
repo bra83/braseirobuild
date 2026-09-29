@@ -205,9 +205,9 @@ public final class KingmakerPreludePolicy {
         Random random = new Random(seed ^ 0x4b494e474d414b45L);
         String mode = ARRIVAL_MODES[Math.floorMod(random.nextInt(), ARRIVAL_MODES.length)];
         String pressure = CITY_PRESSURES[Math.floorMod(random.nextInt(), CITY_PRESSURES.length)];
-        return "A PRIMEIRA CENA DEVE MOSTRAR OS PERSONAGENS CHEGANDO A RESTOV. Nesta campanha, use como ponto de partida: "
-                + mode + "; " + pressure + ". Isso é apenas a circunstância desta chegada. A cidade deve reagir organicamente, "
-                + "com NPCs e acontecimentos que podem variar e persistir; os exemplos não formam uma lista fechada.";
+        return "A PRIMEIRA CENA DEVE MOSTRAR OS PERSONAGENS CHEGANDO A RESTOV. Uma possibilidade sorteada para inspirar esta abertura é: "
+                + mode + "; " + pressure + ". NÃO trate isso como formulário nem lista fechada: você pode usar outra forma de chegada igualmente concreta e coerente com os personagens. "
+                + "O que é fixo é apenas que eles estão chegando a Restov. Horário, clima, fluxo urbano, NPCs e pequenos acontecimentos variam e, quando relevantes, persistem no mundo.";
     }
 
     public static String randomWeather(long seed) {
