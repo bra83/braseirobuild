@@ -29,12 +29,12 @@ Write-Host '=== APPLY R34 ==='
 python (Join-Path $PSScriptRoot 'patch.py') $project
 if($LASTEXITCODE -ne 0){throw 'R34 patch failed'}
 Copy-Item (Join-Path $PSScriptRoot 'test_r34_long_campaign_world.py') (Join-Path $project 'tests_pf2\test_r34_long_campaign_world.py') -Force
-Copy-Item (Join-Path $repoRoot 'ci\pf2-r32-integrated\test_r32_integrated.py') (Join-Path $project 'tests_pf2\test_r32_integrated.py') -Force
-Copy-Item (Join-Path $repoRoot 'ci\pf2-r33-restov-kokoro\test_r33_restov_kokoro.py') (Join-Path $project 'tests_pf2\test_r33_restov_kokoro.py') -Force
 $r33Test=Join-Path $project 'tests_pf2\test_r33_restov_kokoro.py'
-$r33Text=Get-Content $r33Test -Raw
-$r33Text=$r33Text.Replace('VERSION_NAME=9.0.34','VERSION_NAME=9.0.35').Replace('VERSION_CODE=90034','VERSION_CODE=90035')
-[System.IO.File]::WriteAllText($r33Test,$r33Text,(New-Object System.Text.UTF8Encoding($false)))
+if(Test-Path $r33Test){
+  $r33Text=Get-Content $r33Test -Raw
+  $r33Text=$r33Text.Replace('VERSION_NAME=9.0.34','VERSION_NAME=9.0.35').Replace('VERSION_CODE=90034','VERSION_CODE=90035')
+  [System.IO.File]::WriteAllText($r33Test,$r33Text,(New-Object System.Text.UTF8Encoding($false)))
+}
 
 Write-Host '=== FEATURE GATES ==='
 $java=Join-Path $project 'android\app\src\main\java\com\braseiro\pathfinder2e'
@@ -83,8 +83,11 @@ if($LASTEXITCODE -ne 0){throw 'pytest install failed'}
 Push-Location $project
 try{
   $focused=Join-Path $out 'FOCUSED_TESTS.log'
-  python -m pytest tests_pf2\test_r32_integrated.py tests_pf2\test_r33_restov_kokoro.py tests_pf2\test_r34_long_campaign_world.py -q 2>&1 | Tee-Object -FilePath $focused
-  if($LASTEXITCODE -ne 0){throw 'Focused R32/R33/R34 tests failed'}
+  $focusedTests=@('tests_pf2\test_r34_long_campaign_world.py')
+  if(Test-Path 'tests_pf2\test_r32_integrated.py'){$focusedTests=@('tests_pf2\test_r32_integrated.py')+$focusedTests}
+  if(Test-Path 'tests_pf2\test_r33_restov_kokoro.py'){$focusedTests=@('tests_pf2\test_r33_restov_kokoro.py')+$focusedTests}
+  python -m pytest @focusedTests -q 2>&1 | Tee-Object -FilePath $focused
+  if($LASTEXITCODE -ne 0){throw 'Focused baseline + R34 tests failed'}
 
   $kingLog=Join-Path $out 'KINGMAKER_TESTS.log'
   $tests=Get-ChildItem tests_pf2 -File -Filter 'test_kingmaker*.py' | Sort-Object Name | ForEach-Object {$_.FullName}
