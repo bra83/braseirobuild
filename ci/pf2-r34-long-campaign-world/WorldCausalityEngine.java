@@ -143,6 +143,8 @@ public final class WorldCausalityEngine {
                     events++;lastEvent=eventDay;causal.put("last_event_day",lastEvent);state.put("causal_state_json",causal.toString());
                 }
             }
+            ChainResult chains=resolveThresholdChains(state,eventDay,shocks);
+            events+=chains.events;npcs+=chains.npcs;
             cursor=next;
         }
         state.put("last_causal_day",toDay);
@@ -225,6 +227,35 @@ public final class WorldCausalityEngine {
         s.put("displaced",Math.max(0,displaced));
         rebalance(s);
         s.put("last_causal_day",day);
+    }
+
+    private ChainResult resolveThresholdChains(JSONObject s,int day,ArrayDeque<Shock> shocks)throws Exception{
+        int events=0,npcs=0,period=Math.max(1,day/30),pop=Math.max(1,s.optInt("population_total",1));
+        double coverage=s.optDouble("food_stock",0d)/Math.max(1d,s.optDouble("food_demand",pop));
+        ArrayList<JSONObject> chains=new ArrayList<JSONObject>();
+        if(coverage<7d)chains.add(chainPattern("fome","agricultura","Quebra de safra",coverage<3d?4:3,s));
+        if(s.optInt("disease_pressure",0)>=70)chains.add(chainPattern("epidemia","saude","Surto infeccioso",s.optInt("disease_pressure")>=85?4:3,s));
+        if(s.optInt("displaced",0)>=Math.max(20,(int)Math.round(pop*.12d)))chains.add(chainPattern("deslocados","migracao","Êxodo rural",3,s));
+        int men=s.optInt("adult_men",0),women=s.optInt("adult_women",0);
+        if(s.optInt("war_exposure",0)>=20&&women>0&&men<women*.82d)chains.add(chainPattern("deficit_demografico","trabalho","Falta de mão de obra",3,s));
+        if(s.optInt("political_stability",65)<=30||s.optInt("unrest",0)>=70)chains.add(chainPattern("crise_politica","politica","Revolta fiscal",3,s));
+        if(s.optInt("trade_capacity",50)<=25||s.optDouble("price_index",100d)>=150d)chains.add(chainPattern("crise_comercial","comercio","Rota comercial interrompida",3,s));
+        if(s.optInt("criminality",0)>=70)chains.add(chainPattern("crime_alto","crime","Onda de banditismo",3,s));
+        if(s.optInt("disease_pressure",0)>=45&&s.optDouble("medicine_stock",0d)<pop*.01d)chains.add(chainPattern("medicina_baixa","saude","Escassez de curadores",2,s));
+        int budget=2;
+        for(JSONObject p:chains){
+            if(events>=budget)break;
+            String key="causal_chain:"+profile()+":"+s.optString("settlement_key")+":"+p.optString("_chain")+":"+period;
+            if(db.hasEffectReceipt(key))continue;
+            applyEffects(s,p.optJSONObject("effects"),day);recordEvent(s,p,day);enqueueShocks(s,p,shocks,0);npcs+=nudgeNpcs(s,p,day);maybeScheduleAid(s,p,day);db.recordEffectReceipt(key,"Desdobramento causal — "+p.optString("event_name"));events++;
+        }
+        return new ChainResult(events,npcs);
+    }
+
+    private JSONObject chainPattern(String chain,String family,String event,int severity,JSONObject s)throws Exception{
+        return new JSONObject().put("_chain",chain).put("pattern_key","chain:"+chain).put("family",family).put("event_name",event).put("context",contextFor(s))
+                .put("severity",severity>=4?"critico":severity==3?"grave":severity==2?"moderado":"leve").put("severity_level",severity).put("polarity",-1)
+                .put("effects",WorldCausalCatalog.effectVector(family,event,severity,contextFor(s)));
     }
 
     private void enqueueShocks(JSONObject s,JSONObject pattern,ArrayDeque<Shock> queue,int wave){
@@ -445,5 +476,6 @@ public final class WorldCausalityEngine {
     }
 
     private static final class RegionResult {final int events,npcs;RegionResult(int e,int n){events=e;npcs=n;}}
+    private static final class ChainResult {final int events,npcs;ChainResult(int e,int n){events=e;npcs=n;}}
     private static final class Shock {final String source,commodity,cause;final double magnitude;final int wave;Shock(String s,String c,double m,int w,String why){source=s;commodity=c;magnitude=m;wave=w;cause=why;}}
 }
