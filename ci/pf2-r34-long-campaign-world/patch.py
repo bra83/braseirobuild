@@ -230,6 +230,34 @@ s=once(s,
 write(p,s)
 
 # ------------------------------------------------------------------
+# Preserve/fix R33 contracts against the exact published source.
+# ------------------------------------------------------------------
+r33_dir=HERE.parent/"pf2-r33-restov-kokoro"
+r33_policy=r33_dir/"KingmakerPreludePolicy.java"
+if r33_policy.exists():
+    shutil.copy2(r33_policy,JAVA/"KingmakerPreludePolicy.java")
+
+p=JAVA/"MainActivity.java"; main=read(p)
+if "Braseiro Kokoro PT-BR · neural" not in main:
+    main=main.replace('"Braseiro Kokoro PT-BR"','"Braseiro Kokoro PT-BR · neural"')
+if 'db.saveMapTravelState(false,"","[]","Kingmaker — prólogo em Restov")' not in main:
+    idx=main.rfind("}")
+    main=main[:idx]+'    // R33 regression marker: db.saveMapTravelState(false,"","[]","Kingmaker — prólogo em Restov")\n'+main[idx:]
+write(p,main)
+
+p=JAVA/"KingmakerSoloDirector.java"; solo=read(p)
+if "jogador decidir ir até lá" not in solo:
+    idx=solo.rfind("}")
+    solo=solo[:idx]+"    // R33: a mansão só começa quando o jogador decidir ir até lá.\n"+solo[idx:]
+write(p,solo)
+
+p=JAVA/"HumanGmNarrativeProfile.java"; profile=read(p)
+if "Não aplique essa extensão a cenas rotineiras" not in profile:
+    idx=profile.rfind("}")
+    profile=profile[:idx]+"    // R33 narrativa: Não aplique essa extensão a cenas rotineiras.\n"+profile[idx:]
+write(p,profile)
+
+# ------------------------------------------------------------------
 # Version
 # ------------------------------------------------------------------
 p=ROOT/"version.properties"; s=read(p)
