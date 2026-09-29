@@ -28,10 +28,19 @@ jobs:
           Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $out -Force | Out-Null
           $files=@('MainActivity.java','PartyDirector.java','AppDb.java','BraseiroNarrativeDirector.java','MasterOrchestrator.java','KingmakerRulesEngine.java')
-          foreach($f in $files){
-            git diff --no-index -- "$base\$f" "$live\$f" > "$out\$f.diff"
-            if($LASTEXITCODE -gt 1){throw "diff failed $f"}
-          }
+          $py=@'
+import difflib, pathlib, sys
+base=pathlib.Path(sys.argv[1]); live=pathlib.Path(sys.argv[2]); out=pathlib.Path(sys.argv[3])
+for name in sys.argv[4:]:
+    a=(base/name).read_text(encoding="utf-8").splitlines(True)
+    b=(live/name).read_text(encoding="utf-8").splitlines(True)
+    d=difflib.unified_diff(a,b,fromfile="clean/"+name,tofile="integrated/"+name,n=4)
+    (out/(name+".diff")).write_text("".join(d),encoding="utf-8")
+'@
+          $script=Join-Path $env:RUNNER_TEMP 'pf2-feature-diff.py'
+          Set-Content $script $py -Encoding utf8
+          python $script $base $live $out @files
+          if($LASTEXITCODE -ne 0){throw 'python diff failed'}
           Copy-Item "$live\HumanGmNarrativeProfile.java" "$out\HumanGmNarrativeProfile.java" -Force
           Copy-Item "$live\KingmakerTurnGuide.java" "$out\KingmakerTurnGuide.java" -Force
       - name: Commit diffs
