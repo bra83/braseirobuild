@@ -295,4 +295,24 @@ p=ROOT/"version.properties"; s=read(p)
 s=s.replace("VERSION_NAME=9.0.34","VERSION_NAME=9.0.35").replace("VERSION_CODE=90034","VERSION_CODE=90035").replace("DB_SCHEMA=59","DB_SCHEMA=60")
 write(p,s)
 
+# Hard post-patch invariants. If these fail, stop here instead of allowing
+# downstream tests to read an unexpected source tree.
+_sanity_main=read(JAVA/"MainActivity.java")
+_sanity_policy=read(JAVA/"KingmakerPreludePolicy.java")
+_sanity_profile=read(JAVA/"HumanGmNarrativeProfile.java")
+_sanity_test=read(ROOT/"tests_pf2/test_r33_restov_kokoro.py") if (ROOT/"tests_pf2/test_r33_restov_kokoro.py").exists() else ""
+if restov_call not in _sanity_main:
+    raise RuntimeError("POSTPATCH: Restov Atlas reset não persistiu em "+str(JAVA/"MainActivity.java"))
+if "Braseiro Kokoro PT-BR · neural" not in _sanity_main:
+    raise RuntimeError("POSTPATCH: rótulo Kokoro não persistiu em MainActivity")
+if "Não aplique essa extensão a cenas rotineiras" not in _sanity_profile:
+    raise RuntimeError("POSTPATCH: regra de cenas principais não persistiu no perfil")
+if "negatesMovement" not in _sanity_policy or "nunca vou" not in _sanity_policy:
+    raise RuntimeError("POSTPATCH: política robusta de negação não persistiu")
+if _sanity_test and 'assert "jogador decidir ir até lá" in solo' in _sanity_test:
+    raise RuntimeError("POSTPATCH: teste R33 literal não foi migrado")
+import hashlib
+print("R34_POSTPATCH_ROOT="+str(ROOT))
+for _name,_text in [("MainActivity",_sanity_main),("PreludePolicy",_sanity_policy),("NarrativeProfile",_sanity_profile)]:
+    print("R34_POSTPATCH_SHA_"+_name+"="+hashlib.sha256(_text.encode("utf-8")).hexdigest())
 print("PF2 9.0.35 R34 long-campaign causal world patch applied.")
