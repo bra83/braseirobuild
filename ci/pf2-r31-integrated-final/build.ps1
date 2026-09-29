@@ -38,10 +38,13 @@ foreach($f in $files){
   New-Item -ItemType Directory -Path (Split-Path $to -Parent) -Force|Out-Null
   Copy-Item $from $to -Force
 }
-$profile=Join-Path $env:GITHUB_WORKSPACE 'ci\pf2-r30-narrative\PERFIL_TECNICO_MESTRE_HUMANO_IMERSIVO_VTT.md'
-if(-not(Test-Path $profile)){throw 'Perfil narrativo ausente'}
+$api='https://api.firestorage.ai/dev/file'
+$meta=Invoke-RestMethod -Method Post -Uri "$api/shares/2m3V8KtBWbgZ/files/01a0eb42fb1e72ac8aff54c99a52653b/download"
+if(-not $meta.downloadUrl){throw 'Perfil narrativo original indisponivel'}
+$profile=Join-Path $root 'PERFIL_TECNICO_MESTRE_HUMANO_IMERSIVO_VTT.md'
+Invoke-WebRequest -Uri $meta.downloadUrl -OutFile $profile
 $sha=(Get-FileHash $profile -Algorithm SHA256).Hash.ToLowerInvariant()
-if($sha -ne '8e63dbdf963abd1bed88e7173de3adc22d1501557647bcf4a9d95ee096f75852'){throw "Perfil narrativo alterado: $sha"}
+if($sha -ne '8e63dbdf963abd1bed88e7173de3adc22d1501557647bcf4a9d95ee096f75852'){throw "Perfil narrativo original incorreto: $sha"}
 $assetDir=Join-Path $work 'android\app\src\main\assets\narrative'
 New-Item -ItemType Directory -Path $assetDir -Force|Out-Null
 Copy-Item $profile (Join-Path $assetDir 'PERFIL_TECNICO_MESTRE_HUMANO_IMERSIVO_VTT.md') -Force
