@@ -12,20 +12,43 @@ jobs:
       - name: Publish validated APK
         shell: powershell
         env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference='Stop'
-          $dir=Join-Path ([Environment]::GetFolderPath('Desktop')) 'BRASEIRO_PATHFINDER2E_R31_INTEGRATED'
-          $apk=Join-Path $dir 'Braseiro_Pathfinder2e_9.0.32_R31_INTEGRATED_DEBUG.apk'
-          $sha="$apk.sha256"
-          $val=Join-Path $dir 'VALIDACAO.txt'
-          if(-not(Test-Path $apk)){throw 'APK final não encontrado'}
+          $repo=$env:GITHUB_REPOSITORY
           $tag='PATHFINDER2E-9.0.32-R31-INTEGRATED'
-          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
-          if($LASTEXITCODE -ne 0){
-            gh release create $tag --repo $env:GITHUB_REPOSITORY --target audit-pf2-kingmaker-r30-20260928 --title 'Braseiro Pathfinder 2e 9.0.32 R31 - Controle + Guia + Narrador' --notes 'Upgrade direto sobre o R30 pós-Antigravity. Controle Jogador/Mestre por personagem, Guia Completo do Turno do Reino e perfil Mestre Humano Imersivo. TTS preservado sem alterações. Testes: 6/6 focados, 207/207 Kingmaker, 360/360 PF2, Gradle PASS.'
-            if($LASTEXITCODE -ne 0){throw 'Falha ao criar release'}
+          $dir=Join-Path ([Environment]::GetFolderPath('Desktop')) 'BRASEIRO_PATHFINDER2E_R31_INTEGRATED'
+          $files=@(
+            (Join-Path $dir 'Braseiro_Pathfinder2e_9.0.32_R31_INTEGRATED_DEBUG.apk'),
+            (Join-Path $dir 'Braseiro_Pathfinder2e_9.0.32_R31_INTEGRATED_DEBUG.apk.sha256'),
+            (Join-Path $dir 'VALIDACAO.txt')
+          )
+          foreach($f in $files){if(-not(Test-Path $f)){throw "Arquivo ausente: $f"}}
+          $headers=@{
+            Authorization="Bearer $env:GITHUB_TOKEN"
+            Accept='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='BRELGA-PF2-R31'
           }
-          gh release upload $tag $apk $sha $val --clobber --repo $env:GITHUB_REPOSITORY
-          if($LASTEXITCODE -ne 0){throw 'Falha ao enviar APK'}
-          gh release view $tag --repo $env:GITHUB_REPOSITORY --json url --jq .url
+          try{$rel=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"}
+          catch{
+            $body=@{
+              tag_name=$tag
+              target_commitish='audit-pf2-kingmaker-r30-20260928'
+              name='Braseiro Pathfinder 2e 9.0.32 R31 - Controle + Guia + Narrador'
+              body='R30 pós-Antigravity + controle Jogador/Mestre por personagem + Guia Completo do Turno do Reino + perfil Mestre Humano Imersivo. TTS não alterado. 6/6 focados, 207/207 Kingmaker, 360/360 PF2, Gradle PASS.'
+              draft=$false
+              prerelease=$false
+            }|ConvertTo-Json
+            $rel=Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $body -Uri "https://api.github.com/repos/$repo/releases"
+          }
+          foreach($f in $files){
+            $name=[IO.Path]::GetFileName($f)
+            $old=$rel.assets|Where-Object{$_.name -eq $name}|Select-Object -First 1
+            if($old){Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($old.id)"|Out-Null}
+            $enc=[uri]::EscapeDataString($name)
+            $url="https://uploads.github.com/repos/$repo/releases/$($rel.id)/assets?name=$enc"
+            & curl.exe -L --fail --retry 5 --retry-delay 2 -X POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: application/octet-stream" --data-binary "@$f" $url
+            if($LASTEXITCODE -ne 0){throw "Upload falhou: $name"}
+          }
+          Write-Host "RELEASE_URL=$($rel.html_url)"
