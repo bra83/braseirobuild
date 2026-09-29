@@ -154,7 +154,8 @@ public final class WorldCausalityEngine {
         double prod=Math.max(0d,s.optDouble("food_production",pop*1.03d));
         double demand=Math.max(1d,pop);
         double infrastructure=clamp100(s.optDouble("infrastructure",50d))/100d;
-        double war=clamp100(s.optDouble("war_exposure",0d))/100d;
+        double war=Math.max(clamp100(s.optDouble("war_exposure",0d))/100d,activeWarPressure(s));
+        if(war>0d)s.put("war_exposure",clamp((int)Math.round(war*100d),0,100));
         double disease=clamp100(s.optDouble("disease_pressure",5d))/100d;
         double trade=clamp100(s.optDouble("trade_capacity",s.optInt("trade",50)))/100d;
         double effectiveProd=prod*agricultural*(.65d+.35d*infrastructure)*(1d-.55d*war);
@@ -369,6 +370,20 @@ public final class WorldCausalityEngine {
         if(t.matches(".*(border|fronteira|fort|posto).*"))return "fronteira";
         if(t.matches(".*(city|cidade|town|vila).*"))return "urbano";
         return "rota_comercial";
+    }
+
+    private double activeWarPressure(JSONObject s){
+        try{
+            String hex=s.optString("hex_id"),region=s.optString("region"),name=s.optString("name");
+            List<JSONObject> wars=db.queryList("SELECT * FROM kingmaker_war_encounters WHERE world_profile=? AND status='active' ORDER BY id",new String[]{profile()});
+            double best=0d;
+            for(JSONObject w:wars){
+                String battle=w.optString("battlefield_hex"),raw=w.toString().toLowerCase(Locale.ROOT);
+                boolean local=(hex.length()>0&&hex.equals(battle))||(region.length()>0&&raw.contains(region.toLowerCase(Locale.ROOT)))||(name.length()>0&&raw.contains(name.toLowerCase(Locale.ROOT)));
+                if(local)best=Math.max(best,.78d);else if(best<.30d)best=.18d;
+            }
+            return best;
+        }catch(Exception ignored){return 0d;}
     }
 
     private void persist(JSONObject s)throws Exception{
