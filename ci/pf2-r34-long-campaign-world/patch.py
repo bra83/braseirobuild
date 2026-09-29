@@ -289,6 +289,20 @@ if r33_test.exists():
                 'assert "go_jamandi_mansion" in solo or "jamandi_mansion" in solo')
     write(r33_test,t)
 
+# Historical Solo tests lock the then-current schema/version. R34 intentionally
+# adds persisted causal columns, so migrate only identity assertions; all
+# mechanical assertions in those tests remain untouched.
+for _test_name in [
+    "test_kingmaker_solo_r2.py","test_kingmaker_solo_r5.py","test_kingmaker_solo_r6.py",
+    "test_kingmaker_solo_r7.py","test_kingmaker_solo_r8.py","test_kingmaker_solo_r12_audit.py"
+]:
+    _tp=ROOT/"tests_pf2"/_test_name
+    if _tp.exists():
+        _tt=read(_tp)
+        _tt=_tt.replace("DB_SCHEMA=59","DB_SCHEMA=60")
+        _tt=_tt.replace("VERSION_NAME=9.0.34","VERSION_NAME=9.0.35")
+        write(_tp,_tt)
+
 # ------------------------------------------------------------------
 # Version
 # ------------------------------------------------------------------
