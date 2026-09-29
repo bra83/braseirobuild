@@ -11,12 +11,7 @@ New-Item -ItemType Directory -Path $root,$work,$out -Force | Out-Null
 Write-Host '=== BASELINE: exact published R33 source ==='
 $zip=Join-Path $root 'r33-source.zip'
 $shaFile=Join-Path $root 'r33-source.sha256'
-$url='https://github.com/bra83/braseirobuild/releases/download/PATHFINDER2E-9.0.34-R33/BRASEIRO_PATHFINDER2E_9.0.34_R33_RESTOV_KOKORO_ANDROID_STUDIO.zip'
-$shaUrl='https://github.com/bra83/braseirobuild/releases/download/PATHFINDER2E-9.0.34-R33/BRASEIRO_PATHFINDER2E_9.0.34_R33_RESTOV_KOKORO_ANDROID_STUDIO.zip.sha256'
-& curl.exe -L --fail --retry 5 --retry-delay 3 --header "Authorization: Bearer $env:GITHUB_TOKEN" --header "Accept: application/octet-stream" $url -o $zip
-if($LASTEXITCODE -ne 0){throw 'R33 source download failed'}
-& curl.exe -L --fail --retry 5 --retry-delay 3 --header "Authorization: Bearer $env:GITHUB_TOKEN" --header "Accept: application/octet-stream" $shaUrl -o $shaFile
-if($LASTEXITCODE -ne 0){throw 'R33 checksum download failed'}
+& (Join-Path $PSScriptRoot 'download_r33_private.ps1') -OutputZip $zip -OutputSha $shaFile
 $expected=((Get-Content $shaFile -Raw).Trim().Split()[0]).ToLowerInvariant()
 $actual=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
 if($expected -ne $actual){throw "R33 checksum mismatch $actual != $expected"}
