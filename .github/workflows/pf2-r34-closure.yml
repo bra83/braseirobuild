@@ -223,38 +223,52 @@ jobs:
           (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() | Set-Content "$zip.sha256" -Encoding ascii
           "OUT_DIR=$out" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
+      - name: Preserve validated R34 package as Actions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_PATHFINDER2E_9.0.35_R34_VALIDATED
+          path: ${{ env.OUT_DIR }}\*
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Publish R34 release
         shell: powershell
-        env:
-          GITHUB_TOKEN: \${{ github.token }}
         run: |
           $ErrorActionPreference='Stop'
           $repo=$env:GITHUB_REPOSITORY
           $tag='PATHFINDER2E-9.0.35-R34'
-          $headers=@{'Authorization'="Bearer $env:GITHUB_TOKEN";'Accept'='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='BRELGA-PF2-R34'}
-          try{$release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"}
-          catch{
+          $api="https://api.github.com/repos/$repo"
+          $auth=& git config --local --get http.https://github.com/.extraheader
+          if([string]::IsNullOrWhiteSpace($auth)){throw 'Checkout authentication header unavailable.'}
+          $common=@('--header',$auth,'--header','Accept: application/vnd.github+json','--header','X-GitHub-Api-Version: 2022-11-28')
+          $releaseJson=Join-Path $env:RUNNER_TEMP 'r34-release.json'
+          $status=& curl.exe -L --silent --show-error @common --output $releaseJson --write-out '%{http_code}' "$api/releases/tags/$tag"
+          if($status -eq '404'){
             $payload=@{
               tag_name=$tag
               target_commitish='pf2-r34-closure-20260929'
               name='Braseiro Pathfinder 2e 9.0.35 R34 - Kingmaker Closure + Kokoro + Token Fix'
-              body='Fechamento incremental sobre R33, compatível com instalação 9.0.33: chegada variável a Restov com sandbox persistente; mansão de Lady Jamandi em fases bloqueadas até a carta e partida; Atlas sincronizado com o prólogo urbano; cenas principais 5-6 mil caracteres; Kokoro com fluxo operacional do Forbidden Lands (segmentos curtos QUEUE_FLUSH, próximo somente após onDone); retorno de imagem do Gemini separado para cena, NPC e personagem.'
+              body='R34 validada no BRELGA: chegada variável a Restov com sandbox persistente; mansão de Lady Jamandi em fases bloqueadas até carta e partida; Atlas sincronizado ao prólogo urbano; cenas principais 5-6 mil caracteres; Kokoro com segmentos Android isolados e avanço por onDone como Forbidden Lands; imagem Gemini de personagem retorna exclusivamente ao token do personagem.'
               draft=$false
               prerelease=$false
-            }|ConvertTo-Json -Compress
-            $payloadFile=Join-Path $env:RUNNER_TEMP 'pf2-r34-release.json'
-            $responseFile=Join-Path $env:RUNNER_TEMP 'pf2-r34-release-response.json'
-            [System.IO.File]::WriteAllText($payloadFile,$payload,(New-Object System.Text.UTF8Encoding($false)))
-            & curl.exe -L --fail --silent --show-error --request POST --header "Authorization: Bearer $env:GITHUB_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" --header "Content-Type: application/json; charset=utf-8" --data-binary "@$payloadFile" "https://api.github.com/repos/$repo/releases" --output $responseFile
-            if($LASTEXITCODE -ne 0){throw 'release creation failed'}
-            $release=Get-Content $responseFile -Raw -Encoding UTF8 | ConvertFrom-Json
+            } | ConvertTo-Json -Compress
+            $payloadPath=Join-Path $env:RUNNER_TEMP 'r34-release-payload.json'
+            [System.IO.File]::WriteAllText($payloadPath,$payload,(New-Object System.Text.UTF8Encoding($false)))
+            $status=& curl.exe -L --silent --show-error @common --header 'Content-Type: application/json' --data-binary "@$payloadPath" --output $releaseJson --write-out '%{http_code}' "$api/releases"
+            if($status -notmatch '^20'){throw "Release creation failed with HTTP $status"}
+          } elseif($status -notmatch '^20'){
+            throw "Release lookup failed with HTTP $status"
           }
+          $release=Get-Content $releaseJson -Raw -Encoding UTF8 | ConvertFrom-Json
           foreach($file in Get-ChildItem $env:OUT_DIR -File){
-            $existing=$release.assets|Where-Object{$_.name -eq $file.Name}|Select-Object -First 1
-            if($existing){Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($existing.id)"|Out-Null}
+            $existing=$release.assets | Where-Object {$_.name -eq $file.Name} | Select-Object -First 1
+            if($existing){
+              $deleteStatus=& curl.exe -L --silent --show-error @common --output NUL --write-out '%{http_code}' --request DELETE "$api/releases/assets/$($existing.id)"
+              if($deleteStatus -notmatch '^20'){throw "Could not replace $($file.Name): HTTP $deleteStatus"}
+            }
             $encoded=[uri]::EscapeDataString($file.Name)
             $upload="https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$encoded"
-            & curl.exe -L --fail --retry 5 --retry-delay 2 --request POST --header "Authorization: Bearer $env:GITHUB_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" --header "Content-Type: application/octet-stream" --data-binary "@$($file.FullName)" $upload
-            if($LASTEXITCODE -ne 0){throw "upload failed: $($file.Name)"}
+            $uploadStatus=& curl.exe -L --silent --show-error @common --header 'Content-Type: application/octet-stream' --data-binary "@$($file.FullName)" --output NUL --write-out '%{http_code}' --request POST $upload
+            if($uploadStatus -notmatch '^20'){throw "Upload failed for $($file.Name): HTTP $uploadStatus"}
           }
           Write-Host "RELEASE_URL=$($release.html_url)"
