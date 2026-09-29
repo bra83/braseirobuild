@@ -197,7 +197,22 @@ jobs:
           $tag='PATHFINDER2E-9.0.34-R33'
           $headers=@{'Authorization'="Bearer $env:GITHUB_TOKEN";'Accept'='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='BRELGA-PF2-R33'}
           try{$release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$tag"}
-          catch{$body=@{tag_name=$tag;target_commitish='pf2-r33-restov-kokoro-20260929';name='Braseiro Pathfinder 2e 9.0.34 R33 — Restov Sandbox + Kokoro';body='Correção sobre a baseline exata 9.0.33/R32. Abertura de Kingmaker chega a Restov com variação coerente e sandbox até escolha explícita da mansão de Lady Jamandi; roteiro principal e Atlas das Terras Roubadas só avançam depois das transições persistidas. Cenas principais usam alvo aproximado de 5–6 mil caracteres. Pipeline Android/Kokoro alinhado ao comportamento do Forbidden Lands atual, mantendo android.speech.tts.TextToSpeech e sem acesso direto ao modelo.';draft=$false;prerelease=$false}|ConvertTo-Json;$release=Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $body -Uri "https://api.github.com/repos/$repo/releases"}
+          catch{
+            $payload=@{
+              tag_name=$tag
+              target_commitish='pf2-r33-restov-kokoro-20260929'
+              name='Braseiro Pathfinder 2e 9.0.34 R33 - Restov Sandbox + Kokoro'
+              body='Correcao sobre a baseline exata 9.0.33/R32. Abertura de Kingmaker chega a Restov com variacao coerente e sandbox ate escolha explicita da mansao de Lady Jamandi; roteiro principal e Atlas das Terras Roubadas so avancam depois das transicoes persistidas. Cenas principais usam alvo aproximado de 5-6 mil caracteres. Pipeline Android/Kokoro alinhado ao comportamento do Forbidden Lands atual, mantendo android.speech.tts.TextToSpeech e sem acesso direto ao modelo.'
+              draft=$false
+              prerelease=$false
+            }|ConvertTo-Json -Compress
+            $payloadFile=Join-Path $env:RUNNER_TEMP 'pf2-r33-release.json'
+            $responseFile=Join-Path $env:RUNNER_TEMP 'pf2-r33-release-response.json'
+            [System.IO.File]::WriteAllText($payloadFile,$payload,(New-Object System.Text.UTF8Encoding($false)))
+            & curl.exe -L --fail --silent --show-error --request POST --header "Authorization: Bearer $env:GITHUB_TOKEN" --header "Accept: application/vnd.github+json" --header "X-GitHub-Api-Version: 2022-11-28" --header "Content-Type: application/json; charset=utf-8" --data-binary "@$payloadFile" "https://api.github.com/repos/$repo/releases" --output $responseFile
+            if($LASTEXITCODE -ne 0){throw 'release creation failed'}
+            $release=Get-Content $responseFile -Raw -Encoding UTF8 | ConvertFrom-Json
+          }
           foreach($file in Get-ChildItem $env:OUT_DIR -File){
             $existing=$release.assets|Where-Object{$_.name -eq $file.Name}|Select-Object -First 1
             if($existing){Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($existing.id)"|Out-Null}
