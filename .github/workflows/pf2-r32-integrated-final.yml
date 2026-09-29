@@ -32,11 +32,19 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Download exact post-Antigravity R30
+      - name: Recover exact post-Antigravity R30
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
           if($env:RUNNER_NAME -ne 'BRELGA'){throw "Expected BRELGA, got $env:RUNNER_NAME"}
+
+          $cached=Join-Path $env:RUNNER_TEMP 'pf2-kingmaker-r30-independent-audit\extracted\pf2e_r30_work'
+          if(Test-Path (Join-Path $cached 'version.properties')){
+            Write-Host "Using exact R30 already extracted and independently tested on BRELGA: $cached"
+            "WORK_ROOT=$cached" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+            exit 0
+          }
+
           $root=Join-Path $env:RUNNER_TEMP 'pf2-r32-integrated-final'
           $work=Join-Path $root 'work'
           Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
