@@ -49,15 +49,17 @@ public final class WorldCausalityEngine {
             JSONObject living=new LivingWorldEngine(db).state();
             int patterns=db.queryOne("SELECT COUNT(*) n FROM world_causal_patterns",null).optInt("n",0);
             int changed=0,events=0,propagated=0,npcs=0;
+            int calendarFrom=targetDay;
             ArrayDeque<Shock> shocks=new ArrayDeque<Shock>();
             for(JSONObject row:rows){
                 int last=Math.max(1,row.optInt("last_causal_day",row.optInt("last_simulated_day",1)));
+                calendarFrom=Math.min(calendarFrom,last);
                 if(targetDay<=last)continue;
                 RegionResult rr=advanceRegion(row,last,targetDay,living,shocks);
                 changed++;events+=rr.events;npcs+=rr.npcs;
             }
             propagated=propagate(shocks,targetDay,3);
-            int calendarEvents=applyCalendarMilestones(rows,targetDay,living);
+            int calendarEvents=applyCalendarMilestones(rows,calendarFrom,targetDay,living);
             JSONObject audit=audit();
             out.put("target_day",targetDay).put("calendar",WorldCalendarEngine.snapshot(targetDay,living))
                     .put("catalog_patterns",patterns).put("regions_changed",changed).put("events_generated",events)
@@ -120,13 +122,17 @@ public final class WorldCausalityEngine {
         JSONObject state=new JSONObject(row.toString());
         int events=0,npcs=0;
         int cursor=fromDay;
-        int eventBudget=Math.min(32,Math.max(1,(toDay-fromDay+13)/14));
+        int eventBudget=Math.min(120,Math.max(1,(toDay-fromDay+20)/21));
+        JSONObject causal=parse(state.optString("causal_state_json","{}"));
+        int lastEvent=Math.max(0,causal.optInt("last_event_day",0));
         while(cursor<toDay){
             int next=Math.min(toDay,cursor+30);
             applyBaseline(state,cursor,next,living);
             int eventDay=next;
-            if(events<eventBudget&&shouldEvent(state,eventDay)){
-                JSONObject p=pressure(state);
+            JSONObject p=pressure(state);
+            int pressureMax=Math.max(Math.max(p.optInt("war_exposure"),p.optInt("disease_pressure")),Math.max(p.optInt("scarcity"),p.optInt("unrest")));
+            int interval=pressureMax>=70?7:pressureMax>=45?14:21;
+            if(events<eventBudget&&eventDay-lastEvent>=interval&&shouldEvent(state,eventDay)){
                 JSONObject pattern=WorldCausalCatalog.choose(state.optString("settlement_key"),contextFor(state),eventDay,p);
                 if(pattern.length()>0){
                     applyEffects(state,pattern.optJSONObject("effects"),eventDay);
@@ -134,7 +140,7 @@ public final class WorldCausalityEngine {
                     enqueueShocks(state,pattern,shocks,0);
                     npcs+=nudgeNpcs(state,pattern,eventDay);
                     maybeScheduleAid(state,pattern,eventDay);
-                    events++;
+                    events++;lastEvent=eventDay;causal.put("last_event_day",lastEvent);state.put("causal_state_json",causal.toString());
                 }
             }
             cursor=next;
@@ -193,6 +199,7 @@ public final class WorldCausalityEngine {
         }
         if(e.has("crime_delta"))s.put("criminality",clamp(s.optInt("criminality",15)+e.optInt("crime_delta"),0,100));
         if(e.has("health_delta"))s.put("health_index",clamp(s.optInt("health_index",70)+e.optInt("health_delta"),0,100));
+        if(e.has("faith_delta"))s.put("faith_influence",clamp(s.optInt("faith_influence",30)+e.optInt("faith_delta"),0,100));
         if(e.has("disease_delta"))s.put("disease_pressure",clamp(s.optInt("disease_pressure",5)+e.optInt("disease_delta"),0,100));
         if(e.has("migration_delta"))s.put("migration_pressure",clamp(s.optInt("migration_pressure",10)+e.optInt("migration_delta"),0,100));
         if(e.has("war_delta"))s.put("war_exposure",clamp(s.optInt("war_exposure",0)+e.optInt("war_delta"),0,100));
@@ -242,15 +249,16 @@ public final class WorldCausalityEngine {
                 if(receipts.contains(receipt)||db.hasEffectReceipt(receipt))continue;
                 receipts.add(receipt);
                 double damp=Math.pow(.55d,shock.wave+1),impact=shock.magnitude*damp;
+                JSONObject current=db.queryOne("SELECT * FROM settlement_states WHERE world_profile=? AND settlement_key=?",new String[]{profile(),dk});
                 ContentValues v=new ContentValues();
-                int scarcity=clamp(dest.optInt("scarcity",20)+(int)Math.round(Math.max(0d,impact)*28d),0,100);
-                double price=Math.max(10d,dest.optDouble("price_index",100d)*(1d+Math.max(-.20d,Math.min(.35d,impact))));
+                int scarcity=clamp(current.optInt("scarcity",20)+(int)Math.round(Math.max(0d,impact)*28d),0,100);
+                double price=Math.max(10d,current.optDouble("price_index",100d)*(1d+Math.max(-.20d,Math.min(.35d,impact))));
                 v.put("scarcity",scarcity);v.put("price_index",round2(price));
-                v.put("trade_capacity",clamp(dest.optInt("trade_capacity",dest.optInt("trade",50))-(int)Math.round(Math.max(0d,impact)*15d),0,100));
+                v.put("trade_capacity",clamp(current.optInt("trade_capacity",current.optInt("trade",50))-(int)Math.round(Math.max(0d,impact)*15d),0,100));
                 v.put("updated_at",System.currentTimeMillis());
                 db.getWritableDatabase().update("settlement_states",v,"world_profile=? AND settlement_key=?",new String[]{profile(),dk});
                 db.recordEffectReceipt(receipt,"Choque de abastecimento — "+shock.commodity);
-                recordSupplyHistory(shock,dest,impact,day);
+                recordSupplyHistory(shock,current,impact,day);
                 applied++;
                 if(impact>.10d){
                     JSONObject destState=parse(dest.optString("causal_state_json","{}"));JSONArray exp=destState.optJSONArray("exports");
@@ -261,12 +269,14 @@ public final class WorldCausalityEngine {
         return applied;
     }
 
-    private int applyCalendarMilestones(List<JSONObject> rows,int targetDay,JSONObject living)throws Exception{
+    private int applyCalendarMilestones(List<JSONObject> rows,int fromDay,int targetDay,JSONObject living)throws Exception{
         int added=0;
-        int before=Math.max(1,targetDay-35);
+        int before=Math.max(1,fromDay);
         JSONArray milestones=WorldCalendarEngine.milestonesBetween(before,targetDay,living);
         for(int i=0;i<milestones.length();i++){
             JSONObject m=milestones.optJSONObject(i);if(m==null)continue;int day=m.optInt("day");
+            boolean major=m.optBoolean("season_started")||m.optBoolean("year_started");
+            if(!major&&targetDay-day>720)continue;
             for(JSONObject r:rows){
                 String key="calendar:"+profile()+":"+r.optString("settlement_key")+":"+day+":"+(m.optBoolean("year_started")?"year":m.optBoolean("season_started")?"season":"month");
                 if(db.hasEffectReceipt(key))continue;
