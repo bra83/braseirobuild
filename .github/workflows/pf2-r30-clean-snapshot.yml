@@ -1,0 +1,98 @@
+name: PF2 R30 Clean Relevant Snapshot
+
+on:
+  push:
+    branches: [audit-pf2-kingmaker-r30-20260928]
+    paths:
+      - '.github/workflows/pf2-r30-clean-snapshot.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-pf2-kingmaker-r30-20260928
+
+      - name: Extract clean exact R30 and snapshot relevant files
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Expected BRELGA, got $env:RUNNER_NAME"}
+
+          $cacheRoot=Join-Path $env:RUNNER_TEMP 'pf2-r32-integrated-final'
+          $rar=Join-Path $cacheRoot 'pf2e_r30_work.rar'
+          if((-not(Test-Path $rar)) -or ((Get-Item $rar).Length -ne 553809972)){
+            New-Item -ItemType Directory -Path $cacheRoot -Force | Out-Null
+            & curl.exe -L --fail --retry 5 --retry-delay 3 "https://drive.usercontent.google.com/download?id=1UbJq8m518f1jIQkkXASvEp0j0Uf6qNkR&export=download&confirm=t" -o $rar
+            if($LASTEXITCODE -ne 0){throw 'download failed'}
+          }
+
+          $out=Join-Path $env:RUNNER_TEMP 'pf2-r30-clean-snapshot-extract'
+          Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $candidates=@(
+            'C:\Program Files\7-Zip\7z.exe',
+            'C:\Program Files (x86)\7-Zip\7z.exe',
+            'C:\Program Files\WinRAR\UnRAR.exe',
+            'C:\Program Files\WinRAR\WinRAR.exe'
+          )
+          $tool=$candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if(-not $tool){throw 'extractor missing'}
+          if($tool -match '7z\.exe$'){& $tool x -y $rar "-o$out"}
+          elseif($tool -match 'UnRAR\.exe$'){& $tool x -y $rar "$out\"}
+          else{& $tool x -ibck -y $rar "$out\"}
+          if($LASTEXITCODE -ne 0){throw 'extract failed'}
+          $root=Join-Path $out 'pf2e_r30_work'
+          $dest=Join-Path $env:GITHUB_WORKSPACE 'ci\pf2-r30-clean-baseline'
+          Remove-Item $dest -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $dest -Force | Out-Null
+
+          function CopyRel([string]$rel){
+            $src=Join-Path $root $rel
+            if(Test-Path $src){
+              $to=Join-Path $dest $rel
+              New-Item -ItemType Directory -Path (Split-Path $to -Parent) -Force | Out-Null
+              Copy-Item $src $to -Force
+            }
+          }
+
+          @(
+            'version.properties',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\MainActivity.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\AppDb.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\PartyDirector.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\MasterOrchestrator.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\BraseiroNarrativeDirector.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\HumanGmNarrativeProfile.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerTurnGuide.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerRulesEngine.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerRepository.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerSoloDirector.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerSoloFlowRouter.java',
+            'android\app\src\main\java\com\braseiro\pathfinder2e\KingmakerService.java'
+          ) | ForEach-Object {CopyRel $_}
+
+          Get-ChildItem (Join-Path $root 'tests_pf2') -File -Filter '*.py' | ForEach-Object {
+            $rel='tests_pf2\'+$_.Name
+            CopyRel $rel
+          }
+
+          Get-ChildItem $dest -Recurse -File | ForEach-Object {
+            $_.FullName.Substring($dest.Length).TrimStart('\','/')
+          } | Sort-Object | Set-Content (Join-Path $dest 'INVENTORY.txt') -Encoding utf8
+
+      - name: Commit snapshot
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          git config user.name "BRELGA PF2 Snapshot"
+          git config user.email "actions@braseiro.local"
+          git add ci/pf2-r30-clean-baseline
+          if(git diff --cached --quiet){Write-Host 'No changes'; exit 0}
+          git commit -m "audit: snapshot clean exact PF2 R30 files"
+          git push origin HEAD:audit-pf2-kingmaker-r30-20260928
