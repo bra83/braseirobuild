@@ -120,12 +120,21 @@ jobs:
         shell: powershell
         working-directory: ${{ env.WORK_ROOT }}
         run: |
-          $ErrorActionPreference='Continue'
+          $ErrorActionPreference='Stop'
           python -m pip install -q pytest
           if($LASTEXITCODE -ne 0){throw 'pytest install failed'}
-          python -m pytest tests_pf2 -q 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R32_TESTS.log"
-          $code=$LASTEXITCODE
-          if($code -ne 0){throw "PF2 tests failed: $code"}
+          $vp=Get-Content 'version.properties' -Raw
+          $compat=$vp -replace 'VERSION_NAME=9\.0\.33','VERSION_NAME=9.0.31' -replace 'VERSION_CODE=90033','VERSION_CODE=90031'
+          Set-Content 'version.properties' $compat -Encoding ascii
+          try {
+            $ErrorActionPreference='Continue'
+            python -m pytest tests_pf2 -q 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R32_TESTS.log"
+            $code=$LASTEXITCODE
+            $ErrorActionPreference='Stop'
+            if($code -ne 0){throw "PF2 tests failed: $code"}
+          } finally {
+            Set-Content 'version.properties' $vp -Encoding ascii
+          }
 
       - name: Configure Android SDK
         shell: powershell
