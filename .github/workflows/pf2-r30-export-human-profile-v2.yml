@@ -1,0 +1,43 @@
+name: PF2 R30 Export Human Profile V2
+on:
+  push:
+    branches: [audit-pf2-kingmaker-r30-20260928]
+    paths:
+      - '.github/workflows/pf2-r30-export-human-profile-v2.yml'
+permissions:
+  contents: write
+jobs:
+  export:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-pf2-kingmaker-r30-20260928
+      - name: Export exact live class
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'Expected BRELGA'}
+          $work=Join-Path $env:RUNNER_TEMP 'pf2-kingmaker-r30-independent-audit\extracted\pf2e_r30_work'
+          if(-not(Test-Path (Join-Path $work 'version.properties'))){
+            $root=Join-Path $env:RUNNER_TEMP 'pf2-r30-human-v2';Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue;New-Item -ItemType Directory -Path $root -Force|Out-Null
+            $rar=Join-Path $root 'src.rar'
+            & curl.exe -L --fail --retry 5 --retry-delay 2 "https://drive.usercontent.google.com/download?id=1UbJq8m518f1jIQkkXASvEp0j0Uf6qNkR&export=download&confirm=t" -o $rar
+            if($LASTEXITCODE -ne 0 -or (Get-Item $rar).Length -ne 553809972){throw 'RAR download failed'}
+            $out=Join-Path $root 'x';New-Item -ItemType Directory -Path $out -Force|Out-Null
+            $candidates=@('C:\Program Files\7-Zip\7z.exe','C:\Program Files (x86)\7-Zip\7z.exe','C:\Program Files\WinRAR\UnRAR.exe','C:\Program Files\WinRAR\WinRAR.exe')
+            $tool=$candidates|Where-Object{Test-Path $_}|Select-Object -First 1
+            if(-not $tool){throw 'RAR extractor missing'}
+            if($tool -match '7z\.exe$'){& $tool x -y $rar "-o$out"|Out-Null}elseif($tool -match 'UnRAR\.exe$'){& $tool x -y $rar "$out\"|Out-Null}else{& $tool x -ibck -y $rar "$out\"|Out-Null}
+            if($LASTEXITCODE -ne 0){throw 'extract failed'}
+            $work=Join-Path $out 'pf2e_r30_work'
+          }
+          $src=Join-Path $work 'android\app\src\main\java\com\braseiro\pathfinder2e\HumanMasterNarrativeProfile.java'
+          if(-not(Test-Path $src)){throw 'HumanMasterNarrativeProfile.java missing'}
+          $dest=Join-Path $env:GITHUB_WORKSPACE 'ci\pf2-r30-live-src\android\app\src\main\java\com\braseiro\pathfinder2e\HumanMasterNarrativeProfile.java'
+          New-Item -ItemType Directory -Path (Split-Path $dest -Parent) -Force|Out-Null
+          Copy-Item $src $dest -Force
+          git config user.name 'BRELGA Audit';git config user.email 'actions@braseiro.local'
+          git add ci/pf2-r30-live-src/android/app/src/main/java/com/braseiro/pathfinder2e/HumanMasterNarrativeProfile.java
+          if(-not(git diff --cached --quiet)){git commit -m 'audit: export live HumanMasterNarrativeProfile';git push origin HEAD:audit-pf2-kingmaker-r30-20260928}
