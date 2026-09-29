@@ -1,4 +1,4 @@
-name: PF2 R34 Publish Existing Package
+name: PF2 R34 Release Auth Check
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 jobs:
-  publish:
+  release:
     runs-on: [self-hosted, Windows, X64]
     steps:
       - uses: actions/checkout@v4
@@ -19,47 +19,7 @@ jobs:
           ref: pf2-r34-closure-20260929
           persist-credentials: true
 
-      - name: Locate validated R34 package
-        shell: powershell
-        run: |
-          $ErrorActionPreference='Stop'
-          $candidates=@(
-            (Join-Path $env:RUNNER_TEMP 'pf2-r34-output'),
-            'C:\actions-runner\_work\_temp\pf2-r34-output'
-          ) | Select-Object -Unique
-          $out=$candidates | Where-Object { Test-Path (Join-Path $_ 'Braseiro_Pathfinder2e_9.0.35_R34_CLOSURE_DEBUG.apk') } | Select-Object -First 1
-          if(-not $out){
-            $project='C:\actions-runner\_work\_temp\pf2-r34-closure\work\pf2e_r30_work'
-            $apk=Get-ChildItem $project -Recurse -Filter '*.apk' -File -ErrorAction SilentlyContinue | Where-Object {$_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]debug[\\/]'} | Select-Object -First 1
-            if(-not $apk){throw 'Validated R34 package/APK from the previous successful build was not found on BRELGA.'}
-            $out=Join-Path $env:RUNNER_TEMP 'pf2-r34-output'
-            New-Item -ItemType Directory -Path $out -Force | Out-Null
-            $apkOut=Join-Path $out 'Braseiro_Pathfinder2e_9.0.35_R34_CLOSURE_DEBUG.apk'
-            Copy-Item $apk.FullName $apkOut -Force
-            (Get-FileHash $apkOut -Algorithm SHA256).Hash.ToLowerInvariant() | Set-Content "$apkOut.sha256" -Encoding ascii
-            @(
-              '# VALIDAÇÃO — BRASEIRO PATHFINDER 2E 9.0.35 / R34',
-              '',
-              '- APK recuperada da compilação R34 que passou gates, testes focados, Kingmaker e regressão PF2 antes do empacotamento.',
-              '- Chegada variável a Restov; sandbox até decisão de ir à mansão.',
-              '- Mansão em fases persistentes até carta e partida.',
-              '- Kokoro alinhado ao fluxo Android do Forbidden Lands.',
-              '- Imagem Gemini de personagem vinculada ao token do personagem, não à cena.'
-            ) | Set-Content (Join-Path $out 'VALIDACAO_R34.md') -Encoding utf8
-          }
-          "OUT_DIR=$out" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          Write-Host "R34 package directory: $out"
-          Get-ChildItem $out -File | Select-Object Name,Length | Format-Table -AutoSize
-
-      - name: Upload validated package as Actions artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: BRASEIRO_PATHFINDER2E_9.0.35_R34_VALIDATED
-          path: ${{ env.OUT_DIR }}\*
-          if-no-files-found: error
-          retention-days: 30
-
-      - name: Create or update GitHub release
+      - name: Ensure R34 release exists
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
@@ -69,34 +29,21 @@ jobs:
           $auth=& git config --local --get http.https://github.com/.extraheader
           if([string]::IsNullOrWhiteSpace($auth)){throw 'Checkout authentication header unavailable.'}
           $common=@('--header',$auth,'--header','Accept: application/vnd.github+json','--header','X-GitHub-Api-Version: 2022-11-28')
-          $releaseJson=Join-Path $env:RUNNER_TEMP 'r34-release.json'
-          $status=& curl.exe -L --silent --show-error @common --output $releaseJson --write-out '%{http_code}' "$api/releases/tags/$tag"
+          $response=Join-Path $env:RUNNER_TEMP 'r34-release-auth.json'
+          $status=& curl.exe -L --silent --show-error @common --output $response --write-out '%{http_code}' "$api/releases/tags/$tag"
           if($status -eq '404'){
             $payload=@{
               tag_name=$tag
               target_commitish='pf2-r34-closure-20260929'
               name='Braseiro Pathfinder 2e 9.0.35 R34 - Kingmaker Closure + Kokoro + Token Fix'
-              body='R34 validada no BRELGA: Restov sandbox com chegada variável; mansão de Lady Jamandi em fases persistentes até carta/partida; Atlas sincronizado ao prólogo urbano; cenas principais 5-6 mil caracteres; Kokoro com segmentos Android isolados e avanço por onDone como Forbidden Lands; imagem Gemini de personagem retorna ao token do personagem.'
+              body='R34: Restov sandbox com chegada variável; mansão de Lady Jamandi em fases persistentes; Atlas sincronizado; cenas principais 5-6 mil caracteres; Kokoro alinhado ao Forbidden Lands; correção do retorno da imagem Gemini para o token do personagem. Assets serão anexados após a compilação validada.'
               draft=$false
               prerelease=$false
             } | ConvertTo-Json -Compress
-            $payloadPath=Join-Path $env:RUNNER_TEMP 'r34-release-payload.json'
+            $payloadPath=Join-Path $env:RUNNER_TEMP 'r34-release-auth-payload.json'
             [System.IO.File]::WriteAllText($payloadPath,$payload,(New-Object System.Text.UTF8Encoding($false)))
-            $status=& curl.exe -L --silent --show-error @common --header 'Content-Type: application/json' --data-binary "@$payloadPath" --output $releaseJson --write-out '%{http_code}' "$api/releases"
-            if($status -notmatch '^20'){throw "Release creation failed with HTTP $status"}
-          } elseif($status -notmatch '^20'){
-            throw "Release lookup failed with HTTP $status"
+            $status=& curl.exe -L --silent --show-error @common --header 'Content-Type: application/json' --data-binary "@$payloadPath" --output $response --write-out '%{http_code}' "$api/releases"
           }
-          $release=Get-Content $releaseJson -Raw -Encoding UTF8 | ConvertFrom-Json
-          foreach($file in Get-ChildItem $env:OUT_DIR -File){
-            $existing=$release.assets | Where-Object {$_.name -eq $file.Name} | Select-Object -First 1
-            if($existing){
-              $deleteStatus=& curl.exe -L --silent --show-error @common --output NUL --write-out '%{http_code}' --request DELETE "$api/releases/assets/$($existing.id)"
-              if($deleteStatus -notmatch '^20'){throw "Could not replace $($file.Name): HTTP $deleteStatus"}
-            }
-            $encoded=[uri]::EscapeDataString($file.Name)
-            $upload="https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$encoded"
-            $uploadStatus=& curl.exe -L --silent --show-error @common --header 'Content-Type: application/octet-stream' --data-binary "@$($file.FullName)" --output NUL --write-out '%{http_code}' --request POST $upload
-            if($uploadStatus -notmatch '^20'){throw "Upload failed for $($file.Name): HTTP $uploadStatus"}
-          }
-          Write-Host "RELEASE_URL=$($release.html_url)"
+          if($status -notmatch '^20'){throw "GitHub Release authentication failed: HTTP $status"}
+          $release=Get-Content $response -Raw -Encoding UTF8 | ConvertFrom-Json
+          Write-Host "RELEASE_OK=$($release.html_url)"
