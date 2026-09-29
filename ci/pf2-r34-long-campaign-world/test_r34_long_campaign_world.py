@@ -39,6 +39,9 @@ def test_war_has_demographic_food_health_trade_and_second_order_effects():
     assert "world_history_events" in engine
     assert 'last_event_day' in engine
     assert 'interval=pressureMax>=70?7:pressureMax>=45?14:21' in engine
+    assert "Regiões distantes não recebem mortalidade de guerra direta" in engine
+    assert "else if(sameArea)best=Math.max(best,.45d)" in engine
+    assert "else if(best<.30d)best=.18d" not in engine
     assert "resolveThresholdChains" in engine
     for chain in ["fome","epidemia","deslocados","deficit_demografico","crise_politica","crise_comercial","crime_alto","medicina_baixa"]:
         assert chain in engine
@@ -174,3 +177,6 @@ def test_version_is_9_0_35():
     version = (ROOT / "version.properties").read_text(encoding="utf-8")
     assert "VERSION_NAME=9.0.35" in version
     assert "VERSION_CODE=90035" in version
+    assert "DB_SCHEMA=60" in version
+    assert "private static final int DB_VERSION = 60;" in src("AppDb.java")
+    assert "if (oldVersion < 60)" in src("AppDb.java")
