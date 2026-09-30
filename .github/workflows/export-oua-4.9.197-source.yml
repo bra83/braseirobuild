@@ -42,10 +42,15 @@ jobs:
           if(-not $pkg){ throw 'Android Studio root not found' }
           $root=$pkg.Directory.FullName
 
-          $payload=Join-Path $env:GITHUB_WORKSPACE 'ci\oua-4.9.197\patch.gz.b64'
-          if(-not (Test-Path $payload)){ throw '4.9.197 patch payload missing' }
+          $patchDir=Join-Path $env:GITHUB_WORKSPACE 'ci\oua-4.9.197'
+          $encoded=''
+          foreach($name in @('patch.part0','patch.part1','patch.part2','patch.part3')){
+            $part=Join-Path $patchDir $name
+            if(-not (Test-Path $part)){ throw "Missing 4.9.197 patch chunk: $name" }
+            $encoded += (Get-Content $part -Raw).Trim()
+          }
           $patch=Join-Path $work 'oua-49197.patch'
-          $raw=[Convert]::FromBase64String((Get-Content $payload -Raw).Trim())
+          $raw=[Convert]::FromBase64String($encoded)
           $input=New-Object IO.MemoryStream(,$raw)
           $gzip=New-Object IO.Compression.GZipStream($input,[IO.Compression.CompressionMode]::Decompress)
           $output=[IO.File]::Create($patch)
