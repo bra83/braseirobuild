@@ -21,7 +21,7 @@ env:
   APK_NAME: "BRASEIRO_O_UM_ANEL_4.9.195_UPDATE.apk"
   FULL_SOURCE_OUTER_NAME: "OUA_4.9.195_FULL_OUTER.zip"
   FULL_SOURCE_INNER_NAME: "OUA_4.9.195_BRELGA_FULL_SOURCE.zip"
-  FULL_SOURCE_URL: "https://eu-central.storage.cloudconvert.com/tasks/d4f97744-26c1-4c9b-a5bd-9f2668f2ac59/OUA_4.9.195_BRELGA_FULL_SOURCE.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cloudconvert-production%2F20260930%2Ffra%2Fs3%2Faws4_request&X-Amz-Date=20260930T052950Z&X-Amz-Expires=86400&X-Amz-Signature=57e5239fc26581c17ecf4df50cbdc0337d66c9fc3643c53574d93efa6aa15e21&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3D%22OUA_4.9.195_BRELGA_FULL_SOURCE.zip%22&response-content-type=application%2Fzip&x-amz-checksum-mode=ENABLED&x-id=GetObject"
+  FULL_SOURCE_URL: "https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-f3ac-820e-89ec-32692191fbc6/raw?se=2026-09-30T06%3A39%3A45Z&sp=r&sv=2026-02-06&sr=b&scid=c50a544f-663c-5c29-babc-aab9ef13ea73&skoid=127c13cb-e695-43ea-b6b2-0a863d41dbf7&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-30T05%3A21%3A39Z&ske=2026-10-01T05%3A21%3A39Z&sks=b&skv=2026-02-06&sig=yKiE/jbc2sDf9YLW8d9a5eT9I6opVyQ0c7qZKiSXkFM%3D"
 
 jobs:
   build:
