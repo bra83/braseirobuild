@@ -91,10 +91,15 @@ jobs:
           $root=$pkg.Directory.FullName
 
           # Apply the audited 4.9.197 delta on top of the canonical 4.9.196 source.
-          $patchB64=Join-Path $env:GITHUB_WORKSPACE 'ci\oua-4.9.197\patch.gz.b64'
-          if(-not (Test-Path $patchB64)){ throw 'OUA 4.9.197 patch payload missing from checkout' }
+          $patchDir=Join-Path $env:GITHUB_WORKSPACE 'ci\oua-4.9.197'
+          $encoded=''
+          foreach($name in @('patch.part0','patch.part1','patch.part2','patch.part3')){
+            $part=Join-Path $patchDir $name
+            if(-not (Test-Path $part)){ throw "Missing OUA 4.9.197 patch chunk: $name" }
+            $encoded += (Get-Content $part -Raw).Trim()
+          }
           $patchFile=Join-Path $env:RUNNER_TEMP 'oua-49197.patch'
-          $raw=[Convert]::FromBase64String((Get-Content $patchB64 -Raw).Trim())
+          $raw=[Convert]::FromBase64String($encoded)
           $input=New-Object IO.MemoryStream(,$raw)
           $gzip=New-Object IO.Compression.GZipStream($input,[IO.Compression.CompressionMode]::Decompress)
           $output=[IO.File]::Create($patchFile)
