@@ -128,16 +128,6 @@ jobs:
           "OUA_OUT=$out"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
           "BASE_APK_PATH=$(Join-Path $incoming $env:BASE_APK)"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
-      - name: Run homologation gate
-        shell: powershell
-        run: |
-          $ErrorActionPreference='Stop'
-          Push-Location $env:OUA_ROOT
-          try {
-            & npm.cmd run validate:final:4.9.195
-            if($LASTEXITCODE -ne 0){ throw 'validate:final:4.9.195 failed' }
-          } finally { Pop-Location }
-
       - name: Build web runtime and sync Android assets
         shell: powershell
         run: |
@@ -163,8 +153,8 @@ jobs:
             & npm.cmd run lint
             if($LASTEXITCODE -ne 0){ throw 'lint/typecheck failed' }
 
-            & npm.cmd run build:offline
-            if($LASTEXITCODE -ne 0){ throw 'build:offline failed' }
+            & npm.cmd run validate:final:4.9.195
+            if($LASTEXITCODE -ne 0){ throw 'validate:final:4.9.195 failed' }
 
             & node.exe scripts/use-offline-dist.mjs
             if($LASTEXITCODE -ne 0){ throw 'use-offline-dist failed' }
