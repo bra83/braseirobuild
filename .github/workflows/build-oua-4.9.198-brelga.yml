@@ -163,13 +163,15 @@ jobs:
           $appPath=Join-Path $root 'App.tsx'
           $appLines=Get-Content $appPath
           $fixed=$false
+          $prefix="  const text = (region + ' ' + tags.join(' ')).normalize('NFD').replace("
           for($i=0;$i -lt $appLines.Count;$i++){
-            if($appLines[$i] -match "normalize\\('NFD'\\)\\.replace\\(/\\[[^]]+\\]/g,''\\)\\.toLowerCase\\(\\);"){
+            if($appLines[$i].StartsWith($prefix)){
               $appLines[$i] = "  const text = (region + ' ' + tags.join(' ')).normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();"
               $fixed=$true
+              break
             }
           }
-          if(-not $fixed){ throw 'Journey-region normalization regex line not found' }
+          if(-not $fixed){ throw 'Journey-region normalization line not found' }
           [IO.File]::WriteAllLines($appPath,$appLines,(New-Object Text.UTF8Encoding($false)))
 
           $pkgJson=Get-Content (Join-Path $root 'package.json') -Raw | ConvertFrom-Json
