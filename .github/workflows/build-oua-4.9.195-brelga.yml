@@ -133,8 +133,8 @@ jobs:
             & npm.cmd run lint
             if($LASTEXITCODE -ne 0){ throw 'lint/typecheck failed' }
 
-            & npm.cmd run validate:final:4.9.195
-            if($LASTEXITCODE -ne 0){ throw 'validate:final:4.9.195 failed' }
+            & npm.cmd run build
+            if($LASTEXITCODE -ne 0){ throw 'vite build failed' }
 
             & node.exe scripts/use-offline-dist.mjs
             if($LASTEXITCODE -ne 0){ throw 'use-offline-dist failed' }
