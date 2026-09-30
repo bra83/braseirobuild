@@ -21,7 +21,7 @@ env:
   APK_NAME: "BRASEIRO_O_UM_ANEL_4.9.195_UPDATE.apk"
   FULL_SOURCE_OUTER_NAME: "OUA_4.9.195_FULL_OUTER.zip"
   FULL_SOURCE_INNER_NAME: "OUA_4.9.195_BRELGA_FULL_SOURCE.zip"
-  FULL_SOURCE_URL: "https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-f3ac-820e-89ec-32692191fbc6/raw?se=2026-09-30T06%3A39%3A45Z&sp=r&sv=2026-02-06&sr=b&scid=c50a544f-663c-5c29-babc-aab9ef13ea73&skoid=127c13cb-e695-43ea-b6b2-0a863d41dbf7&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-30T05%3A21%3A39Z&ske=2026-10-01T05%3A21%3A39Z&sks=b&skv=2026-02-06&sig=yKiE/jbc2sDf9YLW8d9a5eT9I6opVyQ0c7qZKiSXkFM%3D"
+  FULL_SOURCE_URL: "https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-7670-820e-be47-d471e2abb3e6/raw?se=2026-09-30T06%3A46%3A57Z&sp=r&sv=2026-02-06&sr=b&scid=105b614b-2a99-551e-9cc5-603fedb15eff&skoid=127c13cb-e695-43ea-b6b2-0a863d41dbf7&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-29T22%3A46%3A00Z&ske=2026-09-30T22%3A46%3A00Z&sks=b&skv=2026-02-06&sig=IRr2aLJiatRW2xt/X3uCH9rkXPDQ8LZE0NNZO2dlCm0%3D"
 
 jobs:
   build:
@@ -225,22 +225,26 @@ jobs:
             'User-Agent'='oua-49195-publisher'
           }
 
-          $encodedTag=[uri]::EscapeDataString($env:TAG)
-          $existing=$null
-          try{$existing=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$encodedTag"}catch{}
+          $release=$null
+          try {
+            $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$($env:TAG)"
+          } catch {}
 
-          if($existing){
-            $release=$existing
-          }else{
-            $body=@{
+          if(-not $release){
+            $payload=[ordered]@{
               tag_name=$env:TAG
               target_commitish=$env:GITHUB_SHA
-              name='Braseiro O Um Anel 4.9.195 — Homologated'
-              body='Build homologada 4.9.195 gerada no runner self-hosted BRELGA. Mecânicas auditadas; APK install-over verificado contra a assinatura da 4.9.29.'
+              name='Braseiro O Um Anel 4.9.195'
+              body='APK 4.9.195 gerado e verificado no runner self-hosted BRELGA. TypeScript, Vite, Android sync e Gradle concluídos com sucesso; package/versionCode/assinatura install-over verificados.'
               draft=$false
               prerelease=$false
-            }|ConvertTo-Json
-            $release=Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $body -Uri "https://api.github.com/repos/$repo/releases"
+            } | ConvertTo-Json -Compress
+            $payloadPath=Join-Path $env:RUNNER_TEMP 'oua-49195-release.json'
+            $responsePath=Join-Path $env:RUNNER_TEMP 'oua-49195-release-response.json'
+            [IO.File]::WriteAllText($payloadPath,$payload,(New-Object Text.UTF8Encoding($false)))
+            & curl.exe -sS -L --fail-with-body --request POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: application/json" --data-binary "@$payloadPath" -o $responsePath "https://api.github.com/repos/$repo/releases"
+            if($LASTEXITCODE -ne 0){ Get-Content $responsePath -ErrorAction SilentlyContinue; throw 'Release creation failed' }
+            $release=Get-Content $responsePath -Raw | ConvertFrom-Json
           }
 
           foreach($name in @($env:APK_NAME,"$env:APK_NAME.sha256",'NEW_BADGING.txt','INSTALL_OVER_EXISTING_APP.txt','GRADLE_BUILD.log')){
@@ -249,12 +253,11 @@ jobs:
             $old=@($release.assets|Where-Object{$_.name -eq $name})|Select-Object -First 1
             if($old){Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($old.id)"|Out-Null}
             $url="https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$([uri]::EscapeDataString($name))"
-            & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors --request POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: application/octet-stream" --data-binary "@$file" $url
+            & curl.exe -sS -L --fail-with-body --request POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: application/octet-stream" --data-binary "@$file" $url
             if($LASTEXITCODE -ne 0){throw "Upload failed: $name"}
           }
 
           Write-Host "APK_URL=https://github.com/$repo/releases/download/$env:TAG/$env:APK_NAME"
-
 
       - name: Publish CI result
         if: always()
