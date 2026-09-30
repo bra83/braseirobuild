@@ -106,6 +106,7 @@ jobs:
           & robocopy.exe $overlayRoot $root /E /NFL /NDL /NJH /NJS /NP
           $robo=$LASTEXITCODE
           if($robo -gt 7){ throw "Overlay merge failed with robocopy exit code $robo" }
+          $global:LASTEXITCODE=0
 
           $pkgJson=Get-Content (Join-Path $root 'package.json') -Raw | ConvertFrom-Json
           if($pkgJson.version -ne '4.9.195'){ throw "package.json version mismatch: $($pkgJson.version)" }
