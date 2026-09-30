@@ -1,0 +1,137 @@
+name: PF2 R34 Closure V2
+
+on:
+  push:
+    branches: [pf2-r34-closure-20260929]
+    paths:
+      - '.github/workflows/pf2-r34-closure-v2.yml'
+      - 'ci/pf2-r34-closure/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pf2-r34-closure-v2
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: pf2-r34-closure-20260929
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Recover exact post-Antigravity R30
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Expected BRELGA, got $env:RUNNER_NAME"}
+          $root=Join-Path $env:RUNNER_TEMP 'pf2-r34-closure-v2'
+          $work=Join-Path $root 'work'
+          Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $root,$work -Force | Out-Null
+          $rar=Join-Path $root 'pf2e_r30_work.rar'
+          & curl.exe -L --fail --retry 5 --retry-delay 3 "https://drive.usercontent.google.com/download?id=1UbJq8m518f1jIQkkXASvEp0j0Uf6qNkR&export=download&confirm=t" -o $rar
+          if($LASTEXITCODE -ne 0){throw 'R30 archive download failed'}
+          $size=(Get-Item $rar).Length
+          if($size -ne 553809972){throw "Unexpected R30 archive size: $size"}
+          $candidates=@('C:\Program Files\7-Zip\7z.exe','C:\Program Files (x86)\7-Zip\7z.exe','C:\Program Files\WinRAR\UnRAR.exe','C:\Program Files\WinRAR\WinRAR.exe')
+          $extractor=$candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if(-not $extractor){$cmd=Get-Command 7z.exe -ErrorAction SilentlyContinue;if($cmd){$extractor=$cmd.Source}}
+          if(-not $extractor){throw 'No RAR extractor found'}
+          if($extractor -match '7z\.exe$'){& $extractor x -y $rar "-o$work"}
+          elseif($extractor -match 'UnRAR\.exe$'){& $extractor x -y $rar "$work\"}
+          else{& $extractor x -ibck -y $rar "$work\"}
+          if($LASTEXITCODE -ne 0){throw 'R30 extract failed'}
+          $project=Join-Path $work 'pf2e_r30_work'
+          if(-not(Test-Path (Join-Path $project 'version.properties'))){throw 'R30 project root missing'}
+          "WORK_ROOT=$project" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ARCHIVE_TOOL=$extractor" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Rebuild R32 R33 and apply R34
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          python ci\pf2-r32-integrated\patch.py $env:WORK_ROOT
+          if($LASTEXITCODE -ne 0){throw 'R32 patch failed'}
+          Copy-Item ci\pf2-r32-integrated\test_r32_integrated.py (Join-Path $env:WORK_ROOT 'tests_pf2\test_r32_integrated.py') -Force
+          python ci\pf2-r33-restov-kokoro\patch.py $env:WORK_ROOT
+          if($LASTEXITCODE -ne 0){throw 'R33 patch failed'}
+          Copy-Item ci\pf2-r33-restov-kokoro\test_r33_restov_kokoro.py (Join-Path $env:WORK_ROOT 'tests_pf2\test_r33_restov_kokoro.py') -Force
+          python ci\pf2-r34-closure\patch.py $env:WORK_ROOT
+          if($LASTEXITCODE -ne 0){throw 'R34 patch failed'}
+          Copy-Item ci\pf2-r34-closure\test_r34_closure.py (Join-Path $env:WORK_ROOT 'tests_pf2\test_r34_closure.py') -Force
+
+      - name: Run focused and Kingmaker tests
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Continue'
+          Set-Location $env:WORK_ROOT
+          python -m pip install -q pytest
+          if($LASTEXITCODE -ne 0){throw 'pytest install failed'}
+          python -m pytest tests_pf2\test_r32_integrated.py tests_pf2\test_r33_restov_kokoro.py tests_pf2\test_r34_closure.py -q 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R34_FOCUSED_TESTS.log"
+          if($LASTEXITCODE -ne 0){throw 'Focused tests failed'}
+          $tests=Get-ChildItem tests_pf2 -File -Filter 'test_kingmaker*.py' | Sort-Object Name | ForEach-Object {$_.FullName}
+          python -m pytest @tests -q 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R34_KINGMAKER_TESTS.log"
+          if($LASTEXITCODE -ne 0){throw 'Kingmaker tests failed'}
+
+      - name: Run full PF2 regression
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Continue'
+          Set-Location $env:WORK_ROOT
+          python -m pytest tests_pf2 -q 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R34_FULL_TESTS.log"
+          if($LASTEXITCODE -ne 0){throw 'Full PF2 tests failed'}
+
+      - name: Configure Android SDK
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $candidates=@('C:\actions-runner\android-sdk',$env:ANDROID_SDK_ROOT,$env:ANDROID_HOME)
+          if($env:LOCALAPPDATA){$candidates+=(Join-Path $env:LOCALAPPDATA 'Android\Sdk')}
+          $sdk=$null;$mgr=$null
+          foreach($c in ($candidates|Where-Object{$_}|Select-Object -Unique)){if(Test-Path $c){$f=Get-ChildItem $c -Recurse -Filter sdkmanager.bat -File -ErrorAction SilentlyContinue|Select-Object -First 1;if($f){$sdk=$c;$mgr=$f.FullName;break}}}
+          if(-not $mgr){throw 'Android SDK not found'}
+          "ANDROID_HOME=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          1..100|%{'y'}|& $mgr --licenses|Out-Null
+          & $mgr 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0'
+          if($LASTEXITCODE -ne 0){throw 'sdkmanager failed'}
+
+      - name: Build APK and package artifact
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Continue'
+          Set-Location $env:WORK_ROOT
+          & .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R34_GRADLE.log"
+          if($LASTEXITCODE -ne 0){throw 'Gradle failed'}
+          $apk=Get-ChildItem . -Recurse -Filter '*.apk' -File|Where-Object{$_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]debug[\\/]'}|Select-Object -First 1
+          if(-not $apk){throw 'APK missing'}
+          $out=Join-Path $env:GITHUB_WORKSPACE 'ci\pf2-r34-artifact'
+          Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $apkOut=Join-Path $out 'Braseiro_Pathfinder2e_9.0.35_R34_CLOSURE_DEBUG.apk'
+          Copy-Item $apk.FullName $apkOut -Force
+          (Get-FileHash $apkOut -Algorithm SHA256).Hash.ToLowerInvariant() | Set-Content "$apkOut.sha256" -Encoding ascii
+          Copy-Item "$env:RUNNER_TEMP\PF2_R34_FOCUSED_TESTS.log" (Join-Path $out 'FOCUSED_TESTS.log')
+          Copy-Item "$env:RUNNER_TEMP\PF2_R34_KINGMAKER_TESTS.log" (Join-Path $out 'KINGMAKER_TESTS.log')
+          Copy-Item "$env:RUNNER_TEMP\PF2_R34_FULL_TESTS.log" (Join-Path $out 'FULL_PF2_TESTS.log')
+          Copy-Item "$env:RUNNER_TEMP\PF2_R34_GRADLE.log" (Join-Path $out 'GRADLE_BUILD.log')
+
+      - name: Upload R34 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Braseiro-Pathfinder2e-9.0.35-R34
+          path: ci/pf2-r34-artifact/**
+          if-no-files-found: error
+          retention-days: 14
