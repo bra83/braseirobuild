@@ -103,14 +103,9 @@ jobs:
           Write-Host "BASE_ROOT=$root"
           Write-Host "OVERLAY_ROOT=$overlayRoot"
 
-          Get-ChildItem $overlayRoot -Force | ForEach-Object {
-            $dest=Join-Path $root $_.Name
-            if($_.PSIsContainer){
-              Copy-Item $_.FullName $dest -Recurse -Force
-            } else {
-              Copy-Item $_.FullName $dest -Force
-            }
-          }
+          & robocopy.exe $overlayRoot $root /E /NFL /NDL /NJH /NJS /NP
+          $robo=$LASTEXITCODE
+          if($robo -gt 7){ throw "Overlay merge failed with robocopy exit code $robo" }
 
           $pkgJson=Get-Content (Join-Path $root 'package.json') -Raw | ConvertFrom-Json
           if($pkgJson.version -ne '4.9.195'){ throw "package.json version mismatch: $($pkgJson.version)" }
