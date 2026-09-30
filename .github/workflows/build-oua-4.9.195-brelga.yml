@@ -144,11 +144,11 @@ jobs:
             $env:npm_config_registry='https://registry.npmjs.org/'
             $npmOk=$false
             for($attempt=1;$attempt -le 3;$attempt++){
-              & npm.cmd ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
+              & npm.cmd install --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
               if($LASTEXITCODE -eq 0){ $npmOk=$true; break }
               Start-Sleep -Seconds (3*$attempt)
             }
-            if(-not $npmOk){ throw 'npm ci failed after 3 attempts' }
+            if(-not $npmOk){ throw 'npm install failed after 3 attempts' }
 
             & npm.cmd run lint
             if($LASTEXITCODE -ne 0){ throw 'lint/typecheck failed' }
