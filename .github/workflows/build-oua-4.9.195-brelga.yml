@@ -21,8 +21,8 @@ env:
   TAG: "OUA-v4.9.195"
   APK_NAME: "BRASEIRO_O_UM_ANEL_4.9.195_UPDATE.apk"
   OVERLAY_OUTER_NAME: "OUA_4.9.195_OVERLAY_OUTER.zip"
-  OVERLAY_INNER_NAME: "OUA_4.9.195_CODE_OVERLAY_R2.zip"
-  OVERLAY_URL: "https://eu-central.storage.cloudconvert.com/tasks/d99094da-f129-4f1a-bd61-6e5fa8e559de/OUA_4.9.195_CODE_OVERLAY_R2.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cloudconvert-production%2F20260930%2Ffra%2Fs3%2Faws4_request&X-Amz-Date=20260930T043730Z&X-Amz-Expires=86400&X-Amz-Signature=67aa5ce570547736c44ae635ac6b372c893e3806b89b3ad4b693311200b0969f&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3D%22OUA_4.9.195_CODE_OVERLAY_R2.zip%22&response-content-type=application%2Fzip&x-amz-checksum-mode=ENABLED&x-id=GetObject"
+  OVERLAY_INNER_NAME: "OUA_4.9.195_BRELGA_FULL_SOURCE.zip"
+  OVERLAY_URL: "https://eu-central.storage.cloudconvert.com/tasks/dfdada0c-1ee9-49c4-8545-91825e9bbb66/OUA_4.9.195_BRELGA_FULL_SOURCE.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cloudconvert-production%2F20260930%2Ffra%2Fs3%2Faws4_request&X-Amz-Date=20260930T044330Z&X-Amz-Expires=86400&X-Amz-Signature=699f87a4c34bac0b2e04bfa78d26938a66ad309e253c5a911d17ffdb4dec07c9&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3D%22OUA_4.9.195_BRELGA_FULL_SOURCE.zip%22&response-content-type=application%2Fzip&x-amz-checksum-mode=ENABLED&x-id=GetObject"
 
 jobs:
   build:
