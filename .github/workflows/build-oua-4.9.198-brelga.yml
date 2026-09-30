@@ -272,7 +272,7 @@ jobs:
           $badging=Get-Content (Join-Path $env:OUA_OUT 'NEW_BADGING.txt') -Raw
           if($badging -notmatch "package: name='com\.braseiro\.oumanel'"){throw 'Package mismatch'}
           if($badging -notmatch "versionCode='49198'"){throw 'versionCode mismatch'}
-          if($badging -notmatch "versionName='4\.9\.197'"){throw 'versionName mismatch'}
+          if($badging -notmatch "versionName='4\.9\.198'"){throw 'versionName mismatch'}
 
           & $apksigner verify --verbose --print-certs $env:BASE_APK_PATH 2>&1 | Set-Content (Join-Path $env:OUA_OUT 'BASE_SIG.txt')
           if($LASTEXITCODE -ne 0){throw 'Base APK signature invalid'}
