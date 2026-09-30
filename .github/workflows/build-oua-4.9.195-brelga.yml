@@ -291,3 +291,30 @@ jobs:
           }
 
           Write-Host "APK_URL=https://github.com/$repo/releases/download/$env:TAG/$env:APK_NAME"
+
+
+      - name: Publish CI result
+        if: always()
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $status='${{ job.status }}'
+          $path="$env:GITHUB_WORKSPACE\ci-results\OUA_49195_BUILD_RESULT.md"
+          @(
+            '# OUA 4.9.195 — BRELGA build result',
+            '',
+            "- status: **$status**",
+            "- workflow: $env:GITHUB_WORKFLOW",
+            "- run: $env:GITHUB_RUN_ID",
+            "- commit: $env:GITHUB_SHA",
+            "- runner: $env:RUNNER_NAME",
+            "- apk: $env:APK_NAME",
+            "- release: https://github.com/$env:GITHUB_REPOSITORY/releases/tag/$env:TAG"
+          )|Set-Content $path -Encoding utf8
+          git config user.name "braseiro-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add ci-results/OUA_49195_BUILD_RESULT.md
+          if((git status --porcelain).Length -gt 0){
+            git commit -m "OUA 4.9.195 publish BRELGA build result [skip ci]"
+            git push origin HEAD:main
+          }
