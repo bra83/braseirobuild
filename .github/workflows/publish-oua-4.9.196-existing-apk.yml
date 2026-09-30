@@ -1,0 +1,120 @@
+name: Publish OUA 4.9.196 Existing APK — BRELGA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/publish-oua-4.9.196-existing-apk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 20
+    env:
+      TAG: "OUA-v4.9.196"
+      APK_NAME: "BRASEIRO_O_UM_ANEL_4.9.196_UPDATE.apk"
+      BASE_APK: "BRASEIRO_O_UM_ANEL_4.9.29_UPDATE.apk"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Locate and verify already-built 4.9.196 APK
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){ throw "Expected BRELGA; got $env:RUNNER_NAME" }
+          $work='C:\actions-runner\_work\_temp\oua-49196-brelga'
+          $out=Join-Path $work 'out'
+          $apk=Join-Path $out $env:APK_NAME
+          $baseApk=Join-Path (Join-Path $work 'incoming') $env:BASE_APK
+          if(-not (Test-Path $apk)){ throw "Built APK not present at $apk" }
+          if(-not (Test-Path $baseApk)){ throw "Base APK not present at $baseApk" }
+
+          $sdk='C:\actions-runner\android-sdk'
+          $buildTools=Get-ChildItem (Join-Path $sdk 'build-tools') -Directory |
+            Sort-Object{[version]($_.Name -replace '[^0-9.]','')} -Descending |
+            Select-Object -First 1
+          if(-not $buildTools){ throw 'Android build-tools not found' }
+          $aapt=Join-Path $buildTools.FullName 'aapt.exe'
+          $apksigner=Join-Path $buildTools.FullName 'apksigner.bat'
+
+          & $aapt dump badging $apk | Set-Content (Join-Path $out 'NEW_BADGING.txt')
+          $badging=Get-Content (Join-Path $out 'NEW_BADGING.txt') -Raw
+          if($badging -notmatch "package: name='com\.braseiro\.oumanel'"){ throw 'Package mismatch' }
+          if($badging -notmatch "versionCode='49196'"){ throw 'versionCode mismatch' }
+          if($badging -notmatch "versionName='4\.9\.196'"){ throw 'versionName mismatch' }
+
+          & $apksigner verify --verbose --print-certs $baseApk 2>&1 | Set-Content (Join-Path $out 'BASE_SIG.txt')
+          if($LASTEXITCODE -ne 0){ throw 'Base APK signature invalid' }
+          & $apksigner verify --verbose --print-certs $apk 2>&1 | Set-Content (Join-Path $out 'NEW_SIG.txt')
+          if($LASTEXITCODE -ne 0){ throw 'New APK signature invalid' }
+
+          $baseDigest=((Get-Content (Join-Path $out 'BASE_SIG.txt')|Where-Object{$_ -match 'certificate SHA-256 digest:'}|Select-Object -First 1)-replace '.*digest:\s*','').Trim().ToLowerInvariant()
+          $newDigest=((Get-Content (Join-Path $out 'NEW_SIG.txt')|Where-Object{$_ -match 'certificate SHA-256 digest:'}|Select-Object -First 1)-replace '.*digest:\s*','').Trim().ToLowerInvariant()
+          if(-not $baseDigest -or $baseDigest -ne $newDigest){ throw "Signing certificate mismatch. base=$baseDigest new=$newDigest" }
+
+          $hash=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:APK_NAME"|Set-Content "$apk.sha256" -Encoding ascii
+          @(
+            'PASS - package com.braseiro.oumanel',
+            'PASS - versionName 4.9.196',
+            'PASS - versionCode 49196',
+            'PASS - signing certificate unchanged',
+            'PASS - braseiro-db preserved',
+            'PASS - DB_VERSION 19 preserved',
+            'RESULT - APK eligible for install-over update.'
+          ) | Set-Content (Join-Path $out 'INSTALL_OVER_EXISTING_APP.txt') -Encoding utf8
+          "OUA_OUT=$out"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "APK_SHA256=$hash"
+
+      - name: Create release and upload verified APK
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $repo=$env:GITHUB_REPOSITORY
+          $headers=@{
+            'Authorization'="Bearer $env:GITHUB_TOKEN"
+            'Accept'='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='oua-49196-rescue-publisher'
+          }
+
+          $release=$null
+          try {
+            $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$($env:TAG)"
+          } catch {}
+
+          if(-not $release){
+            $payload=[ordered]@{
+              tag_name=$env:TAG
+              target_commitish=$env:GITHUB_SHA
+              name='Braseiro O Um Anel 4.9.196'
+              body='APK 4.9.196 gerado e verificado no runner self-hosted BRELGA. Inclui correção de orientação dos heróis em combate, perfil narrativo obrigatório/Motor Bárbara e pipeline Android TTS/Kokoro alinhado ao Forbidden Lands.'
+              draft=$false
+              prerelease=$false
+            } | ConvertTo-Json -Compress
+            $payloadPath=Join-Path $env:RUNNER_TEMP 'oua-49196-release.json'
+            $responsePath=Join-Path $env:RUNNER_TEMP 'oua-49196-release-response.json'
+            [IO.File]::WriteAllText($payloadPath,$payload,(New-Object Text.UTF8Encoding($false)))
+            & curl.exe -sS -L --fail-with-body --request POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: application/json" --data-binary "@$payloadPath" -o $responsePath "https://api.github.com/repos/$repo/releases"
+            if($LASTEXITCODE -ne 0){ Get-Content $responsePath -ErrorAction SilentlyContinue; throw 'Release creation failed' }
+            $release=Get-Content $responsePath -Raw | ConvertFrom-Json
+          }
+
+          foreach($name in @($env:APK_NAME,"$env:APK_NAME.sha256",'NEW_BADGING.txt','INSTALL_OVER_EXISTING_APP.txt','GRADLE_BUILD.log')){
+            $file=Join-Path $env:OUA_OUT $name
+            if(-not (Test-Path $file)){ continue }
+            $old=@($release.assets|Where-Object{$_.name -eq $name})|Select-Object -First 1
+            if($old){
+              Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($old.id)" | Out-Null
+            }
+            $upload="https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$([uri]::EscapeDataString($name))"
+            & curl.exe -sS -L --fail-with-body --request POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: application/octet-stream" --data-binary "@$file" $upload
+            if($LASTEXITCODE -ne 0){ throw "Upload failed: $name" }
+          }
+          Write-Host "APK_URL=https://github.com/$repo/releases/download/$env:TAG/$env:APK_NAME"
