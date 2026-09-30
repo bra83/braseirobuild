@@ -161,7 +161,8 @@ jobs:
           # while reconstructing the source. Use explicit Unicode escapes so the
           # TypeScript source is encoding-stable on Windows runners.
           $appPath=Join-Path $root 'App.tsx'
-          $appLines=Get-Content $appPath
+          $utf8=New-Object Text.UTF8Encoding($false)
+          $appLines=[IO.File]::ReadAllLines($appPath,[Text.Encoding]::UTF8)
           $fixed=$false
           $prefix="  const text = (region + ' ' + tags.join(' ')).normalize('NFD').replace("
           for($i=0;$i -lt $appLines.Count;$i++){
@@ -172,7 +173,7 @@ jobs:
             }
           }
           if(-not $fixed){ throw 'Journey-region normalization line not found' }
-          [IO.File]::WriteAllLines($appPath,$appLines,(New-Object Text.UTF8Encoding($false)))
+          [IO.File]::WriteAllLines($appPath,$appLines,$utf8)
 
           $pkgJson=Get-Content (Join-Path $root 'package.json') -Raw | ConvertFrom-Json
           if($pkgJson.version -ne '4.9.198'){ throw "package.json version mismatch: $($pkgJson.version)" }
