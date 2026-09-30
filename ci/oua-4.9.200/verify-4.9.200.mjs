@@ -70,8 +70,17 @@ for (const rel of sourceFiles) {
 
 const assetsDir = path.join(root, 'android/app/src/main/assets');
 if (exists('android/app/src/main/assets/index.html')) {
-  const jsFiles = fs.readdirSync(assetsDir).filter(name => name.endsWith('.js'));
-  const bundled = jsFiles.map(name => fs.readFileSync(path.join(assetsDir, name), 'utf8')).join('\n');
+  const jsFiles = [];
+  const walkJs = dir => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const abs = path.join(dir, entry.name);
+      if (entry.isDirectory()) walkJs(abs);
+      else if (entry.isFile() && entry.name.endsWith('.js')) jsFiles.push(abs);
+    }
+  };
+  walkJs(assetsDir);
+  must(jsFiles.length > 0, 'no bundled Android JS found');
+  const bundled = jsFiles.map(name => fs.readFileSync(name, 'utf8')).join('\n');
   must(bundled.includes('NÍVEL 4 CINEMATOGRÁFICO') || bundled.includes('N\u00cdVEL 4 CINEMATOGR\u00c1FICO'), 'bundled runtime missing opening profile');
   must(bundled.includes('6.500–9.000') || bundled.includes('6.500\u20139.000'), 'bundled runtime missing opening density');
   must(bundled.includes('Blocos naturais ~450 caracteres'), 'bundled runtime missing TTS settings contract');
