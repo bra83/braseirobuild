@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   export:
@@ -66,14 +66,39 @@ jobs:
           $pkgJson=Get-Content (Join-Path $root 'package.json') -Raw | ConvertFrom-Json
           if($pkgJson.version -ne '4.9.197'){ throw "Expected package 4.9.197, got $($pkgJson.version)" }
 
-          $zip=Join-Path $env:RUNNER_TEMP 'OUA_4.9.197_RECONSTRUCTED_SOURCE.zip'
-          if(Test-Path $zip){Remove-Item $zip -Force}
-          Compress-Archive -Path (Join-Path $root '*') -DestinationPath $zip -CompressionLevel Fastest
-          "EXPORT_ZIP=$zip"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $snapshot=Join-Path $env:GITHUB_WORKSPACE 'ci\\oua-4.9.197\\snapshot'
+          Remove-Item $snapshot -Recurse -Force -ErrorAction SilentlyContinue
+          $files=@(
+            'package.json',
+            'lib\\version.ts',
+            'lib\\apiKey.ts',
+            'lib\\geminiModels.ts',
+            'lib\\geminiTransport.ts',
+            'lib\\rules\\combat.ts',
+            'lib\\autonomy\\localFallbackDirector.ts',
+            'services\\geminiService.ts',
+            'components\\SettingsView.tsx',
+            'components\\CombatTacticalView.tsx',
+            'App.tsx',
+            'android\\app\\build.gradle.kts',
+            'android\\app\\src\\main\\java\\com\\braseiro\\oumanel\\MainActivity.kt'
+          )
+          foreach($rel in $files){
+            $src=Join-Path $root $rel
+            if(-not (Test-Path $src)){ throw "Snapshot source missing: $rel" }
+            $dst=Join-Path $snapshot $rel
+            New-Item -ItemType Directory -Path (Split-Path $dst -Parent) -Force | Out-Null
+            Copy-Item $src $dst -Force
+          }
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: OUA_4.9.197_RECONSTRUCTED_SOURCE
-          path: ${{ env.EXPORT_ZIP }}
-          if-no-files-found: error
-          retention-days: 1
+      - name: Publish reconstructed 4.9.197 code snapshot
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          git config user.name "braseiro-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add ci/oua-4.9.197/snapshot
+          if((git status --porcelain).Length -gt 0){
+            git commit -m "OUA 4.9.197 publish reconstructed code snapshot [skip ci]"
+            git push origin HEAD:main
+          }
