@@ -20,7 +20,7 @@ env:
   TAG: "OUA-v4.9.196"
   APK_NAME: "BRASEIRO_O_UM_ANEL_4.9.196_UPDATE.apk"
   FULL_SOURCE_OUTER_NAME: "OUA_4.9.196_FULL_OUTER.zip"
-  FULL_SOURCE_INNER_NAME: "OUA_4.9.196_BRELGA_FULL_SOURCE.zip"
+  FULL_SOURCE_INNER_NAME: "OUA_4.9.196_BRELGA_SOURCE.zip"
   FULL_SOURCE_URL: "https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-67dc-820e-89f4-9f3ced405b9e/raw?se=2026-09-30T08%3A35%3A21Z&sp=r&sv=2026-02-06&sr=b&scid=8af09add-0297-5d2a-862f-ea9be14d1925&skoid=127c13cb-e695-43ea-b6b2-0a863d41dbf7&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-30T02%3A48%3A43Z&ske=2026-10-01T02%3A48%3A43Z&sks=b&skv=2026-02-06&sig=RjEK36XRrdwiUBEywy%2BvDTGs0DYnB8XhjEeiNKk38Kg%3D"
 
 jobs:
@@ -97,7 +97,7 @@ jobs:
           if($pkgJson.version -ne '4.9.196'){ throw "package.json version mismatch: $($pkgJson.version)" }
 
           $gradle=Get-Content (Join-Path $root 'android\app\build.gradle.kts') -Raw
-          if($gradle -notmatch 'versionName\s*=\s*"4\.9\.195"'){ throw 'Android versionName is not 4.9.196' }
+          if($gradle -notmatch 'versionName\s*=\s*"4\.9\.196"'){ throw 'Android versionName is not 4.9.196' }
           if($gradle -notmatch 'versionCode\s*=\s*49196'){ throw 'Android versionCode is not 49196' }
 
           $db=Get-Content (Join-Path $root 'lib\db.ts') -Raw
