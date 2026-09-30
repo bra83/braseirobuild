@@ -1,0 +1,47 @@
+name: WWN 1.0.25 Publish Canonical Source
+
+on:
+  push:
+    branches:
+      - wwn-1.0.25-device-fixes
+    paths:
+      - '.github/workflows/wwn-publish-source-1.0.25.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  SOURCE_SHARE_ID: 'bxd5-C7OHQNV'
+  SOURCE_FILE_ID: '01a0f150dbdf7372be914f17db058645'
+  SOURCE_NAME: 'BRASEIRO_WWN_1.0.25_DEVICE_FIXES_SOURCE.zip'
+  SOURCE_SHA256: 'f6ebe85f54a9a1c1abeb1552e743f0a42e54566f7f1f1c5a64963c45e58e3b06'
+  RELEASE_TAG: 'WWN-1.0.25-DEVICE-FIXES'
+  FIRE_API: 'https://api.firestorage.ai/dev/file'
+
+jobs:
+  publish-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Download exact canonical source
+        shell: bash
+        run: |
+          set -euo pipefail
+          files_json="$(curl -fsSL "$FIRE_API/shares/$SOURCE_SHARE_ID/files?maxResults=1000")"
+          count="$(printf '%s' "$files_json" | jq --arg id "$SOURCE_FILE_ID" '[.files[] | select(.fileId == $id)] | length')"
+          test "$count" = "1"
+          download_url="$(curl -fsSL -X POST "$FIRE_API/shares/$SOURCE_SHARE_ID/files/$SOURCE_FILE_ID/download" | jq -r '.downloadUrl')"
+          test -n "$download_url"
+          test "$download_url" != "null"
+          curl -fL --retry 4 --retry-delay 2 "$download_url" -o "$SOURCE_NAME"
+          echo "$SOURCE_SHA256  $SOURCE_NAME" | sha256sum -c -
+
+      - name: Publish source ZIP to existing GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release upload "$RELEASE_TAG" "$SOURCE_NAME" --clobber --repo "$GITHUB_REPOSITORY"
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json url,assets
