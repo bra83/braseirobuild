@@ -123,6 +123,16 @@ jobs:
           $hotfixGzip.CopyTo($hotfixOutput)
           $hotfixOutput.Dispose(); $hotfixGzip.Dispose(); $hotfixInput.Dispose()
 
+          # 4.9.197 no longer contains the legacy paid-key helper label expected by
+          # the hotfix. That UI-only replacement is optional when the anchor is
+          # already absent; all functional Gemini/start/combat assertions remain strict.
+          $hotfixText=Get-Content $hotfixScript -Raw
+          $needle="if (count !== expected) throw new Error(rel + ': expected ' + expected + ' occurrence(s) for ' + label + ', found ' + count);"
+          $replacement="if (count !== expected) { if (label === 'paid key optional label' && count === 0) return; throw new Error(rel + ': expected ' + expected + ' occurrence(s) for ' + label + ', found ' + count); }"
+          if(-not $hotfixText.Contains($needle)){ throw 'Could not patch hotfix strict helper for already-absent paid-key label' }
+          $hotfixText=$hotfixText.Replace($needle,$replacement)
+          [IO.File]::WriteAllText($hotfixScript,$hotfixText,(New-Object Text.UTF8Encoding($false)))
+
           # The canonical source ZIP is Windows/CRLF. Normalize only hotfix targets
           # so deterministic assertions compare semantic text, not newline encoding.
           $hotfixTargets=@(
