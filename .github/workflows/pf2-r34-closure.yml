@@ -5,7 +5,6 @@ on:
     branches: [pf2-r34-closure-20260929]
     paths:
       - '.github/workflows/pf2-r34-closure.yml'
-      - 'ci/pf2-r34-closure/**'
   workflow_dispatch:
 
 permissions:
@@ -224,6 +223,7 @@ jobs:
           "OUT_DIR=$out" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Preserve validated R34 package as Actions artifact
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: BRASEIRO_PATHFINDER2E_9.0.35_R34_VALIDATED
