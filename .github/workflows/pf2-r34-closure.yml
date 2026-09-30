@@ -13,7 +13,7 @@ permissions:
 
 concurrency:
   group: pf2-r34-closure
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
