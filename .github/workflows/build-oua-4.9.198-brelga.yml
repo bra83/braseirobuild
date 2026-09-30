@@ -161,12 +161,16 @@ jobs:
           # while reconstructing the source. Use explicit Unicode escapes so the
           # TypeScript source is encoding-stable on Windows runners.
           $appPath=Join-Path $root 'App.tsx'
-          $appText=Get-Content $appPath -Raw
-          $badLine=".normalize('NFD').replace(/[ÃŒâ‚¬-ÃÂ¯]/g,'').toLowerCase();"
-          $goodLine=".normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();"
-          if(-not $appText.Contains($badLine)){ throw 'Expected mojibake journey-region regex not found' }
-          $appText=$appText.Replace($badLine,$goodLine)
-          [IO.File]::WriteAllText($appPath,$appText,(New-Object Text.UTF8Encoding($false)))
+          $appLines=Get-Content $appPath
+          $fixed=$false
+          for($i=0;$i -lt $appLines.Count;$i++){
+            if($appLines[$i] -match "normalize\\('NFD'\\)\\.replace\\(/\\[[^]]+\\]/g,''\\)\\.toLowerCase\\(\\);"){
+              $appLines[$i] = "  const text = (region + ' ' + tags.join(' ')).normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();"
+              $fixed=$true
+            }
+          }
+          if(-not $fixed){ throw 'Journey-region normalization regex line not found' }
+          [IO.File]::WriteAllLines($appPath,$appLines,(New-Object Text.UTF8Encoding($false)))
 
           $pkgJson=Get-Content (Join-Path $root 'package.json') -Raw | ConvertFrom-Json
           if($pkgJson.version -ne '4.9.198'){ throw "package.json version mismatch: $($pkgJson.version)" }
