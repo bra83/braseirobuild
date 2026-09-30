@@ -122,6 +122,28 @@ jobs:
           $hotfixOutput=[IO.File]::Create($hotfixScript)
           $hotfixGzip.CopyTo($hotfixOutput)
           $hotfixOutput.Dispose(); $hotfixGzip.Dispose(); $hotfixInput.Dispose()
+
+          # The canonical source ZIP is Windows/CRLF. Normalize only hotfix targets
+          # so deterministic assertions compare semantic text, not newline encoding.
+          $hotfixTargets=@(
+            'android\app\src\main\java\com\braseiro\oumanel\MainActivity.kt',
+            'services\geminiService.ts',
+            'components\SettingsView.tsx',
+            'components\CombatTacticalView.tsx',
+            'lib\rules\combat.ts',
+            'lib\autonomy\localFallbackDirector.ts',
+            'lib\version.ts',
+            'android\app\build.gradle.kts',
+            'App.tsx'
+          )
+          foreach($rel in $hotfixTargets){
+            $target=Join-Path $root $rel
+            if(-not (Test-Path $target)){ throw "Hotfix target missing: $rel" }
+            $text=Get-Content $target -Raw
+            $text=$text -replace "`r`n","`n"
+            [IO.File]::WriteAllText($target,$text,(New-Object Text.UTF8Encoding($false)))
+          }
+
           & node.exe $hotfixScript $root
           if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.198 deterministic hotfix failed' }
 
@@ -129,7 +151,7 @@ jobs:
           if($pkgJson.version -ne '4.9.198'){ throw "package.json version mismatch: $($pkgJson.version)" }
 
           $gradle=Get-Content (Join-Path $root 'android\app\build.gradle.kts') -Raw
-          if($gradle -notmatch 'versionName\s*=\s*"4\.9\.197"'){ throw 'Android versionName is not 4.9.198' }
+          if($gradle -notmatch 'versionName\s*=\s*"4\.9\.198"'){ throw 'Android versionName is not 4.9.198' }
           if($gradle -notmatch 'versionCode\s*=\s*49198'){ throw 'Android versionCode is not 49198' }
 
           $db=Get-Content (Join-Path $root 'lib\db.ts') -Raw
