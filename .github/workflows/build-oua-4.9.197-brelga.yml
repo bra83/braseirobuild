@@ -94,7 +94,7 @@ jobs:
           if($pkgJson.version -ne '4.9.197'){ throw "package.json version mismatch: $($pkgJson.version)" }
 
           $gradle=Get-Content (Join-Path $root 'android\app\build.gradle.kts') -Raw
-          if($gradle -notmatch 'versionName\s*=\s*"4\.9\.196"'){ throw 'Android versionName is not 4.9.197' }
+          if($gradle -notmatch 'versionName\s*=\s*"4\.9\.197"'){ throw 'Android versionName is not 4.9.197' }
           if($gradle -notmatch 'versionCode\s*=\s*49197'){ throw 'Android versionCode is not 49197' }
 
           $db=Get-Content (Join-Path $root 'lib\db.ts') -Raw
@@ -187,7 +187,7 @@ jobs:
           $badging=Get-Content (Join-Path $env:OUA_OUT 'NEW_BADGING.txt') -Raw
           if($badging -notmatch "package: name='com\.braseiro\.oumanel'"){throw 'Package mismatch'}
           if($badging -notmatch "versionCode='49197'"){throw 'versionCode mismatch'}
-          if($badging -notmatch "versionName='4\.9\.196'"){throw 'versionName mismatch'}
+          if($badging -notmatch "versionName='4\.9\.197'"){throw 'versionName mismatch'}
 
           & $apksigner verify --verbose --print-certs $env:BASE_APK_PATH 2>&1 | Set-Content (Join-Path $env:OUA_OUT 'BASE_SIG.txt')
           if($LASTEXITCODE -ne 0){throw 'Base APK signature invalid'}
