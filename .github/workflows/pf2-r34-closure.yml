@@ -1,10 +1,6 @@
 name: PF2 R34 Closure - Restov Stages + Kokoro FL + Character Token
 
 on:
-  push:
-    branches: [pf2-r34-closure-20260929]
-    paths:
-      - '.github/workflows/pf2-r34-closure.yml'
   workflow_dispatch:
 
 permissions:

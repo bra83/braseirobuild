@@ -1,11 +1,6 @@
 name: PF2 R34 Closure V2
 
 on:
-  push:
-    branches: [pf2-r34-closure-20260929]
-    paths:
-      - '.github/workflows/pf2-r34-closure-v2.yml'
-      - 'ci/pf2-r34-closure/**'
   workflow_dispatch:
 
 permissions:
@@ -13,7 +8,7 @@ permissions:
 
 concurrency:
   group: pf2-r34-closure-v2
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
