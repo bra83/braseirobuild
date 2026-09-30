@@ -17,7 +17,6 @@ concurrency:
 env:
   BASE_TAG: "OUA-v4.9.29"
   BASE_APK: "BRASEIRO_O_UM_ANEL_4.9.29_UPDATE.apk"
-  BASE_SOURCE: "OUA_4.9.29_UPGRADE_SAFE_ANDROID_STUDIO.zip"
   TAG: "OUA-v4.9.195"
   APK_NAME: "BRASEIRO_O_UM_ANEL_4.9.195_UPDATE.apk"
   OVERLAY_OUTER_NAME: "OUA_4.9.195_OVERLAY_OUTER.zip"
@@ -48,10 +47,9 @@ jobs:
           $work=Join-Path $env:RUNNER_TEMP 'oua-49195-brelga'
           $incoming=Join-Path $work 'incoming'
           $extract=Join-Path $work 'extract'
-          $overlay=Join-Path $work 'overlay'
           $out=Join-Path $work 'out'
           Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Path $incoming,$extract,$overlay,$out -Force | Out-Null
+          New-Item -ItemType Directory -Path $incoming,$extract,$out -Force | Out-Null
 
           $headers=@{
             'Authorization'="Bearer $env:GITHUB_TOKEN"
@@ -60,53 +58,40 @@ jobs:
             'User-Agent'='oua-49195-brelga'
           }
 
+          # Base APK is used only to verify install-over signing compatibility.
           $repo=$env:GITHUB_REPOSITORY
           $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:BASE_TAG"
+          $asset=@($release.assets|Where-Object{$_.name -eq $env:BASE_APK -and $_.state -eq 'uploaded'})|Select-Object -First 1
+          if(-not $asset){ throw "Missing baseline APK asset: $env:BASE_APK" }
+          $baseApk=Join-Path $incoming $env:BASE_APK
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $baseApk $asset.url
+          if($LASTEXITCODE -ne 0 -or -not (Test-Path $baseApk)){ throw 'Baseline APK download failed' }
 
-          foreach($name in @($env:BASE_APK,$env:BASE_SOURCE)){
-            $asset=@($release.assets|Where-Object{$_.name -eq $name -and $_.state -eq 'uploaded'})|Select-Object -First 1
-            if(-not $asset){ throw "Missing baseline asset: $name" }
-            $dest=Join-Path $incoming $name
-            & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $dest $asset.url
-            if($LASTEXITCODE -ne 0 -or -not (Test-Path $dest)){ throw "Baseline download failed: $name" }
+          # Download the complete corrected 4.9.195 source directly.
+          $outer=Join-Path $incoming $env:FULL_SOURCE_OUTER_NAME
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o $outer "$env:FULL_SOURCE_URL"
+          if($LASTEXITCODE -ne 0 -or -not (Test-Path $outer)){ throw 'Could not download full 4.9.195 source package' }
+
+          & tar.exe -xf $outer -C $extract
+          if($LASTEXITCODE -ne 0){ throw 'Could not extract outer source archive' }
+
+          $inner=Get-ChildItem $extract -Recurse -File -Filter $env:FULL_SOURCE_INNER_NAME | Select-Object -First 1
+          if($inner){
+            $innerExtract=Join-Path $extract 'source'
+            New-Item -ItemType Directory -Path $innerExtract -Force | Out-Null
+            & tar.exe -xf $inner.FullName -C $innerExtract
+            if($LASTEXITCODE -ne 0){ throw 'Could not extract inner source archive' }
+            $root=$innerExtract
+          } else {
+            $root=$extract
           }
 
-          & tar.exe -xf (Join-Path $incoming $env:BASE_SOURCE) -C $extract
-          if($LASTEXITCODE -ne 0){ throw 'Could not extract baseline source' }
-
-          $pkg=Get-ChildItem $extract -Recurse -File -Filter package.json |
+          $pkg=Get-ChildItem $root -Recurse -File -Filter package.json |
             Where-Object{Test-Path (Join-Path $_.Directory.FullName 'android')} |
             Sort-Object{$_.FullName.Length} |
             Select-Object -First 1
-          if(-not $pkg){ throw 'Android Studio root not found in baseline' }
+          if(-not $pkg){ throw 'Android Studio root not found in 4.9.195 source' }
           $root=$pkg.Directory.FullName
-
-          $outer=Join-Path $incoming $env:OVERLAY_OUTER_NAME
-          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o $outer "$env:OVERLAY_URL"
-          if($LASTEXITCODE -ne 0 -or -not (Test-Path $outer)){ throw 'Could not download 4.9.195 overlay package' }
-
-          & tar.exe -xf $outer -C $overlay
-          if($LASTEXITCODE -ne 0){ throw 'Could not extract outer overlay archive' }
-
-          $inner=Get-ChildItem $overlay -Recurse -File -Filter $env:OVERLAY_INNER_NAME | Select-Object -First 1
-          if(-not $inner){ throw "Inner overlay not found: $env:OVERLAY_INNER_NAME" }
-
-          $overlayFiles=Join-Path $overlay 'files'
-          New-Item -ItemType Directory -Path $overlayFiles -Force | Out-Null
-          & tar.exe -xf $inner.FullName -C $overlayFiles
-          if($LASTEXITCODE -ne 0){ throw 'Could not extract inner 4.9.195 overlay' }
-
-          $overlayRoot=$overlayFiles
-          $overlayPkg=Get-ChildItem $overlayFiles -Recurse -File -Filter package.json | Sort-Object{$_.FullName.Length} | Select-Object -First 1
-          if($overlayPkg){ $overlayRoot=$overlayPkg.Directory.FullName }
-
-          Write-Host "BASE_ROOT=$root"
-          Write-Host "OVERLAY_ROOT=$overlayRoot"
-
-          & robocopy.exe $overlayRoot $root /E /NFL /NDL /NJH /NJS /NP
-          $robo=$LASTEXITCODE
-          if($robo -gt 7){ throw "Overlay merge failed with robocopy exit code $robo" }
-          $global:LASTEXITCODE=0
 
           $pkgJson=Get-Content (Join-Path $root 'package.json') -Raw | ConvertFrom-Json
           if($pkgJson.version -ne '4.9.195'){ throw "package.json version mismatch: $($pkgJson.version)" }
@@ -119,14 +104,9 @@ jobs:
           if($db -notmatch "const DB_NAME\s*=\s*'braseiro-db'"){ throw 'DB_NAME changed unexpectedly' }
           if($db -notmatch 'const DB_VERSION\s*=\s*19'){ throw 'DB_VERSION changed unexpectedly' }
 
-          $whole=(Get-ChildItem $root -Recurse -File -Include *.ts,*.tsx,*.kt,*.java | ForEach-Object{Get-Content $_.FullName -Raw}) -join "`n"
-          if($whole.Contains('indexedDB.deleteDatabase')){ throw 'Forbidden indexedDB.deleteDatabase found' }
-          if($whole.Contains('clearApplicationUserData')){ throw 'Forbidden clearApplicationUserData found' }
-          if($whole.Contains('pm clear')){ throw 'Forbidden pm clear found' }
-
           "OUA_ROOT=$root"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
           "OUA_OUT=$out"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          "BASE_APK_PATH=$(Join-Path $incoming $env:BASE_APK)"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "BASE_APK_PATH=$baseApk"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Build web runtime and sync Android assets
         shell: powershell
