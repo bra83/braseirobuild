@@ -19,9 +19,9 @@ env:
   BASE_APK: "BRASEIRO_O_UM_ANEL_4.9.29_UPDATE.apk"
   TAG: "OUA-v4.9.195"
   APK_NAME: "BRASEIRO_O_UM_ANEL_4.9.195_UPDATE.apk"
-  OVERLAY_OUTER_NAME: "OUA_4.9.195_OVERLAY_OUTER.zip"
-  OVERLAY_INNER_NAME: "OUA_4.9.195_BRELGA_FULL_SOURCE.zip"
-  OVERLAY_URL: "https://eu-central.storage.cloudconvert.com/tasks/dfdada0c-1ee9-49c4-8545-91825e9bbb66/OUA_4.9.195_BRELGA_FULL_SOURCE.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cloudconvert-production%2F20260930%2Ffra%2Fs3%2Faws4_request&X-Amz-Date=20260930T044330Z&X-Amz-Expires=86400&X-Amz-Signature=699f87a4c34bac0b2e04bfa78d26938a66ad309e253c5a911d17ffdb4dec07c9&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3D%22OUA_4.9.195_BRELGA_FULL_SOURCE.zip%22&response-content-type=application%2Fzip&x-amz-checksum-mode=ENABLED&x-id=GetObject"
+  FULL_SOURCE_OUTER_NAME: "OUA_4.9.195_FULL_OUTER.zip"
+  FULL_SOURCE_INNER_NAME: "OUA_4.9.195_BRELGA_FULL_SOURCE.zip"
+  FULL_SOURCE_URL: "https://eu-central.storage.cloudconvert.com/tasks/da869837-8bbf-468d-b9e6-06c4577ac512/OUA_4.9.195_BRELGA_FULL_SOURCE.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cloudconvert-production%2F20260930%2Ffra%2Fs3%2Faws4_request&X-Amz-Date=20260930T052200Z&X-Amz-Expires=86400&X-Amz-Signature=867cc15912c976dbd3468af31488d14b11fea3e7a0dc9ef2e4e57de5a1692984&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3D%22OUA_4.9.195_BRELGA_FULL_SOURCE.zip%22&response-content-type=application%2Fzip&x-amz-checksum-mode=ENABLED&x-id=GetObject"
 
 jobs:
   build:
