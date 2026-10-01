@@ -1,4 +1,4 @@
-name: Inspect OUA 4.9.201 narrative token manifest
+name: Inspect OUA 4.9.201 app narrative
 
 on:
   push:
@@ -173,6 +173,7 @@ jobs:
           Remove-Item $dst -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $dst -Force|Out-Null
           foreach($rel in @(
+            'App.tsx',
             'services\geminiService.ts',
             'lib\humanMasterProfile.ts',
             'lib\narrativeRhythm.ts',
