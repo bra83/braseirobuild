@@ -296,7 +296,7 @@ const newStartBlock=[
 "      ? `A Companhia já está no hex ${openingHexId}; use exclusivamente o contexto cartográfico desse hex como ponto inicial.`",
 "      : `O Atlas ainda não possui um hex canônico para a Companhia. Inicie a primeira cena a partir da localização narrativa já persistida (${persistedMaster.position.locationName || activeCampaign.currentLocation || 'Eriador'}), sem inventar coordenadas, sem mover a Companhia e sem iniciar Jornada. O jogador fixará o hex no Atlas antes de qualquer deslocamento cartográfico.`;",
 loadingMarker,
-].join('\\n');
+].join('\n');
 app=app.slice(0,discoveryStart)+newStartBlock+app.slice(loadingEnd+loadingMarker.length);
 
 const openingFnStart=app.indexOf("const handleStartAdventure = async");
