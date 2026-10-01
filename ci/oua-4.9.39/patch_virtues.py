@@ -146,10 +146,25 @@ beorn="""    case 'set_beorn_enchanted_skills': {
 t=req(t,anchor,beorn+anchor,"Beorn selection command")
 
 # The player-start Journey validator receives Natural Watchfulness holders.
-old="""      const roleErrors = striderNoRoles ? [] : validateJourneyRoles(roles, Array.from(partyIds));"""
-new="""      const naturalWatchfulnessIds=nextCharacters.filter(character=>partyIds.has(character.id)&&hasVirtue(character.sheet,'Vigilância Natural')).map(character=>character.id);
-      const roleErrors = striderNoRoles ? [] : validateJourneyRoles(roles, Array.from(partyIds), naturalWatchfulnessIds);"""
-t=req(t,old,new,"Natural Watchfulness role exception")
+# Accept both the older striderNoRoles layout and the current explicit Strider branch.
+natural_line="      const naturalWatchfulnessIds=nextCharacters.filter(character=>partyIds.has(character.id)&&hasVirtue(character.sheet,'Vigilância Natural')).map(character=>character.id);"
+legacy_line="      const roleErrors = striderNoRoles ? [] : validateJourneyRoles(roles, Array.from(partyIds));"
+branch_line="        const roleErrors = validateJourneyRoles(roles, Array.from(partyIds));"
+if natural_line not in t:
+    if legacy_line in t:
+        t=t.replace(
+            legacy_line,
+            natural_line+"\n      const roleErrors = striderNoRoles ? [] : validateJourneyRoles(roles, Array.from(partyIds), naturalWatchfulnessIds);",
+            1,
+        )
+    elif branch_line in t:
+        t=t.replace(
+            branch_line,
+            "        const naturalWatchfulnessIds=nextCharacters.filter(character=>partyIds.has(character.id)&&hasVirtue(character.sheet,'Vigilância Natural')).map(character=>character.id);\n        const roleErrors = validateJourneyRoles(roles, Array.from(partyIds), naturalWatchfulnessIds);",
+            1,
+        )
+    else:
+        raise SystemExit("missing anchor: Natural Watchfulness role exception")
 
 # Apply Bolos de Mel fellowship bonus when acquired through canonical Wisdom advancement.
 old="""      else updateHero(command.targetCharacterId, sheet => { const result = advanceWisdom(sheet, command.virtue); if (!result.allowed) throw new Error(result.reason); return result.sheet; });
