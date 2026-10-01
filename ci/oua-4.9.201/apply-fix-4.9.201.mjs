@@ -6,7 +6,7 @@ const root=path.resolve(process.argv[2]||process.cwd());
 const scriptDir=path.dirname(fileURLToPath(import.meta.url));
 const templates=path.join(scriptDir,'templates');
 
-const read=rel=>fs.readFileSync(path.join(root,rel),'utf8');
+const read=rel=>fs.readFileSync(path.join(root,rel),'utf8').replace(/\r\n/g,'\n');
 const write=(rel,text)=>{const out=path.join(root,rel);fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,text,'utf8');};
 const copy=(srcRel,dstRel)=>write(dstRel,fs.readFileSync(path.join(templates,srcRel),'utf8'));
 const req=(text,old,replacement,label)=>{
