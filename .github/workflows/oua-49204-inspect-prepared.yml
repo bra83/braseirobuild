@@ -1,0 +1,25 @@
+name: OUA 4.9.204 inspect prepared source
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/oua-49204-inspect-prepared.yml"
+  workflow_dispatch:
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    steps:
+      - name: Inspect last prepared tree
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root=Join-Path $env:RUNNER_TEMP 'oua-49204-brelga\extract'
+          $settings=Join-Path $root 'components\SettingsView.tsx'
+          $models=Join-Path $root 'lib\geminiModels.ts'
+          if(-not (Test-Path $settings)){ throw "Prepared SettingsView missing: $settings" }
+          Write-Host '--- SettingsView lines 55-90 ---'
+          $lines=Get-Content $settings
+          for($i=55;$i -le [Math]::Min(90,$lines.Count);$i++){ Write-Host ("{0}: {1}" -f $i,$lines[$i-1]) }
+          Write-Host '--- geminiModels.ts ---'
+          Get-Content $models
