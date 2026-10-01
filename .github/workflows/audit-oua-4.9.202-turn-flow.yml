@@ -1,0 +1,142 @@
+name: OUA 4.9.202 — Turn Flow Audit (read-only)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/audit-oua-4.9.202-turn-flow.yml"
+      - "ci/oua-4.9.202/audit-turn-flow.ts"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FULL_SOURCE_OUTER_NAME: "OUA_4.9.196_FULL_OUTER.zip"
+  FULL_SOURCE_INNER_NAME: "OUA_4.9.196_BRELGA_SOURCE.zip"
+  FULL_SOURCE_URL: "https://drive.usercontent.google.com/download?id=1yIvAylIHStuCnUdIMxxpaAMxlOluStDC&export=download&confirm=t"
+
+jobs:
+  audit:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct exact 4.9.202 source without modifying game
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){ throw "Expected BRELGA; got $env:RUNNER_NAME" }
+          $work=Join-Path $env:RUNNER_TEMP 'oua-49202-turn-audit'
+          $incoming=Join-Path $work 'incoming'
+          $extract=Join-Path $work 'extract'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming,$extract -Force | Out-Null
+
+          $outer=Join-Path $incoming $env:FULL_SOURCE_OUTER_NAME
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o $outer "$env:FULL_SOURCE_URL"
+          if($LASTEXITCODE -ne 0 -or -not (Test-Path $outer)){ throw 'Could not download canonical source package' }
+          & tar.exe -xf $outer -C $extract
+          if($LASTEXITCODE -ne 0){ throw 'Could not extract outer source archive' }
+
+          $inner=Get-ChildItem $extract -Recurse -File -Filter $env:FULL_SOURCE_INNER_NAME | Select-Object -First 1
+          if($inner){
+            $innerExtract=Join-Path $extract 'source'
+            New-Item -ItemType Directory -Path $innerExtract -Force | Out-Null
+            & tar.exe -xf $inner.FullName -C $innerExtract
+            if($LASTEXITCODE -ne 0){ throw 'Could not extract inner source archive' }
+            $root=$innerExtract
+          } else { $root=$extract }
+
+          $pkg=Get-ChildItem $root -Recurse -File -Filter package.json |
+            Where-Object{Test-Path (Join-Path $_.Directory.FullName 'android')} |
+            Sort-Object{$_.FullName.Length} | Select-Object -First 1
+          if(-not $pkg){ throw 'Android project root not found' }
+          $root=$pkg.Directory.FullName
+
+          $patchDir=Join-Path $env:GITHUB_WORKSPACE 'ci\oua-4.9.197'
+          $encoded=''
+          foreach($name in @('patch.part0','patch.part1','patch.part2','patch.part3')){
+            $part=Join-Path $patchDir $name
+            if(-not (Test-Path $part)){ throw "Missing 4.9.197 patch chunk: $name" }
+            $encoded += (Get-Content $part -Raw).Trim()
+          }
+          $patchFile=Join-Path $env:RUNNER_TEMP 'oua-audit-base.patch'
+          $raw=[Convert]::FromBase64String($encoded)
+          $input=New-Object IO.MemoryStream(,$raw)
+          $gzip=New-Object IO.Compression.GZipStream($input,[IO.Compression.CompressionMode]::Decompress)
+          $output=[IO.File]::Create($patchFile)
+          $gzip.CopyTo($output); $output.Dispose(); $gzip.Dispose(); $input.Dispose()
+          Push-Location $root
+          try {
+            & git.exe apply --ignore-space-change --ignore-whitespace $patchFile
+            if($LASTEXITCODE -ne 0){ throw '4.9.197 baseline patch failed' }
+          } finally { Pop-Location }
+
+          foreach($ver in @('4.9.199','4.9.200')){
+            $payload=Join-Path $env:GITHUB_WORKSPACE ("ci\oua-"+$ver+"\apply-fix-"+$ver+".mjs.gz.b64")
+            $script=Join-Path $env:RUNNER_TEMP ("audit-fix-"+$ver+".mjs")
+            $raw=[Convert]::FromBase64String((Get-Content $payload -Raw).Trim())
+            $input=New-Object IO.MemoryStream(,$raw)
+            $gzip=New-Object IO.Compression.GZipStream($input,[IO.Compression.CompressionMode]::Decompress)
+            $output=[IO.File]::Create($script)
+            $gzip.CopyTo($output); $output.Dispose(); $gzip.Dispose(); $input.Dispose()
+            & node.exe $script $root
+            if($LASTEXITCODE -ne 0){ throw "$ver patch failed" }
+          }
+
+          & node.exe "$env:GITHUB_WORKSPACE\ci\oua-4.9.201\apply-fix-4.9.201.mjs" $root
+          if($LASTEXITCODE -ne 0){ throw '4.9.201 patch failed' }
+          & node.exe "$env:GITHUB_WORKSPACE\ci\oua-4.9.202\apply-fix-4.9.202.mjs" $root
+          if($LASTEXITCODE -ne 0){ throw '4.9.202 patch failed' }
+
+          Copy-Item "$env:GITHUB_WORKSPACE\ci\oua-4.9.202\audit-turn-flow.ts" (Join-Path $root 'audit-turn-flow.ts') -Force
+          "OUA_ROOT=$root"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Install JS dependencies for simulation
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          Push-Location $env:OUA_ROOT
+          try {
+            $env:npm_config_registry='https://registry.npmjs.org/'
+            & npm.cmd install --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
+            if($LASTEXITCODE -ne 0){ throw 'npm install failed' }
+          } finally { Pop-Location }
+
+      - name: Run 38 simulated sessions
+        id: sim
+        continue-on-error: true
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Continue'
+          Push-Location $env:OUA_ROOT
+          try {
+            & npx.cmd --yes tsx audit-turn-flow.ts
+            $code=$LASTEXITCODE
+            Write-Host "AUDIT_EXIT_CODE=$code"
+          } finally { Pop-Location }
+
+      - name: Print audit report
+        if: always()
+        shell: powershell
+        run: |
+          $md=Join-Path $env:OUA_ROOT 'OUA_49202_TURN_FLOW_AUDIT.md'
+          $json=Join-Path $env:OUA_ROOT 'OUA_49202_TURN_FLOW_AUDIT.json'
+          if(Test-Path $md){ Get-Content $md -Raw }
+          if(Test-Path $json){
+            $r=Get-Content $json -Raw | ConvertFrom-Json
+            Write-Host ("AUDIT_SUMMARY sessions={0} assertions={1} pass={2} fail={3}" -f $r.sessionsSimulated,$r.assertions,$r.passed,$r.failed)
+            foreach($f in @($r.failures)){ Write-Host ("AUDIT_FAILURE "+$f) }
+          } else { throw 'Audit report was not generated' }
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: OUA-4.9.202-turn-flow-audit
+          path: |
+            ${{ env.OUA_ROOT }}/OUA_49202_TURN_FLOW_AUDIT.md
+            ${{ env.OUA_ROOT }}/OUA_49202_TURN_FLOW_AUDIT.json
+          if-no-files-found: warn
