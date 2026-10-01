@@ -1,5 +1,5 @@
-# trigger-49204-r12
-name: OUA 4.9.204 FINAL R12 — BRELGA
+# trigger-49204-r13
+name: OUA 4.9.204 FINAL R13 — BRELGA
 
 on:
   push:
@@ -193,6 +193,12 @@ jobs:
           [IO.File]::WriteAllBytes($patch204,[Convert]::FromBase64String($encoded204))
           & node.exe $patch204 $root
           if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.204 consolidated patch failed' }
+
+          # Port the proven Pathfinder 2e Gemini startup/failover policy.
+          $pf2Gemini=Join-Path $env:GITHUB_WORKSPACE 'ci\oua-4.9.204\hotfix-pf2-gemini-parity.mjs'
+          if(-not (Test-Path $pf2Gemini)){ throw 'OUA 4.9.204 PF2 Gemini parity hotfix missing' }
+          & node.exe $pf2Gemini $root
+          if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.204 PF2 Gemini parity hotfix failed' }
 
           $verifyEncoded=''
           foreach($name in @('verify.part0','verify.part1')){
