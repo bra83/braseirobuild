@@ -1,4 +1,4 @@
-name: Inspect OUA 4.9.201 narrative token source
+name: Inspect OUA 4.9.201 narrative token manifest
 
 on:
   push:
