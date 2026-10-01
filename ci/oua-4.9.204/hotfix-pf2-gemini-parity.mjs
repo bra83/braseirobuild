@@ -284,29 +284,27 @@ write('android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt',main);
 // first Gemini call. If no hex is fixed yet, start narratively without inventing
 // coordinates; cartographic movement remains blocked until the player fixes a hex.
 let app=read('App.tsx');
-const oldStartBlock=[
-"    const discovery = await loadMapDiscovery(activeCampaign.id);",
-"    if (!discovery.currentHexId) {",
-"      setStoryError('Antes de começar, escolha no Atlas o hex onde a Companhia está. A aventura não será iniciada numa posição inventada.');",
-"      document.getElementById('atlas-terra-media')?.scrollIntoView({ behavior: 'smooth', block: 'start' });",
-"      return;",
-"    }",
-"    setIsStoryLoading(true); setStoryError(null);",
-].join('\\n');
-must(app.includes(oldStartBlock),'OUA opening hard Atlas gate');
+const discoveryStart=app.indexOf("    const discovery = await loadMapDiscovery(activeCampaign.id);",app.indexOf("const handleStartAdventure = async"));
+const loadingMarker="    setIsStoryLoading(true); setStoryError(null);";
+const loadingEnd=app.indexOf(loadingMarker,discoveryStart);
+must(discoveryStart>=0&&loadingEnd>discoveryStart,'OUA opening discovery gate');
 const newStartBlock=[
 "    const discovery = await loadMapDiscovery(activeCampaign.id);",
 "    const persistedMaster = normalizeMasterState(activeCampaign);",
 "    const openingHexId = discovery.currentHexId || persistedMaster.position.currentHexId || '';",
 "    const openingLocationInstruction = openingHexId",
-"      ? \`A Companhia já está no hex \${openingHexId}; use exclusivamente o contexto cartográfico desse hex como ponto inicial.\`",
-"      : \`O Atlas ainda não possui um hex canônico para a Companhia. Inicie a primeira cena a partir da localização narrativa já persistida (\${persistedMaster.position.locationName || activeCampaign.currentLocation || 'Eriador'}), sem inventar coordenadas, sem mover a Companhia e sem iniciar Jornada. O jogador fixará o hex no Atlas antes de qualquer deslocamento cartográfico.\`;",
-"    setIsStoryLoading(true); setStoryError(null);",
+"      ? `A Companhia já está no hex ${openingHexId}; use exclusivamente o contexto cartográfico desse hex como ponto inicial.`",
+"      : `O Atlas ainda não possui um hex canônico para a Companhia. Inicie a primeira cena a partir da localização narrativa já persistida (${persistedMaster.position.locationName || activeCampaign.currentLocation || 'Eriador'}), sem inventar coordenadas, sem mover a Companhia e sem iniciar Jornada. O jogador fixará o hex no Atlas antes de qualquer deslocamento cartográfico.`;",
+loadingMarker,
 ].join('\\n');
-app=app.replace(oldStartBlock,newStartBlock);
-const oldPrompt="    await processTurn(\`[INICIAR AVENTURA GUIADA] A Companhia já está no hex \${discovery.currentHexId}; use exclusivamente o contexto cartográfico desse hex como ponto inicial.\${companyText} Perfil: \${profile.label}. \${profile.prompt} \${openingInstruction(architecture)} O horário inicial canônico é \${String(openingClock.hour).padStart(2, '0')}:\${String(openingClock.minute).padStart(2, '0')} (\${timePeriodFromHour(openingClock.hour)}). Não substitua esse horário por manhã por hábito.\`, false, sourceCampaign);";
-must(app.includes(oldPrompt),'OUA opening prompt');
-app=app.replace(oldPrompt,"    await processTurn(\`[INICIAR AVENTURA GUIADA] \${openingLocationInstruction}\${companyText} Perfil: \${profile.label}. \${profile.prompt} \${openingInstruction(architecture)} O horário inicial canônico é \${String(openingClock.hour).padStart(2, '0')}:\${String(openingClock.minute).padStart(2, '0')} (\${timePeriodFromHour(openingClock.hour)}). Não substitua esse horário por manhã por hábito.\`, false, sourceCampaign);");
+app=app.slice(0,discoveryStart)+newStartBlock+app.slice(loadingEnd+loadingMarker.length);
+
+const openingFnStart=app.indexOf("const handleStartAdventure = async");
+const processStart=app.indexOf("    await processTurn(`[INICIAR AVENTURA GUIADA]",openingFnStart);
+const processEnd=app.indexOf("\\n  };",processStart);
+must(processStart>=0&&processEnd>processStart,'OUA opening processTurn');
+const newOpeningCall="    await processTurn(`[INICIAR AVENTURA GUIADA] ${openingLocationInstruction}${companyText} O NOME CANÔNICO do lugar/região inicial é “${canonicalOpeningLocation}”: mencione-o naturalmente e NÃO o substitua por um tipo genérico de terreno. Perfil: ${profile.label}. ${profile.prompt} ${openingInstruction(architecture)} O horário inicial canônico é ${String(openingClock.hour).padStart(2, '0')}:${String(openingClock.minute).padStart(2, '0')} (${timePeriodFromHour(openingClock.hour)}). Não substitua esse horário por manhã por hábito.`, false, sourceCampaign);";
+app=app.slice(0,processStart)+newOpeningCall+app.slice(processEnd);
 write('App.tsx',app);
 
 console.log('OUA 4.9.204 PF2 Gemini parity hotfix applied');
