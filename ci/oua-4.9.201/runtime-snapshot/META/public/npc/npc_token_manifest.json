@@ -1,0 +1,14 @@
+{
+  "manifestVersion": "1.0.0",
+  "generatedAt": "2026-09-30T04:00:25.930Z",
+  "sourceFolder": "npc",
+  "filenamePolicy": "descritivo_separado_por_sublinhados",
+  "supportedExtensions": [
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".webp"
+  ],
+  "tokenCount": 0,
+  "tokens": []
+}
