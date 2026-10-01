@@ -7,11 +7,12 @@ const version=read('lib/version.ts');
 const gradle=read('android/app/build.gradle.kts');
 const checks={
   'manual-roll-state':panel.includes('pendingManualRoll'),
-  'roll-request-wrapper':panel.includes("const requestRollJourney"),
-  'event-request-wrapper':panel.includes("const requestGenerateEvent"),
+  'roll-request-wrapper':panel.includes("const requestRollJourney")&&panel.includes("run: () => executeRollJourney(...args)"),
+  'event-request-wrapper':panel.includes("const requestGenerateEvent")&&panel.includes("run: () => executeGenerateEvent(...args)"),
+  'no-wrapper-recursion':!panel.includes("run: () => requestRollJourney(...args)")&&!panel.includes("run: () => requestGenerateEvent("),
   'explicit-roll-copy':panel.includes('Nenhum dado foi rolado ainda')&&panel.includes('>Rolar</button>'),
   'rolls-are-staged':!panel.includes('props.onRollJourney('),
-  'event-generation-staged':!panel.includes('props.onGenerateEvent()'),
+  'event-generation-staged':!panel.includes('props.onGenerateEvent('),
   'cancel-present':panel.includes('Cancelar'),
   'version':version.includes("APP_VERSION = '4.9.203'")&&version.includes('APP_VERSION_CODE = 49203'),
   'android-version':gradle.includes('versionCode = 49203')&&gradle.includes('versionName = "4.9.203"'),
