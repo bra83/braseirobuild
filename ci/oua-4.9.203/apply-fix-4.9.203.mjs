@@ -11,14 +11,12 @@ function must(text,needle,label){
 
 let panel=read('components/JourneyResolutionPanel.tsx');
 
-must(panel,
-  "const [mountVigour, setMountVigour] = useState<Record<string, number>>({});",
-  'journey state'
-);
+const stateAnchor = "  const { masterState, characters } = props;";
+must(panel,stateAnchor,'journey component state');
 
 panel=panel.replace(
-  "const [mountVigour, setMountVigour] = useState<Record<string, number>>({});",
-  `const [mountVigour, setMountVigour] = useState<Record<string, number>>({});
+  stateAnchor,
+  `${stateAnchor}
   const [pendingManualRoll, setPendingManualRoll] = useState<{ label: string; run: () => Promise<void> } | null>(null);
   const executeRollJourney = props.onRollJourney;
   const executeGenerateEvent = props.onGenerateEvent;
