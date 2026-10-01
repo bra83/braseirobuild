@@ -1,0 +1,410 @@
+# trigger-49204-r10
+name: OUA 4.9.204 FINAL R10 — BRELGA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-oua-4.9.204-final-r10-brelga.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  BASE_TAG: "OUA-v4.9.29"
+  BASE_APK: "BRASEIRO_O_UM_ANEL_4.9.29_UPDATE.apk"
+  TAG: "OUA-v4.9.204"
+  APK_NAME: "BRASEIRO_O_UM_ANEL_4.9.204_UPDATE.apk"
+  FULL_SOURCE_OUTER_NAME: "OUA_4.9.196_FULL_OUTER.zip"
+  FULL_SOURCE_INNER_NAME: "OUA_4.9.196_BRELGA_SOURCE.zip"
+  FULL_SOURCE_URL: "https://drive.usercontent.google.com/download?id=1yIvAylIHStuCnUdIMxxpaAMxlOluStDC&export=download&confirm=t"
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 150
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Prepare 4.9.203 source on BRELGA
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){ throw "Expected BRELGA; got $env:RUNNER_NAME" }
+
+          $work=Join-Path $env:RUNNER_TEMP 'oua-49204-brelga'
+          $incoming=Join-Path $work 'incoming'
+          $extract=Join-Path $work 'extract'
+          $out=Join-Path $work 'out'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming,$extract,$out -Force | Out-Null
+
+          $headers=@{
+            'Authorization'="Bearer $env:GITHUB_TOKEN"
+            'Accept'='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='oua-49204-brelga'
+          }
+
+          # Base APK is used only to verify install-over signing compatibility.
+          $repo=$env:GITHUB_REPOSITORY
+          $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:BASE_TAG"
+          $asset=@($release.assets|Where-Object{$_.name -eq $env:BASE_APK -and $_.state -eq 'uploaded'})|Select-Object -First 1
+          if(-not $asset){ throw "Missing baseline APK asset: $env:BASE_APK" }
+          $baseApk=Join-Path $incoming $env:BASE_APK
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/octet-stream" -H "X-GitHub-Api-Version: 2022-11-28" -o $baseApk $asset.url
+          if($LASTEXITCODE -ne 0 -or -not (Test-Path $baseApk)){ throw 'Baseline APK download failed' }
+
+          # Download the complete corrected 4.9.196 source directly.
+          $outer=Join-Path $incoming $env:FULL_SOURCE_OUTER_NAME
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o $outer "$env:FULL_SOURCE_URL"
+          if($LASTEXITCODE -ne 0 -or -not (Test-Path $outer)){ throw 'Could not download full 4.9.196 source package' }
+
+          & tar.exe -xf $outer -C $extract
+          if($LASTEXITCODE -ne 0){ throw 'Could not extract outer source archive' }
+
+          $inner=Get-ChildItem $extract -Recurse -File -Filter $env:FULL_SOURCE_INNER_NAME | Select-Object -First 1
+          if($inner){
+            $innerExtract=Join-Path $extract 'source'
+            New-Item -ItemType Directory -Path $innerExtract -Force | Out-Null
+            & tar.exe -xf $inner.FullName -C $innerExtract
+            if($LASTEXITCODE -ne 0){ throw 'Could not extract inner source archive' }
+            $root=$innerExtract
+          } else {
+            $root=$extract
+          }
+
+          $pkg=Get-ChildItem $root -Recurse -File -Filter package.json |
+            Where-Object{Test-Path (Join-Path $_.Directory.FullName 'android')} |
+            Sort-Object{$_.FullName.Length} |
+            Select-Object -First 1
+          if(-not $pkg){ throw 'Android Studio root not found in 4.9.196 source' }
+          $root=$pkg.Directory.FullName
+
+          # Reconstruct the exact installed 4.9.197 baseline on top of canonical 4.9.196.
+          $patchDir=Join-Path $env:GITHUB_WORKSPACE 'ci\oua-4.9.197'
+          $encoded=''
+          foreach($name in @('patch.part0','patch.part1','patch.part2','patch.part3')){
+            $part=Join-Path $patchDir $name
+            if(-not (Test-Path $part)){ throw "Missing OUA 4.9.197 baseline patch chunk: $name" }
+            $encoded += (Get-Content $part -Raw).Trim()
+          }
+          $patchFile=Join-Path $env:RUNNER_TEMP 'oua-49203-base.patch'
+          $raw=[Convert]::FromBase64String($encoded)
+          $input=New-Object IO.MemoryStream(,$raw)
+          $gzip=New-Object IO.Compression.GZipStream($input,[IO.Compression.CompressionMode]::Decompress)
+          $output=[IO.File]::Create($patchFile)
+          $gzip.CopyTo($output)
+          $output.Dispose(); $gzip.Dispose(); $input.Dispose()
+
+          Push-Location $root
+          try {
+            & git.exe apply --ignore-space-change --ignore-whitespace $patchFile
+            if($LASTEXITCODE -ne 0){ throw 'Failed to apply OUA 4.9.197 baseline patch' }
+          } finally { Pop-Location }
+
+          # Apply the 4.9.199 repair only after the exact 4.9.197 tree exists.
+          # IMPORTANT: never read/rewrite TypeScript/Kotlin source with PowerShell
+          # Get-Content/Set-Content here. Windows PowerShell may decode UTF-8 without
+          # BOM as ANSI and create mojibake (the regression seen in 4.9.198).
+          # The payload itself is ASCII base64; Node performs every source edit as UTF-8.
+          $hotfixPayload=Join-Path $env:GITHUB_WORKSPACE 'ci\oua-4.9.199\apply-fix-4.9.199.mjs.gz.b64'
+          if(-not (Test-Path $hotfixPayload)){ throw 'OUA 4.9.199 hotfix payload missing' }
+          $hotfixScript=Join-Path $env:RUNNER_TEMP 'apply-fix-4.9.199.mjs'
+          $hotfixRaw=[Convert]::FromBase64String((Get-Content $hotfixPayload -Raw).Trim())
+          $hotfixInput=New-Object IO.MemoryStream(,$hotfixRaw)
+          $hotfixGzip=New-Object IO.Compression.GZipStream($hotfixInput,[IO.Compression.CompressionMode]::Decompress)
+          $hotfixOutput=[IO.File]::Create($hotfixScript)
+          $hotfixGzip.CopyTo($hotfixOutput)
+          $hotfixOutput.Dispose(); $hotfixGzip.Dispose(); $hotfixInput.Dispose()
+
+          & node.exe $hotfixScript $root
+          if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.199 UTF-8/Gemini/RAG/combat hotfix failed' }
+          "HOTFIX_SCRIPT=$hotfixScript"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+          # Preserve the validated 4.9.200 narrative/TTS delta on top of 4.9.199.
+          # Node reads/writes source as UTF-8; PowerShell never transcodes source files.
+          $deltaPayload=Join-Path $env:GITHUB_WORKSPACE 'ci\oua-4.9.200\apply-fix-4.9.200.mjs.gz.b64'
+          if(-not (Test-Path $deltaPayload)){ throw 'OUA 4.9.200 repair payload missing' }
+          $deltaScript=Join-Path $env:RUNNER_TEMP 'apply-fix-4.9.200.mjs'
+          $deltaRaw=[Convert]::FromBase64String((Get-Content $deltaPayload -Raw).Trim())
+          $deltaInput=New-Object IO.MemoryStream(,$deltaRaw)
+          $deltaGzip=New-Object IO.Compression.GZipStream($deltaInput,[IO.Compression.CompressionMode]::Decompress)
+          $deltaOutput=[IO.File]::Create($deltaScript)
+          $deltaGzip.CopyTo($deltaOutput)
+          $deltaOutput.Dispose(); $deltaGzip.Dispose(); $deltaInput.Dispose()
+
+          & node.exe $deltaScript $root
+          if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.200 narrative/TTS patch failed' }
+
+          # Preserve the complete 4.9.201 character-creation repair.
+          $creationPatch=Join-Path $env:GITHUB_WORKSPACE 'ci\oua-4.9.201\apply-fix-4.9.201.mjs'
+          if(-not (Test-Path $creationPatch)){ throw 'OUA 4.9.201 creation patch missing' }
+          & node.exe $creationPatch $root
+          if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.201 character creation patch failed' }
+
+          # 4.9.202: exact canonical narrative profile + hard post-sanitize density gate.
+          $profilePatch=Join-Path $env:GITHUB_WORKSPACE 'ci\oua-4.9.202\apply-fix-4.9.202.mjs'
+          if(-not (Test-Path $profilePatch)){ throw 'OUA 4.9.202 patch missing' }
+          & node.exe $profilePatch $root
+          if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.202 narrative/profile patch failed' }
+
+          # 4.9.202 verifier checks the physically rebuilt party-token pack, so
+          # perform the deterministic crop pass BEFORE verifying that baseline.
+          # Repair the actual 120 bundled party-token images, not only their CSS.
+          & python.exe -m pip install --quiet pillow numpy opencv-python-headless
+          if($LASTEXITCODE -ne 0){ throw 'Party token crop dependencies failed' }
+          $cropReport=Join-Path $out 'TOKEN_CROP_REPAIR'
+          New-Item -ItemType Directory -Path $cropReport -Force | Out-Null
+          & python.exe "$env:GITHUB_WORKSPACE\ci\oua-4.9.202\recrop_party_tokens.py" $root $cropReport --apply
+          if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.202 party token crop repair failed' }
+
+          # Verify the full 4.9.202 baseline before changing only the Journey roll UX.
+          & node.exe "$env:GITHUB_WORKSPACE\ci\oua-4.9.202\verify-4.9.202.mjs" $root
+          if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.202 source baseline verification failed before 4.9.203' }
+
+          # 4.9.203: explicit second-step Rolar gate for every Journey dice action.
+          $rollPatch=Join-Path $env:GITHUB_WORKSPACE 'ci\oua-4.9.203\apply-fix-4.9.203.mjs'
+          if(-not (Test-Path $rollPatch)){ throw 'OUA 4.9.203 explicit Journey roll patch missing' }
+          & node.exe $rollPatch $root
+          if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.203 explicit Journey roll patch failed' }
+
+          # Prove 4.9.203 before applying the consolidated 4.9.204 fixes.
+          & node.exe "$env:GITHUB_WORKSPACE\ci\oua-4.9.203\verify-4.9.203.mjs" $root
+          if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.203 staging verification failed before 4.9.204' }
+
+          # Decode and apply 4.9.204.
+          $encoded204=''
+          foreach($name in @('apply.part0','apply.part1','apply.part2','apply.part3')){
+            $part=Join-Path $env:GITHUB_WORKSPACE ("ci\oua-4.9.204\"+$name)
+            if(-not (Test-Path $part)){ throw "Missing OUA 4.9.204 patch chunk: $name" }
+            $encoded204 += (Get-Content $part -Raw).Trim()
+          }
+          $patch204=Join-Path $env:RUNNER_TEMP 'apply-fix-4.9.204.mjs'
+          [IO.File]::WriteAllBytes($patch204,[Convert]::FromBase64String($encoded204))
+          & node.exe $patch204 $root
+          if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.204 consolidated patch failed' }
+
+          $verifyEncoded=''
+          foreach($name in @('verify.part0','verify.part1')){
+            $part=Join-Path $env:GITHUB_WORKSPACE ("ci\oua-4.9.204\"+$name)
+            if(-not (Test-Path $part)){ throw "Missing OUA 4.9.204 verifier chunk: $name" }
+            $verifyEncoded += (Get-Content $part -Raw).Trim()
+          }
+          $verify204=Join-Path $env:RUNNER_TEMP 'verify-4.9.204.mjs'
+          [IO.File]::WriteAllBytes($verify204,[Convert]::FromBase64String($verifyEncoded))
+          & node.exe $verify204 $root
+          if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.204 source verification failed' }
+          "VERIFY_204=$verify204"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+          $pkgJson=Get-Content (Join-Path $root 'package.json') -Raw | ConvertFrom-Json
+          if($pkgJson.version -ne '4.9.204'){ throw "package.json version mismatch: $($pkgJson.version)" }
+
+          $gradle=Get-Content (Join-Path $root 'android\app\build.gradle.kts') -Raw
+          if($gradle -notmatch 'versionName\s*=\s*"4\.9\.204"'){ throw 'Android versionName is not 4.9.204' }
+          if($gradle -notmatch 'versionCode\s*=\s*49204'){ throw 'Android versionCode is not 49204' }
+
+          $db=Get-Content (Join-Path $root 'lib\db.ts') -Raw
+          if($db -notmatch "const DB_NAME\s*=\s*'braseiro-db'"){ throw 'DB_NAME changed unexpectedly' }
+          if($db -notmatch 'const DB_VERSION\s*=\s*19'){ throw 'DB_VERSION changed unexpectedly' }
+
+          "OUA_ROOT=$root"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "OUA_OUT=$out"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "BASE_APK_PATH=$baseApk"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build web runtime and sync Android assets
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          Push-Location $env:OUA_ROOT
+          try {
+            $lock=Join-Path $env:OUA_ROOT 'package-lock.json'
+            if(Test-Path $lock){
+              $t=Get-Content $lock -Raw
+              $t=[regex]::Replace($t,'https://[^"]*/artifactory/api/npm/npm-public/','https://registry.npmjs.org/')
+              [IO.File]::WriteAllText($lock,$t,(New-Object Text.UTF8Encoding($false)))
+            }
+
+            $env:npm_config_registry='https://registry.npmjs.org/'
+            $npmOk=$false
+            for($attempt=1;$attempt -le 3;$attempt++){
+              & npm.cmd install --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
+              if($LASTEXITCODE -eq 0){ $npmOk=$true; break }
+              Start-Sleep -Seconds (3*$attempt)
+            }
+            if(-not $npmOk){ throw 'npm install failed after 3 attempts' }
+
+            & npm.cmd run lint
+            if($LASTEXITCODE -ne 0){ throw 'lint/typecheck failed' }
+
+            & npm.cmd run build
+            if($LASTEXITCODE -ne 0){ throw 'vite build failed' }
+
+            & node.exe scripts/sync-android-assets.mjs
+            if($LASTEXITCODE -ne 0){ throw 'sync-android-assets failed' }
+
+            # Verify source + bundled Android runtime for mojibake, no RAG hard gate,
+            # Gemini free-key transport semantics, no silent offline narration,
+            # combat placement/facing, and exact version.
+            & node.exe $env:HOTFIX_SCRIPT $env:OUA_ROOT --verify-built
+            if($LASTEXITCODE -ne 0){ throw '4.9.199 built-runtime regression gate failed' }
+
+            # Final 4.9.204 gate: Journey, Settings scroll, Gemini and Android/Kokoro together.
+            & node.exe $env:VERIFY_204 $env:OUA_ROOT
+            if($LASTEXITCODE -ne 0){ throw '4.9.204 consolidated regression gate failed' }
+          } finally { Pop-Location }
+
+      - name: Configure Android SDK
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $candidates=@('C:\actions-runner\android-sdk')
+          if($env:ANDROID_SDK_ROOT){$candidates+=$env:ANDROID_SDK_ROOT}
+          if($env:ANDROID_HOME){$candidates+=$env:ANDROID_HOME}
+          if($env:LOCALAPPDATA){$candidates+=(Join-Path $env:LOCALAPPDATA 'Android\Sdk')}
+          $sdk=$candidates|Where-Object{$_ -and (Test-Path $_)}|Select-Object -First 1
+          if(-not $sdk){throw 'Android SDK not found on BRELGA'}
+          "ANDROID_HOME=$sdk"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdk"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build APK and verify update compatibility
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $android=Join-Path $env:OUA_ROOT 'android'
+          $gradleLog=Join-Path $env:OUA_OUT 'GRADLE_BUILD.log'
+
+          Push-Location $android
+          try {
+            $previous=$ErrorActionPreference
+            $ErrorActionPreference='Continue'
+            if(Test-Path variable:PSNativeCommandUseErrorActionPreference){$PSNativeCommandUseErrorActionPreference=$false}
+            & .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath $gradleLog
+            $exit=$LASTEXITCODE
+            $ErrorActionPreference=$previous
+            if($exit -ne 0){throw "Gradle failed: $exit"}
+          } finally {Pop-Location}
+
+          $apk=Get-ChildItem (Join-Path $android 'app\build\outputs\apk\debug') -File -Filter '*.apk'|Select-Object -First 1
+          if(-not $apk){throw 'APK not found'}
+          $newApk=Join-Path $env:OUA_OUT $env:APK_NAME
+          Copy-Item $apk.FullName $newApk -Force
+
+          $buildTools=Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory |
+            Sort-Object{[version]($_.Name -replace '[^0-9.]','')} -Descending |
+            Select-Object -First 1
+          if(-not $buildTools){throw 'Android build-tools not found'}
+          $aapt=Join-Path $buildTools.FullName 'aapt.exe'
+          $apksigner=Join-Path $buildTools.FullName 'apksigner.bat'
+
+          & $aapt dump badging $newApk | Set-Content (Join-Path $env:OUA_OUT 'NEW_BADGING.txt')
+          $badging=Get-Content (Join-Path $env:OUA_OUT 'NEW_BADGING.txt') -Raw
+          if($badging -notmatch "package: name='com\.braseiro\.oumanel'"){throw 'Package mismatch'}
+          if($badging -notmatch "versionCode='49204'"){throw 'versionCode mismatch'}
+          if($badging -notmatch "versionName='4\.9\.204'"){throw 'versionName mismatch'}
+
+          & $apksigner verify --verbose --print-certs $env:BASE_APK_PATH 2>&1 | Set-Content (Join-Path $env:OUA_OUT 'BASE_SIG.txt')
+          if($LASTEXITCODE -ne 0){throw 'Base APK signature invalid'}
+          & $apksigner verify --verbose --print-certs $newApk 2>&1 | Set-Content (Join-Path $env:OUA_OUT 'NEW_SIG.txt')
+          if($LASTEXITCODE -ne 0){throw 'New APK signature invalid'}
+
+          $baseDigest=((Get-Content (Join-Path $env:OUA_OUT 'BASE_SIG.txt')|Where-Object{$_ -match 'certificate SHA-256 digest:'}|Select-Object -First 1)-replace '.*digest:\s*','').Trim().ToLowerInvariant()
+          $newDigest=((Get-Content (Join-Path $env:OUA_OUT 'NEW_SIG.txt')|Where-Object{$_ -match 'certificate SHA-256 digest:'}|Select-Object -First 1)-replace '.*digest:\s*','').Trim().ToLowerInvariant()
+          if(-not $baseDigest -or $baseDigest -ne $newDigest){throw "Signing certificate mismatch. base=$baseDigest new=$newDigest"}
+
+          $hash=(Get-FileHash $newApk -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:APK_NAME"|Set-Content "$newApk.sha256" -Encoding ascii
+
+          @(
+            'PASS - package com.braseiro.oumanel',
+            'PASS - versionName 4.9.204',
+            'PASS - versionCode 49204',
+            'PASS - signing certificate unchanged',
+            'PASS - braseiro-db preserved',
+            'PASS - DB_VERSION 19 preserved',
+            'RESULT - APK eligible for install-over update.'
+          ) | Set-Content (Join-Path $env:OUA_OUT 'INSTALL_OVER_EXISTING_APP.txt') -Encoding utf8
+
+      - name: Publish 4.9.204 release
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $repo=$env:GITHUB_REPOSITORY
+          $headers=@{
+            'Authorization'="Bearer $env:GITHUB_TOKEN"
+            'Accept'='application/vnd.github+json'
+            'X-GitHub-Api-Version'='2022-11-28'
+            'User-Agent'='oua-49204-publisher'
+          }
+
+          $release=$null
+          try {
+            $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$($env:TAG)"
+          } catch {}
+
+          if(-not $release){
+            $payload=[ordered]@{
+              tag_name=$env:TAG
+              target_commitish=$env:GITHUB_SHA
+              name='Braseiro O Um Anel 4.9.204'
+              body='APK 4.9.204 consolidada: Jornada com Rolar explícito e trava de duplo toque; Configurações com rolagem vertical e safe area Android; Gemini com x-goog-api-key, cadeia de fallbacks atual e teste pela mesma cadeia da aventura; perfil narrativo integral preservado, abertura 6.500–9.000 caracteres e 9–13 parágrafos; Android TTS/Kokoro nos backends Sherpa atuais, vozes reais de TextToSpeech.voices, setVoice protegido, persistência package + voice.name, blocos 250–650 alvo 450, QUEUE_FLUSH só no primeiro bloco, QUEUE_ADD nos seguintes, próximo bloco apenas em onDone e sem watchdog neural. Samsung/Google continuam no fluxo Android normal. DB19, campanha e assinatura install-over preservados.'
+              draft=$false
+              prerelease=$false
+            } | ConvertTo-Json -Compress
+            $payloadPath=Join-Path $env:RUNNER_TEMP 'oua-49203-release.json'
+            $responsePath=Join-Path $env:RUNNER_TEMP 'oua-49203-release-response.json'
+            [IO.File]::WriteAllText($payloadPath,$payload,(New-Object Text.UTF8Encoding($false)))
+            & curl.exe -sS -L --fail-with-body --request POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: application/json" --data-binary "@$payloadPath" -o $responsePath "https://api.github.com/repos/$repo/releases"
+            if($LASTEXITCODE -ne 0){ Get-Content $responsePath -ErrorAction SilentlyContinue; throw 'Release creation failed' }
+            $release=Get-Content $responsePath -Raw | ConvertFrom-Json
+          }
+
+          foreach($name in @($env:APK_NAME,"$env:APK_NAME.sha256",'NEW_BADGING.txt','INSTALL_OVER_EXISTING_APP.txt','GRADLE_BUILD.log')){
+            $file=Join-Path $env:OUA_OUT $name
+            if(-not (Test-Path $file)){continue}
+            $old=@($release.assets|Where-Object{$_.name -eq $name})|Select-Object -First 1
+            if($old){Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($old.id)"|Out-Null}
+            $url="https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$([uri]::EscapeDataString($name))"
+            & curl.exe -sS -L --fail-with-body --request POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: application/octet-stream" --data-binary "@$file" $url
+            if($LASTEXITCODE -ne 0){throw "Upload failed: $name"}
+          }
+
+          Write-Host "APK_URL=https://github.com/$repo/releases/download/$env:TAG/$env:APK_NAME"
+
+      - name: Publish CI result
+        if: always()
+        continue-on-error: true
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $status='${{ job.status }}'
+          $path="$env:GITHUB_WORKSPACE\ci-results\OUA_49204_BUILD_RESULT.md"
+          @(
+            '# OUA 4.9.204 — BRELGA build result',
+            '',
+            "- status: **$status**",
+            "- workflow: $env:GITHUB_WORKFLOW",
+            "- run: $env:GITHUB_RUN_ID",
+            "- commit: $env:GITHUB_SHA",
+            "- runner: $env:RUNNER_NAME",
+            "- apk: $env:APK_NAME",
+            "- release: https://github.com/$env:GITHUB_REPOSITORY/releases/tag/$env:TAG"
+          )|Set-Content $path -Encoding utf8
+          git config user.name "braseiro-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add ci-results/OUA_49204_BUILD_RESULT.md
+          if((git status --porcelain).Length -gt 0){
+            git commit -m "OUA 4.9.204 publish BRELGA build result [skip ci]"
+            git push origin HEAD:main
+          }
