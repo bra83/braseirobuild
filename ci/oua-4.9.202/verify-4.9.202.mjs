@@ -13,12 +13,17 @@ const pkg=JSON.parse(read('package.json'));
 must(pkg.version==='4.9.202','package.json not 4.9.202');
 const gradle=read('android/app/build.gradle.kts');
 must(/versionCode\s*=\s*49202/.test(gradle),'Android versionCode 49202 missing');
-must(/versionName\s*=\s*"4\.9\.201"/.test(gradle),'Android versionName 4.9.202 missing');
+must(/versionName\s*=\s*"4\.9\.202"/.test(gradle),'Android versionName 4.9.202 missing');
 
 const db=read('lib/db.ts');
 must(/const DB_NAME\s*=\s*'braseiro-db'/.test(db),'DB_NAME changed');
 must(/const DB_VERSION\s*=\s*19/.test(db),'DB_VERSION changed');
 must(db.includes("explicitChoicesVersion?: string"),'Character Paths audit metadata missing');
+const fullProfile=read('lib/humanMasterProfile.ts');
+must(fullProfile.length>35000,'canonical human master profile truncated');
+must(fullProfile.includes("1.0-canonical-full-4.9.202"),'canonical human master profile version missing');
+must(fullProfile.includes('PERFIL TÉCNICO CANÔNICO'),'canonical profile heading missing');
+
 
 const factory=read('lib/characterFactory.ts');
 const pathStart=factory.indexOf('export function createCharacterFromPath');
@@ -105,6 +110,12 @@ must(geminiService.includes('maxOutputTokens:16000'),'density repair output budg
 must(geminiService.includes('HUMAN_MASTER_PROFILE'),'canonical human master profile not embedded in narrator repair');
 must(geminiService.includes('_braseiroProfileEnforced'),'profile enforcement marker missing');
 must(app.includes('Perfil narrativo obrigatório não cumprido pelo provedor'),'host final density rejection missing');
+must(app.includes('Gate narrativo 4.9.202 recusou o texto final'),'post-sanitize persisted-text gate missing');
+must(app.includes('const isOpeningScene = isHostOpening ||'),'opening detection does not include empty campaign');
+const narrativeSanitizer=read('lib/narrativeSanitizer.ts');
+must(narrativeSanitizer.includes("join('\\n\\n').replace(/[ \\t]{2,}/g"),'sanitizer does not preserve paragraph breaks');
+must(!narrativeSanitizer.includes("join('\\n\\n').replace(/\\s{2,}/g"),'sanitizer still collapses paragraph breaks');
+
 must(!app.includes('mantenha o texto remoto'),'silent acceptance of short remote narration still present');
 
 // 4.9.202 — selected party tokens are rebuilt and picker cannot show spill outside cards.
