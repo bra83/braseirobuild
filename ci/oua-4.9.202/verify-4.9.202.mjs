@@ -116,6 +116,23 @@ must(picker.includes("scale-[1.18]"),'picker isolation preview zoom missing');
 must(partyTokens.includes("PARTY_TOKEN_CROP_VERSION = 'autocrop-v2'"),'party crop version missing');
 must(partyTokens.includes('autoCropPartyTokenBlob'),'automatic token cropper missing');
 must(partyTokens.includes("sheetId === expectedSheetId"),'legacy bad token crops are not invalidated');
+// Full canonical profile and sanitizer paragraph preservation.
+const canonicalProfile=read('lib/humanMasterProfile.ts');
+must(canonicalProfile.includes("1.0-canonical-full-4.9.202"),'canonical full profile revision missing');
+must(canonicalProfile.length>35000,'canonical human master profile appears truncated');
+const sanitizer=read('lib/narrativeSanitizer.ts');
+must(sanitizer.includes("join('\\n\\n').replace(/[ \\t]{2,}/g"),'sanitizer does not preserve paragraph separators');
+must(!sanitizer.includes("join('\\n\\n').replace(/\\s{2,}/g"),'sanitizer still collapses paragraphs');
+
+// Build-time crop pass must replace the bundled pack itself, not only CSS/runtime display.
+const manifestPath=path.join(root,'public/tor2e-ui/party-token-manifest.json');
+if(fs.existsSync(manifestPath)){
+  const manifest=JSON.parse(fs.readFileSync(manifestPath,'utf8'));
+  must(manifest.packId==='tor2e-party-characters-v2-clean-crops','clean party token pack was not generated');
+  must(manifest.cropRevision==='4.9.202-clean-components','party token crop revision missing');
+  must(manifest.tokenCount===manifest.tokens.length,'party token manifest count mismatch');
+  must(manifest.tokenCount>=40,'crop repair discarded too many tokens');
+}
 // UTF-8 gate on changed and critical files.
 for(const rel of [
   'components/CharacterPathsCreator.tsx','components/CharacterSheetView.tsx','components/CreationInfoButton.tsx',
