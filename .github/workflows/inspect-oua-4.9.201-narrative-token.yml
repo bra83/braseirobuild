@@ -190,6 +190,23 @@ jobs:
               Copy-Item $from $to -Force
             }
           }
+          $manifest=Get-ChildItem $env:OUA_ROOT -Recurse -File -Filter 'party-token-manifest.json' | Select-Object -First 1
+          if($manifest){
+            Copy-Item $manifest.FullName (Join-Path $dst 'party-token-manifest.json') -Force
+          }
+          $assetRoot=Get-ChildItem $env:OUA_ROOT -Recurse -Directory | Where-Object{$_.Name -eq 'party-tokens'} | Select-Object -First 1
+          if($assetRoot){
+            $report=Get-ChildItem $assetRoot.FullName -Recurse -File | ForEach-Object{
+              try{
+                Add-Type -AssemblyName System.Drawing -ErrorAction SilentlyContinue
+                $img=[System.Drawing.Image]::FromFile($_.FullName)
+                $line="$($_.Name)|$($img.Width)x$($img.Height)|$($_.Length)|$($_.FullName.Substring($env:OUA_ROOT.Length).TrimStart('\\'))"
+                $img.Dispose()
+                $line
+              }catch{"$($_.Name)|unknown|$($_.Length)|$($_.FullName.Substring($env:OUA_ROOT.Length).TrimStart('\\'))"}
+            }
+            $report | Set-Content (Join-Path $dst 'party-token-assets.txt') -Encoding utf8
+          }
           git config user.name "braseiro-bot"
           git config user.email "actions@users.noreply.github.com"
           git add ci/oua-4.9.201/narrative-token-snapshot
