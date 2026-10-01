@@ -1,4 +1,4 @@
-# pf2-parity-preflight-r5
+# pf2-parity-preflight-r6
 name: OUA 4.9.204 PF2 Gemini parity preflight
 
 on:
@@ -94,7 +94,7 @@ jobs:
           cd "$OUA_ROOT"
           npm config set registry https://registry.npmjs.org/
           npm install --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
-          npm install --no-save --ignore-scripts --no-audit --no-fund @rollup/rollup-linux-x64-gnu
+          npm install --no-save --ignore-scripts --no-audit --no-fund @rollup/rollup-linux-x64-gnu @esbuild/linux-x64
           npm run lint
           npm run build
           node scripts/sync-android-assets.mjs
