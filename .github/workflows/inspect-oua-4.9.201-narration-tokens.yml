@@ -219,3 +219,33 @@ jobs:
             git commit -m "OUA 4.9.201 exact narration and token runtime snapshot [skip ci]"
             git push origin HEAD:main
           }
+
+      - name: Inspect token image source geometry
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          Add-Type -AssemblyName System.Drawing
+          $out="$env:GITHUB_WORKSPACE\ci\oua-4.9.201\runtime-snapshot\TOKEN_IMAGE_AUDIT.txt"
+          $lines=New-Object System.Collections.Generic.List[string]
+          function AddImageLine([string]$prefix,[System.IO.FileInfo]$file){
+            $rel=$file.FullName.Substring($env:OUA_ROOT.Length).TrimStart('\')
+            $w='?'; $h='?'
+            try { $img=[System.Drawing.Image]::FromFile($file.FullName); $w=$img.Width; $h=$img.Height; $img.Dispose() } catch {}
+            $lines.Add(($prefix + "`t" + $rel + "`t" + $file.Length + "`t" + $w + "x" + $h))
+          }
+          $lines.Add('PARTY ASSET FILES')
+          $partyRoot=Join-Path $env:OUA_ROOT 'public\tor2e-ui\assets\party'
+          if(Test-Path $partyRoot){ Get-ChildItem $partyRoot -Recurse -File | Sort-Object FullName | ForEach-Object{ AddImageLine 'ASSET' $_ } }
+          $lines.Add('')
+          $lines.Add('SOURCE SHEET CANDIDATES')
+          Get-ChildItem $env:OUA_ROOT -Recurse -File -Include '*.png','*.jpg','*.jpeg','*.webp' |
+            Where-Object{$_.Name -match 'hobbit|an[oõ]e|elf|viajante|ranger|dunedain|barding|rohan|gondor|beorn|floresta|woodmen|party' -and $_.FullName -notmatch '\\node_modules\\|\\dist\\|\\android\\app\\build\\|\\public\\tor2e-ui\\assets\\party\\'} |
+            Sort-Object FullName | ForEach-Object{ AddImageLine 'SOURCE' $_ }
+          [IO.File]::WriteAllLines($out,$lines,(New-Object Text.UTF8Encoding($false)))
+          git config user.name "braseiro-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add ci/oua-4.9.201/runtime-snapshot/TOKEN_IMAGE_AUDIT.txt
+          if((git status --porcelain).Length -gt 0){
+            git commit -m "OUA 4.9.201 token image source audit [skip ci]"
+            git push origin HEAD:main
+          }
