@@ -13,6 +13,16 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          sparse-checkout: |
+            ci/oua-4.9.197
+            ci/oua-4.9.199
+            ci/oua-4.9.200
+            ci/oua-4.9.201
+            ci/oua-4.9.202
+            ci/oua-4.9.203
+            ci/oua-4.9.204
 
       - uses: actions/setup-java@v4
         with:
