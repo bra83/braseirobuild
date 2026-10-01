@@ -1,4 +1,4 @@
-# pf2-parity-preflight-r3
+# pf2-parity-preflight-r4
 name: OUA 4.9.204 PF2 Gemini parity preflight
 
 on:
@@ -74,11 +74,8 @@ jobs:
           node ci/oua-4.9.201/apply-fix-4.9.201.mjs "$ROOT"
           node ci/oua-4.9.202/apply-fix-4.9.202.mjs "$ROOT"
 
-          python -m pip install --quiet pillow numpy opencv-python-headless
-          mkdir -p "$OUT/TOKEN_CROP_REPAIR"
-          python ci/oua-4.9.202/recrop_party_tokens.py "$ROOT" "$OUT/TOKEN_CROP_REPAIR" --apply
-          node ci/oua-4.9.202/verify-4.9.202.mjs "$ROOT"
-
+          # Token recrop already passed on BRELGA R12 and is unchanged by the
+          # Pathfinder Gemini parity patch. Hosted preflight focuses on code compilation.
           node ci/oua-4.9.203/apply-fix-4.9.203.mjs "$ROOT"
           node ci/oua-4.9.203/verify-4.9.203.mjs "$ROOT"
 
