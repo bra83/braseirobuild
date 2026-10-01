@@ -300,9 +300,10 @@ loadingMarker,
 app=app.slice(0,discoveryStart)+newStartBlock+app.slice(loadingEnd+loadingMarker.length);
 
 const openingFnStart=app.indexOf("const handleStartAdventure = async");
-const processStart=app.indexOf("    await processTurn(`[INICIAR AVENTURA GUIADA]",openingFnStart);
-const processEnd=app.indexOf("\\n  };",processStart);
-must(processStart>=0&&processEnd>processStart,'OUA opening processTurn');
+const openingPromptMarker=app.indexOf("[INICIAR AVENTURA GUIADA]",openingFnStart);
+const processStart=openingPromptMarker>=0 ? app.lastIndexOf("\n",openingPromptMarker)+1 : -1;
+const processEnd=openingPromptMarker>=0 ? app.indexOf("\n  };",openingPromptMarker) : -1;
+must(openingPromptMarker>=0&&processStart>=0&&processEnd>processStart,'OUA opening processTurn');
 const newOpeningCall="    await processTurn(`[INICIAR AVENTURA GUIADA] ${openingLocationInstruction}${companyText} O NOME CANÔNICO do lugar/região inicial é “${canonicalOpeningLocation}”: mencione-o naturalmente e NÃO o substitua por um tipo genérico de terreno. Perfil: ${profile.label}. ${profile.prompt} ${openingInstruction(architecture)} O horário inicial canônico é ${String(openingClock.hour).padStart(2, '0')}:${String(openingClock.minute).padStart(2, '0')} (${timePeriodFromHour(openingClock.hour)}). Não substitua esse horário por manhã por hábito.`, false, sourceCampaign);";
 app=app.slice(0,processStart)+newOpeningCall+app.slice(processEnd);
 write('App.tsx',app);
