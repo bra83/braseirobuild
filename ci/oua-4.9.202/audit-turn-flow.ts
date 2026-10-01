@@ -52,6 +52,9 @@ function makeSession(partySize=4):Session{
     c.sheet.attributes.wounded=false;
     c.sheet.attributes.weary=false;
     c.sheet.attributes.miserable=false;
+    c.sheet.other.virtues='';
+    c.sheet.other.rewards='';
+    c.sheet.other.flaws='';
     characters.push(c);
   }
   const now=Date.now();
@@ -176,7 +179,16 @@ function groupSimpleJourney(iter:number){
     move(s,'H2','road');
     check('journey-time',variant.name+'-days-'+iter,master(s).worldClock.elapsedMinutes-startClock.elapsedMinutes===variant.expectedDays*1440,'elapsed delta='+(master(s).worldClock.elapsedMinutes-startClock.elapsedMinutes));
     check('journey-state',variant.name+'-await-end-'+iter,master(s).journey.awaitingEndRoll===true,'awaitingEndRoll='+master(s).journey.awaitingEndRoll);
-    check('journey-state',variant.name+'-pending-fatigue-zero-'+iter,Object.values(master(s).journey.travelFatigueByHero||{}).reduce((a:number,b:any)=>a+Number(b||0),0)===0,'pending='+JSON.stringify(master(s).journey.travelFatigueByHero||{}));
+    const pendingTotal=Object.values(master(s).journey.travelFatigueByHero||{}).reduce((a:number,b:any)=>a+Number(b||0),0);
+    const expectedPending=variant.forcedMarch?s.characters.length:0;
+    check('journey-state',variant.name+'-pending-fatigue-'+iter,pendingTotal===expectedPending,'pending='+JSON.stringify(master(s).journey.travelFatigueByHero||{})+' expected total='+expectedPending);
+    if(pendingTotal>0){
+      for(const h of s.characters){
+        if(Number(master(s).journey.travelFatigueByHero?.[h.id]||0)>0){
+          apply(s,[{type:'player_record_journey_roll',kind:'end',targetCharacterId:h.id,skill:'Viagem',targetNumber:14,roll:roll(true,0,7),mountVigour:0,reason:'AUDIT forced end roll'}]);
+        }
+      }
+    }
     finishNoFatigue(s);
     check('journey-state',variant.name+'-completed-'+iter,master(s).journey.status==='completed'&&master(s).activeMode==='adventure','status='+master(s).journey.status+' mode='+master(s).activeMode);
     s.characters.forEach((h:any,idx:number)=>{
@@ -292,21 +304,25 @@ function seasonBoundary(){
   check('clock','year-boundary',y.year===2966&&y.day===1&&y.season==='spring'&&y.hour===0&&y.minute===30,'got '+clockKey(y));
 }
 
-for(let i=0;i<8;i++) groupClockAndResources(i);
-for(let i=0;i<6;i++) groupRest(i);
-for(let i=0;i<6;i++) groupSimpleJourney(i);
-for(let i=0;i<6;i++) groupJourneyEvent(i);
-for(let i=0;i<6;i++) groupSuppliesAndEndurance(i);
-for(let i=0;i<6;i++) groupEye(i);
-groupWeather();
-seasonBoundary();
+function runScenario(label:string,fn:()=>void){
+  try{fn();}
+  catch(error){check('scenario-crash',label,false,error instanceof Error?error.message:String(error));}
+}
+for(let i=0;i<8;i++) runScenario('clock-'+i,()=>groupClockAndResources(i));
+for(let i=0;i<6;i++) runScenario('rest-'+i,()=>groupRest(i));
+for(let i=0;i<6;i++) runScenario('simple-journey-'+i,()=>groupSimpleJourney(i));
+for(let i=0;i<6;i++) runScenario('event-journey-'+i,()=>groupJourneyEvent(i));
+for(let i=0;i<6;i++) runScenario('resources-'+i,()=>groupSuppliesAndEndurance(i));
+for(let i=0;i<6;i++) runScenario('eye-'+i,()=>groupEye(i));
+runScenario('weather',groupWeather);
+runScenario('season-boundaries',seasonBoundary);
 
 const byGroup=Object.fromEntries(Array.from(new Set(checks.map(c=>c.group))).map(group=>{
   const all=checks.filter(c=>c.group===group); return [group,{total:all.length,pass:all.filter(c=>c.ok).length,fail:all.filter(c=>!c.ok).length}];
 }));
 const report={
   generatedAt:new Date().toISOString(),
-  sessionsSimulated:38,
+  sessionsSimulated:sessionSeq,
   assertions,
   passed:checks.filter(c=>c.ok).length,
   failed:checks.filter(c=>!c.ok).length,
