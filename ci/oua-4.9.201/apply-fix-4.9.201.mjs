@@ -225,10 +225,8 @@ import { REWARD_HELP, VIRTUE_HELP, skillHelp } from '../lib/characterCreationHel
 'sheet help imports');
 
 sheet=req(sheet,
-`  const currentVirtueNames = useMemo(() => sheet.other.virtues.split(/[;\n,]+/).map(value => value.trim()).filter(Boolean), [sheet.other.virtues]);
-  const wisdom = Number(sheet.attributes.wisdom || 1);`,
-`  const currentVirtueNames = useMemo(() => sheet.other.virtues.split(/[;\n,]+/).map(value => value.trim()).filter(Boolean), [sheet.other.virtues]);
-  const initialRewardName = useMemo(() => Object.keys(REWARD_HELP).find(name => sheet.other.rewards.includes(name)) || '', [sheet.other.rewards]);
+`  const wisdom = Number(sheet.attributes.wisdom || 1);`,
+`  const initialRewardName = useMemo(() => Object.keys(REWARD_HELP).find(name => sheet.other.rewards.includes(name)) || '', [sheet.other.rewards]);
   const favouredSkillNames = useMemo(() => sheet.skills.filter(skill => skill.favorite).map(skill => skill.name), [sheet.skills]);
   const legacyCharacterPath = Boolean(sheet.other.characterPath && sheet.other.characterPath.explicitChoicesVersion !== '4.9.201');
   const wisdom = Number(sheet.attributes.wisdom || 1);`,
