@@ -251,8 +251,9 @@ write('components/SettingsView.tsx',settings);
 // 5) Native Android: a 429 is model-specific until proven otherwise.
 // Do not open a five-minute FREE-key circuit that prevents trying Pathfinder's next model.
 let main=read('android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt');
-const requestRe=/    private fun performGeminiRequest\(model: String, body: String, paidOnly: Boolean\): JSONObject \{[\s\S]*?\n    \}(?=\n\n    private fun sha256Text)/;
-must(requestRe.test(main),'native performGeminiRequest');
+const requestStart=main.indexOf('    private fun performGeminiRequest(model: String, body: String, paidOnly: Boolean): JSONObject {');
+const requestEnd=main.indexOf('\n\n    private fun sha256Text',requestStart);
+must(requestStart>=0&&requestEnd>requestStart,'native performGeminiRequest');
 const nativeFn=[
 "    private fun performGeminiRequest(model: String, body: String, paidOnly: Boolean): JSONObject {",
 "        val free = getGeminiSecret(\"free\")",
@@ -275,7 +276,7 @@ const nativeFn=[
 "        return JSONObject().put(\"status\", 401).put(\"body\", message).put(\"tier\", if (paidOnly) \"paid\" else \"free\")",
 "    }",
 ].join('\n');
-main=main.replace(requestRe,nativeFn);
+main=main.slice(0,requestStart)+nativeFn+main.slice(requestEnd);
 write('android/app/src/main/java/com/braseiro/oumanel/MainActivity.kt',main);
 
 
