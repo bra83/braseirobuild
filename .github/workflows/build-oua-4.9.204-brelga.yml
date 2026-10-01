@@ -158,6 +158,16 @@ jobs:
           & node.exe $profilePatch $root
           if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.202 narrative/profile patch failed' }
 
+          # 4.9.202 verifier checks the physically rebuilt party-token pack, so
+          # perform the deterministic crop pass BEFORE verifying that baseline.
+          # Repair the actual 120 bundled party-token images, not only their CSS.
+          & python.exe -m pip install --quiet pillow numpy opencv-python-headless
+          if($LASTEXITCODE -ne 0){ throw 'Party token crop dependencies failed' }
+          $cropReport=Join-Path $out 'TOKEN_CROP_REPAIR'
+          New-Item -ItemType Directory -Path $cropReport -Force | Out-Null
+          & python.exe "$env:GITHUB_WORKSPACE\ci\oua-4.9.202\recrop_party_tokens.py" $root $cropReport --apply
+          if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.202 party token crop repair failed' }
+
           # Verify the full 4.9.202 baseline before changing only the Journey roll UX.
           & node.exe "$env:GITHUB_WORKSPACE\ci\oua-4.9.202\verify-4.9.202.mjs" $root
           if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.202 source baseline verification failed before 4.9.203' }
@@ -196,13 +206,6 @@ jobs:
           if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.204 source verification failed' }
           "VERIFY_204=$verify204"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
-          # Repair the actual 120 bundled party-token images, not only their CSS.
-          & python.exe -m pip install --quiet pillow numpy opencv-python-headless
-          if($LASTEXITCODE -ne 0){ throw 'Party token crop dependencies failed' }
-          $cropReport=Join-Path $out 'TOKEN_CROP_REPAIR'
-          New-Item -ItemType Directory -Path $cropReport -Force | Out-Null
-          & python.exe "$env:GITHUB_WORKSPACE\ci\oua-4.9.202\recrop_party_tokens.py" $root $cropReport --apply
-          if($LASTEXITCODE -ne 0){ throw 'OUA 4.9.202 party token crop repair failed' }
           $pkgJson=Get-Content (Join-Path $root 'package.json') -Raw | ConvertFrom-Json
           if($pkgJson.version -ne '4.9.204'){ throw "package.json version mismatch: $($pkgJson.version)" }
 
