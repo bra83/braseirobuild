@@ -10,7 +10,7 @@ const checks={
   'roll-request-wrapper':panel.includes("const requestRollJourney")&&panel.includes("run: () => executeRollJourney(...args)"),
   'event-request-wrapper':panel.includes("const requestGenerateEvent")&&panel.includes("run: () => executeGenerateEvent(...args)"),
   'no-wrapper-recursion':!panel.includes("run: () => requestRollJourney(...args)")&&!panel.includes("run: () => requestGenerateEvent("),
-  'explicit-roll-copy':panel.includes('Nenhum dado foi rolado ainda')&&/>\\s*Rolar\\s*<\\/button>/.test(panel),
+  'explicit-roll-copy':panel.includes('Nenhum dado foi rolado ainda')&&/>\s*Rolar\s*<\/button>/.test(panel),
   'rolls-are-staged':!panel.includes('props.onRollJourney('),
   'event-generation-staged':!panel.includes('props.onGenerateEvent('),
   'cancel-present':panel.includes('Cancelar'),
