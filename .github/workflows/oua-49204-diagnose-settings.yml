@@ -1,0 +1,85 @@
+name: OUA 4.9.204 diagnose Settings exact source
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/oua-49204-diagnose-settings.yml"
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct source and print exact failing lines
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $work=Join-Path $env:RUNNER_TEMP 'oua-49204-diagnose'
+          $incoming=Join-Path $work 'incoming'
+          $extract=Join-Path $work 'extract'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $incoming,$extract -Force | Out-Null
+
+          $outer=Join-Path $incoming 'OUA_4.9.196_FULL_OUTER.zip'
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o $outer "https://drive.usercontent.google.com/download?id=1yIvAylIHStuCnUdIMxxpaAMxlOluStDC&export=download&confirm=t"
+          if($LASTEXITCODE -ne 0){ throw 'source download failed' }
+          & tar.exe -xf $outer -C $extract
+          if($LASTEXITCODE -ne 0){ throw 'outer extract failed' }
+
+          $inner=Get-ChildItem $extract -Recurse -File -Filter 'OUA_4.9.196_BRELGA_SOURCE.zip' | Select-Object -First 1
+          if($inner){
+            $innerExtract=Join-Path $extract 'source'
+            New-Item -ItemType Directory -Path $innerExtract -Force | Out-Null
+            & tar.exe -xf $inner.FullName -C $innerExtract
+            if($LASTEXITCODE -ne 0){ throw 'inner extract failed' }
+            $root=$innerExtract
+          } else { $root=$extract }
+
+          $pkg=Get-ChildItem $root -Recurse -File -Filter package.json | Where-Object{Test-Path (Join-Path $_.Directory.FullName 'android')} | Sort-Object{$_.FullName.Length} | Select-Object -First 1
+          if(-not $pkg){ throw 'root not found' }
+          $root=$pkg.Directory.FullName
+
+          $patchDir=Join-Path $env:GITHUB_WORKSPACE 'ci\oua-4.9.197'
+          $encoded=''
+          foreach($name in @('patch.part0','patch.part1','patch.part2','patch.part3')){ $encoded += (Get-Content (Join-Path $patchDir $name) -Raw).Trim() }
+          $patchFile=Join-Path $env:RUNNER_TEMP 'oua-49204-diagnose.patch'
+          $raw=[Convert]::FromBase64String($encoded)
+          $input=New-Object IO.MemoryStream(,$raw)
+          $gzip=New-Object IO.Compression.GZipStream($input,[IO.Compression.CompressionMode]::Decompress)
+          $output=[IO.File]::Create($patchFile); $gzip.CopyTo($output); $output.Dispose(); $gzip.Dispose(); $input.Dispose()
+          Push-Location $root
+          try { & git.exe apply --ignore-space-change --ignore-whitespace $patchFile; if($LASTEXITCODE -ne 0){ throw '197 patch failed' } }
+          finally { Pop-Location }
+
+          foreach($ver in @('4.9.199','4.9.200')){
+            $payload=Join-Path $env:GITHUB_WORKSPACE ("ci\oua-$ver\apply-fix-$ver.mjs.gz.b64")
+            $script=Join-Path $env:RUNNER_TEMP ("apply-fix-$ver.mjs")
+            $raw=[Convert]::FromBase64String((Get-Content $payload -Raw).Trim())
+            $input=New-Object IO.MemoryStream(,$raw)
+            $gzip=New-Object IO.Compression.GZipStream($input,[IO.Compression.CompressionMode]::Decompress)
+            $output=[IO.File]::Create($script); $gzip.CopyTo($output); $output.Dispose(); $gzip.Dispose(); $input.Dispose()
+            & node.exe $script $root
+            if($LASTEXITCODE -ne 0){ throw "$ver patch failed" }
+          }
+
+          foreach($ver in @('4.9.201','4.9.202','4.9.203')){
+            $script=Join-Path $env:GITHUB_WORKSPACE ("ci\oua-$ver\apply-fix-$ver.mjs")
+            & node.exe $script $root
+            if($LASTEXITCODE -ne 0){ throw "$ver patch failed" }
+          }
+
+          $encoded204=''
+          foreach($name in @('apply.part0','apply.part1','apply.part2','apply.part3')){ $encoded204 += (Get-Content (Join-Path $env:GITHUB_WORKSPACE ("ci\oua-4.9.204\"+$name)) -Raw).Trim() }
+          $patch204=Join-Path $env:RUNNER_TEMP 'apply-fix-4.9.204.mjs'
+          [IO.File]::WriteAllBytes($patch204,[Convert]::FromBase64String($encoded204))
+          & node.exe $patch204 $root
+          if($LASTEXITCODE -ne 0){ throw '204 patch failed' }
+
+          Write-Host '--- EXACT SettingsView lines 55-90 ---'
+          $lines=Get-Content (Join-Path $root 'components\SettingsView.tsx')
+          for($i=55;$i -le [Math]::Min(90,$lines.Count);$i++){ Write-Host ("{0}: {1}" -f $i,$lines[$i-1]) }
+          Write-Host '--- EXACT geminiModels.ts lines 1-100 ---'
+          $m=Get-Content (Join-Path $root 'lib\geminiModels.ts')
+          for($i=1;$i -le [Math]::Min(100,$m.Count);$i++){ Write-Host ("M{0}: {1}" -f $i,$m[$i-1]) }
