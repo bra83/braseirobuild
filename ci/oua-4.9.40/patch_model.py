@@ -56,10 +56,9 @@ t=req(t,
   timeLimitBonus?: number;
   memoryVeil?: boolean;
   outcome?: 'success' | 'partial' | 'failure';""","Council supplement state")
-if "  power?: number;" not in t:
-    t=req(t,
-    "  quickSheet?: Record<string, unknown>;\n}",
-    """  quickSheet?: Record<string, unknown>;
+t=req(t,
+"  quickSheet?: Record<string, unknown>;\n}",
+"""  quickSheet?: Record<string, unknown>;
   power?: number;
 }""","combat actor Power")
 t=req(t,
