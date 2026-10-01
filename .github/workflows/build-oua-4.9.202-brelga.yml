@@ -1,4 +1,4 @@
-# trigger-49202-r7
+# trigger-49202-r8
 name: OUA 4.9.202 APK — BRELGA
 
 on:
@@ -318,7 +318,7 @@ jobs:
               tag_name=$env:TAG
               target_commitish=$env:GITHUB_SHA
               name='Braseiro O Um Anel 4.9.202'
-              body='APK 4.9.202: corrige definitivamente os dois pontos reportados na 4.9.201. O PERFIL_TECNICO_MESTRE_HUMANO_IMERSIVO_VTT canônico completo foi incorporado integralmente à system instruction do Narrador, sem resumo. Cenas imersivas com mínimo definido agora passam por gate real depois da sanitização: até quatro reescritas remotas da mesma batida e recusa de persistência se o texto continuar abaixo do mínimo; abertura reconhece também campanha sem ficção prévia. O sanitizer deixa de destruir as quebras entre parágrafos. Os 120 assets da Biblioteca da Companhia são processados no build por segmentação de componente para remover personagens vizinhos e fragmentos; crops irrecuperáveis são removidos do manifesto, e o pack recebe revisão nova para evitar reutilização de blob antigo. Mantém 4.9.201 (criação, Recompensa Inicial, XP manual, Favorecidas/ajuda), 4.9.200 (Mestre Nível 4/TTS Kokoro 250–650 alvo 450), 4.9.199 (Gemini free-key/UTF-8/sem hard gate RAG), DB19, campanha e assinatura install-over.'
+              body='APK 4.9.202: incorpora integralmente o PERFIL_TECNICO_MESTRE_HUMANO_IMERSIVO_VTT canônico na system instruction do Narrador, sem resumo. Cenas imersivas com mínimo definido recebem reparo remoto obrigatório e gate programático; o texto final é validado depois da sanitização e não é persistido se continuar abaixo do mínimo. Aberturas também são reconhecidas por campanha sem ficção prévia. O sanitizer preserva as quebras reais entre parágrafos. A Biblioteca da Companhia é corrigida no asset: os 120 recortes são processados por segmentação de componente para remover personagens vizinhos/fragmentos, e o runtime ainda refaz o crop do token selecionado e invalida blobs antigos. Mantém 4.9.201 (criação, Recompensa Inicial, XP manual, Favorecidas/ajuda), 4.9.200 (Mestre Nível 4/TTS Kokoro 250–650 alvo 450), 4.9.199 (Gemini free-key/UTF-8/sem hard gate RAG), DB19, campanha e assinatura install-over.'
               draft=$false
               prerelease=$false
             } | ConvertTo-Json -Compress
@@ -344,6 +344,7 @@ jobs:
 
       - name: Publish CI result
         if: always()
+        continue-on-error: true
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
