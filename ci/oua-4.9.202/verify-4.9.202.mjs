@@ -168,4 +168,16 @@ if(exists('android/app/src/main/assets/index.html')){
   must(!/(?:resoluÃ|conexÃ|estÃ¡|nÃ£o|vocÃª|narraÃ§|â€”|â€œ|â€)/.test(bundled),'mojibake in Android bundle');
 }
 
+
+const journeyPanel=read('components/JourneyResolutionPanel.tsx');
+must(journeyPanel.includes('Fim da Jornada · resolver e encerrar'),'Journey end CTA title missing');
+must(journeyPanel.includes('Encerrar Jornada agora'),'zero-fatigue journey cannot be explicitly completed');
+must(journeyPanel.includes('viajar por si só não cria Fadiga automática'),'Journey fatigue explanation missing');
+must(journeyPanel.includes('Isto NÃO lança magia'),'minor-magic Eye control remains misleading');
+must(journeyPanel.includes('Última alteração:'),'Eye change reason is not visible');
+must(journeyPanel.includes('zIndex: 5000'),'Journey resolution panel may remain hidden in immersive mode');
+const patchedApp=read('App.tsx');
+must(patchedApp.includes('MOVIMENTO DE JORNADA JÁ APLICADO · NOVA CENA'),'movement does not force a new scene');
+must(patchedApp.includes('JORNADA ENCERRADA · NOVA CENA'),'journey completion does not open an arrival scene');
+
 console.log('PASS OUA 4.9.202: hard narrative profile gate + automatic party token recrop + all previous regressions');
