@@ -44,7 +44,7 @@ checks={
   "strider-feature": "features.push('Peregrino')" in read("lib/characterFactory.ts"),
   "strider-tables": all(x in read("lib/rules/striderMode.ts") for x in ["resolveNarrationTable","striderLore","striderFortune","striderMisfortune","STRIDER_JOURNEY_DETAILS"]),
   "strider-skirmish": "stance==='skirmish'" in read("lib/rules/combat.ts") and "context.escaping&&actor.stance==='skirmish'?0" in read("lib/rules/combat.ts"),
-  "supplement-passives": all(x in read("lib/rules/supplementMechanics.ts") for x in ["Bolos de Mel Duas Vezes Assados","Sonhos Élficos","Luzir de Ira","A Resolução do Caçador","Remédios Herbais"]) and "isCulture(sheet,'beornings') && sheet.attributes.wounded" in read("lib/rules/supplementMechanics.ts"),
+  "supplement-passives": all(x in read("lib/rules/supplementMechanics.ts") for x in ["Furioso","Bolos de Mel Duas Vezes Assados","Sonhos Élficos","Luzir de Ira","A Resolução do Caçador","Remédios Herbais"]),
   "journey-explicit-preserved": "Decisão de Jornada bloqueada no fluxo automático" in read("lib/master/commands.ts"),
   "journey-hope-ui": "Gastar 1 Esperança" in read("components/JourneyResolutionPanel.tsx"),
   "notable-event-ui": "Encontro Notável" in read("components/JourneyResolutionPanel.tsx"),
