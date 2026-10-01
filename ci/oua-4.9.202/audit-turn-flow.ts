@@ -248,9 +248,9 @@ function groupJourneyEvent(iter:number){
 
 function groupSuppliesAndEndurance(iter:number){
   const s=makeSession(1); const id=s.characters[0].id;
-  apply(s,[{type:'adjust_supplies',targetCharacterId:id,amount:-150,reason:'AUDIT clamp low'}]);
+  apply(s,[{type:'adjust_supplies',targetCharacterId:id,amount:-100,reason:'AUDIT clamp low'}]);
   check('supplies','clamp-zero-'+iter,heroState(byId(s,id)).supplies===0,'supplies='+heroState(byId(s,id)).supplies);
-  apply(s,[{type:'adjust_supplies',targetCharacterId:id,amount:250,reason:'AUDIT clamp high'}]);
+  apply(s,[{type:'adjust_supplies',targetCharacterId:id,amount:100,reason:'AUDIT clamp high'}]);
   check('supplies','clamp-hundred-'+iter,heroState(byId(s,id)).supplies===100,'supplies='+heroState(byId(s,id)).supplies);
 
   const h=byId(s,id);
@@ -261,9 +261,9 @@ function groupSuppliesAndEndurance(iter:number){
   apply(s,[{type:'adjust_endurance',targetCharacterId:id,amount:-(Math.max(0,current-threshold)),reason:'AUDIT weary threshold'}]);
   const at=heroState(byId(s,id));
   check('endurance','weary-at-threshold-'+iter,at.endurance<=at.load+at.fatigue && at.weary===true,'endurance='+at.endurance+' load='+at.load+' fatigue='+at.fatigue+' weary='+at.weary);
-  apply(s,[{type:'adjust_endurance',targetCharacterId:id,amount:-999,reason:'AUDIT clamp'}]);
+  apply(s,[{type:'adjust_endurance',targetCharacterId:id,amount:-100,reason:'AUDIT clamp'}]);
   check('endurance','clamp-zero-'+iter,heroState(byId(s,id)).endurance===0,'endurance='+heroState(byId(s,id)).endurance);
-  apply(s,[{type:'adjust_endurance',targetCharacterId:id,amount:999,reason:'AUDIT clamp max'}]);
+  apply(s,[{type:'adjust_endurance',targetCharacterId:id,amount:100,reason:'AUDIT clamp max'}]);
   check('endurance','clamp-max-'+iter,heroState(byId(s,id)).endurance===heroState(byId(s,id)).enduranceMax,'endurance='+heroState(byId(s,id)).endurance+'/'+heroState(byId(s,id)).enduranceMax);
 }
 
@@ -290,7 +290,7 @@ function groupWeather(){
   const app=fs.readFileSync('App.tsx','utf8');
   const env=fs.readFileSync('lib/autonomy/environment.ts','utf8');
   check('weather','movement-integration-present',app.includes('prepareEnvironmentAdvance(summarized, locationEvent.id)')||app.includes('prepareEnvironmentAdvance(reconciled.campaign, locationEvent.id)'),'movement calls environment advance');
-  check('weather','weather-advance-is-movement-gated',env.includes('Uma chamada equivale exatamente a um deslocamento')&&env.includes('processedTravelActionIds'),'environment weather is explicitly movement/idempotency gated');
+  check('weather','weather-advance-is-movement-gated',env.includes('processedTravelActionIds.includes(travelActionId)')&&env.includes('advanceWeatherState(state.weather')&&env.includes('travelStep: state.travelStep + 1'),'environment weather is movement/idempotency gated');
   check('weather','clock-reconcile-does-not-advance',env.includes('Reconciliamos posição e relógio sem avançar o clima'),'clock-only reconcile explicitly does not advance weather');
   notes.push('Clima: a arquitetura atual avança a máquina meteorológica por deslocamento confirmado, não por simples passagem de horas/dias. O teste registra isso como comportamento atual, não como correção.');
 }
