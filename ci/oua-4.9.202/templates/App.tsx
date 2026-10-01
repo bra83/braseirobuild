@@ -891,7 +891,7 @@ export default function App() {
       const continuityContext = continuityPrompt(continuityAnchor);
       const narrativeCheckpoint = buildNarrativeCheckpoint(base, allNpcs);
       const narrativeContext = narrativeCheckpointPrompt(narrativeCheckpoint, narrativeIntent, userAction);
-      const isOpeningScene = /^\[INICIAR AVENTURA GUIADA\]/i.test(userAction);
+      const isOpeningScene = isHostOpening || /^\[INICIAR AVENTURA GUIADA\]/i.test(userAction);
       const initialRhythm = buildNarrativeRhythmPlan(base, narrativeIntent, { isOpening: isOpeningScene, isArrival: !isOpeningScene && (hostStoryOccasion === 'first_arrival' || barbaraOccasion === 'first_arrival' || barbaraOccasion === 'changed_return') });
       const rhythmContext = narrativeRhythmPrompt(initialRhythm);
       let directorContext = `${orchestrator.directorContext}${continuityContext}${narrativeContext}${rhythmContext}`;
@@ -1190,6 +1190,16 @@ O perfil técnico do Mestre é obrigatório. atmospheric_narration deve ultrapas
       if (narrativeIntent.advancesFiction) {
         response = ensureEnvironmentAnchoredResponse(response, environmentBinding);
         response.audioPlan = enrichAudioPlanWithEnvironment(response.audioPlan, sceneEnvironment);
+      }
+      // 4.9.202: o contrato vale para o texto que será realmente persistido,
+      // depois de sanitizer e de qualquer amarração ambiental.
+      if (narrativeIntent.advancesFiction && turnRhythm.targetCharMin > 0) {
+        const persistedNarration=String(response.atmospheric_narration||'').trim();
+        const persistedParagraphs=persistedNarration ? persistedNarration.split(/\n\s*\n/).map(value=>value.trim()).filter(Boolean).length : 0;
+        const persistedRequiredParagraphs=turnRhythm.cadence==='opening'?Math.max(9,turnRhythm.targetParagraphMin):Math.max(1,turnRhythm.targetParagraphMin-1);
+        if(persistedNarration.length<turnRhythm.targetCharMin||persistedParagraphs<persistedRequiredParagraphs){
+          throw new Error(`Gate narrativo 4.9.202 recusou o texto final: ${persistedNarration.length}/${turnRhythm.targetCharMin} caracteres e ${persistedParagraphs}/${persistedRequiredParagraphs} parágrafos. A cena não foi salva.`);
+        }
       }
       const usedRoll = Boolean(base.pendingDiceRoll && base.pendingTest);
       const modelEvents = narrativeIntent.advancesFiction ? sanitizeModelEvents({ ...response, location: canonicalLocation }, mechanicallyUpdated, sceneId) : [];
