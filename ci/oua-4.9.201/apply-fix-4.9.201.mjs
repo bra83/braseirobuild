@@ -9,9 +9,9 @@ const templates=path.join(scriptDir,'templates');
 const read=rel=>fs.readFileSync(path.join(root,rel),'utf8');
 const write=(rel,text)=>{const out=path.join(root,rel);fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,text,'utf8');};
 const copy=(srcRel,dstRel)=>write(dstRel,fs.readFileSync(path.join(templates,srcRel),'utf8'));
-const req=(text,old,new,label)=>{
+const req=(text,old,replacement,label)=>{
   if(!text.includes(old))throw new Error('OUA 4.9.201 missing anchor: '+label);
-  return text.replace(old,new);
+  return text.replace(old,replacement);
 };
 
 copy('lib/characterCreationHelp.ts','lib/characterCreationHelp.ts');
