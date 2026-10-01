@@ -15,6 +15,8 @@ copy('components/TokenPicker.tsx','components/TokenPicker.tsx');
 copy('lib/partyTokenLibrary.ts','lib/partyTokenLibrary.ts');
 copy('lib/humanMasterProfile.ts','lib/humanMasterProfile.ts');
 copy('lib/narrativeSanitizer.ts','lib/narrativeSanitizer.ts');
+copy('lib/humanMasterProfile.ts','lib/humanMasterProfile.ts');
+copy('lib/narrativeSanitizer.ts','lib/narrativeSanitizer.ts');
 
 let version=read('lib/version.ts');
 version=version.replace(/APP_VERSION\s*=\s*'[^']+'/, "APP_VERSION = '4.9.202'");
