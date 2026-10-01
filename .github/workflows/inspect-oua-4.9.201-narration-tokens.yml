@@ -254,13 +254,13 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
-          & python.exe -m pip install --quiet pillow numpy
-          if($LASTEXITCODE -ne 0){ throw 'Pillow/numpy install failed' }
+          & python.exe -m pip install --quiet pillow numpy opencv-python-headless
+          if($LASTEXITCODE -ne 0){ throw 'Pillow/numpy/OpenCV install failed' }
           $out=Join-Path $env:GITHUB_WORKSPACE 'ci\oua-4.9.201\runtime-snapshot\TOKEN_PREVIEWS'
           Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $out -Force|Out-Null
-          & python.exe "$env:GITHUB_WORKSPACE\ci\oua-4.9.202\analyze_party_tokens.py" $env:OUA_ROOT $out
-          if($LASTEXITCODE -ne 0){ throw 'Party token analysis failed' }
+          & python.exe "$env:GITHUB_WORKSPACE\ci\oua-4.9.202\recrop_party_tokens.py" $env:OUA_ROOT $out
+          if($LASTEXITCODE -ne 0){ throw 'Party token recrop dry-run failed' }
           git config user.name "braseiro-bot"
           git config user.email "actions@users.noreply.github.com"
           git add ci/oua-4.9.201/runtime-snapshot/TOKEN_PREVIEWS
