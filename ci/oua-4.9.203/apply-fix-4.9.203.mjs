@@ -20,6 +20,8 @@ panel=panel.replace(
   "const [mountVigour, setMountVigour] = useState<Record<string, number>>({});",
   `const [mountVigour, setMountVigour] = useState<Record<string, number>>({});
   const [pendingManualRoll, setPendingManualRoll] = useState<{ label: string; run: () => Promise<void> } | null>(null);
+  const executeRollJourney = props.onRollJourney;
+  const executeGenerateEvent = props.onGenerateEvent;
 
   const requestRollJourney = (...args: Parameters<Props['onRollJourney']>): Promise<void> => {
     const [kind, characterId, skill] = args;
@@ -28,22 +30,22 @@ panel=panel.replace(
     const heroName = hero?.sheet.identity.name || hero?.name || 'Herói';
     setPendingManualRoll({
       label: kindLabel + ' · ' + skill + ' · ' + heroName,
-      run: () => props.onRollJourney(...args),
+      run: () => executeRollJourney(...args),
     });
     return Promise.resolve();
   };
 
-  const requestGenerateEvent = (): Promise<void> => {
+  const requestGenerateEvent = (...args: Parameters<Props['onGenerateEvent']>): Promise<void> => {
     setPendingManualRoll({
       label: 'Dados do Evento de Jornada',
-      run: () => props.onGenerateEvent(),
+      run: () => executeGenerateEvent(...args),
     });
     return Promise.resolve();
   };`
 );
 
 panel=panel.replaceAll('props.onRollJourney(', 'requestRollJourney(');
-panel=panel.replaceAll('props.onGenerateEvent()', 'requestGenerateEvent()');
+panel=panel.replaceAll('props.onGenerateEvent(', 'requestGenerateEvent(');
 
 const gateAnchor = "  if (masterState.company.eyeAwarenessEnabled === undefined) {";
 must(panel,gateAnchor,'roll gate insertion point');
