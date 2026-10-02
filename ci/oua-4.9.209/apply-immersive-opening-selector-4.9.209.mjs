@@ -19,14 +19,14 @@ const propsAnchor="  onStartAdventure: () => void | Promise<void>;\n  canStartAd
 must(immersive.includes(propsAnchor),'immersive props anchor');
 if(!immersive.includes('campaignStartMode: CampaignStartMode;')){
   immersive=immersive.replace(propsAnchor,propsAnchor+
-`  campaignStartMode: CampaignStartMode;
-  onCampaignStartModeChange: (mode: CampaignStartMode) => void | Promise<void>;
+`  campaignStartMode?: CampaignStartMode;
+  onCampaignStartModeChange?: (mode: CampaignStartMode) => void | Promise<void>;
   campaignStartPatronId?: string;
   campaignStartMissionIndex?: number;
-  onCampaignStartPatronChange: (patronId: string) => void | Promise<void>;
-  onCampaignStartMissionChange: (mission: number | 'random') => void | Promise<void>;
+  onCampaignStartPatronChange?: (patronId: string) => void | Promise<void>;
+  onCampaignStartMissionChange?: (mission: number | 'random') => void | Promise<void>;
   campaignStartSummary?: string;
-  canUseStrider: boolean;
+  canUseStrider?: boolean;
 `);
 }
 
@@ -59,13 +59,13 @@ if(!immersive.includes('data-braseiro-opening-selector="true"')){
         <div style={{ marginTop: 4, fontSize: 12, lineHeight: 1.35, color: '#c9b997' }}>Escolha como esta campanha começa antes de tocar em Começar aventura.</div>
       </div>
       <CampaignStartSelector
-        mode={props.campaignStartMode}
-        onChange={props.onCampaignStartModeChange}
-        canUseStrider={props.canUseStrider}
+        mode={props.campaignStartMode || 'star-of-mist'}
+        onChange={props.onCampaignStartModeChange || (() => undefined)}
+        canUseStrider={Boolean(props.canUseStrider)}
         patronId={props.campaignStartPatronId}
         missionIndex={props.campaignStartMissionIndex}
-        onPatronChange={props.onCampaignStartPatronChange}
-        onMissionChange={props.onCampaignStartMissionChange}
+        onPatronChange={props.onCampaignStartPatronChange || (() => undefined)}
+        onMissionChange={props.onCampaignStartMissionChange || (() => undefined)}
         summary={props.campaignStartSummary}
       />
     </div>}
@@ -76,7 +76,7 @@ if(!immersive.includes('data-braseiro-opening-selector="true"')){
 
 const oldHint=`      {!node && !props.canStartAdventure && <div style={{ ...glassPanel, width: '100%', boxSizing: 'border-box', borderRadius: 10, padding: '8px 12px', textAlign: 'center', fontSize: 12, color: '#ead9b7' }}>Selecione um hex no mapa e toque <strong>Posicionar</strong> para definir onde a Companhia começa.</div>}`;
 if(immersive.includes(oldHint)){
-  immersive=immersive.replace(oldHint,`      {!node && props.campaignStartMode === 'sandbox' && !props.canStartAdventure && <div style={{ ...glassPanel, width: '100%', boxSizing: 'border-box', borderRadius: 10, padding: '8px 12px', textAlign: 'center', fontSize: 12, color: '#ead9b7' }}>Sandbox: selecione um hex no mapa e toque <strong>Posicionar</strong> para definir onde a Companhia começa.</div>}`);
+  immersive=immersive.replace(oldHint,`      {!node && (props.campaignStartMode || 'star-of-mist') === 'sandbox' && !props.canStartAdventure && <div style={{ ...glassPanel, width: '100%', boxSizing: 'border-box', borderRadius: 10, padding: '8px 12px', textAlign: 'center', fontSize: 12, color: '#ead9b7' }}>Sandbox: selecione um hex no mapa e toque <strong>Posicionar</strong> para definir onde a Companhia começa.</div>}`);
 }
 
 write('components/immersive/ImmersiveJourneyView.tsx',immersive);
