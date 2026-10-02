@@ -26,7 +26,7 @@ jobs:
       - name: Download recovered ANDROID-002 compile source
         shell: bash
         env:
-          SHARE_URL: 'https://firestorage.ai/ja/f/VXT3mpjyRwCy'
+          SHARE_URL: 'https://firestorage.ai/ja/f/GwPs-zFJBDSO'
         run: |
           set -euo pipefail
           mkdir -p work /tmp/fire-download
@@ -73,15 +73,10 @@ jobs:
           NODE
           node download.mjs
           cd "$GITHUB_WORKSPACE"
-          echo '475d68b027ff97761f9b4977db9a306c1bee38a7b9f834f96352f532b4af1923  source.zip' | sha256sum -c -
+          echo 'bd1823bca7a2320bdfc6621cd85e076ab5d8cd2510943f20928c34dc4512fda8  source.zip' | sha256sum -c -
           unzip -t source.zip >/dev/null
-          unzip -q source.zip -d work/android
-          cat > work/version.properties <<'EOF'
-          VERSION_NAME=6.6.2-r106
-          VERSION_CODE=606206
-          DB_SCHEMA=59
-          BACKUP_FORMAT=21
-          EOF
+          unzip -q source.zip -d work
+          test -f work/version.properties
           test -f work/android/gradlew
           test -f work/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java
           chmod +x work/android/gradlew
