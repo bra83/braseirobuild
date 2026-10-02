@@ -170,7 +170,7 @@ const replacement=`const handleStartAdventure = async () => {
       };
       updated = activateAdventureAfterOpening(updated, sceneId, canonicalLocation);
 
-      const committed = await persistCampaign(updated, 'Adventure Engine: abertura direta Gemini validada');
+      const committed = await persistCampaign(updated, 'abertura direta Gemini validada');
       saveEmergencyCampaignMirror(committed);
       campaignRef.current = committed;
       setCampaign(committed);
