@@ -90,7 +90,7 @@ jobs:
           else
             npm install --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
           fi
-          npm install --no-save --ignore-scripts --no-audit --no-fund @rollup/rollup-linux-x64-gnu @esbuild/linux-x64
+          npm install --no-save --ignore-scripts --no-audit --no-fund esbuild @rollup/rollup-linux-x64-gnu @esbuild/linux-x64
 
       - name: Prove direct opening with mocked Android Gemini bridge
         shell: bash
