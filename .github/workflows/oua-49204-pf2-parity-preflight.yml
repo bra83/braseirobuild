@@ -1,5 +1,5 @@
-# pf2-parity-preflight-r6
-name: OUA 4.9.204 PF2 Gemini parity preflight
+# pf2-parity-preflight-r7
+name: OUA 4.9.204 PF2 Gemini FINAL hosted build
 
 on:
   push:
@@ -7,6 +7,9 @@ on:
     paths:
       - ".github/workflows/oua-49204-pf2-parity-preflight.yml"
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   preflight:
@@ -24,6 +27,7 @@ jobs:
             ci/oua-4.9.202
             ci/oua-4.9.203
             ci/oua-4.9.204
+            build-signing
 
       - uses: actions/setup-java@v4
         with:
@@ -109,3 +113,75 @@ jobs:
           if [ -n "${ANDROID_HOME:-}" ]; then printf 'sdk.dir=%s\n' "$ANDROID_HOME" > local.properties; fi
           chmod +x ./gradlew
           ./gradlew :app:assembleDebug --stacktrace --no-daemon
+
+      - name: Sign, verify and publish corrected APK
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          KEYSTORE="$RUNNER_TEMP/braseiro-stable-debug.keystore"
+          base64 -d "$GITHUB_WORKSPACE/build-signing/braseiro-stable-debug.keystore.b64" > "$KEYSTORE"
+
+          APK_IN="$(find "$OUA_ROOT/android/app/build/outputs/apk/debug" -type f -name '*.apk' | sort | head -n1)"
+          test -n "$APK_IN" && test -f "$APK_IN"
+
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
+          test -d "$BUILD_TOOLS"
+          AAPT="$BUILD_TOOLS/aapt"
+          APKSIGNER="$BUILD_TOOLS/apksigner"
+          ZIPALIGN="$BUILD_TOOLS/zipalign"
+
+          ALIGNED="$RUNNER_TEMP/oua-49204-aligned.apk"
+          FINAL="$GITHUB_WORKSPACE/BRASEIRO_O_UM_ANEL_4.9.204_UPDATE.apk"
+          "$ZIPALIGN" -p -f 4 "$APK_IN" "$ALIGNED"
+          "$APKSIGNER" sign \
+            --ks "$KEYSTORE" \
+            --ks-key-alias androiddebugkey \
+            --ks-pass pass:android \
+            --key-pass pass:android \
+            --out "$FINAL" "$ALIGNED"
+
+          "$APKSIGNER" verify --verbose --print-certs "$FINAL" | tee "$GITHUB_WORKSPACE/OUA_49204_FINAL_SIGNATURE.txt"
+          "$AAPT" dump badging "$FINAL" | tee "$GITHUB_WORKSPACE/OUA_49204_FINAL_BADGING.txt"
+
+          grep -q "package: name='com.braseiro.oumanel'" "$GITHUB_WORKSPACE/OUA_49204_FINAL_BADGING.txt"
+          grep -q "versionCode='49204'" "$GITHUB_WORKSPACE/OUA_49204_FINAL_BADGING.txt"
+          grep -q "versionName='4.9.204'" "$GITHUB_WORKSPACE/OUA_49204_FINAL_BADGING.txt"
+
+          BASE="$RUNNER_TEMP/oua-49204-r12.apk"
+          curl -L --fail --retry 4 --retry-delay 2 \
+            -o "$BASE" \
+            "https://github.com/bra83/braseirobuild/releases/download/OUA-v4.9.204/BRASEIRO_O_UM_ANEL_4.9.204_UPDATE.apk"
+
+          BASE_DIGEST="$("$APKSIGNER" verify --print-certs "$BASE" | awk -F': ' '/certificate SHA-256 digest:/{print $2; exit}')"
+          NEW_DIGEST="$("$APKSIGNER" verify --print-certs "$FINAL" | awk -F': ' '/certificate SHA-256 digest:/{print $2; exit}')"
+          test -n "$BASE_DIGEST" && test "$BASE_DIGEST" = "$NEW_DIGEST"
+
+          sha256sum "$FINAL" | tee "$GITHUB_WORKSPACE/BRASEIRO_O_UM_ANEL_4.9.204_UPDATE.apk.sha256"
+
+          cat > "$GITHUB_WORKSPACE/OUA_49204_FINAL_VALIDATION.txt" <<EOF
+          PASS - Pathfinder-style Gemini startup/failover patch included
+          PASS - opening-atlas-nonblocking
+          PASS - TypeScript
+          PASS - Vite/web build
+          PASS - Android assembleDebug
+          PASS - package com.braseiro.oumanel
+          PASS - versionName 4.9.204
+          PASS - versionCode 49204
+          PASS - signing certificate matches the currently published install-over APK
+          RESULT - corrected APK ready for install-over.
+          EOF
+
+          gh release upload OUA-v4.9.204 \
+            "$FINAL" \
+            "$GITHUB_WORKSPACE/BRASEIRO_O_UM_ANEL_4.9.204_UPDATE.apk.sha256" \
+            "$GITHUB_WORKSPACE/OUA_49204_FINAL_VALIDATION.txt" \
+            "$GITHUB_WORKSPACE/OUA_49204_FINAL_SIGNATURE.txt" \
+            "$GITHUB_WORKSPACE/OUA_49204_FINAL_BADGING.txt" \
+            --clobber
+
+          gh release edit OUA-v4.9.204 \
+            --title "Braseiro O Um Anel 4.9.204 — startup corrigido" \
+            --notes "APK 4.9.204 substituído pela build validada com o fluxo de início/Gemini baseado no Pathfinder 2e. A abertura não é mais bloqueada por ausência de hex no Atlas; a cadeia de fallback Gemini, perfil narrativo, TTS/Kokoro e demais gates 4.9.204 foram validados antes da publicação."
