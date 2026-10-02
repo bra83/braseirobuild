@@ -212,6 +212,8 @@ app=app.slice(0,insertAt)+selectorHandler+app.slice(insertAt);
 const oldGameProps="onStartAdventure={handleStartAdventure} canStartAdventure={Boolean(normalizeMasterState(campaign).position.currentHexId)} adventureProfile={adventureProfile}";
 must(app.includes(oldGameProps),'GameView start props');
 app=app.replace(oldGameProps,"onStartAdventure={handleStartAdventure} canStartAdventure={campaignStartCanBegin(campaign)} campaignStartMode={(campaign.campaignStart?.mode || 'star-of-mist') as CampaignStartMode} onCampaignStartModeChange={handleCampaignStartModeChange} campaignStartSummary={startSummary(campaign)} canUseStrider={partyCharacters.some(character => character.sheet.other?.rulesMode === 'strider')} adventureProfile={adventureProfile}");
+const remainingGameProps="onStartAdventure={handleStartAdventure} canStartAdventure={Boolean(normalizeMasterState(campaign).position.currentHexId)} adventureProfile={adventureProfile}";
+app=app.replaceAll(remainingGameProps,"onStartAdventure={handleStartAdventure} canStartAdventure={campaignStartCanBegin(campaign)} campaignStartMode={(campaign.campaignStart?.mode || 'star-of-mist') as CampaignStartMode} onCampaignStartModeChange={handleCampaignStartModeChange} campaignStartSummary={startSummary(campaign)} canUseStrider={partyCharacters.some(character => character.sheet.other?.rulesMode === 'strider')} adventureProfile={adventureProfile}");
 write('App.tsx',app);
 
 let view=read('components/GameView.tsx');
