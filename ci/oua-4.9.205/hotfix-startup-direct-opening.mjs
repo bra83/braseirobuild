@@ -155,7 +155,7 @@ const replacement = [
   '        events: [event],',
   '        sources: [],',
   '        narrativeMeta: {',
-  "          intentClass: 'campaign_opening',",
+  "          intentClass: 'action-diegetic',",
   '          advancesFiction: true,',
   "          generationSource: 'gemini-direct-opening',",
   '          generationModel: direct.model,',
