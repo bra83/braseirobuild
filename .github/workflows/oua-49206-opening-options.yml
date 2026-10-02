@@ -229,7 +229,7 @@ jobs:
           if gh release view OUA-v4.9.206 >/dev/null 2>&1; then
             gh release edit OUA-v4.9.206               --title "Braseiro O Um Anel 4.9.206 — início de aventura corrigido"               --notes "Fonte completa para Android Studio e APK gerados da mesma árvore validada. A abertura agora oferece A Estrela da Névoa, Contos das Terras Solitárias, Modo Peregrino, Sandbox e Modo Taverna; o host resolve e persiste a posição inicial no Atlas antes do Gemini, mantendo FIRST VALID SCENE WINS."
           else
-            gh release create OUA-v4.9.206               --title "Braseiro O Um Anel 4.9.206 — início de aventura corrigido"               --notes "Fonte completa para Android Studio e APK gerados da mesma árvore validada. A abertura usa FIRST VALID SCENE WINS: uma geração Gemini direta é persistida antes de Director/Barbara/validadores de estilo."
+            gh release create OUA-v4.9.206               --title "Braseiro O Um Anel 4.9.206 — início de aventura corrigido"               --notes "Fonte completa para Android Studio e APK gerados da mesma árvore validada. A abertura agora oferece A Estrela da Névoa, Contos das Terras Solitárias, Modo Peregrino, Sandbox e Modo Taverna; o host resolve e persiste a posição inicial no Atlas antes do Gemini, mantendo FIRST VALID SCENE WINS."
           fi
 
           gh release upload OUA-v4.9.206             "$SOURCE_ZIP"             "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.206_ANDROID_STUDIO_COMPLETE.zip.sha256"             "$FINAL_APK"             --clobber
