@@ -1,4 +1,4 @@
-# pf2-parity-preflight-r7
+# pf2-parity-preflight-r8
 name: OUA 4.9.204 PF2 Gemini FINAL hosted build
 
 on:
@@ -150,10 +150,14 @@ jobs:
           grep -q "versionCode='49204'" "$GITHUB_WORKSPACE/OUA_49204_FINAL_BADGING.txt"
           grep -q "versionName='4.9.204'" "$GITHUB_WORKSPACE/OUA_49204_FINAL_BADGING.txt"
 
-          BASE="$RUNNER_TEMP/oua-49204-r12.apk"
-          curl -L --fail --retry 4 --retry-delay 2 \
-            -o "$BASE" \
-            "https://github.com/bra83/braseirobuild/releases/download/OUA-v4.9.204/BRASEIRO_O_UM_ANEL_4.9.204_UPDATE.apk"
+          BASE_DIR="$RUNNER_TEMP/oua-49204-base"
+          mkdir -p "$BASE_DIR"
+          gh release download OUA-v4.9.204 \
+            --pattern "BRASEIRO_O_UM_ANEL_4.9.204_UPDATE.apk" \
+            --dir "$BASE_DIR" \
+            --clobber
+          BASE="$BASE_DIR/BRASEIRO_O_UM_ANEL_4.9.204_UPDATE.apk"
+          test -f "$BASE"
 
           BASE_DIGEST="$("$APKSIGNER" verify --print-certs "$BASE" | awk -F': ' '/certificate SHA-256 digest:/{print $2; exit}')"
           NEW_DIGEST="$("$APKSIGNER" verify --print-certs "$FINAL" | awk -F': ' '/certificate SHA-256 digest:/{print $2; exit}')"
