@@ -1,19 +1,16 @@
-name: Braseiro DnD 6.6.2 RUN110 APK
+name: ANDROID-001 Recover DnD RUN110 Chassis
 
 on:
   push:
-    branches: [main]
+    branches:
+      - 'android/android-001-run163-chassis'
     paths:
       - '.github/workflows/build-dnd-run110.yml'
-  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 env:
-  TAG: 'DND-6.6.2-RUN110'
-  APK_NAME: 'BRASEIRO_DND_6.6.2_RUN110_DEBUG.apk'
-  PACKAGE_ID: 'com.braseiro.dnd5e'
   BASELINE_SHA256: '2acf32fe57437c5d2472f7a65104791828a5305f44fb722ee545af0a01a52937'
   OVERLAY_SHA256: '7fac0ca04a5a85e598c0e86a998ac5c6cb94e682393a729ef4222819536098a8'
   FIRE_API: 'https://api.firestorage.ai/dev/file'
@@ -21,14 +18,14 @@ env:
   OVERLAY_FILE_ID: '01a0ba7afdd87169b6c412c589269689'
 
 jobs:
-  build:
+  recover:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 45
     steps:
-      - name: Checkout build scripts
+      - name: Checkout reconstruction scripts
         uses: actions/checkout@v4
 
-      - name: Download frozen RUN109 baseline
+      - name: Recover frozen RUN109 baseline
         shell: bash
         run: |
           set -euo pipefail
@@ -65,13 +62,13 @@ jobs:
           test -d "$ROOT/android/app/src/main"
           echo "ROOT=$ROOT" >> "$GITHUB_ENV"
 
-      - name: Apply RUN104 cumulative functional patch
+      - name: Apply cumulative RUN104
         shell: bash
         run: |
           set -euo pipefail
           python3 ci/dnd-run104/apply_run104.py "$ROOT"
 
-      - name: Download and apply cumulative RUN110 source overlay
+      - name: Apply RUN110 source overlay
         shell: bash
         run: |
           set -euo pipefail
@@ -85,106 +82,42 @@ jobs:
           assert any(str(x.get('fileId'))==fid for x in (data.get('files') or [])), 'RUN110 overlay file not found'
           PY
           curl -fsSL -X POST "$DL_API" -o /tmp/download.json
-          URL="$(python3 - <<'PY'
-          import json
-          print(json.load(open('/tmp/download.json',encoding='utf-8')).get('downloadUrl',''))
-          PY
-          )"
+          URL="$(python3 -c "import json; print(json.load(open('/tmp/download.json')).get('downloadUrl',''))")"
           test -n "$URL"
           curl -fL --retry 3 --connect-timeout 20 --max-time 180 "$URL" -o /tmp/run110-overlay.zip
           echo "$OVERLAY_SHA256  /tmp/run110-overlay.zip" | sha256sum -c -
           unzip -t /tmp/run110-overlay.zip >/dev/null
           rm -rf "$ROOT/android/app/src/main/java/com/braseiro/dnd5e"
           unzip -oq /tmp/run110-overlay.zip -d "$ROOT"
-
-      - name: Apply proven RUN109 compile bridge
-        shell: bash
-        run: |
-          set -euo pipefail
           python3 ci/dnd-run109/apply_compile_hotfix.py "$ROOT"
-
-      - name: Apply RUN110 compile hotfix
-        shell: bash
-        run: |
-          set -euo pipefail
           python3 ci/dnd-run110/apply_compile_hotfix.py "$ROOT"
 
-      - name: Verify RUN110 contracts
+      - name: Verify chassis contracts
         shell: bash
         run: |
           set -euo pipefail
           JAVA_ROOT="$ROOT/android/app/src/main/java/com/braseiro/dnd5e"
-          COUNT="$(find "$JAVA_ROOT" -type f -name '*.java' | wc -l)"
-          test "$COUNT" -eq 234
-          grep -q '^VERSION_NAME=6.6.2-r110$' "$ROOT/version.properties"
-          grep -q '^VERSION_CODE=606210$' "$ROOT/version.properties"
-          grep -q 'presentationDraftIsSubstantial' "$JAVA_ROOT/MainActivity.java"
-          grep -q 'isSoftPresentationQualityProblem' "$JAVA_ROOT/MainActivity.java"
-          grep -q 'tts_quota_session_mode_v1' "$JAVA_ROOT/AiQuotaGovernor.java"
-          grep -q 'index==0&&aiQuotaGovernor!=null' "$JAVA_ROOT/MainActivity.java"
-          grep -q 'Software caused connection abort' "$JAVA_ROOT/GeminiService.java"
-          grep -q 'postWithRetry(candidate,apiKey,body,2)' "$JAVA_ROOT/GeminiService.java"
-          grep -q 'private void runOfflineMaster' "$JAVA_ROOT/MainActivity.java"
-          grep -q 'java.text.Normalizer.normalize' "$JAVA_ROOT/MainActivity.java"
+          test "$(find "$JAVA_ROOT" -type f -name '*.java' | wc -l)" -eq 234
           grep -q 'namespace = "com.braseiro.dnd5e"' "$ROOT/android/app/build.gradle.kts"
           grep -q 'applicationId = "com.braseiro.dnd5e"' "$ROOT/android/app/build.gradle.kts"
-          grep -q 'buildConfig = true' "$ROOT/android/app/build.gradle.kts"
+          test -f "$ROOT/android/gradlew"
+          test -f "$ROOT/android/settings.gradle.kts"
+          test -f "$ROOT/android/app/src/main/AndroidManifest.xml"
+          printf 'RUN110_CHASSIS_RECOVERED=true\nAPK_GENERATED=false\n' > "$GITHUB_WORKSPACE/out/ANDROID001_RECOVERY.txt"
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v5
+      - name: Archive source only
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$ROOT/android/.gradle" "$ROOT/android/app/build" "$ROOT/.gradle"
+          cd "$GITHUB_WORKSPACE/work"
+          zip -qr "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN110_CHASSIS_SOURCE_ONLY.zip" BRASEIRO_DND_6.6.2_ANDROID_STUDIO             -x '*/build/*' '*/.gradle/*' '*.apk' '*.aab'
+          sha256sum "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN110_CHASSIS_SOURCE_ONLY.zip" > "$GITHUB_WORKSPACE/out/BRASEIRO_DND_6.6.2_RUN110_CHASSIS_SOURCE_ONLY.zip.sha256"
+
+      - name: Upload source reconstruction artifact
+        uses: actions/upload-artifact@v4
         with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Install Android SDK 35
-        shell: bash
-        run: |
-          set -euo pipefail
-          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
-          export ANDROID_SDK_ROOT="$ANDROID_HOME"
-          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0' >/dev/null
-          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
-          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
-          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
-          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Compile Java and assemble APK
-        shell: bash
-        run: |
-          set -euo pipefail
-          ANDROID="$ROOT/android"
-          chmod +x "$ANDROID/gradlew"
-          cd "$ANDROID"
-          ./gradlew :app:compileDebugJavaWithJavac --no-daemon --console=plain 2>&1 | tee "$GITHUB_WORKSPACE/JAVAC_RUN110.log"
-          ./gradlew :app:assembleDebug --no-daemon --console=plain 2>&1 | tee "$GITHUB_WORKSPACE/GRADLE_BUILD_RUN110.log"
-
-      - name: Validate APK
-        shell: bash
-        run: |
-          set -euo pipefail
-          APK="$(find "$ROOT/android/app/build/outputs/apk/debug" -type f -name '*.apk' | head -n1)"
-          test -f "$APK"
-          cp "$APK" "$GITHUB_WORKSPACE/out/$APK_NAME"
-          sha256sum "$GITHUB_WORKSPACE/out/$APK_NAME" | tee "$GITHUB_WORKSPACE/out/$APK_NAME.sha256"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$GITHUB_WORKSPACE/out/$APK_NAME" | tee "$GITHUB_WORKSPACE/out/APK_BADGING_RUN110.txt"
-          grep -q "package: name='$PACKAGE_ID'" "$GITHUB_WORKSPACE/out/APK_BADGING_RUN110.txt"
-          grep -q "versionCode='606210'" "$GITHUB_WORKSPACE/out/APK_BADGING_RUN110.txt"
-          grep -q "versionName='6.6.2-r110-debug'" "$GITHUB_WORKSPACE/out/APK_BADGING_RUN110.txt"
-          unzip -t "$GITHUB_WORKSPACE/out/$APK_NAME" >/dev/null
-          stat -c 'APK_BYTES=%s' "$GITHUB_WORKSPACE/out/$APK_NAME" | tee "$GITHUB_WORKSPACE/out/APK_SIZE_RUN110.txt"
-
-      - name: Publish RUN110 release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          NOTES='RUN110 corrige os três problemas observados em aparelho: cenas substanciais de 3–5 mil caracteres não fazem nova chamada só por meta editorial de onboarding; falha SSE/Software caused connection abort tenta o endpoint JSON do mesmo modelo antes do Mestre local; e o limite local do Charon passa a contar por narração, não por bloco, evitando troca para Android no meio da cena por contador local. Retry transitório do Charon também foi ampliado. Package: com.braseiro.dnd5e.'
-          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title 'Braseiro DnD 6.6.2 RUN110 — Narrative/TTS reliability' --notes "$NOTES"
-          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY"             "out/$APK_NAME"             "out/$APK_NAME.sha256"             "out/APK_BADGING_RUN110.txt"             "out/APK_SIZE_RUN110.txt"             "GRADLE_BUILD_RUN110.log"             "JAVAC_RUN110.log"             --clobber
-          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url,name,tagName,assets
+          name: android001-run110-chassis-source
+          path: out/
+          retention-days: 1
+          if-no-files-found: error
