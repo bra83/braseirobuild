@@ -81,6 +81,7 @@ jobs:
 
           base64 -d ci/oua-4.9.206/apply-opening-options-4.9.206.mjs.gz.b64 | gzip -d > ci/oua-4.9.206/apply-opening-options-4.9.206.mjs
           node ci/oua-4.9.206/apply-opening-options-4.9.206.mjs "$ROOT"
+          node ci/oua-4.9.206/fix-party-app-audit-49206.mjs "$ROOT"
           node "$ROOT/scripts/verify-opening-options-49206.mjs" "$ROOT"
 
       - name: Install exact web dependencies
