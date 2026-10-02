@@ -30,8 +30,10 @@ if(!immersive.includes('campaignStartMode: CampaignStartMode;')){
 `);
 }
 
-const actionPanelAnchor="    {!chronicleOpen && <div style={{ position: 'absolute', left: '50%'";
-must(immersive.includes(actionPanelAnchor),'immersive action panel anchor');
+const startButtonTextPos=immersive.indexOf('Começar aventura');
+must(startButtonTextPos>=0,'immersive start button text');
+const actionPanelPos=immersive.lastIndexOf('\n    {!chronicleOpen',startButtonTextPos);
+must(actionPanelPos>=0,'immersive action panel block');
 
 if(!immersive.includes('data-braseiro-opening-selector="true"')){
   const selectorBlock=`    {!node && !chronicleOpen && !startRequested && !props.isStoryLoading && <div data-braseiro-opening-selector="true" style={{
@@ -69,7 +71,7 @@ if(!immersive.includes('data-braseiro-opening-selector="true"')){
     </div>}
 
 `;
-  immersive=immersive.replace(actionPanelAnchor,selectorBlock+actionPanelAnchor);
+  immersive=immersive.slice(0,actionPanelPos+1)+selectorBlock+immersive.slice(actionPanelPos+1);
 }
 
 const oldHint=`      {!node && !props.canStartAdventure && <div style={{ ...glassPanel, width: '100%', boxSizing: 'border-box', borderRadius: 10, padding: '8px 12px', textAlign: 'center', fontSize: 12, color: '#ead9b7' }}>Selecione um hex no mapa e toque <strong>Posicionar</strong> para definir onde a Companhia começa.</div>}`;
