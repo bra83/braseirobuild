@@ -25,20 +25,22 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android 35
+      - name: Verify Android SDK 35
         shell: bash
         run: |
           set -euo pipefail
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          test -d "$ANDROID_HOME"
+          if [ ! -f "$ANDROID_HOME/platforms/android-35/android.jar" ]; then
+            yes | sdkmanager --licenses >/dev/null || true
+            sdkmanager "platforms;android-35" "build-tools;35.0.0"
+          fi
+          test -f "$ANDROID_HOME/platforms/android-35/android.jar"
 
       - name: Materialize recovered RUN164 Android source
         shell: bash
         env:
-          SOURCE_URL: 'https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-1534-820e-b97e-3f714b8e0497/raw?se=2026-10-02T10%3A34%3A06Z&sp=r&sv=2026-02-06&sr=b&scid=295f768d-768e-5c83-9869-4193744169d8&skoid=4a431cd2-eafd-49c7-90be-bbb4d45e696d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-02T01%3A29%3A01Z&ske=2026-10-03T01%3A29%3A01Z&sks=b&skv=2026-02-06&sig=7Fk8W4PM5iKFBR96Qz9HZZWGUwwU3f5OM4EbdpKh/kM%3D'
+          SOURCE_URL: 'https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-ad0c-820e-b557-b9edaabad1f4/raw?se=2026-10-02T10%3A36%3A53Z&sp=r&sv=2026-02-06&sr=b&scid=409de2cf-f6e0-5f84-b944-71cd6d1c551e&skoid=4a431cd2-eafd-49c7-90be-bbb4d45e696d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-02T10%3A01%3A08Z&ske=2026-10-03T10%3A01%3A08Z&sks=b&skv=2026-02-06&sig=2XqHH1DWFkfT5QFyd46zeoy9JCReE3qhuDM57rr2FNI%3D'
           EXPECTED_SHA256: '8719156f15853aaece2dcaa6e9fbaa7874f0bda294f88ca9d376835fc8393420'
         run: |
           set -euo pipefail
@@ -77,6 +79,7 @@ jobs:
         if: always()
         shell: bash
         run: |
+          mkdir -p gate-logs
           {
             echo "COMPILE_JAVA=${{ steps.compile_java.outcome }}"
             echo "RESOURCES=${{ steps.resources.outcome }}"
