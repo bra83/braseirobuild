@@ -1,0 +1,96 @@
+name: ANDROID-RECOVERY-001 compile-only gates
+
+on:
+  push:
+    branches:
+      - android/android-recovery-001-run164
+    paths:
+      - .github/workflows/android_recovery_001_compile_only.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout delivery branch
+        uses: actions/checkout@v4
+
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android 35
+        shell: bash
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Materialize recovered RUN164 Android source
+        shell: bash
+        env:
+          SOURCE_URL: 'https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-1534-820e-b97e-3f714b8e0497/raw?se=2026-10-02T10%3A34%3A06Z&sp=r&sv=2026-02-06&sr=b&scid=295f768d-768e-5c83-9869-4193744169d8&skoid=4a431cd2-eafd-49c7-90be-bbb4d45e696d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-02T01%3A29%3A01Z&ske=2026-10-03T01%3A29%3A01Z&sks=b&skv=2026-02-06&sig=7Fk8W4PM5iKFBR96Qz9HZZWGUwwU3f5OM4EbdpKh/kM%3D'
+          EXPECTED_SHA256: '8719156f15853aaece2dcaa6e9fbaa7874f0bda294f88ca9d376835fc8393420'
+        run: |
+          set -euo pipefail
+          mkdir -p recovery_source gate-logs
+          curl --fail --location --retry 4 --retry-delay 2 "$SOURCE_URL" -o /tmp/android-recovery-source.zip
+          echo "$EXPECTED_SHA256  /tmp/android-recovery-source.zip" | sha256sum -c -
+          unzip -q /tmp/android-recovery-source.zip -d recovery_source
+          test -x recovery_source/android/gradlew
+          test -f recovery_source/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java
+
+      - name: compileDebugJavaWithJavac
+        id: compile_java
+        shell: bash
+        run: |
+          set -o pipefail
+          cd recovery_source/android
+          ./gradlew --no-daemon :app:compileDebugJavaWithJavac 2>&1 | tee ../../gate-logs/compileDebugJavaWithJavac.log
+
+      - name: processDebugResources
+        id: resources
+        shell: bash
+        run: |
+          set -o pipefail
+          cd recovery_source/android
+          ./gradlew --no-daemon :app:processDebugResources 2>&1 | tee ../../gate-logs/processDebugResources.log
+
+      - name: processDebugMainManifest
+        id: manifest
+        shell: bash
+        run: |
+          set -o pipefail
+          cd recovery_source/android
+          ./gradlew --no-daemon :app:processDebugMainManifest 2>&1 | tee ../../gate-logs/processDebugMainManifest.log
+
+      - name: Gate summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "COMPILE_JAVA=${{ steps.compile_java.outcome }}"
+            echo "RESOURCES=${{ steps.resources.outcome }}"
+            echo "MANIFEST_MERGE=${{ steps.manifest.outcome }}"
+            echo "ASSEMBLE_INVOKED=false"
+            echo "BUNDLE_INVOKED=false"
+            echo "APK_AAB_GENERATED=0"
+          } | tee gate-logs/ANDROID_RECOVERY001_GITHUB_ACTIONS_SUMMARY.txt
+
+      - name: Upload gate logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-recovery-001-gate-logs
+          path: gate-logs/
+          if-no-files-found: error
+          retention-days: 14
