@@ -219,6 +219,7 @@ export function isCampaignStartReady(selection: CampaignStartSelection, hasAtlas
 export async function resolveCampaignStart(
   campaignId: string,
   selection: CampaignStartSelection,
+  existingStart?: CampaignStartDefinition,
 ): Promise<ResolvedCampaignStart> {
   if (!selection.mode) throw new Error('Escolha como a campanha vai começar.');
   const [manifest, locations, discovery] = await Promise.all([
@@ -226,6 +227,26 @@ export async function resolveCampaignStart(
     loadRuntimeTerraMediaLocations(),
     loadMapDiscovery(campaignId),
   ]);
+
+  const canReuseExisting = Boolean(
+    existingStart &&
+    existingStart.mode === selection.mode &&
+    existingStart.mode !== 'SANDBOX' &&
+    (
+      existingStart.mode !== 'STRIDER' ||
+      (
+        existingStart.patronId === selection.striderPatronId &&
+        (
+          selection.striderMissionChoice === undefined ||
+          selection.striderMissionChoice === 'random' ||
+          existingStart.questRoll === selection.striderMissionChoice
+        )
+      )
+    )
+  );
+  if (canReuseExisting && existingStart) {
+    return { definition: existingStart, discovery: updatedDiscovery(discovery, existingStart.hexId) };
+  }
 
   let definition: CampaignStartDefinition;
 
