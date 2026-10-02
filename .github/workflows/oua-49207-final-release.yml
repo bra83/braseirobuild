@@ -193,3 +193,5 @@ jobs:
           gh release upload OUA-v4.9.207 --repo "$GITHUB_REPOSITORY" "$FINAL_APK" "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.207_OPENING_OPTIONS.apk.sha256" "$SOURCE_ZIP" "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.207_ANDROID_STUDIO_COMPLETE.zip.sha256" --clobber
 
 # selector-fix-rerun
+
+# strider-resolver-fix-rerun
