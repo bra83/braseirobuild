@@ -1,0 +1,189 @@
+name: OUA 4.9.209 FINAL immersive opening selector
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/oua-49209-final-release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          sparse-checkout: |
+            ci/oua-4.9.197
+            ci/oua-4.9.199
+            ci/oua-4.9.200
+            ci/oua-4.9.201
+            ci/oua-4.9.202
+            ci/oua-4.9.203
+            ci/oua-4.9.204
+            ci/oua-4.9.205
+            ci/oua-4.9.206
+            ci/oua-4.9.207
+            ci/oua-4.9.208
+            ci/oua-4.9.209
+            build-signing
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Reconstruct canonical v4.9.209 tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/oua-49209"
+          EX="$WORK/extract"
+          mkdir -p "$EX"
+          curl -L --fail --retry 5 --retry-delay 2 -o "$WORK/source.zip" "https://drive.usercontent.google.com/download?id=1yIvAylIHStuCnUdIMxxpaAMxlOluStDC&export=download&confirm=t"
+          unzip -q "$WORK/source.zip" -d "$EX"
+          PKG=""
+          while IFS= read -r candidate; do
+            if [ -d "$(dirname "$candidate")/android" ]; then PKG="$candidate"; break; fi
+          done < <(find "$EX" -type f -name package.json | sort)
+          test -n "$PKG"
+          ROOT="$(dirname "$PKG")"
+          echo "OUA_ROOT=$ROOT" >> "$GITHUB_ENV"
+
+          cat ci/oua-4.9.197/patch.part{0,1,2,3} | tr -d '\r\n' | base64 -d | gzip -d > "$WORK/197.patch"
+          (cd "$ROOT" && git apply --ignore-space-change --ignore-whitespace "$WORK/197.patch")
+
+          for ver in 4.9.199 4.9.200; do
+            base64 -d "ci/oua-$ver/apply-fix-$ver.mjs.gz.b64" | gzip -d > "$WORK/apply-$ver.mjs"
+            node "$WORK/apply-$ver.mjs" "$ROOT"
+          done
+
+          node ci/oua-4.9.201/apply-fix-4.9.201.mjs "$ROOT"
+          node ci/oua-4.9.202/apply-fix-4.9.202.mjs "$ROOT"
+          node ci/oua-4.9.203/apply-fix-4.9.203.mjs "$ROOT"
+
+          cat ci/oua-4.9.204/apply.part{0,1,2,3} | tr -d '\r\n' | base64 -d > "$WORK/apply-4.9.204.mjs"
+          node "$WORK/apply-4.9.204.mjs" "$ROOT"
+          node ci/oua-4.9.204/hotfix-pf2-gemini-parity.mjs "$ROOT"
+
+          node ci/oua-4.9.205/hotfix-startup-direct-opening.mjs "$ROOT"
+          node ci/oua-4.9.206/apply-adventure-engine-4.9.206.mjs "$ROOT"
+          node ci/oua-4.9.207/apply-opening-options-4.9.207.mjs "$ROOT"
+          node ci/oua-4.9.208/apply-opening-selector-visibility-4.9.208.mjs "$ROOT"
+
+          node "$ROOT/scripts/verify-opening-startup-49205.mjs" "$ROOT"
+          node ci/oua-4.9.208/verify-opening-selector-4.9.208.mjs "$ROOT"
+
+          node ci/oua-4.9.209/apply-immersive-opening-selector-4.9.209.mjs "$ROOT"
+          node "$ROOT/scripts/verify-opening-startup-49205.mjs" "$ROOT"
+          node ci/oua-4.9.209/verify-immersive-opening-selector-4.9.209.mjs "$ROOT"
+
+      - name: Install and validate web runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$OUA_ROOT"
+          npm config set registry https://registry.npmjs.org/
+          if [ -f package-lock.json ]; then
+            npm ci --ignore-scripts --no-audit --no-fund || npm install --ignore-scripts --no-audit --no-fund
+          else
+            npm install --ignore-scripts --no-audit --no-fund
+          fi
+          npm install --no-save --ignore-scripts --no-audit --no-fund esbuild @rollup/rollup-linux-x64-gnu @esbuild/linux-x64
+
+          node scripts/test-opening-gemini-mock-49205.mjs "$OUA_ROOT"
+          npm run lint
+          npm run build
+          node scripts/sync-android-assets.mjs
+
+          node scripts/verify-opening-startup-49205.mjs "$OUA_ROOT"
+          node "$GITHUB_WORKSPACE/ci/oua-4.9.209/verify-immersive-opening-selector-4.9.209.mjs" "$OUA_ROOT"
+
+      - name: Build install-over Android APK
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.android"
+          base64 -d "$GITHUB_WORKSPACE/build-signing/braseiro-stable-debug.keystore.b64" > "$HOME/.android/debug.keystore"
+
+          cd "$OUA_ROOT/android"
+          printf 'sdk.dir=%s\n' "$ANDROID_HOME" > local.properties
+          chmod +x ./gradlew
+          ./gradlew :app:assembleDebug --stacktrace --no-daemon
+
+          APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | sort | head -n1)"
+          test -f "$APK"
+          FINAL="$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.209_IMMERSIVE_OPENING_SELECTOR.apk"
+          cp "$APK" "$FINAL"
+
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
+          "$BUILD_TOOLS/aapt" dump badging "$FINAL" > "$RUNNER_TEMP/APK_BADGING.txt"
+          "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$FINAL" > "$RUNNER_TEMP/APK_SIGNATURE.txt"
+
+          grep -q "package: name='com.braseiro.oumanel'" "$RUNNER_TEMP/APK_BADGING.txt"
+          grep -q "versionCode='49209'" "$RUNNER_TEMP/APK_BADGING.txt"
+          grep -q "versionName='4.9.209'" "$RUNNER_TEMP/APK_BADGING.txt"
+
+          mkdir -p "$RUNNER_TEMP/base"
+          gh release download OUA-v4.9.208 --repo "$GITHUB_REPOSITORY" --pattern "BRASEIRO_O_UM_ANEL_4.9.208_OPENING_SELECTOR.apk" --dir "$RUNNER_TEMP/base" --clobber
+          BASE="$RUNNER_TEMP/base/BRASEIRO_O_UM_ANEL_4.9.208_OPENING_SELECTOR.apk"
+          OLD="$("$BUILD_TOOLS/apksigner" verify --print-certs "$BASE" | awk -F': ' '/certificate SHA-256 digest:/{print $2; exit}')"
+          NEW="$("$BUILD_TOOLS/apksigner" verify --print-certs "$FINAL" | awk -F': ' '/certificate SHA-256 digest:/{print $2; exit}')"
+          test -n "$OLD" && test "$OLD" = "$NEW"
+
+          sha256sum "$FINAL" > "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.209_IMMERSIVE_OPENING_SELECTOR.apk.sha256"
+          echo "FINAL_APK=$FINAL" >> "$GITHUB_ENV"
+
+      - name: Package complete Android Studio project
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$OUA_ROOT/IMMERSIVE_OPENING_SELECTOR_4.9.209.md" <<'EOF'
+          # Braseiro O Um Anel 4.9.209
+
+          Correção do seletor de abertura na interface mobile imersiva real.
+
+          Na tela com barra inferior Mapa / Combate / Ficha / Dados / Mais:
+          - o seletor TIPO DE ABERTURA aparece antes do botão COMEÇAR AVENTURA;
+          - Star of the Mist, Contos, Peregrino, Sandbox e Taverna continuam disponíveis;
+          - Peregrino mantém Patrono + missão;
+          - Sandbox continua exigindo seleção manual do hex;
+          - os outros modos usam resolução automática do host.
+          EOF
+
+          mkdir -p "$OUA_ROOT/DELIVERABLES"
+          cp "$FINAL_APK" "$OUA_ROOT/DELIVERABLES/"
+          cp "$RUNNER_TEMP/APK_SIGNATURE.txt" "$OUA_ROOT/DELIVERABLES/"
+          cp "$RUNNER_TEMP/APK_BADGING.txt" "$OUA_ROOT/DELIVERABLES/"
+
+          rm -rf "$OUA_ROOT/node_modules" "$OUA_ROOT/.gradle" "$OUA_ROOT/android/.gradle" "$OUA_ROOT/android/app/build" "$OUA_ROOT/dist"
+          rm -f "$OUA_ROOT/android/local.properties"
+
+          ZIP="$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.209_ANDROID_STUDIO_COMPLETE.zip"
+          (cd "$(dirname "$OUA_ROOT")" && zip -qr "$ZIP" "$(basename "$OUA_ROOT")")
+          test -s "$ZIP"
+          sha256sum "$ZIP" > "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.209_ANDROID_STUDIO_COMPLETE.zip.sha256"
+          echo "SOURCE_ZIP=$ZIP" >> "$GITHUB_ENV"
+
+      - name: Publish v4.9.209
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          NOTES="Corrige o seletor de abertura na interface mobile imersiva exibida no aparelho. O card TIPO DE ABERTURA agora aparece na própria tela do mapa, antes de COMEÇAR AVENTURA, preservando todos os modos e a Adventure Engine."
+
+          gh release create OUA-v4.9.209 --repo "$GITHUB_REPOSITORY" --title "Braseiro O Um Anel 4.9.209 — seletor na tela mobile real" --notes "$NOTES" 2>/dev/null || gh release edit OUA-v4.9.209 --repo "$GITHUB_REPOSITORY" --title "Braseiro O Um Anel 4.9.209 — seletor na tela mobile real" --notes "$NOTES"
+
+          gh release upload OUA-v4.9.209 --repo "$GITHUB_REPOSITORY" "$FINAL_APK" "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.209_IMMERSIVE_OPENING_SELECTOR.apk.sha256" "$SOURCE_ZIP" "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.209_ANDROID_STUDIO_COMPLETE.zip.sha256" --clobber
