@@ -1,0 +1,82 @@
+name: OUA 4.9.205 reconstruct source for opening-options audit
+
+on:
+  push:
+    branches: [oua-opening-options-49206]
+    paths:
+      - ".github/workflows/oua-49206-reconstruct.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reconstruct:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: oua-opening-options-49206
+          fetch-depth: 1
+          sparse-checkout: |
+            ci/oua-4.9.197
+            ci/oua-4.9.199
+            ci/oua-4.9.200
+            ci/oua-4.9.201
+            ci/oua-4.9.202
+            ci/oua-4.9.203
+            ci/oua-4.9.204
+            ci/oua-4.9.205
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Reconstruct exact 4.9.205 tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/oua-49205-audit"
+          EX="$WORK/extract"
+          mkdir -p "$EX"
+
+          curl -L --fail --retry 5 --retry-delay 2             -o "$WORK/OUA_4.9.196_BRELGA_SOURCE.zip"             "https://drive.usercontent.google.com/download?id=1yIvAylIHStuCnUdIMxxpaAMxlOluStDC&export=download&confirm=t"
+          unzip -q "$WORK/OUA_4.9.196_BRELGA_SOURCE.zip" -d "$EX"
+
+          PKG=""
+          while IFS= read -r candidate; do
+            if [ -d "$(dirname "$candidate")/android" ]; then PKG="$candidate"; break; fi
+          done < <(find "$EX" -type f -name package.json | sort)
+          test -n "$PKG"
+          ROOT="$(dirname "$PKG")"
+
+          cat ci/oua-4.9.197/patch.part{0,1,2,3} | tr -d '\r\n' | base64 -d | gzip -d > "$WORK/197.patch"
+          (cd "$ROOT" && git apply --ignore-space-change --ignore-whitespace "$WORK/197.patch")
+
+          for ver in 4.9.199 4.9.200; do
+            base64 -d "ci/oua-$ver/apply-fix-$ver.mjs.gz.b64" | gzip -d > "$WORK/apply-$ver.mjs"
+            node "$WORK/apply-$ver.mjs" "$ROOT"
+          done
+
+          node ci/oua-4.9.201/apply-fix-4.9.201.mjs "$ROOT"
+          node ci/oua-4.9.202/apply-fix-4.9.202.mjs "$ROOT"
+          node ci/oua-4.9.203/apply-fix-4.9.203.mjs "$ROOT"
+
+          cat ci/oua-4.9.204/apply.part{0,1,2,3} | tr -d '\r\n' | base64 -d > "$WORK/apply-4.9.204.mjs"
+          node "$WORK/apply-4.9.204.mjs" "$ROOT"
+          node ci/oua-4.9.204/hotfix-pf2-gemini-parity.mjs "$ROOT"
+          node ci/oua-4.9.205/hotfix-startup-direct-opening.mjs "$ROOT"
+
+          node "$ROOT/scripts/verify-opening-startup-49205.mjs" "$ROOT"
+
+          echo "$ROOT" > "$WORK/root.txt"
+          tar -C "$(dirname "$ROOT")" -czf "$WORK/OUA_4.9.205_RECONSTRUCTED_SOURCE.tar.gz" "$(basename "$ROOT")"
+          echo "ARTIFACT=$WORK/OUA_4.9.205_RECONSTRUCTED_SOURCE.tar.gz" >> "$GITHUB_ENV"
+
+      - name: Upload reconstructed source
+        uses: actions/upload-artifact@v4
+        with:
+          name: OUA_4.9.205_RECONSTRUCTED_SOURCE
+          path: ${{ env.ARTIFACT }}
+          retention-days: 1

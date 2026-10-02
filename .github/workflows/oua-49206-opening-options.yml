@@ -1,0 +1,235 @@
+name: OUA 4.9.206 opening options + Android Studio ZIP
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/oua-49206-opening-options.yml"
+      - "ci/oua-4.9.206/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          sparse-checkout: |
+            ci/oua-4.9.197
+            ci/oua-4.9.199
+            ci/oua-4.9.200
+            ci/oua-4.9.201
+            ci/oua-4.9.202
+            ci/oua-4.9.203
+            ci/oua-4.9.204
+            ci/oua-4.9.205
+            ci/oua-4.9.206
+            build-signing
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Reconstruct canonical source
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/oua-49205"
+          EX="$WORK/extract"
+          mkdir -p "$EX"
+
+          curl -L --fail --retry 5 --retry-delay 2             -o "$WORK/OUA_4.9.196_BRELGA_SOURCE.zip"             "https://drive.usercontent.google.com/download?id=1yIvAylIHStuCnUdIMxxpaAMxlOluStDC&export=download&confirm=t"
+          unzip -q "$WORK/OUA_4.9.196_BRELGA_SOURCE.zip" -d "$EX"
+
+          PKG=""
+          while IFS= read -r candidate; do
+            if [ -d "$(dirname "$candidate")/android" ]; then PKG="$candidate"; break; fi
+          done < <(find "$EX" -type f -name package.json | sort)
+          test -n "$PKG"
+          ROOT="$(dirname "$PKG")"
+          echo "OUA_ROOT=$ROOT" >> "$GITHUB_ENV"
+          echo "WORK=$WORK" >> "$GITHUB_ENV"
+
+          cat ci/oua-4.9.197/patch.part{0,1,2,3} | tr -d '\r\n' | base64 -d | gzip -d > "$WORK/197.patch"
+          (cd "$ROOT" && git apply --ignore-space-change --ignore-whitespace "$WORK/197.patch")
+
+          for ver in 4.9.199 4.9.200; do
+            base64 -d "ci/oua-$ver/apply-fix-$ver.mjs.gz.b64" | gzip -d > "$WORK/apply-$ver.mjs"
+            node "$WORK/apply-$ver.mjs" "$ROOT"
+          done
+
+          node ci/oua-4.9.201/apply-fix-4.9.201.mjs "$ROOT"
+          node ci/oua-4.9.202/apply-fix-4.9.202.mjs "$ROOT"
+          node ci/oua-4.9.203/apply-fix-4.9.203.mjs "$ROOT"
+
+          cat ci/oua-4.9.204/apply.part{0,1,2,3} | tr -d '\r\n' | base64 -d > "$WORK/apply-4.9.204.mjs"
+          node "$WORK/apply-4.9.204.mjs" "$ROOT"
+          node ci/oua-4.9.204/hotfix-pf2-gemini-parity.mjs "$ROOT"
+
+          node ci/oua-4.9.205/hotfix-startup-direct-opening.mjs "$ROOT"
+          node "$ROOT/scripts/verify-opening-startup-49205.mjs" "$ROOT"
+
+          base64 -d ci/oua-4.9.206/apply-opening-options-4.9.206.mjs.gz.b64 | gzip -d > "$WORK/apply-opening-options-4.9.206.mjs"
+          node "$WORK/apply-opening-options-4.9.206.mjs" "$ROOT"
+          node "$ROOT/scripts/verify-opening-options-49206.mjs" "$ROOT"
+
+      - name: Install exact web dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$OUA_ROOT"
+          npm config set registry https://registry.npmjs.org/
+          if [ -f package-lock.json ]; then
+            npm ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/ || npm install --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
+          else
+            npm install --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
+          fi
+          npm install --no-save --ignore-scripts --no-audit --no-fund esbuild @rollup/rollup-linux-x64-gnu @esbuild/linux-x64
+
+      - name: Prove direct opening with mocked Android Gemini bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          node "$OUA_ROOT/scripts/test-opening-gemini-mock-49205.mjs" "$OUA_ROOT"
+
+      - name: Prove campaign start option semantics
+        shell: bash
+        run: |
+          set -euo pipefail
+          node "$OUA_ROOT/scripts/test-campaign-start-49206.mjs" "$OUA_ROOT"
+
+      - name: TypeScript and production web build
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$OUA_ROOT"
+          npm run lint
+          npm run build
+          node scripts/sync-android-assets.mjs
+          node scripts/verify-opening-options-49206.mjs "$OUA_ROOT"
+
+      - name: Android Studio / Gradle compile
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$OUA_ROOT/android"
+          printf 'sdk.dir=%s\n' "$ANDROID_HOME" > local.properties
+          chmod +x ./gradlew
+          ./gradlew :app:assembleDebug --stacktrace --no-daemon
+
+      - name: Sign installable APK and verify identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          KEYSTORE="$RUNNER_TEMP/braseiro-stable-debug.keystore"
+          base64 -d "$GITHUB_WORKSPACE/build-signing/braseiro-stable-debug.keystore.b64" > "$KEYSTORE"
+
+          APK_IN="$(find "$OUA_ROOT/android/app/build/outputs/apk/debug" -type f -name '*.apk' | sort | head -n1)"
+          test -f "$APK_IN"
+
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
+          AAPT="$BUILD_TOOLS/aapt"
+          APKSIGNER="$BUILD_TOOLS/apksigner"
+          ZIPALIGN="$BUILD_TOOLS/zipalign"
+
+          ALIGNED="$RUNNER_TEMP/oua-49206-aligned.apk"
+          FINAL="$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.206_OPENING_OPTIONS_FIXED.apk"
+          "$ZIPALIGN" -p -f 4 "$APK_IN" "$ALIGNED"
+          "$APKSIGNER" sign             --ks "$KEYSTORE"             --ks-key-alias androiddebugkey             --ks-pass pass:android             --key-pass pass:android             --out "$FINAL" "$ALIGNED"
+          "$APKSIGNER" verify --verbose --print-certs "$FINAL" > "$RUNNER_TEMP/APK_SIGNATURE.txt"
+          "$AAPT" dump badging "$FINAL" > "$RUNNER_TEMP/APK_BADGING.txt"
+          grep -q "package: name='com.braseiro.oumanel'" "$RUNNER_TEMP/APK_BADGING.txt"
+          grep -q "versionCode='49206'" "$RUNNER_TEMP/APK_BADGING.txt"
+          grep -q "versionName='4.9.206'" "$RUNNER_TEMP/APK_BADGING.txt"
+          echo "FINAL_APK=$FINAL" >> "$GITHUB_ENV"
+
+      - name: Prepare complete Android Studio project
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$OUA_ROOT/ANDROID_STUDIO_README.md" <<'EOF'
+          # Braseiro O Um Anel 4.9.206 — Android Studio
+
+          Esta árvore já contém:
+          - pasta android completa;
+          - Gradle Wrapper;
+          - código Kotlin/Android;
+          - assets web de produção sincronizados em android/app/src/main/assets/public;
+          - fontes TypeScript/React;
+          - package.json e package-lock.json;
+          - scripts de build e verificação;
+          - correção de abertura FIRST VALID SCENE WINS.
+
+          ## Abrir no Android Studio
+          Abra diretamente a pasta android.
+          Aguarde o Gradle Sync e execute o módulo app.
+
+          Não é necessário rodar npm para apenas compilar o Android:
+          os assets web já estão sincronizados dentro do projeto Android.
+
+          Para alterar o frontend:
+          1. npm install
+          2. npm run lint
+          3. npm run build
+          4. node scripts/sync-android-assets.mjs
+
+          Dependências não-portáveis de cache (node_modules, .gradle/caches) não são incluídas.
+          As versões/dependências declaradas e lockfiles necessários estão incluídos; Android Studio/Gradle resolve os artefatos normalmente.
+          EOF
+
+          cat > "$OUA_ROOT/STARTUP_FIX_VALIDATION.md" <<'EOF'
+          # Validação da correção de início de aventura
+
+          - PASS: handleStartAdventure usa generateOpeningNarrationDirect.
+          - PASS: abertura não chama processTurn/Director/Barbara/Supervisor antes de existir a primeira cena.
+          - PASS: ausência de currentHexId não cancela a primeira cena.
+          - PASS: primeira narração válida é persistida imediatamente.
+          - PASS: teste mock Android bridge exercitou fallback de modelo e recebeu narrativa utilizável.
+          - PASS: TypeScript/lint.
+          - PASS: Vite produção.
+          - PASS: assets sincronizados para Android.
+          - PASS: Gradle assembleDebug.
+          - PASS: package com.braseiro.oumanel.
+          - PASS: versionName 4.9.206 / versionCode 49206.
+
+          Limite honesto: o CI não possui a chave Gemini privada do aparelho do usuário.
+          Portanto a rede/conta real não pode ser simulada no servidor; o caminho bridge -> fallback -> parsing -> commit foi testado com bridge mockada, e toda a árvore foi compilada.
+          EOF
+
+          mkdir -p "$OUA_ROOT/DELIVERABLES"
+          cp "$FINAL_APK" "$OUA_ROOT/DELIVERABLES/"
+          cp "$RUNNER_TEMP/APK_SIGNATURE.txt" "$OUA_ROOT/DELIVERABLES/"
+          cp "$RUNNER_TEMP/APK_BADGING.txt" "$OUA_ROOT/DELIVERABLES/"
+
+          rm -rf "$OUA_ROOT/node_modules" "$OUA_ROOT/.gradle" "$OUA_ROOT/android/.gradle"
+          rm -rf "$OUA_ROOT/android/app/build" "$OUA_ROOT/dist"
+
+          ZIP="$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.206_ANDROID_STUDIO_COMPLETE.zip"
+          (cd "$(dirname "$OUA_ROOT")" && zip -qr "$ZIP" "$(basename "$OUA_ROOT")")
+          test -s "$ZIP"
+          sha256sum "$ZIP" > "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.206_ANDROID_STUDIO_COMPLETE.zip.sha256"
+          echo "SOURCE_ZIP=$ZIP" >> "$GITHUB_ENV"
+
+      - name: Publish source ZIP and APK
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view OUA-v4.9.206 >/dev/null 2>&1; then
+            gh release edit OUA-v4.9.206               --title "Braseiro O Um Anel 4.9.206 — início de aventura corrigido"               --notes "Fonte completa para Android Studio e APK gerados da mesma árvore validada. A abertura agora oferece A Estrela da Névoa, Contos das Terras Solitárias, Modo Peregrino, Sandbox e Modo Taverna; o host resolve e persiste a posição inicial no Atlas antes do Gemini, mantendo FIRST VALID SCENE WINS."
+          else
+            gh release create OUA-v4.9.206               --title "Braseiro O Um Anel 4.9.206 — início de aventura corrigido"               --notes "Fonte completa para Android Studio e APK gerados da mesma árvore validada. A abertura agora oferece A Estrela da Névoa, Contos das Terras Solitárias, Modo Peregrino, Sandbox e Modo Taverna; o host resolve e persiste a posição inicial no Atlas antes do Gemini, mantendo FIRST VALID SCENE WINS."
+          fi
+
+          gh release upload OUA-v4.9.206             "$SOURCE_ZIP"             "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.206_ANDROID_STUDIO_COMPLETE.zip.sha256"             "$FINAL_APK"             --clobber
