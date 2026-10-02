@@ -5,7 +5,7 @@ BLOCO: ENGINE-002
 BASE_BRANCH: dnd/master-run164-integration-candidate
 BASE_COMMIT: b8e59f6c0a8d35bbc93865830359afecd0642d10
 BRANCH: dnd/engine-002-qa001-corrections
-PATCH_SHA256: afb6ae1117d679a189addb01ad332b8c008eb41ad533cc81170c8f67035b9b79
+PATCH_SHA256: 323892809682860d480cbc39f82786f53eb91d2c3ab51b1f840e329b9629f2e1
 
 ## Escopo corrigido
 - B-003A: RUN149 valida resolução manual antes do gasto e aplica idempotência por token.
@@ -24,7 +24,7 @@ PATCH_SHA256: afb6ae1117d679a189addb01ad332b8c008eb41ad533cc81170c8f67035b9b79
 - tools/test_engine002_run149_atomicity.sh
   SHA-256: b4cd9ba3ed1c87befd32870dac77f28f4fce52e58d6b2fb78404ca8be4b99b18
 - tools/test_engine002_run143_atomicity.sh
-  SHA-256: 93978f61554362a4bf684f3640bbbcbe9616a0ad8e038169e57e5137efadc84e
+  SHA-256: 0910104bb9dc9e26a8e209afbf656130fff541edc8172944db325c587eb3f261
 - tools/test_engine002_heroes_strict_dispatch.sh
   SHA-256: 2a0ac39ee7b7f42ede3f827146f2c5fdfdbd394bb18fb698112e35345025a7c5
 
@@ -35,7 +35,7 @@ PATCH_SHA256: afb6ae1117d679a189addb01ad332b8c008eb41ad533cc81170c8f67035b9b79
 - 3/3 ENGINE-002 adversariais
 
 RUN149 adversarial: 8→8→8→8→7→7→6.
-RUN143 Grand Finale: 1→1→1→1→0→0.
+RUN143 Grand Finale: 1→1→1→1→1→0→0.
 RUN143 Cold-Blooded: 1→1→1→1→0→0.
 Heroes unknown action: Banneret, Harper Agent e Bright Fungal Cloak bloqueados; manual action conhecida permanece pending.
 
