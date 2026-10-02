@@ -28,7 +28,7 @@ const checks={
   'strider-auto-atlas':resolver.includes("selection.mode==='strider'")&&resolver.includes('STRIDER_PATRONS')&&resolver.includes('missionIndex'),
   'opening-resolves-before-gemini':app.indexOf('await resolveCampaignStart(activeCampaign, characters)')<app.indexOf('await generateOpeningNarrationDirect(')&&app.includes('applyResolvedCampaignStart(activeCampaign, resolvedStart)'),
   'opening-adventure-context':app.includes('buildAdventureOpeningContext(sourceCampaign, resolvedStart)')&&app.includes('gemini-direct-opening-adventure-engine'),
-  'first-valid-scene-preserved':app.includes("persistCampaign(updated, 'Adventure Engine: abertura direta Gemini validada')")&&app.includes('activateAdventureAfterOpening(updated, sceneId, canonicalLocation)'),
+  'first-valid-scene-preserved':app.includes("persistCampaign(updated, 'abertura direta Gemini validada')")&&app.includes('activateAdventureAfterOpening(updated, sceneId, canonicalLocation)'),
   'runtime-context-every-turn':app.includes('buildAdventureRuntimeContext(base)')&&app.includes('directorContext += adventureRuntimeContext')&&app.includes('publicContext += adventureRuntimeContext'),
   'runtime-history-tracked':app.includes('recordAdventureScene(updated, newNode.id, canonicalLocation)'),
   'ui-selector':view.includes('<CampaignStartSelector')&&view.includes('campaignStartMode')&&view.includes('canUseStrider'),
