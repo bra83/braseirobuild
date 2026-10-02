@@ -1,0 +1,150 @@
+name: OUA 4.9.211 FINAL Strider opening activation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/oua-49211-final-release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          sparse-checkout: |
+            ci/oua-4.9.211
+            build-signing
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Download canonical 4.9.210 project
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/oua-49211"
+          mkdir -p "$WORK"
+          gh release download OUA-v4.9.210 --repo "$GITHUB_REPOSITORY" --pattern "BRASEIRO_O_UM_ANEL_4.9.210_ANDROID_STUDIO_COMPLETE.zip" --dir "$WORK" --clobber
+          unzip -q "$WORK/BRASEIRO_O_UM_ANEL_4.9.210_ANDROID_STUDIO_COMPLETE.zip" -d "$WORK/extract"
+          PKG=""
+          while IFS= read -r candidate; do
+            if [ -d "$(dirname "$candidate")/android" ]; then PKG="$candidate"; break; fi
+          done < <(find "$WORK/extract" -type f -name package.json | sort)
+          test -n "$PKG"
+          ROOT="$(dirname "$PKG")"
+          echo "OUA_ROOT=$ROOT" >> "$GITHUB_ENV"
+
+          node ci/oua-4.9.211/apply-strider-opening-activation-4.9.211.mjs "$ROOT"
+          node ci/oua-4.9.211/verify-strider-opening-activation-4.9.211.mjs "$ROOT"
+
+      - name: Install and validate web runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$OUA_ROOT"
+          npm config set registry https://registry.npmjs.org/
+          if [ -f package-lock.json ]; then
+            npm ci --ignore-scripts --no-audit --no-fund || npm install --ignore-scripts --no-audit --no-fund
+          else
+            npm install --ignore-scripts --no-audit --no-fund
+          fi
+          npm install --no-save --ignore-scripts --no-audit --no-fund esbuild @rollup/rollup-linux-x64-gnu @esbuild/linux-x64
+
+          node scripts/test-opening-gemini-mock-49205.mjs "$OUA_ROOT"
+          npm run lint
+          npm run build
+          node scripts/sync-android-assets.mjs
+          node "$GITHUB_WORKSPACE/ci/oua-4.9.211/verify-strider-opening-activation-4.9.211.mjs" "$OUA_ROOT"
+
+      - name: Build install-over Android APK
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.android"
+          base64 -d "$GITHUB_WORKSPACE/build-signing/braseiro-stable-debug.keystore.b64" > "$HOME/.android/debug.keystore"
+
+          cd "$OUA_ROOT/android"
+          printf 'sdk.dir=%s\n' "$ANDROID_HOME" > local.properties
+          chmod +x ./gradlew
+          ./gradlew :app:assembleDebug --stacktrace --no-daemon
+
+          APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | sort | head -n1)"
+          test -f "$APK"
+          FINAL="$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.211_STRIDER_OPENING.apk"
+          cp "$APK" "$FINAL"
+
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
+          "$BUILD_TOOLS/aapt" dump badging "$FINAL" > "$RUNNER_TEMP/APK_BADGING.txt"
+          "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$FINAL" > "$RUNNER_TEMP/APK_SIGNATURE.txt"
+
+          grep -q "package: name='com.braseiro.oumanel'" "$RUNNER_TEMP/APK_BADGING.txt"
+          grep -q "versionCode='49211'" "$RUNNER_TEMP/APK_BADGING.txt"
+          grep -q "versionName='4.9.211'" "$RUNNER_TEMP/APK_BADGING.txt"
+
+          mkdir -p "$RUNNER_TEMP/base"
+          gh release download OUA-v4.9.210 --repo "$GITHUB_REPOSITORY" --pattern "BRASEIRO_O_UM_ANEL_4.9.210_OPENING_FIXES.apk" --dir "$RUNNER_TEMP/base" --clobber
+          BASE="$RUNNER_TEMP/base/BRASEIRO_O_UM_ANEL_4.9.210_OPENING_FIXES.apk"
+          OLD="$("$BUILD_TOOLS/apksigner" verify --print-certs "$BASE" | awk -F': ' '/certificate SHA-256 digest:/{print $2; exit}')"
+          NEW="$("$BUILD_TOOLS/apksigner" verify --print-certs "$FINAL" | awk -F': ' '/certificate SHA-256 digest:/{print $2; exit}')"
+          test -n "$OLD" && test "$OLD" = "$NEW"
+
+          sha256sum "$FINAL" > "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.211_STRIDER_OPENING.apk.sha256"
+          echo "FINAL_APK=$FINAL" >> "$GITHUB_ENV"
+
+      - name: Package complete Android Studio project
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$OUA_ROOT/STRIDER_OPENING_4.9.211.md" <<'EOF'
+          # Braseiro O Um Anel 4.9.211
+
+          - Escolher Modo Peregrino na abertura ativa automaticamente set_rules_mode=strider.
+          - A Companhia e os Heróis recebem o estado mecânico Peregrino automaticamente.
+          - A característica Peregrino e demais regras do suplemento passam a ser aplicadas pelo motor.
+          - Trocar para outra abertura antes de começar restaura o modo padrão.
+          - Escolher Patrono na abertura também atualiza o Patrono mecânico da Companhia.
+          - Não existe e não é necessária uma marcação manual Peregrino na ficha.
+          EOF
+
+          mkdir -p "$OUA_ROOT/DELIVERABLES"
+          cp "$FINAL_APK" "$OUA_ROOT/DELIVERABLES/"
+          cp "$RUNNER_TEMP/APK_SIGNATURE.txt" "$OUA_ROOT/DELIVERABLES/"
+          cp "$RUNNER_TEMP/APK_BADGING.txt" "$OUA_ROOT/DELIVERABLES/"
+
+          rm -rf "$OUA_ROOT/node_modules" "$OUA_ROOT/.gradle" "$OUA_ROOT/android/.gradle" "$OUA_ROOT/android/app/build" "$OUA_ROOT/dist"
+          rm -f "$OUA_ROOT/android/local.properties"
+
+          ZIP="$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip"
+          (cd "$(dirname "$OUA_ROOT")" && zip -qr "$ZIP" "$(basename "$OUA_ROOT")")
+          test -s "$ZIP"
+          sha256sum "$ZIP" > "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip.sha256"
+          echo "SOURCE_ZIP=$ZIP" >> "$GITHUB_ENV"
+
+      - name: Publish v4.9.211
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          NOTES="Liga corretamente a escolha Modo Peregrino da abertura ao motor real de regras. Não é mais necessário marcar personagem: ao selecionar Peregrino, set_rules_mode=strider é aplicado à Companhia/Herói; Patrono da abertura também é sincronizado mecanicamente. Mantém as correções de Taverna aleatória da 4.9.210."
+
+          gh release create OUA-v4.9.211 --repo "$GITHUB_REPOSITORY" --title "Braseiro O Um Anel 4.9.211 — Modo Peregrino integrado à abertura" --notes "$NOTES" 2>/dev/null || gh release edit OUA-v4.9.211 --repo "$GITHUB_REPOSITORY" --title "Braseiro O Um Anel 4.9.211 — Modo Peregrino integrado à abertura" --notes "$NOTES"
+
+          gh release upload OUA-v4.9.211 --repo "$GITHUB_REPOSITORY" "$FINAL_APK" "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.211_STRIDER_OPENING.apk.sha256" "$SOURCE_ZIP" "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.211_ANDROID_STUDIO_COMPLETE.zip.sha256" --clobber
