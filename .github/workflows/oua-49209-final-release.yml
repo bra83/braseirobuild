@@ -187,3 +187,5 @@ jobs:
           gh release create OUA-v4.9.209 --repo "$GITHUB_REPOSITORY" --title "Braseiro O Um Anel 4.9.209 — seletor na tela mobile real" --notes "$NOTES" 2>/dev/null || gh release edit OUA-v4.9.209 --repo "$GITHUB_REPOSITORY" --title "Braseiro O Um Anel 4.9.209 — seletor na tela mobile real" --notes "$NOTES"
 
           gh release upload OUA-v4.9.209 --repo "$GITHUB_REPOSITORY" "$FINAL_APK" "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.209_IMMERSIVE_OPENING_SELECTOR.apk.sha256" "$SOURCE_ZIP" "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.209_ANDROID_STUDIO_COMPLETE.zip.sha256" --clobber
+
+# immersive-anchor-fix-rerun
