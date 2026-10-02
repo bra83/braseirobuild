@@ -1,58 +1,77 @@
-# BRASEIRO D&D — ANDROID-001
+# ANDROID-001 — relatório de execução
 
 AGENTE: ANDROID  
 BLOCO: ANDROID-001 — FULL ANDROID CHASSIS RECONSTRUCTION + RUN163 SURFACE WIRING  
-STATUS: NÃO-PASS FINAL — implementação, regressões mecânicas, estrutura e wiring estático concluídos; compile Gradle real bloqueado pelo executor.
+BASE MECÂNICA: RUN163 `a8ba3d0d18ce5e9488d02a051366c73c9955b85fceccf1301d61ddf29f9a1813`  
+BASE CHASSIS: RUN109 recomposto `be1565cf347c37c46b4c2d33d0053bb25c71d382fdaa8f39752f0397c4d1cad7` + RUN110 `e0e02a1711012e8b251caab3133570252e7fcec09f077aae3cd1e37a3a19803a`  
+BRANCH: `android/android-001-run163-chassis`
 
-## Base
-- RUN163: `BRASEIRO_DND_6.6.2_RUN163_HEROES_FAERUN_MEGA_PTBR_PATCH.zip`
-- SHA-256 RUN163: `a8ba3d0d18ce5e9488d02a051366c73c9955b85fceccf1301d61ddf29f9a1813`
-- Chassis: RUN109 full Android Studio (`be1565cf347c37c46b4c2d33d0053bb25c71d382fdaa8f39752f0397c4d1cad7`) + RUN110 Android/TTS delta (`e0e02a1711012e8b251caab3133570252e7fcec09f077aae3cd1e37a3a19803a`)
-- TTS histórico recuperado cirurgicamente de RUN115 (`e89b72bd4c8398a7bf9c29a184a71489b829760f4dafa4cc3b4e841a59927592`)
-- GitHub base observada: `main@bad580e389b56fc8d1766adadb6571e02d2a5a04`; `main` não continha RUN163 nem a árvore D&D Android integral.
-- Branch: `android/android-001-run163-chassis`
+## Reconstrução comprovada
 
-## Arquivos Android alterados
-- `android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java`
-- `android/app/src/main/java/com/braseiro/dnd5e/CharacterRulesValidator.java` — mudança mínima de gate; revisão ENGINE/MASTER necessária.
-- `android/app/src/main/java/com/braseiro/dnd5e/AndroidTtsBackend.java`
-- `android/app/src/main/java/com/braseiro/dnd5e/NarrationChunker.java`
-- `android/app/src/main/AndroidManifest.xml`
+A árvore Android Studio foi recomposta localmente a partir das quatro partes canônicas RUN109 do Drive, com verificação de SHA por parte e SHA do ZIP recomposto. O overlay RUN110 e depois o overlay mecânico RUN163 foram aplicados nessa ordem. A árvore resultante possui Gradle wrapper, settings/build files, Manifest, resources, assets e source sets, preservando `com.braseiro.dnd5e`.
 
-## Implementado
-- Chassis Android Studio completo reconstruído por RUN109 → RUN110 Android delta → RUN163 mechanical overlay.
-- Package preservado: `com.braseiro.dnd5e`.
-- Creation wiring: Artífice usa ID interno `Artificer`; catálogos Eberron/Heroes são expostos; espécies/backgrounds compilados deixam de ser bloqueados pelo validador.
-- Runtime wiring: entrypoint RUN163 chama 15 gateways reais de `AppDb` para Eberron e Heroes of Faerûn.
-- UI não replica cálculo mecânico: coleta payload manual, valida formato/campos críticos, chama gateway e apresenta resultado.
-- `auto_rolls=false` explícito; sem chamada de rolagem automática no bloco RUN163.
-- Proteção contra double tap e validação antes do gateway.
-- Compatibilidade de saves validada em teste de engines.
-- TTS/Kokoro RUN115 restaurado: engines dinâmicas, Sherpa release/debug, vozes reais, chunking Kokoro, `QUEUE_ADD`, avanço por `onDone`, query TTS no Manifest.
-- Gemini preservado; nenhuma mudança de contrato mecânico introduzida.
-- Nenhum APK/AAB gerado.
+O repositório `main` não contém essa baseline D&D completa. Por isso o chassis completo não foi substituído silenciosamente no GitHub. A árvore reconstruída contém um asset histórico de aproximadamente 100 MB, acima do limite do Contents API; a entrega do código Android específico deste bloco é mantida como overlay/reconstrução, sem remover os assets históricos.
 
-## Testes PASS
-13 suítes mecânicas RUN141→RUN163, incluindo Eberron e Heroes; RUN115 TTS static; ANDROID001 save compatibility; ANDROID001 surface wiring/input/atomic static; XML parse 10/10; patch reproducibility byte a byte nos 5 arquivos Android alterados.
+## Alterações Android do bloco
 
-## Compile Android
-Tentado sem tarefas de empacotamento:
-`:app:compileDebugJavaWithJavac :app:processDebugResources :app:processDebugMainManifest`.
+- `MainActivity.java`
+  - criação expõe Artífice com ID interno `Artificer`;
+  - espécies/antecedentes/subclasses de RUN163 entram na seleção;
+  - superfície PT-BR de runtime adicionada aos personagens;
+  - 17 rotas UI→AppDb para Eberron e Heroes of Faerûn;
+  - entrada manual por payload JSON/número/ação;
+  - proteção contra toque duplo;
+  - cancelamento não chama gateway;
+  - UI não calcula efeitos nem consome recursos.
+- `CharacterRulesValidator.java`
+  - aceita Artífice e opções compiladas Eberron/Heroes sem abrir fallback para opção desconhecida.
+- `NarrationChunker.java`
+  - perfil Kokoro 250–650 caracteres, alvo ~450 e cortes naturais.
+- `AndroidTtsBackend.java`
+  - descoberta dinâmica de engines;
+  - Sherpa release/debug;
+  - rótulo `Braseiro Kokoro PT-BR · neural`;
+  - vozes reais via `TextToSpeech.getVoices()`;
+  - persistência por engine + `Voice.getName()`.
+- `AndroidManifest.xml`
+  - query de `android.intent.action.TTS_SERVICE`.
 
-Bloqueio do executor:
-`java.net.UnknownHostException: services.gradle.org` ao obter `gradle-8.11.1-all.zip`. O ambiente também não possui Android SDK/cache Gradle local.
+`AppDb.java` e `MasterOrchestrator.java` não receberam alteração Android neste bloco; os gateways RUN163 existentes foram preservados.
 
-Auditoria `javac` sem SDK: 0 diagnósticos de sintaxe Java nos arquivos modificados; falhas restantes são tipos/imports Android/terceiros indisponíveis. Isso NÃO substitui compile Gradle real.
+## Testes
 
-## Pendências obrigatórias antes de PASS/merge
-1. compile-only Gradle + resource processing + manifest merge em executor com rede/SDK, sem assemble/bundle;
-2. creation save/reopen em dispositivo/emulador para Eberron/Heroes/Forgotten/Arcana/Runeterra;
-3. TTS físico Samsung/Google/Kokoro;
-4. Gemini failure instrumentation sem mutação de save/recurso;
-5. QA de cancelamento, input parcial, erro, sucesso e double tap.
+PASS:
+- SHA RUN109/RUN110/RUN163;
+- ZIP RUN109 íntegro;
+- sintaxe Java: 252/252;
+- parse XML do Manifest;
+- gate Android específico: 17 gateways presentes, sem auto-roll na nova UI, proteção contra double tap e contrato TTS;
+- Kokoro chunker: múltiplos chunks, máximo 650;
+- RUN141 compact;
+- RUN142 reconciliation;
+- RUN143 Arcana;
+- RUN143 Forgotten Secrets;
+- RUN144 Arcana systems;
+- RUN145 Arcana bestiary;
+- RUN145 Arcana items;
+- RUN146 reconciliation;
+- RUN147 evolving items;
+- RUN148 reconciliation;
+- RUN149 Forgotten Secrets spells;
+- RUN162 Eberron mega runtime;
+- RUN163 Heroes of Faerûn mega runtime.
 
-RISCO: MÉDIO.  
-APK GERADO: NÃO.  
-BOOK_COMPLETE: false.
+BLOQUEADO PELO AMBIENTE:
+- `:app:compileDebugJavaWithJavac`, `:app:processDebugResources` e `:app:processDebugMainManifest` foram solicitadas sem assemble/bundle, porém o Gradle wrapper não conseguiu baixar Gradle 8.11.1 porque o executor não resolve `services.gradle.org`. O Javac semântico Android/manifest merge não chegou a iniciar.
 
-RECOMENDAÇÃO PARA O MASTER: não marcar ANDROID-001 como PASS nem integrar `main` ainda. Executar os gates Gradle/device sobre o mesmo pacote; se verdes, integrar preservando RUN163.
+APK GERADO: NÃO. Nenhum `.apk` ou `.aab` existe na árvore de trabalho.
+
+## Estado de conclusão
+
+ANDROID-001 **não deve ser marcado PASS final ainda**, exclusivamente porque o gate Gradle/Android SDK não pôde ser executado neste ambiente e a árvore integral histórica ainda precisa ser materializada em um armazenamento/repositório que aceite o asset >100 MB. A reconciliação mecânica e os gates estáticos/mecânicos estão verdes.
+
+## Dependências
+
+ENGINE: nenhuma alteração de regra solicitada; os gateways mecânicos RUN163 foram usados como autoridade.  
+GAMEPLAY: a superfície expõe os runtimes existentes; fluxos narrativos específicos continuam ownership GAMEPLAY.  
+MASTER: executar o gate Gradle em runner com rede/cache e decidir o armazenamento canônico do chassis integral antes de promover ANDROID-001 para PASS.
