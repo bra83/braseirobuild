@@ -1,0 +1,58 @@
+BRASEIRO D&D — QA-001 VALIDATION
+
+AGENTE=QA
+BLOCO=QA-001
+BASE_BRANCH=dnd/master-run164-integration-candidate
+BASE_COMMIT=b8e59f6c0a8d35bbc93865830359afecd0642d10
+RESULTADO_FINAL=FAIL
+BOOK_COMPLETE=false
+APK_AAB_GERADOS=0
+
+SUITES_HERDADAS_EXECUTADAS=13/13 PASS
+TESTES_GAMEPLAY001_EXECUTADOS=3/3 PASS
+TOTAL_INTEGRADO=16/16 PASS
+TTS_RUN110=8/8 PASS
+
+BLOCKERS=4
+MAJORS=1
+MINORS=1
+SOURCE_BLOCKED=5 grupos declarados
+
+AUTO_ROLL_AUDIT=FAIL
+ATOMICITY_AUDIT=FAIL
+PERSISTENCE_AUDIT=PARCIAL_NAO_ELEGIVEL_A_PASS_GLOBAL
+UI_ENTRYPOINT_AUDIT=FAIL
+CHARACTER_CREATION_AUDIT=PARCIAL_NAO_COMPROVADO_END_TO_END
+GAMEPLAY_AUDIT=PASS_GAMEPLAY001_FAIL_VTT_INTEGRADO
+GEMINI_AUDIT=PASS_GAMEPLAY001
+PT_BR_AUDIT=FAIL_MINOR
+TTS_KOKORO_AUDIT=PASS_ESTATICO_REGRESSIVO
+ANDROID_STRUCTURAL_AUDIT=FAIL
+REGRESSOES_HERDADAS=0 NAS 13 SUITES PRESCRITAS
+
+BLOCKER_B001=Composicao reconstruida referencia 25 classes *Engine do projeto ausentes do source-set e sem JAR/AAR fornecedor localizado.
+BLOCKER_B002=MainActivity possui auto-roll de iniciativa nos fluxos auditados, violando auto_rolls=false.
+BLOCKER_B003=RUN149 e RUN143 debitam slot/recurso antes da validacao completa de inputs obrigatorios.
+BLOCKER_B004=Mystara permanece selecionavel/executavel no runtime atual.
+MAJOR_M001=Heroes aceita action ID desconhecido via fallback manual generico e o estado pode seguir para persistencia.
+MINOR_N001=Vazamento de termos/labels mecanicos em ingles na superficie PT-BR.
+
+SOURCE_BLOCKED_1=Eberron Bestiary: 20/27 cartoes numericos bloqueados por fonte.
+SOURCE_BLOCKED_2=Heroes of Faerun: auditoria fina/source-fidelity permanece PARTIAL.
+SOURCE_BLOCKED_3=Runeterra: Pistoleiro/Armeiro bloqueados por fonte aprovada.
+SOURCE_BLOCKED_4=Grung bloqueado por fonte.
+SOURCE_BLOCKED_5=Xama/Ritualista bloqueado por texto mecanico autoritativo.
+
+GRADLE_GATE_COMMAND=./gradlew --no-daemon :app:compileDebugJavaWithJavac :app:processDebugResources :app:processDebugMainManifest
+GRADLE_GATE_RESULT=BLOCKED/FAIL BEFORE TASK EXECUTION
+GRADLE_GATE_ERROR=java.net.UnknownHostException: services.gradle.org
+ANDROID_HOME=absent
+ANDROID_SDK_ROOT=absent
+GRADLE_WRAPPER_CACHE=absent
+ASSEMBLE_INVOKED=false
+BUNDLE_INVOKED=false
+APK_GENERATED=false
+AAB_GENERATED=false
+
+JUSTIFICATIVA=QA-001 exige zero BLOCKER e zero MAJOR aberto. Foram reproduzidos/demonstrados 4 BLOCKER, 1 MAJOR e 1 MINOR; por isso o candidato RUN164 nao atende ao criterio de PASS apesar de 16/16 suites prescritas verdes.
+RECOMENDACAO_MASTER=NAO promover RUN164 candidate; corrigir findings fora do QA, publicar nova base e reexecutar QA-001. Manter PARTIAL/BLOCKED_SOURCE e BOOK_COMPLETE=false.

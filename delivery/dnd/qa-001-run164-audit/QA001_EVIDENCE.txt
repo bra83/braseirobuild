@@ -1,0 +1,39 @@
+QA-001 RUN164 — EVIDÊNCIA RESUMIDA
+
+BASE_BRANCH=dnd/master-run164-integration-candidate
+BASE_COMMIT=b8e59f6c0a8d35bbc93865830359afecd0642d10
+RUN164_SHA256=bb62fbbf5a818fd48197b086141b8ee6dfe8f395e697c297dc6300cee27470ce
+
+SUITES_INTEGRADAS=16/16 PASS
+APK_AAB_GERADOS=0
+BOOK_COMPLETE=false obrigatório
+
+BLOCKERS:
+B-001 25 *Engine symbols referenced but absent from app source and no JAR/AAR provider.
+B-002 MainActivity auto-rolls D&D initiative in audited combat paths.
+B-003 RUN149 and RUN143 spend resource before required manual payload is complete.
+B-004 Mystara remains selectable/executable in MainActivity.
+
+MAJOR:
+M-001 Heroes unknown action fallback returns resolved manual state and AppDb can persist it.
+
+MINOR:
+N-001 user-facing PT-BR leakage: Student Dice / Beloved Inspiration / Student Die and canonical English labels.
+
+RUN149 HARNESS:
+INCOMPLETE ... slot2=7
+CANCEL ... slot2=7
+PAYLOAD_MISSING_PSYCHIC ... slot2=7
+VALID_RESUME ... slot2=7
+SECOND_SUBMIT_NEW_CAST ... slot2=6
+INITIAL_SLOT2=8
+
+RUN143 HARNESS:
+GRAND_FINALE_MISSING_TARGETS ... before=1 after=0
+COLD_BLOODED_MISSING_REPTILE_CONFIRM ... before=1 after=0
+
+GRADLE COMPILE-ONLY/RESOURCE/MANIFEST:
+./gradlew --no-daemon :app:compileDebugJavaWithJavac :app:processDebugResources :app:processDebugMainManifest
+=> BLOCKED before Gradle task execution: java.net.UnknownHostException: services.gradle.org
+ANDROID_HOME/ANDROID_SDK_ROOT absent.
+No assemble/bundle invoked.
