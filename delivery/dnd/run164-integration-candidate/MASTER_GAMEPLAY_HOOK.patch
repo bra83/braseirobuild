@@ -1,0 +1,18 @@
+--- a/android/app/src/main/java/com/braseiro/dnd5e/MasterOrchestrator.java
++++ b/android/app/src/main/java/com/braseiro/dnd5e/MasterOrchestrator.java
+@@ -212,6 +212,17 @@
+     public JSONObject executeCompiledSupplement(String ruleId,JSONObject inputs,JSONObject requestedMutation){return rules.executeCompiledSupplement(ruleId,inputs,requestedMutation);}
+     public JSONObject compiledSupplementReadiness(String ruleId,JSONObject inputs){return rules.compiledSupplementReadiness(ruleId,inputs);}
+ 
++    /** GAMEPLAY-001 sandbox bridge. The Master only delegates validated operations to WorldStateEngine. */
++    public JSONObject gameplaySandboxContext(){return world.gameplaySandboxContext();}
++    public JSONObject previewGameplayInput(String text,String inputChannel,JSONObject payload){return world.previewGameplayInput(text,inputChannel,payload);}
++    public JSONObject commitGameplayInput(String text,String inputChannel,JSONObject payload){return world.commitGameplayInput(text,inputChannel,payload);}
++    public JSONObject resolveGameplayEberronFramework(long characterId,String framework,String action,JSONObject payload){return world.resolveGameplayEberronFramework(characterId,framework,action,payload);}
++    public JSONObject resolveGameplayFaerunFaction(long characterId,String faction,String action,JSONObject payload){return world.resolveGameplayFaerunFaction(characterId,faction,action,payload);}
++    public JSONObject resolveGameplayFaerunDeityRenown(long characterId,String deity,int delta,JSONObject payload){return world.resolveGameplayFaerunDeityRenown(characterId,deity,delta,payload);}
++    public JSONObject beginGameplayTravel(String origin,String destination,String service,JSONObject payload){return world.beginGameplayTravel(origin,destination,service,payload);}
++    public JSONObject resolveGameplayFaerunTravelService(long characterId,String item,String action,JSONObject payload){return world.resolveGameplayFaerunTravelService(characterId,item,action,payload);}
++    public JSONObject gateGeminiGameplayProposal(JSONObject proposal){return world.gateGeminiGameplayProposal(proposal);}
++
+     public JSONObject livingWorldAggregate(){return db.getLivingWorldAggregate();}
