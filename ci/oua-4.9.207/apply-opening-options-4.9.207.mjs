@@ -40,7 +40,8 @@ export function drawStriderMissionIndex(patronId:string):number{
 }
 `);
 resolver=resolver.replace('export async function resolveCampaignStart(campaign:CampaignState,characters:Character[]):Promise<ResolvedCampaignStart>{','export async function resolveCampaignStart(campaign:CampaignState,_characters:Character[]):Promise<ResolvedCampaignStart>{');
-const striderStart=resolver.indexOf("  if(selection.mode==='strider'){");
+const resolveFunctionStart=resolver.indexOf('export async function resolveCampaignStart');
+const striderStart=resolver.indexOf("  if(selection.mode==='strider'){",resolveFunctionStart);
 const striderEnd=resolver.indexOf("  const module=selection.mode==='lone-lands'?",striderStart);
 must(striderStart>=0&&striderEnd>striderStart,'Strider resolver block');
 const striderBlock=`  if(selection.mode==='strider'){
