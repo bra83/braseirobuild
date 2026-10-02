@@ -10,7 +10,7 @@ BRANCH: `android/android-001-run163-chassis`
 
 A árvore Android Studio foi recomposta localmente a partir das quatro partes canônicas RUN109 do Drive, com verificação de SHA por parte e SHA do ZIP recomposto. O overlay RUN110 e depois o overlay mecânico RUN163 foram aplicados nessa ordem. A árvore resultante possui Gradle wrapper, settings/build files, Manifest, resources, assets e source sets, preservando `com.braseiro.dnd5e`.
 
-O repositório `main` não contém essa baseline D&D completa. Por isso o chassis completo não foi substituído silenciosamente no GitHub. A árvore reconstruída contém um asset histórico de aproximadamente 100 MB, acima do limite do Contents API; a entrega do código Android específico deste bloco é mantida como overlay/reconstrução, sem remover os assets históricos.
+O repositório `main` não contém essa baseline D&D completa. Por isso o chassis completo não foi substituído silenciosamente no GitHub. A árvore reconstruída contém um asset histórico de aproximadamente 100 MB, acima do limite do Contents API; a entrega do código Android específico deste bloco é mantida como overlay/reconstrução, sem remover os assets históricos. Overlay canônico no Drive: `1qURkJK1DljGqoWTQl5-FskHP63S4ZwGn`, SHA-256 `90a7e7a6bd9fa9a9c18a6122a87b8d8ee9b6e454fa4448c6adb333e4a461624d`. A árvore Android Studio completa reconstruída foi arquivada sem APK/AAB com SHA-256 `204f11121c606c4c6cdca1cd15ef9493fa661d48ccc05ad042a4e0df0a426244`.
 
 ## Alterações Android do bloco
 
