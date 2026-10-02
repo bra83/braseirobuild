@@ -141,6 +141,8 @@ const replacement = [
   "        playerAction: '[INICIAR AVENTURA GUIADA]',",
   '        atmospheric_narration: direct.text,',
   "        action_result: '',",
+  '        visualPrompt: direct.text.slice(0, 900),',
+  '        sceneVisualPrompt: direct.text.slice(0, 900),',
   '        location: canonicalLocation,',
   '        timeOfDay: timePeriodFromHour(openingClock.hour),',
   '        worldHour: openingClock.hour,',
