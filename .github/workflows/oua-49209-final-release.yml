@@ -189,3 +189,5 @@ jobs:
           gh release upload OUA-v4.9.209 --repo "$GITHUB_REPOSITORY" "$FINAL_APK" "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.209_IMMERSIVE_OPENING_SELECTOR.apk.sha256" "$SOURCE_ZIP" "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.209_ANDROID_STUDIO_COMPLETE.zip.sha256" --clobber
 
 # immersive-anchor-fix-rerun
+
+# start-button-anchor-rerun
