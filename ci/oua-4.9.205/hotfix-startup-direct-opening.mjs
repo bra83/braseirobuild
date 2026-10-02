@@ -6,60 +6,61 @@ const p=rel=>path.join(root,rel);
 const read=rel=>fs.readFileSync(p(rel),'utf8').replace(/\r\n/g,'\n');
 const write=(rel,text)=>{const target=p(rel);fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,text,'utf8');};
 const must=(ok,label)=>{if(!ok)throw new Error('OUA_STARTUP_49205: '+label);};
+const bt=String.fromCharCode(96);
 
-// Dedicated one-call opening service. It deliberately does NOT use Director JSON,
-// Barbara narrative validators or the long processTurn repair chain.
-const openingService = `import { generateGemini, responseText } from '../lib/geminiTransport';
-import { getGeminiTextModels } from '../lib/geminiModels';
-import { HUMAN_MASTER_PROFILE, HUMAN_MASTER_RUNTIME_CONTRACT } from '../lib/humanMasterProfile';
-
-export interface DirectOpeningResult {
-  text: string;
-  model: string;
-  tier: string;
-}
-
-const OPENING_SYSTEM = `
-Você é o Mestre de Histórias de O Um Anel 2e.
-Sua única tarefa nesta chamada é criar a PRIMEIRA CENA jogável da campanha.
-Não resolva ações dos jogadores. Não peça rolagens. Não altere regras, ficha, inventário, posição, clima ou horário.
-Use somente os fatos recebidos do host. Escreva em português brasileiro natural e imersivo.
-A abertura deve buscar 6.500–9.000 caracteres e 9–13 parágrafos substanciais, mas uma resposta narrativa válida nunca deve ser descartada apenas por ficar abaixo desse alvo.
-Pare na primeira decisão real dos jogadores.
-PERFIL TÉCNICO DO MESTRE:
-${HUMAN_MASTER_RUNTIME_CONTRACT}
-${HUMAN_MASTER_PROFILE}
-`;
-
-export async function generateOpeningNarrationDirect(context: string, request: string): Promise<DirectOpeningResult> {
-  const preferred = getGeminiTextModels()[0];
-  if (!preferred) throw new Error('Nenhum modelo Gemini de texto está configurado.');
-  const prompt = `
-CONTEXTO CANÔNICO DA ABERTURA
-${context}
-
-PEDIDO DO HOST
-${request}
-
-Entregue somente a narração da primeira cena, sem JSON, sem markdown, sem cabeçalhos técnicos e sem explicações sobre o processo.
-`;
-  const response = await generateGemini(
-    preferred,
-    [{ parts: [{ text: prompt }] }],
-    { temperature: 0.78, maxOutputTokens: 12000 },
-    OPENING_SYSTEM,
-  );
-  const text = responseText(response).trim();
-  if (text.length < 220) {
-    throw new Error('O Gemini respondeu, mas não entregou uma cena narrativa utilizável.');
-  }
-  return {
-    text,
-    model: String((response as any)._braseiroModel || preferred),
-    tier: String((response as any)._braseiroTier || ''),
-  };
-}
-`;
+const openingService = [
+  "import { generateGemini, responseText } from '../lib/geminiTransport';",
+  "import { getGeminiTextModels } from '../lib/geminiModels';",
+  "import { HUMAN_MASTER_PROFILE, HUMAN_MASTER_RUNTIME_CONTRACT } from '../lib/humanMasterProfile';",
+  '',
+  'export interface DirectOpeningResult {',
+  '  text: string;',
+  '  model: string;',
+  '  tier: string;',
+  '}',
+  '',
+  'const OPENING_SYSTEM = ' + bt,
+  'Você é o Mestre de Histórias de O Um Anel 2e.',
+  'Sua única tarefa nesta chamada é criar a PRIMEIRA CENA jogável da campanha.',
+  'Não resolva ações dos jogadores. Não peça rolagens. Não altere regras, ficha, inventário, posição, clima ou horário.',
+  'Use somente os fatos recebidos do host. Escreva em português brasileiro natural e imersivo.',
+  'A abertura deve buscar 6.500–9.000 caracteres e 9–13 parágrafos substanciais, mas uma resposta narrativa válida nunca deve ser descartada apenas por ficar abaixo desse alvo.',
+  'Pare na primeira decisão real dos jogadores.',
+  'PERFIL TÉCNICO DO MESTRE:',
+  '${HUMAN_MASTER_RUNTIME_CONTRACT}',
+  '${HUMAN_MASTER_PROFILE}',
+  bt + ';',
+  '',
+  'export async function generateOpeningNarrationDirect(context: string, request: string): Promise<DirectOpeningResult> {',
+  '  const preferred = getGeminiTextModels()[0];',
+  "  if (!preferred) throw new Error('Nenhum modelo Gemini de texto está configurado.');",
+  '  const prompt = ' + bt,
+  'CONTEXTO CANÔNICO DA ABERTURA',
+  '${context}',
+  '',
+  'PEDIDO DO HOST',
+  '${request}',
+  '',
+  'Entregue somente a narração da primeira cena, sem JSON, sem markdown, sem cabeçalhos técnicos e sem explicações sobre o processo.',
+  bt + ';',
+  '  const response = await generateGemini(',
+  '    preferred,',
+  '    [{ parts: [{ text: prompt }] }],',
+  '    { temperature: 0.78, maxOutputTokens: 12000 },',
+  '    OPENING_SYSTEM,',
+  '  );',
+  '  const text = responseText(response).trim();',
+  '  if (text.length < 220) {',
+  "    throw new Error('O Gemini respondeu, mas não entregou uma cena narrativa utilizável.');",
+  '  }',
+  '  return {',
+  '    text,',
+  "    model: String((response as any)._braseiroModel || preferred),",
+  "    tier: String((response as any)._braseiroTier || ''),",
+  '  };',
+  '}',
+  '',
+].join('\n');
 write('services/openingService.ts', openingService);
 
 let app=read('App.tsx');
@@ -71,185 +72,184 @@ const start=app.indexOf('const handleStartAdventure = async () => {');
 const end=app.indexOf('\n\n  const handleImportNpcPortrait',start);
 must(start>=0&&end>start,'handleStartAdventure block');
 
-const replacement = `const handleStartAdventure = async () => {
-    if (isStoryLoading) return;
-    setActiveTab('jogo');
-    const activeCampaign = campaignRef.current;
-    if (!activeCampaign) return;
-
-    setIsStoryLoading(true);
-    setStoryError(null);
-    setNarrationError(null);
-
-    try {
-      const discovery = await loadMapDiscovery(activeCampaign.id).catch(() => null);
-      const partySet = new Set(activeCampaign.partyCharacterIds || []);
-      const party = characters.filter(character => partySet.has(character.id));
-      const companyNames = party.map(character => character.sheet.identity.name || character.name).filter(Boolean);
-      const companyText = companyNames.length
-        ? \`Companhia: \${companyNames.join(', ')}.\`
-        : 'Companhia: personagens já persistidos na campanha.';
-
-      const profile = getAdventureProfile(adventureProfile);
-      const architecture = chooseOpeningArchitecture(activeCampaign, party, allNpcs, adventureProfile);
-      const openingClock = chooseOpeningClock(activeCampaign, architecture.id);
-      const remembered = rememberOpening(activeCampaign, architecture.id);
-      const rememberedMaster = normalizeMasterState(remembered);
-      const sourceCampaign: CampaignState = {
-        ...remembered,
-        masterState: {
-          ...rememberedMaster,
-          worldClock: { ...rememberedMaster.worldClock, hour: openingClock.hour, minute: openingClock.minute },
-          updatedAt: Date.now(),
-        },
-        updatedAt: Date.now(),
-      };
-
-      const canonicalLocation = sourceCampaign.masterState?.position.locationName
-        || sourceCampaign.currentLocation
-        || 'Eriador';
-      const currentHexId = discovery?.currentHexId
-        || sourceCampaign.masterState?.position.currentHexId
-        || '';
-      const locationInstruction = currentHexId
-        ? \`Posição cartográfica confirmada pelo host: hex \${currentHexId}, local/região \${canonicalLocation}. Não escreva o código do hex na prosa.\`
-        : \`O Atlas ainda não possui hex confirmado. Use somente o local narrativo persistido “\${canonicalLocation}”. Não invente coordenadas, não mova a Companhia e não inicie Jornada.\`;
-
-      const openingContext = [
-        locationInstruction,
-        companyText,
-        \`Perfil de aventura: \${profile.label}. \${profile.prompt}\`,
-        openingInstruction(architecture),
-        \`Horário canônico: \${String(openingClock.hour).padStart(2, '0')}:\${String(openingClock.minute).padStart(2, '0')} (\${timePeriodFromHour(openingClock.hour)}).\`,
-        \`Local canônico que deve aparecer naturalmente na abertura: \${canonicalLocation}.\`,
-        sourceCampaign.campaignSummary ? \`Resumo persistido da campanha: \${sourceCampaign.campaignSummary}\` : '',
-      ].filter(Boolean).join('\\n');
-
-      // FIRST VALID SCENE WINS: uma única geração narrativa. Nenhum Diretor JSON,
-      // Barbara, Supervisor ou gate de densidade pode apagar uma cena válida.
-      const direct = await generateOpeningNarrationDirect(
-        openingContext,
-        '[INICIAR AVENTURA GUIADA] Crie a primeira cena agora e devolva agência ao jogador.',
-      );
-
-      const sceneId = \`scene_opening_\${Date.now()}\`;
-      const event = makeEvent('scene_started', sceneId);
-      const narrationWords = direct.text.split(/\\s+/).filter(Boolean).length;
-      const node = {
-        id: sceneId,
-        timestamp: Date.now(),
-        playerAction: '[INICIAR AVENTURA GUIADA]',
-        atmospheric_narration: direct.text,
-        action_result: '',
-        location: canonicalLocation,
-        timeOfDay: timePeriodFromHour(openingClock.hour),
-        worldHour: openingClock.hour,
-        worldMinute: openingClock.minute,
-        choices: [],
-        voiceScript: [],
-        requiredTest: null,
-        statUpdates: {},
-        presentNpcIds: sourceCampaign.presentNpcIds || [],
-        events: [event],
-        sources: [],
-        narrativeMeta: {
-          intentClass: 'campaign_opening',
-          advancesFiction: true,
-          generationSource: 'gemini-direct-opening',
-          generationModel: direct.model,
-          narrationWordCount: narrationWords,
-          qualityFlags: [],
-          rhythmFlags: [],
-        },
-      } as SceneNode;
-
-      const updated: CampaignState = {
-        ...sourceCampaign,
-        currentLocation: canonicalLocation,
-        history: [...(sourceCampaign.history || []), node],
-        events: [...(sourceCampaign.events || []), event],
-        pendingDiceRoll: null,
-        pendingTest: null,
-        updatedAt: Date.now(),
-      };
-
-      const committed = await persistCampaign(updated, 'abertura direta Gemini validada');
-      saveEmergencyCampaignMirror(committed);
-      campaignRef.current = committed;
-      setCampaign(committed);
-      setPresentNpcs(allNpcs.filter(npc => committed.presentNpcIds.includes(npc.id)));
-      setCurrentImage(null);
-      cancelNarrationPlayback();
-      setIsStoryLoading(false);
-    } catch (error) {
-      console.error('[BRASEIRO_OPENING_DIRECT]', error);
-      saveEmergencyCampaignMirror(activeCampaign);
-      campaignRef.current = activeCampaign;
-      setCampaign(activeCampaign);
-      setStoryError(error instanceof Error ? error.message : String(error));
-      setIsStoryLoading(false);
-    }
-  };`;
+const replacement = [
+  'const handleStartAdventure = async () => {',
+  '    if (isStoryLoading) return;',
+  "    setActiveTab('jogo');",
+  '    const activeCampaign = campaignRef.current;',
+  '    if (!activeCampaign) return;',
+  '',
+  '    setIsStoryLoading(true);',
+  '    setStoryError(null);',
+  '    setNarrationError(null);',
+  '',
+  '    try {',
+  '      const discovery = await loadMapDiscovery(activeCampaign.id).catch(() => null);',
+  '      const partySet = new Set(activeCampaign.partyCharacterIds || []);',
+  '      const party = characters.filter(character => partySet.has(character.id));',
+  '      const companyNames = party.map(character => character.sheet.identity.name || character.name).filter(Boolean);',
+  '      const companyText = companyNames.length',
+  "        ? " + bt + "Companhia: ${companyNames.join(', ')}." + bt,
+  "        : 'Companhia: personagens já persistidos na campanha.';",
+  '',
+  '      const profile = getAdventureProfile(adventureProfile);',
+  '      const architecture = chooseOpeningArchitecture(activeCampaign, party, allNpcs, adventureProfile);',
+  '      const openingClock = chooseOpeningClock(activeCampaign, architecture.id);',
+  '      const remembered = rememberOpening(activeCampaign, architecture.id);',
+  '      const rememberedMaster = normalizeMasterState(remembered);',
+  '      const sourceCampaign: CampaignState = {',
+  '        ...remembered,',
+  '        masterState: {',
+  '          ...rememberedMaster,',
+  '          worldClock: { ...rememberedMaster.worldClock, hour: openingClock.hour, minute: openingClock.minute },',
+  '          updatedAt: Date.now(),',
+  '        },',
+  '        updatedAt: Date.now(),',
+  '      };',
+  '',
+  '      const canonicalLocation = sourceCampaign.masterState?.position.locationName',
+  '        || sourceCampaign.currentLocation',
+  "        || 'Eriador';",
+  '      const currentHexId = discovery?.currentHexId',
+  '        || sourceCampaign.masterState?.position.currentHexId',
+  "        || '';",
+  '      const locationInstruction = currentHexId',
+  "        ? " + bt + "Posição cartográfica confirmada pelo host: hex ${currentHexId}, local/região ${canonicalLocation}. Não escreva o código do hex na prosa." + bt,
+  "        : " + bt + "O Atlas ainda não possui hex confirmado. Use somente o local narrativo persistido “${canonicalLocation}”. Não invente coordenadas, não mova a Companhia e não inicie Jornada." + bt + ';',
+  '',
+  '      const openingContext = [',
+  '        locationInstruction,',
+  '        companyText,',
+  "        " + bt + "Perfil de aventura: ${profile.label}. ${profile.prompt}" + bt + ',',
+  '        openingInstruction(architecture),',
+  "        " + bt + "Horário canônico: ${String(openingClock.hour).padStart(2, '0')}:${String(openingClock.minute).padStart(2, '0')} (${timePeriodFromHour(openingClock.hour)})." + bt + ',',
+  "        " + bt + "Local canônico que deve aparecer naturalmente na abertura: ${canonicalLocation}." + bt + ',',
+  "        sourceCampaign.campaignSummary ? " + bt + "Resumo persistido da campanha: ${sourceCampaign.campaignSummary}" + bt + " : '',",
+  "      ].filter(Boolean).join('\\n');",
+  '',
+  '      const direct = await generateOpeningNarrationDirect(',
+  '        openingContext,',
+  "        '[INICIAR AVENTURA GUIADA] Crie a primeira cena agora e devolva agência ao jogador.',",
+  '      );',
+  '',
+  "      const sceneId = " + bt + "scene_opening_${Date.now()}" + bt + ';',
+  "      const event = makeEvent('scene_started', sceneId);",
+  '      const narrationWords = direct.text.split(/\\s+/).filter(Boolean).length;',
+  '      const node = {',
+  '        id: sceneId,',
+  '        timestamp: Date.now(),',
+  "        playerAction: '[INICIAR AVENTURA GUIADA]',",
+  '        atmospheric_narration: direct.text,',
+  "        action_result: '',",
+  '        location: canonicalLocation,',
+  '        timeOfDay: timePeriodFromHour(openingClock.hour),',
+  '        worldHour: openingClock.hour,',
+  '        worldMinute: openingClock.minute,',
+  '        choices: [],',
+  '        voiceScript: [],',
+  '        requiredTest: null,',
+  '        statUpdates: {},',
+  '        presentNpcIds: sourceCampaign.presentNpcIds || [],',
+  '        events: [event],',
+  '        sources: [],',
+  '        narrativeMeta: {',
+  "          intentClass: 'campaign_opening',",
+  '          advancesFiction: true,',
+  "          generationSource: 'gemini-direct-opening',",
+  '          generationModel: direct.model,',
+  '          narrationWordCount: narrationWords,',
+  '          qualityFlags: [],',
+  '          rhythmFlags: [],',
+  '        },',
+  '      } as SceneNode;',
+  '',
+  '      const updated: CampaignState = {',
+  '        ...sourceCampaign,',
+  '        currentLocation: canonicalLocation,',
+  '        history: [...(sourceCampaign.history || []), node],',
+  '        events: [...(sourceCampaign.events || []), event],',
+  '        pendingDiceRoll: null,',
+  '        pendingTest: null,',
+  '        updatedAt: Date.now(),',
+  '      };',
+  '',
+  "      const committed = await persistCampaign(updated, 'abertura direta Gemini validada');",
+  '      saveEmergencyCampaignMirror(committed);',
+  '      campaignRef.current = committed;',
+  '      setCampaign(committed);',
+  '      setPresentNpcs(allNpcs.filter(npc => committed.presentNpcIds.includes(npc.id)));',
+  '      setCurrentImage(null);',
+  '      cancelNarrationPlayback();',
+  '      setIsStoryLoading(false);',
+  '    } catch (error) {',
+  "      console.error('[BRASEIRO_OPENING_DIRECT]', error);",
+  '      saveEmergencyCampaignMirror(activeCampaign);',
+  '      campaignRef.current = activeCampaign;',
+  '      setCampaign(activeCampaign);',
+  '      setStoryError(error instanceof Error ? error.message : String(error));',
+  '      setIsStoryLoading(false);',
+  '    }',
+  '  };',
+].join('\n');
 
 app=app.slice(0,start)+replacement+app.slice(end);
 write('App.tsx',app);
 
-// Build-time startup verifier: prevent the old multi-stage opening path from returning.
-const verifier = `import fs from 'node:fs';
-import path from 'node:path';
-const root=path.resolve(process.argv[2]||process.cwd());
-const read=rel=>fs.readFileSync(path.join(root,rel),'utf8');
-const app=read('App.tsx');
-const opening=read('services/openingService.ts');
-const start=app.indexOf('const handleStartAdventure = async () => {');
-const end=app.indexOf('const handleImportNpcPortrait',start);
-const block=app.slice(start,end);
-const checks={
-  'direct-opening-import':app.includes("generateOpeningNarrationDirect"),
-  'direct-opening-call':block.includes('await generateOpeningNarrationDirect('),
-  'no-processTurn-opening':!block.includes('await processTurn('),
-  'no-atlas-hard-return':!block.includes("Antes de começar, escolha no Atlas"),
-  'first-valid-scene-wins':block.includes('gemini-direct-opening')&&block.includes("persistCampaign(updated, 'abertura direta Gemini validada')"),
-  'plain-text-opening':opening.includes('Entregue somente a narração da primeira cena')&&!opening.includes('responseSchema'),
-  'opening-not-density-rejected':!opening.includes('6500')&&!opening.includes('6_500')&&!block.includes('openingNarrationNeedsRepair'),
-  'opening-model-fallback':opening.includes('getGeminiTextModels()[0]')&&opening.includes('generateGemini('),
-};
-let failed=false;
-for(const [name,ok] of Object.entries(checks)){console.log((ok?'PASS ':'FAIL ')+name);if(!ok)failed=true;}
-if(failed)process.exit(1);
-console.log('VERIFY_OUA_STARTUP_49205_OK');
-`;
+const verifier = [
+  "import fs from 'node:fs';",
+  "import path from 'node:path';",
+  "const root=path.resolve(process.argv[2]||process.cwd());",
+  "const read=rel=>fs.readFileSync(path.join(root,rel),'utf8');",
+  "const app=read('App.tsx');",
+  "const opening=read('services/openingService.ts');",
+  "const start=app.indexOf('const handleStartAdventure = async () => {');",
+  "const end=app.indexOf('const handleImportNpcPortrait',start);",
+  "const block=app.slice(start,end);",
+  "const checks={",
+  "  'direct-opening-import':app.includes('generateOpeningNarrationDirect'),",
+  "  'direct-opening-call':block.includes('await generateOpeningNarrationDirect('),",
+  "  'no-processTurn-opening':!block.includes('await processTurn('),",
+  "  'no-atlas-hard-return':!block.includes('Antes de começar, escolha no Atlas'),",
+  "  'first-valid-scene-wins':block.includes('gemini-direct-opening')&&block.includes(\"persistCampaign(updated, 'abertura direta Gemini validada')\"),",
+  "  'plain-text-opening':opening.includes('Entregue somente a narração da primeira cena')&&!opening.includes('responseSchema'),",
+  "  'opening-not-density-rejected':!block.includes('openingNarrationNeedsRepair'),",
+  "  'opening-model-fallback':opening.includes('getGeminiTextModels()[0]')&&opening.includes('generateGemini('),",
+  "};",
+  "let failed=false;",
+  "for(const [name,ok] of Object.entries(checks)){console.log((ok?'PASS ':'FAIL ')+name);if(!ok)failed=true;}",
+  "if(failed)process.exit(1);",
+  "console.log('VERIFY_OUA_STARTUP_49205_OK');",
+  '',
+].join('\n');
 write('scripts/verify-opening-startup-49205.mjs',verifier);
 
-// Mock bridge integration test: proves openingService -> geminiTransport -> Android bridge
-// and model fallback without any real user key.
-const mock = `import { build } from 'esbuild';
-import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
-const root=path.resolve(process.argv[2]||process.cwd());
-const out=path.join(os.tmpdir(),'oua-opening-service-test.mjs');
-await build({entryPoints:[path.join(root,'services/openingService.ts')],outfile:out,bundle:true,platform:'node',format:'esm',target:'node20'});
-const memory=new Map();
-globalThis.window={
-  localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,String(v)),removeItem:k=>memory.delete(k)},
-  BraseiroAndroid:{
-    geminiRequest:async(model)=>{
-      if(String(model).includes('3.5-flash-lite')) return JSON.stringify({status:404,body:'model unavailable for mock',tier:'free'});
-      const text=('A névoa se desfaz sobre as colinas antigas de Eriador enquanto a Companhia alcança o limiar da primeira decisão. '.repeat(24)).trim();
-      return JSON.stringify({status:200,tier:'free',body:JSON.stringify({candidates:[{content:{parts:[{text}]},finishReason:'STOP'}]})});
-    }
-  }
-};
-const mod=await import('file://'+out+'?t='+Date.now());
-const result=await mod.generateOpeningNarrationDirect('Local: Eriador. Horário: 18:00.','Inicie a aventura.');
-if(!result.text||result.text.length<220)throw new Error('Mock opening returned no usable scene');
-if(!String(result.model).includes('3.5-flash'))throw new Error('Fallback model was not used');
-console.log('PASS mock Android Gemini bridge opening, model='+result.model+', chars='+result.text.length);
-`;
+const mock = [
+  "import { build } from 'esbuild';",
+  "import os from 'node:os';",
+  "import path from 'node:path';",
+  "const root=path.resolve(process.argv[2]||process.cwd());",
+  "const out=path.join(os.tmpdir(),'oua-opening-service-test.mjs');",
+  "await build({entryPoints:[path.join(root,'services/openingService.ts')],outfile:out,bundle:true,platform:'node',format:'esm',target:'node20'});",
+  "const memory=new Map();",
+  "globalThis.window={",
+  "  localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,String(v)),removeItem:k=>memory.delete(k)},",
+  "  BraseiroAndroid:{",
+  "    geminiRequest:async(model)=>{",
+  "      if(String(model).includes('3.5-flash-lite')) return JSON.stringify({status:404,body:'model unavailable for mock',tier:'free'});",
+  "      const text=('A névoa se desfaz sobre as colinas antigas de Eriador enquanto a Companhia alcança o limiar da primeira decisão. '.repeat(24)).trim();",
+  "      return JSON.stringify({status:200,tier:'free',body:JSON.stringify({candidates:[{content:{parts:[{text}]},finishReason:'STOP'}]})});",
+  "    }",
+  "  }",
+  "};",
+  "const mod=await import('file://'+out+'?t='+Date.now());",
+  "const result=await mod.generateOpeningNarrationDirect('Local: Eriador. Horário: 18:00.','Inicie a aventura.');",
+  "if(!result.text||result.text.length<220)throw new Error('Mock opening returned no usable scene');",
+  "if(!String(result.model).includes('3.5-flash'))throw new Error('Fallback model was not used');",
+  "console.log('PASS mock Android Gemini bridge opening, model='+result.model+', chars='+result.text.length);",
+  '',
+].join('\n');
 write('scripts/test-opening-gemini-mock-49205.mjs',mock);
 
-// Version bump so this source cannot be confused with the broken published R12.
 let version=read('lib/version.ts');
 version=version.replace(/APP_VERSION\s*=\s*'[^']+'/, "APP_VERSION = '4.9.205'");
 version=version.replace(/APP_VERSION_CODE\s*=\s*\d+/, 'APP_VERSION_CODE = 49205');
