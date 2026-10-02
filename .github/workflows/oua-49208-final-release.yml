@@ -77,10 +77,12 @@ jobs:
           node ci/oua-4.9.205/hotfix-startup-direct-opening.mjs "$ROOT"
           node ci/oua-4.9.206/apply-adventure-engine-4.9.206.mjs "$ROOT"
           node ci/oua-4.9.207/apply-opening-options-4.9.207.mjs "$ROOT"
-          node ci/oua-4.9.208/apply-opening-selector-visibility-4.9.208.mjs "$ROOT"
 
           node "$ROOT/scripts/verify-opening-startup-49205.mjs" "$ROOT"
           node ci/oua-4.9.207/verify-opening-options-4.9.207.mjs "$ROOT"
+
+          node ci/oua-4.9.208/apply-opening-selector-visibility-4.9.208.mjs "$ROOT"
+          node "$ROOT/scripts/verify-opening-startup-49205.mjs" "$ROOT"
           node ci/oua-4.9.208/verify-opening-selector-4.9.208.mjs "$ROOT"
 
       - name: Install and validate web runtime
@@ -102,7 +104,6 @@ jobs:
           node scripts/sync-android-assets.mjs
 
           node scripts/verify-opening-startup-49205.mjs "$OUA_ROOT"
-          node "$GITHUB_WORKSPACE/ci/oua-4.9.207/verify-opening-options-4.9.207.mjs" "$OUA_ROOT"
           node "$GITHUB_WORKSPACE/ci/oua-4.9.208/verify-opening-selector-4.9.208.mjs" "$OUA_ROOT"
 
       - name: Build install-over Android APK
