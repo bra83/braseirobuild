@@ -196,3 +196,5 @@ jobs:
           gh release create OUA-v4.9.208 --repo "$GITHUB_REPOSITORY" --title "Braseiro O Um Anel 4.9.208 — seletor de abertura visível" --notes "$NOTES" 2>/dev/null || gh release edit OUA-v4.9.208 --repo "$GITHUB_REPOSITORY" --title "Braseiro O Um Anel 4.9.208 — seletor de abertura visível" --notes "$NOTES"
 
           gh release upload OUA-v4.9.208 --repo "$GITHUB_REPOSITORY" "$FINAL_APK" "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.208_OPENING_SELECTOR.apk.sha256" "$SOURCE_ZIP" "$RUNNER_TEMP/BRASEIRO_O_UM_ANEL_4.9.208_ANDROID_STUDIO_COMPLETE.zip.sha256" --clobber
+
+# verifier-fix-rerun
