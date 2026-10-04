@@ -166,7 +166,7 @@ jobs:
           foreach ($file in @('scripts\\verify.ts','scripts\\audit-final.ts','scripts\\audit-layout-final.ts','scripts\\audit-deep.ts')) {
             $path = (Resolve-Path $file).Path
             $text = [IO.File]::ReadAllText($path, [Text.Encoding]::UTF8)
-            $text = $text.Replace("3\\.3\\.2", "3\\.3\\.4")
+            $text = $text.Replace("3\.3\.2", "3\.3\.4")
             [IO.File]::WriteAllText($path, $text, (New-Object Text.UTF8Encoding($false)))
           }
 
