@@ -1,0 +1,108 @@
+name: Forbidden Lands 3.3.3 Character Generation Audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/test-forbidden-lands-3.3.3-character-generation.yml"
+      - "ci/forbidden-lands-3.3.3/stress-character-generation-portable.mjs"
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 60
+    env:
+      SOURCE_NAME: braseiro-forbidden-lands-3.3.3-RAGOFF-KOKORO-STARTUP.zip
+      SOURCE_BYTES: 26639910
+      SOURCE_SHA256: ba02a2234bb41a6de99ff65f89154b4594aac2a1cc7b795e1187b9793f027be1
+      FIRESTORAGE_API: https://api.firestorage.ai/dev/file/shares/hd1FUAT51mK6
+      BUILD_ROOT: D:\brelga-fl333-character-audit
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure BRELGA
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA, got $env:RUNNER_NAME" }
+          Remove-Item $env:BUILD_ROOT -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $env:BUILD_ROOT -Force | Out-Null
+          $nodeRoot='C:\actions-runner\_work\_tool\node'
+          $nodeDir=Get-ChildItem $nodeRoot -Directory | ForEach-Object { Get-ChildItem $_.FullName -Directory -ErrorAction SilentlyContinue } | Where-Object { Test-Path (Join-Path $_.FullName 'node.exe') } | Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $nodeDir) { throw 'Node tool-cache not found' }
+          $newPath="$($nodeDir.FullName);$env:PATH"
+          "PATH=$newPath" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $env:PATH=$newPath
+          node --version
+          npm --version
+
+      - name: Download exact 3.3.3 source
+        id: source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $meta=Invoke-RestMethod -Method Get -Uri ($env:FIRESTORAGE_API + '/files?maxResults=100')
+          if (-not $meta.files -or $meta.files.Count -ne 1) { throw "Expected exactly one source file" }
+          $file=$meta.files[0]
+          if ($file.fileName -ne $env:SOURCE_NAME) { throw "Unexpected file $($file.fileName)" }
+          $ticket=Invoke-RestMethod -Method Post -Uri ($env:FIRESTORAGE_API + '/files/' + $file.fileId + '/download')
+          $zip=Join-Path $env:BUILD_ROOT $env:SOURCE_NAME
+          & curl.exe -L --fail --retry 5 --retry-delay 2 -o $zip $ticket.downloadUrl
+          if ($LASTEXITCODE -ne 0) { throw 'download failed' }
+          if ((Get-Item $zip).Length -ne [int64]$env:SOURCE_BYTES) { throw 'source byte size mismatch' }
+          $hash=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($hash -ne $env:SOURCE_SHA256) { throw "source SHA mismatch $hash" }
+          "zip=$zip" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Extract project
+        id: project
+        shell: powershell
+        env:
+          SOURCE_ZIP: ${{ steps.source.outputs.zip }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $extract=Join-Path $env:BUILD_ROOT 'project'
+          New-Item -ItemType Directory -Path $extract -Force | Out-Null
+          & tar.exe -xf $env:SOURCE_ZIP -C $extract
+          if ($LASTEXITCODE -ne 0) { throw 'extract failed' }
+          $pkg=Get-ChildItem $extract -Recurse -File -Filter package.json | Where-Object { Test-Path (Join-Path $_.Directory.FullName 'src\services\CharacterGenerationService.ts') } | Sort-Object { $_.FullName.Length } | Select-Object -First 1
+          if (-not $pkg) { throw 'project root not found' }
+          $root=$pkg.Directory.FullName
+          "root=$root" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Install dependencies
+        shell: powershell
+        working-directory: ${{ steps.project.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & npm.cmd ci --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
+
+      - name: Static RAG-off path audit
+        shell: powershell
+        working-directory: ${{ steps.project.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $source=Get-Content 'src\services\CharacterGenerationService.ts' -Raw
+          if ($source -match 'RulesRetrievalService|GeminiClientService|generateGmResponse|retrieveMechanicalContext') { throw 'Character generator still references Gemini/RAG' }
+          if ($source -notmatch 'embedded:forbidden-lands-player-handbook') { throw 'Embedded rules source missing' }
+          Write-Host 'STATIC_RAG_OFF=PASS'
+
+      - name: Full 192-combination creation matrix
+        shell: powershell
+        working-directory: ${{ steps.project.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & npm.cmd run verify:character-creation
+          if ($LASTEXITCODE -ne 0) { throw 'character creation matrix failed' }
+
+      - name: 500 random characters with empty rule library
+        shell: powershell
+        working-directory: ${{ steps.project.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          Copy-Item "$env:GITHUB_WORKSPACE\ci\forbidden-lands-3.3.3\stress-character-generation-portable.mjs" "scripts\verify-character-generation-stress.mjs" -Force
+          & node.exe -r .\work\tsx-userinfo-shim.cjs --import tsx scripts\verify-character-generation-stress.mjs
+          if ($LASTEXITCODE -ne 0) { throw '500-character stress audit failed' }
