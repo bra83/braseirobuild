@@ -152,6 +152,26 @@ jobs:
           $env:npm_config_fund = 'false'
           & npm.cmd ci --no-audit --no-fund
           if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
+
+          # npm/lockfiles generated on another platform can omit Rollup's Windows
+          # optional native binary. Install the exact matching binary explicitly.
+          & node.exe -e "require.resolve('@rollup/rollup-win32-x64-msvc')"
+          if ($LASTEXITCODE -ne 0) {
+            $rollupVersion = (& node.exe -p "require('./node_modules/rollup/package.json').version").Trim()
+            Write-Host "Installing missing Rollup native binary $rollupVersion for Windows x64..."
+            & npm.cmd install --no-save --no-package-lock "@rollup/rollup-win32-x64-msvc@$rollupVersion"
+            if ($LASTEXITCODE -ne 0) { throw 'Rollup Windows native dependency install failed' }
+          }
+
+          # Do the same preflight for esbuild's Windows binary before Vite/server build.
+          & node.exe -e "require.resolve('@esbuild/win32-x64')"
+          if ($LASTEXITCODE -ne 0) {
+            $esbuildVersion = (& node.exe -p "require('./node_modules/esbuild/package.json').version").Trim()
+            Write-Host "Installing missing esbuild native binary $esbuildVersion for Windows x64..."
+            & npm.cmd install --no-save --no-package-lock "@esbuild/win32-x64@$esbuildVersion"
+            if ($LASTEXITCODE -ne 0) { throw 'esbuild Windows native dependency install failed' }
+          }
+
           & npm.cmd cache clean --force
           Write-Host "D_FREE_AFTER_NPM_GB=$([math]::Round((Get-PSDrive D).Free/1GB,2))"
 
