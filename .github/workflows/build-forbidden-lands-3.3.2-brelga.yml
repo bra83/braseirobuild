@@ -180,6 +180,11 @@ jobs:
         working-directory: ${{ steps.project.outputs.root }}
         run: |
           $ErrorActionPreference = 'Stop'
+          # The source ZIP intentionally contains no stale Android web assets.
+          # Seed Android with the freshly built 3.3.2 web bundle before the master
+          # verifier reaches verify:android; a final sync still runs after verify.
+          & npm.cmd run android:sync
+          if ($LASTEXITCODE -ne 0) { throw 'pre-verify android:sync failed' }
           & npm.cmd run verify
           if ($LASTEXITCODE -ne 0) { throw 'npm run verify failed' }
 
