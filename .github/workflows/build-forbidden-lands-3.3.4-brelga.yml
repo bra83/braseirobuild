@@ -172,6 +172,11 @@ jobs:
           & node.exe $patchPath (Get-Location).Path
           if ($LASTEXITCODE -ne 0) { throw 'Runtime gate patch failed' }
 
+          # Seed Android with the freshly built web bundle before the master
+          # verifier reaches verify:android.
+          & npm.cmd run android:sync
+          if ($LASTEXITCODE -ne 0) { throw 'pre-verify android:sync failed' }
+
           & npm.cmd run verify
           if ($LASTEXITCODE -ne 0) { throw 'npm run verify failed' }
 
