@@ -1,0 +1,77 @@
+name: BRELGA cleanup for Forbidden Lands 3.3.2
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/brelga-cleanup-forbidden-lands-3.3.2.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: brelga-disk-cleanup-fl332
+  cancel-in-progress: true
+
+jobs:
+  cleanup:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 30
+    steps:
+      - name: Reclaim BRELGA disk
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Continue'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA, got $env:RUNNER_NAME" }
+
+          function FreeGB {
+            $d = Get-PSDrive -Name C
+            return [math]::Round($d.Free / 1GB, 2)
+          }
+
+          Write-Host "FREE_BEFORE_GB=$(FreeGB)"
+          Set-Location $env:RUNNER_TEMP
+
+          # Previous checkout/build workspace is disposable for this build pipeline.
+          $workspaceRoot = 'C:\actions-runner\_work\braseirobuild\braseirobuild'
+          if (Test-Path $workspaceRoot) {
+            Get-ChildItem $workspaceRoot -Force -ErrorAction SilentlyContinue |
+              Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+          }
+
+          # Action downloads/staging from old runs are safe to recreate.
+          $actionsRoot = 'C:\actions-runner\_work\_actions'
+          if (Test-Path $actionsRoot) {
+            Get-ChildItem $actionsRoot -Force -ErrorAction SilentlyContinue |
+              Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+          }
+
+          # npm cache duplicates packages that npm ci can redownload.
+          foreach ($cache in @(
+            'C:\Users\bcruz\AppData\Local\npm-cache',
+            'C:\Users\bcruz\AppData\Roaming\npm-cache'
+          )) {
+            if (Test-Path $cache) { Remove-Item $cache -Recurse -Force -ErrorAction SilentlyContinue }
+          }
+
+          # Old Forbidden Lands transfer/extract/build temp trees.
+          Get-ChildItem 'C:\actions-runner\_work\_temp' -Force -ErrorAction SilentlyContinue |
+            Where-Object {
+              $_.Name -like 'forbidden-lands-*' -or
+              $_.Name -like 'fl-*' -or
+              ($_.LastWriteTime -lt (Get-Date).AddHours(-3) -and $_.PSIsContainer)
+            } |
+            Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+
+          # If still critically low, discard Gradle caches (wrapper distributions remain).
+          if ((Get-PSDrive -Name C).Free -lt 2GB) {
+            $gradleCaches = 'C:\Users\bcruz\.gradle\caches'
+            if (Test-Path $gradleCaches) {
+              Remove-Item $gradleCaches -Recurse -Force -ErrorAction SilentlyContinue
+            }
+          }
+
+          Write-Host "FREE_AFTER_GB=$(FreeGB)"
+          Get-PSDrive -PSProvider FileSystem | Format-Table Name,Root,Free,Used -AutoSize
+
+          if ((Get-PSDrive -Name C).Free -lt 1GB) {
+            throw "BRELGA still has less than 1 GB free after cleanup."
+          }
