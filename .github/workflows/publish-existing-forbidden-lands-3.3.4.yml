@@ -26,6 +26,14 @@ jobs:
           $ErrorActionPreference='Stop'
           if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA, got $env:RUNNER_NAME" }
 
+          $javaRoot='C:\\actions-runner\\_work\\_tool\\Java_Temurin-Hotspot_jdk'
+          $javaDir=Get-ChildItem $javaRoot -Directory -Recurse -ErrorAction Stop |
+            Where-Object { Test-Path (Join-Path $_.FullName 'bin\\java.exe') } |
+            Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $javaDir) { throw 'Java tool-cache not found' }
+          $env:JAVA_HOME=$javaDir.FullName
+          $env:PATH="$($javaDir.FullName)\\bin;$env:PATH"
+
           $out = Join-Path $env:BUILD_ROOT 'out'
           $apk = Join-Path $out $env:APK_NAME
           if (-not (Test-Path $apk)) {
