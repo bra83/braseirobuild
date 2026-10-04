@@ -23,12 +23,17 @@ function patchFile(relative, operations) {
 const helperJourney = `  return { db, campaign, hero1, hero2, hexA02, hexB01, hexB03, hexWater };
 };
 
-const prepareValidLandTravel = async (campaignId, guideId, rng = () => 0.999) => {
+const prepareValidLandTravel = async (campaignId, guideId) => {
   await JourneyService.assignRole(campaignId, 'guide', guideId);
+  const db = await getDb();
+  const guide = await db.get('characters', guideId);
+  const baseDice = Math.max(1, Math.trunc(Number(guide?.attributes?.wits?.current) || 0));
+  let rollIndex = 0;
+  const successRng = () => rollIndex++ < baseDice ? 0.999 : 0;
   const outcome = await JourneyService.resolveActivity(campaignId, {
     characterId: guideId,
     activity: 'leadWay',
-    rng,
+    rng: successRng,
   });
   assert.notEqual(outcome.event.status, 'open', 'Desbravar preparado para viagem não pode deixar infortúnio aberto');
   return outcome;
@@ -105,9 +110,10 @@ patchFile('scripts/verify-encumbrance-full.mjs', [
 `,
     `import { JourneyRulesEngine } from '../src/services/JourneyRulesEngine.ts';
 import { JourneyService } from '../src/services/JourneyService.ts';
+import { getDb } from '../src/db/db.ts';
 
 `,
-    'JourneyService import',
+    'JourneyService + getDb import',
   ],
   [
     `const character = (overrides = {}) => ({ weapons: [], armor: [], gear: [], coins: { copper: 0, silver: 0, gold: 0 }, attributes, ...overrides });
@@ -115,9 +121,14 @@ import { JourneyService } from '../src/services/JourneyService.ts';
 `,
     `const character = (overrides = {}) => ({ weapons: [], armor: [], gear: [], coins: { copper: 0, silver: 0, gold: 0 }, attributes, ...overrides });
 
-const prepareValidLandTravel = async (campaignId, guideId, rng = () => 0.999) => {
+const prepareValidLandTravel = async (campaignId, guideId) => {
   await JourneyService.assignRole(campaignId, 'guide', guideId);
-  const outcome = await JourneyService.resolveActivity(campaignId, { characterId: guideId, activity: 'leadWay', rng });
+  const db = await getDb();
+  const guide = await db.get('characters', guideId);
+  const baseDice = Math.max(1, Math.trunc(Number(guide?.attributes?.wits?.current) || 0));
+  let rollIndex = 0;
+  const successRng = () => rollIndex++ < baseDice ? 0.999 : 0;
+  const outcome = await JourneyService.resolveActivity(campaignId, { characterId: guideId, activity: 'leadWay', rng: successRng });
   assert.notEqual(outcome.event.status, 'open', 'Desbravar preparado para viagem não pode deixar infortúnio aberto');
   return outcome;
 };
