@@ -205,4 +205,15 @@ const prepareValidLandTravel = async (campaignId, guideId) => {
   ],
 ]);
 
+
+patchFile('scripts/verify-block1-p0.mjs', [
+  [
+    `const gradle=read('android/app/build.gradle');check(/versionCode 303000/.test(gradle)&&/versionName "3.3.0"/.test(gradle),'baseline 3.3.0 preservada até release validada');`,
+    `const gradle=read('android/app/build.gradle');check(/versionCode 303200/.test(gradle)&&/versionName "3.3.2"/.test(gradle),'baseline corrente 3.3.2 preservada para release validada');`,
+    'update stale 3.3.0 release baseline gate',
+  ],
+]);
+
+console.log('Forbidden Lands 3.3.2 stale version baseline gate updated.');
+
 console.log('Forbidden Lands 3.3.2 stale travel verification gates updated for mandatory Guide + Desbravar.');
