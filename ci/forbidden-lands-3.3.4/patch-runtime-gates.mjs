@@ -83,6 +83,13 @@ for (const relative of ['scripts/verify.ts','scripts/audit-final.ts','scripts/au
   write(relative, text);
 }
 
+{
+  const relative = 'scripts/verify-rag-off-kokoro-startup-v3.mjs';
+  let text = read(relative);
+  text = text.replaceAll('3\\.3\\.3', '3\\.3\\.4');
+  write(relative, text);
+}
+
 let block1 = read('scripts/verify-block1-p0.mjs');
 block1 = block1
   .replace(/versionCode 303000/g, 'versionCode 303400')
