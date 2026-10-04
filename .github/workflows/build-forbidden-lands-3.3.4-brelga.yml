@@ -161,6 +161,14 @@ jobs:
         working-directory: ${{ steps.project.outputs.root }}
         run: |
           $ErrorActionPreference='Stop'
+
+          # Update only stale version assertions inherited from 3.3.2.
+          foreach ($file in @('scripts\\verify.ts','scripts\\audit-final.ts','scripts\\audit-layout-final.ts','scripts\\audit-deep.ts')) {
+            $text = Get-Content $file -Raw
+            $text = $text.Replace("3\\.3\\.2", "3\\.3\\.4")
+            [IO.File]::WriteAllText((Resolve-Path $file), $text, (New-Object Text.UTF8Encoding($false)))
+          }
+
           & npm.cmd run verify
           if ($LASTEXITCODE -ne 0) { throw 'npm run verify failed' }
 
