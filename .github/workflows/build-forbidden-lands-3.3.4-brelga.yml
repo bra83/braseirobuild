@@ -159,16 +159,18 @@ jobs:
       - name: Full 3.3.4 verification
         shell: powershell
         working-directory: ${{ steps.project.outputs.root }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference='Stop'
 
-          # Update only stale version assertions inherited from 3.3.2.
-          foreach ($file in @('scripts\\verify.ts','scripts\\audit-final.ts','scripts\\audit-layout-final.ts','scripts\\audit-deep.ts')) {
-            $path = (Resolve-Path $file).Path
-            $text = [IO.File]::ReadAllText($path, [Text.Encoding]::UTF8)
-            $text = $text.Replace("3\.3\.2", "3\.3\.4")
-            [IO.File]::WriteAllText($path, $text, (New-Object Text.UTF8Encoding($false)))
-          }
+          $headers = @{ Authorization = "Bearer $env:GITHUB_TOKEN"; Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version'='2022-11-28'; 'User-Agent'='BRELGA-FL334-Patch' }
+          $patchMeta = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/contents/ci/forbidden-lands-3.3.4/patch-runtime-gates.mjs?ref=main"
+          $patchText = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String(($patchMeta.content -replace '\\s','')))
+          $patchPath = Join-Path $env:BUILD_ROOT 'patch-runtime-gates.mjs'
+          [IO.File]::WriteAllText($patchPath, $patchText, (New-Object Text.UTF8Encoding($false)))
+          & node.exe $patchPath (Get-Location).Path
+          if ($LASTEXITCODE -ne 0) { throw 'Runtime gate patch failed' }
 
           & npm.cmd run verify
           if ($LASTEXITCODE -ne 0) { throw 'npm run verify failed' }
