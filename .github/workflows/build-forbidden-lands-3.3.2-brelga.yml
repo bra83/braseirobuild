@@ -111,6 +111,36 @@ jobs:
           if ($gradle -notmatch 'versionName\s+"3\.3\.2"') { throw 'Wrong versionName' }
           "root=$root" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
+      - name: Patch stale travel gates and reclaim build disk
+        shell: powershell
+        env:
+          ROOT: ${{ steps.project.outputs.root }}
+          SOURCE_ZIP: ${{ steps.source.outputs.zip }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & node.exe "$env:GITHUB_WORKSPACE\ci\forbidden-lands-3.3.2\patch-guide-gates.mjs" $env:ROOT
+          if ($LASTEXITCODE -ne 0) { throw 'Guide/Desbravar verification gate patch failed' }
+
+          if (Test-Path $env:SOURCE_ZIP) {
+            Remove-Item $env:SOURCE_ZIP -Force -ErrorAction SilentlyContinue
+          }
+
+          & npm.cmd cache clean --force
+          Write-Host 'Disk after pre-build cleanup:'
+          Get-PSDrive -PSProvider FileSystem | Format-Table Name,Root,Free,Used -AutoSize
+
+          $buildScript = Join-Path $env:ROOT 'BUILD_APK_WINDOWS.ps1'
+          $buildText = Get-Content $buildScript -Raw
+          $old = "  & npm ci`r`n  if (`$LASTEXITCODE -ne 0) { throw 'npm ci falhou.' }"
+          $new = "  & npm ci`r`n  if (`$LASTEXITCODE -ne 0) { throw 'npm ci falhou.' }`r`n  & npm cache clean --force`r`n  Write-Host 'Cache npm limpo após npm ci para liberar espaço ao Gradle.'"
+          if (-not $buildText.Contains($old)) {
+            $old = "  & npm ci`n  if (`$LASTEXITCODE -ne 0) { throw 'npm ci falhou.' }"
+            $new = "  & npm ci`n  if (`$LASTEXITCODE -ne 0) { throw 'npm ci falhou.' }`n  & npm cache clean --force`n  Write-Host 'Cache npm limpo após npm ci para liberar espaço ao Gradle.'"
+          }
+          if (-not $buildText.Contains($old)) { throw 'BUILD_APK_WINDOWS npm-ci anchor not found' }
+          $buildText = $buildText.Replace($old, $new)
+          [IO.File]::WriteAllText($buildScript, $buildText, (New-Object Text.UTF8Encoding($false)))
+
       - name: Full verified build
         shell: powershell
         working-directory: ${{ steps.project.outputs.root }}
