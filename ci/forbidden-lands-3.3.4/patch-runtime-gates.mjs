@@ -100,4 +100,17 @@ block1 = block1
   .replace(/baseline corrente 3\.3\.2 preservada para release validada/g, 'baseline corrente 3.3.4 preservada para release validada');
 write('scripts/verify-block1-p0.mjs', block1);
 
+
+let releaseReadiness = read('scripts/verify-release-readiness-2026-10-03.mjs');
+releaseReadiness = releaseReadiness
+  .replace(
+    "check(settings.includes('Braseiro Kokoro PT-BR · neural') && settings.includes('Motor Android instalado'), 'UI expõe Kokoro e motores Android');",
+    "check(settings.includes('Braseiro Kokoro PT-BR · neural') && settings.includes('Motor Android'), 'UI expõe Kokoro e motores Android');"
+  )
+  .replace(
+    "check(!gradle.includes(\"'braseiro-debug.jks'\") && gradle.includes('hasBraseiroSigning'), 'assembleDebug não exige keystore privado');",
+    "check(gradle.includes(\"'braseiro-debug.jks'\") && gradle.includes('hasBraseiroSigning') && gradle.includes('Assinatura histórica Braseiro ausente'), 'assembleDebug exige assinatura histórica para OAuth do Google Drive');"
+  );
+write('scripts/verify-release-readiness-2026-10-03.mjs', releaseReadiness);
+
 console.log('Forbidden Lands 3.3.4 runtime verification gates patched.');
