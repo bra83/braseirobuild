@@ -57,6 +57,14 @@ jobs:
         run: |
           $ErrorActionPreference='Stop'
 
+          $javaRoot='C:\actions-runner\_work\_tool\Java_Temurin-Hotspot_jdk'
+          $javaDir=Get-ChildItem $javaRoot -Directory -Recurse -ErrorAction Stop |
+            Where-Object { Test-Path (Join-Path $_.FullName 'bin\java.exe') } |
+            Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $javaDir) { throw 'Java tool-cache not found' }
+          $env:JAVA_HOME=$javaDir.FullName
+          $env:PATH="$($javaDir.FullName)\bin;$env:PATH"
+
           $sdkCandidates=@('C:\actions-runner\android-sdk')
           if ($env:ANDROID_SDK_ROOT) { $sdkCandidates += $env:ANDROID_SDK_ROOT }
           if ($env:ANDROID_HOME) { $sdkCandidates += $env:ANDROID_HOME }
