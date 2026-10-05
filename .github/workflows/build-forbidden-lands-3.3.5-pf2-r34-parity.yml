@@ -16,9 +16,9 @@ concurrency:
 
 env:
   SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_PF2_R34_HUMAN_MASTER_SOURCE_R4.zip"
-  SOURCE_BYTES: "26672342"
-  SOURCE_SHA256: "96d4c30768b1231290905bcf29e2208c055dc93de441b545ebe312d67ab7612f"
-  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/ijXamBGsdkl1"
+  SOURCE_BYTES: "26719330"
+  SOURCE_SHA256: "ba4f369ad2444e21787129755f8a78255b8115b3ad2a85a640724f902b53cdab"
+  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/ZniShKQi8kUx"
   BUILD_ROOT: "D:\\brelga-fl-pf2-r34-human-master"
   APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_PF2_R34_HUMAN_MASTER.apk"
   TAG: "forbidden-lands-3.3.5-pf2-r34-human-master"
