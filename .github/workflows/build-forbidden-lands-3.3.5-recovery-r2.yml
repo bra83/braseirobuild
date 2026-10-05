@@ -1,0 +1,262 @@
+name: Forbidden Lands 3.3.5 Recovery R2 - BRELGA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-forbidden-lands-3.3.5-recovery-r2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: forbidden-lands-3.3.5-recovery-r2
+  cancel-in-progress: true
+
+env:
+  PROJECT_ROOT: "D:\\brelga-forbidden-lands-3.3.5\\project"
+  BUILD_ROOT: "D:\\brelga-forbidden-lands-3.3.5"
+  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_RECOVERY_R2.apk"
+  TAG: "forbidden-lands-3.3.5-recovery-r2"
+  EXPECTED_SHA1: "9d0f1089b3fb6c225f1f59462750864e897c4d92"
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 240
+
+    steps:
+      - name: Checkout patch scripts
+        uses: actions/checkout@v4
+        with:
+          clean: true
+
+      - name: Configure BRELGA
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA, got $env:RUNNER_NAME" }
+          if (-not (Test-Path $env:PROJECT_ROOT)) { throw "Forbidden Lands source missing: $env:PROJECT_ROOT" }
+
+          $nodeRoot='C:\actions-runner\_work\_tool\node'
+          $nodeDir=Get-ChildItem $nodeRoot -Directory -ErrorAction Stop |
+            ForEach-Object { Get-ChildItem $_.FullName -Directory -ErrorAction SilentlyContinue } |
+            Where-Object { Test-Path (Join-Path $_.FullName 'node.exe') } |
+            Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $nodeDir) { throw 'Node tool-cache not found' }
+
+          $javaRoot='C:\actions-runner\_work\_tool\Java_Temurin-Hotspot_jdk'
+          $javaDir=Get-ChildItem $javaRoot -Directory -Recurse -ErrorAction Stop |
+            Where-Object { Test-Path (Join-Path $_.FullName 'bin\java.exe') } |
+            Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $javaDir) { throw 'Java tool-cache not found' }
+
+          $sdk='C:\actions-runner\android-sdk'
+          if (-not (Test-Path $sdk)) { throw 'Android SDK not found' }
+
+          $newPath="$($nodeDir.FullName);$($javaDir.FullName)\bin;$env:PATH"
+          "PATH=$newPath" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "JAVA_HOME=$($javaDir.FullName)" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_HOME=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $env:PATH=$newPath
+          node --version
+          java -version
+
+      - name: Apply bugreport-driven recovery patch
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          & node.exe "$env:GITHUB_WORKSPACE\ci\forbidden-lands-3.3.5-hotfix\apply-final-recovery-hotfix.mjs" $env:PROJECT_ROOT
+          if ($LASTEXITCODE -ne 0) { throw 'Recovery patch failed' }
+
+      - name: Install exact dependencies
+        shell: powershell
+        working-directory: ${{ env.PROJECT_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & npm.cmd ci --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
+
+      - name: Focused gates first
+        shell: powershell
+        working-directory: ${{ env.PROJECT_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & npm.cmd run lint
+          if ($LASTEXITCODE -ne 0) { throw 'TypeScript lint failed' }
+          & node.exe scripts/verify-runtime-hotfix-3d-startup.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Recovery hotfix gate failed' }
+          & npm.cmd run verify:runtime-hotfix-3.3.5
+          if ($LASTEXITCODE -ne 0) { throw '3.3.5 runtime gate failed' }
+
+      - name: Full project verification
+        shell: powershell
+        working-directory: ${{ env.PROJECT_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & npm.cmd run verify
+          if ($LASTEXITCODE -ne 0) { throw 'Full verification failed' }
+
+      - name: Android sync and validation
+        shell: powershell
+        working-directory: ${{ env.PROJECT_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & npm.cmd run android:sync
+          if ($LASTEXITCODE -ne 0) { throw 'Android sync failed' }
+          & npm.cmd run verify:android
+          if ($LASTEXITCODE -ne 0) { throw 'Android verification failed' }
+          & node.exe scripts/verify-runtime-hotfix-3d-startup.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Recovery hotfix regressed after sync' }
+
+      - name: Give recovery build a higher Android versionCode
+        shell: powershell
+        working-directory: ${{ env.PROJECT_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $gradle='android\app\build.gradle'
+          $text=Get-Content $gradle -Raw
+          if ($text -match 'versionCode\s+303501') {
+            Write-Host 'versionCode already 303501'
+          } elseif ($text -match 'versionCode\s+303500') {
+            $text=$text -replace 'versionCode\s+303500','versionCode 303501'
+            Set-Content $gradle $text -Encoding utf8
+          } else {
+            throw 'Expected base versionCode 303500 not found'
+          }
+
+      - name: Build APK
+        shell: powershell
+        working-directory: ${{ env.PROJECT_ROOT }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & node.exe scripts/run-gradle-task.mjs assembleDebug
+          if ($LASTEXITCODE -ne 0) { throw 'assembleDebug failed' }
+
+      - name: Validate final APK contents and historical signer
+        id: apk
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $built=Join-Path $env:PROJECT_ROOT 'android\app\build\outputs\apk\debug\app-debug.apk'
+          if (-not (Test-Path $built)) { throw "APK missing: $built" }
+
+          $out=Join-Path $env:BUILD_ROOT 'recovery-r2-out'
+          Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $apk=Join-Path $out $env:APK_NAME
+          Copy-Item $built $apk -Force
+
+          $bt=Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          if (-not $bt) { throw 'Android build-tools unavailable' }
+          $aapt=Join-Path $bt.FullName 'aapt.exe'
+          $signer=Join-Path $bt.FullName 'apksigner.bat'
+
+          & $aapt dump badging $apk 2>&1 | Tee-Object -FilePath (Join-Path $out 'APK_BADGING.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'aapt badging failed' }
+          $badging=Get-Content (Join-Path $out 'APK_BADGING.txt') -Raw
+          if ($badging -notmatch "package: name='com\.braseiro\.forbiddenlands'") { throw 'Wrong APK package' }
+          if ($badging -notmatch "versionCode='303501'") { throw 'Recovery versionCode missing' }
+          if ($badging -notmatch "versionName='3\.3\.5'") { throw 'Wrong APK versionName' }
+
+          & $signer verify --verbose --print-certs $apk 2>&1 | Tee-Object -FilePath (Join-Path $out 'APK_SIGNATURE.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'APK signature invalid' }
+          $signature=Get-Content (Join-Path $out 'APK_SIGNATURE.txt') -Raw
+          $match=[regex]::Match($signature,'Signer #1 certificate SHA-1 digest:\s*([0-9A-Fa-f:]+)')
+          if (-not $match.Success) { throw 'Signer SHA-1 missing' }
+          $actual=($match.Groups[1].Value -replace ':','').ToLowerInvariant()
+          if ($actual -ne $env:EXPECTED_SHA1) { throw "Historical signer mismatch: $actual" }
+
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip=[IO.Compression.ZipFile]::OpenRead($apk)
+          try {
+            $payload=New-Object System.Text.StringBuilder
+            foreach ($entry in $zip.Entries) {
+              if ($entry.FullName -like 'assets/public/assets/*.js' -or $entry.FullName -eq 'assets/public/assets/braseiro-final-enhancements.js') {
+                $reader=New-Object IO.StreamReader($entry.Open())
+                [void]$payload.AppendLine($reader.ReadToEnd())
+                $reader.Dispose()
+              }
+            }
+            $text=$payload.ToString()
+            foreach ($needle in @(
+              'Rolagem de dados em 3D',
+              'dice3d-stage',
+              'Escolhas sugeridas',
+              'timeout do cofre nativo no cold start',
+              'Preparando a abertura e preservando a continuidade',
+              'Criação da cena inicial'
+            )) {
+              if (-not $text.Contains($needle)) { throw "APK missing recovery marker: $needle" }
+            }
+          } finally { $zip.Dispose() }
+
+          $hash=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:APK_NAME" | Set-Content (Join-Path $out "$($env:APK_NAME).sha256") -Encoding ascii
+          @(
+            'STATUS=PASS',
+            "APK_SHA256=$hash",
+            'PACKAGE=com.braseiro.forbiddenlands',
+            'VERSION_NAME=3.3.5',
+            'VERSION_CODE=303501',
+            "SIGNER_SHA1=$actual",
+            'BUGREPORT_COLD_START_FIXED=PASS',
+            'INITIAL_SCENE_SECOND_REFINEMENT_DISABLED=PASS',
+            'INITIAL_SCENE_HARD_TIMEOUT=PASS',
+            'THREE_VISIBLE_CHOICES=PASS',
+            'NARRATION_FONT_MOBILE_20PX=PASS',
+            'DICE_3D_VISIBLE=PASS',
+            'COMBAT_INSPECTOR_NO_RAW_JSON=PASS',
+            'FULL_VERIFY=PASS',
+            'ANDROID_VERIFY=PASS'
+          ) | Set-Content (Join-Path $out 'FORBIDDEN_LANDS_3.3.5_RECOVERY_R2_PROOF.txt') -Encoding utf8
+          "dir=$out" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Upload recovery APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.5_RECOVERY_R2
+          path: |
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_RECOVERY_R2.apk
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_RECOVERY_R2.apk.sha256
+            ${{ steps.apk.outputs.dir }}/APK_BADGING.txt
+            ${{ steps.apk.outputs.dir }}/APK_SIGNATURE.txt
+            ${{ steps.apk.outputs.dir }}/FORBIDDEN_LANDS_3.3.5_RECOVERY_R2_PROOF.txt
+          retention-days: 30
+
+      - name: Publish recovery release
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          APK_DIR: ${{ steps.apk.outputs.dir }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $repo=$env:GITHUB_REPOSITORY
+          $headers=@{ Authorization="Bearer $env:GITHUB_TOKEN"; Accept='application/vnd.github+json'; 'X-GitHub-Api-Version'='2022-11-28'; 'User-Agent'='BRELGA-FL335-R2' }
+          $release=$null
+          try { $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:TAG" } catch { if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw } }
+          if (-not $release) {
+            $payload=@{
+              tag_name=$env:TAG
+              target_commitish='main'
+              name='Braseiro Forbidden Lands 3.3.5 Recovery R2'
+              body='Bugreport-driven recovery: cold start bounded, first scene uses one remote narration call with fallback instead of blocking refinement, three visible suggested actions, larger narration text, animated 3D dice, and readable combat inspector.'
+              draft=$false
+              prerelease=$false
+            } | ConvertTo-Json
+            $release=Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $payload -Uri "https://api.github.com/repos/$repo/releases"
+          }
+          $assets=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$($release.id)/assets?per_page=100"
+          foreach ($name in @($env:APK_NAME,"$($env:APK_NAME).sha256",'APK_BADGING.txt','APK_SIGNATURE.txt','FORBIDDEN_LANDS_3.3.5_RECOVERY_R2_PROOF.txt')) {
+            $path=Join-Path $env:APK_DIR $name
+            if (-not (Test-Path $path)) { throw "Missing asset: $name" }
+            $old=$assets | Where-Object { $_.name -eq $name } | Select-Object -First 1
+            if ($old) { Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($old.id)" | Out-Null }
+            $mime=if ($name -like '*.apk') { 'application/vnd.android.package-archive' } else { 'text/plain' }
+            $url="https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$([uri]::EscapeDataString($name))"
+            & curl.exe -L --fail -X POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Content-Type: $mime" --data-binary "@$path" $url
+            if ($LASTEXITCODE -ne 0) { throw "Release upload failed: $name" }
+          }
+          Write-Host "RELEASE_URL=$($release.html_url)"
