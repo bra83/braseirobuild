@@ -129,6 +129,14 @@ jobs:
             if($LASTEXITCODE -ne 0){throw "Targeted regression failed: $test"}
           }
 
+      - name: Pre-sync Android assets for full regression
+        shell: powershell
+        working-directory: ${{ steps.src.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & npm.cmd run android:sync
+          if ($LASTEXITCODE -ne 0) { throw 'Pre-sync Android assets failed' }
+
       - name: Full regression suite
         shell: powershell
         working-directory: ${{ steps.src.outputs.root }}
