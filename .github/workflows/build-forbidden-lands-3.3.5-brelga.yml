@@ -16,9 +16,9 @@ concurrency:
 
 env:
   SOURCE_NAME: "braseiro-forbidden-lands-3.3.5-RUNTIME-HOTFIX.zip"
-  SOURCE_BYTES: "26666392"
-  SOURCE_SHA256: "672d134414daefa40621c43c8fddbed55fcee7d0c54d35a9ca8cc72b2299f7fd"
-  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/Niz2Lc59VZSd"
+  SOURCE_BYTES: "26666390"
+  SOURCE_SHA256: "d689a6a3847e5feb5bd7b515f1e06a1dd929346d4c0b66922fb2119cf43d777c"
+  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/Ha9tatmS7ihu"
   TAG: "forbidden-lands-3.3.5-brelga"
   APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_DEBUG.apk"
   BUILD_ROOT: "D:\\brelga-forbidden-lands-3.3.5"
