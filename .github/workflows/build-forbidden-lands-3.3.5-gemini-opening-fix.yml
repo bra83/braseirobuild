@@ -183,7 +183,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'aapt failed' }
           $badging=Get-Content (Join-Path $out 'APK_BADGING.txt') -Raw
           if ($badging -notmatch "package: name='com\.braseiro\.forbiddenlands'") { throw 'Wrong package' }
-          if ($badging -notmatch "versionCode='303503'") { throw 'Wrong hotfix versionCode' }
+          if ($badging -notmatch "versionCode='303500'") { throw 'Wrong versionCode' }
           if ($badging -notmatch "versionName='3\.3\.5'") { throw 'Wrong versionName' }
 
           & $signer verify --verbose --print-certs $apk 2>&1 | Tee-Object -FilePath (Join-Path $out 'APK_SIGNATURE.txt')
