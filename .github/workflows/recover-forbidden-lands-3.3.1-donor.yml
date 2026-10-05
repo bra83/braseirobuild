@@ -1,0 +1,56 @@
+name: Recover Forbidden Lands 3.3.1 Donor Source
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/recover-forbidden-lands-3.3.1-donor.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SOURCE_NAME: 'Braseiro_Forbidden_Lands_3.3.1_BARBARA_TTS_HOTFIX_ANDROID_STUDIO.zip'
+      SOURCE_SHA256: 'fd4542bafe63911c750eb2dc6aedc9a9848c1e1a883665dc7aaef30408b72b4c'
+      FIRE_API: 'https://api.firestorage.ai/dev/file'
+      SHARE_ID: 'QfQkfhJlnJSH'
+      FILE_ID: '01a0bb9045a771ec9058764e79d9f5a7'
+    steps:
+      - name: Download exact historical donor source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          LIST_URL="$FIRE_API/shares/$SHARE_ID/files?maxResults=1000"
+          DOWNLOAD_API="$FIRE_API/shares/$SHARE_ID/files/$FILE_ID/download"
+          curl -fsSL "$LIST_URL" -o /tmp/files.json
+          cat /tmp/files.json
+          python3 - <<'PY'
+          import json, os
+          data=json.load(open('/tmp/files.json',encoding='utf-8'))
+          wanted=os.environ['FILE_ID']
+          if not any(str(x.get('fileId'))==wanted for x in (data.get('files') or [])):
+              raise SystemExit('historical donor file id not present')
+          PY
+          curl -fsSL -X POST "$DOWNLOAD_API" -o /tmp/download.json
+          DOWNLOAD_URL="$(python3 - <<'PY'
+          import json
+          data=json.load(open('/tmp/download.json',encoding='utf-8'))
+          print(data.get('downloadUrl') or '')
+          PY
+          )"
+          test -n "$DOWNLOAD_URL"
+          curl -fL --retry 4 --retry-delay 2 "$DOWNLOAD_URL" -o "out/$SOURCE_NAME"
+          echo "$SOURCE_SHA256  out/$SOURCE_NAME" | sha256sum -c -
+          unzip -t "out/$SOURCE_NAME" >/dev/null
+      - name: Upload historical donor
+        uses: actions/upload-artifact@v4
+        with:
+          name: FORBIDDEN_LANDS_3.3.1_HISTORICAL_DONOR_SOURCE
+          path: out/Braseiro_Forbidden_Lands_3.3.1_BARBARA_TTS_HOTFIX_ANDROID_STUDIO.zip
+          retention-days: 30
