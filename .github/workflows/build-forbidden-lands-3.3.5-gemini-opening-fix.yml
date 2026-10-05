@@ -141,17 +141,14 @@ jobs:
           & node.exe scripts/verify-user-reported-regressions.mjs
           if ($LASTEXITCODE -ne 0) { throw 'Gemini/opening fix regressed after sync' }
 
-      - name: Bump install versionCode
+      - name: Keep source versionCode
         shell: powershell
         working-directory: ${{ steps.src.outputs.root }}
         run: |
           $ErrorActionPreference='Stop'
-          $path='android\app\build.gradle'
-          $text=Get-Content $path -Raw
-          if ($text -match 'versionCode\s+303503') { exit 0 }
-          if ($text -notmatch 'versionCode\s+303500') { throw 'Base versionCode 303500 not found' }
-          $text=$text -replace 'versionCode\s+303500','versionCode 303503'
-          Set-Content $path $text -Encoding utf8
+          $text=Get-Content 'android\app\build.gradle' -Raw
+          if ($text -notmatch 'versionCode\s+303500') { throw 'Expected versionCode 303500 not found' }
+          Write-Host 'Using source versionCode 303500.'
 
       - name: Build APK
         shell: powershell
