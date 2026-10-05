@@ -20,8 +20,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p out/extracted
-          URL='https://github.com/bra83/braseirobuild/releases/download/FORBIDDEN-LANDS-3.3.1-HOTFIX/BRASEIRO_FORBIDDEN_LANDS_3.3.1_DEBUG.apk'
-          curl -fL --retry 4 --retry-delay 2 "$URL" -o out/FL331.apk
+          GH_TOKEN='${{ github.token }}' gh release download FORBIDDEN-LANDS-3.3.1-HOTFIX --repo "$GITHUB_REPOSITORY" --pattern 'BRASEIRO_FORBIDDEN_LANDS_3.3.1_DEBUG.apk' --dir out
+          mv out/BRASEIRO_FORBIDDEN_LANDS_3.3.1_DEBUG.apk out/FL331.apk
           echo '35bca7eccd695b75d39604905b5da2f8aaaee1718681232e936be17842ed2417  out/FL331.apk' | sha256sum -c -
           unzip -q out/FL331.apk 'assets/public/*' -d out/extracted
           find out/extracted/assets/public -type f | sort > out/runtime-files.txt
