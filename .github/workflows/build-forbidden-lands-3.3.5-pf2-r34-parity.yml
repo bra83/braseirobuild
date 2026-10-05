@@ -1,4 +1,4 @@
-name: Forbidden Lands 3.3.5 PF2 R34 Gemini Parity - BRELGA
+name: Forbidden Lands 3.3.5 PF2 R34 Human Master - BRELGA
 
 on:
   push:
@@ -15,13 +15,13 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_PF2_R34_GEMINI_PARITY_SOURCE.zip"
-  SOURCE_BYTES: "26713645"
-  SOURCE_SHA256: "aca0c32611696e0e8adefc429242bffe3172cf7f8a6164f59bc0faadd8d29f39"
-  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/GnAhulrijIMP"
-  BUILD_ROOT: "D:\\brelga-fl-pf2-r34-parity"
-  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_PF2_R34_GEMINI_PARITY.apk"
-  TAG: "forbidden-lands-3.3.5-pf2-r34-gemini-parity"
+  SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_PF2_R34_HUMAN_MASTER_SOURCE.zip"
+  SOURCE_BYTES: "26672292"
+  SOURCE_SHA256: "e18bd9194137dea5ec288ee6da8aed6a51d499d3ed6bfdc82b5179f600eec98f"
+  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/yQ8kJm4mzaXL"
+  BUILD_ROOT: "D:\\brelga-fl-pf2-r34-human-master"
+  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_PF2_R34_HUMAN_MASTER.apk"
+  TAG: "forbidden-lands-3.3.5-pf2-r34-human-master"
   EXPECTED_SHA1: "9d0f1089b3fb6c225f1f59462750864e897c4d92"
 
 jobs:
@@ -101,6 +101,8 @@ jobs:
           $ErrorActionPreference='Stop'
           & node.exe scripts/verify-pf2-r34-parity.mjs
           if ($LASTEXITCODE -ne 0) { throw 'PF2 R34 parity gate failed' }
+          & npm.cmd run verify:human-master-runtime
+          if ($LASTEXITCODE -ne 0) { throw 'Human Master runtime gate failed' }
           & npm.cmd run lint
           if ($LASTEXITCODE -ne 0) { throw 'TypeScript failed' }
 
@@ -118,6 +120,7 @@ jobs:
             'verify:dice-full',
             'verify:adventure-sites-v2',
             'verify:canonical-narrator-profile',
+            'verify:human-master-runtime',
             'verify:google-drive-signing'
           )
           foreach($test in $tests){
@@ -187,6 +190,11 @@ jobs:
             "SOURCE_SHA256=$env:SOURCE_SHA256",
             "APK_SHA256=$hash",
             'PF2_R34_SINGLE_REMOTE_NARRATOR=PASS',
+            'CANONICAL_HUMAN_MASTER_PROFILE_SHA256=8e63dbdf963abd1bed88e7173de3adc22d1501557647bcf4a9d95ee096f75852',
+            'HUMAN_MASTER_RUNTIME_GATE=PASS',
+            'OPENING_TARGET_5000_6500_CHARS=PASS',
+            'ANTI_HUD_MENU_SANITIZER=PASS',
+            'AGENCY_EMOTION_HIJACK_GUARD=PASS',
             'NO_REMOTE_PLANNER_CRITICAL_PATH=PASS',
             'NO_REMOTE_ARBITER_CRITICAL_PATH=PASS',
             'NO_ORPHAN_JS_TIMEOUT=PASS',
@@ -202,10 +210,10 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO_FORBIDDEN_LANDS_3.3.5_PF2_R34_GEMINI_PARITY
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.5_PF2_R34_HUMAN_MASTER
           path: |
-            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_PF2_R34_GEMINI_PARITY.apk
-            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_PF2_R34_GEMINI_PARITY.apk.sha256
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_PF2_R34_HUMAN_MASTER.apk
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_PF2_R34_HUMAN_MASTER.apk.sha256
             ${{ steps.apk.outputs.dir }}/APK_BADGING.txt
             ${{ steps.apk.outputs.dir }}/APK_SIGNATURE.txt
             ${{ steps.apk.outputs.dir }}/PF2_R34_PARITY_PROOF.txt
@@ -223,7 +231,7 @@ jobs:
           $release=$null
           try{$release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:TAG"}catch{if($_.Exception.Response.StatusCode.value__ -ne 404){throw}}
           if(-not $release){
-            $payload=@{tag_name=$env:TAG;target_commitish='main';name='Braseiro Forbidden Lands 3.3.5 - PF2 R34 Gemini Parity';body='Porta a arquitetura estável do Pathfinder R34: preparação local, uma única chamada Gemini de narração por turno, sem timeouts JS órfãos, RAG apenas quando mecânico, 4 threads de rede e cadeia máxima de 3 modelos.';draft=$false;prerelease=$false}|ConvertTo-Json
+            $payload=@{tag_name=$env:TAG;target_commitish='main';name='Braseiro Forbidden Lands 3.3.5 - PF2 R34 Human Master';body='Porta a arquitetura estável do Pathfinder R34 e reforça o perfil canônico Mestre Humano Imersivo: uma chamada Gemini por turno, sem timeouts JS órfãos, RAG mecânico condicional, abertura 5k-6.5k, gate anti-HUD/menu, agência preservada e fallback humanizado.';draft=$false;prerelease=$false}|ConvertTo-Json
             $release=Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $payload -Uri "https://api.github.com/repos/$repo/releases"
           }
           $assets=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$($release.id)/assets?per_page=100"
