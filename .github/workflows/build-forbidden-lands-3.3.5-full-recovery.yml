@@ -91,6 +91,24 @@ jobs:
           & npm.cmd ci --no-audit --no-fund
           if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
 
+      - name: Ensure Windows native build dependencies
+        shell: powershell
+        working-directory: ${{ steps.src.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & node.exe -e "try{require.resolve('@rollup/rollup-win32-x64-msvc');process.exit(0)}catch{process.exit(1)}"
+          if ($LASTEXITCODE -ne 0) {
+            $v=(& node.exe -p "require('./node_modules/rollup/package.json').version").Trim()
+            & npm.cmd install --no-save --no-package-lock --no-audit --no-fund "@rollup/rollup-win32-x64-msvc@$v"
+            if ($LASTEXITCODE -ne 0) { throw 'Rollup native dependency install failed' }
+          }
+          & node.exe -e "try{require.resolve('@esbuild/win32-x64');process.exit(0)}catch{process.exit(1)}"
+          if ($LASTEXITCODE -ne 0) {
+            $v=(& node.exe -p "require('./node_modules/esbuild/package.json').version").Trim()
+            & npm.cmd install --no-save --no-package-lock --no-audit --no-fund "@esbuild/win32-x64@$v"
+            if ($LASTEXITCODE -ne 0) { throw 'esbuild native dependency install failed' }
+          }
+
       - name: TypeScript and reported-regression gate
         shell: powershell
         working-directory: ${{ steps.src.outputs.root }}
