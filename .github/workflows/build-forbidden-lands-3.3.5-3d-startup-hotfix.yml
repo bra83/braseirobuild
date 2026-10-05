@@ -103,6 +103,21 @@ jobs:
           & tar.exe -xf $env:PATCH_ZIP -C $env:PROJECT_ROOT
           if ($LASTEXITCODE -ne 0) { throw 'Patch extraction failed' }
 
+          # TypeScript in this project does not inject React's IntrinsicAttributes
+          # for custom JSX components, so declare key explicitly in the two local
+          # dice components before the compiler gate.
+          $stagePath=Join-Path $env:PROJECT_ROOT 'src\components\Dice3DStage.tsx'
+          $stage=Get-Content $stagePath -Raw
+          $stage=$stage.Replace(
+            'function D6Cube({ die, index, rollKey }: { die: DieResult; index: number; rollKey: string })',
+            'function D6Cube({ die, index, rollKey }: { die: DieResult; index: number; rollKey: string; key?: React.Key })'
+          )
+          $stage=$stage.Replace(
+            'function PolyDie({ die, index, rollKey }: { die: DieResult; index: number; rollKey: string })',
+            'function PolyDie({ die, index, rollKey }: { die: DieResult; index: number; rollKey: string; key?: React.Key })'
+          )
+          Set-Content $stagePath $stage -Encoding utf8
+
           $pkg=Get-Content (Join-Path $env:PROJECT_ROOT 'package.json') -Raw | ConvertFrom-Json
           if ($pkg.version -ne '3.3.5') { throw "Unexpected source version: $($pkg.version)" }
           $gradle=Get-Content (Join-Path $env:PROJECT_ROOT 'android\app\build.gradle') -Raw
