@@ -1,0 +1,39 @@
+name: Recover Forbidden Lands 3.3.1 Runtime Assets
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/recover-forbidden-lands-3.3.1-runtime-assets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Download historical 3.3.1 APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/extracted
+          URL='https://github.com/bra83/braseirobuild/releases/download/FORBIDDEN-LANDS-3.3.1-HOTFIX/BRASEIRO_FORBIDDEN_LANDS_3.3.1_DEBUG.apk'
+          curl -fL --retry 4 --retry-delay 2 "$URL" -o out/FL331.apk
+          echo '35bca7eccd695b75d39604905b5da2f8aaaee1718681232e936be17842ed2417  out/FL331.apk' | sha256sum -c -
+          unzip -q out/FL331.apk 'assets/public/*' -d out/extracted
+          find out/extracted/assets/public -type f | sort > out/runtime-files.txt
+          grep -R -n -E 'dice|dado|rolar|roll|three|3d|push' out/extracted/assets/public > out/dice-grep.txt || true
+          cd out
+          zip -qr FL331_RUNTIME_ASSETS.zip extracted runtime-files.txt dice-grep.txt
+      - name: Upload recovered runtime assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: FORBIDDEN_LANDS_3.3.1_RUNTIME_ASSETS
+          path: |
+            out/FL331_RUNTIME_ASSETS.zip
+            out/dice-grep.txt
+            out/runtime-files.txt
+          retention-days: 30
