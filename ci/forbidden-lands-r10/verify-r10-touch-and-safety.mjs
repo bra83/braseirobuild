@@ -20,7 +20,7 @@ if (!globalThis.crypto?.randomUUID) {
 
 const React = await import('react');
 const { createRoot } = await import('react-dom/client');
-const { SuggestedChoiceButton } = await import('../../src/components/SuggestedChoiceButton.tsx');
+const { SuggestedChoiceButton } = await import('../src/components/SuggestedChoiceButton.tsx');
 
 const host = document.getElementById('root');
 const root = createRoot(host);
@@ -66,7 +66,7 @@ await React.act(async () => {
 });
 assert.equal(calls, 2, 'click acessível/programático deve continuar funcionando');
 
-const { DataSafetyService } = await import('../../src/services/DataSafetyService.ts');
+const { DataSafetyService } = await import('../src/services/DataSafetyService.ts');
 let checkpoints = 0;
 const originalCheckpoint = DataSafetyService.checkpoint;
 DataSafetyService.checkpoint = async () => { checkpoints += 1; return true; };
