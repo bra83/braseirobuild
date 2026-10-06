@@ -5,7 +5,8 @@ const q=new URLSearchParams(window.__P1_CAPTURE_QUERY||location.search);
 let screen=q.get('screen')||'session';
 let stateName=q.get('state')||'active';
 let viewState=null;
-let geminiState={textSceneConfigured:false,ttsAudioConfigured:false,textModel:'',imageModel:'',ttsModel:'',ttsVoice:''};
+let geminiState={textSceneConfigured:false,ttsAudioConfigured:false,textModel:'',imageModel:''};
+let ttsState={state:'PREPARING',ready:false,enginePackage:'',voiceName:'',speechRate:1,engines:[],voices:[],mode:'ANDROID_INSTALLED_ENGINE'};
 let mediaTarget=null;
 let mapSelection=null;
 let diceHistory=[];
@@ -34,7 +35,7 @@ window.BraseiroCreation=Object.freeze({start:draftId=>postNative('CharacterCreat
 window.BraseiroReceive=(raw)=>{
  try{
   const m=typeof raw==='string'?JSON.parse(raw):raw,p=m.payload||{};
-  if(m.type==='ViewState'){viewState=p;geminiState=p.gemini||geminiState;lastRuleTrace=p.lastRuleTrace||lastRuleTrace;render();}
+  if(m.type==='ViewState'){viewState=p;geminiState=p.gemini||geminiState;ttsState=p.tts?{...ttsState,...p.tts}:ttsState;lastRuleTrace=p.lastRuleTrace||lastRuleTrace;render();}
   else if(m.type==='SessionUpdate'){
    const previous=viewState;
    if(p.viewState){viewState=p.viewState;geminiState=viewState.gemini||geminiState;}
@@ -45,7 +46,8 @@ window.BraseiroReceive=(raw)=>{
   else if(m.type==='CharacterCreationDraft'||m.type==='CharacterCreationResult'){if(p.viewState)viewState=p.viewState;render();showToast(p.ok===false?'Não foi possível concluir a criação.':'Criação atualizada.');}
   else if(m.type==='UiCommandResult'){if(p.viewState)viewState=p.viewState;render();showToast(uiStatusMessage(p));}
   else if(m.type==='GMHelpResponse')showToast(p.answer||'Sem resposta do Mestre.');
-  else if(m.type==='TtsState')showToast(p.state==='ERROR'?`TTS: ${p.message||'falha ao reproduzir o áudio.'}`:ttsMessage(p.state));
+  else if(m.type==='TtsState'){ttsState={...ttsState,...p};updateTtsSettings();showToast(p.state==='ERROR'?`TTS: ${p.message||'falha ao reproduzir o áudio.'}`:ttsMessage(p.state));if(p.state==='IDLE')postNative('TtsSettingsGet',{});}
+  else if(m.type==='TtsSettingsState'){ttsState={...ttsState,...p};updateTtsSettings();}
   else if(m.type==='GeminiSettingsState'){geminiState=p;updateSettingsStatus();}
   else if(m.type==='GeminiCredentialTestResult')showToast(p.ok?'Conexão Gemini: OK':'Não foi possível usar a configuração informada.');
   else if(m.type==='SceneImageResult'){postNative('ViewState',{request:'after-scene-image'});showToast('Ilustração da cena atualizada.');}
@@ -66,7 +68,7 @@ window.BraseiroReceive=(raw)=>{
 
 function uiStatusMessage(p){if(p.ok===false)return 'A ação não pôde ser concluída pelas regras atuais.';if(p.status==='READY_TO_START')return 'Equipamento concluído. Agora você pode começar a aventura.';return 'Equipamento atualizado.'}
 function friendlyBridgeError(code){const m={GEMINI_KEY_MISSING:'Configure a chave Gemini.',INVALID_GEMINI_MODEL:'Confira o nome do modelo Gemini.',INVALID_TTS_VOICE:'Confira o nome da voz TTS.',EMPTY_VISIBLE_NARRATION:'Ainda não há narração para ouvir.',NO_CHARACTER:'Crie ou importe um personagem primeiro.',CHARACTER_ALREADY_EXISTS:'Já existe um personagem nesta campanha. Recomece a aventura para criar outro.',RANDOM_CHARACTER_NO_VALID_CLASS:'Não foi possível gerar uma classe válida para estes atributos.',INVALID_CHARACTER_SHEET:'A ficha JSON não é válida para o BRASEIRO OSE.',CHARACTER_PROFILE_MISMATCH:'A ficha pertence a outro perfil OSE.',CHARACTER_ID_EXISTS:'Já existe um personagem com este identificador.',CHARACTER_ITEM_PROFILE_MISMATCH:'Um item da ficha pertence a outro perfil OSE.',ITEM_ID_EXISTS:'Já existe um item com este identificador.',INVALID_CHARACTER_NAME:'Digite um nome válido para o personagem.',CHARACTER_RECREATE_AFTER_START:'Depois que a aventura começou, use RECOMEÇAR A AVENTURA para trocar toda a ficha.'};return m[code]||'O aplicativo encontrou um erro ao executar esta ação.'}
-function ttsMessage(s){return s==='MISSING_KEY'?'Configure a chave Gemini de voz.':s==='STARTING'?'Preparando a narração em voz.':s==='REPLAYING'?'Repetindo a narração.':s==='STOPPED'?'Áudio interrompido.':s==='EMPTY_NARRATION'?'Ainda não há narração para ouvir.':'TTS indisponível.'}
+function ttsMessage(s){return s==='PREPARING'?'Preparando a narração em voz.':s==='PLAYING'?'Narração em andamento.':s==='STOPPED'?'Áudio interrompido.':s==='IDLE'?'Motor de voz pronto.':s==='ERROR'?'Falha no motor de voz.':'TTS atualizado.'}
 function showToast(msg){const t=el('toast');if(!t)return;t.textContent=msg;t.classList.remove('hidden');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.add('hidden'),2600)}
 function rationValue(vs){const xs=vs?.resources||[];const hit=xs.find(x=>String(x).toLowerCase().startsWith('rations:'));return hit?Number(String(hit).split(':').pop())||0:0}
 function actionCostSummary(intent){if(!intent)return'';const n=Math.max(1,(viewState?.party||[]).length),r=rationValue(viewState);if(intent.startsWith('WILD_TRAVEL_FORAGE_DAY'))return `Viajar consumirá 1 dia. O grupo tentará forragear; se falhar, poderá consumir até ${n} ração(ões). Você tem ${r}. Também haverá checagem de encontro e possibilidade de se perder. Continuar?`;if(intent.startsWith('WILD_TRAVEL_DAY')||intent.startsWith('WILD_FORCED_MARCH_DAY'))return `Viajar consumirá 1 dia e poderá consumir até ${n} ração(ões). Você tem ${r}. Também haverá checagem de encontro${intent.startsWith('WILD_FORCED_MARCH_DAY')?' e consequências de marcha forçada':''}. Continuar?`;if(intent.startsWith('WILD_REST_DAY'))return `Descansar consumirá 1 dia e poderá consumir até ${n} ração(ões). Você tem ${r}. Continuar?`;return''}
@@ -178,7 +180,7 @@ function wireCurrentScreen(){
  document.querySelectorAll('[data-suggest]').forEach(b=>b.onclick=()=>{const t=el('reactionInput');if(t){t.value=b.dataset.suggest;t.dataset.mechanicalIntent=b.dataset.intent||'';t.focus()}});
  el('reactionInput')?.addEventListener('input',e=>{if(e.isTrusted)delete e.currentTarget.dataset.mechanicalIntent});
  document.querySelector('[data-react]')?.addEventListener('click',()=>{const t=el('reactionInput'),v=t?.value.trim();if(!v)return showToast('Escreva o que seu personagem faz ou pergunta.');const mechanicalIntent=t.dataset.mechanicalIntent||'';const warning=actionCostSummary(mechanicalIntent);if(warning&&!confirm(warning))return;if(postNative('PlayerReaction',{reactionId:'ui-'+Date.now(),text:v,mechanicalIntent}))showToast('Enviado ao Mestre.');else{localLog.push(v);showToast('Preview sem motor nativo.')}});
- document.querySelectorAll('[data-tts]').forEach(b=>b.onclick=()=>{if(!postNative('TtsCommand',{command:b.dataset.tts}))showToast('A narração em voz requer o app Android e uma chave configurada.');});
+ document.querySelectorAll('[data-tts]').forEach(b=>b.onclick=()=>{if(!postNative('TtsCommand',{command:b.dataset.tts}))showToast('A narração em voz requer o app Android.');});
  document.querySelector('[data-scene-image]')?.addEventListener('click',()=>{if(!postNative('ScenePromptShare',{explicitUserAction:true}))showToast('Ilustração externa requer o app Android.');else showToast('Abrindo o Gemini com o prompt detalhado da cena…')});
  document.querySelectorAll('[data-die]').forEach(b=>b.onclick=()=>{const count=Math.max(1,Math.min(20,Number(el('diceCount')?.value||1))),modifier=Math.max(-100,Math.min(100,Number(el('diceModifier')?.value||0)));if(!postNative('ManualDiceRoll',{sides:Number(b.dataset.die),count,modifier})){const rolls=Array.from({length:count},()=>1+Math.floor(Math.random()*Number(b.dataset.die))),total=rolls.reduce((a,x)=>a+x,0)+modifier;diceHistory.unshift({rolls,total,sides:Number(b.dataset.die),count,modifier});render()}});
  document.querySelector('[data-start-draft]')?.addEventListener('click',()=>postNative('CharacterCreationStart',{draftId:'draft-'+Date.now()}));
@@ -223,13 +225,26 @@ function chooseMedia(scope,id){mediaTarget={scope,id};el('mediaPicker').value=''
 el('mediaPicker').addEventListener('change',()=>{const f=el('mediaPicker').files?.[0];if(!f||!mediaTarget)return;if(f.size>5*1024*1024)return showToast('Imagem deve ter no máximo 5 MB.');const r=new FileReader();r.onload=()=>postNative('PresentationImageSave',{scope:mediaTarget.scope,id:mediaTarget.id,dataUrl:r.result});r.readAsDataURL(f)});
 
 document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.screen));
-el('settingsButton').onclick=()=>{el('settingsOverlay').classList.remove('hidden');postNative('GeminiSettingsGet',{});updateSettingsStatus()};el('settingsClose').onclick=()=>el('settingsOverlay').classList.add('hidden');
-function updateSettingsStatus(){if(!el('textSceneStatus'))return;el('textSceneStatus').textContent=geminiState.textSceneConfigured?'Chave configurada':'Chave não configurada';el('ttsAudioStatus').textContent=geminiState.ttsAudioConfigured?'Chave configurada':'Chave não configurada';if(geminiState.textModel&&!el('textModel').dataset.dirty)el('textModel').value=geminiState.textModel;if(geminiState.imageModel&&!el('imageModel').dataset.dirty)el('imageModel').value=geminiState.imageModel;if(geminiState.ttsModel&&!el('ttsModel').dataset.dirty)el('ttsModel').value=geminiState.ttsModel;if(geminiState.ttsVoice&&!el('ttsVoice').dataset.dirty)el('ttsVoice').value=geminiState.ttsVoice;const ws=viewState?.worldStatus||{};el('worldStatus').textContent=ws.active?'Ativo — mapa, NPCs persistentes e agenda de eventos carregados.':'Ainda não inicializado.';const lib=viewState?.libraryStatus||{};el('libraryStatus').textContent=lib.embedded?`Regras incorporadas: ${profileLabel()}. Autoridade carregada.`:'Biblioteca não carregada.'}
-['textModel','imageModel','ttsModel','ttsVoice'].forEach(id=>el(id)?.addEventListener('input',e=>e.currentTarget.dataset.dirty='1'));
-el('saveModels')?.addEventListener('click',()=>{const payload={textModel:el('textModel').value.trim(),imageModel:el('imageModel').value.trim(),ttsModel:el('ttsModel').value.trim(),ttsVoice:el('ttsVoice').value.trim()};if(postNative('GeminiRuntimeSettingsSet',payload)){['textModel','imageModel','ttsModel','ttsVoice'].forEach(id=>delete el(id).dataset.dirty);showToast('Modelos salvos.')}});
-document.querySelectorAll('[data-key-save]').forEach(b=>b.onclick=()=>{const slot=b.dataset.keySave,input=slot==='TEXT_SCENE'?el('textSceneKey'):el('ttsAudioKey'),key=input.value.trim();if(!key)return showToast('Cole uma chave antes de salvar.');if(postNative('GeminiCredentialSet',{slot,key})){input.value='';showToast('Chave salva no armazenamento seguro.')}});
-document.querySelectorAll('[data-key-test]').forEach(b=>b.onclick=()=>{if(postNative('GeminiCredentialTest',{slot:b.dataset.keyTest}))showToast('Testando modelo e conexão…')});
-document.querySelectorAll('[data-key-delete]').forEach(b=>b.onclick=()=>postNative('GeminiCredentialDelete',{slot:b.dataset.keyDelete}));
+el('settingsButton').onclick=()=>{el('settingsOverlay').classList.remove('hidden');postNative('GeminiSettingsGet',{});postNative('TtsSettingsGet',{});updateSettingsStatus();updateTtsSettings()};el('settingsClose').onclick=()=>el('settingsOverlay').classList.add('hidden');
+function updateSettingsStatus(){if(!el('textSceneStatus'))return;el('textSceneStatus').textContent=geminiState.textSceneConfigured?'Chave configurada':'Chave não configurada';if(geminiState.textModel&&!el('textModel').dataset.dirty)el('textModel').value=geminiState.textModel;if(geminiState.imageModel&&!el('imageModel').dataset.dirty)el('imageModel').value=geminiState.imageModel;const ws=viewState?.worldStatus||{};el('worldStatus').textContent=ws.active?'Ativo — mapa, NPCs persistentes e agenda de eventos carregados.':'Ainda não inicializado.';const lib=viewState?.libraryStatus||{};el('libraryStatus').textContent=lib.embedded?`Regras incorporadas: ${profileLabel()}. Autoridade carregada.`:'Biblioteca não carregada.'}
+function updateTtsSettings(){
+ const engine=el('ttsEngine'),voice=el('ttsVoiceSelect'),rate=el('ttsRate'),rateValue=el('ttsRateValue'),status=el('ttsLocalStatus');if(!engine||!voice)return;
+ const selectedEngine=String(ttsState.enginePackage||'');const selectedVoice=String(ttsState.voiceName||'');
+ engine.innerHTML=(ttsState.engines||[]).map(e=>`<option value="${esc(e.packageName)}" ${e.packageName===selectedEngine?'selected':''}>${esc(e.label||e.packageName)}${e.preferredKokoro?' · Kokoro':''}</option>`).join('')||`<option value="">Nenhum motor detectado</option>`;
+ voice.innerHTML=(ttsState.voices||[]).map(v=>`<option value="${esc(v.name)}" ${v.name===selectedVoice?'selected':''}>${esc(v.name)} · ${esc(v.localeTag||'pt')} ${v.networkRequired?'· rede':'· local'}</option>`).join('')||`<option value="">Nenhuma voz PT detectada</option>`;
+ if(rate&&!rate.dataset.dirty)rate.value=String(ttsState.speechRate||1);if(rateValue)rateValue.textContent=Number(rate?.value||ttsState.speechRate||1).toFixed(2).replace('.',',')+'×';
+ if(status)status.textContent=ttsState.ready?`${(ttsState.enginePackage||'Motor Android')} · ${(ttsState.voiceName||'voz automática')} · pronto`:(ttsState.error?`Erro: ${ttsState.error}`:'Inicializando motor de voz…');
+}
+['textModel','imageModel'].forEach(id=>el(id)?.addEventListener('input',e=>e.currentTarget.dataset.dirty='1'));
+el('saveModels')?.addEventListener('click',()=>{const payload={textModel:el('textModel').value.trim(),imageModel:el('imageModel').value.trim()};if(postNative('GeminiRuntimeSettingsSet',payload)){['textModel','imageModel'].forEach(id=>delete el(id).dataset.dirty);showToast('Modelos salvos.')}});
+document.querySelectorAll('[data-key-save]').forEach(b=>b.onclick=()=>{const input=el('textSceneKey'),key=input.value.trim();if(!key)return showToast('Cole uma chave antes de salvar.');if(postNative('GeminiCredentialSet',{slot:'TEXT_SCENE',key})){input.value='';showToast('Chave salva no armazenamento seguro.')}});
+document.querySelectorAll('[data-key-test]').forEach(b=>b.onclick=()=>{if(postNative('GeminiCredentialTest',{slot:'TEXT_SCENE'}))showToast('Testando modelo e conexão…')});
+document.querySelectorAll('[data-key-delete]').forEach(b=>b.onclick=()=>postNative('GeminiCredentialDelete',{slot:'TEXT_SCENE'}));
+el('ttsRate')?.addEventListener('input',e=>{e.currentTarget.dataset.dirty='1';el('ttsRateValue').textContent=Number(e.currentTarget.value).toFixed(2).replace('.',',')+'×'});
+el('ttsEngine')?.addEventListener('change',()=>{postNative('TtsSettingsSet',{enginePackage:el('ttsEngine').value,voiceName:'',speechRate:Number(el('ttsRate')?.value||1)});showToast('Trocando motor de voz…')});
+el('saveTts')?.addEventListener('click',()=>{if(postNative('TtsSettingsSet',{enginePackage:el('ttsEngine')?.value||'',voiceName:el('ttsVoiceSelect')?.value||'',speechRate:Number(el('ttsRate')?.value||1)})){delete el('ttsRate').dataset.dirty;showToast('Motor e voz salvos.')}});
+el('testTts')?.addEventListener('click',()=>{if(postNative('TtsTest',{}))showToast('Testando a voz selecionada…')});
+el('refreshTts')?.addEventListener('click',()=>postNative('TtsSettingsGet',{}));
 el('resetAdventure')?.addEventListener('click',()=>{const ok=confirm('RECOMEÇAR A AVENTURA?\n\nO mundo, tempo, mapa revelado e progresso da campanha serão reiniciados. Sua ficha, inventário, equipamento, retrato e configurações Gemini serão preservados.');if(!ok)return;if(postNative('ResetAdventure',{})){el('settingsOverlay').classList.add('hidden');showToast('Recomeçando a aventura com o mesmo personagem…')}});
 el('backupExport')?.addEventListener('click',()=>postNative('BackupExport',{}));el('backupImport')?.addEventListener('click',()=>{const backup=el('backupText').value.trim();if(!backup)return showToast('Cole um backup antes de restaurar.');postNative('BackupImport',{backup})});el('backupCopy')?.addEventListener('click',async()=>{const text=el('backupText').value||backupBuffer;if(!text)return showToast('Gere um backup primeiro.');try{await navigator.clipboard.writeText(text);showToast('Backup copiado.')}catch(_e){el('backupText').focus();el('backupText').select();document.execCommand('copy');showToast('Backup copiado.')}});
 render();document.body.dataset.ready='true';postNative('ViewState',{request:'initial'});
