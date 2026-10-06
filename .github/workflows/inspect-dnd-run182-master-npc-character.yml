@@ -15,7 +15,7 @@ jobs:
           $src='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
           function M([string]$file,[string]$pattern,[int]$b=8,[int]$a=70){
             $p=Join-Path $src $file;if(!(Test-Path $p)){return};$ls=Get-Content $p;$ms=Select-String -Path $p -Pattern $pattern -AllMatches
-            foreach($m in $ms){"===== $file:$($m.LineNumber) $pattern =====";$s=[Math]::Max(1,$m.LineNumber-$b);$e=[Math]::Min($ls.Count,$m.LineNumber+$a);for($i=$s;$i -le $e;$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}}
+            foreach($m in $ms){"===== ${file}:$($m.LineNumber) $pattern =====";$s=[Math]::Max(1,$m.LineNumber-$b);$e=[Math]::Min($ls.Count,$m.LineNumber+$a);for($i=$s;$i -le $e;$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}}
           }
           M 'MainActivity.java' 'SUGESTÕES OPCIONAIS|SUGESTOES OPCIONAIS|quickSuggestions|suggestions|sceneTokenTile\(' 8 90
           M 'MainActivity.java' 'buildHeroAiContext\(|collectCharacterSheet\(|applyCharacterSeed\(' 8 100
