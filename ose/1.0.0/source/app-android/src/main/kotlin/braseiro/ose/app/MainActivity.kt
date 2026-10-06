@@ -416,9 +416,34 @@ class MainActivity : Activity() {
                         "ScenePromptShare" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
                             val prompt = buildSceneImagePrompt(current)
-                            launchGeminiWithPrompt(prompt)
+                            val sceneId = scenePresentationId(current)
+                            launchGeminiWithPrompt(prompt, PresentationMediaStore.Scope.SCENE, sceneId)
                             send(JSONObject().put("type", "ScenePromptShareResult").put("payload", JSONObject()
-                                .put("ok", true).put("promptLength", prompt.length)))
+                                .put("ok", true).put("promptLength", prompt.length).put("sceneId", sceneId)))
+                        }
+
+                        "PortraitPromptShare" -> {
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            val kind = payload.getString("kind")
+                            val stableId = payload.getString("id").trim()
+                            val scope: PresentationMediaStore.Scope
+                            val prompt: String
+                            when (kind) {
+                                "CHARACTER" -> {
+                                    require(current.campaignState.game.characters.containsKey(stableId)) { "UNKNOWN_CHARACTER_ID" }
+                                    scope = PresentationMediaStore.Scope.CHARACTER
+                                    prompt = buildCharacterPortraitPrompt(current, stableId)
+                                }
+                                "NPC" -> {
+                                    require(current.campaignState.game.npcs.containsKey(stableId)) { "UNKNOWN_NPC_ID" }
+                                    scope = PresentationMediaStore.Scope.NPC
+                                    prompt = buildNpcPortraitPrompt(current, stableId)
+                                }
+                                else -> error("UNSUPPORTED_PORTRAIT_KIND")
+                            }
+                            launchGeminiWithPrompt(prompt, scope, stableId)
+                            send(JSONObject().put("type", "PortraitPromptShareResult").put("payload", JSONObject()
+                                .put("ok", true).put("scope", scope.name).put("id", stableId).put("promptLength", prompt.length)))
                         }
 
                         "SceneImageGenerate" -> {
@@ -435,12 +460,14 @@ class MainActivity : Activity() {
                             val current = session.loadSession(CAMPAIGN_ID)
                             val scope = when (payload.getString("scope")) {
                                 "CHARACTER" -> PresentationMediaStore.Scope.CHARACTER
+                                "NPC" -> PresentationMediaStore.Scope.NPC
                                 "ITEM" -> PresentationMediaStore.Scope.ITEM
                                 else -> error("UNSUPPORTED_PRESENTATION_SCOPE")
                             }
                             val stableId = payload.getString("id").trim()
                             when (scope) {
                                 PresentationMediaStore.Scope.CHARACTER -> require(current.campaignState.game.characters.containsKey(stableId)) { "UNKNOWN_CHARACTER_ID" }
+                                PresentationMediaStore.Scope.NPC -> require(current.campaignState.game.npcs.containsKey(stableId)) { "UNKNOWN_NPC_ID" }
                                 PresentationMediaStore.Scope.ITEM -> require(current.campaignState.game.inventory.items.containsKey(stableId)) { "UNKNOWN_ITEM_ID" }
                                 else -> error("UNSUPPORTED_PRESENTATION_SCOPE")
                             }
@@ -853,6 +880,11 @@ class MainActivity : Activity() {
         val game = current.campaignState.game
         val portraits = JSONObject()
         current.campaignState.party.characterIds.forEach { id -> mediaStore.url(PresentationMediaStore.Scope.CHARACTER, id)?.let { portraits.put(id, it) } }
+        val npcPortraits = JSONObject()
+        game.npcs.keys.sorted().forEach { id -> mediaStore.url(PresentationMediaStore.Scope.NPC, id)?.let { npcPortraits.put(id, it) } }
+        val presentNpcs = game.npcs.values
+            .filter { it.spatialRef != null && it.spatialRef == current.campaignState.position.primary }
+            .sortedBy { it.name }
         val itemThumbnails = JSONObject()
         game.inventory.items.keys.sorted().forEach { id -> mediaStore.url(PresentationMediaStore.Scope.ITEM, id)?.let { itemThumbnails.put(id, it) } }
         val sceneId = scenePresentationId(current)
@@ -881,6 +913,13 @@ class MainActivity : Activity() {
             .put("sceneId", sceneId)
             .put("sceneImageUrl", mediaStore.url(PresentationMediaStore.Scope.SCENE, sceneId) ?: JSONObject.NULL)
             .put("characterPortraits", portraits)
+            .put("npcPortraits", npcPortraits)
+            .put("presentNpcs", JSONArray(presentNpcs.map { npc ->
+                JSONObject()
+                    .put("npcId", npc.npcId)
+                    .put("name", npc.name)
+                    .put("portraitUrl", mediaStore.url(PresentationMediaStore.Scope.NPC, npc.npcId) ?: JSONObject.NULL)
+            }))
             .put("itemThumbnails", itemThumbnails))
         val geminiState = credentials.statusJson()
         val runtimeState = runtimeSettings.statusJson()
@@ -1005,7 +1044,59 @@ class MainActivity : Activity() {
         """.trimIndent()
     }
 
-    private fun launchGeminiWithPrompt(prompt: String) {
+    private fun buildCharacterPortraitPrompt(current: CampaignEnvelope, characterId: String): String {
+        val c = current.campaignState.game.characters[characterId] ?: error("UNKNOWN_CHARACTER_ID")
+        val name = c.name
+        val race = c.raceId
+        val classes = c.classIds.joinToString(" / ")
+        val level = c.levelByClass.values.maxOrNull() ?: 1
+        return """
+            Gere UM retrato/token para o herói $name, de Old-School Essentials.
+
+            DADOS PÚBLICOS E FIXOS:
+            - Raça: $race
+            - Classe: $classes
+            - Nível: $level
+
+            DIREÇÃO VISUAL:
+            fantasia medieval old-school; ilustração tradicional de livro de RPG, tinta/papel, sem aparência 3D moderna; enquadramento frontal ou três-quartos, cabeça, ombros e parte superior do torso; personagem rigorosamente centralizado; margem segura generosa em todos os lados para recorte circular; fundo simples e discreto; equipamento coerente com a classe; iluminação legível; identidade visual marcante e reutilizável.
+
+            REGRAS:
+            sem texto, sem nome escrito, sem moldura, sem HUD, sem logotipo, sem mãos/armas cortadas nas bordas. Não invente poderes, itens mágicos ou informação mecânica. A imagem será persistida como identidade visual deste personagem.
+
+            Entregue somente a imagem, preferencialmente quadrada 1:1.
+        """.trimIndent()
+    }
+
+    private fun buildNpcPortraitPrompt(current: CampaignEnvelope, npcId: String): String {
+        val npc = current.campaignState.game.npcs[npcId] ?: error("UNKNOWN_NPC_ID")
+        val npcName = npc.name
+        val publicPlace = when (val p = npc.spatialRef) {
+            is SpatialRef.Settlement -> p.anchorId
+            is SpatialRef.Dungeon -> "masmorra"
+            is SpatialRef.Hex -> "ermos"
+            is SpatialRef.Scene -> "cena atual"
+            null -> "local conhecido"
+        }
+        return """
+            Gere UM retrato/token persistente para o NPC “$npcName” de uma campanha de Old-School Essentials.
+
+            CONTEXTO PÚBLICO:
+            - Nome: $npcName
+            - Onde foi encontrado: $publicPlace
+
+            DIREÇÃO VISUAL:
+            fantasia medieval old-school; pintura/gravura tradicional de livro de RPG, textura de tinta e papel; cabeça, ombros e parte superior do torso; personagem centralizado e inteiramente dentro de uma margem segura para recorte circular; fundo simples; expressão e roupa coerentes com alguém deste cenário. Crie uma aparência distinta que possa permanecer a mesma em cenas futuras.
+
+            REGRAS:
+            não revele segredos, facção oculta, estatísticas, tesouros ou intenções não conhecidas. Sem texto, sem nome escrito, sem moldura, sem HUD, sem logotipo. A imagem será usada como identidade visual persistente do NPC.
+
+            Entregue somente a imagem, preferencialmente quadrada 1:1.
+        """.trimIndent()
+    }
+
+    private fun launchGeminiWithPrompt(prompt: String, scope: PresentationMediaStore.Scope, stableId: String) {
+        rememberExternalImageTarget(scope, stableId)
         runOnUiThread {
             val direct = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
@@ -1024,20 +1115,52 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun rememberExternalImageTarget(scope: PresentationMediaStore.Scope, stableId: String) {
+        getSharedPreferences("braseiro_ose_external_media_v1", MODE_PRIVATE)
+            .edit()
+            .putString("scope", scope.name)
+            .putString("stableId", stableId)
+            .apply()
+    }
+
+    private fun consumeExternalImageTarget(current: CampaignEnvelope): Pair<PresentationMediaStore.Scope, String> {
+        val prefs = getSharedPreferences("braseiro_ose_external_media_v1", MODE_PRIVATE)
+        val scope = runCatching {
+            PresentationMediaStore.Scope.valueOf(prefs.getString("scope", "").orEmpty())
+        }.getOrNull()
+        val stableId = prefs.getString("stableId", "").orEmpty()
+        prefs.edit().clear().apply()
+        if (scope != null && stableId.isNotBlank()) {
+            val valid = when (scope) {
+                PresentationMediaStore.Scope.SCENE -> true
+                PresentationMediaStore.Scope.CHARACTER -> current.campaignState.game.characters.containsKey(stableId)
+                PresentationMediaStore.Scope.NPC -> current.campaignState.game.npcs.containsKey(stableId)
+                PresentationMediaStore.Scope.ITEM -> current.campaignState.game.inventory.items.containsKey(stableId)
+            }
+            if (valid) return scope to stableId
+        }
+        return PresentationMediaStore.Scope.SCENE to scenePresentationId(current)
+    }
+
     @Suppress("DEPRECATION")
     private fun saveSharedSceneImage(incoming: Intent?, notifyUi: Boolean) {
         if (incoming?.action != Intent.ACTION_SEND || incoming.type?.startsWith("image/") != true) return
         val uri = incoming.getParcelableExtra<Uri>(Intent.EXTRA_STREAM) ?: return
         val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return
         require(bytes.isNotEmpty() && bytes.size <= 20 * 1024 * 1024) { "IMAGE_SIZE_INVALID" }
-        val mime = contentResolver.getType(uri)?.takeIf { it.startsWith("image/") } ?: "image/jpeg"
+        val mime = contentResolver.getType(uri)?.takeIf { it in setOf("image/jpeg", "image/png", "image/webp") } ?: "image/jpeg"
         val current = session.loadSession(CAMPAIGN_ID)
-        val sceneId = scenePresentationId(current)
-        val url = mediaStore.save(PresentationMediaStore.Scope.SCENE, sceneId, mime, bytes)
+        val target = consumeExternalImageTarget(current)
+        val scope = target.first
+        val stableId = target.second
+        val url = mediaStore.save(scope, stableId, mime, bytes)
         if (notifyUi) {
-            send(JSONObject().put("type", "SceneImageResult").put("payload", JSONObject()
-                .put("ok", true).put("url", url).put("sceneId", sceneId)
-                .put("source", "ANDROID_SHARE").put("viewState", projectForUi(current))))
+            val type = if (scope == PresentationMediaStore.Scope.SCENE) "SceneImageResult" else "PresentationImageSaved"
+            send(JSONObject().put("type", type).put("payload", JSONObject()
+                .put("ok", true).put("url", url).put("scope", scope.name).put("id", stableId)
+                .put("sceneId", if (scope == PresentationMediaStore.Scope.SCENE) stableId else JSONObject.NULL)
+                .put("source", "ANDROID_SHARE").put("mechanicalDelta", false)
+                .put("viewState", projectForUi(current))))
         }
     }
 
@@ -1045,7 +1168,7 @@ class MainActivity : Activity() {
         val message = t.message.orEmpty()
         return when {
             message.startsWith("GEMINI_") -> message
-            message in setOf("EMPTY_GEMINI_KEY", "GEMINI_KEY_TOO_LONG", "INVALID_GEMINI_MODEL", "INVALID_TTS_VOICE", "UNKNOWN_GEMINI_CREDENTIAL_SLOT", "UNKNOWN_TTS_COMMAND", "EMPTY_VISIBLE_NARRATION", "INVALID_IMAGE_DATA_URL", "IMAGE_SIZE_INVALID", "UNSUPPORTED_IMAGE_TYPE", "UNKNOWN_CHARACTER_ID", "UNKNOWN_ITEM_ID", "UNSUPPORTED_PRESENTATION_SCOPE", "UNKNOWN_UI_COMMAND", "INVALID_DIE", "INVALID_DICE_COUNT", "INVALID_DICE_MODIFIER", "NO_CHARACTER", "CHARACTER_ALREADY_EXISTS", "RANDOM_CHARACTER_NO_VALID_CLASS", "INVALID_CHARACTER_SHEET", "CHARACTER_PROFILE_MISMATCH", "CHARACTER_ID_EXISTS", "CHARACTER_ITEM_PROFILE_MISMATCH", "ITEM_ID_EXISTS", "INVALID_CHARACTER_NAME", "CHARACTER_RECREATE_AFTER_START") -> message
+            message in setOf("EMPTY_GEMINI_KEY", "GEMINI_KEY_TOO_LONG", "INVALID_GEMINI_MODEL", "INVALID_TTS_VOICE", "UNKNOWN_GEMINI_CREDENTIAL_SLOT", "UNKNOWN_TTS_COMMAND", "EMPTY_VISIBLE_NARRATION", "INVALID_IMAGE_DATA_URL", "IMAGE_SIZE_INVALID", "UNSUPPORTED_IMAGE_TYPE", "UNKNOWN_CHARACTER_ID", "UNKNOWN_NPC_ID", "UNKNOWN_ITEM_ID", "UNSUPPORTED_PRESENTATION_SCOPE", "UNSUPPORTED_PORTRAIT_KIND", "UNKNOWN_UI_COMMAND", "INVALID_DIE", "INVALID_DICE_COUNT", "INVALID_DICE_MODIFIER", "NO_CHARACTER", "CHARACTER_ALREADY_EXISTS", "RANDOM_CHARACTER_NO_VALID_CLASS", "INVALID_CHARACTER_SHEET", "CHARACTER_PROFILE_MISMATCH", "CHARACTER_ID_EXISTS", "CHARACTER_ITEM_PROFILE_MISMATCH", "ITEM_ID_EXISTS", "INVALID_CHARACTER_NAME", "CHARACTER_RECREATE_AFTER_START") -> message
             else -> t::class.java.simpleName
         }
     }
