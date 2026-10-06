@@ -33,6 +33,11 @@ jobs:
           echo '===== PRESENTATION FIELD USAGE ====='
           grep -RInE --include='*.ts' --include='*.tsx' --include='*.mjs' 'presentationKind|\.presentation\b|presentation:' src/src src/scripts | head -n 300 || true
 
+          echo '===== ADVENTURE SEND ROUTE ====='
+          nl -ba src/src/screens/AdventureScreenV3.tsx | sed -n '560,790p'
+          echo '===== ADVENTURE SUGGESTED BUTTON ====='
+          nl -ba src/src/screens/AdventureScreenV3.tsx | sed -n '1200,1275p'
+
           echo '===== BUGREPORT TEST ====='
           TEST=$(grep -RIl --include='*.mjs' 'botão sugerido precisa produzir cena' src | head -n 1 || true)
           if [ -n "$TEST" ]; then
