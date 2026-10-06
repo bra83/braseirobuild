@@ -17,33 +17,19 @@ jobs:
           set -euo pipefail
           API='https://api.firestorage.ai/dev/file/shares/9U2Qwn54TgjB'
           NAME='BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6_1_SOURCE.zip'
-          META=$(curl -fsSL "$API/files?maxResults=100")
-          FILE_ID=$(python - <<'PY'
-import json, os
-m=json.loads(os.environ['META'])
-name=os.environ['NAME']
-print(next(x['fileId'] for x in m['files'] if x['fileName']==name))
-PY
-          )
-          TICKET=$(curl -fsSL -X POST "$API/files/$FILE_ID/download")
-          URL=$(python - <<'PY'
-import json, os
-print(json.loads(os.environ['TICKET'])['downloadUrl'])
-PY
-          )
+          FILE_ID=$(curl -fsSL "$API/files?maxResults=100" | jq -r --arg n "$NAME" '.files[] | select(.fileName==$n) | .fileId' | head -n 1)
+          test -n "$FILE_ID"
+          URL=$(curl -fsSL -X POST "$API/files/$FILE_ID/download" | jq -r '.downloadUrl')
+          test -n "$URL"
           curl -fL "$URL" -o source.zip
           mkdir src && unzip -q source.zip -d src
 
           echo '===== ROUTING MATCHES ====='
-          grep -RInE --include='*.ts' --include='*.tsx' --include='*.mjs'             'IN_FICTION_ACTION|OUT_OF_FICTION_GM_HELP|suggestedAction|suggestedActions|handleSuggested|kind.?[:=].?["'\'' ]scene|route.?[:=].?["'\'' ]scene' src | head -n 300 || true
+          grep -RInE --include='*.ts' --include='*.tsx' --include='*.mjs'             'IN_FICTION_ACTION|OUT_OF_FICTION_GM_HELP|suggestedAction|suggestedActions|handleSuggested|kind.*scene|route.*scene' src | head -n 400 || true
 
           echo '===== BUGREPORT TEST ====='
           TEST=$(grep -RIl --include='*.mjs' 'botão sugerido precisa produzir cena' src | head -n 1 || true)
           if [ -n "$TEST" ]; then
             echo "TEST=$TEST"
-            nl -ba "$TEST" | sed -n '1,180p'
+            nl -ba "$TEST" | sed -n '1,220p'
           fi
-        env:
-          META: ''
-          TICKET: ''
-          NAME: BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6_1_SOURCE.zip
