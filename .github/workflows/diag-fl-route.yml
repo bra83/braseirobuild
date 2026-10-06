@@ -66,6 +66,12 @@ jobs:
           fs.writeFileSync(api,a,'utf8');
           NODE
 
+      - name: Inspect canonical narrator gate
+        shell: bash
+        run: |
+          echo '===== CANONICAL NARRATOR GATE ====='
+          nl -ba src/scripts/verify-canonical-narrator-profile.mjs | sed -n '1,220p'
+
       - name: Install and run critical gates
         working-directory: src
         shell: bash
@@ -74,6 +80,7 @@ jobs:
           npm ci --no-audit --no-fund
           node scripts/verify-pf2-r34-parity.mjs
           npm run verify:human-master-runtime
+          npm run verify:canonical-narrator-profile
           npm run verify:master-no-freeze-r5
           npm run verify:bugreport-freeze-2026-10-05
           npm run lint
