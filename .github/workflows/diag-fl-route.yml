@@ -27,6 +27,9 @@ jobs:
           echo '===== ROUTING MATCHES ====='
           grep -RInE --include='*.ts' --include='*.tsx' --include='*.mjs'             'IN_FICTION_ACTION|OUT_OF_FICTION_GM_HELP|suggestedAction|suggestedActions|handleSuggested|kind.*scene|route.*scene' src | head -n 400 || true
 
+          echo '===== NARRATIVE INTENT SERVICE ====='
+          nl -ba src/src/services/NarrativeIntentService.ts | sed -n '1,280p'
+
           echo '===== BUGREPORT TEST ====='
           TEST=$(grep -RIl --include='*.mjs' 'botão sugerido precisa produzir cena' src | head -n 1 || true)
           if [ -n "$TEST" ]; then
