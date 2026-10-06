@@ -316,6 +316,42 @@ fs.writeFileSync(p('src','components','SuggestedChoiceButton.tsx'), touchCompone
   fs.writeFileSync(file,s,'utf8');
 }
 
+// Synchronize every release-identity gate with the maintenance update version.
+{
+  const versionFiles = [
+    ['scripts','verify-release-readiness-2026-10-03.mjs'],
+    ['scripts','audit-deep.ts'],
+    ['scripts','verify-runtime-hotfix-3.3.5.mjs'],
+    ['scripts','verify-rag-off-kokoro-startup-v3.mjs'],
+    ['scripts','verify.ts'],
+    ['scripts','audit-layout-final.ts'],
+    ['scripts','audit-final.ts'],
+    ['scripts','verify-block1-p0.mjs'],
+  ];
+  for (const parts of versionFiles) {
+    const file = p(...parts);
+    let s = fs.readFileSync(file,'utf8');
+    s = s.replaceAll("APP_VERSION = '3.3.5'", "APP_VERSION = '3.3.6'");
+    s = s.replaceAll('ANDROID_VERSION_CODE = 303500', 'ANDROID_VERSION_CODE = 303600');
+    s = s.replaceAll("pkg.version, '3.3.5'", "pkg.version, '3.3.6'");
+    s = s.replaceAll("packageJson.version === '3.3.5'", "packageJson.version === '3.3.6'");
+    s = s.replaceAll('versionCode 303500', 'versionCode 303600');
+    s = s.replaceAll('versionName "3.3.5"', 'versionName "3.3.6"');
+    s = s.replaceAll('versionName "3\\.3\\.5"', 'versionName "3\\.3\\.6"');
+    s = s.replaceAll('(3.3.5)', '(3.3.6 update)');
+    s = s.replaceAll('Forbidden Lands 3.3.5 runtime hotfix', 'Forbidden Lands 3.3.6 R10 runtime hotfix');
+    s = s.replaceAll('baseline corrente 3.3.5', 'baseline corrente 3.3.6');
+    fs.writeFileSync(file,s,'utf8');
+  }
+
+  const versionFile = p('src','version.ts');
+  let version = fs.readFileSync(versionFile,'utf8');
+  version = version.replace("APP_VERSION = '3.3.5'", "APP_VERSION = '3.3.6'");
+  version = version.replace('ANDROID_VERSION_CODE = 303500', 'ANDROID_VERSION_CODE = 303600');
+  version = version.replace("RELEASE_NAME = 'Runtime 3.3.5", "RELEASE_NAME = 'Runtime 3.3.6 R10");
+  fs.writeFileSync(versionFile,version,'utf8');
+}
+
 // Install-over-existing identity: same package/signer, higher versionCode.
 {
   const pkgPath = p('package.json');
