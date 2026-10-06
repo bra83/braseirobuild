@@ -1,0 +1,46 @@
+name: Release Braseiro DnD RUN180 APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/release-dnd-run180-brelga.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 30
+    steps:
+      - name: Verify RUN180 APK on BRELGA
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Runner incorreto: $env:RUNNER_NAME"}
+          $out='C:\DND180\out'
+          $apk=Join-Path $out 'BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk'
+          if(!(Test-Path $apk)){throw 'RUN180_APK_NOT_FOUND_ON_BRELGA'}
+          $sha=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$sha  BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk" | Set-Content (Join-Path $out 'BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk.sha256') -Encoding ascii
+          Write-Host "APK_SHA256=$sha"
+          Write-Host "APK_BYTES=$((Get-Item $apk).Length)"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: DND-6.6.2-RUN180
+          name: Braseiro DnD 6.6.2 RUN180
+          body: |
+            Braseiro DnD 6.6.2 RUN180 compilado e validado no runner self-hosted BRELGA.
+            Package: com.braseiro.dnd5e
+            VersionCode: 606280
+            VersionName: 6.6.2-r180-debug
+          files: |
+            C:\DND180\out\BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk
+            C:\DND180\out\BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk.sha256
+            C:\DND180\out\APK_BADGING_RUN180.txt
+            C:\DND180\out\APK_SIGNATURE_RUN180.txt
+            C:\DND180\out\RUN180_BUILD_PROOF.txt
