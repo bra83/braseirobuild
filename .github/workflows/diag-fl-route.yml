@@ -40,7 +40,7 @@ jobs:
           const intent='src/src/services/NarrativeIntentService.ts';
           let s=fs.readFileSync(intent,'utf8');
           const typeOld='  presentation: ScenePresentationKind;\n  preservesCheckpoint:';
-          const typeNew='  presentation: ScenePresentationKind;\n  presentationKind: ScenePresentationKind;\n  preservesCheckpoint:';
+          const typeNew='  presentation: ScenePresentationKind;\n  presentationKind?: ScenePresentationKind;\n  preservesCheckpoint:';
           if(!s.includes(typeOld)) throw new Error('intent type marker missing');
           s=s.replace(typeOld,typeNew);
           const retOld='      presentation,\n      preservesCheckpoint,';
@@ -64,6 +64,12 @@ jobs:
           echo '===== PERSIST SCENE ====='
           grep -n "persistScene\|scene-commit" src/src/screens/AdventureScreenV3.tsx || true
           nl -ba src/src/screens/AdventureScreenV3.tsx | sed -n '400,560p'
+
+      - name: Inspect api initial ordering
+        shell: bash
+        run: |
+          echo '===== API SERVICE ====='
+          nl -ba src/src/services/api.ts | sed -n '1,140p'
 
       - name: Install and run critical gates
         working-directory: src
