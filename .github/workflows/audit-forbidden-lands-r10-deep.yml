@@ -1,0 +1,87 @@
+name: Forbidden Lands R10 Deep State Audit
+
+on:
+  push:
+    paths:
+      - '.github/workflows/audit-forbidden-lands-r10-deep.yml'
+      - 'ci/forbidden-lands-r10/verify-r10-longterm-audit.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/9U2Qwn54TgjB"
+  SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6_1_SOURCE.zip"
+
+jobs:
+  deep-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch exact source and apply R10
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE_ID=$(curl -fsSL "$FIRESTORAGE_API/files?maxResults=100" | jq -r --arg n "$SOURCE_NAME" '.files[] | select(.fileName==$n) | .fileId' | head -n1)
+          URL=$(curl -fsSL -X POST "$FIRESTORAGE_API/files/$FILE_ID/download" | jq -r '.downloadUrl')
+          rm -rf work/fl && mkdir -p work/fl
+          curl -fL --retry 3 "$URL" -o work/source.zip
+          unzip -q work/source.zip -d work/fl
+          node ci/forbidden-lands-r10/apply-r10.mjs work/fl
+          cp ci/forbidden-lands-r10/verify-r10-longterm-audit.mjs work/fl/scripts/verify-r10-longterm-audit.mjs
+      - name: Install dependencies
+        working-directory: work/fl
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --package-lock=false --no-audit --no-fund jsdom@26
+      - name: Deep subsystem audit
+        working-directory: work/fl
+        shell: bash
+        run: |
+          set +e
+          tests=(
+            "verify:character-creation"
+            "verify:character-generation-stress"
+            "verify:backup-roundtrip"
+            "verify:persistence-closure"
+            "verify:survival-persistence"
+            "verify:journey-full"
+            "verify:journey-closure"
+            "verify:journey-complications"
+            "verify:journey-assistance"
+            "verify:journey-official-encounters"
+            "verify:journey-maritime"
+            "verify:journey-camp-equipment"
+            "verify:journey-harvest"
+            "verify:journey-hunt-choice"
+            "verify:journey-cook-tan"
+            "verify:runtime-integration-v3"
+            "verify:runtime-playthroughs-v3"
+          )
+          failed=0
+          : > deep-audit-results.txt
+          for t in "${tests[@]}"; do
+            echo "===== $t =====" | tee -a deep-audit-results.txt
+            npm run "$t" 2>&1 | tee -a deep-audit-results.txt
+            code=${PIPESTATUS[0]}
+            if [ "$code" -ne 0 ]; then
+              echo "AUDIT_FAIL $t exit=$code" | tee -a deep-audit-results.txt
+              failed=$((failed+1))
+            else
+              echo "AUDIT_PASS $t" | tee -a deep-audit-results.txt
+            fi
+          done
+          echo "===== custom longterm audit =====" | tee -a deep-audit-results.txt
+          node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-r10-longterm-audit.mjs 2>&1 | tee -a deep-audit-results.txt
+          code=${PIPESTATUS[0]}
+          if [ "$code" -ne 0 ]; then failed=$((failed+1)); fi
+          echo "TOTAL_FAILED=$failed" | tee -a deep-audit-results.txt
+          exit "$failed"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: FORBIDDEN_LANDS_R10_DEEP_AUDIT_RESULTS
+          path: work/fl/deep-audit-results.txt
+          retention-days: 7
