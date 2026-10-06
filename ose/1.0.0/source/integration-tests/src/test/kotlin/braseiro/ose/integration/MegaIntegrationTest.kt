@@ -27,6 +27,10 @@ class MegaIntegrationTest {
         }
         override fun load(campaignId: CampaignId): CampaignLoadResult =
             store[campaignId.value]?.let { CampaignLoadResult.Loaded(it) } ?: CampaignLoadResult.NotFound(campaignId)
+        override fun replace(envelope: CampaignEnvelope) {
+            check(store.containsKey(envelope.campaignId.value))
+            store[envelope.campaignId.value] = envelope
+        }
         override fun commit(campaignId: CampaignId, transition: StateTransition) {
             val current = store[campaignId.value] ?: error("missing campaign")
             store[campaignId.value] = current.copy(campaignState = transition.updatedState)
