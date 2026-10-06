@@ -1,0 +1,256 @@
+name: Forbidden Lands 3.3.5 Master No Freeze R5 - BRELGA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-forbidden-lands-3.3.5-pf2-r34-parity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: forbidden-lands-3.3.5-pf2-r34-parity
+  cancel-in-progress: true
+
+env:
+  SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_MASTER_NO_FREEZE_R5_SOURCE.zip"
+  SOURCE_BYTES: "26720402"
+  SOURCE_SHA256: "beb0dfed129fbec7d7f95916a612cb1371f0352c8aad97ccb305b46f96b8df61"
+  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/D1hs320P0KfZ"
+  BUILD_ROOT: "D:\\brelga-fl-master-no-freeze-r5"
+  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_MASTER_NO_FREEZE_R5.apk"
+  TAG: "forbidden-lands-3.3.5-master-no-freeze-r5"
+  EXPECTED_SHA1: "9d0f1089b3fb6c225f1f59462750864e897c4d92"
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 240
+    steps:
+      - name: Configure BRELGA toolchain
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA, got $env:RUNNER_NAME" }
+          Remove-Item $env:BUILD_ROOT -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $env:BUILD_ROOT -Force | Out-Null
+          $nodeRoot='C:\actions-runner\_work\_tool\node'
+          $nodeDir=Get-ChildItem $nodeRoot -Directory | ForEach-Object { Get-ChildItem $_.FullName -Directory -ErrorAction SilentlyContinue } |
+            Where-Object { Test-Path (Join-Path $_.FullName 'node.exe') } | Sort-Object FullName -Descending | Select-Object -First 1
+          $javaRoot='C:\actions-runner\_work\_tool\Java_Temurin-Hotspot_jdk'
+          $javaDir=Get-ChildItem $javaRoot -Directory -Recurse | Where-Object { Test-Path (Join-Path $_.FullName 'bin\java.exe') } |
+            Sort-Object FullName -Descending | Select-Object -First 1
+          $sdk='C:\actions-runner\android-sdk'
+          if (-not $nodeDir -or -not $javaDir -or -not (Test-Path $sdk)) { throw 'BRELGA toolchain incomplete' }
+          $temp=Join-Path $env:BUILD_ROOT 'temp'; $gradle=Join-Path $env:BUILD_ROOT 'gradle-home'; $npm=Join-Path $env:BUILD_ROOT 'npm-cache'
+          New-Item -ItemType Directory -Path $temp,$gradle,$npm -Force | Out-Null
+          $newPath="$($nodeDir.FullName);$($javaDir.FullName)\bin;$env:PATH"
+          "PATH=$newPath" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "JAVA_HOME=$($javaDir.FullName)" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_HOME=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "TEMP=$temp" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "TMP=$temp" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "GRADLE_USER_HOME=$gradle" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "NPM_CONFIG_CACHE=$npm" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Download exact source
+        id: src
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $meta=Invoke-RestMethod -Method Get -Uri ($env:FIRESTORAGE_API + '/files?maxResults=100')
+          $file=$meta.files | Where-Object { $_.fileName -eq $env:SOURCE_NAME } | Select-Object -First 1
+          if (-not $file) { throw "Source not found: $env:SOURCE_NAME" }
+          $ticket=Invoke-RestMethod -Method Post -Uri ($env:FIRESTORAGE_API + '/files/' + $file.fileId + '/download')
+          $zip=Join-Path $env:BUILD_ROOT $env:SOURCE_NAME
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o $zip $ticket.downloadUrl
+          if ($LASTEXITCODE -ne 0) { throw 'Download failed' }
+          if ((Get-Item $zip).Length -ne [int64]$env:SOURCE_BYTES) { throw 'Source size mismatch' }
+          $hash=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($hash -ne $env:SOURCE_SHA256) { throw "Source SHA mismatch: $hash" }
+          $root=Join-Path $env:BUILD_ROOT 'project'; New-Item -ItemType Directory -Path $root -Force | Out-Null
+          & tar.exe -xf $zip -C $root
+          if ($LASTEXITCODE -ne 0) { throw 'Extraction failed' }
+          "root=$root" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Install dependencies
+        shell: powershell
+        working-directory: ${{ steps.src.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & npm.cmd ci --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
+          & node.exe -e "try{require.resolve('@rollup/rollup-win32-x64-msvc');process.exit(0)}catch{process.exit(1)}"
+          if ($LASTEXITCODE -ne 0) {
+            $v=(& node.exe -p "require('./node_modules/rollup/package.json').version").Trim()
+            & npm.cmd install --no-save --no-package-lock --no-audit --no-fund "@rollup/rollup-win32-x64-msvc@$v"
+          }
+          & node.exe -e "try{require.resolve('@esbuild/win32-x64');process.exit(0)}catch{process.exit(1)}"
+          if ($LASTEXITCODE -ne 0) {
+            $v=(& node.exe -p "require('./node_modules/esbuild/package.json').version").Trim()
+            & npm.cmd install --no-save --no-package-lock --no-audit --no-fund "@esbuild/win32-x64@$v"
+          }
+
+      - name: PF2 R34 parity invariants
+        shell: powershell
+        working-directory: ${{ steps.src.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & node.exe scripts/verify-pf2-r34-parity.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'PF2 R34 parity gate failed' }
+          & npm.cmd run verify:human-master-runtime
+          if ($LASTEXITCODE -ne 0) { throw 'Human Master runtime gate failed' }
+          & npm.cmd run verify:master-no-freeze-r5
+          if ($LASTEXITCODE -ne 0) { throw 'Master no-freeze R5 gate failed' }
+          & npm.cmd run lint
+          if ($LASTEXITCODE -ne 0) { throw 'TypeScript failed' }
+
+      - name: Targeted regression battery
+        shell: powershell
+        working-directory: ${{ steps.src.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $tests=@(
+            'verify-rag-not-required',
+            'verify:rag-off-kokoro-startup',
+            'verify:runtime-hotfix-3.3.5',
+            'verify:runtime-integration-v3',
+            'verify:runtime-playthroughs-v3',
+            'verify:dice-full',
+            'verify:adventure-sites-v2',
+            'verify:canonical-narrator-profile',
+            'verify:human-master-runtime',
+            'verify:google-drive-signing'
+          )
+          foreach($test in $tests){
+            Write-Host "=== $test ==="
+            & npm.cmd run $test
+            if($LASTEXITCODE -ne 0){throw "Targeted regression failed: $test"}
+          }
+
+      - name: Pre-sync Android assets for full regression
+        shell: powershell
+        working-directory: ${{ steps.src.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & npm.cmd run android:sync
+          if ($LASTEXITCODE -ne 0) { throw 'Pre-sync Android assets failed' }
+
+      - name: Full regression suite
+        shell: powershell
+        working-directory: ${{ steps.src.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & npm.cmd run verify
+          if ($LASTEXITCODE -ne 0) { throw 'Full regression suite failed' }
+
+      - name: Final Android sync and parity recheck
+        shell: powershell
+        working-directory: ${{ steps.src.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & npm.cmd run android:sync
+          if ($LASTEXITCODE -ne 0) { throw 'Android sync failed' }
+          & npm.cmd run verify:android
+          if ($LASTEXITCODE -ne 0) { throw 'Android verify failed' }
+          & npm.cmd run lint
+          if ($LASTEXITCODE -ne 0) { throw 'TypeScript regressed after Android sync' }
+          & node.exe scripts/verify-pf2-r34-parity.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'PF2 parity regressed after sync' }
+
+      - name: Build APK
+        shell: powershell
+        working-directory: ${{ steps.src.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & node.exe scripts/run-gradle-task.mjs assembleDebug
+          if ($LASTEXITCODE -ne 0) { throw 'assembleDebug failed' }
+
+      - name: Validate APK
+        id: apk
+        shell: powershell
+        env:
+          ROOT: ${{ steps.src.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $built=Join-Path $env:ROOT 'android\app\build\outputs\apk\debug\app-debug.apk'
+          if (-not (Test-Path $built)) { throw 'APK not produced' }
+          $out=Join-Path $env:BUILD_ROOT 'out'; New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $apk=Join-Path $out $env:APK_NAME; Copy-Item $built $apk -Force
+          $bt=Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          $aapt=Join-Path $bt.FullName 'aapt.exe'; $signer=Join-Path $bt.FullName 'apksigner.bat'
+          & $aapt dump badging $apk 2>&1 | Tee-Object -FilePath (Join-Path $out 'APK_BADGING.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'aapt failed' }
+          $badging=Get-Content (Join-Path $out 'APK_BADGING.txt') -Raw
+          if ($badging -notmatch "package: name='com\.braseiro\.forbiddenlands'") { throw 'Wrong package' }
+          & $signer verify --verbose --print-certs $apk 2>&1 | Tee-Object -FilePath (Join-Path $out 'APK_SIGNATURE.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'Signature invalid' }
+          $sig=Get-Content (Join-Path $out 'APK_SIGNATURE.txt') -Raw
+          $m=[regex]::Match($sig,'Signer #1 certificate SHA-1 digest:\s*([0-9A-Fa-f:]+)')
+          if (-not $m.Success) { throw 'Signer SHA-1 absent' }
+          $actual=($m.Groups[1].Value -replace ':','').ToLowerInvariant()
+          if ($actual -ne $env:EXPECTED_SHA1) { throw "Signer mismatch: $actual" }
+          $hash=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:APK_NAME" | Set-Content (Join-Path $out "$($env:APK_NAME).sha256") -Encoding ascii
+          @(
+            'STATUS=PASS',
+            "SOURCE_SHA256=$env:SOURCE_SHA256",
+            "APK_SHA256=$hash",
+            'PF2_R34_SINGLE_REMOTE_NARRATOR=PASS',
+            'CANONICAL_HUMAN_MASTER_PROFILE_SHA256=8e63dbdf963abd1bed88e7173de3adc22d1501557647bcf4a9d95ee096f75852',
+            'HUMAN_MASTER_RUNTIME_GATE=PASS',
+            'OPENING_TARGET_5000_6500_CHARS=PASS',
+            'ANTI_HUD_MENU_SANITIZER=PASS',
+            'AGENCY_EMOTION_HIJACK_GUARD=PASS',
+            'NO_REMOTE_PLANNER_CRITICAL_PATH=PASS',
+            'NO_REMOTE_ARBITER_CRITICAL_PATH=PASS',
+            'NO_ORPHAN_JS_TIMEOUT=PASS',
+            'RAG_ONLY_WHEN_MECHANICAL=PASS',
+            'ANDROID_GEMINI_THREADS=4',
+            'TEXT_MODEL_CHAIN_MAX=3',
+            'EXPERT_MAX_OUTPUT_TOKENS=4600',
+            'FULL_REGRESSION=PASS',
+            'ANDROID_BUILD=PASS'
+          ) | Set-Content (Join-Path $out 'PF2_R34_PARITY_PROOF.txt') -Encoding utf8
+          "dir=$out" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.5_MASTER_NO_FREEZE_R5
+          path: |
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_MASTER_NO_FREEZE_R5.apk
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_MASTER_NO_FREEZE_R5.apk.sha256
+            ${{ steps.apk.outputs.dir }}/APK_BADGING.txt
+            ${{ steps.apk.outputs.dir }}/APK_SIGNATURE.txt
+            ${{ steps.apk.outputs.dir }}/PF2_R34_PARITY_PROOF.txt
+          retention-days: 30
+
+      - name: Publish validated release
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          APK_DIR: ${{ steps.apk.outputs.dir }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $repo=$env:GITHUB_REPOSITORY
+          $headers=@{Authorization="Bearer $env:GITHUB_TOKEN";Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28';'User-Agent'='BRELGA-FL-PF2-PARITY'}
+          $release=$null
+          try{$release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:TAG"}catch{if($_.Exception.Response.StatusCode.value__ -ne 404){throw}}
+          if(-not $release){
+            $payload=@{tag_name=$env:TAG;target_commitish='main';name='Braseiro Forbidden Lands 3.3.5 - Master No Freeze R5';body='Correção estrutural do travamento do Mestre: transporte Gemini SSE como no Pathfinder estável, cancelamento nativo real por requestId, orçamento total curto, duas tentativas máximas, chamada principal sem responseSchema gigante, perfil humano compacto e badge explícito Gemini/fallback.';draft=$false;prerelease=$false}|ConvertTo-Json
+            $release=Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $payload -Uri "https://api.github.com/repos/$repo/releases"
+          }
+          $assets=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$($release.id)/assets?per_page=100"
+          foreach($name in @($env:APK_NAME,"$($env:APK_NAME).sha256",'APK_BADGING.txt','APK_SIGNATURE.txt','PF2_R34_PARITY_PROOF.txt')){
+            $path=Join-Path $env:APK_DIR $name
+            $old=$assets|Where-Object{$_.name -eq $name}|Select-Object -First 1
+            if($old){Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($old.id)"|Out-Null}
+            $mime=if($name -like '*.apk'){'application/vnd.android.package-archive'}else{'text/plain'}
+            $url="https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$([uri]::EscapeDataString($name))"
+            & curl.exe -L --fail -X POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "Content-Type: $mime" --data-binary "@$path" $url
+            if($LASTEXITCODE -ne 0){throw "Upload failed: $name"}
+          }
