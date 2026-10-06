@@ -1,0 +1,83 @@
+name: Fast Gate DnD RUN181 Core Flow
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/fast-gate-dnd-run181-core.yml']
+  workflow_dispatch:
+jobs:
+  gate:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 12
+    steps:
+      - name: Directed source audit
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $src='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
+          if(!(Test-Path $src)){throw 'RUN181 source cache missing'}
+          $py=@'
+          from pathlib import Path
+          import re, json
+          root=Path(r"C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e")
+          files=["CharacterSheetGenerator.java","CharacterRulesValidator.java","MainActivity.java","WorldStateEngine.java","LivingWorldEngine.java","LivingWorldCatchUpEngine.java","WorldSixCoordinator.java","AppDb.java","StateTransactionManager.java","SceneStateEngine.java"]
+          terms={
+            "character":["selectableClasses","validateSubclass","reconcileCharacterDependencies","characterRulesValidator","saveCharacter","updateCharacter","loadCharacter","levelUp","applyMechanics"],
+            "movement":["move","movement","travel","hex","position","coordinate","advance"],
+            "world":["weather","clima","hour","time","day","date","tick","catchUp","game_hours","world_state"],
+            "npc":["npc_memory","token_uri","portrait","active","dead","death","deleteNpc","updateNpc","listNpc","memory"],
+            "persistence":["saveStoryState","loadStoryState","SharedPreferences","INSERT","UPDATE","CREATE TABLE","transaction","commit","rollback","persist"]
+          }
+          print("=== FILE METHOD/SIGNAL AUDIT ===")
+          alltext={}
+          for fn in files:
+            p=root/fn
+            if not p.exists():
+              print("MISSING",fn); continue
+            txt=p.read_text(encoding="utf-8",errors="replace")
+            alltext[fn]=txt
+            lines=txt.splitlines()
+            print(f"### {fn} lines={len(lines)}")
+            for group,ks in terms.items():
+              hits=[]
+              for i,l in enumerate(lines,1):
+                if any(k.lower() in l.lower() for k in ks):
+                  s=l.strip()
+                  if len(s)>260:s=s[:260]
+                  hits.append((i,s))
+              if hits:
+                print(f"[{group}] count={len(hits)}")
+                for i,s in hits[:80]:
+                  print(f"{i}: {s}")
+          checks={}
+          C=alltext.get("CharacterSheetGenerator.java","")
+          V=alltext.get("CharacterRulesValidator.java","")
+          M=alltext.get("MainActivity.java","")
+          W=alltext.get("WorldStateEngine.java","")
+          L=alltext.get("LivingWorldEngine.java","")
+          LC=alltext.get("LivingWorldCatchUpEngine.java","")
+          DB=alltext.get("AppDb.java","")
+          ST=alltext.get("StateTransactionManager.java","")
+          checks["char_shared_authority"]="selectableClasses" in C and "CharacterOptionCatalogEngine.lookupClass" in V and "characterGenerator.selectableClasses" in M
+          checks["char_subclass_gate"]="validateSubclass" in V and "subclassAllowedForForm" in M
+          checks["char_reactive_dependencies"]="reconcileCharacterDependencies" in M and "bindCharacterDependencyListeners" in M
+          checks["char_save_validation"]="characterRulesValidator" in M and ("validate" in M)
+          checks["char_mechanics_recompute"]="applyMechanics" in C and "recomputeMechanics" in C
+          checks["movement_present"]=any(x in M.lower() for x in ["movement","travel","move"])
+          checks["movement_world_link"]=("advance" in M.lower() or "advance" in W.lower()) and ("time" in W.lower() or "hour" in W.lower())
+          checks["weather_world_state"]="weather" in W.lower() or "clima" in W.lower()
+          checks["living_world_tick"]="tick" in L.lower()
+          checks["catchup_preview_commit"]="preview" in LC.lower() and "commit" in LC.lower()
+          checks["npc_db_record"]="npc_memory" in DB.lower()
+          checks["npc_portrait_persistent"]="token_uri" in DB.lower()
+          checks["npc_lifecycle"]="active" in DB.lower() and any(x in DB.lower() for x in ["delete","dead","death"])
+          checks["save_load"]="saveStoryState" in M and "loadStoryState" in M
+          checks["transaction_layer"]="commit" in ST.lower() and ("rollback" in ST.lower() or "transaction" in ST.lower())
+          print("=== CHECKS ===")
+          for k,v in checks.items(): print(("PASS" if v else "FAIL"),k)
+          print("SUMMARY",json.dumps(checks,ensure_ascii=False))
+          if not all(checks.values()):
+            raise SystemExit(2)
+          '@
+          $tmp="$env:RUNNER_TEMP\fast_gate.py"
+          Set-Content -Path $tmp -Value $py -Encoding utf8
+          python $tmp
