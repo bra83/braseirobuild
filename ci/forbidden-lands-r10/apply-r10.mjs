@@ -32,6 +32,9 @@ function replaceOptional(text, oldText, newText) {
   const file = p('scripts','verify-bugreport-freeze-2026-10-05.mjs');
   let s = fs.readFileSync(file,'utf8');
   s = replaceOptional(s, 'assert.match(adventure, /\\[MASTER_FLOW\\] scene-commit:start/);', "assert.match(adventure, /masterTrace\\('scene-commit:start'/);");
+  s = replaceOptional(s,
+    "assert.match(adventure, /send\\(action, undefined, false, undefined, 'suggested'\\)/);",
+    "assert.match(adventure, /onChoose=\\{value => void send\\(value, undefined, false, undefined, 'suggested'\\)\\}/);");
   fs.writeFileSync(file,s,'utf8');
 }
 {
