@@ -80,6 +80,15 @@ jobs:
           if(!d.includes(auditOld)) throw new Error('stale disconnect audit window not found');
           d=d.replace(auditOld,auditNew);
           fs.writeFileSync(audit,d,'utf8');
+
+          const adventure='src/src/screens/AdventureScreenV3.tsx';
+          let v=fs.readFileSync(adventure,'utf8');
+          const choiceOld='onClick={() => void send(action)}';
+          const choiceNew="onClick={() => void send(action, undefined, false, undefined, 'suggested')}";
+          if(!v.includes(choiceOld) && !v.includes(choiceNew)) throw new Error('suggested choice click anchor not found');
+          if(v.includes(choiceOld)) v=v.replace(choiceOld,choiceNew);
+          if(!v.includes(choiceNew)) throw new Error('suggested choice source routing not applied');
+          fs.writeFileSync(adventure,v,'utf8');
           NODE
 
       - name: Install and run full R7 regression
