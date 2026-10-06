@@ -256,6 +256,44 @@ t = t.replace(old, new, 1)
 write(name, t)
 
 # ---------------------------------------------------------------------
+# 5) Kokoro/Sherpa profile: if the VTT owns explicit neural timing params,
+#    keep the proven short punctuation-silence profile. If the VTT does not
+#    own them, leave them engine-owned (same conclusion as Forbidden Lands).
+# ---------------------------------------------------------------------
+tts_report=[]
+tts_root=root / "android" / "app" / "src" / "main"
+for p in list(tts_root.rglob("*.java")) + list(tts_root.rglob("*.kt")):
+    try:
+        s=p.read_text(encoding="utf-8")
+    except Exception:
+        continue
+    if not any(k in s for k in ("TextToSpeech","Kokoro","Sherpa","silenceScale","maxNumSentences","numThreads")):
+        continue
+    original=s
+    # Only rewrite explicit key/value pairs already owned by the VTT.
+    s=re.sub(r'("silenceScale"\s*,\s*)(?:0?\.\d+|\d+\.\d+)(f?)',r'\g<1>0.06\2',s)
+    s=re.sub(r'("braseiro\.kokoro\.silenceScale"\s*,\s*)(?:0?\.\d+|\d+\.\d+)(f?)',r'\g<1>0.06\2',s)
+    s=re.sub(r'("maxNumSentences"\s*,\s*)\d+',r'\g<1>2',s)
+    s=re.sub(r'("braseiro\.kokoro\.maxNumSentences"\s*,\s*)\d+',r'\g<1>2',s)
+    s=re.sub(r'("numThreads"\s*,\s*)\d+',r'\g<1>4',s)
+    s=re.sub(r'("braseiro\.kokoro\.numThreads"\s*,\s*)\d+',r'\g<1>4',s)
+    if s != original:
+        p.write_text(s,encoding="utf-8",newline="\n")
+    tts_report.append({
+        "file":str(p.relative_to(root)),
+        "explicit_silenceScale":'"silenceScale"' in s or '"braseiro.kokoro.silenceScale"' in s,
+        "queue_add":"TextToSpeech.QUEUE_ADD" in s,
+        "queue_flush":"TextToSpeech.QUEUE_FLUSH" in s,
+        "onDone":"onDone" in s,
+        "kokoro":"Kokoro" in s or "kokoro" in s,
+        "sherpa":"Sherpa" in s or "sherpa" in s,
+    })
+(root/"RUN181_TTS_AUDIT.json").write_text(json.dumps(tts_report,ensure_ascii=False,indent=2),encoding="utf-8")
+print("TTS_FILES",len(tts_report))
+for row in tts_report:
+    print("TTS",json.dumps(row,ensure_ascii=False))
+
+# ---------------------------------------------------------------------
 # Static assertions.
 # ---------------------------------------------------------------------
 checks = {
