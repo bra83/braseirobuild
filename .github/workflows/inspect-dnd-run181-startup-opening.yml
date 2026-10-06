@@ -1,0 +1,44 @@
+name: Inspect DnD RUN181 Startup Opening
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-run181-startup-opening.yml']
+  workflow_dispatch:
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 15
+    steps:
+      - name: Inspect startup and opening
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $src='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
+          if(!(Test-Path $src)){throw 'RUN181 source cache missing'}
+          $targets=@(
+            'MainActivity.java',
+            'MasterOrchestrator.java',
+            'MasterRulesArbiter.java',
+            'GeminiClient.java',
+            'MasterGameContext.java',
+            'WorldStateEngine.java'
+          )
+          $patterns='onCreate|buildShell|setContentView|loadStoryState|ensureNativeTtsInitialized|runStartupSafetyCheckAsync|prepareAudioStorageAndInitializeAsync|Preparando a abertura|abertura|opening|startAdventure|beginAdventure|Gemini|timeout|await|Future|get\(|CountDownLatch|Thread\.sleep|runOnUiThread|local offline|Mestre local|fallback|scene'
+          foreach($n in $targets){
+            $p=Join-Path $src $n
+            if(!(Test-Path $p)){continue}
+            "===== $n ====="
+            $ls=Get-Content $p
+            $ms=Select-String -Path $p -Pattern $patterns -AllMatches
+            $nums=$ms|Select-Object -ExpandProperty LineNumber -Unique
+            $ranges=@()
+            foreach($num in $nums){
+              $a=[Math]::Max(1,$num-10);$b=[Math]::Min($ls.Count,$num+28)
+              if($ranges.Count -gt 0 -and $a -le ($ranges[$ranges.Count-1][1]+1)){$ranges[$ranges.Count-1][1]=[Math]::Max($ranges[$ranges.Count-1][1],$b)}
+              else{$ranges+=,@($a,$b)}
+            }
+            foreach($r in $ranges){
+              "--- $($r[0])-$($r[1]) ---"
+              for($i=$r[0];$i -le $r[1];$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}
+            }
+          }
