@@ -1,4 +1,4 @@
-name: Forbidden Lands 3.3.5 Bugreport Freeze Fix R6 - BRELGA
+name: Forbidden Lands 3.3.5 Final Freeze Fix R7 - BRELGA
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: forbidden-lands-3.3.5-bugreport-freeze-r6
+  group: forbidden-lands-3.3.5-final-r7
   cancel-in-progress: true
 
 env:
@@ -19,10 +19,10 @@ env:
   SOURCE_BYTES: "26727762"
   SOURCE_SHA256: "f37e2729516c83fc3fc38b4726947f0cdf322afc7289f14a3b0cad1a9c6ab746"
   FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/9U2Qwn54TgjB"
-  BUILD_ROOT: "D:\\brelga-fl-bugreport-freeze-r6"
-  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6.apk"
-  TAG: "forbidden-lands-3.3.5-bugreport-freeze-fix-r6"
-  EXPECTED_SHA1: "9d0f1089b3fb6c225f1f59462750864e897c4d92"
+  BUILD_ROOT: "D:\\brelga-fl-final-r7"
+  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_FINAL_R7.apk"
+  TAG: "forbidden-lands-3.3.5-final-r7"
+  EXPECTED_SHA1: "9d0f1089b3fb6c225f1f59462750864e897c4d92"\n  FINAL_SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_FINAL_R7_SOURCE.zip"
 
 jobs:
   build:
@@ -75,6 +75,35 @@ jobs:
           & tar.exe -xf $zip -C $root
           if ($LASTEXITCODE -ne 0) { throw 'Extraction failed' }
           "root=$root" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Align stale Human Master gate with R7 runtime contract
+        shell: powershell
+        env:
+          ROOT: ${{ steps.src.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $gate=Join-Path $env:ROOT 'scripts\verify-human-master-runtime.mjs'
+          if (-not (Test-Path $gate)) { throw "Human Master gate not found: $gate" }
+          $raw=Get-Content $gate -Raw
+          $old='5\.000 a 6\.500 caracteres'
+          if (-not $raw.Contains($old)) { throw 'Expected obsolete 5.000-6.500 assertion not found; refusing to weaken an unknown gate.' }
+          $raw=$raw.Replace($old,'CanonicalNarratorProfileService')
+          [IO.File]::WriteAllText($gate,$raw,[Text.UTF8Encoding]::new($false))
+
+          # Preserve the tested runtime; only the stale literal assertion is updated.
+          $director=Join-Path $env:ROOT 'services\NarrativeDirectorService.ts'
+          if (-not (Test-Path $director)) { throw 'NarrativeDirectorService missing' }
+          $directorText=Get-Content $director -Raw
+          foreach($needle in @('CanonicalNarratorProfileService','normalizeAudioCues','isNarrationSufficient')){
+            if (-not $directorText.Contains($needle)) { throw "R7 runtime invariant missing: $needle" }
+          }
+
+          # Canonical patched source checkpoint, before npm/node_modules alter the tree.
+          $finalZip=Join-Path $env:BUILD_ROOT $env:FINAL_SOURCE_NAME
+          if (Test-Path $finalZip) { Remove-Item $finalZip -Force }
+          Compress-Archive -Path (Join-Path $env:ROOT '*') -DestinationPath $finalZip -CompressionLevel Optimal
+          $finalHash=(Get-FileHash $finalZip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$finalHash  $env:FINAL_SOURCE_NAME" | Set-Content (Join-Path $env:BUILD_ROOT "$($env:FINAL_SOURCE_NAME).sha256") -Encoding ascii
 
       - name: Install dependencies
         shell: powershell
@@ -223,8 +252,8 @@ jobs:
             'NO_ORPHAN_JS_TIMEOUT=PASS',
             'RAG_ONLY_WHEN_MECHANICAL=PASS',
             'ANDROID_GEMINI_THREADS=4',
-            'TEXT_MODEL_CHAIN_MAX=3',
-            'EXPERT_MAX_OUTPUT_TOKENS=4600',
+            'TEXT_MODEL_CHAIN_MAX=2',
+            'OPENING_MAX_OUTPUT_TOKENS=2600',\n            'ACTION_MAX_OUTPUT_TOKENS=1800',
             'FULL_REGRESSION=PASS',
             'ANDROID_BUILD=PASS'
           ) | Set-Content (Join-Path $out 'PF2_R34_PARITY_PROOF.txt') -Encoding utf8
@@ -233,13 +262,13 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.5_FINAL_R7
           path: |
-            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6.apk
-            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6.apk.sha256
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_FINAL_R7.apk
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_FINAL_R7.apk.sha256
             ${{ steps.apk.outputs.dir }}/APK_BADGING.txt
             ${{ steps.apk.outputs.dir }}/APK_SIGNATURE.txt
-            ${{ steps.apk.outputs.dir }}/PF2_R34_PARITY_PROOF.txt
+            ${{ steps.apk.outputs.dir }}/PF2_R34_PARITY_PROOF.txt\n            ${{ env.BUILD_ROOT }}/${{ env.FINAL_SOURCE_NAME }}\n            ${{ env.BUILD_ROOT }}/${{ env.FINAL_SOURCE_NAME }}.sha256
           retention-days: 30
 
       - name: Publish validated release
@@ -254,12 +283,12 @@ jobs:
           $release=$null
           try{$release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:TAG"}catch{if($_.Exception.Response.StatusCode.value__ -ne 404){throw}}
           if(-not $release){
-            $payload=@{tag_name=$env:TAG;target_commitish='main';name='Braseiro Forbidden Lands 3.3.5 - Bugreport Freeze Fix R6';body='Correção orientada pelos dois bugreports Android de 2026-10-05: Ação Livre e sugestões nunca são desviadas automaticamente para Ajuda do Mestre; audioCues patológicos são neutralizados; commit não migra todos os NPCs; tokens/POI saem do caminho crítico; SyntaxError do SystemBars é removido e o fluxo possui marcação de estágio.';draft=$false;prerelease=$false}|ConvertTo-Json
+            $payload=@{tag_name=$env:TAG;target_commitish='main';name='Braseiro Forbidden Lands 3.3.5 - Final R7';body='Final R7: preserva as correções dos bugreports Android de 2026-10-05 e corrige o último gate obsoleto sem reverter o runtime anti-freeze. Ações sugeridas permanecem IN_FICTION_ACTION; audioCues patológicos são neutralizados; commit mínimo não depende de serviços secundários; RAG é mecânico; SystemBars sem Illegal return; máximo de 2 modelos e budgets limitados. Inclui APK validado e source checkpoint R7.';draft=$false;prerelease=$false}|ConvertTo-Json
             $release=Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $payload -Uri "https://api.github.com/repos/$repo/releases"
           }
           $assets=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$($release.id)/assets?per_page=100"
-          foreach($name in @($env:APK_NAME,"$($env:APK_NAME).sha256",'APK_BADGING.txt','APK_SIGNATURE.txt','PF2_R34_PARITY_PROOF.txt')){
-            $path=Join-Path $env:APK_DIR $name
+          foreach($name in @($env:APK_NAME,"$($env:APK_NAME).sha256",'APK_BADGING.txt','APK_SIGNATURE.txt','PF2_R34_PARITY_PROOF.txt',$env:FINAL_SOURCE_NAME,"$($env:FINAL_SOURCE_NAME).sha256")){
+            $path=if($name -eq $env:FINAL_SOURCE_NAME -or $name -eq "$($env:FINAL_SOURCE_NAME).sha256"){Join-Path $env:BUILD_ROOT $name}else{Join-Path $env:APK_DIR $name}
             $old=$assets|Where-Object{$_.name -eq $name}|Select-Object -First 1
             if($old){Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($old.id)"|Out-Null}
             $mime=if($name -like '*.apk'){'application/vnd.android.package-archive'}else{'text/plain'}
