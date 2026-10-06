@@ -80,4 +80,4 @@ jobs:
           '@
           $tmp="$env:RUNNER_TEMP\fast_gate.py"
           Set-Content -Path $tmp -Value $py -Encoding utf8
-          python $tmp
+          $env:PYTHONIOENCODING='utf-8'\n          python $tmp
