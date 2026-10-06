@@ -1,0 +1,90 @@
+name: Deep Gate DnD RUN181 Persistence Flow
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/deep-gate-dnd-run181-persistence.yml']
+  workflow_dispatch:
+jobs:
+  gate:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 45
+    steps:
+      - name: Extract critical runtime contracts
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $proj='C:\DND181\extract\dnd_work'
+          $src="$proj\android\app\src\main\java\com\braseiro\dnd5e"
+          if(!(Test-Path $src)){throw 'RUN181 source cache missing'}
+          $out='C:\DND181\out\RUN181_DEEP_FLOW_AUDIT.txt'
+          New-Item -ItemType Directory -Force -Path 'C:\DND181\out' | Out-Null
+          "DEEP FLOW AUDIT" | Set-Content $out -Encoding utf8
+          function Dump([string]$file,[string]$regex){
+            $p=Join-Path $src $file
+            if(!(Test-Path $p)){"MISSING $file" | Add-Content $out;return}
+            "===== $file =====" | Add-Content $out
+            $ls=Get-Content $p
+            $ms=Select-String -Path $p -Pattern $regex -AllMatches
+            $ranges=@()
+            foreach($m in $ms){
+              $a=[Math]::Max(1,$m.LineNumber-10);$b=[Math]::Min($ls.Count,$m.LineNumber+35)
+              if($ranges.Count -gt 0 -and $a -le ($ranges[$ranges.Count-1][1]+1)){$ranges[$ranges.Count-1][1]=[Math]::Max($ranges[$ranges.Count-1][1],$b)}
+              else{$ranges+=,@($a,$b)}
+            }
+            foreach($r in $ranges){
+              "--- $($r[0])-$($r[1]) ---" | Add-Content $out
+              for($i=$r[0];$i -le $r[1];$i++){"{0,6}: {1}" -f $i,$ls[$i-1] | Add-Content $out}
+            }
+          }
+          Dump 'WorldStateEngine.java' 'advance|weather|clima|hour|time|day|date|persist|save|load|state'
+          Dump 'LivingWorldEngine.java' 'tick|advance|npc|weather|clima|time|persist|event|settlement|faction'
+          Dump 'LivingWorldCatchUpEngine.java' 'preview|commit|game_hours|last|persist|transaction|tick'
+          Dump 'WorldSixCoordinator.java' 'tick|commit|world|event|persist'
+          Dump 'AppDb.java' 'CREATE TABLE.*npc|npc_memory|token_uri|active|dead|death|world_state|story_state|transaction|updateNpc|deleteNpc|listNpc'
+          Dump 'MainActivity.java' 'move|travel|advanceWorld|advanceTime|saveStoryState|loadStoryState|runLivingWorldCatchUpAsync|runWorldSixAsync|setNpc|token_uri|deleteNpcMemory'
+          Dump 'StateTransactionManager.java' 'begin|commit|rollback|transaction|state'
+          Dump 'SceneStateEngine.java' 'persist|save|load|scene|weather|time|npc'
+
+          $checks=[ordered]@{}
+          $all=Get-Content $out -Raw
+          $checks['movement_has_time_effect']=$all -match 'move|travel' -and $all -match 'advance|time|hour'
+          $checks['catchup_preview_commit']=$all -match 'preview' -and $all -match 'commit'
+          $checks['npc_has_stable_db_record']=$all -match 'npc_memory'
+          $checks['npc_portrait_persists']=$all -match 'token_uri'
+          $checks['npc_lifecycle_persists']=$all -match 'active|dead|death'
+          $checks['story_save_load']=$all -match 'saveStoryState' -and $all -match 'loadStoryState'
+          $checks['world_time_weather_state']=$all -match 'weather|clima' -and $all -match 'hour|time'
+          "===== CHECKS =====" | Add-Content $out
+          $checks.GetEnumerator()|ForEach-Object{"$(if($_.Value){'PASS'}else{'FAIL'}) $($_.Key)" | Add-Content $out}
+          Get-Content $out | Select-Object -First 2200
+          if($checks.Values -contains $false){exit 2}
+
+      - name: Compile
+        shell: powershell
+        run: |
+          $android='C:\DND181\extract\dnd_work\android'
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){$j='C:\Program Files\Android\Android Studio\jbr';if(Test-Path "$j\bin\java.exe"){$env:JAVA_HOME=$j;$env:Path="$j\bin;$env:Path"}}
+          if(!$env:ANDROID_HOME){$env:ANDROID_HOME="$env:LOCALAPPDATA\Android\Sdk"}
+          $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          Set-Location $android
+          .\gradlew.bat :app:compileDebugJavaWithJavac --no-daemon --console=plain
+
+      - name: Existing unit tests
+        shell: powershell
+        continue-on-error: true
+        run: |
+          $android='C:\DND181\extract\dnd_work\android'
+          Set-Location $android
+          .\gradlew.bat :app:testDebugUnitTest --no-daemon --console=plain 2>&1 | Tee-Object 'C:\DND181\out\RUN181_DEEP_UNIT_TESTS.txt'
+          "EXIT=$LASTEXITCODE" | Add-Content 'C:\DND181\out\RUN181_DEEP_UNIT_TESTS.txt'
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: DND_RUN181_DEEP_FLOW_AUDIT
+          path: |
+            C:\DND181\out\RUN181_DEEP_FLOW_AUDIT.txt
+            C:\DND181\out\RUN181_DEEP_UNIT_TESTS.txt
+          if-no-files-found: warn
+          retention-days: 7
