@@ -45,10 +45,11 @@ class CombatMovementLightStateFlowTest {
                 expedition=ExpeditionSnapshot(lightSources=listOf(LightSourceSnapshot("t2",LightSourceKind.TORCH,"hero",6,true)))
             )))
         }
-        val before=rng.snapshot().streams.getValue(RngStreamId.RULES_DICE).counter
+        // A named stream is materialized lazily on its first draw. Treat an absent stream as counter zero.
+        val before=rng.snapshot().streams[RngStreamId.RULES_DICE]?.counter ?: 0L
         val out=boundary.resolve(e,"ENCOUNTER_SURPRISE:BOTH",rng)
-        val after=rng.snapshot().streams.getValue(RngStreamId.RULES_DICE).counter
-        assertEquals(1,after-before)
+        val after=rng.snapshot().streams[RngStreamId.RULES_DICE]?.counter ?: 0L
+        assertEquals(1L,after-before)
         assertFalse(out.updatedState.game.encounter!!.oppositionSurprised!!)
         assertTrue(out.trace.evidence.any{it.ruleId=="LIGHT.SURPRISE"})
     }
@@ -69,9 +70,9 @@ class CombatMovementLightStateFlowTest {
         val boundary=RulesRefereeBoundary(); val rng=NamedRngStreams.fromRootSeed(9u); var e=envelope(options=listOf("OPT.ENCUMBRANCE=BASIC","OPT.INDIVIDUAL_INITIATIVE"))
         fun apply(c:String)=boundary.resolve(e,c,rng).also{e=e.copy(campaignState=it.updatedState)}
         apply("COMBAT_ROUND_START"); apply("COMBAT_DECLARATIONS_DONE")
-        val before=rng.snapshot().streams.getValue(RngStreamId.RULES_DICE).counter
+        val before=rng.snapshot().streams[RngStreamId.RULES_DICE]?.counter ?: 0L
         val out=apply("COMBAT_INIT_SIDE")
-        val after=rng.snapshot().streams.getValue(RngStreamId.RULES_DICE).counter
+        val after=rng.snapshot().streams[RngStreamId.RULES_DICE]?.counter ?: 0L
         assertFalse(out.mechanicalMutation); assertFalse(out.rngConsumed); assertEquals(before,after)
     }
 }
