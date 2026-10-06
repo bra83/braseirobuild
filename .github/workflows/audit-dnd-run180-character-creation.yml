@@ -1,0 +1,79 @@
+name: Audit DnD RUN180 Character Creation
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/audit-dnd-run180-character-creation.yml']
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 30
+    steps:
+      - name: Audit RUN180 creation pipeline
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Runner incorreto: $env:RUNNER_NAME"}
+          $root='C:\DND180\extract\dnd_work'
+          if(!(Test-Path $root)){throw "RUN180 source cache ausente"}
+          $out="$env:RUNNER_TEMP\DND_RUN180_CHARACTER_CREATION_AUDIT.txt"
+          "RUNNER=$env:RUNNER_NAME" | Set-Content $out -Encoding utf8
+          "ROOT=$root" | Add-Content $out -Encoding utf8
+          "=== MATCH FILES ===" | Add-Content $out -Encoding utf8
+
+          $patterns=@(
+            'Caçador de Sangue','Cacador de Sangue','Blood Hunter',
+            'Snatchbeak','Kenku','Mythic',
+            'Ficha não passou','Classe não reconhecida','classe não reconhecida',
+            'subclasse','subclass','antecedente','background','alinhamento','alignment',
+            'conceito','concept','atributo','attribute','ability',
+            'random','aleat','generateCharacter','generateRandom','validateForSave',
+            'classCatalog','speciesCatalog','raceCatalog'
+          )
+          $exts='*.java','*.kt','*.ts','*.tsx','*.js','*.jsx','*.json','*.html'
+          $files=Get-ChildItem $root -Recurse -File -Include $exts -ErrorAction SilentlyContinue
+          $hits=@()
+          foreach($p in $patterns){
+            $m=$files | Select-String -Pattern $p -SimpleMatch -ErrorAction SilentlyContinue
+            foreach($x in $m){
+              $hits += [pscustomobject]@{Pattern=$p;Path=$x.Path;Line=$x.LineNumber;Text=$x.Line.Trim()}
+            }
+          }
+          $hits | Sort-Object Path,Line,Pattern | ForEach-Object {
+            "[$($_.Pattern)] $($_.Path):$($_.Line) :: $($_.Text)" | Add-Content $out -Encoding utf8
+          }
+
+          "=== PRIORITY FILES ===" | Add-Content $out -Encoding utf8
+          $priority=$hits | Where-Object {
+            $_.Pattern -match 'Caçador|Cacador|Blood Hunter|Snatchbeak|Kenku|Mythic|Ficha não passou|não reconhecida|generateRandom|validateForSave'
+          } | Select-Object -ExpandProperty Path -Unique
+          foreach($p in $priority){
+            "### FILE: $p" | Add-Content $out -Encoding utf8
+            $lines=Get-Content $p
+            $lineNums=($hits | Where-Object {$_.Path -eq $p} | Select-Object -ExpandProperty Line -Unique)
+            foreach($n in $lineNums){
+              $a=[Math]::Max(1,$n-12);$b=[Math]::Min($lines.Count,$n+20)
+              "--- around $n ($a-$b) ---" | Add-Content $out -Encoding utf8
+              for($i=$a;$i -le $b;$i++){"{0,6}: {1}" -f $i,$lines[$i-1] | Add-Content $out -Encoding utf8}
+            }
+          }
+
+          "=== CATALOG / VALIDATOR CROSSCHECK ===" | Add-Content $out -Encoding utf8
+          $catalogFiles=$hits | Where-Object {$_.Pattern -match 'classCatalog|speciesCatalog|raceCatalog|Blood Hunter|Caçador|Kenku|Snatchbeak'} | Select-Object -ExpandProperty Path -Unique
+          $validatorFiles=$hits | Where-Object {$_.Pattern -match 'validateForSave|Ficha não passou|não reconhecida'} | Select-Object -ExpandProperty Path -Unique
+          "CATALOG_FILES=$($catalogFiles -join ';')" | Add-Content $out -Encoding utf8
+          "VALIDATOR_FILES=$($validatorFiles -join ';')" | Add-Content $out -Encoding utf8
+
+          "=== FILE COUNT ===" | Add-Content $out -Encoding utf8
+          "FILES_SCANNED=$($files.Count)" | Add-Content $out -Encoding utf8
+          "HITS=$($hits.Count)" | Add-Content $out -Encoding utf8
+          Get-Content $out
+
+      - name: Save audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DND_RUN180_CHARACTER_CREATION_AUDIT
+          path: ${{ runner.temp }}\DND_RUN180_CHARACTER_CREATION_AUDIT.txt
+          retention-days: 7
