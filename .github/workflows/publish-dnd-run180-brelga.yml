@@ -1,0 +1,65 @@
+name: Publish Braseiro DnD RUN180 APK from BRELGA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-dnd-run180-brelga.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 20
+    steps:
+      - name: Verify preserved RUN180 APK on BRELGA
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Runner incorreto: $env:RUNNER_NAME"}
+          $out='C:\DND180\out'
+          $apk=Join-Path $out 'BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk'
+          if(!(Test-Path $apk)){throw 'RUN180_APK_NOT_FOUND_ON_BRELGA'}
+          if(!$env:ANDROID_HOME){
+            $sdk="$env:LOCALAPPDATA\Android\Sdk"
+            if(Test-Path $sdk){$env:ANDROID_HOME=$sdk}
+          }
+          if(!$env:ANDROID_HOME -or !(Test-Path $env:ANDROID_HOME)){throw 'ANDROID_SDK_NOT_FOUND'}
+          $bt=Get-ChildItem "$env:ANDROID_HOME\build-tools" -Directory | Sort-Object {[version]$_.Name} -Descending | Select-Object -First 1
+          if(!$bt){throw 'BUILD_TOOLS_NOT_FOUND'}
+          $badging=(& "$($bt.FullName)\aapt.exe" dump badging $apk)-join "`n"
+          [IO.File]::WriteAllText((Join-Path $out 'APK_BADGING_RUN180.txt'),$badging,(New-Object Text.UTF8Encoding($false)))
+          if($badging -notmatch "package: name='com\.braseiro\.dnd5e'"){throw 'BAD_PACKAGE'}
+          if($badging -notmatch "versionCode='606280'"){throw 'BAD_VERSION_CODE'}
+          if($badging -notmatch "versionName='6\.6\.2-r180-debug'"){throw 'BAD_VERSION_NAME'}
+          $saved=$ErrorActionPreference
+          $ErrorActionPreference='Continue'
+          & "$($bt.FullName)\apksigner.bat" verify --verbose --print-certs $apk 2>&1 | Tee-Object (Join-Path $out 'APK_SIGNATURE_RUN180.txt')
+          $rc=$LASTEXITCODE
+          $ErrorActionPreference=$saved
+          if($rc -ne 0){throw "APK_SIGNATURE_FAILED rc=$rc"}
+          $sha=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$sha  BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk" | Set-Content (Join-Path $out 'BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk.sha256') -Encoding ascii
+          @(
+            "RUNNER_NAME=$env:RUNNER_NAME",
+            "PACKAGE=com.braseiro.dnd5e",
+            "VERSION_CODE=606280",
+            "VERSION_NAME=6.6.2-r180-debug",
+            "APK_SHA256=$sha"
+          ) | Set-Content (Join-Path $out 'RUN180_BUILD_PROOF.txt') -Encoding utf8
+          Write-Host "APK_SHA256=$sha"
+
+      - name: Upload RUN180 APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_DND_6.6.2_RUN180
+          path: |
+            C:\DND180\out\BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk
+            C:\DND180\out\BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk.sha256
+            C:\DND180\out\APK_BADGING_RUN180.txt
+            C:\DND180\out\APK_SIGNATURE_RUN180.txt
+            C:\DND180\out\RUN180_BUILD_PROOF.txt
+          if-no-files-found: error
