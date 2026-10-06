@@ -91,12 +91,17 @@ jobs:
           fs.writeFileSync(adventure,v,'utf8');
           NODE
 
-      - name: Inspect Forbidden Lands module wiring
+      - name: Inspect Forbidden Lands module details
         shell: bash
         run: |
           set -euo pipefail
-          echo '===== MODULE FILES / SYMBOLS ====='
-          grep -RInE --include='*.ts' --include='*.tsx' --include='*.mjs' \
-            'module|módulo|modulo|campaign pack|adventure pack|adventure site|selectedModule|activeModule|moduleId|moduleIds' src/src src/scripts | head -n 700 || true
-          echo '===== CAMPAIGN DIRECTOR ====='
-          find src/src -type f \( -name '*CampaignDirector*' -o -name '*Adventure*Module*' -o -name '*Module*Service*' \) -print
+          for f in \
+            src/src/screens/ModulesScreen.tsx \
+            src/src/services/ModuleRegistryService.ts \
+            src/src/services/CampaignModuleStateService.ts \
+            src/src/services/CampaignDirectorService.ts \
+            src/src/services/MasterContextBuilder.ts
+          do
+            echo "===== $f ====="
+            nl -ba "$f" | sed -n '1,340p'
+          done
