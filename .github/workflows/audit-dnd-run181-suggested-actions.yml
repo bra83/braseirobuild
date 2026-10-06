@@ -1,0 +1,37 @@
+name: Audit DnD RUN181 Suggested Actions
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/audit-dnd-run181-suggested-actions.yml']
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    steps:
+      - name: Inspect quick actions generation
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
+          if(!(Test-Path $root)){throw 'RUN181 source cache missing'}
+          $patterns='quick action|quick_action|suggestion|suggested action|ações rápidas|acoes rapidas|sugest|choice|choices|action chip|action button|narrator action|possible action|player action'
+          $files=Get-ChildItem $root -Recurse -File -Filter *.java
+          $hits=$files|Select-String -Pattern $patterns -AllMatches -ErrorAction SilentlyContinue
+          $paths=$hits|Select-Object -ExpandProperty Path -Unique
+          foreach($p in $paths){
+            "===== $p ====="
+            $ls=Get-Content $p
+            $ms=$hits|Where-Object {$_.Path -eq $p}
+            $nums=$ms|Select-Object -ExpandProperty LineNumber -Unique
+            $ranges=@()
+            foreach($n in $nums){
+              $a=[Math]::Max(1,$n-8);$b=[Math]::Min($ls.Count,$n+28)
+              if($ranges.Count -gt 0 -and $a -le ($ranges[$ranges.Count-1][1]+1)){$ranges[$ranges.Count-1][1]=[Math]::Max($ranges[$ranges.Count-1][1],$b)}
+              else{$ranges+=,@($a,$b)}
+            }
+            foreach($r in $ranges){
+              "--- $($r[0])-$($r[1]) ---"
+              for($i=$r[0];$i -le $r[1];$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}
+            }
+          }
