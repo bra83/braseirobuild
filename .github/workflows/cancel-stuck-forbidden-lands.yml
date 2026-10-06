@@ -1,0 +1,27 @@
+name: Cancel Stuck Forbidden Lands Build
+
+on:
+  push:
+    paths:
+      - '.github/workflows/cancel-stuck-forbidden-lands.yml'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel stuck BRELGA run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/37420390154/cancel"
+          echo "Cancellation requested for run 37420390154."
