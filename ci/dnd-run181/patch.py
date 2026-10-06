@@ -363,6 +363,8 @@ checks = {
     "ui_dependency_binding": "bindCharacterDependencyListeners(f,rulesProfile)" in read("MainActivity.java"),
     "ui_subclass_level_gate": "subclassMinimumLevelForForm" in read("MainActivity.java"),
     "ptbr_volo_label": "Manual de Sub-raças de Volo" in read("DndPtBrLocalizer.java"),
+    "a57_shell_insets": "applySamsungA57Compatibility(root)" in read("MainActivity.java"),
+    "a57_dialog_insets": "fitModernSamsungDialog(d)" in read("MainActivity.java"),
 }
 bad=[k for k,v in checks.items() if not v]
 print(json.dumps(checks, ensure_ascii=False, indent=2))
