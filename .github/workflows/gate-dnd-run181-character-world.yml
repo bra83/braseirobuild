@@ -1,0 +1,98 @@
+name: Gate DnD RUN181 Character Movement LivingWorld
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/gate-dnd-run181-character-world.yml']
+  workflow_dispatch:
+jobs:
+  gate:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 40
+    steps:
+      - name: Audit source contracts
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $proj='C:\DND181\extract\dnd_work'
+          $src="$proj\android\app\src\main\java\com\braseiro\dnd5e"
+          if(!(Test-Path $src)){throw 'RUN181 source cache missing'}
+          $out='C:\DND181\out\RUN181_INTEGRATION_GATE.txt'
+          "RUN181 CHARACTER + MOVEMENT + LIVING WORLD GATE" | Set-Content $out -Encoding utf8
+
+          function Has([string]$file,[string]$pattern){
+            $p=Join-Path $src $file
+            if(!(Test-Path $p)){return $false}
+            return [bool](Select-String -Path $p -Pattern $pattern -Quiet)
+          }
+          function Check([string]$name,[bool]$ok){
+            "$(if($ok){'PASS'}else{'FAIL'}) $name" | Tee-Object -FilePath $out -Append
+            if(-not $ok){$script:failed=$true}
+          }
+          $script:failed=$false
+
+          Check 'character.shared.class.authority' ((Has 'CharacterSheetGenerator.java' 'selectableClasses') -and (Has 'MainActivity.java' 'characterGenerator.selectableClasses') -and (Has 'CharacterRulesValidator.java' 'CharacterOptionCatalogEngine.lookupClass'))
+          Check 'character.subclass.class.level.gate' ((Has 'CharacterRulesValidator.java' 'validateSubclass') -and (Has 'MainActivity.java' 'subclassMinimumLevelForForm') -and (Has 'MainActivity.java' 'subclassAllowedForForm'))
+          Check 'character.dependencies.reactive' ((Has 'MainActivity.java' 'bindCharacterDependencyListeners') -and (Has 'MainActivity.java' 'reconcileCharacterDependencies'))
+          Check 'character.save.validator' (Has 'MainActivity.java' 'characterRulesValidator')
+          Check 'character.generator.mechanics' (Has 'CharacterSheetGenerator.java' 'applyMechanics')
+          Check 'character.no.fake.subclass' (-not (Has 'CharacterSheetGenerator.java' 'Subclasse disponível nos manuais habilitados'))
+          Check 'character.ptbr.localizer' (Has 'DndPtBrLocalizer.java' 'Manual de Sub-raças de Volo')
+
+          Check 'world.engine.present' (Test-Path (Join-Path $src 'WorldStateEngine.java'))
+          Check 'livingworld.engine.present' (Test-Path (Join-Path $src 'LivingWorldEngine.java'))
+          Check 'livingworld.catchup.present' (Test-Path (Join-Path $src 'LivingWorldCatchUpEngine.java'))
+          Check 'worldsix.coordinator.present' (Test-Path (Join-Path $src 'WorldSixCoordinator.java'))
+          Check 'movement.time.link' ((Has 'MainActivity.java' 'advance') -or (Has 'WorldStateEngine.java' 'advance'))
+          Check 'weather.state.link' ((Has 'WorldStateEngine.java' 'weather') -or (Has 'WorldStateEngine.java' 'clima'))
+          Check 'time.state.link' ((Has 'WorldStateEngine.java' 'hour') -or (Has 'WorldStateEngine.java' 'time'))
+          Check 'npc.persistence.db' ((Has 'AppDb.java' 'npc_memory') -or (Has 'AppDb.java' 'npc_memor'))
+          Check 'npc.token.persistence' (Has 'AppDb.java' 'token_uri')
+          Check 'npc.active.lifecycle' ((Has 'AppDb.java' 'active') -and (Has 'MainActivity.java' 'deleteNpcMemory'))
+          Check 'story.load' (Has 'MainActivity.java' 'loadStoryState')
+          Check 'story.save' (Has 'MainActivity.java' 'saveStoryState')
+          Check 'world.catchup.startup' (Has 'MainActivity.java' 'runLivingWorldCatchUpAsync')
+          Check 'worldsix.startup' (Has 'MainActivity.java' 'runWorldSixAsync')
+
+          "=== HIGH SIGNAL LINES ===" | Add-Content $out
+          $targets=@('MainActivity.java','WorldStateEngine.java','LivingWorldEngine.java','LivingWorldCatchUpEngine.java','WorldSixCoordinator.java','AppDb.java','CharacterRulesValidator.java','CharacterSheetGenerator.java')
+          $regex='move|movement|travel|advance|world|weather|clima|hour|time|day|npc_memory|token_uri|active|dead|death|saveStoryState|loadStoryState|validateCharacter|selectableClasses|validateSubclass|reconcileCharacterDependencies'
+          foreach($n in $targets){
+            $p=Join-Path $src $n
+            if(Test-Path $p){
+              "### $n" | Add-Content $out
+              Select-String -Path $p -Pattern $regex -AllMatches | Select-Object -First 250 | ForEach-Object {"$($_.LineNumber): $($_.Line.Trim())" | Add-Content $out}
+            }
+          }
+
+          if($script:failed){throw 'SOURCE_CONTRACT_GATE_FAILED'}
+
+      - name: Compile RUN181 source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $android='C:\DND181\extract\dnd_work\android'
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){$j='C:\Program Files\Android\Android Studio\jbr';if(Test-Path "$j\bin\java.exe"){$env:JAVA_HOME=$j;$env:Path="$j\bin;$env:Path"}}
+          if(!$env:ANDROID_HOME){$sdk="$env:LOCALAPPDATA\Android\Sdk";if(Test-Path $sdk){$env:ANDROID_HOME=$sdk}}
+          $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          Set-Location $android
+          .\gradlew.bat :app:compileDebugJavaWithJavac --no-daemon --console=plain
+          if($LASTEXITCODE -ne 0){throw 'COMPILE_FAILED'}
+
+      - name: Run existing unit tests
+        shell: powershell
+        continue-on-error: true
+        run: |
+          $android='C:\DND181\extract\dnd_work\android'
+          Set-Location $android
+          .\gradlew.bat :app:testDebugUnitTest --no-daemon --console=plain 2>&1 | Tee-Object 'C:\DND181\out\RUN181_UNIT_TESTS.txt'
+          "UNIT_TEST_EXIT=$LASTEXITCODE" | Add-Content 'C:\DND181\out\RUN181_INTEGRATION_GATE.txt'
+
+      - name: Upload gate
+        uses: actions/upload-artifact@v4
+        with:
+          name: DND_RUN181_INTEGRATION_GATE
+          path: |
+            C:\DND181\out\RUN181_INTEGRATION_GATE.txt
+            C:\DND181\out\RUN181_UNIT_TESTS.txt
+          if-no-files-found: warn
+          retention-days: 7
