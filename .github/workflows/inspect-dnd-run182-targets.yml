@@ -1,0 +1,46 @@
+name: Inspect DnD RUN181 RUN182 Targets
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-run182-targets.yml']
+  workflow_dispatch:
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 20
+    steps:
+      - name: Inspect API NPC control initiative startup
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $src='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
+          if(!(Test-Path $src)){throw 'RUN181 source missing'}
+          function Dump([string]$file,[string]$pattern,[int]$before=10,[int]$after=30){
+            $p=Join-Path $src $file
+            if(!(Test-Path $p)){Write-Host "MISSING $file";return}
+            $ls=Get-Content $p
+            $ms=Select-String -Path $p -Pattern $pattern -AllMatches -ErrorAction SilentlyContinue
+            if(!$ms){return}
+            Write-Host "===== $file ====="
+            $ranges=@()
+            foreach($m in $ms){
+              $a=[Math]::Max(1,$m.LineNumber-$before);$b=[Math]::Min($ls.Count,$m.LineNumber+$after)
+              if($ranges.Count -gt 0 -and $a -le $ranges[$ranges.Count-1][1]+1){$ranges[$ranges.Count-1][1]=[Math]::Max($ranges[$ranges.Count-1][1],$b)}
+              else{$ranges+=,@($a,$b)}
+            }
+            foreach($r in $ranges){
+              Write-Host "--- $($r[0])-$($r[1]) ---"
+              for($i=$r[0];$i -le $r[1];$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}
+            }
+          }
+          Dump 'MainActivity.java' 'Chave principal da API Gemini|gemini_api|api_key|Gemini|save.*key|token_uri|npc|portrait|foto|imagem|onNewIntent|ACTION_SEND|initiative|iniciativa|combatants|controller|controlado|onCreate|buildShell|setContentView' 8 24
+          Dump 'AppDb.java' 'CREATE TABLE.*characters|CREATE TABLE.*npc_memory|npc_memory|token_uri|portrait|characters|sheet_json|combatants|initiative|active|deleteNpcMemory|updateNpc' 8 28
+          Dump 'GeminiClient.java' 'api|key|model|generate|request|401|403|429' 8 28
+          Dump 'SecretsStore.java' 'key|secret|gemini|save|get|put' 8 28
+          Dump 'EncryptedSecretStore.java' 'key|secret|gemini|save|get|put' 8 28
+          Dump 'NpcTokenAutoBinder.java' 'npc|token|uri|portrait|bind|identity' 8 28
+          Dump 'CombatRulesEngine.java' 'initiative|turn|order|combatant|dex|tie' 8 28
+          Dump 'CombatEngine.java' 'initiative|turn|order|combatant|dex|tie' 8 28
+          Dump 'MasterOrchestrator.java' 'character|party|initiative|turn|scene|suggest|action|npc|weather|time|world' 8 28
+          Dump 'WorldStateEngine.java' 'weather|clima|time|hour|day|advance|persist|load|save' 8 28
+          Dump 'LivingWorldEngine.java' 'npc|tick|world|persist|weather|time|event' 8 28
