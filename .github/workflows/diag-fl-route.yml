@@ -91,17 +91,17 @@ jobs:
           fs.writeFileSync(adventure,v,'utf8');
           NODE
 
-      - name: Inspect Forbidden Lands module details
+      - name: Inspect executable choice-flow test surface
         shell: bash
         run: |
           set -euo pipefail
-          for f in \
-            src/src/screens/ModulesScreen.tsx \
-            src/src/services/ModuleRegistryService.ts \
-            src/src/services/CampaignModuleStateService.ts \
-            src/src/services/CampaignDirectorService.ts \
-            src/src/services/MasterContextBuilder.ts
-          do
-            echo "===== $f ====="
-            nl -ba "$f" | sed -n '1,340p'
-          done
+          echo '===== PACKAGE ====='
+          cat src/package.json
+          echo '===== ORCHESTRATOR ====='
+          nl -ba src/src/services/MasterOrchestratorService.ts | sed -n '1,420p'
+          echo '===== BUGREPORT GATE ====='
+          cat src/scripts/verify-bugreport-freeze-2026-10-05.mjs
+          echo '===== NO FREEZE GATE ====='
+          cat src/scripts/verify-master-no-freeze-r5.mjs
+          echo '===== PLAYTHROUGHS ====='
+          cat src/scripts/verify-runtime-playthroughs-v3.mjs
