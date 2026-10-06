@@ -60,7 +60,7 @@ class MainActivity : Activity() {
     private lateinit var runtimeSettings: GeminiRuntimeSettings
     private lateinit var mediaStore: PresentationMediaStore
     private lateinit var gemini: GeminiInteractionsClient
-    private lateinit var tts: GeminiTtsController
+    private lateinit var tts: braseiro.ose.tts.android.AndroidTtsController
     private val manualDice = SecureRandom()
     private val evidenceRegistry = RuleEvidenceRegistry()
     private val creationCoordinator = NativeCharacterCreationCoordinator()
@@ -87,13 +87,8 @@ class MainActivity : Activity() {
         mediaStore = PresentationMediaStore(applicationContext)
         gemini = GeminiInteractionsClient()
         session = SessionEngine(repository, RulesRefereeBoundary(), GeminiBarbaraSupervisor(credentials, runtimeSettings, gemini))
-        tts = GeminiTtsController(applicationContext, credentials, runtimeSettings, gemini)
-        tts.onState = { state, error ->
-            send(JSONObject().put("type", "TtsState").put("payload", JSONObject()
-                .put("state", state.name)
-                .put("message", error ?: JSONObject.NULL)
-                .put("configured", credentials.has(GeminiCredentialStore.Slot.TTS_AUDIO))))
-        }
+        tts = braseiro.ose.tts.android.AndroidTtsController(applicationContext)
+        tts.onState = { state, error -> sendTtsState(state.name, error) }
 
         val assetLoader = WebViewAssetLoader.Builder()
             .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this))
@@ -348,24 +343,34 @@ class MainActivity : Activity() {
 
                         "TtsCommand" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
-                            // Only canonical visible narration can be spoken.
                             try {
-                                val result = when (payload.optString("command")) {
+                                when (payload.optString("command")) {
                                     "play" -> tts.playVisibleNarration(current.campaignState.game.session.visibleNarration)
                                     "replay" -> tts.replayVisibleNarration(current.campaignState.game.session.visibleNarration)
                                     "stop" -> tts.stop()
+                                    "test" -> tts.playTestPhrase()
                                     else -> error("UNKNOWN_TTS_COMMAND")
                                 }
-                                send(JSONObject().put("type", "TtsState").put("payload", JSONObject()
-                                    .put("state", result.name)
-                                    .put("message", JSONObject.NULL)
-                                    .put("configured", credentials.has(GeminiCredentialStore.Slot.TTS_AUDIO))))
+                                sendTtsState(tts.state.name, tts.lastError)
                             } catch (t: Throwable) {
-                                send(JSONObject().put("type", "TtsState").put("payload", JSONObject()
-                                    .put("state", "ERROR")
-                                    .put("message", safeError(t))
-                                    .put("configured", credentials.has(GeminiCredentialStore.Slot.TTS_AUDIO))))
+                                sendTtsState("ERROR", safeError(t))
                             }
+                        }
+
+                        "TtsSettingsGet" -> sendTtsSettingsState()
+
+                        "TtsSettingsSet" -> {
+                            tts.configure(
+                                payload.optString("enginePackage", "").takeIf { it.isNotBlank() },
+                                payload.optString("voiceName", "").takeIf { it.isNotBlank() },
+                                payload.optDouble("speechRate", tts.speechRate().toDouble()).toFloat()
+                            )
+                            sendTtsSettingsState()
+                        }
+
+                        "TtsTest" -> {
+                            tts.playTestPhrase()
+                            sendTtsState(tts.state.name, tts.lastError)
                         }
 
                         "GeminiSettingsGet" -> sendSettingsState()
@@ -393,13 +398,15 @@ class MainActivity : Activity() {
 
                         "GeminiCredentialTest" -> {
                             val slot = credentialSlot(payload.getString("slot"))
-                            val key = credentials.get(slot) ?: error("GEMINI_KEY_MISSING")
                             val runtime = runtimeSettings.snapshot()
                             val ok = when (slot) {
-                                GeminiCredentialStore.Slot.TEXT_SCENE -> gemini.testCredential(key, runtime.textModel)
+                                GeminiCredentialStore.Slot.TEXT_SCENE -> {
+                                    val key = credentials.get(slot) ?: error("GEMINI_KEY_MISSING")
+                                    gemini.testCredential(key, runtime.textModel)
+                                }
                                 GeminiCredentialStore.Slot.TTS_AUDIO -> runCatching {
                                     tts.playTestPhrase()
-                                    true
+                                    tts.state != braseiro.ose.tts.TtsState.ERROR
                                 }.getOrDefault(false)
                             }
                             send(JSONObject().put("type", "GeminiCredentialTestResult").put("payload", JSONObject()
@@ -878,7 +885,10 @@ class MainActivity : Activity() {
         val geminiState = credentials.statusJson()
         val runtimeState = runtimeSettings.statusJson()
         run { val keys = runtimeState.keys(); while (keys.hasNext()) { val key = keys.next(); geminiState.put(key, runtimeState.get(key)) } }
+        geminiState.put("ttsAudioConfigured", tts.isReady())
+        geminiState.put("ttsMode", "ANDROID_INSTALLED_ENGINE")
         out.put("gemini", geminiState)
+        out.put("tts", ttsStatusJson(includeCatalogs = false))
         out.put("worldStatus", JSONObject()
             .put("active", game.hexWorld != null && game.npcs.isNotEmpty())
             .put("schedulerActive", game.worldEvents.isNotEmpty())
@@ -898,7 +908,50 @@ class MainActivity : Activity() {
         val payload = credentials.statusJson()
         val runtime = runtimeSettings.statusJson()
         run { val keys = runtime.keys(); while (keys.hasNext()) { val key = keys.next(); payload.put(key, runtime.get(key)) } }
+        payload.put("ttsAudioConfigured", tts.isReady())
+        payload.put("ttsMode", "ANDROID_INSTALLED_ENGINE")
         send(JSONObject().put("type", "GeminiSettingsState").put("payload", payload))
+        sendTtsSettingsState()
+    }
+
+    private fun sendTtsState(stateName: String, error: String?) {
+        send(JSONObject().put("type", "TtsState").put("payload", ttsStatusJson(includeCatalogs = false)
+            .put("state", stateName)
+            .put("message", error ?: JSONObject.NULL)
+            .put("configured", tts.isReady())))
+    }
+
+    private fun sendTtsSettingsState() {
+        send(JSONObject().put("type", "TtsSettingsState").put("payload", ttsStatusJson(includeCatalogs = true)))
+    }
+
+    private fun ttsStatusJson(includeCatalogs: Boolean): JSONObject {
+        val payload = JSONObject()
+            .put("state", tts.state.name)
+            .put("ready", tts.isReady())
+            .put("enginePackage", tts.selectedEnginePackage() ?: JSONObject.NULL)
+            .put("voiceName", tts.selectedVoiceName() ?: JSONObject.NULL)
+            .put("speechRate", tts.speechRate())
+            .put("mode", "ANDROID_INSTALLED_ENGINE")
+            .put("error", tts.lastError ?: JSONObject.NULL)
+        if (includeCatalogs) {
+            payload.put("engines", JSONArray(tts.engineOptions().map { e ->
+                JSONObject()
+                    .put("packageName", e.packageName)
+                    .put("label", e.label)
+                    .put("system", e.system)
+                    .put("preferredKokoro", e.preferredKokoro)
+            }))
+            payload.put("voices", JSONArray(tts.voiceOptions().map { v ->
+                JSONObject()
+                    .put("name", v.name)
+                    .put("localeTag", v.localeTag)
+                    .put("quality", v.quality)
+                    .put("latency", v.latency)
+                    .put("networkRequired", v.networkRequired)
+            }))
+        }
+        return payload
     }
 
     private fun credentialSlot(value: String): GeminiCredentialStore.Slot = GeminiCredentialStore.Slot.values()
