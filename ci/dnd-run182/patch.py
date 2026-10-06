@@ -152,13 +152,13 @@ startup=r'''    private void showImmediateStartupSurface(){
 t=once(t,anchor,startup,"startup-method")
 
 # Gemini save button directly under key fields. TESTAR also saves atomically first.
-old='''ai.addView(key);ai.addView(paidKey);ai.addView(text("A chave alternativa só é usada pelo Charon quando a principal recebe 429, esgota a cota ou entra no circuito de espera de cinco minutos.",11,MUTED,false));'''
-new='''ai.addView(key);ai.addView(paidKey);Button saveGeminiKeys=button("SALVAR CHAVES GEMINI",GREEN);saveGeminiKeys.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String primary=value(key),alternate=value(paidKey);if(primary.length()==0){toast("Informe a chave principal do Gemini.");return;}if(saveGeminiSecretsAtomically(primary,alternate)){toast("Chaves Gemini salvas no Android Keystore.");setStatus("Chave Gemini salva e aplicada.");}else toast("A chave não foi salva; o valor anterior foi preservado.");}});ai.addView(saveGeminiKeys);ai.addView(text("A chave alternativa só é usada pelo Charon quando a principal recebe 429, esgota a cota ou entra no circuito de espera de cinco minutos.",11,MUTED,false));'''
-t=once(t,old,new,"gemini-save-button")
-old='''String k=value(key);if(k.length()==0){toast("Informe a chave principal antes de testar.");return;}'''
-new='''String k=value(key);if(k.length()==0){toast("Informe a chave principal antes de testar.");return;}if(!saveGeminiSecretsAtomically(k,value(paidKey))){toast("Não foi possível salvar a chave antes do teste.");return;}'''
-if old not in t: raise SystemExit("gemini-test-anchor-missing")
-t=t.replace(old,new,1)
+# Gemini key controls: put an explicit save control directly under the key fields.
+gemini_anchor='''ai.addView(key);ai.addView(paidKey);ai.addView(text("A chave alternativa só é usada pelo Charon quando a principal recebe 429, esgota a cota ou entra no circuito de espera de cinco minutos.",12,MUTED,false));'''
+gemini_new='''ai.addView(key);ai.addView(paidKey);Button saveGeminiKeys=button("SALVAR CHAVES GEMINI",GREEN);saveGeminiKeys.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String primary=key.getText().toString().trim(),alternate=paidKey.getText().toString().trim();if(primary.length()<20){toast("Informe uma chave principal Gemini válida.");return;}if(saveGeminiSecretsAtomically(primary,alternate)){toast("Chaves Gemini salvas no Android Keystore.");setStatus("Chave Gemini salva e aplicada.");}else toast("A chave não foi salva; o valor anterior foi preservado.");}});ai.addView(saveGeminiKeys);ai.addView(text("A chave alternativa só é usada pelo Charon quando a principal recebe 429, esgota a cota ou entra no circuito de espera de cinco minutos.",12,MUTED,false));'''
+t=once(t,gemini_anchor,gemini_new,"gemini-save-button")
+gemini_test='''String k=key.getText().toString().trim();if(k.length()<20){toast("Informe a chave Gemini.");return;}setStatus("Testando o modelo...");'''
+gemini_test_new='''String k=key.getText().toString().trim();if(k.length()<20){toast("Informe a chave Gemini.");return;}if(!saveGeminiSecretsAtomically(k,paidKey.getText().toString().trim())){toast("Não foi possível salvar a chave antes do teste.");return;}setStatus("Testando o modelo...");'''
+t=once(t,gemini_test,gemini_test_new,"gemini-test-saves-first")
 
 # Character controller UI using the already-existing character_control_profiles backend.
 old='''        f.active=check("Personagem em jogo",edit?existing.optInt("active",1)==1:initial.optBoolean("active",true));form.addView(f.active);configureSelectableMechanicFields(f,rulesProfile);bindCharacterDependencyListeners(f,rulesProfile);scroll.addView(form);
