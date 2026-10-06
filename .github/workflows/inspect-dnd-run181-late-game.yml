@@ -1,0 +1,25 @@
+name: Inspect DnD RUN181 Late Game Links
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-run181-late-game.yml']
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 8
+    steps:
+      - name: Inspect movement and progression
+        shell: powershell
+        run: |
+          $src='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
+          function Slice([string]$file,[int]$from,[int]$to){
+            "===== $file $from-$to ====="
+            $p=Join-Path $src $file;$ls=Get-Content $p
+            for($i=$from;$i -le [Math]::Min($to,$ls.Count);$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}
+          }
+          Slice 'MainActivity.java' 1760 1800
+          Slice 'AppDb.java' 1100 1150
+          if(Test-Path (Join-Path $src 'DndProgressionEngine.java')){
+            "===== DndProgressionEngine.java ====="
+            Get-Content (Join-Path $src 'DndProgressionEngine.java')
+          }
