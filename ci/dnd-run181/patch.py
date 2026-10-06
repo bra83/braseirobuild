@@ -272,7 +272,7 @@ a57_helpers = r'''    private boolean isGalaxyA57Family(){
     private void applySamsungA57Compatibility(final View root){
         try{
             Window w=getWindow();if(w==null||root==null)return;
-            w.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+            w.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             if(Build.VERSION.SDK_INT>=29)w.setNavigationBarContrastEnforced(false);
             root.setMinimumWidth(0);root.setMinimumHeight(0);root.requestApplyInsets();
             android.util.DisplayMetrics dm=getResources().getDisplayMetrics();
@@ -284,7 +284,7 @@ a57_helpers = r'''    private boolean isGalaxyA57Family(){
     }
     private void fitModernSamsungDialog(final android.app.Dialog dialog){
         if(dialog==null)return;final Window w=dialog.getWindow();if(w==null)return;
-        w.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        w.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         final View decor=w.getDecorView();
         decor.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener(){public WindowInsets onApplyWindowInsets(View v,WindowInsets insets){
             int l=0,t=0,r=0,b=0;
