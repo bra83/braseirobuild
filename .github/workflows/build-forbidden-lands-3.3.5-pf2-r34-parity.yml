@@ -85,17 +85,9 @@ jobs:
           $ErrorActionPreference='Stop'
           $gate=Join-Path $env:ROOT 'scripts\verify-human-master-runtime.mjs'
           if (-not (Test-Path $gate)) { throw "Human Master gate not found: $gate" }
-          $raw=Get-Content $gate -Raw
-          $old='5\.000 a 6\.500 caracteres'
-          if (-not $raw.Contains($old)) { throw 'Expected obsolete 5.000-6.500 assertion not found; refusing to weaken an unknown gate.' }
-          $raw=$raw.Replace($old,'CanonicalNarratorProfileService')
-          # Normaliza somente a assercao de voz corrompida por encoding; usa padrao ASCII.
-          $raw=[regex]::Replace(
-            $raw,
-            '/VOZ DE MESTRE HUMANO[^/\r\n]*/i',
-            '/VOZ DE MESTRE HUMANO/i'
-          )
-          [IO.File]::WriteAllText($gate,$raw,[Text.UTF8Encoding]::new($false))
+          $env:GATE_PATH=$gate
+          & node.exe -e "const fs=require('fs'); const p=process.env.GATE_PATH; let s=fs.readFileSync(p,'utf8'); const old='5\\.000 a 6\\.500 caracteres'; if(!s.includes(old)) throw new Error('obsolete length assertion not found'); s=s.split(old).join('CanonicalNarratorProfileService'); const before=s; s=s.replace(/\\/VOZ DE MESTRE HUMANO[^/\\r\\n]*\\/i/g,'/VOZ DE MESTRE HUMANO/i'); if(s===before) throw new Error('obsolete narrator mojibake regex not found'); fs.writeFileSync(p,s,'utf8');"
+          if ($LASTEXITCODE -ne 0) { throw 'Node gate normalization failed' }
 
           # Preserve the tested runtime; only the stale literal assertion is updated.
           $director=(Get-ChildItem $env:ROOT -Recurse -File -Filter 'NarrativeDirectorService.ts' | Select-Object -First 1).FullName
