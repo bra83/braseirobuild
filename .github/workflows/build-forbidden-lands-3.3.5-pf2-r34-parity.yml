@@ -1,4 +1,4 @@
-name: Forbidden Lands 3.3.5 Master No Freeze R5 - BRELGA
+name: Forbidden Lands 3.3.5 Bugreport Freeze Fix R6 - BRELGA
 
 on:
   push:
@@ -15,13 +15,13 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_MASTER_NO_FREEZE_R5_SOURCE.zip"
-  SOURCE_BYTES: "26720402"
-  SOURCE_SHA256: "beb0dfed129fbec7d7f95916a612cb1371f0352c8aad97ccb305b46f96b8df61"
-  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/D1hs320P0KfZ"
-  BUILD_ROOT: "D:\\brelga-fl-master-no-freeze-r5"
-  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_MASTER_NO_FREEZE_R5.apk"
-  TAG: "forbidden-lands-3.3.5-master-no-freeze-r5"
+  SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6_SOURCE.zip"
+  SOURCE_BYTES: "26727681"
+  SOURCE_SHA256: "79607d17700a10fca87a4e5929677aa6d7445de44618fc0f82dbe2bff6e5f502"
+  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/rdIsgUTIrx7x"
+  BUILD_ROOT: "D:\\brelga-fl-bugreport-freeze-r6"
+  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6.apk"
+  TAG: "forbidden-lands-3.3.5-bugreport-freeze-fix-r6"
   EXPECTED_SHA1: "9d0f1089b3fb6c225f1f59462750864e897c4d92"
 
 jobs:
@@ -105,6 +105,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Human Master runtime gate failed' }
           & npm.cmd run verify:master-no-freeze-r5
           if ($LASTEXITCODE -ne 0) { throw 'Master no-freeze R5 gate failed' }
+          & npm.cmd run verify:bugreport-freeze-2026-10-05
+          if ($LASTEXITCODE -ne 0) { throw 'Bugreport freeze R6 gate failed' }
           & npm.cmd run lint
           if ($LASTEXITCODE -ne 0) { throw 'TypeScript failed' }
 
@@ -123,6 +125,7 @@ jobs:
             'verify:adventure-sites-v2',
             'verify:canonical-narrator-profile',
             'verify:human-master-runtime',
+            'verify:bugreport-freeze-2026-10-05',
             'verify:google-drive-signing'
           )
           foreach($test in $tests){
@@ -160,6 +163,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'TypeScript regressed after Android sync' }
           & node.exe scripts/verify-pf2-r34-parity.mjs
           if ($LASTEXITCODE -ne 0) { throw 'PF2 parity regressed after sync' }
+          & npm.cmd run verify:bugreport-freeze-2026-10-05
+          if ($LASTEXITCODE -ne 0) { throw 'Bugreport freeze fix regressed after Android sync' }
 
       - name: Build APK
         shell: powershell
@@ -202,7 +207,15 @@ jobs:
             'PF2_R34_SINGLE_REMOTE_NARRATOR=PASS',
             'CANONICAL_HUMAN_MASTER_PROFILE_SHA256=8e63dbdf963abd1bed88e7173de3adc22d1501557647bcf4a9d95ee096f75852',
             'HUMAN_MASTER_RUNTIME_GATE=PASS',
-            'OPENING_TARGET_5000_6500_CHARS=PASS',
+            'BUGREPORT_2026_10_05_OPENING_FREEZE=PASS',
+            'BUGREPORT_2026_10_05_ACTION_ROUTING=PASS',
+            'ACTION_COMPOSER_NEVER_AUTO_SUPPORT=PASS',
+            'PATHOLOGICAL_AUDIO_CUES_GUARD=PASS',
+            'SCENE_COMMIT_NO_GLOBAL_NPC_MIGRATION=PASS',
+            'NPC_VISUALS_OUTSIDE_CRITICAL_COMMIT=PASS',
+            'SYSTEMBARS_ILLEGAL_RETURN_FIXED=PASS',
+            'MASTER_FLOW_TIMING_MARKERS=PASS',
+            'OPENING_TARGET_1800_2800_CHARS=PASS',
             'ANTI_HUD_MENU_SANITIZER=PASS',
             'AGENCY_EMOTION_HIJACK_GUARD=PASS',
             'NO_REMOTE_PLANNER_CRITICAL_PATH=PASS',
@@ -220,10 +233,10 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO_FORBIDDEN_LANDS_3.3.5_MASTER_NO_FREEZE_R5
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6
           path: |
-            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_MASTER_NO_FREEZE_R5.apk
-            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_MASTER_NO_FREEZE_R5.apk.sha256
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6.apk
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6.apk.sha256
             ${{ steps.apk.outputs.dir }}/APK_BADGING.txt
             ${{ steps.apk.outputs.dir }}/APK_SIGNATURE.txt
             ${{ steps.apk.outputs.dir }}/PF2_R34_PARITY_PROOF.txt
@@ -241,7 +254,7 @@ jobs:
           $release=$null
           try{$release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:TAG"}catch{if($_.Exception.Response.StatusCode.value__ -ne 404){throw}}
           if(-not $release){
-            $payload=@{tag_name=$env:TAG;target_commitish='main';name='Braseiro Forbidden Lands 3.3.5 - Master No Freeze R5';body='Correção estrutural do travamento do Mestre: transporte Gemini SSE como no Pathfinder estável, cancelamento nativo real por requestId, orçamento total curto, duas tentativas máximas, chamada principal sem responseSchema gigante, perfil humano compacto e origem Gemini/fallback auditável.';draft=$false;prerelease=$false}|ConvertTo-Json
+            $payload=@{tag_name=$env:TAG;target_commitish='main';name='Braseiro Forbidden Lands 3.3.5 - Bugreport Freeze Fix R6';body='Correção orientada pelos dois bugreports Android de 2026-10-05: Ação Livre e sugestões nunca são desviadas automaticamente para Ajuda do Mestre; audioCues patológicos são neutralizados; commit não migra todos os NPCs; tokens/POI saem do caminho crítico; SyntaxError do SystemBars é removido e o fluxo possui marcação de estágio.';draft=$false;prerelease=$false}|ConvertTo-Json
             $release=Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $payload -Uri "https://api.github.com/repos/$repo/releases"
           }
           $assets=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$($release.id)/assets?per_page=100"
