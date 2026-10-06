@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: forbidden-lands-3.3.5-pf2-r34-parity
+  group: forbidden-lands-3.3.5-bugreport-freeze-r6
   cancel-in-progress: true
 
 env:
