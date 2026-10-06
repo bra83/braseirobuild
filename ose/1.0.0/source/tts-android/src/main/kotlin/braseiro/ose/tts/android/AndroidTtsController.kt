@@ -16,6 +16,11 @@ import java.util.concurrent.atomic.AtomicLong
  * The VTT never reads Android/data and never bundles or copies a Kokoro model.
  * Kokoro/Sherpa, Samsung and Google are ordinary installed Android TTS engines.
  * Selection is persisted as engine package + voice name.
+ *
+ * Narration is segmented on safe boundaries and queued in one pass. No watchdog,
+ * per-sentence stop(), or mid-stream QUEUE_FLUSH is used. This is important for
+ * heavier local PT-BR Kokoro voices: Android is allowed to keep its synthesis
+ * pipeline warm while QUEUE_ADD drains the remaining chunks.
  */
 class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListener {
     data class EngineOption(
@@ -53,9 +58,8 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
     private var pendingNarration: String? = null
     private var lastNarration: String? = null
     private var chunks: List<String> = emptyList()
-    private var chunkIndex = 0
-    private var activeUtteranceId: String? = null
-    private var firstChunk = true
+    private var completedChunks = 0
+    private var activeGeneration = 0L
 
     @Volatile override var state: TtsState = TtsState.PREPARING
         private set
@@ -91,28 +95,26 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
 
         tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) {
-                if (utteranceId == activeUtteranceId) updateState(TtsState.PLAYING)
+                if (isActiveUtterance(utteranceId)) updateState(TtsState.PLAYING)
             }
 
             override fun onDone(utteranceId: String?) {
-                if (utteranceId != activeUtteranceId) return
-                chunkIndex += 1
-                if (chunkIndex >= chunks.size) {
-                    activeUtteranceId = null
+                if (!isActiveUtterance(utteranceId)) return
+                completedChunks += 1
+                if (completedChunks >= chunks.size) {
                     chunks = emptyList()
+                    completedChunks = 0
                     updateState(TtsState.IDLE)
-                } else {
-                    speakCurrentChunk()
                 }
             }
 
             @Deprecated("Deprecated by Android")
             override fun onError(utteranceId: String?) {
-                if (utteranceId == activeUtteranceId) fail("TTS_UTTERANCE_ERROR")
+                if (isActiveUtterance(utteranceId)) fail("TTS_UTTERANCE_ERROR")
             }
 
             override fun onError(utteranceId: String?, errorCode: Int) {
-                if (utteranceId == activeUtteranceId) fail("TTS_UTTERANCE_ERROR_$errorCode")
+                if (isActiveUtterance(utteranceId)) fail("TTS_UTTERANCE_ERROR_$errorCode")
             }
         })
 
@@ -209,17 +211,33 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
             return
         }
 
-        generation.incrementAndGet()
-        engine?.stop()
-        chunks = TtsTextSegmenter.segment(clean)
-        chunkIndex = 0
-        firstChunk = true
-        if (chunks.isEmpty()) {
+        val tts = engine ?: run {
+            fail("TTS_ENGINE_MISSING")
+            return
+        }
+        val nextChunks = TtsTextSegmenter.segment(clean)
+        if (nextChunks.isEmpty()) {
             fail("EMPTY_VISIBLE_NARRATION")
             return
         }
+
+        // A new explicit narration replaces the previous one. This is the only
+        // normal-path stop; chunks inside one narration never stop/flush each other.
+        generation.incrementAndGet()
+        tts.stop()
+        chunks = nextChunks
+        completedChunks = 0
+        activeGeneration = generation.get()
         updateState(TtsState.PREPARING)
-        speakCurrentChunk()
+
+        for ((index, chunk) in chunks.withIndex()) {
+            val id = utteranceId(activeGeneration, index)
+            val result = tts.speak(chunk, TextToSpeech.QUEUE_ADD, null, id)
+            if (result != TextToSpeech.SUCCESS) {
+                fail("TTS_SPEAK_FAILED_$result")
+                return
+            }
+        }
     }
 
     fun replayVisibleNarration(fallbackVisibleNarration: String? = null) {
@@ -240,7 +258,7 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
         generation.incrementAndGet()
         pendingNarration = null
         chunks = emptyList()
-        activeUtteranceId = null
+        completedChunks = 0
         engine?.stop()
         if (state != TtsState.ERROR) updateState(TtsState.STOPPED)
     }
@@ -249,7 +267,7 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
         generation.incrementAndGet()
         pendingNarration = null
         chunks = emptyList()
-        activeUtteranceId = null
+        completedChunks = 0
         engine?.stop()
         engine?.shutdown()
         engine = null
@@ -260,7 +278,7 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
     private fun restartEngine(requestedPackage: String?) {
         generation.incrementAndGet()
         chunks = emptyList()
-        activeUtteranceId = null
+        completedChunks = 0
         engine?.stop()
         engine?.shutdown()
         engine = null
@@ -291,22 +309,10 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
         }
     }
 
-    private fun speakCurrentChunk() {
-        val tts = engine ?: run {
-            fail("TTS_ENGINE_MISSING")
-            return
-        }
-        val chunk = chunks.getOrNull(chunkIndex) ?: run {
-            updateState(TtsState.IDLE)
-            return
-        }
-        val id = "braseiro-ose-${generation.get()}-$chunkIndex"
-        activeUtteranceId = id
-        val queueMode = if (firstChunk) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
-        firstChunk = false
-        val result = tts.speak(chunk, queueMode, null, id)
-        if (result != TextToSpeech.SUCCESS) fail("TTS_SPEAK_FAILED_$result")
-    }
+    private fun utteranceId(generationId: Long, index: Int) = "braseiro-ose-$generationId-$index"
+
+    private fun isActiveUtterance(utteranceId: String?): Boolean =
+        utteranceId?.startsWith("braseiro-ose-$activeGeneration-") == true
 
     private fun voiceOption(voice: Voice) = VoiceOption(
         name = voice.name,
