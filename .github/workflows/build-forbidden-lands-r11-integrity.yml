@@ -1,0 +1,128 @@
+name: Forbidden Lands 3.3.7 R11 Character Integrity
+
+on:
+  push:
+    paths:
+      - '.github/workflows/build-forbidden-lands-r11-integrity.yml'
+      - 'ci/forbidden-lands-r11/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: forbidden-lands-r11-character-integrity
+  cancel-in-progress: true
+
+env:
+  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/9U2Qwn54TgjB"
+  SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6_1_SOURCE.zip"
+  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.7_R11_CHARACTER_INTEGRITY_UPDATE.apk"
+  EXPECTED_SHA1: "9d0f1089b3fb6c225f1f59462750864e897c4d92"
+
+jobs:
+  verify-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch exact source
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE_ID=$(curl -fsSL "$FIRESTORAGE_API/files?maxResults=100" | jq -r --arg n "$SOURCE_NAME" '.files[] | select(.fileName==$n) | .fileId' | head -n1)
+          test -n "$FILE_ID"
+          URL=$(curl -fsSL -X POST "$FIRESTORAGE_API/files/$FILE_ID/download" | jq -r '.downloadUrl')
+          test -n "$URL"
+          rm -rf work/fl && mkdir -p work/fl
+          curl -fL --retry 3 "$URL" -o work/source.zip
+          unzip -q work/source.zip -d work/fl
+      - name: Apply R10 and R11
+        run: |
+          set -euo pipefail
+          node ci/forbidden-lands-r10/apply-r10.mjs work/fl
+          node ci/forbidden-lands-r11/apply-r11.mjs work/fl
+          cp ci/forbidden-lands-r11/verify-r11-character-integrity.mjs work/fl/scripts/verify-r11-character-integrity.mjs
+          grep -q 'versionCode 303700' work/fl/android/app/build.gradle
+          grep -q 'versionName "3.3.7"' work/fl/android/app/build.gradle
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Verify signer source
+        shell: bash
+        run: |
+          set -euo pipefail
+          PROP='work/fl/android/keystore.properties'
+          KS='work/fl/android/app/braseiro-debug.jks'
+          STORE_PASS=$(grep -E '^BRASEIRO_STORE_PASSWORD=' "$PROP" | head -n1 | cut -d= -f2-)
+          ALIAS=$(grep -E '^BRASEIRO_KEY_ALIAS=' "$PROP" | head -n1 | cut -d= -f2-)
+          ALIAS="\${ALIAS:-braseiro}"
+          SHA1=$(keytool -list -v -keystore "$KS" -storepass "$STORE_PASS" -alias "$ALIAS" 2>/dev/null | awk -F': ' '/SHA1:/{gsub(":","",$2); print tolower($2); exit}')
+          test "$SHA1" = "$EXPECTED_SHA1"
+      - name: Install dependencies
+        working-directory: work/fl
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --package-lock=false --no-audit --no-fund jsdom@26
+      - name: Character integrity and creation
+        working-directory: work/fl
+        run: |
+          set -euo pipefail
+          node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-r11-character-integrity.mjs
+          npm run verify:character-creation
+          npm run verify:character-generation-stress
+          npm run verify:backup-roundtrip
+          npm run verify:persistence-closure
+      - name: Movement and living world non-regression
+        working-directory: work/fl
+        run: |
+          set -euo pipefail
+          npm run verify:journey-full
+          npm run verify:journey-closure
+          npm run verify:journey-complications
+          npm run verify:journey-assistance
+          npm run verify:journey-official-encounters
+          npm run verify:journey-maritime
+          npm run verify:journey-camp-equipment
+          npm run verify:journey-harvest
+          npm run verify:journey-hunt-choice
+          npm run verify:journey-cook-tan
+          npm run verify:runtime-integration-v3
+          npm run verify:runtime-playthroughs-v3
+          npm run lint
+          npm run build:web
+      - name: Android sync
+        working-directory: work/fl
+        run: |
+          set -euo pipefail
+          npm run android:sync
+          npm run verify:android
+          npm run lint
+      - name: Build APK
+        working-directory: work/fl
+        run: node scripts/run-gradle-task.mjs assembleDebug
+      - name: Validate APK
+        working-directory: work/fl
+        shell: bash
+        run: |
+          set -euo pipefail
+          BUILT='android/app/build/outputs/apk/debug/app-debug.apk'
+          test -f "$BUILT"
+          mkdir -p out
+          cp "$BUILT" "out/$APK_NAME"
+          BT=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)
+          "$BT/aapt" dump badging "out/$APK_NAME" > out/APK_BADGING.txt
+          grep -q "package: name='com.braseiro.forbiddenlands'" out/APK_BADGING.txt
+          grep -q "versionCode='303700'" out/APK_BADGING.txt
+          grep -q "versionName='3.3.7'" out/APK_BADGING.txt
+          "$BT/apksigner" verify --verbose --print-certs "out/$APK_NAME" > out/APK_SIGNATURE.txt 2>&1
+          ACTUAL=$(grep -E 'certificate SHA-1 digest:' out/APK_SIGNATURE.txt | head -n1 | sed -E 's/.*digest:[[:space:]]*//' | tr -d ':[:space:]' | tr 'A-F' 'a-f')
+          test "$ACTUAL" = "$EXPECTED_SHA1"
+          sha256sum "out/$APK_NAME" > "out/$APK_NAME.sha256"
+          printf '%s\n' 'STATUS=PASS' 'CHARACTER_192_MATRIX=PASS' 'CHARACTER_500_STRESS=PASS' 'CHARACTER_JSON_MAX6=PASS' 'EXISTING_STRUCTURAL_GUARD=PASS' 'JOURNEY_CLOSURE=PASS' 'LIVING_WORLD_1YEAR=PASS' 'UPDATE_IN_PLACE=PASS' > out/R11_PROOF.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.7_R11_CHARACTER_INTEGRITY_UPDATE
+          path: work/fl/out/*
+          retention-days: 30
