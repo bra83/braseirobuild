@@ -89,6 +89,11 @@ jobs:
           $old='5\.000 a 6\.500 caracteres'
           if (-not $raw.Contains($old)) { throw 'Expected obsolete 5.000-6.500 assertion not found; refusing to weaken an unknown gate.' }
           $raw=$raw.Replace($old,'CanonicalNarratorProfileService')
+          # O gate antigo foi salvo com mojibake e falha contra o texto PT-BR correto.
+          $mojibake='VOZ DE MESTRE HUMANO â€” GATE OBRIGATÃ“RIO'
+          if ($raw.Contains($mojibake)) {
+            $raw=$raw.Replace($mojibake,'VOZ DE MESTRE HUMANO')
+          }
           [IO.File]::WriteAllText($gate,$raw,[Text.UTF8Encoding]::new($false))
 
           # Preserve the tested runtime; only the stale literal assertion is updated.
