@@ -384,23 +384,22 @@ jobs:
           test "$ACTUAL" = "$EXPECTED_SHA1"
           SHA256="$(sha256sum "out/$APK_NAME" | awk '{print $1}')"
           printf '%s  %s\n' "$SHA256" "$APK_NAME" > "out/$APK_NAME.sha256"
-          cat > out/R8_CHOICE_FLOW_PROOF.txt <<EOF
-STATUS=PASS
-CHOICE_UI_SOURCE_SUGGESTED=PASS
-CHOICE_FLOW_EXECUTABLE=PASS
-CHOICE_FLOW_CONSECUTIVE_TURNS=12
-CHOICE_MODEL_RETRY_503=PASS
-CHOICE_LOCAL_FALLBACK=PASS
-CHOICE_TIMEOUT_ABORTABLE=PASS
-TYPESCRIPT=PASS
-CORE_REGRESSIONS=PASS
-FULL_REGRESSION=PASS
-ANDROID_SYNC=PASS
-ANDROID_BUILD=PASS
-PACKAGE=com.braseiro.forbiddenlands
-SIGNER_SHA1=$ACTUAL
-APK_SHA256=$SHA256
-EOF
+          printf '%s\n' \
+            'STATUS=PASS' \
+            'CHOICE_UI_SOURCE_SUGGESTED=PASS' \
+            'CHOICE_FLOW_EXECUTABLE=PASS' \
+            'CHOICE_FLOW_CONSECUTIVE_TURNS=12' \
+            'CHOICE_MODEL_RETRY_503=PASS' \
+            'CHOICE_LOCAL_FALLBACK=PASS' \
+            'CHOICE_TIMEOUT_ABORTABLE=PASS' \
+            'TYPESCRIPT=PASS' \
+            'CORE_REGRESSIONS=PASS' \
+            'FULL_REGRESSION=PASS' \
+            'ANDROID_SYNC=PASS' \
+            'ANDROID_BUILD=PASS' \
+            'PACKAGE=com.braseiro.forbiddenlands' \
+            "SIGNER_SHA1=$ACTUAL" \
+            "APK_SHA256=$SHA256" > out/R8_CHOICE_FLOW_PROOF.txt
 
       - name: Upload verified artifact
         uses: actions/upload-artifact@v4
