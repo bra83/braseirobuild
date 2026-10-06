@@ -5,7 +5,7 @@ import { JSDOM } from 'jsdom';
 const dom = new JSDOM('<!doctype html><html><body><div id="root"></div></body></html>', { url: 'https://braseiro.local' });
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
-globalThis.navigator = dom.window.navigator;
+Object.defineProperty(globalThis, 'navigator', { value: dom.window.navigator, configurable: true });
 globalThis.HTMLElement = dom.window.HTMLElement;
 globalThis.Event = dom.window.Event;
 globalThis.MouseEvent = dom.window.MouseEvent;
