@@ -212,6 +212,19 @@ fs.writeFileSync(p('src','components','SuggestedChoiceButton.tsx'), touchCompone
   fs.writeFileSync(file,s,'utf8');
 }
 
+// Align the legacy R5 regression with the stricter R10 anti-freeze action budget.
+{
+  const file = p('scripts','verify-master-no-freeze-r5.mjs');
+  let s = fs.readFileSync(file,'utf8');
+  s = replaceOptional(s,
+    'totalBudgetMs: initial \\? 36_000 : 28_000',
+    'totalBudgetMs: initial \\? 36_000 : 16_000');
+  s = replaceOptional(s,
+    'timeoutMs: initial \\? 34_000 : 26_000',
+    'timeoutMs: initial \\? 34_000 : 14_000');
+  fs.writeFileSync(file,s,'utf8');
+}
+
 // Bound action model time without allowing a minimum timeout to exceed remaining budget.
 {
   const file = p('src','services','ModelRouterService.ts');
