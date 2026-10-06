@@ -331,7 +331,7 @@ checks={
  "startup_surface":"showImmediateStartupSurface();" in read("MainActivity.java"),
  "tts_deferred":"postDelayed(new Runnable(){public void run(){ensureNativeTtsInitialized();}},350L)" in read("MainActivity.java"),
  "gemini_save_button":"SALVAR CHAVES GEMINI" in read("MainActivity.java"),
- "gemini_test_saves":"saveGeminiSecretsAtomically(k,value(paidKey))" in read("MainActivity.java"),
+ "gemini_test_saves":"saveGeminiSecretsAtomically(k,paidKey.getText().toString().trim())" in read("MainActivity.java"),
  "character_control_ui":"Sistema — rotina / combate assistido" in read("MainActivity.java"),
  "character_control_persist":"db.saveCharacterControl(id,controlMode" in read("MainActivity.java"),
  "npc_portrait_click":"beginNpcPortrait(portraitEntry)" in read("MainActivity.java"),
