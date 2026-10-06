@@ -238,20 +238,18 @@ new = '''    private static final class CharacterFormRefs{
 '''
 t = replace_once(t, old, new, "ui-ref-state")
 
-# Keep random/Mythic full seed application from being interpreted as manual structural edits.
-old = '''    private void applyCharacterSeed(CharacterFormRefs f,JSONObject seed){JSONObject s=characterGenerator.ensureComplete(DndPtBrLocalizer.localizeCharacterSheet(seed));f.name.setText(s.optString("name"));
-'''
-new = '''    private void applyCharacterSeed(CharacterFormRefs f,JSONObject seed){boolean wasBusy=f!=null&&f.dependencyRefreshBusy;if(f!=null)f.dependencyRefreshBusy=true;JSONObject s=characterGenerator.ensureComplete(DndPtBrLocalizer.localizeCharacterSheet(seed));f.name.setText(s.optString("name"));
-'''
-t = replace_once(t, old, new, "ui-seed-busy-start")
-
-old = '''if(f.active!=null)f.active.setChecked(s.optBoolean("active",true));}
-'''
-new = '''if(f.active!=null)f.active.setChecked(s.optBoolean("active",true));if(f!=null){f.lastSpecies=String.valueOf(f.species.getSelectedItem());f.lastClass=String.valueOf(f.cls.getSelectedItem());f.lastBackground=String.valueOf(f.background.getSelectedItem());f.lastLevel=Math.max(1,Math.min(20,num(f.level,1)));f.dependencyRefreshBusy=wasBusy;}}
-'''
-if old not in t:
-    raise SystemExit("PATCH_MISSING::ui-seed-busy-end")
-t = t.replace(old, new, 1)
+# Keep random/Mythic full seed application atomic while listeners are bound.
+m=re.search(r'(private void applyCharacterSeed\\(CharacterFormRefs f,JSONObject seed\\)\\{)(JSONObject s=characterGenerator\\.ensureComplete\\(DndPtBrLocalizer\\.localizeCharacterSheet\\(seed\\)\\);)',t)
+if not m:
+    raise SystemExit("PATCH_MISSING::ui-seed-busy-start")
+t=t[:m.start()]+m.group(1)+'boolean wasBusy=f!=null&&f.dependencyRefreshBusy;if(f!=null)f.dependencyRefreshBusy=true;'+m.group(2)+t[m.end():]
+method_start=t.index('private void applyCharacterSeed(CharacterFormRefs f,JSONObject seed)')
+method_end=t.index('\\n    }',method_start)
+segment=t[method_start:method_end+6]
+if 'f.dependencyRefreshBusy=wasBusy' not in segment:
+    close=segment.rfind('}')
+    segment=segment[:close]+'if(f!=null){f.lastSpecies=String.valueOf(f.species.getSelectedItem());f.lastClass=String.valueOf(f.cls.getSelectedItem());f.lastBackground=String.valueOf(f.background.getSelectedItem());f.lastLevel=Math.max(1,Math.min(20,num(f.level,1)));f.dependencyRefreshBusy=wasBusy;}'+segment[close:]
+    t=t[:method_start]+segment+t[method_end+6:]
 
 write(name, t)
 
