@@ -215,11 +215,15 @@ jobs:
           & java.exe -version
 
           Set-Location $android
-          & .\gradlew.bat :app:compileDebugJavaWithJavac --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object "$out\JAVAC_RUN180.log"
-          if($LASTEXITCODE -ne 0){throw 'compileDebugJavaWithJavac falhou'}
+          & cmd.exe /d /s /c ".\gradlew.bat :app:compileDebugJavaWithJavac --no-daemon --console=plain --stacktrace > \"$out\JAVAC_RUN180.log\" 2>&1"
+          $javacRc=$LASTEXITCODE
+          Get-Content "$out\JAVAC_RUN180.log"
+          if($javacRc -ne 0){throw "compileDebugJavaWithJavac falhou rc=$javacRc"}
 
-          & .\gradlew.bat :app:assembleDebug --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object "$out\GRADLE_BUILD_RUN180.log"
-          if($LASTEXITCODE -ne 0){throw 'assembleDebug falhou'}
+          & cmd.exe /d /s /c ".\gradlew.bat :app:assembleDebug --no-daemon --console=plain --stacktrace > \"$out\GRADLE_BUILD_RUN180.log\" 2>&1"
+          $assembleRc=$LASTEXITCODE
+          Get-Content "$out\GRADLE_BUILD_RUN180.log"
+          if($assembleRc -ne 0){throw "assembleDebug falhou rc=$assembleRc"}
 
           $apk=Get-ChildItem "$android\app\build\outputs\apk\debug" -Filter *.apk -File | Select-Object -First 1
           if(!$apk){throw 'APK_AUSENTE'}
