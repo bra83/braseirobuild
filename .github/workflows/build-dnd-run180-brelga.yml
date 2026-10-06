@@ -154,8 +154,13 @@ jobs:
           "$apkSha  $env:APK_NAME" | Set-Content "$out\$env:APK_NAME.sha256" -Encoding ascii
           @("RUNNER_NAME=$env:RUNNER_NAME","SOURCE_SHA256=$sourceSha","PACKAGE=com.braseiro.dnd5e","VERSION_CODE=606280","VERSION_NAME=6.6.2-r180-debug","APK_SHA256=$apkSha") | Set-Content "$out\RUN180_BUILD_PROOF.txt" -Encoding utf8
 
-          $tag=$env:TAG
-          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
-          if($LASTEXITCODE -ne 0){gh release create $tag --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Braseiro DnD 6.6.2 RUN180' --notes 'RUN180 final Android build on self-hosted BRELGA.';if($LASTEXITCODE -ne 0){throw 'RELEASE_CREATE_FAILED'}}
-          Get-ChildItem $out -File | ForEach-Object {gh release upload $tag --repo $env:GITHUB_REPOSITORY $_.FullName --clobber;if($LASTEXITCODE -ne 0){throw "RELEASE_UPLOAD_FAILED $($_.Name)"}}
           Write-Host "APK_SHA256=$apkSha"
+          Write-Host "RUN180_BUILD_VALIDATED=YES"
+
+      - name: Upload RUN180 APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_DND_6.6.2_RUN180
+          path: C:\DND180\out\*
+          if-no-files-found: error
+          retention-days: 14
