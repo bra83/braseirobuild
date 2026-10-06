@@ -67,7 +67,7 @@ jobs:
           if (-not $file) { throw "Source not found: $env:SOURCE_NAME" }
           $ticket=Invoke-RestMethod -Method Post -Uri ($env:FIRESTORAGE_API + '/files/' + $file.fileId + '/download')
           $zip=Join-Path $env:BUILD_ROOT $env:SOURCE_NAME
-          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o $zip $ticket.downloadUrl
+          & curl.exe -L --fail --connect-timeout 15 --max-time 90 --retry 3 --retry-delay 2 --retry-all-errors -o $zip $ticket.downloadUrl
           if ($LASTEXITCODE -ne 0) { throw 'Download failed' }
           if ((Get-Item $zip).Length -ne [int64]$env:SOURCE_BYTES) { throw 'Source size mismatch' }
           $hash=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
