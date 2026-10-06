@@ -86,3 +86,22 @@ jobs:
           npm run verify:master-no-freeze-r5
           npm run verify:bugreport-freeze-2026-10-05
           npm run lint
+
+          for test in \
+            verify-rag-not-required \
+            verify:rag-off-kokoro-startup \
+            verify:runtime-hotfix-3.3.5 \
+            verify:runtime-integration-v3 \
+            verify:runtime-playthroughs-v3 \
+            verify:dice-full \
+            verify:adventure-sites-v2 \
+            verify:canonical-narrator-profile \
+            verify:human-master-runtime \
+            verify:bugreport-freeze-2026-10-05 \
+            verify:google-drive-signing
+          do
+            echo "=== $test ==="
+            npm run "$test"
+          done
+
+          npm run verify
