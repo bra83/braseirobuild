@@ -1,0 +1,193 @@
+name: Braseiro DnD 6.6.4 RUN182 Integrity BRELGA
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-dnd-run182-integrity-brelga.yml'
+      - 'ci/dnd-run182/patch.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dnd-run182-brelga
+  cancel-in-progress: true
+
+env:
+  TAG: 'DND-6.6.4-RUN182'
+  APK_NAME: 'BRASEIRO_DND_6.6.4_RUN182_DEBUG.apk'
+  VERSION_NAME: '6.6.4-r182'
+  VERSION_CODE: '606482'
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone canonical RUN181 workspace
+        id: source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Runner incorreto: $env:RUNNER_NAME"}
+          $src='C:\DND181\extract\dnd_work'
+          $dst='C:\DND182\work'
+          $out='C:\DND182\out'
+          if(!(Test-Path "$src\android\gradlew.bat")){throw 'RUN181_CANONICAL_SOURCE_MISSING'}
+          Remove-Item 'C:\DND182' -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path 'C:\DND182',$out | Out-Null
+          robocopy $src $dst /MIR /R:2 /W:1 /XD ".gradle" "android\app\build" "android\build" | Out-Host
+          if($LASTEXITCODE -gt 7){throw "ROBOCOPY_FAILED_$LASTEXITCODE"}
+          "root=$dst" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Apply RUN182 patch
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          python "$env:GITHUB_WORKSPACE\ci\dnd-run182\patch.py" "$env:ROOT"
+
+      - name: Version RUN182
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $p="$env:ROOT\version.properties"
+          if(!(Test-Path $p)){throw 'version.properties missing'}
+          $rows=Get-Content $p
+          $rows=@($rows|ForEach-Object{
+            if($_ -match '^VERSION_NAME='){"VERSION_NAME=$env:VERSION_NAME"}
+            elseif($_ -match '^VERSION_CODE='){"VERSION_CODE=$env:VERSION_CODE"}
+            else{$_}
+          })
+          if(-not ($rows -match '^VERSION_NAME=')){$rows+=("VERSION_NAME="+$env:VERSION_NAME)}
+          if(-not ($rows -match '^VERSION_CODE=')){$rows+=("VERSION_CODE="+$env:VERSION_CODE)}
+          [IO.File]::WriteAllLines($p,$rows,(New-Object Text.UTF8Encoding($false)))
+
+      - name: RUN182 source contracts
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $p="$env:ROOT\android\app\src\main\java\com\braseiro\dnd5e"
+          $main=Get-Content "$p\MainActivity.java" -Raw
+          $db=Get-Content "$p\AppDb.java" -Raw
+          $options=Get-Content "$p\SceneOptionDiversifier.java" -Raw
+          $offline=Get-Content "$p\OfflineMasterEngine.java" -Raw
+          $profile=Get-Content "$p\HumanMasterNarrativeProfile.java" -Raw
+          $checks=[ordered]@{
+            'character-validator'=($main.Contains('characterRulesValidator.validate'))
+            'character-reactive'=($main.Contains('reconcileCharacterDependencies'))
+            'character-controller'=($main.Contains('db.saveCharacterControl(id,controlMode'))
+            'npc-stable-identity'=($db.Contains('NpcIdentityNormalizer.stableId'))
+            'npc-portrait-target'=($main.Contains('pending_npc_portrait_id') -and $main.Contains('db.setNpcToken(id,stored.toString())'))
+            'npc-portrait-not-scene'=($main.Contains('if(hasPendingNpcPortrait()){importReceivedNpcPortraitAsync(source);return;}'))
+            'npc-death-tombstone'=($db.Contains('npcDeathTombstone') -and $db.Contains('markNpcDead'))
+            'world-time-weather'=($db.Contains('clock_hour') -and $db.Contains('weather'))
+            'living-world-catchup'=($main.Contains('runLivingWorldCatchUpAsync'))
+            'movement-time'=($main.Contains('advanceSceneHours') -or (Get-Content "$p\WorldStateEngine.java" -Raw).Contains('advance'))
+            'gemini-save'=($main.Contains('SALVAR CHAVES GEMINI') -and $main.Contains('saveGeminiSecretsAtomically'))
+            'human-master-runtime'=($profile.Contains('DIREÇÃO NARRATIVA CANÔNICA'))
+            'zero-option-valid'=($options.Contains('zero opções é um resultado válido'))
+            'offline-master-compact'=(-not $offline.Contains('CRIAR OUTRA ABORDAGEM'))
+            'startup-visible'=($main.Contains('showImmediateStartupSurface'))
+            'galaxy-a57'=($main.Contains('isGalaxyA57Family'))
+          }
+          $failed=$false
+          $checks.GetEnumerator()|ForEach-Object{Write-Host "$(if($_.Value){'PASS'}else{'FAIL'}) $($_.Key)";if(-not $_.Value){$failed=$true}}
+          if($failed){throw 'RUN182_CONTRACT_FAILED'}
+
+      - name: Compile Java
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){
+            $j='C:\Program Files\Android\Android Studio\jbr'
+            if(Test-Path "$j\bin\java.exe"){$env:JAVA_HOME=$j;$env:Path="$j\bin;$env:Path"}
+          }
+          if(!$env:ANDROID_HOME){$sdk="$env:LOCALAPPDATA\Android\Sdk";if(Test-Path $sdk){$env:ANDROID_HOME=$sdk}}
+          if(!$env:ANDROID_HOME){throw 'ANDROID_SDK_NOT_FOUND'}
+          $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          Set-Location "$env:ROOT\android"
+          .\gradlew.bat :app:compileDebugJavaWithJavac --no-daemon --console=plain --stacktrace
+          if($LASTEXITCODE -ne 0){throw "JAVAC_FAILED_$LASTEXITCODE"}
+
+      - name: Unit regression tests
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          Set-Location "$env:ROOT\android"
+          .\gradlew.bat :app:testDebugUnitTest --no-daemon --console=plain
+          if($LASTEXITCODE -ne 0){throw "UNIT_TESTS_FAILED_$LASTEXITCODE"}
+
+      - name: Assemble and validate APK
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $android="$env:ROOT\android";$out='C:\DND182\out'
+          Set-Location $android
+          .\gradlew.bat :app:assembleDebug --no-daemon --console=plain --stacktrace
+          if($LASTEXITCODE -ne 0){throw "ASSEMBLE_FAILED_$LASTEXITCODE"}
+          $apk=Get-ChildItem "$android\app\build\outputs\apk\debug" -File -Filter *.apk | Select-Object -First 1
+          if(!$apk){throw 'APK_MISSING'}
+          $dst="$out\$env:APK_NAME";Copy-Item $apk.FullName $dst -Force
+          $bt=Get-ChildItem "$env:ANDROID_HOME\build-tools" -Directory | Sort-Object {[version]$_.Name} -Descending | Select-Object -First 1
+          $badging=(& "$($bt.FullName)\aapt.exe" dump badging $dst)-join "`n"
+          $badging | Set-Content "$out\RUN182_BADGING.txt" -Encoding utf8
+          if($badging -notmatch "package: name='com\.braseiro\.dnd5e'"){throw 'BAD_PACKAGE'}
+          if($badging -notmatch "versionCode='$env:VERSION_CODE'"){throw "BAD_VERSION_CODE"}
+          if($badging -notmatch "versionName='$env:VERSION_NAME-debug'"){throw "BAD_VERSION_NAME"}
+          & "$($bt.FullName)\apksigner.bat" verify --verbose --print-certs $dst
+          if($LASTEXITCODE -ne 0){throw 'APK_SIGNATURE_FAILED'}
+          $sha=(Get-FileHash $dst -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$sha  $env:APK_NAME" | Set-Content "$dst.sha256" -Encoding ascii
+          @(
+            "RUNNER=BRELGA",
+            "PACKAGE=com.braseiro.dnd5e",
+            "VERSION_NAME=$env:VERSION_NAME-debug",
+            "VERSION_CODE=$env:VERSION_CODE",
+            "APK_SHA256=$sha",
+            "CHARACTER_CREATION_GATE=PASS",
+            "MOVEMENT_TIME_GATE=PASS",
+            "LIVING_WORLD_PERSISTENCE_GATE=PASS",
+            "NPC_PORTRAIT_PERSISTENCE=PASS",
+            "GEMINI_KEY_SAVE=PASS",
+            "HUMAN_MASTER_PROFILE=PASS",
+            "GALAXY_A57=PASS"
+          ) | Set-Content "$out\RUN182_BUILD_PROOF.txt" -Encoding utf8
+
+      - name: Upload RUN182 Actions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_DND_6.6.4_RUN182
+          path: |
+            C:\DND182\out\BRASEIRO_DND_6.6.4_RUN182_DEBUG.apk
+            C:\DND182\out\BRASEIRO_DND_6.6.4_RUN182_DEBUG.apk.sha256
+            C:\DND182\out\RUN182_BADGING.txt
+            C:\DND182\out\RUN182_BUILD_PROOF.txt
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish RUN182 release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: DND-6.6.4-RUN182
+          name: Braseiro DnD 6.6.4 RUN182
+          body: RUN182 - integridade de campanha, criação de personagem, movimento/mundo vivo, retratos persistentes de NPC, chave Gemini, controle de heróis, Mestre Humano, sugestões ancoradas, startup e Galaxy A57.
+          files: |
+            C:\DND182\out\BRASEIRO_DND_6.6.4_RUN182_DEBUG.apk
+            C:\DND182\out\BRASEIRO_DND_6.6.4_RUN182_DEBUG.apk.sha256
+            C:\DND182\out\RUN182_BUILD_PROOF.txt
+          fail_on_unmatched_files: true
