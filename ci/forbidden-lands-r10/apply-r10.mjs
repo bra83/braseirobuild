@@ -332,6 +332,8 @@ fs.writeFileSync(p('src','components','SuggestedChoiceButton.tsx'), touchCompone
     const file = p(...parts);
     let s = fs.readFileSync(file,'utf8');
     s = s.replaceAll("APP_VERSION = '3.3.5'", "APP_VERSION = '3.3.6'");
+    s = s.replaceAll("3\\\\.3\\\\.5", "3\\\\.3\\\\.6");
+    s = s.replaceAll('3.3.5', '3.3.6');
     s = s.replaceAll('ANDROID_VERSION_CODE = 303500', 'ANDROID_VERSION_CODE = 303600');
     s = s.replaceAll("pkg.version, '3.3.5'", "pkg.version, '3.3.6'");
     s = s.replaceAll("packageJson.version === '3.3.5'", "packageJson.version === '3.3.6'");
