@@ -18,6 +18,7 @@ jobs:
             for($i=$from;$i -le [Math]::Min($to,$ls.Count);$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}
           }
           Slice 'MainActivity.java' 1760 1800
+          Slice 'MainActivity.java' 1878 1910
           Slice 'AppDb.java' 1100 1150
           if(Test-Path (Join-Path $src 'DndProgressionEngine.java')){
             "===== DndProgressionEngine.java ====="
