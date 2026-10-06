@@ -74,34 +74,10 @@ jobs:
           fs.writeFileSync(canon,c,'utf8');
           NODE
 
-      - name: Install and run critical gates
-        working-directory: src
+      - name: Inspect deep-audit Gemini cleanup
         shell: bash
         run: |
-          set -euo pipefail
-          npm ci --no-audit --no-fund
-          node scripts/verify-pf2-r34-parity.mjs
-          npm run verify:human-master-runtime
-          npm run verify:canonical-narrator-profile
-          npm run verify:master-no-freeze-r5
-          npm run verify:bugreport-freeze-2026-10-05
-          npm run lint
-
-          for test in \
-            verify-rag-not-required \
-            verify:rag-off-kokoro-startup \
-            verify:runtime-hotfix-3.3.5 \
-            verify:runtime-integration-v3 \
-            verify:runtime-playthroughs-v3 \
-            verify:dice-full \
-            verify:adventure-sites-v2 \
-            verify:canonical-narrator-profile \
-            verify:human-master-runtime \
-            verify:bugreport-freeze-2026-10-05 \
-            verify:google-drive-signing
-          do
-            echo "=== $test ==="
-            npm run "$test"
-          done
-
-          npm run verify
+          echo '===== GEMINI REQUEST CLEANUP ====='
+          grep -n -A100 -B10 "private HttpResult request(" src/android/app/src/main/java/com/braseiro/forbiddenlands/GeminiGatewayPlugin.java || true
+          echo '===== DEEP AUDIT GATE ====='
+          grep -n -A25 -B15 "Gateway Gemini usa cabeçalho oficial" src/scripts/audit-deep.ts || true
