@@ -1,0 +1,26 @@
+name: DnD RUN180 Character Conditions Audit
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/audit-dnd-run180-character-conditions.yml']
+
+jobs:
+  audit:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    steps:
+      - name: Inspect conditions and attributes
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $src='C:\DND180\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
+          function Ctx([string]$file,[string]$pattern,[int]$b=10,[int]$a=25){
+            $p=Join-Path $src $file; "===== $file ====="; $ls=Get-Content $p
+            $ms=Select-String -Path $p -Pattern $pattern -AllMatches
+            foreach($m in $ms){$s=[Math]::Max(1,$m.LineNumber-$b);$e=[Math]::Min($ls.Count,$m.LineNumber+$a);"--- around $($m.LineNumber) ---";for($i=$s;$i -le $e;$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}}
+          }
+          Ctx 'DndRulesEngine.java' 'validateCharacter|ability|standard|point|score|classHitDie|suggestedMaxHp'
+          Ctx 'CharacterSheetGenerator.java' 'abilityScores|rollAbilities|standard|point|score|assign|randomComplete|baseComplete|mechanicsFromContext|randomSubclass|concept'
+          Ctx 'MainActivity.java' 'f\.species=|f\.cls=|f\.subclass=|f\.background=|setOnItemSelectedListener|show.*Selector|subclassesFor|subclassLevel|class_name|applyCharacterSeed'
+          Ctx 'SupplementContentRegistry.java' 'isKnownClass|class|Caçador|Cacador|Blood Hunter'
