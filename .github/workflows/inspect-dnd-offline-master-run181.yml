@@ -1,0 +1,16 @@
+name: Inspect DnD Offline Master RUN181
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-offline-master-run181.yml']
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 8
+    steps:
+      - name: Offline master
+        shell: powershell
+        run: |
+          $p='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e\OfflineMasterEngine.java'
+          if(!(Test-Path $p)){throw 'missing'}
+          Get-Content $p
