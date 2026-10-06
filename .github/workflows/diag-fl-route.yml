@@ -114,18 +114,13 @@ jobs:
           echo 'PORTABLE_HISTORICAL_SIGNER=PASS'
 
 
-      - name: Inspect Galaxy A57 layout surface
+      - name: Inspect Galaxy A57 layout details
         shell: bash
         run: |
           set -euo pipefail
-          echo '===== INDEX ====='
-          sed -n '1,220p' src/index.html
-          echo '===== CSS FILES ====='
-          find src/src -maxdepth 3 -type f -name '*.css' -print
-          echo '===== APP ====='
-          if [ -f src/src/App.tsx ]; then nl -ba src/src/App.tsx | sed -n '1,360p'; fi
-          echo '===== GLOBAL CSS ====='
-          if [ -f src/src/index.css ]; then nl -ba src/src/index.css | sed -n '1,420p'; fi
-          if [ -f src/src/styles.css ]; then nl -ba src/src/styles.css | sed -n '1,420p'; fi
-          echo '===== ADVENTURE CLASSES ====='
-          grep -nE 'className=.*(fixed|sticky|bottom|top|overflow|max-w|grid|h-screen|min-h|px-|py-)' src/src/screens/AdventureScreenV3.tsx | head -n 320 || true
+          echo '===== LAYOUT ====='
+          nl -ba src/src/components/Layout.tsx | sed -n '1,460p'
+          echo '===== CSS 160-365 ====='
+          nl -ba src/src/index.css | sed -n '160,365p'
+          echo '===== ADVENTURE 1280-1360 ====='
+          nl -ba src/src/screens/AdventureScreenV3.tsx | sed -n '1280,1365p'
