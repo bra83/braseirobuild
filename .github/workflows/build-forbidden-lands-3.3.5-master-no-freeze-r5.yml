@@ -1,10 +1,6 @@
 name: Forbidden Lands 3.3.5 Master No Freeze R5 - BRELGA
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/build-forbidden-lands-3.3.5-pf2-r34-parity.yml'
   workflow_dispatch:
 
 permissions:
