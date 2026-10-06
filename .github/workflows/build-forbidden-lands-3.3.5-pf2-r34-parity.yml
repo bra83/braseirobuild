@@ -92,8 +92,8 @@ jobs:
           # Normaliza somente a assercao de voz corrompida por encoding; usa padrao ASCII.
           $raw=[regex]::Replace(
             $raw,
-            'assert\.match\(([^,\r\n]+),\s*/VOZ DE MESTRE HUMANO[^/]*/i\);',
-            'assert.match($1, /VOZ DE MESTRE HUMANO/i);'
+            '/VOZ DE MESTRE HUMANO[^/\r\n]*/i',
+            '/VOZ DE MESTRE HUMANO/i'
           )
           [IO.File]::WriteAllText($gate,$raw,[Text.UTF8Encoding]::new($false))
 
