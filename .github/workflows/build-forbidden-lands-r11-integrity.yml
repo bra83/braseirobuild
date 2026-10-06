@@ -57,7 +57,7 @@ jobs:
           KS='work/fl/android/app/braseiro-debug.jks'
           STORE_PASS=$(grep -E '^BRASEIRO_STORE_PASSWORD=' "$PROP" | head -n1 | cut -d= -f2-)
           ALIAS=$(grep -E '^BRASEIRO_KEY_ALIAS=' "$PROP" | head -n1 | cut -d= -f2-)
-          ALIAS="\${ALIAS:-braseiro}"
+          if [ -z "$ALIAS" ]; then ALIAS=braseiro; fi
           SHA1=$(keytool -list -v -keystore "$KS" -storepass "$STORE_PASS" -alias "$ALIAS" 2>/dev/null | awk -F': ' '/SHA1:/{gsub(":","",$2); print tolower($2); exit}')
           test "$SHA1" = "$EXPECTED_SHA1"
       - name: Install dependencies
