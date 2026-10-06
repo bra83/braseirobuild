@@ -251,6 +251,66 @@ if 'f.dependencyRefreshBusy=wasBusy' not in segment:
     segment=segment[:close]+'if(f!=null){f.lastSpecies=String.valueOf(f.species.getSelectedItem());f.lastClass=String.valueOf(f.cls.getSelectedItem());f.lastBackground=String.valueOf(f.background.getSelectedItem());f.lastLevel=Math.max(1,Math.min(20,num(f.level,1)));f.dependencyRefreshBusy=wasBusy;}'+segment[close:]
     t=t[:method_start]+segment+t[method_end+6:]
 
+# Galaxy A57 / modern Samsung compatibility: safe system bars, display cutout,
+# IME resize and full-screen dialog insets. Applied generically to 360-480dp
+# phones so no gameplay behavior depends on a device model.
+shell_anchor = '''        setContentView(root);
+        applySystemBarInsets(root);
+'''
+shell_new = '''        setContentView(root);
+        applySystemBarInsets(root);
+        applySamsungA57Compatibility(root);
+'''
+t = replace_once(t, shell_anchor, shell_new, "a57-shell")
+
+method_anchor = '''    private void applySystemBarInsets(final View root){
+'''
+a57_helpers = r'''    private boolean isGalaxyA57Family(){
+        String maker=Build.MANUFACTURER==null?"":Build.MANUFACTURER.toLowerCase(Locale.ROOT);
+        String model=Build.MODEL==null?"":Build.MODEL.toUpperCase(Locale.ROOT);
+        String product=Build.PRODUCT==null?"":Build.PRODUCT.toLowerCase(Locale.ROOT);
+        return maker.contains("samsung")&&(model.startsWith("SM-A57")||model.startsWith("SM-A576")||product.contains("a57"));
+    }
+    private void applySamsungA57Compatibility(final View root){
+        try{
+            Window w=getWindow();if(w==null||root==null)return;
+            w.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+            if(Build.VERSION.SDK_INT>=29)w.setNavigationBarContrastEnforced(false);
+            root.setMinimumWidth(0);root.setMinimumHeight(0);root.requestApplyInsets();
+            android.util.DisplayMetrics dm=getResources().getDisplayMetrics();
+            int widthDp=(int)(dm.widthPixels/Math.max(1f,dm.density));
+            if(isGalaxyA57Family()||(widthDp>=360&&widthDp<=480)){
+                root.setPadding(root.getPaddingLeft(),root.getPaddingTop(),root.getPaddingRight(),Math.max(root.getPaddingBottom(),dp(4)));
+            }
+        }catch(Throwable e){AppLog.w("A57Compat","Compatibilidade adaptativa não pôde ser aplicada integralmente.",e);}
+    }
+    private void fitModernSamsungDialog(final android.app.Dialog dialog){
+        if(dialog==null)return;final Window w=dialog.getWindow();if(w==null)return;
+        w.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        final View decor=w.getDecorView();
+        decor.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener(){public WindowInsets onApplyWindowInsets(View v,WindowInsets insets){
+            int l=0,t=0,r=0,b=0;
+            if(Build.VERSION.SDK_INT>=30){
+                android.graphics.Insets bars=insets.getInsets(WindowInsets.Type.systemBars()|WindowInsets.Type.displayCutout());
+                android.graphics.Insets ime=insets.getInsets(WindowInsets.Type.ime());
+                l=bars.left;t=bars.top;r=bars.right;b=Math.max(bars.bottom,ime.bottom);
+            }else{
+                l=insets.getSystemWindowInsetLeft();t=insets.getSystemWindowInsetTop();r=insets.getSystemWindowInsetRight();b=insets.getSystemWindowInsetBottom();
+            }
+            v.setPadding(l,t,r,b);return insets;
+        }});
+        decor.requestApplyInsets();
+    }
+
+''' + method_anchor
+t = replace_once(t, method_anchor, a57_helpers, "a57-insets-helpers")
+
+dialog_old = '''d.show();Window dw=d.getWindow();if(dw!=null){dw.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);}'''
+dialog_new = '''d.show();Window dw=d.getWindow();if(dw!=null){dw.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);}fitModernSamsungDialog(d);'''
+if dialog_old not in t:
+    raise SystemExit("PATCH_MISSING::a57-character-dialog")
+t = t.replace(dialog_old, dialog_new, 1)
+
 write(name, t)
 
 # ---------------------------------------------------------------------
