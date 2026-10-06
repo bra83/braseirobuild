@@ -96,7 +96,16 @@ jobs:
           if(!$gradle){throw 'android/gradlew.bat ausente'}
           $android=$gradle.Directory.FullName;$root=Split-Path $android -Parent;Write-Host "ROOT=$root"
           $versionPath="$root\version.properties"
-          [IO.File]::WriteAllText($versionPath,"VERSION_NAME=6.6.2-r180`nVERSION_CODE=606280`n",(New-Object Text.UTF8Encoding($false)))
+          $vp=@(Get-Content $versionPath)
+          $hasName=$false;$hasCode=$false
+          $vp=@($vp | ForEach-Object {
+            if($_ -match '^VERSION_NAME='){ $hasName=$true; 'VERSION_NAME=6.6.2-r180' }
+            elseif($_ -match '^VERSION_CODE='){ $hasCode=$true; 'VERSION_CODE=606280' }
+            else { $_ }
+          })
+          if(-not $hasName){$vp=@('VERSION_NAME=6.6.2-r180')+$vp}
+          if(-not $hasCode){$vp=@('VERSION_CODE=606280')+$vp}
+          [IO.File]::WriteAllLines($versionPath,$vp,(New-Object Text.UTF8Encoding($false)))
           $build="$android\app\build.gradle.kts"
           if(!(Select-String -Quiet -Path $build -Pattern 'com.braseiro.dnd5e')){throw 'PACKAGE_CONTRACT_FAILED'}
 
