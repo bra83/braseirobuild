@@ -1,0 +1,19 @@
+name: Inspect DnD RUN182 NPC Apply
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-run182-npc-apply.yml']
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 8
+    steps:
+      - name: NPC apply
+        shell: powershell
+        run: |
+          $src='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
+          foreach($file in @('MainActivity.java','MasterOrchestrator.java','ConsequenceEngine.java','NpcAgencyEngine.java','AppDb.java')){
+            $p=Join-Path $src $file;if(!(Test-Path $p)){continue}
+            $ls=Get-Content $p;$ms=Select-String -Path $p -Pattern 'npc_updates|upsertNpcMemory|setNpcActive|npc.*dead|dead.*npc|death|hp.*npc' -AllMatches
+            foreach($m in $ms){"===== ${file}:$($m.LineNumber) =====";$a=[Math]::Max(1,$m.LineNumber-10);$b=[Math]::Min($ls.Count,$m.LineNumber+35);for($i=$a;$i -le $b;$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}}
+          }
