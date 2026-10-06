@@ -1,0 +1,33 @@
+name: Inspect DnD RUN181 Exact Methods
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-run181-exact-methods.yml']
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 15
+    steps:
+      - name: Exact methods
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $src='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
+          $main=Join-Path $src 'MainActivity.java';$db=Join-Path $src 'AppDb.java'
+          function Around([string]$path,[string]$pattern,[int]$before=10,[int]$after=80){
+            $ls=Get-Content $path;$ms=Select-String -Path $path -Pattern $pattern -AllMatches
+            foreach($m in $ms){"===== $([IO.Path]::GetFileName($path)):$($m.LineNumber) $pattern =====";$a=[Math]::Max(1,$m.LineNumber-$before);$b=[Math]::Min($ls.Count,$m.LineNumber+$after);for($i=$a;$i -le $b;$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}}
+          }
+          Around $main 'Chave principal da API Gemini' 35 120
+          Around $main 'saveGeminiSecretsAtomically\(' 5 30
+          Around $main 'onActivityResult\(' 5 180
+          Around $main 'onNewIntent\(' 5 80
+          Around $main 'showNpc|npcCard|NPCs presentes|currentSceneCastPreview|token_uri' 8 55
+          Around $main 'collectCharacterSheet\(' 8 80
+          Around $main 'CharacterFormRefs' 10 45
+          Around $main 'combatInitiativeParticipants\(' 8 100
+          Around $main 'applySystemBarInsets|onCreate\(' 8 100
+          Around $db 'CREATE TABLE IF NOT EXISTS npc_memory|CREATE TABLE npc_memory' 5 25
+          Around $db 'CREATE TABLE IF NOT EXISTS characters|CREATE TABLE characters' 5 30
+          Around $db 'findNpcMemoryByName|updateNpcMemory|upsertNpcMemory|deleteNpcMemory' 5 55
+          Around $db 'addCharacter|updateCharacter|readCharacterSheet|getCharacter' 5 45
