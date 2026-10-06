@@ -1,0 +1,61 @@
+name: Publish Braseiro DnD RUN181 APK
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-dnd-run181-apk.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 45
+    steps:
+      - name: Revalidate existing RUN181 APK on BRELGA
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Runner incorreto: $env:RUNNER_NAME"}
+          $apk='C:\DND181\out\BRASEIRO_DND_6.6.3_RUN181_DEBUG.apk'
+          if(!(Test-Path $apk)){throw "APK RUN181 ausente"}
+          $sha=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$sha  BRASEIRO_DND_6.6.3_RUN181_DEBUG.apk" | Set-Content "$apk.sha256" -Encoding ascii
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){
+            $j='C:\Program Files\Android\Android Studio\jbr'
+            if(Test-Path "$j\bin\java.exe"){$env:JAVA_HOME=$j;$env:Path="$j\bin;$env:Path"}
+          }
+          if(!$env:ANDROID_HOME){$sdk="$env:LOCALAPPDATA\Android\Sdk";if(Test-Path $sdk){$env:ANDROID_HOME=$sdk}}
+          $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          $bt=Get-ChildItem "$env:ANDROID_HOME\build-tools" -Directory | Sort-Object {[version]$_.Name} -Descending | Select-Object -First 1
+          $badging=(& "$($bt.FullName)\aapt.exe" dump badging $apk)-join "`n"
+          if($badging -notmatch "package: name='com\.braseiro\.dnd5e'"){throw 'BAD_PACKAGE'}
+          if($badging -notmatch "versionCode='606381'"){throw 'BAD_VERSION_CODE'}
+          if($badging -notmatch "versionName='6\.6\.3-r181-debug'"){throw 'BAD_VERSION_NAME'}
+          & "$($bt.FullName)\apksigner.bat" verify --verbose --print-certs $apk
+          if($LASTEXITCODE -ne 0){throw 'APK_SIGNATURE_FAILED'}
+          @(
+            "RUNNER_NAME=$env:RUNNER_NAME",
+            "PACKAGE=com.braseiro.dnd5e",
+            "VERSION_CODE=606381",
+            "VERSION_NAME=6.6.3-r181-debug",
+            "APK_SHA256=$sha",
+            "GALAXY_A57_COMPAT=YES",
+            "CHARACTER_CREATION_AUDIT_FIX=YES"
+          ) | Set-Content 'C:\DND181\out\RUN181_BUILD_PROOF.txt' -Encoding utf8
+          Write-Host "APK_SHA256=$sha"
+
+      - name: Publish RUN181 GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: DND-6.6.3-RUN181
+          name: Braseiro DnD 6.6.3 RUN181
+          body: RUN181 com correções da criação de personagens, perfil Kokoro e compatibilidade Samsung Galaxy A57. Compilado e validado no BRELGA.
+          files: |
+            C:\DND181\out\BRASEIRO_DND_6.6.3_RUN181_DEBUG.apk
+            C:\DND181\out\BRASEIRO_DND_6.6.3_RUN181_DEBUG.apk.sha256
+            C:\DND181\out\RUN181_BUILD_PROOF.txt
+            C:\DND181\out\RUN181_TTS_AUDIT.json
+          fail_on_unmatched_files: true
