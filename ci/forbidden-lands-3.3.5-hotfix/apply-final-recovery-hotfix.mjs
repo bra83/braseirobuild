@@ -124,7 +124,7 @@ function ensurePlayableChoices(actions: unknown, initial = false) {
         {ensurePlayableChoices(scene.suggestedActions, scene.sequence === 1).map((action, actionIndex) => <button
           key={\`\${scene.id}-choice-\${actionIndex}\`}
           type="button"
-          onClick={() => void send(action)}
+          onClick={() => void send(action, undefined, false, undefined, 'suggested')}
           disabled={busy}
           className="w-full min-h-14 rounded-xl border border-border bg-bg-base px-4 py-3 text-left text-[17px] leading-6 font-medium hover:border-accent/70 hover:bg-accent/5 disabled:opacity-40"
         ><span className="mr-2 text-accent font-bold">{actionIndex + 1}.</span>{action}</button>)}
