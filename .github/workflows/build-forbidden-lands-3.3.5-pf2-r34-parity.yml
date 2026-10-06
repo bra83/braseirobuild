@@ -1,4 +1,4 @@
-name: Forbidden Lands 3.3.5 PF2 R34 Human Master - BRELGA
+name: Forbidden Lands 3.3.5 Master No Freeze R5 - BRELGA
 
 on:
   push:
@@ -15,13 +15,13 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_PF2_R34_HUMAN_MASTER_SOURCE_R4.zip"
-  SOURCE_BYTES: "26719330"
-  SOURCE_SHA256: "ba4f369ad2444e21787129755f8a78255b8115b3ad2a85a640724f902b53cdab"
-  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/ZniShKQi8kUx"
-  BUILD_ROOT: "D:\\brelga-fl-pf2-r34-human-master"
-  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_PF2_R34_HUMAN_MASTER.apk"
-  TAG: "forbidden-lands-3.3.5-pf2-r34-human-master"
+  SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_MASTER_NO_FREEZE_R5_SOURCE.zip"
+  SOURCE_BYTES: "26720402"
+  SOURCE_SHA256: "beb0dfed129fbec7d7f95916a612cb1371f0352c8aad97ccb305b46f96b8df61"
+  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/D1hs320P0KfZ"
+  BUILD_ROOT: "D:\\brelga-fl-master-no-freeze-r5"
+  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_MASTER_NO_FREEZE_R5.apk"
+  TAG: "forbidden-lands-3.3.5-master-no-freeze-r5"
   EXPECTED_SHA1: "9d0f1089b3fb6c225f1f59462750864e897c4d92"
 
 jobs:
@@ -103,6 +103,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'PF2 R34 parity gate failed' }
           & npm.cmd run verify:human-master-runtime
           if ($LASTEXITCODE -ne 0) { throw 'Human Master runtime gate failed' }
+          & npm.cmd run verify:master-no-freeze-r5
+          if ($LASTEXITCODE -ne 0) { throw 'Master no-freeze R5 gate failed' }
           & npm.cmd run lint
           if ($LASTEXITCODE -ne 0) { throw 'TypeScript failed' }
 
@@ -218,10 +220,10 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO_FORBIDDEN_LANDS_3.3.5_PF2_R34_HUMAN_MASTER
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.5_MASTER_NO_FREEZE_R5
           path: |
-            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_PF2_R34_HUMAN_MASTER.apk
-            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_PF2_R34_HUMAN_MASTER.apk.sha256
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_MASTER_NO_FREEZE_R5.apk
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.5_MASTER_NO_FREEZE_R5.apk.sha256
             ${{ steps.apk.outputs.dir }}/APK_BADGING.txt
             ${{ steps.apk.outputs.dir }}/APK_SIGNATURE.txt
             ${{ steps.apk.outputs.dir }}/PF2_R34_PARITY_PROOF.txt
@@ -239,7 +241,7 @@ jobs:
           $release=$null
           try{$release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:TAG"}catch{if($_.Exception.Response.StatusCode.value__ -ne 404){throw}}
           if(-not $release){
-            $payload=@{tag_name=$env:TAG;target_commitish='main';name='Braseiro Forbidden Lands 3.3.5 - PF2 R34 Human Master';body='Porta a arquitetura estável do Pathfinder R34 e reforça o perfil canônico Mestre Humano Imersivo: uma chamada Gemini por turno, sem timeouts JS órfãos, RAG mecânico condicional, abertura 5k-6.5k, gate anti-HUD/menu, agência preservada e fallback humanizado.';draft=$false;prerelease=$false}|ConvertTo-Json
+            $payload=@{tag_name=$env:TAG;target_commitish='main';name='Braseiro Forbidden Lands 3.3.5 - Master No Freeze R5';body='Correção estrutural do travamento do Mestre: transporte Gemini SSE como no Pathfinder estável, cancelamento nativo real por requestId, orçamento total curto, duas tentativas máximas, chamada principal sem responseSchema gigante, perfil humano compacto e origem Gemini/fallback auditável.';draft=$false;prerelease=$false}|ConvertTo-Json
             $release=Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $payload -Uri "https://api.github.com/repos/$repo/releases"
           }
           $assets=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$($release.id)/assets?per_page=100"
