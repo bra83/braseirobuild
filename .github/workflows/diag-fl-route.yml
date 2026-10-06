@@ -30,6 +30,9 @@ jobs:
           echo '===== NARRATIVE INTENT SERVICE ====='
           nl -ba src/src/services/NarrativeIntentService.ts | sed -n '1,280p'
 
+          echo '===== PRESENTATION FIELD USAGE ====='
+          grep -RInE --include='*.ts' --include='*.tsx' --include='*.mjs' 'presentationKind|\.presentation\b|presentation:' src/src src/scripts | head -n 300 || true
+
           echo '===== BUGREPORT TEST ====='
           TEST=$(grep -RIl --include='*.mjs' 'botão sugerido precisa produzir cena' src | head -n 1 || true)
           if [ -n "$TEST" ]; then
