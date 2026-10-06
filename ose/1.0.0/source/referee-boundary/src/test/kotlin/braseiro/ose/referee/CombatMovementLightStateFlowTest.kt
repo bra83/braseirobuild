@@ -45,11 +45,17 @@ class CombatMovementLightStateFlowTest {
                 expedition=ExpeditionSnapshot(lightSources=listOf(LightSourceSnapshot("t2",LightSourceKind.TORCH,"hero",6,true)))
             )))
         }
-        // A named stream is materialized lazily on its first draw. Treat an absent stream as counter zero.
-        val before=rng.snapshot().streams[RngStreamId.RULES_DICE]?.counter ?: 0L
+        // Named streams are materialized lazily. The surprise command must consume exactly one
+        // RULES_DICE draw here: party checks surprise; opposition does not because party light is visible.
+        val before=rng.snapshot().streams[RngStreamId.RULES_DICE]?.counter
         val out=boundary.resolve(e,"ENCOUNTER_SURPRISE:BOTH",rng)
-        val after=rng.snapshot().streams[RngStreamId.RULES_DICE]?.counter ?: 0L
-        assertEquals(1L,after-before)
+        val after=rng.snapshot().streams[RngStreamId.RULES_DICE]?.counter
+        val consumed = when {
+            before != null && after != null -> after - before
+            before == null && after != null -> after
+            else -> 0L
+        }
+        assertEquals(1L,consumed)
         assertFalse(out.updatedState.game.encounter!!.oppositionSurprised!!)
         assertTrue(out.trace.evidence.any{it.ruleId=="LIGHT.SURPRISE"})
     }
