@@ -51,7 +51,8 @@ window.BraseiroReceive=(raw)=>{
   else if(m.type==='GeminiSettingsState'){geminiState=p;updateSettingsStatus();}
   else if(m.type==='GeminiCredentialTestResult')showToast(p.ok?'Conexão Gemini: OK':'Não foi possível usar a configuração informada.');
   else if(m.type==='SceneImageResult'){postNative('ViewState',{request:'after-scene-image'});showToast('Ilustração da cena atualizada.');}
-  else if(m.type==='PresentationImageSaved'){postNative('ViewState',{request:'after-media-save'});showToast('Imagem salva.');}
+  else if(m.type==='PortraitPromptShareResult')showToast('Abrindo o Gemini com o prompt do retrato…');
+  else if(m.type==='PresentationImageSaved'){postNative('ViewState',{request:'after-media-save'});showToast('Imagem salva e vinculada ao personagem.');}
   else if(m.type==='ManualDiceResult'){diceHistory.unshift({rolls:p.rolls||[],total:p.total,sides:p.sides,count:p.count,modifier:p.modifier||0});diceHistory=diceHistory.slice(0,12);render();showToast(`Resultado: ${p.total}`);}
   else if(m.type==='RuleEvidenceListResult'){ruleLibrary=p.rules||[];ruleLibraryLoaded=true;render();}
   else if(m.type==='RuleEvidenceResult'){showRuleDetail(p);}
@@ -99,10 +100,13 @@ function renderSession(){
  const sceneUrl=viewState?.presentation?.sceneImageUrl;
  const raw=viewState?.sceneDecisions||[];
  const ds=raw.length===3?raw:(fallbackDecisions[stateName]||fallbackDecisions.active);
+ const presentNpcs=viewState?.presentation?.presentNpcs||[];
+ const npcPanel=presentNpcs.length?`<div class="panel"><h3>NPCs presentes</h3><div class="choice-grid">${presentNpcs.map(n=>`<div class="choice npc-card">${n.portraitUrl?img(n.portraitUrl,n.name,'item-thumb'):'<div class="npc-placeholder">?</div>'}<b>${esc(n.name)}</b>${hasNative()?`<div class="actions"><button class="small" data-generate-npc="${esc(n.npcId)}">GERAR RETRATO</button><button class="small" data-photo-npc="${esc(n.npcId)}">IMPORTAR</button></div>`:''}</div>`).join('')}</div></div>`:'';
  return `<div class="kicker">Sessão ativa</div>
   <div class="panel"><div class="row"><div><span class="pill">${profileLabel()}</span><h2 style="margin-top:7px">Cena atual</h2></div></div>
   ${sceneUrl?img(sceneUrl,'Ilustração da cena atual','scene-image'):''}<div id="visibleNarration" class="narrative-text">${paragraphs(narration)}</div>
   <div class="session-tools"><button class="small" data-tts="play">▶ OUVIR</button><button class="small" data-tts="stop">■ PARAR</button><button class="small" data-tts="replay">↻ REPETIR</button><button class="small" data-scene-image>▧ ILUSTRAR</button></div></div>
+  ${npcPanel}
   ${renderRuleTrace(lastRuleTrace||viewState?.lastRuleTrace)}
   <div class="panel"><h3>O que você faz?</h3><div class="suggestions">${ds.map(x=>`<button class="suggestion" data-suggest="${esc(x.reaction||x[1]||'')}" data-intent="${esc(x.mechanicalIntent||'')}">${esc(x.label||x[0]||'AÇÃO')}</button>`).join('')}</div><textarea id="reactionInput" placeholder="Ex.: examino as pegadas, pergunto o que há por perto, sigo com cuidado..."></textarea><button class="primary" data-react>Enviar ação</button><button class="secondary" style="margin-top:7px" data-go="dice">Abrir rolagem de dados</button></div>
   <div class="panel"><h3>Diário</h3><div class="log friendly-log">${esc(localLog.slice(-8).join('\n')||'Sem eventos registrados.')}</div></div>`;
@@ -154,7 +158,7 @@ function renderSheet(){
  const inv=viewState?.inventory||(!hasNative()?[{itemId:'demo-mace',catalogId:'ADV_EQUIP_WEAPON_PURCHASE_09',quantity:1,equipped:false,kind:'WEAPON'}]:[]);
  const editPanel=editingCharacter?`<div class="panel edit-character"><h3>Editar ficha</h3><label class="field">Nome do personagem</label><input id="editCharacterName" maxlength="80" value="${esc(demo.name||'')}"><p class="note">Nome e retrato podem ser alterados a qualquer momento. Raça, classe, atributos, HP inicial e valores derivados continuam protegidos pelas regras OSE. Antes da primeira cena, use “Criar outro personagem” para refazer a parte mecânica.</p><div class="row"><button class="primary" data-save-character>Salvar</button><button class="secondary" data-cancel-character-edit>Cancelar</button></div></div>`:'';
  const recreate=canRecreateCharacter()?`<button class="secondary" data-recreate-character>CRIAR OUTRO PERSONAGEM</button>`:'';
- return `<div class="hero panel"><div class="portrait">${portraitHtml}${hasNative()?'<button data-photo-character="'+esc(demo.characterId)+'">FOTO</button>':''}</div><div><div class="kicker">Personagem</div><h2>${esc(demo.name||'Aventureiro')}</h2><p><b>${esc(raceLabel(demo.raceId||'HUMAN'))}</b> · ${esc((demo.classIds||[]).map(classLabel).join(' / ')||'—')} · ${profileLabel()}</p><div class="vitals"><div class="vital"><span>HP</span><b>${hpText(demo)}</b></div><div class="vital"><span>CA</span><b>${demo.armorClassDescending??'—'}</b></div><div class="vital"><span>NÍVEL</span><b>${Object.values(demo.levelByClass||{})[0]??1}</b></div></div></div></div>
+ return `<div class="hero panel"><div class="portrait">${portraitHtml}${hasNative()?'<div class="portrait-actions"><button data-generate-character="'+esc(demo.characterId)+'">GERAR</button><button data-photo-character="'+esc(demo.characterId)+'">IMPORTAR</button></div>':''}</div><div><div class="kicker">Personagem</div><h2>${esc(demo.name||'Aventureiro')}</h2><p><b>${esc(raceLabel(demo.raceId||'HUMAN'))}</b> · ${esc((demo.classIds||[]).map(classLabel).join(' / ')||'—')} · ${profileLabel()}</p><div class="vitals"><div class="vital"><span>HP</span><b>${hpText(demo)}</b></div><div class="vital"><span>CA</span><b>${demo.armorClassDescending??'—'}</b></div><div class="vital"><span>NÍVEL</span><b>${Object.values(demo.levelByClass||{})[0]??1}</b></div></div></div></div>
  ${editPanel}
  <div class="panel"><div class="attrs">${attrPairs(demo.attributes).map(([k,v])=>`<div class="attr"><b>${v??'—'}</b><span>${k}</span></div>`).join('')}</div><div class="sheet-actions"><button class="small" data-edit-character>EDITAR FICHA</button>${recreate}<button class="small" data-export-character>EXPORTAR FICHA.JSON</button><button class="small" data-import-character>IMPORTAR FICHA.JSON</button></div></div>
  <div class="panel"><h3>Inventário</h3><div class="inventory-grid">${inv.length?inv.map(renderInventoryItem).join(''):'<p class="note">Inventário vazio.</p>'}</div></div>${hasNative()?renderNativeLoadout():renderDemoShop()}`;
@@ -194,7 +198,10 @@ function wireCurrentScreen(){
  document.querySelectorAll('[data-rule-id]').forEach(b=>b.onclick=()=>postNative('RuleEvidenceQuery',{ruleId:b.dataset.ruleId}));
  el('librarySearch')?.addEventListener('input',e=>{libraryQuery=e.currentTarget.value;render()});
  document.querySelector('[data-commit-draft]')?.addEventListener('click',e=>{const d=e.currentTarget.dataset.commitDraft,name=el('creationName')?.value.trim();if(!name)return showToast('Digite um nome.');const adv=String(viewState?.campaign?.profile||'').includes('ADVANCED');const method=adv?(el('creationMethod')?.value||'ADVANCED_BASIC'):'CLASSIC';const race=adv&&method==='ADVANCED_METHOD'?(el('creationRace')?.value||null):null;postNative('CharacterCreationCommit',{draftId:d,characterId:'char-'+Date.now(),name,method,classIds:[el('creationClass').value],raceId:race||'',adjustments:[]})});
+ document.querySelectorAll('[data-generate-character]').forEach(b=>b.onclick=()=>{if(postNative('PortraitPromptShare',{kind:'CHARACTER',id:b.dataset.generateCharacter}))showToast('Abrindo o Gemini para gerar o retrato do herói…')});
  document.querySelectorAll('[data-photo-character]').forEach(b=>b.onclick=()=>chooseMedia('CHARACTER',b.dataset.photoCharacter));
+ document.querySelectorAll('[data-generate-npc]').forEach(b=>b.onclick=()=>{if(postNative('PortraitPromptShare',{kind:'NPC',id:b.dataset.generateNpc}))showToast('Abrindo o Gemini para gerar o retrato do NPC…')});
+ document.querySelectorAll('[data-photo-npc]').forEach(b=>b.onclick=()=>chooseMedia('NPC',b.dataset.photoNpc));
  document.querySelectorAll('[data-photo-item]').forEach(b=>b.onclick=()=>chooseMedia('ITEM',b.dataset.photoItem));
  document.querySelectorAll('[data-loadout-buy]').forEach(b=>b.onclick=()=>postNative('UiCommand',{command:'loadout_purchase',commandId:'buy-'+Date.now()+'-'+b.dataset.loadoutBuy,characterId:loadoutState()?.characterId||'',catalogId:b.dataset.loadoutBuy}));
  document.querySelectorAll('[data-loadout-equip]').forEach(b=>b.onclick=()=>postNative('UiCommand',{command:'loadout_equip',commandId:'equip-'+Date.now()+'-'+b.dataset.loadoutEquip,characterId:loadoutState()?.characterId||'',itemId:b.dataset.loadoutEquip,equipped:b.dataset.equipped!=='1'}));
