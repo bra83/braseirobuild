@@ -1,0 +1,49 @@
+name: Focused DnD RUN180 Character Audit
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/audit-dnd-run180-character-focused.yml']
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 12
+    steps:
+      - name: Inspect character authority and dependencies
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Runner incorreto: $env:RUNNER_NAME"}
+          $src='C:\DND180\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
+          if(!(Test-Path $src)){throw 'RUN180 source cache ausente'}
+
+          function Show-Matches([string]$name,[string]$pattern,[int]$before=10,[int]$after=22){
+            $p=Join-Path $src $name
+            if(!(Test-Path $p)){Write-Host "MISSING $name";return}
+            Write-Host "===== $name ====="
+            $lines=Get-Content $p
+            $matches=Select-String -Path $p -Pattern $pattern -AllMatches
+            $ranges=@()
+            foreach($m in $matches){
+              $a=[Math]::Max(1,$m.LineNumber-$before);$b=[Math]::Min($lines.Count,$m.LineNumber+$after)
+              if($ranges.Count -gt 0 -and $a -le ($ranges[$ranges.Count-1][1]+1)){
+                $ranges[$ranges.Count-1][1]=[Math]::Max($ranges[$ranges.Count-1][1],$b)
+              } else {$ranges += ,@($a,$b)}
+            }
+            foreach($r in $ranges){
+              Write-Host "--- $($r[0])-$($r[1]) ---"
+              for($i=$r[0];$i -le $r[1];$i++){"{0,6}: {1}" -f $i,$lines[$i-1]}
+            }
+          }
+
+          Show-Matches 'CharacterRulesValidator.java' 'class|species|subclass|background|level|ability|attribute|Caçador|Cacador|Blood Hunter|known|catalog|compiled|validate' 8 18
+          Show-Matches 'CharacterOptionCatalogEngine.java' 'HOMEBREW_CLASSES|lookupClass|species|subclass|Kenku|Snatchbeak|Caçador|Cacador|Blood Hunter|mechanics_compiled' 8 18
+          Show-Matches 'CharacterIdentityCoherence.java' 'concept|conceito|species|class|background|subclass|recompute|coher|identity|normalize' 10 20
+          Show-Matches 'CharacterSheetGenerator.java' 'mythic|Mythic|random|Random|concept|conceito|species|className|class_name|subclass|background|ability|attribute|generate|replace|swap|Caçador|Cacador|Blood Hunter|Kenku|Snatchbeak' 6 16
+          Show-Matches 'MainActivity.java' 'Ficha não passou|characterRulesValidator|GERAR / TROCAR|GERAR/TROCAR|Trocar|trocar|mythic|Mythic|concept|conceito|species|espécie|className|class_name|subclass|subclasse|background|antecedente|ability|atributo|SALVAR' 5 14
+          Show-Matches 'VoloSubraceHandbookEngine.java' 'Kenku|Snatchbeak|display|name|pt|label|subrace|species' 8 18
+          Show-Matches 'VoloSubraceRun139Engine.java' 'Kenku|Snatchbeak|display|name|pt|label|subrace|species' 8 18
+          Show-Matches 'DndPtBrLocalizer.java' 'Kenku|Snatchbeak|Blood Hunter|Caçador|Volo|translate|local' 8 18
+          Show-Matches 'HomebrewClassRuntimeEngine.java' 'blood_hunter|Caçador|Cacador|Blood Hunter|known|compiled|available' 8 18
