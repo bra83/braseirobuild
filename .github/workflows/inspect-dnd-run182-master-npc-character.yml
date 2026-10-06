@@ -1,0 +1,26 @@
+name: Inspect DnD RUN182 Master NPC Character Methods
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-run182-master-npc-character.yml']
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 15
+    steps:
+      - name: Inspect methods
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $src='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
+          function M([string]$file,[string]$pattern,[int]$b=8,[int]$a=70){
+            $p=Join-Path $src $file;if(!(Test-Path $p)){return};$ls=Get-Content $p;$ms=Select-String -Path $p -Pattern $pattern -AllMatches
+            foreach($m in $ms){"===== $file:$($m.LineNumber) $pattern =====";$s=[Math]::Max(1,$m.LineNumber-$b);$e=[Math]::Min($ls.Count,$m.LineNumber+$a);for($i=$s;$i -le $e;$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}}
+          }
+          M 'MainActivity.java' 'SUGESTÕES OPCIONAIS|SUGESTOES OPCIONAIS|quickSuggestions|suggestions|sceneTokenTile\(' 8 90
+          M 'MainActivity.java' 'buildHeroAiContext\(|collectCharacterSheet\(|applyCharacterSeed\(' 8 100
+          M 'MasterOrchestrator.java' 'systemPrompt|system_prompt|masterInstruction|narrative|suggest|optional|scene_options|quick' 8 90
+          M 'MasterGameContext.java' 'hero|character|party|sheet_json|npc|scene|weather|time' 8 90
+          M 'AppDb.java' 'findNpcMemoryByName\(|upsertNpcMemory|updateNpcMemory|deleteNpcMemory|listNpcMemor' 8 90
+          M 'AppDb.java' 'updateCharacterSheet\(|readCharacterSheet\(|findCharacterByName\(' 8 70
+          M 'MainActivity.java' 'handleIncomingIntent\(' 8 100
