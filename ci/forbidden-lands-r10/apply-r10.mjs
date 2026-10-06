@@ -297,6 +297,9 @@ fs.writeFileSync(p('src','components','SuggestedChoiceButton.tsx'), touchCompone
   s = replaceOptional(s, 'baseline corrente 3.3.5 preservada para release validada', 'baseline corrente 3.3.6 preservada para release validada');
   s = replaceOptional(s, "pkg.version === '3.3.5'", "pkg.version === '3.3.6'");
   s = replaceOptional(s, 'pkg.version === "3.3.5"', 'pkg.version === "3.3.6"');
+  s = replaceOptional(s,
+    '/versionCode 303500/.test(gradle)&&/versionName "3.3.5"/.test(gradle)',
+    '/versionCode 303600/.test(gradle)&&/versionName "3.3.6"/.test(gradle)');
   fs.writeFileSync(file,s,'utf8');
 }
 
