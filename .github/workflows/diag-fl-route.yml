@@ -91,16 +91,12 @@ jobs:
           fs.writeFileSync(adventure,v,'utf8');
           NODE
 
-      - name: Install and run full R7 regression
-        working-directory: src
+      - name: Inspect Forbidden Lands module wiring
         shell: bash
         run: |
           set -euo pipefail
-          npm ci --no-audit --no-fund
-          node scripts/verify-pf2-r34-parity.mjs
-          npm run verify:human-master-runtime
-          npm run verify:canonical-narrator-profile
-          npm run verify:master-no-freeze-r5
-          npm run verify:bugreport-freeze-2026-10-05
-          npm run lint
-          npm run verify
+          echo '===== MODULE FILES / SYMBOLS ====='
+          grep -RInE --include='*.ts' --include='*.tsx' --include='*.mjs' \
+            'module|módulo|modulo|campaign pack|adventure pack|adventure site|selectedModule|activeModule|moduleId|moduleIds' src/src src/scripts | head -n 700 || true
+          echo '===== CAMPAIGN DIRECTOR ====='
+          find src/src -type f \( -name '*CampaignDirector*' -o -name '*Adventure*Module*' -o -name '*Module*Service*' \) -print
