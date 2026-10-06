@@ -19,10 +19,10 @@ if (!globalThis.crypto?.randomUUID) {
 
 const React = await import('react');
 const { createRoot } = await import('react-dom/client');
-const { SuggestedChoiceButton } = await import('../../src/components/SuggestedChoiceButton.tsx');
-const { GeminiClientService } = await import('../../src/services/GeminiClientService.ts');
-const { MasterOrchestratorService } = await import('../../src/services/MasterOrchestratorService.ts');
-const { NarrativeIntentService } = await import('../../src/services/NarrativeIntentService.ts');
+const { SuggestedChoiceButton } = await import('../src/components/SuggestedChoiceButton.tsx');
+const { GeminiClientService } = await import('../src/services/GeminiClientService.ts');
+const { MasterOrchestratorService } = await import('../src/services/MasterOrchestratorService.ts');
+const { NarrativeIntentService } = await import('../src/services/NarrativeIntentService.ts');
 
 const settings = {
   narrativeProfile: 'Expert',
