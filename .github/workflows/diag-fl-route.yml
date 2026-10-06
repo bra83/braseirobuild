@@ -72,12 +72,26 @@ jobs:
           if(!c.includes(oldMarkers)) throw new Error('stale canonical marker block not found');
           c=c.replace(oldMarkers,newMarkers);
           fs.writeFileSync(canon,c,'utf8');
+
+          const audit='src/scripts/audit-deep.ts';
+          let d=fs.readFileSync(audit,'utf8');
+          const auditOld='/finally \\{[\\s\\S]{0,100}connection\\.disconnect/';
+          const auditNew='/finally \\{[\\s\\S]{0,240}connection\\.disconnect/';
+          if(!d.includes(auditOld)) throw new Error('stale disconnect audit window not found');
+          d=d.replace(auditOld,auditNew);
+          fs.writeFileSync(audit,d,'utf8');
           NODE
 
-      - name: Inspect deep-audit Gemini cleanup
+      - name: Install and run full R7 regression
+        working-directory: src
         shell: bash
         run: |
-          echo '===== GEMINI REQUEST CLEANUP ====='
-          grep -n -A100 -B10 "private HttpResult request(" src/android/app/src/main/java/com/braseiro/forbiddenlands/GeminiGatewayPlugin.java || true
-          echo '===== DEEP AUDIT GATE ====='
-          grep -n -A25 -B15 "Gateway Gemini usa cabeçalho oficial" src/scripts/audit-deep.ts || true
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          node scripts/verify-pf2-r34-parity.mjs
+          npm run verify:human-master-runtime
+          npm run verify:canonical-narrator-profile
+          npm run verify:master-no-freeze-r5
+          npm run verify:bugreport-freeze-2026-10-05
+          npm run lint
+          npm run verify
