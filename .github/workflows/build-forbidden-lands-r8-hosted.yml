@@ -106,6 +106,30 @@ jobs:
           fs.writeFileSync(adventure,v,'utf8');
           NODE
 
+      - name: Patch hosted esbuild invocation
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs=require('fs');
+          const p='src/package.json';
+          const pkg=JSON.parse(fs.readFileSync(p,'utf8'));
+          const current=String(pkg.scripts?.build || '');
+          if (!current.includes('node node_modules/esbuild/bin/esbuild')) {
+            if (current.includes('node_modules/.bin/esbuild') || current.includes('npx --no-install esbuild')) {
+              console.log('Hosted esbuild invocation already portable.');
+              process.exit(0);
+            }
+            throw new Error('Unexpected build script; refusing blind patch: '+current);
+          }
+          pkg.scripts.build=current.replace(
+            'node node_modules/esbuild/bin/esbuild',
+            'npx --no-install esbuild'
+          );
+          fs.writeFileSync(p, JSON.stringify(pkg,null,2)+'\n','utf8');
+          console.log('Patched hosted build script:', pkg.scripts.build);
+          NODE
+
       - name: Verify historical signer
         shell: bash
         run: |
