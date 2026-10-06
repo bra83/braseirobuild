@@ -1,0 +1,46 @@
+name: Forbidden Lands R10 State Audit Extract
+
+on:
+  push:
+    paths:
+      - '.github/workflows/audit-forbidden-lands-r10-state.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/9U2Qwn54TgjB"
+  SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6_1_SOURCE.zip"
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch exact source
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE_ID=$(curl -fsSL "$FIRESTORAGE_API/files?maxResults=100" | jq -r --arg n "$SOURCE_NAME" '.files[] | select(.fileName==$n) | .fileId' | head -n1)
+          test -n "$FILE_ID"
+          URL=$(curl -fsSL -X POST "$FIRESTORAGE_API/files/$FILE_ID/download" | jq -r '.downloadUrl')
+          test -n "$URL"
+          rm -rf work/fl && mkdir -p work/fl
+          curl -fL --connect-timeout 15 --max-time 120 --retry 3 --retry-delay 2 "$URL" -o work/source.zip
+          unzip -q work/source.zip -d work/fl
+      - name: Apply exact R10 patch
+        run: node ci/forbidden-lands-r10/apply-r10.mjs work/fl
+      - name: Package audit source
+        working-directory: work/fl
+        shell: bash
+        run: |
+          set -euo pipefail
+          zip -qr ../FORBIDDEN_LANDS_R10_AUDIT_SOURCE.zip src scripts package.json package-lock.json android/app/build.gradle capacitor.config.ts 2>/dev/null || \
+          zip -qr ../FORBIDDEN_LANDS_R10_AUDIT_SOURCE.zip src scripts package.json package-lock.json android/app/build.gradle
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FORBIDDEN_LANDS_R10_AUDIT_SOURCE
+          path: work/FORBIDDEN_LANDS_R10_AUDIT_SOURCE.zip
+          retention-days: 7
