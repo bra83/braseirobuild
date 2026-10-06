@@ -50,6 +50,13 @@ jobs:
           fs.writeFileSync(intent,s,'utf8');
           NODE
 
+      - name: Inspect scene commit trace location
+        shell: bash
+        run: |
+          echo '===== PERSIST SCENE ====='
+          grep -n "persistScene\|scene-commit" src/src/screens/AdventureScreenV3.tsx || true
+          nl -ba src/src/screens/AdventureScreenV3.tsx | sed -n '400,560p'
+
       - name: Install and run critical gates
         working-directory: src
         shell: bash
