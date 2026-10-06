@@ -98,27 +98,21 @@ jobs:
             if (-not $directorText.Contains($needle)) { throw "R7 runtime invariant missing: $needle" }
           }
 
+          # Compatibilidade R7: o assessment interno usa "presentation", enquanto Scene/UI e
+          # o contrato de regressao usam "presentationKind". Expor ambos evita perda de rota
+          # no clique de escolha sugerida sem alterar a classificacao.
+          $intent=Join-Path $env:ROOT 'src\services\NarrativeIntentService.ts'
+          if (-not (Test-Path $intent)) { throw 'NarrativeIntentService missing' }
+          $env:INTENT_PATH=$intent
+          & node.exe -e "const fs=require('fs'); const p=process.env.INTENT_PATH; let s=fs.readFileSync(p,'utf8'); const typeOld='  presentation: ScenePresentationKind;\n  preservesCheckpoint:'; const typeNew='  presentation: ScenePresentationKind;\n  presentationKind: ScenePresentationKind;\n  preservesCheckpoint:'; if(!s.includes(typeOld)) throw new Error('intent type marker missing'); s=s.replace(typeOld,typeNew); const retOld='      presentation,\n      preservesCheckpoint,'; const retNew='      presentation,\n      presentationKind: presentation,\n      preservesCheckpoint,'; if(!s.includes(retOld)) throw new Error('intent return marker missing'); s=s.replace(retOld,retNew); fs.writeFileSync(p,s,'utf8');"
+          if ($LASTEXITCODE -ne 0) { throw 'NarrativeIntent presentationKind compatibility patch failed' }
+
           # Canonical patched source checkpoint, before npm/node_modules alter the tree.
           $finalZip=Join-Path $env:BUILD_ROOT $env:FINAL_SOURCE_NAME
           if (Test-Path $finalZip) { Remove-Item $finalZip -Force }
           Compress-Archive -Path (Join-Path $env:ROOT '*') -DestinationPath $finalZip -CompressionLevel Optimal
           $finalHash=(Get-FileHash $finalZip -Algorithm SHA256).Hash.ToLowerInvariant()
           "$finalHash  $env:FINAL_SOURCE_NAME" | Set-Content (Join-Path $env:BUILD_ROOT "$($env:FINAL_SOURCE_NAME).sha256") -Encoding ascii
-
-      - name: Inspect suggested action routing
-        shell: powershell
-        env:
-          ROOT: ${{ steps.src.outputs.root }}
-        run: |
-          $ErrorActionPreference='Stop'
-          $patterns=@('IN_FICTION_ACTION','OUT_OF_FICTION_GM_HELP','suggestedAction','suggestedActions','handleSuggested','route.*scene','kind.*scene')
-          $files=Get-ChildItem $env:ROOT -Recurse -File | Where-Object { $_.Extension -in '.ts','.tsx','.mjs' }
-          foreach($p in $patterns){
-            Write-Host "===== PATTERN: $p ====="
-            $hits=$files | Select-String -Pattern $p -CaseSensitive:$false | Select-Object -First 80
-            foreach($h in $hits){ Write-Host ("{0}:{1}: {2}" -f $h.Path,$h.LineNumber,$h.Line.Trim()) }
-          }
-          throw 'DIAGNOSTIC_ROUTE_CAPTURED'
 
       - name: Install dependencies
         shell: powershell
