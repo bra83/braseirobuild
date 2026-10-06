@@ -45,10 +45,6 @@
         <input id="textModel" type="text" autocomplete="off" placeholder="ex.: gemini-3.1-flash-lite">
         <label class="field" for="imageModel">Modelo de imagem</label>
         <input id="imageModel" type="text" autocomplete="off" placeholder="ex.: gemini-3.1-flash-image">
-        <label class="field" for="ttsModel">Modelo TTS</label>
-        <input id="ttsModel" type="text" autocomplete="off" placeholder="ex.: gemini-3.1-flash-tts-preview">
-        <label class="field" for="ttsVoice">Voz TTS</label>
-        <input id="ttsVoice" type="text" autocomplete="off" placeholder="ex.: Kore">
         <button id="saveModels" class="primary" style="margin-top:9px">SALVAR MODELOS</button>
       </section>
 
@@ -59,10 +55,16 @@
         <div id="textSceneStatus" class="credential-status">Não configurada</div>
       </section>
       <section class="credential-block">
-        <label class="field">Chave Gemini — voz TTS</label>
-        <input id="ttsAudioKey" type="password" autocomplete="off" placeholder="Cole a chave para salvar ou substituir">
-        <div class="row"><button class="small" data-key-save="TTS_AUDIO">SALVAR</button><button class="small" data-key-test="TTS_AUDIO">TESTAR</button><button class="small" data-key-delete="TTS_AUDIO">APAGAR</button></div>
-        <div id="ttsAudioStatus" class="credential-status">Não configurada</div>
+        <h3>Narração Android / Kokoro</h3>
+        <p class="note">Usa os motores TTS instalados no Android. Braseiro Kokoro/Sherpa, Samsung e Google aparecem aqui quando instalados. O VTT não copia nem acessa o modelo neural.</p>
+        <label class="field" for="ttsEngine">Motor de voz</label>
+        <select id="ttsEngine" class="settings-select"></select>
+        <label class="field" for="ttsVoiceSelect">Voz em português</label>
+        <select id="ttsVoiceSelect" class="settings-select"></select>
+        <label class="field" for="ttsRate">Velocidade <span id="ttsRateValue">1,00×</span></label>
+        <input id="ttsRate" type="range" min="0.65" max="1.50" step="0.05" value="1.00">
+        <div class="row"><button id="saveTts" class="small">SALVAR VOZ</button><button id="testTts" class="small">TESTAR</button><button id="refreshTts" class="small">ATUALIZAR</button></div>
+        <div id="ttsLocalStatus" class="credential-status">Carregando motores instalados…</div>
       </section>
 
       <section class="credential-block">
