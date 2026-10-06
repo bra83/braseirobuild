@@ -1,0 +1,97 @@
+name: Inspect Exact DnD RUN181 Startup Freeze
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-exact-dnd-run181-startup.yml']
+  workflow_dispatch:
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 60
+    env:
+      SOURCE_SHA256: '2013bccf5e12e006ddbc3e644177613bc405e6bc828b18f52a2cdd5ebc5aa078'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct RUN180 stable source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Runner incorreto: $env:RUNNER_NAME"}
+          $base='C:\DND181';$incoming='C:\DND180\incoming';$extract="$base\extract";$out="$base\out"
+          New-Item -ItemType Directory -Force -Path $incoming,$extract,$out | Out-Null
+          $ids=@(
+            '1XiIBc6zdz6iISvpak_zTKPEljsGzWeup',
+            '1P7LwVCYrtidn4pXbdFLa70X3zS1f8GSN',
+            '1ptl3x3a6l-t6NUpZdKLhcMfnmnznlk9N',
+            '1clnk1KwnJRFTfiHGfkmpS0_XF63a42rR',
+            '1hm2KrTnF5JHQO-mM7FWfz2izjbHdxFk0',
+            '13XbarUyJ9JuXUIfotc6cc5RHB-H6sxx_',
+            '1vx1jkf_zKwbYvuJtKGSSzoqAFfSoPPT2'
+          )
+          $hashes=@(
+            '8dd31da8d9c9805aca05f2b3a19a80d4e35c3dba2d0eaa62bdec8e5ced6be9eb',
+            '3b3bc483807b372a193c7e12ef8917254ca7e070775fb570b6f76176090cf687',
+            'a50528b062123f767df13e18fb3cda7026a2cf1c93ec1ecb60132f49a62dc2d0',
+            '797a1c097cf43526d732caf9eded2993e3dcd82e940001cb742bb0ce3d0bbfe9',
+            '2e28a84895d5d3ebdddae5dca4e7edbc0944d02ea128586be8142b28f7b9b506',
+            '7640d597596bb49957f06268e37b8c0fb68cd8acf8dbdc3b3f5b916c02fccc17',
+            '8469336040fe3dc2d45128c7d2c4d5dce293c26ac57d97021efa5700856ed068'
+          )
+          for($i=0;$i -lt 7;$i++){
+            $p="$incoming\part{0:D2}" -f $i
+            $ok=$false
+            if(Test-Path $p){$got=(Get-FileHash $p -Algorithm SHA256).Hash.ToLowerInvariant();if($got -eq $hashes[$i]){$ok=$true}else{Remove-Item $p -Force}}
+            if(-not $ok){
+              $url="https://drive.usercontent.google.com/download?id=$($ids[$i])&export=download&confirm=t"
+              & curl.exe -L --fail --retry 5 --retry-delay 2 --connect-timeout 30 --max-time 900 -o $p $url
+              if($LASTEXITCODE -ne 0){throw "DOWNLOAD_PART_$i"}
+              $got=(Get-FileHash $p -Algorithm SHA256).Hash.ToLowerInvariant();if($got -ne $hashes[$i]){throw "BAD_PART_$i SHA=$got"}
+            }
+          }
+          Remove-Item $extract -Recurse -Force -ErrorAction SilentlyContinue;New-Item -ItemType Directory -Force -Path $extract | Out-Null
+          $zip="$base\RUN180_BASE.zip";$o=[IO.File]::Create($zip)
+          try{for($i=0;$i -lt 7;$i++){$s=[IO.File]::OpenRead(("$incoming\part{0:D2}" -f $i));try{$s.CopyTo($o)}finally{$s.Dispose()}}}finally{$o.Dispose()}
+          $sha=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant();if($sha -ne $env:SOURCE_SHA256){throw "SOURCE_SHA_MISMATCH $sha"}
+          Expand-Archive -Path $zip -DestinationPath $extract -Force
+          $gradle=Get-ChildItem $extract -Recurse -Filter gradlew.bat -File | Where-Object {$_.Directory.Name -eq 'android'} | Select-Object -First 1
+          if(!$gradle){throw 'android/gradlew.bat ausente'}
+          $root=Split-Path $gradle.Directory.FullName -Parent
+          "root=$root" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+        id: source
+
+      - name: Apply RUN181 character creation + Kokoro profile patch
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          python "$env:GITHUB_WORKSPACE\ci\dnd-run181\patch.py" "$env:ROOT"
+
+
+      - name: Inspect exact patched RUN181
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $src="$env:ROOT\android\app\src\main\java\com\braseiro\dnd5e"
+          $targets=@('MainActivity.java','MasterOrchestrator.java','MasterRulesArbiter.java','GeminiClient.java','MasterGameContext.java','WorldStateEngine.java','AppDb.java')
+          $patterns='onCreate|buildShell|setContentView|loadStoryState|ensureNativeTtsInitialized|runStartupSafetyCheckAsync|prepareAudioStorageAndInitializeAsync|Preparando a abertura|abertura|opening|startAdventure|beginAdventure|Gemini|timeout|await|Future|get\(|CountDownLatch|Thread\.sleep|runOnUiThread|fallback|scene|loading|spinner'
+          foreach($n in $targets){
+            $p=Join-Path $src $n
+            if(!(Test-Path $p)){continue}
+            "===== $n ====="
+            $ls=Get-Content $p
+            $ms=Select-String -Path $p -Pattern $patterns -AllMatches
+            $nums=$ms|Select-Object -ExpandProperty LineNumber -Unique
+            $ranges=@()
+            foreach($num in $nums){
+              $a=[Math]::Max(1,$num-12);$b=[Math]::Min($ls.Count,$num+35)
+              if($ranges.Count -gt 0 -and $a -le ($ranges[$ranges.Count-1][1]+1)){$ranges[$ranges.Count-1][1]=[Math]::Max($ranges[$ranges.Count-1][1],$b)}
+              else{$ranges+=,@($a,$b)}
+            }
+            foreach($r in $ranges){
+              "--- $($r[0])-$($r[1]) ---"
+              for($i=$r[0];$i -le $r[1];$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}
+            }
+          }
