@@ -140,7 +140,7 @@ jobs:
           $adventure=Join-Path $env:ROOT 'src\screens\AdventureScreenV3.tsx'
           if (-not (Test-Path $adventure)) { throw 'AdventureScreenV3.tsx missing' }
           $env:ADVENTURE_PATH=$adventure
-          & node.exe -e "const fs=require('fs'); const p=process.env.ADVENTURE_PATH; let s=fs.readFileSync(p,'utf8'); const old='onClick={() => void send(action)}'; const next=\"onClick={() => void send(action, undefined, false, undefined, 'suggested')}\"; if(!s.includes(old) && !s.includes(next)) throw new Error('suggested choice click anchor missing'); if(s.includes(old)) s=s.replace(old,next); fs.writeFileSync(p,s,'utf8');"
+          & node.exe -e "eval(Buffer.from('Y29uc3QgZnM9cmVxdWlyZSgnZnMnKTsgY29uc3QgcD1wcm9jZXNzLmVudi5BRFZFTlRVUkVfUEFUSDsgbGV0IHM9ZnMucmVhZEZpbGVTeW5jKHAsJ3V0ZjgnKTsgY29uc3Qgb2xkPSdvbkNsaWNrPXsoKSA9PiB2b2lkIHNlbmQoYWN0aW9uKX0nOyBjb25zdCBuZXh0PSJvbkNsaWNrPXsoKSA9PiB2b2lkIHNlbmQoYWN0aW9uLCB1bmRlZmluZWQsIGZhbHNlLCB1bmRlZmluZWQsICdzdWdnZXN0ZWQnKX0iOyBpZighcy5pbmNsdWRlcyhvbGQpICYmICFzLmluY2x1ZGVzKG5leHQpKSB0aHJvdyBuZXcgRXJyb3IoJ3N1Z2dlc3RlZCBjaG9pY2UgY2xpY2sgYW5jaG9yIG1pc3NpbmcnKTsgaWYocy5pbmNsdWRlcyhvbGQpKSBzPXMucmVwbGFjZShvbGQsbmV4dCk7IGlmKCFzLmluY2x1ZGVzKG5leHQpKSB0aHJvdyBuZXcgRXJyb3IoJ3N1Z2dlc3RlZCBjaG9pY2Ugcm91dGUgbm90IGFwcGxpZWQnKTsgZnMud3JpdGVGaWxlU3luYyhwLHMsJ3V0ZjgnKTs=','base64').toString('utf8'))"
           if ($LASTEXITCODE -ne 0) { throw 'Suggested choice routing patch failed' }
 
           # Canonical patched source checkpoint, before npm/node_modules alter the tree.
