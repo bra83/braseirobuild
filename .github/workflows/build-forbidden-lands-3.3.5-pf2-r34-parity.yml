@@ -105,6 +105,21 @@ jobs:
           $finalHash=(Get-FileHash $finalZip -Algorithm SHA256).Hash.ToLowerInvariant()
           "$finalHash  $env:FINAL_SOURCE_NAME" | Set-Content (Join-Path $env:BUILD_ROOT "$($env:FINAL_SOURCE_NAME).sha256") -Encoding ascii
 
+      - name: Inspect suggested action routing
+        shell: powershell
+        env:
+          ROOT: ${{ steps.src.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $patterns=@('IN_FICTION_ACTION','OUT_OF_FICTION_GM_HELP','suggestedAction','suggestedActions','handleSuggested','route.*scene','kind.*scene')
+          $files=Get-ChildItem $env:ROOT -Recurse -File | Where-Object { $_.Extension -in '.ts','.tsx','.mjs' }
+          foreach($p in $patterns){
+            Write-Host "===== PATTERN: $p ====="
+            $hits=$files | Select-String -Pattern $p -CaseSensitive:$false | Select-Object -First 80
+            foreach($h in $hits){ Write-Host ("{0}:{1}: {2}" -f $h.Path,$h.LineNumber,$h.Line.Trim()) }
+          }
+          throw 'DIAGNOSTIC_ROUTE_CAPTURED'
+
       - name: Install dependencies
         shell: powershell
         working-directory: ${{ steps.src.outputs.root }}
