@@ -1,0 +1,19 @@
+name: Inspect DnD RUN181 Gemini Exact
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-run181-gemini-exact.yml']
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 5
+    steps:
+      - name: Exact Gemini block
+        shell: powershell
+        run: |
+          $p='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e\MainActivity.java'
+          $ls=Get-Content $p
+          $m=Select-String -Path $p -Pattern 'Chave principal da API Gemini' | Select-Object -First 1
+          if(!$m){throw 'GEMINI_BLOCK_NOT_FOUND'}
+          $a=[Math]::Max(1,$m.LineNumber-15);$b=[Math]::Min($ls.Count,$m.LineNumber+45)
+          for($i=$a;$i -le $b;$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}
