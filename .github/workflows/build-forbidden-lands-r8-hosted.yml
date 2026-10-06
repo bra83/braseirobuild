@@ -1,4 +1,4 @@
-name: Forbidden Lands 3.3.5 R9 A57 + Choice Flow Verified
+name: Forbidden Lands 3.3.6 R10 No-Freeze Update
 
 on:
   push:
@@ -10,14 +10,14 @@ permissions:
   contents: write
 
 concurrency:
-  group: forbidden-lands-r9-a57-choice-flow-verified
+  group: forbidden-lands-r10-no-freeze-update
   cancel-in-progress: true
 
 env:
   FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/9U2Qwn54TgjB"
   SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6_1_SOURCE.zip"
-  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_R9_A57_CHOICE_FLOW_VERIFIED.apk"
-  TAG: "forbidden-lands-3.3.5-a57-choice-flow-verified-r9"
+  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.6_R10_NO_FREEZE_UPDATE.apk"
+  TAG: "forbidden-lands-3.3.6-r10-no-freeze-update"
   EXPECTED_SHA1: "9d0f1089b3fb6c225f1f59462750864e897c4d92"
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
           mkdir src
           unzip -q source.zip -d src
 
-      - name: Apply R7 compatibility patches
+      - name: Apply R10 no-freeze update patches
         shell: bash
         run: |
           set -euo pipefail
@@ -264,6 +264,150 @@ jobs:
           }
           `;
           fs.writeFileSync(cssPath,css,'utf8');
+
+          // R10 — toque robusto nas escolhas sugeridas.
+          const touchComponent='src/src/components/SuggestedChoiceButton.tsx';
+          fs.writeFileSync(touchComponent, `import React, { useRef, useState } from 'react';
+
+type Props = {
+  action: string;
+  index: number;
+  busy: boolean;
+  active: boolean;
+  onChoose: (action: string) => void;
+};
+
+export function SuggestedChoiceButton({ action, index, busy, active, onChoose }: Props) {
+  const [pressed, setPressed] = useState(false);
+  const start = useRef<{ x: number; y: number; pointerId: number } | null>(null);
+
+  const release = (event: React.PointerEvent<HTMLButtonElement>) => {
+    const current = start.current;
+    start.current = null;
+    setPressed(false);
+    try { event.currentTarget.releasePointerCapture?.(event.pointerId); } catch {}
+    if (!current || busy) return;
+    const dx = event.clientX - current.x;
+    const dy = event.clientY - current.y;
+    if (Math.hypot(dx, dy) > 28) return;
+    onChoose(action);
+  };
+
+  return <button
+    data-suggested-choice="true"
+    type="button"
+    aria-busy={active}
+    disabled={busy}
+    onPointerDown={event => {
+      if (busy) return;
+      start.current = { x: event.clientX, y: event.clientY, pointerId: event.pointerId };
+      setPressed(true);
+      try { event.currentTarget.setPointerCapture?.(event.pointerId); } catch {}
+    }}
+    onPointerUp={release}
+    onPointerCancel={() => { start.current = null; setPressed(false); }}
+    onKeyDown={event => {
+      if (busy) return;
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        onChoose(action);
+      }
+    }}
+    onClick={event => event.preventDefault()}
+    className={`suggested-choice-button w-full min-h-16 rounded-xl border bg-bg-base px-4 py-4 text-left text-[17px] leading-6 font-medium disabled:opacity-55 ${active ? 'is-working border-accent' : 'border-border'} ${pressed ? 'is-pressed' : ''}`}
+  >
+    <span className="mr-2 text-accent font-bold">{index + 1}.</span>
+    <span>{active ? 'Processando esta escolha…' : action}</span>
+  </button>;
+}
+`, 'utf8');
+
+          let adv=fs.readFileSync(adventure,'utf8');
+          if(!adv.includes("import { SuggestedChoiceButton } from '../components/SuggestedChoiceButton';")) {
+            adv=adv.replace("import { CampaignModuleStateService } from '../services/CampaignModuleStateService';","import { CampaignModuleStateService } from '../services/CampaignModuleStateService';\nimport { SuggestedChoiceButton } from '../components/SuggestedChoiceButton';");
+          }
+          adv=adv.replace("  const [npcPortraitBusyId, setNpcPortraitBusyId] = useState<string | null>(null);","  const [npcPortraitBusyId, setNpcPortraitBusyId] = useState<string | null>(null);\n  const [activeChoice, setActiveChoice] = useState<string | null>(null);");
+          adv=adv.replace("    const text = (forced || input).trim();\n    if (!text || busy) return;","    const text = (forced || input).trim();\n    if (!text || busy) return;\n    DataSafetyService.cancelScheduledCheckpoint();\n    if (source === 'suggested') setActiveChoice(text);");
+          adv=adv.replace("      let raw = await callMaster(","      setMessage('O Mestre recebeu sua escolha e está escrevendo a consequência...');\n      let raw = await callMaster(");
+          adv=adv.replace("      const scene = sceneFrom(raw, active, sceneHex, roll ? 'Resultado da rolagem enviado ao Mestre.' : text, actor, false);","      setMessage('Salvando a nova cena...');\n      const scene = sceneFrom(raw, active, sceneHex, roll ? 'Resultado da rolagem enviado ao Mestre.' : text, actor, false);");
+          adv=adv.replace("      setBusy(false);\n      setMessage('');\n    }\n  };","      setBusy(false);\n      setActiveChoice(null);\n      setMessage('');\n    }\n  };");
+          const oldChoices=`        {ensurePlayableChoices(scene.suggestedActions, scene.sequence === 1).map((action, actionIndex) => <button
+          key={\`${scene.id}-choice-${actionIndex}\`}
+          type="button"
+          onClick={() => void send(action, undefined, false, undefined, 'suggested')}
+          disabled={busy}
+          className="w-full min-h-14 rounded-xl border border-border bg-bg-base px-4 py-3 text-left text-[17px] leading-6 font-medium hover:border-accent/70 hover:bg-accent/5 disabled:opacity-40"
+        ><span className="mr-2 text-accent font-bold">{actionIndex + 1}.</span>{action}</button>)}`;
+          const newChoices=`        {ensurePlayableChoices(scene.suggestedActions, scene.sequence === 1).map((action, actionIndex) => <SuggestedChoiceButton
+          key={\`${scene.id}-choice-${actionIndex}\`}
+          action={action}
+          index={actionIndex}
+          busy={busy}
+          active={busy && activeChoice === action}
+          onChoose={value => void send(value, undefined, false, undefined, 'suggested')}
+        />)}`;
+          if(!adv.includes(oldChoices)) throw new Error('old suggested choice JSX not found');
+          adv=adv.replace(oldChoices,newChoices);
+          adv=adv.replace("    void DataSafetyService.checkpoint('cena confirmada', 'core').catch(() => undefined);","    DataSafetyService.scheduleCheckpoint('cena confirmada', 30000);");
+          fs.writeFileSync(adventure,adv,'utf8');
+
+          // R10 — snapshot de segurança nunca entra imediatamente na fila crítica da próxima ação.
+          const safety='src/src/services/DataSafetyService.ts';
+          let ds=fs.readFileSync(safety,'utf8');
+          ds=ds.replace("const CORE_SNAPSHOT_STORES = [\n  'app_meta', 'campaign', 'characters', 'scenes', 'branches', 'npcs', 'bestiary', 'rolls',\n  'map_discovery', 'token_assignments', 'map_import_state', 'token_import_state',\n  'rule_documents', 'rule_import_state', 'character_generation_drafts', 'xp_sessions', 'world_state', 'settings',\n] as const satisfies ReadonlyArray<keyof BraseiroDB>;","const CORE_SNAPSHOT_STORES = [\n  'app_meta', 'campaign', 'characters', 'scenes', 'branches', 'npcs', 'rolls',\n  'xp_sessions', 'world_state', 'settings',\n] as const satisfies ReadonlyArray<keyof BraseiroDB>;");
+          ds=ds.replace("  static scheduleCheckpoint(reason = 'alteração') {","  static scheduleCheckpoint(reason = 'alteração', delayMs = 1200) {");
+          ds=ds.replace("    }, 1200);","    }, Math.max(1200, delayMs));");
+          ds=ds.replace("  static checkpoint(reason = 'manual', scope: SnapshotScope = 'core', strict = false): Promise<boolean> {","  static cancelScheduledCheckpoint() {\n    if (typeof window === 'undefined') return;\n    if (checkpointTimer !== null) window.clearTimeout(checkpointTimer);\n    checkpointTimer = null;\n  }\n\n  static checkpoint(reason = 'manual', scope: SnapshotScope = 'core', strict = false): Promise<boolean> {");
+          fs.writeFileSync(safety,ds,'utf8');
+
+          // R10 — orçamento real da ação: sem segunda tentativa quando não há tempo mínimo restante.
+          const router='src/src/services/ModelRouterService.ts';
+          let mr=fs.readFileSync(router,'utf8');
+          mr=mr.replace("      if (remainingBudget <= 4_000) {","      if (remainingBudget <= 8_800) {");
+          mr=mr.replace("            ? Math.max(8_000, Math.min(Number(payload.timeoutMs || remainingBudget), remainingBudget - 800))","            ? Math.max(8_000, Math.min(Number(payload.timeoutMs || remainingBudget), Math.max(8_000, remainingBudget - 800)))");
+          fs.writeFileSync(router,mr,'utf8');
+
+          let apiText=fs.readFileSync(api,'utf8');
+          apiText=apiText.replace("const maxOutputTokens = profile === 'Casual' ? 1100 : profile === 'Expert' ? (initial ? 2600 : 1800) : (initial ? 2200 : 1500);","const maxOutputTokens = profile === 'Casual' ? 1000 : profile === 'Expert' ? (initial ? 2600 : 1400) : (initial ? 2200 : 1250);");
+          apiText=apiText.replace("timeoutMs: initial ? 34_000 : 26_000,","timeoutMs: initial ? 34_000 : 14_000,");
+          apiText=apiText.replace("totalBudgetMs: initial ? 36_000 : 28_000,","totalBudgetMs: initial ? 36_000 : 16_000,");
+          fs.writeFileSync(api,apiText,'utf8');
+
+          // R10 — atualização no lugar: mesmo package/signer, versionCode superior.
+          const pkgPath='src/package.json';
+          const pkg=JSON.parse(fs.readFileSync(pkgPath,'utf8'));
+          pkg.version='3.3.6';
+          fs.writeFileSync(pkgPath,JSON.stringify(pkg,null,2)+'\\n','utf8');
+          const gradlePath='src/android/app/build.gradle';
+          let gradle=fs.readFileSync(gradlePath,'utf8');
+          gradle=gradle.replace(/versionCode\\s+\\d+/, 'versionCode 303600');
+          gradle=gradle.replace(/versionName\\s+"[^"]+"/, 'versionName "3.3.6"');
+          fs.writeFileSync(gradlePath,gradle,'utf8');
+
+          let cssR10=fs.readFileSync(cssPath,'utf8');
+          if(!cssR10.includes('/* R10 suggested action touch reliability */')) cssR10 += `
+
+          /* R10 suggested action touch reliability */
+          .suggested-choice-button {
+            position: relative;
+            z-index: 2;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            contain: layout paint;
+          }
+          .suggested-choice-button.is-pressed {
+            transform: scale(.985);
+            border-color: var(--accent-color);
+            background: color-mix(in srgb, var(--accent-color) 14%, var(--bg-color));
+          }
+          .suggested-choice-button.is-working {
+            opacity: .86 !important;
+            box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-color) 28%, transparent);
+          }
+`;
+          fs.writeFileSync(cssPath,cssR10,'utf8');
           NODE
 
       - name: Patch hosted esbuild invocation
@@ -507,6 +651,87 @@ jobs:
           node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-choice-flow-runtime.mjs
           npm run lint
 
+      - name: Gate Samsung touch + nonblocking action pipeline
+        working-directory: src
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save --package-lock=false jsdom@26 >/dev/null 2>&1
+          cat > scripts/verify-r10-touch-and-queue.mjs <<'EOF'
+          import assert from 'node:assert/strict';
+          import { JSDOM } from 'jsdom';
+          import 'fake-indexeddb/auto';
+
+          const dom = new JSDOM('<!doctype html><html><body><div id="root"></div></body></html>', { url: 'https://local.test' });
+          globalThis.window = dom.window;
+          globalThis.document = dom.window.document;
+          globalThis.navigator = dom.window.navigator;
+          globalThis.HTMLElement = dom.window.HTMLElement;
+          globalThis.Event = dom.window.Event;
+          globalThis.MouseEvent = dom.window.MouseEvent;
+          globalThis.CustomEvent = dom.window.CustomEvent;
+          globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+          if (!globalThis.crypto?.randomUUID) globalThis.crypto = { randomUUID: () => '00000000-0000-4000-8000-000000000001' };
+
+          const React = await import('react');
+          const { createRoot } = await import('react-dom/client');
+          const { SuggestedChoiceButton } = await import('../src/components/SuggestedChoiceButton.tsx');
+          const { DataSafetyService } = await import('../src/services/DataSafetyService.ts');
+          const { getDb } = await import('../src/db/db.ts');
+
+          const root = createRoot(document.getElementById('root'));
+          let calls = 0;
+          await React.act(async () => {
+            root.render(React.createElement(SuggestedChoiceButton, {
+              action: 'Seguir a trilha',
+              index: 0,
+              busy: false,
+              active: false,
+              onChoose: () => { calls += 1; },
+            }));
+          });
+          const button = document.querySelector('[data-suggested-choice="true"]');
+          assert.ok(button);
+          const pointer = (type, x, y) => {
+            const event = new dom.window.Event(type, { bubbles: true, cancelable: true });
+            Object.defineProperties(event, {
+              pointerId: { value: 7 },
+              clientX: { value: x },
+              clientY: { value: y },
+            });
+            button.dispatchEvent(event);
+          };
+          await React.act(async () => { pointer('pointerdown', 20, 20); pointer('pointerup', 25, 23); });
+          assert.equal(calls, 1, 'tap real deve acionar exatamente uma escolha');
+          await React.act(async () => { pointer('pointerdown', 20, 20); pointer('pointerup', 100, 100); });
+          assert.equal(calls, 1, 'arrasto grande não pode disparar escolha');
+
+          let checkpointCalls = 0;
+          const originalCheckpoint = DataSafetyService.checkpoint;
+          DataSafetyService.checkpoint = async () => { checkpointCalls += 1; await new Promise(r => setTimeout(r, 200)); return true; };
+          DataSafetyService.scheduleCheckpoint('cena confirmada', 500);
+          const started = performance.now();
+          const db = await getDb();
+          await db.getAll('campaign');
+          const elapsed = performance.now() - started;
+          assert.ok(elapsed < 150, `leitura da próxima ação não deve esperar snapshot agendado: ${elapsed}ms`);
+          assert.equal(checkpointCalls, 0);
+          DataSafetyService.cancelScheduledCheckpoint();
+          await new Promise(r => setTimeout(r, 550));
+          assert.equal(checkpointCalls, 0, 'cancelamento no início da ação deve impedir snapshot concorrente');
+          DataSafetyService.checkpoint = originalCheckpoint;
+
+          console.log('PASS R10: toque Samsung + fila de DB não bloqueante antes da próxima ação.');
+          EOF
+          node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-r10-touch-and-queue.mjs
+          grep -F "versionCode 303600" android/app/build.gradle >/dev/null
+          grep -F 'versionName "3.3.6"' android/app/build.gradle >/dev/null
+          grep -F "DataSafetyService.scheduleCheckpoint('cena confirmada', 30000)" src/screens/AdventureScreenV3.tsx >/dev/null
+          grep -F "DataSafetyService.cancelScheduledCheckpoint();" src/screens/AdventureScreenV3.tsx >/dev/null
+          grep -F "remainingBudget <= 8_800" src/services/ModelRouterService.ts >/dev/null
+          grep -F "timeoutMs: initial ? 34_000 : 14_000" src/services/api.ts >/dev/null
+          npm run lint
+
       - name: Gate Galaxy A57 responsive layout
         working-directory: src
         shell: bash
@@ -579,7 +804,7 @@ jobs:
           cp "$BUILT" "out/$APK_NAME"
           BT="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
           "$BT/aapt" dump badging "out/$APK_NAME" > out/APK_BADGING.txt
-          grep -q "package: name='com.braseiro.forbiddenlands'" out/APK_BADGING.txt
+          grep -q "package: name='com.braseiro.forbiddenlands'" out/APK_BADGING.txt\n          grep -q "versionCode='303600'" out/APK_BADGING.txt\n          grep -q "versionName='3.3.6'" out/APK_BADGING.txt
           "$BT/apksigner" verify --verbose --print-certs "out/$APK_NAME" > out/APK_SIGNATURE.txt 2>&1
           ACTUAL="$(sed -nE 's/^(V[0-9.]+ )?Signer: certificate SHA-1 digest:[[:space:]]*//p' out/APK_SIGNATURE.txt | head -n1 | tr -d ':[:space:]' | tr 'A-F' 'a-f')"
           if [ -z "$ACTUAL" ]; then
@@ -606,20 +831,24 @@ jobs:
             'FULL_REGRESSION=PASS' \
             'ANDROID_SYNC=PASS' \
             'ANDROID_BUILD=PASS' \
+            'UPDATE_IN_PLACE_VERSION_CODE=303600' \
+            'UPDATE_IN_PLACE_VERSION_NAME=3.3.6' \
+            'SAMSUNG_TOUCH_GATE=PASS' \
+            'DB_SNAPSHOT_NONBLOCKING_GATE=PASS' \
             'PACKAGE=com.braseiro.forbiddenlands' \
             "SIGNER_SHA1=$ACTUAL" \
-            "APK_SHA256=$SHA256" > out/R9_A57_CHOICE_FLOW_PROOF.txt
+            "APK_SHA256=$SHA256" > out/R10_NO_FREEZE_UPDATE_PROOF.txt
 
       - name: Upload verified artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO_FORBIDDEN_LANDS_3.3.5_R9_A57_CHOICE_FLOW_VERIFIED
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.6_R10_NO_FREEZE_UPDATE
           path: |
             src/out/${{ env.APK_NAME }}
             src/out/${{ env.APK_NAME }}.sha256
             src/out/APK_BADGING.txt
             src/out/APK_SIGNATURE.txt
-            src/out/R9_A57_CHOICE_FLOW_PROOF.txt
+            src/out/R10_NO_FREEZE_UPDATE_PROOF.txt
           retention-days: 30
 
       - name: Publish verified release
@@ -636,6 +865,6 @@ jobs:
             "src/out/$APK_NAME.sha256" \
             "src/out/APK_BADGING.txt" \
             "src/out/APK_SIGNATURE.txt" \
-            "src/out/R9_A57_CHOICE_FLOW_PROOF.txt" \
-            --title "Braseiro Forbidden Lands 3.3.5 — R9 A57 + Choice Flow Verified" \
-            --notes "R9: fluxo de escolhas executável validado em 12 turnos consecutivos, retry 503, fallback local e timeout abortável; compatibilidade responsiva adicionada para Galaxy A57/Samsung 1080x2340-class com safe areas, navegação inferior compacta, menu Mais rolável e compositor de ação em tela cheia; regressões completas, Android e assinatura histórica validados."
+            "src/out/R10_NO_FREEZE_UPDATE_PROOF.txt" \
+            --title "Braseiro Forbidden Lands 3.3.6 — R10 No-Freeze Update" \
+            --notes "R10: atualização instalável por cima da 3.3.5; versionCode 303600, mesmo package e assinatura histórica. Corrige toque das escolhas no Samsung, remove snapshot pesado do caminho crítico da próxima ação, limita orçamento real do Gemini e mantém fallback local, A57 e regressões completas."
