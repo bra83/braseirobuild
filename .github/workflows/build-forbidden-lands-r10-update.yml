@@ -1,0 +1,180 @@
+name: Forbidden Lands 3.3.6 R10 No-Freeze Update
+
+on:
+  push:
+    paths:
+      - '.github/workflows/build-forbidden-lands-r10-update.yml'
+      - 'ci/forbidden-lands-r10/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: forbidden-lands-r10-no-freeze-update
+  cancel-in-progress: true
+
+env:
+  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/9U2Qwn54TgjB"
+  SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6_1_SOURCE.zip"
+  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.6_R10_NO_FREEZE_UPDATE.apk"
+  EXPECTED_SHA1: "9d0f1089b3fb6c225f1f59462750864e897c4d92"
+
+jobs:
+  verify-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout R10 patch and tests
+        uses: actions/checkout@v4
+
+      - name: Fetch exact Forbidden Lands source
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE_ID=$(curl -fsSL "$FIRESTORAGE_API/files?maxResults=100" | jq -r --arg n "$SOURCE_NAME" '.files[] | select(.fileName==$n) | .fileId' | head -n1)
+          test -n "$FILE_ID"
+          URL=$(curl -fsSL -X POST "$FIRESTORAGE_API/files/$FILE_ID/download" | jq -r '.downloadUrl')
+          test -n "$URL"
+          rm -rf work/fl
+          mkdir -p work/fl
+          curl -fL --connect-timeout 15 --max-time 120 --retry 3 --retry-delay 2 "$URL" -o work/source.zip
+          unzip -q work/source.zip -d work/fl
+          test -f work/fl/package.json
+          test -f work/fl/android/app/build.gradle
+
+      - name: Apply R10 no-freeze patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          node ci/forbidden-lands-r10/apply-r10.mjs work/fl
+          cp ci/forbidden-lands-r10/verify-r10-touch-and-safety.mjs work/fl/scripts/verify-r10-touch-and-safety.mjs
+          cp ci/forbidden-lands-r10/verify-r10-choice-flow.mjs work/fl/scripts/verify-r10-choice-flow.mjs
+          grep -q 'versionCode 303600' work/fl/android/app/build.gradle
+          grep -q 'versionName "3.3.6"' work/fl/android/app/build.gradle
+          grep -q 'applicationId "com.braseiro.forbiddenlands"' work/fl/android/app/build.gradle
+          grep -q "scheduleCheckpoint('cena confirmada', 60000)" work/fl/src/screens/AdventureScreenV3.tsx
+          grep -q "cancelScheduledCheckpoint" work/fl/src/screens/AdventureScreenV3.tsx
+          grep -q "scheduleCheckpoint(store, 60000)" work/fl/src/main.tsx
+          grep -q "visibilityState === 'visible'" work/fl/src/services/DataSafetyService.ts
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Verify update-in-place signer
+        shell: bash
+        run: |
+          set -euo pipefail
+          PROP='work/fl/android/keystore.properties'
+          KS='work/fl/android/app/braseiro-debug.jks'
+          test -f "$PROP"
+          test -f "$KS"
+          STORE_PASS=$(grep -E '^BRASEIRO_STORE_PASSWORD=' "$PROP" | head -n1 | cut -d= -f2-)
+          ALIAS=$(grep -E '^BRASEIRO_KEY_ALIAS=' "$PROP" | head -n1 | cut -d= -f2-)
+          ALIAS="${ALIAS:-braseiro}"
+          test -n "$STORE_PASS"
+          SHA1=$(keytool -list -v -keystore "$KS" -storepass "$STORE_PASS" -alias "$ALIAS" 2>/dev/null | awk -F': ' '/SHA1:/{gsub(":","",$2); print tolower($2); exit}')
+          echo "SOURCE_SIGNER_SHA1=$SHA1"
+          test "$SHA1" = "$EXPECTED_SHA1"
+
+      - name: Install dependencies
+        working-directory: work/fl
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm install --no-save --package-lock=false --no-audit --no-fund jsdom@26
+
+      - name: R10 touch and snapshot gate
+        working-directory: work/fl
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-r10-touch-and-safety.mjs
+          npm run lint
+
+      - name: R10 end-to-end choice gate
+        working-directory: work/fl
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-r10-choice-flow.mjs
+          grep -q 'remainingBudget <= 8_800' src/services/ModelRouterService.ts
+          grep -q "timeoutMs: initial ? 34_000 : 14_000" src/services/api.ts
+          grep -q "totalBudgetMs: initial ? 36_000 : 16_000" src/services/api.ts
+
+      - name: Core regressions
+        working-directory: work/fl
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run test
+          npm run verify:human-master-runtime
+          npm run verify:master-no-freeze-r5
+          npm run verify:bugreport-freeze-2026-10-05
+          npm run verify-rag-not-required
+          npm run verify:rag-off-kokoro-startup
+          npm run verify:runtime-hotfix-3.3.5
+          npm run verify:runtime-integration-v3
+          npm run verify:runtime-playthroughs-v3
+          npm run verify:dice-full
+          npm run verify:adventure-sites-v2
+          npm run verify:canonical-narrator-profile
+          npm run verify:google-drive-signing
+          npm run lint
+          npm run build:web
+
+      - name: Android sync and validation
+        working-directory: work/fl
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run android:sync
+          npm run verify:android
+          npm run lint
+          node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-r10-touch-and-safety.mjs
+          node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-r10-choice-flow.mjs
+
+      - name: Build signed update APK
+        working-directory: work/fl
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/run-gradle-task.mjs assembleDebug
+
+      - name: Validate install-over APK
+        working-directory: work/fl
+        shell: bash
+        run: |
+          set -euo pipefail
+          BUILT='android/app/build/outputs/apk/debug/app-debug.apk'
+          test -f "$BUILT"
+          mkdir -p out
+          cp "$BUILT" "out/$APK_NAME"
+          BT=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)
+          "$BT/aapt" dump badging "out/$APK_NAME" > out/APK_BADGING.txt
+          grep -q "package: name='com.braseiro.forbiddenlands'" out/APK_BADGING.txt
+          grep -q "versionCode='303600'" out/APK_BADGING.txt
+          grep -q "versionName='3.3.6'" out/APK_BADGING.txt
+          "$BT/apksigner" verify --verbose --print-certs "out/$APK_NAME" > out/APK_SIGNATURE.txt 2>&1
+          ACTUAL=$(grep -E 'certificate SHA-1 digest:' out/APK_SIGNATURE.txt | head -n1 | sed -E 's/.*digest:[[:space:]]*//' | tr -d ':[:space:]' | tr 'A-F' 'a-f')
+          echo "APK_SIGNER_SHA1=$ACTUAL"
+          test "$ACTUAL" = "$EXPECTED_SHA1"
+          SHA256=$(sha256sum "out/$APK_NAME" | awk '{print $1}')
+          printf '%s  %s\n' "$SHA256" "$APK_NAME" > "out/$APK_NAME.sha256"
+          printf '%s\n'             'STATUS=PASS'             'PACKAGE=com.braseiro.forbiddenlands'             'VERSION_NAME=3.3.6'             'VERSION_CODE=303600'             "SIGNER_SHA1=$ACTUAL"             'UPDATE_IN_PLACE=PASS'             'SAMSUNG_POINTER_TOUCH=PASS'             'CHOICE_14_TURNS_UI=PASS'             'CHOICE_503_RETRY=PASS'             'CHOICE_LOCAL_FALLBACK=PASS'             'FOREGROUND_SNAPSHOT_BLOCKED=PASS'             'SNAPSHOT_CANCEL_ON_ACTION=PASS'             'ACTION_BUDGET_16S=PASS'             'ANDROID_SYNC=PASS'             'ANDROID_BUILD=PASS'             "APK_SHA256=$SHA256" > out/R10_NO_FREEZE_PROOF.txt
+
+      - name: Upload R10 verified APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.6_R10_NO_FREEZE_UPDATE
+          path: |
+            work/fl/out/${{ env.APK_NAME }}
+            work/fl/out/${{ env.APK_NAME }}.sha256
+            work/fl/out/APK_BADGING.txt
+            work/fl/out/APK_SIGNATURE.txt
+            work/fl/out/R10_NO_FREEZE_PROOF.txt
+          retention-days: 30
