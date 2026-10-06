@@ -86,7 +86,7 @@ jobs:
           $gate=Join-Path $env:ROOT 'scripts\verify-human-master-runtime.mjs'
           if (-not (Test-Path $gate)) { throw "Human Master gate not found: $gate" }
           $env:GATE_PATH=$gate
-          & node.exe -e "const fs=require('fs'); const p=process.env.GATE_PATH; let s=fs.readFileSync(p,'utf8'); const old='5\\.000 a 6\\.500 caracteres'; if(!s.includes(old)) throw new Error('obsolete length assertion not found'); s=s.split(old).join('CanonicalNarratorProfileService'); const before=s; s=s.replace(/\\/VOZ DE MESTRE HUMANO[^/\\r\\n]*\\/i/g,'/VOZ DE MESTRE HUMANO/i'); if(s===before) throw new Error('obsolete narrator mojibake regex not found'); fs.writeFileSync(p,s,'utf8');"
+          & node.exe -e "const fs=require('fs'); const p=process.env.GATE_PATH; let s=fs.readFileSync(p,'utf8'); const old='5\\.000 a 6\\.500 caracteres'; if(!s.includes(old)) throw new Error('obsolete length assertion not found'); s=s.split(old).join('CanonicalNarratorProfileService'); const before=s; s=s.replace(/\/VOZ DE MESTRE HUMANO[^/\r\n]*\/i/g,'/VOZ DE MESTRE HUMANO/i'); if(s===before) throw new Error('obsolete narrator mojibake regex not found'); fs.writeFileSync(p,s,'utf8');"
           if ($LASTEXITCODE -ne 0) { throw 'Node gate normalization failed' }
 
           # Preserve the tested runtime; only the stale literal assertion is updated.
