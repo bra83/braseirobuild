@@ -136,6 +136,13 @@ jobs:
           & node.exe -e "eval(Buffer.from('Y29uc3QgZnM9cmVxdWlyZSgnZnMnKTsgY29uc3QgcD1wcm9jZXNzLmVudi5BVURJVF9QQVRIOyBsZXQgZD1mcy5yZWFkRmlsZVN5bmMocCwndXRmOCcpOyBjb25zdCBvbGQ9Jy9maW5hbGx5IFxce1tcXHNcXFNdezAsMTAwfWNvbm5lY3Rpb25cXC5kaXNjb25uZWN0Lyc7IGNvbnN0IG5leHQ9Jy9maW5hbGx5IFxce1tcXHNcXFNdezAsMjQwfWNvbm5lY3Rpb25cXC5kaXNjb25uZWN0Lyc7IGlmKCFkLmluY2x1ZGVzKG9sZCkpIHRocm93IG5ldyBFcnJvcignc3RhbGUgZGlzY29ubmVjdCBhdWRpdCB3aW5kb3cgbm90IGZvdW5kJyk7IGQ9ZC5yZXBsYWNlKG9sZCxuZXh0KTsgZnMud3JpdGVGaWxlU3luYyhwLGQsJ3V0ZjgnKTs=','base64').toString('utf8'))"
           if ($LASTEXITCODE -ne 0) { throw 'Deep audit cleanup window patch failed' }
 
+          # P0: escolhas sugeridas precisam entrar explicitamente como source='suggested'.
+          $adventure=Join-Path $env:ROOT 'src\screens\AdventureScreenV3.tsx'
+          if (-not (Test-Path $adventure)) { throw 'AdventureScreenV3.tsx missing' }
+          $env:ADVENTURE_PATH=$adventure
+          & node.exe -e "const fs=require('fs'); const p=process.env.ADVENTURE_PATH; let s=fs.readFileSync(p,'utf8'); const old='onClick={() => void send(action)}'; const next=\"onClick={() => void send(action, undefined, false, undefined, 'suggested')}\"; if(!s.includes(old) && !s.includes(next)) throw new Error('suggested choice click anchor missing'); if(s.includes(old)) s=s.replace(old,next); fs.writeFileSync(p,s,'utf8');"
+          if ($LASTEXITCODE -ne 0) { throw 'Suggested choice routing patch failed' }
+
           # Canonical patched source checkpoint, before npm/node_modules alter the tree.
           $finalZip=Join-Path $env:BUILD_ROOT $env:FINAL_SOURCE_NAME
           if (Test-Path $finalZip) { Remove-Item $finalZip -Force }
