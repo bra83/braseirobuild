@@ -1,37 +1,184 @@
 name: Braseiro DnD 6.6.2 RUN180 BRELGA
+
 on:
   push:
     branches: [main]
     paths: ['.github/workflows/build-dnd-run180-brelga.yml']
   workflow_dispatch:
+
 permissions:
   contents: write
+
+concurrency:
+  group: dnd-run180-brelga
+  cancel-in-progress: true
+
+env:
+  TAG: 'DND-6.6.2-RUN180'
+  APK_NAME: 'BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk'
+  PACKAGE_ID: 'com.braseiro.dnd5e'
+  SOURCE_SHA256: '2013bccf5e12e006ddbc3e644177613bc405e6bc828b18f52a2cdd5ebc5aa078'
+
 jobs:
   build:
     runs-on: [self-hosted, Windows, X64]
-    timeout-minutes: 90
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
-      - name: Build RUN180 retry preserving parts
+
+      - name: Build RUN180 from stable Drive source
         shell: powershell
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference='Stop'
-          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Runner incorreto: $env:RUNNER_NAME"};Write-Host "RUNNER_NAME=$env:RUNNER_NAME"
-          $base='C:\DND180';$incoming="$base\incoming";$extract="$base\extract";$out="$base\out";New-Item -ItemType Directory -Force -Path $incoming,$extract,$out|Out-Null
-          $hashes=@('8dd31da8d9c9805aca05f2b3a19a80d4e35c3dba2d0eaa62bdec8e5ced6be9eb','3b3bc483807b372a193c7e12ef8917254ca7e070775fb570b6f76176090cf687','a50528b062123f767df13e18fb3cda7026a2cf1c93ec1ecb60132f49a62dc2d0','797a1c097cf43526d732caf9eded2993e3dcd82e940001cb742bb0ce3d0bbfe9','2e28a84895d5d3ebdddae5dca4e7edbc0944d02ea128586be8142b28f7b9b506','7640d597596bb49957f06268e37b8c0fb68cd8acf8dbdc3b3f5b916c02fccc17','8469336040fe3dc2d45128c7d2c4d5dce293c26ac57d97021efa5700856ed068')
-          for($i=0;$i -lt 7;$i++){$p="$incoming\part{0:D2}" -f $i;if(Test-Path $p){$got=(Get-FileHash $p -Algorithm SHA256).Hash.ToLowerInvariant();if($got -eq $hashes[$i]){Write-Host "REUSE part$i SHA OK"}else{Remove-Item $p -Force;Write-Host "INVALID part$i removed"}}}
-          $p6="$incoming\part06";if(!(Test-Path $p6)){$u6='https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-f5b0-820e-b054-47d169e8a693/raw?se=2026-10-06T04%3A28%3A39Z&sp=r&sv=2026-02-06&sr=b&scid=fc87b6eb-fd1b-510c-8f2d-4e5329a8c034&skoid=4a431cd2-eafd-49c7-90be-bbb4d45e696d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-06T01%3A37%3A34Z&ske=2026-10-07T01%3A37%3A34Z&sks=b&skv=2026-02-06&sig=DzNBfzVy4fEq%2BCA5IbfKAUBmlPdIU8qna/E/%2Bdb8bZ0%3D';Invoke-WebRequest $u6 -OutFile $p6;if((Get-FileHash $p6 -Algorithm SHA256).Hash.ToLowerInvariant() -ne $hashes[6]){throw 'part06 SHA mismatch'}}
-          for($i=0;$i -lt 7;$i++){$p="$incoming\part{0:D2}" -f $i;if(!(Test-Path $p)){throw "MISSING_PART_$i"};if((Get-FileHash $p -Algorithm SHA256).Hash.ToLowerInvariant() -ne $hashes[$i]){throw "BAD_PART_$i"}}
-          Remove-Item $extract -Recurse -Force -ErrorAction SilentlyContinue;Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue;New-Item -ItemType Directory -Force -Path $extract,$out|Out-Null
-          $zip="$incoming\BRASEIRO_DND_6.6.2_RUN180_ANDROID_STUDIO.zip";$o=[IO.File]::Create($zip);for($i=0;$i -lt 7;$i++){$s=[IO.File]::OpenRead(("$incoming\part{0:D2}" -f $i));$s.CopyTo($o);$s.Dispose()};$o.Dispose();$sourceSha=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant();if($sourceSha -ne '2013bccf5e12e006ddbc3e644177613bc405e6bc828b18f52a2cdd5ebc5aa078'){throw "final source SHA $sourceSha"}
-          Add-Type -AssemblyName System.IO.Compression.FileSystem;$z=[IO.Compression.ZipFile]::OpenRead($zip);$z.Dispose();Expand-Archive $zip $extract -Force;$gradle=Get-ChildItem $extract -Recurse -Filter gradlew.bat|Where-Object {$_.Directory.Name -eq 'android'}|Select-Object -First 1;if(!$gradle){throw 'android/gradlew.bat ausente'};$android=$gradle.Directory.FullName;$root=Split-Path $android -Parent
-          [IO.File]::WriteAllText("$root\version.properties","VERSION_NAME=6.6.2-r180`nVERSION_CODE=606280`n",(New-Object Text.UTF8Encoding($false)));$build="$android\app\build.gradle.kts";if(!(Select-String -Quiet -Path $build -Pattern 'com.braseiro.dnd5e')){throw 'package contract'}
-          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){$j='C:\Program Files\Android\Android Studio\jbr';if(Test-Path "$j\bin\java.exe"){$env:JAVA_HOME=$j;$env:Path="$j\bin;$env:Path"}};if(!$env:ANDROID_HOME){$s="$env:LOCALAPPDATA\Android\Sdk";if(Test-Path $s){$env:ANDROID_HOME=$s}};$env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
-          Set-Location $android;.\gradlew.bat :app:compileDebugJavaWithJavac --no-daemon --console=plain 2>&1|Tee-Object "$out\JAVAC_RUN180.log";if($LASTEXITCODE -ne 0){throw 'compileDebugJavaWithJavac falhou'};.\gradlew.bat :app:assembleDebug --no-daemon --console=plain 2>&1|Tee-Object "$out\GRADLE_BUILD_RUN180.log";if($LASTEXITCODE -ne 0){throw 'assembleDebug falhou'}
-          $apk=Get-ChildItem "$android\app\build\outputs\apk\debug" -Filter *.apk|Select-Object -First 1;if(!$apk){throw 'APK ausente'};$final="$out\BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk";Copy-Item $apk.FullName $final -Force;$bt=Get-ChildItem "$env:ANDROID_HOME\build-tools" -Directory|Sort-Object {[version]$_.Name} -Descending|Select-Object -First 1;$badging=(& "$($bt.FullName)\aapt.exe" dump badging $final)-join "`n";Set-Content "$out\APK_BADGING_RUN180.txt" $badging;if($badging -notmatch "package: name='com\.braseiro\.dnd5e'" -or $badging -notmatch "versionCode='606280'" -or $badging -notmatch "versionName='6\.6\.2-r180-debug'"){throw 'badging contract'}
-          & "$($bt.FullName)\apksigner.bat" verify --verbose --print-certs $final 2>&1|Tee-Object "$out\APK_SIGNATURE_RUN180.txt";if($LASTEXITCODE -ne 0){throw 'apksigner'};$za=[IO.Compression.ZipFile]::OpenRead($final);$za.Dispose();$sha=(Get-FileHash $final -Algorithm SHA256).Hash.ToLowerInvariant();"$sha  BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk"|Set-Content "$out\BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk.sha256" -Encoding ascii;@("RUNNER_NAME=$env:RUNNER_NAME","SOURCE_SHA256=$sourceSha","PACKAGE=com.braseiro.dnd5e","VERSION_CODE=606280","VERSION_NAME=6.6.2-r180-debug","APK_SHA256=$sha")|Set-Content "$out\RUN180_BUILD_PROOF.txt"
-          $tag='DND-6.6.2-RUN180';gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null;if($LASTEXITCODE -ne 0){gh release create $tag --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Braseiro DnD 6.6.2 RUN180' --notes 'RUN180 final Android build on BRELGA.'};Get-ChildItem $out -File|ForEach-Object {gh release upload $tag --repo $env:GITHUB_REPOSITORY $_.FullName --clobber};Write-Host "APK_SHA256=$sha"
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Runner incorreto: $env:RUNNER_NAME"}
+          Write-Host "RUNNER_NAME=$env:RUNNER_NAME"
 
-# RUN180 transport retry marker
+          $base='C:\DND180'
+          $incoming="$base\incoming"
+          $extract="$base\extract"
+          $out="$base\out"
+          New-Item -ItemType Directory -Force -Path $incoming,$extract,$out | Out-Null
+
+          $ids=@(
+            '1XiIBc6zdz6iISvpak_zTKPEljsGzWeup',
+            '1P7LwVCYrtidn4pXbdFLa70X3zS1f8GSN',
+            '1ptl3x3a6l-t6NUpZdKLhcMfnmnznlk9N',
+            '1clnk1KwnJRFTfiHGfkmpS0_XF63a42rR',
+            '1hm2KrTnF5JHQO-mM7FWfz2izjbHdxFk0',
+            '13XbarUyJ9JuXUIfotc6cc5RHB-H6sxx_',
+            '1vx1jkf_zKwbYvuJtKGSSzoqAFfSoPPT2'
+          )
+          $hashes=@(
+            '8dd31da8d9c9805aca05f2b3a19a80d4e35c3dba2d0eaa62bdec8e5ced6be9eb',
+            '3b3bc483807b372a193c7e12ef8917254ca7e070775fb570b6f76176090cf687',
+            'a50528b062123f767df13e18fb3cda7026a2cf1c93ec1ecb60132f49a62dc2d0',
+            '797a1c097cf43526d732caf9eded2993e3dcd82e940001cb742bb0ce3d0bbfe9',
+            '2e28a84895d5d3ebdddae5dca4e7edbc0944d02ea128586be8142b28f7b9b506',
+            '7640d597596bb49957f06268e37b8c0fb68cd8acf8dbdc3b3f5b916c02fccc17',
+            '8469336040fe3dc2d45128c7d2c4d5dce293c26ac57d97021efa5700856ed068'
+          )
+
+          for($i=0;$i -lt 7;$i++){
+            $p="$incoming\part{0:D2}" -f $i
+            $valid=$false
+            if(Test-Path $p){
+              $got=(Get-FileHash $p -Algorithm SHA256).Hash.ToLowerInvariant()
+              if($got -eq $hashes[$i]){
+                Write-Host "REUSE part$i SHA OK"
+                $valid=$true
+              } else {
+                Remove-Item $p -Force
+              }
+            }
+            if(-not $valid){
+              $url="https://drive.usercontent.google.com/download?id=$($ids[$i])&export=download&confirm=t"
+              Write-Host "DOWNLOAD part$i"
+              & curl.exe -L --fail --retry 4 --retry-delay 2 --connect-timeout 30 --max-time 900 -o $p $url
+              if($LASTEXITCODE -ne 0){throw "DOWNLOAD_PART_$i"}
+              $got=(Get-FileHash $p -Algorithm SHA256).Hash.ToLowerInvariant()
+              if($got -ne $hashes[$i]){throw "BAD_PART_$i SHA=$got"}
+              Write-Host "part$i SHA OK"
+            }
+          }
+
+          Remove-Item $extract -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path $extract,$out | Out-Null
+
+          $zip="$incoming\BRASEIRO_DND_6.6.2_RUN180_ANDROID_STUDIO.zip"
+          $o=[IO.File]::Create($zip)
+          try {
+            for($i=0;$i -lt 7;$i++){
+              $s=[IO.File]::OpenRead(("$incoming\part{0:D2}" -f $i))
+              try {$s.CopyTo($o)} finally {$s.Dispose()}
+            }
+          } finally {$o.Dispose()}
+
+          $sourceSha=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($sourceSha -ne $env:SOURCE_SHA256){throw "SOURCE_SHA_MISMATCH $sourceSha"}
+          Write-Host "SOURCE_SHA256=$sourceSha"
+
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $z=[IO.Compression.ZipFile]::OpenRead($zip)
+          try { if($z.Entries.Count -lt 100){throw "Source ZIP unexpectedly small"} }
+          finally {$z.Dispose()}
+          Expand-Archive -Path $zip -DestinationPath $extract -Force
+
+          $gradle=Get-ChildItem $extract -Recurse -Filter gradlew.bat -File | Where-Object {$_.Directory.Name -eq 'android'} | Select-Object -First 1
+          if(!$gradle){throw 'android/gradlew.bat ausente'}
+          $android=$gradle.Directory.FullName
+          $root=Split-Path $android -Parent
+          Write-Host "ROOT=$root"
+
+          $versionPath="$root\version.properties"
+          [IO.File]::WriteAllText($versionPath,"VERSION_NAME=6.6.2-r180`nVERSION_CODE=606280`n",(New-Object Text.UTF8Encoding($false)))
+          $build="$android\app\build.gradle.kts"
+          if(!(Select-String -Quiet -Path $build -Pattern 'com.braseiro.dnd5e')){throw 'PACKAGE_CONTRACT_FAILED'}
+
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){
+            $j='C:\Program Files\Android\Android Studio\jbr'
+            if(Test-Path "$j\bin\java.exe"){
+              $env:JAVA_HOME=$j
+              $env:Path="$j\bin;$env:Path"
+            }
+          }
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){throw 'JAVA_NOT_FOUND'}
+          if(!$env:ANDROID_HOME){
+            $sdk="$env:LOCALAPPDATA\Android\Sdk"
+            if(Test-Path $sdk){$env:ANDROID_HOME=$sdk}
+          }
+          if(!$env:ANDROID_HOME -or !(Test-Path $env:ANDROID_HOME)){throw 'ANDROID_SDK_NOT_FOUND'}
+          $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          & java.exe -version
+
+          Set-Location $android
+          & .\gradlew.bat :app:compileDebugJavaWithJavac --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object "$out\JAVAC_RUN180.log"
+          if($LASTEXITCODE -ne 0){throw 'compileDebugJavaWithJavac falhou'}
+
+          & .\gradlew.bat :app:assembleDebug --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object "$out\GRADLE_BUILD_RUN180.log"
+          if($LASTEXITCODE -ne 0){throw 'assembleDebug falhou'}
+
+          $apk=Get-ChildItem "$android\app\build\outputs\apk\debug" -Filter *.apk -File | Select-Object -First 1
+          if(!$apk){throw 'APK_AUSENTE'}
+          $final="$out\$env:APK_NAME"
+          Copy-Item $apk.FullName $final -Force
+
+          $bt=Get-ChildItem "$env:ANDROID_HOME\build-tools" -Directory | Sort-Object {[version]$_.Name} -Descending | Select-Object -First 1
+          if(!$bt){throw 'BUILD_TOOLS_NOT_FOUND'}
+          $badging=(& "$($bt.FullName)\aapt.exe" dump badging $final)-join "`n"
+          [IO.File]::WriteAllText("$out\APK_BADGING_RUN180.txt",$badging,(New-Object Text.UTF8Encoding($false)))
+          if($badging -notmatch "package: name='com\.braseiro\.dnd5e'"){throw 'BAD_PACKAGE'}
+          if($badging -notmatch "versionCode='606280'"){throw 'BAD_VERSION_CODE'}
+          if($badging -notmatch "versionName='6\.6\.2-r180-debug'"){throw 'BAD_VERSION_NAME'}
+
+          & "$($bt.FullName)\apksigner.bat" verify --verbose --print-certs $final 2>&1 | Tee-Object "$out\APK_SIGNATURE_RUN180.txt"
+          if($LASTEXITCODE -ne 0){throw 'APK_SIGNATURE_FAILED'}
+
+          $za=[IO.Compression.ZipFile]::OpenRead($final)
+          try { if($za.Entries.Count -lt 10){throw 'APK_ZIP_INVALID'} }
+          finally {$za.Dispose()}
+
+          $apkSha=(Get-FileHash $final -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$apkSha  $env:APK_NAME" | Set-Content "$out\$env:APK_NAME.sha256" -Encoding ascii
+          @(
+            "RUNNER_NAME=$env:RUNNER_NAME",
+            "SOURCE_SHA256=$sourceSha",
+            "PACKAGE=com.braseiro.dnd5e",
+            "VERSION_CODE=606280",
+            "VERSION_NAME=6.6.2-r180-debug",
+            "APK_SHA256=$apkSha"
+          ) | Set-Content "$out\RUN180_BUILD_PROOF.txt" -Encoding utf8
+
+          $tag=$env:TAG
+          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if($LASTEXITCODE -ne 0){
+            gh release create $tag --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Braseiro DnD 6.6.2 RUN180' --notes 'RUN180 final Android build on self-hosted BRELGA.'
+            if($LASTEXITCODE -ne 0){throw 'RELEASE_CREATE_FAILED'}
+          }
+          Get-ChildItem $out -File | ForEach-Object {
+            gh release upload $tag --repo $env:GITHUB_REPOSITORY $_.FullName --clobber
+            if($LASTEXITCODE -ne 0){throw "RELEASE_UPLOAD_FAILED $($_.Name)"}
+          }
+          Write-Host "APK_SHA256=$apkSha"
