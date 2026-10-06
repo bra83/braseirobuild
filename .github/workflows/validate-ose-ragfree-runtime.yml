@@ -90,11 +90,24 @@ jobs:
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Unit and integration tests
+      - name: Runtime unit and integration suites
         working-directory: ose/1.0.0/source
         run: |
+          set -euo pipefail
           chmod +x gradlew
-          ./gradlew --no-daemon             :tts-api:test             :rules-classic:test             :rules-advanced:test             :referee-boundary:test             :session-engine:test             :world-domain:test             :npc-domain:test             :integration-tests:test             --stacktrace
+          suites=(tts-api rules-classic rules-advanced referee-boundary session-engine world-domain npc-domain integration-tests)
+          failed=0
+          for suite in "${suites[@]}"; do
+            echo "::group::$suite tests"
+            if ./gradlew --no-daemon ":$suite:test" --stacktrace; then
+              echo "$suite: PASS"
+            else
+              echo "::error::$suite tests failed"
+              failed=1
+            fi
+            echo "::endgroup::"
+          done
+          exit "$failed"
 
       - name: Android compile gate only
         working-directory: ose/1.0.0/source
