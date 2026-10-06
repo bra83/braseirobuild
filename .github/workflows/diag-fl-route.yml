@@ -67,12 +67,8 @@ jobs:
 
           const canon='src/scripts/verify-canonical-narrator-profile.mjs';
           let c=fs.readFileSync(canon,'utf8');
-          const oldMarkers=`  'Ficção antes da mecânica', 'Prioridade de verdade', 'Não controlar pensamento', 'NPCs existem antes da câmera chegar',
-  'Informação deve surgir progressivamente', 'Não terminar toda resposta com “O que você faz?”', 'PT-BR natural e falável',
-  'ABERTURA: âncora temporal/cultural',`;
-          const newMarkers=`  'Ficção antes da mecânica', 'não invente tempo, clima, posição, regra ou consequência', 'Preserve agência', 'NPCs entram fazendo algo',
-  'Segredos, intenção oculta e conclusão de mistério', 'Não termine mecanicamente com “O que você faz?”', 'PT-BR natural, concreto, sensorial e falável',
-  'ABERTURA: âncora temporal/cultural',`;
+          const oldMarkers="  'Ficção antes da mecânica', 'Prioridade de verdade', 'Não controlar pensamento', 'NPCs existem antes da câmera chegar',\n  'Informação deve surgir progressivamente', 'Não terminar toda resposta com “O que você faz?”', 'PT-BR natural e falável',\n  'ABERTURA: âncora temporal/cultural',";
+          const newMarkers="  'Ficção antes da mecânica', 'não invente tempo, clima, posição, regra ou consequência', 'Preserve agência', 'NPCs entram fazendo algo',\n  'Segredos, intenção oculta e conclusão de mistério', 'Não termine mecanicamente com “O que você faz?”', 'PT-BR natural, concreto, sensorial e falável',\n  'ABERTURA: âncora temporal/cultural',";
           if(!c.includes(oldMarkers)) throw new Error('stale canonical marker block not found');
           c=c.replace(oldMarkers,newMarkers);
           fs.writeFileSync(canon,c,'utf8');
