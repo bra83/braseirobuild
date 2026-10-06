@@ -15,10 +15,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6_SOURCE.zip"
-  SOURCE_BYTES: "26727681"
-  SOURCE_SHA256: "79607d17700a10fca87a4e5929677aa6d7445de44618fc0f82dbe2bff6e5f502"
-  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/rdIsgUTIrx7x"
+  SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6_1_SOURCE.zip"
+  SOURCE_BYTES: "26727762"
+  SOURCE_SHA256: "f37e2729516c83fc3fc38b4726947f0cdf322afc7289f14a3b0cad1a9c6ab746"
+  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/9U2Qwn54TgjB"
   BUILD_ROOT: "D:\\brelga-fl-bugreport-freeze-r6"
   APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6.apk"
   TAG: "forbidden-lands-3.3.5-bugreport-freeze-fix-r6"
