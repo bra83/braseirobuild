@@ -48,6 +48,14 @@ jobs:
           if(!s.includes(retOld)) throw new Error('intent return marker missing');
           s=s.replace(retOld,retNew);
           fs.writeFileSync(intent,s,'utf8');
+
+          const bugGate='src/scripts/verify-bugreport-freeze-2026-10-05.mjs';
+          let b=fs.readFileSync(bugGate,'utf8');
+          const traceOld='assert.match(adventure, /\\[MASTER_FLOW\\] scene-commit:start/);';
+          const traceNew="assert.match(adventure, /masterTrace\\('scene-commit:start'/);";
+          if(!b.includes(traceOld)) throw new Error('stale scene-commit trace assertion not found');
+          b=b.replace(traceOld,traceNew);
+          fs.writeFileSync(bugGate,b,'utf8');
           NODE
 
       - name: Inspect scene commit trace location
