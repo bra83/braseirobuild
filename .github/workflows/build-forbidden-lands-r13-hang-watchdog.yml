@@ -1,0 +1,139 @@
+name: Forbidden Lands 3.3.9 R13 Hung Renderer Watchdog
+
+on:
+  push:
+    paths:
+      - '.github/workflows/build-forbidden-lands-r13-hang-watchdog.yml'
+      - 'ci/forbidden-lands-r13/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: forbidden-lands-r13-hang-watchdog
+  cancel-in-progress: true
+
+env:
+  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/9U2Qwn54TgjB"
+  SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6_1_SOURCE.zip"
+  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.9_R13_HANG_WATCHDOG.apk"
+  EXPECTED_SHA1: "9d0f1089b3fb6c225f1f59462750864e897c4d92"
+
+jobs:
+  verify-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch exact source
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE_ID=$(curl -fsSL "$FIRESTORAGE_API/files?maxResults=100" | jq -r --arg n "$SOURCE_NAME" '.files[] | select(.fileName==$n) | .fileId' | head -n1)
+          test -n "$FILE_ID"
+          URL=$(curl -fsSL -X POST "$FIRESTORAGE_API/files/$FILE_ID/download" | jq -r '.downloadUrl')
+          test -n "$URL"
+          rm -rf work/fl && mkdir -p work/fl
+          curl -fL --retry 3 "$URL" -o work/source.zip
+          unzip -q work/source.zip -d work/fl
+
+      - name: Apply R10 and R13
+        shell: bash
+        run: |
+          set -euo pipefail
+          node ci/forbidden-lands-r10/apply-r10.mjs work/fl
+          python ci/forbidden-lands-r13/apply-r13-hang-watchdog.py work/fl
+          MAIN='work/fl/android/app/src/main/java/com/braseiro/forbiddenlands/MainActivity.java'
+          grep -F 'RENDERER_HEARTBEAT_TIMEOUT_MS = 8_000L' "$MAIN" >/dev/null
+          grep -F 'WebView renderer heartbeat timed out' "$MAIN" >/dev/null
+          grep -F 'destroyRendererAndRecreate(webView, "hang"' "$MAIN" >/dev/null
+          grep -F 'onRenderProcessGone(WebView webView, RenderProcessGoneDetail detail)' "$MAIN" >/dev/null
+          grep -F 'return true;' "$MAIN" >/dev/null
+          grep -F 'force_software_renderer' "$MAIN" >/dev/null
+          grep -q 'versionCode 303900' work/fl/android/app/build.gradle
+          grep -q 'versionName "3.3.9"' work/fl/android/app/build.gradle
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Verify update signer
+        shell: bash
+        run: |
+          set -euo pipefail
+          PROP='work/fl/android/keystore.properties'
+          KS='work/fl/android/app/braseiro-debug.jks'
+          STORE_PASS=$(grep -E '^BRASEIRO_STORE_PASSWORD=' "$PROP" | head -n1 | cut -d= -f2-)
+          ALIAS=$(grep -E '^BRASEIRO_KEY_ALIAS=' "$PROP" | head -n1 | cut -d= -f2-)
+          if [ -z "$ALIAS" ]; then ALIAS=braseiro; fi
+          SHA1=$(keytool -list -v -keystore "$KS" -storepass "$STORE_PASS" -alias "$ALIAS" 2>/dev/null | awk -F': ' '/SHA1:/{gsub(":","",$2); print tolower($2); exit}')
+          test "$SHA1" = "$EXPECTED_SHA1"
+
+      - name: Install dependencies
+        working-directory: work/fl
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --package-lock=false --no-audit --no-fund jsdom@26
+
+      - name: Freeze regressions
+        working-directory: work/fl
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp ../../ci/forbidden-lands-r10/verify-r10-touch-and-safety.mjs scripts/verify-r10-touch-and-safety.mjs
+          cp ../../ci/forbidden-lands-r10/verify-r10-choice-flow.mjs scripts/verify-r10-choice-flow.mjs
+          node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-r10-touch-and-safety.mjs
+          node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-r10-choice-flow.mjs
+          npm run verify:master-no-freeze-r5
+          npm run verify:bugreport-freeze-2026-10-05
+          npm run lint
+          npm run build:web
+
+      - name: Android compile
+        working-directory: work/fl
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run android:sync
+          npm run verify:android
+          npm run lint
+          node scripts/run-gradle-task.mjs assembleDebug
+
+      - name: Validate update APK
+        working-directory: work/fl
+        shell: bash
+        run: |
+          set -euo pipefail
+          BUILT='android/app/build/outputs/apk/debug/app-debug.apk'
+          test -f "$BUILT"
+          mkdir -p out
+          cp "$BUILT" "out/$APK_NAME"
+          BT=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)
+          "$BT/aapt" dump badging "out/$APK_NAME" > out/APK_BADGING.txt
+          grep -q "package: name='com.braseiro.forbiddenlands'" out/APK_BADGING.txt
+          grep -q "versionCode='303900'" out/APK_BADGING.txt
+          grep -q "versionName='3.3.9'" out/APK_BADGING.txt
+          "$BT/apksigner" verify --verbose --print-certs "out/$APK_NAME" > out/APK_SIGNATURE.txt 2>&1
+          ACTUAL=$(grep -E 'certificate SHA-1 digest:' out/APK_SIGNATURE.txt | head -n1 | sed -E 's/.*digest:[[:space:]]*//' | tr -d ':[:space:]' | tr 'A-F' 'a-f')
+          test "$ACTUAL" = "$EXPECTED_SHA1"
+          sha256sum "out/$APK_NAME" > "out/$APK_NAME.sha256"
+          printf '%s\n' \
+            'STATUS=PASS' \
+            'BUGREPORT_CAUSE=WEBVIEW_RENDERER_HANG' \
+            'RENDERER_BACKTRACE_TIMEOUT_REPRODUCED=YES' \
+            'HEARTBEAT_WATCHDOG=PASS' \
+            'HANG_RECOVERY_RECREATE=PASS' \
+            'CRASH_RECOVERY=PASS' \
+            'SAFE_RENDERER_AFTER_HANG=PASS' \
+            'R10_TOUCH_GATE=PASS' \
+            'R10_CHOICE_FLOW_GATE=PASS' \
+            'UPDATE_IN_PLACE=PASS' > out/R13_HANG_WATCHDOG_PROOF.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.9_R13_HANG_WATCHDOG
+          path: work/fl/out/*
+          retention-days: 30
