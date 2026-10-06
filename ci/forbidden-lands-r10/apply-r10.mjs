@@ -63,6 +63,7 @@ function replaceOptional(text, oldText, newText) {
 const touchComponent = `import React, { useRef, useState } from 'react';
 
 type Props = {
+  key?: React.Key;
   action: string;
   index: number;
   busy: boolean;
