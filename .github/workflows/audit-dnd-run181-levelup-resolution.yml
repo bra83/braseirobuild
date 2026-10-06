@@ -1,0 +1,21 @@
+name: Audit DnD RUN181 Level Up Resolution
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/audit-dnd-run181-levelup-resolution.yml']
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 8
+    steps:
+      - name: Inspect level-up pending resolution
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $src='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
+          $patterns='level_up_choices_pending|level_up_pending|applyCharacterLevelUpFixedHp|SUBIR NÍVEL|resolver.*nível|escolhas.*nível|subclassMinimumLevel|validateSubclass|selected_feats|spell.*choice|feat.*choice'
+          Get-ChildItem $src -Recurse -File -Filter *.java |
+            Select-String -Pattern $patterns -AllMatches |
+            Sort-Object Path,LineNumber |
+            ForEach-Object {"$($_.Path):$($_.LineNumber): $($_.Line.Trim())"}
