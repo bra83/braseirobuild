@@ -1,0 +1,30 @@
+name: Inspect DnD RUN182 Exact Patch Anchors
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-run182-exact-anchors.yml']
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 12
+    steps:
+      - name: Exact anchors
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $src='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
+          function Around([string]$file,[string]$pattern,[int]$before,[int]$after){
+            $p=Join-Path $src $file;if(!(Test-Path $p)){return}
+            $ls=Get-Content $p;$ms=Select-String -Path $p -Pattern $pattern -AllMatches
+            foreach($m in $ms){"===== ${file}:$($m.LineNumber) $pattern =====";$a=[Math]::Max(1,$m.LineNumber-$before);$b=[Math]::Min($ls.Count,$m.LineNumber+$after);for($i=$a;$i -le $b;$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}}
+          }
+          Around 'MainActivity.java' 'private void characterDialog\(' 5 260
+          Around 'MainActivity.java' 'private View sceneTokenTile\(' 5 55
+          Around 'MainActivity.java' 'private Uri storeNpcAvatar\(' 15 45
+          Around 'MainActivity.java' 'private void handleIncomingIntent\(' 5 50
+          Around 'MainActivity.java' 'protected void onCreate\(' 5 180
+          Around 'MainActivity.java' 'SceneOptionDiversifier.ensureAlways' 20 30
+          Around 'SceneOptionDiversifier.java' 'class SceneOptionDiversifier|ensureAlways|fallback|generic' 5 220
+          Around 'ImageStorageManager.java' 'importImage|delete|remove|File' 5 100
+          Around 'AppDb.java' 'createVirtualMasterTables\(' 5 150
+          Around 'AppDb.java' 'exportAll\(|importAll\(' 5 130
