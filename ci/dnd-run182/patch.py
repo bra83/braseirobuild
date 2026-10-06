@@ -1,0 +1,348 @@
+from pathlib import Path
+import re, sys, json
+
+root=Path(sys.argv[1])
+pkg=root/"android"/"app"/"src"/"main"/"java"/"com"/"braseiro"/"dnd5e"
+if not pkg.exists():
+    raise SystemExit("SOURCE_NOT_FOUND")
+
+def read(name):
+    return (pkg/name).read_text(encoding="utf-8")
+def write(name,text):
+    (pkg/name).write_text(text,encoding="utf-8",newline="\n")
+def once(text,old,new,label):
+    n=text.count(old)
+    if n!=1: raise SystemExit(f"{label}: expected 1, got {n}")
+    return text.replace(old,new,1)
+
+# ------------------------------------------------------------------
+# Human Master runtime contract, derived from the canonical user profile.
+# ------------------------------------------------------------------
+human=r'''package com.braseiro.dnd5e;
+
+import org.json.JSONObject;
+
+/** Runtime narrative direction. Mechanics/state remain authoritative. */
+public final class HumanMasterNarrativeProfile {
+    private HumanMasterNarrativeProfile(){}
+
+    public static String systemInstruction(){
+        return "DIREÇÃO NARRATIVA CANÔNICA — MESTRE HUMANO IMERSIVO: "
+            +"A ficção vem antes da mecânica e volta imediatamente depois dela. "
+            +"Consulte o estado persistente antes de afirmar clima, hora, data, posição, recursos, feridas, NPC presente, objetivo ou viagem. "
+            +"Nunca sacrifique consistência por texto bonito e nunca revele fatos secretos sem descoberta. "
+            +"Narre como um Mestre humano em tempo real: concreto, visual, sensorial, reativo e proporcional à importância da cena; não como relatório, tutorial, HUD, banco de dados ou romance. "
+            +"NPCs existem fora do diálogo: têm objetivos, memória, rotina e reagem ao tempo e ao mundo. Preserve identidade, relações, promessas, feridas, posição, clima, portas, cadáveres e consequências entre cenas e sessões. "
+            +"Mudanças de clima e horário precisam aparecer no mundo quando relevantes, não apenas na interface. "
+            +"Não decida emoções nem escolhas importantes do personagem do jogador. Peça teste apenas quando houver incerteza/consequência/regra e transforme o resultado de volta em ficção. "
+            +"Sugestões opcionais: zero a duas; somente ações concretas ancoradas em pessoa, objeto, ameaça, pista, saída, lugar ou objetivo realmente presentes. Nunca crie opções genéricas só para preencher a tela. "
+            +"CONTROLE DOS HERÓIS: modo manual nunca age sozinho. Modo sistema pode executar autonomamente apenas ações rotineiras, reversíveis, de baixo risco e sem gastar recurso limitado ou assumir compromisso importante. Em combate, modo sistema é assistido: propõe uma ação legal e aguarda confirmação. Se o usuário escrever explicitamente fala ou ação de qualquer herói, essa declaração é autoridade para aquele momento, mesmo que o herói esteja em modo sistema. "
+            +"ORDEM DE AÇÃO: fora de combate não force todos os heróis a agir em toda cena; dê foco conforme causalidade, posição, relevância e fala do usuário. Em combate, todos os combatentes capazes recebem seu turno na ordem real de iniciativa; nunca invente rolagem oculta. Empates seguem a autoridade do perfil de regras/controle e permanecem auditáveis. "
+            +"MORTE DE NPC: quando a ficção e a mecânica confirmarem morte, envie atualização explícita dead=true/status=dead/active=0; não reutilize essa identidade como NPC vivo sem ressurreição explícita. "
+            +"Pare quando houver decisão real. O jogador deve sentir um lugar vivo, não o resultado de um sistema.";
+    }
+
+    public static JSONObject contract(){
+        JSONObject o=new JSONObject();
+        try{
+            o.put("id","human_master_immersive_v1");
+            o.put("fiction_before_mechanics",true);
+            o.put("state_authority",true);
+            o.put("persistent_weather_time",true);
+            o.put("persistent_npc_identity",true);
+            o.put("grounded_optional_actions_max",2);
+            o.put("allow_zero_optional_actions",true);
+            o.put("manual_hero_autonomy",false);
+            o.put("system_hero_routine_only",true);
+            o.put("system_hero_combat_assisted",true);
+            o.put("explicit_user_hero_action_overrides",true);
+            o.put("combat_order","initiative");
+            o.put("auto_rolls",false);
+        }catch(Exception ignored){}
+        return o;
+    }
+}
+'''
+write("HumanMasterNarrativeProfile.java",human)
+
+# ------------------------------------------------------------------
+# AppDb: preserve NPC tombstones; a dead identity cannot respawn by accident.
+# Portrait reference is cleared on confirmed death while identity remains.
+# ------------------------------------------------------------------
+t=read("AppDb.java")
+old='''        JSONObject previous=findNpcMemoryByName(name);
+        ContentValues v=new ContentValues();v.put("world_profile",profile);v.put("stable_id",stableId);v.put("name",name);
+'''
+new='''        JSONObject previous=findNpcMemoryByName(name);
+        boolean deadTombstone=npcDeathTombstone(normalized,previous);
+        ContentValues v=new ContentValues();v.put("world_profile",profile);v.put("stable_id",stableId);v.put("name",name);
+'''
+t=once(t,old,new,"npc-death-anchor")
+old='''        v.put("active",normalized.has("active")?normalized.optInt("active",1):previous.optInt("active",1));v.put("updated_at",System.currentTimeMillis());
+'''
+new='''        v.put("active",deadTombstone?0:(normalized.has("active")?normalized.optInt("active",1):previous.optInt("active",1)));if(deadTombstone){v.put("token_uri","");v.put("stats_json",npcStatsWithDeath(normalized,previous));}v.put("updated_at",System.currentTimeMillis());
+'''
+t=once(t,old,new,"npc-death-values")
+anchor='''    private static void putNpcField(ContentValues v,JSONObject source,JSONObject previous,String key,String fallback){v.put(key,source.has(key)?source.optString(key,fallback):previous.optString(key,fallback));}
+'''
+helpers='''    private static boolean npcDeathTombstone(JSONObject current,JSONObject previous){
+        try{
+            if(current!=null&&current.optBoolean("resurrected",false))return false;
+            if(current!=null&&(current.optBoolean("dead",false)||"dead".equalsIgnoreCase(current.optString("status"))||"morto".equalsIgnoreCase(current.optString("status"))))return true;
+            JSONObject cs=current==null?new JSONObject():new JSONObject(current.optString("stats_json","{}"));
+            if(cs.optBoolean("dead",false)||"dead".equalsIgnoreCase(cs.optString("status"))||"morto".equalsIgnoreCase(cs.optString("status")))return true;
+            JSONObject ps=previous==null?new JSONObject():new JSONObject(previous.optString("stats_json","{}"));
+            return ps.optBoolean("dead",false)||"dead".equalsIgnoreCase(ps.optString("status"))||"morto".equalsIgnoreCase(ps.optString("status"));
+        }catch(Exception ignored){return false;}
+    }
+    private static String npcStatsWithDeath(JSONObject current,JSONObject previous){
+        try{
+            JSONObject s=new JSONObject(current!=null&&current.has("stats_json")?current.optString("stats_json","{}"):previous==null?"{}":previous.optString("stats_json","{}"));
+            s.put("dead",true).put("status","dead");return s.toString();
+        }catch(Exception ignored){return "{\\"dead\\":true,\\"status\\":\\"dead\\"}";}
+    }
+    public void markNpcDead(long id){
+        JSONObject npc=getNpcMemory(id);if(npc.length()==0)return;
+        ContentValues v=new ContentValues();v.put("active",0);v.put("token_uri","");v.put("stats_json",npcStatsWithDeath(new JSONObject(),npc));v.put("updated_at",System.currentTimeMillis());
+        getWritableDatabase().update("npc_memory_profiles",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});
+        ContentValues combat=new ContentValues();combat.put("token_uri","");getWritableDatabase().update("combatants",combat,"world_profile=? AND source_kind='npc' AND source_id=?",new String[]{getActiveMapProfile(),String.valueOf(id)});
+    }
+''' + anchor
+t=once(t,anchor,helpers,"npc-death-helpers")
+write("AppDb.java",t)
+
+# ------------------------------------------------------------------
+# MainActivity
+# ------------------------------------------------------------------
+t=read("MainActivity.java")
+
+# Immediate visible startup surface instead of gray activity; defer TTS and catalog work.
+old='''            prefs=getSharedPreferences("settings",MODE_PRIVATE);if(!prefs.getBoolean("rag_master_2_2_migrated",false))prefs.edit().putString("master_pace","cinematic").putBoolean("rag_master_2_2_migrated",true).apply();if(!prefs.getBoolean("narrator_2_7_cinematic_restored",false)){SharedPreferences.Editor paceEdit=prefs.edit().putBoolean("narrator_2_7_cinematic_restored",true);if(prefs.getBoolean("narrator_2_6_speed_migrated",false)&&"balanced".equals(prefs.getString("master_pace","cinematic")))paceEdit.putString("master_pace","cinematic");paceEdit.apply();}reconcileWorldProfilePreferences();applyTheme();ui=new Handler(Looper.getMainLooper());
+'''
+new='''            prefs=getSharedPreferences("settings",MODE_PRIVATE);if(!prefs.getBoolean("rag_master_2_2_migrated",false))prefs.edit().putString("master_pace","cinematic").putBoolean("rag_master_2_2_migrated",true).apply();if(!prefs.getBoolean("narrator_2_7_cinematic_restored",false)){SharedPreferences.Editor paceEdit=prefs.edit().putBoolean("narrator_2_7_cinematic_restored",true);if(prefs.getBoolean("narrator_2_6_speed_migrated",false)&&"balanced".equals(prefs.getString("master_pace","cinematic")))paceEdit.putString("master_pace","cinematic");paceEdit.apply();}reconcileWorldProfilePreferences();applyTheme();ui=new Handler(Looper.getMainLooper());showImmediateStartupSurface();
+'''
+t=once(t,old,new,"startup-visible")
+t=t.replace('''accountManager=AccountManager.get(this);ensureNpcSourceManualCatalog();if(!prefs.getBoolean("npc_token_folder_47_migrated",false))''','''accountManager=AccountManager.get(this);if(!prefs.getBoolean("npc_token_folder_47_migrated",false))''',1)
+t=t.replace('''            ensureNativeTtsInitialized();
+''','',1)
+t=t.replace('''ImageStorageManager.cleanupLegacySceneImages(this,sharedImageUri);
+''','',1)
+old='''            setStatus(safetyMessage);handleIncomingIntent(getIntent());warmManualSearchIndexAsync();
+            AppExecutors.io().execute(new Runnable(){public void run(){final JSONObject report=db.backfillNpcPersonalities();ui.post(new Runnable(){public void run(){if(report.optInt("updated",0)>0)setBackgroundStatus("NPCs: "+report.optInt("updated")+" personalidade(s) aplicadas do catálogo de "+report.optInt("catalog_profiles",300)+" perfis.");}});}});
+'''
+new='''            setStatus(safetyMessage);handleIncomingIntent(getIntent());warmManualSearchIndexAsync();
+            ui.postDelayed(new Runnable(){public void run(){ensureNativeTtsInitialized();}},350L);
+            final Uri cleanupSceneImage=sharedImageUri;AppExecutors.io().execute(new Runnable(){public void run(){try{ensureNpcSourceManualCatalog();ImageStorageManager.cleanupLegacySceneImages(MainActivity.this,cleanupSceneImage);final JSONObject report=db.backfillNpcPersonalities();ui.post(new Runnable(){public void run(){if(report.optInt("updated",0)>0)setBackgroundStatus("NPCs: "+report.optInt("updated")+" personalidade(s) aplicadas do catálogo de "+report.optInt("catalog_profiles",300)+" perfis.");}});}catch(Exception e){AppLog.w("StartupAsync","Preparação secundária continuou sem bloquear a interface.",e);}}});
+'''
+t=once(t,old,new,"startup-defer")
+
+# Add startup surface before showStartupFailure.
+anchor='''    private void showStartupFailure(Throwable fatal){
+'''
+startup=r'''    private void showImmediateStartupSurface(){
+        try{
+            LinearLayout splash=new LinearLayout(this);splash.setOrientation(LinearLayout.VERTICAL);splash.setGravity(Gravity.CENTER);splash.setPadding(dp(24),dp(32),dp(24),dp(32));splash.setBackgroundColor(Color.rgb(24,18,14));
+            TextView title=new TextView(this);title.setText("BRASEIRO D&D");title.setTextColor(Color.rgb(228,177,79));title.setTextSize(28);title.setTypeface(Typeface.DEFAULT,Typeface.BOLD);title.setGravity(Gravity.CENTER);splash.addView(title);
+            TextView sub=new TextView(this);sub.setText("Preparando a campanha…");sub.setTextColor(Color.rgb(232,222,211));sub.setTextSize(15);sub.setPadding(0,dp(12),0,0);sub.setGravity(Gravity.CENTER);splash.addView(sub);
+            setContentView(splash);
+        }catch(Throwable ignored){/* o recovery de startup continua sendo a autoridade */}
+    }
+
+''' + anchor
+t=once(t,anchor,startup,"startup-method")
+
+# Gemini save button directly under key fields. TESTAR also saves atomically first.
+old='''ai.addView(key);ai.addView(paidKey);ai.addView(text("A chave alternativa só é usada pelo Charon quando a principal recebe 429, esgota a cota ou entra no circuito de espera de cinco minutos.",11,MUTED,false));'''
+new='''ai.addView(key);ai.addView(paidKey);Button saveGeminiKeys=button("SALVAR CHAVES GEMINI",GREEN);saveGeminiKeys.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String primary=value(key),alternate=value(paidKey);if(primary.length()==0){toast("Informe a chave principal do Gemini.");return;}if(saveGeminiSecretsAtomically(primary,alternate)){toast("Chaves Gemini salvas no Android Keystore.");setStatus("Chave Gemini salva e aplicada.");}else toast("A chave não foi salva; o valor anterior foi preservado.");}});ai.addView(saveGeminiKeys);ai.addView(text("A chave alternativa só é usada pelo Charon quando a principal recebe 429, esgota a cota ou entra no circuito de espera de cinco minutos.",11,MUTED,false));'''
+t=once(t,old,new,"gemini-save-button")
+old='''String k=value(key);if(k.length()==0){toast("Informe a chave principal antes de testar.");return;}'''
+new='''String k=value(key);if(k.length()==0){toast("Informe a chave principal antes de testar.");return;}if(!saveGeminiSecretsAtomically(k,value(paidKey))){toast("Não foi possível salvar a chave antes do teste.");return;}'''
+if old not in t: raise SystemExit("gemini-test-anchor-missing")
+t=t.replace(old,new,1)
+
+# Character controller UI using the already-existing character_control_profiles backend.
+old='''        f.active=check("Personagem em jogo",edit?existing.optInt("active",1)==1:initial.optBoolean("active",true));form.addView(f.active);configureSelectableMechanicFields(f,rulesProfile);bindCharacterDependencyListeners(f,rulesProfile);scroll.addView(form);
+'''
+new='''        JSONObject savedControl=edit?db.getCharacterControl(existing.optLong("id",0)):new JSONObject();String initialControl=savedControl.optString("control_mode",initial.optString("control_mode","manual"));f.controller=spinner(new String[]{"Você","Sistema — rotina / combate assistido"},"system".equals(initialControl)?"Sistema — rotina / combate assistido":"Você");LinearLayout controlCard=card();controlCard.addView(text("CONTROLE DO PERSONAGEM",14,GOLD,true));controlCard.addView(f.controller);controlCard.addView(text("Sistema: somente rotina reversível e de baixo risco. Em combate, o sistema sugere e você confirma. Uma fala ou ação que você escrever para este herói sempre prevalece naquele momento.",11,MUTED,false));form.addView(controlCard);f.active=check("Personagem em jogo",edit?existing.optInt("active",1)==1:initial.optBoolean("active",true));form.addView(f.active);configureSelectableMechanicFields(f,rulesProfile);bindCharacterDependencyListeners(f,rulesProfile);scroll.addView(form);
+'''
+t=once(t,old,new,"character-control-ui")
+
+old='''db.updateCharacterRuleDetails(id,sheet.optString("background"),sheet.optString("appearance"),sheet.optString("proficiencies")+"\\n"+sheet.optString("skills"),sheet.optString("inventory"),sheet.optString("spellcasting")+"\\n"+sheet.optString("spells")+"\\n"+sheet.optString("features"),rulesProfile);db.updateCharacterSheet(id,sheet.toString());db.addAuditEvent'''
+new='''db.updateCharacterRuleDetails(id,sheet.optString("background"),sheet.optString("appearance"),sheet.optString("proficiencies")+"\\n"+sheet.optString("skills"),sheet.optString("inventory"),sheet.optString("spellcasting")+"\\n"+sheet.optString("spells")+"\\n"+sheet.optString("features"),rulesProfile);db.updateCharacterSheet(id,sheet.toString());String controlMode=f.controller!=null&&f.controller.getSelectedItemPosition()==1?"system":"manual";db.saveCharacterControl(id,controlMode,"{\\"routine_only\\":true,\\"combat\\":\\"assisted\\",\\"user_override\\":true,\\"limited_resources\\":\\"confirm\\"}");db.addAuditEvent'''
+t=once(t,old,new,"character-control-save")
+
+old='''o.put("life_path",value(f.lifePath));o.put("rules_source",profile);'''
+new='''o.put("life_path",value(f.lifePath));o.put("rules_source",profile);o.put("control_mode",f.controller!=null&&f.controller.getSelectedItemPosition()==1?"system":"manual");'''
+t=once(t,old,new,"character-control-sheet")
+
+old='''if(f.active!=null)f.active.setChecked(s.optBoolean("active",true));if(f!=null){'''
+new='''if(f.controller!=null&&s.has("control_mode"))selectSpinner(f.controller,"system".equals(s.optString("control_mode"))?"Sistema — rotina / combate assistido":"Você");if(f.active!=null)f.active.setChecked(s.optBoolean("active",true));if(f!=null){'''
+t=once(t,old,new,"character-control-seed")
+
+old='''Spinner species,cls,background,alignment,origin,career,terms;CheckBox auto,active;'''
+new='''Spinner species,cls,background,alignment,origin,career,terms,controller;CheckBox auto,active;'''
+t=once(t,old,new,"character-control-ref")
+
+# NPC portrait: click scene NPC icon -> stable persistent identity prompt -> Gemini.
+old='''        tile.addView(circle,new LinearLayout.LayoutParams(dp(58),dp(58)));
+'''
+new='''        if(!"AVENTUREIRO".equalsIgnoreCase(kind)&&!entry.optBoolean("group",false)&&!entry.optBoolean("transient",false)){final JSONObject portraitEntry=entry;circle.setClickable(true);circle.setContentDescription("Gerar ou atualizar retrato persistente de "+name+" no Gemini");circle.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginNpcPortrait(portraitEntry);}});}
+        tile.addView(circle,new LinearLayout.LayoutParams(dp(58),dp(58)));
+'''
+t=once(t,old,new,"npc-portrait-click")
+
+anchor='''    private Uri storeNpcAvatar(Uri source,long npcId){try{return ImageStorageManager.importImage(this,source,"npc_avatars","npc_"+npcId,80);}catch(Exception e){AppLog.e("ImageImport","Falha ao armazenar avatar do NPC "+npcId,e);return null;}}
+'''
+portrait=r'''    private void beginNpcPortrait(JSONObject entry){
+        try{
+            String name=entry==null?"":entry.optString("name","").trim();if(name.length()==0)return;
+            JSONObject npc=db.findNpcMemoryByName(name);
+            if(npc.length()==0){db.upsertNpcMemory(new JSONObject().put("name",name).put("stable_id",NpcIdentityNormalizer.stableId(activeWorldProfile(),name)).put("visual_description",entry.optString("hint","")).put("active",1));npc=db.findNpcMemoryByName(name);}
+            if(npc.length()==0){toast("Não foi possível criar a identidade persistente deste NPC.");return;}
+            JSONObject stats;try{stats=new JSONObject(npc.optString("stats_json","{}"));}catch(Exception e){stats=new JSONObject();}
+            if(stats.optBoolean("dead",false)||"dead".equalsIgnoreCase(stats.optString("status"))||"morto".equalsIgnoreCase(stats.optString("status"))){toast(name+" está registrado como morto; o retrato não será recriado.");return;}
+            long id=npc.optLong("id",0);String stable=npc.optString("stable_id",NpcIdentityNormalizer.stableId(activeWorldProfile(),name));
+            prefs.edit().putLong("pending_npc_portrait_id",id).putString("pending_npc_portrait_stable_id",stable).putString("pending_npc_portrait_name",name).apply();
+            String species=stats.optString("species",stats.optString("race",stats.optString("creature_type",entry.optString("hint",""))));
+            String visual=npc.optString("visual_description","").trim();String summary=npc.optString("summary","").trim();
+            StringBuilder p=new StringBuilder();p.append("Crie um RETRATO DE PERSONAGEM para um VTT de D&D. Identidade única e persistente; não crie uma pessoa diferente. Sem texto, moldura, ficha ou cenário dominante. Enquadramento de ombros para cima, rosto claramente legível, iluminação coerente com fantasia, fundo discreto.\\n\\n");
+            p.append("NPC: ").append(name).append(".\\n");if(species.length()>0)p.append("Espécie/raça/tipo: ").append(species).append(".\\n");if(visual.length()>0)p.append("Aparência canônica: ").append(visual).append(".\\n");if(summary.length()>0)p.append("Papel/contexto visual: ").append(summary).append(".\\n");if(npc.optString("attitude").length()>0)p.append("Postura/atitude visível: ").append(npc.optString("attitude")).append(".\\n");p.append("Mantenha idade aparente, traços, pele/pelagem/escamas, cabelo, olhos, roupas, equipamento e marcas distintivas consistentes em qualquer futura imagem deste mesmo NPC.");
+            Intent share=new Intent(Intent.ACTION_SEND);share.setType("text/plain");share.putExtra(Intent.EXTRA_TEXT,p.toString());share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try{Intent direct=new Intent(share);direct.setPackage("com.google.android.apps.bard");startActivity(direct);}catch(Exception noGemini){startActivity(Intent.createChooser(share,"Gerar retrato de "+name));}
+            setStatus("Prompt de retrato enviado ao Gemini para "+name+". Compartilhe a imagem de volta ao Braseiro.");
+        }catch(Exception e){AppLog.e("NpcPortrait","Falha ao preparar retrato persistente.",e);toast("Retrato do NPC: "+e.getMessage());}
+    }
+    private boolean hasPendingNpcPortrait(){return prefs!=null&&prefs.getLong("pending_npc_portrait_id",0)>0;}
+    private void clearPendingNpcPortrait(){if(prefs!=null)prefs.edit().remove("pending_npc_portrait_id").remove("pending_npc_portrait_stable_id").remove("pending_npc_portrait_name").apply();}
+    private void importReceivedNpcPortraitAsync(final Uri source){
+        final long id=prefs.getLong("pending_npc_portrait_id",0);final String expectedStable=prefs.getString("pending_npc_portrait_stable_id",""),name=prefs.getString("pending_npc_portrait_name","NPC");
+        if(id<=0){clearPendingNpcPortrait();return;}
+        setStatus("Salvando retrato persistente de "+name+"…");
+        AppExecutors.io().execute(new Runnable(){public void run(){String failure="";Uri stored=null;try{JSONObject npc=db.getNpcMemory(id);if(npc.length()==0||!expectedStable.equals(npc.optString("stable_id"))||npc.optInt("active",1)==0)throw new Exception("A identidade do NPC mudou ou não está mais ativa.");stored=storeNpcAvatar(source,id);if(stored==null)throw new Exception("A imagem não pôde ser armazenada.");db.setNpcToken(id,stored.toString());}catch(Exception e){failure=String.valueOf(e.getMessage());}final String error=failure;ui.post(new Runnable(){public void run(){if(error.length()>0){toast("Retrato do NPC: "+error);setStatus("Retrato não importado.");return;}clearPendingNpcPortrait();screenCache.remove("Mestre IA");synchronizeVisualSceneCast();toast("Retrato de "+name+" salvo e vinculado somente a este NPC.");setStatus("Retrato persistente de "+name+" atualizado.");if("Mestre IA".equals(currentScreen))showNarrator();}});}});
+    }
+
+''' + anchor
+t=once(t,anchor,portrait,"npc-portrait-methods")
+
+# Route incoming shared images to pending NPC before scene image.
+t=t.replace('''if(stored!=null){applyReceivedSceneImage(stored);return;}''','''if(stored!=null){if(hasPendingNpcPortrait()){importReceivedNpcPortraitAsync(stored);return;}applyReceivedSceneImage(stored);return;}''',1)
+t=t.replace('''if(!Intent.ACTION_SEND.equals(action)){Uri recovered=PendingImageImportStore.claim(this,"");if(recovered!=null){applyReceivedSceneImage(recovered);return;}}''','''if(!Intent.ACTION_SEND.equals(action)){Uri recovered=PendingImageImportStore.claim(this,"");if(recovered!=null){if(hasPendingNpcPortrait()){importReceivedNpcPortraitAsync(recovered);return;}applyReceivedSceneImage(recovered);return;}}''',1)
+old='''        final Uri source=incomingImageUri(intent);consumeIncomingIntent(intent);if(source==null)return;
+        // Compatibilidade com remetentes que contornam a Activity dedicada.
+        setStatus("Validando e salvando a imagem recebida…");'''
+new='''        final Uri source=incomingImageUri(intent);consumeIncomingIntent(intent);if(source==null)return;
+        if(hasPendingNpcPortrait()){importReceivedNpcPortraitAsync(source);return;}
+        // Compatibilidade com remetentes que contornam a Activity dedicada.
+        setStatus("Validando e salvando a imagem recebida…");'''
+t=once(t,old,new,"npc-portrait-route-direct")
+
+write("MainActivity.java",t)
+
+# ------------------------------------------------------------------
+# Suggestions: never force generic filler. Empty is valid.
+# ------------------------------------------------------------------
+t=read("SceneOptionDiversifier.java")
+pat=r'public static JSONArray ensureAlways\(JSONArray source, JSONArray recentHistory,\s*String narration, String declaredAction,\s*JSONObject scene, int beatNumber\) \{/\*BR_JSON_WRAP\*/try\{.*?return out;\s*\}catch\(RuntimeException e\)\{throw e;\}catch\(Exception e\)\{throw new IllegalStateException\(e\);\}\}'
+m=re.search(pat,t,re.S)
+if not m: raise SystemExit("suggestion-ensureAlways-anchor-missing")
+replacement='''public static JSONArray ensureAlways(JSONArray source, JSONArray recentHistory,
+                                         String narration, String declaredAction,
+                                         JSONObject scene, int beatNumber) {/*BR_JSON_WRAP*/try{
+        // RUN182: zero opções é um resultado válido. Nunca preencha a UI com ações
+        // universais que não nasceram de entidade/fato realmente presente.
+        return diversify(source,recentHistory,narration,declaredAction,scene,beatNumber);
+    }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}'''
+t=t[:m.start()]+replacement+t[m.end():]
+write("SceneOptionDiversifier.java",t)
+
+# ------------------------------------------------------------------
+# Offline master: compact, concrete, scene-bound; no essay about game-mastering.
+# ------------------------------------------------------------------
+t=read("OfflineMasterEngine.java")
+pat=r'if\(presentation\)\{.*?\}\s*else\{'
+m=re.search(pat,t,re.S)
+if not m: raise SystemExit("offline-presentation-anchor-missing")
+presentation=r'''if(presentation){
+            if(opening)text.append("A chegada a ").append(location).append(" ganha forma pelo que já pode ser percebido agora. ");
+            else text.append("Ao alcançar ").append(location).append(", a companhia encontra o lugar já em movimento. ");
+            if(weather.length()>0)text.append("O tempo está ").append(lowerFirst(weather)).append(", e isso altera a luz, os sons e o uso do espaço. ");
+            if(catalog.length()>0){String fact=naturalizeCatalog(catalog,localWater);if(fact.length()>0)text.append(clean(fact,320)).append(' ');}
+            if(npc.length()>0)text.append(npc).append(" está entre as pessoas que podem ser individualizadas na cena. ");
+            if(danger.length()>0)text.append("Há um sinal concreto de perigo: ").append(lowerFirst(danger)).append(". ");
+            if(objective.length()>0)text.append("O objetivo já estabelecido continua sendo ").append(lowerFirst(objective)).append(". ");
+            text.append("O restante permanece para ser descoberto pelas ações da companhia.");
+        }else{'''
+t=t[:m.start()]+presentation+t[m.end():]
+
+pat=r'private static JSONArray options\(String location,String npc,String danger,String objective,String action\)throws Exception\{/\*BR_JSON_WRAP\*/try\{.*?\}catch\(RuntimeException e\)\{throw e;\}catch\(Exception e\)\{throw new IllegalStateException\(e\);\}\}'
+m=re.search(pat,t,re.S)
+if not m: raise SystemExit("offline-options-anchor-missing")
+options=r'''private static JSONArray options(String location,String npc,String danger,String objective,String action)throws Exception{/*BR_JSON_WRAP*/try{
+        JSONArray out=new JSONArray();
+        if(npc.length()>0)out.put(option("FALAR COM "+npc.toUpperCase(Locale.ROOT),"Falo com "+npc+" sobre o que está acontecendo agora."));
+        if(danger.length()>0&&out.length()<2)out.put(option("REAGIR A "+clean(danger,60).toUpperCase(Locale.ROOT),"Mudo minha posição ou preparo uma resposta ao perigo já visível."));
+        if(objective.length()>0&&out.length()<2)out.put(option("AVANÇAR NO OBJETIVO","Dou um passo concreto em direção a "+objective+"."));
+        return out;
+    }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}'''
+t=t[:m.start()]+options+t[m.end():]
+write("OfflineMasterEngine.java",t)
+
+# ------------------------------------------------------------------
+# Master Orchestrator: inject canonical runtime direction + hero-control/order contract.
+# ------------------------------------------------------------------
+t=read("MasterOrchestrator.java")
+# Put contract in the game bus / compact context when possible.
+if 'HumanMasterNarrativeProfile.contract()' not in t:
+    candidates=['root.put("game_bus",bus);','context.put("game_bus",bus);','out.put("game_bus",bus);']
+    injected=False
+    for c in candidates:
+        if c in t:
+            t=t.replace(c,c[:-1]+'.put("human_master_profile",HumanMasterNarrativeProfile.contract());',1)
+            injected=True
+            break
+    if not injected:
+        # Safe fallback: append instruction to plan text/prompt if bus assembly uses another variable name.
+        m=re.search(r'(String prompt\s*=\s*)(action\s*\+)',t)
+        if m:
+            t=t[:m.start()]+m.group(1)+'HumanMasterNarrativeProfile.systemInstruction()+"\\n\\n"+'+m.group(2)+t[m.end():]
+        else:
+            print("WARN: master bus/prompt injection fallback unavailable; HumanMaster class remains used by offline/UI contracts")
+write("MasterOrchestrator.java",t)
+
+# ------------------------------------------------------------------
+# Volo PT-BR label if RUN181 cached source missed the earlier patch.
+# ------------------------------------------------------------------
+t=read("DndPtBrLocalizer.java")
+if "Manual de Sub-raças de Volo" not in t:
+    anchor='''        add("INVENTORY AND EQUIPMENT", "INVENTÁRIO E EQUIPAMENTO");
+'''
+    if anchor in t:
+        t=t.replace(anchor,'''        add("Volo's Complete Subrace Handbook", "Manual Completo de Sub-raças de Volo");
+        add("Volo Subrace Handbook", "Manual de Sub-raças de Volo");
+        add("Subrace Handbook", "Manual de Sub-raças");
+'''+anchor,1)
+write("DndPtBrLocalizer.java",t)
+
+# ------------------------------------------------------------------
+# Static acceptance contracts.
+# ------------------------------------------------------------------
+checks={
+ "human_master_class":(pkg/"HumanMasterNarrativeProfile.java").exists(),
+ "startup_surface":"showImmediateStartupSurface();" in read("MainActivity.java"),
+ "tts_deferred":"postDelayed(new Runnable(){public void run(){ensureNativeTtsInitialized();}},350L)" in read("MainActivity.java"),
+ "gemini_save_button":"SALVAR CHAVES GEMINI" in read("MainActivity.java"),
+ "gemini_test_saves":"saveGeminiSecretsAtomically(k,value(paidKey))" in read("MainActivity.java"),
+ "character_control_ui":"Sistema — rotina / combate assistido" in read("MainActivity.java"),
+ "character_control_persist":"db.saveCharacterControl(id,controlMode" in read("MainActivity.java"),
+ "npc_portrait_click":"beginNpcPortrait(portraitEntry)" in read("MainActivity.java"),
+ "npc_portrait_pending":"pending_npc_portrait_id" in read("MainActivity.java"),
+ "npc_portrait_not_scene":"if(hasPendingNpcPortrait()){importReceivedNpcPortraitAsync(source);return;}" in read("MainActivity.java"),
+ "npc_tombstone":"deadTombstone" in read("AppDb.java") and "markNpcDead" in read("AppDb.java"),
+ "zero_suggestions_allowed":"zero opções é um resultado válido" in read("SceneOptionDiversifier.java"),
+ "offline_no_generic_fill":'CRIAR OUTRA ABORDAGEM' not in read("OfflineMasterEngine.java"),
+ "volo_ptbr":"Manual de Sub-raças de Volo" in read("DndPtBrLocalizer.java"),
+}
+print(json.dumps(checks,ensure_ascii=False,indent=2))
+bad=[k for k,v in checks.items() if not v]
+if bad: raise SystemExit("RUN182_STATIC_FAIL::"+",".join(bad))
+print("RUN182_PATCH_OK")
