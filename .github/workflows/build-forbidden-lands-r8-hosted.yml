@@ -267,62 +267,7 @@ jobs:
 
           // R10 — toque robusto nas escolhas sugeridas.
           const touchComponent='src/src/components/SuggestedChoiceButton.tsx';
-          fs.writeFileSync(touchComponent, `import React, { useRef, useState } from 'react';
-
-type Props = {
-  action: string;
-  index: number;
-  busy: boolean;
-  active: boolean;
-  onChoose: (action: string) => void;
-};
-
-export function SuggestedChoiceButton({ action, index, busy, active, onChoose }: Props) {
-  const [pressed, setPressed] = useState(false);
-  const start = useRef<{ x: number; y: number; pointerId: number } | null>(null);
-
-  const release = (event: React.PointerEvent<HTMLButtonElement>) => {
-    const current = start.current;
-    start.current = null;
-    setPressed(false);
-    try { event.currentTarget.releasePointerCapture?.(event.pointerId); } catch {}
-    if (!current || busy) return;
-    const dx = event.clientX - current.x;
-    const dy = event.clientY - current.y;
-    if (Math.hypot(dx, dy) > 28) return;
-    onChoose(action);
-  };
-
-  return <button
-    data-suggested-choice="true"
-    type="button"
-    aria-busy={active}
-    disabled={busy}
-    onPointerDown={event => {
-      if (busy) return;
-      start.current = { x: event.clientX, y: event.clientY, pointerId: event.pointerId };
-      setPressed(true);
-      try { event.currentTarget.setPointerCapture?.(event.pointerId); } catch {}
-    }}
-    onPointerUp={release}
-    onPointerCancel={() => { start.current = null; setPressed(false); }}
-    onKeyDown={event => {
-      if (busy) return;
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        onChoose(action);
-      }
-    }}
-    onClick={event => event.preventDefault()}
-    className={`suggested-choice-button w-full min-h-16 rounded-xl border bg-bg-base px-4 py-4 text-left text-[17px] leading-6 font-medium disabled:opacity-55 ${active ? 'is-working border-accent' : 'border-border'} ${pressed ? 'is-pressed' : ''}`}
-  >
-    <span className="mr-2 text-accent font-bold">{index + 1}.</span>
-    <span>{active ? 'Processando esta escolha…' : action}</span>
-  </button>;
-}
-`, 'utf8');
-
-          let adv=fs.readFileSync(adventure,'utf8');
+          fs.writeFileSync(touchComponent, "import React, { useRef, useState } from 'react';\n\ntype Props = {\n  action: string;\n  index: number;\n  busy: boolean;\n  active: boolean;\n  onChoose: (action: string) => void;\n};\n\nexport function SuggestedChoiceButton({ action, index, busy, active, onChoose }: Props) {\n  const [pressed, setPressed] = useState(false);\n  const start = useRef<{ x: number; y: number; pointerId: number } | null>(null);\n\n  const release = (event: React.PointerEvent<HTMLButtonElement>) => {\n    const current = start.current;\n    start.current = null;\n    setPressed(false);\n    try { event.currentTarget.releasePointerCapture?.(event.pointerId); } catch {}\n    if (!current || busy) return;\n    const dx = event.clientX - current.x;\n    const dy = event.clientY - current.y;\n    if (Math.hypot(dx, dy) > 28) return;\n    onChoose(action);\n  };\n\n  return <button\n    data-suggested-choice=\"true\"\n    type=\"button\"\n    aria-busy={active}\n    disabled={busy}\n    onPointerDown={event => {\n      if (busy) return;\n      start.current = { x: event.clientX, y: event.clientY, pointerId: event.pointerId };\n      setPressed(true);\n      try { event.currentTarget.setPointerCapture?.(event.pointerId); } catch {}\n    }}\n    onPointerUp={release}\n    onPointerCancel={() => { start.current = null; setPressed(false); }}\n    onKeyDown={event => {\n      if (busy) return;\n      if (event.key === 'Enter' || event.key === ' ') {\n        event.preventDefault();\n        onChoose(action);\n      }\n    }}\n    onClick={event => event.preventDefault()}\n    className={`suggested-choice-button w-full min-h-16 rounded-xl border bg-bg-base px-4 py-4 text-left text-[17px] leading-6 font-medium disabled:opacity-55 ${active ? 'is-working border-accent' : 'border-border'} ${pressed ? 'is-pressed' : ''}`}\n  >\n    <span className=\"mr-2 text-accent font-bold\">{index + 1}.</span>\n    <span>{active ? 'Processando esta escolha…' : action}</span>\n  </button>;\n}\n", 'utf8');          let adv=fs.readFileSync(adventure,'utf8');
           if(!adv.includes("import { SuggestedChoiceButton } from '../components/SuggestedChoiceButton';")) {
             adv=adv.replace("import { CampaignModuleStateService } from '../services/CampaignModuleStateService';","import { CampaignModuleStateService } from '../services/CampaignModuleStateService';\nimport { SuggestedChoiceButton } from '../components/SuggestedChoiceButton';");
           }
@@ -385,28 +330,7 @@ export function SuggestedChoiceButton({ action, index, busy, active, onChoose }:
           fs.writeFileSync(gradlePath,gradle,'utf8');
 
           let cssR10=fs.readFileSync(cssPath,'utf8');
-          if(!cssR10.includes('/* R10 suggested action touch reliability */')) cssR10 += `
-
-          /* R10 suggested action touch reliability */
-          .suggested-choice-button {
-            position: relative;
-            z-index: 2;
-            touch-action: none;
-            -webkit-user-select: none;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            contain: layout paint;
-          }
-          .suggested-choice-button.is-pressed {
-            transform: scale(.985);
-            border-color: var(--accent-color);
-            background: color-mix(in srgb, var(--accent-color) 14%, var(--bg-color));
-          }
-          .suggested-choice-button.is-working {
-            opacity: .86 !important;
-            box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-color) 28%, transparent);
-          }
-`;
+          if(!cssR10.includes('/* R10 suggested action touch reliability */')) cssR10 += "\n/* R10 suggested action touch reliability */\n.suggested-choice-button {\n  position: relative;\n  z-index: 2;\n  touch-action: none;\n  -webkit-user-select: none;\n  user-select: none;\n  -webkit-tap-highlight-color: transparent;\n  contain: layout paint;\n}\n.suggested-choice-button.is-pressed {\n  transform: scale(.985);\n  border-color: var(--accent-color);\n  background: color-mix(in srgb, var(--accent-color) 14%, var(--bg-color));\n}\n.suggested-choice-button.is-working {\n  opacity: .86 !important;\n  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-color) 28%, transparent);\n}\n";
           fs.writeFileSync(cssPath,cssR10,'utf8');
           NODE
 
