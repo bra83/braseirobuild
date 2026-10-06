@@ -91,13 +91,24 @@ jobs:
           fs.writeFileSync(adventure,v,'utf8');
           NODE
 
-      - name: Inspect Android signing portability
+      - name: Verify portable historical signer
         shell: bash
         run: |
           set -euo pipefail
-          echo '===== SIGNING FILES ====='
-          find src/android -maxdepth 4 -type f \( -iname '*.keystore' -o -iname '*.jks' -o -iname 'debug.keystore' \) -print || true
-          echo '===== BUILD GRADLE SIGNING ====='
-          grep -RInE --include='*.gradle' --include='*.gradle.kts' 'signingConfig|storeFile|storePassword|keyAlias|keyPassword|debuggable' src/android | head -n 240 || true
-          echo '===== SOURCE ANDROID APP ====='
-          sed -n '1,260p' src/android/app/build.gradle
+          PROP='src/android/keystore.properties'
+          KS='src/android/app/braseiro-debug.jks'
+          test -f "$KS"
+          if [ ! -f "$PROP" ]; then
+            echo 'KEYSTORE_PROPERTIES=ABSENT'
+            exit 2
+          fi
+          store_pass="$(grep -E '^BRASEIRO_STORE_PASSWORD=' "$PROP" | head -n1 | cut -d= -f2-)"
+          key_pass="$(grep -E '^BRASEIRO_KEY_PASSWORD=' "$PROP" | head -n1 | cut -d= -f2-)"
+          alias_name="$(grep -E '^BRASEIRO_KEY_ALIAS=' "$PROP" | head -n1 | cut -d= -f2-)"
+          alias_name="${alias_name:-braseiro}"
+          test -n "$store_pass"
+          test -n "$key_pass"
+          sha1="$(keytool -list -v -keystore "$KS" -storepass "$store_pass" -alias "$alias_name" 2>/dev/null | awk -F': ' '/SHA1:/{gsub(":","",$2); print tolower($2); exit}')"
+          echo "SIGNER_SHA1=$sha1"
+          test "$sha1" = '9d0f1089b3fb6c225f1f59462750864e897c4d92'
+          echo 'PORTABLE_HISTORICAL_SIGNER=PASS'
