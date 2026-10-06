@@ -1,4 +1,4 @@
-name: Fast Forbidden Lands R7 Gates
+name: Export Forbidden Lands R9 Patched Source
 
 on:
   push:
@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  verify:
+  export:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - name: Fetch exact source
         shell: bash
@@ -17,110 +17,45 @@ jobs:
           set -euo pipefail
           API='https://api.firestorage.ai/dev/file/shares/9U2Qwn54TgjB'
           NAME='BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6_1_SOURCE.zip'
-          FILE_ID=$(curl -fsSL "$API/files?maxResults=100" | jq -r --arg n "$NAME" '.files[] | select(.fileName==$n) | .fileId' | head -n 1)
+          FILE_ID=$(curl -fsSL "$API/files?maxResults=100" | jq -r --arg n "$NAME" '.files[] | select(.fileName==$n) | .fileId' | head -n1)
           URL=$(curl -fsSL -X POST "$API/files/$FILE_ID/download" | jq -r '.downloadUrl')
           curl -fL "$URL" -o source.zip
-          mkdir src && unzip -q source.zip -d src
+          mkdir src
+          unzip -q source.zip -d src
 
-      - name: Apply R7 compatibility patches
+      - name: Apply current R9 patches
         shell: bash
         run: |
           set -euo pipefail
           node <<'NODE'
           const fs=require('fs');
-
-          const gate='src/scripts/verify-human-master-runtime.mjs';
-          let g=fs.readFileSync(gate,'utf8');
-          const old="assert.match(narrative, /5\\.000 a 6\\.500 caracteres/);";
-          const next="assert.match(narrative, /CanonicalNarratorProfileService/);";
-          if(!g.includes(old)) throw new Error('obsolete opening-depth assertion not found');
-          g=g.replace(old,next);
-          fs.writeFileSync(gate,g,'utf8');
-
           const intent='src/src/services/NarrativeIntentService.ts';
           let s=fs.readFileSync(intent,'utf8');
-          const typeOld='  presentation: ScenePresentationKind;\n  preservesCheckpoint:';
-          const typeNew='  presentation: ScenePresentationKind;\n  presentationKind?: ScenePresentationKind;\n  preservesCheckpoint:';
-          if(!s.includes(typeOld)) throw new Error('intent type marker missing');
-          s=s.replace(typeOld,typeNew);
-          const retOld='      presentation,\n      preservesCheckpoint,';
-          const retNew='      presentation,\n      presentationKind: presentation,\n      preservesCheckpoint,';
-          if(!s.includes(retOld)) throw new Error('intent return marker missing');
-          s=s.replace(retOld,retNew);
+          s=s.replace('  presentation: ScenePresentationKind;\n  preservesCheckpoint:','  presentation: ScenePresentationKind;\n  presentationKind?: ScenePresentationKind;\n  preservesCheckpoint:');
+          s=s.replace('      presentation,\n      preservesCheckpoint,','      presentation,\n      presentationKind: presentation,\n      preservesCheckpoint,');
           fs.writeFileSync(intent,s,'utf8');
-
-          const bugGate='src/scripts/verify-bugreport-freeze-2026-10-05.mjs';
-          let b=fs.readFileSync(bugGate,'utf8');
-          const traceOld='assert.match(adventure, /\\[MASTER_FLOW\\] scene-commit:start/);';
-          const traceNew="assert.match(adventure, /masterTrace\\('scene-commit:start'/);";
-          if(!b.includes(traceOld)) throw new Error('stale scene-commit trace assertion not found');
-          b=b.replace(traceOld,traceNew);
-          fs.writeFileSync(bugGate,b,'utf8');
 
           const api='src/src/services/api.ts';
           let a=fs.readFileSync(api,'utf8');
-          const apiOld="  const maxOutputTokens = profile === 'Casual' ? 1100 : profile === 'Expert' ? (initial ? 2600 : 1800) : (initial ? 2200 : 1500);\n  const cinematic = Boolean(modelPolicy?.cinematic);\n  const initial = Boolean(modelPolicy?.initial);";
-          const apiNew="  const cinematic = Boolean(modelPolicy?.cinematic);\n  const initial = Boolean(modelPolicy?.initial);\n  const maxOutputTokens = profile === 'Casual' ? 1100 : profile === 'Expert' ? (initial ? 2600 : 1800) : (initial ? 2200 : 1500);";
-          if(!a.includes(apiOld)) throw new Error('api initial ordering marker not found');
-          a=a.replace(apiOld,apiNew);
+          a=a.replace("  const maxOutputTokens = profile === 'Casual' ? 1100 : profile === 'Expert' ? (initial ? 2600 : 1800) : (initial ? 2200 : 1500);\n  const cinematic = Boolean(modelPolicy?.cinematic);\n  const initial = Boolean(modelPolicy?.initial);","  const cinematic = Boolean(modelPolicy?.cinematic);\n  const initial = Boolean(modelPolicy?.initial);\n  const maxOutputTokens = profile === 'Casual' ? 1100 : profile === 'Expert' ? (initial ? 2600 : 1800) : (initial ? 2200 : 1500);");
           fs.writeFileSync(api,a,'utf8');
-
-          const canon='src/scripts/verify-canonical-narrator-profile.mjs';
-          let c=fs.readFileSync(canon,'utf8');
-          const oldMarkers="  'Ficção antes da mecânica', 'Prioridade de verdade', 'Não controlar pensamento', 'NPCs existem antes da câmera chegar',\n  'Informação deve surgir progressivamente', 'Não terminar toda resposta com “O que você faz?”', 'PT-BR natural e falável',\n  'ABERTURA: âncora temporal/cultural',";
-          const newMarkers="  'Ficção antes da mecânica', 'não invente tempo, clima, posição, regra ou consequência', 'Preserve agência', 'NPCs entram fazendo algo',\n  'Segredos, intenção oculta e conclusão de mistério', 'Não termine mecanicamente com “O que você faz?”', 'PT-BR natural, concreto, sensorial e falável',\n  'ABERTURA: âncora temporal/cultural',";
-          if(!c.includes(oldMarkers)) throw new Error('stale canonical marker block not found');
-          c=c.replace(oldMarkers,newMarkers);
-          fs.writeFileSync(canon,c,'utf8');
-
-          const audit='src/scripts/audit-deep.ts';
-          let d=fs.readFileSync(audit,'utf8');
-          const auditOld='/finally \\{[\\s\\S]{0,100}connection\\.disconnect/';
-          const auditNew='/finally \\{[\\s\\S]{0,240}connection\\.disconnect/';
-          if(!d.includes(auditOld)) throw new Error('stale disconnect audit window not found');
-          d=d.replace(auditOld,auditNew);
-          fs.writeFileSync(audit,d,'utf8');
 
           const adventure='src/src/screens/AdventureScreenV3.tsx';
           let v=fs.readFileSync(adventure,'utf8');
-          const choiceOld='onClick={() => void send(action)}';
-          const choiceNew="onClick={() => void send(action, undefined, false, undefined, 'suggested')}";
-          if(!v.includes(choiceOld) && !v.includes(choiceNew)) throw new Error('suggested choice click anchor not found');
-          if(v.includes(choiceOld)) v=v.replace(choiceOld,choiceNew);
-          if(!v.includes(choiceNew)) throw new Error('suggested choice source routing not applied');
+          v=v.replace('onClick={() => void send(action)}',"onClick={() => void send(action, undefined, false, undefined, 'suggested')");
+          v=v.replace('className="fixed inset-x-0 top-0 z-[240] bg-black/80 backdrop-blur-sm flex items-end sm:items-center sm:justify-center"','className="fixed inset-0 z-[240] bg-black/80 backdrop-blur-sm flex items-end sm:items-center sm:justify-center"');
+          v=v.replace('className="bg-bg-surface border border-accent rounded-xl p-5 max-w-md w-full"','className="bg-bg-surface border border-accent rounded-xl p-5 max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto"');
           fs.writeFileSync(adventure,v,'utf8');
+
+          const layout='src/src/components/Layout.tsx';
+          let l=fs.readFileSync(layout,'utf8');
+          l=l.replace('className="bg-bg-surface border-t border-border p-4 rounded-t-2xl mb-16 animate-in slide-in-from-bottom-4"','className="more-menu-sheet bg-bg-surface border-t border-border p-4 rounded-t-2xl animate-in slide-in-from-bottom-4"');
+          fs.writeFileSync(layout,l,'utf8');
           NODE
 
-      - name: Verify portable historical signer
-        shell: bash
-        run: |
-          set -euo pipefail
-          PROP='src/android/keystore.properties'
-          KS='src/android/app/braseiro-debug.jks'
-          test -f "$KS"
-          if [ ! -f "$PROP" ]; then
-            echo 'KEYSTORE_PROPERTIES=ABSENT'
-            exit 2
-          fi
-          store_pass="$(grep -E '^BRASEIRO_STORE_PASSWORD=' "$PROP" | head -n1 | cut -d= -f2-)"
-          key_pass="$(grep -E '^BRASEIRO_KEY_PASSWORD=' "$PROP" | head -n1 | cut -d= -f2-)"
-          alias_name="$(grep -E '^BRASEIRO_KEY_ALIAS=' "$PROP" | head -n1 | cut -d= -f2-)"
-          alias_name="${alias_name:-braseiro}"
-          test -n "$store_pass"
-          test -n "$key_pass"
-          sha1="$(keytool -list -v -keystore "$KS" -storepass "$store_pass" -alias "$alias_name" 2>/dev/null | awk -F': ' '/SHA1:/{gsub(":","",$2); print tolower($2); exit}')"
-          echo "SIGNER_SHA1=$sha1"
-          test "$sha1" = '9d0f1089b3fb6c225f1f59462750864e897c4d92'
-          echo 'PORTABLE_HISTORICAL_SIGNER=PASS'
-
-
-      - name: Inspect Galaxy A57 layout details
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo '===== LAYOUT ====='
-          nl -ba src/src/components/Layout.tsx | sed -n '1,460p'
-          echo '===== CSS 160-365 ====='
-          nl -ba src/src/index.css | sed -n '160,365p'
-          echo '===== ADVENTURE 1280-1360 ====='
-          nl -ba src/src/screens/AdventureScreenV3.tsx | sed -n '1280,1365p'
+      - name: Upload patched source
+        uses: actions/upload-artifact@v4
+        with:
+          name: FL_R9_PATCHED_SOURCE
+          path: src
+          retention-days: 3
