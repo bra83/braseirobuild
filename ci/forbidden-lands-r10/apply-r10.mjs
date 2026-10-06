@@ -303,6 +303,19 @@ fs.writeFileSync(p('src','components','SuggestedChoiceButton.tsx'), touchCompone
   fs.writeFileSync(file,s,'utf8');
 }
 
+// R10 maintenance release keeps the same package/signing identity but intentionally bumps app version.
+{
+  const file = p('scripts','verify-rag-off-kokoro-startup-v3.mjs');
+  let s = fs.readFileSync(file,'utf8');
+  s = replaceOptional(s, "assert.equal(pkg.version, '3.3.5');", "assert.equal(pkg.version, '3.3.6');");
+  s = replaceOptional(s, "assert.match(gradle, /versionCode 303500/);", "assert.match(gradle, /versionCode 303600/);");
+  s = replaceOptional(s, "assert.match(gradle, /versionName \"3\\.3\\.5\"/);", "assert.match(gradle, /versionName \"3\\.3\\.6\"/);");
+  s = replaceOptional(s,
+    "console.log('PASS RAG-off character generation + Kokoro default/migration + cold-start fast path (3.3.5).');",
+    "console.log('PASS RAG-off character generation + Kokoro default/migration + cold-start fast path (3.3.6 update).');");
+  fs.writeFileSync(file,s,'utf8');
+}
+
 // Install-over-existing identity: same package/signer, higher versionCode.
 {
   const pkgPath = p('package.json');
