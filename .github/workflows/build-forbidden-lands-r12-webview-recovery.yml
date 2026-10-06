@@ -137,13 +137,13 @@ jobs:
           manifest = root/'android/app/src/main/AndroidManifest.xml'
           m = manifest.read_text()
           if 'android:hardwareAccelerated="true"' not in m:
-              m = m.replace('<application\\n', '<application\\n        android:hardwareAccelerated="true"\\n')
+              m = m.replace('<application', '<application\n        android:hardwareAccelerated="true"', 1)
           manifest.write_text(m)
 
           pkg_path = root/'package.json'
           pkg = json.loads(pkg_path.read_text())
           pkg['version'] = '3.3.8'
-          pkg_path.write_text(json.dumps(pkg, ensure_ascii=False, indent=2)+'\\n')
+          pkg_path.write_text(json.dumps(pkg, ensure_ascii=False, indent=2)+'\n')
 
           lock_path = root/'package-lock.json'
           if lock_path.exists():
@@ -151,13 +151,13 @@ jobs:
               lock['version'] = '3.3.8'
               if isinstance(lock.get('packages'), dict) and '' in lock['packages']:
                   lock['packages']['']['version'] = '3.3.8'
-              lock_path.write_text(json.dumps(lock, ensure_ascii=False, indent=2)+'\\n')
+              lock_path.write_text(json.dumps(lock, ensure_ascii=False, indent=2)+'\n')
 
           for file in (root/'scripts').iterdir():
               if not file.is_file():
                   continue
               t = file.read_text(errors='ignore')
-              t = t.replace('3\\\\.3\\\\.6','3\\\\.3\\\\.8').replace('3.3.6','3.3.8').replace('303600','303800')
+              t = t.replace('3\\.3\\.6','3\\.3\\.8').replace('3.3.6','3.3.8').replace('303600','303800')
               file.write_text(t)
 
           version = root/'src/version.ts'
@@ -166,8 +166,8 @@ jobs:
 
           gradle = root/'android/app/build.gradle'
           g = gradle.read_text()
-          g = re.sub(r'versionCode\\s+\\d+', 'versionCode 303800', g)
-          g = re.sub(r'versionName\\s+"[^"]+"', 'versionName "3.3.8"', g)
+          g = re.sub(r'versionCode\s+\d+', 'versionCode 303800', g)
+          g = re.sub(r'versionName\s+"[^"]+"', 'versionName "3.3.8"', g)
           g = g.replace('3.3.6','3.3.8').replace('303600','303800')
           gradle.write_text(g)
           PY
