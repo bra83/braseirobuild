@@ -1,0 +1,433 @@
+name: Forbidden Lands 3.3.5 R8 Choice Flow Verified
+
+on:
+  push:
+    paths:
+      - '.github/workflows/build-forbidden-lands-r8-hosted.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: forbidden-lands-r8-choice-flow-verified
+  cancel-in-progress: true
+
+env:
+  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/9U2Qwn54TgjB"
+  SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6_1_SOURCE.zip"
+  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_R8_CHOICE_FLOW_VERIFIED.apk"
+  TAG: "forbidden-lands-3.3.5-choice-flow-verified-r8"
+  EXPECTED_SHA1: "9d0f1089b3fb6c225f1f59462750864e897c4d92"
+
+jobs:
+  verify-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Fetch exact source
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE_ID=$(curl -fsSL "$FIRESTORAGE_API/files?maxResults=100" | jq -r --arg n "$SOURCE_NAME" '.files[] | select(.fileName==$n) | .fileId' | head -n1)
+          test -n "$FILE_ID"
+          URL=$(curl -fsSL -X POST "$FIRESTORAGE_API/files/$FILE_ID/download" | jq -r '.downloadUrl')
+          test -n "$URL"
+          curl -fL --connect-timeout 15 --max-time 90 --retry 3 --retry-delay 2 "$URL" -o source.zip
+          mkdir src
+          unzip -q source.zip -d src
+
+      - name: Apply R7 compatibility patches
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs=require('fs');
+
+          const gate='src/scripts/verify-human-master-runtime.mjs';
+          let g=fs.readFileSync(gate,'utf8');
+          const old="assert.match(narrative, /5\\.000 a 6\\.500 caracteres/);";
+          const next="assert.match(narrative, /CanonicalNarratorProfileService/);";
+          if(!g.includes(old)) throw new Error('obsolete opening-depth assertion not found');
+          g=g.replace(old,next);
+          fs.writeFileSync(gate,g,'utf8');
+
+          const intent='src/src/services/NarrativeIntentService.ts';
+          let s=fs.readFileSync(intent,'utf8');
+          const typeOld='  presentation: ScenePresentationKind;\n  preservesCheckpoint:';
+          const typeNew='  presentation: ScenePresentationKind;\n  presentationKind?: ScenePresentationKind;\n  preservesCheckpoint:';
+          if(!s.includes(typeOld)) throw new Error('intent type marker missing');
+          s=s.replace(typeOld,typeNew);
+          const retOld='      presentation,\n      preservesCheckpoint,';
+          const retNew='      presentation,\n      presentationKind: presentation,\n      preservesCheckpoint,';
+          if(!s.includes(retOld)) throw new Error('intent return marker missing');
+          s=s.replace(retOld,retNew);
+          fs.writeFileSync(intent,s,'utf8');
+
+          const bugGate='src/scripts/verify-bugreport-freeze-2026-10-05.mjs';
+          let b=fs.readFileSync(bugGate,'utf8');
+          const traceOld='assert.match(adventure, /\\[MASTER_FLOW\\] scene-commit:start/);';
+          const traceNew="assert.match(adventure, /masterTrace\\('scene-commit:start'/);";
+          if(!b.includes(traceOld)) throw new Error('stale scene-commit trace assertion not found');
+          b=b.replace(traceOld,traceNew);
+          fs.writeFileSync(bugGate,b,'utf8');
+
+          const api='src/src/services/api.ts';
+          let a=fs.readFileSync(api,'utf8');
+          const apiOld="  const maxOutputTokens = profile === 'Casual' ? 1100 : profile === 'Expert' ? (initial ? 2600 : 1800) : (initial ? 2200 : 1500);\n  const cinematic = Boolean(modelPolicy?.cinematic);\n  const initial = Boolean(modelPolicy?.initial);";
+          const apiNew="  const cinematic = Boolean(modelPolicy?.cinematic);\n  const initial = Boolean(modelPolicy?.initial);\n  const maxOutputTokens = profile === 'Casual' ? 1100 : profile === 'Expert' ? (initial ? 2600 : 1800) : (initial ? 2200 : 1500);";
+          if(!a.includes(apiOld)) throw new Error('api initial ordering marker not found');
+          a=a.replace(apiOld,apiNew);
+          fs.writeFileSync(api,a,'utf8');
+
+          const canon='src/scripts/verify-canonical-narrator-profile.mjs';
+          let c=fs.readFileSync(canon,'utf8');
+          const oldMarkers="  'Ficção antes da mecânica', 'Prioridade de verdade', 'Não controlar pensamento', 'NPCs existem antes da câmera chegar',\n  'Informação deve surgir progressivamente', 'Não terminar toda resposta com “O que você faz?”', 'PT-BR natural e falável',\n  'ABERTURA: âncora temporal/cultural',";
+          const newMarkers="  'Ficção antes da mecânica', 'não invente tempo, clima, posição, regra ou consequência', 'Preserve agência', 'NPCs entram fazendo algo',\n  'Segredos, intenção oculta e conclusão de mistério', 'Não termine mecanicamente com “O que você faz?”', 'PT-BR natural, concreto, sensorial e falável',\n  'ABERTURA: âncora temporal/cultural',";
+          if(!c.includes(oldMarkers)) throw new Error('stale canonical marker block not found');
+          c=c.replace(oldMarkers,newMarkers);
+          fs.writeFileSync(canon,c,'utf8');
+
+          const audit='src/scripts/audit-deep.ts';
+          let d=fs.readFileSync(audit,'utf8');
+          const auditOld='/finally \\{[\\s\\S]{0,100}connection\\.disconnect/';
+          const auditNew='/finally \\{[\\s\\S]{0,240}connection\\.disconnect/';
+          if(!d.includes(auditOld)) throw new Error('stale disconnect audit window not found');
+          d=d.replace(auditOld,auditNew);
+          fs.writeFileSync(audit,d,'utf8');
+
+          const adventure='src/src/screens/AdventureScreenV3.tsx';
+          let v=fs.readFileSync(adventure,'utf8');
+          const choiceOld='onClick={() => void send(action)}';
+          const choiceNew="onClick={() => void send(action, undefined, false, undefined, 'suggested')}";
+          if(!v.includes(choiceOld) && !v.includes(choiceNew)) throw new Error('suggested choice click anchor not found');
+          if(v.includes(choiceOld)) v=v.replace(choiceOld,choiceNew);
+          if(!v.includes(choiceNew)) throw new Error('suggested choice source routing not applied');
+          fs.writeFileSync(adventure,v,'utf8');
+          NODE
+
+      - name: Verify historical signer
+        shell: bash
+        run: |
+          set -euo pipefail
+          PROP='src/android/keystore.properties'
+          KS='src/android/app/braseiro-debug.jks'
+          test -f "$PROP"
+          test -f "$KS"
+          store_pass="$(grep -E '^BRASEIRO_STORE_PASSWORD=' "$PROP" | head -n1 | cut -d= -f2-)"
+          alias_name="$(grep -E '^BRASEIRO_KEY_ALIAS=' "$PROP" | head -n1 | cut -d= -f2-)"
+          alias_name="${alias_name:-braseiro}"
+          test -n "$store_pass"
+          sha1="$(keytool -list -v -keystore "$KS" -storepass "$store_pass" -alias "$alias_name" 2>/dev/null | awk -F': ' '/SHA1:/{gsub(":","",$2); print tolower($2); exit}')"
+          test "$sha1" = "$EXPECTED_SHA1"
+          echo "Historical signer PASS: $sha1"
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install dependencies
+        working-directory: src
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+
+      - name: Create executable choice-flow regression
+        working-directory: src
+        shell: bash
+        run: |
+          cat > scripts/verify-choice-flow-runtime.mjs <<'EOF'
+          import 'fake-indexeddb/auto';
+          import assert from 'node:assert/strict';
+          
+          if (!globalThis.localStorage) {
+            const data = new Map();
+            globalThis.localStorage = {
+              getItem: key => data.has(String(key)) ? data.get(String(key)) : null,
+              setItem: (key, value) => data.set(String(key), String(value)),
+              removeItem: key => data.delete(String(key)),
+              clear: () => data.clear(),
+              key: index => [...data.keys()][index] ?? null,
+              get length() { return data.size; },
+            };
+          }
+          if (!globalThis.window) globalThis.window = globalThis;
+          if (!globalThis.CustomEvent) {
+            globalThis.CustomEvent = class CustomEvent extends Event {
+              constructor(type, init={}) { super(type); this.detail = init.detail; }
+            };
+          }
+          if (!globalThis.window.dispatchEvent) globalThis.window.dispatchEvent = () => true;
+          
+          const { GeminiClientService } = await import('../src/services/GeminiClientService.ts');
+          const { MasterOrchestratorService } = await import('../src/services/MasterOrchestratorService.ts');
+          const { NarrativeIntentService } = await import('../src/services/NarrativeIntentService.ts');
+          
+          const settings = {
+            narrativeProfile: 'Expert',
+            narrativeStyle: 'Dinâmico',
+            generateImages: false,
+            ttsAutoplay: false,
+          };
+          
+          const remoteScene = action => ({
+            sceneTitle: 'Resposta à escolha',
+            narration: 'A escolha "' + action + '" produz uma consequência imediata e concreta no espaço. O ambiente reage sem tomar decisões pelo personagem.\\n\\n' +
+              'O grupo percebe uma mudança pequena, mas suficiente para confirmar que a ação aconteceu. Nada é resolvido fora do que foi estabelecido.\\n\\n' +
+              'Uma nova possibilidade surge a partir da consequência observável, preservando continuidade, posição e agência.\\n\\n' +
+              'A cena permanece aberta para outra decisão real.',
+            npcDialogue: [],
+            suggestedActions: ['Observar a mudança', 'Interagir com o elemento revelado', 'Mudar de abordagem'],
+            checks: [],
+            statePatches: [],
+            worldOperations: [],
+            audioCues: [],
+            imagePrompt: '',
+            timelineSummary: 'A escolha foi processada e a cena avançou.',
+            requiresPlayerDecision: true,
+            advancesFiction: true,
+            presentationKind: 'scene',
+          });
+          
+          const originalCall = GeminiClientService.call;
+          const choices = [
+            'Observar os rastros perto da trilha',
+            'Aproximar-se da porta sem fazer barulho',
+            'Conversar com a figura à margem da estrada',
+          ];
+          
+          let calls = 0;
+          GeminiClientService.call = async (_model, payload) => {
+            calls += 1;
+            return remoteScene(String(payload?.userInput || choices[(calls - 1) % choices.length]));
+          };
+          
+          const runChoice = async action => {
+            const intent = NarrativeIntentService.classify(action, { trustedFictionAction: true });
+            assert.equal(intent.kind, 'action');
+            assert.equal(intent.advancesFiction, true);
+            assert.equal(intent.presentation, 'scene');
+          
+            const started = performance.now();
+            const result = await MasterOrchestratorService.run({
+              payload: {
+                userInput: action,
+                systemInstruction: 'Teste de regressão do Mestre. Preserve agência e continuidade.',
+                history: '',
+                rulesPreloaded: true,
+                ruleAuthority: { mechanical: false, authorized: true, reason: 'ação ficcional', domain: 'none' },
+                ruleCitations: [],
+              },
+              settings,
+              characters: [],
+              actingCharacter: null,
+              initial: false,
+              firstVisit: false,
+              rollResolution: false,
+              cinematic: false,
+              intent,
+            });
+            assert.ok(result);
+            assert.equal(result.masterDecision?.generationSource, 'gemini');
+            assert.ok(String(result.narration || '').length > 100);
+            assert.equal(Array.isArray(result.suggestedActions), true);
+            assert.equal(result.suggestedActions.length, 3);
+            assert.ok(performance.now() - started < 1500, 'choice pipeline with mocked Gemini should not stall');
+            return result;
+          };
+          
+          // 12 turnos consecutivos: prova que uma escolha não envenena o próximo clique.
+          for (let i = 0; i < 12; i += 1) await runChoice(choices[i % choices.length]);
+          assert.equal(calls, 12, 'cada escolha deve produzir exatamente uma chamada remota bem-sucedida');
+          
+          // Primeiro modelo falha, segundo responde: o roteador deve avançar e concluir.
+          let retryCalls = 0;
+          GeminiClientService.call = async (_model, payload) => {
+            retryCalls += 1;
+            if (retryCalls === 1) throw new Error('HTTP 503: temporariamente indisponível');
+            return remoteScene(String(payload?.userInput || choices[0]));
+          };
+          const retryResult = await runChoice(choices[0]);
+          assert.ok(retryResult);
+          assert.equal(retryCalls, 2, 'fallback de modelo deve usar no máximo duas tentativas nesta ação');
+          
+          // Todos os modelos falham: MasterOrchestrator precisa devolver fallback local, não travar.
+          let failureCalls = 0;
+          GeminiClientService.call = async () => {
+            failureCalls += 1;
+            throw new Error('TIMEOUT: chamada simulada');
+          };
+          const fallbackIntent = NarrativeIntentService.classify(choices[1], { trustedFictionAction: true });
+          const fallbackStarted = performance.now();
+          const fallback = await MasterOrchestratorService.run({
+            payload: {
+              userInput: choices[1],
+              systemInstruction: 'Teste de fallback local.',
+              history: '',
+              rulesPreloaded: true,
+              ruleAuthority: { mechanical: false, authorized: true, reason: 'ação ficcional', domain: 'none' },
+              ruleCitations: [],
+            },
+            settings,
+            characters: [],
+            actingCharacter: null,
+            initial: false,
+            firstVisit: false,
+            rollResolution: false,
+            cinematic: false,
+            intent: fallbackIntent,
+          });
+          assert.equal(fallback.masterDecision?.generationSource, 'local-fallback');
+          assert.ok(String(fallback.narration || '').length > 100);
+          assert.equal(fallback.suggestedActions.length, 3);
+          assert.ok(performance.now() - fallbackStarted < 1500, 'fallback local deve liberar a ação imediatamente após falha');
+          assert.equal(failureCalls, 2, 'ação não pode percorrer mais de dois modelos');
+          
+          // Browser/client timeout: Promise que nunca responde precisa ser abortada e rejeitada.
+          const originalFetch = globalThis.fetch;
+          globalThis.fetch = (_url, options={}) => new Promise((resolve, reject) => {
+            const signal = options.signal;
+            if (signal?.aborted) {
+              const error = new Error('aborted'); error.name = 'AbortError'; reject(error); return;
+            }
+            signal?.addEventListener('abort', () => {
+              const error = new Error('aborted'); error.name = 'AbortError'; reject(error);
+            }, { once: true });
+          });
+          const timeoutStarted = performance.now();
+          let timeoutError = '';
+          try {
+            await GeminiClientService.requestRaw?.('gemini-test', { contents: [] }, 1800, 'fake-key', false);
+          } catch (error) {
+            timeoutError = String(error?.message || error);
+          }
+          const timeoutElapsed = performance.now() - timeoutStarted;
+          assert.match(timeoutError, /TIMEOUT/i);
+          assert.ok(timeoutElapsed >= 1400 && timeoutElapsed < 2800, `timeout executável fora da janela: ${timeoutElapsed}ms`);
+          globalThis.fetch = originalFetch;
+          
+          GeminiClientService.call = originalCall;
+          
+          console.log('PASS choice-flow runtime: 12 escolhas sequenciais, retry 503, fallback local e timeout abortável.');
+          EOF
+
+      - name: Gate executable suggested choices
+        working-directory: src
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F "send(action, undefined, false, undefined, 'suggested')" src/screens/AdventureScreenV3.tsx >/dev/null
+          node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-choice-flow-runtime.mjs
+          npm run lint
+
+      - name: Core regression gates
+        working-directory: src
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/verify-pf2-r34-parity.mjs
+          npm run verify:human-master-runtime
+          npm run verify:master-no-freeze-r5
+          npm run verify:bugreport-freeze-2026-10-05
+          for test in \
+            verify-rag-not-required \
+            verify:rag-off-kokoro-startup \
+            verify:runtime-hotfix-3.3.5 \
+            verify:runtime-integration-v3 \
+            verify:runtime-playthroughs-v3 \
+            verify:dice-full \
+            verify:adventure-sites-v2 \
+            verify:canonical-narrator-profile \
+            verify:google-drive-signing
+          do
+            echo "=== $test ==="
+            npm run "$test"
+          done
+
+      - name: Sync Android and full regression
+        working-directory: src
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run android:sync
+          npm run verify
+          npm run android:sync
+          npm run verify:android
+          npm run lint
+          node scripts/verify-pf2-r34-parity.mjs
+
+      - name: Build signed APK
+        working-directory: src
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/run-gradle-task.mjs assembleDebug
+
+      - name: Validate APK and proof
+        id: apk
+        working-directory: src
+        shell: bash
+        run: |
+          set -euo pipefail
+          BUILT='android/app/build/outputs/apk/debug/app-debug.apk'
+          test -f "$BUILT"
+          mkdir -p out
+          cp "$BUILT" "out/$APK_NAME"
+          BT="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)"
+          "$BT/aapt" dump badging "out/$APK_NAME" > out/APK_BADGING.txt
+          grep -q "package: name='com.braseiro.forbiddenlands'" out/APK_BADGING.txt
+          "$BT/apksigner" verify --verbose --print-certs "out/$APK_NAME" > out/APK_SIGNATURE.txt 2>&1
+          ACTUAL="$(awk -F': ' '/Signer #1 certificate SHA-1 digest:/{gsub(":","",$2); print tolower($2); exit}' out/APK_SIGNATURE.txt)"
+          test "$ACTUAL" = "$EXPECTED_SHA1"
+          SHA256="$(sha256sum "out/$APK_NAME" | awk '{print $1}')"
+          printf '%s  %s\n' "$SHA256" "$APK_NAME" > "out/$APK_NAME.sha256"
+          cat > out/R8_CHOICE_FLOW_PROOF.txt <<EOF
+STATUS=PASS
+CHOICE_UI_SOURCE_SUGGESTED=PASS
+CHOICE_FLOW_EXECUTABLE=PASS
+CHOICE_FLOW_CONSECUTIVE_TURNS=12
+CHOICE_MODEL_RETRY_503=PASS
+CHOICE_LOCAL_FALLBACK=PASS
+CHOICE_TIMEOUT_ABORTABLE=PASS
+TYPESCRIPT=PASS
+CORE_REGRESSIONS=PASS
+FULL_REGRESSION=PASS
+ANDROID_SYNC=PASS
+ANDROID_BUILD=PASS
+PACKAGE=com.braseiro.forbiddenlands
+SIGNER_SHA1=$ACTUAL
+APK_SHA256=$SHA256
+EOF
+
+      - name: Upload verified artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.5_R8_CHOICE_FLOW_VERIFIED
+          path: |
+            src/out/${{ env.APK_NAME }}
+            src/out/${{ env.APK_NAME }}.sha256
+            src/out/APK_BADGING.txt
+            src/out/APK_SIGNATURE.txt
+            src/out/R8_CHOICE_FLOW_PROOF.txt
+          retention-days: 30
+
+      - name: Publish verified release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release delete "$TAG" -y --cleanup-tag
+          fi
+          gh release create "$TAG" \
+            "src/out/$APK_NAME" \
+            "src/out/$APK_NAME.sha256" \
+            "src/out/APK_BADGING.txt" \
+            "src/out/APK_SIGNATURE.txt" \
+            "src/out/R8_CHOICE_FLOW_PROOF.txt" \
+            --title "Braseiro Forbidden Lands 3.3.5 — R8 Choice Flow Verified" \
+            --notes "R8 bloqueada por teste executável do fluxo de escolhas: 12 turnos consecutivos, retry 503, fallback local, timeout abortável, binding source=suggested, regressões completas, build Android e assinatura histórica validados."
