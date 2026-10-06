@@ -1,0 +1,77 @@
+name: Focused Forbidden Lands Kokoro Audit
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/audit-forbidden-kokoro-focused.yml']
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 25
+    steps:
+      - name: Download exact 3.3.5 source
+        id: source
+        shell: powershell
+        env:
+          FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/80UUAz3mboPZ"
+          SOURCE_NAME: "braseiro-forbidden-lands-3.3.5-RUNTIME-HOTFIX.zip"
+          SOURCE_SHA256: "541ac9c12a8cbf77ebe5288959880b4fd8291f923b94819012dd37d873903c33"
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Runner incorreto: $env:RUNNER_NAME"}
+          $work='C:\FL_TTS_AUDIT'
+          Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path $work | Out-Null
+          $meta=Invoke-RestMethod -Method Get -Uri ($env:FIRESTORAGE_API + '/files?maxResults=100')
+          $file=$meta.files | Where-Object { $_.fileName -eq $env:SOURCE_NAME } | Select-Object -First 1
+          if(-not $file){throw 'Source not found'}
+          $ticket=Invoke-RestMethod -Method Post -Uri ($env:FIRESTORAGE_API + '/files/' + $file.fileId + '/download')
+          if(-not $ticket.downloadUrl){throw 'No download URL'}
+          $zip=Join-Path $work 'fl.zip'
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o $zip $ticket.downloadUrl
+          if($LASTEXITCODE -ne 0){throw 'Download failed'}
+          $sha=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($sha -ne $env:SOURCE_SHA256){throw "SHA mismatch $sha"}
+          $extract=Join-Path $work 'src'
+          New-Item -ItemType Directory -Force -Path $extract | Out-Null
+          & tar.exe -xf $zip -C $extract
+          if($LASTEXITCODE -ne 0){throw 'Extract failed'}
+          $pkg=Get-ChildItem $extract -Recurse -File -Filter package.json |
+            Where-Object { (Test-Path (Join-Path $_.Directory.FullName 'android')) -and (Test-Path (Join-Path $_.Directory.FullName 'src')) } |
+            Sort-Object {$_.FullName.Length} | Select-Object -First 1
+          if(-not $pkg){throw 'Project root not found'}
+          "root=$($pkg.Directory.FullName)" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Inspect Kokoro timing
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $patterns='silenceScale|maxNumSentences|numThreads|QUEUE_ADD|QUEUE_FLUSH|UtteranceProgressListener|onDone|playSilentUtterance|prewarm|Kokoro|Sherpa|splitNarration|splitForAndroidTts|sentence|frase|pause|pausa|TextToSpeech'
+          $files=Get-ChildItem $env:ROOT -Recurse -File |
+            Where-Object {
+              $_.Extension -in '.java','.kt','.ts','.tsx','.js','.jsx','.json' -and
+              $_.FullName -notmatch '\\node_modules\\|\\build\\|\\dist\\'
+            }
+          $hits=$files | Select-String -Pattern $patterns -AllMatches -ErrorAction SilentlyContinue
+          $paths=$hits | Select-Object -ExpandProperty Path -Unique
+          "MATCH_FILES=$($paths.Count)"
+          foreach($p in $paths){
+            $important=Select-String -Path $p -Pattern 'silenceScale|maxNumSentences|numThreads|QUEUE_ADD|QUEUE_FLUSH|UtteranceProgressListener|onDone|playSilentUtterance|prewarm|Kokoro|Sherpa' -AllMatches -ErrorAction SilentlyContinue
+            if(-not $important){continue}
+            "===== $p ====="
+            $lines=Get-Content $p
+            $ranges=@()
+            foreach($m in $important){
+              $a=[Math]::Max(1,$m.LineNumber-10);$b=[Math]::Min($lines.Count,$m.LineNumber+18)
+              if($ranges.Count -gt 0 -and $a -le ($ranges[$ranges.Count-1][1]+1)){$ranges[$ranges.Count-1][1]=[Math]::Max($ranges[$ranges.Count-1][1],$b)}
+              else{$ranges += ,@($a,$b)}
+            }
+            foreach($r in $ranges){
+              "--- $($r[0])-$($r[1]) ---"
+              for($i=$r[0];$i -le $r[1];$i++){"{0,6}: {1}" -f $i,$lines[$i-1]}
+            }
+          }
