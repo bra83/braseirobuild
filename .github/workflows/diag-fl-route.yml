@@ -138,13 +138,10 @@ jobs:
 
           const remoteScene = action => ({
             sceneTitle: 'Resposta à escolha',
-            narration: `A escolha “${action}” produz uma consequência imediata e concreta no espaço. O ambiente reage sem tomar decisões pelo personagem.
-
-O grupo percebe uma mudança pequena, mas suficiente para confirmar que a ação aconteceu. Nada é resolvido fora do que foi estabelecido.
-
-Uma nova possibilidade surge a partir da consequência observável, preservando continuidade, posição e agência.
-
-A cena permanece aberta para outra decisão real.`,
+            narration: 'A escolha "' + action + '" produz uma consequência imediata e concreta no espaço. O ambiente reage sem tomar decisões pelo personagem.\\n\\n' +
+              'O grupo percebe uma mudança pequena, mas suficiente para confirmar que a ação aconteceu. Nada é resolvido fora do que foi estabelecido.\\n\\n' +
+              'Uma nova possibilidade surge a partir da consequência observável, preservando continuidade, posição e agência.\\n\\n' +
+              'A cena permanece aberta para outra decisão real.',
             npcDialogue: [],
             suggestedActions: ['Observar a mudança', 'Interagir com o elemento revelado', 'Mudar de abordagem'],
             checks: [],
