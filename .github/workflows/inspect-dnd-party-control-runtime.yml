@@ -1,0 +1,19 @@
+name: Inspect DnD Party Control Runtime
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-party-control-runtime.yml']
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 8
+    steps:
+      - name: Inspect control runtime
+        shell: powershell
+        run: |
+          $src='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
+          foreach($file in @('PartyDirector.java','MasterOrchestrator.java','AppDb.java')){
+            $p=Join-Path $src $file;if(!(Test-Path $p)){continue}
+            "===== $file ====="
+            Select-String -Path $p -Pattern 'control_mode|default_control_mode|manual|autonom|assist|system|rotina|routine|spotlight|party_action' -AllMatches | ForEach-Object {"$($_.LineNumber): $($_.Line.Trim())"}
+          }
