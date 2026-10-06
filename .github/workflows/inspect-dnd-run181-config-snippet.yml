@@ -1,0 +1,24 @@
+name: Inspect DnD RUN181 Config Snippet
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-run181-config-snippet.yml']
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 5
+    steps:
+      - name: Show Gemini config source
+        shell: powershell
+        run: |
+          $p='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e\MainActivity.java'
+          if(!(Test-Path $p)){throw 'SOURCE_MISSING'}
+          $ls=Get-Content $p
+          $ms=Select-String -Path $p -Pattern 'Chave principal da API Gemini|Chave Gemini alternativa|gemini-3.5-flash-lite|TESTAR|Charon' -AllMatches
+          $ranges=@()
+          foreach($m in $ms){
+            $a=[Math]::Max(1,$m.LineNumber-12);$b=[Math]::Min($ls.Count,$m.LineNumber+28)
+            if($ranges.Count -gt 0 -and $a -le ($ranges[$ranges.Count-1][1]+1)){$ranges[$ranges.Count-1][1]=[Math]::Max($ranges[$ranges.Count-1][1],$b)}
+            else{$ranges+=,@($a,$b)}
+          }
+          foreach($r in $ranges){Write-Host "--- $($r[0])-$($r[1]) ---";for($i=$r[0];$i -le $r[1];$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}}
