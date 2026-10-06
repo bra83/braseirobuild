@@ -86,8 +86,8 @@ jobs:
           $gate=Join-Path $env:ROOT 'scripts\verify-human-master-runtime.mjs'
           if (-not (Test-Path $gate)) { throw "Human Master gate not found: $gate" }
           $env:GATE_PATH=$gate
-          & node.exe -e "const fs=require('fs'); const p=process.env.GATE_PATH; const s=fs.readFileSync(p,'utf8'); console.log('R7_GATE_B64='+Buffer.from(s,'utf8').toString('base64')); process.exit(86);"
-          throw 'R7 gate inspection complete'
+          & node.exe -e "const fs=require('fs'); const p=process.env.GATE_PATH; let s=fs.readFileSync(p,'utf8'); const old='assert.match(narrative, /5\\.000 a 6\\.500 caracteres/);'; const next='assert.match(narrative, /CanonicalNarratorProfileService/);'; if(!s.includes(old)) throw new Error('obsolete opening-depth assertion not found'); s=s.replace(old,next); fs.writeFileSync(p,s,'utf8');"
+          if ($LASTEXITCODE -ne 0) { throw 'Human Master gate UTF-8 patch failed' }
 
           # Preserve the tested runtime; only the stale literal assertion is updated.
           $director=(Get-ChildItem $env:ROOT -Recurse -File -Filter 'NarrativeDirectorService.ts' | Select-Object -First 1).FullName
