@@ -56,20 +56,15 @@ jobs:
           if(!b.includes(traceOld)) throw new Error('stale scene-commit trace assertion not found');
           b=b.replace(traceOld,traceNew);
           fs.writeFileSync(bugGate,b,'utf8');
+
+          const api='src/src/services/api.ts';
+          let a=fs.readFileSync(api,'utf8');
+          const apiOld="  const maxOutputTokens = profile === 'Casual' ? 1100 : profile === 'Expert' ? (initial ? 2600 : 1800) : (initial ? 2200 : 1500);\n  const cinematic = Boolean(modelPolicy?.cinematic);\n  const initial = Boolean(modelPolicy?.initial);";
+          const apiNew="  const cinematic = Boolean(modelPolicy?.cinematic);\n  const initial = Boolean(modelPolicy?.initial);\n  const maxOutputTokens = profile === 'Casual' ? 1100 : profile === 'Expert' ? (initial ? 2600 : 1800) : (initial ? 2200 : 1500);";
+          if(!a.includes(apiOld)) throw new Error('api initial ordering marker not found');
+          a=a.replace(apiOld,apiNew);
+          fs.writeFileSync(api,a,'utf8');
           NODE
-
-      - name: Inspect scene commit trace location
-        shell: bash
-        run: |
-          echo '===== PERSIST SCENE ====='
-          grep -n "persistScene\|scene-commit" src/src/screens/AdventureScreenV3.tsx || true
-          nl -ba src/src/screens/AdventureScreenV3.tsx | sed -n '400,560p'
-
-      - name: Inspect api initial ordering
-        shell: bash
-        run: |
-          echo '===== API SERVICE ====='
-          nl -ba src/src/services/api.ts | sed -n '1,140p'
 
       - name: Install and run critical gates
         working-directory: src
