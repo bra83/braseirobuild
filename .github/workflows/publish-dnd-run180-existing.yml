@@ -1,0 +1,47 @@
+name: Publish Braseiro DnD RUN180 Existing APK
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-dnd-run180-existing.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 45
+    steps:
+      - name: Verify existing RUN180 APK on BRELGA
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Runner incorreto: $env:RUNNER_NAME"}
+          $apk='C:\DND180\out\BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk'
+          if(!(Test-Path $apk)){throw "APK RUN180 ausente"}
+          $sha=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          $shaFile="$apk.sha256"
+          "$sha  BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk" | Set-Content $shaFile -Encoding ascii
+          if(!$env:ANDROID_HOME){$sdk="$env:LOCALAPPDATA\Android\Sdk";if(Test-Path $sdk){$env:ANDROID_HOME=$sdk}}
+          $bt=Get-ChildItem "$env:ANDROID_HOME\build-tools" -Directory | Sort-Object {[version]$_.Name} -Descending | Select-Object -First 1
+          $badging=(& "$($bt.FullName)\aapt.exe" dump badging $apk)-join "`n"
+          if($badging -notmatch "package: name='com\.braseiro\.dnd5e'"){throw 'BAD_PACKAGE'}
+          if($badging -notmatch "versionCode='606280'"){throw 'BAD_VERSION_CODE'}
+          if($badging -notmatch "versionName='6\.6\.2-r180-debug'"){throw 'BAD_VERSION_NAME'}
+          & "$($bt.FullName)\apksigner.bat" verify --verbose $apk
+          if($LASTEXITCODE -ne 0){throw 'APK_SIGNATURE_FAILED'}
+          Write-Host "APK_SHA256=$sha"
+
+      - name: Publish RUN180 GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: DND-6.6.2-RUN180
+          name: Braseiro DnD 6.6.2 RUN180
+          body: RUN180 final compilado e validado no self-hosted BRELGA.
+          files: |
+            C:\DND180\out\BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk
+            C:\DND180\out\BRASEIRO_DND_6.6.2_RUN180_DEBUG.apk.sha256
+            C:\DND180\out\RUN180_BUILD_PROOF.txt
+          fail_on_unmatched_files: true
