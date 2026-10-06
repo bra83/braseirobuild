@@ -190,12 +190,24 @@ fs.writeFileSync(p('src','components','SuggestedChoiceButton.tsx'), touchCompone
 ] as const satisfies ReadonlyArray<keyof BraseiroDB>;`);
   s = replaceOptional(s, "  static scheduleCheckpoint(reason = 'alteração') {", "  static scheduleCheckpoint(reason = 'alteração', delayMs = 1200) {");
   s = replaceOptional(s, "    }, 1200);", "    }, Math.max(1200, delayMs));");
+  s = replaceOptional(s,
+    "      checkpointTimer = null;\n      void this.checkpoint(reason, 'core').catch(error => console.warn('[DataSafety] Checkpoint adiado sem apagar o anterior:', error));",
+    "      checkpointTimer = null;\n      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {\n        this.scheduleCheckpoint(reason, Math.max(60000, delayMs));\n        return;\n      }\n      void this.checkpoint(reason, 'core').catch(error => console.warn('[DataSafety] Checkpoint adiado sem apagar o anterior:', error));");
   if (!s.includes('static cancelScheduledCheckpoint()')) {
     s = replaceRequired(s,
       "  static checkpoint(reason = 'manual', scope: SnapshotScope = 'core', strict = false): Promise<boolean> {",
       "  static cancelScheduledCheckpoint() {\n    if (typeof window === 'undefined') return;\n    if (checkpointTimer !== null) window.clearTimeout(checkpointTimer);\n    checkpointTimer = null;\n  }\n\n  static checkpoint(reason = 'manual', scope: SnapshotScope = 'core', strict = false): Promise<boolean> {",
       'DataSafety cancel scheduled checkpoint');
   }
+  fs.writeFileSync(file,s,'utf8');
+}
+
+// Foreground gameplay must never launch the heavy safety snapshot after a critical write.
+{
+  const file = p('src','main.tsx');
+  let s = fs.readFileSync(file,'utf8');
+  s = replaceOptional(s, '    DataSafetyService.scheduleCheckpoint(store);', '    DataSafetyService.scheduleCheckpoint(store, 60000);');
+  s = replaceOptional(s, "  DataSafetyService.scheduleCheckpoint('inicialização validada');", "  DataSafetyService.scheduleCheckpoint('inicialização validada', 60000);");
   fs.writeFileSync(file,s,'utf8');
 }
 
