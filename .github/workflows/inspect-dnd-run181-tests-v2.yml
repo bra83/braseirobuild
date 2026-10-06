@@ -1,0 +1,18 @@
+name: Inspect DnD RUN181 Test Harness V2
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-run181-tests-v2.yml']
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 8
+    steps:
+      - name: Show test setup
+        shell: powershell
+        run: |
+          $root='C:\DND181\extract\dnd_work\android'
+          "=== app build.gradle ==="
+          Get-Content "$root\app\build.gradle" | Select-String -Pattern 'testImplementation|androidTestImplementation|junit|robolectric|mockito|testOptions|namespace|compileSdk|minSdk|targetSdk'
+          "=== existing tests ==="
+          Get-ChildItem "$root\app\src" -Recurse -File -Include *Test.java,*Test.kt -ErrorAction SilentlyContinue | ForEach-Object {$_.FullName}
