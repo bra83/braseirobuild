@@ -11,7 +11,7 @@ import org.json.JSONObject
 
 /** Presentation-only media. Never feeds Rules Engine state. */
 class PresentationMediaStore(context: Context) : WebViewAssetLoader.PathHandler {
-    enum class Scope { SCENE, CHARACTER, ITEM }
+    enum class Scope { SCENE, CHARACTER, NPC, ITEM }
 
     private val root = File(context.filesDir, "presentation-media-v1").apply { mkdirs() }
     private val metadataFile = File(root, "index.json")
