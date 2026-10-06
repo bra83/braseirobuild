@@ -172,7 +172,7 @@ s=s.replace('public class MainActivity extends BridgeActivity {', '''public clas
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         getWindow().getDecorView().postDelayed(() -> {
             rendererRecoveryScheduled = false;
@@ -183,7 +183,7 @@ s=s.replace('public class MainActivity extends BridgeActivity {', '''public clas
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         stopRendererWatchdog();
         super.onPause();
     }''')
