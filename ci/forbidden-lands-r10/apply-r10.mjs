@@ -368,6 +368,9 @@ fs.writeFileSync(p('src','components','SuggestedChoiceButton.tsx'), touchCompone
   let gradle = fs.readFileSync(gradlePath,'utf8');
   gradle = gradle.replace(/versionCode\s+\d+/, 'versionCode 303600');
   gradle = gradle.replace(/versionName\s+"[^"]+"/, 'versionName "3.3.6"');
+  gradle = gradle.replace('def expectedWebAssetVersion = "3.3.5"', 'def expectedWebAssetVersion = "3.3.6"');
+  gradle = gradle.replaceAll('Assets web 3.3.5', 'Assets web 3.3.6');
+  gradle = gradle.replaceAll('APK 3.3.5', 'APK 3.3.6');
   if (!/applicationId\s+"com\.braseiro\.forbiddenlands"/.test(gradle)) throw new Error('Wrong applicationId; refusing non-updatable APK');
   fs.writeFileSync(gradlePath,gradle,'utf8');
 }
