@@ -1,0 +1,109 @@
+name: Validate BRASEIRO OSE RAG-free Runtime
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/validate-ose-ragfree-runtime.yml"
+      - "ose/1.0.0/source/**"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Android SDK 35
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-35"
+
+      - name: JavaScript syntax gate
+        run: node --check ose/1.0.0/source/web-ui-p1/p1.js
+
+      - name: RAG-independence gate
+        run: |
+          set -euo pipefail
+          ROOT=ose/1.0.0/source
+          for module in rules-classic rules-advanced referee-boundary session-engine world-domain character-domain npc-domain; do
+            if grep -RIn --exclude-dir=build --exclude='*.md' -E 'project\(":rag-source-registry"\)|braseiro\.ose\.rag' "$ROOT/$module"; then
+              echo "::error::$module has a runtime dependency on RAG/evidence registry"
+              exit 1
+            fi
+          done
+          grep -q 'evidence lookup only: it never resolves mechanics' "$ROOT/rag-source-registry/src/main/kotlin/braseiro/ose/rag/RuleEvidenceRegistry.kt"
+          echo "RAG-free mechanics boundary: PASS"
+
+      - name: Kokoro Android TTS static gate
+        run: |
+          set -euo pipefail
+          ROOT=ose/1.0.0/source
+          TTS="$ROOT/tts-android/src/main/kotlin/braseiro/ose/tts/android/AndroidTtsController.kt"
+          MAIN="$ROOT/app-android/src/main/kotlin/braseiro/ose/app/MainActivity.kt"
+          grep -q 'com.k2fsa.sherpa.onnx.tts.engine' "$TTS"
+          grep -q 'UtteranceProgressListener' "$TTS"
+          grep -q 'override fun onDone' "$TTS"
+          grep -q 'TextToSpeech.QUEUE_ADD' "$TTS"
+          grep -q 'TtsTextSegmenter.segment' "$TTS"
+          grep -q 'AndroidTtsController(applicationContext)' "$MAIN"
+          ! grep -q 'tts = GeminiTtsController' "$MAIN"
+          ! grep -RIn --exclude-dir=build -E 'Android/data|model\.onnx|voices\.bin' "$ROOT/tts-android" "$ROOT/app-android/src/main/kotlin"
+          echo "Installed-engine Kokoro boundary: PASS"
+
+      - name: Gemini image handoff static gate
+        run: |
+          set -euo pipefail
+          ROOT=ose/1.0.0/source
+          MAIN="$ROOT/app-android/src/main/kotlin/braseiro/ose/app/MainActivity.kt"
+          MEDIA="$ROOT/app-android/src/main/kotlin/braseiro/ose/app/PresentationMediaStore.kt"
+          JS="$ROOT/web-ui-p1/p1.js"
+          grep -q 'PortraitPromptShare' "$MAIN"
+          grep -q 'buildCharacterPortraitPrompt' "$MAIN"
+          grep -q 'buildNpcPortraitPrompt' "$MAIN"
+          grep -q 'rememberExternalImageTarget' "$MAIN"
+          grep -q 'consumeExternalImageTarget' "$MAIN"
+          grep -q 'SCENE, CHARACTER, NPC, ITEM' "$MEDIA"
+          grep -q 'data-generate-character' "$JS"
+          grep -q 'data-generate-npc' "$JS"
+          grep -q 'data-photo-npc' "$JS"
+          echo "Scene/hero/NPC media handoff: PASS"
+
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Unit and integration tests
+        working-directory: ose/1.0.0/source
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon             :tts-api:test             :rules-classic:test             :rules-advanced:test             :referee-boundary:test             :session-engine:test             :world-domain:test             :npc-domain:test             :integration-tests:test             --stacktrace
+
+      - name: Android compile gate only
+        working-directory: ose/1.0.0/source
+        run: |
+          ./gradlew --no-daemon :app-android:compileDebugKotlin --stacktrace
+
+      - name: Summary
+        run: |
+          {
+            echo "## OSE RAG-free runtime validation"
+            echo "- Mechanics core has no runtime dependency on rag-source-registry."
+            echo "- Android TTS is installed-engine based and Kokoro/Sherpa-aware."
+            echo "- Scene, hero and NPC Gemini image handoff is wired."
+            echo "- JVM tests and Android Kotlin compile passed."
+            echo "- No APK was assembled by this validation workflow."
+          } >> "$GITHUB_STEP_SUMMARY"
