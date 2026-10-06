@@ -1,0 +1,37 @@
+name: Audit DnD RUN181 World NPC Persistence
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/audit-dnd-run181-world-npc.yml']
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 12
+    steps:
+      - name: Inspect world time weather npc persistence
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
+          if(!(Test-Path $root)){throw 'RUN181 source cache missing'}
+          $names=@('WorldStateEngine.java','LivingWorldEngine.java','LivingWorldCatchUpEngine.java','WorldSixCoordinator.java','MasterGameContext.java','AppDb.java','MainActivity.java','NpcTokenAutoBinder.java','MasterOrchestrator.java')
+          $patterns='weather|clima|time|hour|hora|day|date|world_state|npc_memory|npc|portrait|token_uri|dead|death|alive|active|saveStoryState|loadStoryState|persist|tick|catchUp|currentScene|scene_state'
+          foreach($n in $names){
+            $p=Join-Path $root $n
+            if(!(Test-Path $p)){continue}
+            "===== $n ====="
+            $ls=Get-Content $p
+            $ms=Select-String -Path $p -Pattern $patterns -AllMatches
+            $nums=$ms|Select-Object -ExpandProperty LineNumber -Unique
+            $ranges=@()
+            foreach($num in $nums){
+              $a=[Math]::Max(1,$num-5);$b=[Math]::Min($ls.Count,$num+12)
+              if($ranges.Count -gt 0 -and $a -le ($ranges[$ranges.Count-1][1]+1)){$ranges[$ranges.Count-1][1]=[Math]::Max($ranges[$ranges.Count-1][1],$b)}
+              else{$ranges+=,@($a,$b)}
+            }
+            foreach($r in $ranges){
+              "--- $($r[0])-$($r[1]) ---"
+              for($i=$r[0];$i -le $r[1];$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}
+            }
+          }
