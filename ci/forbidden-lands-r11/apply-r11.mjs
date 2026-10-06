@@ -45,7 +45,7 @@ const p=(...parts)=>path.join(root,...parts);
   s=s.replace('PairEditor title="Perícias" value={character.skills} onChange={skills=>update({skills})} max={3}', 'PairEditor title="Perícias" value={character.skills} onChange={skills=>update({skills})} max={initialCharacter?5:3}');
   s=s.replace('<label>Parentesco<select value={character.kin} onChange={event=>update({kin:event.target.value})} className="field">', '<label>Parentesco<select disabled={Boolean(initialCharacter)} value={character.kin} onChange={event=>update({kin:event.target.value})} className="field disabled:opacity-60">');
   s=s.replace('<label>Profissão<select value={character.profession} onChange={event=>update({profession:event.target.value})} className="field">', '<label>Profissão<select disabled={Boolean(initialCharacter)} value={character.profession} onChange={event=>update({profession:event.target.value})} className="field disabled:opacity-60">');
-  s=s.replace('<label>Idade<select value={character.age} onChange={event=>update({age:event.target.value as Character[\\'age\\']})} className="field">', '<label>Idade<select disabled={Boolean(initialCharacter)} value={character.age} onChange={event=>update({age:event.target.value as Character[\\'age\\']})} className="field disabled:opacity-60">');
+  s=s.replace("<label>Idade<select value={character.age} onChange={event=>update({age:event.target.value as Character['age']})} className=\"field\">", "<label>Idade<select disabled={Boolean(initialCharacter)} value={character.age} onChange={event=>update({age:event.target.value as Character['age']})} className=\"field disabled:opacity-60\">");
   fs.writeFileSync(file,s,'utf8');
 }
 
