@@ -107,6 +107,14 @@ jobs:
           & node.exe -e "const fs=require('fs'); const p=process.env.INTENT_PATH; let s=fs.readFileSync(p,'utf8'); const typeOld='  presentation: ScenePresentationKind;\n  preservesCheckpoint:'; const typeNew='  presentation: ScenePresentationKind;\n  presentationKind: ScenePresentationKind;\n  preservesCheckpoint:'; if(!s.includes(typeOld)) throw new Error('intent type marker missing'); s=s.replace(typeOld,typeNew); const retOld='      presentation,\n      preservesCheckpoint,'; const retNew='      presentation,\n      presentationKind: presentation,\n      preservesCheckpoint,'; if(!s.includes(retOld)) throw new Error('intent return marker missing'); s=s.replace(retOld,retNew); fs.writeFileSync(p,s,'utf8');"
           if ($LASTEXITCODE -ne 0) { throw 'NarrativeIntent presentationKind compatibility patch failed' }
 
+          # O runtime já emite [MASTER_FLOW] via masterTrace(stage). Atualiza o gate
+          # para reconhecer a chamada dinâmica em vez de exigir o literal expandido no fonte.
+          $bugGate=Join-Path $env:ROOT 'scripts\verify-bugreport-freeze-2026-10-05.mjs'
+          if (-not (Test-Path $bugGate)) { throw 'Bugreport freeze gate missing' }
+          $env:BUG_GATE_PATH=$bugGate
+          & node.exe -e "const fs=require('fs'); const p=process.env.BUG_GATE_PATH; let s=fs.readFileSync(p,'utf8'); const old='assert.match(adventure, /\\[MASTER_FLOW\\] scene-commit:start/);'; const next=\"assert.match(adventure, /masterTrace\\('scene-commit:start'/);\"; if(!s.includes(old)) throw new Error('stale scene-commit trace assertion not found'); s=s.replace(old,next); fs.writeFileSync(p,s,'utf8');"
+          if ($LASTEXITCODE -ne 0) { throw 'Bugreport scene-commit gate patch failed' }
+
           # Canonical patched source checkpoint, before npm/node_modules alter the tree.
           $finalZip=Join-Path $env:BUILD_ROOT $env:FINAL_SOURCE_NAME
           if (Test-Path $finalZip) { Remove-Item $finalZip -Force }
