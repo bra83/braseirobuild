@@ -92,8 +92,9 @@ jobs:
           [IO.File]::WriteAllText($gate,$raw,[Text.UTF8Encoding]::new($false))
 
           # Preserve the tested runtime; only the stale literal assertion is updated.
-          $director=Join-Path $env:ROOT 'services\NarrativeDirectorService.ts'
-          if (-not (Test-Path $director)) { throw 'NarrativeDirectorService missing' }
+          $director=(Get-ChildItem $env:ROOT -Recurse -File -Filter 'NarrativeDirectorService.ts' | Select-Object -First 1).FullName
+          if (-not $director) { throw 'NarrativeDirectorService missing' }
+          Write-Host "R7 director: $director"
           $directorText=Get-Content $director -Raw
           foreach($needle in @('CanonicalNarratorProfileService','normalizeAudioCues','isNarrationSufficient')){
             if (-not $directorText.Contains($needle)) { throw "R7 runtime invariant missing: $needle" }
