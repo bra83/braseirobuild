@@ -404,8 +404,16 @@ jobs:
           "$BT/aapt" dump badging "out/$APK_NAME" > out/APK_BADGING.txt
           grep -q "package: name='com.braseiro.forbiddenlands'" out/APK_BADGING.txt
           "$BT/apksigner" verify --verbose --print-certs "out/$APK_NAME" > out/APK_SIGNATURE.txt 2>&1
-          ACTUAL="$(awk -F': ' '/Signer #1 certificate SHA-1 digest:/{gsub(":","",$2); print tolower($2); exit}' out/APK_SIGNATURE.txt)"
-          test "$ACTUAL" = "$EXPECTED_SHA1"
+          ACTUAL="$(sed -nE 's/^Signer #1 certificate SHA-1 digest:[[:space:]]*//p' out/APK_SIGNATURE.txt | head -n1 | tr -d ':[:space:]' | tr 'A-F' 'a-f')"
+          if [ -z "$ACTUAL" ]; then
+            ACTUAL="$(keytool -printcert -jarfile "out/$APK_NAME" 2>/dev/null | awk -F': ' '/SHA1:/{gsub(":","",$2); print tolower($2); exit}')"
+          fi
+          echo "APK signer SHA1=$ACTUAL"
+          if [ "$ACTUAL" != "$EXPECTED_SHA1" ]; then
+            echo "Expected historical signer=$EXPECTED_SHA1" >&2
+            cat out/APK_SIGNATURE.txt >&2
+            exit 1
+          fi
           SHA256="$(sha256sum "out/$APK_NAME" | awk '{print $1}')"
           printf '%s  %s\n' "$SHA256" "$APK_NAME" > "out/$APK_NAME.sha256"
           printf '%s\n' \
