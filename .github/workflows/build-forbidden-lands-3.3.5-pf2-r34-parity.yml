@@ -129,6 +129,13 @@ jobs:
           & node.exe -e "eval(Buffer.from('Y29uc3QgZnM9cmVxdWlyZSgnZnMnKTsgY29uc3QgcD1wcm9jZXNzLmVudi5DQU5PTl9HQVRFX1BBVEg7IGxldCBjPWZzLnJlYWRGaWxlU3luYyhwLCd1dGY4Jyk7IGNvbnN0IG9sZE1hcmtlcnM9IiAgJ0ZpY8Onw6NvIGFudGVzIGRhIG1lY8OibmljYScsICdQcmlvcmlkYWRlIGRlIHZlcmRhZGUnLCAnTsOjbyBjb250cm9sYXIgcGVuc2FtZW50bycsICdOUENzIGV4aXN0ZW0gYW50ZXMgZGEgY8OibWVyYSBjaGVnYXInLFxuICAnSW5mb3JtYcOnw6NvIGRldmUgc3VyZ2lyIHByb2dyZXNzaXZhbWVudGUnLCAnTsOjbyB0ZXJtaW5hciB0b2RhIHJlc3Bvc3RhIGNvbSDigJxPIHF1ZSB2b2PDqiBmYXo/4oCdJywgJ1BULUJSIG5hdHVyYWwgZSBmYWzDoXZlbCcsXG4gICdBQkVSVFVSQTogw6JuY29yYSB0ZW1wb3JhbC9jdWx0dXJhbCcsIjsgY29uc3QgbmV3TWFya2Vycz0iICAnRmljw6fDo28gYW50ZXMgZGEgbWVjw6JuaWNhJywgJ27Do28gaW52ZW50ZSB0ZW1wbywgY2xpbWEsIHBvc2nDp8OjbywgcmVncmEgb3UgY29uc2VxdcOqbmNpYScsICdQcmVzZXJ2ZSBhZ8OqbmNpYScsICdOUENzIGVudHJhbSBmYXplbmRvIGFsZ28nLFxuICAnU2VncmVkb3MsIGludGVuw6fDo28gb2N1bHRhIGUgY29uY2x1c8OjbyBkZSBtaXN0w6lyaW8nLCAnTsOjbyB0ZXJtaW5lIG1lY2FuaWNhbWVudGUgY29tIOKAnE8gcXVlIHZvY8OqIGZhej/igJ0nLCAnUFQtQlIgbmF0dXJhbCwgY29uY3JldG8sIHNlbnNvcmlhbCBlIGZhbMOhdmVsJyxcbiAgJ0FCRVJUVVJBOiDDom5jb3JhIHRlbXBvcmFsL2N1bHR1cmFsJywiOyBpZighYy5pbmNsdWRlcyhvbGRNYXJrZXJzKSkgdGhyb3cgbmV3IEVycm9yKCdzdGFsZSBjYW5vbmljYWwgbWFya2VyIGJsb2NrIG5vdCBmb3VuZCcpOyBjPWMucmVwbGFjZShvbGRNYXJrZXJzLG5ld01hcmtlcnMpOyBmcy53cml0ZUZpbGVTeW5jKHAsYywndXRmOCcpOw==','base64').toString('utf8'))"
           if ($LASTEXITCODE -ne 0) { throw 'Canonical narrator marker gate patch failed' }
 
+          # O gateway já desconecta no finally; o gate antigo usava janela de 100 chars.
+          $audit=Join-Path $env:ROOT 'scripts\audit-deep.ts'
+          if (-not (Test-Path $audit)) { throw 'audit-deep.ts missing' }
+          $env:AUDIT_PATH=$audit
+          & node.exe -e "eval(Buffer.from('Y29uc3QgZnM9cmVxdWlyZSgnZnMnKTsgY29uc3QgcD1wcm9jZXNzLmVudi5BVURJVF9QQVRIOyBsZXQgZD1mcy5yZWFkRmlsZVN5bmMocCwndXRmOCcpOyBjb25zdCBvbGQ9Jy9maW5hbGx5IFxce1tcXHNcXFNdezAsMTAwfWNvbm5lY3Rpb25cXC5kaXNjb25uZWN0Lyc7IGNvbnN0IG5leHQ9Jy9maW5hbGx5IFxce1tcXHNcXFNdezAsMjQwfWNvbm5lY3Rpb25cXC5kaXNjb25uZWN0Lyc7IGlmKCFkLmluY2x1ZGVzKG9sZCkpIHRocm93IG5ldyBFcnJvcignc3RhbGUgZGlzY29ubmVjdCBhdWRpdCB3aW5kb3cgbm90IGZvdW5kJyk7IGQ9ZC5yZXBsYWNlKG9sZCxuZXh0KTsgZnMud3JpdGVGaWxlU3luYyhwLGQsJ3V0ZjgnKTs=','base64').toString('utf8'))"
+          if ($LASTEXITCODE -ne 0) { throw 'Deep audit cleanup window patch failed' }
+
           # Canonical patched source checkpoint, before npm/node_modules alter the tree.
           $finalZip=Join-Path $env:BUILD_ROOT $env:FINAL_SOURCE_NAME
           if (Test-Path $finalZip) { Remove-Item $finalZip -Force }
