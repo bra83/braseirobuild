@@ -290,6 +290,16 @@ fs.writeFileSync(p('src','components','SuggestedChoiceButton.tsx'), touchCompone
   fs.writeFileSync(file,css,'utf8');
 }
 
+// R10 is an update release; legacy Block1 gate must validate the new maintenance version.
+{
+  const file = p('scripts','verify-block1-p0.mjs');
+  let s = fs.readFileSync(file,'utf8');
+  s = replaceOptional(s, 'baseline corrente 3.3.5 preservada para release validada', 'baseline corrente 3.3.6 preservada para release validada');
+  s = replaceOptional(s, "pkg.version === '3.3.5'", "pkg.version === '3.3.6'");
+  s = replaceOptional(s, 'pkg.version === "3.3.5"', 'pkg.version === "3.3.6"');
+  fs.writeFileSync(file,s,'utf8');
+}
+
 // Install-over-existing identity: same package/signer, higher versionCode.
 {
   const pkgPath = p('package.json');
