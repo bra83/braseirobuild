@@ -1,4 +1,4 @@
-name: Forbidden Lands 3.3.5 R8 Choice Flow Verified
+name: Forbidden Lands 3.3.5 R9 A57 + Choice Flow Verified
 
 on:
   push:
@@ -10,14 +10,14 @@ permissions:
   contents: write
 
 concurrency:
-  group: forbidden-lands-r8-choice-flow-verified
+  group: forbidden-lands-r9-a57-choice-flow-verified
   cancel-in-progress: true
 
 env:
   FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/9U2Qwn54TgjB"
   SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_BUGREPORT_FREEZE_FIX_R6_1_SOURCE.zip"
-  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_R8_CHOICE_FLOW_VERIFIED.apk"
-  TAG: "forbidden-lands-3.3.5-choice-flow-verified-r8"
+  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.5_R9_A57_CHOICE_FLOW_VERIFIED.apk"
+  TAG: "forbidden-lands-3.3.5-a57-choice-flow-verified-r9"
   EXPECTED_SHA1: "9d0f1089b3fb6c225f1f59462750864e897c4d92"
 
 jobs:
@@ -103,7 +103,167 @@ jobs:
           if(!v.includes(choiceOld) && !v.includes(choiceNew)) throw new Error('suggested choice click anchor not found');
           if(v.includes(choiceOld)) v=v.replace(choiceOld,choiceNew);
           if(!v.includes(choiceNew)) throw new Error('suggested choice source routing not applied');
+
+          const overlayOld='className="fixed inset-x-0 top-0 z-[240] bg-black/80 backdrop-blur-sm flex items-end sm:items-center sm:justify-center"';
+          const overlayNew='className="fixed inset-0 z-[240] bg-black/80 backdrop-blur-sm flex items-end sm:items-center sm:justify-center"';
+          if(v.includes(overlayOld)) v=v.replace(overlayOld,overlayNew);
+          if(!v.includes(overlayNew)) throw new Error('action composer full-screen overlay not applied');
+
+          const terrainOld='className="bg-bg-surface border border-accent rounded-xl p-5 max-w-md w-full"';
+          const terrainNew='className="bg-bg-surface border border-accent rounded-xl p-5 max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto"';
+          if(v.includes(terrainOld)) v=v.replace(terrainOld,terrainNew);
           fs.writeFileSync(adventure,v,'utf8');
+
+          const layout='src/src/components/Layout.tsx';
+          let l=fs.readFileSync(layout,'utf8');
+          const menuOld='className="bg-bg-surface border-t border-border p-4 rounded-t-2xl mb-16 animate-in slide-in-from-bottom-4"';
+          const menuNew='className="more-menu-sheet bg-bg-surface border-t border-border p-4 rounded-t-2xl animate-in slide-in-from-bottom-4"';
+          if(l.includes(menuOld)) l=l.replace(menuOld,menuNew);
+          if(!l.includes('more-menu-sheet')) throw new Error('mobile more-menu class not applied');
+          fs.writeFileSync(layout,l,'utf8');
+
+          const cssPath='src/src/index.css';
+          let css=fs.readFileSync(cssPath,'utf8');
+          const marker='/* Galaxy A57 / Samsung compact portrait compatibility R9 */';
+          if(!css.includes(marker)) css += `
+
+${marker}
+@media (max-width: 430px) {
+  html, body, #root {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .app-shell {
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
+  .app-header {
+    min-width: 0;
+    min-height: calc(3.35rem + var(--braseiro-safe-top));
+    padding-left: .65rem;
+    padding-right: .65rem;
+    gap: .4rem;
+  }
+
+  .app-header h2 {
+    min-width: 0;
+    max-width: 36vw;
+    font-size: .95rem;
+    letter-spacing: .055em;
+  }
+
+  .app-header button {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding-left: .65rem;
+    padding-right: .65rem;
+  }
+
+  .mobile-bottom-nav {
+    gap: .125rem;
+    padding-top: .35rem;
+    padding-left: .25rem;
+    padding-right: .25rem;
+    padding-bottom: max(.65rem, var(--braseiro-safe-bottom));
+    min-height: calc(4.25rem + max(.65rem, var(--braseiro-safe-bottom)));
+  }
+
+  .mobile-bottom-nav button {
+    min-width: 0;
+    min-height: 3.35rem;
+    padding: .25rem .1rem;
+  }
+
+  .mobile-bottom-nav button span {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 9px;
+    letter-spacing: 0;
+  }
+
+  .more-menu-sheet {
+    box-sizing: border-box;
+    margin-bottom: calc(4.25rem + max(.65rem, var(--braseiro-safe-bottom)));
+    max-height: calc(100dvh - 5.25rem - var(--braseiro-safe-top) - max(.65rem, var(--braseiro-safe-bottom)));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: .85rem;
+  }
+
+  .more-menu-sheet .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .5rem;
+  }
+
+  .more-menu-sheet button {
+    min-width: 0;
+    min-height: 4.2rem;
+    padding: .65rem .25rem;
+  }
+
+  .more-menu-sheet button span {
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+
+  .adventure-composer {
+    padding-left: .75rem;
+    padding-right: .75rem;
+    padding-bottom: max(.75rem, var(--braseiro-safe-bottom));
+  }
+
+  .action-composer-sheet {
+    width: 100%;
+    max-height: calc(100dvh - var(--braseiro-safe-top) - .5rem);
+    overscroll-behavior: contain;
+  }
+
+  .action-composer-input {
+    min-height: 7.25rem;
+    max-height: 34dvh;
+    font-size: 16px;
+  }
+
+  .narration-toolbar {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .narration-replay-button {
+    width: 100%;
+  }
+
+  .adventure-card {
+    border-radius: .85rem;
+  }
+}
+
+@media (max-width: 430px) and (max-height: 900px) {
+  .app-header {
+    min-height: calc(3.15rem + var(--braseiro-safe-top));
+  }
+
+  .mobile-bottom-nav {
+    min-height: calc(4rem + max(.6rem, var(--braseiro-safe-bottom)));
+  }
+
+  .more-menu-sheet {
+    margin-bottom: calc(4rem + max(.6rem, var(--braseiro-safe-bottom)));
+  }
+}
+`;
+          fs.writeFileSync(cssPath,css,'utf8');
           NODE
 
       - name: Patch hosted esbuild invocation
@@ -347,6 +507,23 @@ jobs:
           node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-choice-flow-runtime.mjs
           npm run lint
 
+      - name: Gate Galaxy A57 responsive layout
+        working-directory: src
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F 'viewport-fit=cover' index.html >/dev/null
+          grep -F 'Galaxy A57 / Samsung compact portrait compatibility R9' src/index.css >/dev/null
+          grep -F '@media (max-width: 430px)' src/index.css >/dev/null
+          grep -F 'height: 100dvh' src/index.css >/dev/null
+          grep -F 'max(.65rem, var(--braseiro-safe-bottom))' src/index.css >/dev/null
+          grep -F 'more-menu-sheet' src/components/Layout.tsx >/dev/null
+          grep -F 'fixed inset-0 z-[240]' src/screens/AdventureScreenV3.tsx >/dev/null
+          grep -F 'max-h-[calc(100dvh-2rem)] overflow-y-auto' src/screens/AdventureScreenV3.tsx >/dev/null
+          npm run lint
+          npm run build:web
+          echo 'PASS Galaxy A57 layout: 1080x2340-class portrait, safe areas, compact header/nav, scrollable menus and full-screen action composer.'
+
       - name: Core regression gates
         working-directory: src
         shell: bash
@@ -404,7 +581,7 @@ jobs:
           "$BT/aapt" dump badging "out/$APK_NAME" > out/APK_BADGING.txt
           grep -q "package: name='com.braseiro.forbiddenlands'" out/APK_BADGING.txt
           "$BT/apksigner" verify --verbose --print-certs "out/$APK_NAME" > out/APK_SIGNATURE.txt 2>&1
-          ACTUAL="$(sed -nE 's/^Signer #1 certificate SHA-1 digest:[[:space:]]*//p' out/APK_SIGNATURE.txt | head -n1 | tr -d ':[:space:]' | tr 'A-F' 'a-f')"
+          ACTUAL="$(sed -nE 's/^(V[0-9.]+ )?Signer: certificate SHA-1 digest:[[:space:]]*//p' out/APK_SIGNATURE.txt | head -n1 | tr -d ':[:space:]' | tr 'A-F' 'a-f')"
           if [ -z "$ACTUAL" ]; then
             ACTUAL="$(keytool -printcert -jarfile "out/$APK_NAME" 2>/dev/null | awk -F': ' '/SHA1:/{gsub(":","",$2); print tolower($2); exit}')"
           fi
@@ -431,18 +608,18 @@ jobs:
             'ANDROID_BUILD=PASS' \
             'PACKAGE=com.braseiro.forbiddenlands' \
             "SIGNER_SHA1=$ACTUAL" \
-            "APK_SHA256=$SHA256" > out/R8_CHOICE_FLOW_PROOF.txt
+            "APK_SHA256=$SHA256" > out/R9_A57_CHOICE_FLOW_PROOF.txt
 
       - name: Upload verified artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO_FORBIDDEN_LANDS_3.3.5_R8_CHOICE_FLOW_VERIFIED
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.5_R9_A57_CHOICE_FLOW_VERIFIED
           path: |
             src/out/${{ env.APK_NAME }}
             src/out/${{ env.APK_NAME }}.sha256
             src/out/APK_BADGING.txt
             src/out/APK_SIGNATURE.txt
-            src/out/R8_CHOICE_FLOW_PROOF.txt
+            src/out/R9_A57_CHOICE_FLOW_PROOF.txt
           retention-days: 30
 
       - name: Publish verified release
@@ -460,5 +637,5 @@ jobs:
             "src/out/APK_BADGING.txt" \
             "src/out/APK_SIGNATURE.txt" \
             "src/out/R8_CHOICE_FLOW_PROOF.txt" \
-            --title "Braseiro Forbidden Lands 3.3.5 — R8 Choice Flow Verified" \
-            --notes "R8 bloqueada por teste executável do fluxo de escolhas: 12 turnos consecutivos, retry 503, fallback local, timeout abortável, binding source=suggested, regressões completas, build Android e assinatura histórica validados."
+            --title "Braseiro Forbidden Lands 3.3.5 — R9 A57 + Choice Flow Verified" \
+            --notes "R9: fluxo de escolhas executável validado em 12 turnos consecutivos, retry 503, fallback local e timeout abortável; compatibilidade responsiva adicionada para Galaxy A57/Samsung 1080x2340-class com safe areas, navegação inferior compacta, menu Mais rolável e compositor de ação em tela cheia; regressões completas, Android e assinatura histórica validados."
