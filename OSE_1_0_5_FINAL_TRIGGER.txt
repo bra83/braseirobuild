@@ -11,3 +11,5 @@ android_compile_fix=tts_engine_system_package_manager
 static_gate_fix=executable_strings_only
 
 windows_suite_fix=powershell_braced_variable
+
+runtime_batch=single_gradle_invocation
