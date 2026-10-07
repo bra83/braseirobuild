@@ -1,0 +1,42 @@
+name: Inspect DnD RUN181 Remote Master Flow
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-run181-remote-master-flow.yml']
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 8
+    steps:
+      - name: Inspect remote master routing
+        shell: powershell
+        run: |
+          $src='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
+          $patterns=@(
+            'Resposta preparada pelo Mestre local',
+            'generateText\(',
+            'generateTextStream',
+            'startAdventure',
+            'beginAdventure',
+            'advanceScene',
+            'commitNarrative',
+            'onSuccess',
+            'onError',
+            'fallback',
+            'offline',
+            'geminiKey\(',
+            'saveGeminiSecretsAtomically',
+            'lastWorkingTextModel',
+            'text_model'
+          )
+          $files=Get-ChildItem $src -Recurse -File -Filter *.java
+          foreach($p in $patterns){
+            "===== PATTERN $p ====="
+            $hits=$files|Select-String -Pattern $p -AllMatches -ErrorAction SilentlyContinue
+            foreach($h in $hits){
+              "$($h.Path):$($h.LineNumber): $($h.Line.Trim())"
+              $ls=Get-Content $h.Path
+              $a=[Math]::Max(1,$h.LineNumber-8);$b=[Math]::Min($ls.Count,$h.LineNumber+24)
+              for($i=$a;$i -le $b;$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}
+            }
+          }
