@@ -1,0 +1,93 @@
+name: Forbidden Lands 3.3.11 R15 Hosted Clean Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-forbidden-lands-3.3.11-r15-hosted.yml'
+      - 'ci/forbidden-lands-r15-hosted-trigger.txt'
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_NAME: BRASEIRO_FORBIDDEN_LANDS_3.3.11_R15_CORRIGIDO_SOURCE.zip
+  SOURCE_SHA256: 34e7c1fcef46aa22cb4edb825770e6854d3e0f49770ac14d866c8bf3370871d6
+  FIRESTORAGE_API: https://api.firestorage.ai/dev/file/shares/0jVQkdZbpxpL
+  EXPECTED_SHA1: 9d0f1089b3fb6c225f1f59462750864e897c4d92
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Download exact R15 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE_ID=$(curl -fsSL "$FIRESTORAGE_API/files?maxResults=100" | jq -r --arg n "$SOURCE_NAME" '.files[] | select(.fileName==$n) | .fileId' | head -n1)
+          test -n "$FILE_ID"
+          URL=$(curl -fsSL -X POST "$FIRESTORAGE_API/files/$FILE_ID/download" | jq -r '.downloadUrl')
+          test -n "$URL"
+          curl -fL --retry 4 "$URL" -o source.zip
+          echo "$SOURCE_SHA256  source.zip" | sha256sum -c -
+          mkdir project
+          unzip -q source.zip -d project
+          test -f project/package.json
+          test -f project/android/app/build.gradle
+
+      - name: Install and verify corrected source
+        working-directory: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm run lint
+          npm run verify:external-gemini-images
+          npm run verify:action-dock
+          npm run verify:action-dock-14-turns
+          npm run verify:character-creation
+          npm run verify:journey-full
+          npm run verify:bugreport-freeze-2026-10-05
+          npm run test:audio
+
+      - name: Sync and build Android
+        working-directory: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run android:sync
+          npm run verify:android
+          node scripts/run-gradle-task.mjs assembleDebug
+
+      - name: Validate installable APK
+        working-directory: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          test -f "$APK"
+          mkdir -p out
+          cp "$APK" out/BRASEIRO_FORBIDDEN_LANDS_3.3.11_R15_CLEAN.apk
+          BT=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)
+          "$BT/aapt" dump badging out/BRASEIRO_FORBIDDEN_LANDS_3.3.11_R15_CLEAN.apk | tee out/APK_BADGING.txt
+          grep -q "package: name='com.braseiro.forbiddenlands'" out/APK_BADGING.txt
+          grep -q "versionCode='303911'" out/APK_BADGING.txt
+          grep -q "versionName='3.3.11'" out/APK_BADGING.txt
+          "$BT/apksigner" verify --verbose --print-certs out/BRASEIRO_FORBIDDEN_LANDS_3.3.11_R15_CLEAN.apk | tee out/APK_SIGNATURE.txt
+          ACTUAL=$(grep -E 'certificate SHA-1 digest:' out/APK_SIGNATURE.txt | head -n1 | sed -E 's/.*digest:[[:space:]]*//' | tr -d ':[:space:]' | tr 'A-F' 'a-f')
+          test "$ACTUAL" = "$EXPECTED_SHA1"
+          sha256sum out/BRASEIRO_FORBIDDEN_LANDS_3.3.11_R15_CLEAN.apk | tee out/BRASEIRO_FORBIDDEN_LANDS_3.3.11_R15_CLEAN.apk.sha256
+          printf '%s\n'             'STATUS=PASS'             'CLEAN_GRADLE_BUILD=PASS'             'APK_SIGNER_VERIFY=PASS'             'PACKAGE=com.braseiro.forbiddenlands'             'VERSION_CODE=303911'             'VERSION_NAME=3.3.11'             "SIGNER_SHA1=$ACTUAL" > out/R15_CLEAN_PROOF.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.11_R15_CLEAN
+          path: project/out/*
+          retention-days: 30
