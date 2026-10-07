@@ -43,13 +43,13 @@
         <p class="note">Você pode digitar exatamente o nome do modelo que quer usar. O aplicativo não substitui o nome por outro modelo.</p>
         <label class="field" for="textModel">Modelo de texto / Mestre</label>
         <input id="textModel" type="text" autocomplete="off" placeholder="ex.: gemini-3.1-flash-lite">
-        <label class="field" for="imageModel">Modelo de imagem</label>
+        <label class="field" for="imageModel">Modelo de imagem · mapas/interiores/equipamentos</label>
         <input id="imageModel" type="text" autocomplete="off" placeholder="ex.: gemini-3.1-flash-image">
         <button id="saveModels" class="primary" style="margin-top:9px">SALVAR MODELOS</button>
       </section>
 
       <section class="credential-block">
-        <label class="field">Chave Gemini — Mestre / imagens</label>
+        <label class="field">Chave Gemini — Mestre / imagens permitidas</label>
         <input id="textSceneKey" type="password" autocomplete="off" placeholder="Cole a chave para salvar ou substituir">
         <div class="row"><button class="small" data-key-save="TEXT_SCENE">SALVAR</button><button class="small" data-key-test="TEXT_SCENE">TESTAR</button><button class="small" data-key-delete="TEXT_SCENE">APAGAR</button></div>
         <div id="textSceneStatus" class="credential-status">Não configurada</div>
