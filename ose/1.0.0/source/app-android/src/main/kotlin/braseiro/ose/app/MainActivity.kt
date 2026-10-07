@@ -1004,11 +1004,11 @@ class MainActivity : Activity() {
         .firstOrNull { it.wireName == value } ?: error("UNKNOWN_GEMINI_CREDENTIAL_SLOT")
 
     private fun scenePresentationId(current: CampaignEnvelope): String {
-        val session = current.campaignState.game.session
+        val game = current.campaignState.game
         val source = buildString {
             append(current.campaignId.value).append('|')
-            append(session.phase).append('|').append(session.visibleNarration).append('|')
-            append(current.campaignState.position.primary.toString())
+            append(current.campaignState.position.primary.toString()).append('|')
+            append(game.encounter?.encounterId ?: "NO_ACTIVE_ENCOUNTER")
         }
         return MessageDigest.getInstance("SHA-256").digest(source.toByteArray(Charsets.UTF_8))
             .joinToString("") { "%02x".format(it) }.take(32)
@@ -1043,7 +1043,7 @@ class MainActivity : Activity() {
             - Personagens presentes: $party
 
             DIREÇÃO VISUAL:
-            fantasia medieval old-school sombria e orgânica; pintura/gravura tradicional de livro de RPG; textura de tinta e papel; composição cinematográfica horizontal 4:3; iluminação coerente com a narração; ambiente dominante, personagens em escala natural; sem HUD, sem molduras, sem texto, sem letras, sem logotipos, sem aparência de videogame moderno.
+            fantasia medieval old-school sombria e orgânica; pintura/gravura tradicional de livro de RPG; textura de tinta e papel; composição cinematográfica horizontal 16:9; iluminação coerente com a narração; ambiente dominante, personagens em escala natural; sem HUD, sem molduras, sem texto, sem letras, sem logotipos, sem aparência de videogame moderno.
 
             REGRAS DE INFORMAÇÃO:
             represente SOMENTE o que já é visível ou explicitamente conhecido pelos jogadores. Não revele inimigos ocultos, passagens secretas, armadilhas, tesouros, pistas escondidas, NPCs ainda não encontrados ou qualquer informação de bastidor. Não invente acontecimentos novos. Preserve exatamente o clima, terreno, horário, posição e personagens descritos acima.
