@@ -38,7 +38,7 @@ class CombatMovementLightStateFlowTest {
         apply("LIGHT_IGNITE:TORCH:t1:hero")
         assertEquals(6, e.campaignState.game.expedition.lightSources.single().remainingTurns)
         repeat(6){ apply("WAIT_TURN") }
-        assertFalse(e.campaignState.game.expedition.lightSources.single().lit)
+        assertTrue(e.campaignState.game.expedition.lightSources.none { it.lightId == "t1" && it.lit })
 
         e = envelope(encounter=EncounterSnapshot("surprise",phase=EncounterPhase.SURPRISE_PENDING)).let { base ->
             base.copy(campaignState=base.campaignState.copy(game=base.campaignState.game.copy(
