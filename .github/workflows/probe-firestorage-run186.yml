@@ -8,18 +8,24 @@ on:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
-      - name: Fetch share page
+      - name: Inspect API base
         shell: bash
         run: |
-          set -euxo pipefail
-          u='https://firestorage.ai/_next/static/chunks/4899-d89df949f2dbd5af.js'
-          curl -L -sS "$u" -o /tmp/x.js
-          wc -c /tmp/x.js
-          echo '--- URLs ---'
-          grep -Eo 'https?[^"'\''` ]+' /tmp/x.js | sort -u | head -100 || true
-          echo '--- f assignments/context ---'
-          grep -Eo '.{0,300}(apiBase|API|let f=|const f=|f=.{0,120}shares/).{0,500}' /tmp/x.js | head -100 || true
-          echo '--- shares context ---'
-          grep -Eo '.{0,500}/shares/.{0,700}' /tmp/x.js | head -60 || true
+          set -euo pipefail
+          curl -L -sS 'https://firestorage.ai/_next/static/chunks/4899-d89df949f2dbd5af.js' -o /tmp/x.js
+          python - <<'PY'
+          import re
+          s=open('/tmp/x.js',encoding='utf-8').read()
+          print('LEN',len(s))
+          for needle in ['https://','http://','/shares/','/objects/','download','files?maxResults','File API returned']:
+              print('\nNEEDLE',needle)
+              start=0
+              for _ in range(20):
+                  i=s.find(needle,start)
+                  if i<0: break
+                  print(s[max(0,i-900):min(len(s),i+1800)])
+                  print('\n---\n')
+                  start=i+len(needle)
+          PY
