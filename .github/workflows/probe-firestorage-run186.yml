@@ -14,11 +14,15 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          curl -L -sS -D /tmp/h.txt 'https://firestorage.ai/ja/f/I7FvCHLdbGB6' -o /tmp/page
-          cat /tmp/h.txt
-          file /tmp/page
-          wc -c /tmp/page
-          head -c 4000 /tmp/page | sed 's/</\n</g'
-          echo
-          grep -Eo 'https?://[^"'"'"' <>]+' /tmp/page | head -50 || true
-          grep -Eo 'href="[^"]+"' /tmp/page | head -100 || true
+          base='https://firestorage.ai'
+          page='/tmp/page'
+          curl -L -sS 'https://firestorage.ai/ja/f/I7FvCHLdbGB6' -o "$page"
+          chunk=$(grep -Eo '/_next/static/chunks/app/\(files\)/ja/f/page-[^"]+\.js' "$page" | head -1)
+          echo "CHUNK=$chunk"
+          curl -L -sS "$base$chunk" -o /tmp/chunk.js
+          wc -c /tmp/chunk.js
+          grep -Eo '["'\''\x60][^"'\''\x60]{0,160}(download|share|file|folder|api)[^"'\''\x60]{0,240}["'\''\x60]' /tmp/chunk.js | head -250 || true
+          echo '--- API-like paths ---'
+          grep -Eo '/api/[A-Za-z0-9_?&=./:$(){}-]+' /tmp/chunk.js | sort -u | head -200 || true
+          echo '--- endpoints around fetch ---'
+          grep -o '.\{0,180\}fetch(.\{0,360\}' /tmp/chunk.js | head -100 || true
