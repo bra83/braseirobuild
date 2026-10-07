@@ -1,0 +1,94 @@
+name: Forbidden Lands 3.3.13 R17 Hosted Clean Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-forbidden-lands-3.3.13-r17-hosted.yml'
+      - 'ci/forbidden-lands-r17-hosted-trigger.txt'
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_NAME: BRASEIRO_FORBIDDEN_LANDS_3.3.13_R17_SOURCE.zip
+  SOURCE_SHA256: 9b446bfa3a452e38b0c304cb3b02b200e2d7619dc8dc40bf37cdee4ea26120ca
+  FIRESTORAGE_API: https://api.firestorage.ai/dev/file/shares/LIUwBClF_5Tn
+  EXPECTED_SHA1: 9d0f1089b3fb6c225f1f59462750864e897c4d92
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Download exact R17 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE_ID=$(curl -fsSL "$FIRESTORAGE_API/files?maxResults=100" | jq -r --arg n "$SOURCE_NAME" '.files[] | select(.fileName==$n) | .fileId' | head -n1)
+          test -n "$FILE_ID"
+          URL=$(curl -fsSL -X POST "$FIRESTORAGE_API/files/$FILE_ID/download" | jq -r '.downloadUrl')
+          test -n "$URL"
+          curl -fL --retry 4 "$URL" -o source.zip
+          echo "$SOURCE_SHA256  source.zip" | sha256sum -c -
+          mkdir project
+          unzip -q source.zip -d project
+          test -f project/package.json
+          test -f project/android/app/build.gradle
+
+      - name: Verify R17 corrections
+        working-directory: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm run lint
+          npm run verify:action-dock
+          npm run verify:action-dock-14-turns
+          npm run verify:external-gemini-images
+          grep -Fq "style={{ aspectRatio: '16 / 9' }}" src/screens/AdventureScreenV3.tsx
+          grep -Fq "objectFit: 'contain'" src/screens/AdventureScreenV3.tsx
+          ! grep -F "scene.imageUrl" src/screens/AdventureScreenV3.tsx | grep -q 'object-cover'
+          grep -q 'android.intent.action.SEND' android/app/src/main/AndroidManifest.xml
+          grep -q 'android:mimeType="image/\*"' android/app/src/main/AndroidManifest.xml
+
+      - name: Sync and build Android
+        working-directory: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run android:sync
+          npm run verify:android
+          node scripts/run-gradle-task.mjs assembleDebug
+
+      - name: Validate installable APK
+        working-directory: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          test -f "$APK"
+          mkdir -p out
+          cp "$APK" out/BRASEIRO_FORBIDDEN_LANDS_3.3.13_R17_CLEAN.apk
+          BT=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)
+          "$BT/aapt" dump badging out/BRASEIRO_FORBIDDEN_LANDS_3.3.13_R17_CLEAN.apk | tee out/APK_BADGING.txt
+          grep -q "package: name='com.braseiro.forbiddenlands'" out/APK_BADGING.txt
+          grep -q "versionCode='303913'" out/APK_BADGING.txt
+          grep -q "versionName='3.3.13'" out/APK_BADGING.txt
+          "$BT/apksigner" verify --verbose --print-certs out/BRASEIRO_FORBIDDEN_LANDS_3.3.13_R17_CLEAN.apk | tee out/APK_SIGNATURE.txt
+          ACTUAL=$(grep -E 'certificate SHA-1 digest:' out/APK_SIGNATURE.txt | head -n1 | sed -E 's/.*digest:[[:space:]]*//' | tr -d ':[:space:]' | tr 'A-F' 'a-f')
+          test "$ACTUAL" = "$EXPECTED_SHA1"
+          sha256sum out/BRASEIRO_FORBIDDEN_LANDS_3.3.13_R17_CLEAN.apk | tee out/BRASEIRO_FORBIDDEN_LANDS_3.3.13_R17_CLEAN.apk.sha256
+          printf '%s\n'             'STATUS=PASS'             'SCENE_IMAGE_16_9_NO_CROP=PASS'             'CLEAN_GRADLE_BUILD=PASS'             'APK_SIGNER_VERIFY=PASS'             'PACKAGE=com.braseiro.forbiddenlands'             'VERSION_CODE=303913'             'VERSION_NAME=3.3.13'             "SIGNER_SHA1=$ACTUAL" > out/R17_CLEAN_PROOF.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.13_R17_CLEAN
+          path: project/out/*
+          retention-days: 30
