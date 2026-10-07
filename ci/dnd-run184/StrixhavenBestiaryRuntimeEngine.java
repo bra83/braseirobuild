@@ -81,7 +81,7 @@ public final class StrixhavenBestiaryRuntimeEngine {
         JSONObject report=new JSONObject();JSONArray failures=new JSONArray();int ok=0;
         for(E e:ALL)try{
             String source=sourceContext(c,e.name);
-            JSONObject raw=CreatureStatBlockCompiler.compile(source);
+            JSONObject input=new JSONObject().put("excerpt",source).put("rule_id",id(e.name)).put("book",SOURCE_BOOK).put("system","dnd5e").put("edition","5e");JSONArray compiled=CreatureStatBlockCompiler.compile(input);JSONObject raw=compiled.length()>0&&compiled.optJSONObject(0)!=null?compiled.optJSONObject(0):new JSONObject();
             raw.put("id",id(e.name)).put("name",e.name).put("source_book",SOURCE_BOOK).put("creature_type",e.type)
                .put("armor_class",e.ac).put("hit_points",e.hp).put("challenge_rating",e.cr)
                .put("source_locator","Chapter 7 • "+e.name).put("source_bound",true).put("full_statblock_claim",false)
