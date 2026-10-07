@@ -1,1 +1,1 @@
-trigger=2026-10-07-r22-empty-library-closure-1
+trigger=2026-10-07-r22-empty-library-closure-2
