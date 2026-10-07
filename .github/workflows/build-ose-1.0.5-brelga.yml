@@ -77,7 +77,7 @@ jobs:
           if ($gradle -notmatch 'versionName\s*=\s*"1\.0\.5"') { throw 'Expected versionName 1.0.5' }
 
           $js=Get-Content "$root\web-ui-p1\p1.js" -Raw
-          if ($js -match 'data-scene-image|data-generate-character|data-generate-npc|data-photo-character|data-photo-npc') { throw 'Text-first UI policy regressed' }
+          if ($js -match 'data-scene-image|data-generate-character|data-generate-npc|data-photo-character|data-photo-npc|tokens_compactos/') { throw 'Text-first UI policy regressed' }
           foreach($required in @('hexes-runtime/','equipment-icons/','data-photo-item')) {
             if (-not $js.Contains($required)) { throw "Required visual scope missing: $required" }
           }
