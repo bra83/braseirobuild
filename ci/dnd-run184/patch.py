@@ -728,8 +728,8 @@ old='''        final String requestedText=userText==null?"":userText;'''
 new='''        final String requestedText=augmentStrixhavenOfficialPrompt(mode,inputChannel,userText==null?"":userText);'''
 t=once(t,old,new,"run184-prompt-augmentation")
 
-old='''        lastNarration=AtlasScenePositionReconciler.repairNarration(lastNarration,env);'''
-new='''        lastNarration=AtlasScenePositionReconciler.repairNarration(lastNarration,env);if(isStrixhavenAdventure()){processStrixhavenOfficialProgress(env,lastNarration);lastNarration=StrixhavenOfficialCampaignRuntime.stripMarkers(lastNarration);}'''
+old='''lastNarration=AtlasScenePositionReconciler.repairNarration(lastNarration,env);'''
+new='''lastNarration=AtlasScenePositionReconciler.repairNarration(lastNarration,env);if(isStrixhavenAdventure()){processStrixhavenOfficialProgress(env,lastNarration);lastNarration=StrixhavenOfficialCampaignRuntime.stripMarkers(lastNarration);}'''
 t=once(t,old,new,"run184-progress-handler")
 
 anchor='''    private void showStrixhavenSession(){'''
