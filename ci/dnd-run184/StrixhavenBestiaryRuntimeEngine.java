@@ -55,7 +55,7 @@ public final class StrixhavenBestiaryRuntimeEngine {
     private static String[] aliases(E e){
         if(e==null)return new String[0];
         String n=e.name;
-        if(n.contains("Professor of "))return new String[]{n,n.replace("Professor of ","Prof. of "),n.replace("Professor of ","Prof, of ")};
+        if(n.contains("Professor of ")){String x="Professor of ";return new String[]{n,n.replace(x,"Prof. of "),n.replace(x,"Prof, of ")};}
         return new String[]{n};
     }
     public static String sourceContext(Context c,String name){
