@@ -876,6 +876,8 @@ checks={
  "strixhaven_progress_handler":"processStrixhavenOfficialProgress(env,lastNarration)" in read("MainActivity.java"),
  "strixhaven_prompt_augmentation":"augmentStrixhavenOfficialPrompt(mode,inputChannel" in read("MainActivity.java"),
  "strixhaven_milestone":"applyCharacterMilestoneLevelFixedHp" in read("AppDb.java"),
+ "homebrew_validator_authority":"HomebrewClassRuntimeEngine.supports(baseClassName)" in read("CharacterRulesValidator.java"),
+ "homebrew_generator_authority":"boolean compiledHomebrew=HomebrewClassRuntimeEngine.supports(c)" in read("CharacterSheetGenerator.java"),
 }
 print(json.dumps(checks,ensure_ascii=False,indent=2))
 bad=[k for k,v in checks.items() if not v]
