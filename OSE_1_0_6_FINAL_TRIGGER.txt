@@ -1,0 +1,4 @@
+BRASEIRO OSE 1.0.6 FINAL
+source=latest-main
+versionCode=7
+required=rag_free,character_lifecycle,living_world,npc_autonomy,weather,wilderness_rolls,ration_deficit,fog,scene_gemini,kokoro,android_tests,stable_signing
