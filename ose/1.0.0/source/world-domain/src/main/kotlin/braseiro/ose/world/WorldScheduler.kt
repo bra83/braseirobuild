@@ -37,7 +37,7 @@ object WorldEventScheduler {
         val lastPulse=toTurn/PULSE_TURNS
         if(lastPulse>=firstPulse){
             for(pulse in firstPulse..lastPulse){
-                npcs=advanceNpcBackground(npcs,pulse)
+                npcs=advanceNpcBackground(npcs,game.settlement,pulse)
                 living=living.copy(
                     lastProcessedTurn=pulse*PULSE_TURNS,
                     pulseCount=living.pulseCount+1
@@ -63,7 +63,11 @@ object WorldEventScheduler {
         ).canonical()
     }
 
-    private fun advanceNpcBackground(npcs:Map<String,NpcSnapshot>,pulse:Long):Map<String,NpcSnapshot> {
+    private fun advanceNpcBackground(
+        npcs:Map<String,NpcSnapshot>,
+        settlement:SettlementSnapshot?,
+        pulse:Long
+    ):Map<String,NpcSnapshot> {
         val day=(pulse*PULSE_TURNS)/DAY_TURNS+1
         val phase=when((pulse%4).toInt()){
             0->"NOITE"
@@ -71,10 +75,31 @@ object WorldEventScheduler {
             2->"TARDE"
             else->"ENTARDECER"
         }
+        val anchors=settlement?.locations?.map { it.locationId }.orEmpty().distinct().sorted()
         return npcs.mapValues { (_,npc) ->
             val routineFlag="ROUTINE_$phase"
+            val current=npc.spatialRef
+            val moved=if(
+                current is SpatialRef.Settlement &&
+                settlement!=null &&
+                current.spatialEntityId==settlement.settlementId &&
+                anchors.size>1
+            ){
+                val currentIndex=anchors.indexOf(current.anchorId).takeIf { it>=0 } ?: 0
+                val maxOffset=anchors.size-1
+                val offset=1+(stableHash("${npc.npcId}|$pulse|$phase")%maxOffset.toLong()).toInt()
+                val nextAnchor=anchors[(currentIndex+offset)%anchors.size]
+                val next=SpatialRef.Settlement(settlement.settlementId,nextAnchor)
+                Triple(next,"${current.anchorId}->$nextAnchor",nextAnchor)
+            } else null
+            val movementEvent=moved?.let { "NPC_MOVE:$pulse:${it.second}" }
             npc.copy(
-                reactionHistory=(npc.reactionHistory+"WORLD_PULSE:$pulse:$routineFlag").takeLast(80),
+                locationRef=moved?.let { "${it.first.spatialEntityId}:${it.third}" } ?: npc.locationRef,
+                spatialRef=moved?.first ?: npc.spatialRef,
+                reactionHistory=(npc.reactionHistory+listOfNotNull(
+                    "WORLD_PULSE:$pulse:$routineFlag",
+                    movementEvent
+                )).takeLast(80),
                 memorySummaries=(npc.memorySummaries+"Rotina autônoma: $phase do dia $day.").takeLast(20),
                 consequenceFlags=(npc.consequenceFlags.filterNot{it.startsWith("ROUTINE_")}+routineFlag+"LIVING_WORLD_ACTIVE").toSet()
             )
