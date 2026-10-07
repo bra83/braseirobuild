@@ -1,0 +1,23 @@
+name: Inspect DnD RUN183 Statblock Hooks
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-run183-statblock-hooks.yml']
+  workflow_dispatch:
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect canonical statblock APIs
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $p='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
+          foreach($n in @('CompiledStatblockEngine.java','CreatureStatBlockCompiler.java','AuthorizedBestiaryScopeEngine.java','StatblockCombatRuntimeEngine.java','EncounterReadinessEngine.java')){
+            "===== $n ====="
+            Get-Content (Join-Path $p $n)
+          }
+          "===== MAIN HOOKS ====="
+          Select-String -Path (Join-Path $p 'MainActivity.java') -Pattern 'CompiledStatblock|CreatureStatBlock|EncounterReadiness|sendAi|buildAi|systemPrompt|masterInstruction' -Context 8,25 | ForEach-Object {$_.ToString()}
