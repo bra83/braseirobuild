@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/build-dnd-run185-strixhaven-final-brelga.yml'
+      - '.github/workflows/build-dnd-run185-character-authority-brelga.yml'
       - 'ci/dnd-run185/**'
   workflow_dispatch:
 
