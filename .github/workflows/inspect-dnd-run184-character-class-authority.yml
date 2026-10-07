@@ -1,0 +1,35 @@
+name: Inspect DnD RUN184 Character Class Authority
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-run184-character-class-authority.yml']
+  workflow_dispatch:
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect exact RUN184 character authority
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $src='C:\DND181\extract\dnd_work'
+          $dst='C:\DND185_CLASS_INSPECT\work'
+          Remove-Item 'C:\DND185_CLASS_INSPECT' -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path 'C:\DND185_CLASS_INSPECT' | Out-Null
+          robocopy $src $dst /MIR /R:2 /W:1 /XD ".gradle" "android\app\build" "android\build" | Out-Null
+          if($LASTEXITCODE -gt 7){throw "ROBOCOPY_FAILED_$LASTEXITCODE"}
+          $global:LASTEXITCODE=0
+          python "$env:GITHUB_WORKSPACE\ci\dnd-run184\patch.py" "$dst"
+          $p="$dst\android\app\src\main\java\com\braseiro\dnd5e"
+          foreach($n in @('CharacterSheetGenerator.java','CharacterRulesValidator.java','CharacterOptionCatalogEngine.java','HomebrewClassRuntimeEngine.java','MainActivity.java')){
+            $f=Join-Path $p $n
+            if(!(Test-Path $f)){continue}
+            "===== $n ====="
+            if($n -eq 'MainActivity.java'){
+              Select-String -Path $f -Pattern 'randomComplete\(|selectableClasses|collectCharacterSheet|validateCharacter|saveCharacter|class_name|subclass' -Context 12,50 | ForEach-Object {$_.ToString()}
+            }else{
+              Select-String -Path $f -Pattern 'selectableClasses|allSupplementClasses|lookupClass|validateClass|class_name|knownClass|Necromante|necrom|supports\(|CLASSES|randomComplete|chooseBalanced' -Context 12,60 | ForEach-Object {$_.ToString()}
+            }
+          }
