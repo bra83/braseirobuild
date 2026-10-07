@@ -21,6 +21,10 @@ jobs:
           echo "CHUNK=$chunk"
           curl -L -sS "$base$chunk" -o /tmp/chunk.js
           wc -c /tmp/chunk.js
+          cat /tmp/chunk.js
+          echo
+          echo '--- all script srcs ---'
+          grep -Eo 'src="[^"]+"' "$page" | head -100
           grep -Eo '["'\''\x60][^"'\''\x60]{0,160}(download|share|file|folder|api)[^"'\''\x60]{0,240}["'\''\x60]' /tmp/chunk.js | head -250 || true
           echo '--- API-like paths ---'
           grep -Eo '/api/[A-Za-z0-9_?&=./:$(){}-]+' /tmp/chunk.js | sort -u | head -200 || true
