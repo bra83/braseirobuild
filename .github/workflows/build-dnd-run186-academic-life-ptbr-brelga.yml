@@ -57,6 +57,28 @@ jobs:
           }
 
 
+
+      - name: Reclaim DnD build disk safely
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          Write-Host "Disk before cleanup:"
+          Get-PSDrive C | Format-List Used,Free
+          $targets=@(
+            'C:\DND182','C:\DND183','C:\DND184','C:\DND185','C:\DND185_AUDIT',
+            'C:\DND186'
+          )
+          foreach($t in $targets){
+            if(Test-Path $t){
+              Write-Host "Removing temporary build directory $t"
+              Remove-Item $t -Recurse -Force -ErrorAction SilentlyContinue
+            }
+          }
+          $canonical='C:\DND181\extract\dnd_work'
+          if(!(Test-Path "$canonical\android\gradlew.bat")){throw 'CANONICAL_DND181_DAMAGED_OR_MISSING'}
+          Write-Host "Disk after cleanup:"
+          Get-PSDrive C | Format-List Used,Free
+
       - name: Clone canonical RUN181 workspace
         id: source
         shell: powershell
