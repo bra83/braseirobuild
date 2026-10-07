@@ -1,0 +1,40 @@
+name: Audit DnD RUN182 Strixhaven Completeness
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/audit-dnd-run182-strixhaven.yml']
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit exact RUN182 Strixhaven integration
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $src='C:\DND181\extract\dnd_work'
+          $dst='C:\DND182_STRIX_AUDIT\work'
+          Remove-Item 'C:\DND182_STRIX_AUDIT' -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path 'C:\DND182_STRIX_AUDIT' | Out-Null
+          robocopy $src $dst /MIR /R:2 /W:1 /XD ".gradle" "android\app\build" "android\build" | Out-Null
+          if($LASTEXITCODE -gt 7){throw "ROBOCOPY_FAILED_$LASTEXITCODE"}
+          $global:LASTEXITCODE=0
+          python "$env:GITHUB_WORKSPACE\ci\dnd-run182\patch.py" "$dst"
+          $root="$dst\android\app\src\main"
+          $java="$root\java\com\braseiro\dnd5e"
+          $assets="$root\assets"
+          "=== STRIXHAVEN FILES ==="
+          Get-ChildItem $java -File | Where-Object {$_.Name -match 'Strixhaven'} | ForEach-Object {$_.Name}
+          "=== STRIXHAVEN ASSETS ==="
+          if(Test-Path "$assets\strixhaven"){Get-ChildItem "$assets\strixhaven" -Recurse -File | ForEach-Object {$_.FullName.Replace($assets+'\','')}}
+          "=== MAINACTIVITY STRIXHAVEN REFERENCES ==="
+          Select-String -Path "$java\MainActivity.java" -Pattern 'Strixhaven|strixhaven|academic|extracurricular|exam|relationship|job|college|semester|student dice|beloved|map' -AllMatches | ForEach-Object {"$($_.LineNumber): $($_.Line.Trim())"}
+          "=== STRIXHAVEN CLASS CONTENT ==="
+          foreach($f in Get-ChildItem $java -File | Where-Object {$_.Name -match 'Strixhaven'}){
+            "===== $($f.Name) ====="
+            Get-Content $f.FullName
+          }
+          "=== TESTS ==="
+          Get-ChildItem "$dst\android\app\src\test" -Recurse -File -ErrorAction SilentlyContinue | Where-Object {$_.Name -match 'Strixhaven' -or (Select-String -Path $_.FullName -Pattern 'Strixhaven' -Quiet)} | ForEach-Object {$_.FullName.Replace($dst+'\','')}
