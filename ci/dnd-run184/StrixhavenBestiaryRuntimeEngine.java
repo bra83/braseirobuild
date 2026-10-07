@@ -103,7 +103,7 @@ public final class StrixhavenBestiaryRuntimeEngine {
     }
     public static String sourceForMentions(Context c,String text,int maxEntries,int maxChars){
         String n=norm(text);StringBuilder out=new StringBuilder();int count=0;
-        for(E e:ALL){if(count>=maxEntries||out.length()>=maxChars)break;String en=norm(e.name);if(n.contains(en)||n.contains(en.replace(" professor of "," prof of "))){
+        for(E e:ALL){if(count>=maxEntries||out.length()>=maxChars)break;String en=norm(e.name);if(n.contains(en)||n.contains(en.replaceAll(" professor of "," prof of "))){
             String src=sourceContext(c,e.name);if(src.length()==0)continue;int room=Math.max(0,maxChars-out.length());if(room==0)break;
             out.append("\n--- ").append(e.name).append(" | statblock_id=").append(id(e.name)).append(" | CR ").append(e.cr).append(" ---\n");
             out.append(src.substring(0,Math.min(room,Math.min(src.length(),5200))));count++;
