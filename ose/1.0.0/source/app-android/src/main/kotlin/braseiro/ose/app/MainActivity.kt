@@ -208,6 +208,7 @@ class MainActivity : Activity() {
             }
             is CampaignLoadResult.Loaded -> {
                 var repaired = ensureWorldBootstrap(loaded.envelope)
+                repaired = repairCanonicalResources(repaired)
                 repaired = repairLegacyPresentation(repaired)
                 if (repaired != loaded.envelope) {
                     repository.commit(CAMPAIGN_ID, StateTransition("runtime-repair-v2", repaired.campaignState))
@@ -264,6 +265,30 @@ class MainActivity : Activity() {
         ).canonical()
         val knowledge = if (envelope.campaignState.playerKnowledge.knownFactIds.isEmpty()) fresh.playerKnowledge else envelope.campaignState.playerKnowledge
         return envelope.copy(campaignState = envelope.campaignState.copy(game = repairedGame, playerKnowledge = knowledge))
+    }
+
+    private fun repairCanonicalResources(envelope: CampaignEnvelope): CampaignEnvelope {
+        val game = envelope.campaignState.game
+        val items = game.inventory.items.values.filter { it.quantity > 0 && it.ownerId in envelope.campaignState.party.characterIds }
+        val rations = items.filter { it.kind == InventoryItemKind.FOOD }.sumOf { it.quantity }
+        val torches = items.filter { it.lightSourceKind == LightSourceKind.TORCH }.sumOf { it.quantity }
+        val gold = items.filter { it.kind == InventoryItemKind.COIN }.sumOf { it.quantity }
+        val old = envelope.campaignState.resources
+        val preserved = old.resourceFacts.filterNot {
+            it.startsWith("rations:") || it.startsWith("ration:") || it.startsWith("torch:") ||
+                it.startsWith("gold:") || it.startsWith("movement:") ||
+                it.startsWith("ration_deficit:") || it.startsWith("foodless_days:") ||
+                it.startsWith("last_rations_consumed:")
+        }
+        val repaired = ResourceState(preserved + listOf(
+            "rations:$rations",
+            "torch:$torches",
+            "gold:$gold",
+            "movement:${game.expedition.baseMoveMeters}",
+            "ration_deficit:${game.expedition.lastRationDeficit}",
+            "foodless_days:${game.expedition.foodlessDays}"
+        )).canonical()
+        return if (repaired == old) envelope else envelope.copy(campaignState = envelope.campaignState.copy(resources = repaired))
     }
 
     private fun repairLegacyPresentation(envelope: CampaignEnvelope): CampaignEnvelope {
@@ -533,14 +558,14 @@ class MainActivity : Activity() {
                                 session = SessionSnapshot(phase = nextPhase),
                                 revision = oldGame.revision + 1
                             ).canonical()
-                            val fresh = current.copy(
+                            val fresh = repairCanonicalResources(current.copy(
                                 createdAtMetadata = "reset-${System.currentTimeMillis()}",
                                 campaignState = base.copy(
                                     party = oldState.party,
-                                    resources = oldState.resources,
+                                    resources = ResourceState(),
                                     game = nextGame
                                 )
-                            )
+                            ))
                             repository.replace(fresh)
                             val persisted = session.loadSession(CAMPAIGN_ID)
                             send(JSONObject().put("type","ResetAdventureResult").put("payload",JSONObject()
