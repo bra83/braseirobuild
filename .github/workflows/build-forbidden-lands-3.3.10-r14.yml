@@ -17,8 +17,8 @@ concurrency:
 env:
   SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.10_R14_CORRECOES_SOURCE_V2.zip"
   SOURCE_BYTES: "38945986"
-  SOURCE_SHA256: "1e31503d18399916f99bc8382f7afe342302fe8368f17ca6a40856d4e10911ee"
-  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/CSBcuoeIt7aY"
+  SOURCE_SHA256: "ba75a0cc3dee9a518ac7b4ef41f2772998b7b6893501ef5022eb8dd7cc2fa67e"
+  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/KLvP2l29LU07"
   BUILD_ROOT: "D:\\brelga-forbidden-lands-3.3.10-r14"
   APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.10_R14.apk"
   TAG: "forbidden-lands-3.3.10-r14"
