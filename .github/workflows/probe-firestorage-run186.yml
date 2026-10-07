@@ -14,18 +14,12 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          base='https://firestorage.ai'
-          page='/tmp/page'
-          curl -L -sS 'https://firestorage.ai/ja/f/I7FvCHLdbGB6' -o "$page"
-          mkdir -p /tmp/chunks
-          grep -Eo 'src="[^"]+\.js"' "$page" | sed 's/^src="//;s/"$//' | sort -u > /tmp/scripts
-          cat /tmp/scripts
-          n=0
-          while read -r src; do
-            n=$((n+1))
-            out="/tmp/chunks/$n.js"
-            curl -L -sS "$base$src" -o "$out"
-            echo "=== $src $(wc -c < "$out") bytes ==="
-            grep -Eo '/api/[A-Za-z0-9_?&=./:$(){}-]+' "$out" | sort -u | head -200 || true
-            grep -Eo '.{0,180}(download|shareId|publicId|signed|presign|fileName|files/).{0,280}' "$out" | head -100 || true
-          done < /tmp/scripts
+          u='https://firestorage.ai/_next/static/chunks/4899-d89df949f2dbd5af.js'
+          curl -L -sS "$u" -o /tmp/x.js
+          wc -c /tmp/x.js
+          echo '--- URLs ---'
+          grep -Eo 'https?[^"'\''` ]+' /tmp/x.js | sort -u | head -100 || true
+          echo '--- f assignments/context ---'
+          grep -Eo '.{0,300}(apiBase|API|let f=|const f=|f=.{0,120}shares/).{0,500}' /tmp/x.js | head -100 || true
+          echo '--- shares context ---'
+          grep -Eo '.{0,500}/shares/.{0,700}' /tmp/x.js | head -60 || true
