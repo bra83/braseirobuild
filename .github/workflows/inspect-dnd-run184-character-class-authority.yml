@@ -33,3 +33,5 @@ jobs:
               Select-String -Path $f -Pattern 'selectableClasses|allSupplementClasses|lookupClass|validateClass|class_name|knownClass|Necromante|necrom|supports\(|CLASSES|randomComplete|chooseBalanced' -Context 12,60 | ForEach-Object {$_.ToString()}
             }
           }
+
+# trigger: 2026-10-07-class-bug
