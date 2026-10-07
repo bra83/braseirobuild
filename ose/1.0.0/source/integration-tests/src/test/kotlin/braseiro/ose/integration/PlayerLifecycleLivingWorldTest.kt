@@ -188,6 +188,46 @@ class PlayerLifecycleLivingWorldTest {
         assertTrue(state.resources.resourceFacts.any { it.startsWith("ration_deficit:") && !it.endsWith(":0") })
     }
 
+
+    @Test
+    fun `wilderness travel exposes authoritative checks and persists zero-ration deficit`() {
+        val generated=HexWorldGeneratorV1.generate("world-travel",4321u,RuleProfile.OSE_CLASSIC_FANTASY)
+        val world=HexKnowledge.reveal(generated,3,2,0)
+        val base=Fixtures.campaign("travel-checks",RuleProfile.OSE_CLASSIC_FANTASY)
+        val envelope=base.copy(campaignState=base.campaignState.copy(
+            party=PartyState(listOf("hero")),
+            time=TimeState(),
+            position=PositionState(SpatialRef.Hex("world-travel",3,2)),
+            resources=ResourceState(listOf("rations:0","torch:0")),
+            playerKnowledge=PlayerKnowledgeState(listOf("hex:3,2")),
+            game=GameExtensions(
+                session=SessionSnapshot(phase="ACTIVE"),
+                hexWorld=world,
+                rngRootSeed="42"
+            )
+        ))
+        val repo=MemoryRepo()
+        repo.create(envelope)
+        val session=SessionEngine(repo,RulesRefereeBoundary(),DeterministicBarbaraSupervisor())
+        val result=session.submitPlayerReaction(
+            envelope.campaignId,
+            "travel-east",
+            "Viajamos um dia para leste.",
+            "WILD_TRAVEL_DAY:E"
+        )
+        assertTrue(result.mechanicalMutation)
+        assertTrue(result.feedback.contains("encontro d6="))
+        assertTrue(result.feedback.contains("déficit de rações=1"))
+        val state=assertIs<CampaignLoadResult.Loaded>(repo.load(envelope.campaignId)).envelope.campaignState
+        assertEquals(1,state.time.days)
+        assertEquals(144,state.time.turns)
+        assertEquals(1,state.game.expedition.lastRationDeficit)
+        assertEquals(1,state.game.expedition.foodlessDays)
+        assertTrue(state.resources.resourceFacts.contains("ration_deficit:1"))
+        assertTrue(state.game.hexWorld!!.cells.count { it.known } > 1)
+        assertNotEquals(SpatialRef.Hex("world-travel",3,2),state.position.primary)
+    }
+
     @Test
     fun `fresh hexcrawl reveals only the starting hex`() {
         val world=HexWorldGeneratorV1.generate("world-fog",1234u,RuleProfile.OSE_CLASSIC_FANTASY)
