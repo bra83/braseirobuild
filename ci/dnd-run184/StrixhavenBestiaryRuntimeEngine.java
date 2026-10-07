@@ -93,7 +93,7 @@ public final class StrixhavenBestiaryRuntimeEngine {
             if(raw.optJSONArray("traits")==null)raw.put("traits",new JSONArray());
             raw.put("mechanical_basis",new JSONObject().put("source_type","compiled_statblock").put("content_kind","statblock")
                 .put("content_name",id(e.name)).put("source_book",SOURCE_BOOK).put("source_locator","Chapter 7 • "+e.name));
-            JSONObject r=CompiledStatblockEngine.registerAuthorized(raw);if(r.optBoolean("registered",false))ok++;else failures.put(e.name+":"+r.toString());
+            CompiledStatblockEngine.registerAuthorized(raw);if(CompiledStatblockEngine.has(id(e.name)))ok++;else failures.put(e.name+":registration_missing");
         }catch(Exception ex){failures.put(e.name+":"+String.valueOf(ex.getMessage()));}
         try{report.put("expected",ALL.length).put("registered",ok).put("failures",failures).put("source_bound",true).put("rag_required",false);}catch(Exception ignored){}
         return report;
