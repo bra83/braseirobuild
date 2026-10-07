@@ -17,16 +17,15 @@ jobs:
           base='https://firestorage.ai'
           page='/tmp/page'
           curl -L -sS 'https://firestorage.ai/ja/f/I7FvCHLdbGB6' -o "$page"
-          chunk=$(grep -Eo '/_next/static/chunks/app/\(files\)/ja/f/page-[^"]+\.js' "$page" | head -1)
-          echo "CHUNK=$chunk"
-          curl -L -sS "$base$chunk" -o /tmp/chunk.js
-          wc -c /tmp/chunk.js
-          cat /tmp/chunk.js
-          echo
-          echo '--- all script srcs ---'
-          grep -Eo 'src="[^"]+"' "$page" | head -100
-          grep -Eo '["'\''\x60][^"'\''\x60]{0,160}(download|share|file|folder|api)[^"'\''\x60]{0,240}["'\''\x60]' /tmp/chunk.js | head -250 || true
-          echo '--- API-like paths ---'
-          grep -Eo '/api/[A-Za-z0-9_?&=./:$(){}-]+' /tmp/chunk.js | sort -u | head -200 || true
-          echo '--- endpoints around fetch ---'
-          grep -o '.\{0,180\}fetch(.\{0,360\}' /tmp/chunk.js | head -100 || true
+          mkdir -p /tmp/chunks
+          grep -Eo 'src="[^"]+\.js"' "$page" | sed 's/^src="//;s/"$//' | sort -u > /tmp/scripts
+          cat /tmp/scripts
+          n=0
+          while read -r src; do
+            n=$((n+1))
+            out="/tmp/chunks/$n.js"
+            curl -L -sS "$base$src" -o "$out"
+            echo "=== $src $(wc -c < "$out") bytes ==="
+            grep -Eo '/api/[A-Za-z0-9_?&=./:$(){}-]+' "$out" | sort -u | head -200 || true
+            grep -Eo '.{0,180}(download|shareId|publicId|signed|presign|fileName|files/).{0,280}' "$out" | head -100 || true
+          done < /tmp/scripts
