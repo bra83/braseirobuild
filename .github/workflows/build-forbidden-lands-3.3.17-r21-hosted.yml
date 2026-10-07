@@ -1,0 +1,117 @@
+name: Forbidden Lands 3.3.17 R21 Deep RAG-Off Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-forbidden-lands-3.3.17-r21-hosted.yml'
+      - 'ci/forbidden-lands-r21-trigger.txt'
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_NAME: BRASEIRO_FORBIDDEN_LANDS_3.3.17_R21_SOURCE.zip
+  SOURCE_SHA256: 21dbd33e2af573b0a25c1e6f2acb03933197cf48b1d1ad0a22bd2f804bad6f8a
+  FIRESTORAGE_API: https://api.firestorage.ai/dev/file/shares/H0yLGN7pFV8L
+  EXPECTED_SHA1: 9d0f1089b3fb6c225f1f59462750864e897c4d92
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Download exact R21 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE_ID=$(curl -fsSL "$FIRESTORAGE_API/files?maxResults=100" | jq -r --arg n "$SOURCE_NAME" '.files[] | select(.fileName==$n) | .fileId' | head -n1)
+          test -n "$FILE_ID"
+          URL=$(curl -fsSL -X POST "$FIRESTORAGE_API/files/$FILE_ID/download" | jq -r '.downloadUrl')
+          test -n "$URL"
+          curl -fL --retry 4 "$URL" -o source.zip
+          echo "$SOURCE_SHA256  source.zip" | sha256sum -c -
+          mkdir project
+          unzip -q source.zip -d project
+
+      - name: Deep RAG-off and rules gates
+        working-directory: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm run lint
+          npm run verify:rag-off-runtime-v2
+          npm run verify:action-dock-14-turns
+          npm run verify:character-creation
+          npm run verify:journey-full
+          npm run verify:magic-full
+          npm run verify:combat-closure
+          npm run verify:strongholds-full
+          npm run verify:ravens-purge-runtime
+          npm run verify:spire-quetzel-runtime
+          npm run verify:runtime-integration-v3
+          npm run verify:runtime-playthroughs-v3
+          npm run verify:human-master-runtime
+          ! grep -Eq "Reindexe os manuais|fonte dos manuais|regra ausente do contexto recuperado|regra correspondente não está confirmada nas fontes desta cena" src/screens/AdventureScreenV3.tsx src/services/MasterOrchestratorService.ts src/services/NarrativeDirectorService.ts
+          ! grep -Eq "Biblioteca de regras vazia|mecânica sem fonte deve ficar bloqueada|importar/sincronizar os manuais" public/assets/braseiro-master-support.js
+          grep -Fq "Motor local ativo · regras incorporadas" public/assets/braseiro-master-support.js
+          grep -Fq "Módulos oficiais incorporados" src/components/CampaignDirectorPanel.tsx
+          grep -Fq "style={{ aspectRatio: '16 / 9' }}" src/screens/AdventureScreenV3.tsx
+          grep -Fq "objectFit: 'contain'" src/screens/AdventureScreenV3.tsx
+
+      - name: Sync and build Android
+        working-directory: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run android:sync
+          npm run verify:android
+          node scripts/run-gradle-task.mjs assembleDebug
+
+      - name: Validate APK
+        working-directory: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          test -f "$APK"
+          mkdir -p out
+          cp "$APK" out/BRASEIRO_FORBIDDEN_LANDS_3.3.17_R21_CLEAN.apk
+          BT=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)
+          "$BT/aapt" dump badging out/BRASEIRO_FORBIDDEN_LANDS_3.3.17_R21_CLEAN.apk | tee out/APK_BADGING.txt
+          grep -q "package: name='com.braseiro.forbiddenlands'" out/APK_BADGING.txt
+          grep -q "versionCode='303917'" out/APK_BADGING.txt
+          grep -q "versionName='3.3.17'" out/APK_BADGING.txt
+          "$BT/apksigner" verify --verbose --print-certs out/BRASEIRO_FORBIDDEN_LANDS_3.3.17_R21_CLEAN.apk | tee out/APK_SIGNATURE.txt
+          ACTUAL=$(grep -E 'certificate SHA-1 digest:' out/APK_SIGNATURE.txt | head -n1 | sed -E 's/.*digest:[[:space:]]*//' | tr -d ':[:space:]' | tr 'A-F' 'a-f')
+          test "$ACTUAL" = "$EXPECTED_SHA1"
+          sha256sum out/BRASEIRO_FORBIDDEN_LANDS_3.3.17_R21_CLEAN.apk | tee out/BRASEIRO_FORBIDDEN_LANDS_3.3.17_R21_CLEAN.apk.sha256
+          {
+            echo 'STATUS=PASS'
+            echo 'GAMEPLAY_RAG_OFF_V3=PASS'
+            echo 'SOURCE_GATING_REMOVED=PASS'
+            echo 'MASTER_SUPPORT_RAG_OFF=PASS'
+            echo 'DIRECTOR_EMBEDDED_MODULES=PASS'
+            echo 'CHARACTER_PREVIEW_RAG_OFF=PASS'
+            echo 'EMPTY_LIBRARY_RULES_GATES=PASS'
+            echo 'SCENE_IMAGE_16_9_NO_CROP=PASS'
+            echo 'GEMINI_SHARE_IMPORT_PRESERVED=PASS'
+            echo 'CLEAN_GRADLE_BUILD=PASS'
+            echo 'APK_SIGNER_VERIFY=PASS'
+            echo 'VERSION_CODE=303917'
+            echo 'VERSION_NAME=3.3.17'
+            echo "SIGNER_SHA1=$ACTUAL"
+          } > out/R21_PROOF.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.17_R21_CLEAN
+          path: project/out/*
+          retention-days: 30
