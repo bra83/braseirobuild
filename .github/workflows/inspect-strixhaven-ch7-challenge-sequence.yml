@@ -1,0 +1,27 @@
+name: Inspect Strixhaven Ch7 Challenge Sequence
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-strixhaven-ch7-challenge-sequence.yml']
+  workflow_dispatch:
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect challenge sequence
+        shell: powershell
+        run: |
+          @'
+          import re,os,json
+          from pathlib import Path
+          p=Path(os.environ["GITHUB_WORKSPACE"])/"ci"/"dnd-run184"/"strixhaven_ch7_runtime_source.txt"
+          lines=p.read_text(encoding="utf-8").replace("\x02","").splitlines()
+          rows=[]
+          for i,line in enumerate(lines):
+              m=re.search(r"Challenge\s+([0-9/]+)",line,re.I)
+              if m: rows.append({"line":i+1,"cr":m.group(1),"text":line.strip()})
+          print("COUNT",len(rows))
+          print(json.dumps(rows,indent=2))
+          '@ | python -
