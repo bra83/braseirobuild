@@ -207,7 +207,7 @@ public final class StrixhavenCompiledCampaignEngine {
         JSONObject o=new JSONObject();try{
             o.put("campaign_years",4).put("campaign_start_level",1).put("campaign_end_level",10)
              .put("canonical_exams",10).put("fellow_students",18)
-             .put("runtime_rag_required",false)
+             .put("compiled_block_rag_required",false).put("full_book_closure",false)
              .put("source","Strixhaven: A Curriculum of Chaos");
         }catch(Exception ignored){}return o;
     }
