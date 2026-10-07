@@ -69,7 +69,7 @@ jobs:
           ! grep -RIn --exclude-dir=build -E 'Android/data|model\.onnx|voices\.bin' "$ROOT/tts-android" "$ROOT/app-android/src/main/kotlin"
           echo "Installed-engine Kokoro boundary: PASS"
 
-      - name: Gemini image handoff static gate
+      - name: Presentation media and text-first UI gate
         run: |
           set -euo pipefail
           ROOT=ose/1.0.0/source
@@ -82,10 +82,15 @@ jobs:
           grep -q 'rememberExternalImageTarget' "$MAIN"
           grep -q 'consumeExternalImageTarget' "$MAIN"
           grep -q 'SCENE, CHARACTER, NPC, ITEM' "$MEDIA"
-          grep -q 'data-generate-character' "$JS"
-          grep -q 'data-generate-npc' "$JS"
-          grep -q 'data-photo-npc' "$JS"
-          echo "Scene/hero/NPC media handoff: PASS"
+          grep -q 'data-photo-item' "$JS"
+          grep -q 'equipment-icons/' "$JS"
+          grep -q 'hexes-runtime/' "$JS"
+          ! grep -q 'data-scene-image' "$JS"
+          ! grep -q 'data-generate-character' "$JS"
+          ! grep -q 'data-generate-npc' "$JS"
+          ! grep -q 'data-photo-character' "$JS"
+          ! grep -q 'data-photo-npc' "$JS"
+          echo "Text-first UI with map/equipment imagery and dormant portrait backend: PASS"
 
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v4
@@ -120,7 +125,7 @@ jobs:
             echo "## OSE RAG-free runtime validation"
             echo "- Mechanics core has no runtime dependency on rag-source-registry."
             echo "- Android TTS is installed-engine based and Kokoro/Sherpa-aware."
-            echo "- Scene, hero and NPC Gemini image handoff is wired."
+            echo "- Primary UI is text-first; map/equipment imagery remains enabled and portrait backend stays dormant."
             echo "- JVM tests and Android Kotlin compile passed."
             echo "- No APK was assembled by this validation workflow."
           } >> "$GITHUB_STEP_SUMMARY"
