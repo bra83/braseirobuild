@@ -29,6 +29,24 @@ jobs:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 240
     steps:
+      - name: Record R14 run start
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $repo=$env:GITHUB_REPOSITORY
+          $path='ci/forbidden-lands-r14/latest.txt'
+          $headers=@{ Authorization="Bearer $env:GITHUB_TOKEN"; Accept='application/vnd.github+json'; 'X-GitHub-Api-Version'='2022-11-28'; 'User-Agent'='BRELGA-FL-R14-STATUS' }
+          $text=@("RUN_ID=$env:GITHUB_RUN_ID","RUN_ATTEMPT=$env:GITHUB_RUN_ATTEMPT","STATUS=running","SHA=$env:GITHUB_SHA","UPDATED_AT=$([DateTime]::UtcNow.ToString('o'))") -join "`n"
+          $encoded=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($text))
+          $uri="https://api.github.com/repos/$repo/contents/$path"
+          $existing=$null
+          try { $existing=Invoke-RestMethod -Headers $headers -Uri $uri } catch { if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw } }
+          $payload=@{ message="ci: start Forbidden Lands R14 run $env:GITHUB_RUN_ID"; content=$encoded; branch='main' }
+          if($existing){ $payload.sha=$existing.sha }
+          Invoke-RestMethod -Method Put -Headers $headers -ContentType 'application/json' -Body ($payload | ConvertTo-Json -Compress) -Uri $uri | Out-Null
+
       - name: Configure BRELGA
         shell: powershell
         run: |
