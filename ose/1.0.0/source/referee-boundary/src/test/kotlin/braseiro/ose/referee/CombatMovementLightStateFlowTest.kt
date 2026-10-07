@@ -33,12 +33,33 @@ class CombatMovementLightStateFlowTest {
 
     @Test fun torchDurationTracksTurnsAndVisibleLightPreventsPartySurprisingOpposition() {
         val boundary = RulesRefereeBoundary(); val rng = NamedRngStreams.fromRootSeed(71u)
-        var e = envelope()
+        val torchStack = InventoryItemSnapshot(
+            itemId = "torch-stack",
+            ownerId = "hero",
+            catalogId = "CLASSIC_EQUIP_GEAR_22",
+            profile = RuleProfile.OSE_CLASSIC_FANTASY,
+            sourceId = "Classic Rules Tome pp.40-45",
+            kind = InventoryItemKind.LIGHT_SOURCE,
+            quantity = 6,
+            carried = true,
+            lightSourceKind = LightSourceKind.TORCH
+        )
+        var e = envelope().let { base ->
+            base.copy(campaignState = base.campaignState.copy(
+                party = PartyState(listOf("hero")),
+                game = base.campaignState.game.copy(
+                    inventory = InventorySnapshot(mapOf(torchStack.itemId to torchStack))
+                )
+            ))
+        }
         fun apply(c:String) { e=e.copy(campaignState=boundary.resolve(e,c,rng).updatedState) }
-        apply("LIGHT_IGNITE:TORCH:t1:hero")
-        assertEquals(6, e.campaignState.game.expedition.lightSources.single().remainingTurns)
+        apply("LIGHT_IGNITE_ITEM:torch-stack:hero")
+        val litTorch = e.campaignState.game.expedition.lightSources.single { it.sourceItemId == "torch-stack" }
+        assertEquals(6, litTorch.remainingTurns)
+        assertTrue(litTorch.lit)
+        assertEquals(5, e.campaignState.game.inventory.items.getValue("torch-stack").quantity)
         repeat(6){ apply("WAIT_TURN") }
-        assertTrue(e.campaignState.game.expedition.lightSources.none { it.lightId == "t1" && it.lit })
+        assertTrue(e.campaignState.game.expedition.lightSources.none { it.sourceItemId == "torch-stack" && it.lit })
 
         e = envelope(encounter=EncounterSnapshot("surprise",phase=EncounterPhase.SURPRISE_PENDING)).let { base ->
             base.copy(campaignState=base.campaignState.copy(game=base.campaignState.game.copy(
