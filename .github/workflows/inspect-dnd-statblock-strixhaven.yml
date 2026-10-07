@@ -1,0 +1,35 @@
+name: Inspect DnD Statblock Strixhaven Runtime
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-statblock-strixhaven.yml']
+  workflow_dispatch:
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect runtime contracts
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $src='C:\DND181\extract\dnd_work'
+          $dst='C:\DND184_INSPECT\work'
+          Remove-Item 'C:\DND184_INSPECT' -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path 'C:\DND184_INSPECT' | Out-Null
+          robocopy $src $dst /MIR /R:2 /W:1 /XD ".gradle" "android\app\build" "android\build" | Out-Null
+          if($LASTEXITCODE -gt 7){throw "ROBOCOPY_FAILED_$LASTEXITCODE"}
+          $global:LASTEXITCODE=0
+          python "$env:GITHUB_WORKSPACE\ci\dnd-run183\patch.py" "$dst"
+          $p="$dst\android\app\src\main\java\com\braseiro\dnd5e"
+          foreach($n in @('CompiledStatblockEngine.java','CreatureStatBlockCompiler.java','StatblockCombatRuntimeEngine.java','StrixhavenAdventureProfile.java','StrixhavenAcademicRulesEngine.java','MainActivity.java')){
+            $f=Join-Path $p $n
+            if(!(Test-Path $f)){continue}
+            "===== $n ====="
+            if($n -eq 'MainActivity.java'){
+              Select-String -Path $f -Pattern 'sendAi\(|Strixhaven|parse.*response|npc_updates|scene_state|pending_test|lastNarration|masterInstruction' -Context 8,55 | ForEach-Object {$_.ToString()}
+            }else{
+              Get-Content $f
+            }
+          }
