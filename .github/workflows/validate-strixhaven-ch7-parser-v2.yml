@@ -14,9 +14,9 @@ jobs:
         shell: powershell
         run: |
           @'
-          import re,json,unicodedata
+          import re,json,unicodedata,os
           from pathlib import Path
-          p=Path(r"$env:GITHUB_WORKSPACE\ci\dnd-run184\strixhaven_ch7_runtime_source.txt")
+          p=Path(os.environ["GITHUB_WORKSPACE"])/"ci"/"dnd-run184"/"strixhaven_ch7_runtime_source.txt"
           text=p.read_text(encoding="utf-8").replace("\x02","")
           lines=text.splitlines()
           entries=[
