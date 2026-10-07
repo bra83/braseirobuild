@@ -183,17 +183,55 @@ old='''Spinner species,cls,background,alignment,origin,career,terms;CheckBox aut
 new='''Spinner species,cls,background,alignment,origin,career,terms,controller;CheckBox auto,active;'''
 t=once(t,old,new,"character-control-ref")
 
-# NPC portrait: click scene NPC icon -> stable persistent identity prompt -> Gemini.
+# Unified portrait pipeline: clicking a hero or NPC token -> canonical prompt -> Gemini -> exact persistent target.
 old='''        tile.addView(circle,new LinearLayout.LayoutParams(dp(58),dp(58)));
 '''
-new='''        if(!"AVENTUREIRO".equalsIgnoreCase(kind)&&!entry.optBoolean("group",false)&&!entry.optBoolean("transient",false)){final JSONObject portraitEntry=entry;circle.setClickable(true);circle.setContentDescription("Gerar ou atualizar retrato persistente de "+name+" no Gemini");circle.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginNpcPortrait(portraitEntry);}});}
+new='''        if(!entry.optBoolean("group",false)&&!entry.optBoolean("transient",false)){final JSONObject portraitEntry=entry;circle.setClickable(true);if("AVENTUREIRO".equalsIgnoreCase(kind)){circle.setContentDescription("Gerar ou atualizar retrato persistente do herói "+name+" no Gemini");circle.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginHeroPortrait(portraitEntry);}});}else{circle.setContentDescription("Gerar ou atualizar retrato persistente de "+name+" no Gemini");circle.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginNpcPortrait(portraitEntry);}});}}
         tile.addView(circle,new LinearLayout.LayoutParams(dp(58),dp(58)));
 '''
 t=once(t,old,new,"npc-portrait-click")
 
 anchor='''    private Uri storeNpcAvatar(Uri source,long npcId){try{return ImageStorageManager.importImage(this,source,"npc_avatars","npc_"+npcId,80);}catch(Exception e){AppLog.e("ImageImport","Falha ao armazenar avatar do NPC "+npcId,e);return null;}}
 '''
-portrait=r'''    private void beginNpcPortrait(JSONObject entry){
+portrait=r'''    private void setPendingPortraitTarget(String type,long id,String stable,String name){
+        if(prefs==null)return;SharedPreferences.Editor e=prefs.edit()
+            .putString("pending_image_target_type",type==null?"":type)
+            .putLong("pending_image_target_id",id)
+            .putString("pending_image_target_stable_id",stable==null?"":stable)
+            .putString("pending_image_target_name",name==null?"":name);
+        if("NPC".equals(type))e.putLong("pending_npc_portrait_id",id).putString("pending_npc_portrait_stable_id",stable==null?"":stable).putString("pending_npc_portrait_name",name==null?"":name);
+        else e.remove("pending_npc_portrait_id").remove("pending_npc_portrait_stable_id").remove("pending_npc_portrait_name");
+        e.apply();
+    }
+    private String circularTokenPortraitRules(){
+        return "FORMATO OBRIGATÓRIO: retrato quadrado 1:1 para TOKEN CIRCULAR de VTT; enquadramento EXCLUSIVAMENTE dos ombros para cima; rosto centralizado; cabeça inteira visível; cabelo, orelhas, chifres, capuz ou elmo totalmente dentro do quadro; margem de segurança generosa em todos os lados; olhos próximos ao centro; todos os traços importantes dentro dos 70% centrais para sobreviver ao recorte redondo. Fundo simples, discreto e de baixo contraste. Sem texto, nome, moldura, ficha, corpo inteiro, pose aberta ou cenário dominante. Não cortar topo da cabeça, queixo ou ombros. Equipamentos/armas só podem aparecer parcialmente se couberem naturalmente no enquadramento sem empurrar o rosto para fora do centro.";
+    }
+    private void sharePortraitPromptWithGemini(String prompt,String name){
+        Intent share=new Intent(Intent.ACTION_SEND);share.setType("text/plain");share.putExtra(Intent.EXTRA_TEXT,prompt);share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try{Intent direct=new Intent(share);direct.setPackage("com.google.android.apps.bard");startActivity(direct);}catch(Exception noGemini){startActivity(Intent.createChooser(share,"Gerar retrato de "+name));}
+    }
+    private void beginHeroPortrait(JSONObject entry){
+        try{
+            String name=entry==null?"":entry.optString("name","").trim();if(name.length()==0)return;
+            JSONObject hero=db.findCharacterByName(name);if(hero.length()==0){toast("Herói não encontrado na ficha persistente.");return;}
+            long id=hero.optLong("id",0);if(id<=0){toast("Identidade persistente do herói inválida.");return;}
+            JSONObject sheet;try{sheet=new JSONObject(hero.optString("sheet_json","{}"));}catch(Exception e){sheet=new JSONObject();}
+            String species=hero.optString("species",sheet.optString("species",sheet.optString("race",""))).trim();
+            String cls=hero.optString("class_name",sheet.optString("class_name",sheet.optString("class",""))).trim();
+            String subclass=sheet.optString("subclass_name",sheet.optString("subclass","")).trim();
+            String background=hero.optString("background",sheet.optString("background_name",sheet.optString("background",""))).trim();
+            String visual=hero.optString("visual_description",sheet.optString("appearance",sheet.optString("visual_description",""))).trim();
+            String gender=sheet.optString("gender",sheet.optString("sex","")).trim();
+            String age=sheet.optString("age",sheet.optString("age_range","")).trim();
+            String equipment=hero.optString("equipment",sheet.optString("inventory",sheet.optString("equipment",""))).trim();
+            setPendingPortraitTarget("HERO",id,String.valueOf(id),name);
+            StringBuilder p=new StringBuilder();p.append("Crie o retrato CANÔNICO deste herói de D&D para uso como token no Braseiro VTT. Preserve a mesma identidade em futuras imagens. ").append(circularTokenPortraitRules()).append("\n\n");
+            p.append("HERÓI: ").append(name).append(".\n");if(species.length()>0)p.append("Espécie/raça: ").append(species).append(".\n");if(cls.length()>0)p.append("Classe: ").append(cls).append(".\n");if(subclass.length()>0)p.append("Subclasse: ").append(subclass).append(".\n");if(hero.optInt("level",0)>0)p.append("Nível: ").append(hero.optInt("level")).append(".\n");if(background.length()>0)p.append("Antecedente: ").append(background).append(".\n");if(gender.length()>0)p.append("Sexo/gênero definido na ficha: ").append(gender).append(".\n");if(age.length()>0)p.append("Idade/faixa: ").append(age).append(".\n");if(visual.length()>0)p.append("Aparência canônica: ").append(visual).append(".\n");if(equipment.length()>0)p.append("Equipamento visual relevante: ").append(equipment).append(".\n");
+            p.append("Priorize rosto, espécie, classe, aparência, cabelo/barba, olhos, pele/pelagem/escamas, roupas/armadura, marcas e expressão já definidas. Não invente mudança de raça, classe ou aparência que contradiga a ficha.");
+            sharePortraitPromptWithGemini(p.toString(),name);setStatus("Prompt de retrato do herói enviado ao Gemini para "+name+". Compartilhe a imagem de volta ao Braseiro.");
+        }catch(Exception e){AppLog.e("HeroPortrait","Falha ao preparar retrato persistente do herói.",e);toast("Retrato do herói: "+e.getMessage());}
+    }
+    private void beginNpcPortrait(JSONObject entry){
         try{
             String name=entry==null?"":entry.optString("name","").trim();if(name.length()==0)return;
             JSONObject npc=db.findNpcMemoryByName(name);
@@ -202,39 +240,47 @@ portrait=r'''    private void beginNpcPortrait(JSONObject entry){
             JSONObject stats;try{stats=new JSONObject(npc.optString("stats_json","{}"));}catch(Exception e){stats=new JSONObject();}
             if(stats.optBoolean("dead",false)||"dead".equalsIgnoreCase(stats.optString("status"))||"morto".equalsIgnoreCase(stats.optString("status"))){toast(name+" está registrado como morto; o retrato não será recriado.");return;}
             long id=npc.optLong("id",0);String stable=npc.optString("stable_id",NpcIdentityNormalizer.stableId(activeWorldProfile(),name));
-            prefs.edit().putLong("pending_npc_portrait_id",id).putString("pending_npc_portrait_stable_id",stable).putString("pending_npc_portrait_name",name).apply();
+            setPendingPortraitTarget("NPC",id,stable,name);
             String species=stats.optString("species",stats.optString("race",stats.optString("creature_type",entry.optString("hint",""))));
             String visual=npc.optString("visual_description","").trim();String summary=npc.optString("summary","").trim();
-            StringBuilder p=new StringBuilder();p.append("Crie um RETRATO DE PERSONAGEM para um VTT de D&D. Identidade única e persistente; não crie uma pessoa diferente. Sem texto, moldura, ficha ou cenário dominante. Enquadramento de ombros para cima, rosto claramente legível, iluminação coerente com fantasia, fundo discreto.\\n\\n");
-            p.append("NPC: ").append(name).append(".\\n");if(species.length()>0)p.append("Espécie/raça/tipo: ").append(species).append(".\\n");if(visual.length()>0)p.append("Aparência canônica: ").append(visual).append(".\\n");if(summary.length()>0)p.append("Papel/contexto visual: ").append(summary).append(".\\n");if(npc.optString("attitude").length()>0)p.append("Postura/atitude visível: ").append(npc.optString("attitude")).append(".\\n");p.append("Mantenha idade aparente, traços, pele/pelagem/escamas, cabelo, olhos, roupas, equipamento e marcas distintivas consistentes em qualquer futura imagem deste mesmo NPC.");
-            Intent share=new Intent(Intent.ACTION_SEND);share.setType("text/plain");share.putExtra(Intent.EXTRA_TEXT,p.toString());share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            try{Intent direct=new Intent(share);direct.setPackage("com.google.android.apps.bard");startActivity(direct);}catch(Exception noGemini){startActivity(Intent.createChooser(share,"Gerar retrato de "+name));}
-            setStatus("Prompt de retrato enviado ao Gemini para "+name+". Compartilhe a imagem de volta ao Braseiro.");
+            StringBuilder p=new StringBuilder();p.append("Crie o retrato CANÔNICO deste NPC de D&D para uso como token no Braseiro VTT. Identidade única e persistente; não crie uma pessoa diferente. ").append(circularTokenPortraitRules()).append("\n\n");
+            p.append("NPC: ").append(name).append(".\n");if(species.length()>0)p.append("Espécie/raça/tipo: ").append(species).append(".\n");if(visual.length()>0)p.append("Aparência canônica: ").append(visual).append(".\n");if(summary.length()>0)p.append("Papel/contexto visual: ").append(summary).append(".\n");if(npc.optString("attitude").length()>0)p.append("Postura/atitude visível: ").append(npc.optString("attitude")).append(".\n");p.append("Mantenha idade aparente, traços, pele/pelagem/escamas, cabelo, barba, olhos, roupas, equipamento e marcas distintivas consistentes em qualquer futura imagem deste mesmo NPC.");
+            sharePortraitPromptWithGemini(p.toString(),name);setStatus("Prompt de retrato enviado ao Gemini para "+name+". Compartilhe a imagem de volta ao Braseiro.");
         }catch(Exception e){AppLog.e("NpcPortrait","Falha ao preparar retrato persistente.",e);toast("Retrato do NPC: "+e.getMessage());}
     }
-    private boolean hasPendingNpcPortrait(){return prefs!=null&&prefs.getLong("pending_npc_portrait_id",0)>0;}
-    private void clearPendingNpcPortrait(){if(prefs!=null)prefs.edit().remove("pending_npc_portrait_id").remove("pending_npc_portrait_stable_id").remove("pending_npc_portrait_name").apply();}
-    private void importReceivedNpcPortraitAsync(final Uri source){
-        final long id=prefs.getLong("pending_npc_portrait_id",0);final String expectedStable=prefs.getString("pending_npc_portrait_stable_id",""),name=prefs.getString("pending_npc_portrait_name","NPC");
-        if(id<=0){clearPendingNpcPortrait();return;}
+    private boolean hasPendingPortraitTarget(){
+        if(prefs==null)return false;String type=prefs.getString("pending_image_target_type","");long id=prefs.getLong("pending_image_target_id",0);
+        if(id>0&&("HERO".equals(type)||"NPC".equals(type)))return true;
+        return prefs.getLong("pending_npc_portrait_id",0)>0;
+    }
+    private void clearPendingPortraitTarget(){if(prefs!=null)prefs.edit().remove("pending_image_target_type").remove("pending_image_target_id").remove("pending_image_target_stable_id").remove("pending_image_target_name").remove("pending_npc_portrait_id").remove("pending_npc_portrait_stable_id").remove("pending_npc_portrait_name").apply();}
+    private Uri storeHeroAvatar(Uri source,long characterId){try{return ImageStorageManager.importImage(this,source,"character_avatars","hero_"+characterId,80);}catch(Exception e){AppLog.e("ImageImport","Falha ao armazenar avatar do herói "+characterId,e);return null;}}
+    private void importReceivedPortraitAsync(final Uri source){
+        String type=prefs.getString("pending_image_target_type","");long genericId=prefs.getLong("pending_image_target_id",0);
+        if((type==null||type.length()==0||genericId<=0)&&prefs.getLong("pending_npc_portrait_id",0)>0){type="NPC";genericId=prefs.getLong("pending_npc_portrait_id",0);}
+        final String targetType=type;final long id=genericId;final String expectedStable=prefs.getString("pending_image_target_stable_id",prefs.getString("pending_npc_portrait_stable_id",""));final String name=prefs.getString("pending_image_target_name",prefs.getString("pending_npc_portrait_name","personagem"));
+        if(id<=0||(!"HERO".equals(targetType)&&!"NPC".equals(targetType))){clearPendingPortraitTarget();return;}
         setStatus("Salvando retrato persistente de "+name+"…");
-        AppExecutors.io().execute(new Runnable(){public void run(){String failure="";Uri stored=null;try{JSONObject npc=db.getNpcMemory(id);if(npc.length()==0||!expectedStable.equals(npc.optString("stable_id"))||npc.optInt("active",1)==0)throw new Exception("A identidade do NPC mudou ou não está mais ativa.");stored=storeNpcAvatar(source,id);if(stored==null)throw new Exception("A imagem não pôde ser armazenada.");db.setNpcToken(id,stored.toString());}catch(Exception e){failure=String.valueOf(e.getMessage());}final String error=failure;ui.post(new Runnable(){public void run(){if(error.length()>0){toast("Retrato do NPC: "+error);setStatus("Retrato não importado.");return;}clearPendingNpcPortrait();screenCache.remove("Mestre IA");synchronizeVisualSceneCast();toast("Retrato de "+name+" salvo e vinculado somente a este NPC.");setStatus("Retrato persistente de "+name+" atualizado.");if("Mestre IA".equals(currentScreen))showNarrator();}});}});
+        AppExecutors.io().execute(new Runnable(){public void run(){String failure="";Uri stored=null;try{
+            if("HERO".equals(targetType)){JSONObject hero=db.getCharacter(id);if(hero.length()==0)throw new Exception("A ficha do herói não existe mais.");stored=storeHeroAvatar(source,id);if(stored==null)throw new Exception("A imagem do herói não pôde ser armazenada.");db.setCharacterToken(id,stored.toString());}
+            else{JSONObject npc=db.getNpcMemory(id);if(npc.length()==0||!expectedStable.equals(npc.optString("stable_id"))||npc.optInt("active",1)==0)throw new Exception("A identidade do NPC mudou ou não está mais ativa.");JSONObject stats;try{stats=new JSONObject(npc.optString("stats_json","{}"));}catch(Exception parse){stats=new JSONObject();}if(stats.optBoolean("dead",false)||"dead".equalsIgnoreCase(stats.optString("status"))||"morto".equalsIgnoreCase(stats.optString("status")))throw new Exception("O NPC morreu antes da importação; o retrato foi recusado.");stored=storeNpcAvatar(source,id);if(stored==null)throw new Exception("A imagem do NPC não pôde ser armazenada.");db.setNpcToken(id,stored.toString());}
+        }catch(Exception e){failure=String.valueOf(e.getMessage());}final String error=failure;ui.post(new Runnable(){public void run(){if(error.length()>0){toast("Retrato: "+error);setStatus("Retrato não importado.");return;}clearPendingPortraitTarget();screenCache.remove("Mestre IA");synchronizeVisualSceneCast();toast("Retrato de "+name+" salvo e vinculado somente a este "+("HERO".equals(targetType)?"herói":"NPC")+".");setStatus("Retrato persistente de "+name+" atualizado.");if("Mestre IA".equals(currentScreen))showNarrator();}});}});
     }
 
 ''' + anchor
-t=once(t,anchor,portrait,"npc-portrait-methods")
+t=once(t,anchor,portrait,"portrait-methods")
 
-# Route incoming shared images to pending NPC before scene image.
-t=t.replace('''if(stored!=null){applyReceivedSceneImage(stored);return;}''','''if(stored!=null){if(hasPendingNpcPortrait()){importReceivedNpcPortraitAsync(stored);return;}applyReceivedSceneImage(stored);return;}''',1)
-t=t.replace('''if(!Intent.ACTION_SEND.equals(action)){Uri recovered=PendingImageImportStore.claim(this,"");if(recovered!=null){applyReceivedSceneImage(recovered);return;}}''','''if(!Intent.ACTION_SEND.equals(action)){Uri recovered=PendingImageImportStore.claim(this,"");if(recovered!=null){if(hasPendingNpcPortrait()){importReceivedNpcPortraitAsync(recovered);return;}applyReceivedSceneImage(recovered);return;}}''',1)
+# Route any returned shared image to the exact pending HERO/NPC target before scene image.
+t=t.replace('''if(stored!=null){applyReceivedSceneImage(stored);return;}''','''if(stored!=null){if(hasPendingPortraitTarget()){importReceivedPortraitAsync(stored);return;}applyReceivedSceneImage(stored);return;}''',1)
+t=t.replace('''if(!Intent.ACTION_SEND.equals(action)){Uri recovered=PendingImageImportStore.claim(this,"");if(recovered!=null){applyReceivedSceneImage(recovered);return;}}''','''if(!Intent.ACTION_SEND.equals(action)){Uri recovered=PendingImageImportStore.claim(this,"");if(recovered!=null){if(hasPendingPortraitTarget()){importReceivedPortraitAsync(recovered);return;}applyReceivedSceneImage(recovered);return;}}''',1)
 old='''        final Uri source=incomingImageUri(intent);consumeIncomingIntent(intent);if(source==null)return;
         // Compatibilidade com remetentes que contornam a Activity dedicada.
         setStatus("Validando e salvando a imagem recebida…");'''
 new='''        final Uri source=incomingImageUri(intent);consumeIncomingIntent(intent);if(source==null)return;
-        if(hasPendingNpcPortrait()){importReceivedNpcPortraitAsync(source);return;}
+        if(hasPendingPortraitTarget()){importReceivedPortraitAsync(source);return;}
         // Compatibilidade com remetentes que contornam a Activity dedicada.
         setStatus("Validando e salvando a imagem recebida…");'''
-t=once(t,old,new,"npc-portrait-route-direct")
+t=once(t,old,new,"portrait-route-direct")
 
 write("MainActivity.java",t)
 
@@ -441,8 +487,12 @@ checks={
  "character_control_ui":"Sistema — rotina / combate assistido" in read("MainActivity.java"),
  "character_control_persist":"db.saveCharacterControl(id,controlMode" in read("MainActivity.java"),
  "npc_portrait_click":"beginNpcPortrait(portraitEntry)" in read("MainActivity.java"),
- "npc_portrait_pending":"pending_npc_portrait_id" in read("MainActivity.java"),
- "npc_portrait_not_scene":"if(hasPendingNpcPortrait()){importReceivedNpcPortraitAsync(source);return;}" in read("MainActivity.java"),
+ "hero_portrait_click":"beginHeroPortrait(portraitEntry)" in read("MainActivity.java"),
+ "portrait_generic_pending":'pending_image_target_type' in read("MainActivity.java") and 'pending_image_target_id' in read("MainActivity.java"),
+ "hero_portrait_persist":"db.setCharacterToken(id,stored.toString())" in read("MainActivity.java"),
+ "npc_portrait_persist":"db.setNpcToken(id,stored.toString())" in read("MainActivity.java"),
+ "portrait_not_scene":"if(hasPendingPortraitTarget()){importReceivedPortraitAsync(source);return;}" in read("MainActivity.java"),
+ "portrait_token_safe":"ombros para cima" in read("MainActivity.java") and "TOKEN CIRCULAR" in read("MainActivity.java"),
  "npc_tombstone":"deadTombstone" in read("AppDb.java") and "markNpcDead" in read("AppDb.java"),
  "zero_suggestions_allowed":"zero opções é um resultado válido" in read("SceneOptionDiversifier.java"),
  "offline_no_generic_fill":'CRIAR OUTRA ABORDAGEM' not in read("OfflineMasterEngine.java"),
