@@ -1,0 +1,119 @@
+name: Forbidden Lands 3.3.14 R18 RAG-Off Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-forbidden-lands-3.3.14-r18-hosted.yml'
+      - 'ci/forbidden-lands-r18-trigger.txt'
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_NAME: BRASEIRO_FORBIDDEN_LANDS_3.3.14_R18_SOURCE.zip
+  SOURCE_SHA256: 9a4d91738404b0e3c4d6f1cc13656a29d3f805187eacc900da50ab43109bdd34
+  FIRESTORAGE_API: https://api.firestorage.ai/dev/file/shares/KjFn1bbSuv2z
+  EXPECTED_SHA1: 9d0f1089b3fb6c225f1f59462750864e897c4d92
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Download exact R18 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE_ID=$(curl -fsSL "$FIRESTORAGE_API/files?maxResults=100" | jq -r --arg n "$SOURCE_NAME" '.files[] | select(.fileName==$n) | .fileId' | head -n1)
+          test -n "$FILE_ID"
+          URL=$(curl -fsSL -X POST "$FIRESTORAGE_API/files/$FILE_ID/download" | jq -r '.downloadUrl')
+          test -n "$URL"
+          curl -fL --retry 4 "$URL" -o source.zip
+          echo "$SOURCE_SHA256  source.zip" | sha256sum -c -
+          mkdir project
+          unzip -q source.zip -d project
+          test -f project/package.json
+          test -f project/android/app/build.gradle
+
+      - name: Install dependencies
+        working-directory: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+
+      - name: R18 RAG-off and runtime gates
+        working-directory: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run lint
+          npm run verify:gameplay-rag-off-v4
+          npm run verify-rag-not-required
+          npm run verify:action-dock
+          npm run verify:action-dock-14-turns
+          npm run verify:external-gemini-images
+          npm run verify:character-creation
+          npm run verify:journey-full
+          npm run verify:combat-maneuvers
+          npm run verify:magic-full
+          npm run verify:strongholds-full
+          npm run verify:xp-full
+          npm run verify:human-master-runtime
+          npm run verify:runtime-integration-v3
+          npm run verify:runtime-playthroughs-v3
+
+      - name: Assert RAG isolation
+        working-directory: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -q "RulesRetrievalService" src/services/MasterContextBuilder.ts
+          ! grep -q "validRuleCitations" src/services/MasterOrchestratorService.ts
+          ! grep -q "authoritativeCitations.length > 0" src/screens/AdventureScreenV3.tsx
+          ! grep -q "RulesRetrievalService" src/services/BestiaryService.ts
+          grep -q "allowLibraryRetrieval === true" src/services/api.ts
+          grep -q "RulesRetrievalService" src/screens/DuvidasScreenV2.tsx
+          grep -q "Motor local:</b> regras incorporadas · PDFs opcionais." src/screens/AdventureScreenV3.tsx
+
+      - name: Sync and build Android
+        working-directory: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run android:sync
+          npm run verify:android
+          node scripts/run-gradle-task.mjs assembleDebug
+
+      - name: Validate installable APK
+        working-directory: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          test -f "$APK"
+          mkdir -p out
+          cp "$APK" out/BRASEIRO_FORBIDDEN_LANDS_3.3.14_R18_CLEAN.apk
+          BT=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)
+          "$BT/aapt" dump badging out/BRASEIRO_FORBIDDEN_LANDS_3.3.14_R18_CLEAN.apk | tee out/APK_BADGING.txt
+          grep -q "package: name='com.braseiro.forbiddenlands'" out/APK_BADGING.txt
+          grep -q "versionCode='303914'" out/APK_BADGING.txt
+          grep -q "versionName='3.3.14'" out/APK_BADGING.txt
+          "$BT/apksigner" verify --verbose --print-certs out/BRASEIRO_FORBIDDEN_LANDS_3.3.14_R18_CLEAN.apk | tee out/APK_SIGNATURE.txt
+          ACTUAL=$(grep -E 'certificate SHA-1 digest:' out/APK_SIGNATURE.txt | head -n1 | sed -E 's/.*digest:[[:space:]]*//' | tr -d ':[:space:]' | tr 'A-F' 'a-f')
+          test "$ACTUAL" = "$EXPECTED_SHA1"
+          sha256sum out/BRASEIRO_FORBIDDEN_LANDS_3.3.14_R18_CLEAN.apk | tee out/BRASEIRO_FORBIDDEN_LANDS_3.3.14_R18_CLEAN.apk.sha256
+          printf '%s\n'             'STATUS=PASS'             'GAMEPLAY_RAG_OFF_V4=PASS'             'EMPTY_LIBRARY_DETERMINISTIC_GATES=PASS'             'MASTER_CONTEXT_NO_RAG=PASS'             'BESTIARY_NO_RAG=PASS'             'SCENE_IMAGE_16_9_PRESERVED=PASS'             'GEMINI_SHARE_IMPORT_PRESERVED=PASS'             'CLEAN_GRADLE_BUILD=PASS'             'APK_SIGNER_VERIFY=PASS'             'PACKAGE=com.braseiro.forbiddenlands'             'VERSION_CODE=303914'             'VERSION_NAME=3.3.14'             "SIGNER_SHA1=$ACTUAL" > out/R18_PROOF.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.14_R18_CLEAN
+          path: project/out/*
+          retention-days: 30
