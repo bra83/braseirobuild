@@ -1,0 +1,169 @@
+name: Forbidden Lands 3.3.11 R15 BRELGA Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-forbidden-lands-3.3.11-r15-pr.yml'
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.11_R15_CORRIGIDO_SOURCE.zip"
+  SOURCE_BYTES: "38996961"
+  SOURCE_SHA256: "34e7c1fcef46aa22cb4edb825770e6854d3e0f49770ac14d866c8bf3370871d6"
+  FIRESTORAGE_API: "https://api.firestorage.ai/dev/file/shares/0jVQkdZbpxpL"
+  BUILD_ROOT: "D:\\brelga-forbidden-lands-3.3.11-r15"
+  APK_NAME: "BRASEIRO_FORBIDDEN_LANDS_3.3.11_R15.apk"
+  EXPECTED_SHA1: "9d0f1089b3fb6c225f1f59462750864e897c4d92"
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 240
+    steps:
+      - name: Configure BRELGA
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA, got $env:RUNNER_NAME" }
+          Remove-Item $env:BUILD_ROOT -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $env:BUILD_ROOT -Force | Out-Null
+          $nodeRoot='C:\actions-runner\_work\_tool\node'
+          $nodeDir=Get-ChildItem $nodeRoot -Directory | ForEach-Object { Get-ChildItem $_.FullName -Directory -ErrorAction SilentlyContinue } | Where-Object { Test-Path (Join-Path $_.FullName 'node.exe') } | Sort-Object FullName -Descending | Select-Object -First 1
+          $javaRoot='C:\actions-runner\_work\_tool\Java_Temurin-Hotspot_jdk'
+          $javaDir=Get-ChildItem $javaRoot -Directory -Recurse | Where-Object { Test-Path (Join-Path $_.FullName 'bin\java.exe') } | Sort-Object FullName -Descending | Select-Object -First 1
+          $sdk='C:\actions-runner\android-sdk'
+          if (-not $nodeDir -or -not $javaDir -or -not (Test-Path $sdk)) { throw 'BRELGA toolchain incomplete' }
+          $temp=Join-Path $env:BUILD_ROOT 'temp'
+          $gradle=Join-Path $env:BUILD_ROOT 'gradle-home'
+          $npm=Join-Path $env:BUILD_ROOT 'npm-cache'
+          New-Item -ItemType Directory -Path $temp,$gradle,$npm -Force | Out-Null
+          $newPath="$($nodeDir.FullName);$($javaDir.FullName)\bin;$env:PATH"
+          "PATH=$newPath" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "JAVA_HOME=$($javaDir.FullName)" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_HOME=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "TEMP=$temp" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "TMP=$temp" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "GRADLE_USER_HOME=$gradle" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "NPM_CONFIG_CACHE=$npm" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $env:PATH=$newPath
+          node --version
+          java -version
+
+      - name: Download corrected R15 source
+        id: src
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $meta=Invoke-RestMethod -Method Get -Uri ($env:FIRESTORAGE_API + '/files?maxResults=100')
+          $file=$meta.files | Where-Object { $_.fileName -eq $env:SOURCE_NAME } | Select-Object -First 1
+          if (-not $file) { throw "Source not found: $env:SOURCE_NAME" }
+          $ticket=Invoke-RestMethod -Method Post -Uri ($env:FIRESTORAGE_API + '/files/' + $file.fileId + '/download')
+          $zip=Join-Path $env:BUILD_ROOT $env:SOURCE_NAME
+          & curl.exe -L --fail --retry 5 --retry-delay 2 --retry-all-errors -o $zip $ticket.downloadUrl
+          if ($LASTEXITCODE -ne 0) { throw 'Download failed' }
+          if ((Get-Item $zip).Length -ne [int64]$env:SOURCE_BYTES) { throw "Source size mismatch" }
+          $hash=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($hash -ne $env:SOURCE_SHA256) { throw "Source SHA mismatch: $hash" }
+          $root=Join-Path $env:BUILD_ROOT 'project'
+          New-Item -ItemType Directory -Path $root -Force | Out-Null
+          & tar.exe -xf $zip -C $root
+          if ($LASTEXITCODE -ne 0) { throw 'Extraction failed' }
+          "root=$root" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Install dependencies
+        shell: powershell
+        working-directory: ${{ steps.src.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & npm.cmd ci --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
+
+      - name: Ensure Windows native dependencies
+        shell: powershell
+        working-directory: ${{ steps.src.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & node.exe -e "try{require.resolve('@rollup/rollup-win32-x64-msvc');process.exit(0)}catch{process.exit(1)}"
+          if ($LASTEXITCODE -ne 0) {
+            $v=(& node.exe -p "require('./node_modules/rollup/package.json').version").Trim()
+            & npm.cmd install --no-save --no-package-lock --no-audit --no-fund "@rollup/rollup-win32-x64-msvc@$v"
+          }
+          & node.exe -e "try{require.resolve('@esbuild/win32-x64');process.exit(0)}catch{process.exit(1)}"
+          if ($LASTEXITCODE -ne 0) {
+            $v=(& node.exe -p "require('./node_modules/esbuild/package.json').version").Trim()
+            & npm.cmd install --no-save --no-package-lock --no-audit --no-fund "@esbuild/win32-x64@$v"
+          }
+
+      - name: R15 correction gates
+        shell: powershell
+        working-directory: ${{ steps.src.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          foreach($gate in @('lint','verify:external-gemini-images','verify:action-dock','verify:action-dock-14-turns','verify:character-creation','verify:journey-full','verify:bugreport-freeze-2026-10-05','test:audio')) {
+            & npm.cmd run $gate
+            if ($LASTEXITCODE -ne 0) { throw "Gate failed: $gate" }
+          }
+
+      - name: Android sync and build
+        shell: powershell
+        working-directory: ${{ steps.src.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          & npm.cmd run android:sync
+          if ($LASTEXITCODE -ne 0) { throw 'Android sync failed' }
+          & npm.cmd run verify:android
+          if ($LASTEXITCODE -ne 0) { throw 'Android verify failed' }
+          $gradle=Get-Content 'android\app\build.gradle' -Raw
+          if ($gradle -notmatch 'versionCode\s+303911') { throw 'Wrong versionCode' }
+          if ($gradle -notmatch 'versionName\s+"3\.3\.11"') { throw 'Wrong versionName' }
+          & node.exe scripts/run-gradle-task.mjs assembleDebug
+          if ($LASTEXITCODE -ne 0) { throw 'assembleDebug failed' }
+
+      - name: Validate APK
+        id: apk
+        shell: powershell
+        env:
+          ROOT: ${{ steps.src.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $built=Join-Path $env:ROOT 'android\app\build\outputs\apk\debug\app-debug.apk'
+          if (-not (Test-Path $built)) { throw 'APK not produced' }
+          $out=Join-Path $env:BUILD_ROOT 'out'
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $apk=Join-Path $out $env:APK_NAME
+          Copy-Item $built $apk -Force
+          $bt=Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          $aapt=Join-Path $bt.FullName 'aapt.exe'
+          $signer=Join-Path $bt.FullName 'apksigner.bat'
+          & $aapt dump badging $apk 2>&1 | Tee-Object -FilePath (Join-Path $out 'APK_BADGING.txt')
+          $badging=Get-Content (Join-Path $out 'APK_BADGING.txt') -Raw
+          if ($badging -notmatch "package: name='com\.braseiro\.forbiddenlands'") { throw 'Wrong package' }
+          if ($badging -notmatch "versionCode='303911'") { throw 'Wrong APK versionCode' }
+          if ($badging -notmatch "versionName='3\.3\.11'") { throw 'Wrong APK versionName' }
+          & $signer verify --verbose --print-certs $apk 2>&1 | Tee-Object -FilePath (Join-Path $out 'APK_SIGNATURE.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'Signature invalid' }
+          $signature=Get-Content (Join-Path $out 'APK_SIGNATURE.txt') -Raw
+          $m=[regex]::Match($signature,'Signer #1 certificate SHA-1 digest:\s*([0-9A-Fa-f:]+)')
+          if (-not $m.Success) { throw 'Signer digest absent' }
+          $actual=($m.Groups[1].Value -replace ':','').ToLowerInvariant()
+          if ($actual -ne $env:EXPECTED_SHA1) { throw "Historical signer mismatch: $actual" }
+          $hash=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:APK_NAME" | Set-Content (Join-Path $out "$($env:APK_NAME).sha256") -Encoding ascii
+          @('STATUS=PASS','R15_PORTRAIT_FLOW=PASS','NPC_CIRCULAR_CROP=PASS','PARTY_TOKEN_GEMINI=PASS','CHARACTER_EDITOR_GEMINI=PASS','ANDROID_BUILD=PASS',"SIGNER_SHA1=$actual","APK_SHA256=$hash") | Set-Content (Join-Path $out 'R15_PROOF.txt') -Encoding utf8
+          "dir=$out" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Upload R15 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.11_R15
+          path: |
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.11_R15.apk
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_FORBIDDEN_LANDS_3.3.11_R15.apk.sha256
+            ${{ steps.apk.outputs.dir }}/APK_BADGING.txt
+            ${{ steps.apk.outputs.dir }}/APK_SIGNATURE.txt
+            ${{ steps.apk.outputs.dir }}/R15_PROOF.txt
+          retention-days: 30
