@@ -48,49 +48,47 @@ jobs:
           def norm(s):
               return ''.join(c for c in unicodedata.normalize('NFD',s.lower()) if unicodedata.category(c)!='Mn').replace('’',"'").replace('“','"').replace('”','"').strip()
           size=re.compile(r'\b(Tiny|Small|Medium|Large|Huge|Gargantuan)\b',re.I)
-          def heading_candidates(aliases,typ):
-              aa={norm(a) for a in aliases}; out=[]
-              for i,line in enumerate(lines):
-                  if norm(line) not in aa: continue
-                  nearby=" ".join(lines[i+1:i+6])
-                  score=0
-                  if size.search(nearby): score+=5
-                  if typ.lower() in nearby.lower(): score+=5
-                  window="\n".join(lines[i:i+50])
-                  if re.search(r'Armor Class\s+\d+',window,re.I): score+=3
-                  if re.search(r'Hit Points\s+\d+',window,re.I): score+=3
-                  if re.search(r'Challenge\s+[0-9/]+',window,re.I): score+=2
-                  out.append((score,i))
-              return sorted(out,reverse=True)
-          chosen=[]; prev=-1
-          for name,typ,cr,aliases in entries:
-              cs=heading_candidates(aliases,typ)
-              after=[x for x in cs if x[1]>prev]
-              pick=(after[0] if after else (cs[0] if cs else None))
-              if not pick: chosen.append((name,-1)); continue
-              chosen.append((name,pick[1])); prev=pick[1]
-          # monotonic repair: if a later chosen heading falls backwards, choose first candidate after prev
-          prev=-1
-          fixed=[]
-          for (name,typ,cr,aliases),(_,idx) in zip(entries,chosen):
-              cs=heading_candidates(aliases,typ)
-              after=sorted([x for x in cs if x[1]>prev], key=lambda x:x[1])
-              pick=max(after,key=lambda x:(x[0],-x[1])) if after else None
-              # prefer highest score but avoid huge jumps beyond next entries
-              if pick: idx=pick[1]
-              fixed.append((name,idx)); prev=idx if idx>=0 else prev
-          results=[]
-          for pos,((name,typ,cr,aliases),(_,idx)) in enumerate(zip(entries,fixed)):
-              if idx<0: results.append({"name":name,"ok":False,"reason":"heading"}); continue
-              next_idx=len(lines)
-              for j in range(pos+1,len(fixed)):
-                  if fixed[j][1]>idx: next_idx=fixed[j][1]; break
-              block="\n".join(lines[idx:next_idx])
-              ac=re.search(r'Armor Class\s+(\d+)',block,re.I)
-              hp=re.search(r'Hit Points\s+(\d+)',block,re.I)
-              challenge=re.search(r'Challenge\s+([0-9/]+)',block,re.I)
-              acts=re.findall(r'(?m)^([A-Z][A-Za-z0-9’\'() /,+-]{1,80}(?:\s*\([^\n]{1,30}\))?)\.\s+(?:(?:Melee|Ranged|Melee or Ranged) (?:Weapon|Spell) Attack:|[^\n]{0,180}\b(?:must make|must succeed|targets? one|casts? one))',block)
-              results.append({"name":name,"line":idx+1,"block_lines":next_idx-idx,"ac":ac.group(1) if ac else None,"hp":hp.group(1) if hp else None,"cr":challenge.group(1) if challenge else None,"actions":acts[:20],"action_count":len(acts),"ok":bool(ac and hp and len(acts)>0)})
+          def expected_cr_re(cr):
+              return re.compile(r'Challenge\\s+'+re.escape(cr)+r'(?=\\s|\\(|$)',re.I)
+          def all_heading_lines(aliases):
+              aa={norm(a) for a in aliases};return [i for i,line in enumerate(lines) if norm(line) in aa]
+          def parse_one(name,typ,cr,aliases):
+              heads=all_heading_lines(aliases); best=None
+              for h in heads:
+                  lo=max(0,h-140); hi=min(len(lines),h+180)
+                  for j in range(lo,hi):
+                      if not expected_cr_re(cr).search(lines[j]): continue
+                      # Statblock identity must also have size/type nearby.
+                      tlo=max(lo,min(h,j)-55);thi=min(hi,max(h,j)+70)
+                      local=" ".join(lines[tlo:thi])
+                      type_bonus=20 if typ.lower() in local.lower() else 0
+                      size_bonus=12 if size.search(local) else 0
+                      dist=abs(j-h)
+                      score=200-dist+type_bonus+size_bonus
+                      if best is None or score>best[0]:best=(score,h,j,tlo,thi)
+              if best is None:
+                  return {"name":name,"ok":False,"reason":"no expected challenge cluster","heads":heads}
+              _,h,ch,lo,hi=best
+              # nearest AC/HP around the exact expected CR cluster
+              acs=[];hps=[]
+              for i in range(max(0,ch-75),min(len(lines),ch+75)):
+                  ma=re.search(r'Armor Class\\s+(\\d+)',lines[i],re.I)
+                  mh=re.search(r'Hit Points\\s+(\\d+)',lines[i],re.I)
+                  if ma: acs.append((abs(i-ch),i,ma.group(1)))
+                  if mh: hps.append((abs(i-ch),i,mh.group(1)))
+              ac=min(acs)[2] if acs else None; hp=min(hps)[2] if hps else None
+              # broad source scope around heading+cluster; full original mechanics remain embedded.
+              blo=max(0,min(h,ch)-90);bhi=min(len(lines),max(h,ch)+140)
+              block="\\n".join(lines[blo:bhi])
+              acts=re.findall(r'(?m)^([A-Z][A-Za-z0-9’\\'() /,+-]{1,80}(?:\\s*\\([^\\n]{1,30}\\))?)\\.\\s+(?:(?:Melee|Ranged|Melee or Ranged) (?:Weapon|Spell) Attack:|[^\\n]{0,180}\\b(?:must make|must succeed|targets? one|casts? one))',block)
+              # de-duplicate, preserving order
+              seen=set();acts2=[]
+              for a in acts:
+                  k=norm(a)
+                  if k in seen:continue
+                  seen.add(k);acts2.append(a)
+              return {"name":name,"heading_line":h+1,"challenge_line":ch+1,"ac":ac,"hp":hp,"cr":cr,"actions":acts2[:24],"action_count":len(acts2),"source_lines":bhi-blo,"ok":bool(ac and hp)}
+          results=[parse_one(*e) for e in entries]
           print(json.dumps(results,ensure_ascii=False,indent=2))
           bad=[r for r in results if not r["ok"]]
           print("BAD_COUNT",len(bad))
