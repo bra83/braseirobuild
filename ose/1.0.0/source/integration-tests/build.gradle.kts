@@ -13,6 +13,7 @@ dependencies {
     testImplementation(project(":session-engine"))
     testImplementation(project(":procedural-dungeon"))
     testImplementation(project(":procedural-hex"))
+    testImplementation(project(":map-hex"))
     testImplementation(project(":map-settlement"))
     testImplementation(project(":npc-domain"))
     testImplementation(project(":world-domain"))
