@@ -33,34 +33,34 @@ class FinalClosureStressTest {
     }
 
     @Test
-    fun \`40 heavy sixty-day campaigns keep time world npc weather persistence and player reaction authority coherent\`() {
+    fun `40 heavy sixty-day campaigns keep time world npc weather persistence and player reaction authority coherent`() {
         repeat(40) { campaignIndex ->
             val profile=if(campaignIndex%2==0) RuleProfile.OSE_CLASSIC_FANTASY else RuleProfile.OSE_ADVANCED_FANTASY
-            val settlement=SettlementPackages.canonicalVillage("town-\${campaignIndex}")
+            val settlement=SettlementPackages.canonicalVillage("town-${campaignIndex}")
             val npcs=(0 until 30).associate { i ->
-                val id="c\${campaignIndex}-npc-\${i}"
+                val id="c${campaignIndex}-npc-${i}"
                 id to NpcDomain.createStable(
                     id,
-                    "NPC \${i}",
+                    "NPC ${i}",
                     SpatialRef.Settlement(settlement.settlementId, if(i%2==0)"INN" else "GATE"),
-                    setOf("public-\${i}")
+                    setOf("public-${i}")
                 )
             }
             val events=(0 until 120).map { i ->
-                val target="c\${campaignIndex}-npc-\${i%30}"
+                val target="c${campaignIndex}-npc-${i%30}"
                 WorldEventSnapshot(
-                    eventId="c\${campaignIndex}-event-\${i}",
+                    eventId="c${campaignIndex}-event-${i}",
                     dueTurn=((i%120)+1L)*36L,
                     kind="WORLD_STRESS",
                     targetId=target,
-                    payload="Evento persistente \${i} da campanha \${campaignIndex}"
+                    payload="Evento persistente ${i} da campanha ${campaignIndex}"
                 )
             }
-            val base=Fixtures.campaign("closure-\${campaignIndex}",profile)
+            val base=Fixtures.campaign("closure-${campaignIndex}",profile)
             val envelope=base.copy(campaignState=base.campaignState.copy(
                 party=PartyState(),
                 time=TimeState(),
-                position=PositionState(SpatialRef.Hex("world-\${campaignIndex}",0,0)),
+                position=PositionState(SpatialRef.Hex("world-${campaignIndex}",0,0)),
                 resources=ResourceState(listOf("rations:0","torch:0")),
                 game=GameExtensions(
                     session=SessionSnapshot(phase="ACTIVE"),
@@ -75,7 +75,7 @@ class FinalClosureStressTest {
             val session=SessionEngine(repo,RulesRefereeBoundary(),DeterministicBarbaraSupervisor())
 
             repeat(60) { day ->
-                val id="day-\${day}"
+                val id="day-${day}"
                 val result=session.submitPlayerReaction(
                     envelope.campaignId,
                     id,
@@ -135,14 +135,14 @@ class FinalClosureStressTest {
     }
 
     @Test
-    fun \`character creation remains profile isolated across a large deterministic corpus\`() {
+    fun `character creation remains profile isolated across a large deterministic corpus`() {
         val creator=CharacterCreator()
         repeat(256) { i ->
             val classic=creator.create(CharacterCreationRequest(
                 profile=RuleProfile.OSE_CLASSIC_FANTASY,
                 method=CreationMethod.CLASSIC,
-                characterId="classic-\${i}",
-                name="Classic \${i}",
+                characterId="classic-${i}",
+                name="Classic ${i}",
                 rolledAttributes=Attributes(15,9,9,13,12,10),
                 classIds=listOf("FIGHTER"),
                 hpRolls=listOf((i%8)+1)
@@ -155,8 +155,8 @@ class FinalClosureStressTest {
             val advanced=creator.create(CharacterCreationRequest(
                 profile=RuleProfile.OSE_ADVANCED_FANTASY,
                 method=CreationMethod.ADVANCED_BASIC,
-                characterId="advanced-\${i}",
-                name="Advanced \${i}",
+                characterId="advanced-${i}",
+                name="Advanced ${i}",
                 rolledAttributes=Attributes(13,15,12,13,12,10),
                 classIds=listOf("MAGIC_USER"),
                 hpRolls=listOf((i%4)+1)
@@ -169,22 +169,22 @@ class FinalClosureStressTest {
     }
 
     @Test
-    fun \`large procedural corpus stays deterministic coherent reachable and profile clean\`() {
+    fun `large procedural corpus stays deterministic coherent reachable and profile clean`() {
         RuleProfile.entries.forEach { profile ->
             repeat(256) { seed ->
-                val a=HexWorldGeneratorV1.generate("world-\${profile}-\${seed}",seed.toULong(),profile)
-                val b=HexWorldGeneratorV1.generate("world-\${profile}-\${seed}",seed.toULong(),profile)
+                val a=HexWorldGeneratorV1.generate("world-${profile}-${seed}",seed.toULong(),profile)
+                val b=HexWorldGeneratorV1.generate("world-${profile}-${seed}",seed.toULong(),profile)
                 assertEquals(a,b)
                 val report=GeographicCoherenceValidator.validate(a,profile)
-                assertTrue(report.pass,"seed=\${seed} profile=\${profile} errors=\${report.errors}")
+                assertTrue(report.pass,"seed=${seed} profile=${profile} errors=${report.errors}")
                 if(profile==RuleProfile.OSE_CLASSIC_FANTASY){
                     assertFalse(a.cells.any { it.terrain==TerrainKind.BARREN_ADV || it.terrain==TerrainKind.BROKEN_LANDS_ADV })
                 }
             }
         }
         repeat(256) { seed ->
-            val a=DungeonGeneratorV1.generate("dungeon-\${seed}",seed.toULong(),24)
-            val b=DungeonGeneratorV1.generate("dungeon-\${seed}",seed.toULong(),24)
+            val a=DungeonGeneratorV1.generate("dungeon-${seed}",seed.toULong(),24)
+            val b=DungeonGeneratorV1.generate("dungeon-${seed}",seed.toULong(),24)
             assertEquals(a,b)
             assertTrue(DungeonGeneratorV1.isReachable(a))
             assertEquals(setOf(a.entranceNodeId),a.knownNodeIds)
