@@ -90,7 +90,8 @@ jobs:
           ! grep -q 'data-generate-npc' "$JS"
           ! grep -q 'data-photo-character' "$JS"
           ! grep -q 'data-photo-npc' "$JS"
-          echo "Text-first UI with map/equipment imagery and dormant portrait backend: PASS"
+          ! grep -q 'tokens_compactos/' "$JS"
+          echo "Text-first UI with hex/interior/equipment imagery and dormant portrait backend: PASS"
 
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v4
