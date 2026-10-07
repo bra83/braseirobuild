@@ -125,22 +125,21 @@ class GeminiBarbaraSupervisor(
             }
             is SpatialRef.Scene -> "A companhia está numa cena em andamento já estabelecida pelo Mestre."
         }
-        val resources = state.resources.resourceFacts
-            .mapNotNull { raw ->
-                val parts = raw.split(':', limit = 2)
-                if (parts.size != 2) null else when (parts[0].lowercase()) {
-                    "torch" -> "tochas: ${parts[1]}"
-                    "rations" -> "rações: ${parts[1]}"
-                    "gold" -> "ouro: ${parts[1]} po"
-                    else -> null
-                }
-            }
+        val rations = game.inventory.items.values.filter { it.kind == InventoryItemKind.FOOD }.sumOf { it.quantity }
+        val torches = game.inventory.items.values.filter { it.lightSourceKind == LightSourceKind.TORCH }.sumOf { it.quantity }
+        val coinUnits = game.inventory.items.values.filter { it.kind == InventoryItemKind.COIN }.sumOf { it.quantity }
+        val resources = buildList {
+            add("tochas: $torches")
+            add("rações: $rations")
+            if (coinUnits > 0) add("moedas carregadas: $coinUnits")
+        }
         return buildString {
             appendLine("CONTEXTO PÚBLICO DA CAMPANHA:")
             appendLine("- Grupo: ${partyNames.joinToString(", ")}.")
             appendLine("- Tempo de jogo: $time.")
+            appendLine("- Clima: ${weatherLabel(game.livingWorld.weather.kind)}.")
             appendLine("- Lugar: $place")
-            if (resources.isNotEmpty()) appendLine("- Recursos visíveis: ${resources.joinToString(", ")}.")
+            if (resources.isNotEmpty()) appendLine("- Recursos visíveis derivados do inventário atual: ${resources.joinToString(", ")}.")
         }.trim()
     }
 
@@ -169,6 +168,16 @@ class GeminiBarbaraSupervisor(
             TerrainKind.BARREN_ADV -> "terras estéreis"
             TerrainKind.BROKEN_LANDS_ADV -> "terreno acidentado"
         }
+    }
+
+    private fun weatherLabel(kind: WeatherKind): String = when (kind) {
+        WeatherKind.CLEAR -> "céu limpo"
+        WeatherKind.OVERCAST -> "céu encoberto"
+        WeatherKind.RAIN -> "chuva"
+        WeatherKind.FOG -> "neblina"
+        WeatherKind.STORM -> "tempestade"
+        WeatherKind.COLD -> "frio intenso"
+        WeatherKind.HOT -> "calor forte"
     }
 
     private fun localNarration(committed: CampaignEnvelope, reaction: String, feedback: String): String {
