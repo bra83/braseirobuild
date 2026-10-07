@@ -46,6 +46,7 @@ object AppViewStateProjector {
                 .map(::light)))
             .put("creation", creation(game))
             .put("map", map(state))
+            .put("localMaps", localMaps(state))
     }
 
     private fun creation(game: GameExtensions): JSONObject = JSONObject()
@@ -89,6 +90,58 @@ object AppViewStateProjector {
         is SpatialRef.Dungeon -> JSONObject().put("kind","DUNGEON").put("spatialEntityId",ref.spatialEntityId).put("nodeId",ref.nodeId)
         is SpatialRef.Settlement -> JSONObject().put("kind","SETTLEMENT").put("spatialEntityId",ref.spatialEntityId).put("anchorId",ref.anchorId)
         is SpatialRef.Scene -> JSONObject().put("kind","SCENE").put("spatialEntityId",ref.spatialEntityId).put("sceneId",ref.sceneId)
+    }
+
+    private fun localMaps(state: CampaignState): JSONObject {
+        val game = state.game
+        val out = JSONObject()
+        game.settlement?.let { s ->
+            val current = (state.position.primary as? SpatialRef.Settlement)
+                ?.takeIf { it.spatialEntityId == s.settlementId }
+                ?.anchorId
+            out.put("settlement", JSONObject()
+                .put("settlementId", s.settlementId)
+                .put("currentAnchorId", current ?: JSONObject.NULL)
+                .put("locations", JSONArray(s.locations.map { loc ->
+                    JSONObject()
+                        .put("locationId", loc.locationId)
+                        .put("name", loc.name)
+                        .put("discovered", loc.discovered)
+                        .put("tags", JSONArray(loc.tags.toList().sorted()))
+                })))
+        }
+        game.dungeon?.let { d ->
+            val known = d.knownNodeIds
+            val visible = d.visibleNodeIds
+            val current = (state.position.primary as? SpatialRef.Dungeon)
+                ?.takeIf { it.spatialEntityId == d.dungeonId }
+                ?.nodeId
+            val nodes = d.nodes.filter { it.nodeId in known }.map { node ->
+                JSONObject()
+                    .put("nodeId", node.nodeId)
+                    .put("kind", node.kind)
+                    .put("visible", node.nodeId in visible)
+                    .put("current", node.nodeId == current)
+            }
+            val edges = d.edges
+                .filter { it.from in known && it.to in known }
+                .filter { !it.secret || (it.from in visible && it.to in visible) }
+                .map { edge ->
+                    JSONObject()
+                        .put("from", edge.from)
+                        .put("to", edge.to)
+                        .put("kind", edge.kind)
+                        .put("secret", edge.secret)
+                }
+            out.put("dungeon", JSONObject()
+                .put("dungeonId", d.dungeonId)
+                .put("seed", d.seed.toString())
+                .put("entranceNodeId", d.entranceNodeId)
+                .put("currentNodeId", current ?: JSONObject.NULL)
+                .put("nodes", JSONArray(nodes))
+                .put("edges", JSONArray(edges)))
+        }
+        return out
     }
 
     private fun map(state: CampaignState): Any {
