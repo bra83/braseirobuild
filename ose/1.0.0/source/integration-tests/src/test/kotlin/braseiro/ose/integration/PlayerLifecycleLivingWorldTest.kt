@@ -14,6 +14,7 @@ import braseiro.ose.referee.RulesRefereeBoundary
 import braseiro.ose.rules.api.*
 import braseiro.ose.session.SessionEngine
 import braseiro.ose.testsupport.Fixtures
+import braseiro.ose.settlement.SettlementPackages
 import kotlin.test.*
 
 class PlayerLifecycleLivingWorldTest {
@@ -151,6 +152,7 @@ class PlayerLifecycleLivingWorldTest {
             resources=ResourceState(),
             game=GameExtensions(
                 session=SessionSnapshot(phase="ACTIVE"),
+                settlement=SettlementPackages.canonicalVillage(),
                 npcs=mapOf(npc.npcId to npc),
                 worldEvents=listOf(event),
                 rngRootSeed="991"
@@ -175,6 +177,8 @@ class PlayerLifecycleLivingWorldTest {
         val livingNpc=state.game.npcs.getValue(npc.npcId)
         assertTrue(livingNpc.reactionHistory.any { it.startsWith("WORLD_EVENT:event-rumor") })
         assertTrue(livingNpc.reactionHistory.any { it.startsWith("WORLD_PULSE:") })
+        assertTrue(livingNpc.reactionHistory.any { it.startsWith("NPC_MOVE:") })
+        assertIs<SpatialRef.Settlement>(livingNpc.spatialRef)
         assertTrue(livingNpc.memorySummaries.any { it.contains("rumor",ignoreCase=true) })
         assertTrue("LIVING_WORLD_ACTIVE" in livingNpc.consequenceFlags)
         assertTrue(state.game.worldEvents.single().resolved)
