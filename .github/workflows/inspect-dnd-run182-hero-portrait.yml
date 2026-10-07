@@ -1,0 +1,45 @@
+name: Inspect DnD RUN182 Hero Portrait Anchors
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-run182-hero-portrait.yml']
+  workflow_dispatch:
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rebuild exact RUN182 source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Runner incorreto: $env:RUNNER_NAME"}
+          $src='C:\DND181\extract\dnd_work'
+          $dst='C:\DND182_INSPECT\work'
+          Remove-Item 'C:\DND182_INSPECT' -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path 'C:\DND182_INSPECT' | Out-Null
+          robocopy $src $dst /MIR /R:2 /W:1 /XD ".gradle" "android\app\build" "android\build" | Out-Host
+          if($LASTEXITCODE -gt 7){throw "ROBOCOPY_FAILED_$LASTEXITCODE"}
+          $global:LASTEXITCODE=0
+          python "$env:GITHUB_WORKSPACE\ci\dnd-run182\patch.py" "$dst"
+          $pkg="$dst\android\app\src\main\java\com\braseiro\dnd5e"
+          $targets=@('MainActivity.java','AppDb.java')
+          $patterns='AVENTUREIRO|Aventureiro|personagem|character|characters|token_uri|source_kind|source_id|circle|avatar|retrato|portrait|showCharacters|showParty|showCombat|combatant'
+          foreach($n in $targets){
+            $p=Join-Path $pkg $n
+            "===== $n ====="
+            $ls=Get-Content $p
+            $ms=Select-String -Path $p -Pattern $patterns -AllMatches
+            $nums=$ms|Select-Object -ExpandProperty LineNumber -Unique
+            $ranges=@()
+            foreach($num in $nums){
+              $a=[Math]::Max(1,$num-10);$b=[Math]::Min($ls.Count,$num+30)
+              if($ranges.Count -gt 0 -and $a -le ($ranges[$ranges.Count-1][1]+1)){$ranges[$ranges.Count-1][1]=[Math]::Max($ranges[$ranges.Count-1][1],$b)}
+              else{$ranges+=,@($a,$b)}
+            }
+            foreach($r in $ranges){
+              "--- $($r[0])-$($r[1]) ---"
+              for($i=$r[0];$i -le $r[1];$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}
+            }
+          }
