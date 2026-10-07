@@ -121,7 +121,7 @@ jobs:
           $ErrorActionPreference='Stop'
           $suites=@('tts-api','rules-classic','rules-advanced','referee-boundary','session-engine','world-domain','npc-domain','integration-tests')
           foreach($suite in $suites){
-            & .\gradlew.bat --no-daemon ":$suite:test" --stacktrace
+            & .\gradlew.bat --no-daemon ":${suite}:test" --stacktrace
             if ($LASTEXITCODE -ne 0) { throw "Runtime suite failed: $suite" }
           }
 
