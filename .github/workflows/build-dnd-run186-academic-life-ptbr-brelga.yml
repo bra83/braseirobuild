@@ -28,36 +28,6 @@ jobs:
       - uses: actions/checkout@v4
 
 
-      - name: Ensure canonical RUN186 academic patch
-        shell: powershell
-        run: |
-          $ErrorActionPreference='Stop'
-          $patch="$env:GITHUB_WORKSPACE\ci\dnd-run186\patch.py"
-          if(!(Test-Path $patch)){
-            New-Item -ItemType Directory -Force -Path (Split-Path $patch) | Out-Null
-            $api='https://api.firestorage.ai/dev/file/shares/I7FvCHLdbGB6'
-            $listing=Invoke-RestMethod -Method Get -Uri "$api/files?maxResults=1000"
-            $remote=$listing.files | Where-Object {$_.fileName -eq 'BRASEIRO_DND_RUN186_ACADEMIC_PATCH.py'} | Select-Object -First 1
-            if(!$remote){throw 'RUN186_REMOTE_PATCH_NOT_FOUND'}
-            $ticket=Invoke-RestMethod -Method Post -Uri "$api/files/$($remote.fileId)/download"
-            if(!$ticket.downloadUrl){throw 'RUN186_REMOTE_PATCH_DOWNLOAD_URL_MISSING'}
-            Invoke-WebRequest -Uri $ticket.downloadUrl -OutFile $patch
-            $sha=(Get-FileHash $patch -Algorithm SHA256).Hash.ToLowerInvariant()
-            if($sha -ne '12f9c0337570c5e6a5b82b378b721334fbed3ff0277bf6c0259f471ddaa12207'){throw "RUN186_PATCH_SHA_MISMATCH_$sha"}
-            python -m py_compile $patch
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add ci/dnd-run186/patch.py
-            git commit -m "fix(dnd): persist RUN186 academic life PT-BR patch"
-            git push origin HEAD:main
-          }else{
-            python -m py_compile $patch
-            $sha=(Get-FileHash $patch -Algorithm SHA256).Hash.ToLowerInvariant()
-            Write-Host "RUN186_PATCH_SHA256=$sha"
-          }
-
-
-
       - name: Reclaim DnD build disk safely
         shell: powershell
         run: |
@@ -205,16 +175,21 @@ jobs:
           $p="$env:ROOT\android\app\src\main\java\com\braseiro\dnd5e"
           $main=Get-Content "$p\MainActivity.java" -Raw
           $compiled=Get-Content "$p\StrixhavenCompiledCampaignEngine.java" -Raw
+          $catalog=Get-Content "$p\StrixhavenPtBrAcademicCatalog.java" -Raw
           $checks=[ordered]@{
-            'guided-study-roll'=($main.Contains('ROLAR ESTUDO') -and $main.Contains('rollStrixhavenAcademicCheck'))
+            'guided-study-roll'=($main.Contains('ROLAR TESTE DE ESTUDO') -and $main.Contains('rollStrixhavenExamCheck'))
             'guided-exam-rolls'=($main.Contains('ROLAR TESTE 1') -and $main.Contains('ROLAR TESTE 2'))
-            'academic-error-pt'=($main.Contains('academicBlockReasonPt') -and $main.Contains('Você não possui um emprego ativo'))
-            'academic-year-authority'=($main.Contains('COMO AVANÇAR SEMESTRE / ANO') -and $main.Contains('finishAcademicYear(hero.optLong("id"))'))
-            'master-tools-clear'=($main.Contains('FERRAMENTAS DO MESTRE') -and $main.Contains('CONSULTAR O MESTRE SEM AVANÇAR A HISTÓRIA'))
+            'canonical-extracurriculars'=([regex]::Matches($catalog,'a\.put\(extra\(').Count -eq 16)
+            'canonical-campus-jobs'=([regex]::Matches($catalog,'a\.put\(job\(').Count -eq 9)
+            'academic-error-pt'=($main.Contains('StrixhavenPtBrAcademicCatalog.blockReason') -and $catalog.Contains('Você não possui um emprego ativo'))
+            'academic-year-authority'=($main.Contains('COMO AVANÇA O SEMESTRE / ANO') -and $main.Contains('Ano acadêmico concluído automaticamente'))
+            'no-manual-end-year'=(-not $main.Contains('ENCERRAR ANO ACADÊMICO'))
+            'master-query-clear'=($main.Contains('CONSULTAR MESTRE') -and $main.Contains('sem avançar relógio, mapa, NPCs ou campanha'))
+            'master-admin-clear'=($main.Contains('FERRAMENTAS DO MESTRE • ADMINISTRAÇÃO'))
             'legacy-run163-label-removed'=(-not $main.Contains('RUNTIMES COMPILADOS — RUN163'))
-            'relationship-pt'=($main.Contains('Pessoa Querida') -and $main.Contains('ESCOLHER COLEGA ESTUDANTE OFICIAL'))
-            'campaign-title-pt'=($main.Contains('UM CURRÍCULO DE CAOS') -and $compiled.Contains('localizeCampaignLabel'))
-            'exam-display-pt'=($compiled.Contains('Fisiologias Mágicas') -and $compiled.Contains('Arcanismo'))
+            'relationship-pt'=($main.Contains('Pessoa Querida') -and $main.Contains('Benefício do Vínculo'))
+            'campaign-display-pt'=($main.Contains('CURRÍCULO DO CAOS') -and $compiled.Contains('StrixhavenPtBrAcademicCatalog.campaignTitle'))
+            'exam-display-pt'=($compiled.Contains('StrixhavenPtBrAcademicCatalog.examCourse') -and $catalog.Contains('Fisiologias Mágicas'))
           }
           $failed=$false
           $checks.GetEnumerator()|ForEach-Object{Write-Host "$(if($_.Value){'PASS'}else{'FAIL'}) $($_.Key)";if(-not $_.Value){$failed=$true}}
@@ -372,14 +347,13 @@ jobs:
           tag_name: DND-6.6.4-RUN186
           name: Braseiro DnD 6.6.4 RUN186
           body: >-
-            RUN186 - correção completa da Vida Acadêmica de Strixhaven sobre o RUN185.
-            Provas agora têm fluxo guiado com botões de rolagem de estudo e dos dois testes,
-            mantendo a possibilidade de registrar rolagens externas sem rolagem automática.
-            Erros acadêmicos aparecem em PT-BR; emprego, extracurricular e relações foram
-            esclarecidos; Friend/Beloved/Bond foram localizados na interface; o painel Mestre
-            foi renomeado e explicado. Semestre/ano continuam sob autoridade dos 44 marcos
-            oficiais e, na virada real de ano, os Dados do Estudante de prova expiram
-            automaticamente. Remove o rótulo legado RUN163. Preserva RUN184/RUN185,
+            RUN186 - correção da Vida Acadêmica de Strixhaven sobre o RUN185.
+            Provas agora têm fluxo guiado com rolagem do estudo e dos dois testes no aplicativo.
+            Atividades extracurriculares e empregos do campus usam seletores canônicos, com perícias,
+            colegas e funções preenchidos pelo runtime. Erros internos foram traduzidos para PT-BR,
+            Friend/Beloved/Bond foram localizados, e o painel Mestre foi separado de CONSULTAR MESTRE.
+            Semestre/ano seguem os 44 marcos oficiais; ao atravessar para um novo ano, Dados do Estudante
+            de provas expiram automaticamente. Remove o rótulo legado RUN163 e preserva RUN184/RUN185,
             10 provas, 18 colegas estudantes, 44 statblocks e gameplay sem PDF/RAG.
           files: |
             C:\DND186\out\BRASEIRO_DND_6.6.4_RUN186_DEBUG.apk
