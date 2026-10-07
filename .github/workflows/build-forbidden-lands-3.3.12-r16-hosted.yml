@@ -1,0 +1,99 @@
+name: Forbidden Lands 3.3.12 R16 Hosted Clean Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-forbidden-lands-3.3.12-r16-hosted.yml'
+      - 'ci/forbidden-lands-r16-hosted-trigger.txt'
+
+permissions:
+  contents: read
+
+env:
+  SOURCE_NAME: BRASEIRO_FORBIDDEN_LANDS_3.3.12_R16_SOURCE.zip
+  SOURCE_SHA256: 71717e1dbdb0f83225ef2840dde7ded325c967ddd195c0d004937580b80cee65
+  FIRESTORAGE_API: https://api.firestorage.ai/dev/file/shares/xaZ9mEePUvncpCfV
+  EXPECTED_SHA1: 9d0f1089b3fb6c225f1f59462750864e897c4d92
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Download exact R16 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE_ID=$(curl -fsSL "$FIRESTORAGE_API/files?maxResults=100" | jq -r --arg n "$SOURCE_NAME" '.files[] | select(.fileName==$n) | .fileId' | head -n1)
+          test -n "$FILE_ID"
+          URL=$(curl -fsSL -X POST "$FIRESTORAGE_API/files/$FILE_ID/download" | jq -r '.downloadUrl')
+          test -n "$URL"
+          curl -fL --retry 4 "$URL" -o source.zip
+          echo "$SOURCE_SHA256  source.zip" | sha256sum -c -
+          mkdir project
+          unzip -q source.zip -d project
+          test -f project/package.json
+          test -f project/android/app/build.gradle
+
+      - name: Verify R16 corrections
+        working-directory: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm run lint
+          npm run verify:action-dock
+          npm run verify:action-dock-14-turns
+          npm run verify:external-gemini-images
+          npm run verify:character-creation
+          npm run verify:journey-full
+          npm run verify:bugreport-freeze-2026-10-05
+          npm run test:audio
+          grep -q 'android.intent.action.SEND' android/app/src/main/AndroidManifest.xml
+          grep -q 'android:mimeType="image/\*"' android/app/src/main/AndroidManifest.xml
+          grep -q 'registerPlugin(IncomingSharedImagePlugin.class)' android/app/src/main/java/com/braseiro/forbiddenlands/MainActivity.java
+
+      - name: Sync and build Android
+        working-directory: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run android:sync
+          npm run verify:android
+          grep -q 'android.intent.action.SEND' android/app/src/main/AndroidManifest.xml
+          grep -q 'android:mimeType="image/\*"' android/app/src/main/AndroidManifest.xml
+          node scripts/run-gradle-task.mjs assembleDebug
+
+      - name: Validate installable APK
+        working-directory: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          test -f "$APK"
+          mkdir -p out
+          cp "$APK" out/BRASEIRO_FORBIDDEN_LANDS_3.3.12_R16_CLEAN.apk
+          BT=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1)
+          "$BT/aapt" dump badging out/BRASEIRO_FORBIDDEN_LANDS_3.3.12_R16_CLEAN.apk | tee out/APK_BADGING.txt
+          grep -q "package: name='com.braseiro.forbiddenlands'" out/APK_BADGING.txt
+          grep -q "versionCode='303912'" out/APK_BADGING.txt
+          grep -q "versionName='3.3.12'" out/APK_BADGING.txt
+          "$BT/apksigner" verify --verbose --print-certs out/BRASEIRO_FORBIDDEN_LANDS_3.3.12_R16_CLEAN.apk | tee out/APK_SIGNATURE.txt
+          ACTUAL=$(grep -E 'certificate SHA-1 digest:' out/APK_SIGNATURE.txt | head -n1 | sed -E 's/.*digest:[[:space:]]*//' | tr -d ':[:space:]' | tr 'A-F' 'a-f')
+          test "$ACTUAL" = "$EXPECTED_SHA1"
+          unzip -p out/BRASEIRO_FORBIDDEN_LANDS_3.3.12_R16_CLEAN.apk AndroidManifest.xml >/dev/null
+          sha256sum out/BRASEIRO_FORBIDDEN_LANDS_3.3.12_R16_CLEAN.apk | tee out/BRASEIRO_FORBIDDEN_LANDS_3.3.12_R16_CLEAN.apk.sha256
+          printf '%s\n'             'STATUS=PASS'             'CHOICES_IN_SCENE_SCROLL=PASS'             'ANDROID_IMAGE_SHARE_TARGET=PASS'             'GEMINI_RETURN_AUTO_IMPORT=PASS'             'CLEAN_GRADLE_BUILD=PASS'             'APK_SIGNER_VERIFY=PASS'             'PACKAGE=com.braseiro.forbiddenlands'             'VERSION_CODE=303912'             'VERSION_NAME=3.3.12'             "SIGNER_SHA1=$ACTUAL" > out/R16_CLEAN_PROOF.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_FORBIDDEN_LANDS_3.3.12_R16_CLEAN
+          path: project/out/*
+          retention-days: 30
