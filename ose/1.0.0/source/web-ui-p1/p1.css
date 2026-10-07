@@ -58,3 +58,5 @@ button.primary,button.secondary,button.small{border:1px solid #53120f;border-rad
 .text-entity b{font-size:13px}
 .text-entity span{font:10px/1.35 Arial;color:#5f3b25}
 .text-entity.active{border-color:var(--blood);box-shadow:inset 3px 0 0 var(--blood)}
+
+.party-marker{position:absolute;width:28px;height:28px;display:flex;align-items:center;justify-content:center;z-index:10;border:2px solid var(--ox);border-radius:50%;background:#f2deb6;color:var(--blood);font:700 15px Georgia;box-shadow:0 2px 3px #0008}
