@@ -105,9 +105,9 @@ object AppViewStateProjector {
                 .put("locations", JSONArray(s.locations.map { loc ->
                     JSONObject()
                         .put("locationId", loc.locationId)
-                        .put("name", loc.name)
+                        .put("name", if (loc.discovered) loc.name else "Local desconhecido")
                         .put("discovered", loc.discovered)
-                        .put("tags", JSONArray(loc.tags.toList().sorted()))
+                        .put("tags", JSONArray(if (loc.discovered) loc.tags.toList().sorted() else emptyList<String>()))
                 })))
         }
         game.dungeon?.let { d ->
