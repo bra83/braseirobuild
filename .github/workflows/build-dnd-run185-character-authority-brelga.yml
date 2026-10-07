@@ -277,7 +277,12 @@ jobs:
         with:
           tag_name: DND-6.6.4-RUN185
           name: Braseiro DnD 6.6.4 RUN185
-          body: RUN185 - hotfix de criação de personagem sobre o fechamento integral de Strixhaven do RUN184. Corrige a autoridade de classes homebrew compiladas: Necromante, Caçador de Sangue, Cronomancer e Cavaleiro da Morte deixam de ser rejeitados pelo validador quando oferecidos pelo gerador. Mantém 44 marcos oficiais de Strixhaven, 10 provas, 18 Fellow Students, 44 statblocks e gameplay independente de PDF/RAG.
+          body: >-
+            RUN185 - hotfix de criação de personagem sobre o fechamento integral de Strixhaven do RUN184.
+            Corrige a autoridade de classes homebrew compiladas: Necromante, Caçador de Sangue,
+            Cronomancer e Cavaleiro da Morte deixam de ser rejeitados pelo validador quando oferecidos
+            pelo gerador. Mantém 44 marcos oficiais de Strixhaven, 10 provas, 18 Fellow Students,
+            44 statblocks e gameplay independente de PDF/RAG.
           files: |
             C:\DND185\out\BRASEIRO_DND_6.6.4_RUN185_DEBUG.apk
             C:\DND185\out\BRASEIRO_DND_6.6.4_RUN185_DEBUG.apk.sha256
