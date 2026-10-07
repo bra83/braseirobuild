@@ -268,6 +268,8 @@ import kotlinx.serialization.Serializable
     val wildernessTravelDaysSinceRest: Int = 0,
     val wildernessRestOverdue: Boolean = false,
     val forcedMarchRestRequired: Boolean = false,
+    val foodlessDays: Int = 0,
+    val lastRationDeficit: Int = 0,
     val lightSources: List<LightSourceSnapshot> = emptyList(),
     val oilPools: List<OilPoolSnapshot> = emptyList()
 ) {
@@ -277,6 +279,8 @@ import kotlinx.serialization.Serializable
         require(baseMoveMeters >= 0)
         require(encounterMoveMeters >= 0)
         require(wildernessTravelDaysSinceRest >= 0)
+        require(foodlessDays >= 0)
+        require(lastRationDeficit >= 0)
     }
     fun canonical() = copy(
         lightSources = lightSources.sortedBy { it.lightId },
