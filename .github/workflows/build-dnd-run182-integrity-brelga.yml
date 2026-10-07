@@ -88,8 +88,11 @@ jobs:
             'character-reactive'=($main.Contains('reconcileCharacterDependencies'))
             'character-controller'=($main.Contains('db.saveCharacterControl(id,controlMode'))
             'npc-stable-identity'=($db.Contains('NpcIdentityNormalizer.stableId'))
-            'npc-portrait-target'=($main.Contains('pending_npc_portrait_id') -and $main.Contains('db.setNpcToken(id,stored.toString())'))
-            'npc-portrait-not-scene'=($main.Contains('if(hasPendingNpcPortrait()){importReceivedNpcPortraitAsync(source);return;}'))
+            'portrait-generic-target'=($main.Contains('pending_image_target_type') -and $main.Contains('pending_image_target_id'))
+            'npc-portrait-target'=($main.Contains('beginNpcPortrait') -and $main.Contains('db.setNpcToken(id,stored.toString())'))
+            'hero-portrait-target'=($main.Contains('beginHeroPortrait') -and $main.Contains('db.setCharacterToken(id,stored.toString())'))
+            'portrait-not-scene'=($main.Contains('if(hasPendingPortraitTarget()){importReceivedPortraitAsync(source);return;}'))
+            'portrait-circular-safe'=($main.Contains('TOKEN CIRCULAR') -and $main.Contains('ombros para cima'))
             'npc-death-tombstone'=($db.Contains('npcDeathTombstone') -and $db.Contains('markNpcDead'))
             'world-time-weather'=($db.Contains('clock_hour') -and $db.Contains('weather'))
             'living-world-catchup'=($main.Contains('runLivingWorldCatchUpAsync'))
@@ -177,6 +180,9 @@ jobs:
             "MOVEMENT_TIME_GATE=PASS",
             "LIVING_WORLD_PERSISTENCE_GATE=PASS",
             "NPC_PORTRAIT_PERSISTENCE=PASS",
+            "HERO_PORTRAIT_PERSISTENCE=PASS",
+            "PORTRAIT_TARGET_ROUTING=PASS",
+            "CIRCULAR_TOKEN_COMPOSITION=PASS",
             "GEMINI_KEY_SAVE=PASS",
             "HUMAN_MASTER_PROFILE=PASS",
             "GALAXY_A57=PASS"
@@ -199,7 +205,7 @@ jobs:
         with:
           tag_name: DND-6.6.4-RUN182
           name: Braseiro DnD 6.6.4 RUN182
-          body: RUN182 - integridade de campanha, criação de personagem, movimento/mundo vivo, retratos persistentes de NPC, chave Gemini, controle de heróis, Mestre Humano, sugestões ancoradas, startup e Galaxy A57.
+          body: RUN182 - integridade de campanha, criação de personagem, movimento/mundo vivo, retratos persistentes de HERÓIS e NPCs via Gemini com importação vinculada ao alvo correto e enquadramento circular ombros-para-cima, chave Gemini, controle de heróis, Mestre Humano, sugestões ancoradas, startup e Galaxy A57.
           files: |
             C:\DND182\out\BRASEIRO_DND_6.6.4_RUN182_DEBUG.apk
             C:\DND182\out\BRASEIRO_DND_6.6.4_RUN182_DEBUG.apk.sha256
