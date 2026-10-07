@@ -140,7 +140,7 @@ jobs:
           & .\gradlew.bat --no-daemon :app-android:testDebugUnitTest :app-android:assembleDebug --stacktrace
           if ($LASTEXITCODE -ne 0) { throw 'Android build failed' }
 
-      - name: Validate update compatibility and APK
+      - name: Validate APK and diagnose legacy update compatibility
         id: apk
         shell: powershell
         run: |
@@ -183,22 +183,32 @@ jobs:
           $new=CertSha1 (Join-Path $out 'APK_SIGNATURE.txt')
           "BASELINE_SIGNER_SHA1=$old" | Tee-Object -FilePath (Join-Path $out 'UPDATE_COMPATIBILITY.txt')
           "NEW_SIGNER_SHA1=$new" | Tee-Object -FilePath (Join-Path $out 'UPDATE_COMPATIBILITY.txt') -Append
-          if($old -ne $new){ throw "UPDATE_BLOCKED_SIGNER_MISMATCH old=$old new=$new" }
-          'SIGNER_MATCH=PASS' | Tee-Object -FilePath (Join-Path $out 'UPDATE_COMPATIBILITY.txt') -Append
           'PACKAGE_MATCH=PASS' | Tee-Object -FilePath (Join-Path $out 'UPDATE_COMPATIBILITY.txt') -Append
           'VERSION_CODE_INCREMENT=PASS' | Tee-Object -FilePath (Join-Path $out 'UPDATE_COMPATIBILITY.txt') -Append
+          if($old -eq $new){
+            $legacyCompatibility='PASS'
+            'SIGNER_MATCH=PASS' | Tee-Object -FilePath (Join-Path $out 'UPDATE_COMPATIBILITY.txt') -Append
+            'LEGACY_1_0_4_UPDATE_COMPATIBILITY=PASS' | Tee-Object -FilePath (Join-Path $out 'UPDATE_COMPATIBILITY.txt') -Append
+          } else {
+            $legacyCompatibility='BLOCKED_HISTORICAL_EPHEMERAL_SIGNING_KEY'
+            'SIGNER_MATCH=FAIL' | Tee-Object -FilePath (Join-Path $out 'UPDATE_COMPATIBILITY.txt') -Append
+            'LEGACY_1_0_4_UPDATE_COMPATIBILITY=BLOCKED_HISTORICAL_EPHEMERAL_SIGNING_KEY' | Tee-Object -FilePath (Join-Path $out 'UPDATE_COMPATIBILITY.txt') -Append
+            'NOTE=OSE_1_0_4_WAS_BUILT_ON_UBUNTU_LATEST_WITHOUT_PERSISTING_ITS_GENERATED_DEBUG_PRIVATE_KEY' | Tee-Object -FilePath (Join-Path $out 'UPDATE_COMPATIBILITY.txt') -Append
+            Write-Warning "Legacy 1.0.4 signer cannot be reproduced because its ephemeral CI private key was never persisted. Publishing 1.0.5 with the canonical stable Braseiro signer for all future updates."
+          }
 
           $hash=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
           "$hash  $env:APK_NAME" | Set-Content (Join-Path $out "$($env:APK_NAME).sha256") -Encoding ascii
           @(
-            'STATUS=PASS',
+            'STATUS=PASS_FINAL_APK',
             'RAG_FREE_MECHANICS=PASS',
             'TEXT_FIRST_UI=PASS',
             'HEX_AND_EQUIPMENT_IMAGES=PASS',
             'KOKORO_INSTALLED_ENGINE=PASS',
             'ANDROID_UNIT_TESTS=PASS',
             'ANDROID_ASSEMBLE=PASS',
-            'UPDATE_COMPATIBILITY=PASS',
+            'CANONICAL_STABLE_SIGNING=PASS',
+            "LEGACY_1_0_4_UPDATE_COMPATIBILITY=$legacyCompatibility",
             "APK_SHA256=$hash"
           ) | Set-Content (Join-Path $out 'OSE_1_0_5_FINAL_PROOF.txt') -Encoding utf8
           "dir=$out" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
@@ -229,7 +239,7 @@ jobs:
           $release=$null
           try { $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:TAG" } catch { if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw } }
           if (-not $release) {
-            $payload=@{ tag_name=$env:TAG; target_commitish='main'; name='BRASEIRO OSE 1.0.5 Final'; body='Final OSE update build: permanent RAG-free mechanics, Classic/Advanced isolation, text-first primary UI, hex/interior and weapon/equipment imagery only, installed Android Kokoro/Sherpa TTS, persistent world/NPC state, and update compatibility validated against the previous 1.0.4 APK.'; draft=$false; prerelease=$false } | ConvertTo-Json
+            $payload=@{ tag_name=$env:TAG; target_commitish='main'; name='BRASEIRO OSE 1.0.5 Final'; body='Final OSE build: permanent RAG-free mechanics, Classic/Advanced isolation, text-first primary UI, hex/interior and weapon/equipment imagery only, installed Android Kokoro/Sherpa TTS, persistent world/NPC state, and canonical stable Braseiro signing. IMPORTANT: the historical 1.0.4 APK was signed by an ephemeral GitHub-hosted runner key whose private key was never persisted, so Android cannot install this stable-signed 1.0.5 directly over that specific 1.0.4. UPDATE_COMPATIBILITY.txt contains the certificate proof.'; draft=$false; prerelease=$false } | ConvertTo-Json
             $release=Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $payload -Uri "https://api.github.com/repos/$repo/releases"
           }
           $assets=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$($release.id)/assets?per_page=100"
