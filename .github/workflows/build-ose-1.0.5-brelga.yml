@@ -119,11 +119,18 @@ jobs:
         working-directory: ose/1.0.0/source
         run: |
           $ErrorActionPreference='Stop'
-          $suites=@('tts-api','rules-classic','rules-advanced','referee-boundary','session-engine','world-domain','npc-domain','integration-tests')
-          foreach($suite in $suites){
-            & .\gradlew.bat --no-daemon ":${suite}:test" --stacktrace
-            if ($LASTEXITCODE -ne 0) { throw "Runtime suite failed: $suite" }
-          }
+          $tasks=@(
+            ':tts-api:test',
+            ':rules-classic:test',
+            ':rules-advanced:test',
+            ':referee-boundary:test',
+            ':session-engine:test',
+            ':world-domain:test',
+            ':npc-domain:test',
+            ':integration-tests:test'
+          )
+          & .\gradlew.bat --no-daemon @tasks --stacktrace
+          if ($LASTEXITCODE -ne 0) { throw 'Runtime suites failed' }
 
       - name: Android unit tests and assemble
         shell: powershell
