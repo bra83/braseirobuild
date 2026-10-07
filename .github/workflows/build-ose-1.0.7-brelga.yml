@@ -217,7 +217,7 @@ jobs:
           $badging=Get-Content (Join-Path $out 'APK_BADGING.txt') -Raw
           if($badging -notmatch "package: name='braseiro\.ose'"){ throw 'Wrong package' }
           if($badging -notmatch "versionCode='8'"){ throw 'Wrong versionCode' }
-          if($badging -notmatch "versionName='1\.0\.6'"){ throw 'Wrong versionName' }
+          if($badging -notmatch "versionName='1\.0\.7'"){ throw 'Wrong versionName' }
 
           & $signer verify --verbose --print-certs $apk 2>&1 | Tee-Object -FilePath (Join-Path $out 'APK_SIGNATURE.txt')
           if($LASTEXITCODE -ne 0){ throw 'APK signature invalid' }
