@@ -125,29 +125,61 @@ jobs:
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Runtime unit and integration suites
+      - name: Full JVM runtime and heavy integration suites
         working-directory: ose/1.0.0/source
         run: |
           set -euo pipefail
           chmod +x gradlew
-          suites=(tts-api rules-classic rules-advanced referee-boundary session-engine world-domain npc-domain integration-tests)
-          failed=0
-          for suite in "${suites[@]}"; do
-            echo "::group::$suite tests"
-            if ./gradlew --no-daemon ":$suite:test" --stacktrace; then
-              echo "$suite: PASS"
-            else
-              echo "::error::$suite tests failed"
-              failed=1
-            fi
-            echo "::endgroup::"
-          done
-          exit "$failed"
+          tasks=(
+            :core-model:test
+            :core-rng:test
+            :campaign-domain:test
+            :persistence-api:test
+            :migration-registry:test
+            :test-support:test
+            :asset-resolver:test
+            :rules-api:test
+            :rules-shared-confirmed:test
+            :rules-classic:test
+            :rules-advanced:test
+            :character-domain:test
+            :referee-boundary:test
+            :session-engine:test
+            :barbara-adapter:test
+            :rag-source-registry:test
+            :map-core:test
+            :map-dungeon:test
+            :map-hex:test
+            :map-settlement:test
+            :procedural-dungeon:test
+            :procedural-hex:test
+            :world-domain:test
+            :npc-domain:test
+            :backup-restore:test
+            :tts-api:test
+            :integration-tests:test
+          )
+          ./gradlew --no-daemon "${tasks[@]}" --stacktrace
 
-      - name: Android unit tests and compile gate
+      - name: Android persistence app and TTS compile gates
         working-directory: ose/1.0.0/source
         run: |
-          ./gradlew --no-daemon :app-android:testDebugUnitTest :app-android:compileDebugKotlin --stacktrace
+          set -euo pipefail
+          ./gradlew --no-daemon \
+            :persistence-room:testDebugUnitTest \
+            :app-android:testDebugUnitTest \
+            :tts-android:compileDebugKotlin \
+            :app-android:compileDebugKotlin \
+            --stacktrace
+
+      - name: Heavy campaign closure marker gate
+        run: |
+          set -euo pipefail
+          STRESS=ose/1.0.0/source/integration-tests/src/test/kotlin/braseiro/ose/integration/FinalClosureStressTest.kt
+          grep -q '40 heavy sixty-day campaigns' "$STRESS"
+          grep -q 'character creation remains profile isolated across a large deterministic corpus' "$STRESS"
+          grep -q 'large procedural corpus stays deterministic coherent reachable and profile clean' "$STRESS"
+          echo "Heavy multi-campaign closure suite: PASS"
 
       - name: Summary
         run: |
@@ -156,6 +188,6 @@ jobs:
             echo "- Mechanics core has no runtime dependency on rag-source-registry."
             echo "- Android TTS is installed-engine based and Kokoro/Sherpa-aware."
             echo "- Primary UI is text-first; scene, map and equipment imagery are enabled; character/NPC portrait UI stays dormant."
-            echo "- JVM tests, Android unit tests and Android Kotlin compile passed."
+            echo "- Full JVM suite, heavy multi-campaign stress, Android persistence/app unit tests and Android Kotlin compile passed."
             echo "- No APK was assembled by this validation workflow."
           } >> "$GITHUB_STEP_SUMMARY"
