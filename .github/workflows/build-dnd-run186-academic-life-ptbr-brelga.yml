@@ -87,7 +87,7 @@ jobs:
       - name: Apply RUN186 academic life PT-BR patch
         shell: powershell
         env:
-          ROOT: \${{ steps.source.outputs.root }}
+          ROOT: ${{ steps.source.outputs.root }}
         run: |
           $ErrorActionPreference='Stop'
           python "$env:GITHUB_WORKSPACE\ci\dnd-run186\patch.py" "$env:ROOT"
@@ -177,7 +177,7 @@ jobs:
       - name: RUN186 Academic Life PT-BR contracts
         shell: powershell
         env:
-          ROOT: \${{ steps.source.outputs.root }}
+          ROOT: ${{ steps.source.outputs.root }}
         run: |
           $ErrorActionPreference='Stop'
           $p="$env:ROOT\android\app\src\main\java\com\braseiro\dnd5e"
