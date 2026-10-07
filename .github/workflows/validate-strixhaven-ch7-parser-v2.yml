@@ -49,7 +49,7 @@ jobs:
               return ''.join(c for c in unicodedata.normalize('NFD',s.lower()) if unicodedata.category(c)!='Mn').replace('’',"'").replace('“','"').replace('”','"').strip()
           size=re.compile(r'\b(Tiny|Small|Medium|Large|Huge|Gargantuan)\b',re.I)
           def expected_cr_re(cr):
-              return re.compile(r'Challenge\\s+'+re.escape(cr)+r'(?=\\s|\\(|$)',re.I)
+              return re.compile(r'Challenge\s+'+re.escape(cr)+r'(?=\s|\(|$)',re.I)
           def all_heading_lines(aliases):
               aa={norm(a) for a in aliases};return [i for i,line in enumerate(lines) if norm(line) in aa]
           def parse_one(name,typ,cr,aliases):
@@ -72,15 +72,15 @@ jobs:
               # nearest AC/HP around the exact expected CR cluster
               acs=[];hps=[]
               for i in range(max(0,ch-75),min(len(lines),ch+75)):
-                  ma=re.search(r'Armor Class\\s+(\\d+)',lines[i],re.I)
-                  mh=re.search(r'Hit Points\\s+(\\d+)',lines[i],re.I)
+                  ma=re.search(r'Armor Class\s+(\d+)',lines[i],re.I)
+                  mh=re.search(r'Hit Points\s+(\d+)',lines[i],re.I)
                   if ma: acs.append((abs(i-ch),i,ma.group(1)))
                   if mh: hps.append((abs(i-ch),i,mh.group(1)))
               ac=min(acs)[2] if acs else None; hp=min(hps)[2] if hps else None
               # broad source scope around heading+cluster; full original mechanics remain embedded.
               blo=max(0,min(h,ch)-90);bhi=min(len(lines),max(h,ch)+140)
-              block="\\n".join(lines[blo:bhi])
-              acts=re.findall(r"(?m)^([A-Z][^\\n.]{1,80}(?:\\s*\\([^\\n]{1,30}\\))?)\\.\\s+(?:(?:Melee|Ranged|Melee or Ranged) (?:Weapon|Spell) Attack:|[^\\n]{0,180}\\b(?:must make|must succeed|targets? one|casts? one))",block)
+              block="\n".join(lines[blo:bhi])
+              acts=re.findall(r"(?m)^([A-Z][^\n.]{1,80}(?:\s*\([^\n]{1,30}\))?)\.\s+(?:(?:Melee|Ranged|Melee or Ranged) (?:Weapon|Spell) Attack:|[^\n]{0,180}\b(?:must make|must succeed|targets? one|casts? one))",block)
               # de-duplicate, preserving order
               seen=set();acts2=[]
               for a in acts:
