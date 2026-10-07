@@ -223,7 +223,7 @@ class MainActivity : Activity() {
         val generated = HexWorldGeneratorV1.generate("world-1", worldSeed, profile)
         val coherence = GeographicCoherenceValidator.validate(generated, profile)
         check(coherence.pass) { "HEX_BOOTSTRAP_INVALID:${coherence.errors.joinToString()}" }
-        val world = HexKnowledge.reveal(generated, 3, 2, 1)
+        val world = HexKnowledge.reveal(generated, 3, 2, 0)
         val dungeon = DungeonGeneratorV1.generate("DUNGEON_001", dungeonSeed, 12)
         check(DungeonGeneratorV1.isReachable(dungeon)) { "DUNGEON_BOOTSTRAP_UNREACHABLE" }
         val settlement = SettlementPackages.canonicalVillage()
@@ -459,6 +459,7 @@ class MainActivity : Activity() {
                         "PresentationImageSave" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
                             val scope = when (payload.getString("scope")) {
+                                "SCENE" -> PresentationMediaStore.Scope.SCENE
                                 "CHARACTER" -> PresentationMediaStore.Scope.CHARACTER
                                 "NPC" -> PresentationMediaStore.Scope.NPC
                                 "ITEM" -> PresentationMediaStore.Scope.ITEM
@@ -466,10 +467,10 @@ class MainActivity : Activity() {
                             }
                             val stableId = payload.getString("id").trim()
                             when (scope) {
+                                PresentationMediaStore.Scope.SCENE -> require(stableId == scenePresentationId(current)) { "STALE_SCENE_ID" }
                                 PresentationMediaStore.Scope.CHARACTER -> require(current.campaignState.game.characters.containsKey(stableId)) { "UNKNOWN_CHARACTER_ID" }
                                 PresentationMediaStore.Scope.NPC -> require(current.campaignState.game.npcs.containsKey(stableId)) { "UNKNOWN_NPC_ID" }
                                 PresentationMediaStore.Scope.ITEM -> require(current.campaignState.game.inventory.items.containsKey(stableId)) { "UNKNOWN_ITEM_ID" }
-                                else -> error("UNSUPPORTED_PRESENTATION_SCOPE")
                             }
                             val url = mediaStore.saveDataUrl(scope, stableId, payload.getString("dataUrl"))
                             send(JSONObject().put("type", "PresentationImageSaved").put("payload", JSONObject()
@@ -930,10 +931,16 @@ class MainActivity : Activity() {
         out.put("tts", ttsStatusJson(includeCatalogs = false))
         out.put("worldStatus", JSONObject()
             .put("active", game.hexWorld != null && game.npcs.isNotEmpty())
-            .put("schedulerActive", game.worldEvents.isNotEmpty())
+            .put("schedulerActive", true)
             .put("knownHexes", game.hexWorld?.cells?.count { it.known || it.visible } ?: 0)
             .put("npcCount", game.npcs.size)
-            .put("scheduledEventCount", game.worldEvents.size)
+            .put("scheduledEventCount", game.worldEvents.count { !it.resolved })
+            .put("resolvedEventCount", game.worldEvents.count { it.resolved })
+            .put("weather", game.livingWorld.weather.kind.name)
+            .put("weatherChangedAtDay", game.livingWorld.weather.changedAtDay)
+            .put("worldPulseCount", game.livingWorld.pulseCount)
+            .put("lastWorldTurn", game.livingWorld.lastProcessedTurn)
+            .put("npcActivityCount", game.npcs.values.sumOf { npc -> npc.reactionHistory.count { it.startsWith("WORLD_PULSE:") || it.startsWith("WORLD_EVENT:") } })
             .put("revision", game.revision))
         out.put("libraryStatus", JSONObject()
             .put("profile", current.ruleProfile.name)
@@ -1032,6 +1039,7 @@ class MainActivity : Activity() {
             CONTEXTO PÚBLICO:
             - Local: $visiblePosition
             - Tempo de jogo: dia ${state.time.days + 1}, turno ${state.time.turns}
+            - Clima atual: ${game.livingWorld.weather.kind.name}
             - Personagens presentes: $party
 
             DIREÇÃO VISUAL:
