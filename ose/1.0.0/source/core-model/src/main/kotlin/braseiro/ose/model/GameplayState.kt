@@ -393,6 +393,7 @@ import kotlinx.serialization.Serializable
     val experience: ExperienceRuntimeSnapshot = ExperienceRuntimeSnapshot(),
     val npcs: Map<String, NpcSnapshot> = emptyMap(),
     val worldEvents: List<WorldEventSnapshot> = emptyList(),
+    val livingWorld: LivingWorldSnapshot = LivingWorldSnapshot(),
     val actionLog: List<ActionLogEntry> = emptyList(),
     val rngRootSeed: String = "42",
     val rngStreams: Map<String, RngStateSnapshot> = emptyMap(),
