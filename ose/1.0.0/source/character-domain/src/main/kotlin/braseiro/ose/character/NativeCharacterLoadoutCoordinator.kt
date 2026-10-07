@@ -91,14 +91,29 @@ class NativeCharacterLoadoutCoordinator {
         if(loadout.completed) return MutationResult(envelope,false,"ALREADY_ACTIVE")
         val old=envelope.campaignState.game
         val done=loadout.copy(completed=true).canonical()
+        val coinId="START:$characterId:STARTING_GOLD_GP"
+        val coinItems=if(done.remainingWealthGp>0 && old.inventory.items[coinId]==null) {
+            old.inventory.items + (coinId to InventoryItemSnapshot(
+                itemId=coinId,
+                ownerId=characterId,
+                catalogId="STARTING_GOLD_GP",
+                profile=envelope.ruleProfile,
+                sourceId=loadout.sourceRuleId,
+                kind=InventoryItemKind.COIN,
+                quantity=done.remainingWealthGp,
+                carried=true,
+                unitWeightCoins=1
+            ))
+        } else old.inventory.items
         var game=old.copy(
+            inventory=old.inventory.copy(items=coinItems).canonical(),
             loadouts=old.loadouts + (characterId to done),
             session=old.session.copy(phase="READY_TO_START",visibleNarration="",visibleMechanicalFeedback="Equipamento inicial confirmado."),
             actionLog=old.actionLog + ActionLogEntry("LOADOUT_DONE:${old.revision}:$characterId","LOADOUT","Starting loadout completed",listOf(loadout.sourceRuleId)),
             revision=old.revision+1
         )
         game=withDerivedExpedition(envelope,game)
-        val state=envelope.campaignState.copy(game=game,resources=deriveResources(envelope.ruleProfile,game,characterId,done.remainingWealthGp))
+        val state=envelope.campaignState.copy(game=game,resources=deriveResources(envelope.ruleProfile,game,characterId))
         return MutationResult(envelope.copy(campaignState=state),true,"READY_TO_START")
     }
 
@@ -155,10 +170,11 @@ class NativeCharacterLoadoutCoordinator {
         return game.copy(expedition=d.expedition).canonical()
     }
 
-    private fun deriveResources(profile:RuleProfile,game:GameExtensions,characterId:String,gold:Int):ResourceState {
+    private fun deriveResources(profile:RuleProfile,game:GameExtensions,characterId:String):ResourceState {
         val owned=game.inventory.items.values.filter { it.ownerId==characterId && it.quantity>0 }
         val torches=owned.filter { it.lightSourceKind==LightSourceKind.TORCH }.sumOf { it.quantity }
         val rations=owned.filter { it.kind==InventoryItemKind.FOOD }.sumOf { it.quantity }
+        val gold=owned.filter { it.kind==InventoryItemKind.COIN }.sumOf { it.quantity }
         return ResourceState(listOf("gold:$gold","torch:$torches","rations:$rations","movement:${game.expedition.baseMoveMeters}")).canonical()
     }
 
