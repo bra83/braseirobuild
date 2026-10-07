@@ -324,6 +324,109 @@ if "Manual de Sub-raças de Volo" not in t:
 write("DndPtBrLocalizer.java",t)
 
 # ------------------------------------------------------------------
+# Gemini remote-first connectivity: a saved key must reach the real API.
+# Local bookkeeping must never silently pretend that Gemini is offline.
+# ------------------------------------------------------------------
+t=read("GeminiService.java")
+old='''        if(kind==Kind.TEXT){ordered.add("gemini-3.5-flash-lite");ordered.add("gemini-3.6-flash");ordered.add("gemini-3.5-flash");ordered.add("gemini-3.1-flash-lite");}'''
+new='''        if(kind==Kind.TEXT){ordered.add("gemini-3.8-flash");ordered.add("gemini-3.7-flash");ordered.add("gemini-3.6-flash");ordered.add("gemini-3.5-flash-lite");ordered.add("gemini-3.5-flash");ordered.add("gemini-3.1-flash-lite");}'''
+if old in t:
+    t=t.replace(old,new,1)
+write("GeminiService.java",t)
+
+t=read("MainActivity.java")
+
+# The adventure must try Gemini whenever a real key exists. These local quota
+# counters remain diagnostic only; real 429/auth/network errors come from Google.
+hard_block='''                    if(masterOrchestrator!=null&&!masterOrchestrator.canCall()){runOfflineMaster(mode,userText,localHits,"limite remoto diário atingido");return;}
+                    if(aiQuotaGovernor!=null&&!aiQuotaGovernor.canCall(pendingAiInputChars)){runOfflineMaster(mode,userText,localHits,"orçamento remoto insuficiente para esta cena");return;}
+'''
+if hard_block in t:
+    t=t.replace(hard_block,'''                    // RUN182 REMOTE-FIRST: não bloquear a tentativa real por orçamento local.
+                    // Telemetria/cota local continua sendo registrada, mas somente a API confirma 429/auth/rede.
+''',1)
+
+# The explicit connection test must also reach the network instead of being
+# rejected by a stale local counter.
+test_budget='''if(aiQuotaGovernor!=null&&!aiQuotaGovernor.canCall(testSystem.length()+testPrompt.length())){toast("O orçamento local de hoje foi preservado.");return;}'''
+if test_budget in t:
+    t=t.replace(test_budget,'',1)
+
+# Persist a truthful ONLINE/OFFLINE state for the narration path.
+success_old='''                        public void onSuccess(final String text){ui.post(new Runnable(){public void run(){if(requestId!=aiRequestGeneration)return;acceptOrRepairNarration(mode,userText,text,sys,key,model,requestId,0);}});}'''
+success_new='''                        public void onSuccess(final String text){ui.post(new Runnable(){public void run(){if(requestId!=aiRequestGeneration)return;prefs.edit().putString("gemini_connection_state","online").putLong("gemini_last_ok_at",System.currentTimeMillis()).remove("gemini_last_error").apply();acceptOrRepairNarration(mode,userText,text,sys,key,model,requestId,0);}});}'''
+if success_old in t:
+    t=t.replace(success_old,success_new,1)
+
+error_old='''                        public void onError(final String error){ui.post(new Runnable(){public void run(){
+                            if(requestId!=aiRequestGeneration)return;
+                            String streamProblem=narrationQualityProblem(streamingNarration,userText);'''
+error_new='''                        public void onError(final String error){ui.post(new Runnable(){public void run(){
+                            if(requestId!=aiRequestGeneration)return;
+                            prefs.edit().putString("gemini_connection_state","offline").putString("gemini_last_error",error==null?"erro desconhecido":error).apply();
+                            String streamProblem=narrationQualityProblem(streamingNarration,userText);'''
+if error_old in t:
+    t=t.replace(error_old,error_new,1)
+
+missing_old='''                    if(key.trim().length()<20){runOfflineMaster(mode,userText,localHits,"chave Gemini ausente");return;}'''
+missing_new='''                    if(key.trim().length()<20){prefs.edit().putString("gemini_connection_state","offline").putString("gemini_last_error","chave Gemini não salva").apply();runOfflineMaster(mode,userText,localHits,"chave Gemini não salva; abra CONFIG e use SALVAR E TESTAR GEMINI");return;}'''
+if missing_old in t:
+    t=t.replace(missing_old,missing_new,1)
+
+offline_old='''            try{handleAiResponse(response.toString(),action);setStatus("Resposta preparada pelo Mestre local, sem depender de conexão externa.");}'''
+offline_new='''            try{handleAiResponse(response.toString(),action);setStatus("Mestre local usado porque o Gemini não respondeu: "+(reason==null||reason.trim().length()==0?"motivo não informado":reason));}'''
+if offline_old in t:
+    t=t.replace(offline_old,offline_new,1)
+
+status_old='''    private String textModelStatus(){String configured=prefs==null?"":prefs.getString("text_model","gemini-3.5-flash-lite").trim();String actual=gemini==null?"":gemini.getLastWorkingTextModel().trim();if(actual.length()==0)actual=configured;if(configured.length()==0||actual.equalsIgnoreCase(configured))return "Gemini "+actual;return "Gemini "+actual+" (fallback; configurado: "+configured+")";}'''
+status_new='''    private String textModelStatus(){String configured=prefs==null?"":prefs.getString("text_model","gemini-3.5-flash-lite").trim();String state=prefs==null?"unknown":prefs.getString("gemini_connection_state","unknown");if(!"online".equals(state))return "Gemini OFFLINE • configurado: "+configured;String actual=gemini==null?"":gemini.getLastWorkingTextModel().trim();if(actual.length()==0)actual=configured;if(configured.length()==0||actual.equalsIgnoreCase(configured))return "Gemini ONLINE • "+actual;return "Gemini ONLINE • "+actual+" (fallback; configurado: "+configured+")";}'''
+if status_old in t:
+    t=t.replace(status_old,status_new,1)
+
+# The existing RUN182 save control is now explicitly save+test aware.
+t=t.replace('button("TESTAR IA — 1 CHAMADA",PANEL2)','button("SALVAR E TESTAR GEMINI",PANEL2)',1)
+
+save_msg='''if(saveGeminiSecretsAtomically(primary,alternate)){toast("Chaves Gemini salvas no Android Keystore.");setStatus("Chave Gemini salva e aplicada.");}'''
+save_msg_new='''if(saveGeminiSecretsAtomically(primary,alternate)){prefs.edit().putString("gemini_connection_state","saved_not_tested").remove("gemini_last_error").apply();toast("Chaves Gemini salvas no Android Keystore.");setStatus("Chave Gemini salva. Toque em SALVAR E TESTAR GEMINI para confirmar a conexão.");}'''
+if save_msg in t:
+    t=t.replace(save_msg,save_msg_new,1)
+
+# Add a visible connection line just below the save button.
+save_add='''ai.addView(saveGeminiKeys);ai.addView(text("A chave alternativa só é usada pelo Charon'''
+if save_add in t:
+    t=t.replace(save_add,'''ai.addView(saveGeminiKeys);ai.addView(text(geminiConnectionStatusText(),12,"online".equals(prefs.getString("gemini_connection_state",""))?GREEN:GOLD,true));ai.addView(text("A chave alternativa só é usada pelo Charon''',1)
+
+# Mark the dedicated test result as authoritative.
+test_success='''public void onSuccess(final String value){ui.post(new Runnable(){public void run(){if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(testSystem.length()+testPrompt.length(),value==null?0:value.length());toast(value);setStatus("IA conectada • "+gemini.getLastWorkingTextModel());}});}'''
+test_success_new='''public void onSuccess(final String value){ui.post(new Runnable(){public void run(){if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(testSystem.length()+testPrompt.length(),value==null?0:value.length());prefs.edit().putString("gemini_connection_state","online").putLong("gemini_last_ok_at",System.currentTimeMillis()).remove("gemini_last_error").apply();toast(value);setStatus("GEMINI ONLINE • "+gemini.getLastWorkingTextModel());showSettings();}});}'''
+if test_success in t:
+    t=t.replace(test_success,test_success_new,1)
+
+test_error='''public void onError(final String error){ui.post(new Runnable(){public void run(){if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(testSystem.length()+testPrompt.length(),0);showFriendlyAiError(error,false,null);setStatus("Teste da IA falhou.");}});}'''
+test_error_new='''public void onError(final String error){ui.post(new Runnable(){public void run(){if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(testSystem.length()+testPrompt.length(),0);prefs.edit().putString("gemini_connection_state","offline").putString("gemini_last_error",error==null?"erro desconhecido":error).apply();showFriendlyAiError(error,false,null);setStatus("GEMINI OFFLINE • "+(error==null?"erro desconhecido":error));showSettings();}});}'''
+if test_error in t:
+    t=t.replace(test_error,test_error_new,1)
+
+# Helper for the settings card.
+settings_anchor='''    private void showSettings(){
+'''
+if 'private String geminiConnectionStatusText()' not in t and settings_anchor in t:
+    helper='''    private String geminiConnectionStatusText(){
+        String state=prefs==null?"unknown":prefs.getString("gemini_connection_state","unknown");
+        String configured=prefs==null?"":prefs.getString("text_model","gemini-3.5-flash-lite").trim();
+        String actual=gemini==null?"":gemini.getLastWorkingTextModel().trim();
+        String error=prefs==null?"":prefs.getString("gemini_last_error","");
+        if("online".equals(state))return "● GEMINI ONLINE • "+(actual.length()>0?actual:configured);
+        if("saved_not_tested".equals(state))return "● CHAVE SALVA • conexão ainda não testada";
+        return "● GEMINI OFFLINE"+(error==null||error.trim().length()==0?"":" • "+error.trim());
+    }
+
+'''
+    t=t.replace(settings_anchor,helper+settings_anchor,1)
+
+write("MainActivity.java",t)
+
+# ------------------------------------------------------------------
 # Static acceptance contracts.
 # ------------------------------------------------------------------
 checks={
@@ -332,6 +435,9 @@ checks={
  "tts_deferred":"postDelayed(new Runnable(){public void run(){ensureNativeTtsInitialized();}},350L)" in read("MainActivity.java"),
  "gemini_save_button":"SALVAR CHAVES GEMINI" in read("MainActivity.java"),
  "gemini_test_saves":"saveGeminiSecretsAtomically(k,paidKey.getText().toString().trim())" in read("MainActivity.java"),
+ "gemini_remote_first":'limite remoto diário atingido' not in read("MainActivity.java") and 'orçamento remoto insuficiente para esta cena' not in read("MainActivity.java"),
+ "gemini_online_status":'gemini_connection_state' in read("MainActivity.java") and 'GEMINI ONLINE' in read("MainActivity.java"),
+ "gemini_explicit_fallback_reason":'Mestre local usado porque o Gemini não respondeu' in read("MainActivity.java"),
  "character_control_ui":"Sistema — rotina / combate assistido" in read("MainActivity.java"),
  "character_control_persist":"db.saveCharacterControl(id,controlMode" in read("MainActivity.java"),
  "npc_portrait_click":"beginNpcPortrait(portraitEntry)" in read("MainActivity.java"),
