@@ -50,3 +50,11 @@ button.primary,button.secondary,button.small{border:1px solid #53120f;border-rad
 
 /* 1.0.4 state-change popup */
 .event-popup-overlay{position:fixed;inset:0;z-index:70;background:rgba(20,10,5,.72);display:flex;align-items:center;justify-content:center;padding:18px}.event-popup{width:min(360px,100%);margin:0}.event-popup h3{font-size:20px}.event-popup p{font-size:13px;line-height:1.4}
+
+/* Text-first presentation: scene, heroes and NPCs stay textual; images remain on maps/interiors/equipment. */
+.hero.text-first-hero{display:block}
+.text-entity-list{display:grid;gap:6px}
+.text-entity{display:flex;flex-direction:column;gap:2px;border:1px solid #9b7746;background:#efd8a6;border-radius:5px;padding:8px}
+.text-entity b{font-size:13px}
+.text-entity span{font:10px/1.35 Arial;color:#5f3b25}
+.text-entity.active{border-color:var(--blood);box-shadow:inset 3px 0 0 var(--blood)}
