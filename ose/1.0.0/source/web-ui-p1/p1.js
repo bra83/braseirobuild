@@ -53,7 +53,7 @@ window.BraseiroReceive=(raw)=>{
   else if(m.type==='SceneImageResult'){postNative('ViewState',{request:'after-scene-image'});showToast('Ilustração da cena atualizada.');}
   else if(m.type==='ScenePromptShareResult')showToast('Abrindo o Gemini com o prompt da cena…');
   else if(m.type==='PortraitPromptShareResult')showToast('Abrindo o Gemini com o prompt do retrato…');
-  else if(m.type==='PresentationImageSaved'){postNative('ViewState',{request:'after-media-save'});showToast('Imagem salva e vinculada ao personagem.');}
+  else if(m.type==='PresentationImageSaved'){postNative('ViewState',{request:'after-media-save'});showToast(p.scope==='SCENE'?'Imagem da cena importada.':'Imagem salva e vinculada ao item.');}
   else if(m.type==='ManualDiceResult'){diceHistory.unshift({rolls:p.rolls||[],total:p.total,sides:p.sides,count:p.count,modifier:p.modifier||0});diceHistory=diceHistory.slice(0,12);render();showToast(`Resultado: ${p.total}`);}
   else if(m.type==='RuleEvidenceListResult'){ruleLibrary=p.rules||[];ruleLibraryLoaded=true;render();}
   else if(m.type==='RuleEvidenceResult'){showRuleDetail(p);}
