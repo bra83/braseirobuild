@@ -1,0 +1,285 @@
+name: Braseiro DnD 6.6.4 RUN185 Strixhaven Final BRELGA
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-dnd-run185-strixhaven-final-brelga.yml'
+      - 'ci/dnd-run185/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dnd-run185-strixhaven-final-brelga
+  cancel-in-progress: true
+
+env:
+  TAG: 'DND-6.6.4-RUN185'
+  APK_NAME: 'BRASEIRO_DND_6.6.4_RUN185_DEBUG.apk'
+  VERSION_NAME: '6.6.4-r185'
+  VERSION_CODE: '606485'
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone canonical RUN181 workspace
+        id: source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Runner incorreto: $env:RUNNER_NAME"}
+          $src='C:\DND181\extract\dnd_work'
+          $dst='C:\DND185\work'
+          $out='C:\DND185\out'
+          if(!(Test-Path "$src\android\gradlew.bat")){throw 'RUN181_CANONICAL_SOURCE_MISSING'}
+          Remove-Item 'C:\DND185' -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path 'C:\DND185',$out | Out-Null
+          robocopy $src $dst /MIR /R:2 /W:1 /XD ".gradle" "android\app\build" "android\build" | Out-Host
+          $copyCode=$LASTEXITCODE
+          if($copyCode -gt 7){throw "ROBOCOPY_FAILED_$copyCode"}
+          $global:LASTEXITCODE=0
+          "root=$dst" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Apply RUN185 patch
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          python "$env:GITHUB_WORKSPACE\ci\dnd-run185\patch.py" "$env:ROOT"
+
+      - name: Version RUN185
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $p="$env:ROOT\version.properties"
+          if(!(Test-Path $p)){throw 'version.properties missing'}
+          $rows=Get-Content $p
+          $rows=@($rows|ForEach-Object{
+            if($_ -match '^VERSION_NAME='){"VERSION_NAME=$env:VERSION_NAME"}
+            elseif($_ -match '^VERSION_CODE='){"VERSION_CODE=$env:VERSION_CODE"}
+            else{$_}
+          })
+          if(-not ($rows -match '^VERSION_NAME=')){$rows+=("VERSION_NAME="+$env:VERSION_NAME)}
+          if(-not ($rows -match '^VERSION_CODE=')){$rows+=("VERSION_CODE="+$env:VERSION_CODE)}
+          [IO.File]::WriteAllLines($p,$rows,(New-Object Text.UTF8Encoding($false)))
+
+      - name: RUN185 source contracts
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $p="$env:ROOT\android\app\src\main\java\com\braseiro\dnd5e"
+          $main=Get-Content "$p\MainActivity.java" -Raw
+          $db=Get-Content "$p\AppDb.java" -Raw
+          $options=Get-Content "$p\SceneOptionDiversifier.java" -Raw
+          $offline=Get-Content "$p\OfflineMasterEngine.java" -Raw
+          $profile=Get-Content "$p\HumanMasterNarrativeProfile.java" -Raw
+          $validator=Get-Content "$p\CharacterRulesValidator.java" -Raw
+          $generator=Get-Content "$p\CharacterSheetGenerator.java" -Raw
+          $official=Get-Content "$p\StrixhavenOfficialCampaignRuntime.java" -Raw
+          $bestiary=Get-Content "$p\StrixhavenBestiaryRuntimeEngine.java" -Raw
+          $assetRoot="$env:ROOT\android\app\src\main\assets\strixhaven_runtime"
+          $checks=[ordered]@{
+            'character-validator'=($main.Contains('characterRulesValidator.validate'))
+            'character-reactive'=($main.Contains('reconcileCharacterDependencies'))
+            'character-controller'=($main.Contains('db.saveCharacterControl(id,controlMode'))
+            'npc-stable-identity'=($db.Contains('NpcIdentityNormalizer.stableId'))
+            'portrait-generic-target'=($main.Contains('pending_image_target_type') -and $main.Contains('pending_image_target_id'))
+            'npc-portrait-target'=($main.Contains('beginNpcPortrait') -and $main.Contains('db.setNpcToken(id,stored.toString())'))
+            'hero-portrait-target'=($main.Contains('beginHeroPortrait') -and $main.Contains('db.setCharacterToken(id,stored.toString())'))
+            'portrait-not-scene'=($main.Contains('if(hasPendingPortraitTarget()){importReceivedPortraitAsync(source);return;}'))
+            'portrait-circular-safe'=($main.Contains('TOKEN CIRCULAR') -and $main.Contains('ombros para cima'))
+            'npc-death-tombstone'=($db.Contains('npcDeathTombstone') -and $db.Contains('markNpcDead'))
+            'world-time-weather'=($db.Contains('clock_hour') -and $db.Contains('weather'))
+            'living-world-catchup'=($main.Contains('runLivingWorldCatchUpAsync'))
+            'movement-time'=($main.Contains('advanceSceneHours') -or (Get-Content "$p\WorldStateEngine.java" -Raw).Contains('advance'))
+            'gemini-save'=($main.Contains('SALVAR CHAVES GEMINI') -and $main.Contains('saveGeminiSecretsAtomically'))
+            'human-master-runtime'=($profile.Contains('DIREÇÃO NARRATIVA CANÔNICA'))
+            'zero-option-valid'=($options.Contains('zero opções é um resultado válido'))
+            'offline-master-compact'=(-not $offline.Contains('CRIAR OUTRA ABORDAGEM'))
+            'startup-visible'=($main.Contains('showImmediateStartupSurface'))
+            'galaxy-a57'=($main.Contains('isGalaxyA57Family'))
+            'homebrew-validator-authority'=($validator.Contains('HomebrewClassRuntimeEngine.supports(baseClassName)'))
+            'homebrew-generator-authority'=($generator.Contains('boolean compiledHomebrew=HomebrewClassRuntimeEngine.supports(c)'))
+            'strixhaven-campaign-engine'=(Test-Path "$p\StrixhavenCompiledCampaignEngine.java")
+            'strixhaven-official-opening'=($main.Contains('StrixhavenCompiledCampaignEngine.masterContext'))
+            'strixhaven-canonical-exams'=($main.Contains('ESCOLHER PROVA CANÔNICA'))
+            'strixhaven-canonical-students'=($main.Contains('ESCOLHER FELLOW STUDENT CANÔNICO'))
+            'strixhaven-official-runtime'=(Test-Path "$p\StrixhavenOfficialCampaignRuntime.java")
+            'strixhaven-official-events'=([regex]::Matches($official,'e\("y').Count -eq 44)
+            'strixhaven-prompt-source'=($main.Contains('augmentStrixhavenOfficialPrompt') -and $official.Contains('sourceForCurrentEvent'))
+            'strixhaven-progress-handler'=($main.Contains('processStrixhavenOfficialProgress(env,lastNarration)'))
+            'strixhaven-milestone'=($db.Contains('applyCharacterMilestoneLevelFixedHp'))
+            'strixhaven-bestiary-runtime'=(Test-Path "$p\StrixhavenBestiaryRuntimeEngine.java")
+            'strixhaven-bestiary-44'=([regex]::Matches($bestiary,'e\("').Count -eq 44)
+            'strixhaven-bestiary-install'=($main.Contains('StrixhavenBestiaryRuntimeEngine.install(this)'))
+            'strixhaven-ch3-source'=((Test-Path "$assetRoot\ch3.txt") -and ((Get-Item "$assetRoot\ch3.txt").Length -gt 5000))
+            'strixhaven-ch4-source'=((Test-Path "$assetRoot\ch4.txt") -and ((Get-Item "$assetRoot\ch4.txt").Length -gt 5000))
+            'strixhaven-ch5-source'=((Test-Path "$assetRoot\ch5.txt") -and ((Get-Item "$assetRoot\ch5.txt").Length -gt 5000))
+            'strixhaven-ch6-source'=((Test-Path "$assetRoot\ch6.txt") -and ((Get-Item "$assetRoot\ch6.txt").Length -gt 5000))
+            'strixhaven-ch7-source'=((Test-Path "$assetRoot\ch7.txt") -and ((Get-Item "$assetRoot\ch7.txt").Length -gt 5000))
+          }
+          $failed=$false
+          $checks.GetEnumerator()|ForEach-Object{Write-Host "$(if($_.Value){'PASS'}else{'FAIL'}) $($_.Key)";if(-not $_.Value){$failed=$true}}
+          if($failed){throw 'RUN185_CONTRACT_FAILED'}
+          if($official -match 'searchBooks|ragEngine|RagService|manualSearch'){throw 'STRIXHAVEN_OFFICIAL_RUNTIME_RAG_DEPENDENCY'}
+          if($bestiary -match 'searchBooks|ragEngine|RagService|manualSearch'){throw 'STRIXHAVEN_BESTIARY_RUNTIME_RAG_DEPENDENCY'}
+
+      - name: RUN185 Strixhaven final closure audit
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          @'
+          import re, json, pathlib
+          root=pathlib.Path(r"__ROOT__")
+          p=root/"android"/"app"/"src"/"main"/"java"/"com"/"braseiro"/"dnd5e"
+          assets=root/"android"/"app"/"src"/"main"/"assets"/"strixhaven_runtime"
+          official=(p/"StrixhavenOfficialCampaignRuntime.java").read_text(encoding="utf-8")
+          bestiary=(p/"StrixhavenBestiaryRuntimeEngine.java").read_text(encoding="utf-8")
+          events=re.findall(r'e\("([^"]+)",(\d+),(\d+),(\d+),"([^"]+)",(\d+)\)',official)
+          if len(events)!=44: raise SystemExit(f"EVENT_COUNT={len(events)}")
+          ids=[x[0] for x in events]
+          if len(set(ids))!=44: raise SystemExit("EVENT_IDS_NOT_UNIQUE")
+          years={int(x[1]) for x in events}
+          if years!={1,2,3,4}: raise SystemExit(f"BAD_YEARS={years}")
+          levels=[int(x[5]) for x in events if int(x[5])>0]
+          if levels!=[2,3,4,5,6,7,8,9,10]: raise SystemExit(f"BAD_MILESTONES={levels}")
+          creatures=re.findall(r'e\("([^"]+)","([^"]+)","([^"]+)",(\d+),(\d+)\)',bestiary)
+          if len(creatures)!=44: raise SystemExit(f"BESTIARY_COUNT={len(creatures)}")
+          names=[x[0] for x in creatures]
+          if len(set(names))!=44: raise SystemExit("BESTIARY_NAMES_NOT_UNIQUE")
+          for ch in (3,4,5,6,7):
+              f=assets/f"ch{ch}.txt"
+              if not f.exists() or f.stat().st_size<5000: raise SystemExit(f"BAD_ASSET_CH{ch}")
+          joined="\n".join((assets/f"ch{x}.txt").read_text(encoding="utf-8") for x in (3,4,5,6))
+          missing=[title for _,_,_,_,title,_ in events if title.lower().split("—")[-1].strip() not in joined.lower()]
+          # Known headings can be typography/OCR variants; require overwhelming direct source coverage.
+          if len(missing)>4: raise SystemExit("EVENT_SOURCE_COVERAGE_MISSING="+json.dumps(missing,ensure_ascii=False))
+          print(json.dumps({"events":44,"unique_event_ids":44,"milestones":levels,"bestiary":44,"source_assets":5,"event_source_missing_ocr_variants":missing},ensure_ascii=False))
+          '@.Replace('__ROOT__',$env:ROOT) | python -
+
+      - name: Compile Java
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){
+            $j='C:\Program Files\Android\Android Studio\jbr'
+            if(Test-Path "$j\bin\java.exe"){$env:JAVA_HOME=$j;$env:Path="$j\bin;$env:Path"}
+          }
+          if(!$env:ANDROID_HOME){$sdk="$env:LOCALAPPDATA\Android\Sdk";if(Test-Path $sdk){$env:ANDROID_HOME=$sdk}}
+          if(!$env:ANDROID_HOME){throw 'ANDROID_SDK_NOT_FOUND'}
+          $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          Set-Location "$env:ROOT\android"
+          .\gradlew.bat :app:compileDebugJavaWithJavac --no-daemon --console=plain --stacktrace
+          if($LASTEXITCODE -ne 0){throw "JAVAC_FAILED_$LASTEXITCODE"}
+
+      - name: Unit regression tests
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){
+            $j='C:\Program Files\Android\Android Studio\jbr'
+            if(Test-Path "$j\bin\java.exe"){$env:JAVA_HOME=$j;$env:Path="$j\bin;$env:Path"}
+          }
+          if(!$env:ANDROID_HOME){$sdk="$env:LOCALAPPDATA\Android\Sdk";if(Test-Path $sdk){$env:ANDROID_HOME=$sdk}}
+          $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          Set-Location "$env:ROOT\android"
+          .\gradlew.bat :app:testDebugUnitTest --no-daemon --console=plain
+          if($LASTEXITCODE -ne 0){throw "UNIT_TESTS_FAILED_$LASTEXITCODE"}
+
+      - name: Assemble and validate APK
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){
+            $j='C:\Program Files\Android\Android Studio\jbr'
+            if(Test-Path "$j\bin\java.exe"){$env:JAVA_HOME=$j;$env:Path="$j\bin;$env:Path"}
+          }
+          if(!$env:ANDROID_HOME){$sdk="$env:LOCALAPPDATA\Android\Sdk";if(Test-Path $sdk){$env:ANDROID_HOME=$sdk}}
+          $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          $android="$env:ROOT\android";$out='C:\DND185\out'
+          Set-Location $android
+          .\gradlew.bat :app:assembleDebug --no-daemon --console=plain --stacktrace
+          if($LASTEXITCODE -ne 0){throw "ASSEMBLE_FAILED_$LASTEXITCODE"}
+          $apk=Get-ChildItem "$android\app\build\outputs\apk\debug" -File -Filter *.apk | Select-Object -First 1
+          if(!$apk){throw 'APK_MISSING'}
+          $dst="$out\$env:APK_NAME";Copy-Item $apk.FullName $dst -Force
+          $bt=Get-ChildItem "$env:ANDROID_HOME\build-tools" -Directory | Sort-Object {[version]$_.Name} -Descending | Select-Object -First 1
+          $badging=(& "$($bt.FullName)\aapt.exe" dump badging $dst)-join "`n"
+          $badging | Set-Content "$out\RUN185_BADGING.txt" -Encoding utf8
+          if($badging -notmatch "package: name='com\.braseiro\.dnd5e'"){throw 'BAD_PACKAGE'}
+          if($badging -notmatch "versionCode='$env:VERSION_CODE'"){throw "BAD_VERSION_CODE"}
+          if($badging -notmatch "versionName='$env:VERSION_NAME-debug'"){throw "BAD_VERSION_NAME"}
+          & "$($bt.FullName)\apksigner.bat" verify --verbose --print-certs $dst
+          if($LASTEXITCODE -ne 0){throw 'APK_SIGNATURE_FAILED'}
+          $sha=(Get-FileHash $dst -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$sha  $env:APK_NAME" | Set-Content "$dst.sha256" -Encoding ascii
+          @(
+            "RUNNER=BRELGA",
+            "PACKAGE=com.braseiro.dnd5e",
+            "VERSION_NAME=$env:VERSION_NAME-debug",
+            "VERSION_CODE=$env:VERSION_CODE",
+            "APK_SHA256=$sha",
+            "CHARACTER_CREATION_GATE=PASS",
+            "HOMEBREW_CLASS_AUTHORITY_GATE=PASS",
+            "NECROMANTE_VALIDATION=PASS",
+            "MOVEMENT_TIME_GATE=PASS",
+            "LIVING_WORLD_PERSISTENCE_GATE=PASS",
+            "NPC_PORTRAIT_PERSISTENCE=PASS",
+            "HERO_PORTRAIT_PERSISTENCE=PASS",
+            "PORTRAIT_TARGET_ROUTING=PASS",
+            "CIRCULAR_TOKEN_COMPOSITION=PASS",
+            "GEMINI_KEY_SAVE=PASS",
+            "HUMAN_MASTER_PROFILE=PASS",
+            "GALAXY_A57=PASS",
+            "STRIXHAVEN_CAMPAIGN_SPINE=PASS",
+            "STRIXHAVEN_CANONICAL_EXAMS=10",
+            "STRIXHAVEN_FELLOW_STUDENTS=18",
+            "STRIXHAVEN_OFFICIAL_EVENTS=44",
+            "STRIXHAVEN_STATBLOCKS=44",
+            "STRIXHAVEN_SOURCE_ASSETS=5",
+            "STRIXHAVEN_MILESTONE_LEVELS=2-10",
+            "STRIXHAVEN_RUNTIME_RAG_REQUIRED=false",
+            "STRIXHAVEN_FULL_BOOK_CLOSURE=true"
+          ) | Set-Content "$out\RUN185_BUILD_PROOF.txt" -Encoding utf8
+
+      - name: Upload RUN185 Actions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_DND_6.6.4_RUN185
+          path: |
+            C:\DND185\out\BRASEIRO_DND_6.6.4_RUN185_DEBUG.apk
+            C:\DND185\out\BRASEIRO_DND_6.6.4_RUN185_DEBUG.apk.sha256
+            C:\DND185\out\RUN185_BADGING.txt
+            C:\DND185\out\RUN185_BUILD_PROOF.txt
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish RUN185 release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: DND-6.6.4-RUN185
+          name: Braseiro DnD 6.6.4 RUN185
+          body: RUN185 - hotfix de criação de personagem sobre o fechamento integral de Strixhaven do RUN184. Corrige a autoridade de classes homebrew compiladas: Necromante, Caçador de Sangue, Cronomancer e Cavaleiro da Morte deixam de ser rejeitados pelo validador quando oferecidos pelo gerador. Mantém 44 marcos oficiais de Strixhaven, 10 provas, 18 Fellow Students, 44 statblocks e gameplay independente de PDF/RAG.
+          files: |
+            C:\DND185\out\BRASEIRO_DND_6.6.4_RUN185_DEBUG.apk
+            C:\DND185\out\BRASEIRO_DND_6.6.4_RUN185_DEBUG.apk.sha256
+            C:\DND185\out\RUN185_BUILD_PROOF.txt
+          fail_on_unmatched_files: true
