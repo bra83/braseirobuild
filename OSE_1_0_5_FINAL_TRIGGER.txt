@@ -7,3 +7,5 @@ required_kokoro_installed_engine=true
 required_update_compatibility=true
 signing=braseiro-stable-debug
 android_compile_fix=tts_engine_system_package_manager
+
+static_gate_fix=executable_strings_only
