@@ -1,6 +1,7 @@
 package braseiro.ose.tts.android
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
@@ -144,7 +145,11 @@ class AndroidTtsController(context: Context) : TtsPort, TextToSpeech.OnInitListe
                 EngineOption(
                     packageName = it.name,
                     label = it.label?.toString().orEmpty().ifBlank { it.name },
-                    system = it.system,
+                    system = runCatching {
+                        val info = appContext.packageManager.getApplicationInfo(it.name, 0)
+                        (info.flags and ApplicationInfo.FLAG_SYSTEM) != 0 ||
+                            (info.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
+                    }.getOrDefault(false),
                     preferredKokoro = it.name in KOKORO_ENGINES
                 )
             }
