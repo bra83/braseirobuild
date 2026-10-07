@@ -126,6 +126,7 @@ class FastFinishIntegrationTest {
         var current=initial
         override fun create(envelope:CampaignEnvelope){current=envelope}
         override fun load(campaignId:CampaignId)=CampaignLoadResult.Loaded(current)
+        override fun replace(envelope:CampaignEnvelope){current=envelope}
         override fun commit(campaignId:CampaignId,transition:StateTransition){current=current.copy(campaignState=transition.updatedState)}
         override fun checkpoint(campaignId:CampaignId,checkpointId:String){}
         override fun listCampaigns()=listOf(CampaignSummary(current.campaignId,false))
