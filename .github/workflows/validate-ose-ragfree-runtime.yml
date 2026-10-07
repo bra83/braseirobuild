@@ -88,6 +88,8 @@ jobs:
           grep -q 'data-scene-prompt' "$JS"
           grep -q 'data-scene-import' "$JS"
           grep -q 'sceneImageUrl' "$JS"
+          grep -q 'confirmWildernessAction' "$JS"
+          grep -q 'data-travel-roll' "$JS"
           grep -q 'ScenePromptShare' "$MAIN"
           grep -q '"SCENE" -> PresentationMediaStore.Scope.SCENE' "$MAIN"
           ! grep -q 'data-generate-character' "$JS"
