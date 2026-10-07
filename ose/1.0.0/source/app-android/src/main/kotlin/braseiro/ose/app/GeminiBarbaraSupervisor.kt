@@ -3,8 +3,11 @@ package braseiro.ose.app
 import braseiro.ose.barbara.BarbaraSupervisorPort
 import braseiro.ose.model.CampaignEnvelope
 import braseiro.ose.model.HexCellSnapshot
+import braseiro.ose.model.InventoryItemKind
+import braseiro.ose.model.LightSourceKind
 import braseiro.ose.model.SpatialRef
 import braseiro.ose.model.TerrainKind
+import braseiro.ose.model.WeatherKind
 import braseiro.ose.rules.api.RuleTrace
 
 /**
