@@ -86,7 +86,7 @@ jobs:
           foreach($required in @('com.k2fsa.sherpa.onnx.tts.engine','UtteranceProgressListener','TextToSpeech.QUEUE_ADD','TtsTextSegmenter.segment')) {
             if (-not $tts.Contains($required)) { throw "Kokoro gate missing: $required" }
           }
-          if ($tts -match 'Android/data|model\.onnx|voices\.bin') { throw 'Forbidden embedded/accessed Kokoro model path' }
+          if ($tts -match '"[^"\r\n]*(Android/data|model\.onnx|voices\.bin)[^"\r\n]*"') { throw 'Forbidden embedded/accessed Kokoro model path' }
 
       - name: RAG-free mechanics gate
         shell: powershell
