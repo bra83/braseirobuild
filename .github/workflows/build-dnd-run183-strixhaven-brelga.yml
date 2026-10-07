@@ -193,7 +193,8 @@ jobs:
             "STRIXHAVEN_CAMPAIGN_SPINE=PASS",
             "STRIXHAVEN_CANONICAL_EXAMS=10",
             "STRIXHAVEN_FELLOW_STUDENTS=18",
-            "STRIXHAVEN_RUNTIME_RAG_REQUIRED=false"
+            "STRIXHAVEN_BLOCK1_RAG_REQUIRED=false",
+            "STRIXHAVEN_FULL_BOOK_CLOSURE=false"
           ) | Set-Content "$out\RUN183_BUILD_PROOF.txt" -Encoding utf8
 
       - name: Upload RUN183 Actions artifact
