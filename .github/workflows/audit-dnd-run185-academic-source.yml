@@ -1,0 +1,64 @@
+name: Audit DnD RUN185 Academic Source
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-dnd-run185-academic-source.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audit-dnd-run185-academic-source
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone canonical RUN181 workspace
+        id: source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Runner incorreto: $env:RUNNER_NAME"}
+          $src='C:\DND181\extract\dnd_work'
+          $dst='C:\DND185_AUDIT\work'
+          Remove-Item 'C:\DND185_AUDIT' -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path 'C:\DND185_AUDIT' | Out-Null
+          robocopy $src $dst /MIR /R:2 /W:1 /XD ".gradle" "android\app\build" "android\build" | Out-Host
+          $copyCode=$LASTEXITCODE
+          if($copyCode -gt 7){throw "ROBOCOPY_FAILED_$copyCode"}
+          $global:LASTEXITCODE=0
+          "root=$dst" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+      - name: Apply RUN185 patch
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          python "$env:GITHUB_WORKSPACE\ci\dnd-run185\patch.py" "$env:ROOT"
+      - name: Collect academic source
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $p="$env:ROOT\android\app\src\main\java\com\braseiro\dnd5e"
+          $out='C:\DND185_AUDIT\out'
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          Copy-Item "$p\MainActivity.java" "$out\MainActivity.java"
+          Copy-Item "$p\StrixhavenAcademicRulesEngine.java" "$out\StrixhavenAcademicRulesEngine.java"
+          Copy-Item "$p\StrixhavenAdventureProfile.java" "$out\StrixhavenAdventureProfile.java"
+          Copy-Item "$p\StrixhavenCompiledCampaignEngine.java" "$out\StrixhavenCompiledCampaignEngine.java"
+          Copy-Item "$p\StrixhavenOfficialCampaignRuntime.java" "$out\StrixhavenOfficialCampaignRuntime.java"
+      - name: Upload academic source
+        uses: actions/upload-artifact@v4
+        with:
+          name: DND_RUN185_ACADEMIC_SOURCE
+          path: C:\DND185_AUDIT\out\*
+          if-no-files-found: error
+          retention-days: 2
