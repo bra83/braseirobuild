@@ -13,7 +13,7 @@ permissions:
 env:
   SOURCE_NAME: BRASEIRO_FORBIDDEN_LANDS_3.3.12_R16_SOURCE.zip
   SOURCE_SHA256: 71717e1dbdb0f83225ef2840dde7ded325c967ddd195c0d004937580b80cee65
-  FIRESTORAGE_API: https://api.firestorage.ai/dev/file/shares/xaZ9mEePUvncpCfV
+  FIRESTORAGE_API: https://api.firestorage.ai/dev/file/shares/6uDCKsq8KeHT
   EXPECTED_SHA1: 9d0f1089b3fb6c225f1f59462750864e897c4d92
 
 jobs:
