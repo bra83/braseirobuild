@@ -104,8 +104,8 @@ jobs:
           }
 
           if ($gradle -notmatch 'applicationId\s*=\s*"braseiro\.ose"') { throw 'Wrong package' }
-          if ($gradle -notmatch 'versionCode\s*=\s*7') { throw 'Expected versionCode 8' }
-          if ($gradle -notmatch 'versionName\s*=\s*"1\.0\.6"') { throw 'Expected versionName 1.0.7' }
+          if ($gradle -notmatch 'versionCode\s*=\s*8') { throw 'Expected versionCode 8' }
+          if ($gradle -notmatch 'versionName\s*=\s*"1\.0\.7"') { throw 'Expected versionName 1.0.7' }
 
           foreach($required in @(
             'data-scene-prompt','data-scene-import','sceneImageUrl','confirmWildernessAction','data-travel-roll',
