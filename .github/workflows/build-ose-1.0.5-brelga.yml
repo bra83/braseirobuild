@@ -101,6 +101,19 @@ jobs:
             if($hits){ $hits | ForEach-Object { Write-Host $_ }; throw "$module depends on RAG at runtime" }
           }
 
+      - name: Install stable Braseiro debug signing key
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $androidDir=Join-Path $env:USERPROFILE '.android'
+          New-Item -ItemType Directory -Path $androidDir -Force | Out-Null
+          $keystore=Join-Path $androidDir 'debug.keystore'
+          $b64=(Get-Content 'build-signing\braseiro-stable-debug.keystore.b64' -Raw).Trim()
+          [IO.File]::WriteAllBytes($keystore,[Convert]::FromBase64String($b64))
+          if (-not (Test-Path $keystore)) { throw 'Stable Braseiro keystore was not installed' }
+          & keytool.exe -list -keystore $keystore -storepass android -alias androiddebugkey | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'Stable Braseiro keystore validation failed' }
+
       - name: Runtime suites
         shell: powershell
         working-directory: ose/1.0.0/source
