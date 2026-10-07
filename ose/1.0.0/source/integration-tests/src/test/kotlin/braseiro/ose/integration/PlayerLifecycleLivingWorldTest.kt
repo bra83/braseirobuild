@@ -3,6 +3,8 @@ package braseiro.ose.integration
 import braseiro.ose.backup.BackupCodec
 import braseiro.ose.barbara.DeterministicBarbaraSupervisor
 import braseiro.ose.character.CharacterCreator
+import braseiro.ose.character.NativeCharacterCreationCoordinator
+import braseiro.ose.character.NativeCharacterLoadoutCoordinator
 import braseiro.ose.hex.HexKnowledge
 import braseiro.ose.hex.HexWorldGeneratorV1
 import braseiro.ose.model.*
@@ -28,6 +30,48 @@ class PlayerLifecycleLivingWorldTest {
         override fun checkpoint(campaignId: CampaignId, checkpointId: String) { check(store.containsKey(campaignId.value)); check(checkpointId.isNotBlank()) }
         override fun listCampaigns(): List<CampaignSummary> = store.keys.sorted().map { CampaignSummary(CampaignId(it),false) }
         override fun archive(campaignId: CampaignId) { check(store.containsKey(campaignId.value)) }
+    }
+
+
+    @Test
+    fun `native creation loadout and starting wealth remain canonical after persistence`() {
+        val base=Fixtures.campaign("native-create",RuleProfile.OSE_CLASSIC_FANTASY).copy(
+            optionSet=OptionSet(listOf("OPT.ENCUMBRANCE=BASIC")),
+            campaignState=Fixtures.campaign("native-create",RuleProfile.OSE_CLASSIC_FANTASY).campaignState.copy(
+                party=PartyState(),
+                resources=ResourceState(),
+                game=GameExtensions(rngRootSeed="123")
+            )
+        )
+        val creation=NativeCharacterCreationCoordinator()
+        val draft=creation.startDraft(base,"draft-native")
+        assertTrue(draft.created)
+        val committed=creation.commit(
+            draft.envelope,
+            "draft-native",
+            "native-hero",
+            "Brena",
+            CreationMethod.CLASSIC,
+            listOf("FIGHTER"),
+            null
+        )
+        assertTrue(committed.stateChanged)
+        assertIs<CharacterCreationResult.Created>(committed.result)
+        assertEquals("CHARACTER_LOADOUT",committed.envelope.campaignState.game.session.phase)
+
+        val loadout=committed.envelope.campaignState.game.loadouts.getValue("native-hero")
+        assertTrue(loadout.startingWealthGp > 0)
+        val finished=NativeCharacterLoadoutCoordinator().finish(committed.envelope,"native-hero")
+        assertTrue(finished.changed)
+        val coin=finished.envelope.campaignState.game.inventory.items.values.single { it.kind==InventoryItemKind.COIN }
+        assertEquals(loadout.remainingWealthGp,coin.quantity)
+        assertTrue(finished.envelope.campaignState.resources.resourceFacts.contains("gold:${coin.quantity}"))
+
+        val repo=MemoryRepo()
+        repo.create(finished.envelope)
+        val persisted=assertIs<CampaignLoadResult.Loaded>(repo.load(finished.envelope.campaignId)).envelope
+        assertEquals("Brena",persisted.campaignState.game.characters.getValue("native-hero").name)
+        assertEquals(coin.quantity,persisted.campaignState.game.inventory.items.getValue(coin.itemId).quantity)
     }
 
     @Test
