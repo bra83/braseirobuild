@@ -1,0 +1,46 @@
+name: Inspect DnD RUN182 Living World Options
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-run182-livingworld-options.yml']
+  workflow_dispatch:
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect exact RUN182 living-world and option flow
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $src='C:\DND181\extract\dnd_work'
+          $dst='C:\DND182_LW_INSPECT\work'
+          Remove-Item 'C:\DND182_LW_INSPECT' -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path 'C:\DND182_LW_INSPECT' | Out-Null
+          robocopy $src $dst /MIR /R:2 /W:1 /XD ".gradle" "android\app\build" "android\build" | Out-Null
+          if($LASTEXITCODE -gt 7){throw "ROBOCOPY_FAILED_$LASTEXITCODE"}
+          $global:LASTEXITCODE=0
+          python "$env:GITHUB_WORKSPACE\ci\dnd-run182\patch.py" "$dst"
+          $p="$dst\android\app\src\main\java\com\braseiro\dnd5e"
+          function Dump([string]$file,[string]$regex,[int]$before=12,[int]$after=55){
+            $fp=Join-Path $p $file;if(!(Test-Path $fp)){return}
+            $ls=Get-Content $fp
+            $ms=Select-String -Path $fp -Pattern $regex -AllMatches
+            $ranges=@()
+            foreach($m in $ms){
+              $a=[Math]::Max(1,$m.LineNumber-$before);$b=[Math]::Min($ls.Count,$m.LineNumber+$after)
+              if($ranges.Count -gt 0 -and $a -le ($ranges[$ranges.Count-1][1]+1)){$ranges[$ranges.Count-1][1]=[Math]::Max($ranges[$ranges.Count-1][1],$b)}
+              else{$ranges+=,@($a,$b)}
+            }
+            "===== $file ====="
+            foreach($r in $ranges){
+              "--- $($r[0])-$($r[1]) ---"
+              for($i=$r[0];$i -le $r[1];$i++){"{0,6}: {1}" -f $i,$ls[$i-1]}
+            }
+          }
+          Dump 'MainActivity.java' 'runLivingWorldCatchUpAsync|runWorldSixAsync|advanceSceneHours|advanceWorld|sendAi\(|handleOption\(|currentOptions|showLivingWorld|MUNDO VIVO|onCreate\(' 12 70
+          Dump 'LivingWorldEngine.java' 'class LivingWorldEngine|tick\(|advance|event|npc|faction|settlement|weather|time|hour|day|commit|persist' 8 75
+          Dump 'LivingWorldCatchUpEngine.java' 'class LivingWorldCatchUpEngine|preview|commit|game_hours|elapsed|last|tick|event|hour|day' 8 90
+          Dump 'WorldSixCoordinator.java' 'class WorldSixCoordinator|tick|commit|event|hour|day|world' 8 90
+          Dump 'SceneOptionDiversifier.java' 'diversify|ensureAlways|option|ground|anchor|recent|label|description' 8 80
