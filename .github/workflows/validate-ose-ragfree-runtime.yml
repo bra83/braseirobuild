@@ -42,7 +42,26 @@ jobs:
           echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
 
       - name: JavaScript syntax gate
-        run: node --check ose/1.0.0/source/web-ui-p1/p1.js
+        run: |
+          node --check ose/1.0.0/source/web-ui-p1/generated_map_assets.js
+          node --check ose/1.0.0/source/web-ui-p1/p1.js
+
+      - name: Generated local maps gate
+        run: |
+          set -euo pipefail
+          ROOT=ose/1.0.0/source
+          JS="$ROOT/web-ui-p1/p1.js"
+          PACK="$ROOT/web-ui-p1/generated_map_assets.js"
+          PROJECTOR="$ROOT/app-android/src/main/kotlin/braseiro/ose/app/AppViewStateProjector.kt"
+          grep -q 'settlement_gate' "$PACK"
+          grep -q 'settlement_market' "$PACK"
+          grep -q 'dungeon_room' "$PACK"
+          grep -q 'dungeon_cave' "$PACK"
+          grep -q 'renderSettlementMap' "$JS"
+          grep -q 'renderDungeonMap' "$JS"
+          grep -q 'localMaps' "$PROJECTOR"
+          grep -q 'Local desconhecido' "$PROJECTOR"
+          echo "State-driven settlement/dungeon generated-map surfaces: PASS"
 
       - name: RAG-independence gate
         run: |
@@ -125,10 +144,10 @@ jobs:
           done
           exit "$failed"
 
-      - name: Android compile gate only
+      - name: Android unit tests and compile gate
         working-directory: ose/1.0.0/source
         run: |
-          ./gradlew --no-daemon :app-android:compileDebugKotlin --stacktrace
+          ./gradlew --no-daemon :app-android:testDebugUnitTest :app-android:compileDebugKotlin --stacktrace
 
       - name: Summary
         run: |
@@ -137,6 +156,6 @@ jobs:
             echo "- Mechanics core has no runtime dependency on rag-source-registry."
             echo "- Android TTS is installed-engine based and Kokoro/Sherpa-aware."
             echo "- Primary UI is text-first; scene, map and equipment imagery are enabled; character/NPC portrait UI stays dormant."
-            echo "- JVM tests and Android Kotlin compile passed."
+            echo "- JVM tests, Android unit tests and Android Kotlin compile passed."
             echo "- No APK was assembled by this validation workflow."
           } >> "$GITHUB_STEP_SUMMARY"
