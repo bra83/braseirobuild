@@ -6,3 +6,5 @@ versionName=1.0.7
 versionCode=8
 runner=BRELGA
 required=rag_free,classic_advanced,character_creation_persistence_evolution,living_world,npc_memory_autonomy,weather,time,wilderness_resources,local_maps,heavy_40x60_campaigns,procedural_corpus,kokoro,gemini_scene_images,room_android_tests,stable_signing
+
+badging_gate_fix=versionName_1.0.7
