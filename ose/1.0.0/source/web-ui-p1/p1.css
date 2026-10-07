@@ -60,3 +60,44 @@ button.primary,button.secondary,button.small{border:1px solid #53120f;border-rad
 .text-entity.active{border-color:var(--blood);box-shadow:inset 3px 0 0 var(--blood)}
 
 .party-marker{position:absolute;width:28px;height:28px;display:flex;align-items:center;justify-content:center;z-index:10;border:2px solid var(--ox);border-radius:50%;background:#f2deb6;color:var(--blood);font:700 15px Georgia;box-shadow:0 2px 3px #0008}
+
+
+/* Generated local maps: settlement + dungeon, state-driven and read-only. */
+.map-mode-tabs{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.map-mode-tabs .small.active{background:var(--blood);color:#fff3cf;border-color:#6c241e}
+.local-map-shell .map-head{align-items:flex-start;gap:10px}
+.settlement-map-board,.dungeon-map-board{position:relative;height:560px;border:2px solid #5c4427;border-radius:8px;overflow:hidden;background:#171410;box-shadow:inset 0 0 0 1px #b89152}
+.settlement-map-board{background:
+ radial-gradient(circle at 50% 46%,#b5945d 0 8%,transparent 9%),
+ linear-gradient(25deg,transparent 46%,#8f7651 47% 52%,transparent 53%),
+ linear-gradient(-30deg,transparent 46%,#8f7651 47% 52%,transparent 53%),
+ #6f8155}
+.town-road{position:absolute;background:#ad9467;border:1px solid #77603f;opacity:.95;border-radius:999px;transform-origin:center}
+.road-a{width:76%;height:9%;left:12%;top:47%;transform:rotate(-8deg)}
+.road-b{width:65%;height:9%;left:18%;top:48%;transform:rotate(55deg)}
+.road-c{width:58%;height:8%;left:20%;top:50%;transform:rotate(-58deg)}
+.settlement-place,.dungeon-node{position:absolute;transform:translate(-50%,-50%);z-index:3;text-align:center}
+.settlement-place{width:120px}
+.settlement-place .local-map-sprite{max-width:116px;max-height:116px}
+.settlement-place span,.dungeon-node span{display:inline-block;margin-top:2px;padding:2px 5px;border:1px solid #6f5231;border-radius:4px;background:#f1d9a9;color:#2c1a12;font:700 10px/1.2 Arial;box-shadow:0 1px 2px #0006}
+.settlement-place b,.dungeon-node b{position:absolute;right:2px;top:0;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff0c5;color:var(--blood);border:2px solid var(--blood);font-size:12px}
+.local-map-sprite{display:block;margin:auto;object-fit:contain;filter:drop-shadow(0 3px 3px #0008)}
+.local-map-sprite.placeholder{width:74px;height:74px;border:1px dashed #a07b43;display:flex;align-items:center;justify-content:center;color:#d9b873;background:#2a2118}
+.local-map-note{margin-top:10px}
+.local-map-note p{margin:4px 0 0}
+.dungeon-map-board{background:
+ radial-gradient(circle at 50% 50%,#2a251f 0 35%,#16130f 75%),
+ repeating-linear-gradient(0deg,transparent 0 31px,#3a332b55 32px 33px),
+ repeating-linear-gradient(90deg,transparent 0 31px,#3a332b55 32px 33px)}
+.dungeon-links{position:absolute;inset:0;width:100%;height:100%;z-index:1;overflow:visible}
+.dungeon-links line{stroke:#7d6848;stroke-width:1.2;vector-effect:non-scaling-stroke}
+.dungeon-links line.door{stroke:#c49a5b;stroke-dasharray:4 3}
+.dungeon-node{width:96px;z-index:2}
+.dungeon-node .local-map-sprite{max-width:90px;max-height:90px}
+.dungeon-node.current .local-map-sprite,.settlement-place.current .local-map-sprite{filter:drop-shadow(0 0 7px #f5c552) drop-shadow(0 3px 3px #0008)}
+@media(max-width:430px){
+ .settlement-map-board,.dungeon-map-board{height:500px}
+ .settlement-place{width:94px}.settlement-place .local-map-sprite{max-width:90px;max-height:90px}
+ .dungeon-node{width:78px}.dungeon-node .local-map-sprite{max-width:72px;max-height:72px}
+ .map-mode-tabs{justify-content:flex-start;margin-top:4px}
+}
