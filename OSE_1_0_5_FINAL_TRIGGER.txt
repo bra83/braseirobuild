@@ -13,3 +13,5 @@ static_gate_fix=executable_strings_only
 windows_suite_fix=powershell_braced_variable
 
 runtime_batch=single_gradle_invocation
+
+legacy_signer_policy=publish_stable_with_diagnostic
