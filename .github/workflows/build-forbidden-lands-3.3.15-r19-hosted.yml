@@ -95,8 +95,21 @@ jobs:
           ACTUAL=$(grep -E 'certificate SHA-1 digest:' out/APK_SIGNATURE.txt | head -n1 | sed -E 's/.*digest:[[:space:]]*//' | tr -d ':[:space:]' | tr 'A-F' 'a-f')
           test "$ACTUAL" = "$EXPECTED_SHA1"
           sha256sum out/BRASEIRO_FORBIDDEN_LANDS_3.3.15_R19_CLEAN.apk | tee out/BRASEIRO_FORBIDDEN_LANDS_3.3.15_R19_CLEAN.apk.sha256
-          printf '%s
-'             'STATUS=PASS'             'GAMEPLAY_RAG_OFF_V2=PASS'             'DIRECTOR_EMBEDDED_MODULES=PASS'             'CHARACTER_PREVIEW_RAG_OFF=PASS'             'EMPTY_LIBRARY_RULES_GATES=PASS'             'SCENE_IMAGE_16_9_NO_CROP=PASS'             'GEMINI_SHARE_IMPORT_PRESERVED=PASS'             'CLEAN_GRADLE_BUILD=PASS'             'APK_SIGNER_VERIFY=PASS'             'PACKAGE=com.braseiro.forbiddenlands'             'VERSION_CODE=303915'             'VERSION_NAME=3.3.15'             "SIGNER_SHA1=$ACTUAL" > out/R19_PROOF.txt
+          {
+            echo 'STATUS=PASS'
+            echo 'GAMEPLAY_RAG_OFF_V2=PASS'
+            echo 'DIRECTOR_EMBEDDED_MODULES=PASS'
+            echo 'CHARACTER_PREVIEW_RAG_OFF=PASS'
+            echo 'EMPTY_LIBRARY_RULES_GATES=PASS'
+            echo 'SCENE_IMAGE_16_9_NO_CROP=PASS'
+            echo 'GEMINI_SHARE_IMPORT_PRESERVED=PASS'
+            echo 'CLEAN_GRADLE_BUILD=PASS'
+            echo 'APK_SIGNER_VERIFY=PASS'
+            echo 'PACKAGE=com.braseiro.forbiddenlands'
+            echo 'VERSION_CODE=303915'
+            echo 'VERSION_NAME=3.3.15'
+            echo "SIGNER_SHA1=$ACTUAL"
+          } > out/R19_PROOF.txt
 
       - uses: actions/upload-artifact@v4
         with:
