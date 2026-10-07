@@ -56,8 +56,8 @@ object ContextualDecisionSuggester {
         val first=valid.getOrNull(0) ?: dirs[0]
         val second=valid.getOrNull(1) ?: dirs[1]
         return listOf(
-            Suggestion("VIAJAR ${first.label}","Viajamos para ${first.label.lowercase()} com cautela, observando o caminho.","WILD_TRAVEL_DAY:${first.key}"),
-            Suggestion("FORRAGEAR ${second.label}","Seguimos para ${second.label.lowercase()} procurando alimento durante a viagem.","WILD_TRAVEL_FORAGE_DAY:${second.key}"),
+            Suggestion("VIAJAR UM DIA · ${first.label}","Viajamos por um dia para ${first.label.lowercase()} com cautela, observando o caminho.","WILD_TRAVEL_DAY:${first.key}"),
+            Suggestion("VIAJAR + FORRAGEAR · ${second.label}","Seguimos por um dia para ${second.label.lowercase()} procurando alimento durante a viagem.","WILD_TRAVEL_FORAGE_DAY:${second.key}"),
             Suggestion("DESCANSAR UM DIA","Paramos para descansar um dia inteiro e recuperar as forças.","WILD_REST_DAY")
         )
     }
