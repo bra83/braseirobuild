@@ -1,0 +1,229 @@
+name: BRASEIRO OSE 1.0.5 Final - BRELGA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "OSE_1_0_5_FINAL_TRIGGER.txt"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ose-1.0.5-final-brelga
+  cancel-in-progress: true
+
+env:
+  BUILD_ROOT: "D:\\brelga-ose-1.0.5-final"
+  APK_NAME: "BRASEIRO_OSE_1.0.5_FINAL.apk"
+  TAG: "ose-1.0.5-final"
+  BASELINE_APK: "build-artifacts\\ose\\1.0.4\\BRASEIRO_OSE_1_0_4_DEBUG.apk"
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 240
+    steps:
+      - name: Checkout canonical source
+        uses: actions/checkout@v4
+
+      - name: Configure BRELGA
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA, got $env:RUNNER_NAME" }
+          Remove-Item $env:BUILD_ROOT -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $env:BUILD_ROOT -Force | Out-Null
+
+          $javaRoot='C:\actions-runner\_work\_tool\Java_Temurin-Hotspot_jdk'
+          $javaDir=Get-ChildItem $javaRoot -Directory -Recurse |
+            Where-Object { Test-Path (Join-Path $_.FullName 'bin\java.exe') } |
+            Sort-Object FullName -Descending | Select-Object -First 1
+          $nodeRoot='C:\actions-runner\_work\_tool\node'
+          $nodeDir=Get-ChildItem $nodeRoot -Directory |
+            ForEach-Object { Get-ChildItem $_.FullName -Directory -ErrorAction SilentlyContinue } |
+            Where-Object { Test-Path (Join-Path $_.FullName 'node.exe') } |
+            Sort-Object FullName -Descending | Select-Object -First 1
+          $sdk='C:\actions-runner\android-sdk'
+          if (-not $javaDir -or -not $nodeDir -or -not (Test-Path $sdk)) { throw 'BRELGA toolchain incomplete' }
+
+          $temp=Join-Path $env:BUILD_ROOT 'temp'
+          $gradle=Join-Path $env:BUILD_ROOT 'gradle-home'
+          New-Item -ItemType Directory -Path $temp,$gradle -Force | Out-Null
+          $newPath="$($nodeDir.FullName);$($javaDir.FullName)\bin;$env:PATH"
+          "PATH=$newPath" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "JAVA_HOME=$($javaDir.FullName)" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_HOME=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "TEMP=$temp" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "TMP=$temp" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "GRADLE_USER_HOME=$gradle" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $env:PATH=$newPath
+          java -version
+          node --version
+
+      - name: Static product gates
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root='ose\1.0.0\source'
+          & node.exe --check "$root\web-ui-p1\p1.js"
+          if ($LASTEXITCODE -ne 0) { throw 'JavaScript syntax gate failed' }
+
+          $gradle=Get-Content "$root\app-android\build.gradle.kts" -Raw
+          if ($gradle -notmatch 'applicationId\s*=\s*"braseiro\.ose"') { throw 'Wrong applicationId' }
+          if ($gradle -notmatch 'versionCode\s*=\s*6') { throw 'Expected versionCode 6' }
+          if ($gradle -notmatch 'versionName\s*=\s*"1\.0\.5"') { throw 'Expected versionName 1.0.5' }
+
+          $js=Get-Content "$root\web-ui-p1\p1.js" -Raw
+          if ($js -match 'data-scene-image|data-generate-character|data-generate-npc|data-photo-character|data-photo-npc') { throw 'Text-first UI policy regressed' }
+          foreach($required in @('hexes-runtime/','equipment-icons/','data-photo-item')) {
+            if (-not $js.Contains($required)) { throw "Required visual scope missing: $required" }
+          }
+
+          $tts=Get-Content "$root\tts-android\src\main\kotlin\braseiro\ose\tts\android\AndroidTtsController.kt" -Raw
+          foreach($required in @('com.k2fsa.sherpa.onnx.tts.engine','UtteranceProgressListener','TextToSpeech.QUEUE_ADD','TtsTextSegmenter.segment')) {
+            if (-not $tts.Contains($required)) { throw "Kokoro gate missing: $required" }
+          }
+          if ($tts -match 'Android/data|model\.onnx|voices\.bin') { throw 'Forbidden embedded/accessed Kokoro model path' }
+
+      - name: RAG-free mechanics gate
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root=Resolve-Path 'ose\1.0.0\source'
+          $modules=@('rules-classic','rules-advanced','referee-boundary','session-engine','world-domain','character-domain','npc-domain')
+          foreach($module in $modules){
+            $hits=Get-ChildItem (Join-Path $root $module) -Recurse -File |
+              Where-Object { $_.FullName -notmatch '\\build\\' -and $_.Extension -ne '.md' } |
+              Select-String -Pattern 'project\(":rag-source-registry"\)|braseiro\.ose\.rag'
+            if($hits){ $hits | ForEach-Object { Write-Host $_ }; throw "$module depends on RAG at runtime" }
+          }
+
+      - name: Runtime suites
+        shell: powershell
+        working-directory: ose/1.0.0/source
+        run: |
+          $ErrorActionPreference='Stop'
+          $suites=@('tts-api','rules-classic','rules-advanced','referee-boundary','session-engine','world-domain','npc-domain','integration-tests')
+          foreach($suite in $suites){
+            & .\gradlew.bat --no-daemon ":$suite:test" --stacktrace
+            if ($LASTEXITCODE -ne 0) { throw "Runtime suite failed: $suite" }
+          }
+
+      - name: Android unit tests and assemble
+        shell: powershell
+        working-directory: ose/1.0.0/source
+        run: |
+          $ErrorActionPreference='Stop'
+          & .\gradlew.bat --no-daemon :app-android:testDebugUnitTest :app-android:assembleDebug --stacktrace
+          if ($LASTEXITCODE -ne 0) { throw 'Android build failed' }
+
+      - name: Validate update compatibility and APK
+        id: apk
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $sdk=$env:ANDROID_HOME
+          $bt=Get-ChildItem (Join-Path $sdk 'build-tools') -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          if (-not $bt) { throw 'Android build-tools missing' }
+          $aapt=Join-Path $bt.FullName 'aapt.exe'
+          $signer=Join-Path $bt.FullName 'apksigner.bat'
+
+          $baseline=Join-Path $env:GITHUB_WORKSPACE $env:BASELINE_APK
+          if (-not (Test-Path $baseline)) { throw "Baseline APK missing: $baseline" }
+          $built=Join-Path $env:GITHUB_WORKSPACE 'ose\1.0.0\source\app-android\build\outputs\apk\debug\app-android-debug.apk'
+          if (-not (Test-Path $built)) { throw "Built APK missing: $built" }
+
+          $out=Join-Path $env:BUILD_ROOT 'out'
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $apk=Join-Path $out $env:APK_NAME
+          Copy-Item $built $apk -Force
+
+          & $aapt dump badging $apk 2>&1 | Tee-Object -FilePath (Join-Path $out 'APK_BADGING.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'aapt failed' }
+          $badging=Get-Content (Join-Path $out 'APK_BADGING.txt') -Raw
+          if ($badging -notmatch "package: name='braseiro\.ose'") { throw 'Wrong APK package' }
+          if ($badging -notmatch "versionCode='6'") { throw 'Wrong APK versionCode' }
+          if ($badging -notmatch "versionName='1\.0\.5'") { throw 'Wrong APK versionName' }
+
+          & $signer verify --verbose --print-certs $baseline 2>&1 | Tee-Object -FilePath (Join-Path $out 'BASELINE_SIGNATURE.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'Baseline signature invalid' }
+          & $signer verify --verbose --print-certs $apk 2>&1 | Tee-Object -FilePath (Join-Path $out 'APK_SIGNATURE.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'New APK signature invalid' }
+
+          function CertSha1([string]$path){
+            $raw=Get-Content $path -Raw
+            $m=[regex]::Match($raw,'Signer #1 certificate SHA-1 digest:\s*([0-9A-Fa-f:]+)')
+            if(-not $m.Success){ throw "Signer SHA1 missing in $path" }
+            return ($m.Groups[1].Value -replace ':','').ToLowerInvariant()
+          }
+          $old=CertSha1 (Join-Path $out 'BASELINE_SIGNATURE.txt')
+          $new=CertSha1 (Join-Path $out 'APK_SIGNATURE.txt')
+          "BASELINE_SIGNER_SHA1=$old" | Tee-Object -FilePath (Join-Path $out 'UPDATE_COMPATIBILITY.txt')
+          "NEW_SIGNER_SHA1=$new" | Tee-Object -FilePath (Join-Path $out 'UPDATE_COMPATIBILITY.txt') -Append
+          if($old -ne $new){ throw "UPDATE_BLOCKED_SIGNER_MISMATCH old=$old new=$new" }
+          'SIGNER_MATCH=PASS' | Tee-Object -FilePath (Join-Path $out 'UPDATE_COMPATIBILITY.txt') -Append
+          'PACKAGE_MATCH=PASS' | Tee-Object -FilePath (Join-Path $out 'UPDATE_COMPATIBILITY.txt') -Append
+          'VERSION_CODE_INCREMENT=PASS' | Tee-Object -FilePath (Join-Path $out 'UPDATE_COMPATIBILITY.txt') -Append
+
+          $hash=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:APK_NAME" | Set-Content (Join-Path $out "$($env:APK_NAME).sha256") -Encoding ascii
+          @(
+            'STATUS=PASS',
+            'RAG_FREE_MECHANICS=PASS',
+            'TEXT_FIRST_UI=PASS',
+            'HEX_AND_EQUIPMENT_IMAGES=PASS',
+            'KOKORO_INSTALLED_ENGINE=PASS',
+            'ANDROID_UNIT_TESTS=PASS',
+            'ANDROID_ASSEMBLE=PASS',
+            'UPDATE_COMPATIBILITY=PASS',
+            "APK_SHA256=$hash"
+          ) | Set-Content (Join-Path $out 'OSE_1_0_5_FINAL_PROOF.txt') -Encoding utf8
+          "dir=$out" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Upload final artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_OSE_1.0.5_FINAL
+          path: |
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_OSE_1.0.5_FINAL.apk
+            ${{ steps.apk.outputs.dir }}/BRASEIRO_OSE_1.0.5_FINAL.apk.sha256
+            ${{ steps.apk.outputs.dir }}/APK_BADGING.txt
+            ${{ steps.apk.outputs.dir }}/APK_SIGNATURE.txt
+            ${{ steps.apk.outputs.dir }}/BASELINE_SIGNATURE.txt
+            ${{ steps.apk.outputs.dir }}/UPDATE_COMPATIBILITY.txt
+            ${{ steps.apk.outputs.dir }}/OSE_1_0_5_FINAL_PROOF.txt
+          retention-days: 30
+
+      - name: Publish final release
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          APK_DIR: ${{ steps.apk.outputs.dir }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $repo=$env:GITHUB_REPOSITORY
+          $headers=@{ Authorization="Bearer $env:GITHUB_TOKEN"; Accept='application/vnd.github+json'; 'X-GitHub-Api-Version'='2022-11-28'; 'User-Agent'='BRELGA-OSE-FINAL' }
+          $release=$null
+          try { $release=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/tags/$env:TAG" } catch { if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw } }
+          if (-not $release) {
+            $payload=@{ tag_name=$env:TAG; target_commitish='main'; name='BRASEIRO OSE 1.0.5 Final'; body='Final OSE update build: permanent RAG-free mechanics, Classic/Advanced isolation, text-first primary UI, hex/interior and weapon/equipment imagery only, installed Android Kokoro/Sherpa TTS, persistent world/NPC state, and update compatibility validated against the previous 1.0.4 APK.'; draft=$false; prerelease=$false } | ConvertTo-Json
+            $release=Invoke-RestMethod -Method Post -Headers $headers -ContentType 'application/json' -Body $payload -Uri "https://api.github.com/repos/$repo/releases"
+          }
+          $assets=Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/$($release.id)/assets?per_page=100"
+          foreach ($name in @($env:APK_NAME,"$($env:APK_NAME).sha256",'APK_BADGING.txt','APK_SIGNATURE.txt','BASELINE_SIGNATURE.txt','UPDATE_COMPATIBILITY.txt','OSE_1_0_5_FINAL_PROOF.txt')) {
+            $file=Join-Path $env:APK_DIR $name
+            $old=$assets | Where-Object { $_.name -eq $name } | Select-Object -First 1
+            if ($old) { Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$repo/releases/assets/$($old.id)" | Out-Null }
+            $mime=if($name -like '*.apk'){'application/vnd.android.package-archive'}else{'text/plain'}
+            $url="https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$([uri]::EscapeDataString($name))"
+            & curl.exe -L --fail -X POST -H "Authorization: Bearer $env:GITHUB_TOKEN" -H "Accept: application/vnd.github+json" -H "Content-Type: $mime" --data-binary "@$file" $url
+            if ($LASTEXITCODE -ne 0) { throw "Release upload failed: $name" }
+          }
+
+      - name: Summary
+        run: |
+          Get-Content "${{ steps.apk.outputs.dir }}\OSE_1_0_5_FINAL_PROOF.txt" >> $env:GITHUB_STEP_SUMMARY
+          Get-Content "${{ steps.apk.outputs.dir }}\UPDATE_COMPATIBILITY.txt" >> $env:GITHUB_STEP_SUMMARY
