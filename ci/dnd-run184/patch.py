@@ -443,6 +443,75 @@ public final class StrixhavenAdventureRuntimeCatalog {
 '''
 write("StrixhavenAdventureRuntimeCatalog.java",strixhaven_events)
 
+strixhaven_bestiary=r'''package com.braseiro.dnd5e;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+/** Canonical chapter-7 Strixhaven bestiary index. Full combat payload binding is gated separately. */
+public final class StrixhavenBestiaryIndexEngine {
+    private StrixhavenBestiaryIndexEngine(){}
+    private static JSONObject c(String name,String type,String cr){
+        JSONObject o=new JSONObject();try{o.put("name",name).put("type",type).put("cr",cr).put("source","Strixhaven chapter 7");}catch(Exception ignored){}return o;
+    }
+    public static JSONArray all(){
+        JSONArray a=new JSONArray();
+        a.put(c("Archaic","Celestial","18"));
+        a.put(c("Art Elemental Mascot","Elemental","1/4"));
+        a.put(c("Beledros Witherbloom","Dragon","24"));
+        a.put(c("Brackish Trudge","Plant","3"));
+        a.put(c("Cogwork Archivist","Construct","4"));
+        a.put(c("Daemogoth","Fiend","10"));
+        a.put(c("Daemogoth Titan","Fiend","16"));
+        a.put(c("First-Year Student","Humanoid","1/2"));
+        a.put(c("Fractal Mascot","Construct","1/4"));
+        a.put(c("Galazeth Prismari","Dragon","23"));
+        a.put(c("Groff","Plant","4"));
+        a.put(c("Inkling Mascot","Ooze","1/4"));
+        a.put(c("Lorehold Apprentice","Humanoid","2"));
+        a.put(c("Lorehold Pledgemage","Humanoid","4"));
+        a.put(c("Lorehold Professor of Chaos","Humanoid","7"));
+        a.put(c("Lorehold Professor of Order","Humanoid","7"));
+        a.put(c("Mage Hunter","Monstrosity","5"));
+        a.put(c("Oracle of Strixhaven","Humanoid","15"));
+        a.put(c("Oriq Blood Mage","Humanoid","9"));
+        a.put(c("Oriq Recruiter","Humanoid","4"));
+        a.put(c("Pest Mascot","Monstrosity","1/4"));
+        a.put(c("Prismari Apprentice","Humanoid","2"));
+        a.put(c("Prismari Pledgemage","Humanoid","4"));
+        a.put(c("Prismari Professor of Expression","Humanoid","7"));
+        a.put(c("Prismari Professor of Perfection","Humanoid","7"));
+        a.put(c("Quandrix Apprentice","Humanoid","2"));
+        a.put(c("Quandrix Pledgemage","Humanoid","4"));
+        a.put(c("Quandrix Professor of Substance","Humanoid","7"));
+        a.put(c("Quandrix Professor of Theory","Humanoid","7"));
+        a.put(c("Relic Sloth","Beast","2"));
+        a.put(c("Ruin Grinder","Construct","5"));
+        a.put(c("Shadrix Silverquill","Dragon","22"));
+        a.put(c("Silverquill Apprentice","Humanoid","2"));
+        a.put(c("Silverquill Pledgemage","Humanoid","4"));
+        a.put(c("Silverquill Professor of Radiance","Humanoid","7"));
+        a.put(c("Silverquill Professor of Shadow","Humanoid","7"));
+        a.put(c("Spirit Statue Mascot","Construct","1/4"));
+        a.put(c("Strixhaven Campus Guide","Construct","1"));
+        a.put(c("Tanazir Quandrix","Dragon","24"));
+        a.put(c("Velomachus Lorehold","Dragon","25"));
+        a.put(c("Witherbloom Apprentice","Humanoid","2"));
+        a.put(c("Witherbloom Pledgemage","Humanoid","4"));
+        a.put(c("Witherbloom Professor of Decay","Humanoid","7"));
+        a.put(c("Witherbloom Professor of Growth","Humanoid","7"));
+        return a;
+    }
+    public static JSONObject find(String name){
+        JSONArray a=all();for(int i=0;i<a.length();i++){JSONObject o=a.optJSONObject(i);if(o!=null&&o.optString("name").equalsIgnoreCase(name))return o;}return new JSONObject();
+    }
+    public static JSONObject coverage(){
+        JSONObject o=new JSONObject();try{o.put("chapter7_index",44).put("full_combat_statblocks_bound",false).put("source_bound",true);}catch(Exception ignored){}return o;
+    }
+}
+'''
+write("StrixhavenBestiaryIndexEngine.java",strixhaven_bestiary)
+
 # ------------------------------------------------------------------
 # AppDb: preserve NPC tombstones; a dead identity cannot respawn by accident.
 # Portrait reference is cleared on confirmed death while identity remains.
@@ -913,6 +982,8 @@ checks={
  "strixhaven_event_context":"StrixhavenAdventureRuntimeCatalog.masterYearContext" in read("MainActivity.java"),
  "strixhaven_final_ritual":"Confronting Murgaxor" in read("StrixhavenAdventureRuntimeCatalog.java"),
  "strixhaven_milestones":"nível 10" in read("StrixhavenAdventureRuntimeCatalog.java"),
+ "strixhaven_bestiary_index":(pkg/"StrixhavenBestiaryIndexEngine.java").exists(),
+ "strixhaven_bestiary_44":'chapter7_index",44' in read("StrixhavenBestiaryIndexEngine.java"),
 }
 print(json.dumps(checks,ensure_ascii=False,indent=2))
 bad=[k for k,v in checks.items() if not v]
