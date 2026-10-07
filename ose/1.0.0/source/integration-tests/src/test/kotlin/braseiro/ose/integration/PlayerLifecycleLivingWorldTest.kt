@@ -53,7 +53,7 @@ class PlayerLifecycleLivingWorldTest {
             treasureId="treasure-level-2",
             profile=RuleProfile.OSE_CLASSIC_FANTASY,
             sourceId="TEST_CANONICAL_TREASURE",
-            gpValue=3000,
+            gpValue=3000L,
             magical=false,
             lifecycle=TreasureLifecycle.RECOVERED
         )
