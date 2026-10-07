@@ -1,0 +1,98 @@
+name: Validate Strixhaven Ch7 Parser
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/validate-strixhaven-ch7-parser.yml']
+  workflow_dispatch:
+jobs:
+  parse:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse 44 canonical statblocks
+        shell: powershell
+        run: |
+          @'
+          import re,json,unicodedata
+          from pathlib import Path
+          p=Path(r"$env:GITHUB_WORKSPACE\ci\dnd-run184\strixhaven_ch7_runtime_source.txt")
+          text=p.read_text(encoding="utf-8").replace("\x02","")
+          lines=text.splitlines()
+          entries=[
+          ("Archaic","Celestial","18",["Archaic"]),("Art Elemental Mascot","Elemental","1/4",["Art Elemental Mascot"]),
+          ("Beledros Witherbloom","Dragon","24",["Beledros Witherbloom"]),("Brackish Trudge","Plant","3",["Brackish Trudge"]),
+          ("Cogwork Archivist","Construct","4",["Cogwork Archivist"]),("Daemogoth","Fiend","10",["Daemogoth"]),("Daemogoth Titan","Fiend","16",["Daemogoth Titan"]),
+          ("First-Year Student","Humanoid","1/2",["First-Year Student"]),("Fractal Mascot","Construct","1/4",["Fractal Mascot"]),
+          ("Galazeth Prismari","Dragon","23",["Galazeth Prismari"]),("Groff","Plant","4",["Groff"]),("Inkling Mascot","Ooze","1/4",["Inkling Mascot"]),
+          ("Lorehold Apprentice","Humanoid","2",["Lorehold Apprentice"]),("Lorehold Pledgemage","Humanoid","4",["Lorehold Pledgemage"]),
+          ("Lorehold Professor of Chaos","Humanoid","7",["Lorehold Professor of Chaos","Lorehold Prof. of Chaos","Lorehold Prof, of Chaos"]),
+          ("Lorehold Professor of Order","Humanoid","7",["Lorehold Professor of Order","Lorehold Prof. of Order","Lorehold Prof, of Order"]),
+          ("Mage Hunter","Monstrosity","5",["Mage Hunter"]),("Oracle of Strixhaven","Humanoid","15",["Oracle of Strixhaven"]),
+          ("Oriq Blood Mage","Humanoid","9",["Oriq Blood Mage"]),("Oriq Recruiter","Humanoid","4",["Oriq Recruiter"]),("Pest Mascot","Monstrosity","1/4",["Pest Mascot"]),
+          ("Prismari Apprentice","Humanoid","2",["Prismari Apprentice"]),("Prismari Pledgemage","Humanoid","4",["Prismari Pledgemage"]),
+          ("Prismari Professor of Expression","Humanoid","7",["Prismari Professor of Expression","Prismari Prof. of Expression","Prismari Prof, of Expression"]),
+          ("Prismari Professor of Perfection","Humanoid","7",["Prismari Professor of Perfection","Prismari Prof. of Perfection","Prismari Prof, of Perfection","Prismari Prqfessor of Perfection"]),
+          ("Quandrix Apprentice","Humanoid","2",["Quandrix Apprentice"]),("Quandrix Pledgemage","Humanoid","4",["Quandrix Pledgemage"]),
+          ("Quandrix Professor of Substance","Humanoid","7",["Quandrix Professor of Substance","Quandrix Prof. of Substance","Quandrix Prof, of Substance"]),
+          ("Quandrix Professor of Theory","Humanoid","7",["Quandrix Professor of Theory","Quandrix Prof. of Theory","Quandrix Prof, ofTheory"]),
+          ("Relic Sloth","Beast","2",["Relic Sloth"]),("Ruin Grinder","Construct","5",["Ruin Grinder"]),("Shadrix Silverquill","Dragon","22",["Shadrix Silverquill"]),
+          ("Silverquill Apprentice","Humanoid","2",["Silverquill Apprentice"]),("Silverquill Pledgemage","Humanoid","4",["Silverquill Pledgemage"]),
+          ("Silverquill Professor of Radiance","Humanoid","7",["Silverquill Professor of Radiance","Silverquill Prof. of Radiance","Silverquill Prof, of Radiance"]),
+          ("Silverquill Professor of Shadow","Humanoid","7",["Silverquill Professor of Shadow","Silverquill Prof. of Shadow","Silverquill Prof, of Shadow"]),
+          ("Spirit Statue Mascot","Construct","1/4",["Spirit Statue Mascot"]),("Strixhaven Campus Guide","Construct","1",["Strixhaven Campus Guide"]),
+          ("Tanazir Quandrix","Dragon","24",["Tanazir Quandrix"]),("Velomachus Lorehold","Dragon","25",["Velomachus Lorehold"]),
+          ("Witherbloom Apprentice","Humanoid","2",["Witherbloom Apprentice"]),("Witherbloom Pledgemage","Humanoid","4",["Witherbloom Pledgemage"]),
+          ("Witherbloom Professor of Decay","Humanoid","7",["Witherbloom Professor of Decay","Witherbloom Prof. of Decay","Witherbloom Prof, of Decay"]),
+          ("Witherbloom Professor of Growth","Humanoid","7",["Witherbloom Professor of Growth","Witherbloom Prof. of Growth","Witherbloom Prof, of Growth"])]
+          def norm(s):
+              return ''.join(c for c in unicodedata.normalize('NFD',s.lower()) if unicodedata.category(c)!='Mn').replace('’',"'").replace('“','"').replace('”','"').strip()
+          size=re.compile(r'\b(Tiny|Small|Medium|Large|Huge|Gargantuan)\b',re.I)
+          def heading_candidates(aliases,typ):
+              aa={norm(a) for a in aliases}; out=[]
+              for i,line in enumerate(lines):
+                  if norm(line) not in aa: continue
+                  nearby=" ".join(lines[i+1:i+6])
+                  score=0
+                  if size.search(nearby): score+=5
+                  if typ.lower() in nearby.lower(): score+=5
+                  window="\n".join(lines[i:i+50])
+                  if re.search(r'Armor Class\s+\d+',window,re.I): score+=3
+                  if re.search(r'Hit Points\s+\d+',window,re.I): score+=3
+                  if re.search(r'Challenge\s+[0-9/]+',window,re.I): score+=2
+                  out.append((score,i))
+              return sorted(out,reverse=True)
+          chosen=[]; prev=-1
+          for name,typ,cr,aliases in entries:
+              cs=heading_candidates(aliases,typ)
+              after=[x for x in cs if x[1]>prev]
+              pick=(after[0] if after else (cs[0] if cs else None))
+              if not pick: chosen.append((name,-1)); continue
+              chosen.append((name,pick[1])); prev=pick[1]
+          # monotonic repair: if a later chosen heading falls backwards, choose first candidate after prev
+          prev=-1
+          fixed=[]
+          for (name,typ,cr,aliases),(_,idx) in zip(entries,chosen):
+              cs=heading_candidates(aliases,typ)
+              after=sorted([x for x in cs if x[1]>prev], key=lambda x:x[1])
+              pick=max(after,key=lambda x:(x[0],-x[1])) if after else None
+              # prefer highest score but avoid huge jumps beyond next entries
+              if pick: idx=pick[1]
+              fixed.append((name,idx)); prev=idx if idx>=0 else prev
+          results=[]
+          for pos,((name,typ,cr,aliases),(_,idx)) in enumerate(zip(entries,fixed)):
+              if idx<0: results.append({"name":name,"ok":False,"reason":"heading"}); continue
+              next_idx=len(lines)
+              for j in range(pos+1,len(fixed)):
+                  if fixed[j][1]>idx: next_idx=fixed[j][1]; break
+              block="\n".join(lines[idx:next_idx])
+              ac=re.search(r'Armor Class\s+(\d+)',block,re.I)
+              hp=re.search(r'Hit Points\s+(\d+)',block,re.I)
+              challenge=re.search(r'Challenge\s+([0-9/]+)',block,re.I)
+              acts=re.findall(r'(?m)^([A-Z][A-Za-z0-9’\'() /,+-]{1,80}(?:\s*\([^\n]{1,30}\))?)\.\s+(?:(?:Melee|Ranged|Melee or Ranged) (?:Weapon|Spell) Attack:|[^\n]{0,180}\b(?:must make|must succeed|targets? one|casts? one))',block)
+              results.append({"name":name,"line":idx+1,"block_lines":next_idx-idx,"ac":ac.group(1) if ac else None,"hp":hp.group(1) if hp else None,"cr":challenge.group(1) if challenge else None,"actions":acts[:20],"action_count":len(acts),"ok":bool(ac and hp and len(acts)>0)})
+          print(json.dumps(results,ensure_ascii=False,indent=2))
+          bad=[r for r in results if not r["ok"]]
+          print("BAD_COUNT",len(bad))
+          if bad: print("BAD",json.dumps(bad,ensure_ascii=False))
+          '@ | python -
