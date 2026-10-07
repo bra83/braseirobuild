@@ -90,9 +90,9 @@ object WildernessRuntimeRules {
         )
         val partyNeed=state.party.characterIds.size.coerceAtLeast(1)
         val rationResult=consumeDailyRations(nextGame,(partyNeed-foragedFor).coerceAtLeast(0))
-        nextGame=rationResult.first
+        nextGame=rationResult.game
         val advanced=advanceOneDay(state.copy(position=PositionState(SpatialRef.Hex(pos.spatialEntityId,q,r)),game=nextGame))
-        val facts=resourceFactsFromGame(advanced.game,state.resources,rationResult.second)
+        val facts=resourceFactsFromGame(advanced.game,state.resources,rationResult.consumed,rationResult.deficit)
         val updated=advanced.copy(resources=facts,playerKnowledge=revealKnowledge(state.playerKnowledge,traversed))
         val status=if(lost) EvidenceStatus.REFEREE_JUDGMENT else EvidenceStatus.CANONICAL_PROCEDURE
         val src=if(envelope.ruleProfile==RuleProfile.OSE_CLASSIC_FANTASY) "Classic Rules Tome pp.120-121" else "Advanced Player's Tome pp.224-225 (audited transcription; authorized gap source)"
@@ -105,9 +105,9 @@ object WildernessRuntimeRules {
             append("BRASEIRO hex projection preserves source distance math. ")
             if(lost) append("Lost check succeeded; actual direction ${actual.key} selected by BRASEIRO_REFEREE_POLICY_LOST_DIRECTION_V1 as an explicit exercise of referee judgment. ")
             if(forage) append("forage=$forageRoll/$forageChance fed=$foragedFor. ")
-            append("encounter=${encounter?.encounterId ?: "none"}; rationsConsumed=${rationResult.second}.")
+            append("encounter=${encounter?.encounterId ?: "none"}; rationsConsumed=${rationResult.consumed}; rationDeficit=${rationResult.deficit}.")
         }
-        val feedback="Viagem: ${traversed.size} hex(es) para ${actual.key}${if(lost)" (grupo perdeu a direção; curso pretendido ${intended.key})" else ""}; ${if(forage)"forragear d6=$forageRoll/$forageChance, alimenta=$foragedFor; " else ""}encontro d6=$encounterRoll/$encounterChance${if(encounterHit)" → encontrado" else " → nenhum"}; rações consumidas=${rationResult.second}."
+        val feedback="Viagem: ${traversed.size} hex(es) para ${actual.key}${if(lost)" (teste de perder-se d6=$lostRoll/$lostChance → perdeu a direção; curso pretendido ${intended.key})" else if(lostRoll!=null)" (teste de perder-se d6=$lostRoll/$lostChance → manteve o rumo)" else ""}; ${if(forage)"forragear d6=$forageRoll/$forageChance, alimenta=$foragedFor; " else ""}encontro d6=$encounterRoll/$encounterChance${if(encounterHit)" → encontrado" else " → nenhum"}; rações consumidas=${rationResult.consumed}; déficit de rações=${rationResult.deficit}${if(rationResult.deficit>0)" (dia encerrado sem alimentação suficiente; déficit persistido, sem dano inventado)" else ""}."
         return ResolutionOutcome(updated,feedback,RuleTrace(status,ev,note),true,true)
     }
 
@@ -119,10 +119,10 @@ object WildernessRuntimeRules {
         if(game.encounter?.phase?.let { it!=EncounterPhase.RESOLVED } == true) return no(envelope,"Conclua o encontro antes do descanso de dia inteiro.","WILD.REST")
         val healed=game.characters.mapValues { (_,c) -> if(c.hitPoints.dead) c else c.copy(hitPoints=c.hitPoints.heal(d3(rng))).canonical() }
         val rationResult=consumeDailyRations(game.copy(characters=healed,expedition=game.expedition.copy(wildernessTravelDaysSinceRest=0,wildernessRestOverdue=false,forcedMarchRestRequired=false)),s.party.characterIds.size.coerceAtLeast(1))
-        val advanced=advanceOneDay(s.copy(game=rationResult.first))
-        val updated=advanced.copy(resources=resourceFactsFromGame(advanced.game,s.resources,rationResult.second))
+        val advanced=advanceOneDay(s.copy(game=rationResult.game))
+        val updated=advanced.copy(resources=resourceFactsFromGame(advanced.game,s.resources,rationResult.consumed,rationResult.deficit))
         val src=if(envelope.ruleProfile==RuleProfile.OSE_CLASSIC_FANTASY)"Classic Rules Tome p.121 + healing" else "Advanced Player's Tome p.225 + healing"
-        return ResolutionOutcome(updated,"Dia inteiro de descanso concluído; contador de viagem reiniciado; cura natural aplicada a personagens vivos; rações consumidas=${rationResult.second}.",RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE,listOf(RuleEvidence("WILD.REST",envelope.ruleProfile,src,"one rest day after each six travel days / full-day rest"),RuleEvidence("HEAL.NATURAL",envelope.ruleProfile,"GAME_SYSTEM_SPEC.md","full day complete rest: 1d3 hp"))),true,true)
+        return ResolutionOutcome(updated,"Dia inteiro de descanso concluído; contador de viagem reiniciado; cura natural aplicada a personagens vivos; rações consumidas=${rationResult.consumed}; déficit=${rationResult.deficit}.",RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE,listOf(RuleEvidence("WILD.REST",envelope.ruleProfile,src,"one rest day after each six travel days / full-day rest"),RuleEvidence("HEAL.NATURAL",envelope.ruleProfile,"GAME_SYSTEM_SPEC.md","full day complete rest: 1d3 hp"))),true,true)
     }
 
     private fun huntDay(envelope:CampaignEnvelope,parts:List<String>,rng:NamedRngStreams):ResolutionOutcome {
@@ -139,10 +139,10 @@ object WildernessRuntimeRules {
         val encounterChance=encounterChance(current.terrain); val encounterRoll=d6(rng); val encounterHit=encounterRoll<=encounterChance
         val encounter=if(encounterHit) buildEncounter(envelope,current,rng) else null
         val rationResult=consumeDailyRations(game.copy(encounter=encounter),s.party.characterIds.size.coerceAtLeast(1))
-        val advanced=advanceOneDay(s.copy(game=rationResult.first))
-        val updated=advanced.copy(resources=resourceFactsFromGame(advanced.game,s.resources,rationResult.second))
+        val advanced=advanceOneDay(s.copy(game=rationResult.game))
+        val updated=advanced.copy(resources=resourceFactsFromGame(advanced.game,s.resources,rationResult.consumed,rationResult.deficit))
         val note=if(prey)"Presa adequada encontrada; a fonte condiciona alimento a conseguir capturá-la, portanto nenhum alimento foi criado automaticamente." else "Nenhuma presa adequada encontrada."
-        return ResolutionOutcome(updated,"Caça: d6=$roll/$chance → ${if(prey)"presa encontrada" else "sem presa"}; encontro d6=$encounterRoll/$encounterChance${if(encounterHit)" → encontrado" else " → nenhum"}.",RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE,listOf(RuleEvidence("WILD.HUNT",envelope.ruleProfile,"GAME_SYSTEM_SPEC.md §16","hunting consumes day; chance to find edible animals; no travel/rest")),note),true,true)
+        return ResolutionOutcome(updated,"Caça: d6=$roll/$chance → ${if(prey)"presa encontrada" else "sem presa"}; encontro d6=$encounterRoll/$encounterChance${if(encounterHit)" → encontrado" else " → nenhum"}; rações consumidas=${rationResult.consumed}; déficit=${rationResult.deficit}.",RuleTrace(EvidenceStatus.CANONICAL_PROCEDURE,listOf(RuleEvidence("WILD.HUNT",envelope.ruleProfile,"GAME_SYSTEM_SPEC.md §16","hunting consumes day; chance to find edible animals; no travel/rest")),note),true,true)
     }
 
     private fun buildEncounter(envelope:CampaignEnvelope,cell:HexCellSnapshot,rng:NamedRngStreams):EncounterSnapshot {
@@ -196,19 +196,42 @@ object WildernessRuntimeRules {
     private fun hexDistance(q1:Int,r1:Int,q2:Int,r2:Int):Int { val dq=q1-q2; val dr=r1-r2; val ds=(q1+r1)-(q2+r2); return (kotlin.math.abs(dq)+kotlin.math.abs(dr)+kotlin.math.abs(ds))/2 }
     private fun revealKnowledge(k:PlayerKnowledgeState,path:List<Pair<Int,Int>>)=k.copy(knownFactIds=(k.knownFactIds+path.map{"hex:${it.first},${it.second}"}).distinct().sorted())
 
-    private fun consumeDailyRations(game:GameExtensions,needed:Int):Pair<GameExtensions,Int>{
-        var remaining=needed; val items=game.inventory.items.toMutableMap()
+    private data class RationUse(val game:GameExtensions,val consumed:Int,val deficit:Int)
+    private fun consumeDailyRations(game:GameExtensions,needed:Int):RationUse{
+        var remaining=needed
+        val items=game.inventory.items.toMutableMap()
         for(item in items.values.filter{it.kind==InventoryItemKind.FOOD&&it.quantity>0}.sortedBy{it.itemId}){
             if(remaining<=0) break
-            val use=minOf(remaining,item.quantity); items[item.itemId]=item.copy(quantity=item.quantity-use); remaining-=use
+            val use=minOf(remaining,item.quantity)
+            items[item.itemId]=item.copy(quantity=item.quantity-use)
+            remaining-=use
         }
-        return game.copy(inventory=game.inventory.copy(items=items).canonical()) to (needed-remaining)
+        val consumed=needed-remaining
+        val deficit=remaining.coerceAtLeast(0)
+        val expedition=game.expedition.copy(
+            lastRationDeficit=deficit,
+            foodlessDays=if(deficit>0) game.expedition.foodlessDays+1 else 0
+        )
+        return RationUse(game.copy(inventory=game.inventory.copy(items=items).canonical(),expedition=expedition),consumed,deficit)
     }
-    private fun resourceFactsFromGame(game:GameExtensions,old:ResourceState,rationsConsumed:Int):ResourceState {
+    private fun resourceFactsFromGame(game:GameExtensions,old:ResourceState,rationsConsumed:Int,rationDeficit:Int):ResourceState {
         val rations=game.inventory.items.values.filter{it.kind==InventoryItemKind.FOOD}.sumOf{it.quantity}
         val torches=game.inventory.items.values.filter{it.lightSourceKind==LightSourceKind.TORCH}.sumOf{it.quantity}
-        val preserved=old.resourceFacts.filterNot{it.startsWith("rations:")||it.startsWith("torch:")||it.startsWith("movement:")}
-        return ResourceState(preserved+listOf("rations:$rations","torch:$torches","movement:${game.expedition.baseMoveMeters}","last_rations_consumed:$rationsConsumed")).canonical()
+        val gold=game.inventory.items.values.filter{it.kind==InventoryItemKind.COIN}.sumOf{it.quantity}
+        val preserved=old.resourceFacts.filterNot{
+            it.startsWith("rations:")||it.startsWith("torch:")||it.startsWith("movement:")||
+            it.startsWith("gold:")||it.startsWith("last_rations_consumed:")||
+            it.startsWith("ration_deficit:")||it.startsWith("foodless_days:")
+        }
+        return ResourceState(preserved+listOf(
+            "rations:$rations",
+            "torch:$torches",
+            "gold:$gold",
+            "movement:${game.expedition.baseMoveMeters}",
+            "last_rations_consumed:$rationsConsumed",
+            "ration_deficit:$rationDeficit",
+            "foodless_days:${game.expedition.foodlessDays}"
+        )).canonical()
     }
     private fun advanceOneDay(s:CampaignState):CampaignState {
         // 1 day = 24 hours = 144 ten-minute turns. Keep time, light and spell durations coherent.
