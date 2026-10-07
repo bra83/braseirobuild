@@ -1,0 +1,24 @@
+name: Probe firestorage RUN186 patch
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/probe-firestorage-run186.yml'
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Fetch share page
+        shell: bash
+        run: |
+          set -euxo pipefail
+          curl -L -sS -D /tmp/h.txt 'https://firestorage.ai/ja/f/I7FvCHLdbGB6' -o /tmp/page
+          cat /tmp/h.txt
+          file /tmp/page
+          wc -c /tmp/page
+          head -c 4000 /tmp/page | sed 's/</\n</g'
+          echo
+          grep -Eo 'https?://[^"'"'"' <>]+' /tmp/page | head -50 || true
+          grep -Eo 'href="[^"]+"' /tmp/page | head -100 || true
