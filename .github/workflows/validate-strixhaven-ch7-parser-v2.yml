@@ -80,7 +80,7 @@ jobs:
               # broad source scope around heading+cluster; full original mechanics remain embedded.
               blo=max(0,min(h,ch)-90);bhi=min(len(lines),max(h,ch)+140)
               block="\\n".join(lines[blo:bhi])
-              acts=re.findall(r'(?m)^([A-Z][A-Za-z0-9’\\'() /,+-]{1,80}(?:\\s*\\([^\\n]{1,30}\\))?)\\.\\s+(?:(?:Melee|Ranged|Melee or Ranged) (?:Weapon|Spell) Attack:|[^\\n]{0,180}\\b(?:must make|must succeed|targets? one|casts? one))',block)
+              acts=re.findall(r"(?m)^([A-Z][^\\n.]{1,80}(?:\\s*\\([^\\n]{1,30}\\))?)\\.\\s+(?:(?:Melee|Ranged|Melee or Ranged) (?:Weapon|Spell) Attack:|[^\\n]{0,180}\\b(?:must make|must succeed|targets? one|casts? one))",block)
               # de-duplicate, preserving order
               seen=set();acts2=[]
               for a in acts:
