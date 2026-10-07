@@ -9,6 +9,7 @@ let geminiState={textSceneConfigured:false,ttsAudioConfigured:false,textModel:''
 let ttsState={state:'PREPARING',ready:false,enginePackage:'',voiceName:'',speechRate:1,engines:[],voices:[],mode:'ANDROID_INSTALLED_ENGINE'};
 let mediaTarget=null;
 let mapSelection=null;
+let mapMode='AUTO';
 let diceHistory=[];
 let backupBuffer='';
 let ruleLibrary=[];
@@ -135,7 +136,7 @@ const geom=Object.freeze({hexW:64,hexH:73.90,xStep:62.8,yStep:54.8,oddOffset:31.
 function terrainAsset(c){if(!c||!c.known||c.terrain==='UNKNOWN')return null;if(c.hydrology==='SEA_OCEAN'||c.hydrology==='LAKE_RIVER')return 'agua.png';const m={CLEAR_GRASSLANDS:'planicie.png',HILLS:'colinas.png',MOUNTAINS:'montanha.png',FOREST:'floresta.png',DESERT:'planicie.png',SWAMP:'pantano.png',JUNGLE:'floresta.png',BARREN_ADV:'planicie.png',BROKEN_LANDS_ADV:'colinas.png'};return m[c.terrain]||'planicie.png'}
 function terrainName(c){if(!c||!c.known||c.terrain==='UNKNOWN')return 'Área desconhecida';if(c.hydrology==='SEA_OCEAN')return 'Mar';if(c.hydrology==='LAKE_RIVER')return 'Rio ou lago';return terrainLabels[c.terrain]||'Terreno'}
 function currentMapCell(){const p=viewState?.position,m=viewState?.map?.cells||[];return m.find(c=>c.q===p?.q&&c.r===p?.r)||null}
-function renderMap(){
+function renderHexMap(){
  const cells=viewState?.map?.cells||[];const pos=viewState?.position||{q:0,r:0};const selected=mapSelection?cells.find(c=>c.q===mapSelection.q&&c.r===mapSelection.r):currentMapCell();
  const width=viewState?.map?.width||6,height=viewState?.map?.height||5;
  const cellHtml=c=>{const x=geom.originX+c.q*geom.xStep+(c.r%2?geom.oddOffset:0),y=geom.originY+c.r*geom.yStep,a=terrainAsset(c),sel=selected&&selected.q===c.q&&selected.r===c.r,dq=c.q-pos.q,dr=c.r-pos.r,frontier=!c.known&&['1,0','0,1','1,-1','-1,0','-1,1','0,-1'].includes(`${dq},${dr}`);return `<button class="hex-cell ${c.known?'known':'unknown'} ${frontier?'frontier':''} ${sel?'selected':''}" data-map-q="${c.q}" data-map-r="${c.r}" aria-label="${esc(terrainName(c))}" style="left:${x}px;top:${y}px;${a?`background-image:url('hexes-runtime/${a}')`:''}">${frontier?'·':''}</button>`};
@@ -146,6 +147,68 @@ function renderMap(){
  const knownText=selected?.known?`Terreno conhecido: ${terrainName(selected)}.`:'Esta área ainda não foi revelada à companhia.';
  return `<section class="map-shell"><div class="map-head"><div><div class="kicker">Mapa da campanha</div><div class="map-title">Ermos do Norte</div></div><div class="camera-tools"><button id="zoomOut">−</button><button id="zoomIn">+</button></div></div><div id="mapViewport" class="map-viewport" aria-label="Mapa da campanha"><div id="mapGrid" class="map-grid" style="width:${gridW}px;height:${gridH}px">${all}<div class="canonical-ring" style="left:${px-9}px;top:${py-9}px"></div><div class="party-marker" style="left:${px}px;top:${py}px" aria-label="Companhia">◆</div><div class="map-label" style="left:${px+30}px;top:${py+2}px">COMPANHIA</div></div></div><div class="map-inspect panel"><div>${selected&&terrainAsset(selected)?img('hexes-runtime/'+terrainAsset(selected),terrainName(selected),'inspect-hex'):'<div class="unknown-inspect">✦</div>'}</div><div><div class="inspect-title">${esc(selected?terrainName(selected):'Selecione um hex')}</div><div class="inspect-copy">${esc(knownText)}</div>${travel?`<button class="small map-travel" data-map-travel="${esc(travel.intent)}" data-map-text="${esc(travel.text)}">Preparar dia de viagem para ${travel.label}</button>`:'<div class="inspect-copy">Selecione um hex vizinho à companhia para preparar a viagem.</div>'}</div></div></section>`
 }
+
+function effectiveMapMode(){
+ const kind=String(viewState?.position?.kind||'HEX');
+ if(mapMode!=='AUTO')return mapMode;
+ return kind==='SETTLEMENT'?'SETTLEMENT':kind==='DUNGEON'?'DUNGEON':'HEX';
+}
+function mapModeTabs(){
+ const lm=viewState?.localMaps||{},mode=effectiveMapMode();
+ const tabs=[['HEX','ERMOS',true],['SETTLEMENT','CIDADE',!!lm.settlement],['DUNGEON','DUNGEON',!!lm.dungeon]].filter(x=>x[2]);
+ return '<div class="map-mode-tabs">'+tabs.map(([id,label])=>'<button class="small '+(mode===id?'active':'')+'" data-map-mode="'+id+'">'+label+'</button>').join('')+'</div>';
+}
+function generatedMapAsset(key){return (window.OSE_GENERATED_MAP_ASSETS||{})[key]||''}
+function localSprite(key,label,cls=''){
+ const src=generatedMapAsset(key);
+ return src?img(src,label,'local-map-sprite '+cls):'<div class="local-map-sprite placeholder">✦</div>';
+}
+function renderMap(){
+ const mode=effectiveMapMode(),lm=viewState?.localMaps||{};
+ if(mode==='SETTLEMENT'&&lm.settlement)return renderSettlementMap(lm.settlement);
+ if(mode==='DUNGEON'&&lm.dungeon)return renderDungeonMap(lm.dungeon);
+ return renderHexMap();
+}
+function settlementVisualKey(id){
+ const m={GATE:'settlement_gate',INN:'settlement_inn',TEMPLE:'settlement_temple',SMITH:'settlement_smith',MARKET:'settlement_market'};
+ return m[id]||'settlement_inn';
+}
+function renderSettlementMap(s){
+ const slots={GATE:[50,86],INN:[24,32],MARKET:[50,42],SMITH:[77,34],TEMPLE:[73,72]};
+ const places=(s.locations||[]).filter(x=>x.discovered);
+ const sprites=places.map((p,i)=>{
+   const xy=slots[p.locationId]||[20+(i%3)*30,25+Math.floor(i/3)*40];
+   const current=p.locationId===s.currentAnchorId;
+   return '<div class="settlement-place '+(current?'current':'')+'" style="left:'+xy[0]+'%;top:'+xy[1]+'%">'+
+     localSprite(settlementVisualKey(p.locationId),p.name)+
+     '<span>'+esc(p.name)+'</span>'+(current?'<b>◆</b>':'')+'</div>';
+ }).join('');
+ return '<section class="map-shell local-map-shell">'+
+   '<div class="map-head"><div><div class="kicker">Mapa local</div><div class="map-title">Assentamento</div></div>'+mapModeTabs()+'</div>'+
+   '<div class="settlement-map-board"><div class="town-road road-a"></div><div class="town-road road-b"></div><div class="town-road road-c"></div>'+sprites+'</div>'+
+   '<div class="panel local-map-note"><b>'+esc(s.settlementId||'Assentamento')+'</b><p>Locais descobertos: '+places.length+'. O mapa é composto a partir dos sprites top-down incorporados e respeita apenas locais já revelados no estado canônico.</p></div>'+
+   '</section>';
+}
+function dungeonPositions(nodes){
+ const pts=[[50,50],[30,50],[70,50],[50,28],[50,72],[24,27],[76,27],[24,73],[76,73],[12,50],[88,50],[50,12],[50,88],[12,25],[88,25],[12,75],[88,75]];
+ const out={};(nodes||[]).forEach((n,i)=>out[n.nodeId]=pts[i%pts.length]);return out;
+}
+function dungeonSpriteKey(node,i){
+ if(node.nodeId===viewState?.localMaps?.dungeon?.entranceNodeId)return 'dungeon_ritual';
+ const keys=['dungeon_room','dungeon_corridor','dungeon_cave','dungeon_water'];
+ return keys[i%keys.length];
+}
+function renderDungeonMap(d){
+ const nodes=d.nodes||[],edges=d.edges||[],pos=dungeonPositions(nodes);
+ const lines=edges.map(e=>{const a=pos[e.from],b=pos[e.to];if(!a||!b)return'';return '<line x1="'+a[0]+'%" y1="'+a[1]+'%" x2="'+b[0]+'%" y2="'+b[1]+'%" class="'+(e.kind==='DOOR'?'door':'passage')+'"/>';}).join('');
+ const rooms=nodes.map((n,i)=>{const p=pos[n.nodeId]||[50,50],current=n.current||n.nodeId===d.currentNodeId;return '<div class="dungeon-node '+(current?'current':'')+'" style="left:'+p[0]+'%;top:'+p[1]+'%">'+localSprite(dungeonSpriteKey(n,i),n.nodeId)+(current?'<b>◆</b>':'')+'<span>'+esc(n.nodeId)+'</span></div>';}).join('');
+ return '<section class="map-shell local-map-shell">'+
+   '<div class="map-head"><div><div class="kicker">Mapa interno</div><div class="map-title">Dungeon</div></div>'+mapModeTabs()+'</div>'+
+   '<div class="dungeon-map-board"><svg class="dungeon-links" viewBox="0 0 100 100" preserveAspectRatio="none">'+lines+'</svg>'+rooms+'</div>'+
+   '<div class="panel local-map-note"><b>'+esc(d.dungeonId||'Dungeon')+'</b><p>Áreas reveladas: '+nodes.length+'. Salas secretas ou ainda não conhecidas não são projetadas para a interface.</p></div>'+
+   '</section>';
+}
+
 function travelForSelection(pos,c){if(pos?.kind!=='HEX')return null;const dq=c.q-pos.q,dr=c.r-pos.r;const m={'1,0':['leste','WILD_TRAVEL_DAY:E'],'0,1':['sudeste','WILD_TRAVEL_DAY:SE'],'1,-1':['nordeste','WILD_TRAVEL_DAY:NE'],'-1,0':['oeste','WILD_TRAVEL_DAY:W'],'-1,1':['sudoeste','WILD_TRAVEL_DAY:SW'],'0,-1':['noroeste','WILD_TRAVEL_DAY:NW']};const x=m[`${dq},${dr}`];return x?{label:x[0],intent:x[1],text:`Viajamos para ${x[0]} com cautela, observando o terreno durante o caminho.`}:null}
 
 function hpText(c){if(!c)return'—';const d=c.hpDenominator||1,cur=c.hpCurrentNumerator??0,max=c.hpMaxNumerator??0;return d===1?`${cur}/${max}`:`${cur}/${d} / ${max}/${d}`}
@@ -206,8 +269,9 @@ function wireCurrentScreen(){
  document.querySelectorAll('[data-loadout-buy]').forEach(b=>b.onclick=()=>postNative('UiCommand',{command:'loadout_purchase',commandId:'buy-'+Date.now()+'-'+b.dataset.loadoutBuy,characterId:loadoutState()?.characterId||'',catalogId:b.dataset.loadoutBuy}));
  document.querySelectorAll('[data-loadout-equip]').forEach(b=>b.onclick=()=>postNative('UiCommand',{command:'loadout_equip',commandId:'equip-'+Date.now()+'-'+b.dataset.loadoutEquip,characterId:loadoutState()?.characterId||'',itemId:b.dataset.loadoutEquip,equipped:b.dataset.equipped!=='1'}));
  document.querySelector('[data-loadout-finish]')?.addEventListener('click',()=>postNative('UiCommand',{command:'loadout_finish',commandId:'finish-'+Date.now(),characterId:loadoutState()?.characterId||''}));
- if(screen==='map')wireMap();
+ if(screen==='map'){wireMapModeTabs();if(effectiveMapMode()==='HEX')wireMap();}
 }
+function wireMapModeTabs(){document.querySelectorAll('[data-map-mode]').forEach(b=>b.onclick=()=>{mapMode=b.dataset.mapMode||'AUTO';mapSelection=null;render()})}
 function wireMap(){
  let cam={x:0,y:0,s:1},drag=null;const grid=el('mapGrid'),vp=el('mapViewport');if(!grid||!vp)return;
  const apply=()=>grid.style.transform=`translate(${cam.x}px,${cam.y}px) scale(${cam.s})`;
