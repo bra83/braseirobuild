@@ -1,0 +1,245 @@
+name: Braseiro DnD 6.6.4 RUN186 Hosted Fallback
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-dnd-run186-hosted-fallback.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: dnd-run186-hosted-fallback
+  cancel-in-progress: true
+env:
+  TAG: DND-6.6.4-RUN186
+  APK_NAME: BRASEIRO_DND_6.6.4_RUN186_DEBUG.apk
+  VERSION_NAME: 6.6.4-r186
+  VERSION_CODE: '606486'
+  SOURCE_SHA256: 2013bccf5e12e006ddbc3e644177613bc405e6bc828b18f52a2cdd5ebc5aa078
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reclaim hosted disk
+        shell: bash
+        run: |
+          set -euxo pipefail
+          df -h
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost "$AGENT_TOOLSDIRECTORY"/CodeQL || true
+          df -h
+
+      - name: Reconstruct canonical RUN180 source
+        id: source
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p "$RUNNER_TEMP/dnd/incoming" "$RUNNER_TEMP/dnd/extract" "$RUNNER_TEMP/dnd/out"
+          cd "$RUNNER_TEMP/dnd/incoming"
+          curl -L --fail --retry 5 --retry-delay 2 -o part00 'https://drive.usercontent.google.com/download?id=1XiIBc6zdz6iISvpak_zTKPEljsGzWeup&export=download&confirm=t'
+          echo '8dd31da8d9c9805aca05f2b3a19a80d4e35c3dba2d0eaa62bdec8e5ced6be9eb  part00' | sha256sum -c -
+          curl -L --fail --retry 5 --retry-delay 2 -o part01 'https://drive.usercontent.google.com/download?id=1P7LwVCYrtidn4pXbdFLa70X3zS1f8GSN&export=download&confirm=t'
+          echo '3b3bc483807b372a193c7e12ef8917254ca7e070775fb570b6f76176090cf687  part01' | sha256sum -c -
+          curl -L --fail --retry 5 --retry-delay 2 -o part02 'https://drive.usercontent.google.com/download?id=1ptl3x3a6l-t6NUpZdKLhcMfnmnznlk9N&export=download&confirm=t'
+          echo 'a50528b062123f767df13e18fb3cda7026a2cf1c93ec1ecb60132f49a62dc2d0  part02' | sha256sum -c -
+          curl -L --fail --retry 5 --retry-delay 2 -o part03 'https://drive.usercontent.google.com/download?id=1clnk1KwnJRFTfiHGfkmpS0_XF63a42rR&export=download&confirm=t'
+          echo '797a1c097cf43526d732caf9eded2993e3dcd82e940001cb742bb0ce3d0bbfe9  part03' | sha256sum -c -
+          curl -L --fail --retry 5 --retry-delay 2 -o part04 'https://drive.usercontent.google.com/download?id=1hm2KrTnF5JHQO-mM7FWfz2izjbHdxFk0&export=download&confirm=t'
+          echo '2e28a84895d5d3ebdddae5dca4e7edbc0944d02ea128586be8142b28f7b9b506  part04' | sha256sum -c -
+          curl -L --fail --retry 5 --retry-delay 2 -o part05 'https://drive.usercontent.google.com/download?id=13XbarUyJ9JuXUIfotc6cc5RHB-H6sxx_&export=download&confirm=t'
+          echo '7640d597596bb49957f06268e37b8c0fb68cd8acf8dbdc3b3f5b916c02fccc17  part05' | sha256sum -c -
+          curl -L --fail --retry 5 --retry-delay 2 -o part06 'https://drive.usercontent.google.com/download?id=1vx1jkf_zKwbYvuJtKGSSzoqAFfSoPPT2&export=download&confirm=t'
+          echo '8469336040fe3dc2d45128c7d2c4d5dce293c26ac57d97021efa5700856ed068  part06' | sha256sum -c -
+          cat part00 part01 part02 part03 part04 part05 part06 > "$RUNNER_TEMP/dnd/RUN180_BASE.zip"
+          echo "$SOURCE_SHA256  $RUNNER_TEMP/dnd/RUN180_BASE.zip" | sha256sum -c -
+          unzip -q "$RUNNER_TEMP/dnd/RUN180_BASE.zip" -d "$RUNNER_TEMP/dnd/extract"
+          gradle="$(find "$RUNNER_TEMP/dnd/extract" -type f -path '*/android/gradlew' -print -quit)"
+          test -n "$gradle"
+          root="$(dirname "$(dirname "$gradle")")"
+          echo "root=$root" >> "$GITHUB_OUTPUT"
+          du -sh "$root"
+          df -h
+
+      - name: Apply RUN181 baseline patch
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: python ci/dnd-run181/patch.py "$ROOT"
+
+      - name: Apply RUN185 cumulative patch
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: python ci/dnd-run185/patch.py "$ROOT"
+
+      - name: Apply RUN186 Academic Life PT-BR patch
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: python ci/dnd-run186/patch.py "$ROOT"
+
+      - name: Version RUN186
+        shell: python
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          from pathlib import Path
+          import os
+          p=Path(os.environ["ROOT"])/"version.properties"
+          rows=p.read_text(encoding="utf-8").splitlines()
+          out=[]; hn=False; hc=False
+          for row in rows:
+              if row.startswith("VERSION_NAME="):
+                  out.append("VERSION_NAME="+os.environ["VERSION_NAME"]); hn=True
+              elif row.startswith("VERSION_CODE="):
+                  out.append("VERSION_CODE="+os.environ["VERSION_CODE"]); hc=True
+              else: out.append(row)
+          if not hn: out.insert(0,"VERSION_NAME="+os.environ["VERSION_NAME"])
+          if not hc: out.insert(0,"VERSION_CODE="+os.environ["VERSION_CODE"])
+          p.write_text("\n".join(out)+"\n",encoding="utf-8")
+
+      - name: RUN186 contracts and Strixhaven closure
+        shell: python
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          from pathlib import Path
+          import os,re,json
+          root=Path(os.environ["ROOT"])
+          p=root/"android/app/src/main/java/com/braseiro/dnd5e"
+          main=(p/"MainActivity.java").read_text(encoding="utf-8")
+          validator=(p/"CharacterRulesValidator.java").read_text(encoding="utf-8")
+          generator=(p/"CharacterSheetGenerator.java").read_text(encoding="utf-8")
+          official=(p/"StrixhavenOfficialCampaignRuntime.java").read_text(encoding="utf-8")
+          bestiary=(p/"StrixhavenBestiaryRuntimeEngine.java").read_text(encoding="utf-8")
+          compiled=(p/"StrixhavenCompiledCampaignEngine.java").read_text(encoding="utf-8")
+          checks={
+            "character_validator":"characterRulesValidator.validate" in main,
+            "reactive_character":"reconcileCharacterDependencies" in main,
+            "hero_portrait":"beginHeroPortrait" in main and "db.setCharacterToken(id,stored.toString())" in main,
+            "npc_portrait":"beginNpcPortrait" in main and "db.setNpcToken(id,stored.toString())" in main,
+            "portrait_routing":"if(hasPendingPortraitTarget()){importReceivedPortraitAsync(source);return;}" in main,
+            "living_world":"runLivingWorldCatchUpAsync" in main,
+            "gemini_save":"SALVAR CHAVES GEMINI" in main,
+            "galaxy_a57":"isGalaxyA57Family" in main,
+            "homebrew_validator":"HomebrewClassRuntimeEngine.supports(baseClassName)" in validator,
+            "homebrew_generator":"HomebrewClassRuntimeEngine.supports(c)" in generator,
+            "guided_study":"ROLAR ESTUDO" in main and "rollStrixhavenAcademicCheck" in main,
+            "guided_exam":"ROLAR TESTE 1" in main and "ROLAR TESTE 2" in main,
+            "academic_pt":"academicBlockReasonPt" in main and "Você não possui um emprego ativo" in main,
+            "year_authority":"COMO AVANÇAR SEMESTRE / ANO" in main and 'finishAcademicYear(hero.optLong("id"))' in main,
+            "master_clear":"FERRAMENTAS DO MESTRE" in main and "CONSULTAR O MESTRE SEM AVANÇAR A HISTÓRIA" in main,
+            "run163_removed":"RUNTIMES COMPILADOS — RUN163" not in main,
+            "relationship_pt":"Pessoa Querida" in main and "ESCOLHER COLEGA ESTUDANTE OFICIAL" in main,
+            "campaign_pt":"UM CURRÍCULO DE CAOS" in main and "localizeCampaignLabel" in compiled,
+            "exam_pt":"Fisiologias Mágicas" in compiled and "Arcanismo" in compiled,
+          }
+          events=re.findall(r'e\("([^"]+)",(\d+),(\d+),(\d+),"([^"]+)",(\d+)\)',official)
+          creatures=re.findall(r'e\("([^"]+)","([^"]+)","([^"]+)",(\d+),(\d+)\)',bestiary)
+          checks["events_44"]=len(events)==44 and len(set(x[0] for x in events))==44
+          checks["bestiary_44"]=len(creatures)==44 and len(set(x[0] for x in creatures))==44
+          checks["years_1_4"]=set(int(x[1]) for x in events)=={1,2,3,4}
+          levels=[int(x[5]) for x in events if int(x[5])>0]
+          checks["milestones"]=levels==[2,3,4,5,6,7,8,9,10]
+          assets=root/"android/app/src/main/assets/strixhaven_runtime"
+          checks["source_assets"]=all((assets/f"ch{x}.txt").exists() and (assets/f"ch{x}.txt").stat().st_size>5000 for x in (3,4,5,6,7))
+          print(json.dumps(checks,ensure_ascii=False,indent=2))
+          bad=[k for k,v in checks.items() if not v]
+          if bad: raise SystemExit("RUN186_GATE_FAIL::"+",".join(bad))
+
+      - name: Compile Java
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          chmod +x "$ROOT/android/gradlew"
+          cd "$ROOT/android"
+          ./gradlew :app:compileDebugJavaWithJavac --no-daemon --console=plain --stacktrace
+
+      - name: Unit regression tests
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          cd "$ROOT/android"
+          ./gradlew :app:testDebugUnitTest --no-daemon --console=plain
+
+      - name: Assemble and validate APK
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          set -euxo pipefail
+          out="$RUNNER_TEMP/dnd/out"
+          cd "$ROOT/android"
+          ./gradlew :app:assembleDebug --no-daemon --console=plain --stacktrace
+          apk="$(find app/build/outputs/apk/debug -maxdepth 1 -type f -name '*.apk' -print -quit)"
+          test -n "$apk"
+          cp "$apk" "$out/$APK_NAME"
+          bt="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          "$bt/aapt" dump badging "$out/$APK_NAME" | tee "$out/RUN186_BADGING.txt"
+          grep -q "package: name='com.braseiro.dnd5e'" "$out/RUN186_BADGING.txt"
+          grep -q "versionCode='$VERSION_CODE'" "$out/RUN186_BADGING.txt"
+          grep -q "versionName='$VERSION_NAME-debug'" "$out/RUN186_BADGING.txt"
+          "$bt/apksigner" verify --verbose --print-certs "$out/$APK_NAME"
+          sha="$(sha256sum "$out/$APK_NAME" | awk '{print $1}')"
+          echo "$sha  $APK_NAME" > "$out/$APK_NAME.sha256"
+          printf '%s\n' \
+            'RUNNER=github-hosted-ubuntu' \
+            'PACKAGE=com.braseiro.dnd5e' \
+            "VERSION_NAME=$VERSION_NAME-debug" \
+            "VERSION_CODE=$VERSION_CODE" \
+            "APK_SHA256=$sha" \
+            'CHARACTER_CREATION_GATE=PASS' \
+            'HOMEBREW_CLASS_AUTHORITY_GATE=PASS' \
+            'NECROMANTE_VALIDATION=PASS' \
+            'LIVING_WORLD_PERSISTENCE_GATE=PASS' \
+            'NPC_PORTRAIT_PERSISTENCE=PASS' \
+            'HERO_PORTRAIT_PERSISTENCE=PASS' \
+            'GALAXY_A57=PASS' \
+            'STRIXHAVEN_OFFICIAL_EVENTS=44' \
+            'STRIXHAVEN_CANONICAL_EXAMS=10' \
+            'STRIXHAVEN_FELLOW_STUDENTS=18' \
+            'STRIXHAVEN_STATBLOCKS=44' \
+            'STRIXHAVEN_SOURCE_ASSETS=5' \
+            'STRIXHAVEN_MILESTONE_LEVELS=2-10' \
+            'STRIXHAVEN_RUNTIME_RAG_REQUIRED=false' \
+            'STRIXHAVEN_FULL_BOOK_CLOSURE=true' \
+            'ACADEMIC_GUIDED_STUDY_ROLL=PASS' \
+            'ACADEMIC_GUIDED_EXAM_ROLLS=PASS' \
+            'ACADEMIC_ERRORS_PTBR=PASS' \
+            'ACADEMIC_YEAR_MILESTONE_AUTHORITY=PASS' \
+            'ACADEMIC_YEAR_AUTO_CLEANUP=PASS' \
+            'STRIXHAVEN_DISPLAY_PTBR=PASS' \
+            'MASTER_TOOLS_CLARIFIED=PASS' \
+            'LEGACY_RUN163_LABEL_REMOVED=PASS' \
+            > "$out/RUN186_BUILD_PROOF.txt"
+          cat "$out/RUN186_BUILD_PROOF.txt"
+          ls -lh "$out"
+          df -h
+
+      - name: Upload RUN186 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_DND_6.6.4_RUN186_HOSTED
+          path: |
+            ${{ runner.temp }}/dnd/out/BRASEIRO_DND_6.6.4_RUN186_DEBUG.apk
+            ${{ runner.temp }}/dnd/out/BRASEIRO_DND_6.6.4_RUN186_DEBUG.apk.sha256
+            ${{ runner.temp }}/dnd/out/RUN186_BADGING.txt
+            ${{ runner.temp }}/dnd/out/RUN186_BUILD_PROOF.txt
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish RUN186 release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: DND-6.6.4-RUN186
+          name: Braseiro DnD 6.6.4 RUN186
+          body: >-
+            RUN186 finaliza a Vida Acadêmica de Strixhaven: provas guiadas com rolagens,
+            interface e erros em PT-BR, empregos/extracurriculares/relacionamentos esclarecidos,
+            ferramentas do Mestre explicadas, avanço de semestre/ano sob os 44 marcos oficiais
+            e limpeza acadêmica automática na virada real de ano. Remove o rótulo legado RUN163
+            e preserva Character Authority, retratos, Mundo Vivo, Strixhaven completo e Galaxy A57.
+          files: |
+            ${{ runner.temp }}/dnd/out/BRASEIRO_DND_6.6.4_RUN186_DEBUG.apk
+            ${{ runner.temp }}/dnd/out/BRASEIRO_DND_6.6.4_RUN186_DEBUG.apk.sha256
+            ${{ runner.temp }}/dnd/out/RUN186_BUILD_PROOF.txt
+          fail_on_unmatched_files: true
