@@ -1,0 +1,23 @@
+name: Inspect DnD Existing Bestiary Schemas
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dnd-existing-bestiary-schemas.yml']
+  workflow_dispatch:
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect existing compiled bestiary schemas
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $p='C:\DND181\extract\dnd_work\android\app\src\main\java\com\braseiro\dnd5e'
+          foreach($n in @('ArcanaUnleashedRun145BestiaryEngine.java','Srd51NpcStatblockBatchEngine.java','NfBestiaryRuntimeEngine.java','XmmBestiaryRuntimeEngine.java','CreatureStatblockRegistrar.java','CompiledStatblockEngine.java')){
+            $f=Join-Path $p $n
+            if(Test-Path $f){"===== $n =====";Get-Content $f}
+          }
+          "===== files with registerAuthorized ====="
+          Get-ChildItem $p -File -Filter *.java | Select-String -Pattern 'registerAuthorized\(|full_statblock_claim|mechanical_basis' | Select-Object -ExpandProperty Path -Unique
