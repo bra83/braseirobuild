@@ -18,6 +18,11 @@ class RetainerCampaignFlowTest {
         val place=SpatialRef.Hex("campaign-world",0,0)
         val npc=NpcSnapshot("npc-candidate","Yarra","campaign-world",place,
             retainerLevel=level,retainerClassId=if(level==null||level==0)null else "FIGHTER")
+        val retainerSheet=employer.copy(
+            characterId="npc-candidate",name="Yarra",
+            attributes=employer.attributes.copy(cha=9),
+            primeModifierPercentByClass=mapOf("FIGHTER" to 0)
+        ).canonical()
         return CampaignEnvelope(
             campaignId=CampaignId("retainer-audit"),
             createdAtMetadata="test",ruleProfile=RuleProfile.OSE_CLASSIC_FANTASY,
@@ -27,7 +32,7 @@ class RetainerCampaignFlowTest {
             campaignState=CampaignState(
                 party=PartyState(listOf("hero")), time=TimeState(turns=25),
                 position=PositionState(place), game=GameExtensions(
-                    characters=mapOf("hero" to employer),
+                    characters=mapOf("hero" to employer, "npc-candidate" to retainerSheet),
                     npcs=mapOf(npc.npcId to npc),rngRootSeed="4040",
                     session=SessionSnapshot(phase="ACTIVE",visibleNarration="A feira encontra-se agitada.")
                 )
@@ -58,6 +63,10 @@ class RetainerCampaignFlowTest {
         assertEquals(1,contract.dailyWageGp)
         assertEquals(1,contract.treasureHalfShares)
         assertTrue(contract.loyalty in 10..11)
+        val recipient=envelope.campaignState.game.experience.recipients.getValue("npc-candidate")
+        assertTrue(recipient.retainer)
+        assertTrue(recipient.awardEligible)
+        assertEquals("FIGHTER",recipient.classIds.single())
         assertTrue(envelope.campaignState.game.npcs.getValue("npc-candidate")
             .reactionHistory.any { it.startsWith("RETAINER_RECRUIT:") })
         // Identity-gated repeats never reroll or create duplicate active contracts.
@@ -105,5 +114,8 @@ class RetainerCampaignFlowTest {
         assertEquals(25L,current.campaignState.time.turns)
         assertEquals("A feira encontra-se agitada.",current.campaignState.game.session.visibleNarration)
         assertTrue("RETAINER_DEPARTED" in current.campaignState.game.npcs.getValue("npc-candidate").consequenceFlags)
+        // Departed NPC survives; only future award eligibility changes.
+        val recipient=current.campaignState.game.experience.recipients["npc-candidate"]
+        if(recipient!=null){ assertTrue(recipient.surviving); assertFalse(recipient.awardEligible) }
     }
 }
