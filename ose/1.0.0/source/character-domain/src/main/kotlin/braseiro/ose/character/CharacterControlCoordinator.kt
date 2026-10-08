@@ -39,7 +39,8 @@ object CharacterControlCoordinator {
         proposalId: String,
         characterId: String,
         text: String,
-        mechanicalIntent: String
+        mechanicalIntent: String,
+        judgment: CompanionJudgment? = null
     ): CampaignEnvelope {
         val mode = mode(envelope, characterId)
         require(mode != CharacterControlMode.PLAYER) { "CHARACTER_PLAYER_CONTROLLED" }
@@ -55,10 +56,17 @@ object CharacterControlCoordinator {
                 previous.mechanicalIntent == mechanicalIntent) { "PROPOSAL_ID_COLLISION" }
             return envelope
         }
+        require(judgment == null || judgment.characterId == characterId) { "PROPOSAL_ACTOR_MISMATCH" }
+        val insight = judgment ?: CompanionJudgmentEngine.assess(envelope, characterId)
         val proposal = CharacterActionProposalSnapshot(
-            proposalId, characterId, text, mechanicalIntent,
-            if (mode == CharacterControlMode.MASTER) CharacterActionApproval.APPROVED
-            else CharacterActionApproval.PENDING, game.revision
+            proposalId = proposalId, characterId = characterId,
+            reactionText = text, mechanicalIntent = mechanicalIntent,
+            perception = insight.perception, hypothesis = insight.hypothesis,
+            motivation = insight.motivation, reason = insight.reason,
+            risk = insight.risk, stance = insight.stance,
+            status = if (mode == CharacterControlMode.MASTER) CharacterActionApproval.APPROVED
+                else CharacterActionApproval.PENDING,
+            createdAtRevision = game.revision
         )
         return envelope.copy(campaignState = state.copy(game = game.copy(
             characterActionProposals = game.characterActionProposals + (proposalId to proposal),
@@ -84,9 +92,12 @@ object CharacterControlCoordinator {
         val intent = editedIntent ?: existing.mechanicalIntent
         require(text.isNotBlank() && text.length <= 2400 &&
             intent.isNotBlank() && intent.length <= 2400) { "INVALID_PROPOSAL_CONTENT" }
+        val altered = text != existing.reactionText || intent != existing.mechanicalIntent
         val next = existing.copy(
             reactionText = text,
             mechanicalIntent = intent,
+            reason = if (altered) "Ação ajustada pelo jogador; esta versão substitui a proposta original." else existing.reason,
+            risk = if (altered) "Risco da ação alterada ainda precisa ser avaliado pelo motor de regras." else existing.risk,
             status = if (approve) CharacterActionApproval.APPROVED else CharacterActionApproval.REJECTED
         )
         return envelope.copy(campaignState = state.copy(game = game.copy(
