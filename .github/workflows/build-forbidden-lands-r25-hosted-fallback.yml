@@ -1,0 +1,79 @@
+name: Forbidden Lands R25 hosted fallback build
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.github/workflows/build-forbidden-lands-r25-hosted-fallback.yml'
+permissions:
+  contents: read
+jobs:
+  build-r25:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Fetch sanitized R25 TypeScript corrected source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p incoming work output
+          curl -fsSL --retry 4 -X POST 'https://api.firestorage.ai/dev/file/shares/rMhFXjX9vKM0/files/01a1194ee71672239a56f9620b94dd2e/download' -o incoming/response.json
+          python3 - <<'PY' >incoming/url.txt
+          import json
+          data=json.load(open('incoming/response.json'))
+          url=data.get('downloadUrl')
+          if not url: raise RuntimeError('Missing firestorage downloadURL')
+          print(url)
+          PY
+          curl -fsSL --retry 5 --retry-delay 2 --connect-timeout 30 -o incoming/source.zip "$(cat incoming/url.txt)"
+          echo '23d317e6ccda5b8ff944a34184233ece7f6f5fee57aa8e0ccf3e2c18610763f5  incoming/source.zip' | sha256sum -c -
+          unzip -q incoming/source.zip -d work
+      - name: Install and test R25
+        shell: bash
+        working-directory: work/fl_r25_brelga_transfer
+        run: |
+          set -euo pipefail
+          npm install --package-lock=false --no-audit --no-fund --legacy-peer-deps
+          npm run lint
+          npm run verify:human-master-dynamic-r25
+          npm run verify:human-master-runtime
+          npm run verify:canonical-narrator-profile
+          node --import fake-indexeddb/auto -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-empty-rule-library-playthrough-r24.mjs
+          npm run verify:external-gemini-images
+      - name: Sync web and build Android R25
+        shell: bash
+        working-directory: work/fl_r25_brelga_transfer
+        run: |
+          set -euo pipefail
+          npm run android:sync
+          python3 - <<'PY'
+          import json
+          p='android/app/src/main/assets/public/braseiro-release-marker.json'
+          assert json.load(open(p))['version']=='3.3.21'
+          PY
+          cd android
+          chmod +x ./gradlew
+          ./gradlew :app:assembleDebug --no-daemon --stacktrace
+      - name: Package actual R25 APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk=$(find work/fl_r25_brelga_transfer/android/app/build/outputs/apk/debug -type f -name '*.apk' | head -1)
+          test -f "$apk"
+          cp "$apk" output/BRASEIRO_FORBIDDEN_LANDS_3.3.21_R25_HOSTED_DEBUG.apk
+          sha256sum output/*.apk >output/APK_SHA256.txt
+          unzip -t output/*.apk >/dev/null
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_FORBIDDEN_LANDS_R25_HOSTED_APK
+          path: output/*
+          retention-days: 3
+          if-no-files-found: error
