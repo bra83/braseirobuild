@@ -91,7 +91,11 @@ class CharacterControlModesTest {
         assertFailsWith<IllegalArgumentException> {
             CharacterControlCoordinator.requireActionAllowed(e, "gm", false, null, "ataco", "ataco")
         }
-        CharacterControlCoordinator.requireActionAllowed(e, "gm", true, null, "ataco", "ataco")
+        assertFailsWith<IllegalArgumentException> {
+            CharacterControlCoordinator.requireActionAllowed(e, "gm", true, null, "ataco", "ataco")
+        }
+        val gmProposed = CharacterControlCoordinator.propose(e, "master-1", "gm", "ataco", "ataco")
+        CharacterControlCoordinator.requireActionAllowed(gmProposed, "gm", true, "master-1", "ataco", "ataco")
         assertFailsWith<IllegalArgumentException> {
             CharacterControlCoordinator.requireActionAllowed(e, "gm", true, null,
                 "levo o grupo", "WILD_TRAVEL_DAY:E")
@@ -195,14 +199,50 @@ class CharacterControlModesTest {
         val authorized = session.submitCharacterAction(e.campaignId,"master-action:curated-p1",
             "curated","escuto","escuto",fromMaster=true,
             approvedProposalId="curated-p1")
+        val consumed = session.loadSession(e.campaignId).campaignState.game
+            .characterActionProposals.getValue("curated-p1")
+        assertEquals(CharacterActionApproval.EXECUTED, consumed.status)
+        assertEquals("master-action:curated-p1", consumed.executedReactionId)
         val saved = CanonicalStateHash.sha256(session.loadSession(e.campaignId))
         val duplicate = session.submitCharacterAction(e.campaignId,"master-action:curated-p1",
             "curated","escuto","escuto",fromMaster=true,
             approvedProposalId="curated-p1")
         assertEquals(authorized.narration,duplicate.narration)
         assertEquals(saved,CanonicalStateHash.sha256(session.loadSession(e.campaignId)))
+        assertFailsWith<IllegalArgumentException> {
+            session.submitCharacterAction(e.campaignId,"master-action:curated-p1-again",
+                "curated","escuto","escuto",fromMaster=true,approvedProposalId="curated-p1")
+        }
+        assertFailsWith<IllegalArgumentException> {
+            session.submitPlayerReaction(e.campaignId,"legacy-bypass","observa","WAIT_TURN")
+        }
+        assertFailsWith<IllegalArgumentException> {
+            session.submitCharacterAction(e.campaignId,"player-one","player","escuto","WAIT_TURN")
+        }
+        assertEquals(saved,CanonicalStateHash.sha256(session.loadSession(e.campaignId)))
+        val restored=BackupCodec.importCampaign(BackupCodec.exportCampaign(session.loadSession(e.campaignId)))
+        assertEquals(consumed,restored.campaignState.game.characterActionProposals.getValue("curated-p1"))
     }
 
+    @Test fun masterCannotBypassProposalsOrCommandMixedGroupViaTypedAction() {
+        var e=party(RuleProfile.OSE_ADVANCED_FANTASY)
+        e=CharacterControlCoordinator.setMode(e,"gm",CharacterControlMode.MASTER)
+        e=CharacterControlCoordinator.setMode(e,"curated",CharacterControlMode.CURATED)
+        val repo=MemoryRepo()
+        repo.create(e)
+        val session=SessionEngine(repo,RulesRefereeBoundary(),DeterministicBarbaraSupervisor())
+        assertFailsWith<IllegalArgumentException> {
+            session.submitCharacterAction(e.campaignId,"gm-bypass","gm","observo","observo",fromMaster=true)
+        }
+        val proposed=CharacterControlCoordinator.propose(e,"gm-global-proposal","gm","descanso","WAIT_TURN")
+        repo.replace(proposed)
+        assertFailsWith<IllegalArgumentException> {
+            session.submitCharacterAction(e.campaignId,"gm-global","gm","descanso","WAIT_TURN",
+                fromMaster=true,approvedProposalId="gm-global-proposal")
+        }
+        assertEquals(e.campaignState.time,session.loadSession(e.campaignId).campaignState.time)
+        assertEquals(e.campaignState.resources,session.loadSession(e.campaignId).campaignState.resources)
+    }
 
     @Test fun companionOpinionsAreReadOnlyGroundedDistinctAndNeverExposeUnknownFacts() {
         for (profile in RuleProfile.entries) {

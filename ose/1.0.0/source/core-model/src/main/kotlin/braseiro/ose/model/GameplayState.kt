@@ -118,7 +118,9 @@ import kotlinx.serialization.Serializable
     val traceStatus: String,
     val traceNote: String = "",
     val traceEvidenceRefs: List<String> = emptyList(),
-    val narration: String? = null
+    val narration: String? = null,
+    val mechanicalIntent: String? = null,
+    val actorCharacterId: String? = null
 ) {
     init { require(reactionId.isNotBlank()); require(reactionText.isNotBlank()) }
     fun canonical() = copy(traceEvidenceRefs = traceEvidenceRefs.distinct().sorted())
@@ -398,7 +400,8 @@ import kotlinx.serialization.Serializable
     val risk: String = "",
     val stance: String = "UNCERTAIN",
     val status: CharacterActionApproval = CharacterActionApproval.PENDING,
-    val createdAtRevision: Long = 0L
+    val createdAtRevision: Long = 0L,
+    val executedReactionId: String? = null
 ) {
     init {
         require(proposalId.isNotBlank() && characterId.isNotBlank())

@@ -1002,11 +1002,8 @@ class MainActivity : Activity() {
             proposal.reactionText, proposal.mechanicalIntent,
             fromMaster = true, approvedProposalId = proposalId
         )
-        val latest = session.loadSession(CAMPAIGN_ID)
-        val next = CharacterControlCoordinator.markExecuted(latest, proposalId)
-        if (next != latest) repository.commit(CAMPAIGN_ID, StateTransition(
-            "master-executed:" + proposalId, next.campaignState
-        ))
+        // The SessionEngine persists the executed proposal and mechanical
+        // receipt together. A second commit here would create a crash window.
     }
 
     private fun traceJson(trace: RuleTrace): JSONObject {
