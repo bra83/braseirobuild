@@ -1,0 +1,111 @@
+name: DND RUN190 SOURCE CHECKPOINT BRELGA
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/dnd-run190-source-checkpoint-brelga.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: dnd-run190-source-checkpoint
+  cancel-in-progress: false
+jobs:
+  checkpoint:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify preserved RUN190 source without modifying it
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'EXPECTED_RUNNER_BRELGA'}
+          $src='C:\DND190\work'
+          $pkg=Join-Path $src 'android\app\src\main\java\com\braseiro\dnd5e'
+          foreach($path in @("$src\android\gradlew.bat","$src\android\gradle\wrapper\gradle-wrapper.jar","$src\version.properties","$pkg\MainActivity.java","$pkg\RuleCuriosityCatalog.java","$pkg\AppDb.java")){
+            if(!(Test-Path $path)){throw "RUN190_INTEGRATED_SOURCE_MISSING_$path"}
+          }
+          $version=Get-Content "$src\version.properties" -Raw
+          if($version -notmatch '(?m)^VERSION_NAME=6\.6\.4-r190\s*$' -or $version -notmatch '(?m)^VERSION_CODE=606490\s*$'){throw 'VERSION_NOT_RUN190'}
+          if($version -notmatch '(?m)^DB_SCHEMA=61\s*$'){throw 'DB_SCHEMA_NOT_61'}
+          $main=Get-Content "$pkg\MainActivity.java" -Raw
+          if(!$main.Contains('private void showRuleCuriosityDialog()') -or !$main.Contains('CompanionAgencyEngine.stageCurated') -or !$main.Contains('RUN188_GEMINI_EXPLICIT_OFFLINE')){throw 'RUN190_FEATURE_MARKERS_MISSING'}
+          $db=Get-Content "$pkg\AppDb.java" -Raw
+          if(!$db.Contains('DB_VERSION = 61') -or !$db.Contains('companion_proposals')){throw 'RUN189_PERSISTENCE_MISSING'}
+          Write-Host 'RUN190_SOURCE_IDENTITY_PASS'
+          (Get-PSDrive C) | Format-List Free,Used
+      - name: Copy RUN190 to separate nondestructive checkpoint workspace
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $src='C:\DND190\work'
+          $dest=Join-Path $env:RUNNER_TEMP 'braseiro-dnd-run190-source-export'
+          if(Test-Path $dest){throw 'CHECKPOINT_TEMP_DEST_EXISTS_REFUSE_TO_OVERWRITE'}
+          & robocopy $src $dest /E /R:2 /W:1 /XJ /XD '.gradle' 'build' '.idea' /XF 'local.properties' | Out-Host
+          $rc=$LASTEXITCODE
+          if($rc -gt 7){throw "ROBOCOPY_FAILED_$rc"}
+          $global:LASTEXITCODE=0
+          if(!(Test-Path "$dest\android\gradlew.bat")){throw 'SOURCE_CLONE_MISSING_GRADLE'}
+          Write-Host 'INDEPENDENT_CHECKPOINT_COPY_PASS'
+      - name: Verify RUN190 test contracts and archive complete Android Studio source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $src=Join-Path $env:RUNNER_TEMP 'braseiro-dnd-run190-source-export'
+          python "$env:GITHUB_WORKSPACE\ci\dnd-run190\tests\test_run190.py" $src
+          if($LASTEXITCODE -ne 0){throw 'RUN190_CONTRACTS_FAILED'}
+          $out=Join-Path $env:GITHUB_WORKSPACE 'checkpoint-out'
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          $script=@'
+import json,hashlib,zipfile,pathlib,sys
+src=pathlib.Path(sys.argv[1]);out=pathlib.Path(sys.argv[2])
+name="BRASEIRO_DND_6.6.4_RUN190_SOURCE_FULL_BRELGA.zip"
+dst=out/name
+files=sorted((p for p in src.rglob("*") if p.is_file()),key=lambda p:p.as_posix())
+if len(files)<300:raise SystemExit("SOURCE_TOO_SMALL")
+required=["android/gradlew.bat","android/gradle/wrapper/gradle-wrapper.jar","version.properties","android/app/src/main/AndroidManifest.xml"]
+for rel in required:
+ if not (src/rel).is_file():raise SystemExit("MISSING_REQUIRED_"+rel)
+manifest={"origin":"BRELGA C:\\DND190\\work, verified RUN190 integrated source","version":"6.6.4-r190","versionCode":606490,"sourceCount":len(files),"sourceFiles":[],"deviceTests":"NOT_RUN","allBookMechanicsCertified":False}
+with zipfile.ZipFile(dst,"w",compression=zipfile.ZIP_DEFLATED,compresslevel=6,allowZip64=True) as z:
+ for f in files:
+  rel=f.relative_to(src).as_posix()
+  b=f.read_bytes()
+  z.writestr("dnd_work/"+rel,b)
+  manifest["sourceFiles"].append({"name":rel,"sha256":hashlib.sha256(b).hexdigest(),"size":len(b)})
+with zipfile.ZipFile(dst) as z:
+ bad=z.testzip()
+ if bad:raise SystemExit("ZIP_CRC_ERROR_"+bad)
+ if len(z.namelist())!=len(files):raise SystemExit("ZIP_FILES_COUNT_MISMATCH")
+sha=hashlib.file_digest(dst.open("rb"),"sha256").hexdigest()
+(out/(name+".sha256")).write_text(sha+"  "+name+"\n",encoding="ascii")
+manifest["zipName"]=name
+manifest["zipSha256"]=sha
+manifest["zipSize"]=dst.stat().st_size
+(out/"RUN190_SOURCE_MANIFEST.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding="utf8")
+(out/"RUN190_SOURCE_CHECKPOINT_PROOF.txt").write_text("RUNNER=BRELGA\nRUN190_SOURCE_RESTORED=PASS\nNO_CANONICAL_SOURCE_MUTATION=PASS\nRUN190_STATIC_TESTS=PASS\nZIP_INTEGRITY=PASS\nDEVICE_TEST=NOT_RUN\nALL_BOOK_MECHANICS_CERTIFIED=false\n",encoding="utf8")
+print("RUN190_SOURCE_ARCHIVE_PASS",len(files),sha,dst.stat().st_size)
+'@
+          [IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP 'checkpoint-run190.py'),$script,(New-Object Text.UTF8Encoding($false)))
+          python (Join-Path $env:RUNNER_TEMP 'checkpoint-run190.py') $src $out
+          if($LASTEXITCODE -ne 0){throw 'RUN190_SOURCE_ARCHIVE_FAILED'}
+      - name: Upload BRELGA checkpoint artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_DND_RUN190_SOURCE_CHECKPOINT
+          path: checkpoint-out/*
+          if-no-files-found: error
+          retention-days: 14
+      - name: Publish permanent RUN190 source checkpoint separately from APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: DND-6.6.4-RUN190-SOURCE
+          name: Braseiro DnD 6.6.4 RUN190 — Fonte Integral BRELGA
+          body: >-
+            Checkpoint de fonte Android Studio integral da RUN190 compilada. Não modifica
+            o APK DND-6.6.4-RUN190. A fonte inclui android/, Gradle, assets e version.properties;
+            arquivo SHA-256 e manifesto por arquivo. Não equivale à certificação de todas
+            as regras. Testes no aparelho permanecem NÃO EXECUTADOS.
+          files: checkpoint-out/*
+          fail_on_unmatched_files: true
