@@ -886,6 +886,74 @@ class MainActivity : Activity() {
         }
     }
 
+    /**
+     * A bounded Mestre turn after a player action or opening. Barbara chooses
+     * among visible, read-only suggestions. Mechanics still flow through the
+     * deterministic referee; group movement is never imposed on human players.
+     */
+    private fun advanceMasterCharacters(turnKey: String, onlyCharacterId: String? = null) {
+        val initial = session.loadSession(CAMPAIGN_ID)
+        val ids = initial.campaignState.party.characterIds
+        if (onlyCharacterId != null) require(onlyCharacterId in ids) { "UNKNOWN_CHARACTER_ID" }
+        val candidates = ids.filter { id ->
+            (onlyCharacterId == null || id == onlyCharacterId) &&
+                CharacterControlCoordinator.mode(initial, id) != CharacterControlMode.PLAYER
+        }.take(8)
+        for (id in candidates) {
+            val current = session.loadSession(CAMPAIGN_ID)
+            if (id !in current.campaignState.party.characterIds) continue
+            val proposalId = "auto:" + turnKey.hashCode() + ":" + id.hashCode()
+            if (current.campaignState.game.characterActionProposals.containsKey(proposalId)) continue
+            val name = current.campaignState.game.characters[id]?.name ?: continue
+            val suggestions = ContextualDecisionSuggester.suggest(current)
+            val options = suggestions.mapIndexed { index, d ->
+                (index + 1).toString() + ") " + d.label + ": " + d.reaction
+            }.joinToString("\n")
+            val answer = runCatching {
+                session.gmHelp(CAMPAIGN_ID,
+                    "Como o personagem " + name + ", escolha UMA opção pública. " +
+                    "Responda primeiro com 1, 2 ou 3, sem inventar regras ou informação secreta:\n" +
+                    options).answer
+            }.getOrDefault("")
+            val selectedNumber = if (answer.startsWith("Posso ajudar") || answer.startsWith("Não consegui"))
+                null else Regex("\\b[123]\\b").find(answer)?.value?.toIntOrNull()
+            val index = (selectedNumber ?: (Math.floorMod(id.hashCode(), suggestions.size) + 1)) - 1
+            val decision = suggestions[index]
+            val allMaster = ids.all { member ->
+                CharacterControlCoordinator.mode(current, member) == CharacterControlMode.MASTER
+            }
+            val intent = if (!allMaster && decision.mechanicalIntent?.startsWith("WILD_") == true)
+                "PERSONAL_OBSERVATION" else (decision.mechanicalIntent ?: decision.reaction)
+            val next = CharacterControlCoordinator.propose(
+                current, proposalId, id, decision.reaction, intent
+            )
+            repository.commit(CAMPAIGN_ID, StateTransition(
+                "master-propose:" + proposalId, next.campaignState
+            ))
+            if (CharacterControlCoordinator.mode(next, id) == CharacterControlMode.MASTER) {
+                executeMasterProposal(proposalId)
+            }
+        }
+    }
+
+    private fun executeMasterProposal(proposalId: String) {
+        val current = session.loadSession(CAMPAIGN_ID)
+        val proposal = current.campaignState.game.characterActionProposals[proposalId]
+            ?: error("UNKNOWN_PROPOSAL")
+        require(proposal.status == CharacterActionApproval.APPROVED ||
+            proposal.status == CharacterActionApproval.EXECUTED) { "CHARACTER_CURATOR_APPROVAL_REQUIRED" }
+        session.submitCharacterAction(
+            CAMPAIGN_ID, "master-action:" + proposalId, proposal.characterId,
+            proposal.reactionText, proposal.mechanicalIntent,
+            fromMaster = true, approvedProposalId = proposalId
+        )
+        val latest = session.loadSession(CAMPAIGN_ID)
+        val next = CharacterControlCoordinator.markExecuted(latest, proposalId)
+        if (next != latest) repository.commit(CAMPAIGN_ID, StateTransition(
+            "master-executed:" + proposalId, next.campaignState
+        ))
+    }
+
     private fun traceJson(trace: RuleTrace): JSONObject {
         // Presentation is enriched from the canonical 252-rule evidence registry.
         // This never changes mechanics: it only replaces internal spec references with
