@@ -133,6 +133,7 @@ class NativeCharacterLoadoutCoordinator {
 
     private fun context(envelope:CampaignEnvelope, characterId:String): Pair<CharacterSnapshot,CharacterLoadoutSnapshot>? {
         // Individual loadout progress is independent of the global narrative phase.
+        if (characterId !in envelope.campaignState.party.characterIds) return null
         val c=envelope.campaignState.game.characters[characterId] ?: return null
         val l=envelope.campaignState.game.loadouts[characterId] ?: return null
         return c to l
