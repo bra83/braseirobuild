@@ -56,7 +56,7 @@ class RetainerMercenaryRulesTest {
         val divided=assertNotNull(rules.divideTreasureExactly(2750L,5,listOf(1)))
         assertEquals(500L,divided.playerShareGp)
         assertEquals(listOf(250L),divided.retainerSharesGp)
-        assertNull(rules.divideTreasureExactly(10L,2,listOf(1)))
+        assertNull(rules.divideTreasureExactly(11L,2,listOf(1)))
         assertEquals(10L,assertNotNull(rules.divideTreasureExactly(20L,1,emptyList())).playerShareGp)
     }
 }
