@@ -36,6 +36,22 @@ jobs:
           Write-Host 'Canonically preserved: C:\DND181\extract\dnd_work'
           Get-PSDrive C | Format-List Free,Used
 
+      - name: Free disk from older backed-up DnD build workspaces
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $canonical='C:\DND181\extract\dnd_work'
+          if(!(Test-Path "$canonical\android\gradlew.bat")){throw 'CANONICAL_DND181_MISSING_ABORT_CLEANUP'}
+          Write-Host 'Releasing only DND186 and DND187 workspaces already backed up in Drive and Library; RUN181 is untouched.'
+          $obsolete=@('C:\DND186','C:\DND187')
+          foreach($dir in $obsolete){
+            if(Test-Path $dir){Write-Host "Removing backed-up temporary build $dir";Remove-Item $dir -Recurse -Force -ErrorAction Stop}
+          }
+          $disk=Get-PSDrive C
+          Write-Host "BRELGA_C_DISK_FREE_AFTER_CLEANUP=$($disk.Free)"
+          if($disk.Free -lt 4000000000){throw 'DISK_FREE_BELOW_4GB_REFUSE_ANDROID_PACKAGE'}
+          if(!(Test-Path "$canonical\android\gradlew.bat")){throw 'CANONICAL_SOURCE_UNEXPECTEDLY_CHANGED'}
+
       - name: Clone source without resetting RUN181
         id: source
         shell: powershell
