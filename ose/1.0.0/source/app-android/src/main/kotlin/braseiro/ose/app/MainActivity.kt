@@ -605,8 +605,8 @@ class MainActivity : Activity() {
 
                         "CharacterSheetExportRequest" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
-                            val sheet = characterSheetJson(current)
-                            val character = selectedCharacter(current)
+                            val character = selectedCharacter(current, payload.optString("characterId", ""))
+                            val sheet = characterSheetJson(current, character.characterId)
                             pendingCharacterExport = ("${safeFileName(character.name)}_ficha.json" to sheet)
                             runOnUiThread {
                                 val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -628,7 +628,7 @@ class MainActivity : Activity() {
 
                         "CharacterSheetUpdate" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
-                            val character = selectedCharacter(current)
+                            val character = selectedCharacter(current, payload.optString("characterId", ""))
                             val name = payload.optString("name", "").trim()
                             require(name.isNotBlank() && name.length <= 80) { "INVALID_CHARACTER_NAME" }
                             val game = current.campaignState.game
@@ -706,6 +706,7 @@ class MainActivity : Activity() {
                                 }
                             }
                             val current = session.loadSession(CAMPAIGN_ID)
+                            require(!current.campaignState.game.characters.containsKey(characterId)) { "CHARACTER_ID_EXISTS" }
                             val outcome = creationCoordinator.commit(current,draftId,characterId,name,method,classIds,raceId,adjustments)
                             when (val result = outcome.result) {
                                 is CharacterCreationResult.Created -> {
@@ -738,6 +739,13 @@ class MainActivity : Activity() {
                                 .put("ok", result.status !in setOf("INVALID_LOADOUT","CATALOG_ITEM_NOT_FOUND","INSUFFICIENT_GOLD","EQUIPMENT_RESTRICTED","TWO_HANDED_WEAPON_WITH_SHIELD"))
                                 .put("status", result.status).put("detail", result.detail)
                                 .put("stateHash", CanonicalStateHash.sha256(persisted)).put("viewState", projectForUi(persisted))))
+                        }
+
+                        "CharacterSelect" -> {
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            storeSelectedCharacterId(current, payload.getString("characterId").trim())
+                            send(JSONObject().put("type","CharacterSelectionResult").put("payload",JSONObject()
+                                .put("ok",true).put("viewState",projectForUi(current))))
                         }
 
                         "ViewState" -> {
@@ -783,14 +791,31 @@ class MainActivity : Activity() {
         return traceJson(RuleTrace(status, evidence, receipt.traceNote))
     }
 
-    private fun selectedCharacter(current: CampaignEnvelope): CharacterSnapshot {
-        val id = current.campaignState.party.characterIds.firstOrNull() ?: error("NO_CHARACTER")
-        return current.campaignState.game.characters[id] ?: error("NO_CHARACTER")
+    private fun selectedCharacterId(current: CampaignEnvelope): String? {
+        val ids = current.campaignState.party.characterIds
+        val saved = getSharedPreferences("ose-character-selection", MODE_PRIVATE).getString(current.campaignId.value, null)
+        return saved?.takeIf { it in ids && it in current.campaignState.game.characters } ?: ids.firstOrNull()
+    }
+
+    private fun storeSelectedCharacterId(current: CampaignEnvelope, id: String?) {
+        val edit = getSharedPreferences("ose-character-selection", MODE_PRIVATE).edit()
+        if (id == null) edit.remove(current.campaignId.value)
+        else {
+            require(id in current.campaignState.party.characterIds &&
+                current.campaignState.game.characters.containsKey(id)) { "UNKNOWN_CHARACTER_ID" }
+            edit.putString(current.campaignId.value, id)
+        }
+        require(edit.commit()) { "CHARACTER_SELECTION_SAVE_FAILED" }
+    }
+
+    private fun selectedCharacter(current: CampaignEnvelope, requestedId: String? = null): CharacterSnapshot {
+        val id = requestedId?.takeIf { it.isNotBlank() } ?: selectedCharacterId(current) ?: error("NO_CHARACTER")
+        require(id in current.campaignState.party.characterIds) { "UNKNOWN_CHARACTER_ID" }
+        return current.campaignState.game.characters[id] ?: error("UNKNOWN_CHARACTER_ID")
     }
 
     private fun createRandomCharacter(current: CampaignEnvelope): Pair<CampaignEnvelope, CharacterSnapshot> {
-        require(current.campaignState.party.characterIds.isEmpty()) { "CHARACTER_ALREADY_EXISTS" }
-        val draftId = "random-${System.currentTimeMillis()}"
+        val draftId = "random-${java.util.UUID.randomUUID()}"
         val draft = creationCoordinator.startDraft(current, draftId)
         val base = draft.envelope
         val candidates = when (current.ruleProfile) {
@@ -800,7 +825,7 @@ class MainActivity : Activity() {
         val method = if (current.ruleProfile == RuleProfile.OSE_CLASSIC_FANTASY) CreationMethod.CLASSIC else CreationMethod.ADVANCED_BASIC
         val names = listOf("Aldren","Brena","Cael","Dora","Edrik","Fenna","Garran","Helga","Ivar","Lysa","Marek","Nora","Orin","Petra","Rurik","Sela")
         val name = names[manualDice.nextInt(names.size)]
-        val characterId = "char-${System.currentTimeMillis()}"
+        val characterId = "char-${java.util.UUID.randomUUID()}"
         for (classId in candidates) {
             val attempt = creationCoordinator.commit(base, draftId, characterId, name, method, listOf(classId), null, emptyList())
             val created = attempt.result as? CharacterCreationResult.Created ?: continue
@@ -809,8 +834,8 @@ class MainActivity : Activity() {
         error("RANDOM_CHARACTER_NO_VALID_CLASS")
     }
 
-    private fun characterSheetJson(current: CampaignEnvelope): String {
-        val c = selectedCharacter(current)
+    private fun characterSheetJson(current: CampaignEnvelope, characterId: String): String {
+        val c = selectedCharacter(current, characterId)
         val game = current.campaignState.game
         val root = JSONObject().put("schema", "BRASEIRO_OSE_FICHA_V1").put("profile", current.ruleProfile.name)
             .put("character", characterToJson(c))
@@ -902,7 +927,7 @@ class MainActivity : Activity() {
     private fun safeFileName(name:String):String = name.lowercase().replace(Regex("[^a-z0-9_-]+"),"_").trim('_').ifBlank{"personagem"}
 
     private fun projectForUi(current: CampaignEnvelope): JSONObject {
-        val out = AppViewStateProjector.project(current)
+        val out = AppViewStateProjector.project(current, selectedCharacterId(current))
         val game = current.campaignState.game
         val portraits = JSONObject()
         current.campaignState.party.characterIds.forEach { id -> mediaStore.url(PresentationMediaStore.Scope.CHARACTER, id)?.let { portraits.put(id, it) } }
@@ -914,7 +939,7 @@ class MainActivity : Activity() {
         val itemThumbnails = JSONObject()
         game.inventory.items.keys.sorted().forEach { id -> mediaStore.url(PresentationMediaStore.Scope.ITEM, id)?.let { itemThumbnails.put(id, it) } }
         val sceneId = scenePresentationId(current)
-        val selectedCharacterId = current.campaignState.party.characterIds.firstOrNull()
+        val selectedCharacterId = selectedCharacterId(current)
         val loadout = selectedCharacterId?.let(game.loadouts::get)
         if (selectedCharacterId != null && loadout != null) {
             val ownedByCatalog = game.inventory.items.values.filter { it.ownerId == selectedCharacterId }.groupBy { it.catalogId }
