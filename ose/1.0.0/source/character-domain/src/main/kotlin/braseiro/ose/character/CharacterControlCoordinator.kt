@@ -122,22 +122,33 @@ object CharacterControlCoordinator {
             // Typed commands must never directly impersonate a human or another curated actor.
             val tokens = mechanicalIntent.split(':', ',', ';', ' ', '\n', '\t')
             require(tokens.none { it in protected }) { "CHARACTER_ACTOR_PROTECTED" }
-            // Wilderness commands move/consume resources for the entire party, not one actor.
-            require(!mechanicalIntent.startsWith("WILD_") || protected.isEmpty()) {
+            // Until effects are individually scoped by the referee, block typed
+            // GM commands in mixed-control parties to protect human-owned state.
+            val command = mechanicalIntent.substringBefore(':').trim()
+            val typed = Regex("^[A-Z][A-Z0-9_]*$").matches(command)
+            require(protected.isEmpty() || !typed || command == "PERSONAL_OBSERVATION") {
                 "GROUP_ACTION_REQUIRES_PLAYER_DECISION"
             }
         }
         when (mode(envelope, characterId)) {
             CharacterControlMode.PLAYER ->
                 require(!fromMaster && proposalId.isNullOrBlank()) { "CHARACTER_PLAYER_CONTROLLED" }
-            CharacterControlMode.MASTER ->
-                require(fromMaster) { "CHARACTER_MASTER_CONTROLLED" }
+            CharacterControlMode.MASTER -> {
+                require(fromMaster && !proposalId.isNullOrBlank()) { "MASTER_ACTION_REQUIRES_PROPOSAL" }
+                val proposal = envelope.campaignState.game.characterActionProposals[proposalId]
+                    ?: error("UNKNOWN_PROPOSAL")
+                require(proposal.characterId == characterId &&
+                    proposal.status == CharacterActionApproval.APPROVED &&
+                    proposal.reactionText == text && proposal.mechanicalIntent == mechanicalIntent) {
+                    "CHARACTER_MASTER_PROPOSAL_INVALID"
+                }
+            }
             CharacterControlMode.CURATED -> {
                 require(fromMaster && !proposalId.isNullOrBlank()) { "CHARACTER_CURATOR_APPROVAL_REQUIRED" }
                 val proposal = envelope.campaignState.game.characterActionProposals[proposalId]
                     ?: error("UNKNOWN_PROPOSAL")
                 require(proposal.characterId == characterId &&
-                    proposal.status in setOf(CharacterActionApproval.APPROVED, CharacterActionApproval.EXECUTED) &&
+                    proposal.status == CharacterActionApproval.APPROVED &&
                     proposal.reactionText == text &&
                     proposal.mechanicalIntent == mechanicalIntent) { "CHARACTER_CURATOR_APPROVAL_REQUIRED" }
             }

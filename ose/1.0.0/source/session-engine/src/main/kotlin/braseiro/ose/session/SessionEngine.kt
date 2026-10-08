@@ -30,6 +30,7 @@ class SessionEngine(
      * player-controlled characters or execute curated GM actions before authorization.
      * The existing idempotent reaction receipt is the executor/rollback boundary.
      */
+    @Synchronized
     fun submitCharacterAction(
         campaignId: CampaignId,
         reactionId: String,
@@ -41,32 +42,79 @@ class SessionEngine(
     ): SessionResult {
         require(reactionId.isNotBlank() && reaction.isNotBlank() && mechanicalIntent.isNotBlank())
         val current = load(campaignId)
+        require(characterId in current.campaignState.party.characterIds) { "UNKNOWN_CHARACTER_ID" }
+        val character = current.campaignState.game.characters.getValue(characterId)
+        val labelledReaction = "${character.name}: ${reaction.trim()}"
+        val receipt = current.campaignState.game.session.reactionReceipts[reactionId]
+        val proposal = approvedProposalId?.let {
+            current.campaignState.game.characterActionProposals[it] ?: error("UNKNOWN_PROPOSAL")
+        }
+        // An executed proposal permits only the identical receipt to resume
+        // interrupted narration; it cannot authorize a second mechanical action.
+        if (receipt != null && fromMaster && proposal != null &&
+            CharacterControlCoordinator.mode(current, characterId) != CharacterControlMode.PLAYER &&
+            proposal.status == CharacterActionApproval.EXECUTED &&
+            proposal.executedReactionId == reactionId &&
+            proposal.characterId == characterId &&
+            proposal.reactionText == reaction && proposal.mechanicalIntent == mechanicalIntent) {
+            return submitPlayerReactionInternal(
+                campaignId, reactionId, labelledReaction, mechanicalIntent, true, null, characterId
+            )
+        }
+        require(receipt == null || !fromMaster || proposal == null) {
+            "MASTER_PROPOSAL_RECEIPT_COLLISION"
+        }
         CharacterControlCoordinator.requireActionAllowed(
             current, characterId, fromMaster, approvedProposalId, reaction, mechanicalIntent
         )
-        val character = current.campaignState.game.characters.getValue(characterId)
-        return submitPlayerReaction(
-            campaignId, reactionId, "${character.name}: ${reaction.trim()}", mechanicalIntent
+        require(!fromMaster || !approvedProposalId.isNullOrBlank()) {
+            "MASTER_ACTION_REQUIRES_PROPOSAL"
+        }
+        return submitPlayerReactionInternal(
+            campaignId, reactionId, labelledReaction, mechanicalIntent, true, approvedProposalId, characterId
         )
     }
 
+    @Synchronized
     fun submitPlayerReaction(campaignId: CampaignId, reaction: String): SessionResult {
         val current = load(campaignId)
         val legacyId = "legacy-${current.campaignState.game.revision + 1}"
         return submitPlayerReaction(campaignId, legacyId, reaction)
     }
 
+    @Synchronized
     fun submitPlayerReaction(campaignId: CampaignId, reactionId: String, reaction: String): SessionResult =
         submitPlayerReaction(campaignId, reactionId, reaction, reaction)
 
-    fun submitPlayerReaction(campaignId: CampaignId, reactionId: String, reaction: String, mechanicalIntent: String): SessionResult {
+    @Synchronized
+    fun submitPlayerReaction(campaignId: CampaignId, reactionId: String, reaction: String, mechanicalIntent: String): SessionResult =
+        submitPlayerReactionInternal(campaignId, reactionId, reaction, mechanicalIntent, false, null, null)
+
+    private fun submitPlayerReactionInternal(
+        campaignId: CampaignId,
+        reactionId: String,
+        reaction: String,
+        mechanicalIntent: String,
+        characterAuthorized: Boolean,
+        approvedProposalId: String?,
+        actorCharacterId: String?
+    ): SessionResult {
         require(reactionId.isNotBlank())
         require(reaction.isNotBlank())
         require(mechanicalIntent.isNotBlank())
         val loaded = load(campaignId)
+        if (!characterAuthorized) {
+            require(loaded.campaignState.party.characterIds.all {
+                CharacterControlCoordinator.mode(loaded, it) == CharacterControlMode.PLAYER
+            }) { "CHARACTER_ACTION_ENTRYPOINT_REQUIRED" }
+        }
         val existing = loaded.campaignState.game.session.reactionReceipts[reactionId]
         if (existing != null) {
-            require(existing.reactionText == reaction) { "REACTION_ID_COLLISION:$reactionId" }
+            require(existing.reactionText == reaction &&
+                (existing.mechanicalIntent == null || existing.mechanicalIntent == mechanicalIntent) &&
+                (existing.actorCharacterId == null || existing.actorCharacterId == actorCharacterId)) {
+                "REACTION_ID_COLLISION:$reactionId"
+            }
             val trace = traceFromReceipt(existing, loaded.ruleProfile)
             val existingNarration=existing.narration
             if (existingNarration != null) {
@@ -89,7 +137,9 @@ class SessionEngine(
             mechanicalMutation = outcome.mechanicalMutation,
             traceStatus = outcome.trace.status.name,
             traceNote = outcome.trace.note,
-            traceEvidenceRefs = evidenceRefs
+            traceEvidenceRefs = evidenceRefs,
+            mechanicalIntent = mechanicalIntent,
+            actorCharacterId = actorCharacterId
         )
         val firstSession=beforeGame.session.copy(
             phase="ACTIVE",
@@ -98,8 +148,19 @@ class SessionEngine(
             reactionReceipts=beforeGame.session.reactionReceipts+(reactionId to receipt),
             pendingNarrationReactionId=reactionId
         )
+        val executedProposals = if (approvedProposalId == null) beforeGame.characterActionProposals else {
+            val proposal = beforeGame.characterActionProposals[approvedProposalId]
+                ?: error("UNKNOWN_PROPOSAL")
+            require(proposal.status == CharacterActionApproval.APPROVED &&
+                proposal.characterId == actorCharacterId) { "CHARACTER_PROPOSAL_ALREADY_CONSUMED" }
+            beforeGame.characterActionProposals + (approvedProposalId to proposal.copy(
+                status = CharacterActionApproval.EXECUTED,
+                executedReactionId = reactionId
+            ))
+        }
         val firstGame=beforeGame.copy(
             session=firstSession,
+            characterActionProposals=executedProposals,
             actionLog=beforeGame.actionLog+ActionLogEntry(
                 actionId="reaction:$reactionId",channel="PLAYER_REACTION",text=reaction,ruleEvidenceRefs=evidenceRefs
             ),
