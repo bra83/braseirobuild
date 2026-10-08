@@ -107,7 +107,7 @@ class NativeCharacterLoadoutCoordinator {
         } else old.inventory.items
         val preAdventure = envelope.campaignState.time.turns == 0L &&
             old.session.visibleNarration.isBlank() &&
-            old.session.phase in setOf("CHARACTER_LOADOUT", "READY_TO_START")
+            old.session.phase in setOf("PRESTART", "CHARACTER_LOADOUT", "READY_TO_START")
         val otherPending = old.loadouts.any { (id, entry) ->
             id != characterId && id in envelope.campaignState.party.characterIds && !entry.completed
         }
