@@ -2,6 +2,7 @@ package braseiro.ose.app
 
 import braseiro.ose.barbara.BarbaraSupervisorPort
 import braseiro.ose.model.CampaignEnvelope
+import braseiro.ose.model.CharacterControlMode
 import braseiro.ose.model.HexCellSnapshot
 import braseiro.ose.model.InventoryItemKind
 import braseiro.ose.model.LightSourceKind
@@ -71,7 +72,11 @@ class GeminiBarbaraSupervisor(
         - Em uma abertura ou mudança importante de lugar, produza de 4 a 7 parágrafos substanciais (aprox. 300–650 palavras).
         - Em respostas menores, ainda entregue 2 a 4 parágrafos sensoriais e úteis (aprox. 140–350 palavras), salvo quando uma resposta realmente curta for natural.
         - Descreva espaço, distância perceptível, luz, sons, cheiros, textura, clima aparente e elementos com os quais o jogador pode interagir quando houver base para isso.
-        - Termine deixando a situação aberta à decisão do jogador. Nunca decida a ação do personagem pelo jogador.
+        - Termine deixando a situação aberta à decisão do jogador.
+        - O Mestre JAMAIS determina ações de personagens com controle PLAYER.
+        - Personagens MASTER podem agir por decisão do Mestre, mas SOMENTE quando uma ação foi resolvida pelo motor e está confirmada no estado.
+        - Personagens CURATED recebem PROPOSTAS do Mestre: não narre uma proposta pendente/rejeitada como se tivesse acontecido. Aguarde autorização explícita do jogador.
+        - Não faça rolagem, gastos, deslocamento do grupo ou efeitos mecânicos por conta própria.
         - Para perguntas como “o que tem perto de mim?”, descreva o que é conhecido/visível no entorno. Não transforme automaticamente a pergunta em teste ou rolagem.
 
         FIREWALL DE APRESENTAÇÃO:
@@ -96,7 +101,7 @@ class GeminiBarbaraSupervisor(
     private fun publicContext(envelope: CampaignEnvelope): String {
         val state = envelope.campaignState
         val game = state.game
-        val partyNames = state.party.characterIds.mapNotNull { game.characters[it]?.name }.ifEmpty { listOf("a companhia") }
+        val partyNames = state.party.characterIds.mapNotNull { id -> game.characters[id]?.let { c -> c.name + " (" + when(game.characterControlModes[id] ?: CharacterControlMode.PLAYER) { CharacterControlMode.PLAYER -> "decisão exclusiva do jogador"; CharacterControlMode.MASTER -> "autonomia do Mestre"; CharacterControlMode.CURATED -> "Mestre com aprovação do jogador" } + ")" } }.ifEmpty { listOf("a companhia") }
         val time = "dia ${state.time.days + 1}, turno ${state.time.turns}"
         val place = when (val p = state.position.primary) {
             is SpatialRef.Hex -> {
