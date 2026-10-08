@@ -75,6 +75,13 @@ class MultipleCharacterCampaignTest {
             time = TimeState(turns = 35),
             resources = ResourceState(listOf("rations:5", "torch:2")),
             game = envelope.campaignState.game.copy(
+                experience = ExperienceRuntimeSnapshot(recipients =
+                    listOf("first", "middle", "last").associateWith { id ->
+                        XpRecipientSnapshot(id, RuleProfile.OSE_CLASSIC_FANTASY,
+                            classIds = listOf("FIGHTER"),
+                            xpByClass = mapOf("FIGHTER" to if (id == "middle") 200L else 100L))
+                    }
+                ),
                 session = envelope.campaignState.game.session.copy(
                     phase = "ACTIVE", visibleNarration = "A vigília prossegue."
                 )
@@ -91,6 +98,10 @@ class MultipleCharacterCampaignTest {
         assertEquals(before.game.npcs, after.game.npcs)
         assertEquals(before.game.worldEvents, after.game.worldEvents)
         assertTrue("ARCHIVED_DELETED" in after.game.characters.getValue("middle").flags)
+        assertEquals(200L, after.game.experience.recipients.getValue("middle").xpByClass.getValue("FIGHTER"))
+        assertFalse(after.game.experience.recipients.getValue("middle").surviving)
+        assertTrue(after.game.experience.recipients.getValue("first").surviving)
+        assertTrue(after.game.experience.recipients.getValue("last").surviving)
         assertFalse(after.game.inventory.items.values.any { it.ownerId == "middle" })
         assertTrue(after.game.inventory.items.values.any { it.ownerId == "first" })
         assertTrue(after.game.inventory.items.values.any { it.ownerId == "last" })
