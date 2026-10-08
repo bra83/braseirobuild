@@ -18,9 +18,13 @@ for k,v in checks.items():print(('PASS ' if v else 'FAIL ')+k)
 if not all(checks.values()):sys.exit(1)
 # Pure Java corpus verification; no Android SDK required.
 with tempfile.TemporaryDirectory() as temp:
- cmd=['javac','-encoding','UTF-8','-d',temp,str(src/'RuleCuriosityCatalog.java'),str(Path(__file__).parent/'RuleCuriosityCatalogTest.java')]
+ import shutil,os
+ jdk=Path('C:/Program Files/Android/Android Studio/jbr/bin')
+ javac=shutil.which('javac') or str(jdk/'javac.exe')
+ java=shutil.which('java') or str(jdk/'java.exe')
+ cmd=[javac,'-encoding','UTF-8','-d',temp,str(src/'RuleCuriosityCatalog.java'),str(Path(__file__).parent/'RuleCuriosityCatalogTest.java')]
  subprocess.run(cmd,check=True)
- subprocess.run(['java','-cp',temp,'RuleCuriosityCatalogTest'],check=True)
+ subprocess.run([java,'-cp',temp,'RuleCuriosityCatalogTest'],check=True)
 # Explicitly verify all page pointers on the user's actual PDF when supplied.
 if len(sys.argv)>2:
  import fitz
