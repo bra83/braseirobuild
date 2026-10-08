@@ -158,7 +158,7 @@ jobs:
           $badging | Set-Content "$out\RUN190_BADGING.txt" -Encoding utf8
           if($badging -notmatch "package: name='com\.braseiro\.dnd5e'"){throw 'PACKAGE_MISMATCH'}
           if($badging -notmatch "versionCode='606490'"){throw 'VERSION_CODE_MISMATCH'}
-          if($badging -notmatch "versionName='6\.6\.4-r189-debug'"){throw 'VERSION_NAME_MISMATCH'}
+          if($badging -notmatch "versionName='6\.6\.4-r190-debug'"){throw 'VERSION_NAME_MISMATCH'}
           $ErrorActionPreference='Continue';$lines=& "$($bt.FullName)\apksigner.bat" verify --verbose --print-certs $dst 2>&1;$rc=$LASTEXITCODE;$ErrorActionPreference='Stop'
           if($rc -ne 0){$lines|Out-Host;throw "APK_SIGNATURE_INVALID_$rc"}
           $sig=$lines|Out-String;$sig|Set-Content "$out\RUN190_SIGNER.txt" -Encoding utf8
