@@ -2,9 +2,9 @@ import pathlib, sqlite3, unittest, re, hashlib
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 APP=pathlib.Path(__import__('sys').argv[1]) if len(__import__('sys').argv)>1 else pathlib.Path('/mnt/data/DND_RUN189_WORK/dnd_work')
 PKG=APP/'android/app/src/main/java/com/braseiro/dnd5e'
-DB=(PKG/'AppDb.java').read_text()
-MAIN=(PKG/'MainActivity.java').read_text()
-ENG=(PKG/'CompanionAgencyEngine.java').read_text()
+DB=(PKG/'AppDb.java').read_text(encoding="utf-8")
+MAIN=(PKG/'MainActivity.java').read_text(encoding="utf-8")
+ENG=(PKG/'CompanionAgencyEngine.java').read_text(encoding="utf-8")
 CREATE=re.search(r'db\.execSQL\("(CREATE TABLE IF NOT EXISTS companion_proposals .*?)"\);',DB).group(1)
 INDEX=re.search(r'db\.execSQL\("(CREATE INDEX IF NOT EXISTS idx_companion_proposals_pending .*?)"\);',DB).group(1)
 class Contract(unittest.TestCase):
