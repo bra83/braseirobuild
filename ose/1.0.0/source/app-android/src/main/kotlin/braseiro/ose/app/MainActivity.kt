@@ -659,28 +659,19 @@ class MainActivity : Activity() {
 
                         "CharacterRecreateBeforeStart" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
-                            val game = current.campaignState.game
                             val character = selectedCharacter(current)
-                            require(game.session.visibleNarration.isBlank() && current.campaignState.time.turns == 0L) { "CHARACTER_RECREATE_AFTER_START" }
+                            require(current.campaignState.game.session.visibleNarration.isBlank() &&
+                                current.campaignState.time.turns == 0L) { "CHARACTER_RECREATE_AFTER_START" }
                             repository.checkpoint(CAMPAIGN_ID, "before-character-recreate-${System.currentTimeMillis()}")
-                            val keptItems = game.inventory.items.filterValues { it.ownerId != character.characterId }
-                            val nextGame = game.copy(
-                                characters = game.characters - character.characterId,
-                                inventory = game.inventory.copy(items = keptItems),
-                                loadouts = game.loadouts - character.characterId,
-                                creationDrafts = emptyMap(),
-                                session = SessionSnapshot(phase = "ACTIVE"),
-                                revision = game.revision + 1
-                            ).canonical()
-                            val nextState = current.campaignState.copy(
-                                party = PartyState(current.campaignState.party.characterIds.filterNot { it == character.characterId }),
-                                resources = ResourceState(),
-                                game = nextGame
+                            val next = CharacterPartyAdministration.delete(
+                                current, character.characterId, "legacy-recreate-${System.currentTimeMillis()}"
                             )
                             repository.commit(CAMPAIGN_ID, StateTransition(
-                                "character-recreate:${current.createdAtMetadata}:${game.revision}", nextState
+                                "character-recreate:${current.createdAtMetadata}:${current.campaignState.game.revision}",
+                                next.campaignState
                             ))
                             val persisted = session.loadSession(CAMPAIGN_ID)
+                            storeSelectedCharacterId(persisted, selectedCharacterId(persisted))
                             send(JSONObject().put("type","CharacterRecreateResult").put("payload",JSONObject()
                                 .put("ok",true).put("viewState",projectForUi(persisted))))
                         }
