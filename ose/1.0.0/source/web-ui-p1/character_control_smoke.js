@@ -30,7 +30,7 @@ const document = {
     return elements.get(id);
   },
   querySelectorAll(selector) {
-    if (!/^\[data-(?:add-character|character-select|delete-character|cancel-add-character|character-mode|curator-approve|curator-reject|master-continue)\]$/.test(selector)) return [];
+    if (!/^\[data-(?:add-character|character-select|delete-character|cancel-add-character|character-mode|curator-approve|curator-change|curator-reject|master-continue|companion-opinions)\]$/.test(selector)) return [];
     const html = this.getElementById('screen').innerHTML;
     const key = selector + ':' + html;
     if (buttonCache.has(key)) return buttonCache.get(key);
@@ -65,7 +65,7 @@ const second = character('char-second','Segundo');
 first.controlMode='MASTER';
 second.controlMode='CURATED';
 const state = {
-  campaign:{profile:'OSE_CLASSIC_FANTASY'},
+  campaign:{profile:'OSE_CLASSIC_FANTASY',mechanicalStateHash:'UNCHANGED_CAMPAIGN_HASH'},
   session:{phase:'ACTIVE',visibleNarration:'A aventura prossegue.'},
   party:[first,second], selectedCharacterId:'char-second',selectedCharacter:second,
   creation:{drafts:[]}, time:{turns:30,days:0},
@@ -74,7 +74,7 @@ const state = {
     {itemId:'item-only-first',ownerId:'char-first',catalogId:'STARTING_GOLD_GP',kind:'COIN',quantity:1},
     {itemId:'item-only-second',ownerId:'char-second',catalogId:'STARTING_GOLD_GP',kind:'COIN',quantity:1}
   ],
-  pendingCharacterActions:[{proposalId:"proposal-curated-1",characterId:"char-second",characterName:"Segundo",text:"Examino a porta",mechanicalIntent:"OBSERVE",status:"PENDING"}],
+  pendingCharacterActions:[{proposalId:"proposal-curated-1",characterId:"char-second",characterName:"Segundo",text:"Examino a porta",mechanicalIntent:"OBSERVE",reason:"Tenho dúvida sobre o caminho",risk:"O movimento pode nos expor",status:"PENDING"}],
   presentation:{}, loadout:null
 };
 window.BraseiroReceive(JSON.stringify({type:'ViewState',payload:state}));
@@ -91,6 +91,25 @@ assert.match(companyHtml,/Mestre \+ minha curadoria/);
 assert.match(companyHtml,/data-curator-approve="proposal-curated-1"/);
 assert.match(companyHtml,/data-curator-reject="proposal-curated-1"/);
 assert.match(companyHtml,/CONTINUAR AÇÕES DO MESTRE/);
+assert.match(companyHtml,/O QUE OS COMPANHEIROS ACHAM/);
+assert.match(companyHtml,/Tenho dúvida sobre o caminho/);
+assert.match(companyHtml,/O movimento pode nos expor/);
+assert.match(companyHtml,/data-curator-change="proposal-curated-1"/);
+const opinionButton=document.querySelectorAll('[data-companion-opinions]')[0];
+assert.ok(opinionButton);
+opinionButton.onclick();
+assert.equal(messages.at(-1).type,'CompanionOpinionsQuery');
+const oldMessageCount=messages.length;
+window.BraseiroReceive(JSON.stringify({type:'CompanionOpinionsResult',payload:{
+  readOnly:true,mechanicalDelta:false,stateHash:'UNCHANGED_CAMPAIGN_HASH',
+  opinions:[{characterId:'char-second',name:'Segundo',stance:'CAUTION',
+    perception:'Só vi a porta conhecida',hypothesis:'Talvez esteja trancada',
+    motivation:'Quero evitar ferimentos',suggestion:'Escutar antes de entrar',
+    risk:'Poderia haver uma armadilha',reason:'Não sabemos o que há atrás da porta'}]
+}}));
+assert.equal(messages.length,oldMessageCount,'read-only opinion must never issue a mutation command');
+assert.match(document.getElementById('screen').innerHTML,/Escutar antes de entrar/);
+assert.match(document.getElementById('screen').innerHTML,/Poderia haver uma armadilha/);
 const modeSelectors = document.querySelectorAll('[data-character-mode]');
 assert.equal(modeSelectors.length,2);
 modeSelectors[0].value='CURATED';
