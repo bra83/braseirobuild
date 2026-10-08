@@ -58,34 +58,34 @@ jobs:
           $out=Join-Path $env:GITHUB_WORKSPACE 'checkpoint-out'
           New-Item -ItemType Directory -Force -Path $out | Out-Null
           $script=@'
-import json,hashlib,zipfile,pathlib,sys
-src=pathlib.Path(sys.argv[1]);out=pathlib.Path(sys.argv[2])
-name="BRASEIRO_DND_6.6.4_RUN190_SOURCE_FULL_BRELGA.zip"
-dst=out/name
-files=sorted((p for p in src.rglob("*") if p.is_file()),key=lambda p:p.as_posix())
-if len(files)<300:raise SystemExit("SOURCE_TOO_SMALL")
-required=["android/gradlew.bat","android/gradle/wrapper/gradle-wrapper.jar","version.properties","android/app/src/main/AndroidManifest.xml"]
-for rel in required:
- if not (src/rel).is_file():raise SystemExit("MISSING_REQUIRED_"+rel)
-manifest={"origin":"BRELGA C:\\DND190\\work, verified RUN190 integrated source","version":"6.6.4-r190","versionCode":606490,"sourceCount":len(files),"sourceFiles":[],"deviceTests":"NOT_RUN","allBookMechanicsCertified":False}
-with zipfile.ZipFile(dst,"w",compression=zipfile.ZIP_DEFLATED,compresslevel=6,allowZip64=True) as z:
- for f in files:
-  rel=f.relative_to(src).as_posix()
-  b=f.read_bytes()
-  z.writestr("dnd_work/"+rel,b)
-  manifest["sourceFiles"].append({"name":rel,"sha256":hashlib.sha256(b).hexdigest(),"size":len(b)})
-with zipfile.ZipFile(dst) as z:
- bad=z.testzip()
- if bad:raise SystemExit("ZIP_CRC_ERROR_"+bad)
- if len(z.namelist())!=len(files):raise SystemExit("ZIP_FILES_COUNT_MISMATCH")
-sha=hashlib.file_digest(dst.open("rb"),"sha256").hexdigest()
-(out/(name+".sha256")).write_text(sha+"  "+name+"\n",encoding="ascii")
-manifest["zipName"]=name
-manifest["zipSha256"]=sha
-manifest["zipSize"]=dst.stat().st_size
-(out/"RUN190_SOURCE_MANIFEST.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding="utf8")
-(out/"RUN190_SOURCE_CHECKPOINT_PROOF.txt").write_text("RUNNER=BRELGA\nRUN190_SOURCE_RESTORED=PASS\nNO_CANONICAL_SOURCE_MUTATION=PASS\nRUN190_STATIC_TESTS=PASS\nZIP_INTEGRITY=PASS\nDEVICE_TEST=NOT_RUN\nALL_BOOK_MECHANICS_CERTIFIED=false\n",encoding="utf8")
-print("RUN190_SOURCE_ARCHIVE_PASS",len(files),sha,dst.stat().st_size)
+          import json,hashlib,zipfile,pathlib,sys
+          src=pathlib.Path(sys.argv[1]);out=pathlib.Path(sys.argv[2])
+          name="BRASEIRO_DND_6.6.4_RUN190_SOURCE_FULL_BRELGA.zip"
+          dst=out/name
+          files=sorted((p for p in src.rglob("*") if p.is_file()),key=lambda p:p.as_posix())
+          if len(files)<300:raise SystemExit("SOURCE_TOO_SMALL")
+          required=["android/gradlew.bat","android/gradle/wrapper/gradle-wrapper.jar","version.properties","android/app/src/main/AndroidManifest.xml"]
+          for rel in required:
+           if not (src/rel).is_file():raise SystemExit("MISSING_REQUIRED_"+rel)
+          manifest={"origin":"BRELGA C:\\DND190\\work, verified RUN190 integrated source","version":"6.6.4-r190","versionCode":606490,"sourceCount":len(files),"sourceFiles":[],"deviceTests":"NOT_RUN","allBookMechanicsCertified":False}
+          with zipfile.ZipFile(dst,"w",compression=zipfile.ZIP_DEFLATED,compresslevel=6,allowZip64=True) as z:
+           for f in files:
+            rel=f.relative_to(src).as_posix()
+            b=f.read_bytes()
+            z.writestr("dnd_work/"+rel,b)
+            manifest["sourceFiles"].append({"name":rel,"sha256":hashlib.sha256(b).hexdigest(),"size":len(b)})
+          with zipfile.ZipFile(dst) as z:
+           bad=z.testzip()
+           if bad:raise SystemExit("ZIP_CRC_ERROR_"+bad)
+           if len(z.namelist())!=len(files):raise SystemExit("ZIP_FILES_COUNT_MISMATCH")
+          sha=hashlib.file_digest(dst.open("rb"),"sha256").hexdigest()
+          (out/(name+".sha256")).write_text(sha+"  "+name+"\n",encoding="ascii")
+          manifest["zipName"]=name
+          manifest["zipSha256"]=sha
+          manifest["zipSize"]=dst.stat().st_size
+          (out/"RUN190_SOURCE_MANIFEST.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding="utf8")
+          (out/"RUN190_SOURCE_CHECKPOINT_PROOF.txt").write_text("RUNNER=BRELGA\nRUN190_SOURCE_RESTORED=PASS\nNO_CANONICAL_SOURCE_MUTATION=PASS\nRUN190_STATIC_TESTS=PASS\nZIP_INTEGRITY=PASS\nDEVICE_TEST=NOT_RUN\nALL_BOOK_MECHANICS_CERTIFIED=false\n",encoding="utf8")
+          print("RUN190_SOURCE_ARCHIVE_PASS",len(files),sha,dst.stat().st_size)
 '@
           [IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP 'checkpoint-run190.py'),$script,(New-Object Text.UTF8Encoding($false)))
           python (Join-Path $env:RUNNER_TEMP 'checkpoint-run190.py') $src $out
