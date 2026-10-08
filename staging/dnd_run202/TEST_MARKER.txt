@@ -1,0 +1,1 @@
+Concentration rules require a save for damage and end when incapacitated. No runtime changes in this marker.
