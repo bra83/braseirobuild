@@ -5,6 +5,8 @@ import braseiro.ose.character.CharacterPartyAdministration
 import braseiro.ose.character.NativeCharacterCreationCoordinator
 import braseiro.ose.character.NativeCharacterLoadoutCoordinator
 import braseiro.ose.model.*
+import braseiro.ose.rules.api.CreationMethod
+import braseiro.ose.rules.api.CharacterCreationResult
 import braseiro.ose.testsupport.Fixtures
 import kotlin.test.*
 
