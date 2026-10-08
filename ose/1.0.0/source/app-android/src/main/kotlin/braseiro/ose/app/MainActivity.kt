@@ -20,6 +20,7 @@ import braseiro.ose.backup.BackupCodec
 import braseiro.ose.character.NativeCharacterCreationCoordinator
 import braseiro.ose.character.NativeCharacterLoadoutCoordinator
 import braseiro.ose.character.CharacterPartyAdministration
+import braseiro.ose.character.CharacterControlCoordinator
 import braseiro.ose.rag.RuleEvidenceRegistry
 import braseiro.ose.model.*
 import braseiro.ose.dungeon.DungeonGeneratorV1
@@ -335,7 +336,13 @@ class MainActivity : Activity() {
                             require(reactionId.isNotBlank()) { "PlayerReaction.reactionId is required" }
                             val text = payload.optString("text", "").trim()
                             val mechanicalIntent = payload.optString("mechanicalIntent", "").trim().ifBlank { text }
-                            val result = session.submitPlayerReaction(CAMPAIGN_ID, reactionId, text, mechanicalIntent)
+                            val currentBefore = session.loadSession(CAMPAIGN_ID)
+                            val actorId = payload.optString("characterId", "").trim()
+                                .ifBlank { selectedCharacterId(currentBefore) ?: error("NO_CHARACTER") }
+                            val result = session.submitCharacterAction(
+                                CAMPAIGN_ID, reactionId, actorId, text, mechanicalIntent
+                            )
+                            advanceMasterCharacters("reaction:$reactionId")
                             val current = session.loadSession(CAMPAIGN_ID)
                             send(
                                 JSONObject().put("type", "SessionUpdate").put("payload", JSONObject()
@@ -351,6 +358,7 @@ class MainActivity : Activity() {
 
                         "StartAdventure" -> {
                             val result = session.startAdventure(CAMPAIGN_ID)
+                            advanceMasterCharacters("start:")
                             val current = session.loadSession(CAMPAIGN_ID)
                             send(JSONObject().put("type", "SessionUpdate").put("payload", JSONObject()
                                 .put("narration", result.narration)
@@ -555,6 +563,10 @@ class MainActivity : Activity() {
                             }
                             val nextGame = base.game.copy(
                                 characters = keptCharacters,
+                                characterControlModes = oldGame.characterControlModes.filterKeys { it in partyIds },
+                                characterActionProposals = oldGame.characterActionProposals.filterValues {
+                                    it.characterId in partyIds && it.status == CharacterActionApproval.EXECUTED
+                                },
                                 inventory = base.game.inventory.copy(items = keptInventory),
                                 loadouts = keptLoadouts,
                                 session = SessionSnapshot(phase = nextPhase),
@@ -1283,7 +1295,7 @@ class MainActivity : Activity() {
         val message = t.message.orEmpty()
         return when {
             message.startsWith("GEMINI_") -> message
-            message in setOf("EMPTY_GEMINI_KEY", "GEMINI_KEY_TOO_LONG", "INVALID_GEMINI_MODEL", "INVALID_TTS_VOICE", "UNKNOWN_GEMINI_CREDENTIAL_SLOT", "UNKNOWN_TTS_COMMAND", "EMPTY_VISIBLE_NARRATION", "INVALID_IMAGE_DATA_URL", "IMAGE_SIZE_INVALID", "UNSUPPORTED_IMAGE_TYPE", "UNKNOWN_CHARACTER_ID", "UNKNOWN_NPC_ID", "UNKNOWN_ITEM_ID", "UNSUPPORTED_PRESENTATION_SCOPE", "UNSUPPORTED_PORTRAIT_KIND", "UNKNOWN_UI_COMMAND", "INVALID_DIE", "INVALID_DICE_COUNT", "INVALID_DICE_MODIFIER", "NO_CHARACTER", "CHARACTER_ALREADY_EXISTS", "RANDOM_CHARACTER_NO_VALID_CLASS", "INVALID_CHARACTER_SHEET", "CHARACTER_PROFILE_MISMATCH", "CHARACTER_ID_EXISTS", "CHARACTER_ITEM_PROFILE_MISMATCH", "ITEM_ID_EXISTS", "INVALID_CHARACTER_NAME", "CHARACTER_RECREATE_AFTER_START", "INVALID_CHARACTER_COMMAND", "CHARACTER_COMMAND_ALREADY_APPLIED", "CHARACTER_SELECTION_SAVE_FAILED") -> message
+            message in setOf("EMPTY_GEMINI_KEY", "GEMINI_KEY_TOO_LONG", "INVALID_GEMINI_MODEL", "INVALID_TTS_VOICE", "UNKNOWN_GEMINI_CREDENTIAL_SLOT", "UNKNOWN_TTS_COMMAND", "EMPTY_VISIBLE_NARRATION", "INVALID_IMAGE_DATA_URL", "IMAGE_SIZE_INVALID", "UNSUPPORTED_IMAGE_TYPE", "UNKNOWN_CHARACTER_ID", "UNKNOWN_NPC_ID", "UNKNOWN_ITEM_ID", "UNSUPPORTED_PRESENTATION_SCOPE", "UNSUPPORTED_PORTRAIT_KIND", "UNKNOWN_UI_COMMAND", "INVALID_DIE", "INVALID_DICE_COUNT", "INVALID_DICE_MODIFIER", "NO_CHARACTER", "CHARACTER_ALREADY_EXISTS", "RANDOM_CHARACTER_NO_VALID_CLASS", "INVALID_CHARACTER_SHEET", "CHARACTER_PROFILE_MISMATCH", "CHARACTER_ID_EXISTS", "CHARACTER_ITEM_PROFILE_MISMATCH", "ITEM_ID_EXISTS", "INVALID_CHARACTER_NAME", "CHARACTER_RECREATE_AFTER_START", "INVALID_CHARACTER_COMMAND", "CHARACTER_COMMAND_ALREADY_APPLIED", "CHARACTER_SELECTION_SAVE_FAILED", "CHARACTER_PLAYER_CONTROLLED", "CHARACTER_MASTER_CONTROLLED", "CHARACTER_CURATOR_APPROVAL_REQUIRED", "CHARACTER_NOT_CURATED", "UNKNOWN_PROPOSAL", "INVALID_PROPOSAL_ID", "INVALID_PROPOSAL_CONTENT", "PROPOSAL_ID_COLLISION", "PROPOSAL_ALREADY_REVIEWED") -> message
             else -> t::class.java.simpleName
         }
     }
