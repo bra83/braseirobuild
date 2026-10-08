@@ -2,6 +2,22 @@ package braseiro.ose.model
 
 import kotlinx.serialization.Serializable
 
+/** Canonical receipt for an agreed daily-wage payment. */
+@Serializable
+data class RetainerWageReceipt(
+    val receiptId: String,
+    val fromDayExclusive: Long,
+    val throughDayInclusive: Long,
+    val daysPaid: Long,
+    val amountGp: Long
+) {
+    init {
+        require(receiptId.isNotBlank() && fromDayExclusive >= 0L)
+        require(throughDayInclusive >= fromDayExclusive)
+        require(daysPaid == throughDayInclusive - fromDayExclusive && amountGp >= 0L)
+    }
+}
+
 /**
  * One canonical OSE adventuring retainer; military mercenaries and specialists
  * are separate hire categories and must not be inserted into this registry.
@@ -20,7 +36,12 @@ data class RetainerContractSnapshot(
     val hiredAtTurn: Long = 0,
     val failedLoyaltyChecks: Int = 0,
     val lastLoyaltyCheckTurn: Long? = null,
-    val lastLoyaltyCheckReason: String? = null
+    val lastLoyaltyCheckReason: String? = null,
+    /** Legacy saves use null, never fabricate hire day or retroactive debt. */
+    val hiredAtDay: Long? = null,
+    val wagePaidThroughDay: Long? = null,
+    val totalWagesPaidGp: Long = 0L,
+    val wageReceipts: List<RetainerWageReceipt> = emptyList()
 ) {
     init {
         require(npcId.isNotBlank() && employerCharacterId.isNotBlank())
@@ -29,5 +50,10 @@ data class RetainerContractSnapshot(
         require(loyalty in 2..12)
         require(hiredAtTurn >= 0L && failedLoyaltyChecks >= 0)
         require(lastLoyaltyCheckTurn == null || lastLoyaltyCheckTurn >= 0L)
+        require(hiredAtDay == null || hiredAtDay >= 0L)
+        require(wagePaidThroughDay == null || wagePaidThroughDay >= 0L)
+        require(hiredAtDay == null || wagePaidThroughDay == null || wagePaidThroughDay >= hiredAtDay)
+        require(totalWagesPaidGp >= 0L)
+        require(wageReceipts.map { it.receiptId }.distinct().size == wageReceipts.size)
     }
 }
