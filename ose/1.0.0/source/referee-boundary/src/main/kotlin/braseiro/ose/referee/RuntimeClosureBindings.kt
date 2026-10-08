@@ -427,7 +427,7 @@ object RuntimeClosureBindings {
         val employerId=parts[1].trim(); val npcId=parts[2].trim()
         val wage=parts[3].toIntOrNull() ?: return blocked("Oferta de salário inválida.")
         val halves=parts[4].toIntOrNull() ?: return blocked("Participação em tesouro inválida.")
-        if(wage<0 || halves<1 || halves>100) return blocked("Salário não negativo e ao menos meia parte de tesouro são obrigatórios.")
+        if(wage<0 || halves<1) return blocked("Salário não negativo e ao menos meia parte de tesouro são obrigatórios.")
         val state=envelope.campaignState
         val employer=state.game.characters[employerId]
             ?.takeIf { employerId in state.party.characterIds }
