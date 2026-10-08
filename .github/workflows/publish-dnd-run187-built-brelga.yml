@@ -1,0 +1,90 @@
+name: Publish Already-Built DND RUN187 APK BRELGA
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-dnd-run187-built-brelga.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: dnd-run187-existing-apk-publish-brelga
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify existing RUN187 artifact and update signature on BRELGA
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "WRONG_RUNNER=$env:RUNNER_NAME"}
+          $out='C:\DND187\out'
+          $name='BRASEIRO_DND_6.6.4_RUN187_DEBUG.apk'
+          $apk=Join-Path $out $name
+          if(!(Test-Path $apk)){throw 'RUN187_ALREADY_COMPILED_APK_MISSING'}
+          $sdk="$env:LOCALAPPDATA\Android\Sdk"
+          if(!$env:ANDROID_HOME -and (Test-Path $sdk)){$env:ANDROID_HOME=$sdk}
+          if(!$env:ANDROID_HOME){throw 'ANDROID_SDK_MISSING'}
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){
+            $j='C:\Program Files\Android\Android Studio\jbr'
+            if(Test-Path "$j\bin\java.exe"){$env:JAVA_HOME=$j;$env:Path="$j\bin;$env:Path"}
+          }
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){throw 'JAVA_NOT_FOUND'}
+          $bt=Get-ChildItem "$env:ANDROID_HOME\build-tools" -Directory | Sort-Object {[version]$_.Name} -Descending | Select-Object -First 1
+          if(!$bt){throw 'ANDROID_BUILD_TOOLS_MISSING'}
+          $badging=(& "$($bt.FullName)\aapt.exe" dump badging $apk)-join "`n"
+          $badging | Set-Content "$out\RUN187_BADGING.txt" -Encoding utf8
+          if($badging -notmatch "package: name='com\.braseiro\.dnd5e'"){throw 'PACKAGE_REGRESSION'}
+          if($badging -notmatch "versionCode='606487'"){throw 'VERSION_CODE_REGRESSION'}
+          if($badging -notmatch "versionName='6\.6\.4-r187-debug'"){throw 'VERSION_NAME_REGRESSION'}
+          $ErrorActionPreference='Continue'
+          $lines= & "$($bt.FullName)\apksigner.bat" verify --verbose --print-certs $apk 2>&1
+          $verifyCode=$LASTEXITCODE
+          $ErrorActionPreference='Stop'
+          foreach($line in $lines){Write-Host "$line"}
+          if($verifyCode -ne 0){throw "APK_SIGNATURE_VERIFICATION_FAILED_$verifyCode"}
+          $sig=($lines|Out-String)
+          $sig | Set-Content "$out\RUN187_SIGNER.txt" -Encoding utf8
+          $run186Signer='6AA87A24A2EB4762C3F493C9D5FDDBF10B60CC8659A90423AED7CDE8AE582BD3'
+          if($sig -notmatch $run186Signer){throw 'RUN187_SIGNER_DIFFERS_FROM_RUN186_NO_INPLACE_UPDATE'}
+          $sha=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$sha  $name" | Set-Content "$apk.sha256" -Encoding ascii
+          @(
+            'RUNNER=BRELGA','APK_BUILT_ON=BRELGA','BASELINE=RUN186','PROFILE=human_master_dynamic_profile_v2',
+            'PACKAGE=com.braseiro.dnd5e','VERSION_NAME=6.6.4-r187-debug','VERSION_CODE=606487',
+            "APK_SHA256=$sha",'RUN187_GRADLE_JAVAC=PASS','RUN187_GRADLE_ASSEMBLE=PASS',
+            'RUN187_STATIC_CONTRACT=PASS','GRADLE_UNIT_TASK=PASS_NO_SOURCE','RUN186_PROTECTED_MECHANICS_UNCHANGED=PASS',
+            'APK_SIGNATURE=VALID','RUN186_SIGNER_MATCH=PASS','DEVICE_INSTALL_SMOKE=NOT_RUN'
+          ) | Set-Content "$out\RUN187_BUILD_PROOF.txt" -Encoding utf8
+          Write-Host "RUN187_VALIDATED_APK_SHA256=$sha"
+          Write-Host "RUN187_VALIDATED_APK_SIZE=$((Get-Item $apk).Length)"
+      - name: Upload validated RUN187 APK archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_DND_6.6.4_RUN187_BRELGA
+          path: |
+            C:\DND187\out\BRASEIRO_DND_6.6.4_RUN187_DEBUG.apk
+            C:\DND187\out\BRASEIRO_DND_6.6.4_RUN187_DEBUG.apk.sha256
+            C:\DND187\out\RUN187_BADGING.txt
+            C:\DND187\out\RUN187_SIGNER.txt
+            C:\DND187\out\RUN187_BUILD_PROOF.txt
+          if-no-files-found: error
+          retention-days: 14
+      - name: Publish installable RUN187 APK release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: DND-6.6.4-RUN187
+          name: Braseiro DnD 6.6.4 RUN187 — Mestre Humano Dinâmico
+          body: >-
+            Compilação real no runner self-hosted BRELGA; RUN187 integra direção de tom,
+            humor contextual, imprevistos opcionais, continuidade de NPCs e locais e memória
+            confirmada após commit ao RUN186. Regras de D&D e Strixhaven compiladas foram
+            preservadas pelo gate mecânico. APK SHA-256 e assinatura Android validados;
+            certificado de assinatura igual ao RUN186. Teste físico de instalação não executado.
+          files: |
+            C:\DND187\out\BRASEIRO_DND_6.6.4_RUN187_DEBUG.apk
+            C:\DND187\out\BRASEIRO_DND_6.6.4_RUN187_DEBUG.apk.sha256
+            C:\DND187\out\RUN187_BUILD_PROOF.txt
+          fail_on_unmatched_files: true
