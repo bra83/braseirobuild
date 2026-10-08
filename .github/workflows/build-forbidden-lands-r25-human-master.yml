@@ -87,7 +87,7 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'Human Master runtime gate failed'}
           npm.cmd run verify:canonical-narrator-profile
           if($LASTEXITCODE -ne 0){throw 'Canonical narrator gate failed'}
-          npm.cmd run verify:empty-rule-library-r24
+          node.exe --import fake-indexeddb/auto -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-empty-rule-library-playthrough-r24.mjs
           if($LASTEXITCODE -ne 0){throw 'Empty rule library gate failed'}
           npm.cmd run verify:external-gemini-images
           if($LASTEXITCODE -ne 0){throw 'Gemini image/share gate failed'}
