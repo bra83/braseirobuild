@@ -21,6 +21,7 @@ import braseiro.ose.character.NativeCharacterCreationCoordinator
 import braseiro.ose.character.NativeCharacterLoadoutCoordinator
 import braseiro.ose.character.CharacterPartyAdministration
 import braseiro.ose.character.CharacterControlCoordinator
+import braseiro.ose.character.CompanionJudgmentEngine
 import braseiro.ose.rag.RuleEvidenceRegistry
 import braseiro.ose.model.*
 import braseiro.ose.dungeon.DungeonGeneratorV1
@@ -888,6 +889,30 @@ class MainActivity : Activity() {
                             )
                             send(JSONObject().put("type", "MasterActionResult").put("payload", JSONObject()
                                 .put("ok", true).put("viewState", projectForUi(session.loadSession(CAMPAIGN_ID)))))
+                        }
+
+                        "CompanionOpinionsQuery" -> {
+                            val before = session.loadSession(CAMPAIGN_ID)
+                            val hashBefore = CanonicalStateHash.sha256(before)
+                            val opinions = CompanionJudgmentEngine.opinions(before)
+                            val after = session.loadSession(CAMPAIGN_ID)
+                            check(hashBefore == CanonicalStateHash.sha256(after)) {
+                                "COMPANION_OPINION_STATE_MUTATION"
+                            }
+                            send(JSONObject().put("type", "CompanionOpinionsResult").put("payload",
+                                JSONObject().put("readOnly", true).put("mechanicalDelta", false)
+                                    .put("stateHash", hashBefore)
+                                    .put("opinions", JSONArray(opinions.map { opinion ->
+                                        JSONObject().put("characterId", opinion.characterId)
+                                            .put("name", opinion.name)
+                                            .put("perception", opinion.perception)
+                                            .put("hypothesis", opinion.hypothesis)
+                                            .put("motivation", opinion.motivation)
+                                            .put("reason", opinion.reason)
+                                            .put("risk", opinion.risk)
+                                            .put("stance", opinion.stance)
+                                            .put("suggestion", opinion.suggestedAction)
+                                    }))))
                         }
 
                         "CharacterSelect" -> {
