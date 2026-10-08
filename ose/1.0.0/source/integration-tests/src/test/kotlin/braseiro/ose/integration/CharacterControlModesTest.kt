@@ -5,12 +5,35 @@ import braseiro.ose.character.CharacterControlCoordinator
 import braseiro.ose.character.CharacterPartyAdministration
 import braseiro.ose.character.NativeCharacterCreationCoordinator
 import braseiro.ose.model.*
+import braseiro.ose.barbara.DeterministicBarbaraSupervisor
+import braseiro.ose.persistence.api.*
+import braseiro.ose.referee.RulesRefereeBoundary
+import braseiro.ose.session.SessionEngine
 import braseiro.ose.rules.api.CharacterCreationResult
 import braseiro.ose.rules.api.CreationMethod
 import braseiro.ose.testsupport.Fixtures
 import kotlin.test.*
 
 class CharacterControlModesTest {
+    private class MemoryRepo : CampaignRepository {
+        private val campaigns = mutableMapOf<String, CampaignEnvelope>()
+        override fun create(envelope: CampaignEnvelope) {
+            check(campaigns.putIfAbsent(envelope.campaignId.value, envelope) == null)
+        }
+        override fun load(campaignId: CampaignId): CampaignLoadResult =
+            campaigns[campaignId.value]?.let { CampaignLoadResult.Loaded(it) }
+                ?: CampaignLoadResult.NotFound(campaignId)
+        override fun replace(envelope: CampaignEnvelope) { campaigns[envelope.campaignId.value] = envelope }
+        override fun commit(campaignId: CampaignId, transition: StateTransition) {
+            val current = campaigns.getValue(campaignId.value)
+            campaigns[campaignId.value] = current.copy(campaignState = transition.updatedState)
+        }
+        override fun checkpoint(campaignId: CampaignId, checkpointId: String) { require(checkpointId.isNotBlank()) }
+        override fun listCampaigns(): List<CampaignSummary> = campaigns.keys.sorted().map {
+            CampaignSummary(CampaignId(it), false)
+        }
+        override fun archive(campaignId: CampaignId) { require(campaignId.value in campaigns) }
+    }
     private fun party(profile: RuleProfile): CampaignEnvelope {
         val basic = Fixtures.campaign("control-${profile.name}", profile)
         var e = basic.copy(
@@ -136,4 +159,47 @@ class CharacterControlModesTest {
         assertEquals(CharacterActionApproval.REJECTED,
             e.campaignState.game.characterActionProposals.getValue("p-delete").status)
     }
+    @Test fun actualSessionEntryPointBlocksUnauthorizedAndReplaysApprovedOnce() {
+        var e = party(RuleProfile.OSE_CLASSIC_FANTASY)
+        e = CharacterControlCoordinator.setMode(e,"gm",CharacterControlMode.MASTER)
+        e = CharacterControlCoordinator.setMode(e,"curated",CharacterControlMode.CURATED)
+        val repo = MemoryRepo()
+        repo.create(e)
+        val session = SessionEngine(repo,RulesRefereeBoundary(),DeterministicBarbaraSupervisor())
+        assertFailsWith<IllegalArgumentException> {
+            session.submitCharacterAction(e.campaignId,"blocked-player","player",
+                "observa","observa",fromMaster=true)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            session.submitCharacterAction(e.campaignId,"blocked-gm","gm",
+                "observa","observa",fromMaster=false)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            session.submitCharacterAction(e.campaignId,"blocked-curated","curated",
+                "observa","observa",fromMaster=true)
+        }
+        val approvedPlayer = session.submitCharacterAction(
+            e.campaignId,"player-one","player","escuto","escuto")
+        assertTrue(approvedPlayer.narration.isNotBlank())
+        var latest = session.loadSession(e.campaignId)
+        latest = CharacterControlCoordinator.propose(latest,"curated-p1","curated","escuto","escuto")
+        repo.replace(latest)
+        assertFailsWith<IllegalArgumentException> {
+            session.submitCharacterAction(e.campaignId,"master-action:curated-p1",
+                "curated","escuto","escuto",fromMaster=true,
+                approvedProposalId="curated-p1")
+        }
+        latest = CharacterControlCoordinator.review(latest,"curated-p1",true)
+        repo.replace(latest)
+        val authorized = session.submitCharacterAction(e.campaignId,"master-action:curated-p1",
+            "curated","escuto","escuto",fromMaster=true,
+            approvedProposalId="curated-p1")
+        val saved = CanonicalStateHash.sha256(session.loadSession(e.campaignId))
+        val duplicate = session.submitCharacterAction(e.campaignId,"master-action:curated-p1",
+            "curated","escuto","escuto",fromMaster=true,
+            approvedProposalId="curated-p1")
+        assertEquals(authorized.narration,duplicate.narration)
+        assertEquals(saved,CanonicalStateHash.sha256(session.loadSession(e.campaignId)))
+    }
+
 }
