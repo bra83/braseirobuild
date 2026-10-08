@@ -104,8 +104,9 @@ class SessionEngine(
         require(mechanicalIntent.isNotBlank())
         val loaded = load(campaignId)
         if (!characterAuthorized) {
-            require(loaded.campaignState.party.characterIds.all {
-                CharacterControlCoordinator.mode(loaded, it) == CharacterControlMode.PLAYER
+            require(loaded.campaignState.party.characterIds.none { id ->
+                loaded.campaignState.game.characterControlModes[id] in
+                    setOf(CharacterControlMode.MASTER, CharacterControlMode.CURATED)
             }) { "CHARACTER_ACTION_ENTRYPOINT_REQUIRED" }
         }
         val existing = loaded.campaignState.game.session.reactionReceipts[reactionId]
