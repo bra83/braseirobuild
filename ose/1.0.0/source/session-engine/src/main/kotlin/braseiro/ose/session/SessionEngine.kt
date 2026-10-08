@@ -1,6 +1,7 @@
 package braseiro.ose.session
 
 import braseiro.ose.barbara.BarbaraSupervisorPort
+import braseiro.ose.character.CharacterControlCoordinator
 import braseiro.ose.model.*
 import braseiro.ose.persistence.api.*
 import braseiro.ose.referee.RefereeResolutionPort
@@ -24,6 +25,31 @@ class SessionEngine(
     private val referee: RefereeResolutionPort,
     private val barbara: BarbaraSupervisorPort
 ) {
+    /**
+     * The only supported per-character action entrypoint. The caller cannot impersonate
+     * player-controlled characters or execute curated GM actions before authorization.
+     * The existing idempotent reaction receipt is the executor/rollback boundary.
+     */
+    fun submitCharacterAction(
+        campaignId: CampaignId,
+        reactionId: String,
+        characterId: String,
+        reaction: String,
+        mechanicalIntent: String,
+        fromMaster: Boolean = false,
+        approvedProposalId: String? = null
+    ): SessionResult {
+        require(reactionId.isNotBlank() && reaction.isNotBlank() && mechanicalIntent.isNotBlank())
+        val current = load(campaignId)
+        CharacterControlCoordinator.requireActionAllowed(
+            current, characterId, fromMaster, approvedProposalId, reaction, mechanicalIntent
+        )
+        val character = current.campaignState.game.characters.getValue(characterId)
+        return submitPlayerReaction(
+            campaignId, reactionId, "${character.name}: ${reaction.trim()}", mechanicalIntent
+        )
+    }
+
     fun submitPlayerReaction(campaignId: CampaignId, reaction: String): SessionResult {
         val current = load(campaignId)
         val legacyId = "legacy-${current.campaignState.game.revision + 1}"
