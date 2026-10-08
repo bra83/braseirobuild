@@ -2,6 +2,7 @@ plugins { kotlin("jvm"); kotlin("plugin.serialization") }
 kotlin { jvmToolchain(17) }
 dependencies {
     implementation(project(":core-model"))
+    implementation(project(":character-domain"))
     implementation(project(":core-rng"))
     implementation(project(":persistence-api"))
     implementation(project(":rules-api"))
