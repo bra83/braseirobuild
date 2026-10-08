@@ -101,3 +101,11 @@ button.primary,button.secondary,button.small{border:1px solid #53120f;border-rad
  .dungeon-node{width:78px}.dungeon-node .local-map-sprite{max-width:72px;max-height:72px}
  .map-mode-tabs{justify-content:flex-start;margin-top:4px}
 }
+
+/* OSE multi-member administration: large touch targets on Samsung 415px layouts. */
+.character-management{gap:8px;min-width:0}
+.character-management>div:first-child{min-width:0;overflow-wrap:anywhere}
+.character-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:stretch;margin-top:9px}
+.character-actions button{min-height:44px;flex:1 1 130px;padding:10px 9px;white-space:normal;overflow-wrap:anywhere}
+.character-actions button:disabled{opacity:.55;pointer-events:none}
+@media(max-width:360px){.character-actions{flex-direction:column}.character-actions button{width:100%;flex-basis:auto}}
