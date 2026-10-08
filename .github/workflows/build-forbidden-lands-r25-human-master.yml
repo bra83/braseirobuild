@@ -61,8 +61,8 @@ jobs:
           npm.cmd config set registry https://registry.npmjs.org/
           npm.cmd config set fetch-retries 5
           npm.cmd config set fetch-timeout 120000
-          npm.cmd ci --no-audit --no-fund
-          if($LASTEXITCODE -ne 0){throw 'npm ci failed'}
+          npm.cmd install --package-lock=false --no-audit --no-fund --legacy-peer-deps
+          if($LASTEXITCODE -ne 0){throw 'npm install failed'}
 
       - name: TypeScript and R25 gates
         shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
