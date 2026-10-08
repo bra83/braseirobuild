@@ -104,7 +104,9 @@ class MultipleCharacterCampaignTest {
         val addedAgain = recruit(emptyParty, "replacement")
         assertEquals(listOf("replacement"), addedAgain.campaignState.party.characterIds)
         assertEquals("ACTIVE", addedAgain.campaignState.game.session.phase)
-        val restored = BackupCodec.importCampaign(BackupCodec.exportCampaign(addedAgain))
+        val backup = BackupCodec.exportCampaign(addedAgain, "replacement")
+        assertEquals("replacement", BackupCodec.selectedCharacterId(backup))
+        val restored = BackupCodec.importCampaign(backup)
         assertEquals(CanonicalStateHash.sha256(addedAgain), CanonicalStateHash.sha256(restored))
         assertTrue("ARCHIVED_DELETED" in restored.campaignState.game.characters.getValue("middle").flags)
     }
