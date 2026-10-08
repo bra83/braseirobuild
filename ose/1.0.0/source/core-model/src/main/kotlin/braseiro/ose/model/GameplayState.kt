@@ -390,6 +390,13 @@ import kotlinx.serialization.Serializable
     val characterId: String,
     val reactionText: String,
     val mechanicalIntent: String,
+    /** Public, bounded explanation of the actor's reasoning. Never a secret-world fact. */
+    val perception: String = "",
+    val hypothesis: String = "",
+    val motivation: String = "",
+    val reason: String = "",
+    val risk: String = "",
+    val stance: String = "UNCERTAIN",
     val status: CharacterActionApproval = CharacterActionApproval.PENDING,
     val createdAtRevision: Long = 0L
 ) {
