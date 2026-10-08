@@ -1,0 +1,33 @@
+name: Maintenance DND RUN188 BRELGA Disk
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/maintenance-dnd-run188-space-brelga.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reclaim:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 30
+    steps:
+      - name: Free backed-up DnD temporary files without checkout actions
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'WRONG_RUNNER'}
+          $canon='C:\DND181\extract\dnd_work\android\gradlew.bat'
+          if(!(Test-Path $canon)){throw 'CANONICAL_DND181_MISSING_ABORT'}
+          $before=(Get-PSDrive C).Free
+          Write-Host "FREE_BEFORE=$before"
+          foreach($dir in @('C:\DND186','C:\DND187','C:\DND188')){
+            if(Test-Path $dir){
+              Write-Host "Removing temporary workspace $dir; source and APK backups already saved in Drive and ChatGPT Library"
+              Remove-Item $dir -Recurse -Force -ErrorAction Stop
+            }
+          }
+          if(!(Test-Path $canon)){throw 'CANONICAL_DND181_CHANGED'}
+          $after=(Get-PSDrive C).Free
+          Write-Host "FREE_AFTER=$after"
+          if($after -lt 4000000000){throw "INSUFFICIENT_DISK_AFTER_SAFE_CLEANUP_$after"}
