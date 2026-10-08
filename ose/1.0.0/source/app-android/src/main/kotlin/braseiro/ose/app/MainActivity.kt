@@ -601,8 +601,29 @@ class MainActivity : Activity() {
 
                         "CharacterCreationRandom" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
-                            val (createdEnvelope, createdCharacter) = createRandomCharacter(current)
-                            repository.commit(CAMPAIGN_ID, StateTransition("character-random:${createdCharacter.characterId}", createdEnvelope.campaignState))
+                            val commandId = payload.optString("commandId", "").trim()
+                                .ifBlank { "legacy-random-${java.util.UUID.randomUUID()}" }
+                            val actionId = "RANDOM_CHARACTER:$commandId"
+                            val receipt = current.campaignState.game.actionLog.firstOrNull { it.actionId == actionId }
+                            val createdCharacter = if (receipt != null) {
+                                val existingId = receipt.text.removePrefix("CREATED:")
+                                require(existingId in current.campaignState.party.characterIds) {
+                                    "CHARACTER_COMMAND_ALREADY_APPLIED"
+                                }
+                                current.campaignState.game.characters[existingId] ?: error("UNKNOWN_CHARACTER_ID")
+                            } else {
+                                val (createdEnvelope, character) = createRandomCharacter(current)
+                                val nextGame = createdEnvelope.campaignState.game.copy(
+                                    actionLog = createdEnvelope.campaignState.game.actionLog +
+                                        ActionLogEntry(actionId, "CAMPAIGN_ADMIN",
+                                            "CREATED:${character.characterId}", emptyList())
+                                ).canonical()
+                                repository.commit(CAMPAIGN_ID, StateTransition(
+                                    "character-random:$commandId",
+                                    createdEnvelope.campaignState.copy(game = nextGame)
+                                ))
+                                character
+                            }
                             val persisted = session.loadSession(CAMPAIGN_ID)
                             storeSelectedCharacterId(persisted, createdCharacter.characterId)
                             send(JSONObject().put("type","CharacterCreationResult").put("payload",JSONObject()
