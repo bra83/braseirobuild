@@ -7,6 +7,8 @@ private val ALLOWED_BRIDGE_TYPES = setOf(
     "ViewState",
     "CharacterCreationCommit",
     "CharacterCreationStart",
+    "CharacterSelect",
+    "CharacterDelete",
     "UiCommand",
     "CaptureFixtureCommand",
     "PlayerReaction",
