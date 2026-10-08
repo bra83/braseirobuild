@@ -15,9 +15,9 @@ jobs:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 90
     env:
-      SHARE_ID: p1kEerON3SKx
-      FILE_ID: 01a118feba4e766bb90eaa88430d50dd
-      SOURCE_SHA256: b86e93b2b3403f2cb4fc282d4ff5f5dfee06a36baee918161466086c63c89071
+      SHARE_ID: rMhFXjX9vKM0
+      FILE_ID: 01a1194ee71672239a56f9620b94dd2e
+      SOURCE_SHA256: 23d317e6ccda5b8ff944a34184233ece7f6f5fee57aa8e0ccf3e2c18610763f5
       EXPECTED_VERSION: 3.3.21
       EXPECTED_CODE: 303921
 
@@ -31,6 +31,12 @@ jobs:
           $ErrorActionPreference='Stop'
           if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA, got $env:RUNNER_NAME" }
           $root=Join-Path $env:RUNNER_TEMP 'fl-r25-human-master'
+          $cache=Join-Path $env:RUNNER_TEMP 'fl-r25-node-modules-cache'
+          $oldModules=Join-Path $root 'work\fl_r25_brelga_transfer\node_modules'
+          if(Test-Path $oldModules) {
+            Remove-Item $cache -Recurse -Force -ErrorAction SilentlyContinue
+            Move-Item $oldModules $cache -Force
+          }
           Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Path $root -Force | Out-Null
           $zip=Join-Path $root 'source.zip'
@@ -49,6 +55,10 @@ jobs:
             Select-Object -First 1
           if(-not $pkg){throw 'Complete source root not found'}
           $src=$pkg.Directory.FullName
+          if(Test-Path $cache) {
+            Move-Item $cache (Join-Path $src 'node_modules') -Force
+            Write-Host 'Reused node_modules from prior successful install'
+          }
           "root=$src" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
           Write-Host "SOURCE_ROOT=$src"
           Write-Host "SOURCE_SHA256=$sha"
