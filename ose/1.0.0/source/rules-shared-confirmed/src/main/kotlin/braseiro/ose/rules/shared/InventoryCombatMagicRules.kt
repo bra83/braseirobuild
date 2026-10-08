@@ -393,13 +393,13 @@ object TreasureXpRuntimeRules {
         val pendingDefeats = experience.defeatedMonsters.values.filter { !it.xpAwarded }
 
         val profileMismatch = (pendingTreasures.map { it.profile } + pendingDefeats.map { it.profile } +
-            experience.recipients.values.filter { it.surviving }.map { it.profile }).firstOrNull { it != profile }
+            experience.recipients.values.filter { it.surviving && it.awardEligible }.map { it.profile }).firstOrNull { it != profile }
         if (profileMismatch != null) return XpPlanResult(blocker = "PROFILE_MISMATCH:$profileMismatch:$profile")
 
         val treasureXp = pendingTreasures.sumOf { if (it.magical) 0L else it.gpValue }
         val monsterXp = pendingDefeats.sumOf { it.boundXp }
         val total = treasureXp + monsterXp
-        val recipients = experience.recipients.values.filter { it.surviving }.sortedBy { it.recipientId }
+        val recipients = experience.recipients.values.filter { it.surviving && it.awardEligible }.sortedBy { it.recipientId }
         if (total == 0L) return XpPlanResult(
             plan = XpAwardPlan(nextAwardId(experience), emptyList(), 0L, emptyMap())
         )
