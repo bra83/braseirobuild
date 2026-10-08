@@ -385,6 +385,8 @@ import kotlinx.serialization.Serializable
 @Serializable data class GameExtensions(
     val characters: Map<String, CharacterSnapshot> = emptyMap(),
     val creationDrafts: Map<String, CharacterCreationDraftSnapshot> = emptyMap(),
+    /** OSE retainers, distinct from mercenary military units and party PCs. */
+    val retainerContracts: Map<String, RetainerContractSnapshot> = emptyMap(),
     val loadouts: Map<String, CharacterLoadoutSnapshot> = emptyMap(),
     val session: SessionSnapshot = SessionSnapshot(),
     val encounter: EncounterSnapshot? = null,
@@ -406,6 +408,7 @@ import kotlinx.serialization.Serializable
     fun canonical() = copy(
         characters = characters.toSortedMap().mapValues { it.value.canonical() },
         creationDrafts = creationDrafts.toSortedMap(),
+        retainerContracts = retainerContracts.toSortedMap(),
         loadouts = loadouts.toSortedMap().mapValues { it.value.canonical() },
         session = session.canonical(),
         encounter = encounter?.canonical(),
