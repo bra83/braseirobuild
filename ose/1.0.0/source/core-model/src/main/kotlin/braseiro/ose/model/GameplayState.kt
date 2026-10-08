@@ -382,8 +382,28 @@ import kotlinx.serialization.Serializable
     )
 }
 
+/** Per-character authority. Absence from the map keeps old campaigns player-controlled. */
+@Serializable enum class CharacterControlMode { PLAYER, MASTER, CURATED }
+@Serializable enum class CharacterActionApproval { PENDING, APPROVED, REJECTED, EXECUTED }
+@Serializable data class CharacterActionProposalSnapshot(
+    val proposalId: String,
+    val characterId: String,
+    val reactionText: String,
+    val mechanicalIntent: String,
+    val status: CharacterActionApproval = CharacterActionApproval.PENDING,
+    val createdAtRevision: Long = 0L
+) {
+    init {
+        require(proposalId.isNotBlank() && characterId.isNotBlank())
+        require(reactionText.isNotBlank() && mechanicalIntent.isNotBlank())
+        require(createdAtRevision >= 0L)
+    }
+}
+
 @Serializable data class GameExtensions(
     val characters: Map<String, CharacterSnapshot> = emptyMap(),
+    val characterControlModes: Map<String, CharacterControlMode> = emptyMap(),
+    val characterActionProposals: Map<String, CharacterActionProposalSnapshot> = emptyMap(),
     val creationDrafts: Map<String, CharacterCreationDraftSnapshot> = emptyMap(),
     val loadouts: Map<String, CharacterLoadoutSnapshot> = emptyMap(),
     val session: SessionSnapshot = SessionSnapshot(),
@@ -405,6 +425,8 @@ import kotlinx.serialization.Serializable
 ) {
     fun canonical() = copy(
         characters = characters.toSortedMap().mapValues { it.value.canonical() },
+        characterControlModes = characterControlModes.toSortedMap(),
+        characterActionProposals = characterActionProposals.toSortedMap(),
         creationDrafts = creationDrafts.toSortedMap(),
         loadouts = loadouts.toSortedMap().mapValues { it.value.canonical() },
         session = session.canonical(),
