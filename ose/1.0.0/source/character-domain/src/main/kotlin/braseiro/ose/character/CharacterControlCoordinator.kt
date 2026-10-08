@@ -14,13 +14,13 @@ object CharacterControlCoordinator {
         return envelope.campaignState.game.characterControlModes[characterId] ?: CharacterControlMode.PLAYER
     }
 
-    fun setMode(envelope: CampaignEnvelope, characterId: String, mode: CharacterControlMode): CampaignEnvelope {
+    fun setMode(envelope: CampaignEnvelope, characterId: String, newMode: CharacterControlMode): CampaignEnvelope {
         require(characterId in envelope.campaignState.party.characterIds &&
             characterId in envelope.campaignState.game.characters) { "UNKNOWN_CHARACTER_ID" }
         val state = envelope.campaignState
         val game = state.game
-        if (mode(envelope, characterId) == mode) return envelope
-        val modes = (game.characterControlModes + (characterId to mode)).toSortedMap()
+        if (mode(envelope, characterId) == newMode) return envelope
+        val modes = (game.characterControlModes + (characterId to newMode)).toSortedMap()
         // Switching control revokes unapproved proposals from the previous authority.
         val proposals = game.characterActionProposals.mapValues { (_, p) ->
             if (p.characterId == characterId && p.status in setOf(
