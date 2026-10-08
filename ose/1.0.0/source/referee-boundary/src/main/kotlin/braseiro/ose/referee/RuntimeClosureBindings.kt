@@ -471,8 +471,22 @@ object RuntimeClosureBindings {
         if(already>=cha.maxRetainers) return blocked("Limite de auxiliares do CAR do contratante atingido.")
         val region=npc.spatialRef?.spatialEntityId ?: npc.locationRef
         val reputationPenalty=if(region in state.game.retainerOffendedLocations) -1 else 0
-        val d1=authoritativeDie(rng,6);val d2=authoritativeDie(rng,6)
-        val result=RetainerMercenaryRules.recruitment(d1,d2,cha.hiringReactionModifier,reputationPenalty)
+        var attempts = 0
+        var result: RetainerMercenaryRules.RecruitmentResult
+        var lastDiceA: Int
+        var lastDiceB: Int
+        do {
+            lastDiceA = authoritativeDie(rng,6)
+            lastDiceB = authoritativeDie(rng,6)
+            result = RetainerMercenaryRules.recruitment(
+                lastDiceA,lastDiceB,cha.hiringReactionModifier,reputationPenalty
+            )
+            attempts++
+            // A "roll again" result is not a refusal or a fresh negotiation:
+            // complete that canonical procedure using the same persisted dice stream.
+            // The defensive cap only guards pathological broken RNG states.
+            if (attempts > 256) error("RETAINER_REACTION_REROLL_LIMIT")
+        } while(result.outcome==RetainerMercenaryRules.RecruitmentOutcome.REROLL_REQUIRED)
         val gained=if(result.accepted) RetainerContractSnapshot(
             npcId=npcId, employerCharacterId=employerId, dailyWageGp=wage,
             treasureHalfShares=halves,
@@ -507,7 +521,7 @@ object RuntimeClosureBindings {
                 game.retainerOffendedLocations+region else game.retainerOffendedLocations,
             actionLog=game.actionLog+ActionLogEntry(
                 "RETAINER_OFFER:${game.revision}:$npcId", "RETAINER",
-                "Oferta $employerId->$npcId: ${result.outcome}, 2d6=${result.rawTwoDice}, total=${result.effectiveTotal}",
+                "Oferta $employerId->$npcId: ${result.outcome}, última 2d6=${result.rawTwoDice}, total=${result.effectiveTotal}, tentativas=$attempts",
                 listOf("RETAINER.HIRE|GAME_SYSTEM_SPEC §31.1")
             ),
             revision=game.revision+1
