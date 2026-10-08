@@ -14,12 +14,16 @@ import kotlinx.serialization.json.Json
     val authorityId: String,
     val authorityRevision: String,
     val assetManifestRevision: String,
-    val generatorVersions: Map<String, Int>
+    val generatorVersions: Map<String, Int>,
+    val selectedCharacterId: String? = null
 )
 
 object BackupCodec {
     private val json = Json { encodeDefaults = true; explicitNulls = false; classDiscriminator = "kind"; ignoreUnknownKeys = false }
-    fun exportCampaign(campaign: CampaignEnvelope): String {
+    fun exportCampaign(campaign: CampaignEnvelope, selectedCharacterId: String? = null): String {
+        require(selectedCharacterId == null || selectedCharacterId in campaign.campaignState.party.characterIds) {
+            "UNKNOWN_CHARACTER_ID"
+        }
         val payload = json.encodeToString(campaign)
         val meta = BackupEnvelope(
             campaignJson = payload,
@@ -28,10 +32,14 @@ object BackupCodec {
             authorityId = campaign.authorityRevision.authorityId,
             authorityRevision = campaign.authorityRevision.revision,
             assetManifestRevision = campaign.assetManifestRevision.revision,
-            generatorVersions = campaign.generatorRegistry.versions.associate { it.generatorId to it.version }.toSortedMap()
+            generatorVersions = campaign.generatorRegistry.versions.associate { it.generatorId to it.version }.toSortedMap(),
+            selectedCharacterId = selectedCharacterId
         )
         return json.encodeToString(meta)
     }
+    /** Optional UI metadata; call only after importCampaign validates the payload checksum. */
+    fun selectedCharacterId(raw: String): String? = json.decodeFromString<BackupEnvelope>(raw).selectedCharacterId
+
     fun importCampaign(raw: String): CampaignEnvelope {
         val backup = json.decodeFromString<BackupEnvelope>(raw)
         require(backup.formatVersion == 1) { "Unsupported backup format ${backup.formatVersion}" }
