@@ -2,6 +2,7 @@ package braseiro.ose.integration
 
 import braseiro.ose.backup.BackupCodec
 import braseiro.ose.character.CharacterControlCoordinator
+import braseiro.ose.character.CompanionJudgmentEngine
 import braseiro.ose.character.CharacterPartyAdministration
 import braseiro.ose.character.NativeCharacterCreationCoordinator
 import braseiro.ose.model.*
@@ -200,6 +201,66 @@ class CharacterControlModesTest {
             approvedProposalId="curated-p1")
         assertEquals(authorized.narration,duplicate.narration)
         assertEquals(saved,CanonicalStateHash.sha256(session.loadSession(e.campaignId)))
+    }
+
+
+    @Test fun companionOpinionsAreReadOnlyGroundedDistinctAndNeverExposeUnknownFacts() {
+        for (profile in RuleProfile.entries) {
+            var e = party(profile)
+            e = CharacterControlCoordinator.setMode(e, "gm", CharacterControlMode.MASTER)
+            e = CharacterControlCoordinator.setMode(e, "curated", CharacterControlMode.CURATED)
+            val before = CanonicalStateHash.sha256(e)
+            val opinions = CompanionJudgmentEngine.opinions(e)
+            assertEquals(setOf("gm", "curated"), opinions.map { it.characterId }.toSet())
+            assertEquals(before, CanonicalStateHash.sha256(e))
+            opinions.forEach { opinion ->
+                assertTrue(opinion.perception.isNotBlank())
+                assertTrue(opinion.hypothesis.isNotBlank())
+                assertTrue(opinion.motivation.isNotBlank())
+                assertTrue(opinion.risk.isNotBlank())
+                assertTrue(opinion.reason.isNotBlank())
+                assertTrue(opinion.suggestedAction.isNotBlank())
+                assertTrue(opinion.stance in setOf("SUPPORT", "CAUTION", "OBJECT", "UNCERTAIN"))
+                assertFalse(opinion.perception.contains("segredo", ignoreCase = true))
+            }
+            val gm = opinions.first { it.characterId == "gm" }
+            val proposal = CharacterControlCoordinator.propose(e, "cognition-${profile.name}",
+                "gm", gm.suggestedAction, gm.mechanicalIntent, gm)
+            val record = proposal.campaignState.game.characterActionProposals.getValue("cognition-${profile.name}")
+            assertEquals(gm.perception, record.perception)
+            assertEquals(gm.hypothesis, record.hypothesis)
+            assertEquals(gm.risk, record.risk)
+            assertEquals(gm.motivation, record.motivation)
+            assertEquals(e.campaignState.time, proposal.campaignState.time)
+            assertEquals(e.campaignState.position, proposal.campaignState.position)
+            assertEquals(e.campaignState.resources, proposal.campaignState.resources)
+            assertEquals(e.campaignState.game.rngStreams, proposal.campaignState.game.rngStreams)
+            val restored = BackupCodec.importCampaign(BackupCodec.exportCampaign(proposal))
+            assertEquals(record, restored.campaignState.game.characterActionProposals.getValue("cognition-${profile.name}"))
+        }
+    }
+
+    @Test fun disagreementCannotForceMovementAndCuratorRiskPrecedesApproval() {
+        var e=party(RuleProfile.OSE_CLASSIC_FANTASY)
+        e=CharacterControlCoordinator.setMode(e,"gm",CharacterControlMode.MASTER)
+        e=CharacterControlCoordinator.setMode(e,"curated",CharacterControlMode.CURATED)
+        val c=CompanionJudgmentEngine.assess(e,"curated")
+        val before=CanonicalStateHash.sha256(e)
+        val pending=CharacterControlCoordinator.propose(e,"disagree","curated",c.suggestedAction,c.mechanicalIntent,c)
+        assertEquals(CharacterActionApproval.PENDING,
+            pending.campaignState.game.characterActionProposals.getValue("disagree").status)
+        assertTrue(pending.campaignState.game.characterActionProposals.getValue("disagree").risk.isNotBlank())
+        assertEquals(e.campaignState.time,pending.campaignState.time)
+        assertEquals(before,CanonicalStateHash.sha256(e))
+        assertFailsWith<IllegalArgumentException> {
+            CharacterControlCoordinator.requireActionAllowed(pending,"curated",true,"disagree",
+                c.suggestedAction,c.mechanicalIntent)
+        }
+        val refused=CharacterControlCoordinator.review(pending,"disagree",false)
+        assertEquals(CharacterActionApproval.REJECTED,
+            refused.campaignState.game.characterActionProposals.getValue("disagree").status)
+        assertEquals(e.campaignState.time,refused.campaignState.time)
+        assertEquals(e.campaignState.resources,refused.campaignState.resources)
     }
 
 }
