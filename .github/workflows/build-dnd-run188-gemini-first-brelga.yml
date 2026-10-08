@@ -96,7 +96,7 @@ jobs:
             if(!(Test-Path "$pkg\$n")){throw "RUN187_NEW_CLASS_MISSING_$n"}
           }
           $main=Get-Content "$pkg\MainActivity.java" -Raw
-          foreach($required in @('HumanMasterDynamicDirector.instruction(','HumanMasterDynamicDirector.accepted(','HumanMasterDynamicDirector.confirmed(','run188CommittedEnvelope[0]=prepared;')){
+          foreach($required in @('HumanMasterDynamicDirector.instruction(','HumanMasterDynamicDirector.accepted(','HumanMasterDynamicDirector.confirmed(','run187CommittedEnvelope[0]=prepared;')){
             if(!$main.Contains($required)){throw "RUN187_WIRING_MISSING_$required"}
           }
           Write-Host 'RUN188 preserving all sampled mechanical sources byte-for-byte: PASS'
