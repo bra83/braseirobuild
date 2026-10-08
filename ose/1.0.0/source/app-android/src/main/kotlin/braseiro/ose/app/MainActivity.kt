@@ -954,6 +954,7 @@ class MainActivity : Activity() {
             val proposalId = "auto:" + turnKey.hashCode() + ":" + id.hashCode()
             if (current.campaignState.game.characterActionProposals.containsKey(proposalId)) continue
             val name = current.campaignState.game.characters[id]?.name ?: continue
+            val judgment = CompanionJudgmentEngine.assess(current, id)
             val suggestions = ContextualDecisionSuggester.suggest(current)
             val options = suggestions.mapIndexed { index, d ->
                 (index + 1).toString() + ") " + d.label + ": " + d.reaction
@@ -965,16 +966,21 @@ class MainActivity : Activity() {
                     options).answer
             }.getOrDefault("")
             val selectedNumber = if (answer.startsWith("Posso ajudar") || answer.startsWith("Não consegui"))
-                null else Regex("\\b[123]\\b").find(answer)?.value?.toIntOrNull()
-            val index = (selectedNumber ?: (Math.floorMod(id.hashCode(), suggestions.size) + 1)) - 1
-            val decision = suggestions[index]
+                null else answer.trim().firstOrNull()?.digitToIntOrNull()?.takeIf { it in 1..suggestions.size }
             val groupActionPermitted = ids.all { member ->
                 member == id || CharacterControlCoordinator.mode(current, member) == CharacterControlMode.MASTER
             }
-            val intent = if (!groupActionPermitted && decision.mechanicalIntent?.startsWith("WILD_") == true)
-                "PERSONAL_OBSERVATION" else (decision.mechanicalIntent ?: decision.reaction)
+            // A vulnerable or skeptical actor may disagree/refuse. Neither an LLM
+            // choice nor an actor's autonomy authorizes moving another character.
+            val chosen = if (judgment.stance in setOf("OBJECT", "CAUTION", "UNCERTAIN")) null
+                else suggestions[(selectedNumber ?: 1) - 1]
+            val collective = chosen?.mechanicalIntent?.startsWith("WILD_") == true
+            val reaction = if (chosen == null || (collective && !groupActionPermitted))
+                judgment.suggestedAction else chosen.reaction
+            val intent = if (chosen == null || (collective && !groupActionPermitted))
+                judgment.mechanicalIntent else (chosen.mechanicalIntent ?: chosen.reaction)
             val next = CharacterControlCoordinator.propose(
-                current, proposalId, id, decision.reaction, intent
+                current, proposalId, id, reaction, intent, judgment
             )
             repository.commit(CAMPAIGN_ID, StateTransition(
                 "master-propose:" + proposalId, next.campaignState
