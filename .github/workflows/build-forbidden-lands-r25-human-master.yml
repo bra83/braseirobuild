@@ -1,0 +1,161 @@
+name: Forbidden Lands R25 Human Master BRELGA Build
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.github/workflows/build-forbidden-lands-r25-human-master.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 90
+    env:
+      SHARE_ID: p1kEerON3SKx
+      FILE_ID: 01a118feba4e766bb90eaa88430d50dd
+      SOURCE_SHA256: b86e93b2b3403f2cb4fc282d4ff5f5dfee06a36baee918161466086c63c89071
+      EXPECTED_VERSION: 3.3.21
+      EXPECTED_CODE: 303921
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download sanitized R25 source
+        id: source
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Expected BRELGA, got $env:RUNNER_NAME" }
+          $root=Join-Path $env:RUNNER_TEMP 'fl-r25-human-master'
+          Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $root -Force | Out-Null
+          $zip=Join-Path $root 'source.zip'
+          $api='https://api.firestorage.ai/dev/file'
+          $d=Invoke-RestMethod -Method Post -Uri "$api/shares/$env:SHARE_ID/files/$env:FILE_ID/download"
+          if(-not $d.downloadUrl){throw 'Firestorage downloadUrl missing'}
+          Invoke-WebRequest -Uri $d.downloadUrl -OutFile $zip
+          $sha=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($sha -ne $env:SOURCE_SHA256){throw "Source SHA mismatch: $sha"}
+          $work=Join-Path $root 'work'
+          New-Item -ItemType Directory -Path $work -Force | Out-Null
+          tar.exe -xf $zip -C $work
+          if($LASTEXITCODE -ne 0){throw 'Source extract failed'}
+          $pkg=Get-ChildItem $work -Recurse -File -Filter package.json |
+            Where-Object { Test-Path (Join-Path $_.Directory.FullName 'android\gradlew.bat') } |
+            Select-Object -First 1
+          if(-not $pkg){throw 'Complete source root not found'}
+          $src=$pkg.Directory.FullName
+          "root=$src" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "SOURCE_ROOT=$src"
+          Write-Host "SOURCE_SHA256=$sha"
+
+      - name: Install Node dependencies
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        working-directory: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          npm.cmd config set registry https://registry.npmjs.org/
+          npm.cmd config set fetch-retries 5
+          npm.cmd config set fetch-timeout 120000
+          npm.cmd ci --no-audit --no-fund
+          if($LASTEXITCODE -ne 0){throw 'npm ci failed'}
+
+      - name: TypeScript and R25 gates
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        working-directory: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          npm.cmd run lint
+          if($LASTEXITCODE -ne 0){throw 'TypeScript lint failed'}
+          npm.cmd run verify:human-master-dynamic-r25
+          if($LASTEXITCODE -ne 0){throw 'Human Master Dynamic R25 gate failed'}
+          npm.cmd run verify:human-master-runtime
+          if($LASTEXITCODE -ne 0){throw 'Human Master runtime gate failed'}
+          npm.cmd run verify:canonical-narrator-profile
+          if($LASTEXITCODE -ne 0){throw 'Canonical narrator gate failed'}
+          npm.cmd run verify:empty-rule-library-r24
+          if($LASTEXITCODE -ne 0){throw 'Empty rule library gate failed'}
+          npm.cmd run verify:external-gemini-images
+          if($LASTEXITCODE -ne 0){throw 'Gemini image/share gate failed'}
+
+      - name: Build and sync Android assets
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        working-directory: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          npm.cmd run android:sync
+          if($LASTEXITCODE -ne 0){throw 'android:sync failed'}
+          $marker=Join-Path (Get-Location) 'android\app\src\main\assets\public\braseiro-release-marker.json'
+          if(-not (Test-Path $marker)){throw 'Release marker missing'}
+          $m=Get-Content $marker -Raw | ConvertFrom-Json
+          if($m.version -ne $env:EXPECTED_VERSION){throw "Web marker mismatch: $($m.version)"}
+
+      - name: Configure Android SDK and build
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        working-directory: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $javaCandidates=@(
+            (Join-Path $env:ProgramFiles 'Android\Android Studio\jbr'),
+            (Join-Path $env:LOCALAPPDATA 'Programs\Android Studio\jbr')
+          )
+          if(-not (Get-Command java.exe -ErrorAction SilentlyContinue)){
+            foreach($c in $javaCandidates){
+              if(Test-Path (Join-Path $c 'bin\java.exe')){
+                $env:JAVA_HOME=$c
+                $env:Path="$c\bin;$env:Path"
+                break
+              }
+            }
+          }
+          if(-not (Get-Command java.exe -ErrorAction SilentlyContinue)){throw 'JDK missing'}
+          if(-not $env:ANDROID_HOME){
+            $sdkCandidate=Join-Path $env:LOCALAPPDATA 'Android\Sdk'
+            if(Test-Path $sdkCandidate){$env:ANDROID_HOME=$sdkCandidate}
+          }
+          if(-not $env:ANDROID_HOME){throw 'ANDROID_HOME missing'}
+          $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          Set-Location android
+          .\gradlew.bat :app:assembleDebug --stacktrace --console=plain --no-daemon
+          if($LASTEXITCODE -ne 0){throw 'Gradle assembleDebug failed'}
+
+      - name: Validate APK
+        id: apk
+        shell: powershell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command ". '{0}'"
+        working-directory: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $apk=Get-ChildItem 'android\app\build\outputs\apk\debug' -Filter *.apk -File | Select-Object -First 1
+          if(-not $apk){throw 'APK not found'}
+          $out=Join-Path $env:RUNNER_TEMP 'fl-r25-out'
+          Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $dest=Join-Path $out 'BRASEIRO_FORBIDDEN_LANDS_3.3.21_R25_BRELGA_UNSIGNED_FINAL.apk'
+          Copy-Item $apk.FullName $dest -Force
+          $hash=(Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $([IO.Path]::GetFileName($dest))" | Set-Content "$dest.sha256" -Encoding ascii
+          $bt=Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory |
+            Sort-Object { try {[version]($_.Name -replace '[^0-9.]','')} catch {[version]'0.0'} } -Descending |
+            Select-Object -First 1
+          if(-not $bt){throw 'build-tools missing'}
+          $aapt=Join-Path $bt.FullName 'aapt.exe'
+          & $aapt dump badging $dest | Set-Content (Join-Path $out 'APK_BADGING.txt') -Encoding utf8
+          $badging=Get-Content (Join-Path $out 'APK_BADGING.txt') -Raw
+          if($badging -notmatch "package: name='com\.braseiro\.forbiddenlands'"){throw 'Wrong package'}
+          if($badging -notmatch "versionCode='$env:EXPECTED_CODE'"){throw 'Wrong versionCode'}
+          if($badging -notmatch "versionName='$env:EXPECTED_VERSION'"){throw 'Wrong versionName'}
+          "out=$out" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "APK_SHA256=$hash"
+
+      - name: Upload BRELGA build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: forbidden-lands-3.3.21-r25-human-master-brelga
+          path: |
+            ${{ steps.apk.outputs.out }}/*
+          if-no-files-found: error
+          retention-days: 3
