@@ -1,0 +1,187 @@
+name: Braseiro DnD RUN189 Companion Autonomy Curatorship BRELGA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ci/dnd-run189/**'
+      - '.github/workflows/build-dnd-run189-brelga.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: dnd-run189-companions-brelga
+  cancel-in-progress: false
+env:
+  TAG: DND-6.6.4-RUN189
+  APK_NAME: BRASEIRO_DND_6.6.4_RUN189_DEBUG.apk
+  VERSION_NAME: 6.6.4-r189
+  VERSION_CODE: '606489'
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check runner and safeguard canonic source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'RUNNER_NOT_BRELGA'}
+          if(!(Test-Path 'C:\DND181\extract\dnd_work\android\gradlew.bat')){throw 'CANONICAL_RUN181_NOT_FOUND'}
+          Write-Host 'Canonically preserved RUN181 source'
+          Get-PSDrive C | Format-List Free,Used
+      - name: Release only backed-up RUN188 and old DND work dirs
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if(!(Test-Path 'C:\DND181\extract\dnd_work\android\gradlew.bat')){throw 'DO_NOT_CLEAN_WITHOUT_BASELINE'}
+          foreach($p in @('C:\DND188','C:\DND189')){
+            if(Test-Path $p){Remove-Item $p -Recurse -Force -ErrorAction Stop}
+          }
+          $free=(Get-PSDrive C).Free;Write-Host "FREE_BYTES=$free"
+          if($free -lt 3800000000){throw "DISK_LOW_$free"}
+      - name: Clone source to independent RUN189 workspace
+        id: source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $src='C:\DND181\extract\dnd_work';$dest='C:\DND189\work'
+          New-Item -ItemType Directory -Force -Path 'C:\DND189','C:\DND189\out' | Out-Null
+          & robocopy $src $dest /MIR /R:2 /W:1 /XD '.gradle' 'build' '.idea' | Out-Host
+          $rc=$LASTEXITCODE;if($rc -gt 7){throw "ROBOCOPY_FAILED_$rc"};$global:LASTEXITCODE=0
+          if(!(Test-Path "$dest\android\gradlew.bat")){throw 'SOURCE_NOT_CLONED'}
+          "root=$dest" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+      - name: Reconstruct RUN186 RUN187 RUN188 without regressions
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          foreach($script in @('ci\dnd-run185\patch.py','ci\dnd-run186\patch.py','ci\dnd-run187\patch.py','ci\dnd-run188\patch.py')){
+            python "$env:GITHUB_WORKSPACE\$script" "$env:ROOT"
+            if($LASTEXITCODE -ne 0){throw "PREVIOUS_PATCH_FAILED_$script"}
+          }
+          $pkg="$env:ROOT\android\app\src\main\java\com\braseiro\dnd5e"
+          $main=Get-Content "$pkg\MainActivity.java" -Raw
+          foreach($marker in @('RUN188_GEMINI_EXPLICIT_OFFLINE','HumanMasterDynamicDirector.instruction(','StrixhavenPtBrAcademicCatalog')){
+            if(!$main.Contains($marker)){throw "PRIOR_FEATURE_MISSING_$marker"}
+          }
+      - name: Apply RUN189 and strictly protect rules implementation
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $pkg="$env:ROOT\android\app\src\main\java\com\braseiro\dnd5e"
+          $protected=@('DndRulesEngine.java','CombatStateMachine.java','CharacterRulesValidator.java','CharacterSheetGenerator.java','MasterOrchestrator.java','StateTransactionManager.java','StrixhavenOfficialCampaignRuntime.java','StrixhavenBestiaryRuntimeEngine.java','StrixhavenCompiledCampaignEngine.java')
+          $before=@{};foreach($f in $protected){$before[$f]=(Get-FileHash "$pkg\$f" -Algorithm SHA256).Hash}
+          python "$env:GITHUB_WORKSPACE\ci\dnd-run189\patch.py" "$env:ROOT"
+          if($LASTEXITCODE -ne 0){throw 'RUN189_PATCH_FAILED'}
+          foreach($f in $protected){if((Get-FileHash "$pkg\$f" -Algorithm SHA256).Hash -ne $before[$f]){throw "MECHANICAL_REGRESSION_$f"}}
+          $main=Get-Content "$pkg\MainActivity.java" -Raw
+          $db=Get-Content "$pkg\AppDb.java" -Raw
+          if(!$main.Contains('CompanionAgencyEngine.stageCurated') -or !$main.Contains('requestCompanionIdeas()')){throw 'RUN189_UI_MISSING'}
+          if(!$db.Contains('DB_VERSION = 61') -or !$db.Contains('companion_proposals')){throw 'RUN189_PERSISTENCE_MISSING'}
+          Write-Host 'PROTECTED_MECHANICAL_SOURCES_PRESERVED_PASS'
+      - name: RUN189 functional SQLite contract simulations and regression tests
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          python "$env:GITHUB_WORKSPACE\ci\dnd-run189\tests\test_run189_contract.py" "$env:ROOT"
+          if($LASTEXITCODE -ne 0){throw 'RUN189_CONTRACT_TESTS_FAILED'}
+          python "$env:GITHUB_WORKSPACE\ci\dnd-run187\tests\test_contract.py"
+          if($LASTEXITCODE -ne 0){throw 'RUN187_STATIC_REGRESSION_FAILED'}
+      - name: Version RUN189
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $file="$env:ROOT\version.properties"
+          $rows=Get-Content $file
+          $hasName=$false;$hasCode=$false
+          $rows=@($rows | ForEach-Object{
+            if($_ -match '^VERSION_NAME='){$hasName=$true;"VERSION_NAME=$env:VERSION_NAME"}
+            elseif($_ -match '^VERSION_CODE='){$hasCode=$true;"VERSION_CODE=$env:VERSION_CODE"}
+            else{$_}
+          })
+          if(!$hasName){$rows+="VERSION_NAME=$env:VERSION_NAME"}
+          if(!$hasCode){$rows+="VERSION_CODE=$env:VERSION_CODE"}
+          [IO.File]::WriteAllLines($file,$rows,(New-Object Text.UTF8Encoding($false)))
+      - name: Compile Java, Gradle unit task and APK
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){$j='C:\Program Files\Android\Android Studio\jbr';if(Test-Path "$j\bin\java.exe"){$env:JAVA_HOME=$j;$env:Path="$j\bin;$env:Path"}}
+          if(!$env:ANDROID_HOME){$sdk="$env:LOCALAPPDATA\Android\Sdk";if(Test-Path $sdk){$env:ANDROID_HOME=$sdk}}
+          if(!$env:ANDROID_HOME){throw 'ANDROID_SDK_MISSING'}
+          $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          Set-Location "$env:ROOT\android"
+          foreach($task in @(':app:compileDebugJavaWithJavac',':app:testDebugUnitTest',':app:assembleDebug')){
+            & .\gradlew.bat $task --no-daemon --console=plain --stacktrace
+            if($LASTEXITCODE -ne 0){throw "GRADLE_FAILED_${task}_$LASTEXITCODE"}
+          }
+      - name: Validate APK version certificate and checksum
+        shell: powershell
+        env:
+          ROOT: ${{ steps.source.outputs.root }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $out='C:\DND189\out'
+          $src=Get-ChildItem "$env:ROOT\android\app\build\outputs\apk\debug" -File -Filter '*.apk' | Select-Object -First 1
+          if(!$src){throw 'APK_MISSING'}
+          $dst=Join-Path $out $env:APK_NAME;Copy-Item $src.FullName $dst -Force
+          if(!$env:ANDROID_HOME){$sdk="$env:LOCALAPPDATA\Android\Sdk";if(Test-Path $sdk){$env:ANDROID_HOME=$sdk}}
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){$j='C:\Program Files\Android\Android Studio\jbr';if(Test-Path "$j\bin\java.exe"){$env:JAVA_HOME=$j;$env:Path="$j\bin;$env:Path"}}
+          $bt=Get-ChildItem "$env:ANDROID_HOME\build-tools" -Directory | Sort-Object {[version]$_.Name} -Descending | Select-Object -First 1
+          if(!$bt){throw 'BUILD_TOOLS_MISSING'}
+          $badging=(& "$($bt.FullName)\aapt.exe" dump badging $dst) -join "`n"
+          $badging | Set-Content "$out\RUN189_BADGING.txt" -Encoding utf8
+          if($badging -notmatch "package: name='com\.braseiro\.dnd5e'"){throw 'PACKAGE_MISMATCH'}
+          if($badging -notmatch "versionCode='606489'"){throw 'VERSION_CODE_MISMATCH'}
+          if($badging -notmatch "versionName='6\.6\.4-r189-debug'"){throw 'VERSION_NAME_MISMATCH'}
+          $ErrorActionPreference='Continue';$lines=& "$($bt.FullName)\apksigner.bat" verify --verbose --print-certs $dst 2>&1;$rc=$LASTEXITCODE;$ErrorActionPreference='Stop'
+          if($rc -ne 0){$lines|Out-Host;throw "APK_SIGNATURE_INVALID_$rc"}
+          $sig=$lines|Out-String;$sig|Set-Content "$out\RUN189_SIGNER.txt" -Encoding utf8
+          if($sig -notmatch '6AA87A24A2EB4762C3F493C9D5FDDBF10B60CC8659A90423AED7CDE8AE582BD3'){throw 'RUN188_SIGNER_MISMATCH'}
+          $sha=(Get-FileHash $dst -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$sha  $env:APK_NAME"|Set-Content "$dst.sha256" -Encoding ascii
+          @(
+            'RUNNER=BRELGA','BASELINE=RUN188','VERSION_NAME=6.6.4-r189-debug','VERSION_CODE=606489',"APK_SHA256=$sha",
+            'RUN189_COMPILE=PASS','RUN189_SQL_CONTRACT_TESTS=PASS','RUN189_ANDROID_PACKAGE=PASS','RUN189_SIGNER_MATCH=PASS',
+            'MECHANICAL_SOURCES_UNCHANGED=PASS','THREE_CONTROL_MODES=PASS','CURATORY_IDEMPOTENCY_SQL_TEST=PASS',
+            'CURATORY_APPROVAL_QUEUES_ATTEMPT_ONLY=true','DEVICE_END_TO_END_TEST=NOT_RUN','UI_INSTRUMENTATION_TEST=NOT_RUN'
+          )|Set-Content "$out\RUN189_BUILD_PROOF.txt" -Encoding utf8
+          Get-Item $dst | Format-List Name,Length
+      - name: Upload RUN189 APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_DND_6.6.4_RUN189_BRELGA
+          path: |
+            C:\DND189\out\BRASEIRO_DND_6.6.4_RUN189_DEBUG.apk
+            C:\DND189\out\BRASEIRO_DND_6.6.4_RUN189_DEBUG.apk.sha256
+            C:\DND189\out\RUN189_BADGING.txt
+            C:\DND189\out\RUN189_SIGNER.txt
+            C:\DND189\out\RUN189_BUILD_PROOF.txt
+          if-no-files-found: error
+          retention-days: 14
+      - name: Publish RUN189 APK release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: DND-6.6.4-RUN189
+          name: Braseiro DnD 6.6.4 RUN189 — Companheiros Autônomos
+          body: >-
+            RUN189: Controle individual JOGADOR / MESTRE / MESTRE COM CURADORIA.
+            Propostas persistentes com motivo, custo e risco, aprovar/alterar/recusar, proteção
+            contra dupla aplicação e cena obsoleta, ajuda para destravar aventura.
+            Preserva regras, Gemini primeiro, Mestre offline só por escolha.
+            Passou por compilação Android, contratos SQLite simulados e assinatura; teste em aparelho pendente.
+          files: |
+            C:\DND189\out\BRASEIRO_DND_6.6.4_RUN189_DEBUG.apk
+            C:\DND189\out\BRASEIRO_DND_6.6.4_RUN189_DEBUG.apk.sha256
+            C:\DND189\out\RUN189_BUILD_PROOF.txt
+          fail_on_unmatched_files: true
