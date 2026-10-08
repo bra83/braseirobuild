@@ -929,7 +929,7 @@ class MainActivity : Activity() {
         for (i in 0 until arr.length()) {
             val item = inventoryItemFromJson(arr.getJSONObject(i))
             require(item.ownerId == c.characterId && item.profile == current.ruleProfile) { "CHARACTER_ITEM_PROFILE_MISMATCH" }
-            require(!current.campaignState.game.inventory.items.containsKey(item.itemId)) { "ITEM_ID_EXISTS" }
+            require(!current.campaignState.game.inventory.items.containsKey(item.itemId) && !items.containsKey(item.itemId)) { "ITEM_ID_EXISTS" }
             items[item.itemId] = item
         }
         val loadout = root.optJSONObject("loadout")?.let { o ->
@@ -937,16 +937,26 @@ class MainActivity : Activity() {
             CharacterLoadoutSnapshot(c.characterId,o.getInt("startingWealthGp"),o.getInt("remainingWealthGp"),purchases,o.optBoolean("completed",true),o.getString("sourceRuleId"))
         }
         val oldGame = current.campaignState.game
-        val newPhase = if (current.campaignState.party.characterIds.isEmpty() && oldGame.session.visibleNarration.isBlank()) {
-            if (loadout == null || loadout.completed) "READY_TO_START" else "CHARACTER_LOADOUT"
-        } else oldGame.session.phase
+        val partyIds = (current.campaignState.party.characterIds + c.characterId).distinct()
+        val beforeAdventure = current.campaignState.time.turns == 0L &&
+            oldGame.session.visibleNarration.isBlank()
+        val newPhase = when {
+            beforeAdventure && loadout?.completed == false -> "CHARACTER_LOADOUT"
+            beforeAdventure && current.campaignState.party.characterIds.isEmpty() -> "READY_TO_START"
+            else -> oldGame.session.phase
+        }
+        val inventory = oldGame.inventory.copy(items = oldGame.inventory.items + items).canonical()
+        val expedition = braseiro.ose.rules.shared.InventoryRuntimeRules.derivePartyExpedition(
+            current.ruleProfile, current.optionSet, partyIds, inventory, oldGame.expedition
+        ).expedition
         val newGame = oldGame.copy(
             characters = oldGame.characters + (c.characterId to c),
-            inventory = oldGame.inventory.copy(items = oldGame.inventory.items + items),
-            loadouts = if(loadout==null) oldGame.loadouts else oldGame.loadouts + (c.characterId to loadout),
+            inventory = inventory,
+            expedition = expedition,
+            loadouts = if (loadout == null) oldGame.loadouts else oldGame.loadouts + (c.characterId to loadout),
             session = oldGame.session.copy(phase = newPhase), revision = oldGame.revision + 1
         ).canonical()
-        val newState = current.campaignState.copy(party = PartyState((current.campaignState.party.characterIds + c.characterId).distinct()), game = newGame)
+        val newState = current.campaignState.copy(party = PartyState(partyIds), game = newGame)
         return current.copy(campaignState = newState)
     }
 
