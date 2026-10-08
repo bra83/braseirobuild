@@ -1,0 +1,55 @@
+name: Diagnose DND RUN187 BRELGA APK Signature
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/diagnose-dnd-run187-brelga.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify APK on original builder without deleting anything
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'WRONG_RUNNER'}
+          $apk='C:\DND187\out\BRASEIRO_DND_6.6.4_RUN187_DEBUG.apk'
+          if(!(Test-Path $apk)){throw 'BUILT_APK_MISSING_ON_BRELGA'}
+          Write-Host "RUN187 apk byte size=$((Get-Item $apk).Length)"
+          if(!$env:ANDROID_HOME){$sdk="$env:LOCALAPPDATA\Android\Sdk";if(Test-Path $sdk){$env:ANDROID_HOME=$sdk}}
+          if(!$env:ANDROID_HOME){throw 'ANDROID_SDK_NOT_FOUND'}
+          Write-Host "SDK=$env:ANDROID_HOME"
+          Get-ChildItem "$env:ANDROID_HOME\build-tools" -Directory | Select-Object Name | Format-Table
+          $bt=Get-ChildItem "$env:ANDROID_HOME\build-tools" -Directory | Sort-Object {[version]$_.Name} -Descending | Select-Object -First 1
+          Write-Host "Selected build-tools=$($bt.FullName)"
+          Write-Host 'AAPT package identification:'
+          & "$($bt.FullName)\aapt.exe" dump badging $apk | Select-Object -First 2 | Out-Host
+          Write-Host 'APK signature direct verification diagnostic:'
+          $ErrorActionPreference='Continue'
+          $result= & "$($bt.FullName)\apksigner.bat" verify --verbose --print-certs $apk 2>&1
+          $apksignerExitCode=$LASTEXITCODE
+          $ErrorActionPreference='Stop'
+          foreach($line in $result){Write-Host "$line"}
+          Write-Host "APK_SIGNER_EXIT_CODE=$apksignerExitCode"
+          $resultText=($result|Out-String)
+          $resultText | Set-Content 'C:\DND187\out\RUN187_SIGNATURE_DIAGNOSTIC.txt' -Encoding UTF8
+          if($apksignerExitCode -ne 0){
+            Write-Host 'Alternate apksigner attempt with min-sdk 24:'
+            $ErrorActionPreference='Continue'
+            $alt= & "$($bt.FullName)\apksigner.bat" verify --min-sdk-version 24 --verbose --print-certs $apk 2>&1
+            $altcode=$LASTEXITCODE
+            $ErrorActionPreference='Stop'
+            foreach($line in $alt){Write-Host "$line"}
+            Write-Host "ALT_EXIT_CODE=$altcode"
+          }
+      - name: Upload diagnostic text
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: DND_RUN187_SIGNATURE_DIAGNOSTIC
+          path: C:\DND187\out\RUN187_SIGNATURE_DIAGNOSTIC.txt
+          if-no-files-found: warn
