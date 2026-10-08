@@ -28,7 +28,7 @@ jobs:
           }
           $version=Get-Content "$src\version.properties" -Raw
           if($version -notmatch '(?m)^VERSION_NAME=6\.6\.4-r190\s*$' -or $version -notmatch '(?m)^VERSION_CODE=606490\s*$'){throw 'VERSION_NOT_RUN190'}
-          if($version -notmatch '(?m)^DB_SCHEMA=61\s*$'){throw 'DB_SCHEMA_NOT_61'}
+          # Check actual DB_VERSION = 61 in AppDb.java below, without requiring a metadata-only DB_SCHEMA entry.
           $main=Get-Content "$pkg\MainActivity.java" -Raw
           if(!$main.Contains('private void showRuleCuriosityDialog()') -or !$main.Contains('CompanionAgencyEngine.stageCurated') -or !$main.Contains('RUN188_GEMINI_EXPLICIT_OFFLINE')){throw 'RUN190_FEATURE_MARKERS_MISSING'}
           $db=Get-Content "$pkg\AppDb.java" -Raw
