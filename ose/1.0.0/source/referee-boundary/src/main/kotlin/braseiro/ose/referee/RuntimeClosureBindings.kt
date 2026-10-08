@@ -438,10 +438,10 @@ object RuntimeClosureBindings {
         val retainerSheet=state.game.characters[npcId]
             ?: return blocked("MISSING_EVIDENCE:NPC_CANONICAL_SHEET:$npcId",true)
         if(level==0) return blocked("MISSING_EVIDENCE:RETAINER_LEVEL_ZERO_XP:$npcId",true)
-        if(retainerSheet.classIds.size!=1 || retainerSheet.classIds.single()!=npc.retainerClassId ||
-            retainerSheet.levelByClass[npc.retainerClassId]!=level)
-            return blocked("MISSING_EVIDENCE:NPC_RETAINER_CHARACTER_PROFILE:$npcId",true)
         val retainerClass=npc.retainerClassId ?: return blocked("MISSING_EVIDENCE:NPC_RETAINER_CLASS:$npcId",true)
+        if(retainerSheet.classIds.size!=1 || retainerSheet.classIds.single()!=retainerClass ||
+            retainerSheet.levelByClass[retainerClass]!=level)
+            return blocked("MISSING_EVIDENCE:NPC_RETAINER_CHARACTER_PROFILE:$npcId",true)
         val prime=retainerSheet.primeModifierPercentByClass[retainerClass]
             ?: return blocked("MISSING_EVIDENCE:NPC_RETAINER_PRIME_MODIFIER:$npcId",true)
         val progressionRow=ClassProgressionRuntimeRules.table(profile,retainerClass)?.row(level)
