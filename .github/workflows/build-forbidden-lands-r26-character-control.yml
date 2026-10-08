@@ -25,7 +25,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p incoming work output
-          curl -fsSL --retry 4 -X POST 'https://api.firestorage.ai/dev/file/shares/ZR1COXdwnX9eBMo3/files/01a1198509e27480bfd68b851a2f482f/download' -o incoming/response.json
+          curl -fsSL --retry 4 -X POST 'https://api.firestorage.ai/dev/file/shares/9uaRITcVeEmH/files/01a1198509e27480bfd68b851a2f482f/download' -o incoming/response.json
           python3 - <<'PY' > incoming/url.txt
           import json
           d=json.load(open('incoming/response.json'))
