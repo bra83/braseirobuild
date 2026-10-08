@@ -25,7 +25,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p incoming work output
-          curl -fsSL --retry 4 -X POST 'https://api.firestorage.ai/dev/file/shares/Zh22M01qDf5G/files/01a11980d44c70178f8dfc41452f21c9/download' -o incoming/response.json
+          curl -fsSL --retry 4 -X POST 'https://api.firestorage.ai/dev/file/shares/ZR1COXdwnX9eBMo3/files/01a1198509e27480bfd68b851a2f482f/download' -o incoming/response.json
           python3 - <<'PY' > incoming/url.txt
           import json
           d=json.load(open('incoming/response.json'))
@@ -33,7 +33,7 @@ jobs:
           print(d['downloadUrl'])
           PY
           curl -fsSL --retry 5 --retry-delay 2 --connect-timeout 30 -o incoming/source.zip "$(cat incoming/url.txt)"
-          echo '34010c07fb89efe0e2949116349ae91e539657907e25c9772b9baddec0d623ea  incoming/source.zip' | sha256sum -c -
+          echo '17e77c906fe5db615655bb23c80b5e12df448ab84cc912aad86fab2a87bb1412  incoming/source.zip' | sha256sum -c -
           unzip -q incoming/source.zip -d work
       - name: TypeScript, authority, RAG-off and image regression
         shell: bash
