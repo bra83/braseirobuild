@@ -45,7 +45,7 @@ class RetainerExperienceAwardTest {
             val recipientRemainder=TreasureXpRuntimeRules.planAward(profile,xp(profile,101))
             assertTrue(recipientRemainder.blocker?.contains("XP_SPLIT_REMAINDER")==true)
             val retainerHalfFraction=TreasureXpRuntimeRules.planAward(profile,xp(profile,102))
-            assertTrue(retainerHalfFraction.blocker?.contains("XP_INDIVIDUAL_FRACTION")==true)
+            assertTrue(retainerHalfFraction.blocker?.contains("XP_RETAINER_FRACTION")==true)
         }
     }
 
