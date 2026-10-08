@@ -33,6 +33,13 @@ object CharacterPartyAdministration {
             ).canonical()),
             inventory = inventory,
             loadouts = old.game.loadouts - characterId,
+            // Preserve XP history but make an archived sheet ineligible for future
+            // XP awards and level-ups. Existing recipients remain addressable.
+            experience = old.game.experience.copy(
+                recipients = old.game.experience.recipients.mapValues { (id, recipient) ->
+                    if (id == characterId) recipient.copy(surviving = false) else recipient
+                }
+            ).canonical(),
             expedition = movement.expedition,
             actionLog = old.game.actionLog + ActionLogEntry(
                 "CHARACTER_DELETE:$commandId",
