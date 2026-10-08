@@ -47,7 +47,7 @@ window.BraseiroReceive=(raw)=>{
   }
   else if(m.type==='CharacterCreationDraft'||m.type==='CharacterCreationResult'){if(p.viewState)viewState=p.viewState;if(m.type==='CharacterCreationResult'&&p.ok)creatingAdditionalCharacter=false;render();showToast(p.ok===false?'Não foi possível concluir a criação.':'Criação atualizada.');}
   else if(m.type==='CharacterSelectionResult'){if(p.viewState)viewState=p.viewState;editingCharacter=false;creatingAdditionalCharacter=false;screen='sheet';render();}
-  else if(m.type==='CharacterControlResult'||m.type==='MasterActionResult'){if(p.viewState)viewState=p.viewState;render();showToast(m.type==='CharacterControlResult'?'Controle do personagem atualizado.':'Decisão do Mestre atualizada.');}
+  else if(m.type==='CharacterControlResult'||m.type==='MasterActionResult'){if(p.viewState)viewState=p.viewState;render();showToast(p.ok===false?'A decisão do Mestre não foi concluída. O último turno do jogador continua salvo.':m.type==='CharacterControlResult'?'Controle do personagem atualizado.':'Decisão do Mestre atualizada.');}
   else if(m.type==='CharacterDeleteResult'){if(p.viewState)viewState=p.viewState;editingCharacter=false;creatingAdditionalCharacter=false;render();showToast('Ficha excluída da companhia; histórico preservado.');}
   else if(m.type==='UiCommandResult'){if(p.viewState)viewState=p.viewState;render();showToast(uiStatusMessage(p));}
   else if(m.type==='GMHelpResponse')showToast(p.answer||'Sem resposta do Mestre.');
