@@ -30,7 +30,7 @@ const document = {
     return elements.get(id);
   },
   querySelectorAll(selector) {
-    if (!/^\[data-(?:add-character|character-select|delete-character|cancel-add-character)\]$/.test(selector)) return [];
+    if (!/^\[data-(?:add-character|character-select|delete-character|cancel-add-character|retainer-proposal)\]$/.test(selector)) return [];
     const html = this.getElementById('screen').innerHTML;
     const key = selector + ':' + html;
     if (buttonCache.has(key)) return buttonCache.get(key);
@@ -72,11 +72,24 @@ const state = {
     {itemId:'item-only-first',ownerId:'char-first',catalogId:'STARTING_GOLD_GP',kind:'COIN',quantity:1},
     {itemId:'item-only-second',ownerId:'char-second',catalogId:'STARTING_GOLD_GP',kind:'COIN',quantity:1}
   ],
-  presentation:{}, loadout:null
+  presentation:{}, loadout:null,
+  retainers:[{npcId:'old-hire',name:'Antigo auxiliar',employerCharacterId:'char-first',dailyWageGp:1,treasureHalfShares:1,active:true}],
+  retainerCandidates:[{npcId:'local-candidate',name:'Candidato local'}]
 };
 window.BraseiroReceive(JSON.stringify({type:'ViewState',payload:state}));
 const companyHtml = document.getElementById('screen').innerHTML;
 assert.match(companyHtml,/ADICIONAR PERSONAGEM/);
+assert.match(companyHtml,/Auxiliares de aventura/);
+assert.match(companyHtml,/Antigo auxiliar/);
+assert.match(companyHtml,/data-retainer-proposal="local-candidate"/);
+document.getElementById('retainerDailyWage').value='1';
+document.getElementById('retainerTreasureHalves').value='1';
+const candidateButtons=document.querySelectorAll('[data-retainer-proposal]');
+assert.equal(candidateButtons.length,1);
+candidateButtons[0].onclick();
+assert.equal(messages.at(-1).type,'PlayerReaction');
+assert.equal(messages.at(-1).payload.mechanicalIntent,'RETAINER_RECRUIT:char-second:local-candidate:1:1');
+
 assert.match(companyHtml,/data-character-select="char-second"/);
 assert.match(companyHtml,/data-delete-character="char-first"/);
 assert.match(companyHtml,/data-delete-character="char-second"/);
