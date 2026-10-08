@@ -34,6 +34,22 @@ object AppViewStateProjector {
                 .put("lastPlayerReaction", game.session.lastPlayerReaction)
                 .put("pendingNarrationReactionId", game.session.pendingNarrationReactionId ?: JSONObject.NULL))
             .put("party", JSONArray(party.map(::characterSummary)))
+            .put("retainers", JSONArray(game.retainerContracts.values.sortedBy { it.npcId }.map { contract ->
+                JSONObject()
+                    .put("npcId", contract.npcId)
+                    .put("name", game.npcs[contract.npcId]?.name ?: contract.npcId)
+                    .put("employerCharacterId", contract.employerCharacterId)
+                    .put("dailyWageGp", contract.dailyWageGp)
+                    .put("treasureHalfShares", contract.treasureHalfShares)
+                    .put("active", contract.active)
+            }))
+            .put("retainerCandidates", JSONArray(game.npcs.values
+                .filter { npc -> npc.spatialRef == state.position.primary &&
+                    npc.retainerLevel != null &&
+                    npc.npcId in game.characters &&
+                    game.retainerContracts[npc.npcId]?.active != true }
+                .sortedBy { it.name }
+                .map { npc -> JSONObject().put("npcId", npc.npcId).put("name", npc.name) }))
             .put("selectedCharacterId", selected?.characterId ?: JSONObject.NULL)
             .put("selectedCharacter", selected?.let(::characterDetail) ?: JSONObject.NULL)
             .put("inventory", JSONArray(game.inventory.items.values

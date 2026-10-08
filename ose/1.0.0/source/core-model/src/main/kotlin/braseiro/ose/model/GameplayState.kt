@@ -205,8 +205,15 @@ import kotlinx.serialization.Serializable
     val knownFactIds: Set<String> = emptySet(),
     val reactionHistory: List<String> = emptyList(),
     val memorySummaries: List<String> = emptyList(),
-    val consequenceFlags: Set<String> = emptySet()
+    val consequenceFlags: Set<String> = emptySet(),
+    /** Explicitly sourced NPC adventurer level for retainer eligibility; null means not verified. */
+    val retainerLevel: Int? = null,
+    val retainerClassId: String? = null
 ) {
+    init {
+        require(retainerLevel == null || retainerLevel >= 0)
+        require(retainerLevel == null || retainerLevel == 0 || !retainerClassId.isNullOrBlank())
+    }
     fun canonical() = copy(
         knownFactIds = knownFactIds.toSortedSet(),
         reactionHistory = reactionHistory.toList(),
@@ -385,6 +392,10 @@ import kotlinx.serialization.Serializable
 @Serializable data class GameExtensions(
     val characters: Map<String, CharacterSnapshot> = emptyMap(),
     val creationDrafts: Map<String, CharacterCreationDraftSnapshot> = emptyMap(),
+    /** OSE retainers, distinct from mercenary military units and party PCs. */
+    val retainerContracts: Map<String, RetainerContractSnapshot> = emptyMap(),
+    /** Hiring a prospective adventurer can cause a -1 reaction penalty in the same area. */
+    val retainerOffendedLocations: Set<String> = emptySet(),
     val loadouts: Map<String, CharacterLoadoutSnapshot> = emptyMap(),
     val session: SessionSnapshot = SessionSnapshot(),
     val encounter: EncounterSnapshot? = null,
@@ -406,6 +417,8 @@ import kotlinx.serialization.Serializable
     fun canonical() = copy(
         characters = characters.toSortedMap().mapValues { it.value.canonical() },
         creationDrafts = creationDrafts.toSortedMap(),
+        retainerContracts = retainerContracts.toSortedMap(),
+        retainerOffendedLocations = retainerOffendedLocations.toSortedSet(),
         loadouts = loadouts.toSortedMap().mapValues { it.value.canonical() },
         session = session.canonical(),
         encounter = encounter?.canonical(),

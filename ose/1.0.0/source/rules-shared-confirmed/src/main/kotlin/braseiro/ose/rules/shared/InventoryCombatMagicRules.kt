@@ -393,13 +393,13 @@ object TreasureXpRuntimeRules {
         val pendingDefeats = experience.defeatedMonsters.values.filter { !it.xpAwarded }
 
         val profileMismatch = (pendingTreasures.map { it.profile } + pendingDefeats.map { it.profile } +
-            experience.recipients.values.filter { it.surviving }.map { it.profile }).firstOrNull { it != profile }
+            experience.recipients.values.filter { it.surviving && it.awardEligible }.map { it.profile }).firstOrNull { it != profile }
         if (profileMismatch != null) return XpPlanResult(blocker = "PROFILE_MISMATCH:$profileMismatch:$profile")
 
         val treasureXp = pendingTreasures.sumOf { if (it.magical) 0L else it.gpValue }
         val monsterXp = pendingDefeats.sumOf { it.boundXp }
         val total = treasureXp + monsterXp
-        val recipients = experience.recipients.values.filter { it.surviving }.sortedBy { it.recipientId }
+        val recipients = experience.recipients.values.filter { it.surviving && it.awardEligible }.sortedBy { it.recipientId }
         if (total == 0L) return XpPlanResult(
             plan = XpAwardPlan(nextAwardId(experience), emptyList(), 0L, emptyMap())
         )
@@ -424,9 +424,15 @@ object TreasureXpRuntimeRules {
                 if (percent !in allowedPrimeModifiers)
                     return XpPlanResult(blocker = "INVALID_PRIME_REQUISITE_MODIFIER:$classId:$percent")
                 val adjustedNumerator = rawClassShare * (100L + percent)
-                if (adjustedNumerator % 100L != 0L)
-                    return XpPlanResult(blocker = "MISSING_EVIDENCE:XP_PRIME_MODIFIER_FRACTION:${recipient.recipientId}:$classId:$adjustedNumerator/100")
-                deltas["${recipient.recipientId}:$classId"] = adjustedNumerator / 100L
+                // OSE retainers receive a -50% XP penalty (Classic Rules Tome,
+                // Retainers, p.57); apply it after each individual's primary
+                // requisite adjustment. Non-integral outcomes remain evidence-gated.
+                val divisor = if (recipient.retainer) 200L else 100L
+                if (adjustedNumerator % divisor != 0L)
+                    return XpPlanResult(blocker = if (recipient.retainer)
+                        "MISSING_EVIDENCE:XP_RETAINER_FRACTION:${recipient.recipientId}:$classId:$adjustedNumerator/$divisor"
+                    else "MISSING_EVIDENCE:XP_PRIME_MODIFIER_FRACTION:${recipient.recipientId}:$classId:$adjustedNumerator/$divisor")
+                deltas["${recipient.recipientId}:$classId"] = adjustedNumerator / divisor
             }
         }
         val sources = buildList {
