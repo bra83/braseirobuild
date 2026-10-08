@@ -429,7 +429,9 @@ object TreasureXpRuntimeRules {
                 // requisite adjustment. Non-integral outcomes remain evidence-gated.
                 val divisor = if (recipient.retainer) 200L else 100L
                 if (adjustedNumerator % divisor != 0L)
-                    return XpPlanResult(blocker = "MISSING_EVIDENCE:XP_INDIVIDUAL_FRACTION:${recipient.recipientId}:$classId:$adjustedNumerator/$divisor")
+                    return XpPlanResult(blocker = if (recipient.retainer)
+                        "MISSING_EVIDENCE:XP_RETAINER_FRACTION:${recipient.recipientId}:$classId:$adjustedNumerator/$divisor"
+                    else "MISSING_EVIDENCE:XP_PRIME_MODIFIER_FRACTION:${recipient.recipientId}:$classId:$adjustedNumerator/$divisor")
                 deltas["${recipient.recipientId}:$classId"] = adjustedNumerator / divisor
             }
         }
