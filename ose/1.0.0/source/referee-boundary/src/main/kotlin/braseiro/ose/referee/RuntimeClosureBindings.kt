@@ -246,6 +246,15 @@ object RuntimeClosureBindings {
         val synced=syncExperienceRecipients(envelope)
         if(synced.blocker!=null) return outcome(envelope.campaignState,"XP não distribuído: ${synced.blocker}","XP.PRIME_MOD",envelope.ruleProfile,EvidenceStatus.MISSING_EVIDENCE,"Character creation must freeze class-specific prime-requisite modifiers before XP is awarded.",false,false)
         val game=synced.state.game
+        val incompleteRetainer=game.retainerContracts.values.firstOrNull { contract ->
+            contract.active && game.experience.recipients[contract.npcId]?.let {
+                !it.retainer || !it.surviving || !it.awardEligible
+            } != false
+        }
+        if(incompleteRetainer!=null) return outcome(envelope.campaignState,
+            "XP não distribuído: MISSING_EVIDENCE:ACTIVE_RETAINER_XP_LEDGER:${incompleteRetainer.npcId}",
+            "XP.CORE",envelope.ruleProfile,EvidenceStatus.MISSING_EVIDENCE,
+            "GAME_SYSTEM_SPEC §§31.1,35: retainers must receive their exact XP share with -50% penalty.",false,false)
         val planned=TreasureXpRuntimeRules.planAward(envelope.ruleProfile,game.experience)
         if(!planned.success) return outcome(envelope.campaignState,"XP não distribuído: ${planned.blocker}","XP.CORE",envelope.ruleProfile,EvidenceStatus.MISSING_EVIDENCE,"Equal division is canonical; remainder/unspecified fractional handling must not be invented.",false,false)
         val plan=requireNotNull(planned.plan)
