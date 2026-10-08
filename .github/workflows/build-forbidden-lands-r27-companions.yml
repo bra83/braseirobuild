@@ -1,0 +1,85 @@
+name: Forbidden Lands R27 Autonomous Companions Android Build
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.github/workflows/build-forbidden-lands-r27-companions.yml'
+permissions:
+  contents: read
+jobs:
+  build-r27:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Download immutable R27 checkpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p incoming work output
+          curl -fsSL --retry 4 -X POST 'https://api.firestorage.ai/dev/file/shares/-J3xMoLOUTIa/files/01a11995103a746988a6dcdf4cbfaff5/download' -o incoming/response.json
+          python3 - <<'PY' >incoming/url.txt
+          import json
+          d=json.load(open('incoming/response.json'))
+          assert d.get('downloadUrl'),'Download URL missing'
+          print(d['downloadUrl'])
+          PY
+          curl -fsSL --retry 5 --retry-delay 2 --connect-timeout 30 -o incoming/source.zip "$(cat incoming/url.txt)"
+          echo '4cd1ed7a92ebb91c7fcc5685efda1662a188e0473251fc1b8b92b57050e9a844  incoming/source.zip' | sha256sum -c -
+          unzip -q incoming/source.zip -d work
+          test -f work/fl_r27_source/android/gradlew
+      - name: TypeScript plus R27/R26 and existing regression gates
+        shell: bash
+        working-directory: work/fl_r27_source
+        run: |
+          set -euo pipefail
+          npm install --package-lock=false --no-audit --no-fund --legacy-peer-deps
+          npm run lint
+          npm run verify:companion-autonomy-r27
+          npm run verify:character-control-r26
+          npm run verify:human-master-dynamic-r25
+          npm run verify:human-master-runtime
+          npm run verify:canonical-narrator-profile
+          node --import fake-indexeddb/auto -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-empty-rule-library-playthrough-r24.mjs
+          npm run verify:external-gemini-images
+          echo 'R27_TYPESCRIPT_AND_GATES=PASS' | tee ../../output/TEST_RESULTS.txt
+      - name: Build Android with fresh R27 web bundle
+        shell: bash
+        working-directory: work/fl_r27_source
+        run: |
+          set -euo pipefail
+          npm run android:sync
+          python3 - <<'PY'
+          import json
+          p='android/app/src/main/assets/public/braseiro-release-marker.json'
+          assert json.load(open(p))['version']=='3.3.23'
+          PY
+          cd android
+          chmod +x ./gradlew
+          ./gradlew :app:assembleDebug --no-daemon --stacktrace
+      - name: Validate and collect APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk=$(find work/fl_r27_source/android/app/build/outputs/apk/debug -type f -name '*.apk' | head -1)
+          test -f "$apk"
+          cp "$apk" output/BRASEIRO_FORBIDDEN_LANDS_3.3.23_R27_CI_DEBUG.apk
+          unzip -t output/*.apk >/dev/null
+          sha256sum output/*.apk >output/APK_SHA256.txt
+          grep -q 'versionCode 303923' work/fl_r27_source/android/app/build.gradle
+          grep -q 'versionName "3.3.23"' work/fl_r27_source/android/app/build.gradle
+          echo 'R27_ANDROID_BUILD=PASS' >>output/TEST_RESULTS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_FORBIDDEN_LANDS_R27_CI_APK
+          path: output/*
+          retention-days: 3
+          if-no-files-found: error
