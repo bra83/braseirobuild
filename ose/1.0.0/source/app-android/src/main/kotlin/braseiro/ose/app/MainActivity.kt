@@ -342,9 +342,6 @@ class MainActivity : Activity() {
                             val result = session.submitCharacterAction(
                                 CAMPAIGN_ID, reactionId, actorId, text, mechanicalIntent
                             )
-                            runCatching { advanceMasterCharacters("reaction:$reactionId") }.onFailure {
-                                android.util.Log.w("BraseiroOSE", "Autonomous party turn deferred; player action remains committed", it)
-                            }
                             val current = session.loadSession(CAMPAIGN_ID)
                             send(
                                 JSONObject().put("type", "SessionUpdate").put("payload", JSONObject()
@@ -356,13 +353,20 @@ class MainActivity : Activity() {
                                     .put("stateHash", CanonicalStateHash.sha256(current))
                                     .put("viewState", projectForUi(current)))
                             )
+                            if (current.campaignState.party.characterIds.any {
+                                    CharacterControlCoordinator.mode(current, it) != CharacterControlMode.PLAYER
+                                }) {
+                                runCatching { advanceMasterCharacters("reaction:$reactionId") }.onFailure {
+                                    android.util.Log.w("BraseiroOSE", "Autonomous party turn deferred; player action remains committed", it)
+                                }
+                                send(JSONObject().put("type", "MasterActionResult").put("payload", JSONObject()
+                                    .put("ok", true).put("viewState",
+                                        projectForUi(session.loadSession(CAMPAIGN_ID)))))
+                            }
                         }
 
                         "StartAdventure" -> {
                             val result = session.startAdventure(CAMPAIGN_ID)
-                            runCatching { advanceMasterCharacters("start:") }.onFailure {
-                                android.util.Log.w("BraseiroOSE", "Master opening actions deferred; opening remains committed", it)
-                            }
                             val current = session.loadSession(CAMPAIGN_ID)
                             send(JSONObject().put("type", "SessionUpdate").put("payload", JSONObject()
                                 .put("narration", result.narration)
@@ -372,6 +376,16 @@ class MainActivity : Activity() {
                                 .put("ruleTrace", traceJson(result.trace))
                                 .put("stateHash", CanonicalStateHash.sha256(current))
                                 .put("viewState", projectForUi(current))))
+                            if (current.campaignState.party.characterIds.any {
+                                    CharacterControlCoordinator.mode(current, it) != CharacterControlMode.PLAYER
+                                }) {
+                                runCatching { advanceMasterCharacters("start:") }.onFailure {
+                                    android.util.Log.w("BraseiroOSE", "Master opening actions deferred; opening remains committed", it)
+                                }
+                                send(JSONObject().put("type", "MasterActionResult").put("payload", JSONObject()
+                                    .put("ok", true).put("viewState",
+                                        projectForUi(session.loadSession(CAMPAIGN_ID)))))
+                            }
                         }
 
                         "GMHelp" -> {
