@@ -25,7 +25,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p incoming work output
-          curl -fsSL --retry 4 -X POST 'https://api.firestorage.ai/dev/file/shares/_RszAd7iQekU/files/01a1199fdf84764eab03b69c3fae99b4/download' -o incoming/response.json
+          curl -fsSL --retry 4 -X POST 'https://api.firestorage.ai/dev/file/shares/NjL1D7plKSAG/files/01a119a4b29c770b85fee6b5c73ea254/download' -o incoming/response.json
           python3 - <<'PY' >incoming/url.txt
           import json
           d=json.load(open('incoming/response.json'))
@@ -33,7 +33,7 @@ jobs:
           print(d['downloadUrl'])
           PY
           curl -fsSL --retry 5 --retry-delay 2 --connect-timeout 30 -o incoming/source.zip "$(cat incoming/url.txt)"
-          echo '079247353d8127c019c0b090ce9fde7e574f4312292275b6b4a75f98d4a6b8d9  incoming/source.zip' | sha256sum -c -
+          echo 'e5e778c2a90ab8787d6296bf3dccd86c2d774f78155718f4916811ec7fee7076  incoming/source.zip' | sha256sum -c -
           unzip -q incoming/source.zip -d work
           test -f work/fl_r27_source/android/gradlew
       - name: TypeScript plus R27/R26 and existing regression gates
