@@ -69,6 +69,14 @@ class CharacterControlModesTest {
         }
         CharacterControlCoordinator.requireActionAllowed(e, "gm", true, null, "ataco", "ataco")
         assertFailsWith<IllegalArgumentException> {
+            CharacterControlCoordinator.requireActionAllowed(e, "gm", true, null,
+                "levo o grupo", "WILD_TRAVEL_DAY:E")
+        }
+        assertFailsWith<IllegalArgumentException> {
+            CharacterControlCoordinator.requireActionAllowed(e, "gm", true, null,
+                "mudo a ficha", "XP_LEVEL_UP:player:FIGHTER")
+        }
+        assertFailsWith<IllegalArgumentException> {
             CharacterControlCoordinator.propose(e, "p-bad", "player", "escuto", "escuto")
         }
         assertFailsWith<IllegalArgumentException> {
