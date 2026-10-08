@@ -61,7 +61,7 @@ methods='''    // RUN189: independent persisted intent queue. Never commits effe
             if(owner)sql.setTransactionSuccessful();return true;
         }finally{if(owner)sql.endTransaction();}
     }
-    private void restoreCompanionProposals(SQLiteDatabase sql,JSONArray rows,Map<Long,Long> characterIdMap,String world){
+    private void restoreCompanionProposals(SQLiteDatabase sql,JSONArray rows,Map<Long,Long> characterIdMap,String world) throws Exception{
         ensureCompanionProposalsSchema(sql);sql.delete("companion_proposals","world_profile=?",new String[]{world});
         if(rows==null)return;
         for(int i=0;i<rows.length();i++){
@@ -81,7 +81,7 @@ db=replace(db,'"party_memberships","character_control_profiles","knowledge_facts
 
 m=replace(m,'new String[]{"Manual","Assistido","Companheiro","Automático em combate"}', 'new String[]{"EU CONTROLO","MESTRE CONTROLA","MESTRE COM CURADORIA"}','party_modes')
 m=replace(m,'new String[]{"Você","Sistema — rotina / combate assistido"},"system".equals(initialControl)?"Sistema — rotina / combate assistido":"Você"','new String[]{"EU CONTROLO","MESTRE CONTROLA","MESTRE COM CURADORIA"},controlLabel(initialControl)','hero_modes')
-assert m.count('f.controller.getSelectedItemPosition()==1?"system":"manual"')==2,'hero_save occurrences'; m=m.replace('f.controller.getSelectedItemPosition()==1?"system":"manual"','controlMode(String.valueOf(f.controller.getSelectedItem()))')
+assert m.count('f.controller!=null&&f.controller.getSelectedItemPosition()==1?"system":"manual"')==2,'hero_save occurrences'; m=m.replace('f.controller!=null&&f.controller.getSelectedItemPosition()==1?"system":"manual"','f.controller==null?"manual":controlMode(String.valueOf(f.controller.getSelectedItem()))')
 m=replace(m,'"Sistema: somente rotina reversível e de baixo risco. Em combate, o sistema sugere e você confirma. Uma fala ou ação que você escrever para este herói sempre prevalece naquele momento."','"EU CONTROLO: nenhuma ação sem comando seu. MESTRE CONTROLA: iniciativas motivadas, limitadas pela ficha e pelas regras. MESTRE COM CURADORIA: ações relevantes aguardam APROVAR / ALTERAR / RECUSAR."','hero_explanation')
 m=replace(m,'    private static String controlLabel(String mode){if("assisted".equals(mode))return "Assistido";if("companion".equals(mode))return "Companheiro";if("combat_auto".equals(mode))return "Automático em combate";return "Manual";}\n    private static String controlMode(String label){if("Assistido".equals(label))return "assisted";if("Companheiro".equals(label))return "companion";if("Automático em combate".equals(label))return "combat_auto";return "manual";}',
 '''    private static String controlLabel(String mode){String n=CompanionAgencyEngine.mode(mode);if("companion".equals(n))return "MESTRE CONTROLA";if("curated".equals(n))return "MESTRE COM CURADORIA";return "EU CONTROLO";}
