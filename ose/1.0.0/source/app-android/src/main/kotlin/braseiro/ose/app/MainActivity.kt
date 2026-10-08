@@ -923,10 +923,10 @@ class MainActivity : Activity() {
                 null else Regex("\\b[123]\\b").find(answer)?.value?.toIntOrNull()
             val index = (selectedNumber ?: (Math.floorMod(id.hashCode(), suggestions.size) + 1)) - 1
             val decision = suggestions[index]
-            val allMaster = ids.all { member ->
-                CharacterControlCoordinator.mode(current, member) == CharacterControlMode.MASTER
+            val groupActionPermitted = ids.all { member ->
+                member == id || CharacterControlCoordinator.mode(current, member) == CharacterControlMode.MASTER
             }
-            val intent = if (!allMaster && decision.mechanicalIntent?.startsWith("WILD_") == true)
+            val intent = if (!groupActionPermitted && decision.mechanicalIntent?.startsWith("WILD_") == true)
                 "PERSONAL_OBSERVATION" else (decision.mechanicalIntent ?: decision.reaction)
             val next = CharacterControlCoordinator.propose(
                 current, proposalId, id, decision.reaction, intent
