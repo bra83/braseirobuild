@@ -1,0 +1,102 @@
+name: Braseiro DnD RUN191 guided combat CI BRELGA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ci/dnd-run191/**'
+      - '.github/workflows/dnd-run191-guided-combat-brelga.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dnd-run191-guided-combat-brelga
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check canonical RUN190 and preserve it
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'NOT_CANONICAL_RUNNER'}
+          $source='C:\DND190\work'
+          $pkg=Join-Path $source 'android\app\src\main\java\com\braseiro\dnd5e'
+          if(!(Test-Path "$source\android\gradlew.bat")){throw 'RUN190_SOURCE_MISSING'}
+          if(!(Test-Path "$pkg\RuleCuriosityCatalog.java")){throw 'RUN190_CURIOSITY_MISSING'}
+          $version=Get-Content "$source\version.properties" -Raw
+          if($version -notmatch '(?m)^VERSION_NAME=6\.6\.4-r190\s*$' -or $version -notmatch '(?m)^VERSION_CODE=606490\s*$'){throw 'WRONG_RUN190_BASELINE'}
+          Write-Host 'BASELINE_RUN190_VERIFIED'
+      - name: Clone source to independent RUN191 temp workspace
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $dest=Join-Path $env:RUNNER_TEMP 'dnd-run191-guided-combat'
+          if(Test-Path $dest){throw 'DEST_EXISTS_DO_NOT_DELETE_WITHOUT_BACKUP'}
+          & robocopy 'C:\DND190\work' $dest /E /R:2 /W:1 /XJ /XD '.gradle' 'build' '.idea' | Out-Host
+          $rc=$LASTEXITCODE
+          if($rc -gt 7){throw "ROBOCOPY_FAILED_$rc"}
+          $global:LASTEXITCODE=0
+          if(!(Test-Path "$dest\android\gradlew.bat")){throw 'CLONE_MISSING_GRADLE'}
+          "RUN191_ROOT=$dest" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host 'SAFE_WORKSPACE_CLONE_SUCCESS'
+      - name: Patch and static regression tests, protect rule engines
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $pkg=Join-Path $env:RUN191_ROOT 'android\app\src\main\java\com\braseiro\dnd5e'
+          $protected=@('DndRulesEngine.java','CombatStateMachine.java','AppDb.java','RuleRetrievalPolicy.java','StateTransactionManager.java','CompanionAgencyEngine.java')
+          $sha=@{}
+          foreach($f in $protected){$sha[$f]=(Get-FileHash "$pkg\$f" -Algorithm SHA256).Hash}
+          python "$env:GITHUB_WORKSPACE\ci\dnd-run190\tests\test_run190.py" $env:RUN191_ROOT
+          if($LASTEXITCODE -ne 0){throw 'RUN190_REGRESSION_FAILED'}
+          python "$env:GITHUB_WORKSPACE\ci\dnd-run191\patch.py" $env:RUN191_ROOT
+          if($LASTEXITCODE -ne 0){throw 'RUN191_PATCH_FAILED'}
+          python "$env:GITHUB_WORKSPACE\ci\dnd-run191\tests\test_run191.py" $env:RUN191_ROOT
+          if($LASTEXITCODE -ne 0){throw 'RUN191_STATIC_GATES_FAILED'}
+          foreach($f in $protected){
+            if((Get-FileHash "$pkg\$f" -Algorithm SHA256).Hash -ne $sha[$f]){throw "RULE_ENGINE_REGRESSION_$f"}
+          }
+          $rows=Get-Content "$env:RUN191_ROOT\version.properties"
+          $rows=@($rows|ForEach-Object{if($_ -match '^VERSION_NAME='){'VERSION_NAME=6.6.4-r191'}elseif($_ -match '^VERSION_CODE='){'VERSION_CODE=606491'}else{$_}})
+          [IO.File]::WriteAllLines("$env:RUN191_ROOT\version.properties",$rows,(New-Object Text.UTF8Encoding($false)))
+          Write-Host 'RUN191_RULE_ENGINES_UNCHANGED_PASS'
+      - name: Compile and execute Android JVM tests
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){
+            $j='C:\Program Files\Android\Android Studio\jbr'
+            if(Test-Path "$j\bin\java.exe"){$env:JAVA_HOME=$j;$env:Path="$j\bin;$env:Path"}
+          }
+          if(!$env:ANDROID_HOME){$sdk="$env:LOCALAPPDATA\Android\Sdk";if(Test-Path $sdk){$env:ANDROID_HOME=$sdk}}
+          if(!$env:ANDROID_HOME){throw 'ANDROID_SDK_MISSING'}
+          $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          Set-Location "$env:RUN191_ROOT\android"
+          foreach($task in @(':app:compileDebugJavaWithJavac',':app:testDebugUnitTest',':app:assembleDebug')){
+            & .\gradlew.bat $task --no-daemon --console=plain --stacktrace
+            if($LASTEXITCODE -ne 0){throw "GRADLE_FAILED_$task"}
+          }
+          Write-Host 'RUN191_JAVA_AND_GRADLE_TESTS_PASS'
+      - name: Package CI evidence without publishing incomplete version
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $out=Join-Path $env:GITHUB_WORKSPACE 'run191-evidence'
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          $apk=Get-ChildItem "$env:RUN191_ROOT\android\app\build\outputs\apk\debug" -File -Filter '*.apk' | Select-Object -First 1
+          if(!$apk){throw 'APK_NOT_BUILT'}
+          Copy-Item $apk.FullName (Join-Path $out 'BRASEIRO_DND_6.6.4_RUN191_UNCERTIFIED_DEBUG.apk')
+          $digest=(Get-FileHash (Join-Path $out 'BRASEIRO_DND_6.6.4_RUN191_UNCERTIFIED_DEBUG.apk') -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$digest  BRASEIRO_DND_6.6.4_RUN191_UNCERTIFIED_DEBUG.apk" | Set-Content (Join-Path $out 'RUN191_APK.sha256') -Encoding ascii
+          @('RUNNER=BRELGA','BASELINE=6.6.4-r190','RUN191_PATCH=APPLIED','STATIC_CONTRACT_TESTS=PASS','ANDROID_JAVA_COMPILE=PASS','ANDROID_JVM_TESTS=PASS','DEVICE_END_TO_END_TEST=NOT_RUN','UI_INSTRUMENTATION_TEST=NOT_RUN','FULL_BOOK_SCOPE_CERTIFIED=false','APPLIED_CHANGE=GUIDED_COMBAT_DURATION_EDITOR_AND_INITIATIVE_PREVIEW') | Set-Content (Join-Path $out 'RUN191_PROOF.txt') -Encoding utf8
+          Write-Host 'CANDIDATE_ONLY_DO_NOT_PUBLISH_AS_FINAL'
+      - name: Preserve unshipped build for further tests
+        uses: actions/upload-artifact@v4
+        with:
+          name: DND_RUN191_UNCERTIFIED_CANDIDATE
+          path: run191-evidence/*
+          if-no-files-found: error
+          retention-days: 14
