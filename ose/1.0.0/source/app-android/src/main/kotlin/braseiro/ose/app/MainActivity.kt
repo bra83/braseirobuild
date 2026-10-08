@@ -800,6 +800,72 @@ class MainActivity : Activity() {
                                 .put("viewState",projectForUi(persisted))))
                         }
 
+                        "CharacterControlSet" -> {
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            val id = payload.getString("characterId").trim()
+                            val mode = CharacterControlMode.valueOf(payload.getString("mode").trim())
+                            val next = CharacterControlCoordinator.setMode(current, id, mode)
+                            if (next != current) repository.commit(CAMPAIGN_ID, StateTransition(
+                                "character-control:" + id + ":" + java.util.UUID.randomUUID(),
+                                next.campaignState
+                            ))
+                            val updated = session.loadSession(CAMPAIGN_ID)
+                            send(JSONObject().put("type", "CharacterControlResult").put("payload", JSONObject()
+                                .put("ok", true).put("characterId", id).put("mode", mode.name)
+                                .put("viewState", projectForUi(updated))))
+                        }
+
+                        "MasterActionPropose" -> {
+                            val actorId = payload.getString("characterId").trim()
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            require(CharacterControlCoordinator.mode(current, actorId) != CharacterControlMode.PLAYER) {
+                                "CHARACTER_PLAYER_CONTROLLED"
+                            }
+                            val proposalId = payload.optString("proposalId", "").trim()
+                                .ifBlank { "manual:" + java.util.UUID.randomUUID() }
+                            val text = payload.getString("text").trim()
+                            val intent = payload.optString("mechanicalIntent", "").trim().ifBlank { text }
+                            val next = CharacterControlCoordinator.propose(current, proposalId, actorId, text, intent)
+                            if (next != current) repository.commit(CAMPAIGN_ID, StateTransition(
+                                "master-propose:" + proposalId, next.campaignState
+                            ))
+                            if (CharacterControlCoordinator.mode(next, actorId) == CharacterControlMode.MASTER) {
+                                executeMasterProposal(proposalId)
+                            }
+                            val updated = session.loadSession(CAMPAIGN_ID)
+                            send(JSONObject().put("type", "MasterActionResult").put("payload", JSONObject()
+                                .put("ok", true).put("viewState", projectForUi(updated))))
+                        }
+
+                        "MasterActionReview" -> {
+                            val proposalId = payload.getString("proposalId").trim()
+                            val approve = payload.getBoolean("approve")
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            val editedText = payload.optString("editedText", "").trim().takeIf { it.isNotBlank() }
+                            val editedIntent = payload.optString("editedIntent", "").trim().takeIf { it.isNotBlank() }
+                            val next = CharacterControlCoordinator.review(
+                                current, proposalId, approve, editedText, editedIntent
+                            )
+                            if (next != current) repository.commit(CAMPAIGN_ID, StateTransition(
+                                "master-review:" + proposalId, next.campaignState
+                            ))
+                            if (approve) executeMasterProposal(proposalId)
+                            val updated = session.loadSession(CAMPAIGN_ID)
+                            send(JSONObject().put("type", "MasterActionResult").put("payload", JSONObject()
+                                .put("ok", true).put("approved", approve)
+                                .put("viewState", projectForUi(updated))))
+                        }
+
+                        "MasterActionContinue" -> {
+                            val only = payload.optString("characterId", "").trim()
+                            advanceMasterCharacters(
+                                "continue:" + java.util.UUID.randomUUID(),
+                                only.takeIf { it.isNotBlank() }
+                            )
+                            send(JSONObject().put("type", "MasterActionResult").put("payload", JSONObject()
+                                .put("ok", true).put("viewState", projectForUi(session.loadSession(CAMPAIGN_ID)))))
+                        }
+
                         "CharacterSelect" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
                             storeSelectedCharacterId(current, payload.getString("characterId").trim())
