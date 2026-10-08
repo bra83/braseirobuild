@@ -33,6 +33,12 @@ object CharacterPartyAdministration {
             ).canonical()),
             inventory = inventory,
             loadouts = old.game.loadouts - characterId,
+            characterControlModes = old.game.characterControlModes - characterId,
+            characterActionProposals = old.game.characterActionProposals.mapValues { (_, p) ->
+                if (p.characterId == characterId && p.status in setOf(
+                    CharacterActionApproval.PENDING, CharacterActionApproval.APPROVED
+                )) p.copy(status = CharacterActionApproval.REJECTED) else p
+            },
             // Preserve XP history but make an archived sheet ineligible for future
             // XP awards and level-ups. Existing recipients remain addressable.
             experience = old.game.experience.copy(
