@@ -741,6 +741,54 @@ class MainActivity : Activity() {
                                 .put("stateHash", CanonicalStateHash.sha256(persisted)).put("viewState", projectForUi(persisted))))
                         }
 
+                        "CharacterDelete" -> {
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            val id = payload.getString("characterId").trim()
+                            val commandId = payload.getString("commandId").trim()
+                            require(id.isNotBlank() && commandId.isNotBlank()) { "INVALID_CHARACTER_COMMAND" }
+                            val old = current.campaignState
+                            val character = old.game.characters[id] ?: error("UNKNOWN_CHARACTER_ID")
+                            if (id in old.party.characterIds) {
+                                repository.checkpoint(CAMPAIGN_ID, "before-delete-$id-${System.currentTimeMillis()}")
+                                val survivorIds = old.party.characterIds.filterNot { it == id }
+                                val inventory = old.game.inventory.copy(
+                                    items = old.game.inventory.items.filterValues { it.ownerId != id },
+                                    basicSignificantTreasureOwners = old.game.inventory.basicSignificantTreasureOwners - id
+                                ).canonical()
+                                val expedition = old.game.expedition.copy(
+                                    lightSources = old.game.expedition.lightSources.filterNot { it.carrierId == id }
+                                )
+                                val nextGame = old.game.copy(
+                                    characters = old.game.characters + (id to character.copy(
+                                        flags = character.flags + "ARCHIVED_DELETED"
+                                    ).canonical()),
+                                    inventory = inventory,
+                                    loadouts = old.game.loadouts - id,
+                                    expedition = expedition,
+                                    actionLog = old.game.actionLog + ActionLogEntry(
+                                        "CHARACTER_DELETE:$commandId", "CAMPAIGN_ADMIN",
+                                        "Ficha $id excluída da companhia (registro histórico preservado)", emptyList()
+                                    ),
+                                    revision = old.game.revision + 1
+                                )
+                                val derived = braseiro.ose.rules.shared.InventoryRuntimeRules.derivePartyExpedition(
+                                    current.ruleProfile, current.optionSet, survivorIds, inventory, expedition
+                                )
+                                repository.commit(CAMPAIGN_ID, StateTransition(
+                                    "character-delete:$commandId",
+                                    old.copy(party = PartyState(survivorIds),
+                                        game = nextGame.copy(expedition = derived.expedition).canonical())
+                                ))
+                            } else {
+                                require("ARCHIVED_DELETED" in character.flags) { "UNKNOWN_CHARACTER_ID" }
+                            }
+                            val persisted = session.loadSession(CAMPAIGN_ID)
+                            storeSelectedCharacterId(persisted, selectedCharacterId(persisted))
+                            send(JSONObject().put("type","CharacterDeleteResult").put("payload",JSONObject()
+                                .put("ok",true).put("characterId",id)
+                                .put("viewState",projectForUi(persisted))))
+                        }
+
                         "CharacterSelect" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
                             storeSelectedCharacterId(current, payload.getString("characterId").trim())
