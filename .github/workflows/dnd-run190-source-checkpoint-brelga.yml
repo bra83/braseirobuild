@@ -86,7 +86,7 @@ jobs:
           (out/"RUN190_SOURCE_MANIFEST.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding="utf8")
           (out/"RUN190_SOURCE_CHECKPOINT_PROOF.txt").write_text("RUNNER=BRELGA\nRUN190_SOURCE_RESTORED=PASS\nNO_CANONICAL_SOURCE_MUTATION=PASS\nRUN190_STATIC_TESTS=PASS\nZIP_INTEGRITY=PASS\nDEVICE_TEST=NOT_RUN\nALL_BOOK_MECHANICS_CERTIFIED=false\n",encoding="utf8")
           print("RUN190_SOURCE_ARCHIVE_PASS",len(files),sha,dst.stat().st_size)
-'@
+          '@
           [IO.File]::WriteAllText((Join-Path $env:RUNNER_TEMP 'checkpoint-run190.py'),$script,(New-Object Text.UTF8Encoding($false)))
           python (Join-Path $env:RUNNER_TEMP 'checkpoint-run190.py') $src $out
           if($LASTEXITCODE -ne 0){throw 'RUN190_SOURCE_ARCHIVE_FAILED'}
