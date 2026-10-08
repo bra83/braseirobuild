@@ -59,4 +59,15 @@ class RetainerMercenaryRulesTest {
         assertNull(rules.divideTreasureExactly(11L,2,listOf(1)))
         assertEquals(20L,assertNotNull(rules.divideTreasureExactly(20L,1,emptyList())).playerShareGp)
     }
+
+    @Test fun dailyWageQuoteUsesCanonicalDaysAndNeverInventsHistoricDebt() {
+        val r=RetainerMercenaryRules
+        assertEquals("MISSING_EVIDENCE:LEGACY_WAGE_BASELINE",r.quoteDailyWage(5,null,10).blocker)
+        assertEquals(0L,r.quoteDailyWage(5,10,10).amountGp)
+        assertEquals(15L,r.quoteDailyWage(5,10,13).amountGp)
+        assertEquals(3L,r.quoteDailyWage(0,10,13).daysOwed)
+        assertEquals(0L,r.quoteDailyWage(0,10,13).amountGp)
+        assertEquals("CLOCK_BEFORE_LAST_PAYMENT",r.quoteDailyWage(5,11,10).blocker)
+        assertEquals("WAGE_OVERFLOW",r.quoteDailyWage(Int.MAX_VALUE,0,Long.MAX_VALUE).blocker)
+    }
 }
