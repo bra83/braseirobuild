@@ -435,8 +435,26 @@ object RuntimeClosureBindings {
             if(ClassProgressionRuntimeRules.table(profile,cls)?.row(level)==null)
                 return blocked("MISSING_EVIDENCE:NPC_RETAINER_CLASS_LEVEL:$cls:$level",true)
         }
-        if(state.game.retainerContracts[npcId]?.active==true)
+        val retainerSheet=state.game.characters[npcId]
+            ?: return blocked("MISSING_EVIDENCE:NPC_CANONICAL_SHEET:$npcId",true)
+        if(level==0) return blocked("MISSING_EVIDENCE:RETAINER_LEVEL_ZERO_XP:$npcId",true)
+        if(retainerSheet.classIds.size!=1 || retainerSheet.classIds.single()!=npc.retainerClassId ||
+            retainerSheet.levelByClass[npc.retainerClassId]!=level)
+            return blocked("MISSING_EVIDENCE:NPC_RETAINER_CHARACTER_PROFILE:$npcId",true)
+        val retainerClass=npc.retainerClassId ?: return blocked("MISSING_EVIDENCE:NPC_RETAINER_CLASS:$npcId",true)
+        val prime=retainerSheet.primeModifierPercentByClass[retainerClass]
+            ?: return blocked("MISSING_EVIDENCE:NPC_RETAINER_PRIME_MODIFIER:$npcId",true)
+        val progressionRow=ClassProgressionRuntimeRules.table(profile,retainerClass)?.row(level)
+            ?: return blocked("MISSING_EVIDENCE:NPC_RETAINER_PROGRESSION:$npcId",true)
+        if(state.game.experience.recipients[npcId]?.retainer==false)
+            return blocked("NPC já possui livro-razão XP de outro tipo.")
+        val existingContract=state.game.retainerContracts[npcId]
+        if(existingContract?.active==true)
             return blocked("Candidato já está contratado.")
+        if(existingContract?.employerCharacterId==employerId &&
+            existingContract.lastLoyaltyCheckReason=="AFTER_ADVENTURE" &&
+            existingContract.failedLoyaltyChecks>0)
+            return blocked("Auxiliar não aceita retornar ao empregador após romper o contrato.")
         val cha=RetainerMercenaryRules.charisma(employer.attributes.cha)
         val already=state.game.retainerContracts.values.count {
             it.active && it.employerCharacterId==employerId
@@ -452,6 +470,19 @@ object RuntimeClosureBindings {
             loyalty=(cha.baseLoyalty+result.loyaltyBonus).coerceIn(2,12),
             hiredAtTurn=state.time.turns
         ) else null
+        val xpRecipient=if(gained!=null) XpRecipientSnapshot(
+            recipientId=npcId, profile=profile, retainer=true,
+            classIds=retainerSheet.classIds,
+            primeModifierPercentByClass=mapOf(retainerClass to prime),
+            xpByClass=retainerSheet.xpByClass, levelByClass=retainerSheet.levelByClass,
+            constitutionModifier=SharedConfirmedRules.attributeModifier(retainerSheet.attributes.con),
+            progressionByClass=mapOf(retainerClass to AppliedClassProgressionSnapshot(
+                retainerClass, progressionRow.level, progressionRow.xpThreshold,
+                progressionRow.hitDiceExpression, progressionRow.thac0,
+                progressionRow.attackBonusAscending, progressionRow.saves,
+                progressionRow.spellSlots, progressionRow.sourceId
+            ))
+        ) else null
         val nextNpc=npc.copy(
             reactionHistory=npc.reactionHistory+"RETAINER_RECRUIT:${result.outcome}:${result.effectiveTotal}",
             consequenceFlags=if(result.accepted) npc.consequenceFlags+"RETAINER_ACTIVE" else npc.consequenceFlags
@@ -460,6 +491,9 @@ object RuntimeClosureBindings {
         val nextGame=game.copy(
             npcs=game.npcs+(npcId to nextNpc),
             retainerContracts=if(gained!=null) game.retainerContracts+(npcId to gained) else game.retainerContracts,
+            experience=if(xpRecipient!=null) game.experience.copy(
+                recipients=game.experience.recipients+(npcId to xpRecipient)
+            ).canonical() else game.experience,
             retainerOffendedLocations=if(result.outcome==RetainerMercenaryRules.RecruitmentOutcome.OFFENDED)
                 game.retainerOffendedLocations+region else game.retainerOffendedLocations,
             actionLog=game.actionLog+ActionLogEntry(
@@ -508,6 +542,11 @@ object RuntimeClosureBindings {
         )?.canonical()
         val next=game.copy(
             retainerContracts=game.retainerContracts+(npcId to updated),
+            experience=if(departed) game.experience.copy(
+                recipients=game.experience.recipients.mapValues { (id, entry) ->
+                    if(id==npcId) entry.copy(awardEligible=false) else entry
+                }
+            ).canonical() else game.experience,
             npcs=if(updateNpc==null) game.npcs else game.npcs+(npcId to updateNpc),
             actionLog=game.actionLog+ActionLogEntry(
                 "RETAINER_LOYALTY:${game.revision}:$npcId","RETAINER",
