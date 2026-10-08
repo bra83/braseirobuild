@@ -52,6 +52,11 @@ jobs:
           node --check ose/1.0.0/source/web-ui-p1/multiple_character_smoke.js
           node --check ose/1.0.0/source/web-ui-p1/character_control_smoke.js
 
+      - name: OSE corpus audit integrity (not proof of full coverage)
+        run: |
+          node --check ose/1.0.0/source/scripts/verify-ose-full-corpus.cjs
+          node ose/1.0.0/source/scripts/verify-ose-full-corpus.cjs
+
       - name: WebView multi-character smoke
         run: |
           node ose/1.0.0/source/web-ui-p1/multiple_character_smoke.js
