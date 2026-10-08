@@ -356,11 +356,14 @@ class MainActivity : Activity() {
                             if (current.campaignState.party.characterIds.any {
                                     CharacterControlCoordinator.mode(current, it) != CharacterControlMode.PLAYER
                                 }) {
-                                runCatching { advanceMasterCharacters("reaction:$reactionId") }.onFailure {
+                                val autonomous = runCatching { advanceMasterCharacters("reaction:$reactionId") }
+                                autonomous.onFailure {
                                     android.util.Log.w("BraseiroOSE", "Autonomous party turn deferred; player action remains committed", it)
                                 }
                                 send(JSONObject().put("type", "MasterActionResult").put("payload", JSONObject()
-                                    .put("ok", true).put("viewState",
+                                    .put("ok", autonomous.isSuccess)
+                                    .put("error", autonomous.exceptionOrNull()?.let(::safeError) ?: JSONObject.NULL)
+                                    .put("viewState",
                                         projectForUi(session.loadSession(CAMPAIGN_ID)))))
                             }
                         }
@@ -379,11 +382,14 @@ class MainActivity : Activity() {
                             if (current.campaignState.party.characterIds.any {
                                     CharacterControlCoordinator.mode(current, it) != CharacterControlMode.PLAYER
                                 }) {
-                                runCatching { advanceMasterCharacters("start:") }.onFailure {
+                                val autonomous = runCatching { advanceMasterCharacters("start:") }
+                                autonomous.onFailure {
                                     android.util.Log.w("BraseiroOSE", "Master opening actions deferred; opening remains committed", it)
                                 }
                                 send(JSONObject().put("type", "MasterActionResult").put("payload", JSONObject()
-                                    .put("ok", true).put("viewState",
+                                    .put("ok", autonomous.isSuccess)
+                                    .put("error", autonomous.exceptionOrNull()?.let(::safeError) ?: JSONObject.NULL)
+                                    .put("viewState",
                                         projectForUi(session.loadSession(CAMPAIGN_ID)))))
                             }
                         }
