@@ -580,16 +580,20 @@ class MainActivity : Activity() {
                             val current = session.loadSession(CAMPAIGN_ID)
                             // Gemini credentials are in noBackupFilesDir and not part of CampaignEnvelope/BackupCodec.
                             send(JSONObject().put("type","BackupExportResult").put("payload",JSONObject()
-                                .put("campaignId",current.campaignId.value).put("backup",BackupCodec.exportCampaign(current))))
+                                .put("campaignId",current.campaignId.value).put("backup",BackupCodec.exportCampaign(current, selectedCharacterId(current)))))
                         }
 
                         "BackupImport" -> {
-                            val imported = BackupCodec.importCampaign(payload.getString("backup"))
+                            val backupText = payload.getString("backup")
+                            val imported = BackupCodec.importCampaign(backupText)
                             require(imported.campaignId == CAMPAIGN_ID) { "Backup campaign id mismatch" }
                             val policy = braseiro.ose.rules.api.OptionPolicyContract.resolve(imported.ruleProfile, imported.optionSet)
                             require(policy.valid) { "Invalid backup option policy: ${policy.errors.joinToString()}" }
                             repository.replace(imported)
                             val current = session.loadSession(CAMPAIGN_ID)
+                            val restoredSelection = BackupCodec.selectedCharacterId(backupText)
+                                ?.takeIf { it in current.campaignState.party.characterIds }
+                            storeSelectedCharacterId(current, restoredSelection)
                             send(JSONObject().put("type","BackupImportResult").put("payload",JSONObject()
                                 .put("ok",true).put("campaignId",current.campaignId.value)
                                 .put("stateHash",CanonicalStateHash.sha256(current)).put("viewState",projectForUi(current))))
