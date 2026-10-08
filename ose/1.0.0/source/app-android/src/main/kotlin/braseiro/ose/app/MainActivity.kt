@@ -173,6 +173,7 @@ class MainActivity : Activity() {
                         val imported = importCharacterSheet(current, raw)
                         repository.commit(CAMPAIGN_ID, StateTransition("character-import-${System.currentTimeMillis()}", imported.campaignState))
                         val persisted = session.loadSession(CAMPAIGN_ID)
+                        storeSelectedCharacterId(persisted, imported.campaignState.party.characterIds.last())
                         send(JSONObject().put("type","CharacterSheetImportResult").put("payload",JSONObject().put("ok",true).put("viewState",projectForUi(persisted))))
                     } catch (t: Throwable) {
                         send(JSONObject().put("type","BridgeError").put("payload",JSONObject().put("message",safeError(t))))
@@ -598,6 +599,7 @@ class MainActivity : Activity() {
                             val (createdEnvelope, createdCharacter) = createRandomCharacter(current)
                             repository.commit(CAMPAIGN_ID, StateTransition("character-random:${createdCharacter.characterId}", createdEnvelope.campaignState))
                             val persisted = session.loadSession(CAMPAIGN_ID)
+                            storeSelectedCharacterId(persisted, createdCharacter.characterId)
                             send(JSONObject().put("type","CharacterCreationResult").put("payload",JSONObject()
                                 .put("ok",true).put("random",true).put("characterId",createdCharacter.characterId).put("name",createdCharacter.name)
                                 .put("stateHash",CanonicalStateHash.sha256(persisted)).put("viewState",projectForUi(persisted))))
@@ -712,6 +714,7 @@ class MainActivity : Activity() {
                                 is CharacterCreationResult.Created -> {
                                     if (outcome.stateChanged) repository.commit(CAMPAIGN_ID,StateTransition("character-create:$characterId",outcome.envelope.campaignState))
                                     val persisted = session.loadSession(CAMPAIGN_ID)
+                                    storeSelectedCharacterId(persisted, result.character.characterId)
                                     send(JSONObject().put("type","CharacterCreationResult").put("payload",JSONObject()
                                         .put("ok",true).put("characterId",result.character.characterId).put("name",result.character.name)
                                         .put("stateHash",CanonicalStateHash.sha256(persisted)).put("viewState",projectForUi(persisted))))
