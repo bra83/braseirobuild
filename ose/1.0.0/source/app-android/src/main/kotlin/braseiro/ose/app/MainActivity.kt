@@ -342,7 +342,9 @@ class MainActivity : Activity() {
                             val result = session.submitCharacterAction(
                                 CAMPAIGN_ID, reactionId, actorId, text, mechanicalIntent
                             )
-                            advanceMasterCharacters("reaction:$reactionId")
+                            runCatching { advanceMasterCharacters("reaction:$reactionId") }.onFailure {
+                                android.util.Log.w("BraseiroOSE", "Autonomous party turn deferred; player action remains committed", it)
+                            }
                             val current = session.loadSession(CAMPAIGN_ID)
                             send(
                                 JSONObject().put("type", "SessionUpdate").put("payload", JSONObject()
@@ -358,7 +360,9 @@ class MainActivity : Activity() {
 
                         "StartAdventure" -> {
                             val result = session.startAdventure(CAMPAIGN_ID)
-                            advanceMasterCharacters("start:")
+                            runCatching { advanceMasterCharacters("start:") }.onFailure {
+                                android.util.Log.w("BraseiroOSE", "Master opening actions deferred; opening remains committed", it)
+                            }
                             val current = session.loadSession(CAMPAIGN_ID)
                             send(JSONObject().put("type", "SessionUpdate").put("payload", JSONObject()
                                 .put("narration", result.narration)
@@ -1429,7 +1433,7 @@ class MainActivity : Activity() {
         val message = t.message.orEmpty()
         return when {
             message.startsWith("GEMINI_") -> message
-            message in setOf("EMPTY_GEMINI_KEY", "GEMINI_KEY_TOO_LONG", "INVALID_GEMINI_MODEL", "INVALID_TTS_VOICE", "UNKNOWN_GEMINI_CREDENTIAL_SLOT", "UNKNOWN_TTS_COMMAND", "EMPTY_VISIBLE_NARRATION", "INVALID_IMAGE_DATA_URL", "IMAGE_SIZE_INVALID", "UNSUPPORTED_IMAGE_TYPE", "UNKNOWN_CHARACTER_ID", "UNKNOWN_NPC_ID", "UNKNOWN_ITEM_ID", "UNSUPPORTED_PRESENTATION_SCOPE", "UNSUPPORTED_PORTRAIT_KIND", "UNKNOWN_UI_COMMAND", "INVALID_DIE", "INVALID_DICE_COUNT", "INVALID_DICE_MODIFIER", "NO_CHARACTER", "CHARACTER_ALREADY_EXISTS", "RANDOM_CHARACTER_NO_VALID_CLASS", "INVALID_CHARACTER_SHEET", "CHARACTER_PROFILE_MISMATCH", "CHARACTER_ID_EXISTS", "CHARACTER_ITEM_PROFILE_MISMATCH", "ITEM_ID_EXISTS", "INVALID_CHARACTER_NAME", "CHARACTER_RECREATE_AFTER_START", "INVALID_CHARACTER_COMMAND", "CHARACTER_COMMAND_ALREADY_APPLIED", "CHARACTER_SELECTION_SAVE_FAILED", "CHARACTER_PLAYER_CONTROLLED", "CHARACTER_MASTER_CONTROLLED", "CHARACTER_CURATOR_APPROVAL_REQUIRED", "CHARACTER_NOT_CURATED", "UNKNOWN_PROPOSAL", "INVALID_PROPOSAL_ID", "INVALID_PROPOSAL_CONTENT", "PROPOSAL_ID_COLLISION", "PROPOSAL_ALREADY_REVIEWED") -> message
+            message in setOf("EMPTY_GEMINI_KEY", "GEMINI_KEY_TOO_LONG", "INVALID_GEMINI_MODEL", "INVALID_TTS_VOICE", "UNKNOWN_GEMINI_CREDENTIAL_SLOT", "UNKNOWN_TTS_COMMAND", "EMPTY_VISIBLE_NARRATION", "INVALID_IMAGE_DATA_URL", "IMAGE_SIZE_INVALID", "UNSUPPORTED_IMAGE_TYPE", "UNKNOWN_CHARACTER_ID", "UNKNOWN_NPC_ID", "UNKNOWN_ITEM_ID", "UNSUPPORTED_PRESENTATION_SCOPE", "UNSUPPORTED_PORTRAIT_KIND", "UNKNOWN_UI_COMMAND", "INVALID_DIE", "INVALID_DICE_COUNT", "INVALID_DICE_MODIFIER", "NO_CHARACTER", "CHARACTER_ALREADY_EXISTS", "RANDOM_CHARACTER_NO_VALID_CLASS", "INVALID_CHARACTER_SHEET", "CHARACTER_PROFILE_MISMATCH", "CHARACTER_ID_EXISTS", "CHARACTER_ITEM_PROFILE_MISMATCH", "ITEM_ID_EXISTS", "INVALID_CHARACTER_NAME", "CHARACTER_RECREATE_AFTER_START", "INVALID_CHARACTER_COMMAND", "CHARACTER_COMMAND_ALREADY_APPLIED", "CHARACTER_SELECTION_SAVE_FAILED", "CHARACTER_PLAYER_CONTROLLED", "CHARACTER_MASTER_CONTROLLED", "CHARACTER_CURATOR_APPROVAL_REQUIRED", "CHARACTER_NOT_CURATED", "UNKNOWN_PROPOSAL", "INVALID_PROPOSAL_ID", "INVALID_PROPOSAL_CONTENT", "PROPOSAL_ID_COLLISION", "PROPOSAL_ALREADY_REVIEWED", "CHARACTER_ACTOR_PROTECTED", "GROUP_ACTION_REQUIRES_PLAYER_DECISION") -> message
             else -> t::class.java.simpleName
         }
     }
