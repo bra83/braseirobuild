@@ -284,12 +284,22 @@ function renderMasterContinue(){
  const controlled=(viewState?.party||[]).filter(m=>m.controlMode==='MASTER'||m.controlMode==='CURATED');
  return controlled.length?'<div class="panel"><h3>Personagens do Mestre</h3><p class="note">O Mestre age automaticamente após suas ações. Também é possível solicitar uma rodada de decisões.</p><button class="secondary" data-master-continue>CONTINUAR AÇÕES DO MESTRE</button></div>':'';
 }
+function renderRetainerWage(r, actor) {
+ const dueDays=Number(r.wageDueDays||0), dueGp=Number(r.wageDueGp||0);
+ const note=r.wageLedgerNeedsBaseline ? 'Histórico antigo precisa ser reconciliado pelo árbitro'
+  : 'Pago: '+Number(r.totalWagesPaidGp||0)+' po; pendente: '+dueGp+' po ('+dueDays+' dias)';
+ const button=r.employerCharacterId!==actor ? '' : r.wageLedgerNeedsBaseline
+  ? '<button class="secondary" data-retainer-baseline="'+esc(r.npcId)+'">RECONCILIAR HISTÓRICO</button>'
+  : dueDays>0 ? '<button class="secondary" data-retainer-pay="'+esc(r.npcId)+'">PAGAR DIÁRIAS</button>' : '';
+ return '<div class="note">'+esc(note)+'</div>'+button;
+}
+
 function renderRetainerPanel(){
  const hired=(viewState?.retainers||[]),candidates=(viewState?.retainerCandidates||[]),actor=viewState?.selectedCharacterId;
  const employed=hired.filter(x=>x.active);
  return `<div class="panel retainer-panel"><h3>Auxiliares de aventura</h3>
  <p class="note">O recrutamento usa 2d6 e o Carisma do contratante. Só são elegíveis NPCs com nível, classe e ficha mecânica comprovados. Mercenários militares não são auxiliares.</p>
- ${employed.length?`<div class="text-entity-list">${employed.map(r=>`<div class="text-entity"><b>${esc(r.name)}</b><span>Empregador: ${esc((viewState?.party||[]).find(p=>p.characterId===r.employerCharacterId)?.name||r.employerCharacterId)} · ${r.dailyWageGp} po/dia · ${r.treasureHalfShares}/2 cota(s) de tesouro</span></div>`).join('')}</div>`:'<p class="note">Nenhum auxiliar contratado.</p>'}
+ ${employed.length?`<div class="text-entity-list">${employed.map(r=>`<div class="text-entity"><b>${esc(r.name)}</b><span>Empregador: ${esc((viewState?.party||[]).find(p=>p.characterId===r.employerCharacterId)?.name||r.employerCharacterId)} · ${r.dailyWageGp} po/dia · ${r.treasureHalfShares}/2 cota(s) de tesouro</span>${renderRetainerWage(r,actor)}</div>`).join('')}</div>`:'<p class="note">Nenhum auxiliar contratado.</p>'}
  ${hired.some(x=>!x.active)?'<p class="note">Auxiliares que encerraram o contrato continuam registrados no histórico.</p>':''}
  <h3>Propor contratação</h3>
  ${!actor?'<p class="note">Selecione primeiro um personagem.</p>':!candidates.length?'<p class="note">Nenhum NPC presente possui ficha de auxiliar comprovada.</p>':`
@@ -357,6 +367,24 @@ function wireCurrentScreen(){
    const reactionId='retainer-offer-'+Date.now()+'-'+Math.random().toString(36).slice(2,9);
    const text='Ofereço a '+npc.name+' '+wage+' po por dia e '+halves+'/2 cota(s) de tesouro para nos acompanhar.';
    if(!postNative('PlayerReaction',{reactionId,text,mechanicalIntent:'RETAINER_RECRUIT:'+actor+':'+npcId+':'+wage+':'+halves}))b.disabled=false;
+ });
+ document.querySelectorAll('[data-retainer-baseline]').forEach(b=>b.onclick=()=>{
+   const npcId=b.dataset.retainerBaseline,actor=viewState?.selectedCharacterId;
+   if(!actor||!npcId||!confirm('Confirmar marco no dia atual? Dívidas antigas exigem arbitragem separada.'))return;
+   b.disabled=true;
+   const reactionId='retainer-baseline-'+Date.now()+'-'+Math.random().toString(36).slice(2,9);
+   if(!postNative('PlayerReaction',{reactionId,characterId:actor,text:'Confirmo o marco de pagamento sem presumir dívidas passadas.',
+     mechanicalIntent:'RETAINER_WAGE_BASELINE:'+actor+':'+npcId}))b.disabled=false;
+ });
+ document.querySelectorAll('[data-retainer-pay]').forEach(b=>b.onclick=()=>{
+   const npcId=b.dataset.retainerPay,actor=viewState?.selectedCharacterId;
+   const contract=(viewState?.retainers||[]).find(r=>r.npcId===npcId&&r.employerCharacterId===actor);
+   if(!contract||!Number.isSafeInteger(Number(contract.wageDueGp))||
+     !confirm('Pagar '+contract.wageDueGp+' po por '+contract.wageDueDays+' dia(s) com o ouro do contratante?'))return;
+   b.disabled=true;
+   const reactionId='retainer-pay-'+Date.now()+'-'+Math.random().toString(36).slice(2,9);
+   if(!postNative('PlayerReaction',{reactionId,characterId:actor,text:'Pago as diárias vencidas de '+contract.name+'.',
+     mechanicalIntent:'RETAINER_PAY_DAILY:'+actor+':'+npcId}))b.disabled=false;
  });
  document.querySelectorAll('[data-loadout-buy]').forEach(b=>b.onclick=()=>postNative('UiCommand',{command:'loadout_purchase',commandId:'buy-'+Date.now()+'-'+b.dataset.loadoutBuy,characterId:loadoutState()?.characterId||'',catalogId:b.dataset.loadoutBuy}));
  document.querySelectorAll('[data-loadout-equip]').forEach(b=>b.onclick=()=>postNative('UiCommand',{command:'loadout_equip',commandId:'equip-'+Date.now()+'-'+b.dataset.loadoutEquip,characterId:loadoutState()?.characterId||'',itemId:b.dataset.loadoutEquip,equipped:b.dataset.equipped!=='1'}));
