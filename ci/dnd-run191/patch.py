@@ -120,5 +120,29 @@ method='''    // RUN191_GUIDED_COMBAT_EDITOR: never ask for JSON, preserve unkno
 
 '''
 s=s[:start]+method+s[end:]
+
+# Monster initiative can now roll locally; require explicit review before commit.
+replace_once('init=labeledField(f,"Iniciativa final — valor rolado externamente + modificadores","",false)',
+             'init=labeledField(f,"Iniciativa final (d20 + bônus)","",false)', 'CREATURE_INIT_LABEL')
+old='        final AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Adicionar combatente").setView(f)'
+new='''        final EditText bonus=labeledField(f,"Bônus de iniciativa da criatura","0",false);
+        bonus.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_SIGNED);
+        Button roll=button("🎲 ROLAR 1d20 + BÔNUS",PANEL2);
+        roll.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+            int modifier;
+            try{modifier=Integer.parseInt(value(bonus));}catch(Exception invalid){bonus.setError("Informe o bônus da criatura.");return;}
+            if(modifier< -20||modifier>30){bonus.setError("Confira o bônus da ficha da criatura.");return;}
+            int die=1+new java.security.SecureRandom().nextInt(20);
+            init.setText(String.valueOf(die+modifier));
+            toast("D20: "+die+" + "+modifier+". Confira e confirme para adicionar.");
+        }});
+        f.addView(roll);
+        final AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Adicionar combatente").setView(f)'''
+replace_once(old,new,'CREATURE_ROLL_BUTTON')
+replace_once('init.setError("Informe o valor rolado externamente.");return;', 'init.setError("Role no aplicativo ou digite o total.");return;', 'CREATURE_ROLL_REQUIRED')
+replace_once('" em cena e iniciativa informada externamente."','" em cena e iniciativa confirmada pelo jogador."','CREATURE_NARRATION')
+replace_once('". A iniciativa foi informada externamente."','". A iniciativa foi confirmada pelo jogador."','PARTY_NARRATION')
+replace_once('"Informe externamente a iniciativa final de "', '"Role ou informe a iniciativa final de "','INIT_ERROR')
+
 main.write_text(s,encoding='utf-8',newline='\n')
 print('RUN191_APPLIED: initiative d20 preview, guided combat timers, no manual JSON controls')
