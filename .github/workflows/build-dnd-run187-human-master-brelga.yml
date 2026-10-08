@@ -158,6 +158,8 @@ jobs:
           if(!$src){throw 'RUN187_APK_NOT_CREATED'}
           $dst=Join-Path $out $env:APK_NAME
           Copy-Item $src.FullName $dst -Force
+          if(!$env:ANDROID_HOME){$sdk="$env:LOCALAPPDATA\Android\Sdk";if(Test-Path $sdk){$env:ANDROID_HOME=$sdk}}
+          if(!$env:ANDROID_HOME){throw 'ANDROID_SDK_NOT_FOUND_IN_VALIDATION'}
           $bt=Get-ChildItem "$env:ANDROID_HOME\build-tools" -Directory | Sort-Object {[version]$_.Name} -Descending | Select-Object -First 1
           if(!$bt){throw 'ANDROID_BUILD_TOOLS_MISSING'}
           $badging=(& "$($bt.FullName)\aapt.exe" dump badging $dst) -join "`n"
@@ -168,14 +170,16 @@ jobs:
           $sig=(& "$($bt.FullName)\apksigner.bat" verify --verbose --print-certs $dst) -join "`n"
           if($LASTEXITCODE -ne 0){throw 'APK_SIGNATURE_INVALID'}
           $sig | Set-Content "$out\RUN187_SIGNER.txt" -Encoding utf8
+          $run186Signer='6AA87A24A2EB4762C3F493C9D5FDDBF10B60CC8659A90423AED7CDE8AE582BD3'
+          if($sig -notmatch $run186Signer){throw 'RUN187_SIGNER_DIFFERS_FROM_RUN186_UPDATE_WOULD_FAIL'}
           $sha=(Get-FileHash $dst -Algorithm SHA256).Hash.ToLowerInvariant()
           "$sha  $env:APK_NAME" | Set-Content "$dst.sha256" -Encoding ascii
           @(
             'RUNNER=BRELGA', 'BASELINE=RUN186', 'PROFILE=human_master_dynamic_profile_v2',
             'PACKAGE=com.braseiro.dnd5e',"VERSION_NAME=$env:VERSION_NAME-debug", "VERSION_CODE=$env:VERSION_CODE",
-            "APK_SHA256=$sha",'RUN187_JAVAC=PASS','RUN187_GRADLE_UNIT=PASS','RUN187_ANDROID_ASSEMBLE=PASS',
-            'RUN186_MECHANICAL_SOURCES_PRESERVED=PASS','STRIXHAVEN_EVENT_COUNT=44',
-            'STRIXHAVEN_BESTIARY_COUNT=44','AUTO_ROLLS=false','RUN187_RUNTIME_GATE=PASS'
+            "APK_SHA256=$sha",'RUN187_JAVAC=PASS','RUN187_GRADLE_UNIT_TASK=PASS_NO_SOURCE','RUN187_ANDROID_ASSEMBLE=PASS',
+            'RUN186_PROTECTED_MECHANICAL_SOURCES=PASS','STRIXHAVEN_EVENT_COUNT=44',
+            'STRIXHAVEN_BESTIARY_COUNT=44','AUTO_ROLLS=false','RUN187_STATIC_GATE=PASS','DEVICE_TEST=NOT_RUN','RUN186_SIGNER_MATCH=PASS'
           ) | Set-Content "$out\RUN187_BUILD_PROOF.txt" -Encoding utf8
           Get-Item $dst | Format-List Name,Length
 
