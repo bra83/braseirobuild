@@ -12,6 +12,7 @@ private val ALLOWED_BRIDGE_TYPES = setOf(
     "MasterActionPropose",
     "MasterActionReview",
     "MasterActionContinue",
+    "CompanionOpinionsQuery",
     "CharacterDelete",
     "UiCommand",
     "CaptureFixtureCommand",
