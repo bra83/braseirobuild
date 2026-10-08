@@ -1,0 +1,81 @@
+name: Forbidden Lands R26 Character Control Android Build
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.github/workflows/build-forbidden-lands-r26-character-control.yml'
+permissions:
+  contents: read
+jobs:
+  build-r26:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Download validated R26 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p incoming work output
+          curl -fsSL --retry 4 -X POST 'https://api.firestorage.ai/dev/file/shares/Zh22M01qDf5G/files/01a11980d44c70178f8dfc41452f21c9/download' -o incoming/response.json
+          python3 - <<'PY' > incoming/url.txt
+          import json
+          d=json.load(open('incoming/response.json'))
+          assert d.get('downloadUrl'),'Download URL missing'
+          print(d['downloadUrl'])
+          PY
+          curl -fsSL --retry 5 --retry-delay 2 --connect-timeout 30 -o incoming/source.zip "$(cat incoming/url.txt)"
+          echo '34010c07fb89efe0e2949116349ae91e539657907e25c9772b9baddec0d623ea  incoming/source.zip' | sha256sum -c -
+          unzip -q incoming/source.zip -d work
+      - name: TypeScript, authority, RAG-off and image regression
+        shell: bash
+        working-directory: work/fl_r26_source
+        run: |
+          set -euo pipefail
+          npm install --package-lock=false --no-audit --no-fund --legacy-peer-deps
+          npm run lint
+          npm run verify:character-control-r26
+          npm run verify:human-master-dynamic-r25
+          npm run verify:human-master-runtime
+          npm run verify:canonical-narrator-profile
+          node --import fake-indexeddb/auto -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-empty-rule-library-playthrough-r24.mjs
+          npm run verify:external-gemini-images
+      - name: Sync web and compile Android
+        shell: bash
+        working-directory: work/fl_r26_source
+        run: |
+          set -euo pipefail
+          npm run android:sync
+          python3 - <<'PY'
+          import json
+          p='android/app/src/main/assets/public/braseiro-release-marker.json'
+          assert json.load(open(p))['version']=='3.3.22'
+          PY
+          cd android
+          chmod +x ./gradlew
+          ./gradlew :app:assembleDebug --no-daemon --stacktrace
+      - name: Verify APK identity and package
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk=$(find work/fl_r26_source/android/app/build/outputs/apk/debug -type f -name '*.apk' | head -1)
+          test -f "$apk"
+          cp "$apk" output/BRASEIRO_FORBIDDEN_LANDS_3.3.22_R26_CI_DEBUG.apk
+          unzip -t output/*.apk >/dev/null
+          sha256sum output/*.apk >output/APK_SHA256.txt
+          test "$(grep -m1 'versionName "3.3.22"' work/fl_r26_source/android/app/build.gradle | wc -l)" -eq 1
+          echo 'R26_ANDROID_BUILD=PASS' | tee output/BUILD_RESULT.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_FORBIDDEN_LANDS_R26_APK
+          path: output/*
+          retention-days: 3
+          if-no-files-found: error
