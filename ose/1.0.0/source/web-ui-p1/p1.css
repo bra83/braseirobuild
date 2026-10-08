@@ -109,3 +109,12 @@ button.primary,button.secondary,button.small{border:1px solid #53120f;border-rad
 .character-actions button{min-height:44px;flex:1 1 130px;padding:10px 9px;white-space:normal;overflow-wrap:anywhere}
 .character-actions button:disabled{opacity:.55;pointer-events:none}
 @media(max-width:360px){.character-actions{flex-direction:column}.character-actions button{width:100%;flex-basis:auto}}
+
+/* Individual per-character control and curated actions; mobile-first touch targets. */
+.character-control-label{display:block;width:100%;min-width:0;margin-top:8px;font-size:.88rem;line-height:1.5}
+.character-control-label select{display:block;width:100%;min-height:48px;padding:10px;margin-top:4px;font:inherit}
+.curator-panel{margin-top:12px}
+.curator-entry{display:block;padding:12px 0;border-top:1px solid #7d6848}
+.curator-entry label{display:block;margin-top:8px}
+.curator-entry textarea{display:block;width:100%;min-height:86px;resize:vertical;font:inherit;padding:10px;box-sizing:border-box;margin-top:5px}
+.curator-entry .character-actions button,.character-control-label select,[data-master-continue]{touch-action:manipulation}
