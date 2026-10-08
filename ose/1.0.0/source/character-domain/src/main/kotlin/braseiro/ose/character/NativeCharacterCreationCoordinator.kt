@@ -75,7 +75,11 @@ class NativeCharacterCreationCoordinator(private val creator: CharacterCreator =
             characters = old.characters + (c.characterId to c),
             creationDrafts = old.creationDrafts - draftId,
             loadouts = old.loadouts + (c.characterId to loadout),
-            session = old.session.copy(phase = "CHARACTER_LOADOUT"),
+            // Additional recruits must not rewind an adventure already underway.
+            session = if (old.session.visibleNarration.isBlank() &&
+                envelope.campaignState.time.turns == 0L &&
+                old.session.phase in setOf("PRESTART", "ACTIVE", "READY_TO_START", "CHARACTER_LOADOUT"))
+                old.session.copy(phase = "CHARACTER_LOADOUT") else old.session,
             rngRootSeed = rng.snapshot().rootSeed.toString(), rngStreams = snapshotRng(rng.snapshot()),
             revision = old.revision + 1
         )

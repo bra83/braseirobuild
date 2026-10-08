@@ -2,6 +2,10 @@ name: Validate BRASEIRO OSE RAG-free Runtime
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/validate-ose-ragfree-runtime.yml"
+      - "ose/1.0.0/source/**"
   push:
     branches: [main]
     paths:
@@ -12,7 +16,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ose-ragfree-runtime-validation
+  group: ose-ragfree-runtime-validation-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -45,6 +49,11 @@ jobs:
         run: |
           node --check ose/1.0.0/source/web-ui-p1/generated_map_assets.js
           node --check ose/1.0.0/source/web-ui-p1/p1.js
+          node --check ose/1.0.0/source/web-ui-p1/multiple_character_smoke.js
+
+      - name: WebView multi-character smoke
+        run: |
+          node ose/1.0.0/source/web-ui-p1/multiple_character_smoke.js
 
       - name: Generated local maps gate
         run: |

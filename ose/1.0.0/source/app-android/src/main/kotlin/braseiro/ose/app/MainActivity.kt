@@ -19,6 +19,7 @@ import androidx.webkit.WebViewAssetLoader
 import braseiro.ose.backup.BackupCodec
 import braseiro.ose.character.NativeCharacterCreationCoordinator
 import braseiro.ose.character.NativeCharacterLoadoutCoordinator
+import braseiro.ose.character.CharacterPartyAdministration
 import braseiro.ose.rag.RuleEvidenceRegistry
 import braseiro.ose.model.*
 import braseiro.ose.dungeon.DungeonGeneratorV1
@@ -173,6 +174,7 @@ class MainActivity : Activity() {
                         val imported = importCharacterSheet(current, raw)
                         repository.commit(CAMPAIGN_ID, StateTransition("character-import-${System.currentTimeMillis()}", imported.campaignState))
                         val persisted = session.loadSession(CAMPAIGN_ID)
+                        storeSelectedCharacterId(persisted, imported.campaignState.party.characterIds.last())
                         send(JSONObject().put("type","CharacterSheetImportResult").put("payload",JSONObject().put("ok",true).put("viewState",projectForUi(persisted))))
                     } catch (t: Throwable) {
                         send(JSONObject().put("type","BridgeError").put("payload",JSONObject().put("message",safeError(t))))
@@ -578,16 +580,20 @@ class MainActivity : Activity() {
                             val current = session.loadSession(CAMPAIGN_ID)
                             // Gemini credentials are in noBackupFilesDir and not part of CampaignEnvelope/BackupCodec.
                             send(JSONObject().put("type","BackupExportResult").put("payload",JSONObject()
-                                .put("campaignId",current.campaignId.value).put("backup",BackupCodec.exportCampaign(current))))
+                                .put("campaignId",current.campaignId.value).put("backup",BackupCodec.exportCampaign(current, selectedCharacterId(current)))))
                         }
 
                         "BackupImport" -> {
-                            val imported = BackupCodec.importCampaign(payload.getString("backup"))
+                            val backupText = payload.getString("backup")
+                            val imported = BackupCodec.importCampaign(backupText)
                             require(imported.campaignId == CAMPAIGN_ID) { "Backup campaign id mismatch" }
                             val policy = braseiro.ose.rules.api.OptionPolicyContract.resolve(imported.ruleProfile, imported.optionSet)
                             require(policy.valid) { "Invalid backup option policy: ${policy.errors.joinToString()}" }
                             repository.replace(imported)
                             val current = session.loadSession(CAMPAIGN_ID)
+                            val restoredSelection = BackupCodec.selectedCharacterId(backupText)
+                                ?.takeIf { it in current.campaignState.party.characterIds }
+                            storeSelectedCharacterId(current, restoredSelection)
                             send(JSONObject().put("type","BackupImportResult").put("payload",JSONObject()
                                 .put("ok",true).put("campaignId",current.campaignId.value)
                                 .put("stateHash",CanonicalStateHash.sha256(current)).put("viewState",projectForUi(current))))
@@ -595,9 +601,31 @@ class MainActivity : Activity() {
 
                         "CharacterCreationRandom" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
-                            val (createdEnvelope, createdCharacter) = createRandomCharacter(current)
-                            repository.commit(CAMPAIGN_ID, StateTransition("character-random:${createdCharacter.characterId}", createdEnvelope.campaignState))
+                            val commandId = payload.optString("commandId", "").trim()
+                                .ifBlank { "legacy-random-${java.util.UUID.randomUUID()}" }
+                            val actionId = "RANDOM_CHARACTER:$commandId"
+                            val receipt = current.campaignState.game.actionLog.firstOrNull { it.actionId == actionId }
+                            val createdCharacter = if (receipt != null) {
+                                val existingId = receipt.text.removePrefix("CREATED:")
+                                require(existingId in current.campaignState.party.characterIds) {
+                                    "CHARACTER_COMMAND_ALREADY_APPLIED"
+                                }
+                                current.campaignState.game.characters[existingId] ?: error("UNKNOWN_CHARACTER_ID")
+                            } else {
+                                val (createdEnvelope, character) = createRandomCharacter(current)
+                                val nextGame = createdEnvelope.campaignState.game.copy(
+                                    actionLog = createdEnvelope.campaignState.game.actionLog +
+                                        ActionLogEntry(actionId, "CAMPAIGN_ADMIN",
+                                            "CREATED:${character.characterId}", emptyList())
+                                ).canonical()
+                                repository.commit(CAMPAIGN_ID, StateTransition(
+                                    "character-random:$commandId",
+                                    createdEnvelope.campaignState.copy(game = nextGame)
+                                ))
+                                character
+                            }
                             val persisted = session.loadSession(CAMPAIGN_ID)
+                            storeSelectedCharacterId(persisted, createdCharacter.characterId)
                             send(JSONObject().put("type","CharacterCreationResult").put("payload",JSONObject()
                                 .put("ok",true).put("random",true).put("characterId",createdCharacter.characterId).put("name",createdCharacter.name)
                                 .put("stateHash",CanonicalStateHash.sha256(persisted)).put("viewState",projectForUi(persisted))))
@@ -605,8 +633,8 @@ class MainActivity : Activity() {
 
                         "CharacterSheetExportRequest" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
-                            val sheet = characterSheetJson(current)
-                            val character = selectedCharacter(current)
+                            val character = selectedCharacter(current, payload.optString("characterId", ""))
+                            val sheet = characterSheetJson(current, character.characterId)
                             pendingCharacterExport = ("${safeFileName(character.name)}_ficha.json" to sheet)
                             runOnUiThread {
                                 val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -628,19 +656,23 @@ class MainActivity : Activity() {
 
                         "CharacterSheetUpdate" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
-                            val character = selectedCharacter(current)
+                            val character = selectedCharacter(current, payload.optString("characterId", ""))
                             val name = payload.optString("name", "").trim()
                             require(name.isNotBlank() && name.length <= 80) { "INVALID_CHARACTER_NAME" }
                             val game = current.campaignState.game
-                            val updated = character.copy(name = name).canonical()
-                            val nextGame = game.copy(
-                                characters = game.characters + (updated.characterId to updated),
-                                revision = game.revision + 1
-                            ).canonical()
-                            repository.commit(CAMPAIGN_ID, StateTransition(
-                                "character-edit:${updated.characterId}:${game.revision}",
-                                current.campaignState.copy(game = nextGame)
-                            ))
+                            if (character.name != name) {
+                                val commandId = payload.optString("commandId", "").trim()
+                                    .ifBlank { "legacy-${character.characterId}-${game.revision}" }
+                                val updated = character.copy(name = name).canonical()
+                                val nextGame = game.copy(
+                                    characters = game.characters + (updated.characterId to updated),
+                                    revision = game.revision + 1
+                                ).canonical()
+                                repository.commit(CAMPAIGN_ID, StateTransition(
+                                    "character-edit:$commandId",
+                                    current.campaignState.copy(game = nextGame)
+                                ))
+                            }
                             val persisted = session.loadSession(CAMPAIGN_ID)
                             send(JSONObject().put("type","CharacterSheetUpdateResult").put("payload",JSONObject()
                                 .put("ok",true).put("viewState",projectForUi(persisted))))
@@ -648,28 +680,19 @@ class MainActivity : Activity() {
 
                         "CharacterRecreateBeforeStart" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
-                            val game = current.campaignState.game
                             val character = selectedCharacter(current)
-                            require(game.session.visibleNarration.isBlank() && current.campaignState.time.turns == 0L) { "CHARACTER_RECREATE_AFTER_START" }
+                            require(current.campaignState.game.session.visibleNarration.isBlank() &&
+                                current.campaignState.time.turns == 0L) { "CHARACTER_RECREATE_AFTER_START" }
                             repository.checkpoint(CAMPAIGN_ID, "before-character-recreate-${System.currentTimeMillis()}")
-                            val keptItems = game.inventory.items.filterValues { it.ownerId != character.characterId }
-                            val nextGame = game.copy(
-                                characters = game.characters - character.characterId,
-                                inventory = game.inventory.copy(items = keptItems),
-                                loadouts = game.loadouts - character.characterId,
-                                creationDrafts = emptyMap(),
-                                session = SessionSnapshot(phase = "ACTIVE"),
-                                revision = game.revision + 1
-                            ).canonical()
-                            val nextState = current.campaignState.copy(
-                                party = PartyState(current.campaignState.party.characterIds.filterNot { it == character.characterId }),
-                                resources = ResourceState(),
-                                game = nextGame
+                            val next = CharacterPartyAdministration.delete(
+                                current, character.characterId, "legacy-recreate-${System.currentTimeMillis()}"
                             )
                             repository.commit(CAMPAIGN_ID, StateTransition(
-                                "character-recreate:${current.createdAtMetadata}:${game.revision}", nextState
+                                "character-recreate:${current.createdAtMetadata}:${current.campaignState.game.revision}",
+                                next.campaignState
                             ))
                             val persisted = session.loadSession(CAMPAIGN_ID)
+                            storeSelectedCharacterId(persisted, selectedCharacterId(persisted))
                             send(JSONObject().put("type","CharacterRecreateResult").put("payload",JSONObject()
                                 .put("ok",true).put("viewState",projectForUi(persisted))))
                         }
@@ -706,11 +729,13 @@ class MainActivity : Activity() {
                                 }
                             }
                             val current = session.loadSession(CAMPAIGN_ID)
+                            require(!current.campaignState.game.characters.containsKey(characterId)) { "CHARACTER_ID_EXISTS" }
                             val outcome = creationCoordinator.commit(current,draftId,characterId,name,method,classIds,raceId,adjustments)
                             when (val result = outcome.result) {
                                 is CharacterCreationResult.Created -> {
                                     if (outcome.stateChanged) repository.commit(CAMPAIGN_ID,StateTransition("character-create:$characterId",outcome.envelope.campaignState))
                                     val persisted = session.loadSession(CAMPAIGN_ID)
+                                    storeSelectedCharacterId(persisted, result.character.characterId)
                                     send(JSONObject().put("type","CharacterCreationResult").put("payload",JSONObject()
                                         .put("ok",true).put("characterId",result.character.characterId).put("name",result.character.name)
                                         .put("stateHash",CanonicalStateHash.sha256(persisted)).put("viewState",projectForUi(persisted))))
@@ -738,6 +763,36 @@ class MainActivity : Activity() {
                                 .put("ok", result.status !in setOf("INVALID_LOADOUT","CATALOG_ITEM_NOT_FOUND","INSUFFICIENT_GOLD","EQUIPMENT_RESTRICTED","TWO_HANDED_WEAPON_WITH_SHIELD"))
                                 .put("status", result.status).put("detail", result.detail)
                                 .put("stateHash", CanonicalStateHash.sha256(persisted)).put("viewState", projectForUi(persisted))))
+                        }
+
+                        "CharacterDelete" -> {
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            val id = payload.getString("characterId").trim()
+                            val commandId = payload.getString("commandId").trim()
+                            require(id.isNotBlank() && commandId.isNotBlank()) { "INVALID_CHARACTER_COMMAND" }
+                            val old = current.campaignState
+                            val character = old.game.characters[id] ?: error("UNKNOWN_CHARACTER_ID")
+                            if (id in old.party.characterIds) {
+                                repository.checkpoint(CAMPAIGN_ID, "before-delete-$id-${System.currentTimeMillis()}")
+                                val updated = CharacterPartyAdministration.delete(current, id, commandId)
+                                repository.commit(CAMPAIGN_ID, StateTransition(
+                                    "character-delete:$commandId", updated.campaignState
+                                ))
+                            } else {
+                                require("ARCHIVED_DELETED" in character.flags) { "UNKNOWN_CHARACTER_ID" }
+                            }
+                            val persisted = session.loadSession(CAMPAIGN_ID)
+                            storeSelectedCharacterId(persisted, selectedCharacterId(persisted))
+                            send(JSONObject().put("type","CharacterDeleteResult").put("payload",JSONObject()
+                                .put("ok",true).put("characterId",id)
+                                .put("viewState",projectForUi(persisted))))
+                        }
+
+                        "CharacterSelect" -> {
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            storeSelectedCharacterId(current, payload.getString("characterId").trim())
+                            send(JSONObject().put("type","CharacterSelectionResult").put("payload",JSONObject()
+                                .put("ok",true).put("viewState",projectForUi(current))))
                         }
 
                         "ViewState" -> {
@@ -783,14 +838,31 @@ class MainActivity : Activity() {
         return traceJson(RuleTrace(status, evidence, receipt.traceNote))
     }
 
-    private fun selectedCharacter(current: CampaignEnvelope): CharacterSnapshot {
-        val id = current.campaignState.party.characterIds.firstOrNull() ?: error("NO_CHARACTER")
-        return current.campaignState.game.characters[id] ?: error("NO_CHARACTER")
+    private fun selectedCharacterId(current: CampaignEnvelope): String? {
+        val ids = current.campaignState.party.characterIds
+        val saved = getSharedPreferences("ose-character-selection", MODE_PRIVATE).getString(current.campaignId.value, null)
+        return saved?.takeIf { it in ids && it in current.campaignState.game.characters } ?: ids.firstOrNull()
+    }
+
+    private fun storeSelectedCharacterId(current: CampaignEnvelope, id: String?) {
+        val edit = getSharedPreferences("ose-character-selection", MODE_PRIVATE).edit()
+        if (id == null) edit.remove(current.campaignId.value)
+        else {
+            require(id in current.campaignState.party.characterIds &&
+                current.campaignState.game.characters.containsKey(id)) { "UNKNOWN_CHARACTER_ID" }
+            edit.putString(current.campaignId.value, id)
+        }
+        require(edit.commit()) { "CHARACTER_SELECTION_SAVE_FAILED" }
+    }
+
+    private fun selectedCharacter(current: CampaignEnvelope, requestedId: String? = null): CharacterSnapshot {
+        val id = requestedId?.takeIf { it.isNotBlank() } ?: selectedCharacterId(current) ?: error("NO_CHARACTER")
+        require(id in current.campaignState.party.characterIds) { "UNKNOWN_CHARACTER_ID" }
+        return current.campaignState.game.characters[id] ?: error("UNKNOWN_CHARACTER_ID")
     }
 
     private fun createRandomCharacter(current: CampaignEnvelope): Pair<CampaignEnvelope, CharacterSnapshot> {
-        require(current.campaignState.party.characterIds.isEmpty()) { "CHARACTER_ALREADY_EXISTS" }
-        val draftId = "random-${System.currentTimeMillis()}"
+        val draftId = "random-${java.util.UUID.randomUUID()}"
         val draft = creationCoordinator.startDraft(current, draftId)
         val base = draft.envelope
         val candidates = when (current.ruleProfile) {
@@ -800,7 +872,7 @@ class MainActivity : Activity() {
         val method = if (current.ruleProfile == RuleProfile.OSE_CLASSIC_FANTASY) CreationMethod.CLASSIC else CreationMethod.ADVANCED_BASIC
         val names = listOf("Aldren","Brena","Cael","Dora","Edrik","Fenna","Garran","Helga","Ivar","Lysa","Marek","Nora","Orin","Petra","Rurik","Sela")
         val name = names[manualDice.nextInt(names.size)]
-        val characterId = "char-${System.currentTimeMillis()}"
+        val characterId = "char-${java.util.UUID.randomUUID()}"
         for (classId in candidates) {
             val attempt = creationCoordinator.commit(base, draftId, characterId, name, method, listOf(classId), null, emptyList())
             val created = attempt.result as? CharacterCreationResult.Created ?: continue
@@ -809,8 +881,8 @@ class MainActivity : Activity() {
         error("RANDOM_CHARACTER_NO_VALID_CLASS")
     }
 
-    private fun characterSheetJson(current: CampaignEnvelope): String {
-        val c = selectedCharacter(current)
+    private fun characterSheetJson(current: CampaignEnvelope, characterId: String): String {
+        val c = selectedCharacter(current, characterId)
         val game = current.campaignState.game
         val root = JSONObject().put("schema", "BRASEIRO_OSE_FICHA_V1").put("profile", current.ruleProfile.name)
             .put("character", characterToJson(c))
@@ -857,7 +929,7 @@ class MainActivity : Activity() {
         for (i in 0 until arr.length()) {
             val item = inventoryItemFromJson(arr.getJSONObject(i))
             require(item.ownerId == c.characterId && item.profile == current.ruleProfile) { "CHARACTER_ITEM_PROFILE_MISMATCH" }
-            require(!current.campaignState.game.inventory.items.containsKey(item.itemId)) { "ITEM_ID_EXISTS" }
+            require(!current.campaignState.game.inventory.items.containsKey(item.itemId) && !items.containsKey(item.itemId)) { "ITEM_ID_EXISTS" }
             items[item.itemId] = item
         }
         val loadout = root.optJSONObject("loadout")?.let { o ->
@@ -865,16 +937,26 @@ class MainActivity : Activity() {
             CharacterLoadoutSnapshot(c.characterId,o.getInt("startingWealthGp"),o.getInt("remainingWealthGp"),purchases,o.optBoolean("completed",true),o.getString("sourceRuleId"))
         }
         val oldGame = current.campaignState.game
-        val newPhase = if (current.campaignState.party.characterIds.isEmpty() && oldGame.session.visibleNarration.isBlank()) {
-            if (loadout == null || loadout.completed) "READY_TO_START" else "CHARACTER_LOADOUT"
-        } else oldGame.session.phase
+        val partyIds = (current.campaignState.party.characterIds + c.characterId).distinct()
+        val beforeAdventure = current.campaignState.time.turns == 0L &&
+            oldGame.session.visibleNarration.isBlank()
+        val newPhase = when {
+            beforeAdventure && loadout?.completed == false -> "CHARACTER_LOADOUT"
+            beforeAdventure && current.campaignState.party.characterIds.isEmpty() -> "READY_TO_START"
+            else -> oldGame.session.phase
+        }
+        val inventory = oldGame.inventory.copy(items = oldGame.inventory.items + items).canonical()
+        val expedition = braseiro.ose.rules.shared.InventoryRuntimeRules.derivePartyExpedition(
+            current.ruleProfile, current.optionSet, partyIds, inventory, oldGame.expedition
+        ).expedition
         val newGame = oldGame.copy(
             characters = oldGame.characters + (c.characterId to c),
-            inventory = oldGame.inventory.copy(items = oldGame.inventory.items + items),
-            loadouts = if(loadout==null) oldGame.loadouts else oldGame.loadouts + (c.characterId to loadout),
+            inventory = inventory,
+            expedition = expedition,
+            loadouts = if (loadout == null) oldGame.loadouts else oldGame.loadouts + (c.characterId to loadout),
             session = oldGame.session.copy(phase = newPhase), revision = oldGame.revision + 1
         ).canonical()
-        val newState = current.campaignState.copy(party = PartyState((current.campaignState.party.characterIds + c.characterId).distinct()), game = newGame)
+        val newState = current.campaignState.copy(party = PartyState(partyIds), game = newGame)
         return current.copy(campaignState = newState)
     }
 
@@ -902,7 +984,7 @@ class MainActivity : Activity() {
     private fun safeFileName(name:String):String = name.lowercase().replace(Regex("[^a-z0-9_-]+"),"_").trim('_').ifBlank{"personagem"}
 
     private fun projectForUi(current: CampaignEnvelope): JSONObject {
-        val out = AppViewStateProjector.project(current)
+        val out = AppViewStateProjector.project(current, selectedCharacterId(current))
         val game = current.campaignState.game
         val portraits = JSONObject()
         current.campaignState.party.characterIds.forEach { id -> mediaStore.url(PresentationMediaStore.Scope.CHARACTER, id)?.let { portraits.put(id, it) } }
@@ -914,7 +996,7 @@ class MainActivity : Activity() {
         val itemThumbnails = JSONObject()
         game.inventory.items.keys.sorted().forEach { id -> mediaStore.url(PresentationMediaStore.Scope.ITEM, id)?.let { itemThumbnails.put(id, it) } }
         val sceneId = scenePresentationId(current)
-        val selectedCharacterId = current.campaignState.party.characterIds.firstOrNull()
+        val selectedCharacterId = selectedCharacterId(current)
         val loadout = selectedCharacterId?.let(game.loadouts::get)
         if (selectedCharacterId != null && loadout != null) {
             val ownedByCatalog = game.inventory.items.values.filter { it.ownerId == selectedCharacterId }.groupBy { it.catalogId }
@@ -1201,7 +1283,7 @@ class MainActivity : Activity() {
         val message = t.message.orEmpty()
         return when {
             message.startsWith("GEMINI_") -> message
-            message in setOf("EMPTY_GEMINI_KEY", "GEMINI_KEY_TOO_LONG", "INVALID_GEMINI_MODEL", "INVALID_TTS_VOICE", "UNKNOWN_GEMINI_CREDENTIAL_SLOT", "UNKNOWN_TTS_COMMAND", "EMPTY_VISIBLE_NARRATION", "INVALID_IMAGE_DATA_URL", "IMAGE_SIZE_INVALID", "UNSUPPORTED_IMAGE_TYPE", "UNKNOWN_CHARACTER_ID", "UNKNOWN_NPC_ID", "UNKNOWN_ITEM_ID", "UNSUPPORTED_PRESENTATION_SCOPE", "UNSUPPORTED_PORTRAIT_KIND", "UNKNOWN_UI_COMMAND", "INVALID_DIE", "INVALID_DICE_COUNT", "INVALID_DICE_MODIFIER", "NO_CHARACTER", "CHARACTER_ALREADY_EXISTS", "RANDOM_CHARACTER_NO_VALID_CLASS", "INVALID_CHARACTER_SHEET", "CHARACTER_PROFILE_MISMATCH", "CHARACTER_ID_EXISTS", "CHARACTER_ITEM_PROFILE_MISMATCH", "ITEM_ID_EXISTS", "INVALID_CHARACTER_NAME", "CHARACTER_RECREATE_AFTER_START") -> message
+            message in setOf("EMPTY_GEMINI_KEY", "GEMINI_KEY_TOO_LONG", "INVALID_GEMINI_MODEL", "INVALID_TTS_VOICE", "UNKNOWN_GEMINI_CREDENTIAL_SLOT", "UNKNOWN_TTS_COMMAND", "EMPTY_VISIBLE_NARRATION", "INVALID_IMAGE_DATA_URL", "IMAGE_SIZE_INVALID", "UNSUPPORTED_IMAGE_TYPE", "UNKNOWN_CHARACTER_ID", "UNKNOWN_NPC_ID", "UNKNOWN_ITEM_ID", "UNSUPPORTED_PRESENTATION_SCOPE", "UNSUPPORTED_PORTRAIT_KIND", "UNKNOWN_UI_COMMAND", "INVALID_DIE", "INVALID_DICE_COUNT", "INVALID_DICE_MODIFIER", "NO_CHARACTER", "CHARACTER_ALREADY_EXISTS", "RANDOM_CHARACTER_NO_VALID_CLASS", "INVALID_CHARACTER_SHEET", "CHARACTER_PROFILE_MISMATCH", "CHARACTER_ID_EXISTS", "CHARACTER_ITEM_PROFILE_MISMATCH", "ITEM_ID_EXISTS", "INVALID_CHARACTER_NAME", "CHARACTER_RECREATE_AFTER_START", "INVALID_CHARACTER_COMMAND", "CHARACTER_COMMAND_ALREADY_APPLIED", "CHARACTER_SELECTION_SAVE_FAILED") -> message
             else -> t::class.java.simpleName
         }
     }

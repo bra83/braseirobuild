@@ -6,11 +6,11 @@ import org.json.JSONObject
 
 /** Read-only projection of one canonical CampaignEnvelope for every UI surface. */
 object AppViewStateProjector {
-    fun project(envelope: CampaignEnvelope): JSONObject {
+    fun project(envelope: CampaignEnvelope, selectedCharacterId: String? = null): JSONObject {
         val state = envelope.campaignState
         val game = state.game
         val party = state.party.characterIds.mapNotNull(game.characters::get)
-        val selected = party.firstOrNull()
+        val selected = party.firstOrNull { it.characterId == selectedCharacterId } ?: party.firstOrNull()
         return JSONObject()
             .put("schemaVersion", 2)
             .put("campaign", JSONObject()

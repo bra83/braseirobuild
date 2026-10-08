@@ -105,20 +105,35 @@ class NativeCharacterLoadoutCoordinator {
                 unitWeightCoins=1
             ))
         } else old.inventory.items
+        val preAdventure = envelope.campaignState.time.turns == 0L &&
+            old.session.visibleNarration.isBlank() &&
+            old.session.phase in setOf("PRESTART", "CHARACTER_LOADOUT", "READY_TO_START")
+        val otherPending = old.loadouts.any { (id, entry) ->
+            id != characterId && id in envelope.campaignState.party.characterIds && !entry.completed
+        }
+        val nextSession = if (preAdventure) old.session.copy(
+            phase = if (otherPending) "CHARACTER_LOADOUT" else "READY_TO_START",
+            visibleMechanicalFeedback = "Equipamento inicial confirmado."
+        ) else old.session
         var game=old.copy(
             inventory=old.inventory.copy(items=coinItems).canonical(),
             loadouts=old.loadouts + (characterId to done),
-            session=old.session.copy(phase="READY_TO_START",visibleNarration="",visibleMechanicalFeedback="Equipamento inicial confirmado."),
+            session=nextSession,
             actionLog=old.actionLog + ActionLogEntry("LOADOUT_DONE:${old.revision}:$characterId","LOADOUT","Starting loadout completed",listOf(loadout.sourceRuleId)),
             revision=old.revision+1
         )
         game=withDerivedExpedition(envelope,game)
-        val state=envelope.campaignState.copy(game=game,resources=deriveResources(envelope.ruleProfile,game,characterId))
-        return MutationResult(envelope.copy(campaignState=state),true,"READY_TO_START")
+        val state=envelope.campaignState.copy(game=game,
+            resources=if (preAdventure)
+                deriveResources(envelope.ruleProfile,game,envelope.campaignState.party.characterIds)
+                else envelope.campaignState.resources)
+        return MutationResult(envelope.copy(campaignState=state),true,
+            if (preAdventure && !otherPending) "READY_TO_START" else "LOADOUT_COMPLETE")
     }
 
     private fun context(envelope:CampaignEnvelope, characterId:String): Pair<CharacterSnapshot,CharacterLoadoutSnapshot>? {
-        if(envelope.campaignState.game.session.phase!="CHARACTER_LOADOUT") return null
+        // Individual loadout progress is independent of the global narrative phase.
+        if (characterId !in envelope.campaignState.party.characterIds) return null
         val c=envelope.campaignState.game.characters[characterId] ?: return null
         val l=envelope.campaignState.game.loadouts[characterId] ?: return null
         return c to l
@@ -170,8 +185,8 @@ class NativeCharacterLoadoutCoordinator {
         return game.copy(expedition=d.expedition).canonical()
     }
 
-    private fun deriveResources(profile:RuleProfile,game:GameExtensions,characterId:String):ResourceState {
-        val owned=game.inventory.items.values.filter { it.ownerId==characterId && it.quantity>0 }
+    private fun deriveResources(profile:RuleProfile,game:GameExtensions,partyIds:List<String>):ResourceState {
+        val owned=game.inventory.items.values.filter { it.ownerId in partyIds && it.quantity>0 }
         val torches=owned.filter { it.lightSourceKind==LightSourceKind.TORCH }.sumOf { it.quantity }
         val rations=owned.filter { it.kind==InventoryItemKind.FOOD }.sumOf { it.quantity }
         val gold=owned.filter { it.kind==InventoryItemKind.COIN }.sumOf { it.quantity }
