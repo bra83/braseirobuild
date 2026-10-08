@@ -5,6 +5,7 @@ const q=new URLSearchParams(window.__P1_CAPTURE_QUERY||location.search);
 let screen=q.get('screen')||'session';
 let stateName=q.get('state')||'active';
 let viewState=null;
+let companionOpinions=null;
 let geminiState={textSceneConfigured:false,ttsAudioConfigured:false,textModel:'',imageModel:''};
 let ttsState={state:'PREPARING',ready:false,enginePackage:'',voiceName:'',speechRate:1,engines:[],voices:[],mode:'ANDROID_INSTALLED_ENGINE'};
 let mediaTarget=null;
@@ -117,6 +118,7 @@ function renderSession(){
   <div class="session-tools"><button class="small" data-tts="play">▶ OUVIR</button><button class="small" data-tts="stop">■ PARAR</button><button class="small" data-tts="replay">↻ REPETIR</button><button class="small" data-scene-prompt>▧ GERAR CENA</button><button class="small" data-scene-import data-scene-id="${esc(sceneId)}">⇩ IMPORTAR</button></div></div>
   ${npcPanel}
   ${renderCuratorPanel()}
+  ${renderCompanionOpinions()}
   ${renderMasterContinue()}
   ${renderRuleTrace(lastRuleTrace||viewState?.lastRuleTrace)}
   <div class="panel"><h3>O que você faz?</h3><div class="suggestions">${ds.map(x=>`<button class="suggestion" data-suggest="${esc(x.reaction||x[1]||'')}" data-intent="${esc(x.mechanicalIntent||'')}">${esc(x.label||x[0]||'AÇÃO')}</button>`).join('')}</div><textarea id="reactionInput" placeholder="Ex.: examino as pegadas, pergunto o que há por perto, sigo com cuidado..."></textarea><button class="primary" data-react ${hasNative()&&!(viewState?.party||[]).some(m=>(m.controlMode||'PLAYER')==='PLAYER')?'disabled':''}>Enviar ação</button><button class="secondary" style="margin-top:7px" data-go="dice">Abrir rolagem de dados</button></div>
@@ -247,16 +249,41 @@ function renderCharacterControlSelect(m){
  const options=[['PLAYER','Eu controlo'],['MASTER','Mestre controla'],['CURATED','Mestre + minha curadoria']];
  return '<label class="character-control-label">Controle do personagem<select data-character-mode="'+esc(m.characterId)+'" aria-label="Controle de '+esc(m.name)+'">'+options.map(([v,label])=>'<option value="'+v+'"'+(v===mode?' selected':'')+'>'+label+'</option>').join('')+'</select></label>';
 }
+function renderCompanionOpinions(){
+ const hasCompany=(viewState?.party||[]).some(m=>m.controlMode==='MASTER'||m.controlMode==='CURATED');
+ if(!hasCompany)return '';
+ const currentHash=viewState?.campaign?.mechanicalStateHash;
+ const preview=companionOpinions&&(!currentHash||companionOpinions.stateHash===currentHash)
+   ?companionOpinions.opinions||[]:null;
+ const label={SUPPORT:'Concorda',CAUTION:'Pede cautela',OBJECT:'Discorda',UNCERTAIN:'Tem dúvidas'};
+ return '<div class="panel companion-opinions"><button class="secondary" data-companion-opinions>O QUE OS COMPANHEIROS ACHAM?</button>'+
+ '<p class="note">Consulta sem rolagens, tempo ou avanço da cena. Opiniões podem estar erradas.</p>'+
+ (preview===null?'':preview.length===0?'<p>Nenhum companheiro controlado pelo Mestre.</p>':
+  preview.map(x=>'<div class="companion-opinion"><b>'+esc(x.name)+'</b> · '+esc(label[x.stance]||'Opinião')+
+   '<p><b>Percepção:</b> '+esc(x.perception)+'</p><p><b>Hipótese:</b> '+esc(x.hypothesis)+
+   '</p><p><b>Motivação:</b> '+esc(x.motivation)+'</p><p><b>Sugestão:</b> '+esc(x.suggestion)+
+   '</p><p><b>Risco:</b> '+esc(x.risk)+'</p><p><b>Motivo:</b> '+esc(x.reason)+'</p></div>').join(''))+'</div>';
+}
 function renderCuratorPanel(){
  const pending=viewState?.pendingCharacterActions||[];
  if(!pending.length)return '';
- return '<div class="panel curator-panel"><h3>Aprovação de ações do Mestre</h3><p class="note">O Mestre propõe; você pode aprovar, editar ou vetar. Nada é executado antes da sua autorização.</p>'+pending.map(p=>'<div class="curator-entry"><b>'+esc(p.characterName)+'</b><label>Proposta<textarea data-curator-text="'+esc(p.proposalId)+'" rows="3">'+esc(p.text)+'</textarea></label><div class="character-actions"><button class="primary" data-curator-approve="'+esc(p.proposalId)+'">APROVAR</button><button class="secondary" data-curator-reject="'+esc(p.proposalId)+'">VETAR</button></div></div>').join('')+'</div>';
+ return '<div class="panel curator-panel"><h3>Aprovação de ações do Mestre</h3><p class="note">A proposta não produz consequências antes da resolução autorizada.</p>'+
+ pending.map(p=>'<div class="curator-entry"><b>'+esc(p.characterName)+'</b>'+
+ '<p><b>Percepção:</b> '+esc(p.perception||'Não detalhada')+'</p>'+
+ '<p><b>Hipótese:</b> '+esc(p.hypothesis||'Incerta')+'</p>'+
+ '<p><b>Motivação:</b> '+esc(p.motivation||'Ajudar o grupo')+'</p>'+
+ '<p><b>Motivo:</b> '+esc(p.reason||'Ainda não explicitado')+'</p>'+
+ '<p><b>Risco:</b> '+esc(p.risk||'Indeterminado')+'</p>'+
+ '<label>PROPOSTA / ALTERAR AÇÃO<textarea data-curator-text="'+esc(p.proposalId)+'" rows="3">'+esc(p.text)+'</textarea></label>'+
+ '<div class="character-actions"><button class="primary" data-curator-approve="'+esc(p.proposalId)+'">APROVAR</button>'+
+ '<button class="secondary" data-curator-change="'+esc(p.proposalId)+'">ALTERAR E APROVAR</button>'+
+ '<button class="secondary" data-curator-reject="'+esc(p.proposalId)+'">RECUSAR</button></div></div>').join('')+'</div>';
 }
 function renderMasterContinue(){
  const controlled=(viewState?.party||[]).filter(m=>m.controlMode==='MASTER'||m.controlMode==='CURATED');
  return controlled.length?'<div class="panel"><h3>Personagens do Mestre</h3><p class="note">O Mestre age automaticamente após suas ações. Também é possível solicitar uma rodada de decisões.</p><button class="secondary" data-master-continue>CONTINUAR AÇÕES DO MESTRE</button></div>':'';
 }
-function renderCompany(){const party=viewState?.party||(!hasNative()?[{characterId:'demo-character',name:'Aventureiro',classIds:['FIGHTER'],hpCurrentNumerator:8,hpMaxNumerator:8,hpDenominator:1}]:[]);return `<div class="kicker">Companhia</div><div class="panel"><h2>${party.length?'Companhia atual':'Ainda vazia'}</h2>${party.length?`<div class="text-entity-list">${party.map(m=>`<div class="text-entity character-management ${m.characterId===viewState?.selectedCharacterId?'active':''}"><div><b>${esc(m.name)}</b><span>${esc((m.classIds||[]).map(classLabel).join(' / '))} · HP ${hpText(m)} · Nível ${esc(Object.values(m.levelByClass||{})[0]||1)}</span></div>${renderCharacterControlSelect(m)}<div class="character-actions"><button data-character-select="${esc(m.characterId)}">ABRIR FICHA</button><button class="secondary" data-delete-character="${esc(m.characterId)}">EXCLUIR FICHA</button></div></div>`).join('')}</div><p class="note">A companhia viaja e ocupa o mundo como um único grupo.</p>`:'<p>Crie seu primeiro personagem para formar a companhia.</p>'}<div class="character-actions"><button class="primary" data-add-character>ADICIONAR PERSONAGEM</button><button class="secondary" data-import-character>IMPORTAR FICHA.JSON</button></div></div>${renderCuratorPanel()}${renderMasterContinue()}`}
+function renderCompany(){const party=viewState?.party||(!hasNative()?[{characterId:'demo-character',name:'Aventureiro',classIds:['FIGHTER'],hpCurrentNumerator:8,hpMaxNumerator:8,hpDenominator:1}]:[]);return `<div class="kicker">Companhia</div><div class="panel"><h2>${party.length?'Companhia atual':'Ainda vazia'}</h2>${party.length?`<div class="text-entity-list">${party.map(m=>`<div class="text-entity character-management ${m.characterId===viewState?.selectedCharacterId?'active':''}"><div><b>${esc(m.name)}</b><span>${esc((m.classIds||[]).map(classLabel).join(' / '))} · HP ${hpText(m)} · Nível ${esc(Object.values(m.levelByClass||{})[0]||1)}</span></div>${renderCharacterControlSelect(m)}<div class="character-actions"><button data-character-select="${esc(m.characterId)}">ABRIR FICHA</button><button class="secondary" data-delete-character="${esc(m.characterId)}">EXCLUIR FICHA</button></div></div>`).join('')}</div><p class="note">A companhia viaja e ocupa o mundo como um único grupo.</p>`:'<p>Crie seu primeiro personagem para formar a companhia.</p>'}<div class="character-actions"><button class="primary" data-add-character>ADICIONAR PERSONAGEM</button><button class="secondary" data-import-character>IMPORTAR FICHA.JSON</button></div></div>${renderCuratorPanel()}${renderCompanionOpinions()}${renderMasterContinue()}`}
 
 function renderDicePanel(){return `<div class="panel dice-panel"><div class="row"><h3>🎲 Dados</h3><span class="note">Rolagem manual; não altera a campanha sozinha.</span></div><div class="dice-buttons">${[4,6,8,10,12,20,100].map(s=>`<button class="small" data-die="${s}">d${s}</button>`).join('')}</div><div class="dice-controls"><label>Quantidade<input id="diceCount" type="number" min="1" max="20" value="1"></label><label>Modificador<input id="diceModifier" type="number" min="-100" max="100" value="0"></label></div>${diceHistory.length?`<div class="dice-history">${diceHistory.map(d=>`<div><b>${d.count}d${d.sides}${d.modifier?`${d.modifier>0?'+':''}${d.modifier}`:''} = ${d.total}</b><small>${esc((d.rolls||[]).join(', '))}</small></div>`).join('')}</div>`:''}</div>`}
 function renderDiceScreen(){return `<div class="kicker">Rolagem de dados</div>${renderDicePanel()}<div class="panel"><p class="note">Rolagens manuais são livres e não alteram a campanha sozinhas. Quando uma regra OSE exige um teste, o motor usa a rolagem autoritativa e registra a regra consultada na sessão.</p></div>`}
