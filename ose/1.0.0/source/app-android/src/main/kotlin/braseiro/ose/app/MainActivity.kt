@@ -635,15 +635,19 @@ class MainActivity : Activity() {
                             val name = payload.optString("name", "").trim()
                             require(name.isNotBlank() && name.length <= 80) { "INVALID_CHARACTER_NAME" }
                             val game = current.campaignState.game
-                            val updated = character.copy(name = name).canonical()
-                            val nextGame = game.copy(
-                                characters = game.characters + (updated.characterId to updated),
-                                revision = game.revision + 1
-                            ).canonical()
-                            repository.commit(CAMPAIGN_ID, StateTransition(
-                                "character-edit:${updated.characterId}:${game.revision}",
-                                current.campaignState.copy(game = nextGame)
-                            ))
+                            if (character.name != name) {
+                                val commandId = payload.optString("commandId", "").trim()
+                                    .ifBlank { "legacy-${character.characterId}-${game.revision}" }
+                                val updated = character.copy(name = name).canonical()
+                                val nextGame = game.copy(
+                                    characters = game.characters + (updated.characterId to updated),
+                                    revision = game.revision + 1
+                                ).canonical()
+                                repository.commit(CAMPAIGN_ID, StateTransition(
+                                    "character-edit:$commandId",
+                                    current.campaignState.copy(game = nextGame)
+                                ))
+                            }
                             val persisted = session.loadSession(CAMPAIGN_ID)
                             send(JSONObject().put("type","CharacterSheetUpdateResult").put("payload",JSONObject()
                                 .put("ok",true).put("viewState",projectForUi(persisted))))
