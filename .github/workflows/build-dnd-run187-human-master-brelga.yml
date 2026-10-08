@@ -3,7 +3,6 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/build-dnd-run187-human-master-brelga.yml'
       - 'ci/dnd-run187/**'
   workflow_dispatch:
 permissions:
@@ -160,6 +159,11 @@ jobs:
           Copy-Item $src.FullName $dst -Force
           if(!$env:ANDROID_HOME){$sdk="$env:LOCALAPPDATA\Android\Sdk";if(Test-Path $sdk){$env:ANDROID_HOME=$sdk}}
           if(!$env:ANDROID_HOME){throw 'ANDROID_SDK_NOT_FOUND_IN_VALIDATION'}
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){
+            $j='C:\Program Files\Android\Android Studio\jbr'
+            if(Test-Path "$j\bin\java.exe"){$env:JAVA_HOME=$j;$env:Path="$j\bin;$env:Path"}
+          }
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){throw 'JAVA_NOT_FOUND_IN_VALIDATION'}
           $bt=Get-ChildItem "$env:ANDROID_HOME\build-tools" -Directory | Sort-Object {[version]$_.Name} -Descending | Select-Object -First 1
           if(!$bt){throw 'ANDROID_BUILD_TOOLS_MISSING'}
           $badging=(& "$($bt.FullName)\aapt.exe" dump badging $dst) -join "`n"
