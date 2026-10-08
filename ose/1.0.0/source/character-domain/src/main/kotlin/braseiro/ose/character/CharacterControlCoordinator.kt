@@ -103,6 +103,19 @@ object CharacterControlCoordinator {
         text: String,
         mechanicalIntent: String
     ) {
+        if (fromMaster) {
+            val party = envelope.campaignState.party.characterIds
+            val protected = party.filter { id ->
+                id != characterId && mode(envelope, id) != CharacterControlMode.MASTER
+            }
+            // Typed commands must never directly impersonate a human or another curated actor.
+            val tokens = mechanicalIntent.split(':', ',', ';', ' ', '\n', '\t')
+            require(tokens.none { it in protected }) { "CHARACTER_ACTOR_PROTECTED" }
+            // Wilderness commands move/consume resources for the entire party, not one actor.
+            require(!mechanicalIntent.startsWith("WILD_") || protected.isEmpty()) {
+                "GROUP_ACTION_REQUIRES_PLAYER_DECISION"
+            }
+        }
         when (mode(envelope, characterId)) {
             CharacterControlMode.PLAYER ->
                 require(!fromMaster && proposalId.isNullOrBlank()) { "CHARACTER_PLAYER_CONTROLLED" }
