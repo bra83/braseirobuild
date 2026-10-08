@@ -424,9 +424,13 @@ object TreasureXpRuntimeRules {
                 if (percent !in allowedPrimeModifiers)
                     return XpPlanResult(blocker = "INVALID_PRIME_REQUISITE_MODIFIER:$classId:$percent")
                 val adjustedNumerator = rawClassShare * (100L + percent)
-                if (adjustedNumerator % 100L != 0L)
-                    return XpPlanResult(blocker = "MISSING_EVIDENCE:XP_PRIME_MODIFIER_FRACTION:${recipient.recipientId}:$classId:$adjustedNumerator/100")
-                deltas["${recipient.recipientId}:$classId"] = adjustedNumerator / 100L
+                // OSE retainers receive a -50% XP penalty (Classic Rules Tome,
+                // Retainers, p.57); apply it after each individual's primary
+                // requisite adjustment. Non-integral outcomes remain evidence-gated.
+                val divisor = if (recipient.retainer) 200L else 100L
+                if (adjustedNumerator % divisor != 0L)
+                    return XpPlanResult(blocker = "MISSING_EVIDENCE:XP_INDIVIDUAL_FRACTION:${recipient.recipientId}:$classId:$adjustedNumerator/$divisor")
+                deltas["${recipient.recipientId}:$classId"] = adjustedNumerator / divisor
             }
         }
         val sources = buildList {
