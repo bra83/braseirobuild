@@ -1,0 +1,7 @@
+BRASEIRO OSE 1.0.8 FINAL — build trigger only after merge into main.
+Scope: character CRUD / multiple characters / selection / persistence / XP archiving.
+Baseline: ose-1.0.7-final (stable package braseiro.ose and signing key).
+New versionCode: 9.
+CI gate: Full JVM, Android, WebView multi-character smoke and old regression suites.
+BRELGA workflow: .github/workflows/build-ose-1.0.8-brelga.yml.
+This file is not an APK and never proves any test result.
