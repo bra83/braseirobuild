@@ -19,6 +19,7 @@ import androidx.webkit.WebViewAssetLoader
 import braseiro.ose.backup.BackupCodec
 import braseiro.ose.character.NativeCharacterCreationCoordinator
 import braseiro.ose.character.NativeCharacterLoadoutCoordinator
+import braseiro.ose.character.CharacterPartyAdministration
 import braseiro.ose.rag.RuleEvidenceRegistry
 import braseiro.ose.model.*
 import braseiro.ose.dungeon.DungeonGeneratorV1
@@ -753,34 +754,9 @@ class MainActivity : Activity() {
                             val character = old.game.characters[id] ?: error("UNKNOWN_CHARACTER_ID")
                             if (id in old.party.characterIds) {
                                 repository.checkpoint(CAMPAIGN_ID, "before-delete-$id-${System.currentTimeMillis()}")
-                                val survivorIds = old.party.characterIds.filterNot { it == id }
-                                val inventory = old.game.inventory.copy(
-                                    items = old.game.inventory.items.filterValues { it.ownerId != id },
-                                    basicSignificantTreasureOwners = old.game.inventory.basicSignificantTreasureOwners - id
-                                ).canonical()
-                                val expedition = old.game.expedition.copy(
-                                    lightSources = old.game.expedition.lightSources.filterNot { it.carrierId == id }
-                                )
-                                val nextGame = old.game.copy(
-                                    characters = old.game.characters + (id to character.copy(
-                                        flags = character.flags + "ARCHIVED_DELETED"
-                                    ).canonical()),
-                                    inventory = inventory,
-                                    loadouts = old.game.loadouts - id,
-                                    expedition = expedition,
-                                    actionLog = old.game.actionLog + ActionLogEntry(
-                                        "CHARACTER_DELETE:$commandId", "CAMPAIGN_ADMIN",
-                                        "Ficha $id excluída da companhia (registro histórico preservado)", emptyList()
-                                    ),
-                                    revision = old.game.revision + 1
-                                )
-                                val derived = braseiro.ose.rules.shared.InventoryRuntimeRules.derivePartyExpedition(
-                                    current.ruleProfile, current.optionSet, survivorIds, inventory, expedition
-                                )
+                                val updated = CharacterPartyAdministration.delete(current, id, commandId)
                                 repository.commit(CAMPAIGN_ID, StateTransition(
-                                    "character-delete:$commandId",
-                                    old.copy(party = PartyState(survivorIds),
-                                        game = nextGame.copy(expedition = derived.expedition).canonical())
+                                    "character-delete:$commandId", updated.campaignState
                                 ))
                             } else {
                                 require("ARCHIVED_DELETED" in character.flags) { "UNKNOWN_CHARACTER_ID" }
