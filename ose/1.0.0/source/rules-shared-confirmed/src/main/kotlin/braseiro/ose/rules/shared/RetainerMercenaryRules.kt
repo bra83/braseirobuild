@@ -90,6 +90,20 @@ object RetainerMercenaryRules {
         return (base + (if (mounted || elite) 1 else if (fanatic) 2 else 0)).coerceAtMost(12)
     }
 
+    data class DailyWageQuote(val daysOwed: Long, val amountGp: Long, val blocker: String? = null) {
+        val payable: Boolean get() = blocker == null && daysOwed > 0L
+    }
+    /** Day boundaries from campaign clock only. Legacy histories must be reconciled. */
+    fun quoteDailyWage(wageGp: Int, paidThroughDay: Long?, currentDay: Long): DailyWageQuote {
+        require(wageGp >= 0 && currentDay >= 0L)
+        if (paidThroughDay == null) return DailyWageQuote(0, 0, "MISSING_EVIDENCE:LEGACY_WAGE_BASELINE")
+        if (paidThroughDay > currentDay) return DailyWageQuote(0, 0, "CLOCK_BEFORE_LAST_PAYMENT")
+        val days = currentDay - paidThroughDay
+        val amount = try { Math.multiplyExact(days, wageGp.toLong()) }
+            catch (_: ArithmeticException) { return DailyWageQuote(days, 0, "WAGE_OVERFLOW") }
+        return DailyWageQuote(days, amount)
+    }
+
     /** Exact OSE half-share distribution; fractional coin handling stays evidence-gated. */
     data class TreasureShareResult(val playerShareGp: Long, val retainerSharesGp: List<Long>)
     fun divideTreasureExactly(totalGp: Long, playerCount: Int, retainerHalfShares: List<Int>): TreasureShareResult? {
