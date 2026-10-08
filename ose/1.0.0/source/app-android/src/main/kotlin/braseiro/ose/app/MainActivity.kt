@@ -20,6 +20,8 @@ import braseiro.ose.backup.BackupCodec
 import braseiro.ose.character.NativeCharacterCreationCoordinator
 import braseiro.ose.character.NativeCharacterLoadoutCoordinator
 import braseiro.ose.character.CharacterPartyAdministration
+import braseiro.ose.character.CharacterControlCoordinator
+import braseiro.ose.character.CompanionJudgmentEngine
 import braseiro.ose.rag.RuleEvidenceRegistry
 import braseiro.ose.model.*
 import braseiro.ose.dungeon.DungeonGeneratorV1
@@ -335,7 +337,12 @@ class MainActivity : Activity() {
                             require(reactionId.isNotBlank()) { "PlayerReaction.reactionId is required" }
                             val text = payload.optString("text", "").trim()
                             val mechanicalIntent = payload.optString("mechanicalIntent", "").trim().ifBlank { text }
-                            val result = session.submitPlayerReaction(CAMPAIGN_ID, reactionId, text, mechanicalIntent)
+                            val currentBefore = session.loadSession(CAMPAIGN_ID)
+                            val actorId = payload.optString("characterId", "").trim()
+                                .ifBlank { selectedCharacterId(currentBefore) ?: error("NO_CHARACTER") }
+                            val result = session.submitCharacterAction(
+                                CAMPAIGN_ID, reactionId, actorId, text, mechanicalIntent
+                            )
                             val current = session.loadSession(CAMPAIGN_ID)
                             send(
                                 JSONObject().put("type", "SessionUpdate").put("payload", JSONObject()
@@ -347,6 +354,19 @@ class MainActivity : Activity() {
                                     .put("stateHash", CanonicalStateHash.sha256(current))
                                     .put("viewState", projectForUi(current)))
                             )
+                            if (current.campaignState.party.characterIds.any {
+                                    CharacterControlCoordinator.mode(current, it) != CharacterControlMode.PLAYER
+                                }) {
+                                val autonomous = runCatching { advanceMasterCharacters("reaction:$reactionId") }
+                                autonomous.onFailure {
+                                    android.util.Log.w("BraseiroOSE", "Autonomous party turn deferred; player action remains committed", it)
+                                }
+                                send(JSONObject().put("type", "MasterActionResult").put("payload", JSONObject()
+                                    .put("ok", autonomous.isSuccess)
+                                    .put("error", autonomous.exceptionOrNull()?.let(::safeError) ?: JSONObject.NULL)
+                                    .put("viewState",
+                                        projectForUi(session.loadSession(CAMPAIGN_ID)))))
+                            }
                         }
 
                         "StartAdventure" -> {
@@ -360,6 +380,19 @@ class MainActivity : Activity() {
                                 .put("ruleTrace", traceJson(result.trace))
                                 .put("stateHash", CanonicalStateHash.sha256(current))
                                 .put("viewState", projectForUi(current))))
+                            if (current.campaignState.party.characterIds.any {
+                                    CharacterControlCoordinator.mode(current, it) != CharacterControlMode.PLAYER
+                                }) {
+                                val autonomous = runCatching { advanceMasterCharacters("start:") }
+                                autonomous.onFailure {
+                                    android.util.Log.w("BraseiroOSE", "Master opening actions deferred; opening remains committed", it)
+                                }
+                                send(JSONObject().put("type", "MasterActionResult").put("payload", JSONObject()
+                                    .put("ok", autonomous.isSuccess)
+                                    .put("error", autonomous.exceptionOrNull()?.let(::safeError) ?: JSONObject.NULL)
+                                    .put("viewState",
+                                        projectForUi(session.loadSession(CAMPAIGN_ID)))))
+                            }
                         }
 
                         "GMHelp" -> {
@@ -555,6 +588,10 @@ class MainActivity : Activity() {
                             }
                             val nextGame = base.game.copy(
                                 characters = keptCharacters,
+                                characterControlModes = oldGame.characterControlModes.filterKeys { it in partyIds },
+                                characterActionProposals = oldGame.characterActionProposals.filterValues {
+                                    it.characterId in partyIds && it.status == CharacterActionApproval.EXECUTED
+                                },
                                 inventory = base.game.inventory.copy(items = keptInventory),
                                 loadouts = keptLoadouts,
                                 session = SessionSnapshot(phase = nextPhase),
@@ -788,6 +825,96 @@ class MainActivity : Activity() {
                                 .put("viewState",projectForUi(persisted))))
                         }
 
+                        "CharacterControlSet" -> {
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            val id = payload.getString("characterId").trim()
+                            val mode = CharacterControlMode.valueOf(payload.getString("mode").trim())
+                            val next = CharacterControlCoordinator.setMode(current, id, mode)
+                            if (next != current) repository.commit(CAMPAIGN_ID, StateTransition(
+                                "character-control:" + id + ":" + java.util.UUID.randomUUID(),
+                                next.campaignState
+                            ))
+                            val updated = session.loadSession(CAMPAIGN_ID)
+                            send(JSONObject().put("type", "CharacterControlResult").put("payload", JSONObject()
+                                .put("ok", true).put("characterId", id).put("mode", mode.name)
+                                .put("viewState", projectForUi(updated))))
+                        }
+
+                        "MasterActionPropose" -> {
+                            val actorId = payload.getString("characterId").trim()
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            require(CharacterControlCoordinator.mode(current, actorId) != CharacterControlMode.PLAYER) {
+                                "CHARACTER_PLAYER_CONTROLLED"
+                            }
+                            val proposalId = payload.optString("proposalId", "").trim()
+                                .ifBlank { "manual:" + java.util.UUID.randomUUID() }
+                            val text = payload.getString("text").trim()
+                            val intent = payload.optString("mechanicalIntent", "").trim().ifBlank { text }
+                            val next = CharacterControlCoordinator.propose(current, proposalId, actorId, text, intent)
+                            if (next != current) repository.commit(CAMPAIGN_ID, StateTransition(
+                                "master-propose:" + proposalId, next.campaignState
+                            ))
+                            if (CharacterControlCoordinator.mode(next, actorId) == CharacterControlMode.MASTER) {
+                                executeMasterProposal(proposalId)
+                            }
+                            val updated = session.loadSession(CAMPAIGN_ID)
+                            send(JSONObject().put("type", "MasterActionResult").put("payload", JSONObject()
+                                .put("ok", true).put("viewState", projectForUi(updated))))
+                        }
+
+                        "MasterActionReview" -> {
+                            val proposalId = payload.getString("proposalId").trim()
+                            val approve = payload.getBoolean("approve")
+                            val current = session.loadSession(CAMPAIGN_ID)
+                            val editedText = payload.optString("editedText", "").trim().takeIf { it.isNotBlank() }
+                            val editedIntent = payload.optString("editedIntent", "").trim().takeIf { it.isNotBlank() }
+                            val next = CharacterControlCoordinator.review(
+                                current, proposalId, approve, editedText, editedIntent
+                            )
+                            if (next != current) repository.commit(CAMPAIGN_ID, StateTransition(
+                                "master-review:" + proposalId, next.campaignState
+                            ))
+                            if (approve) executeMasterProposal(proposalId)
+                            val updated = session.loadSession(CAMPAIGN_ID)
+                            send(JSONObject().put("type", "MasterActionResult").put("payload", JSONObject()
+                                .put("ok", true).put("approved", approve)
+                                .put("viewState", projectForUi(updated))))
+                        }
+
+                        "MasterActionContinue" -> {
+                            val only = payload.optString("characterId", "").trim()
+                            advanceMasterCharacters(
+                                "continue:" + java.util.UUID.randomUUID(),
+                                only.takeIf { it.isNotBlank() }
+                            )
+                            send(JSONObject().put("type", "MasterActionResult").put("payload", JSONObject()
+                                .put("ok", true).put("viewState", projectForUi(session.loadSession(CAMPAIGN_ID)))))
+                        }
+
+                        "CompanionOpinionsQuery" -> {
+                            val before = session.loadSession(CAMPAIGN_ID)
+                            val hashBefore = CanonicalStateHash.sha256(before)
+                            val opinions = CompanionJudgmentEngine.opinions(before)
+                            val after = session.loadSession(CAMPAIGN_ID)
+                            check(hashBefore == CanonicalStateHash.sha256(after)) {
+                                "COMPANION_OPINION_STATE_MUTATION"
+                            }
+                            send(JSONObject().put("type", "CompanionOpinionsResult").put("payload",
+                                JSONObject().put("readOnly", true).put("mechanicalDelta", false)
+                                    .put("stateHash", hashBefore)
+                                    .put("opinions", JSONArray(opinions.map { opinion ->
+                                        JSONObject().put("characterId", opinion.characterId)
+                                            .put("name", opinion.name)
+                                            .put("perception", opinion.perception)
+                                            .put("hypothesis", opinion.hypothesis)
+                                            .put("motivation", opinion.motivation)
+                                            .put("reason", opinion.reason)
+                                            .put("risk", opinion.risk)
+                                            .put("stance", opinion.stance)
+                                            .put("suggestion", opinion.suggestedAction)
+                                    }))))
+                        }
+
                         "CharacterSelect" -> {
                             val current = session.loadSession(CAMPAIGN_ID)
                             storeSelectedCharacterId(current, payload.getString("characterId").trim())
@@ -806,6 +933,80 @@ class MainActivity : Activity() {
                 }
             }
         }
+    }
+
+    /**
+     * A bounded Mestre turn after a player action or opening. Barbara chooses
+     * among visible, read-only suggestions. Mechanics still flow through the
+     * deterministic referee; group movement is never imposed on human players.
+     */
+    private fun advanceMasterCharacters(turnKey: String, onlyCharacterId: String? = null) {
+        val initial = session.loadSession(CAMPAIGN_ID)
+        val ids = initial.campaignState.party.characterIds
+        if (onlyCharacterId != null) require(onlyCharacterId in ids) { "UNKNOWN_CHARACTER_ID" }
+        val candidates = ids.filter { id ->
+            (onlyCharacterId == null || id == onlyCharacterId) &&
+                CharacterControlCoordinator.mode(initial, id) != CharacterControlMode.PLAYER
+        }.take(8)
+        for (id in candidates) {
+            val current = session.loadSession(CAMPAIGN_ID)
+            if (id !in current.campaignState.party.characterIds) continue
+            val proposalId = "auto:" + turnKey.hashCode() + ":" + id.hashCode()
+            if (current.campaignState.game.characterActionProposals.containsKey(proposalId)) continue
+            val name = current.campaignState.game.characters[id]?.name ?: continue
+            val judgment = CompanionJudgmentEngine.assess(current, id)
+            val suggestions = ContextualDecisionSuggester.suggest(current)
+            val options = suggestions.mapIndexed { index, d ->
+                (index + 1).toString() + ") " + d.label + ": " + d.reaction
+            }.joinToString("\n")
+            val answer = runCatching {
+                session.gmHelp(CAMPAIGN_ID,
+                    "Como o personagem " + name + ", escolha UMA opção pública. " +
+                    "Responda primeiro com 1, 2 ou 3, sem inventar regras ou informação secreta:\n" +
+                    options).answer
+            }.getOrDefault("")
+            val selectedNumber = if (answer.startsWith("Posso ajudar") || answer.startsWith("Não consegui"))
+                null else answer.trim().firstOrNull()?.digitToIntOrNull()?.takeIf { it in 1..suggestions.size }
+            val groupActionPermitted = ids.all { member ->
+                member == id || CharacterControlCoordinator.mode(current, member) == CharacterControlMode.MASTER
+            }
+            // A vulnerable or skeptical actor may disagree/refuse. Neither an LLM
+            // choice nor an actor's autonomy authorizes moving another character.
+            val chosen = if (judgment.stance in setOf("OBJECT", "CAUTION", "UNCERTAIN")) null
+                else suggestions[(selectedNumber ?: 1) - 1]
+            val collective = chosen?.mechanicalIntent?.startsWith("WILD_") == true
+            val reaction = if (chosen == null || (collective && !groupActionPermitted))
+                judgment.suggestedAction else chosen.reaction
+            val intent = if (chosen == null || (collective && !groupActionPermitted))
+                judgment.mechanicalIntent else (chosen.mechanicalIntent ?: chosen.reaction)
+            val next = CharacterControlCoordinator.propose(
+                current, proposalId, id, reaction, intent, judgment
+            )
+            repository.commit(CAMPAIGN_ID, StateTransition(
+                "master-propose:" + proposalId, next.campaignState
+            ))
+            if (CharacterControlCoordinator.mode(next, id) == CharacterControlMode.MASTER) {
+                executeMasterProposal(proposalId)
+            }
+        }
+    }
+
+    private fun executeMasterProposal(proposalId: String) {
+        val current = session.loadSession(CAMPAIGN_ID)
+        val proposal = current.campaignState.game.characterActionProposals[proposalId]
+            ?: error("UNKNOWN_PROPOSAL")
+        require(proposal.status == CharacterActionApproval.APPROVED ||
+            proposal.status == CharacterActionApproval.EXECUTED) { "CHARACTER_CURATOR_APPROVAL_REQUIRED" }
+        session.submitCharacterAction(
+            CAMPAIGN_ID, "master-action:" + proposalId, proposal.characterId,
+            proposal.reactionText, proposal.mechanicalIntent,
+            fromMaster = true, approvedProposalId = proposalId
+        )
+        val latest = session.loadSession(CAMPAIGN_ID)
+        val next = CharacterControlCoordinator.markExecuted(latest, proposalId)
+        if (next != latest) repository.commit(CAMPAIGN_ID, StateTransition(
+            "master-executed:" + proposalId, next.campaignState
+        ))
     }
 
     private fun traceJson(trace: RuleTrace): JSONObject {
@@ -1283,7 +1484,7 @@ class MainActivity : Activity() {
         val message = t.message.orEmpty()
         return when {
             message.startsWith("GEMINI_") -> message
-            message in setOf("EMPTY_GEMINI_KEY", "GEMINI_KEY_TOO_LONG", "INVALID_GEMINI_MODEL", "INVALID_TTS_VOICE", "UNKNOWN_GEMINI_CREDENTIAL_SLOT", "UNKNOWN_TTS_COMMAND", "EMPTY_VISIBLE_NARRATION", "INVALID_IMAGE_DATA_URL", "IMAGE_SIZE_INVALID", "UNSUPPORTED_IMAGE_TYPE", "UNKNOWN_CHARACTER_ID", "UNKNOWN_NPC_ID", "UNKNOWN_ITEM_ID", "UNSUPPORTED_PRESENTATION_SCOPE", "UNSUPPORTED_PORTRAIT_KIND", "UNKNOWN_UI_COMMAND", "INVALID_DIE", "INVALID_DICE_COUNT", "INVALID_DICE_MODIFIER", "NO_CHARACTER", "CHARACTER_ALREADY_EXISTS", "RANDOM_CHARACTER_NO_VALID_CLASS", "INVALID_CHARACTER_SHEET", "CHARACTER_PROFILE_MISMATCH", "CHARACTER_ID_EXISTS", "CHARACTER_ITEM_PROFILE_MISMATCH", "ITEM_ID_EXISTS", "INVALID_CHARACTER_NAME", "CHARACTER_RECREATE_AFTER_START", "INVALID_CHARACTER_COMMAND", "CHARACTER_COMMAND_ALREADY_APPLIED", "CHARACTER_SELECTION_SAVE_FAILED") -> message
+            message in setOf("EMPTY_GEMINI_KEY", "GEMINI_KEY_TOO_LONG", "INVALID_GEMINI_MODEL", "INVALID_TTS_VOICE", "UNKNOWN_GEMINI_CREDENTIAL_SLOT", "UNKNOWN_TTS_COMMAND", "EMPTY_VISIBLE_NARRATION", "INVALID_IMAGE_DATA_URL", "IMAGE_SIZE_INVALID", "UNSUPPORTED_IMAGE_TYPE", "UNKNOWN_CHARACTER_ID", "UNKNOWN_NPC_ID", "UNKNOWN_ITEM_ID", "UNSUPPORTED_PRESENTATION_SCOPE", "UNSUPPORTED_PORTRAIT_KIND", "UNKNOWN_UI_COMMAND", "INVALID_DIE", "INVALID_DICE_COUNT", "INVALID_DICE_MODIFIER", "NO_CHARACTER", "CHARACTER_ALREADY_EXISTS", "RANDOM_CHARACTER_NO_VALID_CLASS", "INVALID_CHARACTER_SHEET", "CHARACTER_PROFILE_MISMATCH", "CHARACTER_ID_EXISTS", "CHARACTER_ITEM_PROFILE_MISMATCH", "ITEM_ID_EXISTS", "INVALID_CHARACTER_NAME", "CHARACTER_RECREATE_AFTER_START", "INVALID_CHARACTER_COMMAND", "CHARACTER_COMMAND_ALREADY_APPLIED", "CHARACTER_SELECTION_SAVE_FAILED", "CHARACTER_PLAYER_CONTROLLED", "CHARACTER_MASTER_CONTROLLED", "CHARACTER_CURATOR_APPROVAL_REQUIRED", "CHARACTER_NOT_CURATED", "UNKNOWN_PROPOSAL", "INVALID_PROPOSAL_ID", "INVALID_PROPOSAL_CONTENT", "PROPOSAL_ID_COLLISION", "PROPOSAL_ALREADY_REVIEWED", "CHARACTER_ACTOR_PROTECTED", "GROUP_ACTION_REQUIRES_PLAYER_DECISION") -> message
             else -> t::class.java.simpleName
         }
     }

@@ -33,7 +33,29 @@ object AppViewStateProjector {
                 .put("visibleMechanicalFeedback", game.session.visibleMechanicalFeedback)
                 .put("lastPlayerReaction", game.session.lastPlayerReaction)
                 .put("pendingNarrationReactionId", game.session.pendingNarrationReactionId ?: JSONObject.NULL))
-            .put("party", JSONArray(party.map(::characterSummary)))
+            .put("party", JSONArray(party.map { c ->
+                characterSummary(c).put("controlMode", (game.characterControlModes[c.characterId]
+                    ?: CharacterControlMode.PLAYER).name)
+            }))
+            .put("characterControlModes", JSONObject(game.characterControlModes.mapValues { it.value.name }))
+            .put("pendingCharacterActions", JSONArray(game.characterActionProposals.values
+                .filter { it.characterId in state.party.characterIds &&
+                    it.status == CharacterActionApproval.PENDING }
+                .sortedWith(compareBy<CharacterActionProposalSnapshot> { it.createdAtRevision }.thenBy { it.proposalId })
+                .map { proposal ->
+                    JSONObject().put("proposalId", proposal.proposalId)
+                        .put("characterId", proposal.characterId)
+                        .put("characterName", game.characters[proposal.characterId]?.name ?: proposal.characterId)
+                        .put("text", proposal.reactionText)
+                        .put("mechanicalIntent", proposal.mechanicalIntent)
+                        .put("perception", proposal.perception)
+                        .put("hypothesis", proposal.hypothesis)
+                        .put("motivation", proposal.motivation)
+                        .put("reason", proposal.reason)
+                        .put("risk", proposal.risk)
+                        .put("stance", proposal.stance)
+                        .put("status", proposal.status.name)
+                }))
             .put("selectedCharacterId", selected?.characterId ?: JSONObject.NULL)
             .put("selectedCharacter", selected?.let(::characterDetail) ?: JSONObject.NULL)
             .put("inventory", JSONArray(game.inventory.items.values
