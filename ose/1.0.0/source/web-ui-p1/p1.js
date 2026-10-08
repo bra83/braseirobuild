@@ -48,6 +48,7 @@ window.BraseiroReceive=(raw)=>{
   }
   else if(m.type==='CharacterCreationDraft'||m.type==='CharacterCreationResult'){if(p.viewState)viewState=p.viewState;if(m.type==='CharacterCreationResult'&&p.ok)creatingAdditionalCharacter=false;render();showToast(p.ok===false?'Não foi possível concluir a criação.':'Criação atualizada.');}
   else if(m.type==='CharacterSelectionResult'){if(p.viewState)viewState=p.viewState;editingCharacter=false;creatingAdditionalCharacter=false;screen='sheet';render();}
+  else if(m.type==='CompanionOpinionsResult'){if(p.readOnly===true&&p.mechanicalDelta===false){companionOpinions=p;render();showToast('Opiniões consultadas sem avançar a cena.')}else showToast('Resposta de opinião inválida.');}
   else if(m.type==='CharacterControlResult'||m.type==='MasterActionResult'){if(p.viewState)viewState=p.viewState;render();showToast(p.ok===false?'A decisão do Mestre não foi concluída. O último turno do jogador continua salvo.':m.type==='CharacterControlResult'?'Controle do personagem atualizado.':'Decisão do Mestre atualizada.');}
   else if(m.type==='CharacterDeleteResult'){if(p.viewState)viewState=p.viewState;editingCharacter=false;creatingAdditionalCharacter=false;render();showToast('Ficha excluída da companhia; histórico preservado.');}
   else if(m.type==='UiCommandResult'){if(p.viewState)viewState=p.viewState;render();showToast(uiStatusMessage(p));}
@@ -70,7 +71,7 @@ window.BraseiroReceive=(raw)=>{
   else if(m.type==='CharacterRecreateResult'){if(p.viewState)viewState=p.viewState;editingCharacter=false;screen='sheet';render();showToast('Personagem anterior removido. Crie o novo aventureiro.');}
   else if(m.type==='BackupExportResult'){backupBuffer=p.backup||'';const t=el('backupText');if(t)t.value=backupBuffer;showToast('Backup gerado. Copie e guarde o texto.');}
   else if(m.type==='BackupImportResult'){if(p.viewState)viewState=p.viewState;render();showToast('Backup restaurado.');}
-  else if(m.type==='BridgeError'){document.querySelectorAll('[data-delete-character],[data-random-character],[data-commit-draft],[data-save-character],[data-start-draft],[data-character-select],[data-character-mode],[data-curator-approve],[data-curator-reject],[data-master-continue]').forEach(x=>x.disabled=false);showToast(friendlyBridgeError(p.message));}
+  else if(m.type==='BridgeError'){document.querySelectorAll('[data-delete-character],[data-random-character],[data-commit-draft],[data-save-character],[data-start-draft],[data-character-select],[data-character-mode],[data-curator-approve],[data-curator-change],[data-curator-reject],[data-master-continue],[data-companion-opinions]').forEach(x=>x.disabled=false);showToast(friendlyBridgeError(p.message));}
  }catch(_e){showToast('Não foi possível ler a resposta do aplicativo.');}
 };
 
@@ -312,7 +313,18 @@ function wireCurrentScreen(){
   document.querySelectorAll('[data-cancel-add-character]').forEach(b=>b.onclick=()=>{creatingAdditionalCharacter=false;render()});
   document.querySelectorAll('[data-character-mode]').forEach(select=>select.onchange=()=>{const id=select.dataset.characterMode,mode=select.value;select.disabled=true;postNative('CharacterControlSet',{characterId:id,mode})});
  document.querySelectorAll('[data-curator-approve]').forEach(b=>b.onclick=()=>{const id=b.dataset.curatorApprove,p=(viewState?.pendingCharacterActions||[]).find(x=>x.proposalId===id);if(!p)return;const value=document.querySelector('[data-curator-text="'+id+'"]')?.value?.trim()||p.text;if(!value)return showToast('Descreva a ação antes de aprovar.');b.disabled=true;const edited=value!==p.text;postNative('MasterActionReview',{proposalId:id,approve:true,...(edited?{editedText:value,editedIntent:value}:{})})});
+ document.querySelectorAll('[data-curator-change]').forEach(b=>b.onclick=()=>{
+   const id=b.dataset.curatorChange,p=(viewState?.pendingCharacterActions||[]).find(x=>x.proposalId===id);
+   if(!p)return;
+   const edited=document.querySelector('[data-curator-text="'+id+'"]')?.value?.trim();
+   if(!edited)return showToast('Descreva sua alternativa antes de aprovar.');
+   if(edited===p.text)return showToast('Altere a proposta ou use APROVAR.');
+   if(!confirm('Substituir a ação do Mestre pela sua versão e enviá-la ao motor de regras?'))return;
+   b.disabled=true;
+   postNative('MasterActionReview',{proposalId:id,approve:true,editedText:edited,editedIntent:edited});
+ });
  document.querySelectorAll('[data-curator-reject]').forEach(b=>b.onclick=()=>{b.disabled=true;postNative('MasterActionReview',{proposalId:b.dataset.curatorReject,approve:false})});
+ document.querySelectorAll('[data-companion-opinions]').forEach(b=>b.onclick=()=>{b.disabled=true;if(!postNative('CompanionOpinionsQuery',{}))b.disabled=false;});
  document.querySelectorAll('[data-master-continue]').forEach(b=>b.onclick=()=>{b.disabled=true;postNative('MasterActionContinue',{});showToast('Mestre escolhendo ações da companhia…')});
  document.querySelectorAll('[data-character-select]').forEach(b=>b.onclick=()=>{b.disabled=true;postNative('CharacterSelect',{characterId:b.dataset.characterSelect})});
   document.querySelectorAll('[data-delete-character]').forEach(b=>b.onclick=()=>{const id=b.dataset.deleteCharacter;const character=(viewState?.party||[]).find(c=>c.characterId===id);if(!character)return;if(!confirm('EXCLUIR A FICHA DE '+character.name+'?\n\nSeu inventário, equipamento e retrato deixarão de ser usados na companhia. Os demais personagens e o histórico da campanha serão preservados.'))return;b.disabled=true;postNative('CharacterDelete',{characterId:id,commandId:'delete-'+Date.now()+'-'+Math.random().toString(36).slice(2,9)})});
