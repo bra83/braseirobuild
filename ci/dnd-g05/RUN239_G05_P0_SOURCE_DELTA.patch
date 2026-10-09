@@ -1,0 +1,89 @@
+--- a/android/app/src/main/java/com/braseiro/dnd5e/AppDb.java
++++ b/android/app/src/main/java/com/braseiro/dnd5e/AppDb.java
+@@ -2442,6 +2442,18 @@
+                 sourceAction.optString("condition_on_fail",""),
+                 sourceAction.optString("effect_on_fail",""));
+             if(!riderBlock.isEmpty())return out.put("statblock_attack_blocked",riderBlock);
++            // Reject an exhausted or inactive turn BEFORE calling the nested
++            // resource executor. Otherwise its safe nested rollback is reported
++            // as an opaque transaction error instead of a typed refusal.
++            String turnBlock=CombatTurnGuard.spendBlock(resourceCost,
++                getCombatState().optInt("running",0)==1,
++                actor.optInt("active_turn",0)==1,
++                ConditionRulesEngine.incapacitated(actor.optString("conditions","")),
++                actor.optInt("hp",0),resources.optBoolean("dead",false),
++                actor.optInt("reaction_used",0)==1,
++                resources.optBoolean("action_available",true),
++                resources.optBoolean("bonus_action_available",true));
++            if(!turnBlock.isEmpty())return out.put("statblock_attack_blocked",turnBlock);
+             if(target.optInt("hp",0)<=0||combatantHasTotalCover(targetId))return out.put("statblock_attack_blocked","invalid_or_covered_target");
+             JSONObject geometry=compiledStatblockAttackGeometry(actorId,targetId,id,action,additionalThreatId);
+             if(!geometry.optBoolean("attack_geometry_valid",false))return out.put("statblock_attack_blocked",
+@@ -6973,6 +6985,11 @@
+         for(int i=0;i<rows.length();i++){
+             JSONObject row=rows.optJSONObject(i);if(row==null)continue;
+             long oldId=row.optLong("id",0);ContentValues v=jsonValues(row);v.remove("id");
++            // RUN239 G05: listCombatants() augments rows with computed UI fields.
++            // Only physical SQLite columns belong in the backup21 INSERT.
++            // The canonical cover value is preserved in resources_json.
++            v.remove("cover");v.remove("effective_ac");v.remove("total_cover");
++            v.remove("effective_dex_save_bonus");
+             v.put("world_profile",getActiveMapProfile());
+             if("character".equals(row.optString("source_kind"))&&row.optInt("is_player",0)==1){
+                 Long mapped=characterIdMap.get(row.optLong("source_id",0));
+--- a/android/app/src/test/java/com/braseiro/dnd5e/Run236ConditionBackupRobolectricTest.java
++++ b/android/app/src/test/java/com/braseiro/dnd5e/Run236ConditionBackupRobolectricTest.java
+@@ -17,13 +17,13 @@
+ public final class Run236ConditionBackupRobolectricTest {
+     private static void setTimers(AppDb db,long target,long source)throws Exception{
+         JSONObject timer=new JSONObject().put("schema",MonsterConditionRecoveryLedger.SCHEMA)
+-            .put("name","poisoned").put("source_actor_id",source)
++            .put("name","envenenado").put("source_actor_id",source)
+             .put("source_statblock","run236-fixture").put("source_action","Venom Cloud")
+             .put("source_receipt","ui-monster-save-run236").put("save_dc",13)
+             .put("save_ability","con").put("trigger","target_turn_end")
+             .put("last_attempt_round",-1).put("last_attempt_encounter","");
+         ContentValues v=new ContentValues();v.put("condition_timers_json",new JSONArray().put(timer).toString());
+-        v.put("conditions","poisoned");
++        v.put("conditions","envenenado");
+         assertEquals(1,db.getWritableDatabase().update("combatants",v,
+             "id=? AND world_profile=?",new String[]{String.valueOf(target),"dnd"}));
+     }
+@@ -46,7 +46,7 @@
+             JSONArray timers=new JSONArray(newTarget.optString("condition_timers_json","[]"));
+             assertEquals(1,timers.length());
+             assertEquals(newSource.optLong("id"),timers.getJSONObject(0).getLong("source_actor_id"));
+-            assertTrue(ConditionTokenGuard.has(newTarget.optString("conditions"),"poisoned"));
++            assertTrue(ConditionTokenGuard.has(newTarget.optString("conditions"),"envenenado"));
+             db.close();db=new AppDb(context,dbName);db.setActiveMapProfile("dnd");
+             assertEquals(newSource.optLong("id"),new JSONArray(db.findCombatantByName("RUN236 Target")
+                 .optString("condition_timers_json","[]")).getJSONObject(0).getLong("source_actor_id"));
+@@ -61,8 +61,10 @@
+             long target=db.addCombatant("RUN236 Target",10,30,30,12,"",false);
+             setTimers(db,target,source);
+             db.setCombatRunning(true);
+-            assertEquals(source,db.nextTurn().optLong("id"));
+-            assertEquals(target,db.nextTurn().optLong("id"));
++            JSONObject first=db.nextTurn();
++            assertEquals("first turn: "+first.toString(),source,first.optLong("id"));
++            JSONObject second=db.nextTurn();
++            assertEquals("second turn: "+second.toString(),target,second.optLong("id"));
+             ContentValues legacy=new ContentValues();legacy.put("encounter_id","");
+             assertEquals(1,db.getWritableDatabase().update("combat_state_profiles",legacy,
+                 "world_profile=?",new String[]{"dnd"}));
+--- a/android/app/src/test/java/com/braseiro/dnd5e/Run238ActionEconomyRobolectricTest.java
++++ b/android/app/src/test/java/com/braseiro/dnd5e/Run238ActionEconomyRobolectricTest.java
+@@ -50,9 +50,10 @@
+             assertEquals(1,db.getWritableDatabase().update("combatants",actor,
+                 "id=? AND world_profile=?",new String[]{String.valueOf(source),"dnd"}));
+             db.setCombatRunning(true);
+-            ContentValues active=new ContentValues();active.put("active_turn",1);
+-            assertEquals(1,db.getWritableDatabase().update("combatants",active,
+-                "id=? AND world_profile=?",new String[]{String.valueOf(source),"dnd"}));
++            // Use the production turn transition so action/bonus budgets are
++            // prepared by AppDb itself, not by an artificial SQL active flag.
++            JSONObject turn=db.nextTurn();
++            assertEquals("first turn: "+turn.toString(),source,turn.optLong("id"));
+             JSONObject scene=new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();
+             assertEquals(12,scene.optInt("width_cells"));
+             db.ensureTacticalTokensForCombat();
