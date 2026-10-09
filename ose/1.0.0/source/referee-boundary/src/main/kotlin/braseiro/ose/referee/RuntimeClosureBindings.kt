@@ -621,7 +621,8 @@ object RuntimeClosureBindings {
         val contract=game.retainerContracts[npcId]?.takeIf { it.active && it.employerCharacterId==employerId }
             ?: return blocked("Contrato ativo não encontrado para esse contratante.")
         val quote=RetainerMercenaryRules.quoteDailyWage(contract.dailyWageGp,contract.wagePaidThroughDay,state.time.days)
-        if(quote.blocker!=null) return blocked(quote.blocker,quote.blocker.startsWith("MISSING_EVIDENCE"))
+        val blocker=quote.blocker
+        if(blocker!=null) return blocked(blocker,blocker.startsWith("MISSING_EVIDENCE"))
         if(!quote.payable) return blocked("Diárias já quitadas até o dia ${state.time.days}; nenhum débito novo.")
         val amount=quote.amountGp
         if(amount>Int.MAX_VALUE.toLong()) return blocked("MISSING_EVIDENCE:WAGE_COIN_STACK_CAPACITY",true)
