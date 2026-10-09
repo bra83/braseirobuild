@@ -1,0 +1,31 @@
+name: DnD G05 inspect canonical turn guard
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/dnd-g05-inspect-guard.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore verified RUN230 and expose exact turn guard source
+        run: |
+          set -euo pipefail
+          python3 -m pip install 'gdown==5.2.0'
+          python3 ci/dnd-run230/fetch_source.py --output "$RUNNER_TEMP/dnd-g05-inspect" > "$RUNNER_TEMP/dnd-g05-source.log" 2>&1
+          mkdir -p "$RUNNER_TEMP/dnd-g05-inspect/out/guard"
+          cp "$RUNNER_TEMP/dnd-g05-inspect/source/android/app/src/main/java/com/braseiro/dnd5e/CombatTurnGuard.java" "$RUNNER_TEMP/dnd-g05-inspect/out/guard/"
+          cp "$RUNNER_TEMP/dnd-g05-inspect/source/android/app/src/main/java/com/braseiro/dnd5e/CombatActionReceiptGuard.java" "$RUNNER_TEMP/dnd-g05-inspect/out/guard/"
+          cp "$RUNNER_TEMP/dnd-g05-inspect/source/android/app/src/main/java/com/braseiro/dnd5e/CompiledMonsterActionGuard.java" "$RUNNER_TEMP/dnd-g05-inspect/out/guard/"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: DND_G05_CANONICAL_TURN_GUARD
+          path: ${{ runner.temp }}/dnd-g05-inspect/out/guard/*
+          if-no-files-found: warn
+          retention-days: 3
