@@ -1,0 +1,94 @@
+--- a/android/app/src/main/java/com/braseiro/dnd5e/AppDb.java
++++ b/android/app/src/main/java/com/braseiro/dnd5e/AppDb.java
+@@ -3972,22 +3972,47 @@
+         }
+     }
+ 
+-    public JSONObject nextTurn(){return combatAtomic("next_turn",new CombatAtomicWork(){public JSONObject run()throws Exception{
++    /** RUN241: a legacy encounter ID is durable even when the next turn is
++     * blocked by a pending end-of-turn recovery save. The combatAtomic guard
++     * correctly rolls back blocked actions, so this migration must be a separate
++     * committed preflight rather than a write inside the rejected transaction. */
++    private boolean ensureEncounterIdentityBeforeNextTurn(){
++        JSONObject state=getCombatState();
++        if(state.optInt("running",0)!=1||
++            !state.optString("encounter_id","").trim().isEmpty())return true;
++        SQLiteDatabase sql=getWritableDatabase();
++        // Do not pretend the migration is durable inside a caller's transaction.
++        if(sql.inTransaction())return false;
++        ContentValues v=new ContentValues();
++        v.put("encounter_id","enc-"+java.util.UUID.randomUUID().toString());
++        v.put("updated_at",System.currentTimeMillis());
++        return sql.update("combat_state_profiles",v,
++            "world_profile=? AND (encounter_id IS NULL OR TRIM(encounter_id)='')",
++            new String[]{getActiveMapProfile()})==1;
++    }
++    public synchronized JSONObject nextTurn(){
++        try{
++            if(!ensureEncounterIdentityBeforeNextTurn()){
++                JSONObject blocked=new JSONObject();
++                blocked.put("turn_advance_blocked","encounter_id_persist_failed");
++                return blocked;
++            }
++        }catch(Exception error){
++            AppLog.e("AppDb","Encounter identity preflight failed",error);
++            JSONObject blocked=new JSONObject();
++            try{blocked.put("turn_advance_blocked","encounter_id_persist_failed");}
++            catch(Exception ignored){}
++            return blocked;
++        }
++        return combatAtomic("next_turn",new CombatAtomicWork(){public JSONObject run()throws Exception{
+         List<JSONObject> list=listCombatants(); if(list.size()==0)return new JSONObject();
+         for(JSONObject check:list){JSONObject rr=combatResources(check);if(rr.optJSONObject("concentration_save_pending")!=null)return check.put("turn_advance_blocked","concentration_save_pending");if(check.optInt("active_turn",0)==1&&rr.optBoolean("death_save_due",false))return check.put("turn_advance_blocked","death_save_due");}
+         JSONObject state=getCombatState();if(state.optInt("running",0)!=1)return new JSONObject().put("turn_advance_blocked","encounter_not_running");
+-        // RUN236: migrate legacy encounter identity BEFORE evaluating due
+-        // recovery saves. Otherwise a restored active turn without an ID can
+-        // silently bypass the mandatory save and lose its condition lifecycle.
++        // The durable legacy migration occurs before combatAtomic starts.
++        // A blocked turn must not roll back the encounter identity required
++        // to resolve its mandatory recovery save.
+         String encounterId=state.optString("encounter_id","").trim();
+-        if(encounterId.isEmpty()){
+-            encounterId="enc-"+java.util.UUID.randomUUID().toString();
+-            ContentValues encounterWrite=new ContentValues();encounterWrite.put("encounter_id",encounterId);
+-            if(getWritableDatabase().update("combat_state_profiles",encounterWrite,
+-                "world_profile=?",new String[]{getActiveMapProfile()})!=1)
+-                throw new IllegalStateException("encounter_id_persist_rollback");
+-            state.put("encounter_id",encounterId);
+-        }
++        if(encounterId.isEmpty())throw new IllegalStateException("encounter_id_missing_rollback");
+         if(!"mystara".equals(getActiveMapProfile())&&state.optInt("turn_index",-1)>=0){
+             for(JSONObject check:list)if(check.optInt("active_turn",0)==1){
+                 java.util.List<String> due=MonsterConditionRecoveryLedger.due(
+@@ -6597,7 +6622,12 @@
+         root.put("auditLog",new JSONArray(queryList("SELECT * FROM audit_log WHERE world_profile=? ORDER BY created_at",new String[]{profile})));
+         root.put("characters",new JSONArray(listCharacters()));
+         root.put("journal",new JSONArray(listJournal()));
+-        root.put("combatants",new JSONArray(listCombatants()));
++        // Serialize only physical SQLite columns. listCombatants() includes
++        // presentation-only cover/effective_ac/total_cover keys that are not
++        // valid backup21 INSERT columns (RUN238/239 Robolectric regression).
++        root.put("combatants",new JSONArray(queryList(
++            "SELECT * FROM combatants WHERE world_profile=? ORDER BY sort_order, initiative DESC",
++            new String[]{profile})));
+         root.put("combatState",getCombatState());
+         root.put("diceHistory",new JSONArray(queryList("SELECT * FROM dice_history WHERE world_profile=? ORDER BY created_at",new String[]{profile})));
+         JSONObject portableMap=portableMapState(getMapState());
+--- a/android/app/src/test/java/com/braseiro/dnd5e/Run236ConditionBackupRobolectricTest.java
++++ b/android/app/src/test/java/com/braseiro/dnd5e/Run236ConditionBackupRobolectricTest.java
+@@ -36,6 +36,15 @@
+             long target=db.addCombatant("RUN236 Target",10,30,30,12,"",false);
+             setTimers(db,target,source);
+             JSONObject backup=db.exportAll();
++            JSONArray exported=backup.getJSONArray("combatants");
++            assertEquals(2,exported.length());
++            for(int i=0;i<exported.length();i++){
++                JSONObject row=exported.getJSONObject(i);
++                assertFalse(row.toString(),row.has("cover"));
++                assertFalse(row.toString(),row.has("effective_ac"));
++                assertFalse(row.toString(),row.has("total_cover"));
++                assertFalse(row.toString(),row.has("effective_dex_save_bonus"));
++            }
+             db.addCombatant("RUN236 Intervening",5,20,20,10,"",false);
+             db.importAll(backup);
+             JSONObject newSource=db.findCombatantByName("RUN236 Source");
