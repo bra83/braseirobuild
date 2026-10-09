@@ -1,4 +1,4 @@
-name: Braseiro DnD RUN238 G05 hosted validation
+name: Braseiro DnD RUN239 G05 P0 hosted validation
 on:
   push:
     branches: [main]
@@ -96,6 +96,12 @@ jobs:
           grep -qx 'VERSION_CODE=606538' "$ROOT/version.properties"
           grep -qx 'DB_SCHEMA=61' "$ROOT/version.properties"
           grep -qx 'BACKUP_FORMAT=21' "$ROOT/version.properties"
+          # Apply the incremental P0 repair only after all eight canonical patches.
+          FIX="$GITHUB_WORKSPACE/ci/dnd-g05/RUN239_G05_P0_DIAGNOSTIC.patch"
+          sha256sum "$FIX" > "$RUNNER_TEMP/dnd238/out/RUN239_PATCH_SHA256.txt"
+          patch -d "$ROOT" -p1 --batch --fuzz=0 --dry-run -i "$FIX" | tee "$RUNNER_TEMP/dnd238/out/RUN239_PATCH_DRY_RUN.log"
+          patch -d "$ROOT" -p1 --batch --fuzz=0 -i "$FIX" | tee "$RUNNER_TEMP/dnd238/out/RUN239_PATCH_APPLY.log"
+          echo "RUN239_P0_OVERLAY=APPLIED" >> "$RUNNER_TEMP/dnd238/out/STATUS.txt"
           # Save exact, compiled source files to diagnose Robolectric failures without altering them.
           mkdir -p "$RUNNER_TEMP/dnd238/out/source_snapshot"
           cp "$ROOT/android/app/src/main/java/com/braseiro/dnd5e/AppDb.java" "$RUNNER_TEMP/dnd238/out/source_snapshot/AppDb.java"
@@ -127,7 +133,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: DND_G05_RUN238_ANDROID_TEST_EVIDENCE
+          name: DND_G05_RUN239_P0_ANDROID_TEST_EVIDENCE
           path: |
             ${{ runner.temp }}/dnd238/out/*
             ${{ runner.temp }}/dnd238/source/android/app/build/test-results/testDebugUnitTest/**
