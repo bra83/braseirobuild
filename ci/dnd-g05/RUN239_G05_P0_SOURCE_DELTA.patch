@@ -87,3 +87,12 @@
              JSONObject scene=new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();
              assertEquals(12,scene.optInt("width_cells"));
              db.ensureTacticalTokensForCombat();
+--- a/version.properties
++++ b/version.properties
+@@ -1,4 +1,4 @@
+-VERSION_NAME=6.6.12-r238-g05-source
+-VERSION_CODE=606538
++VERSION_NAME=6.6.13-r239-g05-ci-candidate
++VERSION_CODE=606539
+ DB_SCHEMA=61
+ BACKUP_FORMAT=21
