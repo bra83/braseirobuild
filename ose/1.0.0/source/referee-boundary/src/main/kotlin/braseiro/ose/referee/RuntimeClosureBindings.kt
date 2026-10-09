@@ -49,6 +49,8 @@ object RuntimeClosureBindings {
             "XP_LEVEL_UP" -> levelUp(envelope, parts, rng)
             "RETAINER_RECRUIT" -> recruitRetainer(envelope, parts, rng)
             "RETAINER_LOYALTY" -> testRetainerLoyalty(envelope, parts, rng)
+            "RETAINER_WAGE_BASELINE" -> baselineRetainerWages(envelope, parts)
+            "RETAINER_PAY_DAILY" -> payRetainerWages(envelope, parts)
             else -> null
         }
     }
@@ -491,7 +493,9 @@ object RuntimeClosureBindings {
             npcId=npcId, employerCharacterId=employerId, dailyWageGp=wage,
             treasureHalfShares=halves,
             loyalty=(cha.baseLoyalty+result.loyaltyBonus).coerceIn(2,12),
-            hiredAtTurn=state.time.turns
+            hiredAtTurn=state.time.turns,
+            hiredAtDay=state.time.days,
+            wagePaidThroughDay=state.time.days
         ) else null
         val xpRecipient=if(gained!=null) XpRecipientSnapshot(
             recipientId=npcId, profile=profile, retainer=true,
@@ -584,6 +588,86 @@ object RuntimeClosureBindings {
                     "falhou sob perigo; fuga depende do árbitro.",
             "RETAINER.LOYALTY",profile,EvidenceStatus.CANONICAL_RULE,
             "Classic Rules Tome p.57; GAME_SYSTEM_SPEC §31.1",true,true)
+    }
+
+    private fun baselineRetainerWages(envelope: CampaignEnvelope, parts: List<String>): ResolutionOutcome {
+        val state=envelope.campaignState; val game=state.game
+        fun blocked(msg: String) = outcome(state,msg,"RETAINER.WAGE",envelope.ruleProfile,
+            EvidenceStatus.REFEREE_JUDGMENT,"GAME_SYSTEM_SPEC §31.1: historic payment dates must not be guessed",false,false)
+        if(parts.size!=3) return blocked("Use RETAINER_WAGE_BASELINE:employerId:npcId.")
+        val employerId=parts[1].trim(); val npcId=parts[2].trim()
+        if(employerId !in state.party.characterIds) return blocked("Contratante fora da companhia.")
+        val contract=game.retainerContracts[npcId]?.takeIf { it.active && it.employerCharacterId==employerId }
+            ?: return blocked("Contrato ativo não encontrado para esse contratante.")
+        if(contract.wagePaidThroughDay!=null) return blocked("Marco de pagamento já registrado.")
+        val baseline=contract.copy(hiredAtDay=state.time.days,wagePaidThroughDay=state.time.days)
+        val updated=game.copy(retainerContracts=game.retainerContracts+(npcId to baseline),
+            actionLog=game.actionLog+ActionLogEntry("RETAINER_WAGE_BASELINE:${game.revision}:$npcId",
+                "RETAINER","Histórico anterior desconhecido; marco explícito no dia ${state.time.days}.",
+                listOf("RETAINER.WAGE|GAME_SYSTEM_SPEC §31.1")),revision=game.revision+1).canonical()
+        return outcome(state.copy(game=updated),"Marco de pagamento registrado no dia ${state.time.days}; dívidas anteriores exigem arbitragem explícita.",
+            "RETAINER.WAGE",envelope.ruleProfile,EvidenceStatus.REFEREE_JUDGMENT,
+            "GAME_SYSTEM_SPEC §31.1: no invented historic debt",true,false)
+    }
+
+    private fun payRetainerWages(envelope: CampaignEnvelope, parts: List<String>): ResolutionOutcome {
+        val state=envelope.campaignState; val game=state.game; val profile=envelope.ruleProfile
+        fun blocked(msg: String, missing: Boolean=false) = outcome(state,msg,"RETAINER.WAGE",profile,
+            if(missing) EvidenceStatus.MISSING_EVIDENCE else EvidenceStatus.CANONICAL_PROCEDURE,
+            "GAME_SYSTEM_SPEC §31.1: agreed daily pay, exact GP denomination and receipt",false,false)
+        if(parts.size!=3) return blocked("Use RETAINER_PAY_DAILY:employerId:npcId (dias/valor calculados pelo motor).")
+        val employerId=parts[1].trim(); val npcId=parts[2].trim()
+        if(employerId !in state.party.characterIds) return blocked("Contratante fora da companhia.")
+        val contract=game.retainerContracts[npcId]?.takeIf { it.active && it.employerCharacterId==employerId }
+            ?: return blocked("Contrato ativo não encontrado para esse contratante.")
+        val quote=RetainerMercenaryRules.quoteDailyWage(contract.dailyWageGp,contract.wagePaidThroughDay,state.time.days)
+        val blocker=quote.blocker
+        if(blocker!=null) return blocked(blocker,blocker.startsWith("MISSING_EVIDENCE"))
+        if(!quote.payable) return blocked("Diárias já quitadas até o dia ${state.time.days}; nenhum débito novo.")
+        val amount=quote.amountGp
+        if(amount>Int.MAX_VALUE.toLong()) return blocked("MISSING_EVIDENCE:WAGE_COIN_STACK_CAPACITY",true)
+        val payerCoins=game.inventory.items.values.filter { it.ownerId==employerId &&
+            it.profile==profile && it.kind==InventoryItemKind.COIN &&
+            it.catalogId=="STARTING_GOLD_GP" && it.quantity>0 }.sortedBy { it.itemId }
+        if(payerCoins.any { it.unitWeightCoins!=1 }) return blocked("MISSING_EVIDENCE:GP_WEIGHT",true)
+        if(payerCoins.sumOf { it.quantity.toLong() }<amount) return blocked("O contratante não possui po suficientes no inventário canônico.")
+        val destinationId="RETAINER_WAGES:$npcId:GP"
+        val previous=game.inventory.items[destinationId]
+        if(previous!=null && (previous.ownerId!=npcId || previous.profile!=profile ||
+            previous.kind!=InventoryItemKind.COIN || previous.catalogId!="STARTING_GOLD_GP" ||
+            previous.unitWeightCoins!=1)) return blocked("MISSING_EVIDENCE:RETAINER_WALLET_COLLISION",true)
+        val newTotal=try { Math.addExact(contract.totalWagesPaidGp,amount) }
+            catch (_: ArithmeticException) { return blocked("MISSING_EVIDENCE:WAGE_LEDGER_OVERFLOW",true) }
+        if(amount>0L && (previous?.quantity?.toLong() ?: 0L)+amount>Int.MAX_VALUE.toLong())
+            return blocked("MISSING_EVIDENCE:RETAINER_WALLET_CAPACITY",true)
+        val items=game.inventory.items.toMutableMap()
+        var remaining=amount.toInt()
+        for(coin in payerCoins) {
+            if(remaining==0) break
+            val spent=minOf(remaining,coin.quantity)
+            items[coin.itemId]=coin.copy(quantity=coin.quantity-spent)
+            remaining-=spent
+        }
+        check(remaining==0) { "WAGE_TRANSFER_INVARIANT" }
+        if(amount>0L) {
+            items[destinationId]=if(previous!=null) previous.copy(quantity=previous.quantity+amount.toInt())
+                else InventoryItemSnapshot(destinationId,npcId,"STARTING_GOLD_GP",profile,
+                    payerCoins.first().sourceId,InventoryItemKind.COIN,quantity=amount.toInt(),
+                    carried=false,unitWeightCoins=1)
+        }
+        val from=requireNotNull(contract.wagePaidThroughDay)
+        val receipt=RetainerWageReceipt("RETAINER_WAGE:$npcId:$from:${state.time.days}",
+            from,state.time.days,quote.daysOwed,amount)
+        val updatedContract=contract.copy(wagePaidThroughDay=state.time.days,
+            totalWagesPaidGp=newTotal,wageReceipts=contract.wageReceipts+receipt)
+        val updated=game.copy(inventory=game.inventory.copy(items=items).canonical(),
+            retainerContracts=game.retainerContracts+(npcId to updatedContract),
+            actionLog=game.actionLog+ActionLogEntry(receipt.receiptId,"RETAINER",
+                "${quote.daysOwed} dia(s) x ${contract.dailyWageGp} po = $amount po pagos por $employerId a $npcId.",
+                listOf("RETAINER.WAGE|GAME_SYSTEM_SPEC §31.1")),revision=game.revision+1).canonical()
+        return outcome(state.copy(game=updated),"Pagamento confirmado: $amount po por ${quote.daysOwed} dia(s), sem avanço de tempo.",
+            "RETAINER.WAGE",profile,EvidenceStatus.CANONICAL_PROCEDURE,
+            "GAME_SYSTEM_SPEC §31.1; exact coin transfer; daily agreement only",true,false)
     }
 
     private fun authoritativeDie(rng: NamedRngStreams, sides: Int): Int {

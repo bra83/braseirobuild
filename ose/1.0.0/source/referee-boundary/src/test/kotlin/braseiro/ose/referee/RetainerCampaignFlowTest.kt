@@ -118,4 +118,81 @@ class RetainerCampaignFlowTest {
         val recipient=current.campaignState.game.experience.recipients["npc-candidate"]
         if(recipient!=null){ assertTrue(recipient.surviving); assertFalse(recipient.awardEligible) }
     }
+
+    @Test fun dailyWageSettlementTransfersCoinsAndRejectsReplayOrInsufficientFunds() {
+        for(profile in RuleProfile.entries) {
+            val old=fixture()
+            val gold=InventoryItemSnapshot("hero-gold","hero","STARTING_GOLD_GP",profile,
+                "OSE.EQUIPMENT.GP",InventoryItemKind.COIN,quantity=40,unitWeightCoins=1)
+            val contract=RetainerContractSnapshot("npc-candidate","hero",3,1,8,
+                hiredAtDay=2,wagePaidThroughDay=2)
+            var env=old.copy(ruleProfile=profile,campaignState=old.campaignState.copy(
+                time=TimeState(days=5,turns=25),game=old.campaignState.game.copy(
+                    retainerContracts=mapOf(contract.npcId to contract),
+                    inventory=InventorySnapshot(items=mapOf(gold.itemId to gold)))))
+            val rng=NamedRngStreams.fromRootSeed(551u)
+            val beforeRng=rng.snapshot()
+            val result=assertNotNull(RuntimeClosureBindings.tryResolve(env,
+                listOf("RETAINER_PAY_DAILY","hero","npc-candidate"),rng))
+            assertTrue(result.mechanicalMutation)
+            assertFalse(result.rngConsumed)
+            assertEquals(beforeRng,rng.snapshot())
+            assertEquals(env.campaignState.time,result.updatedState.time)
+            val after=result.updatedState.game
+            assertEquals(31,after.inventory.items.getValue("hero-gold").quantity)
+            assertEquals(9,after.inventory.items.getValue("RETAINER_WAGES:npc-candidate:GP").quantity)
+            val ledger=after.retainerContracts.getValue("npc-candidate")
+            assertEquals(5L,ledger.wagePaidThroughDay)
+            assertEquals(9L,ledger.totalWagesPaidGp)
+            assertEquals(1,ledger.wageReceipts.size)
+            assertEquals(3L,ledger.wageReceipts.single().daysPaid)
+            env=env.copy(campaignState=result.updatedState)
+            val replay=assertNotNull(RuntimeClosureBindings.tryResolve(env,
+                listOf("RETAINER_PAY_DAILY","hero","npc-candidate"),rng))
+            assertFalse(replay.mechanicalMutation)
+            assertEquals(env.campaignState,replay.updatedState)
+            val lowGold=after.inventory.copy(items=after.inventory.items.mapValues { (id,item) ->
+                if(id=="hero-gold") item.copy(quantity=1) else item
+            })
+            val poor=env.copy(campaignState=env.campaignState.copy(
+                time=TimeState(days=10),game=env.campaignState.game.copy(inventory=lowGold)))
+            val blocked=assertNotNull(RuntimeClosureBindings.tryResolve(poor,
+                listOf("RETAINER_PAY_DAILY","hero","npc-candidate"),rng))
+            assertFalse(blocked.mechanicalMutation)
+            assertEquals(poor.campaignState,blocked.updatedState)
+            assertTrue(blocked.feedback.contains("não possui po suficientes"))
+            assertEquals(beforeRng,rng.snapshot())
+            val reversed=env.copy(campaignState=env.campaignState.copy(time=TimeState(days=4)))
+            val invalid=assertNotNull(RuntimeClosureBindings.tryResolve(reversed,
+                listOf("RETAINER_PAY_DAILY","hero","npc-candidate"),rng))
+            assertFalse(invalid.mechanicalMutation)
+            assertEquals(reversed.campaignState,invalid.updatedState)
+            assertEquals(beforeRng,rng.snapshot())
+        }
+    }
+
+    @Test fun legacySavesRequireExplicitBaselineAndNeverInventDebt() {
+        val old=fixture()
+        val legacy=RetainerContractSnapshot("npc-candidate","hero",3,1,8,hiredAtTurn=25)
+        var env=old.copy(campaignState=old.campaignState.copy(time=TimeState(days=12),
+            game=old.campaignState.game.copy(retainerContracts=mapOf(legacy.npcId to legacy))))
+        val rng=NamedRngStreams.fromRootSeed(77u)
+        val denied=assertNotNull(RuntimeClosureBindings.tryResolve(env,
+            listOf("RETAINER_PAY_DAILY","hero","npc-candidate"),rng))
+        assertFalse(denied.mechanicalMutation)
+        assertTrue(denied.feedback.contains("LEGACY_WAGE_BASELINE"))
+        val baseline=assertNotNull(RuntimeClosureBindings.tryResolve(env,
+            listOf("RETAINER_WAGE_BASELINE","hero","npc-candidate"),rng))
+        assertTrue(baseline.mechanicalMutation)
+        assertEquals(env.campaignState.game.inventory,baseline.updatedState.game.inventory)
+        val migrated=baseline.updatedState.game.retainerContracts.getValue("npc-candidate")
+        assertEquals(12L,migrated.hiredAtDay)
+        assertEquals(12L,migrated.wagePaidThroughDay)
+        assertEquals(0L,migrated.totalWagesPaidGp)
+        assertTrue(migrated.wageReceipts.isEmpty())
+        env=env.copy(campaignState=baseline.updatedState)
+        val repeat=assertNotNull(RuntimeClosureBindings.tryResolve(env,
+            listOf("RETAINER_WAGE_BASELINE","hero","npc-candidate"),rng))
+        assertFalse(repeat.mechanicalMutation)
+    }
 }

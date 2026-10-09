@@ -63,6 +63,14 @@ object AppViewStateProjector {
                     .put("employerCharacterId", contract.employerCharacterId)
                     .put("dailyWageGp", contract.dailyWageGp)
                     .put("treasureHalfShares", contract.treasureHalfShares)
+                    .put("wagePaidThroughDay", contract.wagePaidThroughDay ?: JSONObject.NULL)
+                    .put("totalWagesPaidGp", contract.totalWagesPaidGp)
+                    .put("wagePaymentCount", contract.wageReceipts.size)
+                    .put("wageLedgerNeedsBaseline", contract.wagePaidThroughDay == null)
+                    .put("wageDueDays", braseiro.ose.rules.shared.RetainerMercenaryRules.quoteDailyWage(
+                        contract.dailyWageGp, contract.wagePaidThroughDay, state.time.days).daysOwed)
+                    .put("wageDueGp", braseiro.ose.rules.shared.RetainerMercenaryRules.quoteDailyWage(
+                        contract.dailyWageGp, contract.wagePaidThroughDay, state.time.days).amountGp)
                     .put("active", contract.active)
             }))
             .put("retainerCandidates", JSONArray(game.npcs.values

@@ -16,14 +16,16 @@ class RetainerPersistenceIntegrationTest {
                 consequenceFlags=setOf("RETAINER_ACTIVE"))
             val contract=RetainerContractSnapshot(
                 npcId="npc-retainer",employerCharacterId="char-a",
-                dailyWageGp=1,treasureHalfShares=1,loyalty=8,hiredAtTurn=23L)
+                dailyWageGp=1,treasureHalfShares=1,loyalty=8,hiredAtTurn=23L,
+                hiredAtDay=2L,wagePaidThroughDay=5L,totalWagesPaidGp=3L,
+                wageReceipts=listOf(RetainerWageReceipt("wage:2:5",2L,5L,3L,3L)))
             val ledger=XpRecipientSnapshot(
                 recipientId="npc-retainer",profile=profile,
                 retainer=true,awardEligible=true,classIds=listOf("FIGHTER"),
                 primeModifierPercentByClass=mapOf("FIGHTER" to 0),
                 xpByClass=mapOf("FIGHTER" to 25L))
             val state=original.campaignState.copy(
-                time=TimeState(turns=23L),
+                time=TimeState(turns=23L,days=5L),
                 game=GameExtensions(
                     npcs=mapOf(npc.npcId to npc),
                     retainerContracts=mapOf(npc.npcId to contract),
