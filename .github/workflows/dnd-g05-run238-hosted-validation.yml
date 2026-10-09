@@ -97,10 +97,13 @@ jobs:
           grep -qx 'DB_SCHEMA=61' "$ROOT/version.properties"
           grep -qx 'BACKUP_FORMAT=21' "$ROOT/version.properties"
           # Apply the incremental P0 repair only after all eight canonical patches.
-          FIX="$GITHUB_WORKSPACE/ci/dnd-g05/RUN239_G05_P0_DIAGNOSTIC.patch"
+          FIX="$GITHUB_WORKSPACE/ci/dnd-g05/RUN239_G05_P0_SOURCE_DELTA.patch"
           sha256sum "$FIX" > "$RUNNER_TEMP/dnd238/out/RUN239_PATCH_SHA256.txt"
           patch -d "$ROOT" -p1 --batch --fuzz=0 --dry-run -i "$FIX" | tee "$RUNNER_TEMP/dnd238/out/RUN239_PATCH_DRY_RUN.log"
           patch -d "$ROOT" -p1 --batch --fuzz=0 -i "$FIX" | tee "$RUNNER_TEMP/dnd238/out/RUN239_PATCH_APPLY.log"
+          grep -qx 'VERSION_CODE=606539' "$ROOT/version.properties"
+          grep -qx 'DB_SCHEMA=61' "$ROOT/version.properties"
+          grep -qx 'BACKUP_FORMAT=21' "$ROOT/version.properties"
           echo "RUN239_P0_OVERLAY=APPLIED" >> "$RUNNER_TEMP/dnd238/out/STATUS.txt"
           # Save exact, compiled source files to diagnose Robolectric failures without altering them.
           mkdir -p "$RUNNER_TEMP/dnd238/out/source_snapshot"
@@ -117,7 +120,7 @@ jobs:
           OUT="$RUNNER_TEMP/dnd238/out"
           cd "$RUNNER_TEMP/dnd238/source/android"
           chmod +x gradlew
-          for task in :app:compileDebugJavaWithJavac :app:testDebugUnitTest; do
+          for task in :app:compileDebugJavaWithJavac :app:testDebugUnitTest :app:assembleDebug; do
             log="$OUT/$(echo "$task" | tr ':' '_').log"
             echo "RUNNING $task"
             set +e
@@ -127,7 +130,20 @@ jobs:
             echo "$task exit=$code" | tee -a "$OUT/GRADLE_STATUS.txt"
             if [ "$code" -ne 0 ]; then tail -n 180 "$log"; exit "$code"; fi
           done
-          echo "COMPILE_AND_UNIT_TEST=PASS" >> "$OUT/STATUS.txt"
+          echo "COMPILE_UNIT_AND_APK=PASS" >> "$OUT/STATUS.txt"
+          APK="$(find app/build/outputs/apk/debug -maxdepth 1 -name '*.apk' -type f -print -quit)"
+          test -n "$APK"
+          CANDIDATE="$OUT/BRASEIRO_DND_RUN239_UNCERTIFIED_DEBUG.apk"
+          cp "$APK" "$CANDIDATE"
+          TOOLS="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
+          test -x "$TOOLS"
+          "$TOOLS" dump badging "$CANDIDATE" > "$OUT/APK_BADGING.txt"
+          grep -q "package: name='com.braseiro.dnd5e'" "$OUT/APK_BADGING.txt"
+          grep -q "versionCode='606539'" "$OUT/APK_BADGING.txt"
+          SIGNER="${TOOLS%/aapt}/apksigner"
+          "$SIGNER" verify --verbose --print-certs "$CANDIDATE" > "$OUT/APK_SIGNATURE.txt"
+          sha256sum "$CANDIDATE" > "$OUT/APK_SHA256.txt"
+          echo "APK_CANDIDATE_COMPILED=YES; INSTALL_UPGRADE_SIGNING_MATCH=UNVERIFIED; G05_COMPLETE=NO" >> "$OUT/STATUS.txt"
 
       - name: Preserve validation evidence and test reports
         if: always()
