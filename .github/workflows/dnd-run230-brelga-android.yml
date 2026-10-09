@@ -1,0 +1,81 @@
+name: Braseiro DnD RUN230 BRELGA Android validation
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/dnd-run230-brelga-android.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dnd-run230-brelga
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch and SHA-verify public RUN230 source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'RUNNER_NOT_BRELGA'}
+          $out=Join-Path $env:RUNNER_TEMP 'dnd230\out'
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          'RUNNER=BRELGA; ANDROID_BUILT=NOT_YET; G05_COMPLETE=NO' | Set-Content (Join-Path $out 'BRELGA_STATUS.txt')
+          python -m pip install --disable-pip-version-check gdown==5.2.0
+          if($LASTEXITCODE -ne 0){throw 'GDOWN_DEPENDENCY_INSTALL_FAILED'}
+          python ci/dnd-run230/fetch_source.py --output "$env:RUNNER_TEMP\dnd230"
+          if($LASTEXITCODE -ne 0){throw 'RUN230_SOURCE_DOWNLOAD_OR_SHA256_FAILED'}
+      - name: Compile and test Android candidate
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $out=Join-Path $env:RUNNER_TEMP 'dnd230\out'
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){
+            $j='C:\Program Files\Android\Android Studio\jbr'
+            if(Test-Path "$j\bin\java.exe"){$env:JAVA_HOME=$j;$env:Path="$j\bin;$env:Path"}
+          }
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue)){throw 'JAVA_NOT_FOUND'}
+          if(!$env:ANDROID_HOME){
+            $sdk="$env:LOCALAPPDATA\Android\Sdk"
+            if(Test-Path $sdk){$env:ANDROID_HOME=$sdk}
+          }
+          if(!$env:ANDROID_HOME -or !(Test-Path $env:ANDROID_HOME)){throw 'ANDROID_SDK_NOT_FOUND'}
+          $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          $project=Join-Path $env:RUNNER_TEMP 'dnd230\source\android'
+          if(!(Test-Path (Join-Path $project 'gradlew.bat'))){throw 'RUN230_ANDROID_SOURCE_NOT_FOUND'}
+          Set-Location $project
+          foreach($task in @(':app:compileDebugJavaWithJavac',':app:testDebugUnitTest',':app:assembleDebug')){
+            $label=$task -replace '[^A-Za-z]','_'
+            $save=$ErrorActionPreference;$ErrorActionPreference='Continue'
+            & .\gradlew.bat $task --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $out "$label.log")
+            $rc=$LASTEXITCODE;$ErrorActionPreference=$save
+            "$task EXIT_CODE=$rc" | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
+            if($rc -ne 0){throw "GRADLE_TASK_FAILED $task rc=$rc"}
+          }
+          $apk=Get-ChildItem (Join-Path $project 'app\build\outputs\apk\debug') -Filter '*.apk' -File | Select-Object -First 1
+          if(!$apk){throw 'APK_NOT_FOUND'}
+          $final=Join-Path $out 'BRASEIRO_DND_RUN230_UNCERTIFIED_DEBUG.apk'
+          Copy-Item $apk.FullName $final -Force
+          $bt=Get-ChildItem "$env:ANDROID_HOME\build-tools" -Directory | Sort-Object {[version]$_.Name} -Descending | Select-Object -First 1
+          if(!$bt){throw 'ANDROID_BUILD_TOOLS_MISSING'}
+          $badging=(& "$($bt.FullName)\aapt.exe" dump badging $final) -join "`n"
+          $badging | Set-Content (Join-Path $out 'APK_BADGING.txt')
+          if($badging -notmatch "package: name='com\.braseiro\.dnd5e'" -or $badging -notmatch "versionCode='606530'"){throw 'APK_IDENTITY_MISMATCH'}
+          $save=$ErrorActionPreference;$ErrorActionPreference='Continue'
+          & "$($bt.FullName)\apksigner.bat" verify --verbose --print-certs $final 2>&1 | Tee-Object (Join-Path $out 'APK_SIGNATURE.txt')
+          $rc=$LASTEXITCODE;$ErrorActionPreference=$save
+          if($rc -ne 0){throw 'APK_SIGNATURE_VERIFY_FAILED'}
+          $sha=(Get-FileHash $final -Algorithm SHA256).Hash.ToLowerInvariant()
+          "APK_SHA256=$sha" | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
+          'APK_BUILD=PASS; UPDATE_SIGNING_MATCH=NOT_VERIFIED; G05_COMPLETE=NO' | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
+      - name: Preserve logs and candidate APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: DND_RUN230_BRELGA_ANDROID
+          path: ${{ runner.temp }}\dnd230\out\*
+          if-no-files-found: warn
+          retention-days: 14
