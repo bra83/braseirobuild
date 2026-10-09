@@ -102,6 +102,8 @@ class SessionEngine(
         require(reactionId.isNotBlank())
         require(reaction.isNotBlank())
         require(mechanicalIntent.isNotBlank())
+        // Reject spoofed employer identities before reading receipt or consuming RNG.
+        ActionAuthorityPolicy.requireBoundActor(mechanicalIntent, actorCharacterId)
         val loaded = load(campaignId)
         if (!characterAuthorized) {
             require(loaded.campaignState.party.characterIds.none { id ->
