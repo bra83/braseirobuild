@@ -1,0 +1,48 @@
+name: DnD RUN230 APK audit
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/dnd-run230-audit-apk.yml'
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: DND_RUN230_HOSTED_ANDROID
+          run-id: 37955753891
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/run230-audit
+      - name: Verify already-built APK and print integrity evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/run230-audit"
+          ls -lh
+          test -f BRASEIRO_DND_RUN230_UNCERTIFIED_DEBUG.apk
+          test -f APK_SHA256.txt
+          test -f APK_BADGING.txt
+          test -f APK_SIGNATURE.txt
+          test -f GRADLE_STATUS.txt
+          expected="$(cut -d' ' -f1 APK_SHA256.txt)"
+          actual="$(sha256sum BRASEIRO_DND_RUN230_UNCERTIFIED_DEBUG.apk | cut -d' ' -f1)"
+          test "$expected" = "$actual"
+          grep -q "package: name='com.braseiro.dnd5e'" APK_BADGING.txt
+          grep -q "versionCode='606530'" APK_BADGING.txt
+          grep -q ':app:compileDebugJavaWithJavac exit=0' GRADLE_STATUS.txt
+          grep -q ':app:testDebugUnitTest exit=0' GRADLE_STATUS.txt
+          grep -q ':app:assembleDebug exit=0' GRADLE_STATUS.txt
+          echo "APK_SHA256=$actual"
+          echo "APK_BYTES=$(stat -c%s BRASEIRO_DND_RUN230_UNCERTIFIED_DEBUG.apk)"
+          echo "APK_PACKAGE_AND_VERSION=PASS"
+          echo "JAVAC_TEST_AND_ASSEMBLE=PASS"
+          echo "APK_SIGNER_PROOF:"
+          head -n 18 APK_SIGNATURE.txt
+          echo "G05_COMPLETE=NO"
+          echo "UPDATE_CERT_MATCH=NOT_VERIFIED"
