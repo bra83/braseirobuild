@@ -1,0 +1,35 @@
+name: Braseiro DnD RUN229 G05 BRELGA Android CI
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ci/dnd-run229/**'
+      - '.github/workflows/dnd-run229-g05-brelga.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dnd-run229-g05-brelga
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    steps:
+      - name: Checkout CI scripts
+        uses: actions/checkout@v4
+      - name: Verify exact RUN229 source and run Android build
+        shell: powershell
+        env:
+          RUN229_SOURCE_DIR: ${{ vars.RUN229_SOURCE_DIR }}
+        run: |
+          & "$env:GITHUB_WORKSPACE\ci\dnd-run229\build-from-staged-source.ps1"
+          if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
+      - name: Upload CI evidence and uncertified debug APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: DND_RUN229_G05_ANDROID_CI_${{ github.run_id }}
+          path: ${{ runner.temp }}\dnd-run229-ci-output\*
+          if-no-files-found: warn
+          retention-days: 14
