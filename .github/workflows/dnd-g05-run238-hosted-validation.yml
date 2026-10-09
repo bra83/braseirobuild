@@ -1,0 +1,130 @@
+name: Braseiro DnD RUN238 G05 hosted validation
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/dnd-g05-run238-hosted-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dnd-g05-run238-hosted
+  cancel-in-progress: false
+
+jobs:
+  validate-run238:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Prepare evidence directory
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/dnd238/out" "$RUNNER_TEMP/dnd238/patches"
+          echo "G05_COMPLETE=NO" > "$RUNNER_TEMP/dnd238/out/STATUS.txt"
+          echo "SOURCE=RUN230+RUN231+RUN232+RUN233+RUN234+RUN235+RUN236+RUN237+RUN238" >> "$RUNNER_TEMP/dnd238/out/STATUS.txt"
+          echo "APK_UPGRADE_SIGNATURE=NOT_VERIFIED" >> "$RUNNER_TEMP/dnd238/out/STATUS.txt"
+
+      - name: Download and SHA-verify full RUN230 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install 'gdown==5.2.0'
+          python3 ci/dnd-run230/fetch_source.py --output "$RUNNER_TEMP/dnd238" 2>&1 | tee "$RUNNER_TEMP/dnd238/out/RUN230_DOWNLOAD.log"
+
+      - name: Download and SHA-verify RUN231 through RUN238 patches
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' 2>&1 | tee "$RUNNER_TEMP/dnd238/out/PATCH_DOWNLOAD.log"
+          import hashlib
+          import os
+          from pathlib import Path
+          import gdown
+
+          directory = Path(os.environ['RUNNER_TEMP']) / 'dnd238' / 'patches'
+          directory.mkdir(parents=True, exist_ok=True)
+          patches = [
+              ('RUN231_FINAL_PARENT_SOURCE_DELTA.patch', '1gBA66bux3sO2kLfi_bip56fhbz7io7Fa', '7753d9bf270fd21ade4d541daed7571bc86099d6e9c7149da3c099b9f76de552'),
+              ('RUN232_SOURCE_DELTA.patch', '1yOHkRv8bI2EzykFQ-kBsY33kcllAFrEK', 'faf4be185d6cad6858bd0279ffa1bedfd5486e0db842acf79686e4ed6df9e26e'),
+              ('RUN233_SOURCE_DELTA.patch', '1m5kwfOnJsL9LtqHOuF8F_eAVKdVz852B', '8463a02b133ed46db0a348270ff9eff051acd33a2b724018f43e1b5ee89c3e2b'),
+              ('RUN234_SOURCE_DELTA.patch', '1hf1Mj2GLjTcaqufl-d2baIDO9vnYt1a4', 'b7756828c3a18b1eb6e6c11efbef752df66d654f36a538410c7e7d242a509b29'),
+              ('RUN235_SOURCE_DELTA.patch', '1rzGe-7pX2EGTxCrtMbA8UJdoaw_i5tm9', 'ec52f021956faeca42e46dd17858316387847a07074f62454f17cdd11af4f062'),
+              ('RUN236_SOURCE_DELTA.patch', '1ALEbhOxoVNb-FHz1MVd5k1LzFd-Bzku2', '2274f432f42d980054b532ff2a88dacd51bcd2054d4898cd4b6311b3f3595dff'),
+              ('RUN237_SOURCE_DELTA.patch', '1jv1MNbVjn5MGD9242c189auYhG1FU8Li', '578dd41a8e7a35dc1decf91edc4ffd260a0b01a7f371d7364d0c4689d6444027'),
+              ('RUN238_SOURCE_DELTA.patch', '1qkul8Kxz_pzzDSrK75dxGBE7QTTuhPYr', '71d99e059c6494bfd32909eda47037009f33254ca8717f87b98a4a3a9ce15061'),
+          ]
+          for name, file_id, expected in patches:
+              target = directory / name
+              downloaded = gdown.download(id=file_id, output=str(target), quiet=False)
+              if not downloaded or not target.is_file():
+                  raise RuntimeError(f'{name}: DRIVE_DOWNLOAD_FAILED')
+              actual = hashlib.sha256(target.read_bytes()).hexdigest()
+              if actual != expected:
+                  raise RuntimeError(f'{name}: SHA256_MISMATCH expected={expected} got={actual}')
+              print(f'{name}: SHA256_PASS bytes={target.stat().st_size}', flush=True)
+          print('ALL_EIGHT_PATCH_SHA256_PASS')
+          PY
+
+      - name: Apply all patches with strict zero-fuzz replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/dnd238/source"
+          PATCHES="$RUNNER_TEMP/dnd238/patches"
+          for file in \
+            RUN231_FINAL_PARENT_SOURCE_DELTA.patch \
+            RUN232_SOURCE_DELTA.patch \
+            RUN233_SOURCE_DELTA.patch \
+            RUN234_SOURCE_DELTA.patch \
+            RUN235_SOURCE_DELTA.patch \
+            RUN236_SOURCE_DELTA.patch \
+            RUN237_SOURCE_DELTA.patch \
+            RUN238_SOURCE_DELTA.patch; do
+            echo "PATCH_DRY_RUN $file"
+            patch -d "$ROOT" -p1 --batch --fuzz=0 --dry-run -i "$PATCHES/$file"
+            echo "PATCH_APPLY $file"
+            patch -d "$ROOT" -p1 --batch --fuzz=0 -i "$PATCHES/$file"
+          done 2>&1 | tee "$RUNNER_TEMP/dnd238/out/PATCH_REPLAY.log"
+          grep -qx 'VERSION_CODE=606538' "$ROOT/version.properties"
+          grep -qx 'DB_SCHEMA=61' "$ROOT/version.properties"
+          grep -qx 'BACKUP_FORMAT=21' "$ROOT/version.properties"
+          echo "PATCH_CHAIN=PASS" >> "$RUNNER_TEMP/dnd238/out/STATUS.txt"
+
+      - name: Compile actual Android AppDb and run Robolectric on hosted runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/dnd238/out"
+          cd "$RUNNER_TEMP/dnd238/source/android"
+          chmod +x gradlew
+          for task in :app:compileDebugJavaWithJavac :app:testDebugUnitTest; do
+            log="$OUT/$(echo "$task" | tr ':' '_').log"
+            echo "RUNNING $task"
+            set +e
+            ./gradlew "$task" --no-daemon --console=plain --stacktrace > "$log" 2>&1
+            code=$?
+            set -e
+            echo "$task exit=$code" | tee -a "$OUT/GRADLE_STATUS.txt"
+            if [ "$code" -ne 0 ]; then tail -n 180 "$log"; exit "$code"; fi
+          done
+          echo "COMPILE_AND_UNIT_TEST=PASS" >> "$OUT/STATUS.txt"
+
+      - name: Preserve validation evidence and test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: DND_G05_RUN238_ANDROID_TEST_EVIDENCE
+          path: |
+            ${{ runner.temp }}/dnd238/out/*
+            ${{ runner.temp }}/dnd238/source/android/app/build/test-results/testDebugUnitTest/**
+            ${{ runner.temp }}/dnd238/source/android/app/build/reports/tests/testDebugUnitTest/**
+          if-no-files-found: warn
+          retention-days: 14
