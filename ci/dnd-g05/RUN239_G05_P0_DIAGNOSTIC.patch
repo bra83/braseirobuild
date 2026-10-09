@@ -1,0 +1,37 @@
+--- a/android/app/src/main/java/com/braseiro/dnd5e/AppDb.java
++++ b/android/app/src/main/java/com/braseiro/dnd5e/AppDb.java
+@@ -3637,6 +3637,7 @@
+             return result;
+         }catch(Exception e){
+             AppLog.e("AppDb","Transação de combate revertida: "+label,e);
++            e.printStackTrace(System.err); // RUN239 diagnostic; remove after CI root-cause proof
+             if(!owner)throw new IllegalStateException("Falha em transação externa de combate: "+label,e);
+             JSONObject error=new JSONObject();try{error.put("operation_error","transaction_rolled_back").put("operation",label);}catch(Exception ignored){}
+             return error;
+@@ -6973,6 +6974,11 @@
+         for(int i=0;i<rows.length();i++){
+             JSONObject row=rows.optJSONObject(i);if(row==null)continue;
+             long oldId=row.optLong("id",0);ContentValues v=jsonValues(row);v.remove("id");
++            // RUN239/G05: listCombatants() attaches live computed fields for UI.
++            // They are not SQLite columns and must never be reinserted by backup21.
++            // The canonical cover choice remains in resources_json.
++            v.remove("cover");v.remove("effective_ac");v.remove("total_cover");
++            v.remove("effective_dex_save_bonus");
+             v.put("world_profile",getActiveMapProfile());
+             if("character".equals(row.optString("source_kind"))&&row.optInt("is_player",0)==1){
+                 Long mapped=characterIdMap.get(row.optLong("source_id",0));
+--- a/android/app/src/test/java/com/braseiro/dnd5e/Run236ConditionBackupRobolectricTest.java
++++ b/android/app/src/test/java/com/braseiro/dnd5e/Run236ConditionBackupRobolectricTest.java
+@@ -61,8 +61,10 @@
+             long target=db.addCombatant("RUN236 Target",10,30,30,12,"",false);
+             setTimers(db,target,source);
+             db.setCombatRunning(true);
+-            assertEquals(source,db.nextTurn().optLong("id"));
+-            assertEquals(target,db.nextTurn().optLong("id"));
++            JSONObject first=db.nextTurn();
++            assertEquals("first turn: "+first.toString(),source,first.optLong("id"));
++            JSONObject second=db.nextTurn();
++            assertEquals("second turn: "+second.toString(),target,second.optLong("id"));
+             ContentValues legacy=new ContentValues();legacy.put("encounter_id","");
+             assertEquals(1,db.getWritableDatabase().update("combat_state_profiles",legacy,
+                 "world_profile=?",new String[]{"dnd"}));
