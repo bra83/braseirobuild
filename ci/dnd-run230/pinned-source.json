@@ -1,0 +1,62 @@
+{
+  "name": "BRASEIRO_DND_6.6.4_RUN230_G05_ANDROID_STUDIO_SOURCE_FULL.zip",
+  "source_version": "RUN230",
+  "total_size": 287622351,
+  "zip_sha256": "c018fc40b2fbf4fb60ffe90fe149649eb9d021095d85d423b05b86bd384371f6",
+  "parts": [
+    {
+      "index": 0,
+      "name": "BRASEIRO_DND_6.6.4_RUN230_G05_ANDROID_STUDIO_SOURCE_FULL.zip.part00",
+      "size": 33554432,
+      "sha256": "5cc0c997faf522952099bbabe5100df716c4a22ff94fc61b5e0d90ab47d9603f"
+    },
+    {
+      "index": 1,
+      "name": "BRASEIRO_DND_6.6.4_RUN230_G05_ANDROID_STUDIO_SOURCE_FULL.zip.part01",
+      "size": 33554432,
+      "sha256": "3e8b6f8276b8fe2a33cf8bde189b7ede80e76e12d36a6bf28251170011d67ed5"
+    },
+    {
+      "index": 2,
+      "name": "BRASEIRO_DND_6.6.4_RUN230_G05_ANDROID_STUDIO_SOURCE_FULL.zip.part02",
+      "size": 33554432,
+      "sha256": "a2ce5d394aa15c6f4c8d500ad8190c97b7d1e8cee5c3fc65b797e947027d14eb"
+    },
+    {
+      "index": 3,
+      "name": "BRASEIRO_DND_6.6.4_RUN230_G05_ANDROID_STUDIO_SOURCE_FULL.zip.part03",
+      "size": 33554432,
+      "sha256": "be5312b7e21d93be86f3c32f574502c1452abbbf491bd0775abcd46a922e416d"
+    },
+    {
+      "index": 4,
+      "name": "BRASEIRO_DND_6.6.4_RUN230_G05_ANDROID_STUDIO_SOURCE_FULL.zip.part04",
+      "size": 33554432,
+      "sha256": "8ad578e0320a6ae6623919d3dc5c52c39791189b9551461a859452ceda966f6b"
+    },
+    {
+      "index": 5,
+      "name": "BRASEIRO_DND_6.6.4_RUN230_G05_ANDROID_STUDIO_SOURCE_FULL.zip.part05",
+      "size": 33554432,
+      "sha256": "dade4993385cf711d918ba15ca5a8de836575928f2df662f2d7bad6258bf9c46"
+    },
+    {
+      "index": 6,
+      "name": "BRASEIRO_DND_6.6.4_RUN230_G05_ANDROID_STUDIO_SOURCE_FULL.zip.part06",
+      "size": 33554432,
+      "sha256": "284bf95f782aa0e8696e42c799089990627c39a30e02da289602c420ef9aa769"
+    },
+    {
+      "index": 7,
+      "name": "BRASEIRO_DND_6.6.4_RUN230_G05_ANDROID_STUDIO_SOURCE_FULL.zip.part07",
+      "size": 33554432,
+      "sha256": "9f4e47f61fe9663d777e13b166c3c2859926d1ad3b09d3c295ccc0302105152b"
+    },
+    {
+      "index": 8,
+      "name": "BRASEIRO_DND_6.6.4_RUN230_G05_ANDROID_STUDIO_SOURCE_FULL.zip.part08",
+      "size": 19186895,
+      "sha256": "381dbfa1381364fe7b871052eda344f26aa50eef69982339d6a10eba5efe4a7e"
+    }
+  ]
+}
