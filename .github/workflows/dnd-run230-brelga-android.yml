@@ -15,6 +15,16 @@ jobs:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 180
     steps:
+      - name: Clear only previous RUN230 CI scratch
+        shell: powershell
+        run: |
+          $scratch=Join-Path $env:RUNNER_TEMP 'dnd230'
+          if(Test-Path $scratch){Remove-Item -LiteralPath $scratch -Recurse -Force}
+          $old=Join-Path $env:RUNNER_TEMP 'dnd-run229-project-37952114244'
+          if(Test-Path $old){Remove-Item -LiteralPath $old -Recurse -Force}
+          $volume=(Get-Item $env:RUNNER_TEMP).PSDrive
+          Write-Host ("RUN230_CI_FREE_GB={0:N2}" -f ($volume.Free/1GB))
+          if($volume.Free -lt 1GB){throw 'RUN230_CI_INSUFFICIENT_DISK_SPACE'}
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
