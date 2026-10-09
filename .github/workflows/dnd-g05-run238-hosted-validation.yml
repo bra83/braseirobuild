@@ -96,6 +96,12 @@ jobs:
           grep -qx 'VERSION_CODE=606538' "$ROOT/version.properties"
           grep -qx 'DB_SCHEMA=61' "$ROOT/version.properties"
           grep -qx 'BACKUP_FORMAT=21' "$ROOT/version.properties"
+          # Save exact, compiled source files to diagnose Robolectric failures without altering them.
+          mkdir -p "$RUNNER_TEMP/dnd238/out/source_snapshot"
+          cp "$ROOT/android/app/src/main/java/com/braseiro/dnd5e/AppDb.java" "$RUNNER_TEMP/dnd238/out/source_snapshot/AppDb.java"
+          cp "$ROOT/android/app/src/main/java/com/braseiro/dnd5e/MonsterActionEconomyGuard.java" "$RUNNER_TEMP/dnd238/out/source_snapshot/"
+          cp "$ROOT/android/app/src/main/java/com/braseiro/dnd5e/MonsterConditionRecoveryLedger.java" "$RUNNER_TEMP/dnd238/out/source_snapshot/"
+          cp "$ROOT/android/app/src/test/java/com/braseiro/dnd5e/"Run{231Hostility,236ConditionBackup,237ForcedMovement,238ActionEconomy}RobolectricTest.java "$RUNNER_TEMP/dnd238/out/source_snapshot/"
           echo "PATCH_CHAIN=PASS" >> "$RUNNER_TEMP/dnd238/out/STATUS.txt"
 
       - name: Compile actual Android AppDb and run Robolectric on hosted runner
