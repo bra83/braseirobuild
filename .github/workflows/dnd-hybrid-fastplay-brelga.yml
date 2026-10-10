@@ -1,4 +1,4 @@
-name: Braseiro D&D Hybrid Fastplay V6 BRELGA
+name: Braseiro D&D Hybrid Fastplay V8 BRELGA
 on:
   push:
     branches: [braseiro-dnd5e-hybrid-fastplay]
@@ -19,7 +19,7 @@ jobs:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 120
     env:
-      SOURCE_SHA256: '9ef59456dbd29bd71121a6e3eb7edc022ea6056b8bcb71a99e8c2f6191904c39'
+      SOURCE_SHA256: 'edf7a0ec445b7fbcfdfd14cc7f7cfbfc589c174dd4079c62215521dd8ec2b30f'
     steps:
       - uses: actions/checkout@v4
       - name: Verify source, compile, test, and build APK on BRELGA
@@ -34,29 +34,29 @@ jobs:
           $out=Join-Path $root 'out'
           New-Item -ItemType Directory -Force -Path $incoming,$out | Out-Null
           "RUNNER=$env:RUNNER_NAME" | Set-Content (Join-Path $out 'STATUS.txt')
-          "BASE=HYBRID_FASTPLAY_V6" | Add-Content (Join-Path $out 'STATUS.txt')
+          "BASE=HYBRID_FASTPLAY_V8" | Add-Content (Join-Path $out 'STATUS.txt')
           "ORIGINAL_MAIN_MUTATED=NO" | Add-Content (Join-Path $out 'STATUS.txt')
           $ids=@(
-            '1_FQdHNNsH6Bc9fNSPqtsQSDjA4t6-yzz',
-            '1i1eZhAilrPbcWlhwWhQnPAsHo7R7m9dg',
-            '1IOJoW-Ee5cv6uFGcinRV49_QkTeOGNos',
-            '1gYNyGBtZCG5uYQ53NmqouflWdWumgrB2',
-            '1oFvqxpE9LRqk9BcUbPJAMEOt1CaizIsk',
-            '14KGrS_u-cBlni1ifhao9R1F8DKy1dJSX',
-            '1Lyxcp61c0PtRFOjmBzpbWdaos0NiAuO7',
-            '1cn8JjXtf3gBR8QUo1vED23OX1KL_Z-n7',
-            '1JWtELA4iLvoOopH9n3yjzyz5cepN4Gi1'
+            '1QoDXO-_E6VKz5hzDM_y_RD9F4XqLyqQi',
+            '1Fvvq3jsDpV9IUiDJAr3TL5rJ80YGTRTV',
+            '1oTtjB-YhnSDyQeOOn9lXxkrwB3f1isz8',
+            '16FsqpMmwMdpRDSxyWbx_wbQlpzAiqrzk',
+            '1dMEFrURneJlZhx3aPbua_jkhEttLPoLk',
+            '1pziQ94IQg4_fUhB-zHc53rt0bP_T7r9a',
+            '1GMs8BrtN0a9Lq5a50p-Llbb2XWNwYdmK',
+            '14cHeiWBwnWD_zZKwhk66RzRq83kyknRI',
+            '1Bx4B4Wqb4joZvhKgKLFcKYKFFVqUs1oZ'
           )
           $hashes=@(
-            '1bb1265c60b87ab58e07dd48f05092a8116ead04c06f9ab2942edff887e6482b',
-            'fe4c4845c33855756ed5825afa4ce342706c2ff1c6f3c9d0793bcfa89cea599e',
-            '1a885ead83ebda2646a2fcbca30c6cd7d25f169f2275ad23d0a0dfa7e0c0683d',
-            '0507f23c821262d81d0e60e56823b0877c7004d346a56f6fb1f09e3f459c5c45',
-            '50cf364d350ace4c0b5685f5bb8547e4786c21a1c61d2c41913ffd915a94b2b5',
-            '5773da743dcc486e19c1dc45f0ea34a756c76e9c8c37817af262846c620cc030',
-            '18bf56056051cc8e3c18617ef396f5a95afb65abe0d6f0efac849638046b144d',
-            '89532f1a447202b1171ac8884b62a5622a06a6aac68629b974d8ed272a2b579e',
-            '848d0228b3723ad0cdd751c8a44fc8b0b7d86e8693ada342101f91e8b8f4aa25'
+            '8d446235d681ea5adaace2a39b8be2c3f319612eae46eb17a08d6f371c09c15d',
+            'aa7a89eeba8382ecc0586864e0e1dd03a54a64584bb843076d80da7d56cc068c',
+            '1c7df5fecb0301abaddeabf7ad96fa78dc9da76b9aa7a5d24760d05ad2e91729',
+            'e3674372412b0771f1a3e388e24cb35fd2087d8e82cc75666e07c87f97a7ea13',
+            '72de5481fbbc05593c6f7cb6262ec221326bd99cb192f329cf3c74202415a2a0',
+            '53c8daea746932b8f264387daadd0ed7318fbf3202910d2070d8cbe61dbcb020',
+            'dc97f86a003333f93fcb6a9ab299d90a32ad4604ad9c3b4491323484e400ed55',
+            '3ca818b9476cd93a5b85adc3803d411287bba2286922a16ca1454a3d7a127022',
+            'fcc7e2a3f94919cfe5d2b33a52aea19d17d27006b84107edb5aeb0b4921238cf'
           )
           for($i=0;$i -lt $ids.Count;$i++){
             $p=Join-Path $incoming ("part{0:D2}" -f $i)
@@ -74,7 +74,7 @@ jobs:
             if($got -ne $hashes[$i]){throw "SOURCE_PART_SHA256_FAILED part=$i got=$got"}
             "part$i SHA256_PASS" | Add-Content (Join-Path $out 'SOURCE_HASHES.txt')
           }
-          $zip=Join-Path $incoming 'hybrid-v6-source.zip'
+          $zip=Join-Path $incoming 'hybrid-v8-source.zip'
           $stream=[IO.File]::Create($zip)
           try {
             for($i=0;$i -lt $ids.Count;$i++){
@@ -95,12 +95,12 @@ jobs:
           $android=$gradlew.Directory.FullName
           $project=Split-Path $android -Parent
           "ANDROID_PROJECT=$android" | Add-Content (Join-Path $out 'STATUS.txt')
-          # V6 is a self-contained verified source ZIP; never apply stale overlays.
+          # V8 is a self-contained verified source ZIP; never apply stale overlays.
           $version=Join-Path $project 'version.properties'
           $raw=Get-Content $version
           $raw=@($raw | ForEach-Object{
-            if($_ -match '^VERSION_NAME='){'VERSION_NAME=6.6.13-hybrid-fastplay-v6'}
-            elseif($_ -match '^VERSION_CODE='){'VERSION_CODE=606553'}
+            if($_ -match '^VERSION_NAME='){'VERSION_NAME=6.6.13-hybrid-fastplay-v8'}
+            elseif($_ -match '^VERSION_CODE='){'VERSION_CODE=606554'}
             else{$_}
           })
           [IO.File]::WriteAllLines($version,$raw,(New-Object Text.UTF8Encoding($false)))
@@ -130,7 +130,7 @@ jobs:
           }
           $candidate=Get-ChildItem (Join-Path $android 'app/build/outputs/apk/debug') -Filter '*.apk' -File | Select-Object -First 1
           if(!$candidate){throw 'APK_NOT_FOUND'}
-          $dst=Join-Path $out 'BRASEIRO_DND5E_HYBRID_FASTPLAY_V6_CANDIDATE.apk'
+          $dst=Join-Path $out 'BRASEIRO_DND5E_HYBRID_FASTPLAY_V8_CANDIDATE.apk'
           Copy-Item $candidate.FullName $dst
           $bt=Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory | Sort-Object Name -Descending | Select-Object -First 1
           if(!$bt){throw 'BUILD_TOOLS_NOT_FOUND'}
@@ -138,7 +138,7 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'AAPT_FAILED'}
           $badging=Get-Content (Join-Path $out 'APK_BADGING.txt') -Raw
           if($badging -notmatch "name='com\.braseiro\.dnd5e'"){throw 'APK_PACKAGE_MISMATCH'}
-          if($badging -notmatch "versionCode='606553'"){throw 'APK_VERSION_MISMATCH'}
+          if($badging -notmatch "versionCode='606554'"){throw 'APK_VERSION_MISMATCH'}
           $saved=$ErrorActionPreference;$ErrorActionPreference='Continue'
           & (Join-Path $bt.FullName 'apksigner.bat') verify --print-certs --verbose $dst 2>&1 | Tee-Object (Join-Path $out 'APK_SIGNATURE.txt')
           $rc=$LASTEXITCODE;$ErrorActionPreference=$saved
