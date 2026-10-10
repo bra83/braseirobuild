@@ -1,0 +1,214 @@
+diff --git a/android/app/src/main/java/com/braseiro/dnd5e/HybridFastplayUniversalEncounter.java b/android/app/src/main/java/com/braseiro/dnd5e/HybridFastplayUniversalEncounter.java
+new file mode 100644
+--- /dev/null
++++ b/android/app/src/main/java/com/braseiro/dnd5e/HybridFastplayUniversalEncounter.java
+@@ -0,0 +1,72 @@
++package com.braseiro.dnd5e;
++
++import org.json.JSONArray;
++import org.json.JSONObject;
++import java.util.UUID;
++
++/**
++ * Creates encounter DATA, not individual hard-coded adventures. A human reviewer
++ * must identify the official edition/source OR explicitly mark an improvised scene.
++ * This factory has no access to SQLite, a dice roller, AI, RAG or mutable game state.
++ * Mechanics are only committed by HybridFastplayEngine's native executor.
++ */
++public final class HybridFastplayUniversalEncounter {
++    private HybridFastplayUniversalEncounter(){}
++    private static String field(JSONObject in,String name,int max)throws Exception{
++        String value=in==null?"":in.optString(name,"").trim();
++        if(value.isEmpty()||value.length()>max)throw new IllegalArgumentException("Campo vazio ou muito longo: "+name);
++        return value;
++    }
++    /** actionKind: CHOICE, CHECK_D20 or MANUAL_ASSISTED. */
++    public static JSONObject create(JSONObject input,boolean explicitHumanReview)throws Exception{
++        if(!explicitHumanReview)throw new IllegalArgumentException("A Mestra precisa revisar fonte e texto antes de instalar o encontro");
++        String title=field(input,"title",180),scene=field(input,"scene",6000);
++        String source=field(input,"source_ref",256),edition=field(input,"edition",128);
++        String kind=field(input,"action_kind",32);
++        if(!"CHOICE".equals(kind)&&!"CHECK_D20".equals(kind)&&!"MANUAL_ASSISTED".equals(kind))
++            throw new IllegalArgumentException("Resolução não autorizada: "+kind);
++        String sourceKind=input.optString("source_kind","official");
++        if(!"official".equals(sourceKind)&&!"master_ruling".equals(sourceKind))
++            throw new IllegalArgumentException("Tipo de fonte não identificado");
++        if("master_ruling".equals(sourceKind)&&"CHECK_D20".equals(kind))
++            throw new IllegalArgumentException("CD de teste exige fonte oficial verificada; use resolução assistida");
++        int dc=input.optInt("dc",-1);
++        if("CHECK_D20".equals(kind)&&(dc<0||dc>40||!input.has("dc")))
++            throw new IllegalArgumentException("Informe a CD da regra oficial; jamais a deduza pelo texto");
++        JSONArray choices=input.optJSONArray("choices");
++        if(choices==null||choices.length()<1||choices.length()>8)throw new IllegalArgumentException("Informe de 1 a 8 ações");
++        String id="hybrid-free-"+UUID.randomUUID();
++        JSONObject root=new JSONObject().put("id","scene").put("public_text",scene)
++            .put("gm_secret",input.optString("gm_secret","")).put("actions",new JSONArray());
++        JSONArray actions=root.getJSONArray("actions");
++        for(int i=0;i<choices.length();i++){
++            String label=choices.optString(i,"").trim();
++            if(label.isEmpty()||label.length()>180)throw new IllegalArgumentException("Escolha vazia ou muito longa");
++            JSONObject a=new JSONObject().put("id","act"+(i+1)).put("label",label)
++                .put("source_ref",source).put("executor",kind);
++            if("CHECK_D20".equals(kind))a.put("dc",dc).put("success_step","success").put("failure_step","failure");
++            else a.put("next_step","resolution");
++            actions.put(a);
++        }
++        JSONArray steps=new JSONArray().put(root);
++        if("CHECK_D20".equals(kind)){
++            steps.put(conclusionStep("success",input.optString("success_text","Sucesso registrado; a Mestra descreve a consequência segundo a fonte, sem efeito automático."),source));
++            steps.put(conclusionStep("failure",input.optString("failure_text","Falha registrada; a Mestra descreve a consequência segundo a fonte, sem efeito automático."),source));
++        }else steps.put(conclusionStep("resolution",input.optString("resolution_text","Decisão registrada. Efeitos mecânicos devem ser resolvidos nos motores do jogo antes da conclusão."),source));
++        JSONObject d=new JSONObject().put("id",id).put("title",title)
++            .put("source_ref",source).put("source_kind",sourceKind).put("edition",edition)
++            .put("source_status","reviewed").put("root_step","scene").put("steps",steps)
++            .put("created_by","human_reviewed_fastplay_v3");
++        HybridFastplayEngine.validateDefinition(d);
++        return d;
++    }
++    private static JSONObject conclusionStep(String id,String text,String source)throws Exception{
++        if(text==null||text.trim().isEmpty()||text.length()>6000)throw new IllegalArgumentException("Desfecho narrativo inválido");
++        JSONObject finalChoice=new JSONObject().put("id","finish")
++            .put("label","Encerrar encontro (não aplica efeitos mecânicos)")
++            .put("source_ref",source).put("executor","CHOICE")
++            .put("next_step",id).put("ends_encounter",true);
++        return new JSONObject().put("id",id).put("public_text",text.trim())
++            .put("actions",new JSONArray().put(finalChoice));
++    }
++}
+diff --git a/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java b/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java
+--- a/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java
++++ b/android/app/src/main/java/com/braseiro/dnd5e/MainActivity.java
+@@ -1171,10 +1171,13 @@
+     private void showHybridFastplayDialog(){
+         final HybridFastplayEngine engine=new HybridFastplayEngine(db);
+         final LinearLayout panel=new LinearLayout(this);panel.setOrientation(LinearLayout.VERTICAL);panel.setPadding(dp(14),dp(12),dp(14),dp(12));
+         panel.addView(text("FASTPLAY HÍBRIDO • ENCONTROS",14,GOLD,true));
+         panel.addView(text("Somente encontros estruturados com fonte revisada. IA propõe; você confirma. Combate, magia, inventário e outros efeitos exigem o executor real antes da conclusão.",11,MUTED,false));
++        Button universal=button("CRIAR ENCONTRO LIVRE • SEM PROGRAMAR CADA SITUAÇÃO",GREEN);panel.addView(universal);
++        universal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showHybridUniversalEncounterBuilder(engine);}});
++        panel.addView(text("Use o Mestre IA para narrar qualquer situação. Aqui registre escolhas e testes revisados; para HP, magia, itens, combate e viagem use os motores normais do VTT. Um parecer narrativo não aplica efeitos mecânicos.",11,MUTED,false));
+         Button install=button("INSTALAR ENCONTRO JSON REVISADO",PANEL2);panel.addView(install);
+         install.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+             final EditText raw=input("Cole o JSON estruturado e revisado do encontro", "",true);
+             new AlertDialog.Builder(MainActivity.this).setTitle("Importar encontro • fonte revisada").setView(raw)
+               .setNegativeButton("Cancelar",null).setPositiveButton("VERIFICAR E INSTALAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){
+@@ -1190,10 +1193,51 @@
+                 open.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showHybridEncounterActive(engine,id);}});
+             }
+         }catch(Exception e){panel.addView(text("Não foi possível consultar encontros: "+e.getMessage(),11,RED,false));}
+         new AlertDialog.Builder(this).setTitle("Fastplay • D&D 5e").setView(scrollableDialogView(panel)).setPositiveButton("Fechar",null).show();
+     }
++    /** Universal data-driven encounter builder: no book content or numeric rule is invented. */
++    private void showHybridUniversalEncounterBuilder(final HybridFastplayEngine engine){
++        final LinearLayout panel=new LinearLayout(this);panel.setOrientation(LinearLayout.VERTICAL);panel.setPadding(dp(12),dp(8),dp(12),dp(8));
++        panel.addView(text("ENCONTRO UNIVERSAL • REVISÃO DA MESTRA",14,GOLD,true));
++        panel.addView(text("Cria um encontro narrativo sem novo Java para cada NPC, cena ou aventura. Indique a fonte e revise os parâmetros. Improvisos sem fonte NÃO ganham CD nem efeitos de regras.",11,MUTED,false));
++        final EditText title=labeledField(panel,"Título do encontro","Encontro da campanha",false);
++        JSONObject scene=db.getSceneState();
++        String location=scene.optString("location","").trim();
++        final EditText description=labeledField(panel,"Cena a jogar (da narrativa revisada)",location.isEmpty()?"":("Local: "+location+". "),true);
++        final EditText source=labeledField(panel,"Fonte exata: livro/edição/página ou 'Improviso da Mestra'","",false);
++        final EditText edition=labeledField(panel,"Edição/regras em vigor",db.getCampaign().optString("rules_profile","5e 2014"),false);
++        final Spinner provenance=spinner(new String[]{"Fonte oficial revisada","Improviso narrativo sem regra"},"Fonte oficial revisada");
++        panel.addView(text("Tipo de origem",11,MUTED,false));panel.addView(provenance);
++        final Spinner mode=spinner(new String[]{"Escolha narrativa","Teste d20 oficial manual","Exceção • resolução manual assistida"},"Escolha narrativa");
++        panel.addView(text("Resolução",11,MUTED,false));panel.addView(mode);
++        final EditText dc=labeledField(panel,"CD oficial (apenas para teste d20)","",false);
++        final EditText choices=labeledField(panel,"Ações possíveis (uma por linha)","Explorar\nConversar\nAguardar",true);
++        final EditText win=labeledField(panel,"Desfecho narrativo de sucesso (opcional)","",true);
++        final EditText fail=labeledField(panel,"Desfecho narrativo de falha (opcional)","",true);
++        final EditText secret=labeledField(panel,"Segredo exclusivo da Mestra (opcional)","",true);
++        final CheckBox reviewed=new CheckBox(this);reviewed.setText("Revisei fonte, edição, cena e CD; a IA não validou isto por mim.");reviewed.setTextColor(TEXT);panel.addView(reviewed);
++        new AlertDialog.Builder(this).setTitle("Fastplay • encontro universal").setView(scrollableDialogView(panel))
++          .setNegativeButton("Cancelar",null).setPositiveButton("VALIDAR, INSTALAR E JOGAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){
++            try{
++                String raw=choices.getText().toString().trim();JSONArray options=new JSONArray();
++                for(String option:raw.split("\\r?\\n")){String trimmed=option.trim();if(!trimmed.isEmpty())options.put(trimmed);}
++                int selected=mode.getSelectedItemPosition();String kind=selected==1?"CHECK_D20":selected==2?"MANUAL_ASSISTED":"CHOICE";
++                JSONObject spec=new JSONObject().put("title",title.getText().toString()).put("scene",description.getText().toString())
++                    .put("source_ref",source.getText().toString()).put("edition",edition.getText().toString())
++                    .put("source_kind",provenance.getSelectedItemPosition()==0?"official":"master_ruling")
++                    .put("action_kind",kind).put("choices",options).put("gm_secret",secret.getText().toString());
++                if("CHECK_D20".equals(kind)){spec.put("dc",Integer.parseInt(dc.getText().toString().trim()));}
++                if(!win.getText().toString().trim().isEmpty())spec.put("success_text",win.getText().toString().trim());
++                if(!fail.getText().toString().trim().isEmpty())spec.put("failure_text",fail.getText().toString().trim());
++                JSONObject definition=HybridFastplayUniversalEncounter.create(spec,reviewed.isChecked());
++                engine.install(definition);showHybridEncounterActive(engine,definition.getString("id"));
++            }catch(Exception error){new AlertDialog.Builder(MainActivity.this).setTitle("Encontro não instalado")
++                .setMessage(error.getMessage()+"\nNada foi executado; revise os dados da fonte.").setPositiveButton("Corrigir",null).show();}
++        }}).show();
++    }
++
+     private void showHybridEncounterActive(final HybridFastplayEngine engine,final String encounterId){
+         try{
+             final long partyId=1L;final JSONObject state=engine.start(encounterId,partyId);
+             if("blocked".equals(state.optString("status"))){toast(state.optString("reason"));return;}
+             LinearLayout view=new LinearLayout(this);view.setOrientation(LinearLayout.VERTICAL);view.setPadding(dp(14),dp(10),dp(14),dp(10));
+diff --git a/android/app/src/test/java/com/braseiro/dnd5e/HybridFastplayUniversalEncounterRobolectricTest.java b/android/app/src/test/java/com/braseiro/dnd5e/HybridFastplayUniversalEncounterRobolectricTest.java
+new file mode 100644
+--- /dev/null
++++ b/android/app/src/test/java/com/braseiro/dnd5e/HybridFastplayUniversalEncounterRobolectricTest.java
+@@ -0,0 +1,63 @@
++package com.braseiro.dnd5e;
++
++import org.json.JSONArray;
++import org.json.JSONObject;
++import org.junit.Test;
++import org.junit.runner.RunWith;
++import org.robolectric.RobolectricTestRunner;
++import org.robolectric.RuntimeEnvironment;
++import org.robolectric.annotation.Config;
++import static org.junit.Assert.*;
++
++@RunWith(RobolectricTestRunner.class)
++@Config(sdk=35, manifest=Config.NONE)
++public class HybridFastplayUniversalEncounterRobolectricTest {
++    private JSONObject make(String mode) throws Exception {
++        return new JSONObject().put("title","Encontro livre").put("scene","O grupo vê uma ponte coberta de névoa.")
++            .put("edition","5e 2014").put("source_ref","Fonte revisada p.42")
++            .put("source_kind","official").put("action_kind",mode)
++            .put("choices",new JSONArray().put("Investigar").put("Negociar"))
++            .put("dc",12).put("gm_secret","Segredo que não pode sair na visão do jogador");
++    }
++    @Test public void sourceReviewCannotBeSelfCertifiedByData() throws Exception {
++        JSONObject candidate=make("CHOICE").put("source_status","reviewed");boolean failed=false;
++        try{HybridFastplayUniversalEncounter.create(candidate,false);}catch(Exception expected){failed=true;}
++        assertTrue(failed);
++    }
++    @Test public void improvisedEncounterCannotInventDC() throws Exception {
++        JSONObject candidate=make("CHECK_D20").put("source_kind","master_ruling");boolean failed=false;
++        try{HybridFastplayUniversalEncounter.create(candidate,true);}catch(Exception expected){failed=true;}
++        assertTrue(failed);
++    }
++    @Test public void anyReviewedSceneInstallsAndContinuesAcrossReopen() throws Exception {
++        String file="hybrid_universal_"+System.nanoTime()+".db";
++        AppDb db=new AppDb(RuntimeEnvironment.getApplication(),file);
++        JSONObject definition=HybridFastplayUniversalEncounter.create(make("MANUAL_ASSISTED"),true);
++        try{
++            HybridFastplayEngine engine=new HybridFastplayEngine(db);engine.install(definition);
++            JSONObject view=engine.start(definition.getString("id"),1);
++            assertEquals("active",view.getString("status"));assertEquals(2,view.getJSONArray("actions").length());
++            assertFalse(view.toString().contains("Segredo que não pode sair"));
++            JSONObject result=engine.commit(definition.getString("id"),1,"human-decision-1","act1",
++              new JSONObject().put("human_approved",true).put("ruling_source","Fonte revisada p.42")
++                .put("human_ruling","Sem efeitos mecânicos; escolha apenas narrativa"),null);
++            assertEquals("committed",result.getString("status"));
++            assertFalse(result.optJSONObject("mechanics").has("mechanical_receipt"));
++            assertTrue(engine.commit(definition.getString("id"),1,"human-decision-1","act1",
++                new JSONObject().put("human_approved",true),null).optBoolean("replayed"));
++            db.close();db=new AppDb(RuntimeEnvironment.getApplication(),file);
++            engine=new HybridFastplayEngine(db);
++            assertEquals("resolution",engine.view(definition.getString("id"),1,false).optString("step_id"));
++            result=engine.commit(definition.getString("id"),1,"human-finish","finish",
++                new JSONObject().put("human_approved",true),null);
++            assertTrue(result.optBoolean("completed"));
++        }finally{db.close();}
++    }
++    @Test public void reviewedD20HasTwoExplicitBranchesAndNoAutomaticStateEffect() throws Exception {
++        JSONObject result=HybridFastplayUniversalEncounter.create(make("CHECK_D20"),true);
++        HybridFastplayEngine.validateDefinition(result);
++        JSONObject a=result.getJSONArray("steps").getJSONObject(0).getJSONArray("actions").getJSONObject(0);
++        assertEquals(12,a.getInt("dc"));assertEquals("success",a.getString("success_step"));assertEquals("failure",a.getString("failure_step"));
++        assertFalse(a.has("mechanical_effects"));
++    }
++}
