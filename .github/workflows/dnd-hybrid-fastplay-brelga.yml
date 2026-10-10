@@ -121,10 +121,11 @@ jobs:
             $ErrorActionPreference=$saved
             "$task rc=$code" | Add-Content (Join-Path $out 'GRADLE_STATUS.txt')
             if($code -ne 0){
-              if($task -eq ':app:testDebugUnitTest'){
-                'ROBOLECTRIC=FAIL_NOT_HOMOLOGATED' | Add-Content (Join-Path $out 'STATUS.txt')
-                Write-Host 'Robolectric failed; preserve diagnostic and continue to candidate APK only.'
-              }else{throw "ANDROID_VALIDATION_FAILED task=$task rc=$code"}
+              "GATE=FAIL; BLOCKED_TASK=$task; RC=$code; APK_DELIVERY=FORBIDDEN" | Add-Content (Join-Path $out 'STATUS.txt')
+              throw "ANDROID_VALIDATION_FAILED task=$task rc=$code; NO_APK_RELEASE"
+            }
+            if($task -eq ':app:testDebugUnitTest'){
+              'ROBOLECTRIC=PASS' | Add-Content (Join-Path $out 'STATUS.txt')
             }
           }
           $candidate=Get-ChildItem (Join-Path $android 'app/build/outputs/apk/debug') -Filter '*.apk' -File | Select-Object -First 1
@@ -143,10 +144,14 @@ jobs:
           $rc=$LASTEXITCODE;$ErrorActionPreference=$saved
           if($rc -ne 0){throw 'APK_SIGNATURE_INVALID'}
           (Get-FileHash $dst -Algorithm SHA256).Hash.ToLowerInvariant() | Set-Content (Join-Path $out 'APK_SHA256.txt')
-          "APK_CANDIDATE_ASSEMBLED=YES" | Add-Content (Join-Path $out 'STATUS.txt')
+          "APK_CANDIDATE_ASSEMBLED=YES; RELEASE_STATUS=BLOCKED_UNTIL_FULL_VALIDATION" | Add-Content (Join-Path $out 'STATUS.txt')
           "UPGRADE_SIGNATURE_MATCH=NOT_VERIFIED" | Add-Content (Join-Path $out 'STATUS.txt')
           "ANDROID_DEVICE_TEST=NOT_RUN" | Add-Content (Join-Path $out 'STATUS.txt')
-      - name: Persist BRELGA diagnostics and upload directly to hybrid Drive
+          # BUILD SUCCESS != RELEASE SUCCESS. Aapt/apksigner only prove package integrity.
+          # Nothing is published or called ready until upgrade, Android E2E and gameplay chain are proven.
+          "RELEASE_GATE=FAIL_NO_VERIFIED_DEVICE_E2E_OR_UPGRADE" | Add-Content (Join-Path $out 'STATUS.txt')
+          throw 'NO_APK_RELEASE: Android device E2E and installed-version signing/save upgrade not verified'
+      - name: Preserve failure diagnostics locally without publishing APK
         if: always()
         shell: powershell
         run: |
@@ -156,26 +161,5 @@ jobs:
           if(!(Test-Path $out)){New-Item -ItemType Directory -Force -Path $out | Out-Null}
           $testResults=Join-Path $root 'source/android/app/build/test-results/testDebugUnitTest'
           if(Test-Path $testResults){Copy-Item $testResults (Join-Path $out 'TEST_RESULTS') -Recurse -Force}
-          $driveFolder='1lAr4l_CzDdQO1uVanBIvScXlFh3lupuz'
-          $destName='BRELGA_BUILDS/V6_RUN_'+$env:GITHUB_RUN_ID
-          if(!(Get-Command rclone.exe -ErrorAction SilentlyContinue)){
-            'DRIVE_UPLOAD=RCLONE_UNAVAILABLE; FILES_SAVED_ON_BRELGA' | Add-Content (Join-Path $out 'STATUS.txt')
-            throw 'RCLONE_MISSING_ON_BRELGA'
-          }
-          $remote=$env:BRASEIRO_RCLONE_REMOTE
-          if(!$remote){
-            $remotes=@(& rclone.exe listremotes)
-            if($remotes -contains 'gdrive:'){$remote='gdrive'}
-            elseif($remotes -contains 'drive:'){$remote='drive'}
-            else{throw 'RCLONE_GOOGLE_DRIVE_REMOTE_NOT_CONFIGURED'}
-          }
-          $remote=$remote.TrimEnd(':')
-          $destination=$remote+':'+$destName
-          & rclone.exe copy $out $destination --drive-root-folder-id $driveFolder --retries 3 --transfers 2
-          if($LASTEXITCODE -ne 0){throw 'DRIVE_UPLOAD_FAILED'}
-          & rclone.exe check $out $destination --drive-root-folder-id $driveFolder --one-way --download
-          if($LASTEXITCODE -ne 0){throw 'DRIVE_READBACK_FAILED'}
-          'DRIVE_UPLOAD_AND_READBACK=PASS' | Add-Content (Join-Path $out 'STATUS.txt')
-          & rclone.exe copyto (Join-Path $out 'STATUS.txt') ($destination+'/STATUS.txt') --drive-root-folder-id $driveFolder
-          if($LASTEXITCODE -ne 0){throw 'DRIVE_RECEIPT_UPLOAD_FAILED'}
-          Write-Host ('DELIVERY_OK '+$destName)
+          'UNVERIFIED_BUILDS_ARE_NOT_DELIVERED=TRUE' | Add-Content (Join-Path $out 'STATUS.txt')
+          Write-Host ('Diagnostic evidence retained locally: '+$out)
