@@ -1,0 +1,163 @@
+name: Braseiro D&D Hybrid Fastplay BRELGA
+on:
+  push:
+    branches: [braseiro-dnd5e-hybrid-fastplay]
+    paths:
+      - '.github/workflows/dnd-hybrid-fastplay-brelga.yml'
+      - 'ci/dnd-hybrid/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: braseiro-dnd-hybrid-fastplay-brelga
+  cancel-in-progress: false
+
+jobs:
+  hybrid-android:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 120
+    env:
+      SOURCE_SHA256: '18946d418a7e62d7e0bae5bbf08152eddb0240b315ed1ea97ceead6a52200fba'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify source, compile, test, and build APK on BRELGA
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Expected BRELGA; actual=$env:RUNNER_NAME"}
+          $root=Join-Path $env:RUNNER_TEMP 'braseiro-hybrid-fastplay'
+          $incoming=Join-Path $root 'incoming'
+          $source=Join-Path $root 'source'
+          $out=Join-Path $root 'out'
+          New-Item -ItemType Directory -Force -Path $incoming,$out | Out-Null
+          "RUNNER=$env:RUNNER_NAME" | Set-Content (Join-Path $out 'STATUS.txt')
+          "BASE=HYBRID_FASTPLAY_V2" | Add-Content (Join-Path $out 'STATUS.txt')
+          "ORIGINAL_MAIN_MUTATED=NO" | Add-Content (Join-Path $out 'STATUS.txt')
+          $ids=@(
+            '1h6I6DCCvrI9TYdlOnyIMxIWCgcx09RUS',
+            '1cDCBZ1zHv_oJ9nKFAAtevp1HxB4Y9SkU',
+            '12POVo2tNBIVvHLiGwGuBn-ZMm_cTXWvs',
+            '1o3lAkseuktLNJmugFq-Ej1OJc3MhjX3C',
+            '1lKC6t7YwsA66TS9q2dXEacDo-EMPThOK',
+            '1XlQA7nRHXbL3p0etjXV-ySTRexe_5Bqi',
+            '1mKXhXESZ-dP_3VFxCGftEmsdU7PxrJWY',
+            '195z1Lzl4mw5iL9-fK6_8c4GsxCjl_rOf',
+            '1ucaHPwwv8I3fEMWLb15G0mp04rH2_Un3'
+          )
+          $hashes=@(
+            'b0bb4c3178e91bfb49644ae7b7e6e4ed981c81cdbce357f80f497991a022ce5e',
+            'aa7a89eeba8382ecc0586864e0e1dd03a54a64584bb843076d80da7d56cc068c',
+            '1c7df5fecb0301abaddeabf7ad96fa78dc9da76b9aa7a5d24760d05ad2e91729',
+            'e3674372412b0771f1a3e388e24cb35fd2087d8e82cc75666e07c87f97a7ea13',
+            '72de5481fbbc05593c6f7cb6262ec221326bd99cb192f329cf3c74202415a2a0',
+            '53c8daea746932b8f264387daadd0ed7318fbf3202910d2070d8cbe61dbcb020',
+            'dc97f86a003333f93fcb6a9ab299d90a32ad4604ad9c3b4491323484e400ed55',
+            '3ca818b9476cd93a5b85adc3803d411287bba2286922a16ca1454a3d7a127022',
+            '1c359724d2aac63b9b8333df8a02e28a515d3f64bea494d0dc8b9975caef6827'
+          )
+          for($i=0;$i -lt $ids.Count;$i++){
+            $p=Join-Path $incoming ("part{0:D2}" -f $i)
+            $ok=$false
+            if(Test-Path $p){
+              $got=(Get-FileHash $p -Algorithm SHA256).Hash.ToLowerInvariant()
+              if($got -eq $hashes[$i]){$ok=$true}else{Remove-Item $p -Force}
+            }
+            if(-not $ok){
+              $uri="https://drive.usercontent.google.com/download?id=$($ids[$i])&export=download&confirm=t"
+              & curl.exe -L --fail --retry 4 --retry-delay 4 --connect-timeout 30 --max-time 900 -o $p $uri
+              if($LASTEXITCODE -ne 0){throw "SOURCE_DOWNLOAD_FAILED part=$i"}
+            }
+            $got=(Get-FileHash $p -Algorithm SHA256).Hash.ToLowerInvariant()
+            if($got -ne $hashes[$i]){throw "SOURCE_PART_SHA256_FAILED part=$i got=$got"}
+            "part$i SHA256_PASS" | Add-Content (Join-Path $out 'SOURCE_HASHES.txt')
+          }
+          $zip=Join-Path $incoming 'hybrid-v2-source.zip'
+          $stream=[IO.File]::Create($zip)
+          try {
+            for($i=0;$i -lt $ids.Count;$i++){
+              $part=[IO.File]::OpenRead((Join-Path $incoming ("part{0:D2}" -f $i)))
+              try {$part.CopyTo($stream)} finally {$part.Dispose()}
+            }
+          } finally {$stream.Dispose()}
+          $actual=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($actual -ne $env:SOURCE_SHA256){throw "SOURCE_SHA256_MISMATCH $actual"}
+          "FULL_SOURCE_SHA256_PASS=$actual" | Add-Content (Join-Path $out 'STATUS.txt')
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $archive=[IO.Compression.ZipFile]::OpenRead($zip)
+          try {if($archive.Entries.Count -lt 1800){throw 'FULL_SOURCE_INCOMPLETE'}}finally{$archive.Dispose()}
+          if(Test-Path $source){Remove-Item $source -Recurse -Force}
+          [IO.Compression.ZipFile]::ExtractToDirectory($zip,$source)
+          $gradlew=Get-ChildItem $source -Recurse -Filter gradlew.bat -File | Where-Object {$_.Directory.Name -eq 'android'} | Select-Object -First 1
+          if(!$gradlew){throw 'GRADLE_WRAPPER_MISSING'}
+          $android=$gradlew.Directory.FullName
+          $project=Split-Path $android -Parent
+          "ANDROID_PROJECT=$android" | Add-Content (Join-Path $out 'STATUS.txt')
+          # An independent patch layer is optional. Never alter the frozen original or main.
+          $overlay=Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-hybrid/HYBRID_FASTPLAY_V3.patch'
+          if(Test-Path $overlay){
+            $patchExe=Get-Command patch.exe -ErrorAction SilentlyContinue
+            if(!$patchExe){throw 'PATCH_EXE_REQUIRED_FOR_OVERLAY'}
+            Push-Location $project
+            try{
+              & patch.exe -p1 --batch --fuzz=0 --dry-run -i $overlay
+              if($LASTEXITCODE -ne 0){throw 'OVERLAY_DRY_RUN_FAILED'}
+              & patch.exe -p1 --batch --fuzz=0 -i $overlay
+              if($LASTEXITCODE -ne 0){throw 'OVERLAY_APPLY_FAILED'}
+            } finally{Pop-Location}
+          }
+          $version=Join-Path $project 'version.properties'
+          $raw=Get-Content $version
+          $raw=@($raw | ForEach-Object{
+            if($_ -match '^VERSION_NAME='){'VERSION_NAME=6.6.13-hybrid-fastplay-v3'}
+            elseif($_ -match '^VERSION_CODE='){'VERSION_CODE=606550'}
+            else{$_}
+          })
+          [IO.File]::WriteAllLines($version,$raw,(New-Object Text.UTF8Encoding($false)))
+          if(!(Select-String -Quiet -Path (Join-Path $android 'app/build.gradle.kts') -Pattern 'com.braseiro.dnd5e')){throw 'PACKAGE_CONTRACT_FAILED'}
+          if(!$env:ANDROID_HOME){$fallback=Join-Path $env:LOCALAPPDATA 'Android\Sdk';if(Test-Path $fallback){$env:ANDROID_HOME=$fallback}}
+          if(!$env:ANDROID_HOME -or !(Test-Path $env:ANDROID_HOME)){throw 'ANDROID_SDK_NOT_FOUND'}
+          $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          $jbr='C:\Program Files\Android\Android Studio\jbr'
+          if(!(Get-Command java.exe -ErrorAction SilentlyContinue) -and (Test-Path (Join-Path $jbr 'bin\java.exe'))){$env:JAVA_HOME=$jbr;$env:PATH="$jbr\bin;$env:PATH"}
+          Set-Location $android
+          $tasks=@(':app:compileDebugJavaWithJavac',':app:testDebugUnitTest',':app:assembleDebug')
+          foreach($task in $tasks){
+            $name=$task.TrimStart(':').Replace(':','_')
+            $saved=$ErrorActionPreference
+            $ErrorActionPreference='Continue'
+            & .\gradlew.bat $task --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $out "$name.log")
+            $code=$LASTEXITCODE
+            $ErrorActionPreference=$saved
+            "$task rc=$code" | Add-Content (Join-Path $out 'GRADLE_STATUS.txt')
+            if($code -ne 0){throw "ANDROID_VALIDATION_FAILED task=$task rc=$code"}
+          }
+          $candidate=Get-ChildItem (Join-Path $android 'app/build/outputs/apk/debug') -Filter '*.apk' -File | Select-Object -First 1
+          if(!$candidate){throw 'APK_NOT_FOUND'}
+          $dst=Join-Path $out 'BRASEIRO_DND5E_HYBRID_FASTPLAY_V3_CANDIDATE.apk'
+          Copy-Item $candidate.FullName $dst
+          $bt=Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          if(!$bt){throw 'BUILD_TOOLS_NOT_FOUND'}
+          & (Join-Path $bt.FullName 'aapt.exe') dump badging $dst | Set-Content (Join-Path $out 'APK_BADGING.txt')
+          if($LASTEXITCODE -ne 0){throw 'AAPT_FAILED'}
+          $badging=Get-Content (Join-Path $out 'APK_BADGING.txt') -Raw
+          if($badging -notmatch "name='com\.braseiro\.dnd5e'"){throw 'APK_PACKAGE_MISMATCH'}
+          if($badging -notmatch "versionCode='606550'"){throw 'APK_VERSION_MISMATCH'}
+          $saved=$ErrorActionPreference;$ErrorActionPreference='Continue'
+          & (Join-Path $bt.FullName 'apksigner.bat') verify --print-certs --verbose $dst 2>&1 | Tee-Object (Join-Path $out 'APK_SIGNATURE.txt')
+          $rc=$LASTEXITCODE;$ErrorActionPreference=$saved
+          if($rc -ne 0){throw 'APK_SIGNATURE_INVALID'}
+          (Get-FileHash $dst -Algorithm SHA256).Hash.ToLowerInvariant() | Set-Content (Join-Path $out 'APK_SHA256.txt')
+          "COMPILE_TEST_APK=PASS" | Add-Content (Join-Path $out 'STATUS.txt')
+          "UPGRADE_SIGNATURE_MATCH=NOT_VERIFIED" | Add-Content (Join-Path $out 'STATUS.txt')
+      - name: Preserve candidate APK and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_DND5E_HYBRID_FASTPLAY_BRELGA_EVIDENCE
+          path: |
+            ${{ runner.temp }}/braseiro-hybrid-fastplay/out/**
+            ${{ runner.temp }}/braseiro-hybrid-fastplay/source/android/app/build/test-results/testDebugUnitTest/**
+          if-no-files-found: warn
+          retention-days: 14
