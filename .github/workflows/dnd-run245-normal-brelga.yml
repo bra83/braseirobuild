@@ -158,7 +158,7 @@ jobs:
           if(!$bt){throw 'ANDROID_BUILD_TOOLS_MISSING'}
           $badging=(& "$($bt.FullName)\aapt.exe" dump badging $final) -join "`n"
           $badging | Set-Content (Join-Path $out 'APK_BADGING.txt')
-          if($badging -notmatch "package: name='com\\.braseiro\\.dnd5e'" -or $badging -notmatch "versionCode='606545'"){throw 'RUN245_APK_IDENTITY_MISMATCH'}
+          if($badging -notmatch "package: name='com\.braseiro\.dnd5e'" -or $badging -notmatch "versionCode='606545'"){throw 'RUN245_APK_IDENTITY_MISMATCH'}
           $save=$ErrorActionPreference;$ErrorActionPreference='Continue'
           & "$($bt.FullName)\apksigner.bat" verify --verbose --print-certs $final 2>&1 | Tee-Object (Join-Path $out 'APK_SIGNATURE.txt')
           $rc=$LASTEXITCODE;$ErrorActionPreference=$save
