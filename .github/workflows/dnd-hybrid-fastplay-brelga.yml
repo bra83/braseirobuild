@@ -19,7 +19,7 @@ jobs:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 120
     env:
-      SOURCE_SHA256: '18946d418a7e62d7e0bae5bbf08152eddb0240b315ed1ea97ceead6a52200fba'
+      SOURCE_SHA256: 'b6034e5a02722d790b895e29c46c8718fc04f0219e5acf24f3b1978a715fb301'
     steps:
       - uses: actions/checkout@v4
       - name: Verify source, compile, test, and build APK on BRELGA
@@ -34,29 +34,29 @@ jobs:
           $out=Join-Path $root 'out'
           New-Item -ItemType Directory -Force -Path $incoming,$out | Out-Null
           "RUNNER=$env:RUNNER_NAME" | Set-Content (Join-Path $out 'STATUS.txt')
-          "BASE=HYBRID_FASTPLAY_V2" | Add-Content (Join-Path $out 'STATUS.txt')
+          "BASE=HYBRID_FASTPLAY_V3" | Add-Content (Join-Path $out 'STATUS.txt')
           "ORIGINAL_MAIN_MUTATED=NO" | Add-Content (Join-Path $out 'STATUS.txt')
           $ids=@(
-            '1h6I6DCCvrI9TYdlOnyIMxIWCgcx09RUS',
-            '1cDCBZ1zHv_oJ9nKFAAtevp1HxB4Y9SkU',
-            '12POVo2tNBIVvHLiGwGuBn-ZMm_cTXWvs',
-            '1o3lAkseuktLNJmugFq-Ej1OJc3MhjX3C',
-            '1lKC6t7YwsA66TS9q2dXEacDo-EMPThOK',
-            '1XlQA7nRHXbL3p0etjXV-ySTRexe_5Bqi',
-            '1mKXhXESZ-dP_3VFxCGftEmsdU7PxrJWY',
-            '195z1Lzl4mw5iL9-fK6_8c4GsxCjl_rOf',
-            '1ucaHPwwv8I3fEMWLb15G0mp04rH2_Un3'
+            '1nB7myeglniTmH3eWdXeIHjXAqXFYGlY7',
+            '1J6tJ4eKYgOQkCDFAIUKfIiBqa0ebsF1Z',
+            '1go0oPBUOBNAaSY_wR-oGOEch2AQJT7sH',
+            '1HWKnsgYLPEc5cf93P8xzDn0-aM4DSjJM',
+            '1rgurne9q_9NtsbqZHL2fRGHc7WGyoMg1',
+            '1YWfjfdtIVhFHQRO4_CYw1j6RbGeh20Bd',
+            '1h68ZLaoEVWx8bBa2Xj0kYQlcXBOv1gLT',
+            '14LK6_DViSrysLt3RqcWQPPvRpyxtbXUz',
+            '1lB_wqqXJGVnvD5kRAkeBdz3LInZO2nWW'
           )
           $hashes=@(
-            'b0bb4c3178e91bfb49644ae7b7e6e4ed981c81cdbce357f80f497991a022ce5e',
-            'aa7a89eeba8382ecc0586864e0e1dd03a54a64584bb843076d80da7d56cc068c',
-            '1c7df5fecb0301abaddeabf7ad96fa78dc9da76b9aa7a5d24760d05ad2e91729',
-            'e3674372412b0771f1a3e388e24cb35fd2087d8e82cc75666e07c87f97a7ea13',
-            '72de5481fbbc05593c6f7cb6262ec221326bd99cb192f329cf3c74202415a2a0',
-            '53c8daea746932b8f264387daadd0ed7318fbf3202910d2070d8cbe61dbcb020',
-            'dc97f86a003333f93fcb6a9ab299d90a32ad4604ad9c3b4491323484e400ed55',
-            '3ca818b9476cd93a5b85adc3803d411287bba2286922a16ca1454a3d7a127022',
-            '1c359724d2aac63b9b8333df8a02e28a515d3f64bea494d0dc8b9975caef6827'
+            '15469fdd92aa81e0cf8199143052cc8353614e9c1a56df80f98d8bdb48d119af',
+            'c4fc8ed350ad10307aaf6cd9218020bec561c0d72451f897d4b4984ae0e5c833',
+            'ce8a856d2bd150caadb51f9be370e9f20b86f0f4b48f0ce0e9430b1db7e73545',
+            '450744652fb42e72c650e5eeee2045032de3f4a2ca31c6b9aeae50864f9b469f',
+            'b7a4595042f0b8dc4fe0a1d1181d69830563b39be9cd9c94bcc896eab018ae39',
+            '6163ad2dba20f560654fb1574f2301922aa8778564669c666268b3877354b3c1',
+            '729bf94e0823577174b95b9c1b750231239fafe9ff94c69b5b5dcc97037f5691',
+            '16adb0193f9b5bd81bfeb3a122aa87184d571ad9782fc0d8ad7bf780a312f3ff',
+            '75c6687ed68ce7cbd82caa63d8066a6615d0ce6354fd6c4e5d112a0114350c12'
           )
           for($i=0;$i -lt $ids.Count;$i++){
             $p=Join-Path $incoming ("part{0:D2}" -f $i)
@@ -96,7 +96,7 @@ jobs:
           $project=Split-Path $android -Parent
           "ANDROID_PROJECT=$android" | Add-Content (Join-Path $out 'STATUS.txt')
           # An independent patch layer is optional. Never alter the frozen original or main.
-          $overlay=Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-hybrid/HYBRID_FASTPLAY_V3.patch'
+          $overlay=Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-hybrid/HYBRID_FASTPLAY_V4.patch'
           if(Test-Path $overlay){
             if(!(Get-Command git.exe -ErrorAction SilentlyContinue)){throw 'GIT_EXE_REQUIRED_FOR_OVERLAY'}
             Push-Location $project
