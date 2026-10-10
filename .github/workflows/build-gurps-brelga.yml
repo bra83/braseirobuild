@@ -1,0 +1,97 @@
+name: Braseiro GURPS Android - BRELGA
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag containing the verified GURPS SOURCE zip"
+        required: true
+        type: string
+      source_sha256:
+        description: "Expected SHA256 of complete source ZIP"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gurps-brelga-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify-and-build:
+    runs-on: [self-hosted]
+    timeout-minutes: 90
+    steps:
+      - name: Checkout workflow repository
+        uses: actions/checkout@v4
+
+      - name: Verify runner identity and tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Runner: $RUNNER_NAME"
+          if [[ "${RUNNER_NAME,,}" != "brelga" ]]; then
+            echo "::error::This job must run on BRELGA, not another self-hosted runner"
+            exit 1
+          fi
+          java -version
+          command -v unzip
+          command -v sha256sum
+          command -v gh
+          test -d "${ANDROID_HOME:-/nonexistent}" || { echo "::error::ANDROID_HOME not configured"; exit 1; }
+
+      - name: Download exact source from specified release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.release_tag }}
+          EXPECTED_SHA: ${{ inputs.source_sha256 }}
+        run: |
+          set -euo pipefail
+          mkdir -p incoming
+          gh release download "$TAG" --pattern 'BRASEIRO_GURPS_*_SOURCE.zip' --dir incoming
+          mapfile -t ZIPS < <(find incoming -maxdepth 1 -name 'BRASEIRO_GURPS_*_SOURCE.zip' -type f)
+          [[ "${#ZIPS[@]}" == 1 ]] || { echo "::error::Expected exactly one GURPS source ZIP"; exit 1; }
+          printf '%s  %s\n' "$EXPECTED_SHA" "${ZIPS[0]}" | sha256sum -c -
+          unzip -t "${ZIPS[0]}"
+          mkdir -p extracted
+          unzip -q "${ZIPS[0]}" -d extracted
+
+      - name: Detect canonical Android root
+        id: android
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t SETTINGS < <(find extracted -name settings.gradle.kts -o -name settings.gradle)
+          [[ "${#SETTINGS[@]}" == 1 ]] || { echo "::error::Expected exactly one Android Gradle root"; exit 1; }
+          ROOT="$(dirname "${SETTINGS[0]}")"
+          [[ -f "$ROOT/gradlew" ]] || { echo "::error::Gradle wrapper missing"; exit 1; }
+          [[ -f "$ROOT/gradle/wrapper/gradle-wrapper.properties" ]] || { echo "::error::Gradle wrapper properties missing"; exit 1; }
+          chmod +x "$ROOT/gradlew"
+          echo "root=$ROOT" >> "$GITHUB_OUTPUT"
+
+      - name: Compile app and instrumentation test sources
+        working-directory: ${{ steps.android.outputs.root }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon --stacktrace :app:compileDebugJavaWithJavac :app:compileDebugAndroidTestJavaWithJavac
+
+      - name: Build debug APK only after compilation passes
+        working-directory: ${{ steps.android.outputs.root }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon --stacktrace :app:assembleDebug
+          find app/build/outputs/apk/debug -name '*.apk' -type f -exec sha256sum {} \;
+
+      - name: Upload build output
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gurps-brelga-debug-${{ github.run_number }}
+          path: ${{ steps.android.outputs.root }}/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
