@@ -98,7 +98,11 @@ jobs:
           }
           foreach($name in $entries.Keys){
             $source=Join-Path $recovery $name
-            $actual=(Get-FileHash $source -Algorithm SHA256).Hash.ToLowerInvariant()
+            $canonical=[IO.File]::ReadAllText($source).Replace("`r`n","`n").Replace("`r","`n")
+            $normalized=Join-Path $env:RUNNER_TEMP ("normalized-"+$name)
+            [IO.File]::WriteAllText($normalized,$canonical,(New-Object System.Text.UTF8Encoding($false)))
+            $actual=(Get-FileHash $normalized -Algorithm SHA256).Hash.ToLowerInvariant()
+            Remove-Item -LiteralPath $normalized -Force
             if($actual -ne $entries[$name]){throw "RUN220_RECOVERY_SHA256_MISMATCH $name expected=$($entries[$name]) actual=$actual"}
             $target=Join-Path $project "app\src\main\java\com\braseiro\dnd5e\$name"
             Copy-Item -LiteralPath $source -Destination $target -Force
