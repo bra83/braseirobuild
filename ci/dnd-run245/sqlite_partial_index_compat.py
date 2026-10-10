@@ -113,9 +113,11 @@ source_book_assertions = '''        assertEquals("Ravenloft: The Horrors Within"
         JSONObject savingThrows=compiled.getJSONObject("saving_throws");
         assertEquals("+1",savingThrows.optString("int"));
         assertEquals("+4",savingThrows.optString("wis"));'''
-if rhw_text.count(source_book_anchor) == 1:
+if rhw_text.count(source_book_assertions) == 1:
+    pass
+elif rhw_text.count(source_book_anchor) == 1:
     rhw_text = rhw_text.replace(source_book_anchor,source_book_assertions)
-elif rhw_text.count(source_book_assertions) != 1:
+else:
     raise SystemExit('RHW_SOURCE_MECHANIC_ASSERTION_DRIFT')
 
 damage_test_anchor = '    @Test public void biteConditionIsTypedSourceTurnBoundAndSurvivesBackup21()throws Exception {'
