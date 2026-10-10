@@ -73,8 +73,11 @@ jobs:
           & $git.Source -C $project -c core.autocrlf=false apply $patch
           if($LASTEXITCODE -ne 0){throw 'G05_PATCH_APPLY_FAILED'}
           $wireLog=Join-Path $out 'G05_STATIC_WIRING.log'
+          $save=$ErrorActionPreference;$ErrorActionPreference='Continue'
           & python (Join-Path $project 'G05_EVIDENCE/test_run245_wiring.py') 2>&1 | Tee-Object $wireLog
-          if($LASTEXITCODE -ne 0){throw 'G05_STATIC_WIRING_FAILED'}
+          $wireRc=$LASTEXITCODE;$ErrorActionPreference=$save
+          "G05_STATIC_WIRING_EXIT_CODE=$wireRc" | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
+          if($wireRc -ne 0){throw 'G05_STATIC_WIRING_FAILED'}
           "G05_PATCH_SHA256=$actual" | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
           'G05_PATCH_APPLY=PASS' | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
           'G05_STATIC_WIRING=PASS; ROBOLECTRIC=NOT_YET_RUN; PATCH_BYTES_PINNED=YES' | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
