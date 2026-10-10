@@ -117,7 +117,7 @@ jobs:
           $root=Join-Path $env:RUNNER_TEMP 'dnd245-normal'
           $project=Join-Path $root 'project'
           $script=Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-run245/sqlite_partial_index_compat.py'
-          $expected='60b45bf966102139a5e160b4b76aa74642e9546c33d90d96c084233e88be22c5'
+          $expected='429049247a5fe3ec65e1026c58a391b05bc84fedad892dba50e91b3eb3d1a6e2'
           $canonical=[IO.File]::ReadAllText($script).Replace("`r`n","`n").Replace("`r","`n")
           $normalized=Join-Path $env:RUNNER_TEMP 'run245-sqlite-partial-index-compat.py'
           [IO.File]::WriteAllText($normalized,$canonical,(New-Object System.Text.UTF8Encoding($false)))

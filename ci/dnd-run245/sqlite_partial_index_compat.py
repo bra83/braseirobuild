@@ -30,6 +30,21 @@ elif flow_text.count(new_roll) == 1 and flow_text.count(new_mod) == 1:
 else:
     raise SystemExit('DICE_MODIFIER_PARSER_SOURCE_DRIFT')
 
+old_specs_pattern = 'Pattern.compile("\\\\d+d\\\\d+(?:[+-]\\\\d+)?").matcher(e)'
+new_specs_pattern = 'Pattern.compile("\\\\d+d\\\\d+(?:\\\\s*[+-]\\\\s*\\\\d+)?").matcher(e)'
+old_specs_visibility = 'private static JSONArray damageSpecs('
+new_specs_visibility = 'static JSONArray damageSpecs('
+old_average_visibility = 'private static int rollAverage(String expr,boolean critical)'
+new_average_visibility = 'static int rollAverage(String expr,boolean critical)'
+for old, new, label in ((old_specs_pattern,new_specs_pattern,'TYPED_DAMAGE_COMPONENT_PATTERN'),
+                        (old_specs_visibility,new_specs_visibility,'DAMAGE_SPECS_TEST_VISIBILITY'),
+                        (old_average_visibility,new_average_visibility,'DAMAGE_AVERAGE_TEST_VISIBILITY')):
+    if flow_text.count(old) == 1:
+        flow_text = flow_text.replace(old,new)
+    elif flow_text.count(new) != 1:
+        raise SystemExit(label + '_SOURCE_DRIFT')
+flow.write_text(flow_text, encoding='utf-8', newline='\n')
+
 backup_test = root / 'app/src/test/java/com/braseiro/dnd5e/AppDbBackupRobolectricTest.java'
 backup_text = backup_test.read_text(encoding='utf-8')
 old_position = 'db.setTacticalTokenPosition('
@@ -84,6 +99,47 @@ elif touch_text.count(new_tap) != 1:
 
 rhw_test = root / 'app/src/test/java/com/braseiro/dnd5e/Run245G05RhwOnHitConditionRobolectricTest.java'
 rhw_text = rhw_test.read_text(encoding='utf-8')
+source_book_anchor = '        assertEquals("Ravenloft: The Horrors Within",compiled.optString("source_book"));'
+source_book_assertions = '''        assertEquals("Ravenloft: The Horrors Within",compiled.optString("source_book"));
+        assertEquals(3,action.optInt("to_hit"));
+        assertEquals("1d4 + 1 + 1d6",action.optString("damage"));
+        assertEquals("piercing + psychic",action.optString("damage_type"));
+        assertEquals(5,action.optInt("reach_ft"));
+        assertFalse(action.has("save_dc"));
+        assertFalse(action.has("save_ability"));
+        assertEquals("necrotic, psychic",compiled.optString("resistances"));
+        assertEquals("poison",compiled.optString("immunities"));
+        assertEquals("exhaustion, poisoned",compiled.optString("condition_immunities"));
+        JSONObject savingThrows=compiled.getJSONObject("saving_throws");
+        assertEquals("+1",savingThrows.optString("int"));
+        assertEquals("+4",savingThrows.optString("wis"));'''
+if rhw_text.count(source_book_anchor) == 1:
+    rhw_text = rhw_text.replace(source_book_anchor,source_book_assertions)
+elif rhw_text.count(source_book_assertions) != 1:
+    raise SystemExit('RHW_SOURCE_MECHANIC_ASSERTION_DRIFT')
+
+damage_test_anchor = '    @Test public void biteConditionIsTypedSourceTurnBoundAndSurvivesBackup21()throws Exception {'
+damage_test = '''    @Test public void brainRendingBiteDamagePreservesTypedModifierComponents()throws Exception {
+        installSource();
+        JSONArray parts=StatblockCombatFlowEngine.damageSpecs(
+            "1d4 + 1 + 1d6","piercing + psychic","");
+        assertEquals(2,parts.length());
+        assertEquals("1d4 + 1",parts.getJSONObject(0).optString("expression"));
+        assertEquals("piercing",parts.getJSONObject(0).optString("type"));
+        assertEquals(3,StatblockCombatFlowEngine.rollAverage(
+            parts.getJSONObject(0).optString("expression"),false));
+        assertEquals("1d6",parts.getJSONObject(1).optString("expression"));
+        assertEquals("psychic",parts.getJSONObject(1).optString("type"));
+        assertEquals(3,StatblockCombatFlowEngine.rollAverage(
+            parts.getJSONObject(1).optString("expression"),false));
+    }
+
+'''
+if rhw_text.count(damage_test_anchor) == 1 and 'brainRendingBiteDamagePreservesTypedModifierComponents' not in rhw_text:
+    rhw_text = rhw_text.replace(damage_test_anchor,damage_test+damage_test_anchor)
+elif rhw_text.count(damage_test_anchor) != 1 or rhw_text.count('brainRendingBiteDamagePreservesTypedModifierComponents') != 1:
+    raise SystemExit('RHW_TYPED_DAMAGE_TEST_SOURCE_DRIFT')
+
 old_miss = '                1,0,5,0,0L,"ui-monster-run245-rhw-miss");'
 new_miss = '                1,0,0,0,0L,"ui-monster-run245-rhw-miss");'
 old_damage = 'assertEquals("legacy attack result: "+plain,29,plain.optInt("applied_damage"));'
@@ -106,5 +162,6 @@ rhw_test.write_text(rhw_text, encoding='utf-8', newline='\n')
 
 print('GUILD_SQLITE_COMPAT=PASS; TRIMMED_WRITER_PRESERVED=YES')
 print('DICE_MODIFIER_WHITESPACE=PASS; AVERAGE_6D6_PLUS_5=26')
+print('TYPED_DAMAGE_MODIFIER=PASS; RHW_PIERCE_1D4_PLUS_1_AND_PSYCHIC_1D6_PRESERVED')
 print('ATTACK_GEOMETRY_FIXTURE=PASS; ACTIVE_COMBAT_DIRECT_PLACEMENT_API_PRESERVED=YES')
 print('TACTICAL_BOARD_TOUCH_FIXTURE=PASS; NATURAL_ONE_ZERO_DAMAGE_INPUT=PASS')
