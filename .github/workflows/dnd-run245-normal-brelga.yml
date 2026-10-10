@@ -76,7 +76,7 @@ jobs:
           $delta=Join-Path $root 'RUN245_GATES_DELTA.patch'
           & python -c "import base64,gzip,pathlib,sys; pathlib.Path(sys.argv[2]).write_bytes(gzip.decompress(base64.b64decode(''.join(pathlib.Path(sys.argv[1]).read_text(encoding='ascii').split()),validate=True)))" $deltaEncoded $delta
           if($LASTEXITCODE -ne 0){throw 'RUN245_GATES_DELTA_DECODE_FAILED'}
-          $expectedDelta='f8dbb303d675bdd183fb3d66382736ca331e4853340c085f64a77e5e6a9bd577'
+          $expectedDelta='c9e7cb2d48d576126637a93ff54632446609fcbfc63c1609e1c88339f0480cd2'
           $actualDelta=(Get-FileHash $delta -Algorithm SHA256).Hash.ToLowerInvariant()
           if($actualDelta -ne $expectedDelta){throw "RUN245_GATES_DELTA_SHA256_MISMATCH expected=$expectedDelta actual=$actualDelta"}
           & $git.Source -C $project -c core.autocrlf=false apply --check $delta
@@ -130,7 +130,7 @@ jobs:
           $root=Join-Path $env:RUNNER_TEMP 'dnd245-normal'
           $project=Join-Path $root 'project'
           $script=Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-run245/sqlite_partial_index_compat.py'
-          $expected='429049247a5fe3ec65e1026c58a391b05bc84fedad892dba50e91b3eb3d1a6e2'
+          $expected='8987c640f81496d14f682296fcaec12e6eadfb7d50b57d97942acb657f4eb582'
           $canonical=[IO.File]::ReadAllText($script).Replace("`r`n","`n").Replace("`r","`n")
           $normalized=Join-Path $env:RUNNER_TEMP 'run245-sqlite-partial-index-compat.py'
           [IO.File]::WriteAllText($normalized,$canonical,(New-Object System.Text.UTF8Encoding($false)))
