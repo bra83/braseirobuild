@@ -72,6 +72,19 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'G05_PATCH_APPLY_CHECK_FAILED'}
           & $git.Source -C $project -c core.autocrlf=false apply $patch
           if($LASTEXITCODE -ne 0){throw 'G05_PATCH_APPLY_FAILED'}
+          $deltaEncoded=Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-run245/patches/RUN245_GATES_DELTA.patch.gz.b64'
+          $delta=Join-Path $root 'RUN245_GATES_DELTA.patch'
+          & python -c "import base64,gzip,pathlib,sys; pathlib.Path(sys.argv[2]).write_bytes(gzip.decompress(base64.b64decode(''.join(pathlib.Path(sys.argv[1]).read_text(encoding='ascii').split()),validate=True)))" $deltaEncoded $delta
+          if($LASTEXITCODE -ne 0){throw 'RUN245_GATES_DELTA_DECODE_FAILED'}
+          $expectedDelta='f8dbb303d675bdd183fb3d66382736ca331e4853340c085f64a77e5e6a9bd577'
+          $actualDelta=(Get-FileHash $delta -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($actualDelta -ne $expectedDelta){throw "RUN245_GATES_DELTA_SHA256_MISMATCH expected=$expectedDelta actual=$actualDelta"}
+          & $git.Source -C $project -c core.autocrlf=false apply --check $delta
+          if($LASTEXITCODE -ne 0){throw 'RUN245_GATES_DELTA_APPLY_CHECK_FAILED'}
+          & $git.Source -C $project -c core.autocrlf=false apply $delta
+          if($LASTEXITCODE -ne 0){throw 'RUN245_GATES_DELTA_APPLY_FAILED'}
+          "RUN245_GATES_DELTA_SHA256=$actualDelta" | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
+          'RUN245_GATES_DELTA_APPLY=PASS' | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
           $wireLog=Join-Path $out 'G05_STATIC_WIRING.log'
           $save=$ErrorActionPreference;$ErrorActionPreference='Continue'
           & python -X utf8 (Join-Path $project 'G05_EVIDENCE/test_run245_wiring.py') 2>&1 | Tee-Object $wireLog
