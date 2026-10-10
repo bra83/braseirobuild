@@ -1,0 +1,96 @@
+name: Braseiro DnD NORMAL RUN245 BRELGA build
+on:
+  push:
+    branches: [dnd/run245-normal-g05-codex]
+    paths:
+      - '.github/workflows/dnd-run245-normal-brelga.yml'
+      - 'ci/dnd-run245/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dnd-run245-normal-brelga
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify the designated runner and clean isolated scratch
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'RUNNER_NOT_BRELGA'}
+          $root=Join-Path $env:RUNNER_TEMP 'dnd245-normal'
+          if(Test-Path $root){Remove-Item -LiteralPath $root -Recurse -Force}
+          New-Item -ItemType Directory -Force -Path $root | Out-Null
+          $volume=(Get-Item $env:RUNNER_TEMP).PSDrive
+          Write-Host ("RUN245_BRELGA_FREE_GB={0:N2}" -f ($volume.Free/1GB))
+          if($volume.Free -lt 2GB){throw 'RUN245_INSUFFICIENT_DISK_SPACE'}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Fetch and verify the exact recovered RUN245 source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root=Join-Path $env:RUNNER_TEMP 'dnd245-normal'
+          $out=Join-Path $root 'out'
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          python -m pip install --disable-pip-version-check gdown==5.2.0
+          if($LASTEXITCODE -ne 0){throw 'GDOWN_DEPENDENCY_INSTALL_FAILED'}
+          python ci/dnd-run245/fetch_source.py --output $root 2>&1 | Tee-Object (Join-Path $out 'source-fetch.log')
+          if($LASTEXITCODE -ne 0){throw 'RUN245_SOURCE_DOWNLOAD_OR_SHA256_FAILED'}
+          Copy-Item (Join-Path $root 'SOURCE_VERIFY.txt') $out -Force
+      - name: Compile and run Android unit tests on BRELGA
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root=Join-Path $env:RUNNER_TEMP 'dnd245-normal'
+          $out=Join-Path $root 'out'
+          $project=Join-Path $root 'project'
+          if(!$env:ANDROID_HOME){
+            $sdk="$env:LOCALAPPDATA\Android\Sdk"
+            if(Test-Path $sdk){$env:ANDROID_HOME=$sdk}
+          }
+          if(!$env:ANDROID_HOME -or !(Test-Path $env:ANDROID_HOME)){throw 'ANDROID_SDK_NOT_FOUND'}
+          $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          if(!(Test-Path (Join-Path $project 'gradlew.bat'))){throw 'RUN245_GRADLE_WRAPPER_NOT_FOUND'}
+          Set-Location $project
+          foreach($task in @(':app:compileDebugJavaWithJavac',':app:testDebugUnitTest',':app:assembleDebug')){
+            $label=$task -replace '[^A-Za-z]','_'
+            $save=$ErrorActionPreference;$ErrorActionPreference='Continue'
+            & .\gradlew.bat $task --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $out "$label.log")
+            $rc=$LASTEXITCODE;$ErrorActionPreference=$save
+            "$task EXIT_CODE=$rc" | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
+            if($rc -ne 0){throw "GRADLE_TASK_FAILED $task rc=$rc"}
+          }
+          $apk=Get-ChildItem (Join-Path $project 'app\build\outputs\apk\debug') -Filter '*.apk' -File | Select-Object -First 1
+          if(!$apk){throw 'RUN245_DEBUG_APK_NOT_FOUND'}
+          $final=Join-Path $out 'BRASEIRO_DND_NORMAL_RUN245_UNCERTIFIED_DEBUG.apk'
+          Copy-Item $apk.FullName $final -Force
+          $bt=Get-ChildItem "$env:ANDROID_HOME\build-tools" -Directory | Sort-Object {[version]$_.Name} -Descending | Select-Object -First 1
+          if(!$bt){throw 'ANDROID_BUILD_TOOLS_MISSING'}
+          $badging=(& "$($bt.FullName)\aapt.exe" dump badging $final) -join "`n"
+          $badging | Set-Content (Join-Path $out 'APK_BADGING.txt')
+          if($badging -notmatch "package: name='com\.braseiro\.dnd5e'" -or $badging -notmatch "versionCode='606545'"){throw 'RUN245_APK_IDENTITY_MISMATCH'}
+          $save=$ErrorActionPreference;$ErrorActionPreference='Continue'
+          & "$($bt.FullName)\apksigner.bat" verify --verbose --print-certs $final 2>&1 | Tee-Object (Join-Path $out 'APK_SIGNATURE.txt')
+          $rc=$LASTEXITCODE;$ErrorActionPreference=$save
+          if($rc -ne 0){throw 'RUN245_DEBUG_APK_SIGNATURE_INVALID'}
+          $sha=(Get-FileHash $final -Algorithm SHA256).Hash.ToLowerInvariant()
+          "APK_SHA256=$sha" | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
+          'APK_BUILD=PASS; UPDATE_SIGNING_MATCH=NOT_VERIFIED; G05_COMPLETE=NO' | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
+      - name: Preserve build evidence and uncertified debug APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_DND_NORMAL_RUN245_BRELGA
+          path: ${{ runner.temp }}\\dnd245-normal\\out\\*
+          if-no-files-found: warn
+          retention-days: 14
