@@ -89,7 +89,7 @@ jobs:
           $testFix=Join-Path $root 'RUN245_GATES_TEST_FIXES.patch'
           & python -c "import base64,gzip,pathlib,sys; pathlib.Path(sys.argv[2]).write_bytes(gzip.decompress(base64.b64decode(''.join(pathlib.Path(sys.argv[1]).read_text(encoding='ascii').split()),validate=True)))" $testFixEncoded $testFix
           if($LASTEXITCODE -ne 0){throw 'RUN245_GATES_TEST_FIXES_DECODE_FAILED'}
-          $expectedFix='61b9318bf6de3a26e1e7824d843680c251cd814e516ff371fabfc84b240152ef'
+          $expectedFix='1dbf748eb30dd9941b2a4674d73b493ef9dd1ac80881a9c616bcf2fd925b7b3f'
           $actualFix=(Get-FileHash $testFix -Algorithm SHA256).Hash.ToLowerInvariant()
           if($actualFix -ne $expectedFix){throw "RUN245_GATES_TEST_FIXES_SHA256_MISMATCH expected=$expectedFix actual=$actualFix"}
           & $git.Source -C $project -c core.autocrlf=false apply --check $testFix
