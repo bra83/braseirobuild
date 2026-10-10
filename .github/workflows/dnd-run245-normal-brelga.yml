@@ -74,7 +74,7 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'G05_PATCH_APPLY_FAILED'}
           $wireLog=Join-Path $out 'G05_STATIC_WIRING.log'
           $save=$ErrorActionPreference;$ErrorActionPreference='Continue'
-          & python (Join-Path $project 'G05_EVIDENCE/test_run245_wiring.py') 2>&1 | Tee-Object $wireLog
+          & python -X utf8 (Join-Path $project 'G05_EVIDENCE/test_run245_wiring.py') 2>&1 | Tee-Object $wireLog
           $wireRc=$LASTEXITCODE;$ErrorActionPreference=$save
           "G05_STATIC_WIRING_EXIT_CODE=$wireRc" | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
           if($wireRc -ne 0){throw 'G05_STATIC_WIRING_FAILED'}
