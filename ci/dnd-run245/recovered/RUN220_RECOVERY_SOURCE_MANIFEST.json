@@ -1,0 +1,28 @@
+{
+  "source_archive": "BRASEIRO_DND_6.6.4_RUN220_CONTINUACAO_ANDROID_STUDIO_SOURCE_FULL.zip",
+  "source_archive_sha256": "78546aa7247ec4d4748b23a029288a72a6d8fb6558e13014d0593e3452d6f365",
+  "source_archive_crc": "PASS",
+  "forward_port": "RUN245 NORMAL; only four previously unresolved Java types restored; no source archive replacement",
+  "files": [
+    {
+      "name": "UiResponsivenessMonitor.java",
+      "sha256": "e015cb17f74231b2e25b81b031b9bf6e890c916243b9858de6685b428063d3cf",
+      "source_path": "android/app/src/main/java/com/braseiro/dnd5e/UiResponsivenessMonitor.java"
+    },
+    {
+      "name": "VoloSubraceHandbookEngine.java",
+      "sha256": "356bb5ce6616789b54f98d15236e969aa22e7a3ce6ca3cb4a5e89f3d19a90107",
+      "source_path": "android/app/src/main/java/com/braseiro/dnd5e/VoloSubraceHandbookEngine.java"
+    },
+    {
+      "name": "VoloRacialFeatRuntimeEngine.java",
+      "sha256": "650d45596965da740f566531024179affe9dd827a43a17305fdb690f606bc7a3",
+      "source_path": "android/app/src/main/java/com/braseiro/dnd5e/VoloRacialFeatRuntimeEngine.java"
+    },
+    {
+      "name": "TwoWeaponFightingRules.java",
+      "sha256": "bcc7f9bbb7c57b556b3df7f09e1a38d2b9b3e217c4e529de26ef29c1ee692a49",
+      "source_path": "android/app/src/main/java/com/braseiro/dnd5e/TwoWeaponFightingRules.java"
+    }
+  ]
+}

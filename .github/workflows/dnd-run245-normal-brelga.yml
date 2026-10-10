@@ -82,6 +82,30 @@ jobs:
           'G05_PATCH_APPLY=PASS' | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
           'G05_STATIC_WIRING=PASS; ROBOLECTRIC=NOT_YET_RUN; PATCH_BYTES_PINNED=YES' | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
           Remove-Item -LiteralPath (Join-Path $project '.git') -Recurse -Force
+      - name: Restore SHA-pinned NORMAL runtime sources from verified RUN220
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root=Join-Path $env:RUNNER_TEMP 'dnd245-normal'
+          $out=Join-Path $root 'out'
+          $project=Join-Path $root 'project'
+          $recovery=Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-run245/recovered'
+          $entries=@{
+            'UiResponsivenessMonitor.java'='e015cb17f74231b2e25b81b031b9bf6e890c916243b9858de6685b428063d3cf'
+            'VoloSubraceHandbookEngine.java'='356bb5ce6616789b54f98d15236e969aa22e7a3ce6ca3cb4a5e89f3d19a90107'
+            'VoloRacialFeatRuntimeEngine.java'='650d45596965da740f566531024179affe9dd827a43a17305fdb690f606bc7a3'
+            'TwoWeaponFightingRules.java'='bcc7f9bbb7c57b556b3df7f09e1a38d2b9b3e217c4e529de26ef29c1ee692a49'
+          }
+          foreach($name in $entries.Keys){
+            $source=Join-Path $recovery $name
+            $actual=(Get-FileHash $source -Algorithm SHA256).Hash.ToLowerInvariant()
+            if($actual -ne $entries[$name]){throw "RUN220_RECOVERY_SHA256_MISMATCH $name expected=$($entries[$name]) actual=$actual"}
+            $target=Join-Path $project "app\src\main\java\com\braseiro\dnd5e\$name"
+            Copy-Item -LiteralPath $source -Destination $target -Force
+            "RUN220_RECOVERY_FILE=$name SHA256=$actual" | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
+          }
+          Copy-Item -LiteralPath (Join-Path $recovery 'RUN220_RECOVERY_SOURCE_MANIFEST.json') -Destination $out -Force
+          'RUN220_RECOVERY=SHA256_PINNED_CLASSES_INTEGRATED' | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
       - name: Compile and run Android unit tests on BRELGA
         shell: powershell
         run: |
