@@ -150,58 +150,30 @@ jobs:
           $sha=(Get-FileHash $final -Algorithm SHA256).Hash.ToLowerInvariant()
           "APK_SHA256=$sha" | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
           'APK_BUILD=PASS; UPDATE_SIGNING_MATCH=NOT_VERIFIED; G05_COMPLETE=NO' | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
-      - name: Package and publish a private RUN245 source-build checkpoint
+      - name: Preserve BRELGA build and unit test diagnostics
         if: always()
         shell: powershell
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference='Stop'
           $root=Join-Path $env:RUNNER_TEMP 'dnd245-normal'
           $out=Join-Path $root 'out'
           $project=Join-Path $root 'project'
-          if(!(Test-Path $project)){throw 'RUN245_PROJECT_NOT_AVAILABLE_FOR_CHECKPOINT'}
-          $package=Join-Path $root 'package'
-          $bundle=Join-Path $package 'BRASEIRO_DND_NORMAL_RUN245_BRELGA'
-          New-Item -ItemType Directory -Force -Path (Join-Path $bundle 'project') | Out-Null
-          New-Item -ItemType Directory -Force -Path (Join-Path $bundle 'build-evidence') | Out-Null
-          Copy-Item (Join-Path $project '*') (Join-Path $bundle 'project') -Recurse -Force
-          if(Test-Path $out){Copy-Item (Join-Path $out '*') (Join-Path $bundle 'build-evidence') -Recurse -Force}
-          $audit=@(
-            'G05_COMPLETE=NO'
-            'This is a recovered RUN245 source plus BRELGA build evidence checkpoint.'
-            'Includes the SHA-256-pinned Brain-Rending Bite G05 patch; the remaining G05 audit rows are open.'
-            'G05 supplemental audit matrix: https://docs.google.com/spreadsheets/d/1WBmFEe-OPsnYXcsTk0a_OPQk9bY8SkYJTR8zAyIr1Fs/edit'
-            'Status report: https://docs.google.com/document/d/1CK8HKAT1k5NUQhJ0iVSUsXsFW88CNIOu9DFR3InOSXU/edit'
-          )
-          $audit | Set-Content (Join-Path $bundle 'CHECKPOINT_STATUS.txt') -Encoding UTF8
-          $tag="run245-normal-build-$env:GITHUB_RUN_ID"
-          $zip=Join-Path $out "BRASEIRO_DND_NORMAL_RUN245_BRELGA_$env:GITHUB_RUN_ID.zip"
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          [IO.Compression.ZipFile]::CreateFromDirectory($package,$zip,[IO.Compression.CompressionLevel]::Optimal,$false)
-          $sha=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
-          $sidecar=Join-Path $out 'RUN245_BRELGA_CHECKPOINT.sha256'
-          "$sha  $([IO.Path]::GetFileName($zip))" | Set-Content $sidecar -Encoding ASCII
-          $headers=@{Authorization="Bearer $env:GH_TOKEN";Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28'}
-          $api="https://api.github.com/repos/$env:GITHUB_REPOSITORY"
-          $release=$null
-          try{$release=Invoke-RestMethod -Uri "$api/releases/tags/$tag" -Headers $headers -Method Get -ErrorAction Stop}catch{}
-          if(!$release){
-            $body=@{tag_name=$tag;target_commitish=$env:GITHUB_SHA;name="RUN245 NORMAL BRELGA checkpoint $env:GITHUB_RUN_ID";body="Recovered RUN245 source and BRELGA compile evidence. G05 is NOT complete. The ZIP SHA-256 is $sha.";draft=$false;prerelease=$true}|ConvertTo-Json
-            $release=Invoke-RestMethod -Uri "$api/releases" -Headers $headers -Method Post -ContentType 'application/json' -Body $body
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          foreach($relative in @('app\build\reports\tests\testDebugUnitTest','app\build\test-results\testDebugUnitTest','app\build\outputs\apk\debug')){
+            $source=Join-Path $project $relative
+            if(Test-Path $source){
+              $dest=Join-Path $out (Split-Path $relative -Leaf)
+              New-Item -ItemType Directory -Force -Path $dest | Out-Null
+              Copy-Item (Join-Path $source '*') $dest -Recurse -Force
+            }
           }
-          $uploadBase=$release.upload_url -replace '\{\?name,label\}$',''
-          $zipUri=$uploadBase+'?name='+[uri]::EscapeDataString([IO.Path]::GetFileName($zip))
-          $asset=Invoke-RestMethod -Uri $zipUri -Headers $headers -Method Post -ContentType 'application/zip' -InFile $zip
-          $shaUri=$uploadBase+'?name='+[uri]::EscapeDataString([IO.Path]::GetFileName($sidecar))
-          $shaAsset=Invoke-RestMethod -Uri $shaUri -Headers $headers -Method Post -ContentType 'text/plain' -InFile $sidecar
-          @("CHECKPOINT_ZIP_SHA256=$sha","CHECKPOINT_RELEASE=$($release.html_url)","CHECKPOINT_DOWNLOAD=$($asset.browser_download_url)","CHECKPOINT_SHA256_FILE=$($shaAsset.browser_download_url)") | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
-          Write-Host "CHECKPOINT_ZIP_SHA256=$sha"
-          Write-Host "CHECKPOINT_RELEASE=$($release.html_url)"
-          Write-Host "CHECKPOINT_DOWNLOAD=$($asset.browser_download_url)"
-      - name: Preserve build evidence and checkpoint SHA
+          if(Test-Path (Join-Path $out 'BRELGA_STATUS.txt')){Get-Content (Join-Path $out 'BRELGA_STATUS.txt') | Write-Host}
+          Get-ChildItem $out -File -Recurse | ForEach-Object {Write-Host ("PRESERVED_FILE={0} SIZE={1}" -f $_.FullName,$_.Length)}
+      - name: Upload BRELGA test reports, APK and build logs
         if: always()
-        shell: powershell
-        run: |
-          $out=Join-Path (Join-Path $env:RUNNER_TEMP 'dnd245-normal') 'out'
-          if(Test-Path $out){Get-ChildItem $out -File | ForEach-Object {Write-Host ("PRESERVED_FILE={0} SIZE={1}" -f $_.Name,$_.Length)}}
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_DND_NORMAL_RUN245_BRELGA_${{ github.run_id }}
+          path: ${{ runner.temp }}/dnd245-normal/out/**
+          if-no-files-found: error
+          retention-days: 14
