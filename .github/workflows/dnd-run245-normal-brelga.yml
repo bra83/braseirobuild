@@ -85,6 +85,19 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'RUN245_GATES_DELTA_APPLY_FAILED'}
           "RUN245_GATES_DELTA_SHA256=$actualDelta" | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
           'RUN245_GATES_DELTA_APPLY=PASS' | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
+          $testFixEncoded=Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-run245/patches/RUN245_GATES_TEST_FIXES.patch.gz.b64'
+          $testFix=Join-Path $root 'RUN245_GATES_TEST_FIXES.patch'
+          & python -c "import base64,gzip,pathlib,sys; pathlib.Path(sys.argv[2]).write_bytes(gzip.decompress(base64.b64decode(''.join(pathlib.Path(sys.argv[1]).read_text(encoding='ascii').split()),validate=True)))" $testFixEncoded $testFix
+          if($LASTEXITCODE -ne 0){throw 'RUN245_GATES_TEST_FIXES_DECODE_FAILED'}
+          $expectedFix='335af63eab942a937cf15103ffbb60f2cb16b1be615aca609b28682ea1778089'
+          $actualFix=(Get-FileHash $testFix -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($actualFix -ne $expectedFix){throw "RUN245_GATES_TEST_FIXES_SHA256_MISMATCH expected=$expectedFix actual=$actualFix"}
+          & $git.Source -C $project -c core.autocrlf=false apply --check $testFix
+          if($LASTEXITCODE -ne 0){throw 'RUN245_GATES_TEST_FIXES_APPLY_CHECK_FAILED'}
+          & $git.Source -C $project -c core.autocrlf=false apply $testFix
+          if($LASTEXITCODE -ne 0){throw 'RUN245_GATES_TEST_FIXES_APPLY_FAILED'}
+          "RUN245_GATES_TEST_FIXES_SHA256=$actualFix" | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
+          'RUN245_GATES_TEST_FIXES_APPLY=PASS' | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
           $wireLog=Join-Path $out 'G05_STATIC_WIRING.log'
           $save=$ErrorActionPreference;$ErrorActionPreference='Continue'
           & python -X utf8 (Join-Path $project 'G05_EVIDENCE/test_run245_wiring.py') 2>&1 | Tee-Object $wireLog
