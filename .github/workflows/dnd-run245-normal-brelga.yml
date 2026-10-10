@@ -51,6 +51,31 @@ jobs:
           Get-Content $fetchErr -ErrorAction SilentlyContinue
           if($proc.ExitCode -ne 0){throw "RUN245_SOURCE_DOWNLOAD_OR_SHA256_FAILED rc=$($proc.ExitCode)"}
           Copy-Item (Join-Path $root 'SOURCE_VERIFY.txt') $out -Force
+      - name: Apply source-pinned verified G05 action patch
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root=Join-Path $env:RUNNER_TEMP 'dnd245-normal'
+          $out=Join-Path $root 'out'
+          $project=Join-Path $root 'project'
+          $patch=Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-run245/patches/RUN245_G05_BRAIN_RENDING_BITE.patch'
+          $expected='5dec75a1e19c8be9f1f091fc530e5e302d3602540a9c2415da061ba13f8c5f46'
+          $actual=(Get-FileHash $patch -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($actual -ne $expected){throw "G05_PATCH_SHA256_MISMATCH expected=$expected actual=$actual"}
+          $git=Get-Command git -ErrorAction Stop
+          & $git.Source -C $project init --quiet
+          if($LASTEXITCODE -ne 0){throw 'G05_PATCH_GIT_INIT_FAILED'}
+          & $git.Source -C $project -c core.autocrlf=false apply --check $patch
+          if($LASTEXITCODE -ne 0){throw 'G05_PATCH_APPLY_CHECK_FAILED'}
+          & $git.Source -C $project -c core.autocrlf=false apply $patch
+          if($LASTEXITCODE -ne 0){throw 'G05_PATCH_APPLY_FAILED'}
+          $wireLog=Join-Path $out 'G05_STATIC_WIRING.log'
+          & python (Join-Path $project 'G05_EVIDENCE/test_run245_wiring.py') 2>&1 | Tee-Object $wireLog
+          if($LASTEXITCODE -ne 0){throw 'G05_STATIC_WIRING_FAILED'}
+          "G05_PATCH_SHA256=$actual" | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
+          'G05_PATCH_APPLY=PASS' | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
+          'G05_STATIC_WIRING=PASS; ROBOLECTRIC=NOT_YET_RUN' | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
+          Remove-Item -LiteralPath (Join-Path $project '.git') -Recurse -Force
       - name: Compile and run Android unit tests on BRELGA
         shell: powershell
         run: |
@@ -72,8 +97,9 @@ jobs:
             & .\gradlew.bat $task --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $out "$label.log")
             $rc=$LASTEXITCODE;$ErrorActionPreference=$save
             "$task EXIT_CODE=$rc" | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
-            if($rc -ne 0){throw "GRADLE_TASK_FAILED $task rc=$rc"}
           }
+          $failed=Get-Content (Join-Path $out 'BRELGA_STATUS.txt') | Where-Object {$_ -match '^:app:.* EXIT_CODE=[1-9]'}
+          if($failed){throw ('GRADLE_TASKS_FAILED: '+($failed -join '; '))}
           $apk=Get-ChildItem (Join-Path $project 'app\build\outputs\apk\debug') -Filter '*.apk' -File | Select-Object -First 1
           if(!$apk){throw 'RUN245_DEBUG_APK_NOT_FOUND'}
           $final=Join-Path $out 'BRASEIRO_DND_NORMAL_RUN245_UNCERTIFIED_DEBUG.apk'
@@ -110,7 +136,7 @@ jobs:
           $audit=@(
             'G05_COMPLETE=NO'
             'This is a recovered RUN245 source plus BRELGA build evidence checkpoint.'
-            'It does not include uncommitted G05 agent work.'
+            'Includes the SHA-256-pinned Brain-Rending Bite G05 patch; the remaining G05 audit rows are open.'
             'G05 supplemental audit matrix: https://docs.google.com/spreadsheets/d/1WBmFEe-OPsnYXcsTk0a_OPQk9bY8SkYJTR8zAyIr1Fs/edit'
             'Status report: https://docs.google.com/document/d/1CK8HKAT1k5NUQhJ0iVSUsXsFW88CNIOu9DFR3InOSXU/edit'
           )
