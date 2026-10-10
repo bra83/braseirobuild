@@ -32,7 +32,7 @@ def main():
 
     for index, (file_id, expected_size) in enumerate(PARTS):
         part = parts_dir / f"part{index:02d}"
-        result = gdown.download(id=file_id, output=str(part), quiet=False)
+        result = gdown.download(id=file_id, output=str(part), quiet=True)
         if result is None or not part.is_file():
             raise RuntimeError(f"DRIVE_PART_{index:02d}_DOWNLOAD_FAILED")
         actual_size = part.stat().st_size
@@ -59,7 +59,7 @@ def main():
 
     with zipfile.ZipFile(archive) as zf:
         if len(zf.infolist()) != EXPECTED_ENTRIES:
-            raise RuntimeError(f"ZIP_ENTRY_COUNT_MISMATCH:{len(zf.infolist())}")
+            raise RuntimeError(f"ZIP_ENTRY_COUNT_MISMATCH:{len(zf.infolist())}!={EXPECTED_ENTRIES}")
         bad = zf.testzip()
         if bad is not None:
             raise RuntimeError(f"ZIP_CRC_FAILURE:{bad}")
