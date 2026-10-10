@@ -91,11 +91,17 @@ new_damage = 'assertEquals("legacy attack result: "+plain,26,plain.optInt("appli
 plain_damage = 'assertEquals(29,plain.optInt("applied_damage"));'
 old_hp = 'assertEquals(109,StatblockEncounterStateEngine.view("flow-plant").optInt("hp"));'
 new_hp = 'assertEquals(112,StatblockEncounterStateEngine.view("flow-plant").optInt("hp"));'
-for old, new, label in ((old_miss,new_miss,'NATURAL_ONE'),(old_damage,new_damage,'DICE_AVERAGE'),(plain_damage,new_damage,'DICE_AVERAGE_PLAIN'),(old_hp,new_hp,'TARGET_HP')):
+for old, new, label in ((old_miss,new_miss,'NATURAL_ONE'),(old_hp,new_hp,'TARGET_HP')):
     if rhw_text.count(old) == 1:
         rhw_text = rhw_text.replace(old,new)
     elif rhw_text.count(new) != 1:
         raise SystemExit(label + '_ASSERTION_SOURCE_DRIFT')
+if rhw_text.count(plain_damage) == 1:
+    rhw_text = rhw_text.replace(plain_damage,new_damage)
+elif rhw_text.count(old_damage) == 1:
+    rhw_text = rhw_text.replace(old_damage,new_damage)
+elif rhw_text.count(new_damage) != 1:
+    raise SystemExit('DICE_AVERAGE_ASSERTION_SOURCE_DRIFT')
 rhw_test.write_text(rhw_text, encoding='utf-8', newline='\n')
 
 print('GUILD_SQLITE_COMPAT=PASS; TRIMMED_WRITER_PRESERVED=YES')
