@@ -44,8 +44,11 @@ jobs:
           New-Item -ItemType Directory -Force -Path $out | Out-Null
           python -m pip install --disable-pip-version-check gdown==5.2.0
           if($LASTEXITCODE -ne 0){throw 'GDOWN_DEPENDENCY_INSTALL_FAILED'}
-          python ci/dnd-run245/fetch_source.py --output $root 2>&1 | Tee-Object (Join-Path $out 'source-fetch.log')
-          if($LASTEXITCODE -ne 0){throw 'RUN245_SOURCE_DOWNLOAD_OR_SHA256_FAILED'}
+          $fetchLog=Join-Path $out 'source-fetch.log'
+          python ci/dnd-run245/fetch_source.py --output $root *> $fetchLog
+          $fetchExit=$LASTEXITCODE
+          Get-Content $fetchLog
+          if($fetchExit -ne 0){throw "RUN245_SOURCE_DOWNLOAD_OR_SHA256_FAILED rc=$fetchExit"}
           Copy-Item (Join-Path $root 'SOURCE_VERIFY.txt') $out -Force
       - name: Compile and run Android unit tests on BRELGA
         shell: powershell
@@ -78,7 +81,7 @@ jobs:
           if(!$bt){throw 'ANDROID_BUILD_TOOLS_MISSING'}
           $badging=(& "$($bt.FullName)\aapt.exe" dump badging $final) -join "`n"
           $badging | Set-Content (Join-Path $out 'APK_BADGING.txt')
-          if($badging -notmatch "package: name='com\.braseiro\.dnd5e'" -or $badging -notmatch "versionCode='606545'"){throw 'RUN245_APK_IDENTITY_MISMATCH'}
+          if($badging -notmatch "package: name='com\\.braseiro\\.dnd5e'" -or $badging -notmatch "versionCode='606545'"){throw 'RUN245_APK_IDENTITY_MISMATCH'}
           $save=$ErrorActionPreference;$ErrorActionPreference='Continue'
           & "$($bt.FullName)\apksigner.bat" verify --verbose --print-certs $final 2>&1 | Tee-Object (Join-Path $out 'APK_SIGNATURE.txt')
           $rc=$LASTEXITCODE;$ErrorActionPreference=$save
