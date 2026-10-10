@@ -122,6 +122,28 @@ jobs:
             "$task rc=$code" | Add-Content (Join-Path $out 'GRADLE_STATUS.txt')
             if($code -ne 0){
               "GATE=FAIL; BLOCKED_TASK=$task; RC=$code; APK_DELIVERY=FORBIDDEN" | Add-Content (Join-Path $out 'STATUS.txt')
+              if($task -eq ':app:testDebugUnitTest'){
+                # Surface REAL test failures instead of just Gradle's aggregate summary.
+                $xmlDir=Join-Path $android 'app/build/test-results/testDebugUnitTest'
+                if(Test-Path $xmlDir){
+                  $xmls=Get-ChildItem $xmlDir -Filter 'TEST-*.xml' -File -Recurse
+                  foreach($xmlFile in $xmls){
+                    [xml]$report=Get-Content -LiteralPath $xmlFile.FullName -Raw
+                    foreach($case in @($report.testsuite.testcase)){
+                      if($case.failure){
+                        Write-Host ('TEST_FAILURE '+$xmlFile.Name+' :: '+$case.name)
+                        foreach($failure in @($case.failure)){
+                          Write-Host ('EXCEPTION_TYPE '+$failure.type)
+                          Write-Host ('EXCEPTION_MESSAGE '+$failure.message)
+                          $trace=[string]$failure.InnerText
+                          if($trace.Length -gt 3000){$trace=$trace.Substring(0,3000)}
+                          Write-Host ('EXCEPTION_TRACE '+$trace)
+                        }
+                      }
+                    }
+                  }
+                }
+              }
               throw "ANDROID_VALIDATION_FAILED task=$task rc=$code; NO_APK_RELEASE"
             }
             if($task -eq ':app:testDebugUnitTest'){
