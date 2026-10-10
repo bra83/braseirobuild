@@ -147,7 +147,12 @@ new_damage = 'assertEquals("legacy attack result: "+plain,26,plain.optInt("appli
 plain_damage = 'assertEquals(29,plain.optInt("applied_damage"));'
 old_hp = 'assertEquals(109,StatblockEncounterStateEngine.view("flow-plant").optInt("hp"));'
 new_hp = 'assertEquals(112,StatblockEncounterStateEngine.view("flow-plant").optInt("hp"));'
-for old, new, label in ((old_miss,new_miss,'NATURAL_ONE'),(old_hp,new_hp,'TARGET_HP')):
+typed_empty_damage_miss = '                1,0,new JSONArray(),0,0L,-1,-1,"ui-monster-run245-rhw-miss");'
+if rhw_text.count(old_miss) == 1:
+    rhw_text = rhw_text.replace(old_miss,new_miss)
+elif rhw_text.count(new_miss) != 1 and rhw_text.count(typed_empty_damage_miss) != 1:
+    raise SystemExit('NATURAL_ONE_ASSERTION_SOURCE_DRIFT')
+for old, new, label in ((old_hp,new_hp,'TARGET_HP'),):
     if rhw_text.count(old) == 1:
         rhw_text = rhw_text.replace(old,new)
     elif rhw_text.count(new) != 1:
