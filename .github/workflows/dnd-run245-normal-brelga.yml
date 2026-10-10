@@ -58,7 +58,10 @@ jobs:
           $root=Join-Path $env:RUNNER_TEMP 'dnd245-normal'
           $out=Join-Path $root 'out'
           $project=Join-Path $root 'project'
-          $patch=Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-run245/patches/RUN245_G05_BRAIN_RENDING_BITE.patch'
+          $patchEncoded=Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-run245/patches/RUN245_G05_BRAIN_RENDING_BITE.patch.b64'
+          $patch=Join-Path $root 'RUN245_G05_BRAIN_RENDING_BITE.patch'
+          & python -c "import base64,pathlib,sys; pathlib.Path(sys.argv[2]).write_bytes(base64.b64decode(''.join(pathlib.Path(sys.argv[1]).read_text(encoding='ascii').split()),validate=True))" $patchEncoded $patch
+          if($LASTEXITCODE -ne 0){throw 'G05_PATCH_BASE64_DECODE_FAILED'}
           $expected='5dec75a1e19c8be9f1f091fc530e5e302d3602540a9c2415da061ba13f8c5f46'
           $actual=(Get-FileHash $patch -Algorithm SHA256).Hash.ToLowerInvariant()
           if($actual -ne $expected){throw "G05_PATCH_SHA256_MISMATCH expected=$expected actual=$actual"}

@@ -1,1 +1,2 @@
 ci/dnd-run245/patches/*.patch -text
+ci/dnd-run245/patches/*.patch.b64 -text
