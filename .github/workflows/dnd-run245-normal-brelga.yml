@@ -169,11 +169,29 @@ jobs:
           }
           if(Test-Path (Join-Path $out 'BRELGA_STATUS.txt')){Get-Content (Join-Path $out 'BRELGA_STATUS.txt') | Write-Host}
           Get-ChildItem $out -File -Recurse | ForEach-Object {Write-Host ("PRESERVED_FILE={0} SIZE={1}" -f $_.FullName,$_.Length)}
-      - name: Upload BRELGA test reports, APK and build logs
+      - name: Package BRELGA test diagnostics and APK
         if: always()
-        uses: actions/upload-artifact@v4
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root=Join-Path $env:RUNNER_TEMP 'dnd245-normal'
+          $out=Join-Path $root 'out'
+          if(!(Test-Path $out)){throw 'RUN245_BUILD_EVIDENCE_MISSING'}
+          $zip=Join-Path $root "BRASEIRO_DND_NORMAL_RUN245_BRELGA_$env:GITHUB_RUN_ID.zip"
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          [IO.Compression.ZipFile]::CreateFromDirectory($out,$zip,[IO.Compression.CompressionLevel]::Optimal,$false)
+          $sha=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$sha  $([IO.Path]::GetFileName($zip))" | Set-Content (Join-Path $root 'RUN245_BRELGA_EVIDENCE.sha256') -Encoding ASCII
+          Write-Host "BRELGA_EVIDENCE_ZIP=$zip"
+          Write-Host "BRELGA_EVIDENCE_SHA256=$sha"
+      - name: Publish private BRELGA evidence release
+        if: always()
+        uses: softprops/action-gh-release@v2
         with:
-          name: BRASEIRO_DND_NORMAL_RUN245_BRELGA_${{ github.run_id }}
-          path: ${{ runner.temp }}/dnd245-normal/out/**
-          if-no-files-found: error
-          retention-days: 14
+          tag_name: run245-normal-brelga-${{ github.run_id }}
+          name: BRASEIRO DnD NORMAL RUN245 BRELGA diagnostics ${{ github.run_id }}
+          prerelease: true
+          files: |
+            ${{ runner.temp }}/dnd245-normal/BRASEIRO_DND_NORMAL_RUN245_BRELGA_${{ github.run_id }}.zip
+            ${{ runner.temp }}/dnd245-normal/RUN245_BRELGA_EVIDENCE.sha256
+          fail_on_unmatched_files: true
