@@ -74,7 +74,7 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'G05_STATIC_WIRING_FAILED'}
           "G05_PATCH_SHA256=$actual" | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
           'G05_PATCH_APPLY=PASS' | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
-          'G05_STATIC_WIRING=PASS; ROBOLECTRIC=NOT_YET_RUN' | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
+          'G05_STATIC_WIRING=PASS; ROBOLECTRIC=NOT_YET_RUN; PATCH_BYTES_PINNED=YES' | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
           Remove-Item -LiteralPath (Join-Path $project '.git') -Recurse -Force
       - name: Compile and run Android unit tests on BRELGA
         shell: powershell
