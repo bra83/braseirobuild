@@ -110,6 +110,19 @@ jobs:
           }
           Copy-Item -LiteralPath (Join-Path $recovery 'RUN220_RECOVERY_SOURCE_MANIFEST.json') -Destination $out -Force
           'RUN220_RECOVERY=SHA256_PINNED_CLASSES_INTEGRATED' | Add-Content (Join-Path $out 'BRELGA_STATUS.txt')
+      - name: Apply SQLite-safe guild NPC index fix and assertion diagnostics
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root=Join-Path $env:RUNNER_TEMP 'dnd245-normal'
+          $project=Join-Path $root 'project'
+          $script=Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-run245/sqlite_partial_index_compat.py'
+          $expected='ce4ac9ea7a1354a8b88f8cc28ddec87143106d45695ef625444e955f0c0f6de8'
+          $actual=(Get-FileHash $script -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($actual -ne $expected){throw "SQLITE_COMPAT_SCRIPT_SHA256_MISMATCH expected=$expected actual=$actual"}
+          & python $script $project
+          if($LASTEXITCODE -ne 0){throw 'SQLITE_PARTIAL_INDEX_COMPAT_PATCH_FAILED'}
+          'SQLITE_PARTIAL_INDEX_COMPAT_PATCH=PASS' | Add-Content (Join-Path $root 'out/BRELGA_STATUS.txt')
       - name: Compile and run Android unit tests on BRELGA
         shell: powershell
         run: |
