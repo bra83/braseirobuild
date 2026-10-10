@@ -1,4 +1,4 @@
-name: Braseiro D&D Hybrid Fastplay BRELGA
+name: Braseiro D&D Hybrid Fastplay V6 BRELGA
 on:
   push:
     branches: [braseiro-dnd5e-hybrid-fastplay]
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: braseiro-dnd-hybrid-fastplay-brelga
@@ -19,7 +19,7 @@ jobs:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 120
     env:
-      SOURCE_SHA256: 'b6034e5a02722d790b895e29c46c8718fc04f0219e5acf24f3b1978a715fb301'
+      SOURCE_SHA256: '9ef59456dbd29bd71121a6e3eb7edc022ea6056b8bcb71a99e8c2f6191904c39'
     steps:
       - uses: actions/checkout@v4
       - name: Verify source, compile, test, and build APK on BRELGA
@@ -27,36 +27,36 @@ jobs:
         run: |
           $ErrorActionPreference='Stop'
           if($env:RUNNER_NAME -ne 'BRELGA'){throw "Expected BRELGA; actual=$env:RUNNER_NAME"}
-          $root=Join-Path $env:RUNNER_TEMP 'braseiro-hybrid-fastplay'
+          $root=Join-Path $env:USERPROFILE ('BraseiroBuild\DNDHybridFastplay\RUN_'+$env:GITHUB_RUN_ID)
           $env:GITHUB_TOKEN='${{ github.token }}'
           $incoming=Join-Path $root 'incoming'
           $source=Join-Path $root 'source'
           $out=Join-Path $root 'out'
           New-Item -ItemType Directory -Force -Path $incoming,$out | Out-Null
           "RUNNER=$env:RUNNER_NAME" | Set-Content (Join-Path $out 'STATUS.txt')
-          "BASE=HYBRID_FASTPLAY_V3" | Add-Content (Join-Path $out 'STATUS.txt')
+          "BASE=HYBRID_FASTPLAY_V6" | Add-Content (Join-Path $out 'STATUS.txt')
           "ORIGINAL_MAIN_MUTATED=NO" | Add-Content (Join-Path $out 'STATUS.txt')
           $ids=@(
-            '1nB7myeglniTmH3eWdXeIHjXAqXFYGlY7',
-            '1J6tJ4eKYgOQkCDFAIUKfIiBqa0ebsF1Z',
-            '1go0oPBUOBNAaSY_wR-oGOEch2AQJT7sH',
-            '1HWKnsgYLPEc5cf93P8xzDn0-aM4DSjJM',
-            '1rgurne9q_9NtsbqZHL2fRGHc7WGyoMg1',
-            '1YWfjfdtIVhFHQRO4_CYw1j6RbGeh20Bd',
-            '1h68ZLaoEVWx8bBa2Xj0kYQlcXBOv1gLT',
-            '14LK6_DViSrysLt3RqcWQPPvRpyxtbXUz',
-            '1lB_wqqXJGVnvD5kRAkeBdz3LInZO2nWW'
+            '1_FQdHNNsH6Bc9fNSPqtsQSDjA4t6-yzz',
+            '1i1eZhAilrPbcWlhwWhQnPAsHo7R7m9dg',
+            '1IOJoW-Ee5cv6uFGcinRV49_QkTeOGNos',
+            '1gYNyGBtZCG5uYQ53NmqouflWdWumgrB2',
+            '1oFvqxpE9LRqk9BcUbPJAMEOt1CaizIsk',
+            '14KGrS_u-cBlni1ifhao9R1F8DKy1dJSX',
+            '1Lyxcp61c0PtRFOjmBzpbWdaos0NiAuO7',
+            '1cn8JjXtf3gBR8QUo1vED23OX1KL_Z-n7',
+            '1JWtELA4iLvoOopH9n3yjzyz5cepN4Gi1'
           )
           $hashes=@(
-            '15469fdd92aa81e0cf8199143052cc8353614e9c1a56df80f98d8bdb48d119af',
-            'c4fc8ed350ad10307aaf6cd9218020bec561c0d72451f897d4b4984ae0e5c833',
-            'ce8a856d2bd150caadb51f9be370e9f20b86f0f4b48f0ce0e9430b1db7e73545',
-            '450744652fb42e72c650e5eeee2045032de3f4a2ca31c6b9aeae50864f9b469f',
-            'b7a4595042f0b8dc4fe0a1d1181d69830563b39be9cd9c94bcc896eab018ae39',
-            '6163ad2dba20f560654fb1574f2301922aa8778564669c666268b3877354b3c1',
-            '729bf94e0823577174b95b9c1b750231239fafe9ff94c69b5b5dcc97037f5691',
-            '16adb0193f9b5bd81bfeb3a122aa87184d571ad9782fc0d8ad7bf780a312f3ff',
-            '75c6687ed68ce7cbd82caa63d8066a6615d0ce6354fd6c4e5d112a0114350c12'
+            '1bb1265c60b87ab58e07dd48f05092a8116ead04c06f9ab2942edff887e6482b',
+            'fe4c4845c33855756ed5825afa4ce342706c2ff1c6f3c9d0793bcfa89cea599e',
+            '1a885ead83ebda2646a2fcbca30c6cd7d25f169f2275ad23d0a0dfa7e0c0683d',
+            '0507f23c821262d81d0e60e56823b0877c7004d346a56f6fb1f09e3f459c5c45',
+            '50cf364d350ace4c0b5685f5bb8547e4786c21a1c61d2c41913ffd915a94b2b5',
+            '5773da743dcc486e19c1dc45f0ea34a756c76e9c8c37817af262846c620cc030',
+            '18bf56056051cc8e3c18617ef396f5a95afb65abe0d6f0efac849638046b144d',
+            '89532f1a447202b1171ac8884b62a5622a06a6aac68629b974d8ed272a2b579e',
+            '848d0228b3723ad0cdd751c8a44fc8b0b7d86e8693ada342101f91e8b8f4aa25'
           )
           for($i=0;$i -lt $ids.Count;$i++){
             $p=Join-Path $incoming ("part{0:D2}" -f $i)
@@ -74,7 +74,7 @@ jobs:
             if($got -ne $hashes[$i]){throw "SOURCE_PART_SHA256_FAILED part=$i got=$got"}
             "part$i SHA256_PASS" | Add-Content (Join-Path $out 'SOURCE_HASHES.txt')
           }
-          $zip=Join-Path $incoming 'hybrid-v2-source.zip'
+          $zip=Join-Path $incoming 'hybrid-v6-source.zip'
           $stream=[IO.File]::Create($zip)
           try {
             for($i=0;$i -lt $ids.Count;$i++){
@@ -95,24 +95,12 @@ jobs:
           $android=$gradlew.Directory.FullName
           $project=Split-Path $android -Parent
           "ANDROID_PROJECT=$android" | Add-Content (Join-Path $out 'STATUS.txt')
-          # An independent patch layer is optional. Never alter the frozen original or main.
-          $overlay=Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-hybrid/HYBRID_FASTPLAY_V4.patch'
-          if(Test-Path $overlay){
-            if(!(Get-Command git.exe -ErrorAction SilentlyContinue)){throw 'GIT_EXE_REQUIRED_FOR_OVERLAY'}
-            Push-Location $project
-            try{
-              & git.exe apply --check $overlay
-              if($LASTEXITCODE -ne 0){throw 'OVERLAY_DRY_RUN_FAILED'}
-              & git.exe apply $overlay
-              if($LASTEXITCODE -ne 0){throw 'OVERLAY_APPLY_FAILED'}
-              'V3_OVERLAY_APPLIED=YES' | Add-Content (Join-Path $out 'STATUS.txt')
-            } finally{Pop-Location}
-          }
+          # V6 is a self-contained verified source ZIP; never apply stale overlays.
           $version=Join-Path $project 'version.properties'
           $raw=Get-Content $version
           $raw=@($raw | ForEach-Object{
-            if($_ -match '^VERSION_NAME='){'VERSION_NAME=6.6.13-hybrid-fastplay-v3'}
-            elseif($_ -match '^VERSION_CODE='){'VERSION_CODE=606550'}
+            if($_ -match '^VERSION_NAME='){'VERSION_NAME=6.6.13-hybrid-fastplay-v6'}
+            elseif($_ -match '^VERSION_CODE='){'VERSION_CODE=606553'}
             else{$_}
           })
           [IO.File]::WriteAllLines($version,$raw,(New-Object Text.UTF8Encoding($false)))
@@ -141,7 +129,7 @@ jobs:
           }
           $candidate=Get-ChildItem (Join-Path $android 'app/build/outputs/apk/debug') -Filter '*.apk' -File | Select-Object -First 1
           if(!$candidate){throw 'APK_NOT_FOUND'}
-          $dst=Join-Path $out 'BRASEIRO_DND5E_HYBRID_FASTPLAY_V3_CANDIDATE.apk'
+          $dst=Join-Path $out 'BRASEIRO_DND5E_HYBRID_FASTPLAY_V6_CANDIDATE.apk'
           Copy-Item $candidate.FullName $dst
           $bt=Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory | Sort-Object Name -Descending | Select-Object -First 1
           if(!$bt){throw 'BUILD_TOOLS_NOT_FOUND'}
@@ -149,22 +137,45 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'AAPT_FAILED'}
           $badging=Get-Content (Join-Path $out 'APK_BADGING.txt') -Raw
           if($badging -notmatch "name='com\.braseiro\.dnd5e'"){throw 'APK_PACKAGE_MISMATCH'}
-          if($badging -notmatch "versionCode='606550'"){throw 'APK_VERSION_MISMATCH'}
+          if($badging -notmatch "versionCode='606553'"){throw 'APK_VERSION_MISMATCH'}
           $saved=$ErrorActionPreference;$ErrorActionPreference='Continue'
           & (Join-Path $bt.FullName 'apksigner.bat') verify --print-certs --verbose $dst 2>&1 | Tee-Object (Join-Path $out 'APK_SIGNATURE.txt')
           $rc=$LASTEXITCODE;$ErrorActionPreference=$saved
           if($rc -ne 0){throw 'APK_SIGNATURE_INVALID'}
           (Get-FileHash $dst -Algorithm SHA256).Hash.ToLowerInvariant() | Set-Content (Join-Path $out 'APK_SHA256.txt')
-          "COMPILE_TEST_APK=PASS" | Add-Content (Join-Path $out 'STATUS.txt')
+          "APK_CANDIDATE_ASSEMBLED=YES" | Add-Content (Join-Path $out 'STATUS.txt')
           "UPGRADE_SIGNATURE_MATCH=NOT_VERIFIED" | Add-Content (Join-Path $out 'STATUS.txt')
-      - name: Preserve candidate APK and diagnostics
+          "ANDROID_DEVICE_TEST=NOT_RUN" | Add-Content (Join-Path $out 'STATUS.txt')
+      - name: Persist BRELGA diagnostics and upload directly to hybrid Drive
         if: always()
-        continue-on-error: true
-        uses: actions/upload-artifact@v4
-        with:
-          name: BRASEIRO_DND5E_HYBRID_FASTPLAY_BRELGA_EVIDENCE
-          path: |
-            ${{ runner.temp }}/braseiro-hybrid-fastplay/out/**
-            ${{ runner.temp }}/braseiro-hybrid-fastplay/source/android/app/build/test-results/testDebugUnitTest/**
-          if-no-files-found: warn
-          retention-days: 3
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root=Join-Path $env:USERPROFILE ('BraseiroBuild\DNDHybridFastplay\RUN_'+$env:GITHUB_RUN_ID)
+          $out=Join-Path $root 'out'
+          if(!(Test-Path $out)){New-Item -ItemType Directory -Force -Path $out | Out-Null}
+          $testResults=Join-Path $root 'source/android/app/build/test-results/testDebugUnitTest'
+          if(Test-Path $testResults){Copy-Item $testResults (Join-Path $out 'TEST_RESULTS') -Recurse -Force}
+          $driveFolder='1lAr4l_CzDdQO1uVanBIvScXlFh3lupuz'
+          $destName='BRELGA_BUILDS/V6_RUN_'+$env:GITHUB_RUN_ID
+          if(!(Get-Command rclone.exe -ErrorAction SilentlyContinue)){
+            'DRIVE_UPLOAD=RCLONE_UNAVAILABLE; FILES_SAVED_ON_BRELGA' | Add-Content (Join-Path $out 'STATUS.txt')
+            throw 'RCLONE_MISSING_ON_BRELGA'
+          }
+          $remote=$env:BRASEIRO_RCLONE_REMOTE
+          if(!$remote){
+            $remotes=@(& rclone.exe listremotes)
+            if($remotes -contains 'gdrive:'){$remote='gdrive'}
+            elseif($remotes -contains 'drive:'){$remote='drive'}
+            else{throw 'RCLONE_GOOGLE_DRIVE_REMOTE_NOT_CONFIGURED'}
+          }
+          $remote=$remote.TrimEnd(':')
+          $destination=$remote+':'+$destName
+          & rclone.exe copy $out $destination --drive-root-folder-id $driveFolder --retries 3 --transfers 2
+          if($LASTEXITCODE -ne 0){throw 'DRIVE_UPLOAD_FAILED'}
+          & rclone.exe check $out $destination --drive-root-folder-id $driveFolder --one-way --download
+          if($LASTEXITCODE -ne 0){throw 'DRIVE_READBACK_FAILED'}
+          'DRIVE_UPLOAD_AND_READBACK=PASS' | Add-Content (Join-Path $out 'STATUS.txt')
+          & rclone.exe copyto (Join-Path $out 'STATUS.txt') ($destination+'/STATUS.txt') --drive-root-folder-id $driveFolder
+          if($LASTEXITCODE -ne 0){throw 'DRIVE_RECEIPT_UPLOAD_FAILED'}
+          Write-Host ('DELIVERY_OK '+$destName)
