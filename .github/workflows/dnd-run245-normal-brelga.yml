@@ -42,13 +42,14 @@ jobs:
           $root=Join-Path $env:RUNNER_TEMP 'dnd245-normal'
           $out=Join-Path $root 'out'
           New-Item -ItemType Directory -Force -Path $out | Out-Null
-          python -m pip install --disable-pip-version-check gdown==5.2.0
+          & python -m pip install --disable-pip-version-check gdown==5.2.0
           if($LASTEXITCODE -ne 0){throw 'GDOWN_DEPENDENCY_INSTALL_FAILED'}
           $fetchLog=Join-Path $out 'source-fetch.log'
-          python ci/dnd-run245/fetch_source.py --output $root *> $fetchLog
-          $fetchExit=$LASTEXITCODE
-          Get-Content $fetchLog
-          if($fetchExit -ne 0){throw "RUN245_SOURCE_DOWNLOAD_OR_SHA256_FAILED rc=$fetchExit"}
+          $fetchErr=Join-Path $out 'source-fetch.err'
+          $proc=Start-Process -FilePath 'python' -ArgumentList @('ci/dnd-run245/fetch_source.py','--output',$root) -WorkingDirectory $env:GITHUB_WORKSPACE -NoNewWindow -Wait -PassThru -RedirectStandardOutput $fetchLog -RedirectStandardError $fetchErr
+          Get-Content $fetchLog -ErrorAction SilentlyContinue
+          Get-Content $fetchErr -ErrorAction SilentlyContinue
+          if($proc.ExitCode -ne 0){throw "RUN245_SOURCE_DOWNLOAD_OR_SHA256_FAILED rc=$($proc.ExitCode)"}
           Copy-Item (Join-Path $root 'SOURCE_VERIFY.txt') $out -Force
       - name: Compile and run Android unit tests on BRELGA
         shell: powershell
