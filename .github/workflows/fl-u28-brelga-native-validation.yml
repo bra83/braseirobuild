@@ -1,0 +1,43 @@
+name: Forbidden Lands U28 - BRELGA Native Build Validation
+on:
+  push:
+    branches: [build/fl-u28-integrated]
+    paths:
+      - '.github/workflows/fl-u28-brelga-native-validation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-native-u28:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    env:
+      SOURCE_SHA: eac02806caf3a4d086d4f513f48a0d50d78c96ff
+      EXPECTED_SIGNER: 9d0f1089b3fb6c225f1f59462750864e897c4d92
+      DONOR_NAME: BRASEIRO_FORBIDDEN_LANDS_3.3.19_R23_SOURCE.zip
+      DONOR_SHA: 2ee4e3af34459421a4b1e0389125cfcf057ce6938e8ddb8e281a770fca599f83
+      DONOR_API: https://api.firestorage.ai/dev/file/shares/7yPVWDuI4kl_
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact source checkout and historical signer
+        shell: powershell
+        run: '& "$env:GITHUB_WORKSPACE\ci\fl-u28\prepare.ps1"'
+      - name: Stamp installable Android version
+        shell: powershell
+        run: python.exe "$env:GITHUB_WORKSPACE\ci\fl-u28\version.py"
+      - name: Compile Android APK and native unit tests
+        shell: powershell
+        run: '& "$env:GITHUB_WORKSPACE\ci\fl-u28\build.ps1"'
+      - name: Check signature, package identity and bundled source
+        shell: powershell
+        run: '& "$env:GITHUB_WORKSPACE\ci\fl-u28\verify.ps1"'
