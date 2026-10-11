@@ -43,7 +43,7 @@ def transform(source, manifest):
         if method.count(marker)!=1:raise RuntimeError("Missing or repeated runtime structure key: "+key)
         a=method.index(marker)
         tail=method[a+len(marker):]
-        boundary=re.search(r'}\s*else\s+if\s*\(',tail)
+        boundary=re.search(r'}\s*else\s*(?:if\s*\(|\{)',tail)
         if boundary is None:raise RuntimeError("No source branch boundary after: "+key)
         stop=a+len(marker)+boundary.start()
         block=method[a:stop]
