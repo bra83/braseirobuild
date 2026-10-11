@@ -4,8 +4,8 @@
     "app/src/main/java/com/braseiro/dnd5e/adventure/AdventureEngine.java": "a9d64ae83243981241f46be574ab697de4650009e5e705c3c04e8eec97d47723",
     "app/src/main/java/com/braseiro/dnd5e/adventure/AetherTableRollIntentPort.java": "f6bf8b1f23491c80aaa1aaeb658c7561b94b96da96d294c53303d81efcbc83f2",
     "app/src/main/java/com/braseiro/dnd5e/adventure/LoreweaverOutcomePort.java": "3ea6868f375b20a0ce35f65a80e16e840158c24e2a94fc27a02986a186cf1c02",
-    "app/src/main/java/com/braseiro/dnd5e/StatblockCombatFlowEngine.java": "06df37c2ce7bc738f6aefbbd3d8859f5ba7ba2f24c8cee330d4bb68eca39a966",
-    "app/src/test/java/com/braseiro/dnd5e/Run245G05RhwOnHitConditionRobolectricTest.java": "678cf864b398d6f38406d70a645b7a44f63c058520ebb46423a70c67e1e9c625"
+    "app/src/main/java/com/braseiro/dnd5e/StatblockCombatFlowEngine.java": "ec96a2f39397f8b126953a22f69b1198336a81cb891673e4352796bef9fa685f",
+    "app/src/test/java/com/braseiro/dnd5e/Run245G05RhwOnHitConditionRobolectricTest.java": "8360ed860a8c455b602fad99581bd8785f43d1280c33ca6d0befeb0f020824b9"
   },
   "must_not_add_or_remove": true,
   "baseline_file_count": 1437
