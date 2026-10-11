@@ -1108,7 +1108,7 @@ export class JourneyService {
         const npcStore=tx.objectStore('npcs');const npc=await npcStore.get(String(decision.hatchlingNpcId||''));
         if(!npc)throw new Error('Ficha persistente do filhote ausente.');
         await npcStore.put({...npc,relationshipToParty:`Vínculo com ${character.name}`,
-          bondedCharacterId:characterId,officialFollowParty:true,currentActivity:'Ligado à aventureira que obteve sucesso em Adestramento.',
+          bondedCharacterId:characterId,officialFollowParty:true,officialFollowEventId:eventId,currentActivity:'Ligado à aventureira que obteve sucesso em Adestramento.',
           officialHatchlingState:{...(npc.officialHatchlingState||{}),bondedCharacterId:characterId,bondedAt:now}});
       }
       const events=world.journey.events.map(item=>item.id!==eventId?item:{...item,
@@ -5030,9 +5030,9 @@ export class JourneyService {
                 const priorHexId=confirmedCampaign.currentHexId;
                 confirmedCampaign.currentHexId = nextHex.id;
                 const nextMovementClass=MapTravelService.movementClassForHex(nextHex);
-                const movingNpcs=nextMovementClass==='water'
-                  ?OfficialEncounterFollowerEngine.advanceWaterStowaways(await tx.objectStore('npcs').getAll(),confirmedCampaign.id,priorHexId,nextHex.id,now)
-                  :OfficialEncounterFollowerEngine.advance(await tx.objectStore('npcs').getAll(),confirmedCampaign.id,priorHexId,nextHex.id,now);
+                const movingNpcs=OfficialEncounterFollowerEngine.advanceForTravel(
+                  await tx.objectStore('npcs').getAll(),confirmedCampaign.id,priorHexId,nextHex.id,now,
+                  nextMovementClass==='water');
                 for(const follower of movingNpcs)
                   await tx.objectStore('npcs').put(follower);
                 confirmedCampaign.discoveredHexIds = Array.from(new Set([...(confirmedCampaign.discoveredHexIds || []), nextHex.id]));

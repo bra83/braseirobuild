@@ -1,4 +1,4 @@
-name: Forbidden Lands U23 integrated - BRELGA APK and Android smoke
+name: Forbidden Lands U26 integrated - BRELGA APK and Android smoke
 on:
   push:
     branches: [build/fl-u23-integrated]
@@ -12,7 +12,7 @@ concurrency:
 env:
   PYTHONUTF8: '1'
   PYTHONIOENCODING: utf-8
-  SOURCE_COMMIT: b4e48fb77b7b7fdc5f85d1c998518196a0aaac32
+  SOURCE_COMMIT: 423798ac3f8cefb8fc14caf114cb2779b6d57d92
   SOURCE_NAME: BRASEIRO_FORBIDDEN_LANDS_U19_CI_WINDOWS_BROWSER_FIXED_FULL_SOURCE.zip
   SOURCE_SHA256: fd6485a92b2337b854de06279cf98fb14119b121db0c4ebb05be805317d9aa91
   SOURCE_BYTES: '40470551'
@@ -142,7 +142,17 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Windows compiler locator failed' }
           & npm.cmd run verify:unified-u19
           if ($LASTEXITCODE -ne 0) { throw 'Source contracts failed' }
-      - name: All twelve Chromium groups and strict 82 gate on integrated runtime
+          & node.exe --experimental-strip-types scripts/verify-u25-travel-karg-closure.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'U25 travel/Karg regression failed' }
+          & node.exe --experimental-strip-types scripts/verify-u25-forced-march-failclosed.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'U25 forced march regression failed' }
+          & node.exe -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-u26-legacy-resource-dice-migration.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'U26 legacy-resource-dice-migration gate failed' }
+          & node.exe -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-u26-50-day-campaign-clock.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'U26 50-day-campaign-clock gate failed' }
+          & node.exe -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-u26-gm-spell-pending.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'U26 gm-spell-pending gate failed' }
+      - name: All fourteen Chromium groups and strict 82 gate on integrated runtime
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
@@ -161,6 +171,8 @@ jobs:
             $env:FL_E2E_ORIGIN='http://127.0.0.1:4173'
             & python.exe e2e/run_official_suite.py
             if ($LASTEXITCODE -ne 0) { throw 'At least one real browser group failed' }
+          $suite=Get-Content 'e2e-results/u13-browser-suite-summary.json' -Raw | ConvertFrom-Json
+          if ($suite.cases.Count -ne 14 -or @($suite.cases | Where-Object { $_.status -ne 'PASS' }).Count -ne 0) { throw 'U26 requires all 14 fresh browser groups' }
             & python.exe scripts/verify_u14_browser_evidence.py e2e-results
             if ($LASTEXITCODE -ne 0) { throw 'Initial evidence failed' }
             $env:GITHUB_SHA=$env:SOURCE_COMMIT
@@ -189,7 +201,7 @@ jobs:
           $project="$env:FL_ROOT\project"
           $out="$env:FL_ROOT\release"
           New-Item -ItemType Directory -Path $out -Force | Out-Null
-          $apk="$out\BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk"
+          $apk="$out\BRASEIRO_FORBIDDEN_LANDS_3.3.24_U26_INTEGRATED.apk"
           Copy-Item "$project\android\app\build\outputs\apk\debug\app-debug.apk" $apk
           $bt="$env:ANDROID_HOME\build-tools\36.0.0"
           $badging=(& "$bt\aapt.exe" dump badging $apk | Out-String)
@@ -200,8 +212,8 @@ jobs:
           if (-not $m.Success -or $m.Groups[1].Value.Replace(':','').ToLowerInvariant() -ne $env:EXPECTED_SIGNER) { throw 'Signer differs from installed application' }
           & python.exe "$env:GITHUB_WORKSPACE\ci\fl-u23\verify_apk.py" $project $apk
           if ($LASTEXITCODE -ne 0) { throw 'APK bundled source proof failed' }
-          Copy-Item "$project\e2e-results\u22-complete-82.json" "$out\U23_STRICT_82_GATE.json"
-          Copy-Item "$project\e2e-results\u13-browser-suite-summary.json" "$out\U23_BROWSER_SUITE.json"
+          Copy-Item "$project\e2e-results\u22-complete-82.json" "$out\U26_STRICT_82_GATE.json"
+          Copy-Item "$project\e2e-results\u13-browser-suite-summary.json" "$out\U26_BROWSER_SUITE.json"
           $sig | Set-Content "$out\APK_SIGNATURE.txt"
           $badging | Set-Content "$out\APK_IDENTITY.txt"
       - name: Publish verified test APK and proof
@@ -214,7 +226,7 @@ jobs:
           $tag="forbidden-lands-u23-integrated-$env:GITHUB_RUN_ID"
           $out="$env:FL_ROOT\release"
           $notes="$out\RELEASE_NOTES.md"
-          @('Forbidden Lands U23 integrado.','43 encontros, 121 escolhas e 82 caminhos na suíte real; fonte integrada conferida antes do build.','Assinatura histórica, identidade e todos os assets web comparados no APK.','Pré-release de teste. Smoke Android automatizado é executado no job seguinte; aparelho físico e motores TTS externos não certificados.',"SOURCE_COMMIT=$env:SOURCE_COMMIT") | Set-Content $notes -Encoding utf8
+          @('Forbidden Lands U26 integrado.','43 encontros, 121 escolhas e 82 caminhos na suíte real; fonte integrada conferida antes do build.','Assinatura histórica, identidade e todos os assets web comparados no APK.','Pré-release de teste. Smoke Android automatizado é executado no job seguinte; aparelho físico e motores TTS externos não certificados.',"SOURCE_COMMIT=$env:SOURCE_COMMIT") | Set-Content $notes -Encoding utf8
           # BRELGA is self-hosted Windows and has no gh.exe. Use official GitHub
           # Releases REST API with the short-lived job token and a DRAFT gate.
           $api="https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases"
@@ -226,7 +238,7 @@ jobs:
           $metadata=@{
             tag_name=$tag
             target_commitish=$env:GITHUB_SHA
-            name='Forbidden Lands 3.3.24 U23 integrado - teste'
+            name='Forbidden Lands 3.3.24 U26 integrado - teste'
             body=[System.IO.File]::ReadAllText($notes)
             draft=$true
             prerelease=$true
@@ -235,9 +247,9 @@ jobs:
           if (-not $release.id -or -not $release.upload_url) { throw 'GitHub returned no draft release/upload endpoint' }
           $uploadBase=([string]$release.upload_url).Split('{')[0]
           $assets=@(Get-ChildItem $out -File | Where-Object { $_.Name -ne 'RELEASE_NOTES.md' })
-          if (-not ($assets | Where-Object { $_.Name -eq 'BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk' }) -or
-              -not ($assets | Where-Object { $_.Name -eq 'BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk.sha256' }) -or
-              -not ($assets | Where-Object { $_.Name -eq 'BUILD_PROOF_U23.json' })) {
+          if (-not ($assets | Where-Object { $_.Name -eq 'BRASEIRO_FORBIDDEN_LANDS_3.3.24_U26_INTEGRATED.apk' }) -or
+              -not ($assets | Where-Object { $_.Name -eq 'BRASEIRO_FORBIDDEN_LANDS_3.3.24_U26_INTEGRATED.apk.sha256' }) -or
+              -not ($assets | Where-Object { $_.Name -eq 'BUILD_PROOF_U26.json' })) {
             throw 'Required APK, SHA and build proof are missing; release remains draft'
           }
           foreach ($file in $assets) {
@@ -292,9 +304,9 @@ jobs:
           RELEASE_TAG: ${{ needs.build.outputs.tag }}
         run: |
           set -Eeuo pipefail
-          gh release download "$RELEASE_TAG" --pattern 'BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk*' --dir incoming
+          gh release download "$RELEASE_TAG" --pattern 'BRASEIRO_FORBIDDEN_LANDS_3.3.24_U26_INTEGRATED.apk*' --dir incoming
           cd incoming
-          sha256sum -c BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk.sha256
+          sha256sum -c BRASEIRO_FORBIDDEN_LANDS_3.3.24_U26_INTEGRATED.apk.sha256
           python -m pip install playwright==1.55.0
       - name: Enable KVM
         run: |
@@ -309,7 +321,7 @@ jobs:
           profile: pixel_6
           disable-animations: true
           script: |
-            adb install -r incoming/BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk
+            adb install -r incoming/BRASEIRO_FORBIDDEN_LANDS_3.3.24_U26_INTEGRATED.apk
             adb logcat -c
             python ci/fl-u23/emulator_smoke.py
       - name: Attach emulator proof to the same release

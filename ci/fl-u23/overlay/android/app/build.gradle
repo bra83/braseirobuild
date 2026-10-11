@@ -1,0 +1,125 @@
+apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
+
+def signingProperties = new Properties()
+def signingPropertiesFile = rootProject.file('keystore.properties')
+if (signingPropertiesFile.exists()) {
+    signingPropertiesFile.withInputStream { signingProperties.load(it) }
+}
+
+def signingValue = { String key, String fallback ->
+    def envValue = System.getenv(key)
+    if (envValue != null && !envValue.trim().isEmpty()) return envValue.trim()
+    return signingProperties.getProperty(key, fallback)
+}
+
+android {
+    namespace = "com.braseiro.forbiddenlands"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.braseiro.forbiddenlands"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 303924
+        versionName "3.3.24"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    // Unit tests reference BuildConfig.APPLICATION_ID; AGP 8+ disables generation by default.
+    buildFeatures { buildConfig true }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+    kotlinOptions { jvmTarget = '21' }
+    def configuredStorePath = signingValue('BRASEIRO_STORE_FILE', 'braseiro-debug.jks')
+    def configuredStoreFile = configuredStorePath ? file(configuredStorePath) : null
+    def hasBraseiroSigning = configuredStoreFile != null && configuredStoreFile.exists()
+        && !signingValue('BRASEIRO_STORE_PASSWORD', '').isEmpty()
+        && !signingValue('BRASEIRO_KEY_PASSWORD', '').isEmpty()
+
+    signingConfigs {
+        if (hasBraseiroSigning) {
+            braseiro {
+                storeFile configuredStoreFile
+                storePassword signingValue('BRASEIRO_STORE_PASSWORD', '')
+                keyAlias signingValue('BRASEIRO_KEY_ALIAS', 'braseiro')
+                keyPassword signingValue('BRASEIRO_KEY_PASSWORD', '')
+            }
+        }
+    }
+    buildTypes {
+        debug {
+            if (configuredStoreFile.exists()) { signingConfig signingConfigs.braseiro }
+            // Assinatura histórica imutável: necessária para preservar o OAuth Android
+            // registrado para com.braseiro.forbiddenlands.
+        }
+        release {
+            if (configuredStoreFile.exists()) { signingConfig signingConfigs.braseiro }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+    implementation 'com.google.android.gms:play-services-auth:21.2.0'
+    implementation "androidx.activity:activity-ktx:$androidxActivityVersion"
+    implementation 'androidx.documentfile:documentfile:1.0.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.7'
+    implementation "androidx.webkit:webkit:$androidxWebkitVersion"
+    implementation 'androidx.work:work-runtime-ktx:2.11.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0'
+}
+
+
+// Evita compilar um APK 3.3.4 com assets web herdados de um ZIP anterior.
+// `npm run android:sync` cria o marcador depois de reconstruir `dist/` e sincronizar o Capacitor.
+def expectedWebAssetVersion = android.defaultConfig.versionName
+def verifyFreshWebAssets = tasks.register('verifyFreshWebAssets') {
+    doLast {
+        def markerFile = file('src/main/assets/public/braseiro-release-marker.json')
+        if (!markerFile.exists()) {
+            throw new GradleException("Assets web ${expectedWebAssetVersion} ainda não foram sincronizados. Execute `npm run android:sync` antes do assemble.")
+        }
+        def marker = new groovy.json.JsonSlurper().parse(markerFile)
+        if (marker.version != expectedWebAssetVersion) {
+            throw new GradleException("Assets web obsoletos: ${marker.version ?: 'sem versão'}. Esperado ${expectedWebAssetVersion}. Execute `npm run android:sync`.")
+        }
+        if (marker.generatedBy != 'npm run android:sync' || !marker.syncedAt || !marker.generatedAt ||
+            !(marker.indexSha256 ==~ /[0-9a-f]{64}/) || !(marker.checkedWebAssets instanceof Number) || marker.checkedWebAssets < 2) {
+            throw new GradleException('Assets Android sem comprovação de sincronização e hashes. Execute npm run android:sync.')
+        }
+        def htmlFile = file('src/main/assets/public/index.html')
+        if (!htmlFile.exists()) throw new GradleException('index.html Android ausente. Execute npm run android:sync.')
+        def indexHash = java.security.MessageDigest.getInstance('SHA-256').digest(htmlFile.bytes)
+            .collect { String.format('%02x', it & 0xff) }.join('')
+        if (marker.indexSha256 != indexHash) {
+            throw new GradleException('index.html Android diferente do build web carimbado; compile e sincronize novamente.')
+        }
+    }
+}
+
+tasks.named('preBuild').configure { dependsOn verifyFreshWebAssets }
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

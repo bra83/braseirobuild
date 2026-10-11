@@ -9,7 +9,7 @@ from pathlib import Path
 import websocket
 
 APP='com.braseiro.forbiddenlands'
-EXPECTED='b4e48fb77b7b7fdc5f85d1c998518196a0aaac32'
+EXPECTED='423798ac3f8cefb8fc14caf114cb2779b6d57d92'
 MARKER_KEY='fl-u23-android-smoke-three-reopenings'
 MARKER=secrets.token_hex(12)
 
@@ -116,12 +116,12 @@ def main():
         target,state=snapshot(script,iteration)
         assert state['native'],'Capacitor reported a non-native page: '+str(state)
         assert state['sourceCommit']==EXPECTED,'Wrong APK source version '+str(state)
-        assert state['runtimeFilesVerified']==584,'Wrong source manifest: '+str(state)
+        assert state['runtimeFilesVerified']==602,'Wrong source manifest: '+str(state)
         assert state['uiRecognized'],'App rendered unexpected UI: '+str(state)
         assert state['marker']==MARKER,'WebView localStorage lost or changed across process reopens'
         results.append({'launch':iteration+1,'status':'PASS',
             'pid':adb('shell','pidof',APP),'pageId':target.get('id'),**state})
-        print('FL_U23_ANDROID_NATIVE_REOPEN '+json.dumps(
+        print('FL_U26_ANDROID_NATIVE_REOPEN '+json.dumps(
             {'launch':iteration+1,'pid':results[-1]['pid'],'native':state['native'],
              'bodyLength':state['bodyLength'],'sourceCommit':state['sourceCommit']}),
              flush=True)
@@ -135,7 +135,7 @@ def main():
       'localStoragePreserved':True,'nativeWebView':True,
       'scope':'Published signed APK installed via adb; three cold native WebView process reopens, React UI, source manifest, localStorage, PNG, no app fatal exception. NOT physical Galaxy, Kokoro engine, Gemini OAuth, or full campaign restore.'}
     Path('fl-u23-android-smoke.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
-    print('FL_U23_ANDROID_SMOKE_PASS '+json.dumps({'launches':3,'native':True,
+    print('FL_U26_ANDROID_SMOKE_PASS '+json.dumps({'launches':3,'native':True,
       'webview':True,'persistence':True,'androidApi':report['androidApi']}),flush=True)
 
 if __name__=='__main__':

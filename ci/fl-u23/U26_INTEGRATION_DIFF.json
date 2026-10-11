@@ -1,0 +1,116 @@
+{
+  "sourceCommit": "423798ac3f8cefb8fc14caf114cb2779b6d57d92",
+  "sourceRun": 38142714379,
+  "builderParent": "6c39c38c1908701d2140888f642b9b0cb21de173",
+  "baseRuntimeCommit": "b4e48fb77b7b7fdc5f85d1c998518196a0aaac32",
+  "integration": "Exact canonical Git blob differential overlay; no full directory replacement",
+  "runtimeFilesVerified": 602,
+  "diffFiles": [
+    {
+      "path": "android/app/build.gradle",
+      "sha": "301c721fcd86bd1700f080a8f252988cfc1f41ad"
+    },
+    {
+      "path": "e2e/official_u25_karg_forged_pending.py",
+      "sha": "d2a78283da1f529039b69c4ea1c65afc40a0f6e1"
+    },
+    {
+      "path": "e2e/official_u25_karg_sacrifice_paths.py",
+      "sha": "cef3e9dad8ea1e90f562ef9779a46a216d56d541"
+    },
+    {
+      "path": "e2e/run_official_suite.py",
+      "sha": "b94a3e3eaec0121707cdcd00a1218e21a7e8b60f"
+    },
+    {
+      "path": "public/assets/braseiro-final-enhancements.css",
+      "sha": "5f3d0658b8e100affae888a72618a1031ff78639"
+    },
+    {
+      "path": "public/assets/braseiro-final-enhancements.js",
+      "sha": "f2116781fc492ed207ecfd8ac4c01d8086d3ebd2"
+    },
+    {
+      "path": "public/assets/braseiro-master-support.css",
+      "sha": "7023d0f3b2ac479d6f1d964ea6fe93200ff8d342"
+    },
+    {
+      "path": "public/assets/braseiro-master-support.js",
+      "sha": "50acc62aefb758adc7fc9af7a04b34ce3d292947"
+    },
+    {
+      "path": "public/barbara-runtime.js",
+      "sha": "6e3de8dd91d54470e17f0accb13d535ac3445299"
+    },
+    {
+      "path": "public/barbara-sandbox-poi-1.1.1.js",
+      "sha": "046721a4f6690c835fa8ee7797c7af49f18a80ac"
+    },
+    {
+      "path": "public/braseiro-voice-input.js",
+      "sha": "1af5c607a58ec4c3c4625d89a668c6c4f6baa83e"
+    },
+    {
+      "path": "public/motor_barbara/MOTOR_BARBARA_CORE.txt",
+      "sha": "1560c78b85be54ac39457067e8357b52f8eab521"
+    },
+    {
+      "path": "public/motor_barbara/barbara_contract.json",
+      "sha": "1d9ec8200ee1a6d7c61bd519ead7e7eb7c5c573d"
+    },
+    {
+      "path": "scripts/verify-u09-official-receipt-progress.mjs",
+      "sha": "7019aab5bd22de3811db35d7f9470a310e959bfd"
+    },
+    {
+      "path": "scripts/verify-u25-forced-march-failclosed.mjs",
+      "sha": "2ac0b0f363620dac32a73590ca327f10128c65f5"
+    },
+    {
+      "path": "scripts/verify-u25-travel-karg-closure.mjs",
+      "sha": "54a568ead02982df1cd5772490f37aebb4b4084f"
+    },
+    {
+      "path": "scripts/verify-u26-50-day-campaign-clock.mjs",
+      "sha": "20be3e7f1bcd1aef9f2fa321a8656964821a35e1"
+    },
+    {
+      "path": "scripts/verify-u26-gm-spell-pending.mjs",
+      "sha": "65c3716da78837e4d408ccfc560cc9953f408777"
+    },
+    {
+      "path": "scripts/verify-u26-legacy-resource-dice-migration.mjs",
+      "sha": "b7b25f87a4e0e36291600f27877cc8331d8646c8"
+    },
+    {
+      "path": "src/db/db.ts",
+      "sha": "4eb1aaddb9085efcdbb508645fd1c704d8c52ede"
+    },
+    {
+      "path": "src/services/CampaignService.ts",
+      "sha": "fb950c92bd58cd6fdd0c1e70c4106a50c9dfc61d"
+    },
+    {
+      "path": "src/services/JourneyService.ts",
+      "sha": "f8eacbe253b06a34293805ebd4751f791f7a3edc"
+    },
+    {
+      "path": "src/services/MagicCastingService.ts",
+      "sha": "a2aa4683585e052e12e10a9ccf83de361754aaf2"
+    },
+    {
+      "path": "src/services/OfficialEncounterReceiptService.ts",
+      "sha": "58361af7a34e54092fcca9f4d475d01c61527730"
+    },
+    {
+      "path": "src/services/TravelCommitService.ts",
+      "sha": "1505cf488791cc13461ed6f22f8dd19fad115cb4"
+    }
+  ],
+  "addedSupportFile": "work/tsx-userinfo-shim.cjs",
+  "browserGroupsRequired": 14,
+  "downstreamRequired": 82,
+  "expectedSigner": "9d0f1089b3fb6c225f1f59462750864e897c4d92",
+  "nativeBase": "Previously verified pinned U19 ZIP plus historical 3-file native configuration donor; U26 Gradle binding retained",
+  "scope": "Build candidate U26, not global G01–G12 certification"
+}

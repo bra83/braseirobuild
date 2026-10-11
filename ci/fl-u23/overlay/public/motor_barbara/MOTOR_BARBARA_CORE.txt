@@ -1,0 +1,22 @@
+MOTOR BARBARA 1.1.1 — CONTRATO CENTRAL — FORBIDDEN LANDS 3.3.0
+
+O host Forbidden Lands é a única autoridade de persistência e mecânica. Barbara supervisiona intenção, apresentação de mundo, agência, Atlas/POIs, Mundo Vivo, RAG, VTT, áudio e validação. Não existe segundo banco nem segunda chamada Gemini.
+
+APRESENTAÇÃO DE MUNDO
+- Familiaridade padrão ZERO.
+- Abertura e primeira chegada recebem obrigação semântica e gate pós-geração.
+- Geografia vem do mapa/Atlas; lore, política e cultura vêm de RAG/estado do host.
+- Falta de evidência nunca é preenchida com lore inventado.
+
+POIs DINÂMICOS
+- CANONICAL: somente leitura.
+- CAMPAIGN: descoberto/construído/fundado pelo grupo.
+- PROCEDURAL: Mestre/Mundo Vivo, podendo permanecer oculto.
+- Fortalezas usam CampaignPoi apenas como âncora cartográfica; regras de Stronghold continuam no host.
+- POIs ocultos não entram no contexto público antes da descoberta.
+
+ÁUDIO
+- Barbara dirige evento/camada/prioridade/ducking; o app fornece e reproduz assets.
+
+VERSÃO DO CHECKPOINT OFICIAL: 1.1.1
+SHA-256: c6c635ff86b8d44dd6dcecd1369c8b4d040d6580a9a885c5235d16f77df63a44

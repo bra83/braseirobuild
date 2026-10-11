@@ -26,6 +26,8 @@ SCRIPTS = (
     'official_u22_downstream_batch.py',
     'official_u23_downstream_combat.py',
     'official_u24_source_adjudications.py',
+    'official_u25_karg_sacrifice_paths.py',
+    'official_u25_karg_forged_pending.py',
 )
 
 
@@ -45,6 +47,8 @@ EXPECTED_BROWSER_REPORTS = {
     'official_u22_downstream_batch.py': 'u22-downstream-batch.json',
     'official_u23_downstream_combat.py': 'u23-downstream-combat.json',
     'official_u24_source_adjudications.py': 'u24-source-adjudications.json',
+    'official_u25_karg_sacrifice_paths.py': 'u25-karg-sacrifice-paths.json',
+    'official_u25_karg_forged_pending.py': 'u25-karg-forged-pending.json',
 }
 
 
@@ -90,6 +94,26 @@ def run_suite(scripts: tuple[Path, ...], artifacts: Path, timeout_seconds: int =
             else:
                 try:
                     data = json.loads(proof.read_text(encoding='utf-8'))
+                    if script.name in ('official_u25_karg_sacrifice_paths.py', 'official_u25_karg_forged_pending.py'):
+                        proof_cases = data.get('paths') if script.name.endswith('_paths.py') else data.get('cases')
+                        valid = (isinstance(data, dict) and data.get('browserExecuted') is True and
+                                 type(data.get('expected')) is int and data['expected'] == 2 and
+                                 type(data.get('passed')) is int and data['passed'] == 2 and
+                                 isinstance(proof_cases, list) and len(proof_cases) == 2 and
+                                 all(isinstance(case, dict) and case.get('status') == 'PASS' for case in proof_cases))
+                        if valid and script.name.endswith('_paths.py'):
+                            expected_keys = {'35:1:offer_adventurer:gm_decision', '35:1:offer_horse:gm_decision'}
+                            valid = ({case.get('pathKey') for case in proof_cases} == expected_keys and
+                                     all(isinstance(case.get('evidencePerStage'), dict) and
+                                         len(case['evidencePerStage']) == 9 and
+                                         all(stage == 'PASS' for stage in case['evidencePerStage'].values())
+                                         for case in proof_cases))
+                        elif valid:
+                            valid = ({case.get('kind') for case in proof_cases} == {'adventurer', 'horse'} and
+                                     all(case.get('reloads') == 1 for case in proof_cases))
+                        if not valid:
+                            record['status'] = 'FAIL'
+                            err += '\nU25: prova Chromium/IndexedDB incompleta, duplicada ou sem nove estágios.\n'
                     if not isinstance(data, dict) or data.get('status') != 'PASS' or data.get('failures') or data.get('afterReloadFailures'):
                         record['status'] = 'FAIL' if record['status'] == 'PASS' else record['status']
                         err += '\nU15: relatório JSON do navegador não comprova PASS.\n'

@@ -1,0 +1,72 @@
+{
+  "motor": "Motor Barbara",
+  "core_version": "1.1.1",
+  "integration_version": "3.3.0",
+  "system_id": "forbidden_lands",
+  "system_family": "year_zero",
+  "host_persistence_authority": true,
+  "host_mechanical_authority": true,
+  "second_database": false,
+  "second_gemini_call": false,
+  "pipeline": [
+    "classify_intent",
+    "retrieve_rag",
+    "private_director",
+    "living_world",
+    "world_introduction_obligation",
+    "rule_gate",
+    "generate_candidate",
+    "validate",
+    "repair_once",
+    "commit_if_valid",
+    "append_memory"
+  ],
+  "features": {
+    "world_introduction": {
+      "default_familiarity": "ZERO",
+      "post_generation_gate": true,
+      "visit_memory": true
+    },
+    "dynamic_poi": {
+      "layers": [
+        "CANONICAL",
+        "CAMPAIGN",
+        "PROCEDURAL"
+      ],
+      "canonical_read_only": true,
+      "player_construction": true,
+      "gm_secret_creation": true,
+      "living_world_generation": true,
+      "narrative_proposals": true,
+      "stronghold_anchor_only": true
+    },
+    "audio_director": {
+      "event_driven": true,
+      "host_assets": true,
+      "narration_lifecycle": true
+    }
+  },
+  "invariants": [
+    "structured_state_over_llm",
+    "rule_evidence_required",
+    "private_director_public_narrator",
+    "player_agency",
+    "anti_summary",
+    "world_introduction_zero_familiarity",
+    "dynamic_poi_no_canonical_mutation",
+    "hidden_poi_no_public_leak",
+    "host_stronghold_rules_authoritative",
+    "anti_padding",
+    "all_questions",
+    "world_live",
+    "fail_closed",
+    "idempotent_retry"
+  ],
+  "platform_adapters": [
+    "typescript_capacitor",
+    "javascript_web"
+  ],
+  "systems": [
+    "forbidden_lands"
+  ]
+}

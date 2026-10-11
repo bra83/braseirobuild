@@ -2,13 +2,15 @@ import hashlib,json,sys,zipfile
 from pathlib import Path
 
 root=Path(sys.argv[1]);apk=Path(sys.argv[2]);out=apk.parent
-source='b4e48fb77b7b7fdc5f85d1c998518196a0aaac32'
+source='423798ac3f8cefb8fc14caf114cb2779b6d57d92'
 gate=json.loads((root/'e2e-results/u22-complete-82.json').read_text())
 assert gate['status']=='PASS' and gate['certified']==82 and gate['pending']==0 and not gate['invalidEvidence']
 assert gate['sourceCommit']==source
+suite=json.loads((root/'e2e-results/u13-browser-suite-summary.json').read_text())
+assert len(suite['cases'])==14 and all(row['status']=='PASS' for row in suite['cases'])
 with zipfile.ZipFile(apk) as archive:
     manifest=json.loads(archive.read('assets/public/fl-build-source.json'))
-    assert manifest['sourceCommit']==source and manifest['runtimeFilesVerified']==584
+    assert manifest['sourceCommit']==source and manifest['runtimeFilesVerified']==602
     assert manifest['nativeDonorSha256']=='2ee4e3af34459421a4b1e0389125cfcf057ce6938e8ddb8e281a770fca599f83'
     count=0
     for p in (root/'dist').rglob('*'):
@@ -20,6 +22,6 @@ with zipfile.ZipFile(apk) as archive:
     assert marker['version']=='3.3.24' and marker['generatedBy']=='npm run android:sync'
 sha=hashlib.sha256(apk.read_bytes()).hexdigest()
 (out/(apk.name+'.sha256')).write_text(sha+'  '+apk.name+'\n')
-proof={'status':'PASS','sourceCommit':source,'runtimeFilesVerified':584,'nativeDonorSha256':'2ee4e3af34459421a4b1e0389125cfcf057ce6938e8ddb8e281a770fca599f83','downstreamCertified':82,'apkSha256':sha,'apkBytes':apk.stat().st_size,'webAssetsCompared':count,'scope':'Android binary, source identity, fresh web assets and strict browser gate; emulator evidence separate; physical Galaxy tests not performed'}
-(out/'BUILD_PROOF_U23.json').write_text(json.dumps(proof,indent=2)+'\n')
+proof={'status':'PASS','sourceCommit':source,'runtimeFilesVerified':602,'nativeDonorSha256':'2ee4e3af34459421a4b1e0389125cfcf057ce6938e8ddb8e281a770fca599f83','downstreamCertified':82,'apkSha256':sha,'apkBytes':apk.stat().st_size,'webAssetsCompared':count,'scope':'Android binary, source identity, fresh web assets and strict browser gate; emulator evidence separate; physical Galaxy tests not performed'}
+(out/'BUILD_PROOF_U26.json').write_text(json.dumps(proof,indent=2)+'\n')
 print(json.dumps(proof))
