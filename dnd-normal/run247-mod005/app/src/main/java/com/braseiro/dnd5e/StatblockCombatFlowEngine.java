@@ -29,9 +29,18 @@ public final class StatblockCombatFlowEngine{
   JSONObject tp=CompiledStatblockEngine.runtimeProfile(tv.optString("statblock_id"));DndRulesEngine rules=new DndRulesEngine();String cover=tv.optString("cover","");if(rules.hasTotalCover(cover))return block("target_has_total_cover");int geometryCover=geometry==null?0:geometry.coverBonus;int ac=tp.optInt("armor_class",10)+Math.max(rules.coverAcBonus(cover),geometryCover);JSONObject range=StatblockCombatRuntimeEngine.rangeProfile(av.optString("statblock_id"),action,distanceFt);if(range.optBoolean("blocked"))return range;if(range.optBoolean("out_of_range"))return block("attack_out_of_range").put("range",range);
   JSONObject cp=ConditionRulesEngine.attackProfile(StatblockEncounterStateEngine.conditionText(attacker),StatblockEncounterStateEngine.conditionText(target),distanceFt,true,true,false,false,DndRulesEngine.PROFILE_2014);if(cp.optBoolean("blocked",false))return block("attacker_incapacitated");if(range.optBoolean("long_range_disadvantage",false)||(range.optBoolean("ranged",false)&&distanceFt>0d&&distanceFt<=5d&&!ConditionRulesEngine.incapacitated(StatblockEncounterStateEngine.conditionText(target)))||(geometry!=null&&(geometry.longRangeDisadvantage||geometry.unseenDisadvantage)))cp.put("disadvantage",true);int used=rules.chooseD20(firstD20,secondD20,cp.optBoolean("advantage",false),cp.optBoolean("disadvantage",false));
   JSONObject r=StatblockCombatRuntimeEngine.attack(av.optString("statblock_id"),action,used,ac);if(r.optBoolean("blocked"))return r;r.put("first_d20",firstD20).put("second_d20",secondD20).put("roll_mode",cp.optBoolean("advantage",false)&&!cp.optBoolean("disadvantage",false)?"advantage":cp.optBoolean("disadvantage",false)&&!cp.optBoolean("advantage",false)?"disadvantage":"normal").put("target_cover",cover).put("range",range);if(geometry!=null)r.put("attack_geometry_receipt",TacticalCreatureGeometryRules.receipt(geometry)).put("geometry_cover_bonus",geometryCover).put("unseen_disadvantage",geometry.unseenDisadvantage).put("blindsight_used",geometry.usedBlindsight);if(r.optBoolean("hit")&&cp.optBoolean("critical_on_hit",false))r.put("critical",true).put("critical_from_condition",true);
-  JSONObject spent=StatblockTurnEngine.spend(attacker,"action");if(spent.optBoolean("blocked"))return spent;
-  if(r.optBoolean("hit")){JSONObject damage=applyAttackDamage(target,r,r.optBoolean("critical"));r.put("raw_damage",damage.optInt("raw_damage")).put("applied_damage",damage.optInt("applied_damage")).put("damage_components",damage.optJSONArray("components")).put("target_defeated",damage.optBoolean("target_defeated"));}
-  return r.put("attacker",attacker).put("target",target).put("target_state",StatblockEncounterStateEngine.view(target)).put("turn_state",StatblockTurnEngine.state());
+  // Preflight passed. Commit the action and damage as one transaction; a bad
+  // source-bound damage expression must never spend the action or alter HP.
+  JSONObject encounterBefore=StatblockEncounterStateEngine.snapshot(),turnBefore=StatblockTurnEngine.snapshot();
+  try{
+   JSONObject spent=StatblockTurnEngine.spend(attacker,"action");if(spent.optBoolean("blocked"))return spent;
+   if(r.optBoolean("hit")){JSONObject damage=applyAttackDamage(target,r,r.optBoolean("critical"));r.put("raw_damage",damage.optInt("raw_damage")).put("applied_damage",damage.optInt("applied_damage")).put("damage_components",damage.optJSONArray("components")).put("target_defeated",damage.optBoolean("target_defeated"));}
+   return r.put("attacker",attacker).put("target",target).put("target_state",StatblockEncounterStateEngine.view(target)).put("turn_state",StatblockTurnEngine.state());
+  }catch(Exception failedMutation){
+   StatblockEncounterStateEngine.restore(encounterBefore);
+   StatblockTurnEngine.restore(turnBefore);
+   throw failedMutation;
+  }
  }catch(RuntimeException __brJsonRuntime106){throw __brJsonRuntime106;}catch(Exception __brJsonChecked106){throw new IllegalStateException(__brJsonChecked106);}}
  public static synchronized JSONObject multiattack(String attacker,String target,String[] actions,int[] d20s){
   if(d20s==null)return block("invalid_multiattack_input");int[] second=new int[d20s.length];System.arraycopy(d20s,0,second,0,d20s.length);
