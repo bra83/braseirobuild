@@ -1,0 +1,260 @@
+--- a/app/src/main/java/com/braseiro/dnd5e/MasterOrchestrator.java
++++ b/app/src/main/java/com/braseiro/dnd5e/MasterOrchestrator.java
+@@ -613,19 +613,31 @@
+             targetLocationKnown,targetVisible,blindsightFeet);
+     }
+     public JSONObject resolveStatblockTurnMultiattack(String attacker,String target,String[] actions,int[] d20s){return StatblockCombatFlowEngine.multiattack(attacker,target,actions,d20s);}
+-    public JSONObject resolveStatblockLegendaryAction(String attacker,String target,String action,int d20){
+-        JSONObject res=StatblockCombatFlowEngine.legendaryAction(attacker,target,action,d20);
+-        if(db!=null&&!res.optBoolean("blocked",false)){
+-            return db.recordStatblockLegendaryTransaction(attacker,target,action,res);
++    public synchronized JSONObject resolveStatblockLegendaryAction(String attacker,String target,String action,int d20){
++        return resolveStatblockLegendaryAction(attacker,target,action,d20,d20);
++    }
++    public synchronized JSONObject resolveStatblockLegendaryAction(String attacker,String target,String action,int firstD20,int secondD20){
++        JSONObject encounterBefore=StatblockEncounterStateEngine.snapshot();
++        JSONObject turnBefore=StatblockTurnEngine.snapshot();
++        try{
++            JSONObject res=StatblockCombatFlowEngine.legendaryAction(attacker,target,action,firstD20,secondD20);
++            if(res.optBoolean("blocked",false))return res;
++            if(db==null)return res; // O fluxo sem banco não afirma persistência SQLite.
++            JSONObject persisted=db.recordStatblockLegendaryTransaction(attacker,target,action,res);
++            if(persisted==null||persisted.optBoolean("blocked",false)||
++                !persisted.optBoolean("db_persisted",false)||
++                persisted.has("operation_error")){
++                StatblockEncounterStateEngine.restore(encounterBefore);
++                StatblockTurnEngine.restore(turnBefore);
++                return new JSONObject().put("blocked",true).put("reason","legendary_transaction_not_committed");
++            }
++            return persisted;
++        }catch(Exception e){
++            StatblockEncounterStateEngine.restore(encounterBefore);
++            StatblockTurnEngine.restore(turnBefore);
++            try{return new JSONObject().put("blocked",true).put("reason","legendary_transaction_failed");}
++            catch(Exception ignored){throw new IllegalStateException("legendary_transaction_failed",e);}
+         }
+-        return res;
+-    }
+-    public JSONObject resolveStatblockLegendaryAction(String attacker,String target,String action,int firstD20,int secondD20){
+-        JSONObject res=StatblockCombatFlowEngine.legendaryAction(attacker,target,action,firstD20,secondD20);
+-        if(db!=null&&!res.optBoolean("blocked",false)){
+-            return db.recordStatblockLegendaryTransaction(attacker,target,action,res);
+-        }
+-        return res;
+     }
+     public JSONObject spendStatblockLegendary(String token,int cost){return StatblockTurnEngine.spendLegendary(token,cost);}
+     public JSONObject installRun139VoloHandbook(){JSONObject o=new JSONObject();try{return o.put("racial_feats",VoloRacialFeatRuntimeEngine.install()).put("species_phase2",VoloSubraceRun139Engine.install()).put("legacy_species_phase1",VoloSubraceHandbookEngine.install()).put("book_complete",false).put("auto_rolls",false);}catch(Exception e){return o;}}
+--- a/app/src/main/java/com/braseiro/dnd5e/StatblockCombatFlowEngine.java
++++ b/app/src/main/java/com/braseiro/dnd5e/StatblockCombatFlowEngine.java
+@@ -225,85 +225,82 @@
+  private static JSONObject applyAttackDamage(String target,JSONObject attack,boolean critical){return applyAttackDamage(target,attack,critical,1.0d);}
+  private static JSONObject applyAttackDamage(String target,JSONObject attack,boolean critical,double multiplier){/*BR_JSON_WRAP_106*/try{JSONArray specs=damageSpecs(attack.optString("damage_expression",""),attack.optString("damage_type",""),attack.optString("extra_damage_expression","")),parts=new JSONArray();int rawTotal=0,appliedTotal=0;for(int i=0;i<specs.length();i++){JSONObject spec=specs.optJSONObject(i);if(spec==null)continue;String expr=spec.optString("expression"),type=spec.optString("type");int raw=rollAverage(expr,critical);if(multiplier>=0d&&multiplier!=1.0d){raw=(int)Math.floor(raw*multiplier);}if(raw<=0)continue;JSONObject ds=StatblockEncounterStateEngine.damage(target,raw,type);int applied=ds.optInt("applied_damage",raw);rawTotal=Math.addExact(rawTotal,raw);appliedTotal=Math.addExact(appliedTotal,applied);parts.put(new JSONObject().put("expression",expr).put("type",type).put("raw_damage",raw).put("applied_damage",applied));}JSONObject tv=StatblockEncounterStateEngine.view(target);return new JSONObject().put("raw_damage",rawTotal).put("applied_damage",appliedTotal).put("components",parts).put("target_defeated",tv.optBoolean("defeated",tv.optInt("hp",1)<=0));}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
+ 
+- private static void applySpecialEffect(String attacker,String target,String effect,JSONObject receipt){
++ private static void applySpecialEffect(String attacker,String target,String effect,JSONObject receipt) throws JSONException{
+   if(effect==null||effect.trim().isEmpty())return;
+   String clean=effect.trim().toLowerCase(java.util.Locale.ROOT);
+-  try{receipt.put("effect_applied",clean);}catch(Exception ignored){}
+-  String[] parts=clean.split("[;,/]");
+-  for(String p:parts){
+-   p=p.trim();if(p.isEmpty())continue;
+-   if(p.startsWith("teleport:")){
+-    int feet=parseFeet(p.substring(9));
+-    try{receipt.put("teleport_applied",true).put("teleport_feet",feet);}catch(Exception ignored){}
+-    StatblockEncounterStateEngine.setEffectProperty(attacker,"last_teleport_ft",feet);
+-    JSONObject posAttacker=StatblockEncounterStateEngine.getPosition(attacker);
+-    if(posAttacker.optBoolean("found")){
+-     int ox=posAttacker.optInt("x",0),oy=posAttacker.optInt("y",0),oz=posAttacker.optInt("z",0);
+-     int squares=Math.max(1,feet/5);
+-     JSONObject posTarget=StatblockEncounterStateEngine.getPosition(target);
+-     int tx=posTarget.optBoolean("found")?posTarget.optInt("x",0):ox;
+-     int ty=posTarget.optBoolean("found")?posTarget.optInt("y",0):oy;
+-     int dx=ox-tx,dy=oy-ty;
+-     int sx=Integer.compare(dx,0),sy=Integer.compare(dy,0);
+-     if(sx==0&&sy==0){sx=1;}
+-     int nx=Math.min(99,Math.max(0,ox+sx*squares));
+-     int ny=Math.min(99,Math.max(0,oy+sy*squares));
+-     StatblockEncounterStateEngine.setPosition(attacker,nx,ny,oz);
+-     try{receipt.put("origin_x",ox).put("origin_y",oy).put("dest_x",nx).put("dest_y",ny);}catch(Exception ignored){}
+-    }
+-   }else if(p.startsWith("push:")){
+-    int feet=parseFeet(p.substring(5));
+-    try{receipt.put("forced_movement_applied",true).put("forced_movement_type","push").put("forced_movement_feet",feet);}catch(Exception ignored){}
+-    StatblockEncounterStateEngine.setEffectProperty(target,"forced_movement_ft",feet);
+-    JSONObject posTarget=StatblockEncounterStateEngine.getPosition(target);
+-    JSONObject posAttacker=StatblockEncounterStateEngine.getPosition(attacker);
+-    if(posTarget.optBoolean("found")&&posAttacker.optBoolean("found")){
+-     int tx=posTarget.optInt("x",0),ty=posTarget.optInt("y",0),tz=posTarget.optInt("z",0);
+-     int ax=posAttacker.optInt("x",0),ay=posAttacker.optInt("y",0);
+-     int squares=Math.max(1,feet/5);
+-     int dx=tx-ax,dy=ty-ay;
+-     int sx=Integer.compare(dx,0),sy=Integer.compare(dy,0);
+-     if(sx==0&&sy==0){sx=1;}
+-     int nx=Math.min(99,Math.max(0,tx+sx*squares));
+-     int ny=Math.min(99,Math.max(0,ty+sy*squares));
+-     if(nx==tx&&ny==ty&&squares>0){
+-      try{receipt.put("forced_movement_blocked","destination_blocked_or_boundary");}catch(Exception ignored){}
+-     }else{
+-      StatblockEncounterStateEngine.setPosition(target,nx,ny,tz);
+-      try{receipt.put("origin_x",tx).put("origin_y",ty).put("dest_x",nx).put("dest_y",ny);}catch(Exception ignored){}
++  for(String entry:clean.split("[;,/]")){
++   String p=entry.trim();if(p.isEmpty())continue;
++   if(p.startsWith("teleport:")||p.startsWith("push:")||p.startsWith("pull:")){
++    String kind=p.substring(0,p.indexOf(':'));
++    int feet=parseFeet(p.substring(p.indexOf(':')+1));
++    String key="teleport".equals(kind)?"teleport_applied":"forced_movement_applied";
++    receipt.put(key,false);
++    if(feet<5||feet%5!=0){receipt.put("movement_blocked","invalid_distance");continue;}
++    String mover="teleport".equals(kind)?attacker:target;
++    JSONObject from=StatblockEncounterStateEngine.getPosition(mover);
++    JSONObject source=StatblockEncounterStateEngine.getPosition(attacker);
++    JSONObject targetPosition=StatblockEncounterStateEngine.getPosition(target);
++    if(!from.optBoolean("found")||!source.optBoolean("found")||!targetPosition.optBoolean("found")){
++     receipt.put("movement_blocked","position_unavailable");continue;
++    }
++    int ox=from.optInt("x"),oy=from.optInt("y"),oz=from.optInt("z");
++    int ax=source.optInt("x"),ay=source.optInt("y");
++    int tx=targetPosition.optInt("x"),ty=targetPosition.optInt("y");
++    int dx="pull".equals(kind)?ax-tx:("push".equals(kind)?tx-ax:ax-tx);
++    int dy="pull".equals(kind)?ay-ty:("push".equals(kind)?ty-ay:ay-ty);
++    int sx=Integer.compare(dx,0),sy=Integer.compare(dy,0);
++    if(sx==0&&sy==0){
++     if("pull".equals(kind)){receipt.put("movement_blocked","overlapping_source_target");continue;}
++     sx=1;
++    }
++    int nx=ox,ny=oy,moved=0;
++    JSONObject snapshot=StatblockEncounterStateEngine.snapshot().optJSONObject("tokens");
++    int steps=feet/5;
++    for(int i=0;i<steps;i++){
++     int candidateX=ox+sx*(i+1),candidateY=oy+sy*(i+1);
++     if(candidateX<0||candidateX>99||candidateY<0||candidateY>99)break;
++     if(occupiedByOther(snapshot,mover,candidateX,candidateY,oz)){
++      // Teleporte ignora ocupação intermediária; o destino precisa estar livre.
++      if("teleport".equals(kind))continue;
++      break;
+      }
+-    }
+-   }else if(p.startsWith("pull:")){
+-    int feet=parseFeet(p.substring(5));
+-    try{receipt.put("forced_movement_applied",true).put("forced_movement_type","pull").put("forced_movement_feet",feet);}catch(Exception ignored){}
+-    StatblockEncounterStateEngine.setEffectProperty(target,"forced_movement_ft",feet);
+-    JSONObject posTarget=StatblockEncounterStateEngine.getPosition(target);
+-    JSONObject posAttacker=StatblockEncounterStateEngine.getPosition(attacker);
+-    if(posTarget.optBoolean("found")&&posAttacker.optBoolean("found")){
+-     int tx=posTarget.optInt("x",0),ty=posTarget.optInt("y",0),tz=posTarget.optInt("z",0);
+-     int ax=posAttacker.optInt("x",0),ay=posAttacker.optInt("y",0);
+-     int squares=Math.max(1,feet/5);
+-     int dx=ax-tx,dy=ay-ty;
+-     int sx=Integer.compare(dx,0),sy=Integer.compare(dy,0);
+-     int nx=tx,ny=ty;
+-     for(int step=1;step<=squares;step++){
+-      int nextX=tx+sx*step,nextY=ty+sy*step;
+-      if(nextX==ax&&nextY==ay)break;
+-      if(nextX<0||nextX>99||nextY<0||nextY>99)break;
+-      nx=nextX;ny=nextY;
+-     }
+-     if(nx==tx&&ny==ty&&squares>0){
+-      try{receipt.put("forced_movement_blocked","destination_blocked_or_boundary");}catch(Exception ignored){}
+-     }else{
+-      StatblockEncounterStateEngine.setPosition(target,nx,ny,tz);
+-      try{receipt.put("origin_x",tx).put("origin_y",ty).put("dest_x",nx).put("dest_y",ny);}catch(Exception ignored){}
+-     }
++     nx=candidateX;ny=candidateY;moved=i+1;
++    }
++    if(moved==0){
++     receipt.put("movement_blocked","destination_blocked_or_boundary");
++     receipt.put("forced_movement_blocked","destination_blocked_or_boundary");
++     continue;
++    }
++    JSONObject updated=StatblockEncounterStateEngine.setPosition(mover,nx,ny,oz);
++    if(!updated.optBoolean("position_set")){
++     receipt.put("movement_blocked","position_commit_rejected");continue;
++    }
++    receipt.put(key,true).put("effect_applied",p)
++     .put("origin_x",ox).put("origin_y",oy).put("origin_z",oz)
++     .put("dest_x",nx).put("dest_y",ny).put("dest_z",oz)
++     .put("requested_feet",feet).put("actual_feet",moved*5);
++    if("teleport".equals(kind)){
++     receipt.put("teleport_feet",moved*5);
++     StatblockEncounterStateEngine.setEffectProperty(mover,"last_teleport_ft",moved*5);
++    }else{
++     receipt.put("forced_movement_type",kind).put("forced_movement_feet",moved*5);
++     StatblockEncounterStateEngine.setEffectProperty(mover,"forced_movement_ft",moved*5);
+     }
+    }else if(isConditionName(p)){
+     StatblockEncounterStateEngine.condition(target,p,true);
+-    try{receipt.put("condition_from_effect",p);}catch(Exception ignored){}
+-   }
+-  }
++    receipt.put("effect_applied",p).put("condition_from_effect",p);
++   }
++  }
++ }
++ private static boolean occupiedByOther(JSONObject tokens,String mover,int x,int y,int z){
++  if(tokens==null)return false;
++  java.util.Iterator<String> keys=tokens.keys();
++  while(keys.hasNext()){
++   String key=keys.next();if(key.equals(mover))continue;
++   JSONObject other=tokens.optJSONObject(key);
++   if(other!=null&&other.optInt("hp",0)>0&&other.optInt("x",-1)==x&&other.optInt("y",-1)==y&&other.optInt("z",-1)==z)return true;
++  }
++  return false;
+  }
+  private static int parseFeet(String s){try{String clean=s.replaceAll("[^0-9]","");return clean.isEmpty()?0:Integer.parseInt(clean);}catch(Exception e){return 0;}}
+  private static boolean isConditionName(String s){return "prone".equals(s)||"blinded".equals(s)||"frightened".equals(s)||"charmed".equals(s)||"poisoned".equals(s)||"restrained".equals(s)||"incapacitated".equals(s)||"paralyzed".equals(s)||"stunned".equals(s)||"deafened".equals(s);}
+@@ -428,9 +425,8 @@
+    ||s.contains("mind spike")||s.contains("hold monster")||s.contains("power word stun")){
+    return true;
+   }
+-  if(declaredAction!=null&&(declaredAction.has("damage")||declaredAction.has("condition_on_fail"))){
+-   return true;
+-  }
++  // Um rótulo de dano não substitui a execução das regras da magia.
++  // Falha fechada em vez de contabilizar uma conjuração fictícia.
+   return false;
+  }
+ 
+--- a/app/src/test/java/com/braseiro/dnd5e/Run247P0RegressionRobolectricTest.java
++++ b/app/src/test/java/com/braseiro/dnd5e/Run247P0RegressionRobolectricTest.java
+@@ -104,7 +104,18 @@
+         JSONObject edgePush = StatblockCombatFlowEngine.legendaryAction(atkToken, tgtToken, "Gale Push", 10);
+         assertFalse(edgePush.toString(), edgePush.optBoolean("blocked", false));
+         assertEquals("destination_blocked_or_boundary", edgePush.optString("forced_movement_blocked"));
++        assertFalse("Nenhum deslocamento ocorreu; não declarar aplicado", edgePush.optBoolean("forced_movement_applied"));
++        assertEquals(99, edgePush.optInt("dest_x", 99));
+         assertEquals(99, StatblockEncounterStateEngine.getPosition(tgtToken).optInt("x"));
++
++        // Outra criatura ocupa a primeira casa do trajeto: não atravessar token,
++        // não anunciar deslocamento e não alterar a posição do alvo.
++        StatblockEncounterStateEngine.setPosition(atkToken, 2, 2, 0);
++        StatblockEncounterStateEngine.setPosition(tgtToken, 4, 2, 0);
++        StatblockEncounterStateEngine.spawn("blocker-p01", targetBlock, 5, 2, 0);
++        JSONObject occupiedPush = StatblockCombatFlowEngine.legendaryAction(atkToken, tgtToken, "Gale Push", 10);
++        assertFalse(occupiedPush.toString(), occupiedPush.optBoolean("forced_movement_applied"));
++        assertEquals(4, StatblockEncounterStateEngine.getPosition(tgtToken).optInt("x"));
+     }
+ 
+     @Test
+@@ -238,6 +249,22 @@
+             // Verifica se o dano foi debitado do combatente persistido no SQLite
+             JSONObject updatedHero = db.getCombatant(heroId);
+             assertTrue("O HP do herói deve ter sido reduzido", updatedHero.optInt("hp") < 50);
++
++            // Injeção de falha de persistência: nenhum HP/ponto lendário em
++            // memória pode sobreviver se o SQLite rejeitar o recibo.
++            int hpBefore = StatblockEncounterStateEngine.view(heroToken).optInt("hp");
++            JSONObject turnBefore = StatblockTurnEngine.state();
++            int pointsBefore = turnBefore.optJSONArray("order").optJSONObject(1)
++                    .optJSONObject("economy").optInt("legendary_points_remaining");
++            db.getWritableDatabase().execSQL("DROP TABLE effect_receipts");
++            JSONObject failedCommit = orch.resolveStatblockLegendaryAction(dragonToken, heroToken, "Tail Swipe", 15);
++            assertTrue("Falha no commit deve bloquear execução", failedCommit.optBoolean("blocked"));
++            assertEquals("legendary_transaction_not_committed", failedCommit.optString("reason"));
++            assertEquals("HP em memória restaurado", hpBefore,
++                    StatblockEncounterStateEngine.view(heroToken).optInt("hp"));
++            assertEquals("Pontos lendários restaurados", pointsBefore,
++                    StatblockTurnEngine.state().optJSONArray("order").optJSONObject(1)
++                            .optJSONObject("economy").optInt("legendary_points_remaining"));
+         } finally {
+             db.close();
+             context.deleteDatabase(dbName);
