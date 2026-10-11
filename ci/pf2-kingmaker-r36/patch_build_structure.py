@@ -71,6 +71,11 @@ def transform(s):
         final String expectedSkill=key(def.optString("construction_skill",def.optString("skill_key","")));
         if(expectedSkill.length()>0&&!expectedSkill.equals(skill))
             throw new IllegalArgumentException("A construção exige a perícia "+expectedSkill+".");
+        final String requiredRank=key(def.optString("construction_rank","untrained"));
+        final String actualRank=key(skill(skill).optString("rank","untrained"));
+        final java.util.List<String> rankScale=java.util.Arrays.asList("untrained","trained","expert","master","legendary");
+        if(!rankScale.contains(requiredRank)||rankScale.indexOf(actualRank)<rankScale.indexOf(requiredRank))
+            throw new IllegalStateException("Proficiência de Reino insuficiente para a construção ou reparo: "+requiredRank+".");
         final String pendingKey="under_construction_"+chosenKey,rubbleKey="rubble_"+chosenKey;
         if(db.queryOne("SELECT id FROM kingmaker_structures WHERE world_profile=? AND settlement_key=? AND structure_key=?",
             new String[]{profile(),townKey,rubbleKey}).length()>0)
