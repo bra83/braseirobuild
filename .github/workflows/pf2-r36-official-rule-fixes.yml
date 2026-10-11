@@ -79,7 +79,7 @@ jobs:
         run: |
           python -m pip install -q pytest
           python -m compileall -q ci/pf2-kingmaker-r36
-          python -m pytest -q ci/pf2-kingmaker-r36/test_prepaid_transform_synthetic.py ci/pf2-kingmaker-r36/test_kingdom_accounting_transform.py ci/pf2-kingmaker-r36/test_claim_ui_transform.py ci/pf2-kingmaker-r36/test_build_structure_transform.py ci/pf2-kingmaker-r36/test_build_structure_repairs.py ci/pf2-kingmaker-r36/test_structure_catalog_values.py ci/pf2-kingmaker-r36/test_multi_structure.py
+          python -m pytest -q ci/pf2-kingmaker-r36/test_prepaid_transform_synthetic.py ci/pf2-kingmaker-r36/test_kingdom_accounting_transform.py ci/pf2-kingmaker-r36/test_claim_ui_transform.py ci/pf2-kingmaker-r36/test_build_structure_transform.py ci/pf2-kingmaker-r36/test_build_structure_repairs.py ci/pf2-kingmaker-r36/test_structure_catalog_values.py ci/pf2-kingmaker-r36/test_multi_structure.py ci/pf2-kingmaker-r36/test_catalog_expansion.py
   verify-hosted:
     needs: [patch-synthetic, official-content-crosswalk]
     runs-on: ubuntu-latest
@@ -123,6 +123,7 @@ jobs:
           python ci/pf2-kingmaker-r36/patch_build_structure_repairs.py "$project"
           python ci/pf2-kingmaker-r36/patch_structure_catalog_values.py "$project"
           python ci/pf2-kingmaker-r36/patch_multi_structure.py "$project"
+          python ci/pf2-kingmaker-r36/patch_catalog_expansion.py "$project"
           python ci/pf2-kingmaker-certification/audit_structure_catalog.py --project "$project" --out r36-official-structure-delta.json --require-zero-mismatches
           cp ci/pf2-kingmaker-r36/test_r36_book_fidelity.py "$project/tests_pf2/"
           cp ci/pf2-kingmaker-r36/test_r36_claim_prepaid.py "$project/tests_pf2/"
@@ -214,6 +215,8 @@ jobs:
           python ci\pf2-kingmaker-r36\patch_structure_catalog_values.py "$project"
           if($LASTEXITCODE -ne 0){throw 'Official structure catalog patch failed'}
           python ci\pf2-kingmaker-r36\patch_multi_structure.py "$project"
+          python ci\pf2-kingmaker-r36\patch_catalog_expansion.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'Official 73-entry catalog generation failed'}
           if($LASTEXITCODE -ne 0){throw 'Official multi-skill structures patch failed'}
           python ci\pf2-kingmaker-certification\audit_structure_catalog.py --project "$project" --out r36-official-structure-delta-brelga.json --require-zero-mismatches
           if($LASTEXITCODE -ne 0){throw 'Official R36 structure catalog mismatches remain'}
