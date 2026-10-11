@@ -76,7 +76,7 @@ jobs:
           & npm.cmd ci --no-audit --no-fund
           if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
           foreach($entry in @(@('@rollup/rollup-win32-x64-msvc','rollup'),@('@esbuild/win32-x64','esbuild'))) {
-            & node.exe -e "try { require.resolve('$($entry[0])'); } catch (_) { process.exit(1); }"
+            & node.exe -e "try { require.resolve('$($entry[0])/package.json'); } catch (_) { process.exit(1); }"
             if ($LASTEXITCODE -ne 0) {
               $v=(& node.exe -p "require('./node_modules/$($entry[1])/package.json').version").Trim()
               Write-Host "Recovering exact native module $($entry[0])@$v"
@@ -87,7 +87,7 @@ jobs:
               New-Item -ItemType Directory -Path $module -Force | Out-Null
               & tar.exe -xf $archive -C $module --strip-components=1
               if ($LASTEXITCODE -ne 0) { throw 'Windows native package extraction failed' }
-              & node.exe -e "try { require.resolve('$($entry[0])'); } catch (_) { process.exit(1); }"
+              & node.exe -e "try { require.resolve('$($entry[0])/package.json'); } catch (_) { process.exit(1); }"
               if ($LASTEXITCODE -ne 0) { throw 'Installed Windows native module cannot be resolved' }
             }
           }
