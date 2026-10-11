@@ -3,7 +3,7 @@
   "expected_modified": {
     "app/src/main/java/com/braseiro/dnd5e/adventure/AdventureEngine.java": "a9d64ae83243981241f46be574ab697de4650009e5e705c3c04e8eec97d47723",
     "app/src/main/java/com/braseiro/dnd5e/adventure/AetherTableRollIntentPort.java": "f6bf8b1f23491c80aaa1aaeb658c7561b94b96da96d294c53303d81efcbc83f2",
-    "app/src/main/java/com/braseiro/dnd5e/adventure/LoreweaverOutcomePort.java": "a3aae6e8721d186dea1e2eb4260f29e871715441170b5520ee1561dc145de0b4"
+    "app/src/main/java/com/braseiro/dnd5e/adventure/LoreweaverOutcomePort.java": "3ea6868f375b20a0ce35f65a80e16e840158c24e2a94fc27a02986a186cf1c02"
   },
   "must_not_add_or_remove": true,
   "baseline_file_count": 1437
