@@ -169,7 +169,7 @@ finally:
         try:os.unlink(dbpath+ext)
         except FileNotFoundError:pass
 # Limitations are non-negotiable certification gates:
-finding("evidence_gap","OFFICIAL_SOURCE_PDFS_NOT_PRESENT","Official Kingmaker Adventure Path + Companion Guide + relevant PF2 core PDFs were not located in the PATHFINDER_2E Drive folder; no page-by-page comparison was performed.")
+finding("evidence_gap","OFFICIAL_PDFS_LOCATED_SEMANTIC_COMPARISON_PENDING","Official Kingmaker.pdf (Drive ID 1hHjK7DjhdDFvejYk70NNxO0zMp7Rnsn3), Companion Guide, and PF2e Core have been identified; this automated catalog audit still does not prove page-by-page correspondence or playable branches.")
 finding("evidence_gap","NO_ANDROID_REAL_PLAYTHROUGH","Catalog imports and SQLite fixture exercise do not execute a full user-directed campaign through Android UI / Gemini / live rules engine.")
 finding("evidence_gap","NO_PRODUCTION_APPDB_ENDURANCE","The SQLite endurance replay uses actual quest content but does not call the Android AppDb backup/restore on a running device.")
 finding("evidence_gap","NO_REAL_TURN_WAR_SAVE_SEQUENCE","Existing JVM kingdom/warfare mechanics tests are separate; no uninterrupted real-device kingdom + war + long-session restore was performed.")
