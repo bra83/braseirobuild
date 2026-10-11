@@ -33,8 +33,11 @@ def discover_socket(pid):
 class CdpPage:
     def __init__(self, websocket_url):
         self.url = websocket_url
+        # Android WebView page debugger is reachable only through the local
+        # adb-forwarded app socket. Its CDP server accepts the standard
+        # Playwright-style no-Origin handshake, not a browser Origin header.
         self.conn = create_connection(websocket_url, timeout=12,
-            origin="http://localhost", enable_multithread=True)
+            suppress_origin=True, enable_multithread=True)
         self.id = 0
 
     def close(self):
