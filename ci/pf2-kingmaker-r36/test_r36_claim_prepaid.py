@@ -30,7 +30,7 @@ def test_public_claim_hex_keeps_non_prepaid_behavior():
 
 def test_rejected_claims_are_checked_before_payment():
     m=section("public JSONObject resolveClaimHex(", "\n    public ")
-    debit=m.index("Custo antecipado de 1 RP")
+    debit=m.index("custo antecipado de 1 RP")
     for guard in ('reconnoitered','cleared','adjacentToClaimed','resource_points','maxClaims',
                   'naturalRoll<1||naturalRoll>20','skill(skill).length()==0','isAnarchy'):
         assert guard in m[:debit], guard
