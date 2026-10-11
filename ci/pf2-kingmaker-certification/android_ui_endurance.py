@@ -222,8 +222,36 @@ def army():
     shell("input","tap",str(edits[0][1]),str(edits[0][2]))
     shell("input","text","Braseiro_QA_R35")
     shell("input","keyevent","4")
-    if not click("SALVAR",3):return False
+    saved=False
+    for label in ("SALVAR EXÉRCITO","SALVAR","REGISTRAR EXÉRCITO"):
+        if label in {x[0] for x in nodes()} and click(label,2):
+            saved=True
+            break
+    if not saved:
+        log("ARMY_SAVE_CONTROL_MISSING","positive action not detected in real dialog")
+        return False
     return any(x[0]=="Braseiro_QA_R35" for x in snapshot("AFTER_ARMY")["army"])
+
+def war():
+    if not kingmaker():return False
+    before=snapshot("BEFORE_WAR")["counts"].get("kingmaker_war_encounters",0)
+    if "ADMINISTRAÇÃO AVANÇADA" not in {x[0] for x in nodes()}:
+        if not click("ABRIR ADMINISTRAÇÃO AVANÇADA",16):return False
+    if not click("EXÉRCITOS E BATALHAS",12):return False
+    if not click("BATALHAS",3):return False
+    if not click("NOVA BATALHA",3):return False
+    form=nodes()
+    fields=[v for v in form if v[3].endswith("EditText")]
+    if not fields:
+        log("WAR_NAME_FIELD_MISSING",[x[0] for x in form[:30]])
+        return False
+    shell("input","tap",str(fields[0][1]),str(fields[0][2]))
+    shell("input","text","R36_Batalha_QA")
+    # Avoid Android KEYCODE_BACK: it previously sent the test process HOME.
+    if not click("INICIAR",3):return False
+    after=snapshot("AFTER_WAR")
+    return after["counts"].get("kingmaker_war_encounters",0)>before
+
 def restart():
     before=snapshot("BEFORE_RESTART")
     # Empty-table persistence cannot certify the nonempty Kingdom/Army/War gate.
@@ -245,10 +273,15 @@ def main():
     if G["ACTIVATION_ANDROID_APPDB"]:
         stage("KINGDOM_TURN_ANDROID_APPDB",kingdom_turn)
         stage("ARMY_ANDROID_APPDB",army)
+        if G["ARMY_ANDROID_APPDB"]:
+            stage("WAR_ANDROID_APPDB",war)
+        else:
+            G["WAR_ANDROID_APPDB"]=False
     else:
         G["KINGDOM_TURN_ANDROID_APPDB"]=False
         G["ARMY_ANDROID_APPDB"]=False
+        G["WAR_ANDROID_APPDB"]=False
     stage("PERSISTENCE_AFTER_PROCESS_RESTART",restart)
-    log("FOUR_LIVE_CHECKS",json.dumps(G))
+    log("KINGDOM_ARMY_WAR_AND_PERSISTENCE_LIVE_CHECKS",json.dumps(G))
     return 0 if all(G.values()) else 2
 if __name__=="__main__":sys.exit(main())
