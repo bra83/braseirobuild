@@ -19,9 +19,29 @@ def launch():
     if not pid:raise RuntimeError("APP_NOT_RUNNING")
     log("APP_PID",pid)
 def nodes():
-    adb("shell","uiautomator","dump","/sdcard/pf2_acceptance.xml",timeout=40)
-    raw=adb("exec-out","cat","/sdcard/pf2_acceptance.xml").stdout
-    root=ET.fromstring(raw)
+    # Android's uiautomator can intermittently emit an empty/partial hierarchy
+    # while WebView or System UI is drawing. This is a HARNESS retry, never a
+    # synthetic success and never a replacement for the real on-device dump.
+    last=""
+    root=None
+    for attempt in range(5):
+        dumped=adb("shell","uiautomator","dump","/sdcard/pf2_acceptance.xml",allow=True,timeout=65)
+        fetched=adb("exec-out","cat","/sdcard/pf2_acceptance.xml",allow=True,timeout=35)
+        raw=fetched.stdout
+        at=raw.find(b"<?xml")
+        if at<0:at=raw.find(b"<hierarchy")
+        if dumped.returncode==0 and fetched.returncode==0 and at>=0:
+            try:
+                root=ET.fromstring(raw[at:])
+                break
+            except ET.ParseError as ex:
+                last="xml="+str(ex)+" bytes="+repr(raw[:180])
+        else:
+            last=("dump="+str(dumped.returncode)+" fetch="+str(fetched.returncode)
+                +" raw="+repr(raw[:180])+" stderr="+repr(dumped.stderr[:180]))
+        log("UI_DUMP_RETRY",str(attempt+1)+" "+last[:250])
+        time.sleep(2)
+    if root is None:raise RuntimeError("UI_DUMP_UNAVAILABLE_AFTER_5_RETRIES "+last[:350])
     out=[]
     for e in root.iter("node"):
         txt=e.attrib.get("text","").strip() or e.attrib.get("content-desc","").strip()
