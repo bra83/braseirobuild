@@ -87,7 +87,7 @@ public final class StatblockCombatFlowEngine{
   try{
    JSONObject spent=StatblockTurnEngine.spend(attacker,"action");if(spent.optBoolean("blocked"))throw new IllegalStateException("multiattack_action_spend_failed");
    for(JSONObject r:planned){
-    if(r.optBoolean("hit")){JSONObject damage=applyAttackDamage(target,r,r.optBoolean("critical"));int applied=damage.optInt("applied_damage");total+=applied;r.put("raw_damage",damage.optInt("raw_damage")).put("applied_damage",applied).put("damage_components",damage.optJSONArray("components"));results.put(r);if(damage.optBoolean("target_defeated"))break;}
+    if(r.optBoolean("hit")){JSONObject damage=applyAttackDamage(target,r,r.optBoolean("critical"));int applied=damage.optInt("applied_damage");total=Math.addExact(total,applied);r.put("raw_damage",damage.optInt("raw_damage")).put("applied_damage",applied).put("damage_components",damage.optJSONArray("components"));results.put(r);if(damage.optBoolean("target_defeated"))break;}
     else results.put(r);
    }
   }catch(Exception mutationFailure){
@@ -98,12 +98,34 @@ public final class StatblockCombatFlowEngine{
   return new JSONObject().put("resolved",true).put("multiattack",true).put("attacker",attacker).put("target",target).put("total_damage",total).put("target_defeated",ds.optBoolean("defeated")).put("components",results).put("target_state",ds).put("turn_state",StatblockTurnEngine.state());
  }catch(RuntimeException __brJsonRuntime106){throw __brJsonRuntime106;}catch(Exception __brJsonChecked106){throw new IllegalStateException(__brJsonChecked106);}}
 
- private static JSONObject applyAttackDamage(String target,JSONObject attack,boolean critical){/*BR_JSON_WRAP_106*/try{JSONArray specs=damageSpecs(attack.optString("damage_expression",""),attack.optString("damage_type",""),attack.optString("extra_damage_expression","")),parts=new JSONArray();int rawTotal=0,appliedTotal=0;for(int i=0;i<specs.length();i++){JSONObject spec=specs.optJSONObject(i);if(spec==null)continue;String expr=spec.optString("expression"),type=spec.optString("type");int raw=rollAverage(expr,critical);if(raw<=0)continue;JSONObject ds=StatblockEncounterStateEngine.damage(target,raw,type);int applied=ds.optInt("applied_damage",raw);rawTotal+=raw;appliedTotal+=applied;parts.put(new JSONObject().put("expression",expr).put("type",type).put("raw_damage",raw).put("applied_damage",applied));}JSONObject tv=StatblockEncounterStateEngine.view(target);return new JSONObject().put("raw_damage",rawTotal).put("applied_damage",appliedTotal).put("components",parts).put("target_defeated",tv.optBoolean("defeated",tv.optInt("hp",1)<=0));}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
+ private static JSONObject applyAttackDamage(String target,JSONObject attack,boolean critical){/*BR_JSON_WRAP_106*/try{JSONArray specs=damageSpecs(attack.optString("damage_expression",""),attack.optString("damage_type",""),attack.optString("extra_damage_expression","")),parts=new JSONArray();int rawTotal=0,appliedTotal=0;for(int i=0;i<specs.length();i++){JSONObject spec=specs.optJSONObject(i);if(spec==null)continue;String expr=spec.optString("expression"),type=spec.optString("type");int raw=rollAverage(expr,critical);if(raw<=0)continue;JSONObject ds=StatblockEncounterStateEngine.damage(target,raw,type);int applied=ds.optInt("applied_damage",raw);rawTotal=Math.addExact(rawTotal,raw);appliedTotal=Math.addExact(appliedTotal,applied);parts.put(new JSONObject().put("expression",expr).put("type",type).put("raw_damage",raw).put("applied_damage",applied));}JSONObject tv=StatblockEncounterStateEngine.view(target);return new JSONObject().put("raw_damage",rawTotal).put("applied_damage",appliedTotal).put("components",parts).put("target_defeated",tv.optBoolean("defeated",tv.optInt("hp",1)<=0));}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
  static JSONArray damageSpecs(String expression,String typeSpec,String extra){/*BR_JSON_WRAP_106*/try{JSONArray out=new JSONArray();String e=expression==null?"":expression.trim(),t=typeSpec==null?"":typeSpec.trim();java.util.ArrayList<String> types=new java.util.ArrayList<String>();for(String x:t.split("\\s*\\+\\s*")){String q=x.trim();if(q.length()>0)types.add(q);}java.util.ArrayList<String> dice=new java.util.ArrayList<String>();java.util.regex.Matcher m=java.util.regex.Pattern.compile("\\d+d\\d+(?:\\s*[+-]\\s*\\d+)?").matcher(e);while(m.find())dice.add(m.group());if(e.length()>0){if(types.size()>1&&types.size()==dice.size()){for(int i=0;i<dice.size();i++)out.put(new JSONObject().put("expression",dice.get(i)).put("type",types.get(i)));}else out.put(new JSONObject().put("expression",e).put("type",types.size()==1?types.get(0):""));}String ex=extra==null?"":extra.trim();if(ex.length()>0){String xt=damageTypeInText(ex);String xe=ex.replaceAll("(?i)\\b(acid|bludgeoning|cold|fire|force|lightning|necrotic|piercing|poison|psychic|radiant|slashing|thunder|ácido|contundente|frio|fogo|força|elétrico|eletrico|necrótico|necrotico|perfurante|veneno|psíquico|psiquico|radiante|cortante|trovejante)\\b","").trim();if(xe.length()==0)xe=ex;if(xt.length()==0&&types.size()==1)xt=types.get(0);out.put(new JSONObject().put("expression",xe).put("type",xt));}return out;}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
  private static String damageTypeInText(String v){String s=v==null?"":v.toLowerCase(java.util.Locale.ROOT);String[][] pairs={{"acid","acid"},{"ácido","acid"},{"bludgeoning","bludgeoning"},{"contundente","bludgeoning"},{"cold","cold"},{"frio","cold"},{"fire","fire"},{"fogo","fire"},{"force","force"},{"força","force"},{"lightning","lightning"},{"elétrico","lightning"},{"eletrico","lightning"},{"necrotic","necrotic"},{"necrótico","necrotic"},{"necrotico","necrotic"},{"piercing","piercing"},{"perfurante","piercing"},{"poison","poison"},{"veneno","poison"},{"psychic","psychic"},{"psíquico","psychic"},{"psiquico","psychic"},{"radiant","radiant"},{"radiante","radiant"},{"slashing","slashing"},{"cortante","slashing"},{"thunder","thunder"},{"trovejante","thunder"}};for(String[]p:pairs)if(s.matches(".*\\b"+java.util.regex.Pattern.quote(p[0])+"\\b.*"))return p[1];return "";}
  private static JSONObject economy(JSONObject s,String token){JSONArray a=s.optJSONArray("order");if(a!=null)for(int i=0;i<a.length();i++){JSONObject x=a.optJSONObject(i);if(x!=null&&token.equals(x.optString("token")))return x.optJSONObject("economy");}return null;}
  private static JSONObject findAction(String statblockId,String actionName){JSONArray a=CompiledStatblockEngine.runtimeProfile(statblockId).optJSONArray("actions");if(a!=null)for(int i=0;i<a.length();i++){JSONObject candidate=a.optJSONObject(i);if(candidate!=null&&actionName!=null&&actionName.trim().equalsIgnoreCase(candidate.optString("name","")))return candidate;}return null;}
  private static int rollAverage(String expr){return rollAverage(expr,false);}
- static int rollAverage(String expr,boolean critical){if(expr==null)return 0;String s=expr.trim();java.util.regex.Matcher m=java.util.regex.Pattern.compile("(\\d+)d(\\d+)\\s*([+-]\\s*\\d+)?").matcher(s);int total=0;boolean any=false;while(m.find()){any=true;int n=Integer.parseInt(m.group(1)),d=Integer.parseInt(m.group(2)),mod=m.group(3)==null?0:Integer.parseInt(m.group(3).replaceAll("\\s+",""));if(critical)n*=2;total+=n*(d+1)/2+mod;}if(any)return Math.max(0,total);try{return Math.max(0,Integer.parseInt(s.replaceAll("[^0-9-]","")));}catch(Exception e){return 0;}}
+ static int rollAverage(String expr,boolean critical){
+  if(expr==null||expr.trim().isEmpty())return 0;
+  String clean=expr.replaceAll("\\s+","").toLowerCase(java.util.Locale.ROOT);
+  if(!clean.matches("[+-]?(?:\\d+d\\d+|\\d+)(?:[+-](?:\\d+d\\d+|\\d+))*"))
+   throw new IllegalArgumentException("unsupported_source_damage_expression");
+  java.util.regex.Matcher term=java.util.regex.Pattern.compile("([+-]?)(\\d+)(?:d(\\d+))?").matcher(clean);
+  long total=0L;int cursor=0;
+  while(term.find()){
+   if(term.start()!=cursor)throw new IllegalArgumentException("damage_expression_not_fully_parsed");
+   cursor=term.end();
+   long amount=Long.parseLong(term.group(2)),contribution;
+   if(term.group(3)!=null){
+    long faces=Long.parseLong(term.group(3));
+    if(amount<1L||faces<1L)throw new IllegalArgumentException("invalid_source_damage_dice");
+    long dice=critical?Math.multiplyExact(amount,2L):amount;
+    contribution=Math.multiplyExact(dice,Math.addExact(faces,1L))/2L;
+   }else contribution=amount;
+   total=Math.addExact(total,"-".equals(term.group(1))?-contribution:contribution);
+  }
+  if(cursor!=clean.length()||total>Integer.MAX_VALUE||total<Integer.MIN_VALUE)
+   throw new IllegalArgumentException("damage_expression_out_of_range");
+  return Math.max(0,(int)total);
+ }
  private static JSONObject block(String r){/*BR_JSON_WRAP_106*/try{return new JSONObject().put("blocked",true).put("reason",r);}catch(RuntimeException __brJsonRuntime106){throw __brJsonRuntime106;}catch(Exception __brJsonChecked106){throw new IllegalStateException(__brJsonChecked106);}}
 }
