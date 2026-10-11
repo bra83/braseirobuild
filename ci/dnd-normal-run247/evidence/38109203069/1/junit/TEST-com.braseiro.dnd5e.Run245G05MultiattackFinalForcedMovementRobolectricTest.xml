@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run245G05MultiattackFinalForcedMovementRobolectricTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-11T03:47:57" hostname="BRELGA" time="2.091">
+  <properties/>
+  <testcase name="lastComponentPushIsAtomicAndBlocksAnObstructedDestination" classname="com.braseiro.dnd5e.Run245G05MultiattackFinalForcedMovementRobolectricTest" time="2.091"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

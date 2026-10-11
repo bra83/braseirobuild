@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run246G05TypedOnHitBatchRobolectricTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-11T03:48:24" hostname="BRELGA" time="0.153">
+  <properties/>
+  <testcase name="noDurationOrProseCannotBecomePermanentCondition" classname="com.braseiro.dnd5e.Run246G05TypedOnHitBatchRobolectricTest" time="0.014"/>
+  <testcase name="timerExpiresOnlyAtSourceTurnAndHasNoDuplicateTransition" classname="com.braseiro.dnd5e.Run246G05TypedOnHitBatchRobolectricTest" time="0.025"/>
+  <testcase name="allFifteenSourceBoundRidersAreExecutableWithoutInventedSavingThrows" classname="com.braseiro.dnd5e.Run246G05TypedOnHitBatchRobolectricTest" time="0.114"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
