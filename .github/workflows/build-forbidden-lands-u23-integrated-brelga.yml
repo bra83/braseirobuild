@@ -79,8 +79,14 @@ jobs:
             & node.exe -e "try { require.resolve('$($entry[0])'); } catch (_) { process.exit(1); }"
             if ($LASTEXITCODE -ne 0) {
               $v=(& node.exe -p "require('./node_modules/$($entry[1])/package.json').version").Trim()
-              & npm.cmd install --no-save --no-package-lock "$($entry[0])@$v"
-              if ($LASTEXITCODE -ne 0) { throw 'Windows optional native module unavailable' }
+              Write-Host "Recovering exact native module $($entry[0])@$v"
+              $packed=& npm.cmd pack "$($entry[0])@$v" --json --ignore-scripts --pack-destination $env:FL_ROOT
+              if ($LASTEXITCODE -ne 0) { throw 'Windows native package download failed' }
+              $archive=Join-Path $env:FL_ROOT (($packed -join "\n" | ConvertFrom-Json)[0].filename)
+              $module=Join-Path (Join-Path (Get-Location) 'node_modules') $entry[0]
+              New-Item -ItemType Directory -Path $module -Force | Out-Null
+              & tar.exe -xf $archive -C $module --strip-components=1
+              if ($LASTEXITCODE -ne 0) { throw 'Windows native package extraction failed' }
               & node.exe -e "try { require.resolve('$($entry[0])'); } catch (_) { process.exit(1); }"
               if ($LASTEXITCODE -ne 0) { throw 'Installed Windows native module cannot be resolved' }
             }
