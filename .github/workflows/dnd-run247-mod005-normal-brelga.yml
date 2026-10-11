@@ -1,5 +1,4 @@
-name: DnD NORMAL RUN247 MOD005 reconciled source BRELGA Android gates
-
+name: DnD NORMAL RUN247 MOD005 BRELGA native Android validation
 on:
   workflow_dispatch:
   push:
@@ -7,258 +6,159 @@ on:
       - dnd/run247-mod005-reconciled-g05-brelga
     paths:
       - .github/workflows/dnd-run247-mod005-normal-brelga.yml
-      - ci/dnd-normal-run247/source_parts.json
-      - ci/dnd-normal-run247/fetch_exact_source.py
       - ci/dnd-normal-run247/compare_exact_trees.py
       - ci/dnd-normal-run247/integration_fix_manifest.json
-
 permissions:
   contents: write
-
 concurrency:
   group: dnd-normal-run247-mod005-g05-brelga
   cancel-in-progress: false
-
 jobs:
-  android-validation:
+  validate:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 180
     steps:
-      - name: Checkout isolated integration branch
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: true
-          fetch-depth: 1
-
-      - name: Verify designated runner / set evidence paths
+      - name: Use installed toolchains and clone only Braseiro DnD on D drive (no setup actions)
         shell: powershell
+        env:
+          GH_REPO_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference='Stop'
-          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "WRONG_RUNNER=$env:RUNNER_NAME" }
-          if ($env:GITHUB_REF_NAME -ne 'dnd/run247-mod005-reconciled-g05-brelga') { throw "WRONG_BRANCH=$env:GITHUB_REF_NAME" }
-          $volume=Get-PSDrive -Name 'D' -PSProvider FileSystem -ErrorAction Stop
-          if ($volume.Free -lt 6GB) { throw ("BRELGA_D_DRIVE_HAS_LESS_THAN_6GB_FREE_FREE_BYTES="+$volume.Free) }
-          $scratch=Join-Path 'D:\' ("braseiro-dnd-normal-run247-"+$env:GITHUB_RUN_ID)
-          New-Item -ItemType Directory -Force -Path $scratch | Out-Null
-          New-Item -ItemType Directory -Force -Path (Join-Path $scratch 'out') | Out-Null
-          $repo=Join-Path $scratch 'repo'
-          $project=Join-Path $repo 'dnd-normal/run247-mod005'
-          "DND_REPO=$repo" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "GRADLE_USER_HOME=$(Join-Path $scratch 'gradle-home')" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "DND_SCRATCH=$scratch" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "DND_OUT=$(Join-Path $scratch 'out')" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "DND_PROJECT=$project" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "DND_RECONSTRUCTED=$(Join-Path $scratch 'project')" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "REF_BEFORE_SOURCE_COMMIT=$env:GITHUB_SHA" | Out-File -FilePath (Join-Path $scratch 'out/SOURCE_REF.txt') -Encoding utf8
-          "RUNNER_NAME=$env:RUNNER_NAME" | Out-File -FilePath (Join-Path $scratch 'out/RUNNER.txt') -Encoding utf8
-          "BRANCH=$env:GITHUB_REF_NAME" | Out-File -FilePath (Join-Path $scratch 'out/RUNNER.txt') -Encoding utf8 -Append
-          Write-Host 'SOURCE_BRANCH_ISOLATED=YES'
-          Write-Host 'RUN245_HISTORICAL_PATCHES=NOT_USED'
-          Write-Host 'APK_BUILD=DISABLED'
-
-      - name: Prepare Java 17 and Python 3.11
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Prepare Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Prepare source downloader
-        shell: powershell
-        run: |
-          $ErrorActionPreference='Stop'
-          & python -m pip install --disable-pip-version-check 'gdown==5.2.0'
-          if ($LASTEXITCODE -ne 0) { throw "GDOWN_INSTALL_FAILED_EXIT_$LASTEXITCODE" }
-
-      - name: Fetch and SHA-verify EXACT full ZIP (no fallback)
-        id: source
-        shell: powershell
-        run: |
-          $ErrorActionPreference='Stop'
-          $script=Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-normal-run247/fetch_exact_source.py'
-          $manifest=Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-normal-run247/source_parts.json'
-          $ErrorActionPreference='Continue'
-          & python -u $script --manifest $manifest --scratch $env:DND_SCRATCH --project $env:DND_RECONSTRUCTED 2>&1 | Tee-Object (Join-Path $env:DND_OUT 'SOURCE_FETCH.log')
-          $rc=$LASTEXITCODE
-          $ErrorActionPreference='Stop'
-          "SOURCE_FETCH_EXIT_CODE=$rc" | Out-File -FilePath (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
-          if ($rc -ne 0) { throw "SOURCE_SHA_OR_FETCH_FAILED_EXIT_$rc" }
-          Copy-Item -LiteralPath (Join-Path $env:DND_SCRATCH 'SOURCE_VERIFY.txt') -Destination $env:DND_OUT -Force
-
-      - name: Verify exact baseline plus two SHA-pinned integration fixes
-        id: sourcecommit
-        if: steps.source.outcome == 'success'
-        shell: powershell
-        run: |
-          $ErrorActionPreference='Stop'
-          & git clone --no-local --single-branch --branch 'dnd/run247-mod005-reconciled-g05-brelga' $env:GITHUB_WORKSPACE $env:DND_REPO
-          if ($LASTEXITCODE -ne 0) { throw "GIT_BRANCH_CLONE_FAILED_$LASTEXITCODE" }
-          $manifest=Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-normal-run247/integration_fix_manifest.json'
-          if (!(Test-Path $env:DND_PROJECT) -or !(Test-Path $manifest)) { throw 'SOURCE_OR_PINNED_FIX_MANIFEST_MISSING' }
-          & python (Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-normal-run247/compare_exact_trees.py') --reference $env:DND_RECONSTRUCTED --existing $env:DND_PROJECT --allowed-manifest $manifest
-          if ($LASTEXITCODE -ne 0) { throw 'SOURCE_PINNED_FIX_VERIFICATION_FAILED' }
-          $commit=(& git -C $env:DND_REPO rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0) { throw 'SOURCE_EFFECTIVE_COMMIT_UNAVAILABLE' }
-          "SOURCE_GIT_COMMIT=$commit" | Out-File (Join-Path $env:DND_OUT 'SOURCE_GIT_COMMIT.txt') -Encoding utf8
-          "ORIGINAL_ZIP_SHA256=2774b450ecf5be179976199b22bab8584f76939dcf305d82a84171a199282e06" | Out-File (Join-Path $env:DND_OUT 'SOURCE_DELTA.txt') -Encoding utf8
-          'CODE_DELTA=ONLY_TWO_SHA256_PINNED_ANDROID_FIX_FILES' | Out-File (Join-Path $env:DND_OUT 'SOURCE_DELTA.txt') -Encoding utf8 -Append
-          Write-Host 'SOURCE_RECONCILIATION_PRESERVED=YES; PINNED_FIX_VERIFIED=YES'
-
-      - name: Run javac compile gate against reconciled project
-        if: steps.source.outcome == 'success'
-        shell: powershell
-        run: |
-          $ErrorActionPreference='Stop'
-          if (!$env:ANDROID_HOME) {
-            $candidate=Join-Path $env:LOCALAPPDATA 'Android\Sdk'
-            if (Test-Path $candidate) { $env:ANDROID_HOME=$candidate }
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw 'WRONG_RUNNER' }
+          if ($env:GITHUB_REF_NAME -ne 'dnd/run247-mod005-reconciled-g05-brelga') { throw 'WRONG_SOURCE_BRANCH' }
+          $d=Get-PSDrive -Name D -PSProvider FileSystem
+          if ($d.Free -lt 5GB) { throw 'D_DRIVE_LESS_THAN_5GB' }
+          $root=Join-Path 'D:\' ('braseiro-dnd-native-'+$env:GITHUB_RUN_ID)
+          $repo=Join-Path $root 'repo'
+          $out=Join-Path $root 'out'
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $java17='C:\actions-runner\_work\_tool\Java_Temurin-Hotspot_jdk\17.0.20-101\x64'
+          $python311='C:\actions-runner\_work\_tool\Python\3.11.9\x64\python.exe'
+          if (!(Test-Path $java17) -or !(Test-Path $python311)) { throw 'KNOWN_INSTALLED_JAVA17_OR_PYTHON311_MISSING' }
+          $env:JAVA_HOME=$java17
+          $env:PATH=(Join-Path $java17 'bin')+';'+$env:PATH
+          $env:GRADLE_USER_HOME=Join-Path $root 'gradle-home'
+          $env:TEMP=Join-Path $root 'temp'
+          $env:TMP=$env:TEMP
+          New-Item -ItemType Directory -Path $env:TEMP -Force | Out-Null
+          if (!$env:ANDROID_HOME -or !(Test-Path $env:ANDROID_HOME)) {
+            $sdk=Join-Path $env:LOCALAPPDATA 'Android\Sdk'
+            if (Test-Path $sdk) { $env:ANDROID_HOME=$sdk }
           }
           if (!$env:ANDROID_HOME -or !(Test-Path $env:ANDROID_HOME)) { throw 'BRELGA_ANDROID_SDK_NOT_FOUND' }
           $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
-          $env:TEMP=Join-Path $env:DND_SCRATCH 'temp'
-          $env:TMP=$env:TEMP
-          New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
-          Set-Location $env:DND_PROJECT
+          if ([string]::IsNullOrWhiteSpace($env:GH_REPO_TOKEN)) { throw 'GITHUB_TOKEN_MISSING' }
+          $auth=[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes('x-access-token:'+$env:GH_REPO_TOKEN))
+          $env:GIT_CONFIG_COUNT='1'; $env:GIT_CONFIG_KEY_0='http.https://github.com/.extraheader'; $env:GIT_CONFIG_VALUE_0='AUTHORIZATION: basic '+$auth
+          try {
+            & git clone --filter=blob:none --sparse --depth 1 --single-branch -b 'dnd/run247-mod005-reconciled-g05-brelga' https://github.com/bra83/braseirobuild.git $repo
+            if ($LASTEXITCODE -ne 0) { throw 'GIT_CLONE_FAILED' }
+            & git -C $repo sparse-checkout set ci/dnd-normal-run247 dnd-normal/run247-mod005
+            if ($LASTEXITCODE -ne 0) { throw 'GIT_SPARSE_CHECKOUT_FAILED' }
+          } finally {
+            Remove-Item Env:GIT_CONFIG_COUNT -ErrorAction SilentlyContinue
+            Remove-Item Env:GIT_CONFIG_KEY_0 -ErrorAction SilentlyContinue
+            Remove-Item Env:GIT_CONFIG_VALUE_0 -ErrorAction SilentlyContinue
+          }
+          @("DND_ROOT=$root","DND_REPO=$repo","DND_OUT=$out","DND_PROJECT=$(Join-Path $repo 'dnd-normal/run247-mod005')","DND_PYTHON=$python311","JAVA_HOME=$java17","GRADLE_USER_HOME=$env:GRADLE_USER_HOME","TEMP=$env:TEMP","TMP=$env:TMP","ANDROID_HOME=$env:ANDROID_HOME","ANDROID_SDK_ROOT=$env:ANDROID_HOME") | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "SOURCE_GIT_COMMIT=$((& git -C $repo rev-parse HEAD).Trim())" | Out-File (Join-Path $out 'PROVENANCE.txt') -Encoding utf8
+          "BASELINE_SHA256=2774b450ecf5be179976199b22bab8584f76939dcf305d82a84171a199282e06" | Out-File (Join-Path $out 'PROVENANCE.txt') -Encoding utf8 -Append
+          'NO_APK_BUILD=YES' | Out-File (Join-Path $out 'PROVENANCE.txt') -Encoding utf8 -Append
+          Write-Host 'BRELGA_D_DRIVE=ACTIVE; EXISTING_JAVA17_PYTHON311=ACTIVE; APK=DISABLED'
+      - name: Verify exact reconciled ZIP and strict SHA-pinned two-file fix delta
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $reference=Join-Path $env:DND_ROOT 'pristine'
+          $script=Join-Path $env:DND_REPO 'ci/dnd-normal-run247/fetch_exact_source.py'
+          $manifest=Join-Path $env:DND_REPO 'ci/dnd-normal-run247/source_parts.json'
+          $verify=Join-Path $env:DND_REPO 'ci/dnd-normal-run247/compare_exact_trees.py'
+          $fix=Join-Path $env:DND_REPO 'ci/dnd-normal-run247/integration_fix_manifest.json'
           $ErrorActionPreference='Continue'
-          & .\gradlew.bat :app:compileDebugJavaWithJavac --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $env:DND_OUT '01_compileDebugJavaWithJavac.log')
+          & $env:DND_PYTHON -u $script --manifest $manifest --scratch $env:DND_ROOT --project $reference 2>&1 | Tee-Object (Join-Path $env:DND_OUT 'SOURCE_FETCH.log')
           $rc=$LASTEXITCODE
           $ErrorActionPreference='Stop'
+          "SOURCE_FETCH_EXIT_CODE=$rc" | Out-File (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
+          if ($rc -ne 0) { throw 'BASELINE_ZIP_SHA_CRC_FAILED' }
+          Copy-Item (Join-Path $env:DND_ROOT 'SOURCE_VERIFY.txt') $env:DND_OUT -Force
+          & $env:DND_PYTHON $verify --reference $reference --existing $env:DND_PROJECT --allowed-manifest $fix
+          if ($LASTEXITCODE -ne 0) { throw 'PINNED_TWO_FILE_DELTA_FAILED' }
+          'SOURCE_FIX_VERIFY_EXIT_CODE=0' | Out-File (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
+      - name: Compile Android Java on reconciled source
+        shell: powershell
+        run: |
+          Set-Location $env:DND_PROJECT
+          $ErrorActionPreference='Continue'
+          & .\gradlew.bat :app:compileDebugJavaWithJavac --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $env:DND_OUT '01_android_compile.log')
+          $rc=$LASTEXITCODE
           "COMPILE_EXIT_CODE=$rc" | Out-File (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
-          if ($rc -ne 0) { Write-Host "GATE_COMPILE_FAILED=$rc" }
-
-      - name: Run focused RUN246 typed-on-hit Robolectric
-        if: steps.source.outcome == 'success'
+          if ($rc -ne 0) { Write-Host 'COMPILE_NOT_GREEN' }
+      - name: Focused RUN246 Robolectric
         shell: powershell
         run: |
-          $ErrorActionPreference='Stop'
-          $env:TEMP=Join-Path $env:DND_SCRATCH 'temp'
-          $env:TMP=$env:TEMP
-          New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
           Set-Location $env:DND_PROJECT
           $ErrorActionPreference='Continue'
-          & .\gradlew.bat :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.Run246G05TypedOnHitBatchRobolectricTest' --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $env:DND_OUT '02_Run246G05TypedOnHitBatchRobolectricTest.log')
+          & .\gradlew.bat :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.Run246G05TypedOnHitBatchRobolectricTest' --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $env:DND_OUT '02_run246_robolectric.log')
           $rc=$LASTEXITCODE
-          $ErrorActionPreference='Stop'
-          "RUN246_ROBOLECTRIC_EXIT_CODE=$rc" | Out-File (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
-          if ($rc -ne 0) { Write-Host "GATE_RUN246_FAILED=$rc" }
-
-      - name: Run focused RUN247 untimed-Prone Robolectric
-        if: steps.source.outcome == 'success'
+          "RUN246_EXIT_CODE=$rc" | Out-File (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
+      - name: Focused RUN247 Robolectric
         shell: powershell
         run: |
-          $ErrorActionPreference='Stop'
-          $env:TEMP=Join-Path $env:DND_SCRATCH 'temp'
-          $env:TMP=$env:TEMP
-          New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
           Set-Location $env:DND_PROJECT
           $ErrorActionPreference='Continue'
-          & .\gradlew.bat :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.Run247G05UntimedProneRobolectricTest' --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $env:DND_OUT '03_Run247G05UntimedProneRobolectricTest.log')
+          & .\gradlew.bat :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.Run247G05UntimedProneRobolectricTest' --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $env:DND_OUT '03_run247_robolectric.log')
           $rc=$LASTEXITCODE
-          $ErrorActionPreference='Stop'
-          "RUN247_ROBOLECTRIC_EXIT_CODE=$rc" | Out-File (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
-          if ($rc -ne 0) { Write-Host "GATE_RUN247_FAILED=$rc" }
-
-      - name: Run full Android unit test suite
-        if: steps.source.outcome == 'success'
+          "RUN247_EXIT_CODE=$rc" | Out-File (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
+      - name: Full Android JVM Robolectric regression suite
         shell: powershell
         run: |
-          $ErrorActionPreference='Stop'
-          $env:TEMP=Join-Path $env:DND_SCRATCH 'temp'
-          $env:TMP=$env:TEMP
-          New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
           Set-Location $env:DND_PROJECT
           $ErrorActionPreference='Continue'
-          & .\gradlew.bat :app:testDebugUnitTest --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $env:DND_OUT '04_full_testDebugUnitTest.log')
+          & .\gradlew.bat :app:testDebugUnitTest --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $env:DND_OUT '04_full_suite.log')
           $rc=$LASTEXITCODE
-          $ErrorActionPreference='Stop'
           "FULL_SUITE_EXIT_CODE=$rc" | Out-File (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
-          if ($rc -ne 0) { Write-Host "GATE_FULL_SUITE_FAILED=$rc" }
-
-      - name: Preserve XML reports and exact tested provenance
-        if: always()
-        shell: powershell
-        run: |
-          $ErrorActionPreference='Stop'
-          New-Item -ItemType Directory -Force -Path $env:DND_OUT | Out-Null
-          if (Test-Path $env:DND_PROJECT) {
-            foreach($relative in @('app\build\test-results\testDebugUnitTest','app\build\reports\tests\testDebugUnitTest')) {
-              $origin=Join-Path $env:DND_PROJECT $relative
-              if(Test-Path $origin){
-                $dest=Join-Path $env:DND_OUT ($relative -replace '[\\/]','_')
-                Copy-Item -LiteralPath $origin -Destination $dest -Recurse -Force
-              }
-            }
-          }
-          if (Test-Path (Join-Path $env:DND_OUT 'SOURCE_VERIFY.txt')) {
-            Get-Content (Join-Path $env:DND_OUT 'SOURCE_VERIFY.txt') | Write-Host
-          }
-          if (Test-Path (Join-Path $env:DND_OUT 'STAGES.txt')) {
-            Get-Content (Join-Path $env:DND_OUT 'STAGES.txt') | Write-Host
-          }
-          'NO_APK_GENERATION_REQUESTED=YES' | Out-File (Join-Path $env:DND_OUT 'POLICY.txt') -Encoding utf8
-          'HOMOLOGATION=NOT_PROVEN_BY_CI_ALONE' | Out-File (Join-Path $env:DND_OUT 'POLICY.txt') -Encoding utf8 -Append
-
-      - name: Commit bounded logs XMLs and source SHA proof without Actions artifact storage
+      - name: Save logs XMLs and exact source commit to GitHub tree, bypassing artifact quota
         if: always()
         shell: powershell
         env:
           GH_REPO_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference='Stop'
-          if (!(Test-Path $env:DND_REPO)) { throw 'SOURCE_REPOSITORY_UNAVAILABLE_FOR_EVIDENCE' }
-          if (!(Test-Path $env:DND_OUT)) { throw 'EVIDENCE_OUTPUT_UNAVAILABLE' }
+          if (!(Test-Path $env:DND_REPO)) { throw 'SOURCE_TREE_UNAVAILABLE' }
           $relative='ci/dnd-normal-run247/evidence/'+$env:GITHUB_RUN_ID
           $target=Join-Path $env:DND_REPO $relative
-          New-Item -ItemType Directory -Force -Path $target | Out-Null
-          $files=Get-ChildItem -LiteralPath $env:DND_OUT -File -Recurse
-          foreach($f in $files) {
-            $rel=$f.FullName.Substring($env:DND_OUT.Length).TrimStart('\','/')
-            $destination=Join-Path $target $rel
-            New-Item -ItemType Directory -Force -Path (Split-Path $destination -Parent) | Out-Null
-            if ($f.Length -gt 6MB) {
-              'ORIGINAL_FILE_LARGER_THAN_6MB_REFER_TO_JOB_LOG' | Set-Content -LiteralPath ($destination+'.not-copied.txt')
-            } else { Copy-Item -LiteralPath $f.FullName -Destination $destination -Force }
+          New-Item -ItemType Directory -Path $target -Force | Out-Null
+          $testout=Join-Path $env:DND_PROJECT 'app/build/test-results/testDebugUnitTest'
+          if (Test-Path $testout) { Copy-Item -LiteralPath $testout -Destination (Join-Path $target 'junit') -Recurse -Force }
+          $reports=Join-Path $env:DND_PROJECT 'app/build/reports/tests/testDebugUnitTest'
+          if (Test-Path $reports) { Copy-Item -LiteralPath $reports -Destination (Join-Path $target 'html') -Recurse -Force }
+          foreach ($file in @(Get-ChildItem -LiteralPath $env:DND_OUT -File -ErrorAction SilentlyContinue)) {
+            Copy-Item -LiteralPath $file.FullName -Destination (Join-Path $target $file.Name) -Force
           }
-          & git -C $env:DND_REPO add -- $relative
-          if ($LASTEXITCODE -ne 0) { throw 'EVIDENCE_GIT_STAGE_FAILED' }
-          $changes = & git -C $env:DND_REPO status --porcelain -- $relative
-          if (!$changes) { throw 'EVIDENCE_EMPTY' }
-          & git -C $env:DND_REPO -c user.name='braseiro-brelga[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m ('evidence(dnd-normal): SHA-pinned Android gates run '+$env:GITHUB_RUN_ID) -- $relative
-          if ($LASTEXITCODE -ne 0) { throw 'EVIDENCE_GIT_COMMIT_FAILED' }
-          if ([string]::IsNullOrWhiteSpace($env:GH_REPO_TOKEN)) { throw 'GITHUB_EVIDENCE_TOKEN_MISSING' }
-          $raw='x-access-token:'+$env:GH_REPO_TOKEN
-          $auth=[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($raw))
-          $env:GIT_CONFIG_COUNT='1'
-          $env:GIT_CONFIG_KEY_0='http.https://github.com/.extraheader'
-          $env:GIT_CONFIG_VALUE_0='AUTHORIZATION: basic '+$auth
+          & git -C $env:DND_REPO add --force -- $relative
+          if ($LASTEXITCODE -ne 0) { throw 'GIT_EVIDENCE_STAGE_FAILED' }
+          $pending=& git -C $env:DND_REPO status --porcelain -- $relative
+          if (!$pending) { throw 'NO_EVIDENCE_TO_COMMIT' }
+          & git -C $env:DND_REPO -c user.name='braseiro-brelga[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m ('evidence(dnd-normal): pinned Android validation '+$env:GITHUB_RUN_ID) -- $relative
+          if ($LASTEXITCODE -ne 0) { throw 'GIT_EVIDENCE_COMMIT_FAILED' }
+          $auth=[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes('x-access-token:'+$env:GH_REPO_TOKEN))
+          $env:GIT_CONFIG_COUNT='1'; $env:GIT_CONFIG_KEY_0='http.https://github.com/.extraheader'; $env:GIT_CONFIG_VALUE_0='AUTHORIZATION: basic '+$auth
           try {
-            & git -C $env:DND_REPO push 'https://github.com/bra83/braseirobuild.git' HEAD:refs/heads/dnd/run247-mod005-reconciled-g05-brelga
-            if ($LASTEXITCODE -ne 0) { throw 'EVIDENCE_GIT_PUSH_FAILED' }
+            & git -C $env:DND_REPO push https://github.com/bra83/braseirobuild.git HEAD:refs/heads/dnd/run247-mod005-reconciled-g05-brelga
+            if ($LASTEXITCODE -ne 0) { throw 'GIT_EVIDENCE_PUSH_FAILED' }
           } finally {
             Remove-Item Env:GIT_CONFIG_COUNT -ErrorAction SilentlyContinue
             Remove-Item Env:GIT_CONFIG_KEY_0 -ErrorAction SilentlyContinue
             Remove-Item Env:GIT_CONFIG_VALUE_0 -ErrorAction SilentlyContinue
           }
-          Write-Host ('EVIDENCE_GITHUB_PATH='+$relative)
-
-      - name: Enforce mandatory validation gates (cannot silently pass)
-        if: always()
+          Write-Host ('GITHUB_EVIDENCE_PATH='+$relative)
+      - name: Require every Android gate green (no silent approval)
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
-          if ('${{ steps.source.outcome }}' -ne 'success') { throw 'SOURCE_FETCH_AND_SHA_NOT_PASSED' }
-          if ('${{ steps.sourcecommit.outcome }}' -ne 'success') { throw 'SOURCE_GITHUB_BRANCH_COMMIT_NOT_PASSED' }
-          $statuses=Join-Path $env:DND_OUT 'STAGES.txt'
-          if (!(Test-Path $statuses)) { throw 'MISSING_STAGE_STATUS_FILE' }
-          $all=Get-Content $statuses
-          foreach($name in @('SOURCE_FETCH','COMPILE','RUN246_ROBOLECTRIC','RUN247_ROBOLECTRIC','FULL_SUITE')) {
-            $match=@($all | Where-Object { $_ -match ('^'+$name+'_EXIT_CODE=') })
-            if($match.Count -ne 1 -or $match[0] -ne ($name+'_EXIT_CODE=0')) { throw "REQUIRED_GATE_NOT_GREEN_$name" }
+          $lines=Get-Content (Join-Path $env:DND_OUT 'STAGES.txt')
+          foreach($label in @('SOURCE_FETCH','SOURCE_FIX_VERIFY','COMPILE','RUN246','RUN247','FULL_SUITE')) {
+            if (!(($lines | Where-Object { $_ -eq ($label+'_EXIT_CODE=0') }).Count -eq 1)) { throw ('DND_ANDROID_GATE_NOT_GREEN_'+$label) }
           }
-          Write-Host 'RUN247_MOD005_ANDROID_GATES=PASS'
-          Write-Host 'G05_COMPLETE=NO (separate execution matrix remains open)'
-          Write-Host 'APP_HOMOLOGATED=NO'
+          Write-Host 'DND_ANDROID_GATES_PASS=YES'
+          Write-Host 'G05_OPEN_235=STILL_PENDING; APP_HOMOLOGATION=NOT_ATTESTED; NO_APK_BUILD=YES'
