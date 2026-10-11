@@ -13,7 +13,7 @@ permissions:
   contents: write
 concurrency:
   group: dnd-normal-run247-mod005-g05-brelga
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   validate:
     runs-on: [self-hosted, Windows, X64]
