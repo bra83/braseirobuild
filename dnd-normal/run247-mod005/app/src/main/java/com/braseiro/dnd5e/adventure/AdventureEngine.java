@@ -82,6 +82,71 @@ public final class AdventureEngine implements IAdventureEngine {
               .put("check_requirement",checkReq).put("roll_resolution",rollResolution).put("narration_context",narration).put("auto_rolls",false);
     }catch(Exception e){return error(e.getMessage());}return result;}
 
+    /**
+     * Applies a universal command ONLY against a detached state copy. A committed
+     * result becomes visible to the UI after a successful SQLite save. A failed
+     * save cannot mutate the graph, active state, sheet or current world journal.
+     * No AI text is interpreted as a mechanical effect by this coordinator.
+     */
+    public synchronized JSONObject processUniversal(JSONObject command) {
+        if (activeModule == null || activeState == null)
+            return error("Nenhuma aventura ativa.");
+        if (command == null)
+            return error("Comando universal ausente.");
+        try {
+            AdventureState proposed = AdventureState.fromJson(activeState.toJson());
+            JSONObject result = UniversalRpgEngine.process(proposed, command);
+            if (result == null) return error("Executor universal não retornou resultado.");
+            if (!result.optBoolean("committed", false)) return result;
+            if (!persistenceAdapter.saveState(activeModule.getId(), activePartyId, proposed))
+                return error("Falha ao persistir o comando universal; nada foi confirmado.");
+            activeState = proposed;
+            graphEngine.resumeAdventure(activeModule, activeState);
+            return result;
+        } catch (Exception e) {
+            return error("Erro no comando universal: " + e.getMessage());
+        }
+    }
+
+    /**
+     * A proposal is not a resolved action, but its pending state MUST survive
+     * restart. Save it atomically before presenting the player's choice.
+     */
+    public synchronized JSONObject proposeManualAdjudication(JSONObject specification) {
+        if (activeModule == null || activeState == null)
+            return error("Nenhuma aventura ativa.");
+        try {
+            AdventureState proposed = AdventureState.fromJson(activeState.toJson());
+            JSONObject result = ManualAdjudicationEngine.propose(proposed, specification);
+            if (!"requires_manual_result".equals(result.optString("status"))) return result;
+            if (!persistenceAdapter.saveState(activeModule.getId(), activePartyId, proposed))
+                return error("Falha ao salvar proposta manual; não há teste pendente confirmado.");
+            activeState = proposed;
+            graphEngine.resumeAdventure(activeModule, activeState);
+            return result;
+        } catch (Exception e) {
+            return error("Erro ao propor teste manual: " + e.getMessage());
+        }
+    }
+
+    /** Persists a confirmed player choice, with replay and rollback safeguards. */
+    public synchronized JSONObject resolveManualAdjudication(JSONObject playerChoice) {
+        if (activeModule == null || activeState == null)
+            return error("Nenhuma aventura ativa.");
+        try {
+            AdventureState proposed = AdventureState.fromJson(activeState.toJson());
+            JSONObject result = ManualAdjudicationEngine.resolve(proposed, playerChoice);
+            if (!"resolved_manual".equals(result.optString("status"))) return result;
+            if (!persistenceAdapter.saveState(activeModule.getId(), activePartyId, proposed))
+                return error("Falha ao persistir decisão manual; escolha não aplicada.");
+            activeState = proposed;
+            graphEngine.resumeAdventure(activeModule, activeState);
+            return result;
+        } catch (Exception e) {
+            return error("Erro na decisão manual: " + e.getMessage());
+        }
+    }
+
     private AdventureTransition findTransition(AdventureNode node,String target){if(node==null||target==null||target.length()==0)return null;for(AdventureTransition t:node.getTransitions())if(target.equals(t.getTargetNodeId()))return t;return null;}
     private static JSONObject copyObject(JSONObject src){try{return src==null?new JSONObject():new JSONObject(src.toString());}catch(Exception e){return new JSONObject();}}
     private static JSONObject inputRequired(JSONObject req,boolean adv,boolean dis,boolean second){JSONObject o=new JSONObject();try{o.put("status","requires_input").put("requires_input",true).put("auto_rolls",false).put("input_type",second?"second_d20":"d20").put("advantage",adv&&!dis).put("disadvantage",dis&&!adv).put("check_requirement",req==null?new JSONObject():req);}catch(Exception ignored){}return o;}
