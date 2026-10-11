@@ -58,6 +58,11 @@ def transform(s):
         final String expected=key(def.optString("construction_skill",def.optString("skill_key","")));
         if(expected.length()>0&&!expected.equals(skill))
             throw new IllegalArgumentException("O reparo exige a perícia "+expected+".");
+        final String requiredRank=key(def.optString("construction_rank","untrained"));
+        final String actualRank=key(skill(skill).optString("rank","untrained"));
+        final java.util.List<String> rankScale=java.util.Arrays.asList("untrained","trained","expert","master","legendary");
+        if(!rankScale.contains(requiredRank)||rankScale.indexOf(actualRank)<rankScale.indexOf(requiredRank))
+            throw new IllegalStateException("Proficiência de Reino insuficiente para a construção ou reparo: "+requiredRank+".");
         final int rp=def.optInt("rp",0)/2,lumber=def.optInt("lumber",0)/2,stone=def.optInt("stone",0)/2,
             ore=def.optInt("ore",0)/2,luxuries=def.optInt("luxuries",0)/2;
         final JSONObject state=state();
