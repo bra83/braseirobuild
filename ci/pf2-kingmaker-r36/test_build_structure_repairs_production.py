@@ -24,3 +24,11 @@ def test_existing_repair_item_bonus_does_not_stack():
     assert '.put("item",civicItemBonus)' in source
 def test_activity_dispatcher_uses_real_roll_and_skill():
     assert 'return resolveRepairStructure(p.optString("settlement_key"), p.optString("structure_key"), nat, skill, notes);' in source
+
+def test_repair_prepayment_survives_failure_without_same_turn_exploit():
+    assert 'oldEffects.optBoolean("repair_cost_prepaid",false)' in method
+    assert 'if(repairPending&&oldEffects.optInt("last_attempt_turn",-1)==turn.optInt("turn_number"))' in method
+    assert 'if(!repairPending)' in method
+    assert 'put("rp_spent",repairPending?0:rp)' in method
+    assert '.put("repair_cost_prepaid",true)' in method
+    assert 'oldEffects.remove("repair_cost_prepaid")' in method
