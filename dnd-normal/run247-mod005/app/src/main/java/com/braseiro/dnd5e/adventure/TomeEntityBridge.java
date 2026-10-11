@@ -13,6 +13,7 @@ public final class TomeEntityBridge {
     public static JSONObject create(String id, String system, String name, JSONObject attributes, JSONObject resources){
         if(id==null||!id.matches("[A-Za-z0-9_.-]{1,80}")||!UniversalRpgEngine.supported(system)||name==null||name.trim().isEmpty()||name.trim().length()>120)
             throw new IllegalArgumentException("ID, sistema ou nome inválidos.");
+        try {
         JSONObject safeAttrs=attributes==null?new JSONObject():new JSONObject(attributes.toString());
         JSONArray keys=safeAttrs.names();
         for(int i=0;keys!=null&&i<keys.length();i++){
@@ -39,8 +40,14 @@ public final class TomeEntityBridge {
            .put("properties",new JSONObject().put("static",safeAttrs))
            .put("resources",safeResources).put("inventory",new JSONObject().put("items",new JSONArray()))
            .put("braseiro_revision",0);
+        } catch (RuntimeException invalid) {
+            throw invalid;
+        } catch (Exception invalidJson) {
+            throw new IllegalArgumentException("Dados da entidade incompatíveis com JSON",invalidJson);
+        }
     }
     public static JSONObject updateResource(JSONObject entity,String key,int delta,int expectedRevision){
+        try {
         if(entity==null||key==null||!key.matches("[A-Za-z0-9_.-]{1,80}"))return error("Recurso inválido.");
         JSONObject res=entity.optJSONObject("resources");JSONObject original=res==null?null:res.optJSONObject(key);
         if(original==null)return error("Recurso inexistente: "+key);
@@ -55,6 +62,11 @@ public final class TomeEntityBridge {
         return new JSONObject().put("status","resource_updated").put("entity",modified)
              .put("receipt",new JSONObject().put("key",key).put("delta",delta).put("before",original.optInt("current"))
              .put("after",(int)now).put("revision",revision+1));
+        } catch (RuntimeException invalid) {
+            throw invalid;
+        } catch (Exception invalidJson) {
+            throw new IllegalStateException("Falha ao atualizar recurso",invalidJson);
+        }
     }
     private static Integer boundedInteger(Object value){
         if(!(value instanceof Number))return null;
@@ -62,5 +74,9 @@ public final class TomeEntityBridge {
         return Double.isFinite(d)&&d==Math.rint(d)&&d>=0&&d<=1000000
             ?Integer.valueOf((int)d):null;
     }
-    private static JSONObject error(String msg){return new JSONObject().put("status","blocked").put("error",msg);}
+    private static JSONObject error(String msg){
+        try {return new JSONObject().put("status","blocked").put("error",msg);}
+        catch (RuntimeException invalid) {throw invalid;}
+        catch (Exception invalidJson) {throw new IllegalStateException("Falha ao estruturar erro da entidade",invalidJson);}
+    }
 }
