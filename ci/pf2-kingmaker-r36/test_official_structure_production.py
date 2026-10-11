@@ -24,7 +24,7 @@ def test_official_16_catalog_values_are_in_shipped_rules_engine():
         assert JAVA.count(marker)>=1,key
         start=JAVA.index(marker,JAVA.index('public JSONObject structure(String key)'))
         tail=JAVA[start:start+1500]
-        b=re.search(r'}\s*else\s+if\s*\(',tail)
+        b=re.search(r'}\s*else\s*(?:if\s*\(|\{)',tail)
         assert b is not None,key
         part=tail[:b.start()]
         expected={"level":rec["official_level"],"lots":rec["lots"],**rec["costs"]}
