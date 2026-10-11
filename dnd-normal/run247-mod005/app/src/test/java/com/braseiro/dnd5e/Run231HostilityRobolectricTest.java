@@ -25,7 +25,10 @@ public class Run231HostilityRobolectricTest {
         return 0;
     }
     @Test public void ledgerPersistsRejectsReplayAndRemapsAcrossBackup21() throws Exception {
-        String name="ledger_"+System.nanoTime();AppDb db=open(name);
+        Context context = RuntimeEnvironment.getApplication();
+        String name = "ledger_" + Long.toHexString(System.nanoTime() & 0xFFFFFFFL);
+        String dbName = "run231_" + name + ".db";
+        AppDb db = open(name);
         try {
             long monster=db.addCombatant("Atirador",20,22,22,13,"",false);
             long target=db.addCombatant("Alvo",10,18,18,12,"",true);
@@ -60,10 +63,15 @@ public class Run231HostilityRobolectricTest {
             db.close();db=open(name);
             assertEquals(restoredThreat,db.getCompiledMonsterHostilityLedger(restoredMonster)
                 .getJSONArray("hostile_ids").getLong(0));
-        } finally {db.close();}
+        } finally {
+            try { if (db != null) db.close(); } finally { context.deleteDatabase(dbName); }
+        }
     }
     @Test public void automaticRangedThreatUsesDeclaredLiveSqliteTokens() throws Exception {
-        String name="auto_"+System.nanoTime();AppDb db=open(name);
+        Context context = RuntimeEnvironment.getApplication();
+        String name = "auto_" + Long.toHexString(System.nanoTime() & 0xFFFFFFFL);
+        String dbName = "run231_" + name + ".db";
+        AppDb db = open(name);
         try {
             String block="run231-ranged-"+name;
             JSONObject source=new JSONObject().put("source_type","compiled_statblock")
@@ -102,6 +110,8 @@ public class Run231HostilityRobolectricTest {
             assertTrue(safe.toString(),safe.optBoolean("monster_roll_preview_valid"));
             assertEquals(0,safe.optLong("additional_hostile_id"));
             assertEquals("Normal",safe.optString("roll_mode"));
-        } finally {db.close();}
+        } finally {
+            try { if (db != null) db.close(); } finally { context.deleteDatabase(dbName); }
+        }
     }
 }

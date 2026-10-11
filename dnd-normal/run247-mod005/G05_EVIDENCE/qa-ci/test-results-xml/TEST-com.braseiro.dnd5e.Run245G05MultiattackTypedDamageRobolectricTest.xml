@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run245G05MultiattackTypedDamageRobolectricTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-11T21:35:02" hostname="BRELGA" time="2.349">
+  <properties/>
+  <testcase name="multiattackRequiresAndPersistsTypedDamageProofs" classname="com.braseiro.dnd5e.Run245G05MultiattackTypedDamageRobolectricTest" time="2.349"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

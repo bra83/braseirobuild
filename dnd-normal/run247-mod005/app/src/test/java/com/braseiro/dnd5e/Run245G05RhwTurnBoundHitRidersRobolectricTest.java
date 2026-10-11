@@ -105,7 +105,7 @@ public final class Run245G05RhwTurnBoundHitRidersRobolectricTest {
                 assertEquals(c.reach,range.optInt("melee_reach_ft"));
             }
 
-            String dbName="r245rider_"+index+".db";
+            String dbName="r245r_"+Long.toHexString(System.nanoTime() & 0xFFFFFFFL)+"_"+index+".db";
             AppDb db=new AppDb(context,dbName);long actor=0,target=0;
             String token="ui-monster-run245-rhw-turn-hit-"+index;
             try {
@@ -159,7 +159,9 @@ public final class Run245G05RhwTurnBoundHitRidersRobolectricTest {
                 JSONObject secondBackup=db.exportAll();assertEquals("",Backup21IntegrityEnvelope.check(secondBackup));
                 db.importAll(secondBackup);
                 assertEquals(1,timerReceiptCount(db));
-            } finally {db.close();context.deleteDatabase(dbName);}
+            } finally {
+                try { if (db != null) db.close(); } finally { context.deleteDatabase(dbName); }
+            }
         }
     }
 }

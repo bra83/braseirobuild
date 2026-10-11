@@ -5,6 +5,130 @@ public final class StatblockCombatFlowEngine{
  private StatblockCombatFlowEngine(){}
  public static synchronized JSONObject attack(String attacker,String target,String action,int d20){return attack(attacker,target,action,d20,d20,0d);}
  public static synchronized JSONObject attack(String attacker,String target,String action,int firstD20,int secondD20,double distanceFt){return attackResolved(attacker,target,action,firstD20,secondD20,distanceFt,null);}
+ public static synchronized JSONObject legendaryAction(String attacker,String target,String action,int d20){return legendaryAction(attacker,target,action,d20,d20);}
+ public static synchronized JSONObject legendaryAction(String attacker,String target,String action,int firstD20,int secondD20){/*BR_JSON_WRAP_106*/try{
+  JSONObject av=StatblockEncounterStateEngine.view(attacker),tv=StatblockEncounterStateEngine.view(target);
+  if(!av.optBoolean("found")||!tv.optBoolean("found"))return block("token_not_found");
+  if(av.optInt("hp",0)<=0)return block("attacker_defeated");
+  if(tv.optInt("hp",0)<=0)return block("target_defeated");
+  JSONObject ts=StatblockTurnEngine.state();
+  if(ts.optInt("round",0)<1)return block("encounter_not_started");
+  if(attacker.equals(ts.optString("current_token")))return block("legendary_action_forbidden_on_own_turn");
+  JSONObject ae=economy(ts,attacker);
+  if(ae==null)return block("token_not_in_initiative");
+  JSONObject declaredAction=findAction(av.optString("statblock_id"),action);
+  if(declaredAction==null)return block("action_not_found");
+  if(!"legendary_action".equalsIgnoreCase(declaredAction.optString("category","")))return block("not_a_legendary_action");
+  int cost=declaredAction.optInt("legendary_cost",1);if(cost<=0)cost=1;
+  int remainingLeg=ae.optInt("legendary_points_remaining",0);
+  if(remainingLeg<cost)return block("legendary_points_exhausted");
+
+  JSONObject tp=CompiledStatblockEngine.runtimeProfile(tv.optString("statblock_id"));
+  JSONObject r;
+  if(declaredAction.has("spells")){
+   JSONArray spells=declaredAction.optJSONArray("spells");
+   String chosenSpell=resolveDeclaredSpellName(action,spells,declaredAction);
+   if(!isSupportedLegendarySpell(chosenSpell,declaredAction))return block("unsupported_legendary_spell");
+   r=new JSONObject().put("resolved",true).put("resolution_type","spellcasting_action")
+     .put("statblock_id",av.optString("statblock_id")).put("action",action)
+     .put("spells",spells).put("selected_spell",chosenSpell)
+     .put("effect_on_fail",declaredAction.optString("effect_on_fail",""));
+   if(declaredAction.has("damage")){
+    r.put("damage_expression",declaredAction.optString("damage")).put("damage_type",declaredAction.optString("damage_type",""));
+   }
+  }else if(declaredAction.has("to_hit")){
+   int ac=tp.optInt("armor_class",10);
+   r=StatblockCombatRuntimeEngine.attack(av.optString("statblock_id"),action,firstD20,ac);
+  }else if(declaredAction.has("save_dc")||declaredAction.has("save_ability")){
+   int saveBonus=calculateTargetSaveBonus(tp,declaredAction.optString("save_ability",""));
+   int effectiveSaveRoll=firstD20+saveBonus;
+   r=StatblockCombatRuntimeEngine.savingThrowAction(av.optString("statblock_id"),action,effectiveSaveRoll);
+   r.put("natural_d20",firstD20).put("target_save_bonus",saveBonus);
+  }else{
+   r=new JSONObject().put("resolved",true).put("resolution_type","special_legendary_action")
+     .put("statblock_id",av.optString("statblock_id")).put("action",action)
+     .put("effect_on_fail",declaredAction.optString("effect_on_fail",""));
+   if(declaredAction.has("damage")){
+    r.put("damage_expression",declaredAction.optString("damage")).put("damage_type",declaredAction.optString("damage_type",""));
+   }
+  }
+  if(r.optBoolean("blocked"))return r;
+
+  JSONObject encounterBefore=StatblockEncounterStateEngine.snapshot(),turnBefore=StatblockTurnEngine.snapshot();
+  try{
+   JSONObject spent=StatblockTurnEngine.spendLegendary(attacker,cost);
+   if(spent.optBoolean("blocked"))return spent;
+
+   if("attack_roll".equals(r.optString("resolution_type"))){
+    if(r.optBoolean("hit")){
+     JSONObject damage=applyAttackDamage(target,r,r.optBoolean("critical"),1.0d);
+     r.put("raw_damage",damage.optInt("raw_damage")).put("applied_damage",damage.optInt("applied_damage"))
+      .put("damage_components",damage.optJSONArray("components")).put("target_defeated",damage.optBoolean("target_defeated"));
+     String onHitCond=r.optString("rider_on_hit_condition","");
+     if(!onHitCond.isEmpty()){
+      for(String c:onHitCond.split("[,;]")){String tc=c.trim();if(!tc.isEmpty())StatblockEncounterStateEngine.condition(target,tc,true);}
+      int durRounds=r.optInt("rider_on_hit_duration_rounds",0);
+      if(durRounds>0)StatblockEncounterStateEngine.setConditionRounds(target,onHitCond,durRounds);
+      r.put("rider_on_hit_applied",true);
+     }
+     if(r.optBoolean("rider_save_required",false)){
+      int saveDc=r.optInt("rider_save_dc",10);
+      int riderSaveBonus=calculateTargetSaveBonus(tp,r.optString("rider_save_ability",declaredAction.optString("save_ability","str")));
+      int saveRoll=secondD20+riderSaveBonus;
+      boolean pass=saveRoll>=saveDc;
+      r.put("rider_save_bonus",riderSaveBonus).put("rider_save_total",saveRoll).put("rider_save_success",pass);
+      if(!pass){
+       String failCond=r.optString("rider_condition_on_fail","");
+       if(!failCond.isEmpty()){
+        for(String c:failCond.split("[,;]")){String tc=c.trim();if(!tc.isEmpty())StatblockEncounterStateEngine.condition(target,tc,true);}
+        r.put("rider_condition_applied",failCond);
+       }
+       String failEff=r.optString("rider_effect_on_fail","");
+       if(!failEff.isEmpty())applySpecialEffect(attacker,target,failEff,r);
+      }
+     }
+    }
+   }else if("saving_throw".equals(r.optString("resolution_type"))){
+    boolean saveSuccess=r.optBoolean("save_success",false);
+    String dmgExpr=r.optString("damage_expression","");
+    double mult=r.optDouble("damage_multiplier",1d);
+    if(!dmgExpr.isEmpty()&&mult>0d){
+     JSONObject damage=applyAttackDamage(target,r,false,mult);
+     r.put("raw_damage",damage.optInt("raw_damage")).put("applied_damage",damage.optInt("applied_damage"))
+      .put("damage_components",damage.optJSONArray("components")).put("target_defeated",damage.optBoolean("target_defeated"));
+    }else{
+     r.put("raw_damage",0).put("applied_damage",0).put("damage_components",new JSONArray()).put("target_defeated",false);
+    }
+    if(!saveSuccess){
+     String cond=r.optString("condition_on_fail","");
+     if(!cond.isEmpty())StatblockEncounterStateEngine.condition(target,cond,true);
+     String eff=r.optString("effect_on_fail","");
+     if(!eff.isEmpty())applySpecialEffect(attacker,target,eff,r);
+    }
+   }else if("spellcasting_action".equals(r.optString("resolution_type"))){
+    executeLegendarySpell(attacker,target,r.optJSONArray("spells"),firstD20,declaredAction,r);
+    String eff=declaredAction.optString("effect_on_fail","");
+    if(!eff.isEmpty())applySpecialEffect(attacker,target,eff,r);
+   }else if("special_legendary_action".equals(r.optString("resolution_type"))){
+    if(r.has("damage_expression")&&!r.optString("damage_expression","").isEmpty()){
+     JSONObject damage=applyAttackDamage(target,r,false,1.0d);
+     r.put("raw_damage",damage.optInt("raw_damage")).put("applied_damage",damage.optInt("applied_damage"))
+      .put("damage_components",damage.optJSONArray("components")).put("target_defeated",damage.optBoolean("target_defeated"));
+    }
+    String cond=declaredAction.optString("condition_on_fail","");
+    if(!cond.isEmpty())StatblockEncounterStateEngine.condition(target,cond,true);
+    String eff=declaredAction.optString("effect_on_fail","");
+    if(!eff.isEmpty())applySpecialEffect(attacker,target,eff,r);
+   }
+
+   return r.put("attacker",attacker).put("target",target).put("legendary_action",true)
+     .put("cost",cost).put("target_state",StatblockEncounterStateEngine.view(target)).put("turn_state",StatblockTurnEngine.state());
+  }catch(Exception mutationFailure){
+   StatblockEncounterStateEngine.restore(encounterBefore);
+   StatblockTurnEngine.restore(turnBefore);
+   throw mutationFailure;
+  }
+ }catch(RuntimeException __brJsonRuntime106){throw __brJsonRuntime106;}catch(Exception __brJsonChecked106){throw new IllegalStateException(__brJsonChecked106);}}
  /** Resolves the same turn attack after validating its live 3D tactical scene. */
  public static synchronized JSONObject attackWithGeometry(String attacker,String target,String action,
   int firstD20,int secondD20,int width,int height,int levels,
@@ -98,7 +222,241 @@ public final class StatblockCombatFlowEngine{
   return new JSONObject().put("resolved",true).put("multiattack",true).put("attacker",attacker).put("target",target).put("total_damage",total).put("target_defeated",ds.optBoolean("defeated")).put("components",results).put("target_state",ds).put("turn_state",StatblockTurnEngine.state());
  }catch(RuntimeException __brJsonRuntime106){throw __brJsonRuntime106;}catch(Exception __brJsonChecked106){throw new IllegalStateException(__brJsonChecked106);}}
 
- private static JSONObject applyAttackDamage(String target,JSONObject attack,boolean critical){/*BR_JSON_WRAP_106*/try{JSONArray specs=damageSpecs(attack.optString("damage_expression",""),attack.optString("damage_type",""),attack.optString("extra_damage_expression","")),parts=new JSONArray();int rawTotal=0,appliedTotal=0;for(int i=0;i<specs.length();i++){JSONObject spec=specs.optJSONObject(i);if(spec==null)continue;String expr=spec.optString("expression"),type=spec.optString("type");int raw=rollAverage(expr,critical);if(raw<=0)continue;JSONObject ds=StatblockEncounterStateEngine.damage(target,raw,type);int applied=ds.optInt("applied_damage",raw);rawTotal=Math.addExact(rawTotal,raw);appliedTotal=Math.addExact(appliedTotal,applied);parts.put(new JSONObject().put("expression",expr).put("type",type).put("raw_damage",raw).put("applied_damage",applied));}JSONObject tv=StatblockEncounterStateEngine.view(target);return new JSONObject().put("raw_damage",rawTotal).put("applied_damage",appliedTotal).put("components",parts).put("target_defeated",tv.optBoolean("defeated",tv.optInt("hp",1)<=0));}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
+ private static JSONObject applyAttackDamage(String target,JSONObject attack,boolean critical){return applyAttackDamage(target,attack,critical,1.0d);}
+ private static JSONObject applyAttackDamage(String target,JSONObject attack,boolean critical,double multiplier){/*BR_JSON_WRAP_106*/try{JSONArray specs=damageSpecs(attack.optString("damage_expression",""),attack.optString("damage_type",""),attack.optString("extra_damage_expression","")),parts=new JSONArray();int rawTotal=0,appliedTotal=0;for(int i=0;i<specs.length();i++){JSONObject spec=specs.optJSONObject(i);if(spec==null)continue;String expr=spec.optString("expression"),type=spec.optString("type");int raw=rollAverage(expr,critical);if(multiplier>=0d&&multiplier!=1.0d){raw=(int)Math.floor(raw*multiplier);}if(raw<=0)continue;JSONObject ds=StatblockEncounterStateEngine.damage(target,raw,type);int applied=ds.optInt("applied_damage",raw);rawTotal=Math.addExact(rawTotal,raw);appliedTotal=Math.addExact(appliedTotal,applied);parts.put(new JSONObject().put("expression",expr).put("type",type).put("raw_damage",raw).put("applied_damage",applied));}JSONObject tv=StatblockEncounterStateEngine.view(target);return new JSONObject().put("raw_damage",rawTotal).put("applied_damage",appliedTotal).put("components",parts).put("target_defeated",tv.optBoolean("defeated",tv.optInt("hp",1)<=0));}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
+
+ private static void applySpecialEffect(String attacker,String target,String effect,JSONObject receipt){
+  if(effect==null||effect.trim().isEmpty())return;
+  String clean=effect.trim().toLowerCase(java.util.Locale.ROOT);
+  try{receipt.put("effect_applied",clean);}catch(Exception ignored){}
+  String[] parts=clean.split("[;,/]");
+  for(String p:parts){
+   p=p.trim();if(p.isEmpty())continue;
+   if(p.startsWith("teleport:")){
+    int feet=parseFeet(p.substring(9));
+    try{receipt.put("teleport_applied",true).put("teleport_feet",feet);}catch(Exception ignored){}
+    StatblockEncounterStateEngine.setEffectProperty(attacker,"last_teleport_ft",feet);
+    JSONObject posAttacker=StatblockEncounterStateEngine.getPosition(attacker);
+    if(posAttacker.optBoolean("found")){
+     int ox=posAttacker.optInt("x",0),oy=posAttacker.optInt("y",0),oz=posAttacker.optInt("z",0);
+     int squares=Math.max(1,feet/5);
+     JSONObject posTarget=StatblockEncounterStateEngine.getPosition(target);
+     int tx=posTarget.optBoolean("found")?posTarget.optInt("x",0):ox;
+     int ty=posTarget.optBoolean("found")?posTarget.optInt("y",0):oy;
+     int dx=ox-tx,dy=oy-ty;
+     int sx=Integer.compare(dx,0),sy=Integer.compare(dy,0);
+     if(sx==0&&sy==0){sx=1;}
+     int nx=Math.min(99,Math.max(0,ox+sx*squares));
+     int ny=Math.min(99,Math.max(0,oy+sy*squares));
+     StatblockEncounterStateEngine.setPosition(attacker,nx,ny,oz);
+     try{receipt.put("origin_x",ox).put("origin_y",oy).put("dest_x",nx).put("dest_y",ny);}catch(Exception ignored){}
+    }
+   }else if(p.startsWith("push:")){
+    int feet=parseFeet(p.substring(5));
+    try{receipt.put("forced_movement_applied",true).put("forced_movement_type","push").put("forced_movement_feet",feet);}catch(Exception ignored){}
+    StatblockEncounterStateEngine.setEffectProperty(target,"forced_movement_ft",feet);
+    JSONObject posTarget=StatblockEncounterStateEngine.getPosition(target);
+    JSONObject posAttacker=StatblockEncounterStateEngine.getPosition(attacker);
+    if(posTarget.optBoolean("found")&&posAttacker.optBoolean("found")){
+     int tx=posTarget.optInt("x",0),ty=posTarget.optInt("y",0),tz=posTarget.optInt("z",0);
+     int ax=posAttacker.optInt("x",0),ay=posAttacker.optInt("y",0);
+     int squares=Math.max(1,feet/5);
+     int dx=tx-ax,dy=ty-ay;
+     int sx=Integer.compare(dx,0),sy=Integer.compare(dy,0);
+     if(sx==0&&sy==0){sx=1;}
+     int nx=Math.min(99,Math.max(0,tx+sx*squares));
+     int ny=Math.min(99,Math.max(0,ty+sy*squares));
+     if(nx==tx&&ny==ty&&squares>0){
+      try{receipt.put("forced_movement_blocked","destination_blocked_or_boundary");}catch(Exception ignored){}
+     }else{
+      StatblockEncounterStateEngine.setPosition(target,nx,ny,tz);
+      try{receipt.put("origin_x",tx).put("origin_y",ty).put("dest_x",nx).put("dest_y",ny);}catch(Exception ignored){}
+     }
+    }
+   }else if(p.startsWith("pull:")){
+    int feet=parseFeet(p.substring(5));
+    try{receipt.put("forced_movement_applied",true).put("forced_movement_type","pull").put("forced_movement_feet",feet);}catch(Exception ignored){}
+    StatblockEncounterStateEngine.setEffectProperty(target,"forced_movement_ft",feet);
+    JSONObject posTarget=StatblockEncounterStateEngine.getPosition(target);
+    JSONObject posAttacker=StatblockEncounterStateEngine.getPosition(attacker);
+    if(posTarget.optBoolean("found")&&posAttacker.optBoolean("found")){
+     int tx=posTarget.optInt("x",0),ty=posTarget.optInt("y",0),tz=posTarget.optInt("z",0);
+     int ax=posAttacker.optInt("x",0),ay=posAttacker.optInt("y",0);
+     int squares=Math.max(1,feet/5);
+     int dx=ax-tx,dy=ay-ty;
+     int sx=Integer.compare(dx,0),sy=Integer.compare(dy,0);
+     int nx=tx,ny=ty;
+     for(int step=1;step<=squares;step++){
+      int nextX=tx+sx*step,nextY=ty+sy*step;
+      if(nextX==ax&&nextY==ay)break;
+      if(nextX<0||nextX>99||nextY<0||nextY>99)break;
+      nx=nextX;ny=nextY;
+     }
+     if(nx==tx&&ny==ty&&squares>0){
+      try{receipt.put("forced_movement_blocked","destination_blocked_or_boundary");}catch(Exception ignored){}
+     }else{
+      StatblockEncounterStateEngine.setPosition(target,nx,ny,tz);
+      try{receipt.put("origin_x",tx).put("origin_y",ty).put("dest_x",nx).put("dest_y",ny);}catch(Exception ignored){}
+     }
+    }
+   }else if(isConditionName(p)){
+    StatblockEncounterStateEngine.condition(target,p,true);
+    try{receipt.put("condition_from_effect",p);}catch(Exception ignored){}
+   }
+  }
+ }
+ private static int parseFeet(String s){try{String clean=s.replaceAll("[^0-9]","");return clean.isEmpty()?0:Integer.parseInt(clean);}catch(Exception e){return 0;}}
+ private static boolean isConditionName(String s){return "prone".equals(s)||"blinded".equals(s)||"frightened".equals(s)||"charmed".equals(s)||"poisoned".equals(s)||"restrained".equals(s)||"incapacitated".equals(s)||"paralyzed".equals(s)||"stunned".equals(s)||"deafened".equals(s);}
+
+ private static void executeLegendarySpell(String attacker,String target,JSONArray spells,int d20,JSONObject declaredAction,JSONObject r){
+  String spellName=r.optString("selected_spell","");
+  if(spellName.isEmpty()){
+   spellName=resolveDeclaredSpellName(r.optString("action",""),spells,declaredAction);
+  }
+  if(spellName.isEmpty())return;
+  try{r.put("spell_executed",spellName);}catch(Exception ignored){}
+  String sLower=spellName.toLowerCase(java.util.Locale.ROOT);
+  JSONObject tv=StatblockEncounterStateEngine.view(target);
+  JSONObject tp=CompiledStatblockEngine.runtimeProfile(tv.optString("statblock_id"));
+  int targetAc=tp.optInt("armor_class",10);
+  int saveDc=declaredAction.optInt("save_dc",15);
+  if(sLower.contains("invisibility")){
+   StatblockEncounterStateEngine.condition(attacker,"invisible",true);
+   StatblockEncounterStateEngine.setEffectProperty(attacker,"concentration",spellName);
+   try{r.put("applied_condition","invisible").put("affected_token",attacker).put("concentration_spell",spellName);}catch(Exception ignored){}
+  }else if(sLower.contains("scorching ray")){
+   int attackBonus=declaredAction.optInt("to_hit",7);
+   boolean hit=(d20+attackBonus)>=targetAc||d20==20;
+   try{r.put("spell_attack_roll",d20+attackBonus).put("hit",hit);}catch(Exception ignored){}
+   if(hit){
+    JSONObject fakeAtk=new JSONObject();
+    try{fakeAtk.put("damage_expression","6d6").put("damage_type","fire");}catch(Exception ignored){}
+    JSONObject dmg=applyAttackDamage(target,fakeAtk,d20==20,1.0d);
+    try{r.put("raw_damage",dmg.optInt("raw_damage")).put("applied_damage",dmg.optInt("applied_damage")).put("damage_components",dmg.optJSONArray("components")).put("target_defeated",dmg.optBoolean("target_defeated"));}catch(Exception ignored){}
+   }
+  }else if(sLower.contains("guiding bolt")){
+   int attackBonus=declaredAction.optInt("to_hit",7);
+   boolean hit=(d20+attackBonus)>=targetAc||d20==20;
+   try{r.put("spell_attack_roll",d20+attackBonus).put("hit",hit);}catch(Exception ignored){}
+   if(hit){
+    JSONObject fakeAtk=new JSONObject();
+    try{fakeAtk.put("damage_expression","4d6").put("damage_type","radiant");}catch(Exception ignored){}
+    JSONObject dmg=applyAttackDamage(target,fakeAtk,d20==20,1.0d);
+    try{r.put("raw_damage",dmg.optInt("raw_damage")).put("applied_damage",dmg.optInt("applied_damage")).put("damage_components",dmg.optJSONArray("components")).put("target_defeated",dmg.optBoolean("target_defeated"));}catch(Exception ignored){}
+   }
+  }else if(sLower.contains("ray of sickness")){
+   int attackBonus=declaredAction.optInt("to_hit",7);
+   boolean hit=(d20+attackBonus)>=targetAc||d20==20;
+   try{r.put("spell_attack_roll",d20+attackBonus).put("hit",hit);}catch(Exception ignored){}
+   if(hit){
+    JSONObject fakeAtk=new JSONObject();
+    try{fakeAtk.put("damage_expression","2d8").put("damage_type","poison");}catch(Exception ignored){}
+    JSONObject dmg=applyAttackDamage(target,fakeAtk,d20==20,1.0d);
+    try{r.put("raw_damage",dmg.optInt("raw_damage")).put("applied_damage",dmg.optInt("applied_damage")).put("damage_components",dmg.optJSONArray("components")).put("target_defeated",dmg.optBoolean("target_defeated"));}catch(Exception ignored){}
+    int conBonus=calculateTargetSaveBonus(tp,"con");
+    int conTotal=d20+conBonus;
+    boolean savePass=conTotal>=saveDc;
+    try{r.put("save_ability","con").put("save_bonus",conBonus).put("save_roll",conTotal).put("save_dc",saveDc).put("save_success",savePass);}catch(Exception ignored){}
+    if(!savePass){StatblockEncounterStateEngine.condition(target,"poisoned",true);try{r.put("applied_condition","poisoned");}catch(Exception ignored){}}
+   }
+  }else if(sLower.contains("shatter")){
+   int conBonus=calculateTargetSaveBonus(tp,"con");
+   int conTotal=d20+conBonus;
+   boolean savePass=conTotal>=saveDc;
+   double mult=savePass?0.5d:1.0d;
+   JSONObject fakeAtk=new JSONObject();
+   try{fakeAtk.put("damage_expression","3d8").put("damage_type","thunder");}catch(Exception ignored){}
+   JSONObject dmg=applyAttackDamage(target,fakeAtk,false,mult);
+   try{r.put("save_ability","con").put("save_bonus",conBonus).put("save_roll",conTotal).put("save_dc",saveDc).put("save_success",savePass).put("raw_damage",dmg.optInt("raw_damage")).put("applied_damage",dmg.optInt("applied_damage")).put("damage_components",dmg.optJSONArray("components")).put("target_defeated",dmg.optBoolean("target_defeated"));}catch(Exception ignored){}
+  }else if(sLower.contains("command")){
+   int wisBonus=calculateTargetSaveBonus(tp,"wis");
+   int wisTotal=d20+wisBonus;
+   boolean savePass=wisTotal>=saveDc;
+   try{r.put("save_ability","wis").put("save_bonus",wisBonus).put("save_roll",wisTotal).put("save_dc",saveDc).put("save_success",savePass);}catch(Exception ignored){}
+   if(!savePass){StatblockEncounterStateEngine.condition(target,"prone",true);try{r.put("applied_condition","prone");}catch(Exception ignored){}}
+  }else if(sLower.contains("mind spike")){
+   int wisBonus=calculateTargetSaveBonus(tp,"wis");
+   int wisTotal=d20+wisBonus;
+   boolean savePass=wisTotal>=saveDc;
+   double mult=savePass?0.5d:1.0d;
+   JSONObject fakeAtk=new JSONObject();
+   try{fakeAtk.put("damage_expression","3d8").put("damage_type","psychic");}catch(Exception ignored){}
+   JSONObject dmg=applyAttackDamage(target,fakeAtk,false,mult);
+   try{r.put("save_ability","wis").put("save_bonus",wisBonus).put("save_roll",wisTotal).put("save_dc",saveDc).put("save_success",savePass).put("raw_damage",dmg.optInt("raw_damage")).put("applied_damage",dmg.optInt("applied_damage")).put("damage_components",dmg.optJSONArray("components")).put("target_defeated",dmg.optBoolean("target_defeated"));}catch(Exception ignored){}
+  }else if(sLower.contains("hold monster")){
+   int wisBonus=calculateTargetSaveBonus(tp,"wis");
+   int wisTotal=d20+wisBonus;
+   boolean savePass=wisTotal>=saveDc;
+   StatblockEncounterStateEngine.setEffectProperty(attacker,"concentration",spellName);
+   try{r.put("save_ability","wis").put("save_bonus",wisBonus).put("save_roll",wisTotal).put("save_dc",saveDc).put("save_success",savePass).put("concentration_spell",spellName);}catch(Exception ignored){}
+   if(!savePass){StatblockEncounterStateEngine.condition(target,"paralyzed",true);try{r.put("applied_condition","paralyzed");}catch(Exception ignored){}}
+  }else if(sLower.contains("power word stun")){
+   StatblockEncounterStateEngine.condition(target,"stunned",true);
+   try{r.put("applied_condition","stunned");}catch(Exception ignored){}
+  }else{
+   if(declaredAction.has("damage")&&!declaredAction.optString("damage","").isEmpty()){
+    JSONObject dmg=applyAttackDamage(target,declaredAction,false,1.0d);
+    try{r.put("raw_damage",dmg.optInt("raw_damage")).put("applied_damage",dmg.optInt("applied_damage")).put("damage_components",dmg.optJSONArray("components")).put("target_defeated",dmg.optBoolean("target_defeated"));}catch(Exception ignored){}
+   }
+   if(declaredAction.has("condition_on_fail")&&!declaredAction.optString("condition_on_fail","").isEmpty()){
+    String c=declaredAction.optString("condition_on_fail");
+    StatblockEncounterStateEngine.condition(target,c,true);
+    try{r.put("applied_condition",c);}catch(Exception ignored){}
+   }
+  }
+ }
+
+ private static String resolveDeclaredSpellName(String actionName,JSONArray spells,JSONObject declaredAction){
+  if(declaredAction!=null&&declaredAction.has("spell")&&!declaredAction.optString("spell").trim().isEmpty()){
+   return declaredAction.optString("spell").trim();
+  }
+  if(spells!=null){
+   for(int i=0;i<spells.length();i++){
+    String sp=spells.optString(i,"").trim();
+    if(!sp.isEmpty()&&actionName!=null&&actionName.trim().equalsIgnoreCase(sp))return sp;
+   }
+   if(spells.length()>0)return spells.optString(0,"").trim();
+  }
+  return actionName==null?"":actionName.trim();
+ }
+
+ private static boolean isSupportedLegendarySpell(String spellName,JSONObject declaredAction){
+  if(spellName==null||spellName.trim().isEmpty())return false;
+  String s=spellName.trim().toLowerCase(java.util.Locale.ROOT);
+  if(s.contains("invisibility")||s.contains("scorching ray")||s.contains("guiding bolt")
+   ||s.contains("ray of sickness")||s.contains("shatter")||s.contains("command")
+   ||s.contains("mind spike")||s.contains("hold monster")||s.contains("power word stun")){
+   return true;
+  }
+  if(declaredAction!=null&&(declaredAction.has("damage")||declaredAction.has("condition_on_fail"))){
+   return true;
+  }
+  return false;
+ }
+
+ private static int calculateTargetSaveBonus(JSONObject targetProfile,String ability){
+  if(targetProfile==null||ability==null||ability.trim().isEmpty())return 0;
+  String ab=ability.trim().toLowerCase(java.util.Locale.ROOT);
+  if(ab.length()>3)ab=ab.substring(0,3);
+  JSONObject saves=targetProfile.optJSONObject("saving_throws");
+  if(saves!=null&&saves.has(ab)){
+   Object val=saves.opt(ab);
+   if(val instanceof Number)return ((Number)val).intValue();
+   if(val!=null){
+    try{
+     String clean=String.valueOf(val).replaceAll("[^0-9+-]","");
+     if(!clean.isEmpty())return Integer.parseInt(clean);
+    }catch(Exception ignored){}
+   }
+  }
+  JSONObject abilities=targetProfile.optJSONObject("abilities");
+  if(abilities!=null&&abilities.has(ab)){
+   int score=abilities.optInt(ab,10);
+   return (int)Math.floor((score-10)/2.0);
+  }
+  return 0;
+ }
+
  static JSONArray damageSpecs(String expression,String typeSpec,String extra){/*BR_JSON_WRAP_106*/try{JSONArray out=new JSONArray();String e=expression==null?"":expression.trim(),t=typeSpec==null?"":typeSpec.trim();java.util.ArrayList<String> types=new java.util.ArrayList<String>();for(String x:t.split("\\s*\\+\\s*")){String q=x.trim();if(q.length()>0)types.add(q);}java.util.ArrayList<String> dice=new java.util.ArrayList<String>();
 if(types.size()>1&&!e.isEmpty()){
 String clean=e.replaceAll("\\s+","");
@@ -126,7 +484,7 @@ if(e.length()>0){
 }String ex=extra==null?"":extra.trim();if(ex.length()>0){String xt=damageTypeInText(ex);String xe=ex.replaceAll("(?i)\\b(acid|bludgeoning|cold|fire|force|lightning|necrotic|piercing|poison|psychic|radiant|slashing|thunder|ácido|contundente|frio|fogo|força|elétrico|eletrico|necrótico|necrotico|perfurante|veneno|psíquico|psiquico|radiante|cortante|trovejante)\\b","").trim();if(xe.length()==0)xe=ex;if(xt.length()==0&&types.size()==1)xt=types.get(0);out.put(new JSONObject().put("expression",xe).put("type",xt));}return out;}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
  private static String damageTypeInText(String v){String s=v==null?"":v.toLowerCase(java.util.Locale.ROOT);String[][] pairs={{"acid","acid"},{"ácido","acid"},{"bludgeoning","bludgeoning"},{"contundente","bludgeoning"},{"cold","cold"},{"frio","cold"},{"fire","fire"},{"fogo","fire"},{"force","force"},{"força","force"},{"lightning","lightning"},{"elétrico","lightning"},{"eletrico","lightning"},{"necrotic","necrotic"},{"necrótico","necrotic"},{"necrotico","necrotic"},{"piercing","piercing"},{"perfurante","piercing"},{"poison","poison"},{"veneno","poison"},{"psychic","psychic"},{"psíquico","psychic"},{"psiquico","psychic"},{"radiant","radiant"},{"radiante","radiant"},{"slashing","slashing"},{"cortante","slashing"},{"thunder","thunder"},{"trovejante","thunder"}};for(String[]p:pairs)if(s.matches(".*\\b"+java.util.regex.Pattern.quote(p[0])+"\\b.*"))return p[1];return "";}
  private static JSONObject economy(JSONObject s,String token){JSONArray a=s.optJSONArray("order");if(a!=null)for(int i=0;i<a.length();i++){JSONObject x=a.optJSONObject(i);if(x!=null&&token.equals(x.optString("token")))return x.optJSONObject("economy");}return null;}
- private static JSONObject findAction(String statblockId,String actionName){JSONArray a=CompiledStatblockEngine.runtimeProfile(statblockId).optJSONArray("actions");if(a!=null)for(int i=0;i<a.length();i++){JSONObject candidate=a.optJSONObject(i);if(candidate!=null&&actionName!=null&&actionName.trim().equalsIgnoreCase(candidate.optString("name","")))return candidate;}return null;}
+ private static JSONObject findAction(String statblockId,String actionName){JSONObject prof=CompiledStatblockEngine.runtimeProfile(statblockId);JSONArray a=prof.optJSONArray("actions");if(a!=null)for(int i=0;i<a.length();i++){JSONObject candidate=a.optJSONObject(i);if(candidate!=null&&actionName!=null&&actionName.trim().equalsIgnoreCase(candidate.optString("name","")))return candidate;}JSONArray sp=prof.optJSONArray("special_actions");if(sp!=null)for(int i=0;i<sp.length();i++){JSONObject candidate=sp.optJSONObject(i);if(candidate!=null&&actionName!=null&&actionName.trim().equalsIgnoreCase(candidate.optString("name","")))return candidate;}return null;}
  private static int rollAverage(String expr){return rollAverage(expr,false);}
  static int rollAverage(String expr,boolean critical){
   if(expr==null||expr.trim().isEmpty())return 0;

@@ -1768,7 +1768,7 @@ public class AppDb extends SQLiteOpenHelper {
             JSONObject weapon=weapons.optJSONObject(i);if(weapon==null||!itemId.equals(weapon.optString("id")))continue;
             EquippedWeaponAttackRules.Dice dice=EquippedWeaponAttackRules.parse(formula);
             if(dice!=null&&attackBonus==weapon.optInt("weapon_attack_bonus",Integer.MIN_VALUE)&&
-                dice.formula.equals(weapon.optString("weapon_damage_formula"))&&
+                CompiledMonsterDamageGuard.equivalent(dice.formula,weapon.optString("weapon_damage_formula"))&&
                 type.equals(weapon.optString("weapon_damage_type")))return weapon;
         }
         return new JSONObject();
@@ -2560,7 +2560,8 @@ public class AppDb extends SQLiteOpenHelper {
                 String suppliedExpression=roll.optString("expression","").trim();
                 String suppliedType=DamageTypeNormalizer.canonical(roll.optString("damage_type",""));
                 Object raw=roll.opt("damage_total");
-                if(expression.isEmpty()||type.isEmpty()||!expression.equals(suppliedExpression)||
+                if(expression.isEmpty()||type.isEmpty()||
+                    (!expression.equals(suppliedExpression)&&!CompiledMonsterDamageGuard.equivalent(expression,suppliedExpression))||
                     !type.equals(suppliedType)||!(raw instanceof Number))
                     return out.put("damage_blocked","typed_damage_component_source_mismatch");
                 if(!damageTypes.add(type))
@@ -3089,6 +3090,42 @@ public class AppDb extends SQLiteOpenHelper {
             recordEffectReceipt(key,proof.toString());
             return out.put("statblock_multiattack_committed",true).put("statblock_multiattack_receipt",key)
                 .put("components",outcomes).put("action_spent_once",true);
+        }});
+    }
+
+    public synchronized JSONObject recordStatblockLegendaryTransaction(final String attackerToken,final String targetToken,final String action,final JSONObject flowResult){
+        return combatAtomic("statblock_legendary_action",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            if(flowResult==null||flowResult.optBoolean("blocked",false))return flowResult;
+            String key="legendary-action-v1:"+attackerToken+":"+(action==null?"":action.replaceAll("\\s+","_"))+":"+System.currentTimeMillis();
+            recordEffectReceipt(key,flowResult.toString());
+
+            JSONObject targetState=flowResult.optJSONObject("target_state");
+            if(targetState!=null){
+                int appliedDmg=flowResult.optInt("applied_damage",0);
+                for(JSONObject c:listCombatants()){
+                    String cName=c.optString("name","");
+                    long cid=c.optLong("id",0);
+                    if(targetToken.equalsIgnoreCase(cName)||targetToken.equals(String.valueOf(cid))){
+                        if(appliedDmg>0){
+                            int currentHp=c.optInt("hp",0);
+                            int newHp=Math.max(0,currentHp-appliedDmg);
+                            ContentValues cv=new ContentValues();
+                            cv.put("hp",newHp);
+                            getWritableDatabase().update("combatants",cv,"id=? AND world_profile=?",new String[]{String.valueOf(cid),getActiveMapProfile()});
+                        }
+                        String appliedCond=flowResult.optString("applied_condition",flowResult.optString("rider_condition_applied",""));
+                        if(!appliedCond.isEmpty()){
+                            String conds=c.optString("conditions","");
+                            String updatedConds=(conds==null||conds.trim().isEmpty())?appliedCond:(conds+", "+appliedCond);
+                            ContentValues cv=new ContentValues();
+                            cv.put("conditions",updatedConds);
+                            getWritableDatabase().update("combatants",cv,"id=? AND world_profile=?",new String[]{String.valueOf(cid),getActiveMapProfile()});
+                        }
+                        break;
+                    }
+                }
+            }
+            return flowResult.put("durable_receipt_key",key).put("db_persisted",true);
         }});
     }
 

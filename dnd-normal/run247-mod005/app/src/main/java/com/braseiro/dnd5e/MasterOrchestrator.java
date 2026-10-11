@@ -613,6 +613,21 @@ public final class MasterOrchestrator {
             targetLocationKnown,targetVisible,blindsightFeet);
     }
     public JSONObject resolveStatblockTurnMultiattack(String attacker,String target,String[] actions,int[] d20s){return StatblockCombatFlowEngine.multiattack(attacker,target,actions,d20s);}
+    public JSONObject resolveStatblockLegendaryAction(String attacker,String target,String action,int d20){
+        JSONObject res=StatblockCombatFlowEngine.legendaryAction(attacker,target,action,d20);
+        if(db!=null&&!res.optBoolean("blocked",false)){
+            return db.recordStatblockLegendaryTransaction(attacker,target,action,res);
+        }
+        return res;
+    }
+    public JSONObject resolveStatblockLegendaryAction(String attacker,String target,String action,int firstD20,int secondD20){
+        JSONObject res=StatblockCombatFlowEngine.legendaryAction(attacker,target,action,firstD20,secondD20);
+        if(db!=null&&!res.optBoolean("blocked",false)){
+            return db.recordStatblockLegendaryTransaction(attacker,target,action,res);
+        }
+        return res;
+    }
+    public JSONObject spendStatblockLegendary(String token,int cost){return StatblockTurnEngine.spendLegendary(token,cost);}
     public JSONObject installRun139VoloHandbook(){JSONObject o=new JSONObject();try{return o.put("racial_feats",VoloRacialFeatRuntimeEngine.install()).put("species_phase2",VoloSubraceRun139Engine.install()).put("legacy_species_phase1",VoloSubraceHandbookEngine.install()).put("book_complete",false).put("auto_rolls",false);}catch(Exception e){return o;}}
     public JSONObject installRun141CharacterOptions(){JSONObject o=new JSONObject();try{return o.put("species_feats_legacy_runeterra",Run141SpeciesFeatRuntimeEngine.install()).put("run141_compact",Run141CompactCharacterOptionEngine.install()).put("forgotten_secrets_run143",Run143ForgottenSecretsEngine.install()).put("runeterra_atirador_base",RuneterraClassRuntimeEngine.install()).put("run148_reconciled",true).put("auto_rolls",false);}catch(Exception e){return o;}}
     public JSONObject installRun148Reconciliation(){JSONObject o=new JSONObject();try{return o.put("run141_compact",Run141CompactCharacterOptionEngine.install()).put("run143_forgotten_secrets",Run143ForgottenSecretsEngine.install()).put("arcana_unleashed_run147",ArcanaUnleashedRun147EvolvingItemsEngine.install()).put("auto_rolls",false).put("reconciled",true);}catch(Exception e){return o;}}

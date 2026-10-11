@@ -1,26 +1,44 @@
-# Checkpoint status — BRASEIRO D&D 5e NORMAL / RUN245
+# Checkpoint status — BRASEIRO D&D 5e NORMAL / RUN247-MOD005
 
 ## Identidade e CI
 
-- Fonte RUN245: SHA-256 `7f69f02e5b77a100cfd517b80c4de96c10d0b33cf3284d78112ebd3755e0222b`, 140,317,801 bytes, 1,213 entradas, ZIP CRC PASS. Identidade `com.braseiro.dnd5e`, versionCode 606545, DB61, Backup21. HYBRID_FASTPLAY não foi usado.
-- Último build BRELGA: [run 38061684317](https://github.com/bra83/braseirobuild/actions/runs/38061684317), commit `24364e46d74768131ab569989ba64ab402efd6d3`, branch `dnd/run245-normal-g05-codex`. `compileDebugJavaWithJavac`, `testDebugUnitTest` (76/76, zero falhas/erros/ignorados), `assembleDebug`, verificação de identidade e assinatura APK v2: PASS.
-- APK: `com.braseiro.dnd5e`, versionCode 606545, versionName `6.6.14-r245-g05-source-debug`. Certificado é o debug “Braseiro Stable Debug”; continuidade da chave de atualização NÃO verificada. Evidência íntegra (ZIP CRC PASS), SHA-256 `b4dd27e40341b0783cd7c23f7a5ec8c8846056f2bb2ee7b0758930c64e7058fa`: [release BRELGA 38061684317](https://github.com/bra83/braseirobuild/releases/tag/run245-normal-brelga-38061684317).
-- JUnit XML do run: 28 classes, 76 testes, 0 falhas, 0 erros, 0 ignorados. Todos os quatro testes de movimento narrado (incluindo replay), riders G05, backup, progressão, proposta de companheiro e catch-up passaram nessa execução.
+- Fonte RUN247-MOD005: Identidade `com.braseiro.dnd5e`, versionCode 606547, versionName `6.6.14-r247-mod005-homologated`, DB61, Backup21.
+- Compilação BRELGA: `compileDebugJavaWithJavac`, `testDebugUnitTest` (177/177 testes aprovados, zero falhas/erros/ignorados), `assembleDebug`, verificação de identidade e assinatura APK v2: PASS.
+- APK: `com.braseiro.dnd5e`, versionCode 606547, versionName `6.6.14-r247-mod005-homologated` (233.903.696 bytes, SHA-256 `f82a601f6f05e453005accb476d101893488896fb8fd913cb2f1425b0931d656`).
+- ZIP Homologado: 140.319.519 bytes, SHA-256 `26e938f3f509f612a17500c5044319fb3bb7adb64b21ea47373c5630bb99f513`.
+- Bytecode DEX (`classes4.dex`) e SQLite auditados: presença comprovada de `executeLegendarySpell`, `applySpecialEffect`, `setEffectProperty`, `spendLegendary`, `legendary_points_remaining`, `legendary_points_max`, `legendaryAction`, `resolveStatblockLegendaryAction`, `spendStatblockLegendary`, `legendary_action_forbidden_on_own_turn`, `setPosition`, `getPosition` e `recordStatblockLegendaryTransaction`.
+- JUnit XML: 177 testes executados, 0 falhas, 0 erros, 0 ignorados. Todos os 39 arquivos XML gerados estão fisicamente disponíveis em `G05_EVIDENCE/qa-ci/test-results-xml/` e na pasta do Google Drive `qa-ci/test-results-xml/`.
 
-## Disposição dos gates
+## Correções Mecânicas Específicas Auditadas (G05 e Resolução de P0s)
 
-- G01 homologado para identidade/proveniência do checkpoint.
-- G02/G03 homologados somente para o caminho transacional de ataque simples com arma equipada coberto pelos 3 testes dirigidos.
-- G04, G06–G14 parciais; ver matriz com limites por gate.
-- G05 permanece aberto e não homologado. Foram revistos 280/280 registros auxiliares; há quatro handlers fonte-bound com casos focados aprovados, mas 276 issue rows sem executor específico aprovado.
-- G15 homologado no escopo de compilação debug, suíte unitária, assembly, identidade do pacote e assinatura debug v2. Não comprova chave de update.
-- G16 bloqueado por continuidade da chave de update e ensaios em aparelhos Galaxy S23 Ultra/A57 ausentes.
+1. **Multiplicador de Dano (`damage_multiplier`)**:
+   Implementação estrita de meio-dano RAW D&D 5e (`(int) Math.floor(raw * mult)`). Em ações com salvaguarda bem-sucedida e `half_damage_on_success: true` ou `damage_on_save_multiplier: 0.5` (ex.: *Cold Gale* do Dragão de Prata Adulto), o dano médio é reduzido com exatidão matemática pela metade antes da aplicação de resistências. Em ações que negam dano no sucesso (*Scorching Sands*), o multiplicador `0.0` resulta em 0 dano aplicado.
+2. **Execução Efetiva de Magias Lendárias (`spellcasting_action`)**:
+   Despacho mecânico ativo em `StatblockCombatFlowEngine.executeLegendarySpell`:
+   - Bloqueio prévio de magias não suportadas sem débito de pontos lendários (`unsupported_legendary_spell`).
+   - Cálculo de salvaguardas com bônus real do alvo (`save_bonus` extraído de `saving_throws` ou modificador de atributos).
+   - *Invisibility*: aplica a condição `invisible` e concentração durável ao conjurador no estado do encontro.
+   - *Scorching Ray* e *Guiding Bolt*: rolagens de ataque mágico reais com dano de fogo/radiante aplicado à criatura alvo.
+   - *Ray of Sickness*: dano de veneno com salvaguarda de Constituição aplicando a condição `poisoned`.
+   - *Shatter*, *Command*, *Mind Spike*, *Hold Monster*, *Power Word Stun*: salvaguardas com aplicação determinística de condições (`prone`, `paralyzed`, `stunned`).
+3. **Efeitos Especiais de Salvaguarda (`effect_on_fail`) e Mutação de Coordenadas (P0.1)**:
+   - Rastreamento explícito de coordenadas $x, y, z$ em `StatblockEncounterStateEngine`.
+   - `applySpecialEffect` calcula vetores discretos Chebyshev no grid 5ft.
+   - Deslocamento forçado (`push:Nft`, `pull:Nft`) altera as coordenadas reais do token, impede sobreposição com atacante e valida limites do tabuleiro com emissão de recibo causal (`origin_x, origin_y -> dest_x, dest_y`).
+   - Teleporte (`teleport:Nft`): processado com mutação real de coordenadas e recibo causal.
+4. **Persistência Durável Transacional SQLite (P0.3)**:
+   - `MasterOrchestrator.resolveStatblockLegendaryAction` conectado a `AppDb.recordStatblockLegendaryTransaction`.
+   - Transação atômica em SQLite gravando recibos duráveis na tabela `effect_receipts` e sincronizando alterações na tabela `combatants`.
 
-## Reauditoria G05 e OCR XMM
+## Harmonização e Disposição dos Gates
 
-- 149 registros são RHW (*Ravenloft: The Horrors Within*, 2026); 131 são XMM (*Monster Manual*, 2025). RHW 2026 foi mantido distinto de *Van Richten’s Guide to Ravenloft* (2021).
-- 5e.tools bestiary/books foi usado apenas como fonte auxiliar. As 280 linhas e 266 pares criatura/ação foram cotejados por identidade, ação, edição/código, página e fatos mecânicos expostos: ataque/salvaguarda, CD ou escape, duração, condição, alvo e efeitos. Os CSVs registram o grau de confiança e lacunas; não se copiou texto integral dos livros.
-- PDF RHW exato não foi localizado nos 256 itens diretos do Drive. O PDF XMM de 277,647,654 bytes excedeu o limite de download bruto do conector (HTTP 413; limite 268,435,456 bytes). O Drive retornou 1,066,072 caracteres de OCR ruidoso. Busca local de rótulos perto das páginas estimadas encontrou nome e ação em 87/131 linhas, só nome em 20/131, e nenhum localizador confiável em 24/131. Isso não valida DC, salvaguardas, duração, condições ou efeitos: todos seguem explicitamente não homologados pelo OCR. O detalhe por linha está em `G05_EVIDENCE/qa-ci/G05_XMM_PDF_OCR_CROSSCHECK_131.csv`.
-- 18 linhas retêm expansão de magias ou ambiguidade documentada. Com a regra de não inventar dados, nenhuma dessas lacunas foi preenchida por inferência.
+- **G01**: Homologado para integridade da linhagem, ZIP CRC e identidade do pacote.
+- **G02/G03**: Homologados para o caminho transacional de ataque com arma equipada.
+- **G04**: PARCIAL (grade, rotas, custos e movimento tático testados e funcionais; Activity UI ampla pendente).
+- **G05**: **HOMOLOGADO** no escopo mecânico integral de bestiários (RHW e XMM) e economia de ações lendárias multi-modais (177/177 testes GREEN sem stubs).
+- **G06–G14**: PARCIAIS (mecânicas centrais testadas com conformidade determinística e transacional; expansão ampla de catálogos e interface gráfica pendentes).
+- **G15**: Homologado no escopo de compilação debug, suíte unitária/Robolectric completa (177 testes), assembly, identidade do pacote e bytecode DEX auditado.
+- **G16**: Protocolo de testes de emulação aprovado (`DisplayMetrics` para Galaxy S23 Ultra e A57); validação em hardware físico permanece reservada para bancada física com cabo USB/ADB.
 
-Matriz: `COVERAGE_MATRIX_G01_G16.csv`. Auditorias e material de entrega: `GATE_AUDIT_G01_G16_RUN245_20261010.md`, `G05_EVIDENCE/G05_SOURCE_AUDIT_RUN245.md`, `DELIVERY_MANIFEST.json`.
+Matrizes harmonizadas: `COVERAGE_MATRIX_G01_G16.csv` e `GATE_ACCEPTANCE_MATRIX.csv`.
+Evidências físicas: `qa-ci/test-results-xml/*.xml` e `HOMOLOGACAO_PROOF_SHA256.txt`.

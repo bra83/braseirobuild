@@ -363,8 +363,15 @@ public final class Run245G05RhwOnHitConditionRobolectricTest {
         assertEquals(2,groups.length());
         assertEquals("2d6",groups.optJSONObject(0).optString("expression"));
         assertEquals("fire",groups.optJSONObject(0).optString("type"));
-        assertEquals("1d8+4",groups.optJSONObject(1).optString("expression"));
+        // Contrato canônico: "NdX + M" com espaços normalizados entre operador e modificador.
+        // Identidade mecânica: aceita fórmulas equivalentes com ou sem espaços ("1d8+4" e "1d8 + 4"),
+        // mas rejeita divergência mecânica (dados ou modificadores diferentes).
+        assertEquals("1d8 + 4",groups.optJSONObject(1).optString("expression"));
         assertEquals("psychic",groups.optJSONObject(1).optString("type"));
+        assertTrue(CompiledMonsterDamageGuard.equivalent(groups.optJSONObject(1).optString("expression"),"1d8+4"));
+        assertTrue(CompiledMonsterDamageGuard.equivalent(groups.optJSONObject(1).optString("expression"),"1d8 + 4"));
+        assertFalse(CompiledMonsterDamageGuard.equivalent(groups.optJSONObject(1).optString("expression"),"1d8 + 5"));
+        assertFalse(CompiledMonsterDamageGuard.equivalent(groups.optJSONObject(1).optString("expression"),"1d6 + 4"));
         JSONArray flat=StatblockCombatFlowEngine.damageSpecs("12","force","");
         assertEquals(1,flat.length());
         assertEquals("12",flat.optJSONObject(0).optString("expression"));

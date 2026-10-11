@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.CompiledMonsterDamageGuardTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-11T21:34:25" hostname="BRELGA" time="0.008">
+  <properties/>
+  <testcase name="equippedPlayerWeaponFormulaToleratesSpacingAndSingleDie" classname="com.braseiro.dnd5e.CompiledMonsterDamageGuardTest" time="0.002"/>
+  <testcase name="equivalentMatchesCommutativeTerms" classname="com.braseiro.dnd5e.CompiledMonsterDamageGuardTest" time="0.001"/>
+  <testcase name="equivalentRejectsDivergentFormulas" classname="com.braseiro.dnd5e.CompiledMonsterDamageGuardTest" time="0.001"/>
+  <testcase name="canonicalAndEquivalentHandleWhitespaceVariations" classname="com.braseiro.dnd5e.CompiledMonsterDamageGuardTest" time="0.0"/>
+  <testcase name="equivalentMatchesSingleDieImplicitCount" classname="com.braseiro.dnd5e.CompiledMonsterDamageGuardTest" time="0.001"/>
+  <testcase name="acceptsAndRangeEvaluateImplicitSingleDie" classname="com.braseiro.dnd5e.CompiledMonsterDamageGuardTest" time="0.001"/>
+  <testcase name="canonicalNormalizesSingleDieImplicitCount" classname="com.braseiro.dnd5e.CompiledMonsterDamageGuardTest" time="0.0"/>
+  <testcase name="canonicalReordersTermsCommutatively" classname="com.braseiro.dnd5e.CompiledMonsterDamageGuardTest" time="0.0"/>
+  <testcase name="nullAndMalformedInputsFailClosedSafely" classname="com.braseiro.dnd5e.CompiledMonsterDamageGuardTest" time="0.001"/>
+  <testcase name="canonicalAndEquivalentAreCaseInsensitive" classname="com.braseiro.dnd5e.CompiledMonsterDamageGuardTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

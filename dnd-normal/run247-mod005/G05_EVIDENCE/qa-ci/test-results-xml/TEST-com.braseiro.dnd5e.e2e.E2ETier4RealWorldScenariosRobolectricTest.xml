@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.e2e.E2ETier4RealWorldScenariosRobolectricTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-11T21:36:18" hostname="BRELGA" time="5.61">
+  <properties/>
+  <testcase name="testScenario1_AmbushAtBlackwoodPass" classname="com.braseiro.dnd5e.e2e.E2ETier4RealWorldScenariosRobolectricTest" time="1.452"/>
+  <testcase name="testScenario3_MilestoneProgressionToBossEncounter" classname="com.braseiro.dnd5e.e2e.E2ETier4RealWorldScenariosRobolectricTest" time="1.358"/>
+  <testcase name="testScenario2_CryptDungeonCrawlAndBackupRecovery" classname="com.braseiro.dnd5e.e2e.E2ETier4RealWorldScenariosRobolectricTest" time="2.8"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

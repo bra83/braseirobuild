@@ -20,7 +20,7 @@ public final class Run245PartyWeaponAttackRobolectricTest {
 
     private static final class Fixture implements AutoCloseable {
         final Context context=RuntimeEnvironment.getApplication();
-        final String dbName="run245_party_attack_"+System.nanoTime()+".db";
+        final String dbName="r245p_"+Long.toHexString(System.nanoTime() & 0xFFFFFFFL)+".db";
         final AppDb db=new AppDb(context,dbName);
         final long character,actor,target,action;
         final JSONObject preview;
@@ -63,7 +63,9 @@ public final class Run245PartyWeaponAttackRobolectricTest {
         JSONObject actorResources()throws Exception{
             return new JSONObject(db.getCombatant(actor).optString("resources_json","{}"));
         }
-        @Override public void close(){db.close();context.deleteDatabase(dbName);}
+        @Override public void close(){
+            try { db.close(); } finally { context.deleteDatabase(dbName); }
+        }
     }
 
     @Test public void exactEquippedProfileCommitsDamageAndCausalReceiptOnlyOnce()throws Exception{

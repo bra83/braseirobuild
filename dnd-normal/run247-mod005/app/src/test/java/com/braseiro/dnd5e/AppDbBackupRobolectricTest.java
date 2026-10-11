@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import java.util.UUID;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -19,7 +20,8 @@ import static org.junit.Assert.*;
 @Config(sdk = 35, manifest = Config.NONE)
 public class AppDbBackupRobolectricTest {
     @Test public void backup21RoundTripReopensAndPreservesPortableSections() throws Exception {
-        String dbName = "roundtrip_" + System.nanoTime();
+        Context context = RuntimeEnvironment.getApplication();
+        String dbName = "r221_roundtrip_" + UUID.randomUUID().toString().substring(0,8) + ".db";
         AppDb db = newSandbox(dbName);
         try {
             db.getWritableDatabase();
@@ -66,12 +68,14 @@ public class AppDbBackupRobolectricTest {
             assertEquals("Lia Teste", db.listCharacters().get(0).optString("name"));
             assertEquals("", Backup21IntegrityEnvelope.check(db.exportAll()));
         } finally {
-            db.close();
+            try { if (db != null) db.close(); } finally { context.deleteDatabase(dbName); }
         }
     }
 
     @Test public void deferredCommitFailureRollsBackSqliteAndCompiledBundle() throws Exception {
-        AppDb db = newSandbox("commit_failure");
+        Context context = RuntimeEnvironment.getApplication();
+        String dbName = "r221_fail_" + UUID.randomUUID().toString().substring(0,8) + ".db";
+        AppDb db = newSandbox(dbName);
         JSONObject compiledPrior = null;
         try {
             db.getWritableDatabase();
@@ -104,13 +108,22 @@ public class AppDbBackupRobolectricTest {
                 CompiledStatblockEngine.has("run221-backup-rollback-fixture"));
             assertEquals(compiledPrior.toString(), CompiledContentPersistenceBundle.snapshot().toString());
         } finally {
-            db.close();
-            if(compiledPrior!=null)CompiledContentPersistenceBundle.restore(compiledPrior);
+            try {
+                if (db != null) db.close();
+            } finally {
+                try {
+                    if (compiledPrior != null) CompiledContentPersistenceBundle.restore(compiledPrior);
+                } finally {
+                    context.deleteDatabase(dbName);
+                }
+            }
         }
     }
 
     @Test public void importingFullAuditWindowDoesNotDropOldestPortableEvent() throws Exception {
-        AppDb db = newSandbox("audit_window_" + System.nanoTime());
+        Context context = RuntimeEnvironment.getApplication();
+        String dbName = "r221_audit_" + UUID.randomUUID().toString().substring(0,8) + ".db";
+        AppDb db = newSandbox(dbName);
         try {
             SQLiteDatabase sql = db.getWritableDatabase();
             sql.beginTransaction();
@@ -133,11 +146,14 @@ public class AppDbBackupRobolectricTest {
             try { assertTrue(c.moveToFirst()); assertEquals("import dropped a backed-up audit row", 1000, c.getInt(0)); }
             finally { c.close(); }
             assertEquals("restoration audit event must be additive", 1001, db.countAuditEvents());
-        } finally { db.close(); }
+        } finally {
+            try { if (db != null) db.close(); } finally { context.deleteDatabase(dbName); }
+        }
     }
 
     @Test public void levelUpPersistsOneClassChoiceAtomicallyAndReopens() throws Exception {
-        String dbName = "level_up_" + System.nanoTime();
+        Context context = RuntimeEnvironment.getApplication();
+        String dbName = "r221_lvl_" + UUID.randomUUID().toString().substring(0,8) + ".db";
         AppDb db = newSandbox(dbName);
         try {
             db.getWritableDatabase();
@@ -166,11 +182,14 @@ public class AppDbBackupRobolectricTest {
             assertEquals(2, db.getCharacter(hero).optInt("level"));
             assertEquals("artificer", reopened.optString("level_up_choice_class"));
             assertEquals(2, reopened.getJSONArray("class_levels").length());
-        } finally { db.close(); }
+        } finally {
+            try { if (db != null) db.close(); } finally { context.deleteDatabase(dbName); }
+        }
     }
 
     @Test public void companionProposalApprovalUsesCurrentPersistedAuthorityAndSnapshot() throws Exception {
-        String dbName = "companion_approval_" + System.nanoTime();
+        Context context = RuntimeEnvironment.getApplication();
+        String dbName = "r221_comp_" + UUID.randomUUID().toString().substring(0,8) + ".db";
         AppDb db = newSandbox(dbName);
         try {
             db.getWritableDatabase();
@@ -217,11 +236,14 @@ public class AppDbBackupRobolectricTest {
                 staleId, "approved", null, null, staleSnapshot));
             assertEquals("pending", db.listCompanionProposals("pending", 10).get(0).optString("status"));
             assertEquals("stale proposals never enqueue an action", 1, queuedCompanionActions(db));
-        } finally { db.close(); }
+        } finally {
+            try { if (db != null) db.close(); } finally { context.deleteDatabase(dbName); }
+        }
     }
 
     @Test public void worldTickRunsClockAndBackgroundWorldThroughAppDbTransaction() throws Exception {
-        String dbName = "world_tick_" + System.nanoTime();
+        Context context = RuntimeEnvironment.getApplication();
+        String dbName = "r221_world_" + UUID.randomUUID().toString().substring(0,8) + ".db";
         AppDb db = newSandbox(dbName);
         try {
             db.getWritableDatabase();
@@ -285,11 +307,15 @@ public class AppDbBackupRobolectricTest {
             db = newSandbox(dbName);
             assertEquals(17d, db.getSceneState().optDouble("clock_hour"), 0.01d);
             assertEquals(1, findClock(db, clockId).optInt("current_value"));
-        } finally { db.close(); }
+        } finally {
+            try { if (db != null) db.close(); } finally { context.deleteDatabase(dbName); }
+        }
     }
 
     @Test public void legacyBackupRestoresCoreSaveWithoutBackup21Seal() throws Exception {
-        AppDb db = newSandbox("legacy_backup_" + System.nanoTime());
+        Context context = RuntimeEnvironment.getApplication();
+        String dbName = "r221_legacy_" + UUID.randomUUID().toString().substring(0,8) + ".db";
+        AppDb db = newSandbox(dbName);
         try {
             db.getWritableDatabase();
             db.saveCampaign("Campanha antiga", "5e 2014", "Fantasia", true, true, false, "legado");
@@ -309,11 +335,14 @@ public class AppDbBackupRobolectricTest {
             assertEquals("Ravi Legado", db.listCharacters().get(0).optString("name"));
             assertEquals(11, legacy.optInt("version"));
             assertFalse(legacy.has(Backup21IntegrityEnvelope.KEY));
-        } finally { db.close(); }
+        } finally {
+            try { if (db != null) db.close(); } finally { context.deleteDatabase(dbName); }
+        }
     }
 
     @Test public void guidedCharacterActionPersistsTypedEffectAndRejectsPendingReplay() throws Exception {
-        String dbName = "guided_effect_" + System.nanoTime();
+        Context context = RuntimeEnvironment.getApplication();
+        String dbName = "r221_guided_" + UUID.randomUUID().toString().substring(0,8) + ".db";
         AppDb db = newSandbox(dbName);
         try {
             db.getWritableDatabase();
@@ -355,7 +384,9 @@ public class AppDbBackupRobolectricTest {
             assertFalse(replay.toString(), replay.optBoolean("accepted"));
             assertTrue(replay.optBoolean("replayed"));
             assertEquals(1, countEffectReceipt(db, "guided-class-effect:stance-applied-001"));
-        } finally { db.close(); }
+        } finally {
+            try { if (db != null) db.close(); } finally { context.deleteDatabase(dbName); }
+        }
     }
 
     private static void placeTokenForAttackGeometryFixture(AppDb db,long combatantId,int cellX,int cellY,int width,int height) {
@@ -366,7 +397,8 @@ public class AppDbBackupRobolectricTest {
     }
 
     @Test public void compiledStatblockAttackUsesPersistedCombatTurnAndRejectsReplay() throws Exception {
-        String dbName = "statblock_attack_" + System.nanoTime();
+        Context context = RuntimeEnvironment.getApplication();
+        String dbName = "r221_stat_" + UUID.randomUUID().toString().substring(0,8) + ".db";
         AppDb db = newSandbox(dbName);
         try {
             db.getWritableDatabase();
@@ -442,7 +474,9 @@ public class AppDbBackupRobolectricTest {
             assertEquals("already_resolved_or_replayed", replay.optString("statblock_attack_blocked"));
             assertEquals(10, db.getCombatant(hero).optInt("hp"));
             assertEquals(1, countEffectReceipt(db, result.optString("statblock_attack_receipt")));
-        } finally { db.close(); }
+        } finally {
+            try { if (db != null) db.close(); } finally { context.deleteDatabase(dbName); }
+        }
     }
 
     private static JSONObject findClock(AppDb db, long id) {
@@ -477,9 +511,9 @@ public class AppDbBackupRobolectricTest {
         finally { c.close(); }
     }
 
-    private static AppDb newSandbox(String suffix) {
+    private static AppDb newSandbox(String dbName) {
         Context context = RuntimeEnvironment.getApplication();
-        AppDb db = new AppDb(context, "run221_" + suffix + ".db");
+        AppDb db = new AppDb(context, dbName);
         db.setActiveMapProfile("dnd");
         return db;
     }
