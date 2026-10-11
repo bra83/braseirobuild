@@ -72,7 +72,7 @@ def transform(s):
                     "Reparar Estrutura: metade de RP e commodities paga antes do teste");
                 recordRpSpent(rp);
                 JSONObject check=recordCheck("repair_structure","Reparar Estrutura: "+structure,
-                    "Vice-rei",skill,naturalRoll,0,"Kingmaker Adventure Path 2e p. 518",notes,false);
+                    "Vice-rei",skill,naturalRoll,def.optInt("construction_dc",0),"Kingmaker Adventure Path 2e p. 518",notes,false);
                 String degree=check.optString("degree");
                 boolean criticalFailure="CRITICAL_FAILURE".equals(degree);
                 boolean success="SUCCESS".equals(degree)||"CRITICAL_SUCCESS".equals(degree);
