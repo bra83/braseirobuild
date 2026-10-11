@@ -137,3 +137,5 @@ jobs:
           if($env:AUDIT_CONTENT_CODE -ne '0'){throw "Content graph or data invariants failed: $env:AUDIT_CONTENT_CODE"}
           if($env:AUDIT_ENGINE_CODE -ne '0'){throw "Production JVM mechanics tests failed: $env:AUDIT_ENGINE_CODE"}
           Write-Host 'SOURCE_AND_ENGINE_GATES_PASS; OFFICIAL_FULL_HOMOLOGATION_STILL_NOT_PROVEN'
+
+# Audit v2: no false errors for urban prelude without scenes, recurring NPC identity or WorldEvent without event_key.

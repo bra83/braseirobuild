@@ -36,6 +36,9 @@ for i in range(13):
     require(doc.get("locale")=="pt-BR","LOCALE_MISMATCH",path.name)
     require(doc.get("schema")=="braseiro-pathfinder2e-chapter-v1","SCHEMA_MISMATCH",path.name)
     for field in ("quests","hazards","pois","npcs","scenes","events","milestones"):
+        # Chapter 00 is an urban prelude. The empty tactical_scenes alias
+        # is optional; production ChapterCatalog uses optJSONArray("scenes").
+        if i==0 and field=="scenes" and "scenes" not in doc: continue
         require(isinstance(doc.get(field),list),"CHAPTER_COLLECTION_INVALID",f"{path.name}: {field}")
 if len(chapters)<13: finding("critical","CAMPAIGN_NOT_COMPLETE","Not all 13 prologue+chapter JSONs are readable")
 # Note: 11 (atlas) and 12 (companions) are supplements, NOT sequential plot episodes.
@@ -57,12 +60,25 @@ for kind,field in collections_by_kind.items():
     vals=[]
     for n,row in all_records[kind]:
         value=row.get(field) or row.get("key") or row.get("id")
+        if not value and kind=="events":
+            # Production WorldEventModel has title, due_day and due_at,
+            # not an event_key. This compound locator detects collisions.
+            value=f"{n}|{row.get('title')}|{row.get('due_day')}"
         if not value:
             finding("warning","MISSING_RECORD_ID",f"{paths[n]}:{kind}:{row.get('title',row.get('name'))}")
         else: vals.append((value,n))
     count=collections.Counter(x for x,n in vals)
     dup={k:[n for v,n in vals if v==k] for k,v in count.items() if v>1}
-    if dup: finding("critical","DUPLICATE_GLOBAL_RECORD_ID",f"{kind} has repeated identities",records=dup)
+    if dup:
+        if kind=="npcs":
+            # The same companion is meant to return with the same stable ID.
+            for identity,numbers in dup.items():
+                rows=[r for num,r in all_records[kind] if r.get(field)==identity]
+                if len({r.get("name") for r in rows})>1:
+                    finding("critical","CONFLICTING_NPC_IDENTITY",f"{identity} changes name",chapters=numbers)
+            metrics["reused_canonical_npc_identities"]=len(dup)
+        else:
+            finding("critical","DUPLICATE_GLOBAL_RECORD_ID",f"{kind} has repeated identities",records=dup)
     metrics[kind+"_count"]=len(all_records[kind])
     metrics[kind+"_unique_ids"]=len(count)
 keys={row.get("quest_key") for _,row in all_records["quests"] if row.get("quest_key")}
