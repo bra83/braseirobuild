@@ -47,3 +47,15 @@ def test_build_and_repair_pass_structure_specific_dc_to_recordcheck():
 def test_manifest_stays_explicitly_uncertified_and_references_correct_book():
     assert BOOK["source_drive_file_id"]=="1hHjK7DjhdDFvejYk70NNxO0zMp7Rnsn3"
     assert BOOK["certification"]=="NOT_CERTIFIED"
+
+def test_required_proficiency_is_checked_before_issuing_structure_costs():
+    a=REPO.index("public JSONObject resolveBuildStructure(")
+    b=REPO.index("public JSONObject resolveDemolish(",a)
+    build=REPO[a:b]
+    a=REPO.index('public JSONObject resolveRepairStructure(String settlementKey,String structureKey,int naturalRoll')
+    b=REPO.index("public JSONObject resolveUpgradeSettlement(",a)
+    repair=REPO[a:b]
+    for method in (build,repair):
+        assert 'def.optString("construction_rank","untrained")' in method
+        assert 'rankScale.indexOf(actualRank)<rankScale.indexOf(requiredRank)' in method
+        assert method.index('rankScale.indexOf(actualRank)') < method.index('adjustState(')
