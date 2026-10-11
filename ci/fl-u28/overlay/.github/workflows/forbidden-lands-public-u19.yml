@@ -1,0 +1,121 @@
+name: Forbidden Lands integrado - 43 encontros e gate estrito 82/82
+on:
+  push:
+    branches: [ci/u19-validation, ci/u27-gm-spell-audit, ci/u28-gm-mechanical, ci/u28-player-mechanics, ci/u28-integrated]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: forbidden-lands-u19-${{ github.ref }}-${{ github.run_id }}
+  cancel-in-progress: false
+jobs:
+  homologacao:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Garantir fonte integral U19, nunca a main antiga
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test -f CHANGELOG_UNIFIED_U19.md
+          test -f scripts/verify-u19-official-canonical-combat.mjs
+          test -f e2e/run_official_suite.py
+          test -f e2e/official_ui_all_choices.py
+          test -f scripts/verify_u14_browser_evidence.py
+          test -f package-lock.json
+          node -e 'let p=require("./package.json");if(!p.scripts?.["verify:unified-u19"])process.exit(1)'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Instalar dependências pelo lockfile
+        run: npm ci --no-audit --no-fund
+      - name: Compilar TypeScript
+        run: npm run lint
+      - name: Compilar Vite
+        run: npm run build:web
+      - name: Regressões canônicas U02-U19
+        run: |
+          set -Eeuo pipefail
+          npm run verify:unified-u19
+          # U25: production follower/receipt regression for the actual remote F01-F03 edits.
+          node --experimental-strip-types scripts/verify-u25-travel-karg-closure.mjs
+          node --experimental-strip-types scripts/verify-u25-forced-march-failclosed.mjs
+          # U26: GM-spell, old-save and 50-day real database gates.
+          node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-u26-legacy-resource-dice-migration.mjs
+          node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-u26-50-day-campaign-clock.mjs
+          node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-u26-gm-spell-pending.mjs
+          node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-u27-gm-spells-all.mjs
+          node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-u27-gm-narrative-receipts.mjs
+          node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-u28-mechanical-spells.mjs
+          node -r ./work/tsx-userinfo-shim.cjs --import tsx scripts/verify-u28-gm-mechanical-resolution.mjs
+          npm run verify:encounters-u03
+          npm run verify:encounters-u02
+          npm run verify:encounters-u02-21-43
+          npm run verify:journey-official-encounters
+          python scripts/test_verify_u14_browser_evidence.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar Playwright Chromium
+        run: |
+          python -m pip install playwright==1.55.0
+          python -m playwright install --with-deps chromium
+      - name: Chromium e IndexedDB reais — todos os grupos
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 4173 --strictPort > vite-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:4173/e2e/official-browser-harness.html -o /dev/null; then break; fi
+            sleep 2
+          done
+          curl -fsS http://127.0.0.1:4173/e2e/official-browser-harness.html -o /dev/null
+          FL_E2E_ORIGIN=http://127.0.0.1:4173 FL_E2E_ARTIFACTS="$PWD/e2e-results" python e2e/run_official_suite.py
+          FL_E2E_ORIGIN=http://127.0.0.1:4173 python e2e/u27_gm_browser.py
+          FL_E2E_ORIGIN=http://127.0.0.1:4173 python e2e/u28_mechanical_browser.py
+          FL_E2E_ORIGIN=http://127.0.0.1:4173 python e2e/u28_gm_mechanical_browser.py
+          python scripts/verify_u14_browser_evidence.py e2e-results
+          python scripts/verify_u22_complete_82.py e2e-results reports/U19_OFFICIAL_MATRIX_43.json
+      - name: Diagnóstico de cada grupo do navegador — fallback sem artefatos
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json, hashlib
+          p = Path('e2e-results')
+          summary = p / 'u13-browser-suite-summary.json'
+          if not summary.is_file():
+              print('SEM MATRIZ: harness não produziu u13-browser-suite-summary.json')
+              server = Path('vite-server.log')
+              if server.exists():
+                  print(server.read_text(errors='replace')[-10000:])
+              raise SystemExit(0)
+          obj = json.loads(summary.read_text(encoding='utf-8'))
+          print('=== MATRIZ DOS GRUPOS ===')
+          print(json.dumps(obj, ensure_ascii=False, indent=2))
+          print('=== HASHES DOS RELATÓRIOS ===')
+          for f in sorted(p.glob('*.json')):
+              print(hashlib.sha256(f.read_bytes()).hexdigest(), f.as_posix(), f.stat().st_size)
+          for case in obj.get('cases', []):
+              if case.get('status') == 'PASS':
+                  continue
+              print('=== FALHA', case.get('script'), case.get('status'), '===')
+              for stream in ['stdout', 'stderr']:
+                  filename = case.get(stream)
+                  if not filename:
+                      continue
+                  path = p / filename
+                  if path.is_file():
+                      print('---', filename, '---')
+                      print(path.read_text(encoding='utf-8', errors='replace')[-16000:])
+              report = case.get('report')
+              if report and (p / report).is_file():
+                  print('---', report, '---')
+                  print((p / report).read_text(encoding='utf-8', errors='replace')[-16000:])
+          PY
+          # GitHub Actions conserva o log mesmo quando a quota de artefatos está lotada.
