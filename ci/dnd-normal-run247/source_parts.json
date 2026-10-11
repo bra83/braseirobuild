@@ -1,0 +1,68 @@
+{
+  "schema": "braseiro-dnd-normal-run247-chunks-v1",
+  "source_filename": "BRASEIRO_DND_NORMAL_RUN247_MOD005_RECONCILIADO_CANDIDATO_NAO_HOMOLOGADO.zip",
+  "source_sha256": "2774b450ecf5be179976199b22bab8584f76939dcf305d82a84171a199282e06",
+  "source_size": 140240000,
+  "parts": [
+    {
+      "name": "BRASEIRO_DND_NORMAL_RUN247_MOD005_RECONCILIADO_CANDIDATO_NAO_HOMOLOGADO.zip.part000",
+      "size": 15728640,
+      "sha256": "8b6326d7de5acdc8469991e723dc2d2e1dc87dda79147d13200f90323d9b8b99",
+      "drive_id": "15ICPpHnNLwEvJ_ln0JG__-JdwvYFFanQ"
+    },
+    {
+      "name": "BRASEIRO_DND_NORMAL_RUN247_MOD005_RECONCILIADO_CANDIDATO_NAO_HOMOLOGADO.zip.part001",
+      "size": 15728640,
+      "sha256": "c80c1dccec41be0ffaa974d62c58c32dcd6444f9a9c201c63ea8bef5442d37b0",
+      "drive_id": "1df3VIKvuR9mALqEl3bO8g7hQaBRiim6t"
+    },
+    {
+      "name": "BRASEIRO_DND_NORMAL_RUN247_MOD005_RECONCILIADO_CANDIDATO_NAO_HOMOLOGADO.zip.part002",
+      "size": 15728640,
+      "sha256": "691a52a8a231ecefb0b482377f57ab5aab49168735694330541d9e881105d35c",
+      "drive_id": "1TH2NUfMdfmC5vI-3wFH577Aiu3kAnrF6"
+    },
+    {
+      "name": "BRASEIRO_DND_NORMAL_RUN247_MOD005_RECONCILIADO_CANDIDATO_NAO_HOMOLOGADO.zip.part003",
+      "size": 15728640,
+      "sha256": "125124048f8e312dc60ebd8749d511a62ac6ece5097dd2b88b3176c9a849b2bb",
+      "drive_id": "1jZf5-D-jhLLDSBNR3O9dtIKj9ogcJtAs"
+    },
+    {
+      "name": "BRASEIRO_DND_NORMAL_RUN247_MOD005_RECONCILIADO_CANDIDATO_NAO_HOMOLOGADO.zip.part004",
+      "size": 15728640,
+      "sha256": "99ff6939ded11894a419c9f5b6baa47f42dfaccc958e45d2e0bfedb5e7f0bb30",
+      "drive_id": "1A6vqMjPXtMTCBuje4rBp_ba288uERJ4z"
+    },
+    {
+      "name": "BRASEIRO_DND_NORMAL_RUN247_MOD005_RECONCILIADO_CANDIDATO_NAO_HOMOLOGADO.zip.part005",
+      "size": 15728640,
+      "sha256": "b4fb723498eff6d035a65a93e9ca9385eeb6029c57af4bb46305815b4ed96ed1",
+      "drive_id": "1XB7j-tjqYgnFBQ6Q_tcWELxyXE3xbJar"
+    },
+    {
+      "name": "BRASEIRO_DND_NORMAL_RUN247_MOD005_RECONCILIADO_CANDIDATO_NAO_HOMOLOGADO.zip.part006",
+      "size": 15728640,
+      "sha256": "8051be654a59d0287e10c4561c77d578ac5d361298922ecd6ad74448d3cb1549",
+      "drive_id": "1QD6Aq7WkQ0WFacHbpi3PvHRMx6kXBRCP"
+    },
+    {
+      "name": "BRASEIRO_DND_NORMAL_RUN247_MOD005_RECONCILIADO_CANDIDATO_NAO_HOMOLOGADO.zip.part007",
+      "size": 15728640,
+      "sha256": "f91dc2504a4d21e5ba572edd37b95252ca486e9de5e0b9612dc694cc76d9c195",
+      "drive_id": "1UcXiEEGkvMp_GwOT4lHjnjh27cHdKI4y"
+    },
+    {
+      "name": "BRASEIRO_DND_NORMAL_RUN247_MOD005_RECONCILIADO_CANDIDATO_NAO_HOMOLOGADO.zip.part008",
+      "size": 14410880,
+      "sha256": "588bdade7bdd1ac0310d6c10cb3c680f34c5f121547d6489b8ea2047ae449c08",
+      "drive_id": "1rrQJAdoIFKhvnNRkvwnzxyVR1Hxya2iX"
+    }
+  ],
+  "identity": {
+    "applicationId": "com.braseiro.dnd5e",
+    "versionCode": 606547,
+    "db_schema": 61,
+    "backup_format": 21
+  }
+}
