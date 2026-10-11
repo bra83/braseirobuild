@@ -40,19 +40,20 @@ def test_every_chapter_is_present_but_not_certified_by_empty_assets(tmp_path):
 
 def test_nyrissa_guard_and_noncanonical_candlemere_alert(tmp_path):
     folder=make_root(tmp_path)
-    def populate(stem,quests):
-        name=next(x for x in folder.glob(stem+"*.json"))
+    def populate(filename,quests):
+        name=folder/filename
+        assert name.is_file(),filename
         d=json.loads(name.read_text(encoding="utf-8"))
         d["quests"]=quests
         name.write_text(json.dumps(d),encoding="utf-8")
-    populate("chapter_09",[
+    populate("chapter_09_sound_thousand_screams.json",[
         {"quest_key":"q_redencao_espada_briar","prerequisites":[],"objectives":[{"id":"1"}]}
     ])
-    populate("chapter_10",[
+    populate("chapter_10_curse_lantern_king.json",[
         {"quest_key":"q_revelacao_rei_lanterna",
          "prerequisites":["q_redencao_espada_briar"],"objectives":[{"id":"1"}]}
     ])
-    populate("chapter_08",[
+    populate("chapter_08_they_lurk_below.json",[
         {"quest_key":"fake_neogi","title":"Devoradores de Mentes e Neogis",
          "prerequisites":[],"objectives":[{"id":"1"}]}
     ])
