@@ -116,6 +116,15 @@ quellCode=r'''    /** Automatic dice for old callers; new callers can supply rea
         if("ruins".equals(choice)&&(!isRuinKey(a)||!isRuinKey(b)||a.equals(b)))
             throw new IllegalArgumentException("Escolha duas Ruínas diferentes.");
         String skill=clean(skillKey).length()>0?key(skillKey):"politics";
+        if(!("arts".equals(skill)||"folklore".equals(skill)||"intrigue".equals(skill)||
+             "magic".equals(skill)||"politics".equals(skill)||"warfare".equals(skill)))
+            throw new IllegalArgumentException("Acalmar Agitação exige Artes, Folclore, Intriga, Magia, Política ou Guerra.");
+        if(turn.optInt("turn_number")>1){
+            JSONObject prev=db.queryOne("SELECT COUNT(*) AS total FROM kingmaker_turn_activities a JOIN kingmaker_turns t ON t.id=a.turn_id AND t.world_profile=a.world_profile WHERE a.world_profile=? AND a.activity_key='quell_unrest' AND a.skill_key=? AND t.turn_number=?",
+                new String[]{profile(),skill,String.valueOf(turn.optInt("turn_number")-1)});
+            if(prev.optInt("total")>0)
+                throw new IllegalStateException("Acalmar Agitação não permite repetir a mesma perícia em turnos consecutivos.");
+        }
         JSONObject check=recordCheck("quell_unrest","Acalmar Agitação","Governante",skill,naturalRoll,0,"Kingmaker Adventure Path p. 531",notes,false);
         String d=check.optString("degree");
         int delta="CRITICAL_SUCCESS".equals(d)?-successD6:"SUCCESS".equals(d)?-1:
@@ -152,6 +161,16 @@ claimCode=r'''    public JSONObject resolveClaimHex(String hexId,int naturalRoll
         if(state().optInt("resource_points")<1)
             throw new IllegalStateException("Reivindicar Hex exige 1 RP, gasto mesmo em caso de falha.");
         String skill=clean(skillKey).length()>0?key(skillKey):"wilderness";
+        if(!("exploration".equals(skill)||"intrigue".equals(skill)||"magic".equals(skill)||"wilderness".equals(skill)))
+            throw new IllegalArgumentException("Reivindicar Hex exige Exploração, Intriga, Magia ou Sobrevivência.");
+        JSONObject turn=activeTurn();
+        if(turn.length()==0||!"ACTIVITY".equals(turn.optString("phase")))
+            throw new IllegalStateException("Reivindicar Hex exige a fase de Atividades do Reino.");
+        int level=state().optInt("level",1),maxClaims=level>=9?3:level>=4?2:1;
+        int claims=db.queryOne("SELECT COUNT(*) AS total FROM kingmaker_turn_activities WHERE world_profile=? AND turn_id=? AND activity_key='claim_hex'",
+            new String[]{profile(),String.valueOf(turn.optLong("id"))}).optInt("total");
+        if(claims>=maxClaims)
+            throw new IllegalStateException("Limite de Reivindicar Hex por turno: "+maxClaims+" no nível "+level+".");
         JSONObject check=recordCheck("claim_hex","Reivindicar Hex "+clean(hexId),"Guardião",
             skill,naturalRoll,0,"Kingmaker Adventure Path p. 522",notes,false);
         String degree=check.optString("degree");
