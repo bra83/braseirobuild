@@ -31,7 +31,11 @@ def transform(s):
         cost=("rpCost" if k=="resource_points" else {"lumber":"lumberCost","stone":"stoneCost","ore":"oreCost","luxuries":"luxuriesCost"}[k])
         s=one(s,f'sv.put("{k}", s.optInt("{k}") - {cost});',
                 f'if(!prepaid)sv.put("{k}", s.optInt("{k}") - {cost});',"no duplicate debit "+k)
-    s=one(s,'recordRpSpent(rpCost);','if(!prepaid)recordRpSpent(rpCost);',"no duplicate RP ledger")
+    builderStart=s.index('private JSONObject buildStructure(')
+    builderEnd=s.index('    public JSONObject demolishStructure(',builderStart)
+    builder=s[builderStart:builderEnd]
+    builder=one(builder,'recordRpSpent(rpCost);','if(!prepaid)recordRpSpent(rpCost);',"no duplicate RP ledger")
+    s=s[:builderStart]+builder+s[builderEnd:]
 
     signature='    public JSONObject resolveBuildStructure(String settlementKey, String structureKey, int naturalRoll, String skillKey, String notes) throws Exception {'
     end='\n    public JSONObject resolveDemolish('
