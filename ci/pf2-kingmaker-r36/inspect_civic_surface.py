@@ -18,7 +18,7 @@ for rel in [
     emitted=set()
     for i in hits[:55]:
         lo=max(0,i-5)
-        hi=min(len(lines),i+25)
+        hi=min(len(lines),i+(125 if 'public JSONObject buildStructure(' in lines[i] else 85 if 'public JSONObject addStructure(' in lines[i] or 'public JSONObject repairStructure(' in lines[i] else 55 if 'public JSONObject resolveBuildStructure(' in lines[i] else 25))
         for n in range(lo,hi):
             if n not in emitted:
                 print(f"{n+1}: {lines[n][:400]}")
