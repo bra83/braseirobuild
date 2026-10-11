@@ -29,3 +29,23 @@ for rel in [
                 emitted.add(n)
         print("---")
     if not hits:print("NO_MATCH")
+
+# Production UI inspection for R36 Android navigation failures. Read-only.
+# The app is reconstructed from the pinned R35 ZIP by the CI workflow.
+ui=root/"android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java"
+ui_lines=ui.read_text(encoding="utf-8").splitlines()
+needles=("INICIAR TURNO QUANDO VOLTAR AO REINO","INICIAR NOVO TURNO",
+         "ABRIR ADMINISTRAÇÃO AVANÇADA","CONFIGURAÇÃO AVANÇADA DO REINO",
+         "EXÉRCITOS E BATALHAS","COMEÇAR CAMPANHA","KINGMAKER SOLO",
+         "showKingmaker","renderKingmaker","KingmakerSection",
+         "showKingdom","kingmakerAdmin","kingmakerSolo")
+matches=[i for i,line in enumerate(ui_lines) if any(x.casefold() in line.casefold() for x in needles)]
+print("=== PF2 R36 ACTUAL ANDROID NAVIGATION/UI DIAGNOSTIC ===",flush=True)
+print("matching lines:",len(matches),"of",len(ui_lines),flush=True)
+printed=set()
+for i in matches[:90]:
+    for j in range(max(0,i-3),min(len(ui_lines),i+6)):
+        if j not in printed:
+            print(f"PF2_UI_SOURCE {j+1}: {ui_lines[j][:2200]}",flush=True)
+            printed.add(j)
+    print("---- PF2 UI match ----",flush=True)
