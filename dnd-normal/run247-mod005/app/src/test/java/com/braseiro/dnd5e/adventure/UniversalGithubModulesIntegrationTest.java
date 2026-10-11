@@ -7,23 +7,23 @@ import static org.junit.Assert.*;
 
 /** Regression tests for real Tome -> per-system dice -> Loreweaver -> AdventureState. */
 public class UniversalGithubModulesIntegrationTest {
-    private static JSONObject op(String action){return new JSONObject().put("action",action);}
-    private static JSONArray faces(int... v){JSONArray a=new JSONArray();for(int i:v)a.put(i);return a;}
-    private static JSONObject run(AdventureState s,JSONObject cmd,String expected){
+    private static JSONObject op(String action) throws Exception {return new JSONObject().put("action",action);}
+    private static JSONArray faces(int... v) throws Exception {JSONArray a=new JSONArray();for(int i:v)a.put(i);return a;}
+    private static JSONObject run(AdventureState s,JSONObject cmd,String expected) throws Exception {
         JSONObject o=UniversalRpgEngine.process(s,cmd);
         assertEquals("unexpected: "+o,expected,o.optString("status"));return o;
     }
-    private static JSONObject register(AdventureState s,String id,String system){return run(s,op("register")
+    private static JSONObject register(AdventureState s,String id,String system) throws Exception {return run(s,op("register")
         .put("character_id",id).put("system_id",system).put("name","Hero "+id)
         .put("attributes",new JSONObject().put("strength",3))
         .put("resources",new JSONObject().put("health",new JSONObject().put("current",4).put("maximum",6))),"registered");}
-    private static JSONObject begin(AdventureState s,String id,String system,JSONObject spec){return run(s,op("begin_check")
+    private static JSONObject begin(AdventureState s,String id,String system,JSONObject spec) throws Exception {return run(s,op("begin_check")
         .put("character_id",id).put("system_id",system).put("situation","Ação sob risco")
         .put("on_success","Sucesso no mundo").put("on_failure","Falha no mundo").put("spec",spec),"requires_roll");}
-    private static JSONObject finish(AdventureState s,JSONObject pending,JSONObject submission){return run(s,op("resolve_check")
+    private static JSONObject finish(AdventureState s,JSONObject pending,JSONObject submission) throws Exception {return run(s,op("resolve_check")
         .put("request_id",pending.getString("request_id")).put("submission",submission),"resolved");}
 
-    private static JSONObject proposedScene(String kind,JSONArray success,JSONArray failure){
+    private static JSONObject proposedScene(String kind,JSONArray success,JSONArray failure) throws Exception {
         JSONObject spec="forbidden-lands".equals(kind)
             ? new JSONObject().put("dice_pool",new JSONObject().put("attribute",2).put("skill",1).put("gear",0))
             : new JSONObject().put("dc",12).put("modifier",1);
@@ -35,7 +35,7 @@ public class UniversalGithubModulesIntegrationTest {
                 .put("spec",spec)
                 .put("on_success_effects",success).put("on_failure_effects",failure));
     }
-    private static JSONObject proposedEffect(String key,int delta){
+    private static JSONObject proposedEffect(String key,int delta) throws Exception {
         return new JSONObject().put("kind","resource").put("key",key).put("delta",delta);
     }
     @Test public void confirmedAiProposalUpdatesFichaInventarioTempoWorldAndSurvivesReload() throws Exception {
@@ -223,7 +223,7 @@ public class UniversalGithubModulesIntegrationTest {
             .put("dice",new JSONArray().put(new JSONObject().put("die","force").put("face",10))));
         assertTrue(force.getBoolean("force_pool"));assertEquals(2,force.optInt("light_side"));
     }
-    @Test public void yearZeroPushCountsConsequencesButDoesNotApplyThemSilently(){
+    @Test public void yearZeroPushCountsConsequencesButDoesNotApplyThemSilently() throws Exception {
         JSONObject spec=new JSONObject().put("dice_pool",new JSONObject().put("attribute",2).put("skill",1).put("gear",1));
         JSONObject result=YearZeroDicePort.resolve(spec,new JSONObject()
             .put("dice",new JSONObject().put("attribute",faces(1,2))
@@ -272,7 +272,7 @@ public class UniversalGithubModulesIntegrationTest {
         JSONObject outcome=resolved.getJSONObject("receipt").getJSONObject("resolution").getJSONObject("outcome");
         assertTrue(outcome.getBoolean("success"));assertEquals(2,outcome.optInt("margin"));
     }
-    @Test public void fourUpstreamModulesRegisteredAndNoImplicitStateEdits() {
+    @Test public void fourUpstreamModulesRegisteredAndNoImplicitStateEdits() throws Exception {
         JSONArray modules=UniversalGithubModules.catalog(); assertEquals(5,modules.length());
         for(int i=0;i<5;i++)assertEquals("MIT",modules.getJSONObject(i).getString("license"));
         assertEquals("blocked",AetherTableRollIntentPort.parseDndRequest("[[ROLL:999d20]]",12).getString("status"));
@@ -355,7 +355,7 @@ public class UniversalGithubModulesIntegrationTest {
     }
 
 
-    @Test public void twoResourcesInventoryTimeAndWorldFactAreAtomicAndPersisted(){
+    @Test public void twoResourcesInventoryTimeAndWorldFactAreAtomicAndPersisted() throws Exception {
         AdventureState state=new AdventureState("crossroad");
         register(state,"yze-merchant",UniversalRpgEngine.YZE);
         JSONObject effect=op("apply_effects").put("event_id","evt.bundle.0001")
@@ -378,7 +378,7 @@ public class UniversalGithubModulesIntegrationTest {
         assertEquals("blocked",UniversalRpgEngine.process(persisted,effect).getString("status"));
         assertEquals(1,persisted.getUniversalRpgState().getJSONArray("history").length());
     }
-    @Test public void aBadEffectRollsBackEveryOtherMutation(){
+    @Test public void aBadEffectRollsBackEveryOtherMutation() throws Exception {
         AdventureState s=new AdventureState("cave");register(s,"hero-effects",UniversalRpgEngine.DND);
         String before=s.getUniversalRpgState().getJSONObject("entities").getJSONObject("hero-effects")
             .getJSONObject("resources").getJSONObject("health").optString("current");
@@ -394,7 +394,7 @@ public class UniversalGithubModulesIntegrationTest {
         assertEquals(0,state.optInt("elapsed_minutes"));
         assertEquals(0,state.optJSONArray("history")==null?0:state.optJSONArray("history").length());
     }
-    @Test public void effectsCannotBeCommittedWithoutPlayerApprovalOrAgainstStaleSheet(){
+    @Test public void effectsCannotBeCommittedWithoutPlayerApprovalOrAgainstStaleSheet() throws Exception {
         AdventureState s=new AdventureState("camp");register(s,"a","dnd5e");
         JSONObject cmd=op("apply_effects").put("event_id","event.approval.001")
             .put("character_id","a").put("expected_revision",0)
@@ -411,7 +411,7 @@ public class UniversalGithubModulesIntegrationTest {
         assertEquals("blocked",UniversalRpgEngine.process(s,unknown).getString("status"));
         assertEquals(10,s.getUniversalRpgState().optInt("elapsed_minutes"));
     }
-    @Test public void aTestCanHaveExactlyOnePlayerConfirmedEffectBundle(){
+    @Test public void aTestCanHaveExactlyOnePlayerConfirmedEffectBundle() throws Exception {
         AdventureState state=new AdventureState("bridge");register(state,"p","dnd5e");
         JSONObject check=begin(state,"p","dnd5e",new JSONObject().put("dc",12))
             .getJSONObject("pending");
@@ -430,7 +430,7 @@ public class UniversalGithubModulesIntegrationTest {
             .put("effects",new JSONArray().put(new JSONObject().put("kind","time").put("minutes",5)))).getString("status"));
     }
 
-    @Test public void tomeRejectsFractionalOrUnknownResourceValues(){
+    @Test public void tomeRejectsFractionalOrUnknownResourceValues() throws Exception {
         AdventureState s=new AdventureState("new");
         JSONObject fractional=UniversalRpgEngine.process(s,op("register").put("character_id","invalid")
             .put("system_id","dnd5e").put("name","Teste")
