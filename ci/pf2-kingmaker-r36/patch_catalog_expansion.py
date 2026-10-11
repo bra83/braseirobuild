@@ -27,7 +27,12 @@ def key_for(name):
     return re.sub(r"(^_+|_+$)","",re.sub(r"[^a-z0-9]+","_",ascii_name.lower()))
 
 def skill_data(value):
-    pairs = re.findall(r"([A-Za-z]+)(?: \((trained|expert|master|legendary)\))?",value)
+    pieces = re.split(r",\\s*|\\s+or\\s+",value.strip())
+    pairs = []
+    for piece in pieces:
+        match=re.fullmatch(r"([A-Za-z]+)(?: \\((trained|expert|master|legendary)\\))?",piece.strip())
+        if not match:raise ValueError("Unknown official construction option: "+piece)
+        pairs.append(match.groups())
     if not pairs:
         raise ValueError("No official construction skill: "+value)
     skills = [p[0].lower() for p in pairs]
