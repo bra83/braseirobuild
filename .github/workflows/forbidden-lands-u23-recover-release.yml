@@ -96,6 +96,7 @@ jobs:
           cd incoming
           sha256sum -c BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk.sha256
           printf '%s  %s\n' "$EXPECTED_APK_SHA" "$APK_NAME" | sha256sum -c -
+          cd ..
           python -m pip install websocket-client==1.8.0
           python -m py_compile ci/fl-u23-smoke/emulator_smoke_cdp.py
       - name: Enable KVM
