@@ -8,12 +8,12 @@ on:
       - .github/workflows/dnd-run247-mod005-normal-brelga.yml
       - ci/dnd-normal-run247/compare_exact_trees.py
       - ci/dnd-normal-run247/integration_fix_manifest.json
-      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/adventure/**
+      - dnd-normal/run247-mod005/**
 permissions:
   contents: write
 concurrency:
   group: dnd-normal-run247-mod005-g05-brelga
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   validate:
     runs-on: [self-hosted, Windows, X64]
@@ -29,7 +29,7 @@ jobs:
           if ($env:GITHUB_REF_NAME -ne 'dnd/run247-mod005-reconciled-g05-brelga') { throw 'WRONG_SOURCE_BRANCH' }
           $d=Get-PSDrive -Name D -PSProvider FileSystem
           if ($d.Free -lt 5GB) { throw 'D_DRIVE_LESS_THAN_5GB' }
-          $root=Join-Path 'D:\' ('braseiro-dnd-native-'+$env:GITHUB_RUN_ID)
+          $root=Join-Path 'D:\' ('braseiro-dnd-native-'+$env:GITHUB_RUN_ID+'-'+$env:GITHUB_RUN_ATTEMPT)
           $repo=Join-Path $root 'repo'
           $out=Join-Path $root 'out'
           New-Item -ItemType Directory -Path $out -Force | Out-Null
@@ -38,7 +38,8 @@ jobs:
           if (!(Test-Path $java17) -or !(Test-Path $python311)) { throw 'KNOWN_INSTALLED_JAVA17_OR_PYTHON311_MISSING' }
           $env:JAVA_HOME=$java17
           $env:PATH=(Join-Path $java17 'bin')+';'+$env:PATH
-          $env:GRADLE_USER_HOME=Join-Path $root 'gradle-home'
+          $env:GRADLE_USER_HOME='D:\braseiro-dnd-native-cache\gradle-home'
+          New-Item -ItemType Directory -Path $env:GRADLE_USER_HOME -Force | Out-Null
           $env:TEMP=Join-Path $root 'temp'
           $env:TMP=$env:TEMP
           New-Item -ItemType Directory -Path $env:TEMP -Force | Out-Null
@@ -54,6 +55,10 @@ jobs:
           try {
             & git -c core.autocrlf=false -c core.eol=lf clone --filter=blob:none --sparse --depth 1 --single-branch -b 'dnd/run247-mod005-reconciled-g05-brelga' https://github.com/bra83/braseirobuild.git $repo
             if ($LASTEXITCODE -ne 0) { throw 'GIT_CLONE_FAILED' }
+            & git -C $repo fetch --depth 1 origin $env:GITHUB_SHA
+            if ($LASTEXITCODE -ne 0) { throw 'EXACT_TRIGGER_COMMIT_FETCH_FAILED' }
+            & git -C $repo checkout --detach $env:GITHUB_SHA
+            if ($LASTEXITCODE -ne 0) { throw 'EXACT_TRIGGER_COMMIT_CHECKOUT_FAILED' }
             & git -C $repo config core.autocrlf false
             & git -C $repo config core.eol lf
             & git -C $repo sparse-checkout set ci/dnd-normal-run247 dnd-normal/run247-mod005
@@ -64,6 +69,8 @@ jobs:
             Remove-Item Env:GIT_CONFIG_VALUE_0 -ErrorAction SilentlyContinue
           }
           @("DND_ROOT=$root","DND_REPO=$repo","DND_OUT=$out","DND_PROJECT=$(Join-Path $repo 'dnd-normal/run247-mod005')","DND_PYTHON=$python311","JAVA_HOME=$java17","GRADLE_USER_HOME=$env:GRADLE_USER_HOME","TEMP=$env:TEMP","TMP=$env:TMP","ANDROID_HOME=$env:ANDROID_HOME","ANDROID_SDK_ROOT=$env:ANDROID_HOME") | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $actual=(& git -C $repo rev-parse HEAD).Trim()
+          if ($actual -ne $env:GITHUB_SHA) { throw 'SOURCE_COMMIT_MISMATCH' }
           "SOURCE_GIT_COMMIT=$((& git -C $repo rev-parse HEAD).Trim())" | Out-File (Join-Path $out 'PROVENANCE.txt') -Encoding utf8
           "BASELINE_SHA256=2774b450ecf5be179976199b22bab8584f76939dcf305d82a84171a199282e06" | Out-File (Join-Path $out 'PROVENANCE.txt') -Encoding utf8 -Append
           'NO_APK_BUILD=YES' | Out-File (Join-Path $out 'PROVENANCE.txt') -Encoding utf8 -Append
@@ -95,24 +102,8 @@ jobs:
           & .\gradlew.bat :app:compileDebugJavaWithJavac --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $env:DND_OUT '01_android_compile.log')
           $rc=$LASTEXITCODE
           "COMPILE_EXIT_CODE=$rc" | Out-File (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
-          if ($rc -ne 0) { Write-Host 'COMPILE_NOT_GREEN' }
-      - name: Focused RUN246 Robolectric
-        shell: powershell
-        run: |
-          Set-Location $env:DND_PROJECT
-          $ErrorActionPreference='Continue'
-          & .\gradlew.bat :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.Run246G05TypedOnHitBatchRobolectricTest' --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $env:DND_OUT '02_run246_robolectric.log')
-          $rc=$LASTEXITCODE
-          "RUN246_EXIT_CODE=$rc" | Out-File (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
-      - name: Focused RUN247 Robolectric
-        shell: powershell
-        run: |
-          Set-Location $env:DND_PROJECT
-          $ErrorActionPreference='Continue'
-          & .\gradlew.bat :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.Run247G05UntimedProneRobolectricTest' --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $env:DND_OUT '03_run247_robolectric.log')
-          $rc=$LASTEXITCODE
-          "RUN247_EXIT_CODE=$rc" | Out-File (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
-      - name: Full Android JVM Robolectric regression suite
+          if ($rc -ne 0) { throw 'COMPILE_NOT_GREEN' }
+      - name: Full Android JVM Robolectric suite and required focused classes
         shell: powershell
         run: |
           Set-Location $env:DND_PROJECT
@@ -120,6 +111,21 @@ jobs:
           & .\gradlew.bat :app:testDebugUnitTest --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $env:DND_OUT '04_full_suite.log')
           $rc=$LASTEXITCODE
           "FULL_SUITE_EXIT_CODE=$rc" | Out-File (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
+          $ErrorActionPreference='Stop'
+          if ($rc -ne 0) { throw 'FULL_SUITE_NOT_GREEN' }
+          $required=@{
+            RUN246='com.braseiro.dnd5e.Run246G05TypedOnHitBatchRobolectricTest'
+            RUN247='com.braseiro.dnd5e.Run247G05UntimedProneRobolectricTest'
+          }
+          foreach ($label in @('RUN246','RUN247')) {
+            $xmlPath=Join-Path $env:DND_PROJECT ('app/build/test-results/testDebugUnitTest/TEST-'+$required[$label]+'.xml')
+            if (!(Test-Path $xmlPath)) { throw ('REQUIRED_TEST_XML_MISSING_'+$label) }
+            [xml]$result=Get-Content -LiteralPath $xmlPath -Raw
+            $suite=$result.testsuite
+            if (!$suite -or $suite.name -ne $required[$label] -or [int]$suite.tests -lt 1 -or [int]$suite.failures -ne 0 -or [int]$suite.errors -ne 0 -or [int]$suite.skipped -ne 0) { throw ('REQUIRED_TESTS_NOT_GREEN_'+$label) }
+            ($label+'_EXIT_CODE=0') | Out-File (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
+            Write-Host ($label+'_EXECUTED_TESTS='+$suite.tests)
+          }
       - name: Save logs XMLs and exact source commit to GitHub tree, bypassing artifact quota
         if: always()
         shell: powershell
@@ -128,7 +134,7 @@ jobs:
         run: |
           $ErrorActionPreference='Stop'
           if (!(Test-Path $env:DND_REPO)) { throw 'SOURCE_TREE_UNAVAILABLE' }
-          $relative='ci/dnd-normal-run247/evidence/'+$env:GITHUB_RUN_ID
+          $relative='ci/dnd-normal-run247/evidence/'+$env:GITHUB_RUN_ID+'/'+$env:GITHUB_RUN_ATTEMPT
           $target=Join-Path $env:DND_REPO $relative
           New-Item -ItemType Directory -Path $target -Force | Out-Null
           $testout=Join-Path $env:DND_PROJECT 'app/build/test-results/testDebugUnitTest'
@@ -147,7 +153,8 @@ jobs:
           $auth=[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes('x-access-token:'+$env:GH_REPO_TOKEN))
           $env:GIT_CONFIG_COUNT='1'; $env:GIT_CONFIG_KEY_0='http.https://github.com/.extraheader'; $env:GIT_CONFIG_VALUE_0='AUTHORIZATION: basic '+$auth
           try {
-            & git -C $env:DND_REPO push https://github.com/bra83/braseirobuild.git HEAD:refs/heads/dnd/run247-mod005-reconciled-g05-brelga
+            $evidenceBranch='dnd/evidence-run247-'+$env:GITHUB_RUN_ID+'-'+$env:GITHUB_RUN_ATTEMPT
+            & git -C $env:DND_REPO push https://github.com/bra83/braseirobuild.git ('HEAD:refs/heads/'+$evidenceBranch)
             if ($LASTEXITCODE -ne 0) { throw 'GIT_EVIDENCE_PUSH_FAILED' }
           } finally {
             Remove-Item Env:GIT_CONFIG_COUNT -ErrorAction SilentlyContinue
