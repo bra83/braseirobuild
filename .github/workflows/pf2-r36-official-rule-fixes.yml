@@ -48,14 +48,17 @@ jobs:
           unzip -q r35-source.zip -d r35-source
           python ci/pf2-kingmaker-certification/crosswalk_runtime_audit.py --project r35-source --out official-book-evidence
           python ci/pf2-kingmaker-certification/audit_campaign.py --project r35-source --out official-book-evidence
-      - name: Publish structural audit with explicitly open certification gates
+      - name: Publish audit in GitHub job summary (artifact quota independent)
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: kingmaker-r36-official-book-crosswalk
-          path: official-book-evidence/
-          if-no-files-found: warn
-          retention-days: 30
+        shell: bash
+        run: |
+          if [ -f official-book-evidence/CROSSWALK_REPORT.md ]; then
+            cat official-book-evidence/CROSSWALK_REPORT.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f official-book-evidence/AUDITORIA_R35.md ]; then
+            cat official-book-evidence/AUDITORIA_R35.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "Reports are visible in this job summary. No artifact upload or release."
   patch-synthetic:
     runs-on: ubuntu-latest
     timeout-minutes: 10
