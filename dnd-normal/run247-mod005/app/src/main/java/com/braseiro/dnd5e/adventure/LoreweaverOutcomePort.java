@@ -1,5 +1,6 @@
 package com.braseiro.dnd5e.adventure;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -16,11 +17,19 @@ public final class LoreweaverOutcomePort {
         if (id == null || id.trim().length() == 0 || id.length() > 72 ||
             label == null || label.trim().length() == 0 || label.length() > 160)
             throw new IllegalArgumentException("Resultado do sistema inválido");
-        JSONObject wire = new JSONObject().put("id", id).put("label", label)
-            .put("success", success).put("critical", critical)
-            .put("fumble", fumble).put("tier", tier);
-        if (margin != null) wire.put("margin", margin.intValue());
-        return wire;
+        try {
+            JSONObject wire = new JSONObject();
+            wire.put("id", id);
+            wire.put("label", label);
+            wire.put("success", success);
+            wire.put("critical", critical);
+            wire.put("fumble", fumble);
+            wire.put("tier", tier);
+            if (margin != null) wire.put("margin", margin.intValue());
+            return wire;
+        } catch (JSONException error) {
+            throw new IllegalArgumentException("Não foi possível serializar o resultado", error);
+        }
     }
     public static JSONObject fromResolution(JSONObject resolution) {
         if (resolution == null || !resolution.optBoolean("resolved", false))
@@ -28,6 +37,10 @@ public final class LoreweaverOutcomePort {
         JSONObject result = resolution.optJSONObject("outcome");
         if (result == null || !result.has("success") || !result.has("tier"))
             throw new IllegalArgumentException("Contrato neutro ausente");
-        return new JSONObject(result.toString());
+        try {
+            return new JSONObject(result.toString());
+        } catch (JSONException error) {
+            throw new IllegalArgumentException("Não foi possível restaurar o resultado", error);
+        }
     }
 }
