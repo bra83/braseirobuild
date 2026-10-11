@@ -29,6 +29,12 @@ def test_repair_is_prepaid_and_applies_item_bonus():
     assert 'refreshSettlementOccupancy(townKey)' in block
     assert 'lumber/2' in block
     assert 'db.runInTransactionChecked(' in block
+    assert 'repair_cost_prepaid' in block
+    assert 'if(!repairPending)' in block
+    assert 'oldEffects.remove("repair_cost_prepaid")' in block
+    assert '"last_attempt_turn",turn.optInt("turn_number")' in block
+    assert 'if(repairPending&&oldEffects.optInt("last_attempt_turn",-1)==turn.optInt("turn_number"))' in block
+    assert 'put("rp_spent",repairPending?0:rp)' in block
     assert 'nat, skill, notes' in out
 def test_fail_closed_on_drift_and_reapply():
     with pytest.raises(RuntimeError):m.transform("other game")
