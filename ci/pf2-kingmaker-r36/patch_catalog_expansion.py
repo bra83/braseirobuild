@@ -91,24 +91,45 @@ def transform_rules(source,rows):
     end=source.find("\n    public ",opening+1)
     if end<0:raise ValueError("Cannot locate catalog method end")
     old_method=source[opening:end]
-    # Existing corrected catalog keys must remain authoritative.
     existing=set(re.findall(r'if\s*\(\s*"([^"]+)"\.equals\(k\)\s*\)',old_method))
-    if not existing:raise ValueError("No original structure definitions")
+    # The 18 separately audited/corrected definitions are never overwritten.
+    certified_prior={"academy","alchemist","bank","barracks","brewery",
+       "castle","cathedral","embassy","garrison","granary","library",
+       "monument","pier","smithy","stables","temple","theater","town_hall"}
+    if not certified_prior.issubset(existing):
+        raise ValueError("Canonical 18 previously patched official catalog keys are missing")
     generated=[]
     for row in rows:
         canonical=key_for(row["official_name"])
-        if canonical in existing:continue
-        expr=construct_expression(row,canonical)
-        generated.append('        if("'+canonical+'".equals(r36OfficialKey)) return '+expr+';\n')
-    if not generated:raise ValueError("No missing structure entries found; inspect source")
-    addition=(" \n        // "+PREFIX+"; do not replace existing 18 official corrections.\n"
+        if canonical in certified_prior:continue
+        expr=construct_expression(row,canonical).replace("new JSONObject()","officialBase",1)
+        # Correct the numeric rules without wiping any preexisting special
+        # effects, prerequisites, residential lots, or other runtime metadata.
+        generated.append('            if("'+canonical+'".equals(r36OfficialKey)) {\n'
+          '                officialBase.remove("construction_skill");\n'
+          '                officialBase.remove("construction_skills");\n'
+          '                return '+expr+';\n'
+          '            }\n')
+    if len(generated)!=55:
+        raise ValueError("Expected exactly 55 overlays after canonical 18")
+    wrapper=('    // '+PREFIX+': enrich/preserve baseline effects; replace only official fields.\n'
+      '    public JSONObject structure(String key){\n'
+      '        JSONObject officialBase=structureR35Baseline(key);\n'
+      '        if(officialBase==null)officialBase=new JSONObject();\n'
       '        String r36OfficialKey=key==null?"":key.trim().toLowerCase(java.util.Locale.US)\n'
       '            .replaceAll("[^a-z0-9]+","_").replaceAll("^_+|_+$","");\n'
       '        try {\n'+''.join(generated)+
       '        } catch(Exception officialCatalogFailure) {\n'
       '            throw new IllegalStateException("Kingmaker official catalog failure",officialCatalogFailure);\n'
-      '        }\n')
-    return source[:opening+1]+addition+source[opening+1:],{"existing":sorted(existing),"generated":[key_for(r["official_name"]) for r in rows if key_for(r["official_name"]) not in existing]}
+      '        }\n'
+      '        return officialBase;\n'
+      '    }\n'
+      '    ')
+    original=source[:begin]+header.replace("public JSONObject structure","private JSONObject structureR35Baseline")+source[begin+len(header):]
+    updated=original[:begin]+wrapper+original[begin:]
+    return updated,{"existing":sorted(existing),
+                    "generated":[key_for(r["official_name"]) for r in rows
+                                 if key_for(r["official_name"]) not in certified_prior]}
 
 def transform_repository(source):
     # Fail closed on types whose source manifest does not identify a normal
