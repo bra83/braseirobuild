@@ -14,6 +14,10 @@ for rel in [
     print("=== INSPECTION:",rel,"===")
     terms=['buildStructure','resolveBuildStructure','claimHex(','Build Structure','Rubble','incomplete','obra inacabada','repairStructure','public JSONObject recordCheck(']
     hits=[i for i,line in enumerate(lines) if any(term.lower() in line.lower() for term in terms)]
+    if p.name=="KingmakerRepository.java":
+        print("=== FULL SINGLE-LINE CONTRACTS ===")
+        for num in (241,244,254,280):
+            print(f"{num}: {lines[num-1]}")
     print("MATCHES:",len(hits))
     emitted=set()
     for i in hits[:55]:
