@@ -25,31 +25,31 @@ public final class Pf2R35ActionOverlapHarness {
     public static void main(String[] args) throws Exception {
         Pathfinder2eRulesEngine r = new Pathfinder2eRulesEngine();
         // Baseline and isolated effects.
-        eq("normal action budget", r.turnBudget(0,false,false,false,0).getInt("actions_max"), 3);
-        eq("quickened", r.turnBudget(0,false,true,false,0).getInt("actions_max"), 4);
-        eq("slowed 1", r.turnBudget(0,false,false,true,0).getInt("actions_max"), 2);
-        eq("stunned 1", r.turnBudget(0,false,false,false,1).getInt("actions_max"), 2);
-        eq("stunned 4 clamps to zero", r.turnBudget(0,false,false,false,4).getInt("actions_max"), 0);
+        eq("normal action budget", r.turnBudget(0,false,false,false,0).optInt("actions_max"), 3);
+        eq("quickened", r.turnBudget(0,false,true,false,0).optInt("actions_max"), 4);
+        eq("slowed 1", r.turnBudget(0,false,false,true,0).optInt("actions_max"), 2);
+        eq("stunned 1", r.turnBudget(0,false,false,false,1).optInt("actions_max"), 2);
+        eq("stunned 4 clamps to zero", r.turnBudget(0,false,false,false,4).optInt("actions_max"), 0);
         // Stunned overrides slowed: do not subtract overlapping penalties twice.
-        eq("slowed1 + stunned1", r.turnBudget(0,false,false,true,1).getInt("actions_max"), 2);
-        eq("quickened + slowed1 + stunned1", r.turnBudget(0,false,true,true,1).getInt("actions_max"), 3);
-        eq("quickened + slowed1 + stunned2", r.turnBudget(0,false,true,true,2).getInt("actions_max"), 2);
-        eq("used actions clamp", r.turnBudget(9,false,true,true,1).getInt("actions_remaining"), 0);
+        eq("slowed1 + stunned1", r.turnBudget(0,false,false,true,1).optInt("actions_max"), 2);
+        eq("quickened + slowed1 + stunned1", r.turnBudget(0,false,true,true,1).optInt("actions_max"), 3);
+        eq("quickened + slowed1 + stunned2", r.turnBudget(0,false,true,true,2).optInt("actions_max"), 2);
+        eq("used actions clamp", r.turnBudget(9,false,true,true,1).optInt("actions_remaining"), 0);
         // The condition parser is a separate path and must give the same result.
         JSONObject s = r.evaluateConditions("quickened, slowed 2, stunned 1");
-        eq("condition budget overlapping", s.getInt("actions_max"), 2);
-        eq("condition actions lost overlapping", s.getInt("actions_lost"), 2);
+        eq("condition budget overlapping", s.optInt("actions_max"), 2);
+        eq("condition actions lost overlapping", s.optInt("actions_lost"), 2);
         JSONObject t = r.evaluateConditions("slowed 2, stunned 1");
-        eq("stunned/slowed condition budget", t.getInt("actions_max"), 1);
-        eq("stunned/slowed condition loss", t.getInt("actions_lost"), 2);
+        eq("stunned/slowed condition budget", t.optInt("actions_max"), 1);
+        eq("stunned/slowed condition loss", t.optInt("actions_lost"), 2);
         JSONObject u = r.evaluateConditions("stunned 4, slowed 2");
-        eq("stunned 4 blocks action", u.getInt("actions_max"), 0);
-        eq("stunned 4 dominant", u.getInt("actions_lost"), 4);
-        ok("quickened restriction retained", r.turnBudget(0,false,true,false,0).getBoolean("quickened_action_restricted"));
+        eq("stunned 4 blocks action", u.optInt("actions_max"), 0);
+        eq("stunned 4 dominant", u.optInt("actions_lost"), 4);
+        ok("quickened restriction retained", r.turnBudget(0,false,true,false,0).optBoolean("quickened_action_restricted"));
         // Independent PF2 operation does not regress.
-        ok("persistent flat check DC15 fail on 14", !r.persistentDamageFlatCheck(14,false).getBoolean("recovered"));
-        ok("persistent flat check DC15 succeed on 15", r.persistentDamageFlatCheck(15,false).getBoolean("recovered"));
-        ok("assisted persistent flat check DC10", r.persistentDamageFlatCheck(10,true).getBoolean("recovered"));
+        ok("persistent flat check DC15 fail on 14", !r.persistentDamageFlatCheck(14,false).optBoolean("recovered"));
+        ok("persistent flat check DC15 succeed on 15", r.persistentDamageFlatCheck(15,false).optBoolean("recovered"));
+        ok("assisted persistent flat check DC10", r.persistentDamageFlatCheck(10,true).optBoolean("recovered"));
         System.out.println("PF2_R35_ACTION_OVERLAP_PASS checks=" + checks);
     }
 }
