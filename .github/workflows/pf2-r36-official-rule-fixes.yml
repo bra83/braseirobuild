@@ -9,7 +9,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: pf2-r36-official-book-rules
+  group: pf2-r36-official-book-rules-${{ github.sha }}
   cancel-in-progress: false
 jobs:
   patch-synthetic:
