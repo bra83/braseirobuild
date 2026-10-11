@@ -6,7 +6,7 @@ P=Path(__file__).with_name("patch_build_structure_repairs.py")
 spec=importlib.util.spec_from_file_location("repair",P)
 m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 fixture="""
-int modifier=rules.skillModifier(s.optInt("level",1),score,skill.optString("rank"),skill.optInt("item_bonus"),leadership,vacancy-ruin+Math.max(taxes,expansionExpert)-claimPenalty,s.optInt("unrest"));
+int modifier=rules.skillModifier(s.optInt("level",1),score,skill.optString("rank"),skill.optInt("item_bonus"),leadership,vacancy-ruin+circumstanceBonus-claimPenalty,s.optInt("unrest"));
 v.put("item",skill.optInt("item_bonus"));
     public JSONObject resolveRepairStructure(String settlementKey, String structureKey, String notes) throws Exception {
         return repairStructure(settlementKey,structureKey,notes);
