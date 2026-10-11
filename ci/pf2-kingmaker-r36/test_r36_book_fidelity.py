@@ -50,3 +50,9 @@ def test_claim_penalty_persists_to_next_kingdom_turn_and_expires():
 
 def test_version_and_non_intentional_scope():
     assert "VERSION_NAME=9.0.37" in (ROOT/"version.properties").read_text()
+
+def test_collect_taxes_rejects_other_skills_before_check():
+    s=method_body('public JSONObject resolveCollectTaxes(int naturalRoll,String skillKey,String ruinChoice,String notes)')
+    guard='if(!"trade".equals(skill))throw new IllegalArgumentException'
+    assert guard in s
+    assert s.index(guard) < s.index('recordCheck("collect_taxes"')
