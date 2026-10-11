@@ -27,7 +27,7 @@ def key_for(name):
     return re.sub(r"(^_+|_+$)","",re.sub(r"[^a-z0-9]+","_",ascii_name.lower()))
 
 def skill_data(value):
-    pieces = re.split(r",\s*|\s+or\s+",value.strip())
+    pieces = re.split(r",\s*(?:or\s+)?|\s+or\s+",value.strip())
     pairs = []
     for piece in pieces:
         match=re.fullmatch(r"([A-Za-z]+)(?: \((trained|expert|master|legendary)\))?",piece.strip())
