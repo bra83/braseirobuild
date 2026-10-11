@@ -60,5 +60,7 @@ def test_collect_taxes_rejects_other_skills_before_check():
 def test_expansion_expert_bonus_is_limited_to_claim_hex_and_kingdom_level_four():
     check=method_body('public JSONObject recordCheck(String activityKey,String title,String role,String skillKey,int natural,int dc,String sourceRef,String notes,boolean awardReputationOnCrit)')
     assert '"claim_hex".equals(activity)&&s.optInt("level",1)>=4?2:0' in check
-    assert 'vacancy-ruin+taxes+expansionExpert-claimPenalty' in check
+    assert 'int circumstanceBonus=Math.max(taxes,expansionExpert);' in check
+    assert 'vacancy-ruin+circumstanceBonus-claimPenalty' in check
+    assert '.put("circumstance_bonus_applied",circumstanceBonus)' in check
     assert '.put("expansion_expert_circumstance",expansionExpert)' in check
