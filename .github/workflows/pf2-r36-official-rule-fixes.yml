@@ -48,6 +48,7 @@ jobs:
           unzip -q r35-source.zip -d r35-source
           python ci/pf2-kingmaker-certification/crosswalk_runtime_audit.py --project r35-source --out official-book-evidence
           python ci/pf2-kingmaker-certification/audit_campaign.py --project r35-source --out official-book-evidence
+          python ci/pf2-kingmaker-certification/audit_structure_catalog.py --project r35-source --out official-book-evidence/structure_catalog_delta.json
           python ci/pf2-kingmaker-certification/official_part_semantic_audit.py --project r35-source --out official-book-evidence
       - name: Publish audit in GitHub job summary (artifact quota independent)
         if: always()
