@@ -81,6 +81,7 @@ jobs:
           python -m compileall -q ci/pf2-kingmaker-r36
           python -m pytest -q ci/pf2-kingmaker-r36/test_prepaid_transform_synthetic.py ci/pf2-kingmaker-r36/test_kingdom_accounting_transform.py ci/pf2-kingmaker-r36/test_claim_ui_transform.py ci/pf2-kingmaker-r36/test_build_structure_transform.py ci/pf2-kingmaker-r36/test_build_structure_repairs.py ci/pf2-kingmaker-r36/test_structure_catalog_values.py ci/pf2-kingmaker-r36/test_multi_structure.py
   verify-hosted:
+    needs: [patch-synthetic, official-content-crosswalk]
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -157,6 +158,7 @@ jobs:
           ./gradlew :app:testDebugUnitTest --no-daemon --stacktrace
           echo "R36_ANDROID_JVM_UNIT_TESTS_PASS=true"
   verify:
+    needs: [verify-hosted]
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 100
     steps:
