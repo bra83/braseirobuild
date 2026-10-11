@@ -51,8 +51,10 @@ jobs:
           $auth=[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes('x-access-token:'+$env:GH_REPO_TOKEN))
           $env:GIT_CONFIG_COUNT='1'; $env:GIT_CONFIG_KEY_0='http.https://github.com/.extraheader'; $env:GIT_CONFIG_VALUE_0='AUTHORIZATION: basic '+$auth
           try {
-            & git clone --filter=blob:none --sparse --depth 1 --single-branch -b 'dnd/run247-mod005-reconciled-g05-brelga' https://github.com/bra83/braseirobuild.git $repo
+            & git -c core.autocrlf=false -c core.eol=lf clone --filter=blob:none --sparse --depth 1 --single-branch -b 'dnd/run247-mod005-reconciled-g05-brelga' https://github.com/bra83/braseirobuild.git $repo
             if ($LASTEXITCODE -ne 0) { throw 'GIT_CLONE_FAILED' }
+            & git -C $repo config core.autocrlf false
+            & git -C $repo config core.eol lf
             & git -C $repo sparse-checkout set ci/dnd-normal-run247 dnd-normal/run247-mod005
             if ($LASTEXITCODE -ne 0) { throw 'GIT_SPARSE_CHECKOUT_FAILED' }
           } finally {
