@@ -102,7 +102,7 @@ def transform(s):
                     recordRpSpent(rp);
                 }
                 JSONObject check=recordCheck("build_structure","Construir Estrutura: "+chosenKey,"Vice-rei",skill,
-                    naturalRoll,0,"Kingmaker Adventure Path 2e p. 518",notes,false);
+                    naturalRoll,def.optInt("construction_dc",0),"Kingmaker Adventure Path 2e p. 518",notes,false);
                 String degree=check.optString("degree");
                 boolean success="CRITICAL_SUCCESS".equals(degree)||"SUCCESS".equals(degree);
                 JSONObject output=new JSONObject().put("check",check).put("rp_spent",resume?0:rp)
