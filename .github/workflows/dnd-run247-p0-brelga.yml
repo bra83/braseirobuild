@@ -1,0 +1,32 @@
+name: DnD RUN247 P0 Repair - BRELGA
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/dnd-run247-p0-brelga.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dnd-run247-p0-brelga
+  cancel-in-progress: false
+jobs:
+  test-and-build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    steps:
+      - name: Checkout controlled RUN247 repair scripts
+        uses: actions/checkout@v4
+      - name: Apply P0 patch, run complete tests, assemble Android, generate proof
+        shell: powershell
+        run: |
+          & "$env:GITHUB_WORKSPACE\ci\dnd-run247-mod005\build-p0-brelga.ps1"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Archive complete BRELGA evidence and APK (even if build fails)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: DND_RUN247_P0_BRELGA_${{ github.run_id }}
+          path: ${{ runner.temp }}\dnd-run247-p0-output\*
+          if-no-files-found: warn
+          retention-days: 14
