@@ -341,6 +341,14 @@ public final class Run245G05RhwOnHitConditionRobolectricTest {
             assertTrue(StatblockEncounterStateEngine.spawn("flow-plant","Bodytaker Plant").optBoolean("spawned"));
             StatblockTurnEngine.setInitiative("flow-ankhtepot",20);
             StatblockTurnEngine.setInitiative("flow-plant",10);StatblockTurnEngine.start();
+            JSONObject wrongBudget=StatblockCombatFlowEngine.attack("flow-ankhtepot","flow-plant",
+                "Death Strike",15);
+            assertTrue(wrongBudget.toString(),wrongBudget.optBoolean("blocked",false));
+            assertEquals("unsupported_non_action_economy_in_legacy_flow",
+                wrongBudget.optString("reason"));
+            assertEquals(138,StatblockEncounterStateEngine.view("flow-plant").optInt("hp"));
+            assertTrue(StatblockTurnEngine.state().getJSONArray("order").getJSONObject(0)
+                .getJSONObject("economy").optBoolean("action",false));
             JSONObject plain=StatblockCombatFlowEngine.attack("flow-ankhtepot","flow-plant",
                 "Negative Energy Burst",15);
             assertTrue(plain.toString(),plain.optBoolean("resolved",false));
