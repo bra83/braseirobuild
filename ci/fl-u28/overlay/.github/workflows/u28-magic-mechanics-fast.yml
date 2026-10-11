@@ -1,0 +1,57 @@
+name: Forbidden Lands U28 - mechanical magic focused Chromium
+on:
+  push:
+    branches: [ci/u28-gm-mechanical, ci/u28-integrated]
+    paths:
+      - '.github/workflows/u28-magic-mechanics-fast.yml'
+      - 'e2e/u28_gm_mechanical_browser.py'
+      - 'e2e/u28_mechanical_browser.py'
+      - 'e2e/u28-mechanical-browser.tsx'
+      - 'e2e/u28-gm-mechanical-browser.tsx'
+      - 'src/components/MagicGmPendingPanel.tsx'
+      - 'src/services/MagicGmMechanicalService.ts'
+      - 'src/services/MagicCastingService.ts'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-magic-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked npm dependencies
+        run: npm ci --no-audit --no-fund
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install headless Chromium
+        run: |
+          python -m pip install playwright==1.55.0
+          python -m playwright install --with-deps chromium
+      - name: Execute real six-spell React UI and IndexedDB test
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 4173 --strictPort > vite-server.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for i in $(seq 1 45); do
+            if curl -fsS 'http://127.0.0.1:4173/e2e/u28-gm-mechanical-browser.html?spell=portal' -o /dev/null 2>/dev/null; then break; fi
+            sleep 1
+          done
+          python e2e/u28_gm_mechanical_browser.py
+          python e2e/u28_mechanical_browser.py
+      - name: Print focused diagnostic even on failures
+        if: always()
+        shell: bash
+        run: |
+          echo '=== VITE ERRORS ==='
+          tail -n 100 vite-server.log 2>/dev/null || true
+          echo '=== U28 PROOF ==='
+          cat e2e-results/u28-gm-mechanical-browser.json 2>/dev/null || true
+          cat e2e-results/u28-mechanical-browser.json 2>/dev/null || true
