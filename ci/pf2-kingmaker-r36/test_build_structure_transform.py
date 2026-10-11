@@ -67,3 +67,11 @@ def test_wrong_version_does_not_mutate_file(tmp_path):
 def test_fail_closed_if_cost_debit_anchor_drifts():
     s=FIXTURE.replace('sv.put("stone", s.optInt("stone") - stoneCost);',"// moved elsewhere")
     with pytest.raises(RuntimeError):m.transform(s)
+
+def test_unfinished_retry_is_gated_by_kingdom_turn():
+    updated=m.transform(FIXTURE)
+    resolver=updated[updated.index("public JSONObject resolveBuildStructure("):]
+    assert 'previous.optInt("last_attempt_turn",-1)==turn.optInt("turn_number")' in resolver
+    assert 'Obra inacabada: a próxima tentativa deve ocorrer em outro turno' in resolver
+    assert '.put("last_attempt_turn",turn.optInt("turn_number"))' in resolver
+    assert resolver.index('last_attempt_turn",-1') < resolver.index('adjustState(cost,')
