@@ -1,0 +1,682 @@
+{
+  "schema": "kingmaker-2e-official-11-chapter-40-part-page-ranges-v1",
+  "source": "Kingmaker.pdf, official Table of Contents, Appendix starts p.502",
+  "source_drive_id": "1hHjK7DjhdDFvejYk70NNxO0zMp7Rnsn3",
+  "certification": "NOT_CERTIFIED",
+  "chapters": [
+    {
+      "chapter": 1,
+      "name": "A Call for Heroes",
+      "book_chapter_page": 14,
+      "android_candidate_assets": [
+        "chapter_00",
+        "chapter_01_stolen_lands_part1.json"
+      ],
+      "official_parts": [
+        {
+          "part": 1,
+          "official_name": "The Swordlord's Feast",
+          "page_start": 16,
+          "page_end_inclusive": 23,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 2,
+          "official_name": "Blood and Blades",
+          "page_start": 24,
+          "page_end_inclusive": 31,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 3,
+          "official_name": "Into the Fire",
+          "page_start": 32,
+          "page_end_inclusive": 41,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 2,
+      "name": "Into the Wild",
+      "book_chapter_page": 42,
+      "android_candidate_assets": [
+        "chapter_01_stolen_lands_part1.json",
+        "chapter_02_stolen_lands_part2.json",
+        "chapter_11_hex_atlas_pois.json"
+      ],
+      "official_parts": [
+        {
+          "part": 1,
+          "official_name": "Hexploring the Stolen Lands",
+          "page_start": 44,
+          "page_end_inclusive": 49,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 2,
+          "official_name": "Hex Encounters",
+          "page_start": 50,
+          "page_end_inclusive": 119,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 3,
+          "official_name": "The Old Sycamore",
+          "page_start": 120,
+          "page_end_inclusive": 125,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 4,
+          "official_name": "Sootscale Caverns",
+          "page_start": 126,
+          "page_end_inclusive": 131,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 5,
+          "official_name": "The Lonely Barrow",
+          "page_start": 132,
+          "page_end_inclusive": 135,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 6,
+          "official_name": "Isle of the Lizard King",
+          "page_start": 136,
+          "page_end_inclusive": 141,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 7,
+          "official_name": "Candlemere Island",
+          "page_start": 142,
+          "page_end_inclusive": 147,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 8,
+          "official_name": "The Forgotten Keep",
+          "page_start": 148,
+          "page_end_inclusive": 153,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 9,
+          "official_name": "M'Botuu",
+          "page_start": 154,
+          "page_end_inclusive": 159,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 3,
+      "name": "Stolen Land",
+      "book_chapter_page": 160,
+      "android_candidate_assets": [
+        "chapter_01_stolen_lands_part1.json",
+        "chapter_02_stolen_lands_part2.json"
+      ],
+      "official_parts": [
+        {
+          "part": 1,
+          "official_name": "Trouble at Oleg's",
+          "page_start": 162,
+          "page_end_inclusive": 167,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 2,
+          "official_name": "Bandits of the Greenbelt",
+          "page_start": 168,
+          "page_end_inclusive": 171,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 3,
+          "official_name": "Against the Stag Lord",
+          "page_start": 172,
+          "page_end_inclusive": 183,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 4,
+      "name": "Rivers Run Red",
+      "book_chapter_page": 184,
+      "android_candidate_assets": [
+        "chapter_03_rivers_run_red.json"
+      ],
+      "official_parts": [
+        {
+          "part": 1,
+          "official_name": "Home Sweet Home",
+          "page_start": 186,
+          "page_end_inclusive": 199,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 2,
+          "official_name": "Troll Trouble",
+          "page_start": 200,
+          "page_end_inclusive": 207,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 3,
+          "official_name": "Hunting the Beast",
+          "page_start": 208,
+          "page_end_inclusive": 213,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 5,
+      "name": "Cult of the Bloom",
+      "book_chapter_page": 214,
+      "android_candidate_assets": [
+        "chapter_04_cult_of_bloom.json"
+      ],
+      "official_parts": [
+        {
+          "part": 1,
+          "official_name": "Seeds of Ruin",
+          "page_start": 216,
+          "page_end_inclusive": 227,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 2,
+          "official_name": "Full Bloom",
+          "page_start": 228,
+          "page_end_inclusive": 237,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 3,
+          "official_name": "The Cradle of Lamashtu",
+          "page_start": 238,
+          "page_end_inclusive": 247,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 6,
+      "name": "The Varnhold Vanishing",
+      "book_chapter_page": 248,
+      "android_candidate_assets": [
+        "chapter_05_varnhold_vanishing.json"
+      ],
+      "official_parts": [
+        {
+          "part": 1,
+          "official_name": "Before the Vanishing",
+          "page_start": 250,
+          "page_end_inclusive": 251,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 2,
+          "official_name": "The Vanished Village",
+          "page_start": 252,
+          "page_end_inclusive": 265,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 3,
+          "official_name": "Among the Nomen",
+          "page_start": 266,
+          "page_end_inclusive": 269,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 4,
+          "official_name": "Vordakai's Tomb",
+          "page_start": 270,
+          "page_end_inclusive": 285,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 7,
+      "name": "Blood for Blood",
+      "book_chapter_page": 286,
+      "android_candidate_assets": [
+        "chapter_06_blood_for_blood.json"
+      ],
+      "official_parts": [
+        {
+          "part": 1,
+          "official_name": "Trouble in Tatzlford",
+          "page_start": 288,
+          "page_end_inclusive": 299,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 2,
+          "official_name": "Fort Drelev",
+          "page_start": 300,
+          "page_end_inclusive": 317,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 3,
+          "official_name": "The Twice-Born Warlord",
+          "page_start": 318,
+          "page_end_inclusive": 329,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 8,
+      "name": "War of the River Kings",
+      "book_chapter_page": 330,
+      "android_candidate_assets": [
+        "chapter_07_war_of_river_kings.json"
+      ],
+      "official_parts": [
+        {
+          "part": 1,
+          "official_name": "The Rushlight Treachery",
+          "page_start": 332,
+          "page_end_inclusive": 347,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 2,
+          "official_name": "Behind Enemy Lines",
+          "page_start": 348,
+          "page_end_inclusive": 353,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 3,
+          "official_name": "The Ghost of Whiterose",
+          "page_start": 354,
+          "page_end_inclusive": 365,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 4,
+          "official_name": "Infiltration",
+          "page_start": 366,
+          "page_end_inclusive": 379,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 5,
+          "official_name": "The King's Palace",
+          "page_start": 380,
+          "page_end_inclusive": 395,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 9,
+      "name": "They Lurk Below",
+      "book_chapter_page": 396,
+      "android_candidate_assets": [
+        "chapter_08_they_lurk_below.json"
+      ],
+      "official_parts": [
+        {
+          "part": 1,
+          "official_name": "Threshold of Dread",
+          "page_start": 398,
+          "page_end_inclusive": 411,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 2,
+          "official_name": "The Depth of Fear",
+          "page_start": 412,
+          "page_end_inclusive": 421,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 10,
+      "name": "Sound of a Thousand Screams",
+      "book_chapter_page": 422,
+      "android_candidate_assets": [
+        "chapter_09_sound_thousand_screams.json"
+      ],
+      "official_parts": [
+        {
+          "part": 1,
+          "official_name": "A Month of Destruction",
+          "page_start": 424,
+          "page_end_inclusive": 441,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 2,
+          "official_name": "A Thousand Breaths",
+          "page_start": 442,
+          "page_end_inclusive": 455,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 3,
+          "official_name": "House at the Edge of Time",
+          "page_start": 456,
+          "page_end_inclusive": 477,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        }
+      ]
+    },
+    {
+      "chapter": 11,
+      "name": "Curse of the Lantern King",
+      "book_chapter_page": 478,
+      "android_candidate_assets": [
+        "chapter_10_curse_lantern_king.json"
+      ],
+      "official_parts": [
+        {
+          "part": 1,
+          "official_name": "A Broken Apology",
+          "page_start": 480,
+          "page_end_inclusive": 483,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        },
+        {
+          "part": 2,
+          "official_name": "The Lantern Kingdom",
+          "page_start": 484,
+          "page_end_inclusive": 501,
+          "semantic_certification": "PENDING",
+          "mandatory_comparisons": [
+            "NPCs and factions",
+            "scenes and locations",
+            "encounters and DCs",
+            "quest branches and consequences",
+            "runtime world-state and save/restore"
+          ]
+        }
+      ]
+    }
+  ]
+}
