@@ -9715,10 +9715,12 @@ if(request==REQ_TOKEN&&(result!=RESULT_OK||data==null||data.getData()==null)){cl
                 .setView(scroll).setNegativeButton("Voltar",null)
                 .setNeutralButton("Ficha / estado",new DialogInterface.OnClickListener(){
                     public void onClick(DialogInterface d,int which){
-                        JSONObject fresh=universalLiveEngine().processUniversal(new JSONObject().put("action","status"));
-                        new AlertDialog.Builder(MainActivity.this).setTitle("Estado persistido")
-                            .setMessage(fresh.optJSONObject("state").toString(2))
-                            .setPositiveButton("Fechar",null).show();
+                        try {
+                            JSONObject fresh=universalLiveEngine().processUniversal(new JSONObject().put("action","status"));
+                            new AlertDialog.Builder(MainActivity.this).setTitle("Estado persistido")
+                                .setMessage(fresh.optJSONObject("state").toString(2))
+                                .setPositiveButton("Fechar",null).show();
+                        } catch (Exception e) { toast("Estado indisponível: "+safeMessage(e)); }
                     }
                 })
                 .setPositiveButton("Pedir cena ao Gemini",new DialogInterface.OnClickListener(){
@@ -9736,9 +9738,12 @@ if(request==REQ_TOKEN&&(result!=RESULT_OK||data==null||data.getData()==null)){cl
         final JSONArray effects=receipt.optJSONArray("proposed_effects");
         if(effects==null||effects.length()==0){showUniversalLiveScene(actor,profile);return;}
         final String requestId=receipt.optString("request_id","");
+        final String formattedEffects;
+        try { formattedEffects=effects.toString(2); }
+        catch (Exception e) { toast("Proposta indisponível: "+safeMessage(e)); return; }
         final String summary="Resultado: "+receipt.optString("consequence","")
             +"\n\nEfeitos sugeridos pelo Mestre (ainda NÃO aplicados):\n"
-            +effects.toString(2)+"\n\nConfirme somente se esses valores estão corretos.";
+            +formattedEffects+"\n\nConfirme somente se esses valores estão corretos.";
         new AlertDialog.Builder(this).setTitle("Consequências · Aprovação do jogador")
             .setMessage(summary)
             .setPositiveButton("Aplicar",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){
@@ -9762,11 +9767,13 @@ if(request==REQ_TOKEN&&(result!=RESULT_OK||data==null||data.getData()==null)){cl
                 }catch(Exception e){toast("Não foi possível aplicar: "+safeMessage(e));}
             }})
             .setNegativeButton("Recusar",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){
-                JSONObject declined=universalLiveEngine().processUniversal(new JSONObject()
-                    .put("action","decline_effects").put("request_id",requestId)
-                    .put("character_id",actor));
-                if(!declined.optBoolean("committed",false))toast("Recusa não gravada: "+declined.optString("error","erro"));
-                else{setStatus("Efeitos mecânicos recusados; decisão salva.");showUniversalLiveScene(actor,profile);}
+                try {
+                    JSONObject declined=universalLiveEngine().processUniversal(new JSONObject()
+                        .put("action","decline_effects").put("request_id",requestId)
+                        .put("character_id",actor));
+                    if(!declined.optBoolean("committed",false))toast("Recusa não gravada: "+declined.optString("error","erro"));
+                    else{setStatus("Efeitos mecânicos recusados; decisão salva.");showUniversalLiveScene(actor,profile);}
+                } catch (Exception e) { toast("Recusa não gravada: "+safeMessage(e)); }
             }})
             .setNeutralButton("Decidir depois",null).show();
     }
@@ -9828,8 +9835,11 @@ if(request==REQ_TOKEN&&(result!=RESULT_OK||data==null||data.getData()==null)){cl
         if(aiQuotaGovernor!=null&&!aiQuotaGovernor.canCall()){
             toast("Limite de chamadas Gemini atingido. Estado anterior preservado.");return;
         }
-        AdventureEngine engine=universalLiveEngine();
-        JSONObject state=engine.processUniversal(new JSONObject().put("action","status")).optJSONObject("state");
+        final JSONObject state;
+        try {
+            AdventureEngine engine=universalLiveEngine();
+            state=engine.processUniversal(new JSONObject().put("action","status")).optJSONObject("state");
+        } catch (Exception e) { toast("Cena não iniciada: "+safeMessage(e)); return; }
         final String prompt=com.braseiro.dnd5e.adventure.UniversalLiveSession.prompt(profile,actor,state,playerMove);
         final String system="BRAS_SINGLE_CALL. Responda em PT-BR. Siga rigorosamente o formato JSON solicitado; "
             +"nunca execute mudanças de ficha ou declare dados rolados pelo jogador.";
@@ -9837,6 +9847,7 @@ if(request==REQ_TOKEN&&(result!=RESULT_OK||data==null||data.getData()==null)){cl
         gemini.generateText(key,prefs.getString("text_model","gemini-3.5-flash-lite"),system,prompt,
             new GeminiService.TextCallback(){
                 public void onSuccess(final String response){ui.post(new Runnable(){public void run(){
+                    try {
                     if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(system.length()+prompt.length(),response==null?0:response.length());
                     JSONObject accepted=universalLiveEngine().processUniversal(new JSONObject()
                         .put("action","accept_ai_scene").put("event_id","gemini."+java.util.UUID.randomUUID())
@@ -9851,6 +9862,10 @@ if(request==REQ_TOKEN&&(result!=RESULT_OK||data==null||data.getData()==null)){cl
                     JSONObject pending=accepted.optJSONObject("pending");
                     if(pending!=null)showUniversalLiveCheck(actor,profile,pending);
                     else showUniversalLiveScene(actor,profile);
+                    } catch (Exception e) {
+                        setStatus("Resposta do Gemini não registrada.");
+                        toast("Falha ao registrar cena: "+safeMessage(e));
+                    }
                 }});}
                 public void onError(final String error){ui.post(new Runnable(){public void run(){
                     if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(system.length()+prompt.length(),0);
@@ -9883,8 +9898,10 @@ if(request==REQ_TOKEN&&(result!=RESULT_OK||data==null||data.getData()==null)){cl
                                 catch(Exception e){toast("JSON de dados inválido; resultado não salvo.");}
                             }}).show();
                     }else{
-                        confirmUniversalLiveCheck(actor,profile,pending,new JSONObject().put("mode","manual")
-                            .put("outcome",selection==0?"success":"failure"));
+                        try {
+                            confirmUniversalLiveCheck(actor,profile,pending,new JSONObject().put("mode","manual")
+                                .put("outcome",selection==0?"success":"failure"));
+                        } catch (Exception e) { toast("Resultado não salvo: "+safeMessage(e)); }
                     }
                 }}).show();
     }

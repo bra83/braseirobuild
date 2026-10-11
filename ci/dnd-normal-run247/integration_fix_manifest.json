@@ -16,7 +16,8 @@
     "app/src/main/java/com/braseiro/dnd5e/adventure/UniversalEffectTransaction.java": "7133d1a1ce37dd2f47620ba3e161ce8e4fe086ca8c4cce8a9fe9e93f3ec3d78a",
     "app/src/main/java/com/braseiro/dnd5e/adventure/UniversalRpgEngine.java": "b3febb36afaaa42434111da4edfba8222bcf14b39932a418bc36d016772959f0",
     "app/src/main/java/com/braseiro/dnd5e/adventure/UniversalLiveSession.java": "3bca1ab1313157168d2bdc342bb5a7dd5125a15f7bba480eaac8009764b56c12",
-    "app/src/main/java/com/braseiro/dnd5e/adventure/UniversalGithubLab.java": "4f75d62908dd7529da2b5fbc3f0339af9c1b0f364f6dfd1ecb426d891dcd3c28"
+    "app/src/main/java/com/braseiro/dnd5e/adventure/UniversalGithubLab.java": "4f75d62908dd7529da2b5fbc3f0339af9c1b0f364f6dfd1ecb426d891dcd3c28",
+    "app/src/main/java/com/braseiro/dnd5e/MainActivity.java": "cd89e232bd39c6147918f2f535072fd1a4f08037aa1730b37bf31ceb0071c506"
   },
   "must_not_add_or_remove": true,
   "baseline_file_count": 1437
