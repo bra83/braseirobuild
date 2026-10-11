@@ -24,6 +24,7 @@ sv.put("ore", s.optInt("ore") - oreCost);
 sv.put("luxuries", s.optInt("luxuries") - luxuriesCost);
 recordRpSpent(rpCost);
 }
+    public JSONObject demolishStructure(
     public JSONObject resolveBuildStructure(String settlementKey, String structureKey, int naturalRoll, String skillKey, String notes) throws Exception {
         JSONObject check=recordCheck("build_structure");
     }
