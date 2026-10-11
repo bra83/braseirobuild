@@ -1,0 +1,79 @@
+name: PF2 R35 Real Android Kingdom and Army Persistence
+on:
+  push:
+    branches: [pf2-kingmaker-r35-android-homologation-20261011]
+    paths: ['.github/workflows/pf2-r35-real-kingdom-ui.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pf2-r35-avd-exclusive
+  cancel-in-progress: false
+jobs:
+  android:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch original published R35 APK and verify checksum
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'Wrong runner'}
+          $dir=Join-Path $env:RUNNER_TEMP 'pf2-r35-actual-ui'
+          New-Item $dir -ItemType Directory -Force|Out-Null
+          $apk=Join-Path $dir 'r35.apk'
+          $auth=& git config --local --get http.https://github.com/.extraheader
+          if(!$auth){throw 'GitHub auth header unavailable'}
+          & curl.exe -L --fail --retry 5 --retry-delay 3 --header $auth --header 'Accept: application/octet-stream' --header 'X-GitHub-Api-Version: 2022-11-28' -o $apk 'https://api.github.com/repos/bra83/braseirobuild/releases/assets/629876493'
+          if($LASTEXITCODE -ne 0){throw 'APK download error'}
+          $sha=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($sha -ne '1d262ec114ee08a224a19c541a19d8284a46e34b14ef6512a9560b1f152d57a0'){throw "R35 APK checksum failed $sha"}
+          "UI_APK=$apk"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "UI_TMP=$dir"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "R35_ORIGINAL_APK_VERIFIED=$sha"
+      - name: Run authentic Kingmaker UI and AppDb acceptance on Pixel 7 Pro
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $sdk=Join-Path $env:LOCALAPPDATA 'Android\Sdk'
+          $emu=Join-Path $sdk 'emulator\emulator.exe'
+          $adb=Join-Path $sdk 'platform-tools\adb.exe'
+          $out=Join-Path $env:UI_TMP 'emu-stdout.txt'
+          $err=Join-Path $env:UI_TMP 'emu-stderr.txt'
+          $p=Start-Process -FilePath $emu -ArgumentList '-avd Pixel_7_Pro -no-window -no-audio -no-boot-anim -no-snapshot-load -no-snapshot-save -gpu swiftshader_indirect' -WindowStyle Hidden -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
+          try{
+            $ready=$false
+            for($i=0;$i -lt 85;$i++){
+              Start-Sleep -Seconds 3
+              if($p.HasExited){throw "Emulator process exit $($p.ExitCode)"}
+              if((@(& $adb devices)) -match 'emulator-[0-9]+\s+device'){
+                $boot=(& $adb -e shell getprop sys.boot_completed 2>$null|Out-String).Trim()
+                if($boot -eq '1'){$ready=$true;break}
+              }
+              if($i%20 -eq 0){Write-Host "BOOT_POLL=$i"}
+            }
+            if(!$ready){throw 'Android emulator did not complete boot'}
+            Write-Host 'ANDROID_BOOT_CONFIRMED=true'
+            $installed=& $adb -e install -r $env:UI_APK 2>&1
+            if($LASTEXITCODE -ne 0 -or ($installed|Out-String) -notmatch 'Success'){throw "Install failed: $($installed|Out-String)"}
+            Write-Host 'R35_APK_INSTALL_CONFIRMED=true'
+            $ErrorActionPreference='Continue'
+            python ci\pf2-kingmaker-certification\android_ui_endurance.py --adb $adb
+            $code=$LASTEXITCODE
+            $ErrorActionPreference='Stop'
+            if($code -ne 0){throw "Real Kingmaker UI gates not fully proven; exit=$code"}
+            Write-Host 'KINGDOM_ARMY_PROCESS_PERSISTENCE_REAL_UI_PASS'
+          }finally{
+            try{& $adb -e emu kill 2>$null}catch{}
+            if(!$p.HasExited){Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue}
+          }
+      - name: Declare the exact evidence boundary
+        if: always()
+        shell: powershell
+        run: |
+          Write-Host 'No source code or production APK was modified. A real UI and database test is not a complete campaign 1-to-20 playthrough.'
+          Write-Host 'No artifacts uploaded due to account artifact quota; audit results printed in job log.'
