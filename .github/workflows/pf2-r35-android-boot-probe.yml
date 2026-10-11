@@ -1,0 +1,73 @@
+name: PF2 Kingmaker R35 Android AVD Boot Probe
+on:
+  push:
+    branches: [pf2-kingmaker-r35-android-homologation-20261011]
+    paths: ['.github/workflows/pf2-r35-android-boot-probe.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check registered AVD and acceleration and attempt short boot
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Continue'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Unexpected runner"}
+          $home=$env:USERPROFILE
+          $sdk=Join-Path $env:LOCALAPPDATA 'Android\Sdk'
+          $emu=Join-Path $sdk 'emulator\emulator.exe'
+          $adb=Join-Path $sdk 'platform-tools\adb.exe'
+          Write-Host '=== BEGIN EMULATOR PROBE ==='
+          Write-Host "EMU_EXEC_PRESENT=$(Test-Path $emu)"
+          Write-Host "ADB_EXEC_PRESENT=$(Test-Path $adb)"
+          if(!(Test-Path $emu)){throw 'No emulator executable'}
+          Write-Host 'EMU_VERSION:'
+          & $emu -version 2>&1 | Select-Object -First 12
+          Write-Host 'ACCEL_CHECK:'
+          & $emu -accel-check 2>&1 | Select-Object -First 24
+          Write-Host 'AVD_LIST:'
+          & $emu -list-avds 2>&1
+          $avd=Join-Path $home '.android\avd\Pixel_7_Pro.avd'
+          Write-Host "AVD_DIRECTORY_PRESENT=$(Test-Path $avd)"
+          $config=Join-Path $avd 'config.ini'
+          Write-Host "AVD_CONFIG_PRESENT=$(Test-Path $config)"
+          if(Test-Path $config){
+            Get-Content $config|Where-Object {$_ -match '^(abi.type|image.sysdir.1|hw.cpu.arch|hw.ramSize|target|disk.dataPartition.size|AvdId|hw.gpu.enabled|hw.device.name)='}|ForEach-Object{Write-Host "AVD_CONFIG=$_"}
+          }
+          $inis=Get-ChildItem (Join-Path $home '.android\avd') -Filter '*.ini' -ErrorAction SilentlyContinue
+          Write-Host "AVD_CONFIG_INIS=$($inis.Count)"
+          $names=@(& $emu -list-avds 2>&1 | Where-Object {$_ -match 'Pixel_7_Pro'})
+          if($names.Count -eq 0){
+            Write-Host 'AVD_BOOT_NOT_ATTEMPTED=AVD not registered; no AVD .ini available. Inventory proof only.'
+            Write-Host '=== END EMULATOR PROBE ==='
+            exit 0
+          }
+          $log=Join-Path $env:RUNNER_TEMP 'pf2-r35-emulator-start.log'
+          $argsList='-avd Pixel_7_Pro -no-window -no-audio -no-boot-anim -no-snapshot-load -no-snapshot-save -gpu swiftshader_indirect -verbose'
+          Write-Host "AVD_ATTEMPT=$argsList"
+          $proc=Start-Process -FilePath $emu -ArgumentList $argsList -PassThru -WindowStyle Hidden -RedirectStandardOutput $log -RedirectStandardError ($log+'.err')
+          $booted=$false
+          try{
+            for($i=0;$i -lt 18;$i++){
+              Start-Sleep -Seconds 3
+              if($proc.HasExited){Write-Host "EMULATOR_EARLY_EXIT=$($proc.ExitCode)";break}
+              $devices=@(& $adb devices)
+              if($devices -match 'emulator-[0-9]+\s+device'){
+                $boot=(& $adb -e shell getprop sys.boot_completed 2>$null)
+                if($boot -eq '1'){Write-Host 'ANDROID_BOOT_SUCCESS=true';$booted=$true;break}
+              }
+            }
+            if(-not $booted){Write-Host 'ANDROID_BOOT_SUCCESS=false'}
+            Write-Host 'ADB_POST:'
+            & $adb devices -l
+            if(Test-Path $log){Get-Content $log -Tail 45|ForEach-Object{Write-Host "EMU_STDOUT=$_"}}
+            if(Test-Path ($log+'.err')){Get-Content ($log+'.err') -Tail 50|ForEach-Object{Write-Host "EMU_STDERR=$_"}}
+          } finally {
+            & $adb -e emu kill 2>$null
+            if(-not $proc.HasExited){Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue}
+          }
+          Write-Host '=== END EMULATOR PROBE ==='
