@@ -44,7 +44,7 @@ jobs:
           New-Item -ItemType Directory -Path $root -Force | Out-Null
           "FL_ROOT=$root" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           $zip=Join-Path $root $env:SOURCE_NAME
-          $cached=Get-ChildItem 'D:\brelga-fl-u19-*' -Filter $env:SOURCE_NAME -File -ErrorAction SilentlyContinue | Where-Object { $_.Length -eq [int64]$env:SOURCE_BYTES } | Select-Object -First 1
+          $cached=Get-ChildItem 'D:\brelga-fl-u*-*' -Filter $env:SOURCE_NAME -File -ErrorAction SilentlyContinue | Where-Object { $_.Length -eq [int64]$env:SOURCE_BYTES } | Select-Object -First 1
           if ($cached) { Copy-Item $cached.FullName $zip }
           else {
             $meta=Invoke-RestMethod -Uri ($env:SOURCE_API + '/files?maxResults=100')
