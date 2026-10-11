@@ -13,9 +13,10 @@ MAPPING={
     "embassy":"EMBASSY","garrison":"GARRISON","granary":"GRANARY",
     "library":"LIBRARY","monument":"MONUMENT","pier":"PIER",
     "smithy":"SMITHY","stables":"STABLE","temple":"TEMPLE","theater":"THEATER",
+    "castle":"CASTLE","town_hall":"TOWN HALL",
 }
 
-def test_official_16_catalog_values_are_in_shipped_rules_engine():
+def test_official_18_catalog_values_are_in_shipped_rules_engine():
     official={x["official_name"]:x for x in BOOK["structures"]}
     assert len(official)==73
     for key,name in MAPPING.items():
@@ -31,7 +32,10 @@ def test_official_16_catalog_values_are_in_shipped_rules_engine():
         for field,value in expected.items():
             assert '.put("'+field+'",'+str(value)+')' in part,(key,field,value)
         assert '.put("construction_dc",'+str(rec["construction_dc"])+')' in part,key
-        assert '.put("construction_skill",' in part
+        if key in ("castle","town_hall"):
+            assert '.put("construction_skills","defense,industry,magic,statecraft")' in part
+        else:
+            assert '.put("construction_skill",' in part
         assert '.put("construction_rank",' in part
 
 def test_build_and_repair_pass_structure_specific_dc_to_recordcheck():
@@ -58,4 +62,6 @@ def test_required_proficiency_is_checked_before_issuing_structure_costs():
     for method in (build,repair):
         assert 'def.optString("construction_rank","untrained")' in method
         assert 'rankScale.indexOf(actualRank)<rankScale.indexOf(requiredRank)' in method
+        assert 'def.optString("construction_skills","")' in method
+        assert 'allowedSkills.split(",")' in method
         assert method.index('rankScale.indexOf(actualRank)') < method.index('adjustState(')
