@@ -1,8 +1,5 @@
 name: Forbidden Lands U26 integrated - BRELGA APK and Android smoke
 on:
-  push:
-    branches: [build/fl-u23-integrated]
-    paths: ['.github/workflows/build-forbidden-lands-u23-integrated-brelga.yml', 'ci/fl-u23/**']
   workflow_dispatch:
 permissions:
   contents: write
