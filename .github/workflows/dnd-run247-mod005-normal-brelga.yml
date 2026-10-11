@@ -33,10 +33,15 @@ jobs:
           $ErrorActionPreference='Stop'
           if ($env:RUNNER_NAME -ne 'BRELGA') { throw "WRONG_RUNNER=$env:RUNNER_NAME" }
           if ($env:GITHUB_REF_NAME -ne 'dnd/run247-mod005-reconciled-g05-brelga') { throw "WRONG_BRANCH=$env:GITHUB_REF_NAME" }
-          $scratch=Join-Path $env:RUNNER_TEMP ("dnd-run247-mod005-"+$env:GITHUB_RUN_ID)
+          $volume=Get-PSDrive -Name 'D' -PSProvider FileSystem -ErrorAction Stop
+          if ($volume.Free -lt 6GB) { throw ("BRELGA_D_DRIVE_HAS_LESS_THAN_6GB_FREE_FREE_BYTES="+$volume.Free) }
+          $scratch=Join-Path 'D:\' ("braseiro-dnd-normal-run247-"+$env:GITHUB_RUN_ID)
           New-Item -ItemType Directory -Force -Path $scratch | Out-Null
           New-Item -ItemType Directory -Force -Path (Join-Path $scratch 'out') | Out-Null
-          $project=Join-Path $env:GITHUB_WORKSPACE 'dnd-normal/run247-mod005'
+          $repo=Join-Path $scratch 'repo'
+          $project=Join-Path $repo 'dnd-normal/run247-mod005'
+          "DND_REPO=$repo" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "GRADLE_USER_HOME=$(Join-Path $scratch 'gradle-home')" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "DND_SCRATCH=$scratch" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "DND_OUT=$(Join-Path $scratch 'out')" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "DND_PROJECT=$project" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
@@ -86,9 +91,13 @@ jobs:
         if: steps.source.outcome == 'success'
         shell: powershell
         continue-on-error: true
+        env:
+          GH_REPO_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference='Stop'
-          Set-Location $env:GITHUB_WORKSPACE
+          & git clone --no-local --single-branch --branch 'dnd/run247-mod005-reconciled-g05-brelga' $env:GITHUB_WORKSPACE $env:DND_REPO
+          if ($LASTEXITCODE -ne 0) { throw "CLONE_GITHUB_BRANCH_TO_D_FAILED_$LASTEXITCODE" }
+          Set-Location $env:DND_REPO
           New-Item -ItemType Directory -Force -Path (Split-Path $env:DND_PROJECT -Parent) | Out-Null
           if (Test-Path $env:DND_PROJECT) {
             & python (Join-Path $env:GITHUB_WORKSPACE 'ci/dnd-normal-run247/compare_exact_trees.py') --reference $env:DND_RECONSTRUCTED --existing $env:DND_PROJECT
@@ -104,8 +113,20 @@ jobs:
           if ($status) {
             & git -c user.name='braseiro-brelga[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'D&D NORMAL RUN247+MOD005 source SHA256 2774b450ecf5be17 - unhomologated' -- 'dnd-normal/run247-mod005/'
             if ($LASTEXITCODE -ne 0) { throw "SOURCE_TREE_COMMIT_FAILED_$LASTEXITCODE" }
-            & git push origin HEAD:refs/heads/dnd/run247-mod005-reconciled-g05-brelga
-            if ($LASTEXITCODE -ne 0) { throw "SOURCE_TREE_PUSH_FAILED_$LASTEXITCODE" }
+            if ([string]::IsNullOrWhiteSpace($env:GH_REPO_TOKEN)) { throw 'GITHUB_PUSH_TOKEN_UNAVAILABLE' }
+            $raw='x-access-token:'+$env:GH_REPO_TOKEN
+            $b64=[Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($raw))
+            $env:GIT_CONFIG_COUNT='1'
+            $env:GIT_CONFIG_KEY_0='http.https://github.com/.extraheader'
+            $env:GIT_CONFIG_VALUE_0='AUTHORIZATION: basic '+$b64
+            try {
+              & git push 'https://github.com/bra83/braseirobuild.git' HEAD:refs/heads/dnd/run247-mod005-reconciled-g05-brelga
+              if ($LASTEXITCODE -ne 0) { throw "SOURCE_TREE_PUSH_FAILED_$LASTEXITCODE" }
+            } finally {
+              Remove-Item Env:GIT_CONFIG_COUNT -ErrorAction SilentlyContinue
+              Remove-Item Env:GIT_CONFIG_KEY_0 -ErrorAction SilentlyContinue
+              Remove-Item Env:GIT_CONFIG_VALUE_0 -ErrorAction SilentlyContinue
+            }
           }
           $commit = (& git rev-parse HEAD).Trim()
           if ($LASTEXITCODE -ne 0) { throw 'SOURCE_TREE_HEAD_NOT_RESOLVED' }
@@ -123,6 +144,9 @@ jobs:
           }
           if (!$env:ANDROID_HOME -or !(Test-Path $env:ANDROID_HOME)) { throw 'BRELGA_ANDROID_SDK_NOT_FOUND' }
           $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          $env:TEMP=Join-Path $env:DND_SCRATCH 'temp'
+          $env:TMP=$env:TEMP
+          New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
           Set-Location $env:DND_PROJECT
           $ErrorActionPreference='Continue'
           & .\gradlew.bat :app:compileDebugJavaWithJavac --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $env:DND_OUT '01_compileDebugJavaWithJavac.log')
@@ -136,6 +160,9 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
+          $env:TEMP=Join-Path $env:DND_SCRATCH 'temp'
+          $env:TMP=$env:TEMP
+          New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
           Set-Location $env:DND_PROJECT
           $ErrorActionPreference='Continue'
           & .\gradlew.bat :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.Run246G05TypedOnHitBatchRobolectricTest' --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $env:DND_OUT '02_Run246G05TypedOnHitBatchRobolectricTest.log')
@@ -149,6 +176,9 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
+          $env:TEMP=Join-Path $env:DND_SCRATCH 'temp'
+          $env:TMP=$env:TEMP
+          New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
           Set-Location $env:DND_PROJECT
           $ErrorActionPreference='Continue'
           & .\gradlew.bat :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.Run247G05UntimedProneRobolectricTest' --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $env:DND_OUT '03_Run247G05UntimedProneRobolectricTest.log')
@@ -162,6 +192,9 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
+          $env:TEMP=Join-Path $env:DND_SCRATCH 'temp'
+          $env:TMP=$env:TEMP
+          New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
           Set-Location $env:DND_PROJECT
           $ErrorActionPreference='Continue'
           & .\gradlew.bat :app:testDebugUnitTest --no-daemon --console=plain --stacktrace 2>&1 | Tee-Object (Join-Path $env:DND_OUT '04_full_testDebugUnitTest.log')
@@ -199,7 +232,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: DND_NORMAL_RUN247_MOD005_BRELGA_${{ github.run_id }}
-          path: ${{ runner.temp }}/dnd-run247-mod005-${{ github.run_id }}/out/
+          path: D:/braseiro-dnd-normal-run247-${{ github.run_id }}/out/
           if-no-files-found: warn
           retention-days: 30
 
