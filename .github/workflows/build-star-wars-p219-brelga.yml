@@ -1,0 +1,57 @@
+name: Star Wars P219 - Compile APK on BRELGA
+on:
+  workflow_dispatch:
+    inputs:
+      checkpoint_url:
+        description: 'HTTPS source URL for exact P219 checkpoint (SHA-256 pinned in workflow)'
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  validate-and-build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 120
+    steps:
+      - name: Require canonical P219 on BRELGA
+        shell: pwsh
+        env:
+          SOURCE_URL: ${{ inputs.checkpoint_url }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw 'Requires BRELGA' }
+          if ($env:SOURCE_URL -notmatch '^https://') { throw 'HTTPS URL required' }
+          $zip=Join-Path $env:RUNNER_TEMP 'P219_SOURCE.zip'
+          Invoke-WebRequest -Uri $env:SOURCE_URL -OutFile $zip -MaximumRedirection 5
+          $expected='b29a8103e3917cb34bde5e64b2cf05be19b9774d0215455b4cd49b28a595a948'
+          $got=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($got -ne $expected) { throw "Incorrect P219 source SHA-256 $got" }
+          if ((Get-Item $zip).Length -ne 130313084) { throw 'Incorrect P219 length' }
+          $root=Join-Path $env:RUNNER_TEMP 'star-wars-p219'
+          New-Item -ItemType Directory -Path $root -Force | Out-Null
+          Expand-Archive -LiteralPath $zip -DestinationPath $root -Force
+          if (-not (Test-Path (Join-Path $root 'app/build.gradle.kts'))) { throw 'Android sources absent' }
+          "PROJECT_ROOT=$root" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Verify offline engine and five EotE adventures
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          Set-Location $env:PROJECT_ROOT
+          node --test tests/r54-p219-official-source-concordance.test.mjs tests/r54-p219-postbundle-android-six-adventures.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Source gate failed' }
+      - name: Compile P219 APK
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          Set-Location $env:PROJECT_ROOT
+          ./tools/build-p219-brelga.ps1 -ProjectRoot $env:PROJECT_ROOT
+          if ($LASTEXITCODE -ne 0) { throw 'APK build failed' }
+      - name: Publish debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_STAR_WARS_P219_BRELGA_DEBUG
+          path: |
+            ${{ env.PROJECT_ROOT }}/P219_APK_OUTPUT/*.apk
+            ${{ env.PROJECT_ROOT }}/P219_APK_OUTPUT/*.sha256
+          if-no-files-found: error
+          retention-days: 7
