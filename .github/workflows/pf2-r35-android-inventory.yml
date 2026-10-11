@@ -1,0 +1,56 @@
+name: PF2 Kingmaker R35 Android Runtime Inventory
+on:
+  push:
+    branches: [pf2-kingmaker-r35-android-homologation-20261011]
+    paths: ['.github/workflows/pf2-r35-android-inventory.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inventory:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect BRELGA real Android execution capacity
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Continue'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Runner expected BRELGA got $env:RUNNER_NAME"}
+          Write-Host '==== ANDROID RUNTIME INVENTORY START ===='
+          Write-Host "OS=$(Get-CimInstance Win32_OperatingSystem|Select-Object -ExpandProperty Caption)"
+          Write-Host "USERPROFILE=$env:USERPROFILE"
+          $roots=@('C:\actions-runner\android-sdk',$env:ANDROID_SDK_ROOT,$env:ANDROID_HOME)
+          if($env:LOCALAPPDATA){$roots+=Join-Path $env:LOCALAPPDATA 'Android\Sdk'}
+          $roots=@($roots|Where-Object{$_}|Select-Object -Unique)
+          foreach($root in $roots){
+            Write-Host "SDK_ROOT=$root exists=$(Test-Path $root)"
+            if(Test-Path $root){
+              foreach($p in @('platform-tools\adb.exe','emulator\emulator.exe','cmdline-tools\latest\bin\sdkmanager.bat','cmdline-tools\bin\sdkmanager.bat')){
+                Write-Host "SDK_EXEC=$p present=$(Test-Path (Join-Path $root $p))"
+              }
+              foreach($dir in @('system-images','platforms','build-tools','emulator')){
+                $p=Join-Path $root $dir
+                if(Test-Path $p){
+                  Write-Host "SDK_TREE=$dir"
+                  Get-ChildItem $p -Directory -ErrorAction SilentlyContinue | Select-Object -First 12 -ExpandProperty Name | ForEach-Object{Write-Host "SDK_CHILD=$dir/$_"}
+                }
+              }
+              $adb=Join-Path $root 'platform-tools\adb.exe'
+              if(Test-Path $adb){Write-Host "ADB_DEVICES:";& $adb devices -l}
+              $emu=Join-Path $root 'emulator\emulator.exe'
+              if(Test-Path $emu){Write-Host "AVD_NAMES:";& $emu -list-avds}
+            }
+          }
+          $avdpath=Join-Path $env:USERPROFILE '.android\avd'
+          Write-Host "AVD_PATH=$avdpath exists=$(Test-Path $avdpath)"
+          if(Test-Path $avdpath){Get-ChildItem $avdpath -Name|ForEach-Object{Write-Host "AVD_ITEM=$_"}}
+          $disk=Get-PSDrive C -ErrorAction SilentlyContinue
+          if($disk){Write-Host "FREE_DISK_GB=$([math]::Round($disk.Free/1GB,1))"}
+          $cpu=Get-CimInstance Win32_Processor|Select-Object -First 1
+          if($cpu){Write-Host "CPU=$($cpu.Name) VIRTUALIZATION_FIRMWARE_ENABLED=$($cpu.VirtualizationFirmwareEnabled) VM_MONITOR_MODE_EXTENSIONS=$($cpu.VMMonitorModeExtensions)"}
+          try{Write-Host "HYPERVISOR_PRESENT=$((Get-CimInstance Win32_ComputerSystem).HypervisorPresent)"}catch{}
+          foreach($feature in @('HypervisorPlatform','Microsoft-Hyper-V-Hypervisor','VirtualMachinePlatform')){
+            try{$f=Get-WindowsOptionalFeature -Online -FeatureName $feature -ErrorAction Stop;Write-Host "WIN_FEATURE=$feature $($f.State)"}catch{Write-Host "WIN_FEATURE=$feature unknown"}
+          }
+          Write-Host '==== ANDROID RUNTIME INVENTORY END ===='
