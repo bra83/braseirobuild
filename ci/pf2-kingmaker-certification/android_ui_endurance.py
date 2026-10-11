@@ -4,7 +4,7 @@ import argparse,json,re,sqlite3,subprocess,sys,tempfile,time
 from pathlib import Path
 import xml.etree.ElementTree as ET
 p=argparse.ArgumentParser();p.add_argument("--adb",required=True);args=p.parse_args()
-A=args.adb;PKG="com.braseiro.pathfinder2e";G={}
+A=args.adb;PKG="com.braseiro.pathfinder2e";G={};SYSTEM_UI_RETRIES=0
 def log(k,x):print(k+"="+str(x),flush=True)
 def adb(*parts,allow=False,timeout=48):
     try:r=subprocess.run([A,"-e",*parts],capture_output=True,timeout=timeout)
@@ -29,6 +29,16 @@ def nodes():
         if txt and m:
             x1,y1,x2,y2=map(int,m.groups())
             out.append((txt,(x1+x2)//2,(y1+y2)//2,e.attrib.get("class","")))
+    global SYSTEM_UI_RETRIES
+    if any("isn't responding" in item[0].lower() for item in out):
+        if SYSTEM_UI_RETRIES>=3: raise RuntimeError("ANDROID_SYSTEM_UI_REPEATED_ANR")
+        wait=next((item for item in out if item[0].casefold()=="wait"),None)
+        if wait is None: raise RuntimeError("ANDROID_SYSTEM_UI_ANR_WITHOUT_WAIT")
+        SYSTEM_UI_RETRIES+=1
+        log("SYSTEM_UI_ANR_DISMISSED",SYSTEM_UI_RETRIES)
+        shell("input","tap",str(wait[1]),str(wait[2]))
+        time.sleep(12)
+        return nodes()
     return out
 def click(label,attempts=5,horizontal=False):
     seek=label.casefold()

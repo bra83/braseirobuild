@@ -44,7 +44,7 @@ jobs:
           $adb=Join-Path $sdk 'platform-tools\adb.exe'
           $out=Join-Path $env:UI_TMP 'emu-stdout.txt'
           $err=Join-Path $env:UI_TMP 'emu-stderr.txt'
-          $p=Start-Process -FilePath $emu -ArgumentList '-avd Pixel_7_Pro -no-window -no-audio -no-boot-anim -no-snapshot-load -no-snapshot-save -gpu swiftshader_indirect' -WindowStyle Hidden -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
+          $p=Start-Process -FilePath $emu -ArgumentList '-avd Pixel_7_Pro -no-window -no-audio -no-boot-anim -no-snapshot-load -no-snapshot-save -gpu swiftshader_indirect -memory 3072' -WindowStyle Hidden -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
           try{
             $ready=$false
             for($i=0;$i -lt 85;$i++){
@@ -58,6 +58,10 @@ jobs:
             }
             if(!$ready){throw 'Android emulator did not complete boot'}
             Write-Host 'ANDROID_BOOT_CONFIRMED=true'
+            & $adb -e shell settings put global window_animation_scale 0 | Out-Null
+            & $adb -e shell settings put global transition_animation_scale 0 | Out-Null
+            & $adb -e shell settings put global animator_duration_scale 0 | Out-Null
+            Start-Sleep -Seconds 20
             $installed=& $adb -e install -r $env:UI_APK 2>&1
             if($LASTEXITCODE -ne 0 -or ($installed|Out-String) -notmatch 'Success'){throw "Install failed: $($installed|Out-String)"}
             Write-Host 'R35_APK_INSTALL_CONFIRMED=true'
