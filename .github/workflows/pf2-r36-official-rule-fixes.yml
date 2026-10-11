@@ -89,7 +89,6 @@ jobs:
           sparse-checkout: |
             ci/pf2-kingmaker-r36
             .github/workflows
-        with:
           ref: pf2-kingmaker-r36-official-rule-fixes-20261011
       - uses: actions/setup-java@v5
         with:
