@@ -12,8 +12,8 @@ def once(s,old,new,label):
     if n!=1:raise RuntimeError(f"{label}: source drift ({n})")
     return s.replace(old,new,1)
 def transform(s):
-    original='int modifier=rules.skillModifier(s.optInt("level",1),score,skill.optString("rank"),skill.optInt("item_bonus"),leadership,vacancy-ruin+Math.max(taxes,expansionExpert)-claimPenalty,s.optInt("unrest"));'
-    adjusted='int civicItemBonus="repair_structure".equals(activity)?Math.max(skill.optInt("item_bonus"),2):skill.optInt("item_bonus");\n        int modifier=rules.skillModifier(s.optInt("level",1),score,skill.optString("rank"),civicItemBonus,leadership,vacancy-ruin+Math.max(taxes,expansionExpert)-claimPenalty,s.optInt("unrest"));'
+    original='int modifier=rules.skillModifier(s.optInt("level",1),score,skill.optString("rank"),skill.optInt("item_bonus"),leadership,vacancy-ruin+circumstanceBonus-claimPenalty,s.optInt("unrest"));'
+    adjusted='int civicItemBonus="repair_structure".equals(activity)?Math.max(skill.optInt("item_bonus"),2):skill.optInt("item_bonus");\n        int modifier=rules.skillModifier(s.optInt("level",1),score,skill.optString("rank"),civicItemBonus,leadership,vacancy-ruin+circumstanceBonus-claimPenalty,s.optInt("unrest"));'
     s=once(s,original,adjusted,"repair +2 item nonstacking")
     s=once(s,'.put("item",skill.optInt("item_bonus"))',
            '.put("item",civicItemBonus)',"repair item bonus breakdown")
