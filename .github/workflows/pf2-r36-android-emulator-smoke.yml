@@ -44,11 +44,22 @@ jobs:
           python ci/pf2-kingmaker-r36/patch_claim_hex_ui.py r35-source
           python ci/pf2-kingmaker-r36/patch_build_structure.py r35-source
           python ci/pf2-kingmaker-r36/patch_build_structure_repairs.py r35-source
+          python ci/pf2-kingmaker-r36/patch_structure_catalog_values.py r35-source
+          python ci/pf2-kingmaker-r36/patch_multi_structure.py r35-source
+          python ci/pf2-kingmaker-certification/audit_structure_catalog.py --project r35-source --out r36-emulator-structures.json --require-zero-mismatches
           chmod +x r35-source/gradlew
           cd r35-source
           ./gradlew :app:assembleDebug --no-daemon
           test -s android/app/build/outputs/apk/debug/app-debug.apk
           sha256sum android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Free CI build cache after APK and inspect storage
+        run: |
+          set -euo pipefail
+          df -h /
+          du -sh "$HOME/.gradle/caches" 2>/dev/null || true
+          rm -rf "$HOME/.gradle/caches" "$HOME/.gradle/daemon" "$HOME/.gradle/wrapper/dists"
+          rm -f source.zip
+          df -h /
       - name: Allow KVM for Android emulator
         run: |
           if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; fi
@@ -59,8 +70,12 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_6
+          disk-size: 2048M
+          ram-size: 2048M
+          heap-size: 256M
+          cores: 2
           disable-animations: true
-          emulator-boot-timeout: 900
+          emulator-boot-timeout: 360
           script: |
             adb devices
             adb install -r r35-source/android/app/build/outputs/apk/debug/app-debug.apk
