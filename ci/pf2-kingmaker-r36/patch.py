@@ -35,8 +35,10 @@ one(anchor,'''int taxes=("economy".equals(ability)&&!"collect_taxes".equals(acti
         int claimPenalty="stability".equals(ability)?claimHexStabilityPenalty(s.optInt("turn_number")):0;
         // Expansion Expert (Kingmaker p. 512): +2 circumstance at kingdom level 4+.
         int expansionExpert="claim_hex".equals(activity)&&s.optInt("level",1)>=4?2:0;
-        int modifier=rules.skillModifier(s.optInt("level",1),score,skill.optString("rank"),skill.optInt("item_bonus"),leadership,vacancy-ruin+taxes+expansionExpert-claimPenalty,s.optInt("unrest"));''',"live check modifier")
-one('''.put("ruin",-ruin).put("unrest",-unrest)''','''.put("ruin",-ruin).put("unrest",-unrest).put("taxes_circumstance",taxes).put("expansion_expert_circumstance",expansionExpert).put("claim_hex_stability_penalty",-claimPenalty)''',"mechanical breakdown")
+        // Same-type circumstance bonuses do not stack (Kingmaker p. 517).
+        int circumstanceBonus=Math.max(taxes,expansionExpert);
+        int modifier=rules.skillModifier(s.optInt("level",1),score,skill.optString("rank"),skill.optInt("item_bonus"),leadership,vacancy-ruin+circumstanceBonus-claimPenalty,s.optInt("unrest"));''',"live check modifier")
+one('''.put("ruin",-ruin).put("unrest",-unrest)''','''.put("ruin",-ruin).put("unrest",-unrest).put("taxes_circumstance",taxes).put("expansion_expert_circumstance",expansionExpert).put("circumstance_bonus_applied",circumstanceBonus).put("claim_hex_stability_penalty",-claimPenalty)''',"mechanical breakdown")
 target='''    public JSONObject resolveCollectTaxes(int naturalRoll, String skillKey, String notes) throws Exception {'''
 replacement=r'''    /** Uses persisted roll degrees; the tax bonus expires automatically on turn change. */
     private int taxesCircumstanceBonus(long turnId){
