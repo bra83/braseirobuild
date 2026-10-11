@@ -4,12 +4,13 @@ on:
     branches: [pf2-kingmaker-r36-official-rule-fixes-20261011]
     paths:
       - '.github/workflows/pf2-r36-android-emulator-smoke.yml'
+      - 'ci/pf2-kingmaker-certification/android_ui_endurance.py'
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
   group: pf2-r36-real-android-emulator
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   emulator-smoke:
     runs-on: ubuntu-latest
@@ -26,7 +27,7 @@ jobs:
           java-version: '21'
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.11'
       - name: Prepare immutable R35 source and R36 official-rule patches
         shell: bash
         run: |
