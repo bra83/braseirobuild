@@ -13,7 +13,7 @@ def test_claim_hex_ui_calls_rule_resolver_instead_of_direct_acquisition():
 
 def test_expansion_expert_and_tax_bonuses_do_not_stack():
     assert 'expansionExpert="claim_hex".equals(activity)&&s.optInt("level",1)>=4?2:0' in JAVA
-    assert 'Math.max(taxes,expansionExpert)-claimPenalty' in JAVA
+    assert 'int circumstanceBonus=Math.max(taxes,expansionExpert);' in JAVA
 
 def test_kingdom_rp_xp_and_reputation_rules_are_wired():
     assert 'int surplus=Math.max(0,before.optInt("resource_points"))' in JAVA
