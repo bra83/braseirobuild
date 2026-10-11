@@ -1,0 +1,190 @@
+{
+  "schema": "g05_on_hit_prone_source_auxiliary_v1",
+  "rows": [
+    {
+      "row": 155,
+      "creature": "Ankylosaurus",
+      "action": "Tail",
+      "max_target_size": "huge",
+      "source_url": "https://5e.tools/bestiary/ankylosaurus-xmm.html"
+    },
+    {
+      "row": 160,
+      "creature": "Barlgura",
+      "action": "Thrash",
+      "max_target_size": "large",
+      "source_url": "https://5e.tools/bestiary/barlgura-xmm.html"
+    },
+    {
+      "row": 164,
+      "creature": "Brown Bear",
+      "action": "Claw",
+      "max_target_size": "large",
+      "source_url": "https://5e.tools/bestiary/brown-bear-xmm.html"
+    },
+    {
+      "row": 174,
+      "creature": "Colossus",
+      "action": "Radiant Ray",
+      "max_target_size": "large",
+      "source_url": "https://5e.tools/bestiary/colossus-xmm.html"
+    },
+    {
+      "row": 177,
+      "creature": "Cyclops Sentry",
+      "action": "Stone Club",
+      "max_target_size": "huge",
+      "source_url": "https://5e.tools/bestiary/cyclops-sentry-xmm.html"
+    },
+    {
+      "row": 178,
+      "creature": "Dao",
+      "action": "Earthen Maul",
+      "max_target_size": "large",
+      "source_url": "https://5e.tools/bestiary/dao-xmm.html"
+    },
+    {
+      "row": 181,
+      "creature": "Dire Wolf",
+      "action": "Bite",
+      "max_target_size": "large",
+      "source_url": "https://5e.tools/bestiary/dire-wolf-xmm.html"
+    },
+    {
+      "row": 183,
+      "creature": "Displacer Beast",
+      "action": "Rend",
+      "max_target_size": "large",
+      "source_url": "https://5e.tools/bestiary/displacer-beast-xmm.html"
+    },
+    {
+      "row": 184,
+      "creature": "Djinni",
+      "action": "Storm Bolt",
+      "max_target_size": "large",
+      "source_url": "https://5e.tools/bestiary/djinni-xmm.html"
+    },
+    {
+      "row": 185,
+      "creature": "Dragon Turtle",
+      "action": "Tail",
+      "max_target_size": "huge",
+      "source_url": "https://5e.tools/bestiary/dragon-turtle-xmm.html"
+    },
+    {
+      "row": 186,
+      "creature": "Earth Elemental",
+      "action": "Rock Launch",
+      "max_target_size": "large",
+      "source_url": "https://5e.tools/bestiary/earth-elemental-xmm.html"
+    },
+    {
+      "row": 191,
+      "creature": "Ettin",
+      "action": "Battleaxe",
+      "max_target_size": "large",
+      "source_url": "https://5e.tools/bestiary/ettin-xmm.html"
+    },
+    {
+      "row": 196,
+      "creature": "Giant Axe Beak",
+      "action": "Talons",
+      "max_target_size": "large",
+      "source_url": "https://5e.tools/bestiary.html#giant%20axe%20beak_xmm"
+    },
+    {
+      "row": 201,
+      "creature": "Giant Crocodile",
+      "action": "Tail",
+      "max_target_size": "large",
+      "source_url": "https://5e.tools/bestiary.html#giant%20crocodile_xmm"
+    },
+    {
+      "row": 221,
+      "creature": "Grick Ancient",
+      "action": "Slam",
+      "max_target_size": "large",
+      "source_url": "https://5e.tools/bestiary.html#grick%20ancient_xmm"
+    },
+    {
+      "row": 224,
+      "creature": "Hill Giant",
+      "action": "Tree Club",
+      "max_target_size": "large",
+      "source_url": "https://5e.tools/bestiary.html#hill%20giant_xmm"
+    },
+    {
+      "row": 229,
+      "creature": "Lizardfolk Sovereign",
+      "action": "Earthen Maul",
+      "max_target_size": "medium",
+      "source_url": "https://5e.tools/bestiary.html#lizardfolk%20sovereign_xmm"
+    },
+    {
+      "row": 231,
+      "creature": "Mastiff",
+      "action": "Bite",
+      "max_target_size": "medium",
+      "source_url": "https://5e.tools/bestiary.html#mastiff_xmm"
+    },
+    {
+      "row": 232,
+      "creature": "Merfolk Wavebender",
+      "action": "Aquatic Burst",
+      "max_target_size": "large",
+      "source_url": "https://5e.tools/bestiary.html#merfolk%20wavebender_xmm"
+    },
+    {
+      "row": 257,
+      "creature": "Stone Giant",
+      "action": "Boulder",
+      "max_target_size": "large",
+      "source_url": "https://5e.tools/bestiary.html#stone%20giant_xmm"
+    },
+    {
+      "row": 263,
+      "creature": "Tarrasque",
+      "action": "Tail",
+      "max_target_size": "huge",
+      "source_url": "https://5e.tools/bestiary.html#tarrasque_xmm"
+    },
+    {
+      "row": 264,
+      "creature": "Tiger",
+      "action": "Rend",
+      "max_target_size": "large",
+      "source_url": "https://5e.tools/bestiary.html#tiger_xmm"
+    },
+    {
+      "row": 267,
+      "creature": "Tyrannosaurus Rex",
+      "action": "Tail",
+      "max_target_size": "huge",
+      "source_url": "https://5e.tools/bestiary.html#tyrannosaurus%20rex_xmm"
+    },
+    {
+      "row": 275,
+      "creature": "Water Elemental",
+      "action": "Slam",
+      "max_target_size": "medium",
+      "source_url": "https://5e.tools/bestiary.html#water%20elemental_xmm"
+    },
+    {
+      "row": 278,
+      "creature": "Winter Wolf",
+      "action": "Bite",
+      "max_target_size": "large",
+      "source_url": "https://5e.tools/bestiary.html#winter%20wolf_xmm"
+    },
+    {
+      "row": 279,
+      "creature": "Wolf",
+      "action": "Bite",
+      "max_target_size": "medium",
+      "source_url": "https://5e.tools/bestiary.html#wolf_xmm"
+    }
+  ],
+  "source": "matrix_G05_5etools_auxiliary",
+  "licensed_pdf": "NOT_VALIDATED",
+  "android_test": "NOT_RUN"
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.CharacterLevelUpTransitionEngineTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-10T14:54:06" hostname="BRELGA" time="0.141">
+  <properties/>
+  <testcase name="laterLevelUpAppendsPendingChoiceWithoutOverwritingEarlierChoice" classname="com.braseiro.dnd5e.CharacterLevelUpTransitionEngineTest" time="0.039"/>
+  <testcase name="levelTwentyAndWrongHitDieAreRefusedWithoutChangingInput" classname="com.braseiro.dnd5e.CharacterLevelUpTransitionEngineTest" time="0.035"/>
+  <testcase name="xpBoundaryAppliesExactlyOneLevelAndQueuesChoice" classname="com.braseiro.dnd5e.CharacterLevelUpTransitionEngineTest" time="0.034"/>
+  <testcase name="multiclassChoiceRequiresItsAbilityPrerequisiteAndDoesNotMutateOnRefusal" classname="com.braseiro.dnd5e.CharacterLevelUpTransitionEngineTest" time="0.033"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

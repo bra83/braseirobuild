@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.LivingWorldCatchUpRulesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-10T14:54:06" hostname="BRELGA" time="0.149">
+  <properties/>
+  <testcase name="clampsRateAndConfiguredMaximumHours" classname="com.braseiro.dnd5e.LivingWorldCatchUpRulesTest" time="0.038"/>
+  <testcase name="missingOrBackwardsSyncTimeOnlyInitializes" classname="com.braseiro.dnd5e.LivingWorldCatchUpRulesTest" time="0.035"/>
+  <testcase name="disabledAndUnstartedCampaignsDoNotProduceTickHours" classname="com.braseiro.dnd5e.LivingWorldCatchUpRulesTest" time="0.035"/>
+  <testcase name="convertsElapsedTimeByFloorAndRoundsReportedRealHours" classname="com.braseiro.dnd5e.LivingWorldCatchUpRulesTest" time="0.04"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,6 @@
+PASTA DE NPCs
+
+Esta pasta é uma fonte opcional de assets para o módulo Android.
+O build.gradle.kts copia automaticamente seu conteúdo para os assets gerados.
+Ela pode permanecer vazia e não impede a compilação.
+Para incluir tokens de NPC embutidos no APK, coloque-os aqui antes da build.

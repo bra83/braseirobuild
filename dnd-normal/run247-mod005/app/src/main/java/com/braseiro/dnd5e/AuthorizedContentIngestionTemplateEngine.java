@@ -1,0 +1,7 @@
+package com.braseiro.dnd5e;
+import org.json.JSONArray;import org.json.JSONObject;
+/** Generates the exact machine-readable work queue/template without inventing mechanics or source locators. */
+public final class AuthorizedContentIngestionTemplateEngine{
+ private AuthorizedContentIngestionTemplateEngine(){}
+ public static JSONObject template(){JSONObject o=new JSONObject();JSONArray a=new JSONArray();try{JSONObject q=ContentClosureQueueEngine.report();JSONArray rows=q.optJSONArray("queue");for(int i=0;rows!=null&&i<rows.length();i++){JSONObject x=rows.optJSONObject(i);if(x==null)continue;String k=x.optString("kind"),n=x.optString("name");JSONObject t=new JSONObject().put("kind",k).put("name",n).put("mechanics",JSONObject.NULL).put("mechanical_basis",new JSONObject().put("source_type","AUTHORIZED_SOURCE_REQUIRED").put("content_kind",k).put("content_name",n).put("source_book","AUTHORIZED_SOURCE_REQUIRED").put("source_locator","AUTHORIZED_SOURCE_REQUIRED").put("revision",1));if("statblock_scope".equals(k)){t=new JSONObject().put("kind","statblock_scope").put("scope",new JSONObject().put("id","AUTHORIZED_ID_REQUIRED").put("source_book","AUTHORIZED_SOURCE_REQUIRED").put("source_locator","AUTHORIZED_SOURCE_REQUIRED"));}a.put(t);}return o.put("schema","authorized_content_ingestion_template_v1").put("records",a).put("count",a.length()).put("mechanics_intentionally_blank",true).put("no_rag_promotion",true);}catch(Exception e){return o;}}
+}

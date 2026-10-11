@@ -1,0 +1,7 @@
+RUN245_G05_FORCED_MOVEMENT_PURE_PASS checks=13
+RUN238_ACTION_ECONOMY_JVM_PASS checks=600893
+PASS JavacTask.parse sources=5
+RUN245_G05_STATIC_WIRING_PASS checks=15
+PASS RUN244 wiring source assertions 9
+GRADLE NOT RUN: services.gradle.org UnknownHostException attempting gradle-8.11.1-all.zip
+ANDROID/ROBOLECTRIC NOT RUN (no Android SDK/Gradle distribution)

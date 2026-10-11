@@ -1,0 +1,2660 @@
+CHAPTER 7
+Friends and Foes
+Strixhaven Creatures
+Unusual Attacks and Magic
+CHAPTER 7 | FRIENDS AND FOES 183
+Creature Type
+Celestial
+Elemental
+Dragon
+Plant
+Construct
+Fiend
+Fiend
+Humanoid
+Construct
+Dragon
+Plant
+Ooze
+Humanoid
+Humanoid
+Humanoid
+Humanoid
+Monstrosity
+Humanoid
+Humanoid
+Humanoid
+Monstrosity
+Humanoid
+Humanoid
+Humanoid
+Humanoid
+Humanoid
+CR
+18
+1/4
+24
+3
+4
+10
+16
+1/2
+1/4
+23
+4
+1/4
+2
+4
+7
+7
+5
+15
+9
+4
+1/4
+2
+4
+7
+7
+2
+Herein you will find some weapons that deal unusual damage types and spellcasting that functions
+in atypical ways. Such an exception is a special feature of a stat block and represents how the creature
+uses the weapon or casts its spells; the exception
+has no effect on how a weapon or a spell functions
+for someone else.
+Creature Type 
+Humanoid
+Humanoid
+Humanoid
+Beast
+Construct
+Dragon
+Humanoid
+Humanoid
+Humanoid
+Humanoid
+Construct
+Construct
+Dragon
+Dragon
+Humanoid
+Humanoid
+Humanoid
+Humanoid
+CR
+4
+7
+7
+2
+5
+22
+2
+4
+7
+7
+1/4
+1
+24
+25
+2
+4
+7
+7
+Creature
+Quandrix Pledgemage
+Quandrix Prof, of Substance
+Quandrix Prof. ofTheory
+Relic Sloth
+Ruin Grinder
+Shadrix Silverquill
+Silverquill Apprentice
+Silverquill Pledgemage
+Silverquill Prof, of Radiance
+Silverquill Prof, of Shadow
+Spirit Statue Mascot
+Strixhaven Campus Guide
+Tanazir Quandrix
+Velomachus Lorehold
+Witherbloom Apprentice
+Witherbloom Pledgemage
+Witherbloom Prof, of Decay
+Witherbloom Prof, of Growth
+Creature
+Archaic
+Art Elemental Mascot
+Beledros Witherbloom
+Brackish Trudge
+Cogwork Archivist
+Daemogoth
+Daemogoth Titan
+First-Year Student
+Fractal Mascot
+Galazeth Prismari
+Groff
+Inkling Mascot
+Lorehold Apprentice
+Lorehold Pledgemage
+Lorehold Prof, of Chaos
+Lorehold Prof, of Order
+Mage Hunter
+Oracle of Strixhaven
+Oriq Blood Mage
+Oriq Recruiter
+Pest Mascot
+Prismari Apprentice
+Prismari Pledgemage
+Prismari Prof, of Expression
+Prismari Prof, of Perfection
+Quandrix Apprentice
+Using a Stat Block
+This chapter is a companion to the Monster Manua.
+and adopts a similar presentation. Ifyou are unfamiliar with the monster stat block format, read the
+introduction of the Monster Manual before proceeding further. That book explains stat block terminology and gives rules for various monster traits—information that isn't repeated here.
+I
+i
+—'y* HIS CHAPTER PROVIDES MORE THAN FORTY
+A I monsters and NPCs who live in and
+around Strixhaven. They appear in this
+book's adventures, and you’re free to use
+them in adventures of your own creation, whether
+those tales are set in the university or elsewhere in
+the D&D multiverse.
+The creatures in this bestiary are organized alphabetically. A few creatures are gathered under a
+group heading; for example, the “Lorehold Scholars” section contains stat blocks for faculty and
+students of Lorehold, and those stat blocks are presented alphabetically within that section.
+The Strixhaven Creatures table below lists every
+creature in this chapter, along with the creature’s
+type and challenge rating (CR).
+Meeting Magic Item Prerequisites
+If a stat block contains the name of a class in
+the creature’s name or in parentheses under the
+name, the creature is considered a member of that
+class for the purpose of meeting prerequisites for 
+magic items.Proficiency Bonus +6
+3
+CHAPTER 7 I FRIENDS AND FOES 184
+STR
+25 (+7)
+DEX
+10 (+0)
+CON
+24 (+7)
+INT
+27 (+8)
+WIS
+24 (+7)
+CHA
+20 (+5)
+" Armor Class 20 (natural armor)
+Hit Points 245 (14d20+ 98)
+Speed 40 ft.
+Archaic
+Archaics are towering, multi-armed creatures overflowing with magic. Despite their solitude, archaics
+carry vast understanding of magic and the world’s
+history, as well as the ability to warp the fabric of
+the world around them. Sages who seek out archaics for their knowledge receive confusing and often
+contradictory answers to questions. If a supplicant
+successfully unwinds the tangle, the answer they
+seek is revealed.
+In truth, archaics are the reincarnated souls of the
+oracles of Strixhaven. When an oracle dies, their
+soul travels back through time to the explosion of
+magic that brought the Founder Dragons into being.
+In that outrush of creative force, the oracle’s soul
+can be caught in the tide and clad in the very substance of the world, becoming an archaic. Because
+their knowledge cuts across the flow of time, archaics are careful how much they reveal to mortals and
+thus tend to speak in riddles.
+Q
+Archaic
+Gargantuan Celestial, Typically Neutral
+Gravity Shift (Recharge 5-6). The archaic reverses gravity for
+one creature it can see within 100 feet of itself. The creature
+must succeed on a DC 22 Wisdom saving throw or fall 100 feet
+upward. If the falling creature encounters a solid object (such
+as a ceiling) in this fall, it strikes the object just as it would
+during a downward fall. If the creature reaches the top of the
+area without striking anything, it hovers there until the start of
+the archaic's next turn, at which time gravity returns to normal
+and the creature falls.
+Spellcasting. The archaic casts one of the following spells, requiring no material components and using Intelligence as the
+spellcasting ability (spell save DC 22):
+At will: detect magic, divination, sending
+1/day each: banishment,forcecage
+Teleport. The archaic teleports to an unoccupied space that it
+can see within 120 feet of itself.
+Enigmatic Mind. The archaic's mind can't be read, creatures
+can communicate telepathically with the archaic only if it allows, and magic can't determine whether the archaic is lying.
+Legendary Resistance (3/Day). Ifthe archaic fails a saving
+throw, it can choose to succeed instead.
+Unusual Nature. The archaic doesn't require air, food,
+drink, or sleep. Legendary Actions
+The archaic can take 3 legendary actions, choosing from the
+options below. Only one legendary action option can be used
+at a time and only at the end of another creature’s turn. The archaic regains spent legendary actions at the start of its turn.
+Strike. The archaic makes one Force Strike attack.
+Teleport. The archaic uses Teleport.
+Unravel Magic (Costs 2 Actions). The archaic targets one
+creature it can see within 120 feet of itself. The target must
+succeed on a DC 22 Constitution saving throw or take 35
+(10d6) force damage, and each spell of 5th level or lower on
+the target ends.
+Reactions
+Spell Mimicry (1/Day). Immediately after a creature the archaic
+can see casts a spell of 5th level or lower, that creature must
+succeed on a DC 22 Charisma saving throw, or the archaic immediately casts the same spell at the same level (+14 to hit with
+spell attacks, spell save DC 22), requiring no material components and choosing the spell’s targets.
+Actions
+Multiattack. The archaic makes two Force Strike attacks. It can
+also use Gravity Shift, if available.
+Force Strike. Melee or Ranged Spell Attack: +14 to hit, reach 15
+ft. or range 120 ft., one target. Hit: 19 (2dl0 + 8) force damage,
+and the target is pulled up to 10 feet toward the archaic or
+pushed 10 feet away from it, as the archaic chooses.
+Saving Throws Dex +6, Int +14, Wis +13, Cha +11
+Skills Arcana +20, Deception +11, History +20, Perception +13
+Damage Resistances force
+Damage Immunities poison, psychic
+Condition Immunities charmed, exhaustion, frightened,
+petrified, paralyzed, poisoned, stunned
+Senses truesight 120 ft., passive Perception 23
+Languages all
+' Challenge 18 (18,000 XP)Proficiency Bonus +2
+CHAPTER 7 I FRIENDS AND FOES 185
+Death Burst. When the elemental dies, it explodes in a burst of
+colored light. Each creature within 5 feet of the elemental must
+succeed on a DC 11 Constitution saving throw or be blinded for
+1 minute. A blinded creature can repeat the save at the end of
+each of its turns, ending the effect on itself on a success.
+Armor Class 11
+Hit Points 18 (4d6 + 4)
+Speed 30 ft.
+STR
+6 (-2)
+DEX
+13 (+1)
+WIS
+11 (+0)
+CHA
+15 (+2)
+CON
+12 (+1)
+INT
+8(-l)
+> Skills Performance +4
+Damage Resistances cold, fire
+Damage Immunities poison
+Condition Immunities poisoned
+Senses passive Perception 10
+Languages understands the languages of its creator but can’t
+speak
+Challenge 1/4 (50 XP)
+Art Elemental Mascot
+Often referred to as a “living expression." an art elemental is an aspect of creativity and emotion given
+physical form—making it the perfect mascot for
+Prismari College.
+To create an art elemental mascot, a mage draws
+power from a blend of all the natural elements, extracting their vibrant colors to craft a swirling outer
+shell before imbuing its core with a planar spirit. As
+creatures of both precise elemental study and rebellious expression, art elementals can both wreak
+elemental destruction and emotionally captivate the
+creatures around them.
+Art Elemental Mascot
+Small Elemental, Typically Neutral
+I
+I
+Actions_________________________________
+Joyful Flare. Melee Weapon Attack: +3 to hit, reach 5 ft., one
+target. Hit: 6 (2d4 + 1) fire damage.
+Melancholic Bolt. Ranged Weapon Attack: +3 to hit, range 30 ft.,
+one target. Hit: 6 (2d4 + 1) cold damage.
+Captivating Artistry (1/Day). The elemental targets one creature it can see within 30 feet of itself. The target must succeed
+on a DC 12 Charisma saving throw or be charmed for 1 minute.
+The charmed target can repeat the save at the end of each of its
+turns, ending the effect on itself on a success.CHAPTER 7 I FRIENDS AND FOES l86
+STR
+28 (+9)
+DEX
+14 (+2)
+CON
+27 (+8)
+INT
+18 (+4)
+WIS
+28 (+9)
+CHA
+17 (+3)
+Beledros Witherbloom
+The dragon Beledros masters the intertwined magic
+of life and death. Her power taps into the life force
+flowing through living things and the natural world.
+She manipulates that energy to give healing and
+life or to bring death and decay. Her mastery of this
+magic sustains her own life force even without the
+sustenance of food, drink, or even air.
+She founded Witherbloom College to pass on her
+understanding of the natural cycle. She hoped to
+create generations ofstewards who would use her
+teachings to defend nature and help others. In keeping with the dichotomous nature of her philosophy
+and magic, she views the more dangerous aspects
+of nature, including the inevitability of death and decay, as natural and integral parts of existence.
+r
+g
+i
+I
+s
+Legendary Actions
+Beledros can take 3 legendary actions, choosing from the options below. Only one legendary action option can be used at
+a time and only at the end of another creature’s turn. Beledros
+regains spent legendary actions at the start of her turn.
+Claw. Beledros makes one Claw attack.
+Miasmal Flow (Costs 2 Actions). Beledros uses Miasmal Flow.
+Teeming with Life (Costs 3 Actions). Beledros magically summons 1 d4 pest mascots (in this chapter) in unoccupied
+spaces she can see within 60 feet of herself. The pests obey
+her commands and take their turns immediately after hers.
+Any creature, other than a pest, takes 9 (2d8) poison damage
+if it starts its turn within 5 feet of one or more of these pests.
+When one of these pests drops to 0 hit points, Beledros regains 9 hit points. These pests disappear after 10 minutes,
+when Beledros dies, or when she uses this action again.
+damage and 39 (6dl2) poison damage on a failed save, or half
+as much damage on a successful one. A creature that takes
+damage from the breath can't regain hit points until the start of
+Beledros's next turn
+Miasmal Flow. Beledros becomes a swirling cloud of green
+mist and can move up to half her flying speed without provoking opportunity attacks, then resumes her true form. During
+this movement, she can move through creatures and objects as
+ifthey were difficult terrain. If she moves through a creature, it
+must succeed on a DC 23 Constitution saving throw or become
+poisoned until the end of its next turn. If Beledros ends this
+move inside an object, she takes 5 (IdlO) force damage and is
+shunted to the nearest unoccupied space.
+Spellcasting. Beledros casts one of the following spells, requiring no material components and using Wisdom as the spellcasting ability:
+1/day each: greater restoration, mass cure wounds, plant growth,
+Legendary Resistance (3/Day). If Beledros fails a saving throw, revivify, speak with dead
+Saving Throws Dex +9, Con +15, Wis +16, Cha +10
+Skills Arcana +18, Medicine +16, Nature +18, Perception +16
+) Damage Immunities necrotic, poison
+Condition Immunities poisoned
+Senses blindsight 120 ft., passive Perception 26
+Languages Common, Draconic, Druidic, Sylvan
+Challenge 24 (62,000 XP) Proficiency Bonus +7
+she can choose to succeed instead.
+Unusual Nature. Beledros doesn’t require air, food, or drink.
+Actions
+Multiattack. Beledros makes one Bite attack and two
+Claw attacks.
+Bite. Melee Weapon Attack: +16 to hit, reach 15 ft., one
+target. Hit: 14 (IdlO + 9) piercing damage plus 6 (1 dl2) necrotic damage.
+Claw. Melee Weapon Attack: +16 to hit, reach 10 ft., one target.
+Hit: 12 (1 d6 + 9) slashing damage. Ifthe target is a Huge or
+smaller creature, it is knocked prone.
+Decaying Breath (Recharge 5-6). Beledros exhales decaying
+energy in a 90-foot cone. Each creature in that area must make
+a DC 23 Constitution saving throw, taking 39 (6dl2) necroticProficiency Bonus +2
+CHAPTER 7 I FRIENDS AND FOES 187
+DEX
+10 (+0)
+CON
+17 (+3)
+INT
+4 H)
+WIS
+14 (+2)
+CHA
+4 (-3)
+u-.
+2
+2
+M
+<
+o
+Brackish Trudge
+Brackish trudges are lumbering masses ofsentient
+fungus and vegetation that thrive in the bayou. They
+are living examples of the conflicting forces of life
+and decay existing in a harmonious cycle. Flowers
+and other plant life grow on their backs, necks, and
+heads. When these plants die, they decay and become the ideal habitat for fungi. The older a trudge
+is, the wilder and more varied are the plants and
+fungi that thrive in the tiny ecosystem on its back.
+While sometimes ill-tempered and territorial,
+brackish trudges are usually content to mind their
+own business. When trudges are roused to defend
+themselves or drive off rivals, their punishing tusks
+laced with deadly fungus spores can make short
+work of the unwary. Trudges are also notoriously
+difficult to slay; the energies of life and death within
+them allow them to survive harrowing injuries.
+I Fungal Fortitude. If damage reduces the trudge to 0 hit points,
+it must make a Constitution saving throw with a DC of 5 + the
+damage taken, unless the damage is radiant or from a critical
+[ hit. On a success, the trudge drops to 1 hit point instead.
+' Actions_________________________ _______
+Tusk. Melee Weapon Attack: +7 to hit, reach 10 ft., one target.
+Hit: 16 (2dl0 + 5) piercing damage plus 3 (1 d6) poison damage. If the target is a creature, it must succeed on a DC 15
+Strength saving throw or be knocked prone.
+Brackish Trudge
+Large Plant, Unaligned
+' Armor Class 12 (natural armor)
+Hit Points 68 (8dl0 + 24)
+Speed 30 ft., swim 30 ft.
+STR
+; 20 (+5)
+: Skills Perception +4
+Damage Resistances fire
+! Senses blindsight 10 ft., passive Perception 14
+: Languages —
+| Challenge 3 (700 XP)CHAPTER 7 I FRIENDS AND FOES l88
+Magic Resistance. The archivist has advantage on saving
+throws against spells and other magical effects.
+i
+I
+Actions
+Multiattack. The archivist makes two Grasping Limb attacks.
+Crasping Limb. Melee Weapon Attack: +6 to hit, reach 15 ft.,
+one target. Hit: 13 (2d8 + 4) bludgeoning damage, and the target is grappled (escape DC 14). The archivist can have no more
+than two targets grappled at a time.
+Spellcasting. The archivist casts one ofthe following spells,
+requiring no material components and using Intelligence as the
+spellcasting ability:
+At will: dancing lights, prestidigitation
+2/day: silence
+Cogwork Archivist
+Programmed with knowledge of Strixhaven’s extensive lore catalog, cogwork archivists serve as keepers of the university’s various libraries. The archivists’ towering metal frames are equipped with long,
+articulated limbs and retractable conservator tools,
+which they use to organize and preserve documents
+from throughout Strixhaven’s winding history.
+Many cogwork archivists can be found among the
+towering shelves of the Biblioplex, simultaneously
+retrieving scrolls for curious students while keeping
+a stern eye on any rowdy groups that might disrupt
+the quiet atmosphere.II!
+CHAPTER 7 189. | FRIENDS AND FOES
+STR
+19 (+4)
+DEX
+15 (+2)
+CON
+19 (+4)
+INT
+21 (+5)
+WIS
+14 (+2)
+CHA
+18 (+4)
+Daemogoth
+Huge Fiend, Typically Lawful Evil
+o
+ca
+2
+<
+Actions
+Multiattack. The daemogoth makes three Agonizing Burst
+attacks. It can use Terrify, if available, in place of one of
+the attacks.
+Agonizing Burst. Melee or Ranged Spell Attack: +9 to hit, reach
+10 ft. or range 120 ft., one target. Hit: 11 (2dl0) force damage.
+Ifthe target is a creature, the daemogoth regains 5 hit points.
+Terrify (Recharge 4-6). The daemogoth targets one creature
+it can see within 120 feet of itself. The target must make a DC
+17 Wisdom saving throw. On a failed save, the target takes 33
+(6dl0) psychic damage and is frightened of the daemogoth
+until the end of the daemogoth's next turn, and the daemogoth
+regains 5 hit points. On a successful save, the target takes half
+as much damage and isn’t frightened, and the daemogoth
+doesn't heal.
+Daemogoth
+Slipping through the darkest corners of the world,
+daemogoths are powerful fiendish creatures that
+feed on misery and other negative emotions. Some
+sages refer to daemogoths as tear lickers, owing
+to the fiends’ tendency to lurk near battlefields and
+other sites of great tragedy to consume the anguish
+saturating the area.
+Daemogoths are creatures of forbidden knowledge and magic, all fueled by their consumption
+of anguish. They trade magical influence over the
+lives and minds of others to ambitious mortals in
+exchange for the mortal’s agony.
+Daemogoths are alien-looking in the extreme.
+Their eyes are insectile or smooth and bulbous like
+gleaming jewels, and they have five arms. They typically wear long robes, which drape low over their
+forms, and they sport a halo of horns, antlers, or
+floating stones or crystals.
+Saving Throws Int +9, Wis +6, Cha +8
+Skills Arcana +13, Deception +12, History +9, Perception +6
+Damage Immunities psychic
+Condition Immunities frightened
+Senses truesight 120 ft., passive Perception 16
+Languages Abyssal, Infernal, telepathy 120 ft.
+Challenge 10 (5,900 XP) Proficiency Bonus +4
+Pact ofPain. Using a 10-minute ritual, the daemogoth can
+forge a magical bond with a willing creature it touches throughout the ritual. The creature becomes bound by the pact until it
+dies, the daemogoth dies, or the pact is broken by any effect
+that can remove a curse.
+The daemogoth chooses one spell from the necromancy or
+enchantment school that is 3rd level or lower. The bound creature can cast that spell using this pact, requiring no material
+components and using Intelligence as the spellcasting ability.
+When it casts the spell, the creature takes 7 (2d6) psychic damage, which can’t break the creature’s concentration on a spell.
+Once the bound creature casts the spell in this way, it can’t do
+so again until it finishes a long rest.
+Armor Class 16 (natural armor)
+Hit Points 157 (15dl2+ 60)
+Speed 40 ft., climb 40 ft.Barbed Gifts
+CHAPTER 7 | FRIENDS AND FOES 190
+DEX
+10 (+0)
+CON
+26 (+8)
+INT
+24 (+7)
+WIS
+18 (+4)
+CHA
+20 (+5)
+When a supplicant piques a daemogoth titan’s interest, the titan can grant a blessing to the supplicant
+(see “Supernatural Gifts” in the Dungeon Master's
+Guide'). As long as the creature has the blessing, it
+must expend and roll two of its Hit Dice whenever it
+finishes a long rest. It takes psychic damage equal
+to the total rolled, and its hit point maximum is
+reduced by an amount equal to the psychic damage taken. This reduction lasts until the creature
+finishes its next long rest. The creature dies if this
+effect reduces its hit point maximum to 0. The blessing can be removed only by a wish spell.
+o
+o
+st
+5
+Daemogoth Titan
+Daemogoth titans are towering monsters that blight
+the land around them. A daemogoth grows in power
+over the course of decades spent feeding on sorrow and draining life from nature. Eventually that
+growth turns the daemogoth into a titan.
+The titans maintain their lesser cousins’ ability
+to trade magical power for a mortal’s pain, but they
+tend to demand more punishing suffering in exchange for their pacts or knowledge.
+Daemogoth Titan
+I Gargantuan Fiend, Typically Chaotic Evil
+Legendary Actions
+The titan can take 3 legendary actions, choosing from the options below. Only one legendary action option can be used at 
+a time and only at the end of another creature’s turn. The titan
+regains spent legendary actions at the start of its turn.
+Attack. The titan makes one Claw or Agonizing Bolt attack.
+Stalking Nightmare (Costs 2 Actions). The titan uses Teleport,
+after which it can target one creature within 20 feet of itself
+that it can see. The target must make a DC 20 Constitution
+saving throw. On a failed save, the target takes 22 (4dl0)
+necrotic damage, and the titan regains 10 hit points. On a
+successful save, the target takes half as much damage, and
+the titan doesn’t heal.
+Terrorize (Costs 3 Actions). The titan targets one creature it
+can see within 120 feet of itself. The target must make a DC
+20 Wisdom saving throw. On a failed save, the target takes
+38 (7dl0) psychic damage and is frightened of the titan until
+the end of the target's next turn, and the titan regains 15 hit
+points. On a successful save, the target takes half as much
+damage and isn't frightened, and the titan doesn’t heal.
+Actions
+Multiattack. The titan makes two Agonizing Burst attacks.
+Agonizing Burst. Melee or Ranged Spell Attack: +12 to hit, reach
+15 ft. or range 120 ft., one target. Hit: 17 (3d6 + 7) force damage. If the target is a creature, the titan regains 5 hit points.
+Teleport. The titan teleports to an unoccupied space it can see
+within 120 feet of itself.
+Legendary Resistance (3/Day). If the titan fails a saving throw, it
+can choose to succeed instead.
+Pact ofSuffering. Using a 10-minute long ritual, the titan can
+forge a magical bond with a willing creature it touches throughout the ritual. The creature becomes bound by the pact until it
+dies, the titan dies, or the pact is broken by a wish spell.
+The titan chooses one spell from the necromancy or enchantment school that is 8th level or lower. The bound creature can
+cast that spell using this pact, requiring no material components and using Intelligence as the spellcasting ability. When
+it casts the spell, the creature takes 21 (6d6) psychic damage,
+which can’t break the creature's concentration on a spell. Once
+the bound creature casts the spell in this way, it can’t do so
+again until it finishes a long rest.
+STR
+: 26 (+8)
+; Armor Class 17 (natural armor)
+' Hit Points 203 (lld20 + 88)
+) Speed 40 ft.
+w J
+X- g
+h-t
+4 i
+1
+Saving Throws Int +12, Wis +9, Cha +10
+Skills Arcana +17, Deception +15, History +12, Perception +9
+Damage Immunities psychic
+Condition Immunities charmed, frightened
+Senses truesight 120 ft., passive Perception 19
+Languages Abyssal, Infernal, telepathy 120 ft.
+Challenge 16 (15,000 XP) Proficiency Bonus +5CHAPTER 7 I FRIENDS AND FOES 191
+A student who has not yet chosen one of Strixhaven’s five mystic colleges is referred to as a first-year
+student, after the one year of basic curriculum that
+most students must complete before selecting their
+school. These beginner students are taught by faculty from all of Strixhaven’s colleges, learning rudimentary magic as they acclimate to the university’s
+environment. Once a student has selected a college,
+they trade their plain gray first-year uniforms for the
+trappings of their chosen school and begin honing—
+or even replacing—the magic they learned in their
+initial year with other skills.
+<
+2
+o
+D
+rr»
+Actions________________________________
+Magic Flare. Melee or Ranged Spell Attack: +3 to hit, reach 5 ft.
+or range 60 ft., one target. Hit: 7 (1 dl2 + 1) force damage.
+Spellcasting. The student casts one ofthe following spells, us-
+! ing Intelligence as the spellcasting ability (spell save DC 11):
+• At will: mage hand, prestidigitation
+1/day: detect magic
+Reactions_________________________ _____
+Beginner’s Luck (2/Day). When the student fails a saving throw,
+it can reroll the d20. It must use the new roll.I
+Proficiency Bonus +2
+Actions
+6 (2d4 + 1) force
+CHAPTER 7 I FRIENDS AND FOES 192
+Armor Class 12
+Hit Points 27 (6d6 + 6)
+Speed 30 ft.
+STR
+12 (+1)
+DEX
+14 (+2)
+CON
+13 (+1)
+INT
+7 (-2)
+WIS
+10 (+0)
+CHA
+5 (-3)
+Damage Immunities poison
+Condition Immunities poisoned
+Senses passive Perception 10
+Languages understands the languages of its creator but can't
+speak
+Challenge 1/4 (50 XP)
+Fractal Mascot
+Small Construct, Typically Neutral
+g
+5
+a
+<
+<UJ
+C
+one target. Hit: 3 (1 d4 + 1) force damage, or
+Fractal Mascot damage ifthe fractal is Medium or bigger.
+To an untrained eye, a fractal mascot looks like a
+creature made from facets of hard light. But arithmancers know that these fractals are actually living
+equations: artificial life forms created by extrapolating magic from the mathematical patterns in nature.
+Because of their arithmetic basis, fractal mascots
+can alter both their size and density. Quandrix College has adopted the fractal as its mascot, and many
+a Quandrix student can be found playing fetch with
+a fractal companion in between lessons.
+Relative Density. The fractal can move through creatures and
+objects as ifthey were difficult terrain. It takes 5 (IdlO) force
+damage if it ends its turn inside an object.
+Bonus Actions___________________________
+Augment. The fractal’s size increases by one category. While
+the fractal is Medium or bigger, it makes Strength checks and
+Strength saving throws with advantage. The fractal can become
+no larger than Huge via this bonus action.
+Diminish. The fractal’s size decreases by one category. While
+the fractal is Tiny, it makes attack rolls, Dexterity checks, and
+Dexterity saving throws with advantage. The fractal can become no smaller than 1 foot in height via this bonus action.Proficiency Bonus +7
+t
+CHAPTER 7 | FRIENDS AND FOES 193
+Legendary Resistance (3/Day). If Galazeth fails a saving throw,
+he can choose to succeed instead.
+culture and personal emotional growth. Galazeth
+views dynamic expression and precise perfection
+necessarily competing forces, both within individuals and the world at large.
+STR
+26 (+8)
+DEX
+14 (+2)
+CON
+25 (+7)
+INT
+18 (+4)
+WIS
+20 (+5)
+CHA
+26 (+8)
+Armor Class 21 (natural armor)
+Hit Points 402 (23d2O+ 161)
+Speed 40 ft., fly 80 ft.
+Saving Throws Dex +9, Con +14, Wis +12, Cha +15
+Skills Arcana +18, Acrobatics +16, Performance +22,
+Perception +12
+Damage Resistances lightning
+Damage Immunities cold, fire
+Senses blindsight 120 ft., passive Perception 22
+Languages Common, Draconic
+Challenge 23 (50,000 XP)
+ft
+Galazeth Prismari
+Gargantuan Dragon (Sorcerer), Chaotic Neutral
+I
+I
+s
+Actions
+Multiattack. Galazeth makes one Bite attack and two
+Claw attacks.
+Bite. Melee Weapon Attack: +15 to hit, reach 15 ft., one target. Hit: 13 (IdlO + 8) piercing damage plus 5 (1 dlO) lightning damage.
+Claw. Melee Weapon Attack: +15 to hit, reach 10 ft., one target.
+Hit: 11 (1 d6 + 8) slashing damage. Ifthe target is a Large or
+smaller creature, it is knocked prone.
+Galazeth
+Prismari
+The dragon Galazeth Prismari embodies the flow of
+magic from inspiration into
+artistic expression, whether
+through physical form or another
+sensory medium. His magic draws
+on primal energy—such as flame,
+lightning, and the tides—and weaves
+them into spectacles both beautiful
+and deadly.
+Galazeth founded Prismari College to
+sure that the study of magic wouldn’t ever be relegated to pure practicality. His teachings emphasize
+Legendary Actions
+Galazeth can take 3 legendary actions, choosing from the options below. Only one legendary action option can be used at
+a time and only at the end of another creature's turn. Galazeth
+regains spent legendary actions at the start of his turn.
+Claw. Galazeth makes one Claw attack.
+Lightning Flash (Costs 2 Actions). Galazeth moves up to half
+his flying speed without provoking opportunity attacks.
+When he passes within 15 feet of a creature during this move,
+that creature must succeed on a DC 22 Dexterity saving
+throw or take 11 (2dl0) lightning damage. A creature can take
+this damage no more than once during the move.
+Flowing Creation (Costs 3 Actions). Galazeth magically summons 1 d4 art elemental mascots (in this chapter) in unoccupied spaces he can see within 60 feet of himself. The art
+elementals obey his commands and take their turns immediately after his. Any creature, other than an art elemental,
+takes 5 (IdlO) cold, fire, or lightning damage (Galazeth’s
+choice) if it ends its turn within 5 feet ofone or more of these
+elementals. When one of these elementals drops to 0 hit
+points, Galazeth can fly up to 20 feet without provoking opportunity attacks. These elementals disappear after 10 minutes, when Galazeth dies, or when he uses this action again.
+J.
+Dancing Elements Breath (Recharge 5-6). Galazeth exhales a
+blast of flames and ice in a 90-foot cone. Each creature in that
+area must make a DC 22 Dexterity saving throw, gaining no
+benefit from cover (other than total cover) and taking 38 (7dl0)
+fire damage and 38 (7d 10) cold damage on a failed save, or half
+as much damage on a successful one.
+Spellcasting. Galazeth casts one of the following spells, requiring no material components and using Charisma as the spellcasting ability (spell save DC 23):
+1 /day each: control water, gust ofwind, wall ofstone
+L
+K
+I20 (+5) 10 (+0) 17 (+3) 4 (-3) 13 (+1) 7 (-2)
+Proficiency Bonus +2
+CHAPTER 7 I FRIENDS AND FOES 194
+False Appearance. If the groff is motionless at the start of combat, it has advantage on its initiative roll. Moreover, if a creature
+hasn’t observed the groff move or act, that creature must succeed on a DC 18 Intelligence (Investigation) check to discern
+that the groff isn’t an ordinary moss-covered bog patch.
+Hold Breath. The groff can hold its breath for up to 1 hour.
+s
+5
+tS
+Actions
+I
+: Multiattack. The groff makes one Bite attack and one Swamp
+Claw attack.
+Bite. Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit:
+9 (ld8 + 5) piercing damage.
+Swamp Claw. Melee Weapon Attack: +7 to hit, reach 5 ft., one
+target. Hit: 8 (1 d6 + 5) slashing damage. Ifthe target is a Medium or smaller creature, it must succeed on a DC 15 Strength
+saving throw or become engulfed by the groff. While engulfed,
+the target can't breathe, is restrained, and takes 10 (3d6) poison damage at the start of each of its turns. When the groff
+moves, the engulfed target moves with it. The groff can have
+only one target engulfed at a time.
+An engulfed target can repeat the saving throw at the end of
+its turns. On a success, the target escapes and enters the nearest unoccupied space.
+Groff
+Many a Strixhaven student wandering the bayou
+has stepped on a seemingly mundane patch of
+moss—only to discover that it was the back of a hungry groff lurking beneath the surface. These shaggy
+swamp creatures have canine faces and glowing
+blue eyes, and they are ravenous carnivores—with
+pest mascots being their favorite food. A handful of
+more intrepid Witherbloom mages have learned to
+follow groffs in order to track down pest mascots,
+but most of these mages have yet to find a way to
+capture the pests before the groff eats someone.
+Skills Perception +3, Stealth +4
+Senses darkvision 60 ft., passive Perception 13
+Languages —
+Challenge 4 (1,100 XP)Proficiency Bonus +2
+darkness, the inkling
+CHAPTER 7 | FRIENDS AND FOES 195
+Armor Class 13
+Hit Points 18 (4d4 + 8)
+Speed 10 ft., fly 30 ft. (hover)
+STR
+10 (+0)
+DEX
+16 (+3)
+CON
+14 (+2)
+INT
+6 (-2)
+WIS
+7 (-2)
+CHA
+11 (+0)
+Skills Stealth +5
+Damage Immunities psychic
+Condition Immunities blinded, charmed, deafened, exhaustion,
+prone
+Senses blindsight 60 ft., passive Perception 8
+Languages understands the languages of its creator but can't
+speak
+Challenge 1/4 (50 XP)
+Inkling Mascot
+Squelching slightly as they wriggle through the air,
+inklings serve as the mascots for Silverquill College. These living blobs of shadowy ink are often
+summoned by professors who require assistance
+in their writing workshops—the inklings provide
+endless ink—or by lonely students hoping for company as they study. However, inklings can just as
+readily support mages in combat, disrupting opponents’ sight.
+Inkling Mascot
+Tiny Ooze, Typically Neutral
+L.
+c
+o
+VI
+Amorphous. The inkling can move through a space as narrow
+as 1 inch wide without squeezing.
+Actions
+Blot. Melee Weapon Attack: +5 to hit, reach 5 ft., one target.
+Hit: 5 (1 d4 + 3) psychic damage.
+Ink Spray (1/Day). The inkling sprays viscous ink at one creature within 15 feet of itself. The target must succeed on a DC
+12 Constitution saving throw or be blinded until the end of the
+inkling’s next turn.
+Bonus Actions_________
+Shadow Stealth. While in dim light or
+takes the Hide action.J
+CHAPTER 7 | FRIENDS AND FOES 196
+Lorehold Students_____ __ _
+Deep in crumbling ruins and piles of dusty scrolls,
+Lorehold students—first as apprentices and then as
+pledgemages—study the magic of the past, searching for arcane artifacts and speaking with long-dead
+adventurers to uncover secrets lost to time.
+Though many Lorehold students bury themselves
+in old tomes, others take a more cavalier approach
+to their studies and travel the world to see history
+made before their eyes. Their magic can range
+from spells tampering with the flow of time itself to
+concussive blasts that break through old ruins—to
+sometimesjust bashing things with a glowing scroll.
+Lorehold Professor of Order
+Lorehold’s professors of order search for evidence
+of patterns and predictable outcomes in history.
+They study the flow of events, learning which occurrences herald specific outcomes, and they trace
+their magic through those paths of causality. In
+their exploration of ruins, professors of order shore
+up dangerous structures and find the safest paths
+as they search. When confronted, they confound
+their foes by channeling the stasis of perfect order,
+creating resilient barriers of force and quashing
+hostile magic.
+Lorehold Scholars
+The archaeomancers of Lorehold College draw
+their magical might from the flow of time and fate
+and the way those forces shape the course of history. Scholars of this broad mystical study divide
+between those who see history as an unpredictable
+jumble of chance and those who believe events form
+a perfect—and predictable—pattern.
+I
+I
+Lorehold Professor of Chaos
+Professors of chaos wield magic inspired by the ebb
+and flow of chance. They study the course history
+has taken, looking for breaking points in the flow of
+events, and focus their magic into creating breaks
+that are to their advantage. Whether those breaks
+are in a series of events, in obstacles, or in enemies
+depends on the needs in the moment. They crush
+enemies’ plans under the weight of time and lash
+out with magical energy that often takes the appearance of books, scrolls, and sheets of parchment.Armor Class 12 (15 with mage armor)
+Hit Points 33 (6d8 + 6)
+Speed 30 ft.
+STR
+10 (+0)
+DEX
+14 (+2)
+CON
+13 (+1)
+INT
+15 (+2)
+WIS
+12 (+1)
+CHA
+11 (+0)
+STR
+10 (+0)
+DEX
+16 (+3)
+CON
+13 (+1)
+INT
+17 (+3)
+WIS
+12 (+1)
+CHA
+11 (+0)
+Saving Throws Con +3, Int +5
+Skills History +7, Insight +3, Investigation +7
+Senses passive Perception 11
+Languages Common plus any two languages
+Challenge 4 (1,100 XP) Proficiency Bonus +2
+I
+5
+!
+spellcasting ability (spell save DC 12):
+At will: guidance, light
+1/day each: comprehend languages, locate object, mage armor
+Lorehold Apprentice
+Medium or Small Humanoid (Wizard), Any Alignment
+Actions
+Scroll Bash. Melee Spell Attack: +4 to hit, reach 30 ft., one target. Hit: 7 (IdlO + 2) bludgeoning damage plus 9 (2d8) thunder damage.
+Reduce to Memory (Recharge 6). Thundering golden energy
+erupts around a creature the apprentice can see within 90 feet
+of it. The creature must make a DC 12 Constitution saving
+throw, taking 33 (6dl0) thunder damage on a failed save, or
+half as much damage on a successful one. A Construct has disadvantage on the saving throw.
+Spellcasting. The apprentice casts one of the following spells,
+requiring no material components and using Intelligence as the
+Actions________________________________
+Multiattack. The pledgemage makes two Scroll Bash attacks.
+Scroll Bash. Melee Spell Attack: +5 to hit, reach 30 ft., one target. Hit: 8 (IdlO + 3) bludgeoning damage plus 9 (2d8) thunder damage.
+Reduce to Memory (Recharge 5-6). Thundering golden energy
+erupts around a creature the pledgemage can see within 90
+feet of it. The creature must make a DC 13 Constitution saving 
+throw, taking 44 (8dl0) thunder damage on a failed save, or
+half as much damage on a successful one. A Construct has disadvantage on the saving throw.
+Spellcasting. The pledgemage casts one of the following spells,
+requiring no material components and using Intelligence as the
+spellcasting ability (spell save DC 13):
+At will: guidance, light
+2/day each: comprehend languages, locate object
+1/day each: mage armor, speak with dead, stone shape
+Reactions_______________________________
+Learnfrom the Past (2/Day). When another creature within 60
+feet of the apprentice misses a target with an attack roll, the apprentice magically enables the attacker to reroll the attack roll.
+It must use the new roll.
+- ------------ ---------- 1
+Saving Throws Con +3, Int +4
+Skills History +6, Insight +3, Investigation +6
+Senses passive Perception 11
+Languages Common plus any two languages
+Challenge 2 (450 XP) Proficiency Bonus +2
+CHAPTER 7 | FRIENDS AND FOES 197
+Bonus Actions
+Chronal Break (1/Day). The pledgemage chooses a point within
+30 feet of itself, shunting the minds of nearby creatures out of
+this moment in time. Each creature in a 10-foot-radius sphere
+centered on that point must succeed on a DC 13 Wisdom saving throw or be incapacitated until the end of the pledgemage’s
+next turn.
+Reactions _________________________
+Learnfrom the Past (2/Day). When another creature within 60
+feet of the pledgemage misses a target with an attack roll, the
+pledgemage magically enables the attacker to reroll the attack
+roll. It must use the new roll.—
+STR
+11 (+0)
+DEX
+14 (+2)
+CON
+14 (+2)
+INT
+19 (+4)
+WIS
+15 (+2)
+CHA
+13 (+1)
+Saving Throws Con +5, Int +7, Wis +5, Cha +4
+Skills Arcana +7, History +7, Perception +5
+Damage Resistances force
+Senses passive Perception 15
+Languages Common plus any four languages
+Challenge 7 (2,900 XP) Proficiency Bonus +3
+STR
+11 (+0)
+DEX
+14 (+2)
+CON
+14 (+2)
+INT
+19 (+4)
+WIS
+15 (+2)
+CHA
+13 (+1)
+198
+Armor Class 12 (15 with mage armor)
+Hit Points 104 (16d8 + 32)
+Speed 30 ft.
+1
+I
+CHAPTER 7 I FRIENDS AND FOES
+Voicefrom the Past (1/Day). The professor can cast the contact
+other plane spell to contact a long-dead spirit, using Intelligence as the spellcasting ability.
+Lorehold Professor of Chaos
+Medium or Small Humanoid (Wizard), Any Alignment
+Lorehold Professor of Order
+Medium or Small Humanoid (Wizard), Any Alignment
+I
+It can also use Force Barrier, if available.
+Repelling Burst. Melee Spell Attack: +7 to hit, reach 30 ft., one
+target. Hit: 13 (2d8 + 4) force damage. Ifthe target is a Large
+or smaller creature, it must succeed on a DC 15 Strength saving throw or be pushed up to 10 feet directly away from the
+The wall provides total cover. It has AC 17, 30 hit points, and
+immunity to poison and psychic damage.
+Spellcasting. The professor casts one of the following spells,
+requiring no material components and using Intelligence as the
+spellcasting ability (spell save DC 15):
+At will: comprehend languages, guidance, light
+2/day each: dimension door, locate object, mage armor,
+stone shape
+next turn.
+Force Barrier (Recharge 5-6). The professor magically creates a
+wall of translucent, golden force within 90 feet of itself. The wall
+lasts for 1 minute or until the professor uses this action again.
+The barrier can be a vertical or horizontal plane up to 30 feet
+on a side or a 10-foot-radius hemispherical dome with a floor.
+Actions_______________________ _________
+Multiattack. The professor makes two Spectral Scroll attacks.
+It can also use Weight of History, if available.
+Spectral Scroll. Melee Spell Attack: +7 to hit, reach 30 ft., one
+target. Hit: 15 (2dl 0 + 4) force damage. Ifthe target is a creature, it must succeed on a DC 15 Strength saving throw or be
+knocked prone.
+Spellcasting. The professor casts one ofthe following spells,
+requiring no material components and using Intelligence as the
+spellcasting ability:
+At will: comprehend languages, dancing lights, guidance
+2/day each: locate object, mage armor, passwall
+Weight ofHistory (Recharge 5-6). The professor magically
+Actions_________________________________
+Multiattack. The professor makes two Repelling Burst attacks.
+Reactions_______________________________
+Arcane Stasis (2/Day). When a creature the professor can see
+within 60 feet of it casts a spell, the professor can magically
+lock the casting in the moment before completion. The spellcaster must succeed on a DC 15 saving throw using the spell's
+spellcasting ability, or the spell fails and is wasted.
+can see within 30 feet of itself. Each target must succeed on a
+DC 15 Wisdom saving throw or be restrained for 1 minute, but
+the restrained target’s speed is halved instead of being reduced
+to 0. At the start ofeach of its turns, the restrained target takes
+4 (1 d8) force damage. A restrained target can repeat the save
+at the end ofeach of its turns, ending the effect on itself on
+a success.
+Armor Class 12 (15 with mage armor)
+Hit Points 110 (17d8+ 34)
+Speed 30 ft.
+Saving Throws Con +5, Int +7, Wis +5, Cha +4
+Skills Arcana +7, History +7, Perception +5
+Senses passive Perception 15
+Languages Common plus any four languages
+Challenge 7 (2,900 XP) Proficiency Bonus +3
+Voicefrom the Past (1/Day). The professor can cast the contact
+otherplane spell to contact a long-dead spirit, using Intelligence as the spellcasting ability.Bonus Actions
+CHAPTER 7 I FRIENDS AND FOES 199
+Actions_________________________ ___
+Multiattack (Hunter Form Only). The hunter makes two
+Claw attacks.
+Magic Sense. The hunter knows the location of every spellcaster, active spell, and magic item within 120 feet of itself.
+Spider Climb (Hunter Form Only). The hunter can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check.
+STR
+19 (+4)
+DEX
+15 (+2)
+CON
+16 (+3)
+INT
+11 (+0)
+WIS
+17 (+3)
+CHA
+10 (+0)
+Shift Form. The hunter folds into its drone-like sentry form or
+unfolds into its hunter form. Its game statistics are the same in 
+each form.
+Armor Class 15 (natural armor)
+Hit Points 85 (10dl0+ 30)
+Speed 40 ft., climb 40 ft. (hunter form only), fly 10 ft. (hover,
+sentry form only)
+Saving Throws Int +3, Wis +6, Cha +3
+Skills Perception +9, Stealth +5
+Condition Immunities blinded, charmed, deafened, frightened,
+prone
+Senses blindsight 120 ft. (blind beyond this radius),
+passive Perception 19
+Languages understands Common but can’t speak
+Challenge 5 (1,800 XP) Proficiency Bonus +3
+Mage Hunter
+Large Monstrosity, Typically Lawful Evil
+I
+iz>
+s
+mage Hunter
+Mage hunters are hideous spider-legged creatures
+employed by the Oriq to pursue magic-wielders.
+These creatures can naturally sense magic via the
+glowing purple spines on their backs.
+A mage hunter is usually in its sentry form, a diamond-shaped drone with a heightened ability to
+sense and locate mages. Once it finds a quarry, the
+mage hunter takes on its arachnoid hunter form and
+pursues its targets with vicious skill.
+Reactions________________________________
+Consume and Destroy. When the hunter takes damage from a
+spell, it takes only half the triggering damage (rounded down).
+Ifthe creature that cast the spell is within 60 feet of the hunter,
+that creature must succeed on a DC 14 Dexterity saving throw
+or take the other half of the damage.
+Claw (Hunter Form Only). Melee Weapon Attack: +7 to hit,
+reach 5 ft., one target. Hit: 15 (2dl0 + 4) slashing damage.
+Tail. Melee Weapon Attack: +7 to hit, reach 10 ft., one target.
+Hit: 22 (4d8 + 4) piercing damage, and the target is grappled (escape DC 15). Until this grapple ends, the target is
+restrained, and the hunter can't make a Tail attack against
+another target.
+Mage Tracker (Sentry Form Only). The hunter emits a pulse
+of energy that helps it better locate its magical quarry. Each
+creature within 120 feet of the hunter that has the ability to cast
+spells must succeed on a DC 14 Wisdom saving throw or be
+mystically marked by the hunter for 1 hour.
+While marked, a creature can't become hidden from the
+hunter and gains no benefit from the invisible condition against
+the hunter. Additionally, while a marked creature is on the same
+plane of existence as the hunter, the hunter always knows the
+distance and direction to the creature.Proficiency Bonus +5
+/
+CHAPTER 7 I FRIENDS AND FOES 200
+Legendary Resistance (3/Day). Ifthe Oracle fails a saving throw,
+she can choose to succeed instead.
+STR
+12 (+1)
+CON
+16 (+3)
+INT
+21 (+5)
+WIS
+20 (+5)
+CHA
+18 (+4)
+DEX
+15 (+2)
+save, a creature takes 33 (6dlO) force damage and is pulled up
+to 15 feet in a straight line toward the center of the sphere. On
+a successful save, the creature takes half as much damage and
+isn’t pulled. A creature caught in the area of multiple warps is
+affected by only one, which the Oracle chooses.
+Spellcasting. The Oracle casts one of the following spells, requiring no material components and using Intelligence as the
+spellcasting ability (spell save DC 18):
+At will: detect magic
+2/day each: dispel magic, mage armor, remove curse, sending
+1/day each: power word stun, scrying (as an action), wall offorce
+Teleport. The Oracle teleports, along with any equipment she is
+wearing or carrying, to an unoccupied space she can see within
+60 feet of herself.
+Oracle of Strixhaven
+Somewhere in the lands beyond Strixhaven’s borders lives the Oracle: a wise and accomplished
+mage, tasked by the Founder Dragons to ensure
+that the magic of Strixhaven is used to help others
+and not twisted to evil ends. The one who holds the
+mantle of the Oracle must not only understand the
+fundamental truths of magic, but also possess impeccable wisdom and unshakable virtue.
+The current Oracle is an elderly human named
+Jadzi. A graduate of Quandrix College, Jadzi has
+since expanded her studies to encompass all disciplines of spellcasting, tempering the mathematical abstractions she wielded at Strixhaven with
+benevolent divination and a return to the basics of
+magic itself.
+Oracle of Strixhaven
+Medium Humanoid (Human, Wizard), Neutral Cood
+i
+u: I
+0
+Actions _____________________________
+Multiattack. The Oracle makes two Magic Flare attacks. She
+can also use Paradoxy, if available.
+Magic Flare. Melee or Ranged Spell Attack: +10 to hit, reach 5 ft.
+or range 60 ft., one target. Hit: 24 (3dl2 + 5) force damage.
+Paradoxy (Recharge 4-6). Momentary warps in reality appear
+at three different points the Oracle can see within 120 feet of
+her. Each creature in a 20-foot-radius sphere centered on each
+point must make a DC 18 Strength saving throw. On a failed
+Saving Throws Con +8, Int +10, Wis +10, Cha +9
+Skills Arcana +15, Insight +15, Investigation +15, Nature +10,
+Perception +10
+Condition Immunities charmed, frightened
+Senses passive Perception 20
+Languages all
+Challenge 15 (13,000 XP)
+Armor Class 12 (15 with mage armor)
+Hit Points 150 (20d8 + 60)
+Speed 30 ft., fly 15 ft. (hover)
+Legendary Actions_______________________
+The Oracle can take 3 legendary actions, choosing from the options below. Only one legendary action option can be used at a
+time and only at the end of another creature’s turn. The Oracle
+regains spent legendary actions at the start of her turn.
+Vector Shift. The Oracle teleports one creature she can see
+within 60 feet of herself, along with any equipment it is wearing or carrying, to an unoccupied space within 30 feet of herself. An unwilling target must succeed on a DC 18 Charisma
+saving throw to avoid the effect.
+Spellcasting (Costs 2 Actions). The Oracle uses Spellcasting.
+Vortex Jaunt (Costs 2 Actions). The Oracle uses Teleport, and
+immediately after she disappears, each creature within 30
+feet of the space she left must succeed on a DC 18 Constitution saving throw or take 16 (3dl0) force damage.CHAPTER 7 | FRIENDS AND FOES 201
+STR
+11 (+0)
+DEX
+14 (+2)
+CON
+18 (+4)
+INT
+20 (+5)
+WIS
+12 (+1)
+CHA
+12 (+1)
+Blood Aegis. The AC of the blood mage includes its Constitution modifier while it isn’t wearing armor or wielding a shield.
+Oriq Mask. The blood mage wears an Oriq mask. While wearing the mask, the blood mage can't be targeted by any divination magic or perceived through magical scrying sensors, and
+it adds double its proficiency bonus to Charisma (Deception)
+checks (included above).
+Sanguine Sense. While the blood mage isn’t blinded, it can see
+any creature that isn’t an Undead or a Construct within 60 feet
+of itself, even through total cover, heavily obscured areas, invisibility, or any other phenomena that would prevent sight.
+Armor Class 16 (Blood Aegis)
+Hit Points 127 (15d8 + 60)
+Speed 30 ft.
+Saving Throws Con +8, Int +9, Wis +5, Cha +5
+Skills Deception +9, Medicine +5, Survival +5
+Damage Resistances necrotic
+Condition Immunities exhaustion
+Senses passive Perception 11
+Languages Common plus any four languages
+Challenge 9 (5,000 XP) Proficiency Bonus +4
+Oriq,
+The Oriq are a secret society of mages who wield
+forbidden magic in the service of their leader, Extus
+Narr. Narr was in consideration for elevation to the
+role of Oracle of Strixhaven, but when the Founder
+Dragons passed him over in favor ofJadzi, his bitterness knew no bounds. He now uses the Oriq to
+gather the spells and magical energy he needs to
+summon a devastating being, the Blood Avatar, to
+destroy Strixhaven.
+The Oriq work in secret, infiltrating Strixhaven to
+search for the magic their master covets and watch
+for impressionable students and embittered faculty
+they might turn to their cause. The Oriq take pains
+to hide their true allegiance and wear masks to hide
+their identities. These masks have magical properties that function only for their intended wearers.
+I
+Oriq Blood Mage
+Medium Humanoid (Warlock), Typically Neutral Evil
+Oriq Blood Mage_______________
+Oriq blood mages create deadly weapons formed of
+their own blood. They can also sense the life energy
+within nearby creatures, making the blood mages
+almost impossible to ambush.
+Actions_________________________________
+Multiattack. The blood mage makes two Blood Lash attacks.
+Blood Lash. Melee Spell Attack: +9 to hit, reach 10 ft., one
+target. Hit: 21 (3dl 0 + 5) necrotic damage. Ifthe target is a
+creature, it can't regain hit points until the start of the blood
+mage's next turn.
+Blood Boil (Recharge 4-6). The blood mage chooses a point
+within 150 feet of itself, and a 20-foot radius sphere centered
+on that point fills with a burst of searing, blood-red mist. Each
+creature of the blood mage's choice that it can see in that area
+must make a DC 17 Constitution saving throw. On a failed save,
+a creature takes 38 (7dl0) necrotic damage and is incapacitated
+until the end of its next turn. On a success, a creature takes
+half as much damage and isn't incapacitated. A creature dies if
+reduced to 0 hit points by this necrotic damage.1
+CHAPTER 7 I FRIENDS AND FOES 202
+the mask, the recruiter can’t be targeted by any divination
+magic or perceived through magical scrying sensors, and it
+S
+I>■
+Actions_______________________________
+Multiattack. The recruiter makes two Psychic Knife attacks. It
+can use Spellcasting in place of one of the attacks.
+Psychic Knife. Melee or Ranged Spell Attack: +6 to hit, reach 5 ft.
+or range 30 ft., one creature. Hit: 21 (5d6 + 4) psychic damage.
+Spellcasting. The recruiter casts one of the following spells,
+requiring no material components and using Charisma as the
+spellcasting ability (spell save DC 14):
+At will: disguise self, silent image
+2/day: charm person
+1/day: suggestion
+' adds double its proficiency bonus to Charisma (Deception)
+checks (included above).
+Oriq Recruiter
+Oriq recruiters are subtle mages who infiltrate
+Strixhaven in service to their order. They are adept
+at blending in, watching for powerful but underperforming mages and students who have fallen
+through the cracks of the institution. The recruiters
+approach and befriend these individuals either as
+potential recruits to the Oriq or as assets who can
+help the Oriq acquire spells, rare spell components,
+or knowledge from Strixhaven.
+Misdirecting Defense. The AC of the recruiter includes its Charisma modifier while it isn’t wearing armor or wielding a shield.
+I Oriq Mask. The recruiter wears an Oriq mask. While wearingXProficiency Bonus +2
+CHAPTER 7 I FRIENDS AND FOES 203
+STR
+11 (+0)
+DEX
+14 (+2)
+INT
+5 (-3)
+WIS
+13 (+1)
+CHA
+4 (-3)
+Armor Class 13 (natural armor)
+Hit Points 22 (4d4 + 12)
+Speed 30 ft.
+CON
+17 (+3)
+Skills Perception +3
+Senses darkvision 60 ft., passive Perception 13
+Languages —
+Challenge 1/4 (50 XP)
+Ct
+O
+vi
+Pest Mascot
+Grumpy, spiky, and generally irritating, pest mascots inhabit the muggy bayou of Sedgemoor. However, these ferret-sized swamp creatures hold deep
+wells of life essence, making them convenient fuel
+sources for the magic of Witherbloom mages. As
+such, many Witherbloom students have adopted
+pests from the bayou as pets, and pests, in all their
+spiny glory, have become the mascots of the college.
+Pest Mascot
+Tiny Monstrosity, Unaligned
+Actions_______________________________
+Bite. Melee Weapon Attack: +4 to hit, reach 5 ft., one target.
+i Hit: 4 (ld4 + 2) piercing damage.
+Regeneration. The pest regains 5 hit points at the start of its
+turn if it has at least 1 hit point. If it takes fire damage, this trait
+doesn’t function at the start of the pest’s next turn.
+Spiny Hide. At the start of each of its turns, the pest deals 2
+(1 d4) piercing damage to any creature grappling it or that it is
+grappling.CHAPTER 7 I FRIENDS AND FOES 204
+Prismari Professor of Expression
+Professors of expression embody the flare of Prismari magic. Using continuous motion, fluid grace,
+and interweaving steps, these teachers channel the
+elements of wind, flame, and lightning to accompany
+them. Their magic is fast and beautiful, which becomes swift death in battle, mesmerizing in its energetic flow. Devastating lightning strikes and searing
+lashes of flame meet the professors’ foes head on.
+Professors who embrace the Prismari philosophy
+of expression focus on magic becoming art in the
+moment. Whether to create a spectacle that an audience will never forget or to strike down their foes in
+a flash, these teachers impress upon their students
+the beauty of creation.
+Prismari Scholars
+The scholars of Prismari College believe that art
+is the truest form ofspellcraft. They use magic to
+make splendid art. and they employ artistry to make
+their magic spectacular.
+JA
+Prismari Students
+The students of Prismari College—first as apprentices and then as pledgemages—see no distinction
+between magic and art. No two Prismari students
+have the same style ofspellcasting; each wields the
+elemental magic taught by the college in a way that
+expresses their personality. In the hands of Prismari students, spells that conjure fire or bend water
+to one’s will become vibrant and expressive showcases, thrumming with creative energy.
+Harnessing the elemental forces of their magic
+requires precision and grace, and some students
+dedicate themselves to chasing the ideal of perfect
+control, hoping that by doing so, they can accurately
+express what is churning within their minds.
+Prismari Prqfessor of Perfection
+Professors of perfection combine elemental magic
+with precise, forceful physical motion. Their sweeping gestures and dance-like steps gather the power
+of crashing waves, conjure the protection of unyielding stone, and shape great structures of ice. Binding
+and channeling these natural elements allow the
+professors to mold their environment to their needs,
+both for breathtaking performances and to control
+the fabric of a battlefield against their foes.
+These teachers stress attention to fine details,
+drilling their students on the most minuscule
+points. The perfect foundation ultimately leads to a 
+flawless work of art, and the professors of perfection produce sculptural and architectural marvels.requiring no material components and using Charisma as the
+j IF
+I
+Armor Class 12 (15 with mage armor)
+Hit Points 44 (8d8 + 8)
+Speed 35 ft.
+STR
+10 (+0)
+DEX
+14 (+2)
+CON
+13 (+1)
+INT
+12 (+1)
+WIS
+13 (+1)
+CHA
+15 (+2)
+STR
+10 (+0)
+DEX
+15 (+2)
+CON
+13 (+1)
+INT
+12 (+1)
+WIS
+14 (+2)
+CHA
+17 (+3)
+Armor Class 12 (15 with mage armor)
+Hit Points 66 (12d8 +12)
+Speed 35 ft.
+Saving Throws Dex +4, Cha +4
+Skills Acrobatics +4, Athletics +4, Performance +6
+Senses passive Perception 11
+Languages Common plus any two languages
+Challenge 2 (450 XP) Proficiency Bonus +2
+I
+8
+j
+Prismari Pledgemage
+Medium or Small Humanoid (Sorcerer), Any Alignment
+Actions
+Multiattack. The pledgemage makes two Elemental
+Strike attacks.
+Elemental Strike. Melee or Ranged Spell Attack: +5 to hit, reach
+5 ft. or range 60 ft., one target. Hit: 12 (3d6 + 2) fire or cold
+damage (the pledgemage's choice).
+Showstopper (1/Day). The pledgemage shines with elemental
+5 ft. or range 60 ft., one target. Hit: 10 (3d6) fire or cold damage (the apprentice's choice).
+Spellcasting. The apprentice casts one of the following spells,
+requiring no material components and using Charisma as the
+spellcasting ability (spell save DC 12):
+At will: minor illusion
+1/day each: gust ofwind, mage armor, silent image
+The target must make a DC 13 Wisdom saving throw. On a
+failed save, the target takes 28 (8d6) fire or cold damage (the
+pledgemage's choice) and is stunned until the start of the
+' Prismari Apprentice
+Medium or Small Humanoid (Sorcerer), Any Alignment
+Actions_________________________________
+Elemental Strike. Melee or Ranged Spell Attack: +4 to hit, reach
+Bonus Actions__________________________
+Surge ofArtistry (Recharge 4-6). The apprentice moves up to
+its speed, surrounding itselfwith elemental magic as it moves.
+Until the end of its turn, the apprentice can move through the
+space of other creatures. The first time the apprentice enters a
+creature’s space on a turn, that creature must succeed on a DC
+12 Dexterity saving throw or be knocked prone. If the apprentice ends its turn in another creature's space, the apprentice
+takes 5 (IdlO) force damage and is pushed into the nearest
+unoccupied space.
+Evasion. If the pledgemage is subjected to an effect that allows
+it to make a Dexterity saving throw to take only half damage,
+the pledgemage instead takes no damage if it succeeds on the
+saving throw and only half damage if it fails, provided it isn't
+incapacitated.
+pledgemage's choice) and is stunned until the start of the
+pledgemage's next turn. On a successful save, the target takes
+half as much damage and isn't stunned.
+Spellcasting. The pledgemage casts one of the following spells,
+requiring no material components and using Charisma as the
+spellcasting ability (spell save DC 13):
+At will: minor illusion
+2/day each: gust ofwind, silent image
+1/day each: mage armor, water walk
+Bonus Actions
+Surge ofArtistry (Recharge 4-6). The pledgemage moves up to
+its speed, surrounding itselfwith elemental magic as it moves.
+Until the end of its turn, the pledgemage can move through
+the space of other creatures. The first time the pledgemage
+enters a creature’s space on a turn, that creature must succeed
+on a DC 13 Dexterity saving throw or be knocked prone. If
+the pledgemage ends its turn in another creature's space, the
+pledgemage takes 5 (IdlO) force damage and is pushed into
+the nearest unoccupied space.
+Saving Throws Dex +4, Cha +5
+Skills Acrobatics +4, Athletics +4, Performance +7
+' I Senses passive Perception 12
+ai 1 Languages Common plus any two languages
+' Challenge 4 (1,100 XP) Proficiency Bonus+2
+CHAPTER 7 | FRIENDS AND FOES 205
+75 X*I
+CHAPTER 7 I FRIENDS AND FOES 206
+Water Walking. The professor can walk across water and other
+liquids as ifthey were solid ground.
+STR
+14 (+2)
+DEX
+16 (+3)
+CON
+15 (+2)
+INT
+15 (+2)
+WIS
+13 (+1)
+CHA
+19 (-4)
+STR
+14 (+2)
+DEX
+16 (+3)
+CON
+15 (+2)
+WIS
+13 (+1)
+CHA
+19 (+4)
+Armor Class 13 (16 with mage armor)
+Hit Points 97 (15d8+ 30)
+Speed 40 ft.
+Armor Class 13 (16 with mage armor)
+Hit Points 97 (15d8 +30)
+Speed 30 ft.
+INT
+15 (+2)
+g
+o
+Saving Throws Dex +6, Int +5, Wis +4, Cha +7
+Skills Acrobatics +6, Arcana +5, Athletics +5, Perception +4,
+Performance +10
+Damage Resistances fire, lightning
+Senses passive Perception 14
+Languages Common plus any four languages
+Challenge 7 (2,900 XP) Proficiency Bonus +3
+Prismari Prof, of Perfection
+Medium or Small Humanoid (Sorcerer), Any Alignment
+Bonus Actions__________________________
+Rushing Wave. The professor is momentarily surrounded by
+a swirling wave ofwater and moves up to 30 feet. When the
+professor moves within 5 feet of any other creature during this
+bonus action, that creature must succeed on a DC 15 Strength
+saving throw, or the creature is knocked prone and it can't take
+reactions until the start of its next turn. A creature can suffer
+this effect only once during a turn.
+Actions_________________________________
+Multiattack. The professor makes three Tidal Strike attacks.
+Tidal Strike. Melee or Ranged Spell Attack: +7 to hit, reach 5 ft.
+or range 60 ft., one target. Hit: 13 (2d8 + 4) cold damage.
+Spellcasting. The professor casts one of the following spells,
+requiring no material components and using Charisma as the
+spellcasting ability (spell save DC 15):
+At will: minor illusion
+2/day each: control water, create or destroy water, mage armor,
+stone shape
+1/day: wall ofice
+Prismari Prof, of Expression
+Medium or Small Humanoid (Sorcerer), Any Alignment
+Actions
+Multiattack. The professor makes three Cinder Strike attacks.
+Cinder Strike. Melee Spell Attack: +7 to hit, reach 15 ft., one target. Hit: 13 (2d8 + 4) fire damage.
+Lightning Flourish (Recharge 6). The professor unleashes arcs
+of magical lightning at up to two creatures it can see within 60
+feet of itself. Each target must make a DC 15 Dexterity saving
+throw, taking 35 (10d6) lightning damage on a failed save, or
+half as much damage on a successful one.
+Spellcasting. The professor casts one of the following spells,
+requiring no material components and using Charisma as the
+spellcasting ability (spell save DC 15):
+At will: minor illusion
+2/day each:fog cloud, gust ofwind, mage armor
+Bonus Actions_________________________
+Flaming Leap. The professor is wreathed in flames and jumps
+up to 30 feet in any direction. When the professor lands, the
+flames erupt in a 10-foot radius around the professor and then
+vanish. Each creature ofthe professor’s choice in that area
+must succeed on a DC 15 Dexterity saving throw or take 7
+(2d6) fire damage.
+Saving Throws Dex +6, Int +5, Wis +4, Cha +7
+Skills Acrobatics +6, Arcana +5, Athletics +5, Perception +4,
+Performance +10
+Damage Resistances cold
+Senses passive Perception 14
+Languages Common plus any four languages
+Challenge 7 (2,900 XP) Proficiency Bonus +3CHAPTER I | FRIENDS AND FOES
+substance. Through these manipulations, the professors change their size and the physical form
+of others, manipulate nature into rapid growth,
+travel instantaneously, and even fold space into
+deadly edges.
+These professors teach that numbers and mathematics aren’t merely intellectual concepts, but
+that they exist physically in all things. Professors
+of substance teach their students to wield magic
+practically, creating tangible change in the world
+around them.
+I
+s
+5
+Quandrix Students______________
+The students of Quandrix College—first as apprentices and then as pledgemages—immerse themselves in the magic of geometry and metaphysics.
+Their ultimate goal isn’t mastery, however. Rather,
+in their projects they explore and expand knowledge without expecting concrete answers. Whether
+students are extrapolating mathematical patterns
+in nature or engaging in speculative dives into topological formulas that bend reality, their studies
+blur the line between abstract numerical theory and
+natural reality.
+Quandrix Professor of Theory
+Professors of theory advance the Quandrix philosophy that math-magical manipulation is most powerful in the abstract dimension of minds, probability,
+and the fabric of magic itself. Their equations shift
+perceptions in profound ways, alter probability, and
+interfere with the formation of other magic. In battle, the professors tweak probability to impede attacks and strike at the minds of their foes with lancing equations that disrupt the opponent’s resolve.
+Professors of theory hold that altering the way 
+a person interacts with the world can change the
+world. They impress upon their students to use
+magic as a tool to shape the overall experience of
+reality, and in turn make the world a better place.
+Quandrix Professor of Substance
+Professors ofsubstance specialize in the concrete
+side of Quandrix philosophy, manipulating physical
+dimensions and properties of growth. Their magic
+alters and replaces the equations that describe
+the natural world, including creatures, space, and
+Quandrix Scholars
+The scholars of Quandrix College focus on the
+mathematical principles that govern reality.
+Through these formulas, they can manipulate properties of matter and space, as well as abstract and
+conceptual space such as the mind, probability, and
+the flow of magic itself.1
+*5*5
+Quandrix Pledgemage i
+Medium or Small Humanoid (Wizard), Any Alignment
+armor
+208 CHAPTER 7 I FRIENDS AND FOES
+*
+Armor Class 11 (14 with mage armor)
+Hit Points 44 (8d8 + 8)
+Speed 30 ft.
+STR
+10 (+0)
+DEX
+12 (+1)
+CON
+13 (+1)
+INT
+15 (+2)
+WIS
+14 (+2)
+CHA
+11 (+0)
+STR
+10 (+0)
+DEX
+14 (+2)
+CON
+13 (+1)
+CHA
+11 (+0)
+INT
+17 (+3)
+WIS
+14 (+2)
+Armor Class 12 (15 with mage armor)
+Hit Points 66 (12d8 + 12)
+Speed 30 ft.
+Saving Throws Int +4, Wis +4
+Skills Arcana +6, Investigation +6, Nature +4
+Senses passive Perception 12
+Languages Common plus any two languages
+Challenge 2 (450 XP) Proficiency Bonus +2
+i
+1
+$
+a
+Bonus Actions
+Vortex Calculus (Recharge 4-6). The pledgemage teleports,
+along with any equipment it is wearing or carrying, to an unoccupied space it can see within 60 feet of itself. Immediately
+after it teleports, each creature within 20 feet of the space it left
+must make a DC 13 Constitution saving throw. On a failed save,
+a creature takes 7 (2d6) force damage and is moved 10 feet in 
+a random horizontal direction. On a successful save, a creature
+takes half as much damage and isn’t moved.
+I
+Actions_________________________________
+Multiattack. The apprentice makes two Exponential
+Lash attacks.
+Exponential Lash. Melee or Ranged Spell Attack: +4 to hit, reach
+5 ft. or range 60 ft., one target. Hit: 5 (ld6 + 2) force damage,
+and the apprentice can cause one creature it can see within 30
+feet of the target to take 9 (2d6 + 2) force damage.
+Spellcasting. The apprentice casts one of the following spells,
+requiring no material components and using Intelligence as the
+spellcasting ability (spell save DC 12):
+At will: guidance, mage hand
+1/day each: enlarge/reduce, mage
+Actions
+Multiattack. The pledgemage makes two Exponential
+Lash attacks.
+Exponential Lash. Melee or Ranged Spell Attack: +5 to hit, reach
+5 ft. or range 60 ft., one target. Hit: 6 (1 d6 +3) force damage,
+and the pledgemage can cause one creature it can see within
+30 feet of the target to take 10 (2d6 + 3) force damage.
+Spellcasting. The pledgemage casts one of the following spells,
+requiring no material components and using Intelligence as the
+spellcasting ability (spell save DC 13):
+At will: guidance, mage hand
+1/day each: dimension door, enlarge/reduce, mage armor,
+plant growth
+Quandrix Apprentice
+Medium or Small Humanoid (Wizard), Any Alignment
+Saving Throws Int +5, Wis +4
+Skills Arcana +7, Investigation +7, Nature +5
+Senses passive Perception 12
+Languages Common plus any two languages
+Challenge 4 (1,100 XP) Proficiency Bonus +2>
+CHAPTER 7 | FRIENDS AND FOES 209
+STR
+11 (+0)
+DEX
+14 (+2)
+CON
+14 (+2)
+INT
+19 (+4)
+WIS
+14 (+2)
+CHA
+13 (+1)
+STR
+11 (+0)
+DEX
+14 (+2)
+CON
+14 (+2)
+INT
+19 (+4)
+WIS
+15 (+2)
+CHA
+13 (+1)
+Armor Class 12 (15 with mage armor)
+Hit Points 104 (16d8 + 32)
+Speed 30 ft.
+Armor Class 12 (15 with mage armor)
+Hit Points 97 (15d8 + 30)
+Speed 30 ft.
+Saving Throws Con +5, I nt +7, Wis +5, Cha +4
+Skills Arcana +10, Insight +5, Investigation +10, Perception +5
+Damage Resistances psychic
+Condition Immunities charmed, frightened
+Senses passive Perception 15
+Languages Common plus any four languages
+Challenge 7 (2,900 XP) Proficiency Bonus +3
+Saving Throws Con +5, Int +7, Wis +5, Cha +4
+Skills Arcana +10, Investigation +10, Nature +7, Perception +5
+Damage Resistances force
+Senses passive Perception 15
+Languages Common plus any four languages
+Challenge 7 (2,900 XP) Proficiency Bonus +3
+Bonus Actions__________________________ _
+Dilation (Recharge 5-6). The professor magically alters its
+physical form until it uses this bonus action again, until it is
+incapacitated or dies, or until it dismisses the effect (no action
+required). Choose one of the following options:
+Expand. The professor becomes Large if there is sufficient
+room for it to grow. It has advantage on attack rolls and on
+ability checks and saving throws that rely on Strength.
+Contract. The professor becomes Small. Its walking speed increases to 60 feet, attack rolls against it have disadvantage,
+and it has advantage on ability checks and saving throws that
+rely on Dexterity.
+Reactions_______________________________
+Avoidant Translation (2/Day). When the professor is hit by an
+attack roll, it can increase its AC by 3 against that attack, potentially causing it to miss. The professor can then teleport, along
+with any equipment it is wearing or carrying, up to 30 feet to an
+unoccupied space it can see.
+Reactions________________________________
+Divide by Zero (2/Day). When the professor sees another creature within 60 feet of itself casting a spell, the professor can try
+to nullify the spell’s formation. The creature must succeed on a
+DC 15 saving throw using the spell’s spellcasting ability, or the
+spell fails and is wasted.
+Actions________________________________
+Multiattack. The professor makes two Heuristic Lance attacks.
+It can also use Overriding Theorem, if available.
+Heuristic Lance. Melee or Ranged Spell Attack: +7 to hit, reach 5
+ft. or range 60 ft., one creature. Hit: 13 (2d8 + 4) psychic damage, and the target is poisoned until the end of its next turn.
+Overriding Theorem (Recharge 4-6). The professor magically
+influences the mind of up to two creatures it can see within 60
+feet of itself. Each target must succeed on a DC 15 Intelligence
+saving throw or become charmed by the professor until the
+start of the professor's next turn. The charmed creature must
+immediately use its reaction, ifavailable, to move up its speed
+toward another creature of the professor’s choice and make
+one melee attack against that other creature.
+Spellcasting. The professor casts one of the following spells,
+requiring no material components and using Intelligence as the
+spellcasting ability (spell save DC 15):
+At will: guidance, mage hand, minor illusion
+1/day each: mage armor, major image, mirage arcane (as an action), Rary's telepathic bond
+Actions_________________________________
+Multiattack. The professor makes two Spatial Blade attacks.
+Spatial Blade. Melee or Ranged Spell Attack: +7 to hit (the target can't benefit from cover less than total cover), reach 5 ft.
+or range 120 ft., one target. Hit: 13 (2d8 + 4) force damage, or
+22 (4d8 + 4) force damage if the professor is Large or larger,
+and the professor can push the target horizontally up to 10
+feet away.
+Spellcasting. The professor casts one of the following spells,
+requiring no material components and using Intelligence as the
+spellcasting ability (spell save DC 15):
+At will: guidance, mage hand, mending (as an action)
+1/day each: creation (as an action), dimension door, mage armor,
+plant growth, polymorph
+Quandrix Prof, of Theory
+Medium or Small Humanoid (Wizard), Any Alignment
+- • . _~i
+Quandrix Prof, of Substance
+Medium or Small Humanoid (Wizard), Any AlignmentProficiency Bonus +2
+CHAPTER 7 | FRIENDS AND FOES 210
+STR
+20 (+5)
+CON
+17 (+3)
+WIS
+12 (+1)
+CHA
+8(-l)
+Skills Perception +3
+Senses passive Perception 13
+Languages —
+Challenge 2 (450 XP)
+Armor Class 13 (natural armor)
+Hit Points 76 (8dl2 + 24)
+Speed 20 ft., climb 20 ft.
+DEX
+9(-l)
+INT
+2 H)
+§
+Actions
+Claws. Melee Weapon Attack: +7 to hit, reach 10 ft., one target.
+Hit: 14 (2d8 + 5) slashing damage, and the target is grappled
+(escape DC 15). The relic sloth can grapple no more than two
+targets at a time.
+Relic Sloth
+For long expeditions, Lorehold mages often employ
+relic sloths to haul adventuring equipment and excavated artifacts—so long as their study isn’t in any
+particular hurry. Relic sloths travel at an excruciatingly slow pace, deliberating every step and moving
+only when necessary. But this caution makes these
+hulking creatures perfect for traversing treacherous
+and crumbling ruins, where other beasts of burden
+would falter. The distinctive sickle-shaped claws
+on a relic sloth’s forelimbs are primarily used for
+climbing, though they can fend off a hungry predator
+in a pinch.
+I
+Reactions
+Slow but Sturdy. When the relic sloth is subjected to an effect
+that would move it out of its current space or knock it prone, it
+is neither moved nor knocked prone.Proficiency Bonus +3
+CHAPTER 7 I FRIENDS AND FOES 211
+STR
+22 (+6)
+DEX
+13 (+1)
+CON
+15 (+2)
+WIS
+10 (+0)
+CHA
+1 (-5)
+N
+g
+V
+X
+INT
+3 (-4)
+Armor Class 16 (natural armor)
+Hit Points 82 (IldlO + 22)
+Speed 30 ft., burrow 30 ft.
+Damage Immunities fire, poison
+Condition Immunities charmed, exhaustion, frightened,
+petrified, poisoned
+Senses blindsight 60 ft. (blind beyond this radius), passive
+Perception 10
+Languages understands the languages of its creator but can’t
+speak
+Challenge 5 (1,800 XP)
+Ruin Grinder
+Large Construct, Unaligned
+Ruin Grinder
+Created by the archaeomancers of Lorehold College, ruin grinders are mighty automatons built to
+excavate ancient ruins and artifacts. The massive
+toothed shovels attached to a ruin grinder's arms
+tear through millennia-old bedrock with ease, leading some Lorehold mages to fear that the grinders
+destroy more history than they unearth.
+Actions
+Multiattack. The ruin grinder makes two Excavator attacks.
+Excavator. Melee Weapon Attack: +9 to hit, reach 5 ft., one target. Hit: 13 (2d6 + 6) force damage. If the target is a Huge or
+smaller creature, it must succeed on a DC 17 Strength saving
+throw or be pushed up to 10 feet away and knocked prone.
+Fire Absorption. Whenever the ruin grinder is subjected to fire
+damage, it regains a number of hit points equal to half the fire
+damage dealt.
+Siege Monster. The ruin grinder deals double damage to objects and structures.
+Tunneler. The ruin grinder can burrow through solid rock at
+half its burrowing speed and leaves a 10-foot-diameter tunnel
+in its wake.Proficiency Bonus +7
+CHAPTER 7 I FRIENDS AND FOES 2J2
+Legendary Resistance (3/Day). If Shadrix fails a saving throw,
+he can choose to succeed instead.
+STR
+25 (+7)
+DEX
+14 (+2)
+CON
+23 (+6)
+INT
+18 (+4)
+WIS
+18 (+4)
+CHA
+26 (+8)
+Armor Class 21 (natural armor)
+Hit Points 363 (22d2O+ 132)
+Speed 40 ft., fly 80 ft.
+Shadrix Silverquill
+Centuries ago, the dragon Shadrix Silverquill mastered the magic of light and shadow, and he focused
+that magic through communication. Shadrix’s
+words thrummed with power, inspiring his allies
+and demoralizing his enemies.
+He established Silverquill College on the principles of eloquence and leadership, seeking to produce leaders who would go forth to guide others.
+I
+3
+Shadrix Silverquill
+Gargantuan Dragon (Bard), Neutral
+Legendary Actions
+Shadrix can take 3 legendary actions, choosing from the options below. Only one legendary action option can be used at 
+a time and only at the end of another creature’s turn. Shadrix
+regains spent legendary actions at the start of his turn.
+Claw. Shadrix makes one Claw attack.
+Shadow Slip (Costs 2 Actions). Shadrix becomes an inky cloud
+of shadow and can move up to half his flying speed without
+provoking opportunity attacks, then resumes his true form.
+During this movement, he can move through creatures
+and objects as if they were difficult terrain. If he moves
+through a creature, it must succeed on a DC 21 Constitution
+saving throw or become blinded until the end of its next
+turn. IfShadrix ends this move inside an object, he takes 5
+(IdlO) force damage and is shunted to the nearest unoccupied space.
+Flash of Inspiration (Costs 3 Actions). Shadrix magically summons 1 d4 inkling mascots (in this chapter) in unoccupied
+spaces he can see within 60 feet of himself. The inklings
+obey his commands and take their turns immediately after
+his. While any of these inklings live, Shadrix has advantage
+on attack rolls and saving throws. These inklings disappear
+after 10 minutes, when Shadrix dies, or when he uses this
+action again.
+21 Constitution saving throw. On a failed save, a creature takes
+31 (7d8) radiant damage and 31 (7d8) psychic damage and is
+blinded until the start of Shadrix’s next turn. On a successful
+save, a creature takes half as much damage and isn't blinded.
+Spellcasting. Shadrix casts one of the following spells, requiring no material components and using Charisma as the spellcasting ability (spell save DC 23):
+1/day each: darkness, daylight, hypnotic pattern, sending,
+suggestion
+Actions
+Multiattack. Shadrix makes one Bite attack and two
+Claw attacks.
+Bite. Melee Weapon Attack: +14 to hit, reach 15 ft., one target. Hit: 12 (IdlO + 7) piercing damage plus 4 (1 d8) radiant damage.
+Claw. Melee Weapon Attack: +14 to hit, reach 10 ft., one target.
+Hit: 10 (1 d6 + 7) slashing damage. Ifthe target is a creature, it
+is wracked with despair and has disadvantage on attack rolls
+until the end of its next turn.
+Illuminating Shadow Breath (Recharge 5-6). Shadrix exhales
+an entwined burst of blinding radiance and unnerving shadow
+in a 90-foot cone. Each creature in that area must make a DC
+Saving Throws Dex +9, Con +13, Wis +11, Cha +15
+Skills Arcana +18, Deception +15, Perception +11, Persuasion +15
+Damage Immunities psychic, radiant
+Senses blindsight 120 ft., passive Perception 21
+Languages all
+Challenge 22 (41.000XP)CHAPTER 7 | FRIENDS AND FOES 213
+ink and light. The professors channel radiance to
+illuminate their allies, bolstering them with encouragement and inspiring any who witness their orations. Professors of radiance can turn their words
+into potent assets in battle or strike at their foes
+with searing radiance.
+These Silverquill teachers seek to inspire greatness in all that they do. pushing their students to
+look for the good in all things and bring that into
+the light.
+Silverquill Scholars
+The scholars of Silverquill College study the power
+of magic shaped through spoken and written words.
+They use that power either to illuminate and guide
+or to obscure and demoralize.
+a
+z
+£09
+Silverquill Students
+Stylish and driven, the students of Silverquill
+College—first as apprentices and then as pledgemages—cut imposing figures on campus. Dressed
+in smartly trimmed black-and-white uniforms, these
+budding mages practice bolstering speeches and
+wield inky blades.
+Some Silverquill students prefer the benevolent
+side of language, using their words to uplift their
+friends and illuminate harsh truths about those in
+power. Others, though, choose to wield words more
+ruthlessly and master the art of insults and discouragement (and in some cases, petty trash talk).
+Regardless, nearly all members of Silverquill College carry themselves with a fearsome, never-second-place attitude—because in the art of wielding
+words, confidence is key.
+Silverquill Professor of Shadow
+Professors of shadow wield the linguistic magic of
+Silverquill College through slicing wit and debilitating inky shadow. Whether weaving their magic
+through spoken incantations and scathing insults
+or through shadows, these teachers break down the
+resolve of their foes.
+The professors strive to carry themselves as
+immaculately as possible, seeking to overawe and
+wrong-foot anyone who would stand against them in
+debate or in battle. In teaching their students, professors ofshadow focus on words that find the tiniest, most invisible cracks in an opponent’s defenses
+and break them.
+Silverquill Professor of Radiance
+Professors of radiance call up magic through spoken words and glyphs formed of magically shaped10 (+0) 14 (+2) 13 (+1)
+CHAPTER 7 | FRIENDS AND FOES 214
+INT
+12 (+1)
+WIS
+11 (+0)
+CHA
+15 (+2)
+STR
+10 (+0)
+DEX
+16 (+3)
+CON
+13 (+1)
+INT
+12 (+1)
+WIS
+11 (+0)
+CHA
+17 (+3)
+Armor Class 13 (16 with mage armor)
+Hit Points 66 (12d8+ 12)
+Speed 30 ft.
+Saving Throws Dex +5, Wis +2, Cha +5
+Skills Deception +5, Performance+7, Persuasion +7
+Senses passive Perception 10
+Languages Common plus any two languages
+Challenge 4 (1,100 XP) Proficiency Bonus +2
+SlLVERQUILL PLEDGEMAGE
+Medium or Small Humanoid (Bard), Any Alignment
+£
+£
+Actions_____________________ _ ________ _
+Ink Blade. Melee or Ranged Spell Attack: +5 to hit, reach 5 ft. or
+range 60 ft., one target. Hit: 7 (1 d8 + 3) piercing damage plus
+10 (3d6) psychic damage.
+Spellcasting. The pledgemage casts one of the following spells,
+requiring no material components and using Charisma as the
+spellcasting ability (spell save DC 13):
+At will: dancing lights, friends
+1/day each: command, confusion, mage armor, tongues
+Reactions___________________________ ___
+Rousing Verse. When a creature the apprentice can see within
+30 feet of it fails a saving throw, the apprentice magically
+weaves together stirring prose, allowing the creature to reroll
+the saving throw and use the higher result.
+Actions_________________________________
+Ink Blade. Melee or Ranged Spell Attack: +4 to hit, reach 5 ft. or
+range 60 ft., one target. Hit: 5 (1 d6 + 2) piercing damage plus 9
+(2d8) psychic damage.
+Spellcasting. The apprentice casts one of the following spells,
+requiring no material components and using Charisma as the
+spellcasting ability (spell save DC 12):
+At will: dancing lights, friends
+1/day each: command, mage armor
+Reactions
+Rousing Verse. When a creature the pledgemage can see within
+30 feet of it fails a saving throw, the pledgemage magically
+weaves together stirring prose, allowing the creature to reroll
+the saving throw and use the higher result.
+Bonus Actions
+Demotivate (2/Day). The pledgemage hurls magical insults at 
+one creature it can see within 30 feet of itself. The target must
+succeed on a DC 13 Wisdom saving throw or become frightened of the pledgemage for 1 minute. While frightened in this
+way, the target can't take reactions, its speed is halved, and any
+hit the pledgemage scores against the creature is a critical hit.
+The target can repeat the saving throw at the end of each of its
+turns, ending the effect on itself on a success.
+Saving Throws Dex +4, Cha +4
+Skills Deception +4, Performance +6, Persuasion +6
+Senses passive Perception 10
+Languages Common plus any two languages
+Challenge 2 (450 XP) Proficiency Bonus +2CHAPTER 7 | FRIENDS AND FOES 215
+STR
+n (+0)
+DEX
+14 (+2)
+CON
+14 (+2)
+INT
+16 (+3)
+WIS
+13 (+1)
+CHA
+19 (+4)
+STR
+11 (+0)
+DEX
+14 (+2)
+CON
+14 (+2)
+INT
+16 (+3)
+WIS
+13 (+1)
+CHA
+19 (+4)
+Armor Class 12 (15 with mage armor)
+Hit Points 97 (15d8 + 30)
+Speed 30 ft.
+Devil's Sight. Magical darkness doesn't impede the professor’s
+darkvision.
+Armor Class 12(15 with mage armor)
+Hit Points 97 (15d8 + 30)
+Speed 30 ft.
+Saving Throws Dex +5, Int +6, Wis +4, Cha +7
+Skills Arcana +6, Deception +7, Performance +10, Persuasion +10
+Damage Resistances radiant
+Senses passive Perception 11
+Languages Common plus any four languages
+Challenge 7 (2,900 XP) Proficiency Bonus +3
+SlLVERQUILL PROF. OF RADIANCE
+Medium or Small Humanoid (Bard), Any Alignment
+SlLVERQUILL PROF. OF SHADOW
+Medium or Small Humanoid (Bard), Any Alignment
+I
+1a
+Actions
+Multiattack. The professor makes two Ink Lance attacks.
+The professor can replace one of the attacks with a use of
+Spellcasting.
+Ink Lance. Melee or Ranged Spell Attack: +7 to hit, reach 5 ft.,
+or range 120 ft., one target. Hit: 17 (3d8 + 4) necrotic damage.
+Ifthe target is a creature, it must succeed on a DC 15 Constitution saving throw be blinded until the end of its next turn.
+Spellcasting. The professor casts one of the following spells,
+requiring no material components and using Charisma as the
+spellcasting ability (spell save DC 15):
+At will: dancing lights,friends
+2/day each: bane, command, darkness, mage armor
+1/day: tongues
+Saving Throws Dex +5, Int +6, Wis +4, Cha +7
+Skills Arcana +6, Deception +10, Persuasion +7, Stealth +5
+Damage Resistances necrotic
+Senses darkvision 300 ft., passive Perception 11
+Languages Common plus any four languages
+Challenge 7 (2,900 XP) Proficiency Bonus +3
+Actions
+Multiattack. The professor makes two Radiant Strike attacks.
+The professor can replace one of the attacks with a use of
+Spellcasting.
+Radiant Strike. Melee or Ranged Spell Attack: +7 to hit, reach 5
+ft. or range 120 ft., one target. Hit: 17 (3d8 + 4) radiant damage. If the target is a creature, it must succeed on a DC 15 Constitution saving throw be blinded until the end of its next turn.
+Spellcasting. The professor casts one of the following spells,
+requiring no material components and using Charisma as the
+spellcasting ability (spell save DC 15):
+At will: dancing lights, friends
+2/day each: bless, command, cure wounds, daylight, mage armor
+1/day each: hypnotic pattern, tonguesCHAPTER 7 I FRIENDS AND FOES 216
+i
+Spirit Statue Mascot
+To enhance their studies of the past, Lorehold students often call upon the spirits of dead creatures.
+Mages seeking longer-term assistance from ancient
+spirits have learned to house these spirits in statues, giving them a more permanent residence from
+which to assist the living.
+Some of these spirit statues bond with and mentor a specific mage, but most serve in a variety
+of roles for numerous individuals, ranging from
+research colleagues to martial tacticians. Regardless, their appearance is so common around the
+Lorehold campus that they have become the college’s mascots.
+Languages any languages it knew in life
+Challenge 1/4 (50 XP) Proficiency Bonus +2
+Death Burst. When the spirit statue is reduced to 0 hit points,
+the statue crumbles, and the spirit returns to the afterlife in a
+burst of ghostly white flame. Each creature within 5 feet of it
+must succeed on a DC 12 Constitution saving throw or take 3
+(1d6) radiant damage.
+Actions______
+Slam. Melee Weapon Attack: +4 to hit, reach 5 ft., one target.
+Hit: 5 (1 d6 + 2) bludgeoning damage.
+Counsel ofthe Past (2/Day). The spirit statue touches one creature. Once within the next 10 minutes, that creature can roll a
+d4 and add the number rolled to one ability check of its choice,
+immediately after rolling the d20.F
+r
+fee
+1
+I
+'7
+CHAPTER 7 I FRIENDS AND FOES 217
+>
+)
+I
+I
+I
+/
+STR
+15 (+2)
+DEX
+14 (+2)
+CON
+13 (+1)
+INT
+10 (+0)
+WIS
+12 (+1)
+CHA
+12 (+1)
+Armor Class 17 (natural armor)
+Hit Points 31 (7d6 + 7)
+Speed 30 ft.
+Strixhaven Campus Guide
+With cheerful dispositions and a knack for walking
+backward, Strixhaven campus guides lead gaggles
+of prospective students on tours. The guides’ gold
+and silver chassis are built in shapes reminiscent of
+the star arches surrounding Strixhaven. Embedded
+in their chests are holographic maps of the university’s campuses, which the guides use to provide
+directions. However, it’s rare for a campus guide to
+need its own maps, as these gregarious automatons
+have a gift for finding things on campus, often popping up at the most inopportune times.
+Univocal Speech. When the guide speaks, any creature that
+knows at least one language and can hear the guide understands what it says.
+Unusual Nature. The guide doesn’t require air, food,
+drink, or sleep.
+7/9
+I
+I
+Bonus Actions ______________
+Need Directions? The guide takes the Help action.
+Saving Throws Dex +4
+Skills Insight+3, Persuasion+3
+Damage Immunities poison
+Condition Immunities blinded, deafened, exhaustion,
+paralyzed, petrified, poisoned
+Senses blindsight 60 ft., passive Perception 11
+Languages Common plus any three languages
+Challenge 1 (200 XP) Proficiency Bonus +2
+Campus Knowledge. While at Strixhaven, the guide can’t become lost by magical or nonmagical means. The guide also has
+’ advantage on ability checks made to locate creatures or objects
+at Strixhaven.
+Strixhaven Campus Guide
+Small Construct, Typically Lawful Cood
+Actions
+Multiattack. The guide makes two Slam attacks.
+Slam. Melee Weapon Attack: +4 to hit, reach 5 ft., one target.
+Hit: 6 (Td8 + 2) bludgeoning damage.
+Smile and Wave. Each creature of the guide’s choice that is
+within 30 feet of the guide must succeed on a DC 11 Wisdom
+saving throw or be magically charmed by the guide for 1 hour.
+A charmed target must move on its turn toward the guide,
+trying to get within 5 feet of the guide. The target doesn't move
+into obviously dangerous ground, such as a fire or a pit. Whenever the charmed target takes damage, it can repeat the saving !
+throw, ending the effect on itself on a success.
+A target that successfully saves is immune to any guide's
+Smile and Wave ability for the next 24 hours.
+-------E--------------Teleport, and each
+218 CHAPTER 7 | FRIENDS AND FOES
+Mi
+Legendary Resistance (3/Day). IfTanazir fails a saving throw,
+she can choose to succeed instead.
+STR
+28 (+9)
+DEX
+14 (+2)
+CON
+27 (+8)
+INT
+28 (+9)
+WIS
+18 (+4)
+CHA
+17 (+3)
+Tanazir’s spells, legendary actions, and breath
+weapon manifest luminous patterns of geometric
+light. These take various forms, such as an interlocking cage around the target of a spell or a wave
+of infinitely replicating fractal swirls in the area of
+her breath.
+Saving Throws Dex+9, Con +15, Wis +11, Cha +10
+Skills Arcana +23, Investigation +23, Nature +16, Perception +18
+Damage Immunities force, psychic
+Senses blindsight 120 ft., passive Perception 28
+Languages Common, Draconic, telepathy 120 ft.
+Challenge 24 (62,000 XP) Proficiency Bonus +7
+Armor Class 21 (natural armor)
+Hit Points 444 (24d20+ 192)
+Speed 40 ft., fly 80 ft. (hover)
+Tanazir Quandrix
+The dragon Tanazir Quandrix is one of the
+most potent masters of the magic that governs
+physical reality and theoretical abstraction.
+Through this knowledge, she can alter the physical
+properties of existence, gain fundamental understanding, and manipulate the flow of thought.
+Tanazir founded Quandrix College to nurture the
+spark of curiosity in those who would pursue knowledge. The goal is to train mages who seek knowledge for its own sake, guided by the mathematical
+principles that describe and govern the nature
+of reality.
+1
+Ia.
+Actions
+Multiattack. Tanazir makes one Bite attack and two
+Claw attacks.
+Bite. Melee Weapon Attack: +16 to hit, reach 15 ft., one target.
+Hit: 14 (1 dl0 + 9) piercing damage plus 7 (2d6) force damage.
+Claw. Melee Weapon Attack: +16 to hit, reach 10 ft., one target.
+Hit: 16 (2d6 + 9) slashing damage. Ifthe target is a creature, it
+is addled by recursive thoughts, reducing its speed to 0 until
+the start ofTanazir’s next turn.
+Diminution Breath (Recharge 5-6). Tanazir exhales a
+weakening equation in a 90-foot cone. Each creature in that
+area must make a DC 23 Constitution saving throw. On a failed
+Legendary Actions
+Tanazir can take 3 legendary actions, choosing from the options below. Only one legendary action option can be used at
+a time and only at the end of another creature’s turn. Tanazir
+regains spent legendary actions at the start of her turn.
+Claw. Tanazir makes one Claw attack.
+Fold Space (Costs 2 Actions). Tanazir uses
+other creature within 20 feet of the space she left must succeed on a DC 24 Strength saving throw or be pulled up to
+30 feet closer to the center of that space and take 16 (3dl 0)
+force damage.
+Fractal Refraction (Costs 3 Actions). Tanazir magically summons 1 d4 fractal mascots (in this chapter) in unoccupied
+spaces she can see within 120 feet of herself. The fractals
+obey her commands and take their turns immediately after
+hers. While any of these fractals remain, attack rolls made
+against Tanazir have disadvantage. A summoned fractal disappears after 1 minute, when it or Tanazir dies, or when she
+uses this action again.
+save, a creature takes 45 (13d6) force damage and 45 (13d6)
+psychic damage and is weakened until the start ofTanazir’s
+next turn. While weakened, it has disadvantage on the following rolls that rely on Strength: attack rolls, ability checks, and
+saving throws. On a successful save, a creature takes half as
+much damage and isn’t weakened.
+Spellcasting. Tanazir casts one of the following spells, requiring
+no material components and using Intelligence as the spellcasting ability (spell save DC 24):
+1/day each: divination, enlarge/reduce, mirage arcane (as an action), polymorph, scrying (as an action), seeming
+Teleport. Tanazir teleports to an unoccupied space she can see
+within 100 feet of herself.
+Tanazir Quandrix
+Gargantuan Dragon (wizard), Lawful NeutralProficiency Bonus +8
+CHAPTER 7 | FRIENDS AND FOES 219
+Legendary Resistance (3/Day). IfVelomachus fails a saving
+throw, she can choose to succeed instead.
+STR
+30 (+10)
+DEX
+14 (+2)
+CON
+29 (+9)
+CHA
+18 (+4)
+Armor Class 21 (natural armor)
+Hit Points 487 (25d20 + 225)
+Speed 40 ft., climb 40 ft., fly 80 ft.
+Saving Throws Dex +10, Con +17, Wis +13, Cha +12
+Skills Arcana +18, History +18, Investigation +18, Perception +13
+Damage Immunities thunder
+Senses blindsight 120 ft., passive Perception 23
+Languages all
+Challenge 25 (75,000 XP)
+Velomachus Lorehold
+Velomachus Lorehold was the first dragon of Strixhaven to master the magic of order and chaos,
+the flow and prediction of events through time.
+Her magic encourages exploration and discovery through the lens of creating a direct conduit
+to the past.
+She founded Lorehold College to ensure mortals would never forget the lessons of the past.
+After living for centuries, Velomachus has
+grown tired of watching the same mistakes
+repeated continually. She hopes her college's teachings will foster the skills to
+either predict future pitfalls by taking
+lessons from those that came before
+or create flexible mindsets that allow
+people to shift their plans effectively
+when the unexpected occurs.
+Velomachus’s spells, legendary actions, and breath weapon are accompanied by visual effects resembling tomes
+and scrolls composed of golden light,
+perceptible distortions as time doubles
+back on itself, and thunderous sounds.
+Velomachus Lorehold
+Gargantuan Dragon (Wizard), Lawful Neutral
+I
+I
+Legendary Actions
+Velomachus can take 3 legendary actions, choosing from the
+options below. Only one legendary action option can be used
+at a time and only at the end of another creature’s turn. Velomachus regains spent legendary actions at the start of her turn.
+Claw. Velomachus makes one Claw attack.
+Chaotic Flow (Costs 2 Actions). Velomachus moves up to half
+her flying speed. If a creature hits or misses her with an
+opportunity attack during this move, the attacker takes 19
+(3dl2) thunder damage.
+Repeating History (Costs 3 Actions). Velomachus magically
+summons ld4 spirit statue mascots (in this chapter) in unoccupied spaces she can see within 60 feet of herself. The spirit
+statues obey her commands and take their turns immediately
+after hers. Any creature, other than a spirit statue or Velomachus, is restrained if it starts its turn within 5 feet of one or
+more of these spirit statues. This restrained condition lasts
+until the end of the creature’s turn. These spirit statues disappear after 10 minutes, when Velomachus dies, or when she
+uses this action again.
+Actions
+Multiattack. Velomachus makes one Bite attack and two
+Claw attacks.
+Bite. Melee Weapon Attack: +18 to hit, reach 15 ft., one target. Hit: 15 (IdlO + 10) piercing damage plus 6 (Idl2) thunder damage.
+Claw. Melee Weapon Attack: +18 to hit, reach 10 ft., one target.
+Hit: 13 (1 d6 + 10) slashing damage. If the target is a Huge or
+smaller creature, it is knocked prone.
+Battle Tide Breath (Recharge 5-6). Velomachus exhales thunderous sound in a 90-foot cone. Each creature in that area
+must make a DC 25 Constitution saving throw. On a failure, a
+creature takes 45 (7dl2) force damage and 45 (7dl2) thunder
+damage and is pushed up to 20 feet in a horizontal direction of
+Velomachus' choice. On a success, the creature takes half as
+much damage and isn't pushed. Objects that aren’t being worn
+or carried take the damage and are pushed as ifthey were creatures that failed the saving throw.
+Spellcasting. Velomachus casts one of the following spells,
+requiring no material components and using Intelligence as the 
+spellcasting ability:
+1/day each: contact other plane (as an action, contacting a longdead spirit), divination, move earth, wall offorce
+INT WIS
+30 (+10) 20 (+5)CHAPTER 7 I FRIENDS AND FOES 220
+Witherbloom Prof, of Growth
+Professors of growth nurture the essence of nature
+through their magic. They brew infusions of plants,
+fungi, and insects or other minuscule creatures that
+thrum with the essence of life, using these infusions
+to fuel their magic instead of using traditional material components. In battle, they flood their allies
+with vital essence, healing wounds and soothing
+ailments. Their foes face the wrath of nature itself,
+from grasping plants and conjured poisonous vines
+to avatars of nature’s wrath.
+These professors teach their students to focus on
+the growth side of the natural cycle of life and death
+and to avoid wasting resources. They espouse the
+philosophy that a thriving system benefits all.
+and Undead, and twisting curses around their foes.
+In battle, they steal the essence of their enemies to
+heal their own wounds and create spears of sickly
+green life-draining energy.
+Witherbloom teachers who espouse the decaying
+side of the natural cycle instruct their students to
+exploit the essence of life for their own needs. Professors of decay unravel the mysteries of death and
+the transition of decay, and they teach that any life’s
+end is an asset waiting to be tapped.
+WlTHERBLOOM SCHOLARS
+Witherbloom College studies the magic inherent
+in the natural cycle of life and death. Witherbloom
+professors approach the philosophy from different
+directions, with one methodology focusing on decay
+and the other dealing with growth.
+i
+1
+Witherbloom Students
+Deep in the fog and muck of the swamp, the students of Witherbloom College—first as apprentices
+and then as pledgemages—study the cycle of life and
+death. Their magic is fueled by what they call life
+essence: the ubiquitous energy that runs through
+living things.
+Witherbloom students learn how to concoct magical potions and talismans, in addition to their spellcasting studies. Their magic ranges from necrotic
+shadows and withering bursts of poison to flourishing bursts of plant life.
+Witherbloom Prof, of Decay___
+Professors of decay wield magic that drains and
+twists the essence of the professors’ subjects. The
+professors use the gathered essence to feed their
+magic, snuffing the life and decaying the bodies of
+the living, entreating and commanding the deadCHAPTER 7 | FRIENDS AND FOES 221
+Armor Class 13 (leather armor)
+Hit Points 44 (8d8 + 8)
+Speed 30 ft.
+STR
+10 (+0)
+DEX
+14 (+2)
+CON
+13 (+1)
+INT
+12 (+1)
+W1S
+15 (+2)
+CHA
+11 (+0)
+another ritual to bestow another talisman. When the benefits
+expire, the talisman crumbles to dust.
+Regeneration. The apprentice regains 5 hit points at the start of
+its turn if it has at least 1 hit point.
+Verdant Talisman. At the end of a 10-minute ritual, the apprentice can touch one willing creature (including itself) and bestow
+upon it a small talisman imbued with magic. Upon receiving
+the talisman, the creature gains 10 temporary hit points, and
+it can add 1 d6 to its initiative rolls while it wears the talisman.
+These benefits last for 1 hour or until the apprentice conducts VI <
+o
+Saving Throws Con +3, Wis +4
+Skills Medicine +4, Nature +5, Perception +6
+Senses passive Perception 16
+Languages Common plus any two languages
+Challenge 2 (450 XP) Proficiency Bonus +2
+Witherbloom Apprentice
+Medium or Small Humanoid (Druid), Any Alignment
+Reactions______________
+Wither Burst. When the apprentice sees a creature within 30
+feet of itself drop to 0 hit points, the apprentice channels the
+expended life essence and targets another creature it can see
+within 30 feet of itself. The target must succeed on a DC 12
+Constitution saving throw or become poisoned for 1 minute.
+While poisoned in this way, the target takes 3 (ld6) poison
+damage at the start of each of its turns. The target can repeat
+the save at the end of each of its turns, ending the effect on
+itself on a success.
+Actions _______________________
+Briar Vine. Melee Spell Attack: +4 to hit, reach 15 ft., one target.
+Hit: 7 (IdlO + 2) piercing damage plus 9 (2d8) poison damage.
+Ifthe target is a Large or smaller creature, the apprentice can
+pull it up to 10 feet closer to itself.
+Spellcasting. The apprentice casts one of the following spells,
+requiring no material components and using Wisdom as the
+spellcasting ability:
+At will: druidcraft, spare the dying
+1/day: pass without trace222 CHAPTER 7 | FRIENDS AND FOES
+STR
+10 (+0)
+CON
+13 (+1)
+INT
+14 (+2)
+WIS
+17 (+3)
+CHA
+11 (+0)
+Hit Points 66 (12d8 + 12)
+Speed 30 ft.
+DEX
+15 (+2)
+2
+1
+a
+armor or wielding a shield, and it has advantage on attack rolls
+against any creature missing hit points. This form lasts for 1
+minute or until the pledgemage is reduced to 0 hit points.
+Reactions_______________________________
+Wither Burst. When the pledgemage sees a creature within 30
+feet of itself drop to 0 hit points, the pledgemage channels the
+expended life essence and targets another creature it can see
+within 30 feet of itself. The target must succeed on a DC 13
+Constitution saving throw or become poisoned for 1 minute.
+While poisoned in this way, the target takes 3 (1 d6) poison
+damage at the start of each of its turns. The target can repeat
+the save at the end of each of its turns, ending the effect on
+itself on a success.
+- . . . - ■. • —
+Saving Throws Con +3, Wis +5
+Skills Medicine +5, Nature +6, Perception +7
+Damage Immunities poison
+Condition Immunities poisoned
+Senses passive Perception 17
+Languages Common plus any two languages
+Challenge 4 (1,100 XP) Proficiency Bonus+2
+Regeneration. As long as the pledgemage has at least 1 hit
+point remaining, the pledgemage regains 5 hit points at the
+start of its turn.
+Verdant Talisman. At the end of a 10-minute ritual, the pledgemage can touch one willing creature (including itself) and
+bestow upon it a small talisman imbued with vitality magic.
+Upon receiving the talisman, the creature gains 10 temporary
+hit points, and it can add 1 d6 to its initiative rolls while it wears
+the talisman. These benefits last for 1 hour or until the pledgemage conducts another ritual to bestow another talisman.
+Witherbloom Pledgemage
+; Medium or Small Humanoid (Druid), Any Alignment
+Actions
+Briar Vine. Melee Spell Attack: +5 to hit, reach 15 ft., one target.
+Hit: 8 (IdlO + 3) piercing damage plus 18 (4d8) poison damage. If the target is a Large or smaller creature, the apprentice
+can pull it up to 10 feet closer to itself.
+Spellcasting. The pledgemage casts one of the following spells,
+requiring no material components and using Wisdom as the
+spellcasting ability:
+At will: druidcraft, spare the dying
+1/day each: death ward, pass without trace, speak with plants
+Bonus Actions___________________________
+Vociferous Form (1/Day). The pledgemage transforms into an
+avatar of plants and shadow. While in this form, the pledge-CHAPTER 7 | FRIENDS AND FOES 223
+I
+Essence Transfer (1/Day). The professor can cast the animate
+dead spell, using Wisdom as the spellcasting ability.
+Condition Immunities poisoned
+Senses passive Perception 14
+Languages Common plus any four languages
+Challenge 7 (2,900 XP) Proficiency Bonus +3
+E
+g
+s.
+5
+o
+professor's next turn.
+Essence Pulse (Recharge 5-6). The professor creates a
+life-draining vortex in a 30-foot-radius sphere centered on
+itself. Each creature of the professor’s choice that it can see
+within that area must make a DC 15 Constitution saving throw,
+taking 23 (5d8) necrotic damage on a failed save, or half as
+much damage on a successful one. The professor then regains
+10 hit points. An affected creature’s hit point maximum is reduced by an amount equal to the necrotic damage taken. This
+reduction lasts until the creature finishes a long rest. The creature dies if its hit point maximum is reduced to 0.
+Spellcasting. The professor casts one of the following spells,
+requiring no material components and using Wisdom as the
+spellcasting ability (spell save DC 15):
+At will: druidcraft, spare the dying
+1/day each: antilife shell, bane,feign death, speak with dead
+Actions
+Multiattack. The professor makes two Verdant Lash attacks.
+Verdant Lash. Melee Spell Attack: +7 to hit, reach 30 ft., one
+target. Hit: 11 (2d6 + 4) piercing damage plus 7 (2d6) poison
+damage, and the target must succeed on a DC 15 Strength saving throw or be pulled up to 10 feet closer to the professor.
+Spellcasting. The professor casts one of the following spells,
+requiring no material components and using Wisdom as the
+spellcasting ability:
+At will: druidcraft, spare the dying
+1/day each: greater restoration, lesser restoration, mass cure
+wounds, pass without trace, plant growth, revivify
+Summon Nature’s Avatar (Recharges after a Short or Long
+Rest). The professor magically summons a groff (in this chapter). The groff appears in an unoccupied space within 60 feet
+of the professor, acts as the professor’s ally, and takes its turns
+immediately after the professor's. The professor can communicate telepathically with this groffwhile it remains. The groff
+remains for 10 minutes, until it or the professor dies, or until
+the professor dismisses it as an action.
+Actions
+Multiattack. The professor makes two Mortality Spear attacks.
+It can replace one of the attacks with a use of Spellcasting.
+Mortality Spear. Melee or Ranged Spell Attack: +7 to hit, reach
+5 ft. or range 120 ft., one target. Hit: 17 (3d8 + 4) necrotic damage, and the target can’t regain hit points until the start of theA P P E N D IX
+Campus Map

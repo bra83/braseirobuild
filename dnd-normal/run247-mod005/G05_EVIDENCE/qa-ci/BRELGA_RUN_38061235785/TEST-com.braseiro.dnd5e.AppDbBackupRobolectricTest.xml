@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.AppDbBackupRobolectricTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-10T14:53:34" hostname="BRELGA" time="32.379">
+  <properties/>
+  <testcase name="worldTickRunsClockAndBackgroundWorldThroughAppDbTransaction" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="17.987"/>
+  <testcase name="companionProposalApprovalUsesCurrentPersistedAuthorityAndSnapshot" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="2.286"/>
+  <testcase name="legacyBackupRestoresCoreSaveWithoutBackup21Seal" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="1.861"/>
+  <testcase name="compiledStatblockAttackUsesPersistedCombatTurnAndRejectsReplay" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="0.952"/>
+  <testcase name="deferredCommitFailureRollsBackSqliteAndCompiledBundle" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="1.454"/>
+  <testcase name="importingFullAuditWindowDoesNotDropOldestPortableEvent" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="2.66"/>
+  <testcase name="levelUpPersistsOneClassChoiceAtomicallyAndReopens" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="0.739"/>
+  <testcase name="guidedCharacterActionPersistsTypedEffectAndRejectsPendingReplay" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="0.66"/>
+  <testcase name="backup21RoundTripReopensAndPreservesPortableSections" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="3.779"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Oct 10, 2026 11:53:58 AM com.almworks.sqlite4java.Internal log
+WARNING: [sqlite] [COMMIT;]DB[1035][C]: exception when clearing
+com.almworks.sqlite4java.SQLiteException: [787] DB[1035] reset [FOREIGN KEY constraint failed]
+	at com.almworks.sqlite4java.SQLiteConnection.throwResult(SQLiteConnection.java:1436)
+	at com.almworks.sqlite4java.SQLiteConnection.throwResult(SQLiteConnection.java:1409)
+	at com.almworks.sqlite4java.SQLiteConnection.cacheStatementHandle(SQLiteConnection.java:1338)
+	at com.almworks.sqlite4java.SQLiteConnection.access$900(SQLiteConnection.java:51)
+	at com.almworks.sqlite4java.SQLiteConnection$CachedController.dispose(SQLiteConnection.java:1733)
+	at com.almworks.sqlite4java.SQLiteStatement.dispose(SQLiteStatement.java:187)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection$Connections.lambda$finalizeStmt$3(ShadowLegacySQLiteConnection.java:416)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+
+]]></system-err>
+</testsuite>

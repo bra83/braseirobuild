@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run236ConditionBackupRobolectricTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-10T15:01:57" hostname="BRELGA" time="2.86">
+  <properties/>
+  <testcase name="orphanTimerAbortsEntireImport" classname="com.braseiro.dnd5e.Run236ConditionBackupRobolectricTest" time="0.981"/>
+  <testcase name="legacyEncounterCannotBypassPendingRecovery" classname="com.braseiro.dnd5e.Run236ConditionBackupRobolectricTest" time="0.568"/>
+  <testcase name="backupRemapsSourceActorAndPreservesCondition" classname="com.braseiro.dnd5e.Run236ConditionBackupRobolectricTest" time="1.31"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

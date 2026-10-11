@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup disableIfNoEncryptionCapabilities="true">
+        <exclude domain="cache" path="." />
+        <exclude domain="file" path="tts_cache_v6" />
+        <exclude domain="file" path="tts_cache_v7" />
+        <exclude domain="file" path="maps" />
+        <exclude domain="file" path="map_packages" />
+        <exclude domain="file" path="bundled_manuals" />
+        <exclude domain="file" path="token_cache" />
+        <exclude domain="file" path="diagnostics" />
+        <exclude domain="file" path="startup_crash.txt" />
+        <exclude domain="sharedpref" path="secure_secrets.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="cache" path="." />
+        <exclude domain="file" path="tts_cache_v6" />
+        <exclude domain="file" path="tts_cache_v7" />
+        <exclude domain="file" path="maps" />
+        <exclude domain="file" path="map_packages" />
+        <exclude domain="file" path="bundled_manuals" />
+        <exclude domain="file" path="token_cache" />
+        <exclude domain="file" path="diagnostics" />
+        <exclude domain="file" path="startup_crash.txt" />
+        <exclude domain="sharedpref" path="secure_secrets.xml" />
+    </device-transfer>
+</data-extraction-rules>

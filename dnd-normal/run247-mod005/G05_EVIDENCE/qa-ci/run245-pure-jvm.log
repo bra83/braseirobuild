@@ -1,0 +1,5 @@
+COMMAND: java --module jdk.compiler/com.sun.tools.javac.Main -d <tmpdir> app/src/main/java/com/braseiro/dnd5e/MonsterForcedMovementRules.java G05_EVIDENCE/Run245ForcedMovementPureHarness.java
+COMPILE_EXIT_CODE=0
+COMMAND: java -cp <tmpdir> Run245ForcedMovementPureHarness
+RUN245_G05_FORCED_MOVEMENT_PURE_PASS checks=13
+HARNESS_EXIT_CODE=0

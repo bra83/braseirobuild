@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.CompanionProposalIsolationRulesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-10T15:01:51" hostname="BRELGA" time="0.169">
+  <properties/>
+  <testcase name="curatedProposalCannotCarryStateMutation" classname="com.braseiro.dnd5e.CompanionProposalIsolationRulesTest" time="0.037"/>
+  <testcase name="pureCuratedIntentionAndEmptyCuratedSetAreAllowed" classname="com.braseiro.dnd5e.CompanionProposalIsolationRulesTest" time="0.039"/>
+  <testcase name="effectsForNonCuratedCompanionAreOutsideThisIsolationRule" classname="com.braseiro.dnd5e.CompanionProposalIsolationRulesTest" time="0.06"/>
+  <testcase name="curatedProposalCannotAdvanceLocalWorldTick" classname="com.braseiro.dnd5e.CompanionProposalIsolationRulesTest" time="0.032"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

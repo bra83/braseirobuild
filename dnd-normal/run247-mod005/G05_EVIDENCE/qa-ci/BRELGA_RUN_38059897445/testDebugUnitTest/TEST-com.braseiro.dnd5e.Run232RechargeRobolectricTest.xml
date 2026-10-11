@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run232RechargeRobolectricTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-10T14:34:22" hostname="BRELGA" time="0.477">
+  <properties/>
+  <testcase name="rechargeLegacyAliasesCannotBypassSpendOrRoundOnRestart" classname="com.braseiro.dnd5e.Run232RechargeRobolectricTest" time="0.477"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

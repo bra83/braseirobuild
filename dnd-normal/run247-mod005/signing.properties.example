@@ -1,0 +1,6 @@
+# Copie para signing.properties APENAS no seu computador.
+# Nunca envie este arquivo nem a chave privada dentro do ZIP.
+storeFile=C:/caminho/privado/braseiro-release.jks
+storePassword=SUA_SENHA_PRIVADA
+keyAlias=braseiro
+keyPassword=SUA_SENHA_PRIVADA

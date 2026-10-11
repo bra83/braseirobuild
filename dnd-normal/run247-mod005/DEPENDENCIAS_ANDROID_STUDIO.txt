@@ -1,0 +1,20 @@
+DEPENDÊNCIAS DO PROJETO — BRASEIRO D&D/MYSTARA 4.3.2
+
+Ferramentas:
+- JDK 17
+- Android Gradle Plugin 8.9.1
+- Gradle Wrapper 8.11.1
+- compileSdk 35
+- targetSdk 35
+- minSdk 23
+
+Bibliotecas Maven declaradas em app/build.gradle.kts:
+- com.tom-roush:pdfbox-android:2.0.27.0
+- com.google.mlkit:text-recognition:16.0.1
+- androidx.core:core:1.15.0
+- androidx.documentfile:documentfile:1.0.1
+- androidx.work:work-runtime:2.11.2
+
+Repositórios: Google Maven, Maven Central e Gradle Plugin Portal.
+
+O ZIP não redistribui Android SDK, Gradle nem bibliotecas Maven. O Android Studio os baixa na primeira sincronização e os mantém em cache.

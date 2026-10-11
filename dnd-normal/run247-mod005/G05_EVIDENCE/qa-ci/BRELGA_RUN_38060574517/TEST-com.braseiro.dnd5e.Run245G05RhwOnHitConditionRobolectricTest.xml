@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-10-10T14:46:22" hostname="BRELGA" time="5.791">
+  <properties/>
+  <testcase name="biteConditionIsTypedSourceTurnBoundAndSurvivesBackup21" classname="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" time="2.905"/>
+  <testcase name="aggregateAndMismatchedDamageProofsFailBeforeMutation" classname="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" time="0.581"/>
+  <testcase name="preexistingConditionOwnershipConflictFailsClosedBeforeMutation" classname="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" time="0.553"/>
+  <testcase name="sourceTurnExpiryBatchRollsBackAllRowsAndRetriesOnce" classname="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" time="1.102"/>
+  <testcase name="naturalOneDoesNotApplyTheOnHitRider" classname="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" time="0.526"/>
+  <testcase name="brainRendingBiteDamagePreservesTypedModifierComponents" classname="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" time="0.051"/>
+  <testcase name="legacyFlowBlocksUnsupportedOnHitButKeepsPlainAttack" classname="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" time="0.073"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

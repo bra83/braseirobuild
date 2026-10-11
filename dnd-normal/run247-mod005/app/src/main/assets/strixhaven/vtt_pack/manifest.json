@@ -1,0 +1,4703 @@
+{
+  "maps": [
+    "00_strixhaven_overview.png",
+    "01_campus_central.png",
+    "02_lorehold.png",
+    "03_prismari.png",
+    "04_quandrix.png",
+    "05_silverquill.png",
+    "06_witherbloom.png"
+  ],
+  "individual_assets_count": 586,
+  "source_sheets_count": 28,
+  "assets": [
+    {
+      "asset_id": "S01-001",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_001.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 215,
+      "height": 536,
+      "component_area": 83129
+    },
+    {
+      "asset_id": "S01-002",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_002.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 551,
+      "height": 546,
+      "component_area": 164871
+    },
+    {
+      "asset_id": "S01-003",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_003.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 242,
+      "height": 247,
+      "component_area": 33373
+    },
+    {
+      "asset_id": "S01-004",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_004.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 242,
+      "height": 246,
+      "component_area": 33287
+    },
+    {
+      "asset_id": "S01-005",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_005.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 239,
+      "height": 232,
+      "component_area": 26727
+    },
+    {
+      "asset_id": "S01-006",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_006.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 238,
+      "height": 232,
+      "component_area": 26659
+    },
+    {
+      "asset_id": "S01-007",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_007.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 238,
+      "height": 233,
+      "component_area": 27091
+    },
+    {
+      "asset_id": "S01-008",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_008.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 238,
+      "height": 231,
+      "component_area": 26633
+    },
+    {
+      "asset_id": "S01-009",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_009.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 219,
+      "height": 247,
+      "component_area": 31879
+    },
+    {
+      "asset_id": "S01-010",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_010.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 217,
+      "height": 242,
+      "component_area": 31077
+    },
+    {
+      "asset_id": "S01-011",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_011.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 219,
+      "height": 234,
+      "component_area": 31676
+    },
+    {
+      "asset_id": "S01-012",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_012.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 211,
+      "height": 229,
+      "component_area": 29576
+    },
+    {
+      "asset_id": "S01-013",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_013.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 218,
+      "height": 223,
+      "component_area": 31200
+    },
+    {
+      "asset_id": "S01-014",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_014.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 447,
+      "height": 484,
+      "component_area": 96692
+    },
+    {
+      "asset_id": "S01-015",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_015.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 573,
+      "height": 196,
+      "component_area": 71439
+    },
+    {
+      "asset_id": "S01-016",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_016.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 210,
+      "height": 239,
+      "component_area": 28927
+    },
+    {
+      "asset_id": "S01-017",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_017.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 216,
+      "height": 216,
+      "component_area": 32108
+    },
+    {
+      "asset_id": "S01-018",
+      "file": "individual/01_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_018.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_7_batch_7.png",
+      "width": 260,
+      "height": 149,
+      "component_area": 27335
+    },
+    {
+      "asset_id": "S02-001",
+      "file": "individual/02_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_001.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_8_batch_8.png",
+      "width": 520,
+      "height": 890,
+      "component_area": 409573
+    },
+    {
+      "asset_id": "S02-002",
+      "file": "individual/02_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_002.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_8_batch_8.png",
+      "width": 323,
+      "height": 133,
+      "component_area": 27307
+    },
+    {
+      "asset_id": "S02-003",
+      "file": "individual/02_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_003.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_8_batch_8.png",
+      "width": 269,
+      "height": 667,
+      "component_area": 151949
+    },
+    {
+      "asset_id": "S02-004",
+      "file": "individual/02_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_004.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_8_batch_8.png",
+      "width": 323,
+      "height": 135,
+      "component_area": 27287
+    },
+    {
+      "asset_id": "S02-005",
+      "file": "individual/02_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_005.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_8_batch_8.png",
+      "width": 323,
+      "height": 136,
+      "component_area": 27221
+    },
+    {
+      "asset_id": "S02-006",
+      "file": "individual/02_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_006.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_8_batch_8.png",
+      "width": 323,
+      "height": 135,
+      "component_area": 27237
+    },
+    {
+      "asset_id": "S02-007",
+      "file": "individual/02_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_007.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_8_batch_8.png",
+      "width": 323,
+      "height": 136,
+      "component_area": 27164
+    },
+    {
+      "asset_id": "S02-008",
+      "file": "individual/02_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_008.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_8_batch_8.png",
+      "width": 323,
+      "height": 136,
+      "component_area": 27275
+    },
+    {
+      "asset_id": "S02-009",
+      "file": "individual/02_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_009.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_8_batch_8.png",
+      "width": 293,
+      "height": 122,
+      "component_area": 25983
+    },
+    {
+      "asset_id": "S02-010",
+      "file": "individual/02_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_010.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_8_batch_8.png",
+      "width": 271,
+      "height": 321,
+      "component_area": 50111
+    },
+    {
+      "asset_id": "S02-011",
+      "file": "individual/02_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_011.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_8_batch_8.png",
+      "width": 531,
+      "height": 339,
+      "component_area": 161784
+    },
+    {
+      "asset_id": "S02-012",
+      "file": "individual/02_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_012.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_8_batch_8.png",
+      "width": 313,
+      "height": 314,
+      "component_area": 84626
+    },
+    {
+      "asset_id": "S02-013",
+      "file": "individual/02_a_clean_graphic_asset_sheet_on_a_transparent_bac/asset_013.png",
+      "source_sheet": "a_clean_graphic_asset_sheet_on_a_transparent_backg_8_batch_8.png",
+      "width": 630,
+      "height": 152,
+      "component_area": 70558
+    },
+    {
+      "asset_id": "S03-001",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_001.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 246,
+      "height": 320,
+      "component_area": 46016
+    },
+    {
+      "asset_id": "S03-002",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_002.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 231,
+      "height": 319,
+      "component_area": 42715
+    },
+    {
+      "asset_id": "S03-003",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_003.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 225,
+      "height": 316,
+      "component_area": 41464
+    },
+    {
+      "asset_id": "S03-004",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_004.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 228,
+      "height": 316,
+      "component_area": 41540
+    },
+    {
+      "asset_id": "S03-005",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_005.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 221,
+      "height": 312,
+      "component_area": 39754
+    },
+    {
+      "asset_id": "S03-006",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_006.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 231,
+      "height": 327,
+      "component_area": 43853
+    },
+    {
+      "asset_id": "S03-007",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_007.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 226,
+      "height": 321,
+      "component_area": 42180
+    },
+    {
+      "asset_id": "S03-008",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_008.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 228,
+      "height": 322,
+      "component_area": 42092
+    },
+    {
+      "asset_id": "S03-009",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_009.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 229,
+      "height": 319,
+      "component_area": 42054
+    },
+    {
+      "asset_id": "S03-010",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_010.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 232,
+      "height": 319,
+      "component_area": 42754
+    },
+    {
+      "asset_id": "S03-011",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_011.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 237,
+      "height": 326,
+      "component_area": 45144
+    },
+    {
+      "asset_id": "S03-012",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_012.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 233,
+      "height": 322,
+      "component_area": 43122
+    },
+    {
+      "asset_id": "S03-013",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_013.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 228,
+      "height": 315,
+      "component_area": 41289
+    },
+    {
+      "asset_id": "S03-014",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_014.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 231,
+      "height": 323,
+      "component_area": 43163
+    },
+    {
+      "asset_id": "S03-015",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_015.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 229,
+      "height": 321,
+      "component_area": 42273
+    },
+    {
+      "asset_id": "S03-016",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_016.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 275,
+      "height": 296,
+      "component_area": 53351
+    },
+    {
+      "asset_id": "S03-017",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_017.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 276,
+      "height": 296,
+      "component_area": 53450
+    },
+    {
+      "asset_id": "S03-018",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_018.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 274,
+      "height": 295,
+      "component_area": 53289
+    },
+    {
+      "asset_id": "S03-019",
+      "file": "individual/03_a_clean_graphic_sheet_on_a_transparent_backgroun/asset_019.png",
+      "source_sheet": "a_clean_graphic_sheet_on_a_transparent_background_8_batch_8.png",
+      "width": 274,
+      "height": 293,
+      "component_area": 53969
+    },
+    {
+      "asset_id": "S04-001",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_001.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 204,
+      "height": 255,
+      "component_area": 31077
+    },
+    {
+      "asset_id": "S04-002",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_002.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 295,
+      "height": 257,
+      "component_area": 44469
+    },
+    {
+      "asset_id": "S04-003",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_003.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 290,
+      "height": 225,
+      "component_area": 39549
+    },
+    {
+      "asset_id": "S04-004",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_004.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 198,
+      "height": 227,
+      "component_area": 25604
+    },
+    {
+      "asset_id": "S04-005",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_005.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 254,
+      "height": 331,
+      "component_area": 39485
+    },
+    {
+      "asset_id": "S04-006",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_006.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 243,
+      "height": 322,
+      "component_area": 38690
+    },
+    {
+      "asset_id": "S04-007",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_007.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 183,
+      "height": 288,
+      "component_area": 20217
+    },
+    {
+      "asset_id": "S04-008",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_008.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 202,
+      "height": 289,
+      "component_area": 24076
+    },
+    {
+      "asset_id": "S04-009",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_009.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 200,
+      "height": 277,
+      "component_area": 24451
+    },
+    {
+      "asset_id": "S04-010",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_010.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 206,
+      "height": 277,
+      "component_area": 28037
+    },
+    {
+      "asset_id": "S04-011",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_011.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 251,
+      "height": 211,
+      "component_area": 24004
+    },
+    {
+      "asset_id": "S04-012",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_012.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 243,
+      "height": 166,
+      "component_area": 18036
+    },
+    {
+      "asset_id": "S04-013",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_013.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 193,
+      "height": 68,
+      "component_area": 6142
+    },
+    {
+      "asset_id": "S04-014",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_014.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 192,
+      "height": 66,
+      "component_area": 6335
+    },
+    {
+      "asset_id": "S04-015",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_015.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 170,
+      "height": 62,
+      "component_area": 4756
+    },
+    {
+      "asset_id": "S04-016",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_016.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 162,
+      "height": 56,
+      "component_area": 3974
+    },
+    {
+      "asset_id": "S04-017",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_017.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 231,
+      "height": 238,
+      "component_area": 21476
+    },
+    {
+      "asset_id": "S04-018",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_018.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 208,
+      "height": 216,
+      "component_area": 8686
+    },
+    {
+      "asset_id": "S04-019",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_019.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 60,
+      "height": 60,
+      "component_area": 680
+    },
+    {
+      "asset_id": "S04-020",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_020.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 104,
+      "height": 185,
+      "component_area": 3171
+    },
+    {
+      "asset_id": "S04-021",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_021.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 218,
+      "height": 190,
+      "component_area": 5708
+    },
+    {
+      "asset_id": "S04-022",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_022.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 98,
+      "height": 177,
+      "component_area": 2862
+    },
+    {
+      "asset_id": "S04-023",
+      "file": "individual/04_a_clean_png_game_ui_asset_sheet_on_a_transparent/asset_023.png",
+      "source_sheet": "a_clean_png_game_ui_asset_sheet_on_a_transparent_c_7_batch_7.png",
+      "width": 179,
+      "height": 168,
+      "component_area": 5349
+    },
+    {
+      "asset_id": "S05-001",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_001.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 495,
+      "height": 145,
+      "component_area": 56079
+    },
+    {
+      "asset_id": "S05-002",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_002.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 494,
+      "height": 143,
+      "component_area": 56289
+    },
+    {
+      "asset_id": "S05-003",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_003.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 517,
+      "height": 140,
+      "component_area": 56218
+    },
+    {
+      "asset_id": "S05-004",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_004.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 514,
+      "height": 142,
+      "component_area": 56454
+    },
+    {
+      "asset_id": "S05-005",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_005.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 359,
+      "height": 127,
+      "component_area": 33013
+    },
+    {
+      "asset_id": "S05-006",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_006.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 341,
+      "height": 130,
+      "component_area": 31437
+    },
+    {
+      "asset_id": "S05-007",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_007.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 355,
+      "height": 128,
+      "component_area": 32596
+    },
+    {
+      "asset_id": "S05-008",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_008.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 365,
+      "height": 142,
+      "component_area": 35816
+    },
+    {
+      "asset_id": "S05-009",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_009.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 360,
+      "height": 137,
+      "component_area": 34190
+    },
+    {
+      "asset_id": "S05-010",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_010.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 352,
+      "height": 135,
+      "component_area": 33910
+    },
+    {
+      "asset_id": "S05-011",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_011.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 359,
+      "height": 139,
+      "component_area": 33790
+    },
+    {
+      "asset_id": "S05-012",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_012.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 357,
+      "height": 138,
+      "component_area": 33436
+    },
+    {
+      "asset_id": "S05-013",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_013.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 353,
+      "height": 139,
+      "component_area": 33097
+    },
+    {
+      "asset_id": "S05-014",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_014.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 127,
+      "height": 130,
+      "component_area": 9370
+    },
+    {
+      "asset_id": "S05-015",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_015.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 130,
+      "height": 130,
+      "component_area": 9517
+    },
+    {
+      "asset_id": "S05-016",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_016.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 130,
+      "height": 130,
+      "component_area": 9510
+    },
+    {
+      "asset_id": "S05-017",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_017.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 130,
+      "height": 131,
+      "component_area": 9650
+    },
+    {
+      "asset_id": "S05-018",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_018.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 130,
+      "height": 132,
+      "component_area": 9678
+    },
+    {
+      "asset_id": "S05-019",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_019.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 130,
+      "height": 132,
+      "component_area": 9637
+    },
+    {
+      "asset_id": "S05-020",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_020.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 130,
+      "height": 132,
+      "component_area": 9770
+    },
+    {
+      "asset_id": "S05-021",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_021.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 126,
+      "height": 126,
+      "component_area": 9725
+    },
+    {
+      "asset_id": "S05-022",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_022.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 131,
+      "height": 129,
+      "component_area": 9722
+    },
+    {
+      "asset_id": "S05-023",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_023.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 291,
+      "height": 110,
+      "component_area": 22448
+    },
+    {
+      "asset_id": "S05-024",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_024.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 280,
+      "height": 109,
+      "component_area": 21297
+    },
+    {
+      "asset_id": "S05-025",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_025.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 277,
+      "height": 110,
+      "component_area": 20994
+    },
+    {
+      "asset_id": "S05-026",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_026.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 150,
+      "height": 164,
+      "component_area": 7169
+    },
+    {
+      "asset_id": "S05-027",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_027.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 282,
+      "height": 102,
+      "component_area": 18633
+    },
+    {
+      "asset_id": "S05-028",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_028.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 287,
+      "height": 101,
+      "component_area": 18727
+    },
+    {
+      "asset_id": "S05-029",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_029.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 267,
+      "height": 101,
+      "component_area": 17654
+    },
+    {
+      "asset_id": "S05-030",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_030.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 152,
+      "height": 169,
+      "component_area": 7057
+    },
+    {
+      "asset_id": "S05-031",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_031.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 288,
+      "height": 102,
+      "component_area": 18734
+    },
+    {
+      "asset_id": "S05-032",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_032.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 272,
+      "height": 101,
+      "component_area": 17882
+    },
+    {
+      "asset_id": "S05-033",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_033.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 283,
+      "height": 104,
+      "component_area": 19374
+    },
+    {
+      "asset_id": "S05-034",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_034.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 453,
+      "height": 115,
+      "component_area": 39209
+    },
+    {
+      "asset_id": "S05-035",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_035.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 414,
+      "height": 116,
+      "component_area": 35426
+    },
+    {
+      "asset_id": "S05-036",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_036.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 92,
+      "height": 101,
+      "component_area": 2261
+    },
+    {
+      "asset_id": "S05-037",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_037.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 245,
+      "height": 105,
+      "component_area": 17648
+    },
+    {
+      "asset_id": "S05-038",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_038.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 240,
+      "height": 106,
+      "component_area": 17385
+    },
+    {
+      "asset_id": "S05-039",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_039.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 204,
+      "height": 106,
+      "component_area": 14218
+    },
+    {
+      "asset_id": "S05-040",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_040.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 215,
+      "height": 106,
+      "component_area": 15454
+    },
+    {
+      "asset_id": "S05-041",
+      "file": "individual/05_a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra/asset_041.png",
+      "source_sheet": "a_clean_png_sprite_sheet_ui_asset_sheet_on_a_tra_10_batch_10.png",
+      "width": 84,
+      "height": 89,
+      "component_area": 1719
+    },
+    {
+      "asset_id": "S06-001",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_001.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 445,
+      "height": 364,
+      "component_area": 95516
+    },
+    {
+      "asset_id": "S06-002",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_002.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 325,
+      "height": 365,
+      "component_area": 54908
+    },
+    {
+      "asset_id": "S06-003",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_003.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 221,
+      "height": 292,
+      "component_area": 37073
+    },
+    {
+      "asset_id": "S06-004",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_004.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 290,
+      "height": 106,
+      "component_area": 15080
+    },
+    {
+      "asset_id": "S06-005",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_005.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 228,
+      "height": 303,
+      "component_area": 40376
+    },
+    {
+      "asset_id": "S06-006",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_006.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 227,
+      "height": 302,
+      "component_area": 39890
+    },
+    {
+      "asset_id": "S06-007",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_007.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 229,
+      "height": 300,
+      "component_area": 39920
+    },
+    {
+      "asset_id": "S06-008",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_008.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 315,
+      "height": 111,
+      "component_area": 16374
+    },
+    {
+      "asset_id": "S06-009",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_009.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 316,
+      "height": 112,
+      "component_area": 16846
+    },
+    {
+      "asset_id": "S06-010",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_010.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 312,
+      "height": 110,
+      "component_area": 16143
+    },
+    {
+      "asset_id": "S06-011",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_011.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 311,
+      "height": 360,
+      "component_area": 56155
+    },
+    {
+      "asset_id": "S06-012",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_012.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 308,
+      "height": 361,
+      "component_area": 55333
+    },
+    {
+      "asset_id": "S06-013",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_013.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 305,
+      "height": 360,
+      "component_area": 54773
+    },
+    {
+      "asset_id": "S06-014",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_014.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 230,
+      "height": 291,
+      "component_area": 39364
+    },
+    {
+      "asset_id": "S06-015",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_015.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 232,
+      "height": 290,
+      "component_area": 39623
+    },
+    {
+      "asset_id": "S06-016",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_016.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 232,
+      "height": 290,
+      "component_area": 39755
+    },
+    {
+      "asset_id": "S06-017",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_017.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 291,
+      "height": 109,
+      "component_area": 15139
+    },
+    {
+      "asset_id": "S06-018",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_018.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 298,
+      "height": 109,
+      "component_area": 15558
+    },
+    {
+      "asset_id": "S06-019",
+      "file": "individual/06_a_clean_png_style_asset_sheet_on_a_transparent_b/asset_019.png",
+      "source_sheet": "a_clean_png_style_asset_sheet_on_a_transparent_bac_3_batch_3.png",
+      "width": 302,
+      "height": 108,
+      "component_area": 15898
+    },
+    {
+      "asset_id": "S07-001",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_001.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 202,
+      "height": 248,
+      "component_area": 28700
+    },
+    {
+      "asset_id": "S07-002",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_002.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 423,
+      "height": 140,
+      "component_area": 30817
+    },
+    {
+      "asset_id": "S07-003",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_003.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 228,
+      "height": 305,
+      "component_area": 39903
+    },
+    {
+      "asset_id": "S07-004",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_004.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 230,
+      "height": 304,
+      "component_area": 39899
+    },
+    {
+      "asset_id": "S07-005",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_005.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 229,
+      "height": 306,
+      "component_area": 40781
+    },
+    {
+      "asset_id": "S07-006",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_006.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 229,
+      "height": 304,
+      "component_area": 39857
+    },
+    {
+      "asset_id": "S07-007",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_007.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 290,
+      "height": 113,
+      "component_area": 16633
+    },
+    {
+      "asset_id": "S07-008",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_008.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 291,
+      "height": 114,
+      "component_area": 16592
+    },
+    {
+      "asset_id": "S07-009",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_009.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 282,
+      "height": 113,
+      "component_area": 16612
+    },
+    {
+      "asset_id": "S07-010",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_010.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 279,
+      "height": 112,
+      "component_area": 16548
+    },
+    {
+      "asset_id": "S07-011",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_011.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 228,
+      "height": 302,
+      "component_area": 39346
+    },
+    {
+      "asset_id": "S07-012",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_012.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 229,
+      "height": 304,
+      "component_area": 39442
+    },
+    {
+      "asset_id": "S07-013",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_013.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 227,
+      "height": 304,
+      "component_area": 39226
+    },
+    {
+      "asset_id": "S07-014",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_014.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 229,
+      "height": 303,
+      "component_area": 39721
+    },
+    {
+      "asset_id": "S07-015",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_015.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 284,
+      "height": 117,
+      "component_area": 17005
+    },
+    {
+      "asset_id": "S07-016",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_016.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 290,
+      "height": 117,
+      "component_area": 16893
+    },
+    {
+      "asset_id": "S07-017",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_017.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 294,
+      "height": 116,
+      "component_area": 17162
+    },
+    {
+      "asset_id": "S07-018",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_018.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 282,
+      "height": 113,
+      "component_area": 16904
+    },
+    {
+      "asset_id": "S07-019",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_019.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 233,
+      "height": 323,
+      "component_area": 43659
+    },
+    {
+      "asset_id": "S07-020",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_020.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 236,
+      "height": 322,
+      "component_area": 44090
+    },
+    {
+      "asset_id": "S07-021",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_021.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 233,
+      "height": 321,
+      "component_area": 44070
+    },
+    {
+      "asset_id": "S07-022",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_022.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 322,
+      "height": 127,
+      "component_area": 21400
+    },
+    {
+      "asset_id": "S07-023",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_023.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 325,
+      "height": 125,
+      "component_area": 21712
+    },
+    {
+      "asset_id": "S07-024",
+      "file": "individual/07_a_clean_png_style_game_ui_asset_sheet_on_a_trans/asset_024.png",
+      "source_sheet": "a_clean_png_style_game_ui_asset_sheet_on_a_transpa_4_batch_4.png",
+      "width": 317,
+      "height": 126,
+      "component_area": 21472
+    },
+    {
+      "asset_id": "S08-001",
+      "file": "individual/08_a_clean_png_style_ui_asset_sheet_on_a_transparen/asset_001.png",
+      "source_sheet": "a_clean_png_style_ui_asset_sheet_on_a_transparent_6_batch_6.png",
+      "width": 1082,
+      "height": 452,
+      "component_area": 454170
+    },
+    {
+      "asset_id": "S08-002",
+      "file": "individual/08_a_clean_png_style_ui_asset_sheet_on_a_transparen/asset_002.png",
+      "source_sheet": "a_clean_png_style_ui_asset_sheet_on_a_transparent_6_batch_6.png",
+      "width": 1083,
+      "height": 136,
+      "component_area": 117874
+    },
+    {
+      "asset_id": "S08-003",
+      "file": "individual/08_a_clean_png_style_ui_asset_sheet_on_a_transparen/asset_003.png",
+      "source_sheet": "a_clean_png_style_ui_asset_sheet_on_a_transparent_6_batch_6.png",
+      "width": 207,
+      "height": 48,
+      "component_area": 5204
+    },
+    {
+      "asset_id": "S08-004",
+      "file": "individual/08_a_clean_png_style_ui_asset_sheet_on_a_transparen/asset_004.png",
+      "source_sheet": "a_clean_png_style_ui_asset_sheet_on_a_transparent_6_batch_6.png",
+      "width": 930,
+      "height": 60,
+      "component_area": 10337
+    },
+    {
+      "asset_id": "S08-005",
+      "file": "individual/08_a_clean_png_style_ui_asset_sheet_on_a_transparen/asset_005.png",
+      "source_sheet": "a_clean_png_style_ui_asset_sheet_on_a_transparent_6_batch_6.png",
+      "width": 73,
+      "height": 450,
+      "component_area": 19284
+    },
+    {
+      "asset_id": "S08-006",
+      "file": "individual/08_a_clean_png_style_ui_asset_sheet_on_a_transparen/asset_006.png",
+      "source_sheet": "a_clean_png_style_ui_asset_sheet_on_a_transparent_6_batch_6.png",
+      "width": 932,
+      "height": 139,
+      "component_area": 67684
+    },
+    {
+      "asset_id": "S08-007",
+      "file": "individual/08_a_clean_png_style_ui_asset_sheet_on_a_transparen/asset_007.png",
+      "source_sheet": "a_clean_png_style_ui_asset_sheet_on_a_transparent_6_batch_6.png",
+      "width": 891,
+      "height": 298,
+      "component_area": 241440
+    },
+    {
+      "asset_id": "S09-001",
+      "file": "individual/09_a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_tran/asset_001.png",
+      "source_sheet": "a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_transp_4_batch_4.png",
+      "width": 449,
+      "height": 540,
+      "component_area": 193394
+    },
+    {
+      "asset_id": "S09-002",
+      "file": "individual/09_a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_tran/asset_002.png",
+      "source_sheet": "a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_transp_4_batch_4.png",
+      "width": 405,
+      "height": 557,
+      "component_area": 181793
+    },
+    {
+      "asset_id": "S09-003",
+      "file": "individual/09_a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_tran/asset_003.png",
+      "source_sheet": "a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_transp_4_batch_4.png",
+      "width": 284,
+      "height": 495,
+      "component_area": 115175
+    },
+    {
+      "asset_id": "S09-004",
+      "file": "individual/09_a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_tran/asset_004.png",
+      "source_sheet": "a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_transp_4_batch_4.png",
+      "width": 416,
+      "height": 416,
+      "component_area": 131433
+    },
+    {
+      "asset_id": "S09-005",
+      "file": "individual/09_a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_tran/asset_005.png",
+      "source_sheet": "a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_transp_4_batch_4.png",
+      "width": 341,
+      "height": 316,
+      "component_area": 81324
+    },
+    {
+      "asset_id": "S09-006",
+      "file": "individual/09_a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_tran/asset_006.png",
+      "source_sheet": "a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_transp_4_batch_4.png",
+      "width": 282,
+      "height": 334,
+      "component_area": 70976
+    },
+    {
+      "asset_id": "S09-007",
+      "file": "individual/09_a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_tran/asset_007.png",
+      "source_sheet": "a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_transp_4_batch_4.png",
+      "width": 215,
+      "height": 100,
+      "component_area": 13032
+    },
+    {
+      "asset_id": "S09-008",
+      "file": "individual/09_a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_tran/asset_008.png",
+      "source_sheet": "a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_transp_4_batch_4.png",
+      "width": 207,
+      "height": 97,
+      "component_area": 12213
+    },
+    {
+      "asset_id": "S09-009",
+      "file": "individual/09_a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_tran/asset_009.png",
+      "source_sheet": "a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_transp_4_batch_4.png",
+      "width": 325,
+      "height": 463,
+      "component_area": 118658
+    },
+    {
+      "asset_id": "S09-010",
+      "file": "individual/09_a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_tran/asset_010.png",
+      "source_sheet": "a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_transp_4_batch_4.png",
+      "width": 389,
+      "height": 449,
+      "component_area": 137934
+    },
+    {
+      "asset_id": "S09-011",
+      "file": "individual/09_a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_tran/asset_011.png",
+      "source_sheet": "a_clean_sheet_of_fantasy_rpg_ui_assets_on_a_transp_4_batch_4.png",
+      "width": 399,
+      "height": 442,
+      "component_area": 139327
+    },
+    {
+      "asset_id": "S10-001",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_001.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 168,
+      "height": 176,
+      "component_area": 11291
+    },
+    {
+      "asset_id": "S10-002",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_002.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 146,
+      "height": 157,
+      "component_area": 8801
+    },
+    {
+      "asset_id": "S10-003",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_003.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 87,
+      "height": 83,
+      "component_area": 3435
+    },
+    {
+      "asset_id": "S10-004",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_004.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 79,
+      "height": 46,
+      "component_area": 1377
+    },
+    {
+      "asset_id": "S10-005",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_005.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 82,
+      "height": 43,
+      "component_area": 1475
+    },
+    {
+      "asset_id": "S10-006",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_006.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 84,
+      "height": 44,
+      "component_area": 1510
+    },
+    {
+      "asset_id": "S10-007",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_007.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 83,
+      "height": 44,
+      "component_area": 1482
+    },
+    {
+      "asset_id": "S10-008",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_008.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 82,
+      "height": 44,
+      "component_area": 1488
+    },
+    {
+      "asset_id": "S10-009",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_009.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 79,
+      "height": 43,
+      "component_area": 1387
+    },
+    {
+      "asset_id": "S10-010",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_010.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 81,
+      "height": 43,
+      "component_area": 1419
+    },
+    {
+      "asset_id": "S10-011",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_011.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 82,
+      "height": 44,
+      "component_area": 1474
+    },
+    {
+      "asset_id": "S10-012",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_012.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 83,
+      "height": 46,
+      "component_area": 1484
+    },
+    {
+      "asset_id": "S10-013",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_013.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 81,
+      "height": 50,
+      "component_area": 1430
+    },
+    {
+      "asset_id": "S10-014",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_014.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 81,
+      "height": 51,
+      "component_area": 1425
+    },
+    {
+      "asset_id": "S10-015",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_015.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 145,
+      "height": 163,
+      "component_area": 8883
+    },
+    {
+      "asset_id": "S10-016",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_016.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 79,
+      "height": 55,
+      "component_area": 1390
+    },
+    {
+      "asset_id": "S10-017",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_017.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 78,
+      "height": 59,
+      "component_area": 1409
+    },
+    {
+      "asset_id": "S10-018",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_018.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 171,
+      "height": 140,
+      "component_area": 8078
+    },
+    {
+      "asset_id": "S10-019",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_019.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 70,
+      "height": 53,
+      "component_area": 1126
+    },
+    {
+      "asset_id": "S10-020",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_020.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 86,
+      "height": 87,
+      "component_area": 3527
+    },
+    {
+      "asset_id": "S10-021",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_021.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 76,
+      "height": 62,
+      "component_area": 1416
+    },
+    {
+      "asset_id": "S10-022",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_022.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 59,
+      "height": 49,
+      "component_area": 840
+    },
+    {
+      "asset_id": "S10-023",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_023.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 80,
+      "height": 55,
+      "component_area": 1431
+    },
+    {
+      "asset_id": "S10-024",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_024.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 82,
+      "height": 51,
+      "component_area": 1439
+    },
+    {
+      "asset_id": "S10-025",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_025.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 81,
+      "height": 48,
+      "component_area": 1399
+    },
+    {
+      "asset_id": "S10-026",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_026.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 69,
+      "height": 46,
+      "component_area": 1059
+    },
+    {
+      "asset_id": "S10-027",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_027.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 93,
+      "height": 104,
+      "component_area": 2368
+    },
+    {
+      "asset_id": "S10-028",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_028.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 124,
+      "height": 169,
+      "component_area": 10524
+    },
+    {
+      "asset_id": "S10-029",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_029.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 60,
+      "height": 71,
+      "component_area": 1221
+    },
+    {
+      "asset_id": "S10-030",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_030.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 120,
+      "height": 135,
+      "component_area": 6736
+    },
+    {
+      "asset_id": "S10-031",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_031.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 50,
+      "height": 67,
+      "component_area": 1082
+    },
+    {
+      "asset_id": "S10-032",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_032.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 86,
+      "height": 85,
+      "component_area": 3396
+    },
+    {
+      "asset_id": "S10-033",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_033.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 61,
+      "height": 68,
+      "component_area": 1176
+    },
+    {
+      "asset_id": "S10-034",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_034.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 64,
+      "height": 57,
+      "component_area": 1039
+    },
+    {
+      "asset_id": "S10-035",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_035.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 74,
+      "height": 41,
+      "component_area": 1133
+    },
+    {
+      "asset_id": "S10-036",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_036.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 74,
+      "height": 46,
+      "component_area": 1130
+    },
+    {
+      "asset_id": "S10-037",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_037.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 73,
+      "height": 51,
+      "component_area": 1132
+    },
+    {
+      "asset_id": "S10-038",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_038.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 66,
+      "height": 54,
+      "component_area": 1044
+    },
+    {
+      "asset_id": "S10-039",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_039.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 66,
+      "height": 53,
+      "component_area": 994
+    },
+    {
+      "asset_id": "S10-040",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_040.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 73,
+      "height": 58,
+      "component_area": 1212
+    },
+    {
+      "asset_id": "S10-041",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_041.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 73,
+      "height": 51,
+      "component_area": 1168
+    },
+    {
+      "asset_id": "S10-042",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_042.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 75,
+      "height": 48,
+      "component_area": 1140
+    },
+    {
+      "asset_id": "S10-043",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_043.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 77,
+      "height": 51,
+      "component_area": 1294
+    },
+    {
+      "asset_id": "S10-044",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_044.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 74,
+      "height": 46,
+      "component_area": 1128
+    },
+    {
+      "asset_id": "S10-045",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_045.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 77,
+      "height": 47,
+      "component_area": 1239
+    },
+    {
+      "asset_id": "S10-046",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_046.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 189,
+      "height": 225,
+      "component_area": 20865
+    },
+    {
+      "asset_id": "S10-047",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_047.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 110,
+      "height": 155,
+      "component_area": 3791
+    },
+    {
+      "asset_id": "S10-048",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_048.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 45,
+      "height": 62,
+      "component_area": 916
+    },
+    {
+      "asset_id": "S10-049",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_049.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 63,
+      "height": 44,
+      "component_area": 927
+    },
+    {
+      "asset_id": "S10-050",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_050.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 106,
+      "height": 80,
+      "component_area": 2046
+    },
+    {
+      "asset_id": "S10-051",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_051.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 112,
+      "height": 154,
+      "component_area": 3405
+    },
+    {
+      "asset_id": "S10-052",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_052.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 180,
+      "height": 175,
+      "component_area": 5029
+    },
+    {
+      "asset_id": "S10-053",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_053.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 45,
+      "height": 69,
+      "component_area": 1071
+    },
+    {
+      "asset_id": "S10-054",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_054.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 48,
+      "height": 71,
+      "component_area": 1108
+    },
+    {
+      "asset_id": "S10-055",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_055.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 44,
+      "height": 68,
+      "component_area": 1073
+    },
+    {
+      "asset_id": "S10-056",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_056.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 98,
+      "height": 94,
+      "component_area": 2247
+    },
+    {
+      "asset_id": "S10-057",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_057.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 42,
+      "height": 70,
+      "component_area": 1076
+    },
+    {
+      "asset_id": "S10-058",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_058.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 72,
+      "height": 52,
+      "component_area": 1136
+    },
+    {
+      "asset_id": "S10-059",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_059.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 44,
+      "height": 59,
+      "component_area": 848
+    },
+    {
+      "asset_id": "S10-060",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_060.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 53,
+      "height": 44,
+      "component_area": 653
+    },
+    {
+      "asset_id": "S10-061",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_061.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 167,
+      "height": 167,
+      "component_area": 17006
+    },
+    {
+      "asset_id": "S10-062",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_062.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 142,
+      "height": 140,
+      "component_area": 11575
+    },
+    {
+      "asset_id": "S10-063",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_063.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 119,
+      "height": 118,
+      "component_area": 7539
+    },
+    {
+      "asset_id": "S10-064",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_064.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 95,
+      "height": 91,
+      "component_area": 4364
+    },
+    {
+      "asset_id": "S10-065",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_065.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 69,
+      "height": 67,
+      "component_area": 1835
+    },
+    {
+      "asset_id": "S10-066",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_066.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 137,
+      "height": 153,
+      "component_area": 10918
+    },
+    {
+      "asset_id": "S10-067",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_067.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 141,
+      "height": 156,
+      "component_area": 11571
+    },
+    {
+      "asset_id": "S10-068",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_068.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 135,
+      "height": 151,
+      "component_area": 10643
+    },
+    {
+      "asset_id": "S10-069",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_069.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 139,
+      "height": 154,
+      "component_area": 11283
+    },
+    {
+      "asset_id": "S10-070",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_070.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 139,
+      "height": 154,
+      "component_area": 11090
+    },
+    {
+      "asset_id": "S10-071",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_071.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 139,
+      "height": 153,
+      "component_area": 11134
+    },
+    {
+      "asset_id": "S10-072",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_072.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 268,
+      "height": 123,
+      "component_area": 23766
+    },
+    {
+      "asset_id": "S10-073",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_073.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 268,
+      "height": 123,
+      "component_area": 23667
+    },
+    {
+      "asset_id": "S10-074",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_074.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 272,
+      "height": 124,
+      "component_area": 24283
+    },
+    {
+      "asset_id": "S10-075",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_075.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 264,
+      "height": 123,
+      "component_area": 23011
+    },
+    {
+      "asset_id": "S10-076",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_076.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 180,
+      "height": 175,
+      "component_area": 24107
+    },
+    {
+      "asset_id": "S10-077",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_077.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 178,
+      "height": 173,
+      "component_area": 23932
+    },
+    {
+      "asset_id": "S10-078",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_078.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 330,
+      "height": 130,
+      "component_area": 32120
+    },
+    {
+      "asset_id": "S10-079",
+      "file": "individual/10_a_clean_transparent_background_game_ui_asset_she/asset_079.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_asset_sheet_9_batch_9.png",
+      "width": 362,
+      "height": 127,
+      "component_area": 35804
+    },
+    {
+      "asset_id": "S11-001",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_001.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 257,
+      "height": 341,
+      "component_area": 50775
+    },
+    {
+      "asset_id": "S11-002",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_002.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 726,
+      "height": 238,
+      "component_area": 79323
+    },
+    {
+      "asset_id": "S11-003",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_003.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 192,
+      "height": 280,
+      "component_area": 30214
+    },
+    {
+      "asset_id": "S11-004",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_004.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 192,
+      "height": 280,
+      "component_area": 30073
+    },
+    {
+      "asset_id": "S11-005",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_005.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 192,
+      "height": 277,
+      "component_area": 29485
+    },
+    {
+      "asset_id": "S11-006",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_006.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 193,
+      "height": 277,
+      "component_area": 29441
+    },
+    {
+      "asset_id": "S11-007",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_007.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 194,
+      "height": 278,
+      "component_area": 29850
+    },
+    {
+      "asset_id": "S11-008",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_008.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 195,
+      "height": 280,
+      "component_area": 30621
+    },
+    {
+      "asset_id": "S11-009",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_009.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 201,
+      "height": 290,
+      "component_area": 33630
+    },
+    {
+      "asset_id": "S11-010",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_010.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 204,
+      "height": 290,
+      "component_area": 32779
+    },
+    {
+      "asset_id": "S11-011",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_011.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 204,
+      "height": 291,
+      "component_area": 33603
+    },
+    {
+      "asset_id": "S11-012",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_012.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 200,
+      "height": 287,
+      "component_area": 32739
+    },
+    {
+      "asset_id": "S11-013",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_013.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 204,
+      "height": 288,
+      "component_area": 32717
+    },
+    {
+      "asset_id": "S11-014",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_014.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 404,
+      "height": 133,
+      "component_area": 25302
+    },
+    {
+      "asset_id": "S11-015",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_015.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 378,
+      "height": 117,
+      "component_area": 23716
+    },
+    {
+      "asset_id": "S11-016",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_016.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 367,
+      "height": 117,
+      "component_area": 22583
+    },
+    {
+      "asset_id": "S11-017",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_017.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 368,
+      "height": 115,
+      "component_area": 22425
+    },
+    {
+      "asset_id": "S11-018",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_018.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 353,
+      "height": 115,
+      "component_area": 22108
+    },
+    {
+      "asset_id": "S11-019",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_019.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 391,
+      "height": 122,
+      "component_area": 25695
+    },
+    {
+      "asset_id": "S11-020",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_020.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 393,
+      "height": 126,
+      "component_area": 26178
+    },
+    {
+      "asset_id": "S11-021",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_021.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 369,
+      "height": 123,
+      "component_area": 24090
+    },
+    {
+      "asset_id": "S11-022",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_022.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 382,
+      "height": 121,
+      "component_area": 25038
+    },
+    {
+      "asset_id": "S11-023",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_023.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 371,
+      "height": 115,
+      "component_area": 23705
+    },
+    {
+      "asset_id": "S11-024",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_024.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 392,
+      "height": 132,
+      "component_area": 27605
+    },
+    {
+      "asset_id": "S11-025",
+      "file": "individual/11_a_clean_transparent_background_game_ui_assets_sh/asset_025.png",
+      "source_sheet": "a_clean_transparent_background_game_ui_assets_shee_2_batch_2.png",
+      "width": 399,
+      "height": 130,
+      "component_area": 28245
+    },
+    {
+      "asset_id": "S12-001",
+      "file": "individual/12_a_clean_transparent_background_graphic_sheet_ui_/asset_001.png",
+      "source_sheet": "a_clean_transparent_background_graphic_sheet_ui_1_batch_1.png",
+      "width": 358,
+      "height": 448,
+      "component_area": 100201
+    },
+    {
+      "asset_id": "S12-002",
+      "file": "individual/12_a_clean_transparent_background_graphic_sheet_ui_/asset_002.png",
+      "source_sheet": "a_clean_transparent_background_graphic_sheet_ui_1_batch_1.png",
+      "width": 361,
+      "height": 443,
+      "component_area": 101904
+    },
+    {
+      "asset_id": "S12-003",
+      "file": "individual/12_a_clean_transparent_background_graphic_sheet_ui_/asset_003.png",
+      "source_sheet": "a_clean_transparent_background_graphic_sheet_ui_1_batch_1.png",
+      "width": 355,
+      "height": 447,
+      "component_area": 99221
+    },
+    {
+      "asset_id": "S12-004",
+      "file": "individual/12_a_clean_transparent_background_graphic_sheet_ui_/asset_004.png",
+      "source_sheet": "a_clean_transparent_background_graphic_sheet_ui_1_batch_1.png",
+      "width": 362,
+      "height": 445,
+      "component_area": 101691
+    },
+    {
+      "asset_id": "S12-005",
+      "file": "individual/12_a_clean_transparent_background_graphic_sheet_ui_/asset_005.png",
+      "source_sheet": "a_clean_transparent_background_graphic_sheet_ui_1_batch_1.png",
+      "width": 362,
+      "height": 446,
+      "component_area": 102185
+    },
+    {
+      "asset_id": "S12-006",
+      "file": "individual/12_a_clean_transparent_background_graphic_sheet_ui_/asset_006.png",
+      "source_sheet": "a_clean_transparent_background_graphic_sheet_ui_1_batch_1.png",
+      "width": 362,
+      "height": 445,
+      "component_area": 98694
+    },
+    {
+      "asset_id": "S12-007",
+      "file": "individual/12_a_clean_transparent_background_graphic_sheet_ui_/asset_007.png",
+      "source_sheet": "a_clean_transparent_background_graphic_sheet_ui_1_batch_1.png",
+      "width": 1101,
+      "height": 212,
+      "component_area": 164978
+    },
+    {
+      "asset_id": "S12-008",
+      "file": "individual/12_a_clean_transparent_background_graphic_sheet_ui_/asset_008.png",
+      "source_sheet": "a_clean_transparent_background_graphic_sheet_ui_1_batch_1.png",
+      "width": 177,
+      "height": 190,
+      "component_area": 9291
+    },
+    {
+      "asset_id": "S12-009",
+      "file": "individual/12_a_clean_transparent_background_graphic_sheet_ui_/asset_009.png",
+      "source_sheet": "a_clean_transparent_background_graphic_sheet_ui_1_batch_1.png",
+      "width": 303,
+      "height": 140,
+      "component_area": 5821
+    },
+    {
+      "asset_id": "S13-001",
+      "file": "individual/13_a_clean_transparent_background_ui_asset_sheet_in/asset_001.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_3_batch_3.png",
+      "width": 1104,
+      "height": 180,
+      "component_area": 171860
+    },
+    {
+      "asset_id": "S13-002",
+      "file": "individual/13_a_clean_transparent_background_ui_asset_sheet_in/asset_002.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_3_batch_3.png",
+      "width": 300,
+      "height": 75,
+      "component_area": 12627
+    },
+    {
+      "asset_id": "S13-003",
+      "file": "individual/13_a_clean_transparent_background_ui_asset_sheet_in/asset_003.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_3_batch_3.png",
+      "width": 150,
+      "height": 74,
+      "component_area": 5991
+    },
+    {
+      "asset_id": "S13-004",
+      "file": "individual/13_a_clean_transparent_background_ui_asset_sheet_in/asset_004.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_3_batch_3.png",
+      "width": 147,
+      "height": 155,
+      "component_area": 5680
+    },
+    {
+      "asset_id": "S13-005",
+      "file": "individual/13_a_clean_transparent_background_ui_asset_sheet_in/asset_005.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_3_batch_3.png",
+      "width": 115,
+      "height": 94,
+      "component_area": 5132
+    },
+    {
+      "asset_id": "S13-006",
+      "file": "individual/13_a_clean_transparent_background_ui_asset_sheet_in/asset_006.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_3_batch_3.png",
+      "width": 489,
+      "height": 94,
+      "component_area": 26644
+    },
+    {
+      "asset_id": "S13-007",
+      "file": "individual/13_a_clean_transparent_background_ui_asset_sheet_in/asset_007.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_3_batch_3.png",
+      "width": 226,
+      "height": 109,
+      "component_area": 12003
+    },
+    {
+      "asset_id": "S13-008",
+      "file": "individual/13_a_clean_transparent_background_ui_asset_sheet_in/asset_008.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_3_batch_3.png",
+      "width": 362,
+      "height": 156,
+      "component_area": 45307
+    },
+    {
+      "asset_id": "S13-009",
+      "file": "individual/13_a_clean_transparent_background_ui_asset_sheet_in/asset_009.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_3_batch_3.png",
+      "width": 428,
+      "height": 145,
+      "component_area": 48920
+    },
+    {
+      "asset_id": "S13-010",
+      "file": "individual/13_a_clean_transparent_background_ui_asset_sheet_in/asset_010.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_3_batch_3.png",
+      "width": 525,
+      "height": 128,
+      "component_area": 51709
+    },
+    {
+      "asset_id": "S13-011",
+      "file": "individual/13_a_clean_transparent_background_ui_asset_sheet_in/asset_011.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_3_batch_3.png",
+      "width": 533,
+      "height": 120,
+      "component_area": 49150
+    },
+    {
+      "asset_id": "S13-012",
+      "file": "individual/13_a_clean_transparent_background_ui_asset_sheet_in/asset_012.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_3_batch_3.png",
+      "width": 524,
+      "height": 237,
+      "component_area": 67076
+    },
+    {
+      "asset_id": "S14-001",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_001.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 323,
+      "height": 432,
+      "component_area": 109400
+    },
+    {
+      "asset_id": "S14-002",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_002.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 325,
+      "height": 432,
+      "component_area": 110119
+    },
+    {
+      "asset_id": "S14-003",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_003.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 323,
+      "height": 431,
+      "component_area": 109276
+    },
+    {
+      "asset_id": "S14-004",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_004.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 325,
+      "height": 418,
+      "component_area": 104274
+    },
+    {
+      "asset_id": "S14-005",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_005.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 326,
+      "height": 415,
+      "component_area": 104672
+    },
+    {
+      "asset_id": "S14-006",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_006.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 325,
+      "height": 415,
+      "component_area": 104009
+    },
+    {
+      "asset_id": "S14-007",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_007.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 276,
+      "height": 86,
+      "component_area": 16369
+    },
+    {
+      "asset_id": "S14-008",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_008.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 276,
+      "height": 86,
+      "component_area": 16169
+    },
+    {
+      "asset_id": "S14-009",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_009.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 273,
+      "height": 86,
+      "component_area": 16002
+    },
+    {
+      "asset_id": "S14-010",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_010.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 270,
+      "height": 84,
+      "component_area": 14989
+    },
+    {
+      "asset_id": "S14-011",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_011.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 275,
+      "height": 87,
+      "component_area": 16464
+    },
+    {
+      "asset_id": "S14-012",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_012.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 276,
+      "height": 86,
+      "component_area": 16156
+    },
+    {
+      "asset_id": "S14-013",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_013.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 273,
+      "height": 85,
+      "component_area": 15620
+    },
+    {
+      "asset_id": "S14-014",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_014.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 268,
+      "height": 86,
+      "component_area": 15154
+    },
+    {
+      "asset_id": "S14-015",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_015.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 276,
+      "height": 86,
+      "component_area": 16273
+    },
+    {
+      "asset_id": "S14-016",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_016.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 276,
+      "height": 86,
+      "component_area": 15922
+    },
+    {
+      "asset_id": "S14-017",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_017.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 273,
+      "height": 85,
+      "component_area": 15564
+    },
+    {
+      "asset_id": "S14-018",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_018.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 269,
+      "height": 90,
+      "component_area": 15257
+    },
+    {
+      "asset_id": "S14-019",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_019.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 280,
+      "height": 81,
+      "component_area": 15235
+    },
+    {
+      "asset_id": "S14-020",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_020.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 275,
+      "height": 80,
+      "component_area": 14643
+    },
+    {
+      "asset_id": "S14-021",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_021.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 283,
+      "height": 79,
+      "component_area": 14891
+    },
+    {
+      "asset_id": "S14-022",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_022.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 266,
+      "height": 91,
+      "component_area": 15451
+    },
+    {
+      "asset_id": "S14-023",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_023.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 280,
+      "height": 80,
+      "component_area": 15047
+    },
+    {
+      "asset_id": "S14-024",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_024.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 283,
+      "height": 80,
+      "component_area": 15140
+    },
+    {
+      "asset_id": "S14-025",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_025.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 274,
+      "height": 80,
+      "component_area": 14644
+    },
+    {
+      "asset_id": "S14-026",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_026.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 267,
+      "height": 91,
+      "component_area": 15120
+    },
+    {
+      "asset_id": "S14-027",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_027.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 280,
+      "height": 81,
+      "component_area": 15309
+    },
+    {
+      "asset_id": "S14-028",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_028.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 284,
+      "height": 83,
+      "component_area": 15873
+    },
+    {
+      "asset_id": "S14-029",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_029.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 275,
+      "height": 81,
+      "component_area": 14746
+    },
+    {
+      "asset_id": "S14-030",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_030.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 266,
+      "height": 90,
+      "component_area": 15577
+    },
+    {
+      "asset_id": "S14-031",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_031.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 280,
+      "height": 83,
+      "component_area": 16506
+    },
+    {
+      "asset_id": "S14-032",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_032.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 282,
+      "height": 86,
+      "component_area": 16464
+    },
+    {
+      "asset_id": "S14-033",
+      "file": "individual/14_a_clean_transparent_background_ui_asset_sheet_in/asset_033.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_in_a_7_batch_7.png",
+      "width": 274,
+      "height": 82,
+      "component_area": 15640
+    },
+    {
+      "asset_id": "S15-001",
+      "file": "individual/15_a_clean_transparent_background_ui_asset_sheet_pn/asset_001.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_png_8_batch_8.png",
+      "width": 1087,
+      "height": 249,
+      "component_area": 245720
+    },
+    {
+      "asset_id": "S15-002",
+      "file": "individual/15_a_clean_transparent_background_ui_asset_sheet_pn/asset_002.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_png_8_batch_8.png",
+      "width": 1079,
+      "height": 241,
+      "component_area": 232865
+    },
+    {
+      "asset_id": "S15-003",
+      "file": "individual/15_a_clean_transparent_background_ui_asset_sheet_pn/asset_003.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_png_8_batch_8.png",
+      "width": 1077,
+      "height": 148,
+      "component_area": 131268
+    },
+    {
+      "asset_id": "S15-004",
+      "file": "individual/15_a_clean_transparent_background_ui_asset_sheet_pn/asset_004.png",
+      "source_sheet": "a_clean_transparent_background_ui_asset_sheet_png_8_batch_8.png",
+      "width": 696,
+      "height": 244,
+      "component_area": 148987
+    },
+    {
+      "asset_id": "S16-001",
+      "file": "individual/16_a_clean_transparent_png_sprite_sheet_of_ornate_f/asset_001.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_of_ornate_fan_5_batch_5.png",
+      "width": 548,
+      "height": 678,
+      "component_area": 202073
+    },
+    {
+      "asset_id": "S16-002",
+      "file": "individual/16_a_clean_transparent_png_sprite_sheet_of_ornate_f/asset_002.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_of_ornate_fan_5_batch_5.png",
+      "width": 555,
+      "height": 682,
+      "component_area": 205055
+    },
+    {
+      "asset_id": "S16-003",
+      "file": "individual/16_a_clean_transparent_png_sprite_sheet_of_ornate_f/asset_003.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_of_ornate_fan_5_batch_5.png",
+      "width": 834,
+      "height": 320,
+      "component_area": 144856
+    },
+    {
+      "asset_id": "S16-004",
+      "file": "individual/16_a_clean_transparent_png_sprite_sheet_of_ornate_f/asset_004.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_of_ornate_fan_5_batch_5.png",
+      "width": 124,
+      "height": 191,
+      "component_area": 8205
+    },
+    {
+      "asset_id": "S16-005",
+      "file": "individual/16_a_clean_transparent_png_sprite_sheet_of_ornate_f/asset_005.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_of_ornate_fan_5_batch_5.png",
+      "width": 213,
+      "height": 380,
+      "component_area": 37431
+    },
+    {
+      "asset_id": "S16-006",
+      "file": "individual/16_a_clean_transparent_png_sprite_sheet_of_ornate_f/asset_006.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_of_ornate_fan_5_batch_5.png",
+      "width": 460,
+      "height": 158,
+      "component_area": 39162
+    },
+    {
+      "asset_id": "S16-007",
+      "file": "individual/16_a_clean_transparent_png_sprite_sheet_of_ornate_f/asset_007.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_of_ornate_fan_5_batch_5.png",
+      "width": 441,
+      "height": 155,
+      "component_area": 35626
+    },
+    {
+      "asset_id": "S16-008",
+      "file": "individual/16_a_clean_transparent_png_sprite_sheet_of_ornate_f/asset_008.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_of_ornate_fan_5_batch_5.png",
+      "width": 461,
+      "height": 160,
+      "component_area": 39549
+    },
+    {
+      "asset_id": "S16-009",
+      "file": "individual/16_a_clean_transparent_png_sprite_sheet_of_ornate_f/asset_009.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_of_ornate_fan_5_batch_5.png",
+      "width": 439,
+      "height": 157,
+      "component_area": 37101
+    },
+    {
+      "asset_id": "S16-010",
+      "file": "individual/16_a_clean_transparent_png_sprite_sheet_of_ornate_f/asset_010.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_of_ornate_fan_5_batch_5.png",
+      "width": 118,
+      "height": 138,
+      "component_area": 4735
+    },
+    {
+      "asset_id": "S16-011",
+      "file": "individual/16_a_clean_transparent_png_sprite_sheet_of_ornate_f/asset_011.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_of_ornate_fan_5_batch_5.png",
+      "width": 476,
+      "height": 160,
+      "component_area": 46159
+    },
+    {
+      "asset_id": "S16-012",
+      "file": "individual/16_a_clean_transparent_png_sprite_sheet_of_ornate_f/asset_012.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_of_ornate_fan_5_batch_5.png",
+      "width": 458,
+      "height": 159,
+      "component_area": 44966
+    },
+    {
+      "asset_id": "S17-001",
+      "file": "individual/17_a_clean_transparent_png_sprite_sheet_ui_assets_i/asset_001.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_ui_assets_i_4_batch_4.png",
+      "width": 392,
+      "height": 432,
+      "component_area": 108597
+    },
+    {
+      "asset_id": "S17-002",
+      "file": "individual/17_a_clean_transparent_png_sprite_sheet_ui_assets_i/asset_002.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_ui_assets_i_4_batch_4.png",
+      "width": 357,
+      "height": 232,
+      "component_area": 52720
+    },
+    {
+      "asset_id": "S17-003",
+      "file": "individual/17_a_clean_transparent_png_sprite_sheet_ui_assets_i/asset_003.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_ui_assets_i_4_batch_4.png",
+      "width": 210,
+      "height": 225,
+      "component_area": 26831
+    },
+    {
+      "asset_id": "S17-004",
+      "file": "individual/17_a_clean_transparent_png_sprite_sheet_ui_assets_i/asset_004.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_ui_assets_i_4_batch_4.png",
+      "width": 169,
+      "height": 472,
+      "component_area": 64065
+    },
+    {
+      "asset_id": "S17-005",
+      "file": "individual/17_a_clean_transparent_png_sprite_sheet_ui_assets_i/asset_005.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_ui_assets_i_4_batch_4.png",
+      "width": 372,
+      "height": 371,
+      "component_area": 97517
+    },
+    {
+      "asset_id": "S17-006",
+      "file": "individual/17_a_clean_transparent_png_sprite_sheet_ui_assets_i/asset_006.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_ui_assets_i_4_batch_4.png",
+      "width": 363,
+      "height": 73,
+      "component_area": 17091
+    },
+    {
+      "asset_id": "S17-007",
+      "file": "individual/17_a_clean_transparent_png_sprite_sheet_ui_assets_i/asset_007.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_ui_assets_i_4_batch_4.png",
+      "width": 217,
+      "height": 221,
+      "component_area": 31438
+    },
+    {
+      "asset_id": "S17-008",
+      "file": "individual/17_a_clean_transparent_png_sprite_sheet_ui_assets_i/asset_008.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_ui_assets_i_4_batch_4.png",
+      "width": 259,
+      "height": 304,
+      "component_area": 19427
+    },
+    {
+      "asset_id": "S17-009",
+      "file": "individual/17_a_clean_transparent_png_sprite_sheet_ui_assets_i/asset_009.png",
+      "source_sheet": "a_clean_transparent_png_sprite_sheet_ui_assets_i_4_batch_4.png",
+      "width": 153,
+      "height": 164,
+      "component_area": 6657
+    },
+    {
+      "asset_id": "S18-001",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_001.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 230,
+      "height": 276,
+      "component_area": 39153
+    },
+    {
+      "asset_id": "S18-002",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_002.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 194,
+      "height": 267,
+      "component_area": 34343
+    },
+    {
+      "asset_id": "S18-003",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_003.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 189,
+      "height": 254,
+      "component_area": 31186
+    },
+    {
+      "asset_id": "S18-004",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_004.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 177,
+      "height": 249,
+      "component_area": 29537
+    },
+    {
+      "asset_id": "S18-005",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_005.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 157,
+      "height": 220,
+      "component_area": 20790
+    },
+    {
+      "asset_id": "S18-006",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_006.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 139,
+      "height": 211,
+      "component_area": 15951
+    },
+    {
+      "asset_id": "S18-007",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_007.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 145,
+      "height": 201,
+      "component_area": 17610
+    },
+    {
+      "asset_id": "S18-008",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_008.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 163,
+      "height": 165,
+      "component_area": 16483
+    },
+    {
+      "asset_id": "S18-009",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_009.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 161,
+      "height": 162,
+      "component_area": 15997
+    },
+    {
+      "asset_id": "S18-010",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_010.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 162,
+      "height": 165,
+      "component_area": 16204
+    },
+    {
+      "asset_id": "S18-011",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_011.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 161,
+      "height": 165,
+      "component_area": 16104
+    },
+    {
+      "asset_id": "S18-012",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_012.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 162,
+      "height": 166,
+      "component_area": 16425
+    },
+    {
+      "asset_id": "S18-013",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_013.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 104,
+      "height": 96,
+      "component_area": 3732
+    },
+    {
+      "asset_id": "S18-014",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_014.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 98,
+      "height": 106,
+      "component_area": 3686
+    },
+    {
+      "asset_id": "S18-015",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_015.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 69,
+      "height": 47,
+      "component_area": 1040
+    },
+    {
+      "asset_id": "S18-016",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_016.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 67,
+      "height": 49,
+      "component_area": 1016
+    },
+    {
+      "asset_id": "S18-017",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_017.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 64,
+      "height": 55,
+      "component_area": 1006
+    },
+    {
+      "asset_id": "S18-018",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_018.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 73,
+      "height": 72,
+      "component_area": 2257
+    },
+    {
+      "asset_id": "S18-019",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_019.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 65,
+      "height": 55,
+      "component_area": 1036
+    },
+    {
+      "asset_id": "S18-020",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_020.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 72,
+      "height": 45,
+      "component_area": 1176
+    },
+    {
+      "asset_id": "S18-021",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_021.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 72,
+      "height": 45,
+      "component_area": 1173
+    },
+    {
+      "asset_id": "S18-022",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_022.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 72,
+      "height": 42,
+      "component_area": 1172
+    },
+    {
+      "asset_id": "S18-023",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_023.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 72,
+      "height": 42,
+      "component_area": 1190
+    },
+    {
+      "asset_id": "S18-024",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_024.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 71,
+      "height": 42,
+      "component_area": 1160
+    },
+    {
+      "asset_id": "S18-025",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_025.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 72,
+      "height": 45,
+      "component_area": 1163
+    },
+    {
+      "asset_id": "S18-026",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_026.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 71,
+      "height": 45,
+      "component_area": 1158
+    },
+    {
+      "asset_id": "S18-027",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_027.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 66,
+      "height": 48,
+      "component_area": 1019
+    },
+    {
+      "asset_id": "S18-028",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_028.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 58,
+      "height": 59,
+      "component_area": 939
+    },
+    {
+      "asset_id": "S18-029",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_029.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 101,
+      "height": 106,
+      "component_area": 3872
+    },
+    {
+      "asset_id": "S18-030",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_030.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 135,
+      "height": 102,
+      "component_area": 4238
+    },
+    {
+      "asset_id": "S18-031",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_031.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 138,
+      "height": 103,
+      "component_area": 2913
+    },
+    {
+      "asset_id": "S18-032",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_032.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 67,
+      "height": 51,
+      "component_area": 1015
+    },
+    {
+      "asset_id": "S18-033",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_033.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 73,
+      "height": 70,
+      "component_area": 2229
+    },
+    {
+      "asset_id": "S18-034",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_034.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 71,
+      "height": 43,
+      "component_area": 1182
+    },
+    {
+      "asset_id": "S18-035",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_035.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 72,
+      "height": 46,
+      "component_area": 1190
+    },
+    {
+      "asset_id": "S18-036",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_036.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 72,
+      "height": 45,
+      "component_area": 1168
+    },
+    {
+      "asset_id": "S18-037",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_037.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 63,
+      "height": 57,
+      "component_area": 1006
+    },
+    {
+      "asset_id": "S18-038",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_038.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 135,
+      "height": 147,
+      "component_area": 7641
+    },
+    {
+      "asset_id": "S18-039",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_039.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 102,
+      "height": 110,
+      "component_area": 4057
+    },
+    {
+      "asset_id": "S18-040",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_040.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 75,
+      "height": 72,
+      "component_area": 2368
+    },
+    {
+      "asset_id": "S18-041",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_041.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 153,
+      "height": 102,
+      "component_area": 4399
+    },
+    {
+      "asset_id": "S18-042",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_042.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 71,
+      "height": 42,
+      "component_area": 1168
+    },
+    {
+      "asset_id": "S18-043",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_043.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 70,
+      "height": 42,
+      "component_area": 1150
+    },
+    {
+      "asset_id": "S18-044",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_044.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 71,
+      "height": 42,
+      "component_area": 1183
+    },
+    {
+      "asset_id": "S18-045",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_045.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 71,
+      "height": 41,
+      "component_area": 1169
+    },
+    {
+      "asset_id": "S18-046",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_046.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 71,
+      "height": 41,
+      "component_area": 1166
+    },
+    {
+      "asset_id": "S18-047",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_047.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 72,
+      "height": 43,
+      "component_area": 1200
+    },
+    {
+      "asset_id": "S18-048",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_048.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 72,
+      "height": 45,
+      "component_area": 1183
+    },
+    {
+      "asset_id": "S18-049",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_049.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 71,
+      "height": 45,
+      "component_area": 1156
+    },
+    {
+      "asset_id": "S18-050",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_050.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 71,
+      "height": 42,
+      "component_area": 1159
+    },
+    {
+      "asset_id": "S18-051",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_051.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 71,
+      "height": 42,
+      "component_area": 1150
+    },
+    {
+      "asset_id": "S18-052",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_052.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 64,
+      "height": 54,
+      "component_area": 1002
+    },
+    {
+      "asset_id": "S18-053",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_053.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 68,
+      "height": 49,
+      "component_area": 999
+    },
+    {
+      "asset_id": "S18-054",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_054.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 124,
+      "height": 145,
+      "component_area": 8722
+    },
+    {
+      "asset_id": "S18-055",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_055.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 120,
+      "height": 142,
+      "component_area": 8231
+    },
+    {
+      "asset_id": "S18-056",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_056.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 120,
+      "height": 142,
+      "component_area": 8274
+    },
+    {
+      "asset_id": "S18-057",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_057.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 122,
+      "height": 143,
+      "component_area": 8497
+    },
+    {
+      "asset_id": "S18-058",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_058.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 123,
+      "height": 143,
+      "component_area": 8517
+    },
+    {
+      "asset_id": "S18-059",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_059.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 122,
+      "height": 143,
+      "component_area": 8534
+    },
+    {
+      "asset_id": "S18-060",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_060.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 123,
+      "height": 144,
+      "component_area": 8594
+    },
+    {
+      "asset_id": "S18-061",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_061.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 122,
+      "height": 143,
+      "component_area": 8486
+    },
+    {
+      "asset_id": "S18-062",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_062.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 226,
+      "height": 106,
+      "component_area": 16261
+    },
+    {
+      "asset_id": "S18-063",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_063.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 232,
+      "height": 106,
+      "component_area": 16943
+    },
+    {
+      "asset_id": "S18-064",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_064.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 234,
+      "height": 106,
+      "component_area": 17022
+    },
+    {
+      "asset_id": "S18-065",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_065.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 235,
+      "height": 106,
+      "component_area": 17146
+    },
+    {
+      "asset_id": "S18-066",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_066.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 223,
+      "height": 106,
+      "component_area": 16312
+    },
+    {
+      "asset_id": "S18-067",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_067.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 378,
+      "height": 210,
+      "component_area": 58672
+    },
+    {
+      "asset_id": "S18-068",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_068.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 374,
+      "height": 308,
+      "component_area": 88528
+    },
+    {
+      "asset_id": "S18-069",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_069.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 371,
+      "height": 306,
+      "component_area": 86512
+    },
+    {
+      "asset_id": "S18-070",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_070.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 371,
+      "height": 117,
+      "component_area": 28505
+    },
+    {
+      "asset_id": "S18-071",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_071.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 370,
+      "height": 122,
+      "component_area": 30340
+    },
+    {
+      "asset_id": "S18-072",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_072.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 366,
+      "height": 121,
+      "component_area": 29354
+    },
+    {
+      "asset_id": "S18-073",
+      "file": "individual/18_a_clean_transparent_png_spritesheet_ui_asset_she/asset_073.png",
+      "source_sheet": "a_clean_transparent_png_spritesheet_ui_asset_she_9_batch_9.png",
+      "width": 370,
+      "height": 120,
+      "component_area": 29610
+    },
+    {
+      "asset_id": "S19-001",
+      "file": "individual/19_a_clean_ui_asset_sheet_game_interface_png_on_tra/asset_001.png",
+      "source_sheet": "a_clean_ui_asset_sheet_game_interface_png_on_tra_5_batch_5.png",
+      "width": 626,
+      "height": 1146,
+      "component_area": 634704
+    },
+    {
+      "asset_id": "S19-002",
+      "file": "individual/19_a_clean_ui_asset_sheet_game_interface_png_on_tra/asset_002.png",
+      "source_sheet": "a_clean_ui_asset_sheet_game_interface_png_on_tra_5_batch_5.png",
+      "width": 314,
+      "height": 317,
+      "component_area": 49907
+    },
+    {
+      "asset_id": "S19-003",
+      "file": "individual/19_a_clean_ui_asset_sheet_game_interface_png_on_tra/asset_003.png",
+      "source_sheet": "a_clean_ui_asset_sheet_game_interface_png_on_tra_5_batch_5.png",
+      "width": 470,
+      "height": 123,
+      "component_area": 44025
+    },
+    {
+      "asset_id": "S19-004",
+      "file": "individual/19_a_clean_ui_asset_sheet_game_interface_png_on_tra/asset_004.png",
+      "source_sheet": "a_clean_ui_asset_sheet_game_interface_png_on_tra_5_batch_5.png",
+      "width": 465,
+      "height": 214,
+      "component_area": 85540
+    },
+    {
+      "asset_id": "S19-005",
+      "file": "individual/19_a_clean_ui_asset_sheet_game_interface_png_on_tra/asset_005.png",
+      "source_sheet": "a_clean_ui_asset_sheet_game_interface_png_on_tra_5_batch_5.png",
+      "width": 465,
+      "height": 141,
+      "component_area": 52966
+    },
+    {
+      "asset_id": "S19-006",
+      "file": "individual/19_a_clean_ui_asset_sheet_game_interface_png_on_tra/asset_006.png",
+      "source_sheet": "a_clean_ui_asset_sheet_game_interface_png_on_tra_5_batch_5.png",
+      "width": 467,
+      "height": 138,
+      "component_area": 52129
+    },
+    {
+      "asset_id": "S19-007",
+      "file": "individual/19_a_clean_ui_asset_sheet_game_interface_png_on_tra/asset_007.png",
+      "source_sheet": "a_clean_ui_asset_sheet_game_interface_png_on_tra_5_batch_5.png",
+      "width": 424,
+      "height": 75,
+      "component_area": 21687
+    },
+    {
+      "asset_id": "S20-001",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_001.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 1109,
+      "height": 229,
+      "component_area": 201845
+    },
+    {
+      "asset_id": "S20-002",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_002.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 219,
+      "height": 219,
+      "component_area": 28418
+    },
+    {
+      "asset_id": "S20-003",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_003.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 211,
+      "height": 214,
+      "component_area": 26991
+    },
+    {
+      "asset_id": "S20-004",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_004.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 213,
+      "height": 215,
+      "component_area": 26495
+    },
+    {
+      "asset_id": "S20-005",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_005.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 213,
+      "height": 216,
+      "component_area": 26753
+    },
+    {
+      "asset_id": "S20-006",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_006.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 214,
+      "height": 215,
+      "component_area": 26814
+    },
+    {
+      "asset_id": "S20-007",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_007.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 229,
+      "height": 228,
+      "component_area": 30990
+    },
+    {
+      "asset_id": "S20-008",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_008.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 215,
+      "height": 220,
+      "component_area": 28115
+    },
+    {
+      "asset_id": "S20-009",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_009.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 218,
+      "height": 221,
+      "component_area": 28607
+    },
+    {
+      "asset_id": "S20-010",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_010.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 217,
+      "height": 219,
+      "component_area": 28182
+    },
+    {
+      "asset_id": "S20-011",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_011.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 219,
+      "height": 220,
+      "component_area": 28671
+    },
+    {
+      "asset_id": "S20-012",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_012.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 571,
+      "height": 180,
+      "component_area": 87205
+    },
+    {
+      "asset_id": "S20-013",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_013.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 266,
+      "height": 139,
+      "component_area": 28450
+    },
+    {
+      "asset_id": "S20-014",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_014.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 264,
+      "height": 139,
+      "component_area": 28362
+    },
+    {
+      "asset_id": "S20-015",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_015.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 226,
+      "height": 238,
+      "component_area": 33194
+    },
+    {
+      "asset_id": "S20-016",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_016.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 319,
+      "height": 126,
+      "component_area": 30783
+    },
+    {
+      "asset_id": "S20-017",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_017.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 338,
+      "height": 125,
+      "component_area": 32452
+    },
+    {
+      "asset_id": "S20-018",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_018.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 90,
+      "height": 91,
+      "component_area": 3762
+    },
+    {
+      "asset_id": "S20-019",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_019.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 419,
+      "height": 154,
+      "component_area": 51631
+    },
+    {
+      "asset_id": "S20-020",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_020.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 441,
+      "height": 153,
+      "component_area": 54680
+    },
+    {
+      "asset_id": "S20-021",
+      "file": "individual/20_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_021.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_2_batch_2.png",
+      "width": 203,
+      "height": 116,
+      "component_area": 15954
+    },
+    {
+      "asset_id": "S21-001",
+      "file": "individual/21_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_001.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_9_batch_9.png",
+      "width": 1104,
+      "height": 190,
+      "component_area": 175012
+    },
+    {
+      "asset_id": "S21-002",
+      "file": "individual/21_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_002.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_9_batch_9.png",
+      "width": 220,
+      "height": 229,
+      "component_area": 40716
+    },
+    {
+      "asset_id": "S21-003",
+      "file": "individual/21_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_003.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_9_batch_9.png",
+      "width": 221,
+      "height": 229,
+      "component_area": 40889
+    },
+    {
+      "asset_id": "S21-004",
+      "file": "individual/21_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_004.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_9_batch_9.png",
+      "width": 220,
+      "height": 229,
+      "component_area": 40705
+    },
+    {
+      "asset_id": "S21-005",
+      "file": "individual/21_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_005.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_9_batch_9.png",
+      "width": 221,
+      "height": 229,
+      "component_area": 40741
+    },
+    {
+      "asset_id": "S21-006",
+      "file": "individual/21_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_006.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_9_batch_9.png",
+      "width": 222,
+      "height": 228,
+      "component_area": 40914
+    },
+    {
+      "asset_id": "S21-007",
+      "file": "individual/21_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_007.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_9_batch_9.png",
+      "width": 257,
+      "height": 252,
+      "component_area": 53262
+    },
+    {
+      "asset_id": "S21-008",
+      "file": "individual/21_a_clean_ui_asset_sheet_on_a_transparent_backgrou/asset_008.png",
+      "source_sheet": "a_clean_ui_asset_sheet_on_a_transparent_background_9_batch_9.png",
+      "width": 232,
+      "height": 232,
+      "component_area": 44098
+    },
+    {
+      "asset_id": "S22-001",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_001.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 320,
+      "height": 406,
+      "component_area": 71387
+    },
+    {
+      "asset_id": "S22-002",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_002.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 256,
+      "height": 363,
+      "component_area": 51744
+    },
+    {
+      "asset_id": "S22-003",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_003.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 252,
+      "height": 364,
+      "component_area": 51502
+    },
+    {
+      "asset_id": "S22-004",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_004.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 254,
+      "height": 361,
+      "component_area": 51395
+    },
+    {
+      "asset_id": "S22-005",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_005.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 281,
+      "height": 114,
+      "component_area": 16602
+    },
+    {
+      "asset_id": "S22-006",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_006.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 279,
+      "height": 114,
+      "component_area": 16828
+    },
+    {
+      "asset_id": "S22-007",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_007.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 277,
+      "height": 113,
+      "component_area": 17471
+    },
+    {
+      "asset_id": "S22-008",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_008.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 323,
+      "height": 113,
+      "component_area": 17901
+    },
+    {
+      "asset_id": "S22-009",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_009.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 255,
+      "height": 362,
+      "component_area": 51752
+    },
+    {
+      "asset_id": "S22-010",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_010.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 250,
+      "height": 360,
+      "component_area": 49624
+    },
+    {
+      "asset_id": "S22-011",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_011.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 251,
+      "height": 363,
+      "component_area": 50354
+    },
+    {
+      "asset_id": "S22-012",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_012.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 254,
+      "height": 360,
+      "component_area": 50649
+    },
+    {
+      "asset_id": "S22-013",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_013.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 278,
+      "height": 113,
+      "component_area": 16556
+    },
+    {
+      "asset_id": "S22-014",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_014.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 275,
+      "height": 113,
+      "component_area": 16417
+    },
+    {
+      "asset_id": "S22-015",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_015.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 288,
+      "height": 113,
+      "component_area": 17414
+    },
+    {
+      "asset_id": "S22-016",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_016.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 263,
+      "height": 112,
+      "component_area": 15302
+    },
+    {
+      "asset_id": "S22-017",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_017.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 259,
+      "height": 366,
+      "component_area": 52716
+    },
+    {
+      "asset_id": "S22-018",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_018.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 258,
+      "height": 365,
+      "component_area": 53001
+    },
+    {
+      "asset_id": "S22-019",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_019.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 258,
+      "height": 363,
+      "component_area": 52211
+    },
+    {
+      "asset_id": "S22-020",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_020.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 256,
+      "height": 365,
+      "component_area": 51699
+    },
+    {
+      "asset_id": "S22-021",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_021.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 288,
+      "height": 121,
+      "component_area": 18315
+    },
+    {
+      "asset_id": "S22-022",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_022.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 276,
+      "height": 120,
+      "component_area": 18389
+    },
+    {
+      "asset_id": "S22-023",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_023.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 289,
+      "height": 116,
+      "component_area": 17711
+    },
+    {
+      "asset_id": "S22-024",
+      "file": "individual/22_a_crisp_png_style_game_ui_asset_sheet_on_a_trans/asset_024.png",
+      "source_sheet": "a_crisp_png_style_game_ui_asset_sheet_on_a_transpa_6_batch_6.png",
+      "width": 280,
+      "height": 117,
+      "component_area": 17427
+    },
+    {
+      "asset_id": "S23-001",
+      "file": "individual/23_a_crisp_ui_asset_sheet_on_a_transparent_backgrou/asset_001.png",
+      "source_sheet": "a_crisp_ui_asset_sheet_on_a_transparent_background_3_batch_3.png",
+      "width": 1110,
+      "height": 519,
+      "component_area": 512622
+    },
+    {
+      "asset_id": "S23-002",
+      "file": "individual/23_a_crisp_ui_asset_sheet_on_a_transparent_backgrou/asset_002.png",
+      "source_sheet": "a_crisp_ui_asset_sheet_on_a_transparent_background_3_batch_3.png",
+      "width": 1111,
+      "height": 111,
+      "component_area": 89868
+    },
+    {
+      "asset_id": "S23-003",
+      "file": "individual/23_a_crisp_ui_asset_sheet_on_a_transparent_backgrou/asset_003.png",
+      "source_sheet": "a_crisp_ui_asset_sheet_on_a_transparent_background_3_batch_3.png",
+      "width": 703,
+      "height": 202,
+      "component_area": 124683
+    },
+    {
+      "asset_id": "S23-004",
+      "file": "individual/23_a_crisp_ui_asset_sheet_on_a_transparent_backgrou/asset_004.png",
+      "source_sheet": "a_crisp_ui_asset_sheet_on_a_transparent_background_3_batch_3.png",
+      "width": 292,
+      "height": 92,
+      "component_area": 18508
+    },
+    {
+      "asset_id": "S23-005",
+      "file": "individual/23_a_crisp_ui_asset_sheet_on_a_transparent_backgrou/asset_005.png",
+      "source_sheet": "a_crisp_ui_asset_sheet_on_a_transparent_background_3_batch_3.png",
+      "width": 382,
+      "height": 113,
+      "component_area": 29931
+    },
+    {
+      "asset_id": "S23-006",
+      "file": "individual/23_a_crisp_ui_asset_sheet_on_a_transparent_backgrou/asset_006.png",
+      "source_sheet": "a_crisp_ui_asset_sheet_on_a_transparent_background_3_batch_3.png",
+      "width": 117,
+      "height": 118,
+      "component_area": 7977
+    },
+    {
+      "asset_id": "S23-007",
+      "file": "individual/23_a_crisp_ui_asset_sheet_on_a_transparent_backgrou/asset_007.png",
+      "source_sheet": "a_crisp_ui_asset_sheet_on_a_transparent_background_3_batch_3.png",
+      "width": 948,
+      "height": 116,
+      "component_area": 84738
+    },
+    {
+      "asset_id": "S23-008",
+      "file": "individual/23_a_crisp_ui_asset_sheet_on_a_transparent_backgrou/asset_008.png",
+      "source_sheet": "a_crisp_ui_asset_sheet_on_a_transparent_background_3_batch_3.png",
+      "width": 117,
+      "height": 121,
+      "component_area": 7962
+    },
+    {
+      "asset_id": "S23-009",
+      "file": "individual/23_a_crisp_ui_asset_sheet_on_a_transparent_backgrou/asset_009.png",
+      "source_sheet": "a_crisp_ui_asset_sheet_on_a_transparent_background_3_batch_3.png",
+      "width": 322,
+      "height": 122,
+      "component_area": 26274
+    },
+    {
+      "asset_id": "S23-010",
+      "file": "individual/23_a_crisp_ui_asset_sheet_on_a_transparent_backgrou/asset_010.png",
+      "source_sheet": "a_crisp_ui_asset_sheet_on_a_transparent_background_3_batch_3.png",
+      "width": 325,
+      "height": 122,
+      "component_area": 26358
+    },
+    {
+      "asset_id": "S23-011",
+      "file": "individual/23_a_crisp_ui_asset_sheet_on_a_transparent_backgrou/asset_011.png",
+      "source_sheet": "a_crisp_ui_asset_sheet_on_a_transparent_background_3_batch_3.png",
+      "width": 326,
+      "height": 121,
+      "component_area": 26480
+    },
+    {
+      "asset_id": "S23-012",
+      "file": "individual/23_a_crisp_ui_asset_sheet_on_a_transparent_backgrou/asset_012.png",
+      "source_sheet": "a_crisp_ui_asset_sheet_on_a_transparent_background_3_batch_3.png",
+      "width": 562,
+      "height": 203,
+      "component_area": 100113
+    },
+    {
+      "asset_id": "S23-013",
+      "file": "individual/23_a_crisp_ui_asset_sheet_on_a_transparent_backgrou/asset_013.png",
+      "source_sheet": "a_crisp_ui_asset_sheet_on_a_transparent_background_3_batch_3.png",
+      "width": 522,
+      "height": 114,
+      "component_area": 45499
+    },
+    {
+      "asset_id": "S24-001",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_001.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 557,
+      "height": 332,
+      "component_area": 118934
+    },
+    {
+      "asset_id": "S24-002",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_002.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 558,
+      "height": 216,
+      "component_area": 66529
+    },
+    {
+      "asset_id": "S24-003",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_003.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 552,
+      "height": 139,
+      "component_area": 53171
+    },
+    {
+      "asset_id": "S24-004",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_004.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 377,
+      "height": 142,
+      "component_area": 33531
+    },
+    {
+      "asset_id": "S24-005",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_005.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 351,
+      "height": 141,
+      "component_area": 31903
+    },
+    {
+      "asset_id": "S24-006",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_006.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 417,
+      "height": 265,
+      "component_area": 71964
+    },
+    {
+      "asset_id": "S24-007",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_007.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 381,
+      "height": 142,
+      "component_area": 33398
+    },
+    {
+      "asset_id": "S24-008",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_008.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 369,
+      "height": 137,
+      "component_area": 31016
+    },
+    {
+      "asset_id": "S24-009",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_009.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 280,
+      "height": 125,
+      "component_area": 21424
+    },
+    {
+      "asset_id": "S24-010",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_010.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 276,
+      "height": 125,
+      "component_area": 21579
+    },
+    {
+      "asset_id": "S24-011",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_011.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 315,
+      "height": 125,
+      "component_area": 24842
+    },
+    {
+      "asset_id": "S24-012",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_012.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 289,
+      "height": 125,
+      "component_area": 22562
+    },
+    {
+      "asset_id": "S24-013",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_013.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 330,
+      "height": 133,
+      "component_area": 26288
+    },
+    {
+      "asset_id": "S24-014",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_014.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 321,
+      "height": 133,
+      "component_area": 26086
+    },
+    {
+      "asset_id": "S24-015",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_015.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 331,
+      "height": 132,
+      "component_area": 25724
+    },
+    {
+      "asset_id": "S24-016",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_016.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 329,
+      "height": 129,
+      "component_area": 25019
+    },
+    {
+      "asset_id": "S24-017",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_017.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 443,
+      "height": 130,
+      "component_area": 35410
+    },
+    {
+      "asset_id": "S24-018",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_018.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 347,
+      "height": 129,
+      "component_area": 27449
+    },
+    {
+      "asset_id": "S24-019",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_019.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 146,
+      "height": 141,
+      "component_area": 12036
+    },
+    {
+      "asset_id": "S24-020",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_020.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 144,
+      "height": 140,
+      "component_area": 11637
+    },
+    {
+      "asset_id": "S24-021",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_021.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 143,
+      "height": 139,
+      "component_area": 11530
+    },
+    {
+      "asset_id": "S24-022",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_022.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 143,
+      "height": 140,
+      "component_area": 11535
+    },
+    {
+      "asset_id": "S24-023",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_023.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 484,
+      "height": 133,
+      "component_area": 42997
+    },
+    {
+      "asset_id": "S24-024",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_024.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 148,
+      "height": 142,
+      "component_area": 12302
+    },
+    {
+      "asset_id": "S24-025",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_025.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 147,
+      "height": 142,
+      "component_area": 12146
+    },
+    {
+      "asset_id": "S24-026",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_026.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 141,
+      "height": 139,
+      "component_area": 11599
+    },
+    {
+      "asset_id": "S24-027",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_027.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 149,
+      "height": 140,
+      "component_area": 12219
+    },
+    {
+      "asset_id": "S24-028",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_028.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 145,
+      "height": 140,
+      "component_area": 11923
+    },
+    {
+      "asset_id": "S24-029",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_029.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 143,
+      "height": 141,
+      "component_area": 12110
+    },
+    {
+      "asset_id": "S24-030",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_030.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 524,
+      "height": 354,
+      "component_area": 84457
+    },
+    {
+      "asset_id": "S24-031",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_031.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 542,
+      "height": 94,
+      "component_area": 11496
+    },
+    {
+      "asset_id": "S24-032",
+      "file": "individual/24_a_flat_png_sprite_sheet_ui_asset_sheet_on_transp/asset_032.png",
+      "source_sheet": "a_flat_png_sprite_sheet_ui_asset_sheet_on_transp_10_batch_10.png",
+      "width": 556,
+      "height": 152,
+      "component_area": 66771
+    },
+    {
+      "asset_id": "S25-001",
+      "file": "individual/25_a_high_detail_icon_sheet_game_ui_asset_image_on_/asset_001.png",
+      "source_sheet": "a_high_detail_icon_sheet_game_ui_asset_image_on_6_batch_6.png",
+      "width": 1120,
+      "height": 355,
+      "component_area": 245833
+    },
+    {
+      "asset_id": "S25-002",
+      "file": "individual/25_a_high_detail_icon_sheet_game_ui_asset_image_on_/asset_002.png",
+      "source_sheet": "a_high_detail_icon_sheet_game_ui_asset_image_on_6_batch_6.png",
+      "width": 1122,
+      "height": 350,
+      "component_area": 245145
+    },
+    {
+      "asset_id": "S25-003",
+      "file": "individual/25_a_high_detail_icon_sheet_game_ui_asset_image_on_/asset_003.png",
+      "source_sheet": "a_high_detail_icon_sheet_game_ui_asset_image_on_6_batch_6.png",
+      "width": 1120,
+      "height": 353,
+      "component_area": 245686
+    },
+    {
+      "asset_id": "S25-004",
+      "file": "individual/25_a_high_detail_icon_sheet_game_ui_asset_image_on_/asset_004.png",
+      "source_sheet": "a_high_detail_icon_sheet_game_ui_asset_image_on_6_batch_6.png",
+      "width": 270,
+      "height": 367,
+      "component_area": 57957
+    },
+    {
+      "asset_id": "S25-005",
+      "file": "individual/25_a_high_detail_icon_sheet_game_ui_asset_image_on_/asset_005.png",
+      "source_sheet": "a_high_detail_icon_sheet_game_ui_asset_image_on_6_batch_6.png",
+      "width": 268,
+      "height": 363,
+      "component_area": 57227
+    },
+    {
+      "asset_id": "S26-001",
+      "file": "individual/26_a_high_quality_game_ui_asset_sheet_on_a_transpar/asset_001.png",
+      "source_sheet": "a_high_quality_game_ui_asset_sheet_on_a_transparen_5_batch_5.png",
+      "width": 239,
+      "height": 1402,
+      "component_area": 212724
+    },
+    {
+      "asset_id": "S26-002",
+      "file": "individual/26_a_high_quality_game_ui_asset_sheet_on_a_transpar/asset_002.png",
+      "source_sheet": "a_high_quality_game_ui_asset_sheet_on_a_transparen_5_batch_5.png",
+      "width": 236,
+      "height": 1401,
+      "component_area": 214603
+    },
+    {
+      "asset_id": "S26-003",
+      "file": "individual/26_a_high_quality_game_ui_asset_sheet_on_a_transpar/asset_003.png",
+      "source_sheet": "a_high_quality_game_ui_asset_sheet_on_a_transparen_5_batch_5.png",
+      "width": 324,
+      "height": 206,
+      "component_area": 33628
+    },
+    {
+      "asset_id": "S26-004",
+      "file": "individual/26_a_high_quality_game_ui_asset_sheet_on_a_transpar/asset_004.png",
+      "source_sheet": "a_high_quality_game_ui_asset_sheet_on_a_transparen_5_batch_5.png",
+      "width": 326,
+      "height": 154,
+      "component_area": 31003
+    },
+    {
+      "asset_id": "S26-005",
+      "file": "individual/26_a_high_quality_game_ui_asset_sheet_on_a_transpar/asset_005.png",
+      "source_sheet": "a_high_quality_game_ui_asset_sheet_on_a_transparen_5_batch_5.png",
+      "width": 310,
+      "height": 179,
+      "component_area": 29336
+    },
+    {
+      "asset_id": "S26-006",
+      "file": "individual/26_a_high_quality_game_ui_asset_sheet_on_a_transpar/asset_006.png",
+      "source_sheet": "a_high_quality_game_ui_asset_sheet_on_a_transparen_5_batch_5.png",
+      "width": 336,
+      "height": 177,
+      "component_area": 36731
+    },
+    {
+      "asset_id": "S26-007",
+      "file": "individual/26_a_high_quality_game_ui_asset_sheet_on_a_transpar/asset_007.png",
+      "source_sheet": "a_high_quality_game_ui_asset_sheet_on_a_transparen_5_batch_5.png",
+      "width": 309,
+      "height": 186,
+      "component_area": 29666
+    },
+    {
+      "asset_id": "S26-008",
+      "file": "individual/26_a_high_quality_game_ui_asset_sheet_on_a_transpar/asset_008.png",
+      "source_sheet": "a_high_quality_game_ui_asset_sheet_on_a_transparen_5_batch_5.png",
+      "width": 333,
+      "height": 172,
+      "component_area": 33684
+    },
+    {
+      "asset_id": "S26-009",
+      "file": "individual/26_a_high_quality_game_ui_asset_sheet_on_a_transpar/asset_009.png",
+      "source_sheet": "a_high_quality_game_ui_asset_sheet_on_a_transparen_5_batch_5.png",
+      "width": 334,
+      "height": 183,
+      "component_area": 35124
+    },
+    {
+      "asset_id": "S26-010",
+      "file": "individual/26_a_high_quality_game_ui_asset_sheet_on_a_transpar/asset_010.png",
+      "source_sheet": "a_high_quality_game_ui_asset_sheet_on_a_transparen_5_batch_5.png",
+      "width": 310,
+      "height": 173,
+      "component_area": 30076
+    },
+    {
+      "asset_id": "S26-011",
+      "file": "individual/26_a_high_quality_game_ui_asset_sheet_on_a_transpar/asset_011.png",
+      "source_sheet": "a_high_quality_game_ui_asset_sheet_on_a_transparen_5_batch_5.png",
+      "width": 308,
+      "height": 176,
+      "component_area": 28846
+    },
+    {
+      "asset_id": "S26-012",
+      "file": "individual/26_a_high_quality_game_ui_asset_sheet_on_a_transpar/asset_012.png",
+      "source_sheet": "a_high_quality_game_ui_asset_sheet_on_a_transparen_5_batch_5.png",
+      "width": 320,
+      "height": 166,
+      "component_area": 29174
+    },
+    {
+      "asset_id": "S26-013",
+      "file": "individual/26_a_high_quality_game_ui_asset_sheet_on_a_transpar/asset_013.png",
+      "source_sheet": "a_high_quality_game_ui_asset_sheet_on_a_transparen_5_batch_5.png",
+      "width": 330,
+      "height": 216,
+      "component_area": 30659
+    },
+    {
+      "asset_id": "S26-014",
+      "file": "individual/26_a_high_quality_game_ui_asset_sheet_on_a_transpar/asset_014.png",
+      "source_sheet": "a_high_quality_game_ui_asset_sheet_on_a_transparen_5_batch_5.png",
+      "width": 316,
+      "height": 193,
+      "component_area": 35062
+    },
+    {
+      "asset_id": "S26-015",
+      "file": "individual/26_a_high_quality_game_ui_asset_sheet_on_a_transpar/asset_015.png",
+      "source_sheet": "a_high_quality_game_ui_asset_sheet_on_a_transparen_5_batch_5.png",
+      "width": 67,
+      "height": 92,
+      "component_area": 1827
+    },
+    {
+      "asset_id": "S27-001",
+      "file": "individual/27_a_high_resolution_transparent_png_asset_sheet_of/asset_001.png",
+      "source_sheet": "a_high_resolution_transparent_png_asset_sheet_of_u_8_batch_8.png",
+      "width": 542,
+      "height": 307,
+      "component_area": 112281
+    },
+    {
+      "asset_id": "S27-002",
+      "file": "individual/27_a_high_resolution_transparent_png_asset_sheet_of/asset_002.png",
+      "source_sheet": "a_high_resolution_transparent_png_asset_sheet_of_u_8_batch_8.png",
+      "width": 538,
+      "height": 904,
+      "component_area": 428436
+    },
+    {
+      "asset_id": "S27-003",
+      "file": "individual/27_a_high_resolution_transparent_png_asset_sheet_of/asset_003.png",
+      "source_sheet": "a_high_resolution_transparent_png_asset_sheet_of_u_8_batch_8.png",
+      "width": 545,
+      "height": 520,
+      "component_area": 236415
+    },
+    {
+      "asset_id": "S27-004",
+      "file": "individual/27_a_high_resolution_transparent_png_asset_sheet_of/asset_004.png",
+      "source_sheet": "a_high_resolution_transparent_png_asset_sheet_of_u_8_batch_8.png",
+      "width": 529,
+      "height": 107,
+      "component_area": 42413
+    },
+    {
+      "asset_id": "S27-005",
+      "file": "individual/27_a_high_resolution_transparent_png_asset_sheet_of/asset_005.png",
+      "source_sheet": "a_high_resolution_transparent_png_asset_sheet_of_u_8_batch_8.png",
+      "width": 992,
+      "height": 111,
+      "component_area": 74448
+    },
+    {
+      "asset_id": "S27-006",
+      "file": "individual/27_a_high_resolution_transparent_png_asset_sheet_of/asset_006.png",
+      "source_sheet": "a_high_resolution_transparent_png_asset_sheet_of_u_8_batch_8.png",
+      "width": 780,
+      "height": 100,
+      "component_area": 58610
+    },
+    {
+      "asset_id": "S27-007",
+      "file": "individual/27_a_high_resolution_transparent_png_asset_sheet_of/asset_007.png",
+      "source_sheet": "a_high_resolution_transparent_png_asset_sheet_of_u_8_batch_8.png",
+      "width": 1068,
+      "height": 116,
+      "component_area": 96779
+    },
+    {
+      "asset_id": "S27-008",
+      "file": "individual/27_a_high_resolution_transparent_png_asset_sheet_of/asset_008.png",
+      "source_sheet": "a_high_resolution_transparent_png_asset_sheet_of_u_8_batch_8.png",
+      "width": 278,
+      "height": 93,
+      "component_area": 18043
+    },
+    {
+      "asset_id": "S27-009",
+      "file": "individual/27_a_high_resolution_transparent_png_asset_sheet_of/asset_009.png",
+      "source_sheet": "a_high_resolution_transparent_png_asset_sheet_of_u_8_batch_8.png",
+      "width": 267,
+      "height": 92,
+      "component_area": 16913
+    },
+    {
+      "asset_id": "S27-010",
+      "file": "individual/27_a_high_resolution_transparent_png_asset_sheet_of/asset_010.png",
+      "source_sheet": "a_high_resolution_transparent_png_asset_sheet_of_u_8_batch_8.png",
+      "width": 274,
+      "height": 93,
+      "component_area": 17640
+    },
+    {
+      "asset_id": "S27-011",
+      "file": "individual/27_a_high_resolution_transparent_png_asset_sheet_of/asset_011.png",
+      "source_sheet": "a_high_resolution_transparent_png_asset_sheet_of_u_8_batch_8.png",
+      "width": 270,
+      "height": 93,
+      "component_area": 17214
+    },
+    {
+      "asset_id": "S27-012",
+      "file": "individual/27_a_high_resolution_transparent_png_asset_sheet_of/asset_012.png",
+      "source_sheet": "a_high_resolution_transparent_png_asset_sheet_of_u_8_batch_8.png",
+      "width": 269,
+      "height": 103,
+      "component_area": 17628
+    },
+    {
+      "asset_id": "S27-013",
+      "file": "individual/27_a_high_resolution_transparent_png_asset_sheet_of/asset_013.png",
+      "source_sheet": "a_high_resolution_transparent_png_asset_sheet_of_u_8_batch_8.png",
+      "width": 288,
+      "height": 102,
+      "component_area": 19051
+    },
+    {
+      "asset_id": "S27-014",
+      "file": "individual/27_a_high_resolution_transparent_png_asset_sheet_of/asset_014.png",
+      "source_sheet": "a_high_resolution_transparent_png_asset_sheet_of_u_8_batch_8.png",
+      "width": 265,
+      "height": 101,
+      "component_area": 17303
+    },
+    {
+      "asset_id": "S27-015",
+      "file": "individual/27_a_high_resolution_transparent_png_asset_sheet_of/asset_015.png",
+      "source_sheet": "a_high_resolution_transparent_png_asset_sheet_of_u_8_batch_8.png",
+      "width": 266,
+      "height": 101,
+      "component_area": 17367
+    },
+    {
+      "asset_id": "S28-001",
+      "file": "individual/28_a_transparent_background_ui_asset_sheet_hud_kit_/asset_001.png",
+      "source_sheet": "a_transparent_background_ui_asset_sheet_hud_kit_1_batch_1.png",
+      "width": 1107,
+      "height": 161,
+      "component_area": 145829
+    },
+    {
+      "asset_id": "S28-002",
+      "file": "individual/28_a_transparent_background_ui_asset_sheet_hud_kit_/asset_002.png",
+      "source_sheet": "a_transparent_background_ui_asset_sheet_hud_kit_1_batch_1.png",
+      "width": 268,
+      "height": 134,
+      "component_area": 26954
+    },
+    {
+      "asset_id": "S28-003",
+      "file": "individual/28_a_transparent_background_ui_asset_sheet_hud_kit_/asset_003.png",
+      "source_sheet": "a_transparent_background_ui_asset_sheet_hud_kit_1_batch_1.png",
+      "width": 275,
+      "height": 133,
+      "component_area": 28170
+    },
+    {
+      "asset_id": "S28-004",
+      "file": "individual/28_a_transparent_background_ui_asset_sheet_hud_kit_/asset_004.png",
+      "source_sheet": "a_transparent_background_ui_asset_sheet_hud_kit_1_batch_1.png",
+      "width": 556,
+      "height": 135,
+      "component_area": 52785
+    },
+    {
+      "asset_id": "S28-005",
+      "file": "individual/28_a_transparent_background_ui_asset_sheet_hud_kit_/asset_005.png",
+      "source_sheet": "a_transparent_background_ui_asset_sheet_hud_kit_1_batch_1.png",
+      "width": 424,
+      "height": 178,
+      "component_area": 60936
+    },
+    {
+      "asset_id": "S28-006",
+      "file": "individual/28_a_transparent_background_ui_asset_sheet_hud_kit_/asset_006.png",
+      "source_sheet": "a_transparent_background_ui_asset_sheet_hud_kit_1_batch_1.png",
+      "width": 422,
+      "height": 173,
+      "component_area": 60578
+    },
+    {
+      "asset_id": "S28-007",
+      "file": "individual/28_a_transparent_background_ui_asset_sheet_hud_kit_/asset_007.png",
+      "source_sheet": "a_transparent_background_ui_asset_sheet_hud_kit_1_batch_1.png",
+      "width": 402,
+      "height": 127,
+      "component_area": 33660
+    },
+    {
+      "asset_id": "S28-008",
+      "file": "individual/28_a_transparent_background_ui_asset_sheet_hud_kit_/asset_008.png",
+      "source_sheet": "a_transparent_background_ui_asset_sheet_hud_kit_1_batch_1.png",
+      "width": 371,
+      "height": 127,
+      "component_area": 31222
+    },
+    {
+      "asset_id": "S28-009",
+      "file": "individual/28_a_transparent_background_ui_asset_sheet_hud_kit_/asset_009.png",
+      "source_sheet": "a_transparent_background_ui_asset_sheet_hud_kit_1_batch_1.png",
+      "width": 353,
+      "height": 125,
+      "component_area": 28925
+    },
+    {
+      "asset_id": "S28-010",
+      "file": "individual/28_a_transparent_background_ui_asset_sheet_hud_kit_/asset_010.png",
+      "source_sheet": "a_transparent_background_ui_asset_sheet_hud_kit_1_batch_1.png",
+      "width": 379,
+      "height": 127,
+      "component_area": 32645
+    },
+    {
+      "asset_id": "S28-011",
+      "file": "individual/28_a_transparent_background_ui_asset_sheet_hud_kit_/asset_011.png",
+      "source_sheet": "a_transparent_background_ui_asset_sheet_hud_kit_1_batch_1.png",
+      "width": 749,
+      "height": 128,
+      "component_area": 65662
+    },
+    {
+      "asset_id": "S28-012",
+      "file": "individual/28_a_transparent_background_ui_asset_sheet_hud_kit_/asset_012.png",
+      "source_sheet": "a_transparent_background_ui_asset_sheet_hud_kit_1_batch_1.png",
+      "width": 374,
+      "height": 114,
+      "component_area": 32118
+    },
+    {
+      "asset_id": "S28-013",
+      "file": "individual/28_a_transparent_background_ui_asset_sheet_hud_kit_/asset_013.png",
+      "source_sheet": "a_transparent_background_ui_asset_sheet_hud_kit_1_batch_1.png",
+      "width": 764,
+      "height": 187,
+      "component_area": 89440
+    },
+    {
+      "asset_id": "S28-014",
+      "file": "individual/28_a_transparent_background_ui_asset_sheet_hud_kit_/asset_014.png",
+      "source_sheet": "a_transparent_background_ui_asset_sheet_hud_kit_1_batch_1.png",
+      "width": 563,
+      "height": 166,
+      "component_area": 66176
+    },
+    {
+      "asset_id": "S28-015",
+      "file": "individual/28_a_transparent_background_ui_asset_sheet_hud_kit_/asset_015.png",
+      "source_sheet": "a_transparent_background_ui_asset_sheet_hud_kit_1_batch_1.png",
+      "width": 572,
+      "height": 166,
+      "component_area": 65333
+    }
+  ]
+}

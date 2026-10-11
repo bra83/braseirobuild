@@ -1,0 +1,275 @@
+{
+  "project": "Braseiro D&D 5e NORMAL",
+  "base": "RUN244 6.6.14-r244-g05-source",
+  "new_version": "RUN245 6.6.14-r245-g05-source",
+  "new_version_code": 606545,
+  "db_schema": 61,
+  "backup_format": 21,
+  "application_id": "com.braseiro.dnd5e",
+  "status": "G05 OPEN — NOT HOMOLOGATED; RUN245 gates audited; BRELGA debug build/test suite green",
+  "code_changes": {
+    "MonsterForcedMovementRules.java": "prevent diagonally cutting blocked/occupied grid corners; both push and pull",
+    "AppDb.java": "source-bound forced displacement on last multiattack component; preflight, atomic commit, receipt and fail-closed earlier steps",
+    "MainActivity.java": "manual X/Y destination for last multiattack component, -1 when absent"
+  },
+  "tests_run": {
+    "RUN245 forced movement Java pure": "PASS 13 checks (historical deterministic harness)",
+    "RUN238 economy guard Java pure": "PASS 600893 checks (historical deterministic harness)",
+    "RUN244 wiring static": "PASS 9 assertions (historical)",
+    "RUN245 wiring static": "PASS 27 assertions on BRELGA",
+    "JavacTask.parse": "PASS 5 source/test files (historical)",
+    "BRELGA Android compile": "PASS in run 38061684317",
+    "BRELGA Robolectric": "PASS: 76 tests, 0 failures, 0 errors, 0 skipped across 28 classes in run 38061684317",
+    "BRELGA debug APK": "PASS :app:assembleDebug; badging matched com.braseiro.dnd5e/versionCode 606545; APK v2 debug signature verified; update signing NOT VERIFIED",
+    "BRELGA targeted G02/G03": "PASS 3/3 direct single equipped-weapon transaction tests in run 38059897445",
+    "BRELGA G12/G13": "PASS 3 image-policy and 4 narration-chunker tests in run 38059897445",
+    "BRELGA G05/G08 fixture regressions": "1 G05 and 2 G08 failures traced; shortened DB names and canonical damage token are in pending fix patch",
+    "BRELGA G05/G08/G09": "PASS focused test classes in run 38061684317"
+  },
+  "tests_not_run": [
+    "Physical phone end-to-end",
+    "Release/update signing-key continuity / install-update test",
+    "Install or upgrade on Galaxy S23 Ultra and A57"
+  ],
+  "gradle_error": "Latest BRELGA run completed successfully; local SDK status is superseded for Android verification.",
+  "unresolved_G05": "280 issue rows individually reviewed against auxiliary 5e.tools structured data (149 RHW 2026, 131 XMM 2025; 266 unique creature/action pairs). Four source-bound handler entries have focused tests green within BRELGA run 38061684317. 276 issue rows have no approved action-specific executor. RHW exact PDF absent. XMM raw fetch HTTP 413; 1,066,072 OCR characters yielded locator-only checks (87 creature+action, 20 creature only, 24 without a reliable localizer); no OCR mechanics were homologated. 18 issue rows retain spell expansion/ambiguity.",
+  "changed_or_added_files": [
+    {
+      "path": "G05_EVIDENCE/Run245ForcedMovementPureHarness.java",
+      "sha256": "10d46330d50359d2f1b1e0ac28be3faf5bb9970e046ad8ccf9db7b77f973c61c"
+    },
+    {
+      "path": "G05_EVIDENCE/test_run245_wiring.py",
+      "sha256": "84d5a5a8a2acc0785ba5a90fc3323862607b2f9428f445eb06fb734d0be37948"
+    },
+    {
+      "path": "README_G05_RUN245.md",
+      "sha256": "cd5593cc6abf229a520ca6fd3c600f6553a399b403082cb64d3b2090a5454b61"
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/dnd5e/AppDb.java",
+      "sha256": "5e43181fcf74599262cf000e4dc40d1726f2aa98a21a8e28b39e07137a59b850"
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/dnd5e/MainActivity.java",
+      "sha256": "24c96fa3968f3606db90708c0de282428c61a7276d820c9c51223751c4f398d2"
+    },
+    {
+      "path": "app/src/main/java/com/braseiro/dnd5e/MonsterForcedMovementRules.java",
+      "sha256": "9f0741d2d61b600065596b7886509c41ff7b489e98b9cce749bd4f5524255e82"
+    },
+    {
+      "path": "app/src/test/java/com/braseiro/dnd5e/Run245G05ForcedMovementCornerRobolectricTest.java",
+      "sha256": "2202da6dc399f28eb6a8a4c4a66382c8224b1ff004c4ffc21b7fd4693b81e064"
+    },
+    {
+      "path": "app/src/test/java/com/braseiro/dnd5e/Run245G05MultiattackFinalForcedMovementRobolectricTest.java",
+      "sha256": "1e7d4ecbdf8a116cdb7edd0fa3d4aa66a83c0f801d6e2516b6b9b1e8f47ec92f"
+    },
+    {
+      "path": "version.properties",
+      "sha256": "3add57604d9d866ac31ad08b4bbda1f98f243e0ec8a5cf243ec22e9d53fa0643"
+    }
+  ],
+  "latest_brelga": {
+    "run_id": 38061684317,
+    "url": "https://github.com/bra83/braseirobuild/actions/runs/38061684317",
+    "branch": "dnd/run245-normal-g05-codex",
+    "commit": "24364e46d74768131ab569989ba64ab402efd6d3",
+    "runner": "BRELGA",
+    "source_sha256": "7f69f02e5b77a100cfd517b80c4de96c10d0b33cf3284d78112ebd3755e0222b",
+    "tests": {
+      "count": 76,
+      "classes": 28,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "compile": "PASS",
+    "assemble_debug": "PASS",
+    "apk_identity_and_signature": "PASS; APK v2 debug signature, update signing continuity NOT VERIFIED",
+    "apk": {
+      "sha256": "c1664b89113bea066d3c58990e306e9fa6925db38846b6eb794f12b8d6ff3c6c",
+      "application_id": "com.braseiro.dnd5e",
+      "version_code": 606545,
+      "version_name": "6.6.14-r245-g05-source-debug"
+    },
+    "static_wiring": "PASS; 27 assertions",
+    "evidence_zip": {
+      "url": "https://github.com/bra83/braseirobuild/releases/tag/run245-normal-brelga-38061684317",
+      "sha256": "b4dd27e40341b0783cd7c23f7a5ec8c8846056f2bb2ee7b0758930c64e7058fa",
+      "bytes": 382227478
+    }
+  },
+  "g05_source_review": {
+    "issue_rows_total": 280,
+    "rhw_issue_rows_total": 149,
+    "xmm_issue_rows_total": 131,
+    "unique_creature_action_pairs": 266,
+    "individual_auxiliary_record_reviews": 280,
+    "issue_rows_without_individual_source_record_review": 0,
+    "rhw_pdf_exact_drive_source_found": false,
+    "xmm_pdf_page_by_page_validated": false,
+    "source_expansion_or_ambiguity_issue_rows": [
+      7,
+      11,
+      12,
+      19,
+      30,
+      36,
+      37,
+      38,
+      39,
+      50,
+      77,
+      111,
+      114,
+      115,
+      124,
+      125,
+      148,
+      149
+    ],
+    "approved_action_specific_deterministic_executors": 1,
+    "issue_rows_without_approved_action_specific_executor": 276,
+    "source_kind": "5e.tools auxiliary structured records, individually matched by creature/action and source code; not licensed-PDF validation",
+    "ravenloft_guard": "RHW (2026), distinct from Van Richten (2021); no VRGR substitute used",
+    "executor": "Brain-Rending Bite had previous focused coverage; Soothing Tentacle, Radiant Flame, Crushing Stone are coded and their focused BRELGA test awaits confirmation.",
+    "gate_status": "SOURCE_AUDIT_COMPLETE_AUXILIARY; EXECUTION_PARTIAL; G05 OPEN / NOT HOMOLOGATED",
+    "source_bound_handler_entries_in_code": 4,
+    "new_handler_entries_awaiting_brelga": 0,
+    "xmm_ocr_locator_review": {
+      "characters": 1066072,
+      "creature_and_action_labels_near_estimated_page": 87,
+      "creature_only": 20,
+      "no_reliable_local_creature_match": 24,
+      "mechanics_homologated_from_ocr": false,
+      "evidence": "G05_EVIDENCE/qa-ci/G05_XMM_PDF_OCR_CROSSCHECK_131.csv"
+    },
+    "handler_entries_tested_in_brelga_run": 38061684317
+  },
+  "current_artifact_file_sha256": {
+    "CHECKPOINT_STATUS.md": "fb10196ec317b7dfcacbabbd871a5cf4c0911680d08df495884df54bc2255003",
+    "COVERAGE_MATRIX_G01_G16.csv": "07670e7ee0763818e2f117de8ec0572a391201164fac79cd5475430f6b206ce3",
+    "DELIVERY_MANIFEST.json": "418b35d55659fa5bfbc0466c97028a2136f02c28f872157851dc03127df5f366",
+    "G05_EVIDENCE/G05_5ETOOLS_REAUDIT_PROGRESS_20261010.md": "2c6100a61d1ffc155e99e870243bed81ac4526b3b61d03dbe6a67314cd615f85",
+    "G05_EVIDENCE/G05_5ETOOLS_TARGETED_FIND_LOG_20261010.md": "53693a7d4f1d8e117d4f05d45b5b87a743715aef35bc6c78c71eb584cb6f440c",
+    "G05_EVIDENCE/G05_ACTIONS_NEEDING_SOURCE_REVIEW.csv": "a621bab0f02e3b9df5014a5c0286d958109e2b19ea697988a141635968afca58",
+    "G05_EVIDENCE/G05_AUXILIARY_REVIEW_5ETOOLS_280.csv": "ec84d849d82dd825716c744ae09a287a5ef547d8d41a7e179d60fc81fa59e57b",
+    "G05_EVIDENCE/G05_SOURCE_AUDIT_RUN245.md": "dd71015c83bd9ae5d2727b286fab808ae6674d94ea4bb7ce0c1a9aaea689ceea",
+    "G05_EVIDENCE/G05_SOURCE_TO_EXECUTOR_MATRIX.csv": "c15861b6c641e1150de241295796f89377f553b7849460ab5d57d7cf7cad5914",
+    "G05_EVIDENCE/RUN245_AGENT_A_G05_AUDIT.md": "5aa719e6c8550801e3e8702990dfecd5e553ea709d58b0ba50bdfa55f6c02be9",
+    "G05_EVIDENCE/RUN245_AGENT_C_PERSISTENCE_AUDIT.md": "e30ad5b33710365c9b30a1b308939e0adb449aa72d6cc3264e0e4d88548d0068",
+    "G05_EVIDENCE/qa-ci/G05_REVIEW_RHW_002_050.csv": "19d4fdac0c29c2662e9b0ac271d8a51de3a0ac5ca5235efa5d9e75b2b50cd305",
+    "G05_EVIDENCE/qa-ci/G05_REVIEW_RHW_051_100.csv": "36a0aad3035eac56791104ce7f9f4e0c011b40f073a553a9c87cf2ab399fa365",
+    "G05_EVIDENCE/qa-ci/G05_REVIEW_RHW_101_149.csv": "9601fabdac43516f18451a10e75a34f20e0351347a0148c566ec085f9f36db78",
+    "G05_EVIDENCE/qa-ci/G05_REVIEW_XMM_150_193.csv": "16bc3f69e7efd591bd85feda431273d684af8268b4e40cecbb8cd2081e624e81",
+    "G05_EVIDENCE/qa-ci/G05_REVIEW_XMM_194_237.csv": "79040d90316af85f89ee27f03f5e50770b6c2a2e5a1781f2a5f4b2ca87795ee4",
+    "G05_EVIDENCE/qa-ci/G05_REVIEW_XMM_238_280.csv": "f31cd23e44b5cf15bdeb5d1dca6cf16ce02fb3bdcb48e698397505691a6bbc71",
+    "G05_EVIDENCE/qa-ci/REPORT.md": "9fe235a35e02b35d532cbaa79ddc7475142046fc068ee93f7c25cddf01479ca4",
+    "GATE_AUDIT_G01_G16_RUN245_20261010.md": "8b496ae032d3cf60849cece827f85caa98713fbbdbe85c89fcb9b26764a3f6f1",
+    "GATE_AUDIT_G06_G14_RUN245.md": "8044853d2f84985863ab716a2eb0c8422dfa9a2dc68a743656761cbe4b741495",
+    "HANDOFF_NEXT_AGENT.md": "0a24de0ea5e21eab5588a0aa287e440a9ae45bad23fc37b99caa2c9c2dc4c9d1",
+    "README_G05_RUN245.md": "434edbf539c7c0f29e52a44725d5f464c8e230a5b30101024d6db48d6da099f0",
+    "REASSEMBLE_RUN245_FINAL.txt": "8541d24165dde95e7324dd15508fcae3217bcb7ced66185cabfa9cfe6f26024a",
+    "app/src/main/java/com/braseiro/dnd5e/AppDb.java": "6ee02f784f7e1c0fa3888b799b6f613ae2d80f07e8a7e5271bbde9850089aed1",
+    "app/src/main/java/com/braseiro/dnd5e/CompanionProposalIsolationGuard.java": "126ea82d506fe76749c240a6afba91cab940131aa6eb930ce1eb8030478faf87",
+    "app/src/main/java/com/braseiro/dnd5e/CompanionProposalIsolationRules.java": "8c403b1c98f2095c359a0540a45bb980e790dcdc83f1b562fee686805c271ae1",
+    "app/src/main/java/com/braseiro/dnd5e/LivingWorldCatchUpEngine.java": "1c6d779120d74227d8692a21a1b6e688b885f55aa9b2030f12b5d1f057587928",
+    "app/src/main/java/com/braseiro/dnd5e/LivingWorldCatchUpRules.java": "2d9174fcd76b14a9e03138c48c4127cc6e7a39de578d47eff847f66039d3eb77",
+    "app/src/main/java/com/braseiro/dnd5e/MainActivity.java": "68d9a3880e021a358e71572a1b1aa186710ba21db46b4abdaa1b191035f662c0",
+    "app/src/main/java/com/braseiro/dnd5e/MasterOrchestrator.java": "183dbf12dbb8cca9d2c46bb2150b0ed1991b55a47f2d902c23c36cb747eab220",
+    "app/src/main/java/com/braseiro/dnd5e/MasterResponseValidator.java": "2c6e87908e7ae8b9a341673978dc4d0b33c965ef742abf25cde6b58c4c2fc3cf",
+    "app/src/main/java/com/braseiro/dnd5e/NarratedTacticalMovementExecutor.java": "1f9f827b0d729a88b5b0d620e8dcb590fdf275df9f5986b775b3d532c70751ba",
+    "app/src/main/java/com/braseiro/dnd5e/RavenloftBestiaryRuntimeEngine.java": "4b6d49558f416dfc317ccdad02a0fe5a8a348af3349411fa4b61f596742b0f16",
+    "app/src/main/java/com/braseiro/dnd5e/SpellTargetComponentExecutor.java": "5a1d8c719e1265ca585267d269d03c49df54ba9a70748f107a6f4209a5f40c8a",
+    "app/src/main/java/com/braseiro/dnd5e/StatblockCombatFlowEngine.java": "e76fbddecaef1ca753a7f65a055b57dd5b98e6aa4881646d074c9fb7c2823c57",
+    "app/src/main/java/com/braseiro/dnd5e/TwoWeaponFightingRules.java": "bcc7f9bbb7c57b556b3df7f09e1a38d2b9b3e217c4e529de26ef29c1ee692a49",
+    "app/src/main/java/com/braseiro/dnd5e/UiResponsivenessMonitor.java": "e015cb17f74231b2e25b81b031b9bf6e890c916243b9858de6685b428063d3cf",
+    "app/src/main/java/com/braseiro/dnd5e/VoloRacialFeatRuntimeEngine.java": "650d45596965da740f566531024179affe9dd827a43a17305fdb690f606bc7a3",
+    "app/src/main/java/com/braseiro/dnd5e/VoloSubraceHandbookEngine.java": "356bb5ce6616789b54f98d15236e969aa22e7a3ce6ca3cb4a5e89f3d19a90107",
+    "app/src/test/java/com/braseiro/dnd5e/AppDbBackupRobolectricTest.java": "ada5677219fd0896ce940d63dedb950cac5e0e91b04f725d6f6da86e55a5c5b9",
+    "app/src/test/java/com/braseiro/dnd5e/CharacterLevelUpTransitionEngineTest.java": "38b633dda8c66e95cd2758b048e73d24b913dd99de93fc951e604f6ea0dc2a3b",
+    "app/src/test/java/com/braseiro/dnd5e/CompanionProposalIsolationRulesTest.java": "c508d754963e041087190225b72c75df8c12f70e2c5bced9cbc90713f7726e48",
+    "app/src/test/java/com/braseiro/dnd5e/LivingWorldCatchUpRulesTest.java": "cebe524ef45e3a29a69687e926474b0ab623f7d1c2f127a3c5ec15338fb13375",
+    "app/src/test/java/com/braseiro/dnd5e/Run242TacticalBoardRobolectricTest.java": "5413a2f9cfa0783fce9b5f90ce64654f7f1b8ca80357ff3aebb2172d99773d1c",
+    "app/src/test/java/com/braseiro/dnd5e/Run245G05MultiattackTypedDamageRobolectricTest.java": "5a37bbfacf4aa8a42d237b4c937615c638a52849b33f45283ca96a5345f618db",
+    "app/src/test/java/com/braseiro/dnd5e/Run245G05RhwOnHitConditionRobolectricTest.java": "4eaf22e0a4d37c6c5dafa1ada78dcd8e2dca14eb9d57da2d9d7589a7cd533a55",
+    "app/src/test/java/com/braseiro/dnd5e/Run245G05RhwTurnBoundHitRidersRobolectricTest.java": "f5b4f6964ea5785b1dce6129cab52fe74fbc7fcb5f6fd29a4ba4710f8ad772dc",
+    "app/src/test/java/com/braseiro/dnd5e/Run245G08G09NarratedTacticalMovementRobolectricTest.java": "199d5af081259ef9cbc7807b56f3526cdc3a5c21717e5f06c9842a091d1bf895",
+    "app/src/test/java/com/braseiro/dnd5e/Run245G12SceneImageImportPolicyTest.java": "182f72e53258e19d04f721575525429b4cef40685bf373235cb57fee4e1de814",
+    "app/src/test/java/com/braseiro/dnd5e/Run245G13NarrationChunkerTest.java": "6fb59d87208717c32e831e1fd7e5ad3e2ad392271a5f6a69c9157f13ef88f62f",
+    "app/src/test/java/com/braseiro/dnd5e/Run245PartyWeaponAttackRobolectricTest.java": "b68a3c297aab8e42703c84232fdf2bb2599251fceae80bf2702116fe8f047923",
+    "app/src/test/java/com/braseiro/dnd5e/SpellTargetComponentExecutorTest.java": "20427b97d69e9c4b1798b465f29e79a7728540c1fdcd79252752a6dffc01fc2c",
+    "G05_EVIDENCE/qa-ci/G05_XMM_PDF_OCR_CROSSCHECK_131.csv": "afd65d8e722635cff70a9be12c9ced16a83185934d24835c4d74da816e37b625",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/APK_BADGING.txt": "a104bac3ee7e82338691a3e3a69280cc280f489f76bab2ebc4564f0e09dbda6e",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/APK_SIGNATURE.txt": "9fe75daf04caaa06c82c5ec632d9638071e0029c7d877005a9feab22efe1def4",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/BRELGA_STATUS.txt": "57b92c31b2a2b37de2b82c131d07361a7446f8cbb8f62db56a49d2487d4f7223",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/RUN_METADATA.md": "6c8da2c99c1ca84fb58aafabb617bbc0c73330c6dbb0e90731f00c102bd1769b",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.AppDbBackupRobolectricTest.xml": "aecc5e3a31f8664be7c32fb63cdefe5894562babeefd967a32bdc9b05a5bc4a4",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.CharacterLevelUpTransitionEngineTest.xml": "ff05d57fb20d56d58937dda49cab54d3e059e1971c36ead2c2a06f3d7cabff28",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.CompanionProposalIsolationRulesTest.xml": "bc64c395e4e3c55f25871baf4042df787ea5cecbfe0aa3eb0c7223f386030486",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Core2024BlessTurnRulesTest.xml": "655cd0b05d9f524a43f78ad9eb07e83ead5fc6eca10af7fc649701782f216852",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.LivingWorldCatchUpRulesTest.xml": "4b647c035a96510ffe70b45102c64a69d2b4e40ca7e4028cca1f326a46fad8f5",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run231HostilityRobolectricTest.xml": "5d9e6e09c151dc35b9b1228daf6b68c66a479cf9d65b8d888420719c647810d0",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run232RechargeRobolectricTest.xml": "15af7924508aea7f34a98755fcf3fe53e0d4075b1efd529c9aca94e3cec40ef4",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run233SecondaryRiderRobolectricTest.xml": "69478afcfbe19ac3e92064a6c55d8c819260e55f93f92537af188f8229c8f014",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run234TimedConditionRobolectricTest.xml": "8dfc0a336bf8ce752b1f13d1377ac12cfc3cc30cd0496107a88189b4695b90bd",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run235RecoveryRobolectricTest.xml": "eb73db88a7e3dbf2dc06c77a5ba301647c17979fd0ea1828fe287ddb68da5f9a",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run236ConditionBackupRobolectricTest.xml": "7a6809fb8c621297983c7c6bad40a3fe2c4eb86dd526f0a920bebbfe17b8b0d8",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run237ForcedMovementRobolectricTest.xml": "387cefd88b973dd3457f0c9c60df2ee00f226db5296819536d06d36967b616d0",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run238ActionEconomyRobolectricTest.xml": "b82d07045a8a3b56103779cd9d4a953284129d052d00da2ec69b4c36d7fe4f46",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run242TacticalBoardRobolectricTest.xml": "717c9f0c8d66ca52029ad948f620a1ea59429705fdc8dbaeb0b961903c6df307",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run242TacticalGridTapRulesTest.xml": "13d7076b0e821e847475d3b5f0ba7480e2ac9b5560824400180c35add6880d74",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run243TacticalMovementRobolectricTest.xml": "2fbb4be880e35609b0416c31e0d79ad8902937dd9754b4c43e4a5d87b40bc164",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run243WeightedTerrainRouteTest.xml": "023cebab4d425d097ab412b1c3574ea307ec11dfcdc3870b113e427a4a6789dd",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run244G05AttackRiderForcedMovementRobolectricTest.xml": "4b555618cca27b23ce1dc92927ebcbdaf669ed9900c416c6591c45049daefc5c",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run245G05ForcedMovementCornerRobolectricTest.xml": "1bb87b995eccf66389e42addccba1e8a7b2b24d74fbb2a79f8ac7c3212585793",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run245G05MultiattackFinalForcedMovementRobolectricTest.xml": "6cc19063c0e42d5c37f069a2eee78c577d453031727c29753ac87789379e52cc",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run245G05MultiattackTypedDamageRobolectricTest.xml": "b3f829864715d405210d47c04feeb5aa65f7a64c3744afdd189da880a4c7beab",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest.xml": "f227abe2872521e4d8778450c59aa8407a55b242c73191a3c83b71fe60f377d9",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run245G05RhwTurnBoundHitRidersRobolectricTest.xml": "bf3d7c79397474c86c3c8f5cb1c098206b1b8253e529af0ce470e79f7245f38f",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run245G08G09NarratedTacticalMovementRobolectricTest.xml": "a3ecb29fa2e166e1a9b62125d31cda73b19d6f13bdab2697bda3bb71f468a769",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run245G12SceneImageImportPolicyTest.xml": "d4b5f2370bc9fb7e69f2c4daeaac653830bc0d3bd5185e9a533f69d81801c9f7",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run245G13NarrationChunkerTest.xml": "20baf7e4949686be61e7e3f1551272d7d37fdfecfdd82e06c8c5b3c07e77c12a",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.Run245PartyWeaponAttackRobolectricTest.xml": "02e6e1346caa5e5e583a9fc2fa4d2ebbb4d36a7cadd24b49936ee86cf1ca8473",
+    "G05_EVIDENCE/qa-ci/BRELGA_RUN_38061684317/junit/com.braseiro.dnd5e.SpellTargetComponentExecutorTest.xml": "18df4e0ac88c6357e719e25876220da971b8e27cba234c973e64c6e603e99a4c"
+  },
+  "previous_successful_brelga_baseline": {
+    "run_id": 38054616224,
+    "url": "https://github.com/bra83/braseirobuild/actions/runs/38054616224",
+    "branch": "dnd/run245-normal-g05-codex",
+    "commit": "825b5b878261bd878e8a77e088c3085edd66d3b7",
+    "runner": "BRELGA",
+    "tests": {
+      "count": 45,
+      "classes": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "static_wiring": "PASS; 27 assertions",
+    "apk": {
+      "file": "BRASEIRO_DND_NORMAL_RUN245_UNCERTIFIED_DEBUG.apk",
+      "sha256": "b3f4748a73838b3fc1ee4c040422bf292e560c66d60ca3ff817c0627cd34cf7b",
+      "application_id": "com.braseiro.dnd5e",
+      "version_code": 606545,
+      "version_name": "6.6.14-r245-g05-source-debug",
+      "signing": "Debug v2 signature verified; update signing match NOT VERIFIED"
+    },
+    "evidence_zip": {
+      "url": "https://github.com/bra83/braseirobuild/releases/download/run245-normal-brelga-38054616224/BRASEIRO_DND_NORMAL_RUN245_BRELGA_38054616224.zip",
+      "sha256": "f8ef61fb0cdefdfc9310cfb5d1b4644b3cd8136de139dc691c5fac993f016834",
+      "bytes": 382189180
+    }
+  },
+  "followup_brelga": {
+    "run_id": 38061684317,
+    "url": "https://github.com/bra83/braseirobuild/actions/runs/38061684317",
+    "commit": "24364e46d74768131ab569989ba64ab402efd6d3",
+    "status": "SUCCESS",
+    "test_fix_patch_sha256": "1dbf748eb30dd9941b2a4674d73b493ef9dd1ac80881a9c616bcf2fd925b7b3f"
+  },
+  "gate_audit_document": "GATE_AUDIT_G01_G16_RUN245_20261010.md",
+  "final_archive_sha256": "Recorded in external SHA-256 sidecar; ZIP CRC and sidecar validated after packaging."
+}

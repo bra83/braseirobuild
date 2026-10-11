@@ -1,0 +1,1568 @@
+{
+  "schema": 1,
+  "title": "Game Boy — HCL Sequentials",
+  "palette_count": 120,
+  "notes": "Cores interpretadas da imagem de referência fornecida pelo usuário. A aplicação usa as quatro cores como base e deriva contraste apenas quando necessário para legibilidade da interface.",
+  "palettes": [
+    {
+      "code": "01A",
+      "technical_id": "HCL_Seque_01A",
+      "mode": "gb_01a",
+      "name": "Névoa de Gelo",
+      "colors": [
+        "#F1F1F0",
+        "#C6E0E8",
+        "#A7C4DB",
+        "#8CA2C6"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "01B",
+      "technical_id": "HCL_Seque_01B",
+      "mode": "gb_01b",
+      "name": "Ardósia Portátil",
+      "colors": [
+        "#8CA2C6",
+        "#7E7DB2",
+        "#734F95",
+        "#6C0676"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "02A",
+      "technical_id": "HCL_Seque_02A",
+      "mode": "gb_02a",
+      "name": "Sonho Lilás",
+      "colors": [
+        "#F1EFF4",
+        "#EAD4F4",
+        "#DFB1DC",
+        "#D18ABA"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "02B",
+      "technical_id": "HCL_Seque_02B",
+      "mode": "gb_02b",
+      "name": "Violeta Elétrica",
+      "colors": [
+        "#D28ABB",
+        "#C16293",
+        "#A3355C",
+        "#7F0416"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "03A",
+      "technical_id": "HCL_Seque_03A",
+      "mode": "gb_03a",
+      "name": "Rosa de Algodão",
+      "colors": [
+        "#ACB5E2",
+        "#B19FD7",
+        "#B686C5",
+        "#BD77BA"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "03B",
+      "technical_id": "HCL_Seque_03B",
+      "mode": "gb_03b",
+      "name": "Rubi do Cartucho",
+      "colors": [
+        "#BC70B9",
+        "#BC589F",
+        "#B4417D",
+        "#AA3A58"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "04A",
+      "technical_id": "HCL_Seque_04A",
+      "mode": "gb_04a",
+      "name": "Sakura Pálida",
+      "colors": [
+        "#F3DAD8",
+        "#EEB7BF",
+        "#D194B1",
+        "#C57AAB"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "04B",
+      "technical_id": "HCL_Seque_04B",
+      "mode": "gb_04b",
+      "name": "Ameixa Real",
+      "colors": [
+        "#C279A9",
+        "#A860A4",
+        "#874A9B",
+        "#5E3F95"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "05A",
+      "technical_id": "HCL_Seque_05A",
+      "mode": "gb_05a",
+      "name": "Menta Solar",
+      "colors": [
+        "#F1EFD4",
+        "#C2E1BB",
+        "#76C0B8",
+        "#38B7BD"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "05B",
+      "technical_id": "HCL_Seque_05B",
+      "mode": "gb_05b",
+      "name": "Ciano Turbo",
+      "colors": [
+        "#34B1BB",
+        "#538EBF",
+        "#7E55A8",
+        "#862D75"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "06A",
+      "technical_id": "HCL_Seque_06A",
+      "mode": "gb_06a",
+      "name": "Brisa de Menta",
+      "colors": [
+        "#F1F0E4",
+        "#DFEFD0",
+        "#B3E5C6",
+        "#77CDBC"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "06B",
+      "technical_id": "HCL_Seque_06B",
+      "mode": "gb_06b",
+      "name": "Lagoa Pixel",
+      "colors": [
+        "#77CDBB",
+        "#35AAB5",
+        "#0776A0",
+        "#2F3384"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "07A",
+      "technical_id": "HCL_Seque_07A",
+      "mode": "gb_07a",
+      "name": "Sálvia Clara",
+      "colors": [
+        "#F8F6E9",
+        "#EDF0D4",
+        "#D7E3BC",
+        "#B6CEA0"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "07B",
+      "technical_id": "HCL_Seque_07B",
+      "mode": "gb_07b",
+      "name": "Floresta 8-Bit",
+      "colors": [
+        "#B5CEA0",
+        "#8CB480",
+        "#58945E",
+        "#066F3B"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "08A",
+      "technical_id": "HCL_Seque_08A",
+      "mode": "gb_08a",
+      "name": "Areia Dourada",
+      "colors": [
+        "#F2F0E3",
+        "#EADBA4",
+        "#D8BB7A",
+        "#CA9659"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "08B",
+      "technical_id": "HCL_Seque_08B",
+      "mode": "gb_08b",
+      "name": "Cobre Imperial",
+      "colors": [
+        "#CB9657",
+        "#B6703C",
+        "#9A4426",
+        "#7F0617"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "09A",
+      "technical_id": "HCL_Seque_09A",
+      "mode": "gb_09a",
+      "name": "Creme da Manhã",
+      "colors": [
+        "#E0E3BB",
+        "#EEDB7F",
+        "#EEC46E",
+        "#EBAB69"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "09B",
+      "technical_id": "HCL_Seque_09B",
+      "mode": "gb_09b",
+      "name": "Damasco Quente",
+      "colors": [
+        "#E8AA65",
+        "#D8865D",
+        "#B9534F",
+        "#90103E"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "10A",
+      "technical_id": "HCL_Seque_10A",
+      "mode": "gb_10a",
+      "name": "Ouro Retro",
+      "colors": [
+        "#E0E2BA",
+        "#E3CD4E",
+        "#E6AF2D",
+        "#EBA455"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "10B",
+      "technical_id": "HCL_Seque_10B",
+      "mode": "gb_10b",
+      "name": "Pêssego Neon",
+      "colors": [
+        "#E89B39",
+        "#E4804E",
+        "#DB6163",
+        "#D75271"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "11A",
+      "technical_id": "HCL_Seque_11A",
+      "mode": "gb_11a",
+      "name": "Mostarda Solar",
+      "colors": [
+        "#F0F0F0",
+        "#F8C8B7",
+        "#FABF83",
+        "#DEBA50"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "11B",
+      "technical_id": "HCL_Seque_11B",
+      "mode": "gb_11b",
+      "name": "Lima Pixel",
+      "colors": [
+        "#DDBA4E",
+        "#B5B71F",
+        "#7EAF1A",
+        "#2DA641"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "12A",
+      "technical_id": "HCL_Seque_12A",
+      "mode": "gb_12a",
+      "name": "Pergaminho Musgo",
+      "colors": [
+        "#E0E0E0",
+        "#EED4BE",
+        "#D9C69B",
+        "#BDB679"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "12B",
+      "technical_id": "HCL_Seque_12B",
+      "mode": "gb_12b",
+      "name": "Verde Bosque",
+      "colors": [
+        "#BDB778",
+        "#98A857",
+        "#659338",
+        "#0A7D24"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "13A",
+      "technical_id": "HCL_Seque_13A",
+      "mode": "gb_13a",
+      "name": "Limão Ácido",
+      "colors": [
+        "#FAE234",
+        "#95D54D",
+        "#00B97E",
+        "#0C9C96"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "13B",
+      "technical_id": "HCL_Seque_13B",
+      "mode": "gb_13b",
+      "name": "Índigo Tropical",
+      "colors": [
+        "#049B95",
+        "#057094",
+        "#393E7B",
+        "#4D0557"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "14A",
+      "technical_id": "HCL_Seque_14A",
+      "mode": "gb_14a",
+      "name": "Citrino Pop",
+      "colors": [
+        "#D9FB45",
+        "#E8BC04",
+        "#E78554",
+        "#D55976"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "14B",
+      "technical_id": "HCL_Seque_14B",
+      "mode": "gb_14b",
+      "name": "Magenta Arcade",
+      "colors": [
+        "#CF5174",
+        "#A91689",
+        "#6E098B",
+        "#091B8C"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "15A",
+      "technical_id": "HCL_Seque_15A",
+      "mode": "gb_15a",
+      "name": "Sol de Pêssego",
+      "colors": [
+        "#F9F99A",
+        "#F1B43B",
+        "#EE6E53",
+        "#C74876"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "15B",
+      "technical_id": "HCL_Seque_15B",
+      "mode": "gb_15b",
+      "name": "Uva Obscura",
+      "colors": [
+        "#C23570",
+        "#82156F",
+        "#3C134D",
+        "#040404"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "16A",
+      "technical_id": "HCL_Seque_16A",
+      "mode": "gb_16a",
+      "name": "Flamingo Doce",
+      "colors": [
+        "#FBF4EB",
+        "#EBA674",
+        "#E85E4B",
+        "#C31062"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "16B",
+      "technical_id": "HCL_Seque_16B",
+      "mode": "gb_16b",
+      "name": "Framboesa Noturna",
+      "colors": [
+        "#C31062",
+        "#870161",
+        "#490147",
+        "#070707"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "17A",
+      "technical_id": "HCL_Seque_17A",
+      "mode": "gb_17a",
+      "name": "Céu Pastel",
+      "colors": [
+        "#DFF6E1",
+        "#85D2BB",
+        "#00ACAE",
+        "#0680A9"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "17B",
+      "technical_id": "HCL_Seque_17B",
+      "mode": "gb_17b",
+      "name": "Azul Abissal",
+      "colors": [
+        "#0380A8",
+        "#424B7B",
+        "#3A2244",
+        "#070707"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "18A",
+      "technical_id": "HCL_Seque_18A",
+      "mode": "gb_18a",
+      "name": "Espuma do Mar",
+      "colors": [
+        "#D0FAD4",
+        "#A3DABC",
+        "#7AB8A8",
+        "#619E98"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "18B",
+      "technical_id": "HCL_Seque_18B",
+      "mode": "gb_18b",
+      "name": "Oceano Profundo",
+      "colors": [
+        "#599C97",
+        "#3A7D84",
+        "#205D70",
+        "#15405F"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "19A",
+      "technical_id": "HCL_Seque_19A",
+      "mode": "gb_19a",
+      "name": "Jade Pálido",
+      "colors": [
+        "#DEEFE4",
+        "#AFD7C3",
+        "#88BBAC",
+        "#66A59A"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "19B",
+      "technical_id": "HCL_Seque_19B",
+      "mode": "gb_19b",
+      "name": "Chá de Hortelã",
+      "colors": [
+        "#63A398",
+        "#3C8E87",
+        "#027476",
+        "#0E5E68"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "20A",
+      "technical_id": "HCL_Seque_20A",
+      "mode": "gb_20a",
+      "name": "Névoa Verde",
+      "colors": [
+        "#C5E0BD",
+        "#98CDA6",
+        "#67AC94",
+        "#67A895"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "20B",
+      "technical_id": "HCL_Seque_20B",
+      "mode": "gb_20b",
+      "name": "Pinheiro Frio",
+      "colors": [
+        "#4FA390",
+        "#358680",
+        "#236A70",
+        "#2C5761"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "21A",
+      "technical_id": "HCL_Seque_21A",
+      "mode": "gb_21a",
+      "name": "Gelo Boreal",
+      "colors": [
+        "#D0ECE9",
+        "#AAD8D8",
+        "#87C1C4",
+        "#67A7B3"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "21B",
+      "technical_id": "HCL_Seque_21B",
+      "mode": "gb_21b",
+      "name": "Aço Celeste",
+      "colors": [
+        "#67A7B4",
+        "#4D8EA5",
+        "#39728E",
+        "#2E5776"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "22A",
+      "technical_id": "HCL_Seque_22A",
+      "mode": "gb_22a",
+      "name": "Broto de Primavera",
+      "colors": [
+        "#B6EEB0",
+        "#8DE5AE",
+        "#56D6AC",
+        "#2FC3AC"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "22B",
+      "technical_id": "HCL_Seque_22B",
+      "mode": "gb_22b",
+      "name": "Turquesa Viva",
+      "colors": [
+        "#2EC4AD",
+        "#03AEAC",
+        "#0898A2",
+        "#228199"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "23A",
+      "technical_id": "HCL_Seque_23A",
+      "mode": "gb_23a",
+      "name": "Sálvia Neon",
+      "colors": [
+        "#D3F1A3",
+        "#9AD593",
+        "#63B58A",
+        "#3F9D86"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "23B",
+      "technical_id": "HCL_Seque_23B",
+      "mode": "gb_23b",
+      "name": "Petróleo Escuro",
+      "colors": [
+        "#359C85",
+        "#037F7A",
+        "#065F67",
+        "#114252"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "24A",
+      "technical_id": "HCL_Seque_24A",
+      "mode": "gb_24a",
+      "name": "Limonada Gelada",
+      "colors": [
+        "#F6FCAF",
+        "#B8E3A3",
+        "#79C29C",
+        "#49AF99"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "24B",
+      "technical_id": "HCL_Seque_24B",
+      "mode": "gb_24b",
+      "name": "Esmeralda Clara",
+      "colors": [
+        "#45AC98",
+        "#149195",
+        "#1D6F88",
+        "#37527C"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "25A",
+      "technical_id": "HCL_Seque_25A",
+      "mode": "gb_25a",
+      "name": "Limão Relâmpago",
+      "colors": [
+        "#E8EB5E",
+        "#A2CF68",
+        "#5CB175",
+        "#1DA57F"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "25B",
+      "technical_id": "HCL_Seque_25B",
+      "mode": "gb_25b",
+      "name": "Verde Arcade",
+      "colors": [
+        "#16A17D",
+        "#048B82",
+        "#116F76",
+        "#395C6D"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "26A",
+      "technical_id": "HCL_Seque_26A",
+      "mode": "gb_26a",
+      "name": "Pêssego Leve",
+      "colors": [
+        "#F7DCC3",
+        "#F4CBA8",
+        "#F6B68E",
+        "#EFA173"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "26B",
+      "technical_id": "HCL_Seque_26B",
+      "mode": "gb_26b",
+      "name": "Coral de Verão",
+      "colors": [
+        "#F0A074",
+        "#F0885A",
+        "#EE6F4D",
+        "#E95042"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "27A",
+      "technical_id": "HCL_Seque_27A",
+      "mode": "gb_27a",
+      "name": "Baunilha Quente",
+      "colors": [
+        "#FBF5B5",
+        "#F8DB97",
+        "#F4C27F",
+        "#F1A973"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "27B",
+      "technical_id": "HCL_Seque_27B",
+      "mode": "gb_27b",
+      "name": "Rosa Festa",
+      "colors": [
+        "#F3A873",
+        "#EF8D6F",
+        "#EA7079",
+        "#E35483"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "28A",
+      "technical_id": "HCL_Seque_28A",
+      "mode": "gb_28a",
+      "name": "Rosa Antigo",
+      "colors": [
+        "#FCC5C7",
+        "#EBA5AB",
+        "#D38291",
+        "#CC697F"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "28B",
+      "technical_id": "HCL_Seque_28B",
+      "mode": "gb_28b",
+      "name": "Vinho de Pixel",
+      "colors": [
+        "#CA647D",
+        "#AD4A68",
+        "#893553",
+        "#682842"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "29A",
+      "technical_id": "HCL_Seque_29A",
+      "mode": "gb_29a",
+      "name": "Blush Real",
+      "colors": [
+        "#F2DDBE",
+        "#EBBA8D",
+        "#D9966B",
+        "#D87E6D"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "29B",
+      "technical_id": "HCL_Seque_29B",
+      "mode": "gb_29b",
+      "name": "Rosa Framboesa",
+      "colors": [
+        "#D57860",
+        "#B55D5E",
+        "#954456",
+        "#79354E"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "30A",
+      "technical_id": "HCL_Seque_30A",
+      "mode": "gb_30a",
+      "name": "Pó de Rosas",
+      "colors": [
+        "#EFCEA4",
+        "#EAB689",
+        "#E49A70",
+        "#E1866B"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "30B",
+      "technical_id": "HCL_Seque_30B",
+      "mode": "gb_30b",
+      "name": "Cereja Veludo",
+      "colors": [
+        "#DB8365",
+        "#D96B63",
+        "#C55365",
+        "#B5516A"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "31A",
+      "technical_id": "HCL_Seque_31A",
+      "mode": "gb_31a",
+      "name": "Dourado Claro",
+      "colors": [
+        "#E8D799",
+        "#E8C479",
+        "#EDB05E",
+        "#EC9B4C"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "31B",
+      "technical_id": "HCL_Seque_31B",
+      "mode": "gb_31b",
+      "name": "Tangerina Viva",
+      "colors": [
+        "#EE9A4D",
+        "#F4854E",
+        "#F3685B",
+        "#EE506E"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "32A",
+      "technical_id": "HCL_Seque_32A",
+      "mode": "gb_32a",
+      "name": "Lavanda de Vidro",
+      "colors": [
+        "#F3E1F7",
+        "#E2C5EE",
+        "#CBADDE",
+        "#B395D1"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "32B",
+      "technical_id": "HCL_Seque_32B",
+      "mode": "gb_32b",
+      "name": "Ametista Doce",
+      "colors": [
+        "#B495D2",
+        "#9B82C7",
+        "#816CB5",
+        "#665EA1"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "33A",
+      "technical_id": "HCL_Seque_33A",
+      "mode": "gb_33a",
+      "name": "Orquídea Branda",
+      "colors": [
+        "#F5DBD8",
+        "#EFB7BF",
+        "#DA95B2",
+        "#C678AA"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "33B",
+      "technical_id": "HCL_Seque_33B",
+      "mode": "gb_33b",
+      "name": "Ameixa de Festa",
+      "colors": [
+        "#C777AB",
+        "#AF5DAA",
+        "#874A9C",
+        "#5B418A"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "34A",
+      "technical_id": "HCL_Seque_34A",
+      "mode": "gb_34a",
+      "name": "Creme Rosado",
+      "colors": [
+        "#EFE498",
+        "#F4C183",
+        "#EC9B88",
+        "#E87E97"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "34B",
+      "technical_id": "HCL_Seque_34B",
+      "mode": "gb_34b",
+      "name": "Rosa Chiclete",
+      "colors": [
+        "#E57B96",
+        "#CE66A6",
+        "#A456A5",
+        "#7455A3"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "35A",
+      "technical_id": "HCL_Seque_35A",
+      "mode": "gb_35a",
+      "name": "Rosé Suave",
+      "colors": [
+        "#EEC6CE",
+        "#E6A7BE",
+        "#CE86A6",
+        "#CF81A8"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "35B",
+      "technical_id": "HCL_Seque_35B",
+      "mode": "gb_35b",
+      "name": "Malva Pop",
+      "colors": [
+        "#CA6FA3",
+        "#AD5191",
+        "#8A387A",
+        "#75346F"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "36A",
+      "technical_id": "HCL_Seque_36A",
+      "mode": "gb_36a",
+      "name": "Damasco Suave",
+      "colors": [
+        "#FBD8A1",
+        "#F9B381",
+        "#F98970",
+        "#F46072"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "36B",
+      "technical_id": "HCL_Seque_36B",
+      "mode": "gb_36b",
+      "name": "Melancia Neon",
+      "colors": [
+        "#F45F71",
+        "#D63A7A",
+        "#AA2675",
+        "#7D2368"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "37A",
+      "technical_id": "HCL_Seque_37A",
+      "mode": "gb_37a",
+      "name": "Manga Pastel",
+      "colors": [
+        "#E3D199",
+        "#EEA961",
+        "#E87967",
+        "#DE4884"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "37B",
+      "technical_id": "HCL_Seque_37B",
+      "mode": "gb_37b",
+      "name": "Fúcsia Quente",
+      "colors": [
+        "#E04785",
+        "#BF249C",
+        "#8C169B",
+        "#4C2293"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "38A",
+      "technical_id": "HCL_Seque_38A",
+      "mode": "gb_38a",
+      "name": "Areia Rosada",
+      "colors": [
+        "#E8E2C8",
+        "#DBC1A4",
+        "#C69D80",
+        "#BD7E71"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "38B",
+      "technical_id": "HCL_Seque_38B",
+      "mode": "gb_38b",
+      "name": "Cacau Rosé",
+      "colors": [
+        "#BC7A67",
+        "#A1565B",
+        "#79374B",
+        "#56213D"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "39A",
+      "technical_id": "HCL_Seque_39A",
+      "mode": "gb_39a",
+      "name": "Luz de Ouro",
+      "colors": [
+        "#FBFCC5",
+        "#F6E49C",
+        "#F2BC4E",
+        "#F09406"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "39B",
+      "technical_id": "HCL_Seque_39B",
+      "mode": "gb_39b",
+      "name": "Âmbar Ardente",
+      "colors": [
+        "#EE9101",
+        "#E95604",
+        "#B91E0E",
+        "#7E0B29"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "40A",
+      "technical_id": "HCL_Seque_40A",
+      "mode": "gb_40a",
+      "name": "Mel Pixel",
+      "colors": [
+        "#FBFADE",
+        "#F8E9B2",
+        "#F2BF60",
+        "#F1A509"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "40B",
+      "technical_id": "HCL_Seque_40B",
+      "mode": "gb_40b",
+      "name": "Ouro de Outono",
+      "colors": [
+        "#EAA103",
+        "#DF7205",
+        "#A6480D",
+        "#6D382C"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "41A",
+      "technical_id": "HCL_Seque_41A",
+      "mode": "gb_41a",
+      "name": "Salmão Claro",
+      "colors": [
+        "#FCF4EB",
+        "#FBE2C1",
+        "#FCBF8C",
+        "#F6945D"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "41B",
+      "technical_id": "HCL_Seque_41B",
+      "mode": "gb_41b",
+      "name": "Vermelho Brasa",
+      "colors": [
+        "#F9935C",
+        "#EC6035",
+        "#C02435",
+        "#87052F"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "42A",
+      "technical_id": "HCL_Seque_42A",
+      "mode": "gb_42a",
+      "name": "Laranja Sorbet",
+      "colors": [
+        "#FDF5EC",
+        "#FBDDBF",
+        "#F9BB80",
+        "#F09221"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "42B",
+      "technical_id": "HCL_Seque_42B",
+      "mode": "gb_42b",
+      "name": "Abóbora Intensa",
+      "colors": [
+        "#F29220",
+        "#E86406",
+        "#B64406",
+        "#812E0E"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "43A",
+      "technical_id": "HCL_Seque_43A",
+      "mode": "gb_43a",
+      "name": "Pera Gelada",
+      "colors": [
+        "#FEFEE2",
+        "#EAF4CA",
+        "#C0DEA0",
+        "#88C579"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "43B",
+      "technical_id": "HCL_Seque_43B",
+      "mode": "gb_43b",
+      "name": "Folha Viva",
+      "colors": [
+        "#85C576",
+        "#44A45F",
+        "#0E754D",
+        "#064534"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "44A",
+      "technical_id": "HCL_Seque_44A",
+      "mode": "gb_44a",
+      "name": "Menta Leve",
+      "colors": [
+        "#F9FDDE",
+        "#D6F1CE",
+        "#95D3BB",
+        "#1FBBAD"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "44B",
+      "technical_id": "HCL_Seque_44B",
+      "mode": "gb_44b",
+      "name": "Aqua Profunda",
+      "colors": [
+        "#18B8AC",
+        "#0594AD",
+        "#0F5D9A",
+        "#281D61"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "45A",
+      "technical_id": "HCL_Seque_45A",
+      "mode": "gb_45a",
+      "name": "Coral Brando",
+      "colors": [
+        "#FBF3EE",
+        "#FBD4C3",
+        "#FAA78F",
+        "#FB7965"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "45B",
+      "technical_id": "HCL_Seque_45B",
+      "mode": "gb_45b",
+      "name": "Rosa Coral",
+      "colors": [
+        "#F3745F",
+        "#E82F35",
+        "#A70635",
+        "#710F2C"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "46A",
+      "technical_id": "HCL_Seque_46A",
+      "mode": "gb_46a",
+      "name": "Rosa Festival",
+      "colors": [
+        "#FAF5F2",
+        "#F9D5CF",
+        "#F9A6B5",
+        "#E471A6"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "46B",
+      "technical_id": "HCL_Seque_46B",
+      "mode": "gb_46b",
+      "name": "Magenta Roxa",
+      "colors": [
+        "#E570A6",
+        "#CB2FA5",
+        "#851385",
+        "#4A0363"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "47A",
+      "technical_id": "HCL_Seque_47A",
+      "mode": "gb_47a",
+      "name": "Lavanda Neblina",
+      "colors": [
+        "#F6F5FA",
+        "#DCD3E7",
+        "#D0A4D6",
+        "#D56ABB"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "47B",
+      "technical_id": "HCL_Seque_47B",
+      "mode": "gb_47b",
+      "name": "Roxo Imperial",
+      "colors": [
+        "#D769BD",
+        "#DC058E",
+        "#AD053D",
+        "#631605"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "48A",
+      "technical_id": "HCL_Seque_48A",
+      "mode": "gb_48a",
+      "name": "Marfim Suave",
+      "colors": [
+        "#FBFBFE",
+        "#E5E3F2",
+        "#C5C1D9",
+        "#A59CC7"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "48B",
+      "technical_id": "HCL_Seque_48B",
+      "mode": "gb_48b",
+      "name": "Azul Lavado",
+      "colors": [
+        "#A59CC8",
+        "#8375B4",
+        "#6246A0",
+        "#3F1F7A"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "49A",
+      "technical_id": "HCL_Seque_49A",
+      "mode": "gb_49a",
+      "name": "Céu de Algodão",
+      "colors": [
+        "#FCF4FB",
+        "#E6DBEB",
+        "#BABBD7",
+        "#78A5CC"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "49B",
+      "technical_id": "HCL_Seque_49B",
+      "mode": "gb_49b",
+      "name": "Turquesa Lagunar",
+      "colors": [
+        "#74A2C8",
+        "#0591AB",
+        "#046E68",
+        "#0B4635"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "50A",
+      "technical_id": "HCL_Seque_50A",
+      "mode": "gb_50a",
+      "name": "Gelo Polar",
+      "colors": [
+        "#F4F5F9",
+        "#D8DCE7",
+        "#B0B8D1",
+        "#8CA3CC"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "50B",
+      "technical_id": "HCL_Seque_50B",
+      "mode": "gb_50b",
+      "name": "Azul Marinho Portátil",
+      "colors": [
+        "#859FC4",
+        "#4A83BD",
+        "#0D6191",
+        "#284864"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "51A",
+      "technical_id": "HCL_Seque_51A",
+      "mode": "gb_51a",
+      "name": "Hortelã Clara",
+      "colors": [
+        "#F6FAF4",
+        "#DCEFD6",
+        "#B3DAA9",
+        "#81BC7A"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "51B",
+      "technical_id": "HCL_Seque_51B",
+      "mode": "gb_51b",
+      "name": "Verde Selvagem",
+      "colors": [
+        "#82BD7B",
+        "#45A048",
+        "#227333",
+        "#05461A"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "52A",
+      "technical_id": "HCL_Seque_52A",
+      "mode": "gb_52a",
+      "name": "Menta Pastel",
+      "colors": [
+        "#F0FAFA",
+        "#DBEFEE",
+        "#ACDDD4",
+        "#73C1AB"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "52B",
+      "technical_id": "HCL_Seque_52B",
+      "mode": "gb_52b",
+      "name": "Turquesa de Cartucho",
+      "colors": [
+        "#71C3AB",
+        "#0AA372",
+        "#13763E",
+        "#20461A"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "53A",
+      "technical_id": "HCL_Seque_53A",
+      "mode": "gb_53a",
+      "name": "Brisa de Ciano",
+      "colors": [
+        "#F5F7EB",
+        "#DBF0D9",
+        "#A6DEC6",
+        "#58C5B9"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "53B",
+      "technical_id": "HCL_Seque_53B",
+      "mode": "gb_53b",
+      "name": "Azul Safira",
+      "colors": [
+        "#54C6BA",
+        "#07A6BB",
+        "#1273AF",
+        "#35387F"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "54A",
+      "technical_id": "HCL_Seque_54A",
+      "mode": "gb_54a",
+      "name": "Nuvem Lilás",
+      "colors": [
+        "#EEF8F9",
+        "#D0E3EA",
+        "#A8BED1",
+        "#9299C6"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "54B",
+      "technical_id": "HCL_Seque_54B",
+      "mode": "gb_54b",
+      "name": "Roxo de Crepúsculo",
+      "colors": [
+        "#8F96C2",
+        "#8569AF",
+        "#752F7E",
+        "#550948"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "55A",
+      "technical_id": "HCL_Seque_55A",
+      "mode": "gb_55a",
+      "name": "Gelo de Inverno",
+      "colors": [
+        "#F1F6F9",
+        "#D3E4ED",
+        "#A6BED5",
+        "#82AAD0"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "55B",
+      "technical_id": "HCL_Seque_55B",
+      "mode": "gb_55b",
+      "name": "Azul Profundo",
+      "colors": [
+        "#7EA7CA",
+        "#5487BF",
+        "#355E9D",
+        "#3B4677"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "56A",
+      "technical_id": "HCL_Seque_56A",
+      "mode": "gb_56a",
+      "name": "Ouro Antigo",
+      "colors": [
+        "#FBFDCA",
+        "#E9D78B",
+        "#E0A846",
+        "#D67809"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "56B",
+      "technical_id": "HCL_Seque_56B",
+      "mode": "gb_56b",
+      "name": "Ferrugem Pixel",
+      "colors": [
+        "#D67708",
+        "#AD4C41",
+        "#73263D",
+        "#1D0D14"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "57A",
+      "technical_id": "HCL_Seque_57A",
+      "mode": "gb_57a",
+      "name": "Deserto Digital",
+      "colors": [
+        "#FCE8EA",
+        "#F6BFAD",
+        "#C59F78",
+        "#948469"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "57B",
+      "technical_id": "HCL_Seque_57B",
+      "mode": "gb_57b",
+      "name": "Obsidiana 8-Bit",
+      "colors": [
+        "#928365",
+        "#61604E",
+        "#363932",
+        "#040504"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "58A",
+      "technical_id": "HCL_Seque_58A",
+      "mode": "gb_58a",
+      "name": "Aurora Turquesa",
+      "colors": [
+        "#B0F1F5",
+        "#52DFB8",
+        "#77BD64",
+        "#9B991B"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "58B",
+      "technical_id": "HCL_Seque_58B",
+      "mode": "gb_58b",
+      "name": "Carnaval Pixel",
+      "colors": [
+        "#9B9806",
+        "#A96E0B",
+        "#A23E4E",
+        "#8E116C"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "59A",
+      "technical_id": "HCL_Seque_59A",
+      "mode": "gb_59a",
+      "name": "Rosa Botânica",
+      "colors": [
+        "#FACDEE",
+        "#F4A5A5",
+        "#C09B25",
+        "#648E40"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "59B",
+      "technical_id": "HCL_Seque_59B",
+      "mode": "gb_59b",
+      "name": "Selva Noturna",
+      "colors": [
+        "#5A8B2B",
+        "#046F55",
+        "#0D485F",
+        "#25185C"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "60A",
+      "technical_id": "HCL_Seque_60A",
+      "mode": "gb_60a",
+      "name": "Mostarda de Aço",
+      "colors": [
+        "#F8E544",
+        "#CFC06A",
+        "#A09B78",
+        "#8F8F8F"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    },
+    {
+      "code": "60B",
+      "technical_id": "HCL_Seque_60B",
+      "mode": "gb_60b",
+      "name": "Noite de Ardósia",
+      "colors": [
+        "#7D7D7E",
+        "#555D73",
+        "#233D6B",
+        "#132956"
+      ],
+      "source": "referência visual fornecida pelo usuário"
+    }
+  ]
+}

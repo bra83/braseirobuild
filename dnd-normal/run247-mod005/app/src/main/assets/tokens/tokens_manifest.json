@@ -1,0 +1,78 @@
+{
+  "manifestVersion": 2,
+  "game": "Dungeons & Dragons 5e",
+  "source": {
+    "type": "google-drive-folder",
+    "folderId": "1gfBQfV6x0KAri0pdyKXpMhVlQYblLD-W",
+    "folderUrl": "https://drive.google.com/drive/folders/1gfBQfV6x0KAri0pdyKXpMhVlQYblLD-W",
+    "layout": "individual-files",
+    "recursive": false
+  },
+  "sync": {
+    "strategy": "scan-on-demand",
+    "detectNewFiles": true,
+    "updateExistingBy": "driveId",
+    "pageSize": 1000,
+    "acceptedMimeTypes": ["image/png", "image/jpeg", "image/webp"],
+    "removeMissingFromLibrary": false,
+    "preserveLocalAssignments": true
+  },
+  "filenamePolicy": {
+    "stripPrefixes": ["Cópia de ", "Copy of "],
+    "stripExtension": true,
+    "normalizeHyphensAndUnderscores": true,
+    "speciesFromFilename": true,
+    "creatureTypeFromFilename": true,
+    "roleFromFilename": true
+  },
+  "classification": {
+    "priority": ["manualCorrection", "specificSpeciesRule", "creatureTypeRule", "roleRule", "fallback"],
+    "speciesExamples": {
+      "Elfo": ["elf", "elven"],
+      "Drow / Elfo Negro": ["drow", "dark elf", "dusk elf", "Drizzt", "Jarlaxle", "Lolth"],
+      "Anão": ["dwarf", "dward", "Dwerym", "Bruenor"],
+      "Humano": ["human"],
+      "Gnomo": ["gnome", "Ellywick"],
+      "Draconato": ["dragonborn"],
+      "Tiefling": ["tiefling"],
+      "Halfling": ["halfling"]
+    },
+    "creatureTypeExamples": {
+      "Aberração": ["aberration", "abberation", "aboleth", "beholder", "mind flayer", "illithid", "kraken", "Far Realms"],
+      "Elemental": ["elemental", "Omnath"],
+      "Dragão": ["dragon", "dracolich", "Icingdeath", "Iymrith"],
+      "Morto-vivo": ["undead", "zombie", "lich", "vampire", "Strahd", "Acererak"],
+      "Corruptor": ["fiend", "demon", "devil", "Orcus"],
+      "Celestial": ["celestial", "angel", "Bahamut", "Avacyn"],
+      "Fera": ["wolf", "bear", "fox", "elk", "stag", "hound", "hawk", "panther"],
+      "Divindade": ["deity", "Mystra", "Chauntea", "Lolth", "Bahamut"]
+    },
+    "roleExamples": {
+      "Bárbaro": ["barbarian"],
+      "Bardo": ["bard"],
+      "Clérigo": ["cleric", "priest"],
+      "Druida": ["druid"],
+      "Guerreiro": ["fighter", "warrior", "duelist"],
+      "Monge": ["monk"],
+      "Paladino": ["paladin"],
+      "Patrulheiro": ["ranger", "archer", "scout"],
+      "Ladino": ["rogue", "assassin"],
+      "Feiticeiro": ["sorcerer"],
+      "Bruxo": ["warlock"],
+      "Mago": ["wizard", "mage", "bladesinger"],
+      "Artífice": ["artificer", "crafter", "armorsmith"]
+    },
+    "fallback": {
+      "species": "Não identificada",
+      "creatureType": "Não identificado",
+      "role": "Geral",
+      "category": "Criatura"
+    }
+  },
+  "notes": [
+    "Os tokens são arquivos individuais; nenhum recorte é necessário.",
+    "A biblioteca é atualizada ao tocar em Sincronizar Tokens.",
+    "Novos arquivos adicionados à pasta são detectados e classificados automaticamente pelo nome.",
+    "Correções manuais e vínculos já feitos com personagens são preservados."
+  ]
+}

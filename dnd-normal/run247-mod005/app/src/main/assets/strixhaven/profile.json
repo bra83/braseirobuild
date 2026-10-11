@@ -1,0 +1,73 @@
+{
+  "id": "strixhaven_curriculum",
+  "system": "dnd",
+  "title": "Strixhaven: A Curriculum of Chaos",
+  "maps": [
+    {
+      "id": "central",
+      "label": "Campus Central",
+      "asset": "strixhaven/Central_campus_map.webp"
+    },
+    {
+      "id": "university",
+      "label": "Universidade",
+      "asset": "strixhaven/Strixhaven_map.webp"
+    },
+    {
+      "id": "lorehold",
+      "label": "Lorehold",
+      "asset": "strixhaven/Lorehold_map.webp"
+    },
+    {
+      "id": "prismari",
+      "label": "Prismari",
+      "asset": "strixhaven/Prismari_map.webp"
+    },
+    {
+      "id": "quandrix",
+      "label": "Quandrix",
+      "asset": "strixhaven/Quandrix_map.webp"
+    },
+    {
+      "id": "silverquill",
+      "label": "Silverquill",
+      "asset": "strixhaven/Silverquill_map.webp"
+    },
+    {
+      "id": "witherbloom",
+      "label": "Witherbloom",
+      "asset": "strixhaven/Witherbloom_map.webp"
+    }
+  ],
+  "faerun_policy": "preserve_and_disable_while_active",
+  "narrative_pillars": [
+    "classes",
+    "exams",
+    "relationships",
+    "extracurriculars",
+    "jobs",
+    "campus_events",
+    "mystery",
+    "danger",
+    "downtime"
+  ],
+  "default_map": "university",
+  "interactive_map": true,
+  "position_marker": "meeple",
+  "movement": {
+    "mode": "poi_to_poi",
+    "official_dnd_test_required_for_walking": false,
+    "app_time_estimate_only": true
+  },
+  "academic_progression": {
+    "year_1": "general_program_visit_all_colleges",
+    "college_enrollment_available_from_year": 2,
+    "visit_is_not_enrollment": true
+  },
+  "session_ui": {
+    "map_first": true,
+    "narration_drawer": "retractable",
+    "free_action_inside_drawer": true,
+    "faerun_preserved_while_disabled": true
+  }
+}

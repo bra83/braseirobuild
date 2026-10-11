@@ -1,0 +1,5 @@
+Note: /mnt/data/g05_work/braseiro_unpacked_run243/RUN233_EVIDENCE/Run233SecondaryRiderJvmTest.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+RUN237_FORCED_MOVEMENT_JVM_PASS checks=53720
+RUN236_CONDITION_BACKUP_JVM_PASS checks=66022
+RUN235_RECOVERY_JVM_PASS checks=28073

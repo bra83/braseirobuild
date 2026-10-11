@@ -1,0 +1,112 @@
+{
+  "schema": "run246_typed_on_hit_v1",
+  "rows": [
+    {
+      "row": 8,
+      "creature": "Azalin Rex",
+      "action": "Paralyzing Touch",
+      "condition": "paralyzed",
+      "source_url": "https://5e.tools/bestiary.html#azalin%20rex_rhw"
+    },
+    {
+      "row": 157,
+      "creature": "Assassin",
+      "action": "Shortsword",
+      "condition": "poisoned",
+      "source_url": "https://5e.tools/bestiary/assassin-xmm.html"
+    },
+    {
+      "row": 198,
+      "creature": "Giant Centipede",
+      "action": "Bite",
+      "condition": "poisoned",
+      "source_url": "https://5e.tools/bestiary.html#giant%20centipede_xmm"
+    },
+    {
+      "row": 211,
+      "creature": "Githyanki Dracomancer",
+      "action": "Draconic Strike",
+      "condition": "frightened",
+      "source_url": "https://5e.tools/bestiary.html#githyanki%20dracomancer_xmm"
+    },
+    {
+      "row": 214,
+      "creature": "Gnoll Fang of Yeenoghu",
+      "action": "Bite",
+      "condition": "poisoned",
+      "source_url": "https://5e.tools/bestiary.html#gnoll%20fang%20of%20yeenoghu_xmm"
+    },
+    {
+      "row": 228,
+      "creature": "Lich",
+      "action": "Paralyzing Touch",
+      "condition": "paralyzed",
+      "source_url": "https://5e.tools/bestiary.html#lich_xmm"
+    },
+    {
+      "row": 241,
+      "creature": "Noble Prodigy",
+      "action": "Beguiling Strike",
+      "condition": "charmed",
+      "source_url": "https://5e.tools/bestiary.html#noble%20prodigy_xmm"
+    },
+    {
+      "row": 242,
+      "creature": "Oni",
+      "action": "Nightmare Ray",
+      "condition": "frightened",
+      "source_url": "https://5e.tools/bestiary.html#oni_xmm"
+    },
+    {
+      "row": 249,
+      "creature": "Quasit",
+      "action": "Rend",
+      "condition": "poisoned",
+      "source_url": "https://5e.tools/bestiary.html#quasit_xmm"
+    },
+    {
+      "row": 254,
+      "creature": "Satyr Revelmaster",
+      "action": "Prance",
+      "condition": "charmed",
+      "source_url": "https://5e.tools/bestiary.html#satyr%20revelmaster_xmm"
+    },
+    {
+      "row": 256,
+      "creature": "Sprite",
+      "action": "Enchanting Bow",
+      "condition": "charmed",
+      "source_url": "https://5e.tools/bestiary.html#sprite_xmm"
+    },
+    {
+      "row": 271,
+      "creature": "Vampire Umbral Lord",
+      "action": "Sickening Ray",
+      "condition": "poisoned",
+      "source_url": "https://5e.tools/bestiary.html#vampire%20umbral%20lord_xmm"
+    },
+    {
+      "row": 280,
+      "creature": "Wyvern",
+      "action": "Sting",
+      "condition": "poisoned",
+      "source_url": "https://5e.tools/bestiary.html#wyvern_xmm"
+    },
+    {
+      "row": 168,
+      "creature": "Centaur Warden",
+      "action": "Sun Ray",
+      "condition": "blinded",
+      "source_url": "https://5e.tools/bestiary/centaur-warden-xmm.html"
+    },
+    {
+      "row": 190,
+      "creature": "Ettercap",
+      "action": "Bite",
+      "condition": "poisoned",
+      "source_url": "https://5e.tools/bestiary/ettercap-xmm.html"
+    }
+  ],
+  "source_validation": "auxiliary_5etools_only; licensed_pdf_not_homologated",
+  "test_status": "PENDING"
+}

@@ -1,0 +1,37 @@
+{
+  "project": "Braseiro D&D 5e ORIGINAL (not Hybrid Fastplay)",
+  "status": "G05_PARTIALLY_IMPLEMENTED_NOT_HOMOLOGATED",
+  "input_uploaded_archive": "braseiro-d&d-5e.zip",
+  "base_run": "RUN243_G08 6.6.14-r243-g08-source",
+  "base_integrated_source_drive_sha256": "3579a946c1dbe8e8fe36b976aa02be6486c27f20920a17469633e05bd99b34fa",
+  "source_root": "/",
+  "version": "6.6.14-r244-g05-source",
+  "versionCode": 606544,
+  "db_schema": 61,
+  "backup_format": 21,
+  "application_id": "com.braseiro.dnd5e",
+  "changed_files": {
+    "app/src/main/java/com/braseiro/dnd5e/AppDb.java": "9bf186cd6de7412905bfb4a4388e3caf15563025b76227c9da1bc6fc187bac51",
+    "app/src/main/java/com/braseiro/dnd5e/MainActivity.java": "219275550a9cc05d366c7b1a09fd6d11a9594d7af4f0607b894acac84c2644cb",
+    "app/src/test/java/com/braseiro/dnd5e/Run244G05AttackRiderForcedMovementRobolectricTest.java": "9597ed205bf5415d96015ed2b9a65a8e948ba08736d649f85d647872b02de831",
+    "version.properties": "eb40aa7d4e83f97eb6437f70a85445973e67478b03bd6a8e1271538236e0b268"
+  },
+  "catalog_issue_rows": 280,
+  "catalog_creature_records": 572,
+  "catalog_actions": 1504,
+  "runner_tested": false,
+  "robolectric_tested": false,
+  "device_tested": false,
+  "gradle_built": false,
+  "tests": {
+    "RUN238_EVIDENCE/run238_tests.sh": "PASS historical pure Java/static/catalog; PASS log saved",
+    "RUN238_EVIDENCE/run238_regressions.sh": "PARTIAL after timeout, inspect saved log",
+    "RUN244 JavacTask.parse 3 sources": "PASS",
+    "RUN244 source wiring 9 assertions": "PASS",
+    "RUN244 Robolectric test": "NOT RUN requires Android Gradle runtime"
+  },
+  "notes": [
+    "Never claim G05 done; unresolved catalog actions require source authorization",
+    "Base Android tree recovered from braseiro_unpacked_run243/android, not AI Studio Kotlin app"
+  ]
+}

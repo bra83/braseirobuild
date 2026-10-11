@@ -1,0 +1,15 @@
+{
+  "records_scanned": 572,
+  "actions_scanned": 1504,
+  "issue_rows": 280,
+  "issue_counts": {
+    "total_actions": 1504,
+    "hit_rider_without_save_dc_or_typed_handler": 105,
+    "special_action_requires_own_trigger_budget": 67,
+    "save_effect_requires_source_bound_typed_executor": 28,
+    "save_action_dc_invalid_ability": 27,
+    "attack_save_dc_invalid_ability": 53
+  },
+  "coverage_status": "NOT_FULLY_IMPLEMENTED",
+  "policy": "No inferred DC/save ability/movement/condition without published source and executable rule"
+}

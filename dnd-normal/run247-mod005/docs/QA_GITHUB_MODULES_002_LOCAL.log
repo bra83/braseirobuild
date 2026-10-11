@@ -1,0 +1,10 @@
+PASS tomeYearZeroLoreweaverAreOnePersistentPipeline
+PASS starWarsNarrativeFacesCancelCorrectlyAndNeverMixPools
+PASS yearZeroPushCountsConsequencesButDoesNotApplyThemSilently
+PASS staleSceneIsRejectedAndResourceIsBoundedWithReceipt
+PASS dndExplicitD20AlsoProducesTheSameLoreweaverEnvelope
+PASS fourUpstreamModulesRegisteredAndNoImplicitStateEdits
+RESULT 6 passed 0 failed
+FIRST=passed STAGE= null
+SECOND=passed STAGE= null
+INTEGRATION PASSED: 5 GitHub modules, repeatable, persistence-reopen simulated

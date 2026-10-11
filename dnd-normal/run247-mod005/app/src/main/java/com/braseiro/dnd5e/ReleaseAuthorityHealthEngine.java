@@ -1,0 +1,7 @@
+package com.braseiro.dnd5e;
+import org.json.JSONArray;import org.json.JSONObject;
+/** Compact fail-closed health surface for release authority. It reports only; it never grants, repairs or mutates authority. */
+public final class ReleaseAuthorityHealthEngine{
+ private ReleaseAuthorityHealthEngine(){}
+ public static JSONObject report(){JSONObject o=new JSONObject();JSONArray blockers=new JSONArray();try{JSONObject consistency=ReleaseAuthorityConsistencyEngine.audit(),readiness=ReleaseReadinessSummaryEngine.report(),queue=ExactMissingContentQueueEngine.report();if(!consistency.optBoolean("consistent",false))blockers.put("authority_consistency_failed");if(readiness.optInt("exact_missing_content_count",queue.optInt("count",0))!=queue.optInt("count",0))blockers.put("missing_queue_count_mismatch");if(queue.optBoolean("release_blocked",true))blockers.put("authorized_content_pending");boolean healthy=blockers.length()==0;return o.put("healthy",healthy).put("release_ready",healthy&&readiness.optBoolean("release_ready",false)).put("blockers",blockers).put("exact_missing_content_count",queue.optInt("count",0)).put("false_100_percent_forbidden",true).put("repair_performed",false).put("auto_promotion",false).put("consistency",consistency).put("readiness",readiness);}catch(Exception e){try{return o.put("healthy",false).put("release_ready",false).put("false_100_percent_forbidden",true).put("authority","health_report_error");}catch(Exception ignored){return o;}}}
+}

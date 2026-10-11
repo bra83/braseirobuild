@@ -1,0 +1,14 @@
+BRASEIRO D&D 5e NORMAL — RUN245 GATES / ENTREGA INTEGRAL
+
+O arquivo final é um único ZIP baixável nesta conversa:
+BRASEIRO_DND_NORMAL_RUN245_GATES_FINAL_20261010.zip
+
+Valide em Windows PowerShell:
+  Get-FileHash .\BRASEIRO_DND_NORMAL_RUN245_GATES_FINAL_20261010.zip -Algorithm SHA256
+  tar -tf .\BRASEIRO_DND_NORMAL_RUN245_GATES_FINAL_20261010.zip
+
+Valide em Linux/macOS:
+  sha256sum -c BRASEIRO_DND_NORMAL_RUN245_GATES_FINAL_20261010.zip.sha256
+  unzip -tq BRASEIRO_DND_NORMAL_RUN245_GATES_FINAL_20261010.zip
+
+O pacote inclui código, revisão por linha, matriz e evidências QA textuais do run BRELGA. O APK compilado continua disponível na release privada indicada em DELIVERY_MANIFEST.json. A auditoria não homologa gates parciais como concluídos; consulte GATE_AUDIT_G01_G16_RUN245_20261010.md.

@@ -1,0 +1,31 @@
+<resources>
+  <style name="AppDialogTheme" parent="android:style/Theme.Material.Dialog.Alert">
+    <item name="android:fontFamily">sans</item>
+    <item name="android:windowBackground">#17110F</item>
+    <item name="android:colorAccent">#E39A2D</item>
+    <item name="android:textColorPrimary">#F5E7CF</item>
+    <item name="android:textColorSecondary">#BDAA91</item>
+    <item name="android:windowMinWidthMajor">96%</item>
+    <item name="android:windowMinWidthMinor">96%</item>
+  </style>
+  <style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
+    <item name="android:fontFamily">sans</item>
+    <item name="android:windowLightStatusBar">false</item>
+    <item name="android:colorAccent">#E39A2D</item>
+    <item name="android:navigationBarColor">#0F0C0B</item>
+    <item name="android:statusBarColor">#0F0C0B</item>
+    <item name="android:windowLightNavigationBar">false</item>
+    <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+    <item name="android:windowActionModeOverlay">true</item>
+    <item name="android:alertDialogTheme">@style/AppDialogTheme</item>
+  </style>
+
+  <style name="ShareReceiverTheme" parent="android:style/Theme.Material.NoActionBar">
+    <item name="android:windowIsTranslucent">true</item>
+    <item name="android:windowBackground">@android:color/transparent</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:backgroundDimEnabled">false</item>
+    <item name="android:colorAccent">#E39A2D</item>
+  </style>
+</resources>

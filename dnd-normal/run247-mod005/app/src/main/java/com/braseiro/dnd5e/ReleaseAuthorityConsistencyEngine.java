@@ -1,0 +1,7 @@
+package com.braseiro.dnd5e;
+import org.json.JSONArray;import org.json.JSONObject;
+/** Cross-checks persisted authority registries against the exact release queue. Report-only; never repairs or promotes content. */
+public final class ReleaseAuthorityConsistencyEngine{
+ private ReleaseAuthorityConsistencyEngine(){}
+ public static JSONObject audit(){JSONObject o=new JSONObject();JSONArray problems=new JSONArray();try{JSONObject closure=ContentClosureQueueEngine.report();int exact=closure.optInt("exact_missing_content_count",-1);JSONObject truth=ReleaseReadinessSummaryEngine.report();int truthMissing=truth.optInt("exact_missing_content_count",exact);if(exact>=0&&truthMissing>=0&&exact!=truthMissing)problems.put(new JSONObject().put("code","closure_count_mismatch").put("queue",exact).put("release",truthMissing));JSONObject bundle=CompiledContentPersistenceBundle.snapshot();if(!"compiled_content_bundle_v2".equals(bundle.optString("schema")))problems.put(new JSONObject().put("code","unexpected_persistence_schema"));o.put("consistent",problems.length()==0).put("problem_count",problems.length()).put("problems",problems).put("repair_performed",false).put("auto_promotion",false).put("closure",closure).put("release",truth);return o;}catch(Exception e){try{return o.put("consistent",false).put("problem_count",1).put("repair_performed",false).put("auto_promotion",false).put("authority","audit_error");}catch(Exception ignored){return o;}}}
+}

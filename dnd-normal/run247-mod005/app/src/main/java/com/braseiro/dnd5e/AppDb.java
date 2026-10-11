@@ -1,0 +1,7652 @@
+package com.braseiro.dnd5e;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+import java.io.File;
+import java.io.InputStream;
+
+public class AppDb extends SQLiteOpenHelper {
+    private static final String DB_NAME = "braseiro_dnd.db";
+    private static final int DB_VERSION = 61; // RUN189_AGENCY_SCHEMA
+    public static final String LOCAL_MANUAL_STORE = "local-v4-content-structured";
+    private volatile String lastDatabaseError = "";
+    private volatile String activeMapProfile = "dnd";
+    private final Context appContext;
+    private volatile NpcPersonalityCatalog npcPersonalityCatalog;
+
+    public AppDb(Context context) { this(context,DB_NAME); }
+    /** Construtor de sandbox usado pelo verificador de round-trip 5.0. */
+    AppDb(Context context,String databaseName) {
+        super(context,(databaseName==null||databaseName.trim().isEmpty())?DB_NAME:databaseName,null,DB_VERSION);
+        appContext=context.getApplicationContext();
+        setWriteAheadLoggingEnabled(true);
+    }
+
+    /** Trabalho persistente que deve ser concluído por inteiro ou revertido. */
+    public interface CheckedTransaction {
+        void run() throws Exception;
+    }
+
+    /**
+     * Executa todas as gravações no mesmo SQLiteDatabase. Chamadas aninhadas
+     * reutilizam a transação externa, evitando beginTransaction() aninhado.
+     */
+    public synchronized void runInTransactionChecked(CheckedTransaction work) throws Exception {
+        if(work==null)throw new IllegalArgumentException("Transação ausente.");
+        SQLiteDatabase sql=getWritableDatabase();
+        boolean owner=!sql.inTransaction();
+        if(owner)sql.beginTransaction();
+        try{
+            work.run();
+            if(owner)sql.setTransactionSuccessful();
+        }finally{
+            if(owner)sql.endTransaction();
+        }
+    }
+
+    /** Prepara uma identidade idempotente para uma aplicação de consequências. */
+    public synchronized JSONObject prepareSceneCommit(String commitId,long transactionId,String envelopeHash,String actionHash,String narrationHash) throws Exception {
+        String id=commitId==null?"":commitId.trim();if(id.length()<16)throw new IllegalArgumentException("scene_commit_id inválido.");
+        SQLiteDatabase sql=getWritableDatabase();ensureBarbaraHardeningSchema(sql);String w=getActiveMapProfile();long now=System.currentTimeMillis();
+        ContentValues v=new ContentValues();v.put("world_profile",w);v.put("commit_id",id);v.put("transaction_id",transactionId);v.put("status","PREPARED");v.put("envelope_hash",envelopeHash==null?"":envelopeHash);v.put("action_hash",actionHash==null?"":actionHash);v.put("narration_hash",narrationHash==null?"":narrationHash);v.put("prepared_at",now);v.put("updated_at",now);
+        sql.insertWithOnConflict("scene_commit_journal",null,v,SQLiteDatabase.CONFLICT_IGNORE);
+        JSONObject existing=getSceneCommit(id);if(existing.length()==0)throw new IllegalStateException("O journal não confirmou a preparação do commit de cena.");
+        validateSceneCommitBindingChecked(id,transactionId,envelopeHash,actionHash,narrationHash,true);return existing;
+    }
+
+    /** Valida a identidade original do commit. A seleção parcial não pode substituir o hash do envelope staged. */
+    public synchronized JSONObject validateSceneCommitBindingChecked(String commitId,long transactionId,String envelopeHash,String actionHash,String narrationHash,boolean requireEnvelopeHash) throws Exception {
+        JSONObject existing=getSceneCommit(commitId);if(existing.length()==0)throw new IllegalStateException("Journal de cena inexistente.");
+        long boundTx=existing.optLong("transaction_id",0);if(transactionId>0&&boundTx>0&&transactionId!=boundTx)throw new IllegalStateException("scene_commit_id colidiu com outra transação.");
+        if(requireEnvelopeHash)compareSceneBinding("envelope",existing.optString("envelope_hash"),envelopeHash);
+        compareSceneBinding("ação",existing.optString("action_hash"),actionHash);compareSceneBinding("narração",existing.optString("narration_hash"),narrationHash);return existing;
+    }
+    private static void compareSceneBinding(String label,String existing,String wanted){if(existing!=null&&existing.length()>0&&wanted!=null&&wanted.length()>0&&!existing.equals(wanted))throw new IllegalStateException("scene_commit_id colidiu com "+label+" diferente.");}
+
+    public JSONObject getSceneCommit(String commitId){
+        String id=commitId==null?"":commitId.trim();if(id.length()==0)return new JSONObject();
+        ensureBarbaraHardeningSchema(getWritableDatabase());List<JSONObject> rows=queryList("SELECT * FROM scene_commit_journal WHERE world_profile=? AND commit_id=? LIMIT 1",new String[]{getActiveMapProfile(),id});return rows.isEmpty()?new JSONObject():rows.get(0);
+    }
+    public boolean isSceneCommitCommitted(String commitId){return "COMMITTED".equalsIgnoreCase(getSceneCommit(commitId).optString("status"));}
+
+    /** Deve ser chamada dentro da mesma transação SQLite das consequências. */
+    public void markSceneCommitCommittingChecked(String commitId) throws Exception {
+        SQLiteDatabase sql=getWritableDatabase();if(!sql.inTransaction())throw new IllegalStateException("COMMITTING exige transação SQLite ativa.");String w=getActiveMapProfile();long now=System.currentTimeMillis();ContentValues v=new ContentValues();v.put("status","COMMITTING");v.put("committing_at",now);v.put("updated_at",now);v.put("last_error","");
+        int changed=sql.update("scene_commit_journal",v,"world_profile=? AND commit_id=? AND status IN ('PREPARED','COMMITTING')",new String[]{w,commitId});if(changed!=1){JSONObject current=getSceneCommit(commitId);if("COMMITTED".equalsIgnoreCase(current.optString("status")))throw new IllegalStateException("Commit de cena já confirmado.");throw new IllegalStateException("O journal não permitiu iniciar o commit de cena.");}
+        sql.execSQL("UPDATE scene_commit_journal SET attempt_count=attempt_count+1 WHERE world_profile=? AND commit_id=?",new Object[]{w,commitId});
+    }
+
+    /** Última escrita da transação: se ela persistir, as consequências persistiram junto. */
+    public void markSceneCommitCommittedChecked(String commitId) throws Exception {
+        SQLiteDatabase sql=getWritableDatabase();if(!sql.inTransaction())throw new IllegalStateException("COMMITTED exige transação SQLite ativa.");long now=System.currentTimeMillis();ContentValues v=new ContentValues();v.put("status","COMMITTED");v.put("committed_at",now);v.put("updated_at",now);v.put("last_error","");int changed=sql.update("scene_commit_journal",v,"world_profile=? AND commit_id=? AND status='COMMITTING'",new String[]{getActiveMapProfile(),commitId});if(changed!=1)throw new IllegalStateException("O journal não confirmou COMMITTED para a cena.");
+    }
+
+    public void noteSceneCommitFailure(String commitId,String error){
+        try{String id=commitId==null?"":commitId.trim();if(id.length()==0)return;ensureBarbaraHardeningSchema(getWritableDatabase());String safe=error==null?"":error.replaceAll("\\s+"," ").trim();if(safe.length()>500)safe=safe.substring(0,500);ContentValues v=new ContentValues();v.put("status","PREPARED");v.put("last_error",safe);v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("scene_commit_journal",v,"world_profile=? AND commit_id=? AND status IN ('PREPARED','COMMITTING')",new String[]{getActiveMapProfile(),id});}catch(Exception failure){AppLog.w("AppDb","Falha ao anotar erro no journal de cena.",failure);}
+    }
+    public void discardSceneCommit(String commitId){try{String id=commitId==null?"":commitId.trim();if(id.length()==0)return;ContentValues v=new ContentValues();v.put("status","DISCARDED");v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("scene_commit_journal",v,"world_profile=? AND commit_id=? AND status IN ('PREPARED','COMMITTING')",new String[]{getActiveMapProfile(),id});}catch(Exception e){AppLog.w("AppDb","Falha ao descartar journal da cena.",e);}}
+
+    /** PREPARED após reinício é um estado seguro: SQLite não confirmou nenhuma consequência. */
+    public JSONObject sceneCommitRecoveryState(){
+        JSONObject out=new JSONObject();try{
+            SQLiteDatabase sql=getWritableDatabase();ensureBarbaraHardeningSchema(sql);String w=getActiveMapProfile();
+            List<JSONObject> open=queryList("SELECT commit_id,transaction_id,status,attempt_count,last_error,updated_at FROM scene_commit_journal WHERE world_profile=? AND status IN ('PREPARED','COMMITTING') ORDER BY updated_at DESC LIMIT 100",new String[]{w});
+            JSONArray retryable=new JSONArray(),blocked=new JSONArray(),reconciled=new JSONArray(),discarded=new JSONArray();
+            for(JSONObject r:open){String id=r.optString("commit_id"),status=r.optString("status");long txId=r.optLong("transaction_id",0);
+                JSONObject finalEvent=queryOne("SELECT event_id FROM world_domain_events WHERE world_profile=? AND scene_commit_id=? AND event_type='SCENE_COMMITTED' LIMIT 1",new String[]{w,id});
+                if(finalEvent.length()>0){ContentValues v=new ContentValues();v.put("status","COMMITTED");v.put("committed_at",System.currentTimeMillis());v.put("updated_at",System.currentTimeMillis());v.put("last_error","Journal reconciliado pelo evento final canônico.");sql.update("scene_commit_journal",v,"world_profile=? AND commit_id=?",new String[]{w,id});r.put("status","COMMITTED").put("recovery_class","reconciled_committed").put("retryable",false);reconciled.put(r);continue;}
+                JSONObject tx=txId>0?getPendingTransaction(txId):new JSONObject();
+                if(tx.length()==0){discardSceneCommit(id);r.put("status","DISCARDED").put("recovery_class","orphan_transaction").put("retryable",false).put("reason","Transação pendente original ausente.");discarded.put(r);continue;}
+                JSONObject payload;try{payload=new JSONObject(tx.optString("payload_json","{}"));}catch(Exception bad){payload=new JSONObject();}
+                String payloadId=payload.optString("_scene_commit_id","").trim();if(payloadId.length()>0&&!id.equals(payloadId)){discardSceneCommit(id);r.put("status","DISCARDED").put("recovery_class","binding_mismatch").put("retryable",false).put("reason","scene_commit_id divergiu da transação original.");discarded.put(r);continue;}
+                String txStatus=tx.optString("status","").toLowerCase(Locale.US);
+                if("applied".equals(txStatus)){r.put("recovery_class","applied_without_final_event").put("retryable",false).put("reason","Transação marcada aplicada sem SCENE_COMMITTED; revisão manual obrigatória.");blocked.put(r);continue;}
+                if("discarded".equals(txStatus)||"rolled_back".equals(txStatus)){discardSceneCommit(id);r.put("status","DISCARDED").put("recovery_class","terminal_transaction").put("retryable",false);discarded.put(r);continue;}
+                if("COMMITTING".equalsIgnoreCase(status)){ContentValues v=new ContentValues();v.put("status","PREPARED");v.put("last_error","Processo interrompido antes do commit SQLite; a transação foi revertida e permanece revisável.");v.put("updated_at",System.currentTimeMillis());sql.update("scene_commit_journal",v,"world_profile=? AND commit_id=?",new String[]{w,id});r.put("status","PREPARED");}
+                boolean canRetry=txStatus.matches("pending|review|reviewing|pending_review|failed|prepared");
+                if(canRetry){r.put("recovery_class","reviewable_not_auto_retried").put("retryable",true);retryable.put(r);}else{r.put("recovery_class","unknown_transaction_status").put("retryable",false).put("reason","Status de transação desconhecido: "+txStatus);blocked.put(r);}
+            }
+            out.put("recoverable",retryable).put("retryable",retryable).put("blocked",blocked).put("reconciled",reconciled).put("discarded",discarded)
+                    .put("count",retryable.length()+blocked.length()).put("retryable_count",retryable.length()).put("blocked_count",blocked.length()).put("reconciled_count",reconciled.length()).put("discarded_count",discarded.length()).put("safe",blocked.length()==0);
+            if(blocked.length()>0)out.put("error","Há commits ambíguos que não serão reaplicados automaticamente.");
+        }catch(Exception e){try{out.put("safe",false).put("error",String.valueOf(e.getMessage()));}catch(Exception ignored){AppLog.ignored("AppDb","Falha ao registrar recuperação de commit de cena.",ignored);}AppLog.w("AppDb","Falha ao avaliar journal de cena.",e);}return out;
+    }
+
+    public void appendDomainEventChecked(String eventId,String sceneCommitId,String eventType,String entityType,String entityId,JSONObject payload,String source) throws Exception {
+        String eid=eventId==null?"":eventId.trim(),type=eventType==null?"":eventType.trim();if(eid.length()<8||type.length()==0)throw new IllegalArgumentException("Evento de domínio sem identidade/tipo.");SQLiteDatabase sql=getWritableDatabase();if(!sql.inTransaction())throw new IllegalStateException("Evento de domínio deve participar da transação de cena.");ensureBarbaraHardeningSchema(sql);ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("event_id",eid);v.put("scene_commit_id",sceneCommitId==null?"":sceneCommitId);v.put("event_type",type);v.put("entity_type",entityType==null?"":entityType);v.put("entity_id",entityId==null?"":entityId);v.put("payload_json",payload==null?"{}":payload.toString());v.put("source",source==null?"consequence_engine":source);v.put("canonical",1);v.put("created_at",System.currentTimeMillis());long row=sql.insertWithOnConflict("world_domain_events",null,v,SQLiteDatabase.CONFLICT_IGNORE);if(row<0){Cursor c=sql.rawQuery("SELECT event_type,payload_json FROM world_domain_events WHERE world_profile=? AND event_id=?",new String[]{getActiveMapProfile(),eid});try{if(!c.moveToFirst()||!type.equals(c.getString(0)))throw new IllegalStateException("Colisão de identidade no ledger de domínio.");JSONObject previous;try{previous=new JSONObject(c.getString(1));}catch(Exception invalid){previous=new JSONObject();}JSONObject wanted=payload==null?new JSONObject():payload;if(!CanonicalJson.stringify(wanted).equals(CanonicalJson.stringify(previous)))throw new IllegalStateException("Colisão de identidade no ledger de domínio.");}finally{c.close();}}
+    }
+    public List<JSONObject> listDomainEvents(int limit){ensureBarbaraHardeningSchema(getWritableDatabase());return queryList("SELECT * FROM world_domain_events WHERE world_profile=? ORDER BY id DESC LIMIT "+Math.max(1,Math.min(500,limit)),new String[]{getActiveMapProfile()});}
+
+    public void onConfigure(SQLiteDatabase db) {
+        super.onConfigure(db);
+        db.setForeignKeyConstraintsEnabled(true);
+        try { db.execSQL("PRAGMA busy_timeout=8000"); }
+        catch (Exception e) { AppLog.w("AppDb","Não foi possível ampliar a espera por gravações concorrentes.",e); }
+    }
+
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE campaign (id INTEGER PRIMARY KEY, name TEXT, rules_profile TEXT, tone TEXT, feats INTEGER, multiclass INTEGER, flanking INTEGER, notes TEXT, updated_at INTEGER)");
+        db.execSQL("INSERT INTO campaign(id,name,rules_profile,tone,feats,multiclass,flanking,notes,updated_at) VALUES(1,'Nova Campanha','5e 2014','Fantasia heroica',1,1,0,'',0)");
+        db.execSQL("CREATE TABLE characters (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT DEFAULT 'dnd', name TEXT NOT NULL, species TEXT, class_name TEXT, level INTEGER, hp INTEGER, max_hp INTEGER, ac INTEGER, str INTEGER, dex INTEGER, con INTEGER, int_score INTEGER, wis INTEGER, cha INTEGER, active INTEGER DEFAULT 1, notes TEXT, token_uri TEXT, background TEXT, visual_description TEXT, proficiencies TEXT, equipment TEXT, spells TEXT, rules_source TEXT, sheet_json TEXT DEFAULT '{}', created_at INTEGER, updated_at INTEGER)");
+        db.execSQL("CREATE TABLE journal (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT DEFAULT 'dnd', title TEXT, body TEXT, kind TEXT, canonical_fact INTEGER DEFAULT 1, event_key TEXT DEFAULT '', source_kind TEXT DEFAULT 'system', created_at INTEGER)");
+        db.execSQL("CREATE TABLE combatants (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT DEFAULT 'dnd', name TEXT, initiative INTEGER, hp INTEGER, max_hp INTEGER, temp_hp INTEGER DEFAULT 0, ac INTEGER, conditions TEXT, condition_timers_json TEXT DEFAULT '[]', concentration TEXT DEFAULT '', reaction_used INTEGER DEFAULT 0, death_success INTEGER DEFAULT 0, death_fail INTEGER DEFAULT 0, resistances TEXT DEFAULT '', vulnerabilities TEXT DEFAULT '', immunities TEXT DEFAULT '', resources_json TEXT DEFAULT '{}', source_kind TEXT DEFAULT '', source_id INTEGER DEFAULT 0, token_uri TEXT DEFAULT '', is_player INTEGER, active_turn INTEGER DEFAULT 0, sort_order INTEGER, created_at INTEGER)");
+        db.execSQL("CREATE TABLE combat_state (id INTEGER PRIMARY KEY, round_no INTEGER, turn_index INTEGER, running INTEGER)");
+        db.execSQL("INSERT INTO combat_state(id,round_no,turn_index,running) VALUES(1,1,0,0)");
+        db.execSQL("CREATE TABLE manuals (id INTEGER PRIMARY KEY AUTOINCREMENT, drive_id TEXT UNIQUE, title TEXT, category TEXT, rule_profile TEXT, enabled INTEGER DEFAULT 1, mime_type TEXT, size_bytes INTEGER, modified_time TEXT, local_uri TEXT, source TEXT, indexed INTEGER DEFAULT 0, gemini_uri TEXT, gemini_name TEXT, gemini_expires INTEGER DEFAULT 0, ai_selected INTEGER DEFAULT 0, rag_document TEXT DEFAULT '', rag_status TEXT DEFAULT 'not_indexed', rag_indexed_at INTEGER DEFAULT 0, rag_error TEXT DEFAULT '', rag_modified_time TEXT DEFAULT '', rag_store_name TEXT DEFAULT '', rag_part_count INTEGER DEFAULT 0, rag_parts_ready INTEGER DEFAULT 0, rag_page_count INTEGER DEFAULT 0, rag_source_hash TEXT DEFAULT '', rag_progress TEXT DEFAULT '', rag_split_mode TEXT DEFAULT '', source_root TEXT DEFAULT '', last_seen INTEGER DEFAULT 0, availability TEXT DEFAULT 'available', last_verified_at INTEGER DEFAULT 0, created_at INTEGER)");
+        createManualRagPartTable(db);
+        createManualLocalIndexTables(db);
+        db.execSQL("CREATE TABLE dice_history (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL DEFAULT 'dnd', formula TEXT, detail TEXT, total INTEGER, mode TEXT, actor_character_id INTEGER DEFAULT 0, actor_name TEXT DEFAULT '', test_key TEXT DEFAULT '', action_signature TEXT DEFAULT '', source_rule_id TEXT DEFAULT '', procedure_id TEXT DEFAULT '', scene_fingerprint TEXT DEFAULT '', campaign_fingerprint TEXT DEFAULT '', target_signature TEXT DEFAULT '', consequence_key TEXT DEFAULT '', modifier INTEGER DEFAULT 0, modifier_source TEXT DEFAULT '', roll_mode TEXT DEFAULT 'normal', natural_roll INTEGER DEFAULT 0, critical INTEGER DEFAULT 0, critical_failure INTEGER DEFAULT 0, outcome TEXT DEFAULT '', rolls_json TEXT DEFAULT '[]', physical_faces_json TEXT DEFAULT '[]', render_mode TEXT DEFAULT 'math', physics_ms INTEGER DEFAULT 0, physics_seed INTEGER DEFAULT 0, dice_theme_identity TEXT DEFAULT '', cancelled_at INTEGER DEFAULT 0, consumed_at INTEGER DEFAULT 0, created_at INTEGER)");
+        db.execSQL("CREATE TABLE tokens (id INTEGER PRIMARY KEY AUTOINCREMENT, drive_id TEXT UNIQUE, name TEXT, label TEXT, species TEXT, creature_type TEXT, role TEXT, category TEXT, tags TEXT, mime_type TEXT, size_bytes INTEGER, modified_time TEXT, thumbnail_link TEXT, local_uri TEXT, source TEXT, source_root TEXT DEFAULT '', last_seen INTEGER, enabled INTEGER DEFAULT 1)");
+        createTokenPdfTables(db);
+        db.execSQL("CREATE TABLE map_state (id INTEGER PRIMARY KEY, image_uri TEXT, overlay_uri TEXT, manifest_json TEXT, map_package_id TEXT, current_hex_id TEXT, overlay_visible INTEGER DEFAULT 1, reveals_json TEXT DEFAULT '{}', grid_type TEXT, grid_size REAL, fog_enabled INTEGER, token_x REAL, token_y REAL, scale REAL, offset_x REAL, offset_y REAL, position_locked INTEGER DEFAULT 0, destination_hex_id TEXT DEFAULT '', route_json TEXT DEFAULT '[]', route_owner TEXT DEFAULT 'Jogador')");
+        db.execSQL("INSERT INTO map_state(id,image_uri,overlay_uri,manifest_json,map_package_id,current_hex_id,overlay_visible,reveals_json,grid_type,grid_size,fog_enabled,token_x,token_y,scale,offset_x,offset_y,position_locked,destination_hex_id,route_json,route_owner) VALUES(1,'','','','','',1,'{}','Quadrada',64,0,0.5,0.5,1,0,0,0,'','[]','Jogador')");
+        createMapAtlasTables(db);
+        ensureAtlasContractSchema(db);
+        createMapNoteTables(db);
+        db.execSQL("CREATE TABLE story_state (id INTEGER PRIMARY KEY, started INTEGER DEFAULT 0, last_narration TEXT, visual_prompt TEXT, options_json TEXT, pending_test_json TEXT, last_action TEXT, updated_at INTEGER)");
+        db.execSQL("INSERT INTO story_state(id,started,last_narration,visual_prompt,options_json,pending_test_json,last_action,updated_at) VALUES(1,0,'','','[]','','',0)");
+        createReliabilityAndImmersionTables(db);
+        createWorldProfileTables(db);
+        createVirtualMasterTables(db);
+        createCognitiveMasterTables(db);
+        createTravelRulesTables(db);
+        ensureLivingWorldTables(db);
+        createLibrarySyncTables(db);
+        ensureMasterIntegrationColumns(db);
+        createGuildTables(db);
+        ensureFiveZeroSchema(db);
+        ensureSixZeroSchema(db);
+        ensureNarrativeDiscoverySchema(db);
+        ensureDice3dAuditColumns(db);
+        ensureBarbaraHardeningSchema(db);
+        ensureCompanionProposalsSchema(db);
+    }
+
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if (oldVersion < 2) {
+            try { db.execSQL("ALTER TABLE manuals ADD COLUMN indexed INTEGER DEFAULT 0"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 3) {
+            try { db.execSQL("ALTER TABLE characters ADD COLUMN token_uri TEXT"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 4) {
+            try { db.execSQL("CREATE TABLE IF NOT EXISTS map_state (id INTEGER PRIMARY KEY, image_uri TEXT, grid_type TEXT, grid_size REAL, fog_enabled INTEGER, token_x REAL, token_y REAL, scale REAL, offset_x REAL, offset_y REAL)"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("INSERT OR IGNORE INTO map_state(id,image_uri,grid_type,grid_size,fog_enabled,token_x,token_y,scale,offset_x,offset_y) VALUES(1,'','Quadrada',64,0,0.5,0.5,1,0,0)"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 5) {
+            try { db.execSQL("ALTER TABLE manuals ADD COLUMN gemini_uri TEXT"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE manuals ADD COLUMN gemini_name TEXT"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE manuals ADD COLUMN gemini_expires INTEGER DEFAULT 0"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE manuals ADD COLUMN ai_selected INTEGER DEFAULT 0"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 6) {
+            try { db.execSQL("ALTER TABLE characters ADD COLUMN background TEXT"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE characters ADD COLUMN visual_description TEXT"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE characters ADD COLUMN proficiencies TEXT"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE characters ADD COLUMN equipment TEXT"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE characters ADD COLUMN spells TEXT"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE characters ADD COLUMN rules_source TEXT"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("CREATE TABLE IF NOT EXISTS story_state (id INTEGER PRIMARY KEY, started INTEGER DEFAULT 0, last_narration TEXT, visual_prompt TEXT, options_json TEXT, pending_test_json TEXT, last_action TEXT, updated_at INTEGER)"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("INSERT OR IGNORE INTO story_state(id,started,last_narration,visual_prompt,options_json,pending_test_json,last_action,updated_at) VALUES(1,0,'','','[]','','',0)"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 7) {
+            try { db.execSQL("CREATE TABLE IF NOT EXISTS tokens (id INTEGER PRIMARY KEY AUTOINCREMENT, drive_id TEXT UNIQUE, name TEXT, label TEXT, species TEXT, creature_type TEXT, role TEXT, category TEXT, tags TEXT, mime_type TEXT, size_bytes INTEGER, modified_time TEXT, thumbnail_link TEXT, local_uri TEXT, source TEXT, source_root TEXT DEFAULT '', last_seen INTEGER, enabled INTEGER DEFAULT 1)"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 8) {
+            try { createTokenPdfTables(db); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 9) {
+            try { db.execSQL("ALTER TABLE token_pdfs ADD COLUMN grid_left REAL DEFAULT 0.065"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE token_pdfs ADD COLUMN grid_top REAL DEFAULT 0.055"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE token_pdfs ADD COLUMN grid_right REAL DEFAULT 0.935"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE token_pdfs ADD COLUMN grid_bottom REAL DEFAULT 0.945"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 10) {
+            try { db.execSQL("ALTER TABLE map_state ADD COLUMN overlay_uri TEXT"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE map_state ADD COLUMN manifest_json TEXT"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE map_state ADD COLUMN map_package_id TEXT"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE map_state ADD COLUMN current_hex_id TEXT"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE map_state ADD COLUMN overlay_visible INTEGER DEFAULT 1"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE map_state ADD COLUMN reveals_json TEXT DEFAULT '{}'"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { createMapAtlasTables(db); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 11) {
+            try { createMapCorrectionTables(db); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 12) {
+            try { db.execSQL("ALTER TABLE characters ADD COLUMN sheet_json TEXT DEFAULT '{}'"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 13) {
+            try { db.execSQL("ALTER TABLE map_state ADD COLUMN position_locked INTEGER DEFAULT 0"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE map_state ADD COLUMN destination_hex_id TEXT DEFAULT ''"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE map_state ADD COLUMN route_json TEXT DEFAULT '[]'"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("ALTER TABLE map_state ADD COLUMN route_owner TEXT DEFAULT 'Jogador'"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("UPDATE map_state SET position_locked=1 WHERE current_hex_id IS NOT NULL AND current_hex_id<>''"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 27) {
+            try { createMapNoteTables(db); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 28) {
+            try { createMapNoteTables(db); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 20) {
+            createReliabilityAndImmersionTables(db);
+            addColumnIfMissing(db,"combatants","temp_hp","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,"combatants","death_success","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,"combatants","death_fail","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,"combatants","concentration","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"combatants","reaction_used","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,"combatants","condition_timers_json","TEXT DEFAULT '[]'");
+            addColumnIfMissing(db,"combatants","resistances","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"combatants","vulnerabilities","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"combatants","immunities","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"combatants","resources_json","TEXT DEFAULT '{}'");
+        }
+        if (oldVersion < 21) {
+            addColumnIfMissing(db,"manuals","rag_document","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"manuals","rag_status","TEXT DEFAULT 'not_indexed'");
+            addColumnIfMissing(db,"manuals","rag_indexed_at","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,"manuals","rag_error","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"manuals","rag_modified_time","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"manuals","rag_store_name","TEXT DEFAULT ''");
+        }
+        if (oldVersion < 22) {
+            addColumnIfMissing(db,"manuals","rag_part_count","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,"manuals","rag_parts_ready","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,"manuals","rag_page_count","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,"manuals","rag_source_hash","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"manuals","rag_progress","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"manuals","rag_split_mode","TEXT DEFAULT ''");
+            createManualRagPartTable(db);
+        }
+        if (oldVersion < 23) {
+            createMapAtlasTables(db);
+            addColumnIfMissing(db,"map_packages","world_profile","TEXT DEFAULT 'dnd'");
+            addColumnIfMissing(db,"map_packages","vector_overlay_uri","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"map_packages","vector_overlay_gzip_uri","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"map_packages","hex_index_uri","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"map_packages","overlay_mode","TEXT DEFAULT 'dynamic'");
+            addColumnIfMissing(db,"map_packages","distance_miles","REAL DEFAULT 0");
+            addColumnIfMissing(db,"map_packages","distance_km","REAL DEFAULT 0");
+            addColumnIfMissing(db,"map_packages","min_label_zoom","REAL DEFAULT 1.6");
+            addColumnIfMissing(db,"map_hex_atlas","terrain_method","TEXT DEFAULT ''");
+            try { db.execSQL("UPDATE map_packages SET world_profile='mystara' WHERE lower(COALESCE(map_id,'')) LIKE '%mystara%' OR lower(COALESCE(label,'')) LIKE '%mystara%'"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 24) {
+            addColumnIfMissing(db,"characters","world_profile","TEXT DEFAULT 'dnd'");
+            addColumnIfMissing(db,"journal","world_profile","TEXT DEFAULT 'dnd'");
+            addColumnIfMissing(db,"combatants","world_profile","TEXT DEFAULT 'dnd'");
+            try { db.execSQL("UPDATE characters SET world_profile='dnd' WHERE world_profile IS NULL OR world_profile=''"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("UPDATE journal SET world_profile='dnd' WHERE world_profile IS NULL OR world_profile=''"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            try { db.execSQL("UPDATE combatants SET world_profile='dnd' WHERE world_profile IS NULL OR world_profile=''"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+            createWorldProfileTables(db);
+        }
+        if (oldVersion < 25) {
+            addColumnIfMissing(db,"scene_state_profiles","day_number","INTEGER DEFAULT 1");
+        addColumnIfMissing(db,"scene_state_profiles","clock_hour","REAL DEFAULT 9");
+            addColumnIfMissing(db,"scene_state","day_number","INTEGER DEFAULT 1");
+            try { db.execSQL("UPDATE scene_state_profiles SET day_number=1 WHERE day_number IS NULL OR day_number<1"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 26) {
+            createManualLocalIndexTables(db);
+            try { db.execSQL("UPDATE manuals SET rag_status=CASE WHEN rag_status='disabled' THEN 'disabled' ELSE 'not_indexed' END, rag_store_name='local-v1', rag_document='', rag_error='', rag_progress='Índice local aguardando processamento.', rag_parts_ready=0, rag_part_count=0"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 29) {
+            createWorldProfileTables(db);
+            addColumnIfMissing(db,"npc_memory_profiles","token_uri","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"npc_memory_profiles","visual_description","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"npc_memory_profiles","stats_json","TEXT DEFAULT '{}'");
+            addColumnIfMissing(db,"npc_memory_profiles","hex_id","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"npc_memory_profiles","active","INTEGER DEFAULT 1");
+            addColumnIfMissing(db,"npc_memory_profiles","voice_profile","TEXT DEFAULT ''");
+        }
+        if (oldVersion < 30) {
+            createVirtualMasterTables(db);
+        }
+        if (oldVersion < 31) {
+            createVirtualMasterTables(db);
+            addColumnIfMissing(db,"party_state_profiles","relations_json","TEXT DEFAULT '[]'");
+            addColumnIfMissing(db,"party_state_profiles","session_preferences_json","TEXT DEFAULT '{}'");
+        }
+        if (oldVersion < 32) {
+            createVirtualMasterTables(db);
+            addColumnIfMissing(db,"character_control_profiles","personal_goal","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"character_control_profiles","arc_status","TEXT DEFAULT 'active'");
+            addColumnIfMissing(db,"character_control_profiles","arc_notes","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"character_control_profiles","last_major_choice","TEXT DEFAULT ''");
+        }
+        if (oldVersion < 33) {
+            createCognitiveMasterTables(db);
+        }
+        if (oldVersion < 34) {
+            createCognitiveMasterTables(db);
+        }
+        if (oldVersion < 35) {
+            createTravelRulesTables(db);
+        }
+        if (oldVersion < 36) {
+            createWorldProfileTables(db);
+            addColumnIfMissing(db,"scene_state_profiles","clock_hour","REAL DEFAULT 9");
+            try { db.execSQL("UPDATE scene_state_profiles SET clock_hour=CASE lower(COALESCE(time_of_day,'')) WHEN 'madrugada' THEN 3 WHEN 'amanhecer' THEN 6 WHEN 'manhã' THEN 9 WHEN 'manha' THEN 9 WHEN 'meio-dia' THEN 12 WHEN 'meio dia' THEN 12 WHEN 'tarde' THEN 15 WHEN 'entardecer' THEN 18 WHEN 'noite' THEN 21 ELSE 9 END"); } catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        }
+        if (oldVersion < 37) {
+            addColumnIfMissing(db,"manuals","source_root","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"manuals","last_seen","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,"manuals","availability","TEXT DEFAULT 'available'");
+            addColumnIfMissing(db,"manuals","last_verified_at","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,"tokens","source_root","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"token_pdfs","source_root","TEXT DEFAULT ''");
+            createLibrarySyncTables(db);
+        }
+        if (oldVersion < 38) {
+            addColumnIfMissing(db,"audit_log","world_profile","TEXT NOT NULL DEFAULT 'dnd'");
+            addColumnIfMissing(db,"dice_history","world_profile","TEXT NOT NULL DEFAULT 'dnd'");
+            try { db.execSQL("UPDATE audit_log SET world_profile='dnd' WHERE world_profile IS NULL OR world_profile=''"); } catch (Exception e) { AppLog.w("AppDb","Não foi possível perfilar o histórico legado.",e); }
+            addColumnIfMissing(db,"map_world_state","logical_map_id","TEXT NOT NULL DEFAULT ''");
+            try { db.execSQL("UPDATE map_world_state SET logical_map_id=COALESCE((SELECT map_id FROM map_packages WHERE package_id=map_world_state.map_package_id),'') WHERE COALESCE(logical_map_id,'')='' AND COALESCE(map_package_id,'')<>''"); } catch (Exception e) { AppLog.w("AppDb","Não foi possível migrar o identificador lógico do mapa.",e); }
+            createMapAtlasTables(db);
+            createReliabilityAndImmersionTables(db);
+        }
+        if (oldVersion < 39) {
+            ensureLivingWorldTables(db);
+        }
+        if (oldVersion < 40) {
+            ensureLivingWorldTables(db);
+            ensureMasterIntegrationColumns(db);
+        }
+        if (oldVersion < 41) {
+            ensureMasterIntegrationColumns(db);
+        }
+        if (oldVersion < 42) {
+            ensureMasterIntegrationColumns(db);
+            addColumnIfMissing(db,"dice_history","actor_character_id","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,"dice_history","actor_name","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"dice_history","test_key","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"dice_history","action_signature","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"dice_history","source_rule_id","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"dice_history","scene_fingerprint","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"dice_history","outcome","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"dice_history","consumed_at","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,"living_troupes","travel_progress_json","TEXT DEFAULT '{}'");
+        }
+        if (oldVersion < 43) {
+            addColumnIfMissing(db,"dice_history","procedure_id","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"dice_history","campaign_fingerprint","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"dice_history","target_signature","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"dice_history","consequence_key","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"dice_history","modifier","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,"dice_history","modifier_source","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"dice_history","roll_mode","TEXT DEFAULT 'normal'");
+            addColumnIfMissing(db,"dice_history","natural_roll","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,"dice_history","critical","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,"dice_history","critical_failure","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,"dice_history","cancelled_at","INTEGER DEFAULT 0");
+        }
+        if (oldVersion < 44) {
+            createManualLocalIndexTables(db);
+            addColumnIfMissing(db,"manual_local_pages","section_title","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"manual_local_pages","chapter_title","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"manual_local_pages","content_kind","TEXT DEFAULT 'prose'");
+            addColumnIfMissing(db,"manual_local_pages","structure_json","TEXT DEFAULT '{}'");
+            addColumnIfMissing(db,"manual_local_pages","cross_refs_json","TEXT DEFAULT '[]'");
+            addColumnIfMissing(db,"manual_local_pages","page_hash","TEXT DEFAULT ''");
+            try { db.execSQL("UPDATE manuals SET rag_status='not_indexed',rag_store_name='',rag_document='',rag_progress='Índice estrutural v4 requer reindexação' WHERE rag_store_name LIKE 'local-%' AND rag_store_name<>?",new Object[]{LOCAL_MANUAL_STORE}); }
+            catch(Exception e){AppLog.w("AppDb","Não foi possível marcar todos os índices locais antigos para reindexação.",e);}
+        }
+        if (oldVersion < 45) ensureMasterIntegrationColumns(db);
+        if (oldVersion < 46) {
+            ensureMasterIntegrationColumns(db);
+            repairLegacyCharacterIdentities(db);
+            backfillLegacyTransactionIdentities(db,null);
+            try{db.execSQL("UPDATE manuals SET rag_status='not_indexed',rag_progress='Reavaliar duplicata com números preservados' WHERE rag_status='duplicate_skipped'");}
+            catch(Exception e){AppLog.w("AppDb","Não foi possível reabrir todos os manuais descartados pela identidade antiga.",e);}
+        }
+        if (oldVersion < 47) {
+            ensureMasterIntegrationColumns(db);
+            backfillLegacyWorldEventIdentities(db,null);
+        }
+        if (oldVersion < 48) createGuildTables(db);
+        if (oldVersion < 49) { addColumnIfMissing(db,"guild_members","dues_due_day","INTEGER DEFAULT 0"); addColumnIfMissing(db,"guild_members","last_dues_notice_day","INTEGER DEFAULT 0"); }
+        if (oldVersion < 50) {
+            addColumnIfMissing(db,"combatants","source_kind","TEXT DEFAULT ''");
+            addColumnIfMissing(db,"combatants","source_id","INTEGER DEFAULT 0");
+            addColumnIfMissing(db,"combatants","token_uri","TEXT DEFAULT ''");
+            try { db.execSQL("UPDATE combatants SET source_kind='character',source_id=COALESCE((SELECT ch.id FROM characters ch WHERE ch.world_profile=combatants.world_profile AND lower(ch.name)=lower(combatants.name) ORDER BY ch.active DESC LIMIT 1),0),token_uri=COALESCE((SELECT ch.token_uri FROM characters ch WHERE ch.world_profile=combatants.world_profile AND lower(ch.name)=lower(combatants.name) ORDER BY ch.active DESC LIMIT 1),'') WHERE is_player=1"); } catch(Exception e){ AppLog.w("AppDb","Não foi possível vincular os retratos legados dos heróis ao combate.",e); }
+            try { db.execSQL("UPDATE combatants SET source_kind='npc',source_id=COALESCE((SELECT n.id FROM npc_memory_profiles n WHERE n.world_profile=combatants.world_profile AND lower(n.name)=lower(combatants.name) LIMIT 1),0),token_uri=COALESCE((SELECT n.token_uri FROM npc_memory_profiles n WHERE n.world_profile=combatants.world_profile AND lower(n.name)=lower(combatants.name) LIMIT 1),'') WHERE is_player=0"); } catch(Exception e){ AppLog.w("AppDb","Não foi possível vincular os retratos legados dos NPCs ao combate.",e); }
+        }
+        if (oldVersion < 51) {
+            // tactical_tokens armazena somente posição. Retratos e ficha pertencem a combatants.
+            // Backups antigos exportavam por engano o resultado enriquecido do JOIN; a restauração
+            // v51 ignora essas colunas e mantém o esquema posicional estável.
+            createVirtualMasterTables(db);
+        }
+        if (oldVersion < 52) {
+            // A extração dos PDFs já estava concluída. Esta migração somente cria
+            // o índice invertido local uma vez; não reabre, retransmite nem
+            // reprocessa os manuais.
+            createManualLocalFtsIndex(db,false);
+            db.execSQL("UPDATE manual_search_index_state SET status='pending',last_error='',updated_at=0 WHERE id=1");
+        }
+        if (oldVersion < 53) ensureFiveZeroSchema(db);
+        if (oldVersion < 54) ensureSixZeroSchema(db);
+        if (oldVersion < 55) ensureNarrativeDiscoverySchema(db);
+        if (oldVersion < 56) ensureDice3dAuditColumns(db);
+        if (oldVersion < 57) ensureBarbaraHardeningSchema(db);
+        if (oldVersion < 58) ensureAtlasContractSchema(db);
+        if (oldVersion < 59) { ensureMasterIntegrationColumns(db); createGuildTables(db); }
+        if (oldVersion < 60) createVirtualMasterTables(db);
+        if (oldVersion < 61) ensureCompanionProposalsSchema(db);
+    }
+
+    /**
+     * Esquema 6.3.2 — journal idempotente de commit de cena e ledger de eventos de domínio.
+     * O journal é propositalmente pequeno: PREPARED existe fora da transação; COMMITTING e
+     * COMMITTED são gravados dentro da mesma transação das consequências. Assim, após um kill
+     * de processo, PREPARED significa com segurança que nenhuma consequência foi confirmada.
+     */
+    private static void ensureBarbaraHardeningSchema(SQLiteDatabase db){
+        db.execSQL("CREATE TABLE IF NOT EXISTS scene_commit_journal (world_profile TEXT NOT NULL, commit_id TEXT NOT NULL, transaction_id INTEGER DEFAULT 0, status TEXT NOT NULL DEFAULT 'PREPARED', envelope_hash TEXT DEFAULT '', action_hash TEXT DEFAULT '', narration_hash TEXT DEFAULT '', attempt_count INTEGER DEFAULT 0, last_error TEXT DEFAULT '', prepared_at INTEGER NOT NULL, committing_at INTEGER DEFAULT 0, committed_at INTEGER DEFAULT 0, updated_at INTEGER NOT NULL, PRIMARY KEY(world_profile,commit_id))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_scene_commit_status ON scene_commit_journal(world_profile,status,updated_at DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS world_domain_events (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, event_id TEXT NOT NULL, scene_commit_id TEXT DEFAULT '', event_type TEXT NOT NULL, entity_type TEXT DEFAULT '', entity_id TEXT DEFAULT '', payload_json TEXT DEFAULT '{}', source TEXT DEFAULT 'consequence_engine', canonical INTEGER DEFAULT 1, created_at INTEGER NOT NULL, UNIQUE(world_profile,event_id))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_domain_events_scene ON world_domain_events(world_profile,scene_commit_id,id)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_domain_events_type ON world_domain_events(world_profile,event_type,id DESC)");
+        addColumnIfMissing(db,"dice_history","roll_integrity_signature","TEXT DEFAULT ''");
+    }
+
+    /** Colunas estruturadas do histórico físico 3D. Idempotente para restaurações antigas. */
+    private static void ensureDice3dAuditColumns(SQLiteDatabase db){
+        addColumnIfMissing(db,"dice_history","rolls_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"dice_history","physical_faces_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"dice_history","render_mode","TEXT DEFAULT 'math'");
+        addColumnIfMissing(db,"dice_history","physics_ms","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"dice_history","physics_seed","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"dice_history","dice_theme_identity","TEXT DEFAULT ''");
+    }
+
+    /** Esquema de consolidação 5.0. Todas as operações são idempotentes. */
+    private static void ensureFiveZeroSchema(SQLiteDatabase db) {
+        addColumnIfMissing(db,"journal","canonical_fact","INTEGER DEFAULT 1");
+        addColumnIfMissing(db,"journal","event_key","TEXT DEFAULT ''");
+        addColumnIfMissing(db,"journal","source_kind","TEXT DEFAULT 'system'");
+        try{db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_journal_event_key ON journal(world_profile,event_key) WHERE event_key<>''");}catch(Exception e){AppLog.w("AppDb","Não foi possível criar índice canônico do Diário.",e);}
+        addColumnIfMissing(db,"npc_memory_profiles","stable_id","TEXT DEFAULT ''");
+        try{db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_npc_stable_id ON npc_memory_profiles(world_profile,stable_id) WHERE stable_id<>''");}catch(Exception e){AppLog.w("AppDb","Não foi possível criar índice de identidade de NPC.",e);}
+        addColumnIfMissing(db,"combat_state_profiles","state","TEXT DEFAULT 'idle'");
+        addColumnIfMissing(db,"combat_state_profiles","pending_roll_json","TEXT DEFAULT '{}'");
+        addColumnIfMissing(db,"combat_state_profiles","encounter_id","TEXT DEFAULT ''");
+        addColumnIfMissing(db,"combat_state_profiles","updated_at","INTEGER DEFAULT 0");
+        db.execSQL("CREATE TABLE IF NOT EXISTS pending_action_queue (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, source_kind TEXT NOT NULL, source_id TEXT DEFAULT '', action_kind TEXT DEFAULT '', title TEXT NOT NULL, detail TEXT DEFAULT '', status TEXT DEFAULT 'pending', due_day INTEGER DEFAULT 0, priority INTEGER DEFAULT 0, payload_json TEXT DEFAULT '{}', rule_query TEXT DEFAULT '', effect_key TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, UNIQUE(world_profile,effect_key))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_pending_action_queue ON pending_action_queue(world_profile,status,priority DESC,due_day,created_at)");
+    }
+
+
+    /** Esquema 6.0 — O Mundo que se Lembra. Idempotente e isolado por perfil. */
+    public static void ensureSixZeroSchema(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS world_seeds (world_profile TEXT PRIMARY KEY, seed_id TEXT NOT NULL, lineage_name TEXT DEFAULT '', origin_campaign TEXT DEFAULT '', generation INTEGER DEFAULT 1, era_label TEXT DEFAULT 'Era atual', metadata_json TEXT DEFAULT '{}', created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS emergent_arcs (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, arc_key TEXT NOT NULL, title TEXT NOT NULL, premise TEXT DEFAULT '', dramatic_question TEXT DEFAULT '', stage TEXT DEFAULT 'germinating', momentum INTEGER DEFAULT 0, urgency INTEGER DEFAULT 0, actors_json TEXT DEFAULT '[]', evidence_json TEXT DEFAULT '[]', possible_consequences_json TEXT DEFAULT '[]', origin_json TEXT DEFAULT '{}', status TEXT DEFAULT 'active', created_day INTEGER DEFAULT 1, updated_day INTEGER DEFAULT 1, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, UNIQUE(world_profile,arc_key))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_emergent_arcs ON emergent_arcs(world_profile,status,urgency DESC,momentum DESC,updated_at DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS settlement_states (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, settlement_key TEXT NOT NULL, name TEXT NOT NULL, kind TEXT DEFAULT 'local', region TEXT DEFAULT '', hex_id TEXT DEFAULT '', population_band TEXT DEFAULT 'desconhecida', prosperity INTEGER DEFAULT 50, security INTEGER DEFAULT 50, scarcity INTEGER DEFAULT 20, unrest INTEGER DEFAULT 10, criminality INTEGER DEFAULT 15, political_pressure INTEGER DEFAULT 15, trade INTEGER DEFAULT 50, faith_influence INTEGER DEFAULT 30, faction_pressure_json TEXT DEFAULT '{}', resources_json TEXT DEFAULT '{}', tags_json TEXT DEFAULT '[]', notes TEXT DEFAULT '', last_simulated_day INTEGER DEFAULT 1, updated_at INTEGER NOT NULL, UNIQUE(world_profile,settlement_key))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_settlement_states ON settlement_states(world_profile,region,name)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS world_history_events (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, event_key TEXT NOT NULL, day_number INTEGER DEFAULT 1, era_label TEXT DEFAULT 'Era atual', scope TEXT DEFAULT 'local', location TEXT DEFAULT '', title TEXT NOT NULL, summary TEXT NOT NULL, actors_json TEXT DEFAULT '[]', causes_json TEXT DEFAULT '[]', consequences_json TEXT DEFAULT '[]', tags_json TEXT DEFAULT '[]', significance INTEGER DEFAULT 25, source_kind TEXT DEFAULT 'journal', source_id TEXT DEFAULT '', canonical INTEGER DEFAULT 1, created_at INTEGER NOT NULL, UNIQUE(world_profile,event_key))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_world_history ON world_history_events(world_profile,significance DESC,day_number DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS rumors (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, rumor_key TEXT NOT NULL, source_event_key TEXT DEFAULT '', origin_location TEXT DEFAULT '', current_region TEXT DEFAULT '', statement TEXT NOT NULL, truth_level TEXT DEFAULT 'parcial', distortion INTEGER DEFAULT 15, confidence INTEGER DEFAULT 50, secrecy INTEGER DEFAULT 20, status TEXT DEFAULT 'circulating', born_day INTEGER DEFAULT 1, expires_day INTEGER DEFAULT 0, carriers_json TEXT DEFAULT '[]', mutations_json TEXT DEFAULT '[]', updated_at INTEGER NOT NULL, UNIQUE(world_profile,rumor_key))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_rumors ON rumors(world_profile,status,current_region,born_day DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS rumor_knowledge (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, rumor_id INTEGER NOT NULL, knower_kind TEXT NOT NULL, knower_id TEXT NOT NULL, knowledge_state TEXT DEFAULT 'heard', believed_confidence INTEGER DEFAULT 50, learned_day INTEGER DEFAULT 1, source_name TEXT DEFAULT '', notes TEXT DEFAULT '', UNIQUE(world_profile,rumor_id,knower_kind,knower_id), FOREIGN KEY(rumor_id) REFERENCES rumors(id) ON DELETE CASCADE)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS campaign_legacies (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, world_seed TEXT NOT NULL, legacy_key TEXT NOT NULL, source_campaign TEXT DEFAULT '', generation INTEGER DEFAULT 1, category TEXT DEFAULT 'memory', subject TEXT NOT NULL, statement TEXT NOT NULL, location TEXT DEFAULT '', inheritable INTEGER DEFAULT 1, active INTEGER DEFAULT 1, evidence_json TEXT DEFAULT '[]', created_day INTEGER DEFAULT 1, created_at INTEGER NOT NULL, UNIQUE(world_profile,world_seed,legacy_key))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_campaign_legacies ON campaign_legacies(world_profile,world_seed,active,category)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS npc_voice_profiles (world_profile TEXT NOT NULL, npc_stable_id TEXT NOT NULL, npc_name TEXT NOT NULL, voice_name TEXT DEFAULT 'Charon', register_name TEXT DEFAULT 'natural', speaking_style TEXT DEFAULT '', tempo REAL DEFAULT 1.0, warmth INTEGER DEFAULT 50, formality INTEGER DEFAULT 50, signature_phrases_json TEXT DEFAULT '[]', updated_at INTEGER NOT NULL, PRIMARY KEY(world_profile,npc_stable_id))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS tactical_scenes (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, scene_key TEXT NOT NULL, location TEXT DEFAULT '', hex_id TEXT DEFAULT '', environment TEXT DEFAULT 'generic', width_cells INTEGER DEFAULT 12, height_cells INTEGER DEFAULT 8, seed INTEGER DEFAULT 0, zones_json TEXT DEFAULT '[]', obstacles_json TEXT DEFAULT '[]', features_json TEXT DEFAULT '[]', cover_json TEXT DEFAULT '[]', hazards_json TEXT DEFAULT '[]', entry_points_json TEXT DEFAULT '[]', source_context_json TEXT DEFAULT '{}', status TEXT DEFAULT 'ready', created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, UNIQUE(world_profile,scene_key))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS local_table_sessions (world_profile TEXT PRIMARY KEY, session_code TEXT NOT NULL, port INTEGER DEFAULT 42731, enabled INTEGER DEFAULT 0, bind_address TEXT DEFAULT '', started_at INTEGER DEFAULT 0, updated_at INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS local_table_players (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, session_code TEXT NOT NULL, character_id INTEGER DEFAULT 0, character_name TEXT DEFAULT '', player_name TEXT DEFAULT '', join_token TEXT NOT NULL, permissions_json TEXT DEFAULT '{}', last_seen INTEGER DEFAULT 0, active INTEGER DEFAULT 1, UNIQUE(world_profile,join_token))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS local_table_secrets (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, character_id INTEGER NOT NULL, title TEXT NOT NULL, body TEXT NOT NULL, event_key TEXT DEFAULT '', active INTEGER DEFAULT 1, created_at INTEGER NOT NULL)");
+        long now=System.currentTimeMillis();
+        db.execSQL("INSERT OR IGNORE INTO world_seeds(world_profile,seed_id,lineage_name,origin_campaign,generation,era_label,metadata_json,created_at,updated_at) VALUES('dnd','dnd-default-world','Faerûn persistente','',1,'Era atual','{}',?,?)",new Object[]{now,now});
+        db.execSQL("INSERT OR IGNORE INTO world_seeds(world_profile,seed_id,lineage_name,origin_campaign,generation,era_label,metadata_json,created_at,updated_at) VALUES('mystara','mystara-default-world','Mystara persistente','',1,'Era atual','{}',?,?)",new Object[]{now,now});
+    }
+
+    public static void createGuildTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS guilds (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, faction_id INTEGER DEFAULT 0, name TEXT NOT NULL COLLATE NOCASE, type TEXT DEFAULT 'Outra', description TEXT DEFAULT '', charter TEXT DEFAULT '', headquarters TEXT DEFAULT '', treasury REAL DEFAULT 0, currency TEXT DEFAULT 'po', party_reputation INTEGER DEFAULT 0, influence INTEGER DEFAULT 25, current_plan TEXT DEFAULT '', dues_policy_json TEXT DEFAULT '[]', admission_json TEXT DEFAULT '[]', benefits_json TEXT DEFAULT '[]', services_json TEXT DEFAULT '[]', rules_json TEXT DEFAULT '[]', stock_json TEXT DEFAULT '{}', active INTEGER DEFAULT 1, simulation_cursor_hours REAL DEFAULT -1, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, UNIQUE(world_profile,name))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_guilds_world_active ON guilds(world_profile,active,updated_at DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS guild_ranks (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, guild_id INTEGER NOT NULL, name TEXT NOT NULL, rank_order INTEGER DEFAULT 0, requirements_json TEXT DEFAULT '{}', benefits_json TEXT DEFAULT '[]', permissions_json TEXT DEFAULT '[]', dues_amount REAL DEFAULT 0, active INTEGER DEFAULT 1, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, FOREIGN KEY(guild_id) REFERENCES guilds(id) ON DELETE CASCADE, UNIQUE(guild_id,name))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_guild_ranks ON guild_ranks(world_profile,guild_id,rank_order)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS guild_members (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, guild_id INTEGER NOT NULL, member_kind TEXT NOT NULL DEFAULT 'npc', character_id INTEGER DEFAULT 0, npc_name TEXT DEFAULT '', rank_id INTEGER DEFAULT 0, status TEXT DEFAULT 'active', reputation INTEGER DEFAULT 0, contribution REAL DEFAULT 0, joined_day INTEGER DEFAULT 1, dues_paid_day INTEGER DEFAULT 0, dues_due_day INTEGER DEFAULT 0, last_dues_notice_day INTEGER DEFAULT 0, notes TEXT DEFAULT '', created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, FOREIGN KEY(guild_id) REFERENCES guilds(id) ON DELETE CASCADE)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_guild_members ON guild_members(world_profile,guild_id,status,updated_at DESC)");
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_guild_member_hero ON guild_members(world_profile,guild_id,character_id) WHERE member_kind='hero' AND character_id>0");
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_guild_member_npc ON guild_members(world_profile,guild_id,npc_name COLLATE NOCASE) WHERE member_kind='npc' AND npc_name<>''");
+        db.execSQL("CREATE TABLE IF NOT EXISTS guild_contracts (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, guild_id INTEGER NOT NULL, title TEXT NOT NULL, description TEXT DEFAULT '', issuer TEXT DEFAULT '', status TEXT DEFAULT 'open', assignee_kind TEXT DEFAULT '', assignee_id INTEGER DEFAULT 0, assignee_name TEXT DEFAULT '', requirements_json TEXT DEFAULT '{}', reward_json TEXT DEFAULT '{}', penalty_json TEXT DEFAULT '{}', progress_json TEXT DEFAULT '{}', deadline_day INTEGER DEFAULT 0, linked_quest_id INTEGER DEFAULT 0, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, FOREIGN KEY(guild_id) REFERENCES guilds(id) ON DELETE CASCADE)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_guild_contracts ON guild_contracts(world_profile,guild_id,status,deadline_day)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS guild_projects (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, guild_id INTEGER NOT NULL, title TEXT NOT NULL, description TEXT DEFAULT '', kind TEXT DEFAULT 'general', status TEXT DEFAULT 'active', progress REAL DEFAULT 0, goal REAL DEFAULT 100, progress_per_day REAL DEFAULT 5, cost_json TEXT DEFAULT '{}', result_json TEXT DEFAULT '{}', location TEXT DEFAULT '', started_day INTEGER DEFAULT 1, completed_day INTEGER DEFAULT 0, simulation_cursor_hours REAL DEFAULT -1, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, FOREIGN KEY(guild_id) REFERENCES guilds(id) ON DELETE CASCADE)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_guild_projects ON guild_projects(world_profile,guild_id,status,updated_at DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS guild_sites (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, guild_id INTEGER NOT NULL, name TEXT NOT NULL, site_type TEXT DEFAULT 'sede', location TEXT DEFAULT '', hex_id TEXT DEFAULT '', services_json TEXT DEFAULT '[]', defenses_json TEXT DEFAULT '{}', stock_json TEXT DEFAULT '{}', active INTEGER DEFAULT 1, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, FOREIGN KEY(guild_id) REFERENCES guilds(id) ON DELETE CASCADE)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_guild_sites ON guild_sites(world_profile,guild_id,active)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS guild_ledger (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, guild_id INTEGER NOT NULL, entry_type TEXT DEFAULT 'adjustment', amount REAL DEFAULT 0, currency TEXT DEFAULT 'po', description TEXT DEFAULT '', actor TEXT DEFAULT '', day_number INTEGER DEFAULT 1, created_at INTEGER NOT NULL, FOREIGN KEY(guild_id) REFERENCES guilds(id) ON DELETE CASCADE)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_guild_ledger ON guild_ledger(world_profile,guild_id,created_at DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS guild_relations (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, guild_id INTEGER NOT NULL, target_kind TEXT DEFAULT 'guild', target_guild_id INTEGER DEFAULT 0, target_faction_id INTEGER DEFAULT 0, target_name TEXT DEFAULT '', relation INTEGER DEFAULT 0, stance TEXT DEFAULT 'neutral', treaties_json TEXT DEFAULT '[]', notes TEXT DEFAULT '', updated_at INTEGER NOT NULL, FOREIGN KEY(guild_id) REFERENCES guilds(id) ON DELETE CASCADE)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_guild_relations ON guild_relations(world_profile,guild_id,target_kind,updated_at DESC)");
+        addColumnIfMissing(db,"guilds","simulation_cursor_hours","REAL DEFAULT -1");
+        addColumnIfMissing(db,"guild_projects","simulation_cursor_hours","REAL DEFAULT -1");
+    }
+
+    public void ensureGuildTables(){createGuildTables(getWritableDatabase());}
+
+    /** Snapshot persistente do agregado Barbara/Mundo Vivo. A escrita participa da transação SQLite chamadora quando já houver uma. */
+    public synchronized JSONObject getLivingWorldAggregate(){
+        ensureLivingWorldTables(getWritableDatabase());String profile=getActiveMapProfile();JSONObject row=queryOne("SELECT aggregate_json,aggregate_day,aggregate_revision FROM living_world_state WHERE world_profile=?",new String[]{profile});
+        try{String raw=row.optString("aggregate_json","{}");JSONObject state=raw.trim().length()==0?new JSONObject():new JSONObject(raw);if(state.length()==0)state=LivingWorldPersistenceEngine.empty(profile,Math.max(1,row.optInt("aggregate_day",1)));return LivingWorldPersistenceEngine.normalize(state,profile,Math.max(1,row.optInt("aggregate_day",1)));}catch(Exception invalid){return LivingWorldPersistenceEngine.empty(profile,Math.max(1,row.optInt("aggregate_day",1)));}
+    }
+
+    public synchronized long saveLivingWorldAggregate(JSONObject aggregate){
+        SQLiteDatabase db=getWritableDatabase();ensureLivingWorldTables(db);String profile=getActiveMapProfile();JSONObject state=aggregate==null?LivingWorldPersistenceEngine.empty(profile,1):aggregate;int day=Math.max(1,state.optInt("day",1));
+        ContentValues v=new ContentValues();v.put("aggregate_schema",Math.max(1,state.optInt("schema",1)));v.put("aggregate_json",state.toString());v.put("aggregate_day",day);v.put("updated_at",System.currentTimeMillis());
+        db.execSQL("UPDATE living_world_state SET aggregate_revision=aggregate_revision+1 WHERE world_profile=?",new Object[]{profile});int changed=db.update("living_world_state",v,"world_profile=?",new String[]{profile});if(changed!=1)throw new IllegalStateException("Estado agregado do Mundo Vivo não foi persistido.");
+        JSONObject row=queryOne("SELECT aggregate_revision FROM living_world_state WHERE world_profile=?",new String[]{profile});return row.optLong("aggregate_revision",0);
+    }
+
+    public synchronized JSONObject mutateLivingWorldAggregate(String operation,String entityKey,JSONObject payload,int day){
+        JSONObject op=new JSONObject();try{op.put("operation",operation).put("entity_key",entityKey==null?"":entityKey).put("payload",payload==null?new JSONObject():payload).put("day",day);}catch(Exception e){throw new IllegalArgumentException(e);}
+        JSONArray batch=new JSONArray();batch.put(op);return mutateLivingWorldAggregateBatch(batch,day);
+    }
+
+    /** Aplica um lote inteiro em memória e persiste uma única revisão, atomicamente. */
+    public synchronized JSONObject mutateLivingWorldAggregateBatch(JSONArray operations,int defaultDay){
+        SQLiteDatabase db=getWritableDatabase();boolean own=!db.inTransaction();if(own)db.beginTransaction();try{JSONObject before=getLivingWorldAggregate();JSONObject after=WorldMutationBatchEngine.apply(before,operations,defaultDay);saveLivingWorldAggregate(after);if(own)db.setTransactionSuccessful();return after;}finally{if(own)db.endTransaction();}
+    }
+
+
+
+    public static void ensureLivingWorldTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS living_world_state (world_profile TEXT PRIMARY KEY, enabled INTEGER DEFAULT 1, simulation_mode TEXT DEFAULT 'equilibrado', calendar_name TEXT DEFAULT 'Calendário da campanha', epoch_year INTEGER DEFAULT 1, days_per_year INTEGER DEFAULT 365, months_json TEXT DEFAULT '[]', world_notes TEXT DEFAULT '', last_simulated_day INTEGER DEFAULT 1, updated_at INTEGER DEFAULT 0)");
+        db.execSQL("INSERT OR IGNORE INTO living_world_state(world_profile) VALUES('dnd')");
+        db.execSQL("INSERT OR IGNORE INTO living_world_state(world_profile) VALUES('mystara')");
+        db.execSQL("CREATE TABLE IF NOT EXISTS hero_life_profiles (world_profile TEXT NOT NULL, character_id INTEGER NOT NULL, birth_day INTEGER DEFAULT 1, initial_age_years INTEGER DEFAULT 18, life_stage TEXT DEFAULT 'não definido', residence TEXT DEFAULT '', occupation TEXT DEFAULT 'Aventureiro', family_name TEXT DEFAULT '', relationship_status TEXT DEFAULT '', household_json TEXT DEFAULT '[]', goals_json TEXT DEFAULT '[]', status TEXT DEFAULT 'active', updated_at INTEGER DEFAULT 0, PRIMARY KEY(world_profile,character_id))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS life_relationships (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, character_id INTEGER NOT NULL, related_character_id INTEGER DEFAULT 0, related_name TEXT NOT NULL, relation_type TEXT DEFAULT 'vínculo', status TEXT DEFAULT 'ativo', established_day INTEGER DEFAULT 1, related_birth_day INTEGER DEFAULT 0, related_initial_age_years INTEGER DEFAULT 0, age_known INTEGER DEFAULT 0, notes TEXT DEFAULT '', mechanical_effects_json TEXT DEFAULT '{}', created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_life_relationships_world_hero ON life_relationships(world_profile,character_id,updated_at DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS life_activities (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, character_id INTEGER NOT NULL, activity_type TEXT DEFAULT 'livre', title TEXT NOT NULL, location TEXT DEFAULT '', start_day INTEGER DEFAULT 1, duration_days INTEGER DEFAULT 1, status TEXT DEFAULT 'planejada', rule_authorized INTEGER DEFAULT 0, rule_source TEXT DEFAULT '', rule_page INTEGER DEFAULT 0, rule_excerpt TEXT DEFAULT '', check_json TEXT DEFAULT '{}', cost_json TEXT DEFAULT '{}', reward_json TEXT DEFAULT '{}', narrative_result TEXT DEFAULT '', created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_life_activities_world_status ON life_activities(world_profile,status,start_day)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS living_troupes (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, name TEXT NOT NULL, troupe_mode TEXT DEFAULT 'itinerante', current_location TEXT DEFAULT '', home_base TEXT DEFAULT '', members_json TEXT DEFAULT '[]', itinerary_json TEXT DEFAULT '[]', resources_json TEXT DEFAULT '{}', travel_progress_json TEXT DEFAULT '{}', notes TEXT DEFAULT '', active INTEGER DEFAULT 1, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_living_troupes_world ON living_troupes(world_profile,active,updated_at DESC)");
+        ensureMasterIntegrationColumns(db);
+    }
+
+    /** Colunas do barramento 4.4: simulacao temporal, consequencias idempotentes e auditoria. */
+    private static void ensureMasterIntegrationColumns(SQLiteDatabase db) {
+        addColumnIfMissing(db,"living_world_state","last_background_sync_at","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"living_world_state","background_simulation_enabled","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"living_world_state","background_game_hours_per_real_day","REAL DEFAULT 24");
+        addColumnIfMissing(db,"living_world_state","background_max_hours","INTEGER DEFAULT 72");
+        addColumnIfMissing(db,"living_world_state","aggregate_schema","INTEGER DEFAULT 1");
+        addColumnIfMissing(db,"living_world_state","aggregate_json","TEXT DEFAULT '{}'");
+        addColumnIfMissing(db,"living_world_state","aggregate_day","INTEGER DEFAULT 1");
+        addColumnIfMissing(db,"living_world_state","aggregate_revision","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"life_activities","resolution_json","TEXT DEFAULT '{}'");
+        addColumnIfMissing(db,"life_activities","applied_at","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"life_activities","procedure_json","TEXT DEFAULT '{}'");
+        addColumnIfMissing(db,"life_activities","progress_units","REAL DEFAULT 0");
+        addColumnIfMissing(db,"life_activities","total_units","REAL DEFAULT 1");
+        addColumnIfMissing(db,"life_activities","check_frequency_days","INTEGER DEFAULT 1");
+        addColumnIfMissing(db,"life_activities","next_check_day","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"life_activities","complications_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"living_troupes","itinerary_index","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"living_troupes","last_travel_day","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"living_troupes","travel_progress_json","TEXT DEFAULT '{}'");
+        addColumnIfMissing(db,"factions","plan_progress","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"factions","plan_interval_hours","REAL DEFAULT 24");
+        addColumnIfMissing(db,"factions","plan_progress_hours","REAL DEFAULT 0");
+        addColumnIfMissing(db,"factions","last_action_day","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"factions","plan_steps_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"factions","plan_cycle","INTEGER DEFAULT 1");
+        addColumnIfMissing(db,"factions","last_action_summary","TEXT DEFAULT ''");
+        addColumnIfMissing(db,"factions","simulation_cursor_hours","REAL DEFAULT -1");
+        addColumnIfMissing(db,"factions","objectives_json","TEXT DEFAULT '{}'");
+        addColumnIfMissing(db,"factions","resources_json","TEXT DEFAULT '{}'");
+        addColumnIfMissing(db,"factions","territories_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"factions","relations_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"factions","allies_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"factions","enemies_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"factions","information_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"factions","costs_json","TEXT DEFAULT '{}'");
+        addColumnIfMissing(db,"factions","risks_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"factions","success_conditions_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"factions","failure_conditions_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"factions","memory_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"world_clocks","interval_hours","REAL DEFAULT 6");
+        addColumnIfMissing(db,"world_clocks","accumulated_hours","REAL DEFAULT 0");
+        addColumnIfMissing(db,"world_clocks","trigger_condition","TEXT DEFAULT ''");
+        addColumnIfMissing(db,"world_clocks","faction_id","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"world_clocks","last_advanced_day","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"world_clocks","paused","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"world_clocks","rate_multiplier","REAL DEFAULT 1");
+        addColumnIfMissing(db,"world_clocks","tick_delta","INTEGER DEFAULT 1");
+        addColumnIfMissing(db,"world_clocks","regression_allowed","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"world_clocks","owner_entity","TEXT DEFAULT ''");
+        addColumnIfMissing(db,"world_clocks","segments_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"world_clocks","completion_receipt","TEXT DEFAULT ''");
+        addColumnIfMissing(db,"world_events","consequence_status","TEXT DEFAULT 'pending'");
+        addColumnIfMissing(db,"world_events","applied_at","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"world_events","last_error","TEXT DEFAULT ''");
+        addColumnIfMissing(db,"world_events","event_key","TEXT DEFAULT ''");
+        addColumnIfMissing(db,"world_events","trigger_json","TEXT DEFAULT '{}'");
+        addColumnIfMissing(db,"world_events","procedure_json","TEXT DEFAULT '{}'");
+        addColumnIfMissing(db,"world_events","state_json","TEXT DEFAULT '{}'");
+        addColumnIfMissing(db,"world_events","transaction_key","TEXT DEFAULT ''");
+        addColumnIfMissing(db,"world_events","application_receipt","TEXT DEFAULT ''");
+        addColumnIfMissing(db,"npc_cognitive_state","last_action_day","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"npc_cognitive_state","goals_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"npc_cognitive_state","personality_json","TEXT DEFAULT '{}'");
+        addColumnIfMissing(db,"npc_cognitive_state","knowledge_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"npc_cognitive_state","resources_json","TEXT DEFAULT '{}'");
+        addColumnIfMissing(db,"npc_cognitive_state","recent_events_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"npc_cognitive_state","simulation_cursor_hours","REAL DEFAULT -1");
+        addColumnIfMissing(db,"npc_cognitive_state","simulation_cursor_day","INTEGER DEFAULT 0");
+        addColumnIfMissing(db,"story_state_profiles","option_history_json","TEXT DEFAULT '[]'");
+        addColumnIfMissing(db,"pending_transactions","effect_key","TEXT DEFAULT ''");
+        try{db.execSQL("CREATE INDEX IF NOT EXISTS idx_pending_effect_key ON pending_transactions(world_profile,effect_key,status)");}
+        catch(Exception e){AppLog.w("AppDb","Não foi possível criar o índice de idempotência das pendências.",e);}
+        try{db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_world_event_key ON world_events(world_profile,event_key) WHERE event_key<>''");}
+        catch(Exception e){AppLog.w("AppDb","Não foi possível criar o índice de identidade dos eventos.",e);}
+        db.execSQL("CREATE TABLE IF NOT EXISTS effect_receipts (world_profile TEXT NOT NULL, effect_key TEXT NOT NULL, source TEXT DEFAULT '', applied_at INTEGER NOT NULL, PRIMARY KEY(world_profile,effect_key))");
+    }
+
+    // RUN189: independent persisted intent queue. Never commits effects of a proposal.
+    private static void ensureCompanionProposalsSchema(SQLiteDatabase db){
+        db.execSQL("CREATE TABLE IF NOT EXISTS companion_proposals (world_profile TEXT NOT NULL, proposal_id TEXT NOT NULL, character_id INTEGER NOT NULL, character_name TEXT NOT NULL, scene_fingerprint TEXT NOT NULL, action_text TEXT NOT NULL, reason_observed TEXT NOT NULL, cost_risk TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending', queued_action_id INTEGER DEFAULT 0, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, PRIMARY KEY(world_profile, proposal_id))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_companion_proposals_pending ON companion_proposals(world_profile,status,created_at DESC)");
+    }
+    public synchronized boolean stageCompanionProposal(String proposalId,long charId,String name,String sceneKey,String action,String reason,String risk){
+        if(proposalId==null||proposalId.length()<16||charId<=0||action.trim().isEmpty()||reason.trim().isEmpty())return false;
+        SQLiteDatabase sql=getWritableDatabase();ensureCompanionProposalsSchema(sql);
+        JSONObject control=getCharacterControl(charId);
+        if(!"curated".equals(CompanionAgencyEngine.mode(control.optString("control_mode"))))return false;
+        ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("proposal_id",proposalId);v.put("character_id",charId);v.put("character_name",name);v.put("scene_fingerprint",sceneKey);v.put("action_text",action);v.put("reason_observed",reason);v.put("cost_risk",risk);v.put("status","pending");v.put("created_at",System.currentTimeMillis());v.put("updated_at",System.currentTimeMillis());
+        return sql.insertWithOnConflict("companion_proposals",null,v,SQLiteDatabase.CONFLICT_IGNORE)>0;
+    }
+    public List<JSONObject> listCompanionProposals(String status,int limit){
+        ensureCompanionProposalsSchema(getWritableDatabase());
+        return queryList("SELECT * FROM companion_proposals WHERE world_profile=? AND status=? ORDER BY created_at DESC LIMIT "+Math.max(1,Math.min(100,limit)),new String[]{getActiveMapProfile(),status});
+    }
+    public synchronized boolean updateCompanionProposal(String proposalId,String status,String action,String reason,String fingerprint){
+        SQLiteDatabase sql=getWritableDatabase();ensureCompanionProposalsSchema(sql);
+        // A caller cannot hide a stale outer transaction. All authorization inputs
+        // are read again after this method owns its transaction.
+        if(sql.inTransaction())return false;
+        sql.beginTransaction();
+        try{
+            String world=getActiveMapProfile();
+            JSONObject p=queryOne("SELECT * FROM companion_proposals WHERE world_profile=? AND proposal_id=? AND status='pending'",new String[]{world,proposalId});
+            if(p.length()==0)return false;
+            if(!"curated".equals(CompanionAgencyEngine.mode(getCharacterControl(p.optLong("character_id")).optString("control_mode"))))return false;
+            if("rejected".equals(status)){
+                ContentValues declined=new ContentValues();declined.put("status","rejected");declined.put("updated_at",System.currentTimeMillis());
+                boolean changed=sql.update("companion_proposals",declined,"world_profile=? AND proposal_id=? AND status='pending'",new String[]{world,proposalId})==1;
+                if(changed)sql.setTransactionSuccessful();return changed;
+            }
+            if(!"approved".equals(status)&&!"altered".equals(status))return false;
+            JSONObject hero=queryOne("SELECT * FROM characters WHERE world_profile=? AND id=? AND active=1",new String[]{world,String.valueOf(p.optLong("character_id"))});
+            if(hero.length()==0||!CompanionAgencyEngine.characterCanPropose(this,hero))return false;
+            if(fingerprint==null||!fingerprint.equals(p.optString("scene_fingerprint"))||!fingerprint.equals(CompanionAgencyEngine.sceneFingerprint(this,hero)))return false;
+            // RUN202: approval may not silently replace the reviewed proposal payload.
+            // To change the action, use the explicit "altered" path and approve afterward.
+            if("approved".equals(status)&&action!=null&&!action.trim().equals(p.optString("action_text")))return false;
+            ContentValues v=new ContentValues();v.put("updated_at",System.currentTimeMillis());
+            if("altered".equals(status)){if(action==null||action.trim().length()<4)return false;v.put("action_text",action.trim());v.put("reason_observed",reason==null?"Alteração do jogador":reason.trim());}
+            else v.put("status",status);
+            if("approved".equals(status)){
+                ContentValues q=new ContentValues();q.put("world_profile",world);q.put("character_id",p.optLong("character_id"));q.put("character_name",p.optString("character_name"));q.put("action_text",action==null?p.optString("action_text"):action.trim());q.put("intent_type","curated_approved");q.put("status","queued");q.put("created_at",System.currentTimeMillis());
+                long actionId=sql.insertOrThrow("party_action_queue",null,q);v.put("queued_action_id",actionId);
+            }
+            int count=sql.update("companion_proposals",v,"world_profile=? AND proposal_id=? AND status='pending'",new String[]{world,proposalId});
+            if(count!=1)throw new IllegalStateException("Curadoria concorrente, não aplicar ação duas vezes.");
+            sql.setTransactionSuccessful();return true;
+        }catch(Exception failure){AppLog.w("AppDb","Proposta de companheiro revertida após falha ou concorrência.",failure);return false;}
+        finally{sql.endTransaction();}
+    }
+    private void restoreCompanionProposals(SQLiteDatabase sql,JSONArray rows,Map<Long,Long> characterIdMap,String world) throws Exception{
+        ensureCompanionProposalsSchema(sql);sql.delete("companion_proposals","world_profile=?",new String[]{world});
+        if(rows==null)return;
+        for(int i=0;i<rows.length();i++){
+            JSONObject p=rows.optJSONObject(i);if(p==null)continue;Long mapped=characterIdMap.get(p.optLong("character_id",0));if(mapped==null||mapped<=0)continue;
+            ContentValues v=jsonValues(p);v.put("world_profile",world);v.put("character_id",mapped);
+            // Queued action ids may be remapped during restore; never reuse an old id.
+            if("approved".equals(p.optString("status")))v.put("queued_action_id",0);
+            sql.insertWithOnConflict("companion_proposals",null,v,SQLiteDatabase.CONFLICT_IGNORE);
+        }
+    }
+
+    private static void createVirtualMasterTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS party_state_profiles (world_profile TEXT PRIMARY KEY, marching_order_json TEXT DEFAULT '[]', roles_json TEXT DEFAULT '{}', company_resources_json TEXT DEFAULT '{}', subgroups_json TEXT DEFAULT '[]', relations_json TEXT DEFAULT '[]', session_preferences_json TEXT DEFAULT '{}', knowledge_mode TEXT DEFAULT 'jogador_total', default_control_mode TEXT DEFAULT 'manual', updated_at INTEGER DEFAULT 0)");
+        db.execSQL("INSERT OR IGNORE INTO party_state_profiles(world_profile) VALUES('dnd')");
+        db.execSQL("INSERT OR IGNORE INTO party_state_profiles(world_profile) VALUES('mystara')");
+        db.execSQL("CREATE TABLE IF NOT EXISTS party_action_queue (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, character_id INTEGER NOT NULL, character_name TEXT NOT NULL, action_text TEXT NOT NULL, intent_type TEXT DEFAULT 'livre', priority INTEGER DEFAULT 0, status TEXT DEFAULT 'queued', created_at INTEGER NOT NULL, resolved_at INTEGER DEFAULT 0, narrated_at INTEGER DEFAULT 0, resolution_receipt TEXT DEFAULT '', resolution_note TEXT DEFAULT '', resolution_kind TEXT DEFAULT '')");
+        ensurePartyActionResolutionColumns(db);
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_party_actions_world_status ON party_action_queue(world_profile,status,created_at)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS party_memberships (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, actor_kind TEXT NOT NULL DEFAULT 'hero', character_id INTEGER DEFAULT 0, npc_name TEXT DEFAULT '', status TEXT DEFAULT 'active', party_role TEXT DEFAULT 'companion', recruitment_type TEXT DEFAULT 'joined', joined_day INTEGER DEFAULT 1, left_day INTEGER DEFAULT 0, home_location TEXT DEFAULT '', compensation_json TEXT DEFAULT '{}', loyalty INTEGER DEFAULT 50, reason TEXT DEFAULT '', metadata_json TEXT DEFAULT '{}', created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, UNIQUE(world_profile,actor_kind,character_id,npc_name))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_party_memberships_status ON party_memberships(world_profile,status,updated_at DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS character_control_profiles (world_profile TEXT NOT NULL, character_id INTEGER NOT NULL, control_mode TEXT DEFAULT 'manual', tactics_json TEXT DEFAULT '{}', spotlight_score INTEGER DEFAULT 0, last_spotlight_at INTEGER DEFAULT 0, personal_goal TEXT DEFAULT '', arc_status TEXT DEFAULT 'active', arc_notes TEXT DEFAULT '', last_major_choice TEXT DEFAULT '', PRIMARY KEY(world_profile,character_id))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS knowledge_facts (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, fact_key TEXT DEFAULT '', subject TEXT DEFAULT '', content TEXT NOT NULL, truth_status TEXT DEFAULT 'verdade', visibility TEXT DEFAULT 'grupo', known_by_json TEXT DEFAULT '[]', reveal_condition TEXT DEFAULT '', source TEXT DEFAULT '', created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_knowledge_world ON knowledge_facts(world_profile,visibility,updated_at DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS quests (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, title TEXT NOT NULL, status TEXT DEFAULT 'active', stage TEXT DEFAULT '', objective TEXT DEFAULT '', stakes TEXT DEFAULT '', owner_character_id INTEGER DEFAULT 0, faction_id INTEGER DEFAULT 0, progress_json TEXT DEFAULT '{}', created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_quests_world_status ON quests(world_profile,status,updated_at DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS factions (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, name TEXT NOT NULL COLLATE NOCASE, agenda TEXT DEFAULT '', resources TEXT DEFAULT '', relationship INTEGER DEFAULT 0, current_plan TEXT DEFAULT '', location TEXT DEFAULT '', active INTEGER DEFAULT 1, updated_at INTEGER NOT NULL, UNIQUE(world_profile,name))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS world_clocks (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, name TEXT NOT NULL, current_value INTEGER DEFAULT 0, max_value INTEGER DEFAULT 4, consequence TEXT DEFAULT '', automatic INTEGER DEFAULT 0, active INTEGER DEFAULT 1, updated_at INTEGER NOT NULL)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_world_clocks ON world_clocks(world_profile,active,updated_at DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS world_events (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, title TEXT NOT NULL, description TEXT DEFAULT '', due_at INTEGER DEFAULT 0, due_day INTEGER DEFAULT 0, status TEXT DEFAULT 'scheduled', consequence_json TEXT DEFAULT '{}', created_at INTEGER NOT NULL, resolved_at INTEGER DEFAULT 0)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_world_events_due ON world_events(world_profile,status,due_at,due_day)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS pending_transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, title TEXT NOT NULL, summary TEXT DEFAULT '', payload_json TEXT NOT NULL, status TEXT DEFAULT 'pending', created_at INTEGER NOT NULL, applied_at INTEGER DEFAULT 0)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_pending_transactions ON pending_transactions(world_profile,status,created_at DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS session_memories (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, session_no INTEGER DEFAULT 1, title TEXT DEFAULT '', summary TEXT DEFAULT '', open_threads_json TEXT DEFAULT '[]', character_beats_json TEXT DEFAULT '{}', created_at INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS tactical_tokens (world_profile TEXT NOT NULL, combatant_id INTEGER NOT NULL, name TEXT NOT NULL, is_player INTEGER DEFAULT 0, x REAL DEFAULT 0.5, y REAL DEFAULT 0.5, zone TEXT DEFAULT '', updated_at INTEGER NOT NULL, PRIMARY KEY(world_profile,combatant_id))");
+    }
+
+    /** Estado de descoberta narrativa 6.3.0-r4.
+     * Fica no SQLite para viajar junto com snapshots e backups, evitando que
+     * SharedPreferences globais façam uma campanha nova "lembrar" lugares de outra.
+     */
+    public static void ensureNarrativeDiscoverySchema(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS narrative_discovery_state (world_profile TEXT NOT NULL, kind TEXT NOT NULL, stable_key TEXT NOT NULL, label TEXT DEFAULT '', imprint TEXT DEFAULT '', first_seen_day INTEGER DEFAULT 1, last_seen_day INTEGER DEFAULT 1, seen_count INTEGER DEFAULT 0, updated_at INTEGER NOT NULL, PRIMARY KEY(world_profile,kind,stable_key))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_narrative_discovery_kind ON narrative_discovery_state(world_profile,kind,last_seen_day DESC,updated_at DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS narrative_discovery_runtime (world_profile TEXT PRIMARY KEY, campaign_started INTEGER DEFAULT 0, last_location_key TEXT DEFAULT '', last_geography_key TEXT DEFAULT '', last_poi_key TEXT DEFAULT '', last_weather_key TEXT DEFAULT '', last_location_imprint TEXT DEFAULT '', updated_at INTEGER DEFAULT 0)");
+        db.execSQL("INSERT OR IGNORE INTO narrative_discovery_runtime(world_profile) VALUES('dnd')");
+        db.execSQL("INSERT OR IGNORE INTO narrative_discovery_runtime(world_profile) VALUES('mystara')");
+    }
+
+    private static void createTravelRulesTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS travel_rules_state (world_profile TEXT PRIMARY KEY, state_json TEXT DEFAULT '{}', updated_at INTEGER DEFAULT 0)");
+        db.execSQL("INSERT OR IGNORE INTO travel_rules_state(world_profile) VALUES('dnd')");
+        db.execSQL("INSERT OR IGNORE INTO travel_rules_state(world_profile) VALUES('mystara')");
+    }
+
+    private static void createCognitiveMasterTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS master_runtime_state (world_profile TEXT PRIMARY KEY, scene_mode TEXT DEFAULT 'exploracao', tension INTEGER DEFAULT 0, beat_no INTEGER DEFAULT 0, last_action_fingerprint TEXT DEFAULT '', last_context_fingerprint TEXT DEFAULT '', last_response_fingerprint TEXT DEFAULT '', last_cognitive_plan_json TEXT DEFAULT '{}', unresolved_threads_json TEXT DEFAULT '[]', last_summary TEXT DEFAULT '', validation_warnings_json TEXT DEFAULT '[]', updated_at INTEGER DEFAULT 0)");
+        db.execSQL("INSERT OR IGNORE INTO master_runtime_state(world_profile) VALUES('dnd')");
+        db.execSQL("INSERT OR IGNORE INTO master_runtime_state(world_profile) VALUES('mystara')");
+        db.execSQL("CREATE TABLE IF NOT EXISTS master_episodes (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, action_text TEXT DEFAULT '', summary TEXT DEFAULT '', actors_json TEXT DEFAULT '[]', scene_mode TEXT DEFAULT '', location TEXT DEFAULT '', hex_id TEXT DEFAULT '', tags_json TEXT DEFAULT '[]', significance INTEGER DEFAULT 1, canonical INTEGER DEFAULT 1, created_at INTEGER NOT NULL)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_master_episodes_world ON master_episodes(world_profile,created_at DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS npc_cognitive_state (world_profile TEXT NOT NULL, npc_name TEXT NOT NULL COLLATE NOCASE, emotion TEXT DEFAULT 'neutro', trust INTEGER DEFAULT 0, fear INTEGER DEFAULT 0, suspicion INTEGER DEFAULT 0, urgency INTEGER DEFAULT 0, next_action TEXT DEFAULT '', schedule_json TEXT DEFAULT '[]', beliefs_json TEXT DEFAULT '[]', faction TEXT DEFAULT '', current_location TEXT DEFAULT '', last_interaction_summary TEXT DEFAULT '', last_action_at INTEGER DEFAULT 0, updated_at INTEGER DEFAULT 0, PRIMARY KEY(world_profile,npc_name))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_npc_cognition_world ON npc_cognitive_state(world_profile,updated_at DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS master_response_cache (world_profile TEXT NOT NULL, cache_key TEXT NOT NULL, mode TEXT DEFAULT '', model TEXT DEFAULT '', action_hash TEXT DEFAULT '', state_hash TEXT DEFAULT '', response_json TEXT NOT NULL, created_at INTEGER NOT NULL, last_used_at INTEGER DEFAULT 0, use_count INTEGER DEFAULT 0, PRIMARY KEY(world_profile,cache_key))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_master_cache_age ON master_response_cache(world_profile,created_at DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS environmental_director_state (world_profile TEXT PRIMARY KEY, state_json TEXT DEFAULT '{}', updated_at INTEGER DEFAULT 0)");
+        db.execSQL("INSERT OR IGNORE INTO environmental_director_state(world_profile) VALUES('dnd')");
+        db.execSQL("INSERT OR IGNORE INTO environmental_director_state(world_profile) VALUES('mystara')");
+    }
+
+    private static void createWorldProfileTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS campaign_profiles (world_profile TEXT PRIMARY KEY, name TEXT, rules_profile TEXT, tone TEXT, feats INTEGER, multiclass INTEGER, flanking INTEGER, notes TEXT, updated_at INTEGER)");
+        db.execSQL("INSERT OR IGNORE INTO campaign_profiles(world_profile,name,rules_profile,tone,feats,multiclass,flanking,notes,updated_at) SELECT 'dnd',name,rules_profile,tone,feats,multiclass,flanking,notes,updated_at FROM campaign WHERE id=1");
+        db.execSQL("INSERT OR IGNORE INTO campaign_profiles(world_profile,name,rules_profile,tone,feats,multiclass,flanking,notes,updated_at) VALUES('mystara','Crônica de Mystara','Rules Cyclopedia (BECMI)','Aventura clássica',0,0,0,'Perícias e especialização em armas são opções configuráveis da Enciclopédia de Regras.',0)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS story_state_profiles (world_profile TEXT PRIMARY KEY, started INTEGER DEFAULT 0, last_narration TEXT DEFAULT '', visual_prompt TEXT DEFAULT '', options_json TEXT DEFAULT '[]', pending_test_json TEXT DEFAULT '', last_action TEXT DEFAULT '', updated_at INTEGER DEFAULT 0)");
+        db.execSQL("INSERT OR IGNORE INTO story_state_profiles(world_profile,started,last_narration,visual_prompt,options_json,pending_test_json,last_action,updated_at) SELECT 'dnd',started,last_narration,visual_prompt,options_json,pending_test_json,last_action,updated_at FROM story_state WHERE id=1");
+        db.execSQL("INSERT OR IGNORE INTO story_state_profiles(world_profile) VALUES('mystara')");
+        db.execSQL("CREATE TABLE IF NOT EXISTS combat_state_profiles (world_profile TEXT PRIMARY KEY, round_no INTEGER DEFAULT 1, turn_index INTEGER DEFAULT 0, running INTEGER DEFAULT 0, party_initiative INTEGER DEFAULT 0, enemy_initiative INTEGER DEFAULT 0, phase INTEGER DEFAULT 0, state TEXT DEFAULT 'idle', pending_roll_json TEXT DEFAULT '{}', encounter_id TEXT DEFAULT '', updated_at INTEGER DEFAULT 0)");
+        db.execSQL("INSERT OR IGNORE INTO combat_state_profiles(world_profile,round_no,turn_index,running) SELECT 'dnd',round_no,turn_index,running FROM combat_state WHERE id=1");
+        db.execSQL("INSERT OR IGNORE INTO combat_state_profiles(world_profile) VALUES('mystara')");
+        db.execSQL("CREATE TABLE IF NOT EXISTS scene_state_profiles (world_profile TEXT PRIMARY KEY, day_number INTEGER DEFAULT 1, clock_hour REAL DEFAULT 9, location TEXT DEFAULT '', hex_id TEXT DEFAULT '', time_of_day TEXT DEFAULT '', weather TEXT DEFAULT '', lighting TEXT DEFAULT '', danger TEXT DEFAULT '', objective TEXT DEFAULT '', present_npcs_json TEXT DEFAULT '[]', threats_json TEXT DEFAULT '[]', clues_json TEXT DEFAULT '[]', pending_consequences_json TEXT DEFAULT '[]', updated_at INTEGER DEFAULT 0)");
+        addColumnIfMissing(db,"scene_state_profiles","day_number","INTEGER DEFAULT 1");
+        addColumnIfMissing(db,"scene_state_profiles","clock_hour","REAL DEFAULT 9");
+        db.execSQL("INSERT OR IGNORE INTO scene_state_profiles(world_profile,location,hex_id,time_of_day,weather,lighting,danger,objective,present_npcs_json,threats_json,clues_json,pending_consequences_json,updated_at) SELECT 'dnd',location,hex_id,time_of_day,weather,lighting,danger,objective,present_npcs_json,threats_json,clues_json,pending_consequences_json,updated_at FROM scene_state WHERE id=1");
+        db.execSQL("INSERT OR IGNORE INTO scene_state_profiles(world_profile) VALUES('mystara')");
+        db.execSQL("CREATE TABLE IF NOT EXISTS npc_memory_profiles (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL, stable_id TEXT DEFAULT '', name TEXT NOT NULL COLLATE NOCASE, summary TEXT DEFAULT '', goals TEXT DEFAULT '', secrets TEXT DEFAULT '', attitude TEXT DEFAULT 'neutra', relationship TEXT DEFAULT '', knowledge TEXT DEFAULT '', debts TEXT DEFAULT '', last_seen TEXT DEFAULT '', token_uri TEXT DEFAULT '', visual_description TEXT DEFAULT '', stats_json TEXT DEFAULT '{}', hex_id TEXT DEFAULT '', active INTEGER DEFAULT 1, voice_profile TEXT DEFAULT '', updated_at INTEGER, UNIQUE(world_profile,name))");
+        addColumnIfMissing(db,"npc_memory_profiles","token_uri","TEXT DEFAULT ''");
+        addColumnIfMissing(db,"npc_memory_profiles","visual_description","TEXT DEFAULT ''");
+        addColumnIfMissing(db,"npc_memory_profiles","stats_json","TEXT DEFAULT '{}'");
+        addColumnIfMissing(db,"npc_memory_profiles","hex_id","TEXT DEFAULT ''");
+        addColumnIfMissing(db,"npc_memory_profiles","active","INTEGER DEFAULT 1");
+        addColumnIfMissing(db,"npc_memory_profiles","voice_profile","TEXT DEFAULT ''");
+        db.execSQL("INSERT OR IGNORE INTO npc_memory_profiles(world_profile,name,summary,goals,secrets,attitude,relationship,knowledge,debts,last_seen,updated_at) SELECT 'dnd',name,summary,goals,secrets,attitude,relationship,knowledge,debts,last_seen,updated_at FROM npc_memory");
+    }
+
+
+    private static void createManualLocalIndexTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS manual_local_pages (id INTEGER PRIMARY KEY AUTOINCREMENT, manual_id INTEGER NOT NULL, source_key TEXT NOT NULL, page_no INTEGER NOT NULL, title TEXT DEFAULT '', content TEXT DEFAULT '', normalized TEXT DEFAULT '', section_title TEXT DEFAULT '', chapter_title TEXT DEFAULT '', content_kind TEXT DEFAULT 'prose', structure_json TEXT DEFAULT '{}', cross_refs_json TEXT DEFAULT '[]', page_hash TEXT DEFAULT '', indexed_at INTEGER DEFAULT 0, UNIQUE(manual_id,source_key,page_no))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_manual_local_pages_manual ON manual_local_pages(manual_id,source_key,page_no)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_manual_local_pages_source ON manual_local_pages(source_key,manual_id)");
+        createManualLocalFtsIndex(db,false);
+    }
+
+    /**
+     * Índice invertido persistente dos textos já extraídos. A tabela FTS4 usa
+     * manual_local_pages como conteúdo externo: o texto não é duplicado, mas a
+     * busca deixa de executar LIKE '%termo%' sobre todas as páginas de todos os
+     * manuais a cada cena. Os gatilhos mantêm o índice sincronizado com novas
+     * importações e reindexações.
+     */
+    private static void createManualLocalFtsIndex(SQLiteDatabase db,boolean rebuild){
+        db.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS manual_local_pages_fts USING fts4(content='manual_local_pages', normalized, title, section_title, chapter_title, tokenize=unicode61)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS manual_search_index_state (id INTEGER PRIMARY KEY,status TEXT NOT NULL DEFAULT 'pending',source_pages INTEGER DEFAULT 0,indexed_pages INTEGER DEFAULT 0,last_error TEXT DEFAULT '',updated_at INTEGER DEFAULT 0)");
+        db.execSQL("INSERT OR IGNORE INTO manual_search_index_state(id,status,source_pages,indexed_pages,last_error,updated_at) VALUES(1,'pending',0,0,'',0)");
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS manual_local_pages_ai AFTER INSERT ON manual_local_pages BEGIN INSERT INTO manual_local_pages_fts(docid,normalized,title,section_title,chapter_title) VALUES(new.id,new.normalized,new.title,new.section_title,new.chapter_title); END");
+        // Em tabelas FTS com conteúdo externo, a remoção precisa ocorrer antes
+        // de a linha-base desaparecer; depois disso o FTS já não consegue ler
+        // os termos antigos para eliminá-los do índice.
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS manual_local_pages_ad BEFORE DELETE ON manual_local_pages BEGIN DELETE FROM manual_local_pages_fts WHERE docid=old.id; END");
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS manual_local_pages_bu BEFORE UPDATE ON manual_local_pages BEGIN DELETE FROM manual_local_pages_fts WHERE docid=old.id; END");
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS manual_local_pages_au AFTER UPDATE ON manual_local_pages BEGIN INSERT INTO manual_local_pages_fts(docid,normalized,title,section_title,chapter_title) VALUES(new.id,new.normalized,new.title,new.section_title,new.chapter_title); END");
+        if(rebuild)db.execSQL("INSERT INTO manual_local_pages_fts(manual_local_pages_fts) VALUES('rebuild')");
+    }
+
+    public boolean isManualSearchIndexReady(){
+        try{return "ready".equals(queryOne("SELECT status FROM manual_search_index_state WHERE id=1",null).optString("status"));}
+        catch(Exception e){AppLog.w("AppDb","Estado do índice invertido indisponível.",e);return false;}
+    }
+
+    /** Reconstrói apenas o índice de busca, em executor de I/O. Os PDFs e as
+     * páginas já extraídas não são reabertos nem reprocessados. */
+    public synchronized JSONObject rebuildManualSearchIndexIfNeeded(){
+        JSONObject out=new JSONObject();SQLiteDatabase sql=getWritableDatabase();
+        try{
+            createManualLocalFtsIndex(sql,false);
+            JSONObject state=queryOne("SELECT * FROM manual_search_index_state WHERE id=1",null);
+            if("ready".equals(state.optString("status"))){out.put("status","ready").put("rebuilt",false).put("pages",state.optInt("indexed_pages",0));return out;}
+            ContentValues building=new ContentValues();building.put("status","building");building.put("last_error","");building.put("updated_at",System.currentTimeMillis());sql.update("manual_search_index_state",building,"id=1",null);
+            long started=System.currentTimeMillis();sql.beginTransaction();int sourcePages=0;
+            try{
+                Cursor count=sql.rawQuery("SELECT COUNT(*) FROM manual_local_pages",null);try{sourcePages=count.moveToFirst()?count.getInt(0):0;}finally{count.close();}
+                sql.execSQL("INSERT INTO manual_local_pages_fts(manual_local_pages_fts) VALUES('rebuild')");
+                ContentValues ready=new ContentValues();ready.put("status","ready");ready.put("source_pages",sourcePages);ready.put("indexed_pages",sourcePages);ready.put("last_error","");ready.put("updated_at",System.currentTimeMillis());sql.update("manual_search_index_state",ready,"id=1",null);sql.setTransactionSuccessful();
+            }finally{sql.endTransaction();}
+            out.put("status","ready").put("rebuilt",true).put("pages",sourcePages).put("elapsed_ms",System.currentTimeMillis()-started);return out;
+        }catch(Exception e){
+            try{ContentValues failed=new ContentValues();failed.put("status","error");failed.put("last_error",safeDatabaseError(e));failed.put("updated_at",System.currentTimeMillis());sql.update("manual_search_index_state",failed,"id=1",null);out.put("status","error").put("error",safeDatabaseError(e));}catch(Exception ignored){AppLog.ignored("AppDb","Falha ao registrar erro do índice invertido.",ignored);}AppLog.e("AppDb","Falha ao reconstruir o índice invertido local.",e);return out;
+        }
+    }
+
+    private static void createManualRagPartTable(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS manual_rag_parts (id INTEGER PRIMARY KEY AUTOINCREMENT, manual_id INTEGER NOT NULL, source_hash TEXT NOT NULL, part_no INTEGER NOT NULL, total_parts INTEGER NOT NULL, start_page INTEGER NOT NULL, end_page INTEGER NOT NULL, page_count INTEGER NOT NULL, size_bytes INTEGER DEFAULT 0, split_mode TEXT DEFAULT '', local_path TEXT DEFAULT '', rag_document TEXT DEFAULT '', rag_status TEXT DEFAULT 'prepared', rag_error TEXT DEFAULT '', rag_store_name TEXT DEFAULT '', rag_modified_time TEXT DEFAULT '', indexed_at INTEGER DEFAULT 0, UNIQUE(manual_id,source_hash,part_no))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_manual_rag_parts_manual ON manual_rag_parts(manual_id,source_hash,part_no)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_manual_rag_parts_status ON manual_rag_parts(rag_status,rag_store_name)");
+    }
+
+    private static void createReliabilityAndImmersionTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS audit_log (id INTEGER PRIMARY KEY AUTOINCREMENT, world_profile TEXT NOT NULL DEFAULT 'dnd', category TEXT NOT NULL, title TEXT NOT NULL, summary TEXT, before_json TEXT DEFAULT '{}', after_json TEXT DEFAULT '{}', reversible INTEGER DEFAULT 0, created_at INTEGER NOT NULL)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS scene_state (id INTEGER PRIMARY KEY, day_number INTEGER DEFAULT 1, location TEXT DEFAULT '', hex_id TEXT DEFAULT '', time_of_day TEXT DEFAULT '', weather TEXT DEFAULT '', lighting TEXT DEFAULT '', danger TEXT DEFAULT '', objective TEXT DEFAULT '', present_npcs_json TEXT DEFAULT '[]', threats_json TEXT DEFAULT '[]', clues_json TEXT DEFAULT '[]', pending_consequences_json TEXT DEFAULT '[]', updated_at INTEGER)");
+        addColumnIfMissing(db,"scene_state","day_number","INTEGER DEFAULT 1");
+        db.execSQL("INSERT OR IGNORE INTO scene_state(id,updated_at) VALUES(1,0)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS npc_memory (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE COLLATE NOCASE, summary TEXT DEFAULT '', goals TEXT DEFAULT '', secrets TEXT DEFAULT '', attitude TEXT DEFAULT 'neutra', relationship TEXT DEFAULT '', knowledge TEXT DEFAULT '', debts TEXT DEFAULT '', last_seen TEXT DEFAULT '', updated_at INTEGER)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_npc_memory_updated ON npc_memory(updated_at DESC)");
+    }
+
+    private static void addColumnIfMissing(SQLiteDatabase db,String table,String column,String declaration) {
+        if (hasColumn(db,table,column)) return;
+        db.execSQL("ALTER TABLE "+table+" ADD COLUMN "+column+" "+declaration);
+    }
+
+    private void repairLegacyCharacterIdentities(SQLiteDatabase db){
+        Cursor c=null;try{
+            c=db.rawQuery("SELECT id,species,class_name,background,visual_description,notes,spells,sheet_json FROM characters",null);
+            while(c.moveToNext())try{
+                JSONObject row=rowToJson(c);if(!CharacterIdentityCoherence.repairLegacyRow(row))continue;
+                ContentValues v=new ContentValues();v.put("visual_description",row.optString("visual_description"));v.put("notes",row.optString("notes"));v.put("spells",row.optString("spells"));v.put("sheet_json",row.optString("sheet_json","{}"));v.put("updated_at",System.currentTimeMillis());
+                db.update("characters",v,"id=?",new String[]{String.valueOf(row.optLong("id"))});
+            }catch(Exception rowFailure){AppLog.w("AppDb","Uma ficha antiga não pôde ter a identidade narrativa reparada.",rowFailure);}
+        }catch(Exception failure){AppLog.w("AppDb","Não foi possível auditar a coerência das fichas antigas.",failure);}finally{if(c!=null)c.close();}
+    }
+
+    private static void backfillLegacyTransactionIdentities(SQLiteDatabase db,String onlyProfile){
+        Cursor c=null;try{
+            String sql="SELECT id,world_profile,title,summary,payload_json,status,created_at,applied_at,effect_key FROM pending_transactions"+(onlyProfile==null?"":" WHERE world_profile=?");
+            c=db.rawQuery(sql,onlyProfile==null?null:new String[]{onlyProfile});
+            while(c.moveToNext())try{
+                long id=c.getLong(c.getColumnIndexOrThrow("id"));String world=c.getString(c.getColumnIndexOrThrow("world_profile"));String title=c.getString(c.getColumnIndexOrThrow("title"));String summary=c.getString(c.getColumnIndexOrThrow("summary"));String payloadRaw=c.getString(c.getColumnIndexOrThrow("payload_json"));String status=c.getString(c.getColumnIndexOrThrow("status"));long createdAt=c.getLong(c.getColumnIndexOrThrow("created_at"));long appliedAt=c.getLong(c.getColumnIndexOrThrow("applied_at"));String key=c.getString(c.getColumnIndexOrThrow("effect_key"));
+                if(key==null||key.trim().length()==0)key=LegacyTransactionIdentity.key(world,title,summary,payloadRaw,createdAt);else key=key.trim();
+                JSONObject payload=parseBackupObject(payloadRaw);payload.put("_effect_key",key);
+                ContentValues v=new ContentValues();v.put("effect_key",key);v.put("payload_json",payload.toString());db.update("pending_transactions",v,"id=?",new String[]{String.valueOf(id)});
+                if("applied".equals(status)){ContentValues receipt=new ContentValues();receipt.put("world_profile",world);receipt.put("effect_key",key);receipt.put("source","migração de transação legada");receipt.put("applied_at",appliedAt>0?appliedAt:createdAt);db.insertWithOnConflict("effect_receipts",null,receipt,SQLiteDatabase.CONFLICT_IGNORE);}
+            }catch(Exception rowFailure){AppLog.w("AppDb","Uma transação antiga permaneceu bloqueada para revisão.",rowFailure);}
+        }catch(Exception failure){AppLog.w("AppDb","Não foi possível completar as identidades das transações antigas.",failure);}finally{if(c!=null)c.close();}
+    }
+
+    private static void backfillLegacyWorldEventIdentities(SQLiteDatabase db,String onlyProfile){
+        Cursor c=null;try{
+            String sql="SELECT id,world_profile,title,description,due_at,due_day,consequence_json,trigger_json,procedure_json,created_at,status,consequence_status,event_key,transaction_key,application_receipt FROM world_events"+(onlyProfile==null?"":" WHERE world_profile=?");
+            c=db.rawQuery(sql,onlyProfile==null?null:new String[]{onlyProfile});
+            while(c.moveToNext())try{
+                long id=c.getLong(c.getColumnIndexOrThrow("id"));String world=c.getString(c.getColumnIndexOrThrow("world_profile"));String eventKey=c.getString(c.getColumnIndexOrThrow("event_key"));
+                if(eventKey==null||eventKey.trim().length()==0)eventKey=LegacyWorldEventIdentity.key(world,id,c.getString(c.getColumnIndexOrThrow("title")),c.getString(c.getColumnIndexOrThrow("description")),c.getLong(c.getColumnIndexOrThrow("due_at")),c.getInt(c.getColumnIndexOrThrow("due_day")),c.getString(c.getColumnIndexOrThrow("consequence_json")),c.getString(c.getColumnIndexOrThrow("trigger_json")),c.getString(c.getColumnIndexOrThrow("procedure_json")),c.getLong(c.getColumnIndexOrThrow("created_at")));else eventKey=eventKey.trim();
+                String transactionKey=c.getString(c.getColumnIndexOrThrow("transaction_key"));if(transactionKey==null||transactionKey.trim().length()==0)transactionKey=LegacyWorldEventIdentity.transactionKey(eventKey);else transactionKey=transactionKey.trim();
+                String status=c.getString(c.getColumnIndexOrThrow("status")),consequenceStatus=c.getString(c.getColumnIndexOrThrow("consequence_status")),applicationReceipt=c.getString(c.getColumnIndexOrThrow("application_receipt"));boolean applied="resolved".equalsIgnoreCase(status)||"applied".equalsIgnoreCase(consequenceStatus);
+                ContentValues v=new ContentValues();v.put("event_key",eventKey);v.put("transaction_key",transactionKey);if(applied&&(applicationReceipt==null||applicationReceipt.trim().length()==0))v.put("application_receipt",transactionKey);db.update("world_events",v,"id=?",new String[]{String.valueOf(id)});
+                if(applied){ContentValues receipt=new ContentValues();receipt.put("world_profile",world);receipt.put("effect_key",transactionKey);receipt.put("source","migração de evento legado");receipt.put("applied_at",Math.max(0L,c.getLong(c.getColumnIndexOrThrow("created_at"))));db.insertWithOnConflict("effect_receipts",null,receipt,SQLiteDatabase.CONFLICT_IGNORE);}
+            }catch(Exception rowFailure){AppLog.w("AppDb","Um evento antigo permaneceu bloqueado para revisão.",rowFailure);}
+        }catch(Exception failure){AppLog.w("AppDb","Não foi possível completar as identidades dos eventos antigos.",failure);}finally{if(c!=null)c.close();}
+    }
+
+    private static String safe(String value){return value==null?"":value;}
+
+    private static boolean hasColumn(SQLiteDatabase db,String table,String column) {
+        Cursor c=db.rawQuery("PRAGMA table_info("+table+")",null);
+        try { while(c.moveToNext()) if(column.equalsIgnoreCase(c.getString(c.getColumnIndexOrThrow("name")))) return true; }
+        finally { c.close(); }
+        return false;
+    }
+
+    private static int countQuery(SQLiteDatabase db,String sql,String[] args) {
+        Cursor c=db.rawQuery(sql,args);
+        try { return c.moveToFirst()?c.getInt(0):0; }
+        finally { c.close(); }
+    }
+
+    private static void createTokenPdfTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS token_pdfs (id INTEGER PRIMARY KEY AUTOINCREMENT, source_uri TEXT UNIQUE, document_id TEXT, name TEXT, label TEXT, group_key TEXT, category TEXT, class_name TEXT, species TEXT, set_number INTEGER DEFAULT 0, size_bytes INTEGER DEFAULT 0, modified_time INTEGER DEFAULT 0, page_count INTEGER DEFAULT -1, columns_count INTEGER DEFAULT 5, rows_count INTEGER DEFAULT 9, margin_x REAL DEFAULT 0.065, margin_y REAL DEFAULT 0.055, grid_left REAL DEFAULT 0.065, grid_top REAL DEFAULT 0.055, grid_right REAL DEFAULT 0.935, grid_bottom REAL DEFAULT 0.945, processed_pages TEXT DEFAULT '[]', source_root TEXT DEFAULT '', last_seen INTEGER DEFAULT 0, enabled INTEGER DEFAULT 1)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_token_pdfs_group ON token_pdfs(group_key,enabled)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS pdf_tokens (id INTEGER PRIMARY KEY AUTOINCREMENT, pdf_id INTEGER NOT NULL, page_no INTEGER NOT NULL, token_index INTEGER NOT NULL, row_no INTEGER NOT NULL, col_no INTEGER NOT NULL, crop_x REAL, crop_y REAL, crop_w REAL, crop_h REAL, thumb_path TEXT, full_path TEXT, favorite INTEGER DEFAULT 0, assigned INTEGER DEFAULT 0, last_used INTEGER DEFAULT 0, UNIQUE(pdf_id,page_no,token_index))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_pdf_tokens_page ON pdf_tokens(pdf_id,page_no)");
+    }
+
+
+    private static void createLibrarySyncTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS library_sync_state (source_key TEXT PRIMARY KEY, source_root TEXT DEFAULT '', status TEXT DEFAULT 'never', item_count INTEGER DEFAULT 0, added_count INTEGER DEFAULT 0, changed_count INTEGER DEFAULT 0, missing_count INTEGER DEFAULT 0, last_started INTEGER DEFAULT 0, last_success INTEGER DEFAULT 0, last_error TEXT DEFAULT '', details_json TEXT DEFAULT '{}')");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_library_sync_status ON library_sync_state(status,last_success DESC)");
+    }
+
+
+    private static void createMapAtlasTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS map_packages (package_id TEXT PRIMARY KEY, map_id TEXT, world_profile TEXT DEFAULT 'dnd', label TEXT, image_uri TEXT, overlay_uri TEXT, vector_overlay_uri TEXT DEFAULT '', vector_overlay_gzip_uri TEXT DEFAULT '', hex_index_uri TEXT DEFAULT '', overlay_mode TEXT DEFAULT 'dynamic', manifest_json TEXT, image_width INTEGER, image_height INTEGER, hex_count INTEGER DEFAULT 0, location_count INTEGER DEFAULT 0, distance_miles REAL DEFAULT 0, distance_km REAL DEFAULT 0, min_label_zoom REAL DEFAULT 1.6, imported_at INTEGER, ready INTEGER DEFAULT 0)");
+        addColumnIfMissing(db,"map_packages","world_profile","TEXT DEFAULT 'dnd'");
+        addColumnIfMissing(db,"map_packages","vector_overlay_uri","TEXT DEFAULT ''");
+        addColumnIfMissing(db,"map_packages","vector_overlay_gzip_uri","TEXT DEFAULT ''");
+        addColumnIfMissing(db,"map_packages","hex_index_uri","TEXT DEFAULT ''");
+        addColumnIfMissing(db,"map_packages","overlay_mode","TEXT DEFAULT 'dynamic'");
+        addColumnIfMissing(db,"map_packages","distance_miles","REAL DEFAULT 0");
+        addColumnIfMissing(db,"map_packages","distance_km","REAL DEFAULT 0");
+        addColumnIfMissing(db,"map_packages","min_label_zoom","REAL DEFAULT 1.6");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_map_packages_profile ON map_packages(world_profile,ready,imported_at DESC)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS map_hex_atlas (package_id TEXT NOT NULL, hex_id TEXT NOT NULL, center_x REAL, center_y REAL, terrain_primary TEXT, terrain_secondary TEXT, terrain_confidence REAL, terrain_method TEXT DEFAULT '', roads_json TEXT, waterways_json TEXT, political_json TEXT, review_status TEXT, review_reasons TEXT, location_ids TEXT, PRIMARY KEY(package_id,hex_id))");
+        addColumnIfMissing(db,"map_hex_atlas","terrain_method","TEXT DEFAULT ''");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_map_hex_package ON map_hex_atlas(package_id,hex_id)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS map_locations (package_id TEXT NOT NULL, location_id TEXT NOT NULL, name TEXT, type TEXT, hex_id TEXT, region TEXT, official_5e INTEGER, scope TEXT, placement_method TEXT, placement_confidence REAL, placement_status TEXT, source_ids TEXT, tags TEXT, raw_json TEXT, PRIMARY KEY(package_id,location_id))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_map_locations_hex ON map_locations(package_id,hex_id)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS map_hex_locations (package_id TEXT NOT NULL, hex_id TEXT NOT NULL, location_id TEXT NOT NULL, PRIMARY KEY(package_id,hex_id,location_id))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_map_hex_locations ON map_hex_locations(package_id,hex_id)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS map_world_state (world_profile TEXT PRIMARY KEY, logical_map_id TEXT NOT NULL DEFAULT '', image_uri TEXT DEFAULT '', overlay_uri TEXT DEFAULT '', manifest_json TEXT DEFAULT '', map_package_id TEXT DEFAULT '', current_hex_id TEXT DEFAULT '', overlay_visible INTEGER DEFAULT 1, overlay_mode TEXT DEFAULT 'dynamic', min_label_zoom REAL DEFAULT 1.6, reveals_json TEXT DEFAULT '{}', grid_type TEXT DEFAULT 'Quadrada', grid_size REAL DEFAULT 64, fog_enabled INTEGER DEFAULT 0, token_x REAL DEFAULT 0.5, token_y REAL DEFAULT 0.5, scale REAL DEFAULT 1, offset_x REAL DEFAULT 0, offset_y REAL DEFAULT 0, position_locked INTEGER DEFAULT 0, destination_hex_id TEXT DEFAULT '', route_json TEXT DEFAULT '[]', route_owner TEXT DEFAULT 'Jogador')");
+        addColumnIfMissing(db,"map_world_state","logical_map_id","TEXT NOT NULL DEFAULT ''");
+        db.execSQL("INSERT OR IGNORE INTO map_world_state(world_profile,image_uri,overlay_uri,manifest_json,map_package_id,current_hex_id,overlay_visible,reveals_json,grid_type,grid_size,fog_enabled,token_x,token_y,scale,offset_x,offset_y,position_locked,destination_hex_id,route_json,route_owner) SELECT 'dnd',COALESCE(image_uri,''),COALESCE(overlay_uri,''),COALESCE(manifest_json,''),COALESCE(map_package_id,''),COALESCE(current_hex_id,''),COALESCE(overlay_visible,1),COALESCE(reveals_json,'{}'),COALESCE(grid_type,'Quadrada'),COALESCE(grid_size,64),COALESCE(fog_enabled,0),COALESCE(token_x,.5),COALESCE(token_y,.5),COALESCE(scale,1),COALESCE(offset_x,0),COALESCE(offset_y,0),COALESCE(position_locked,0),COALESCE(destination_hex_id,''),COALESCE(route_json,'[]'),COALESCE(route_owner,'Jogador') FROM map_state WHERE id=1");
+        db.execSQL("INSERT OR IGNORE INTO map_world_state(world_profile) VALUES('mystara')");
+        createMapCorrectionTables(db);
+    }
+
+    /**
+     * Schema V58: contrato cartográfico versionado e sandbox de POIs.
+     * CANONICAL permanece em tabelas map_*; CAMPAIGN/PROCEDURAL vivem no save atual.
+     */
+    private static void ensureAtlasContractSchema(SQLiteDatabase db) {
+        createMapAtlasTables(db);
+        addColumnIfMissing(db,"map_packages","logical_map_id","TEXT NOT NULL DEFAULT ''");
+        addColumnIfMissing(db,"map_packages","map_package_id","TEXT NOT NULL DEFAULT ''");
+        addColumnIfMissing(db,"map_packages","atlas_namespace","TEXT NOT NULL DEFAULT ''");
+        addColumnIfMissing(db,"map_packages","coordinate_frame_id","TEXT NOT NULL DEFAULT ''");
+        addColumnIfMissing(db,"map_packages","canonical_catalog_version","TEXT NOT NULL DEFAULT ''");
+        addColumnIfMissing(db,"map_packages","atlas_profile_json","TEXT NOT NULL DEFAULT '{}'");
+        addColumnIfMissing(db,"map_packages","atlas_contract_json","TEXT NOT NULL DEFAULT '{}'");
+        addColumnIfMissing(db,"map_packages","canonical_index_json","TEXT NOT NULL DEFAULT '{}'");
+        addColumnIfMissing(db,"map_packages","migration_profiles_json","TEXT NOT NULL DEFAULT '{}'");
+        addColumnIfMissing(db,"map_packages","atlas_ready","INTEGER NOT NULL DEFAULT 0");
+
+        addColumnIfMissing(db,"map_hex_atlas","center_u","REAL");
+        addColumnIfMissing(db,"map_hex_atlas","center_v","REAL");
+        addColumnIfMissing(db,"map_hex_atlas","neighbors_json","TEXT NOT NULL DEFAULT '{}'");
+        addColumnIfMissing(db,"map_hex_atlas","road_present","INTEGER NOT NULL DEFAULT 0");
+        addColumnIfMissing(db,"map_hex_atlas","area_ids","TEXT NOT NULL DEFAULT '[]'");
+        addColumnIfMissing(db,"map_hex_atlas","marker_ids","TEXT NOT NULL DEFAULT '[]'");
+
+        addColumnIfMissing(db,"map_locations","logical_map_id","TEXT NOT NULL DEFAULT ''");
+        addColumnIfMissing(db,"map_locations","coordinate_frame_id","TEXT NOT NULL DEFAULT ''");
+        addColumnIfMissing(db,"map_locations","position_u","REAL");
+        addColumnIfMissing(db,"map_locations","position_v","REAL");
+        addColumnIfMissing(db,"map_locations","canonical","INTEGER NOT NULL DEFAULT 1");
+        addColumnIfMissing(db,"map_locations","package_placement_json","TEXT NOT NULL DEFAULT '{}'");
+
+        addColumnIfMissing(db,"map_world_state","coordinate_frame_id","TEXT NOT NULL DEFAULT ''");
+        addColumnIfMissing(db,"map_world_state","position_u","REAL");
+        addColumnIfMissing(db,"map_world_state","position_v","REAL");
+        addColumnIfMissing(db,"map_world_state","position_map_package_id","TEXT NOT NULL DEFAULT ''");
+        addColumnIfMissing(db,"map_world_state","position_migration_status","TEXT NOT NULL DEFAULT 'ready'");
+        addColumnIfMissing(db,"map_world_state","legacy_position_json","TEXT NOT NULL DEFAULT '{}'");
+        addColumnIfMissing(db,"map_world_state","atlas_ready","INTEGER NOT NULL DEFAULT 0");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS map_areas (package_id TEXT NOT NULL, area_id TEXT NOT NULL, name TEXT NOT NULL DEFAULT '', type TEXT NOT NULL DEFAULT '', confidence REAL DEFAULT 0, raw_json TEXT NOT NULL DEFAULT '{}', PRIMARY KEY(package_id,area_id))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS map_area_hex (package_id TEXT NOT NULL, area_id TEXT NOT NULL, hex_id TEXT NOT NULL, PRIMARY KEY(package_id,area_id,hex_id))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_map_area_hex_hex ON map_area_hex(package_id,hex_id)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS map_cartographic_markers (package_id TEXT NOT NULL, marker_id TEXT NOT NULL, marker_type TEXT NOT NULL DEFAULT 'anonymous', hex_id TEXT NOT NULL DEFAULT '', position_u REAL, position_v REAL, status TEXT NOT NULL DEFAULT 'anonymous', raw_json TEXT NOT NULL DEFAULT '{}', PRIMARY KEY(package_id,marker_id))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_map_markers_hex ON map_cartographic_markers(package_id,hex_id)");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS campaign_pois (id TEXT PRIMARY KEY, campaign_id INTEGER NOT NULL DEFAULT 1, world_profile TEXT NOT NULL DEFAULT 'dnd', logical_map_id TEXT NOT NULL, map_package_id TEXT NOT NULL DEFAULT '', atlas_namespace TEXT NOT NULL DEFAULT '', coordinate_frame_id TEXT NOT NULL DEFAULT '', hex_id TEXT NOT NULL DEFAULT '', position_u REAL, position_v REAL, name TEXT NOT NULL, type TEXT NOT NULL DEFAULT 'outro', description TEXT NOT NULL DEFAULT '', origin TEXT NOT NULL DEFAULT 'campaign', canonical INTEGER NOT NULL DEFAULT 0, hidden INTEGER NOT NULL DEFAULT 0, discovered INTEGER NOT NULL DEFAULT 1, status TEXT NOT NULL DEFAULT 'active', creator TEXT NOT NULL DEFAULT 'player', owner TEXT NOT NULL DEFAULT '', faction TEXT NOT NULL DEFAULT '', parent_poi_id TEXT NOT NULL DEFAULT '', development_level INTEGER NOT NULL DEFAULT 0, entity_kind TEXT NOT NULL DEFAULT '', entity_id TEXT NOT NULL DEFAULT '', migration_status TEXT NOT NULL DEFAULT 'ready', legacy_position_json TEXT NOT NULL DEFAULT '{}', tags_json TEXT NOT NULL DEFAULT '[]', history_json TEXT NOT NULL DEFAULT '[]', created_tick INTEGER NOT NULL DEFAULT 0, updated_tick INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL DEFAULT 0, updated_at INTEGER NOT NULL DEFAULT 0)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_campaign_poi_hex ON campaign_pois(world_profile,logical_map_id,hex_id,status)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_campaign_poi_name ON campaign_pois(world_profile,logical_map_id,name)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_campaign_poi_parent ON campaign_pois(parent_poi_id)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_campaign_poi_visibility ON campaign_pois(world_profile,logical_map_id,hidden,discovered,status)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS campaign_poi_events (id INTEGER PRIMARY KEY AUTOINCREMENT, poi_id TEXT NOT NULL, world_profile TEXT NOT NULL, event_type TEXT NOT NULL, payload_json TEXT NOT NULL DEFAULT '{}', world_tick INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_campaign_poi_events ON campaign_poi_events(poi_id,id)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS campaign_settlements (poi_id TEXT PRIMARY KEY, population INTEGER NOT NULL DEFAULT 0, population_band TEXT NOT NULL DEFAULT 'desconhecida', government TEXT NOT NULL DEFAULT '', economy TEXT NOT NULL DEFAULT '', faction_id TEXT NOT NULL DEFAULT '', security INTEGER NOT NULL DEFAULT 50, prosperity INTEGER NOT NULL DEFAULT 50, buildings_json TEXT NOT NULL DEFAULT '[]', npcs_json TEXT NOT NULL DEFAULT '[]', market_json TEXT NOT NULL DEFAULT '{}', defense_json TEXT NOT NULL DEFAULT '{}', created_at INTEGER NOT NULL DEFAULT 0, updated_at INTEGER NOT NULL DEFAULT 0)");
+    }
+
+    private static void createMapCorrectionTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS map_hex_corrections (map_id TEXT NOT NULL, hex_id TEXT NOT NULL, terrain_primary TEXT, terrain_secondary TEXT, terrain_confidence REAL, roads_json TEXT, waterways_json TEXT, political_json TEXT, review_status TEXT, review_reasons TEXT, custom_locations_json TEXT DEFAULT '[]', hide_unconfirmed_locations INTEGER DEFAULT 0, review_note TEXT, updated_at INTEGER, PRIMARY KEY(map_id,hex_id))");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_map_corrections_map ON map_hex_corrections(map_id,hex_id)");
+    }
+
+    private static void createMapNoteTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS map_hex_notes (world_profile TEXT NOT NULL DEFAULT 'dnd', map_id TEXT NOT NULL, hex_id TEXT NOT NULL, note_text TEXT NOT NULL DEFAULT '', note_title TEXT NOT NULL DEFAULT '', note_details TEXT NOT NULL DEFAULT '', icon TEXT NOT NULL DEFAULT '✎', created_by TEXT NOT NULL DEFAULT 'player', created_at INTEGER NOT NULL DEFAULT 0, updated_at INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(world_profile,map_id,hex_id))");
+        addColumnIfMissing(db,"map_hex_notes","note_title","TEXT NOT NULL DEFAULT ''");
+        addColumnIfMissing(db,"map_hex_notes","note_details","TEXT NOT NULL DEFAULT ''");
+        addColumnIfMissing(db,"map_hex_notes","icon","TEXT NOT NULL DEFAULT '✎'");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_map_hex_notes_lookup ON map_hex_notes(world_profile,map_id,hex_id)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_map_hex_notes_updated ON map_hex_notes(world_profile,updated_at DESC)");
+    }
+
+    public JSONObject getCampaign() {
+        ensureWorldProfileData(activeMapProfile);
+        JSONObject out=queryOne("SELECT * FROM campaign_profiles WHERE world_profile=?",new String[]{getActiveMapProfile()});
+        if(out.length()==0)throw new IllegalStateException("Falha ao ler a campanha do mundo ativo; os dados não foram tratados como vazios.");
+        return out;
+    }
+
+    private static String canonicalCampaignRulesProfile(String profile){
+        if(profile==null)return "5e 2014";
+        String value=profile.trim();
+        String folded=java.text.Normalizer.normalize(value,java.text.Normalizer.Form.NFD).replaceAll("\\p{M}+","").toLowerCase(java.util.Locale.ROOT);
+        if(folded.contains("hibrid")||folded.contains("hybrid"))return "Híbrido compatível";
+        if(folded.startsWith("5.5")||folded.contains("2024")||folded.contains("2025")||folded.contains("revisad"))return "5.5e revisada (2024/2025)";
+        if(folded.contains("5e")||folded.contains("2014"))return "5e 2014";
+        return value.length()==0?"5e 2014":value;
+    }
+
+    public void saveCampaign(String name, String profile, String tone, boolean feats, boolean multiclass, boolean flanking, String notes) {
+        ensureWorldProfileData(activeMapProfile);
+        String storedProfile="dnd".equals(getActiveMapProfile())?canonicalCampaignRulesProfile(profile):(profile==null?"":profile.trim());
+        ContentValues v = new ContentValues();
+        v.put("name", name); v.put("rules_profile", storedProfile); v.put("tone", tone);
+        v.put("feats", feats ? 1 : 0); v.put("multiclass", multiclass ? 1 : 0); v.put("flanking", flanking ? 1 : 0);
+        v.put("notes", notes); v.put("updated_at", System.currentTimeMillis());
+        getWritableDatabase().update("campaign_profiles", v, "world_profile=?", new String[]{getActiveMapProfile()});
+        if("dnd".equals(getActiveMapProfile()))getWritableDatabase().update("campaign",v,"id=1",null);
+    }
+
+    public long addCharacter(String name, String species, String className, int level, int hp, int maxHp, int ac, int str, int dex, int con, int intel, int wis, int cha, boolean active, String notes) {
+        ContentValues v = new ContentValues();
+        v.put("world_profile",getActiveMapProfile()); v.put("name", name); v.put("species", species); v.put("class_name", className); v.put("level", level);
+        v.put("hp", hp); v.put("max_hp", maxHp); v.put("ac", ac); v.put("str", str); v.put("dex", dex); v.put("con", con); v.put("int_score", intel); v.put("wis", wis); v.put("cha", cha); v.put("active", active ? 1 : 0); v.put("notes", notes);
+        v.put("created_at", System.currentTimeMillis()); v.put("updated_at", System.currentTimeMillis());
+        return getWritableDatabase().insert("characters", null, v);
+    }
+
+    public void updateCharacter(long id, String name, String species, String className, int level, int hp, int maxHp, int ac, int str, int dex, int con, int intel, int wis, int cha, boolean active, String notes) {
+        ContentValues v = new ContentValues();
+        v.put("name", name); v.put("species", species); v.put("class_name", className); v.put("level", level);
+        v.put("hp", hp); v.put("max_hp", maxHp); v.put("ac", ac); v.put("str", str); v.put("dex", dex); v.put("con", con); v.put("int_score", intel); v.put("wis", wis); v.put("cha", cha); v.put("active", active ? 1 : 0); v.put("notes", notes); v.put("updated_at", System.currentTimeMillis());
+        getWritableDatabase().update("characters", v, "id=?", new String[]{String.valueOf(id)});
+    }
+
+    /** G03/G06: ficha, recursos/progressão e identidade são gravados como uma unidade. */
+    public JSONObject saveCharacterSheetAtomic(final long existingId, final boolean edit, final JSONObject sheet,
+            final String notes, final String controlMode) {
+        return characterAtomic("character_sheet_save", new CharacterAtomicWork() { public JSONObject run() throws Exception {
+            JSONObject candidate = sheet == null ? new JSONObject() : new JSONObject(sheet.toString());
+            boolean multiclass = getCampaign().optInt("multiclass", 1) == 1;
+            JSONObject gate = CharacterMulticlassRules.validate(candidate, multiclass);
+            if (!gate.optBoolean("valid", false))
+                return gate.put("save_blocked", "multiclass_sheet_validation");
+            String name = candidate.optString("name").trim();
+            if (name.isEmpty()) return gate.put("save_blocked", "name_required");
+            int level = Math.max(1, Math.min(20, candidate.optInt("level", 1)));
+            long id;
+            if (edit) {
+                if (existingId <= 0 || getCharacter(existingId).length() == 0) return gate.put("save_blocked", "character_missing");
+                id = existingId;
+                updateCharacter(id, name, candidate.optString("species"), candidate.optString("class_name"), level,
+                    candidate.optInt("hp", 1), candidate.optInt("max_hp", 1), candidate.optInt("ac", 10),
+                    candidate.optInt("str", 10), candidate.optInt("dex", 10), candidate.optInt("con", 10),
+                    candidate.optInt("int_score", 10), candidate.optInt("wis", 10), candidate.optInt("cha", 10),
+                    candidate.optBoolean("active", true), notes);
+            } else {
+                id = addCharacter(name, candidate.optString("species"), candidate.optString("class_name"), level,
+                    candidate.optInt("hp", 1), candidate.optInt("max_hp", 1), candidate.optInt("ac", 10),
+                    candidate.optInt("str", 10), candidate.optInt("dex", 10), candidate.optInt("con", 10),
+                    candidate.optInt("int_score", 10), candidate.optInt("wis", 10), candidate.optInt("cha", 10),
+                    candidate.optBoolean("active", true), notes);
+                if (id <= 0) throw new IllegalStateException("character_insert_failed");
+            }
+            updateCharacterRuleDetails(id, candidate.optString("background"), candidate.optString("appearance"),
+                candidate.optString("proficiencies") + "\n" + candidate.optString("skills"),
+                candidate.optString("inventory"), candidate.optString("spellcasting") + "\n" +
+                candidate.optString("spells") + "\n" + candidate.optString("features"), candidate.optString("rules_source"));
+            JSONObject state = CharacterResourceStateEngine.ensure(candidate, candidate.optString("class_name"), level,
+                candidate.optString("rules_source", dbRulesProfileFallback()));
+            state.put("progression", DndProgressionEngine.state(state, level));
+            persistCharacterSheetChecked(id, state);
+            saveCharacterControl(id, controlMode == null ? "manual" : controlMode,
+                "{\"routine_only\":true,\"combat\":\"assisted\",\"user_override\":true,\"limited_resources\":\"confirm\"}");
+            return state.put("character_saved", true).put("character_id", id).put("multiclass_validation", gate);
+        }});
+    }
+
+    public void updateCharacterRuleDetails(long id,String background,String visual,String proficiencies,String equipment,String spells,String rulesSource){
+        ContentValues v=new ContentValues();v.put("background",background);v.put("visual_description",visual);v.put("proficiencies",proficiencies);v.put("equipment",equipment);v.put("spells",spells);v.put("rules_source",rulesSource);v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("characters",v,"id=?",new String[]{String.valueOf(id)});
+    }
+    public void updateCharacterSheet(long id,String sheetJson){
+        ContentValues v=new ContentValues();v.put("sheet_json",sheetJson==null?"{}":sheetJson);v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("characters",v,"id=?",new String[]{String.valueOf(id)});
+    }
+    public void setCharacterToken(long id,String tokenUri){
+        String safe=tokenUri==null?"":tokenUri.trim();JSONObject ch=getCharacter(id);ContentValues v=new ContentValues();v.put("token_uri",safe);v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("characters",v,"id=?",new String[]{String.valueOf(id)});
+        ContentValues combat=new ContentValues();combat.put("source_kind","character");combat.put("source_id",id);combat.put("token_uri",safe);
+        getWritableDatabase().update("combatants",combat,"world_profile=? AND (source_kind='character' AND source_id=? OR is_player=1 AND lower(name)=lower(?))",new String[]{getActiveMapProfile(),String.valueOf(id),ch.optString("name","")});
+    }
+
+    public List<JSONObject> listCharacters() { return queryList("SELECT * FROM characters WHERE world_profile=? ORDER BY active DESC, name COLLATE NOCASE", new String[]{getActiveMapProfile()}); }
+    public List<JSONObject> listActiveCharacters() { return queryList("SELECT * FROM characters WHERE world_profile=? AND active=1 ORDER BY name COLLATE NOCASE", new String[]{getActiveMapProfile()}); }
+    public JSONObject getCharacter(long id) { return queryOne("SELECT * FROM characters WHERE id=? AND world_profile=?", new String[]{String.valueOf(id),getActiveMapProfile()}); }
+    public JSONObject findCharacterByName(String name) {
+        if(name==null||name.trim().length()==0)return new JSONObject();
+        JSONObject exact=queryOne("SELECT * FROM characters WHERE world_profile=? AND lower(name)=lower(?) ORDER BY active DESC LIMIT 1",new String[]{getActiveMapProfile(),name.trim()});
+        if(exact.length()>0)return exact;
+        return queryOne("SELECT * FROM characters WHERE world_profile=? AND (lower(name) LIKE lower(?) OR lower(?) LIKE '%'||lower(name)||'%') ORDER BY active DESC,length(name) DESC LIMIT 1",new String[]{getActiveMapProfile(),"%"+name.trim()+"%",name.trim()});
+    }
+    public void setCharacterHp(long id,int hp){
+        JSONObject ch=getCharacter(id);int max=Math.max(1,ch.optInt("max_hp",1));int safe=Math.max(0,Math.min(max,hp));
+        ContentValues v=new ContentValues();v.put("hp",safe);v.put("updated_at",System.currentTimeMillis());
+        JSONObject sheet=readCharacterSheet(ch);try{sheet.put("hp",safe);sheet.put("max_hp",max);v.put("sheet_json",sheet.toString());}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        getWritableDatabase().update("characters",v,"id=?",new String[]{String.valueOf(id)});syncPlayerCombatantHp(ch.optString("name"),safe);
+    }
+    public void setCharacterTempHp(long id,int tempHp){
+        JSONObject ch=getCharacter(id);int safe=Math.max(0,tempHp);ContentValues v=new ContentValues();JSONObject sheet=readCharacterSheet(ch);
+        try{sheet.put("temp_hp",safe);v.put("sheet_json",sheet.toString());}catch(Exception ignored){AppLog.ignored("AppDb","Falha ao persistir PV temporários na ficha.",ignored);}v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("characters",v,"id=?",new String[]{String.valueOf(id)});
+        ContentValues combat=new ContentValues();combat.put("temp_hp",safe);getWritableDatabase().update("combatants",combat,"world_profile=? AND is_player=1 AND lower(name)=lower(?)",new String[]{getActiveMapProfile(),ch.optString("name","")});
+    }
+    public void setCharacterTempHpChecked(long id,int tempHp)throws Exception{setCharacterTempHp(id,tempHp);JSONObject row=getCharacter(id),sheet=readCharacterSheet(row);if(row.length()==0||sheet.optInt("temp_hp",-1)!=Math.max(0,tempHp))throw new IllegalStateException("Os PV temporários não foram persistidos.");}
+    public JSONObject ensureCharacterResourceState(long id){return buildCharacterResourceState(id,true);}
+    // RUN193_PREVIEW_NO_COMMIT: checking an action must not first write normalized sheet state.
+    private JSONObject previewCharacterResourceState(long id){return buildCharacterResourceState(id,false);}
+    private JSONObject buildCharacterResourceState(long id,boolean persist){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=readCharacterSheet(ch);String profile=ch.optString("rules_source",sheet.optString("rules_source",dbRulesProfileFallback()));JSONObject next=CharacterResourceStateEngine.ensure(sheet,ch.optString("class_name"),ch.optInt("level",1),profile);VoloSubraceHandbookEngine.applySpeciesMechanics(next);VoloSubraceRun139Engine.applySpeciesMechanics(next);VoloSubraceRun140Engine.applySpeciesMechanics(next);String species=ch.optString("species",next.optString("species",""));if(Run141CompactCharacterOptionEngine.isSpecies(species))Run141CompactCharacterOptionEngine.applySpeciesMechanics(next);else Run141SpeciesFeatRuntimeEngine.applySpeciesMechanics(next);Run141CompactCharacterOptionEngine.applySubclassMechanics(next);Run143ForgottenSecretsEngine.applyPatronMechanics(next);String sub141=next.optString("subclass_name",next.optString("subclass",""));if(!Run141CompactCharacterOptionEngine.isSubclass(sub141)&&AncestralStancesRuntimeEngine.supports(sub141))next=AncestralStancesRuntimeEngine.apply(next);if(!Run143ForgottenSecretsEngine.isPatron(sub141)&&ForgottenSecretsRun141Engine.supports(sub141))next=ForgottenSecretsRun141Engine.apply(next);if(ArcanaUnleashedRun143Engine.supportsSubclass(sub141))ArcanaUnleashedRun143Engine.applySubclass(next);String auBg=next.optString("background_name",next.optString("background",""));if(ArcanaUnleashedRun143Engine.supportsBackground(auBg))ArcanaUnleashedRun143Engine.applyBackground(next,auBg);String auSelected=next.optString("selected_feats","");JSONArray auFeats=ArcanaUnleashedRun143Engine.allFeats();for(int i=0;i<auFeats.length();i++){String f=auFeats.optString(i);if(normRuntime(auSelected).contains(normRuntime(f)))ArcanaUnleashedRun143Engine.applyFeat(next,f);}String cls141=ch.optString("class_name",next.optString("class_name",""));if(RuneterraClassRuntimeEngine.supports(cls141))next=RuneterraClassRuntimeEngine.ensure(next,ch.optInt("level",next.optInt("level",1)));next=EberronForgeCompleteEngine.ensureCharacter(next,cls141,sub141,ch.optInt("level",next.optInt("level",1)),species,auBg,auSelected);next=ForgottenRealmsHeroesEngine.ensureCharacter(next,sub141,ch.optInt("level",next.optInt("level",1)),auBg,auSelected);try{next.put("hp",ch.optInt("hp")).put("max_hp",ch.optInt("max_hp"));next.put("progression",DndProgressionEngine.state(next,ch.optInt("level",1)));next.put("run148_reconciled",true);}catch(Exception ignored){}if(persist)updateCharacterSheet(id,next.toString());return next;}
+    private String dbRulesProfileFallback(){JSONObject c=getCampaign();return c.optString("rules_profile",DndRulesEngine.PROFILE_2014);}
+    public JSONObject applyCharacterShortRestHitDice(long id,int count,int healingRoll){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);if(!sheet.optBoolean("short_rest_hit_dice_choice_pending",false)){try{return new JSONObject(sheet.toString()).put("short_rest_hit_dice_blocked","no_completed_short_rest_pending");}catch(Exception ignored){return sheet;}}String profile=ch.optString("rules_source",sheet.optString("rules_source",dbRulesProfileFallback()));JSONObject next=CharacterResourceStateEngine.spendHitDice(sheet,ch.optString("class_name"),ch.optInt("level",1),profile,Math.max(1,count),healingRoll);int maxHp=Math.max(1,ch.optInt("max_hp",1)),hp=Math.max(0,Math.min(maxHp,next.optInt("hp",ch.optInt("hp"))));try{int remaining=Math.max(0,next.optInt("hit_dice_max",ch.optInt("level",1))-next.optInt("hit_dice_spent",0));boolean mayContinue=remaining>0&&hp<maxHp;next.put("hp",hp).put("max_hp",maxHp).put("short_rest_hit_dice_choice_pending",mayContinue).put("short_rest_hit_dice_remaining",remaining);}catch(Exception ignored){}ContentValues v=new ContentValues();v.put("hp",hp);v.put("sheet_json",next.toString());v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("characters",v,"id=?",new String[]{String.valueOf(id)});syncPlayerCombatantHp(ch.optString("name"),hp);return next;}
+    // RUN196_CHARACTER_ATOMIC: consumos da ficha agora têm recibo persistido, rollback e preview sem gravação.
+    public JSONObject spendCharacterSpellSlot(long id,int slotLevel){return spendCharacterSpellSlot(id,slotLevel,"");}
+    public JSONObject spendCharacterSpellSlot(final long id,final int slotLevel,final String operationToken){
+        return characterAtomic("spell_slot",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();
+            JSONObject before=previewCharacterResourceState(id);String signature="spell_slot:"+slotLevel;
+            String decision=characterReceiptDecision(before,operationToken,signature);
+            if(!decision.isEmpty())return characterReceiptResponse(before,"spell_slot",decision);
+            if(slotLevel<1||slotLevel>9)return before.put("spell_slot_spend_blocked",true).put("reason","invalid_slot_level");
+            JSONObject after=CharacterResourceStateEngine.spendSpellSlot(before,slotLevel);
+            if(after.optBoolean("spell_slot_spend_blocked",false))return after;
+            recordCharacterReceipt(after,operationToken,signature);
+            persistCharacterSheetChecked(id,after);return after;
+        }});
+    }
+    public JSONObject spendCharacterPactSlot(long id){return spendCharacterPactSlot(id,"");}
+    public JSONObject spendCharacterPactSlot(final long id,final String operationToken){
+        return characterAtomic("pact_slot",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();
+            JSONObject before=previewCharacterResourceState(id);String signature="pact_slot";
+            String decision=characterReceiptDecision(before,operationToken,signature);
+            if(!decision.isEmpty())return characterReceiptResponse(before,"pact_slot",decision);
+            JSONObject after=CharacterResourceStateEngine.spendPactSlot(before);
+            if(after.optBoolean("pact_slot_spend_blocked",false))return after;
+            recordCharacterReceipt(after,operationToken,signature);
+            persistCharacterSheetChecked(id,after);return after;
+        }});
+    }
+    public JSONObject spendCharacterClassResource(long id,String key,int amount){return spendCharacterClassResource(id,key,amount,"");}
+    public JSONObject spendCharacterClassResource(final long id,final String key,final int amount,final String operationToken){
+        return characterAtomic("class_resource",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();
+            JSONObject before=previewCharacterResourceState(id);
+            String signature="class_resource:"+(key==null?"":key)+":"+amount;
+            String decision=characterReceiptDecision(before,operationToken,signature);
+            if(!decision.isEmpty())return characterReceiptResponse(before,"class_resource",decision);
+            if(key==null||key.trim().isEmpty()||amount<1)return before.put("class_resource_spend_blocked",true).put("reason","invalid_resource_request");
+            JSONObject after=CharacterResourceStateEngine.spendClassResource(before,key,amount);
+            if(after.optBoolean("class_resource_spend_blocked",false))return after;
+            recordCharacterReceipt(after,operationToken,signature);
+            persistCharacterSheetChecked(id,after);return after;
+        }});
+    }
+    private interface CharacterAtomicWork{JSONObject run()throws Exception;}
+    private synchronized JSONObject characterAtomic(String label,CharacterAtomicWork work){
+        SQLiteDatabase sql=getWritableDatabase();boolean owner=!sql.inTransaction();
+        if(owner)sql.beginTransaction();
+        try{
+            JSONObject result=work.run();
+            String refusal=CharacterAtomicCommitGuard.refusal(result);
+            if(!refusal.isEmpty()){
+                // Rejected/replayed operations are returned without commit when
+                // we own SQL; inside an outer transaction, fail the whole parent
+                // rather than allowing a partial write to be committed by it.
+                if(!owner)throw new IllegalStateException("character_transaction_rejected:"+label+":"+refusal);
+                return result;
+            }
+            if(owner)sql.setTransactionSuccessful();
+            return result;
+        }
+        catch(Exception e){
+            AppLog.e("AppDb","Rollback da ficha: "+label,e);
+            if(!owner)throw new IllegalStateException("Rollback de ficha em transação externa: "+label,e);
+            JSONObject error=new JSONObject();try{error.put("operation_error","transaction_rolled_back").put("operation",label);}catch(Exception ignored){}
+            return error;
+        }finally{if(owner)sql.endTransaction();}
+    }
+    private static String characterReceiptDecision(JSONObject sheet,String token,String signature){
+        if(token==null||token.isEmpty())return "";
+        if(!CombatActionReceiptGuard.validToken(token))return "invalid_operation_token";
+        JSONArray receipts=sheet.optJSONArray("character_operation_receipts");
+        if(receipts==null)return "";
+        for(int i=0;i<receipts.length();i++){
+            JSONObject receipt=receipts.optJSONObject(i);
+            if(receipt!=null&&token.equals(receipt.optString("token")))
+                return CombatActionReceiptGuard.replayDecision(receipt.optString("signature"),signature);
+        }
+        return "";
+    }
+    private static void recordCharacterReceipt(JSONObject sheet,String token,String signature)throws Exception{
+        if(token==null||token.isEmpty())return;
+        JSONArray old=sheet.optJSONArray("character_operation_receipts"),next=new JSONArray();
+        if(old!=null)for(int i=Math.max(0,old.length()-63);i<old.length();i++)next.put(old.get(i));
+        next.put(new JSONObject().put("token",token).put("signature",signature));
+        sheet.put("character_operation_receipts",next);
+    }
+    private static JSONObject characterReceiptResponse(JSONObject sheet,String kind,String decision)throws Exception{
+        if("replayed".equals(decision))return sheet.put("operation_replayed",true).put("operation_kind",kind);
+        return sheet.put("operation_blocked",decision).put("operation_kind",kind);
+    }
+    private void persistCharacterSheetChecked(long id,JSONObject sheet){
+        ContentValues values=new ContentValues();values.put("sheet_json",sheet.toString());values.put("updated_at",System.currentTimeMillis());
+        int written=getWritableDatabase().update("characters",values,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});
+        if(written!=1)throw new IllegalStateException("character_sheet_write_count_"+written);
+    }
+    private interface CharacterSpellResolver{JSONObject resolve(JSONObject sheet)throws Exception;}
+    // RUN196_SPELL_GATEWAY: slot, efeito, estado pendente e recibo pertencem à mesma transação.
+    private JSONObject resolveCharacterSpellAtomic(final long id,final String family,final String spell,final int slotLevel,final JSONObject input,final CharacterSpellResolver resolver){
+        return characterAtomic("spell_"+family,new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();
+            JSONObject before=previewCharacterResourceState(id);
+            JSONObject payload=input==null?new JSONObject():new JSONObject(input.toString());
+            String token=payload.optString("operation_token","");
+            String signature="spell:"+family+":"+(spell==null?"":spell.trim().toLowerCase(java.util.Locale.ROOT))+":"+slotLevel+":"+payload.optString("event","");
+            String decision=characterReceiptDecision(before,token,signature);
+            if(!decision.isEmpty())return characterReceiptResponse(before,"spell_"+family,decision);
+            JSONObject next=resolver.resolve(before);
+            if(next==null)throw new IllegalStateException("spell_resolver_returned_null");
+            boolean completed=CharacterSpellCommitGuard.completed(family,next);
+            boolean pendingCommit=CharacterSpellCommitGuard.pendingCommit(family,next);
+            boolean pendingCleanup=CharacterSpellCommitGuard.pendingCleanup(family,before,next);
+            if(!completed&&!pendingCommit&&!pendingCleanup)return next;
+            if(completed||pendingCommit)syncCommittedSpellConcentration(id,ch,before,next,family,spell,payload);
+            if(completed)recordCharacterReceipt(next,token,signature);
+            JSONObject persisted=persistCharacterRuntimeState(id,ch,next);
+            if(!persisted.toString().equals(getCharacter(id).optString("sheet_json","")))
+                throw new IllegalStateException("spell_character_sheet_persistence_mismatch");
+            return persisted;
+        }});
+    }
+    // RUN196_CONCENTRATION_SYNC: a magia concentrada é única e acompanha a ficha e o combatente.
+    // Somente metadados explícitos do resolvedor podem iniciar concentração; nunca inferir por texto narrativo.
+    private void syncCommittedSpellConcentration(long characterId,JSONObject character,JSONObject before,JSONObject after,String family,String spell,JSONObject payload)throws Exception{
+        if(spell==null||spell.trim().isEmpty())return;
+        boolean starts=false;
+        if("run149".equals(family)){
+            JSONObject effect=after.optJSONObject("run149_spell_effect");
+            starts=after.optBoolean("run149_spell_resolved",false)&&effect!=null&&effect.has("concentration_minutes")&&payload.optString("event","").trim().isEmpty();
+        }else if("frhof".equals(family)){
+            JSONObject effect=after.optJSONObject("frhof_effect");
+            starts=after.optBoolean("frhof_resolved",false)&&((effect!=null&&effect.optBoolean("concentration",false))||
+                (!before.optString("concentration_spell","").equals(after.optString("concentration_spell",""))&&spell.equalsIgnoreCase(after.optString("concentration_spell",""))));
+        }else if("arcana".equals(family)){
+            JSONObject info=after.optJSONObject("au_spell_preview");
+            starts=info!=null&&info.optString("duracao","").toLowerCase(java.util.Locale.ROOT).contains("concentra")&&
+                (after.optBoolean("au_spell_resolved",false)||CharacterSpellCommitGuard.pendingCommit("arcana",after));
+        }
+        if(!starts)return;
+        // Retomar uma resolução manual NÃO reativa concentração interrompida após o commit original.
+        if("arcana".equals(family)&&!before.optString("au_pending_spell","").isEmpty()&&spell.equalsIgnoreCase(before.optString("concentration_spell","")))return;
+        String previous=before.optString("concentration_spell","");
+        if(!previous.isEmpty()&&!previous.equalsIgnoreCase(spell))after.put("concentration_replaced_spell",previous);
+        if(!"run149".equals(family))after.remove("run149_active_concentration");
+        if(after.has(Core2024BlessRuntime.FIELD)&&!"Bênção".equalsIgnoreCase(spell)&&
+            !"bless".equalsIgnoreCase(spell))after.remove(Core2024BlessRuntime.FIELD);
+        after.put("concentration_spell",spell);
+        List<JSONObject> linked=queryList("SELECT * FROM combatants WHERE world_profile=? AND ((source_kind='character' AND source_id=?) OR (is_player=1 AND lower(name)=lower(?)))",new String[]{getActiveMapProfile(),String.valueOf(characterId),character.optString("name","")});
+        for(JSONObject row:linked){
+            if(ConditionRulesEngine.breaksConcentration(row.optString("conditions","")))throw new IllegalStateException("concentration_caster_incapacitated");
+            JSONObject resources=combatResources(row);
+            resources.remove("concentration_save_pending");resources.remove("concentration_save_queue");
+            ContentValues values=new ContentValues();values.put("concentration",spell);values.put("resources_json",resources.toString());
+            requireCombatantWrite(getWritableDatabase().update("combatants",values,"id=? AND world_profile=?",new String[]{String.valueOf(row.optLong("id")),getActiveMapProfile()}));
+        }
+    }
+    /** Entrada única da UI: só efeito comprovado recebe recibo persistente;
+     * prévias não gastam action_id nem fingem aplicar uma regra. */
+    public synchronized JSONObject dispatchCompiledPlayerAction(JSONObject action) throws Exception {
+        JSONObject request=action==null?new JSONObject():new JSONObject(action.toString());
+        if(!request.has("channel"))request.put("channel","PLAYER_REACTION");
+        if(request.optString("action_id","").trim().isEmpty())
+            request.put("action_id","ui-compiled-"+java.util.UUID.randomUUID().toString());
+        final String actionId=request.optString("action_id","");
+        String invalid=CompiledDispatchEntryGuard.reject(request.optString("channel",""),actionId);
+        if(!invalid.isEmpty())return new JSONObject().put("accepted",false).put("authority",invalid);
+        final String dispatchKey="compiled-dispatch:"+actionId;
+        final String effectKey="compiled-effect:"+actionId;
+        final String guidedKey=GuidedCharacterActionCommitGuard.PREFIX+actionId;
+        // RUN215: guided actions own their transaction; never call them while SQL is already open.
+        // This routes class/subclass/species/feat/invocation through the same UI entrypoint
+        // as resources and spells WITHOUT bypassing the RUN213 causal proof or rollback.
+        if("character_action".equals(request.optString("mechanic_family",""))){
+            if(hasEffectReceipt(dispatchKey)||hasEffectReceipt(effectKey))
+                return new JSONObject().put("accepted",false).put("replayed",true)
+                    .put("authority","blocked_compiled_dispatch_replay");
+            JSONObject guided=executeGuidedCharacterAction(request.optLong("character_id",0),
+                request.optString("action_kind",""),request.optString("action_name",""),
+                request.optString("feature",""),request.optJSONObject("inputs"),
+                request.optString("channel",""),actionId);
+            // No synthetic receipt: executeGuidedCharacterAction creates the real one.
+            if(guided.optBoolean("accepted",false)&&
+                (!guided.optBoolean("effect_applied",false)||!guidedKey.equals(guided.optString("receipt_key",""))
+                 ||!hasEffectReceipt(guidedKey)))
+                throw new IllegalStateException("guided_action_reported_success_without_persisted_receipt");
+            return guided;
+        }
+        SQLiteDatabase sql=getWritableDatabase();
+        // RUN217: the dispatch must own its SQL transaction. Otherwise a caller can
+        // commit a rejected/partly executed effect in its outer transaction.
+        if(sql.inTransaction())throw new IllegalStateException("compiled_dispatch_requires_own_transaction");
+        sql.beginTransaction();
+        try{
+            JSONObject previous=queryOne("SELECT effect_key,source,applied_at FROM effect_receipts WHERE world_profile=? AND effect_key IN (?,?,?) ORDER BY applied_at DESC LIMIT 1",
+                new String[]{getActiveMapProfile(),dispatchKey,effectKey,guidedKey});
+            if(previous.length()>0)
+                return new JSONObject().put("accepted",false).put("replayed",true)
+                    .put("authority","blocked_compiled_dispatch_replay")
+                    .put("receipt_key",previous.optString("effect_key")).put("receipt_persisted",true)
+                    .put("receipt_source",previous.optString("source"))
+                    .put("dispatch_only",previous.optString("effect_key").startsWith("compiled-dispatch:"));
+            String family=request.optString("mechanic_family","");
+            JSONObject result="character_resource".equals(family)
+                ?applyCompiledCharacterResourceEffect(request)
+                :"core2024_spell".equals(family)
+                    ?applyCompiledCore2024SpellEffect(request)
+                    :"supplement_procedure".equals(family)&&
+                        TashaQuickenedHealingCommitGuard.RULE_ID.equals(request.optString("rule_id",""))
+                        ?applyTashaQuickenedHealingEffect(request)
+                    :CompiledPlayerActionDispatcher.dispatch(new MasterRulesArbiter(this),request);
+            if(result.optBoolean("accepted",false)&&!result.optBoolean("effect_applied",false)){
+                // RUN215: an authorized *preview* cannot masquerade as a committed action.
+                // Never consume an action_id on a preview: the user must still be able to
+                // complete missing inputs and retry that action without a false replay.
+                result.put("accepted",false).put("preview_available",true)
+                    .put("dispatch_only",true).put("receipt_persisted",false)
+                    .put("authority","requires_gameplay_effect_transaction");
+            }
+            if(result.optBoolean("accepted",false)){
+                String source=result.optString("authority","compiled_runtime")+"|result="+
+                    CanonicalJson.sha256(result.toString());
+                // One effect receipt and the character/combat update are in the SAME SQL transaction.
+                ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());
+                v.put("effect_key",effectKey);v.put("source",source);
+                v.put("applied_at",System.currentTimeMillis());
+                long row=sql.insertWithOnConflict("effect_receipts",null,v,SQLiteDatabase.CONFLICT_IGNORE);
+                if(row<0)throw new IllegalStateException("compiled_effect_receipt_collision");
+                addAuditEvent("compiled_effect","Efeito mecânico confirmado no SQLite",
+                    request.optString("mechanic_family"),request.toString(),result.toString(),false);
+                result.put("receipt_key",effectKey).put("receipt_persisted",true)
+                    .put("receipt_source",source).put("dispatch_only",false)
+                    .put("state_committed",true);
+            }
+            // A rejected action, including a pending preview, must NEVER commit
+            // transient mutations made by an executor before returning rejection.
+            // Every successful action must prove that an effect was actually applied.
+            if(result.optBoolean("accepted",false)){
+                if(!CompiledEffectCommitGuard.shouldCommit(true,
+                    result.optBoolean("effect_applied",false),
+                    result.optBoolean("receipt_persisted",false)))
+                    throw new IllegalStateException("compiled_effect_missing_commit_proof");
+                sql.setTransactionSuccessful();
+            }
+            return result;
+        }finally{sql.endTransaction();}
+    }
+    /** Typed path: one reviewed character resource effect, never a generic JSON mutation. */
+    private JSONObject applyCompiledCharacterResourceEffect(JSONObject request) throws Exception {
+        String id=request.optString("action_id","");long characterId=request.optLong("character_id",0);
+        String kind=request.optString("resource_kind","");String key=request.optString("resource_key","");
+        int amount=request.optInt("amount",0);
+        String reject=CompiledCharacterResourceActionGuard.rejection(request.optString("channel",""),
+            request.optString("mechanic_family",""),id,characterId,kind,key,amount);
+        if(!reject.isEmpty())return new JSONObject().put("accepted",false).put("authority",reject);
+        JSONObject original=getCharacter(characterId);
+        if(original.length()==0)return new JSONObject().put("accepted",false).put("authority","blocked_character_not_in_world");
+        String token="ui-"+id;
+        if(!CombatActionReceiptGuard.validToken(token))
+            return new JSONObject().put("accepted",false).put("authority","blocked_invalid_resource_receipt");
+        JSONObject result;
+        if("class_resource".equals(kind))result=spendCharacterClassResource(characterId,key,amount,token);
+        else if("spell_slot".equals(kind))result=spendCharacterSpellSlot(characterId,amount,token);
+        else result=spendCharacterPactSlot(characterId,token);
+        if(result.has("operation_error")||result.has("operation_blocked")||result.optBoolean("operation_replayed",false)||
+            result.optBoolean("class_resource_spend_blocked",false)||result.optBoolean("spell_slot_spend_blocked",false)||
+            result.optBoolean("pact_slot_spend_blocked",false))
+            return new JSONObject().put("accepted",false).put("authority","blocked_resource_effect_not_applied")
+                .put("effect_details",result);
+        JSONObject saved=getCharacter(characterId);
+        if(saved.length()==0||original.optString("sheet_json","").equals(saved.optString("sheet_json","")))
+            throw new IllegalStateException("character_resource_effect_missing_persisted_change");
+        JSONArray receipts=new JSONObject(saved.optString("sheet_json","{}")).optJSONArray("character_operation_receipts");
+        boolean proof=false;
+        for(int i=0;receipts!=null&&i<receipts.length();i++){
+            JSONObject r=receipts.optJSONObject(i);if(r!=null&&token.equals(r.optString("token")))proof=true;
+        }
+        if(!CompiledCharacterResourceActionGuard.persisted(true,true,false,false,proof))
+            throw new IllegalStateException("character_resource_receipt_missing");
+        return new JSONObject().put("accepted",true).put("effect_applied",true)
+            .put("authority","character_resource_atomic_commit").put("character_id",characterId)
+            .put("resource_kind",kind).put("resource_key",key).put("amount",amount)
+            .put("operation_token",token).put("result_sha256",CanonicalJson.sha256(saved.optString("sheet_json","")));
+    }
+    /** RUN215: use the EXISTING full spell executor, not a new/partial spell implementation.
+     * This method is called with the dispatch SQLite transaction open. The slot, turn action,
+     * target effects, character operation receipt and compiled-effect receipt are committed
+     * together; any failure in the nested executor rolls the enclosing transaction back.
+     */
+    private JSONObject applyCompiledCore2024SpellEffect(JSONObject request) throws Exception {
+        final String id=request.optString("action_id","");
+        final long characterId=request.optLong("character_id",0);
+        final long casterId=request.optLong("caster_combatant_id",0);
+        final String spell=request.optString("spell_name","");
+        final int level=request.optInt("slot_level",0);
+        final JSONObject spellRequest=request.optJSONObject("spell_request");
+        String reason=CompiledCore2024SpellCommitGuard.reject(
+            request.optString("channel",""),request.optString("mechanic_family",""),
+            id,characterId,casterId,spell,level,spellRequest!=null);
+        if(!reason.isEmpty())return new JSONObject().put("accepted",false).put("authority",reason);
+        if(!getWritableDatabase().inTransaction())
+            throw new IllegalStateException("compiled_core_spell_requires_atomic_dispatch");
+        String token=CompiledCore2024SpellCommitGuard.token(id);
+        // All eligibility, preparation, geometry, caster binding and target snapshots are
+        // enforced by castCore2024SpellAtomic using live SQLite rows, NOT client claims.
+        JSONObject cast=castCore2024SpellAtomic(characterId,casterId,spell,level,spellRequest,token);
+        if(cast==null||!cast.optBoolean("core_spell_committed",false))
+            return new JSONObject().put("accepted",false).put("authority",
+                cast==null?"blocked_spell_resolver_missing":cast.optString("core_spell_blocked",
+                    cast.optString("operation_error","blocked_core_spell_not_committed")))
+                .put("cast_result",cast==null?new JSONObject():cast);
+        JSONObject current=getCharacter(characterId);
+        JSONArray receipts=current.length()==0?null:
+            new JSONObject(current.optString("sheet_json","{}")).optJSONArray("character_operation_receipts");
+        boolean hasProof=false;
+        for(int i=0;receipts!=null&&i<receipts.length();i++){
+            JSONObject r=receipts.optJSONObject(i);
+            if(r!=null&&token.equals(r.optString("token",""))){hasProof=true;break;}
+        }
+        if(!CompiledCore2024SpellCommitGuard.persisted(cast.optBoolean("core_spell_committed"),
+            current.length()>0,hasProof,cast.optJSONObject("combat_outcome")!=null))
+            throw new IllegalStateException("compiled_core_spell_missing_persisted_effect_proof");
+        return new JSONObject().put("accepted",true).put("effect_applied",true)
+            .put("authority","core2024_spell_atomic_commit").put("mechanic_family","core2024_spell")
+            .put("spell",cast.optString("spell",spell)).put("character_id",characterId)
+            .put("caster_combatant_id",casterId).put("operation_token",token)
+            .put("cast_result",cast);
+    }
+    /** RUN216: a specific, opted-in Tasha feature with actual character+combat mutations.
+     * Never interpret arbitrary state_updates from a supplementary resolver as trusted SQL. */
+    private JSONObject applyTashaQuickenedHealingEffect(JSONObject request)throws Exception {
+        JSONObject blocked=new JSONObject().put("accepted",false);
+        if(!getWritableDatabase().inTransaction())throw new IllegalStateException("tasha_healing_requires_dispatch_transaction");
+        long characterId=request.optLong("character_id",0);
+        JSONObject hero=getCharacter(characterId);
+        if(hero.length()==0)return blocked.put("authority","blocked_character_not_in_world");
+        JSONObject sheet=previewCharacterResourceState(characterId);
+        String profile=hero.optString("rules_source",sheet.optString("rules_profile",dbRulesProfileFallback()));
+        int lvl=hero.optInt("level",sheet.optInt("level",1));
+        int monkLevel=lvl; // Single-class Monge only; multiclass must use a separate verified levels ledger.
+        JSONObject multiclass=sheet.optJSONObject("multiclass_levels");
+        if(multiclass!=null&&multiclass.length()>0)
+            return blocked.put("authority","blocked_monk_multiclass_level_not_verified");
+        JSONObject ki=sheet.optJSONObject("class_resources")==null?null:
+            sheet.optJSONObject("class_resources").optJSONObject("ki");
+        int hp=hero.optInt("hp",0),maxHp=hero.optInt("max_hp",0);
+        JSONObject combat=getCombatState();boolean activeCombat=combat.optInt("running",0)==1;
+        long actorId=0;boolean actorReady=!activeCombat;
+        if(activeCombat){
+            // Reject name-only association, invisible actor substitutions and an inactive turn.
+            for(JSONObject row:listCombatants())if(row.optInt("is_player",0)==1&&
+                "character".equals(row.optString("source_kind",""))&&
+                row.optLong("source_id",0)==characterId){
+                actorId=row.optLong("id",0);
+                actorReady=row.optInt("active_turn",0)==1&&row.optInt("hp",0)>0&&
+                    !ConditionRulesEngine.incapacitated(row.optString("conditions",""));break;
+            }
+        }
+        JSONObject inputs=request.optJSONObject("inputs");
+        int roll=inputs==null?0:inputs.optInt("martial_arts_die_roll",0);
+        String reason=TashaQuickenedHealingCommitGuard.reject(request.optString("channel",""),
+            request.optString("rule_id",""),request.optString("action_id",""),
+            !new DndRulesEngine().is2024(profile),hero.optString("class_name",""),
+            monkLevel,lvl,roll,hp,maxHp,ki==null?0:ki.optInt("current",0),activeCombat,actorReady);
+        if(!reason.isEmpty())return blocked.put("authority",reason);
+        int healing=TashaQuickenedHealingCommitGuard.healed(roll,lvl,hp,maxHp);
+        String receiptToken="tasha-ki-"+request.optString("action_id");
+        JSONObject after=CharacterResourceStateEngine.spendClassResource(sheet,"ki",2);
+        if(after.optBoolean("class_resource_spend_blocked",false))
+            return blocked.put("authority","blocked_ki_spend_failed");
+        if(activeCombat){
+            JSONObject actor=getCombatant(actorId);
+            if(actor.optInt("hp",0)!=hp)
+                return blocked.put("authority","blocked_combat_hero_hp_out_of_sync");
+            JSONArray effects=new JSONArray().put(new JSONObject().put("target_id",actorId)
+                .put("kind","healing").put("amount",healing)
+                .put("expected_hp",hp).put("expected_temp_hp",actor.optInt("temp_hp",0)));
+            JSONObject outcome=applyCombatEffectsWithAction(actorId,"action",effects,receiptToken);
+            if(!outcome.optBoolean("area_action_committed",false))
+                return blocked.put("authority",outcome.optString("area_action_blocked","blocked_combat_action_unavailable"));
+            // Combat engine synchronizes HP to the hero; reconcile resource with that live state.
+            JSONObject combatHero=getCharacter(characterId);
+            if(combatHero.optInt("hp",0)!=hp+healing)
+                throw new IllegalStateException("tasha_combat_healing_not_synced");
+            after.put("hp",combatHero.optInt("hp"));
+        }else{
+            after.put("hp",hp+healing);
+        }
+        recordCharacterReceipt(after,receiptToken,"tasha_quickened_healing:"+roll+":"+healing);
+        ContentValues cv=new ContentValues();cv.put("sheet_json",after.toString());
+        cv.put("hp",hp+healing);cv.put("updated_at",System.currentTimeMillis());
+        requireCombatantWrite(getWritableDatabase().update("characters",cv,
+            "id=? AND world_profile=?",new String[]{String.valueOf(characterId),getActiveMapProfile()}));
+        JSONObject persisted=getCharacter(characterId);
+        JSONObject now=new JSONObject(persisted.optString("sheet_json","{}"));
+        JSONObject newKi=now.optJSONObject("class_resources").optJSONObject("ki");
+        if(persisted.optInt("hp",0)!=hp+healing||newKi.optInt("current",-1)!=ki.optInt("current")-2)
+            throw new IllegalStateException("tasha_quickened_healing_commit_proof_failed");
+        return new JSONObject().put("accepted",true).put("effect_applied",true)
+            .put("authority","tasha_quickened_healing_atomic_commit")
+            .put("rule_id",TashaQuickenedHealingCommitGuard.RULE_ID)
+            .put("character_id",characterId).put("healing",healing)
+            .put("ki_spent",2).put("martial_arts_die_roll",roll)
+            .put("action_spent_in_combat",activeCombat);
+    }
+
+    /** RUN213: UI class/subclass/species/feat/invocation action commits in one SQLite transaction.
+     * Preview, denied and pending outcomes roll back ALL changes, including target side-effects.
+     * Only explicit resolved + persisted state change can mint a durable causal effect receipt. */
+    public synchronized JSONObject executeGuidedCharacterAction(long characterId,String kind,String action,
+        String feature,JSONObject inputs,String channel,String actionId){
+        JSONObject blocked=new JSONObject();
+        String reason=GuidedCharacterActionCommitGuard.reject(channel,actionId,characterId,kind,action,feature);
+        try{if(!reason.isEmpty())return blocked.put("accepted",false).put("authority",reason);
+            final String receipt=GuidedCharacterActionCommitGuard.PREFIX+actionId;
+            if(hasEffectReceipt(receipt))return blocked.put("accepted",false).put("replayed",true)
+                .put("authority","blocked_guided_action_replay").put("receipt_key",receipt);
+            SQLiteDatabase sql=getWritableDatabase();
+            if(sql.inTransaction())return blocked.put("accepted",false).put("authority","blocked_nested_guided_action");
+            sql.beginTransaction();
+            try{
+                // Recheck identity INSIDE transaction to avoid TOCTOU and forged cross-world hero.
+                if(hasEffectReceipt(receipt))return blocked.put("accepted",false).put("replayed",true)
+                    .put("authority","blocked_guided_action_replay").put("receipt_key",receipt);
+                JSONObject before=getCharacter(characterId);
+                if(before.length()==0)return blocked.put("accepted",false).put("authority","blocked_character_not_in_world");
+                JSONObject payload=inputs==null?new JSONObject():new JSONObject(inputs.toString());
+                JSONObject result;
+                if("invocation".equals(kind))result=resolveCharacterRun142InvocationAction(characterId,feature,action,payload);
+                else if("subclass".equals(kind))result=resolveCharacterHomebrewSubclassAction(characterId,action,payload);
+                else if("species".equals(kind))result=resolveCharacterSpeciesAction(characterId,action,payload);
+                else if("feat".equals(kind))result=Run141CompactCharacterOptionEngine.isFeat(feature)
+                    ?resolveCharacterRun141FeatAction(characterId,feature,action,payload)
+                    :resolveCharacterVoloFeatAction(characterId,feature,action,payload);
+                else result=resolveCharacterClassAction(characterId,action,payload);
+                if(result==null)throw new IllegalStateException("guided_action_no_result");
+                JSONObject after=getCharacter(characterId);
+                boolean changed=after.length()>0&&(!before.optString("sheet_json","").equals(after.optString("sheet_json",""))||
+                    before.optInt("hp",-1)!=after.optInt("hp",-1)||before.optInt("max_hp",-1)!=after.optInt("max_hp",-1));
+                boolean resolved=result.optBoolean(kind+"_action_resolved",false);
+                String status=result.optString(kind+"_action_status","");
+                String commitRejection=GuidedCharacterActionCommitGuard.commitRejection(kind,resolved,status,changed,result);
+                if(!commitRejection.isEmpty())
+                    return blocked.put("accepted",false).put("authority",commitRejection)
+                        .put("mechanic_status",status)
+                        .put("mechanic_reason",result.optString(kind+"_action_reason",
+                            result.optString(kind+"_action_required_input","")))
+                        .put("mechanic_result",result).put("state_changed_rolled_back",changed);
+                ContentValues proof=new ContentValues();proof.put("world_profile",getActiveMapProfile());
+                proof.put("effect_key",receipt);
+                proof.put("source","guided-class:"+kind+":"+CanonicalJson.sha256(after.optString("sheet_json","")));
+                proof.put("applied_at",System.currentTimeMillis());
+                if(sql.insertWithOnConflict("effect_receipts",null,proof,SQLiteDatabase.CONFLICT_IGNORE)<0)
+                    throw new IllegalStateException("guided_action_receipt_collision");
+                addAuditEvent("guided_character_effect","Ação de ficha executada e persistida",kind,
+                    new JSONObject().put("character_id",characterId).put("action",action).put("feature",feature).toString(),
+                    new JSONObject().put("receipt_key",receipt).put("result",result).toString(),false);
+                sql.setTransactionSuccessful();
+                return new JSONObject().put("accepted",true).put("effect_applied",true)
+                    .put("state_committed",true).put("dispatch_only",false).put("receipt_key",receipt)
+                    .put("authority","guided_character_atomic_commit").put("mechanic_family",kind)
+                    .put("character_id",characterId).put("result",result);
+            }finally{sql.endTransaction();}
+        }catch(Exception e){AppLog.e("AppDb","Ação guiada cancelada com rollback",e);
+            try{return blocked.put("accepted",false).put("authority","blocked_guided_action_transaction_rolled_back")
+                .put("error",e.getClass().getSimpleName());}catch(Exception ignored){return new JSONObject();}}
+    }
+    public JSONObject resolveCharacterClassAction(long id,String action,JSONObject payload){try{JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);String cls=ch.optString("class_name",sheet.optString("class_name",""));int level=Math.max(1,ch.optInt("level",sheet.optInt("level",1)));String profile=ch.optString("rules_source",sheet.optString("rules_source",dbRulesProfileFallback()));JSONObject next;DndRulesEngine rules=new DndRulesEngine();if(Run143ForgottenSecretsEngine.isWarlockClassAction(action))next=Run143ForgottenSecretsEngine.resolveWarlockClassAction(sheet,cls,level,action,payload);else if("artificer".equals(normRuntime(cls)))next=EberronForgeCompleteEngine.resolveArtificerAction(sheet,level,action,payload);else if(HomebrewClassRuntimeEngine.supports(cls))next=HomebrewClassRuntimeEngine.execute(sheet,cls,level,action,payload);else if(RuneterraClassRuntimeEngine.supports(cls))next=RuneterraClassRuntimeEngine.execute(sheet,level,action,payload);else if(rules.is2024(profile)&&Core2024ClassRuntimeEngine.supports(cls))next=Core2024ClassRuntimeEngine.execute(sheet,cls,level,action,payload);else{try{return new JSONObject(sheet.toString()).put("class_action_resolved",false).put("class_action_status","blocked").put("class_action_reason","no_compiled_class_runtime_for_profile").put("class_action_auto_rolls",false);}catch(Exception ignored){return sheet;}}JSONObject persisted=persistCharacterRuntimeState(id,ch,next);if(persisted.optBoolean("class_action_resolved",false)){String ev=persisted.optString("class_action_event","");JSONObject effect=persisted.optJSONObject("class_action_effect");if(effect!=null&&"shaman_spirit_protector".equals(ev)){JSONObject target=runtimeTarget(effect.optString("target_id",""));if(target.length()>0)setCharacterTempHp(target.optLong("id",0),Math.max(targetSheetTempHp(target),effect.optInt("temp_hp",0)));effect.put("target_state_mutation_pending_gateway",false);updateCharacterSheet(id,persisted.toString());}}return persisted;}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
+    public JSONObject resolveCharacterSpeciesAction(long id,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);String species=ch.optString("species",sheet.optString("species",""));int level=Math.max(1,ch.optInt("level",sheet.optInt("level",1)));JSONObject next;if(EberronForgeCompleteEngine.supportsSpecies(species))next=EberronForgeCompleteEngine.resolveSpeciesAction(sheet,species,level,action,payload);else if(Run141CompactCharacterOptionEngine.isSpecies(species))next=Run141CompactCharacterOptionEngine.resolveSpecies(sheet,level,action,payload);else if(VoloSubraceHandbookEngine.isReady(species))next=VoloSubraceHandbookEngine.resolve(sheet,species,level,action,payload);else if(VoloSubraceRun139Engine.isReady(species))next=VoloSubraceRun139Engine.resolve(sheet,species,level,action,payload);else if(VoloSubraceRun140Engine.isReady(species))next=VoloSubraceRun140Engine.resolve(sheet,species,level,action,payload);else if(Run141SpeciesFeatRuntimeEngine.supportsSpecies(species))next=Run141SpeciesFeatRuntimeEngine.resolveSpecies(sheet,species,level,action,payload);else{try{return new JSONObject(sheet.toString()).put("species_action_resolved",false).put("species_action_status","blocked").put("species_action_reason","no_compiled_species_runtime").put("species_action_auto_rolls",false);}catch(Exception ignored){return sheet;}}return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject resolveCharacterRun141FeatAction(long id,String feat,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);JSONArray selected=sheet.optJSONArray("run141_halfdragon_feats");boolean has=false;for(int i=0;selected!=null&&i<selected.length();i++)if(normRuntime(selected.optString(i)).equals(normRuntime(feat))){has=true;break;}if(!has||!Run141CompactCharacterOptionEngine.isFeat(feat)){try{return new JSONObject(sheet.toString()).put("feat_action_resolved",false).put("feat_action_status","blocked").put("feat_action_reason","run141_feat_not_selected_or_unknown").put("feat_action_auto_rolls",false);}catch(Exception ignored){return sheet;}}JSONObject next=Run141CompactCharacterOptionEngine.resolveFeat(sheet,feat,action,payload);return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject resolveCharacterVoloFeatAction(long id,String feat,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);if(ArcanaUnleashedRun143Engine.supportsFeat(feat)){String text=sheet.optString("selected_feats","");if(!normRuntime(text).contains(normRuntime(feat))){try{return new JSONObject(sheet.toString()).put("feat_action_resolved",false).put("feat_action_status","blocked").put("feat_action_reason","arcana_unleashed_feat_not_selected").put("feat_action_auto_rolls",false);}catch(Exception ignored){return sheet;}}JSONObject next=ArcanaUnleashedRun143Engine.resolveFeat(sheet,feat,action,payload);return persistCharacterRuntimeState(id,ch,next);}if(Run141CompactCharacterOptionEngine.isFeat(feat)){JSONArray selected=sheet.optJSONArray("run141_halfdragon_feats");boolean has=false;for(int i=0;selected!=null&&i<selected.length();i++)if(normRuntime(selected.optString(i)).equals(normRuntime(feat))){has=true;break;}if(!has){try{return new JSONObject(sheet.toString()).put("feat_action_resolved",false).put("feat_action_status","blocked").put("feat_action_reason","run141_compact_feat_not_selected").put("feat_action_auto_rolls",false);}catch(Exception ignored){return sheet;}}JSONObject next=Run141CompactCharacterOptionEngine.resolveFeat(sheet,feat,action,payload);return persistCharacterRuntimeState(id,ch,next);}if(Run141SpeciesFeatRuntimeEngine.supportsFeat(feat)){String text=sheet.optString("selected_feats","");if(!normRuntime(text).contains(normRuntime(feat))){try{return new JSONObject(sheet.toString()).put("feat_action_resolved",false).put("feat_action_status","blocked").put("feat_action_reason","run141_feat_not_selected").put("feat_action_auto_rolls",false);}catch(Exception ignored){return sheet;}}JSONObject next=Run141SpeciesFeatRuntimeEngine.resolveFeat(sheet,feat,action,payload);return persistCharacterRuntimeState(id,ch,next);}JSONArray selected=sheet.optJSONArray("volo_racial_feats");boolean has=false;for(int i=0;selected!=null&&i<selected.length();i++)if(normRuntime(selected.optString(i)).equals(normRuntime(feat))){has=true;break;}if(!has||!VoloRacialFeatRuntimeEngine.isKnown(feat)){try{return new JSONObject(sheet.toString()).put("feat_action_resolved",false).put("feat_action_status","blocked").put("feat_action_reason","volo_feat_not_selected_or_unknown").put("feat_action_auto_rolls",false);}catch(Exception ignored){return sheet;}}JSONObject next=VoloRacialFeatRuntimeEngine.resolve(sheet,feat,action,payload);return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject resolveCharacterRun142InvocationAction(long id,String invocation,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);JSONObject next=Run143ForgottenSecretsEngine.resolveInvocation(sheet,invocation,action,payload);return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject resolveCharacterHomebrewSubclassAction(long id,String feature,JSONObject payload){try{JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);String subclass=sheet.optString("subclass_name",sheet.optString("subclass",""));JSONObject next;if(Run143ForgottenSecretsEngine.isPatron(subclass))next=Run143ForgottenSecretsEngine.resolvePatron(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else if(Run141CompactCharacterOptionEngine.isSubclass(subclass))next=Run141CompactCharacterOptionEngine.resolveSubclass(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else if(AncestralStancesRuntimeEngine.supports(subclass))next=AncestralStancesRuntimeEngine.resolve(sheet,feature,payload);else if(ForgottenSecretsRun141Engine.supports(subclass))next=ForgottenSecretsRun141Engine.resolve(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else if(ArcanaUnleashedRun143Engine.supportsSubclass(subclass))next=ArcanaUnleashedRun143Engine.resolveSubclass(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else if(EberronForgeCompleteEngine.supportsSubclass(subclass))next=EberronForgeCompleteEngine.resolveSubclassAction(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else if(ForgottenRealmsHeroesEngine.supportsSubclass(subclass))next=ForgottenRealmsHeroesEngine.resolveSubclassAction(sheet,subclass,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),feature,payload);else{if(!HomebrewSubclassRuntimeEngine.isKnown(subclass)){try{return new JSONObject(sheet.toString()).put("subclass_action_resolved",false).put("subclass_action_status","blocked").put("subclass_action_reason","no_compiled_homebrew_subclass_runtime").put("subclass_action_auto_rolls",false);}catch(Exception ignored){return sheet;}}next=HomebrewSubclassRuntimeEngine.resolve(sheet,subclass,feature,payload);}if(ForgottenRealmsHeroesEngine.supportsSubclass(subclass)&&shouldRejectHeroesPersistence(next))return next;JSONObject persisted=persistCharacterRuntimeState(id,ch,next);if(persisted.optBoolean("subclass_action_resolved",false)){String ev=persisted.optString("subclass_action_event","");JSONObject effect=persisted.optJSONObject("subclass_action_effect");if(effect!=null){if("warlord_war_cry".equals(ev)){applyHomebrewAllyHitDice(effect.optJSONArray("allies"));effect.put("allied_state_mutation_pending_gateway",false);}else if("shaman_pardon_echoed_words".equals(ev)){applyHomebrewHealingDistribution(effect.optJSONArray("distribution"));effect.put("allied_state_mutation_pending_gateway",false);}else if("shaman_pardon_sacrifice_spirit".equals(ev))applyHomebrewHealing(effect.optString("target_id",""),effect.optInt("healing",0));}}updateCharacterSheet(id,persisted.toString());return persisted;}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
+    public JSONObject resolveForgottenSecretsSpell(final long id,final String spell,final int slotLevel,final JSONObject payload){return resolveCharacterSpellAtomic(id,"run149",spell,slotLevel,payload,new CharacterSpellResolver(){public JSONObject resolve(JSONObject sheet){return Run149ForgottenSecretsSpellEngine.resolve(sheet,spell,slotLevel,payload);}});}
+    public JSONObject resolveEberronArtificerAction(long id,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=previewCharacterResourceState(id);JSONObject next=EberronForgeCompleteEngine.resolveArtificerAction(sheet,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),action,payload);return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject resolveEberronSubclassAction(long id,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=previewCharacterResourceState(id);String sub=sheet.optString("subclass_name",sheet.optString("subclass",""));JSONObject next=EberronForgeCompleteEngine.resolveSubclassAction(sheet,sub,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),action,payload);return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject resolveEberronSpeciesAction(long id,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=previewCharacterResourceState(id);String sp=ch.optString("species",sheet.optString("species",""));JSONObject next=EberronForgeCompleteEngine.resolveSpeciesAction(sheet,sp,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),action,payload);return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject resolveEberronFeatAction(long id,String feat,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=previewCharacterResourceState(id);JSONObject next=EberronForgeCompleteEngine.resolveFeatAction(sheet,feat,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),action,payload);return persistCharacterRuntimeState(id,ch,next);}
+    // RUN192_HOMUNCULUS_SLOT_ATOMIC: no servant or slot change until every condition and available slot have passed.
+    public JSONObject resolveEberronHomunculusSpell(final long id,final int slotLevel,final JSONObject payload){
+        return resolveCharacterSpellAtomic(id,"eb_homunculus","Homunculus",slotLevel,payload,new CharacterSpellResolver(){public JSONObject resolve(JSONObject sheet)throws Exception{
+            JSONObject next=EberronForgeCompleteEngine.resolveHomunculusSpell(sheet,slotLevel,payload);
+            if(!next.optBoolean("eberron_resolved",false))return next;
+            JSONObject spent=CharacterResourceStateEngine.spendSpellSlot(next,slotLevel);
+            if(spent.optBoolean("spell_slot_spend_blocked",false))return new JSONObject(sheet.toString()).put("eberron_resolved",false).put("eberron_status","blocked").put("eberron_reason","espaco_de_magia_insuficiente");
+            return spent;
+        }});
+    }
+    public JSONObject resolveEberronMagicItemAction(long id,String item,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=previewCharacterResourceState(id);JSONObject next=EberronForgeCompleteEngine.resolveMagicItemAction(sheet,item,action,payload);return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject resolveEberronBastionAction(long id,String facility,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=previewCharacterResourceState(id);JSONObject next=EberronForgeCompleteEngine.resolveBastionAction(sheet,facility,action,payload);return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject resolveEberronAirshipAction(long id,String ship,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=previewCharacterResourceState(id);JSONObject next=EberronForgeCompleteEngine.resolveAirshipAction(sheet,ship,action,payload);return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject resolveEberronFrameworkAction(long id,String framework,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=previewCharacterResourceState(id);JSONObject next=EberronForgeCompleteEngine.resolveFrameworkAction(sheet,framework,action,payload);return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject eberronCreature(String creature,JSONObject context){return EberronForgeCompleteEngine.creatureInfo(creature,context==null?new JSONObject():context);}
+    public JSONObject resolveEberronCreatureAction(String creature,String action,JSONObject payload){return EberronForgeCompleteEngine.resolveCreatureAction(new JSONObject(),creature,action,payload==null?new JSONObject():payload);}
+    public JSONObject resolveHeroesSubclassAction(long id,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=previewCharacterResourceState(id);String sub=sheet.optString("subclass_name",sheet.optString("subclass",""));JSONObject next=ForgottenRealmsHeroesEngine.resolveSubclassAction(sheet,sub,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),action,payload);if(shouldRejectHeroesPersistence(next))return next;return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject resolveHeroesFeatAction(long id,String feat,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=previewCharacterResourceState(id);JSONObject next=ForgottenRealmsHeroesEngine.resolveFeatAction(sheet,feat,Math.max(1,ch.optInt("level",sheet.optInt("level",1))),action,payload);if(shouldRejectHeroesPersistence(next))return next;return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject resolveHeroesSpell(final long id,final String spell,final int slotLevel,final JSONObject payload){return resolveCharacterSpellAtomic(id,"frhof",spell,slotLevel,payload,new CharacterSpellResolver(){public JSONObject resolve(JSONObject sheet){return ForgottenRealmsHeroesEngine.resolveSpell(sheet,spell,slotLevel,payload);}});}
+    public JSONObject resolveHeroesCircleMagic(long id,String option,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=previewCharacterResourceState(id);JSONObject next=ForgottenRealmsHeroesEngine.resolveCircleMagic(sheet,option,payload);return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject resolveHeroesFactionAction(long id,String faction,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=previewCharacterResourceState(id);JSONObject next=ForgottenRealmsHeroesEngine.resolveFactionAction(sheet,faction,action,payload);return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject resolveHeroesDeityRenown(long id,String deity,int delta,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=previewCharacterResourceState(id);JSONObject next=ForgottenRealmsHeroesEngine.resolveDeityRenown(sheet,deity,delta,payload);return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject resolveHeroesAuroraAction(long id,String item,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=previewCharacterResourceState(id);JSONObject next=ForgottenRealmsHeroesEngine.resolveAuroraAction(sheet,item,action,payload);if(shouldRejectHeroesPersistence(next))return next;return persistCharacterRuntimeState(id,ch,next);}
+    private static boolean shouldRejectHeroesPersistence(JSONObject next){if(next==null)return true;String status=next.optString("frhof_status","");return "acao_nao_suportada".equals(status)||"blocked".equals(status)||"error".equals(status);}
+    public JSONObject resolveArcanaUnleashedSpell(final long id,final String spell,final int slotLevel,final JSONObject payload){return resolveCharacterSpellAtomic(id,"arcana",spell,slotLevel,payload,new CharacterSpellResolver(){public JSONObject resolve(JSONObject sheet){return ArcanaUnleashedRun144Engine.resolveSpell(sheet,spell,slotLevel,payload);}});}
+    public JSONObject resolveArcanaUnleashedBastion(long id,String facility,String order,JSONObject payload,int currentDay){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);JSONObject next=ArcanaUnleashedRun144Engine.resolveBastion(sheet,facility,order,payload,currentDay);return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject applyArcanaUnleashedRenown(long id,String faction,int delta){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);JSONObject next=ArcanaUnleashedRun144Engine.applyRenown(sheet,faction,delta);return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject evolveArcanaUnleashedInventoryItem(long id,String itemId,String method,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);try{JSONArray ledger=sheet.optJSONArray("inventory_ledger");if(ledger==null)return sheet.put("au_item_evolution_resolved",false).put("au_item_evolution_status","inventario_estruturado_ausente");boolean found=false;for(int i=0;i<ledger.length();i++){JSONObject row=ledger.optJSONObject(i);if(row==null||!itemId.equals(row.optString("id")))continue;JSONObject evolved=ArcanaUnleashedRun144Engine.evolveMagicItem(row,method,payload);ledger.put(i,evolved);found=true;break;}if(!found)return sheet.put("au_item_evolution_resolved",false).put("au_item_evolution_status","item_nao_encontrado");sheet.put("inventory_ledger",ledger).put("au_item_evolution_resolved",true);return persistCharacterRuntimeState(id,ch,sheet);}catch(Exception e){return sheet;}}
+    public JSONObject resolveArcanaUnleashedItemAction(long id,String item,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);try{JSONObject p=payload==null?new JSONObject():payload;boolean owned=false;JSONArray ledger=sheet.optJSONArray("inventory_ledger");for(int i=0;ledger!=null&&i<ledger.length();i++){JSONObject row=ledger.optJSONObject(i);if(row==null||row.optInt("quantity",1)<=0)continue;String name=row.optString("name",row.optString("nome",""));if(ArcanaUnleashedPtBr.same(name,item)){owned=true;break;}String ci=ArcanaUnleashedPtBr.canonical(item),cn=ArcanaUnleashedPtBr.canonical(name);if(ci.startsWith("Necklace of the Beastly Familiar")&&cn.startsWith("Necklace of the Beastly Familiar")){owned=true;break;}}if(!owned&&!p.optBoolean("gm_override",false))return sheet.put("au_item_resolved",false).put("au_item_status","bloqueada").put("au_item_reason","item_nao_encontrado_no_inventario").put("au_item_auto_rolls",false);JSONObject next=ArcanaUnleashedRun145ItemEngine.resolve(sheet,item,action,p);next=ArcanaUnleashedRun145ItemEngine.applyInventoryPassives(next);return persistCharacterRuntimeState(id,ch,next);}catch(Exception e){return sheet;}}
+    public JSONObject resolveArcanaUnleashedItemDawn(long id,JSONObject rechargeRolls){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);JSONObject next=ArcanaUnleashedRun145ItemEngine.resolveDawn(sheet,rechargeRolls);next=ArcanaUnleashedRun147EvolvingItemsEngine.dawn(next);next=ArcanaUnleashedRun145ItemEngine.applyInventoryPassives(next);next=ArcanaUnleashedRun147EvolvingItemsEngine.applyInventoryPassives(next);return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject tickArcanaUnleashedItemHours(long id,int hours){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);JSONObject next=ArcanaUnleashedRun145ItemEngine.tickHours(sheet,hours);return persistCharacterRuntimeState(id,ch,next);}
+    public JSONObject arcanaUnleashedItemInventoryRules(long id){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ArcanaUnleashedRun145ItemEngine.applyInventoryPassives(ensureCharacterResourceState(id));try{JSONArray ledger=sheet.optJSONArray("inventory_ledger"),items=new JSONArray();for(int i=0;ledger!=null&&i<ledger.length();i++){JSONObject row=ledger.optJSONObject(i);if(row==null||row.optInt("quantity",1)<=0)continue;String name=row.optString("name",row.optString("nome",""));if(ArcanaUnleashedRun145ItemEngine.supports(name))items.put(ArcanaUnleashedRun145ItemEngine.itemInfo(name));}return new JSONObject().put("itens_arcana_unleashed",items).put("passivos",sheet.optJSONArray("au_item_passives")).put("bonus_ca",sheet.optInt("au_item_ac_bonus",0)).put("multiplicador_trabalho_fabricacao",sheet.optInt("au_item_crafting_worker_multiplier",1)).put("auto_rolls",false).put("surface_language","pt-BR");}catch(Exception e){return new JSONObject();}}
+    public JSONObject resolveArcanaUnleashedEvolvingItemAction(long id,String item,String action,JSONObject payload){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);try{JSONObject p=payload==null?new JSONObject():payload;boolean owned=false;JSONArray ledger=sheet.optJSONArray("inventory_ledger");for(int i=0;ledger!=null&&i<ledger.length();i++){JSONObject row=ledger.optJSONObject(i);if(row==null||row.optInt("quantity",1)<=0)continue;String name=row.optString("name",row.optString("nome",""));if(ArcanaUnleashedPtBr.same(name,item)){owned=true;break;}}if(!owned&&!p.optBoolean("gm_override",false))return sheet.put("au_evolving_item_resolved",false).put("au_evolving_item_status","bloqueada").put("au_evolving_item_reason","item_nao_encontrado_no_inventario").put("au_evolving_item_auto_rolls",false);JSONObject next=ArcanaUnleashedRun147EvolvingItemsEngine.resolve(sheet,item,action,p);next=ArcanaUnleashedRun147EvolvingItemsEngine.applyInventoryPassives(next);return persistCharacterRuntimeState(id,ch,next);}catch(Exception e){return sheet;}}
+    public JSONObject evolveArcanaUnleashedReadyMadeItem(long id,String itemId,boolean confirmar){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=ensureCharacterResourceState(id);try{JSONArray ledger=sheet.optJSONArray("inventory_ledger");if(ledger==null)return sheet.put("au_evolving_resolved",false).put("au_evolving_status","inventario_estruturado_ausente");boolean found=false;for(int i=0;i<ledger.length();i++){JSONObject row=ledger.optJSONObject(i);if(row==null||!itemId.equals(row.optString("id")))continue;JSONObject evolved=ArcanaUnleashedRun147EvolvingItemsEngine.evolveToNext(row,confirmar);ledger.put(i,evolved);found=true;break;}if(!found)return sheet.put("au_evolving_resolved",false).put("au_evolving_status","item_nao_encontrado");sheet.put("inventory_ledger",ledger);sheet=ArcanaUnleashedRun147EvolvingItemsEngine.applyInventoryPassives(sheet);return persistCharacterRuntimeState(id,ch,sheet);}catch(Exception e){return sheet;}}
+    public JSONObject arcanaUnleashedEvolvingItemInfo(String item){return ArcanaUnleashedRun147EvolvingItemsEngine.itemInfo(item);}
+    public JSONObject arcanaUnleashedCreature(String criatura,JSONObject contexto){return ArcanaUnleashedRun145BestiaryEngine.statblock(criatura,contexto==null?new JSONObject():contexto);}
+    public JSONObject resolveArcanaUnleashedCreatureAction(String criatura,String acao,JSONObject payload){return ArcanaUnleashedRun145BestiaryEngine.resolveAction(criatura,acao,payload==null?new JSONObject():payload);}
+
+    private JSONObject runtimeTarget(String target){if(target==null||target.trim().isEmpty())return new JSONObject();try{long id=Long.parseLong(target.trim());JSONObject byId=getCharacter(id);if(byId.length()>0)return byId;}catch(Exception ignored){}return findCharacterByName(target);}
+    private int targetSheetTempHp(JSONObject row){try{return readCharacterSheet(row).optInt("temp_hp",0);}catch(Exception e){return 0;}}
+    private void applyHomebrewHealing(String target,int healing){if(healing<=0)return;JSONObject row=runtimeTarget(target);if(row.length()==0)return;int max=Math.max(1,row.optInt("max_hp",1)),hp=Math.max(0,Math.min(max,row.optInt("hp",0)+healing));setCharacterHp(row.optLong("id",0),hp);}
+    private void applyHomebrewHealingDistribution(JSONArray a){if(a==null)return;for(int i=0;i<a.length();i++){JSONObject x=a.optJSONObject(i);if(x!=null)applyHomebrewHealing(x.optString("target_id",""),x.optInt("healing",0));}}
+    private static String normRuntime(String x){if(x==null)return "";String v=java.text.Normalizer.normalize(x.toLowerCase(java.util.Locale.ROOT),java.text.Normalizer.Form.NFD).replaceAll("\\p{M}+","");return v.replaceAll("[^a-z0-9]+"," ").trim();}
+    private void applyHomebrewAllyHitDice(JSONArray allies){if(allies==null)return;for(int i=0;i<allies.length();i++){JSONObject x=allies.optJSONObject(i);if(x==null)continue;JSONObject row=runtimeTarget(x.optString("target_id",""));if(row.length()==0)continue;long id=row.optLong("id",0);JSONObject sheet=readCharacterSheet(row);int maxDice=Math.max(1,sheet.optInt("hit_dice_max",row.optInt("level",1))),spent=Math.max(0,sheet.optInt("hit_dice_spent",0)),use=Math.max(0,x.optInt("hit_dice_spent",0));if(use>maxDice-spent)continue;int maxHp=Math.max(1,row.optInt("max_hp",1)),hp=Math.max(0,Math.min(maxHp,row.optInt("hp",0)+Math.max(0,x.optInt("healing_total",0))));try{sheet.put("hit_dice_max",maxDice).put("hit_dice_spent",spent+use).put("hp",hp).put("max_hp",maxHp);}catch(Exception ignored){}ContentValues v=new ContentValues();v.put("hp",hp);v.put("sheet_json",sheet.toString());v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("characters",v,"id=?",new String[]{String.valueOf(id)});syncPlayerCombatantHp(row.optString("name",""),hp);}}
+    // RUN192_PENDING_RULE_GATE: a pending/blocked Eberron or Faerun action is non-mutating.
+    private JSONObject persistCharacterRuntimeState(long id,JSONObject beforeRow,JSONObject next){
+        if(next==null)return new JSONObject();
+        if(next.has("eberron_resolved")&&!next.optBoolean("eberron_resolved",false))return next;
+        if(next.has("frhof_resolved")&&!next.optBoolean("frhof_resolved",false))return next;
+        int max=Math.max(1,next.optInt("max_hp",beforeRow.optInt("max_hp",1))),hp=Math.max(0,Math.min(max,next.optInt("hp",beforeRow.optInt("hp",max))));try{next.put("hp",hp).put("max_hp",max);}catch(Exception ignored){}ContentValues v=new ContentValues();v.put("hp",hp);v.put("max_hp",max);v.put("sheet_json",next.toString());v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("characters",v,"id=?",new String[]{String.valueOf(id)});String name=beforeRow.optString("name","");syncPlayerCombatantHp(name,hp);ContentValues combat=new ContentValues();combat.put("max_hp",max);getWritableDatabase().update("combatants",combat,"world_profile=? AND is_player=1 AND lower(name)=lower(?)",new String[]{getActiveMapProfile(),name});return next;}
+    public JSONObject addCharacterInventoryEntry(long id,String name,int quantity,double unitWeightLb,boolean equipped){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=readCharacterSheet(ch);try{JSONArray ledger=sheet.optJSONArray("inventory_ledger");if(ledger==null)ledger=new JSONArray();JSONObject item=new JSONObject().put("id","item_"+System.currentTimeMillis()).put("name",name==null?"Item":name.trim()).put("quantity",Math.max(0,quantity)).put("equipped",equipped);if(unitWeightLb>=0d)item.put("unit_weight_lb",unitWeightLb);ledger.put(item);sheet.put("inventory_ledger",ledger).put("inventory_load",InventoryLedgerEngine.totals(ledger,ch.optInt("str",10),false));updateCharacterSheet(id,sheet.toString());return item.put("inventory_load",sheet.optJSONObject("inventory_load"));}catch(Exception e){AppLog.e("AppDb","Falha ao adicionar item estruturado.",e);return new JSONObject();}}
+    /** RUN207: existing inventory entries may be armed without changing schema or identity. */
+    public JSONArray listEquippedWeaponCandidates(long characterId){
+        JSONArray out=new JSONArray();JSONObject ch=getCharacter(characterId);
+        if(ch.length()==0)return out;
+        JSONArray ledger=readCharacterSheet(ch).optJSONArray("inventory_ledger");
+        for(int i=0;ledger!=null&&i<ledger.length();i++){
+            JSONObject row=ledger.optJSONObject(i);
+            if(row!=null&&row.optBoolean("equipped",false)&&row.optInt("quantity",1)>0&&
+                !row.optString("id","").trim().isEmpty())out.put(row);
+        }
+        return out;
+    }
+    public JSONArray listEquippedWeaponAttackProfiles(long characterId){
+        JSONArray out=new JSONArray(),items=listEquippedWeaponCandidates(characterId);
+        for(int i=0;i<items.length();i++){
+            JSONObject item=items.optJSONObject(i);if(item==null)continue;
+            if(EquippedWeaponAttackRules.validProfile(item.optString("id"),
+                item.optInt("weapon_attack_bonus",Integer.MIN_VALUE),
+                item.optString("weapon_damage_formula"),item.optString("weapon_damage_type"))&&
+                TacticalAttackGeometryRules.validProfile(item.optString("weapon_attack_kind",""),
+                    item.optInt("weapon_reach_ft",-1),item.optInt("weapon_normal_range_ft",-1),
+                    item.optInt("weapon_long_range_ft",-1)))out.put(item);
+        }
+        return out;
+    }
+    /** Explicit user setup: never generate fictitious bonuses from a name. */
+    public synchronized boolean configureEquippedWeaponAttack(long characterId,String itemId,int attackBonus,
+        String formula,String damageType){
+        // Legacy overload cannot silently guess whether a weapon has reach or range.
+        return false;
+    }
+    public synchronized boolean configureEquippedWeaponAttack(long characterId,String itemId,int attackBonus,
+        String formula,String damageType,String kind,int reach,int normal,int far){
+        if(!EquippedWeaponAttackRules.validProfile(itemId,attackBonus,formula,damageType)||
+            !TacticalAttackGeometryRules.validProfile(kind,reach,normal,far))return false;
+        JSONObject ch=getCharacter(characterId);if(ch.length()==0)return false;
+        JSONObject sheet=readCharacterSheet(ch);JSONArray ledger=sheet.optJSONArray("inventory_ledger");
+        if(ledger==null)return false;
+        try{
+            for(int i=0;i<ledger.length();i++){
+                JSONObject item=ledger.optJSONObject(i);
+                if(item==null||!itemId.equals(item.optString("id")))continue;
+                if(!item.optBoolean("equipped",false)||item.optInt("quantity",1)<=0)return false;
+                item.put("weapon_attack_bonus",attackBonus);
+                item.put("weapon_damage_formula",EquippedWeaponAttackRules.parse(formula).formula);
+                item.put("weapon_damage_type",damageType);
+                item.put("weapon_attack_kind",kind);
+                item.put("weapon_reach_ft",reach);
+                item.put("weapon_normal_range_ft",normal);
+                item.put("weapon_long_range_ft",far);
+                sheet.put("inventory_ledger",ledger);
+                return updateCharacterSheetIfUnchanged(characterId,ch.optString("sheet_json","{}"),sheet.toString());
+            }
+        }catch(Exception e){AppLog.e("AppDb","Falha na configuracao da arma",e);}
+        return false;
+    }
+    private boolean updateCharacterSheetIfUnchanged(long id,String oldSheet,String nextSheet){
+        ContentValues v=new ContentValues();v.put("sheet_json",nextSheet);v.put("updated_at",System.currentTimeMillis());
+        return getWritableDatabase().update("characters",v,
+            "id=? AND world_profile=? AND sheet_json=?",
+            new String[]{String.valueOf(id),getActiveMapProfile(),oldSheet})==1;
+    }
+    private JSONObject equippedWeaponProof(long characterId,String itemId,int attackBonus,String formula,String type){
+        JSONArray weapons=listEquippedWeaponAttackProfiles(characterId);
+        for(int i=0;i<weapons.length();i++){
+            JSONObject weapon=weapons.optJSONObject(i);if(weapon==null||!itemId.equals(weapon.optString("id")))continue;
+            EquippedWeaponAttackRules.Dice dice=EquippedWeaponAttackRules.parse(formula);
+            if(dice!=null&&attackBonus==weapon.optInt("weapon_attack_bonus",Integer.MIN_VALUE)&&
+                dice.formula.equals(weapon.optString("weapon_damage_formula"))&&
+                type.equals(weapon.optString("weapon_damage_type")))return weapon;
+        }
+        return new JSONObject();
+    }
+    /** Explicit Light/hand and split damage data on an already equipped melee
+     * weapon. The full attack damage formula must agree with this decomposition. */
+    public synchronized boolean configureEquippedTwoWeaponProfile(long characterId,String itemId,
+        String hand,String baseDice,int abilityModifier,int itemDamageModifier){
+        if(abilityModifier< -20||abilityModifier>30||itemDamageModifier< -100||itemDamageModifier>100)return false;
+        JSONObject ch=getCharacter(characterId);if(ch.length()==0)return false;
+        JSONObject sheet=readCharacterSheet(ch);JSONArray ledger=sheet.optJSONArray("inventory_ledger");
+        if(ledger==null)return false;
+        for(int i=0;i<ledger.length();i++){
+            JSONObject item=ledger.optJSONObject(i);
+            if(item==null||!itemId.equals(item.optString("id")))continue;
+            if(!item.optBoolean("equipped",false)||item.optInt("quantity",1)<=0||
+                !"melee".equals(item.optString("weapon_attack_kind")))return false;
+            EquippedWeaponAttackRules.Dice parsed=EquippedWeaponAttackRules.parse(item.optString("weapon_damage_formula"));
+            EquippedWeaponAttackRules.Dice base=EquippedWeaponAttackRules.parse(baseDice);
+            if(parsed==null||base==null||base.modifier!=0||parsed.count!=base.count||
+                parsed.faces!=base.faces||parsed.modifier!=abilityModifier+itemDamageModifier)return false;
+            try{
+                new TwoWeaponFightingRules.Weapon(itemId,hand,true,true,true,baseDice,
+                    itemDamageModifier,item.optString("weapon_damage_type"));
+                item.put("two_weapon_light",true).put("two_weapon_one_handed",true)
+                    .put("two_weapon_hand",hand).put("two_weapon_base_dice",baseDice)
+                    .put("two_weapon_ability_modifier",abilityModifier)
+                    .put("two_weapon_item_damage_modifier",itemDamageModifier);
+                sheet.put("inventory_ledger",ledger);
+                return updateCharacterSheetIfUnchanged(characterId,ch.optString("sheet_json","{}"),sheet.toString());
+            }catch(Exception invalid){return false;}
+        }
+        return false;
+    }
+    private TwoWeaponFightingRules.Weapon twoWeaponProfile(JSONObject item){
+        if(item==null||item.length()==0||!item.optBoolean("two_weapon_light",false)||
+            !item.optBoolean("two_weapon_one_handed",false)||
+            !"melee".equals(item.optString("weapon_attack_kind")))return null;
+        try{
+            int ability=item.optInt("two_weapon_ability_modifier",Integer.MIN_VALUE),
+                itemModifier=item.optInt("two_weapon_item_damage_modifier",Integer.MIN_VALUE);
+            EquippedWeaponAttackRules.Dice full=EquippedWeaponAttackRules.parse(item.optString("weapon_damage_formula")),
+                base=EquippedWeaponAttackRules.parse(item.optString("two_weapon_base_dice"));
+            if(full==null||base==null||base.modifier!=0||full.count!=base.count||
+                full.faces!=base.faces||full.modifier!=ability+itemModifier)return null;
+            return new TwoWeaponFightingRules.Weapon(item.optString("id"),item.optString("two_weapon_hand"),
+                true,true,true,item.optString("two_weapon_base_dice"),itemModifier,
+                item.optString("weapon_damage_type"));
+        }catch(Exception invalid){return null;}
+    }
+    public JSONObject changeCharacterInventoryQuantity(long id,String itemId,int delta){
+        return changeCharacterInventoryQuantity(id,itemId,delta,"ui-inventory-"+java.util.UUID.randomUUID());
+    }
+    public JSONObject changeCharacterInventoryQuantity(final long id,final String itemId,final int delta,final String operationToken){
+        final JSONObject[] result={new JSONObject()};
+        try{
+            runInTransactionChecked(new CheckedTransaction(){public void run()throws Exception{
+                if(operationToken==null||!operationToken.startsWith("ui-inventory-")||!CombatActionReceiptGuard.validToken(operationToken)){
+                    result[0].put("inventory_change_blocked","invalid_operation_token");return;
+                }
+                String receipt="inventory-v1:"+operationToken;
+                if(hasEffectReceipt(receipt)){result[0].put("inventory_change_blocked","already_resolved_or_replayed");return;}
+                JSONObject ch=getCharacter(id);
+                if(ch.length()==0){result[0].put("inventory_change_blocked","character_not_found");return;}
+                JSONObject sheet=readCharacterSheet(ch);
+                JSONObject authorized=InventoryLedgerEngine.authorizeQuantityChange(sheet.optJSONArray("inventory_ledger"),itemId,delta);
+                if(!authorized.optBoolean("authorized",false)){
+                    result[0].put("inventory_change_blocked",authorized.optString("blocked","quantity_not_authorized"));return;
+                }
+                JSONArray next=authorized.getJSONArray("ledger");
+                sheet.put("inventory_ledger",next).put("inventory_load",InventoryLedgerEngine.totals(next,ch.optInt("str",10),false));
+                updateCharacterSheetChecked(id,sheet.toString());
+                recordEffectReceipt(receipt,authorized.toString());
+                result[0]=sheet.put("inventory_change_committed",true).put("inventory_change_receipt",receipt);
+            }});
+        }catch(Exception e){AppLog.e("AppDb","Transação de quantidade do inventário revertida.",e);
+            try{result[0]=new JSONObject().put("inventory_change_blocked","transaction_rolled_back");}catch(Exception ignored){result[0]=new JSONObject();}}
+        return result[0];
+    }
+    public JSONObject characterInventoryLoad(long id,boolean variant){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=readCharacterSheet(ch);return InventoryLedgerEngine.totals(sheet.optJSONArray("inventory_ledger"),ch.optInt("str",10),variant);}
+    public void updateCharacterInventoryLedger(long id,JSONArray ledger){JSONObject ch=getCharacter(id);if(ch.length()==0)return;JSONObject sheet=readCharacterSheet(ch);try{sheet.put("inventory_ledger",ledger==null?new JSONArray():new JSONArray(ledger.toString()));sheet.put("inventory_load",InventoryLedgerEngine.totals(ledger,ch.optInt("str",10),false));}catch(Exception ignored){}updateCharacterSheet(id,sheet.toString());}
+    public JSONObject addCharacterXp(final long id,final int delta){return characterAtomic("character_xp_award",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+        JSONObject character=getCharacter(id);
+        if(character.length()==0)return new JSONObject().put("xp_award_blocked","character_missing");
+        if(delta<0)return new JSONObject().put("xp_award_blocked","negative_award");
+        JSONObject sheet=DndProgressionEngine.awardXp(readCharacterSheet(character),delta);
+        if(sheet==null)return new JSONObject().put("xp_award_blocked","invalid_character_sheet");
+        sheet.put("progression",DndProgressionEngine.state(sheet,character.optInt("level",1)));
+        persistCharacterSheetChecked(id,sheet);
+        return sheet.put("xp_awarded",delta).put("character_id",id);
+    }});}
+    public JSONObject applyCharacterMilestoneLevelFixedHp(long id,int targetLevel){
+        JSONObject result=new JSONObject();
+        try{
+            int target=Math.max(1,Math.min(20,targetLevel));
+            JSONObject ch=getCharacter(id);
+            if(ch.length()==0)return result.put("milestone_level_blocked","character_missing");
+            int current=Math.max(1,ch.optInt("level",1));
+            if(target<=current)return readCharacterSheet(ch).put("milestone_level_applied",false).put("level",current);
+            int totalGain=0;
+            DndRulesEngine rules=new DndRulesEngine();
+            while(current<target){
+                ch=getCharacter(id);
+                JSONObject sheet=ensureCharacterResourceState(id);
+                int gain=Math.max(1,rules.classHitDie(ch.optString("class_name"))/2+1+rules.modifier(ch.optInt("con",10)));
+                int next=current+1;
+                int max=Math.max(1,ch.optInt("max_hp",1))+gain;
+                int hp=Math.min(max,Math.max(0,ch.optInt("hp",0))+gain);
+                String profile=ch.optString("rules_source",sheet.optString("rules_source",dbRulesProfileFallback()));
+                sheet.put("level",next).put("max_hp",max).put("hp",hp)
+                    .put("proficiency_bonus",(rules.proficiencyBonus(next)>=0?"+":"")+rules.proficiencyBonus(next))
+                    .put("hit_dice",next+"d"+rules.classHitDie(ch.optString("class_name")))
+                    .put("level_up_choices_pending",true)
+                    .put("level_up_hp_method","fixed_average")
+                    .put("progression_mode","official_milestone")
+                    .put("official_milestone_level",target);
+                sheet=CharacterResourceStateEngine.ensure(sheet,ch.optString("class_name"),next,profile);
+                sheet.put("progression",DndProgressionEngine.state(sheet,next));
+                ContentValues v=new ContentValues();
+                v.put("level",next);v.put("max_hp",max);v.put("hp",hp);v.put("sheet_json",sheet.toString());v.put("updated_at",System.currentTimeMillis());
+                getWritableDatabase().update("characters",v,"id=?",new String[]{String.valueOf(id)});
+                syncPlayerCombatantHp(ch.optString("name"),hp);
+                totalGain+=gain;current=next;
+            }
+            result=readCharacterSheet(getCharacter(id));
+            result.put("milestone_level_applied",true).put("milestone_target",target).put("hp_gain_total",totalGain);
+        }catch(Exception e){
+            AppLog.e("AppDb","Falha ao aplicar nível de marco oficial.",e);
+            try{result.put("milestone_level_error",String.valueOf(e.getMessage()));}catch(Exception ignored){}
+        }
+        return result;
+    }
+
+    public JSONObject applyCharacterLevelUpFixedHp(long id){return applyCharacterLevelUpFixedHp(id,"");}
+    public JSONObject applyCharacterLevelUpFixedHp(final long id,final String selectedClass){
+        return characterAtomic("character_level_up",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject character=getCharacter(id);
+            if(character.length()==0)return new JSONObject().put("level_up_blocked","character_missing");
+            JSONObject stored=ensureCharacterResourceState(id);
+            int current=Math.max(1,character.optInt("level",1));
+            JSONObject candidate=new JSONObject(stored.toString())
+                .put("name",character.optString("name"))
+                .put("class_name",character.optString("class_name",stored.optString("class_name")))
+                .put("level",current).put("hp",character.optInt("hp",stored.optInt("hp",1)))
+                .put("max_hp",character.optInt("max_hp",stored.optInt("max_hp",1)))
+                .put("con",character.optInt("con",stored.optInt("con",10)))
+                .put("str",character.optInt("str",stored.optInt("str",10)))
+                .put("dex",character.optInt("dex",stored.optInt("dex",10)))
+                .put("wis",character.optInt("wis",stored.optInt("wis",10)))
+                .put("cha",character.optInt("cha",stored.optInt("cha",10)))
+                .put("int_score",character.optInt("int_score",stored.optInt("int_score",10)));
+            DndRulesEngine rules=new DndRulesEngine();
+            String choice=selectedClass==null?"":selectedClass.trim();
+            String hitDieClass=choice.isEmpty()?character.optString("class_name",stored.optString("class_name")):choice;
+            boolean allowMulticlass=getCampaign().optInt("multiclass",1)==1;
+            JSONObject transition=CharacterLevelUpTransitionEngine.apply(candidate,choice,
+                rules.classHitDie(hitDieClass),rules.modifier(candidate.optInt("con",10)),true,allowMulticlass);
+            if(!transition.optBoolean("accepted",false))return transition;
+            JSONObject next=transition.optJSONObject("state_after");
+            if(next==null)throw new IllegalStateException("level_up_transition_missing_state");
+            int nextLevel=next.optInt("level",current+1);
+            String profile=character.optString("rules_source",stored.optString("rules_source",dbRulesProfileFallback()));
+            next.put("proficiency_bonus",(rules.proficiencyBonus(nextLevel)>=0?"+":"")+rules.proficiencyBonus(nextLevel));
+            next=CharacterResourceStateEngine.ensure(next,character.optString("class_name"),nextLevel,profile);
+            if(next.has("multiclass_slot_validation_error"))
+                throw new IllegalStateException("level_up_slot_ledger_invalid:"+
+                    next.optString("multiclass_slot_validation_error"));
+            if(rules.is2024(profile)){
+                JSONObject nextIdentity=new JSONObject(character.toString()).put("level",nextLevel);
+                java.util.List<Core2024PreparedSpellLedger.ClassEntry> nextClasses=Core2024PreparedSpellLedger.classes(nextIdentity,next);
+                if(!nextClasses.isEmpty())Core2024PreparedSpellLedger.openEvent(next,nextClasses,"level_up","level_"+nextLevel);
+                else next.put("core2024_preparation_level_up_requires_class_choice",true);
+            }
+            next.put("progression",DndProgressionEngine.state(next,nextLevel));
+            ContentValues values=new ContentValues();values.put("level",nextLevel);values.put("max_hp",next.optInt("max_hp"));
+            values.put("hp",next.optInt("hp"));values.put("sheet_json",next.toString());values.put("updated_at",System.currentTimeMillis());
+            int written=getWritableDatabase().update("characters",values,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});
+            if(written!=1)throw new IllegalStateException("character_level_up_write_count_"+written);
+            syncPlayerCombatantHp(character.optString("name"),next.optInt("hp"));
+            return next.put("level_up_applied",true).put("hp_gain",transition.optInt("hp_gain"))
+                .put("level_up_class",transition.optString("class"));
+        }});
+    }
+
+    public void setCharacterEquipmentAndNotes(long id,String equipment,String notes){
+        String safeEquipment=equipment==null?"":equipment;String safeNotes=notes==null?"":notes;JSONObject ch=getCharacter(id);
+        ContentValues v=new ContentValues();v.put("equipment",safeEquipment);v.put("notes",safeNotes);v.put("updated_at",System.currentTimeMillis());
+        JSONObject sheet=readCharacterSheet(ch);try{
+            sheet.put("inventory",safeEquipment);sheet.put("equipment",safeEquipment);sheet.put("campaign_notes",safeNotes);
+            String master=extractMasterNotesForSheet(safeNotes);if(!master.isEmpty()){String extra=sheet.optString("extra_notes").trim();if(!extra.contains(master))sheet.put("extra_notes",extra+(extra.isEmpty()?"":"\n")+master);}
+            v.put("sheet_json",sheet.toString());
+        }catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        getWritableDatabase().update("characters",v,"id=?",new String[]{String.valueOf(id)});
+    }
+    private JSONObject readCharacterSheet(JSONObject ch){
+        try{String raw=ch==null?"":ch.optString("sheet_json","").trim();if(raw.startsWith("{"))return new JSONObject(raw);}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}
+        return new JSONObject();
+    }
+    private String extractMasterNotesForSheet(String notes){
+        if(notes==null||notes.trim().isEmpty())return "";StringBuilder b=new StringBuilder();
+        for(String line:notes.split("\n"))if(line.trim().startsWith("[Mestre]")){if(b.length()>0)b.append('\n');b.append(line.trim());}
+        return b.toString();
+    }
+    private void syncPlayerCombatantHp(String characterName,int hp){if(characterName==null||characterName.length()==0)return;ContentValues v=new ContentValues();v.put("hp",hp);getWritableDatabase().update("combatants",v,"world_profile=? AND is_player=1 AND lower(name)=lower(?)",new String[]{getActiveMapProfile(),characterName});}
+    public void deleteCharacter(long id) { getWritableDatabase().delete("characters", "id=?", new String[]{String.valueOf(id)}); }
+    public void setCharacterActive(long id, boolean active) { ContentValues v=new ContentValues(); v.put("active",active?1:0); v.put("updated_at",System.currentTimeMillis()); getWritableDatabase().update("characters",v,"id=?",new String[]{String.valueOf(id)}); }
+    public void adjustCharacterHp(long id, int delta) {
+        JSONObject ch=getCharacter(id);int max=Math.max(1,ch.optInt("max_hp",1));int hp=Math.max(0,Math.min(max,ch.optInt("hp",0)+delta));setCharacterHp(id,hp);
+    }
+
+    public long addJournal(String title,String body,String kind){return addJournalFact(title,body,kind,"","system");}
+    public long addJournalFact(String title,String body,String kind,String eventKey,String sourceKind){
+        ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("title",title==null?"":title);v.put("body",body==null?"":body);v.put("kind",kind==null?"":kind);v.put("canonical_fact",1);v.put("event_key",eventKey==null?"":eventKey.trim());v.put("source_kind",sourceKind==null?"system":sourceKind);v.put("created_at",System.currentTimeMillis());
+        if(eventKey!=null&&!eventKey.trim().isEmpty())return getWritableDatabase().insertWithOnConflict("journal",null,v,SQLiteDatabase.CONFLICT_IGNORE);
+        return getWritableDatabase().insert("journal",null,v);
+    }
+    public List<JSONObject> listJournal() { return queryList("SELECT * FROM journal WHERE world_profile=? ORDER BY created_at DESC",new String[]{getActiveMapProfile()}); }
+    public void deleteJournal(long id) { getWritableDatabase().delete("journal","id=?",new String[]{String.valueOf(id)}); }
+
+    public long addCombatant(String name,int initiative,int hp,int maxHp,int ac,String conditions,boolean player) {
+        JSONObject visual=resolveCombatantVisualIdentity(name,player,"",0,"");
+        return addCombatantWithVisual(name,initiative,hp,maxHp,ac,conditions,player,visual.optString("source_kind"),visual.optLong("source_id"),visual.optString("token_uri"));
+    }
+    public long addCombatantWithVisual(String name,int initiative,int hp,int maxHp,int ac,String conditions,boolean player,String sourceKind,long sourceId,String tokenUri) {
+        JSONObject visual=resolveCombatantVisualIdentity(name,player,sourceKind,sourceId,tokenUri);
+        ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("name",name);v.put("initiative",initiative);v.put("hp",hp);v.put("max_hp",maxHp);v.put("ac",ac);v.put("conditions",conditions);v.put("source_kind",visual.optString("source_kind"));v.put("source_id",visual.optLong("source_id"));v.put("token_uri",visual.optString("token_uri"));v.put("is_player",player?1:0);v.put("created_at",System.currentTimeMillis());
+        long id=getWritableDatabase().insert("combatants",null,v); sortCombat(); return id;
+    }
+    /** Adds a combatant bound to an installed mechanical statblock in one commit. */
+    public JSONObject addCompiledStatblockCombatant(final String statblockId,final String displayName,
+        final int initiative,final String operationToken){
+        return combatAtomic("compiled_statblock_spawn",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject();
+            if(operationToken==null||!operationToken.startsWith("ui-monster-spawn-")||!CombatActionReceiptGuard.validToken(operationToken))
+                return out.put("statblock_spawn_blocked","invalid_operation_token");
+            String receipt="statblock-spawn:"+operationToken;
+            if(hasEffectReceipt(receipt))return out.put("statblock_spawn_blocked","already_resolved_or_replayed");
+            if("mystara".equals(getActiveMapProfile())||initiative< -20||initiative>100)
+                return out.put("statblock_spawn_blocked","invalid_world_or_initiative");
+            String id=statblockId==null?"":statblockId.trim();
+            JSONObject profile=CompiledStatblockEngine.runtimeProfile(id);
+            if(!profile.optBoolean("found",false))return out.put("statblock_spawn_blocked","statblock_not_compiled");
+            JSONObject raw=CompiledStatblockEngine.get(id),movement=profile.optJSONObject("movement");
+            String name=displayName==null?"":displayName.trim();if(name.isEmpty())name=id;
+            if(name.length()>100)return out.put("statblock_spawn_blocked","name_too_long");
+            int hp=profile.optInt("hit_points",0),ac=profile.optInt("armor_class",0);
+            if(hp<=0||ac<=0)return out.put("statblock_spawn_blocked","invalid_statblock_vitals");
+            boolean started=getCombatState().optInt("running",0)!=1;
+            long combatantId=addCombatantWithVisual(name,initiative,hp,hp,ac,"",false,"statblock",0,"");
+            if(combatantId<=0)throw new IllegalStateException("compiled_statblock_spawn_rollback");
+            JSONObject resources=new JSONObject().put("block_id",id).put("statblock_revision",raw.optInt("revision",1))
+                .put("statblock_source",raw.optString("source_book","")).put("speed_ft",movement==null?30:movement.optInt("walk_ft",30))
+                .put("condition_immunities",profile.optString("condition_immunities",""));
+            updateCombatantAdvancedChecked(combatantId,0,"",false,0,0,"","[]",
+                profile.optString("resistances",""),profile.optString("vulnerabilities",""),profile.optString("immunities",""),resources.toString());
+            if(started){setCombatRunningChecked(true);JSONObject turn=nextTurn();if(turn.length()==0||turn.has("operation_error")||turn.has("turn_advance_blocked"))throw new IllegalStateException("compiled_statblock_initial_turn_rollback");}
+            recordEffectReceipt(receipt,id);
+            return out.put("statblock_spawn_committed",true).put("combatant_id",combatantId)
+                .put("statblock_id",id).put("encounter_started",started).put("receipt",receipt);
+        }});
+    }
+    private void sortCombat() {
+        List<JSONObject> rows=queryList("SELECT * FROM combatants WHERE world_profile=? ORDER BY initiative DESC, sort_order ASC, created_at ASC, id ASC",new String[]{getActiveMapProfile()}); SQLiteDatabase db=getWritableDatabase();
+        HashMap<Integer,Integer> counts=new HashMap<Integer,Integer>();for(JSONObject r:rows){int init=r.optInt("initiative");counts.put(init,counts.containsKey(init)?counts.get(init)+1:1);}
+        boolean ownsTransaction=!db.inTransaction();if(ownsTransaction)db.beginTransaction();
+        try { for(int i=0;i<rows.size();i++){JSONObject row=rows.get(i);ContentValues v=new ContentValues();v.put("sort_order",i);try{JSONObject resources=combatResources(row);boolean tied=counts.get(row.optInt("initiative"))>1;if(tied&&!resources.has("initiative_tie_resolved"))resources.put("initiative_tie_resolved",false);resources.put("initiative_tie",tied);if(!tied)resources.remove("initiative_tie_resolved");v.put("resources_json",resources.toString());}catch(Exception ignored){}db.update("combatants",v,"id=?",new String[]{String.valueOf(row.optLong("id"))});} if(ownsTransaction)db.setTransactionSuccessful(); } finally { if(ownsTransaction)db.endTransaction(); }
+    }
+    public void moveCombatantInInitiativeTie(long id,int direction){JSONObject c=getCombatant(id);if(c.length()==0||direction==0)return;List<JSONObject> group=queryList("SELECT * FROM combatants WHERE world_profile=? AND initiative=? ORDER BY sort_order ASC,created_at ASC,id ASC",new String[]{getActiveMapProfile(),String.valueOf(c.optInt("initiative"))});int index=-1;for(int i=0;i<group.size();i++)if(group.get(i).optLong("id")==id){index=i;break;}int other=index+(direction<0?-1:1);if(index<0||other<0||other>=group.size())return;JSONObject a=group.get(index),b=group.get(other);ContentValues va=new ContentValues(),vb=new ContentValues();va.put("sort_order",b.optInt("sort_order"));vb.put("sort_order",a.optInt("sort_order"));getWritableDatabase().update("combatants",va,"id=?",new String[]{String.valueOf(a.optLong("id"))});getWritableDatabase().update("combatants",vb,"id=?",new String[]{String.valueOf(b.optLong("id"))});for(JSONObject row:group){JSONObject r=combatResources(row);try{r.put("initiative_tie",true).put("initiative_tie_resolved",true);}catch(Exception ignored){}ContentValues vr=new ContentValues();vr.put("resources_json",r.toString());getWritableDatabase().update("combatants",vr,"id=?",new String[]{String.valueOf(row.optLong("id"))});}}
+
+    public List<JSONObject> listCombatants(){List<JSONObject> rows=queryList("SELECT * FROM combatants WHERE world_profile=? ORDER BY sort_order, initiative DESC",new String[]{getActiveMapProfile()});DndRulesEngine rules=new DndRulesEngine();for(JSONObject c:rows)try{JSONObject r=combatResources(c);String cover=r.optString("cover","");c.put("cover",cover).put("effective_ac",c.optInt("ac",10)+rules.coverAcBonus(cover)).put("total_cover",rules.hasTotalCover(cover));if(c.optInt("is_player",0)==1){JSONObject ch=findCharacterByName(c.optString("name"));c.put("effective_dex_save_bonus",rules.savingThrowBonus(ch,"Dexterity")+rules.coverDexSaveBonus(cover));}}catch(Exception ignored){}return rows;}
+    public JSONObject findCombatantByName(String name){if(name==null||name.trim().length()==0)return new JSONObject();JSONObject exact=queryOne("SELECT * FROM combatants WHERE world_profile=? AND lower(name)=lower(?) LIMIT 1",new String[]{getActiveMapProfile(),name.trim()});if(exact.length()>0)return exact;return queryOne("SELECT * FROM combatants WHERE world_profile=? AND (lower(name) LIKE lower(?) OR lower(?) LIKE '%'||lower(name)||'%') ORDER BY length(name) DESC LIMIT 1",new String[]{getActiveMapProfile(),"%"+name.trim()+"%",name.trim()});}
+    public JSONObject getCombatant(long id){if(id<=0)return new JSONObject();return queryOne("SELECT * FROM combatants WHERE id=? AND world_profile=? LIMIT 1",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    public int effectiveCombatantAc(long id){JSONObject c=getCombatant(id);if(c.length()==0)return 10;JSONObject r=combatResources(c);return c.optInt("ac",10)+new DndRulesEngine().coverAcBonus(r.optString("cover",""));}
+    public boolean combatantHasTotalCover(long id){JSONObject c=getCombatant(id);return c.length()>0&&new DndRulesEngine().hasTotalCover(combatResources(c).optString("cover",""));}
+    private boolean combatantConditionImmune(JSONObject combatant,String condition){
+        if(combatant==null||combatant.length()==0)return false;
+        String immune=combatant.optString("immunities","")+","+combatResources(combatant).optString("condition_immunities","");
+        if(combatant.optInt("is_player",0)==1){JSONObject hero=findCharacterByName(combatant.optString("name"));
+            immune+=","+readCharacterSheet(hero).optString("condition_immunities","");}
+        return ConditionTokenGuard.has(immune,condition);
+    }
+    // RUN234: compiled action duration is a strict, integer, source-bound field.
+    // Existing source actions without explicit timing preserve their RUN233 behavior.
+    private JSONObject compiledMonsterRiderAction(String blockId,String actionName) {
+        JSONArray sourceActions=CompiledStatblockEngine.runtimeProfile(blockId).optJSONArray("actions");
+        if(sourceActions!=null)for(int i=0;i<sourceActions.length();i++){
+            JSONObject entry=sourceActions.optJSONObject(i);
+            if(entry!=null&&actionName!=null&&actionName.trim().equalsIgnoreCase(entry.optString("name","")))
+                return entry;
+        }
+        throw new IllegalStateException("compiled_rider_action_not_found_rollback");
+    }
+    private int compiledMonsterRiderDuration(String blockId,String actionName) {
+        return MonsterConditionTimerLedger.compiledDuration(compiledMonsterRiderAction(blockId,actionName));
+    }
+    /** Called only INSIDE combatAtomic, after the action's physical/save proof. */
+    private JSONObject commitCompiledMonsterConditionRider(long sourceActorId,long targetId,
+        String blockId,String actionName,String receiptToken,String declared) throws Exception {
+        JSONObject target=getCombatant(targetId);
+        if(target.length()==0)throw new IllegalStateException("rider_target_missing_rollback");
+        MonsterConditionRiderPlan.Result plan=MonsterConditionRiderPlan.plan(
+            declared,target.optString("conditions",""),
+            new MonsterConditionRiderPlan.Immunity(){public boolean immune(String condition){
+                return combatantConditionImmune(target,condition);
+            }});
+        if(!plan.valid())throw new IllegalStateException("unsupported_secondary_rider_rollback:"+plan.blocked);
+        JSONObject sourceAction=compiledMonsterRiderAction(blockId,actionName);
+        int duration=MonsterConditionTimerLedger.compiledDuration(sourceAction);
+        MonsterConditionRecoveryLedger.Spec recovery=MonsterConditionRecoveryLedger.compiled(sourceAction);
+        String beforeTimers=target.optString("condition_timers_json","[]");
+        JSONArray timers=MonsterConditionTimerLedger.stage(beforeTimers,plan,duration,
+            sourceActorId,blockId,actionName,receiptToken,
+            sourceAction.optString("condition_duration_tick","target_turn_start"));
+        timers=MonsterConditionRecoveryLedger.stage(timers,plan,recovery,
+            sourceActorId,blockId,actionName,receiptToken);
+        if(!plan.after.equals(plan.before))updateConditionsChecked(targetId,plan.after);
+        if(!timers.toString().equals(new JSONArray(beforeTimers).toString())){
+            ContentValues timerWrite=new ContentValues();timerWrite.put("condition_timers_json",timers.toString());
+            requireCombatantWrite(getWritableDatabase().update("combatants",timerWrite,
+                "id=? AND world_profile=?",new String[]{String.valueOf(targetId),getActiveMapProfile()}));
+            JSONObject saved=getCombatant(targetId);
+            if(!timers.toString().equals(new JSONArray(saved.optString("condition_timers_json","[]")).toString()))
+                throw new IllegalStateException("compiled_timed_condition_persist_rollback");
+        }
+        JSONArray applied=new JSONArray(),immune=new JSONArray(),already=new JSONArray();
+        for(String c:plan.applied)applied.put(c);
+        for(String c:plan.immune)immune.put(c);
+        for(String c:plan.alreadyPresent)already.put(c);
+        return new JSONObject().put("schema","monster_condition_rider_v2")
+            .put("target_id",targetId).put("conditions_before",plan.before)
+            .put("conditions_after",plan.after).put("applied",applied)
+            .put("immune",immune).put("already_present",already)
+            .put("duration_rounds",duration)
+            .put("recovery_save_dc",recovery==null?0:recovery.dc)
+            .put("recovery_save_ability",recovery==null?"":recovery.ability)
+            .put("condition_timers_before",new JSONArray(beforeTimers))
+            .put("condition_timers_after",timers);
+    }
+    /** Commit a source-declared no-save on-hit condition. An immune target is
+     * receipted as immune without a timer. If the condition is already present,
+     * its timer owner cannot safely be refreshed, so preflight blocks the attack. */
+    private JSONObject commitCompiledMonsterOnHitCondition(long sourceActorId,long targetId,
+        String blockId,String actionName,String receiptToken,String declared)throws Exception {
+        JSONObject target=getCombatant(targetId);
+        if(target.length()==0)throw new IllegalStateException("rider_target_missing_rollback");
+        MonsterConditionRiderPlan.Result plan=MonsterConditionRiderPlan.plan(
+            declared,target.optString("conditions",""),
+            new MonsterConditionRiderPlan.Immunity(){public boolean immune(String condition){
+                return combatantConditionImmune(target,condition);
+            }});
+        if(!plan.valid())throw new IllegalStateException("unsupported_on_hit_rider_rollback:"+plan.blocked);
+        JSONObject declaredAction=compiledMonsterRiderAction(blockId,actionName);
+        boolean standsUp=MonsterOnHitProneRules.validSource(declaredAction);
+        if(standsUp){
+            String size=verifiedCombatantSizeCategory(target);
+            if(!MonsterOnHitProneRules.targetBlock(declaredAction,size).isEmpty())
+                throw new IllegalStateException("on_hit_target_size_unknown_rollback");
+            if(!MonsterOnHitProneRules.eligible(declaredAction,size)){
+                return new JSONObject().put("schema","monster_condition_rider_v2")
+                    .put("target_id",targetId).put("size_ineligible",true)
+                    .put("conditions_before",plan.before).put("conditions_after",plan.before)
+                    .put("applied",new JSONArray()).put("duration_rounds",0);
+            }
+        }
+        if(!plan.alreadyPresent.isEmpty()&&!standsUp)
+            throw new IllegalStateException("on_hit_condition_ownership_ambiguous_rollback");
+        if(!plan.applied.isEmpty())
+            return commitCompiledMonsterConditionRider(sourceActorId,targetId,blockId,
+                actionName,receiptToken,declared);
+        String timers=target.optString("condition_timers_json","[]");
+        JSONArray applied=new JSONArray(),immune=new JSONArray(),already=new JSONArray();
+        for(String c:plan.applied)applied.put(c);
+        for(String c:plan.immune)immune.put(c);
+        for(String c:plan.alreadyPresent)already.put(c);
+        return new JSONObject().put("schema","monster_condition_rider_v2")
+            .put("target_id",targetId).put("conditions_before",plan.before)
+            .put("conditions_after",plan.after).put("applied",applied)
+            .put("immune",immune).put("already_present",already)
+            .put("duration_rounds",MonsterConditionTimerLedger.compiledDuration(
+                compiledMonsterRiderAction(blockId,actionName)))
+            .put("condition_timers_before",new JSONArray(timers))
+            .put("condition_timers_after",new JSONArray(timers));
+    }
+    /** Preflight ownership before spending an action or applying damage. This
+     * guarantees an unrefreshable existing condition cannot make the attack
+     * appear successful while its on-hit duration is left unchanged. */
+    /** Fail closed if creature size is unknown. No default "Medium" may be invented.
+     * Never use the attacker's or target's UI token graphic as mechanical size. */
+    private String verifiedCombatantSizeCategory(JSONObject target){
+        JSONObject resources=combatResources(target);
+        String verified=resources.optString("size_category","");
+        if(MonsterOnHitProneRules.validSize(verified))return verified;
+        if(target.optInt("is_player",0)==1){
+            JSONObject character=findCharacterByName(target.optString("name",""));
+            JSONObject sheet=readCharacterSheet(character);
+            verified=sheet.optString("size_category",sheet.optString("size",""));
+            if(MonsterOnHitProneRules.validSize(verified))return verified;
+        }else{
+            String blockId=resources.optString("block_id","");
+            if(!blockId.isEmpty()){
+                JSONObject profile=CompiledStatblockEngine.get(blockId);
+                verified=profile.optString("size_category",profile.optString("size",""));
+                if(MonsterOnHitProneRules.validSize(verified))return verified;
+            }
+        }
+        return "";
+    }
+    private String compiledMonsterOnHitConditionBlock(long sourceActorId,long targetId,
+        String blockId,String actionName,String receiptToken,String declared)throws Exception {
+        JSONObject target=getCombatant(targetId);
+        if(target.length()==0)return "rider_target_missing";
+        MonsterConditionRiderPlan.Result plan=MonsterConditionRiderPlan.plan(
+            declared,target.optString("conditions",""),
+            new MonsterConditionRiderPlan.Immunity(){public boolean immune(String condition){
+                return combatantConditionImmune(target,condition);
+            }});
+        if(!plan.valid())return "unsupported_on_hit_rider:"+plan.blocked;
+        JSONObject sourceAction=compiledMonsterRiderAction(blockId,actionName);
+        if(sourceAction.has("condition_ends_when")){
+            String targetSize=verifiedCombatantSizeCategory(target);
+            String proneBlock=MonsterOnHitProneRules.targetBlock(sourceAction,targetSize);
+            if(!proneBlock.isEmpty())return proneBlock;
+        }
+        boolean standsUp=MonsterOnHitProneRules.validSource(sourceAction);
+        if(!plan.alreadyPresent.isEmpty()&&!standsUp)return "on_hit_condition_ownership_ambiguous";
+        if(standsUp&&!MonsterOnHitProneRules.eligible(sourceAction,
+            verifiedCombatantSizeCategory(target)))return ""; // attack hits; no prone for larger targets
+        if(plan.applied.isEmpty()||!plan.alreadyPresent.isEmpty())return "";
+        try{
+            MonsterConditionTimerLedger.stage(target.optString("condition_timers_json","[]"),
+                plan,MonsterConditionTimerLedger.compiledDuration(sourceAction),sourceActorId,
+                blockId,actionName,receiptToken,
+                sourceAction.optString("condition_duration_tick","target_turn_start"));
+            return "";
+        }catch(IllegalArgumentException invalid){
+            if("condition_timer_ownership_conflict".equals(invalid.getMessage()))
+                return "on_hit_condition_ownership_ambiguous";
+            return "on_hit_condition_timer_authority_unavailable";
+        }
+    }
+    // RUN230 G05: typed, directed, world-scoped hostility ledger persisted in
+    // combatants.resources_json. No new table or migration is required; existing
+    // backups already serialize combatant resources. No automatic faction inference.
+    private long[] compiledMonsterHostilityIds(long actorId,JSONObject resources) {
+        return MonsterHostilityLedgerCodec.read(actorId,getActiveMapProfile(),resources);
+    }
+    public JSONObject getCompiledMonsterHostilityLedger(long actorId){
+        JSONObject out=new JSONObject();
+        try{
+            JSONObject actor=getCombatant(actorId);
+            if(actor.length()==0||actor.optInt("is_player",0)==1)
+                return out.put("hostility_ledger_blocked","invalid_monster_actor");
+            JSONObject resources=combatResources(actor);
+            long[] ids=compiledMonsterHostilityIds(actorId,resources);
+            JSONArray result=new JSONArray();for(long id:ids)result.put(id);
+            JSONObject ledger=resources.optJSONObject("combat_hostility_v1");
+            return out.put("hostility_ledger_valid",true)
+                .put("configured",ledger!=null)
+                .put("revision",ledger==null?0:ledger.optInt("revision",0))
+                .put("hostile_ids",result).put("actor_id",actorId);
+        }catch(Exception invalid){try{return out.put("hostility_ledger_blocked","malformed_hostility_ledger");}
+            catch(Exception ignored){return out;}}
+    }
+    /** Replace the entire declaration in one SQLite transaction. A declaration
+     * does not spend a combat action, and does not assert mutual hostility. */
+    public JSONObject replaceCompiledMonsterHostilityLedger(final long actorId,
+        final JSONArray declared,final String token){
+        return combatAtomic("compiled_monster_hostility_ledger",new CombatAtomicWork(){
+            public JSONObject run()throws Exception{
+                JSONObject out=new JSONObject(),actor=getCombatant(actorId);
+                if(token==null||!token.startsWith("ui-hostility-")||
+                    !CombatActionReceiptGuard.validToken(token))
+                    return out.put("hostility_ledger_blocked","invalid_operation_token");
+                String receiptKey=combatReceiptKey(actorId,token+"-ledger");
+                if(hasEffectReceipt(receiptKey))
+                    return out.put("hostility_ledger_blocked","already_resolved_or_replayed");
+                if(actor.length()==0||actor.optInt("is_player",0)==1)
+                    return out.put("hostility_ledger_blocked","invalid_monster_actor");
+                if(declared==null||declared.length()>MonsterHostilityLedgerRules.MAX_HOSTILES)
+                    return out.put("hostility_ledger_blocked","invalid_hostility_list");
+                long[] sorted;
+                try{sorted=MonsterHostilityLedgerCodec.decodeIds(actorId,declared);}
+                catch(IllegalArgumentException invalid){
+                    return out.put("hostility_ledger_blocked",invalid.getMessage());
+                }
+                for(long otherId:sorted){
+                    if(getCombatant(otherId).length()==0)
+                        return out.put("hostility_ledger_blocked","missing_hostile_combatant");
+                }
+                JSONObject resources=combatResources(actor);
+                long[] previous;
+                try{previous=compiledMonsterHostilityIds(actorId,resources);}
+                catch(IllegalArgumentException invalid){return out.put("hostility_ledger_blocked","malformed_previous_hostility_ledger");}
+                JSONObject old=resources.optJSONObject("combat_hostility_v1");
+                int revision=old==null?1:old.optInt("revision",0)+1;
+                if(revision<1||revision==Integer.MAX_VALUE)
+                    return out.put("hostility_ledger_blocked","hostility_revision_exhausted");
+                JSONObject ledger=MonsterHostilityLedgerCodec.build(actorId,
+                    getActiveMapProfile(),revision,sorted);
+                JSONArray canonicalIds=ledger.optJSONArray("hostile_ids");
+                resources.put("combat_hostility_v1",ledger);
+                ContentValues values=new ContentValues();values.put("resources_json",resources.toString());
+                requireCombatantWrite(getWritableDatabase().update("combatants",values,
+                    "id=? AND world_profile=?",new String[]{String.valueOf(actorId),getActiveMapProfile()}));
+                JSONObject proof=new JSONObject().put("schema","monster_hostility_change_v1")
+                    .put("actor_id",actorId).put("world_profile",getActiveMapProfile())
+                    .put("revision",revision).put("previous_count",previous.length)
+                    .put("hostile_ids",canonicalIds);
+                recordEffectReceipt(receiptKey,proof.toString());
+                return out.put("hostility_ledger_committed",true).put("receipt",receiptKey)
+                    .put("revision",revision).put("hostile_ids",canonicalIds);
+            }
+        });
+    }
+
+    public void setCombatantCover(long id,String cover){JSONObject c=getCombatant(id);if(c.length()==0)return;JSONObject r=combatResources(c);try{r.put("cover",cover==null?"":cover.trim());}catch(Exception ignored){}ContentValues v=new ContentValues();v.put("resources_json",r.toString());getWritableDatabase().update("combatants",v,"id=?",new String[]{String.valueOf(id)});}
+    public void setCombatRunning(boolean running){ContentValues v=new ContentValues();v.put("running",running?1:0);v.put("updated_at",System.currentTimeMillis());if(running){v.put("round_no",1);v.put("turn_index",-1);v.put("state",CombatStateMachine.PREPARING);v.put("encounter_id","enc-"+java.util.UUID.randomUUID().toString());}else{v.put("turn_index",0);v.put("state",CombatStateMachine.IDLE);v.put("pending_roll_json","{}");v.put("encounter_id","");ContentValues clear=new ContentValues();clear.put("active_turn",0);getWritableDatabase().update("combatants",clear,"world_profile=?",new String[]{getActiveMapProfile()});}getWritableDatabase().update("combat_state_profiles",v,"world_profile=?",new String[]{getActiveMapProfile()});}
+    public synchronized boolean transitionCombatState(String next,JSONObject pendingRoll){
+        JSONObject current=getCombatState();String from=CombatStateMachine.normalize(current.optString("state"),current.optInt("running",0)==1);String to=CombatStateMachine.normalize(next,current.optInt("running",0)==1);if(!CombatStateMachine.canTransition(from,to))return false;ContentValues v=new ContentValues();v.put("state",to);v.put("pending_roll_json",pendingRoll==null?"{}":pendingRoll.toString());v.put("running",CombatStateMachine.IDLE.equals(to)||CombatStateMachine.ENCOUNTER_END.equals(to)?0:1);v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("combat_state_profiles",v,"world_profile=?",new String[]{getActiveMapProfile()});return true;
+    }
+    public void deleteCombatant(long id){getWritableDatabase().delete("combatants","id=?",new String[]{String.valueOf(id)}); sortCombat();}
+    public void adjustCombatantHp(long id,int delta){if(delta<0)applyCombatantDamage(id,-delta,"",false);else if(delta>0)healCombatant(id,delta);}
+    private JSONObject combatResources(JSONObject c){try{return new JSONObject(c==null?"{}":c.optString("resources_json","{}"));}catch(Exception ignored){return new JSONObject();}}
+    private String combatRulesProfile(JSONObject c){if(c!=null&&c.optInt("is_player",0)==1){JSONObject ch=findCharacterByName(c.optString("name"));if(ch.length()>0)return DndRulesEngine.canonicalProfile(ch.optString("rules_source",DndRulesEngine.PROFILE_2014));}return DndRulesEngine.PROFILE_2024;}
+    private int combatBaseSpeed(JSONObject c){if(c!=null&&c.optInt("is_player",0)==1){JSONObject ch=findCharacterByName(c.optString("name"));JSONObject sheet=readCharacterSheet(ch);int v=sheet.optInt("speed_ft",sheet.optInt("speed",30));return Math.max(0,v);}JSONObject r=combatResources(c);return Math.max(0,r.optInt("speed_ft",30));}
+    private void syncCombatantHeroState(JSONObject c,int hp,int temp,String conditions,JSONObject resources){if(c==null||c.optInt("is_player",0)!=1)return;JSONObject ch=findCharacterByName(c.optString("name"));if(ch.length()==0)return;ContentValues v=new ContentValues();v.put("hp",Math.max(0,Math.min(ch.optInt("max_hp",1),hp)));JSONObject sheet=readCharacterSheet(ch);try{sheet.put("hp",Math.max(0,hp)).put("max_hp",Math.max(1,ch.optInt("max_hp",1))).put("temp_hp",Math.max(0,temp)).put("conditions",conditions==null?"":conditions).put("combat_resources",resources==null?new JSONObject():new JSONObject(resources.toString()));
+        // RUN196_CONCENTRATION_BREAK_SYNC: ao perder concentração, limpar o efeito antigo da ficha.
+        JSONObject updatedCombatant=getCombatant(c.optLong("id",0));String beforeConcentration=c.optString("concentration","");String currentConcentration=updatedCombatant.optString("concentration",beforeConcentration);
+        if(!beforeConcentration.equals(currentConcentration)){
+            sheet.put("concentration_spell",currentConcentration);
+            if(currentConcentration.isEmpty())sheet.remove("run149_active_concentration");
+            // RUN225: Bless bonus must not survive a failed concentration save,
+            // incapacitation or a replacement spell on the same caster.
+            if(sheet.has(Core2024BlessRuntime.FIELD)&&
+                !"Bênção".equals(currentConcentration))sheet.remove(Core2024BlessRuntime.FIELD);
+        }
+        v.put("sheet_json",sheet.toString());}catch(Exception ignored){AppLog.ignored("AppDb","Falha ao sincronizar estado do herói em combate.",ignored);}v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("characters",v,"id=?",new String[]{String.valueOf(ch.optLong("id"))});}
+    public JSONObject applyCombatantDamage(long id,int amount,String damageType,boolean critical){return applyCombatantDamage(id,amount,damageType,critical,false);}
+    public JSONObject applyCombatantDamage(long id,int amount,String damageType,boolean critical,boolean nonlethalMelee){return applyCombatantDamage(id,amount,damageType,critical,nonlethalMelee,"");}
+    public JSONObject applyCombatantDamage(final long id,final int amount,final String damageType,final boolean critical,final boolean nonlethalMelee,final String operationToken){
+        return combatAtomic("damage",new CombatAtomicWork(){public JSONObject run()throws Exception{
+        JSONObject c=getCombatant(id),out=new JSONObject();if(c.length()==0||amount<0)return out;
+            JSONObject receiptResources=combatResources(c);
+            String signature="damage:"+amount+":"+(damageType==null?"":damageType)+":"+critical+":"+nonlethalMelee;
+            String decision=combatReceiptDecision(receiptResources,operationToken,signature,id);
+            if(!decision.isEmpty())return combatReceiptResponse(c,"damage",decision);
+            
+            if("mystara".equals(getActiveMapProfile())){int hp=Math.max(0,c.optInt("hp")-amount);ContentValues v=new ContentValues();v.put("hp",hp);v.put("temp_hp",0);recordCombatReceipt(receiptResources,operationToken,signature,id);v.put("resources_json",receiptResources.toString());
+                requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}));return getCombatant(id).put("applied_damage",amount);}
+            String res=c.optString("resistances"),vul=c.optString("vulnerabilities"),imm=c.optString("immunities"),conditions=c.optString("conditions");if(ConditionRulesEngine.resistantToAllDamage(conditions))res=(res.trim().isEmpty()?"all":res+", all");
+            DndRulesEngine rules=new DndRulesEngine();JSONObject dmg=rules.applyDamage(c.optInt("hp"),c.optInt("max_hp",1),c.optInt("temp_hp"),amount,damageType,res,vul,imm);int before=c.optInt("hp"),after=dmg.optInt("hp_after",before),temp=dmg.optInt("temp_hp_after",c.optInt("temp_hp"));int fail=c.optInt("death_fail"),succ=c.optInt("death_success");JSONObject resources=receiptResources;boolean dead=resources.optBoolean("dead",false),stable=resources.optBoolean("stable",false);
+            int applied=dmg.optInt("applied_damage",0),absorbed=dmg.optInt("absorbed_by_temp_hp",0),hpDamage=Math.max(0,applied-absorbed);
+            if(applied>0&&resources.optBoolean("nonlethal_knockout",false))clearRecoverySchedule(resources);
+            boolean nonlethalKnockout=NonlethalKnockoutRules.qualifies(nonlethalMelee,before,after,dead);
+            if(before==0&&applied>0&&!dead){stable=false;clearStableRecoveryOnly(resources);fail=Math.min(3,fail+(critical?2:1));if(fail>=3)dead=true;}
+            else if(nonlethalKnockout){after=0;succ=0;fail=0;stable=true;clearRecoverySchedule(resources);conditions=ConditionRulesEngine.add(ConditionRulesEngine.add(conditions,"Inconsciente"),"Caído");resources.put("dead",false).put("stable",true).put("death_save_due",false).put("nonlethal_knockout",true).put("stable_recovery_roll_due",true);}
+            else if(before>0&&after==0){succ=0;fail=0;stable=false;clearRecoverySchedule(resources);conditions=ConditionRulesEngine.add(ConditionRulesEngine.add(conditions,"Inconsciente"),"Caído");int excess=Math.max(0,hpDamage-before);if(excess>=Math.max(1,c.optInt("max_hp",1)))dead=true;}
+            if(dead){resources.put("dead",true).put("stable",false).put("death_save_due",false);clearRecoverySchedule(resources);}
+            else resources.put("stable",stable);
+            String concentration=c.optString("concentration");if(concentration.trim().length()>0&&applied>0){if(ConditionRulesEngine.breaksConcentration(conditions)){concentration="";resources.remove("concentration_save_pending");resources.remove("concentration_save_queue");}else{JSONArray queue=resources.optJSONArray("concentration_save_queue");if(queue==null)queue=new JSONArray();JSONObject pending=new JSONObject().put("damage",applied).put("dc",rules.concentrationDc(applied,combatRulesProfile(c))).put("source_index",queue.length()+1);queue.put(pending);resources.put("concentration_save_queue",queue);if(resources.optJSONObject("concentration_save_pending")==null)resources.put("concentration_save_pending",new JSONObject(pending.toString()));}}
+            recordCombatReceipt(resources,operationToken,signature,id);ContentValues cv=new ContentValues();cv.put("hp",after);cv.put("temp_hp",temp);cv.put("death_success",succ);cv.put("death_fail",fail);cv.put("conditions",conditions);cv.put("concentration",concentration);cv.put("resources_json",resources.toString());requireCombatantWrite(getWritableDatabase().update("combatants",cv,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}));syncCombatantHeroState(c,after,temp,conditions,resources);out=getCombatant(id);out.put("raw_damage",amount).put("applied_damage",applied).put("hp_damage_applied",Math.max(0,before-after)).put("damage_type",damageType==null?"":damageType).put("critical",critical).put("nonlethal_knockout",nonlethalKnockout);
+        return out;
+        }});
+    }
+    /** Resolve statblock reach/range and the live board geometry from persisted scene data. */
+    private JSONObject compiledStatblockAttackGeometry(long actorId,long targetId,String statblockId,String action){
+        return compiledStatblockAttackGeometry(actorId,targetId,statblockId,action,0L);
+    }
+    /** threatId is a user-certified OTHER enemy, never inferred from is_player.
+     * The receipt and transaction must revalidate token, conditions and identity. */
+    private JSONObject compiledStatblockAttackGeometry(long actorId,long targetId,String statblockId,String action,long threatId){
+        JSONObject out=new JSONObject();
+        try{
+            JSONObject scene=new ProceduralTacticalSceneGenerator(this).ensureForCurrentScene();
+            if(scene.length()==0||!"ready".equals(scene.optString("status","ready")))
+                return out.put("attack_geometry_blocked","scene_unavailable");
+            int w=scene.optInt("width_cells",0),h=scene.optInt("height_cells",0);
+            if(w<1||w>100||h<1||h>100)return out.put("attack_geometry_blocked","invalid_scene_grid");
+            ensureTacticalTokensForCombat();
+            boolean[][] opaque=new boolean[h][w],occupied=new boolean[h][w];int[][] cover=new int[h][w];
+            JSONArray obstacles=new JSONArray(scene.optString("obstacles_json","[]"));
+            for(int i=0;i<obstacles.length();i++){
+                JSONObject ob=obstacles.optJSONObject(i);if(ob==null)return out.put("attack_geometry_blocked","malformed_obstacle");
+                int x=ob.optInt("x",-1),y=ob.optInt("y",-1);
+                if(x<0||x>=w||y<0||y>=h)return out.put("attack_geometry_blocked","obstacle_out_of_bounds");
+                String kind=ob.optString("type",""),coverKind=ob.optString("cover","none");
+                opaque[y][x]=ob.optBoolean("blocks_sight",false)||"total".equals(coverKind)||
+                    "wall".equals(kind)||"pillar".equals(kind);
+                if("three_quarters".equals(coverKind))cover[y][x]=5;
+                else if("half".equals(coverKind))cover[y][x]=2;
+            }
+            if(threatId<0||threatId==actorId||(threatId>0&&threatId==targetId))
+                return out.put("attack_geometry_blocked","invalid_additional_hostile_id");
+            int ax=-1,ay=-1,tx=-1,ty=-1,hx=-1,hy=-1;
+            java.util.HashMap<Long,int[]> tokenCells=new java.util.HashMap<Long,int[]>();
+            List<JSONObject> positions=queryList("SELECT t.combatant_id,t.x,t.y,c.hp FROM tactical_tokens t " +
+                "JOIN combatants c ON c.id=t.combatant_id AND c.world_profile=t.world_profile WHERE t.world_profile=?",
+                new String[]{getActiveMapProfile()});
+            for(JSONObject pos:positions){
+                double nx=pos.optDouble("x",Double.NaN),ny=pos.optDouble("y",Double.NaN);
+                if(Double.isNaN(nx)||Double.isNaN(ny)||nx<0||nx>=1||ny<0||ny>=1)
+                    return out.put("attack_geometry_blocked","invalid_token_position");
+                int x=(int)Math.floor(nx*w),y=(int)Math.floor(ny*h);long id=pos.optLong("combatant_id",0);
+                if(tokenCells.put(id,new int[]{x,y})!=null)
+                    return out.put("attack_geometry_blocked","duplicate_combatant_token");
+                if(id==actorId){ax=x;ay=y;}
+                else if(id==targetId){tx=x;ty=y;}
+                else if(id==threatId){hx=x;hy=y;if(pos.optInt("hp",0)>0)occupied[y][x]=true;}
+                else if(pos.optInt("hp",0)>0)occupied[y][x]=true;
+            }
+            if(ax<0||tx<0)return out.put("attack_geometry_blocked","token_position_missing");
+            if(threatId>0&&hx<0)return out.put("attack_geometry_blocked","additional_hostile_token_missing");
+            int distance=5*Math.max(Math.abs(tx-ax),Math.abs(ty-ay));
+            JSONObject range=StatblockCombatRuntimeEngine.rangeProfile(statblockId,action,distance);
+            if(!range.optBoolean("resolved",false))return out.put("attack_geometry_blocked",range.optString("reason","range_profile_unresolved"));
+            String kind=range.optString("attack_mode","");
+            int reach=range.optInt("melee_reach_ft",0),normal=range.optInt("range_normal_ft",0),far=range.optInt("range_long_ft",0);
+            TacticalAttackGeometryRules.Result legal=TacticalAttackGeometryRules.evaluate(w,h,ax,ay,tx,ty,
+                opaque,cover,occupied,kind,reach,normal,far);
+            if(!legal.legal())return out.put("attack_geometry_blocked",legal.blocked);
+            JSONObject actor=getCombatant(actorId);
+            JSONObject actorResources=combatResources(actor);
+            boolean ledgerConfigured=actorResources.has(MonsterHostilityLedgerCodec.KEY);
+            long[] declared=new long[0];
+            if(ledgerConfigured){
+                try{declared=compiledMonsterHostilityIds(actorId,actorResources);}
+                catch(IllegalArgumentException malformed){
+                    return out.put("attack_geometry_blocked","malformed_hostility_ledger");
+                }
+            }
+            long resolvedThreatId=threatId;
+            if(threatId>0&&ledgerConfigured&&!MonsterHostilityLedgerRules.contains(declared,threatId))
+                return out.put("attack_geometry_blocked","additional_hostile_not_declared");
+            if("ranged".equals(kind)&&ledgerConfigured&&threatId==0){
+                MonsterAdjacentHostileSelector.Candidate[] candidates=
+                    new MonsterAdjacentHostileSelector.Candidate[tokenCells.size()];
+                int ci=0;
+                for(java.util.Map.Entry<Long,int[]> entry:tokenCells.entrySet()){
+                    long otherId=entry.getKey();JSONObject other=getCombatant(otherId);
+                    int[] cell=entry.getValue();
+                    candidates[ci++]=new MonsterAdjacentHostileSelector.Candidate(otherId,
+                        cell[0],cell[1],other.optInt("hp",0),other.optString("conditions",""));
+                }
+                MonsterAdjacentHostileSelector.Result selection=MonsterAdjacentHostileSelector.select(
+                    w,h,ax,ay,opaque,actor.optString("conditions",""),actorId,targetId,
+                    declared,candidates);
+                if(!selection.valid())return out.put("attack_geometry_blocked",selection.blocked);
+                resolvedThreatId=selection.hostileId;
+            }
+            if(resolvedThreatId>0){
+                if(!"ranged".equals(kind))return out.put("attack_geometry_blocked","additional_hostile_requires_ranged_attack");
+                int[] threatCell=tokenCells.get(resolvedThreatId);
+                if(threatCell==null)return out.put("attack_geometry_blocked","additional_hostile_token_missing");
+                hx=threatCell[0];hy=threatCell[1];
+                JSONObject threat=getCombatant(resolvedThreatId);
+                if(threat.length()==0||threat.optInt("hp",0)<=0)
+                    return out.put("attack_geometry_blocked","additional_hostile_no_longer_alive");
+                String threatError=MonsterAdjacentHostileRules.check(w,h,ax,ay,hx,hy,opaque,
+                    actor.optString("conditions",""),threat.optString("conditions",""),true);
+                if(!threatError.isEmpty())return out.put("attack_geometry_blocked",threatError);
+            }
+            // Long range is legal, but the caller must provide two natural d20
+            // rolls and the executor must use the lower result. Rejecting the
+            // geometry would incorrectly make a legal ranged attack impossible.
+            // RUN227 G05 keeps the actual dice in the durable attack receipt.
+            int resourceCover=new DndRulesEngine().coverAcBonus(combatResources(getCombatant(targetId)).optString("cover",""));
+            JSONObject hostilityRecord=combatResources(getCombatant(actorId)).optJSONObject("combat_hostility_v1");
+            int hostilityRevision=hostilityRecord==null?0:hostilityRecord.optInt("revision",0);
+            String identity=getActiveMapProfile()+":"+scene.optString("scene_key")+":"+actorId+":"+targetId+":"+legal.fingerprint+":"+resolvedThreatId+":"+hx+":"+hy+":"+hostilityRevision;
+            byte[] bytes=identity.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            java.util.zip.CRC32 hash=new java.util.zip.CRC32();hash.update(bytes,0,bytes.length);
+            String fingerprint=Long.toHexString(hash.getValue());
+            return out.put("attack_geometry_valid",true).put("attack_geometry_receipt",TacticalAttackGeometryRules.receipt(legal))
+                .put("attack_geometry_fingerprint",fingerprint).put("distance_ft",legal.distanceFeet)
+                .put("long_range_disadvantage",legal.longRangeDisadvantage)
+                .put("additional_adjacent_hostile",resolvedThreatId>0).put("additional_hostile_id",resolvedThreatId)
+                .put("hostility_selection_source",resolvedThreatId==0?"none":
+                    ledgerConfigured?(threatId==0?"typed_auto":"typed_manual"):"legacy_manual")
+                .put("additional_hostility_manually_declared",resolvedThreatId>0&&!ledgerConfigured)
+                .put("hostility_ledger_revision",hostilityRevision)
+                .put("additional_hostility_ledger_verified",resolvedThreatId>0&&ledgerConfigured)
+                .put("attack_mode",kind)
+                .put("cover_bonus",Math.max(resourceCover,legal.geometryCoverBonus))
+                .put("effective_ac",getCombatant(targetId).optInt("ac",10)+Math.max(resourceCover,legal.geometryCoverBonus))
+                .put("scene_key",scene.optString("scene_key"));
+        }catch(Exception e){AppLog.e("AppDb","Falha ao validar geometria de ataque do statblock.",e);try{return out.put("attack_geometry_blocked","geometry_runtime_error");}catch(Exception ignored){return out;}}
+    }
+    /** UI preflight of an authorized monster roll mode. This does not spend
+     * an action or inflict damage. Commit always re-evaluates the live state. */
+    public JSONObject previewCompiledMonsterAttackRollMode(long actorId,long targetId,
+        String statblockId,String action){
+        return previewCompiledMonsterAttackRollMode(actorId,targetId,statblockId,action,0L);
+    }
+    public JSONObject previewCompiledMonsterAttackRollMode(long actorId,long targetId,
+        String statblockId,String action,long additionalThreatId){
+        JSONObject out=new JSONObject();
+        try{
+            JSONObject actor=getCombatant(actorId),target=getCombatant(targetId);
+            if(actor.length()==0||target.length()==0||actor.optInt("is_player",0)==1||
+                actorId==targetId||actor.optInt("hp",0)<=0||target.optInt("hp",0)<=0)
+                return out.put("monster_roll_preview_blocked","invalid_actor_or_target");
+            String id=combatResources(actor).optString("block_id","").trim();
+            String authority=CompiledMonsterActionGuard.statblockBlock(id,statblockId);
+            if(!authority.isEmpty())return out.put("monster_roll_preview_blocked",authority);
+            JSONObject sourceAction=compiledMonsterRiderAction(id,action);
+            String cost=MonsterActionEconomyGuard.standaloneCost(
+                sourceAction.optString("category","action"));
+            if(cost.isEmpty())return out.put("monster_roll_preview_blocked","unsupported_action_economy");
+            String riderBlock=MonsterActionEconomyGuard.attackRiderBlock(sourceAction);
+            if(!riderBlock.isEmpty())return out.put("monster_roll_preview_blocked",riderBlock);
+            JSONObject geometry=compiledStatblockAttackGeometry(actorId,targetId,id,action,additionalThreatId);
+            if(!geometry.optBoolean("attack_geometry_valid",false))
+                return out.put("monster_roll_preview_blocked",geometry.optString("attack_geometry_blocked","invalid_geometry"));
+            MonsterAttackRollModeRules.Result rule=MonsterAttackRollModeRules.evaluate(
+                geometry.optString("attack_mode",""),geometry.optInt("distance_ft",0),
+                geometry.optBoolean("long_range_disadvantage",false),
+                actor.optString("conditions",""),target.optString("conditions",""),
+                geometry.optBoolean("additional_adjacent_hostile",false));
+            if(!rule.legal())return out.put("monster_roll_preview_blocked",rule.blocked);
+            return out.put("monster_roll_preview_valid",true)
+                .put("roll_mode",rule.modeName()).put("second_d20_required",rule.mode!=MonsterAttackRollModeRules.NORMAL)
+                .put("long_range",rule.longRange).put("adjacent_hostile",rule.adjacentHostile)
+                .put("additional_hostile_id",geometry.optLong("additional_hostile_id",0))
+                .put("hostility_selection_source",geometry.optString("hostility_selection_source","none"))
+                .put("critical_on_hit_from_condition",rule.criticalOnHit)
+                .put("effective_ac",geometry.optInt("effective_ac"))
+                .put("distance_ft",geometry.optInt("distance_ft"));
+        }catch(Exception failure){AppLog.e("AppDb","Falha ao visualizar modo de ataque compilado",failure);
+            try{return out.put("monster_roll_preview_blocked","preview_runtime_error");}
+            catch(Exception ignored){return out;}}
+    }
+
+    /** Resolve a compiled monster/statblock attack through the same combat
+     * transaction used by player attacks. The caller supplies the physical
+     * roll; no damage or condition is inferred from prose. */
+    public JSONObject applyCompiledStatblockAttack(final long actorId,final long targetId,
+        final String statblockId,final String action,final int natural,final int damageTotal,
+        final int riderSaveRoll,final String token){
+        return applyCompiledStatblockAttack(actorId,targetId,statblockId,action,natural,0,damageTotal,riderSaveRoll,token);
+    }
+    public JSONObject applyCompiledStatblockAttack(final long actorId,final long targetId,
+        final String statblockId,final String action,final int natural,final int secondNatural,
+        final int damageTotal,final int riderSaveRoll,final String token){
+        return applyCompiledStatblockAttack(actorId,targetId,statblockId,action,natural,
+            secondNatural,damageTotal,riderSaveRoll,0L,token);
+    }
+    /** Backward-compatible attack path: no destination is supplied. A compiled
+     * forced-movement rider is refused (with no mutation) instead of silently
+     * losing the displacement. */
+    public JSONObject applyCompiledStatblockAttack(final long actorId,final long targetId,
+        final String statblockId,final String action,final int natural,final int secondNatural,
+        final int damageTotal,final int riderSaveRoll,final long additionalThreatId,final String token){
+        return applyCompiledStatblockAttack(actorId,targetId,statblockId,action,natural,
+            secondNatural,damageTotal,riderSaveRoll,additionalThreatId,-1,-1,token);
+    }
+    /** G05: attack hit -> failed rider saving throw -> source-compiled push/pull.
+     * Coordinates are explicitly chosen grid cells, never LLM generated. A
+     * failed preflight cannot spend the action, damage HP or move the token. */
+    public JSONObject applyCompiledStatblockAttack(final long actorId,final long targetId,
+        final String statblockId,final String action,final int natural,final int secondNatural,
+        final int damageTotal,final int riderSaveRoll,final long additionalThreatId,
+        final int destinationX,final int destinationY,final String token){
+        return applyCompiledStatblockAttackInternal(actorId,targetId,statblockId,action,natural,
+            secondNatural,damageTotal,null,riderSaveRoll,additionalThreatId,destinationX,
+            destinationY,token);
+    }
+    /** Bind each physical damage roll to the source-declared expression and type. */
+    private JSONObject compiledMonsterDamagePlan(JSONArray supplied,JSONObject attack,JSONObject target){
+        JSONObject out=new JSONObject();
+        try{
+            JSONArray expected=StatblockCombatFlowEngine.damageSpecs(
+                attack.optString("damage_expression",""),attack.optString("damage_type",""),
+                attack.optString("extra_damage_expression",""));
+            if(supplied==null||supplied.length()!=expected.length())
+                return out.put("damage_blocked","typed_damage_component_count_mismatch");
+            String resistances=target.optString("resistances",""),
+                vulnerabilities=target.optString("vulnerabilities",""),
+                immunities=target.optString("immunities","");
+            if(ConditionRulesEngine.resistantToAllDamage(target.optString("conditions","")))
+                resistances=(resistances.trim().isEmpty()?"all":resistances+", all");
+            JSONArray proof=new JSONArray();HashSet<String> damageTypes=new HashSet<String>();
+            int rawTotal=0,mitigatedTotal=0;
+            for(int i=0;i<expected.length();i++){
+                JSONObject spec=expected.optJSONObject(i),roll=supplied.optJSONObject(i);
+                if(spec==null||roll==null)
+                    return out.put("damage_blocked","typed_damage_component_invalid");
+                String expression=spec.optString("expression","").trim();
+                String type=DamageTypeNormalizer.canonical(spec.optString("type",""));
+                String suppliedExpression=roll.optString("expression","").trim();
+                String suppliedType=DamageTypeNormalizer.canonical(roll.optString("damage_type",""));
+                Object raw=roll.opt("damage_total");
+                if(expression.isEmpty()||type.isEmpty()||!expression.equals(suppliedExpression)||
+                    !type.equals(suppliedType)||!(raw instanceof Number))
+                    return out.put("damage_blocked","typed_damage_component_source_mismatch");
+                if(!damageTypes.add(type))
+                    return out.put("damage_blocked","typed_damage_type_repeated_requires_source_aggregation");
+                Number number=(Number)raw;double value=number.doubleValue();
+                if(!Double.isFinite(value)||value!=Math.floor(value)||value<0||value>100000)
+                    return out.put("damage_blocked","typed_damage_component_invalid_total");
+                int amount=(int)value;
+                if(!CompiledMonsterDamageGuard.accepts(expression,"",amount,
+                    attack.optBoolean("critical",false)))
+                    return out.put("damage_blocked","damage_total_outside_compiled_dice");
+                boolean immune=DamageTypeNormalizer.matches(immunities,type);
+                boolean resistant=DamageTypeNormalizer.matches(resistances,type);
+                boolean vulnerable=DamageTypeNormalizer.matches(vulnerabilities,type);
+                int mitigated=DamageMitigationRules.apply(amount,immune,resistant,vulnerable);
+                if(amount>100000-rawTotal||mitigated>100000-mitigatedTotal)
+                    return out.put("damage_blocked","typed_damage_total_out_of_range");
+                rawTotal+=amount;mitigatedTotal+=mitigated;
+                proof.put(new JSONObject().put("expression",expression).put("damage_type",type)
+                    .put("damage_total",amount).put("applied_damage",mitigated)
+                    .put("immune",immune).put("resistant",resistant).put("vulnerable",vulnerable));
+            }
+            return out.put("raw_total",rawTotal).put("mitigated_total",mitigatedTotal)
+                .put("components",proof);
+        }catch(Exception invalid){
+            try{return out.put("damage_blocked","typed_damage_components_invalid");}
+            catch(Exception ignored){return out;}
+        }
+    }
+    /**
+     * Resolve a compiled attack whose source declares multiple damage components.
+     * Each array entry must be {expression, damage_type, damage_total}; totals are
+     * physical rolls for that exact source component and are never inferred from
+     * an aggregate.
+     */
+    public JSONObject applyCompiledStatblockAttack(final long actorId,final long targetId,
+        final String statblockId,final String action,final int natural,final int secondNatural,
+        final JSONArray damageComponents,final int riderSaveRoll,final long additionalThreatId,
+        final int destinationX,final int destinationY,final String token){
+        return applyCompiledStatblockAttackInternal(actorId,targetId,statblockId,action,natural,
+            secondNatural,0,damageComponents,riderSaveRoll,additionalThreatId,destinationX,
+            destinationY,token);
+    }
+    private JSONObject applyCompiledStatblockAttackInternal(final long actorId,final long targetId,
+        final String statblockId,final String action,final int natural,final int secondNatural,
+        final int damageTotal,final JSONArray damageComponents,final int riderSaveRoll,
+        final long additionalThreatId,final int destinationX,final int destinationY,
+        final String token){
+        return combatAtomic("compiled_statblock_attack",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject(),actor=getCombatant(actorId),target=getCombatant(targetId);
+            if(token==null||!token.startsWith("ui-monster-")||!CombatActionReceiptGuard.validToken(token))
+                return out.put("statblock_attack_blocked","invalid_operation_token");
+            String key=combatReceiptKey(actorId,token+"-statblock");
+            if(hasEffectReceipt(key))return out.put("statblock_attack_blocked","already_resolved_or_replayed");
+            if(actor.length()==0||target.length()==0||actorId==targetId||
+                actor.optInt("is_player",0)==1||actor.optInt("hp",0)<=0)
+                return out.put("statblock_attack_blocked","invalid_monster_or_target");
+            if(getCombatState().optInt("running",0)!=1)
+                return out.put("statblock_attack_blocked","encounter_not_running");
+            JSONObject resources=combatResources(actor);
+            String id=resources.optString("block_id","").trim();
+            String authorityBlock=CompiledMonsterActionGuard.statblockBlock(id,statblockId);
+            if(!authorityBlock.isEmpty())return out.put("statblock_attack_blocked",authorityBlock);
+            JSONObject sourceAction=compiledMonsterRiderAction(id,action);
+            String resourceCost=MonsterActionEconomyGuard.standaloneCost(
+                sourceAction.optString("category","action"));
+            if(resourceCost.isEmpty())return out.put("statblock_attack_blocked","unsupported_action_economy");
+            String riderBlock=MonsterActionEconomyGuard.attackRiderBlock(sourceAction);
+            if(!riderBlock.isEmpty())return out.put("statblock_attack_blocked",riderBlock);
+            // Reject an exhausted or inactive turn BEFORE calling the nested
+            // resource executor. Otherwise its safe nested rollback is reported
+            // as an opaque transaction error instead of a typed refusal.
+            String turnBlock=CombatTurnGuard.spendBlock(resourceCost,
+                getCombatState().optInt("running",0)==1,
+                actor.optInt("active_turn",0)==1,
+                ConditionRulesEngine.incapacitated(actor.optString("conditions","")),
+                actor.optInt("hp",0),resources.optBoolean("dead",false),
+                actor.optInt("reaction_used",0)==1,
+                resources.optBoolean("action_available",true),
+                resources.optBoolean("bonus_action_available",true));
+            if(!turnBlock.isEmpty())return out.put("statblock_attack_blocked",turnBlock);
+            if(target.optInt("hp",0)<=0||combatantHasTotalCover(targetId))return out.put("statblock_attack_blocked","invalid_or_covered_target");
+            JSONObject geometry=compiledStatblockAttackGeometry(actorId,targetId,id,action,additionalThreatId);
+            if(!geometry.optBoolean("attack_geometry_valid",false))return out.put("statblock_attack_blocked",
+                geometry.optString("attack_geometry_blocked","geometry_unavailable")).put("attack_geometry",geometry);
+            if(natural<1||natural>20||(damageComponents==null&&damageTotal<0)||
+                riderSaveRoll<0||riderSaveRoll>100)
+                return out.put("statblock_attack_blocked","invalid_roll_input");
+            MonsterAttackRollModeRules.Result context=MonsterAttackRollModeRules.evaluate(
+                geometry.optString("attack_mode",""),geometry.optInt("distance_ft",0),
+                geometry.optBoolean("long_range_disadvantage",false),
+                actor.optString("conditions",""),target.optString("conditions",""),
+                geometry.optBoolean("additional_adjacent_hostile",false));
+            String rollBlock=context.blockDice(natural,secondNatural);
+            if(!rollBlock.isEmpty())return out.put("statblock_attack_blocked",rollBlock);
+            final int effectiveNatural=context.effective(natural,secondNatural);
+            JSONObject resolved=StatblockCombatRuntimeEngine.attack(id,action,effectiveNatural,geometry.optInt("effective_ac",effectiveCombatantAc(targetId)));
+            if(!resolved.optBoolean("resolved",false))return out.put("statblock_attack_blocked",resolved.optString("reason","statblock_attack_unresolved"));
+            if(context.criticalOnHit&&resolved.optBoolean("hit",false))
+                resolved.put("critical",true).put("critical_by_condition",true);
+            resolved.put("roll_mode",context.modeName()).put("roll_advantage",context.advantage)
+                .put("roll_disadvantage",context.disadvantage)
+                .put("adjacent_hostile_disadvantage",context.adjacentHostile)
+                .put("additional_hostile_id",geometry.optLong("additional_hostile_id",0))
+                .put("hostility_selection_source",geometry.optString("hostility_selection_source","none"));
+            if(!resolved.optBoolean("hit",false)&&
+                (damageTotal!=0||(damageComponents!=null&&damageComponents.length()!=0)||riderSaveRoll!=0))
+                return out.put("statblock_attack_blocked","miss_cannot_apply_damage_or_rider");
+            JSONObject typedDamagePlan=new JSONObject();
+            int expectedDamage=0;
+            if(resolved.optBoolean("hit",false)){
+                if(damageComponents==null){
+                    JSONArray specs=StatblockCombatFlowEngine.damageSpecs(
+                        resolved.optString("damage_expression",""),resolved.optString("damage_type",""),
+                        resolved.optString("extra_damage_expression",""));
+                    if(specs.length()>1)return out.put("statblock_attack_blocked",
+                        "typed_damage_components_required");
+                    if(specs.length()==1&&!DamageTypeNormalizer.known(specs.optJSONObject(0)
+                        .optString("type","")))return out.put("statblock_attack_blocked",
+                            "compiled_damage_type_unresolved");
+                    if(!CompiledMonsterDamageGuard.accepts(
+                        resolved.optString("damage_expression",""),
+                        resolved.optString("extra_damage_expression",""),damageTotal,
+                        resolved.optBoolean("critical",false)))
+                        return out.put("statblock_attack_blocked","damage_total_outside_compiled_dice");
+                    expectedDamage=damageTotal;
+                }else{
+                    typedDamagePlan=compiledMonsterDamagePlan(damageComponents,resolved,target);
+                    if(typedDamagePlan.has("damage_blocked"))return out.put(
+                        "statblock_attack_blocked",typedDamagePlan.optString("damage_blocked"));
+                    expectedDamage=typedDamagePlan.optInt("raw_total",-1);
+                    if(expectedDamage<0)return out.put("statblock_attack_blocked",
+                        "typed_damage_components_invalid");
+                    resolved.put("damage_components",typedDamagePlan.getJSONArray("components"))
+                        .put("damage_total",expectedDamage)
+                        .put("damage_after_type_modifiers",typedDamagePlan.optInt("mitigated_total"));
+                }
+            }
+            if(resolved.optBoolean("rider_save_required",false)&&riderSaveRoll==0)
+                return out.put("statblock_attack_blocked","rider_save_required");
+            // Do not accept an undeclared saving throw as part of a combat receipt.
+            if(!resolved.optBoolean("rider_save_required",false)&&riderSaveRoll!=0)
+                return out.put("statblock_attack_blocked","unexpected_rider_save");
+            JSONObject rider=new JSONObject();
+            MonsterForcedMovementRules.Spec forced=null;
+            JSONObject forcedPlan=new JSONObject();
+            if(resolved.optBoolean("rider_save_required",false)){
+                rider=StatblockCombatRuntimeEngine.attackRiderSavingThrow(id,action,riderSaveRoll);
+                if(!rider.optBoolean("resolved",false))return out.put("statblock_attack_blocked","rider_save_unresolved");
+                if(!rider.optBoolean("save_success",true)){
+                    // A UI-provided displacement or narrative cannot replace
+                    // the statblock source; fail closed on any source drift.
+                    if(!sourceAction.optString("effect_on_fail","").equals(rider.optString("effect_on_fail",""))||
+                        !sourceAction.optString("condition_on_fail","").equals(rider.optString("condition_on_fail","")))
+                        return out.put("statblock_attack_blocked","compiled_effect_source_changed");
+                    forced=MonsterForcedMovementRules.compiled(sourceAction.optString("effect_on_fail",""),
+                        sourceAction.optString("condition_on_fail",""));
+                    if(!MonsterEffectOnFailGuard.supported(rider.optString("condition_on_fail",""),
+                        rider.optString("effect_on_fail",""))&&forced==null)
+                        return out.put("statblock_attack_blocked","unsupported_secondary_effect");
+                    if(!MonsterConditionRiderPlan.plan(rider.optString("condition_on_fail",""),
+                        target.optString("conditions",""),
+                        new MonsterConditionRiderPlan.Immunity(){public boolean immune(String c){return combatantConditionImmune(target,c);}}).valid())
+                        return out.put("statblock_attack_blocked","unsupported_secondary_effect");
+                }
+            }
+            if(destinationX< -1||destinationY< -1)
+                return out.put("statblock_attack_blocked","invalid_forced_movement_coordinates");
+            if(forced==null&&(destinationX>=0||destinationY>=0))
+                return out.put("statblock_attack_blocked","forced_movement_not_applicable");
+            if(forced!=null){
+                forcedPlan=compiledMonsterForcedMovementPlan(actorId,targetId,forced,destinationX,destinationY);
+                if(forcedPlan.has("forced_movement_blocked"))return out.put("statblock_attack_blocked",
+                    forcedPlan.optString("forced_movement_blocked","forced_movement_invalid"));
+            }
+            String recharge=resolved.optString("recharge","").trim();
+            String activationBlock=CompiledMonsterActionGuard.actionRechargeBlock(recharge);
+            if(!activationBlock.isEmpty())return out.put("statblock_attack_blocked",activationBlock);
+            JSONObject spentByAction=resources.optJSONObject("statblock_recharge_spent");
+            if(spentByAction==null)spentByAction=new JSONObject();
+            if(!recharge.isEmpty()&&MonsterRechargeLedgerCodec.spent(spentByAction,action))
+                return out.put("statblock_attack_blocked","recharge_required").put("recharge",recharge);
+            String onHitCondition=sourceAction.optString("condition_on_hit","").trim();
+            if(resolved.optBoolean("hit",false)&&!onHitCondition.isEmpty()){
+                String ownershipBlock=compiledMonsterOnHitConditionBlock(actorId,targetId,id,
+                    action,token,onHitCondition);
+                if(!ownershipBlock.isEmpty())return out.put("statblock_attack_blocked",ownershipBlock);
+            }
+            JSONObject actionSpent=spendCombatantTurnResource(actorId,resourceCost,token+"-"+resourceCost);
+            if(actionSpent.has("resource_blocked")||actionSpent.has("operation_blocked")||actionSpent.has("operation_replayed"))
+                return out.put("statblock_attack_blocked",actionSpent.optString("resource_blocked",actionSpent.optString("operation_blocked","already_resolved_or_replayed")));
+            if(actionSpent.has("operation_error")||actionSpent.length()==0)throw new IllegalStateException("compiled_statblock_action_rollback");
+            expectedDamage=resolved.optBoolean("hit",false)?expectedDamage:0;
+            JSONObject damage=new JSONObject();
+            if(expectedDamage>0||damageComponents!=null&&resolved.optBoolean("hit",false)){
+                boolean typed=damageComponents!=null;
+                int amount=typed?typedDamagePlan.optInt("mitigated_total",-1):expectedDamage;
+                if(amount<0)throw new IllegalStateException("typed_damage_mitigation_missing_rollback");
+                damage=applyCombatantDamage(targetId,amount,typed?"":resolved.optString("damage_type",""),
+                    resolved.optBoolean("critical",false),false,token+"-damage");
+                if(damage.length()==0||damage.has("operation_error")||damage.has("operation_blocked"))
+                    throw new IllegalStateException("compiled_statblock_damage_rollback");
+                if(typed)damage.put("raw_damage",expectedDamage)
+                    .put("applied_damage",amount).put("damage_type","typed_components")
+                    .put("components",typedDamagePlan.getJSONArray("components"))
+                    .put("damage_type_modifier_delta",amount-expectedDamage);
+            }
+            if(resolved.optBoolean("rider_save_required",false)&&!rider.optBoolean("save_success",true)){
+                JSONObject transition=commitCompiledMonsterConditionRider(actorId,targetId,id,action,token,rider.optString("condition_on_fail",""));
+                rider.put("condition_transition",transition);
+                resolved.put("rider_condition_transition",transition);
+                if(forced!=null){
+                    JSONObject moved=commitCompiledMonsterForcedMovement(actorId,targetId,forced,forcedPlan);
+                    rider.put("forced_movement_transition",moved);
+                    resolved.put("forced_movement_transition",moved);
+                }
+            }
+            if(resolved.optBoolean("hit",false)&&!onHitCondition.isEmpty()){
+                if(!onHitCondition.equals(resolved.optString("rider_on_hit_condition",""))||
+                    sourceAction.optInt("condition_duration_rounds",0)!=resolved.optInt("rider_on_hit_duration_rounds",0)||
+                    !sourceAction.optString("condition_duration_tick","").equals(
+                        resolved.optString("rider_on_hit_duration_tick","")))
+                    throw new IllegalStateException("compiled_on_hit_effect_source_changed_rollback");
+                JSONObject transition=commitCompiledMonsterOnHitCondition(actorId,targetId,id,
+                    action,token,onHitCondition);
+                resolved.put("on_hit_condition_transition",transition);
+            }
+            if(!recharge.isEmpty()){
+                resources=combatResources(getCombatant(actorId));
+                spentByAction=resources.optJSONObject("statblock_recharge_spent");if(spentByAction==null)spentByAction=new JSONObject();
+                MonsterRechargeLedgerCodec.write(spentByAction,action,true);resources.put("statblock_recharge_spent",spentByAction);
+                JSONObject spentRound=resources.optJSONObject("statblock_recharge_spent_round");if(spentRound==null)spentRound=new JSONObject();
+                MonsterRechargeLedgerCodec.write(spentRound,action,Math.max(1,getCombatState().optInt("round_no",1)));resources.put("statblock_recharge_spent_round",spentRound);
+                ContentValues rechargeWrite=new ContentValues();rechargeWrite.put("resources_json",resources.toString());
+                requireCombatantWrite(getWritableDatabase().update("combatants",rechargeWrite,
+                    "id=? AND world_profile=?",new String[]{String.valueOf(actorId),getActiveMapProfile()}));
+            }
+            resolved.put("attack_geometry",geometry).put("resource_cost",resourceCost)
+                .put("first_natural_d20",natural)
+                .put("second_natural_d20",secondNatural)
+                .put("effective_natural_d20",effectiveNatural);
+            recordEffectReceipt(key,resolved.toString());
+            return out.put("statblock_attack_committed",true).put("statblock_attack_receipt",key)
+                .put("resolved",resolved).put("damage",damage).put("rider",rider).put("damage_total",expectedDamage)
+                .put("attack_geometry",geometry).put("recharge_spent",!recharge.isEmpty());
+        }});
+    }
+    /** RUN223: one atomic Attack action for an authorized compiled monster
+     * multiattack. Every component has its own live target, roll and geometry.
+     * The transaction includes action economy, damage, conditions and receipts.
+     * A count-only statblock is NEVER treated as permission to improvise attacks. */
+    public JSONObject applyCompiledStatblockMultiattack(final long actorId,
+        final String statblockId,final JSONArray rolls,final String token){
+        return combatAtomic("compiled_statblock_multiattack",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject(),actor=getCombatant(actorId);
+            if(token==null||!token.startsWith("ui-monster-multi-")||!CombatActionReceiptGuard.validToken(token))
+                return out.put("statblock_multiattack_blocked","invalid_operation_token");
+            String key=combatReceiptKey(actorId,token+"-statblock-multi");
+            if(hasEffectReceipt(key))return out.put("statblock_multiattack_blocked","already_resolved_or_replayed");
+            if(actor.length()==0||actor.optInt("is_player",0)==1||actor.optInt("hp",0)<=0)
+                return out.put("statblock_multiattack_blocked","invalid_monster_actor");
+            String id=combatResources(actor).optString("block_id","").trim();
+            String authority=CompiledMonsterActionGuard.statblockBlock(id,statblockId);
+            if(!authority.isEmpty())return out.put("statblock_multiattack_blocked",authority);
+            if(getCombatState().optInt("running",0)!=1)
+                return out.put("statblock_multiattack_blocked","encounter_not_running");
+            JSONObject profile=CompiledStatblockEngine.runtimeProfile(id),declared=profile.optJSONObject("multiattack");
+            if(declared==null)return out.put("statblock_multiattack_blocked","multiattack_not_compiled");
+            JSONArray seq=declared.optJSONArray("sequence");String[] sequence=null;
+            if(seq!=null){sequence=new String[seq.length()];for(int i=0;i<sequence.length;i++)sequence[i]=seq.optString(i);}
+            int count=declared.optInt("count",sequence==null?0:sequence.length);
+            String fixed=declared.optString("action",""),options=declared.optString("options","");
+            String planBlock=MultiattackActionRules.declarationBlock(sequence,count,fixed,options);
+            if(!planBlock.isEmpty())return out.put("statblock_multiattack_blocked",planBlock);
+            if(rolls==null||rolls.length()!=count)return out.put("statblock_multiattack_blocked","multiattack_count_mismatch");
+            String[] actions=new String[count];JSONObject[] previews=new JSONObject[count],riders=new JSONObject[count],geometries=new JSONObject[count];
+            // RUN245: only the final component can displace a target, because
+            // earlier displacement would change later components' attack geometry.
+            MonsterForcedMovementRules.Spec[] forcedSpecs=new MonsterForcedMovementRules.Spec[count];
+            JSONObject[] forcedPlans=new JSONObject[count];
+            // A failed earlier rider may alter the same target's roll mode for
+            // a later component. Stage condition mutations in memory as the
+            // plan is validated; the DB transaction still commits all or none.
+            java.util.HashMap<Long,String> stagedConditions=new java.util.HashMap<Long,String>();
+            long[] targets=new long[count];int[] damages=new int[count],mitigatedDamages=new int[count];
+            JSONObject[] typedDamagePlans=new JSONObject[count];
+            for(int i=0;i<count;i++){
+                JSONObject step=rolls.optJSONObject(i);
+                if(step==null)return out.put("statblock_multiattack_blocked","missing_component_"+i);
+                String action=step.optString("action","");actions[i]=action;
+                JSONObject componentSource=compiledMonsterRiderAction(id,action);
+                String componentBlock=MonsterActionEconomyGuard.componentBlock(
+                    componentSource.optString("category","action"));
+                if(!componentBlock.isEmpty())return out.put("statblock_multiattack_blocked",
+                    componentBlock+"_"+i);
+                String componentRiderBlock=MonsterActionEconomyGuard.attackRiderBlock(componentSource,false);
+                if(!componentRiderBlock.isEmpty())return out.put("statblock_multiattack_blocked",
+                    componentRiderBlock+"_"+i);
+                long targetId=step.optLong("target_id",0);targets[i]=targetId;
+                JSONObject target=getCombatant(targetId);
+                if(targetId<=0||targetId==actorId||target.length()==0||target.optInt("hp",0)<=0||combatantHasTotalCover(targetId))
+                    return out.put("statblock_multiattack_blocked","invalid_or_covered_target_"+i);
+                JSONArray suppliedDamage=step.optJSONArray("damage_components");
+                boolean typedDamage=suppliedDamage!=null;
+                int natural=step.optInt("natural",0),damage=typedDamage?0:step.optInt("damage_total",-1),
+                    save=step.optInt("rider_save_roll",-1);
+                if(natural<1||natural>20||(!typedDamage&&(damage<0||damage>100000))||save<0||save>100)
+                    return out.put("statblock_multiattack_blocked","invalid_roll_"+i);
+                Object rawAdditionalThreat=step.opt("additional_hostile_id");
+                if(rawAdditionalThreat!=null&&rawAdditionalThreat!=JSONObject.NULL){
+                    if(!(rawAdditionalThreat instanceof Number))
+                        return out.put("statblock_multiattack_blocked","invalid_additional_hostile_field_"+i);
+                    Number typedThreat=(Number)rawAdditionalThreat;
+                    if(typedThreat.doubleValue()!=typedThreat.longValue()||typedThreat.longValue()<0)
+                        return out.put("statblock_multiattack_blocked","invalid_additional_hostile_field_"+i);
+                }
+                long additionalThreatId=step.optLong("additional_hostile_id",0L);
+                if(additionalThreatId>0)for(int previous=0;previous<i;previous++)
+                    if(targets[previous]==additionalThreatId)
+                        return out.put("statblock_multiattack_blocked","additional_hostile_previously_targeted_"+i);
+                JSONObject geometry=compiledStatblockAttackGeometry(actorId,targetId,id,action,additionalThreatId);geometries[i]=geometry;
+                if(!geometry.optBoolean("attack_geometry_valid",false))
+                    return out.put("statblock_multiattack_blocked","invalid_geometry_"+i).put("detail",geometry);
+                int secondNatural=step.optInt("long_range_second_d20",0);
+                MonsterAttackRollModeRules.Result context=MonsterAttackRollModeRules.evaluate(
+                    geometry.optString("attack_mode",""),geometry.optInt("distance_ft",0),
+                    geometry.optBoolean("long_range_disadvantage",false),
+                    actor.optString("conditions",""),
+                    stagedConditions.containsKey(targetId)?stagedConditions.get(targetId):
+                        target.optString("conditions",""),
+                    geometry.optBoolean("additional_adjacent_hostile",false));
+                String rollBlock=context.blockDice(natural,secondNatural);
+                if(!rollBlock.isEmpty())return out.put("statblock_multiattack_blocked",rollBlock+"_"+i);
+                int effectiveNatural=context.effective(natural,secondNatural);
+                JSONObject attack=StatblockCombatRuntimeEngine.attack(id,action,effectiveNatural,geometry.optInt("effective_ac",0));
+                attack.put("first_natural_d20",natural).put("second_natural_d20",secondNatural)
+                    .put("effective_natural_d20",effectiveNatural);
+                if(!attack.optBoolean("resolved",false))
+                    return out.put("statblock_multiattack_blocked","attack_unresolved_"+i).put("detail",attack);
+                if(context.criticalOnHit&&attack.optBoolean("hit",false))
+                    attack.put("critical",true).put("critical_by_condition",true);
+                attack.put("roll_mode",context.modeName()).put("roll_advantage",context.advantage)
+                    .put("roll_disadvantage",context.disadvantage)
+                    .put("adjacent_hostile_disadvantage",context.adjacentHostile)
+                    .put("additional_hostile_id",geometry.optLong("additional_hostile_id",0))
+                    .put("hostility_selection_source",geometry.optString("hostility_selection_source","none"));
+                if(!attack.optBoolean("hit",false)&&
+                    (damage!=0||(typedDamage&&suppliedDamage.length()!=0)||save!=0))
+                    return out.put("statblock_multiattack_blocked","miss_has_damage_or_rider_"+i);
+                JSONObject typedPlan=null;int mitigatedDamage=damage;
+                if(attack.optBoolean("hit",false)){
+                    if(typedDamage){
+                        typedPlan=compiledMonsterDamagePlan(suppliedDamage,attack,target);
+                        if(typedPlan.has("damage_blocked"))return out.put("statblock_multiattack_blocked",
+                            typedPlan.optString("damage_blocked")+"_"+i);
+                        damage=typedPlan.optInt("raw_total",-1);
+                        mitigatedDamage=typedPlan.optInt("mitigated_total",-1);
+                        if(damage<0||mitigatedDamage<0)return out.put(
+                            "statblock_multiattack_blocked","typed_damage_components_invalid_"+i);
+                        if(step.has("damage_total")){
+                            Object reported=step.opt("damage_total");
+                            if(!(reported instanceof Number)||
+                                ((Number)reported).doubleValue()!=damage)
+                                return out.put("statblock_multiattack_blocked",
+                                    "typed_damage_total_mismatch_"+i);
+                        }
+                        attack.put("damage_components",typedPlan.getJSONArray("components"))
+                            .put("damage_total",damage)
+                            .put("damage_after_type_modifiers",mitigatedDamage);
+                    }else{
+                        JSONArray specs=StatblockCombatFlowEngine.damageSpecs(
+                            attack.optString("damage_expression",""),attack.optString("damage_type",""),
+                            attack.optString("extra_damage_expression",""));
+                        if(specs.length()>1)return out.put("statblock_multiattack_blocked",
+                            "typed_damage_components_required_"+i);
+                        if(specs.length()==1&&!DamageTypeNormalizer.known(specs.optJSONObject(0)
+                            .optString("type","")))return out.put("statblock_multiattack_blocked",
+                                "compiled_damage_type_unresolved_"+i);
+                        if(!CompiledMonsterDamageGuard.accepts(
+                            attack.optString("damage_expression",""),
+                            attack.optString("extra_damage_expression",""),damage,
+                            attack.optBoolean("critical",false)))
+                            return out.put("statblock_multiattack_blocked",
+                                "damage_total_outside_compiled_dice_"+i);
+                    }
+                }
+                if(attack.optBoolean("rider_save_required",false)&&save==0)
+                    return out.put("statblock_multiattack_blocked","rider_save_required_"+i);
+                if(!attack.optBoolean("rider_save_required",false)&&save!=0)
+                    return out.put("statblock_multiattack_blocked","unexpected_rider_save_"+i);
+                // A recharging or special activation needs its own economy and
+                // recovery state, so it cannot silently become a free component.
+                if(!attack.optString("recharge","").trim().isEmpty())
+                    return out.put("statblock_multiattack_blocked","recharge_component_unsupported_"+i);
+                JSONObject rider=new JSONObject();
+                if(attack.optBoolean("rider_save_required",false)){
+                    rider=StatblockCombatRuntimeEngine.attackRiderSavingThrow(id,action,save);
+                    if(!rider.optBoolean("resolved",false))
+                        return out.put("statblock_multiattack_blocked","rider_unresolved_"+i);
+                    if(!rider.optBoolean("save_success",true)){
+                        // A source-bound effect cannot be replaced by a caller-
+                        // generated displacement or condition.
+                        if(!componentSource.optString("effect_on_fail","").equals(rider.optString("effect_on_fail",""))||
+                            !componentSource.optString("condition_on_fail","").equals(rider.optString("condition_on_fail","")))
+                            return out.put("statblock_multiattack_blocked","compiled_effect_source_changed_"+i);
+                        MonsterForcedMovementRules.Spec forced=MonsterForcedMovementRules.compiled(
+                            componentSource.optString("effect_on_fail",""),
+                            componentSource.optString("condition_on_fail",""));
+                        if(!MonsterEffectOnFailGuard.supported(rider.optString("condition_on_fail",""),
+                            rider.optString("effect_on_fail",""))&&forced==null)
+                            return out.put("statblock_multiattack_blocked","unsupported_secondary_effect_"+i);
+                        if(!MonsterConditionRiderPlan.plan(rider.optString("condition_on_fail",""),
+                            stagedConditions.containsKey(targetId)?stagedConditions.get(targetId):target.optString("conditions",""),
+                            new MonsterConditionRiderPlan.Immunity(){public boolean immune(String c){return combatantConditionImmune(target,c);}}).valid())
+                            return out.put("statblock_multiattack_blocked","unsupported_secondary_effect_"+i);
+                        if(forced!=null){
+                            if(i!=count-1)
+                                return out.put("statblock_multiattack_blocked","forced_movement_requires_final_component_"+i);
+                            forcedSpecs[i]=forced;
+                        }
+                    }
+                }
+                Object rawDestX=step.opt("forced_destination_x"),rawDestY=step.opt("forced_destination_y");
+                if(rawDestX==JSONObject.NULL)rawDestX=null;
+                if(rawDestY==JSONObject.NULL)rawDestY=null;
+                if((rawDestX!=null&&!(rawDestX instanceof Number))||
+                    (rawDestY!=null&&!(rawDestY instanceof Number)))
+                    return out.put("statblock_multiattack_blocked","invalid_forced_destination_"+i);
+                int dx=step.optInt("forced_destination_x",-1),dy=step.optInt("forced_destination_y",-1);
+                if((rawDestX instanceof Number&&((Number)rawDestX).doubleValue()!=dx)||
+                    (rawDestY instanceof Number&&((Number)rawDestY).doubleValue()!=dy)||
+                    dx< -1||dy< -1)
+                    return out.put("statblock_multiattack_blocked","invalid_forced_destination_"+i);
+                if(forcedSpecs[i]==null&&(dx>=0||dy>=0))
+                    return out.put("statblock_multiattack_blocked","forced_movement_not_applicable_"+i);
+                if(forcedSpecs[i]!=null){
+                    forcedPlans[i]=compiledMonsterForcedMovementPlan(actorId,targetId,forcedSpecs[i],dx,dy);
+                    if(forcedPlans[i].has("forced_movement_blocked"))
+                        return out.put("statblock_multiattack_blocked",forcedPlans[i].optString("forced_movement_blocked"));
+                }
+                previews[i]=attack;riders[i]=rider;damages[i]=damage;
+                mitigatedDamages[i]=mitigatedDamage;typedDamagePlans[i]=typedPlan;
+                if(attack.optBoolean("hit",false)&&attack.optBoolean("rider_save_required",false)&&
+                    !rider.optBoolean("save_success",true)){
+                    String predicted=stagedConditions.containsKey(targetId)?
+                        stagedConditions.get(targetId):target.optString("conditions","");
+                    MonsterConditionRiderPlan.Result staged=MonsterConditionRiderPlan.plan(
+                        rider.optString("condition_on_fail",""),predicted,
+                        new MonsterConditionRiderPlan.Immunity(){public boolean immune(String c){return combatantConditionImmune(target,c);}});
+                    if(!staged.valid())return out.put("statblock_multiattack_blocked","unsupported_secondary_effect_"+i);
+                    stagedConditions.put(targetId,staged.after);
+                }
+            }
+            if(!MultiattackActionRules.matches(actions,sequence,count,fixed,options))
+                return out.put("statblock_multiattack_blocked","multiattack_sequence_not_authorized");
+            JSONObject spent=spendCombatantTurnResource(actorId,"action",token+"-turn");
+            if(spent.length()==0||spent.has("resource_blocked")||spent.has("operation_error")||
+                spent.has("operation_blocked")||spent.optBoolean("operation_replayed",false))
+                throw new IllegalStateException("multiattack_action_spend_rollback");
+            JSONArray outcomes=new JSONArray();
+            for(int i=0;i<count;i++){
+                JSONObject attack=previews[i],rider=riders[i];long targetId=targets[i];
+                JSONObject outcome=new JSONObject().put("component",i).put("action",actions[i]).put("target_id",targetId);
+                // A previous component may have defeated this target; it must
+                // not be struck again, but later components may target others.
+                if(getCombatant(targetId).optInt("hp",0)<=0){outcomes.put(outcome.put("skipped_defeated_target",true));continue;}
+                // RUN231: a preceding attack can defeat/incapacitate an adjacent
+                // hostile or alter the target's condition. Re-evaluate the REAL
+                // SQLite state after each prior component; never use stale d20
+                // mode or geometry. Any drift aborts the entire outer transaction.
+                long requestedThreat=rolls.optJSONObject(i).optLong("additional_hostile_id",0L);
+                JSONObject liveGeometry=compiledStatblockAttackGeometry(actorId,targetId,id,
+                    actions[i],requestedThreat);
+                if(!liveGeometry.optBoolean("attack_geometry_valid",false)||
+                    !liveGeometry.optString("attack_geometry_fingerprint","").equals(
+                        geometries[i].optString("attack_geometry_fingerprint","")))
+                    throw new IllegalStateException("multiattack_dynamic_geometry_rollback_"+i);
+                MonsterAttackRollModeRules.Result liveMode=MonsterAttackRollModeRules.evaluate(
+                    liveGeometry.optString("attack_mode",""),liveGeometry.optInt("distance_ft",0),
+                    liveGeometry.optBoolean("long_range_disadvantage",false),
+                    getCombatant(actorId).optString("conditions",""),
+                    getCombatant(targetId).optString("conditions",""),
+                    liveGeometry.optBoolean("additional_adjacent_hostile",false));
+                if(!liveMode.legal()||!liveMode.modeName().equals(attack.optString("roll_mode",""))||
+                    liveMode.advantage!=attack.optBoolean("roll_advantage",false)||
+                    liveMode.disadvantage!=attack.optBoolean("roll_disadvantage",false)||
+                    liveMode.adjacentHostile!=attack.optBoolean("adjacent_hostile_disadvantage",false)||
+                    (liveMode.criticalOnHit!=attack.optBoolean("critical_by_condition",false)&&
+                        attack.optBoolean("hit",false)))
+                    throw new IllegalStateException("multiattack_dynamic_roll_mode_rollback_"+i);
+                String stepToken=token+"-s"+i;
+                JSONObject damageResult=new JSONObject();
+                if(attack.optBoolean("hit",false)&&
+                    (damages[i]>0||typedDamagePlans[i]!=null)){
+                    boolean typed=typedDamagePlans[i]!=null;
+                    int damageAmount=typed?mitigatedDamages[i]:damages[i];
+                    damageResult=applyCombatantDamage(targetId,damageAmount,
+                        typed?"":attack.optString("damage_type",""),
+                        attack.optBoolean("critical",false),false,stepToken+"-damage");
+                    if(damageResult.length()==0||damageResult.has("operation_error")||
+                        damageResult.has("operation_blocked")||damageResult.optBoolean("operation_replayed",false)||
+                        !damageResult.has("raw_damage"))
+                        throw new IllegalStateException("multiattack_damage_rollback_"+i);
+                    if(typed)damageResult.put("raw_damage",damages[i])
+                        .put("applied_damage",mitigatedDamages[i]).put("damage_type","typed_components")
+                        .put("components",typedDamagePlans[i].getJSONArray("components"))
+                        .put("damage_type_modifier_delta",mitigatedDamages[i]-damages[i]);
+                }
+                if(attack.optBoolean("rider_save_required",false)&&!rider.optBoolean("save_success",true)){
+                    JSONObject transition=commitCompiledMonsterConditionRider(actorId,targetId,id,actions[i],stepToken,rider.optString("condition_on_fail",""));
+                    rider.put("condition_transition",transition);
+                    attack.put("rider_condition_transition",transition);
+                    if(forcedSpecs[i]!=null){
+                        JSONObject moved=commitCompiledMonsterForcedMovement(actorId,targetId,
+                            forcedSpecs[i],forcedPlans[i]);
+                        rider.put("forced_movement_transition",moved);
+                        attack.put("forced_movement_transition",moved);
+                    }
+                }
+                attack.put("attack_geometry",geometries[i]);
+                recordEffectReceipt(combatReceiptKey(actorId,stepToken+"-proof"),attack.toString());
+                outcomes.put(outcome.put("resolved",attack).put("rider",rider).put("damage",damageResult));
+            }
+            JSONObject proof=new JSONObject().put("schema","statblock_multiattack_v1").put("actor_id",actorId)
+                .put("statblock_id",id).put("count",count).put("components",outcomes);
+            recordEffectReceipt(key,proof.toString());
+            return out.put("statblock_multiattack_committed",true).put("statblock_multiattack_receipt",key)
+                .put("components",outcomes).put("action_spent_once",true);
+        }});
+    }
+
+    /** RUN237: source-compiled push/pull; preflight uses persisted scene and
+     * tactical tokens and is repeated at commit inside combatAtomic. */
+    private JSONObject compiledMonsterForcedMovementPlan(long actorId,long targetId,
+        MonsterForcedMovementRules.Spec spec,int destX,int destY)throws Exception {
+        JSONObject out=new JSONObject();
+        JSONObject scene=new ProceduralTacticalSceneGenerator(this).ensureForCurrentScene();
+        int w=scene.optInt("width_cells",0),h=scene.optInt("height_cells",0);
+        if(w<1||h<1||w>100||h>100)return out.put("forced_movement_blocked","scene_grid_unavailable");
+        ensureTacticalTokensForCombat();
+        boolean[][] blocked=new boolean[h][w],occupied=new boolean[h][w];
+        JSONArray obstacles=new JSONArray(scene.optString("obstacles_json","[]"));
+        for(int i=0;i<obstacles.length();i++){
+            JSONObject ob=obstacles.optJSONObject(i);
+            if(ob==null)return out.put("forced_movement_blocked","invalid_obstacle");
+            int x=ob.optInt("x",-1),y=ob.optInt("y",-1);
+            if(x<0||y<0||x>=w||y>=h)return out.put("forced_movement_blocked","obstacle_outside_grid");
+            if(ob.optBoolean("blocks_movement",false)||"wall".equals(ob.optString("type","")))blocked[y][x]=true;
+        }
+        int ax=-1,ay=-1,tx=-1,ty=-1;
+        List<JSONObject> positions=queryList("SELECT t.combatant_id,t.x,t.y,c.hp FROM tactical_tokens t "+
+            "JOIN combatants c ON c.id=t.combatant_id AND c.world_profile=t.world_profile WHERE t.world_profile=?",
+            new String[]{getActiveMapProfile()});
+        java.util.HashSet<Long> ids=new java.util.HashSet<Long>();
+        for(JSONObject position:positions){
+            long id=position.optLong("combatant_id",0);
+            double px=position.optDouble("x",Double.NaN),py=position.optDouble("y",Double.NaN);
+            if(id<=0||!ids.add(id)||!Double.isFinite(px)||!Double.isFinite(py)||
+                px<0||py<0||px>=1||py>=1)
+                return out.put("forced_movement_blocked","invalid_tactical_token");
+            int x=(int)Math.floor(px*w),y=(int)Math.floor(py*h);
+            if(id==actorId){ax=x;ay=y;}
+            if(id==targetId){tx=x;ty=y;}
+            else if(position.optInt("hp",0)>0)occupied[y][x]=true;
+        }
+        if(ax<0||tx<0)return out.put("forced_movement_blocked","source_or_target_token_missing");
+        MonsterForcedMovementRules.Plan plan=MonsterForcedMovementRules.plan(spec,ax,ay,tx,ty,
+            destX,destY,w,h,blocked,occupied);
+        if(!plan.valid())return out.put("forced_movement_blocked",plan.blocked);
+        return out.put("schema",MonsterForcedMovementRules.SCHEMA)
+            .put("scene_key",scene.optString("scene_key",""))
+            .put("source_x",ax).put("source_y",ay)
+            .put("from_x",tx).put("from_y",ty).put("to_x",destX).put("to_y",destY)
+            .put("width_cells",w).put("height_cells",h).put("feet",plan.feet)
+            .put("direction",spec.direction).put("maximum_feet",spec.maximumFeet);
+    }
+    private JSONObject commitCompiledMonsterForcedMovement(long actorId,long targetId,
+        MonsterForcedMovementRules.Spec spec,JSONObject approved)throws Exception {
+        if(approved==null||!MonsterForcedMovementRules.SCHEMA.equals(approved.optString("schema","")))
+            throw new IllegalStateException("forced_movement_missing_preflight_rollback");
+        JSONObject live=compiledMonsterForcedMovementPlan(actorId,targetId,spec,
+            approved.optInt("to_x",-1),approved.optInt("to_y",-1));
+        if(live.has("forced_movement_blocked")||
+            !live.optString("scene_key","").equals(approved.optString("scene_key",""))||
+            live.optInt("source_x",-1)!=approved.optInt("source_x",-2)||
+            live.optInt("source_y",-1)!=approved.optInt("source_y",-2)||
+            live.optInt("from_x",-1)!=approved.optInt("from_x",-2)||
+            live.optInt("from_y",-1)!=approved.optInt("from_y",-2)||
+            live.optInt("to_x",-1)!=approved.optInt("to_x",-2)||
+            live.optInt("to_y",-1)!=approved.optInt("to_y",-2)||
+            live.optInt("feet",-1)!=approved.optInt("feet",-2)||
+            !live.optString("direction","").equals(approved.optString("direction","")))
+            throw new IllegalStateException("forced_movement_scene_changed_rollback");
+        ContentValues position=new ContentValues();
+        position.put("x",(live.optInt("to_x")+0.5)/(double)live.optInt("width_cells"));
+        position.put("y",(live.optInt("to_y")+0.5)/(double)live.optInt("height_cells"));
+        position.put("updated_at",System.currentTimeMillis());
+        if(getWritableDatabase().update("tactical_tokens",position,
+            "world_profile=? AND combatant_id=?",new String[]{getActiveMapProfile(),String.valueOf(targetId)})!=1)
+            throw new IllegalStateException("forced_movement_write_rollback");
+        JSONObject saved=tacticalGridPosition(targetId);
+        if(saved.optInt("cell_x",-1)!=live.optInt("to_x",-2)||
+            saved.optInt("cell_y",-1)!=live.optInt("to_y",-2)||
+            !live.optString("scene_key","").equals(saved.optString("scene_key","")))
+            throw new IllegalStateException("forced_movement_readback_rollback");
+        return live.put("source_actor_id",actorId).put("target_id",targetId);
+    }
+
+    /** Legacy caller cannot silently skip a compiled displacement effect. */
+    public JSONObject applyCompiledStatblockSaveAction(final long actorId,final long targetId,
+        final String statblockId,final String action,final int saveRoll,final int damageTotal,
+        final String token){
+        return applyCompiledStatblockSaveAction(actorId,targetId,statblockId,action,
+            saveRoll,damageTotal,-1,-1,token);
+    }
+    /** Manual tactical destination is required when the failed save declares
+     * a supported push/pull. Coordinates are zero-based tactical grid cells. */
+    public JSONObject applyCompiledStatblockSaveAction(final long actorId,final long targetId,
+        final String statblockId,final String action,final int saveRoll,final int damageTotal,
+        final int destinationX,final int destinationY,final String token){
+        return combatAtomic("compiled_statblock_save_action",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject(),actor=getCombatant(actorId),target=getCombatant(targetId);
+            if(token==null||!token.startsWith("ui-monster-save-")||!CombatActionReceiptGuard.validToken(token))
+                return out.put("statblock_save_blocked","invalid_operation_token");
+            String key=combatReceiptKey(actorId,token+"-save");
+            if(hasEffectReceipt(key))return out.put("statblock_save_blocked","already_resolved_or_replayed");
+            if(actor.length()==0||target.length()==0||actorId==targetId||actor.optInt("is_player",0)==1)
+                return out.put("statblock_save_blocked","invalid_monster_or_target");
+            JSONObject resources=combatResources(actor);
+            String id=resources.optString("block_id","").trim();
+            String authorityBlock=CompiledMonsterActionGuard.statblockBlock(id,statblockId);
+            if(!authorityBlock.isEmpty()||action==null||action.trim().isEmpty())return out.put("statblock_save_blocked",authorityBlock.isEmpty()?"missing_authorized_statblock_action":authorityBlock);
+            if(target.optInt("hp",0)<=0||saveRoll<1||saveRoll>100||damageTotal<0)return out.put("statblock_save_blocked","invalid_save_input");
+            JSONObject resolved=StatblockCombatRuntimeEngine.savingThrowAction(id,action.trim(),saveRoll);
+            if(!resolved.optBoolean("resolved",false))return out.put("statblock_save_blocked",resolved.optString("reason","statblock_save_unresolved"));
+            // The runtime emits only the active damage expression. Recover the
+            // two source-declared forms to verify half/zero damage on a save.
+            JSONObject sourceAction=new JSONObject();
+            JSONArray sourceActions=CompiledStatblockEngine.runtimeProfile(id).optJSONArray("actions");
+            if(sourceActions!=null)for(int si=0;si<sourceActions.length();si++){
+                JSONObject candidate=sourceActions.optJSONObject(si);
+                if(candidate!=null&&action.trim().equalsIgnoreCase(candidate.optString("name",""))){
+                    sourceAction=candidate;break;
+                }
+            }
+            if(sourceAction.length()==0)return out.put("statblock_save_blocked","missing_compiled_save_action");
+            String saveAbilityBlock=MonsterActionEconomyGuard.saveAbilityBlock(
+                sourceAction.optInt("save_dc",0),sourceAction.optString("save_ability",""));
+            if(!saveAbilityBlock.isEmpty())return out.put("statblock_save_blocked",saveAbilityBlock);
+            if(!MonsterSaveDamageGuard.accepts(
+                sourceAction.optString("damage",""),sourceAction.optString("damage_on_save",""),
+                resolved.optBoolean("save_success",false),damageTotal))
+                return out.put("statblock_save_blocked","damage_total_outside_compiled_save_dice");
+            // RUN237: a bonus action must not consume a normal action. Legendary
+            // actions and reactions require separate turn/trigger budgets and
+            // cannot be smuggled through the generic saving-throw UI.
+            String category=sourceAction.optString("category","action");
+            String resourceCost=MonsterActionEconomyGuard.standaloneCost(category);
+            if(resourceCost.isEmpty())
+                return out.put("statblock_save_blocked","unsupported_action_economy:"+category);
+            MonsterForcedMovementRules.Spec forced=null;
+            if(!resolved.optBoolean("save_success",true)){
+                // Recheck the compiled source, never a caller-supplied effect.
+                if(!sourceAction.optString("effect_on_fail","").equals(resolved.optString("effect_on_fail",""))||
+                    !sourceAction.optString("condition_on_fail","").equals(resolved.optString("condition_on_fail","")))
+                    return out.put("statblock_save_blocked","compiled_effect_source_changed");
+                forced=MonsterForcedMovementRules.compiled(sourceAction.optString("effect_on_fail",""),
+                    sourceAction.optString("condition_on_fail",""));
+                if(!MonsterEffectOnFailGuard.supported(resolved.optString("condition_on_fail",""),
+                    resolved.optString("effect_on_fail",""))&&forced==null)
+                    return out.put("statblock_save_blocked","unsupported_secondary_effect");
+            }
+            JSONObject forcedPlan=new JSONObject();
+            if(forced==null&&(destinationX>=0||destinationY>=0))
+                return out.put("statblock_save_blocked","forced_movement_not_applicable");
+            if(forced!=null){
+                forcedPlan=compiledMonsterForcedMovementPlan(actorId,targetId,forced,destinationX,destinationY);
+                if(forcedPlan.has("forced_movement_blocked"))return out.put("statblock_save_blocked",
+                    forcedPlan.optString("forced_movement_blocked","forced_movement_invalid"));
+            }
+            if(!resolved.optBoolean("save_success",true)&&!MonsterConditionRiderPlan.plan(
+                resolved.optString("condition_on_fail",""),target.optString("conditions",""),
+                new MonsterConditionRiderPlan.Immunity(){public boolean immune(String c){return combatantConditionImmune(target,c);}}).valid())
+                return out.put("statblock_save_blocked","unsupported_secondary_effect");
+            String recharge=resolved.optString("recharge","").trim();JSONObject spent=resources.optJSONObject("statblock_recharge_spent");if(spent==null)spent=new JSONObject();
+            String activationBlock=CompiledMonsterActionGuard.actionRechargeBlock(recharge);
+            if(!activationBlock.isEmpty())return out.put("statblock_save_blocked",activationBlock);
+            if(!recharge.isEmpty()&&MonsterRechargeLedgerCodec.spent(spent,action))return out.put("statblock_save_blocked","recharge_required").put("recharge",recharge);
+            JSONObject actionSpent=spendCombatantTurnResource(actorId,resourceCost,token+"-"+resourceCost);
+            if(actionSpent.has("resource_blocked")||actionSpent.has("operation_blocked")||actionSpent.has("operation_replayed"))return out.put("statblock_save_blocked",actionSpent.optString("resource_blocked",actionSpent.optString("operation_blocked", "already_resolved_or_replayed")));
+            if(actionSpent.has("operation_error")||actionSpent.length()==0)throw new IllegalStateException("compiled_statblock_save_action_rollback");
+            JSONObject damage=new JSONObject();
+            if(damageTotal>0){damage=applyCombatantDamage(targetId,damageTotal,resolved.optString("damage_type",""),false,false,token+"-damage");if(damage.length()==0||damage.has("operation_error")||damage.has("operation_blocked"))throw new IllegalStateException("compiled_statblock_save_damage_rollback");}
+            JSONObject riderTransition=new JSONObject();
+            if(!resolved.optBoolean("save_success",true)){
+                riderTransition=commitCompiledMonsterConditionRider(actorId,targetId,id,action,token,resolved.optString("condition_on_fail",""));
+                resolved.put("rider_condition_transition",riderTransition);
+                if(forced!=null){
+                    JSONObject moved=commitCompiledMonsterForcedMovement(actorId,targetId,forced,forcedPlan);
+                    resolved.put("forced_movement_transition",moved);
+                }
+            }
+            if(!recharge.isEmpty()){resources=combatResources(getCombatant(actorId));spent=resources.optJSONObject("statblock_recharge_spent");if(spent==null)spent=new JSONObject();MonsterRechargeLedgerCodec.write(spent,action,true);resources.put("statblock_recharge_spent",spent);JSONObject spentRound=resources.optJSONObject("statblock_recharge_spent_round");if(spentRound==null)spentRound=new JSONObject();MonsterRechargeLedgerCodec.write(spentRound,action,Math.max(1,getCombatState().optInt("round_no",1)));resources.put("statblock_recharge_spent_round",spentRound);ContentValues v=new ContentValues();v.put("resources_json",resources.toString());requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(actorId),getActiveMapProfile()}));}
+            recordEffectReceipt(key,resolved.toString());
+            return out.put("statblock_save_committed",true).put("statblock_save_receipt",key).put("resolved",resolved).put("damage",damage).put("damage_total",damageTotal).put("condition_transition",riderTransition).put("recharge_spent",!recharge.isEmpty());
+        }});
+    }
+    /** Recharges a compiled monster action with the caller-supplied d6; never infers a roll. */
+    public JSONObject rechargeCompiledStatblockAction(final long actorId,final String statblockId,
+        final String action,final int d6,final String token){
+        return combatAtomic("compiled_statblock_recharge",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject(),actor=getCombatant(actorId);
+            if(token==null||!token.startsWith("ui-monster-recharge-")||!CombatActionReceiptGuard.validToken(token))
+                return out.put("statblock_recharge_blocked","invalid_operation_token");
+            String key=combatReceiptKey(actorId,token+"-recharge");
+            if(hasEffectReceipt(key))return out.put("statblock_recharge_blocked","already_resolved_or_replayed");
+            if(actor.length()==0||actor.optInt("is_player",0)==1)
+                return out.put("statblock_recharge_blocked","invalid_monster");
+            JSONObject resources=combatResources(actor);
+            String id=resources.optString("block_id","").trim();
+            String authorityBlock=CompiledMonsterActionGuard.statblockBlock(id,statblockId);
+            if(!authorityBlock.isEmpty()||action==null||action.trim().isEmpty())return out.put("statblock_recharge_blocked",authorityBlock.isEmpty()?"missing_authorized_statblock_action":authorityBlock);
+            int round=Math.max(1,getCombatState().optInt("round_no",1));
+            JSONObject spent=resources.optJSONObject("statblock_recharge_spent");
+            JSONObject spentRound=resources.optJSONObject("statblock_recharge_spent_round");
+            JSONObject rolledRound=resources.optJSONObject("statblock_recharge_rolled_round");
+            String blocked=CompiledMonsterActionGuard.rechargeBlock(getCombatState().optInt("running",0)==1,
+                actor.optInt("active_turn",0)==1,actor.optInt("hp",0),spent!=null&&MonsterRechargeLedgerCodec.spent(spent,action),
+                MonsterRechargeLedgerCodec.latestRound(spentRound,action),MonsterRechargeLedgerCodec.latestRound(rolledRound,action),round);
+            if(!blocked.isEmpty())return out.put("statblock_recharge_blocked",blocked);
+            JSONObject check=StatblockCombatRuntimeEngine.rechargeCheck(id,action.trim(),d6);
+            if(!check.optBoolean("resolved",false))return out.put("statblock_recharge_blocked",check.optString("reason","recharge_unresolved"));
+            MonsterRechargeLedgerCodec.write(spent,action,!check.optBoolean("recharged",false));resources.put("statblock_recharge_spent",spent);
+            if(rolledRound==null)rolledRound=new JSONObject();MonsterRechargeLedgerCodec.write(rolledRound,action,round);resources.put("statblock_recharge_rolled_round",rolledRound);
+            ContentValues v=new ContentValues();v.put("resources_json",resources.toString());
+            requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(actorId),getActiveMapProfile()}));
+            recordEffectReceipt(key,check.toString());
+            return out.put("statblock_recharge_committed",true).put("statblock_recharge_receipt",key).put("resolved",check);
+        }});
+    }
+    public JSONObject healCombatant(long id,int amount){return healCombatant(id,amount,"");}
+    public JSONObject healCombatant(final long id,final int amount,final String operationToken){
+        return combatAtomic("healing",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject c=getCombatant(id),out=new JSONObject();if(c.length()==0||amount<0)return out;
+            JSONObject resources=combatResources(c);String signature="heal:"+amount;
+            String decision=combatReceiptDecision(resources,operationToken,signature,id);
+            if(!decision.isEmpty())return combatReceiptResponse(c,"healing",decision);
+            if(resources.optBoolean("dead",false))return c.put("healing_blocked","dead");int before=c.optInt("hp"),max=Math.max(1,c.optInt("max_hp",1)),after=CombatTurnGuard.safeHealing(before,max,amount);int succ=c.optInt("death_success"),fail=c.optInt("death_fail");String conditions=c.optString("conditions");if(after>before){clearRecoverySchedule(resources);}if(before==0&&after>0){succ=0;fail=0;resources.put("stable",false).put("death_save_due",false);conditions=ConditionRulesEngine.remove(conditions,"Inconsciente");conditions=ConditionRulesEngine.add(conditions,"Caído");}recordCombatReceipt(resources,operationToken,signature,id);ContentValues v=new ContentValues();v.put("hp",after);v.put("death_success",succ);v.put("death_fail",fail);v.put("conditions",conditions);v.put("resources_json",resources.toString());requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}));syncCombatantHeroState(c,after,c.optInt("temp_hp"),conditions,resources);out=getCombatant(id).put("applied_healing",after-before);return out;
+        }});
+    }
+    // RUN196_COMBAT_BATCH: efeitos multi-alvo só confirmam juntos; replay parcial é bloqueado.
+    // Não aceita dano negativo, alvos inexistentes, operações desconhecidas ou colisão de token.
+    public JSONObject applyCombatEffectsBatch(final JSONArray effects,final String operationToken){
+        return combatAtomic("combat_effects_batch",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject();
+            if(effects==null||effects.length()<1||effects.length()>64)return out.put("effects_batch_blocked","invalid_batch_size");
+            if(operationToken==null||!CombatActionReceiptGuard.validToken(operationToken)||operationToken.length()>112)
+                return out.put("effects_batch_blocked","invalid_operation_token");
+            int replayed=0;
+            java.util.HashSet<Long> distinctTargets=new java.util.HashSet<Long>();
+            for(int i=0;i<effects.length();i++){
+                JSONObject effect=effects.optJSONObject(i);
+                if(effect==null)return out.put("effects_batch_blocked","invalid_effect_"+i);
+                long id=effect.optLong("target_id",0);int amount=effect.optInt("amount",-1);
+                String kind=effect.optString("kind","");
+                if(id<=0||amount<0||!("damage".equals(kind)||"healing".equals(kind)))
+                    return out.put("effects_batch_blocked","invalid_effect_"+i);
+                if(!distinctTargets.add(id))return out.put("effects_batch_blocked","duplicate_target_"+i);
+                JSONObject target=getCombatant(id);
+                if(target.length()==0)return out.put("effects_batch_blocked","target_not_found_"+i);
+                String token=operationToken+"-"+i;
+                String signature="healing".equals(kind)?"heal:"+amount:
+                    "damage:"+amount+":"+effect.optString("damage_type","")+":"+effect.optBoolean("critical",false)+":"+effect.optBoolean("nonlethal_melee",false);
+                String decision=combatReceiptDecision(combatResources(target),token,signature,id);
+                if(!decision.isEmpty()&&!"replayed".equals(decision))return out.put("effects_batch_blocked",decision);
+                if("replayed".equals(decision))replayed++;
+                if(!"replayed".equals(decision)){
+                    if(effect.has("expected_hp")&&target.optInt("hp")!=effect.optInt("expected_hp"))
+                        return out.put("effects_batch_blocked","target_state_changed_"+i);
+                    if(effect.has("expected_temp_hp")&&target.optInt("temp_hp")!=effect.optInt("expected_temp_hp"))
+                        return out.put("effects_batch_blocked","target_state_changed_"+i);
+                }
+            }
+            if(replayed>0&&replayed<effects.length())return out.put("effects_batch_blocked","partial_replay_requires_manual_review");
+            if(replayed==effects.length())return out.put("operation_replayed",true).put("operation_kind","combat_effects_batch").put("effect_count",replayed);
+            JSONArray results=new JSONArray();
+            for(int i=0;i<effects.length();i++){
+                JSONObject e=effects.getJSONObject(i);long id=e.getLong("target_id");int amount=e.getInt("amount");
+                String token=operationToken+"-"+i;JSONObject result;
+                if("damage".equals(e.optString("kind")))result=applyCombatantDamage(id,amount,e.optString("damage_type",""),e.optBoolean("critical",false),e.optBoolean("nonlethal_melee",false),token);
+                else result=healCombatant(id,amount,token);
+                if(result.length()==0||result.has("operation_error")||result.has("operation_blocked")||result.has("healing_blocked")||result.has("damage_blocked"))
+                    throw new IllegalStateException("combat_effect_batch_rollback_at_"+i);
+                results.put(new JSONObject().put("target_id",id).put("kind",e.optString("kind")).put("state",result));
+            }
+            return out.put("effects_batch_applied",true).put("effect_count",results.length()).put("effects",results);
+        }});
+    }
+    // RUN197_AREA_EFFECT_TRANSACTION: action/bonus/reaction and multi-target effects share one SQLite commit.
+    // No inferred actor decision: the UI explicitly chooses a resource, including "none".
+    public JSONObject applyCombatEffectsWithAction(final long actorId,final String resource,
+                                                    final JSONArray effects,final String operationToken){
+        return combatAtomic("combat_area_action",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject blocked=new JSONObject();
+            String cost=resource==null?"":resource.trim().toLowerCase(Locale.ROOT);
+            if(!CombatBatchPlanGuard.validResource(cost))return blocked.put("area_action_blocked","invalid_resource");
+            if(effects==null||!CombatBatchPlanGuard.validBatchSize(effects.length()))return blocked.put("area_action_blocked","invalid_batch_size");
+            if(operationToken==null||!CombatActionReceiptGuard.validToken(operationToken)||operationToken.length()>112)
+                return blocked.put("area_action_blocked","invalid_operation_token");
+            JSONObject actor=null;String actorDecision="";
+            if(!"none".equals(cost)){
+                if(actorId<=0)return blocked.put("area_action_blocked","actor_required");
+                actor=getCombatant(actorId);
+                if(actor.length()==0)return blocked.put("area_action_blocked","actor_missing");
+                actorDecision=combatReceiptDecision(combatResources(actor),operationToken+"-turn","spend:"+cost,actorId);
+                if(!actorDecision.isEmpty()&&!"replayed".equals(actorDecision))
+                    return blocked.put("area_action_blocked",actorDecision);
+            }
+            int replayCount=0;java.util.HashSet<Long> ids=new java.util.HashSet<Long>();
+            for(int i=0;i<effects.length();i++){
+                JSONObject effect=effects.optJSONObject(i);
+                if(effect==null)return blocked.put("area_action_blocked","invalid_effect_"+i);
+                long id=effect.optLong("target_id",0);int amount=effect.optInt("amount",-1);
+                String kind=effect.optString("kind","");
+                if(!CombatBatchPlanGuard.validTarget(id,amount)||!("damage".equals(kind)||"healing".equals(kind))||!ids.add(id))
+                    return blocked.put("area_action_blocked","invalid_or_duplicate_target_"+i);
+                JSONObject target=getCombatant(id);
+                if(target.length()==0)return blocked.put("area_action_blocked","target_missing_"+i);
+                String sig="healing".equals(kind)?"heal:"+amount:
+                    "damage:"+amount+":"+effect.optString("damage_type","")+":"+
+                    effect.optBoolean("critical",false)+":"+effect.optBoolean("nonlethal_melee",false);
+                String decision=combatReceiptDecision(combatResources(target),operationToken+"-"+i,sig,id);
+                if(!decision.isEmpty()&&!"replayed".equals(decision))
+                    return blocked.put("area_action_blocked",decision);
+                if("replayed".equals(decision))replayCount++;
+                if(!"replayed".equals(decision)){
+                    if(effect.has("expected_hp")&&target.optInt("hp")!=effect.optInt("expected_hp"))
+                        return blocked.put("area_action_blocked","target_state_changed_"+i);
+                    if(effect.has("expected_temp_hp")&&target.optInt("temp_hp")!=effect.optInt("expected_temp_hp"))
+                        return blocked.put("area_action_blocked","target_state_changed_"+i);
+                }
+            }
+            if(!CombatBatchPlanGuard.replayConsistent(replayCount,effects.length(),!"none".equals(cost),"replayed".equals(actorDecision)))
+                return blocked.put("area_action_blocked","partial_or_split_replay_requires_review");
+            boolean allReplay=replayCount==effects.length();
+            if(allReplay)return blocked.put("operation_replayed",true).put("operation_kind","combat_area_action");
+            if(!"none".equals(cost)){
+                JSONObject charge=spendCombatantTurnResource(actorId,cost,operationToken+"-turn");
+                if(charge.length()==0||charge.has("operation_error")||charge.has("operation_blocked")||charge.has("resource_blocked")||charge.optBoolean("operation_replayed",false))
+                    return blocked.put("area_action_blocked",charge.optString("resource_blocked","resource_unavailable"));
+            }
+            JSONObject applied=applyCombatEffectsBatch(effects,operationToken);
+            if(!applied.optBoolean("effects_batch_applied",false))
+                throw new IllegalStateException("area_effects_rollback_after_resource_charge");
+            return applied.put("area_action_committed",true).put("resource_spent",cost)
+                .put("actor_id",actorId);
+        }});
+    }
+
+    // RUN198_SAVE_AREA: actual D&D save math (incl. Evasion) with transactional combat effects.
+    // Rolls are generated by the existing in-app dice system and explicitly approved in UI.
+    public JSONObject combatantAreaSaveInfo(long id,String ability){
+        JSONObject info=new JSONObject();
+        try{
+            JSONObject c=getCombatant(id);
+            if(c.length()==0||!AreaSaveDamageRules.validAbility(ability))return info.put("save_info_error","invalid_target_or_ability");
+            JSONObject resources=combatResources(c);
+            boolean evasion=resources.optBoolean("evasion",false);
+            int bonus=0;boolean known=false;
+            if(c.optInt("is_player",0)==1){
+                JSONObject ch=findCharacterByName(c.optString("name"));
+                if(ch.length()>0){
+                    String label="dex".equals(ability)?"Dexterity":"str".equals(ability)?"Strength":
+                        "con".equals(ability)?"Constitution":"int".equals(ability)?"Intelligence":
+                        "wis".equals(ability)?"Wisdom":"Charisma";
+                    bonus=new DndRulesEngine().savingThrowBonus(ch,label);known=true;
+                    JSONObject sheet=readCharacterSheet(ch);
+                    String cls=ch.optString("class_name",sheet.optString("class_name","")).trim().toLowerCase(Locale.ROOT);
+                    int level=ch.optInt("level",sheet.optInt("level",1));
+                    boolean singleClass=!cls.contains("/")&&!cls.contains(",")&&!cls.contains("+");
+                    if(singleClass&&level>=7&&(cls.equals("rogue")||cls.equals("ladino")||
+                        cls.equals("monk")||cls.equals("monge")||cls.startsWith("monge ")||
+                        cls.startsWith("monk ")||cls.startsWith("ladino ")||cls.startsWith("rogue ")))evasion=true;
+                    if(sheet.optBoolean("evasion",false)||sheet.optBoolean("evasao",false))evasion=true;
+                }
+            }else{
+                JSONObject saves=resources.optJSONObject("saving_throw_bonuses");
+                if(saves==null)saves=resources.optJSONObject("save_bonuses");
+                if(saves!=null&&saves.has(ability)){bonus=saves.optInt(ability);known=true;}
+                else if(resources.has("save_"+ability+"_bonus")){bonus=resources.optInt("save_"+ability+"_bonus");known=true;}
+            }
+            info.put("target_id",id).put("bonus_known",known).put("bonus",bonus)
+                .put("evasion",evasion).put("incapacitated",ConditionRulesEngine.incapacitated(c.optString("conditions")));
+        }catch(Exception e){try{info.put("save_info_error",String.valueOf(e.getMessage()));}catch(Exception ignored){}}
+        return info;
+    }
+
+    public JSONObject applyCombatSaveDamageWithAction(final long actorId,final String resource,
+                                                       final JSONArray saves,final String operationToken){
+        return combatAtomic("combat_area_saves",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject blocked=new JSONObject();
+            if(saves==null||!CombatBatchPlanGuard.validBatchSize(saves.length()))
+                return blocked.put("area_save_blocked","invalid_batch_size");
+            JSONArray effects=new JSONArray(),rollSummary=new JSONArray();
+            java.util.HashSet<Long> ids=new java.util.HashSet<Long>();
+            for(int i=0;i<saves.length();i++){
+                JSONObject s=saves.optJSONObject(i);
+                if(s==null)return blocked.put("area_save_blocked","invalid_save_"+i);
+                long id=s.optLong("target_id",0);
+                if(id<=0||!ids.add(id))return blocked.put("area_save_blocked","duplicate_or_invalid_target_"+i);
+                String ability=s.optString("save_ability","");
+                if(!DamageTypeNormalizer.known(s.optString("damage_type","")))
+                    return blocked.put("area_save_blocked","unknown_damage_type_"+i);
+                JSONObject info=combatantAreaSaveInfo(id,ability);
+                if(info.has("save_info_error"))return blocked.put("area_save_blocked","save_info_missing_"+i);
+                int bonus=s.optInt("save_bonus",Integer.MIN_VALUE);
+                if(bonus==Integer.MIN_VALUE)return blocked.put("area_save_blocked","bonus_required_"+i);
+                if(info.optBoolean("bonus_known",false)&&bonus!=info.optInt("bonus"))
+                    return blocked.put("area_save_blocked","save_bonus_changed_"+i);
+                if(!info.optBoolean("bonus_known",false)&&!s.optBoolean("manual_bonus_confirmed",false))
+                    return blocked.put("area_save_blocked","manual_bonus_not_confirmed_"+i);
+                AreaSaveDamageRules.Outcome result;
+                try{result=AreaSaveDamageRules.resolve(s.optInt("raw_damage",-1),ability,
+                    s.optInt("dc",-1),s.optInt("d20",-1),bonus,s.optString("on_success",""),
+                    info.optBoolean("evasion",false),info.optBoolean("incapacitated",false));}
+                catch(IllegalArgumentException invalid){return blocked.put("area_save_blocked",invalid.getMessage()+"_"+i);}
+                JSONObject target=getCombatant(id);
+                if(target.length()==0)return blocked.put("area_save_blocked","target_missing_"+i);
+                JSONObject effect=new JSONObject().put("target_id",id).put("kind","damage")
+                    .put("amount",result.damage).put("damage_type",s.optString("damage_type",""));
+                if(s.has("expected_hp"))effect.put("expected_hp",s.optInt("expected_hp"));
+                if(s.has("expected_temp_hp"))effect.put("expected_temp_hp",s.optInt("expected_temp_hp"));
+                effects.put(effect);
+                rollSummary.put(new JSONObject().put("target_id",id).put("d20",result.natural)
+                    .put("bonus",result.bonus).put("total",result.total).put("dc",result.dc)
+                    .put("save_success",result.saved).put("evasion",result.evasionUsed)
+                    .put("raw_damage",result.rawDamage).put("damage_after_save",result.damage));
+            }
+            JSONObject applied=applyCombatEffectsWithAction(actorId,resource,effects,operationToken);
+            if(applied.optBoolean("area_action_committed",false))
+                applied.put("saving_throws",rollSummary).put("area_save_committed",true);
+            return applied;
+        }});
+    }
+
+    // RUN200: class levels are validated independently from shared multiclass slots.
+    private static java.util.List<Core2024CastingEligibility.ClassLevel> core2024ClassLevels(
+            JSONObject character,JSONObject sheet){
+        java.util.ArrayList<Core2024CastingEligibility.ClassLevel> result=
+            new java.util.ArrayList<Core2024CastingEligibility.ClassLevel>();
+        JSONArray classes=sheet.optJSONArray("class_levels");
+        if(classes!=null){
+            for(int i=0;i<classes.length();i++){
+                JSONObject entry=classes.optJSONObject(i);
+                if(entry==null)return new java.util.ArrayList<Core2024CastingEligibility.ClassLevel>();
+                result.add(new Core2024CastingEligibility.ClassLevel(
+                    entry.optString("class_name",entry.optString("class","")),entry.optInt("level",0)));
+            }
+        }else result.addAll(Core2024CastingEligibility.single(character.optString("class_name"),
+            character.optInt("level",1)));
+        return result;
+    }
+    private static java.util.List<String> core2024InventoryNames(JSONObject character,JSONObject sheet){
+        java.util.ArrayList<String> items=new java.util.ArrayList<String>();
+        JSONArray ledger=sheet.optJSONArray("inventory_ledger");
+        if(ledger!=null&&ledger.length()>0){
+            for(int i=0;i<ledger.length();i++){
+                JSONObject item=ledger.optJSONObject(i);
+                if(item!=null&&item.optInt("quantity",1)>0)
+                    items.add(item.optString("name",item.optString("nome","")));
+            }
+        }else{
+            // Legacy character equipment has no structured ledger; do not silently
+            // discard a previously generated arcane focus on save migration.
+            String equipment=character.optString("equipment","");
+            if(equipment.trim().isEmpty())equipment=sheet.optString("equipment",sheet.optString("inventory",""));
+            for(String name:equipment.split("[,;\n]"))items.add(name.trim());
+        }
+        return items;
+    }
+    // RUN225: a valued holy symbol must exist in the authoritative inventory ledger;
+    // an arbitrary string or client-supplied item cannot satisfy Bless's material cost.
+    private static JSONArray core2024BlessMaterials(JSONObject sheet){
+        return Core2024BlessInventory.fromSheet(sheet);
+    }
+    // RUN201: PHB2024 prepared-spell ledger lives in sheet_json; DB schema unchanged.
+    public JSONObject previewCore2024PreparedSpells(long characterId){
+        JSONObject out=new JSONObject();
+        try{
+            JSONObject ch=getCharacter(characterId);
+            if(ch.length()==0)return out.put("preparation_error","character_missing");
+            JSONObject sheet=readCharacterSheet(ch);
+            String profile=ch.optString("rules_source",sheet.optString("rules_profile",dbRulesProfileFallback()));
+            if(!new DndRulesEngine().is2024(profile))
+                return out.put("preparation_error","requires_2024_rules_profile");
+            java.util.List<Core2024PreparedSpellLedger.ClassEntry> classes=
+                Core2024PreparedSpellLedger.classes(ch,sheet);
+            if(classes.isEmpty())return out.put("preparation_error","class_levels_not_verified");
+            return Core2024PreparedSpellLedger.preview(sheet,classes);
+        }catch(Exception e){try{return out.put("preparation_error","preparation_preview_failed");}
+            catch(Exception ignored){return out;}}
+    }
+    public JSONObject saveCore2024PreparedSpells(final long characterId,final String sourceClass,
+        final JSONArray prepared,final JSONArray spellbook,final boolean bookAcquisitionConfirmed,
+        final int expectedRevision,final String expectedWindow){
+        return characterAtomic("core2024_preparation",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject ch=getCharacter(characterId);
+            if(ch.length()==0)return new JSONObject().put("preparation_error","character_missing");
+            JSONObject sheet=readCharacterSheet(ch);
+            String profile=ch.optString("rules_source",sheet.optString("rules_profile",dbRulesProfileFallback()));
+            if(!new DndRulesEngine().is2024(profile))
+                return new JSONObject().put("preparation_error","requires_2024_rules_profile");
+            java.util.List<Core2024PreparedSpellLedger.ClassEntry> classes=
+                Core2024PreparedSpellLedger.classes(ch,sheet);
+            if(classes.isEmpty())return new JSONObject().put("preparation_error","class_levels_not_verified");
+            JSONObject result=Core2024PreparedSpellLedger.configure(sheet,classes,sourceClass,
+                prepared,spellbook,bookAcquisitionConfirmed,expectedRevision,expectedWindow);
+            if(result.optBoolean("preparation_saved",false))persistCharacterSheetChecked(characterId,sheet);
+            return result;
+        }});
+    }
+
+    // RUN201 EXTRA: Wizards copy spells as timed, paid world actions (PHB 2024 p149),
+    // never by checking an unverified acquisition box in the preparation editor.
+    public JSONObject startCore2024WizardCopy(final long characterId,final String spellName,
+        final String token,final boolean sourceConfirmed,final int expectedRevision){
+        return characterAtomic("wizard_spell_copy_start",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject ch=getCharacter(characterId);if(ch.length()==0)
+                return new JSONObject().put("wizard_copy_error","character_missing");
+            JSONObject sheet=readCharacterSheet(ch),levelState=previewCore2024PreparedSpells(characterId);
+            String profile=ch.optString("rules_source",sheet.optString("rules_profile",dbRulesProfileFallback()));
+            if(!new DndRulesEngine().is2024(profile))return new JSONObject().put("wizard_copy_error","profile_not_2024");
+            JSONObject wizard=levelState.optJSONObject("classes")==null?null:
+                levelState.optJSONObject("classes").optJSONObject("wizard");
+            if(wizard==null)return new JSONObject().put("wizard_copy_error","wizard_class_required");
+            JSONObject result=Core2024WizardBookCopy.start(sheet,wizard.optInt("class_level"),
+                spellName,currentWorldHourForSimulation(),token,sourceConfirmed,expectedRevision);
+            if(result.optBoolean("wizard_copy_started",false))persistCharacterSheetChecked(characterId,sheet);
+            return result;
+        }});
+    }
+    public JSONObject recordCore2024WizardCopyStudy(final long characterId,final String projectToken,
+        final String studyToken,final double dedicatedHours,final boolean confirmed){
+        return characterAtomic("wizard_spell_copy_study",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject ch=getCharacter(characterId);if(ch.length()==0)
+                return new JSONObject().put("wizard_copy_error","character_missing");
+            JSONObject sheet=readCharacterSheet(ch);
+            JSONObject result=Core2024WizardBookCopy.recordStudy(sheet,currentWorldHourForSimulation(),
+                dedicatedHours,projectToken,studyToken,confirmed);
+            if(result.optBoolean("wizard_copy_study_recorded",false))persistCharacterSheetChecked(characterId,sheet);
+            return result;
+        }});
+    }
+    public JSONObject cancelCore2024WizardCopy(final long characterId,final String projectToken){
+        return characterAtomic("wizard_spell_copy_cancel",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject ch=getCharacter(characterId);if(ch.length()==0)
+                return new JSONObject().put("wizard_copy_error","character_missing");
+            JSONObject sheet=readCharacterSheet(ch);
+            JSONObject result=Core2024WizardBookCopy.cancel(sheet,projectToken);
+            if(result.optBoolean("wizard_copy_cancelled",false))persistCharacterSheetChecked(characterId,sheet);
+            return result;
+        }});
+    }
+    public JSONObject finishCore2024WizardCopy(final long characterId,final String token){
+        return characterAtomic("wizard_spell_copy_finish",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject ch=getCharacter(characterId);if(ch.length()==0)
+                return new JSONObject().put("wizard_copy_error","character_missing");
+            JSONObject sheet=readCharacterSheet(ch),preview=previewCore2024PreparedSpells(characterId);
+            String profile=ch.optString("rules_source",sheet.optString("rules_profile",dbRulesProfileFallback()));
+            if(!new DndRulesEngine().is2024(profile))return new JSONObject().put("wizard_copy_error","profile_not_2024");
+            JSONObject wizard=preview.optJSONObject("classes")==null?null:
+                preview.optJSONObject("classes").optJSONObject("wizard");
+            if(wizard==null)return new JSONObject().put("wizard_copy_error","wizard_class_required");
+            JSONObject result=Core2024WizardBookCopy.finish(sheet,wizard.optInt("class_level"),
+                currentWorldHourForSimulation(),token);
+            if(result.optBoolean("wizard_copy_committed",false))persistCharacterSheetChecked(characterId,sheet);
+            return result;
+        }});
+    }
+    public JSONObject previewCore2024WizardCopy(long characterId){
+        JSONObject ch=getCharacter(characterId),sheet=readCharacterSheet(ch);
+        return Core2024WizardBookCopy.pending(sheet,currentWorldHourForSimulation());
+    }
+    public JSONObject previewCore2024CastingEligibility(long characterId,String spellName,String ability){
+        JSONObject out=new JSONObject();
+        try{
+            JSONObject character=getCharacter(characterId);
+            if(character.length()==0)return out.put("eligibility_error","character_missing");
+            JSONObject sheet=readCharacterSheet(character);
+            Core2024CastingEligibility.Result eligibility=Core2024CastingEligibility.check(
+                spellName,character.optInt("level",1),core2024ClassLevels(character,sheet),ability);
+            if(!eligibility.allowed())return out.put("eligibility_error",eligibility.error);
+            Core2024SpellRules.Spell compiled=Core2024SpellRules.find(spellName);
+            String selectedSource="";
+            // Multiple classes can prepare the same spell; do not choose an unprepared
+            // class just because it was the last class in the multiclass array.
+            for(Core2024CastingEligibility.ClassLevel c:core2024ClassLevels(character,sheet)){
+                String cls=Core2024CastingEligibility.baseClass(c.name);
+                if(!Core2024CastingEligibility.listed(compiled.key,cls)||
+                    !Core2024CastingEligibility.ability(cls).equals(ability)||
+                    c.level<(compiled.level==3?5:1))continue;
+                if(Core2024PreparedSpellLedger.isPrepared(sheet,cls,compiled.key)){
+                    selectedSource=cls;break;
+                }
+            }
+            if(selectedSource.isEmpty())return out.put("eligibility_error","spell_not_prepared_2024");
+            if("bless".equals(compiled.key)){
+                if(core2024BlessMaterials(sheet).length()==0)
+                    return out.put("eligibility_error","valued_holy_symbol_5gp_missing");
+            }else{
+                String material=Core2024CastingEligibility.material(spellName,selectedSource,
+                    core2024InventoryNames(character,sheet));
+                if(!material.isEmpty())return out.put("eligibility_error",material);
+            }
+            return out.put("eligibility_valid",true).put("source_class",selectedSource)
+                .put("material_checked",true).put("prepared_ledger_valid",true);
+        }catch(Exception e){try{return out.put("eligibility_error","eligibility_runtime_failure");}
+            catch(Exception ignored){return out;}}
+    }
+
+    // RUN200: single source of truth for spell geometry. No request flag can bypass it.
+    public JSONObject previewCore2024SpellGeometry(long casterId,String spellName,int centerX,int centerY,
+                                                    int direction,long touchId){
+        JSONObject out=new JSONObject();
+        try{
+            Core2024SpellRules.Spell spell=Core2024SpellRules.find(spellName);
+            if(spell==null)return out.put("geometry_error","spell_not_compiled");
+            JSONObject scene=new ProceduralTacticalSceneGenerator(this).ensureForCurrentScene();
+            if(scene.length()==0||!"ready".equals(scene.optString("status","ready")))
+                return out.put("geometry_error","tactical_scene_unavailable");
+            java.util.List<Core2024TacticalGeometry.Token> tokens=new java.util.ArrayList<Core2024TacticalGeometry.Token>();
+            for(JSONObject t:listTacticalTokens())tokens.add(new Core2024TacticalGeometry.Token(
+                t.optLong("combatant_id"),t.optDouble("x",Double.NaN),t.optDouble("y",Double.NaN)));
+            Core2024TacticalGeometry.Plan plan=Core2024TacticalGeometry.plan(spell.key,
+                scene.optInt("width_cells",12),scene.optInt("height_cells",8),
+                scene.optString("scene_key"),scene.optString("obstacles_json","[]"),
+                tokens,casterId,centerX,centerY,direction,touchId);
+            if(!plan.ok())return out.put("geometry_error",plan.error);
+            JSONArray affected=new JSONArray();for(Long id:plan.targetIds)affected.put(id.longValue());
+            return out.put("geometry_valid",true).put("geometry_signature",plan.signature)
+                .put("scene_key",scene.optString("scene_key"))
+                .put("width_cells",scene.optInt("width_cells",12))
+                .put("height_cells",scene.optInt("height_cells",8))
+                .put("target_ids",affected).put("target_count",affected.length())
+                .put("line_of_sight_verified",false).put("cover_verified",false);
+        }catch(Exception e){
+            try{return out.put("geometry_error","geometry_runtime_failure");}catch(Exception ignored){return out;}
+        }
+    }
+
+    // RUN225_BLESS_ATOMIC: a real, typed 2024 Bless cast, not a narrative preview.
+    // Character slots, action, concentration and two receipts commit in one SQL transaction.
+    // Target positions, material value, round and caster identity are ALWAYS re-read from SQLite.
+    public JSONObject castCore2024BlessAtomic(final long characterId,final long casterCombatantId,
+                                              final int slotLevel,final JSONObject request,
+                                              final String operationToken){
+        return characterAtomic("core2024_bless_cast",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject blocked=new JSONObject();
+            if(operationToken==null||!CombatActionReceiptGuard.validToken(operationToken)||operationToken.length()>92)
+                return blocked.put("bless_blocked","invalid_operation_token");
+            JSONObject hero=getCharacter(characterId),caster=getCombatant(casterCombatantId);
+            if(hero.length()==0||caster.length()==0)return blocked.put("bless_blocked","caster_missing");
+            // No name-only binding: the same name can exist on an NPC or another hero.
+            if(caster.optInt("is_player",0)!=1||!"character".equals(caster.optString("source_kind"))||
+                caster.optLong("source_id",0)!=characterId)
+                return blocked.put("bless_blocked","character_combatant_mismatch");
+            JSONObject sheet=previewCharacterResourceState(characterId);
+            String profile=hero.optString("rules_source",sheet.optString("rules_profile",dbRulesProfileFallback()));
+            if(!new DndRulesEngine().is2024(profile))return blocked.put("bless_blocked","requires_2024_rules_profile");
+            JSONObject combat=getCombatState();
+            if(combat.optInt("running",0)!=1||caster.optInt("active_turn",0)!=1||
+                caster.optInt("hp",0)<=0||ConditionRulesEngine.incapacitated(caster.optString("conditions","")))
+                return blocked.put("bless_blocked","caster_turn_unavailable");
+            int round=combat.optInt("round_no",0);
+            if(round<1)return blocked.put("bless_blocked","round_not_started");
+            String turnKey=Core2024SpellRules.turnKey(round,casterCombatantId);
+            if(turnKey.equals(combatResources(caster).optString("spell_slot_cast_turn_key","")))
+                return blocked.put("bless_blocked","one_spell_slot_per_turn_2024");
+            JSONObject input=request==null?new JSONObject():new JSONObject(request.toString());
+            String ability=input.optString("casting_ability","");
+            if(!input.optBoolean("casting_ability_confirmed",false)||!Core2024SpellRules.validAbility(ability))
+                return blocked.put("bless_blocked","casting_ability_unconfirmed");
+            JSONObject eligibility=previewCore2024CastingEligibility(characterId,"bless",ability);
+            if(!eligibility.optBoolean("eligibility_valid",false))
+                return blocked.put("bless_blocked",eligibility.optString("eligibility_error","spell_unavailable"));
+            JSONArray targets=input.optJSONArray("target_ids");
+            if(targets==null)return blocked.put("bless_blocked","targets_required");
+            String signature="core2024:bless:"+characterId+":"+casterCombatantId+":"+slotLevel+":"+
+                ability+":"+round+":"+targets.toString();
+            String replay=characterReceiptDecision(sheet,operationToken,signature);
+            if(!replay.isEmpty())return characterReceiptResponse(sheet,"core2024_bless",replay);
+            JSONArray inventory=Core2024BlessInventory.fromSheet(sheet);
+            JSONObject scene=new ProceduralTacticalSceneGenerator(AppDb.this).ensureForCurrentScene();
+            if(scene.length()==0||!"ready".equals(scene.optString("status","ready")))
+                return blocked.put("bless_blocked","tactical_scene_unavailable");
+            java.util.List<Core2024TacticalGeometry.Token> tokens=new java.util.ArrayList<Core2024TacticalGeometry.Token>();
+            for(JSONObject row:listTacticalTokens())tokens.add(new Core2024TacticalGeometry.Token(
+                row.optLong("combatant_id"),row.optDouble("x",Double.NaN),row.optDouble("y",Double.NaN)));
+            // Ignore caller-supplied inventory, source class, round, caster and concentration.
+            // All of these are server-authoritative values from the active world.
+            input.put("caster_id",casterCombatantId).put("source_class",eligibility.optString("source_class"))
+                .put("slot_level",slotLevel).put("round",round).put("operation_token",operationToken)
+                .put("inventory",inventory).put("existing_concentration",caster.optString("concentration",""));
+            Core2024BlessRuntime.Result cast=Core2024BlessRuntime.cast("2024",sheet,input,tokens,
+                scene.optInt("width_cells",12),scene.optInt("height_cells",8),
+                hero.optInt("level",1),core2024ClassLevels(hero,sheet));
+            if(!cast.allowed())return blocked.put("bless_blocked",cast.error);
+            JSONObject spent=spendCombatantTurnResource(casterCombatantId,"action",operationToken+"-turn");
+            if(spent.length()==0||spent.has("resource_blocked")||spent.has("operation_error")||
+                spent.has("operation_blocked")||spent.optBoolean("operation_replayed",false))
+                throw new IllegalStateException("bless_action_unavailable");
+            JSONObject after=cast.sheet;
+            after.put("concentration_spell","Bênção");
+            Core2024PreparedSpellLedger.lockOnCast(after);
+            recordCharacterReceipt(after,operationToken,signature);
+            persistCharacterSheetChecked(characterId,after);
+            JSONObject live=getCombatant(casterCombatantId),resources=combatResources(live);
+            resources.remove("concentration_save_pending");resources.remove("concentration_save_queue");
+            resources.put("spell_slot_cast_turn_key",turnKey).put("last_core2024_spell","bless");
+            ContentValues values=new ContentValues();values.put("concentration","Bênção");
+            values.put("resources_json",resources.toString());
+            requireCombatantWrite(getWritableDatabase().update("combatants",values,
+                "id=? AND world_profile=?",new String[]{String.valueOf(casterCombatantId),getActiveMapProfile()}));
+            JSONObject persisted=readCharacterSheet(getCharacter(characterId));
+            if(!persisted.has(Core2024BlessRuntime.FIELD)||
+                !"Bênção".equals(getCombatant(casterCombatantId).optString("concentration","")))
+                throw new IllegalStateException("bless_persistence_proof_failed");
+            return new JSONObject().put("core_spell_committed",true).put("spell","Bênção")
+                .put("slot_level",slotLevel).put("target_count",targets.length())
+                .put("casting_ability",ability).put("concentration",true)
+                .put("combat_outcome",new JSONObject().put("action_spent",true)
+                    .put("caster_id",casterCombatantId).put("targets",targets)
+                    .put("duration_rounds",10).put("round",round));
+        }});
+    }
+
+    // RUN199_CORE2024_SPELL_ATOMIC: character slot + combat action + target effects + receipt
+    // share one SQLite transaction. Manual component/preparation/geometry checks are explicit
+    // until their structured inventories and tactical positions are verified automatically.
+    public JSONObject castCore2024SpellAtomic(final long characterId,final long casterCombatantId,
+                                              final String spellName,final int slotLevel,
+                                              final JSONObject request,final String operationToken){
+        // Bless is a concentration buff with no damage roll or area save; it has
+        // its own authoritative transactional executor and shares the UI dispatcher.
+        Core2024SpellRules.Spell selected=Core2024SpellRules.find(spellName);
+        if(selected!=null&&"bless".equals(selected.key))
+            return castCore2024BlessAtomic(characterId,casterCombatantId,slotLevel,request,operationToken);
+        return characterAtomic("core2024_spell_cast",new CharacterAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject blocked=new JSONObject();
+            if(operationToken==null||!CombatActionReceiptGuard.validToken(operationToken)||operationToken.length()>92)
+                return blocked.put("core_spell_blocked","invalid_operation_token");
+            Core2024SpellRules.Spell spell=Core2024SpellRules.find(spellName);
+            if(spell==null)return blocked.put("core_spell_blocked","spell_not_compiled");
+            JSONObject character=getCharacter(characterId),caster=getCombatant(casterCombatantId);
+            if(character.length()==0||caster.length()==0)return blocked.put("core_spell_blocked","caster_missing");
+            if(caster.optInt("is_player",0)!=1||!("character".equals(caster.optString("source_kind"))&&
+                caster.optLong("source_id",0)==characterId||
+                character.optString("name","").equalsIgnoreCase(caster.optString("name",""))))
+                return blocked.put("core_spell_blocked","character_combatant_mismatch");
+            JSONObject sheet=previewCharacterResourceState(characterId);
+            String profile=character.optString("rules_source",sheet.optString("rules_profile",dbRulesProfileFallback()));
+            JSONObject p=request==null?new JSONObject():new JSONObject(request.toString());
+            JSONArray targets=p.optJSONArray("targets");
+            int count=targets==null?0:targets.length();
+            String ability=p.optString("casting_ability","");
+            if(!Core2024SpellRules.validAbility(ability)||!p.optBoolean("casting_ability_confirmed",false))
+                return blocked.put("core_spell_blocked","casting_ability_unconfirmed");
+            int score="int".equals(ability)?character.optInt("int_score",10):
+                "wis".equals(ability)?character.optInt("wis",10):
+                "cha".equals(ability)?character.optInt("cha",10):
+                "str".equals(ability)?character.optInt("str",10):
+                "dex".equals(ability)?character.optInt("dex",10):character.optInt("con",10);
+            int mod=new DndRulesEngine().modifier(score);
+            String validation=Core2024SpellRules.validate(new DndRulesEngine().is2024(profile)?"2024":"other",
+                spellName,slotLevel,count,p.optInt("raw_amount",Integer.MIN_VALUE),mod,
+                p.optBoolean("components_confirmed",false),p.optBoolean("geometry_confirmed",false),
+                p.optBoolean("prepared_confirmed",false));
+            if(!validation.isEmpty())return blocked.put("core_spell_blocked",validation);
+            JSONObject eligibility=previewCore2024CastingEligibility(characterId,spellName,ability);
+            if(!eligibility.optBoolean("eligibility_valid",false))
+                return blocked.put("core_spell_blocked",eligibility.optString("eligibility_error","spell_class_or_material_blocked"));
+            // G04: run the same pure range/target/component executor used by JVM
+            // validation against the live character, inventory and tactical board.
+            JSONObject liveScene=new ProceduralTacticalSceneGenerator(AppDb.this).ensureForCurrentScene();
+            java.util.List<Core2024TacticalGeometry.Token> liveTokens=new java.util.ArrayList<Core2024TacticalGeometry.Token>();
+            for(JSONObject t:listTacticalTokens())liveTokens.add(new Core2024TacticalGeometry.Token(
+                t.optLong("combatant_id"),t.optDouble("x",Double.NaN),t.optDouble("y",Double.NaN)));
+            String edition=new DndRulesEngine().is2024(profile)?"2024":"2014";
+            SpellTargetComponentExecutor.Request executable=new SpellTargetComponentExecutor.Request(
+                edition,spell.key,"",ability,character.optInt("level",1),
+                liveScene.optInt("width_cells",12),liveScene.optInt("height_cells",8),
+                liveScene.optString("scene_key"),liveScene.optString("obstacles_json","[]"),
+                casterCombatantId,p.optInt("center_cell_x",-1),p.optInt("center_cell_y",-1),
+                p.optInt("cone_direction",-1),p.optLong("touch_target_id",0),
+                core2024ClassLevels(character,sheet),core2024InventoryNames(character,sheet),liveTokens);
+            SpellTargetComponentExecutor.Result executableResult=SpellTargetComponentExecutor.execute(executable);
+            if(!executableResult.allowed())return blocked.put("core_spell_blocked",executableResult.error);
+            // Recompute the entire AoE on the actual, current tactical board. Manual
+            // geometry_confirmed means LOS/cover only, never permission to cherry-pick targets.
+            if(!"tactical_v1".equals(p.optString("geometry_mode","")))
+                return blocked.put("core_spell_blocked","tactical_geometry_required");
+            JSONObject geometry=previewCore2024SpellGeometry(casterCombatantId,spell.name,
+                p.optInt("center_cell_x",-1),p.optInt("center_cell_y",-1),
+                p.optInt("cone_direction",-1),p.optLong("touch_target_id",0));
+            if(!geometry.optBoolean("geometry_valid",false))
+                return blocked.put("core_spell_blocked",geometry.optString("geometry_error","geometry_unavailable"));
+            if(!geometry.optString("geometry_signature").equals(p.optString("geometry_signature"))||
+                !geometry.optString("scene_key").equals(p.optString("geometry_scene_key")))
+                return blocked.put("core_spell_blocked","tactical_positions_or_scene_changed");
+            java.util.List<Long> selectedIds=new java.util.ArrayList<Long>();
+            for(int gi=0;gi<count;gi++){
+                JSONObject gt=targets.optJSONObject(gi);
+                if(gt==null)return blocked.put("core_spell_blocked","invalid_target_"+gi);
+                selectedIds.add(gt.optLong("target_id",0));
+            }
+            java.util.List<Long> actualIds=new java.util.ArrayList<Long>();
+            JSONArray actual=geometry.optJSONArray("target_ids");
+            for(int gi=0;actual!=null&&gi<actual.length();gi++)actualIds.add(actual.optLong(gi));
+            java.util.Collections.sort(selectedIds);
+            if(!selectedIds.equals(actualIds))return blocked.put("core_spell_blocked","incomplete_or_extra_area_targets");
+            if(caster.optInt("hp",0)<=0||ConditionRulesEngine.incapacitated(caster.optString("conditions","")))
+                return blocked.put("core_spell_blocked","caster_incapacitated");
+            JSONObject combatState=getCombatState();
+            if(combatState.optInt("running",0)!=1)return blocked.put("core_spell_blocked","combat_not_running");
+            long activeId=0;
+            for(JSONObject combatant:listCombatants())if(combatant.optInt("active_turn",0)==1){activeId=combatant.optLong("id");break;}
+            if(activeId<=0)return blocked.put("core_spell_blocked","turn_not_started");
+            String turnKey=Core2024SpellRules.turnKey(combatState.optInt("round_no",1),activeId);
+            String signature="core2024:"+spell.key+":"+slotLevel+":"+casterCombatantId+":"+ability+
+                ":"+p.optInt("raw_amount")+":"+targets.toString();
+            String replay=characterReceiptDecision(sheet,operationToken,signature);
+            if(!replay.isEmpty())return characterReceiptResponse(sheet,"core2024_spell",replay);
+            JSONObject casterResources=combatResources(caster);
+            if(turnKey.equals(casterResources.optString("spell_slot_cast_turn_key","")))
+                return blocked.put("core_spell_blocked","one_spell_slot_per_turn_2024");
+            int dc=new DndRulesEngine().spellSaveDc(score,Math.max(1,character.optInt("level",1)),true);
+            JSONArray saves=new JSONArray(),effects=new JSONArray();
+            java.util.HashSet<Long> seen=new java.util.HashSet<Long>();
+            for(int i=0;i<count;i++){
+                JSONObject t=targets.optJSONObject(i);
+                if(t==null)return blocked.put("core_spell_blocked","invalid_target_"+i);
+                long targetId=t.optLong("target_id",0);JSONObject target=getCombatant(targetId);
+                if(targetId<=0||target.length()==0||!seen.add(targetId))
+                    return blocked.put("core_spell_blocked","duplicate_or_missing_target_"+i);
+                if(!t.has("expected_hp")||!t.has("expected_temp_hp")||
+                    target.optInt("hp")!=t.optInt("expected_hp")||
+                    target.optInt("temp_hp")!=t.optInt("expected_temp_hp"))
+                    return blocked.put("core_spell_blocked","target_snapshot_changed_"+i);
+                if(spell.healing){
+                    effects.put(new JSONObject().put("target_id",targetId).put("kind","healing")
+                        .put("amount",Math.max(0,p.optInt("raw_amount")))
+                        .put("expected_hp",t.optInt("expected_hp"))
+                        .put("expected_temp_hp",t.optInt("expected_temp_hp")));
+                }else{
+                    JSONObject info=combatantAreaSaveInfo(targetId,spell.saveAbility);
+                    if(info.has("save_info_error"))return blocked.put("core_spell_blocked","save_info_missing_"+i);
+                    int bonus=t.optInt("save_bonus",Integer.MIN_VALUE);
+                    if(bonus==Integer.MIN_VALUE||info.optBoolean("bonus_known",false)&&bonus!=info.optInt("bonus")||
+                        !info.optBoolean("bonus_known",false)&&!t.optBoolean("manual_bonus_confirmed",false))
+                        return blocked.put("core_spell_blocked","save_bonus_not_verified_"+i);
+                    int d20=t.optInt("d20",-1);
+                    try{AreaSaveDamageRules.resolve(p.optInt("raw_amount"),spell.saveAbility,dc,d20,bonus,
+                        AreaSaveDamageRules.HALF,info.optBoolean("evasion"),info.optBoolean("incapacitated"));}
+                    catch(IllegalArgumentException e){return blocked.put("core_spell_blocked","invalid_save_"+i);}
+                    saves.put(new JSONObject().put("target_id",targetId).put("save_ability",spell.saveAbility)
+                        .put("dc",dc).put("d20",d20).put("save_bonus",bonus)
+                        .put("manual_bonus_confirmed",!info.optBoolean("bonus_known",false))
+                        .put("raw_damage",p.optInt("raw_amount")).put("on_success","half")
+                        .put("damage_type",spell.damageType)
+                        .put("expected_hp",t.optInt("expected_hp"))
+                        .put("expected_temp_hp",t.optInt("expected_temp_hp")));
+                }
+            }
+            CharacterSpellCommitGuard.Core2024SlotSpend slotSpend=
+                CharacterSpellCommitGuard.spendCore2024Slot(
+                    new DndRulesEngine().is2024(profile)?"2024":"other",sheet,slotLevel);
+            if(!slotSpend.allowed())
+                return blocked.put("core_spell_blocked",slotSpend.error);
+            JSONObject spent=slotSpend.sheet;
+            // A cast ends the post-rest/level-up preparation window, atomically with
+            // slot and combat effects. A failed cast rolls back the window closure.
+            Core2024PreparedSpellLedger.lockOnCast(spent);
+            // Mutations start here. Any nested failure throws, so characterAtomic rolls back all tables.
+            persistCharacterSheetChecked(characterId,spent);
+            JSONObject outcome=spell.healing?
+                applyCombatEffectsWithAction(casterCombatantId,"action",effects,operationToken):
+                applyCombatSaveDamageWithAction(casterCombatantId,"action",saves,operationToken);
+            if(!outcome.optBoolean(spell.healing?"area_action_committed":"area_save_committed",false))
+                throw new IllegalStateException("core_spell_combat_rollback:"+outcome.toString());
+            JSONObject updatedCaster=getCombatant(casterCombatantId);
+            JSONObject updatedResources=combatResources(updatedCaster);
+            updatedResources.put("spell_slot_cast_turn_key",turnKey);
+            updatedResources.put("last_core2024_spell",spell.key);
+            ContentValues v=new ContentValues();v.put("resources_json",updatedResources.toString());
+            requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",
+                new String[]{String.valueOf(casterCombatantId),getActiveMapProfile()}));
+            // Reload after target effects: the caster may also have taken damage/healing.
+            // Persisting the old pre-combat sheet here would silently undo its updated HP.
+            JSONObject postCombatSheet=readCharacterSheet(getCharacter(characterId));
+            postCombatSheet.put("core2024_last_cast",new JSONObject().put("spell",spell.name)
+                .put("slot_level",slotLevel).put("turn_key",turnKey).put("target_count",count)
+                .put("damage_or_healing",p.optInt("raw_amount")));
+            recordCharacterReceipt(postCombatSheet,operationToken,signature);
+            persistCharacterSheetChecked(characterId,postCombatSheet);
+            return new JSONObject().put("core_spell_committed",true).put("spell",spell.name)
+                .put("slot_level",slotLevel).put("target_count",count)
+                .put("casting_ability",ability).put("spell_dc",dc)
+                .put("combat_outcome",outcome);
+        }});
+    }
+
+    // RUN195_COMBAT_ATOMIC: serializes read/guard/write and rolls back partial mutations.
+    // Existing campaign tables and backup format are unchanged; receipts live in resources_json.
+    private interface CombatAtomicWork { JSONObject run() throws Exception; }
+    private synchronized JSONObject combatAtomic(String label,CombatAtomicWork work){
+        SQLiteDatabase sql=getWritableDatabase();boolean owner=!sql.inTransaction();
+        if(owner)sql.beginTransaction();
+        try{
+            JSONObject result=work.run();
+            // RUN218: a blocked, replayed or failed operation is not an authorized
+            // gameplay commit. Some compound actions mutate an earlier substep
+            // before discovering a later rejection. Never commit those writes.
+            String reject=CombatAtomicCommitGuard.rejection(new CombatAtomicCommitGuard.Fields(){
+                public java.util.Iterator<String> keys(){
+                    return result==null?java.util.Collections.<String>emptyList().iterator():result.keys();
+                }
+                public boolean isTrue(String key){return result!=null&&result.optBoolean(key,false);}
+            });
+            if(!reject.isEmpty()){
+                // An inner combatAtomic cannot independently roll back the outer
+                // SQL transaction; force the parent to roll back rather than let it
+                // commit a partially modified character/combat state.
+                if(!owner)throw new IllegalStateException("nested_combat_action_rejected:"+label+":"+reject);
+                return result; // finally ends the uncommitted transaction
+            }
+            if(owner)sql.setTransactionSuccessful();
+            return result;
+        }catch(Exception e){
+            AppLog.e("AppDb","Transação de combate revertida: "+label,e);
+            if(!owner)throw new IllegalStateException("Falha em transação externa de combate: "+label,e);
+            JSONObject error=new JSONObject();try{error.put("operation_error","transaction_rolled_back").put("operation",label);}catch(Exception ignored){}
+            return error;
+        }finally{if(owner)sql.endTransaction();}
+    }
+    // RUN202_DURABLE_COMBAT_RECEIPTS: the old last-32 JSON ring is only a UI/cache
+    // compatibility view. Every new combat token is now stored in effect_receipts,
+    // which is included in backup format 21. A replay after 100+ turns cannot
+    // spend resources or damage a target again. Tokens are scoped to the combatant.
+    // RUN202: combatant primary keys can change on backup import. Remap the
+    // durable receipt keys before restoring effect_receipts, preserving replay
+    // protection across backup format 21 without changing the schema.
+    private static JSONArray remapCombatReceiptRows(JSONArray rows,Map<Long,Long> combatantIdMap,
+        Map<Long,Long> actionIdMap,Map<Long,Long> characterIdMap)throws Exception{
+        JSONArray out=new JSONArray();if(rows==null)return out;
+        for(int i=0;i<rows.length();i++){
+            JSONObject row=rows.optJSONObject(i);if(row==null)continue;
+            String original=row.optString("effect_key","");
+            String remapped=original.startsWith(PartyActionCausalReceiptGuard.PREFIX)?
+                PartyActionCausalReceiptGuard.remapKey(original,actionIdMap,combatantIdMap):
+                original.startsWith(PartyMovementCausalReceiptGuard.PREFIX)?
+                PartyMovementCausalReceiptGuard.remapKey(original,actionIdMap,combatantIdMap):
+                original.startsWith(PartyAttackCausalReceiptGuard.PREFIX)?
+                PartyAttackCausalReceiptGuard.remapKey(original,actionIdMap,combatantIdMap):
+                original.startsWith(ExtraAttackActionRules.PREFIX)?
+                ExtraAttackActionRules.remapKey(original,actionIdMap,combatantIdMap):
+                CombatPersistentReceiptKey.remap(original,combatantIdMap);
+            remapped=MonsterConditionBackupCodec.remapReceiptKey(remapped,combatantIdMap);
+            if(remapped==null)continue; // actor or action missing: fail closed, no forged receipt
+            String source=row.optString("source","");
+            String mappedSource=original.startsWith(PartyActionCausalReceiptGuard.PREFIX)?
+                PartyActionCausalReceiptGuard.remapSource(source,characterIdMap,combatantIdMap):
+                original.startsWith(PartyMovementCausalReceiptGuard.PREFIX)?
+                PartyMovementCausalReceiptGuard.remapSource(source,characterIdMap,combatantIdMap):
+                original.startsWith(PartyAttackCausalReceiptGuard.PREFIX)?
+                PartyAttackCausalReceiptGuard.remapSource(source,characterIdMap,combatantIdMap):
+                original.startsWith(ExtraAttackActionRules.PREFIX)?
+                ExtraAttackActionRules.remapSource(source,characterIdMap,combatantIdMap):
+                source.startsWith(TwoWeaponFightingRules.PREFIX)?
+                TwoWeaponFightingRules.remapSource(source,combatantIdMap):
+                ExtraAttackActionRules.remapStep(source,combatantIdMap);
+            if(mappedSource==null)continue;
+            mappedSource=MonsterConditionBackupCodec.remapReceiptSource(mappedSource,combatantIdMap);
+            JSONObject copy=new JSONObject(row.toString());
+            copy.put("effect_key",remapped);copy.put("source",mappedSource);out.put(copy);
+        }
+        return out;
+    }
+    private String combatReceiptKey(long combatantId,String token){
+        return CombatPersistentReceiptKey.forCombatant(combatantId,token);
+    }
+    private String combatReceiptDecision(JSONObject resources,String token,String signature,long combatantId){
+        if(token==null||token.isEmpty())return "";
+        if(!CombatActionReceiptGuard.validToken(token)||combatantId<=0)return "invalid_operation_token";
+        // Migrate the old 32-entry ring ONCE per combatant, with a durable marker.
+        // The marker is backed up too, so restoring older saves cannot silently
+        // lose the migration state or repeat 32 writes on every turn.
+        JSONArray receipts=resources.optJSONArray("combat_operation_receipts");
+        String migrationKey="combat-v1-migrated:"+combatantId;
+        if(receipts!=null&&!hasEffectReceipt(migrationKey)){
+            for(int i=0;i<receipts.length();i++){
+                JSONObject old=receipts.optJSONObject(i);
+                if(old==null)continue;
+                String oldToken=old.optString("token","");
+                if(!CombatActionReceiptGuard.validToken(oldToken))continue;
+                String key=combatReceiptKey(combatantId,oldToken);
+                ContentValues row=new ContentValues();row.put("world_profile",getActiveMapProfile());
+                row.put("effect_key",key);row.put("source",old.optString("signature",""));
+                row.put("applied_at",System.currentTimeMillis());
+                getWritableDatabase().insertWithOnConflict("effect_receipts",null,row,SQLiteDatabase.CONFLICT_IGNORE);
+            }
+            recordEffectReceipt(migrationKey,"legacy_ring_migrated_v1");
+        }
+        JSONObject persisted=queryOne("SELECT source FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+            new String[]{getActiveMapProfile(),combatReceiptKey(combatantId,token)});
+        if(persisted.length()>0)return CombatPersistentReceiptKey.replayDecision(persisted.optString("source"),signature);
+        return "";
+    }
+    private void recordCombatReceipt(JSONObject resources,String token,String signature,long combatantId)throws Exception{
+        if(token==null||token.isEmpty())return;
+        String key=combatReceiptKey(combatantId,token);
+        recordEffectReceipt(key,signature);
+        JSONObject persisted=queryOne("SELECT source FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+            new String[]{getActiveMapProfile(),key});
+        if(persisted.length()==0||!signature.equals(persisted.optString("source")))
+            throw new IllegalStateException("combat_receipt_conflict_rollback");
+        JSONArray old=resources.optJSONArray("combat_operation_receipts");JSONArray next=new JSONArray();
+        if(old!=null)for(int i=Math.max(0,old.length()-31);i<old.length();i++)next.put(old.get(i));
+        next.put(new JSONObject().put("token",token).put("signature",signature));
+        resources.put("combat_operation_receipts",next);
+    }
+    private static JSONObject combatReceiptResponse(JSONObject current,String kind,String decision)throws Exception{
+        if("replayed".equals(decision))return current.put("operation_replayed",true).put("operation_kind",kind);
+        return current.put("operation_blocked",decision).put("operation_kind",kind);
+    }
+    private void requireCombatantWrite(int count){if(count!=1)throw new IllegalStateException("A gravação do combatente não afetou exatamente uma linha.");}
+    public JSONObject resolveCombatantDeathSave(long id,int d20){return resolveCombatantDeathSave(id,d20,"");}
+    public JSONObject resolveCombatantDeathSave(final long id,final int d20,final String operationToken){
+        return combatAtomic("death_save",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject c=getCombatant(id);if(c.length()==0)return new JSONObject();
+            JSONObject resources=combatResources(c);String signature="death_save:"+d20;
+            String decision=combatReceiptDecision(resources,operationToken,signature,id);
+            if(!decision.isEmpty())return combatReceiptResponse(c,"death_save",decision);
+            String blocked=CombatTurnGuard.deathSaveBlock(c.optInt("hp"),resources.optBoolean("dead",false),resources.optBoolean("stable",false),resources.optBoolean("death_save_due",false),d20);
+            if(!blocked.isEmpty())return c.put("death_save_blocked",blocked);
+            JSONObject r=new DndRulesEngine().resolveDeathSave(d20,c.optInt("death_success"),c.optInt("death_fail"));
+            int hp=c.optInt("hp"),succ=r.optInt("successes"),fail=r.optInt("failures");String conditions=c.optString("conditions");
+            if(r.optInt("regains_hp",0)>0){hp=1;conditions=ConditionRulesEngine.remove(conditions,"Inconsciente");conditions=ConditionRulesEngine.add(conditions,"Caído");resources.put("stable",false).put("death_save_due",false);clearRecoverySchedule(resources);}
+            else if(r.optBoolean("stable")){clearStableRecoveryOnly(resources);resources.put("stable",true).put("death_save_due",false).put("stable_recovery_roll_due",true);r.put("requires_stable_recovery_roll",true).put("stable_recovery_formula","1d4").put("auto_rolls",false);}
+            else if(r.optBoolean("dead")){resources.put("dead",true).put("stable",false).put("death_save_due",false);clearRecoverySchedule(resources);}
+            else resources.put("death_save_due",false);
+            recordCombatReceipt(resources,operationToken,signature,id);
+            ContentValues v=new ContentValues();v.put("hp",hp);v.put("death_success",succ);v.put("death_fail",fail);v.put("conditions",conditions);v.put("resources_json",resources.toString());
+            requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}));
+            syncCombatantHeroState(c,hp,c.optInt("temp_hp"),conditions,resources);
+            return getCombatant(id).put("death_save_result",r);
+        }});
+    }
+    public JSONObject resolveCombatantConcentration(long id,int d20,int constitutionSaveBonus){return resolveCombatantConcentration(id,d20,constitutionSaveBonus,"");}
+    public JSONObject resolveCombatantConcentration(final long id,final int d20,final int constitutionSaveBonus,final String operationToken){
+        return combatAtomic("concentration",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject c=getCombatant(id);if(c.length()==0)return new JSONObject();
+            JSONObject resources=combatResources(c),pending=resources.optJSONObject("concentration_save_pending");
+            // Stable across queue advancement: a repeated roll callback cannot consume the next save.
+            String signature="concentration:"+d20+":"+constitutionSaveBonus;
+            String decision=combatReceiptDecision(resources,operationToken,signature,id);
+            if(!decision.isEmpty())return combatReceiptResponse(c,"concentration",decision);
+            String blocked=CombatTurnGuard.concentrationBlock(pending!=null,!c.optString("concentration","").trim().isEmpty(),d20);
+            if(!blocked.isEmpty())return c.put("concentration_save_blocked",blocked);
+            int damage=pending.optInt("damage",0);String concentrationProfile=combatRulesProfile(c);
+            int castRound=Math.max(1,pending.optInt("cast_round",1));
+            int durationRounds=Math.max(1,pending.optInt("duration_rounds",14400));
+            int currentRound=Math.max(castRound,getCombatState().optInt("round",castRound));
+            SpellConcentrationDurationRules.Outcome outcome;
+            try{outcome=SpellConcentrationDurationRules.resolve(concentrationProfile,castRound,durationRounds,
+                currentRound,damage,d20,constitutionSaveBonus,
+                ConditionRulesEngine.incapacitated(c.optString("conditions","")));}
+            catch(IllegalArgumentException invalid){return c.put("concentration_save_blocked",invalid.getMessage());}
+            JSONObject r=new JSONObject().put("damage",outcome.damage).put("dc",outcome.dc)
+                .put("save_required",outcome.saveRequired).put("concentration_maintained",outcome.maintained)
+                .put("concentration_ended",outcome.ended).put("expired",outcome.expired)
+                .put("natural",outcome.d20).put("save_bonus",outcome.saveBonus)
+                .put("total",outcome.total).put("rules_profile",concentrationProfile);
+            JSONArray queue=resources.optJSONArray("concentration_save_queue");
+            if(!r.optBoolean("concentration_maintained",false)){resources.remove("concentration_save_pending");resources.remove("concentration_save_queue");}
+            else if(queue!=null&&queue.length()>1){JSONArray next=new JSONArray();for(int i=1;i<queue.length();i++)next.put(queue.opt(i));resources.put("concentration_save_queue",next);JSONObject head=next.optJSONObject(0);if(head!=null)resources.put("concentration_save_pending",new JSONObject(head.toString()));else resources.remove("concentration_save_pending");r.put("additional_concentration_saves_pending",next.length());}
+            else{resources.remove("concentration_save_pending");resources.remove("concentration_save_queue");}
+            recordCombatReceipt(resources,operationToken,signature,id);
+            ContentValues v=new ContentValues();v.put("resources_json",resources.toString());if(!r.optBoolean("concentration_maintained",false))v.put("concentration","");
+            requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}));
+            // RUN202: a failed save must clear the hero sheet in the SAME transaction.
+            if(!r.optBoolean("concentration_maintained",false))
+                syncCombatantHeroState(c,c.optInt("hp"),c.optInt("temp_hp"),c.optString("conditions"),resources);
+            return getCombatant(id).put("concentration_result",r);
+        }});
+    }
+    public JSONObject spendCombatantTurnResource(long id,String resource){return spendCombatantTurnResource(id,resource,"");}
+    public JSONObject spendCombatantTurnResource(final long id,final String resource,final String operationToken){
+        return combatAtomic("turn_resource",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject c=getCombatant(id);if(c.length()==0)return new JSONObject();
+            JSONObject r=combatResources(c);String key=resource==null?"":resource.trim().toLowerCase(Locale.ROOT);
+            String signature="spend:"+key;
+            String decision=combatReceiptDecision(r,operationToken,signature,id);
+            if(!decision.isEmpty())return combatReceiptResponse(c,"turn_resource",decision);
+            String blocked=CombatTurnGuard.spendBlock(key,getCombatState().optInt("running",0)==1,
+                c.optInt("active_turn",0)==1,ConditionRulesEngine.incapacitated(c.optString("conditions")),
+                c.optInt("hp",0),r.optBoolean("dead",false),c.optInt("reaction_used",0)==1,
+                r.optBoolean("action_available",true),r.optBoolean("bonus_action_available",true));
+            if(!blocked.isEmpty())return c.put("resource_blocked",blocked);
+            ContentValues v=new ContentValues();
+            if("reaction".equals(key))v.put("reaction_used",1);
+            else r.put("bonus_action".equals(key)?"bonus_action_available":"action_available",false);
+            recordCombatReceipt(r,operationToken,signature,id);v.put("resources_json",r.toString());
+            requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}));
+            return getCombatant(id);
+        }});
+    }
+    public JSONObject moveCombatant(long id,int feet){return moveCombatant(id,feet,"");}
+    public JSONObject moveCombatant(final long id,final int feet,final String operationToken){
+        return combatAtomic("movement",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject c=getCombatant(id);if(c.length()==0)return new JSONObject();
+            JSONObject r=combatResources(c);int available=Math.max(0,r.optInt("movement_remaining_ft",0));
+            String signature="move:"+feet;String decision=combatReceiptDecision(r,operationToken,signature,id);
+            if(!decision.isEmpty())return combatReceiptResponse(c,"movement",decision);
+            String blocked=CombatTurnGuard.movementBlock(c.optInt("active_turn",0)==1,
+                ConditionRulesEngine.incapacitated(c.optString("conditions")),
+                ConditionRulesEngine.speedZero(c.optString("conditions")),c.optInt("hp",0),
+                r.optBoolean("dead",false),feet,available);
+            if(!blocked.isEmpty())return c.put("movement_blocked",blocked).put("movement_remaining_ft",available);
+            r.put("movement_remaining_ft",available-feet);recordCombatReceipt(r,operationToken,signature,id);
+            ContentValues v=new ContentValues();v.put("resources_json",r.toString());
+            requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}));
+            return getCombatant(id);
+        }});
+    }
+    public JSONObject standCombatantFromProne(long id){return standCombatantFromProne(id,"");}
+    public JSONObject standCombatantFromProne(final long id,final String operationToken){
+        return combatAtomic("stand",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject c=getCombatant(id);if(c.length()==0)return new JSONObject();
+            JSONObject r=combatResources(c);String signature="stand";
+            String decision=combatReceiptDecision(r,operationToken,signature,id);
+            if(!decision.isEmpty())return combatReceiptResponse(c,"stand",decision);
+            if(c.optInt("active_turn",0)!=1)return c.put("stand_blocked","not_active_turn");
+            if(c.optInt("hp",0)<=0||r.optBoolean("dead",false)||ConditionRulesEngine.incapacitated(c.optString("conditions")))return c.put("stand_blocked","incapacitated");
+            String conditions=c.optString("conditions","");
+            if(!ConditionRulesEngine.has(conditions,"Caído"))return c.put("stand_blocked","not_prone");
+            if(ConditionRulesEngine.speedZero(ConditionRulesEngine.remove(conditions,"Caído")))return c.put("stand_blocked","speed_zero");
+            int max=Math.max(0,r.optInt("movement_max_ft",combatBaseSpeed(c))),remaining=Math.max(0,r.optInt("movement_remaining_ft",max)),cost=ConditionRulesEngine.standMovementCost(max);
+            if(!CombatTurnGuard.canStand(max,remaining,false))return c.put("stand_blocked",max<=0?"speed_zero":"insufficient_movement").put("stand_cost_ft",cost).put("movement_remaining_ft",remaining);
+            conditions=ConditionRulesEngine.remove(conditions,"Caído");r.put("movement_remaining_ft",remaining-cost);recordCombatReceipt(r,operationToken,signature,id);
+            ContentValues v=new ContentValues();v.put("conditions",conditions);v.put("resources_json",r.toString());
+            requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}));
+            syncCombatantHeroState(c,c.optInt("hp"),c.optInt("temp_hp"),conditions,r);
+            return getCombatant(id).put("stood_up",true).put("stand_cost_ft",cost);
+        }});
+    }
+    // RUN192_NONLETHAL_STABLE_ZERO_HP: a creature reduced to zero is stable, not at 1 HP.
+    public JSONObject knockOutCombatant(long id){JSONObject c=getCombatant(id);if(c.length()==0)return new JSONObject();try{if(c.optInt("hp",0)<=0)return c.put("knockout_blocked","target_already_at_zero");JSONObject r=combatResources(c);String conditions=ConditionRulesEngine.add(ConditionRulesEngine.add(c.optString("conditions"),"Inconsciente"),"Caído");clearRecoverySchedule(r);r.put("stable",true).put("death_save_due",false).put("nonlethal_knockout",true).put("stable_recovery_roll_due",true);r.remove("concentration_save_pending");r.remove("concentration_save_queue");ContentValues v=new ContentValues();v.put("hp",0);v.put("death_success",0);v.put("death_fail",0);v.put("conditions",conditions);v.put("concentration","");v.put("resources_json",r.toString());getWritableDatabase().update("combatants",v,"id=?",new String[]{String.valueOf(id)});syncCombatantHeroState(c,0,c.optInt("temp_hp"),conditions,r);return getCombatant(id).put("nonlethal_knockout_applied",true).put("stable_recovery_roll_due",true);}catch(Exception e){AppLog.e("AppDb","Falha ao aplicar nocaute não letal.",e);return new JSONObject();}}
+    public JSONObject setStableRecoveryHours(long id,int hours){return setStableRecoveryHours(id,hours,"");}
+    public JSONObject setStableRecoveryHours(final long id,final int hours,final String operationToken){
+        return combatAtomic("stable_recovery",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject c=getCombatant(id);if(c.length()==0)return new JSONObject();
+            JSONObject resources=combatResources(c);String signature="stable_recovery:"+hours;
+            String decision=combatReceiptDecision(resources,operationToken,signature,id);
+            if(!decision.isEmpty())return combatReceiptResponse(c,"stable_recovery",decision);
+            if(c.optInt("hp")>0||resources.optBoolean("dead",false)||!resources.optBoolean("stable",false))return c.put("stable_recovery_blocked",true).put("reason","not_stable");
+            if(!resources.optBoolean("stable_recovery_roll_due",false))return c.put("stable_recovery_blocked",true).put("reason","recovery_roll_not_due");
+            if(hours<1||hours>4)return c.put("stable_recovery_blocked",true).put("reason","Informe o resultado explícito de 1d4 (1 a 4).");
+            resources.put("stable_recovery_roll_due",false).put("stable_recovery_hours_rolled",hours).put("stable_recovery_due_absolute_hour",currentAbsoluteWorldHour()+hours);
+            recordCombatReceipt(resources,operationToken,signature,id);
+            ContentValues v=new ContentValues();v.put("resources_json",resources.toString());
+            requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}));
+            syncCombatantHeroState(c,c.optInt("hp"),c.optInt("temp_hp"),c.optString("conditions"),resources);
+            return getCombatant(id).put("stable_recovery_scheduled",true).put("stable_recovery_hours",hours).put("auto_rolls",false);
+        }});
+    }
+    /** Resolves stable, nonlethal recoveries whose explicitly rolled time has elapsed. */
+    public JSONObject resolveTimedCharacterRecoveries(double absoluteHour){
+        JSONObject result=new JSONObject();JSONArray recovered=new JSONArray();
+        try{
+            if(Double.isNaN(absoluteHour)||Double.isInfinite(absoluteHour))
+                return result.put("timed_recovery_blocked","invalid_world_time").put("recovered",recovered);
+            for(JSONObject combatant:listCombatants()){
+                JSONObject resources=combatResources(combatant);
+                double due=resources.optDouble("stable_recovery_due_absolute_hour",Double.POSITIVE_INFINITY);
+                if(combatant.optInt("hp",0)>0||resources.optBoolean("dead",false)||!resources.optBoolean("stable",false)||due>absoluteHour)continue;
+                String conditions=ConditionRulesEngine.remove(combatant.optString("conditions"),"Inconsciente");
+                conditions=ConditionRulesEngine.add(conditions,"Caído");
+                int hp=1;resources.put("stable",false).put("death_save_due",false).put("stable_recovery_resolved_at",absoluteHour);
+                resources.remove("stable_recovery_due_absolute_hour");resources.remove("stable_recovery_hours_rolled");
+                resources.remove("stable_recovery_roll_due");resources.remove("nonlethal_knockout");
+                ContentValues values=new ContentValues();values.put("hp",hp);values.put("death_success",0);values.put("death_fail",0);
+                values.put("conditions",conditions);values.put("resources_json",resources.toString());
+                requireCombatantWrite(getWritableDatabase().update("combatants",values,"id=? AND world_profile=?",new String[]{String.valueOf(combatant.optLong("id")),getActiveMapProfile()}));
+                syncCombatantHeroState(combatant,hp,combatant.optInt("temp_hp"),conditions,resources);
+                recovered.put(new JSONObject().put("combatant_id",combatant.optLong("id"))
+                    .put("name",combatant.optString("name")).put("hp",hp).put("conditions",conditions));
+            }
+            return result.put("recovered",recovered).put("recovery_count",recovered.length()).put("world_hour",absoluteHour);
+        }catch(Exception failure){throw new IllegalStateException("timed_character_recovery_rollback",failure);}
+    }
+    private double currentAbsoluteWorldHour(){JSONObject scene=getSceneState();int day=Math.max(1,scene.optInt("day_number",1));double hour=scene.optDouble("clock_hour",9d)%24d;if(hour<0d)hour+=24d;return (day-1)*24d+hour;}
+    private static void clearStableRecoveryOnly(JSONObject r){if(r==null)return;r.remove("stable_recovery_due_absolute_hour");r.remove("stable_recovery_hours_rolled");r.remove("stable_recovery_roll_due");}
+    private static void clearRecoverySchedule(JSONObject r){if(r==null)return;clearStableRecoveryOnly(r);r.remove("knockout_short_rest_due_absolute_hour");r.remove("nonlethal_knockout");}
+
+
+    public void updateCombatantInitiative(long id,int initiative){ContentValues v=new ContentValues();v.put("initiative",initiative);getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});sortCombat();}
+    public void updateMystaraIndividualInitiative(long id,int sortScore,int visibleRoll){JSONObject c=queryOne("SELECT resources_json FROM combatants WHERE id=?",new String[]{String.valueOf(id)});JSONObject resources;try{resources=new JSONObject(c.optString("resources_json","{}"));}catch(Exception e){resources=new JSONObject();}try{resources.put("initiative_roll",Math.max(1,Math.min(6,visibleRoll)));}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}ContentValues v=new ContentValues();v.put("initiative",sortScore);v.put("resources_json",resources.toString());getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});sortCombat();}
+    public void updateInitiativeForSide(boolean players,int initiative){ContentValues v=new ContentValues();v.put("initiative",initiative);getWritableDatabase().update("combatants",v,"world_profile=? AND is_player=?",new String[]{getActiveMapProfile(),players?"1":"0"});sortCombat();}
+    public void updateConditions(long id,String conditions){JSONObject c=getCombatant(id);ContentValues v=new ContentValues();String safe=conditions==null?"":conditions;v.put("conditions",safe);
+        try{JSONArray pruned=MonsterConditionTimerLedger.pruneMissing(c.optString("condition_timers_json","[]"),safe);
+            if(!pruned.toString().equals(new JSONArray(c.optString("condition_timers_json","[]")).toString()))
+                v.put("condition_timers_json",pruned.toString());
+        }catch(Exception malformed){throw new IllegalStateException("invalid_condition_timers_on_manual_update",malformed);}
+        JSONObject resources=combatResources(c);if(ConditionRulesEngine.breaksConcentration(safe)){v.put("concentration","");resources.remove("concentration_save_pending");resources.remove("concentration_save_queue");v.put("resources_json",resources.toString());}getWritableDatabase().update("combatants",v,"id=?",new String[]{String.valueOf(id)});syncCombatantHeroState(c,c.optInt("hp"),c.optInt("temp_hp"),safe,resources);}
+    public JSONObject getCombatState(){ensureWorldProfileData(activeMapProfile);return queryOne("SELECT * FROM combat_state_profiles WHERE world_profile=?",new String[]{getActiveMapProfile()});}
+    public void updateMystaraCombatState(int partyInitiative,int enemyInitiative,int phase,int roundNo,boolean running){
+        ensureWorldProfileData(activeMapProfile);
+        ContentValues v=new ContentValues();
+        v.put("party_initiative",Math.max(0,partyInitiative));
+        v.put("enemy_initiative",Math.max(0,enemyInitiative));
+        v.put("phase",Math.max(0,phase));
+        v.put("round_no",Math.max(1,roundNo));
+        v.put("running",running?1:0);v.put("state",running?CombatStateMachine.ACTIVE_ROUND:CombatStateMachine.IDLE);v.put("updated_at",System.currentTimeMillis());
+        getWritableDatabase().update("combat_state_profiles",v,"world_profile=?",new String[]{getActiveMapProfile()});
+    }
+    public void beginMystaraIndividualRound(int roundNo){ContentValues clear=new ContentValues();clear.put("active_turn",0);getWritableDatabase().update("combatants",clear,"world_profile=?",new String[]{getActiveMapProfile()});ContentValues v=new ContentValues();v.put("turn_index",-1);v.put("round_no",Math.max(1,roundNo));v.put("phase",0);v.put("running",1);v.put("state",CombatStateMachine.ACTIVE_ROUND);v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("combat_state_profiles",v,"world_profile=?",new String[]{getActiveMapProfile()});}
+    public void resetCombat(){SQLiteDatabase db=getWritableDatabase();db.delete("combatants","world_profile=?",new String[]{getActiveMapProfile()});ContentValues v=new ContentValues();v.put("round_no",1);v.put("turn_index",0);v.put("running",0);v.put("party_initiative",0);v.put("enemy_initiative",0);v.put("phase",0);v.put("state",CombatStateMachine.IDLE);v.put("pending_roll_json","{}");v.put("encounter_id","");v.put("updated_at",System.currentTimeMillis());db.update("combat_state_profiles",v,"world_profile=?",new String[]{getActiveMapProfile()});}
+    /** RUN226: Reconcile Bless at every encounter turn boundary. No UI or model can
+     * leave an expired +1d4 buff behind; source_id binds the actual caster sheet,
+     * never a potentially duplicated display name. The outer nextTurn transaction
+     * rolls back its clock, sheet and concentration together on any write failure. */
+    private void reconcileCore2024BlessTurnChecked(int round)throws Exception{
+        for(JSONObject caster:listCombatants()){
+            if(caster.optInt("is_player",0)!=1||
+               !"character".equals(caster.optString("source_kind","")))continue;
+            long characterId=caster.optLong("source_id",0),combatantId=caster.optLong("id",0);
+            if(characterId<=0||combatantId<=0)continue;
+            JSONObject hero=getCharacter(characterId);
+            if(hero.length()==0)continue;
+            JSONObject sheet=readCharacterSheet(hero);
+            JSONObject active=sheet.optJSONObject(Core2024BlessRuntime.FIELD);
+            if(active==null)continue;
+            if(active.optLong("caster_id",0)!=combatantId)
+                throw new IllegalStateException("bless_caster_binding_mismatch_rollback");
+            Core2024BlessTurnRules.Decision decision=Core2024BlessTurnRules.reconcile(
+                active.optInt("cast_round",0),round,caster.optString("concentration",""),
+                caster.optInt("hp",0)<=0||
+                ConditionRulesEngine.incapacitated(caster.optString("conditions","")));
+            if(decision==Core2024BlessTurnRules.Decision.KEEP)continue;
+            sheet.remove(Core2024BlessRuntime.FIELD);
+            if("Bênção".equals(sheet.optString("concentration_spell","")))
+                sheet.put("concentration_spell","");
+            persistCharacterSheetChecked(characterId,sheet);
+            if("Bênção".equals(caster.optString("concentration",""))){
+                ContentValues update=new ContentValues();update.put("concentration","");
+                requireCombatantWrite(getWritableDatabase().update("combatants",update,
+                    "id=? AND world_profile=?",
+                    new String[]{String.valueOf(combatantId),getActiveMapProfile()}));
+            }
+        }
+    }
+
+    /** RUN241: durable encounter identity must survive rejected turn advancement. */
+    private boolean ensureEncounterIdentityBeforeNextTurn(){
+        JSONObject state=getCombatState();
+        if(state.optInt("running",0)!=1||
+            !state.optString("encounter_id","").trim().isEmpty())return true;
+        SQLiteDatabase sql=getWritableDatabase();
+        if(sql.inTransaction())return false;
+        ContentValues v=new ContentValues();
+        v.put("encounter_id","enc-"+java.util.UUID.randomUUID().toString());
+        v.put("updated_at",System.currentTimeMillis());
+        return sql.update("combat_state_profiles",v,
+            "world_profile=? AND (encounter_id IS NULL OR TRIM(encounter_id)='')",
+            new String[]{getActiveMapProfile()})==1;
+    }
+    public synchronized JSONObject nextTurn(){
+        try{
+            if(!ensureEncounterIdentityBeforeNextTurn()){
+                JSONObject blocked=new JSONObject();
+                blocked.put("turn_advance_blocked","encounter_id_persist_failed");
+                return blocked;
+            }
+        }catch(Exception error){
+            AppLog.e("AppDb","Encounter identity preflight failed",error);
+            JSONObject blocked=new JSONObject();
+            try{blocked.put("turn_advance_blocked","encounter_id_persist_failed");}
+            catch(Exception ignored){}
+            return blocked;
+        }
+        return combatAtomic("next_turn",new CombatAtomicWork(){public JSONObject run()throws Exception{
+        List<JSONObject> list=listCombatants(); if(list.size()==0)return new JSONObject();
+        for(JSONObject check:list){JSONObject rr=combatResources(check);if(rr.optJSONObject("concentration_save_pending")!=null)return check.put("turn_advance_blocked","concentration_save_pending");if(check.optInt("active_turn",0)==1&&rr.optBoolean("death_save_due",false))return check.put("turn_advance_blocked","death_save_due");}
+        JSONObject state=getCombatState();if(state.optInt("running",0)!=1)return new JSONObject().put("turn_advance_blocked","encounter_not_running");
+        // Legacy migration is committed before combatAtomic starts.
+        String encounterId=state.optString("encounter_id","").trim();
+        if(encounterId.isEmpty())throw new IllegalStateException("encounter_id_missing_rollback");
+        if(!"mystara".equals(getActiveMapProfile())&&state.optInt("turn_index",-1)>=0){
+            for(JSONObject check:list)if(check.optInt("active_turn",0)==1){
+                java.util.List<String> due=MonsterConditionRecoveryLedger.due(
+                    check.optString("condition_timers_json","[]"),state.optString("encounter_id",""),
+                    state.optInt("round_no",1));
+                if(!due.isEmpty())return new JSONObject().put("turn_advance_blocked","condition_recovery_save_pending")
+                    .put("target_id",check.optLong("id")).put("conditions",new JSONArray(due));
+            }
+        }
+        int idx=state.optInt("turn_index",-1); int round=state.optInt("round_no",1); idx++; if(idx>=list.size()){idx=0;round++;}
+        ContentValues clear=new ContentValues();clear.put("active_turn",0);getWritableDatabase().update("combatants",clear,"world_profile=?",new String[]{getActiveMapProfile()});
+        JSONObject active=list.get(idx);long activeId=active.optLong("id");ContentValues a=new ContentValues();a.put("active_turn",1);if(!"mystara".equals(getActiveMapProfile()))a.put("reaction_used",0);getWritableDatabase().update("combatants",a,"id=?",new String[]{String.valueOf(activeId)});if(!"mystara".equals(getActiveMapProfile())){JSONObject timerBatch=advanceConditionTimersOnActorTurnStart(activeId,encounterId,round,idx);prepareCombatantTurn(activeId);active=getCombatant(activeId);if(timerBatch.optBoolean("changed",false)){
+            JSONArray transitions=timerBatch.optJSONArray("transitions");
+            active.put("condition_timer_transitions",transitions==null?new JSONArray():transitions);
+            if(transitions!=null)for(int i=0;i<transitions.length();i++){
+                JSONObject row=transitions.optJSONObject(i);
+                if(row!=null&&row.optLong("target_id",0)==activeId){
+                    active.put("condition_timer_transition",row.optJSONObject("transition"))
+                        .put("condition_timer_receipt",row.optString("receipt",""));
+                    break;
+                }
+            }
+        }}
+        JSONObject phase=getCombatState();String phaseName=phase.optString("state","");if(CombatStateMachine.PREPARING.equals(phaseName)&&!transitionCombatState(CombatStateMachine.INITIATIVE,new JSONObject()))throw new IllegalStateException("invalid_initiative_transition");phase=getCombatState();phaseName=phase.optString("state","");if((CombatStateMachine.INITIATIVE.equals(phaseName)||CombatStateMachine.RESOLVING.equals(phaseName)||CombatStateMachine.AWAITING_ROLL.equals(phaseName))&&!transitionCombatState(CombatStateMachine.ACTIVE_ROUND,new JSONObject()))throw new IllegalStateException("invalid_active_round_transition");
+        ContentValues s=new ContentValues();s.put("round_no",round);s.put("turn_index",idx);s.put("running",1);s.put("state",CombatStateMachine.ACTIVE_ROUND);s.put("pending_roll_json","{}");s.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("combat_state_profiles",s,"world_profile=?",new String[]{getActiveMapProfile()}); reconcileCore2024BlessTurnChecked(round); return active;
+    }});}
+    /** Resolve an explicitly compiled end-of-turn recovery save. The caller
+     * supplies the actual save total; no dice are rolled or inferred. One
+     * attempt per affected combatant turn, with transactional anti-replay. */
+    public JSONObject resolveCompiledMonsterConditionRecovery(final long targetId,
+        final String requestedCondition,final int saveTotal,final String token){
+        return combatAtomic("compiled_monster_condition_recovery",new CombatAtomicWork(){
+            public JSONObject run()throws Exception{
+                JSONObject out=new JSONObject(),target=getCombatant(targetId),state=getCombatState();
+                if(token==null||!token.startsWith("ui-monster-recovery-")||
+                    !CombatActionReceiptGuard.validToken(token))
+                    return out.put("recovery_blocked","invalid_operation_token");
+                String key=combatReceiptKey(targetId,token+"-condition-recovery");
+                if(hasEffectReceipt(key))return out.put("recovery_blocked","already_resolved_or_replayed");
+                if("mystara".equals(getActiveMapProfile())||target.length()==0||
+                    target.optInt("active_turn",0)!=1||target.optInt("hp",0)<=0||
+                    state.optInt("running",0)!=1||state.optInt("turn_index",-1)<0)
+                    return out.put("recovery_blocked","recovery_requires_active_target_turn");
+                String encounter=state.optString("encounter_id","");
+                int round=state.optInt("round_no",0);
+                String oldConditions=target.optString("conditions","");
+                String oldTimers=target.optString("condition_timers_json","[]");
+                MonsterConditionRecoveryLedger.Resolution resolved;
+                try{resolved=MonsterConditionRecoveryLedger.resolve(oldTimers,
+                    requestedCondition,saveTotal,encounter,round);}
+                catch(IllegalArgumentException invalid){return out.put("recovery_blocked",invalid.getMessage());}
+                if(!ConditionTokenGuard.has(oldConditions,resolved.condition))
+                    throw new IllegalStateException("recovery_condition_state_mismatch_rollback");
+                // Never trust a timer JSON row as the sole rules authority.
+                // The compiled source action must still declare exactly this
+                // condition, save ability and DC before any mutation.
+                JSONArray authorityTimers=MonsterConditionTimerLedger.parse(oldTimers);
+                int authorityMatches=0;
+                for(int i=0;i<authorityTimers.length();i++){
+                    JSONObject timer=authorityTimers.getJSONObject(i);
+                    if(!MonsterConditionRecoveryLedger.SCHEMA.equals(timer.optString("schema",""))||
+                        !resolved.condition.equals(timer.optString("name","")))continue;
+                    MonsterConditionRecoveryLedger.Spec sourceSpec=MonsterConditionRecoveryLedger.compiled(
+                        compiledMonsterRiderAction(timer.optString("source_statblock",""),
+                            timer.optString("source_action","")));
+                    if(sourceSpec==null||!sourceSpec.condition.equals(resolved.condition)||
+                        sourceSpec.dc!=resolved.dc||!sourceSpec.ability.equals(resolved.ability))
+                        throw new IllegalStateException("recovery_source_authority_mismatch_rollback");
+                    authorityMatches++;
+                }
+                if(authorityMatches!=1)throw new IllegalStateException("recovery_source_not_unique_rollback");
+                String newConditions=oldConditions;
+                if(resolved.success){
+                    boolean stillActive=false;
+                    for(int i=0;i<resolved.timers.length();i++)if(ConditionTokenGuard.has(
+                        resolved.timers.getJSONObject(i).optString("name",""),resolved.condition)){
+                        stillActive=true;break;
+                    }
+                    if(!stillActive)newConditions=ConditionRulesEngine.remove(oldConditions,resolved.condition);
+                }
+                ContentValues update=new ContentValues();
+                update.put("condition_timers_json",resolved.timers.toString());
+                update.put("conditions",newConditions);
+                requireCombatantWrite(getWritableDatabase().update("combatants",update,
+                    "id=? AND world_profile=?",new String[]{String.valueOf(targetId),getActiveMapProfile()}));
+                JSONObject saved=getCombatant(targetId);
+                if(!newConditions.equals(saved.optString("conditions",""))||
+                    !resolved.timers.toString().equals(saved.optString("condition_timers_json","[]")))
+                    throw new IllegalStateException("recovery_readback_rollback");
+                syncCombatantHeroState(target,target.optInt("hp"),target.optInt("temp_hp"),
+                    newConditions,combatResources(saved));
+                JSONObject receipt=new JSONObject().put("schema","monster_condition_recovery_v1")
+                    .put("encounter_id",encounter).put("round",round)
+                    .put("target_id",targetId).put("condition",resolved.condition)
+                    .put("save_ability",resolved.ability).put("save_dc",resolved.dc)
+                    .put("save_total",saveTotal).put("success",resolved.success)
+                    .put("conditions_before",oldConditions).put("conditions_after",newConditions)
+                    .put("timers_before",new JSONArray(oldTimers)).put("timers_after",resolved.timers);
+                recordEffectReceipt(key,receipt.toString());
+                return out.put("recovery_committed",true).put("recovery_receipt",key)
+                    .put("recovery_result",receipt);
+            }
+        });
+    }
+
+    /** Apply target-turn and source-turn timer ticks atomically. A source
+     * actor may own timers stored on several other combatants' rows. */
+    private JSONObject advanceConditionTimersOnActorTurnStart(long activeActorId,
+        String encounterId,int round,int turnIndex) {
+        JSONArray changedRows=new JSONArray();
+        try {
+            for(JSONObject c:listCombatants()){
+                long targetId=c.optLong("id",0);
+                if(targetId<=0)throw new IllegalStateException("timer_target_missing_rollback");
+                String oldConditions=c.optString("conditions","");
+                String oldTimers=c.optString("condition_timers_json","[]");
+                MonsterConditionTimerLedger.Transition transition=
+                    MonsterConditionTimerLedger.advance(oldTimers,targetId,activeActorId);
+                String conditions=oldConditions;
+                for(String removed:transition.expired)conditions=ConditionRulesEngine.remove(conditions,removed);
+                if(!transition.changed&&!conditions.equals(oldConditions))
+                    throw new IllegalStateException("condition_timer_transition_inconsistent_rollback");
+                if(!transition.changed)continue;
+                ContentValues values=new ContentValues();values.put("condition_timers_json",transition.timers.toString());
+                values.put("conditions",conditions);
+                JSONObject resources=combatResources(c);
+                if(ConditionRulesEngine.breaksConcentration(conditions)){
+                    values.put("concentration","");resources.remove("concentration_save_pending");
+                    resources.remove("concentration_save_queue");values.put("resources_json",resources.toString());
+                }
+                requireCombatantWrite(getWritableDatabase().update("combatants",values,
+                    "id=? AND world_profile=?",new String[]{String.valueOf(targetId),getActiveMapProfile()}));
+                JSONObject saved=getCombatant(targetId);
+                if(!conditions.equals(saved.optString("conditions",""))||
+                    !transition.timers.toString().equals(new JSONArray(saved.optString("condition_timers_json","[]")).toString()))
+                    throw new IllegalStateException("condition_timer_readback_rollback");
+                syncCombatantHeroState(c,c.optInt("hp"),c.optInt("temp_hp"),conditions,resources);
+                JSONArray ended=new JSONArray();for(String x:transition.expired)ended.put(x);
+                JSONObject proof=new JSONObject().put("schema","monster_condition_turn_v1")
+                    .put("changed",transition.changed).put("conditions_before",oldConditions)
+                    .put("conditions_after",conditions).put("timers_before",new JSONArray(oldTimers))
+                    .put("timers_after",transition.timers).put("expired",ended)
+                    .put("encounter_id",encounterId).put("round",round)
+                    .put("turn_index",turnIndex).put("target_id",targetId)
+                    .put("active_actor_id",activeActorId);
+                String receipt="monster-condition-turn-v1:"+encounterId+":"+round+":"+
+                    turnIndex+":"+targetId;
+                recordEffectReceipt(receipt,proof.toString());
+                changedRows.put(new JSONObject().put("target_id",targetId)
+                    .put("transition",proof).put("receipt",receipt));
+            }
+            return new JSONObject().put("changed",changedRows.length()>0)
+                .put("active_actor_id",activeActorId).put("transitions",changedRows);
+        }catch(Exception error){AppLog.e("AppDb","Falha ao atualizar durações de condição.",error);
+            throw new IllegalStateException("condition_timer_rollback",error);}
+    }
+    private void prepareCombatantTurn(long id){JSONObject c=getCombatant(id);if(c.length()==0)return;try{JSONObject r=combatResources(c);boolean canAct=c.optInt("hp",0)>0&&!r.optBoolean("dead",false)&&!ConditionRulesEngine.incapacitated(c.optString("conditions"));r.put("action_available",canAct).put("bonus_action_available",canAct).put("turn_started_at",System.currentTimeMillis());int speed=combatBaseSpeed(c);if(c.optInt("is_player",0)==1){JSONObject ch=findCharacterByName(c.optString("name"));speed=Math.max(0,speed-new DndRulesEngine().exhaustionSpeedPenaltyFeet(ch));}if(ConditionRulesEngine.speedZero(c.optString("conditions")))speed=0;r.put("movement_max_ft",speed).put("movement_remaining_ft",speed);boolean dead=r.optBoolean("dead",false),stable=r.optBoolean("stable",false);r.put("death_save_due",c.optInt("hp")==0&&!dead&&!stable);if(ConditionRulesEngine.breaksConcentration(c.optString("conditions"))){r.remove("concentration_save_pending");r.remove("concentration_save_queue");}ContentValues v=new ContentValues();v.put("resources_json",r.toString());if(ConditionRulesEngine.breaksConcentration(c.optString("conditions")))v.put("concentration","");getWritableDatabase().update("combatants",v,"id=?",new String[]{String.valueOf(id)});}catch(Exception e){AppLog.e("AppDb","Falha ao preparar economia de turno.",e);throw new IllegalStateException("turn_budget_rollback",e);}}
+
+
+    public long addDiceHistory(String formula,String detail,int total,String mode){return addDiceHistoryBound(formula,detail,total,mode,new JSONObject());}
+    public long addDiceHistoryBound(String formula,String detail,int total,String mode,JSONObject context){
+        JSONObject safe=context==null?new JSONObject():context;
+        verifyPhysicalDiceHistoryOrThrow(formula,total,safe);
+        ContentValues v=new ContentValues();
+        v.put("world_profile",getActiveMapProfile());v.put("formula",formula==null?"":formula);v.put("detail",detail==null?"":detail);v.put("total",total);v.put("mode",mode==null?"":mode);
+        v.put("actor_character_id",safe.optLong("actor_character_id",0));v.put("actor_name",safe.optString("actor_name",""));v.put("test_key",safe.optString("test_key",""));v.put("action_signature",safe.optString("action_signature",""));v.put("source_rule_id",safe.optString("source_rule_id",""));v.put("procedure_id",safe.optString("procedure_id",""));v.put("scene_fingerprint",safe.optString("scene_fingerprint",""));v.put("campaign_fingerprint",safe.optString("campaign_fingerprint",""));v.put("target_signature",safe.optString("target_signature",""));v.put("consequence_key",safe.optString("consequence_key",""));v.put("modifier",safe.optInt("modifier",0));v.put("modifier_source",safe.optString("modifier_source",""));v.put("roll_mode",safe.optString("roll_mode",mode==null?"normal":mode));v.put("natural_roll",safe.optInt("natural_roll",0));v.put("critical",safe.optBoolean("critical",false)?1:0);v.put("critical_failure",safe.optBoolean("critical_failure",false)?1:0);v.put("outcome",safe.optString("outcome",""));v.put("rolls_json",validJsonArray(safe.optString("rolls_json","[]")));v.put("physical_faces_json",validJsonArray(safe.optString("physical_faces_json","[]")));v.put("render_mode",safe.optString("render_mode","math"));v.put("physics_ms",Math.max(0,safe.optInt("physics_ms",0)));v.put("physics_seed",safe.optLong("physics_seed",0));v.put("dice_theme_identity",safe.optString("dice_theme_identity",""));v.put("roll_integrity_signature",safe.optString("roll_integrity_signature",""));v.put("cancelled_at",0);v.put("consumed_at",0);v.put("created_at",System.currentTimeMillis());
+        SQLiteDatabase sql=getWritableDatabase();long id=sql.insertOrThrow("dice_history",null,v);
+        sql.execSQL("DELETE FROM dice_history WHERE world_profile=? AND id NOT IN (SELECT id FROM dice_history WHERE world_profile=? ORDER BY created_at DESC LIMIT 200)",new Object[]{getActiveMapProfile(),getActiveMapProfile()});
+        return id;
+    }
+
+    /** Histórico physical3d só é persistido quando faces, total e assinatura concordam. */
+    private void verifyPhysicalDiceHistoryOrThrow(String formula,int total,JSONObject safe){
+        if(safe==null||!"physical3d".equalsIgnoreCase(safe.optString("render_mode","math")))return;
+        try{
+            JSONArray facesJson=new JSONArray(validJsonArray(safe.optString("physical_faces_json","[]")));if(facesJson.length()==0)throw new IllegalStateException("Rolagem física sem faces persistíveis.");
+            ArrayList<Integer> faces=new ArrayList<Integer>();for(int i=0;i<facesJson.length();i++)faces.add(facesJson.optInt(i));
+            JSONArray rollsJson=new JSONArray(validJsonArray(safe.optString("rolls_json","[]")));ArrayList<Integer> reported=new ArrayList<Integer>();for(int i=0;i<rollsJson.length();i++)reported.add(rollsJson.optInt(i));
+            DiceRollSpec spec=DiceRollSpec.parse(formula,safe.optString("roll_mode","Normal"));List<Integer> canonical=spec.requirePhysicalAgreement(reported,faces);DiceRollSpec.Result resolved=spec.resolve(canonical);
+            if(resolved.total!=total)throw new IllegalStateException("Total físico divergiu das faces estabilizadas.");
+            String signature=safe.optString("roll_integrity_signature","").trim();if(signature.length()!=64)throw new IllegalStateException("Rolagem física sem assinatura SHA-256 válida.");
+            String expected=RollIntegrity.signature(spec.formula,faces,spec.modifier,safe.optLong("physics_seed",0),resolved.total);if(!expected.equals(signature))throw new IllegalStateException("Assinatura da rolagem física não confere.");
+        }catch(RuntimeException failure){throw failure;}catch(Exception failure){throw new IllegalStateException("Histórico físico inválido: "+failure.getMessage(),failure);}
+    }
+
+    public JSONObject getDiceHistoryById(long id){if(id<=0)return new JSONObject();return queryOne("SELECT * FROM dice_history WHERE id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    /** Vincula uma rolagem genérica a um teste específico uma única vez. Uma
+     * rolagem já vinculada a outra ação, cena, personagem ou regra não pode ser
+     * reaproveitada. */
+    public void bindDiceHistoryChecked(long id,JSONObject context)throws Exception{
+        JSONObject row=getDiceHistoryById(id);
+        if(row.length()==0)throw new IllegalStateException("Rolagem local não encontrada: "+id);
+        if(row.optLong("consumed_at",0)>0)throw new IllegalStateException("A rolagem já foi consumida.");
+        JSONObject safe=context==null?new JSONObject():context;
+        String testKey=safe.optString("test_key","").trim(),action=safe.optString("action_signature","").trim(),scene=safe.optString("scene_fingerprint","").trim(),source=safe.optString("source_rule_id","").trim(),procedure=safe.optString("procedure_id","").trim(),campaign=safe.optString("campaign_fingerprint","").trim(),target=safe.optString("target_signature","").trim(),consequence=safe.optString("consequence_key","").trim(),modifierSource=safe.optString("modifier_source","").trim(),rollMode=safe.optString("roll_mode","").trim();
+        if(testKey.length()==0||action.length()==0||scene.length()==0||source.length()==0||procedure.length()==0||campaign.length()==0||target.length()==0||consequence.length()==0||modifierSource.length()==0||rollMode.length()==0||!safe.has("natural_roll"))throw new IllegalArgumentException("O vínculo mecânico absoluto está incompleto.");
+        String formula=safe.optString("formula",safe.optString("roll_formula","")).replaceAll("\\s+","");
+        if(formula.length()>0&&!formula.equalsIgnoreCase(row.optString("formula","").replaceAll("\\s+","")))throw new IllegalStateException("A fórmula selecionada não corresponde à rolagem.");
+        if(safe.has("total")&&safe.optInt("total",Integer.MIN_VALUE)!=row.optInt("total",Integer.MAX_VALUE))throw new IllegalStateException("O total selecionado não corresponde à rolagem.");
+        for(String key:new String[]{"test_key","action_signature","scene_fingerprint","source_rule_id","procedure_id","campaign_fingerprint","target_signature","consequence_key"}){String existing=row.optString(key,"").trim(),wanted=safe.optString(key,"").trim();if(existing.length()>0&&!existing.equals(wanted))throw new IllegalStateException("A rolagem já pertence a outro contexto mecânico.");}
+        long existingActor=row.optLong("actor_character_id",0),wantedActor=safe.optLong("actor_character_id",0);
+        if(existingActor>0&&wantedActor>0&&existingActor!=wantedActor)throw new IllegalStateException("A rolagem pertence a outro personagem.");
+        ContentValues v=new ContentValues();v.put("test_key",testKey);v.put("action_signature",action);v.put("scene_fingerprint",scene);v.put("source_rule_id",source);v.put("procedure_id",procedure);v.put("campaign_fingerprint",campaign);v.put("target_signature",target);v.put("consequence_key",consequence);v.put("modifier",safe.optInt("modifier",0));v.put("modifier_source",modifierSource);v.put("roll_mode",rollMode);v.put("natural_roll",safe.optInt("natural_roll",0));v.put("critical",safe.optBoolean("critical",false)?1:0);v.put("critical_failure",safe.optBoolean("critical_failure",false)?1:0);
+        if(wantedActor>0)v.put("actor_character_id",wantedActor);String actorName=safe.optString("actor_name","").trim();if(actorName.length()>0)v.put("actor_name",actorName);String outcome=safe.optString("outcome","").trim();if(outcome.length()>0)v.put("outcome",outcome);
+        int changed=getWritableDatabase().update("dice_history",v,"id=? AND world_profile=? AND consumed_at=0",new String[]{String.valueOf(id),getActiveMapProfile()});
+        if(changed!=1)throw new IllegalStateException("Não foi possível vincular a rolagem.");
+    }
+    public void consumeDiceHistoryChecked(long id,String expectedTestKey)throws Exception{
+        JSONObject row=getDiceHistoryById(id);consumeDiceHistoryChecked(id,expectedTestKey,row.optString("consequence_key"));
+    }
+    public void consumeDiceHistoryChecked(long id,String expectedTestKey,String expectedConsequenceKey)throws Exception{
+        JSONObject row=getDiceHistoryById(id);
+        if(row.length()==0)throw new IllegalStateException("Rolagem vinculada não encontrada: "+id);
+        if(row.optLong("consumed_at",0)>0)throw new IllegalStateException("Rolagem já consumida: "+id);
+        String expected=expectedTestKey==null?"":expectedTestKey.trim();String actual=row.optString("test_key","").trim();
+        if(expected.length()==0||!expected.equals(actual))throw new IllegalStateException("A rolagem não pertence ao teste atual.");
+        String consequence=expectedConsequenceKey==null?"":expectedConsequenceKey.trim();if(consequence.length()==0||!consequence.equals(row.optString("consequence_key","").trim()))throw new IllegalStateException("A rolagem não pertence à consequência atual.");
+        ContentValues v=new ContentValues();v.put("consumed_at",System.currentTimeMillis());
+        int changed=getWritableDatabase().update("dice_history",v,"id=? AND world_profile=? AND consumed_at=0",new String[]{String.valueOf(id),getActiveMapProfile()});
+        if(changed!=1)throw new IllegalStateException("Não foi possível consumir a rolagem vinculada.");
+    }
+    public List<JSONObject> listDiceHistory(){return queryList("SELECT * FROM dice_history WHERE world_profile=? ORDER BY created_at DESC LIMIT 200",new String[]{getActiveMapProfile()});}
+
+    public void upsertManual(String driveId,String title,String category,String profile,boolean enabled,String mime,long size,String modified,String localUri,String source){
+        ContentValues v=new ContentValues();v.put("drive_id",driveId);v.put("title",title);v.put("category",category);v.put("rule_profile",profile);v.put("enabled",enabled?1:0);v.put("mime_type",mime);v.put("size_bytes",size);v.put("modified_time",modified);v.put("local_uri",localUri);v.put("source",source);v.put("created_at",System.currentTimeMillis());
+        long r=getWritableDatabase().insertWithOnConflict("manuals",null,v,SQLiteDatabase.CONFLICT_IGNORE); if(r==-1)getWritableDatabase().update("manuals",v,"drive_id=?",new String[]{driveId});
+    }
+    /** Retorna 1 para novo, 2 para alterado e 0 para inalterado. */
+    public int upsertManualSynced(String driveId,String title,String category,String profile,String mime,long size,String modified,String localUri,String source,String sourceRoot,long seen){
+        JSONObject before=queryOne("SELECT id,size_bytes,modified_time,local_uri FROM manuals WHERE drive_id=?",new String[]{driveId});
+        boolean exists=before.length()>0;
+        boolean changed=exists&&(before.optLong("size_bytes")!=size||!safe(before.optString("modified_time")).equals(safe(modified))||!safe(before.optString("local_uri")).equals(safe(localUri)));
+        ContentValues v=new ContentValues();v.put("drive_id",driveId);v.put("title",title);v.put("category",category);v.put("rule_profile",profile);v.put("enabled",1);v.put("mime_type",mime);v.put("size_bytes",size);v.put("modified_time",modified);v.put("local_uri",localUri);v.put("source",source);v.put("source_root",sourceRoot==null?"":sourceRoot);v.put("last_seen",seen);v.put("availability","available");v.put("last_verified_at",System.currentTimeMillis());
+        if(!exists)v.put("created_at",System.currentTimeMillis());
+        if(changed){v.put("indexed",0);v.put("ai_selected",0);v.put("rag_status","not_indexed");v.put("rag_error","");v.put("rag_progress","");v.put("rag_modified_time","");v.put("rag_source_hash","");v.put("rag_part_count",0);v.put("rag_parts_ready",0);v.put("rag_page_count",0);}
+        SQLiteDatabase sql=getWritableDatabase();long r=sql.insertWithOnConflict("manuals",null,v,SQLiteDatabase.CONFLICT_IGNORE);if(r==-1)sql.update("manuals",v,"drive_id=?",new String[]{driveId});
+        if(changed&&before.optLong("id",-1)>0){clearManualRagParts(before.optLong("id"));clearManualLocalIndex(before.optLong("id"));}
+        return !exists?1:(changed?2:0);
+    }
+    public int disableMissingManuals(String sourceRoot,long seen){ContentValues v=new ContentValues();v.put("enabled",0);v.put("availability","missing");v.put("last_verified_at",System.currentTimeMillis());return getWritableDatabase().update("manuals",v,"source_root=? AND last_seen<>?",new String[]{sourceRoot==null?"":sourceRoot,String.valueOf(seen)});}
+    /** Na primeira sincronização nova também absorve entradas antigas, que ainda
+     * não possuíam source_root, sem atingir PDFs avulsos de outra origem. */
+    public int disableMissingManuals(String sourceRoot,long seen,String legacySourcePrefix){
+        ContentValues v=new ContentValues();v.put("enabled",0);v.put("availability","missing");v.put("last_verified_at",System.currentTimeMillis());
+        String root=sourceRoot==null?"":sourceRoot,prefix=legacySourcePrefix==null?"":legacySourcePrefix;
+        return getWritableDatabase().update("manuals",v,"(source_root=? OR (COALESCE(source_root,'')='' AND source LIKE ?)) AND last_seen<>?",new String[]{root,prefix+"%",String.valueOf(seen)});
+    }
+    public List<JSONObject> listManuals(String filter){
+        if(filter==null||filter.trim().length()==0)return queryList("SELECT * FROM manuals ORDER BY category,title COLLATE NOCASE",null);
+        return queryList("SELECT * FROM manuals WHERE title LIKE ? OR category LIKE ? ORDER BY category,title COLLATE NOCASE",new String[]{"%"+filter+"%","%"+filter+"%"});
+    }
+    public void setManualEnabled(long id,boolean enabled){ContentValues v=new ContentValues();v.put("enabled",enabled?1:0);getWritableDatabase().update("manuals",v,"id=?",new String[]{String.valueOf(id)});}
+    public void setManualGemini(long id,String uri,String name,long expires){ContentValues v=new ContentValues();v.put("gemini_uri",uri);v.put("gemini_name",name);v.put("gemini_expires",expires);v.put("indexed",uri!=null&&uri.length()>0?1:0);v.put("ai_selected",uri!=null&&uri.length()>0?1:0);getWritableDatabase().update("manuals",v,"id=?",new String[]{String.valueOf(id)});}
+    public void setManualAiSelected(long id,boolean selected){ContentValues v=new ContentValues();v.put("ai_selected",selected?1:0);getWritableDatabase().update("manuals",v,"id=?",new String[]{String.valueOf(id)});}
+    public List<JSONObject> listAiManuals(){return queryList("SELECT * FROM manuals WHERE enabled=1 AND ai_selected=1 AND gemini_uri IS NOT NULL AND gemini_uri<>'' AND gemini_expires>? ORDER BY category,title LIMIT 5",new String[]{String.valueOf(System.currentTimeMillis())});}
+    public List<JSONObject> listEnabledManuals(){return queryList("SELECT * FROM manuals WHERE enabled=1 ORDER BY category,title COLLATE NOCASE",null);}
+    /** Remove somente entradas de manuais originadas da subpasta reservada tokens. */
+    public int purgeManualsFromReservedTokenFolders(){
+        SQLiteDatabase sql=getWritableDatabase();
+        String where="lower(replace(replace(source,'\\','/'),'_',' ')) LIKE ? OR lower(replace(replace(source,'\\','/'),'_',' ')) LIKE ?";
+        String[] args={"%/tokens/%","%• tokens/%"};
+        sql.beginTransaction();
+        try{
+            sql.execSQL("DELETE FROM manual_local_pages WHERE manual_id IN (SELECT id FROM manuals WHERE "+where+")",args);
+            sql.execSQL("DELETE FROM manual_rag_parts WHERE manual_id IN (SELECT id FROM manuals WHERE "+where+")",args);
+            int removed=sql.delete("manuals",where,args);
+            sql.setTransactionSuccessful();
+            return removed;
+        }finally{sql.endTransaction();}
+    }
+    /** Apaga a biblioteca de manuais inteira, incluindo D&D, Mystara e índices derivados. */
+    public int deleteAllManuals(){
+        SQLiteDatabase sql=getWritableDatabase();sql.beginTransaction();
+        try{
+            sql.delete("manual_local_pages",null,null);
+            sql.delete("manual_rag_parts",null,null);
+            int removed=sql.delete("manuals",null,null);
+            sql.setTransactionSuccessful();
+            return removed;
+        }finally{sql.endTransaction();}
+    }
+
+    public List<JSONObject> listPendingRagManuals(String storeName){return queryList("SELECT * FROM manuals WHERE enabled=1 AND (rag_status<>'ready' OR rag_store_name<>? OR rag_modified_time<>COALESCE(modified_time,'')) ORDER BY CASE source WHEN 'Incluído no app; tabelas locais com páginas verificáveis; interpretação em PT-BR' THEN 0 ELSE 1 END, category,title COLLATE NOCASE",new String[]{storeName==null?"":storeName});}
+    public List<JSONObject> listPendingRagManualsForWorld(String storeName,boolean mystara){
+        String worldClause=manualWorldClause(mystara,"");
+        return queryList("SELECT * FROM manuals WHERE enabled=1 AND "+worldClause+" AND (rag_status<>'ready' OR rag_store_name<>? OR rag_modified_time<>COALESCE(modified_time,'')) ORDER BY CASE source WHEN 'Incluído no app; tabelas locais com páginas verificáveis; interpretação em PT-BR' THEN 0 ELSE 1 END, category,title COLLATE NOCASE",new String[]{storeName==null?"":storeName});
+    }
+    public void setManualRagStatus(long id,String status,String document,String error,String storeName,String modifiedTime){ContentValues v=new ContentValues();v.put("rag_status",status==null?"not_indexed":status);if(document!=null)v.put("rag_document",document);v.put("rag_error",error==null?"":error);v.put("rag_store_name",storeName==null?"":storeName);v.put("rag_modified_time",modifiedTime==null?"":modifiedTime);if("ready".equals(status))v.put("rag_indexed_at",System.currentTimeMillis());getWritableDatabase().update("manuals",v,"id=?",new String[]{String.valueOf(id)});}
+    public void setManualRagProgress(long id,String status,String progress,String error,String storeName,String modifiedTime,String sourceHash,int partCount,int readyParts,int pageCount,String splitMode){ContentValues v=new ContentValues();v.put("rag_status",status==null?"not_indexed":status);v.put("rag_progress",progress==null?"":progress);v.put("rag_error",error==null?"":error);v.put("rag_store_name",storeName==null?"":storeName);v.put("rag_modified_time",modifiedTime==null?"":modifiedTime);v.put("rag_source_hash",sourceHash==null?"":sourceHash);v.put("rag_part_count",Math.max(0,partCount));v.put("rag_parts_ready",Math.max(0,readyParts));v.put("rag_page_count",Math.max(0,pageCount));v.put("rag_split_mode",splitMode==null?"":splitMode);if("ready".equals(status))v.put("rag_indexed_at",System.currentTimeMillis());getWritableDatabase().update("manuals",v,"id=?",new String[]{String.valueOf(id)});}
+    public void setManualRagDocument(long id,String documentJson){ContentValues v=new ContentValues();v.put("rag_document",documentJson==null?"":documentJson);getWritableDatabase().update("manuals",v,"id=?",new String[]{String.valueOf(id)});}
+    public void clearManualRagParts(long manualId){getWritableDatabase().delete("manual_rag_parts","manual_id=?",new String[]{String.valueOf(manualId)});}
+    public void clearManualRagPartsExceptHash(long manualId,String sourceHash){getWritableDatabase().delete("manual_rag_parts","manual_id=? AND source_hash<>?",new String[]{String.valueOf(manualId),sourceHash==null?"":sourceHash});}
+    public void upsertManualRagPart(long manualId,String sourceHash,int partNo,int totalParts,int startPage,int endPage,int pageCount,long sizeBytes,String splitMode,String localPath,String document,String status,String error,String storeName,String modifiedTime){ContentValues v=new ContentValues();v.put("manual_id",manualId);v.put("source_hash",sourceHash==null?"":sourceHash);v.put("part_no",partNo);v.put("total_parts",totalParts);v.put("start_page",startPage);v.put("end_page",endPage);v.put("page_count",pageCount);v.put("size_bytes",sizeBytes);v.put("split_mode",splitMode==null?"":splitMode);v.put("local_path",localPath==null?"":localPath);v.put("rag_document",document==null?"":document);v.put("rag_status",status==null?"prepared":status);v.put("rag_error",error==null?"":error);v.put("rag_store_name",storeName==null?"":storeName);v.put("rag_modified_time",modifiedTime==null?"":modifiedTime);if("ready".equals(status))v.put("indexed_at",System.currentTimeMillis());SQLiteDatabase db=getWritableDatabase();long result=db.insertWithOnConflict("manual_rag_parts",null,v,SQLiteDatabase.CONFLICT_IGNORE);if(result==-1)db.update("manual_rag_parts",v,"manual_id=? AND source_hash=? AND part_no=?",new String[]{String.valueOf(manualId),sourceHash==null?"":sourceHash,String.valueOf(partNo)});}
+    public void updateManualRagPart(long manualId,String sourceHash,int partNo,String document,String status,String error,String storeName,String localPath){ContentValues v=new ContentValues();if(document!=null)v.put("rag_document",document);v.put("rag_status",status==null?"prepared":status);v.put("rag_error",error==null?"":error);v.put("rag_store_name",storeName==null?"":storeName);if(localPath!=null)v.put("local_path",localPath);if("ready".equals(status))v.put("indexed_at",System.currentTimeMillis());getWritableDatabase().update("manual_rag_parts",v,"manual_id=? AND source_hash=? AND part_no=?",new String[]{String.valueOf(manualId),sourceHash==null?"":sourceHash,String.valueOf(partNo)});}
+    public List<JSONObject> listManualRagParts(long manualId,String sourceHash){return queryList("SELECT * FROM manual_rag_parts WHERE manual_id=? AND source_hash=? ORDER BY part_no",new String[]{String.valueOf(manualId),sourceHash==null?"":sourceHash});}
+    public List<JSONObject> listAllManualRagParts(long manualId){return queryList("SELECT * FROM manual_rag_parts WHERE manual_id=? ORDER BY source_hash,part_no",new String[]{String.valueOf(manualId)});}
+    public int countReadyManualRagParts(long manualId,String sourceHash,String storeName){Cursor c=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM manual_rag_parts WHERE manual_id=? AND source_hash=? AND rag_status='ready' AND rag_store_name=?",new String[]{String.valueOf(manualId),sourceHash==null?"":sourceHash,storeName==null?"":storeName});try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}}
+    public JSONArray manualRagDocuments(long manualId){JSONArray out=new JSONArray();for(JSONObject p:listAllManualRagParts(manualId)){String doc=p.optString("rag_document");if(doc.contains("/documents/"))out.put(doc);}return out;}
+    public void resetRagLibrary(){SQLiteDatabase db=getWritableDatabase();db.beginTransaction();try{ContentValues v=new ContentValues();v.put("rag_document","");v.put("rag_status","not_indexed");v.put("rag_indexed_at",0);v.put("rag_error","");v.put("rag_modified_time","");v.put("rag_store_name","");v.put("rag_part_count",0);v.put("rag_parts_ready",0);v.put("rag_page_count",0);v.put("rag_source_hash","");v.put("rag_progress","");v.put("rag_split_mode","");db.update("manuals",v,null,null);db.delete("manual_rag_parts",null,null);db.setTransactionSuccessful();}finally{db.endTransaction();}}
+    public void resetRagLibraryForWorld(boolean mystara){SQLiteDatabase db=getWritableDatabase();db.beginTransaction();try{String where=manualWorldClause(mystara,"");db.execSQL("DELETE FROM manual_rag_parts WHERE manual_id IN (SELECT id FROM manuals WHERE "+where+")");ContentValues v=new ContentValues();v.put("rag_document","");v.put("rag_status","not_indexed");v.put("rag_indexed_at",0);v.put("rag_error","");v.put("rag_modified_time","");v.put("rag_store_name","");v.put("rag_part_count",0);v.put("rag_parts_ready",0);v.put("rag_page_count",0);v.put("rag_source_hash","");v.put("rag_progress","");v.put("rag_split_mode","");db.update("manuals",v,where,null);db.setTransactionSuccessful();}finally{db.endTransaction();}}
+    public int countRagReadyForWorld(String storeName,boolean mystara){String worldClause=manualWorldClause(mystara,"");Cursor c=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM manuals WHERE enabled=1 AND "+worldClause+" AND rag_status='ready' AND rag_store_name=?",new String[]{storeName==null?"":storeName});try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}}
+
+    // Índice local dos manuais. O Gemini nunca é necessário para preparar os PDFs.
+    public void clearManualLocalIndex(long manualId){getWritableDatabase().delete("manual_local_pages","manual_id=?",new String[]{String.valueOf(manualId)});}
+    public void clearManualLocalIndexExcept(long manualId,String sourceKey){getWritableDatabase().delete("manual_local_pages","manual_id=? AND source_key<>?",new String[]{String.valueOf(manualId),sourceKey==null?"":sourceKey});}
+    public void upsertManualLocalPage(long manualId,String sourceKey,int pageNo,String title,String content,String normalized){upsertManualLocalPage(manualId,sourceKey,pageNo,title,content,normalized,new JSONObject());}
+    public void upsertManualLocalPage(long manualId,String sourceKey,int pageNo,String title,String content,String normalized,JSONObject structure){ContentValues v=new ContentValues();JSONObject s=structure==null?new JSONObject():structure;v.put("manual_id",manualId);v.put("source_key",sourceKey==null?"":sourceKey);v.put("page_no",Math.max(1,pageNo));v.put("title",title==null?"":title);v.put("content",content==null?"":content);v.put("normalized",normalized==null?"":normalized);v.put("section_title",s.optString("section_title"));v.put("chapter_title",s.optString("chapter_title"));v.put("content_kind",s.optString("content_kind","prose"));v.put("structure_json",s.toString());v.put("cross_refs_json",String.valueOf(s.optJSONArray("cross_references") instanceof JSONArray?s.optJSONArray("cross_references"):new JSONArray()));v.put("page_hash",s.optString("page_hash"));v.put("indexed_at",System.currentTimeMillis());SQLiteDatabase sql=getWritableDatabase();long r=sql.insertWithOnConflict("manual_local_pages",null,v,SQLiteDatabase.CONFLICT_IGNORE);if(r==-1)sql.update("manual_local_pages",v,"manual_id=? AND source_key=? AND page_no=?",new String[]{String.valueOf(manualId),sourceKey==null?"":sourceKey,String.valueOf(Math.max(1,pageNo))});}
+    public int countManualLocalPages(long manualId,String sourceKey){Cursor c=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM manual_local_pages WHERE manual_id=? AND source_key=?",new String[]{String.valueOf(manualId),sourceKey==null?"":sourceKey});try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}}
+    public int countManualLocalTextPages(long manualId,String sourceKey){Cursor c=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM manual_local_pages WHERE manual_id=? AND source_key=? AND LENGTH(TRIM(content))>0",new String[]{String.valueOf(manualId),sourceKey==null?"":sourceKey});try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}}
+    public boolean hasManualLocalTextPage(long manualId,String sourceKey,int pageNo){Cursor c=getReadableDatabase().rawQuery("SELECT 1 FROM manual_local_pages WHERE manual_id=? AND source_key=? AND page_no=? AND LENGTH(TRIM(content))>0 LIMIT 1",new String[]{String.valueOf(manualId),sourceKey==null?"":sourceKey,String.valueOf(pageNo)});try{return c.moveToFirst();}finally{c.close();}}
+    public int maxManualLocalPage(long manualId,String sourceKey){Cursor c=getReadableDatabase().rawQuery("SELECT COALESCE(MAX(page_no),0) FROM manual_local_pages WHERE manual_id=? AND source_key=?",new String[]{String.valueOf(manualId),sourceKey==null?"":sourceKey});try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}}
+    /** Um manual só é mecanicamente utilizável quando todas as páginas foram
+     * verificadas pelo indexador com numeração real. A presença de uma única
+     * linha parcial nunca mais conta como índice pronto. */
+    public int countLocalReadyForWorld(boolean mystara){
+        String worldClause=manualWorldClause(mystara,"m");
+        String sql="SELECT COUNT(*) FROM manuals m WHERE m.enabled=1 AND "+worldClause+
+                " AND m.rag_status='ready' AND m.rag_store_name=? AND m.rag_page_count>0"+
+                " AND COALESCE(m.rag_split_mode,'') NOT LIKE 'fallback%'"+
+                " AND COALESCE(m.rag_document,'') LIKE 'local:%' AND COALESCE(m.rag_modified_time,'')=COALESCE(m.modified_time,'')"+
+                " AND (SELECT COUNT(*) FROM manual_local_pages p WHERE p.manual_id=m.id AND p.source_key=SUBSTR(m.rag_document,7))=m.rag_page_count"+
+                " AND (SELECT COUNT(*) FROM manual_local_pages p2 WHERE p2.manual_id=m.id AND p2.source_key=SUBSTR(m.rag_document,7) AND LENGTH(TRIM(p2.content))>0)>0";
+        Cursor c=getReadableDatabase().rawQuery(sql,new String[]{LOCAL_MANUAL_STORE});try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}
+    }
+
+    public int countEnabledManualsForWorld(boolean mystara){
+        String worldClause=manualWorldClause(mystara,"m");Cursor c=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM manuals m WHERE m.enabled=1 AND "+worldClause,null);try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}
+    }
+
+    /** Contagem leve para UI e decisão rápida. A auditoria profunda fica em countLocalReadyForWorld(). */
+    public int countLocalReadyStatusForWorld(boolean mystara){
+        String worldClause=manualWorldClause(mystara,"m");String sql="SELECT COUNT(*) FROM manuals m WHERE m.enabled=1 AND "+worldClause+" AND m.rag_status='ready' AND m.rag_store_name=? AND m.rag_page_count>0 AND COALESCE(m.rag_split_mode,'') NOT LIKE 'fallback%' AND COALESCE(m.rag_document,'') LIKE 'local:%' AND COALESCE(m.rag_modified_time,'')=COALESCE(m.modified_time,'')";Cursor c=getReadableDatabase().rawQuery(sql,new String[]{LOCAL_MANUAL_STORE});try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}
+    }
+    public boolean hasAnyLocalReadyStatusForWorld(boolean mystara){
+        String worldClause=manualWorldClause(mystara,"m");String sql="SELECT 1 FROM manuals m WHERE m.enabled=1 AND "+worldClause+" AND m.rag_status='ready' AND m.rag_store_name=? AND m.rag_page_count>0 AND COALESCE(m.rag_split_mode,'') NOT LIKE 'fallback%' AND COALESCE(m.rag_document,'') LIKE 'local:%' AND COALESCE(m.rag_modified_time,'')=COALESCE(m.modified_time,'') LIMIT 1";Cursor c=getReadableDatabase().rawQuery(sql,new String[]{LOCAL_MANUAL_STORE});try{return c.moveToFirst();}finally{c.close();}
+    }
+
+    /** Diagnóstico detalhado usado para bloquear regras quando um único manual
+     * habilitado estiver parcial, desatualizado ou sem páginas confiáveis. */
+    public JSONObject manualIndexHealth(boolean mystara){
+        JSONObject out=new JSONObject();JSONArray manuals=new JSONArray(),missing=new JSONArray();int enabled=0,ready=0;
+        try{
+            String worldClause=manualWorldClause(mystara,"m");
+            List<JSONObject> rows=queryList("SELECT m.id,m.title,m.rag_status,m.rag_store_name,m.rag_page_count,m.rag_split_mode,m.rag_document,m.rag_error,m.rag_progress,m.modified_time,m.rag_modified_time,"+
+                    "(SELECT COUNT(*) FROM manual_local_pages p WHERE p.manual_id=m.id AND p.source_key=CASE WHEN m.rag_document LIKE 'local:%' THEN SUBSTR(m.rag_document,7) ELSE '' END) AS actual_pages,"+
+                    "(SELECT COUNT(*) FROM manual_local_pages p2 WHERE p2.manual_id=m.id AND p2.source_key=CASE WHEN m.rag_document LIKE 'local:%' THEN SUBSTR(m.rag_document,7) ELSE '' END AND LENGTH(TRIM(p2.content))>0) AS text_pages "+
+                    "FROM manuals m WHERE m.enabled=1 AND "+worldClause+" ORDER BY m.title COLLATE NOCASE",null);
+            enabled=rows.size();
+            for(JSONObject row:rows){
+                boolean reliable="ready".equals(row.optString("rag_status"))&&LOCAL_MANUAL_STORE.equals(row.optString("rag_store_name"))&&row.optInt("rag_page_count",0)>0&&row.optInt("actual_pages",0)==row.optInt("rag_page_count",0)&&row.optInt("text_pages",0)>0&&!row.optString("rag_split_mode").toLowerCase(java.util.Locale.ROOT).startsWith("fallback")&&row.optString("rag_document").startsWith("local:")&&row.optString("rag_modified_time").equals(row.optString("modified_time"));
+                String reason="";
+                if(!reliable){
+                    if(!"ready".equals(row.optString("rag_status")))reason="status="+row.optString("rag_status","not_indexed");
+                    else if(!LOCAL_MANUAL_STORE.equals(row.optString("rag_store_name")))reason="índice de versão antiga";
+                    else if(row.optString("rag_split_mode").toLowerCase(java.util.Locale.ROOT).startsWith("fallback"))reason="trechos sem página verificável";
+                    else if(row.optInt("rag_page_count",0)<=0)reason="total de páginas desconhecido";
+                    else if(row.optInt("actual_pages",0)!=row.optInt("rag_page_count",0))reason="páginas "+row.optInt("actual_pages",0)+"/"+row.optInt("rag_page_count",0);
+                    else if(row.optInt("text_pages",0)<=0)reason="nenhuma página com texto";
+                    else if(!row.optString("rag_modified_time").equals(row.optString("modified_time")))reason="manual alterado após a indexação";
+                    else reason="índice local inconsistente";
+                    row.put("reason",reason);missing.put(new JSONObject(row.toString()));
+                }else ready++;
+                row.put("reliable",reliable);manuals.put(row);
+            }
+            out.put("enabled",enabled).put("ready",ready).put("complete",enabled>0&&ready==enabled).put("manuals",manuals).put("missing",missing);
+        }catch(Exception e){try{out.put("enabled",enabled).put("ready",ready).put("complete",false).put("error",String.valueOf(e.getMessage())).put("manuals",manuals).put("missing",missing);}catch(Exception ignored){AppLog.ignored("AppDb","Falha ao registrar saúde do índice.",ignored);}}
+        return out;
+    }
+
+    /**
+     * Resumo rápido usado durante uma cena. A auditoria completa continua em
+     * manualIndexHealth(), mas não deve recontar página por página a cada fala
+     * do Mestre. O estado ready só é gravado ao final atômico da indexação e a
+     * própria consulta abaixo exige páginas locais verificáveis.
+     */
+    public JSONObject manualIndexHealthFast(boolean mystara){
+        JSONObject out=new JSONObject();int enabled=0,ready=0;
+        try{
+            String worldClause=manualWorldClause(mystara,"m");
+            JSONObject row=queryOne("SELECT COUNT(*) AS enabled,COALESCE(SUM(CASE WHEN m.rag_status='ready' AND m.rag_store_name=? AND m.rag_page_count>0 AND COALESCE(m.rag_split_mode,'') NOT LIKE 'fallback%' AND m.rag_document LIKE 'local:%' AND COALESCE(m.rag_modified_time,'')=COALESCE(m.modified_time,'') THEN 1 ELSE 0 END),0) AS ready FROM manuals m WHERE m.enabled=1 AND "+worldClause,new String[]{LOCAL_MANUAL_STORE});
+            enabled=row.optInt("enabled",0);ready=row.optInt("ready",0);
+            out.put("enabled",enabled).put("ready",ready).put("complete",enabled>0&&ready==enabled).put("fast_summary",true).put("search_index_ready",isManualSearchIndexReady()).put("manuals",new JSONArray()).put("missing",new JSONArray());
+        }catch(Exception e){try{out.put("enabled",enabled).put("ready",ready).put("complete",false).put("fast_summary",true).put("error",String.valueOf(e.getMessage())).put("manuals",new JSONArray()).put("missing",new JSONArray());}catch(Exception ignored){AppLog.ignored("AppDb","Falha ao registrar resumo rápido do índice.",ignored);}}
+        return out;
+    }
+
+    public List<JSONObject> searchManualLocalPages(String query,boolean mystara,int limit){
+        return searchManualLocalPagesInternal(query,mystara,limit,36,12,1800);
+    }
+
+    /** Uma única varredura compacta para a abertura da aventura. */
+    public List<JSONObject> searchManualLocalPagesFast(String query,boolean mystara,int limit){
+        return searchManualLocalPagesInternal(query,mystara,limit,20,8,320);
+    }
+
+    private List<JSONObject> searchManualLocalPagesInternal(String query,boolean mystara,int limit,int maxTerms,int maxPhrases,int candidateLimit){
+        ArrayList<JSONObject> out=new ArrayList<JSONObject>();String q=normalizeSearchText(query);
+        java.util.HashSet<String> stop=new java.util.HashSet<String>(java.util.Arrays.asList(
+                "que","com","para","uma","uns","das","dos","de","do","da","em","no","na","nos","nas","por","pela","pelo",
+                "como","quando","onde","qual","quais","isso","esta","este","essa","esse","meu","minha","seu","sua","vou",
+                "tento","quero","pode","posso","fazer","agora","entao","depois","antes","mestre","jogador","personagem",
+                "the","and","for","with","from","into","your","this","that","when","where","what","which","can","may"));
+        ArrayList<String> terms=new ArrayList<String>();
+        for(String t:q.split("\\s+")){
+            if(t.length()<3||stop.contains(t)||terms.contains(t))continue;
+            terms.add(t);
+            if(t.length()>=7){
+                String stem=t.substring(0,Math.max(4,t.length()-2));
+                if(!terms.contains(stem))terms.add(stem);
+            }
+            if(terms.size()>=Math.max(6,maxTerms/2))break;
+        }
+        expandSemanticTerms(terms);
+        while(terms.size()>Math.max(6,maxTerms))terms.remove(terms.size()-1);
+        if(terms.isEmpty())return out;
+        ArrayList<String> phrases=new ArrayList<String>();
+        String[] words=q.split("\\s+");
+        for(int size=4;size>=2;size--)for(int i=0;i+size<=words.length&&phrases.size()<Math.max(2,maxPhrases);i++){
+            StringBuilder phrase=new StringBuilder();int meaningful=0;
+            for(int j=0;j<size;j++){String w=words[i+j];if(phrase.length()>0)phrase.append(' ');phrase.append(w);if(w.length()>=3&&!stop.contains(w))meaningful++;}
+            if(meaningful>=2&&!phrases.contains(phrase.toString()))phrases.add(phrase.toString());
+        }
+
+        String worldClause=manualWorldClause(mystara,"m");int safeCandidateLimit=Math.max(80,Math.min(1800,candidateLimit));
+        java.util.LinkedHashSet<String> ftsTokens=new java.util.LinkedHashSet<String>();
+        for(String term:terms)for(String token:term.split("\\s+")){String safeToken=token.replaceAll("[^a-z0-9_]","");if(safeToken.length()>=3)ftsTokens.add(safeToken);}
+        StringBuilder ftsExpression=new StringBuilder();for(String token:ftsTokens){if(ftsExpression.length()>0)ftsExpression.append(" OR ");ftsExpression.append(token).append('*');}
+        String select="SELECT p.manual_id,p.source_key,p.page_no,p.title,p.content,p.normalized,p.section_title,p.chapter_title,p.content_kind,p.structure_json,p.cross_refs_json,p.page_hash,m.category,m.rule_profile,m.source,m.title AS manual_title,m.rag_status,m.rag_store_name,m.rag_page_count,m.rag_split_mode,m.rag_document ";
+        List<JSONObject> candidates=null;
+        if(isManualSearchIndexReady())try{
+            String ftsSql=select+"FROM manual_local_pages_fts JOIN manual_local_pages p ON p.id=manual_local_pages_fts.docid JOIN manuals m ON m.id=p.manual_id WHERE manual_local_pages_fts MATCH ? AND m.enabled=1 AND "+worldClause+" AND m.rag_status='ready' AND m.rag_store_name=? AND COALESCE(m.rag_modified_time,'')=COALESCE(m.modified_time,'') AND m.rag_page_count>0 AND COALESCE(m.rag_split_mode,'') NOT LIKE 'fallback%' AND m.rag_document='local:'||p.source_key AND LENGTH(TRIM(p.content))>0 ORDER BY LENGTH(offsets(manual_local_pages_fts)) DESC,p.manual_id,p.page_no LIMIT "+safeCandidateLimit;
+            candidates=queryList(ftsSql,new String[]{ftsExpression.toString(),LOCAL_MANUAL_STORE});
+        }catch(RuntimeException ftsFailure){AppLog.w("AppDb","Índice FTS dos manuais indisponível; usando núcleo local de compatibilidade.",ftsFailure);}
+        if(candidates==null){
+            // Durante a única reconstrução de migração, a abertura não espera
+            // por todos os livros. A busca temporária fica restrita aos manuais
+            // centrais de regras e usa o índice por manual_id, evitando uma
+            // varredura integral da biblioteca.
+            StringBuilder where=new StringBuilder(),sqlRank=new StringBuilder();ArrayList<String> args=new ArrayList<String>();args.add(LOCAL_MANUAL_STORE);
+            for(String t:terms){if(where.length()>0)where.append(" OR ");where.append("p.normalized LIKE ?");args.add("%"+t+"%");}
+            for(String t:terms){if(sqlRank.length()>0)sqlRank.append(" + ");sqlRank.append("CASE WHEN p.normalized LIKE ? THEN 1 ELSE 0 END");args.add("%"+t+"%");}
+            String coreWorldClause=manualWorldClause(mystara,"cm");
+            String coreManuals="p.manual_id IN (SELECT cm.id FROM manuals cm WHERE cm.enabled=1 AND "+coreWorldClause+" AND cm.rag_status='ready' AND cm.rag_store_name='"+LOCAL_MANUAL_STORE+"' ORDER BY CASE WHEN LOWER(cm.title) LIKE '%player%' OR LOWER(cm.title) LIKE '%jogador%' OR LOWER(cm.title) LIKE '%basic rule%' OR LOWER(cm.title) LIKE '%regras basicas%' OR LOWER(cm.title) LIKE '%rules cyclopedia%' OR LOWER(cm.title) LIKE '%srd%' THEN 0 WHEN LOWER(cm.title) LIKE '%dungeon master%' OR LOWER(cm.title) LIKE '%mestre%' OR LOWER(cm.category) LIKE '%regra%' THEN 1 ELSE 2 END,cm.id LIMIT 12)";
+            String coreSql=select+"FROM manual_local_pages p JOIN manuals m ON m.id=p.manual_id WHERE "+coreManuals+" AND m.enabled=1 AND "+worldClause+" AND m.rag_status='ready' AND m.rag_store_name=? AND COALESCE(m.rag_modified_time,'')=COALESCE(m.modified_time,'') AND m.rag_page_count>0 AND COALESCE(m.rag_split_mode,'') NOT LIKE 'fallback%' AND m.rag_document='local:'||p.source_key AND LENGTH(TRIM(p.content))>0 AND ("+where+") ORDER BY ("+sqlRank+") DESC,p.manual_id,p.page_no LIMIT "+safeCandidateLimit;
+            candidates=queryList(coreSql,args.toArray(new String[args.size()]));
+        }
+        String activeRules=mystara?"rules cyclopedia becmi":normalizeSearchText(getCampaign().optString("rules_profile","5e 2014"));
+        for(JSONObject row:candidates){
+            String norm=row.optString("normalized").trim();if(norm.length()==0)norm=normalizeSearchText(row.optString("content"));
+            int score=0;if(q.length()>0&&norm.contains(q))score+=140;
+            int matched=0,totalOccurrences=0;
+            for(String t:terms){
+                int at=-1,count=0;while((at=norm.indexOf(t,at+1))>=0&&count<12)count++;
+                if(count>0)matched++;totalOccurrences+=count;score+=Math.min(36,count*5);
+                if(normalizeSearchText(row.optString("manual_title")).contains(t))score+=16;
+                if(normalizeSearchText(row.optString("category")).contains(t))score+=8;
+            }
+            for(String phrase:phrases)if(norm.contains(phrase))score+=24+phrase.split("\\s+").length*7;
+            double coverage=matched/(double)Math.max(1,terms.size());
+            score+=(int)Math.round(coverage*90d)+matched*matched*2+Math.min(45,totalOccurrences*2);
+            String rowProfile=normalizeSearchText(row.optString("rule_profile"));
+            if(activeRules.length()>0&&(rowProfile.contains(activeRules)||activeRules.contains(rowProfile)))score+=38;
+            if(activeRules.contains("hibrido")&&(rowProfile.contains("2014")||rowProfile.contains("2024")||rowProfile.contains("5e")))score+=24;
+            if(mystara)score+=MystaraManualAuthority.scoreAdjustment(query,row.optString("manual_title"),row.optString("category"),row.optString("rule_profile"));
+            if(score<18)continue;
+            try{row.put("_score",score).put("_coverage",coverage).put("_matched_terms",matched).put("_retrieval_modes",new JSONArray().put("lexical").put("radical").put("synonym").put("semantic_concept"));if(mystara)row.put("_authority",MystaraManualAuthority.categoryFor(row.optString("manual_title")));}catch(Exception ignored){AppLog.ignored("AppDb","Falha ao classificar trecho local.",ignored);}
+            out.add(row);
+        }
+        java.util.Collections.sort(out,new java.util.Comparator<JSONObject>(){public int compare(JSONObject a,JSONObject b){int score=Integer.compare(b.optInt("_score"),a.optInt("_score"));if(score!=0)return score;int coverage=Double.compare(b.optDouble("_coverage"),a.optDouble("_coverage"));if(coverage!=0)return coverage;return Integer.compare(a.optInt("page_no"),b.optInt("page_no"));}});
+        int max=Math.max(1,Math.min(24,limit));if(out.size()>max)return new ArrayList<JSONObject>(out.subList(0,max));return out;
+    }
+
+    /** Páginas vizinhas preservam tabelas e procedimentos que atravessam uma
+     * quebra de página. O mundo ativo continua isolado pelo vínculo do manual. */
+    public List<JSONObject> getManualLocalPageWindow(long manualId,int pageNo,int radius){
+        if(manualId<=0||pageNo<=0)return new ArrayList<JSONObject>();
+        int safeRadius=Math.max(0,Math.min(3,radius));
+        String worldClause=manualWorldClause("mystara".equals(getActiveMapProfile()),"m");
+        return queryList("SELECT p.manual_id,p.source_key,p.page_no,p.title,p.content,p.normalized,p.section_title,p.chapter_title,p.content_kind,p.structure_json,p.cross_refs_json,p.page_hash,m.category,m.rule_profile,m.source,m.title AS manual_title,m.rag_status,m.rag_store_name,m.rag_page_count,m.rag_split_mode,m.rag_document FROM manual_local_pages p JOIN manuals m ON m.id=p.manual_id WHERE m.enabled=1 AND "+worldClause+" AND m.rag_status='ready' AND m.rag_store_name=? AND COALESCE(m.rag_modified_time,'')=COALESCE(m.modified_time,'') AND COALESCE(m.rag_split_mode,'') NOT LIKE 'fallback%' AND m.rag_document='local:'||p.source_key AND p.manual_id=? AND p.page_no BETWEEN ? AND ? AND LENGTH(TRIM(p.content))>0 ORDER BY p.page_no",
+                new String[]{LOCAL_MANUAL_STORE,String.valueOf(manualId),String.valueOf(Math.max(1,pageNo-safeRadius)),String.valueOf(pageNo+safeRadius)});
+    }
+    private static void expandSemanticTerms(ArrayList<String> terms){
+        String[][] groups={
+                {"ataque","atacar","attack","acerto","atingir","hit","to hit"},{"dano","damage","ferimento","wound"},
+                {"salvaguarda","protecao","save","saving","resistencia"},{"condicao","condition","estado"},
+                {"magia","feitico","spell","conjuracao","casting"},{"concentracao","concentration"},
+                {"descanso","rest","recuperacao","recovery"},{"viagem","travel","marcha","journey","ritmo","pace"},
+                {"moral","morale","reacao","reaction"},{"criatura","monstro","creature","monster","bloco","stat block"},
+                {"item","equipamento","equipment","tesouro","treasure"},{"recurso","resource","carga","charge","espaco","slot"},
+                {"comprar","buy","vender","sell","preco","price"},{"fabricar","craft","crafting","criar"},
+                {"exaustao","exhaustion","fadiga","fatigue"},{"agarrar","grapple","empurrar","shove"}
+        };
+        java.util.LinkedHashSet<String> expanded=new java.util.LinkedHashSet<String>(terms);
+        for(String[] group:groups){boolean matched=false;for(String word:group)for(String term:terms)if(word.contains(term)||term.contains(word)){matched=true;break;}if(!matched)continue;for(String word:group){String n=normalizeSearchText(word);for(String part:n.split("\\s+"))if(part.length()>=3)expanded.add(part);}}
+        terms.clear();for(String term:expanded){terms.add(term);if(terms.size()>=36)break;}
+    }
+    private static String normalizeSearchText(String value){if(value==null)return "";String n=java.text.Normalizer.normalize(value.toLowerCase(new java.util.Locale("pt","BR")),java.text.Normalizer.Form.NFD).replaceAll("\\p{M}","");return n.replaceAll("[^a-z0-9]+"," ").trim();}
+    /** Confirma livro, página e trecho contra o índice textual local do manual ativo.
+     * Sem página local verificável, qualquer mutação mecânica deve permanecer bloqueada. */
+    public boolean verifyEnabledManualExcerpt(String source,int page,String excerpt){
+        if(source==null||source.trim().length()==0||page<=0||excerpt==null||excerpt.trim().length()<12)return false;
+        boolean mystara="mystara".equals(getActiveMapProfile());String worldClause=manualWorldClause(mystara,"m");
+        List<JSONObject> rows=queryList("SELECT m.id,m.title,m.local_uri,m.source,m.source_root,p.content,p.normalized FROM manuals m JOIN manual_local_pages p ON p.manual_id=m.id WHERE m.enabled=1 AND "+worldClause+" AND m.rag_status='ready' AND m.rag_store_name=? AND COALESCE(m.rag_modified_time,'')=COALESCE(m.modified_time,'') AND COALESCE(m.rag_split_mode,'') NOT LIKE 'fallback%' AND m.rag_document='local:'||p.source_key AND p.page_no=? AND LENGTH(TRIM(p.content))>0",new String[]{LOCAL_MANUAL_STORE,String.valueOf(page)});
+        String wanted=normalizeSearchText(baseNameForVerification(source)),proof=normalizeSearchText(excerpt);if(wanted.length()==0||proof.length()==0)return false;
+        for(JSONObject row:rows){String title=normalizeSearchText(row.optString("title"));String identity=normalizeSearchText(row.optString("title")+" "+baseNameForVerification(row.optString("local_uri"))+" "+baseNameForVerification(row.optString("source"))+" "+baseNameForVerification(row.optString("source_root")));if(!(identity.contains(wanted)||(title.length()>0&&wanted.contains(title))))continue;String pageText=row.optString("normalized");if(pageText.trim().length()==0)pageText=normalizeSearchText(row.optString("content"));if(pageText.contains(proof)||manualExcerptOverlap(proof,pageText)>=0.55d)return true;}
+        return false;
+    }
+    private static String baseNameForVerification(String value){String s=value==null?"":value.replace('\\','/').trim();int slash=s.lastIndexOf('/');return slash>=0?s.substring(slash+1):s;}
+    private static double manualExcerptOverlap(String excerpt,String pageText){java.util.HashSet<String> terms=new java.util.HashSet<String>();for(String term:normalizeSearchText(excerpt).split("\\s+"))if(term.length()>3)terms.add(term);if(terms.isEmpty())return 0d;int found=0;for(String term:terms)if(pageText.contains(term))found++;return found/(double)terms.size();}
+    public void resetLocalManualIndexForWorld(boolean mystara){SQLiteDatabase sql=getWritableDatabase();String where=manualWorldClause(mystara,"");sql.beginTransaction();try{sql.execSQL("DELETE FROM manual_local_pages WHERE manual_id IN (SELECT id FROM manuals WHERE "+where+")");ContentValues v=new ContentValues();v.put("rag_status","not_indexed");v.put("rag_indexed_at",0);v.put("rag_error","");v.put("rag_modified_time","");v.put("rag_store_name","local-v1");v.put("rag_part_count",0);v.put("rag_parts_ready",0);v.put("rag_page_count",0);v.put("rag_source_hash","");v.put("rag_progress","Índice local limpo.");v.put("rag_split_mode","local");v.put("rag_document","");sql.update("manuals",v,where,null);sql.setTransactionSuccessful();}finally{sql.endTransaction();}}
+
+    public int countManuals(){Cursor c=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM manuals",null);try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}}
+    public int countEnabledManuals(){Cursor c=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM manuals WHERE enabled=1",null);try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}}
+    public int countRagReady(String storeName){Cursor c=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM manuals WHERE enabled=1 AND rag_status='ready' AND rag_store_name=?",new String[]{storeName==null?"":storeName});try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}}
+
+    public JSONObject getStoryState(){ensureWorldProfileData(activeMapProfile);return queryOne("SELECT * FROM story_state_profiles WHERE world_profile=?",new String[]{getActiveMapProfile()});}
+    public void saveStoryState(boolean started,String narration,String visualPrompt,String optionsJson,String pendingTestJson,String lastAction){ContentValues v=new ContentValues();v.put("started",started?1:0);v.put("last_narration",narration==null?"":narration);v.put("visual_prompt",visualPrompt==null?"":visualPrompt);v.put("options_json",optionsJson==null?"[]":optionsJson);v.put("pending_test_json",pendingTestJson==null?"":pendingTestJson);v.put("last_action",lastAction==null?"":lastAction);v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("story_state_profiles",v,"world_profile=?",new String[]{getActiveMapProfile()});}
+    public String getSceneOptionHistory(){return getStoryState().optString("option_history_json","[]");}
+    public void saveSceneOptionHistory(String json){ContentValues v=new ContentValues();v.put("option_history_json",validJsonArray(json));v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("story_state_profiles",v,"world_profile=?",new String[]{getActiveMapProfile()});}
+    public void clearStoryState(){saveStoryState(false,"","","[]","","");saveSceneOptionHistory("[]");resetNarrativeDiscovery();SQLiteDatabase sql=getWritableDatabase();ensureBarbaraHardeningSchema(sql);String profile=getActiveMapProfile();sql.delete("world_domain_events","world_profile=?",new String[]{profile});sql.delete("scene_commit_journal","world_profile=?",new String[]{profile});}
+
+    public synchronized void setActiveMapProfile(String profile){activeMapProfile="dnd";ensureMapWorldState("dnd");ensureWorldProfileData("dnd");}
+    public String getActiveMapProfile(){return "dnd";}
+    private static String manualWorldClause(boolean mystara,String alias){
+        String prefix=alias==null||alias.trim().length()==0?"":alias.trim()+".";
+        String title=prefix+"title";
+        if(mystara)return "LOWER("+title+") GLOB 'mystara_*'";
+        String lower="LOWER("+title+")";
+        return lower+" NOT GLOB 'mystara*'"+
+                " AND "+lower+" NOT LIKE '%traveller%'"+
+                " AND "+lower+" NOT LIKE '%high guard%'"+
+                " AND "+lower+" NOT LIKE '%robot handbook%'"+
+                " AND "+lower+" NOT LIKE '%central supply catalogue%'"+
+                " AND "+lower+" NOT LIKE '%mgt2%'";
+    }
+
+    private static String normalizeMapProfile(String profile){return "dnd";}
+    public JSONObject getNarrativeDiscoveryRuntime(){
+        ensureNarrativeDiscoverySchema(getWritableDatabase());
+        return queryOne("SELECT * FROM narrative_discovery_runtime WHERE world_profile=?",new String[]{getActiveMapProfile()});
+    }
+    public JSONObject getNarrativeDiscovery(String kind,String stableKey){
+        ensureNarrativeDiscoverySchema(getWritableDatabase());
+        String k=kind==null?"":kind.trim(),key=stableKey==null?"":stableKey.trim();
+        if(k.length()==0||key.length()==0)return new JSONObject();
+        return queryOne("SELECT * FROM narrative_discovery_state WHERE world_profile=? AND kind=? AND stable_key=?",new String[]{getActiveMapProfile(),k,key});
+    }
+    public List<JSONObject> listNarrativeDiscovery(){
+        ensureNarrativeDiscoverySchema(getWritableDatabase());
+        return queryList("SELECT * FROM narrative_discovery_state WHERE world_profile=? ORDER BY updated_at DESC",new String[]{getActiveMapProfile()});
+    }
+    public void recordNarrativeDiscovery(String kind,String stableKey,String label,String imprint,int day){
+        String k=kind==null?"":kind.trim(),key=stableKey==null?"":stableKey.trim();
+        if(k.length()==0||key.length()==0)return;
+        ensureNarrativeDiscoverySchema(getWritableDatabase());
+        JSONObject previous=getNarrativeDiscovery(k,key);long now=System.currentTimeMillis();
+        ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("kind",k);v.put("stable_key",key);v.put("label",label==null?"":label.trim());v.put("imprint",imprint==null?"":imprint);
+        v.put("first_seen_day",previous.length()==0?Math.max(1,day):previous.optInt("first_seen_day",Math.max(1,day)));v.put("last_seen_day",Math.max(1,day));v.put("seen_count",Math.max(1,previous.optInt("seen_count",0)+1));v.put("updated_at",now);
+        getWritableDatabase().insertWithOnConflict("narrative_discovery_state",null,v,SQLiteDatabase.CONFLICT_REPLACE);
+    }
+    public void saveNarrativeDiscoveryRuntime(JSONObject state){
+        if(state==null)return;ensureNarrativeDiscoverySchema(getWritableDatabase());ContentValues v=new ContentValues();
+        for(String key:new String[]{"campaign_started","last_location_key","last_geography_key","last_poi_key","last_weather_key","last_location_imprint"}){
+            if(!state.has(key))continue;Object value=state.opt(key);if(value instanceof Number)v.put(key,((Number)value).intValue());else if(value instanceof Boolean)v.put(key,(Boolean)value?1:0);else v.put(key,String.valueOf(value));
+        }
+        v.put("updated_at",System.currentTimeMillis());
+        getWritableDatabase().update("narrative_discovery_runtime",v,"world_profile=?",new String[]{getActiveMapProfile()});
+    }
+    public void resetNarrativeDiscovery(){
+        ensureNarrativeDiscoverySchema(getWritableDatabase());String profile=getActiveMapProfile();SQLiteDatabase sql=getWritableDatabase();boolean owner=!sql.inTransaction();if(owner)sql.beginTransaction();
+        try{sql.delete("narrative_discovery_state","world_profile=?",new String[]{profile});ContentValues v=new ContentValues();v.put("campaign_started",0);v.put("last_location_key","");v.put("last_geography_key","");v.put("last_poi_key","");v.put("last_weather_key","");v.put("last_location_imprint","");v.put("updated_at",System.currentTimeMillis());sql.update("narrative_discovery_runtime",v,"world_profile=?",new String[]{profile});if(owner)sql.setTransactionSuccessful();}finally{if(owner)sql.endTransaction();}
+    }
+
+    private void ensureWorldProfileData(String profile){SQLiteDatabase db=getWritableDatabase();createWorldProfileTables(db);String p=normalizeMapProfile(profile);ContentValues c=new ContentValues();c.put("world_profile",p);c.put("name","mystara".equals(p)?"Crônica de Mystara":"Nova Campanha");c.put("rules_profile","mystara".equals(p)?"Rules Cyclopedia (BECMI)":"5e 2014");c.put("tone","mystara".equals(p)?"Aventura clássica":"Fantasia heroica");c.put("feats",0);c.put("multiclass",0);c.put("flanking",0);c.put("notes","");db.insertWithOnConflict("campaign_profiles",null,c,SQLiteDatabase.CONFLICT_IGNORE);ContentValues state=new ContentValues();state.put("world_profile",p);db.insertWithOnConflict("story_state_profiles",null,state,SQLiteDatabase.CONFLICT_IGNORE);db.insertWithOnConflict("combat_state_profiles",null,state,SQLiteDatabase.CONFLICT_IGNORE);db.insertWithOnConflict("scene_state_profiles",null,state,SQLiteDatabase.CONFLICT_IGNORE);}
+    private void ensureMapWorldState(String profile){SQLiteDatabase db=getWritableDatabase();ContentValues v=new ContentValues();v.put("world_profile",normalizeMapProfile(profile));db.insertWithOnConflict("map_world_state",null,v,SQLiteDatabase.CONFLICT_IGNORE);}
+    public JSONObject getMapState(){return getMapStateForProfile(activeMapProfile);}
+    public JSONObject getMapStateForProfile(String profile){String normalized=normalizeMapProfile(profile);ensureMapWorldState(normalized);return queryOne("SELECT * FROM map_world_state WHERE world_profile=?",new String[]{normalized});}
+    private void updateMapStateForProfile(String profile,ContentValues v){String normalized=normalizeMapProfile(profile);ensureMapWorldState(normalized);getWritableDatabase().update("map_world_state",v,"world_profile=?",new String[]{normalized});}
+    private void updateActiveMapState(ContentValues v){updateMapStateForProfile(activeMapProfile,v);}
+    public void saveMapState(String uri,String grid,float gridSize,boolean fog,float tokenX,float tokenY,float scale,float ox,float oy){ContentValues v=new ContentValues();v.put("image_uri",uri);v.put("grid_type",grid);v.put("grid_size",gridSize);v.put("fog_enabled",fog?1:0);v.put("token_x",tokenX);v.put("token_y",tokenY);v.put("scale",scale);v.put("offset_x",ox);v.put("offset_y",oy);updateActiveMapState(v);}
+    public void saveMapPackageState(String imageUri,String overlayUri,String manifestJson,String packageId,String currentHexId,boolean overlayVisible,String revealsJson,String grid,float gridSize,boolean fog,float tokenX,float tokenY,float scale,float ox,float oy){String before=getMapState().optString("current_hex_id","");saveMapPackageStateForProfile(activeMapProfile,imageUri,overlayUri,manifestJson,packageId,currentHexId,overlayVisible,revealsJson,grid,gridSize,fog,tokenX,tokenY,scale,ox,oy);String after=getMapState().optString("current_hex_id","");if(!before.equalsIgnoreCase(after))try{AtlasScenePositionReconciler.reconcilePersistedScene(this,"movimento direto no Atlas");}catch(Exception e){AppLog.e("AppDb","Falha ao reconciliar cena após movimento no Atlas.",e);}}
+    public void saveMapPackageStateForProfile(String profile,String imageUri,String overlayUri,String manifestJson,String packageId,String currentHexId,boolean overlayVisible,String revealsJson,String grid,float gridSize,boolean fog,float tokenX,float tokenY,float scale,float ox,float oy){
+        ContentValues v=new ContentValues();
+        v.put("logical_map_id",logicalMapId(manifestJson,packageId));v.put("image_uri",imageUri==null?"":imageUri);v.put("overlay_uri",overlayUri==null?"":overlayUri);v.put("manifest_json",manifestJson==null?"":manifestJson);v.put("map_package_id",packageId==null?"":packageId);v.put("current_hex_id",currentHexId==null?"":currentHexId);v.put("overlay_visible",overlayVisible?1:0);v.put("reveals_json",revealsJson==null?"{}":revealsJson);v.put("grid_type",grid==null?"Quadrada":grid);v.put("grid_size",gridSize);v.put("fog_enabled",fog?1:0);v.put("token_x",tokenX);v.put("token_y",tokenY);v.put("scale",scale);v.put("offset_x",ox);v.put("offset_y",oy);updateMapStateForProfile(profile,v);
+    }
+    private static String logicalMapId(String manifestJson,String packageId){
+        try{if(manifestJson!=null&&manifestJson.trim().length()>0){JSONObject root=new JSONObject(manifestJson);String logical=root.optString("logical_map_id","").trim();if(logical.length()>0)return logical;String id=MapManifestGeometry.parse(manifestJson).getMapId();if(id!=null&&id.trim().length()>0)return id.trim();}}catch(Exception e){AppLog.w("AppDb","Manifesto de mapa sem identidade lógica durante persistência.",e);}
+        String value=packageId==null?"":packageId.trim();int at=value.indexOf('@');return at>0?value.substring(0,at):value;
+    }
+    public JSONObject getLatestMapPackageByMapId(String profile,String mapId){if(mapId==null||mapId.trim().length()==0)return new JSONObject();String id=mapId.trim();return queryOne("SELECT * FROM map_packages WHERE ready=1 AND world_profile=? AND (logical_map_id=? OR (COALESCE(logical_map_id,'')='' AND map_id=?)) ORDER BY imported_at DESC LIMIT 1",new String[]{normalizeMapProfile(profile),id,id});}
+    public JSONObject getMapPackageAny(String packageId){if(packageId==null||packageId.length()==0)return new JSONObject();return queryOne("SELECT * FROM map_packages WHERE package_id=?",new String[]{packageId});}
+    public void markMapPackageUnavailable(String packageId,String reason){
+        if(packageId==null||packageId.length()==0)return;
+        SQLiteDatabase db=getWritableDatabase();db.beginTransaction();try{
+            ContentValues packageValues=new ContentValues();packageValues.put("ready",0);db.update("map_packages",packageValues,"package_id=?",new String[]{packageId});
+            JSONObject pack=getMapPackageAny(packageId);String profile=normalizeMapProfile(pack.optString("world_profile",getActiveMapProfile()));JSONObject state=getMapStateForProfile(profile);
+            if(packageId.equals(state.optString("map_package_id"))){ContentValues stateValues=new ContentValues();stateValues.put("logical_map_id",pack.optString("map_id",state.optString("logical_map_id")));stateValues.put("image_uri","");stateValues.put("overlay_uri","");stateValues.put("map_package_id","");updateMapStateForProfile(profile,stateValues);}
+            db.setTransactionSuccessful();
+        }finally{db.endTransaction();}
+        AppLog.w("AppDb","Pacote de mapa invalidado: "+packageId+" • "+(reason==null?"referência indisponível":reason));
+    }
+
+    public void saveMapViewExtras(String currentHexId,boolean overlayVisible,String revealsJson){String before=getMapState().optString("current_hex_id","");ContentValues v=new ContentValues();v.put("current_hex_id",currentHexId==null?"":currentHexId);v.put("overlay_visible",overlayVisible?1:0);v.put("reveals_json",revealsJson==null?"{}":revealsJson);updateActiveMapState(v);String after=getMapState().optString("current_hex_id","");if(!before.equalsIgnoreCase(after))try{AtlasScenePositionReconciler.reconcilePersistedScene(this,"mudança de posição do Atlas");}catch(Exception e){AppLog.e("AppDb","Falha ao reconciliar cena após alteração da posição.",e);}}
+    public void saveMapFogEnabled(boolean enabled){ContentValues v=new ContentValues();v.put("fog_enabled",enabled?1:0);updateActiveMapState(v);}
+    public void saveMapTravelState(boolean locked,String destination,String routeJson,String owner){ContentValues v=new ContentValues();v.put("position_locked",locked?1:0);v.put("destination_hex_id",destination==null?"":destination);v.put("route_json",routeJson==null?"[]":routeJson);v.put("route_owner",owner==null?"Jogador":owner);updateActiveMapState(v);}
+    public void saveMapTravelStateForProfile(String profile,boolean locked,String destination,String routeJson,String owner){ContentValues v=new ContentValues();v.put("position_locked",locked?1:0);v.put("destination_hex_id",destination==null?"":destination);v.put("route_json",routeJson==null?"[]":routeJson);v.put("route_owner",owner==null?"Jogador":owner);updateMapStateForProfile(profile,v);}
+    public void saveMapRenderMode(String mode,float minZoom){saveMapRenderModeForProfile(activeMapProfile,mode,minZoom);}
+    public void saveMapRenderModeForProfile(String profile,String mode,float minZoom){ContentValues v=new ContentValues();String normalized=mode==null?"dynamic":mode.trim().toLowerCase();if(!normalized.equals("dynamic")&&!normalized.equals("vector")&&!normalized.equals("raster"))normalized="dynamic";v.put("overlay_mode",normalized);v.put("min_label_zoom",Math.max(.1f,minZoom));updateMapStateForProfile(profile,v);}
+    public List<JSONObject> listMapPackages(String profile){return queryList("SELECT * FROM map_packages WHERE world_profile=? ORDER BY imported_at DESC",new String[]{normalizeMapProfile(profile)});}
+    public List<JSONObject> listReadyMapPackages(String profile){return queryList("SELECT * FROM map_packages WHERE ready=1 AND world_profile=? ORDER BY imported_at DESC",new String[]{normalizeMapProfile(profile)});}
+    public JSONObject getLatestMapPackageForProfile(String profile){return queryOne("SELECT * FROM map_packages WHERE ready=1 AND world_profile=? ORDER BY imported_at DESC LIMIT 1",new String[]{normalizeMapProfile(profile)});}
+    public JSONObject getMapPackage(String packageId){return queryOne("SELECT * FROM map_packages WHERE package_id=? AND ready=1",new String[]{packageId});}
+    /** Quantidade total de verbetes preservados no catálogo do pacote, posicionados ou não. */
+    public int countMapCatalogLocations(String packageId){
+        if(packageId==null||packageId.length()==0)return 0;Cursor c=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM map_locations WHERE package_id=?",new String[]{packageId});try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}
+    }
+    /** Quantidade de locais realmente ligados a uma célula e aptos para uso narrativo. */
+    public int countMapPositionedLocations(String packageId){
+        if(packageId==null||packageId.length()==0)return 0;String sql="SELECT COUNT(DISTINCT l.location_id) FROM map_locations l LEFT JOIN map_hex_locations j ON j.package_id=l.package_id AND j.location_id=l.location_id WHERE l.package_id=? AND (COALESCE(l.hex_id,'')<>'' OR COALESCE(j.hex_id,'')<>'') AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%review%' AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%approx%' AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%unassigned%'";Cursor c=getReadableDatabase().rawQuery(sql,new String[]{packageId});try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}
+    }
+
+    /** Camada de nomes do Atlas. Canônicos sem posição nunca entram; Campaign/Procedural
+     * carregam seus flags para que a View aplique sigilo conforme player/master. */
+    public List<JSONObject> listAtlasMapLabels(String packageId,int limit){
+        ArrayList<JSONObject> out=new ArrayList<JSONObject>();if(packageId==null||packageId.trim().length()==0)return out;int max=Math.max(1,Math.min(2000,limit));
+        String canonicalSql="SELECT location_id AS id,name,type,hex_id,region,position_u,position_v,0 AS hidden,1 AS discovered,'canonical' AS origin FROM map_locations WHERE package_id=? AND canonical=1 AND COALESCE(hex_id,'')<>'' ORDER BY CASE lower(type) WHEN 'cidade' THEN 0 WHEN 'porto' THEN 1 WHEN 'fortaleza' THEN 2 WHEN 'castelo' THEN 3 WHEN 'vila' THEN 4 ELSE 8 END,name COLLATE NOCASE";
+        out.addAll(queryList(canonicalSql,new String[]{packageId}));
+        String logical=getLogicalMapIdForPackage(packageId);if(logical.length()>0&&out.size()<max){int remaining=max-out.size();String dynamicSql="SELECT id,name,type,hex_id,'' AS region,position_u,position_v,hidden,discovered,origin FROM campaign_pois WHERE world_profile=? AND logical_map_id=? AND COALESCE(hex_id,'')<>'' AND status<>'deleted' ORDER BY CASE WHEN origin='campaign' THEN 0 ELSE 1 END,updated_at DESC,name COLLATE NOCASE LIMIT "+remaining;out.addAll(queryList(dynamicSql,new String[]{getActiveMapProfile(),logical}));}
+        return out.size()>max?new ArrayList<JSONObject>(out.subList(0,max)):out;
+    }
+    public JSONObject getRawMapHex(String packageId,String hexId){return queryOne("SELECT * FROM map_hex_atlas WHERE package_id=? AND hex_id=?",new String[]{packageId,hexId});}
+    private String getMapIdForPackage(String packageId){if(packageId==null||packageId.length()==0)return "";return queryOne("SELECT map_id FROM map_packages WHERE package_id=?",new String[]{packageId}).optString("map_id");}
+    public JSONObject getMapHexCorrection(String packageId,String hexId){String mapId=getMapIdForPackage(packageId);if(mapId.length()==0)return new JSONObject();return queryOne("SELECT * FROM map_hex_corrections WHERE map_id=? AND hex_id=?",new String[]{mapId,hexId});}
+    private JSONObject mergeMapHex(JSONObject base,JSONObject correction){
+        if(base==null)base=new JSONObject();if(correction==null||correction.length()==0)return base;
+        try{JSONObject out=new JSONObject(base.toString());String[] fields={"terrain_primary","terrain_secondary","roads_json","waterways_json","political_json","review_status","review_reasons"};for(String field:fields){if(correction.has(field)&&!correction.isNull(field))out.put(field,correction.optString(field));}if(correction.has("terrain_confidence")&&!correction.isNull("terrain_confidence"))out.put("terrain_confidence",correction.optDouble("terrain_confidence"));out.put("manual_correction",1);out.put("review_note",correction.optString("review_note"));out.put("hide_unconfirmed_locations",correction.optInt("hide_unconfirmed_locations"));out.put("correction_updated_at",correction.optLong("updated_at"));return out;}catch(Exception e){return base;}
+    }
+    public JSONObject getMapHex(String packageId,String hexId){return mergeMapHex(getRawMapHex(packageId,hexId),getMapHexCorrection(packageId,hexId));}
+    public List<JSONObject> getMapLocationsForHex(String packageId,String hexId){
+        ArrayList<JSONObject> out=new ArrayList<JSONObject>();JSONObject correction=getMapHexCorrection(packageId,hexId);boolean hide=correction.optInt("hide_unconfirmed_locations",0)==1;
+        List<JSONObject> base=queryList("SELECT l.*,j.hex_id AS linked_hex_id FROM map_locations l INNER JOIN map_hex_locations j ON j.package_id=l.package_id AND j.location_id=l.location_id WHERE j.package_id=? AND j.hex_id=? ORDER BY l.name COLLATE NOCASE",new String[]{packageId,hexId});
+        for(JSONObject item:base){String status=item.optString("placement_status").toLowerCase();if(hide&&(status.contains("review")||status.contains("approx")))continue;try{if(item.optString("hex_id","").trim().length()==0)item.put("hex_id",item.optString("linked_hex_id",hexId));}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada ao resolver vínculo de local.",ignored);}out.add(item);}
+        try{JSONArray custom=new JSONArray(correction.optString("custom_locations_json","[]"));for(int i=0;i<custom.length();i++){JSONObject item=custom.optJSONObject(i);if(item!=null){JSONObject copy=new JSONObject(item.toString());copy.put("manual_correction",1);copy.put("hex_id",hexId);out.add(copy);}}}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}return out;
+    }
+    public List<JSONObject> findMapLocationsByQuery(String packageId,String query,int limit){
+        ArrayList<JSONObject> out=new ArrayList<JSONObject>();if(packageId==null||packageId.length()==0)return out;String q=normalizeSearchText(query);if(q.length()<2)return out;
+        List<JSONObject> rows=queryList("SELECT * FROM map_locations WHERE package_id=? LIMIT 5000",new String[]{packageId});
+        for(JSONObject row:rows){
+            String name=normalizeSearchText(row.optString("name")),region=normalizeSearchText(row.optString("region")),rawText=row.optString("raw_json"),raw=normalizeSearchText(rawText),original="";int score=0;JSONArray aliases=null;
+            try{JSONObject r=new JSONObject(rawText.length()==0?"{}":rawText);original=normalizeSearchText(r.optString("nomeOriginal",r.optString("nameOriginal","")));aliases=r.optJSONArray("aliases");}catch(Exception ignored){AppLog.ignored("AppDb","Metadados de busca de local inválidos.",ignored);}
+            if(name.equals(q))score+=1200;else if(name.startsWith(q))score+=500;else if(name.contains(q))score+=280;
+            if(original.equals(q))score+=1150;else if(original.startsWith(q))score+=480;else if(original.contains(q))score+=260;
+            if(aliases!=null)for(int ai=0;ai<aliases.length();ai++){String alias=normalizeSearchText(aliases.optString(ai,""));if(alias.equals(q))score+=1100;else if(alias.startsWith(q))score+=430;else if(alias.contains(q))score+=220;}
+            if(raw.contains(q))score+=70;if(region.contains(q))score+=40;
+            for(String term:q.split("\\s+")){if(term.length()<2)continue;if(name.contains(term))score+=40;if(original.contains(term))score+=38;if(raw.contains(term))score+=10;if(region.contains(term))score+=8;}
+            if(score>0){try{row.put("_score",score).put("_original_name",original);}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada na pontuação de busca.",ignored);}out.add(row);}
+        }
+        java.util.Collections.sort(out,new java.util.Comparator<JSONObject>(){public int compare(JSONObject a,JSONObject b){int s=Integer.compare(b.optInt("_score"),a.optInt("_score"));if(s!=0)return s;boolean ap=a.optString("hex_id","").length()>0,bp=b.optString("hex_id","").length()>0;if(ap!=bp)return ap?-1:1;return a.optString("name").compareToIgnoreCase(b.optString("name"));}});int max=Math.max(1,Math.min(50,limit));return out.size()>max?new ArrayList<JSONObject>(out.subList(0,max)):out;
+    }
+    public List<JSONObject> findConfirmedLocationsByQuery(String packageId,String query,int limit){
+        ArrayList<JSONObject> out=new ArrayList<JSONObject>();if(packageId==null||packageId.length()==0)return out;String q=normalizeSearchText(query);if(q.length()<2)return out;
+        List<JSONObject> rows=queryList("SELECT l.*,COALESCE(NULLIF(l.hex_id,''),j.hex_id) AS linked_hex_id FROM map_locations l LEFT JOIN map_hex_locations j ON j.package_id=l.package_id AND j.location_id=l.location_id WHERE l.package_id=? AND COALESCE(NULLIF(l.hex_id,''),j.hex_id,'')<>'' AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%review%' AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%approx%' AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%unassigned%' GROUP BY l.package_id,l.location_id LIMIT 5000",new String[]{packageId});for(JSONObject row:rows){try{if(row.optString("hex_id","").length()==0)row.put("hex_id",row.optString("linked_hex_id",""));}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada ao resolver local pesquisável.",ignored);}}
+        for(JSONObject row:rows){String name=normalizeSearchText(row.optString("name")),region=normalizeSearchText(row.optString("region")),raw=normalizeSearchText(row.optString("raw_json"));int score=0;if(name.equals(q))score+=1000;else if(name.startsWith(q))score+=450;else if(name.contains(q))score+=250;if(raw.contains(q))score+=150;if(region.contains(q))score+=35;for(String term:q.split("\\s+")){if(term.length()<2)continue;if(name.contains(term))score+=35;if(raw.contains(term))score+=20;if(region.contains(term))score+=7;}if(score>0){try{row.put("_score",score);}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}out.add(row);}}
+        java.util.Collections.sort(out,new java.util.Comparator<JSONObject>(){public int compare(JSONObject a,JSONObject b){int c=Integer.compare(b.optInt("_score"),a.optInt("_score"));return c!=0?c:a.optString("name").compareToIgnoreCase(b.optString("name"));}});int max=Math.max(1,Math.min(10,limit));return out.size()>max?new ArrayList<JSONObject>(out.subList(0,max)):out;
+    }
+    public List<JSONObject> getMapHexes(String packageId,List<String> hexIds){ArrayList<JSONObject> out=new ArrayList<JSONObject>();if(packageId==null||packageId.length()==0||hexIds==null||hexIds.size()==0)return out;StringBuilder q=new StringBuilder("SELECT * FROM map_hex_atlas WHERE package_id=? AND hex_id IN (");ArrayList<String> args=new ArrayList<String>();args.add(packageId);for(int i=0;i<hexIds.size();i++){if(i>0)q.append(',');q.append('?');args.add(hexIds.get(i));}q.append(')');List<JSONObject> raw=queryList(q.toString(),args.toArray(new String[args.size()]));for(JSONObject item:raw)out.add(mergeMapHex(item,getMapHexCorrection(packageId,item.optString("hex_id"))));return out;}
+    private static boolean isNarrativeStartLocationType(String type){
+        String value=type==null?"":type.trim().toLowerCase(Locale.US);
+        return value.equals("cidade")||value.equals("vila")||value.equals("porto")||value.equals("fortaleza")||value.equals("castelo")||value.equals("ruina")||value.equals("masmorra")||value.equals("templo")||value.equals("caverna")||value.equals("marco_magico")||value.equals("bairro_edificio")||value.equals("outro")||value.equals("underdark")||value.equals("ilha");
+    }
+    private static boolean isConfirmedMapLocation(JSONObject location){
+        if(location==null)return false;String resolved=location.optString("hex_id","").trim();if(resolved.length()==0)resolved=location.optString("linked_hex_id","").trim();if(resolved.length()==0)return false;
+        String status=location.optString("placement_status","").toLowerCase(Locale.US);
+        return !status.contains("review")&&!status.contains("approx")&&!status.contains("unassigned")&&isNarrativeStartLocationType(location.optString("type",""));
+    }
+    private static int adventureLocationPriority(String type){
+        String value=type==null?"":type.trim().toLowerCase(Locale.US);
+        if(value.equals("cidade"))return 140;
+        if(value.equals("vila"))return 120;
+        if(value.equals("porto"))return 105;
+        if(value.equals("fortaleza")||value.equals("castelo"))return 95;
+        if(value.equals("ruina")||value.equals("masmorra")||value.equals("templo")||value.equals("caverna")||value.equals("marco_magico"))return 80;
+        if(value.equals("bairro_edificio")||value.equals("underdark")||value.equals("ilha"))return 65;
+        return 55;
+    }
+    private JSONObject enrichAdventureStartCandidate(String packageId,JSONObject hex){
+        if(hex==null||hex.length()==0)return new JSONObject();
+        try{
+            JSONObject out=new JSONObject(hex.toString());JSONObject best=null;int bestPriority=-1;
+            for(JSONObject location:getMapLocationsForHex(packageId,hex.optString("hex_id",""))){
+                if(!isConfirmedMapLocation(location))continue;int priority=adventureLocationPriority(location.optString("type",""));
+                if(priority>bestPriority){best=location;bestPriority=priority;}
+            }
+            if(best!=null){
+                out.put("start_kind","location");out.put("start_weight",bestPriority);
+                out.put("start_location_name",best.optString("name",""));out.put("start_location_type",best.optString("type",""));out.put("start_location_region",best.optString("region",""));out.put("start_location_raw",best.optString("raw_json","{}"));
+                return out;
+            }
+            String terrain=out.optString("terrain_primary","").trim().toLowerCase(Locale.US);double confidence=out.optDouble("terrain_confidence",0d);String review=out.optString("review_status","").toLowerCase(Locale.US);
+            boolean reliable=terrain.length()>0&&!terrain.equals("unassigned")&&!terrain.equals("null")&&!terrain.equals("water")&&!terrain.equals("sea")&&!terrain.equals("ocean")&&!terrain.equals("coast_water")&&!terrain.equals("map_border")&&confidence>=0.60d&&!review.contains("needs")&&!review.contains("unassigned");
+            if(reliable){out.put("start_kind","terrain");out.put("start_weight",50);return out;}
+            return new JSONObject();
+        }catch(Exception e){AppLog.w("AppDb","Falha ao enriquecer ponto inicial catalogado.",e);return new JSONObject();}
+    }
+    public JSONObject describeCatalogedAdventureStart(String packageId,String hexId){
+        if(packageId==null||packageId.length()==0||hexId==null||hexId.trim().length()==0)return new JSONObject();
+        String normalized=hexId.trim();
+        JSONObject enriched=enrichAdventureStartCandidate(packageId,getMapHex(packageId,normalized));
+        if(enriched.length()>0)return enriched;
+        // Atlas Contract: um hex vazio continua sendo uma posição canônica válida.
+        if(isAtlasContractPackage(packageId)&&isValidMapHex(packageId,normalized)){
+            try{
+                JSONObject raw=getMapHex(packageId,normalized);
+                JSONObject out=raw.length()==0?new JSONObject():new JSONObject(raw.toString());
+                out.put("hex_id",normalized);out.put("start_kind","empty_hex");out.put("start_weight",10);
+                List<JSONObject> areas=getMapAreasForHex(packageId,normalized);if(!areas.isEmpty()){JSONObject a=areas.get(0);if(a!=null){out.put("start_region_name",a.optString("name",""));out.put("start_region_type",a.optString("type",""));}}
+                return out;
+            }catch(Exception e){AppLog.w("AppDb","Falha ao descrever hex vazio válido.",e);}
+        }
+        return new JSONObject();
+    }
+    public boolean isCatalogedAdventureStartHex(String packageId,String hexId){return describeCatalogedAdventureStart(packageId,hexId).length()>0;}
+
+    /**
+     * Transfere posições confirmadas de um pacote anterior do mesmo mundo para o
+     * atlas ativo usando coordenadas normalizadas. Isso preserva cidades já
+     * catalogadas ao trocar apenas a resolução/geometria da mesma cartografia.
+     */
+    public int migrateConfirmedLocationPlacementsToPackage(String targetPackageId){
+        if(targetPackageId==null||targetPackageId.length()==0)return 0;
+        // O Atlas Contract V3 possui política própria de migração. Nunca normalize pixels/hexes legados por aproximação.
+        if(isAtlasContractPackage(targetPackageId))return 0;
+        JSONObject targetPack=getMapPackage(targetPackageId);if(targetPack.length()==0)return 0;
+        double targetWidth=targetPack.optDouble("image_width",0d),targetHeight=targetPack.optDouble("image_height",0d);if(targetWidth<=0d||targetHeight<=0d)return 0;
+        String profile=normalizeMapProfile(targetPack.optString("world_profile",getActiveMapProfile()));String targetMapId=targetPack.optString("map_id","").trim();String targetLogical=targetPack.optString("logical_map_id",targetMapId).trim();String targetFrame=targetPack.optString("coordinate_frame_id","").trim();int migrated=0;HashSet<String> migratedTargets=new HashSet<String>();
+        final HashMap<String,JSONObject> targetById=new HashMap<String,JSONObject>();final HashMap<String,JSONObject> targetByName=new HashMap<String,JSONObject>();
+        for(JSONObject targetLocation:queryList("SELECT * FROM map_locations WHERE package_id=?",new String[]{targetPackageId})){String id=targetLocation.optString("location_id","").trim();if(id.length()>0)targetById.put(id,targetLocation);String normalizedName=normalizeSearchText(targetLocation.optString("name",""));if(normalizedName.length()>0&&!targetByName.containsKey(normalizedName))targetByName.put(normalizedName,targetLocation);try{JSONObject raw=new JSONObject(targetLocation.optString("raw_json","{}"));JSONArray aliases=raw.optJSONArray("aliases");if(aliases!=null)for(int ai=0;ai<aliases.length();ai++){String alias=normalizeSearchText(aliases.optString(ai,""));if(alias.length()>0&&!targetByName.containsKey(alias))targetByName.put(alias,targetLocation);}}catch(Exception ignored){AppLog.ignored("AppDb","Alias de local ausente durante migração.",ignored);}}
+        // Não exige ready=1: após uma atualização o arquivo do mapa antigo pode não estar mais acessível,
+        // mas as posições confirmadas continuam preservadas nas tabelas locais e são suficientes para a migração.
+        List<JSONObject> sources=queryList("SELECT * FROM map_packages WHERE world_profile=? AND package_id<>? ORDER BY imported_at DESC",new String[]{profile,targetPackageId});
+        SQLiteDatabase sql=getWritableDatabase();sql.beginTransaction();try{
+            for(JSONObject source:sources){
+                String sourceId=source.optString("package_id","");String sourceMapId=source.optString("map_id","").trim();String sourceLogical=source.optString("logical_map_id",sourceMapId).trim();String sourceFrame=source.optString("coordinate_frame_id","").trim();double sourceWidth=source.optDouble("image_width",0d),sourceHeight=source.optDouble("image_height",0d);if(sourceId.length()==0||sourceWidth<=0d||sourceHeight<=0d)continue;
+                // Migração normalizada genérica só é permitida quando a identidade lógica
+                // coincide e os frames são compatíveis. Nenhum nome de mundo/mapa é inferido.
+                if(targetLogical.length()>0&&sourceLogical.length()>0&&!targetLogical.equals(sourceLogical))continue;
+                if(targetLogical.length()==0&&targetMapId.length()>0&&!targetMapId.equals(sourceMapId))continue;
+                if(targetFrame.length()>0&&sourceFrame.length()>0&&!targetFrame.equals(sourceFrame))continue;
+                // O atlas legado registrava parte dos locais SOMENTE em map_hex_locations.
+                // COALESCE resolve l.hex_id quando existe e, caso contrário, usa o vínculo real da tabela de junção.
+                List<JSONObject> rows=queryList("SELECT l.*,COALESCE(NULLIF(l.hex_id,''),j.hex_id) AS linked_hex_id,h.center_x,h.center_y FROM map_locations l LEFT JOIN map_hex_locations j ON j.package_id=l.package_id AND j.location_id=l.location_id INNER JOIN map_hex_atlas h ON h.package_id=l.package_id AND h.hex_id=COALESCE(NULLIF(l.hex_id,''),j.hex_id) WHERE l.package_id=? AND COALESCE(NULLIF(l.hex_id,''),j.hex_id,'')<>'' AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%review%' AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%approx%' AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%unassigned%'",new String[]{sourceId});
+                for(JSONObject row:rows){String sourceLocationId=row.optString("location_id","").trim();JSONObject targetLocation=sourceLocationId.length()>0?targetById.get(sourceLocationId):null;if(targetLocation==null){String normalizedSourceName=normalizeSearchText(row.optString("name",""));targetLocation=targetByName.get(normalizedSourceName);}if(targetLocation==null||!isNarrativeStartLocationType(targetLocation.optString("type","")))continue;
+                    String targetLocationId=targetLocation.optString("location_id","");if(targetLocationId.length()==0||migratedTargets.contains(targetLocationId))continue;
+                    JSONObject existingJoin=queryOne("SELECT hex_id FROM map_hex_locations WHERE package_id=? AND location_id=? LIMIT 1",new String[]{targetPackageId,targetLocationId});if(targetLocation.optString("hex_id","").length()>0||existingJoin.optString("hex_id","").length()>0)continue;
+                    double x=row.optDouble("center_x",Double.NaN),y=row.optDouble("center_y",Double.NaN);if(Double.isNaN(x)||Double.isNaN(y))continue;
+                    double tx=Math.max(0d,Math.min(targetWidth,x/sourceWidth*targetWidth)),ty=Math.max(0d,Math.min(targetHeight,y/sourceHeight*targetHeight));
+                    JSONObject nearest=queryOne("SELECT hex_id FROM map_hex_atlas WHERE package_id=? ORDER BY ((center_x-?)*(center_x-?)+(center_y-?)*(center_y-?)) LIMIT 1",new String[]{targetPackageId,String.valueOf(tx),String.valueOf(tx),String.valueOf(ty),String.valueOf(ty)});String targetHex=nearest.optString("hex_id","");if(targetHex.length()==0)continue;
+                    ContentValues update=new ContentValues();update.put("hex_id",targetHex);update.put("placement_method","legacy_link_normalized_same_map_migration");update.put("placement_confidence",Math.min(.85d,Math.max(.65d,row.optDouble("placement_confidence",.8d))));update.put("placement_status","migrated_confirmed");
+                    sql.update("map_locations",update,"package_id=? AND location_id=?",new String[]{targetPackageId,targetLocationId});ContentValues join=new ContentValues();join.put("package_id",targetPackageId);join.put("hex_id",targetHex);join.put("location_id",targetLocationId);sql.insertWithOnConflict("map_hex_locations",null,join,SQLiteDatabase.CONFLICT_REPLACE);migratedTargets.add(targetLocationId);migrated++;
+                }
+            }
+            sql.setTransactionSuccessful();
+        }finally{sql.endTransaction();}
+        return migrated;
+    }
+
+    public boolean isAdventureStartHex(String packageId,String hexId){
+        if(packageId==null||packageId.length()==0||hexId==null||hexId.trim().length()==0)return false;
+        String normalized=hexId.trim();
+        // Atlas Contract: a existência do hex no dataset é a única condição cartográfica.
+        // Hex vazio, água ou terreno sem POI continuam posições canônicas válidas; regras
+        // mecânicas de viagem/embarcação pertencem ao engine D&D, não ao Atlas.
+        if(isAtlasContractPackage(packageId))return isValidMapHex(packageId,normalized);
+        JSONObject hex=getMapHex(packageId,normalized);if(hex.length()==0)return false;
+        double x=hex.optDouble("center_x",Double.NaN),y=hex.optDouble("center_y",Double.NaN);if(Double.isNaN(x)||Double.isInfinite(x)||Double.isNaN(y)||Double.isInfinite(y))return false;
+        String terrain=hex.optString("terrain_primary","").trim().toLowerCase(Locale.US);double confidence=hex.optDouble("terrain_confidence",0d);
+        if(terrain.length()>0&&!"unassigned".equals(terrain)&&!"null".equals(terrain)&&confidence>=0.60d){
+            if("water".equals(terrain)||"sea".equals(terrain)||"ocean".equals(terrain)||"coast_water".equals(terrain)||"map_border".equals(terrain))return false;
+        }
+        return true;
+    }
+
+    public List<JSONObject> listAdventureStartHexes(String packageId,String avoidHex,int limit){
+        ArrayList<JSONObject> out=new ArrayList<JSONObject>();if(packageId==null||packageId.length()==0)return out;
+        String avoid=avoidHex==null?"":avoidHex;int requested=Math.max(20,Math.min(1000,limit));
+        if(isAtlasContractPackage(packageId)){
+            // Não filtre por cidade/POI/terreno: todo hex materializado pelo contrato é válido.
+            // A consulta é limitada e serve apenas ao sorteio/diagnóstico; os 98.600 hexes
+            // permanecem acessíveis individualmente por isValidMapHex/getMapHex.
+            List<JSONObject> raw=queryList("SELECT * FROM map_hex_atlas WHERE package_id=? AND hex_id<>? ORDER BY RANDOM() LIMIT ?",new String[]{packageId,avoid,String.valueOf(requested)});
+            for(JSONObject item:raw){String id=item.optString("hex_id","");JSONObject described=describeCatalogedAdventureStart(packageId,id);if(described.length()>0)out.add(described);}
+            return out;
+        }
+        int locationLimit=Math.max(20,Math.min(500,requested));int terrainLimit=Math.max(20,Math.min(500,requested));
+        String mapId=getMapIdForPackage(packageId);String allowed="'cidade','vila','porto','fortaleza','castelo','ruina','masmorra','templo','caverna','marco_magico','bairro_edificio','outro','underdark','ilha'";String confirmedLocation="lower(COALESCE(l.type,'')) IN ("+allowed+") AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%review%' AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%approx%' AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%unassigned%'";
+        String locationSql="SELECT h.* FROM map_hex_atlas h WHERE h.package_id=? AND h.hex_id<>? AND EXISTS(SELECT 1 FROM map_locations l WHERE l.package_id=h.package_id AND "+confirmedLocation+" AND (l.hex_id=h.hex_id OR EXISTS(SELECT 1 FROM map_hex_locations j WHERE j.package_id=l.package_id AND j.location_id=l.location_id AND j.hex_id=h.hex_id))) ORDER BY RANDOM() LIMIT ?";
+        String terrainSql="SELECT h.* FROM map_hex_atlas h WHERE h.package_id=? AND h.hex_id<>? AND (EXISTS(SELECT 1 FROM map_hex_corrections c WHERE c.map_id=? AND c.hex_id=h.hex_id AND lower(COALESCE(c.terrain_primary,'')) NOT IN ('water','sea','ocean','coast_water','map_border','unassigned','null') AND COALESCE(c.terrain_confidence,0)>=0.60 AND lower(COALESCE(c.review_status,'')) NOT LIKE '%needs%' AND lower(COALESCE(c.review_status,'')) NOT LIKE '%unassigned%') OR (lower(COALESCE(h.terrain_primary,'')) NOT IN ('','water','sea','ocean','coast_water','map_border','unassigned','null') AND COALESCE(h.terrain_confidence,0)>=0.60 AND lower(COALESCE(h.review_status,'')) NOT LIKE '%needs%' AND lower(COALESCE(h.review_status,'')) NOT LIKE '%unassigned%')) ORDER BY RANDOM() LIMIT ?";
+        HashSet<String> seen=new HashSet<String>();List<JSONObject> rawLocations=queryList(locationSql,new String[]{packageId,avoid,String.valueOf(locationLimit)});for(JSONObject item:rawLocations){String hexId=item.optString("hex_id","");JSONObject enriched=enrichAdventureStartCandidate(packageId,mergeMapHex(item,getMapHexCorrection(packageId,hexId)));if(enriched.length()>0&&seen.add(hexId))out.add(enriched);}
+        List<JSONObject> rawTerrains=queryList(terrainSql,new String[]{packageId,avoid,mapId,String.valueOf(terrainLimit)});for(JSONObject item:rawTerrains){String hexId=item.optString("hex_id","");if(seen.contains(hexId))continue;JSONObject enriched=enrichAdventureStartCandidate(packageId,mergeMapHex(item,getMapHexCorrection(packageId,hexId)));if(enriched.length()>0&&seen.add(hexId))out.add(enriched);}
+        if(out.size()>requested)return new ArrayList<JSONObject>(out.subList(0,requested));return out;
+    }
+
+
+    /**
+     * Pontos de abertura catalogados mais próximos de um hex tocado. O hex de
+     * origem pode ser apenas geométrico; o resultado, porém, sempre passa pela
+     * mesma validação rígida usada pelo sorteio de abertura.
+     */
+    public List<JSONObject> findNearestAdventureStartCandidates(String packageId,String fromHex,int limit){
+        ArrayList<JSONObject> out=new ArrayList<JSONObject>();
+        if(packageId==null||packageId.length()==0||fromHex==null||fromHex.trim().length()==0)return out;
+        JSONObject origin=getRawMapHex(packageId,fromHex.trim());if(origin.length()==0)return out;
+        final double ox=origin.optDouble("center_x",Double.NaN),oy=origin.optDouble("center_y",Double.NaN);if(Double.isNaN(ox)||Double.isNaN(oy))return out;
+        int wanted=Math.max(1,Math.min(12,limit)),perKind=Math.max(8,wanted*3);String avoid=fromHex.trim();String mapId=getMapIdForPackage(packageId);
+        String allowed="'cidade','vila','porto','fortaleza','castelo','ruina','masmorra','templo','caverna','marco_magico','bairro_edificio','outro','underdark','ilha'";
+        String confirmedLocation="lower(COALESCE(l.type,'')) IN ("+allowed+") AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%review%' AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%approx%' AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%unassigned%'";
+        String distance="((h.center_x-?)*(h.center_x-?)+(h.center_y-?)*(h.center_y-?))";
+        String locationSql="SELECT h.*,"+distance+" AS distance2 FROM map_hex_atlas h WHERE h.package_id=? AND h.hex_id<>? AND EXISTS(SELECT 1 FROM map_locations l WHERE l.package_id=h.package_id AND "+confirmedLocation+" AND (l.hex_id=h.hex_id OR EXISTS(SELECT 1 FROM map_hex_locations j WHERE j.package_id=l.package_id AND j.location_id=l.location_id AND j.hex_id=h.hex_id))) ORDER BY distance2 LIMIT ?";
+        List<JSONObject> rawLocations=queryList(locationSql,new String[]{String.valueOf(ox),String.valueOf(ox),String.valueOf(oy),String.valueOf(oy),packageId,avoid,String.valueOf(perKind)});
+        String terrainSql="SELECT h.*,"+distance+" AS distance2 FROM map_hex_atlas h WHERE h.package_id=? AND h.hex_id<>? AND (EXISTS(SELECT 1 FROM map_hex_corrections c WHERE c.map_id=? AND c.hex_id=h.hex_id AND lower(COALESCE(c.terrain_primary,'')) NOT IN ('water','sea','ocean','coast_water','map_border','unassigned','null') AND COALESCE(c.terrain_confidence,0)>=0.60 AND lower(COALESCE(c.review_status,'')) NOT LIKE '%needs%' AND lower(COALESCE(c.review_status,'')) NOT LIKE '%unassigned%') OR (lower(COALESCE(h.terrain_primary,'')) NOT IN ('','water','sea','ocean','coast_water','map_border','unassigned','null') AND COALESCE(h.terrain_confidence,0)>=0.60 AND lower(COALESCE(h.review_status,'')) NOT LIKE '%needs%' AND lower(COALESCE(h.review_status,'')) NOT LIKE '%unassigned%')) ORDER BY distance2 LIMIT ?";
+        List<JSONObject> rawTerrains=queryList(terrainSql,new String[]{String.valueOf(ox),String.valueOf(ox),String.valueOf(oy),String.valueOf(oy),packageId,avoid,mapId,String.valueOf(perKind)});
+        HashSet<String> seen=new HashSet<String>();
+        for(JSONObject raw:rawLocations){String id=raw.optString("hex_id","");JSONObject enriched=enrichAdventureStartCandidate(packageId,mergeMapHex(raw,getMapHexCorrection(packageId,id)));if(enriched.length()==0||!seen.add(id))continue;try{enriched.put("_distance2",raw.optDouble("distance2",Double.MAX_VALUE));out.add(enriched);}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada ao ordenar local de abertura.",ignored);}}
+        for(JSONObject raw:rawTerrains){String id=raw.optString("hex_id","");if(seen.contains(id))continue;JSONObject enriched=enrichAdventureStartCandidate(packageId,mergeMapHex(raw,getMapHexCorrection(packageId,id)));if(enriched.length()==0||!seen.add(id))continue;try{enriched.put("_distance2",raw.optDouble("distance2",Double.MAX_VALUE));out.add(enriched);}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada ao ordenar terreno de abertura.",ignored);}}
+        java.util.Collections.sort(out,new java.util.Comparator<JSONObject>(){public int compare(JSONObject a,JSONObject b){return Double.compare(a.optDouble("_distance2",Double.MAX_VALUE),b.optDouble("_distance2",Double.MAX_VALUE));}});
+        return out.size()>wanted?new ArrayList<JSONObject>(out.subList(0,wanted)):out;
+    }
+
+    public List<JSONObject> findNearestConfirmedLocations(String packageId,String fromHex,String[] types,int limit){
+        ArrayList<JSONObject> out=new ArrayList<JSONObject>();if(packageId==null||packageId.length()==0||fromHex==null||fromHex.length()==0||types==null||types.length==0)return out;JSONObject origin=getRawMapHex(packageId,fromHex);if(origin.length()==0)return out;double x=origin.optDouble("center_x"),y=origin.optDouble("center_y");StringBuilder sql=new StringBuilder("SELECT l.*,h.center_x,h.center_y,((h.center_x-?)*(h.center_x-?)+(h.center_y-?)*(h.center_y-?)) AS distance2 FROM map_locations l INNER JOIN map_hex_atlas h ON h.package_id=l.package_id AND h.hex_id=l.hex_id WHERE l.package_id=? AND l.hex_id<>? AND l.type IN (");ArrayList<String> args=new ArrayList<String>();args.add(String.valueOf(x));args.add(String.valueOf(x));args.add(String.valueOf(y));args.add(String.valueOf(y));args.add(packageId);args.add(fromHex);for(int i=0;i<types.length;i++){if(i>0)sql.append(',');sql.append('?');args.add(types[i]);}sql.append(") AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%review%' AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%approx%' AND lower(COALESCE(l.placement_status,'')) NOT LIKE '%unassigned%' AND COALESCE(l.hex_id,'')<>'' ORDER BY distance2 LIMIT ?");args.add(String.valueOf(Math.max(1,limit)));return queryList(sql.toString(),args.toArray(new String[args.size()]));
+    }
+    public List<JSONObject> findNearestConfirmedWaterways(String packageId,String fromHex,int limit){
+        if(packageId==null||packageId.length()==0||fromHex==null||fromHex.length()==0)return new ArrayList<JSONObject>();JSONObject origin=getRawMapHex(packageId,fromHex);if(origin.length()==0)return new ArrayList<JSONObject>();double x=origin.optDouble("center_x"),y=origin.optDouble("center_y");String sql="SELECT *,((center_x-?)*(center_x-?)+(center_y-?)*(center_y-?)) AS distance2 FROM map_hex_atlas WHERE package_id=? AND hex_id<>? AND (lower(COALESCE(review_status,''))='verified' OR (lower(COALESCE(review_status,''))='automatic' AND COALESCE(terrain_confidence,0)>=0.80)) AND (lower(COALESCE(waterways_json,'')) LIKE '%river%' OR lower(COALESCE(waterways_json,'')) LIKE '%rio%') ORDER BY distance2 LIMIT ?";return queryList(sql,new String[]{String.valueOf(x),String.valueOf(x),String.valueOf(y),String.valueOf(y),packageId,fromHex,String.valueOf(Math.max(1,limit))});
+    }
+    public List<JSONObject> findNearestConfirmedTerrain(String packageId,String fromHex,String terrain,int limit){
+        if(packageId==null||packageId.length()==0||fromHex==null||fromHex.length()==0||terrain==null||terrain.length()==0)return new ArrayList<JSONObject>();JSONObject origin=getRawMapHex(packageId,fromHex);if(origin.length()==0)return new ArrayList<JSONObject>();double x=origin.optDouble("center_x"),y=origin.optDouble("center_y");String sql="SELECT *,((center_x-?)*(center_x-?)+(center_y-?)*(center_y-?)) AS distance2 FROM map_hex_atlas WHERE package_id=? AND hex_id<>? AND (lower(COALESCE(review_status,''))='verified' OR (lower(COALESCE(review_status,''))='automatic' AND COALESCE(terrain_confidence,0)>=0.80)) AND (lower(COALESCE(terrain_primary,''))=? OR lower(COALESCE(terrain_secondary,'')) LIKE ?) ORDER BY distance2 LIMIT ?";return queryList(sql,new String[]{String.valueOf(x),String.valueOf(x),String.valueOf(y),String.valueOf(y),packageId,fromHex,terrain.toLowerCase(),"%"+terrain.toLowerCase()+"%",String.valueOf(Math.max(1,limit))});
+    }
+    public JSONObject getMapPackageProfile(String packageId){JSONObject p=getMapPackageAny(packageId);try{return new JSONObject(p.optString("atlas_profile_json","{}"));}catch(Exception e){return new JSONObject();}}
+    public JSONObject getMapPackageContract(String packageId){JSONObject p=getMapPackageAny(packageId);try{return new JSONObject(p.optString("atlas_contract_json","{}"));}catch(Exception e){return new JSONObject();}}
+
+    /**
+     * Reconhece que o pacote pertence ao Atlas Contract mesmo quando a flag atlas_ready
+     * ficou perdida numa atualização interrompida. A UI usa este sinal para nunca voltar
+     * a oferecer calibração manual de grid para um Atlas versionado.
+     */
+    public boolean hasAtlasContractMetadata(String packageId){
+        JSONObject p=getMapPackageAny(packageId);
+        return p.length()>0&&p.optString("logical_map_id","").trim().length()>0
+                &&p.optString("coordinate_frame_id","").trim().length()>0
+                &&p.optString("atlas_profile_json","").trim().length()>2;
+    }
+
+    /** Atlas Contract pronto e indexado; não confundir com mera presença de metadados. */
+    public boolean isAtlasContractPackage(String packageId){JSONObject p=getMapPackageAny(packageId);return p.optInt("atlas_ready",0)==1&&hasAtlasContractMetadata(packageId);}
+
+    /**
+     * Auto-reparo não destrutivo para upgrades: se perfil, imagem e os hexes já estão no
+     * AppDb, apenas restaura as flags ready/atlas_ready. Não reimporta o mapa, não toca
+     * em posição de campanha e não inventa geometria.
+     */
+    public boolean repairAtlasReadyFromIndexedData(String packageId){
+        if(!hasAtlasContractMetadata(packageId))return false;
+        try{
+            JSONObject p=getMapPackageAny(packageId);AtlasMapProfile profile=AtlasMapProfile.parse(p.optString("atlas_profile_json","{}"));
+            long actual=scalarLong("SELECT COUNT(*) FROM map_hex_atlas WHERE package_id=?",new String[]{packageId});
+            if(actual!=profile.hexCount||actual<=0)return false;
+            if(!isUriReadable(p.optString("image_uri","")))return false;
+            if(!isValidMapHex(packageId,queryOne("SELECT hex_id FROM map_hex_atlas WHERE package_id=? ORDER BY rowid LIMIT 1",new String[]{packageId}).optString("hex_id","")))return false;
+            ContentValues ready=new ContentValues();ready.put("hex_count",actual);ready.put("ready",1);ready.put("atlas_ready",1);
+            getWritableDatabase().update("map_packages",ready,"package_id=?",new String[]{packageId});
+            ContentValues stateReady=new ContentValues();stateReady.put("atlas_ready",1);
+            getWritableDatabase().update("map_world_state",stateReady,"map_package_id=?",new String[]{packageId});
+            AppLog.i("AtlasContract","Flags do Atlas restauradas a partir do índice persistido: "+packageId+" • "+actual+" hexes.");
+            return true;
+        }catch(Exception e){AppLog.w("AtlasContract","Índice persistido não pôde restaurar atlas_ready; bootstrap embarcado decidirá o próximo passo.",e);return false;}
+    }
+    public String getLogicalMapIdForPackage(String packageId){JSONObject p=getMapPackageAny(packageId);String logical=p.optString("logical_map_id","");return logical.length()>0?logical:p.optString("map_id","");}
+    public String getCoordinateFrameIdForPackage(String packageId){return getMapPackageAny(packageId).optString("coordinate_frame_id","");}
+
+    /** Vizinhança canônica precomputada pelo pacote. Não recalcula odd-q em runtime. */
+    public List<String> getMapHexNeighbors(String packageId,String hexId){
+        ArrayList<String> out=new ArrayList<String>();JSONObject h=getRawMapHex(packageId,hexId);if(h.length()==0)return out;
+        try{JSONObject n=new JSONObject(h.optString("neighbors_json","{}"));String[] order={"N","NE","SE","S","SW","NW"};for(String k:order){String id=n.optString(k,"");if(id.length()>0&&getRawMapHex(packageId,id).length()>0&&!out.contains(id))out.add(id);}}catch(Exception e){AppLog.w("AppDb","Vizinhança de Atlas inválida em "+hexId,e);}return out;
+    }
+    public boolean areMapHexNeighbors(String packageId,String a,String b){if(a==null||b==null)return false;for(String n:getMapHexNeighbors(packageId,a))if(b.equalsIgnoreCase(n))return true;return false;}
+    public boolean isValidMapHex(String packageId,String hexId){return packageId!=null&&hexId!=null&&hexId.length()>0&&getRawMapHex(packageId,hexId).length()>0;}
+    public List<JSONObject> getMapAreasForHex(String packageId,String hexId){return queryList("SELECT a.* FROM map_areas a INNER JOIN map_area_hex h ON h.package_id=a.package_id AND h.area_id=a.area_id WHERE h.package_id=? AND h.hex_id=? ORDER BY a.name COLLATE NOCASE",new String[]{packageId,hexId});}
+    public List<JSONObject> getAnonymousMarkersForHex(String packageId,String hexId){return queryList("SELECT * FROM map_cartographic_markers WHERE package_id=? AND hex_id=? ORDER BY marker_id",new String[]{packageId,hexId});}
+    public JSONObject findCanonicalLocationByIdentity(String packageId,String identity){
+        String q=normalizeSearchText(identity);if(q.length()<2)return new JSONObject();for(JSONObject row:queryList("SELECT * FROM map_locations WHERE package_id=?",new String[]{packageId})){String n=normalizeSearchText(row.optString("name"));if(q.equals(n)){String status=row.optString("placement_status","").toLowerCase(Locale.US);if(row.optString("hex_id","").length()>0&&!status.contains("unplaced")&&!status.contains("nao_posicionado"))return row;}try{JSONObject raw=new JSONObject(row.optString("raw_json","{}"));String original=normalizeSearchText(raw.optString("nomeOriginal",""));if(q.equals(original)&&row.optString("hex_id","").length()>0)return row;JSONArray aliases=raw.optJSONArray("aliases");if(aliases!=null)for(int i=0;i<aliases.length();i++)if(q.equals(normalizeSearchText(aliases.optString(i))))return row;}catch(Exception ignored){AppLog.ignored("AppDb","Alias canônico inválido.",ignored);}}return new JSONObject();
+    }
+
+    /** Cria CAMPAIGN/PROCEDURAL no mesmo banco da campanha; nunca escreve no catálogo canônico. */
+    public synchronized JSONObject createCampaignPoi(JSONObject spec) throws Exception {
+        ensureAtlasContractSchema(getWritableDatabase());if(spec==null)throw new IllegalArgumentException("CampaignPoi ausente.");
+        String profile=normalizeMapProfile(spec.optString("world_profile",getActiveMapProfile()));JSONObject state=getMapStateForProfile(profile);String logical=spec.optString("logical_map_id",state.optString("logical_map_id","")).trim();if(logical.length()==0)throw new IllegalArgumentException("logical_map_id obrigatório.");
+        String packageId=spec.optString("map_package_id",state.optString("map_package_id","")).trim();String hex=spec.optString("hex_id","").trim();String migration=spec.optString("migration_status","ready");
+        if("ready".equals(migration)&&hex.length()>0&&!isValidMapHex(packageId,hex))throw new IllegalArgumentException("Hex inexistente no pacote ativo: "+hex);
+        String origin=spec.optString("origin","campaign").toLowerCase(Locale.US);if(!origin.equals("campaign")&&!origin.equals("procedural"))throw new IllegalArgumentException("origin precisa ser campaign ou procedural.");
+        if(spec.optBoolean("canonical",false))throw new IllegalArgumentException("CampaignPoi nunca pode ser canonical=true.");String name=spec.optString("name",spec.optString("nome","")).trim();if(name.length()==0)throw new IllegalArgumentException("Nome do local obrigatório.");
+        String id=spec.optString("id","").trim();if(id.length()==0)id="poi-"+UUID.randomUUID().toString();long now=System.currentTimeMillis(),tick=Math.max(0,spec.optLong("updated_tick",spec.optLong("created_tick",getSceneState().optInt("day_number",1))));
+        Double u=null,vv=null;if(spec.has("position_u")&&!spec.isNull("position_u"))u=spec.optDouble("position_u");if(spec.has("position_v")&&!spec.isNull("position_v"))vv=spec.optDouble("position_v");
+        if((u==null||vv==null)&&hex.length()>0){JSONObject h=getRawMapHex(packageId,hex);if(h.has("center_u")&&!h.isNull("center_u"))u=h.optDouble("center_u");if(h.has("center_v")&&!h.isNull("center_v"))vv=h.optDouble("center_v");}
+        ContentValues c=new ContentValues();c.put("id",id);c.put("campaign_id",spec.optLong("campaign_id",1));c.put("world_profile",profile);c.put("logical_map_id",logical);c.put("map_package_id",packageId);c.put("atlas_namespace",spec.optString("atlas_namespace",getMapPackageAny(packageId).optString("atlas_namespace","")));c.put("coordinate_frame_id",spec.optString("coordinate_frame_id",getCoordinateFrameIdForPackage(packageId)));c.put("hex_id",hex);if(u!=null)c.put("position_u",u);if(vv!=null)c.put("position_v",vv);c.put("name",name);c.put("type",spec.optString("type",spec.optString("tipo","outro")));c.put("description",spec.optString("description",spec.optString("descricao","")));c.put("origin",origin);c.put("canonical",0);c.put("hidden",spec.optBoolean("hidden",false)?1:0);c.put("discovered",spec.optBoolean("discovered",!spec.optBoolean("hidden",false))?1:0);c.put("status",spec.optString("status","active"));c.put("creator",spec.optString("creator",origin.equals("procedural")?"living_world":"player"));c.put("owner",spec.optString("owner",""));c.put("faction",spec.optString("faction",spec.optString("faction_id","")));c.put("parent_poi_id",spec.optString("parent_poi_id",""));c.put("development_level",Math.max(0,spec.optInt("development_level",0)));c.put("entity_kind",spec.optString("entity_kind",""));c.put("entity_id",spec.optString("entity_id",""));c.put("migration_status",migration);c.put("legacy_position_json",spec.optString("legacy_position_json","{}"));c.put("tags_json",spec.optJSONArray("tags")==null?spec.optString("tags_json","[]"):spec.optJSONArray("tags").toString());c.put("history_json",spec.optString("history_json","[]"));c.put("created_tick",Math.max(0,spec.optLong("created_tick",tick)));c.put("updated_tick",tick);c.put("created_at",now);c.put("updated_at",now);
+        getWritableDatabase().insertOrThrow("campaign_pois",null,c);recordCampaignPoiEvent(id,"created",spec,tick);return getCampaignPoi(id);
+    }
+    public JSONObject getCampaignPoi(String id){return queryOne("SELECT * FROM campaign_pois WHERE id=?",new String[]{id==null?"":id});}
+    public List<JSONObject> getCampaignPoisForHex(String logicalMapId,String hexId,boolean includeHidden){String sql="SELECT * FROM campaign_pois WHERE world_profile=? AND logical_map_id=? AND hex_id=? AND status NOT IN ('deleted')"+(includeHidden?"":" AND hidden=0 AND discovered=1")+" ORDER BY parent_poi_id,name COLLATE NOCASE";return queryList(sql,new String[]{getActiveMapProfile(),logicalMapId,hexId});}
+    public List<JSONObject> getVisibleAtlasPoisForHex(String packageId,String hexId,boolean masterView){ArrayList<JSONObject> out=new ArrayList<JSONObject>();out.addAll(getMapLocationsForHex(packageId,hexId));String logical=getLogicalMapIdForPackage(packageId);out.addAll(getCampaignPoisForHex(logical,hexId,masterView));return out;}
+    public List<JSONObject> searchCampaignPois(String logicalMapId,String query,boolean includeHidden,int limit){String q="%"+(query==null?"":query.trim())+"%";String sql="SELECT * FROM campaign_pois WHERE world_profile=? AND logical_map_id=? AND status<>'deleted' AND (name LIKE ? OR description LIKE ? OR type LIKE ?)"+(includeHidden?"":" AND hidden=0 AND discovered=1")+" ORDER BY updated_at DESC LIMIT ?";return queryList(sql,new String[]{getActiveMapProfile(),logicalMapId,q,q,q,String.valueOf(Math.max(1,Math.min(100,limit)))});}
+    public List<JSONObject> listCampaignPois(String logicalMapId,boolean includeHidden,int limit){String sql="SELECT * FROM campaign_pois WHERE world_profile=? AND logical_map_id=? AND status<>'deleted'"+(includeHidden?"":" AND hidden=0 AND discovered=1")+" ORDER BY updated_at DESC,name COLLATE NOCASE LIMIT ?";return queryList(sql,new String[]{getActiveMapProfile(),logicalMapId,String.valueOf(Math.max(1,Math.min(5000,limit)))});}
+    public void discoverCampaignPoi(String id,long tick) throws Exception {JSONObject before=getCampaignPoi(id);if(before.length()==0)throw new IllegalArgumentException("POI inexistente.");ContentValues v=new ContentValues();v.put("hidden",0);v.put("discovered",1);v.put("updated_tick",Math.max(tick,before.optLong("updated_tick",0)));v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("campaign_pois",v,"id=?",new String[]{id});recordCampaignPoiEvent(id,"discovered",new JSONObject(),tick);}
+    public void evolveCampaignPoi(String id,String status,String owner,String faction,int development,long tick,JSONObject payload) throws Exception {JSONObject before=getCampaignPoi(id);if(before.length()==0)throw new IllegalArgumentException("POI inexistente.");ContentValues v=new ContentValues();if(status!=null)v.put("status",status);if(owner!=null)v.put("owner",owner);if(faction!=null)v.put("faction",faction);if(development>=0)v.put("development_level",development);v.put("updated_tick",Math.max(tick,before.optLong("updated_tick",0)));v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("campaign_pois",v,"id=?",new String[]{id});recordCampaignPoiEvent(id,"evolved",payload==null?new JSONObject():payload,tick);}
+    private void recordCampaignPoiEvent(String poiId,String eventType,JSONObject payload,long tick){ContentValues e=new ContentValues();e.put("poi_id",poiId);e.put("world_profile",getActiveMapProfile());e.put("event_type",eventType);e.put("payload_json",payload==null?"{}":payload.toString());e.put("world_tick",Math.max(0,tick));e.put("created_at",System.currentTimeMillis());getWritableDatabase().insert("campaign_poi_events",null,e);}
+    public List<JSONObject> getCampaignPoiHistory(String id){return queryList("SELECT * FROM campaign_poi_events WHERE poi_id=? ORDER BY id",new String[]{id});}
+    public void createOrUpdateSettlementForPoi(String poiId,JSONObject data) throws Exception {JSONObject poi=getCampaignPoi(poiId);if(poi.length()==0)throw new IllegalArgumentException("CampaignPoi da cidade inexistente.");long now=System.currentTimeMillis();ContentValues s=new ContentValues();s.put("poi_id",poiId);s.put("population",Math.max(0,data.optInt("population",0)));s.put("population_band",data.optString("population_band","desconhecida"));s.put("government",data.optString("government",""));s.put("economy",data.optString("economy",""));s.put("faction_id",data.optString("faction_id",poi.optString("faction","")));s.put("security",clamp100(data.optInt("security",50)));s.put("prosperity",clamp100(data.optInt("prosperity",50)));s.put("buildings_json",jsonArrayText(data,"buildings","buildings_json"));s.put("npcs_json",jsonArrayText(data,"npcs","npcs_json"));s.put("market_json",jsonObjectText(data,"market","market_json"));s.put("defense_json",jsonObjectText(data,"defense","defense_json"));JSONObject old=queryOne("SELECT * FROM campaign_settlements WHERE poi_id=?",new String[]{poiId});s.put("created_at",old.optLong("created_at",now));s.put("updated_at",now);getWritableDatabase().insertWithOnConflict("campaign_settlements",null,s,SQLiteDatabase.CONFLICT_REPLACE);ContentValues link=new ContentValues();link.put("entity_kind","settlement");link.put("entity_id",poiId);getWritableDatabase().update("campaign_pois",link,"id=?",new String[]{poiId});recordCampaignPoiEvent(poiId,"settlement_updated",data,getSceneState().optInt("day_number",1));}
+    public JSONObject getSettlementForPoi(String poiId){return queryOne("SELECT * FROM campaign_settlements WHERE poi_id=?",new String[]{poiId});}
+    private static int clamp100(int v){return Math.max(0,Math.min(100,v));}
+    private static String jsonArrayText(JSONObject d,String k,String fallback){JSONArray a=d.optJSONArray(k);return a==null?d.optString(fallback,"[]"):a.toString();}
+    private static String jsonObjectText(JSONObject d,String k,String fallback){JSONObject o=d.optJSONObject(k);return o==null?d.optString(fallback,"{}"):o.toString();}
+
+    public void saveAtlasPositionForProfile(String profile,String packageId,String hexId,double u,double v,String frameId,String migrationStatus,String legacyJson){ContentValues values=new ContentValues();String normalizedHex=hexId==null?"":hexId.trim();values.put("current_hex_id",normalizedHex);if(normalizedHex.length()==0||Double.isNaN(u)||Double.isNaN(v)){values.putNull("position_u");values.putNull("position_v");}else{values.put("position_u",u);values.put("position_v",v);values.put("token_x",u);values.put("token_y",v);}values.put("position_map_package_id",packageId==null?"":packageId);values.put("coordinate_frame_id",frameId==null?"":frameId);values.put("position_migration_status",migrationStatus==null?"ready":migrationStatus);values.put("legacy_position_json",legacyJson==null?"{}":legacyJson);values.put("atlas_ready",1);updateMapStateForProfile(profile,values);}
+    public void saveMapCameraStateForProfile(String profile,float scale,float offsetX,float offsetY){ContentValues values=new ContentValues();values.put("scale",scale);values.put("offset_x",offsetX);values.put("offset_y",offsetY);updateMapStateForProfile(profile,values);}
+
+    public void saveMapHexCorrection(String packageId,String hexId,JSONObject correction){String mapId=getMapIdForPackage(packageId);if(mapId.length()==0||hexId==null||hexId.length()==0)return;ContentValues v=new ContentValues();v.put("map_id",mapId);v.put("hex_id",hexId);v.put("terrain_primary",correction.optString("terrain_primary"));v.put("terrain_secondary",correction.optString("terrain_secondary","[]"));v.put("terrain_confidence",correction.optDouble("terrain_confidence",1));v.put("roads_json",correction.optString("roads_json","[]"));v.put("waterways_json",correction.optString("waterways_json","[]"));v.put("political_json",correction.optString("political_json","{}"));v.put("review_status",correction.optString("review_status","verified"));v.put("review_reasons",correction.optString("review_reasons","[]"));v.put("custom_locations_json",correction.optString("custom_locations_json","[]"));v.put("hide_unconfirmed_locations",correction.optInt("hide_unconfirmed_locations",0));v.put("review_note",correction.optString("review_note"));v.put("updated_at",System.currentTimeMillis());getWritableDatabase().insertWithOnConflict("map_hex_corrections",null,v,SQLiteDatabase.CONFLICT_REPLACE);}
+    public void deleteMapHexCorrection(String packageId,String hexId){String mapId=getMapIdForPackage(packageId);if(mapId.length()>0)getWritableDatabase().delete("map_hex_corrections","map_id=? AND hex_id=?",new String[]{mapId,hexId});}
+    public JSONObject getMapHexNote(String packageId,String hexId){
+        String mapId=getMapIdForPackage(packageId);if(mapId.length()==0||hexId==null||hexId.length()==0)return new JSONObject();
+        JSONObject note=queryOne("SELECT * FROM map_hex_notes WHERE world_profile=? AND map_id=? AND hex_id=?",new String[]{getActiveMapProfile(),mapId,hexId});
+        if(note.length()>0){try{String legacy=note.optString("note_text","").trim();String title=note.optString("note_title","").trim();String details=note.optString("note_details","").trim();if(title.length()==0&&details.length()==0&&legacy.length()>0)note.put("note_details",legacy);if(note.optString("icon","").trim().length()==0)note.put("icon","✎");}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}}
+        return note;
+    }
+    public void saveMapHexNote(String packageId,String hexId,String note,String createdBy){saveMapHexNote(packageId,hexId,"",note,"✎",createdBy);}
+    public void saveMapHexNote(String packageId,String hexId,String title,String details,String icon,String createdBy){
+        String mapId=getMapIdForPackage(packageId);if(mapId.length()==0||hexId==null||hexId.length()==0)return;
+        String cleanTitle=title==null?"":title.trim();String cleanDetails=details==null?"":details.trim();String cleanIcon=icon==null||icon.trim().length()==0?"✎":icon.trim();
+        String combined=cleanTitle.length()>0&&cleanDetails.length()>0?cleanTitle+"\n"+cleanDetails:(cleanTitle.length()>0?cleanTitle:cleanDetails);
+        if(combined.length()==0){deleteMapHexNote(packageId,hexId);return;}
+        ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("map_id",mapId);v.put("hex_id",hexId);v.put("note_text",combined);v.put("note_title",cleanTitle);v.put("note_details",cleanDetails);v.put("icon",cleanIcon);v.put("created_by",createdBy==null||createdBy.trim().length()==0?"player":createdBy.trim());long now=System.currentTimeMillis();JSONObject existing=getMapHexNote(packageId,hexId);v.put("created_at",existing.optLong("created_at",now));v.put("updated_at",now);getWritableDatabase().insertWithOnConflict("map_hex_notes",null,v,SQLiteDatabase.CONFLICT_REPLACE);
+    }
+    public void deleteMapHexNote(String packageId,String hexId){String mapId=getMapIdForPackage(packageId);if(mapId.length()>0)getWritableDatabase().delete("map_hex_notes","world_profile=? AND map_id=? AND hex_id=?",new String[]{getActiveMapProfile(),mapId,hexId});}
+    public List<JSONObject> getMapHexNotesForPackage(String packageId){String mapId=getMapIdForPackage(packageId);if(mapId.length()==0)return new ArrayList<JSONObject>();return queryList("SELECT * FROM map_hex_notes WHERE world_profile=? AND map_id=? AND note_text<>'' ORDER BY updated_at DESC",new String[]{getActiveMapProfile(),mapId});}
+    public List<JSONObject> listAllMapHexNotes(){return queryList("SELECT * FROM map_hex_notes ORDER BY world_profile,map_id,hex_id",null);}
+    public List<JSONObject> listMapHexNotes(String worldProfile,String mapId){if(mapId==null||mapId.length()==0)return new ArrayList<JSONObject>();return queryList("SELECT * FROM map_hex_notes WHERE world_profile=? AND map_id=? ORDER BY hex_id",new String[]{normalizeMapProfile(worldProfile),mapId});}
+    public int countMapCorrections(String packageId){String mapId=getMapIdForPackage(packageId);if(mapId.length()==0)return 0;Cursor c=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM map_hex_corrections WHERE map_id=?",new String[]{mapId});try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}}
+    public JSONObject exportMapCorrections(String packageId)throws Exception{String mapId=getMapIdForPackage(packageId);if(mapId.length()==0)throw new Exception("Nenhum pacote de mapa ativo.");JSONObject root=new JSONObject();root.put("format","braseiro-map-corrections");root.put("version",1);root.put("mapId",mapId);root.put("exportedAt",System.currentTimeMillis());root.put("corrections",new JSONArray(queryList("SELECT * FROM map_hex_corrections WHERE map_id=? ORDER BY hex_id",new String[]{mapId})));return root;}
+    public int importMapCorrections(String packageId,JSONObject root)throws Exception{if(!"braseiro-map-corrections".equals(root.optString("format")))throw new Exception("JSON de revisões incompatível.");String mapId=getMapIdForPackage(packageId);if(mapId.length()==0)throw new Exception("Nenhum pacote de mapa ativo.");String sourceMapId=root.optString("mapId");if(sourceMapId.length()>0&&!mapId.equals(sourceMapId))throw new Exception("As revisões pertencem ao mapa "+sourceMapId+", não ao mapa ativo "+mapId+".");JSONArray list=root.optJSONArray("corrections");if(list==null)return 0;SQLiteDatabase db=getWritableDatabase();db.beginTransaction();int count=0;try{for(int i=0;i<list.length();i++){JSONObject c=list.optJSONObject(i);if(c==null||c.optString("hex_id").length()==0)continue;ContentValues v=new ContentValues();v.put("map_id",mapId);v.put("hex_id",c.optString("hex_id"));v.put("terrain_primary",c.optString("terrain_primary"));v.put("terrain_secondary",c.optString("terrain_secondary","[]"));v.put("terrain_confidence",c.optDouble("terrain_confidence",1));v.put("roads_json",c.optString("roads_json","[]"));v.put("waterways_json",c.optString("waterways_json","[]"));v.put("political_json",c.optString("political_json","{}"));v.put("review_status",c.optString("review_status","verified"));v.put("review_reasons",c.optString("review_reasons","[]"));v.put("custom_locations_json",c.optString("custom_locations_json","[]"));v.put("hide_unconfirmed_locations",c.optInt("hide_unconfirmed_locations",0));v.put("review_note",c.optString("review_note"));v.put("updated_at",System.currentTimeMillis());db.insertWithOnConflict("map_hex_corrections",null,v,SQLiteDatabase.CONFLICT_REPLACE);count++;}db.setTransactionSuccessful();}finally{db.endTransaction();}return count;}
+    public List<JSONObject> listAllMapCorrections(){return queryList("SELECT * FROM map_hex_corrections ORDER BY map_id,hex_id",null);}
+    public List<JSONObject> listMapCorrections(String mapId){if(mapId==null||mapId.length()==0)return new ArrayList<JSONObject>();return queryList("SELECT * FROM map_hex_corrections WHERE map_id=? ORDER BY hex_id",new String[]{mapId});}
+    public void importAllMapCorrections(JSONArray list){if(list==null)return;SQLiteDatabase db=getWritableDatabase();for(int i=0;i<list.length();i++){JSONObject c=list.optJSONObject(i);if(c==null)continue;ContentValues v=new ContentValues();v.put("map_id",c.optString("map_id"));v.put("hex_id",c.optString("hex_id"));v.put("terrain_primary",c.optString("terrain_primary"));v.put("terrain_secondary",c.optString("terrain_secondary","[]"));v.put("terrain_confidence",c.optDouble("terrain_confidence",1));v.put("roads_json",c.optString("roads_json","[]"));v.put("waterways_json",c.optString("waterways_json","[]"));v.put("political_json",c.optString("political_json","{}"));v.put("review_status",c.optString("review_status","verified"));v.put("review_reasons",c.optString("review_reasons","[]"));v.put("custom_locations_json",c.optString("custom_locations_json","[]"));v.put("hide_unconfirmed_locations",c.optInt("hide_unconfirmed_locations",0));v.put("review_note",c.optString("review_note"));v.put("updated_at",c.optLong("updated_at",System.currentTimeMillis()));if(c.optString("map_id").length()>0&&c.optString("hex_id").length()>0)db.insertWithOnConflict("map_hex_corrections",null,v,SQLiteDatabase.CONFLICT_REPLACE);}}
+    public void deleteMapPackage(String packageId){SQLiteDatabase db=getWritableDatabase();db.beginTransaction();try{db.delete("map_area_hex","package_id=?",new String[]{packageId});db.delete("map_areas","package_id=?",new String[]{packageId});db.delete("map_cartographic_markers","package_id=?",new String[]{packageId});db.delete("map_hex_locations","package_id=?",new String[]{packageId});db.delete("map_locations","package_id=?",new String[]{packageId});db.delete("map_hex_atlas","package_id=?",new String[]{packageId});db.delete("map_packages","package_id=?",new String[]{packageId});db.setTransactionSuccessful();}finally{db.endTransaction();}}
+
+
+    public void upsertToken(String driveId,String name,JSONObject classification,String mime,long size,String modified,String thumbnail,String source,long seen){upsertTokenSynced(driveId,name,classification,mime,size,modified,thumbnail,source,"",seen);}
+    /** Retorna 1 para novo, 2 para alterado e 0 para inalterado. */
+    public int upsertTokenSynced(String driveId,String name,JSONObject classification,String mime,long size,String modified,String thumbnail,String source,String sourceRoot,long seen){
+        JSONObject before=queryOne("SELECT id,size_bytes,modified_time FROM tokens WHERE drive_id=?",new String[]{driveId});boolean exists=before.length()>0;boolean changed=exists&&(before.optLong("size_bytes")!=size||!safe(before.optString("modified_time")).equals(safe(modified)));
+        ContentValues v=new ContentValues();v.put("drive_id",driveId);v.put("name",name);v.put("label",classification.optString("label",name));v.put("species",classification.optString("species","Não identificada"));v.put("creature_type",classification.optString("creatureType","Não identificado"));v.put("role",classification.optString("role","Geral"));v.put("category",classification.optString("category","Criatura"));v.put("tags",classification.optJSONArray("tags")==null?"[]":classification.optJSONArray("tags").toString());v.put("mime_type",mime);v.put("size_bytes",size);v.put("modified_time",modified);v.put("thumbnail_link",thumbnail);v.put("source",source);v.put("source_root",sourceRoot==null?"":sourceRoot);v.put("last_seen",seen);v.put("enabled",1);
+        SQLiteDatabase sql=getWritableDatabase();long r=sql.insertWithOnConflict("tokens",null,v,SQLiteDatabase.CONFLICT_IGNORE);if(r==-1)sql.update("tokens",v,"drive_id=?",new String[]{driveId});return !exists?1:(changed?2:0);
+    }
+    public int disableMissingTokens(String sourceRoot,long seen){ContentValues v=new ContentValues();v.put("enabled",0);return getWritableDatabase().update("tokens",v,"source_root=? AND last_seen<>?",new String[]{sourceRoot==null?"":sourceRoot,String.valueOf(seen)});}
+    public List<JSONObject> listTokens(String filter,String species){
+        String f=filter==null?"":filter.trim();String sp=species==null?"":species.trim();ArrayList<String> args=new ArrayList<String>();StringBuilder sql=new StringBuilder("SELECT * FROM tokens WHERE enabled=1");
+        if(f.length()>0){sql.append(" AND (label LIKE ? OR name LIKE ? OR species LIKE ? OR creature_type LIKE ? OR role LIKE ? OR tags LIKE ?)");for(int i=0;i<6;i++)args.add("%"+f+"%");}
+        if(sp.length()>0&&!"Todas".equals(sp)){sql.append(" AND species=?");args.add(sp);}sql.append(" ORDER BY species COLLATE NOCASE, role COLLATE NOCASE, label COLLATE NOCASE");return queryList(sql.toString(),args.toArray(new String[args.size()]));
+    }
+    public List<String> listTokenSpecies(){ArrayList<String> out=new ArrayList<String>();Cursor c=getReadableDatabase().rawQuery("SELECT DISTINCT species FROM tokens WHERE enabled=1 ORDER BY species COLLATE NOCASE",null);try{while(c.moveToNext())out.add(c.getString(0));}finally{c.close();}return out;}
+    public JSONObject getToken(long id){return queryOne("SELECT * FROM tokens WHERE id=?",new String[]{String.valueOf(id)});}
+    public JSONObject getTokenByDriveId(String driveId){return queryOne("SELECT * FROM tokens WHERE drive_id=?",new String[]{driveId==null?"":driveId});}
+    public JSONObject findLocalTokenForScene(String name){
+        String q=name==null?"":name.trim();if(q.length()==0)return new JSONObject();
+        String low=q.toLowerCase();
+        JSONObject exact=queryOne("SELECT * FROM tokens WHERE enabled=1 AND COALESCE(local_uri,'')<>'' AND (lower(label)=? OR lower(name)=?) ORDER BY last_seen DESC LIMIT 1",new String[]{low,low});
+        if(exact.length()>0)return exact;
+        return queryOne("SELECT * FROM tokens WHERE enabled=1 AND COALESCE(local_uri,'')<>'' AND (lower(label) LIKE ? OR lower(name) LIKE ? OR lower(tags) LIKE ?) ORDER BY last_seen DESC LIMIT 1",new String[]{"%"+low+"%","%"+low+"%","%"+low+"%"});
+    }
+    public void setTokenLocalUri(long id,String uri){ContentValues v=new ContentValues();v.put("local_uri",uri);getWritableDatabase().update("tokens",v,"id=?",new String[]{String.valueOf(id)});}
+    public int countTokens(){Cursor c=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM tokens WHERE enabled=1",null);try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}}
+
+
+    public long upsertTokenPdf(String sourceUri,String documentId,String name,JSONObject classification,long size,long modified,long seen){return upsertTokenPdfSynced(sourceUri,documentId,name,classification,size,modified,"",seen);}
+    public long upsertTokenPdfSynced(String sourceUri,String documentId,String name,JSONObject classification,long size,long modified,String sourceRoot,long seen){
+        JSONObject before=queryOne("SELECT id,size_bytes,modified_time FROM token_pdfs WHERE source_uri=?",new String[]{sourceUri});long previousId=before.optLong("id",-1);boolean changed=previousId>0&&(before.optLong("size_bytes")!=size||before.optLong("modified_time")!=modified);
+        ContentValues v=new ContentValues();v.put("source_uri",sourceUri);v.put("document_id",documentId);v.put("name",name);v.put("label",classification.optString("label",name));v.put("group_key",classification.optString("groupKey","nao-classificados"));v.put("category",classification.optString("category","Não classificados"));v.put("class_name",classification.optString("className",""));v.put("species",classification.optString("species",""));v.put("set_number",classification.optInt("setNumber",0));v.put("size_bytes",size);v.put("modified_time",modified);v.put("source_root",sourceRoot==null?"":sourceRoot);v.put("last_seen",seen);v.put("enabled",1);if(changed){v.put("page_count",-1);v.put("processed_pages","[]");}
+        SQLiteDatabase db=getWritableDatabase();long id=db.insertWithOnConflict("token_pdfs",null,v,SQLiteDatabase.CONFLICT_IGNORE);if(id==-1){db.update("token_pdfs",v,"source_uri=?",new String[]{sourceUri});id=previousId>0?previousId:queryOne("SELECT id FROM token_pdfs WHERE source_uri=?",new String[]{sourceUri}).optLong("id",-1);}if(changed&&id>0)db.delete("pdf_tokens","pdf_id=?",new String[]{String.valueOf(id)});return id;
+    }
+
+    /** Desativa entradas criadas pela versão que embrulhou URIs SAF como gdrive://content... */
+    public void disableBrokenTokenPdfSources(){
+        ContentValues v=new ContentValues();v.put("enabled",0);
+        getWritableDatabase().update("token_pdfs",v,"source_uri LIKE ? OR source_uri LIKE ?",new String[]{"gdrive://content%","gdrive://com.google%"});
+    }
+
+    public void disableMissingTokenPdfs(long seen){ContentValues v=new ContentValues();v.put("enabled",0);getWritableDatabase().update("token_pdfs",v,"last_seen<>?",new String[]{String.valueOf(seen)});}
+    public int disableMissingTokenPdfs(String sourceRoot,long seen){ContentValues v=new ContentValues();v.put("enabled",0);return getWritableDatabase().update("token_pdfs",v,"source_root=? AND last_seen<>?",new String[]{sourceRoot==null?"":sourceRoot,String.valueOf(seen)});}
+    public List<JSONObject> listTokenPdfs(String filter,String group){String f=filter==null?"":filter.trim();String g=group==null?"":group.trim();ArrayList<String> args=new ArrayList<String>();StringBuilder sql=new StringBuilder("SELECT * FROM token_pdfs WHERE enabled=1");if(f.length()>0){sql.append(" AND (label LIKE ? OR name LIKE ? OR category LIKE ? OR class_name LIKE ? OR species LIKE ?)");for(int i=0;i<5;i++)args.add("%"+f+"%");}if(g.length()>0&&!"Todos".equals(g)){sql.append(" AND group_key=?");args.add(g);}sql.append(" ORDER BY category COLLATE NOCASE,class_name COLLATE NOCASE,set_number,name COLLATE NOCASE");return queryList(sql.toString(),args.toArray(new String[args.size()]));}
+    public List<JSONObject> listTokenPdfGroups(){return queryList("SELECT group_key,category,class_name,species,COUNT(*) AS pdf_count,SUM(CASE WHEN page_count>0 THEN page_count ELSE 0 END) AS page_count FROM token_pdfs WHERE enabled=1 GROUP BY group_key,category,class_name,species ORDER BY category COLLATE NOCASE,class_name COLLATE NOCASE",null);}
+    public JSONObject getTokenPdf(long id){return queryOne("SELECT * FROM token_pdfs WHERE id=?",new String[]{String.valueOf(id)});}
+    public JSONObject getTokenPdfBySource(String sourceUri){return queryOne("SELECT * FROM token_pdfs WHERE source_uri=?",new String[]{sourceUri});}
+    public int countTokenPdfs(){Cursor c=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM token_pdfs WHERE enabled=1",null);try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}}
+    public int countPdfTokens(){Cursor c=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM pdf_tokens",null);try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}}
+    public void updateTokenPdfPageCount(long id,int pageCount){ContentValues v=new ContentValues();v.put("page_count",pageCount);getWritableDatabase().update("token_pdfs",v,"id=?",new String[]{String.valueOf(id)});}
+    public void updateTokenPdfLayout(long id,int columns,int rows,double marginX,double marginY){updateTokenPdfLayoutBounds(id,columns,rows,marginX,marginY,1d-marginX,1d-marginY);}
+    public void updateTokenPdfLayoutBounds(long id,int columns,int rows,double left,double top,double right,double bottom){ContentValues v=new ContentValues();v.put("columns_count",Math.max(1,columns));v.put("rows_count",Math.max(1,rows));left=Math.max(0,Math.min(.92,left));top=Math.max(0,Math.min(.92,top));right=Math.max(left+.05,Math.min(1,right));bottom=Math.max(top+.05,Math.min(1,bottom));v.put("grid_left",left);v.put("grid_top",top);v.put("grid_right",right);v.put("grid_bottom",bottom);v.put("margin_x",Math.min(left,1-right));v.put("margin_y",Math.min(top,1-bottom));getWritableDatabase().update("token_pdfs",v,"id=?",new String[]{String.valueOf(id)});getWritableDatabase().delete("pdf_tokens","pdf_id=?",new String[]{String.valueOf(id)});}
+    public void replacePdfPageTokens(long pdfId,int pageNo,List<JSONObject> tokens){SQLiteDatabase db=getWritableDatabase();db.beginTransaction();try{db.delete("pdf_tokens","pdf_id=? AND page_no=?",new String[]{String.valueOf(pdfId),String.valueOf(pageNo)});for(JSONObject t:tokens){ContentValues v=new ContentValues();v.put("pdf_id",pdfId);v.put("page_no",pageNo);v.put("token_index",t.optInt("tokenIndex"));v.put("row_no",t.optInt("row"));v.put("col_no",t.optInt("column"));v.put("crop_x",t.optDouble("x"));v.put("crop_y",t.optDouble("y"));v.put("crop_w",t.optDouble("width"));v.put("crop_h",t.optDouble("height"));v.put("thumb_path",t.optString("thumbPath"));v.put("last_used",System.currentTimeMillis());db.insertWithOnConflict("pdf_tokens",null,v,SQLiteDatabase.CONFLICT_REPLACE);}JSONObject p=getTokenPdf(pdfId);String pages=p.optString("processed_pages","[]");try{JSONArray a=new JSONArray(pages);boolean found=false;for(int i=0;i<a.length();i++)if(a.optInt(i)==pageNo)found=true;if(!found)a.put(pageNo);ContentValues u=new ContentValues();u.put("processed_pages",a.toString());db.update("token_pdfs",u,"id=?",new String[]{String.valueOf(pdfId)});}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}db.setTransactionSuccessful();}finally{db.endTransaction();}}
+    public List<JSONObject> listPdfPageTokens(long pdfId,int pageNo){return queryList("SELECT * FROM pdf_tokens WHERE pdf_id=? AND page_no=? ORDER BY token_index",new String[]{String.valueOf(pdfId),String.valueOf(pageNo)});}
+    public JSONObject getPdfToken(long id){return queryOne("SELECT * FROM pdf_tokens WHERE id=?",new String[]{String.valueOf(id)});}
+    public void setPdfTokenFullPath(long id,String path,boolean assigned){ContentValues v=new ContentValues();v.put("full_path",path);v.put("assigned",assigned?1:0);v.put("last_used",System.currentTimeMillis());getWritableDatabase().update("pdf_tokens",v,"id=?",new String[]{String.valueOf(id)});}
+    public void setPdfTokenFavorite(long id,boolean favorite){ContentValues v=new ContentValues();v.put("favorite",favorite?1:0);v.put("last_used",System.currentTimeMillis());getWritableDatabase().update("pdf_tokens",v,"id=?",new String[]{String.valueOf(id)});}
+
+    public long addAuditEvent(String category,String title,String summary,String beforeJson,String afterJson,boolean reversible){
+        return addAuditEventInternal(category,title,summary,beforeJson,afterJson,reversible,true);
+    }
+    private long addAuditEventPreservingHistory(String category,String title,String summary,String beforeJson,String afterJson,boolean reversible){
+        return addAuditEventInternal(category,title,summary,beforeJson,afterJson,reversible,false);
+    }
+    private long addAuditEventInternal(String category,String title,String summary,String beforeJson,String afterJson,boolean reversible,boolean enforceRetention){
+        ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("category",category==null?"geral":category);v.put("title",title==null?"Evento":title);v.put("summary",summary==null?"":summary);v.put("before_json",beforeJson==null?"{}":beforeJson);v.put("after_json",afterJson==null?"{}":afterJson);v.put("reversible",reversible?1:0);v.put("created_at",System.currentTimeMillis());
+        long id=getWritableDatabase().insertOrThrow("audit_log",null,v);
+        if(enforceRetention)getWritableDatabase().execSQL("DELETE FROM audit_log WHERE world_profile=? AND id NOT IN (SELECT id FROM audit_log WHERE world_profile=? ORDER BY created_at DESC LIMIT 1000)",new Object[]{getActiveMapProfile(),getActiveMapProfile()});
+        return id;
+    }
+    public List<JSONObject> listAuditEvents(int limit){return queryList("SELECT * FROM audit_log WHERE world_profile=? ORDER BY created_at DESC LIMIT "+Math.max(1,Math.min(1000,limit)),new String[]{getActiveMapProfile()});}
+    public int countAuditEvents(){Cursor c=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM audit_log WHERE world_profile=?",new String[]{getActiveMapProfile()});try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}}
+
+    public JSONObject getSceneState(){ensureWorldProfileData(activeMapProfile);return queryOne("SELECT * FROM scene_state_profiles WHERE world_profile=?",new String[]{getActiveMapProfile()});}
+    public void saveSceneState(JSONObject scene){
+        if(scene==null)return;ContentValues v=new ContentValues();
+        v.put("day_number",Math.max(1,scene.optInt("day_number",1)));v.put("clock_hour",normalizeClockHour(scene.optDouble("clock_hour",clockHourFromLabel(scene.optString("time_of_day","Manhã")))));v.put("location",scene.optString("location"));v.put("hex_id",scene.optString("hex_id"));v.put("time_of_day",scene.optString("time_of_day"));v.put("weather",scene.optString("weather"));v.put("lighting",scene.optString("lighting"));v.put("danger",scene.optString("danger"));v.put("objective",scene.optString("objective"));
+        v.put("present_npcs_json",jsonValue(scene,"present_npcs","present_npcs_json","[]"));v.put("threats_json",jsonValue(scene,"threats","threats_json","[]"));v.put("clues_json",jsonValue(scene,"clues","clues_json","[]"));v.put("pending_consequences_json",jsonValue(scene,"pending_consequences","pending_consequences_json","[]"));v.put("updated_at",System.currentTimeMillis());
+        getWritableDatabase().update("scene_state_profiles",v,"world_profile=?",new String[]{getActiveMapProfile()});
+    }
+    private static double normalizeClockHour(double value){double hour=value%24d;if(hour<0)hour+=24d;return hour;}
+    private static double clockHourFromLabel(String value){String n=value==null?"":value.toLowerCase(java.util.Locale.ROOT);if(n.contains("madrugada"))return 3d;if(n.contains("amanhe"))return 6d;if(n.contains("manhã")||n.contains("manha"))return 9d;if(n.contains("meio-dia")||n.contains("meio dia"))return 12d;if(n.contains("tarde"))return 15d;if(n.contains("entard"))return 18d;if(n.contains("noite"))return 21d;return 9d;}
+    private String jsonValue(JSONObject source,String objectKey,String storedKey,String fallback){Object value=source.opt(objectKey);if(value!=null&&value!=JSONObject.NULL)return String.valueOf(value);return source.optString(storedKey,fallback);}
+    public void upsertNpcMemory(JSONObject npc){
+        JSONObject normalized=NpcIdentityNormalizer.normalize(npc,getActiveMapProfile());
+        if(normalized.length()==0)return;
+        String profile=getActiveMapProfile(),name=normalized.optString("name").trim(),stableId=normalized.optString("stable_id",NpcIdentityNormalizer.stableId(profile,name));
+        JSONObject previous=findNpcMemoryByName(name);
+        boolean deadTombstone=npcDeathTombstone(normalized,previous);
+        ContentValues v=new ContentValues();v.put("world_profile",profile);v.put("stable_id",stableId);v.put("name",name);
+        putNpcField(v,normalized,previous,"summary","");putNpcField(v,normalized,previous,"goals","");putNpcField(v,normalized,previous,"secrets","");putNpcField(v,normalized,previous,"attitude","neutra");putNpcField(v,normalized,previous,"relationship","");putNpcField(v,normalized,previous,"knowledge","");putNpcField(v,normalized,previous,"debts","");putNpcField(v,normalized,previous,"last_seen","");putNpcField(v,normalized,previous,"token_uri","");putNpcField(v,normalized,previous,"visual_description","");putNpcField(v,normalized,previous,"stats_json","{}");putNpcField(v,normalized,previous,"hex_id","");putNpcField(v,normalized,previous,"voice_profile","");
+        v.put("active",deadTombstone?0:(normalized.has("active")?normalized.optInt("active",1):previous.optInt("active",1)));if(deadTombstone){v.put("token_uri","");v.put("stats_json",npcStatsWithDeath(normalized,previous));}v.put("updated_at",System.currentTimeMillis());
+        long id=getWritableDatabase().insertWithOnConflict("npc_memory_profiles",null,v,SQLiteDatabase.CONFLICT_IGNORE);if(id==-1){if(previous.length()>0)getWritableDatabase().update("npc_memory_profiles",v,"id=?",new String[]{String.valueOf(previous.optLong("id"))});else getWritableDatabase().update("npc_memory_profiles",v,"world_profile=? AND stable_id=?",new String[]{profile,stableId});}
+        ensureNpcPersonalityProvisioned(name);
+    }
+    private static boolean npcDeathTombstone(JSONObject current,JSONObject previous){
+        try{
+            if(current!=null&&current.optBoolean("resurrected",false))return false;
+            if(current!=null&&(current.optBoolean("dead",false)||"dead".equalsIgnoreCase(current.optString("status"))||"morto".equalsIgnoreCase(current.optString("status"))))return true;
+            JSONObject cs=current==null?new JSONObject():new JSONObject(current.optString("stats_json","{}"));
+            if(cs.optBoolean("dead",false)||"dead".equalsIgnoreCase(cs.optString("status"))||"morto".equalsIgnoreCase(cs.optString("status")))return true;
+            JSONObject ps=previous==null?new JSONObject():new JSONObject(previous.optString("stats_json","{}"));
+            return ps.optBoolean("dead",false)||"dead".equalsIgnoreCase(ps.optString("status"))||"morto".equalsIgnoreCase(ps.optString("status"));
+        }catch(Exception ignored){return false;}
+    }
+    private static String npcStatsWithDeath(JSONObject current,JSONObject previous){
+        try{
+            JSONObject s=new JSONObject(current!=null&&current.has("stats_json")?current.optString("stats_json","{}"):previous==null?"{}":previous.optString("stats_json","{}"));
+            s.put("dead",true).put("status","dead");return s.toString();
+        }catch(Exception ignored){return "{\"dead\":true,\"status\":\"dead\"}";}
+    }
+    public void markNpcDead(long id){
+        JSONObject npc=getNpcMemory(id);if(npc.length()==0)return;
+        ContentValues v=new ContentValues();v.put("active",0);v.put("token_uri","");v.put("stats_json",npcStatsWithDeath(new JSONObject(),npc));v.put("updated_at",System.currentTimeMillis());
+        getWritableDatabase().update("npc_memory_profiles",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});
+        ContentValues combat=new ContentValues();combat.put("token_uri","");getWritableDatabase().update("combatants",combat,"world_profile=? AND source_kind='npc' AND source_id=?",new String[]{getActiveMapProfile(),String.valueOf(id)});
+    }
+    private static void putNpcField(ContentValues v,JSONObject source,JSONObject previous,String key,String fallback){v.put(key,source.has(key)?source.optString(key,fallback):previous.optString(key,fallback));}
+    public JSONArray listNpcMemories(int limit){return new JSONArray(queryList("SELECT * FROM npc_memory_profiles WHERE world_profile=? ORDER BY active DESC, updated_at DESC LIMIT "+Math.max(1,Math.min(5000,limit)),new String[]{getActiveMapProfile()}));}
+    public JSONObject getNpcMemory(long id){return queryOne("SELECT * FROM npc_memory_profiles WHERE id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    public JSONObject findNpcMemoryByName(String name){String safe=NpcIdentityNormalizer.displayName(name);if(safe.length()==0||NpcIdentityNormalizer.isReservedPlayerAlias(safe))return new JSONObject();return queryOne("SELECT * FROM npc_memory_profiles WHERE world_profile=? AND (stable_id=? OR name=? COLLATE NOCASE) LIMIT 1",new String[]{getActiveMapProfile(),NpcIdentityNormalizer.stableId(getActiveMapProfile(),safe),safe});}
+    public void setNpcToken(long id,String uri){
+        String safe=uri==null?"":uri.trim();JSONObject npc=queryOne("SELECT name FROM npc_memory_profiles WHERE id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});ContentValues v=new ContentValues();v.put("token_uri",safe);v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("npc_memory_profiles",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});
+        ContentValues combat=new ContentValues();combat.put("source_kind","npc");combat.put("source_id",id);combat.put("token_uri",safe);
+        getWritableDatabase().update("combatants",combat,"world_profile=? AND (source_kind='npc' AND source_id=? OR is_player=0 AND lower(name)=lower(?))",new String[]{getActiveMapProfile(),String.valueOf(id),npc.optString("name","")});
+    }
+    public void setNpcActive(long id,boolean active){ContentValues v=new ContentValues();v.put("active",active?1:0);v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("npc_memory_profiles",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    public void deleteNpcMemory(long id){getWritableDatabase().delete("npc_memory_profiles","id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    public JSONArray listKnownNpcs(int limit){return listNpcMemories(limit);}
+    public JSONArray listSceneNpcs(int limit){
+        JSONArray out=new JSONArray();java.util.HashSet<String> seen=new java.util.HashSet<String>();JSONObject scene=getSceneState();JSONArray raw;try{raw=new JSONArray(scene.optString("present_npcs_json","[]"));}catch(Exception e){raw=new JSONArray();}
+        for(int i=0;i<raw.length()&&out.length()<Math.max(1,limit);i++){String name=NpcIdentityNormalizer.displayName(raw.opt(i));if(NpcIdentityNormalizer.isReservedPlayerAlias(name))continue;JSONObject npc=findNpcMemoryByName(name);if(npc.length()==0){try{npc=new JSONObject().put("name",name).put("stable_id",NpcIdentityNormalizer.stableId(getActiveMapProfile(),name)).put("active",1);}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada registrada na consolidação 5.0.",ignored);}}String key=npc.optString("stable_id",NpcIdentityNormalizer.key(name));if(!seen.add(key))continue;out.put(npc);}
+        return out;
+    }
+    public JSONArray listWorldActiveNpcs(int limit){
+        String sql="SELECT n.*,c.emotion,c.trust,c.fear,c.suspicion,c.urgency,c.next_action,c.schedule_json,c.faction,c.current_location FROM npc_memory_profiles n LEFT JOIN npc_cognitive_state c ON c.world_profile=n.world_profile AND lower(c.npc_name)=lower(n.name) WHERE n.world_profile=? AND n.active=1 AND (COALESCE(c.next_action,'')<>'' OR COALESCE(c.schedule_json,'[]')<>'[]' OR COALESCE(c.faction,'')<>'' OR COALESCE(c.urgency,0)>0) ORDER BY COALESCE(c.urgency,0) DESC,n.updated_at DESC LIMIT "+Math.max(1,Math.min(1000,limit));return new JSONArray(queryList(sql,new String[]{getActiveMapProfile()}));
+    }
+
+
+    public void updateCombatantAdvanced(long id,int tempHp,String concentration,boolean reactionUsed,int deathSuccess,int deathFail,String conditions,String timersJson,String resistances,String vulnerabilities,String immunities,String resourcesJson){
+        JSONObject c=getCombatant(id);String safeConditions=conditions==null?"":conditions;JSONObject safeResources;try{safeResources=new JSONObject(validJsonObject(resourcesJson));}catch(Exception ignored){safeResources=new JSONObject();}String safeConcentration=concentration==null?"":concentration;if(ConditionRulesEngine.breaksConcentration(safeConditions)){safeConcentration="";safeResources.remove("concentration_save_pending");safeResources.remove("concentration_save_queue");}ContentValues v=new ContentValues();v.put("temp_hp",Math.max(0,tempHp));v.put("concentration",safeConcentration);v.put("reaction_used",reactionUsed?1:0);v.put("death_success",Math.max(0,Math.min(3,deathSuccess)));v.put("death_fail",Math.max(0,Math.min(3,deathFail)));v.put("conditions",safeConditions);v.put("condition_timers_json",validJsonArray(timersJson));v.put("resistances",resistances==null?"":resistances);v.put("vulnerabilities",vulnerabilities==null?"":vulnerabilities);v.put("immunities",immunities==null?"":immunities);v.put("resources_json",safeResources.toString());getWritableDatabase().update("combatants",v,"id=?",new String[]{String.valueOf(id)});syncCombatantHeroState(c,c.optInt("hp"),Math.max(0,tempHp),safeConditions,safeResources);
+    }
+    private String validJsonArray(String raw){try{return new JSONArray(raw==null?"[]":raw).toString();}catch(Exception e){return "[]";}}
+    private String validJsonObject(String raw){try{return new JSONObject(raw==null?"{}":raw).toString();}catch(Exception e){return "{}";}}
+
+
+    // ===== Mestre virtual e companhia (3.3.0) =====
+    public List<JSONObject> listPartyMemberships(String status,int limit){
+        createVirtualMasterTables(getWritableDatabase());String where="world_profile=?";ArrayList<String> args=new ArrayList<String>();args.add(getActiveMapProfile());
+        if(status!=null&&!status.trim().isEmpty()){where+=" AND status=?";args.add(status.trim());}
+        return queryList("SELECT * FROM party_memberships WHERE "+where+" ORDER BY CASE status WHEN 'active' THEN 0 ELSE 1 END,updated_at DESC,id DESC LIMIT "+Math.max(1,Math.min(500,limit)),args.toArray(new String[0]));
+    }
+    public JSONObject findActivePartyHero(long characterId){createVirtualMasterTables(getWritableDatabase());return queryOne("SELECT * FROM party_memberships WHERE world_profile=? AND actor_kind='hero' AND character_id=? AND status='active' LIMIT 1",new String[]{getActiveMapProfile(),String.valueOf(characterId)});}
+    public JSONObject findActivePartyNpc(String npcName){createVirtualMasterTables(getWritableDatabase());if(npcName==null||npcName.trim().isEmpty())return new JSONObject();return queryOne("SELECT * FROM party_memberships WHERE world_profile=? AND actor_kind='npc' AND lower(npc_name)=lower(?) AND status='active' LIMIT 1",new String[]{getActiveMapProfile(),npcName.trim()});}
+    public long upsertPartyMembership(JSONObject member)throws Exception{
+        createVirtualMasterTables(getWritableDatabase());if(member==null)throw new IllegalArgumentException("Membro ausente.");String kind="npc".equalsIgnoreCase(member.optString("actor_kind"))?"npc":"hero";long characterId=member.optLong("character_id",0);String npcName=member.optString("npc_name").trim();
+        if("hero".equals(kind)&&characterId<=0)throw new IllegalArgumentException("Herói inválido.");if("npc".equals(kind)&&npcName.length()==0)throw new IllegalArgumentException("NPC inválido.");
+        JSONObject old="hero".equals(kind)?queryOne("SELECT * FROM party_memberships WHERE world_profile=? AND actor_kind='hero' AND character_id=? LIMIT 1",new String[]{getActiveMapProfile(),String.valueOf(characterId)}):queryOne("SELECT * FROM party_memberships WHERE world_profile=? AND actor_kind='npc' AND lower(npc_name)=lower(?) LIMIT 1",new String[]{getActiveMapProfile(),npcName});
+        ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("actor_kind",kind);v.put("character_id","hero".equals(kind)?characterId:0);v.put("npc_name","npc".equals(kind)?npcName:"");v.put("status",member.optString("status","active"));v.put("party_role",member.optString("party_role","companion"));v.put("recruitment_type",member.optString("recruitment_type","joined"));v.put("joined_day",Math.max(1,member.optInt("joined_day",getSceneState().optInt("day_number",1))));v.put("left_day",Math.max(0,member.optInt("left_day",0)));v.put("home_location",member.optString("home_location"));v.put("compensation_json",validJsonObject(member.optString("compensation_json",String.valueOf(member.opt("compensation")))));v.put("loyalty",Math.max(-100,Math.min(100,member.optInt("loyalty",50))));v.put("reason",member.optString("reason"));v.put("metadata_json",validJsonObject(member.optString("metadata_json",String.valueOf(member.opt("metadata")))));long now=System.currentTimeMillis();v.put("created_at",old.length()==0?now:old.optLong("created_at",now));v.put("updated_at",now);
+        if(old.length()==0)return getWritableDatabase().insertOrThrow("party_memberships",null,v);long id=old.optLong("id");if(getWritableDatabase().update("party_memberships",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()})!=1)throw new IllegalStateException("Membro da companhia não persistido.");return id;
+    }
+    public void updatePartyMembershipStatus(long membershipId,String status,String homeLocation,String reason){createVirtualMasterTables(getWritableDatabase());ContentValues v=new ContentValues();v.put("status",status==null?"away":status.trim());v.put("home_location",homeLocation==null?"":homeLocation.trim());v.put("reason",reason==null?"":reason.trim());if(!"active".equalsIgnoreCase(status))v.put("left_day",Math.max(1,getSceneState().optInt("day_number",1)));else v.put("left_day",0);v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("party_memberships",v,"id=? AND world_profile=?",new String[]{String.valueOf(membershipId),getActiveMapProfile()});}
+    public void deletePartyMembership(long membershipId){createVirtualMasterTables(getWritableDatabase());getWritableDatabase().delete("party_memberships","id=? AND world_profile=?",new String[]{String.valueOf(membershipId),getActiveMapProfile()});}
+
+    public JSONObject getPartyState(){createVirtualMasterTables(getWritableDatabase());return queryOne("SELECT * FROM party_state_profiles WHERE world_profile=?",new String[]{getActiveMapProfile()});}
+    public void savePartyState(JSONObject state){if(state==null)return;ContentValues v=new ContentValues();v.put("marching_order_json",validJsonArray(state.optString("marching_order_json",String.valueOf(state.opt("marching_order")))));v.put("roles_json",validJsonObject(state.optString("roles_json",String.valueOf(state.opt("roles")))));v.put("company_resources_json",validJsonObject(state.optString("company_resources_json",String.valueOf(state.opt("company_resources")))));v.put("subgroups_json",validJsonArray(state.optString("subgroups_json",String.valueOf(state.opt("subgroups")))));v.put("relations_json",validJsonArray(state.optString("relations_json",String.valueOf(state.opt("relations")))));v.put("session_preferences_json",validJsonObject(state.optString("session_preferences_json",String.valueOf(state.opt("session_preferences")))));v.put("knowledge_mode",state.optString("knowledge_mode","jogador_total"));v.put("default_control_mode",state.optString("default_control_mode","manual"));v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("party_state_profiles",v,"world_profile=?",new String[]{getActiveMapProfile()});}
+    public long addPartyAction(long characterId,String characterName,String action,String intent){ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("character_id",characterId);v.put("character_name",characterName);v.put("action_text",action);v.put("intent_type",intent);v.put("status","queued");v.put("created_at",System.currentTimeMillis());return getWritableDatabase().insert("party_action_queue",null,v);}
+    public List<JSONObject> listPartyActions(String status,int limit){String where="world_profile=?";ArrayList<String> args=new ArrayList<String>();args.add(getActiveMapProfile());if(status!=null&&status.length()>0){where+=" AND status=?";args.add(status);}return queryList("SELECT * FROM party_action_queue WHERE "+where+" ORDER BY priority DESC,created_at ASC LIMIT "+Math.max(1,Math.min(5000,limit)),args.toArray(new String[0]));}
+    public int countPartyActions(String status){Cursor c=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM party_action_queue WHERE world_profile=? AND status=?",new String[]{getActiveMapProfile(),status});try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}}
+    public void deletePartyAction(long id){getWritableDatabase().delete("party_action_queue","id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    public void deletePartyActionsByStatus(String status){
+        // Keep immutable receipt links even when clearing the resolved-action history.
+        if("resolved".equals(status)){ContentValues archived=new ContentValues();archived.put("status","archived");getWritableDatabase().update("party_action_queue",archived,"world_profile=? AND status='resolved'",new String[]{getActiveMapProfile()});return;}
+        getWritableDatabase().delete("party_action_queue","world_profile=? AND status=?",new String[]{getActiveMapProfile(),status});
+    }
+    // RUN203: narration is not a mechanical receipt. Keep every declaration pending until
+    // the player links an applied effect receipt or explicitly dismisses it without effects.
+    private static void ensurePartyActionResolutionColumns(SQLiteDatabase sql){
+        addColumnIfMissing(sql,"party_action_queue","narrated_at","INTEGER DEFAULT 0");
+        addColumnIfMissing(sql,"party_action_queue","resolution_receipt","TEXT DEFAULT ''");
+        addColumnIfMissing(sql,"party_action_queue","resolution_note","TEXT DEFAULT ''");
+        addColumnIfMissing(sql,"party_action_queue","resolution_kind","TEXT DEFAULT ''");
+        sql.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_party_action_unique_receipt ON party_action_queue(world_profile,resolution_receipt) WHERE resolution_receipt<>''");
+    }
+    /** Only ids frozen in the original master plan are acknowledged; late actions remain queued. */
+    public synchronized int markPartyActionsNarrated(JSONArray actionIds){
+        if(actionIds==null||actionIds.length()==0)return 0;
+        SQLiteDatabase sql=getWritableDatabase();ensurePartyActionResolutionColumns(sql);
+        boolean owner=!sql.inTransaction();if(owner)sql.beginTransaction();int count=0;
+        try{
+            for(int i=0;i<actionIds.length();i++){
+                long id=actionIds.optLong(i,0);if(id<=0)continue;
+                ContentValues v=new ContentValues();v.put("status","narrated");v.put("narrated_at",System.currentTimeMillis());
+                count+=sql.update("party_action_queue",v,"id=? AND world_profile=? AND status='queued'",new String[]{String.valueOf(id),getActiveMapProfile()});
+            }
+            if(owner)sql.setTransactionSuccessful();return count;
+        }finally{if(owner)sql.endTransaction();}
+    }
+    /** Legacy method retained for binary compatibility; it can no longer assert resolution. */
+    @Deprecated public void markPartyActionsResolved(){throw new IllegalStateException("Narração não comprova execução. Use markPartyActionsNarrated com IDs do plano.");}
+    /** RUN204: do not offer unrelated generic receipts as evidence for a player's action. */
+    public List<JSONObject> listRecentPartyActionReceipts(int limit){
+        ensurePartyActionResolutionColumns(getWritableDatabase());
+        return queryList("SELECT r.effect_key,r.source,r.applied_at FROM effect_receipts r WHERE r.world_profile=? AND ((r.effect_key LIKE 'party-combat-v2:%' AND r.source LIKE 'party_combat_v2:%') OR (r.effect_key LIKE 'party-movement-v1:%' AND r.source LIKE 'party_movement_v1:%') OR (r.effect_key LIKE 'party-attack-v1:%' AND r.source LIKE 'party_attack_v1:%') OR (r.effect_key LIKE 'party-extra-v1:%' AND r.source LIKE 'party_extra_v1:%')) AND NOT EXISTS (SELECT 1 FROM party_action_queue a WHERE a.world_profile=r.world_profile AND a.resolution_receipt=r.effect_key) ORDER BY r.applied_at DESC LIMIT "+Math.max(1,Math.min(100,limit)),new String[]{getActiveMapProfile()});
+    }
+    /** The actor's turn-spend receipt and EVERY target receipt must exist in the same world. */
+    private boolean partyActionCombatProofPresent(SQLiteDatabase sql,JSONObject row,
+        PartyActionCausalReceiptGuard.Proof proof){
+        JSONObject actor=getCombatant(proof.actorId);
+        if(actor.length()==0||actor.optInt("is_player",0)!=1||
+            !"character".equals(actor.optString("source_kind"))||
+            actor.optLong("source_id",0)!=proof.characterId||
+            row.optLong("character_id",0)!=proof.characterId)return false;
+        JSONObject turn=queryOne("SELECT source,applied_at FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+            new String[]{getActiveMapProfile(),combatReceiptKey(proof.actorId,proof.token+"-turn")});
+        if(!("spend:"+proof.resource).equals(turn.optString("source"))||
+            turn.optLong("applied_at",0)<row.optLong("created_at",0))return false;
+        // Each effect in the committed batch has its own target-scoped durable receipt.
+        // The index is part of the operation token, so no target may be skipped.
+        for(int i=0;i<proof.targetCount;i++){
+            String suffix=":"+proof.token+"-"+i;
+            Cursor cursor=sql.rawQuery("SELECT COUNT(*) FROM effect_receipts WHERE world_profile=? AND effect_key GLOB ? AND (source LIKE 'damage:%' OR source LIKE 'heal:%')",
+                new String[]{getActiveMapProfile(),"combat-v1:*"+suffix});
+            try{if(!cursor.moveToFirst()||cursor.getInt(0)!=1)return false;}
+            finally{cursor.close();}
+        }
+        return true;
+    }
+    /** Atomic extension: effects + turn spend + typed causal attestation + declaration resolution. */
+    private JSONObject partyCombatExecute(final long actionId,final long actorId,final String resource,
+        final JSONArray payload,final String token,final boolean savingThrows){
+        return combatAtomic(savingThrows?"party_combat_saves":"party_combat_effects",new CombatAtomicWork(){
+            public JSONObject run()throws Exception{
+                JSONObject action=queryOne("SELECT * FROM party_action_queue WHERE world_profile=? AND id=?",
+                    new String[]{getActiveMapProfile(),String.valueOf(actionId)});
+                JSONObject actor=getCombatant(actorId);
+                String blocked=PartyActionCausalReceiptGuard.bindingBlock(actionId,
+                    action.optLong("character_id",0),action.optString("status"),action.optString("intent_type"),
+                    actorId,actor.optLong("source_id",0),actor.optInt("is_player",0)==1&&
+                        "character".equals(actor.optString("source_kind")),resource,token);
+                if(!blocked.isEmpty())return new JSONObject().put("party_action_blocked",blocked);
+                JSONObject outcome=savingThrows?
+                    applyCombatSaveDamageWithAction(actorId,resource,payload,token):
+                    applyCombatEffectsWithAction(actorId,resource,payload,token);
+                if(!outcome.optBoolean(savingThrows?"area_save_committed":"area_action_committed",false))return outcome;
+                String receiptKey=PartyActionCausalReceiptGuard.key(actionId,actorId,token);
+                String source=PartyActionCausalReceiptGuard.source(action.optLong("character_id"),actorId,
+                    savingThrows?"saves":"effects",resource,payload.length());
+                ContentValues receipt=new ContentValues();receipt.put("world_profile",getActiveMapProfile());
+                receipt.put("effect_key",receiptKey);receipt.put("source",source);
+                receipt.put("applied_at",Math.max(System.currentTimeMillis(),action.optLong("created_at")+1));
+                getWritableDatabase().insertOrThrow("effect_receipts",null,receipt);
+                if(!finalizePartyAction(actionId,"resolved",receiptKey,
+                    "Ação e efeitos executados juntos pelo motor de combate; recibo causal RUN204."))
+                    throw new IllegalStateException("party_action_receipt_link_failed_rollback");
+                return outcome.put("party_action_resolved",true).put("party_action_id",actionId)
+                    .put("party_action_receipt",receiptKey);
+            }
+        });
+    }
+    public JSONObject applyCombatEffectsForPartyAction(long actionId,long actorId,String resource,
+        JSONArray effects,String operationToken){
+        return partyCombatExecute(actionId,actorId,resource,effects,operationToken,false);
+    }
+    public JSONObject applyCombatSaveDamageForPartyAction(long actionId,long actorId,String resource,
+        JSONArray saves,String operationToken){
+        return partyCombatExecute(actionId,actorId,resource,saves,operationToken,true);
+    }
+    /** RUN209: non-mutating tactical weapon reach/cover preview. A missing token or
+     * an ambiguous obstacle causes a visible block instead of granting infinite reach. */
+    public JSONObject previewTacticalWeaponAttack(long actorId,long targetId,String itemId){
+        JSONObject out=new JSONObject();
+        try{
+            JSONObject actor=getCombatant(actorId),target=getCombatant(targetId);
+            if(actor.length()==0||target.length()==0||actorId==targetId)
+                return out.put("attack_geometry_blocked","combatant_missing");
+            if(combatantHasTotalCover(targetId))
+                return out.put("attack_geometry_blocked","total_cover");
+            JSONArray weapons=listEquippedWeaponAttackProfiles(actor.optLong("source_id",0));
+            JSONObject item=new JSONObject();
+            for(int i=0;i<weapons.length();i++)if(itemId!=null&&itemId.equals(weapons.optJSONObject(i).optString("id"))){
+                item=weapons.optJSONObject(i);break;
+            }
+            if(item.length()==0)return out.put("attack_geometry_blocked","weapon_profile_missing");
+            JSONObject scene=new ProceduralTacticalSceneGenerator(this).ensureForCurrentScene();
+            if(scene.length()==0||!"ready".equals(scene.optString("status","ready")))
+                return out.put("attack_geometry_blocked","scene_unavailable");
+            int w=scene.optInt("width_cells",0),h=scene.optInt("height_cells",0);
+            if(w<1||w>100||h<1||h>100)return out.put("attack_geometry_blocked","invalid_scene_grid");
+            ensureTacticalTokensForCombat();
+            boolean[][] opaque=new boolean[h][w],occupied=new boolean[h][w];int[][] cover=new int[h][w];
+            JSONArray obstacles=new JSONArray(scene.optString("obstacles_json","[]"));
+            for(int i=0;i<obstacles.length();i++){
+                JSONObject ob=obstacles.optJSONObject(i);
+                if(ob==null)return out.put("attack_geometry_blocked","malformed_obstacle");
+                int x=ob.optInt("x",-1),y=ob.optInt("y",-1);
+                if(x<0||x>=w||y<0||y>=h)return out.put("attack_geometry_blocked","obstacle_out_of_bounds");
+                String coverKind=ob.optString("cover","none");
+                String kind=ob.optString("type","");
+                boolean full=ob.optBoolean("blocks_sight",false)||"total".equals(coverKind)||
+                    "wall".equals(kind)||"pillar".equals(kind);
+                opaque[y][x]|=full;
+                if("three_quarters".equals(coverKind))cover[y][x]=Math.max(cover[y][x],5);
+                if("half".equals(coverKind))cover[y][x]=Math.max(cover[y][x],2);
+            }
+            int ax=-1,ay=-1,tx=-1,ty=-1;
+            List<JSONObject> positions=queryList("SELECT t.combatant_id,t.x,t.y,c.hp FROM tactical_tokens t " +
+                "JOIN combatants c ON c.id=t.combatant_id AND c.world_profile=t.world_profile " +
+                "WHERE t.world_profile=?",new String[]{getActiveMapProfile()});
+            for(JSONObject pos:positions){
+                double nx=pos.optDouble("x",Double.NaN),ny=pos.optDouble("y",Double.NaN);
+                if(Double.isNaN(nx)||Double.isNaN(ny)||nx<0||nx>=1||ny<0||ny>=1)
+                    return out.put("attack_geometry_blocked","invalid_token_position");
+                int x=(int)Math.floor(nx*w),y=(int)Math.floor(ny*h);
+                long id=pos.optLong("combatant_id",0);
+                if(id==actorId){ax=x;ay=y;}
+                else if(id==targetId){tx=x;ty=y;}
+                else if(pos.optInt("hp",0)>0)occupied[y][x]=true;
+            }
+            if(ax<0||tx<0)return out.put("attack_geometry_blocked","token_position_missing");
+            TacticalAttackGeometryRules.Result legal=TacticalAttackGeometryRules.evaluate(w,h,ax,ay,tx,ty,
+                opaque,cover,occupied,item.optString("weapon_attack_kind"),item.optInt("weapon_reach_ft",-1),
+                item.optInt("weapon_normal_range_ft",-1),item.optInt("weapon_long_range_ft",-1));
+            if(!legal.legal())return out.put("attack_geometry_blocked",legal.blocked);
+            // Fingerprint includes the world, scene, and both combatant IDs so a
+            // different scene with an identical grid cannot reuse a prior roll.
+            String identity=getActiveMapProfile()+":"+scene.optString("scene_key")+":"+actorId+":"+
+                targetId+":"+legal.fingerprint;
+            byte[] bytes=identity.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            java.util.zip.CRC32 hash=new java.util.zip.CRC32();hash.update(bytes,0,bytes.length);
+            String scopedFingerprint=Long.toHexString(hash.getValue());
+            // Cover never stacks with other cover. Use the best applicable bonus.
+            int resourceCover=new DndRulesEngine().coverAcBonus(combatResources(target).optString("cover",""));
+            return out.put("attack_geometry_valid",true).put("attack_geometry_fingerprint",scopedFingerprint)
+                .put("distance_ft",legal.distanceFeet).put("cover_bonus",legal.geometryCoverBonus)
+                .put("long_range_disadvantage",legal.longRangeDisadvantage)
+                .put("effective_ac",target.optInt("ac",10)+Math.max(resourceCover,legal.geometryCoverBonus))
+                .put("scene_key",scene.optString("scene_key"));
+        }catch(Exception e){
+            try{return out.put("attack_geometry_blocked","geometry_runtime_error");}
+            catch(Exception ignored){return out;}
+        }
+    }
+    /** RUN208: inspect the actual tactical board; destination coordinates are grid cells, zero-based. */
+    public JSONObject tacticalGridPosition(long actorId){
+        JSONObject out=new JSONObject();
+        try{
+            JSONObject scene=new ProceduralTacticalSceneGenerator(this).ensureForCurrentScene();
+            if(scene.length()==0)return out.put("grid_blocked","scene_unavailable");
+            ensureTacticalTokensForCombat();
+            JSONObject pos=queryOne("SELECT x,y FROM tactical_tokens WHERE world_profile=? AND combatant_id=?",
+                new String[]{getActiveMapProfile(),String.valueOf(actorId)});
+            if(pos.length()==0)return out.put("grid_blocked","actor_position_missing");
+            int w=scene.optInt("width_cells",0),h=scene.optInt("height_cells",0);
+            double x=pos.optDouble("x",Double.NaN),y=pos.optDouble("y",Double.NaN);
+            if(w<=0||h<=0||w>100||h>100||Double.isNaN(x)||Double.isNaN(y)||
+                x<0||x>=1||y<0||y>=1)return out.put("grid_blocked","grid_or_position_invalid");
+            return out.put("width_cells",w).put("height_cells",h)
+                .put("cell_x",(int)Math.floor(x*w)).put("cell_y",(int)Math.floor(y*h))
+                .put("scene_key",scene.optString("scene_key"));
+        }catch(Exception e){try{return out.put("grid_blocked","grid_runtime_error");}catch(Exception ignored){return out;}}
+    }
+    /** Explicit melee profile for creatures without a character inventory. */
+    public boolean configureCombatantOpportunityWeapon(long combatantId,String itemId,int bonus,
+        String formula,String damageType,int reachFeet){
+        if(!EquippedWeaponAttackRules.validProfile(itemId,bonus,formula,damageType)||
+            !TacticalAttackGeometryRules.validProfile("melee",reachFeet,0,0))return false;
+        JSONObject c=getCombatant(combatantId);
+        if(c.length()==0||c.optInt("is_player",0)==1)return false;
+        try{
+            JSONObject r=combatResources(c);
+            r.put("opportunity_weapon",new JSONObject().put("id",itemId)
+                .put("weapon_attack_bonus",bonus).put("weapon_damage_formula",
+                    EquippedWeaponAttackRules.parse(formula).formula)
+                .put("weapon_damage_type",damageType).put("weapon_attack_kind","melee")
+                .put("weapon_reach_ft",reachFeet).put("weapon_normal_range_ft",0)
+                .put("weapon_long_range_ft",0));
+            ContentValues v=new ContentValues();v.put("resources_json",r.toString());
+            return getWritableDatabase().update("combatants",v,"world_profile=? AND id=?",
+                new String[]{getActiveMapProfile(),String.valueOf(combatantId)})==1;
+        }catch(Exception e){return false;}
+    }
+    private JSONArray gridOpportunityCandidates(long moverId,JSONObject scene,int w,int h,
+        List<TacticalGridMovementRouteRules.Cell> routeCells)throws Exception{
+        JSONArray found=new JSONArray();JSONObject mover=getCombatant(moverId);
+        if(mover.length()==0||mover.optInt("hp",0)<=0)return found;
+        if(routeCells==null||routeCells.size()<2)return found;
+        List<OpportunityAttackRules.Position> path=new ArrayList<OpportunityAttackRules.Position>();
+        for(TacticalGridMovementRouteRules.Cell c:routeCells)
+            path.add(new OpportunityAttackRules.Position(c.x,c.y,0,1));
+        boolean[][] opaque=new boolean[h][w],occupied=new boolean[h][w];int[][] cover=new int[h][w];
+        JSONArray obstacles=new JSONArray(scene.optString("obstacles_json","[]"));
+        for(int i=0;i<obstacles.length();i++){
+            JSONObject ob=obstacles.optJSONObject(i);if(ob==null)throw new IllegalArgumentException("invalid_obstacle");
+            int x=ob.optInt("x",-1),y=ob.optInt("y",-1);
+            if(x<0||x>=w||y<0||y>=h)throw new IllegalArgumentException("invalid_obstacle_cell");
+            String kind=ob.optString("type",""),coverKind=ob.optString("cover","none");
+            opaque[y][x]=ob.optBoolean("blocks_sight",false)||"total".equals(coverKind)||
+                "wall".equals(kind)||"pillar".equals(kind);
+            if("three_quarters".equals(coverKind))cover[y][x]=5;
+            else if("half".equals(coverKind))cover[y][x]=Math.max(cover[y][x],2);
+        }
+        List<JSONObject> positions=queryList("SELECT t.combatant_id,t.x,t.y,c.hp FROM tactical_tokens t " +
+            "JOIN combatants c ON c.id=t.combatant_id AND c.world_profile=t.world_profile " +
+            "WHERE t.world_profile=?",new String[]{getActiveMapProfile()});
+        Map<Long,OpportunityAttackRules.Position> cells=new HashMap<Long,OpportunityAttackRules.Position>();
+        for(JSONObject row:positions){
+            double nx=row.optDouble("x",Double.NaN),ny=row.optDouble("y",Double.NaN);
+            if(Double.isNaN(nx)||Double.isNaN(ny)||nx<0||nx>=1||ny<0||ny>=1)
+                throw new IllegalArgumentException("invalid_token_position");
+            int x=(int)Math.floor(nx*w),y=(int)Math.floor(ny*h);
+            long id=row.optLong("combatant_id",0);
+            cells.put(id,new OpportunityAttackRules.Position(x,y,0,1));
+            if(id!=moverId&&row.optInt("hp",0)>0)occupied[y][x]=true;
+        }
+        if(!path.get(0).encode().equals(cells.get(moverId)==null?"":cells.get(moverId).encode()))
+            throw new IllegalArgumentException("mover_position_changed");
+        boolean moverInvisible=ConditionRulesEngine.has(mover.optString("conditions"),"invisivel");
+        boolean disengaged=combatResources(mover).optBoolean("disengaged_until_turn_end",false);
+        for(JSONObject other:listCombatants()){
+            long reactorId=other.optLong("id",0);
+            if(reactorId==moverId||other.optInt("hp",0)<=0||other.optInt("reaction_used",0)!=0||
+                other.optInt("is_player",0)==mover.optInt("is_player",0)||
+                ConditionRulesEngine.incapacitated(other.optString("conditions"))||
+                ConditionRulesEngine.sightCheckAutoFail(other.optString("conditions"))||moverInvisible||
+                combatantHasTotalCover(moverId))continue;
+            OpportunityAttackRules.Position reactor=cells.get(reactorId);
+            if(reactor==null)continue;
+            JSONArray weapons=other.optInt("is_player",0)==1?
+                listEquippedWeaponAttackProfiles(other.optLong("source_id",0)):
+                new JSONArray().put(combatResources(other).optJSONObject("opportunity_weapon"));
+            for(int weaponIndex=0;weaponIndex<weapons.length();weaponIndex++){
+                JSONObject weapon=weapons.optJSONObject(weaponIndex);
+                if(weapon==null||!"melee".equals(weapon.optString("weapon_attack_kind"))||
+                    !EquippedWeaponAttackRules.validProfile(weapon.optString("id"),
+                        weapon.optInt("weapon_attack_bonus",Integer.MIN_VALUE),
+                        weapon.optString("weapon_damage_formula"),weapon.optString("weapon_damage_type")))continue;
+                int reach=weapon.optInt("weapon_reach_ft",-1);
+                if(!TacticalAttackGeometryRules.validProfile("melee",reach,0,0))continue;
+                for(int step=1;step<path.size();step++){
+                    OpportunityAttackRules.Position before=path.get(step-1),after=path.get(step);
+                    OpportunityAttackRules.Context context=new OpportunityAttackRules.Context(
+                        reactorId,moverId,reactor,before,after,reach,true,true,true,true,disengaged,false);
+                    if(!OpportunityAttackRules.evaluate(context).triggered())continue;
+                    TacticalAttackGeometryRules.Result geom=TacticalAttackGeometryRules.evaluate(w,h,
+                        reactor.x,reactor.y,before.x,before.y,opaque,cover,occupied,"melee",reach,0,0);
+                    if(!geom.legal())continue;
+                    int ac=mover.optInt("ac",10)+Math.max(geom.geometryCoverBonus,
+                        new DndRulesEngine().coverAcBonus(combatResources(mover).optString("cover","")));
+                    JSONObject conditions=ConditionRulesEngine.attackProfile(other.optString("conditions"),
+                        mover.optString("conditions"),geom.distanceFeet,true,true,false,false,combatRulesProfile(other));
+                    if(conditions.optBoolean("blocked",false))continue;
+                    boolean adv=conditions.optBoolean("advantage",false),dis=conditions.optBoolean("disadvantage",false);
+                    String mode=adv==dis?"Normal":adv?"Vantagem":"Desvantagem";
+                    found.put(new JSONObject().put("reactor_id",reactorId).put("reactor_name",other.optString("name"))
+                        .put("step_index",step).put("weapon_id",weapon.optString("id"))
+                        .put("weapon_name",weapon.optString("name",weapon.optString("id")))
+                        .put("bonus",weapon.optInt("weapon_attack_bonus"))
+                        .put("formula",weapon.optString("weapon_damage_formula"))
+                        .put("damage_type",weapon.optString("weapon_damage_type"))
+                        .put("reach_ft",reach).put("effective_ac",ac).put("roll_mode",mode)
+                        .put("geometry_fingerprint",geom.fingerprint));
+                    break;
+                }
+                if(found.length()>0&&found.optJSONObject(found.length()-1).optLong("reactor_id")==reactorId)break;
+            }
+        }
+        return found;
+    }
+    /** The route is recomputed from live SQLite, including ALL blocking tokens and obstacles.
+     * GM terrain/crawl flags are explicit; cannot silently waive an obstruction. */
+    public JSONObject previewTacticalGridMovement(long actorId,int destX,int destY,boolean difficult,boolean crawling){
+        JSONObject out=new JSONObject();
+        try{
+            JSONObject scene=new ProceduralTacticalSceneGenerator(this).ensureForCurrentScene();
+            if(scene.length()==0||!"ready".equals(scene.optString("status","ready")))
+                return out.put("grid_blocked","scene_unavailable");
+            int w=scene.optInt("width_cells",0),h=scene.optInt("height_cells",0);
+            if(w<=0||h<=0||w>100||h>100)return out.put("grid_blocked","invalid_grid");
+            ensureTacticalTokensForCombat();
+            List<JSONObject> tokens=queryList("SELECT t.combatant_id,t.x,t.y,c.hp FROM tactical_tokens t " +
+                "JOIN combatants c ON c.id=t.combatant_id AND c.world_profile=t.world_profile " +
+                "WHERE t.world_profile=?",new String[]{getActiveMapProfile()});
+            double startX=Double.NaN,startY=Double.NaN;
+            boolean[][] blocked=new boolean[h][w],difficultCells=new boolean[h][w];
+            JSONArray obstacles=new JSONArray(scene.optString("obstacles_json","[]"));
+            for(int i=0;i<obstacles.length();i++){
+                JSONObject obstacle=obstacles.optJSONObject(i);
+                if(obstacle==null)throw new IllegalArgumentException("obstacle_invalid");
+                // Only explicitly authored terrain data is mechanical authority.
+                // Never infer difficult terrain from a visual label like mud or bush.
+                if(obstacle.has("difficult_terrain")&&
+                    !(obstacle.opt("difficult_terrain") instanceof Boolean))
+                    return out.put("grid_blocked","invalid_difficult_terrain_flag");
+                if(obstacle.has("blocks_movement")&&
+                    !(obstacle.opt("blocks_movement") instanceof Boolean))
+                    return out.put("grid_blocked","invalid_movement_block_flag");
+                boolean impassable=obstacle.optBoolean("blocks_movement",false);
+                boolean hard=obstacle.optBoolean("difficult_terrain",false);
+                if(!impassable&&!hard)continue;
+                int x=obstacle.optInt("x",-1),y=obstacle.optInt("y",-1);
+                if(x<0||x>=w||y<0||y>=h)return out.put("grid_blocked","invalid_obstacle_cell");
+                if(impassable)blocked[y][x]=true;
+                if(hard)difficultCells[y][x]=true;
+            }
+            for(JSONObject token:tokens){
+                long id=token.optLong("combatant_id",0);
+                double x=token.optDouble("x",Double.NaN),y=token.optDouble("y",Double.NaN);
+                if(Double.isNaN(x)||Double.isNaN(y)||x<0||x>=1||y<0||y>=1)
+                    return out.put("grid_blocked","invalid_token_position");
+                if(id==actorId){startX=x;startY=y;}
+                else if(token.optInt("hp",0)>0)blocked[(int)Math.floor(y*h)][(int)Math.floor(x*w)]=true;
+            }
+            if(Double.isNaN(startX)||Double.isNaN(startY))return out.put("grid_blocked","actor_position_missing");
+            TacticalGridMovementRouteRules.Route route=TacticalGridMovementRouteRules.plan(w,h,startX,startY,
+                destX,destY,blocked,difficultCells,difficult,crawling);
+            if(!route.ok())return out.put("grid_blocked",route.error);
+            JSONArray opportunities=gridOpportunityCandidates(actorId,scene,w,h,route.cells);
+            // Bind a preview to this exact world, scene, actor and encounter.
+            // Equal-looking grids in a new encounter must never reuse approval.
+            String identity=getActiveMapProfile()+"|"+scene.optString("scene_key")+"|"+
+                getCombatState().optString("encounter_id")+"|"+actorId+"|"+route.fingerprint;
+            byte[] identityBytes=identity.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            java.util.zip.CRC32 identityHash=new java.util.zip.CRC32();
+            identityHash.update(identityBytes,0,identityBytes.length);
+            String scopedFingerprint=Long.toHexString(identityHash.getValue());
+            JSONArray pathCells=new JSONArray();
+            for(TacticalGridMovementRouteRules.Cell cell:route.cells)
+                pathCells.put(new JSONObject().put("x",cell.x).put("y",cell.y));
+            return out.put("grid_valid",true).put("grid_fingerprint",scopedFingerprint)
+                .put("scene_key",scene.optString("scene_key")).put("width_cells",w).put("height_cells",h)
+                .put("from_x",route.startX).put("from_y",route.startY)
+                .put("to_x",route.endX).put("to_y",route.endY)
+                .put("steps",route.steps).put("distance_ft",route.traveledFeet)
+                .put("movement_cost_ft",route.budgetFeet)
+                .put("difficult_steps",route.difficultSteps).put("route_cells",pathCells)
+                .put("opportunity_attacks",opportunities)
+                .put("opportunity_segment_required",route.steps>1&&opportunities.length()>0);
+        }catch(Exception e){try{return out.put("grid_blocked","route_runtime_error");}catch(Exception ignored){return out;}}
+    }
+    /** Inner executor: caller owns combatAtomic. The movement budget, destination
+     * and durable position receipt are all rolled back on failure. */
+    private JSONObject commitTacticalGridMovement(long actorId,int destX,int destY,boolean difficult,
+        boolean crawling,String expectedFingerprint,String token,JSONArray reactionChoices)throws Exception{
+        if(token==null||!token.startsWith("ui-grid-")||!CombatActionReceiptGuard.validToken(token))
+            return new JSONObject().put("grid_blocked","invalid_grid_token");
+        JSONObject plan=previewTacticalGridMovement(actorId,destX,destY,difficult,crawling);
+        if(!plan.optBoolean("grid_valid",false))return plan;
+        if(!plan.optString("grid_fingerprint").equals(expectedFingerprint))
+            return new JSONObject().put("grid_blocked","route_changed_review_again");
+        if(getCombatState().optInt("running",0)!=1)
+            return new JSONObject().put("grid_blocked","encounter_not_running");
+        if(hasEffectReceipt(combatReceiptKey(actorId,token+"-position")))
+            return new JSONObject().put("grid_blocked","position_replayed");
+        JSONArray opportunities=plan.optJSONArray("opportunity_attacks");
+        if(opportunities==null)opportunities=new JSONArray();
+        if(plan.optBoolean("opportunity_segment_required",false))
+            return new JSONObject().put("grid_blocked","opportunity_segment_required");
+        if(reactionChoices==null||reactionChoices.length()!=opportunities.length())
+            return new JSONObject().put("grid_blocked","opportunity_resolution_required");
+        // Validate ALL submitted rolls against the live route, weapon and AC before
+        // spending any reaction. A UI preview is never itself authority to mutate.
+        for(int i=0;i<opportunities.length();i++){
+            JSONObject expected=opportunities.optJSONObject(i),choice=reactionChoices.optJSONObject(i);
+            if(expected==null||choice==null||
+                expected.optLong("reactor_id")!=choice.optLong("reactor_id")||
+                expected.optInt("step_index")!=choice.optInt("step_index")||
+                !expected.optString("weapon_id").equals(choice.optString("weapon_id"))||
+                !expected.optString("geometry_fingerprint").equals(choice.optString("geometry_fingerprint"))||
+                expected.optInt("effective_ac")!=choice.optInt("effective_ac")||
+                !expected.optString("roll_mode").equals(choice.optString("roll_mode")))
+                return new JSONObject().put("grid_blocked","opportunity_changed_reroll");
+            String decision=choice.optString("decision","");
+            if("decline".equals(decision))continue;
+            if(!"attack".equals(decision))
+                return new JSONObject().put("grid_blocked","opportunity_decision_required");
+            int natural=choice.optInt("natural",0),damage=choice.optInt("damage",-1),
+                bonus=expected.optInt("bonus",Integer.MIN_VALUE),ac=expected.optInt("effective_ac");
+            EquippedWeaponAttackRules.Dice dice=EquippedWeaponAttackRules.parse(expected.optString("formula"));
+            boolean hit=PartyAttackCausalReceiptGuard.hit(natural,bonus,ac);
+            if(natural<1||natural>20||dice==null||
+                !dice.acceptsTotal(damage,hit,natural==20))
+                return new JSONObject().put("grid_blocked","opportunity_roll_invalid");
+        }
+        for(int i=0;i<opportunities.length();i++){
+            JSONObject expected=opportunities.optJSONObject(i),choice=reactionChoices.optJSONObject(i);
+            if(!"attack".equals(choice.optString("decision")))continue;
+            long reactorId=expected.optLong("reactor_id");String stepToken=token+"-oa"+i;
+            JSONObject reactorPosition=tacticalGridPosition(reactorId);
+            if(reactorPosition.has("grid_blocked"))throw new IllegalStateException("opportunity_position_rollback");
+            OpportunityAttackRules.Context context=new OpportunityAttackRules.Context(reactorId,actorId,
+                new OpportunityAttackRules.Position(reactorPosition.optInt("cell_x"),reactorPosition.optInt("cell_y"),0,1),
+                new OpportunityAttackRules.Position(plan.optInt("from_x"),plan.optInt("from_y"),0,1),
+                new OpportunityAttackRules.Position(destX,destY,0,1),expected.optInt("reach_ft"),
+                true,true,true,true,false,false);
+            if(!OpportunityAttackRules.evaluate(context).triggered())
+                throw new IllegalStateException("opportunity_trigger_changed_rollback");
+            JSONObject spent=spendCombatantTurnResource(reactorId,"reaction",stepToken+"-reaction");
+            if(spent.length()==0||spent.has("resource_blocked")||spent.has("operation_error")||
+                spent.has("operation_blocked")||spent.optBoolean("operation_replayed",false))
+                throw new IllegalStateException("opportunity_reaction_spend_rollback");
+            int natural=choice.optInt("natural"),bonus=expected.optInt("bonus"),
+                ac=expected.optInt("effective_ac"),damage=choice.optInt("damage");
+            boolean hit=PartyAttackCausalReceiptGuard.hit(natural,bonus,ac);
+            String proof=OpportunityAttackRules.receiptSource(token,context,expected.optInt("step_index"));
+            if(!OpportunityAttackRules.validReceipt(proof))throw new IllegalStateException("opportunity_proof_rollback");
+            recordEffectReceipt(combatReceiptKey(reactorId,stepToken+"-proof"),proof);
+            recordEffectReceipt(combatReceiptKey(reactorId,stepToken+"-weapon"),
+                EquippedWeaponAttackRules.receiptSource(expected.optString("weapon_id"),bonus,
+                    expected.optString("formula"),expected.optString("damage_type")));
+            if(hit){
+                JSONObject damaged=applyCombatantDamage(actorId,damage,expected.optString("damage_type"),
+                    natural==20,false,stepToken+"-damage");
+                if(damaged.length()==0||damaged.has("operation_error")||damaged.has("operation_blocked")||
+                    damaged.optBoolean("operation_replayed",false)||!damaged.has("raw_damage"))
+                    throw new IllegalStateException("opportunity_damage_rollback");
+            }
+            if(getCombatant(actorId).optInt("hp",0)<=0)
+                return new JSONObject().put("opportunity_stopped",true)
+                    .put("opportunity_attacks_resolved",i+1).put("grid_movement_committed",false);
+        }
+        int cost=plan.optInt("movement_cost_ft",0);
+        JSONObject moved=moveCombatant(actorId,cost,token+"-movement");
+        if(moved.length()==0||moved.has("operation_error")||moved.has("operation_blocked")||
+           moved.has("movement_blocked")||moved.optBoolean("operation_replayed",false))
+            return new JSONObject().put("grid_blocked",moved.optString("movement_blocked",
+                moved.optString("operation_blocked",moved.optString("operation_error","move_blocked"))));
+        ContentValues pos=new ContentValues();pos.put("x",(destX+0.5)/(double)plan.optInt("width_cells"));
+        pos.put("y",(destY+0.5)/(double)plan.optInt("height_cells"));
+        pos.put("updated_at",System.currentTimeMillis());
+        int updated=getWritableDatabase().update("tactical_tokens",pos,
+            "world_profile=? AND combatant_id=?",new String[]{getActiveMapProfile(),String.valueOf(actorId)});
+        if(updated!=1)throw new IllegalStateException("grid_position_write_failed_rollback");
+        // Use the actual plan from SQLite, not supplied distance or client supplied budget.
+        String posSource="gridpos-v1:"+Integer.toHexString(plan.optString("scene_key").hashCode())+":"+
+            plan.optString("grid_fingerprint")+":"+plan.optInt("from_x")+":"+plan.optInt("from_y")+":"+
+            destX+":"+destY+":"+cost;
+        if(!TacticalGridMovementRouteRules.validReceipt(posSource,cost))
+            throw new IllegalStateException("invalid_position_proof_rollback");
+        ContentValues receipt=new ContentValues();receipt.put("world_profile",getActiveMapProfile());
+        receipt.put("effect_key",combatReceiptKey(actorId,token+"-position"));
+        receipt.put("source",posSource);receipt.put("applied_at",System.currentTimeMillis());
+        getWritableDatabase().insertOrThrow("effect_receipts",null,receipt);
+        return moved.put("grid_movement_committed",true).put("opportunity_attacks_resolved",opportunities.length())
+            .put("movement_feet",cost)
+            .put("grid_destination_x",destX).put("grid_destination_y",destY);
+    }
+    public JSONObject moveCombatantToGridCell(final long actorId,final int destX,final int destY,
+        final boolean difficult,final boolean crawling,final String fingerprint,final String token){
+        return moveCombatantToGridCell(actorId,destX,destY,difficult,crawling,fingerprint,token,new JSONArray());
+    }
+    public JSONObject moveCombatantToGridCell(final long actorId,final int destX,final int destY,
+        final boolean difficult,final boolean crawling,final String fingerprint,final String token,
+        final JSONArray reactionChoices){
+        return combatAtomic("tactical_grid_movement",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            return commitTacticalGridMovement(actorId,destX,destY,difficult,crawling,fingerprint,token,reactionChoices);
+        }});
+    }
+    public JSONObject applyTacticalGridMovementForPartyAction(final long actionId,final long actorId,
+        final int destX,final int destY,final boolean difficult,final boolean crawling,
+        final String expectedFingerprint,final String token){
+        return applyTacticalGridMovementForPartyAction(actionId,actorId,destX,destY,difficult,
+            crawling,expectedFingerprint,token,new JSONArray());
+    }
+    public JSONObject applyTacticalGridMovementForPartyAction(final long actionId,final long actorId,
+        final int destX,final int destY,final boolean difficult,final boolean crawling,
+        final String expectedFingerprint,final String token,final JSONArray reactionChoices){
+        return combatAtomic("party_grid_movement",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject action=queryOne("SELECT * FROM party_action_queue WHERE world_profile=? AND id=?",
+                new String[]{getActiveMapProfile(),String.valueOf(actionId)});
+            JSONObject actor=getCombatant(actorId);
+            JSONObject preview=previewTacticalGridMovement(actorId,destX,destY,difficult,crawling);
+            if(!preview.optBoolean("grid_valid",false))return preview;
+            int feet=preview.optInt("movement_cost_ft",0);
+            String blocked=PartyMovementCausalReceiptGuard.bindingBlock(actionId,
+                action.optLong("character_id",0),action.optString("status"),action.optString("intent_type"),
+                actorId,actor.optLong("source_id",0),actor.optInt("is_player",0)==1&&
+                "character".equals(actor.optString("source_kind")),feet,false,token);
+            if(!blocked.isEmpty())return new JSONObject().put("party_movement_blocked",blocked);
+            String key=PartyMovementCausalReceiptGuard.key(actionId,actorId,token);
+            if(hasEffectReceipt(key))return new JSONObject().put("party_movement_blocked","already_resolved_or_replayed");
+            JSONObject moved=commitTacticalGridMovement(actorId,destX,destY,difficult,crawling,
+                expectedFingerprint,token,reactionChoices);
+            if(!moved.optBoolean("grid_movement_committed",false))return moved;
+            ContentValues receipt=new ContentValues();receipt.put("world_profile",getActiveMapProfile());
+            receipt.put("effect_key",key);
+            receipt.put("source",PartyMovementCausalReceiptGuard.source(action.optLong("character_id"),actorId,false,feet));
+            receipt.put("applied_at",Math.max(System.currentTimeMillis(),action.optLong("created_at",0)+1));
+            getWritableDatabase().insertOrThrow("effect_receipts",null,receipt);
+            if(!finalizePartyAction(actionId,"resolved",key,
+                "Deslocamento, token, orçamento e declaração confirmados na mesma transação."))
+                throw new IllegalStateException("grid_party_resolution_failed_rollback");
+            return moved.put("party_action_resolved",true).put("party_action_id",actionId)
+                .put("party_action_receipt",key);
+        }});
+    }
+
+    /** RUN205: movement, or standing up, consumes the actual movement budget atomically
+     * with the declaration and a durable, actor-bound, replay-proof receipt. */
+    public JSONObject applyMovementForPartyAction(final long actionId,final long actorId,
+        final int feet,final boolean standing,final String operationToken){
+        return combatAtomic("party_movement",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject action=queryOne("SELECT * FROM party_action_queue WHERE world_profile=? AND id=?",
+                new String[]{getActiveMapProfile(),String.valueOf(actionId)});
+            JSONObject actor=getCombatant(actorId);
+            String blocked=PartyMovementCausalReceiptGuard.bindingBlock(actionId,
+                action.optLong("character_id",0),action.optString("status"),action.optString("intent_type"),
+                actorId,actor.optLong("source_id",0),actor.optInt("is_player",0)==1&&
+                "character".equals(actor.optString("source_kind")),feet,standing,operationToken);
+            if(!blocked.isEmpty())return new JSONObject().put("party_movement_blocked",blocked);
+            String receiptKey=PartyMovementCausalReceiptGuard.key(actionId,actorId,operationToken);
+            if(hasEffectReceipt(receiptKey))return new JSONObject().put("party_movement_blocked","already_resolved_or_replayed");
+            JSONObject result=standing?
+                standCombatantFromProne(actorId,operationToken+"-stand"):
+                moveCombatant(actorId,feet,operationToken+"-movement");
+            if(result.length()==0||result.has("operation_error")||result.has("operation_blocked")||
+                result.has("movement_blocked")||result.has("stand_blocked")||
+                result.optBoolean("operation_replayed",false))
+                return new JSONObject().put("party_movement_blocked",
+                    result.optString("movement_blocked",result.optString("stand_blocked",
+                    result.optString("operation_blocked",result.optString("operation_error","movement_not_committed")))));
+            ContentValues receipt=new ContentValues();receipt.put("world_profile",getActiveMapProfile());
+            receipt.put("effect_key",receiptKey);
+            receipt.put("source",PartyMovementCausalReceiptGuard.source(action.optLong("character_id"),actorId,standing,feet));
+            receipt.put("applied_at",Math.max(System.currentTimeMillis(),action.optLong("created_at")+1));
+            getWritableDatabase().insertOrThrow("effect_receipts",null,receipt);
+            if(!finalizePartyAction(actionId,"resolved",receiptKey,
+                standing?"Levantou-se e consumiu metade do deslocamento da rodada.":
+                    "Deslocamento tático executado e debitado no orçamento da rodada."))
+                throw new IllegalStateException("party_movement_receipt_link_failed_rollback");
+            return result.put("party_action_resolved",true).put("party_action_id",actionId)
+                .put("party_action_receipt",receiptKey).put("movement_feet",feet)
+                .put("movement_standing",standing);
+        }});
+    }
+    /** Verify actual movement ledger, actor ownership, same world and causal timestamp. */
+    private boolean partyActionMovementProofPresent(JSONObject row,PartyMovementCausalReceiptGuard.Proof proof){
+        JSONObject actor=getCombatant(proof.actorId);
+        if(actor.length()==0||actor.optInt("is_player",0)!=1||
+            !"character".equals(actor.optString("source_kind"))||
+            actor.optLong("source_id",0)!=proof.characterId||
+            row.optLong("character_id",0)!=proof.characterId)return false;
+        String signature="stand".equals(proof.kind)?"stand":"move:"+proof.feet;
+        String suffix="stand".equals(proof.kind)?"-stand":"-movement";
+        JSONObject executed=queryOne("SELECT source,applied_at FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+            new String[]{getActiveMapProfile(),combatReceiptKey(proof.actorId,proof.token+suffix)});
+        if(!signature.equals(executed.optString("source"))||
+            executed.optLong("applied_at",0)<row.optLong("created_at",0))return false;
+        if(proof.token.startsWith("ui-grid-")){
+            JSONObject position=queryOne("SELECT source,applied_at FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{getActiveMapProfile(),combatReceiptKey(proof.actorId,proof.token+"-position")});
+            return TacticalGridMovementRouteRules.validReceipt(position.optString("source"),proof.feet)&&
+                position.optLong("applied_at",0)>=row.optLong("created_at",0);
+        }
+        return true;
+    }
+    /** After BACKUP21 remapping, missing movement positions are never treated as executed. */
+    private void reconcileRestoredPartyGridProofs(SQLiteDatabase sql,String profile){
+        for(JSONObject row:queryList("SELECT * FROM party_action_queue WHERE world_profile=? " +
+            "AND status='resolved' AND resolution_receipt LIKE 'party-movement-v1:%'",
+            new String[]{profile})){
+            long id=row.optLong("id",0);String key=row.optString("resolution_receipt");
+            JSONObject receipt=queryOne("SELECT source FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{profile,key});
+            PartyMovementCausalReceiptGuard.Proof proof=PartyMovementCausalReceiptGuard.proof(
+                id,row.optLong("character_id",0),key,receipt.optString("source"));
+            if(proof!=null&&partyActionMovementProofPresent(row,proof))continue;
+            ContentValues review=new ContentValues();review.put("status","narrated");
+            review.put("resolution_kind","restore_pending_review");
+            review.put("resolution_note","Prova de movimento incompleta após backup: revisão obrigatória.");
+            review.put("resolution_receipt","");review.put("resolved_at",0);
+            if(sql.update("party_action_queue",review,"world_profile=? AND id=?",
+                new String[]{profile,String.valueOf(id)})!=1)
+                throw new IllegalStateException("restored_grid_review_write_failed");
+        }
+    }
+    /** Fail closed on old backups with missing target/turn/damage receipts. */
+    private void reconcileRestoredPartyAttackProofs(SQLiteDatabase sql,String profile){
+        for(JSONObject row:queryList("SELECT * FROM party_action_queue WHERE world_profile=? " +
+            "AND status='resolved' AND resolution_receipt LIKE 'party-attack-v1:%'",
+            new String[]{profile})){
+            long id=row.optLong("id",0);String key=row.optString("resolution_receipt");
+            JSONObject receipt=queryOne("SELECT source FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{profile,key});
+            PartyAttackCausalReceiptGuard.Proof proof=PartyAttackCausalReceiptGuard.proof(
+                id,row.optLong("character_id",0),key,receipt.optString("source"));
+            if(proof!=null&&partyActionAttackProofPresent(row,proof))continue;
+            ContentValues review=new ContentValues();review.put("status","narrated");
+            review.put("resolution_kind","restore_pending_review");
+            review.put("resolution_note","Prova de ataque incompleta após restaurar: exige nova revisão.");
+            review.put("resolution_receipt","");review.put("resolved_at",0);
+            if(sql.update("party_action_queue",review,"world_profile=? AND id=?",
+                new String[]{profile,String.valueOf(id)})!=1)
+                throw new IllegalStateException("restored_attack_review_write_failed");
+        }
+    }
+    /** RUN206: prove roll, turn expenditure AND target damage receipt (when hit). */
+    private boolean partyActionAttackProofPresent(JSONObject row,PartyAttackCausalReceiptGuard.Proof proof){
+        JSONObject actor=getCombatant(proof.actorId);
+        if(actor.length()==0||actor.optInt("is_player",0)!=1||
+            !"character".equals(actor.optString("source_kind"))||
+            actor.optLong("source_id",0)!=proof.characterId||
+            row.optLong("character_id",0)!=proof.characterId)return false;
+        JSONObject target=getCombatant(proof.targetId);
+        if(target.length()==0)return false;
+        JSONObject turn=queryOne("SELECT source,applied_at FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+            new String[]{getActiveMapProfile(),combatReceiptKey(proof.actorId,proof.token+"-turn")});
+        if(!"spend:action".equals(turn.optString("source"))||
+            turn.optLong("applied_at",0)<row.optLong("created_at",0))return false;
+        if(proof.token.startsWith("ui-weapon-")||proof.token.startsWith("ui-weapon2-")){
+            JSONObject weapon=queryOne("SELECT source,applied_at FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{getActiveMapProfile(),combatReceiptKey(proof.actorId,proof.token+"-weapon")});
+            if(!EquippedWeaponAttackRules.validReceipt(weapon.optString("source"))||
+                weapon.optLong("applied_at",0)<row.optLong("created_at",0))return false;
+        }
+        if(proof.token.startsWith("ui-weapon2-")){
+            JSONObject geometry=queryOne("SELECT source,applied_at FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{getActiveMapProfile(),combatReceiptKey(proof.actorId,proof.token+"-geometry")});
+            if(!TacticalAttackGeometryRules.validReceipt(geometry.optString("source"))||
+                geometry.optLong("applied_at",0)<row.optLong("created_at",0))return false;
+        }
+        JSONObject damage=queryOne("SELECT source,applied_at FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+            new String[]{getActiveMapProfile(),combatReceiptKey(proof.targetId,proof.token+"-damage")});
+        if(!proof.hit)return damage.length()==0;
+        String signature="damage:"+proof.damage+":"+proof.type+":"+proof.critical+":false";
+        return signature.equals(damage.optString("source"))&&
+            damage.optLong("applied_at",0)>=row.optLong("created_at",0);
+    }
+    /** Atomic weapon attack: natural 1 misses, natural 20 hits/criticals, cover and
+     * current CA are resolved live; a miss still spends the Attack action.
+     * Damage is the rolled TOTAL, including any critical extra damage dice.
+     * Extra Attack and feature-specific attacks must use a separate executor. */
+    /** Legacy manual-only entrypoint: disabled. Use the equipped weapon overload. */
+    @Deprecated
+    public JSONObject applySingleWeaponAttackForPartyAction(final long actionId,final long actorId,
+        final long targetId,final int natural,final int attackBonus,final int rolledDamage,
+        final String damageType,final String token){
+        JSONObject blocked=new JSONObject();
+        try{return blocked.put("party_attack_blocked","equipped_weapon_required");}catch(Exception e){return blocked;}
+    }
+    public JSONObject applySingleWeaponAttackForPartyAction(final long actionId,final long actorId,
+        final long targetId,final int natural,final int attackBonus,final int rolledDamage,
+        final String damageType,final String token,final String weaponItemId,final String damageFormula,
+        final int expectedAc,final String expectedGeometryFingerprint,final String rollMode){
+        return combatAtomic("party_single_weapon_attack",new CombatAtomicWork(){
+            public JSONObject run()throws Exception{
+                JSONObject action=queryOne("SELECT * FROM party_action_queue WHERE world_profile=? AND id=?",
+                    new String[]{getActiveMapProfile(),String.valueOf(actionId)});
+                JSONObject actor=getCombatant(actorId),target=getCombatant(targetId);
+                if(target.length()==0)return new JSONObject().put("party_attack_blocked","target_not_found");
+                if(combatantHasTotalCover(targetId))return new JSONObject().put("party_attack_blocked","total_cover");
+                JSONObject geometry=previewTacticalWeaponAttack(actorId,targetId,weaponItemId);
+                if(!geometry.optBoolean("attack_geometry_valid",false))
+                    return new JSONObject().put("party_attack_blocked",geometry.optString("attack_geometry_blocked","geometry_unavailable"));
+                if(expectedGeometryFingerprint==null||!expectedGeometryFingerprint.equals(geometry.optString("attack_geometry_fingerprint")))
+                    return new JSONObject().put("party_attack_blocked","geometry_changed_reroll");
+                if(!("Normal".equals(rollMode)||"Vantagem".equals(rollMode)||"Desvantagem".equals(rollMode))||
+                    (geometry.optBoolean("long_range_disadvantage",false)&&!"Desvantagem".equals(rollMode)))
+                    return new JSONObject().put("party_attack_blocked","long_range_disadvantage_required");
+                int ac=geometry.optInt("effective_ac",-999);
+                if(ac!=expectedAc)return new JSONObject().put("party_attack_blocked","target_ac_or_cover_changed_reroll");
+                String blocked=PartyAttackCausalReceiptGuard.bindingBlock(actionId,
+                    action.optLong("character_id",0),action.optString("status"),action.optString("intent_type"),
+                    actorId,actor.optLong("source_id",0),actor.optInt("is_player",0)==1&&
+                    "character".equals(actor.optString("source_kind")),targetId,natural,attackBonus,ac,
+                    rolledDamage,damageType,token);
+                if(!blocked.isEmpty())return new JSONObject().put("party_attack_blocked",blocked);
+                JSONObject weapon=equippedWeaponProof(action.optLong("character_id",0),weaponItemId,
+                    attackBonus,damageFormula,damageType);
+                EquippedWeaponAttackRules.Dice dice=EquippedWeaponAttackRules.parse(damageFormula);
+                if(weapon.length()==0||dice==null||
+                    !dice.acceptsTotal(rolledDamage,PartyAttackCausalReceiptGuard.hit(natural,attackBonus,ac),natural==20))
+                    return new JSONObject().put("party_attack_blocked","equipped_weapon_or_damage_invalid");
+                if(!token.startsWith("ui-weapon2-"))return new JSONObject().put("party_attack_blocked","weapon_geometry_token_required");
+                if(getCombatState().optInt("running",0)!=1)return new JSONObject().put("party_attack_blocked","encounter_not_running");
+                final String key=PartyAttackCausalReceiptGuard.key(actionId,actorId,targetId,token);
+                if(hasEffectReceipt(key))return new JSONObject().put("party_attack_blocked","already_resolved_or_replayed");
+                JSONObject spent=spendCombatantTurnResource(actorId,"action",token+"-turn");
+                if(spent.length()==0||spent.has("operation_error")||spent.has("operation_blocked")||
+                   spent.has("resource_blocked")||spent.optBoolean("operation_replayed",false))
+                    throw new IllegalStateException("attack_turn_spend_failed_rollback");
+                boolean hit=PartyAttackCausalReceiptGuard.hit(natural,attackBonus,ac);
+                recordEffectReceipt(combatReceiptKey(actorId,token+"-weapon"),
+                    EquippedWeaponAttackRules.receiptSource(weaponItemId,attackBonus,damageFormula,damageType));
+                String geometrySource="attackgeom-v1:"+geometry.optString("attack_geometry_fingerprint")+":"+
+                    geometry.optInt("distance_ft")+":"+geometry.optInt("cover_bonus")+":"+
+                    (geometry.optBoolean("long_range_disadvantage",false)?1:0);
+                if(!TacticalAttackGeometryRules.validReceipt(geometrySource))
+                    throw new IllegalStateException("invalid_attack_geometry_rollback");
+                ContentValues geometryReceipt=new ContentValues();
+                geometryReceipt.put("world_profile",getActiveMapProfile());
+                geometryReceipt.put("effect_key",combatReceiptKey(actorId,token+"-geometry"));
+                geometryReceipt.put("source",geometrySource);
+                geometryReceipt.put("applied_at",Math.max(System.currentTimeMillis(),action.optLong("created_at",0)+1));
+                getWritableDatabase().insertOrThrow("effect_receipts",null,geometryReceipt);
+                JSONObject damageResult=new JSONObject();
+                if(hit){
+                    damageResult=applyCombatantDamage(targetId,rolledDamage,damageType,natural==20,false,token+"-damage");
+                    if(damageResult.length()==0||damageResult.has("operation_error")||
+                       damageResult.has("operation_blocked")||damageResult.optBoolean("operation_replayed",false)||
+                       !damageResult.has("raw_damage"))
+                        throw new IllegalStateException("attack_damage_failed_rollback");
+                }
+                ContentValues receipt=new ContentValues();receipt.put("world_profile",getActiveMapProfile());
+                receipt.put("effect_key",key);
+                receipt.put("source",PartyAttackCausalReceiptGuard.source(action.optLong("character_id"),
+                    actorId,targetId,natural,attackBonus,ac,rolledDamage,damageType));
+                receipt.put("applied_at",Math.max(System.currentTimeMillis(),action.optLong("created_at",0)+1));
+                getWritableDatabase().insertOrThrow("effect_receipts",null,receipt);
+                if(!finalizePartyAction(actionId,"resolved",key,
+                    hit?"Ataque de arma acertou; ação consumida e dano aplicado no alvo.":
+                        "Ataque de arma errou; ação consumida, alvo sem dano."))
+                    throw new IllegalStateException("attack_causal_link_failed_rollback");
+                return new JSONObject().put("party_action_resolved",true).put("party_action_receipt",key)
+                    .put("party_action_id",actionId).put("target_id",targetId).put("attack_roll",natural)
+                    .put("attack_total",natural+attackBonus).put("target_ac",ac).put("attack_hit",hit)
+                    .put("attack_critical",natural==20).put("damage_result",damageResult)
+                    .put("distance_ft",geometry.optInt("distance_ft"))
+                    .put("cover_bonus",geometry.optInt("cover_bonus"));
+            }
+        });
+    }
+    /** Read-only preview for an off-hand Light attack after a verified single
+     * Attack action in this very turn. No extra Attack action is inferred. */
+    public JSONObject previewTwoWeaponAttack(long actionId,long actorId,long targetId,String offItemId){
+        JSONObject out=new JSONObject();
+        try{
+            JSONObject action=queryOne("SELECT * FROM party_action_queue WHERE world_profile=? AND id=?",
+                new String[]{getActiveMapProfile(),String.valueOf(actionId)});
+            JSONObject actor=getCombatant(actorId),target=getCombatant(targetId);
+            if(actor.length()==0||target.length()==0||actorId==targetId||
+                !"resolved".equals(action.optString("status"))||
+                !action.optString("resolution_receipt").startsWith(PartyAttackCausalReceiptGuard.PREFIX))
+                return out.put("two_weapon_blocked","main_attack_not_resolved");
+            long characterId=actor.optLong("source_id",0);
+            if(actor.optInt("is_player",0)!=1||!"character".equals(actor.optString("source_kind"))||
+                characterId<=0||action.optLong("character_id",0)!=characterId)
+                return out.put("two_weapon_blocked","actor_character_mismatch");
+            String key=action.optString("resolution_receipt");
+            JSONObject mainReceipt=queryOne("SELECT source FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{getActiveMapProfile(),key});
+            PartyAttackCausalReceiptGuard.Proof proof=PartyAttackCausalReceiptGuard.proof(actionId,
+                characterId,key,mainReceipt.optString("source"));
+            if(proof==null||proof.actorId!=actorId||!proof.token.startsWith("ui-weapon2-")||
+                !partyActionAttackProofPresent(action,proof))
+                return out.put("two_weapon_blocked","main_attack_proof_missing");
+            JSONObject turn=queryOne("SELECT source,applied_at FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{getActiveMapProfile(),combatReceiptKey(actorId,proof.token+"-turn")});
+            JSONObject resources=combatResources(actor);
+            long started=resources.optLong("turn_started_at",0);
+            if(started<=0||turn.optLong("applied_at",0)<started||
+                getCombatState().optInt("running",0)!=1||actor.optInt("active_turn",0)!=1||
+                resources.optBoolean("action_available",true)||
+                !resources.optBoolean("bonus_action_available",true)||actor.optInt("hp",0)<=0||
+                ConditionRulesEngine.incapacitated(actor.optString("conditions")))
+                return out.put("two_weapon_blocked","attack_or_bonus_not_available_this_turn");
+            JSONObject mainWeaponReceipt=queryOne("SELECT source FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{getActiveMapProfile(),combatReceiptKey(actorId,proof.token+"-weapon")});
+            String[] receipt=mainWeaponReceipt.optString("source").split(":",-1);
+            if(receipt.length!=5||!EquippedWeaponAttackRules.validReceipt(mainWeaponReceipt.optString("source")))
+                return out.put("two_weapon_blocked","main_weapon_proof_missing");
+            String mainItemId=receipt[1];
+            JSONArray weapons=listEquippedWeaponAttackProfiles(characterId);
+            JSONObject main=new JSONObject(),off=new JSONObject();
+            for(int i=0;i<weapons.length();i++){
+                JSONObject item=weapons.optJSONObject(i);if(item==null)continue;
+                if(mainItemId.equals(item.optString("id")))main=item;
+                if(offItemId!=null&&offItemId.equals(item.optString("id")))off=item;
+            }
+            if(main.length()==0||off.length()==0||
+                !mainWeaponReceipt.optString("source").equals(EquippedWeaponAttackRules.receiptSource(
+                    mainItemId,main.optInt("weapon_attack_bonus"),main.optString("weapon_damage_formula"),
+                    main.optString("weapon_damage_type"))))
+                return out.put("two_weapon_blocked","equipped_weapon_changed");
+            TwoWeaponFightingRules.Weapon mainProfile=twoWeaponProfile(main),offProfile=twoWeaponProfile(off);
+            if(mainProfile==null||offProfile==null||mainProfile.hand.equals(offProfile.hand)||
+                mainProfile.itemId.equals(offProfile.itemId))
+                return out.put("two_weapon_blocked","two_light_weapons_in_opposite_hands_required");
+            JSONObject geometry=previewTacticalWeaponAttack(actorId,targetId,offItemId);
+            if(!geometry.optBoolean("attack_geometry_valid",false))
+                return out.put("two_weapon_blocked",geometry.optString("attack_geometry_blocked","geometry_invalid"));
+            JSONObject itemProof=equippedWeaponProof(characterId,offItemId,
+                off.optInt("weapon_attack_bonus",Integer.MIN_VALUE),
+                off.optString("weapon_damage_formula"),off.optString("weapon_damage_type"));
+            if(itemProof.length()==0)return out.put("two_weapon_blocked","off_weapon_not_equipped");
+            return out.put("two_weapon_valid",true).put("main_token",proof.token)
+                .put("main_weapon_id",mainItemId).put("off_weapon_id",offItemId)
+                .put("off_bonus",off.optInt("weapon_attack_bonus"))
+                .put("base_dice",offProfile.baseDice)
+                .put("ability_modifier",off.optInt("two_weapon_ability_modifier"))
+                .put("item_damage_modifier",offProfile.itemDamageModifier)
+                .put("damage_type",offProfile.damageType)
+                .put("edition",new DndRulesEngine().is2024(combatRulesProfile(actor))?"2024":"2014")
+                .put("effective_ac",geometry.optInt("effective_ac"))
+                .put("geometry_fingerprint",geometry.optString("attack_geometry_fingerprint"));
+        }catch(Exception e){try{return out.put("two_weapon_blocked","two_weapon_preview_error");}
+            catch(Exception ignored){return out;}}
+    }
+    /** Atomic bonus-action attack. All state is re-read after the user's dice
+     * review; any write failure rolls back the bonus action and damage. */
+    public JSONObject applyTwoWeaponAttack(final long mainActionId,final long actorId,
+        final long targetId,final String offItemId,final int natural,final int attackBonus,
+        final int diceTotal,final int expectedAc,final String expectedFingerprint,
+        final String rollMode,final String token){
+        return combatAtomic("two_weapon_bonus_attack",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject out=new JSONObject();
+            if(token==null||!token.startsWith("ui-two-")||!CombatActionReceiptGuard.validToken(token))
+                return out.put("two_weapon_blocked","invalid_operation_token");
+            String receiptKey=combatReceiptKey(actorId,token+"-two");
+            if(hasEffectReceipt(receiptKey))return out.put("two_weapon_blocked","already_resolved_or_replayed");
+            JSONObject preview=previewTwoWeaponAttack(mainActionId,actorId,targetId,offItemId);
+            if(!preview.optBoolean("two_weapon_valid",false))return preview;
+            if(preview.optInt("off_bonus",Integer.MIN_VALUE)!=attackBonus||
+                preview.optInt("effective_ac",Integer.MIN_VALUE)!=expectedAc||
+                expectedFingerprint==null||!expectedFingerprint.equals(preview.optString("geometry_fingerprint")))
+                return out.put("two_weapon_blocked","weapon_ac_or_geometry_changed_reroll");
+            if(!("Normal".equals(rollMode)||"Vantagem".equals(rollMode)||"Desvantagem".equals(rollMode)))
+                return out.put("two_weapon_blocked","invalid_roll_mode");
+            JSONObject actor=getCombatant(actorId);long characterId=actor.optLong("source_id",0);
+            JSONArray weapons=listEquippedWeaponAttackProfiles(characterId);
+            TwoWeaponFightingRules.Weapon main=null,off=null;
+            for(int i=0;i<weapons.length();i++){
+                JSONObject item=weapons.optJSONObject(i);if(item==null)continue;
+                if(preview.optString("main_weapon_id").equals(item.optString("id")))main=twoWeaponProfile(item);
+                if(offItemId.equals(item.optString("id")))off=twoWeaponProfile(item);
+            }
+            TwoWeaponFightingRules.Resolution resolved=TwoWeaponFightingRules.resolve(
+                new TwoWeaponFightingRules.Request(actorId,targetId,preview.optString("main_token"),
+                    token,preview.optString("edition"),main,off,true,
+                    combatResources(actor).optBoolean("bonus_action_available",true),
+                    ConditionRulesEngine.incapacitated(actor.optString("conditions")),false,
+                    natural,attackBonus,expectedAc,diceTotal,preview.optInt("ability_modifier")));
+            if(!resolved.valid())return out.put("two_weapon_blocked",resolved.blocked);
+            JSONObject spent=spendCombatantTurnResource(actorId,"bonus_action",token+"-bonus");
+            if(spent.length()==0||spent.has("resource_blocked")||spent.has("operation_error")||
+                spent.has("operation_blocked")||spent.optBoolean("operation_replayed",false))
+                throw new IllegalStateException("two_weapon_bonus_spend_rollback");
+            JSONObject damageResult=new JSONObject();
+            if(resolved.hit){
+                damageResult=applyCombatantDamage(targetId,resolved.damage,off.damageType,
+                    resolved.critical,false,token+"-damage");
+                if(damageResult.length()==0||damageResult.has("operation_error")||
+                    damageResult.has("operation_blocked")||damageResult.optBoolean("operation_replayed",false)||
+                    !damageResult.has("raw_damage"))
+                    throw new IllegalStateException("two_weapon_damage_rollback");
+            }
+            recordEffectReceipt(receiptKey,resolved.receipt);
+            return out.put("two_weapon_committed",true).put("two_weapon_receipt",receiptKey)
+                .put("attack_hit",resolved.hit).put("attack_critical",resolved.critical)
+                .put("raw_damage",resolved.damage).put("damage_result",damageResult);
+        }});
+    }
+    /** RUN210: derive repeated attacks ONLY from confirmed class levels. Multiclass
+     * does not stack thresholds, and no subclass/invocation is guessed. */
+    public int extraAttackCapacity(long characterId){
+        JSONObject ch=getCharacter(characterId);
+        if(ch.length()==0)return 0;
+        JSONObject sheet=readCharacterSheet(ch);
+        JSONArray levels=sheet.optJSONArray("class_levels");
+        if(levels!=null){
+            if(levels.length()==0)return 0;
+            int best=1,total=0;
+            for(int i=0;i<levels.length();i++){
+                JSONObject c=levels.optJSONObject(i);
+                if(c==null||c.optInt("level",0)<1)return 0;
+                total+=c.optInt("level");
+                best=Math.max(best,ExtraAttackActionRules.attacks(c.optString("class_name",c.optString("class","")),c.optInt("level")));
+            }
+            if(total!=ch.optInt("level",total))return 0; // inconsistent multiclass history
+            return best;
+        }
+        if(sheet.optBoolean("multiclass",false)||sheet.optBoolean("multiclass_pending",false))return 0;
+        return ExtraAttackActionRules.attacks(ch.optString("class_name"),ch.optInt("level",0));
+    }
+
+    /** Durable proof for every swing of a single Attack action (not multiple actions). */
+    private boolean partyExtraAttackProofPresent(JSONObject row,ExtraAttackActionRules.Proof proof){
+        JSONObject actor=getCombatant(proof.actor);
+        if(actor.length()==0||actor.optInt("is_player",0)!=1||
+            !"character".equals(actor.optString("source_kind"))||
+            actor.optLong("source_id",0)!=proof.character||row.optLong("character_id",0)!=proof.character)return false;
+        JSONObject turn=queryOne("SELECT source,applied_at FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+            new String[]{getActiveMapProfile(),combatReceiptKey(proof.actor,proof.token+"-turn")});
+        if(!"spend:action".equals(turn.optString("source"))||turn.optLong("applied_at",0)<row.optLong("created_at",0))return false;
+        if(extraAttackCapacity(proof.character)<proof.swings.length)return false;
+        for(int i=0;i<proof.swings.length;i++){
+            ExtraAttackActionRules.Swing s=proof.swings[i];
+            if(getCombatant(s.target).length()==0)return false;
+            String step=proof.token+"-s"+i;
+            JSONObject detail=queryOne("SELECT source FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{getActiveMapProfile(),combatReceiptKey(proof.actor,step+"-proof")});
+            if(!ExtraAttackActionRules.stepMatches(detail.optString("source"),s))return false;
+            JSONObject weapon=queryOne("SELECT source FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{getActiveMapProfile(),combatReceiptKey(proof.actor,step+"-weapon")});
+            JSONObject geom=queryOne("SELECT source FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{getActiveMapProfile(),combatReceiptKey(proof.actor,step+"-geometry")});
+            if(!EquippedWeaponAttackRules.validReceipt(weapon.optString("source"))||
+                !TacticalAttackGeometryRules.validReceipt(geom.optString("source")))return false;
+            JSONObject damage=queryOne("SELECT source FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{getActiveMapProfile(),combatReceiptKey(s.target,step+"-damage")});
+            if(s.hit()){
+                String expected="damage:"+s.damage+":"+s.type+":"+(s.natural==20)+":false";
+                if(!expected.equals(damage.optString("source")))return false;
+            }else if(damage.length()>0)return false;
+        }
+        return true;
+    }
+
+    /** Execute two to four declared weapon attacks as ONE Attack action, fail closed.
+     * Every step can choose a different equipped weapon/target. All changes share
+     * one SQLite transaction; unverified damage totals or stale geometry abort it. */
+    public JSONObject applyExtraWeaponAttacksForPartyAction(final long actionId,final long actorId,
+        final JSONArray rolls,final String token){
+        return combatAtomic("party_extra_weapon_attacks",new CombatAtomicWork(){public JSONObject run()throws Exception{
+            JSONObject action=queryOne("SELECT * FROM party_action_queue WHERE world_profile=? AND id=?",
+                new String[]{getActiveMapProfile(),String.valueOf(actionId)});
+            JSONObject actor=getCombatant(actorId);
+            long charId=action.optLong("character_id",0);
+            int count=rolls==null?0:rolls.length();
+            String blocked=ExtraAttackActionRules.block(action.optString("status"),action.optString("intent_type"),
+                actor.optInt("is_player",0)==1&&"character".equals(actor.optString("source_kind"))&&
+                actor.optLong("source_id",0)==charId,actorId,charId,extraAttackCapacity(charId),count,token);
+            if(!blocked.isEmpty())return new JSONObject().put("extra_attack_blocked",blocked);
+            if(getCombatState().optInt("running",0)!=1)return new JSONObject().put("extra_attack_blocked","encounter_not_running");
+            final String key=ExtraAttackActionRules.key(actionId,actorId,token);
+            if(hasEffectReceipt(key))return new JSONObject().put("extra_attack_blocked","replayed");
+            ExtraAttackActionRules.Swing[] steps=new ExtraAttackActionRules.Swing[count];
+            JSONArray snapshots=new JSONArray();
+            // PREVALIDATION: no resources, HP or receipts may change until ALL
+            // rolls, item profiles, CA and geometry pass the same checks.
+            for(int i=0;i<count;i++){
+                JSONObject roll=rolls.optJSONObject(i);
+                if(roll==null)return new JSONObject().put("extra_attack_blocked","step_missing_"+i);
+                long target=roll.optLong("target_id",0);
+                int natural=roll.optInt("natural",0),bonus=roll.optInt("bonus",-999),damage=roll.optInt("damage",-1);
+                String type=roll.optString("damage_type",""),item=roll.optString("weapon_id",""),formula=roll.optString("formula","");
+                if(target==actorId||getCombatant(target).length()==0)return new JSONObject().put("extra_attack_blocked","target_missing_"+i);
+                JSONObject weapon=equippedWeaponProof(charId,item,bonus,formula,type);
+                JSONObject geom=previewTacticalWeaponAttack(actorId,target,item);
+                if(weapon.length()==0||!geom.optBoolean("attack_geometry_valid",false))
+                    return new JSONObject().put("extra_attack_blocked","weapon_or_geometry_"+i);
+                int ac=geom.optInt("effective_ac",-999);
+                if(ac!=roll.optInt("expected_ac",-888)||
+                    !geom.optString("attack_geometry_fingerprint").equals(roll.optString("fingerprint")))
+                    return new JSONObject().put("extra_attack_blocked","geometry_changed_reroll_"+i);
+                String mode=roll.optString("roll_mode","");
+                if(!("Normal".equals(mode)||"Vantagem".equals(mode)||"Desvantagem".equals(mode))||
+                    (geom.optBoolean("long_range_disadvantage",false)&&!"Desvantagem".equals(mode)))
+                    return new JSONObject().put("extra_attack_blocked","disadvantage_required_"+i);
+                EquippedWeaponAttackRules.Dice dice=EquippedWeaponAttackRules.parse(formula);
+                boolean hit=PartyAttackCausalReceiptGuard.hit(natural,bonus,ac);
+                if(dice==null||!dice.acceptsTotal(damage,hit,natural==20))
+                    return new JSONObject().put("extra_attack_blocked","damage_not_proven_"+i);
+                try{steps[i]=new ExtraAttackActionRules.Swing(target,natural,bonus,ac,damage,type);}
+                catch(IllegalArgumentException invalid){return new JSONObject().put("extra_attack_blocked","roll_invalid_"+i);}
+                snapshots.put(geom);
+            }
+            JSONObject spent=spendCombatantTurnResource(actorId,"action",token+"-turn");
+            if(spent.length()==0||spent.has("operation_error")||spent.has("resource_blocked")||
+                spent.optBoolean("operation_replayed",false))throw new IllegalStateException("extra_turn_spend_rollback");
+            JSONArray outcomes=new JSONArray();
+            for(int i=0;i<count;i++){
+                JSONObject roll=rolls.getJSONObject(i),geom=snapshots.getJSONObject(i);
+                ExtraAttackActionRules.Swing s=steps[i];String step=token+"-s"+i;
+                recordEffectReceipt(combatReceiptKey(actorId,step+"-weapon"),
+                    EquippedWeaponAttackRules.receiptSource(roll.optString("weapon_id"),s.bonus,roll.optString("formula"),s.type));
+                String gs="attackgeom-v1:"+geom.optString("attack_geometry_fingerprint")+":"+
+                    geom.optInt("distance_ft")+":"+geom.optInt("cover_bonus")+":"+
+                    (geom.optBoolean("long_range_disadvantage",false)?1:0);
+                if(!TacticalAttackGeometryRules.validReceipt(gs))throw new IllegalStateException("extra_geometry_receipt_rollback");
+                ContentValues gr=new ContentValues();gr.put("world_profile",getActiveMapProfile());
+                gr.put("effect_key",combatReceiptKey(actorId,step+"-geometry"));gr.put("source",gs);
+                gr.put("applied_at",Math.max(System.currentTimeMillis(),action.optLong("created_at",0)+1));
+                getWritableDatabase().insertOrThrow("effect_receipts",null,gr);
+                JSONObject damageOut=new JSONObject();
+                if(s.hit()){
+                    damageOut=applyCombatantDamage(s.target,s.damage,s.type,s.natural==20,false,step+"-damage");
+                    if(damageOut.length()==0||damageOut.has("operation_error")||damageOut.has("operation_blocked")||
+                        damageOut.optBoolean("operation_replayed",false)||!damageOut.has("raw_damage"))
+                        throw new IllegalStateException("extra_damage_rollback_"+i);
+                }
+                ContentValues proof=new ContentValues();proof.put("world_profile",getActiveMapProfile());
+                proof.put("effect_key",combatReceiptKey(actorId,step+"-proof"));
+                proof.put("source",ExtraAttackActionRules.stepProof(s));
+                proof.put("applied_at",Math.max(System.currentTimeMillis(),action.optLong("created_at",0)+1));
+                getWritableDatabase().insertOrThrow("effect_receipts",null,proof);
+                outcomes.put(new JSONObject().put("target_id",s.target).put("natural",s.natural)
+                    .put("hit",s.hit()).put("damage",s.hit()?s.damage:0).put("critical",s.natural==20));
+            }
+            ContentValues receipt=new ContentValues();receipt.put("world_profile",getActiveMapProfile());
+            receipt.put("effect_key",key);receipt.put("source",ExtraAttackActionRules.source(charId,actorId,steps));
+            receipt.put("applied_at",Math.max(System.currentTimeMillis(),action.optLong("created_at",0)+1));
+            getWritableDatabase().insertOrThrow("effect_receipts",null,receipt);
+            if(!finalizePartyAction(actionId,"resolved",key,
+                "Ataque Extra: "+count+" ataques; uma Ação Atacar consumida; consequências persistidas."))
+                throw new IllegalStateException("extra_action_resolution_rollback");
+            return new JSONObject().put("party_action_resolved",true).put("party_action_receipt",key)
+                .put("attacks_executed",count).put("outcomes",outcomes);
+        }});
+    }
+
+    private void reconcileRestoredPartyExtraProofs(SQLiteDatabase sql,String profile){
+        for(JSONObject row:queryList("SELECT * FROM party_action_queue WHERE world_profile=? "+
+            "AND status='resolved' AND resolution_receipt LIKE 'party-extra-v1:%'",new String[]{profile})){
+            long id=row.optLong("id",0);String key=row.optString("resolution_receipt");
+            JSONObject receipt=queryOne("SELECT source FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{profile,key});
+            ExtraAttackActionRules.Proof proof=ExtraAttackActionRules.proof(id,row.optLong("character_id",0),
+                key,receipt.optString("source"));
+            if(proof!=null&&partyExtraAttackProofPresent(row,proof))continue;
+            ContentValues review=new ContentValues();review.put("status","narrated");
+            review.put("resolution_kind","restore_pending_review");
+            review.put("resolution_note","Ataque Extra restaurado sem prova integral; requer revisão.");
+            review.put("resolution_receipt","");review.put("resolved_at",0);
+            if(sql.update("party_action_queue",review,"id=? AND world_profile=?",
+                new String[]{String.valueOf(id),profile})!=1)throw new IllegalStateException("restore_extra_review_failed");
+        }
+    }
+
+    /** Atomic, fail-closed confirmation; a narration never changes inventory, HP or actions. */
+    public synchronized boolean finalizePartyAction(long id,String decision,String receiptKey,String note){
+        if(id<=0)return false;String safe=decision==null?"":decision.trim();String key=receiptKey==null?"":receiptKey.trim();String why=note==null?"":note.trim();
+        SQLiteDatabase sql=getWritableDatabase();ensurePartyActionResolutionColumns(sql);
+        boolean owner=!sql.inTransaction();if(owner)sql.beginTransaction();
+        try{
+            JSONObject row=queryOne("SELECT * FROM party_action_queue WHERE id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});
+            if(row.length()==0||!PartyActionResolutionGuard.transitionAllowed(row.optString("status"),safe))return false;
+            if("resolved".equals(safe)){
+                JSONObject receipt=queryOne("SELECT * FROM effect_receipts WHERE world_profile=? AND effect_key=?",new String[]{getActiveMapProfile(),key});
+                if(!PartyActionResolutionGuard.receiptAllowed(key,receipt.optString("source"),receipt.optLong("applied_at"),row.optLong("created_at"),receipt.length()>0))return false;
+                if(key.startsWith(PartyMovementCausalReceiptGuard.PREFIX)){
+                    PartyMovementCausalReceiptGuard.Proof movement=PartyMovementCausalReceiptGuard.proof(
+                        id,row.optLong("character_id",0),key,receipt.optString("source"));
+                    if(movement==null||!partyActionMovementProofPresent(row,movement))return false;
+                 }else if(key.startsWith(PartyAttackCausalReceiptGuard.PREFIX)){
+                    PartyAttackCausalReceiptGuard.Proof attack=PartyAttackCausalReceiptGuard.proof(
+                        id,row.optLong("character_id",0),key,receipt.optString("source"));
+                    if(attack==null||!partyActionAttackProofPresent(row,attack))return false;
+                }else if(key.startsWith(ExtraAttackActionRules.PREFIX)){
+                    ExtraAttackActionRules.Proof multi=ExtraAttackActionRules.proof(
+                        id,row.optLong("character_id",0),key,receipt.optString("source"));
+                    if(multi==null||!partyExtraAttackProofPresent(row,multi))return false;
+                }else{
+                    PartyActionCausalReceiptGuard.Proof proof=PartyActionCausalReceiptGuard.proof(
+                        id,row.optLong("character_id",0),key,receipt.optString("source"));
+                    if(proof==null||!partyActionCombatProofPresent(sql,row,proof))return false;
+                }
+                JSONObject duplicate=queryOne("SELECT id FROM party_action_queue WHERE world_profile=? AND resolution_receipt=? AND id<>?",new String[]{getActiveMapProfile(),key,String.valueOf(id)});
+                if(duplicate.length()>0)return false;
+            }else if("narrative_only".equals(safe)){
+                if(!PartyActionResolutionGuard.narrativeOnlyAllowed(row.optString("intent_type"),why))return false;
+            }else if("cancelled".equals(safe)){
+                if(!PartyActionResolutionGuard.dismissalAllowed(why))return false;
+            }
+            ContentValues v=new ContentValues();v.put("status","retry".equals(safe)?"queued":("narrative_only".equals(safe)?"resolved":safe));
+            v.put("resolution_kind",safe);v.put("resolution_note",why);v.put("resolution_receipt","resolved".equals(safe)?key:"");
+            v.put("resolved_at","retry".equals(safe)?0:System.currentTimeMillis());
+            if("retry".equals(safe))v.put("narrated_at",0);
+            int updated=sql.update("party_action_queue",v,"id=? AND world_profile=? AND status='narrated'",new String[]{String.valueOf(id),getActiveMapProfile()});
+            if(updated!=1)return false;
+            if(owner)sql.setTransactionSuccessful();return true;
+        }finally{if(owner)sql.endTransaction();}
+    }
+    public JSONObject getCharacterControl(long characterId){JSONObject o=queryOne("SELECT * FROM character_control_profiles WHERE world_profile=? AND character_id=?",new String[]{getActiveMapProfile(),String.valueOf(characterId)});if(o.length()>0)return o;ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("character_id",characterId);v.put("control_mode",getPartyState().optString("default_control_mode","manual"));v.put("tactics_json","{}");getWritableDatabase().insertWithOnConflict("character_control_profiles",null,v,SQLiteDatabase.CONFLICT_IGNORE);return queryOne("SELECT * FROM character_control_profiles WHERE world_profile=? AND character_id=?",new String[]{getActiveMapProfile(),String.valueOf(characterId)});}
+    public void saveCharacterControl(long characterId,String mode,String tacticsJson){ContentValues v=new ContentValues();v.put("control_mode",mode==null?"manual":mode);v.put("tactics_json",validJsonObject(tacticsJson));int changed=getWritableDatabase().update("character_control_profiles",v,"world_profile=? AND character_id=?",new String[]{getActiveMapProfile(),String.valueOf(characterId)});if(changed==0){v.put("world_profile",getActiveMapProfile());v.put("character_id",characterId);getWritableDatabase().insertOrThrow("character_control_profiles",null,v);}}
+    public void saveCharacterArc(long characterId,String personalGoal,String status,String notes,String lastChoice){getCharacterControl(characterId);ContentValues v=new ContentValues();v.put("personal_goal",personalGoal==null?"":personalGoal.trim());v.put("arc_status",status==null?"active":status);v.put("arc_notes",notes==null?"":notes.trim());v.put("last_major_choice",lastChoice==null?"":lastChoice.trim());getWritableDatabase().update("character_control_profiles",v,"world_profile=? AND character_id=?",new String[]{getActiveMapProfile(),String.valueOf(characterId)});}
+    public void updateSpotlight(java.util.Set<Long> mentioned){updateSpotlight(mentioned,null);}
+    /** Atualiza protagonismo apenas para o roster informado; personagens fora da companhia não perdem protagonismo artificialmente. */
+    public void updateSpotlight(java.util.Set<Long> mentioned,java.util.Set<Long> rosterIds){long now=System.currentTimeMillis();for(JSONObject h:listActiveCharacters()){long id=h.optLong("id");if(rosterIds!=null&&!rosterIds.contains(id))continue;JSONObject c=getCharacterControl(id);ContentValues v=new ContentValues();int score=c.optInt("spotlight_score",0);if(mentioned!=null&&mentioned.contains(id)){v.put("spotlight_score",score+1);v.put("last_spotlight_at",now);}else v.put("spotlight_score",Math.max(0,score-1));getWritableDatabase().update("character_control_profiles",v,"world_profile=? AND character_id=?",new String[]{getActiveMapProfile(),String.valueOf(id)});}}
+    public JSONObject lowestSpotlightCharacter(){return queryOne("SELECT c.*,COALESCE(p.spotlight_score,0) AS spotlight_score,COALESCE(p.last_spotlight_at,0) AS last_spotlight_at,COALESCE(p.personal_goal,'') AS personal_goal,COALESCE(p.arc_status,'active') AS arc_status,COALESCE(p.arc_notes,'') AS arc_notes,COALESCE(p.last_major_choice,'') AS last_major_choice FROM characters c LEFT JOIN character_control_profiles p ON p.world_profile=c.world_profile AND p.character_id=c.id WHERE c.world_profile=? AND c.active=1 ORDER BY COALESCE(p.last_spotlight_at,0) ASC,COALESCE(p.spotlight_score,0) ASC,c.name LIMIT 1",new String[]{getActiveMapProfile()});}
+    public long addKnowledgeFact(String subject,String content,String truth,String visibility,String knownByJson,String revealCondition,String source){
+        String safeSubject=subject==null?"":subject.trim(),safeContent=content==null?"":content.trim();if(safeContent.length()==0)return -1;String key=Integer.toHexString((safeSubject.toLowerCase(java.util.Locale.ROOT)+"|"+safeContent.toLowerCase(java.util.Locale.ROOT)).hashCode());JSONObject previous=queryOne("SELECT * FROM knowledge_facts WHERE world_profile=? AND fact_key=? LIMIT 1",new String[]{getActiveMapProfile(),key});ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("fact_key",key);v.put("subject",safeSubject);v.put("content",safeContent);v.put("truth_status",truth==null?"verdade":truth);v.put("visibility",visibility==null?"grupo":visibility);v.put("known_by_json",validJsonArray(knownByJson));v.put("reveal_condition",revealCondition==null?"":revealCondition);v.put("source",source==null?"":source);long now=System.currentTimeMillis();v.put("updated_at",now);if(previous.length()>0){getWritableDatabase().update("knowledge_facts",v,"id=? AND world_profile=?",new String[]{String.valueOf(previous.optLong("id")),getActiveMapProfile()});return previous.optLong("id");}v.put("created_at",now);return getWritableDatabase().insert("knowledge_facts",null,v);}
+    public List<JSONObject> listKnowledgeFacts(int limit){return queryList("SELECT * FROM knowledge_facts WHERE world_profile=? ORDER BY updated_at DESC LIMIT "+Math.max(1,Math.min(1000,limit)),new String[]{getActiveMapProfile()});}
+    public void deleteKnowledgeFact(long id){getWritableDatabase().delete("knowledge_facts","id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    public long addQuest(String title,String objective,String stakes,long ownerId){ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("title",title);v.put("objective",objective);v.put("stakes",stakes);v.put("owner_character_id",ownerId);v.put("status","active");v.put("created_at",System.currentTimeMillis());v.put("updated_at",System.currentTimeMillis());return getWritableDatabase().insert("quests",null,v);}
+    public List<JSONObject> listQuests(String status,int limit){String sql="SELECT * FROM quests WHERE world_profile=?";ArrayList<String> a=new ArrayList<String>();a.add(getActiveMapProfile());if(status!=null&&status.length()>0){sql+=" AND status=?";a.add(status);}sql+=" ORDER BY updated_at DESC LIMIT "+Math.max(1,Math.min(1000,limit));return queryList(sql,a.toArray(new String[0]));}
+    public void updateQuestStatus(long id,String status,String stage){ContentValues v=new ContentValues();v.put("status",status);v.put("stage",stage);v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("quests",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    public void deleteQuest(long id){getWritableDatabase().delete("quests","id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    private double currentWorldHourForSimulation(){JSONObject scene=getSceneState();int day=Math.max(1,scene.optInt("day_number",1));double hour=Math.max(0d,scene.optDouble("clock_hour",8d));return (day-1)*24d+hour;}
+
+    public long upsertFaction(String name,String agenda,String resources,int relationship,String plan,String location){JSONObject previous=queryOne("SELECT * FROM factions WHERE world_profile=? AND name=? COLLATE NOCASE LIMIT 1",new String[]{getActiveMapProfile(),name});ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("name",name);v.put("agenda",agenda);v.put("resources",resources);v.put("relationship",Math.max(-100,Math.min(100,relationship)));v.put("current_plan",plan);v.put("location",location);v.put("active",1);if(previous.length()==0)v.put("simulation_cursor_hours",currentWorldHourForSimulation());v.put("updated_at",System.currentTimeMillis());long id=getWritableDatabase().insertWithOnConflict("factions",null,v,SQLiteDatabase.CONFLICT_IGNORE);if(id==-1){getWritableDatabase().update("factions",v,"world_profile=? AND name=? COLLATE NOCASE",new String[]{getActiveMapProfile(),name});JSONObject f=queryOne("SELECT id FROM factions WHERE world_profile=? AND name=? COLLATE NOCASE",new String[]{getActiveMapProfile(),name});return f.optLong("id");}return id;}
+    public List<JSONObject> listFactions(int limit){return queryList("SELECT * FROM factions WHERE world_profile=? AND active=1 ORDER BY updated_at DESC LIMIT "+Math.max(1,Math.min(1000,limit)),new String[]{getActiveMapProfile()});}
+    public List<JSONObject> listFactionsForSimulation(int limit){return queryList("SELECT * FROM factions WHERE world_profile=? AND active=1 ORDER BY CASE WHEN simulation_cursor_hours<0 THEN -1 ELSE simulation_cursor_hours END ASC,updated_at ASC,id ASC LIMIT "+Math.max(1,Math.min(1000,limit)),new String[]{getActiveMapProfile()});}
+    public void deleteFaction(long id){getWritableDatabase().delete("factions","id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    public long addWorldClock(String name,int max,String consequence,boolean automatic){ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("name",name);v.put("current_value",0);v.put("max_value",Math.max(2,max));v.put("consequence",consequence);v.put("automatic",automatic?1:0);v.put("active",1);v.put("updated_at",System.currentTimeMillis());return getWritableDatabase().insert("world_clocks",null,v);}
+    public List<JSONObject> listWorldClocks(boolean activeOnly,int limit){return queryList("SELECT * FROM world_clocks WHERE world_profile=?"+(activeOnly?" AND active=1":"")+" ORDER BY updated_at DESC LIMIT "+Math.max(1,Math.min(1000,limit)),new String[]{getActiveMapProfile()});}
+    public void setWorldClockValue(long id,int value){JSONObject c=queryOne("SELECT * FROM world_clocks WHERE id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});ContentValues v=new ContentValues();v.put("current_value",Math.max(0,Math.min(Math.max(1,c.optInt("max_value",4)),value)));v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("world_clocks",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    public long applyQuestUpdate(JSONObject q){if(q==null)return -1;long id=q.optLong("id",0);JSONObject previous=id>0?queryOne("SELECT * FROM quests WHERE id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}):queryOne("SELECT * FROM quests WHERE world_profile=? AND title=? COLLATE NOCASE LIMIT 1",new String[]{getActiveMapProfile(),q.optString("title").trim()});if(previous.length()>0)id=previous.optLong("id");String title=q.has("title")?q.optString("title").trim():previous.optString("title");if(title.length()==0)return -1;ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("title",title);copyIfPresent(v,q,previous,"status","active");copyIfPresent(v,q,previous,"stage","");copyIfPresent(v,q,previous,"objective","");copyIfPresent(v,q,previous,"stakes","");copyLongIfPresent(v,q,previous,"owner_character_id",0);copyLongIfPresent(v,q,previous,"faction_id",0);copyIfPresent(v,q,previous,"progress_json","{}");v.put("updated_at",System.currentTimeMillis());if(id>0){getWritableDatabase().update("quests",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});return id;}v.put("created_at",System.currentTimeMillis());return getWritableDatabase().insert("quests",null,v);}
+    public long applyFactionUpdate(JSONObject f){if(f==null)return -1;String name=f.optString("name").trim();if(name.length()==0)return -1;JSONObject previous=queryOne("SELECT * FROM factions WHERE world_profile=? AND name=? COLLATE NOCASE LIMIT 1",new String[]{getActiveMapProfile(),name});ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("name",name);copyIfPresent(v,f,previous,"agenda","");copyIfPresent(v,f,previous,"resources","");for(String key:new String[]{"objectives_json","resources_json","territories_json","relations_json","allies_json","enemies_json","information_json","costs_json","risks_json","success_conditions_json","failure_conditions_json","memory_json"})copyIfPresent(v,f,previous,key,key.endsWith("_json")&&("objectives_json".equals(key)||"resources_json".equals(key)||"costs_json".equals(key))?"{}":"[]");int relationship=f.has("relationship")?f.optInt("relationship",previous.optInt("relationship",0)):previous.optInt("relationship",0);v.put("relationship",Math.max(-100,Math.min(100,relationship)));copyIfPresent(v,f,previous,"current_plan","");copyIfPresent(v,f,previous,"location","");copyIfPresent(v,f,previous,"plan_steps_json","[]");v.put("plan_cycle",f.has("plan_cycle")?(f.optBoolean("plan_cycle",true)?1:0):previous.optInt("plan_cycle",1));copyIfPresent(v,f,previous,"last_action_summary","");v.put("plan_progress",Math.max(0,f.has("plan_progress")?f.optInt("plan_progress",previous.optInt("plan_progress",0)):previous.optInt("plan_progress",0)));v.put("plan_interval_hours",Math.max(1d,f.has("plan_interval_hours")?f.optDouble("plan_interval_hours",previous.optDouble("plan_interval_hours",24d)):previous.optDouble("plan_interval_hours",24d)));v.put("plan_progress_hours",Math.max(0d,f.has("plan_progress_hours")?f.optDouble("plan_progress_hours",previous.optDouble("plan_progress_hours",0d)):previous.optDouble("plan_progress_hours",0d)));v.put("active",f.has("active")?(f.optBoolean("active",true)?1:0):previous.optInt("active",1));if(previous.length()==0)v.put("simulation_cursor_hours",currentWorldHourForSimulation());v.put("updated_at",System.currentTimeMillis());long id=getWritableDatabase().insertWithOnConflict("factions",null,v,SQLiteDatabase.CONFLICT_IGNORE);if(id==-1){getWritableDatabase().update("factions",v,"world_profile=? AND name=? COLLATE NOCASE",new String[]{getActiveMapProfile(),name});return previous.optLong("id");}return id;}
+    public long applyWorldClockUpdate(JSONObject c){
+        if(c==null)return -1;long id=c.optLong("id",0);JSONObject previous=id>0?queryOne("SELECT * FROM world_clocks WHERE id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}):queryOne("SELECT * FROM world_clocks WHERE world_profile=? AND name=? COLLATE NOCASE LIMIT 1",new String[]{getActiveMapProfile(),c.optString("name").trim()});if(previous.length()>0)id=previous.optLong("id");String name=c.has("name")?c.optString("name").trim():previous.optString("name");if(name.length()==0)return -1;
+        int max=Math.max(2,c.has("max_value")?c.optInt("max_value",previous.optInt("max_value",4)):previous.optInt("max_value",4));int current=Math.max(0,Math.min(max,c.has("current_value")?c.optInt("current_value",previous.optInt("current_value",0)):previous.optInt("current_value",0)));ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("name",name);v.put("current_value",current);v.put("max_value",max);copyIfPresent(v,c,previous,"consequence","");v.put("automatic",c.has("automatic")?(c.optBoolean("automatic",false)?1:0):previous.optInt("automatic",0));v.put("active",c.has("active")?(c.optBoolean("active",true)?1:0):previous.optInt("active",1));v.put("interval_hours",Math.max(1d,c.has("interval_hours")?c.optDouble("interval_hours",previous.optDouble("interval_hours",6d)):previous.optDouble("interval_hours",6d)));v.put("accumulated_hours",Math.max(0d,c.has("accumulated_hours")?c.optDouble("accumulated_hours",previous.optDouble("accumulated_hours",0d)):previous.optDouble("accumulated_hours",0d)));copyIfPresent(v,c,previous,"trigger_condition","");v.put("faction_id",Math.max(0L,c.has("faction_id")?c.optLong("faction_id",previous.optLong("faction_id",0)):previous.optLong("faction_id",0)));
+        v.put("paused",c.has("paused")?(c.optBoolean("paused",false)?1:0):previous.optInt("paused",0));v.put("rate_multiplier",Math.max(.01d,Math.min(100d,c.has("rate_multiplier")?c.optDouble("rate_multiplier",previous.optDouble("rate_multiplier",1d)):previous.optDouble("rate_multiplier",1d))));int tickDelta=c.has("tick_delta")?c.optInt("tick_delta",previous.optInt("tick_delta",1)):previous.optInt("tick_delta",1);boolean regression=c.has("regression_allowed")?c.optBoolean("regression_allowed",false):previous.optInt("regression_allowed",0)==1;if(tickDelta<0&&!regression)tickDelta=0;v.put("tick_delta",Math.max(-max,Math.min(max,tickDelta)));v.put("regression_allowed",regression?1:0);copyIfPresent(v,c,previous,"owner_entity","");v.put("segments_json",validJsonArray(c.has("segments_json")?c.optString("segments_json","[]"):previous.optString("segments_json","[]")));v.put("updated_at",System.currentTimeMillis());if(id>0){getWritableDatabase().update("world_clocks",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});return id;}return getWritableDatabase().insert("world_clocks",null,v);
+    }
+    private static void copyIfPresent(ContentValues v,JSONObject incoming,JSONObject previous,String key,String fallback){v.put(key,incoming.has(key)?incoming.optString(key,previous.optString(key,fallback)):previous.optString(key,fallback));}
+    private static void copyLongIfPresent(ContentValues v,JSONObject incoming,JSONObject previous,String key,long fallback){v.put(key,incoming.has(key)?incoming.optLong(key,previous.optLong(key,fallback)):previous.optLong(key,fallback));}
+    public void deleteWorldClock(long id){getWritableDatabase().delete("world_clocks","id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    public long addWorldEvent(String title,String description,long dueAt,int dueDay,String consequenceJson){try{return addWorldEventStructured(new JSONObject().put("title",title==null?"":title).put("description",description==null?"":description).put("due_at",dueAt).put("due_day",dueDay).put("consequence_json",new JSONObject(validJsonObject(consequenceJson))));}catch(Exception error){AppLog.w("AppDb","Evento inválido não foi criado.",error);return -1;}}
+    public long addWorldEventStructured(JSONObject event)throws Exception{
+        if(event==null)return -1;String safeTitle=event.optString("title").trim();if(safeTitle.length()==0)return -1;long dueAt=Math.max(0L,event.optLong("due_at",0));int dueDay=Math.max(0,event.optInt("due_day",0));Object rawConsequence=event.opt("consequence_json");String consequence=rawConsequence instanceof JSONObject?rawConsequence.toString():validJsonObject(String.valueOf(rawConsequence==null?"{}":rawConsequence));Object rawTrigger=event.opt("trigger_json");String trigger=rawTrigger instanceof JSONObject?rawTrigger.toString():validJsonObject(String.valueOf(rawTrigger==null||String.valueOf(rawTrigger).trim().length()==0?new JSONObject().put("due_at",dueAt).put("due_day",dueDay):rawTrigger));Object rawProcedure=event.opt("procedure_json");String procedure=rawProcedure instanceof JSONObject?rawProcedure.toString():validJsonObject(String.valueOf(rawProcedure==null?"{}":rawProcedure));JSONObject procedureObject=new JSONObject(procedure);if(procedureObject.length()==0)procedure=new JSONObject().put("executable",false).put("review_required",true).put("reason","Evento sem procedimento executável; consequência mecânica exige revisão.").toString();String identity=getActiveMapProfile()+"|"+safeTitle.toLowerCase(java.util.Locale.ROOT)+"|"+trigger+"|"+procedure+"|"+consequence;String eventKey="event:"+java.util.UUID.nameUUIDFromBytes(identity.getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();String transactionKey="world_event:"+eventKey;JSONObject previous=queryOne("SELECT * FROM world_events WHERE world_profile=? AND event_key=? LIMIT 1",new String[]{getActiveMapProfile(),eventKey});if(previous.length()>0)return previous.optLong("id");ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("event_key",eventKey);v.put("title",safeTitle);v.put("description",event.optString("description"));v.put("due_at",dueAt);v.put("due_day",dueDay);v.put("status","scheduled");v.put("consequence_status","pending");v.put("consequence_json",consequence);v.put("trigger_json",trigger);v.put("procedure_json",procedure);v.put("state_json",new JSONObject().put("state","scheduled").put("created_at",System.currentTimeMillis()).toString());v.put("transaction_key",transactionKey);v.put("created_at",System.currentTimeMillis());return getWritableDatabase().insertOrThrow("world_events",null,v);
+    }
+    public List<JSONObject> listDueWorldEvents(long now,int limit){int day=getSceneState().optInt("day_number",1);return queryList("SELECT * FROM world_events WHERE world_profile=? AND status='scheduled' AND ((due_at>0 AND due_at<=?) OR (due_day>0 AND due_day<=?)) ORDER BY CASE WHEN due_at>0 THEN due_at ELSE due_day END LIMIT "+Math.max(1,Math.min(5000,limit)),new String[]{getActiveMapProfile(),String.valueOf(now),String.valueOf(day)});}
+    public List<JSONObject> listUpcomingWorldEvents(int limit){return queryList("SELECT * FROM world_events WHERE world_profile=? AND status='scheduled' ORDER BY CASE WHEN due_at>0 THEN due_at ELSE 9223372036854775807 END,due_day LIMIT "+Math.max(1,Math.min(1000,limit)),new String[]{getActiveMapProfile()});}
+    public void markWorldEventPendingReview(long eventId,String error){if(eventId<=0)return;JSONObject event=getWorldEvent(eventId);String transactionKey=requiredWorldEventTransactionKey(event,eventId);ContentValues v=new ContentValues();v.put("status","awaiting_review");v.put("consequence_status","pending_review");v.put("last_error",error==null?"":error);v.put("transaction_key",transactionKey);v.put("state_json","{\"state\":\"awaiting_review\"}");getWritableDatabase().update("world_events",v,"id=? AND world_profile=?",new String[]{String.valueOf(eventId),getActiveMapProfile()});}
+    public void resolveWorldEventAfterReview(long eventId,String status,String note){
+        if(eventId<=0)throw new IllegalArgumentException("Evento inválido.");
+        JSONObject event=getWorldEvent(eventId);
+        if(event.length()==0||!"awaiting_review".equalsIgnoreCase(event.optString("status")))throw new IllegalStateException("O evento não está aguardando revisão.");
+        String safe="cancelled".equalsIgnoreCase(status)?"cancelled":"resolved";
+        ContentValues v=new ContentValues();
+        String transactionKey=requiredWorldEventTransactionKey(event,eventId);
+        v.put("status",safe);v.put("consequence_status","resolved".equals(safe)?"applied":"cancelled");if("resolved".equals(safe))v.put("application_receipt",transactionKey);
+        v.put("resolved_at",System.currentTimeMillis());v.put("applied_at",System.currentTimeMillis());v.put("last_error",note==null?"":note);
+        int changed=getWritableDatabase().update("world_events",v,"id=? AND world_profile=? AND status='awaiting_review'",new String[]{String.valueOf(eventId),getActiveMapProfile()});
+        if(changed!=1)throw new IllegalStateException("O evento mudou durante a revisão e não foi encerrado.");
+        JSONObject auditAfter=new JSONObject();
+        try{auditAfter.put("status",safe);auditAfter.put("note",note==null?"":note);}
+        catch(Exception error){throw new IllegalStateException("Falha ao montar auditoria do evento.",error);}
+        addAuditEvent("evento_mundo","Evento encerrado após revisão",event.optString("title")+" • "+safe,event.toString(),auditAfter.toString(),true);
+    }
+        public JSONObject getWorldEvent(long id){return queryOne("SELECT * FROM world_events WHERE id=? AND world_profile=? LIMIT 1",new String[]{String.valueOf(id),getActiveMapProfile()});}
+public List<JSONObject> listWorldEventsForMaster(int limit){return queryList("SELECT * FROM world_events WHERE world_profile=? AND status IN ('scheduled','awaiting_review') ORDER BY CASE status WHEN 'awaiting_review' THEN 0 ELSE 1 END,CASE WHEN due_at>0 THEN due_at ELSE 9223372036854775807 END,due_day LIMIT "+Math.max(1,Math.min(1000,limit)),new String[]{getActiveMapProfile()});}
+    private static String requiredWorldEventTransactionKey(JSONObject event,long eventId){if(event==null||event.length()==0)throw new IllegalStateException("Evento inexistente: "+eventId);String eventKey=event.optString("event_key").trim();if(eventKey.length()==0)throw new IllegalStateException("Evento sem event_key obrigatório: "+eventId);String expected=LegacyWorldEventIdentity.transactionKey(eventKey),stored=event.optString("transaction_key").trim();if(stored.length()>0&&!expected.equals(stored))throw new IllegalStateException("Evento "+eventId+" possui transaction_key divergente.");return expected;}
+    public void markWorldEventConsequence(long eventId,boolean applied,String error){if(eventId<=0)return;JSONObject event=getWorldEvent(eventId);String transactionKey=requiredWorldEventTransactionKey(event,eventId);ContentValues v=new ContentValues();long now=System.currentTimeMillis();v.put("consequence_status",applied?"applied":"failed");v.put("applied_at",applied?now:0);v.put("last_error",error==null?"":error);v.put("state_json","{\"state\":\""+(applied?"resolved":"failed")+"\",\"at\":"+now+"}");if(applied){v.put("status","resolved");v.put("resolved_at",now);v.put("application_receipt",transactionKey);}getWritableDatabase().update("world_events",v,"id=? AND world_profile=?",new String[]{String.valueOf(eventId),getActiveMapProfile()});}
+    public void updateFactionSimulation(long factionId,int progress,double progressHours,int lastActionDay){if(factionId<=0)return;ContentValues v=new ContentValues();v.put("plan_progress",Math.max(0,progress));v.put("plan_progress_hours",Math.max(0d,progressHours));v.put("last_action_day",Math.max(0,lastActionDay));v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("factions",v,"id=? AND world_profile=?",new String[]{String.valueOf(factionId),getActiveMapProfile()});}
+    public void applyFactionSimulationStep(JSONObject action){if(action==null||action.optLong("id",0)<=0)return;ContentValues v=new ContentValues();v.put("plan_progress",Math.max(0,action.optInt("progress_after",0)));v.put("plan_progress_hours",Math.max(0d,action.optDouble("progress_hours_after",0d)));if(action.has("simulation_cursor_hours_after"))v.put("simulation_cursor_hours",Math.max(0d,action.optDouble("simulation_cursor_hours_after",0d)));if(!action.optBoolean("cursor_only",false)){v.put("last_action_day",Math.max(0,action.optInt("day",0)));v.put("last_action_summary",action.optString("summary",""));}if(action.has("location_after"))v.put("location",action.optString("location_after"));if(action.has("resources_after"))v.put("resources",action.optString("resources_after"));if(action.has("agenda_after"))v.put("agenda",action.optString("agenda_after"));if(action.has("current_plan_after"))v.put("current_plan",action.optString("current_plan_after"));if(action.has("plan_steps_json_after"))v.put("plan_steps_json",action.opt("plan_steps_json_after") instanceof JSONArray?action.optJSONArray("plan_steps_json_after").toString():action.optString("plan_steps_json_after","[]"));if(action.has("plan_interval_hours_after"))v.put("plan_interval_hours",Math.max(1d,action.optDouble("plan_interval_hours_after",24d)));if(action.has("plan_cycle_after"))v.put("plan_cycle",action.optInt("plan_cycle_after",0)==1?1:0);if(action.has("relationship_after"))v.put("relationship",Math.max(-100,Math.min(100,action.optInt("relationship_after"))));v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("factions",v,"id=? AND world_profile=?",new String[]{String.valueOf(action.optLong("id")),getActiveMapProfile()});}
+    public void updateWorldClockSimulation(long clockId,int value,double accumulatedHours,int lastAdvancedDay){if(clockId<=0)return;ContentValues v=new ContentValues();v.put("current_value",Math.max(0,value));v.put("accumulated_hours",Math.max(0d,accumulatedHours));v.put("last_advanced_day",Math.max(0,lastAdvancedDay));v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("world_clocks",v,"id=? AND world_profile=?",new String[]{String.valueOf(clockId),getActiveMapProfile()});}
+    public void setWorldClockCompletionReceipt(long clockId,String receipt){if(clockId<=0||receipt==null||receipt.trim().length()==0)return;ContentValues v=new ContentValues();v.put("completion_receipt",receipt.trim());v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("world_clocks",v,"id=? AND world_profile=?",new String[]{String.valueOf(clockId),getActiveMapProfile()});}
+    public void updateLifeActivityResolution(long activityId,String status,String narrative,JSONObject resolution,boolean applied){if(activityId<=0)return;ContentValues v=new ContentValues();v.put("status",status==null?"":status);v.put("narrative_result",narrative==null?"":narrative);v.put("resolution_json",resolution==null?"{}":resolution.toString());v.put("applied_at",applied?System.currentTimeMillis():0);v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("life_activities",v,"id=? AND world_profile=?",new String[]{String.valueOf(activityId),getActiveMapProfile()});}
+    public void updateLifeActivityProgressChecked(long activityId,double progress,double total,String status,String narrative,JSONObject resolution,boolean applied)throws Exception{if(activityId<=0)throw new IllegalArgumentException("Atividade inválida.");double safeTotal=Math.max(1d,total);ContentValues v=new ContentValues();v.put("progress_units",Math.max(0d,Math.min(safeTotal,progress)));v.put("total_units",safeTotal);v.put("status",status==null?"":status);v.put("narrative_result",narrative==null?"":narrative);v.put("resolution_json",resolution==null?"{}":resolution.toString());v.put("applied_at",applied?System.currentTimeMillis():0);v.put("updated_at",System.currentTimeMillis());if(getWritableDatabase().update("life_activities",v,"id=? AND world_profile=?",new String[]{String.valueOf(activityId),getActiveMapProfile()})!=1)throw new IllegalStateException("O progresso da atividade não foi persistido.");}
+    public void applyMapDirectorUpdate(JSONObject update){if(update==null||update.length()==0)return;JSONObject current=getMapState();String currentHex=current.optString("current_hex_id"),destination=current.optString("destination_hex_id"),route=current.optString("route_json","[]"),reveals=current.optString("reveals_json","{}");boolean locked=current.optInt("position_locked",0)==1,overlay=current.optInt("overlay_visible",1)==1;if(update.has("current_hex_id"))currentHex=update.optString("current_hex_id",currentHex);if(update.has("destination_hex_id"))destination=update.optString("destination_hex_id",destination);if(update.has("route_json"))route=validJsonArray(String.valueOf(update.opt("route_json")));if(update.has("reveals_json"))reveals=validJsonObject(String.valueOf(update.opt("reveals_json")));if(update.has("position_locked"))locked=update.optBoolean("position_locked",locked);if(update.has("overlay_visible"))overlay=update.optBoolean("overlay_visible",overlay);saveMapViewExtras(currentHex,overlay,reveals);saveMapTravelState(locked,destination,route,"Mestre confirmado");}
+    public void applyTacticalDirectorUpdate(JSONObject update){if(update==null)return;long combatantId=update.optLong("combatant_id",0);if(combatantId<=0&&update.optString("name").trim().length()>0)combatantId=findCombatantByName(update.optString("name")).optLong("id",0);if(combatantId<=0)return;setTacticalTokenPosition(combatantId,(float)update.optDouble("x",.5d),(float)update.optDouble("y",.5d));}
+
+    // ===== Gravações estritas usadas pelo pipeline transacional do Mestre =====
+    public void saveSceneStateChecked(JSONObject scene)throws Exception{
+        if(scene==null)throw new IllegalArgumentException("Estado de cena ausente.");
+        ContentValues v=new ContentValues();
+        v.put("day_number",Math.max(1,scene.optInt("day_number",1)));v.put("clock_hour",normalizeClockHour(scene.optDouble("clock_hour",clockHourFromLabel(scene.optString("time_of_day","Manhã")))));v.put("location",scene.optString("location"));v.put("hex_id",scene.optString("hex_id"));v.put("time_of_day",scene.optString("time_of_day"));v.put("weather",scene.optString("weather"));v.put("lighting",scene.optString("lighting"));v.put("danger",scene.optString("danger"));v.put("objective",scene.optString("objective"));
+        v.put("present_npcs_json",jsonValue(scene,"present_npcs","present_npcs_json","[]"));v.put("threats_json",jsonValue(scene,"threats","threats_json","[]"));v.put("clues_json",jsonValue(scene,"clues","clues_json","[]"));v.put("pending_consequences_json",jsonValue(scene,"pending_consequences","pending_consequences_json","[]"));v.put("updated_at",System.currentTimeMillis());
+        int changed=getWritableDatabase().update("scene_state_profiles",v,"world_profile=?",new String[]{getActiveMapProfile()});
+        if(changed!=1)throw new IllegalStateException("A cena não pôde ser persistida no perfil ativo.");
+    }
+    public long applyQuestUpdateChecked(JSONObject update)throws Exception{long id=applyQuestUpdate(update);if(id<=0)throw new IllegalStateException("Falha ao persistir missão.");return id;}
+    public long applyFactionUpdateChecked(JSONObject update)throws Exception{long id=applyFactionUpdate(update);if(id<=0)throw new IllegalStateException("Falha ao persistir facção.");return id;}
+    public long applyWorldClockUpdateChecked(JSONObject update)throws Exception{long id=applyWorldClockUpdate(update);if(id<=0)throw new IllegalStateException("Falha ao persistir relógio do mundo.");return id;}
+    public long addWorldEventChecked(String title,String description,long dueAt,int dueDay,String consequenceJson)throws Exception{long id=addWorldEvent(title,description,dueAt,dueDay,consequenceJson);if(id<=0)throw new IllegalStateException("Falha ao persistir evento do mundo.");return id;}
+    public long addWorldEventChecked(JSONObject event)throws Exception{long id=addWorldEventStructured(event);if(id<=0)throw new IllegalStateException("Falha ao persistir evento estruturado do mundo.");return id;}
+    public long addJournalChecked(String title,String body,String kind)throws Exception{long id=addJournal(title,body,kind);if(id<=0)throw new IllegalStateException("Falha ao persistir diário.");return id;}
+    public long addKnowledgeFactChecked(String subject,String content,String truth,String visibility,String knownByJson,String revealCondition,String source)throws Exception{long id=addKnowledgeFact(subject,content,truth,visibility,knownByJson,revealCondition,source);if(id<=0)throw new IllegalStateException("Falha ao persistir conhecimento.");return id;}
+    public void upsertNpcMemoryChecked(JSONObject npc)throws Exception{
+        if(npc==null||npc.optString("name").trim().length()==0)throw new IllegalArgumentException("Memória de NPC sem nome.");
+        upsertNpcMemory(npc);if(findNpcMemoryByName(npc.optString("name")).length()==0)throw new IllegalStateException("Falha ao persistir memória do NPC "+npc.optString("name")+".");ensureNpcPersonalityProvisioned(npc.optString("name"));
+    }
+    public void upsertNpcCognitiveStateChecked(JSONObject state)throws Exception{
+        String name=state==null?"":state.optString("name",state.optString("npc_name","")).trim();if(name.length()==0)throw new IllegalArgumentException("Cognição de NPC sem nome.");
+        ensureNpcPersonalityOnIncoming(state,name);upsertNpcCognitiveState(state);if(getNpcCognitiveState(name).length()==0)throw new IllegalStateException("Falha ao persistir cognição do NPC "+name+".");
+    }
+    public void applyFactionSimulationStepChecked(JSONObject action)throws Exception{
+        if(action==null||action.optLong("id",0)<=0)throw new IllegalArgumentException("Etapa de facção inválida.");
+        applyFactionSimulationStep(action);JSONObject row=queryOne("SELECT plan_progress,last_action_day,simulation_cursor_hours FROM factions WHERE id=? AND world_profile=?",new String[]{String.valueOf(action.optLong("id")),getActiveMapProfile()});
+        if(row.length()==0||row.optInt("plan_progress",-1)!=Math.max(0,action.optInt("progress_after",0)))throw new IllegalStateException("A etapa da facção não foi persistida.");
+        if(action.has("simulation_cursor_hours_after")&&Math.abs(row.optDouble("simulation_cursor_hours",-1d)-Math.max(0d,action.optDouble("simulation_cursor_hours_after",0d)))>.001d)throw new IllegalStateException("O cursor temporal da facção não foi persistido.");
+    }
+    public void updateWorldClockSimulationChecked(long clockId,int value,double accumulatedHours,int lastAdvancedDay)throws Exception{
+        if(clockId<=0)throw new IllegalArgumentException("Relógio inválido.");updateWorldClockSimulation(clockId,value,accumulatedHours,lastAdvancedDay);
+        JSONObject row=queryOne("SELECT current_value FROM world_clocks WHERE id=? AND world_profile=?",new String[]{String.valueOf(clockId),getActiveMapProfile()});
+        if(row.length()==0||row.optInt("current_value",-1)!=Math.max(0,value))throw new IllegalStateException("O relógio do mundo não foi persistido.");
+    }
+    public void updateLifeActivityResolutionChecked(long activityId,String status,String narrative,JSONObject resolution,boolean applied)throws Exception{
+        if(activityId<=0)throw new IllegalArgumentException("Atividade inválida.");updateLifeActivityResolution(activityId,status,narrative,resolution,applied);
+        JSONObject row=queryOne("SELECT status FROM life_activities WHERE id=? AND world_profile=?",new String[]{String.valueOf(activityId),getActiveMapProfile()});
+        if(row.length()==0||!String.valueOf(status).equals(row.optString("status")))throw new IllegalStateException("A atividade não foi persistida.");
+    }
+    public void applyMapDirectorUpdateChecked(JSONObject update)throws Exception{
+        if(update==null||update.length()==0)return;JSONObject before=getMapState();String packageId=before.optString("map_package_id");
+        for(String key:new String[]{"current_hex_id","destination_hex_id","scene_hex_id"})if(update.has(key)&&update.optString(key).trim().length()>0&&getMapHex(packageId,update.optString(key).trim()).length()==0)throw new IllegalArgumentException(key+" não existe no atlas ativo: "+update.optString(key));
+        if(update.has("route_json")){JSONArray route;Object raw=update.opt("route_json");try{route=raw instanceof JSONArray?(JSONArray)raw:new JSONArray(String.valueOf(raw));}catch(Exception e){throw new IllegalArgumentException("Rota do mapa inválida.",e);}for(int i=0;i<route.length();i++){Object item=route.opt(i);String hex=item instanceof JSONObject?((JSONObject)item).optString("hex_id",((JSONObject)item).optString("id")):String.valueOf(item);if(hex.trim().length()==0||getMapHex(packageId,hex.trim()).length()==0)throw new IllegalArgumentException("A rota contém hexágono inexistente: "+hex);}}
+        if(update.optBoolean("interrupt_route",false))update.put("destination_hex_id","").put("route_json",new JSONArray()).put("position_locked",false);
+        applyMapDirectorUpdate(update);AtlasScenePositionReconciler.reconcilePersistedScene(this,"map_update confirmado pelo Mestre");JSONObject after=getMapState();
+        JSONObject terrain=update.optJSONObject("terrain_change");if(terrain!=null){String hex=terrain.optString("hex_id");if(!terrain.optBoolean("reviewed",false))throw new IllegalArgumentException("Alteração de terreno exige revisão explícita.");if(getMapHex(packageId,hex).length()==0)throw new IllegalArgumentException("Hexágono de terreno inexistente.");saveMapHexCorrection(packageId,hex,new JSONObject(terrain.toString()).put("review_status","verified").put("review_note",terrain.optString("review_note","Alteração confirmada pelo Mestre.")));}
+        JSONObject marker=update.optJSONObject("marker_add");if(marker!=null){String hex=marker.optString("hex_id");if(getMapHex(packageId,hex).length()==0)throw new IllegalArgumentException("Hexágono do marcador inexistente.");saveMapHexNote(packageId,hex,marker.optString("title"),marker.optString("details"),marker.optString("icon","✎"),"master_reviewed");}
+        String removeMarker=update.optString("marker_remove_hex_id");if(removeMarker.length()>0){if(getMapHex(packageId,removeMarker).length()==0)throw new IllegalArgumentException("Hexágono do marcador inexistente.");deleteMapHexNote(packageId,removeMarker);}
+        if(update.has("scene_hex_id")){JSONObject scene=getSceneState();scene.put("hex_id",update.optString("scene_hex_id"));saveSceneStateChecked(scene);}
+        if(update.has("current_hex_id")&&!update.optString("current_hex_id").equals(after.optString("current_hex_id")))throw new IllegalStateException("A posição do mapa não foi persistida.");
+        if(update.has("destination_hex_id")&&!update.optString("destination_hex_id").equals(after.optString("destination_hex_id")))throw new IllegalStateException("O destino do mapa não foi persistido.");
+        if(update.has("position_locked")&&update.optBoolean("position_locked")!=(after.optInt("position_locked",0)==1))throw new IllegalStateException("O bloqueio do mapa não foi persistido.");
+    }
+    public void applyTacticalDirectorUpdateChecked(JSONObject update)throws Exception{
+        if(update==null)throw new IllegalArgumentException("Atualização tática ausente.");long id=update.optLong("combatant_id",0);if(id<=0&&update.optString("name").trim().length()>0)id=findCombatantByName(update.optString("name")).optLong("id",0);
+        if(id<=0||queryOne("SELECT id FROM combatants WHERE id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}).length()==0)throw new IllegalStateException("Combatente tático inexistente.");
+        ensureTacticalTokensForCombat();ContentValues v=new ContentValues();v.put("x",Math.max(.01d,Math.min(.99d,update.optDouble("x",.5d))));v.put("y",Math.max(.01d,Math.min(.99d,update.optDouble("y",.5d))));v.put("updated_at",System.currentTimeMillis());
+        int changed=getWritableDatabase().update("tactical_tokens",v,"world_profile=? AND combatant_id=?",new String[]{getActiveMapProfile(),String.valueOf(id)});if(changed!=1)throw new IllegalStateException("A posição tática não foi persistida.");
+    }
+    public void markWorldEventConsequenceChecked(long eventId,boolean applied,String error)throws Exception{
+        markWorldEventConsequence(eventId,applied,error);JSONObject row=getWorldEvent(eventId);String expected=applied?"applied":"failed";if(row.length()==0||!expected.equals(row.optString("consequence_status")))throw new IllegalStateException("O estado da consequência do evento não foi persistido.");
+    }
+    public void resolvePendingEffectChecked(long id,String status)throws Exception{resolvePendingEffect(id,status);JSONObject row=getPendingTransaction(id);String expected="applied".equals(status)?"applied":("cancelled".equals(status)?"discarded":"failed");if(row.length()==0||!expected.equals(row.optString("status")))throw new IllegalStateException("A pendência não foi encerrada.");}
+    public void setCharacterHpChecked(long id,int hp)throws Exception{setCharacterHp(id,hp);JSONObject row=getCharacter(id);int expected=Math.max(0,Math.min(Math.max(1,row.optInt("max_hp",1)),hp));if(row.length()==0||row.optInt("hp",-1)!=expected)throw new IllegalStateException("Os PV do personagem não foram persistidos.");}
+    public void setCharacterEquipmentAndNotesChecked(long id,String equipment,String notes)throws Exception{setCharacterEquipmentAndNotes(id,equipment,notes);JSONObject row=getCharacter(id);if(row.length()==0||!String.valueOf(equipment==null?"":equipment).equals(row.optString("equipment"))||!String.valueOf(notes==null?"":notes).equals(row.optString("notes")))throw new IllegalStateException("O inventário ou as notas do personagem não foram persistidos.");}
+    public void updateCharacterSheetChecked(long id,String sheetJson)throws Exception{updateCharacterSheet(id,sheetJson);JSONObject row=getCharacter(id);if(row.length()==0||!validJsonObject(sheetJson).equals(validJsonObject(row.optString("sheet_json"))))throw new IllegalStateException("A ficha estruturada não foi persistida.");}
+    public long addCombatantChecked(String name,int initiative,int hp,int maxHp,int ac,String conditions,boolean player)throws Exception{long id=addCombatant(name,initiative,hp,maxHp,ac,conditions,player);if(id<=0||queryOne("SELECT id FROM combatants WHERE id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}).length()==0)throw new IllegalStateException("O combatente não foi persistido.");return id;}
+    public long addCombatantWithVisualChecked(String name,int initiative,int hp,int maxHp,int ac,String conditions,boolean player,String sourceKind,long sourceId,String tokenUri)throws Exception{long id=addCombatantWithVisual(name,initiative,hp,maxHp,ac,conditions,player,sourceKind,sourceId,tokenUri);if(id<=0||queryOne("SELECT id FROM combatants WHERE id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}).length()==0)throw new IllegalStateException("O combatente com retrato não foi persistido.");return id;}
+    public void setCombatRunningChecked(boolean running)throws Exception{setCombatRunning(running);if((getCombatState().optInt("running",0)==1)!=running)throw new IllegalStateException("O estado do combate não foi persistido.");}
+    public void adjustCombatantHpChecked(long id,int delta,int expectedHp)throws Exception{if(queryOne("SELECT id FROM combatants WHERE id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}).length()==0)throw new IllegalStateException("Combatente inexistente.");adjustCombatantHp(id,delta);JSONObject row=queryOne("SELECT hp FROM combatants WHERE id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});if(row.optInt("hp",-1)!=Math.max(0,expectedHp))throw new IllegalStateException("Os PV do combatente não foram persistidos.");}
+    public void updateConditionsChecked(long id,String conditions)throws Exception{updateConditions(id,conditions);JSONObject row=queryOne("SELECT conditions FROM combatants WHERE id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});if(row.length()==0||!String.valueOf(conditions==null?"":conditions).equals(row.optString("conditions")))throw new IllegalStateException("As condições do combatente não foram persistidas.");}
+    public void updateCombatantAdvancedChecked(long id,int tempHp,String concentration,boolean reactionUsed,int deathSuccess,int deathFail,String conditions,String timersJson,String resistances,String vulnerabilities,String immunities,String resourcesJson)throws Exception{updateCombatantAdvanced(id,tempHp,concentration,reactionUsed,deathSuccess,deathFail,conditions,timersJson,resistances,vulnerabilities,immunities,resourcesJson);if(queryOne("SELECT id FROM combatants WHERE id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}).length()==0)throw new IllegalStateException("Os dados avançados do combatente não foram persistidos.");}
+    public void updateMystaraCombatStateChecked(int partyInitiative,int enemyInitiative,int phase,int roundNo,boolean running)throws Exception{updateMystaraCombatState(partyInitiative,enemyInitiative,phase,roundNo,running);JSONObject row=getCombatState();if((row.optInt("running",0)==1)!=running||row.optInt("round_no",0)!=Math.max(1,roundNo))throw new IllegalStateException("O estado de combate de Mystara não foi persistido.");}
+    public void resetCombatChecked()throws Exception{resetCombat();if(getCombatState().optInt("running",1)!=0||!listCombatants().isEmpty())throw new IllegalStateException("O combate não foi reiniciado integralmente.");}
+    public List<JSONObject> listWorldEvents(int limit){return queryList("SELECT * FROM world_events WHERE world_profile=? ORDER BY created_at DESC LIMIT "+Math.max(1,Math.min(2000,limit)),new String[]{getActiveMapProfile()});}
+    public void deleteWorldEvent(long id){getWritableDatabase().delete("world_events","id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    public void markWorldEventResolved(long id){JSONObject event=getWorldEvent(id);if(event.length()==0)throw new IllegalArgumentException("Evento inexistente.");String consequence=event.optString("consequence_status");if(!"applied".equals(consequence)&&!"cancelled".equals(consequence))throw new IllegalStateException("O evento não pode ser encerrado sem aplicar ou cancelar sua própria consequência.");ContentValues v=new ContentValues();v.put("status","cancelled".equals(consequence)?"cancelled":"resolved");v.put("resolved_at",System.currentTimeMillis());getWritableDatabase().update("world_events",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    public long addPendingTransaction(String title,String summary,String payload){return addPendingTransaction(title,summary,payload,"");}
+    public long addPendingTransaction(String title,String summary,String payload,String effectKey){
+        ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("title",title);v.put("summary",summary);v.put("payload_json",validJsonObject(payload));v.put("effect_key",effectKey==null?"":effectKey.trim());v.put("status","pending");v.put("created_at",System.currentTimeMillis());return getWritableDatabase().insert("pending_transactions",null,v);
+    }
+    public synchronized long addPendingTransactionUnique(String title,String summary,JSONObject payload,String effectKey)throws Exception{
+        String key=effectKey==null?"":effectKey.trim();
+        if(key.length()==0){long id=addPendingTransaction(title,summary,payload==null?"{}":payload.toString(),"");if(id<=0)throw new IllegalStateException("Não foi possível criar a pendência.");return id;}
+        JSONObject existing=findOpenPendingTransactionByEffectKey(key);
+        if(existing.length()>0)return existing.optLong("id",-1);
+        JSONObject safe=payload==null?new JSONObject():new JSONObject(payload.toString());safe.put("_effect_key",key);
+        long id=addPendingTransaction(title,summary,safe.toString(),key);if(id<=0)throw new IllegalStateException("Não foi possível criar a pendência idempotente "+key+".");return id;
+    }
+    public JSONObject findOpenPendingTransactionByEffectKey(String effectKey){
+        String key=effectKey==null?"":effectKey.trim();if(key.length()==0)return new JSONObject();
+        return queryOne("SELECT * FROM pending_transactions WHERE world_profile=? AND effect_key=? AND status IN ('pending','reviewing') ORDER BY id DESC LIMIT 1",new String[]{getActiveMapProfile(),key});
+    }
+    public boolean hasOpenPendingEffect(String effectKey){return findOpenPendingTransactionByEffectKey(effectKey).length()>0;}
+    public void resolvePendingEffect(long id,String status){
+        if(id<=0)return;String safe="applied".equals(status)?"applied":("cancelled".equals(status)?"discarded":"failed");
+        setPendingTransactionStatus(id,safe);
+    }
+    public boolean hasEffectReceipt(String effectKey){
+        String key=effectKey==null?"":effectKey.trim();if(key.length()==0)return false;
+        return queryOne("SELECT effect_key FROM effect_receipts WHERE world_profile=? AND effect_key=?",new String[]{getActiveMapProfile(),key}).length()>0;
+    }
+    public void recordEffectReceipt(String effectKey,String source){
+        String key=effectKey==null?"":effectKey.trim();if(key.length()==0)return;
+        // This namespace can only be minted by partyCombatExecute, in the same SQLite commit.
+        if(key.startsWith("compiled-effect:")||key.startsWith(GuidedCharacterActionCommitGuard.PREFIX)||key.startsWith(PartyActionCausalReceiptGuard.PREFIX)||
+            key.startsWith(PartyMovementCausalReceiptGuard.PREFIX)||
+            key.startsWith(PartyAttackCausalReceiptGuard.PREFIX)||
+            key.startsWith(ExtraAttackActionRules.PREFIX)||
+            (key.startsWith("combat-v1:")&&key.contains(":ui-grid-")&&key.endsWith("-position"))||
+            (key.startsWith("combat-v1:")&&key.contains(":ui-weapon2-")&&key.endsWith("-geometry"))||
+            (source!=null&&(source.startsWith("gridpos-v1:")||source.startsWith("attackgeom-v1:")||source.startsWith(ExtraAttackActionRules.STEP_PREFIX))))
+            throw new IllegalArgumentException("reserved_causal_receipt_namespace");
+        ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("effect_key",key);v.put("source",source==null?"":source);v.put("applied_at",System.currentTimeMillis());
+        long id=getWritableDatabase().insertWithOnConflict("effect_receipts",null,v,SQLiteDatabase.CONFLICT_IGNORE);
+        if(id==-1&&!hasEffectReceipt(key))throw new IllegalStateException("Não foi possível registrar a idempotência do efeito "+key+".");
+    }
+    public JSONObject getPendingTransaction(long id){return queryOne("SELECT * FROM pending_transactions WHERE id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    public List<JSONObject> listPendingTransactions(String status,int limit){String sql="SELECT * FROM pending_transactions WHERE world_profile=?";ArrayList<String> a=new ArrayList<String>();a.add(getActiveMapProfile());if(status!=null&&status.length()>0){sql+=" AND status=?";a.add(status);}sql+=" ORDER BY created_at DESC LIMIT "+Math.max(1,Math.min(5000,limit));return queryList(sql,a.toArray(new String[0]));}
+    public void setPendingTransactionStatus(long id,String status){ContentValues v=new ContentValues();v.put("status",status);if("applied".equals(status))v.put("applied_at",System.currentTimeMillis());getWritableDatabase().update("pending_transactions",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    public void setPendingTransactionRollbackSnapshot(long id,String fileName){try{JSONObject row=getPendingTransaction(id);JSONObject payload=new JSONObject(row.optString("payload_json","{}"));payload.put("_rollback_snapshot",fileName==null?"":fileName);ContentValues v=new ContentValues();v.put("payload_json",payload.toString());getWritableDatabase().update("pending_transactions",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}}
+    public JSONObject getLastAppliedTransaction(){return queryOne("SELECT * FROM pending_transactions WHERE world_profile=? AND status='applied' ORDER BY applied_at DESC,id DESC LIMIT 1",new String[]{getActiveMapProfile()});}
+    public void markPendingTransactionRolledBack(long id){ContentValues v=new ContentValues();v.put("status","rolled_back");getWritableDatabase().update("pending_transactions",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    public void ensureTacticalTokensForCombat(){List<JSONObject> combatants=listCombatants();int i=0;for(JSONObject c:combatants){long id=c.optLong("id");ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("combatant_id",id);v.put("name",c.optString("name"));v.put("is_player",c.optInt("is_player",0));v.put("x",c.optInt("is_player",0)==1?0.18:0.82);v.put("y",0.12+(i++%6)*0.14);v.put("updated_at",System.currentTimeMillis());getWritableDatabase().insertWithOnConflict("tactical_tokens",null,v,SQLiteDatabase.CONFLICT_IGNORE);}getWritableDatabase().execSQL("DELETE FROM tactical_tokens WHERE world_profile=? AND combatant_id NOT IN (SELECT id FROM combatants WHERE world_profile=?)",new Object[]{getActiveMapProfile(),getActiveMapProfile()});}
+    public List<JSONObject> listTacticalTokens(){
+        ensureTacticalTokensForCombat();
+        String sql="SELECT tt.*,c.initiative,c.hp,c.max_hp,c.temp_hp,c.conditions,c.active_turn,c.resources_json,c.source_kind,c.source_id,c.token_uri AS combatant_token_uri "+
+                "FROM tactical_tokens tt JOIN combatants c ON c.id=tt.combatant_id AND c.world_profile=tt.world_profile WHERE tt.world_profile=? ORDER BY tt.is_player DESC,c.initiative DESC,tt.name";
+        List<JSONObject> rows=queryList(sql,new String[]{getActiveMapProfile()});
+        for(JSONObject row:rows){
+            JSONObject visual=resolveCombatantVisualIdentity(row.optString("name"),row.optInt("is_player",0)==1,row.optString("source_kind"),row.optLong("source_id"),firstNonBlank(row.optString("combatant_token_uri"),tokenFromResources(row.optString("resources_json"))));
+            try{row.put("token_uri",visual.optString("token_uri"));row.put("token_source",visual.optString("source_kind"));}catch(Exception ignored){AppLog.ignored("AppDb","Falha ao anexar o retrato ao token tático.",ignored);}
+            if(row.optLong("combatant_id")>0&&( !visual.optString("token_uri").equals(row.optString("combatant_token_uri")) || !visual.optString("source_kind").equals(row.optString("source_kind")) || visual.optLong("source_id")!=row.optLong("source_id"))){
+                setCombatantVisualIdentity(row.optLong("combatant_id"),visual.optString("source_kind"),visual.optLong("source_id"),visual.optString("token_uri"));
+            }
+        }
+        return rows;
+    }
+    public void setCombatantVisualIdentity(long combatantId,String sourceKind,long sourceId,String tokenUri){
+        if(combatantId<=0)return;ContentValues v=new ContentValues();v.put("source_kind",sourceKind==null?"":sourceKind.trim());v.put("source_id",Math.max(0,sourceId));v.put("token_uri",tokenUri==null?"":tokenUri.trim());getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(combatantId),getActiveMapProfile()});
+    }
+    private JSONObject resolveCombatantVisualIdentity(String name,boolean player,String sourceKind,long sourceId,String tokenUri){
+        JSONObject out=new JSONObject();String kind=sourceKind==null?"":sourceKind.trim();long id=Math.max(0,sourceId);String uri=usableTokenUri(tokenUri);String clean=canonicalCombatantName(name);
+        try{
+            if(uri.length()==0){String resource="";JSONObject source=new JSONObject();
+                if("character".equals(kind)&&id>0)source=getCharacter(id);else if("npc".equals(kind)&&id>0)source=queryOne("SELECT * FROM npc_memory_profiles WHERE id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});else if("token".equals(kind)&&id>0)source=getToken(id);
+                resource="token".equals(kind)?source.optString("local_uri"):source.optString("token_uri");uri=usableTokenUri(resource);
+            }
+            if(uri.length()==0&&player){JSONObject ch=findCharacterByName(clean);if(ch.length()>0){kind="character";id=ch.optLong("id");uri=usableTokenUri(ch.optString("token_uri"));}}
+            if(uri.length()==0&&!player){JSONObject npc=findNpcMemoryByName(clean);if(npc.length()==0&&!clean.equals(name))npc=findNpcMemoryByName(name);if(npc.length()>0){kind="npc";id=npc.optLong("id");uri=usableTokenUri(npc.optString("token_uri"));}}
+            if(uri.length()==0){JSONObject token=findLocalTokenForScene(clean);if(token.length()==0&&!clean.equals(name))token=findLocalTokenForScene(name);if(token.length()>0){kind="token";id=token.optLong("id");uri=usableTokenUri(token.optString("local_uri"));}}
+            out.put("source_kind",kind);out.put("source_id",id);out.put("token_uri",uri);
+        }catch(Exception e){AppLog.w("CombatToken","Não foi possível resolver a imagem associada de "+name,e);}
+        return out;
+    }
+    private String usableTokenUri(String value){String uri=value==null?"":value.trim();if(uri.length()==0)return "";try{return isUriReadable(uri)?uri:"";}catch(Exception ignored){return "";}}
+    private static String tokenFromResources(String raw){try{return new JSONObject(raw==null?"{}":raw).optString("token_uri","").trim();}catch(Exception ignored){return "";}}
+    private static String firstNonBlank(String first,String second){String a=first==null?"":first.trim();return a.length()>0?a:(second==null?"":second.trim());}
+    private static String canonicalCombatantName(String value){String name=value==null?"":value.trim();name=name.replaceFirst("\\s+(?:#?\\d+|[IVX]+)$","").trim();name=name.replaceFirst("\\s*\\((?:\\d+|[A-Za-z])\\)$","").trim();return name.length()>0?name:(value==null?"":value.trim());}
+
+    /** Direct placement is setup-only; active combat must use the route executor. */
+    public void setTacticalTokenPosition(long combatantId,float x,float y){
+        if(getCombatState().optInt("running",0)==1)return;
+        if(combatantId<=0||Float.isNaN(x)||Float.isNaN(y)||Float.isInfinite(x)||Float.isInfinite(y))return;
+        ContentValues v=new ContentValues();v.put("x",Math.max(.01f,Math.min(.99f,x)));
+        v.put("y",Math.max(.01f,Math.min(.99f,y)));v.put("updated_at",System.currentTimeMillis());
+        getWritableDatabase().update("tactical_tokens",v,"world_profile=? AND combatant_id=?",
+            new String[]{getActiveMapProfile(),String.valueOf(combatantId)});
+    }
+
+    public long addSessionMemory(int sessionNo,String title,String summary,String openThreadsJson,String characterBeatsJson){ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("session_no",Math.max(1,sessionNo));v.put("title",title);v.put("summary",summary);v.put("open_threads_json",validJsonArray(openThreadsJson));v.put("character_beats_json",validJsonObject(characterBeatsJson));v.put("created_at",System.currentTimeMillis());return getWritableDatabase().insert("session_memories",null,v);}
+    public List<JSONObject> listSessionMemories(int limit){return queryList("SELECT * FROM session_memories WHERE world_profile=? ORDER BY session_no DESC,id DESC LIMIT "+Math.max(1,Math.min(5000,limit)),new String[]{getActiveMapProfile()});}
+    public int nextSessionNumber(){JSONObject x=queryOne("SELECT COALESCE(MAX(session_no),0)+1 AS next_no FROM session_memories WHERE world_profile=?",new String[]{getActiveMapProfile()});return Math.max(1,x.optInt("next_no",1));}
+
+    // ===== Núcleo cognitivo do Mestre (3.4.0) =====
+    public JSONObject getTravelRulesState(){
+        createTravelRulesTables(getWritableDatabase());
+        JSONObject row=queryOne("SELECT * FROM travel_rules_state WHERE world_profile=?",new String[]{getActiveMapProfile()});
+        try{return new JSONObject(row.optString("state_json","{}"));}catch(Exception e){return new JSONObject();}
+    }
+    public void saveTravelRulesState(JSONObject state){
+        if(state==null)return;createTravelRulesTables(getWritableDatabase());
+        ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("state_json",state.toString());v.put("updated_at",System.currentTimeMillis());
+        getWritableDatabase().insertWithOnConflict("travel_rules_state",null,v,SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public JSONObject getEnvironmentalDirectorState(){
+        createCognitiveMasterTables(getWritableDatabase());
+        JSONObject row=queryOne("SELECT * FROM environmental_director_state WHERE world_profile=?",new String[]{getActiveMapProfile()});
+        try{return new JSONObject(row.optString("state_json","{}"));}catch(Exception e){return new JSONObject();}
+    }
+    public void saveEnvironmentalDirectorState(JSONObject state){
+        if(state==null)return;createCognitiveMasterTables(getWritableDatabase());
+        ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("state_json",state.toString());v.put("updated_at",System.currentTimeMillis());
+        getWritableDatabase().insertWithOnConflict("environmental_director_state",null,v,SQLiteDatabase.CONFLICT_REPLACE);
+    }
+    public void saveEnvironmentalDirectorStateChecked(JSONObject state)throws Exception{saveEnvironmentalDirectorState(state);JSONObject after=getEnvironmentalDirectorState();if(state==null||after.length()==0)throw new IllegalStateException("O estado ambiental não foi persistido.");}
+    /**
+     * Persiste o estado cognitivo sem depender da existência prévia da linha do perfil.
+     * Em builds antigas o método usava apenas UPDATE; uma linha ausente (por migração,
+     * importação parcial ou reparo) fazia o UPDATE afetar zero linhas e a confirmação
+     * da cena falhava no último passo. A partir de 6.3.1 a linha é recriada de forma
+     * idempotente dentro da própria transação antes da gravação.
+     */
+    public void saveMasterRuntimeStateChecked(JSONObject state)throws Exception{
+        if(state==null)throw new IllegalArgumentException("Estado cognitivo do Mestre ausente.");
+        final String profile=getActiveMapProfile();
+        saveMasterRuntimeState(state);
+        JSONObject after=queryOne("SELECT * FROM master_runtime_state WHERE world_profile=?",new String[]{profile});
+        if(after.length()==0)throw new IllegalStateException("O estado cognitivo do Mestre não foi persistido.");
+        String[] keys={"scene_mode","tension","beat_no","last_action_fingerprint","last_context_fingerprint","last_response_fingerprint","last_cognitive_plan_json","unresolved_threads_json","last_summary","validation_warnings_json"};
+        for(String key:keys){
+            if(!state.has(key))continue;
+            Object expected=state.opt(key);
+            if(expected instanceof Number){if(after.optLong(key,Long.MIN_VALUE)!=((Number)expected).longValue())throw new IllegalStateException("O estado cognitivo do Mestre divergiu após persistir: "+key+".");}
+            else{String expectedText=(expected instanceof JSONArray||expected instanceof JSONObject)?expected.toString():String.valueOf(expected);if(!expectedText.equals(after.optString(key,"")))throw new IllegalStateException("O estado cognitivo do Mestre divergiu após persistir: "+key+".");}
+        }
+    }
+    public void savePartyStateChecked(JSONObject state)throws Exception{savePartyState(state);if(getPartyState().length()==0)throw new IllegalStateException("O estado da companhia não foi persistido.");}
+    public void saveTravelRulesStateChecked(JSONObject state)throws Exception{saveTravelRulesState(state);JSONObject after=getTravelRulesState();if(state==null||after.length()==0)throw new IllegalStateException("O estado de viagem não foi persistido.");}
+    public JSONObject getMasterRuntimeState(){SQLiteDatabase sql=getWritableDatabase();createCognitiveMasterTables(sql);String profile=getActiveMapProfile();ensureMasterRuntimeStateRow(sql,profile);return queryOne("SELECT * FROM master_runtime_state WHERE world_profile=?",new String[]{profile});}
+    private void ensureMasterRuntimeStateRow(SQLiteDatabase sql,String profile){if(sql==null)return;String safe=normalizeMapProfile(profile);ContentValues seed=new ContentValues();seed.put("world_profile",safe);sql.insertWithOnConflict("master_runtime_state",null,seed,SQLiteDatabase.CONFLICT_IGNORE);}
+    public void saveMasterRuntimeState(JSONObject state){if(state==null)return;SQLiteDatabase sql=getWritableDatabase();createCognitiveMasterTables(sql);String profile=getActiveMapProfile();ensureMasterRuntimeStateRow(sql,profile);ContentValues v=new ContentValues();String[] keys={"scene_mode","tension","beat_no","last_action_fingerprint","last_context_fingerprint","last_response_fingerprint","last_cognitive_plan_json","unresolved_threads_json","last_summary","validation_warnings_json"};for(String key:keys)if(state.has(key)){Object value=state.opt(key);if(value instanceof JSONArray)v.put(key,((JSONArray)value).toString());else if(value instanceof JSONObject)v.put(key,((JSONObject)value).toString());else if(value instanceof Number)v.put(key,((Number)value).longValue());else v.put(key,String.valueOf(value));}v.put("updated_at",System.currentTimeMillis());int changed=sql.update("master_runtime_state",v,"world_profile=?",new String[]{profile});if(changed!=1)throw new IllegalStateException("Falha ao atualizar o estado cognitivo do Mestre para o perfil "+profile+".");}
+    public long addMasterEpisode(String action,String summary,String actorsJson,String sceneMode,String location,String hexId,String tagsJson,int significance){ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("action_text",action==null?"":action);v.put("summary",summary==null?"":summary);v.put("actors_json",validJsonArray(actorsJson));v.put("scene_mode",sceneMode==null?"":sceneMode);v.put("location",location==null?"":location);v.put("hex_id",hexId==null?"":hexId);v.put("tags_json",validJsonArray(tagsJson));v.put("significance",Math.max(1,Math.min(5,significance)));v.put("canonical",1);v.put("created_at",System.currentTimeMillis());return getWritableDatabase().insert("master_episodes",null,v);}
+    public List<JSONObject> listMasterEpisodes(int limit){createCognitiveMasterTables(getWritableDatabase());return queryList("SELECT * FROM master_episodes WHERE world_profile=? AND canonical=1 ORDER BY significance DESC,created_at DESC LIMIT "+Math.max(1,Math.min(1000,limit)),new String[]{getActiveMapProfile()});}
+    public JSONObject getNpcCognitiveState(String name){createCognitiveMasterTables(getWritableDatabase());String safe=name==null?"":name.trim();JSONObject out=queryOne("SELECT * FROM npc_cognitive_state WHERE world_profile=? AND npc_name=? COLLATE NOCASE",new String[]{getActiveMapProfile(),safe});if(out.length()==0){JSONObject scene=getSceneState();ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("npc_name",safe);v.put("simulation_cursor_hours",currentWorldHourForSimulation());v.put("simulation_cursor_day",Math.max(1,scene.optInt("day_number",1)));v.put("updated_at",System.currentTimeMillis());getWritableDatabase().insertWithOnConflict("npc_cognitive_state",null,v,SQLiteDatabase.CONFLICT_IGNORE);}ensureNpcPersonalityProvisioned(safe);return queryOne("SELECT * FROM npc_cognitive_state WHERE world_profile=? AND npc_name=? COLLATE NOCASE",new String[]{getActiveMapProfile(),safe});}
+    public void upsertNpcCognitiveState(JSONObject state){if(state==null)return;String name=state.optString("name",state.optString("npc_name","")).trim();if(name.length()==0)return;ensureNpcPersonalityOnIncoming(state,name);JSONObject previous=getNpcCognitiveState(name);ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("npc_name",name);putNpcField(v,state,previous,"emotion","neutro");putNpcInt(v,state,previous,"trust",0,-100,100);putNpcInt(v,state,previous,"fear",0,0,100);putNpcInt(v,state,previous,"suspicion",0,0,100);putNpcInt(v,state,previous,"urgency",0,0,100);putNpcField(v,state,previous,"next_action","");for(String key:new String[]{"schedule_json","beliefs_json","goals_json","knowledge_json","recent_events_json"})putNpcField(v,state,previous,key,"[]");for(String key:new String[]{"personality_json","resources_json"})putNpcField(v,state,previous,key,"{}");putNpcField(v,state,previous,"faction","");putNpcField(v,state,previous,"current_location","");putNpcField(v,state,previous,"last_interaction_summary","");v.put("last_action_at",state.has("last_action_at")?state.optLong("last_action_at"):previous.optLong("last_action_at",0));v.put("last_action_day",state.has("last_action_day")?Math.max(0,state.optInt("last_action_day")):previous.optInt("last_action_day",0));v.put("simulation_cursor_hours",state.has("simulation_cursor_hours")?Math.max(0d,state.optDouble("simulation_cursor_hours")):previous.optDouble("simulation_cursor_hours",-1d));v.put("simulation_cursor_day",state.has("simulation_cursor_day")?Math.max(0,state.optInt("simulation_cursor_day")):previous.optInt("simulation_cursor_day",0));v.put("updated_at",System.currentTimeMillis());getWritableDatabase().insertWithOnConflict("npc_cognitive_state",null,v,SQLiteDatabase.CONFLICT_REPLACE);}
+    private static void putNpcInt(ContentValues v,JSONObject incoming,JSONObject previous,String key,int fallback,int min,int max){int value=incoming.has(key)?incoming.optInt(key,previous.optInt(key,fallback)):previous.optInt(key,fallback);v.put(key,Math.max(min,Math.min(max,value)));}
+    public List<JSONObject> listNpcCognitiveStates(int limit){createCognitiveMasterTables(getWritableDatabase());return queryList("SELECT * FROM npc_cognitive_state WHERE world_profile=? ORDER BY updated_at DESC LIMIT "+Math.max(1,Math.min(5000,limit)),new String[]{getActiveMapProfile()});}
+    public List<JSONObject> listNpcCognitiveStatesForSimulation(int limit){createCognitiveMasterTables(getWritableDatabase());return queryList("SELECT * FROM npc_cognitive_state WHERE world_profile=? ORDER BY CASE WHEN simulation_cursor_hours<0 THEN -1 ELSE simulation_cursor_hours END ASC,simulation_cursor_day ASC,updated_at ASC,npc_name ASC LIMIT "+Math.max(1,Math.min(5000,limit)),new String[]{getActiveMapProfile()});}
+    public void saveMasterCache(String cacheKey,String mode,String model,String actionHash,String stateHash,String response){if(cacheKey==null||cacheKey.length()==0||response==null||response.length()==0)return;ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("cache_key",cacheKey);v.put("mode",mode==null?"":mode);v.put("model",model==null?"":model);v.put("action_hash",actionHash==null?"":actionHash);v.put("state_hash",stateHash==null?"":stateHash);v.put("response_json",response);v.put("created_at",System.currentTimeMillis());v.put("last_used_at",0);v.put("use_count",0);getWritableDatabase().insertWithOnConflict("master_response_cache",null,v,SQLiteDatabase.CONFLICT_REPLACE);getWritableDatabase().execSQL("DELETE FROM master_response_cache WHERE world_profile=? AND created_at < ?",new Object[]{getActiveMapProfile(),System.currentTimeMillis()-7L*24L*60L*60L*1000L});}
+    public String getMasterCache(String cacheKey,long maxAgeMs){if(cacheKey==null||cacheKey.length()==0)return "";JSONObject row=queryOne("SELECT * FROM master_response_cache WHERE world_profile=? AND cache_key=?",new String[]{getActiveMapProfile(),cacheKey});if(row.length()==0||System.currentTimeMillis()-row.optLong("created_at",0)>Math.max(60000L,maxAgeMs))return "";ContentValues v=new ContentValues();v.put("last_used_at",System.currentTimeMillis());v.put("use_count",row.optInt("use_count",0)+1);getWritableDatabase().update("master_response_cache",v,"world_profile=? AND cache_key=?",new String[]{getActiveMapProfile(),cacheKey});return row.optString("response_json");}
+
+    public JSONObject healthCheck(){
+        JSONObject out=new JSONObject();Cursor c=null;
+        try{
+            SQLiteDatabase sql=getReadableDatabase();
+            c=sql.rawQuery("PRAGMA quick_check",null);String quick=c.moveToFirst()?c.getString(0):"sem resposta";c.close();c=null;
+            JSONArray missing=new JSONArray();String[] tables={"campaign","campaign_profiles","characters","journal","combatants","combat_state","combat_state_profiles","manuals","manual_rag_parts","manual_local_pages","dice_history","tokens","token_pdfs","pdf_tokens","map_state","map_world_state","map_packages","map_hex_atlas","map_locations","map_hex_locations","map_hex_corrections","map_hex_notes","map_areas","map_area_hex","map_cartographic_markers","campaign_pois","campaign_poi_events","campaign_settlements","story_state","story_state_profiles","audit_log","scene_state_profiles","npc_memory_profiles","party_state_profiles","party_action_queue","party_memberships","character_control_profiles","companion_proposals","knowledge_facts","quests","factions","world_clocks","world_events","pending_transactions","session_memories","tactical_tokens","master_runtime_state","master_episodes","npc_cognitive_state","master_response_cache","environmental_director_state","travel_rules_state","library_sync_state","effect_receipts","living_world_state","hero_life_profiles","life_relationships","life_activities","living_troupes","guilds","guild_ranks","guild_members","guild_contracts","guild_projects","guild_sites","guild_ledger","guild_relations","world_seeds","emergent_arcs","settlement_states","world_history_events","rumors","rumor_knowledge","campaign_legacies","npc_voice_profiles","tactical_scenes","local_table_sessions","local_table_players","local_table_secrets","narrative_discovery_state","narrative_discovery_runtime","scene_commit_journal","world_domain_events"};
+            boolean transactionTablesPresent=true;
+            for(String table:tables){Cursor t=sql.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name=?",new String[]{table});boolean exists=t.moveToFirst();t.close();if(!exists){missing.put(table);if("pending_transactions".equals(table)||"effect_receipts".equals(table)||"world_events".equals(table))transactionTablesPresent=false;}}
+            Cursor fk=sql.rawQuery("PRAGMA foreign_key_check",null);int foreignKeyErrors=0;while(fk.moveToNext())foreignKeyErrors++;fk.close();
+            int blankEffectKeys=-1,appliedWithoutReceipt=-1,openEffectKeyCollisions=-1,duplicateActiveEvents=-1,eventIdentityErrors=-1,appliedEventsWithoutReceipt=-1,persistedCommitting=-1,committedWithoutDomainEvent=-1;
+            if(transactionTablesPresent){
+                blankEffectKeys=countQuery(sql,"SELECT COUNT(*) FROM pending_transactions WHERE TRIM(COALESCE(effect_key,''))=''",null);
+                appliedWithoutReceipt=countQuery(sql,"SELECT COUNT(*) FROM pending_transactions p LEFT JOIN effect_receipts r ON r.world_profile=p.world_profile AND r.effect_key=p.effect_key WHERE p.status='applied' AND r.effect_key IS NULL",null);
+                openEffectKeyCollisions=countQuery(sql,"SELECT COUNT(*) FROM (SELECT world_profile,effect_key FROM pending_transactions WHERE status IN ('pending','reviewing') AND TRIM(COALESCE(effect_key,''))<>'' GROUP BY world_profile,effect_key HAVING COUNT(*)>1)",null);
+                duplicateActiveEvents=countQuery(sql,"SELECT COUNT(*) FROM (SELECT world_profile,lower(title),due_at,due_day,consequence_json FROM world_events WHERE status IN ('scheduled','awaiting_review') GROUP BY world_profile,lower(title),due_at,due_day,consequence_json HAVING COUNT(*)>1)",null);
+                eventIdentityErrors=countQuery(sql,"SELECT COUNT(*) FROM world_events WHERE TRIM(COALESCE(event_key,''))='' OR TRIM(COALESCE(transaction_key,''))='' OR transaction_key<>('world_event:'||event_key)",null);
+                appliedEventsWithoutReceipt=countQuery(sql,"SELECT COUNT(*) FROM world_events e LEFT JOIN effect_receipts r ON r.world_profile=e.world_profile AND r.effect_key=e.transaction_key WHERE (e.status='resolved' OR e.consequence_status='applied') AND (TRIM(COALESCE(e.application_receipt,''))='' OR r.effect_key IS NULL)",null);
+                persistedCommitting=countQuery(sql,"SELECT COUNT(*) FROM scene_commit_journal WHERE status='COMMITTING'",null);
+                committedWithoutDomainEvent=countQuery(sql,"SELECT COUNT(*) FROM scene_commit_journal j LEFT JOIN world_domain_events e ON e.world_profile=j.world_profile AND e.scene_commit_id=j.commit_id AND e.event_type='SCENE_COMMITTED' WHERE j.status='COMMITTED' AND e.event_id IS NULL",null);
+            }
+            JSONObject campaign=getCampaign();boolean transactionIntegrity=transactionTablesPresent&&blankEffectKeys==0&&appliedWithoutReceipt==0&&openEffectKeyCollisions==0&&duplicateActiveEvents==0&&eventIdentityErrors==0&&appliedEventsWithoutReceipt==0&&persistedCommitting==0&&committedWithoutDomainEvent==0;
+            boolean databaseHealthy="ok".equalsIgnoreCase(quick)&&missing.length()==0&&campaign.length()>0&&foreignKeyErrors==0&&transactionIntegrity;
+            JSONObject mapAssets=mapAssetHealth();
+            out.put("healthy",databaseHealthy);out.put("database_healthy",databaseHealthy);out.put("transaction_integrity",transactionIntegrity);out.put("blank_effect_keys",blankEffectKeys);out.put("applied_without_receipt",appliedWithoutReceipt);out.put("open_effect_key_collisions",openEffectKeyCollisions);out.put("duplicate_active_events",duplicateActiveEvents);out.put("event_identity_errors",eventIdentityErrors);out.put("applied_events_without_receipt",appliedEventsWithoutReceipt);out.put("persisted_committing_scene_commits",persistedCommitting);out.put("committed_without_domain_event",committedWithoutDomainEvent);out.put("assets_healthy",mapAssets.optBoolean("healthy",true));out.put("map_assets",mapAssets);out.put("quick_check",quick);out.put("missing_tables",missing);out.put("foreign_key_errors",foreignKeyErrors);out.put("database_version",sql.getVersion());out.put("characters",databaseHealthy?listCharacters().size():-1);out.put("last_error",lastDatabaseError);
+        }catch(Exception e){lastDatabaseError=safeDatabaseError(e);AppLog.e("AppDb","Verificação de integridade do banco falhou.",e);try{out.put("healthy",false).put("database_healthy",false).put("error",lastDatabaseError);}catch(Exception jsonError){AppLog.w("AppDb","Falha ao registrar erro de integridade.",jsonError);}}
+        finally{if(c!=null)c.close();}
+        return out;
+    }
+    public JSONObject mapAssetHealth(){
+        JSONObject out=new JSONObject();JSONArray profiles=new JSONArray();boolean allHealthy=true;
+        for(String profile:new String[]{"dnd","mystara"}){
+            JSONObject item=new JSONObject();try{
+                JSONObject state=getMapStateForProfile(profile);String packageId=state.optString("map_package_id");String logicalId=state.optString("logical_map_id",logicalMapId(state.optString("manifest_json"),packageId));
+                item.put("world_profile",profile).put("logical_map_id",logicalId).put("package_id",packageId);
+                if(packageId.length()==0){item.put("status","not_installed").put("healthy",true);profiles.put(item);continue;}
+                JSONObject pack=getMapPackageAny(packageId);boolean row=pack.length()>0;boolean ready=row&&pack.optInt("ready",0)==1;boolean image=ready&&isUriReadable(pack.optString("image_uri"));boolean manifest=ready&&pack.optString("manifest_json").trim().length()>0;int expected=pack.optInt("hex_count",0);int actual=0;if(ready){Cursor count=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM map_hex_atlas WHERE package_id=?",new String[]{packageId});try{actual=count.moveToFirst()?count.getInt(0):0;}finally{count.close();}}
+                boolean healthy=row&&ready&&image&&manifest&&expected>0&&actual==expected;allHealthy&=healthy;item.put("healthy",healthy).put("row_present",row).put("ready",ready).put("image_readable",image).put("manifest_present",manifest).put("expected_hexes",expected).put("actual_hexes",actual).put("status",healthy?"ready":"repair_required");
+            }catch(Exception e){allHealthy=false;try{item.put("world_profile",profile).put("healthy",false).put("status","error").put("error",safeDatabaseError(e));}catch(Exception jsonError){AppLog.w("AppDb","Falha ao registrar saúde do mapa.",jsonError);}}
+            profiles.put(item);
+        }
+        try{out.put("healthy",allHealthy).put("profiles",profiles);}catch(Exception e){AppLog.w("AppDb","Falha ao concluir saúde dos mapas.",e);}return out;
+    }
+    public boolean isMapPackageUsable(String packageId){
+        if(packageId==null||packageId.trim().length()==0)return false;
+        JSONObject pack=getMapPackageAny(packageId);if(pack.length()==0||pack.optInt("ready",0)!=1||!isUriReadable(pack.optString("image_uri"))||pack.optString("manifest_json").trim().length()==0)return false;
+        int expected=pack.optInt("hex_count",0);if(expected<=0)return false;Cursor count=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM map_hex_atlas WHERE package_id=?",new String[]{packageId});try{return count.moveToFirst()&&count.getInt(0)==expected;}finally{count.close();}
+    }
+
+    public boolean isUriReadable(String value){
+        if(value==null||value.trim().length()==0)return false;InputStream in=null;try{Uri uri=Uri.parse(value);String scheme=uri.getScheme();if(scheme==null||scheme.length()==0)return new File(value).isFile()&&new File(value).canRead();if("file".equalsIgnoreCase(scheme)){String path=uri.getPath();return path!=null&&new File(path).isFile()&&new File(path).canRead();}in=appContext.getContentResolver().openInputStream(uri);return in!=null;}catch(Exception e){return false;}finally{if(in!=null)try{in.close();}catch(Exception closeError){AppLog.w("AppDb","Falha ao fechar referência de arquivo.",closeError);}}
+    }
+    public JSONObject ragIndexHealth(){
+        JSONObject out=new JSONObject();JSONArray problems=new JSONArray();int ready=0;try{
+            List<JSONObject> manuals=listManuals("");for(JSONObject manual:manuals){if(manual.optInt("enabled",1)!=1||!"ready".equals(manual.optString("rag_status")))continue;ready++;long id=manual.optLong("id");String store=manual.optString("rag_store_name");int declaredParts=manual.optInt("rag_part_count",0);int actualParts=0;Cursor parts=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM manual_rag_parts WHERE manual_id=?",new String[]{String.valueOf(id)});try{actualParts=parts.moveToFirst()?parts.getInt(0):0;}finally{parts.close();}int declaredPages=manual.optInt("rag_page_count",0);int actualPages=0;Cursor pages=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM manual_local_pages WHERE manual_id=?",new String[]{String.valueOf(id)});try{actualPages=pages.moveToFirst()?pages.getInt(0):0;}finally{pages.close();}boolean local=store.startsWith("local");boolean coherent=local?(declaredPages>0&&actualPages==declaredPages):(declaredParts==0||actualParts==declaredParts);if(!coherent)problems.put(new JSONObject().put("manual_id",id).put("title",manual.optString("title")).put("store",store).put("declared_parts",declaredParts).put("actual_parts",actualParts).put("declared_pages",declaredPages).put("actual_pages",actualPages));}
+            out.put("healthy",problems.length()==0).put("ready_manuals",ready).put("problems",problems);
+        }catch(Exception e){try{out.put("healthy",false).put("error",safeDatabaseError(e)).put("problems",problems);}catch(Exception ignored){AppLog.e("AppDb","Falha ao avaliar coerência RAG.",e);}}return out;
+    }
+
+    public String getLastDatabaseError(){return lastDatabaseError;}
+
+    public JSONObject queryOne(String sql,String[] args){
+        Cursor c=null;try{c=getReadableDatabase().rawQuery(sql,args);if(c.moveToFirst())return rowToJson(c);return new JSONObject();}
+        catch(Exception e){lastDatabaseError=safeDatabaseError(e);AppLog.e("AppDb","Falha na consulta de leitura: "+sql,e);throw new IllegalStateException("Falha ao ler o banco; nenhum dado foi tratado como vazio. "+lastDatabaseError,e);}
+        finally{if(c!=null)c.close();}
+    }
+    List<JSONObject> queryList(String sql,String[] args){
+        ArrayList<JSONObject> out=new ArrayList<JSONObject>();Cursor c=null;
+        try{c=getReadableDatabase().rawQuery(sql,args);while(c.moveToNext())out.add(rowToJson(c));return out;}
+        catch(Exception e){lastDatabaseError=safeDatabaseError(e);AppLog.e("AppDb","Falha na consulta de lista: "+sql,e);throw new IllegalStateException("Falha ao listar dados; a operação foi interrompida. "+lastDatabaseError,e);}
+        finally{if(c!=null)c.close();}
+    }
+    private static String safeDatabaseError(Exception e){return e.getMessage()==null?e.getClass().getSimpleName():e.getMessage();}
+    private JSONObject rowToJson(Cursor c)throws Exception{JSONObject o=new JSONObject();for(int i=0;i<c.getColumnCount();i++){String n=c.getColumnName(i);switch(c.getType(i)){case Cursor.FIELD_TYPE_INTEGER:o.put(n,c.getLong(i));break;case Cursor.FIELD_TYPE_FLOAT:o.put(n,c.getDouble(i));break;case Cursor.FIELD_TYPE_STRING:o.put(n,c.getString(i));break;case Cursor.FIELD_TYPE_BLOB:o.put(n,"[blob]");break;default:o.put(n,JSONObject.NULL);}}return o;}
+
+    public void saveLibrarySyncState(String sourceKey,String sourceRoot,String status,int itemCount,int addedCount,int changedCount,int missingCount,long started,long success,String error,JSONObject details){ContentValues v=new ContentValues();v.put("source_key",sourceKey==null?"":sourceKey);v.put("source_root",sourceRoot==null?"":sourceRoot);v.put("status",status==null?"":status);v.put("item_count",Math.max(0,itemCount));v.put("added_count",Math.max(0,addedCount));v.put("changed_count",Math.max(0,changedCount));v.put("missing_count",Math.max(0,missingCount));v.put("last_started",Math.max(0,started));v.put("last_success",Math.max(0,success));v.put("last_error",error==null?"":error);v.put("details_json",details==null?"{}":details.toString());getWritableDatabase().insertWithOnConflict("library_sync_state",null,v,SQLiteDatabase.CONFLICT_REPLACE);}
+    public JSONObject getLibrarySyncState(String sourceKey){return queryOne("SELECT * FROM library_sync_state WHERE source_key=?",new String[]{sourceKey==null?"":sourceKey});}
+    public List<JSONObject> listLibrarySyncStates(){return queryList("SELECT * FROM library_sync_state ORDER BY last_success DESC,source_key",null);}
+    public JSONObject databaseIntegrity(){JSONObject out=new JSONObject();Cursor c=null;try{c=getReadableDatabase().rawQuery("PRAGMA integrity_check",null);String value=c.moveToFirst()?c.getString(0):"sem resposta";out.put("integrity",value);out.put("ok","ok".equalsIgnoreCase(value));out.put("manuals",countTable("manuals"));out.put("tokens",countTable("tokens"));out.put("token_pdfs",countTable("token_pdfs"));}catch(Exception e){try{out.put("ok",false);out.put("error",e.getMessage()==null?e.toString():e.getMessage());}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada; a execução continuou.",ignored);}}finally{if(c!=null)c.close();}return out;}
+    public JSONObject masterStateCounts(){JSONObject out=new JSONObject();try{
+        out.put("active_heroes",countWorldTableWhere("characters","active=1"));
+        out.put("combatants",countWorldTableWhere("combatants","1=1"));
+        out.put("npcs",countWorldTableWhere("npc_memory_profiles","1=1"));
+        out.put("npc_cognition",countWorldTableWhere("npc_cognitive_state","1=1"));
+        out.put("knowledge",countWorldTableWhere("knowledge_facts","1=1"));
+        out.put("quests",countWorldTableWhere("quests","status='active'"));
+        out.put("factions",countWorldTableWhere("factions","1=1"));
+        ensureGuildTables();out.put("guilds",countWorldTableWhere("guilds","1=1"));
+        out.put("clocks",countWorldTableWhere("world_clocks","active=1"));
+        out.put("events",countWorldTableWhere("world_events","status IN ('scheduled','awaiting_review')"));
+        out.put("pending_transactions",countWorldTableWhere("pending_transactions","status='pending'"));
+        out.put("tactical_tokens",countWorldTableWhere("tactical_tokens","1=1"));
+        out.put("journal",countWorldTableWhere("journal","1=1"));
+        out.put("dice",countWorldTableWhere("dice_history","1=1"));
+        out.put("manuals",countTable("manuals"));
+    }catch(Exception failure){AppLog.e("AppDb","Falha ao contar o estado do barramento.",failure);}return out;}
+    private int countWorldTableWhere(String table,String clause){Cursor c=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM "+table+" WHERE world_profile=? AND "+clause,new String[]{getActiveMapProfile()});try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}}
+    private int countTable(String table){Cursor c=getReadableDatabase().rawQuery("SELECT COUNT(*) FROM "+table,null);try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}}
+
+    public int schemaVersion(){return DB_VERSION;}
+    public boolean quickIntegrityCheck(){
+        Cursor c=null;try{c=getReadableDatabase().rawQuery("PRAGMA quick_check(1)",null);return c.moveToFirst()&&"ok".equalsIgnoreCase(c.getString(0));}catch(Exception e){lastDatabaseError=String.valueOf(e.getMessage());AppLog.e("AppDb","Falha no quick_check.",e);return false;}finally{if(c!=null)c.close();}
+    }
+    public JSONObject databaseHealth5(){JSONObject o=new JSONObject();try{o.put("schema",DB_VERSION).put("quick_check",quickIntegrityCheck()).put("last_error",lastDatabaseError).put("wal",true);}catch(Exception ignored){AppLog.ignored("AppDb","Falha tolerada registrada na consolidação 5.0.",ignored);}return o;}
+
+    /** Índice operacional único das consequências que exigem atenção. */
+    public synchronized void syncPendingActionQueue(){
+        ensureFiveZeroSchema(getWritableDatabase());String w=getActiveMapProfile();long now=System.currentTimeMillis();SQLiteDatabase sql=getWritableDatabase();
+        // A fila é um índice operacional, não outra fonte de verdade. Se a origem deixou de estar
+        // pendente, a entrada espelhada também é encerrada automaticamente.
+        sql.execSQL("UPDATE pending_action_queue SET status='resolved',updated_at=? WHERE world_profile=? AND status='pending' AND source_kind='transaction' AND NOT EXISTS (SELECT 1 FROM pending_transactions p WHERE p.world_profile=pending_action_queue.world_profile AND CAST(p.id AS TEXT)=pending_action_queue.source_id AND p.status IN ('pending','review','pending_review'))",new Object[]{now,w});
+        sql.execSQL("UPDATE pending_action_queue SET status='resolved',updated_at=? WHERE world_profile=? AND status='pending' AND source_kind='world_event' AND NOT EXISTS (SELECT 1 FROM world_events e WHERE e.world_profile=pending_action_queue.world_profile AND CAST(e.id AS TEXT)=pending_action_queue.source_id AND e.status IN ('awaiting_review','blocked'))",new Object[]{now,w});
+        sql.execSQL("UPDATE pending_action_queue SET status='resolved',updated_at=? WHERE world_profile=? AND status='pending' AND source_kind='activity' AND NOT EXISTS (SELECT 1 FROM life_activities a WHERE a.world_profile=pending_action_queue.world_profile AND CAST(a.id AS TEXT)=pending_action_queue.source_id AND a.status IN ('aguardando_regra','aguardando_rolagem','aguardando_aplicacao'))",new Object[]{now,w});
+        for(JSONObject x:queryList("SELECT id,title,summary,payload_json,effect_key,created_at FROM pending_transactions WHERE world_profile=? AND status IN ('pending','review','pending_review')",new String[]{w}))upsertPendingAction("transaction",String.valueOf(x.optLong("id")),"state_mutation",x.optString("title"),x.optString("summary"),"pending",0,80,x.optString("payload_json","{}"),"",nonEmpty(x.optString("effect_key"),"tx:"+x.optLong("id")),x.optLong("created_at",now));
+        for(JSONObject x:queryList("SELECT id,title,description,due_day,status,consequence_json,event_key,created_at FROM world_events WHERE world_profile=? AND status IN ('awaiting_review','blocked')",new String[]{w}))upsertPendingAction("world_event",String.valueOf(x.optLong("id")),"event_review",x.optString("title"),x.optString("description"),"pending",x.optInt("due_day"),90,x.optString("consequence_json","{}"),"",nonEmpty(x.optString("event_key"),"event:"+x.optLong("id")),x.optLong("created_at",now));
+        for(JSONObject x:queryList("SELECT id,title,status,rule_source,rule_excerpt,resolution_json,created_at FROM life_activities WHERE world_profile=? AND status IN ('aguardando_regra','aguardando_rolagem','aguardando_aplicacao')",new String[]{w}))upsertPendingAction("activity",String.valueOf(x.optLong("id")),x.optString("status"),x.optString("title"),x.optString("status"),"pending",0,70,x.optString("resolution_json","{}"),x.optString("rule_source")+" "+x.optString("rule_excerpt"),"activity:"+x.optLong("id")+":"+x.optString("status"),x.optLong("created_at",now));
+    }
+    private static String nonEmpty(String a,String b){return a==null||a.trim().isEmpty()?b:a.trim();}
+    public long upsertPendingAction(String sourceKind,String sourceId,String actionKind,String title,String detail,String status,int dueDay,int priority,String payload,String ruleQuery,String effectKey,long createdAt){
+        ensureFiveZeroSchema(getWritableDatabase());ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("source_kind",sourceKind);v.put("source_id",sourceId);v.put("action_kind",actionKind);v.put("title",title==null?"Pendência":title);v.put("detail",detail==null?"":detail);v.put("status",status==null?"pending":status);v.put("due_day",Math.max(0,dueDay));v.put("priority",priority);v.put("payload_json",validJsonObject(payload));v.put("rule_query",ruleQuery==null?"":ruleQuery);v.put("effect_key",effectKey);v.put("created_at",createdAt>0?createdAt:System.currentTimeMillis());v.put("updated_at",System.currentTimeMillis());long id=getWritableDatabase().insertWithOnConflict("pending_action_queue",null,v,SQLiteDatabase.CONFLICT_IGNORE);if(id==-1){getWritableDatabase().update("pending_action_queue",v,"world_profile=? AND effect_key=?",new String[]{getActiveMapProfile(),effectKey});JSONObject found=queryOne("SELECT id FROM pending_action_queue WHERE world_profile=? AND effect_key=?",new String[]{getActiveMapProfile(),effectKey});return found.optLong("id");}return id;
+    }
+    public JSONArray listPendingActions(String status,int limit){syncPendingActionQueue();String where="world_profile=?";ArrayList<String> args=new ArrayList<String>();args.add(getActiveMapProfile());if(status!=null&&!status.trim().isEmpty()){where+=" AND status=?";args.add(status.trim());}return new JSONArray(queryList("SELECT * FROM pending_action_queue WHERE "+where+" ORDER BY priority DESC,CASE WHEN due_day>0 THEN due_day ELSE 2147483647 END,created_at LIMIT "+Math.max(1,Math.min(1000,limit)),args.toArray(new String[0])));}
+    public void resolvePendingAction(long id,String status){ContentValues v=new ContentValues();v.put("status",status==null?"resolved":status);v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("pending_action_queue",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+
+    /**
+     * Compatibilidade legada. O Atlas Contract V3 carrega as posições canônicas
+     * exclusivamente de faerun_2025_locations_ptbr_v1.json; nenhum seed paralelo
+     * pode sobrescrever o catálogo oficial.
+     */
+    public synchronized int applyBundledResolvedLocations(String packageId){ return 0; }
+
+    public synchronized JSONObject exportAll() throws Exception {
+        String profile=getActiveMapProfile();
+        JSONObject root=new JSONObject();
+        root.put("format","braseiro-dnd-backup").put("version",21).put("backupScope","campaign");
+        root.put("appVersion",BuildConfig.VERSION_NAME);
+        root.put("worldProfile",profile).put("exportedAt",System.currentTimeMillis());
+        root.put("campaign",getCampaign());
+        root.put("storyState",getStoryState());
+        root.put("sceneState",getSceneState());
+        root.put("npcMemories",new JSONArray(queryList("SELECT * FROM npc_memory_profiles WHERE world_profile=? ORDER BY updated_at",new String[]{profile})));
+        root.put("auditLog",new JSONArray(queryList("SELECT * FROM audit_log WHERE world_profile=? ORDER BY created_at",new String[]{profile})));
+        root.put("characters",new JSONArray(listCharacters()));
+        root.put("journal",new JSONArray(listJournal()));
+        root.put("combatants",new JSONArray(queryList(
+            "SELECT * FROM combatants WHERE world_profile=? ORDER BY sort_order, initiative DESC",
+            new String[]{profile})));
+        root.put("combatState",getCombatState());
+        root.put("diceHistory",new JSONArray(queryList("SELECT * FROM dice_history WHERE world_profile=? ORDER BY created_at",new String[]{profile})));
+        JSONObject portableMap=portableMapState(getMapState());
+        String mapId=portableMap.optString("logical_map_id");
+        root.put("mapState",portableMap);
+        root.put("mapCorrections",new JSONArray(listMapCorrections(mapId)));
+        root.put("mapHexNotes",new JSONArray(listMapHexNotes(profile,mapId)));
+        ensureAtlasContractSchema(getWritableDatabase());
+        root.put("campaignPois",new JSONArray(queryList("SELECT * FROM campaign_pois WHERE world_profile=? ORDER BY created_at,id",new String[]{profile})));
+        root.put("campaignPoiEvents",new JSONArray(queryList("SELECT * FROM campaign_poi_events WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("campaignSettlements",new JSONArray(queryList("SELECT s.* FROM campaign_settlements s INNER JOIN campaign_pois p ON p.id=s.poi_id WHERE p.world_profile=? ORDER BY s.poi_id",new String[]{profile})));
+        root.put("partyState",getPartyState());
+        root.put("partyActions",new JSONArray(queryList("SELECT * FROM party_action_queue WHERE world_profile=? ORDER BY created_at",new String[]{profile})));
+        root.put("partyMemberships",new JSONArray(queryList("SELECT * FROM party_memberships WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("characterControls",new JSONArray(queryList("SELECT * FROM character_control_profiles WHERE world_profile=? ORDER BY character_id",new String[]{profile})));
+        root.put("companionProposals",new JSONArray(queryList("SELECT * FROM companion_proposals WHERE world_profile=? ORDER BY created_at",new String[]{profile})));
+        root.put("knowledgeFacts",new JSONArray(queryList("SELECT * FROM knowledge_facts WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("quests",new JSONArray(queryList("SELECT * FROM quests WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("factions",new JSONArray(queryList("SELECT * FROM factions WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("worldClocks",new JSONArray(queryList("SELECT * FROM world_clocks WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("worldEvents",new JSONArray(queryList("SELECT * FROM world_events WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("pendingTransactions",new JSONArray(queryList("SELECT * FROM pending_transactions WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        ensureBarbaraHardeningSchema(getWritableDatabase());
+        root.put("sceneCommitJournal",new JSONArray(queryList("SELECT * FROM scene_commit_journal WHERE world_profile=? ORDER BY prepared_at,commit_id",new String[]{profile})));
+        root.put("worldDomainEvents",new JSONArray(queryList("SELECT * FROM world_domain_events WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        syncPendingActionQueue();root.put("pendingActions",new JSONArray(queryList("SELECT * FROM pending_action_queue WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("effectReceipts",new JSONArray(queryList("SELECT * FROM effect_receipts WHERE world_profile=? ORDER BY applied_at,effect_key",new String[]{profile})));
+        root.put("sessionMemories",new JSONArray(queryList("SELECT * FROM session_memories WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("tacticalTokens",new JSONArray(listRawTacticalTokensForBackup()));
+        root.put("masterRuntimeState",getMasterRuntimeState());
+        ensureNarrativeDiscoverySchema(getWritableDatabase());
+        root.put("narrativeDiscoveryRuntime",getNarrativeDiscoveryRuntime());
+        root.put("narrativeDiscoveryState",new JSONArray(listNarrativeDiscovery()));
+        root.put("environmentalDirectorState",getEnvironmentalDirectorState());
+        root.put("travelRulesState",getTravelRulesState());
+        ensureLivingWorldTables(getWritableDatabase());
+        root.put("livingWorldState",queryOne("SELECT * FROM living_world_state WHERE world_profile=?",new String[]{profile}));
+        root.put("heroLifeProfiles",new JSONArray(queryList("SELECT * FROM hero_life_profiles WHERE world_profile=? ORDER BY character_id",new String[]{profile})));
+        root.put("lifeRelationships",new JSONArray(queryList("SELECT * FROM life_relationships WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("lifeActivities",new JSONArray(queryList("SELECT * FROM life_activities WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("livingTroupes",new JSONArray(queryList("SELECT * FROM living_troupes WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("masterEpisodes",new JSONArray(queryList("SELECT * FROM master_episodes WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("npcCognitiveStates",new JSONArray(queryList("SELECT * FROM npc_cognitive_state WHERE world_profile=? ORDER BY npc_name",new String[]{profile})));
+        ensureGuildTables();
+        root.put("guilds",new JSONArray(queryList("SELECT * FROM guilds WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("guildRanks",new JSONArray(queryList("SELECT * FROM guild_ranks WHERE world_profile=? ORDER BY guild_id,rank_order,id",new String[]{profile})));
+        root.put("guildMembers",new JSONArray(queryList("SELECT * FROM guild_members WHERE world_profile=? ORDER BY guild_id,id",new String[]{profile})));
+        root.put("guildContracts",new JSONArray(queryList("SELECT * FROM guild_contracts WHERE world_profile=? ORDER BY guild_id,id",new String[]{profile})));
+        root.put("guildProjects",new JSONArray(queryList("SELECT * FROM guild_projects WHERE world_profile=? ORDER BY guild_id,id",new String[]{profile})));
+        root.put("guildSites",new JSONArray(queryList("SELECT * FROM guild_sites WHERE world_profile=? ORDER BY guild_id,id",new String[]{profile})));
+        root.put("guildLedger",new JSONArray(queryList("SELECT * FROM guild_ledger WHERE world_profile=? ORDER BY guild_id,id",new String[]{profile})));
+        root.put("guildRelations",new JSONArray(queryList("SELECT * FROM guild_relations WHERE world_profile=? ORDER BY guild_id,id",new String[]{profile})));
+        ensureSixZeroSchema(getWritableDatabase());
+        root.put("worldSeed",queryOne("SELECT * FROM world_seeds WHERE world_profile=?",new String[]{profile}));
+        root.put("emergentArcs",new JSONArray(queryList("SELECT * FROM emergent_arcs WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("settlementStates",new JSONArray(queryList("SELECT * FROM settlement_states WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("worldHistoryEvents",new JSONArray(queryList("SELECT * FROM world_history_events WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("rumors",new JSONArray(queryList("SELECT * FROM rumors WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("rumorKnowledge",new JSONArray(queryList("SELECT * FROM rumor_knowledge WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("campaignLegacies",new JSONArray(queryList("SELECT * FROM campaign_legacies WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("npcVoiceProfiles",new JSONArray(queryList("SELECT * FROM npc_voice_profiles WHERE world_profile=? ORDER BY npc_name",new String[]{profile})));
+        root.put("tacticalScenes",new JSONArray(queryList("SELECT * FROM tactical_scenes WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("localTableSecrets",new JSONArray(queryList("SELECT * FROM local_table_secrets WHERE world_profile=? ORDER BY id",new String[]{profile})));
+        root.put("derivedIndexesExcluded",true);
+        root.put("externalLibrariesExcluded",new JSONArray().put("manuals").put("manual_rag_parts").put("manual_local_pages").put("tokens").put("token_pdfs").put("pdf_tokens").put("audio_library").put("map_package_files"));
+        root.put("restoreContract","A importação substitui somente a campanha do worldProfile indicado; bibliotecas externas e o outro mundo nunca são apagados.");
+        // RUN217: seal the ENTIRE portable snapshot, after attaching the compiled
+        // bundle. Old unsealed BACKUP21 exports remain readable.
+        return Backup21IntegrityEnvelope.seal(CompiledContentBackupBridge.attach(root));
+    }
+
+    private JSONObject portableMapState(JSONObject source)throws Exception{
+        JSONObject out=new JSONObject();String packageId=source.optString("map_package_id");String logicalId=source.optString("logical_map_id",logicalMapId(source.optString("manifest_json"),packageId));
+        out.put("logical_map_id",logicalId).put("manifest_json",source.optString("manifest_json")).put("coordinate_frame_id",source.optString("coordinate_frame_id","")).put("position_map_package_id",source.optString("position_map_package_id",source.optString("map_package_id",""))).put("position_migration_status",source.optString("position_migration_status","ready")).put("legacy_position_json",source.optString("legacy_position_json","{}"));if(source.has("position_u")&&!source.isNull("position_u"))out.put("position_u",source.optDouble("position_u"));if(source.has("position_v")&&!source.isNull("position_v"))out.put("position_v",source.optDouble("position_v"));out.put("current_hex_id",source.optString("current_hex_id")).put("overlay_visible",source.optInt("overlay_visible",1)).put("overlay_mode",source.optString("overlay_mode","dynamic")).put("min_label_zoom",source.optDouble("min_label_zoom",1.6)).put("reveals_json",source.optString("reveals_json","{}")).put("grid_type",source.optString("grid_type","Quadrada")).put("grid_size",source.optDouble("grid_size",64)).put("fog_enabled",source.optInt("fog_enabled",0)).put("token_x",source.optDouble("token_x",.5)).put("token_y",source.optDouble("token_y",.5)).put("scale",source.optDouble("scale",1)).put("offset_x",source.optDouble("offset_x",0)).put("offset_y",source.optDouble("offset_y",0)).put("position_locked",source.optInt("position_locked",0)).put("destination_hex_id",source.optString("destination_hex_id")).put("route_json",source.optString("route_json","[]")).put("route_owner",source.optString("route_owner","Jogador"));
+        return out;
+    }
+
+    private static String backupNullableString(JSONObject row,String key){
+        return row==null||row.isNull(key)?null:row.optString(key,"");
+    }
+
+    public synchronized void importAll(JSONObject root) throws Exception {
+        BackupContractValidator.requireValid(root);
+        CompiledContentBackupBridge.preflight(root);
+        if(!"braseiro-dnd-backup".equals(root.optString("format")))throw new Exception("Arquivo de backup incompatível.");
+        int backupVersion=root.optInt("version",0);if(backupVersion<=0||backupVersion>21)throw new Exception("Versão de backup não suportada: "+backupVersion+".");
+        String scope=root.optString("backupScope",backupVersion>=12?"campaign":"legacy");if(backupVersion>=12&&!"campaign".equals(scope))throw new Exception("Escopo de backup inválido.");
+        String backupProfile=normalizeMapProfile(root.optString("worldProfile",getActiveMapProfile()));
+        if(!backupProfile.equals(getActiveMapProfile()))throw new Exception("Este backup pertence ao mundo "+backupProfile+". Selecione esse mundo antes de importar para evitar mistura entre D&D e Mystara.");
+        JSONObject compiledPrior=CompiledContentPersistenceBundle.snapshot();
+        boolean compiledChanged=false;
+        SQLiteDatabase db=getWritableDatabase();db.beginTransaction();Exception restoreFailure=null;try{
+            JSONObject cp=root.optJSONObject("campaign");if(cp!=null)saveCampaign(cp.optString("name"),cp.optString("rules_profile"),cp.optString("tone"),cp.optInt("feats")==1,cp.optInt("multiclass")==1,cp.optInt("flanking")==1,cp.optString("notes"));
+            JSONObject ss=root.optJSONObject("storyState");
+            Map<Long,Long> characterIdMap=new HashMap<Long,Long>();
+            JSONArray chars=root.optJSONArray("characters");if(chars!=null){db.delete("characters","world_profile=?",new String[]{backupProfile});for(int i=0;i<chars.length();i++){JSONObject c=new JSONObject(chars.getJSONObject(i).toString());CharacterIdentityCoherence.repairLegacyRow(c);long oldId=c.optLong("id",0);long cid=addCharacter(c.optString("name"),c.optString("species"),c.optString("class_name"),c.optInt("level",1),c.optInt("hp",1),c.optInt("max_hp",1),c.optInt("ac",10),c.optInt("str",10),c.optInt("dex",10),c.optInt("con",10),c.optInt("int_score",10),c.optInt("wis",10),c.optInt("cha",10),c.optInt("active",1)==1,c.optString("notes"));if(oldId>0&&cid>0)characterIdMap.put(oldId,cid);updateCharacterRuleDetails(cid,backupNullableString(c,"background"),backupNullableString(c,"visual_description"),backupNullableString(c,"proficiencies"),backupNullableString(c,"equipment"),backupNullableString(c,"spells"),backupNullableString(c,"rules_source"));updateCharacterSheet(cid,c.optString("sheet_json","{}"));String token=c.optString("token_uri");if(isUriReadable(token))setCharacterToken(cid,token);}}
+            if(root.has("journal")){db.delete("journal","world_profile=?",new String[]{backupProfile});JSONArray j=root.optJSONArray("journal");if(j!=null)for(int i=0;i<j.length();i++){JSONObject x=j.getJSONObject(i);addJournal(x.optString("title"),x.optString("body"),x.optString("kind"));}}
+            Map<Long,Long> combatantIdMap=root.has("combatants")?restoreCombatants(db,root.optJSONArray("combatants"),characterIdMap):new HashMap<Long,Long>();
+            Map<Long,Long> diceIdMap=root.has("diceHistory")?restoreDiceHistory(db,root.optJSONArray("diceHistory"),backupProfile,backupVersion,characterIdMap):new HashMap<Long,Long>();
+            JSONObject combatState=root.optJSONObject("combatState");if(combatState!=null){ContentValues stateValues=jsonValues(combatState);stateValues.remove("id");stateValues.remove("world_profile");db.update("combat_state_profiles",stateValues,"world_profile=?",new String[]{backupProfile});}
+            JSONObject ms=root.optJSONObject("mapState");String logicalMapId=ms==null?getMapStateForProfile(backupProfile).optString("logical_map_id"):restorePortableMapState(backupProfile,ms);
+            String legacyMapPackageId=ms==null?"":ms.optString("map_package_id");
+            JSONArray mapCorrections=root.optJSONArray("mapCorrections");if(mapCorrections!=null&&logicalMapId.length()>0){db.delete("map_hex_corrections","map_id=?",new String[]{logicalMapId});restoreMapCorrections(db,logicalMapId,legacyMapPackageId,mapCorrections);}
+            JSONArray mapHexNotes=root.optJSONArray("mapHexNotes");if(mapHexNotes!=null&&logicalMapId.length()>0){db.delete("map_hex_notes","world_profile=? AND map_id=?",new String[]{backupProfile,logicalMapId});restoreMapNotes(db,backupProfile,logicalMapId,legacyMapPackageId,mapHexNotes);}
+            if(root.has("campaignPois")){ensureAtlasContractSchema(db);restoreCampaignPois(db,root,backupProfile,logicalMapId);}
+            JSONObject scene=root.optJSONObject("sceneState");if(scene!=null)saveSceneState(scene);
+            JSONArray npcs=root.optJSONArray("npcMemories");if(npcs!=null){db.delete("npc_memory_profiles","world_profile=?",new String[]{backupProfile});for(int i=0;i<npcs.length();i++)upsertNpcMemory(npcs.optJSONObject(i));}
+            JSONArray audit=root.optJSONArray("auditLog");if(audit!=null){JSONArray safeAudit=profileRowsForRestore(audit,backupProfile,backupVersion);if(backupVersion>=12||safeAudit.length()>0){db.delete("audit_log","world_profile=?",new String[]{backupProfile});for(int i=0;i<safeAudit.length();i++){JSONObject x=safeAudit.optJSONObject(i);if(x==null)continue;ContentValues v=jsonValues(x);v.remove("id");v.put("world_profile",backupProfile);db.insertOrThrow("audit_log",null,v);}}}
+            JSONObject partyState=root.optJSONObject("partyState");if(partyState!=null)savePartyState(partyState);
+            Map<Long,Long> partyActionIdMap=root.has("partyActions")?
+                restorePartyActions(db,root.optJSONArray("partyActions"),characterIdMap,combatantIdMap):new HashMap<Long,Long>();
+            if(root.has("partyMemberships"))restorePartyMemberships(db,root.optJSONArray("partyMemberships"),characterIdMap);
+            if(root.has("characterControls"))restoreCharacterControls(db,root.optJSONArray("characterControls"),characterIdMap);
+            if(root.has("companionProposals"))restoreCompanionProposals(db,root.optJSONArray("companionProposals"),characterIdMap,backupProfile);
+            if(root.has("knowledgeFacts"))restoreProfileRowsWithoutId(db,"knowledge_facts",root.optJSONArray("knowledgeFacts"),backupProfile,backupVersion);
+            Map<Long,Long> factionIdMap=root.has("factions")?restoreFactions(db,root.optJSONArray("factions")):new HashMap<Long,Long>();
+            Map<Long,Long> questIdMap=root.has("quests")?restoreQuests(db,root.optJSONArray("quests"),characterIdMap,factionIdMap):new HashMap<Long,Long>();
+            ensureLivingWorldTables(db);
+            BackupReferenceRemapper.Maps livingPartialMaps=new BackupReferenceRemapper.Maps(characterIdMap,diceIdMap,combatantIdMap,factionIdMap,new HashMap<Long,Long>(),new HashMap<Long,Long>());
+            Map<Long,Long> activityIdMap=root.has("lifeActivities")?restoreLifeActivities(db,root.optJSONArray("lifeActivities"),backupProfile,characterIdMap,livingPartialMaps):new HashMap<Long,Long>();
+            Map<Long,Long> troupeIdMap=root.has("livingTroupes")?restoreProfileRowsWithIdMap(db,"living_troupes",root.optJSONArray("livingTroupes"),backupProfile,backupVersion):new HashMap<Long,Long>();
+            Map<Long,Long> clockIdMap=root.has("worldClocks")?restoreProfileRowsWithIdMap(db,"world_clocks",root.optJSONArray("worldClocks"),backupProfile,backupVersion):new HashMap<Long,Long>();
+            BackupReferenceRemapper.Maps partialMaps=new BackupReferenceRemapper.Maps(characterIdMap,diceIdMap,combatantIdMap,factionIdMap,new HashMap<Long,Long>(),clockIdMap,troupeIdMap,activityIdMap,questIdMap,new HashMap<Long,Long>(),new HashMap<Long,Long>(),new HashMap<Long,Long>(),new HashMap<Long,Long>(),new HashMap<String,String>(),new HashMap<String,String>());
+            JSONArray portableEvents=prepareLegacyWorldEventRows(root.optJSONArray("worldEvents"));
+            Map<Long,Long> eventIdMap=root.has("worldEvents")?restoreProfileRowsWithIdMap(db,"world_events",remapRows(portableEvents,partialMaps),backupProfile,backupVersion):new HashMap<Long,Long>();
+            BackupReferenceRemapper.Maps referenceMaps=new BackupReferenceRemapper.Maps(characterIdMap,diceIdMap,combatantIdMap,factionIdMap,eventIdMap,clockIdMap,troupeIdMap,activityIdMap,questIdMap,new HashMap<Long,Long>(),new HashMap<Long,Long>(),new HashMap<Long,Long>(),new HashMap<Long,Long>(),new HashMap<String,String>(),new HashMap<String,String>());
+            JSONArray portableTransactions=prepareLegacyTransactionRows(root.optJSONArray("pendingTransactions"));
+            Map<Long,Long> transactionIdMap=root.has("pendingTransactions")?restoreProfileRowsWithIdMap(db,"pending_transactions",remapRows(portableTransactions,referenceMaps),backupProfile,backupVersion):new HashMap<Long,Long>();
+            if(root.has("pendingActions"))restoreProfileRowsWithIdMap(db,"pending_action_queue",root.optJSONArray("pendingActions"),backupProfile,backupVersion);
+            referenceMaps=new BackupReferenceRemapper.Maps(characterIdMap,diceIdMap,combatantIdMap,factionIdMap,eventIdMap,clockIdMap,troupeIdMap,activityIdMap,questIdMap,new HashMap<Long,Long>(),new HashMap<Long,Long>(),new HashMap<Long,Long>(),transactionIdMap,new HashMap<String,String>(),new HashMap<String,String>());
+            ensureBarbaraHardeningSchema(db);
+            restoreSceneHardeningRows(db,root,backupProfile,backupVersion,transactionIdMap);
+            rewriteMappedJsonRows(db,"life_activities",root.optJSONArray("lifeActivities"),activityIdMap,referenceMaps,new String[]{"check_json","cost_json","reward_json","resolution_json"});
+            rewriteMappedJsonRows(db,"living_troupes",root.optJSONArray("livingTroupes"),troupeIdMap,referenceMaps,new String[]{"members_json","itinerary_json","resources_json","travel_progress_json"});
+            rewriteMappedJsonRows(db,"quests",root.optJSONArray("quests"),questIdMap,referenceMaps,new String[]{"progress_json"});
+            rewriteMappedJsonRows(db,"world_events",portableEvents,eventIdMap,referenceMaps,new String[]{"consequence_json","trigger_json","procedure_json","transaction_key","application_receipt"});
+            rewriteMappedJsonRows(db,"pending_transactions",portableTransactions,transactionIdMap,referenceMaps,new String[]{"payload_json","effect_key"});
+            if(ss!=null){JSONObject pending=parseBackupObject(ss.optString("pending_test_json","{}"));JSONObject remappedPending=BackupReferenceRemapper.remapObject(pending,referenceMaps);saveStoryState(ss.optInt("started")==1,ss.optString("last_narration"),ss.optString("visual_prompt"),ss.optString("options_json","[]"),remappedPending.length()==0?"":remappedPending.toString(),ss.optString("last_action"));saveSceneOptionHistory(ss.optString("option_history_json","[]"));}
+            if(root.has("effectReceipts"))restoreProfileRowsWithoutId(db,"effect_receipts",
+                remapCombatReceiptRows(remapRows(root.optJSONArray("effectReceipts"),referenceMaps),
+                    combatantIdMap,partyActionIdMap,characterIdMap),
+                backupProfile,backupVersion);
+            // RUN206: a restored attack is not complete if the old target was
+            // omitted, or if a turn/damage receipt vanished in a partial backup.
+            reconcileRestoredPartyAttackProofs(db,backupProfile);
+            reconcileRestoredPartyExtraProofs(db,backupProfile);
+            reconcileRestoredPartyGridProofs(db,backupProfile);
+            backfillLegacyTransactionIdentities(db,backupProfile);
+            backfillLegacyWorldEventIdentities(db,backupProfile);
+            if(root.has("sessionMemories"))restoreProfileRowsWithoutId(db,"session_memories",root.optJSONArray("sessionMemories"),backupProfile,backupVersion);
+            if(root.has("tacticalTokens"))restoreTacticalTokens(db,root.optJSONArray("tacticalTokens"),combatantIdMap);
+            JSONObject masterRuntime=root.optJSONObject("masterRuntimeState");if(masterRuntime!=null)saveMasterRuntimeState(masterRuntime);
+            ensureNarrativeDiscoverySchema(db);
+            // O backup substitui a campanha: versões antigas sem ledger não podem herdar descoberta da campanha atual.
+            resetNarrativeDiscovery();
+            JSONArray discoveryRows=root.optJSONArray("narrativeDiscoveryState");if(discoveryRows!=null)for(int i=0;i<discoveryRows.length();i++){JSONObject row=discoveryRows.optJSONObject(i);if(row==null)continue;ContentValues v=jsonValues(row);v.put("world_profile",backupProfile);db.insertWithOnConflict("narrative_discovery_state",null,v,SQLiteDatabase.CONFLICT_REPLACE);}
+            JSONObject discoveryRuntime=root.optJSONObject("narrativeDiscoveryRuntime");if(discoveryRuntime!=null)saveNarrativeDiscoveryRuntime(discoveryRuntime);
+            JSONObject environmentalState=root.optJSONObject("environmentalDirectorState");if(environmentalState!=null)saveEnvironmentalDirectorState(environmentalState);
+            JSONObject travelRulesState=root.optJSONObject("travelRulesState");if(travelRulesState!=null)saveTravelRulesState(travelRulesState);
+            JSONObject livingWorldState=root.optJSONObject("livingWorldState");if(livingWorldState!=null){ContentValues v=jsonValues(livingWorldState);v.remove("world_profile");v.put("updated_at",System.currentTimeMillis());db.update("living_world_state",v,"world_profile=?",new String[]{backupProfile});}
+            if(root.has("heroLifeProfiles"))restoreLivingRows(db,"hero_life_profiles",root.optJSONArray("heroLifeProfiles"),backupProfile,characterIdMap,true);
+            if(root.has("lifeRelationships"))restoreLivingRows(db,"life_relationships",root.optJSONArray("lifeRelationships"),backupProfile,characterIdMap,false);
+            if(root.has("masterEpisodes"))restoreProfileRowsWithoutId(db,"master_episodes",root.optJSONArray("masterEpisodes"),backupProfile,backupVersion);
+            if(root.has("npcCognitiveStates"))restoreNpcCognitiveStates(db,root.optJSONArray("npcCognitiveStates"));
+            if(root.has("guilds"))restoreGuildSubsystem(db,root,characterIdMap,factionIdMap,questIdMap,backupVersion);
+            if(backupVersion>=19){ensureSixZeroSchema(db);restoreSixZeroRows(db,root,backupProfile,characterIdMap);}
+            JSONObject restoreAudit=auditRestoredReferences(backupProfile);if(!restoreAudit.optBoolean("healthy",false))throw new IllegalStateException("A restauração foi revertida pela auditoria de referências: "+restoreAudit.optJSONArray("problems"));
+            addAuditEventPreservingHistory("backup","Restauração auditada","Referências internas verificadas após importar backup v"+backupVersion,"{}",restoreAudit.toString(),false);
+            if(root.has(CompiledContentBackupBridge.BACKUP_KEY)){
+                // Mark the in-memory bundle as changed before invoking the
+                // bridge: a validation or restore failure may happen after
+                // the bridge has already replaced part of its state.
+                compiledChanged=true;
+                CompiledContentBackupBridge.restoreOrThrow(root);
+            }
+            db.setTransactionSuccessful();
+        }catch(Exception failure){
+            restoreFailure=failure;
+        }finally{
+            // SQLite commits at endTransaction. A failed COMMIT must also undo
+            // the compiled bundle already restored in memory above.
+            try{db.endTransaction();}
+            catch(Exception endFailure){
+                if(restoreFailure==null)restoreFailure=endFailure;
+                else restoreFailure.addSuppressed(endFailure);
+            }
+            if(restoreFailure!=null&&compiledChanged){
+                try{CompiledContentBackupBridge.rollbackOrThrow(compiledPrior);}
+                catch(Exception rollback){restoreFailure.addSuppressed(rollback);}
+            }
+        }
+        if(restoreFailure!=null)throw restoreFailure;
+    }
+
+
+    private void restoreSceneHardeningRows(SQLiteDatabase db,JSONObject root,String profile,int backupVersion,Map<Long,Long> transactionIdMap)throws Exception{
+        db.delete("world_domain_events","world_profile=?",new String[]{profile});
+        db.delete("scene_commit_journal","world_profile=?",new String[]{profile});
+        if(backupVersion<20)return;
+        JSONArray journal=root.optJSONArray("sceneCommitJournal");
+        if(journal!=null)for(int i=0;i<journal.length();i++){
+            JSONObject row=journal.optJSONObject(i);if(row==null)continue;
+            String commitId=row.optString("commit_id","").trim();String status=row.optString("status","PREPARED").trim().toUpperCase(Locale.ROOT);
+            if(commitId.length()<16||!("PREPARED".equals(status)||"COMMITTED".equals(status)||"DISCARDED".equals(status)))continue;
+            ContentValues v=jsonValues(row);v.remove("world_profile");v.put("world_profile",profile);v.put("commit_id",commitId);v.put("status",status);
+            long oldTx=row.optLong("transaction_id",0);Long mapped=transactionIdMap.get(oldTx);v.put("transaction_id",mapped==null?0:mapped);
+            if("PREPARED".equals(status)){v.put("committing_at",0);v.put("committed_at",0);} // nunca restaura estado transitório.
+            db.insertWithOnConflict("scene_commit_journal",null,v,SQLiteDatabase.CONFLICT_REPLACE);
+        }
+        JSONArray events=root.optJSONArray("worldDomainEvents");
+        if(events!=null)for(int i=0;i<events.length();i++){
+            JSONObject row=events.optJSONObject(i);if(row==null)continue;String eventId=row.optString("event_id","").trim(),type=row.optString("event_type","").trim();
+            if(eventId.length()<8||type.length()==0)continue;ContentValues v=jsonValues(row);v.remove("id");v.remove("world_profile");v.put("world_profile",profile);v.put("event_id",eventId);v.put("event_type",type);v.put("canonical",1);db.insertWithOnConflict("world_domain_events",null,v,SQLiteDatabase.CONFLICT_REPLACE);
+        }
+        // Um backup v21 só é aceito se cada COMMITTED possuir o evento canônico final correspondente.
+        int orphan=countQuery(db,"SELECT COUNT(*) FROM scene_commit_journal j LEFT JOIN world_domain_events e ON e.world_profile=j.world_profile AND e.scene_commit_id=j.commit_id AND e.event_type='SCENE_COMMITTED' WHERE j.world_profile=? AND j.status='COMMITTED' AND e.event_id IS NULL",new String[]{profile});
+        if(orphan>0)throw new IllegalStateException("Backup v21 contém commit(s) de cena sem evento canônico final.");
+    }
+
+    private void restoreSixZeroRows(SQLiteDatabase db,JSONObject root,String profile,Map<Long,Long> characterIdMap)throws Exception{
+        JSONObject seed=root.optJSONObject("worldSeed");if(seed!=null){ContentValues v=jsonValues(seed);v.put("world_profile",profile);db.insertWithOnConflict("world_seeds",null,v,SQLiteDatabase.CONFLICT_REPLACE);}
+        String[] keys={"emergentArcs","settlementStates","worldHistoryEvents","rumors","campaignLegacies","npcVoiceProfiles","tacticalScenes"};
+        String[] tables={"emergent_arcs","settlement_states","world_history_events","rumors","campaign_legacies","npc_voice_profiles","tactical_scenes"};
+        for(int k=0;k<keys.length;k++){db.delete(tables[k],"world_profile=?",new String[]{profile});JSONArray rows=root.optJSONArray(keys[k]);if(rows==null)continue;for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null)continue;ContentValues v=jsonValues(row);v.remove("id");v.put("world_profile",profile);db.insertWithOnConflict(tables[k],null,v,SQLiteDatabase.CONFLICT_REPLACE);}}
+        // rumor_knowledge references rumor ids; resolve by old rumor_key rather than physical id when possible.
+        db.delete("rumor_knowledge","world_profile=?",new String[]{profile});JSONArray knowledge=root.optJSONArray("rumorKnowledge"),oldRumors=root.optJSONArray("rumors");java.util.HashMap<Long,String> oldKeys=new java.util.HashMap<Long,String>();if(oldRumors!=null)for(int i=0;i<oldRumors.length();i++){JSONObject r=oldRumors.optJSONObject(i);if(r!=null)oldKeys.put(r.optLong("id"),r.optString("rumor_key"));}if(knowledge!=null)for(int i=0;i<knowledge.length();i++){JSONObject row=knowledge.optJSONObject(i);if(row==null)continue;String rk=oldKeys.get(row.optLong("rumor_id"));JSONObject current=rk==null?new JSONObject():queryOne("SELECT id FROM rumors WHERE world_profile=? AND rumor_key=?",new String[]{profile,rk});if(current.length()==0)continue;ContentValues v=jsonValues(row);v.remove("id");v.put("world_profile",profile);v.put("rumor_id",current.optLong("id"));db.insertWithOnConflict("rumor_knowledge",null,v,SQLiteDatabase.CONFLICT_REPLACE);}
+        db.delete("local_table_secrets","world_profile=?",new String[]{profile});JSONArray secrets=root.optJSONArray("localTableSecrets");if(secrets!=null)for(int i=0;i<secrets.length();i++){JSONObject row=secrets.optJSONObject(i);if(row==null)continue;Long mapped=characterIdMap.get(row.optLong("character_id"));if(mapped==null||mapped<=0)continue;ContentValues v=jsonValues(row);v.remove("id");v.put("world_profile",profile);v.put("character_id",mapped);db.insert("local_table_secrets",null,v);}
+    }
+
+    private void restoreCampaignPois(SQLiteDatabase sql,JSONObject root,String profile,String logicalMapId)throws Exception{
+        sql.delete("campaign_poi_events","world_profile=?",new String[]{profile});
+        // Settlements são dependentes dos POIs; apague por ids do perfil antes dos POIs.
+        for(JSONObject old:listCampaignPois(logicalMapId,true,5000))sql.delete("campaign_settlements","poi_id=?",new String[]{old.optString("id","")});
+        sql.delete("campaign_pois","world_profile=?",new String[]{profile});
+        JSONObject state=getMapStateForProfile(profile);String activePackage=state.optString("map_package_id","");String activeLogical=getLogicalMapIdForPackage(activePackage);String activeFrame=getCoordinateFrameIdForPackage(activePackage);
+        JSONArray rows=root.optJSONArray("campaignPois");if(rows!=null)for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null)continue;String sourceWorld=normalizeMapProfile(row.optString("world_profile",profile));if(!profile.equals(sourceWorld))continue;ContentValues v=jsonValues(row);v.put("world_profile",profile);String rowLogical=row.optString("logical_map_id",logicalMapId);v.put("logical_map_id",rowLogical);String oldPackage=row.optString("map_package_id","");String oldFrame=row.optString("coordinate_frame_id","");String oldHex=row.optString("hex_id","");double u=row.has("position_u")&&!row.isNull("position_u")?row.optDouble("position_u",Double.NaN):Double.NaN;double vv=row.has("position_v")&&!row.isNull("position_v")?row.optDouble("position_v",Double.NaN):Double.NaN;
+            if(activePackage.length()>0&&activeLogical.equals(rowLogical)&&activeFrame.length()>0&&activeFrame.equals(oldFrame)&&!Double.isNaN(u)&&!Double.isNaN(vv)){JSONObject nearest=nearestMapHexByNormalized(activePackage,u,vv);String newHex=nearest.optString("hex_id","");v.put("map_package_id",activePackage);v.put("coordinate_frame_id",activeFrame);v.put("hex_id",newHex);v.put("migration_status",newHex.length()>0?"ready_uv_same_frame":"migration_pending");}
+            else if(activePackage.length()>0&&activeLogical.equals(rowLogical)&&oldPackage.equals(activePackage)&&isValidMapHex(activePackage,oldHex)){v.put("migration_status","ready");}
+            else if(activePackage.length()>0&&activeLogical.equals(rowLogical)){JSONObject legacy=new JSONObject().put("map_package_id",oldPackage).put("coordinate_frame_id",oldFrame).put("hex_id",oldHex);if(!Double.isNaN(u))legacy.put("u",u);if(!Double.isNaN(vv))legacy.put("v",vv);v.put("legacy_position_json",legacy.toString());v.put("map_package_id",activePackage);v.put("coordinate_frame_id",activeFrame);v.put("hex_id","");v.putNull("position_u");v.putNull("position_v");v.put("migration_status","migration_pending");}
+            sql.insertOrThrow("campaign_pois",null,v);
+        }
+        JSONArray settlements=root.optJSONArray("campaignSettlements");if(settlements!=null)for(int i=0;i<settlements.length();i++){JSONObject row=settlements.optJSONObject(i);if(row==null||getCampaignPoi(row.optString("poi_id","")).length()==0)continue;sql.insertWithOnConflict("campaign_settlements",null,jsonValues(row),SQLiteDatabase.CONFLICT_REPLACE);}
+        JSONArray events=root.optJSONArray("campaignPoiEvents");if(events!=null)for(int i=0;i<events.length();i++){JSONObject row=events.optJSONObject(i);if(row==null||getCampaignPoi(row.optString("poi_id","")).length()==0)continue;ContentValues v=jsonValues(row);v.remove("id");v.put("world_profile",profile);sql.insert("campaign_poi_events",null,v);}
+    }
+
+    /** Contagens de aceite do Atlas persistido, usadas para validar o contrato antes de marcar ready. */
+    public JSONObject getAtlasContractCounts(String packageId){
+        JSONObject out=new JSONObject();
+        try{
+            out.put("hexes",scalarLong("SELECT COUNT(*) FROM map_hex_atlas WHERE package_id=?",new String[]{packageId}));
+            out.put("locations",scalarLong("SELECT COUNT(*) FROM map_locations WHERE package_id=? AND canonical=1",new String[]{packageId}));
+            out.put("positionedLocations",scalarLong("SELECT COUNT(*) FROM map_locations WHERE package_id=? AND canonical=1 AND COALESCE(hex_id,'')<>''",new String[]{packageId}));
+            out.put("unplacedLocations",scalarLong("SELECT COUNT(*) FROM map_locations WHERE package_id=? AND canonical=1 AND COALESCE(hex_id,'')=''",new String[]{packageId}));
+            out.put("multihexAreas",scalarLong("SELECT COUNT(*) FROM map_areas WHERE package_id=?",new String[]{packageId}));
+            out.put("cartographicMarkers",scalarLong("SELECT COUNT(*) FROM map_cartographic_markers WHERE package_id=?",new String[]{packageId}));
+            out.put("roadHexes",scalarLong("SELECT COUNT(*) FROM map_hex_atlas WHERE package_id=? AND road_present=1",new String[]{packageId}));
+        }catch(Exception e){AppLog.e("AppDb","Falha ao contar dataset do Atlas Contract.",e);}
+        return out;
+    }
+    private long scalarLong(String sqlText,String[] args){Cursor c=getReadableDatabase().rawQuery(sqlText,args);try{return c.moveToFirst()?c.getLong(0):0L;}finally{c.close();}}
+
+    /** Atualiza somente a colocação portável de um CampaignPoi; nunca toca no catálogo canônico. */
+    public void updateCampaignPoiPlacement(String poiId,String targetPackage,String targetFrame,String hexId,Double u,Double v,String migrationStatus,String legacyJson){
+        if(poiId==null||poiId.trim().isEmpty())return;ContentValues cv=new ContentValues();cv.put("map_package_id",targetPackage==null?"":targetPackage);cv.put("coordinate_frame_id",targetFrame==null?"":targetFrame);cv.put("hex_id",hexId==null?"":hexId);if(u==null||v==null){cv.putNull("position_u");cv.putNull("position_v");}else{cv.put("position_u",u);cv.put("position_v",v);}cv.put("migration_status",migrationStatus==null?"migration_pending":migrationStatus);cv.put("legacy_position_json",legacyJson==null?"{}":legacyJson);cv.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("campaign_pois",cv,"id=? AND world_profile=?",new String[]{poiId,getActiveMapProfile()});
+    }
+
+    /** Busca textual inclui canônicos sem posição; quem chama deve checar hex_id antes de rotear. */
+    public List<JSONObject> findCanonicalLocationsByQueryIncludingUnplaced(String packageId,String query,int limit){
+        String q=normalizeSearchText(query);if(packageId==null||packageId.isEmpty()||q.length()<2)return new ArrayList<JSONObject>();String like="%"+q.replace("%","")+"%";return queryList("SELECT * FROM map_locations WHERE package_id=? AND canonical=1 AND lower(name) LIKE ? ORDER BY CASE WHEN COALESCE(hex_id,'')<>'' THEN 0 ELSE 1 END,name COLLATE NOCASE LIMIT "+Math.max(1,Math.min(100,limit)),new String[]{packageId,like});
+    }
+
+    public JSONObject nearestMapHexByNormalized(String packageId,double u,double v){JSONObject p=getMapPackageAny(packageId);double w=p.optDouble("image_width",0),h=p.optDouble("image_height",0);if(w<=0||h<=0)return new JSONObject();double x=Math.max(0,Math.min(1,u))*w,y=Math.max(0,Math.min(1,v))*h;return queryOne("SELECT * FROM map_hex_atlas WHERE package_id=? ORDER BY ((center_x-?)*(center_x-?)+(center_y-?)*(center_y-?)) LIMIT 1",new String[]{packageId,String.valueOf(x),String.valueOf(x),String.valueOf(y),String.valueOf(y)});}
+
+    private String restorePortableMapState(String profile,JSONObject ms)throws Exception{
+        if(ms==null)return "";String logicalId=ms.optString("logical_map_id",logicalMapId(ms.optString("manifest_json"),ms.optString("map_package_id")));JSONObject pack=getLatestMapPackageByMapId(profile,logicalId);String packageId=pack.optString("package_id");String image=pack.optString("image_uri");String overlay=pack.optString("overlay_uri");String manifest=pack.length()>0?pack.optString("manifest_json",ms.optString("manifest_json")):ms.optString("manifest_json");
+        ContentValues v=new ContentValues();v.put("logical_map_id",logicalId);v.put("image_uri",image);v.put("overlay_uri",overlay);v.put("manifest_json",manifest);v.put("map_package_id",packageId);v.put("current_hex_id",ms.optString("current_hex_id"));v.put("overlay_visible",ms.optInt("overlay_visible",1));v.put("overlay_mode",pack.length()>0?pack.optString("overlay_mode",ms.optString("overlay_mode","dynamic")):ms.optString("overlay_mode","dynamic"));v.put("min_label_zoom",pack.length()>0?pack.optDouble("min_label_zoom",ms.optDouble("min_label_zoom",1.6)):ms.optDouble("min_label_zoom",1.6));v.put("reveals_json",ms.optString("reveals_json","{}"));v.put("grid_type",ms.optString("grid_type","Quadrada"));v.put("grid_size",ms.optDouble("grid_size",64));v.put("fog_enabled",ms.optInt("fog_enabled",0));v.put("token_x",ms.optDouble("token_x",.5));v.put("token_y",ms.optDouble("token_y",.5));v.put("scale",ms.optDouble("scale",1));v.put("offset_x",ms.optDouble("offset_x",0));v.put("offset_y",ms.optDouble("offset_y",0));v.put("position_locked",ms.optInt("position_locked",ms.optString("current_hex_id").length()>0?1:0));v.put("destination_hex_id",ms.optString("destination_hex_id"));v.put("route_json",ms.optString("route_json","[]"));v.put("route_owner",ms.optString("route_owner","Jogador"));updateMapStateForProfile(profile,v);return logicalId;
+    }
+    private static void restoreMapCorrections(SQLiteDatabase db,String mapId,String legacyPackageId,JSONArray rows)throws Exception{for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null||row.optString("hex_id").length()==0||!sameLogicalMap(row.optString("map_id"),mapId,legacyPackageId))continue;ContentValues v=jsonValues(row);v.put("map_id",mapId);db.insertWithOnConflict("map_hex_corrections",null,v,SQLiteDatabase.CONFLICT_REPLACE);}}
+    private static void restoreMapNotes(SQLiteDatabase db,String profile,String mapId,String legacyPackageId,JSONArray rows)throws Exception{for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);String sourceWorld=row==null?"":row.optString("world_profile");if(row==null||row.optString("hex_id").length()==0||(sourceWorld.length()>0&&!normalizeMapProfile(sourceWorld).equals(profile))||!sameLogicalMap(row.optString("map_id"),mapId,legacyPackageId))continue;ContentValues v=jsonValues(row);v.put("world_profile",profile);v.put("map_id",mapId);db.insertWithOnConflict("map_hex_notes",null,v,SQLiteDatabase.CONFLICT_REPLACE);}}
+    private static boolean sameLogicalMap(String source,String logical,String legacyPackageId){if(source==null||source.trim().length()==0)return false;String value=source.trim();return value.equals(logical)||value.equals(legacyPackageId)||value.startsWith(logical+"@");}
+
+    private Map<Long,Long> restoreDiceHistory(SQLiteDatabase db,JSONArray rows,String profile,int backupVersion,Map<Long,Long> characterIdMap)throws Exception{
+        Map<Long,Long> idMap=new HashMap<Long,Long>();JSONArray safe=profileRowsForRestore(rows,profile,backupVersion);if(backupVersion<12&&safe.length()==0)return idMap;
+        db.delete("dice_history","world_profile=?",new String[]{profile});
+        for(int i=0;i<safe.length();i++){JSONObject row=safe.optJSONObject(i);if(row==null)continue;long oldId=row.optLong("id",0),oldActor=row.optLong("actor_character_id",0);ContentValues v=jsonValues(row);v.remove("id");v.put("world_profile",profile);if(oldActor>0){Long mapped=characterIdMap.get(oldActor);v.put("actor_character_id",mapped==null?0:mapped);}long newId=db.insertOrThrow("dice_history",null,v);if(oldId>0&&newId>0)idMap.put(oldId,newId);}
+        return idMap;
+    }
+    private static JSONArray profileRowsForRestore(JSONArray rows,String profile,int backupVersion){JSONArray out=new JSONArray();if(rows==null)return out;for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null)continue;String source=row.optString("world_profile","").trim();if(source.length()>0&&profile.equals(normalizeMapProfile(source)))out.put(row);}return out;}
+
+    private Map<Long,Long> restoreProfileRowsWithIdMap(SQLiteDatabase db,String table,JSONArray rows,String profile,int backupVersion)throws Exception{
+        Map<Long,Long> idMap=new HashMap<Long,Long>();JSONArray safe=profileRowsForRestore(rows,profile,backupVersion);if(backupVersion<12&&safe.length()==0)return idMap;db.delete(table,"world_profile=?",new String[]{profile});
+        for(int i=0;i<safe.length();i++){JSONObject row=safe.optJSONObject(i);if(row==null)continue;long oldId=row.optLong("id",0);ContentValues v=jsonValues(row);v.remove("id");v.put("world_profile",profile);long newId=db.insertOrThrow(table,null,v);if(oldId>0&&newId>0)idMap.put(oldId,newId);}
+        return idMap;
+    }
+
+    private static JSONArray remapRows(JSONArray rows,BackupReferenceRemapper.Maps maps)throws Exception{
+        JSONArray out=new JSONArray();if(rows==null)return out;for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null)continue;JSONObject copy=BackupReferenceRemapper.remapObject(new JSONObject(row.toString()),maps);java.util.Iterator<String> keys=copy.keys();java.util.ArrayList<String> names=new java.util.ArrayList<String>();while(keys.hasNext())names.add(keys.next());for(String key:names){Object value=copy.opt(key);if(!(value instanceof String))continue;String raw=((String)value).trim();try{if(raw.startsWith("{"))copy.put(key,BackupReferenceRemapper.remapObject(new JSONObject(raw),maps).toString());else if(raw.startsWith("["))copy.put(key,BackupReferenceRemapper.remapArray(new JSONArray(raw),maps).toString());}catch(Exception invalidJson){AppLog.w("AppDb","Campo JSON de backup preservado sem remapeamento: "+key,invalidJson);}}out.put(copy);}return out;
+    }
+
+    private static JSONArray prepareLegacyTransactionRows(JSONArray rows)throws Exception{
+        JSONArray out=new JSONArray();if(rows==null)return out;
+        for(int i=0;i<rows.length();i++){
+            JSONObject source=rows.optJSONObject(i);if(source==null)continue;JSONObject copy=new JSONObject(source.toString());
+            String key=copy.optString("effect_key","").trim();if(key.length()==0)key=LegacyTransactionIdentity.keyForBackupRow(source);
+            JSONObject payload=parseBackupObject(copy.optString("payload_json","{}"));payload.put("_effect_key",key);
+            copy.put("effect_key",key).put("payload_json",payload.toString());out.put(copy);
+        }
+        return out;
+    }
+
+    private static JSONArray prepareLegacyWorldEventRows(JSONArray rows)throws Exception{
+        JSONArray out=new JSONArray();if(rows==null)return out;
+        for(int i=0;i<rows.length();i++){
+            JSONObject source=rows.optJSONObject(i);if(source==null)continue;JSONObject copy=new JSONObject(source.toString());
+            String eventKey=copy.optString("event_key").trim();if(eventKey.length()==0)eventKey=LegacyWorldEventIdentity.keyForBackupRow(source);
+            String transactionKey=copy.optString("transaction_key").trim();if(transactionKey.length()==0)transactionKey=LegacyWorldEventIdentity.transactionKey(eventKey);
+            copy.put("event_key",eventKey).put("transaction_key",transactionKey);
+            if(("resolved".equalsIgnoreCase(copy.optString("status"))||"applied".equalsIgnoreCase(copy.optString("consequence_status")))&&copy.optString("application_receipt").trim().length()==0)copy.put("application_receipt",transactionKey);
+            out.put(copy);
+        }
+        return out;
+    }
+
+    private static void rewriteMappedJsonRows(SQLiteDatabase db,String table,JSONArray original,Map<Long,Long> idMap,BackupReferenceRemapper.Maps maps,String[] fields)throws Exception{
+        if(original==null||idMap==null||fields==null)return;
+        for(int i=0;i<original.length();i++){
+            JSONObject row=original.optJSONObject(i);if(row==null)continue;Long newId=idMap.get(row.optLong("id",0));if(newId==null||newId<=0)continue;ContentValues values=new ContentValues();boolean hasValues=false;
+            for(String field:fields){if(!row.has(field))continue;String raw=row.optString(field,"");try{String trimmed=raw.trim();if(trimmed.startsWith("{"))values.put(field,BackupReferenceRemapper.remapObject(new JSONObject(trimmed),maps).toString());else if(trimmed.startsWith("["))values.put(field,BackupReferenceRemapper.remapArray(new JSONArray(trimmed),maps).toString());else values.put(field,BackupReferenceRemapper.remapString(field,raw,maps));hasValues=true;}catch(Exception failure){throw new IllegalStateException("Referência inválida em "+table+"."+field+" do ID antigo "+row.optLong("id",0)+".",failure);}}
+            if(hasValues&&db.update(table,values,"id=?",new String[]{String.valueOf(newId)})!=1)throw new IllegalStateException("Não foi possível regravar as referências de "+table+" ID "+newId+".");
+        }
+    }
+
+    private JSONObject auditRestoredReferences(String profile)throws Exception{
+        JSONObject out=new JSONObject();JSONArray problems=new JSONArray();SQLiteDatabase sql=getReadableDatabase();Cursor c=null;
+        try{
+            c=sql.rawQuery("PRAGMA foreign_key_check",null);while(c.moveToNext())problems.put("chave estrangeira órfã em "+c.getString(0));c.close();c=null;
+            c=sql.rawQuery("SELECT d.id FROM dice_history d LEFT JOIN characters c ON c.id=d.actor_character_id AND c.world_profile=d.world_profile WHERE d.world_profile=? AND d.actor_character_id>0 AND c.id IS NULL",new String[]{profile});while(c.moveToNext())problems.put("rolagem "+c.getLong(0)+" aponta para personagem inexistente");c.close();c=null;
+            c=sql.rawQuery("SELECT d.id FROM dice_history d JOIN characters c ON c.id=d.actor_character_id AND c.world_profile=d.world_profile WHERE d.world_profile=? AND TRIM(COALESCE(d.actor_name,''))<>'' AND lower(TRIM(d.actor_name))<>lower(TRIM(c.name))",new String[]{profile});while(c.moveToNext())problems.put("rolagem "+c.getLong(0)+" está ligada ao nome de personagem errado");c.close();c=null;
+            c=sql.rawQuery("SELECT a.id,a.character_id,a.check_json FROM life_activities a LEFT JOIN characters c ON c.id=a.character_id AND c.world_profile=a.world_profile WHERE a.world_profile=? AND c.id IS NULL",new String[]{profile});while(c.moveToNext())problems.put("atividade "+c.getLong(0)+" aponta para personagem inexistente");c.close();c=null;
+            c=sql.rawQuery("SELECT effect_key,COUNT(*) FROM pending_transactions WHERE world_profile=? AND status IN ('pending','reviewing') AND TRIM(COALESCE(effect_key,''))<>'' GROUP BY effect_key HAVING COUNT(*)>1",new String[]{profile});while(c.moveToNext())problems.put("recibo/effect_key pendente colidiu: "+c.getString(0));c.close();c=null;
+            c=sql.rawQuery("SELECT id FROM pending_transactions WHERE world_profile=? AND TRIM(COALESCE(effect_key,''))=''",new String[]{profile});while(c.moveToNext())problems.put("transação "+c.getLong(0)+" permaneceu sem effect_key");c.close();c=null;
+            c=sql.rawQuery("SELECT p.id FROM pending_transactions p LEFT JOIN effect_receipts r ON r.world_profile=p.world_profile AND r.effect_key=p.effect_key WHERE p.world_profile=? AND p.status='applied' AND r.effect_key IS NULL",new String[]{profile});while(c.moveToNext())problems.put("transação aplicada "+c.getLong(0)+" não possui recibo");c.close();c=null;
+            c=sql.rawQuery("SELECT id FROM world_events WHERE world_profile=? AND (TRIM(COALESCE(event_key,''))='' OR TRIM(COALESCE(transaction_key,''))='' OR transaction_key<>('world_event:'||event_key))",new String[]{profile});while(c.moveToNext())problems.put("evento "+c.getLong(0)+" permaneceu sem identidade transacional válida");c.close();c=null;
+            c=sql.rawQuery("SELECT e.id FROM world_events e LEFT JOIN effect_receipts r ON r.world_profile=e.world_profile AND r.effect_key=e.transaction_key WHERE e.world_profile=? AND (e.status='resolved' OR e.consequence_status='applied') AND (TRIM(COALESCE(e.application_receipt,''))='' OR r.effect_key IS NULL)",new String[]{profile});while(c.moveToNext())problems.put("evento aplicado "+c.getLong(0)+" não possui recibo completo");c.close();c=null;
+            c=sql.rawQuery("SELECT title,due_at,due_day,COUNT(*) FROM world_events WHERE world_profile=? AND status IN ('scheduled','awaiting_review') GROUP BY lower(title),due_at,due_day,consequence_json HAVING COUNT(*)>1",new String[]{profile});while(c.moveToNext())problems.put("evento restaurado em duplicidade: "+c.getString(0));c.close();c=null;
+            for(JSONObject activity:queryList("SELECT id,character_id,check_json FROM life_activities WHERE world_profile=?",new String[]{profile})){
+                JSONObject check=parseBackupObject(activity.optString("check_json","{}"));long rollId=check.optLong("roll_id",0);if(rollId<=0)continue;JSONObject roll=queryOne("SELECT * FROM dice_history WHERE id=? AND world_profile=?",new String[]{String.valueOf(rollId),profile});
+                if(roll.length()==0)problems.put("atividade "+activity.optLong("id")+" aponta para rolagem antiga/inexistente");else if(roll.optLong("actor_character_id",0)!=activity.optLong("character_id",0))problems.put("atividade "+activity.optLong("id")+" está ligada à rolagem do personagem errado");
+            }
+            for(JSONObject pending:queryList("SELECT id,payload_json FROM pending_transactions WHERE world_profile=? AND status IN ('pending','reviewing')",new String[]{profile}))if(pending.optString("payload_json").matches("(?s).*(?:character|roll|combatant|faction|event|clock|troupe|activity|quest|scene|map|route|transaction):0\\b.*"))problems.put("pendência "+pending.optLong("id")+" contém referência antiga sem destino");
+            c=sql.rawQuery("SELECT gm.id FROM guild_members gm LEFT JOIN guild_ranks gr ON gr.id=gm.rank_id AND gr.guild_id=gm.guild_id LEFT JOIN characters ch ON ch.id=gm.character_id AND ch.world_profile=gm.world_profile WHERE gm.world_profile=? AND ((gm.rank_id>0 AND gr.id IS NULL) OR (gm.member_kind='hero' AND (gm.character_id<=0 OR ch.id IS NULL)) OR (gm.member_kind='npc' AND TRIM(COALESCE(gm.npc_name,''))=''))",new String[]{profile});while(c.moveToNext())problems.put("membro de guilda "+c.getLong(0)+" possui referência inválida");c.close();c=null;
+            c=sql.rawQuery("SELECT gc.id FROM guild_contracts gc LEFT JOIN quests q ON q.id=gc.linked_quest_id AND q.world_profile=gc.world_profile WHERE gc.world_profile=? AND gc.linked_quest_id>0 AND q.id IS NULL",new String[]{profile});while(c.moveToNext())problems.put("contrato de guilda "+c.getLong(0)+" aponta para missão inexistente");c.close();c=null;
+            c=sql.rawQuery("SELECT gr.id FROM guild_relations gr LEFT JOIN guilds target ON target.id=gr.target_guild_id AND target.world_profile=gr.world_profile WHERE gr.world_profile=? AND gr.target_guild_id>0 AND target.id IS NULL",new String[]{profile});while(c.moveToNext())problems.put("relação de guilda "+c.getLong(0)+" aponta para guilda inexistente");c.close();c=null;
+            c=sql.rawQuery("SELECT g.id FROM guilds g LEFT JOIN factions f ON f.id=g.faction_id AND f.world_profile=g.world_profile WHERE g.world_profile=? AND g.faction_id>0 AND f.id IS NULL",new String[]{profile});while(c.moveToNext())problems.put("guilda "+c.getLong(0)+" aponta para facção inexistente");c.close();c=null;
+            out.put("healthy",problems.length()==0).put("problems",problems).put("foreign_keys_checked",true).put("roll_actor_links_checked",true).put("activity_roll_links_checked",true).put("effect_key_collisions_checked",true).put("event_receipts_checked",true).put("duplicate_events_checked",true).put("guild_references_checked",true);
+            return out;
+        }finally{if(c!=null)c.close();}
+    }
+
+    private static JSONObject parseBackupObject(String raw){try{return new JSONObject(raw==null||raw.trim().length()==0?"{}":raw);}catch(Exception ignored){return new JSONObject();}}
+
+    private Map<Long,Long> restoreLifeActivities(SQLiteDatabase db,JSONArray rows,String profile,Map<Long,Long> characterIdMap,BackupReferenceRemapper.Maps maps)throws Exception{
+        Map<Long,Long> idMap=new HashMap<Long,Long>();db.delete("life_activities","world_profile=?",new String[]{profile});if(rows==null)return idMap;
+        for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null)continue;long oldId=row.optLong("id",0),oldCharacter=row.optLong("character_id",0);Long mappedCharacter=characterIdMap.get(oldCharacter);if(mappedCharacter==null||mappedCharacter<=0)continue;JSONObject copy=new JSONObject(row.toString());copy.put("character_id",mappedCharacter);JSONObject oldCheck=parseBackupObject(row.optString("check_json","{}"));long oldRoll=oldCheck.optLong("roll_id",0);JSONObject remappedCheck=BackupReferenceRemapper.remapObject(oldCheck,maps);copy.put("check_json",remappedCheck.toString());if(oldRoll>0&&remappedCheck.optLong("roll_id",0)<=0){copy.put("status","aguardando_rolagem");copy.put("narrative_result","");}ContentValues v=jsonValues(copy);v.remove("id");v.put("world_profile",profile);long newId=db.insertOrThrow("life_activities",null,v);if(oldId>0&&newId>0)idMap.put(oldId,newId);}
+        return idMap;
+    }
+
+    private static void restoreRows(SQLiteDatabase db,String table,JSONArray rows)throws Exception{
+        db.delete(table,null,null);if(rows==null)return;
+        for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null)continue;db.insertOrThrow(table,null,jsonValues(row));}
+    }
+    private static void restoreLivingRows(SQLiteDatabase db,String table,JSONArray rows,String profile,Map<Long,Long> characterIdMap,boolean replace)throws Exception{
+        db.delete(table,"world_profile=?",new String[]{profile});if(rows==null)return;
+        for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null)continue;long oldCharacter=row.optLong("character_id",0),newCharacter=characterIdMap.containsKey(oldCharacter)?characterIdMap.get(oldCharacter):0;if(newCharacter<=0)continue;ContentValues v=jsonValues(row);v.remove("id");v.put("world_profile",profile);v.put("character_id",newCharacter);long oldRelated=row.optLong("related_character_id",0);if(oldRelated>0)v.put("related_character_id",characterIdMap.containsKey(oldRelated)?characterIdMap.get(oldRelated):0);db.insertWithOnConflict(table,null,v,replace?SQLiteDatabase.CONFLICT_REPLACE:SQLiteDatabase.CONFLICT_ABORT);}
+    }
+    private void restoreProfileRows(SQLiteDatabase db,String table,JSONArray rows)throws Exception{
+        db.delete(table,"world_profile=?",new String[]{getActiveMapProfile()});if(rows==null)return;
+        for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null)continue;ContentValues v=jsonValues(row);v.put("world_profile",getActiveMapProfile());db.insertWithOnConflict(table,null,v,SQLiteDatabase.CONFLICT_REPLACE);}
+    }
+
+
+    private Map<Long,Long> restoreCombatants(SQLiteDatabase db,JSONArray rows,
+        Map<Long,Long> characterIdMap)throws Exception{
+        Map<Long,Long> idMap=new HashMap<Long,Long>();db.delete("combatants","world_profile=?",new String[]{getActiveMapProfile()});if(rows==null)return idMap;
+        for(int i=0;i<rows.length();i++){
+            JSONObject row=rows.optJSONObject(i);if(row==null)continue;
+            long oldId=row.optLong("id",0);ContentValues v=jsonValues(row);v.remove("id");
+            // RUN239 G05: listCombatants() augments rows with computed UI fields.
+            // Only physical SQLite columns belong in the backup21 INSERT.
+            // The canonical cover value is preserved in resources_json.
+            v.remove("cover");v.remove("effective_ac");v.remove("total_cover");
+            v.remove("effective_dex_save_bonus");
+            v.put("world_profile",getActiveMapProfile());
+            if("character".equals(row.optString("source_kind"))&&row.optInt("is_player",0)==1){
+                Long mapped=characterIdMap.get(row.optLong("source_id",0));
+                v.put("source_id",mapped==null?0:mapped.longValue());
+            }
+            long newId=db.insertOrThrow("combatants",null,v);
+            if(oldId>0&&newId>0)idMap.put(oldId,newId);
+        }
+        // RUN231: all combatants must be inserted before remapping directed
+        // hostility, because the referenced combatant may appear later in ZIP.
+        for(int i=0;i<rows.length();i++){
+            JSONObject oldRow=rows.optJSONObject(i);if(oldRow==null)continue;
+            long oldActor=oldRow.optLong("id",0);
+            Long newActor=idMap.get(oldActor);if(newActor==null)continue;
+            String rawResources=oldRow.optString("resources_json","{}");
+            ContentValues fixed=new ContentValues();
+            if(rawResources.contains(MonsterHostilityLedgerCodec.KEY)){
+                JSONObject resources=new JSONObject(rawResources);
+                if(resources.has(MonsterHostilityLedgerCodec.KEY)){
+                    JSONObject rewritten=MonsterHostilityLedgerCodec.remapForRestore(oldActor,
+                        getActiveMapProfile(),resources,idMap);
+                    fixed.put("resources_json",rewritten.toString());
+                }
+            }
+            // RUN236: typed condition timers embed the SOURCE combatant's old
+            // SQLite primary key. Remap only after the full roster is inserted;
+            // an orphan source aborts the entire backup transaction.
+            String rawTimers=oldRow.optString("condition_timers_json","[]");
+            if(rawTimers.contains("compiled_monster_condition_")){
+                String portable=MonsterConditionBackupCodec.remapTimers(rawTimers,idMap);
+                if(!portable.equals(rawTimers))fixed.put("condition_timers_json",portable);
+            }
+            if(fixed.size()>0)requireCombatantWrite(db.update("combatants",fixed,
+                "id=? AND world_profile=?",new String[]{String.valueOf(newActor),getActiveMapProfile()}));
+        }
+        return idMap;
+    }
+
+    /** Exporta apenas as colunas físicas de tactical_tokens. Campos de retrato, PV e origem
+     * são derivados de combatants e não podem ser reinseridos nesta tabela. */
+    private List<JSONObject> listRawTacticalTokensForBackup(){
+        return queryList("SELECT world_profile,combatant_id,name,is_player,x,y,zone,updated_at FROM tactical_tokens WHERE world_profile=? ORDER BY combatant_id",new String[]{getActiveMapProfile()});
+    }
+
+    private void restoreTacticalTokens(SQLiteDatabase db,JSONArray rows,Map<Long,Long> combatantIdMap)throws Exception{
+        db.delete("tactical_tokens","world_profile=?",new String[]{getActiveMapProfile()});if(rows==null)return;
+        for(int i=0;i<rows.length();i++){
+            JSONObject row=rows.optJSONObject(i);if(row==null)continue;
+            long oldCombatantId=row.optLong("combatant_id",0);Long mapped=combatantIdMap.get(oldCombatantId);if(mapped==null||mapped<=0)continue;
+            // Allowlist explícita: também torna restauráveis snapshots 4.9.2 que continham
+            // source_id, token_uri, hp e outras colunas do JOIN com combatants.
+            ContentValues v=new ContentValues();
+            v.put("world_profile",getActiveMapProfile());v.put("combatant_id",mapped);
+            v.put("name",row.optString("name","Combatente"));v.put("is_player",row.optInt("is_player",0));
+            v.put("x",row.optDouble("x",0.5));v.put("y",row.optDouble("y",0.5));
+            v.put("zone",row.optString("zone",""));v.put("updated_at",row.optLong("updated_at",System.currentTimeMillis()));
+            db.insertWithOnConflict("tactical_tokens",null,v,SQLiteDatabase.CONFLICT_REPLACE);
+        }
+    }
+
+    private Map<Long,Long> restorePartyActions(SQLiteDatabase db,JSONArray rows,
+        Map<Long,Long> characterIdMap,Map<Long,Long> combatantIdMap)throws Exception{
+        ensurePartyActionResolutionColumns(db);
+        Map<Long,Long> idMap=new HashMap<Long,Long>();
+        db.delete("party_action_queue","world_profile=?",new String[]{getActiveMapProfile()});
+        if(rows==null)return idMap;
+        // Two passes: a causal receipt contains the OLD physical action id, while
+        // SQLite assigns new ids on import. Do not link until all ids are known.
+        for(int i=0;i<rows.length();i++){
+            JSONObject row=rows.optJSONObject(i);if(row==null)continue;
+            long oldCharacterId=row.optLong("character_id",0),oldId=row.optLong("id",0);
+            Long mapped=characterIdMap.get(oldCharacterId);if(mapped==null||mapped<=0)continue;
+            ContentValues v=jsonValues(row);v.remove("id");v.put("world_profile",getActiveMapProfile());
+            v.put("character_id",mapped);
+            String oldReceipt=row.optString("resolution_receipt","");
+            if(oldReceipt.startsWith(PartyActionCausalReceiptGuard.PREFIX)||
+                oldReceipt.startsWith(PartyMovementCausalReceiptGuard.PREFIX)||
+                oldReceipt.startsWith(PartyAttackCausalReceiptGuard.PREFIX)||
+                oldReceipt.startsWith(ExtraAttackActionRules.PREFIX))v.put("resolution_receipt","");
+            long newId=db.insertOrThrow("party_action_queue",null,v);
+            if(oldId>0&&newId>0)idMap.put(oldId,newId);
+        }
+        for(int i=0;i<rows.length();i++){
+            JSONObject row=rows.optJSONObject(i);if(row==null)continue;
+            String oldReceipt=row.optString("resolution_receipt","");
+            if(!oldReceipt.startsWith(PartyActionCausalReceiptGuard.PREFIX)&&
+                !oldReceipt.startsWith(PartyMovementCausalReceiptGuard.PREFIX)&&
+                !oldReceipt.startsWith(PartyAttackCausalReceiptGuard.PREFIX)&&
+                !oldReceipt.startsWith(ExtraAttackActionRules.PREFIX))continue;
+            Long newId=idMap.get(row.optLong("id",0));if(newId==null)continue;
+            String mappedReceipt=oldReceipt.startsWith(PartyMovementCausalReceiptGuard.PREFIX)?
+                PartyMovementCausalReceiptGuard.remapKey(oldReceipt,idMap,combatantIdMap):
+                oldReceipt.startsWith(PartyAttackCausalReceiptGuard.PREFIX)?
+                PartyAttackCausalReceiptGuard.remapKey(oldReceipt,idMap,combatantIdMap):
+                oldReceipt.startsWith(ExtraAttackActionRules.PREFIX)?
+                ExtraAttackActionRules.remapKey(oldReceipt,idMap,combatantIdMap):
+                PartyActionCausalReceiptGuard.remapKey(oldReceipt,idMap,combatantIdMap);
+            ContentValues update=new ContentValues();
+            if(mappedReceipt==null){
+                // The original combatant is gone. Preserve the declaration but do
+                // not claim its mechanics remain proven after this restore.
+                update.put("status","narrated");update.put("resolution_kind","restore_pending_review");
+                update.put("resolution_note","Recibo causal sem combatente restaurado; revisão necessária.");
+                update.put("resolved_at",0);
+            }else update.put("resolution_receipt",mappedReceipt);
+            if(db.update("party_action_queue",update,"id=? AND world_profile=?",
+                new String[]{String.valueOf(newId),getActiveMapProfile()})!=1)
+                throw new IllegalStateException("party_action_restore_remap_failed");
+        }
+        return idMap;
+    }
+
+    private void restorePartyMemberships(SQLiteDatabase db,JSONArray rows,Map<Long,Long> characterIdMap)throws Exception{
+        createVirtualMasterTables(db);db.delete("party_memberships","world_profile=?",new String[]{getActiveMapProfile()});if(rows==null)return;
+        for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null)continue;ContentValues v=jsonValues(row);v.remove("id");v.put("world_profile",getActiveMapProfile());if("hero".equalsIgnoreCase(row.optString("actor_kind"))){Long mapped=characterIdMap.get(row.optLong("character_id",0));if(mapped==null||mapped<=0)continue;v.put("character_id",mapped);}else v.put("character_id",0);db.insertWithOnConflict("party_memberships",null,v,SQLiteDatabase.CONFLICT_REPLACE);}
+    }
+
+    private void restoreCharacterControls(SQLiteDatabase db,JSONArray rows,Map<Long,Long> characterIdMap)throws Exception{
+        db.delete("character_control_profiles","world_profile=?",new String[]{getActiveMapProfile()});if(rows==null)return;
+        for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null)continue;long oldCharacterId=row.optLong("character_id",0);Long mapped=characterIdMap.get(oldCharacterId);if(mapped==null||mapped<=0)continue;ContentValues v=jsonValues(row);v.put("world_profile",getActiveMapProfile());v.put("character_id",mapped);db.insertWithOnConflict("character_control_profiles",null,v,SQLiteDatabase.CONFLICT_REPLACE);}
+    }
+
+    private void restoreNpcCognitiveStates(SQLiteDatabase db,JSONArray rows)throws Exception{
+        db.delete("npc_cognitive_state","world_profile=?",new String[]{getActiveMapProfile()});if(rows==null)return;
+        for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null)continue;JSONObject copy=new JSONObject(row.toString());copy.put("name",row.optString("npc_name"));upsertNpcCognitiveState(copy);}
+    }
+
+    private Map<Long,Long> restoreFactions(SQLiteDatabase db,JSONArray rows)throws Exception{
+        Map<Long,Long> idMap=new HashMap<Long,Long>();db.delete("factions","world_profile=?",new String[]{getActiveMapProfile()});if(rows==null)return idMap;
+        for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null)continue;long oldId=row.optLong("id",0);ContentValues v=jsonValues(row);v.remove("id");v.put("world_profile",getActiveMapProfile());long newId=db.insertOrThrow("factions",null,v);if(oldId>0&&newId>0)idMap.put(oldId,newId);}
+        return idMap;
+    }
+
+    private Map<Long,Long> restoreQuests(SQLiteDatabase db,JSONArray rows,Map<Long,Long> characterIdMap,Map<Long,Long> factionIdMap)throws Exception{
+        Map<Long,Long> idMap=new HashMap<Long,Long>();db.delete("quests","world_profile=?",new String[]{getActiveMapProfile()});if(rows==null)return idMap;
+        for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null)continue;long oldId=row.optLong("id",0);ContentValues v=jsonValues(row);v.remove("id");v.put("world_profile",getActiveMapProfile());long oldOwner=row.optLong("owner_character_id",0);Long owner=characterIdMap.get(oldOwner);v.put("owner_character_id",owner==null?0:owner);long oldFaction=row.optLong("faction_id",0);Long faction=factionIdMap.get(oldFaction);v.put("faction_id",faction==null?0:faction);long newId=db.insertOrThrow("quests",null,v);if(oldId>0&&newId>0)idMap.put(oldId,newId);}return idMap;
+    }
+
+    private void restoreProfileRowsWithoutId(SQLiteDatabase db,String table,JSONArray rows,String profile,int backupVersion)throws Exception{
+        JSONArray safe=profileRowsForRestore(rows,profile,backupVersion);if(backupVersion<12&&safe.length()==0)return;db.delete(table,"world_profile=?",new String[]{profile});
+        for(int i=0;i<safe.length();i++){JSONObject row=safe.optJSONObject(i);if(row==null)continue;ContentValues v=jsonValues(row);v.remove("id");v.put("world_profile",profile);db.insertOrThrow(table,null,v);}
+    }
+
+    private static ContentValues jsonValues(JSONObject row)throws Exception{
+        ContentValues values=new ContentValues();Iterator<String> keys=row.keys();
+        while(keys.hasNext()){String key=keys.next();Object value=row.opt(key);
+            if(value==null||value==JSONObject.NULL)values.putNull(key);
+            else if(value instanceof Boolean)values.put(key,(Boolean)value?1:0);
+            else if(value instanceof Integer)values.put(key,(Integer)value);
+            else if(value instanceof Long)values.put(key,(Long)value);
+            else if(value instanceof Float)values.put(key,(Float)value);
+            else if(value instanceof Double)values.put(key,(Double)value);
+            else values.put(key,String.valueOf(value));
+        }
+        return values;
+    }
+    // ===== Sistema dedicado de guildas =====
+    private NpcPersonalityCatalog personalityCatalog(){NpcPersonalityCatalog c=npcPersonalityCatalog;if(c==null){synchronized(this){c=npcPersonalityCatalog;if(c==null)npcPersonalityCatalog=c=new NpcPersonalityCatalog(appContext);}}return c;}
+    private void ensureNpcPersonalityOnIncoming(JSONObject state,String name){if(state==null||name==null||name.trim().length()==0)return;try{JSONObject current=parseJsonObject(state.optString("personality_json","{}"));if(current.length()>0)return;JSONObject memory=findNpcMemoryByName(name);JSONObject selected=personalityCatalog().select(name,memory);if(selected.length()>0)state.put("personality_json",selected.toString());}catch(Exception e){AppLog.w("NpcPersonality","Não foi possível aplicar personalidade a "+name,e);}}
+    public void ensureNpcPersonalityProvisioned(String name){if(name==null||name.trim().length()==0)return;try{JSONObject state=queryOne("SELECT * FROM npc_cognitive_state WHERE world_profile=? AND npc_name=? COLLATE NOCASE",new String[]{getActiveMapProfile(),name.trim()});JSONObject current=parseJsonObject(state.optString("personality_json","{}"));if(current.length()>0)return;JSONObject selected=personalityCatalog().select(name,findNpcMemoryByName(name));if(selected.length()==0)return;ContentValues v=new ContentValues();v.put("personality_json",selected.toString());v.put("updated_at",System.currentTimeMillis());if(state.length()==0){v.put("world_profile",getActiveMapProfile());v.put("npc_name",name.trim());getWritableDatabase().insertWithOnConflict("npc_cognitive_state",null,v,SQLiteDatabase.CONFLICT_IGNORE);}else getWritableDatabase().update("npc_cognitive_state",v,"world_profile=? AND npc_name=? COLLATE NOCASE",new String[]{getActiveMapProfile(),name.trim()});}catch(Exception e){AppLog.w("NpcPersonality","Falha ao provisionar personalidade de "+name,e);}}
+    public JSONObject backfillNpcPersonalities(){JSONObject out=new JSONObject();int before=0,after=0,updated=0;try{for(JSONObject row:listNpcCognitiveStates(10000))if(parseJsonObject(row.optString("personality_json","{}")).length()>0)before++;JSONArray memories=listNpcMemories(10000);for(int i=0;i<memories.length();i++){String name=memories.optJSONObject(i).optString("name");JSONObject state=getNpcCognitiveState(name);if(parseJsonObject(state.optString("personality_json","{}")).length()==0){ensureNpcPersonalityProvisioned(name);updated++;}}for(JSONObject row:listNpcCognitiveStates(10000))if(parseJsonObject(row.optString("personality_json","{}")).length()>0)after++;out.put("catalog_profiles",personalityCatalog().size()).put("before",before).put("after",after).put("updated",updated).put("complete",after>=listNpcMemories(10000).length());}catch(Exception e){try{out.put("complete",false).put("error",String.valueOf(e.getMessage()));}catch(Exception ignored){AppLog.ignored("AppDb","Falha ao registrar diagnóstico.",ignored);}}return out;}
+    private static JSONObject parseJsonObject(String raw){try{return new JSONObject(raw==null||raw.trim().length()==0?"{}":raw);}catch(Exception e){return new JSONObject();}}
+    private static Object parseJsonValue(String raw){try{String safe=raw==null?"":raw.trim();if(safe.startsWith("["))return new JSONArray(safe);if(safe.startsWith("{"))return new JSONObject(safe);if(safe.length()>0)return safe;}catch(Exception ignored){AppLog.ignored("AppDb","JSON editorial inválido ignorado.",ignored);}return new JSONObject();}
+    private static boolean jsonValueHasContent(String raw){Object value=parseJsonValue(raw);if(value instanceof JSONObject)return ((JSONObject)value).length()>0;if(value instanceof JSONArray)return ((JSONArray)value).length()>0;return value!=null&&String.valueOf(value).trim().length()>0;}
+
+    public List<JSONObject> listGuilds(int limit){ensureGuildTables();return queryList("SELECT * FROM guilds WHERE world_profile=? ORDER BY active DESC,influence DESC,name LIMIT "+Math.max(1,Math.min(1000,limit)),new String[]{getActiveMapProfile()});}
+    public List<JSONObject> listGuildsForSimulation(int limit){ensureGuildTables();return queryList("SELECT * FROM guilds WHERE world_profile=? AND active=1 ORDER BY CASE WHEN simulation_cursor_hours<0 THEN -1 ELSE simulation_cursor_hours END ASC,updated_at ASC,id ASC LIMIT "+Math.max(1,Math.min(1000,limit)),new String[]{getActiveMapProfile()});}
+    public JSONObject getGuild(long id){ensureGuildTables();return queryOne("SELECT * FROM guilds WHERE id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});}
+    public JSONObject findGuildByName(String name){ensureGuildTables();return queryOne("SELECT * FROM guilds WHERE world_profile=? AND name=? COLLATE NOCASE LIMIT 1",new String[]{getActiveMapProfile(),name==null?"":name.trim()});}
+    public long upsertGuildChecked(JSONObject guild)throws Exception{ensureGuildTables();if(guild==null)throw new IllegalArgumentException("Guilda ausente.");String name=guild.optString("name").trim();if(name.length()<3)throw new IllegalArgumentException("Nome de guilda inválido.");long id=guild.optLong("id",0);JSONObject previous=id>0?getGuild(id):findGuildByName(name);ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("name",name);for(String key:new String[]{"type","description","charter","headquarters","currency","current_plan","dues_policy_json","admission_json","benefits_json","services_json","rules_json","stock_json"})v.put(key,guild.has(key)?guild.optString(key):previous.optString(key,"stock_json".equals(key)?"{}":key.endsWith("_json")?"[]":""));v.put("treasury",Math.max(0d,guild.has("treasury")?guild.optDouble("treasury"):previous.optDouble("treasury",0)));v.put("party_reputation",Math.max(-100,Math.min(100,guild.has("party_reputation")?guild.optInt("party_reputation"):previous.optInt("party_reputation",0))));v.put("influence",Math.max(0,Math.min(100,guild.has("influence")?guild.optInt("influence"):previous.optInt("influence",25))));v.put("active",guild.has("active")?(guild.optBoolean("active",true)?1:0):previous.optInt("active",1));v.put("faction_id",guild.has("faction_id")?guild.optLong("faction_id"):previous.optLong("faction_id",0));if(previous.length()==0)v.put("simulation_cursor_hours",currentWorldHourForSimulation());long now=System.currentTimeMillis();v.put("created_at",previous.length()==0?now:previous.optLong("created_at",now));v.put("updated_at",now);long out;if(previous.length()==0)out=getWritableDatabase().insertOrThrow("guilds",null,v);else{out=previous.optLong("id");if(getWritableDatabase().update("guilds",v,"id=? AND world_profile=?",new String[]{String.valueOf(out),getActiveMapProfile()})!=1)throw new IllegalStateException("Guilda não persistida.");}return out;}
+    public void syncGuildFactionChecked(long guildId)throws Exception{JSONObject g=getGuild(guildId);if(g.length()==0)throw new IllegalStateException("Guilda inexistente.");String resources=new JSONObject().put("treasury",g.optDouble("treasury")).put("currency",g.optString("currency")).put("stock",parseJsonObject(g.optString("stock_json","{}"))).toString();long factionId=upsertFaction(g.optString("name"),g.optString("charter",g.optString("description")),resources,g.optInt("party_reputation"),g.optString("current_plan"),g.optString("headquarters"));ContentValues v=new ContentValues();v.put("faction_id",factionId);v.put("updated_at",System.currentTimeMillis());if(getWritableDatabase().update("guilds",v,"id=? AND world_profile=?",new String[]{String.valueOf(guildId),getActiveMapProfile()})!=1)throw new IllegalStateException("Vínculo guilda/facção não persistido.");}
+    public void deleteGuild(long id){ensureGuildTables();JSONObject g=getGuild(id);getWritableDatabase().delete("guilds","id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()});if(g.optLong("faction_id")>0)getWritableDatabase().delete("factions","id=? AND world_profile=?",new String[]{String.valueOf(g.optLong("faction_id")),getActiveMapProfile()});}
+    public List<JSONObject> listGuildRanks(long guildId){ensureGuildTables();return queryList("SELECT * FROM guild_ranks WHERE world_profile=? AND guild_id=? AND active=1 ORDER BY rank_order,id",new String[]{getActiveMapProfile(),String.valueOf(guildId)});}
+    public JSONObject defaultGuildRank(long guildId){ensureGuildTables();return queryOne("SELECT * FROM guild_ranks WHERE world_profile=? AND guild_id=? AND active=1 ORDER BY rank_order,id LIMIT 1",new String[]{getActiveMapProfile(),String.valueOf(guildId)});}
+    public long addGuildRankChecked(JSONObject rank)throws Exception{ensureGuildTables();long gid=rank.optLong("guild_id");if(getGuild(gid).length()==0)throw new IllegalArgumentException("Guilda da patente não existe.");String name=rank.optString("name").trim();if(name.length()==0)throw new IllegalArgumentException("Patente sem nome.");ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("guild_id",gid);v.put("name",name);v.put("rank_order",Math.max(0,rank.optInt("rank_order")));v.put("requirements_json",rank.opt("requirements_json") instanceof JSONObject?rank.optJSONObject("requirements_json").toString():rank.optString("requirements_json","{}"));v.put("benefits_json",rank.opt("benefits_json") instanceof JSONArray?rank.optJSONArray("benefits_json").toString():rank.optString("benefits_json","[]"));v.put("permissions_json",rank.opt("permissions_json") instanceof JSONArray?rank.optJSONArray("permissions_json").toString():rank.optString("permissions_json","[]"));v.put("dues_amount",Math.max(0d,rank.optDouble("dues_amount")));v.put("active",1);long now=System.currentTimeMillis();v.put("created_at",now);v.put("updated_at",now);long id=getWritableDatabase().insertWithOnConflict("guild_ranks",null,v,SQLiteDatabase.CONFLICT_IGNORE);if(id==-1){JSONObject row=queryOne("SELECT id FROM guild_ranks WHERE guild_id=? AND name=? COLLATE NOCASE",new String[]{String.valueOf(gid),name});id=row.optLong("id");getWritableDatabase().update("guild_ranks",v,"id=?",new String[]{String.valueOf(id)});}if(id<=0)throw new IllegalStateException("Patente não persistida.");return id;}
+    public List<JSONObject> listGuildMembers(long guildId,String status,int limit){ensureGuildTables();String where=status==null||status.trim().length()==0?"":" AND gm.status=?";ArrayList<String> args=new ArrayList<String>();args.add(getActiveMapProfile());args.add(String.valueOf(guildId));if(where.length()>0)args.add(status);String sql="SELECT gm.*,gr.name rank_name,gr.dues_amount rank_dues_amount,c.name hero_name FROM guild_members gm LEFT JOIN guild_ranks gr ON gr.id=gm.rank_id LEFT JOIN characters c ON c.id=gm.character_id WHERE gm.world_profile=? AND gm.guild_id=?"+where+" ORDER BY gm.status='active' DESC,gr.rank_order DESC,COALESCE(c.name,gm.npc_name) LIMIT "+Math.max(1,Math.min(1000,limit));return queryList(sql,args.toArray(new String[0]));}
+    public JSONObject findGuildMember(long guildId,String kind,long characterId,String npcName){ensureGuildTables();if("hero".equals(kind))return queryOne("SELECT * FROM guild_members WHERE world_profile=? AND guild_id=? AND member_kind='hero' AND character_id=?",new String[]{getActiveMapProfile(),String.valueOf(guildId),String.valueOf(characterId)});return queryOne("SELECT * FROM guild_members WHERE world_profile=? AND guild_id=? AND member_kind='npc' AND npc_name=? COLLATE NOCASE",new String[]{getActiveMapProfile(),String.valueOf(guildId),npcName==null?"":npcName.trim()});}
+    public List<JSONObject> listGuildMembershipsForHero(long characterId){ensureGuildTables();return queryList("SELECT gm.*,g.name guild_name,g.type guild_type,gr.name rank_name,gr.dues_amount rank_dues_amount FROM guild_members gm INNER JOIN guilds g ON g.id=gm.guild_id LEFT JOIN guild_ranks gr ON gr.id=gm.rank_id WHERE gm.world_profile=? AND gm.member_kind='hero' AND gm.character_id=? ORDER BY gm.status='active' DESC,g.influence DESC",new String[]{getActiveMapProfile(),String.valueOf(characterId)});}
+    public List<JSONObject> listGuildMembershipsForNpc(String npcName){ensureGuildTables();return queryList("SELECT gm.*,g.name guild_name,g.type guild_type,gr.name rank_name,gr.dues_amount rank_dues_amount FROM guild_members gm INNER JOIN guilds g ON g.id=gm.guild_id LEFT JOIN guild_ranks gr ON gr.id=gm.rank_id WHERE gm.world_profile=? AND gm.member_kind='npc' AND gm.npc_name=? COLLATE NOCASE ORDER BY gm.status='active' DESC,g.influence DESC",new String[]{getActiveMapProfile(),npcName==null?"":npcName.trim()});}
+    public JSONObject getGuildMember(long memberId){ensureGuildTables();return queryOne("SELECT gm.*,g.name guild_name,g.type guild_type,gr.name rank_name,gr.dues_amount rank_dues_amount FROM guild_members gm INNER JOIN guilds g ON g.id=gm.guild_id LEFT JOIN guild_ranks gr ON gr.id=gm.rank_id WHERE gm.world_profile=? AND gm.id=?",new String[]{getActiveMapProfile(),String.valueOf(memberId)});}
+    public void adjustGuildMemberReputationChecked(long memberId,int delta,double contributionDelta)throws Exception{JSONObject member=getGuildMember(memberId);if(member.length()==0)throw new IllegalArgumentException("Membro de guilda inexistente.");int reputation=Math.max(-100,Math.min(100,member.optInt("reputation",0)+delta));double contribution=Math.max(0d,member.optDouble("contribution",0)+contributionDelta);long rankId=defaultGuildRank(member.optLong("guild_id")).optLong("id",0);for(JSONObject rank:listGuildRanks(member.optLong("guild_id"))){JSONObject req=parseJsonObject(rank.optString("requirements_json","{}"));if(reputation>=req.optInt("reputation",0))rankId=rank.optLong("id");}ContentValues v=new ContentValues();v.put("reputation",reputation);v.put("contribution",contribution);v.put("rank_id",rankId);v.put("updated_at",System.currentTimeMillis());if(getWritableDatabase().update("guild_members",v,"id=? AND world_profile=?",new String[]{String.valueOf(memberId),getActiveMapProfile()})!=1)throw new IllegalStateException("Reputação de guilda não persistida.");}
+    public long addGuildMemberChecked(JSONObject member)throws Exception{ensureGuildTables();long gid=member.optLong("guild_id");if(getGuild(gid).length()==0)throw new IllegalArgumentException("Guilda do membro não existe.");String kind="hero".equalsIgnoreCase(member.optString("member_kind"))?"hero":"npc";long cid=member.optLong("character_id",0);String npc=member.optString("npc_name").trim();if("hero".equals(kind)&&cid<=0)throw new IllegalArgumentException("Herói inválido.");if("npc".equals(kind)&&npc.length()==0)throw new IllegalArgumentException("NPC inválido.");ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("guild_id",gid);v.put("member_kind",kind);v.put("character_id",cid);v.put("npc_name",npc);v.put("rank_id",member.optLong("rank_id",0));v.put("status",member.optString("status","active"));v.put("reputation",Math.max(-100,Math.min(100,member.optInt("reputation",0))));v.put("contribution",Math.max(0d,member.optDouble("contribution",0)));v.put("joined_day",Math.max(1,member.optInt("joined_day",getSceneState().optInt("day_number",1))));v.put("dues_paid_day",Math.max(0,member.optInt("dues_paid_day",0)));v.put("dues_due_day",Math.max(0,member.optInt("dues_due_day",0)));v.put("last_dues_notice_day",Math.max(0,member.optInt("last_dues_notice_day",0)));v.put("notes",member.optString("notes"));long now=System.currentTimeMillis();v.put("created_at",now);v.put("updated_at",now);long id=getWritableDatabase().insertWithOnConflict("guild_members",null,v,SQLiteDatabase.CONFLICT_IGNORE);JSONObject old=findGuildMember(gid,kind,cid,npc);if(id==-1&&old.length()>0){id=old.optLong("id");getWritableDatabase().update("guild_members",v,"id=?",new String[]{String.valueOf(id)});}if(id<=0)throw new IllegalStateException("Membro não persistido.");if("npc".equals(kind)){ensureNpcPersonalityProvisioned(npc);JSONObject state=getNpcCognitiveState(npc);state.put("name",npc).put("faction",getGuild(gid).optString("name"));upsertNpcCognitiveState(state);}return id;}
+    public void updateGuildMemberStatus(long memberId,String status){ContentValues v=new ContentValues();v.put("status",status);v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("guild_members",v,"id=? AND world_profile=?",new String[]{String.valueOf(memberId),getActiveMapProfile()});}
+    public int countGuildMembers(long guildId){return countQuery(getReadableDatabase(),"SELECT COUNT(*) FROM guild_members WHERE world_profile=? AND guild_id=? AND status='active'",new String[]{getActiveMapProfile(),String.valueOf(guildId)});}
+    public List<JSONObject> listGuildContracts(long guildId,String status,int limit){ensureGuildTables();String where=status==null||status.trim().length()==0?"":" AND status=?";ArrayList<String> args=new ArrayList<String>();args.add(getActiveMapProfile());args.add(String.valueOf(guildId));if(where.length()>0)args.add(status);return queryList("SELECT * FROM guild_contracts WHERE world_profile=? AND guild_id=?"+where+" ORDER BY status='open' DESC,deadline_day,id DESC LIMIT "+Math.max(1,Math.min(1000,limit)),args.toArray(new String[0]));}
+    public long addGuildContractChecked(JSONObject c)throws Exception{ensureGuildTables();long gid=c.optLong("guild_id");if(getGuild(gid).length()==0)throw new IllegalArgumentException("Guilda do contrato não existe.");String title=c.optString("title").trim();if(title.length()==0)throw new IllegalArgumentException("Contrato sem título.");ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("guild_id",gid);v.put("title",title);for(String k:new String[]{"description","issuer","status","assignee_kind","assignee_name","requirements_json","reward_json","penalty_json","progress_json"})v.put(k,c.optString(k,k.endsWith("_json")?"{}":""));v.put("assignee_id",c.optLong("assignee_id",0));v.put("deadline_day",Math.max(0,c.optInt("deadline_day",0)));v.put("linked_quest_id",Math.max(0,c.optLong("linked_quest_id",0)));long now=System.currentTimeMillis();v.put("created_at",now);v.put("updated_at",now);long id=getWritableDatabase().insertOrThrow("guild_contracts",null,v);if(id<=0)throw new IllegalStateException("Contrato não persistido.");return id;}
+    public void updateGuildContractStatus(long id,String status,JSONObject progress)throws Exception{ContentValues v=new ContentValues();v.put("status",status);if(progress!=null)v.put("progress_json",progress.toString());v.put("updated_at",System.currentTimeMillis());if(getWritableDatabase().update("guild_contracts",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()})!=1)throw new IllegalStateException("Contrato não atualizado.");}
+    public JSONObject getGuildContract(long id){ensureGuildTables();return queryOne("SELECT c.*,g.name guild_name,g.faction_id FROM guild_contracts c INNER JOIN guilds g ON g.id=c.guild_id WHERE c.world_profile=? AND c.id=?",new String[]{getActiveMapProfile(),String.valueOf(id)});}
+    public long acceptGuildContractChecked(long contractId,long ownerCharacterId)throws Exception{
+        JSONObject c=getGuildContract(contractId);if(c.length()==0)throw new IllegalArgumentException("Contrato inexistente.");
+        if(!"open".equals(c.optString("status")))throw new IllegalStateException("Este contrato não está aberto.");
+        Object reward=parseJsonValue(c.optString("reward_json","{}")),penalty=parseJsonValue(c.optString("penalty_json","{}")),requirements=parseJsonValue(c.optString("requirements_json","{}"));
+        JSONObject stakes=new JSONObject().put("reward",reward).put("penalty",penalty).put("guild_contract_id",contractId).put("guild_id",c.optLong("guild_id"));
+        JSONObject questProgress=new JSONObject().put("guild_contract_id",contractId).put("guild_id",c.optLong("guild_id")).put("requirements",requirements).put("accepted_day",getSceneState().optInt("day_number",1));
+        long questId=applyQuestUpdateChecked(new JSONObject().put("title",c.optString("title")).put("objective",c.optString("description")).put("stakes",stakes.toString()).put("status","active").put("stage","Contrato aceito de "+c.optString("guild_name")).put("owner_character_id",Math.max(0,ownerCharacterId)).put("faction_id",c.optLong("faction_id",0)).put("progress_json",questProgress.toString()));
+        ContentValues v=new ContentValues();v.put("status","accepted");v.put("assignee_kind",ownerCharacterId>0?"hero":"party");v.put("assignee_id",Math.max(0,ownerCharacterId));v.put("linked_quest_id",questId);v.put("progress_json",new JSONObject().put("accepted_day",getSceneState().optInt("day_number",1)).put("reward_pending_review",false).put("requirements",requirements).toString());v.put("updated_at",System.currentTimeMillis());
+        if(getWritableDatabase().update("guild_contracts",v,"id=? AND world_profile=?",new String[]{String.valueOf(contractId),getActiveMapProfile()})!=1)throw new IllegalStateException("Contrato não aceito.");return questId;
+    }
+    public void completeGuildContractChecked(long contractId)throws Exception{
+        JSONObject c=getGuildContract(contractId);if(c.length()==0)throw new IllegalArgumentException("Contrato inexistente.");
+        if(!"accepted".equals(c.optString("status")))throw new IllegalStateException("Somente contratos aceitos podem ser concluídos.");
+        JSONObject progress=parseJsonObject(c.optString("progress_json","{}"));progress.put("completed_day",getSceneState().optInt("day_number",1)).put("reward_pending_review",jsonValueHasContent(c.optString("reward_json","{}")));
+        updateGuildContractStatus(contractId,"completed",progress);long questId=c.optLong("linked_quest_id",0);if(questId>0)updateQuestStatus(questId,"completed","Contrato concluído para "+c.optString("guild_name"));
+        addAuditEvent("guilda","Contrato concluído",c.optString("title")+" • recompensa aguardando revisão mecânica",c.toString(),getGuildContract(contractId).toString(),true);
+    }
+    public int countGuildContracts(long gid,String status){return countQuery(getReadableDatabase(),"SELECT COUNT(*) FROM guild_contracts WHERE world_profile=? AND guild_id=? AND status=?",new String[]{getActiveMapProfile(),String.valueOf(gid),status});}
+    public List<JSONObject> listGuildProjects(long guildId,String status,int limit){ensureGuildTables();String where=status==null||status.trim().length()==0?"":" AND status=?";ArrayList<String> args=new ArrayList<String>();args.add(getActiveMapProfile());args.add(String.valueOf(guildId));if(where.length()>0)args.add(status);return queryList("SELECT * FROM guild_projects WHERE world_profile=? AND guild_id=?"+where+" ORDER BY status='active' DESC,updated_at DESC LIMIT "+Math.max(1,Math.min(1000,limit)),args.toArray(new String[0]));}
+    public List<JSONObject> listGuildProjectsForSimulation(long guildId,int limit){ensureGuildTables();return queryList("SELECT * FROM guild_projects WHERE world_profile=? AND guild_id=? AND status='active' ORDER BY CASE WHEN simulation_cursor_hours<0 THEN -1 ELSE simulation_cursor_hours END ASC,updated_at ASC,id ASC LIMIT "+Math.max(1,Math.min(1000,limit)),new String[]{getActiveMapProfile(),String.valueOf(guildId)});}
+    public long addGuildProjectChecked(JSONObject p)throws Exception{ensureGuildTables();long gid=p.optLong("guild_id");if(getGuild(gid).length()==0)throw new IllegalArgumentException("Guilda do projeto não existe.");String title=p.optString("title").trim();if(title.length()==0)throw new IllegalArgumentException("Projeto sem título.");ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("guild_id",gid);v.put("title",title);v.put("description",p.optString("description"));v.put("kind",p.optString("kind","general"));v.put("status",p.optString("status","active"));v.put("progress",Math.max(0d,p.optDouble("progress",0)));v.put("goal",Math.max(1d,p.optDouble("goal",100)));v.put("progress_per_day",Math.max(.1d,p.optDouble("progress_per_day",5)));v.put("cost_json",p.optString("cost_json","{}"));v.put("result_json",p.optString("result_json","{}"));v.put("location",p.optString("location"));v.put("started_day",Math.max(1,p.optInt("started_day",getSceneState().optInt("day_number",1))));v.put("completed_day",0);v.put("simulation_cursor_hours",currentWorldHourForSimulation());long now=System.currentTimeMillis();v.put("created_at",now);v.put("updated_at",now);long id=getWritableDatabase().insertOrThrow("guild_projects",null,v);if(id<=0)throw new IllegalStateException("Projeto não persistido.");return id;}
+    public int countGuildProjects(long gid,String status){return countQuery(getReadableDatabase(),"SELECT COUNT(*) FROM guild_projects WHERE world_profile=? AND guild_id=? AND status=?",new String[]{getActiveMapProfile(),String.valueOf(gid),status});}
+    public List<JSONObject> listGuildSites(long guildId){ensureGuildTables();return queryList("SELECT * FROM guild_sites WHERE world_profile=? AND guild_id=? AND active=1 ORDER BY site_type,name",new String[]{getActiveMapProfile(),String.valueOf(guildId)});}
+    public long addGuildSiteChecked(JSONObject site)throws Exception{ensureGuildTables();long gid=site.optLong("guild_id");JSONObject guild=getGuild(gid);if(guild.length()==0)throw new IllegalArgumentException("Guilda do local não existe.");String name=site.optString("name").trim();if(name.length()==0)throw new IllegalArgumentException("Local sem nome.");String hex=site.optString("hex_id").trim();if(hex.length()>0){String packageId=getMapState().optString("map_package_id");if(packageId.length()==0||getRawMapHex(packageId,hex).length()==0)throw new IllegalArgumentException("Hexágono da sede não existe no atlas ativo.");}ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("guild_id",gid);v.put("name",name);v.put("site_type",site.optString("site_type","sede"));v.put("location",site.optString("location"));v.put("hex_id",hex);v.put("services_json",site.optString("services_json","[]"));v.put("defenses_json",site.optString("defenses_json","{}"));v.put("stock_json",site.optString("stock_json","{}"));v.put("active",1);long now=System.currentTimeMillis();v.put("created_at",now);v.put("updated_at",now);long id=getWritableDatabase().insertOrThrow("guild_sites",null,v);if(id<=0)throw new IllegalStateException("Local da guilda não persistido.");if(hex.length()>0){String packageId=getMapState().optString("map_package_id");saveMapHexNote(packageId,hex,name,guild.optString("name")+" • "+site.optString("site_type","sede"),"⚒","guild_system");}return id;}
+    public void recordGuildDuesPaymentChecked(final long memberId,final double requestedAmount,final String actor)throws Exception{
+        final JSONObject member=getGuildMember(memberId);if(member.length()==0)throw new IllegalArgumentException("Membro da guilda inexistente.");
+        final double due=Math.max(0d,member.optDouble("rank_dues_amount",0d));if(due<=0d)throw new IllegalStateException("A patente atual não possui mensalidade.");
+        final double amount=requestedAmount<=0d?due:requestedAmount;if(Math.abs(amount-due)>.0001d)throw new IllegalArgumentException("O pagamento deve corresponder exatamente à mensalidade de "+due+" "+getGuild(member.optLong("guild_id")).optString("currency","po")+".");
+        runInTransactionChecked(new CheckedTransaction(){public void run()throws Exception{
+            JSONObject current=getGuildMember(memberId);if(current.length()==0)throw new IllegalStateException("O membro deixou de existir durante o pagamento.");
+            int day=Math.max(1,getSceneState().optInt("day_number",1));addGuildLedgerEntryChecked(new JSONObject().put("guild_id",current.optLong("guild_id")).put("entry_type","dues").put("amount",amount).put("description","Mensalidade de "+(current.optString("hero_name").length()>0?current.optString("hero_name"):current.optString("npc_name"))).put("actor",actor==null||actor.trim().length()==0?"membro":actor.trim()).put("day_number",day));
+            ContentValues v=new ContentValues();v.put("dues_paid_day",day);v.put("dues_due_day",0);v.put("last_dues_notice_day",0);v.put("updated_at",System.currentTimeMillis());
+            if(getWritableDatabase().update("guild_members",v,"id=? AND world_profile=?",new String[]{String.valueOf(memberId),getActiveMapProfile()})!=1)throw new IllegalStateException("Pagamento não vinculado ao membro.");
+            addAuditEvent("guilda","Mensalidade registrada",current.optString("guild_name")+" • "+amount+" "+getGuild(current.optLong("guild_id")).optString("currency","po"),current.toString(),getGuildMember(memberId).toString(),true);
+        }});
+    }
+    public List<JSONObject> listGuildLedger(long guildId,int limit){ensureGuildTables();return queryList("SELECT * FROM guild_ledger WHERE world_profile=? AND guild_id=? ORDER BY created_at DESC LIMIT "+Math.max(1,Math.min(1000,limit)),new String[]{getActiveMapProfile(),String.valueOf(guildId)});}
+    public long addGuildLedgerEntryChecked(JSONObject entry)throws Exception{ensureGuildTables();long gid=entry.optLong("guild_id");JSONObject guild=getGuild(gid);if(guild.length()==0)throw new IllegalArgumentException("Guilda do lançamento não existe.");double amount=entry.optDouble("amount");double after=guild.optDouble("treasury")+amount;if(after<0d)throw new IllegalArgumentException("A guilda não possui fundos suficientes.");ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("guild_id",gid);v.put("entry_type",entry.optString("entry_type","adjustment"));v.put("amount",amount);v.put("currency",entry.optString("currency",guild.optString("currency","po")));v.put("description",entry.optString("description"));v.put("actor",entry.optString("actor"));v.put("day_number",Math.max(1,entry.optInt("day_number",getSceneState().optInt("day_number",1))));v.put("created_at",System.currentTimeMillis());long id=getWritableDatabase().insertOrThrow("guild_ledger",null,v);ContentValues g=new ContentValues();g.put("treasury",after);g.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("guilds",g,"id=? AND world_profile=?",new String[]{String.valueOf(gid),getActiveMapProfile()});if(id<=0)throw new IllegalStateException("Livro-caixa não persistido.");syncGuildFactionChecked(gid);return id;}
+    public List<JSONObject> listGuildRelations(long guildId){ensureGuildTables();return queryList("SELECT * FROM guild_relations WHERE world_profile=? AND guild_id=? ORDER BY relation DESC,target_name",new String[]{getActiveMapProfile(),String.valueOf(guildId)});}
+    public long upsertGuildRelationChecked(JSONObject r)throws Exception{ensureGuildTables();long gid=r.optLong("guild_id");if(getGuild(gid).length()==0)throw new IllegalArgumentException("Guilda da relação não existe.");String target=r.optString("target_name").trim();if(target.length()==0)throw new IllegalArgumentException("Alvo da relação ausente.");JSONObject old=queryOne("SELECT * FROM guild_relations WHERE world_profile=? AND guild_id=? AND target_kind=? AND target_name=? COLLATE NOCASE",new String[]{getActiveMapProfile(),String.valueOf(gid),r.optString("target_kind","guild"),target});ContentValues v=new ContentValues();v.put("world_profile",getActiveMapProfile());v.put("guild_id",gid);v.put("target_kind",r.optString("target_kind","guild"));v.put("target_guild_id",r.optLong("target_guild_id",0));v.put("target_faction_id",r.optLong("target_faction_id",0));v.put("target_name",target);v.put("relation",Math.max(-100,Math.min(100,r.optInt("relation",0))));v.put("stance",r.optString("stance","neutral"));v.put("treaties_json",r.optString("treaties_json","[]"));v.put("notes",r.optString("notes"));v.put("updated_at",System.currentTimeMillis());long id;if(old.length()==0)id=getWritableDatabase().insertOrThrow("guild_relations",null,v);else{id=old.optLong("id");getWritableDatabase().update("guild_relations",v,"id=?",new String[]{String.valueOf(id)});}return id;}
+    public int countGuildRows(String table){if(!new java.util.HashSet<String>(java.util.Arrays.asList("guilds","guild_ranks","guild_members","guild_contracts","guild_projects","guild_sites","guild_ledger","guild_relations")).contains(table))return 0;return countQuery(getReadableDatabase(),"SELECT COUNT(*) FROM "+table+" WHERE world_profile=?",new String[]{getActiveMapProfile()});}
+    public void applyGuildSimulationActionChecked(JSONObject action)throws Exception{if(action==null)return;String kind=action.optString("kind");if("guild_heartbeat".equals(kind)){ContentValues v=new ContentValues();v.put("simulation_cursor_hours",Math.max(0d,action.optDouble("simulation_cursor_hours_after",0d)));v.put("updated_at",System.currentTimeMillis());if(getWritableDatabase().update("guilds",v,"id=? AND world_profile=?",new String[]{String.valueOf(action.optLong("guild_id")),getActiveMapProfile()})!=1)throw new IllegalStateException("Cursor temporal da guilda não persistido.");}else if("project_progress".equals(kind)){long id=action.optLong("project_id");ContentValues v=new ContentValues();v.put("progress",Math.max(0d,action.optDouble("progress_after")));if(action.has("simulation_cursor_hours_after"))v.put("simulation_cursor_hours",Math.max(0d,action.optDouble("simulation_cursor_hours_after",0d)));if(action.optBoolean("completed",false)){v.put("status","completed");v.put("completed_day",getSceneState().optInt("day_number",1));}v.put("updated_at",System.currentTimeMillis());if(getWritableDatabase().update("guild_projects",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()})!=1)throw new IllegalStateException("Projeto de guilda não avançou.");}else if("contract_expired".equals(kind)){JSONObject c=getGuildContract(action.optLong("contract_id"));updateGuildContractStatus(action.optLong("contract_id"),"expired",new JSONObject().put("expired_day",getSceneState().optInt("day_number",1)));if(c.optLong("linked_quest_id",0)>0)updateQuestStatus(c.optLong("linked_quest_id"),"failed","Prazo do contrato expirado");}else if("dues_due".equals(kind)){ContentValues v=new ContentValues();v.put("dues_due_day",Math.max(1,action.optInt("due_day")));v.put("last_dues_notice_day",Math.max(1,action.optInt("notice_day")));v.put("updated_at",System.currentTimeMillis());if(getWritableDatabase().update("guild_members",v,"id=? AND world_profile=?",new String[]{String.valueOf(action.optLong("member_id")),getActiveMapProfile()})!=1)throw new IllegalStateException("Pendência de mensalidade não persistida.");}}
+
+    private void restoreGuildSubsystem(SQLiteDatabase db,JSONObject root,Map<Long,Long> characterIdMap,Map<Long,Long> factionIdMap,Map<Long,Long> questIdMap,int backupVersion)throws Exception{createGuildTables(db);for(String t:new String[]{"guild_relations","guild_ledger","guild_sites","guild_projects","guild_contracts","guild_members","guild_ranks","guilds"})db.delete(t,"world_profile=?",new String[]{getActiveMapProfile()});Map<Long,Long> guildMap=new HashMap<Long,Long>(),rankMap=new HashMap<Long,Long>();JSONArray guilds=root.optJSONArray("guilds");if(guilds!=null)for(int i=0;i<guilds.length();i++){JSONObject row=guilds.optJSONObject(i);if(row==null)continue;long old=row.optLong("id");ContentValues v=jsonValues(row);v.remove("id");v.put("world_profile",getActiveMapProfile());Long faction=factionIdMap.get(row.optLong("faction_id"));v.put("faction_id",faction==null?0:faction);long id=db.insertOrThrow("guilds",null,v);if(old>0)guildMap.put(old,id);}JSONArray ranks=root.optJSONArray("guildRanks");if(ranks!=null)for(int i=0;i<ranks.length();i++){JSONObject row=ranks.optJSONObject(i);if(row==null)continue;Long gid=guildMap.get(row.optLong("guild_id"));if(gid==null)continue;long old=row.optLong("id");ContentValues v=jsonValues(row);v.remove("id");v.put("world_profile",getActiveMapProfile());v.put("guild_id",gid);long id=db.insertOrThrow("guild_ranks",null,v);if(old>0)rankMap.put(old,id);}restoreGuildRows(db,root.optJSONArray("guildMembers"),"guild_members",guildMap,rankMap,characterIdMap,questIdMap);restoreGuildRows(db,root.optJSONArray("guildContracts"),"guild_contracts",guildMap,rankMap,characterIdMap,questIdMap);restoreGuildRows(db,root.optJSONArray("guildProjects"),"guild_projects",guildMap,rankMap,characterIdMap,questIdMap);restoreGuildRows(db,root.optJSONArray("guildSites"),"guild_sites",guildMap,rankMap,characterIdMap,questIdMap);restoreGuildRows(db,root.optJSONArray("guildLedger"),"guild_ledger",guildMap,rankMap,characterIdMap,questIdMap);restoreGuildRows(db,root.optJSONArray("guildRelations"),"guild_relations",guildMap,rankMap,characterIdMap,questIdMap);}
+    private void restoreGuildRows(SQLiteDatabase db,JSONArray rows,String table,Map<Long,Long> guildMap,Map<Long,Long> rankMap,Map<Long,Long> characterIdMap,Map<Long,Long> questIdMap)throws Exception{if(rows==null)return;for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null)continue;Long gid=guildMap.get(row.optLong("guild_id"));if(gid==null)continue;ContentValues v=jsonValues(row);v.remove("id");v.put("world_profile",getActiveMapProfile());v.put("guild_id",gid);if(v.containsKey("rank_id")){Long rank=rankMap.get(row.optLong("rank_id"));v.put("rank_id",rank==null?0:rank);}if(v.containsKey("character_id")){Long ch=characterIdMap.get(row.optLong("character_id"));v.put("character_id",ch==null?0:ch);}if(v.containsKey("assignee_id")&&"hero".equals(row.optString("assignee_kind"))){Long ch=characterIdMap.get(row.optLong("assignee_id"));v.put("assignee_id",ch==null?0:ch);}if(v.containsKey("linked_quest_id")){Long q=questIdMap.get(row.optLong("linked_quest_id"));v.put("linked_quest_id",q==null?0:q);}if(v.containsKey("target_guild_id")){Long target=guildMap.get(row.optLong("target_guild_id"));v.put("target_guild_id",target==null?0:target);}db.insertOrThrow(table,null,v);}}
+
+}

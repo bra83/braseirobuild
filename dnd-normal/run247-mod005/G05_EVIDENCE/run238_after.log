@@ -1,0 +1,26 @@
+RUN238_ACTION_ECONOMY_JVM_PASS checks=600893
+PASS JavacTask.parse sources=5
+RUN238_CATALOG_AUDIT {"counts": {"total_records": 572, "normal_attacks": 744, "bonus_attacks": 0, "legendary_attacks_blocked": 0, "reaction_attacks_blocked": 0, "unmodeled_no_save_riders_blocked": 105, "other_attack_categories_blocked": 0, "attack_save_dc_missing_ability_blocked": 53, "save_action_dc_missing_ability_blocked": 27}, "examples_no_save_riders": [["Aberrant Death's Head", "Brain-Rending Bite", "RavenloftBestiaryRuntimeEngine.java", "action"], ["Azalin Rex", "Paralyzing Touch", "RavenloftBestiaryRuntimeEngine.java", "action"], ["Elder Thing", "Soothing Tentacle", "RavenloftBestiaryRuntimeEngine.java", "action"], ["Harkon Lukas", "Swipe (Dire Wolf or Hybrid Form Only)", "RavenloftBestiaryRuntimeEngine.java", "action"], ["Inquisitor of the Mind Fire", "Silvered Longsword", "RavenloftBestiaryRuntimeEngine.java", "action"], ["Inquisitor of the Sword", "Silvered Longsword", "RavenloftBestiaryRuntimeEngine.java", "action"], ["Inquisitor of the Tome", "Force Blade", "RavenloftBestiaryRuntimeEngine.java", "action"], ["Loup Garou", "Rend (Dire Wolf or Hybrid Form Only)", "RavenloftBestiaryRuntimeEngine.java", "action"], ["Madam Eva", "Radiant Flame", "RavenloftBestiaryRuntimeEngine.java", "action"], ["Necrichor", "Necrotic Burst", "RavenloftBestiaryRuntimeEngine.java", "action"]]}
+PASS source-bound preview
+PASS preview rejects legendary
+PASS preview rejects omitted rider
+PASS attack source cost
+PASS attack consumes declared cost
+PASS attack receipt stores cost
+PASS multiattack component category guard
+PASS multiattack component rider guard
+PASS save action uses same guard
+PASS UI filters unmodeled riders
+PASS UI filters legendary
+PASS guard blocks unknown categories
+PASS guard blocks unmodeled on hit
+PASS save ability validated in attack
+PASS save ability validated in save action
+PASS UI save action filters missing ability
+PASS guard checks ability enum
+PASS no auto rolls
+PASS no schema bump
+PASS backup unchanged
+PASS version advanced
+RUN238_STATIC_PASS checks=21
+RUN238_TESTS_COMPLETED Android AppDb/Robolectric NOT EXECUTED
