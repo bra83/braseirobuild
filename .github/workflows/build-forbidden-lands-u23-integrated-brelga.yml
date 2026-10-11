@@ -17,6 +17,9 @@ env:
   SOURCE_SHA256: fd6485a92b2337b854de06279cf98fb14119b121db0c4ebb05be805317d9aa91
   SOURCE_BYTES: '40470551'
   SOURCE_API: https://api.firestorage.ai/dev/file/shares/gw3IuQ6vowPp
+  NATIVE_DONOR_API: https://api.firestorage.ai/dev/file/shares/7yPVWDuI4kl_
+  NATIVE_DONOR_NAME: BRASEIRO_FORBIDDEN_LANDS_3.3.19_R23_SOURCE.zip
+  NATIVE_DONOR_SHA256: 2ee4e3af34459421a4b1e0389125cfcf057ce6938e8ddb8e281a770fca599f83
   EXPECTED_SIGNER: 9d0f1089b3fb6c225f1f59462750864e897c4d92
 jobs:
   build:
@@ -63,6 +66,21 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Source extraction failed' }
           & python.exe "$env:GITHUB_WORKSPACE\ci\fl-u23\prepare_source.py" $project
           if ($LASTEXITCODE -ne 0) { throw 'Runtime differs from integrated source' }
+          # Restore only the three private native files; never use donor runtime.
+          $donorZip=Join-Path $root $env:NATIVE_DONOR_NAME
+          $nativeCache=Get-ChildItem 'D:\' -Directory -Filter 'brelga-fl-u*' | ForEach-Object { $candidate=Join-Path $_.FullName $env:NATIVE_DONOR_NAME; if (Test-Path $candidate) { Get-Item $candidate } } | Select-Object -First 1
+          if ($nativeCache) { Copy-Item $nativeCache.FullName $donorZip }
+          else {
+            $nativeMeta=Invoke-RestMethod -Uri ($env:NATIVE_DONOR_API + '/files?maxResults=100')
+            $nativeMatches=@($nativeMeta.files | Where-Object { $_.fileName -eq $env:NATIVE_DONOR_NAME })
+            if ($nativeMatches.Count -ne 1) { throw 'Pinned historical native donor unavailable' }
+            $nativeTicket=Invoke-RestMethod -Method Post -Uri ($env:NATIVE_DONOR_API + '/files/' + $nativeMatches[0].fileId + '/download')
+            & curl.exe --fail --location --retry 4 --retry-all-errors -o $donorZip $nativeTicket.downloadUrl
+            if ($LASTEXITCODE -ne 0) { throw 'Historical native donor download failed' }
+          }
+          if ((Get-FileHash $donorZip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $env:NATIVE_DONOR_SHA256) { throw 'Native donor SHA mismatch' }
+          & python.exe "$env:GITHUB_WORKSPACE\ci\fl-u23\recover_native_config.py" $project $donorZip
+          if ($LASTEXITCODE -ne 0) { throw 'Native configuration recovery failed' }
           $candidates=@('C:\actions-runner\android-sdk',$env:ANDROID_HOME,$env:ANDROID_SDK_ROOT)
           if ($env:LOCALAPPDATA) { $candidates += (Join-Path $env:LOCALAPPDATA 'Android\Sdk') }
           $sdk=$candidates | Where-Object { $_ -and (Test-Path (Join-Path $_ 'platforms\android-36')) -and (Test-Path (Join-Path $_ 'build-tools\36.0.0\aapt.exe')) } | Select-Object -First 1

@@ -9,6 +9,7 @@ assert gate['sourceCommit']==source
 with zipfile.ZipFile(apk) as archive:
     manifest=json.loads(archive.read('assets/public/fl-build-source.json'))
     assert manifest['sourceCommit']==source and manifest['runtimeFilesVerified']==584
+    assert manifest['nativeDonorSha256']=='2ee4e3af34459421a4b1e0389125cfcf057ce6938e8ddb8e281a770fca599f83'
     count=0
     for p in (root/'dist').rglob('*'):
         if not p.is_file():continue
@@ -19,6 +20,6 @@ with zipfile.ZipFile(apk) as archive:
     assert marker['version']=='3.3.24' and marker['generatedBy']=='npm run android:sync'
 sha=hashlib.sha256(apk.read_bytes()).hexdigest()
 (out/(apk.name+'.sha256')).write_text(sha+'  '+apk.name+'\n')
-proof={'status':'PASS','sourceCommit':source,'runtimeFilesVerified':584,'downstreamCertified':82,'apkSha256':sha,'apkBytes':apk.stat().st_size,'webAssetsCompared':count,'scope':'Android binary, source identity, fresh web assets and strict browser gate; emulator evidence separate; physical Galaxy tests not performed'}
+proof={'status':'PASS','sourceCommit':source,'runtimeFilesVerified':584,'nativeDonorSha256':'2ee4e3af34459421a4b1e0389125cfcf057ce6938e8ddb8e281a770fca599f83','downstreamCertified':82,'apkSha256':sha,'apkBytes':apk.stat().st_size,'webAssetsCompared':count,'scope':'Android binary, source identity, fresh web assets and strict browser gate; emulator evidence separate; physical Galaxy tests not performed'}
 (out/'BUILD_PROOF_U23.json').write_text(json.dumps(proof,indent=2)+'\n')
 print(json.dumps(proof))
