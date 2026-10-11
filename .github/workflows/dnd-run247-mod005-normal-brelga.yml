@@ -8,6 +8,7 @@ on:
       - .github/workflows/dnd-run247-mod005-normal-brelga.yml
       - ci/dnd-normal-run247/compare_exact_trees.py
       - ci/dnd-normal-run247/integration_fix_manifest.json
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/adventure/**
 permissions:
   contents: write
 concurrency:
@@ -67,7 +68,7 @@ jobs:
           "BASELINE_SHA256=2774b450ecf5be179976199b22bab8584f76939dcf305d82a84171a199282e06" | Out-File (Join-Path $out 'PROVENANCE.txt') -Encoding utf8 -Append
           'NO_APK_BUILD=YES' | Out-File (Join-Path $out 'PROVENANCE.txt') -Encoding utf8 -Append
           Write-Host 'BRELGA_D_DRIVE=ACTIVE; EXISTING_JAVA17_PYTHON311=ACTIVE; APK=DISABLED'
-      - name: Verify exact reconciled ZIP and strict SHA-pinned two-file fix delta
+      - name: Verify exact reconciled ZIP and strictly pinned source-fix delta
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
@@ -84,7 +85,7 @@ jobs:
           if ($rc -ne 0) { throw 'BASELINE_ZIP_SHA_CRC_FAILED' }
           Copy-Item (Join-Path $env:DND_ROOT 'SOURCE_VERIFY.txt') $env:DND_OUT -Force
           & $env:DND_PYTHON $verify --reference $reference --existing $env:DND_PROJECT --allowed-manifest $fix
-          if ($LASTEXITCODE -ne 0) { throw 'PINNED_TWO_FILE_DELTA_FAILED' }
+          if ($LASTEXITCODE -ne 0) { throw 'PINNED_SOURCE_FIX_DELTA_FAILED' }
           'SOURCE_FIX_VERIFY_EXIT_CODE=0' | Out-File (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
       - name: Compile Android Java on reconciled source
         shell: powershell
