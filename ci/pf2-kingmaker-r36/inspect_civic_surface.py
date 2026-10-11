@@ -12,8 +12,8 @@ for rel in [
     p=root/rel
     lines=p.read_text(encoding="utf-8").splitlines()
     print("=== INSPECTION:",rel,"===")
-    terms=[r'buildStructure',r'resolveBuildStructure',r'claimHex\\(',r'Build Structure',r'Rubble',r'incomplete',r'obra inacabada',r'repairStructure']
-    hits=[i for i,line in enumerate(lines) if any(re.search(term,line,re.I) for term in terms)]
+    terms=['buildStructure','resolveBuildStructure','claimHex(','Build Structure','Rubble','incomplete','obra inacabada','repairStructure']
+    hits=[i for i,line in enumerate(lines) if any(term.lower() in line.lower() for term in terms)]
     print("MATCHES:",len(hits))
     emitted=set()
     for i in hits[:55]:
