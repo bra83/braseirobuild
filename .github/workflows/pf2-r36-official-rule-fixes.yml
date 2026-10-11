@@ -12,6 +12,23 @@ concurrency:
   group: pf2-r36-official-book-rules-${{ github.sha }}
   cancel-in-progress: false
 jobs:
+  civic-inspection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: ci/pf2-kingmaker-r36
+      - name: Read verified R35 source for next civic correction
+        shell: bash
+        run: |
+          set -euo pipefail
+          auth="$(git config --local --get http.https://github.com/.extraheader)"
+          test -n "$auth"
+          curl -L --fail --retry 3 --header "$auth" --header 'Accept: application/octet-stream' -o r35-source.zip 'https://api.github.com/repos/bra83/braseirobuild/releases/assets/629875743'
+          echo '86d9a6fd26e4139e084c8e4069f49ef53e0cf8654e0f9f5662b92f9183941aa6  r35-source.zip' | sha256sum -c -
+          unzip -q r35-source.zip -d r35-source
+          python ci/pf2-kingmaker-r36/inspect_civic_surface.py r35-source
   patch-synthetic:
     runs-on: ubuntu-latest
     timeout-minutes: 10
