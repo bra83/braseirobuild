@@ -215,9 +215,8 @@ jobs:
           $out="$env:FL_ROOT\release"
           $notes="$out\RELEASE_NOTES.md"
           @('Forbidden Lands U23 integrado.','43 encontros, 121 escolhas e 82 caminhos na suíte real; fonte integrada conferida antes do build.','Assinatura histórica, identidade e todos os assets web comparados no APK.','Pré-release de teste. Smoke Android automatizado é executado no job seguinte; aparelho físico e motores TTS externos não certificados.',"SOURCE_COMMIT=$env:SOURCE_COMMIT") | Set-Content $notes -Encoding utf8
-          # BRELGA is self-hosted Windows; gh.exe is not guaranteed to be installed.
-          # Use the official GitHub REST Releases API with the short-lived job token.
-          # Keep the release DRAFT until ALL binary/proof uploads pass readback.
+          # BRELGA is self-hosted Windows and has no gh.exe. Use official GitHub
+          # Releases REST API with the short-lived job token and a DRAFT gate.
           $api="https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases"
           $headers=@{
             Authorization="Bearer $env:GH_TOKEN"
@@ -234,57 +233,7 @@ jobs:
           } | ConvertTo-Json -Depth 6
           $release=Invoke-RestMethod -Method Post -Uri $api -Headers $headers -Body ([Text.Encoding]::UTF8.GetBytes($metadata)) -ContentType 'application/json; charset=utf-8'
           if (-not $release.id -or -not $release.upload_url) { throw 'GitHub returned no draft release/upload endpoint' }
-          $uploadBase=([string]$release.upload_url) -replace '\\{.*
-      - name: Preserve failure diagnosis in logs
-        if: failure()
-        shell: powershell
-        run: |
-          $project="$env:FL_ROOT\project"
-          if (Test-Path "$project\e2e-results") {
-            Get-ChildItem "$project\e2e-results\*.stderr.log" | ForEach-Object { Write-Host $_.Name; Get-Content $_.FullName -Tail 80 }
-          }
-  emulator:
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 40
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Download exact published APK and verify digest
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ needs.build.outputs.tag }}
-        run: |
-          set -Eeuo pipefail
-          gh release download "$RELEASE_TAG" --pattern 'BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk*' --dir incoming
-          cd incoming
-          sha256sum -c BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk.sha256
-          python -m pip install playwright==1.55.0
-      - name: Enable KVM
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-      - name: Installed APK - native WebView and three reopens
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 35
-          arch: x86_64
-          profile: pixel_6
-          disable-animations: true
-          script: |
-            adb install -r incoming/BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk
-            adb logcat -c
-            python ci/fl-u23/emulator_smoke.py
-      - name: Attach emulator proof to the same release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ needs.build.outputs.tag }}
-        run: |
-          gh release upload "$RELEASE_TAG" fl-u23-android-smoke.json fl-u23-android-smoke.png --clobber
-, ''
+          $uploadBase=([string]$release.upload_url).Split('{')[0]
           $assets=@(Get-ChildItem $out -File | Where-Object { $_.Name -ne 'RELEASE_NOTES.md' })
           if (-not ($assets | Where-Object { $_.Name -eq 'BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk' }) -or
               -not ($assets | Where-Object { $_.Name -eq 'BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk.sha256' }) -or
