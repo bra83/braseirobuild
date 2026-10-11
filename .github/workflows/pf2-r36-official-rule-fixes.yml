@@ -114,9 +114,12 @@ jobs:
           python ci/pf2-kingmaker-r36/patch_kingdom_accounting.py "$project"
           python ci/pf2-kingmaker-r36/patch_claim_hex_ui.py "$project"
           python ci/pf2-kingmaker-r36/patch_build_structure.py "$project"
+          python ci/pf2-kingmaker-r36/patch_build_structure_repairs.py "$project"
           cp ci/pf2-kingmaker-r36/test_r36_book_fidelity.py "$project/tests_pf2/"
           cp ci/pf2-kingmaker-r36/test_r36_claim_prepaid.py "$project/tests_pf2/"
           cp ci/pf2-kingmaker-r36/test_build_structure_production.py "$project/tests_pf2/"
+          cp ci/pf2-kingmaker-r36/test_build_structure_repairs_production.py "$project/tests_pf2/"
+          cp ci/pf2-kingmaker-r36/test_r36_ui_and_accounting_contract.py "$project/tests_pf2/"
       - name: Inspect Build Structure source for official-rule remediation
         shell: bash
         run: python ci/pf2-kingmaker-r36/inspect_civic_surface.py "$PF2_R36_PROJECT"
@@ -126,7 +129,7 @@ jobs:
           set -euo pipefail
           python -m pip install -q pytest
           cd "$PF2_R36_PROJECT"
-          python -m pytest tests_pf2/test_r36_book_fidelity.py tests_pf2/test_r36_claim_prepaid.py tests_pf2/test_build_structure_production.py -q
+          python -m pytest tests_pf2/test_r36_book_fidelity.py tests_pf2/test_r36_claim_prepaid.py tests_pf2/test_build_structure_production.py tests_pf2/test_build_structure_repairs_production.py tests_pf2/test_r36_ui_and_accounting_contract.py -q
           python -m pytest tests_pf2 -q
       - name: Compile Android debug APK on hosted runner (no release)
         shell: bash
@@ -185,9 +188,13 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'Claim Hex UI patch failed'}
           python ci\pf2-kingmaker-r36\patch_build_structure.py "$project"
           if($LASTEXITCODE -ne 0){throw 'Build Structure patch failed'}
+          python ci\pf2-kingmaker-r36\patch_build_structure_repairs.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'Build Structure repair patch failed'}
           Copy-Item ci\pf2-kingmaker-r36\test_r36_book_fidelity.py (Join-Path $project 'tests_pf2\test_r36_book_fidelity.py') -Force
           Copy-Item ci\pf2-kingmaker-r36\test_r36_claim_prepaid.py (Join-Path $project 'tests_pf2\test_r36_claim_prepaid.py') -Force
           Copy-Item ci\pf2-kingmaker-r36\test_build_structure_production.py (Join-Path $project 'tests_pf2\test_build_structure_production.py') -Force
+          Copy-Item ci\pf2-kingmaker-r36\test_build_structure_repairs_production.py (Join-Path $project 'tests_pf2\test_build_structure_repairs_production.py') -Force
+          Copy-Item ci\pf2-kingmaker-r36\test_r36_ui_and_accounting_contract.py (Join-Path $project 'tests_pf2\test_r36_ui_and_accounting_contract.py') -Force
           "PF2_R36_PROJECT=$project"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
           Write-Host "R36_SOURCE_IDENTITY_R35_HASH=$sha"
           Write-Host 'R36_OFFICIAL_RULES_PATCH_APPLIED=true'
@@ -198,7 +205,7 @@ jobs:
           Push-Location $env:PF2_R36_PROJECT
           python -m pip install -q pytest
           if($LASTEXITCODE -ne 0){throw 'pytest unavailable'}
-          python -m pytest tests_pf2\test_r36_book_fidelity.py tests_pf2\test_r36_claim_prepaid.py tests_pf2\test_build_structure_production.py -q
+          python -m pytest tests_pf2\test_r36_book_fidelity.py tests_pf2\test_r36_claim_prepaid.py tests_pf2\test_build_structure_production.py tests_pf2\test_build_structure_repairs_production.py tests_pf2\test_r36_ui_and_accounting_contract.py -q
           $code=$LASTEXITCODE
           Pop-Location
           if($code -ne 0){throw "Book rule contract failed: $code"}
