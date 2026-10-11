@@ -71,6 +71,9 @@ def transform(s):
         final String expectedSkill=key(def.optString("construction_skill",def.optString("skill_key","")));
         if(expectedSkill.length()>0&&!expectedSkill.equals(skill))
             throw new IllegalArgumentException("A construção exige a perícia "+expectedSkill+".");
+        final String allowedSkills=def.optString("construction_skills","");
+        if(allowedSkills.length()>0&&!java.util.Arrays.asList(allowedSkills.split(",")).contains(skill))
+            throw new IllegalArgumentException("A estrutura exige uma das perícias: "+allowedSkills+".");
         final String requiredRank=key(def.optString("construction_rank","untrained"));
         final String actualRank=key(skill(skill).optString("rank","untrained"));
         final java.util.List<String> rankScale=java.util.Arrays.asList("untrained","trained","expert","master","legendary");
