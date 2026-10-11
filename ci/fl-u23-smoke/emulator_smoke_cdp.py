@@ -119,16 +119,18 @@ def verify_one(index):
               ready: document.readyState,
               rootChildren: document.querySelector('#root')?.children.length || 0,
               textLength: (document.body?.innerText || '').trim().length,
+              moduleLoading: (document.body?.innerText || '').includes('Abrindo módulo'),
               excerpt: (document.body?.innerText || '').slice(0,300),
               native: !!window.Capacitor?.isNativePlatform?.()
             }))()""")
-            if state and state.get("ready") == "complete" and                     state.get("rootChildren", 0) > 0 and                     state.get("textLength", 0) > 80:
+            if state and state.get("ready") == "complete" and                     state.get("rootChildren", 0) > 0 and                     state.get("textLength", 0) > 80 and not state.get("moduleLoading"):
                 break
             time.sleep(1)
         assert state and state["ready"] == "complete", state
         assert state["rootChildren"] > 0 and state["textLength"] > 80, state
+        assert not state.get("moduleLoading"), "Module lazy-loader remained visible after 90 seconds"
         assert state["native"], "JS did not detect Capacitor native platform"
-        assert re.search(r"Braseiro|Forbidden|Aventura|Campanha|Configura|Personage",
+        assert re.search(r"Braseiro|Forbidden|Aventura|Campanha|Configura|Personage|MESTRE IA",
             state["excerpt"], re.I), state["excerpt"]
         provenance = page.evaluate("""(async()=>{
           const r=await fetch('/fl-build-source.json',{cache:'no-store'});
