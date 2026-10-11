@@ -60,23 +60,79 @@ def nodes():
         time.sleep(12)
         return nodes()
     return out
+def viewport():
+    out=shell("wm","size")
+    m=re.search(r"(\d+)x(\d+)",out)
+    if not m:raise RuntimeError("SCREEN_DIMENSIONS_UNAVAILABLE "+repr(out))
+    return int(m.group(1)),int(m.group(2))
+
+def scroll_content():
+    # Stay strictly inside the document body. The previous swipe could begin
+    # outside a 2400-pixel screen and navigate to unrelated content.
+    width,height=viewport()
+    x=width//2
+    shell("input","swipe",str(x),str(int(height*.78)),
+          str(x),str(int(height*.34)),"420")
+    time.sleep(1)
+
+def start_confirmation_visible(items):
+    labels={item[0] for item in items}
+    return "Começar Kingmaker solo" in labels and "COMEÇAR A HISTÓRIA" in labels
+
+def close_stale_confirmation():
+    # Dismiss only after the AppDb commit. Never cancel an uncommitted start.
+    for attempt in range(3):
+        current=nodes()
+        if not start_confirmation_visible(current):return True
+        if snapshot("MODAL_STATE")["state"][0]!=1:
+            log("START_CONFIRMATION_UNCOMMITTED","cannot dismiss")
+            return False
+        log("DISMISS_STALE_START_CONFIRMATION",attempt+1)
+        shell("input","keyevent","4")
+        time.sleep(3)
+    return not start_confirmation_visible(nodes())
+
+def kingmaker():
+    if not close_stale_confirmation():return False
+    for attempt in range(5):
+        current=nodes()
+        labels={item[0] for item in current}
+        # These are content labels, not the persistent navigation tab.
+        if "KINGMAKER SOLO" in labels or "CONFIGURAÇÃO AVANÇADA DO REINO" in labels:
+            log("KINGMAKER_PAGE_CONFIRMED",attempt+1)
+            return True
+        tabs=[item for item in current if item[0]=="KINGMAKER"]
+        if not tabs:
+            if any(item[0]=="CANCELAR" for item in current):
+                shell("input","keyevent","4")
+                time.sleep(2)
+                continue
+            log("KINGMAKER_TAB_MISSING",json.dumps(sorted(labels)[:35],ensure_ascii=False))
+            return False
+        tab=min(tabs,key=lambda item:item[2])
+        shell("input","tap",str(tab[1]),str(tab[2]))
+        time.sleep(3)
+    log("KINGMAKER_PAGE_NOT_REACHED",json.dumps([x[0] for x in nodes()][:35],ensure_ascii=False))
+    return False
+
 def click(label,attempts=5,horizontal=False):
     seek=label.casefold()
     for i in range(attempts):
         n=nodes()
         if i==0:log("VISIBLE_FOR_"+label,json.dumps([v[0] for v in n][:35],ensure_ascii=False)[:1300])
         hit=next((v for v in n if v[0].casefold()==seek),None)
-        if hit is None:hit=next((v for v in n if seek in v[0].casefold()),None)
+        # Do not confuse a modal title or content paragraph with a navigation target.
         if hit:
             shell("input","tap",str(hit[1]),str(hit[2]))
             time.sleep(2)
             log("CLICK",label);return True
         if i==attempts-1:break
-        if horizontal and i<=2:shell("input","swipe","1250","310","260","310","440")
-        else:shell("input","swipe","730","2490","730","720","380")
+        if horizontal or start_confirmation_visible(n):
+            log("SCROLL_BLOCKED_WRONG_CONTEXT",label)
+            break
+        scroll_content()
         time.sleep(1)
     log("NOT_FOUND",label);return False
-def kingmaker():return click("Kingmaker",6,True)
 def snapshot(label):
     directory=Path(tempfile.mkdtemp(prefix="pf2-real-appdb-"))
     for suffix in ("","-wal","-shm"):
@@ -108,7 +164,11 @@ def activate():
     if snapshot("BEFORE_ACTIVATION")["state"][0]==1:return True
     if not click("ATIVAR E COMEÇAR A HISTÓRIA"):return False
     if not click("COMEÇAR A HISTÓRIA",2):return False
-    return snapshot("AFTER_ACTIVATION")["state"][0]==1
+    activated=snapshot("AFTER_ACTIVATION")["state"][0]==1
+    if activated and not close_stale_confirmation():
+        log("ACTIVATED_BUT_MODAL_STUCK","Kingmaker entry blocked")
+        return False
+    return activated
 def kingdom_turn():
     if not kingmaker():return False
     n=snapshot("BEFORE_TURN")["counts"].get("kingmaker_turns",0)
@@ -131,10 +191,19 @@ def army():
     return any(x[0]=="Braseiro_QA_R35" for x in snapshot("AFTER_ARMY")["army"])
 def restart():
     before=snapshot("BEFORE_RESTART")
-    shell("am","force-stop",PKG)
-    launch()
-    after=snapshot("AFTER_RESTART")
-    return before["state"]==after["state"] and before["counts"]==after["counts"] and before["army"]==after["army"]
+    # Empty-table persistence cannot certify the nonempty Kingdom/Army/War gate.
+    mandatory=("kingmaker_turns","kingmaker_armies","kingmaker_war_encounters")
+    if any(before["counts"].get(table,0)<1 for table in mandatory):
+        log("PERSISTENCE_NONEMPTY_NOT_PROVEN",json.dumps(before["counts"]))
+        return False
+    for attempt in range(1,4):
+        shell("am","force-stop",PKG)
+        launch()
+        after=snapshot("AFTER_RESTART_"+str(attempt))
+        if before["state"]!=after["state"] or before["counts"]!=after["counts"] or before["army"]!=after["army"]:
+            log("PERSISTENCE_DRIFT_ON_RESTART",attempt)
+            return False
+    return True
 def main():
     log("TEST_PACKAGE",PKG);launch()
     stage("ACTIVATION_ANDROID_APPDB",activate)
