@@ -1,6 +1,5 @@
 package com.braseiro.dnd5e.adventure;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -27,7 +26,7 @@ public final class LoreweaverOutcomePort {
             wire.put("tier", tier);
             if (margin != null) wire.put("margin", margin.intValue());
             return wire;
-        } catch (JSONException error) {
+        } catch (Exception error) {
             throw new IllegalArgumentException("Não foi possível serializar o resultado", error);
         }
     }
@@ -39,7 +38,7 @@ public final class LoreweaverOutcomePort {
             throw new IllegalArgumentException("Contrato neutro ausente");
         try {
             return new JSONObject(result.toString());
-        } catch (JSONException error) {
+        } catch (Exception error) {
             throw new IllegalArgumentException("Não foi possível restaurar o resultado", error);
         }
     }
