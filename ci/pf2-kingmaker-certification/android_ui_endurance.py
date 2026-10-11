@@ -46,9 +46,13 @@ def nodes():
     for e in root.iter("node"):
         txt=e.attrib.get("text","").strip() or e.attrib.get("content-desc","").strip()
         m=re.search(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",e.attrib.get("bounds",""))
-        if txt and m:
+        cls=e.attrib.get("class","")
+        # Unfilled EditTexts have no text/content-desc. Preserve them so
+        # the real Android army form can be populated instead of false-failing.
+        if m and (txt or cls.endswith("EditText")):
             x1,y1,x2,y2=map(int,m.groups())
-            out.append((txt,(x1+x2)//2,(y1+y2)//2,e.attrib.get("class","")))
+            out.append((txt,(x1+x2)//2,(y1+y2)//2,cls,
+                        e.attrib.get("clickable","false")=="true"))
     global SYSTEM_UI_RETRIES
     if any("isn't responding" in item[0].lower() for item in out):
         if SYSTEM_UI_RETRIES>=3: raise RuntimeError("ANDROID_SYSTEM_UI_REPEATED_ANR")
@@ -121,14 +125,16 @@ def click(label,attempts=5,horizontal=False):
     for i in range(attempts):
         n=nodes()
         if i==0:log("VISIBLE_FOR_"+label,json.dumps([v[0] for v in n][:35],ensure_ascii=False)[:1300])
-        hit=next((v for v in n if v[0].casefold()==seek),None)
-        # Do not confuse a modal title or content paragraph with a navigation target.
+        matches=[v for v in n if v[0].casefold()==seek]
+        hit=next((v for v in matches if v[4]),None) or next(iter(matches),None)
+        # Prefer actionable accessibility nodes over identically named headings.
         if hit:
             shell("input","tap",str(hit[1]),str(hit[2]))
             time.sleep(2)
             log("CLICK",label);return True
         if i==attempts-1:break
-        if horizontal or start_confirmation_visible(n):
+        if (horizontal or start_confirmation_visible(n)
+                or any(v[0]=="Configurações" for v in n)):
             log("SCROLL_BLOCKED_WRONG_CONTEXT",label)
             break
         scroll_content()
@@ -160,6 +166,10 @@ def stage(name,fn):
     try: G[name]=bool(fn())
     except Exception as ex:G[name]=False;log(name+"_ERROR",repr(ex)[:600])
     log(name,"PASS" if G[name] else "NOT_PROVEN")
+    if not G[name]:
+        try: log(name+"_VISIBLE_AT_FAILURE",
+                 json.dumps([v[0] for v in nodes()][:55],ensure_ascii=False)[:2000])
+        except Exception as diag:log(name+"_UI_DIAGNOSTIC_ERROR",repr(diag)[:250])
 def activate():
     if not kingmaker():return False
     if snapshot("BEFORE_ACTIVATION")["state"][0]==1:return True
