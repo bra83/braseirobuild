@@ -91,6 +91,15 @@ def main():
              "Runtime mapped keys inspected: "+str(result["runtime_keys_compared"])+"\n\n"
              "Keys with differences: "+str(result["mismatched_keys"])+"\n\n"
              "Semantic certification: OPEN. This is a structural comparison only.\n")
+    details=[]
+    for row in result["results"]:
+        if row["status"]=="numeric_match":
+            continue
+        diff=row.get("differences",[])
+        summary_diff="; ".join(str(x["field"])+": PDF="+str(x["official"])+", app="+str(x["app"]) for x in diff)
+        details.append("- "+row["key"]+" / "+row["official_name"]+": "+row["status"]+
+                       (" — "+summary_diff if summary_diff else ""))
+    summary+="\n## Differences requiring remediation\n"+"\n".join(details)+"\n"
     print(summary)
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as f: f.write(summary)
