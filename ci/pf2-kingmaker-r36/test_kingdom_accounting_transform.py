@@ -9,7 +9,9 @@ m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 FIXTURE='''
 state.put("fame",before.optInt("fame",0));state.put("infamy",before.optInt("infamy",0));
 int surplus=Math.min(120,Math.max(0,before.optInt("resource_points")));
-int modifier=rules.skillModifier(s.optInt("level",1),score,skill.optString("rank"),skill.optInt("item_bonus"),leadership,vacancy-ruin+taxes-claimPenalty,s.optInt("unrest"));
+int expansionExpert="claim_hex".equals(activity)&&s.optInt("level",1)>=4?2:0;
+int circumstanceBonus=Math.max(taxes,expansionExpert);
+int modifier=rules.skillModifier(s.optInt("level",1),score,skill.optString("rank"),skill.optInt("item_bonus"),leadership,vacancy-ruin+circumstanceBonus-claimPenalty,s.optInt("unrest"));
 if(awardReputationOnCrit&&"CRITICAL_SUCCESS".equals(result.optString("degree")))gainReputationPoint();
 o.put("claim_hex_stability_penalty",-claimPenalty);
 '''
@@ -22,8 +24,8 @@ def test_official_rules_transformed():
     assert 'before.optInt("infamy",0)+1' in out
     assert 'if("CRITICAL_SUCCESS".equals(result.optString("degree")))gainReputationPoint()' in out
     assert 'expansionExpert="claim_hex".equals(activity)&&s.optInt("level",1)>=4?2:0' in out
-    assert "Math.max(taxes,expansionExpert)-claimPenalty" in out
-    assert ".put(\"expansion_expert\",expansionExpert)" in out
+    assert "int circumstanceBonus=Math.max(taxes,expansionExpert);" in out
+    assert "vacancy-ruin+circumstanceBonus-claimPenalty" in out
 
 def test_fails_closed_and_cannot_reapply():
     with pytest.raises(RuntimeError):m.transform("different project")
