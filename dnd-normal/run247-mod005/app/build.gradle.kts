@@ -144,6 +144,8 @@ dependencies {
     implementation("androidx.work:work-runtime:2.11.2")
 
     testImplementation("junit:junit:4.13.2")
+    // JSON real para os testes JVM puros; o APK continua usando o JSON do Android.
+    testImplementation("org.json:json:20240303")
     testImplementation("org.robolectric:robolectric:4.14.1")
 
 }

@@ -84,5 +84,13 @@ public final class UniversalAiProposalPort {
             return blocked("Gemini não devolveu JSON válido; nenhuma alteração de campanha foi aceita.");
         }
     }
-    private static JSONObject blocked(String error){return new JSONObject().put("status","blocked").put("error",error);}
+    private static JSONObject blocked(String error) {
+        try {
+            return new JSONObject().put("status", "blocked").put("error", error);
+        } catch (RuntimeException invalid) {
+            throw invalid;
+        } catch (Exception invalidJson) {
+            throw new IllegalStateException("Falha ao estruturar recusa da IA", invalidJson);
+        }
+    }
 }
