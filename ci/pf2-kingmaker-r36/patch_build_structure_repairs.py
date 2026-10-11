@@ -48,6 +48,9 @@ def transform(s):
         if(existing.optInt("count",1)!=1)
             throw new IllegalStateException("Selecione uma estrutura individual para reparo.");
         final JSONObject oldEffects=jsonObject(existing.optString("effects_json","{}"));
+        final boolean repairPending=oldEffects.optBoolean("repair_cost_prepaid",false);
+        if(repairPending&&oldEffects.optInt("last_attempt_turn",-1)==turn.optInt("turn_number"))
+            throw new IllegalStateException("Reparo inacabado: tente novamente somente no próximo turno do Reino.");
         if("rubble".equals(oldEffects.optString("construction_status")))
             throw new IllegalStateException("Escombros exigem Demolish antes da construção.");
         if(db.queryOne("SELECT id FROM kingmaker_structures WHERE world_profile=? AND settlement_key=? AND structure_key=?",
@@ -69,26 +72,30 @@ def transform(s):
         final int rp=def.optInt("rp",0)/2,lumber=def.optInt("lumber",0)/2,stone=def.optInt("stone",0)/2,
             ore=def.optInt("ore",0)/2,luxuries=def.optInt("luxuries",0)/2;
         final JSONObject state=state();
-        if(state.optInt("resource_points")<rp||state.optInt("lumber")<lumber||
-            state.optInt("stone")<stone||state.optInt("ore")<ore||state.optInt("luxuries")<luxuries)
+        if(!repairPending&&(state.optInt("resource_points")<rp||state.optInt("lumber")<lumber||
+            state.optInt("stone")<stone||state.optInt("ore")<ore||state.optInt("luxuries")<luxuries))
             throw new IllegalStateException("RP ou commodities insuficientes para o reparo.");
         final JSONObject[] output={new JSONObject()};
         db.runInTransactionChecked(new AppDb.CheckedTransaction(){
             public void run()throws Exception{
-                adjustState(new JSONObject().put("resource_points",-rp).put("lumber",-lumber)
-                    .put("stone",-stone).put("ore",-ore).put("luxuries",-luxuries),
-                    "Reparar Estrutura: metade de RP e commodities paga antes do teste");
-                recordRpSpent(rp);
+                if(!repairPending){
+                    adjustState(new JSONObject().put("resource_points",-rp).put("lumber",-lumber)
+                        .put("stone",-stone).put("ore",-ore).put("luxuries",-luxuries),
+                        "Reparar Estrutura: metade de RP e commodities paga antes do teste");
+                    recordRpSpent(rp);
+                }
                 JSONObject check=recordCheck("repair_structure","Reparar Estrutura: "+structure,
                     "Vice-rei",skill,naturalRoll,def.optInt("construction_dc",0),"Kingmaker Adventure Path 2e p. 518",notes,false);
                 String degree=check.optString("degree");
                 boolean criticalFailure="CRITICAL_FAILURE".equals(degree);
                 boolean success="SUCCESS".equals(degree)||"CRITICAL_SUCCESS".equals(degree);
-                JSONObject result=new JSONObject().put("check",check).put("rp_spent",rp)
+                JSONObject result=new JSONObject().put("check",check).put("rp_spent",repairPending?0:rp)
+                    .put("resumed_prepaid_repair",repairPending)
                     .put("construction_status",criticalFailure?"rubble":success?"repaired":"damaged");
                 if(success){
                     ContentValues v=new ContentValues();
                     oldEffects.put("construction_status","complete").put("damaged",false);
+                    oldEffects.remove("repair_cost_prepaid");oldEffects.remove("last_attempt_turn");
                     v.put("effects_json",oldEffects.toString());
                     v.put("notes",(clean(existing.optString("notes"))+" [Reparado] "+clean(notes)).trim());
                     v.put("updated_at",System.currentTimeMillis());
@@ -116,7 +123,8 @@ def transform(s):
                     result.put("must_demolish",true).put("outcome_pt",
                         "Falha crítica: a estrutura foi reduzida a Escombros e exige Demolish.");
                 }else{
-                    oldEffects.put("construction_status","damaged").put("damaged",true);
+                    oldEffects.put("construction_status","damaged").put("damaged",true)
+                        .put("repair_cost_prepaid",true).put("last_attempt_turn",turn.optInt("turn_number"));
                     ContentValues v=new ContentValues();
                     v.put("effects_json",oldEffects.toString());
                     v.put("updated_at",System.currentTimeMillis());
