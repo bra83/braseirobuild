@@ -357,6 +357,27 @@ public final class Run245G05RhwOnHitConditionRobolectricTest {
             assertEquals(112,StatblockEncounterStateEngine.view("flow-plant").optInt("hp"));
         } finally {resetLegacyFlow();}
     }
+    @Test public void typedDamageMustMapEveryDiceGroupToItsSourceDamageType() {
+        JSONArray groups=StatblockCombatFlowEngine.damageSpecs(
+            "2d6 + 1d8 + 4","fire + psychic","");
+        assertEquals(2,groups.length());
+        assertEquals("2d6",groups.optJSONObject(0).optString("expression"));
+        assertEquals("fire",groups.optJSONObject(0).optString("type"));
+        assertEquals("1d8+4",groups.optJSONObject(1).optString("expression"));
+        assertEquals("psychic",groups.optJSONObject(1).optString("type"));
+        JSONArray flat=StatblockCombatFlowEngine.damageSpecs("12","force","");
+        assertEquals(1,flat.length());
+        assertEquals("12",flat.optJSONObject(0).optString("expression"));
+        try {
+            StatblockCombatFlowEngine.damageSpecs("1d8","fire + psychic","");
+            fail("Dois tipos não podem ser mapeados para um único grupo de dados.");
+        } catch (IllegalArgumentException expected) { }
+        try {
+            StatblockCombatFlowEngine.damageSpecs("2d6 + x + 1d8","fire + psychic","");
+            fail("Trecho de dano malformado não pode ser ignorado.");
+        } catch (IllegalArgumentException expected) { }
+    }
+
     @Test public void damageParserConsumesEveryTermAndRejectsOverflowBeforeCommitting() {
         assertEquals(5, StatblockCombatFlowEngine.rollAverage("1d4 + 1d6",false));
         assertEquals(12, StatblockCombatFlowEngine.rollAverage("1d4 + 1d6",true));
