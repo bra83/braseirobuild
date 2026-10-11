@@ -41,7 +41,7 @@ def audit(source, manifest):
             report.append({"key":java_key,"official_name":name,"status":"runtime_catalog_key_missing"})
             continue
         section=source[start:start+1600]
-        next_entry=re.search(r"}\s*else\s+if\s*\(",section)
+        next_entry=re.search(r"}\s*else\s*(?:if\s*\(|\{)",section)
         if next_entry: section=section[:next_entry.start()]
         found=dict((k,int(v)) for k,v in re.findall(r'\.put\("(level|lots|rp|lumber|stone|ore|luxuries)",\s*(\d+)\)',section))
         expected_values={"level":expected["official_level"],"lots":expected["lots"],**expected["costs"]}
@@ -53,7 +53,7 @@ def audit(source, manifest):
             if observed!=value:
                 comparisons.append({"field":field,"official":value,"app":observed})
         # The legacy Java catalogue lacks official Construction skill/DC metadata.
-        skills_present=bool(re.search(r'\.put\("construction_(?:skill|dc)"',section))
+        skills_present=bool(re.search(r'\.put\("construction_skills?"',section)) and '.put("construction_dc",' in section
         if not skills_present:
             comparisons.append({"field":"construction_skill_and_dc","official":expected["construction"]+" DC "+str(expected["construction_dc"]),"app":None})
         report.append({"key":java_key,"official_name":name,"status":"mismatch" if comparisons else "numeric_match","differences":comparisons})
@@ -74,6 +74,7 @@ def main():
     ap.add_argument("--project",required=True)
     ap.add_argument("--out",required=True)
     ap.add_argument("--manifest",default=str(Path(__file__).with_name("kingmaker_official_structures_p544_552.json")))
+    ap.add_argument("--require-zero-mismatches",action="store_true")
     args=ap.parse_args()
     root=Path(args.project)
     matches=list(root.rglob("KingmakerRulesEngine.java"))
@@ -101,6 +102,8 @@ def main():
                        (" — "+summary_diff if summary_diff else ""))
     summary+="\n## Differences requiring remediation\n"+"\n".join(details)+"\n"
     print(summary)
+    if args.require_zero_mismatches and result["mismatched_keys"]!=0:
+        raise SystemExit("Official 18-structure R36 remediation still has "+str(result["mismatched_keys"])+" mismatched entries")
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as f: f.write(summary)
 
