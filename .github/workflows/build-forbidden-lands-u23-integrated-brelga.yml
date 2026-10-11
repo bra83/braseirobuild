@@ -93,6 +93,33 @@ jobs:
           }
           & npm.cmd run lint
           if ($LASTEXITCODE -ne 0) { throw 'TypeScript failed' }
+          # Supply the Unix compiler locator used by historical validators on Windows.
+          # It returns the real npm-locked TypeScript compiler, not a .cmd shim.
+          $tools=Join-Path $env:FL_ROOT 'validation-tools'
+          New-Item -ItemType Directory -Path $tools -Force | Out-Null
+          $compiler=Join-Path (Get-Location).Path 'node_modules\typescript\bin\tsc'
+          if (-not (Test-Path $compiler)) { throw 'Locked TypeScript compiler missing' }
+          $env:FL_TYPESCRIPT_COMPILER=$compiler
+          $locator=@'
+          using System;
+          using System.IO;
+          public static class WhichCompiler {
+            public static int Main(string[] args) {
+              if (args.Length != 1 || args[0] != "tsc") {
+                Console.Error.WriteLine("Unsupported compiler lookup");
+                return 2;
+              }
+              string compiler = Environment.GetEnvironmentVariable("FL_TYPESCRIPT_COMPILER");
+              if (String.IsNullOrEmpty(compiler) || !File.Exists(compiler)) return 1;
+              Console.WriteLine(Path.GetFullPath(compiler));
+              return 0;
+            }
+          }
+          '@
+          Add-Type -TypeDefinition $locator -OutputAssembly (Join-Path $tools 'which.exe') -OutputType ConsoleApplication
+          $env:PATH="$tools;$env:PATH"
+          & which.exe tsc
+          if ($LASTEXITCODE -ne 0) { throw 'Windows compiler locator failed' }
           & npm.cmd run verify:unified-u19
           if ($LASTEXITCODE -ne 0) { throw 'Source contracts failed' }
       - name: All twelve Chromium groups and strict 82 gate on integrated runtime
