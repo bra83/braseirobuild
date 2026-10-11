@@ -69,6 +69,7 @@ jobs:
         with:
           sparse-checkout: |
             ci/pf2-kingmaker-r36
+            ci/pf2-kingmaker-certification
             .github/workflows
       - uses: actions/setup-python@v5
         with:
@@ -77,7 +78,7 @@ jobs:
         run: |
           python -m pip install -q pytest
           python -m compileall -q ci/pf2-kingmaker-r36
-          python -m pytest -q ci/pf2-kingmaker-r36/test_prepaid_transform_synthetic.py ci/pf2-kingmaker-r36/test_kingdom_accounting_transform.py ci/pf2-kingmaker-r36/test_claim_ui_transform.py ci/pf2-kingmaker-r36/test_build_structure_transform.py ci/pf2-kingmaker-r36/test_build_structure_repairs.py
+          python -m pytest -q ci/pf2-kingmaker-r36/test_prepaid_transform_synthetic.py ci/pf2-kingmaker-r36/test_kingdom_accounting_transform.py ci/pf2-kingmaker-r36/test_claim_ui_transform.py ci/pf2-kingmaker-r36/test_build_structure_transform.py ci/pf2-kingmaker-r36/test_build_structure_repairs.py ci/pf2-kingmaker-r36/test_structure_catalog_values.py
   verify-hosted:
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -86,6 +87,7 @@ jobs:
         with:
           sparse-checkout: |
             ci/pf2-kingmaker-r36
+            ci/pf2-kingmaker-certification
             .github/workflows
       - uses: actions/setup-java@v4
         with:
@@ -117,11 +119,14 @@ jobs:
           python ci/pf2-kingmaker-r36/patch_claim_hex_ui.py "$project"
           python ci/pf2-kingmaker-r36/patch_build_structure.py "$project"
           python ci/pf2-kingmaker-r36/patch_build_structure_repairs.py "$project"
+          python ci/pf2-kingmaker-r36/patch_structure_catalog_values.py "$project"
           cp ci/pf2-kingmaker-r36/test_r36_book_fidelity.py "$project/tests_pf2/"
           cp ci/pf2-kingmaker-r36/test_r36_claim_prepaid.py "$project/tests_pf2/"
           cp ci/pf2-kingmaker-r36/test_build_structure_production.py "$project/tests_pf2/"
           cp ci/pf2-kingmaker-r36/test_build_structure_repairs_production.py "$project/tests_pf2/"
           cp ci/pf2-kingmaker-r36/test_r36_ui_and_accounting_contract.py "$project/tests_pf2/"
+          cp ci/pf2-kingmaker-r36/test_official_structure_production.py "$project/tests_pf2/"
+          cp ci/pf2-kingmaker-certification/kingmaker_official_structures_p544_552.json "$project/tests_pf2/"
       - name: Inspect Build Structure source for official-rule remediation
         shell: bash
         run: python ci/pf2-kingmaker-r36/inspect_civic_surface.py "$PF2_R36_PROJECT"
@@ -131,7 +136,7 @@ jobs:
           set -euo pipefail
           python -m pip install -q pytest
           cd "$PF2_R36_PROJECT"
-          python -m pytest tests_pf2/test_r36_book_fidelity.py tests_pf2/test_r36_claim_prepaid.py tests_pf2/test_build_structure_production.py tests_pf2/test_build_structure_repairs_production.py tests_pf2/test_r36_ui_and_accounting_contract.py -q
+          python -m pytest tests_pf2/test_r36_book_fidelity.py tests_pf2/test_r36_claim_prepaid.py tests_pf2/test_build_structure_production.py tests_pf2/test_build_structure_repairs_production.py tests_pf2/test_r36_ui_and_accounting_contract.py tests_pf2/test_official_structure_production.py -q
           python -m pytest tests_pf2 -q
       - name: Compile Android debug APK on hosted runner (no release)
         shell: bash
@@ -157,6 +162,7 @@ jobs:
         with:
           sparse-checkout: |
             ci/pf2-kingmaker-r36
+            ci/pf2-kingmaker-certification
             .github/workflows
           ref: pf2-kingmaker-r36-official-rule-fixes-20261011
       - uses: actions/setup-java@v5
@@ -200,11 +206,15 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'Build Structure patch failed'}
           python ci\pf2-kingmaker-r36\patch_build_structure_repairs.py "$project"
           if($LASTEXITCODE -ne 0){throw 'Build Structure repair patch failed'}
+          python ci\pf2-kingmaker-r36\patch_structure_catalog_values.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'Official structure catalog patch failed'}
           Copy-Item ci\pf2-kingmaker-r36\test_r36_book_fidelity.py (Join-Path $project 'tests_pf2\test_r36_book_fidelity.py') -Force
           Copy-Item ci\pf2-kingmaker-r36\test_r36_claim_prepaid.py (Join-Path $project 'tests_pf2\test_r36_claim_prepaid.py') -Force
           Copy-Item ci\pf2-kingmaker-r36\test_build_structure_production.py (Join-Path $project 'tests_pf2\test_build_structure_production.py') -Force
           Copy-Item ci\pf2-kingmaker-r36\test_build_structure_repairs_production.py (Join-Path $project 'tests_pf2\test_build_structure_repairs_production.py') -Force
           Copy-Item ci\pf2-kingmaker-r36\test_r36_ui_and_accounting_contract.py (Join-Path $project 'tests_pf2\test_r36_ui_and_accounting_contract.py') -Force
+          Copy-Item ci\pf2-kingmaker-r36\test_official_structure_production.py (Join-Path $project 'tests_pf2\test_official_structure_production.py') -Force
+          Copy-Item ci\pf2-kingmaker-certification\kingmaker_official_structures_p544_552.json (Join-Path $project 'tests_pf2\kingmaker_official_structures_p544_552.json') -Force
           "PF2_R36_PROJECT=$project"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
           Write-Host "R36_SOURCE_IDENTITY_R35_HASH=$sha"
           Write-Host 'R36_OFFICIAL_RULES_PATCH_APPLIED=true'
@@ -215,7 +225,7 @@ jobs:
           Push-Location $env:PF2_R36_PROJECT
           python -m pip install -q pytest
           if($LASTEXITCODE -ne 0){throw 'pytest unavailable'}
-          python -m pytest tests_pf2\test_r36_book_fidelity.py tests_pf2\test_r36_claim_prepaid.py tests_pf2\test_build_structure_production.py tests_pf2\test_build_structure_repairs_production.py tests_pf2\test_r36_ui_and_accounting_contract.py -q
+          python -m pytest tests_pf2\test_r36_book_fidelity.py tests_pf2\test_r36_claim_prepaid.py tests_pf2\test_build_structure_production.py tests_pf2\test_build_structure_repairs_production.py tests_pf2\test_r36_ui_and_accounting_contract.py tests_pf2\test_official_structure_production.py -q
           $code=$LASTEXITCODE
           Pop-Location
           if($code -ne 0){throw "Book rule contract failed: $code"}
