@@ -6,7 +6,10 @@
     "app/src/main/java/com/braseiro/dnd5e/adventure/LoreweaverOutcomePort.java": "3ea6868f375b20a0ce35f65a80e16e840158c24e2a94fc27a02986a186cf1c02",
     "app/src/main/java/com/braseiro/dnd5e/StatblockCombatFlowEngine.java": "b4cf6ad207be97d162fca5a38862f38be1b57089d37e1678209263fa36406063",
     "app/src/test/java/com/braseiro/dnd5e/Run245G05RhwOnHitConditionRobolectricTest.java": "42da64d850a004d4c9fc8e0d8ef1a3aa8f265fc046417d41944d5cdb49878bdc",
-    "app/src/main/java/com/braseiro/dnd5e/adventure/StarWarsNarrativeDicePort.java": "1d4d68cd5939595ce9f90388c6f1b00e09d1d73f836fa410a2415a4dcdb814d1"
+    "app/src/main/java/com/braseiro/dnd5e/adventure/StarWarsNarrativeDicePort.java": "1d4d68cd5939595ce9f90388c6f1b00e09d1d73f836fa410a2415a4dcdb814d1",
+    "app/src/main/java/com/braseiro/dnd5e/adventure/UniversalEffectProposalPort.java": "ba059ef6341bba9f509bf0026e0a95156df721099d35b6b6dba26d065deedca8",
+    "app/src/main/java/com/braseiro/dnd5e/adventure/UniversalGithubModules.java": "758081e53293bf5746785c0ac9212d5b7203953f456aca4531ba78071d585ce6",
+    "app/src/main/java/com/braseiro/dnd5e/adventure/YearZeroDicePort.java": "4e8138bd946b5a130a655201d2d660f04d365acf4870c9ca0bdd3f97ff11ff2f"
   },
   "must_not_add_or_remove": true,
   "baseline_file_count": 1437
