@@ -1,4 +1,4 @@
-name: Forbidden Lands U23 - publish verified draft and Android smoke
+name: Forbidden Lands U23 - verify published APK and real Android WebView smoke
 on:
   push:
     branches: [build/fl-u23-integrated]
@@ -32,7 +32,7 @@ jobs:
           python3 - <<'PY'
           import json,os
           r=json.load(open('release-before.json',encoding='utf8'))
-          assert r['id']==int(os.environ['RELEASE_ID']) and r['draft'] is True and r['prerelease'] is True
+          assert r['id']==int(os.environ['RELEASE_ID']) and isinstance(r['draft'], bool) and r['prerelease'] is True
           assert r['tag_name']=='forbidden-lands-u23-integrated-38139479059'
           assert r['target_commitish']==os.environ['SOURCE_BUILD_COMMIT']
           assert 'SOURCE_COMMIT=b4e48fb77b7b7fdc5f85d1c998518196a0aaac32' in r['body']
@@ -58,13 +58,17 @@ jobs:
           assert expected[os.environ['APK_NAME']][1]=='sha256:'+os.environ['EXPECTED_APK_SHA']
           print('DRAFT_ASSET_SHA256_GATE=PASS release='+str(r['id'])+' assets='+str(len(assets)))
           PY
-      - name: Publish only after exact provenance and SHA verification
+      - name: Reuse published release or publish only if draft after exact provenance verification
         id: release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -Eeuo pipefail
-          gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" -F draft=false -F prerelease=true > release-after.json
+          if python3 -c "import json; assert json.load(open('release-before.json'))['draft'] is True"; then
+            gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" -F draft=false -F prerelease=true > release-after.json
+          else
+            cp release-before.json release-after.json
+          fi
           python3 - <<'PY'
           import json,os
           r=json.load(open('release-after.json',encoding='utf8'))
