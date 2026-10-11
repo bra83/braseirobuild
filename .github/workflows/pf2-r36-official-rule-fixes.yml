@@ -29,6 +29,33 @@ jobs:
           echo '86d9a6fd26e4139e084c8e4069f49ef53e0cf8654e0f9f5662b92f9183941aa6  r35-source.zip' | sha256sum -c -
           unzip -q r35-source.zip -d r35-source
           python ci/pf2-kingmaker-r36/inspect_civic_surface.py r35-source
+  official-content-crosswalk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: ci/pf2-kingmaker-certification
+      - name: Inspect real published R35 chapter/companion/war files
+        shell: bash
+        run: |
+          set -euo pipefail
+          auth="$(git config --local --get http.https://github.com/.extraheader)"
+          test -n "$auth"
+          curl -L --fail --retry 4 --header "$auth" --header 'Accept: application/octet-stream' -o r35-source.zip 'https://api.github.com/repos/bra83/braseirobuild/releases/assets/629875743'
+          test "$(stat -c %s r35-source.zip)" = "92975058"
+          echo '86d9a6fd26e4139e084c8e4069f49ef53e0cf8654e0f9f5662b92f9183941aa6  r35-source.zip' | sha256sum -c -
+          unzip -q r35-source.zip -d r35-source
+          python ci/pf2-kingmaker-certification/crosswalk_runtime_audit.py --project r35-source --out official-book-evidence
+          python ci/pf2-kingmaker-certification/audit_campaign.py --project r35-source --out official-book-evidence
+      - name: Publish structural audit with explicitly open certification gates
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kingmaker-r36-official-book-crosswalk
+          path: official-book-evidence/
+          if-no-files-found: warn
+          retention-days: 30
   patch-synthetic:
     runs-on: ubuntu-latest
     timeout-minutes: 10
