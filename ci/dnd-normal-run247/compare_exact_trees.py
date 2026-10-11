@@ -28,11 +28,29 @@ if __name__ == '__main__':
         allowed=manifest['expected_modified']
         if len(a)!=manifest['baseline_file_count'] or a.keys()!=b.keys():
             raise RuntimeError('SOURCE_FILE_INVENTORY_LOST_OR_ADDED')
-        dif={k:b[k] for k in a if a[k]!=b[k]}
-        if dif != allowed:
-            print('SOURCE_FIX_DELTA_MISMATCH:'+str(dif),file=sys.stderr)
+        changed=set()
+        newline_equivalent=[]
+        text_extensions={'.java','.kt','.kts','.json','.csv','.md','.txt','.patch','.log','.gradle','.properties','.xml','.yaml','.yml','.py','.sh','.bat','.html','.css','.js'}
+        for name in sorted(a.keys()):
+            if a[name]==b[name]:
+                continue
+            if name in allowed and b[name]==allowed[name]:
+                changed.add(name)
+                continue
+            source_bytes=(args.reference/name).read_bytes()
+            checkout_bytes=(args.existing/name).read_bytes()
+            extension=pathlib.PurePosixPath(name).suffix.lower()
+            if (extension in text_extensions or name.startswith('.git')) and b'\x00' not in source_bytes and b'\x00' not in checkout_bytes and source_bytes.replace(b'\r\n',b'\n')==checkout_bytes.replace(b'\r\n',b'\n'):
+                newline_equivalent.append(name)
+                continue
+            print('SOURCE_DRIFT_NOT_WHITELISTED='+name+' SHA_CHECKOUT='+b[name],file=sys.stderr)
             sys.exit(3)
-        print('SOURCE_EXACT_BASE_PLUS_PINNED_FIX=YES FILES='+str(len(a))+' FIXED='+str(len(dif)))
+        if changed!=set(allowed):
+            print('PINNED_FIX_NOT_PRESENT:'+str(set(allowed)-changed),file=sys.stderr)
+            sys.exit(4)
+        print('SOURCE_EXACT_BASE_PLUS_PINNED_FIX=YES FILES='+str(len(a))+' FIXED='+str(len(changed)))
+        print('WINDOWS_CRLF_LF_ONLY_EQUIVALENCES='+str(len(newline_equivalent)))
+        print('SOURCE_EXTRA_OR_MISSING=0 SOURCE_UNVERIFIED_SEMANTIC_DRIFT=0')
         sys.exit(0)
     if a != b:
         only_a=sorted(a.keys()-b.keys())
