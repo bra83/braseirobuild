@@ -110,11 +110,11 @@ jobs:
             & $adb -e pull /sdcard/pf2_restart.png (Join-Path $dir 'AFTER_RESTART.png')|Out-Null
             $dbInfo2=& $adb -e shell run-as $pkg ls -l databases 2>&1
             Write-Host "APP_DATABASE_FILES_AFTER_RESTART=$($dbInfo2|Out-String)"
-            $crashes=& $adb -e logcat -d -v brief -t 1200|Select-String 'FATAL EXCEPTION|AndroidRuntime:|E/AndroidRuntime|Process.*has died|java.lang.UnsatisfiedLinkError'
+            # Only app crashes, not Android's routine background-process eviction.
+            $crashes=& $adb -e logcat -d -b crash -v brief -t 2500 2>&1|Select-String 'Process: com\.braseiro\.pathfinder2e|com\.braseiro\.pathfinder2e.*FATAL EXCEPTION'
             if($crashes){
-              $crashes|ForEach-Object{Write-Host "ANDROID_FATAL_LOG=$_"}
-              $crashes|Out-File (Join-Path $dir 'ANDROID_FATAL_LOGS.txt')
-              throw 'Runtime fatal exception detected'
+              $crashes|ForEach-Object{Write-Host "PATHFINDER_FATAL_LOG=$_"}
+              throw 'Pathfinder2e process fatal exception detected'
             }
             Write-Host 'APP_LAUNCH_AND_RESTART_SMOKE_PASS=true'
             Write-Host 'DISCLAIMER=Startup and process restart only; no actual Kingmaker campaign advancement or app DB restore asserted'
@@ -123,11 +123,3 @@ jobs:
             try{& $adb -e emu kill 2>$null}catch{}
             if(-not $p.HasExited){Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue}
           }
-      - name: Preserve smoke evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: PF2_KINGMAKER_R35_ANDROID_SMOKE_EVIDENCE
-          path: ${{ runner.temp }}\pf2-r35-android-smoke\*.png
-          if-no-files-found: warn
-          retention-days: 14
