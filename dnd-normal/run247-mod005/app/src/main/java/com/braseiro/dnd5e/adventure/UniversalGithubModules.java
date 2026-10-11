@@ -7,8 +7,14 @@ import org.json.JSONObject;
 public final class UniversalGithubModules {
     private UniversalGithubModules() {}
     private static JSONObject entry(String id,String upstream,String feature,String status,String license) {
+        try {
         return new JSONObject().put("id",id).put("upstream",upstream)
             .put("feature",feature).put("status",status).put("license",license);
+        } catch (RuntimeException invalid) {
+            throw invalid;
+        } catch (Exception invalidJson) {
+            throw new IllegalStateException("Falha ao estruturar catálogo de módulos",invalidJson);
+        }
     }
     public static JSONArray catalog() {
         return new JSONArray()
