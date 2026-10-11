@@ -10,10 +10,10 @@ concurrency:
   group: fl-u19-brelga-test
   cancel-in-progress: false
 env:
-  SOURCE_NAME: BRASEIRO_FORBIDDEN_LANDS_U19_TYPECHECK_FIXED_SOURCE.zip
-  SOURCE_SHA256: d6c0f88baa139fca61606aa051843c9e0e22c5c5daa139cdd6374b933108b870
-  SOURCE_BYTES: '40470029'
-  SOURCE_API: https://api.firestorage.ai/dev/file/shares/sLIxvAZ50Lfv
+  SOURCE_NAME: BRASEIRO_FORBIDDEN_LANDS_U19_CI_WINDOWS_BROWSER_FIXED_FULL_SOURCE.zip
+  SOURCE_SHA256: fd6485a92b2337b854de06279cf98fb14119b121db0c4ebb05be805317d9aa91
+  SOURCE_BYTES: '40470551'
+  SOURCE_API: https://api.firestorage.ai/dev/file/shares/gw3IuQ6vowPp
   APP_ID: com.braseiro.forbiddenlands
   APP_VERSION: '3.3.24'
   APP_CODE: '303924'
@@ -79,7 +79,7 @@ jobs:
           }
           $pkg=Get-Content (Join-Path $project 'package.json') -Raw | ConvertFrom-Json
           if ($pkg.version -ne $env:APP_VERSION) { throw 'Package version mismatch' }
-      - name: npm, U19 regressions, sync Android and Gradle APK
+      - name: npm, TypeScript, sync Android and Gradle APK (native-only gates)
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
@@ -100,8 +100,9 @@ jobs:
           }
           & npm.cmd run lint
           if ($LASTEXITCODE -ne 0) { throw 'TypeScript failed' }
-          & npm.cmd run verify:unified-u19
-          if ($LASTEXITCODE -ne 0) { throw 'U19 source regression failed' }
+          # The full U19 source regression and 7 real IndexedDB browser groups run
+          # on Linux (bra83/braseiro-forbidden-lands). BRELGA validates the Android
+          # toolchain and binary only; this job never certifies the 43 encounters.
           & npm.cmd run android:sync
           if ($LASTEXITCODE -ne 0) { throw 'Capacitor sync failed' }
           & npm.cmd run verify:android-assets
