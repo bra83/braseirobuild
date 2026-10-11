@@ -74,6 +74,7 @@ replacement=r'''    /** Uses persisted roll degrees; the tax bonus expires autom
             throw new IllegalArgumentException("Selecione a Ruína que sofrerá +1 em uma falha crítica: corruption, crime, decay ou strife.");
         boolean repeated=collectedTaxesPreviousTurn(turn.optInt("turn_number"));
         String skill=clean(skillKey).length()>0?key(skillKey):"trade";
+        if(!"trade".equals(skill))throw new IllegalArgumentException("Coletar Impostos exige a perícia Trade.");
         JSONObject check=recordCheck("collect_taxes","Coletar Impostos","Tesoureiro",skill,naturalRoll,0,"Kingmaker Adventure Path p. 530",notes,false);
         String degree=check.optString("degree");
         int bonus="CRITICAL_SUCCESS".equals(degree)?2:("SUCCESS".equals(degree)||"FAILURE".equals(degree))?1:0;
