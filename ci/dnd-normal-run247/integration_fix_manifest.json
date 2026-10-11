@@ -1,0 +1,9 @@
+{
+  "baseline_sha256": "2774b450ecf5be179976199b22bab8584f76939dcf305d82a84171a199282e06",
+  "expected_modified": {
+    "app/src/main/java/com/braseiro/dnd5e/adventure/AdventureEngine.java": "a9d64ae83243981241f46be574ab697de4650009e5e705c3c04e8eec97d47723",
+    "app/src/main/java/com/braseiro/dnd5e/adventure/AetherTableRollIntentPort.java": "f6bf8b1f23491c80aaa1aaeb658c7561b94b96da96d294c53303d81efcbc83f2"
+  },
+  "must_not_add_or_remove": true,
+  "baseline_file_count": 1437
+}
