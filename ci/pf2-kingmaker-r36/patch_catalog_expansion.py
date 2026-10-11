@@ -99,7 +99,7 @@ def transform_rules(source,rows):
     addition=(" \n        // "+PREFIX+"; do not replace existing 18 official corrections.\n"
       '        String r36OfficialKey=key==null?"":key.trim().toLowerCase(java.util.Locale.US)\n'
       '            .replaceAll("[^a-z0-9]+","_").replaceAll("^_+|_+$","");\n'
-      '        try {\n'+''.join(generated)
+      '        try {\n'+''.join(generated)+
       '        } catch(Exception officialCatalogFailure) {\n'
       '            throw new IllegalStateException("Kingmaker official catalog failure",officialCatalogFailure);\n'
       '        }\n')
