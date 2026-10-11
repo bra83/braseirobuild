@@ -1,0 +1,133 @@
+name: PF2 Kingmaker R35 Android Install and Restart Smoke
+on:
+  push:
+    branches: [pf2-kingmaker-r35-android-homologation-20261011]
+    paths: ['.github/workflows/pf2-r35-android-install-smoke.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pf2-r35-avd-exclusive
+  cancel-in-progress: false
+jobs:
+  smoke:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover EXACT published R35 APK and verify SHA256
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'Runner mismatch'}
+          $dir=Join-Path $env:RUNNER_TEMP 'pf2-r35-android-smoke'
+          New-Item $dir -ItemType Directory -Force|Out-Null
+          $apk=Join-Path $dir 'r35.apk'
+          $auth=& git config --local --get http.https://github.com/.extraheader
+          if(!$auth){throw 'Missing GitHub checkout token header'}
+          & curl.exe -L --fail --retry 5 --retry-delay 3 --header $auth --header 'Accept: application/octet-stream' --header 'X-GitHub-Api-Version: 2022-11-28' -o $apk 'https://api.github.com/repos/bra83/braseirobuild/releases/assets/629876493'
+          if($LASTEXITCODE -ne 0){throw 'Cannot fetch APK'}
+          if((Get-Item $apk).Length -ne 180186837){throw 'Wrong APK size'}
+          $digest=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($digest -ne '1d262ec114ee08a224a19c541a19d8284a46e34b14ef6512a9560b1f152d57a0'){throw "APK checksum mismatch $digest"}
+          $buildTools='C:\actions-runner\android-sdk\build-tools\35.0.0'
+          $aapt=Join-Path $buildTools 'aapt.exe'
+          if(!(Test-Path $aapt)){throw 'aapt.exe missing'}
+          $badging=& $aapt dump badging $apk 2>&1
+          if($LASTEXITCODE -ne 0){throw "APK badging failed: $($badging|Out-String)"}
+          $pkgLine=$badging|Where-Object{$_ -match "^package:"}|Select-Object -First 1
+          if($pkgLine -notmatch "name='([^']+)'"){throw "No package id in $pkgLine"}
+          $pkg=$Matches[1]
+          if($pkg -notmatch 'braseiro|pathfinder'){throw "Unexpected app ID: $pkg"}
+          $launcher=$badging|Where-Object{$_ -match "^launchable-activity:"}|Select-Object -First 1
+          Write-Host "APK_SHA256_VERIFIED=$digest"
+          Write-Host "APK_PACKAGE_ID=$pkg"
+          Write-Host "APK_BADGING=$pkgLine"
+          Write-Host "APK_LAUNCHER=$launcher"
+          "APK_PATH=$apk"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "APK_PACKAGE_ID=$pkg"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "SMOKE_DIR=$dir"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Boot Android 37 Pixel 7 Pro, install APK and verify startup + restart
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $sdk=Join-Path $env:LOCALAPPDATA 'Android\Sdk'
+          $emu=Join-Path $sdk 'emulator\emulator.exe'
+          $adb=Join-Path $sdk 'platform-tools\adb.exe'
+          $dir=$env:SMOKE_DIR
+          $pkg=$env:APK_PACKAGE_ID
+          if((@(& $emu -list-avds)) -notcontains 'Pixel_7_Pro'){throw 'AVD Pixel_7_Pro is unregistered'}
+          $stdout=Join-Path $dir 'emulator.stdout.log'
+          $stderr=Join-Path $dir 'emulator.stderr.log'
+          $p=Start-Process -FilePath $emu -ArgumentList '-avd Pixel_7_Pro -no-window -no-audio -no-boot-anim -no-snapshot-load -no-snapshot-save -gpu swiftshader_indirect' -PassThru -WindowStyle Hidden -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+          try{
+            $booted=$false
+            for($i=0;$i -lt 85;$i++){
+              Start-Sleep -Seconds 3
+              if($p.HasExited){throw "Emulator exited $($p.ExitCode)"}
+              if((@(& $adb devices)) -match 'emulator-[0-9]+\s+device'){
+                $boot=(& $adb -e shell getprop sys.boot_completed 2>$null|Out-String).Trim()
+                if($boot -eq '1'){$booted=$true;break}
+              }
+              if($i%20 -eq 0){Write-Host "BOOT_TICK=$i"}
+            }
+            if(!$booted){throw 'Android emulator did not complete boot'}
+            Write-Host "AVD_BOOT_SUCCESS=true"
+            Write-Host "AVD_ANDROID_API=$((& $adb -e shell getprop ro.build.version.sdk|Out-String).Trim())"
+            & $adb -e shell input keyevent 82 | Out-Null
+            & $adb -e shell settings put system screen_off_timeout 2147483647 | Out-Null
+            $installed=& $adb -e install -r $env:APK_PATH 2>&1
+            Write-Host "ADB_INSTALL_OUTPUT=$($installed|Out-String)"
+            if($LASTEXITCODE -ne 0 -or ($installed|Out-String) -notmatch 'Success'){throw 'ADB install failed'}
+            Write-Host 'APK_INSTALL_PASS=true'
+            function Launch-PF2 {
+              param($label)
+              $res=& $adb -e shell monkey -p $pkg -c android.intent.category.LAUNCHER 1 2>&1
+              Write-Host "LAUNCH_$label=$($res|Out-String)"
+              if($LASTEXITCODE -ne 0 -or ($res|Out-String) -match 'No activities found|monkey aborted'){throw "Unable to launch $pkg"}
+              Start-Sleep -Seconds 11
+              $pidApp=(& $adb -e shell pidof $pkg 2>$null|Out-String).Trim()
+              Write-Host "APP_PID_$label=$pidApp"
+              if(!$pidApp){throw "App was not alive after $label"}
+              $focus=& $adb -e shell dumpsys activity activities 2>&1|Select-String 'mResumedActivity|topResumedActivity|ResumedActivity'|Select-Object -Last 3
+              Write-Host "APP_FOCUS_$label=$($focus|Out-String)"
+              return $pidApp
+            }
+            & $adb -e logcat -c
+            $first=Launch-PF2 'FIRST'
+            & $adb -e shell screencap -p /sdcard/pf2_first.png
+            & $adb -e pull /sdcard/pf2_first.png (Join-Path $dir 'FIRST_START.png')|Out-Null
+            & $adb -e shell uiautomator dump /sdcard/pf2_window.xml 2>&1|Out-File (Join-Path $dir 'uiautomator_output.log')
+            & $adb -e pull /sdcard/pf2_window.xml (Join-Path $dir 'FIRST_WINDOW.xml') 2>&1|Out-Null
+            $dbInfo=& $adb -e shell run-as $pkg ls -l databases 2>&1
+            Write-Host "APP_DATABASE_FILES=$($dbInfo|Out-String)"
+            $prefsInfo=& $adb -e shell run-as $pkg ls -l shared_prefs 2>&1
+            Write-Host "APP_PREFS_FILES=$($prefsInfo|Out-String)"
+            & $adb -e shell am force-stop $pkg
+            $second=Launch-PF2 'RESTART'
+            & $adb -e shell screencap -p /sdcard/pf2_restart.png
+            & $adb -e pull /sdcard/pf2_restart.png (Join-Path $dir 'AFTER_RESTART.png')|Out-Null
+            $dbInfo2=& $adb -e shell run-as $pkg ls -l databases 2>&1
+            Write-Host "APP_DATABASE_FILES_AFTER_RESTART=$($dbInfo2|Out-String)"
+            $crashes=& $adb -e logcat -d -v brief -t 1200|Select-String 'FATAL EXCEPTION|AndroidRuntime:|E/AndroidRuntime|Process.*has died|java.lang.UnsatisfiedLinkError'
+            if($crashes){
+              $crashes|ForEach-Object{Write-Host "ANDROID_FATAL_LOG=$_"}
+              $crashes|Out-File (Join-Path $dir 'ANDROID_FATAL_LOGS.txt')
+              throw 'Runtime fatal exception detected'
+            }
+            Write-Host 'APP_LAUNCH_AND_RESTART_SMOKE_PASS=true'
+            Write-Host 'DISCLAIMER=Startup and process restart only; no actual Kingmaker campaign advancement or app DB restore asserted'
+          }finally{
+            try{& $adb -e logcat -d -v time -t 1200 2>&1|Out-File (Join-Path $dir 'ANDROID_LOGCAT_LAST1200.txt') -Encoding utf8}catch{}
+            try{& $adb -e emu kill 2>$null}catch{}
+            if(-not $p.HasExited){Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue}
+          }
+      - name: Preserve smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PF2_KINGMAKER_R35_ANDROID_SMOKE_EVIDENCE
+          path: \${{ runner.temp }}\pf2-r35-android-smoke\*.png
+          if-no-files-found: warn
+          retention-days: 14
