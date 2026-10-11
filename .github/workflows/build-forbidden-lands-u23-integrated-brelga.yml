@@ -247,12 +247,23 @@ jobs:
               throw "Asset readback mismatch: $($file.Name); release remains draft"
             }
           }
-          $serverAssets=@(Invoke-RestMethod -Method Get -Uri "$api/$($release.id)/assets?per_page=100" -Headers $headers)
-          foreach ($file in $assets) {
-            if (@($serverAssets | Where-Object { $_.name -eq $file.Name -and [int64]$_.size -eq [int64]$file.Length }).Count -ne 1) {
-              throw "Asset inventory mismatch: $($file.Name); release remains draft"
-            }
+          # GitHub can return nested arrays from Windows PowerShell's JSON pipeline.
+          # Flatten exactly one JSON asset level and cast the PROPERTY, never $_.
+          $responseAssets=Invoke-RestMethod -Method Get -Uri "$api/$($release.id)/assets?per_page=100" -Headers $headers
+          $serverAssets=New-Object 'System.Collections.Generic.List[object]'
+          foreach ($entry in $responseAssets) {
+            if ($entry -is [array]) {
+              foreach ($nested in $entry) { [void]$serverAssets.Add($nested) }
+            } else { [void]$serverAssets.Add($entry) }
           }
+          foreach ($file in $assets) {
+            $matches=0
+            foreach ($entry in $serverAssets) {
+              if ([string]($entry.name) -eq [string]($file.Name) -and [int64]($entry.size) -eq [int64]($file.Length)) { $matches++ }
+            }
+            if ($matches -ne 1) { throw "Asset inventory mismatch: $($file.Name); release remains draft" }
+          }
+          if ($serverAssets.Count -ne $assets.Count) { throw 'Release inventory has unexpected or missing assets' }
           $publishBody=@{draft=$false;prerelease=$true} | ConvertTo-Json
           $published=Invoke-RestMethod -Method Patch -Uri "$api/$($release.id)" -Headers $headers -Body ([Text.Encoding]::UTF8.GetBytes($publishBody)) -ContentType 'application/json; charset=utf-8'
           if ($published.draft -ne $false -or $published.tag_name -ne $tag) { throw 'Release did not finish publishing' }
