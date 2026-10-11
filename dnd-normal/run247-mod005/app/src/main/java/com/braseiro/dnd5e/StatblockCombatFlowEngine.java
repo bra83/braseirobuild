@@ -100,6 +100,7 @@ public final class StatblockCombatFlowEngine{
 
  private static JSONObject applyAttackDamage(String target,JSONObject attack,boolean critical){/*BR_JSON_WRAP_106*/try{JSONArray specs=damageSpecs(attack.optString("damage_expression",""),attack.optString("damage_type",""),attack.optString("extra_damage_expression","")),parts=new JSONArray();int rawTotal=0,appliedTotal=0;for(int i=0;i<specs.length();i++){JSONObject spec=specs.optJSONObject(i);if(spec==null)continue;String expr=spec.optString("expression"),type=spec.optString("type");int raw=rollAverage(expr,critical);if(raw<=0)continue;JSONObject ds=StatblockEncounterStateEngine.damage(target,raw,type);int applied=ds.optInt("applied_damage",raw);rawTotal=Math.addExact(rawTotal,raw);appliedTotal=Math.addExact(appliedTotal,applied);parts.put(new JSONObject().put("expression",expr).put("type",type).put("raw_damage",raw).put("applied_damage",applied));}JSONObject tv=StatblockEncounterStateEngine.view(target);return new JSONObject().put("raw_damage",rawTotal).put("applied_damage",appliedTotal).put("components",parts).put("target_defeated",tv.optBoolean("defeated",tv.optInt("hp",1)<=0));}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
  static JSONArray damageSpecs(String expression,String typeSpec,String extra){/*BR_JSON_WRAP_106*/try{JSONArray out=new JSONArray();String e=expression==null?"":expression.trim(),t=typeSpec==null?"":typeSpec.trim();java.util.ArrayList<String> types=new java.util.ArrayList<String>();for(String x:t.split("\\s*\\+\\s*")){String q=x.trim();if(q.length()>0)types.add(q);}java.util.ArrayList<String> dice=new java.util.ArrayList<String>();
+if(types.size()>1&&!e.isEmpty()){
 String clean=e.replaceAll("\\s+","");
 java.util.regex.Matcher m=java.util.regex.Pattern.compile("([+-]?)(\\d+d\\d+|\\d+)").matcher(clean);
 int cursor=0;
@@ -116,6 +117,7 @@ while(m.find()){
  }
 }
 if(cursor!=clean.length())throw new IllegalArgumentException("incomplete_typed_damage_source");
+}
 if(e.length()>0){
  if(types.size()>1){
   if(types.size()!=dice.size())throw new IllegalArgumentException("typed_damage_count_mismatch");
