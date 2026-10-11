@@ -98,7 +98,8 @@ def kingmaker():
         current=nodes()
         labels={item[0] for item in current}
         # These are content labels, not the persistent navigation tab.
-        if "KINGMAKER SOLO" in labels or "CONFIGURAÇÃO AVANÇADA DO REINO" in labels:
+        if ("KINGMAKER SOLO" in labels or "CONFIGURAÇÃO AVANÇADA DO REINO" in labels
+                or "ADMINISTRAÇÃO AVANÇADA" in labels):
             log("KINGMAKER_PAGE_CONFIRMED",attempt+1)
             return True
         tabs=[item for item in current if item[0]=="KINGMAKER"]
@@ -172,14 +173,22 @@ def activate():
 def kingdom_turn():
     if not kingmaker():return False
     n=snapshot("BEFORE_TURN")["counts"].get("kingmaker_turns",0)
-    if not click("INICIAR TURNO QUANDO VOLTAR AO REINO",8):
-        if not click("INICIAR NOVO TURNO",6):return False
+    # The solo guided button may correctly gate turns until kingdom founding.
+    # Use the actual technical Kingdom admin route for an isolated engine gate.
+    visible={x[0] for x in nodes()}
+    if "ADMINISTRAÇÃO AVANÇADA" not in visible:
+        if not click("ABRIR ADMINISTRAÇÃO AVANÇADA",16):return False
+        if "ADMINISTRAÇÃO AVANÇADA" not in {x[0] for x in nodes()}:
+            log("ADMIN_MODE_NOT_ENTERED","advanced button did not switch view")
+            return False
+    if not click("INICIAR NOVO TURNO",8):return False
     if not click("INICIAR COM ESTA ROLAGEM",3):return False
     return snapshot("AFTER_TURN")["counts"].get("kingmaker_turns",0)>n
 def army():
     if not kingmaker():return False
-    if not click("ABRIR ADMINISTRAÇÃO AVANÇADA",7):return False
-    if not click("EXÉRCITOS E BATALHAS",10):return False
+    if "ADMINISTRAÇÃO AVANÇADA" not in {x[0] for x in nodes()}:
+        if not click("ABRIR ADMINISTRAÇÃO AVANÇADA",16):return False
+    if not click("EXÉRCITOS E BATALHAS",12):return False
     if not click("CRIAR EXÉRCITO",2):return False
     n=nodes()
     edits=[v for v in n if v[3].endswith("EditText")]
