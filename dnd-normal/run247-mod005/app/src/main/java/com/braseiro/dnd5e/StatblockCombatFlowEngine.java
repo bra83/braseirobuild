@@ -113,7 +113,7 @@ while(m.find()){
   dice.add(item);
  }else{
   if(dice.isEmpty()||sign.isEmpty())throw new IllegalArgumentException("unbound_damage_modifier");
-  int last=dice.size()-1;dice.set(last,dice.get(last)+sign+item);
+  int last=dice.size()-1;dice.set(last,dice.get(last)+" "+sign+" "+item);
  }
 }
 if(cursor!=clean.length())throw new IllegalArgumentException("incomplete_typed_damage_source");

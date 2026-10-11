@@ -4,8 +4,8 @@
     "app/src/main/java/com/braseiro/dnd5e/adventure/AdventureEngine.java": "a9d64ae83243981241f46be574ab697de4650009e5e705c3c04e8eec97d47723",
     "app/src/main/java/com/braseiro/dnd5e/adventure/AetherTableRollIntentPort.java": "f6bf8b1f23491c80aaa1aaeb658c7561b94b96da96d294c53303d81efcbc83f2",
     "app/src/main/java/com/braseiro/dnd5e/adventure/LoreweaverOutcomePort.java": "3ea6868f375b20a0ce35f65a80e16e840158c24e2a94fc27a02986a186cf1c02",
-    "app/src/main/java/com/braseiro/dnd5e/StatblockCombatFlowEngine.java": "ff80b1cda89f12c25fbd053f94542e235cc1a8408f9bb2f22b780ebeb27c0bb0",
-    "app/src/test/java/com/braseiro/dnd5e/Run245G05RhwOnHitConditionRobolectricTest.java": "a9ff6feb533e54d60d2ca87864a08994d676982f30f67623e8dc7f83ce479b5d",
+    "app/src/main/java/com/braseiro/dnd5e/StatblockCombatFlowEngine.java": "b6570ca5455eccd4e52c2b28e46dcf8af1f56b20e45d8849155cfb81e1639316",
+    "app/src/test/java/com/braseiro/dnd5e/Run245G05RhwOnHitConditionRobolectricTest.java": "c9f4b2a23c94407882470e7a1dae7ca173e218d235a7d626f03fbc938cc9b8eb",
     "app/src/main/java/com/braseiro/dnd5e/adventure/StarWarsNarrativeDicePort.java": "1d4d68cd5939595ce9f90388c6f1b00e09d1d73f836fa410a2415a4dcdb814d1",
     "app/src/main/java/com/braseiro/dnd5e/adventure/UniversalEffectProposalPort.java": "ba059ef6341bba9f509bf0026e0a95156df721099d35b6b6dba26d065deedca8",
     "app/src/main/java/com/braseiro/dnd5e/adventure/UniversalGithubModules.java": "758081e53293bf5746785c0ac9212d5b7203953f456aca4531ba78071d585ce6",
@@ -18,7 +18,8 @@
     "app/src/main/java/com/braseiro/dnd5e/adventure/UniversalLiveSession.java": "3bca1ab1313157168d2bdc342bb5a7dd5125a15f7bba480eaac8009764b56c12",
     "app/src/main/java/com/braseiro/dnd5e/adventure/UniversalGithubLab.java": "4f75d62908dd7529da2b5fbc3f0339af9c1b0f364f6dfd1ecb426d891dcd3c28",
     "app/src/main/java/com/braseiro/dnd5e/MainActivity.java": "cd89e232bd39c6147918f2f535072fd1a4f08037aa1730b37bf31ceb0071c506",
-    "app/src/test/java/com/braseiro/dnd5e/adventure/UniversalGithubModulesIntegrationTest.java": "c9b3a6c997c8d50ddd087b1e8e0d9e5846b4815395c28aba64e9152803f29025"
+    "app/src/test/java/com/braseiro/dnd5e/adventure/UniversalGithubModulesIntegrationTest.java": "c9b3a6c997c8d50ddd087b1e8e0d9e5846b4815395c28aba64e9152803f29025",
+    "app/src/test/java/com/braseiro/dnd5e/Run245G05MultiattackFinalForcedMovementRobolectricTest.java": "7b0134f4824baa59caf8004200fc14e2bb3ac2cbbd594d3adb7f95f0a130e429"
   },
   "must_not_add_or_remove": true,
   "baseline_file_count": 1437

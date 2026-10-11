@@ -30,7 +30,7 @@ public final class Run245G05MultiattackFinalForcedMovementRobolectricTest {
     }
     @Test public void lastComponentPushIsAtomicAndBlocksAnObstructedDestination()throws Exception {
         Context context=RuntimeEnvironment.getApplication();
-        String name="run245_g05_multi_"+System.nanoTime()+".db";
+        String name="r5_"+java.util.UUID.randomUUID().toString().substring(0,8)+".db";
         AppDb db=new AppDb(context,name);
         try{
             db.setActiveMapProfile("dnd");

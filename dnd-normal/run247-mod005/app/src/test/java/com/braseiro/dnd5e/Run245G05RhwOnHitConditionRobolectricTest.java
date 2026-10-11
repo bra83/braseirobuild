@@ -132,7 +132,7 @@ public final class Run245G05RhwOnHitConditionRobolectricTest {
             MonsterActionEconomyGuard.attackRiderBlock(new JSONObject().put("to_hit",3)
                 .put("condition_on_hit","frightened")));
 
-        Context context=RuntimeEnvironment.getApplication();String dbName="run245_rhw_onhit_"+System.nanoTime()+".db";
+        Context context=RuntimeEnvironment.getApplication();String dbName="r5_"+java.util.UUID.randomUUID().toString().substring(0,8)+".db";
         AppDb db=new AppDb(context,dbName);long actor=0,target=0;String token="ui-monster-run245-rhw-hit";
         try {
             db.setActiveMapProfile("dnd");actor=bindActor(db,"RUN245 RHW Head",20);
@@ -216,7 +216,7 @@ public final class Run245G05RhwOnHitConditionRobolectricTest {
 
     @Test public void sourceTurnExpiryBatchRollsBackAllRowsAndRetriesOnce()throws Exception {
         installSource();Context context=RuntimeEnvironment.getApplication();
-        String dbName="run245_rhw_batch_"+System.nanoTime()+".db";AppDb db=new AppDb(context,dbName);
+        String dbName="r5_"+java.util.UUID.randomUUID().toString().substring(0,8)+".db";AppDb db=new AppDb(context,dbName);
         try {
             db.setActiveMapProfile("dnd");long actor=bindActor(db,"RUN245 Batch Head",30);
             long first=addTarget(db,"RUN245 Batch Target A",20,"");
@@ -252,7 +252,7 @@ public final class Run245G05RhwOnHitConditionRobolectricTest {
 
     @Test public void preexistingConditionOwnershipConflictFailsClosedBeforeMutation()throws Exception {
         installSource();Context context=RuntimeEnvironment.getApplication();
-        String dbName="run245_rhw_conflict_"+System.nanoTime()+".db";AppDb db=new AppDb(context,dbName);
+        String dbName="r5_"+java.util.UUID.randomUUID().toString().substring(0,8)+".db";AppDb db=new AppDb(context,dbName);
         try {
             db.setActiveMapProfile("dnd");long actor=bindActor(db,"RUN245 Conflict Head",20);
             long target=addTarget(db,"RUN245 Already Frightened",10,"amedrontado");readyGeometry(db,actor,target);
@@ -274,7 +274,7 @@ public final class Run245G05RhwOnHitConditionRobolectricTest {
 
     @Test public void naturalOneDoesNotApplyTheOnHitRider()throws Exception {
         installSource();Context context=RuntimeEnvironment.getApplication();
-        String dbName="run245_rhw_miss_"+System.nanoTime()+".db";AppDb db=new AppDb(context,dbName);
+        String dbName="r5_"+java.util.UUID.randomUUID().toString().substring(0,8)+".db";AppDb db=new AppDb(context,dbName);
         try {
             db.setActiveMapProfile("dnd");long actor=bindActor(db,"RUN245 Miss Head",20);
             long target=addTarget(db,"RUN245 Miss Target",10,"");readyGeometry(db,actor,target);
@@ -292,7 +292,7 @@ public final class Run245G05RhwOnHitConditionRobolectricTest {
 
     @Test public void aggregateAndMismatchedDamageProofsFailBeforeMutation()throws Exception {
         installSource();Context context=RuntimeEnvironment.getApplication();
-        String dbName="run245_rhw_typed_damage_"+System.nanoTime()+".db";AppDb db=new AppDb(context,dbName);
+        String dbName="r5_"+java.util.UUID.randomUUID().toString().substring(0,8)+".db";AppDb db=new AppDb(context,dbName);
         try {
             db.setActiveMapProfile("dnd");long actor=bindActor(db,"RUN245 Typed Head",20);
             long target=addTarget(db,"RUN245 Typed Target",10,"");readyGeometry(db,actor,target);

@@ -2,7 +2,7 @@
 """Verify RUN247+MOD005 source against audited hashes, offline.
 
 The .json.gz.b64 manifest pins the 1437 original ZIP members (each SHA256).
-The allowed-manifest pins only 18 explicit modifications. Text files may also
+The allowed-manifest pins only 19 explicit modifications. Text files may also
 match independently pinned LF hashes derived from the exact original archive.
 Binary bytes and every non-newline text byte remain strictly checked.
 Does not use RUN245 archives or infer validation from gradle task existence.
@@ -31,7 +31,7 @@ def main():
     args=p.parse_args(); b=json.loads(gzip.decompress(base64.b64decode(args.baseline.read_text().strip(),validate=True)))
     if b.get('schema')!='dnd_normal_reconciled_sha256_manifest_v1' or b.get('source_archive_sha256')!=BASE_SHA: raise RuntimeError('BAD_BASELINE_MANIFEST_IDENTITY')
     base=b['entries'];allowed=json.loads(args.allowed_manifest.read_text(encoding='utf-8'))['expected_modified']
-    if len(base)!=EXPECTED_COUNT or not isinstance(allowed,dict) or len(allowed)!=18: raise RuntimeError('WRONG_BASE_OR_DELTA_SIZE')
+    if len(base)!=EXPECTED_COUNT or not isinstance(allowed,dict) or len(allowed)!=19: raise RuntimeError('WRONG_BASE_OR_DELTA_SIZE')
     if set(allowed)-set(base):raise RuntimeError('DELTA_CONTAINS_PATH_NOT_IN_ORIGINAL_BASE')
     eol=b.get('git_lf_equivalences',{})
     for path,pins in eol.items():
@@ -56,7 +56,7 @@ def main():
         if path in allowed:
             if actual==base[path]:raise RuntimeError('PINNED_MODIFICATION_DID_NOT_CHANGE '+path)
             changed.append(path)
-    if len(changed)!=18: raise RuntimeError('DELTA_MODIFIED_COUNT_MISMATCH')
+    if len(changed)!=19: raise RuntimeError('DELTA_MODIFIED_COUNT_MISMATCH')
     ident=(args.root/'version.properties').read_text(encoding='utf-8')
     for pair in ['VERSION_CODE=606547','DB_SCHEMA=61','BACKUP_FORMAT=21']:
         if pair not in ident:raise RuntimeError('PROJECT_IDENTITY_MISMATCH '+pair)
