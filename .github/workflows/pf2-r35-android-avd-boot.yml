@@ -1,0 +1,71 @@
+name: PF2 Kingmaker R35 Android Virtual Device Boot Gate
+on:
+  push:
+    branches: [pf2-kingmaker-r35-android-homologation-20261011]
+    paths: ['.github/workflows/pf2-r35-android-avd-boot.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pf2-r35-avd-exclusive
+  cancel-in-progress: false
+jobs:
+  boot:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore missing AVD registration and boot existing Android 37.1 Pixel 7 Pro
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw 'Wrong runner' }
+          $sdk = Join-Path $env:LOCALAPPDATA 'Android\Sdk'
+          $emu = Join-Path $sdk 'emulator\emulator.exe'
+          $adb = Join-Path $sdk 'platform-tools\adb.exe'
+          $avdDir = Join-Path $env:USERPROFILE '.android\avd\Pixel_7_Pro.avd'
+          $avdIni = Join-Path $env:USERPROFILE '.android\avd\Pixel_7_Pro.ini'
+          if (!(Test-Path $avdDir) -or !(Test-Path (Join-Path $avdDir 'config.ini'))) { throw 'AVD source directory is missing' }
+          if (!(Test-Path $avdIni)) {
+            @('avd.ini.encoding=UTF-8',"path=$avdDir",'path.rel=avd\Pixel_7_Pro.avd','target=android-37.1') |
+              Set-Content -Path $avdIni -Encoding ascii
+            Write-Host "AVD_REGISTRATION_CREATED=$avdIni"
+          } else {
+            Write-Host "AVD_REGISTRATION_REUSED=$avdIni"
+          }
+          $names=@(& $emu -list-avds 2>&1)
+          if ($names -notcontains 'Pixel_7_Pro') { throw "AVD registration unsuccessful; list=$($names -join ',')" }
+          Write-Host "AVD_RECOGNIZED=Pixel_7_Pro"
+          $out=Join-Path $env:RUNNER_TEMP 'r35-avd-boot.out.log'
+          $err=Join-Path $env:RUNNER_TEMP 'r35-avd-boot.err.log'
+          $commandArgs='-avd Pixel_7_Pro -no-window -no-audio -no-boot-anim -no-snapshot-load -no-snapshot-save -gpu swiftshader_indirect'
+          $process=Start-Process -FilePath $emu -ArgumentList $commandArgs -WindowStyle Hidden -RedirectStandardOutput $out -RedirectStandardError $err -PassThru
+          $booted=$false
+          try {
+            for($i=0;$i -lt 55;$i++){
+              Start-Sleep -Seconds 3
+              if($process.HasExited){ Write-Host "AVD_PROCESS_EXIT=$($process.ExitCode)"; break }
+              $devices=@(& $adb devices)
+              if($devices -match 'emulator-[0-9]+\s+device'){
+                $boot=(& $adb -e shell getprop sys.boot_completed 2>$null | Out-String).Trim()
+                if($boot -eq '1'){
+                  $booted=$true
+                  Write-Host "AVD_BOOT_COMPLETE=true"
+                  Write-Host "AVD_ANDROID_API=$((& $adb -e shell getprop ro.build.version.sdk | Out-String).Trim())"
+                  Write-Host "AVD_DEVICE_MODEL=$((& $adb -e shell getprop ro.product.model | Out-String).Trim())"
+                  Write-Host "AVD_SCREEN_SIZE=$((& $adb -e shell wm size | Out-String).Trim())"
+                  break
+                }
+              }
+              if($i%10 -eq 0){Write-Host "AVD_BOOT_PROGRESS_TICKS=$i"}
+            }
+            if(!$booted){Write-Host 'AVD_BOOT_COMPLETE=false'}
+            Write-Host 'ADB_DEVICE_STATUS:'
+            & $adb devices -l
+          }finally{
+            if(Test-Path $out){Get-Content $out -Tail 40|ForEach-Object{Write-Host "AVD_STDOUT=$_"}}
+            if(Test-Path $err){Get-Content $err -Tail 60|ForEach-Object{Write-Host "AVD_STDERR=$_"}}
+            & $adb -e emu kill 2>$null
+            if(!$process.HasExited){Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue}
+          }
+          if(!$booted){throw 'AVD failed to boot; see emulator diagnostic logs above'}
