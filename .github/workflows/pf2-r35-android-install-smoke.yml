@@ -128,6 +128,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: PF2_KINGMAKER_R35_ANDROID_SMOKE_EVIDENCE
-          path: \${{ runner.temp }}\pf2-r35-android-smoke\*.png
+          path: ${{ runner.temp }}\pf2-r35-android-smoke\*.png
           if-no-files-found: warn
           retention-days: 14
