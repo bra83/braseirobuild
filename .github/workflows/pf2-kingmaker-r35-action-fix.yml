@@ -1,0 +1,185 @@
+name: PF2 Kingmaker R35 - Action Overlap Fix + Full Regression
+on:
+  push:
+    branches: [pf2-kingmaker-r35-action-fix-20261011]
+    paths:
+      - '.github/workflows/pf2-kingmaker-r35-action-fix.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pf2-kingmaker-r35-action-fix
+  cancel-in-progress: false
+
+jobs:
+  test-and-publish:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: pf2-kingmaker-r35-action-fix-20261011
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify exact source; apply minimal PF2 action budget patch
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Unexpected runner: $env:RUNNER_NAME" }
+          $root = Join-Path $env:RUNNER_TEMP 'pf2-kingmaker-r35-verified'
+          $work = Join-Path $root 'source'
+          New-Item $work -ItemType Directory -Force | Out-Null
+          $source = Join-Path $root 'r34-canonical.zip'
+          $auth = & git config --local --get http.https://github.com/.extraheader
+          if ([string]::IsNullOrWhiteSpace($auth)) { throw 'Missing authenticated checkout' }
+          $endpoint = 'https://api.github.com/repos/bra83/braseirobuild/releases/assets/599723078'
+          & curl.exe -L --fail --retry 5 --retry-delay 3 --header $auth --header 'Accept: application/octet-stream' --header 'X-GitHub-Api-Version: 2022-11-28' -o $source $endpoint
+          if ($LASTEXITCODE -ne 0) { throw 'Could not download canonical R34 source ZIP' }
+          if ((Get-Item $source).Length -ne 92767560) { throw 'R34 ZIP byte count mismatch' }
+          $hash = (Get-FileHash $source -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($hash -ne '820c5802bd71107c365f191bb3f6e142b8bbe93127c7998cb60915d6189b734a') { throw "R34 ZIP SHA256 mismatch: $hash" }
+          & tar.exe -xf $source -C $work
+          if ($LASTEXITCODE -ne 0) { throw 'Unable to extract source ZIP' }
+          $candidates = @(Get-ChildItem $work -Recurse -File -Filter version.properties | Where-Object { Test-Path (Join-Path $_.Directory.FullName 'gradlew.bat') })
+          if ($candidates.Count -ne 1) { throw "Expected exactly one Android project, found $($candidates.Count)" }
+          $project = $candidates[0].Directory.FullName
+          if (!(Test-Path (Join-Path $project 'tests_pf2'))) { throw 'Missing bundled PF2 tests' }
+          $patch = Join-Path $env:GITHUB_WORKSPACE 'ci\pf2-kingmaker-r35\patch.py'
+          & python $patch $project
+          if ($LASTEXITCODE -ne 0) { throw 'R35 mechanics patch failed' }
+          Copy-Item (Join-Path $env:GITHUB_WORKSPACE 'ci\pf2-kingmaker-r35\test_r35_action_overlap.py') (Join-Path $project 'tests_pf2\test_r35_action_overlap.py') -Force
+          "PF2_R35_WORK=$project" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "PF2_R35_SOURCE_HASH=$hash" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host 'R34_EXACT_SOURCE_VERIFIED; R35_PATCHED'
+
+      - name: Behavioral PF2 action overlap and persistent damage gate
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Continue'
+          Push-Location $env:PF2_R35_WORK
+          python -m pip install -q pytest
+          if ($LASTEXITCODE -ne 0) { throw 'pytest installation failed' }
+          python -m pytest tests_pf2\test_r35_action_overlap.py -q 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R35_FOCUSED.log"
+          $code = $LASTEXITCODE
+          Pop-Location
+          if ($code -ne 0) { throw "R35 behavioral test failed: $code" }
+
+      - name: Full Kingmaker regression
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Continue'
+          Push-Location $env:PF2_R35_WORK
+          $tests = @(Get-ChildItem tests_pf2 -Filter 'test_kingmaker*.py' -File | Sort-Object Name | ForEach-Object {$_.FullName})
+          if ($tests.Count -lt 20) { throw 'Missing canonical Kingmaker test suites' }
+          python -m pytest @tests -q 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R35_KINGMAKER.log"
+          $code = $LASTEXITCODE
+          Pop-Location
+          if ($code -ne 0) { throw "Kingmaker regression failed: $code" }
+
+      - name: Full Pathfinder mechanics and UI regression
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Continue'
+          Push-Location $env:PF2_R35_WORK
+          python -m pytest tests_pf2 -q 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R35_FULL.log"
+          $code = $LASTEXITCODE
+          Pop-Location
+          if ($code -ne 0) { throw "PF2 regression failed: $code" }
+
+      - name: Android debug APK build
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $candidates = @('C:\actions-runner\android-sdk', $env:ANDROID_SDK_ROOT, $env:ANDROID_HOME)
+          if ($env:LOCALAPPDATA) { $candidates += (Join-Path $env:LOCALAPPDATA 'Android\Sdk') }
+          $sdk = $null
+          foreach ($candidate in ($candidates | Where-Object { $_ } | Select-Object -Unique)) {
+            if (Test-Path $candidate) {
+              $manager = Get-ChildItem $candidate -Recurse -Filter sdkmanager.bat -File -ErrorAction SilentlyContinue | Select-Object -First 1
+              if ($manager) { $sdk = $candidate; break }
+            }
+          }
+          if (!$sdk) { throw 'Android SDK not found' }
+          $env:ANDROID_HOME = $sdk
+          $env:ANDROID_SDK_ROOT = $sdk
+          Push-Location $env:PF2_R35_WORK
+          $ErrorActionPreference = 'Continue'
+          & .\gradlew.bat :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\PF2_R35_GRADLE.log"
+          $code = $LASTEXITCODE
+          Pop-Location
+          if ($code -ne 0) { throw "Android Gradle build failed: $code" }
+
+      - name: Package and publish R35 only after all tests pass
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $root = Join-Path $env:RUNNER_TEMP 'pf2-kingmaker-r35-output'
+          New-Item $root -ItemType Directory -Force | Out-Null
+          $project = $env:PF2_R35_WORK
+          $apkCandidates = @(Get-ChildItem $project -Recurse -File -Filter '*.apk' | Where-Object { $_.FullName -match '[\\/]build[\\/]outputs[\\/]apk[\\/]debug[\\/]' })
+          if (!$apkCandidates.Count) { throw 'Missing compiled APK' }
+          $apkName = 'Braseiro_Pathfinder2e_9.0.36_R35_KINGMAKER_DEBUG.apk'
+          $apkOut = Join-Path $root $apkName
+          Copy-Item $apkCandidates[0].FullName $apkOut -Force
+          (Get-FileHash $apkOut -Algorithm SHA256).Hash.ToLowerInvariant() | Set-Content "$apkOut.sha256" -Encoding ascii
+          Copy-Item "$env:RUNNER_TEMP\PF2_R35_FOCUSED.log" (Join-Path $root 'FOCUSED_TESTS.log')
+          Copy-Item "$env:RUNNER_TEMP\PF2_R35_KINGMAKER.log" (Join-Path $root 'KINGMAKER_TESTS.log')
+          Copy-Item "$env:RUNNER_TEMP\PF2_R35_FULL.log" (Join-Path $root 'FULL_PF2_TESTS.log')
+          Copy-Item "$env:RUNNER_TEMP\PF2_R35_GRADLE.log" (Join-Path $root 'GRADLE_BUILD.log')
+          @(
+            '# PF2 Kingmaker 9.0.36 / R35 - mechanical correction',
+            '',
+            'Parent source: 9.0.35/R34 SHA256 820c5802bd71107c365f191bb3f6e142b8bbe93127c7998cb60915d6189b734a.',
+            'Delta: PF2 Stunned overrides Slowed when regaining actions; previous double subtraction removed in turnBudget and evaluateConditions.',
+            'No changes to Kingmaker content, UI, Atlas, TTS, Gemini, maps, character image import, SQLite or backup schema.',
+            'Regression: actual JVM action-budget harness + all Kingmaker tests + full PF2 tests + Gradle build.',
+            'No physical device validation claimed. Source/PDF page-by-page audit is outside this code-only patch.',
+            'Sources: PF2 Player Core conditions and Gaining/Losing Actions; Archives of Nethys.'
+          ) | Set-Content (Join-Path $root 'VALIDACAO_R35.md') -Encoding utf8
+          Push-Location $project
+          $zip = Join-Path $root 'BRASEIRO_PATHFINDER2E_9.0.36_R35_KINGMAKER_ANDROID_STUDIO.zip'
+          $sevenZip = @('C:\Program Files\7-Zip\7z.exe','C:\Program Files (x86)\7-Zip\7z.exe') | Where-Object {Test-Path $_} | Select-Object -First 1
+          if ($sevenZip) {
+            & $sevenZip a -tzip -mx=5 $zip . '-xr!**\build\*' '-xr!**\.gradle\*' '-xr!local.properties'
+          } else {
+            & tar.exe -a -c -f $zip --exclude='*/build/*' --exclude='*/.gradle/*' --exclude='local.properties' .
+          }
+          $code = $LASTEXITCODE
+          Pop-Location
+          if ($code -ne 0) { throw 'Cannot package full source ZIP' }
+          (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() | Set-Content "$zip.sha256" -Encoding ascii
+          $repo = $env:GITHUB_REPOSITORY
+          $tag = 'PATHFINDER2E-9.0.36-R35'
+          $auth = & git config --local --get http.https://github.com/.extraheader
+          if ([string]::IsNullOrWhiteSpace($auth)) { throw 'Missing checkout authentication' }
+          $common = @('--header',$auth,'--header','Accept: application/vnd.github+json','--header','X-GitHub-Api-Version: 2022-11-28')
+          $releaseFile = Join-Path $env:RUNNER_TEMP 'r35-release-result.json'
+          $payload = @{
+            tag_name = $tag
+            target_commitish = 'pf2-kingmaker-r35-action-fix-20261011'
+            name = 'Braseiro Pathfinder 2e 9.0.36 R35 - Kingmaker Mechanical Correction'
+            body = 'R34 preserved. Fixes PF2 Remaster stunned/slowed overlap, tested in a real Java harness; Kingmaker/full PF2 regressions and Gradle required before publishing. Existing user-approved Kokoro, images and Atlas untouched.'
+            draft = $false
+            prerelease = $false
+          } | ConvertTo-Json -Compress
+          $payloadFile = Join-Path $env:RUNNER_TEMP 'r35-release.json'
+          [System.IO.File]::WriteAllText($payloadFile,$payload,(New-Object System.Text.UTF8Encoding($false)))
+          $api = "https://api.github.com/repos/$repo"
+          $status = & curl.exe -L --silent --show-error @common --header 'Content-Type: application/json' --data-binary "@$payloadFile" --output $releaseFile --write-out '%{http_code}' "$api/releases"
+          if ($status -notmatch '^20') { throw "Release creation failed: HTTP $status" }
+          $release = Get-Content $releaseFile -Raw -Encoding UTF8 | ConvertFrom-Json
+          foreach ($file in Get-ChildItem $root -File) {
+            $encoded = [uri]::EscapeDataString($file.Name)
+            $endpoint = "https://uploads.github.com/repos/$repo/releases/$($release.id)/assets?name=$encoded"
+            $upload = & curl.exe -L --silent --show-error @common --header 'Content-Type: application/octet-stream' --data-binary "@$($file.FullName)" --output NUL --write-out '%{http_code}' --request POST $endpoint
+            if ($upload -notmatch '^20') { throw "Failed to upload $($file.Name): HTTP $upload" }
+          }
+          Write-Host "R35_RELEASE_PUBLISHED=$($release.html_url)"
