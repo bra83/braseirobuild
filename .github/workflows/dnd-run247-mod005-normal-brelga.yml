@@ -7,6 +7,8 @@ on:
     paths:
       - .github/workflows/dnd-run247-mod005-normal-brelga.yml
       - ci/dnd-normal-run247/compare_exact_trees.py
+      - ci/dnd-normal-run247/verify_pinned_tree_no_drive.py
+      - ci/dnd-normal-run247/RUN247_ORIGINAL_SHA256_MANIFEST.json.gz.b64.txt
       - ci/dnd-normal-run247/integration_fix_manifest.json
       - dnd-normal/run247-mod005/**
 permissions:
