@@ -11,6 +11,7 @@ import org.json.JSONObject;
 public final class YearZeroDicePort {
     private YearZeroDicePort(){}
     public static JSONObject resolve(JSONObject spec, JSONObject submission){
+        try {
         JSONObject pool=spec==null?null:spec.optJSONObject("dice_pool");
         if(pool==null||submission==null)return error("Pool Year Zero ausente.");
         String[] names={"attribute","skill","gear"};
@@ -56,6 +57,15 @@ public final class YearZeroDicePort {
           .put("attribute_damage_from_push",damagedAttribute).put("gear_damage_from_push",damagedGear)
           .put("push_used",push!=null).put("effects_applied",false)
           .put("outcome",LoreweaverOutcomePort.create(ok?"success":"failure",ok?"Sucesso":"Fracasso",ok,false,false,Math.max(0,net),Integer.valueOf(net)));
+        } catch (RuntimeException invalid) {
+            throw invalid;
+        } catch (Exception invalidJson) {
+            throw new IllegalStateException("Falha ao estruturar resultado Year Zero",invalidJson);
+        }
     }
-    private static JSONObject error(String message){return new JSONObject().put("resolved",false).put("error",message);}
+    private static JSONObject error(String message){
+        try { return new JSONObject().put("resolved",false).put("error",message); }
+        catch(RuntimeException invalid){throw invalid;}
+        catch(Exception invalidJson){throw new IllegalStateException("Falha ao estruturar erro Year Zero",invalidJson);}
+    }
 }
