@@ -78,6 +78,11 @@ def transform(s):
         final JSONObject pending=db.queryOne("SELECT * FROM kingmaker_structures WHERE world_profile=? AND settlement_key=? AND structure_key=?",
             new String[]{profile(),townKey,pendingKey});
         final boolean resume=pending.length()>0;
+        if(resume){
+            JSONObject previous=new JSONObject(pending.optString("effects_json","{}"));
+            if(previous.optInt("last_attempt_turn",-1)==turn.optInt("turn_number"))
+                throw new IllegalStateException("Obra inacabada: a próxima tentativa deve ocorrer em outro turno do Reino.");
+        }
         final int lots=def.optInt("lots",1);
         int used=structureLotTotal(townKey)-(resume?pending.optInt("lots",lots):0);
         if(used+lots>Math.max(1,town.optInt("developed_blocks",1))*4)
@@ -132,7 +137,8 @@ def transform(s):
                     v.put("commodity_costs_json",new JSONObject().put("lumber",lumber).put("stone",stone)
                         .put("ore",ore).put("luxuries",luxuries).toString());
                     v.put("effects_json",new JSONObject().put("construction_status",rubble?"rubble":"unfinished")
-                        .put("original_structure_key",chosenKey).put("cost_prepaid",true).toString());
+                        .put("original_structure_key",chosenKey).put("cost_prepaid",true)
+                        .put("last_attempt_turn",turn.optInt("turn_number")).toString());
                     v.put("source_ref","Kingmaker Adventure Path 2e p. 518");
                     v.put("notes",clean(notes));v.put("created_at",resume?pending.optLong("created_at",now):now);
                     v.put("updated_at",now);
