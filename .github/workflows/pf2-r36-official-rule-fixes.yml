@@ -50,7 +50,9 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p r35-source
-          curl -L --fail --retry 5 --retry-delay 3 -o r35-source.zip 'https://github.com/bra83/braseirobuild/releases/download/PATHFINDER2E-9.0.36-R35/BRASEIRO_PATHFINDER2E_9.0.36_R35_KINGMAKER_ANDROID_STUDIO.zip'
+          auth="$(git config --local --get http.https://github.com/.extraheader)"
+          test -n "$auth"
+          curl -L --fail --retry 5 --retry-delay 3 --header "$auth" --header 'Accept: application/octet-stream' --header 'X-GitHub-Api-Version: 2022-11-28' -o r35-source.zip 'https://api.github.com/repos/bra83/braseirobuild/releases/assets/629875743'
           test "$(stat -c %s r35-source.zip)" = "92975058"
           echo '86d9a6fd26e4139e084c8e4069f49ef53e0cf8654e0f9f5662b92f9183941aa6  r35-source.zip' | sha256sum -c -
           unzip -q r35-source.zip -d r35-source
