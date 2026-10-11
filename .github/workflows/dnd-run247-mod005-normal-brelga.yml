@@ -75,24 +75,20 @@ jobs:
           "BASELINE_SHA256=2774b450ecf5be179976199b22bab8584f76939dcf305d82a84171a199282e06" | Out-File (Join-Path $out 'PROVENANCE.txt') -Encoding utf8 -Append
           'NO_APK_BUILD=YES' | Out-File (Join-Path $out 'PROVENANCE.txt') -Encoding utf8 -Append
           Write-Host 'BRELGA_D_DRIVE=ACTIVE; EXISTING_JAVA17_PYTHON311=ACTIVE; APK=DISABLED'
-      - name: Verify exact reconciled ZIP and strictly pinned source-fix delta
+      - name: Verify all 1437 SHA-pinned reconciled source files offline
         shell: powershell
         run: |
           $ErrorActionPreference='Stop'
-          $reference=Join-Path $env:DND_ROOT 'pristine'
-          $script=Join-Path $env:DND_REPO 'ci/dnd-normal-run247/fetch_exact_source.py'
-          $manifest=Join-Path $env:DND_REPO 'ci/dnd-normal-run247/source_parts.json'
-          $verify=Join-Path $env:DND_REPO 'ci/dnd-normal-run247/compare_exact_trees.py'
-          $fix=Join-Path $env:DND_REPO 'ci/dnd-normal-run247/integration_fix_manifest.json'
+          $verify=Join-Path $env:DND_REPO 'ci/dnd-normal-run247/verify_pinned_tree_no_drive.py'
+          $baseline=Join-Path $env:DND_REPO 'ci/dnd-normal-run247/RUN247_ORIGINAL_SHA256_MANIFEST.json.gz.b64.txt'
+          $allowed=Join-Path $env:DND_REPO 'ci/dnd-normal-run247/integration_fix_manifest.json'
+          $output=Join-Path $env:DND_OUT 'SOURCE_VERIFY.txt'
           $ErrorActionPreference='Continue'
-          & $env:DND_PYTHON -u $script --manifest $manifest --scratch $env:DND_ROOT --project $reference 2>&1 | Tee-Object (Join-Path $env:DND_OUT 'SOURCE_FETCH.log')
+          & $env:DND_PYTHON -u $verify --root $env:DND_PROJECT --baseline $baseline --allowed-manifest $allowed --output $output 2>&1 | Tee-Object (Join-Path $env:DND_OUT 'SOURCE_TREE_VERIFY.log')
           $rc=$LASTEXITCODE
           $ErrorActionPreference='Stop'
-          "SOURCE_FETCH_EXIT_CODE=$rc" | Out-File (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
-          if ($rc -ne 0) { throw 'BASELINE_ZIP_SHA_CRC_FAILED' }
-          Copy-Item (Join-Path $env:DND_ROOT 'SOURCE_VERIFY.txt') $env:DND_OUT -Force
-          & $env:DND_PYTHON $verify --reference $reference --existing $env:DND_PROJECT --allowed-manifest $fix
-          if ($LASTEXITCODE -ne 0) { throw 'PINNED_SOURCE_FIX_DELTA_FAILED' }
+          "SOURCE_TREE_EXIT_CODE=$rc" | Out-File (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
+          if ($rc -ne 0) { throw 'ORIGINAL_RUN247_TREE_SHA256_VERIFICATION_FAILED' }
           'SOURCE_FIX_VERIFY_EXIT_CODE=0' | Out-File (Join-Path $env:DND_OUT 'STAGES.txt') -Encoding utf8 -Append
       - name: Compile Android Java on reconciled source
         shell: powershell
@@ -167,7 +163,7 @@ jobs:
         run: |
           $ErrorActionPreference='Stop'
           $lines=Get-Content (Join-Path $env:DND_OUT 'STAGES.txt')
-          foreach($label in @('SOURCE_FETCH','SOURCE_FIX_VERIFY','COMPILE','RUN246','RUN247','FULL_SUITE')) {
+          foreach($label in @('SOURCE_TREE','SOURCE_FIX_VERIFY','COMPILE','RUN246','RUN247','FULL_SUITE')) {
             if (!(($lines | Where-Object { $_ -eq ($label+'_EXIT_CODE=0') }).Count -eq 1)) { throw ('DND_ANDROID_GATE_NOT_GREEN_'+$label) }
           }
           Write-Host 'DND_ANDROID_GATES_PASS=YES'
