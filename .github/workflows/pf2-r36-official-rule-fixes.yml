@@ -4,6 +4,7 @@ on:
     branches: [pf2-kingmaker-r36-official-rule-fixes-20261011]
     paths:
       - '.github/workflows/pf2-r36-official-rule-fixes.yml'
+      - 'ci/pf2-kingmaker-r36/**'
   workflow_dispatch:
 permissions:
   contents: read
@@ -49,7 +50,10 @@ jobs:
           if(!(Test-Path (Join-Path $project 'tests_pf2'))){throw 'Missing tests'}
           python ci\pf2-kingmaker-r36\patch.py "$project"
           if($LASTEXITCODE -ne 0){throw 'Official rules patch failed'}
+          python ci\pf2-kingmaker-r36\patch_claim_hex_prepaid.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'Claim Hex prepaid patch failed'}
           Copy-Item ci\pf2-kingmaker-r36\test_r36_book_fidelity.py (Join-Path $project 'tests_pf2\test_r36_book_fidelity.py') -Force
+          Copy-Item ci\pf2-kingmaker-r36\test_r36_claim_prepaid.py (Join-Path $project 'tests_pf2\test_r36_claim_prepaid.py') -Force
           "PF2_R36_PROJECT=$project"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
           Write-Host "R36_SOURCE_IDENTITY_R35_HASH=$sha"
           Write-Host 'R36_OFFICIAL_RULES_PATCH_APPLIED=true'
@@ -60,7 +64,7 @@ jobs:
           Push-Location $env:PF2_R36_PROJECT
           python -m pip install -q pytest
           if($LASTEXITCODE -ne 0){throw 'pytest unavailable'}
-          python -m pytest tests_pf2\test_r36_book_fidelity.py -q
+          python -m pytest tests_pf2\test_r36_book_fidelity.py tests_pf2\test_r36_claim_prepaid.py -q
           $code=$LASTEXITCODE
           Pop-Location
           if($code -ne 0){throw "Book rule contract failed: $code"}
@@ -98,5 +102,5 @@ jobs:
         if: always()
         shell: powershell
         run: |
-          Write-Host 'Only 3 official book rules tested in this candidate. NOT whole-campaign certification.'
+          Write-Host 'Only selected official book rules tested in this candidate. NOT whole-campaign certification.'
           Write-Host 'No artifact upload and no release until source/regressions/Android checks pass.'
