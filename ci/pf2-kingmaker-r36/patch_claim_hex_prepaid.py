@@ -32,7 +32,7 @@ one('        JSONObject check=recordCheck("claim_hex","Reivindicar Hex "+clean(h
     '        JSONObject beforePay=state();\n'
     '        if(rules.isAnarchy(beforePay.optInt("unrest"))||beforePay.optInt("anarchy")==1)\n'
     '            throw new IllegalStateException("Não é permitido reivindicar hex em Anarquia.");\n'
-    '        adjustState(new JSONObject().put("resource_points",-1),"Claim Hex: custo antecipado de 1 RP");\n'
+    '        adjustState(new JSONObject().put("resource_points",-1),"Claim Hex: custo antecipado de 1 RP");\n        recordRpSpent(1); // Persist expense exactly once before the skill check.\n'
     '        JSONObject check=recordCheck("claim_hex","Reivindicar Hex "+clean(hexId),"Guardião",',
     "prepay before roll")
 one('claimHex(hexId,notes); // The successful path already deducts exactly 1 RP.',
