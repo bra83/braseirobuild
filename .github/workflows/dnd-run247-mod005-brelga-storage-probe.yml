@@ -1,0 +1,35 @@
+name: DnD NORMAL RUN247 BRELGA safe storage diagnostic
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dnd/run247-mod005-reconciled-g05-brelga
+    paths:
+      - .github/workflows/dnd-run247-mod005-brelga-storage-probe.yml
+permissions:
+  contents: read
+jobs:
+  storage-probe:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 10
+    steps:
+      - name: Measure drives and delete ONLY obsolete scratch from failed DnD 38100399186
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "WRONG_RUNNER=$env:RUNNER_NAME" }
+          Write-Host 'BEFORE_CLEANUP'
+          Get-PSDrive -PSProvider FileSystem | ForEach-Object { Write-Host ("DISK={0} ROOT={1} FREE_GB={2:N3}" -f $_.Name,$_.Root,($_.Free/1GB)) }
+          $owned=Join-Path $env:RUNNER_TEMP 'dnd-run247-mod005-38100399186'
+          if (Test-Path -LiteralPath $owned) {
+            $bytes=(Get-ChildItem -LiteralPath $owned -File -Recurse -Force -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum
+            Write-Host ("OWNED_SCRATCH_BYTES={0}" -f $bytes)
+            Remove-Item -LiteralPath $owned -Force -Recurse -ErrorAction Stop
+            Write-Host 'OWNED_SCRATCH_38100399186=DELETED'
+          } else {
+            Write-Host 'OWNED_SCRATCH_38100399186=NOT_FOUND'
+          }
+          Write-Host 'AFTER_CLEANUP'
+          Get-PSDrive -PSProvider FileSystem | ForEach-Object { Write-Host ("DISK={0} ROOT={1} FREE_GB={2:N3}" -f $_.Name,$_.Root,($_.Free/1GB)) }
+          Write-Host ("RUNNER_TEMP={0}" -f $env:RUNNER_TEMP)
+          Write-Host ("GITHUB_WORKSPACE={0}" -f $env:GITHUB_WORKSPACE)
