@@ -1,0 +1,216 @@
+name: Forbidden Lands U23 integrated - BRELGA APK and Android smoke
+on:
+  push:
+    branches: [build/fl-u23-integrated]
+    paths: ['.github/workflows/build-forbidden-lands-u23-integrated-brelga.yml', 'ci/fl-u23/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: fl-u23-integrated-apk
+  cancel-in-progress: false
+env:
+  SOURCE_COMMIT: b4e48fb77b7b7fdc5f85d1c998518196a0aaac32
+  SOURCE_NAME: BRASEIRO_FORBIDDEN_LANDS_U19_CI_WINDOWS_BROWSER_FIXED_FULL_SOURCE.zip
+  SOURCE_SHA256: fd6485a92b2337b854de06279cf98fb14119b121db0c4ebb05be805317d9aa91
+  SOURCE_BYTES: '40470551'
+  SOURCE_API: https://api.firestorage.ai/dev/file/shares/gw3IuQ6vowPp
+  EXPECTED_SIGNER: 9d0f1089b3fb6c225f1f59462750864e897c4d92
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+    outputs:
+      tag: ${{ steps.publish.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Recover pinned private native source and apply exact integrated runtime
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Unexpected runner $env:RUNNER_NAME" }
+          if (-not (Test-Path 'D:\') -or (Get-PSDrive D).Free -lt 5GB) { throw 'BRELGA needs 5 GB free on D:' }
+          $root="D:\brelga-fl-u23-$env:GITHUB_RUN_ID"
+          New-Item -ItemType Directory -Path $root -Force | Out-Null
+          "FL_ROOT=$root" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $zip=Join-Path $root $env:SOURCE_NAME
+          $cached=Get-ChildItem 'D:\brelga-fl-u19-*' -Filter $env:SOURCE_NAME -File -ErrorAction SilentlyContinue | Where-Object { $_.Length -eq [int64]$env:SOURCE_BYTES } | Select-Object -First 1
+          if ($cached) { Copy-Item $cached.FullName $zip }
+          else {
+            $meta=Invoke-RestMethod -Uri ($env:SOURCE_API + '/files?maxResults=100')
+            $matches=@($meta.files | Where-Object { $_.fileName -eq $env:SOURCE_NAME })
+            if ($matches.Count -ne 1) { throw 'Pinned native source unavailable; do not use an older source' }
+            $ticket=Invoke-RestMethod -Method Post -Uri ($env:SOURCE_API + '/files/' + $matches[0].fileId + '/download')
+            & curl.exe --fail --location --retry 4 --retry-all-errors -o $zip $ticket.downloadUrl
+            if ($LASTEXITCODE -ne 0) { throw 'Source download failed' }
+          }
+          if ((Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $env:SOURCE_SHA256 -or (Get-Item $zip).Length -ne [int64]$env:SOURCE_BYTES) { throw 'Source SHA/length mismatch' }
+          $project=Join-Path $root 'project'
+          New-Item -ItemType Directory -Path $project -Force | Out-Null
+          & tar.exe -xf $zip -C $project
+          if ($LASTEXITCODE -ne 0) { throw 'Source extraction failed' }
+          & python.exe "$env:GITHUB_WORKSPACE\ci\fl-u23\prepare_source.py" $project
+          if ($LASTEXITCODE -ne 0) { throw 'Runtime differs from integrated source' }
+          $candidates=@('C:\actions-runner\android-sdk',$env:ANDROID_HOME,$env:ANDROID_SDK_ROOT)
+          if ($env:LOCALAPPDATA) { $candidates += (Join-Path $env:LOCALAPPDATA 'Android\Sdk') }
+          $sdk=$candidates | Where-Object { $_ -and (Test-Path (Join-Path $_ 'platforms\android-36')) -and (Test-Path (Join-Path $_ 'build-tools\36.0.0\aapt.exe')) } | Select-Object -First 1
+          if (-not $sdk) { throw 'Android SDK 36 not found' }
+          "ANDROID_HOME=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "GRADLE_USER_HOME=$root\gradle-home" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Exact dependencies and source checks
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          Set-Location "$env:FL_ROOT\project"
+          & npm.cmd ci --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
+          foreach($entry in @(@('@rollup/rollup-win32-x64-msvc','rollup'),@('@esbuild/win32-x64','esbuild'))) {
+            & node.exe -e "require.resolve('$($entry[0])')" 2>$null
+            if ($LASTEXITCODE -ne 0) {
+              $v=(& node.exe -p "require('./node_modules/$($entry[1])/package.json').version").Trim()
+              & npm.cmd install --no-save --no-package-lock "$($entry[0])@$v"
+              if ($LASTEXITCODE -ne 0) { throw 'Windows optional native module unavailable' }
+            }
+          }
+          & npm.cmd run lint
+          if ($LASTEXITCODE -ne 0) { throw 'TypeScript failed' }
+          & npm.cmd run verify:unified-u19
+          if ($LASTEXITCODE -ne 0) { throw 'Source contracts failed' }
+      - name: All twelve Chromium groups and strict 82 gate on integrated runtime
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          Set-Location "$env:FL_ROOT\project"
+          & python.exe -m pip install playwright==1.55.0
+          if ($LASTEXITCODE -ne 0) { throw 'Playwright install failed' }
+          & python.exe -m playwright install chromium
+          if ($LASTEXITCODE -ne 0) { throw 'Chromium install failed' }
+          $server=Start-Process node.exe -ArgumentList @('node_modules/vite/bin/vite.js','--host','127.0.0.1','--port','4173','--strictPort') -WorkingDirectory (Get-Location).Path -PassThru -RedirectStandardOutput 'vite-server.log' -RedirectStandardError 'vite-server-error.log'
+          try {
+            $ready=$false
+            for($i=0;$i -lt 60;$i++) {
+              try { Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:4173/e2e/official-ui-browser-harness.html' | Out-Null; $ready=$true; break } catch { Start-Sleep -Seconds 1 }
+            }
+            if (-not $ready) { throw 'Vite did not start' }
+            $env:FL_E2E_ORIGIN='http://127.0.0.1:4173'
+            & python.exe e2e/run_official_suite.py
+            if ($LASTEXITCODE -ne 0) { throw 'At least one real browser group failed' }
+            & python.exe scripts/verify_u14_browser_evidence.py e2e-results
+            if ($LASTEXITCODE -ne 0) { throw 'Initial evidence failed' }
+            $env:GITHUB_SHA=$env:SOURCE_COMMIT
+            & python.exe scripts/verify_u22_complete_82.py e2e-results reports/U19_OFFICIAL_MATRIX_43.json
+            if ($LASTEXITCODE -ne 0) { throw 'Strict 82/82 gate failed' }
+          } finally { Stop-Process -Id $server.Id -ErrorAction SilentlyContinue }
+      - name: Build fresh native Android and unit tests
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          Set-Location "$env:FL_ROOT\project"
+          & npm.cmd run android:sync
+          if ($LASTEXITCODE -ne 0) { throw 'Capacitor sync failed' }
+          & npm.cmd run verify:android-assets
+          if ($LASTEXITCODE -ne 0) { throw 'Fresh Android assets failed' }
+          & npm.cmd run verify:google-drive-signing
+          if ($LASTEXITCODE -ne 0) { throw 'Historical signing configuration changed' }
+          & node.exe scripts/run-gradle-task.mjs assembleDebug
+          if ($LASTEXITCODE -ne 0) { throw 'APK compilation failed' }
+          & node.exe scripts/run-gradle-task.mjs testDebugUnitTest
+          if ($LASTEXITCODE -ne 0) { throw 'Native unit tests failed' }
+      - name: Verify binary identity, historic signature, source and every bundled web asset
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $project="$env:FL_ROOT\project"
+          $out="$env:FL_ROOT\release"
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $apk="$out\BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk"
+          Copy-Item "$project\android\app\build\outputs\apk\debug\app-debug.apk" $apk
+          $bt="$env:ANDROID_HOME\build-tools\36.0.0"
+          $badging=(& "$bt\aapt.exe" dump badging $apk | Out-String)
+          if ($LASTEXITCODE -ne 0 -or $badging -notmatch "package: name='com\.braseiro\.forbiddenlands'" -or $badging -notmatch "versionCode='303924'" -or $badging -notmatch "versionName='3\.3\.24'") { throw 'APK identity mismatch' }
+          $sig=(& "$bt\apksigner.bat" verify --verbose --print-certs $apk | Out-String)
+          if ($LASTEXITCODE -ne 0) { throw 'Invalid APK signature' }
+          $m=[regex]::Match($sig,'(?im)certificate SHA-1 digest:\s*([0-9a-f:]+)')
+          if (-not $m.Success -or $m.Groups[1].Value.Replace(':','').ToLowerInvariant() -ne $env:EXPECTED_SIGNER) { throw 'Signer differs from installed application' }
+          & python.exe "$env:GITHUB_WORKSPACE\ci\fl-u23\verify_apk.py" $project $apk
+          if ($LASTEXITCODE -ne 0) { throw 'APK bundled source proof failed' }
+          Copy-Item "$project\e2e-results\u22-complete-82.json" "$out\U23_STRICT_82_GATE.json"
+          Copy-Item "$project\e2e-results\u13-browser-suite-summary.json" "$out\U23_BROWSER_SUITE.json"
+          $sig | Set-Content "$out\APK_SIGNATURE.txt"
+          $badging | Set-Content "$out\APK_IDENTITY.txt"
+      - name: Publish verified test APK and proof
+        id: publish
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $tag="forbidden-lands-u23-integrated-$env:GITHUB_RUN_ID"
+          $out="$env:FL_ROOT\release"
+          $notes="$out\RELEASE_NOTES.md"
+          @('Forbidden Lands U23 integrado.','43 encontros, 121 escolhas e 82 caminhos na suíte real; fonte integrada conferida antes do build.','Assinatura histórica, identidade e todos os assets web comparados no APK.','Pré-release de teste. Smoke Android automatizado é executado no job seguinte; aparelho físico e motores TTS externos não certificados.',"SOURCE_COMMIT=$env:SOURCE_COMMIT") | Set-Content $notes -Encoding utf8
+          $assets=Get-ChildItem $out -File | Where-Object { $_.Name -ne 'RELEASE_NOTES.md' } | ForEach-Object { $_.FullName }
+          & gh.exe release create $tag @assets --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Forbidden Lands 3.3.24 U23 integrado - teste' --notes-file $notes --prerelease
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }
+          "tag=$tag" | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "RELEASE_URL=https://github.com/$env:GITHUB_REPOSITORY/releases/tag/$tag"
+      - name: Preserve failure diagnosis in logs
+        if: failure()
+        shell: powershell
+        run: |
+          $project="$env:FL_ROOT\project"
+          if (Test-Path "$project\e2e-results") {
+            Get-ChildItem "$project\e2e-results\*.stderr.log" | ForEach-Object { Write-Host $_.Name; Get-Content $_.FullName -Tail 80 }
+          }
+  emulator:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download exact published APK and verify digest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          set -Eeuo pipefail
+          gh release download "$RELEASE_TAG" --pattern 'BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk*' --dir incoming
+          cd incoming
+          sha256sum -c BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk.sha256
+          python -m pip install playwright==1.55.0
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Installed APK - native WebView and three reopens
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          script: |
+            adb install -r incoming/BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk
+            adb logcat -c
+            python ci/fl-u23/emulator_smoke.py
+      - name: Attach emulator proof to the same release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          gh release upload "$RELEASE_TAG" fl-u23-android-smoke.json fl-u23-android-smoke.png --clobber

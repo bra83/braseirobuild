@@ -1,0 +1,2338 @@
+[
+  {
+    "path": "capacitor.config.ts",
+    "sha": "c37941d2bc4b063cb12ba1ba15a4e535e3b63aa7"
+  },
+  {
+    "path": "e2e/official-browser-harness.html",
+    "sha": "beb6930b1feaeb6eeaa6a4c006d98f8da39a74cc"
+  },
+  {
+    "path": "e2e/official-ui-browser-harness.html",
+    "sha": "6b3490ce21ca24fd53d75930275e2a5783ffc16b"
+  },
+  {
+    "path": "e2e/official-ui-entry.tsx",
+    "sha": "421dc76d88304edc7b5a5ff6c4e08ab276a1ab06"
+  },
+  {
+    "path": "e2e/official_browser.py",
+    "sha": "5c82de10978685a98b85c3777f5bfb81a762f711"
+  },
+  {
+    "path": "e2e/official_inventory_ui.py",
+    "sha": "51eca828b2323483c956a200ab1a5fdfc5a81685"
+  },
+  {
+    "path": "e2e/official_receipt_progress_ui.py",
+    "sha": "ed76aeeff7dcba7becf027c108d456572239df2d"
+  },
+  {
+    "path": "e2e/official_u10_commerce_karg_ui.py",
+    "sha": "e23cb535fe4b0e59c58888f8949c29b346426b1f"
+  },
+  {
+    "path": "e2e/official_u12_soul_after_departure_ui.py",
+    "sha": "d646646a35192c4c3d0d6266689c6e54650c9434"
+  },
+  {
+    "path": "e2e/official_u20_downstream_paths.py",
+    "sha": "d44c0cb875a75264ebd499ffcfab49e91aae4ab3"
+  },
+  {
+    "path": "e2e/official_u21_parley_rescue_ui.py",
+    "sha": "affb1916759e6c83725e16d4c4345f98bee04ebb"
+  },
+  {
+    "path": "e2e/official_u22_downstream_batch.py",
+    "sha": "bc0e916c997fb4b280df2d5151b6882af8647a6b"
+  },
+  {
+    "path": "e2e/official_u23_downstream_combat.py",
+    "sha": "a589effb1f9b6e4deb0873d2f048ab5719c2b304"
+  },
+  {
+    "path": "e2e/official_u24_source_adjudications.py",
+    "sha": "6a49fed2bb54d0eb0db5547dd68725f22cc761b8"
+  },
+  {
+    "path": "e2e/official_ui_all_choices.py",
+    "sha": "7983f875c71b650159d74d55dc367910d55fb158"
+  },
+  {
+    "path": "e2e/official_ui_browser.py",
+    "sha": "c06d3c5f4e8f7e774ef062d00b29ebf6282d0db3"
+  },
+  {
+    "path": "e2e/run_official_suite.py",
+    "sha": "1fff994fbee02de415c8f59cee0643f8742285cb"
+  },
+  {
+    "path": "index.html",
+    "sha": "0dbc7903d456a83c167121a960b04f1da9d8b5c5"
+  },
+  {
+    "path": "package-lock.json",
+    "sha": "20190a933bbf92cf930a23cb77697753bedaa67a"
+  },
+  {
+    "path": "package.json",
+    "sha": "d0ce79ce0e5f4433eb4d2ca426909f22a29faa27"
+  },
+  {
+    "path": "scripts/apply-r26-roles.py",
+    "sha": "4f72c9fee46046a040368da3f8c73e367bb642f2"
+  },
+  {
+    "path": "scripts/audit-barbara-1-1-1-poi-3-3.mjs",
+    "sha": "b322a1fb593e71019d47b1aaf9b6fe7f878e6421"
+  },
+  {
+    "path": "scripts/audit-deep.ts",
+    "sha": "dc8279bd4dcbc84b3f72966bcce445123ef10c87"
+  },
+  {
+    "path": "scripts/audit-final.ts",
+    "sha": "982959323942dc896f8b4d5e6baa96c0784262ef"
+  },
+  {
+    "path": "scripts/audit-kotlin-compat.ts",
+    "sha": "b782518c608b50063aba5b36b56822148571a209"
+  },
+  {
+    "path": "scripts/audit-layout-final.ts",
+    "sha": "b02f5704c25b6ec17727bb7cd3af52801ba98879"
+  },
+  {
+    "path": "scripts/audit-master-support-3-2.mjs",
+    "sha": "5346375bf0cc6b2246db4a191a164741dcfc3a48"
+  },
+  {
+    "path": "scripts/audit-master-support-regression-3-3.mjs",
+    "sha": "add28b41658bf1981660fbb32caa09c6eb14a161"
+  },
+  {
+    "path": "scripts/audit-narrative-3-1.mjs",
+    "sha": "3e045cead44fb0cdda730a3fafda626843a276ed"
+  },
+  {
+    "path": "scripts/audit-narrative-inherited-3-3.mjs",
+    "sha": "5af4bbf587c90a70236222a82f919187e66e2898"
+  },
+  {
+    "path": "scripts/audit-narrative-regression-3-2.mjs",
+    "sha": "33862ac7a2d089cf8fbb77c86de0df627c2fe99f"
+  },
+  {
+    "path": "scripts/audit-narrative-regression-3-3.mjs",
+    "sha": "79b276343b9efb66fee0b110f3125aa283cfc4d4"
+  },
+  {
+    "path": "scripts/build-u19-official-matrix.mjs",
+    "sha": "bb0b61a4893115541e4d911e0093f26d3821df95"
+  },
+  {
+    "path": "scripts/import-u19-unified.sh",
+    "sha": "f00ceb8d1e3cb73dcecbaad37ba15830515e3278"
+  },
+  {
+    "path": "scripts/load-typescript.cjs",
+    "sha": "ad2f2ab29b0d2be0e89a2e82b7f4bfa4b2f97bab"
+  },
+  {
+    "path": "scripts/package-release-zip.mjs",
+    "sha": "4efadcb2e2aa05ccff4a83227f97eb7ef6c98a5a"
+  },
+  {
+    "path": "scripts/patch-android-generated.ts",
+    "sha": "3aa5c7c962cbaeef5860a205ccf49e4368434694"
+  },
+  {
+    "path": "scripts/rag-off-bootstrap.mjs",
+    "sha": "e8f87d1cc0bbe80668c1b3b0dc9797d4672d0555"
+  },
+  {
+    "path": "scripts/run-gradle-task.mjs",
+    "sha": "9833c996677b0869150457380ea51c4df0568afd"
+  },
+  {
+    "path": "scripts/run-r24-offline-gates.sh",
+    "sha": "898da9eaa4c54bae5e64d968f8b12b051dba3333"
+  },
+  {
+    "path": "scripts/run-r25-offline-gates.sh",
+    "sha": "3ae75e548031cff43907a50c77f674f2eb1fa774"
+  },
+  {
+    "path": "scripts/stamp-web-build.mjs",
+    "sha": "18be77e8cf58a3ff565700c1fbc25887abb57938"
+  },
+  {
+    "path": "scripts/test-typescript-resolve-loader.mjs",
+    "sha": "8d033e5f2ca41c447d1dfa050dc3bcdda4e047fc"
+  },
+  {
+    "path": "scripts/test_u15_browser_freshness.py",
+    "sha": "e7464e0fbad9cc1cf713fdf98e272ef3d27639ba"
+  },
+  {
+    "path": "scripts/test_verify_u14_browser_evidence.py",
+    "sha": "75e44468f669a86202273b0998cb315122793b1b"
+  },
+  {
+    "path": "scripts/testing-resolve-loader.mjs",
+    "sha": "3bcc5898c869c4927b08c0c939c9b07a991d9e7f"
+  },
+  {
+    "path": "scripts/validate-android-project.ts",
+    "sha": "37856aec7b865298b9b85999b3561db2bfa3d240"
+  },
+  {
+    "path": "scripts/verify-action-dock-14-turns.mjs",
+    "sha": "852c7981065822f3540a676099a7093fcb9c0456"
+  },
+  {
+    "path": "scripts/verify-adventure-sites-closure-v2.mjs",
+    "sha": "83806f7f7e8720f135a300a66d1067af5a9e7ba7"
+  },
+  {
+    "path": "scripts/verify-adventure-sites-closure.mjs",
+    "sha": "74604bee933a50d332e15c0980cfe044b5a19033"
+  },
+  {
+    "path": "scripts/verify-android-asset-integrity.mjs",
+    "sha": "2befe6684053063c67111ef4c2496e4c4f8ced83"
+  },
+  {
+    "path": "scripts/verify-audio-canonical.ts",
+    "sha": "935124ff2d5a62f8fa701b2f6796f814b8804616"
+  },
+  {
+    "path": "scripts/verify-auxiliary-cards-items-closure-v2.mjs",
+    "sha": "fb6218ff63542ac8e598fb19959fba78e3651439"
+  },
+  {
+    "path": "scripts/verify-auxiliary-supplements-closure.mjs",
+    "sha": "a885e3e58a616234f12af5b41089a2aa8be91058"
+  },
+  {
+    "path": "scripts/verify-backup-roundtrip.mjs",
+    "sha": "a64407120d31fc189f6c408b0f00a7193594170b"
+  },
+  {
+    "path": "scripts/verify-battles-sieges-closure-v2.mjs",
+    "sha": "412b726d313e2d2237c93107d42fde4d8bca60fe"
+  },
+  {
+    "path": "scripts/verify-battles-sieges-closure.mjs",
+    "sha": "272339fd794ed90de753dbada7d579147a6f62d0"
+  },
+  {
+    "path": "scripts/verify-berserker-runtime.mjs",
+    "sha": "888a853832211fe58b0bbfeb5f96b810b3d926ea"
+  },
+  {
+    "path": "scripts/verify-bestiary-closure-v2.mjs",
+    "sha": "f6bcccc867931b8561cef10c4c12f1ba19f0457c"
+  },
+  {
+    "path": "scripts/verify-bestiary-closure.mjs",
+    "sha": "87996e64cf95b75e6571840420493fbbf45528ed"
+  },
+  {
+    "path": "scripts/verify-bestiary-cold-incapacitation.mjs",
+    "sha": "89b0c6ad581ccbd10b11336728fd1c2c9fdf74d1"
+  },
+  {
+    "path": "scripts/verify-bitter-reach-closure-v2.mjs",
+    "sha": "40499a3975293264c020bb92d002d39be78fdf6e"
+  },
+  {
+    "path": "scripts/verify-bitter-reach-closure.mjs",
+    "sha": "4df4d9950070d0f9ddd8b2b09bb7a64b57e4f95e"
+  },
+  {
+    "path": "scripts/verify-block1-p0.mjs",
+    "sha": "0b6fb4e72df31a70608ebe117daddd507acd3455"
+  },
+  {
+    "path": "scripts/verify-block2-p0.mjs",
+    "sha": "0aacb31cbce410f3866200becad89fa7ffa36a3b"
+  },
+  {
+    "path": "scripts/verify-block3-p0.mjs",
+    "sha": "015ea5ba61ec716efd4c547c14df7973f7f4ecb1"
+  },
+  {
+    "path": "scripts/verify-block4-p0.mjs",
+    "sha": "8a19b252ce0166eaaa7511c84688506a3b22648f"
+  },
+  {
+    "path": "scripts/verify-bloodmarch-beta-closure-v2.mjs",
+    "sha": "1de5c99548440bcd2df3d58c30b02cfd0b95a877"
+  },
+  {
+    "path": "scripts/verify-bloodmarch-beta-closure.mjs",
+    "sha": "0c322f381fb933518750bd25af5532b940c294ca"
+  },
+  {
+    "path": "scripts/verify-bugreport-freeze-2026-10-05.mjs",
+    "sha": "dca5261d84176596d04bf879d04bcf1be8c32130"
+  },
+  {
+    "path": "scripts/verify-canonical-narrator-profile.mjs",
+    "sha": "4f1a79a926305fb5e089854a35a63539fd906564"
+  },
+  {
+    "path": "scripts/verify-capacitor-vendor.mjs",
+    "sha": "15d4e65b6a93f0594b162bfa3c83655d07cf5973"
+  },
+  {
+    "path": "scripts/verify-character-control-r26.mjs",
+    "sha": "5926036a5646d27989fe969b962ddeaa8f66576d"
+  },
+  {
+    "path": "scripts/verify-character-creation-matrix.mjs",
+    "sha": "e3060d3eb720b75ab551bc0a8c6a8487c0eb7914"
+  },
+  {
+    "path": "scripts/verify-character-creation-rag-off-r24.mjs",
+    "sha": "74c531264148e7603c6ab7acd4fec01e609e505a"
+  },
+  {
+    "path": "scripts/verify-character-generation-stress.mjs",
+    "sha": "05df19406b6d75e8f5a812fb944c6dbb87d855c7"
+  },
+  {
+    "path": "scripts/verify-choice-flow-runtime.mjs",
+    "sha": "1c5023967b3bd0f4a123443cc0a78ea9dbef78af"
+  },
+  {
+    "path": "scripts/verify-combat-assistance.mjs",
+    "sha": "20b0d7793feee74bd0d4575b6203303f8bdb7076"
+  },
+  {
+    "path": "scripts/verify-combat-closure.mjs",
+    "sha": "c7688e0b8e77ff59fbc36715a82ba020c0ebad81"
+  },
+  {
+    "path": "scripts/verify-combat-maneuvers.mjs",
+    "sha": "a687d9f1f45f8b4ed6f440829c78a646734e599f"
+  },
+  {
+    "path": "scripts/verify-companion-autonomy-r27.mjs",
+    "sha": "8c29f4cc59f93b095808320b8c9b9cc0b042b28c"
+  },
+  {
+    "path": "scripts/verify-coverage-consistency.mjs",
+    "sha": "610a6cb41b8246b26a0151b3379c525fd0ed2620"
+  },
+  {
+    "path": "scripts/verify-crafting-full.mjs",
+    "sha": "73fd1fa5279fd87a368746b5f3d6e6f1b544be0c"
+  },
+  {
+    "path": "scripts/verify-critical-injuries-closure.mjs",
+    "sha": "d76877a5b4ce49b72fddec3ec3f9dcbbc222e852"
+  },
+  {
+    "path": "scripts/verify-critical-injuries.mjs",
+    "sha": "c8815838639df8d9dd3b5117c2bd5179b355c7aa"
+  },
+  {
+    "path": "scripts/verify-critical-injury-care.mjs",
+    "sha": "200d10d7459b09745089824fef7e203944233bff"
+  },
+  {
+    "path": "scripts/verify-critical-injury-runtime.mjs",
+    "sha": "0f87c9da2b17cbc08db642df1c2d6aedeee48d12"
+  },
+  {
+    "path": "scripts/verify-crossbow-reload.mjs",
+    "sha": "d45344bee93640549ed627cb94a677cbb1187dc8"
+  },
+  {
+    "path": "scripts/verify-defensive-talents-runtime.mjs",
+    "sha": "460e07fe635d5725a8eb3667a6e303450720d77c"
+  },
+  {
+    "path": "scripts/verify-dice-full.mjs",
+    "sha": "3bf5fd69c7f2ecd863079fcd5b700c5acfab060e"
+  },
+  {
+    "path": "scripts/verify-disease-full.mjs",
+    "sha": "bab8cc9b988021d39749cb23f6fa405bae926319"
+  },
+  {
+    "path": "scripts/verify-drowning-full.mjs",
+    "sha": "a9c1e668ebad8923f61b8a794bd9ab45bcca0790"
+  },
+  {
+    "path": "scripts/verify-economy-full.mjs",
+    "sha": "5e7a148325d2d19388d8e3f657f688cd2c7dab89"
+  },
+  {
+    "path": "scripts/verify-empty-rule-library-playthrough-r24.mjs",
+    "sha": "338ce0144b76bd5471cc51afd98e68759f46d1d0"
+  },
+  {
+    "path": "scripts/verify-encumbrance-full.mjs",
+    "sha": "389b90fea624f9c826fcb64c8636e6f6395e4b9b"
+  },
+  {
+    "path": "scripts/verify-executioner-lucky-runtime.mjs",
+    "sha": "a7d5e178acdf13709217d11df0b5a070eeec97f8"
+  },
+  {
+    "path": "scripts/verify-external-gemini-images.mjs",
+    "sha": "06948c652f8ffd19655f0493132feedb29f10ea3"
+  },
+  {
+    "path": "scripts/verify-fear-full.mjs",
+    "sha": "2ce0011f63559a20191d0a9446424281d2d90a0f"
+  },
+  {
+    "path": "scripts/verify-final-release.mjs",
+    "sha": "5499d951b94a6596dfbfea847a2fe13295c94f43"
+  },
+  {
+    "path": "scripts/verify-fire-full.mjs",
+    "sha": "9739bee1f5931b6932162a0611b9c2b3606b6392"
+  },
+  {
+    "path": "scripts/verify-first-character-creates-campaign.mjs",
+    "sha": "d715d6d7211fc976d9a299529b1d3f504dc1d9c1"
+  },
+  {
+    "path": "scripts/verify-gameplay-rag-off-v4.mjs",
+    "sha": "9c29224586a24ad01dcc5ba481ac828396a3bb2a"
+  },
+  {
+    "path": "scripts/verify-google-drive-signing.mjs",
+    "sha": "80419b3fdf93b1874e65380ad2967d7ff746f50b"
+  },
+  {
+    "path": "scripts/verify-hazards-closure.mjs",
+    "sha": "88d2d7a193c4b1ffdb6896a9c2b9356d5218aa66"
+  },
+  {
+    "path": "scripts/verify-hazards-long-session.mjs",
+    "sha": "311d9973efc79a33fb5198c32e66a84aa09ea014"
+  },
+  {
+    "path": "scripts/verify-hidden-combinations.mjs",
+    "sha": "c14cb50d9bc32f597de7c8cd646916e0b4e10526"
+  },
+  {
+    "path": "scripts/verify-human-master-dynamic-profile-r25.mjs",
+    "sha": "94a75798bae4da9d5f7e2aa977671987f774555a"
+  },
+  {
+    "path": "scripts/verify-human-master-runtime.mjs",
+    "sha": "53c85e2e4f3b55810c5155ff01e82e9fb88d61b4"
+  },
+  {
+    "path": "scripts/verify-imp-attack-table.mjs",
+    "sha": "8c3f3493ad3f1cdf4ca5fde65c65c355c35e7198"
+  },
+  {
+    "path": "scripts/verify-inventory-economy-closure-v2.mjs",
+    "sha": "2389a8b420dffd4e2093d11355709369775ba3d4"
+  },
+  {
+    "path": "scripts/verify-inventory-economy-crafting-closure.mjs",
+    "sha": "255a411666ba968dc0c3eba31670786cefecca3b"
+  },
+  {
+    "path": "scripts/verify-inventory-full.mjs",
+    "sha": "1ab5a374add3c34bbf923acf3174193ca4026a95"
+  },
+  {
+    "path": "scripts/verify-journey-assistance.mjs",
+    "sha": "688904e23189156d874214e661e26344e07e43de"
+  },
+  {
+    "path": "scripts/verify-journey-camp-equipment.mjs",
+    "sha": "1826d03f5fca8f87b5ce47a78f83d710407e9dc6"
+  },
+  {
+    "path": "scripts/verify-journey-closure.mjs",
+    "sha": "f5052c35aa9e32fb40048c963919b19c1bdfa251"
+  },
+  {
+    "path": "scripts/verify-journey-complications.mjs",
+    "sha": "aebe0759a1eed5425ae121d1ae518e8d0410ca5c"
+  },
+  {
+    "path": "scripts/verify-journey-cook-tan.mjs",
+    "sha": "c4ed8a791e445d83943dda5a3ff04009f85ec584"
+  },
+  {
+    "path": "scripts/verify-journey-full.mjs",
+    "sha": "530a6a2ff1d37e8c6850bc0133f3107e6e10f8b5"
+  },
+  {
+    "path": "scripts/verify-journey-harvest.mjs",
+    "sha": "9b67d195e828941d9e6ec223178a05fdf355198e"
+  },
+  {
+    "path": "scripts/verify-journey-hunt-choice.mjs",
+    "sha": "68b9f38212237ac6b47e00bfd5a4b2ac905b9e73"
+  },
+  {
+    "path": "scripts/verify-journey-maritime.mjs",
+    "sha": "3f2792180c5b82dc30683069b3e99d0f566600f0"
+  },
+  {
+    "path": "scripts/verify-journey-official-encounters.mjs",
+    "sha": "34b9efd971b11cb57e4331b0e451aa998d233db6"
+  },
+  {
+    "path": "scripts/verify-legends-adventurers-closure-v2.mjs",
+    "sha": "5496761af2dae404992cd55044c152859becc479"
+  },
+  {
+    "path": "scripts/verify-legends-adventurers-closure.mjs",
+    "sha": "c925cfb912ae302cc4b0518753d0e3252d549016"
+  },
+  {
+    "path": "scripts/verify-magic-full.mjs",
+    "sha": "689512d0f739ba9866f3e12b55f409b1b54a5dea"
+  },
+  {
+    "path": "scripts/verify-magic-persistence.mjs",
+    "sha": "6a2dcec2fbe8c50a58cfdf778230719e88f20348"
+  },
+  {
+    "path": "scripts/verify-magic-reversal-runtime.mjs",
+    "sha": "f1c300ee08965c72bd6637cdd8c14dca6938df76"
+  },
+  {
+    "path": "scripts/verify-mainline-narrator-authority-r93.mjs",
+    "sha": "6f9d7bca3e22d5386b17071bacae15f4717925a9"
+  },
+  {
+    "path": "scripts/verify-master-no-freeze-r5.mjs",
+    "sha": "53a506f94be7f96065dda70542a8b69337afdf97"
+  },
+  {
+    "path": "scripts/verify-material-manifest.mjs",
+    "sha": "6255804cbad032734eeef0f522e1ce8c7c23539b"
+  },
+  {
+    "path": "scripts/verify-mounted-combat-runtime.mjs",
+    "sha": "c8dd56886725bb19f707787f4fddc23242419dd7"
+  },
+  {
+    "path": "scripts/verify-pending-journey-event-retention.mjs",
+    "sha": "80037f54c9a6f4de360e5cdcb5553e1d104fd15f"
+  },
+  {
+    "path": "scripts/verify-persistence-closure.mjs",
+    "sha": "e93312728ae188521bb2861cbfc2be60b74d4359"
+  },
+  {
+    "path": "scripts/verify-pf2-r34-parity.mjs",
+    "sha": "8db2d48848daa4c193b7fdc3ad3d5185430f3f84"
+  },
+  {
+    "path": "scripts/verify-poison-full.mjs",
+    "sha": "78d5a6af2b91efa7366a1d5b1a48f3ca82ddd3de"
+  },
+  {
+    "path": "scripts/verify-push-roll-persistence.mjs",
+    "sha": "72d82989c21ad3ee1b51d0115379010659cfdb94"
+  },
+  {
+    "path": "scripts/verify-r100-companion-memory.mjs",
+    "sha": "fe4c13492013daf8bd119948b9994ef75db0d98d"
+  },
+  {
+    "path": "scripts/verify-r101-delegation.mjs",
+    "sha": "14ec7911b446fa9c88f89fdd15796197dc9f1824"
+  },
+  {
+    "path": "scripts/verify-r102-companion-turn-queue.mjs",
+    "sha": "ce255a6f68a725fec3049432596d95c9b7f0543a"
+  },
+  {
+    "path": "scripts/verify-r103-living-world-cursor.mjs",
+    "sha": "36ef0d8c8ffc21bab543d3185090befc73db895e"
+  },
+  {
+    "path": "scripts/verify-r104-inventory-crafting-campaign-isolation.mjs",
+    "sha": "d02e6045deca8a2fe9dccef12d250e4f7e101eb4"
+  },
+  {
+    "path": "scripts/verify-r105-character-draft-inventory-ui.mjs",
+    "sha": "6c31bef55e68adbb41f8f4ea6141eb5a4aef46da"
+  },
+  {
+    "path": "scripts/verify-r106-character-sheet-and-repair.mjs",
+    "sha": "442775c0d188f9cf948e46b700078c6bd41cc1fd"
+  },
+  {
+    "path": "scripts/verify-r106-inventory-campaign-authority.mjs",
+    "sha": "fd171c1ae64e7d013b8496144b881c6431d7a3c2"
+  },
+  {
+    "path": "scripts/verify-r107-inventory-ui-concurrency.mjs",
+    "sha": "d46b89f39ecf325514f06011620af214e1d9351d"
+  },
+  {
+    "path": "scripts/verify-r107-static.mjs",
+    "sha": "d85da3af4d6b88d6612fc63b52f69fae5a54beb8"
+  },
+  {
+    "path": "scripts/verify-r28-critical-fixes.mjs",
+    "sha": "8aeb06b7e920d4decd752849a7efdb4df3d0788b"
+  },
+  {
+    "path": "scripts/verify-r28-magic-talent-access.mjs",
+    "sha": "1707c8ab97a354d4d44147e0f56ca0c7b823ed72"
+  },
+  {
+    "path": "scripts/verify-r28-published-bestiary.mjs",
+    "sha": "87ca162eea70264805c2778497384a7cc0a55783"
+  },
+  {
+    "path": "scripts/verify-r28-release-gates.mjs",
+    "sha": "31648d629c59978a07acaca8d2e97485a0f19d5c"
+  },
+  {
+    "path": "scripts/verify-r29-bitter-talents.mjs",
+    "sha": "c39348f83611000cbb759d2206a3e2a1ecf8aac8"
+  },
+  {
+    "path": "scripts/verify-r29-encounter-inmemory.mjs",
+    "sha": "65c39976c89b97b28f643c547d16461abd2f0368"
+  },
+  {
+    "path": "scripts/verify-r30-bitter-monster-runtime.mjs",
+    "sha": "b6785eec1564cff202a5af26c50b8ae344f3f323"
+  },
+  {
+    "path": "scripts/verify-r31-nanuik-guardian-inmemory.mjs",
+    "sha": "c573b7504d87f43b5567666055a33a130d9e0511"
+  },
+  {
+    "path": "scripts/verify-r32-bitter-reach-spells.mjs",
+    "sha": "9bdbfd70c9bf5c2e766eac269abe10ea2aad11c5"
+  },
+  {
+    "path": "scripts/verify-r33-area-casting-inmemory.mjs",
+    "sha": "405e1f2f0b4a32da70f8f1fc563b469a1bbd5b02"
+  },
+  {
+    "path": "scripts/verify-r33-bitter-reach-area.mjs",
+    "sha": "6f8328894eda6686b5d5ce5acd51258d89040e56"
+  },
+  {
+    "path": "scripts/verify-r33-ongoing-and-combustion.mjs",
+    "sha": "1ebb9db900d2e045943050306cf4fe7b8b990dea"
+  },
+  {
+    "path": "scripts/verify-r33-suffocate-inmemory.mjs",
+    "sha": "2434653b6c8728cf65ff8e561a3e65b8870e78aa"
+  },
+  {
+    "path": "scripts/verify-r34-elemental-casting-inmemory.mjs",
+    "sha": "f3da293c4899493a916ea1e4fbce4f629b14765c"
+  },
+  {
+    "path": "scripts/verify-r34-elemental-inmemory.mjs",
+    "sha": "aed67a664ed30e0e258021de3225b044d41e4bb5"
+  },
+  {
+    "path": "scripts/verify-r34-elementals.mjs",
+    "sha": "a3284b20d9864f98910b6537fa2dbfb482710db1"
+  },
+  {
+    "path": "scripts/verify-r35-bloodmarch-casting-inmemory.mjs",
+    "sha": "ce481ee2d147cd513c8846a07cfbcb5b89727afb"
+  },
+  {
+    "path": "scripts/verify-r35-bloodmarch-source-and-effects.mjs",
+    "sha": "3bb800f91138ae0004c9b0c7c2762849b8d47884"
+  },
+  {
+    "path": "scripts/verify-r36-bloodmarch-casting-inmemory.mjs",
+    "sha": "d8a3dc1cc2c014670124c39a87cd8b1293d98a66"
+  },
+  {
+    "path": "scripts/verify-r36-bloodmarch-time-and-combat.mjs",
+    "sha": "6f51bc40b9f874d48454da2b9f592f25d55a7643"
+  },
+  {
+    "path": "scripts/verify-r36-bloodmarch-time-inmemory.mjs",
+    "sha": "b0017a86d274e6c1c583e6bdb17450e661565e52"
+  },
+  {
+    "path": "scripts/verify-r37-companion-bloodmarch-guards.mjs",
+    "sha": "9a99d349069e5c44ab5faaf0e098b1158ddcd630"
+  },
+  {
+    "path": "scripts/verify-r38-npc-magic-time.mjs",
+    "sha": "eaad0a5e4ef8849bdf3db549a601873dfe386da0"
+  },
+  {
+    "path": "scripts/verify-r39-bloodmarch-magma-cascade.mjs",
+    "sha": "5354a8776518db360ad06e3456b6d65e66914c89"
+  },
+  {
+    "path": "scripts/verify-r40-bloodmarch-casting-inmemory.mjs",
+    "sha": "c623d64956ac08387dd26b369ee78513f1dc52bb"
+  },
+  {
+    "path": "scripts/verify-r40-bloodmarch-fires-friend.mjs",
+    "sha": "4cbcc597b00faf13edfbe8d4b95a5508d204d74d"
+  },
+  {
+    "path": "scripts/verify-r41-elemental-fire-guard.mjs",
+    "sha": "6ef7565f199af8e2a0191000622b18038ac17a28"
+  },
+  {
+    "path": "scripts/verify-r41-fire-friend-allies.mjs",
+    "sha": "0a2d249ba3a93a770b791b1a12ae075cf4abc2cf"
+  },
+  {
+    "path": "scripts/verify-r42-mental-strength.mjs",
+    "sha": "ba55d80cbbc065906e54049fa076203497c7fd0b"
+  },
+  {
+    "path": "scripts/verify-r43-false-shape.mjs",
+    "sha": "fc18a32856cf83aedf8ac5cf8abb9261b0983a3a"
+  },
+  {
+    "path": "scripts/verify-r43-no-false-final.mjs",
+    "sha": "d21223e200c48188afa258d40b9699a07f589125"
+  },
+  {
+    "path": "scripts/verify-r44-ast-imports.mjs",
+    "sha": "3b89bd0162bacf3e9fd5e5f78a27a3ffb31f23f6"
+  },
+  {
+    "path": "scripts/verify-r44-traceless.mjs",
+    "sha": "b55e5c08b4477c8245f9c1b2c717d00993f7c5e0"
+  },
+  {
+    "path": "scripts/verify-r45-campaign-isolation.mjs",
+    "sha": "d220fad32077dc8b7c18b311a6a709eea9828302"
+  },
+  {
+    "path": "scripts/verify-r46-bloodmarch-sleep.mjs",
+    "sha": "d65dcf31cf480c24c2443fdfa009021a0c5b70b0"
+  },
+  {
+    "path": "scripts/verify-r47-chant-interruption.mjs",
+    "sha": "53956b870eb116e893dbefb89c852942785f06e1"
+  },
+  {
+    "path": "scripts/verify-r48-inventory-journey-transaction.mjs",
+    "sha": "1c71e762eed5a4e228ca26995d52a5dc397b6ad5"
+  },
+  {
+    "path": "scripts/verify-r49-curated-atomic.mjs",
+    "sha": "d390e5a378cdb5edfba0a5af57f72179aada6386"
+  },
+  {
+    "path": "scripts/verify-r49-inventory-combat-guard.mjs",
+    "sha": "d9c24d9b188b6d2a248f5e93238e6f4e781a27c6"
+  },
+  {
+    "path": "scripts/verify-r50-action-outbox.mjs",
+    "sha": "db78c2bb42ab82cf667c0c5f9bd405e62120b5ba"
+  },
+  {
+    "path": "scripts/verify-r50-world-batch.mjs",
+    "sha": "b249f1cd0ac41825e6a45fb8b6be8dedf84f76df"
+  },
+  {
+    "path": "scripts/verify-r51-xp-campaign-atomic.mjs",
+    "sha": "89eff04dc96d4834aca9cdb94ba35e64eb38f780"
+  },
+  {
+    "path": "scripts/verify-r52-campaign-party.mjs",
+    "sha": "ed6dbd02e6f9c01b3872ee77a791631c0a328883"
+  },
+  {
+    "path": "scripts/verify-r53-bloodmarch-executors.mjs",
+    "sha": "f285ce9e6e23083b882154f60f06a7bf42a9c214"
+  },
+  {
+    "path": "scripts/verify-r53-journey-isolation.mjs",
+    "sha": "e864bbf02ed77b4a07f7f189845fbbc2e5cf4904"
+  },
+  {
+    "path": "scripts/verify-r54-bloodmarch-nightmares.mjs",
+    "sha": "4ef4eb924d3aaa6cf52087ecb070230ceb7fc80e"
+  },
+  {
+    "path": "scripts/verify-r55-material-world.mjs",
+    "sha": "b94f52d7bbb8ef3c04b0786b9d8021c3df56276a"
+  },
+  {
+    "path": "scripts/verify-r56-bloodmarch-mental-scenes.mjs",
+    "sha": "dccd7f5af0ed308f3e4644179f42c80b422b69ff"
+  },
+  {
+    "path": "scripts/verify-r57-bloodmarch-active-world.mjs",
+    "sha": "5fad5890366a7dd4bf48b55f40f6e592526d0ac2"
+  },
+  {
+    "path": "scripts/verify-r58-bloodmarch-dream-directives.mjs",
+    "sha": "a5efa6ed3caf22fbc485515c2424b36b217bbc81"
+  },
+  {
+    "path": "scripts/verify-r59-prophetic-dreams.mjs",
+    "sha": "b2d9b33b8f9bf74996f902265e640bfe88202ccb"
+  },
+  {
+    "path": "scripts/verify-r60-dream-travel.mjs",
+    "sha": "d932b210f54b33a21539591c039ec19f99febfca"
+  },
+  {
+    "path": "scripts/verify-r61-mara.mjs",
+    "sha": "dc9df6bf9b95b06f6b04402366fa11bbd608e183"
+  },
+  {
+    "path": "scripts/verify-r62-fire-wyrm.mjs",
+    "sha": "f788179d6595e8d42abb57856124e64a68d066b3"
+  },
+  {
+    "path": "scripts/verify-r63-fire-wyrm-aura.mjs",
+    "sha": "484476d83c06e72b84d768bc752362510391b99c"
+  },
+  {
+    "path": "scripts/verify-r64-fire-wyrm-area.mjs",
+    "sha": "14e75cca5ffeff5c71e41ee6730ec6eafe26993c"
+  },
+  {
+    "path": "scripts/verify-r65-encounter-campaign-guard.mjs",
+    "sha": "eca5bee43aab2c8fc82d254e0c83e3d058a3c428"
+  },
+  {
+    "path": "scripts/verify-r65-runtime-attack-isolation.mjs",
+    "sha": "a311f16868b37310d57a28cdbf3b2dd68c5072a6"
+  },
+  {
+    "path": "scripts/verify-r66-fire-wyrm-mouth.mjs",
+    "sha": "f65097dff12734af16507c3269419efbe7916611"
+  },
+  {
+    "path": "scripts/verify-r67-offline-catalog-boundaries.mjs",
+    "sha": "7f4e2094238efa642c8b8bb20f96d1c7f4251a64"
+  },
+  {
+    "path": "scripts/verify-r68-android-asset-integrity.mjs",
+    "sha": "b68c880a0a3067ab9ddba336724376f3dc16ecd1"
+  },
+  {
+    "path": "scripts/verify-r68-android-patch-integration.mjs",
+    "sha": "4184585e13f6255e14a2a5ae7668df9cddfd40ed"
+  },
+  {
+    "path": "scripts/verify-r68-campaign-state-isolation.mjs",
+    "sha": "de10e0bada639b4f5a1ba4e4d145920ae74bfc49"
+  },
+  {
+    "path": "scripts/verify-r69-legacy-migration.mjs",
+    "sha": "b56adc35385d761caf6325e3771b16e92c09b806"
+  },
+  {
+    "path": "scripts/verify-r70-orphan-legacy-ownership.mjs",
+    "sha": "3c60a55043655913f0c68883299d6c7b6d930843"
+  },
+  {
+    "path": "scripts/verify-r71-module-screen-integration.mjs",
+    "sha": "7c718887a2a8dd8e5d64bb3569b6f9057afaa00d"
+  },
+  {
+    "path": "scripts/verify-r71-site-movement-gates.mjs",
+    "sha": "e725345eba23691fdf70f8236d0600c5d2145833"
+  },
+  {
+    "path": "scripts/verify-r72-module-ui-guards.mjs",
+    "sha": "9babab1b1898da83a7c93b6c49f1afecbe839866"
+  },
+  {
+    "path": "scripts/verify-r72-site-placement.mjs",
+    "sha": "e5b07800e276da8f8aa46a2733c9513a4d2fb6f0"
+  },
+  {
+    "path": "scripts/verify-r73-module-concurrency.mjs",
+    "sha": "d968662b474de91d74d369e296e2a85ae690e9ca"
+  },
+  {
+    "path": "scripts/verify-r74-single-pending-encounter.mjs",
+    "sha": "9005ac647fb54c7aa1f02482d5168e764570fbd5"
+  },
+  {
+    "path": "scripts/verify-r75-encounter-source-and-quarter.mjs",
+    "sha": "b37b43f2714728eccba24111d45b36913f95c613"
+  },
+  {
+    "path": "scripts/verify-r76-ancient-ruins.mjs",
+    "sha": "0fda1b3f58925c1421ff12046516039249a920be"
+  },
+  {
+    "path": "scripts/verify-r77-plague-brother.mjs",
+    "sha": "a9252c971b18510304b7786d85776ff5fa4e305f"
+  },
+  {
+    "path": "scripts/verify-r78-beggars.mjs",
+    "sha": "5e461b5e075155c6101a7b464d2eb23c19410893"
+  },
+  {
+    "path": "scripts/verify-r79-nine-scenes.mjs",
+    "sha": "287c04c6c4d3b0ffa334d5598087acd779078d1c"
+  },
+  {
+    "path": "scripts/verify-r79-parsing.mjs",
+    "sha": "6524ff72c42904d1fcc8df15f856b6aaaeba9318"
+  },
+  {
+    "path": "scripts/verify-r80-combat-bridge.mjs",
+    "sha": "0ff79c449714fef7dbd35c9613241cf844d4ef82"
+  },
+  {
+    "path": "scripts/verify-r80-official-encounters.mjs",
+    "sha": "44cb21b46f70c0b94fda3c924c0abd52687dcf0f"
+  },
+  {
+    "path": "scripts/verify-r82-blood-mist.mjs",
+    "sha": "01145d1d630d1d1502900939368bf7310ee3a0b4"
+  },
+  {
+    "path": "scripts/verify-r83-blood-demon.mjs",
+    "sha": "66dec0bb4498abbb469f1a5249873c2a07619765"
+  },
+  {
+    "path": "scripts/verify-r83-blood-light.mjs",
+    "sha": "ddd6609531167e907990451831305486fd97deae"
+  },
+  {
+    "path": "scripts/verify-r84-blood-mist-form.mjs",
+    "sha": "3324a72d0991a3fbc589370109a10e8ad0967ced"
+  },
+  {
+    "path": "scripts/verify-r84-official-encounters.mjs",
+    "sha": "2a13d5a4574b4747c4d9ab2c47ea19708aff7f6b"
+  },
+  {
+    "path": "scripts/verify-r84-official-npc-attack.mjs",
+    "sha": "e8b9f831f0e18eddb252a41c899ff25731bfbb01"
+  },
+  {
+    "path": "scripts/verify-r85-official-encounters.mjs",
+    "sha": "7c84326fca21bdcf6bc974e0cd4690f47b42372f"
+  },
+  {
+    "path": "scripts/verify-r85-official-npc-attack.mjs",
+    "sha": "b79501bb0a1375adeea4de7efc9b96fce1dfc203"
+  },
+  {
+    "path": "scripts/verify-r86-event-retention.mjs",
+    "sha": "7f8c64ad2ab259929db370838dcfb8cbcf83bdea"
+  },
+  {
+    "path": "scripts/verify-r86-harpy-flee.mjs",
+    "sha": "e172b001a65b58b735b5800cad35f1787ac4d2d7"
+  },
+  {
+    "path": "scripts/verify-r86-horse-and-slavers.mjs",
+    "sha": "b5b459de95751a8d85e26b1c8a5ee76c16e63b0d"
+  },
+  {
+    "path": "scripts/verify-r87-official-encounters.mjs",
+    "sha": "3237644db2c2f297e5b51a03aaa205d2ce7599f5"
+  },
+  {
+    "path": "scripts/verify-r87-official-npc-attack.mjs",
+    "sha": "30ebfb4a803e902038b5012ce6c6fd6a43bf08e2"
+  },
+  {
+    "path": "scripts/verify-r87-official-npcs.mjs",
+    "sha": "514b6fd803e0d6b5fb75c77b1a2917807667b819"
+  },
+  {
+    "path": "scripts/verify-r88-animal-sanctuary.mjs",
+    "sha": "62368b38a78dd81cb788e5a21e6ec17a92bd7b08"
+  },
+  {
+    "path": "scripts/verify-r88-demonic-dough.mjs",
+    "sha": "da5caab799e43017c8a9f09c0492d88f74670162"
+  },
+  {
+    "path": "scripts/verify-r88-encounters-21-25.mjs",
+    "sha": "3b31fcd2b40e03fdb4c542216db31a5f475f6f37"
+  },
+  {
+    "path": "scripts/verify-r88-encounters-26-30.mjs",
+    "sha": "80fd9cb9d9c47f02fb7de8bd182ea2b2c7b08616"
+  },
+  {
+    "path": "scripts/verify-r88-encounters-31-35.mjs",
+    "sha": "bf02e50e6be58c832d73242263927fe633b2cb88"
+  },
+  {
+    "path": "scripts/verify-r88-encounters-36-40.mjs",
+    "sha": "ac3ace1a484e8d3d8e7e972b580b30c1fc0d32d9"
+  },
+  {
+    "path": "scripts/verify-r88-encounters-41-43.mjs",
+    "sha": "7f0840016263a358558ae450f0ccab9a27d3efea"
+  },
+  {
+    "path": "scripts/verify-r88-funeral-procession.mjs",
+    "sha": "7c4bc81ea13e5591241217e0a3d84a87f315c16c"
+  },
+  {
+    "path": "scripts/verify-r88-lair-treasures.mjs",
+    "sha": "fa96016a9ed07b962059466fce596e93d2cc2d1c"
+  },
+  {
+    "path": "scripts/verify-r88-social-followers.mjs",
+    "sha": "3c71cf6a56698cfb2fb9962bf726a811078c1570"
+  },
+  {
+    "path": "scripts/verify-r89-encounter-integrity.mjs",
+    "sha": "3602b2e73df601fd36e248027f8b1e7de7f96120"
+  },
+  {
+    "path": "scripts/verify-r90-official-npcs-linn.mjs",
+    "sha": "49f85b86505594a021ed14f22ef5b1a117ba193f"
+  },
+  {
+    "path": "scripts/verify-r91-official-linn-skeletons.mjs",
+    "sha": "96c806b0a3e9348e7f9cd6bfa8408bfc6877f49a"
+  },
+  {
+    "path": "scripts/verify-r94-xp-boundaries.mjs",
+    "sha": "0bf418cdbc8019831646d532baacf71d1ac117dc"
+  },
+  {
+    "path": "scripts/verify-r95-non-encounter-roll-commit.mjs",
+    "sha": "d89150a105565950ab7b095f7af64ed8a2224295"
+  },
+  {
+    "path": "scripts/verify-r96-actor-authority.mjs",
+    "sha": "a80963be4c6696e979a732eeb2b6762364d41806"
+  },
+  {
+    "path": "scripts/verify-r97-portrait-persistence.mjs",
+    "sha": "a179b6d775237d2e8f83688a1d19747056af19e2"
+  },
+  {
+    "path": "scripts/verify-r98-tts-android.mjs",
+    "sha": "12e2b9ad7213bee781ba1c6195e17945719f3b2b"
+  },
+  {
+    "path": "scripts/verify-r99-living-world-authority.mjs",
+    "sha": "903728d0e1b4fd78c2d823e98b593cef93c5c420"
+  },
+  {
+    "path": "scripts/verify-rag-not-required.mjs",
+    "sha": "3b3613d80ff3bf08777ae0af3f2262ebe695e359"
+  },
+  {
+    "path": "scripts/verify-rag-off-kokoro-startup-v3.mjs",
+    "sha": "495a95b3d48f8d5a4495dd3445dbda55315229dd"
+  },
+  {
+    "path": "scripts/verify-ravens-purge-closure-v2.mjs",
+    "sha": "9417d58f6acb58d6bfb7a16102bb07d937264602"
+  },
+  {
+    "path": "scripts/verify-ravens-purge-runtime.mjs",
+    "sha": "8930fc6a3f710ce122b600aff243ec5fdeb10816"
+  },
+  {
+    "path": "scripts/verify-release-readiness-2026-10-03.mjs",
+    "sha": "b0a65eab809b20a6346547b1ad8127469c13835a"
+  },
+  {
+    "path": "scripts/verify-repair-full.mjs",
+    "sha": "48ad89824e3245e2c03b3a6d76a06723d1109c25"
+  },
+  {
+    "path": "scripts/verify-resource-dice-full.mjs",
+    "sha": "a310cd210212b79c1d70c88e8506fd6ae8237ae7"
+  },
+  {
+    "path": "scripts/verify-runtime-hotfix-3.3.5.mjs",
+    "sha": "84fa43ecb82d296cd91c8f86a076bfeac3634841"
+  },
+  {
+    "path": "scripts/verify-runtime-hotfix-3d-startup.mjs",
+    "sha": "6bcb64e12c32cc38fe2370b11ee66edd962027b6"
+  },
+  {
+    "path": "scripts/verify-runtime-integration-v3.mjs",
+    "sha": "e3a022e8e58a5f4d5851e1f7e2a74480db267c2d"
+  },
+  {
+    "path": "scripts/verify-runtime-playthroughs-v3.mjs",
+    "sha": "100c9bb50ddfe15dba5f9e343fc34c8468e85ad3"
+  },
+  {
+    "path": "scripts/verify-solo-expansion-closure-v2.mjs",
+    "sha": "8cb3d5b179c52723248741d00f753dd45ec81f8f"
+  },
+  {
+    "path": "scripts/verify-solo-expansion-closure.mjs",
+    "sha": "f4ee2964ea0cfb2a013d6118a080fe8ca36857ce"
+  },
+  {
+    "path": "scripts/verify-spell-effects-full.mjs",
+    "sha": "6e3edc62a4d386a3eafc06259a6793a103b20348"
+  },
+  {
+    "path": "scripts/verify-spire-quetzel-closure-v2.mjs",
+    "sha": "5a029131d7ef94caeeed87b3d46674181e9e4c9e"
+  },
+  {
+    "path": "scripts/verify-spire-quetzel-runtime.mjs",
+    "sha": "ce8f1c53d65d38b3e5543770fc2d8cfb5ab618c8"
+  },
+  {
+    "path": "scripts/verify-strongholds-closure-v2.mjs",
+    "sha": "e9e9c94ec624852be2c690dab0ee60b8e57f9a4c"
+  },
+  {
+    "path": "scripts/verify-strongholds-closure.mjs",
+    "sha": "edbd2e9880a4891a3a7765e34c549d728944916f"
+  },
+  {
+    "path": "scripts/verify-strongholds-full.mjs",
+    "sha": "373c9d311001fa7f08118aff151a1967ea4f9455"
+  },
+  {
+    "path": "scripts/verify-strongholds-persistence.mjs",
+    "sha": "3eca3dcfa2886a870a7aa4250095be8037565068"
+  },
+  {
+    "path": "scripts/verify-suggested-choice-touch-runtime.mjs",
+    "sha": "9dc7d861d7c6ba1814e82b23a5307c5d1cb9dbad"
+  },
+  {
+    "path": "scripts/verify-survival-hazards.mjs",
+    "sha": "b263673e32735d1f8deb92924f10697627c86dab"
+  },
+  {
+    "path": "scripts/verify-survival-persistence.mjs",
+    "sha": "fe4abe26856baea6607a4327c5eb65fae3408ef5"
+  },
+  {
+    "path": "scripts/verify-talents-closure-v2.mjs",
+    "sha": "17e8e312df14793b48451dbbde6ff6ed0acbd779"
+  },
+  {
+    "path": "scripts/verify-talents-closure.mjs",
+    "sha": "e81755b6c7afb2df7e6768b02555ea553877559a"
+  },
+  {
+    "path": "scripts/verify-talents-full.mjs",
+    "sha": "8228f2e444f3a1b71aca473c901f22e5ddbdf50f"
+  },
+  {
+    "path": "scripts/verify-u02-official-43-state-guards.mjs",
+    "sha": "9ccf39693b9393c8148aac9802458cfdc74fafc0"
+  },
+  {
+    "path": "scripts/verify-u03-official-all-choices.mjs",
+    "sha": "abb64e257a209e4ffba32f4ddbfc6760f44c795c"
+  },
+  {
+    "path": "scripts/verify-u04-control-atomic.mjs",
+    "sha": "8b3d8d97023c5ebafde7716a116619b24c192a82"
+  },
+  {
+    "path": "scripts/verify-u05-official-transaction-rollback.mjs",
+    "sha": "324a254c36d24f6810104c96e82b2686de12c25c"
+  },
+  {
+    "path": "scripts/verify-u05-sheet-economy-guard.mjs",
+    "sha": "a1c8c4adb619888c2eeb276655ebbec07f98a944"
+  },
+  {
+    "path": "scripts/verify-u06-dedicated-encounter-consistency.mjs",
+    "sha": "ada11c481d54e5339942e556674802b4d03586d7"
+  },
+  {
+    "path": "scripts/verify-u06-ui-browser-contract.mjs",
+    "sha": "703ac905c28f451e8bf3190dbec3a183b53472a1"
+  },
+  {
+    "path": "scripts/verify-u06-ui-commit-gate.mjs",
+    "sha": "3dcc811ad17f55366d452176de86e2a2c9dacf36"
+  },
+  {
+    "path": "scripts/verify-u07-official-ui-receipts.mjs",
+    "sha": "a386447db8ef1ef39b5518cfddf5e0ccdb8d7a02"
+  },
+  {
+    "path": "scripts/verify-u07-source-graph.mjs",
+    "sha": "472fef328c993648141ce88446ab02a42ca55748"
+  },
+  {
+    "path": "scripts/verify-u08-browser-contract.mjs",
+    "sha": "802c7871f146918c16b8ed68c5c122ad4273937f"
+  },
+  {
+    "path": "scripts/verify-u08-official-inventory-snapshots.mjs",
+    "sha": "3e4a28ca6e8948c8c9c62e3d28a9cc2070cb2b71"
+  },
+  {
+    "path": "scripts/verify-u09-official-receipt-progress.mjs",
+    "sha": "f465c121c9defbe015dd44471bafd81d23cc1192"
+  },
+  {
+    "path": "scripts/verify-u10-official-commerce-karg.mjs",
+    "sha": "c7209e00fec3f77a05d3cc40418f56db93e840f9"
+  },
+  {
+    "path": "scripts/verify-u11-official-followup-retention.mjs",
+    "sha": "a60043d76e0dfcd6ebc4d5455f954407c7342c3a"
+  },
+  {
+    "path": "scripts/verify-u11-receipt-import-safety.mjs",
+    "sha": "b99d4f73112a27f88ed17a675599609158d2265f"
+  },
+  {
+    "path": "scripts/verify-u12-soul-bottle-after-departure.mjs",
+    "sha": "a72037619ccdf130f479f9f11d1e2bbf0453e9c2"
+  },
+  {
+    "path": "scripts/verify-u13-official-ledger.mjs",
+    "sha": "aac30c084c3d69c83620a9b5df2ea57e7bd00094"
+  },
+  {
+    "path": "scripts/verify-u15-official-ui-follower.mjs",
+    "sha": "675061555a407c0a6f0aa2e958829fe8d60dc723"
+  },
+  {
+    "path": "scripts/verify-u17-typescript-portability.mjs",
+    "sha": "cb26e14eb82275ec97d322fefd72944917229820"
+  },
+  {
+    "path": "scripts/verify-u18-travel-authority.mjs",
+    "sha": "cd0f43d646b46e5e35f5cde1161e87b9b5d9655d"
+  },
+  {
+    "path": "scripts/verify-u19-combat-closure.mjs",
+    "sha": "ada6509ba113c192be3305835181fc06c9936672"
+  },
+  {
+    "path": "scripts/verify-u19-official-canonical-combat.mjs",
+    "sha": "3359302683467641e90c42133167992a5b20e876"
+  },
+  {
+    "path": "scripts/verify-unified-integration-u01.mjs",
+    "sha": "81405e49e43441d3ea81af5fdf941c1132425048"
+  },
+  {
+    "path": "scripts/verify-user-reported-regressions.mjs",
+    "sha": "c6681a21181b5df04b1c16bf9939a670fe33b25f"
+  },
+  {
+    "path": "scripts/verify-voice-observer-no-loop.mjs",
+    "sha": "588966eeaf49691427b1120d5f15627ff6c09e14"
+  },
+  {
+    "path": "scripts/verify-willpower-full.mjs",
+    "sha": "569b5abb62d268d14d4dffcbd4a0edd87db07242"
+  },
+  {
+    "path": "scripts/verify-xp-full.mjs",
+    "sha": "9cbdf012177ce6fafb1d1ee7715f7df226eb06b1"
+  },
+  {
+    "path": "scripts/verify.ts",
+    "sha": "3b9352bc2cddf6dc10d18a6e60fb500dc29f721b"
+  },
+  {
+    "path": "scripts/verify_u13_runner.py",
+    "sha": "f4f2282edd829fd1d38c3585a9e59e33c5433b6f"
+  },
+  {
+    "path": "scripts/verify_u14_browser_evidence.py",
+    "sha": "c19ed31c4f2cf91340cb9f5ff17d7df1a0154050"
+  },
+  {
+    "path": "scripts/verify_u21_matrix_82.py",
+    "sha": "eeb35b27d7941bc6c503604fd260b3fda7c4a1fc"
+  },
+  {
+    "path": "scripts/verify_u22_complete_82.py",
+    "sha": "c493b964db761910088ccdcc6413631684db2b42"
+  },
+  {
+    "path": "src/App.tsx",
+    "sha": "afb5f01557a1fa678142b18c6425d5c6c3407e20"
+  },
+  {
+    "path": "src/assets/forbidden-lands-map-lite.jpg",
+    "sha": "c845ebef7f5ea7c17d012df074ca0f50f6e28023"
+  },
+  {
+    "path": "src/assets/forbidden-lands-map.jpg",
+    "sha": "e912c844a98cc88598575bc2a11d6c8047853cf1"
+  },
+  {
+    "path": "src/components/AdventureActionDock.tsx",
+    "sha": "c3eb5b77d93822e48004c70ccf4205372ca73b65"
+  },
+  {
+    "path": "src/components/AdventureDashboard.tsx",
+    "sha": "403567d5fa59c157e33b20f31272af545b8ae68f"
+  },
+  {
+    "path": "src/components/AppErrorBoundary.tsx",
+    "sha": "76e9a46edfd40ea682564103efc08d9becf8b4a2"
+  },
+  {
+    "path": "src/components/BlobImage.tsx",
+    "sha": "9bb5a77f7949208a3b11300fcc77b605d773d8f8"
+  },
+  {
+    "path": "src/components/CampaignDirectorPanel.tsx",
+    "sha": "14c01eac3e06fad8a5e4f3c738a812ec89bc3f54"
+  },
+  {
+    "path": "src/components/CharacterAvatar.tsx",
+    "sha": "0f101f6e4f61a9b1978279ea2190b5f880cbbd15"
+  },
+  {
+    "path": "src/components/CharacterDraftPreview.tsx",
+    "sha": "be9566fe7e723903ef7c039b257cacb54d5d364d"
+  },
+  {
+    "path": "src/components/CharacterEditorV2.tsx",
+    "sha": "f8489357887ce833501211b21f67b7bd780fc7a6"
+  },
+  {
+    "path": "src/components/Dice3DStage.tsx",
+    "sha": "b5ddc2480de56273339bed6bc25a071be00da9a2"
+  },
+  {
+    "path": "src/components/EncounterPanel.tsx",
+    "sha": "85f2d174e5f8adf1245f93428a34a0d695fa337e"
+  },
+  {
+    "path": "src/components/EntityTokenAvatar.tsx",
+    "sha": "d1c47aa6ae858f1d79a1fa8823b0a4eddf66943e"
+  },
+  {
+    "path": "src/components/EnvironmentalAwarenessPanel.tsx",
+    "sha": "43500048b3108517f9fbfe70266bf4025be54bdc"
+  },
+  {
+    "path": "src/components/ExperienceTrainingControls.tsx",
+    "sha": "df609c2b682e608774dd99aaac6991b855f5a3ee"
+  },
+  {
+    "path": "src/components/GoogleDriveImportModal.tsx",
+    "sha": "71c96e7549c8db5f7ef04dbc82007fc7aae3639c"
+  },
+  {
+    "path": "src/components/InventoryAndCraftingActions.tsx",
+    "sha": "b6506f89aa18384c2066aa36bddf24e8003301a4"
+  },
+  {
+    "path": "src/components/JourneyPanel.tsx",
+    "sha": "cc220c9f2319677562368507b31380b7e393d510"
+  },
+  {
+    "path": "src/components/Layout.tsx",
+    "sha": "f34f6c0ce2755be40434f51140c99b27a34cf291"
+  },
+  {
+    "path": "src/components/MagicCastingPanel.tsx",
+    "sha": "95cd4e30b5101e45a0e91f4c176807f0306a4648"
+  },
+  {
+    "path": "src/components/ManifestBuilder.tsx",
+    "sha": "ea8e942661ba3b702536a6704bcc6cf59908e8ac"
+  },
+  {
+    "path": "src/components/MapHexExtractor.tsx",
+    "sha": "46352fbf60ad6983cefadb6c6b43b556c87cc465"
+  },
+  {
+    "path": "src/components/MapViewV2.tsx",
+    "sha": "7864c689de9b3294d2680b3583e396703a834196"
+  },
+  {
+    "path": "src/components/QuickAudioPanel.tsx",
+    "sha": "3cdc605e2915c048e492904b65efb27fcd2badd8"
+  },
+  {
+    "path": "src/components/SharedImageRecoveryNotice.tsx",
+    "sha": "e8eac566938ac0f17234ce3ecd0869338a9ad3dd"
+  },
+  {
+    "path": "src/components/TacticalBoard.tsx",
+    "sha": "6b5c09cd7b8d3f8be69d4127fb7ed22581f6b9f1"
+  },
+  {
+    "path": "src/components/TokenPicker.tsx",
+    "sha": "7f9cdb7b6fb85736a4a1b601016d23d5c0e21469"
+  },
+  {
+    "path": "src/components/TokensView.tsx",
+    "sha": "279b1089b68eaab066dc940d91113ba3d1d723c2"
+  },
+  {
+    "path": "src/components/map/MapViewer.tsx",
+    "sha": "61735914cbcc7272ed9841d90ff6258725c2ac5b"
+  },
+  {
+    "path": "src/data/bitter-reach-monsters.json",
+    "sha": "ebbc4cbb9d9790ab2d80918d5635b2a3359883e1"
+  },
+  {
+    "path": "src/data/bloodmarch-beta-2022-spells.json",
+    "sha": "b6a2f33c5b4f92fb323f66c6263036d7b469a800"
+  },
+  {
+    "path": "src/data/book-of-beasts-monsters.json",
+    "sha": "afac15812ce269289124f2c816b266ad1aab3ac3"
+  },
+  {
+    "path": "src/data/drive-materials-manifest.json",
+    "sha": "e4d38fbeccb02551202544d1cd61f6292e56bd94"
+  },
+  {
+    "path": "src/data/forbidden-lands-canonical-items.ts",
+    "sha": "5f02fd6fde73a88083a816ba5fb6858c599ed052"
+  },
+  {
+    "path": "src/data/forbidden-lands-core-bestiary.json",
+    "sha": "4f2b75c01eda7a899cbcad64638fbbb2bc6c1060"
+  },
+  {
+    "path": "src/data/forbidden-lands-core-magic-spells.json",
+    "sha": "77ddebe829006ccda439451b89cb9dcccfecf682"
+  },
+  {
+    "path": "src/data/forbidden-lands-encumbrance-catalog.ts",
+    "sha": "996425b848da6f5f7cac13a7c442438f6d1d7229"
+  },
+  {
+    "path": "src/data/forbidden-lands-rule-coverage.json",
+    "sha": "d079d3de018b9675e1be713756f9d64298c6fb53"
+  },
+  {
+    "path": "src/data/forbidden-lands-source-inventory.json",
+    "sha": "02a2b989a93c0aaa594bbad9616713287b102810"
+  },
+  {
+    "path": "src/data/forbidden-lands-terrain-classification.json",
+    "sha": "3e059b29eddc0e2d957dbc24f410118a7a5a9cf5"
+  },
+  {
+    "path": "src/data/map_manifest.json",
+    "sha": "7650ff52fe64c855ff6b3fc9a0efdd75375f272b"
+  },
+  {
+    "path": "src/data/map_manifest.schema.json",
+    "sha": "8ea914a6eafeaa389bbc84ba2da3a527fcda355b"
+  },
+  {
+    "path": "src/data/map_manifest_addition_template.json",
+    "sha": "211cd1f43455c8d172c6eff610c4e20b29e9dda5"
+  },
+  {
+    "path": "src/data/npc-personalities-300.json",
+    "sha": "69664b9709ed9b50d82a3c6e42e0dd7eef5ffda5"
+  },
+  {
+    "path": "src/data/official-locations.json",
+    "sha": "4e433d376fdbfb1f438b3a34cbaf2745feb31a57"
+  },
+  {
+    "path": "src/data/tokens_manifest.json",
+    "sha": "fea83b2ce107ed08ad37fb02fae4613967b9cea8"
+  },
+  {
+    "path": "src/data/tokens_manifest.schema.json",
+    "sha": "0a1b2d19815756242d54dff7b4b485c09ba74bf8"
+  },
+  {
+    "path": "src/data/tokens_manifest_addition_template.json",
+    "sha": "40678af23c3ab9c83927e6addf065bf2a68aa540"
+  },
+  {
+    "path": "src/db/db.ts",
+    "sha": "f22db28c780f66de0891c3ba84864b31114a598a"
+  },
+  {
+    "path": "src/db/soundDb.ts",
+    "sha": "84ac35f1bd6bbc1cb7e9f28f826f45819719e8d0"
+  },
+  {
+    "path": "src/db/ttsCacheDb.ts",
+    "sha": "875c467e3771dcdd787569ec284cb4ac744be0fb"
+  },
+  {
+    "path": "src/global.d.ts",
+    "sha": "6e48ca67933d36f522daaec9c998232878fddf94"
+  },
+  {
+    "path": "src/index.css",
+    "sha": "8594267b430d851496f8bf341bc06d913f14458e"
+  },
+  {
+    "path": "src/lib/forbiddenLandsCoordinates.ts",
+    "sha": "e2a9db8f2cadbba8b305e1c37417bd23b71d266c"
+  },
+  {
+    "path": "src/lib/utils.ts",
+    "sha": "bd0c391ddd1088e9067844c48835bf4abcd61783"
+  },
+  {
+    "path": "src/main.tsx",
+    "sha": "244a682835089d8f8f5c070a8010033c5684a450"
+  },
+  {
+    "path": "src/mapClassifier.ts",
+    "sha": "890251481952d6614f85911fe8d0ca653f9af215"
+  },
+  {
+    "path": "src/schemas/terrain-classification.schema.json",
+    "sha": "cd4c6e469837e6a72523417cec789d73c559195c"
+  },
+  {
+    "path": "src/screens/AdventureScreenV3.tsx",
+    "sha": "c3019fed9de298ef6fe24da65daccaab3bbdad70"
+  },
+  {
+    "path": "src/screens/BestiaryScreen.tsx",
+    "sha": "d684121d250c8f92aefaea427ec6440edd286c54"
+  },
+  {
+    "path": "src/screens/CombatScreen.tsx",
+    "sha": "f752f2fb8eced66599ce36a4568a69b6fcb2b5ac"
+  },
+  {
+    "path": "src/screens/DiagnosticsScreen.tsx",
+    "sha": "7b591d71bbe84cd6b715fe5edf85773037b98964"
+  },
+  {
+    "path": "src/screens/DiceScreenV2.tsx",
+    "sha": "391b45be5e593af38edf1beedb87142768c39158"
+  },
+  {
+    "path": "src/screens/DuvidasScreenV2.tsx",
+    "sha": "d003a0917cd3dc6ad758ca9a8c6ad008c341765f"
+  },
+  {
+    "path": "src/screens/LibraryScreenV2.tsx",
+    "sha": "13ec9dd598b1074a6f001732ce0178b2b327d087"
+  },
+  {
+    "path": "src/screens/LivingWorldScreen.tsx",
+    "sha": "0ca909da982318235bd36796b9d85d3c9a530b60"
+  },
+  {
+    "path": "src/screens/MapScreen.tsx",
+    "sha": "77173365bdf51ac925fcb1a3ba53d3896a1b87d0"
+  },
+  {
+    "path": "src/screens/ModulesScreen.tsx",
+    "sha": "5f39be093b712eb8b40aabc1e5384d354d1a28ce"
+  },
+  {
+    "path": "src/screens/NpcTokensScreen.tsx",
+    "sha": "c284d3a408ded3eba9f25402be11c64b5d44adf1"
+  },
+  {
+    "path": "src/screens/OrganizationsScreen.tsx",
+    "sha": "90cbb609acbbb3b22e59994a8d357f440f6473af"
+  },
+  {
+    "path": "src/screens/PartyScreen.tsx",
+    "sha": "277091babb07862d8144ca59b193643a8900691b"
+  },
+  {
+    "path": "src/screens/SettingsScreenV2.tsx",
+    "sha": "9f1b68d176167034ed501b670c0be61788c8a47d"
+  },
+  {
+    "path": "src/screens/SoundsScreen.tsx",
+    "sha": "45c412fbfb05ae621f5145296f27ac3f833441e2"
+  },
+  {
+    "path": "src/screens/TimelineScreenV2.tsx",
+    "sha": "8a518e3d8fc6be19df2fc114aa17d0c2af4c68e4"
+  },
+  {
+    "path": "src/services/AdventureOpeningPlannerService.ts",
+    "sha": "92ffef217a303705f81be88fb4c65a50ef2f1fca"
+  },
+  {
+    "path": "src/services/AdventureSiteEngine.ts",
+    "sha": "70704c214f4749309af8522a4911a2c743be84bb"
+  },
+  {
+    "path": "src/services/ApiEndpointService.ts",
+    "sha": "f2a7c0113ac9fefc0fd864f96c572bf494da0797"
+  },
+  {
+    "path": "src/services/AudioDiagnosticsService.ts",
+    "sha": "85747457b060f61d031b791ed531f4544ee91a03"
+  },
+  {
+    "path": "src/services/AutonomousHeroCheckService.ts",
+    "sha": "e4184db6d40c823272e5230b2f68565a67188122"
+  },
+  {
+    "path": "src/services/BackupService.ts",
+    "sha": "7ee8b73544c8b4ce24f12d5daae3bf38f1345e38"
+  },
+  {
+    "path": "src/services/BarbaraCore.ts",
+    "sha": "f3ce614e95b704fbebbf803ce6ef5d164b1b07d1"
+  },
+  {
+    "path": "src/services/BasiliskWartsRulesEngine.ts",
+    "sha": "f8f74c14f69afa942c223dab28919cc35c0e3171"
+  },
+  {
+    "path": "src/services/BattleSiegeRulesEngine.ts",
+    "sha": "d0a3ad5eb34399a84a5dcd616dc44426b55e5020"
+  },
+  {
+    "path": "src/services/BestiaryService.ts",
+    "sha": "d62119f6aec71c243b4188b9929cdb603d97af1a"
+  },
+  {
+    "path": "src/services/BitterReachAreaSpellEngine.ts",
+    "sha": "6e2b11677ec8ac8ed77c32d0b3376894b17bbe8e"
+  },
+  {
+    "path": "src/services/BitterReachElementalCombatService.ts",
+    "sha": "a88ff468fa950e87a04e28d380e03aae091127ca"
+  },
+  {
+    "path": "src/services/BitterReachElementalEngine.ts",
+    "sha": "409ec9b56aaa0b7f0dd5fef30789a5d12c3fb5d7"
+  },
+  {
+    "path": "src/services/BitterReachMagicTimeEngine.ts",
+    "sha": "571ae9c285d8b667a82480fd94d84861d6ead217"
+  },
+  {
+    "path": "src/services/BitterReachMagicTimeService.ts",
+    "sha": "ea18f7cf318637fbec87f5f8196248d65ad12f18"
+  },
+  {
+    "path": "src/services/BitterReachModule.ts",
+    "sha": "2d738c0729dc6641307985f5a1284c879898f38d"
+  },
+  {
+    "path": "src/services/BitterReachOngoingSpellEngine.ts",
+    "sha": "c33e5c754810167941fb8503fcdb763dc02a3c1a"
+  },
+  {
+    "path": "src/services/BitterReachRuntimeService.ts",
+    "sha": "e5239178507d7ac8fc86d5fe1dcae461764bbaba"
+  },
+  {
+    "path": "src/services/BitterReachSpellRulesEngine.ts",
+    "sha": "17dcb147136a336c5d356447c7835ba4fb003ab3"
+  },
+  {
+    "path": "src/services/BitterReachTalentRulesEngine.ts",
+    "sha": "603f1540424b3a0abe1736eb6b25da60f0cce455"
+  },
+  {
+    "path": "src/services/BloodMistDemonRulesEngine.ts",
+    "sha": "e7dbc6c85dc95cea1dfdef960d951b233791fa66"
+  },
+  {
+    "path": "src/services/BloodmarchBetaActiveWorldEngine.ts",
+    "sha": "d1fd1a3796a913bff63460e1ef90e73ff6158478"
+  },
+  {
+    "path": "src/services/BloodmarchBetaChantService.ts",
+    "sha": "0d45c511b2bf82bc93334470d82e9b3904114923"
+  },
+  {
+    "path": "src/services/BloodmarchBetaCombatEngine.ts",
+    "sha": "7c9c7997f30fbc696ba2972733fae419b00d91f1"
+  },
+  {
+    "path": "src/services/BloodmarchBetaDreamDirectiveEngine.ts",
+    "sha": "cb6c98331149e7222b0b6e0cad770ee4dd23aacf"
+  },
+  {
+    "path": "src/services/BloodmarchBetaDreamTravelEngine.ts",
+    "sha": "2312335e54750df0b364f0154feb9f1951c0b6fe"
+  },
+  {
+    "path": "src/services/BloodmarchBetaFireGuard.ts",
+    "sha": "8eec2e0a0693253550e663010a47c62467debc11"
+  },
+  {
+    "path": "src/services/BloodmarchBetaFireWyrmAreaEngine.ts",
+    "sha": "e7b282722e7d58e7fe06e3c10b0cef20ea8a6663"
+  },
+  {
+    "path": "src/services/BloodmarchBetaFireWyrmEngine.ts",
+    "sha": "8c069ac0cc182ed2a4b1f3ee81ed34012de9f049"
+  },
+  {
+    "path": "src/services/BloodmarchBetaFireWyrmWeakSpotEngine.ts",
+    "sha": "7850d2381e38003860b899fc7754d12482d74334"
+  },
+  {
+    "path": "src/services/BloodmarchBetaMaraEngine.ts",
+    "sha": "9ad765f5bbe9329812a610bd662f6b606e104acb"
+  },
+  {
+    "path": "src/services/BloodmarchBetaMaterialWorldEngine.ts",
+    "sha": "e2f8d896cb420110fcc85b516175477dfb82066c"
+  },
+  {
+    "path": "src/services/BloodmarchBetaMentalGuard.ts",
+    "sha": "aea7af83121eb44b50051f318b74011e4afa9f9e"
+  },
+  {
+    "path": "src/services/BloodmarchBetaMentalSceneEngine.ts",
+    "sha": "6714c585c5d5915ffde5e91526b28e42e900c24b"
+  },
+  {
+    "path": "src/services/BloodmarchBetaModule.ts",
+    "sha": "2f033c1753021f207793af02dd1403565e1e50e5"
+  },
+  {
+    "path": "src/services/BloodmarchBetaPropheticDreamsEngine.ts",
+    "sha": "cb0379a9edc9033dd151c8ffa4cf794242191313"
+  },
+  {
+    "path": "src/services/BloodmarchBetaResistanceGuard.ts",
+    "sha": "5fd5da18bea598c8b67885d4771165184969c1b1"
+  },
+  {
+    "path": "src/services/BloodmarchBetaRoundEngine.ts",
+    "sha": "14d2f47f85e970604ee50d3057a3f166d9597269"
+  },
+  {
+    "path": "src/services/BloodmarchBetaSleepEngine.ts",
+    "sha": "65253aef7f626c9bf4f0c11288d7f1b04816a1fe"
+  },
+  {
+    "path": "src/services/BloodmarchBetaSpellRulesEngine.ts",
+    "sha": "0ccbca430fffc1c25a7d611c26cbe94f7d3beead"
+  },
+  {
+    "path": "src/services/BloodmarchBetaSpells.ts",
+    "sha": "8d999b91153a2944ab4b46adad24e3f721988b84"
+  },
+  {
+    "path": "src/services/BloodmarchBetaTraceGuard.ts",
+    "sha": "b34f7d638b4de21e4d8db372718b3224f1dc89fc"
+  },
+  {
+    "path": "src/services/BookOfBeastsCatalogService.ts",
+    "sha": "ab9792e263b5df418dc486110c25f704d43afc87"
+  },
+  {
+    "path": "src/services/BundledMapBootstrapService.ts",
+    "sha": "0723eeeb8904701656028e0ba1ee6b34da3721d9"
+  },
+  {
+    "path": "src/services/CampaignDirectorService.ts",
+    "sha": "0419f5b372f4fb82dfacf628b471c5c51b5920f0"
+  },
+  {
+    "path": "src/services/CampaignModuleStateService.ts",
+    "sha": "eefbef389d762141234bf8feaf3197baed7c9192"
+  },
+  {
+    "path": "src/services/CampaignPartyService.ts",
+    "sha": "32e4af91bac86df7b50035f66db3fbcdf082fa34"
+  },
+  {
+    "path": "src/services/CampaignPoiService.ts",
+    "sha": "7d8f0dc040000679bdf5f76b7c5ef3b8b71bb3c1"
+  },
+  {
+    "path": "src/services/CampaignService.ts",
+    "sha": "0111fc423170695b27449bc286474f1fdb189bd4"
+  },
+  {
+    "path": "src/services/CanonicalNarratorProfileService.ts",
+    "sha": "8d7a517857052b06d62d2fed0466007e73007de7"
+  },
+  {
+    "path": "src/services/CharacterActionRulesEngine.ts",
+    "sha": "e1d2546a0f627e6a20e93e1ebfcea431f216cd92"
+  },
+  {
+    "path": "src/services/CharacterAvatarService.ts",
+    "sha": "6bd03220b7358e5b177e9c7b01a673c7e8bdb79d"
+  },
+  {
+    "path": "src/services/CharacterCompatibilityService.ts",
+    "sha": "88843ef7a3bd9da7dce1b8d8682b09a26f48b62f"
+  },
+  {
+    "path": "src/services/CharacterControlCommitService.ts",
+    "sha": "4051f92f3a7352aed8b0746ead967bf4f214d4a3"
+  },
+  {
+    "path": "src/services/CharacterControlService.ts",
+    "sha": "149f003585cbaf01c1233e0cfbd3b35954880253"
+  },
+  {
+    "path": "src/services/CharacterGenerationService.ts",
+    "sha": "bec458c95f0b48ba7605ee2bd55b28b9d69009f6"
+  },
+  {
+    "path": "src/services/CharacterInventoryCorrectionService.ts",
+    "sha": "2ac7e7be732fdd30c89793ab5a855a7a9ce70658"
+  },
+  {
+    "path": "src/services/CharacterJsonService.ts",
+    "sha": "868b7e1be67da81c10678d80f4b04a5239301fd3"
+  },
+  {
+    "path": "src/services/CharacterRulesValidator.ts",
+    "sha": "592fae30b9d5fd8b0ef967efd07d0df20c372079"
+  },
+  {
+    "path": "src/services/CharacterSheetCommitService.ts",
+    "sha": "271b4f530ce49ab5bd5d32354c30b4128a0f4cf5"
+  },
+  {
+    "path": "src/services/CharacterTimeRulesEngine.ts",
+    "sha": "8cf865c16330a356898bc402763649a45de1213e"
+  },
+  {
+    "path": "src/services/CombatRulesEngine.ts",
+    "sha": "f73f4211d86b5510cfe6b7a9ba8b7fe6a6425658"
+  },
+  {
+    "path": "src/services/CompanionAutonomyService.ts",
+    "sha": "a4a9e926fa98cbaa9fce310231d281551b0171b7"
+  },
+  {
+    "path": "src/services/CompanionDispatchService.ts",
+    "sha": "f1a09dd5deb912edcd039fee2d7c13d4ba10d00b"
+  },
+  {
+    "path": "src/services/CompanionTurnQueueService.ts",
+    "sha": "7d96fdbf2fe71e9c6143b869c03eda6e01986002"
+  },
+  {
+    "path": "src/services/CriticalInjuryRulesEngine.ts",
+    "sha": "9014257d853b929e962db495fbdac18d40b78272"
+  },
+  {
+    "path": "src/services/CriticalInjuryRuntimeService.ts",
+    "sha": "8ec9323c57296dee3bbce06a2f14cc111e8c0e2a"
+  },
+  {
+    "path": "src/services/CuratedActionGateService.ts",
+    "sha": "a46637d23a367c9147e7d5625380190df2e106f9"
+  },
+  {
+    "path": "src/services/DataSafetyService.ts",
+    "sha": "be018a9a0bfe1dbf32c7e6df18f4f903bfab5b21"
+  },
+  {
+    "path": "src/services/DelegatedCombatService.ts",
+    "sha": "d07e7aca4a07b9e36d49cbdf7bc30c20eb450967"
+  },
+  {
+    "path": "src/services/DiagnosticService.ts",
+    "sha": "7cdadd944005c116402afcaa7c557374553e253c"
+  },
+  {
+    "path": "src/services/DiseaseRulesEngine.ts",
+    "sha": "ec8f7eef9ba65edd679bcff0a2647edafd592edc"
+  },
+  {
+    "path": "src/services/DrowningRulesEngine.ts",
+    "sha": "eece1b1ba9fff790c831d7ea789707345cce7163"
+  },
+  {
+    "path": "src/services/EncounterCampaignGuard.ts",
+    "sha": "d85433dfe0585219fc5b6ed200d99b0cf5ab3f5a"
+  },
+  {
+    "path": "src/services/EncounterService.ts",
+    "sha": "8e49b5f454df17076bb580b2e56ad32336bea31e"
+  },
+  {
+    "path": "src/services/EncumbranceRulesEngine.ts",
+    "sha": "5068418e2878a43a081993481365e4d6cd21a66b"
+  },
+  {
+    "path": "src/services/EnvironmentalDirectorService.ts",
+    "sha": "b410885af07e123a847b77ebd8b8212786f5c879"
+  },
+  {
+    "path": "src/services/ErrorJournalService.ts",
+    "sha": "8fd4766aec89545c45348ceadaed34ee45dc9c7e"
+  },
+  {
+    "path": "src/services/ExperienceService.ts",
+    "sha": "9ac5292ea243cc60a4f562bca811b806005d3e3b"
+  },
+  {
+    "path": "src/services/ExternalGeminiImageService.ts",
+    "sha": "d42b102e5d4e3ab39a08f99e7f506deacdc841b5"
+  },
+  {
+    "path": "src/services/FearRulesEngine.ts",
+    "sha": "82da13be68ae7b5af13c21ff687b1ac47ffc14b8"
+  },
+  {
+    "path": "src/services/FireRulesEngine.ts",
+    "sha": "4d91119e98f657832ec0a0e309fd0e7abd414efb"
+  },
+  {
+    "path": "src/services/ForbiddenLandsCharacterRules.ts",
+    "sha": "b708267771dea3100f89c6c69f8e1b1605340e02"
+  },
+  {
+    "path": "src/services/ForbiddenLandsCraftingService.ts",
+    "sha": "b8c8b000341a1509b74712fde2fe882720e1825a"
+  },
+  {
+    "path": "src/services/ForbiddenLandsDiceEngine.ts",
+    "sha": "d5e91fbfa686b3dafe1306863a83f6608a780bd7"
+  },
+  {
+    "path": "src/services/ForbiddenLandsEconomyService.ts",
+    "sha": "11da8ec62216d159686bda055478aeec709fdccd"
+  },
+  {
+    "path": "src/services/ForbiddenLandsEquipmentRulesEngine.ts",
+    "sha": "d5411d40936f771ee52e0413d0703d083182c483"
+  },
+  {
+    "path": "src/services/ForbiddenLandsInventoryService.ts",
+    "sha": "d3f567c022929435e446688d55ce5310b69a95f1"
+  },
+  {
+    "path": "src/services/ForbiddenLandsMagicCatalogService.ts",
+    "sha": "5ff19e2224183febef818fa01665c8fff5bcd731"
+  },
+  {
+    "path": "src/services/ForbiddenLandsMagicRulesEngine.ts",
+    "sha": "65cb5a557565b05ffe6a2e4666cb2df4900e1cf2"
+  },
+  {
+    "path": "src/services/ForbiddenLandsMaterialCatalogService.ts",
+    "sha": "607cb1e670c53fd8a2f995839d3e2cdc71d73107"
+  },
+  {
+    "path": "src/services/ForbiddenLandsNameCatalog.ts",
+    "sha": "11272730a91574b934c12cd7637f92a4f318d33c"
+  },
+  {
+    "path": "src/services/ForbiddenLandsNarrativeStyleService.ts",
+    "sha": "8c52f7dbfda425804e28c11f0634202d6793cada"
+  },
+  {
+    "path": "src/services/ForbiddenLandsSpellEffectEngine.ts",
+    "sha": "b5dde598702e10ba618aea883b63bca8156a0820"
+  },
+  {
+    "path": "src/services/ForbiddenLandsStrongholdRulesEngine.ts",
+    "sha": "c32686cdeeee6e2201b1e57771a496e3f7ee3298"
+  },
+  {
+    "path": "src/services/ForbiddenLandsTalentCatalog.ts",
+    "sha": "998fb1637fc0ebccf8686c5d0202018ff1633528"
+  },
+  {
+    "path": "src/services/GeminiClientService.ts",
+    "sha": "4cc8a597cb2139c7749716a11354c302b42a9b81"
+  },
+  {
+    "path": "src/services/GeminiSharedImageReturnService.ts",
+    "sha": "a66b8b9ac6591ebccb431d7cad1a30d853b17ef0"
+  },
+  {
+    "path": "src/services/GoogleDriveAuthService.ts",
+    "sha": "2ae6d2d7772b5c115b6599f00d3b9f8db8788624"
+  },
+  {
+    "path": "src/services/GoogleDriveManualImportService.ts",
+    "sha": "3225ea43cc060e61ef3ec4fcde532a9fd5149317"
+  },
+  {
+    "path": "src/services/GoogleDriveService.ts",
+    "sha": "e5117aec6c77f6c76cd8a76033fa4b1938763135"
+  },
+  {
+    "path": "src/services/HiddenCombinationsEngine.ts",
+    "sha": "b2974de813308eefed5cbd8651593fc022b79332"
+  },
+  {
+    "path": "src/services/HumanMasterDynamicProfileService.ts",
+    "sha": "ac4375cdca4a4824abca2d3e74861d602e4a98a2"
+  },
+  {
+    "path": "src/services/HumanMasterNarrativeGuardService.ts",
+    "sha": "de71386f4458b3f50a8206db9b17a107e0d53586"
+  },
+  {
+    "path": "src/services/InventorySelectionGuard.ts",
+    "sha": "7d2577d6daf561e53a632c22aa5f38f6ddd5fea0"
+  },
+  {
+    "path": "src/services/InventorySelectionSnapshot.ts",
+    "sha": "9adef887f2605294a8519f15fa5c95de93dcbcdd"
+  },
+  {
+    "path": "src/services/JourneyEventRetention.ts",
+    "sha": "2bc5171b943ad39ba3c9d33aaf56bbbd1e0b7668"
+  },
+  {
+    "path": "src/services/JourneyEventRetentionPolicy.ts",
+    "sha": "44d71c2d9c5a294c26554d4dd7d7156b5f86d59a"
+  },
+  {
+    "path": "src/services/JourneyRulesEngine.ts",
+    "sha": "92744fbaa218ddd1113f59f906afce3a5565a24c"
+  },
+  {
+    "path": "src/services/JourneyService.ts",
+    "sha": "3d45c0e4de4ce1dde2bf45142938e036e0fd4377"
+  },
+  {
+    "path": "src/services/LegacyRecoveryService.ts",
+    "sha": "316da403e6a982426150bf31d69a731c93a2f507"
+  },
+  {
+    "path": "src/services/LegendGeneratorEngine.ts",
+    "sha": "bdb22c9103dc1767536310570cbe82410d4790ff"
+  },
+  {
+    "path": "src/services/LegendsAdventurersCharacterEngine.ts",
+    "sha": "1f8f338f520c467f93bf8436c2f762df9ab15fcb"
+  },
+  {
+    "path": "src/services/LiceRulesEngine.ts",
+    "sha": "325d27f786f217ef5567a1924b2c419695431494"
+  },
+  {
+    "path": "src/services/LivingWorldAutomationService.ts",
+    "sha": "4985126737af5e50c58be021d664bcc0017a5f46"
+  },
+  {
+    "path": "src/services/LivingWorldService.ts",
+    "sha": "8b62c4abbc72ff23fa6378f1d23ef9bc8078fdce"
+  },
+  {
+    "path": "src/services/MagicCastingService.ts",
+    "sha": "1290f4f15865c842c3087575bf6dbea8f5ea8794"
+  },
+  {
+    "path": "src/services/MagicTalentAccessService.ts",
+    "sha": "3a03af6fb487229facc9e54a9078926fb86190ee"
+  },
+  {
+    "path": "src/services/MapCacheRecoveryService.ts",
+    "sha": "47126694c0823f31b27fafe4a48b6c35210fbfa0"
+  },
+  {
+    "path": "src/services/MapImportService.ts",
+    "sha": "5a69105c7a02f5048abccb9d1dafc6376898657d"
+  },
+  {
+    "path": "src/services/MapTravelService.ts",
+    "sha": "d041a0321a2503a0f0f0299d35f7be6dc9238cca"
+  },
+  {
+    "path": "src/services/MasterContextBuilder.ts",
+    "sha": "7af958e69a36b5bc7eb28be4648ec5038ce15708"
+  },
+  {
+    "path": "src/services/MasterOrchestratorService.ts",
+    "sha": "5539847eec79ca3200c2cac216fabbf1a41a2199"
+  },
+  {
+    "path": "src/services/MobileRuntimeService.ts",
+    "sha": "9a3ba106b61ed3f583174fb8e2e7c1e246b8c8b6"
+  },
+  {
+    "path": "src/services/ModelRouterService.ts",
+    "sha": "1f9de09ae56306ab64ad25e2b4b882cdb966a757"
+  },
+  {
+    "path": "src/services/ModuleRegistryService.ts",
+    "sha": "28e4753a5ed64556b9be24473f8e721636dcaafe"
+  },
+  {
+    "path": "src/services/NarrationChunkPlanner.ts",
+    "sha": "8003dc231498db131faf0113421b9047ae928521"
+  },
+  {
+    "path": "src/services/NarrativeDirectorService.ts",
+    "sha": "e68eb329de958e1b5584fa0414104b2ad2f5aec7"
+  },
+  {
+    "path": "src/services/NarrativeGeographyService.ts",
+    "sha": "88326f1db83f2b5b71f2bac4811e5ab18976ba4b"
+  },
+  {
+    "path": "src/services/NarrativeIntentService.ts",
+    "sha": "2dc76c0f83997692619d1728a9c635a3f02d6e59"
+  },
+  {
+    "path": "src/services/NarrativeQualityGateService.ts",
+    "sha": "a046440047367d963f4884c3b5da0c3a801778c9"
+  },
+  {
+    "path": "src/services/NarratorRuntimeAuthorityGate.ts",
+    "sha": "f2f69256f32b08174c4bdf4fcd8360fa6ca0cbe3"
+  },
+  {
+    "path": "src/services/NativeAudioService.ts",
+    "sha": "11319fd81b3fb06647153a964090f65b63b2eefe"
+  },
+  {
+    "path": "src/services/NpcPersonalityCatalogService.ts",
+    "sha": "8588a4cab65d3739e1bca36d067f4e146b9a00d2"
+  },
+  {
+    "path": "src/services/NpcPortraitService.ts",
+    "sha": "e103ca6b9f336debc9f3e07a755bd8ba549342c1"
+  },
+  {
+    "path": "src/services/NpcTokenAutoService.ts",
+    "sha": "1ae308252916067e19aa4bd62dec50cf1a884279"
+  },
+  {
+    "path": "src/services/OfficialDemonGenerator.ts",
+    "sha": "8f3d0fbdd475fc975a50295b4d7fcc5755c65465"
+  },
+  {
+    "path": "src/services/OfficialEncounterCombatRulesEngine.ts",
+    "sha": "4b5a982a0bf15f5b1836e374c5a25878b66a3654"
+  },
+  {
+    "path": "src/services/OfficialEncounterFollowerEngine.ts",
+    "sha": "09fc9019dae9994125a0aa4f0bad7a929860f3e0"
+  },
+  {
+    "path": "src/services/OfficialEncounterNpcFactory.ts",
+    "sha": "35d3aa6ec0ad3ea03763c9c6e715bab629217d69"
+  },
+  {
+    "path": "src/services/OfficialEncounterReceiptService.ts",
+    "sha": "90298d099d001090e72b3eaf9e5b43022b360e18"
+  },
+  {
+    "path": "src/services/OfficialEncounterRulesEngine.ts",
+    "sha": "db1abfa0b9ec7c25f5abe7ee5a596fd2c6e38d97"
+  },
+  {
+    "path": "src/services/OfficialEncounterTreasureEngine.ts",
+    "sha": "a48fbc5cd56164156fc18a25743f8ca40b7b1a47"
+  },
+  {
+    "path": "src/services/OfficialEntDamageRulesEngine.ts",
+    "sha": "2f53f2f3d125999257528209365cf48d56cda8c9"
+  },
+  {
+    "path": "src/services/OfficialGhostDamageRulesEngine.ts",
+    "sha": "67adf9135cdd72717361df38fb999cb8b8e070ec"
+  },
+  {
+    "path": "src/services/OrganizationService.ts",
+    "sha": "54b0f1bc4f840944e949c01664db0f269425f8e1"
+  },
+  {
+    "path": "src/services/PdfExtractionService.ts",
+    "sha": "5d812e991d6b525fa79ce25ce4ac507b89a62af7"
+  },
+  {
+    "path": "src/services/PhysicalDiceService.ts",
+    "sha": "3e5dbb2d9e039ae878a964194977ad78a50ca325"
+  },
+  {
+    "path": "src/services/PlayerActionPersistenceService.ts",
+    "sha": "4226834f0aeeb221452f08262549caec6ec1bc31"
+  },
+  {
+    "path": "src/services/PoisonRulesEngine.ts",
+    "sha": "c7a6872871cf28c8f695301537d22c716a6fc46f"
+  },
+  {
+    "path": "src/services/PortraitImageNormalizer.ts",
+    "sha": "8eb69d3f817b7a36bd576ac5c82d825205796996"
+  },
+  {
+    "path": "src/services/PortraitImportService.ts",
+    "sha": "24df555e46648e31b3a1da09827fece07b7d3850"
+  },
+  {
+    "path": "src/services/PrideRollCommitService.ts",
+    "sha": "3d7d896d5bc963262fc722e2a0dcbca2a822ecee"
+  },
+  {
+    "path": "src/services/ProceduralMonsterGenerator.ts",
+    "sha": "3dcb307e02dae908eca122a10709ed6993f6fc4b"
+  },
+  {
+    "path": "src/services/PublishedMonsterDamageRulesEngine.ts",
+    "sha": "a1e38ef8eb8ccfc7a05561f36a4b7f99cc87eb1d"
+  },
+  {
+    "path": "src/services/PushRollCommitService.ts",
+    "sha": "3c9c6aa2f428e317e9aa671000dad049c77c6a4f"
+  },
+  {
+    "path": "src/services/RavensPurgeModule.ts",
+    "sha": "c0ccf148d4ebde0103f7eb79f7ed7693f01bcaac"
+  },
+  {
+    "path": "src/services/RollCommitAuthorityService.ts",
+    "sha": "a49ff47f328c850e5de28cc29bf42716b46ea109"
+  },
+  {
+    "path": "src/services/RuleAuthorityService.ts",
+    "sha": "2b456448fb1e805f003e7b1c88e613364d39975d"
+  },
+  {
+    "path": "src/services/RuleLibraryService.ts",
+    "sha": "5a9b29323220105bf5ec9af3eab91380aec4ea70"
+  },
+  {
+    "path": "src/services/RulesRetrievalService.ts",
+    "sha": "4e0da84cb8cc8f2d6ddb03019f99734d41cba061"
+  },
+  {
+    "path": "src/services/SceneCommitService.ts",
+    "sha": "b691866e60ff55cfb638e536a82ae62fc9e45a9f"
+  },
+  {
+    "path": "src/services/SoloOracleEngine.ts",
+    "sha": "ee4668eda73fe43c76308f421ec375c3f83d07c2"
+  },
+  {
+    "path": "src/services/SoloRulesEngine.ts",
+    "sha": "77f2ec374bb90a88651b153ba1b6f9dad0f81e15"
+  },
+  {
+    "path": "src/services/SoundCatalogService.ts",
+    "sha": "60ae9f164f0a355cfa0067bcbd2b45757cdc24fd"
+  },
+  {
+    "path": "src/services/SoundscapeService.ts",
+    "sha": "336b7afbfe68f931d6964e4f11567791ae2463f3"
+  },
+  {
+    "path": "src/services/SpireOfQuetzelModule.ts",
+    "sha": "e0f3a5fbe7214c94c0edbffa460a44f7e2970954"
+  },
+  {
+    "path": "src/services/SuggestionDiversifierService.ts",
+    "sha": "5fcba4051818f6921e92c5b0dd580af8e99f3a9b"
+  },
+  {
+    "path": "src/services/SupplementaryItemCatalogService.ts",
+    "sha": "2131bc2ac0046a1a7950a8bf54799f34f28da978"
+  },
+  {
+    "path": "src/services/SurvivalRulesEngine.ts",
+    "sha": "790d03b053d76ad941d0507a46041410512e8fc8"
+  },
+  {
+    "path": "src/services/TerrainAnalysisService.ts",
+    "sha": "ad33b22df0d526f2ad54f3309d455fe4307c642f"
+  },
+  {
+    "path": "src/services/TerrainClassificationImportService.ts",
+    "sha": "16964e4899bff2b2097c431f5cac94486085c577"
+  },
+  {
+    "path": "src/services/TokenImportService.ts",
+    "sha": "18553938d32fd196b55d1b58058b40a63f3099e1"
+  },
+  {
+    "path": "src/services/TravelCommitService.ts",
+    "sha": "6a6230a1dd05fb8c5d5804935b5763fa5a43b840"
+  },
+  {
+    "path": "src/services/UiActionCommitGate.ts",
+    "sha": "850dbe3c46a03180f78a7d16346d6f04471dab47"
+  },
+  {
+    "path": "src/services/UserFacingErrorService.ts",
+    "sha": "f7659b2ff6443c90d6068237a4313fbac0807f44"
+  },
+  {
+    "path": "src/services/WillpowerRulesEngine.ts",
+    "sha": "602608bd40af90ba18713edb5c04a852ceede5f0"
+  },
+  {
+    "path": "src/services/WorldStateService.ts",
+    "sha": "c43b2f46a33f506e78cdd34405ce3488096fa7a1"
+  },
+  {
+    "path": "src/services/api.ts",
+    "sha": "b3eddebd101445b7b3caa79d22c97eaa6ed17e35"
+  },
+  {
+    "path": "src/services/audioEngineV2.ts",
+    "sha": "bcc43cb9c8046bf7797cc2d70d38699cac951baf"
+  },
+  {
+    "path": "src/services/sfxPlaybackPolicy.ts",
+    "sha": "d62f21c8a2f4a43c0689d1d521e0ec8bf5051121"
+  },
+  {
+    "path": "src/store/useAppStore.ts",
+    "sha": "9baaa8638edbf9e9691a089cedf7ceb74329f148"
+  },
+  {
+    "path": "src/tokenClassifier.ts",
+    "sha": "56cbd613e721b4a64f12cb92d8c8f58a5b305345"
+  },
+  {
+    "path": "src/types.ts",
+    "sha": "ecff037c97bd5fb8906c70779a1952312deea34d"
+  },
+  {
+    "path": "src/utils/hexUtils.ts",
+    "sha": "600b109bc0d4da223e12086cf5efb15f1b2324ff"
+  },
+  {
+    "path": "src/utils/overloadTravelPrompt.ts",
+    "sha": "6d65f9db4b7899dd1049109ecf7be486b13df41f"
+  },
+  {
+    "path": "src/utils/validationUtils.ts",
+    "sha": "7d83aafaa23a60e9f0699c6ba9366627d31d17a1"
+  },
+  {
+    "path": "src/version.ts",
+    "sha": "1c672f7b66a7b70d8999632014989deec7aa0cec"
+  },
+  {
+    "path": "src/vite-env.d.ts",
+    "sha": "11f02fe2a0061d6e6e1f271b21da95423b448b32"
+  },
+  {
+    "path": "src/voiceInputBootstrap.ts",
+    "sha": "76d93b87499c4d2632949b90b69ab9835a9b1c38"
+  },
+  {
+    "path": "tsconfig.json",
+    "sha": "701669b334ece1150d3a048deee6487d80005b7c"
+  },
+  {
+    "path": "vite.config.ts",
+    "sha": "744e81e06560eaa8d41b6da1f63f0a533721ac7d"
+  }
+]
