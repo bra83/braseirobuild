@@ -92,7 +92,8 @@ jobs:
           cd incoming
           sha256sum -c BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk.sha256
           printf '%s  %s\n' "$EXPECTED_APK_SHA" "$APK_NAME" | sha256sum -c -
-          python -m pip install playwright==1.55.0
+          python -m pip install websocket-client==1.8.0
+          python -m py_compile ci/fl-u23-smoke/emulator_smoke_cdp.py
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -108,7 +109,7 @@ jobs:
           script: |
             adb install -r incoming/BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk
             adb logcat -c
-            python ci/fl-u23/emulator_smoke.py
+            python ci/fl-u23-smoke/emulator_smoke_cdp.py
       - name: Attach actual emulator screenshot and JSON to private release
         if: success()
         env:
