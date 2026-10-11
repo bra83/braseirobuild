@@ -357,4 +357,39 @@ public final class Run245G05RhwOnHitConditionRobolectricTest {
             assertEquals(112,StatblockEncounterStateEngine.view("flow-plant").optInt("hp"));
         } finally {resetLegacyFlow();}
     }
+    @Test public void legacyAttackRollbackWhenTypedDamageParsingFailsAfterActionSpend()throws Exception {
+        resetLegacyFlow();
+        try {
+            String id="g05-overflow-test-"+System.nanoTime();
+            String book="G05 isolated test fixture";
+            JSONObject basis=new JSONObject().put("source_type","compiled_statblock")
+                .put("content_kind","statblock").put("content_name",id)
+                .put("source_book",book).put("source_locator","g05-test-overflow-only");
+            JSONArray attacks=new JSONArray().put(new JSONObject()
+                .put("name","Overflow Strike").put("category","action")
+                .put("to_hit",10).put("reach_ft",5)
+                .put("damage","999999999999999999999d4")
+                .put("damage_type","bludgeoning"));
+            CompiledStatblockEngine.registerAuthorized(new JSONObject()
+                .put("id",id).put("source_book",book).put("creature_type","construct")
+                .put("armor_class",15).put("hit_points",35).put("actions",attacks)
+                .put("mechanical_basis",basis));
+            assertTrue(StatblockEncounterStateEngine.spawn("overflow-attacker",id).optBoolean("spawned"));
+            assertTrue(StatblockEncounterStateEngine.spawn("overflow-target",id).optBoolean("spawned"));
+            StatblockTurnEngine.setInitiative("overflow-attacker",20);
+            StatblockTurnEngine.setInitiative("overflow-target",10);
+            StatblockTurnEngine.start();
+            try {
+                StatblockCombatFlowEngine.attack("overflow-attacker","overflow-target",
+                    "Overflow Strike",15);
+                fail("Uma expressão de dados irrecuperável deve abortar a transação");
+            } catch (NumberFormatException expected) {
+                // Falha de material-fonte injetada somente neste teste.
+            }
+            assertEquals(35,StatblockEncounterStateEngine.view("overflow-target").optInt("hp"));
+            assertTrue(StatblockTurnEngine.state().getJSONArray("order").getJSONObject(0)
+                .getJSONObject("economy").optBoolean("action",false));
+        } finally {resetLegacyFlow();}
+    }
+
 }
