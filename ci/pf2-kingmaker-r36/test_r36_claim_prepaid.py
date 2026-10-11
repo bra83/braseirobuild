@@ -41,3 +41,12 @@ def test_claim_critical_failure_penalty_survives_and_no_unrest_added():
     assert '"stability_penalty_through_turn"' in m
     assert '.put("unrest",1)' not in m
     assert '"CRITICAL_FAILURE"' in m
+
+def test_prepaid_claim_hex_persists_rp_expense_once_before_roll():
+    m=section("public JSONObject resolveClaimHex(", "\n    public ")
+    debit='adjustState(new JSONObject().put("resource_points",-1),"Claim Hex: custo antecipado de 1 RP");'
+    spent="recordRpSpent(1); // Persist expense exactly once before the skill check."
+    assert m.count(debit)==1
+    assert m.count(spent)==1
+    assert m.index(debit)<m.index(spent)<m.index('recordCheck("claim_hex"')
+    assert 'claimHex(hexId,notes,true)' in m
