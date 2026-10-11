@@ -1,0 +1,281 @@
+{
+  "schema": "braseiro-pf2-kingmaker-canonical-source-crosswalk-v1",
+  "date": "2026-10-11",
+  "status": "BOOKS_LOCATED_SEMANTIC_CERTIFICATION_PENDING",
+  "source_folder": "https://drive.google.com/drive/folders/1PSqg91bBBIUcEYmTqvXa8gGvH9gkKpz1",
+  "official_sources": [
+    {
+      "book": "Kingmaker Adventure Path 2e",
+      "file": "Kingmaker.pdf",
+      "uri": "https://drive.google.com/file/d/1hHjK7DjhdDFvejYk70NNxO0zMp7Rnsn3/view",
+      "note": "verified internal title and 11-chapter 640p contents"
+    },
+    {
+      "book": "Kingmaker Companion Guide",
+      "uri": "https://drive.google.com/file/d/18-yv9f-2Fz6fnnoZDFHKEfKSRu9KUViq/view",
+      "chapters": [
+        {
+          "name": "Companions",
+          "page": 4
+        },
+        {
+          "name": "Camping",
+          "page": 106
+        },
+        {
+          "name": "Weather",
+          "page": 120
+        }
+      ]
+    },
+    {
+      "book": "Kingmaker Player's Guide",
+      "uri": "https://drive.google.com/file/d/1iGkxIC2VCesq3qrptqAATysiQ9nVmaT6/view"
+    },
+    {
+      "book": "PF2e Player Core",
+      "uri": "https://drive.google.com/file/d/1jsxwABi-rLWbA77kFFlLFzfJffq8XQ0m/view"
+    },
+    {
+      "book": "PF2e GM Core",
+      "uri": "https://drive.google.com/file/d/1rHKYwwhTQSE-GzhsaX6S4-tlLaQiN2rq/view"
+    },
+    {
+      "book": "PF2e Monster Core",
+      "uri": "https://drive.google.com/file/d/1yaS_csde64k9a-jCqzGeJfbFyNXwn3YY/view"
+    }
+  ],
+  "rejected_as_source": [
+    {
+      "file": "Kingmaker Adventure Path PF2e.pdf",
+      "uri": "https://drive.google.com/file/d/1IattWgLmFfvX_o-8NNJTzT_wUKi2MY8H/view",
+      "reason": "contains Presságios Perdidos: Grande Bazar, not Kingmaker"
+    },
+    {
+      "file": "Kingmaker_rules.pdf",
+      "uri": "https://drive.google.com/file/d/1scqrf0zr_hTzVBtgMT4Elh9ernvMSxEn/view",
+      "reason": "Warmaster/Avalon Hill historical boardgame, not PF2e"
+    }
+  ],
+  "official_adventure_chapters": [
+    {
+      "number": 1,
+      "name": "A Call for Heroes",
+      "page": 14,
+      "parts": [
+        "The Swordlord's Feast",
+        "Blood and Blades",
+        "Into the Fire"
+      ],
+      "candidate_assets": [
+        "chapter_00",
+        "chapter_01_stolen_lands_part1.json"
+      ],
+      "semantic_coverage_certified": false,
+      "all_branches_tested": false
+    },
+    {
+      "number": 2,
+      "name": "Into the Wild",
+      "page": 42,
+      "parts": [
+        "Hexploring the Stolen Lands",
+        "Hex Encounters",
+        "The Old Sycamore",
+        "Sootscale Caverns",
+        "The Lonely Barrow",
+        "Isle of the Lizard King",
+        "Candlemere Island",
+        "The Forgotten Keep",
+        "M'Botuu"
+      ],
+      "candidate_assets": [
+        "chapter_01_stolen_lands_part1.json",
+        "chapter_02_stolen_lands_part2.json",
+        "chapter_11_hex_atlas_pois.json"
+      ],
+      "semantic_coverage_certified": false,
+      "all_branches_tested": false
+    },
+    {
+      "number": 3,
+      "name": "Stolen Land",
+      "page": 160,
+      "parts": [
+        "Trouble at Oleg's",
+        "Bandits of the Greenbelt",
+        "Against the Stag Lord"
+      ],
+      "candidate_assets": [
+        "chapter_01_stolen_lands_part1.json",
+        "chapter_02_stolen_lands_part2.json"
+      ],
+      "semantic_coverage_certified": false,
+      "all_branches_tested": false
+    },
+    {
+      "number": 4,
+      "name": "Rivers Run Red",
+      "page": 184,
+      "parts": [
+        "Home Sweet Home",
+        "Troll Trouble",
+        "Hunting the Beast"
+      ],
+      "candidate_assets": [
+        "chapter_03_rivers_run_red.json"
+      ],
+      "semantic_coverage_certified": false,
+      "all_branches_tested": false
+    },
+    {
+      "number": 5,
+      "name": "Cult of the Bloom",
+      "page": 214,
+      "parts": [
+        "Seeds of Ruin",
+        "Full Bloom",
+        "The Cradle of Lamashtu"
+      ],
+      "candidate_assets": [
+        "chapter_04_cult_of_bloom.json"
+      ],
+      "semantic_coverage_certified": false,
+      "all_branches_tested": false
+    },
+    {
+      "number": 6,
+      "name": "The Varnhold Vanishing",
+      "page": 248,
+      "parts": [
+        "Before the Vanishing",
+        "The Vanished Village",
+        "Among the Nomen",
+        "Vordakai's Tomb"
+      ],
+      "candidate_assets": [
+        "chapter_05_varnhold_vanishing.json"
+      ],
+      "semantic_coverage_certified": false,
+      "all_branches_tested": false
+    },
+    {
+      "number": 7,
+      "name": "Blood for Blood",
+      "page": 286,
+      "parts": [
+        "Trouble in Tatzlford",
+        "Fort Drelev",
+        "The Twice-Born Warlord"
+      ],
+      "candidate_assets": [
+        "chapter_06_blood_for_blood.json"
+      ],
+      "semantic_coverage_certified": false,
+      "all_branches_tested": false
+    },
+    {
+      "number": 8,
+      "name": "War of the River Kings",
+      "page": 330,
+      "parts": [
+        "The Rushlight Treachery",
+        "Behind Enemy Lines",
+        "The Ghost of Whiterose",
+        "Infiltration",
+        "The King's Palace"
+      ],
+      "candidate_assets": [
+        "chapter_07_war_of_river_kings.json"
+      ],
+      "semantic_coverage_certified": false,
+      "all_branches_tested": false
+    },
+    {
+      "number": 9,
+      "name": "They Lurk Below",
+      "page": 396,
+      "parts": [
+        "Threshold of Dread",
+        "The Depth of Fear"
+      ],
+      "candidate_assets": [
+        "chapter_08_they_lurk_below.json"
+      ],
+      "semantic_coverage_certified": false,
+      "all_branches_tested": false
+    },
+    {
+      "number": 10,
+      "name": "Sound of a Thousand Screams",
+      "page": 422,
+      "parts": [
+        "A Month of Destruction",
+        "A Thousand Breaths",
+        "House at the Edge of Time"
+      ],
+      "candidate_assets": [
+        "chapter_09_sound_thousand_screams.json"
+      ],
+      "semantic_coverage_certified": false,
+      "all_branches_tested": false
+    },
+    {
+      "number": 11,
+      "name": "Curse of the Lantern King",
+      "page": 478,
+      "parts": [
+        "A Broken Apology",
+        "The Lantern Kingdom"
+      ],
+      "candidate_assets": [
+        "chapter_10_curse_lantern_king.json"
+      ],
+      "semantic_coverage_certified": false,
+      "all_branches_tested": false
+    }
+  ],
+  "main_appendices": [
+    {
+      "section": "Kingdoms",
+      "page": 506
+    },
+    {
+      "section": "Warfare",
+      "page": 566
+    },
+    {
+      "section": "Kingmaker Treasures",
+      "page": 584
+    },
+    {
+      "section": "NPCs and Monsters",
+      "page": 590
+    }
+  ],
+  "primary_companions": [
+    "Amiri",
+    "Ekundayo",
+    "Jubilost",
+    "Linzi",
+    "Nok-Nok",
+    "Tristian",
+    "Valerie"
+  ],
+  "secondary_companions": [
+    "Harrim",
+    "Jaethal",
+    "Kalikke and Kanerah",
+    "Octavia",
+    "Regongar"
+  ],
+  "required_runtime_evidence": [
+    "mechanics encoded in deterministic code; no manual page lookup during session",
+    "Kingmaker 1-11 content/encounters/branches mapped with page references",
+    "companion quest/influence/tiers audited",
+    "kingdom commerce/upkeep/activity/event effects executed in production",
+    "warfare and aftermath persisted in production AppDb",
+    "backup export/import after long nonempty Android session"
+  ],
+  "source_note": "Do not assert chapter_00 contents until inspecting the exact published R35 ZIP. Source links were verified by opening extracted text, not by filenames alone."
+}
