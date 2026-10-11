@@ -1,0 +1,182 @@
+name: Forbidden Lands U19 - BRELGA APK test prerelease
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/build-forbidden-lands-u19-brelga-prerelease.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: fl-u19-brelga-test
+  cancel-in-progress: false
+env:
+  SOURCE_NAME: BRASEIRO_FORBIDDEN_LANDS_U19_TYPECHECK_FIXED_SOURCE.zip
+  SOURCE_SHA256: d6c0f88baa139fca61606aa051843c9e0e22c5c5daa139cdd6374b933108b870
+  SOURCE_BYTES: '40470029'
+  SOURCE_API: https://api.firestorage.ai/dev/file/shares/sLIxvAZ50Lfv
+  APP_ID: com.braseiro.forbiddenlands
+  APP_VERSION: '3.3.24'
+  APP_CODE: '303924'
+  EXPECTED_SIGNER: 9d0f1089b3fb6c225f1f59462750864e897c4d92
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 240
+    steps:
+      - name: Require BRELGA and isolate workspace
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw "Unexpected runner $env:RUNNER_NAME" }
+          if (-not (Test-Path 'D:\')) { throw 'BRELGA D: missing' }
+          if ((Get-PSDrive D).Free -lt 5GB) { throw 'BRELGA D: needs at least 5 GB free' }
+          $root="D:\brelga-fl-u19-$env:GITHUB_RUN_ID"
+          New-Item -ItemType Directory -Path $root -Force | Out-Null
+          "FL_ROOT=$root" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Locate Android SDK 36 on BRELGA
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $candidates=@('C:\actions-runner\android-sdk')
+          if ($env:ANDROID_HOME) { $candidates += $env:ANDROID_HOME }
+          if ($env:ANDROID_SDK_ROOT) { $candidates += $env:ANDROID_SDK_ROOT }
+          if ($env:LOCALAPPDATA) { $candidates += (Join-Path $env:LOCALAPPDATA 'Android\Sdk') }
+          $sdk=$candidates | Where-Object { $_ -and (Test-Path (Join-Path $_ 'platforms\android-36')) -and (Test-Path (Join-Path $_ 'build-tools\36.0.0\aapt.exe')) } | Select-Object -First 1
+          if (-not $sdk) { throw 'Android SDK 36 / build-tools 36.0.0 absent on BRELGA' }
+          "ANDROID_HOME=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $cache=Join-Path $env:FL_ROOT 'gradle-home'
+          New-Item -ItemType Directory -Path $cache -Force | Out-Null
+          "GRADLE_USER_HOME=$cache" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Download U19 fixed source with exact SHA
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $meta=Invoke-RestMethod -Method Get -Uri ($env:SOURCE_API + '/files?maxResults=100')
+          $match=@($meta.files | Where-Object { $_.fileName -eq $env:SOURCE_NAME })
+          if ($match.Count -ne 1) { throw "U19 source unavailable ($($match.Count)), check expiring source share" }
+          $ticket=Invoke-RestMethod -Method Post -Uri ($env:SOURCE_API + '/files/' + $match[0].fileId + '/download')
+          if (-not $ticket.downloadUrl) { throw 'Missing download URL' }
+          $zip=Join-Path $env:FL_ROOT $env:SOURCE_NAME
+          & curl.exe --fail --location --retry 4 --retry-delay 2 --retry-all-errors -o $zip $ticket.downloadUrl
+          if ($LASTEXITCODE -ne 0) { throw 'Source download failed' }
+          $sha=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($sha -ne $env:SOURCE_SHA256 -or (Get-Item $zip).Length -ne [int64]$env:SOURCE_BYTES) { throw "Bad source SHA/length: $sha" }
+          $project=Join-Path $env:FL_ROOT 'project'
+          New-Item -ItemType Directory -Path $project -Force | Out-Null
+          & tar.exe -xf $zip -C $project
+          if ($LASTEXITCODE -ne 0) { throw 'ZIP extraction failed' }
+          foreach($required in @('package.json','package-lock.json','CHANGELOG_UNIFIED_U19.md','android\gradlew.bat','android\gradle\wrapper\gradle-wrapper.jar','e2e\run_official_suite.py')) {
+            if (-not (Test-Path (Join-Path $project $required))) { throw "Source missing $required" }
+          }
+          $pkg=Get-Content (Join-Path $project 'package.json') -Raw | ConvertFrom-Json
+          if ($pkg.version -ne $env:APP_VERSION) { throw 'Package version mismatch' }
+      - name: npm, U19 regressions, sync Android and Gradle APK
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          Set-Location (Join-Path $env:FL_ROOT 'project')
+          & npm.cmd ci --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
+          & node.exe -e "require.resolve('@rollup/rollup-win32-x64-msvc')"
+          if ($LASTEXITCODE -ne 0) {
+            $v=(& node.exe -p "require('./node_modules/rollup/package.json').version").Trim()
+            & npm.cmd install --no-save --no-package-lock "@rollup/rollup-win32-x64-msvc@$v"
+            if ($LASTEXITCODE -ne 0) { throw 'Rollup Windows optional module missing' }
+          }
+          & node.exe -e "require.resolve('@esbuild/win32-x64')"
+          if ($LASTEXITCODE -ne 0) {
+            $v=(& node.exe -p "require('./node_modules/esbuild/package.json').version").Trim()
+            & npm.cmd install --no-save --no-package-lock "@esbuild/win32-x64@$v"
+            if ($LASTEXITCODE -ne 0) { throw 'esbuild Windows optional module missing' }
+          }
+          & npm.cmd run lint
+          if ($LASTEXITCODE -ne 0) { throw 'TypeScript failed' }
+          & npm.cmd run verify:unified-u19
+          if ($LASTEXITCODE -ne 0) { throw 'U19 source regression failed' }
+          & npm.cmd run android:sync
+          if ($LASTEXITCODE -ne 0) { throw 'Capacitor sync failed' }
+          & npm.cmd run verify:android-assets
+          if ($LASTEXITCODE -ne 0) { throw 'Android web assets not verified' }
+          & node.exe scripts/run-gradle-task.mjs assembleDebug
+          if ($LASTEXITCODE -ne 0) { throw 'Gradle APK build failed' }
+      - name: Validate APK and signature before publishing
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $src=Join-Path $env:FL_ROOT 'project\android\app\build\outputs\apk\debug\app-debug.apk'
+          if (-not (Test-Path $src)) { throw 'APK missing' }
+          $out=Join-Path $env:FL_ROOT 'release'
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          $name='BRASEIRO_FORBIDDEN_LANDS_3.3.24_U19_BRELGA_TEST.apk'
+          $apk=Join-Path $out $name
+          Copy-Item $src $apk
+          $bt=Join-Path $env:ANDROID_HOME 'build-tools\36.0.0'
+          $badging=(& (Join-Path $bt 'aapt.exe') dump badging $apk | Out-String)
+          if ($LASTEXITCODE -ne 0) { throw 'aapt failed' }
+          if ($badging -notmatch "package: name='com\.braseiro\.forbiddenlands'" -or $badging -notmatch "versionCode='303924'" -or $badging -notmatch "versionName='3\.3\.24'") { throw 'Unexpected APK package/version' }
+          $sig=(& (Join-Path $bt 'apksigner.bat') verify --verbose --print-certs $apk | Out-String)
+          if ($LASTEXITCODE -ne 0) { throw 'APK signature invalid' }
+          $m=[regex]::Match($sig,'(?im)certificate SHA-1 digest:\s*([0-9a-f:]+)')
+          if (-not $m.Success) { throw 'Missing APK signer SHA-1' }
+          $signer=$m.Groups[1].Value.Replace(':','').ToLowerInvariant()
+          if ($signer -ne $env:EXPECTED_SIGNER) { throw "APK signature differs from known installation: $signer" }
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $archive=[IO.Compression.ZipFile]::OpenRead($apk)
+          try {
+            foreach($entry in @('AndroidManifest.xml','assets/public/index.html','assets/public/braseiro-release-marker.json')) {
+              if (-not $archive.GetEntry($entry)) { throw "APK missing $entry" }
+            }
+            $reader=New-Object IO.StreamReader($archive.GetEntry('assets/public/braseiro-release-marker.json').Open())
+            try { $marker=$reader.ReadToEnd() | ConvertFrom-Json } finally { $reader.Dispose() }
+            if ($marker.version -ne $env:APP_VERSION -or $marker.generatedBy -ne 'npm run android:sync') { throw 'Stale Android web assets' }
+          } finally { $archive.Dispose() }
+          $sha=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$sha  $name" | Set-Content (Join-Path $out "$name.sha256") -Encoding ascii
+          @(
+            'APK_BUILD=PASS'
+            'RUNNER=BRELGA'
+            'RELEASE_CHANNEL=PRERELEASE_DEBUG'
+            'ALL_43_ENCOUNTERS_CERTIFIED=NO'
+            "SOURCE_SHA256=$env:SOURCE_SHA256"
+            "APK_SHA256=$sha"
+            "APK_SIGNER_SHA1=$signer"
+            "APK_BYTES=$((Get-Item $apk).Length)"
+            'APPLICATION_ID=com.braseiro.forbiddenlands'
+            'VERSION_NAME=3.3.24'
+            'VERSION_CODE=303924'
+          ) | Set-Content (Join-Path $out 'BUILD_PROOF_U19_BRELGA.txt') -Encoding utf8
+      - name: Publish BRELGA APK to GitHub Releases as prerelease
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          if (-not (Get-Command gh.exe -ErrorAction SilentlyContinue)) { throw 'gh CLI not installed on BRELGA' }
+          $tag="forbidden-lands-u19-brelga-test-$env:GITHUB_RUN_ID"
+          $out=Join-Path $env:FL_ROOT 'release'
+          $apk=Join-Path $out 'BRASEIRO_FORBIDDEN_LANDS_3.3.24_U19_BRELGA_TEST.apk'
+          $sha=Join-Path $out 'BRASEIRO_FORBIDDEN_LANDS_3.3.24_U19_BRELGA_TEST.apk.sha256'
+          $proof=Join-Path $out 'BUILD_PROOF_U19_BRELGA.txt'
+          $notes=Join-Path $out 'RELEASE_NOTES.md'
+          @(
+            '# Forbidden Lands U19 — APK de teste'
+            'Build Android no BRELGA a partir de fonte integral SHA-256 verificado.'
+            'Assinatura, identidade e assets Android validados.'
+            ''
+            'IMPORTANTE: 43 encontros ainda NÃO homologados. Chromium anterior: 5/7 grupos PASS; recibos e comércio/Karg pendentes.'
+            'Não é Release final. Não confundir APK instalável com prova dos encontros.'
+            "SOURCE_SHA256=$env:SOURCE_SHA256"
+            "RUN_ID=$env:GITHUB_RUN_ID"
+          ) | Set-Content $notes -Encoding utf8
+          & gh.exe release create $tag $apk $sha $proof --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "Forbidden Lands 3.3.24 U19 - BRELGA TESTE" --notes-file $notes --prerelease
+          if ($LASTEXITCODE -ne 0) { throw 'Release publishing failed' }
+          Write-Host "RELEASE_URL=https://github.com/$env:GITHUB_REPOSITORY/releases/tag/$tag"
