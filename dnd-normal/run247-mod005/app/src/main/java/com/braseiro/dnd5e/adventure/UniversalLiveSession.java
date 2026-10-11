@@ -9,6 +9,7 @@ public final class UniversalLiveSession {
     public static final long PARTY_ID=909041L;
     private UniversalLiveSession(){}
     public static AdventureModule module(){
+        try {
         JSONObject scene=new JSONObject().put("id","live").put("title","Mesa Universal")
             .put("description","O Mestre estabelece o cenário de acordo com o perfil escolhido.")
             .put("gm_directives","Nenhuma regra de um sistema é aplicada em outro.")
@@ -17,6 +18,12 @@ public final class UniversalLiveSession {
             .put("title","Braseiro Universal (mesa persistente)").put("version","1.0.0")
             .put("root_node_id","live").put("nodes",new JSONArray().put(scene))
             .put("metadata",new JSONObject().put("braseiro_universal",true)));
+    
+        } catch (RuntimeException existingFailure) {
+            throw existingFailure;
+        } catch (Exception jsonFailure) {
+            throw new IllegalStateException("Falha na serialização JSON do módulo", jsonFailure);
+        }
     }
     public static String prompt(String systemId, String characterId, JSONObject state, String playerAction){
         String recent="";

@@ -15,9 +15,23 @@ public final class UniversalGithubLab {
     public static final long LAB_PARTY_ID=0L;
     private UniversalGithubLab() {}
 
-    private static JSONObject cmd(String action){return new JSONObject().put("action", action);}
+    private static JSONObject cmd(String action){
+        try {return new JSONObject().put("action", action);
+        } catch (RuntimeException existingFailure) {
+            throw existingFailure;
+        } catch (Exception jsonFailure) {
+            throw new IllegalStateException("Falha na serialização JSON do módulo", jsonFailure);
+        }
+    }
     private static JSONObject resultError(String at,JSONObject result){
+        try {
         return new JSONObject().put("ok",false).put("stage",at).put("detail",result);
+    
+        } catch (RuntimeException existingFailure) {
+            throw existingFailure;
+        } catch (Exception jsonFailure) {
+            throw new IllegalStateException("Falha na serialização JSON do módulo", jsonFailure);
+        }
     }
     private static JSONObject checked(AdventureEngine engine,JSONObject cmd,String status){
         JSONObject result=engine.processUniversal(cmd);
@@ -28,6 +42,7 @@ public final class UniversalGithubLab {
     private static JSONArray jfaces(int... values){JSONArray arr=new JSONArray();for(int value:values)arr.put(value);return arr;}
     public interface EngineFactory { AdventureEngine newEngine(); }
     public static JSONObject run(EngineFactory factory) {
+        try {
         String stage="create";
         try {
             AdventureEngine engine=factory.newEngine();
@@ -152,5 +167,11 @@ public final class UniversalGithubLab {
                 .put("sqlite_hero_health",health)
                 .put("no_gemini_invocation",true).put("no_apk_claim",true);
         } catch(Exception e){return resultError(stage,new JSONObject().put("error",String.valueOf(e)));}
+    
+        } catch (RuntimeException existingFailure) {
+            throw existingFailure;
+        } catch (Exception jsonFailure) {
+            throw new IllegalStateException("Falha na serialização JSON do módulo", jsonFailure);
+        }
     }
 }

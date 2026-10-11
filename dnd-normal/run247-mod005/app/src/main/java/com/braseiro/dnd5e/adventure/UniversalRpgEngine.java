@@ -15,11 +15,19 @@ public final class UniversalRpgEngine {
     private UniversalRpgEngine() {}
     public static boolean supported(String s){return DND.equals(s)||YZE.equals(s)||STAR_WARS.equals(s);}
     public static JSONObject profiles(){
+        try {
         return new JSONObject().put(DND,"D&D 5e / d20").put(YZE,"Forbidden Lands / Year Zero")
            .put(STAR_WARS,"Star Wars / Edge-AoR");
+    
+        } catch (RuntimeException existingFailure) {
+            throw existingFailure;
+        } catch (Exception jsonFailure) {
+            throw new IllegalStateException("Falha na serialização JSON do módulo", jsonFailure);
+        }
     }
     /** Mutates a COPY of persisted state; caller saves to SQLite or rejects it. */
     public static JSONObject process(AdventureState adventure,JSONObject command){
+        try {
         if(adventure==null||command==null)return error("Estado ou comando universal ausente.");
         JSONObject state=adventure.getUniversalRpgState();
         JSONObject entities=state.optJSONObject("entities");if(entities==null)entities=new JSONObject();
@@ -209,8 +217,15 @@ public final class UniversalRpgEngine {
                     .put("instruction","O teste já foi confirmado. Continue a cena; não role novamente e não altere recursos sem recibo."));
         }
         return error("Comando universal desconhecido: "+action);
+    
+        } catch (RuntimeException existingFailure) {
+            throw existingFailure;
+        } catch (Exception jsonFailure) {
+            throw new IllegalStateException("Falha na serialização JSON do módulo", jsonFailure);
+        }
     }
     private static JSONObject resolveDnd(JSONObject spec, JSONObject submission){
+        try {
         int first=submission.optInt("d20",0);int second=submission.optInt("d20_2",first);
         int modifier=spec==null?0:spec.optInt("modifier",0),dc=spec==null?10:spec.optInt("dc",10);
         boolean adv=spec!=null&&spec.optBoolean("advantage",false);
@@ -226,6 +241,19 @@ public final class UniversalRpgEngine {
                 success?1:0,Integer.valueOf(total-dc)));
         }
         return result;
+    
+        } catch (RuntimeException existingFailure) {
+            throw existingFailure;
+        } catch (Exception jsonFailure) {
+            throw new IllegalStateException("Falha na serialização JSON do módulo", jsonFailure);
+        }
     }
-    private static JSONObject error(String message){return new JSONObject().put("status","blocked").put("committed",false).put("error",message);}
+    private static JSONObject error(String message){
+        try {return new JSONObject().put("status","blocked").put("committed",false).put("error",message);
+        } catch (RuntimeException existingFailure) {
+            throw existingFailure;
+        } catch (Exception jsonFailure) {
+            throw new IllegalStateException("Falha na serialização JSON do módulo", jsonFailure);
+        }
+    }
 }

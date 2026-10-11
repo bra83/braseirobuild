@@ -12,8 +12,15 @@ import org.json.JSONObject;
 public final class UniversalEffectTransaction {
     private UniversalEffectTransaction() {}
 
-    private static JSONObject blocked(String msg){return new JSONObject().put("status","blocked")
-            .put("committed",false).put("error",msg);}
+    private static JSONObject blocked(String msg){
+        try {return new JSONObject().put("status","blocked")
+            .put("committed",false).put("error",msg);
+        } catch (RuntimeException existingFailure) {
+            throw existingFailure;
+        } catch (Exception jsonFailure) {
+            throw new IllegalStateException("Falha na serialização JSON do módulo", jsonFailure);
+        }
+    }
     private static boolean key(String s){return s!=null && s.matches("[A-Za-z0-9_.-]{1,80}");}
     private static Integer exactInt(Object n){
         if(!(n instanceof Number))return null;
@@ -37,6 +44,7 @@ public final class UniversalEffectTransaction {
     }
 
     public static JSONObject apply(JSONObject originalState,JSONObject command){
+        try {
         if(originalState==null||command==null)return blocked("Estado ou comando ausente.");
         String actor=command.optString("character_id", "");
         String event=command.optString("event_id", "");
@@ -152,5 +160,11 @@ public final class UniversalEffectTransaction {
         all.put(receipt);state.put("history",all);
         return new JSONObject().put("status","effects_applied").put("committed",true)
             .put("state",state).put("receipt",receipt);
+    
+        } catch (RuntimeException existingFailure) {
+            throw existingFailure;
+        } catch (Exception jsonFailure) {
+            throw new IllegalStateException("Falha na serialização JSON do módulo", jsonFailure);
+        }
     }
 }
