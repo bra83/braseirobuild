@@ -1,0 +1,87 @@
+name: PF2 Kingmaker R36 Single Snapshot Hosted Verification
+on:
+  push:
+    branches: [pf2-kingmaker-r36-official-rule-fixes-20261011]
+    paths:
+      - '.github/workflows/pf2-r36-snapshot-20261011.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-hosted:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            ci/pf2-kingmaker-r36
+            ci/pf2-kingmaker-certification
+            .github/workflows
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Retrieve and verify immutable R35 Android Studio source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p r35-source
+          auth="$(git config --local --get http.https://github.com/.extraheader)"
+          test -n "$auth"
+          curl -L --fail --retry 5 --retry-delay 3 --header "$auth" --header 'Accept: application/octet-stream' --header 'X-GitHub-Api-Version: 2022-11-28' -o r35-source.zip 'https://api.github.com/repos/bra83/braseirobuild/releases/assets/629875743'
+          test "$(stat -c %s r35-source.zip)" = "92975058"
+          echo '86d9a6fd26e4139e084c8e4069f49ef53e0cf8654e0f9f5662b92f9183941aa6  r35-source.zip' | sha256sum -c -
+          unzip -q r35-source.zip -d r35-source
+          mapfile -t roots < <(find r35-source -type f -name version.properties | while read -r f; do test -f "$(dirname "$f")/gradlew.bat" && echo "$f"; done)
+          test "${#roots[@]}" -eq 1
+          project="$(dirname "${roots[0]}")"
+          test -d "$project/tests_pf2"
+          test -f "$project/gradlew"
+          echo "PF2_R36_PROJECT=$project" >> "$GITHUB_ENV"
+          python ci/pf2-kingmaker-r36/patch.py "$project"
+          python ci/pf2-kingmaker-r36/patch_claim_hex_prepaid.py "$project"
+          python ci/pf2-kingmaker-r36/patch_kingdom_accounting.py "$project"
+          python ci/pf2-kingmaker-r36/patch_claim_hex_ui.py "$project"
+          python ci/pf2-kingmaker-r36/patch_build_structure.py "$project"
+          python ci/pf2-kingmaker-r36/patch_build_structure_repairs.py "$project"
+          python ci/pf2-kingmaker-r36/patch_structure_catalog_values.py "$project"
+          python ci/pf2-kingmaker-r36/patch_multi_structure.py "$project"
+          python ci/pf2-kingmaker-certification/audit_structure_catalog.py --project "$project" --out r36-official-structure-delta.json --require-zero-mismatches
+          cp ci/pf2-kingmaker-r36/test_r36_book_fidelity.py "$project/tests_pf2/"
+          cp ci/pf2-kingmaker-r36/test_r36_claim_prepaid.py "$project/tests_pf2/"
+          cp ci/pf2-kingmaker-r36/test_build_structure_production.py "$project/tests_pf2/"
+          cp ci/pf2-kingmaker-r36/test_build_structure_repairs_production.py "$project/tests_pf2/"
+          cp ci/pf2-kingmaker-r36/test_r36_ui_and_accounting_contract.py "$project/tests_pf2/"
+          cp ci/pf2-kingmaker-r36/test_official_structure_production.py "$project/tests_pf2/"
+          cp ci/pf2-kingmaker-certification/kingmaker_official_structures_p544_552.json "$project/tests_pf2/"
+      - name: Inspect Build Structure source for official-rule remediation
+        shell: bash
+        run: python ci/pf2-kingmaker-r36/inspect_civic_surface.py "$PF2_R36_PROJECT"
+      - name: Run official-rule and full PF2 regression on extracted source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -q pytest
+          cd "$PF2_R36_PROJECT"
+          python -m pytest tests_pf2/test_r36_book_fidelity.py tests_pf2/test_r36_claim_prepaid.py tests_pf2/test_build_structure_production.py tests_pf2/test_build_structure_repairs_production.py tests_pf2/test_r36_ui_and_accounting_contract.py tests_pf2/test_official_structure_production.py -q
+          python -m pytest tests_pf2 -q
+      - name: Compile Android debug APK on hosted runner (no release)
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$PF2_R36_PROJECT"
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --no-daemon --stacktrace
+          find android/app/build/outputs/apk/debug -name '*.apk' -type f -exec sha256sum {} \;
+      - name: Run Android JVM unit tests with R36 production code
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$PF2_R36_PROJECT"
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest --no-daemon --stacktrace
+          echo "R36_ANDROID_JVM_UNIT_TESTS_PASS=true"
