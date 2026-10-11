@@ -1,0 +1,120 @@
+name: Forbidden Lands U23 - publish verified draft and Android smoke
+on:
+  push:
+    branches: [build/fl-u23-integrated]
+    paths:
+      - '.github/workflows/forbidden-lands-u23-recover-release.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: fl-u23-recovery-release
+  cancel-in-progress: false
+env:
+  RELEASE_ID: '409662603'
+  SOURCE_BUILD_COMMIT: 'b4519f7d896f2e5775e059403b434c0426564d63'
+  EXPECTED_APK_SHA: 'c425887bca6fccc97c71000636105f5fceaa539a8d854b56afcefecbeaa0ae46'
+  APK_NAME: 'BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk'
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recheck exact draft provenance and all seven GitHub asset digests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" > release-before.json
+          python3 - <<'PY'
+          import json,os
+          r=json.load(open('release-before.json',encoding='utf8'))
+          assert r['id']==int(os.environ['RELEASE_ID']) and r['draft'] is True and r['prerelease'] is True
+          assert r['tag_name']=='forbidden-lands-u23-integrated-38139479059'
+          assert r['target_commitish']==os.environ['SOURCE_BUILD_COMMIT']
+          assert 'SOURCE_COMMIT=b4e48fb77b7b7fdc5f85d1c998518196a0aaac32' in r['body']
+          expected={
+           'APK_IDENTITY.txt':(5299,'sha256:1dd889f83da00ea3469ee9b84b8adc927f5b330c8839473ff7be66a73376969c'),
+           'APK_SIGNATURE.txt':(1011,'sha256:f735435c916699cfab8689bfd02193d4adbd10a75d40f3f9c7300018cc59215f'),
+           'BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk':(28438265,'sha256:c425887bca6fccc97c71000636105f5fceaa539a8d854b56afcefecbeaa0ae46'),
+           'BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk.sha256':(118,'sha256:a6f002847f3817b6c86605cb9284d63f94b4397e7c055b70b85b486ad9001a31'),
+           'BUILD_PROOF_U23.json':(534,'sha256:d82f70253153ab49fc357f1514897b8f6751b39d6812eb6d95b8fb5c5ae6d6e6'),
+           'U23_BROWSER_SUITE.json':(3884,'sha256:202310968060d66eb32819d2f19de48e12c00a6f0445f38e745ed7e26526b8d6'),
+           'U23_STRICT_82_GATE.json':(79706,'sha256:82f0a7be6c523aeaef2fb90158401518d998e092f86476fc18235fed66405945')
+          }
+          assets=r.get('assets') or []
+          assert len(assets)==len(expected),'Draft asset inventory is incomplete or has unexpected assets'
+          seen=set()
+          for asset in assets:
+           name=asset['name']
+           assert name not in seen and name in expected,name
+           seen.add(name)
+           size,digest=expected[name]
+           assert asset['state']=='uploaded' and asset['size']==size and asset.get('digest')==digest,(name,'size/digest mismatch')
+          assert seen==set(expected)
+          assert expected[os.environ['APK_NAME']][1]=='sha256:'+os.environ['EXPECTED_APK_SHA']
+          print('DRAFT_ASSET_SHA256_GATE=PASS release='+str(r['id'])+' assets='+str(len(assets)))
+          PY
+      - name: Publish only after exact provenance and SHA verification
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" -F draft=false -F prerelease=true > release-after.json
+          python3 - <<'PY'
+          import json,os
+          r=json.load(open('release-after.json',encoding='utf8'))
+          assert r['id']==int(os.environ['RELEASE_ID']) and r['draft'] is False
+          assert r['prerelease'] is True and r['tag_name']=='forbidden-lands-u23-integrated-38139479059'
+          print('PRIVATE_PRERELEASE_PUBLISHED='+r['html_url'])
+          PY
+          echo "tag=forbidden-lands-u23-integrated-38139479059" >> "$GITHUB_OUTPUT"
+  emulator:
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download published APK and verify SHA256 locally
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          mkdir -p incoming
+          gh release download "${{ needs.publish.outputs.tag }}" --pattern 'BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk*' --dir incoming
+          cd incoming
+          sha256sum -c BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk.sha256
+          printf '%s  %s\n' "$EXPECTED_APK_SHA" "$APK_NAME" | sha256sum -c -
+          python -m pip install playwright==1.55.0
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Install signed APK in emulator and verify three native WebView reopenings
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          script: |
+            adb install -r incoming/BRASEIRO_FORBIDDEN_LANDS_3.3.24_U23_INTEGRATED.apk
+            adb logcat -c
+            python ci/fl-u23/emulator_smoke.py
+      - name: Attach actual emulator screenshot and JSON to private release
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          test -s fl-u23-android-smoke.json
+          test -s fl-u23-android-smoke.png
+          gh release upload "${{ needs.publish.outputs.tag }}" fl-u23-android-smoke.json fl-u23-android-smoke.png --clobber
