@@ -29,15 +29,12 @@ def transform(s):
         'if(awardReputationOnCrit&&"CRITICAL_SUCCESS".equals(result.optString("degree")))gainReputationPoint();',
         'if("CRITICAL_SUCCESS".equals(result.optString("degree")))gainReputationPoint();',
         "Critical kingdom checks earn reputation")
-    s=once(s,
-        'int modifier=rules.skillModifier(s.optInt("level",1),score,skill.optString("rank"),skill.optInt("item_bonus"),leadership,vacancy-ruin+taxes-claimPenalty,s.optInt("unrest"));',
-        'int expansionExpert="claim_hex".equals(activity)&&s.optInt("level",1)>=4?2:0;'
-        'int modifier=rules.skillModifier(s.optInt("level",1),score,skill.optString("rank"),skill.optInt("item_bonus"),leadership,vacancy-ruin+Math.max(taxes,expansionExpert)-claimPenalty,s.optInt("unrest"));',
-        "Expansion Expert +2 circumstance (no stacking with taxes)")
-    s=once(s,
-        '.put("claim_hex_stability_penalty",-claimPenalty)',
-        '.put("claim_hex_stability_penalty",-claimPenalty).put("expansion_expert",expansionExpert)',
-        "Exp. Expert audit breakdown")
+    # patch.py is authoritative for Expansion Expert +2 and circumstance stacking.
+    # Never re-apply or overwrite this official modifier correction.
+    if 'int expansionExpert="claim_hex".equals(activity)&&s.optInt("level",1)>=4?2:0;' not in s:
+        raise RuntimeError("Expansion Expert was not applied by core R36 patch")
+    if 'int circumstanceBonus=Math.max(taxes,expansionExpert);' not in s:
+        raise RuntimeError("Kingdom circumstance bonuses must not stack")
     return s
 
 def apply(root):
