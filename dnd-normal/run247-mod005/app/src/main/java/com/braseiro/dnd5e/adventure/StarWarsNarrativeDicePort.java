@@ -25,6 +25,7 @@ public final class StarWarsNarrativeDicePort {
         if("force".equals(name))return FORCE; return null;
     }
     public static JSONObject resolve(JSONObject spec, JSONObject submission) {
+        try {
         JSONObject pool = spec == null ? null : spec.optJSONObject("dice_pool");
         JSONArray results = submission == null ? null : submission.optJSONArray("dice");
         if(pool == null || results == null) return error("Pool e faces de dados são obrigatórios.");
@@ -62,6 +63,19 @@ public final class StarWarsNarrativeDicePort {
         outcome.put("outcome",LoreweaverOutcomePort.create(netSuccess>0?"success":"failure",netSuccess>0?"Sucesso":"Fracasso",
           netSuccess>0,totals[4]>0,totals[5]>0,netSuccess,Integer.valueOf(netSuccess)));
         return outcome;
+        } catch (RuntimeException runtime) {
+            throw runtime;
+        } catch (Exception invalidJson) {
+            throw new IllegalStateException("Erro ao estruturar os dados narrativos", invalidJson);
+        }
     }
-    private static JSONObject error(String message){return new JSONObject().put("resolved",false).put("error",message);}
+    private static JSONObject error(String message) {
+        try {
+            return new JSONObject().put("resolved", false).put("error", message);
+        } catch (RuntimeException runtime) {
+            throw runtime;
+        } catch (Exception invalidJson) {
+            throw new IllegalStateException("Erro ao estruturar mensagem de falha", invalidJson);
+        }
+    }
 }
