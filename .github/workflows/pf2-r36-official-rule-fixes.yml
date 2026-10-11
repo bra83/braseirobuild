@@ -9,8 +9,8 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: pf2-r36-official-book-rules-${{ github.sha }}
-  cancel-in-progress: false
+  group: pf2-r36-official-book-rules-${{ github.ref_name }}
+  cancel-in-progress: true
 jobs:
   civic-inspection:
     runs-on: ubuntu-latest
