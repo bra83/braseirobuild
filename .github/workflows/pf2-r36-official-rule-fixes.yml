@@ -66,6 +66,9 @@ jobs:
           python ci/pf2-kingmaker-r36/patch_claim_hex_prepaid.py "$project"
           cp ci/pf2-kingmaker-r36/test_r36_book_fidelity.py "$project/tests_pf2/"
           cp ci/pf2-kingmaker-r36/test_r36_claim_prepaid.py "$project/tests_pf2/"
+      - name: Inspect Build Structure source for official-rule remediation
+        shell: bash
+        run: python ci/pf2-kingmaker-r36/inspect_civic_surface.py "$PF2_R36_PROJECT"
       - name: Run official-rule and full PF2 regression on extracted source
         shell: bash
         run: |
