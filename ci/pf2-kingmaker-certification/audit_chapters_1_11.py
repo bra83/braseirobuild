@@ -43,8 +43,14 @@ def audit(root):
     book=json.loads((Path(__file__).with_name("KINGMAKER_CANONICAL_BOOK_CROSSWALK.json")).read_text(encoding="utf-8"))
     assert book["official_sources"]["kingmaker_pdf_id"]==SOURCE_ID if isinstance(book.get("official_sources"),dict) and "kingmaker_pdf_id" in book["official_sources"] else True
     chapters=book["official_adventure_chapters"]
+    pages=json.loads((Path(__file__).with_name("KINGMAKER_11_CHAPTERS_40_PARTS_PAGES.json")).read_text(encoding="utf-8"))
+    if pages.get("source_drive_id")!=SOURCE_ID or pages.get("certification")!="NOT_CERTIFIED":
+        raise ValueError("Official book provenance/certification drift")
     if len(chapters)!=11 or sum(len(c["parts"]) for c in chapters)!=40:
         raise ValueError("Official 11-chapter/40-part crosswalk drift")
+    page_chapters={c["chapter"]:c for c in pages["chapters"]}
+    if set(page_chapters)!=set(range(1,12)) or sum(len(x["official_parts"]) for x in page_chapters.values())!=40:
+        raise ValueError("Official chapter/part page ranges incomplete")
     directory=Path(root)/"android/app/src/main/assets/pathfinder/kingmaker/chapters"
     files={p.name:json.loads(p.read_text(encoding="utf-8")) for p in directory.glob("chapter_*.json")}
     if len(files)<11:raise RuntimeError("Unexpected incomplete campaign source")
@@ -76,8 +82,13 @@ def audit(root):
             if not found:issues.append({"severity":"review","code":"OFFICIAL_PLOT_ANCHOR_MISSING","chapter":number,"anchor":name})
         # Official part title signals are weak; mark every part as requiring
         # consequence and page-level comparison, even when words appear.
-        parts=[{"title":part,"title_keyword_signal":any(norm(w) in gameplay for w in norm(part).split() if len(w)>=6),
-                "page_mechanics_and_branches_verified":False} for part in chapter["parts"]]
+        page_entries=page_chapters[number]["official_parts"]
+        if [norm(p["official_name"]) for p in page_entries]!=[norm(x) for x in chapter["parts"]]:
+            raise ValueError("Official part/page title mismatch in chapter "+str(number))
+        parts=[{"title":part,"book_page_start":page_entries[idx]["page_start"],
+                "book_page_end":page_entries[idx]["page_end_inclusive"],
+                "title_keyword_signal":any(norm(w) in gameplay for w in norm(part).split() if len(w)>=6),
+                "page_mechanics_and_branches_verified":False} for idx,part in enumerate(chapter["parts"])]
         results.append({"chapter":number,"official_title":chapter["name"],"official_page":chapter["page"],
                         "assets":names,"typed_record_counts":{k:len(v) for k,v in typed.items()},
                         "anchors":anchor_results,"parts":parts,
