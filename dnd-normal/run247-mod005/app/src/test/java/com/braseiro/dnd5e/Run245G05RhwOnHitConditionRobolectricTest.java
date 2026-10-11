@@ -357,6 +357,21 @@ public final class Run245G05RhwOnHitConditionRobolectricTest {
             assertEquals(112,StatblockEncounterStateEngine.view("flow-plant").optInt("hp"));
         } finally {resetLegacyFlow();}
     }
+    @Test public void damageParserConsumesEveryTermAndRejectsOverflowBeforeCommitting() {
+        assertEquals(5, StatblockCombatFlowEngine.rollAverage("1d4 + 1d6",false));
+        assertEquals(12, StatblockCombatFlowEngine.rollAverage("1d4 + 1d6",true));
+        assertEquals(6, StatblockCombatFlowEngine.rollAverage("1d4 + 1 + 1d6",false));
+        assertEquals(0, StatblockCombatFlowEngine.rollAverage("5 - 9",false));
+        for(String invalid:new String[]{"1d6 + desconhecido","1d6+2d","2147483647d2147483647","3d0","2d6 + 5 acid"}) {
+            try{
+                StatblockCombatFlowEngine.rollAverage(invalid,false);
+                fail("A expressão inválida não pode provocar dano parcial: "+invalid);
+            }catch(IllegalArgumentException expected){
+                // Fonte inválida deve impedir mutação e não ser parcialmente interpretada.
+            }
+        }
+    }
+
     @Test public void legacyAttackRollbackWhenTypedDamageParsingFailsAfterActionSpend()throws Exception {
         resetLegacyFlow();
         try {
