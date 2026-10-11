@@ -92,7 +92,14 @@ def close_stale_confirmation():
             log("START_CONFIRMATION_UNCOMMITTED","cannot dismiss")
             return False
         log("DISMISS_STALE_START_CONFIRMATION",attempt+1)
-        shell("input","keyevent","4")
+        # The Back gesture sent a real emulator to Android HOME in run 38181911106.
+        # The confirmation is already committed to AppDb, so dismiss the visible
+        # modal with its own CANCELAR button, not Android navigation.
+        cancel=next((v for v in current if v[0].casefold()=="cancelar" and v[4]),None)
+        if not cancel:
+            log("STALE_MODAL_CANCEL_MISSING","no blind back gesture")
+            return False
+        shell("input","tap",str(cancel[1]),str(cancel[2]))
         time.sleep(3)
     return not start_confirmation_visible(nodes())
 
@@ -108,11 +115,13 @@ def kingmaker():
             return True
         tabs=[item for item in current if item[0]=="KINGMAKER"]
         if not tabs:
-            if any(item[0]=="CANCELAR" for item in current):
-                shell("input","keyevent","4")
-                time.sleep(2)
-                continue
             log("KINGMAKER_TAB_MISSING",json.dumps(sorted(labels)[:35],ensure_ascii=False))
+            pid=adb("shell","pidof",PKG,allow=True).stdout.decode().strip()
+            log("KINGMAKER_APP_PID_ON_NAV_FAILURE",pid or "APP_NOT_RUNNING")
+            if pid and "Apps list" in labels:
+                log("ANDROID_HOME_AFTER_NAV","restore existing application process")
+                launch()
+                continue
             return False
         tab=min(tabs,key=lambda item:item[2])
         shell("input","tap",str(tab[1]),str(tab[2]))
@@ -170,6 +179,13 @@ def stage(name,fn):
         try: log(name+"_VISIBLE_AT_FAILURE",
                  json.dumps([v[0] for v in nodes()][:55],ensure_ascii=False)[:2000])
         except Exception as diag:log(name+"_UI_DIAGNOSTIC_ERROR",repr(diag)[:250])
+        try:
+            activity=shell("dumpsys","activity","activities")
+            log(name+"_ACTIVITY_FOREGROUND"," ".join(
+                x.strip() for x in activity.splitlines() if "mResumedActivity" in x or "topResumedActivity" in x)[:800])
+            fatal=adb("logcat","-d","-s","AndroidRuntime:E",allow=True,timeout=30).stdout.decode(errors="replace")
+            log(name+"_ANDROID_RUNTIME_FATAL",fatal[-1800:] if fatal.strip() else "none")
+        except Exception as diag:log(name+"_LOGCAT_DIAGNOSTIC_ERROR",repr(diag)[:250])
 def activate():
     if not kingmaker():return False
     if snapshot("BEFORE_ACTIVATION")["state"][0]==1:return True
