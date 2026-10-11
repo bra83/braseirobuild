@@ -9,7 +9,8 @@
     "app/src/main/java/com/braseiro/dnd5e/adventure/StarWarsNarrativeDicePort.java": "1d4d68cd5939595ce9f90388c6f1b00e09d1d73f836fa410a2415a4dcdb814d1",
     "app/src/main/java/com/braseiro/dnd5e/adventure/UniversalEffectProposalPort.java": "ba059ef6341bba9f509bf0026e0a95156df721099d35b6b6dba26d065deedca8",
     "app/src/main/java/com/braseiro/dnd5e/adventure/UniversalGithubModules.java": "758081e53293bf5746785c0ac9212d5b7203953f456aca4531ba78071d585ce6",
-    "app/src/main/java/com/braseiro/dnd5e/adventure/YearZeroDicePort.java": "4e8138bd946b5a130a655201d2d660f04d365acf4870c9ca0bdd3f97ff11ff2f"
+    "app/src/main/java/com/braseiro/dnd5e/adventure/YearZeroDicePort.java": "4e8138bd946b5a130a655201d2d660f04d365acf4870c9ca0bdd3f97ff11ff2f",
+    "app/src/main/java/com/braseiro/dnd5e/adventure/TomeEntityBridge.java": "b1f872695efe0da3d866ba958035b750b13392fb07f433821fd13ab41a926677"
   },
   "must_not_add_or_remove": true,
   "baseline_file_count": 1437
