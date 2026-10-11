@@ -24,9 +24,28 @@ public final class AetherTableRollIntentPort {
         Matcher match=D20.matcher(raw);
         if(!match.matches())return error("O adaptador D&D exige [[ROLL:1d20+N]]; outra família usa seu motor próprio.");
         int modifier=match.group(1)==null?0:Integer.parseInt(match.group(1));
-        return new JSONObject().put("status","recognized").put("dice_expression",raw)
-            .put("requires_player_input",true).put("auto_rolls",false)
-            .put("spec",new JSONObject().put("dc",dc).put("modifier",modifier));
+        try {
+            JSONObject spec = new JSONObject();
+            spec.put("dc", dc);
+            spec.put("modifier", modifier);
+            JSONObject result = new JSONObject();
+            result.put("status", "recognized");
+            result.put("dice_expression", raw);
+            result.put("requires_player_input", true);
+            result.put("auto_rolls", false);
+            result.put("spec", spec);
+            return result;
+        } catch (Exception e) {
+            return error("Não foi possível preparar a proposta de rolagem.");
+        }
     }
-    private static JSONObject error(String m){return new JSONObject().put("status","blocked").put("error",m);}
+    private static JSONObject error(String m) {
+        JSONObject result = new JSONObject();
+        try {
+            result.put("status", "blocked");
+            result.put("error", m);
+            result.put("auto_rolls", false);
+        } catch (Exception ignored) { /* Falha fechada, sem mutação. */ }
+        return result;
+    }
 }
