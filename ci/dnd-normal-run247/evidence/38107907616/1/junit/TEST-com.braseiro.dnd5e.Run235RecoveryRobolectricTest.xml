@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run235RecoveryRobolectricTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-11T03:31:03" hostname="BRELGA" time="1.647">
+  <properties/>
+  <testcase name="invalidRecoverySourceDoesNotSpendAction" classname="com.braseiro.dnd5e.Run235RecoveryRobolectricTest" time="0.559"/>
+  <testcase name="recoveryRequiresRealRollPersistsFailureAndExpiresAfterSuccess" classname="com.braseiro.dnd5e.Run235RecoveryRobolectricTest" time="1.088"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run245PartyWeaponAttackRobolectricTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-11T03:31:42" hostname="BRELGA" time="2.971">
+  <properties/>
+  <testcase name="legacyManualAndUnprovenWeaponProfilesAreRejectedWithoutMutation" classname="com.braseiro.dnd5e.Run245PartyWeaponAttackRobolectricTest" time="0.956"/>
+  <testcase name="sqliteFailureRollsBackDamageResourcesAndReceiptThenRetryCommits" classname="com.braseiro.dnd5e.Run245PartyWeaponAttackRobolectricTest" time="0.999"/>
+  <testcase name="exactEquippedProfileCommitsDamageAndCausalReceiptOnlyOnce" classname="com.braseiro.dnd5e.Run245PartyWeaponAttackRobolectricTest" time="1.016"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

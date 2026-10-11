@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - Class com.braseiro.dnd5e.Run245G05MultiattackFinalForcedMovementRobolectricTest</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>Class com.braseiro.dnd5e.Run245G05MultiattackFinalForcedMovementRobolectricTest</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/com.braseiro.dnd5e.html">com.braseiro.dnd5e</a> &gt; Run245G05MultiattackFinalForcedMovementRobolectricTest</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">1</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">1</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">0.051s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox failures" id="successRate">
+<div class="percent">0%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Failed tests</a>
+</li>
+<li>
+<a href="#tab1">Tests</a>
+</li>
+<li>
+<a href="#tab2">Standard error</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Failed tests</h2>
+<div class="test">
+<a name="lastComponentPushIsAtomicAndBlocksAnObstructedDestination"></a>
+<h3 class="failures">lastComponentPushIsAtomicAndBlocksAnObstructedDestination</h3>
+<span class="code">
+<pre>android.database.sqlite.SQLiteCantOpenDatabaseException: DB[3084] step() [PRAGMA journal_mode=WAL]DB[3084][C] [unable to open database file] (code 14 SQLITE_CANTOPEN)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection$Connections.getSqliteException(ShadowLegacySQLiteConnection.java:842)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection$Connections.getFuture(ShadowLegacySQLiteConnection.java:715)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection$Connections.lambda$execute$5(ShadowLegacySQLiteConnection.java:702)
+	at app//org.robolectric.util.PerfStatsCollector.measure(PerfStatsCollector.java:51)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection$Connections.execute(ShadowLegacySQLiteConnection.java:702)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection$Connections.executeStatementOperation(ShadowLegacySQLiteConnection.java:688)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection$Connections.executeForString(ShadowLegacySQLiteConnection.java:508)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection.nativeExecuteForString(ShadowLegacySQLiteConnection.java:143)
+	at android.database.sqlite.SQLiteConnection.nativeExecuteForString(SQLiteConnection.java)
+	at android.database.sqlite.SQLiteConnection.executeForString(SQLiteConnection.java:831)
+	at android.database.sqlite.SQLiteConnection.setJournalMode(SQLiteConnection.java:433)
+	at android.database.sqlite.SQLiteConnection.setJournalFromConfiguration(SQLiteConnection.java:352)
+	at android.database.sqlite.SQLiteConnection.open(SQLiteConnection.java:281)
+	at android.database.sqlite.SQLiteConnection.open(SQLiteConnection.java:218)
+	at android.database.sqlite.SQLiteConnectionPool.openConnectionLocked(SQLiteConnectionPool.java:535)
+	at android.database.sqlite.SQLiteConnectionPool.open(SQLiteConnectionPool.java:222)
+	at android.database.sqlite.SQLiteConnectionPool.open(SQLiteConnectionPool.java:214)
+	at android.database.sqlite.SQLiteDatabase.openInner(SQLiteDatabase.java:1163)
+	at android.database.sqlite.SQLiteDatabase.open(SQLiteDatabase.java:1143)
+	at android.database.sqlite.SQLiteDatabase.openDatabase(SQLiteDatabase.java:1007)
+	at android.database.sqlite.SQLiteDatabase.openDatabase(SQLiteDatabase.java:996)
+	at android.database.sqlite.SQLiteOpenHelper.getDatabaseLocked(SQLiteOpenHelper.java:373)
+	at android.database.sqlite.SQLiteOpenHelper.getWritableDatabase(SQLiteOpenHelper.java:316)
+	at com.braseiro.dnd5e.AppDb.ensureMapWorldState(AppDb.java:4935)
+	at com.braseiro.dnd5e.AppDb.setActiveMapProfile(AppDb.java:4882)
+	at com.braseiro.dnd5e.Run245G05MultiattackFinalForcedMovementRobolectricTest.lastComponentPushIsAtomicAndBlocksAnObstructedDestination(Run245G05MultiattackFinalForcedMovementRobolectricTest.java:36)
+	at java.base@17.0.20.1/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base@17.0.20.1/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base@17.0.20.1/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at app//org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at app//org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at app//org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at app//org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at app//org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at app//org.robolectric.RobolectricTestRunner$HelperTestRunner$1.evaluate(RobolectricTestRunner.java:502)
+	at app//org.robolectric.internal.SandboxTestRunner$2.lambda$evaluate$2(SandboxTestRunner.java:285)
+	at app//org.robolectric.internal.bytecode.Sandbox.lambda$runOnMainThread$0(Sandbox.java:104)
+	at java.base@17.0.20.1/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base@17.0.20.1/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base@17.0.20.1/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base@17.0.20.1/java.lang.Thread.run(Thread.java:840)
+Caused by: java.util.concurrent.ExecutionException: com.almworks.sqlite4java.SQLiteException: [14] DB[3084] step() [PRAGMA journal_mode=WAL]DB[3084][C] [unable to open database file]
+	at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+	at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+	at com.google.common.util.concurrent.Uninterruptibles.getUninterruptibly(Uninterruptibles.java:209)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection$Connections.getFuture(ShadowLegacySQLiteConnection.java:708)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection$Connections.lambda$execute$5(ShadowLegacySQLiteConnection.java:702)
+	at org.robolectric.util.PerfStatsCollector.measure(PerfStatsCollector.java:51)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection$Connections.execute(ShadowLegacySQLiteConnection.java:702)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection$Connections.executeStatementOperation(ShadowLegacySQLiteConnection.java:688)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection$Connections.executeForString(ShadowLegacySQLiteConnection.java:508)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection.nativeExecuteForString(ShadowLegacySQLiteConnection.java:143)
+	at android.database.sqlite.SQLiteConnection.nativeExecuteForString(SQLiteConnection.java)
+	at android.database.sqlite.SQLiteConnection.$$robo$$android_database_sqlite_SQLiteConnection$executeForString(SQLiteConnection.java:831)
+	at android.database.sqlite.SQLiteConnection.executeForString(SQLiteConnection.java)
+	at android.database.sqlite.SQLiteConnection.$$robo$$android_database_sqlite_SQLiteConnection$setJournalMode(SQLiteConnection.java:433)
+	at android.database.sqlite.SQLiteConnection.setJournalMode(SQLiteConnection.java)
+	at android.database.sqlite.SQLiteConnection.$$robo$$android_database_sqlite_SQLiteConnection$setJournalFromConfiguration(SQLiteConnection.java:352)
+	at android.database.sqlite.SQLiteConnection.setJournalFromConfiguration(SQLiteConnection.java)
+	at android.database.sqlite.SQLiteConnection.$$robo$$android_database_sqlite_SQLiteConnection$open(SQLiteConnection.java:281)
+	at android.database.sqlite.SQLiteConnection.open(SQLiteConnection.java)
+	at android.database.sqlite.SQLiteConnection.$$robo$$android_database_sqlite_SQLiteConnection$open(SQLiteConnection.java:218)
+	at android.database.sqlite.SQLiteConnection.open(SQLiteConnection.java)
+	at android.database.sqlite.SQLiteConnectionPool.$$robo$$android_database_sqlite_SQLiteConnectionPool$openConnectionLocked(SQLiteConnectionPool.java:535)
+	at android.database.sqlite.SQLiteConnectionPool.openConnectionLocked(SQLiteConnectionPool.java)
+	at android.database.sqlite.SQLiteConnectionPool.$$robo$$android_database_sqlite_SQLiteConnectionPool$open(SQLiteConnectionPool.java:222)
+	at android.database.sqlite.SQLiteConnectionPool.open(SQLiteConnectionPool.java)
+	at android.database.sqlite.SQLiteConnectionPool.$$robo$$android_database_sqlite_SQLiteConnectionPool$open(SQLiteConnectionPool.java:214)
+	at android.database.sqlite.SQLiteConnectionPool.open(SQLiteConnectionPool.java)
+	at android.database.sqlite.SQLiteDatabase.$$robo$$android_database_sqlite_SQLiteDatabase$openInner(SQLiteDatabase.java:1163)
+	at android.database.sqlite.SQLiteDatabase.openInner(SQLiteDatabase.java)
+	at android.database.sqlite.SQLiteDatabase.$$robo$$android_database_sqlite_SQLiteDatabase$open(SQLiteDatabase.java:1143)
+	at android.database.sqlite.SQLiteDatabase.open(SQLiteDatabase.java)
+	at android.database.sqlite.SQLiteDatabase.$$robo$$android_database_sqlite_SQLiteDatabase$openDatabase(SQLiteDatabase.java:1007)
+	at android.database.sqlite.SQLiteDatabase.openDatabase(SQLiteDatabase.java)
+	at android.database.sqlite.SQLiteDatabase.$$robo$$android_database_sqlite_SQLiteDatabase$openDatabase(SQLiteDatabase.java:996)
+	at android.database.sqlite.SQLiteDatabase.openDatabase(SQLiteDatabase.java)
+	at android.database.sqlite.SQLiteOpenHelper.$$robo$$android_database_sqlite_SQLiteOpenHelper$getDatabaseLocked(SQLiteOpenHelper.java:373)
+	at android.database.sqlite.SQLiteOpenHelper.getDatabaseLocked(SQLiteOpenHelper.java)
+	at android.database.sqlite.SQLiteOpenHelper.$$robo$$android_database_sqlite_SQLiteOpenHelper$getWritableDatabase(SQLiteOpenHelper.java:316)
+	at android.database.sqlite.SQLiteOpenHelper.getWritableDatabase(SQLiteOpenHelper.java)
+	at com.braseiro.dnd5e.AppDb.ensureMapWorldState(AppDb.java:4935)
+	at com.braseiro.dnd5e.AppDb.setActiveMapProfile(AppDb.java:4882)
+	at com.braseiro.dnd5e.Run245G05MultiattackFinalForcedMovementRobolectricTest.lastComponentPushIsAtomicAndBlocksAnObstructedDestination(Run245G05MultiattackFinalForcedMovementRobolectricTest.java:36)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	... 12 more
+Caused by: com.almworks.sqlite4java.SQLiteException: [14] DB[3084] step() [PRAGMA journal_mode=WAL]DB[3084][C] [unable to open database file]
+	at app//com.almworks.sqlite4java.SQLiteConnection.throwResult(SQLiteConnection.java:1436)
+	at app//com.almworks.sqlite4java.SQLiteConnection$BaseController.throwResult(SQLiteConnection.java:1689)
+	at app//com.almworks.sqlite4java.SQLiteStatement.stepResult(SQLiteStatement.java:1402)
+	at app//com.almworks.sqlite4java.SQLiteStatement.step(SQLiteStatement.java:301)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection$Connections$8.call(ShadowLegacySQLiteConnection.java:514)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection$Connections$8.call(ShadowLegacySQLiteConnection.java:511)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection$Connections.lambda$executeStatementOperation$4(ShadowLegacySQLiteConnection.java:690)
+	... 4 more
+</pre>
+</span>
+</div>
+</div>
+<div id="tab1" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="failures">lastComponentPushIsAtomicAndBlocksAnObstructedDestination</td>
+<td class="failures">0.051s</td>
+<td class="failures">failed</td>
+</tr>
+</table>
+</div>
+<div id="tab2" class="tab">
+<h2>Standard error</h2>
+<span class="code">
+<pre>Oct 11, 2026 12:31:19 AM com.almworks.sqlite4java.Internal log
+WARNING: [sqlite] [PRAGMA journal_mode=WAL]DB[3084][C]: exception when clearing
+com.almworks.sqlite4java.SQLiteException: [14] DB[3084] reset [unable to open database file]
+	at com.almworks.sqlite4java.SQLiteConnection.throwResult(SQLiteConnection.java:1436)
+	at com.almworks.sqlite4java.SQLiteConnection.throwResult(SQLiteConnection.java:1409)
+	at com.almworks.sqlite4java.SQLiteConnection.cacheStatementHandle(SQLiteConnection.java:1338)
+	at com.almworks.sqlite4java.SQLiteConnection.access$900(SQLiteConnection.java:51)
+	at com.almworks.sqlite4java.SQLiteConnection$CachedController.dispose(SQLiteConnection.java:1733)
+	at com.almworks.sqlite4java.SQLiteStatement.dispose(SQLiteStatement.java:187)
+	at org.robolectric.shadows.ShadowLegacySQLiteConnection$Connections.lambda$finalizeStmt$3(ShadowLegacySQLiteConnection.java:416)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="http://www.gradle.org">Gradle 8.11.1</a> at 11 de out. de 2026 00:31:46</p>
+</div>
+</div>
+</body>
+</html>
