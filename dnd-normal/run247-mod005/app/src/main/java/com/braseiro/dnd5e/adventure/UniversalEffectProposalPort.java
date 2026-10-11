@@ -18,6 +18,7 @@ public final class UniversalEffectProposalPort {
         return Integer.valueOf((int)d);
     }
     public static JSONArray sanitize(JSONArray list) {
+        try {
         JSONArray output = new JSONArray();
         if (list == null) return output;
         if (list.length() > 6) throw new IllegalArgumentException("Máximo de seis efeitos por resultado.");
@@ -51,6 +52,11 @@ public final class UniversalEffectProposalPort {
             output.put(normalized);
         }
         return output;
+        } catch (RuntimeException invalid) {
+            throw invalid;
+        } catch (Exception invalidJson) {
+            throw new IllegalArgumentException("Falha ao normalizar efeito estruturado", invalidJson);
+        }
     }
     /** Same normalized semantic payload, independent of JSONObject key iteration order. */
     public static boolean same(JSONArray expected, JSONArray supplied) {
