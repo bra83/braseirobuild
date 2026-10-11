@@ -22,6 +22,16 @@ if google['client'][0]['client_info']['android_client_info']['package_name'] != 
     raise SystemExit('Historical native donor package mismatch')
 gradle = project / 'android/app/build.gradle'
 text = gradle.read_text(encoding='utf-8')
+# AGP 8+ must generate BuildConfig for BraseiroAndroidSmokeTest.kt.
+# Apply only to the hash-pinned legacy source; do not alter signing or runtime.
+if 'buildFeatures { buildConfig true }' not in text:
+    if re.search(r'(?m)^\s*buildFeatures\s*\{', text):
+        raise SystemExit('Unexpected existing buildFeatures; no automatic change')
+    android_block = re.compile(r'(?m)^android\s*\{\s*\n')
+    matches = list(android_block.finditer(text))
+    if len(matches) != 1:
+        raise SystemExit('Ambiguous Android block; no automatic change')
+    text = text[:matches[0].end()] + '    buildFeatures { buildConfig true }\n' + text[matches[0].end():]
 if 'configuredStoreFile' not in text or not re.search(r'braseiro\s*\{', text):
     raise SystemExit('Historical Gradle signing definition is missing')
 for build_type in ('debug', 'release'):
