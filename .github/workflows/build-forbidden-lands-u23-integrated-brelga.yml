@@ -44,7 +44,7 @@ jobs:
           New-Item -ItemType Directory -Path $root -Force | Out-Null
           "FL_ROOT=$root" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           $zip=Join-Path $root $env:SOURCE_NAME
-          $cached=Get-ChildItem 'D:\brelga-fl-u*-*' -Filter $env:SOURCE_NAME -File -ErrorAction SilentlyContinue | Where-Object { $_.Length -eq [int64]$env:SOURCE_BYTES } | Select-Object -First 1
+          $cached=Get-ChildItem 'D:\' -Directory -Filter 'brelga-fl-u*' | ForEach-Object { $candidate=Join-Path $_.FullName $env:SOURCE_NAME; if (Test-Path $candidate) { Get-Item $candidate } } | Where-Object { $_.Length -eq [int64]$env:SOURCE_BYTES } | Select-Object -First 1
           if ($cached) { Copy-Item $cached.FullName $zip }
           else {
             $meta=Invoke-RestMethod -Uri ($env:SOURCE_API + '/files?maxResults=100')
@@ -76,11 +76,13 @@ jobs:
           & npm.cmd ci --no-audit --no-fund
           if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
           foreach($entry in @(@('@rollup/rollup-win32-x64-msvc','rollup'),@('@esbuild/win32-x64','esbuild'))) {
-            & node.exe -e "require.resolve('$($entry[0])')" 2>$null
+            & node.exe -e "try { require.resolve('$($entry[0])'); } catch (_) { process.exit(1); }"
             if ($LASTEXITCODE -ne 0) {
               $v=(& node.exe -p "require('./node_modules/$($entry[1])/package.json').version").Trim()
               & npm.cmd install --no-save --no-package-lock "$($entry[0])@$v"
               if ($LASTEXITCODE -ne 0) { throw 'Windows optional native module unavailable' }
+              & node.exe -e "try { require.resolve('$($entry[0])'); } catch (_) { process.exit(1); }"
+              if ($LASTEXITCODE -ne 0) { throw 'Installed Windows native module cannot be resolved' }
             }
           }
           & npm.cmd run lint
