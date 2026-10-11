@@ -1,0 +1,52 @@
+name: PF2 Kingmaker Official Chapters 1–11 — Source Fidelity Gate
+on:
+  push:
+    branches: [pf2-kingmaker-r36-official-rule-fixes-20261011]
+    paths:
+      - '.github/workflows/pf2-r36-chapters-1-11.yml'
+      - 'ci/pf2-kingmaker-certification/audit_chapters_1_11.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  canonical-chapters-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: ci/pf2-kingmaker-certification
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify immutable R35 project and extract actual campaign
+        shell: bash
+        run: |
+          set -euo pipefail
+          auth="$(git config --local --get http.https://github.com/.extraheader)"
+          test -n "$auth"
+          curl -L --fail --retry 3 --header "$auth" --header 'Accept: application/octet-stream' \
+            -o r35-source.zip 'https://api.github.com/repos/bra83/braseirobuild/releases/assets/629875743'
+          echo '86d9a6fd26e4139e084c8e4069f49ef53e0cf8654e0f9f5662b92f9183941aa6  r35-source.zip' | sha256sum -c -
+          mkdir -p r35-source
+          unzip -q r35-source.zip -d r35-source
+          mapfile -t files < <(find r35-source -type f -name 'version.properties' | while read -r f; do
+            test -f "$(dirname "$f")/gradlew.bat" && echo "$f"
+          done)
+          test "${#files[@]}" -eq 1
+          echo "KINGMAKER_PROJECT=$(dirname "${files[0]}")" >> "$GITHUB_ENV"
+      - name: Audit every official chapter and 40 part titles using actual quest, scene and NPC records
+        shell: bash
+        run: |
+          set -euo pipefail
+          python ci/pf2-kingmaker-certification/audit_chapters_1_11.py \
+            --project "$KINGMAKER_PROJECT" --out evidence/KINGMAKER_CHAPTERS_1_11.json --fail-on-critical
+      - name: Publish genuine 11-chapter findings even on failure
+        if: always()
+        shell: bash
+        run: |
+          if [ -f evidence/KINGMAKER_CHAPTERS_1_11_REVIEW.md ]; then
+            cat evidence/KINGMAKER_CHAPTERS_1_11_REVIEW.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Chapter audit did not produce evidence; gate is NOT CERTIFIED.' >> "$GITHUB_STEP_SUMMARY"
+          fi
