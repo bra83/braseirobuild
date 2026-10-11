@@ -1,0 +1,73 @@
+name: PF2 Kingmaker R36 Android Emulator - Production AppDb Smoke
+on:
+  push:
+    branches: [pf2-kingmaker-r36-official-rule-fixes-20261011]
+    paths:
+      - '.github/workflows/pf2-r36-android-emulator-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pf2-r36-real-android-emulator
+  cancel-in-progress: false
+jobs:
+  emulator-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            ci/pf2-kingmaker-r36
+            ci/pf2-kingmaker-certification
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepare immutable R35 source and R36 official-rule patches
+        shell: bash
+        run: |
+          set -euo pipefail
+          auth="$(git config --local --get http.https://github.com/.extraheader)"
+          test -n "$auth"
+          curl -L --fail --retry 5 --header "$auth" --header 'Accept: application/octet-stream' -o source.zip 'https://api.github.com/repos/bra83/braseirobuild/releases/assets/629875743'
+          test "$(stat -c %s source.zip)" = '92975058'
+          echo '86d9a6fd26e4139e084c8e4069f49ef53e0cf8654e0f9f5662b92f9183941aa6  source.zip' | sha256sum -c -
+          unzip -q source.zip -d r35-source
+          test -f r35-source/gradlew
+          python ci/pf2-kingmaker-r36/patch.py r35-source
+          python ci/pf2-kingmaker-r36/patch_claim_hex_prepaid.py r35-source
+          python ci/pf2-kingmaker-r36/patch_kingdom_accounting.py r35-source
+          python ci/pf2-kingmaker-r36/patch_claim_hex_ui.py r35-source
+          python ci/pf2-kingmaker-r36/patch_build_structure.py r35-source
+          python ci/pf2-kingmaker-r36/patch_build_structure_repairs.py r35-source
+          chmod +x r35-source/gradlew
+          cd r35-source
+          ./gradlew :app:assembleDebug --no-daemon
+          test -s android/app/build/outputs/apk/debug/app-debug.apk
+          sha256sum android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Allow KVM for Android emulator
+        run: |
+          if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; fi
+      - name: Install and execute Android UI plus actual AppDb smoke
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-boot-timeout: 900
+          script: |
+            adb devices
+            adb install -r r35-source/android/app/build/outputs/apk/debug/app-debug.apk
+            python ci/pf2-kingmaker-certification/android_ui_endurance.py --adb adb
+      - name: Truthful evidence notice
+        if: always()
+        run: |
+          echo 'Android emulator is a genuine Android runtime, not a physical device.'
+          echo 'A UI/AppDb smoke does NOT certify 11 chapters, all companions, or all warfare variants.'
+          echo 'No upload, publication, or modification of the R35 release.'
