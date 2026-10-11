@@ -139,6 +139,14 @@ jobs:
           chmod +x gradlew
           ./gradlew :app:assembleDebug --no-daemon --stacktrace
           find android/app/build/outputs/apk/debug -name '*.apk' -type f -exec sha256sum {} \;
+      - name: Run Android JVM unit tests with R36 production code
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$PF2_R36_PROJECT"
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest --no-daemon --stacktrace
+          echo "R36_ANDROID_JVM_UNIT_TESTS_PASS=true"
   verify:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 100
