@@ -437,6 +437,12 @@ public final class R36BookSemanticsHarness {
   check(mergedAlias.optLong("id")==10&&"amiri".equals(mergedAlias.optString("companion_key")),"alias merge preserves canonical identity and leader references");
   JSONObject newerCompanion=new JSONObject(untouchedCompanion.toString()).put("influence",2).put("notes","Decisão mais recente reduziu a influência");
   check(KingmakerCompanionSemantics.mergeLegacyAlias(newerCompanion,oldAlias).optInt("influence")==2,"older high influence cannot overwrite a newer canonical decision");
+  JSONObject narratorQuest=new JSONObject(journalQuest.toString());JSONObject resetProgress=new JSONObject(narratorQuest.optString("progress_json"));JSONArray resetObjectives=resetProgress.optJSONArray("objectives");for(int n=0;n<resetObjectives.length();n++)resetObjectives.optJSONObject(n).put("completed",false).put("status","pending");narratorQuest.put("progress_json",resetProgress.toString());
+  JSONArray narratorResolutions=new JSONArray().put(new JSONObject().put("id","first").put("resolution_notes","A cena acabou com o resgate confirmado")).put(new JSONObject().put("id","second").put("waived",true).put("resolution_notes","O acordo evitou o combate desta alternativa"));
+  JSONObject narratorChange=KingmakerCampaignGate.preserveDefinition(narratorQuest,new JSONObject().put("objective_resolutions",narratorResolutions).put("status","completed"));
+  check(KingmakerCampaignGate.objectivesResolved(KingmakerCampaignGate.transitionState(narratorQuest,narratorChange)),"narrator can resolve known objectives and finish in one validated update");
+  check(KingmakerCampaignGate.objectives(narratorQuest).optJSONObject(0).optBoolean("completed")==false,"narrator resolution cannot mutate the original saved snapshot");
+  boolean narratorInvented=false;try{KingmakerCampaignGate.preserveDefinition(narratorQuest,new JSONObject().put("objective_resolutions",new JSONArray().put(new JSONObject().put("id","invented").put("resolution_notes","Sem fonte real no livro"))));}catch(IllegalArgumentException expected){narratorInvented=true;}check(narratorInvented,"narrator cannot append invented campaign objectives");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

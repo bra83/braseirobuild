@@ -53,13 +53,24 @@ public final class KingmakerCampaignGate {
   for(JSONObject q:candidates)if(!retiredQuest(q)&&(!official(q)||officialChapter(chapterKey(q))>0)&&ready(q,all))out.add(q);
   return out;
  }
+ public static JSONObject transitionState(JSONObject before,JSONObject change){
+  if(!official(before))return before;
+  try{JSONObject next=new JSONObject(before.toString());if(change.has("progress_json"))next.put("progress_json",change.opt("progress_json"));return next;}
+  catch(Exception error){throw new IllegalArgumentException("Estado de missão inválido.",error);}
+ }
  public static JSONObject preserveDefinition(JSONObject before,JSONObject change){
   if(!official(before))return change;
   try{
-   JSONObject result=new JSONObject(change.toString());
-   if(!result.has("progress_json"))return result;
-   JSONObject prior=progress(before),next=progress(result);
+   JSONObject result=new JSONObject(change.toString()),prior=progress(before);
+   if(!result.has("progress_json")&&!result.has("objective_resolutions"))return result;
+   JSONObject next=result.has("progress_json")?progress(result):new JSONObject(prior.toString());
    for(String field:new String[]{"quest_key","chapter_key","milestone_xp","prerequisites","rewards","objectives"})if(prior.has(field))next.put(field,prior.opt(field));
+   JSONArray resolutions=result.optJSONArray("objective_resolutions");
+   if(resolutions!=null){
+    JSONObject working=new JSONObject(before.toString()).put("progress_json",next.toString());
+    for(int n=0;n<resolutions.length();n++){JSONObject resolution=resolutions.optJSONObject(n);if(resolution==null)throw new IllegalArgumentException("Resultado de objetivo inválido.");next=resolveObjective(working,resolution.optString("id"),resolution.optBoolean("waived"),resolution.optString("resolution_notes"));working.put("progress_json",next.toString());}
+    if(resolutions.length()>0)next.put("journal_started",true);
+   }
    result.put("progress_json",next.toString());return result;
   }catch(Exception e){throw new IllegalArgumentException("Não foi possível preservar a definição da missão.",e);}
  }

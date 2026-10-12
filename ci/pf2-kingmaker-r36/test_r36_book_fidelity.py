@@ -247,3 +247,16 @@ def test_campaign_objectives_and_completion_share_checked_transaction():
     body=method_body('public JSONObject finishCampaignQuest(')
     assert 'db.runInTransactionChecked' in body and 'objectivesResolved(before)' in body
     assert 'personal_quest_status","complete"' in body
+
+
+def test_narrator_uses_the_same_upgrade_backend():
+    body=method_body('private JSONObject resolveKingdomActivityWithContext(')
+    assert 'if(p.optString("upgrade_from").length()>0)return resolveStructureUpgrade(' in body
+
+
+def test_narrator_objective_updates_validate_preserved_definition():
+    app=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/AppDb.java").read_text(encoding="utf-8")
+    assert 'requirePublishedCompanionQuest(previous)' in app
+    assert 'KingmakerCampaignGate.transitionState(previous,q)' in app
+    assert 'previous.length()==0&&KingmakerCampaignGate.official(q)' in app
+    assert 'CompanionSemantics.questAvailable(companionKey,level' in app

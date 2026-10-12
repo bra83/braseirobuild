@@ -3,6 +3,8 @@ def once(s,a,b):
  if s.count(a)!=1:raise ValueError('Upgrade anchor count='+str(s.count(a))+' '+a[:80])
  return s.replace(a,b,1)
 def upgrade_repository(s):
+ anchor='        } else if ("build_structure".equals(k)) {'
+ s=once(s,anchor,anchor+'\n            if(p.optString("upgrade_from").length()>0)return resolveStructureUpgrade(p.optString("settlement_key"),p.optString("upgrade_from"),p.optString("structure_key"),nat,skill,new JSONObject(p.toString()),notes);')
  helper='''
     public void declareHistoricalConstructionPayment(final String townKey,final String structureKey,final JSONObject payment,final String evidence)throws Exception{
         if(clean(evidence).length()<8)throw new IllegalArgumentException("Informe a fonte do pagamento histórico.");

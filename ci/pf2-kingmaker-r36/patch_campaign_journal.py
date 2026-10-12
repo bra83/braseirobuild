@@ -65,7 +65,7 @@ def journal_repository(s):
         if(questKey.startsWith("q_cg_")){
             String companionKey=questKey.substring(5);JSONObject companion=companion(companionKey);int level=1;
             for(JSONObject hero:db.listActiveCharacters())level=Math.max(level,hero.optInt("level",1));
-            boolean vordakai=false,bloom=false;for(JSONObject q:campaignJournal())if(KingmakerCampaignGate.completed(q.optString("status"))){if("q_vordakai".equals(KingmakerCampaignGate.questKey(q)))vordakai=true;if("q_utero_lamashtu".equals(KingmakerCampaignGate.questKey(q)))bloom=true;}
+            boolean vordakai=false,bloom=false;for(JSONObject q:campaignJournal())if(KingmakerCampaignGate.official(q)&&!KingmakerCampaignGate.retiredQuest(q)&&KingmakerCampaignGate.completed(q.optString("status"))){if("q_vordakai".equals(KingmakerCampaignGate.questKey(q)))vordakai=true;if("q_utero_lamashtu".equals(KingmakerCampaignGate.questKey(q)))bloom=true;}
             if(!KingmakerCompanionSemantics.questAvailable(companionKey,level,companion.optInt("available",0)==1,"in_progress",vordakai,bloom))throw new IllegalStateException("O companheiro ou o momento da história ainda não permite esta aventura.");
             if("ekundayo".equals(companionKey)&&settlements().isEmpty())throw new IllegalStateException("O banquete ocorre após fundar o Reino.");
             if("linzi".equals(companionKey)&&settlements().isEmpty())throw new IllegalStateException("A investigação começa em um assentamento do Reino.");
@@ -101,6 +101,7 @@ def journal_repository(s):
 def journal_ui(s):
  anchor='km.addView(kingdomButton);'
  s=once(s,anchor,anchor+'''if(kingmakerEnabled){Button journal=button("DIÁRIO DA CAMPANHA E COMPANHEIROS",PANEL2);journal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showKingmakerCampaignJournal();}});km.addView(journal);}''')
+ s=once(s,'p.append("MUNDO VIVO ESTRUTURADO:', 'if(kingmakerService!=null&&kingmakerService.enabled())p.append("KINGMAKER: melhorar estrutura existente usa build_structure com upgrade_from (estrutura original) e structure_key (destino); o motor calcula o custo efetivo e mantém a antiga ativa até concluir. Para missões publicadas, quest_updates deve preservar os IDs dos objetivos. Registre cenas efetivamente resolvidas em objective_resolutions:[{id,waived,resolution_notes}], usando waived somente quando uma escolha do grupo dispensar aquela ramificação. Não conclua missões com objetivos pendentes, não invente objetivos ou recompensas e respeite o nível e o momento das aventuras dos companheiros.\\n");p.append("MUNDO VIVO ESTRUTURADO:')
  # Generic completion uses the same backend, preventing a bypass around objective validation.
  s=once(s,'db.updateQuestStatus(q.optLong("id"),"completed","Concluída pelo jogador");','if(kingmakerService!=null&&kingmakerService.enabled()&&KingmakerCampaignGate.official(q))kingmakerRepository.finishCampaignQuest(q.optLong("id"));else db.updateQuestStatus(q.optLong("id"),"completed","Concluída pelo jogador");')
  helper='''
@@ -118,6 +119,22 @@ def journal_ui(s):
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),dp(16));form.addView(text(objective.optString("description",objective.optString("desc")),14,TEXT,false));
         final Spinner result=spinner(new String[]{"Objetivo cumprido","Dispensado por decisão / ramificação"},"Objetivo cumprido");form.addView(cardWithLabel("RESULTADO",result));final EditText evidence=labeledField(form,"O que ocorreu na cena / decisão tomada",objective.optString("resolution_notes"),true);
         new AlertDialog.Builder(this).setTitle("Resolver objetivo").setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null).setPositiveButton("REGISTRAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){try{JSONObject fresh=kingmakerRepository.recordCampaignObjective(q.optLong("id"),objective.optString("id"),result.getSelectedItemPosition()==1,value(evidence));showKingmakerQuestObjectives(fresh);}catch(Exception e){toast(e.getMessage());}}}).show();
+    }
+'''
+ i=s.rfind('\n}');return s[:i]+'\n'+helper+s[i:]
+
+def journal_appdb(s):
+ anchor='KingmakerCampaignGate.requireTransition(previous,q.optString("status",previous.optString("status")),queryList("SELECT * FROM quests WHERE world_profile=?",new String[]{getActiveMapProfile()}));'
+ s=once(s,anchor,'requirePublishedCompanionQuest(previous);KingmakerCampaignGate.requireTransition(KingmakerCampaignGate.transitionState(previous,q),q.optString("status",previous.optString("status")),queryList("SELECT * FROM quests WHERE world_profile=?",new String[]{getActiveMapProfile()}));')
+ s=once(s,'String title=q.has("title")?q.optString("title").trim():previous.optString("title");','if(previous.length()==0&&KingmakerCampaignGate.official(q))throw new IllegalStateException("Missões publicadas são carregadas pelo importador da campanha; a narradora deve atualizar os registros existentes.");String title=q.has("title")?q.optString("title").trim():previous.optString("title");')
+ helper='''
+    private void requirePublishedCompanionQuest(JSONObject quest){
+        String key=KingmakerCampaignGate.questKey(quest);if(!key.startsWith("q_cg_")||KingmakerCampaignGate.completed(quest.optString("status")))return;
+        String companionKey=key.substring(5);JSONObject companion=queryOne("SELECT * FROM kingmaker_companions WHERE world_profile=? AND companion_key=?",new String[]{getActiveMapProfile(),companionKey});int level=1;
+        for(JSONObject hero:listActiveCharacters())level=Math.max(level,hero.optInt("level",1));
+        boolean vordakai=false,bloom=false;for(JSONObject q:queryList("SELECT * FROM quests WHERE world_profile=?",new String[]{getActiveMapProfile()}))if(KingmakerCampaignGate.official(q)&&!KingmakerCampaignGate.retiredQuest(q)&&KingmakerCampaignGate.completed(q.optString("status"))){if("q_vordakai".equals(KingmakerCampaignGate.questKey(q)))vordakai=true;if("q_utero_lamashtu".equals(KingmakerCampaignGate.questKey(q)))bloom=true;}
+        if(!KingmakerCompanionSemantics.questAvailable(companionKey,level,companion.optInt("available",0)==1,"in_progress",vordakai,bloom))throw new IllegalStateException("A aventura do companheiro ainda não está disponível neste momento da campanha.");
+        if(("ekundayo".equals(companionKey)||"linzi".equals(companionKey))&&queryOne("SELECT id FROM kingmaker_settlements WHERE world_profile=? LIMIT 1",new String[]{getActiveMapProfile()}).length()==0)throw new IllegalStateException("Esta aventura requer um assentamento do Reino.");
     }
 '''
  i=s.rfind('\n}');return s[:i]+'\n'+helper+s[i:]
