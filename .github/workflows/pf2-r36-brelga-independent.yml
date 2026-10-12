@@ -164,3 +164,80 @@ jobs:
         run: |
           Write-Host 'Only selected official book rules tested in this candidate. NOT whole-campaign certification.'
           Write-Host 'This workflow uploads a TEST APK only after successful source checks and Gradle compile. This is not a certified release.'
+
+  android-ui-acceptance:
+    name: Real Android emulator / AppDb 3-restart acceptance
+    needs: [verify]
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 75
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            ci/pf2-kingmaker-certification
+          ref: ${{ github.sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: Kingmaker-R36-9.0.37-TEST-APK
+          path: r36-test-apk
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Boot a real Android emulator and validate production AppDb
+        shell: powershell
+        timeout-minutes: 65
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Wrong runner: $env:RUNNER_NAME"}
+          $apk=Join-Path $env:GITHUB_WORKSPACE 'r36-test-apk\Braseiro-Kingmaker-R36-test.apk'
+          $checksum=Join-Path $env:GITHUB_WORKSPACE 'r36-test-apk\SHA256.txt'
+          if(!(Test-Path $apk) -or !(Test-Path $checksum)){throw 'TEST_APK_ARTIFACT_MISSING'}
+          $known=((Get-Content $checksum -Raw).Trim() -split '\s+')[0]
+          $actual=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($known -ne $actual){throw "TEST_APK_SHA256_MISMATCH $actual"}
+          $sdkCandidates=@('C:\actions-runner\android-sdk',$env:ANDROID_SDK_ROOT,$env:ANDROID_HOME,(Join-Path $env:LOCALAPPDATA 'Android\Sdk'))|Where-Object {$_ -and (Test-Path $_)}
+          $sdk=$sdkCandidates|Where-Object {Test-Path (Join-Path $_ 'platform-tools\adb.exe')}|Select-Object -First 1
+          if(!$sdk){throw 'ANDROID_SDK_PLATFORM_TOOLS_MISSING_ON_BRELGA'}
+          $adb=Join-Path $sdk 'platform-tools\adb.exe'
+          $emulator=Join-Path $sdk 'emulator\emulator.exe'
+          if(!(Test-Path $emulator)){throw 'ANDROID_EMULATOR_BINARY_MISSING_ON_BRELGA'}
+          $env:ANDROID_SDK_ROOT=$sdk
+          $env:ANDROID_HOME=$sdk
+          $avds=@(& $emulator -list-avds | Where-Object {$_ -and $_.Trim() -ne '' -and $_ -notmatch '^INFO|^WARNING|^ERROR'})
+          if($LASTEXITCODE -ne 0){throw 'ANDROID_AVD_LIST_FAILED'}
+          if($avds.Count -eq 0){throw 'ANDROID_AVD_MISSING_ON_BRELGA: create a Pixel Android 11 (API 30) x86_64 AVD to permit real AppDb tests'}
+          $avd=$avds[0].Trim()
+          Write-Host "REAL_ANDROID_AVD=$avd"
+          $proc=$null
+          try{
+            $proc=Start-Process -FilePath $emulator -ArgumentList @('-avd',$avd,'-no-window','-no-audio','-no-snapshot-load','-no-boot-anim','-gpu','swiftshader_indirect') -PassThru
+            $booted=$false
+            for($n=0;$n -lt 90;$n++){
+              Start-Sleep -Seconds 5
+              $status=(& $adb -e shell getprop sys.boot_completed 2>$null | Out-String).Trim()
+              if($status -eq '1'){$booted=$true;break}
+              if($proc.HasExited){throw "ANDROID_EMULATOR_EXITED_EARLY code=$($proc.ExitCode)"}
+            }
+            if(!$booted){throw 'ANDROID_EMULATOR_BOOT_TIMEOUT'}
+            & $adb -e shell input keyevent 82
+            & $adb -e install -r "$apk"
+            if($LASTEXITCODE -ne 0){throw 'ANDROID_APK_INSTALL_FAILED'}
+            $evidence=Join-Path $env:GITHUB_WORKSPACE 'r36-real-android-evidence'
+            New-Item -ItemType Directory -Path $evidence -Force|Out-Null
+            & python ci/pf2-kingmaker-certification/android_ui_endurance.py --adb "$adb" 2>&1 | Tee-Object -FilePath (Join-Path $evidence 'AppDb-3-restarts.txt')
+            if($LASTEXITCODE -ne 0){throw 'ANDROID_PRODUCTION_APPDB_ACCEPTANCE_FAILED'}
+            Write-Host 'R36_REAL_ANDROID_APPDB_ACCEPTANCE=PASS'
+          }finally{
+            & $adb -e emu kill 2>$null
+            if($proc -and !$proc.HasExited){Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue}
+          }
+      - name: Preserve real Android evidence even when acceptance fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kingmaker-R36-Android-AppDb-Evidence
+          path: r36-real-android-evidence/
+          if-no-files-found: warn
+          retention-days: 30
