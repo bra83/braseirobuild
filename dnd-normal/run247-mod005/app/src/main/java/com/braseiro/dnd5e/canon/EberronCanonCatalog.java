@@ -198,6 +198,207 @@ public final class EberronCanonCatalog {
                 Collections.<String, String>emptyMap(), "mestre", false
         ));
 
+        // --- EXPANSÃO LOTE B: EBERRON FORGE OF THE ARTIFICER (EFA) ---
+
+        // 5. Demais Casas Dracossinaladas Canônicas
+        Map<String, String> kundarakRel = new HashMap<>();
+        kundarakRel.put("rival", "eberron_house_deneith");
+        kundarakRel.put("banking_partner", "eberron_house_sivis");
+        list.add(new Entity(
+                "eberron_house_kundarak", "EFA", "eberron", "998 YK", "faction",
+                "Casa Kundarak (Marca da Proteção)", "House Kundarak (Mark of Warding)",
+                "A casa dos anões banqueiros e mestres da segurança mágica, operando os cofres mais impenetráveis de Khorvaire.",
+                Arrays.asList(
+                        "Portadores da Marca da Proteção (Mark of Warding); controlam as finanças internacionais e a emissão de cartas de crédito.",
+                        "Seus cofres em Drakkenheim e Sharn são selados por glifos e fechaduras arcanas lendárias imunes a ladinos comuns."
+                ),
+                Arrays.asList(
+                        "Mantêm prisões secretas de segurança máxima (Dreadhold) esculpidas em rochedos oceânicos para aprisionar aberrações e nobres caídos.",
+                        "Pesquisam runas antigas de ferro dos anões de Mror para construir cofres de isolamento planar."
+                ),
+                Arrays.asList("eberron", "house_kundarak", "warding", "banking", "dwarves", "vaults"),
+                kundarakRel, "grupo", true
+        ));
+
+        Map<String, String> sivisRel = new HashMap<>();
+        sivisRel.put("ally", "eberron_house_kundarak");
+        list.add(new Entity(
+                "eberron_house_sivis", "EFA", "eberron", "998 YK", "faction",
+                "Casa Sivis (Marca da Escrita)", "House Sivis (Mark of Scribing)",
+                "A corporação de notários, tradutores, mensageiros e escribas gnomos originária de Zilargo.",
+                Arrays.asList(
+                        "Portadores da Marca da Escrita (Mark of Scribing); operam as Estações da Mensagem (Speaking Stones) que transmitem palavras instantâneas entre cidades.",
+                        "Autenticam documentos legais oficiais, tratados diplomáticos e contratos entre todas as nações e casas."
+                ),
+                Arrays.asList(
+                        "Mestres da criptografia de Sivis monitoram mensagens diplomáticas interceptadas em busca de indícios da Profecia Dracônica.",
+                        "Mantêm o Trust, a temida rede de inteligência e espionagem silenciosa do governo de Zilargo."
+                ),
+                Arrays.asList("eberron", "house_sivis", "scribing", "gnomes", "communication", "diplomacy"),
+                sivisRel, "grupo", true
+        ));
+
+        list.add(new Entity(
+                "eberron_house_jorasco", "EFA", "eberron", "998 YK", "faction",
+                "Casa Jorasco (Marca da Cura)", "House Jorasco (Mark of Healing)",
+                "A corporação dos halflings curandeiros, cirurgiões e boticários que mantém o monopólio da medicina em Khorvaire.",
+                Arrays.asList(
+                        "Portadores da Marca da Cura (Mark of Healing); administram casas de cura em todas as capitais das Cinco Nações.",
+                        "Neutralizam pestes raras, doenças mágicas e prestam socorro médico profissional sob cobrança estrita de taxas padronizadas."
+                ),
+                Arrays.asList(
+                        "Recusam categoricamente prestar tratamento a quem não puder pagar a taxa contratual, gerando atritos com ordens caridosas.",
+                        "Investigam remédios proibidos e mutações biológicas surgidas nas fronteiras da Mournland."
+                ),
+                Arrays.asList("eberron", "house_jorasco", "healing", "halflings", "medicine"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "eberron_house_ghallanda", "EFA", "eberron", "998 YK", "faction",
+                "Casa Ghallanda (Marca da Hospitalidade)", "House Ghallanda (Mark of Hospitality)",
+                "Halflings nobres que operam a vasta rede de estalagens, tavernas e santuários de descanso de Khorvaire.",
+                Arrays.asList(
+                        "Portadores da Marca da Hospitalidade (Mark of Hospitality); garantem comida fresca, alojamento seguro e refúgio neutro.",
+                        "O símbolo do cão dourado em uma pousada assegura que as leis de paz e proteção serão rigorosamente mantidas."
+                ),
+                Arrays.asList(
+                        "Suas suítes mais caras utilizam rituais de mansão magnífica e santuário privado imunes a escuta telepática.",
+                        "Servem frequentemente como mediadores discretos para encontros secretos entre governantes inimigos."
+                ),
+                Arrays.asList("eberron", "house_ghallanda", "hospitality", "halflings", "inn", "refuge"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "eberron_house_tharashk", "EFA", "eberron", "998 YK", "faction",
+                "Casa Tharashk (Marca do Encontro)", "House Tharashk (Mark of Finding)",
+                "Clãs de humanos e meio-orcs dos Pântanos das Sombras (Shadow Marches) especializados em prospecção e rastreamento.",
+                Arrays.asList(
+                        "Portadores da Marca do Encontro (Mark of Finding); mineram e refinam os cobiçados Dragonshards de Eberron e Khyber.",
+                        "Alugam inquisitivos de faro aguçado e prospectores de minérios para expedições perigosas em terras ermas."
+                ),
+                Arrays.asList(
+                        "Mediaram a contratação de tropas monstruosas (orcs, gnolls e ogros) de Droaam durante os anos finais da Última Guerra.",
+                        "Xamãs da casa investigam cultos aos Senhores da Loucura (Daelkyr) selados sob os pântanos ocidentais."
+                ),
+                Arrays.asList("eberron", "house_tharashk", "finding", "half_orcs", "dragonshards", "shadow_marches"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "eberron_house_vadalis", "EFA", "eberron", "998 YK", "faction",
+                "Casa Vadalis (Marca do Adestramento)", "House Vadalis (Mark of Handling)",
+                "Criadores e geneticistas arcanos dos Reinos Eldeen que desenvolvem montarias melhoradas e animais magebred.",
+                Arrays.asList(
+                        "Portadores da Marca do Adestramento (Mark of Handling); fornecem cavalos superiores, grifos e bestas de carga para exércitos.",
+                        "Suas linhagens de animais mágicos possuem resistência física acelerada e inteligência instintiva superior."
+                ),
+                Arrays.asList(
+                        "Pesquisas secretas exploram o aprimoramento genético de seres humanoides em violação aos acordos de Thronehold.",
+                        "Bioterapeutas de Vadalis tentam domesticar monstruosidades aladas capturadas nas montanhas de Droaam."
+                ),
+                Arrays.asList("eberron", "house_vadalis", "handling", "magebred", "mounts", "beasts"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "eberron_house_medani", "EFA", "eberron", "998 YK", "faction",
+                "Casa Medani (Marca da Detecção)", "House Medani (Mark of Detection)",
+                "Inquisitivos meio-elfos de Breland que formam a Guilda de Alerta (Warning Guild) para prever e neutralizar ameaças.",
+                Arrays.asList(
+                        "Portadores da Marca da Detecção (Mark of Detection); especializados em segurança preventiva e contra-espionagem.",
+                        "Seus agentes detectam venenos, emboscadas e ilusões antes que seus clientes nobres sejam atacados."
+                ),
+                Arrays.asList(
+                        "Competem amargamente contra os espiões das casas Phiarlan e Thuranni nas cortes de Sharn e Wroat.",
+                        "Possuem métodos analíticos dedutivos que rivalizam com as maiores mentes forenses de Khorvaire."
+                ),
+                Arrays.asList("eberron", "house_medani", "detection", "half_elves", "inquisitives", "security"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "eberron_house_phiarlan_thuranni", "EFA", "eberron", "998 YK", "faction",
+                "Casas Phiarlan & Thuranni (Marcas da Sombra)", "Houses Phiarlan & Thuranni (Marks of Shadow)",
+                "As duas casas élficas rivais de artistas, dançarinos e músicos que controlam a espionagem e assassinatos de elite.",
+                Arrays.asList(
+                        "Portadores da Marca da Sombra (Mark of Shadow); dividiram-se após a 'Cisma da Sombra' em uma sangrenta guerra civil interna.",
+                        "Phiarlan comanda o Entretenimento dos Cinco Reinos, enquanto Thuranni atua com assassinos de sombras desavergonhados."
+                ),
+                Arrays.asList(
+                        "Cada trupe teatral itinerante de elfos é simultaneamente uma célula de agentes de inteligência e espionagem.",
+                        "Ambas as casas negociam segredos de estado com os governos de Breland, Thrane, Karrnath e Aundair."
+                ),
+                Arrays.asList("eberron", "house_phiarlan", "house_thuranni", "shadow", "elves", "espionage", "assassins"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        // 6. Tecnologia, Itens e Fenômenos de Eberron (EFA)
+        list.add(new Entity(
+                "eberron_item_dragonshards", "EFA", "eberron", "998 YK", "item",
+                "Fragmentos de Dragão (Dragonshards)", "Dragonshards of Eberron",
+                "Gemas mágicas cristalinas fundamentais para a canalização de marcas de dragão e combustível de toda a magitecnologia.",
+                Arrays.asList(
+                        "Divididos em três tipos: Fragmentos de Siberys (dourados, celestes), Eberron (carmesim, da terra) e Khyber (violeta escuro, do submundo).",
+                        "Fragmentos de Khyber são indispensáveis para aprisionar e vincular elementais nos motores de dirigíveis e trens elétricos."
+                ),
+                Arrays.asList(
+                        "Disputas de mineração de fragmentos nas fronteiras de Q'barra e Xen'drik deflagram conflitos militares armados.",
+                        "Fragmentos sintéticos instáveis criados por artífices renegados podem explodir em ondas de energia selvagem."
+                ),
+                Arrays.asList("eberron", "dragonshards", "siberys", "khyber", "elemental_binding", "magic_item"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "eberron_argonnessen", "EFA", "eberron", "998 YK", "location",
+                "Argonnessen (Continente dos Dragões)", "Argonnessen",
+                "O vasto continente isolado ao sudeste, lar ancestral de dragões sábios e mestres da magia primordial.",
+                Arrays.asList(
+                        "Cercado por tempestades arcanas e frotas de dragões que destroem qualquer navio intruso que se aproxime sem convite.",
+                        "Abriga os Grandes Observatórios onde os dragões decifram o desenrolar milenar da Profecia Dracônica."
+                ),
+                Arrays.asList(
+                        "A seita da Câmara (The Chamber) opera com dragões metamorfoseados infiltrados em Khorvaire.",
+                        "Criptas titânicas guardam os restos mortais dos dragões primordiais que lutaram contra os Overlords na Primeira Era."
+                ),
+                Arrays.asList("eberron", "argonnessen", "dragons", "chamber", "prophecy", "ancient"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ));
+
+        list.add(new Entity(
+                "eberron_droaam", "EFA", "eberron", "998 YK", "location",
+                "Droaam (Nação dos Monstros)", "Droaam",
+                "Território ocidental não reconhecido pelo Tratado de Thronehold, governado pela aliança das Filhas de Sora Kell.",
+                Arrays.asList(
+                        "Povoado por orcs, gnolls, ogros, medusas, harpias e minotauros que construíram uma sociedade funcional e bélica.",
+                        "A capital do Grande Crag ergue-se com arquitetura de pedra esculpida e postos mercantis de Droaam."
+                ),
+                Arrays.asList(
+                        "As Três Bruxas (Sora Kell) utilizam profecias do sangue para manipular os monarcas vizinhos de Breland.",
+                        "O sindicato criminoso Daask exporta mercenários monstruosos para controlar as favelas de Sharn."
+                ),
+                Arrays.asList("eberron", "droaam", "monsters", "sora_kell", "daask", "frontier"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "eberron_warforged_colossus", "EFA", "eberron", "998 YK", "monster",
+                "Colosso Forjado da Guerra", "Warforged Colossus",
+                "Titã blindado mecânico colossal construído nos anos finais da Última Guerra para dizimar cidades fortificadas.",
+                Arrays.asList(
+                        "Muralhas vivas de placas de adamante e metal estelar impulsionadas por motores elementais gigantescos.",
+                        "A maioria repousa inerte e tombada nas terras cinzentas da Mournland como monumentos fúnebres de aço."
+                ),
+                Arrays.asList(
+                        "O Senhor das Lâminas tenta reparar os núcleos de força de um colosso sepultado para marchar sobre Breland.",
+                        "A reativação de um colosso requer múltiplos fragmentos de dragão Khyber de pureza perfeita."
+                ),
+                Arrays.asList("eberron", "warforged_colossus", "mournland", "titan", "cannith", "construct"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ));
+
         return Collections.unmodifiableList(list);
     }
 }

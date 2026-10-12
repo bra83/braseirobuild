@@ -31,7 +31,7 @@ public final class AdventureTransactionSafetyRobolectricTest {
     @Before public void setUp() {
         context = RuntimeEnvironment.getApplication();
         databaseName = "adventure_tx_" + UUID.randomUUID().toString().substring(0, 8) + ".db";
-        db = new AppDb(context, databaseName);
+        db = com.braseiro.dnd5e.AppDbTestHelper.createSandbox(context, databaseName);
         db.setActiveMapProfile("dnd");
         engine = new AdventureEngine(db, null, null);
     }

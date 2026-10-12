@@ -32,10 +32,10 @@ public final class EditorialSectionProofTest {
         List<NarrativeContentEngine.Entity> ravenloft = RavenloftCanonCatalog.all();
         List<NarrativeContentEngine.Entity> lorwynArcana = LorwynNetherilArcanaCanonCatalog.all();
 
-        assertEquals("Faerûn deve conter exatamente 29 entidades comprovadas", 29, faerun.size());
-        assertEquals("Eberron deve conter exatamente 10 entidades comprovadas", 10, eberron.size());
-        assertEquals("Ravenloft/Hungers deve conter exatamente 15 entidades comprovadas", 15, ravenloft.size());
-        assertEquals("Lorwyn/Netheril/Arcana/XMM/XSAC deve conter exatamente 16 entidades", 16, lorwynArcana.size());
+        assertEquals("Faerûn deve conter exatamente 45 entidades comprovadas", 45, faerun.size());
+        assertEquals("Eberron deve conter exatamente 22 entidades comprovadas", 22, eberron.size());
+        assertEquals("Ravenloft/Hungers deve conter exatamente 25 entidades comprovadas", 25, ravenloft.size());
+        assertEquals("Lorwyn/Netheril/Arcana/XMM/XSAC deve conter exatamente 32 entidades", 32, lorwynArcana.size());
 
         Set<String> allIds = new HashSet<>();
         int total = 0;
@@ -69,8 +69,8 @@ public final class EditorialSectionProofTest {
             total++;
         }
 
-        assertEquals("Total de entidades canônicas deve ser 70", 70, total);
-        assertEquals("Total de IDs únicos deve ser exatamente 70", 70, allIds.size());
+        assertEquals("Total de entidades canônicas deve ser 124", 124, total);
+        assertEquals("Total de IDs únicos deve ser exatamente 124", 124, allIds.size());
     }
 
     @Test
@@ -83,10 +83,12 @@ public final class EditorialSectionProofTest {
 
         // Ch 2 Dalelands & Cormanthor
         assertTrue("Deve conter Dalelands", ids.contains("faerun_dalelands"));
+        assertTrue("Deve conter Shadowdale", ids.contains("faerun_shadowdale"));
         assertTrue("Deve conter Cormanthor/Myth Drannor", ids.contains("faerun_cormanthor_myth_drannor"));
 
         // Ch 3 Icewind Dale
         assertTrue("Deve conter Icewind Dale", ids.contains("faerun_icewind_dale"));
+        assertTrue("Deve conter Drizzt Do'Urden", ids.contains("faerun_drizzt_dourden"));
 
         // Ch 4 Calimshan
         assertTrue("Deve conter Calimshan", ids.contains("faerun_calimshan"));
@@ -96,20 +98,38 @@ public final class EditorialSectionProofTest {
         assertTrue("Deve conter Ilhas Moonshae", ids.contains("faerun_moonshae_isles"));
         assertTrue("Deve conter Poços Lunares", ids.contains("faerun_moonshae_moonwells"));
 
-        // Ch 6 Baldur's Gate
+        // Ch 6 Baldur's Gate, Neverwinter & Silverymoon
         assertTrue("Deve conter Baldur's Gate", ids.contains("faerun_baldurs_gate"));
+        assertTrue("Deve conter Neverwinter", ids.contains("faerun_neverwinter"));
+        assertTrue("Deve conter Silverymoon", ids.contains("faerun_silverymoon"));
+        assertTrue("Deve conter Thay", ids.contains("faerun_thay"));
 
         // Ch 7 Lost Library of Lethchauntos
         assertTrue("Deve conter Biblioteca de Lethchauntos", ids.contains("faerun_lost_library_lethchauntos"));
+        assertTrue("Deve conter Myrna Nor", ids.contains("faerun_myrna_nor"));
+        assertTrue("Deve conter Powell the Owl Niccam", ids.contains("faerun_powell_the_owl_niccam"));
 
-        // Ch 8 Magic Items
+        // Protagonistas & Antagonistas de Aventuras
+        assertTrue("Deve conter Lady Khara Sulwood", ids.contains("faerun_khara_sulwood"));
+        assertTrue("Deve conter Bonegnasher", ids.contains("faerun_bonegnasher"));
+        assertTrue("Deve conter Szass Tam", ids.contains("faerun_szass_tam"));
+
+        // Ch 8 Magic Items & Relíquias de Aventuras
         assertTrue("Deve conter Cristal de Calimemnon", ids.contains("faerun_item_calimemnon_crystal"));
         assertTrue("Deve conter Coroa de Chifres", ids.contains("faerun_item_crown_of_horns"));
         assertTrue("Deve conter Tomo do Dragão", ids.contains("faerun_item_tome_dragon"));
+        assertTrue("Deve conter Orbe de Damara", ids.contains("faerun_item_orb_of_damara"));
+        assertTrue("Deve conter Grimório Nathlum", ids.contains("faerun_item_nathlum_grimoire"));
 
         // Ch 9 Bestiary
         assertTrue("Deve conter Fera de Malar", ids.contains("faerun_beast_of_malar"));
         assertTrue("Deve conter Progênie dos Três Mortos", ids.contains("faerun_dead_three_scion"));
+
+        // Panteão Maior
+        assertTrue("Deve conter Lathander", ids.contains("faerun_deity_lathander"));
+        assertTrue("Deve conter Kelemvor", ids.contains("faerun_deity_kelemvor"));
+        assertTrue("Deve conter Ilmater", ids.contains("faerun_deity_ilmater"));
+        assertTrue("Deve conter Bane", ids.contains("faerun_deity_bane"));
     }
 
     @Test
@@ -178,12 +198,24 @@ public final class EditorialSectionProofTest {
         assertTrue("Deve conter Falkovnia", ids.contains("ravenloft_falkovnia_domain"));
         assertTrue("Deve conter Borca", ids.contains("ravenloft_borca_domain"));
         assertTrue("Deve conter Tepest", ids.contains("ravenloft_tepest_domain"));
+        assertTrue("Deve conter Har'Akir", ids.contains("ravenloft_harakir_domain"));
+        assertTrue("Deve conter Hazlan", ids.contains("ravenloft_hazlan_domain"));
+        assertTrue("Deve conter Kalakeri", ids.contains("ravenloft_kalakeri_domain"));
+        assertTrue("Deve conter Valachan", ids.contains("ravenloft_valachan_domain"));
+        assertTrue("Deve conter Sithicus", ids.contains("ravenloft_sithicus_domain"));
+
+        // RHW Entidades Cósmicas e Relíquias
+        assertTrue("Deve conter Poderes Sombrios", ids.contains("ravenloft_dark_powers"));
+        assertTrue("Deve conter Símbolo Sagrado de Ravenkind", ids.contains("ravenloft_item_holy_symbol_ravenkind"));
+        assertTrue("Deve conter Espada Solar", ids.contains("ravenloft_item_sunsword"));
 
         // ABH
         assertTrue("Deve conter Palácio Szarr", ids.contains("astarion_cazador_palace"));
         assertTrue("Deve conter Sete Fomes Vampíricas", ids.contains("astarion_vampiric_hungers"));
         assertTrue("Deve conter Família de Crias de Cazador", ids.contains("astarion_cazador_spawn_family"));
         assertTrue("Deve conter Taverna Rat's Run", ids.contains("astarion_rats_run_tavern"));
+        assertTrue("Deve conter Lorde Cazador Szarr NPC", ids.contains("astarion_cazador_szarr_npc"));
+        assertTrue("Deve conter Mordida Empoderada", ids.contains("astarion_dhampir_empowered_bite"));
     }
 
     @Test
@@ -199,10 +231,80 @@ public final class EditorialSectionProofTest {
         assertTrue("Deve conter Bejeweled Conclave", ids.contains("au_bejeweled_conclave"));
         assertTrue("Deve conter Bringers of Cosmic Dawn", ids.contains("au_bringers_cosmic_dawn"));
         assertTrue("Deve conter Tomb of Shadow Serpents", ids.contains("au_tomb_shadow_serpents"));
+        assertTrue("Deve conter Magias Vivas do Cataclisma", ids.contains("au_living_spells_cataclysm"));
+        assertTrue("Deve conter Relíquias de Evolução Mágica", ids.contains("au_evolving_items_relics"));
+        assertTrue("Deve conter Penas de Escrita Arcana", ids.contains("au_item_dictation_quills"));
+        assertTrue("Deve conter Lente de Cronos", ids.contains("au_relic_chronos_lens"));
 
         // XMM e XSAC
         assertTrue("Deve conter Ecologia dos Dragões 2025", ids.contains("xmm_dragon_ecology_2025"));
         assertTrue("Deve conter Adjudicação de Regras 2025", ids.contains("xsac_adjudication_rules"));
+    }
+
+    @Test
+    public void testLorwynAndNetherilEditorialCoverage() {
+        List<NarrativeContentEngine.Entity> list = LorwynNetherilArcanaCanonCatalog.all();
+        Set<String> ids = new HashSet<>();
+        for (NarrativeContentEngine.Entity e : list) ids.add(e.id);
+
+        // Lorwyn (LFL)
+        assertTrue("Deve conter Complexo Aeghith", ids.contains("lorwyn_aeghith_complex"));
+        assertTrue("Deve conter Nexus da Aurora", ids.contains("lorwyn_aurora_nexus"));
+        assertTrue("Deve conter Tocas dos Boggarts", ids.contains("lorwyn_boggart_warrens"));
+        assertTrue("Deve conter Lareira dos Flamekin", ids.contains("lorwyn_flamekin_hearth"));
+        assertTrue("Deve conter Floresta da Folha Dourada", ids.contains("lorwyn_gilt_leaf_wood"));
+        assertTrue("Deve conter Clachan de Kinsbaile", ids.contains("lorwyn_kithkin_clachan"));
+        assertTrue("Deve conter Cenn Buite", ids.contains("lorwyn_cenn_buite"));
+        assertTrue("Deve conter Praga de Shadowmoor", ids.contains("lorwyn_shadowmoor_blight"));
+
+        // Netheril (NF)
+        assertTrue("Deve conter Enclave de Xinok", ids.contains("netheril_xinok_enclave"));
+        assertTrue("Deve conter Sanctum de Karsus", ids.contains("netheril_karsus_sanctum"));
+        assertTrue("Deve conter Larloch", ids.contains("netheril_larloch"));
+        assertTrue("Deve conter Portais do Tempo", ids.contains("netheril_time_gates"));
+        assertTrue("Deve conter Núcleo do Mythallar", ids.contains("netheril_mythallar_core"));
+        assertTrue("Deve conter Pedras Ioun de Alta Magia", ids.contains("netheril_archmage_ioun"));
+        assertTrue("Deve conter Phaerimm do Subsolo", ids.contains("netheril_phaerimm_subterranean"));
+        assertTrue("Deve conter Cidade das Sombras de Thultanth", ids.contains("netheril_shadow_enclave_thultanth"));
+
+        // XMM e XSAC 2025
+        assertTrue("Deve conter Economia de Ações Lendárias 2025", ids.contains("xmm_legendary_action_economy_2025"));
+        assertTrue("Deve conter Tarrasque 2025", ids.contains("xmm_apex_predator_tarrasque_2025"));
+        assertTrue("Deve conter Componentes e Conjuração 2025", ids.contains("xsac_spellcasting_components_2025"));
+        assertTrue("Deve conter Descanso e Recuperação 2025", ids.contains("xsac_rest_and_recovery_2025"));
+    }
+
+    @Test
+    public void testEberronEditorialCoverage() {
+        List<NarrativeContentEngine.Entity> list = EberronCanonCatalog.all();
+        Set<String> ids = new HashSet<>();
+        for (NarrativeContentEngine.Entity e : list) ids.add(e.id);
+
+        // Casas Dracossinaladas
+        assertTrue("Deve conter Casa Cannith", ids.contains("eberron_house_cannith"));
+        assertTrue("Deve conter Casa Lyrandar", ids.contains("eberron_house_lyrandar"));
+        assertTrue("Deve conter Casa Orien", ids.contains("eberron_house_orien"));
+        assertTrue("Deve conter Casa Deneith", ids.contains("eberron_house_deneith"));
+        assertTrue("Deve conter Casa Kundarak", ids.contains("eberron_house_kundarak"));
+        assertTrue("Deve conter Casa Sivis", ids.contains("eberron_house_sivis"));
+        assertTrue("Deve conter Casa Jorasco", ids.contains("eberron_house_jorasco"));
+        assertTrue("Deve conter Casa Ghallanda", ids.contains("eberron_house_ghallanda"));
+        assertTrue("Deve conter Casa Tharashk", ids.contains("eberron_house_tharashk"));
+        assertTrue("Deve conter Casa Vadalis", ids.contains("eberron_house_vadalis"));
+        assertTrue("Deve conter Casa Medani", ids.contains("eberron_house_medani"));
+        assertTrue("Deve conter Casas Phiarlan & Thuranni", ids.contains("eberron_house_phiarlan_thuranni"));
+
+        // Locais, Itens e Monstros de Eberron
+        assertTrue("Deve conter Sharn", ids.contains("eberron_sharn_city"));
+        assertTrue("Deve conter Mournland", ids.contains("eberron_mournland_fog"));
+        assertTrue("Deve conter Forjas de Eston", ids.contains("eberron_eston_creation_forge"));
+        assertTrue("Deve conter Universidade Morgrave", ids.contains("eberron_morgrave_university"));
+        assertTrue("Deve conter Senhor das Lâminas", ids.contains("eberron_lord_of_blades"));
+        assertTrue("Deve conter Profecia Dracônica", ids.contains("eberron_draconic_prophecy"));
+        assertTrue("Deve conter Fragmentos de Dragão", ids.contains("eberron_item_dragonshards"));
+        assertTrue("Deve conter Argonnessen", ids.contains("eberron_argonnessen"));
+        assertTrue("Deve conter Droaam", ids.contains("eberron_droaam"));
+        assertTrue("Deve conter Colosso Forjado da Guerra", ids.contains("eberron_warforged_colossus"));
     }
 
     @Test

@@ -273,6 +273,174 @@ public final class RavenloftCanonCatalog {
                 Collections.<String, String>emptyMap(), "grupo", true
         ));
 
+        // --- EXPANSÃO LOTE C: RAVENLOFT HORRORS WITHIN (RHW) & ASTARION'S BOOK OF HUNGERS (ABH) ---
+
+        // 5. Domínios Adicionais do Pavor (RHW)
+        list.add(new Entity(
+                "ravenloft_harakir_domain", "RHW", "ravenloft", "present", "location",
+                "Domínio de Har'Akir", "Domain of Har'Akir",
+                "Deserto escaldante de areias infinitas e sepulcros piramidais governado pelo faraó múmia reanimado Ankhtepot.",
+                Arrays.asList(
+                        "Tempestades de areia sufocantes varrem oásis isolados onde os habitantes adoram deuses esquecidos em templos de arenito.",
+                        "O Faraó Ankhtepot desperta periodicamente de seu sarcófago de ouro em busca de quebrar a maldição de sua imortalidade estéril."
+                ),
+                Arrays.asList(
+                        "As catacumbas sob a Grande Pirâmide contêm os Quatro Vasos Canopos com fragmentos do coração de Ankhtepot.",
+                        "Ghouls do deserto e sacerdotes fanáticos de Senmet emboscam caravanas de peregrinos nos desfiladeiros rochosos."
+                ),
+                Arrays.asList("ravenloft", "harakir", "ankhtepot", "mummy", "desert_horror", "domain"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "ravenloft_hazlan_domain", "RHW", "ravenloft", "present", "location",
+                "Domínio de Hazlan", "Domain of Hazlan",
+                "Terra árida devastada por experimentos de magia selvagem e mutações do arquimago tirano Hazlik.",
+                Arrays.asList(
+                        "Composta por planaltos rochosos perfurados por torres arcanas onde o uso de magia é restrito à casta privilegiada.",
+                        "Fendas no solo emitem vapores que causam mutações e desvios aleatórios em qualquer conjuração de feitiço."
+                ),
+                Arrays.asList(
+                        "Hazlik conspira para detonar o Weave local em um cataclisma arcano que destrua o próprio domínio para escapar das Brumas.",
+                        "A Academia de Venit guarda tomos secretos sobre transmutação e aberrações invocadas do Astral."
+                ),
+                Arrays.asList("ravenloft", "hazlan", "hazlik", "wild_magic", "arcane_horror", "domain"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "ravenloft_kalakeri_domain", "RHW", "ravenloft", "present", "location",
+                "Domínio de Kalakeri", "Domain of Kalakeri",
+                "Selva tropical exuberante e traiçoeira dilacerada pela guerra fratricida perpétua entre três pretendentes ao trono.",
+                Arrays.asList(
+                        "Templos antigos de pedra cobertos de trepadeiras servem de fortalezas para as facções de Ramya, Arijani e Reeva.",
+                        "A Darklord Ramya Vassavadan comanda legiões espectrais de guerreiros leais a partir da fortaleza de Cer бро."
+                ),
+                Arrays.asList(
+                        "Pactos com rakshasas e asuras corrompem as águas dos rios sagrados que cortam a floresta.",
+                        "A Adaga de Jade da Coroação neutraliza a imunidade mágica dos irmãos de Ramya se empunhada com vingança pura."
+                ),
+                Arrays.asList("ravenloft", "kalakeri", "ramya", "rakshasa", "jungle_horror", "civil_war"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "ravenloft_valachan_domain", "RHW", "ravenloft", "present", "location",
+                "Domínio de Valachan", "Domain of Valachan",
+                "Selva equatorial de caçadores implacáveis onde a baronesa Chakuna comanda a Grande Caçada (The Yesterdays).",
+                Arrays.asList(
+                        "Forasteiros capturados nas brumas recebem um dia de vantagem antes que predadores e panteras de Chakuna iniciem a perseguição.",
+                        "Penhascos escarpados e pântanos de águas negras tornam qualquer tentativa de travessia uma provação mortal."
+                ),
+                Arrays.asList(
+                        "Chakuna sobrevive alimentando-se do coração de guerreiros formidáveis mortos durante a caçada no Templo de Ouro.",
+                        "Tribos rebeldes nos altos platôs utilizam dardos envenenados e magia druídica para sabotar as patrulhas da Darklord."
+                ),
+                Arrays.asList("ravenloft", "valachan", "chakuna", "the_hunt", "predators", "domain"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "ravenloft_sithicus_domain", "RHW", "ravenloft", "present", "location",
+                "Domínio de Sithicus", "Domain of Sithicus",
+                "Reino crepuscular de florestas de árvores de ferro e espelhos assombrados, marcado pelo pesar do cavaleiro da morte Lord Soth.",
+                Arrays.asList(
+                        "Povoado por elfos sombrios melancólicos e esqueletos blindados patrulhando o castelo Nedragaard Keep.",
+                        "Banshees sussurram baladas fúnebres nos vales de rosas de ferro revivendo a queda do cavaleiro de Solamnia."
+                ),
+                Arrays.asList(
+                        "Espelhos de memória no castelo refletem os pecados e fracassos de quem se aproxima, forçando testes de Sanidade CD 14.",
+                        "A sombra rebelde de Inza Kulchevic conspira para arrancar o domínio das garras inertes de Soth."
+                ),
+                Arrays.asList("ravenloft", "sithicus", "lord_soth", "death_knight", "iron_trees", "gothic"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        // 6. Entidades Cósmicas e Relíquias Sagradas (RHW)
+        list.add(new Entity(
+                "ravenloft_dark_powers", "RHW", "ravenloft", "present", "religion",
+                "Os Poderes Sombrios (Dark Powers)", "The Dark Powers",
+                "As entidades cósmicas inescrutáveis e onipresentes que governam as Brumas e criaram os Domínios do Pavor.",
+                Arrays.asList(
+                        "Aprisionam os maiores tiranos e monstros do multiverso em prisões dimensionais moldadas pelos seus próprios pecados.",
+                        "Concedem Dádivas Sombrias (Dark Gifts) a mortais desesperados em troca de corrupção física e espiritual gradual."
+                ),
+                Arrays.asList(
+                        "Nenhum deus de Toril ou Krynn consegue penetrar as Brumas ou anular decretos emitidos pelos Poderes Sombrios.",
+                        "Sarcófagos de âmbar no Amber Temple de Barovia aprisionam fragmentos conscientes dessas vontades ancestrais."
+                ),
+                Arrays.asList("ravenloft", "dark_powers", "mists", "dark_gifts", "cosmic_horror", "overlords"),
+                Collections.<String, String>emptyMap(), "mestre", false
+        ));
+
+        list.add(new Entity(
+                "ravenloft_item_holy_symbol_ravenkind", "RHW", "ravenloft", "present", "item",
+                "Símbolo Sagrado de Ravenkind", "Holy Symbol of Ravenkind",
+                "Relíquia sagrada de platina em forma de sol com cristal no centro forjada para repelir vampiros em Barovia.",
+                Arrays.asList(
+                        "Canaliza feitiços divinos de expulsar mortos-vivos e emite luz solar verdadeira cegando vampiros e espectros.",
+                        "Concede resistência a feitiços necromânticos aos clérigos ou paladinos de alinhamento bom sintonizados."
+                ),
+                Arrays.asList(
+                        "Possui cargas sagradas para lançar Raio de Sol e imobilizar o conde Strahd por rodadas decisivas em combate.",
+                        "Strahd baniu o símbolo para as criptas profundas e pune com morte quem pronunciar seu nome em Vallaki."
+                ),
+                Arrays.asList("ravenloft", "holy_symbol", "ravenkind", "sunlight", "anti_vampire", "relic"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ));
+
+        list.add(new Entity(
+                "ravenloft_item_sunsword", "RHW", "ravenloft", "present", "item",
+                "A Espada Solar (Sunsword)", "The Sunsword",
+                "Espada longa com empunhadura de platina cuja lâmina de cristal foi destruída e substituída por um feixe puro de luz radiante.",
+                Arrays.asList(
+                        "Arma sensiente de corte e perfuração radiante que inflige dano extra severo a mortos-vivos.",
+                        "Irradia claridade solar ajustável entre 15 e 30 pés, impedindo vampiros de regenerar pontos de vida."
+                ),
+                Arrays.asList(
+                        "Outrora empunhada por Sergei von Zarovich; a lâmina busca vingança obstinada contra a traição de Strahd.",
+                        "Comunica-se telepaticamente por emoções de coragem e esperança irradiadas ao portador."
+                ),
+                Arrays.asList("ravenloft", "sunsword", "blade_of_light", "sergei", "sentient_weapon", "relic"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ));
+
+        // 7. Personagens Centrais e Mecânicas de Astarion (ABH)
+        Map<String, String> cazadorRel = new HashMap<>();
+        cazadorRel.put("palace", "astarion_cazador_palace");
+        cazadorRel.put("spawn", "astarion_cazador_spawn_family");
+        list.add(new Entity(
+                "astarion_cazador_szarr_npc", "ABH", "ravenloft", "present", "npc",
+                "Lorde Cazador Szarr", "Lord Cazador Szarr",
+                "O patriarca vampiro mestre de Astarion e arquiteto do terrível Ritual de Ascensão Profana em Baldur's Gate.",
+                Arrays.asList(
+                        "Comanda o Palácio Szarr com crueldade refinada, mantendo duzentos anos de controle sobre uma progênie de sete crias.",
+                        "Negociou pactos infernais com o arquidiabo Mefistófeles para consagrar sete mil almas em troca da Ascensão."
+                ),
+                Arrays.asList(
+                        "Sua forma névoa não pode ser dispersada no interior de seu sarcófago forjado em prata consagrada ao inferno.",
+                        "Carrega o Cajado do Poder de Szarr que drena vida e amplifica encantamentos vampíricos em salões de baile."
+                ),
+                Arrays.asList("abh", "cazador_szarr", "vampire_lord", "ascension", "villain", "baldurs_gate"),
+                cazadorRel, "secreto", false
+        ));
+
+        list.add(new Entity(
+                "astarion_dhampir_empowered_bite", "ABH", "ravenloft", "present", "misc",
+                "Mordida Empoderada de Dhampir", "Dhampir Empowered Bite",
+                "A mecânica canônica de ataque e nutrição marcial desenvolvida para dhampirs no Livro das Fomes.",
+                Arrays.asList(
+                        "Permite realizar ataques corporais desarmados com a mordida usando Constituição como atributo chave.",
+                        "Ao atingir um alvo não-construto ou morto-vivo, o dhampir recupera pontos de vida ou adiciona bônus à sua próxima rolagem."
+                ),
+                Arrays.asList(
+                        "Quando com menos de metade dos pontos de vida máximos, a mordida tem vantagem em todas as rolagens de ataque.",
+                        "O uso excessivo da mordida em combates pode despertar a Fome por Sangue Puro exigindo testes de autocontrole."
+                ),
+                Arrays.asList("abh", "dhampir", "empowered_bite", "combat_mechanic", "vampirism"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
         return Collections.unmodifiableList(list);
     }
 }
