@@ -399,6 +399,14 @@ public final class R36BookSemanticsHarness {
   check(KingmakerStructureSemantics.trimInstanceEffects(paidRow,2).optJSONArray("construction_payments").length()==2,"demolition trims the matching last receipt");
   boolean badReceipt=false;try{KingmakerStructureSemantics.appendedConstructionPayment(new JSONObject(),new JSONObject(paid.toString()).put("ore",-1));}catch(IllegalArgumentException expected){badReceipt=true;}
   check(badReceipt,"negative actual payment cannot become upgrade credit");
+  check(KingmakerStructureSemantics.canUpgrade("luxury_store","magic_shop"),"printed luxury store to magic shop upgrade retained");
+  check(!KingmakerStructureSemantics.canUpgrade("watchtower","keep"),"unprinted watchtower to keep upgrade rejected");
+  JSONObject academyPaid=new JSONObject(paid.toString()).put("resource_points",52).put("lumber",12).put("stone",12).put("luxuries",6);
+  JSONObject academyRow=new JSONObject().put("structure_key","academy").put("count",1).put("effects_json",new JSONObject().put("construction_payments",new JSONArray().put(academyPaid)).toString());
+  JSONObject military=new JSONObject().put("key","military_academy").put("rp",36).put("lumber",12).put("stone",6);
+  check(KingmakerStructureSemantics.upgradeCost(academyRow,0,military).optInt("resource_points")==-16,"printed upgrade subtraction preserves negative RP difference");
+  boolean unknownUpgrade=false;try{KingmakerStructureSemantics.upgradeCost(new JSONObject().put("structure_key","academy"),0,military);}catch(IllegalStateException expected){unknownUpgrade=true;}
+  check(unknownUpgrade,"unknown old payment cannot be replaced by catalog price");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

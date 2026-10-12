@@ -205,3 +205,15 @@ def test_growth_is_spatial_and_persisted_inside_construction_transaction():
     assert 'KingmakerStructureSemantics.constructionTown(before,new JSONArray(structures(settlementKey)),position)' in SOURCE
     assert 'if(!before.optString("type").equals(type))grantSettlementMilestone(type)' in SOURCE
     assert 'O porte muda ao construir nos novos blocos' in SOURCE
+
+
+def test_completed_construction_records_net_actual_payment_before_insertion():
+    build=method_body('public JSONObject resolveBuildStructure(String settlementKey,String structureKey,int naturalRoll,String skillKey,String notes,String commodityChoice,final JSONObject buildOptions)')
+    receipt=build.index('buildOptions.put("construction_payment"')
+    complete=build.index('JSONObject completed=buildStructure(')
+    assert receipt<complete
+    for field in ('lumber','stone','ore','luxuries'):
+        assert f'.put("{field}",{field}-(critical?{field}/2:0))' in build
+    assert '.put("resource_points",rp)' in build
+    assert 'KingmakerStructureSemantics.appendedConstructionPayment(existing,payment)' in SOURCE
+    assert '.put("authority",prepaid?"gift":"paid")' in SOURCE

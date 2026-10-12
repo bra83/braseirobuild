@@ -276,6 +276,30 @@ public final class KingmakerStructureSemantics {
   result.put(location);
   return result;
  }
+ public static boolean canUpgrade(String from,String to){
+  String pair=from+">"+to;
+  return Arrays.asList("library>academy","academy>military_academy","academy>university",
+   "barracks>garrison","town_hall>castle","castle>palace","general_store>luxury_store",
+   "general_store>marketplace","luxury_store>magic_shop","magic_shop>occult_shop",
+   "festival_hall>theater","theater>opera_house","trade_shop>guildhall","herbalist>hospital",
+   "tenement>houses","houses>mansion","houses>orphanage","mansion>noble_villa",
+   "park>menagerie","shrine>temple","temple>cathedral","tavern_dive>tavern_popular",
+   "tavern_popular>tavern_luxury","tavern_luxury>tavern_world_class","pier>waterfront",
+   "wall_wooden>wall_stone").contains(pair);
+ }
+ public static JSONObject upgradeCost(JSONObject original,int instance,JSONObject target)throws Exception{
+  if(!canUpgrade(original.optString("structure_key"),target.optString("key")))throw new IllegalArgumentException("Não existe este upgrade no manual.");
+  JSONArray payments=instanceEffects(original).optJSONArray("construction_payments");
+  if(instance<0||instance>=original.optInt("count",1)||payments==null||payments.length()!=original.optInt("count",1))throw new IllegalStateException("Informe o custo histórico efetivamente pago pelo exemplar.");
+  JSONObject paid=payments.optJSONObject(instance);
+  if(paid==null||!Arrays.asList("paid","gift","declared_history").contains(paid.optString("authority")))throw new IllegalStateException("O custo de catálogo não comprova o pagamento histórico.");
+  JSONObject difference=new JSONObject();
+  for(String field:new String[]{"resource_points","lumber","stone","ore","luxuries"}){
+   if(!paid.has(field)||paid.optInt(field,-1)<0)throw new IllegalStateException("Pagamento histórico incompleto.");
+   difference.put(field,target.optInt("resource_points".equals(field)?"rp":field)-paid.optInt(field));
+  }
+  return difference;
+ }
  public static JSONArray appendedConstructionPayment(JSONObject row,JSONObject payment)throws Exception{
   JSONArray old=instanceEffects(row).optJSONArray("construction_payments");
   int count=row.optInt("count",0);
