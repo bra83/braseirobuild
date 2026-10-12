@@ -18,6 +18,7 @@ MANIFEST = ROOT / "pf2-kingmaker-certification" / "kingmaker_official_structures
 RULES = Path("android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerRulesEngine.java")
 REPO = Path("android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerRepository.java")
 PREFIX = "R36_OFFICIAL_CATALOG_73"
+SEMANTICS = ROOT / "pf2-kingmaker-certification" / "kingmaker_official_structure_effects_p544_552.json"
 KEY_OVERRIDES = {"ALCHEMY LABORATORY": "alchemist", "STABLE": "stables"}
 
 def key_for(name):
@@ -54,6 +55,21 @@ def official_manifest():
 
 def java_quote(value):
     return json.dumps(str(value),ensure_ascii=True)
+
+def official_semantics():
+    data=json.loads(SEMANTICS.read_text(encoding="utf-8"))
+    if data.get("certification")!="NOT_CERTIFIED" or data.get("source_drive_file_id")!="1hHjK7DjhdDFvejYk70NNxO0zMp7Rnsn3":
+        raise ValueError("Structure effects provenance/certification drift")
+    records=data.get("structures",[])
+    if len(records)!=73:raise ValueError("Official traits/effects crosswalk must contain 73 entries")
+    result={}
+    for rec in records:
+        canonical=key_for(rec["official_name"])
+        if canonical in result:raise ValueError("Duplicate structure effect metadata key: "+canonical)
+        result[canonical]=rec
+    if set(result)!=set(key_for(row["official_name"]) for row in official_manifest()):
+        raise ValueError("Structure effect metadata does not exactly match 73 official catalog keys")
+    return result
 
 def construct_expression(row,canonical):
     skills,rank=skill_data(row["construction"])
@@ -98,6 +114,32 @@ def transform_rules(source,rows):
        "monument","pier","smithy","stables","temple","theater","town_hall"}
     if not certified_prior.issubset(existing):
         raise ValueError("Canonical 18 previously patched official catalog keys are missing")
+    effects=official_semantics()
+    # Every stat block is mapped from the actual PDF. Apply mechanical
+    # RESIDENTIAL lots now: refreshSettlementOccupancy() reads this field from
+    # each built structure's effects_json. Other clauses are retained as exact
+    # official source metadata, NOT falsely treated as implemented mechanics.
+    semantic_overlay=[]
+    for row in rows:
+        canonical=key_for(row["official_name"])
+        rec=effects[canonical]
+        residence=1 if "RESIDENTIAL" in rec["traits"] else 0
+        statement='            if("'+canonical+'".equals(r36OfficialKey)){\\n'
+        for field,value in (
+            ("residential_lots",residence),
+            ("official_traits",",".join(rec["traits"])),
+            ("official_item_bonus_rule",rec["item_bonus_rule"]),
+            ("official_ruin_rule",rec["ruin_rule"]),
+            ("official_effects_rule",rec["effects_rule"]),
+            ("official_upgrade_from",rec["upgrade_from"]),
+            ("official_upgrade_to",rec["upgrade_to"]),
+        ):
+            literal=str(value) if isinstance(value,int) else java_quote(value)
+            statement+='                officialBase.put('+java_quote(field)+','+literal+');\\n'
+        statement+='            }\\n'
+        semantic_overlay.append(statement)
+    if len(semantic_overlay)!=73:
+        raise ValueError("73 official structure semantics not overlaid")
     generated=[]
     for row in rows:
         canonical=key_for(row["official_name"])
@@ -119,7 +161,7 @@ def transform_rules(source,rows):
       '        if(officialBase==null)officialBase=new JSONObject();\n'
       '        String r36OfficialKey=key==null?"":key.trim().toLowerCase(java.util.Locale.US)\n'
       '            .replaceAll("[^a-z0-9]+","_").replaceAll("^_+|_+$","");\n'
-      '        try {\n'+''.join(generated)+
+      '        try {\n'+''.join(semantic_overlay)+''.join(generated)+
       '        } catch(Exception officialCatalogFailure) {\n'
       '            throw new IllegalStateException("Kingmaker official catalog failure",officialCatalogFailure);\n'
       '        }\n'

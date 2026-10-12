@@ -1,0 +1,998 @@
+{
+  "source": "Kingmaker.pdf Appendix 2 pp. 544–552",
+  "source_drive_file_id": "1hHjK7DjhdDFvejYk70NNxO0zMp7Rnsn3",
+  "extraction": "structured stat block headings, traits, item bonus, ruin, upgrade and effect clauses; no semantic certification",
+  "certification": "NOT_CERTIFIED",
+  "count": 73,
+  "structures": [
+    {
+      "official_name": "ACADEMY",
+      "official_level": 10,
+      "traits": [
+        "BUILDING",
+        "EDIFICE"
+      ],
+      "item_bonus_rule": "+2 item bonus to Creative Solution",
+      "ruin_rule": "",
+      "effects_rule": "While in a settlement with an Academy, you gain a +2 item bonus to Lore checks made to Recall Knowledge while Investigating, to all checks made while Researching (Gamemastery Guide 154), and to Decipher Writing.",
+      "upgrade_from": "library",
+      "upgrade_to": "military academy, university",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "ALCHEMY LABORATORY",
+      "official_level": 3,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Demolish",
+      "ruin_rule": "",
+      "effects_rule": "Treat the settlement’s level as one level higher than its actual level for the purposes of determining which alchemical items are readily available for sale in that settlement. This effect stacks up to three times. Checks attempted to Identify Alchemy in any settlement with at least one alchemy laboratory gain a +1 item bonus.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "ARCANIST’S TOWER",
+      "official_level": 5,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Quell Unrest using Magic",
+      "ruin_rule": "",
+      "effects_rule": "Treat the settlement’s level as one level higher than its actual level for the purposes of determining which arcane magic items are readily available for sale in that settlement. This effect stacks up to three times. While in a settlement with an arcanist’s tower, you gain a +1 item bonus to checks made to Borrow an Arcane Spell or Learn a Spell.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "ARENA",
+      "official_level": 9,
+      "traits": [
+        "EDIFICE",
+        "YARD"
+      ],
+      "item_bonus_rule": "+2 item bonus to Celebrate Holiday and to Warfare checks made to Quell Unrest",
+      "ruin_rule": "",
+      "effects_rule": "An arena lets you to retrain combat-themed feats more efficiently while in the settlement; doing so takes only 5 days rather than a week of downtime.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "BANK",
+      "official_level": 5,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Tap Treasury",
+      "ruin_rule": "",
+      "effects_rule": "The Capital Investment Leadership activity can be used only within the influence area of a settlement with a bank.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "BARRACKS",
+      "official_level": 3,
+      "traits": [
+        "BUILDING",
+        "RESIDENTIAL"
+      ],
+      "item_bonus_rule": "+1 item bonus to Garrison Army, Recover Army, or Recruit Army (see Appendix 3) 544545",
+      "ruin_rule": "",
+      "effects_rule": "Barracks aid in the recruitment of armies and in helping soldiers recover from battle. The first time you build a barracks in any settlement, reduce Unrest by 1.",
+      "upgrade_from": "",
+      "upgrade_to": "garrison",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "BREWERY",
+      "official_level": 1,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Establish Trade Agreement",
+      "ruin_rule": "",
+      "effects_rule": "When you build a brewery, reduce Unrest by 1 as long as you have fewer than 4 breweries in the settlement at that time.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "BRIDGE",
+      "official_level": 2,
+      "traits": [
+        "INFRASTRUCTURE"
+      ],
+      "item_bonus_rule": "",
+      "ruin_rule": "",
+      "effects_rule": "A bridge allows an island settlement to provide influence (see Influence on page 542), negates the Trade penalty for island settlements (see Land Borders on page 540), and allows travel over its associated Water Border with ease (see Navigating an Urban Grid on page 541). Bridges can only be built on Water Borders. When you build a bridge, check the “Bridge” box on one of the Water Borders on your Urban Grid to indicate its location.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "CASTLE",
+      "official_level": 9,
+      "traits": [
+        "BUILDING",
+        "EDIFICE",
+        "FAMOUS",
+        "INFAMOUS"
+      ],
+      "item_bonus_rule": "+2 item bonus to New Leadership, Pledge of Fealty, Send Diplomatic Envoy, and +2 item bonus to Garrison Army, Recover Army, or Recruit Army (see Appendix 3: Warfare)",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build a castle each Kingdom turn, reduce Unrest by 1d4. A castle in a capital allows PC leaders to take 3 Leadership activities during the Activity phase of a Kingdom turn rather than 2.",
+      "upgrade_from": "town hall",
+      "upgrade_to": "palace",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "CATHEDRAL",
+      "official_level": 15,
+      "traits": [
+        "BUILDING",
+        "EDIFICE",
+        "FAMOUS",
+        "INFAMOUS"
+      ],
+      "item_bonus_rule": "+3 item bonus to Celebrate Holiday, Provide Care, and Repair Reputation (Corruption)",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build a cathedral in a turn, reduce Unrest by 4. While in a settlement with a cathedral, you gain a +3 item bonus to Lore and Religion checks made to Recall Knowledge while Investigating, and to all faith-themed checks made while Researching (Gamemastery Guide 154). Treat the settlement’s level as three levels higher than its actual level for the purposes of determining what divine magic items are available for sale in that settlement. This effect does not stack with the similar effect granted by shrines or temples.",
+      "upgrade_from": "temple",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "CEMETERY",
+      "official_level": 1,
+      "traits": [
+        "YARD"
+      ],
+      "item_bonus_rule": "",
+      "ruin_rule": "",
+      "effects_rule": "Giving the citizens a place to bury and remember their departed loved ones helps to temper Unrest gained A FLYING OWLBEAR 30 XP Loris Shadwest, eager taxidermist and avid collector of strangeness, wants to stuff a winged owlbear. While lesser taxidermists might stick a giant bird’s wings onto a normal owlbear, Loris wants his masterpiece to be “real.” He’s promised a powerful magic item to the first person to deliver to him a real winged owlbear carcass... in good condition! Source: Once the kingdom reaches 17th level, Loris gets this idea in his head and approaches the PCs with his request. Completion: Winged owlbears do exist... just not in this world. The PCs will encounter these creatures once Chapter 10 begins. Reward: The magic item Loris promises is legitimately powerful: a moonstone crystal ball that has been in his family for years. 545 APPENDICES APPENDIX 1: BEYOND THE CAMPAIGN APPENDIX 2: KINGDOMS APPENDIX 3: WARFARE APPENDIX 4: KINGMAKER TREASURES APPENDIX 5: NPCS AND MONSTERS ADDITIONAL RESOURCES LORIS SHADWEST546 from dangerous events. If you have at least one cemetery in a settlement, reduce Unrest gained from any dangerous settlement events in that particular settlement by 1 (to a maximum of 4 for four cemeteries).",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "CONSTRUCTION YARD",
+      "official_level": 10,
+      "traits": [
+        "YARD"
+      ],
+      "item_bonus_rule": "+1 item bonus to Build Structure and to Repair Reputation (Decay)",
+      "ruin_rule": "",
+      "effects_rule": "",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "DUMP",
+      "official_level": 2,
+      "traits": [
+        "YARD"
+      ],
+      "item_bonus_rule": "+1 item bonus to Demolish",
+      "ruin_rule": "",
+      "effects_rule": "Certain events have a more dangerous impact on settlements that don’t include a dump. A dump can’t be located in a block with any Residential structures.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "EMBASSY",
+      "official_level": 8,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Send Diplomatic Envoy and Request Foreign Aid",
+      "ruin_rule": "",
+      "effects_rule": "",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "FESTIVAL HALL",
+      "official_level": 3,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Celebrate Holiday",
+      "ruin_rule": "",
+      "effects_rule": "",
+      "upgrade_from": "",
+      "upgrade_to": "theater",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "FOUNDRY",
+      "official_level": 3,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Establish Work Site (mine)",
+      "ruin_rule": "",
+      "effects_rule": "By processing ore in a foundry, your settlements grow more efficient at storing your kingdom’s Commodities. Each foundry in your kingdom increases your maximum Ore Commodity capacity by 1. A foundry cannot share a block with a Residential structure.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "GARRISON",
+      "official_level": 5,
+      "traits": [
+        "BUILDING",
+        "RESIDENTIAL"
+      ],
+      "item_bonus_rule": "+1 item bonus to Outfit Army or Train Army (see Appendix 3: Warfare)",
+      "ruin_rule": "",
+      "effects_rule": "A garrison helps outfit armies with new gear or trains them. When you build a garrison, reduce Unrest by 1.",
+      "upgrade_from": "barracks",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "GENERAL STORE",
+      "official_level": 1,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "",
+      "ruin_rule": "",
+      "effects_rule": "A settlement without a general store or marketplace reduces its effective level for the purposes of determining what items can be purchased there by 2.",
+      "upgrade_from": "",
+      "upgrade_to": "luxury store, marketplace",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "GRANARY",
+      "official_level": 1,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "",
+      "ruin_rule": "",
+      "effects_rule": "Each granary in your kingdom increases your maximum Food Commodity capacity by 1.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "GUILDHALL",
+      "official_level": 5,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Economy skill checks associated with the guildhall’s specific trade focus",
+      "ruin_rule": "",
+      "effects_rule": "When you build a guildhall, indicate what sort of organization (such as bakers, grocers, smiths, etc.) it serves as a headquarters for. While in a settlement with a guildhall, you gain a +1 item bonus to all related skill checks to Earn Income or to Repair. 546547",
+      "upgrade_from": "trade shop",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "HERBALIST",
+      "official_level": 1,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Provide Care",
+      "ruin_rule": "",
+      "effects_rule": "",
+      "upgrade_from": "",
+      "upgrade_to": "hospital",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "HOSPITAL",
+      "official_level": 9,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Provide Care and Quell Unrest",
+      "ruin_rule": "",
+      "effects_rule": "While in a settlement with a hospital, you gain a +2 item bonus to Medicine checks to Treat Disease and Treat Wounds.",
+      "upgrade_from": "herbalist",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "HOUSES",
+      "official_level": 1,
+      "traits": [
+        "BUILDING",
+        "RESIDENTIAL"
+      ],
+      "item_bonus_rule": "",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build houses each Kingdom turn, reduce Unrest by 1.",
+      "upgrade_from": "tenement",
+      "upgrade_to": "mansion or orphanage",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "ILLICIT MARKET",
+      "official_level": 6,
+      "traits": [
+        "BUILDING",
+        "INFAMOUS"
+      ],
+      "item_bonus_rule": "+1 item bonus to Clandestine Business",
+      "ruin_rule": "+1 Crime",
+      "effects_rule": "Treat the settlement’s level as one level higher than its actual level for the purposes of determining what items are readily available for sale in that settlement. This effect stacks up to three times.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "INN",
+      "official_level": 1,
+      "traits": [
+        "BUILDING",
+        "RESIDENTIAL"
+      ],
+      "item_bonus_rule": "+1 Item bonus to Hire Adventurers",
+      "ruin_rule": "",
+      "effects_rule": "",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "JAIL",
+      "official_level": 2,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Quell Unrest using Intrigue",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build a jail each a Kingdom turn, reduce Crime by 1.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "KEEP",
+      "official_level": 3,
+      "traits": [
+        "BUILDING",
+        "EDIFICE"
+      ],
+      "item_bonus_rule": "+1 item bonus to Deploy Army, Garrison Army, or Train Army (see Appendix 3: Warfare)",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build a keep each Kingdom turn, reduce Unrest by 1.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "LIBRARY",
+      "official_level": 2,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Rest and Relax using Scholarship checks",
+      "ruin_rule": "",
+      "effects_rule": "While in a settlement with a library, you gain a +1",
+      "upgrade_from": "",
+      "upgrade_to": "academy",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "LUMBERYARD",
+      "official_level": 3,
+      "traits": [
+        "YARD"
+      ],
+      "item_bonus_rule": "+1 item bonus to Establish Work Site (lumber camp)",
+      "ruin_rule": "",
+      "effects_rule": "Each lumberyard in your kingdom increases maximum Lumber Commodity capacity by 1. A lumberyard must be built in a lot next to a Water border, both to give the yard a source of power to run saws to process timber, but more importantly to facilitate the shipment of trees to the yard. 547 APPENDICES APPENDIX 1: BEYOND THE CAMPAIGN APPENDIX 2: KINGDOMS APPENDIX 3: WARFARE APPENDIX 4: KINGMAKER TREASURES APPENDIX 5: NPCS AND MONSTERS ADDITIONAL RESOURCES548",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "LUXURY STORE",
+      "official_level": 6,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Establish Trade Agreement",
+      "ruin_rule": "",
+      "effects_rule": "A luxury store must be built on a block that has either a mansion or a noble villa. Treat the settlement’s level as one level higher than its actual level for determining what luxury\u0002themed magic items (subject to GM approval) are readily available for sale in that settlement. This effect stacks up to three times and overlaps with other stores that function in this way for more specific categories of magic items.",
+      "upgrade_from": "general store",
+      "upgrade_to": "magic shop",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "MAGIC SHOP",
+      "official_level": 8,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Supernatural Solution",
+      "ruin_rule": "",
+      "effects_rule": "Treat the settlement’s level as one level higher than its actual level for the purposes of determining what magic items are readily available for sale in that settlement. This effect stacks up to three times and overlaps with other stores that function in this way for more specific categories of magic items.",
+      "upgrade_from": "luxury store",
+      "upgrade_to": "occult shop",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "MAGICAL STREETLAMPS",
+      "official_level": 5,
+      "traits": [
+        "INFRASTRUCTURE"
+      ],
+      "item_bonus_rule": "",
+      "ruin_rule": "",
+      "effects_rule": "Magical streetlamps provide nighttime illumination for an entire Urban Grid. When you build magical streetlamps, check the magical streetlamps checkbox on your Urban Grid. The first time you build magical streetlamps in a Kingdom turn, reduce Crime by 1.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "MANSION",
+      "official_level": 5,
+      "traits": [
+        "BUILDING",
+        "RESIDENTIAL"
+      ],
+      "item_bonus_rule": "+1 item bonus to Improve Lifestyle",
+      "ruin_rule": "",
+      "effects_rule": "",
+      "upgrade_from": "houses",
+      "upgrade_to": "noble villa",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "MARKETPLACE",
+      "official_level": 4,
+      "traits": [
+        "BUILDING",
+        "RESIDENTIAL"
+      ],
+      "item_bonus_rule": "+1 item bonus to Establish Trade Agreement",
+      "ruin_rule": "",
+      "effects_rule": "A town without a general store or marketplace reduces its effective level for the purposes of determining what items can be purchased there by 2.",
+      "upgrade_from": "general store",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "MENAGERIE",
+      "official_level": 12,
+      "traits": [
+        "BUILDING",
+        "EDIFICE"
+      ],
+      "item_bonus_rule": "+2 item bonus to Rest and Relax using Wilderness",
+      "ruin_rule": "",
+      "effects_rule": "A menagerie typically contains a selection of level 5 or lower animals. If your party captures a living creature of level 6 or higher and can transport the creature back to a settlement with a menagerie, you can add that creature to the menagerie as long as your kingdom level is at least 4 higher than the creature’s level. Each time such a creature is added to a menagerie, gain 1 Fame or Infamy point (as appropriate) or reduce one Ruin of your choice by 1. Only creatures with Intelligence modifiers of –4 or –5 are appropriate to place in a menagerie. A kingdom gains 1 Unrest at the start of a Kingdom turn for each sapient creature (anything with an Intelligence modifier of –3 or higher) on display in a menagerie.",
+      "upgrade_from": "park",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "MILITARY ACADEMY",
+      "official_level": 12,
+      "traits": [
+        "BUILDING",
+        "EDIFICE"
+      ],
+      "item_bonus_rule": "+2 item bonus to Pledge of Fealty using Warfare, +2 item bonus to Train Army (see Appendix 3: Warfare)",
+      "ruin_rule": "",
+      "effects_rule": "",
+      "upgrade_from": "academy",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "MILL",
+      "official_level": 2,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Harvest Crops",
+      "ruin_rule": "",
+      "effects_rule": "If a settlement includes at least one mill built on a lot adjacent to a Water border, the increased efficiency of these mills reduces the settlement’s Consumption by 1 (to a minimum of 0).",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "MINT",
+      "official_level": 15,
+      "traits": [
+        "BUILDING",
+        "EDIFICE"
+      ],
+      "item_bonus_rule": "+3 item bonus to Capital Investment, Collect Taxes, and to Repair Reputation (Crime)",
+      "ruin_rule": "",
+      "effects_rule": "",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "MONUMENT",
+      "official_level": 3,
+      "traits": [
+        "BUILDING",
+        "EDIFICE"
+      ],
+      "item_bonus_rule": "",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build a monument each Kingdom turn, reduce Unrest by 1 and reduce one Ruin of your choice by 1.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "MUSEUM",
+      "official_level": 5,
+      "traits": [
+        "BUILDING",
+        "FAMOUS",
+        "INFAMOUS"
+      ],
+      "item_bonus_rule": "+1 item bonus to Rest and Relax using Arts",
+      "ruin_rule": "",
+      "effects_rule": "A magic item of level 6 or higher that has a particular import or bears significant historical or regional value (at the GM’s discretion) can be donated to a museum. Each time such an item is donated, reduce Unrest by 1. If that item is later removed from display, increase Unrest by 1.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "NOBLE VILLA",
+      "official_level": 9,
+      "traits": [
+        "BUILDING",
+        "RESIDENTIAL"
+      ],
+      "item_bonus_rule": "+1 item bonus to Improve Lifestyle and to Quell Unrest using Politics",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build a noble villa each Kingdom turn, reduce Unrest by 2.",
+      "upgrade_from": "mansion",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "OCCULT SHOP",
+      "official_level": 13,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+2 item bonus to Prognostication",
+      "ruin_rule": "",
+      "effects_rule": "Treat the settlement’s level as one level higher than its actual level for the purposes of determining what magic items are readily available for sale in that settlement. This effect stacks up to three times and overlaps with other stores that function in this way for more specific categories of magic items. While in a settlement with an occult shop, you gain a +2 item bonus to all checks made to Research esoteric subjects or to Recall Knowledge about the same.",
+      "upgrade_from": "magic shop",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "OPERA HOUSE",
+      "official_level": 15,
+      "traits": [
+        "BUILDING",
+        "EDIFICE",
+        "FAMOUS",
+        "INFAMOUS"
+      ],
+      "item_bonus_rule": "+3 item bonus to Celebrate Holiday and Create a Masterpiece",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build an opera house each Kingdom turn, reduce Unrest by 4. While in a settlement with an opera house, you gain a +3 item bonus to Performance checks made to Earn Income.",
+      "upgrade_from": "theater",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "ORPHANAGE",
+      "official_level": 2,
+      "traits": [
+        "BUILDING",
+        "RESIDENTIAL"
+      ],
+      "item_bonus_rule": "",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build an orphanage each Kingdom turn, reduce Unrest by 1. 549 APPENDICES APPENDIX 1: BEYOND THE CAMPAIGN APPENDIX 2: KINGDOMS APPENDIX 3: WARFARE APPENDIX 4: KINGMAKER TREASURES APPENDIX 5: NPCS AND MONSTERS ADDITIONAL RESOURCES550",
+      "upgrade_from": "houses",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "PALACE",
+      "official_level": 15,
+      "traits": [
+        "BUILDING",
+        "EDIFICE",
+        "FAMOUS",
+        "INFAMOUS"
+      ],
+      "item_bonus_rule": "+3 item bonus to New Leadership, Pledge of Fealty, and Send Diplomatic Envoy, and +3 item bonus to Garrison Army, Recover Army, or Recruit Army (see Appendix 3: Warfare)",
+      "ruin_rule": "",
+      "effects_rule": "A palace can only be built in your capital. The first time you build a palace, reduce Unrest by 10. If you Relocate your Capital, a palace left behind in that capital instead functions as a noble villa that takes up 4 lots. (If you represent this by placing two noble villas in these lots, make sure to note that they constitute a single building and aren’t two separate structures.) A palace in a capital allows PC leaders to take 3 Leadership activities during the Activity phase of a Kingdom turn rather than just 2. In addition, once your kingdom has a palace, a PC in the Ruler leadership role gains a +3 item bonus to checks made to resolve Leadership activities.",
+      "upgrade_from": "castle",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "PARK",
+      "official_level": 3,
+      "traits": [
+        "YARD"
+      ],
+      "item_bonus_rule": "+1 item bonus to Rest and Relax using Wilderness checks",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build a park each Kingdom turn, reduce Unrest by 1.",
+      "upgrade_from": "",
+      "upgrade_to": "menagerie",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "PAVED STREETS",
+      "official_level": 4,
+      "traits": [
+        "INFRASTRUCTURE"
+      ],
+      "item_bonus_rule": "",
+      "ruin_rule": "",
+      "effects_rule": "It takes a character only 5 minutes to move from one lot to an adjacent lot in an Urban Grid when moving on paved streets. When you build paved streets, check the paved streets checkbox on your Urban Grid.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "PIER",
+      "official_level": 3,
+      "traits": [
+        "YARD"
+      ],
+      "item_bonus_rule": "+1 item bonus to Go Fishing",
+      "ruin_rule": "",
+      "effects_rule": "A pier must be built in a lot next to a Water border. RUBBLE STRUCTURE — YARD An unsightly heap of rubble fills this lot. Lots 1; Cost —",
+      "upgrade_from": "",
+      "upgrade_to": "waterfront",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "SACRED GROVE",
+      "official_level": 5,
+      "traits": [
+        "YARD"
+      ],
+      "item_bonus_rule": "+1 item bonus to Quell Unrest using Folklore",
+      "ruin_rule": "",
+      "effects_rule": "Treat the settlement’s level as one level higher than its actual level for the purposes of determining what primal magic items are readily available for sale in that settlement. This effect stacks up to three times.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "SECURE WAREHOUSE",
+      "official_level": 6,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Craft Luxuries",
+      "ruin_rule": "",
+      "effects_rule": "Each secure warehouse in your kingdom increases your maximum Luxuries Commodity capacity by 1.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "SEWER SYSTEM",
+      "official_level": 7,
+      "traits": [
+        "INFRASTRUCTURE"
+      ],
+      "item_bonus_rule": "+1 item bonus to Clandestine Business",
+      "ruin_rule": "",
+      "effects_rule": "A sewer system reduces the settlement’s Consumption by 1. Having a sewer system can also affect certain kingdom events. When you build a sewer system, check the sewer system checkbox on its Urban Grid. (For metropolises, this infrastructure automatically applies to all of its Urban Grids.)",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "SHRINE",
+      "official_level": 1,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Celebrate Holiday",
+      "ruin_rule": "",
+      "effects_rule": "Treat the settlement’s level as one level higher than its actual level when determining what divine magic items are readily available for sale in that settlement. This effect stacks up to three times but does not stack with the same effect granted by temples or cathedrals.",
+      "upgrade_from": "",
+      "upgrade_to": "temple",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "SMITHY",
+      "official_level": 3,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Trade Commodities, +1 item bonus to Outfit Army (see Appendix 3: Warfare)",
+      "ruin_rule": "",
+      "effects_rule": "While in a settlement with a smithy, you gain a +1",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "SPECIALIZED ARTISAN",
+      "official_level": 4,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Craft Luxuries",
+      "ruin_rule": "",
+      "effects_rule": "While in a settlement with a specialized artisan, you gain a +1 item bonus to Craft checks made to craft specialized goods like jewelry.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "STABLE",
+      "official_level": 3,
+      "traits": [
+        "YARD"
+      ],
+      "item_bonus_rule": "+1 item bonus to Establish Trade Agreement",
+      "ruin_rule": "",
+      "effects_rule": "",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "STOCKYARD",
+      "official_level": 3,
+      "traits": [
+        "YARD"
+      ],
+      "item_bonus_rule": "+1 item bonus to Gather Livestock",
+      "ruin_rule": "",
+      "effects_rule": "A settlement with at least one stockyard reduces its Consumption by 1.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "STONEMASON",
+      "official_level": 3,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Establish Work Site (quarry).",
+      "ruin_rule": "",
+      "effects_rule": "Each stonemason in your kingdom increases your maximum Stone Commodity capacity by 1.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "TANNERY",
+      "official_level": 3,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 to Trade Commodities",
+      "ruin_rule": "",
+      "effects_rule": "A tannery cannot share a block with any Residential structure except tenements.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "TAVERN, DIVE",
+      "official_level": 1,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build a dive tavern in a Kingdom turn, reduce Unrest by 1 but increase Crime by 1.",
+      "upgrade_from": "",
+      "upgrade_to": "tavern, popular",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "TAVERN, POPULAR",
+      "official_level": 3,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Hire Adventurers and to Rest and Relax using Trade",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build a popular tavern in a Kingdom turn, reduce Unrest by 2. If you attempt a Performance check to Earn Income in a settlement with a popular tavern, you gain a +1 item bonus to the check. All checks made to Gather Information in a settlement with at least one popular tavern gain a +1 item bonus.",
+      "upgrade_from": "tavern, dive",
+      "upgrade_to": "tavern, luxury",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "TAVERN, LUXURY",
+      "official_level": 9,
+      "traits": [
+        "BUILDING",
+        "FAMOUS"
+      ],
+      "item_bonus_rule": "+2 item bonus to Hire Adventurers and to Rest and Relax using Trade",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build a luxury tavern in a Kingdom 551 APPENDICES APPENDIX 1: BEYOND THE CAMPAIGN APPENDIX 2: KINGDOMS APPENDIX 3: WARFARE APPENDIX 4: KINGMAKER TREASURES APPENDIX 5: NPCS AND MONSTERS ADDITIONAL RESOURCES552 turn, reduce Unrest by 1d4+1. If attempt a Performance check to Earn Income in a settlement with a luxury tavern, you gain a +2 item bonus to the check. All checks made to Gather Information in a settlement with at least one luxury tavern gain a +2 item bonus.",
+      "upgrade_from": "tavern, popular",
+      "upgrade_to": "tavern, world-class",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "TAVERN, WORLD-CLASS",
+      "official_level": 15,
+      "traits": [
+        "BUILDING",
+        "EDIFICE",
+        "FAMOUS"
+      ],
+      "item_bonus_rule": "+3 item bonus to Hire Adventurers, to Rest and Relax using Trade, and to Repair Reputation (Strife)",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build a world-class tavern in a Kingdom turn, reduce Unrest by 2d4. If you attempt a Performance check to Earn Income in a settlement with a world-class tavern, you gain a +3 item bonus to the check. All checks made to Gather Information in a settlement with a world-class tavern gain a +3 item bonus.",
+      "upgrade_from": "tavern, luxury",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "TEMPLE",
+      "official_level": 7,
+      "traits": [
+        "BUILDING",
+        "FAMOUS",
+        "INFAMOUS"
+      ],
+      "item_bonus_rule": "+1 item bonus to Celebrate Holiday and Provide Care",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build a temple each Kingdom turn, reduce Unrest by 2. Treat the settlement’s level as one level higher than its actual level for the purposes of determining what divine magic items are readily available for sale in that settlement. This effect stacks up to three times but does not stack with the same effect granted by shrines or cathedrals.",
+      "upgrade_from": "shrine",
+      "upgrade_to": "cathedral",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "TENEMENT",
+      "official_level": 0,
+      "traits": [
+        "BUILDING",
+        "RESIDENTIAL"
+      ],
+      "item_bonus_rule": "",
+      "ruin_rule": "+1 to a Ruin of your choice",
+      "effects_rule": "The first time you build tenements each Kingdom turn, reduce Unrest by 1.",
+      "upgrade_from": "",
+      "upgrade_to": "Houses",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "THEATER",
+      "official_level": 9,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+2 item bonus to Celebrate Holiday.",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build a theater each Kingdom turn, reduce Unrest by 1. While in a settlement with a theater, you gain a +2 item bonus to Performance checks made to Earn Income.",
+      "upgrade_from": "festival hall",
+      "upgrade_to": "opera house",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "THIEVES’ GUILD",
+      "official_level": 5,
+      "traits": [
+        "BUILDING",
+        "INFAMOUS"
+      ],
+      "item_bonus_rule": "+1 item bonus to Infiltration",
+      "ruin_rule": "+1 Crime",
+      "effects_rule": "While in a settlement with a thieves’ guild, you gain a +1 item bonus to Create Forgeries.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "TOWN HALL",
+      "official_level": 2,
+      "traits": [
+        "BUILDING",
+        "EDIFICE"
+      ],
+      "item_bonus_rule": "",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build a town hall each Kingdom turn, reduce Unrest by 1. A town hall in a capital allows PC leaders to take 3 Leadership activities during the Activity phase of a Kingdom turn rather than just 2.",
+      "upgrade_from": "",
+      "upgrade_to": "castle",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "TRADE SHOP",
+      "official_level": 3,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to Purchase Commodities",
+      "ruin_rule": "",
+      "effects_rule": "When you build a trade shop, indicate the kind of shop it is, such as a bakery, carpenter, tailor, and so on. While in a settlement with a trade shop, you gain a +1",
+      "upgrade_from": "",
+      "upgrade_to": "guildhall",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "UNIVERSITY",
+      "official_level": 15,
+      "traits": [
+        "BUILDING",
+        "EDIFICE",
+        "FAMOUS"
+      ],
+      "item_bonus_rule": "+3 item bonus to Creative Solution 552553",
+      "ruin_rule": "",
+      "effects_rule": "While in a settlement with a university, you gain a +3 item bonus to Lore checks made to Recall Knowledge while Investigating, to Research checks (Gamemastery Guide 154), and to Decipher Writing.",
+      "upgrade_from": "academy",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "WALL, STONE",
+      "official_level": 5,
+      "traits": [
+        "INFRASTRUCTURE"
+      ],
+      "item_bonus_rule": "",
+      "ruin_rule": "",
+      "effects_rule": "A stone wall is built along the border of your settlement. The first time you build a stone wall in each settlement, reduce Unrest by 1. When you build a stone wall, choose a border on your Urban Grid and check the appropriate checkbox; if you’re upgrading from a wooden wall, uncheck that box.",
+      "upgrade_from": "wooden wall",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "WALL, WOODEN",
+      "official_level": 1,
+      "traits": [
+        "INFRASTRUCTURE"
+      ],
+      "item_bonus_rule": "",
+      "ruin_rule": "",
+      "effects_rule": "A wooden wall is built along the border of your settlement. The first time you build a wooden wall in each settlement, reduce Unrest by 1. When you build a wooden wall, choose a border on your Urban Grid and check the appropriate checkbox.",
+      "upgrade_from": "",
+      "upgrade_to": "stone wall",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "WATCHTOWER",
+      "official_level": 3,
+      "traits": [
+        "BUILDING"
+      ],
+      "item_bonus_rule": "+1 item bonus to checks to resolve events affecting the settlement.",
+      "ruin_rule": "",
+      "effects_rule": "The first time you build a watchtower each Kingdom turn, decrease Unrest by 1.",
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    },
+    {
+      "official_name": "WATERFRONT",
+      "official_level": 8,
+      "traits": [
+        "YARD"
+      ],
+      "item_bonus_rule": "+1 item bonus to Go Fishing, and to Establish Trade Agreement and Rest and Relax using Boating",
+      "ruin_rule": "",
+      "effects_rule": "A waterfront must be constructed next to a Water Border. A settlement with at least 1 waterfront increases its effective level by 1 for the purposes of determining what level of items can be purchased in that settlement; this bonus stacks with similar bonuses in the settlement. KINGDOM EVENTS As the PCs’ kingdom grows, all manner of unusual or irregular events will affect its fortunes and guide its growth. There are two categories of kingdom events: story events that occur as a result of the campaign plotline and random events. Story events are resolved when they occur, as detailed in the earlier chapters of this Adventure Path and often include greater details for how the PCs can take part in resolving the event. These events take place during regular play even though they draw upon kingdom statistics. They’re usually resolved during downtime. Random events are resolved entirely by the kingdom itself and take place within the Event phase of a Kingdom turn. A flat check at the start of this phase determines whether a random event occurs (page 539), although you could roll this check in advance for any number of Kingdom turns or even just choose which events are going to take place for a span of time. Determining the events that wi",
+      "upgrade_from": "pier",
+      "upgrade_to": "",
+      "semantic_certification": "PENDING"
+    }
+  ]
+}
