@@ -299,3 +299,22 @@ def test_completed_camp_sleep_updates_actual_character_sheets_once():
     assert 'db.setCharacterHpChecked(id,recovery.optInt("after_hp"))' in SOURCE
     assert 'sheet.optJSONObject("kingmaker_rest_recovery")' in SOURCE
     assert 'db.updateCharacterSheetChecked(id,sheet.toString())' in SOURCE
+
+
+def test_manor_fire_actions_persist_actual_damage_and_earned_character_xp():
+    assert 'public JSONObject resolveManorFireAction(' in SOURCE
+    assert 'db.runInTransactionChecked(new AppDb.CheckedTransaction()' in SOURCE
+    assert '"manor_action:"+actionId' in SOURCE
+    assert 'KingmakerCampaignGate.manorFireAction(' in SOURCE
+    assert 'db.applyCombatantDamagePf2(' in SOURCE
+    assert 'sheet.put("experience_points",xp+30)' in SOURCE
+    assert 'after.put("xp_awarded",true)' in SOURCE
+    assert 'skillKey+"_item_bonus"' in SOURCE
+    app=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/AppDb.java").read_text(encoding="utf-8")
+    assert 'sheet.put("dead",dead).put("dying",dying).put("wounded",wounded)' in app
+    main=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java").read_text(encoding="utf-8")
+    start=main.index('private String applyCombatPlan(')
+    end=main.index('private String buildHeroAiContext(',start)
+    body=main[start:end]
+    assert body.index('combat.optJSONArray("manor_actions")')<body.index('if("none".equals(action)')
+    assert 'showKingmakerManorFire()' in main

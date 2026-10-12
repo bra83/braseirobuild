@@ -164,6 +164,52 @@ public final class KingmakerCampaignGate {
   for(int i=0;i<present.length();i++)if(String.valueOf(heroId).equals(present.optString(i)))return 4;
   return 0;
  }
+ public static int manorSmokeDc(JSONObject state){return state.optInt("windows_broken",0)>=3?11:18;}
+ private static int manorDie(JSONArray rolls,int index){if(rolls==null||index>=rolls.length())throw new IllegalArgumentException("Informe os dados de dano do perigo.");int value=rolls.optInt(index,0);if(value<1||value>6)throw new IllegalArgumentException("d6 inválido.");return value;}
+ /** A16/A17: each room and its flare remain independent; natural burnout grants no XP. */
+ public static JSONObject manorFireAction(JSONObject prior,int room,String action,String degree,double hours,int round,boolean holdingBreath,JSONArray rolls,int suffocationD4)throws Exception{
+  if(room<1||room>5||!Double.isFinite(hours)||hours<0||round<0)throw new IllegalArgumentException("Posição ou horário do perigo inválido.");
+  JSONObject state=new JSONObject(prior.toString());double last=state.optDouble("last_action_hours",hours);if(hours<last)throw new IllegalArgumentException("O relógio do incêndio não pode retroceder.");
+  if(!state.has("started_hours"))state.put("started_hours",hours);
+  JSONArray rooms=state.optJSONArray("rooms");if(rooms==null){rooms=new JSONArray();for(int n=0;n<5;n++)rooms.put(new JSONObject().put("points",0).put("window_broken",false));state.put("rooms",rooms);}if(rooms.length()!=5)throw new IllegalArgumentException("O incêndio exige cinco quartos.");
+  boolean natural=hours>=state.optDouble("started_hours")+0.5d;
+  JSONObject selected=rooms.optJSONObject(room-1);if(selected==null)throw new IllegalArgumentException("Estado do quarto inválido.");
+  boolean burning=selected.optInt("points")<4&&!natural;
+  JSONObject outcome=new JSONObject().put("damage",0).put("sickened",0).put("persistent_nonlethal",false).put("room",room).put("source_ref","Kingmaker pp.33–35");
+  if("fight_fire".equals(action)){
+   if(!burning)throw new IllegalArgumentException("Este quarto já não está em chamas.");int change;
+   if("CRITICAL_SUCCESS".equals(degree))change=2;else if("SUCCESS".equals(degree))change=1;else if("FAILURE".equals(degree))change=0;else if("CRITICAL_FAILURE".equals(degree))change=-1;else throw new IllegalArgumentException("Grau de sucesso inválido.");
+   selected.put("points",Math.max(0,Math.min(4,selected.optInt("points")+change)));outcome.put("description","Quarto "+room+": "+selected.optInt("points")+" de 4 pontos para apagar o incêndio.");
+  }else if("break_window".equals(action)){
+   if(selected.optBoolean("window_broken"))throw new IllegalArgumentException("A janela deste quarto já está quebrada.");selected.put("window_broken",true);
+   if(burning)selected.put("flare_round",round).put("flare_hours",hours).put("flare_pending",true);
+   outcome.put("description","Janela do quarto "+room+" quebrada."+(burning?" O fogo aumenta para 2d6 ao fim desta rodada.":""));
+  }else if("smoke".equals(action)){
+   double clear=state.optDouble("smoke_clears_hours",Double.POSITIVE_INFINITY);boolean smoke=hours<clear;
+   if(natural&&!state.optBoolean("all_extinguished")){double start=state.optDouble("started_hours"),dawn=Math.floor(start/24d)*24d+6d;if(dawn<=start)dawn+=24d;smoke=hours<dawn;}
+   outcome.put("dc",manorSmokeDc(state));
+   if(!smoke||holdingBreath)outcome.put("description",holdingBreath?"Respiração presa: a fumaça não exige este teste.":"A fumaça já se dissipou.");
+   else{
+    if("CRITICAL_SUCCESS".equals(degree))outcome.put("description","A fumaça não afetou o personagem.");
+    else if("SUCCESS".equals(degree))outcome.put("sickened",1).put("description","Fumaça: enjoado 1.");
+    else if("FAILURE".equals(degree)||"CRITICAL_FAILURE".equals(degree)){boolean critical="CRITICAL_FAILURE".equals(degree);outcome.put("sickened",critical?2:1).put("damage",manorDie(rolls,0)).put("persistent_nonlethal",critical).put("description","Fumaça: enjoado "+(critical?2:1)+", "+manorDie(rolls,0)+" de dano não letal."+(critical?" Também sofre 1d6 não letal persistente.":""));}
+    else throw new IllegalArgumentException("Grau de sucesso inválido.");
+   }
+  }else if("fire_damage".equals(action)){
+   boolean flare=selected.optBoolean("flare_pending")&&(round>0?selected.optInt("flare_round")==round:hours<=selected.optDouble("flare_hours")+1d/600d);
+   if(!burning&&!flare)outcome.put("description","Este quarto não causa dano de fogo neste turno.");
+   else{int damage=manorDie(rolls,0)+(flare?manorDie(rolls,1):0);
+    if("CRITICAL_SUCCESS".equals(degree))damage=0;else if("SUCCESS".equals(degree))damage/=2;else if("CRITICAL_FAILURE".equals(degree))damage*=2;else if(!"FAILURE".equals(degree))throw new IllegalArgumentException("Grau de sucesso inválido.");
+    outcome.put("damage",damage).put("flare",flare).put("description","Quarto "+room+": "+damage+" de dano de fogo após Reflexos CD 16.");
+   }
+  }else throw new IllegalArgumentException("Ação do incêndio desconhecida.");
+  int windows=0;boolean all=true;for(int n=0;n<5;n++){JSONObject r=rooms.optJSONObject(n);if(r==null||r.optInt("points")<0||r.optInt("points")>4)throw new IllegalArgumentException("Pontos do incêndio inválidos.");if(r.optBoolean("window_broken"))windows++;if(r.optInt("points")<4)all=false;}
+  state.put("windows_broken",windows).put("all_extinguished",all).put("naturally_burned_out",natural).put("last_action_hours",hours);
+  if(all&&!prior.optBoolean("all_extinguished"))state.put("extinguished_hours",hours).put("smoke_clears_hours",hours+(windows>=3?1d/6d:1d));
+  else if(all&&windows>=3&&prior.optInt("windows_broken")<3)state.put("smoke_clears_hours",Math.min(state.optDouble("smoke_clears_hours"),hours+1d/6d));
+  return state.put("last_outcome",outcome);
+ }
+
 }
 
 

@@ -20,6 +20,7 @@ from patch_structure_upgrades import upgrade_repository,upgrade_ui
 from patch_campaign_journal import journal_repository,journal_ui,journal_appdb,journal_director
 from patch_mansion_encounters import mansion_ui
 from patch_camp_character_recovery import recovery_repository
+from patch_manor_fire import fire_repository, fire_ui, fire_appdb
 SRC=Path("android/app/src/main/java/com/braseiro/pathfinder2e")
 HERE=Path(__file__).parent
 MARKER="R36_SEMANTIC_DOMAIN_INTEGRATION"
@@ -540,7 +541,7 @@ def regression_support(root):
 def apply(root):
  root=Path(root);base=root/SRC
  if "VERSION_NAME=9.0.37" not in (root/"version.properties").read_text():raise ValueError("Only verified R36 eligible")
- transforms={"KingmakerRepository.java":lambda s:recovery_repository(journal_repository(upgrade_repository(payment_repository(growth_repository(companion_leaders_repository(sleep_receipt_repository(demolition_repository(harrim_camp_repository(occupancy_repository(lot_repository(border_repository(twins_repository(repository_grid(repository_focus(repository_treasury(companion_rewards_runtime(campaign_runtime(structure_runtime(companion_runtime(structure_triggers(repository(s)))))))))))))))))))))),"KingmakerRulesEngine.java":lambda s:sleep_receipt_rules(rules_treasury(rules(s))),"KingmakerSoloDirector.java":lambda s:journal_director(director(s)),"AppDb.java":lambda s:journal_appdb(appdb(s)),"KingmakerCampaignImporter.java":lambda s:companion_campaign_importer(campaign_importer(importer(s))),"MainActivity.java":lambda s:mansion_ui(journal_ui(upgrade_ui(growth_ui(companion_leaders_ui(sleep_receipt_ui(demolition_ui(harrim_camp_ui(lot_ui(border_ui(twins_ui(grid_ui(focus_ui(treasury_ui(companion_rewards_ui(campaign_ui(event_ui(structure_ui(main(s)))))))))))) ) ) )))))}
+ transforms={"KingmakerRepository.java":lambda s:fire_repository(recovery_repository(journal_repository(upgrade_repository(payment_repository(growth_repository(companion_leaders_repository(sleep_receipt_repository(demolition_repository(harrim_camp_repository(occupancy_repository(lot_repository(border_repository(twins_repository(repository_grid(repository_focus(repository_treasury(companion_rewards_runtime(campaign_runtime(structure_runtime(companion_runtime(structure_triggers(repository(s))))))))))))))))))))))),"KingmakerRulesEngine.java":lambda s:sleep_receipt_rules(rules_treasury(rules(s))),"KingmakerSoloDirector.java":lambda s:journal_director(director(s)),"AppDb.java":lambda s:fire_appdb(journal_appdb(appdb(s))),"KingmakerCampaignImporter.java":lambda s:companion_campaign_importer(campaign_importer(importer(s))),"MainActivity.java":lambda s:fire_ui(mansion_ui(journal_ui(upgrade_ui(growth_ui(companion_leaders_ui(sleep_receipt_ui(demolition_ui(harrim_camp_ui(lot_ui(border_ui(twins_ui(grid_ui(focus_ui(treasury_ui(companion_rewards_ui(campaign_ui(event_ui(structure_ui(main(s)))))))))))) ) ) ))))))}
  prepared={name:fn((base/name).read_text(encoding="utf-8")) for name,fn in transforms.items()}
  for name,content in prepared.items():(base/name).write_text(content,encoding="utf-8")
  for name in ["KingmakerStructureSemantics.java","KingmakerCampaignGate.java","KingmakerCompanionSemantics.java"]:shutil.copyfile(HERE/"semantic"/name,base/name)

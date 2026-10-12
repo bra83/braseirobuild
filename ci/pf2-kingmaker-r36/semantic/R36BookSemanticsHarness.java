@@ -470,6 +470,34 @@ public final class R36BookSemanticsHarness {
   check(!KingmakerCompanionSemantics.naturalRestRecovery(restingHero,3,new JSONObject().put("rest_end_hours",45),50).optBoolean("eligible"),"a second camp cannot grant rest benefits within twenty four hours");
   check(KingmakerCompanionSemantics.naturalRestRecovery(restingHero,3,new JSONObject().put("rest_end_hours",26),50).optBoolean("eligible"),"exactly twenty four hours permits the next recovery");
   check(!KingmakerCompanionSemantics.naturalRestRecovery(new JSONObject(restingHero.toString()).put("sheet_json",new JSONObject().put("dead",true).toString()),3,new JSONObject(),50).optBoolean("eligible"),"rest cannot resurrect a dead hero");
+  JSONArray fireDice=new JSONArray().put(5).put(4);
+  JSONObject flames=new JSONObject();
+  flames=KingmakerCampaignGate.manorFireAction(flames,1,"fight_fire","CRITICAL_SUCCESS",30,1,false,fireDice,2);
+  check(flames.optJSONArray("rooms").optJSONObject(0).optInt("points")==2,"critical success grants two extinguish points");
+  flames=KingmakerCampaignGate.manorFireAction(flames,1,"fight_fire","CRITICAL_FAILURE",30,1,false,fireDice,2);
+  check(flames.optJSONArray("rooms").optJSONObject(0).optInt("points")==1,"critical failure removes one extinguish point");
+  flames=KingmakerCampaignGate.manorFireAction(flames,2,"fight_fire","CRITICAL_FAILURE",30,1,false,fireDice,2);
+  check(flames.optJSONArray("rooms").optJSONObject(1).optInt("points")==0,"extinguish points cannot become negative");
+  for(int room=1;room<=3;room++)flames=KingmakerCampaignGate.manorFireAction(flames,room,"break_window","",30,1,false,fireDice,2);
+  check(KingmakerCampaignGate.manorSmokeDc(flames)==11,"three different windows reduce smoke DC to eleven");
+  JSONObject flare=KingmakerCampaignGate.manorFireAction(flames,1,"fire_damage","FAILURE",30,1,false,fireDice,2);
+  check(flare.optJSONObject("last_outcome").optInt("damage")==9,"broken window adds second fire die during same round");
+  flare=KingmakerCampaignGate.manorFireAction(flames,1,"fire_damage","FAILURE",30,2,false,fireDice,2);
+  check(flare.optJSONObject("last_outcome").optInt("damage")==5,"window flare does not persist to later rounds");
+  flare=KingmakerCampaignGate.manorFireAction(flames,1,"fire_damage","SUCCESS",30,2,false,fireDice,2);
+  check(flare.optJSONObject("last_outcome").optInt("damage")==2,"basic Reflex halves and rounds damage down");
+  JSONObject smoke=KingmakerCampaignGate.manorFireAction(flames,1,"smoke","CRITICAL_FAILURE",30,2,false,fireDice,2);
+  check(smoke.optJSONObject("last_outcome").optInt("sickened")==2&&smoke.optJSONObject("last_outcome").optBoolean("persistent_nonlethal"),"critical smoke failure applies sickened two and persistent nonlethal");
+  smoke=KingmakerCampaignGate.manorFireAction(flames,1,"smoke","FAILURE",30,2,true,fireDice,2);
+  check(smoke.optJSONObject("last_outcome").optInt("damage")==0,"holding breath suppresses smoke trigger");
+  for(int room=1;room<=5;room++)while(flames.optJSONArray("rooms").optJSONObject(room-1).optInt("points")<4)flames=KingmakerCampaignGate.manorFireAction(flames,room,"fight_fire","CRITICAL_SUCCESS",30,2,false,fireDice,2);
+  check(flames.optBoolean("all_extinguished")&&Math.abs(flames.optDouble("smoke_clears_hours")-(30+1d/6d))<0.00001,"five fires extinguished with three windows clears smoke after ten minutes");
+  smoke=KingmakerCampaignGate.manorFireAction(flames,1,"smoke","FAILURE",30.1,3,false,fireDice,2);
+  check(smoke.optJSONObject("last_outcome").optInt("damage")==5,"extinguishing fires does not clear smoke immediately");
+  smoke=KingmakerCampaignGate.manorFireAction(flames,1,"smoke","FAILURE",30.2,3,false,fireDice,2);
+  check(smoke.optJSONObject("last_outcome").optInt("damage")==0,"smoke stops after ventilation timer");
+  JSONObject burnout=KingmakerCampaignGate.manorFireAction(new JSONObject().put("started_hours",30),1,"fire_damage","FAILURE",30.5,3,false,fireDice,2);
+  check(burnout.optBoolean("naturally_burned_out")&&!burnout.optBoolean("all_extinguished")&&burnout.optJSONObject("last_outcome").optInt("damage")==0,"natural burnout is separate from earned extinguish award");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }
