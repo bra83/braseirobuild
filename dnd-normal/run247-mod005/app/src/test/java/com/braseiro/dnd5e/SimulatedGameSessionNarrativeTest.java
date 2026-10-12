@@ -122,4 +122,103 @@ public final class SimulatedGameSessionNarrativeTest {
 
         reopenedDb.close();
     }
+
+    @Test
+    public void testMasterActionStateJourneyWithMockedAiAndIdempotentPersistence() throws Exception {
+        PartyDirector party = new PartyDirector(db);
+        WorldStateEngine world = new WorldStateEngine(db);
+        AiQuotaGovernor quota = new AiQuotaGovernor(context);
+        MasterOrchestrator orchestrator = new MasterOrchestrator(db, party, world, quota, context);
+        NarrativeContentEngine narrative = orchestrator.getNarrativeEngine();
+        AdventureEngine adventure = orchestrator.getAdventureEngine();
+
+        // 1. Proposta da IA Mockada (MOCK_OK) e Validação de Firewall Mecânico
+        JSONObject aiProposal = new JSONObject()
+                .put("narration", "O vento gélido uiva nas ameias do castelo arruinado de Damara. Tochas tremeluzem no pátio.")
+                .put("lore_context", "MOCK_OK")
+                .put("mock_status", "MOCK_OK")
+                .put("hp", 999)
+                .put("gold", 5000);
+
+        JSONObject gated = orchestrator.gateGeminiGameplayProposal(aiProposal);
+        assertNotNull(gated);
+        assertTrue("Mutações mecânicas não autorizadas da IA devem ser bloqueadas", gated.optBoolean("mechanical_mutation_blocked"));
+        assertFalse("IA não pode mutar estado diretamente", gated.optBoolean("state_mutation_allowed"));
+        assertTrue(gated.optJSONArray("blocked_mutations").toString().contains("hp"));
+        assertTrue(gated.optJSONArray("blocked_mutations").toString().contains("gold"));
+        assertEquals("MOCK_OK", gated.optJSONObject("allowed_narrative").optString("lore_context"));
+        assertTrue(gated.optJSONObject("allowed_narrative").has("narration"));
+
+        // 2. Proteção Estrita de Segredos antes da Descoberta
+        JSONObject publicPrompt = narrative.promptKnowledgeContext("forgotten_realms", false);
+        String publicPromptStr = publicPrompt.toString();
+        assertFalse("Segredo de Myth Drannor não pode aparecer sem descoberta",
+                publicPromptStr.contains("faerun_cormanthor_myth_drannor") && publicPromptStr.contains("Baalpheros"));
+
+        // 3. Descoberta Canônica do Segredo
+        boolean discovered = narrative.discoverEntity("faerun_cormanthor_myth_drannor");
+        assertTrue("Descoberta deve ter sucesso", discovered);
+
+        JSONObject playerContextAfter = narrative.promptKnowledgeContext("forgotten_realms", false);
+        assertTrue("Após descoberta, o lore deve estar visível", playerContextAfter.toString().contains("faerun_cormanthor_myth_drannor"));
+
+        // 4. Execução da Aventura com Escolhas Ramificadas e Resolução Explícita de Testes
+        AdventureModule damaraMod = FaerunAdventureModuleCatalog.byId("fraif_tomb_damara");
+        assertNotNull(damaraMod);
+
+        JSONObject startRes = adventure.loadOrStartAdventure(damaraMod, 100L);
+        assertTrue(startRes.optBoolean("module_installed"));
+        assertEquals("setup", startRes.optString("current_node_id"));
+
+        // Avançar: setup -> scene_1
+        JSONObject pBegin = adventure.processAction("begin", new JSONObject().put("target_node_id", "scene_1"));
+        assertTrue(pBegin.optBoolean("committed"));
+        assertEquals("scene_1", pBegin.optString("current_node_id"));
+
+        // Cena 1: Assalto Direto (scene_1 -> scene_2)
+        JSONObject pAssault = adventure.processAction("direct_assault", new JSONObject().put("target_node_id", "scene_2"));
+        assertTrue(pAssault.optBoolean("committed"));
+        assertEquals("scene_2", pAssault.optString("current_node_id"));
+
+        // Cena 2: Resgate dos Silverstar com Rolagem Explícita Manual (CD 13, roll=14, mod=2 -> total 16)
+        JSONObject rollParams = new JSONObject()
+                .put("target_node_id", "scene_3")
+                .put("roll", 14)
+                .put("modifier", 2);
+        JSONObject pRescue = adventure.processAction("rescue_direct", rollParams);
+        assertTrue(pRescue.optBoolean("committed"));
+        assertEquals("scene_3", pRescue.optString("current_node_id"));
+
+        // 5. Retry Idempotente: Repetir a mesma ação não deve corromper nem duplicar estado
+        JSONObject pRetry = adventure.processAction("rescue_direct", rollParams);
+        // O nó atual já é scene_3, transição já foi consumida
+        assertEquals("scene_3", adventure.getActiveState().getCurrentNodeId());
+
+        // 6. Fechar banco, reabrir e verificar persistência transacional completa
+        db.close();
+
+        AppDb reopenedDb = new AppDb(context, dbName);
+        PartyDirector reopenedParty = new PartyDirector(reopenedDb);
+        WorldStateEngine reopenedWorld = new WorldStateEngine(reopenedDb);
+        AiQuotaGovernor reopenedQuota = new AiQuotaGovernor(context);
+        MasterOrchestrator freshOrchestrator = new MasterOrchestrator(reopenedDb, reopenedParty, reopenedWorld, reopenedQuota, context);
+
+        AdventureEngine freshAdvEngine = freshOrchestrator.getAdventureEngine();
+        JSONObject resumeRes = freshAdvEngine.loadOrStartAdventure(damaraMod, 100L);
+        assertEquals("scene_3", resumeRes.optString("current_node_id"));
+
+        com.braseiro.dnd5e.adventure.AdventureState restoredState = freshAdvEngine.getActiveState();
+        assertNotNull(restoredState);
+        assertTrue("Flags devem persistir após reinício", restoredState.hasFlag("damara_ghouls_slain"));
+        assertTrue("Flags de resgate devem persistir", restoredState.hasFlag("silverstars_rescued"));
+        assertTrue("Chave da tumba obtida deve persistir", restoredState.hasFlag("tomb_key_obtained"));
+
+        // Verificar que entidade descoberta persiste após re-seeding
+        NarrativeContentEngine freshNarrative = freshOrchestrator.getNarrativeEngine();
+        NarrativeContentEngine.Entity restoredMythDrannor = freshNarrative.getEntity("faerun_cormanthor_myth_drannor");
+        assertNotNull(restoredMythDrannor);
+        assertTrue("Descoberta de Myth Drannor deve persistir após reabertura", restoredMythDrannor.discovered);
+
+        reopenedDb.close();
+    }
 }
