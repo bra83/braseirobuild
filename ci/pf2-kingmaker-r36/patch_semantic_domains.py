@@ -543,6 +543,7 @@ def apply(root):
  prepared={name:fn((base/name).read_text(encoding="utf-8")) for name,fn in transforms.items()}
  for name,content in prepared.items():(base/name).write_text(content,encoding="utf-8")
  for name in ["KingmakerStructureSemantics.java","KingmakerCampaignGate.java","KingmakerCompanionSemantics.java"]:shutil.copyfile(HERE/"semantic"/name,base/name)
+ shutil.copytree(HERE/"maps",root/"android/app/src/main/assets/pathfinder/kingmaker/maps",dirs_exist_ok=True)
  regression_support(root)
  from patch_campaign_semantics import apply_campaign
  apply_campaign(root)

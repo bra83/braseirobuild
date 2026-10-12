@@ -272,3 +272,21 @@ def test_mansion_combat_uses_primary_book_stats_and_initial_hp():
     assert 'combat.put("enemies",encounter.optJSONArray("enemies"))' in body
     assert 'Math.max(hp,Math.min(999,e.optInt("max_hp",hp)))' in body
     assert 'enemyResources.put("official_stats"' in body
+
+
+def test_official_manor_maps_are_copied_and_match_provenance():
+    import hashlib,json
+    folder=ROOT/"android/app/src/main/assets/pathfinder/kingmaker/maps"
+    records=json.loads((folder/"provenance.json").read_text(encoding="utf-8"))
+    assert {r['printed_page'] for r in records}=={26,34}
+    assert len(records)==2
+    for record in records:
+        data=(folder/record['asset']).read_bytes()
+        assert data[:2]==b'\xff\xd8'
+        assert hashlib.sha256(data).hexdigest()==record['image_sha256']
+        assert record['feet_per_square']==5
+        assert len(record['source_sha256'])==64
+    main=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java").read_text(encoding="utf-8")
+    assert 'showKingmakerManorMaps()' in main
+    assert 'file:///android_asset/pathfinder/kingmaker/maps/' in main
+    assert 'setJavaScriptEnabled(false)' in main

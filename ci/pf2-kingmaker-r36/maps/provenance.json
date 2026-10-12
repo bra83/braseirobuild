@@ -1,0 +1,26 @@
+[
+  {
+    "asset": "manor_east_primary.jpg",
+    "source_document": "Kingmaker.pdf",
+    "source_sha256": "9f4dff305435f82b13f754a00b07a04685b01aa1eebb57c16a7ed906c19a5b6d",
+    "printed_page": 26,
+    "pdf_page": 27,
+    "width": 1317,
+    "height": 846,
+    "feet_per_square": 5,
+    "image_sha256": "fcfc3e4f3dd5520651cf9d0dbed5c9c4e617753036a9c4f32e2bc1b57c6753b7",
+    "extraction": "Original PDF artwork, room labels and scale; original vector clipping path preserved. Unrelated page text excluded."
+  },
+  {
+    "asset": "manor_west_primary.jpg",
+    "source_document": "Kingmaker.pdf",
+    "source_sha256": "9f4dff305435f82b13f754a00b07a04685b01aa1eebb57c16a7ed906c19a5b6d",
+    "printed_page": 34,
+    "pdf_page": 35,
+    "width": 1302,
+    "height": 843,
+    "feet_per_square": 5,
+    "image_sha256": "99cf9faa90fb6a084c3358c581f51e66409a34c2a7bb89bdf0fe40da8789ca85",
+    "extraction": "Original PDF artwork, room labels and scale; original vector clipping path preserved. Unrelated page text excluded."
+  }
+]

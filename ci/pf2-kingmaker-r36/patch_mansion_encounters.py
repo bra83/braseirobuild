@@ -22,4 +22,16 @@ def mansion_ui(s):
  s=s[:start]+part+s[end:]
  anchor='p.append("MUNDO VIVO ESTRUTURADO:'
  s=once(s,anchor,'if(kingmakerService!=null&&kingmakerService.enabled())p.append("KINGMAKER NA MANSÃO: combat.start usa canonical_room A1, A4, A6, A11, A21 ou A23. O motor fornece as fichas, contagens e condições do livro. Não invente PV, CA ou ataques desses adversários. Gromog está cego e usa suas estatísticas especiais; Jurgrindor inicia ferido com 25/50 PV. Não mova essas batalhas para fora da mansão.\\n");'+anchor)
- return s
+ start=s.index('    private void showKingmakerCampaignJournal()');end=s.index('    private void showKingmakerQuestObjectives(',start);part=s[start:end]
+ part=once(part,'.setNegativeButton("Voltar",null).show();','.setNegativeButton("Voltar",null).setNeutralButton("MAPAS DA MANSÃO",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){showKingmakerManorMaps();}}).show();');s=s[:start]+part+s[end:]
+ helper='''
+    private void showKingmakerManorMaps(){
+        new AlertDialog.Builder(this).setTitle("Mansão Aldori • mapas oficiais").setItems(new String[]{"Ala leste • A1–A13","Ala oeste • A14–A24"},new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){
+            android.webkit.WebView map=new android.webkit.WebView(MainActivity.this);map.getSettings().setJavaScriptEnabled(false);map.getSettings().setBuiltInZoomControls(true);map.getSettings().setDisplayZoomControls(false);map.getSettings().setUseWideViewPort(true);map.getSettings().setLoadWithOverviewMode(true);map.setMinimumHeight(dp(450));
+            String asset=which==0?"manor_east_primary.jpg":"manor_west_primary.jpg";
+            map.loadDataWithBaseURL("file:///android_asset/pathfinder/kingmaker/maps/","<html><head><meta name='viewport' content='width=device-width, initial-scale=1'></head><body style='margin:0;background:#fff'><img style='width:100%' src='"+asset+"'></body></html>","text/html","UTF-8",null);
+            new AlertDialog.Builder(MainActivity.this).setTitle(which==0?"Ala leste • quadrado = 1,5 m":"Ala oeste • quadrado = 1,5 m").setView(map).setPositiveButton("FECHAR",null).show();
+        }}).setNegativeButton("Voltar",null).show();
+    }
+'''
+ i=s.rfind('\n}');return s[:i]+'\n'+helper+s[i:]
