@@ -158,6 +158,23 @@ public final class R36BookSemanticsHarness {
   check(repeated.optInt("loyalty_circumstance_penalty")==-1,"failed treasury also penalizes loyalty");
   JSONObject worse=KingmakerStructureSemantics.tapTreasuryOutcome(2,"SUCCESS",true,"strife");
   check(worse.optInt("unrest")==1&&worse.optInt("strife")==1,"critical treasury choice affects chosen ruin");
+  JSONObject guild=structure("guildhall",3).put("effects_json",new JSONObject().put("trade_focus_instances",new JSONArray().put("Padaria").put("Ferraria").put("padaria")));
+  JSONArray guilds=new JSONArray().put(guild);JSONObject bread=new JSONObject().put("ability","economy").put("trade_focus","PADARIA");
+  check(KingmakerStructureSemantics.activityBonus(guilds,"trade_commodities","industry",3,bread)==2,"matching guild focuses stack within settlement cap");
+  bread.put("ability","stability");check(KingmakerStructureSemantics.activityBonus(guilds,"build_structure","engineering",3,bread)==0,"guild focus bonus only economy skills");
+  bread.put("ability","economy").put("trade_focus","tecelagem");check(KingmakerStructureSemantics.activityBonus(guilds,"trade_commodities","industry",3,bread)==0,"unrelated trade gains no guild bonus");
+  check(KingmakerStructureSemantics.pcItemBonus(guilds,"earn_income","crafting","padaria")==1,"PC guild bonus stays one item bonus");
+  JSONObject shop=structure("trade_shop",1).put("effects_json",new JSONObject().put("trade_focus_instances",new JSONArray().put("ferraria")));
+  check(KingmakerStructureSemantics.pcItemBonus(new JSONArray().put(shop),"craft","crafting","Ferraria")==1,"trade shop related crafting item bonus");
+  check(KingmakerStructureSemantics.pcItemBonus(new JSONArray().put(shop),"craft","crafting","padaria")==0,"trade shop bonus requires associated craft");
+  JSONObject oldGuild=structure("guildhall",2).put("effects_json",new JSONObject());
+  JSONArray declared=KingmakerStructureSemantics.declareGuildFocus(oldGuild,2,"ferraria");
+  check(declared.length()==2&&declared.optString(0).isEmpty()&&"ferraria".equals(declared.optString(1)),"legacy focus declared per establishment");
+  oldGuild.put("effects_json",new JSONObject().put("trade_focus_instances",declared));
+  boolean changedFocus=false;try{KingmakerStructureSemantics.declareGuildFocus(oldGuild,2,"padaria");}catch(IllegalStateException expected){changedFocus=true;}
+  check(changedFocus,"declared focus cannot change freely for next check");
+  check(build("houses",0,true,true,true,"",4,4).optJSONArray("dice").length()==0,"only actual rule dice recorded");
+  check(build("castle",0,true,true,true,"",4,4).optJSONArray("dice").length()==1,"castle uses one d4");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

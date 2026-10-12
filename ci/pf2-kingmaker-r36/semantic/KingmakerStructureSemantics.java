@@ -133,6 +133,10 @@ public final class KingmakerStructureSemantics {
   int best=0;
   for(String k:BONUSES.keySet()){
    int n=count(rows,k);if(n==0)continue;if(EDIFICES.contains(k))n=1;
+   if("guildhall".equals(k)){
+    if("economy".equals(context.optString("ability")))best=Math.max(best,Math.min(Math.max(0,cap),guildFocusCount(rows,context.optString("trade_focus"))));
+    continue;
+   }
    for(String token:BONUSES.get(k).split(";")){
     if(token.length()==0)continue;String[] pair=token.split("=");String[] target=pair[0].split(":");
     if(!target[0].equals(activity))continue;
@@ -141,6 +145,26 @@ public final class KingmakerStructureSemantics {
    }
   }
   return best;
+ }
+ private static String focus(String value){return value==null?"":java.text.Normalizer.normalize(value.trim().toLowerCase(java.util.Locale.ROOT),java.text.Normalizer.Form.NFD).replaceAll("\\p{M}+","");}
+ private static JSONObject effects(JSONObject row){JSONObject value=row.optJSONObject("effects_json");if(value!=null)return value;try{return new JSONObject(row.optString("effects_json","{}"));}catch(Exception error){throw new IllegalArgumentException("Efeitos de estrutura inválidos.",error);}}
+ public static int guildFocusCount(JSONArray rows,String requested){return tradeFocusCount(rows,"guildhall",requested);}
+ public static int tradeFocusCount(JSONArray rows,String structure,String requested){
+  String target=focus(requested);if(target.length()==0)return 0;int total=0;
+  for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null||!structure.equals(row.optString("structure_key"))||!"built".equals(row.optString("status","built")))continue;
+   JSONArray names=effects(row).optJSONArray("trade_focus_instances");if(names==null)continue;
+   for(int n=0;n<Math.min(Math.max(0,row.optInt("count",1)),names.length());n++)if(target.equals(focus(names.optString(n))))total++;
+  }return total;
+ }
+ public static JSONArray appendedGuildFocus(JSONObject existing,String trade)throws Exception{
+  if(focus(trade).length()==0)throw new IllegalArgumentException("Indique o foco comercial da guilda.");
+  JSONArray previous=effects(existing).optJSONArray("trade_focus_instances"),out=new JSONArray();int count=existing.length()==0?0:Math.max(0,existing.optInt("count",1));
+  for(int i=0;i<count;i++)out.put(previous==null?"":previous.optString(i));return out.put(trade.trim());
+ }
+ public static JSONArray declareGuildFocus(JSONObject existing,int instance,String trade)throws Exception{
+  int count=Math.max(0,existing.optInt("count"));if(instance<1||instance>count||focus(trade).length()==0)throw new IllegalArgumentException("Guilda ou foco inválido.");
+  JSONArray previous=effects(existing).optJSONArray("trade_focus_instances"),out=new JSONArray();
+  for(int i=0;i<count;i++){String old=previous==null?"":previous.optString(i);if(i==instance-1){if(old.length()>0&&!focus(old).equals(focus(trade)))throw new IllegalStateException("O foco desta guilda já foi definido.");old=trade.trim();}out.put(old);}return out;
  }
  public static int storageIncrease(JSONArray rows,String commodity){
   String building="food".equals(commodity)?"granary":"lumber".equals(commodity)?"lumberyard":"ore".equals(commodity)?"foundry":"stone".equals(commodity)?"stonemason":"luxuries".equals(commodity)?"secure_warehouse":"";
@@ -188,12 +212,14 @@ public final class KingmakerStructureSemantics {
    if(count(rows,"tavern_world_class")>0)best=Math.max(best,3);
   }
   if(count(rows,"thieves_guild")>0&&"create_forgeries".equals(activity))best=Math.max(best,1);
+  if(("earn_income".equals(activity)||"repair".equals(activity))&&guildFocusCount(rows,focus)>0)best=Math.max(best,1);
+  if("crafting".equals(skill)&&tradeFocusCount(rows,"trade_shop",focus)>0)best=Math.max(best,1);
   return best;
  }
  public static JSONObject buildEffects(String key,int priorSettlementCount,boolean firstSettlement,boolean firstTurn,boolean firstKingdom,boolean famous,boolean infamous,String mode,String ruin,int die1,int die2)throws Exception{
   if(!BONUSES.containsKey(key))throw new IllegalArgumentException("Estrutura fora do catálogo oficial.");
   if(EDIFICES.contains(key)&&priorSettlementCount>0)return new JSONObject().put("cosmetic_only",true);
-  int unrest=0,crime=0,selectedRuin=0;
+  int unrest=0,crime=0,selectedRuin=0;JSONArray usedDice=new JSONArray();
   if("barracks".equals(key)&&firstSettlement)unrest=-1;
   if("brewery".equals(key)&&priorSettlementCount<3)unrest=-1;
   if("garrison".equals(key))unrest=-1;
@@ -205,6 +231,7 @@ public final class KingmakerStructureSemantics {
    if("castle".equals(key)||"tavern_luxury".equals(key)||"tavern_world_class".equals(key)){
     if(die1<1||die1>4||("tavern_world_class".equals(key)&&(die2<1||die2>4)))throw new IllegalArgumentException("Resultado de d4 inválido.");
     unrest="castle".equals(key)?-die1:"tavern_luxury".equals(key)?-(die1+1):-(die1+die2);
+    usedDice.put(die1);if("tavern_world_class".equals(key))usedDice.put(die2);
    }
    if("jail".equals(key)||"magical_streetlamps".equals(key))crime=-1;
    if("tavern_dive".equals(key))crime=1;
@@ -214,7 +241,7 @@ public final class KingmakerStructureSemantics {
   if("illicit_market".equals(key)||"thieves_guild".equals(key))crime++;
   if("tenement".equals(key))selectedRuin++;
   if(selectedRuin!=0&&!Arrays.asList("corruption","crime","decay","strife").contains(ruin))throw new IllegalArgumentException("Escolha a Ruína da estrutura.");
-  JSONObject out=new JSONObject().put("unrest",unrest).put("crime",crime).put("dice",new JSONArray().put(die1).put(die2));
+  JSONObject out=new JSONObject().put("unrest",unrest).put("crime",crime).put("dice",usedDice);
   if(selectedRuin!=0)out.put(ruin,out.optInt(ruin)+selectedRuin);
   if("infamy".equals(mode)){if(infamous)out.put("infamy",1);else if(famous)out.put("infamy",-1);}
   else {if(famous)out.put("fame",1);else if(infamous)out.put("fame",-1);}
