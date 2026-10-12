@@ -1,0 +1,687 @@
+{
+  "schema": "braseiro-pathfinder2e-chapter-v1",
+  "chapter_key": "chapter_12_companion_stories",
+  "chapterKey": "chapter_12_companion_stories",
+  "chapter_number": 12,
+  "chapterNumber": 12,
+  "title": "Companheiros — Aventuras Pessoais do Companion Guide",
+  "locale": "pt-BR",
+  "level_min": 1,
+  "levelMin": 1,
+  "level_max": 20,
+  "levelMax": 20,
+  "summary": "Sete aventuras pessoais publicadas no Kingmaker Companion Guide. Os outros cinco perfis possuem regras de influência, liderança e acampamento; não são convertidos em aventuras inventadas.",
+  "quests": [
+    {
+      "quest_key": "q_cg_amiri",
+      "questKey": "q_cg_amiri",
+      "title": "O Chamado do Sangue",
+      "status": "unstarted",
+      "stage": "pending",
+      "objective": "Investigar a espada que contém Kean, encontrar Nilak entre os Seis Ursos e resolver a perseguição de Fionn.",
+      "stakes": "Resolver os acontecimentos da aventura com as escolhas do grupo.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 0,
+      "milestoneXp": 0,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "cg_amiri_step_1",
+          "desc": "Examinar a quebra e a recomposição da espada de Amiri.",
+          "description": "Examinar a quebra e a recomposição da espada de Amiri.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_amiri_step_2",
+          "desc": "Procurar os Seis Ursos e Nilak no acampamento atacado por mortos-vivos.",
+          "description": "Procurar os Seis Ursos e Nilak no acampamento atacado por mortos-vivos.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_amiri_step_3",
+          "desc": "Investigar Fionn e decidir como resolver a prisão da alma de Kean.",
+          "description": "Investigar Fionn e decidir como resolver a prisão da alma de Kean.",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 0,
+        "xp": 0,
+        "items": []
+      },
+      "progress_json": {
+        "companion_key": "amiri",
+        "minimum_level": 11,
+        "story_timing": "Após Vordakai; rumores dos Seis Ursos ao alcançar nível 11.",
+        "source_ref": "Kingmaker Companion Guide pp.12–21",
+        "official_title": "Blood Calling",
+        "definition_revision": "companions-r36-primary",
+        "automatic_rewards_compiled": false
+      }
+    },
+    {
+      "quest_key": "q_cg_ekundayo",
+      "questKey": "q_cg_ekundayo",
+      "title": "Um Banquete dos Banquetes",
+      "status": "unstarted",
+      "stage": "pending",
+      "objective": "Preparar a festa de Ekundayo e investigar Ntavi e os Reavers de Gragglebeard.",
+      "stakes": "Resolver os acontecimentos da aventura com as escolhas do grupo.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 0,
+      "milestoneXp": 0,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "cg_ekundayo_step_1",
+          "desc": "Organizar o banquete, escolhendo local e contribuições do grupo.",
+          "description": "Organizar o banquete, escolhendo local e contribuições do grupo.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_ekundayo_step_2",
+          "desc": "Lidar com Ntavi e a retomada da vingança de Ekundayo.",
+          "description": "Lidar com Ntavi e a retomada da vingança de Ekundayo.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_ekundayo_step_3",
+          "desc": "Confrontar os Reavers de Gragglebeard e decidir o destino dessa busca.",
+          "description": "Confrontar os Reavers de Gragglebeard e decidir o destino dessa busca.",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 0,
+        "xp": 0,
+        "items": []
+      },
+      "progress_json": {
+        "companion_key": "ekundayo",
+        "minimum_level": 6,
+        "story_timing": "Após fundar o Reino, ao alcançar nível 6.",
+        "source_ref": "Kingmaker Companion Guide pp.27–31",
+        "official_title": "A Feast of Feasts",
+        "definition_revision": "companions-r36-primary",
+        "automatic_rewards_compiled": false
+      }
+    },
+    {
+      "quest_key": "q_cg_jubilost",
+      "questKey": "q_cg_jubilost",
+      "title": "Os Debates Inconsequentes",
+      "status": "unstarted",
+      "stage": "pending",
+      "objective": "Seguir as pesquisas de Xae para conseguir um convite aos Debates e investigar por que os gnomos deixaram o Primeiro Mundo.",
+      "stakes": "Resolver os acontecimentos da aventura com as escolhas do grupo.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 0,
+      "milestoneXp": 0,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "cg_jubilost_step_1",
+          "desc": "Investigar as notas de Xae e o santuário de Shyka.",
+          "description": "Investigar as notas de Xae e o santuário de Shyka.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_jubilost_step_2",
+          "desc": "Conseguir um convite e participar dos Debates Inconsequentes.",
+          "description": "Conseguir um convite e participar dos Debates Inconsequentes.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_jubilost_step_3",
+          "desc": "Considerar as respostas e consequências do encontro com o Anfitrião.",
+          "description": "Considerar as respostas e consequências do encontro com o Anfitrião.",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 0,
+        "xp": 0,
+        "items": []
+      },
+      "progress_json": {
+        "companion_key": "jubilost",
+        "minimum_level": 8,
+        "story_timing": "Nível 8; após o Florescimento e antes de Varnhold é preferência, não exigência.",
+        "source_ref": "Kingmaker Companion Guide pp.36–43",
+        "official_title": "The Inconsequent Debates",
+        "definition_revision": "companions-r36-primary",
+        "automatic_rewards_compiled": false
+      }
+    },
+    {
+      "quest_key": "q_cg_linzi",
+      "questKey": "q_cg_linzi",
+      "title": "Problemas no Tesouro",
+      "status": "unstarted",
+      "stage": "pending",
+      "objective": "Investigar os recursos desviados por Linzi para a prensa e as peças interceptadas pelo coven Jaggedbriar.",
+      "stakes": "Resolver os acontecimentos da aventura com as escolhas do grupo.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 0,
+      "milestoneXp": 0,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "cg_linzi_step_1",
+          "desc": "Investigar a discrepância no tesouro e ouvir Linzi.",
+          "description": "Investigar a discrepância no tesouro e ouvir Linzi.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_linzi_step_2",
+          "desc": "Rastrear o carregamento desaparecido e o coven Jaggedbriar.",
+          "description": "Rastrear o carregamento desaparecido e o coven Jaggedbriar.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_linzi_step_3",
+          "desc": "Resolver a ameaça das bruxas e o destino das peças da prensa.",
+          "description": "Resolver a ameaça das bruxas e o destino das peças da prensa.",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 0,
+        "xp": 0,
+        "items": []
+      },
+      "progress_json": {
+        "companion_key": "linzi",
+        "minimum_level": 7,
+        "story_timing": "Primeiro dia em um assentamento do Reino após alcançar nível 7.",
+        "source_ref": "Kingmaker Companion Guide pp.48–57",
+        "official_title": "Treasury Trouble",
+        "definition_revision": "companions-r36-primary",
+        "automatic_rewards_compiled": false
+      }
+    },
+    {
+      "quest_key": "q_cg_nok_nok",
+      "questKey": "q_cg_nok_nok",
+      "title": "Heróis ou Deuses?",
+      "status": "unstarted",
+      "stage": "pending",
+      "objective": "Investigar a ameaça dos Tanglethorn a Oleg e a liderança de Nargloom.",
+      "stakes": "Resolver os acontecimentos da aventura com as escolhas do grupo.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 0,
+      "milestoneXp": 0,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "cg_nok_nok_step_1",
+          "desc": "Investigar o aviso de Nok-Nok sobre o ataque ao entreposto de Oleg.",
+          "description": "Investigar o aviso de Nok-Nok sobre o ataque ao entreposto de Oleg.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_nok_nok_step_2",
+          "desc": "Enfrentar os Tanglethorn e seu líder Nargloom.",
+          "description": "Enfrentar os Tanglethorn e seu líder Nargloom.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_nok_nok_step_3",
+          "desc": "Resolver a ambição de Nok-Nok de se tornar o quinto herói-deus goblin.",
+          "description": "Resolver a ambição de Nok-Nok de se tornar o quinto herói-deus goblin.",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 0,
+        "xp": 0,
+        "items": []
+      },
+      "progress_json": {
+        "companion_key": "nok_nok",
+        "minimum_level": 5,
+        "story_timing": "Nível 5; preferencialmente entre os trolls e o ataque da Fera, no capítulo 4.",
+        "source_ref": "Kingmaker Companion Guide pp.61–67",
+        "official_title": "Heroes or Gods?",
+        "definition_revision": "companions-r36-primary",
+        "automatic_rewards_compiled": false
+      }
+    },
+    {
+      "quest_key": "q_cg_tristian",
+      "questKey": "q_cg_tristian",
+      "title": "O Reino dos Purificados",
+      "status": "unstarted",
+      "stage": "pending",
+      "objective": "Investigar a sociedade secreta na capital e a verdade sobre a ancestralidade de Tristian.",
+      "stakes": "Resolver os acontecimentos da aventura com as escolhas do grupo.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 0,
+      "milestoneXp": 0,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "cg_tristian_step_1",
+          "desc": "Investigar as atividades do Reino dos Purificados na capital.",
+          "description": "Investigar as atividades do Reino dos Purificados na capital.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_tristian_step_2",
+          "desc": "Localizar o santuário e enfrentar o Primeiro Fiel e seus cultistas.",
+          "description": "Localizar o santuário e enfrentar o Primeiro Fiel e seus cultistas.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_tristian_step_3",
+          "desc": "Resolver a ameaça da Maldição Purificadora e as revelações sobre Tristian.",
+          "description": "Resolver a ameaça da Maldição Purificadora e as revelações sobre Tristian.",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 0,
+        "xp": 0,
+        "items": []
+      },
+      "progress_json": {
+        "companion_key": "tristian",
+        "minimum_level": 10,
+        "story_timing": "Após Vordakai, no nível 10, antes do capítulo 7.",
+        "source_ref": "Kingmaker Companion Guide pp.72–81",
+        "official_title": "Kingdom of the Cleansed",
+        "definition_revision": "companions-r36-primary",
+        "automatic_rewards_compiled": false
+      }
+    },
+    {
+      "quest_key": "q_cg_valerie",
+      "questKey": "q_cg_valerie",
+      "title": "O Desafio de Sir Fredero",
+      "status": "unstarted",
+      "stage": "pending",
+      "objective": "Ir ao Santuário do Bosque Dourado e investigar a manipulação de Sir Fredero Sinnet por Tulvak.",
+      "stakes": "Resolver os acontecimentos da aventura com as escolhas do grupo.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 0,
+      "milestoneXp": 0,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "cg_valerie_step_1",
+          "desc": "Receber o desafio e viajar com Valerie ao santuário.",
+          "description": "Receber o desafio e viajar com Valerie ao santuário.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_valerie_step_2",
+          "desc": "Resolver o confronto com Sir Fredero Sinnet.",
+          "description": "Resolver o confronto com Sir Fredero Sinnet.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_valerie_step_3",
+          "desc": "Investigar Tulvak e decidir o destino do antigo campeão.",
+          "description": "Investigar Tulvak e decidir o destino do antigo campeão.",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 0,
+        "xp": 0,
+        "items": []
+      },
+      "progress_json": {
+        "companion_key": "valerie",
+        "minimum_level": 9,
+        "story_timing": "Mensagem no nível 9, durante Varnhold; iniciar no nível 10 permite ajustes de dificuldade.",
+        "source_ref": "Kingmaker Companion Guide pp.86–93",
+        "official_title": "Sir Fredero’s Challenge",
+        "definition_revision": "companions-r36-primary",
+        "automatic_rewards_compiled": false
+      }
+    }
+  ],
+  "hazards": [],
+  "pois": [],
+  "npcs": [
+    {
+      "npc_key": "npc_amiri",
+      "stable_id": "npc_amiri",
+      "name": "Amiri",
+      "is_companion": true,
+      "isCompanion": true,
+      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
+      "goals": "",
+      "secrets": "",
+      "attitude": "indiferente",
+      "last_seen": "",
+      "dialogue_tree": [],
+      "source_ref": "Kingmaker Companion Guide",
+      "profile_only": true,
+      "stats": {
+        "profile_only": true
+      }
+    },
+    {
+      "npc_key": "npc_valerie",
+      "stable_id": "npc_valerie",
+      "name": "Valerie",
+      "is_companion": true,
+      "isCompanion": true,
+      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
+      "goals": "",
+      "secrets": "",
+      "attitude": "indiferente",
+      "last_seen": "",
+      "dialogue_tree": [],
+      "source_ref": "Kingmaker Companion Guide",
+      "profile_only": true,
+      "stats": {
+        "profile_only": true
+      }
+    },
+    {
+      "npc_key": "npc_linzi",
+      "stable_id": "npc_linzi",
+      "name": "Linzi",
+      "is_companion": true,
+      "isCompanion": true,
+      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
+      "goals": "",
+      "secrets": "",
+      "attitude": "indiferente",
+      "last_seen": "",
+      "dialogue_tree": [],
+      "source_ref": "Kingmaker Companion Guide",
+      "profile_only": true,
+      "stats": {
+        "profile_only": true
+      }
+    },
+    {
+      "npc_key": "npc_harrim",
+      "stable_id": "npc_harrim",
+      "name": "Harrim",
+      "is_companion": true,
+      "isCompanion": true,
+      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
+      "goals": "",
+      "secrets": "",
+      "attitude": "indiferente",
+      "last_seen": "",
+      "dialogue_tree": [],
+      "source_ref": "Kingmaker Companion Guide",
+      "profile_only": true,
+      "stats": {
+        "profile_only": true
+      }
+    },
+    {
+      "npc_key": "npc_tristian",
+      "stable_id": "npc_tristian",
+      "name": "Tristian",
+      "is_companion": true,
+      "isCompanion": true,
+      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
+      "goals": "",
+      "secrets": "",
+      "attitude": "indiferente",
+      "last_seen": "",
+      "dialogue_tree": [],
+      "source_ref": "Kingmaker Companion Guide",
+      "profile_only": true,
+      "stats": {
+        "profile_only": true
+      }
+    },
+    {
+      "npc_key": "npc_jaethal",
+      "stable_id": "npc_jaethal",
+      "name": "Jaethal",
+      "is_companion": true,
+      "isCompanion": true,
+      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
+      "goals": "",
+      "secrets": "",
+      "attitude": "indiferente",
+      "last_seen": "",
+      "dialogue_tree": [],
+      "source_ref": "Kingmaker Companion Guide",
+      "profile_only": true,
+      "stats": {
+        "profile_only": true
+      }
+    },
+    {
+      "npc_key": "npc_regongar",
+      "stable_id": "npc_regongar",
+      "name": "Regongar",
+      "is_companion": true,
+      "isCompanion": true,
+      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
+      "goals": "",
+      "secrets": "",
+      "attitude": "indiferente",
+      "last_seen": "",
+      "dialogue_tree": [],
+      "source_ref": "Kingmaker Companion Guide",
+      "profile_only": true,
+      "stats": {
+        "profile_only": true
+      }
+    },
+    {
+      "npc_key": "npc_octavia",
+      "stable_id": "npc_octavia",
+      "name": "Octavia",
+      "is_companion": true,
+      "isCompanion": true,
+      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
+      "goals": "",
+      "secrets": "",
+      "attitude": "indiferente",
+      "last_seen": "",
+      "dialogue_tree": [],
+      "source_ref": "Kingmaker Companion Guide",
+      "profile_only": true,
+      "stats": {
+        "profile_only": true
+      }
+    },
+    {
+      "npc_key": "npc_ekundayo",
+      "stable_id": "npc_ekundayo",
+      "name": "Ekundayo",
+      "is_companion": true,
+      "isCompanion": true,
+      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
+      "goals": "",
+      "secrets": "",
+      "attitude": "indiferente",
+      "last_seen": "",
+      "dialogue_tree": [],
+      "source_ref": "Kingmaker Companion Guide",
+      "profile_only": true,
+      "stats": {
+        "profile_only": true
+      }
+    },
+    {
+      "npc_key": "npc_jubilost",
+      "stable_id": "npc_jubilost",
+      "name": "Jubilost",
+      "is_companion": true,
+      "isCompanion": true,
+      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
+      "goals": "",
+      "secrets": "",
+      "attitude": "indiferente",
+      "last_seen": "",
+      "dialogue_tree": [],
+      "source_ref": "Kingmaker Companion Guide",
+      "profile_only": true,
+      "stats": {
+        "profile_only": true
+      }
+    },
+    {
+      "npc_key": "npc_nok_nok",
+      "stable_id": "npc_nok_nok",
+      "name": "Nok-Nok",
+      "is_companion": true,
+      "isCompanion": true,
+      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
+      "goals": "",
+      "secrets": "",
+      "attitude": "indiferente",
+      "last_seen": "",
+      "dialogue_tree": [],
+      "source_ref": "Kingmaker Companion Guide",
+      "profile_only": true,
+      "stats": {
+        "profile_only": true
+      }
+    },
+    {
+      "npc_key": "npc_kalikke_kanerah",
+      "stable_id": "npc_kalikke_kanerah",
+      "name": "Kalikke e Kanerah",
+      "is_companion": true,
+      "isCompanion": true,
+      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
+      "goals": "",
+      "secrets": "",
+      "attitude": "indiferente",
+      "last_seen": "",
+      "dialogue_tree": [],
+      "source_ref": "Kingmaker Companion Guide",
+      "profile_only": true,
+      "stats": {
+        "profile_only": true
+      }
+    }
+  ],
+  "scenes": [],
+  "factions": [],
+  "clocks": [],
+  "events": [],
+  "milestones": [],
+  "metadata": {
+    "author": "Braseiro PF2e Engine",
+    "ruleset": "Pathfinder 2e Remaster",
+    "source": "Kingmaker Companion Guide",
+    "version": "1.0.0",
+    "locale": "pt-BR",
+    "definition_revision": "companions-r36-primary",
+    "content_kind": "companion_supplement",
+    "official_campaign_chapter": false,
+    "retirement": {
+      "quests": [
+        {
+          "key": "q_companheiro_amiri",
+          "title": "A Honra da Espada Gigante de Amiri"
+        },
+        {
+          "key": "q_companheiro_valerie",
+          "title": "A Cicatriz e o Julgamento de Valerie"
+        },
+        {
+          "key": "q_companheiro_linzi",
+          "title": "A Crônica Eterna e a Imprensa de Linzi"
+        },
+        {
+          "key": "q_companheiro_harrim",
+          "title": "O Vazio e o Despertar de Harrim"
+        },
+        {
+          "key": "q_companheiro_tristian",
+          "title": "A Graça Perdida do Deva Tristian"
+        },
+        {
+          "key": "q_companheiro_jaethal",
+          "title": "A Imortalidade Sombria de Jaethal"
+        },
+        {
+          "key": "q_companheiro_regongar",
+          "title": "A Fúria Liberta de Regongar"
+        },
+        {
+          "key": "q_companheiro_octavia",
+          "title": "As Asas da Liberdade de Octavia"
+        },
+        {
+          "key": "q_companheiro_ekundayo",
+          "title": "O Banquete de Vingança de Ekundayo"
+        },
+        {
+          "key": "q_companheiro_jubilost",
+          "title": "O Debate dos Eruditos e o Conhecimento de Jubilost"
+        },
+        {
+          "key": "q_companheiro_nok_nok",
+          "title": "O Quinto Herói Goblin Nok-Nok"
+        },
+        {
+          "key": "q_companheiro_irmas_tiefling",
+          "title": "O Segredo das Almas Gêmeas: Kalikke e Kanerah"
+        }
+      ],
+      "world_clocks": [
+        "Harmonia e Lealdade Geral do Grupo",
+        "Intriga Sombria dos Mestres do Passado"
+      ],
+      "world_events": [
+        "A Grande Noite de Cantoria ao Redor da Fogueira",
+        "A Chegada de Mensageiros com Mandados do Passado"
+      ],
+      "campaign_pois": [
+        "Acampamento Central dos Heróis sob as Estrelas",
+        "Santuário Solitário da Luz Prismática",
+        "Ruínas da Fortaleza da Liga Técnica",
+        "Sepulcro Esquecido do Clã dos Martelos",
+        "Santuário dos Heróis Goblins de Nok-Nok"
+      ],
+      "tactical_scenes": [
+        "scene_fogueira_acampamento_dialogos",
+        "scene_duelo_honra_ordem_paladinos"
+      ]
+    },
+    "coverage": {
+      "published_personal_adventures": 7,
+      "companion_profiles": 12,
+      "plot_correction": true,
+      "all_encounters_compiled": false,
+      "all_maps_compiled": false,
+      "automatic_rewards_compiled": false
+    }
+  }
+}

@@ -303,6 +303,25 @@ public final class R36BookSemanticsHarness {
   JSONObject oldMillFlagTown=new JSONObject(lotVillage.toString());JSONObject oldMillGrid=new JSONObject(oldMillFlagTown.opt("grid_json").toString()).put("water_mill",true);oldMillFlagTown.put("grid_json",oldMillGrid);
   check(!KingmakerStructureSemantics.hasWaterMill(oldMillFlagTown,new JSONArray().put(inlandMill)),"registered inland mill cannot claim old manual water flag");
   check(KingmakerStructureSemantics.hasWaterMill(oldMillFlagTown,new JSONArray().put(structure("mill",1).put("lots",1))),"legacy declared water mill preserved until placement registered");
+  check(KingmakerCampaignGate.retiredQuest(quest("q_companheiro_amiri","unstarted")),"retire fabricated q_companheiro_amiri");
+  check(KingmakerCampaignGate.retiredQuest(quest("q_companheiro_valerie","unstarted")),"retire fabricated q_companheiro_valerie");
+  check(KingmakerCampaignGate.retiredQuest(quest("q_companheiro_linzi","unstarted")),"retire fabricated q_companheiro_linzi");
+  check(KingmakerCampaignGate.retiredQuest(quest("q_companheiro_harrim","unstarted")),"retire fabricated q_companheiro_harrim");
+  check(KingmakerCampaignGate.retiredQuest(quest("q_companheiro_tristian","unstarted")),"retire fabricated q_companheiro_tristian");
+  check(KingmakerCampaignGate.retiredQuest(quest("q_companheiro_jaethal","unstarted")),"retire fabricated q_companheiro_jaethal");
+  check(KingmakerCampaignGate.retiredQuest(quest("q_companheiro_regongar","unstarted")),"retire fabricated q_companheiro_regongar");
+  check(KingmakerCampaignGate.retiredQuest(quest("q_companheiro_octavia","unstarted")),"retire fabricated q_companheiro_octavia");
+  check(KingmakerCampaignGate.retiredQuest(quest("q_companheiro_ekundayo","unstarted")),"retire fabricated q_companheiro_ekundayo");
+  check(KingmakerCampaignGate.retiredQuest(quest("q_companheiro_jubilost","unstarted")),"retire fabricated q_companheiro_jubilost");
+  check(KingmakerCampaignGate.retiredQuest(quest("q_companheiro_nok_nok","unstarted")),"retire fabricated q_companheiro_nok_nok");
+  check(KingmakerCampaignGate.retiredQuest(quest("q_companheiro_irmas_tiefling","unstarted")),"retire fabricated q_companheiro_irmas_tiefling");
+  JSONObject retiredCompleted=quest("q_companheiro_amiri","completed");
+  KingmakerCampaignGate.requireTransition(retiredCompleted,"archived",new ArrayList<JSONObject>());
+  check(true,"archive completed draft without erasing history");
+  boolean retiredRejected=false;
+  try{KingmakerCampaignGate.requireTransition(quest("q_companheiro_tristian","unstarted"),"completed",new ArrayList<JSONObject>());}catch(IllegalStateException expected){retiredRejected=true;}
+  check(retiredRejected,"retired companion quest cannot grant its invented reward");
+  check("O Chamado do Sangue".equals(KingmakerCompanionSemantics.personalQuestDefinition("amiri").optString("title")),"primary Amiri adventure is Blood Calling, not only foreshadowing");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

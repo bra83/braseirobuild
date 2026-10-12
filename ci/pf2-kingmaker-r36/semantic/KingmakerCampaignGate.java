@@ -12,7 +12,7 @@ public final class KingmakerCampaignGate {
  public static String questKey(JSONObject q){String k=q.optString("quest_key");return k.length()>0?k:progress(q).optString("quest_key");}
  public static String chapterKey(JSONObject q){String k=q.optString("chapter_key");return k.length()>0?k:progress(q).optString("chapter_key");}
  public static boolean completed(String s){return "completed".equals(s)||"complete".equals(s)||"concluida".equals(s);}
- public static boolean retiredQuest(JSONObject q){return Arrays.asList("q_terras_sombrias","q_brecha_sekamina","q_ancoras_abissais","q_aberracoes_subterraneas","q_terremoto_da_capital").contains(questKey(q));}
+ public static boolean retiredQuest(JSONObject q){return Arrays.asList("q_terras_sombrias","q_brecha_sekamina","q_ancoras_abissais","q_aberracoes_subterraneas","q_terremoto_da_capital","q_companheiro_amiri","q_companheiro_valerie","q_companheiro_linzi","q_companheiro_harrim","q_companheiro_tristian","q_companheiro_jaethal","q_companheiro_regongar","q_companheiro_octavia","q_companheiro_ekundayo","q_companheiro_jubilost","q_companheiro_nok_nok","q_companheiro_irmas_tiefling").contains(questKey(q));}
  public static boolean official(JSONObject q){return chapterKey(q).startsWith("chapter_")&&questKey(q).length()>0;}
  public static JSONArray prerequisites(JSONObject q){
   JSONArray a=q.optJSONArray("prerequisites");
@@ -47,7 +47,8 @@ public final class KingmakerCampaignGate {
  }
  public static void requireTransition(JSONObject before,String next,List<JSONObject> all){
   if(!official(before))return;
-  if(retiredQuest(before)&&!"archived".equals(next))throw new IllegalStateException("Esta missão pertence ao rascunho substituído pelo capítulo oficial de Candlemere.");
+  if(retiredQuest(before)&&"archived".equals(next))return;
+  if(retiredQuest(before)&&!"archived".equals(next))throw new IllegalStateException("Esta missão pertence a um rascunho substituído por conteúdo do livro.");
   if(completed(before.optString("status"))&&!completed(next))throw new IllegalStateException("Uma missão concluída não pode ser reaberta por uma atualização antiga.");
   if(("active".equals(next)||"in_progress".equals(next)||completed(next))&&!ready(before,all))
     throw new IllegalStateException("Conclua os pré-requisitos desta missão antes de avançar.");

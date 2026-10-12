@@ -124,3 +124,18 @@ def test_registered_districts_and_water_mills_use_real_placement():
     assert 'int housingBlocks=builtBlocks<0?blocks:builtBlocks' in SOURCE
     assert 'KingmakerStructureSemantics.builtBlockCount(new JSONArray(structures(settlementKey)))' in SOURCE
     assert 'boolean waterMill=KingmakerStructureSemantics.hasWaterMill(town,rows)' in SOURCE
+
+
+def test_companion_supplement_has_only_published_adventures_and_no_fake_rewards():
+    import json
+    data=json.loads((ROOT/"android/app/src/main/assets/pathfinder/kingmaker/chapters/chapter_12_companion_stories.json").read_text(encoding="utf-8"))
+    assert len(data["quests"])==7 and len(data["npcs"])==12
+    assert data["metadata"]["official_campaign_chapter"] is False
+    assert len(data["metadata"]["retirement"]["quests"])==12
+    assert data["metadata"]["coverage"]["automatic_rewards_compiled"] is False
+    assert all(q["rewards"]=={"gold":0,"xp":0,"items":[]} and q["owner_character_id"]==0 for q in data["quests"])
+    importer=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerCampaignImporter.java").read_text(encoding="utf-8")
+    assert 'return "companions-r36-primary".equals' in importer
+    assert 'hasCombatants && !npc.stats.optBoolean("profile_only")' in importer
+    assert 'hasNpcCognitive && !npc.stats.optBoolean("profile_only")' in importer
+    assert 'canonicalCompanionKey(npc.npcKey.replaceFirst("^npc_",""))' in importer
