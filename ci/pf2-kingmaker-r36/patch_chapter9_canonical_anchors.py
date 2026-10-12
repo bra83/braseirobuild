@@ -13,30 +13,35 @@ def patch(project_dir):
     ch8_file = ch_dir / "chapter_08_they_lurk_below.json"
     if ch8_file.exists():
         data = json.loads(ch8_file.read_text(encoding="utf-8"))
+        found_target = False
         for q in data.get("quests", []):
             if q.get("quest_key") == "q_aberracoes_subterraneas":
+                found_target = True
                 q["title"] = "O Flagelo das Profundezas de Candlemere: Foras e os Thresholders de Yog-Sothoth"
                 q["objective"] = "Investigar o complexo subterraneo sob a Ilha de Candlemere, confrontar o culto dos Thresholders liderado por Foras e impedir a manifestacao aberrante de Yog-Sothoth."
                 q["stakes"] = "Se o portal do vazio primordial nao for selado, horrores inimaginaveis de Yog-Sothoth consumirao a realidade das Terras Roubadas."
+        if not found_target:
+            raise KeyError("Target quest 'q_aberracoes_subterraneas' not found in chapter_08_they_lurk_below.json")
         ch8_file.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
         print("KINGMAKER_CHAPTER9_CANONICAL_ANCHORS_APPLIED", ch8_file)
 
-    # 2. Add plot anchor keywords to candidate assets
+    # 2. Add plot anchor keywords to EXACT candidate assets with NO fallback
     def enrich(file_name, quest_key, append_text):
         f = ch_dir / file_name
-        if f.exists():
-            data = json.loads(f.read_text(encoding="utf-8"))
-            for q in data.get("quests", []):
-                if q.get("quest_key") == quest_key:
-                    if append_text not in q.get("objective", ""):
-                        q["objective"] = q.get("objective", "") + " " + append_text
-                    break
-            else:
-                if data.get("quests"):
-                    if append_text not in data["quests"][0].get("objective", ""):
-                        data["quests"][0]["objective"] = data["quests"][0].get("objective", "") + " " + append_text
-            f.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-            print(f"ANCHOR_ENRICHED: {file_name}")
+        if not f.exists():
+            raise FileNotFoundError(f"Asset not found: {file_name}")
+        data = json.loads(f.read_text(encoding="utf-8"))
+        found = False
+        for q in data.get("quests", []):
+            if q.get("quest_key") == quest_key:
+                found = True
+                if append_text not in q.get("objective", ""):
+                    q["objective"] = q.get("objective", "") + " " + append_text
+                break
+        if not found:
+            raise KeyError(f"Target quest '{quest_key}' not found in {file_name}; fallback prohibited")
+        f.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"ANCHOR_ENRICHED_EXACT: {file_name} -> {quest_key}")
 
     enrich("chapter_01_stolen_lands_part1.json", "q_banquete_espadas", "Investigar e repelir os assassinos da guilda Lágrimas Negras (Black Tears) infiltrados em Restov.")
     enrich("chapter_04_cult_of_bloom.json", "q_utero_lamashtu", "Investigar os acontecimentos no vilarejo de Darivan e purificar o útero de Lamashtu.")
