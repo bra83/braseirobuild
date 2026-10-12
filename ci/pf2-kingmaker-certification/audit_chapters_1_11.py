@@ -72,6 +72,11 @@ def audit(root):
         if not names:
             issues.append({"severity":"critical","code":"MISSING_CHAPTER_CANDIDATE","chapter":number})
         typed={kind:[(filename,row) for filename in names for row in files[filename].get(kind,[]) if isinstance(row,dict)] for kind in ("quests","scenes","npcs","pois","events","milestones","hazards")}
+        # Fail closed when the supposed playable chapter contains no actual scene or quest.
+        # Nonempty metadata and titles are never evidence of runnable content.
+        if not typed["quests"] or not typed["scenes"]:
+            issues.append({"severity":"critical","code":"CHAPTER_HAS_NO_PLAYABLE_QUEST_OR_SCENE",
+                           "chapter":number,"quests":len(typed["quests"]),"scenes":len(typed["scenes"])})
         # Narrative evidence must be in structured gameplay records, not a book
         # name copied into a metadata chapter heading.
         gameplay=norm(json.dumps(typed,ensure_ascii=False))
