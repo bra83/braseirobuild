@@ -324,10 +324,28 @@ public final class OfficialBookRuntimeGateway {
                 final JSONObject character = db.getCharacter(characterId);
                 if (character.length() > 0) {
                     JSONObject sheet = parseSheet(character);
+                    if ("short_rest".equals(action)) {
+                        JSONObject after = EberronForgeCompleteEngine.shortRest(sheet);
+                        db.updateCharacterSheetChecked(characterId, after.toString());
+                        return new JSONObject().put("executed", true).put("persisted", true).put("auto_mutation_allowed", false).put("sheet", after);
+                    }
+                    if ("long_rest".equals(action)) {
+                        JSONObject after = EberronForgeCompleteEngine.longRest(sheet);
+                        db.updateCharacterSheetChecked(characterId, after.toString());
+                        return new JSONObject().put("executed", true).put("persisted", true).put("auto_mutation_allowed", false).put("sheet", after);
+                    }
+                    if ("airship_action".equals(action)) {
+                        JSONObject res = EberronForgeCompleteEngine.resolveAirshipAction(sheet, in.optString("ship"), in.optString("airship_action"), in);
+                        if (res.optBoolean("eberron_resolved", false) || "resolved".equals(res.optString("eberron_status")) || res.optBoolean("resolved", false)) {
+                            db.updateCharacterSheetChecked(characterId, res.toString());
+                            return new JSONObject().put("executed", true).put("persisted", true).put("auto_mutation_allowed", false).put("result", res);
+                        }
+                        return new JSONObject().put("executed", false).put("status", res.optString("status", "blocked")).put("auto_mutation_allowed", false).put("result", res);
+                    }
                     if ("framework_action".equals(action)) {
                         JSONObject res = EberronForgeCompleteEngine.resolveFrameworkAction(sheet, in.optString("framework"), in.optString("framework_action"), in);
-                        if (res.optBoolean("resolved", false)) {
-                            db.updateCharacterSheetChecked(characterId, sheet.toString());
+                        if (res.optBoolean("eberron_resolved", false) || "resolved".equals(res.optString("eberron_status")) || res.optBoolean("resolved", false)) {
+                            db.updateCharacterSheetChecked(characterId, res.toString());
                             return new JSONObject().put("executed", true).put("persisted", true).put("auto_mutation_allowed", false).put("result", res);
                         }
                         return new JSONObject().put("executed", false).put("status", res.optString("status", "blocked")).put("auto_mutation_allowed", false).put("result", res);
@@ -343,15 +361,30 @@ public final class OfficialBookRuntimeGateway {
     private JSONObject executeAu(String action, JSONObject in) {
         try {
             if ("coverage".equals(action) || "descriptor".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("result", ArcanaUnleashedRun143Engine.coverage());
+            if ("subclasses".equals(action) || "list_subclasses".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("subclasses", ArcanaUnleashedRun143Engine.allSubclasses());
+            if ("backgrounds".equals(action) || "list_backgrounds".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("backgrounds", ArcanaUnleashedRun143Engine.allBackgrounds());
+            if ("feats".equals(action) || "list_feats".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("feats", ArcanaUnleashedRun143Engine.allFeats());
+            if ("actions_for_subclass".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("actions", ArcanaUnleashedRun143Engine.actionsForSubclass(in.optString("subclass"), in.optInt("level", 3)));
+            if ("actions_for_feat".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("actions", ArcanaUnleashedRun143Engine.actionsForFeat(in.optString("feat")));
             final long characterId = in.optLong("character_id", 0);
             if (characterId > 0 && db != null) {
                 final JSONObject character = db.getCharacter(characterId);
                 if (character.length() > 0) {
                     JSONObject sheet = parseSheet(character);
                     int lvl = in.optInt("level", character.optInt("level", 1));
+                    if ("short_rest".equals(action)) {
+                        ArcanaUnleashedRun143Engine.shortRest(sheet);
+                        db.updateCharacterSheetChecked(characterId, sheet.toString());
+                        return new JSONObject().put("executed", true).put("persisted", true).put("auto_mutation_allowed", false).put("sheet", sheet);
+                    }
+                    if ("long_rest".equals(action)) {
+                        ArcanaUnleashedRun143Engine.longRest(sheet);
+                        db.updateCharacterSheetChecked(characterId, sheet.toString());
+                        return new JSONObject().put("executed", true).put("persisted", true).put("auto_mutation_allowed", false).put("sheet", sheet);
+                    }
                     if ("resolve_subclass".equals(action)) {
                         JSONObject res = ArcanaUnleashedRun143Engine.resolveSubclass(sheet, in.optString("subclass"), lvl, in.optString("subclass_action"), in);
-                        if (res.optBoolean("resolved", false)) {
+                        if (res.optBoolean("subclass_action_resolved", false) || res.optBoolean("resolved", false)) {
                             db.updateCharacterSheetChecked(characterId, sheet.toString());
                             return new JSONObject().put("executed", true).put("persisted", true).put("auto_mutation_allowed", false).put("result", res);
                         }
@@ -359,7 +392,7 @@ public final class OfficialBookRuntimeGateway {
                     }
                     if ("resolve_feat".equals(action)) {
                         JSONObject res = ArcanaUnleashedRun143Engine.resolveFeat(sheet, in.optString("feat"), in.optString("feat_action"), in);
-                        if (res.optBoolean("resolved", false)) {
+                        if (res.optBoolean("feat_action_resolved", false) || res.optBoolean("resolved", false)) {
                             db.updateCharacterSheetChecked(characterId, sheet.toString());
                             return new JSONObject().put("executed", true).put("persisted", true).put("auto_mutation_allowed", false).put("result", res);
                         }
