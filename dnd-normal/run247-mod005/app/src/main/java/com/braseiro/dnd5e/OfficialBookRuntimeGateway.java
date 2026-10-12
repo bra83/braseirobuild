@@ -228,6 +228,7 @@ public final class OfficialBookRuntimeGateway {
         try {
             if ("epic_destiny".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("result", faerun.resolveEpicDestiny(in.optString("destiny"), in.optInt("level", 1)));
             if ("list_example_destinies".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("destinies", faerun.listPublishedExampleDestinies());
+            if ("regional_hazard".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("result", faerun.resolveRegionalHazard(in.optString("region"), in.optInt("survival_roll", 0), in.optInt("con_save_roll", 0)));
         } catch (Exception e) {
             return blocked(AdventuresInFaerunRulesEngine.SUPPLEMENT_ID, action, "runtime_error:" + e.getMessage());
         }
@@ -251,6 +252,7 @@ public final class OfficialBookRuntimeGateway {
                 final JSONObject character = db.getCharacter(characterId);
                 if (character.length() > 0) {
                     JSONObject sheet = parseSheet(character);
+                    int lvl = in.optInt("level", character.optInt("level", 1));
                     if ("short_rest".equals(action)) {
                         final JSONObject after = ForgottenRealmsHeroesEngine.shortRest(sheet);
                         db.updateCharacterSheetChecked(characterId, after.toString());
@@ -260,6 +262,49 @@ public final class OfficialBookRuntimeGateway {
                         final JSONObject after = ForgottenRealmsHeroesEngine.longRest(sheet);
                         db.updateCharacterSheetChecked(characterId, after.toString());
                         return new JSONObject().put("executed", true).put("persisted", true).put("auto_mutation_allowed", false).put("sheet", after);
+                    }
+                    if ("apply_background".equals(action)) {
+                        JSONObject after = ForgottenRealmsHeroesEngine.applyBackground(sheet, in.optString("background"), lvl);
+                        boolean modified = after.optBoolean("frhof_background_runtime", false);
+                        if (modified) {
+                            db.updateCharacterSheetChecked(characterId, after.toString());
+                            return new JSONObject().put("executed", true).put("persisted", true).put("auto_mutation_allowed", false).put("sheet", after);
+                        }
+                        return blocked("frhof", action, "background_not_supported");
+                    }
+                    if ("apply_subclass".equals(action)) {
+                        JSONObject after = ForgottenRealmsHeroesEngine.applySubclass(sheet, in.optString("subclass"), lvl);
+                        boolean modified = after.optBoolean("frhof_subclass_runtime", false);
+                        if (modified) {
+                            db.updateCharacterSheetChecked(characterId, after.toString());
+                            return new JSONObject().put("executed", true).put("persisted", true).put("auto_mutation_allowed", false).put("sheet", after);
+                        }
+                        return blocked("frhof", action, "subclass_not_supported");
+                    }
+                    if ("apply_feat".equals(action)) {
+                        JSONObject after = ForgottenRealmsHeroesEngine.applyFeat(sheet, in.optString("feat"), lvl);
+                        boolean modified = after.optBoolean("frhof_feat_runtime", false);
+                        if (modified) {
+                            db.updateCharacterSheetChecked(characterId, after.toString());
+                            return new JSONObject().put("executed", true).put("persisted", true).put("auto_mutation_allowed", false).put("sheet", after);
+                        }
+                        return blocked("frhof", action, "feat_not_supported");
+                    }
+                    if ("resolve_circle_magic".equals(action)) {
+                        JSONObject res = ForgottenRealmsHeroesEngine.resolveCircleMagic(sheet, in.optString("option"), in);
+                        if (res.optBoolean("resolved", false)) {
+                            db.updateCharacterSheetChecked(characterId, res.optJSONObject("sheet") != null ? res.optJSONObject("sheet").toString() : sheet.toString());
+                            return new JSONObject().put("executed", true).put("persisted", true).put("auto_mutation_allowed", false).put("result", res);
+                        }
+                        return new JSONObject().put("executed", false).put("status", res.optString("status", "blocked")).put("auto_mutation_allowed", false).put("result", res);
+                    }
+                    if ("resolve_deity_renown".equals(action)) {
+                        JSONObject res = ForgottenRealmsHeroesEngine.resolveDeityRenown(sheet, in.optString("deity"), in.optInt("delta", 0), in);
+                        if (res.optBoolean("resolved", false)) {
+                            db.updateCharacterSheetChecked(characterId, res.optJSONObject("sheet") != null ? res.optJSONObject("sheet").toString() : sheet.toString());
+                            return new JSONObject().put("executed", true).put("persisted", true).put("auto_mutation_allowed", false).put("result", res);
+                        }
+                        return new JSONObject().put("executed", false).put("status", res.optString("status", "blocked")).put("auto_mutation_allowed", false).put("result", res);
                     }
                 }
             }
