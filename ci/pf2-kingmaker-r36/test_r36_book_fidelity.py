@@ -217,3 +217,33 @@ def test_completed_construction_records_net_actual_payment_before_insertion():
     assert '.put("resource_points",rp)' in build
     assert 'KingmakerStructureSemantics.appendedConstructionPayment(existing,payment)' in SOURCE
     assert '.put("authority",prepaid?"gift":"paid")' in SOURCE
+
+
+def test_structure_upgrade_keeps_original_until_real_completion():
+    body=method_body('public JSONObject resolveStructureUpgrade(')
+    assert 'db.runInTransactionChecked' in body
+    assert body.index('recordCheckAtSettlement')<body.index('if(complete)')<body.index('trimInstanceEffects(old')
+    assert 'old_structure_still_active' in body and 'reserved_lots' in body
+    assert 'additionalUpgradeLots(original,position)' in body
+    assert 'Math.max(0,-delta)+crit' in body
+    assert 'if(!resume){adjustState(charge' in body
+    assert 'recordRpSpent(Math.max(0,differential' not in body
+    assert 'Reinicie o upgrade somente no próximo turno' in body
+
+
+def test_companion_arc_uses_published_quest_not_unverified_legacy_flag():
+    body=method_body('public JSONObject ensureCompanionPersonalEvent(')
+    assert 'officialCompanionArcStatus(companionKey)' in body
+    assert 'questAvailable(companionKey,partyLevel,true,companion.optString("personal_quest_status")' not in body
+    assert 'legacy:companion_alias:' in SOURCE
+    assert 'mergeLegacyAlias(current,alias)' in SOURCE
+    assert "entity_kind='companion' AND entity_id=?" in SOURCE
+
+
+def test_campaign_objectives_and_completion_share_checked_transaction():
+    body=method_body('public JSONObject recordCampaignObjective(')
+    assert 'db.runInTransactionChecked' in body and 'requireJournalEligibility(quest)' in body
+    assert 'KingmakerCampaignGate.resolveObjective(' in body
+    body=method_body('public JSONObject finishCampaignQuest(')
+    assert 'db.runInTransactionChecked' in body and 'objectivesResolved(before)' in body
+    assert 'personal_quest_status","complete"' in body

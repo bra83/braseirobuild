@@ -1,0 +1,123 @@
+"""Persist objective evidence and link companion arcs to their actual published quests."""
+def once(s,a,b):
+ if s.count(a)!=1:raise ValueError('Journal anchor count='+str(s.count(a))+' '+a[:80])
+ return s.replace(a,b,1)
+def journal_repository(s):
+ # Generic legacy personal status must not supersede the published quest record.
+ s=once(s,'if(!KingmakerCompanionSemantics.questAvailable(companionKey,partyLevel,true,companion.optString("personal_quest_status"),vordakai,bloom))', 'if(!KingmakerCompanionSemantics.questAvailable(companionKey,partyLevel,true,officialCompanionArcStatus(companionKey),vordakai,bloom))')
+ s=once(s,'String status=key(companion.optString("personal_quest_status"));','String status=key(officialCompanionArcStatus(companionKey));')
+ start=s.index('    public void updateCompanion(');end=s.index('    public JSONObject pendingCompanionEvent(',start)
+ part=s[start:end]
+ old='if(KingmakerCampaignGate.completed(before.optString("personal_quest_status"))&&!"complete".equals(next))throw new IllegalStateException("O arco pessoal já foi concluído.");'
+ part=once(part,old,'if(KingmakerCampaignGate.completed(officialCompanionArcStatus(companionKey))&&!"complete".equals(next))throw new IllegalStateException("O arco pessoal já foi concluído.");')
+ old='if("complete".equals(next)&&!"in_progress".equals(before.optString("personal_quest_status")))throw new IllegalStateException("Inicie e resolva o arco pessoal antes de concluí-lo.");'
+ part=once(part,old,'if("complete".equals(next)&&!KingmakerCampaignGate.completed(officialCompanionArcStatus(companionKey)))throw new IllegalStateException("Conclua os objetivos da aventura publicada no Diário da Campanha.");')
+ s=s[:start]+part+s[end:]
+ s=once(s,'String nextRole=clean(leadershipRole);','if(KingmakerCampaignGate.completed(clean(questStatus))&&!KingmakerCampaignGate.completed(officialCompanionArcStatus(companionKey)))throw new IllegalStateException("Conclua os objetivos da aventura publicada no Diário da Campanha.");String nextRole=clean(leadershipRole);')
+ s=once(s,'v.put("personal_quest_status",clean(questStatus));','v.put("personal_quest_status",KingmakerCampaignGate.completed(officialCompanionArcStatus(companionKey))?"complete":clean(questStatus));')
+ start=s.index('    public void ensureDefaultCompanions()');end=s.index('    public JSONObject addCompanion(',start);part=s[start:end];closing=part.rfind('\n    }');part=part[:closing]+'\n        try{migrateCompanionAliases();}catch(Exception error){throw new IllegalStateException("Falha na migração dos companheiros.",error);}'+part[closing:];s=s[:start]+part+s[end:]
+ helper='''
+    private void migrateCompanionAliases()throws Exception{
+        db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            for(JSONObject alias:db.queryList("SELECT * FROM kingmaker_companions WHERE world_profile=?",new String[]{profile()})){
+                String oldKey=alias.optString("companion_key"),canonical=KingmakerRulesEngine.canonicalCompanionKey(oldKey.replaceFirst("^npc_",""));
+                if(!oldKey.startsWith("npc_")||canonical.equals(oldKey)||!java.util.Arrays.asList("amiri","ekundayo","harrim","jaethal","jubilost","kalikke_kanerah","linzi","nok_nok","octavia","regongar","tristian","valerie").contains(canonical))continue;
+                JSONObject definition=rules.companionProfile(canonical);if(definition.length()==0)continue;
+                JSONObject current=db.queryOne("SELECT * FROM kingmaker_companions WHERE world_profile=? AND companion_key=?",new String[]{profile(),canonical});
+                JSONObject archive=upsertFeature("legacy:companion_alias:"+alias.optLong("id"),"legacy_companion_alias","Histórico: "+alias.optString("name"),1,alias.toString(),"R36 migração de identidades","Estado anterior preservado integralmente.");
+                ContentValues inactive=new ContentValues();inactive.put("status","inactive");db.getWritableDatabase().update("kingmaker_features",inactive,"id=? AND world_profile=?",new String[]{String.valueOf(archive.optLong("id")),profile()});
+                long canonicalId=current.length()==0?alias.optLong("id"):current.optLong("id");
+                if(current.length()==0){ContentValues v=new ContentValues();v.put("companion_key",canonical);v.put("updated_at",System.currentTimeMillis());db.getWritableDatabase().update("kingmaker_companions",v,"id=? AND world_profile=?",new String[]{String.valueOf(alias.optLong("id")),profile()});}
+                else{
+                    JSONObject merged=KingmakerCompanionSemantics.mergeLegacyAlias(current,alias);ContentValues v=new ContentValues();
+                    for(String field:new String[]{"influence","npc_id","available"})v.put(field,merged.optInt(field));
+                    for(String field:new String[]{"attitude","assignment","leadership_role","personal_quest_status","personal_quest_notes","unlocked_rewards_json","notes"})v.put(field,merged.optString(field));
+                    v.put("updated_at",System.currentTimeMillis());db.getWritableDatabase().update("kingmaker_companions",v,"id=? AND world_profile=?",new String[]{String.valueOf(canonicalId),profile()});
+                    db.getWritableDatabase().execSQL("UPDATE kingmaker_leaders SET entity_id=? WHERE world_profile=? AND entity_kind='companion' AND entity_id=?",new Object[]{canonicalId,profile(),alias.optLong("id")});
+                    db.getWritableDatabase().delete("kingmaker_companions","id=? AND world_profile=?",new String[]{String.valueOf(alias.optLong("id")),profile()});
+                }
+                db.getWritableDatabase().execSQL("UPDATE kingmaker_events SET source_ref=? WHERE world_profile=? AND source_ref=?",new Object[]{"companion:"+canonical,profile(),"companion:"+oldKey});
+                audit("Identidade de companheiro reconciliada",oldKey+" → "+canonical,alias,new JSONObject().put("canonical_id",canonicalId).put("archive_id",archive.optLong("id")));
+            }
+            for(JSONObject c:db.queryList("SELECT * FROM kingmaker_companions WHERE world_profile=?",new String[]{profile()})){
+                if(!KingmakerCampaignGate.completed(c.optString("personal_quest_status")))continue;
+                JSONObject quest=officialCompanionQuest(c.optString("companion_key"));if(quest.length()==0||KingmakerCampaignGate.completed(quest.optString("status")))continue;
+                JSONObject archived=upsertFeature("legacy:companion_arc:"+c.optLong("id"),"legacy_companion_arc","Conclusão antiga: "+c.optString("name"),1,c.toString(),"R36 migração de aventuras publicadas","A conclusão genérica não comprova os objetivos da aventura publicada.");
+                ContentValues inactive=new ContentValues();inactive.put("status","inactive");db.getWritableDatabase().update("kingmaker_features",inactive,"id=? AND world_profile=?",new String[]{String.valueOf(archived.optLong("id")),profile()});
+                ContentValues corrected=new ContentValues();corrected.put("personal_quest_status",officialCompanionArcStatus(c.optString("companion_key")));corrected.put("updated_at",System.currentTimeMillis());db.getWritableDatabase().update("kingmaker_companions",corrected,"id=? AND world_profile=?",new String[]{String.valueOf(c.optLong("id")),profile()});
+            }
+        }});
+    }
+    private JSONObject officialCompanionQuest(String companionKey){
+        String canonical=KingmakerRulesEngine.canonicalCompanionKey(companionKey.replaceFirst("^npc_",""));
+        for(JSONObject q:db.queryList("SELECT * FROM quests WHERE world_profile=?",new String[]{profile()}))if(("q_cg_"+canonical).equals(KingmakerCampaignGate.questKey(q)))return q;
+        return new JSONObject();
+    }
+    public String officialCompanionArcStatus(String companionKey){
+        JSONObject q=officialCompanionQuest(companionKey);if(q.length()==0)return "not_started";
+        if(KingmakerCampaignGate.completed(q.optString("status")))return "complete";
+        JSONObject progress=jsonObject(q.optString("progress_json","{}"));return progress.optBoolean("journal_started")?"in_progress":"not_started";
+    }
+    public List<JSONObject> campaignJournal(){return db.queryList("SELECT * FROM quests WHERE world_profile=? ORDER BY id",new String[]{profile()});}
+    private void requireJournalEligibility(JSONObject quest)throws Exception{
+        if(!KingmakerCampaignGate.ready(quest,campaignJournal()))throw new IllegalStateException("Conclua os pré-requisitos da missão.");
+        String questKey=KingmakerCampaignGate.questKey(quest);
+        if(questKey.startsWith("q_cg_")){
+            String companionKey=questKey.substring(5);JSONObject companion=companion(companionKey);int level=1;
+            for(JSONObject hero:db.listActiveCharacters())level=Math.max(level,hero.optInt("level",1));
+            boolean vordakai=false,bloom=false;for(JSONObject q:campaignJournal())if(KingmakerCampaignGate.completed(q.optString("status"))){if("q_vordakai".equals(KingmakerCampaignGate.questKey(q)))vordakai=true;if("q_utero_lamashtu".equals(KingmakerCampaignGate.questKey(q)))bloom=true;}
+            if(!KingmakerCompanionSemantics.questAvailable(companionKey,level,companion.optInt("available",0)==1,"in_progress",vordakai,bloom))throw new IllegalStateException("O companheiro ou o momento da história ainda não permite esta aventura.");
+            if("ekundayo".equals(companionKey)&&settlements().isEmpty())throw new IllegalStateException("O banquete ocorre após fundar o Reino.");
+            if("linzi".equals(companionKey)&&settlements().isEmpty())throw new IllegalStateException("A investigação começa em um assentamento do Reino.");
+        }
+    }
+    public JSONObject recordCampaignObjective(final long questId,final String objectiveId,final boolean waived,final String evidence)throws Exception{
+        requireEnabled();if(clean(evidence).length()<5)throw new IllegalArgumentException("Registre o resultado da cena ou a decisão que resolveu o objetivo.");
+        final JSONObject[] result={new JSONObject()};db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            JSONObject quest=db.queryOne("SELECT * FROM quests WHERE id=? AND world_profile=?",new String[]{String.valueOf(questId),profile()});
+            if(quest.length()==0||!KingmakerCampaignGate.official(quest)||KingmakerCampaignGate.retiredQuest(quest))throw new IllegalArgumentException("Missão publicada inexistente.");
+            if(KingmakerCampaignGate.completed(quest.optString("status")))throw new IllegalStateException("A missão já foi concluída.");
+            requireJournalEligibility(quest);
+            JSONObject progress=KingmakerCampaignGate.resolveObjective(quest,objectiveId,waived,clean(evidence));progress.put("journal_started",true);
+            ContentValues v=new ContentValues();v.put("progress_json",progress.toString());v.put("updated_at",System.currentTimeMillis());
+            if(db.getWritableDatabase().update("quests",v,"id=? AND world_profile=?",new String[]{String.valueOf(questId),profile()})!=1)throw new IllegalStateException("O objetivo não foi persistido.");
+            String k=KingmakerCampaignGate.questKey(quest);if(k.startsWith("q_cg_")){ContentValues c=new ContentValues();c.put("personal_quest_status","in_progress");c.put("updated_at",System.currentTimeMillis());db.getWritableDatabase().update("kingmaker_companions",c,"world_profile=? AND companion_key=?",new String[]{profile(),k.substring(5)});}
+            result[0]=db.queryOne("SELECT * FROM quests WHERE id=? AND world_profile=?",new String[]{String.valueOf(questId),profile()});audit("Objetivo da campanha resolvido",objectiveId,quest,result[0]);
+        }});return result[0];
+    }
+    public JSONObject finishCampaignQuest(final long questId)throws Exception{
+        requireEnabled();final JSONObject[] result={new JSONObject()};db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            JSONObject before=db.queryOne("SELECT * FROM quests WHERE id=? AND world_profile=?",new String[]{String.valueOf(questId),profile()});
+            if(before.length()==0||!KingmakerCampaignGate.official(before))throw new IllegalArgumentException("Missão da campanha inexistente.");
+            if(KingmakerCampaignGate.completed(before.optString("status"))){result[0]=before;return;}
+            requireJournalEligibility(before);if(!KingmakerCampaignGate.objectivesResolved(before))throw new IllegalStateException("Resolva todos os objetivos ou registre a ramificação que os dispensa.");
+            db.updateQuestStatus(questId,"completed","Objetivos resolvidos no Diário da Campanha");
+            String k=KingmakerCampaignGate.questKey(before);if(k.startsWith("q_cg_")){ContentValues c=new ContentValues();c.put("personal_quest_status","complete");c.put("updated_at",System.currentTimeMillis());db.getWritableDatabase().update("kingmaker_companions",c,"world_profile=? AND companion_key=?",new String[]{profile(),k.substring(5)});}
+            result[0]=db.queryOne("SELECT * FROM quests WHERE id=? AND world_profile=?",new String[]{String.valueOf(questId),profile()});audit("Missão da campanha concluída",k,before,result[0]);
+        }});return result[0];
+    }
+'''
+ i=s.rfind('\n}');return s[:i]+'\n'+helper+s[i:]
+def journal_ui(s):
+ anchor='km.addView(kingdomButton);'
+ s=once(s,anchor,anchor+'''if(kingmakerEnabled){Button journal=button("DIÁRIO DA CAMPANHA E COMPANHEIROS",PANEL2);journal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showKingmakerCampaignJournal();}});km.addView(journal);}''')
+ # Generic completion uses the same backend, preventing a bypass around objective validation.
+ s=once(s,'db.updateQuestStatus(q.optLong("id"),"completed","Concluída pelo jogador");','if(kingmakerService!=null&&kingmakerService.enabled()&&KingmakerCampaignGate.official(q))kingmakerRepository.finishCampaignQuest(q.optLong("id"));else db.updateQuestStatus(q.optLong("id"),"completed","Concluída pelo jogador");')
+ helper='''
+    private void showKingmakerCampaignJournal(){
+        final List<JSONObject> rows=new ArrayList<JSONObject>();final List<String> labels=new ArrayList<String>();
+        for(JSONObject q:kingmakerRepository.campaignJournal())if(KingmakerCampaignGate.official(q)&&!KingmakerCampaignGate.retiredQuest(q)){rows.add(q);String k=KingmakerCampaignGate.questKey(q);labels.add((k.startsWith("q_cg_")?"Companheiro":KingmakerCampaignGate.officialTitle(KingmakerCampaignGate.officialChapterForQuest(q)))+" • "+q.optString("title")+" • "+q.optString("status"));}
+        new AlertDialog.Builder(this).setTitle("Diário da Campanha").setItems(labels.toArray(new String[0]),new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){showKingmakerQuestObjectives(rows.get(which));}}).setNegativeButton("Voltar",null).show();
+    }
+    private void showKingmakerQuestObjectives(final JSONObject q){
+        final JSONArray objectives=KingmakerCampaignGate.objectives(q);final List<String> labels=new ArrayList<String>();
+        for(int n=0;n<objectives.length();n++){JSONObject o=objectives.optJSONObject(n);labels.add((o.optBoolean("completed")||"waived".equals(o.optString("status"))?"✓ ":"○ ")+o.optString("description",o.optString("desc")));}
+        new AlertDialog.Builder(this).setTitle(q.optString("title")).setItems(labels.toArray(new String[0]),new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){showKingmakerObjectiveOutcome(q,objectives.optJSONObject(which));}}).setNegativeButton("Voltar",null).setPositiveButton("CONCLUIR MISSÃO",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){try{kingmakerRepository.finishCampaignQuest(q.optLong("id"));showKingmakerCampaignJournal();}catch(Exception e){toast(e.getMessage());}}}).show();
+    }
+    private void showKingmakerObjectiveOutcome(final JSONObject q,final JSONObject objective){
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),dp(16));form.addView(text(objective.optString("description",objective.optString("desc")),14,TEXT,false));
+        final Spinner result=spinner(new String[]{"Objetivo cumprido","Dispensado por decisão / ramificação"},"Objetivo cumprido");form.addView(cardWithLabel("RESULTADO",result));final EditText evidence=labeledField(form,"O que ocorreu na cena / decisão tomada",objective.optString("resolution_notes"),true);
+        new AlertDialog.Builder(this).setTitle("Resolver objetivo").setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null).setPositiveButton("REGISTRAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){try{JSONObject fresh=kingmakerRepository.recordCampaignObjective(q.optLong("id"),objective.optString("id"),result.getSelectedItemPosition()==1,value(evidence));showKingmakerQuestObjectives(fresh);}catch(Exception e){toast(e.getMessage());}}}).show();
+    }
+'''
+ i=s.rfind('\n}');return s[:i]+'\n'+helper+s[i:]

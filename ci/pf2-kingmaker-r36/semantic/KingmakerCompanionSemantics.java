@@ -49,6 +49,12 @@ public final class KingmakerCompanionSemantics {
   if("nok_nok".equals(k))return 5;if("tristian".equals(k))return 10;
   if("valerie".equals(k))return 9;return 0;
  }
+ public static JSONObject mergeLegacyAlias(JSONObject current,JSONObject alias)throws Exception{
+  JSONObject out=new JSONObject(current.toString());
+  boolean untouched=current.optInt("influence")==0&&current.optInt("npc_id")==0&&current.optInt("available",1)==1&&"reserve".equals(current.optString("assignment"))&&"Companheiro oficial das Terras Roubadas.".equals(current.optString("notes"))&&history(current).length()==0;
+  if(untouched)for(String field:new String[]{"influence","npc_id","available","attitude","assignment","leadership_role","personal_quest_status","personal_quest_notes","unlocked_rewards_json","notes"})if(alias.has(field))out.put(field,alias.opt(field));
+  return out;
+ }
  public static boolean questAvailable(String k,int partyLevel,boolean available,String status,boolean vordakaiResolved,boolean bloomResolved){
   int level=questLevel(k);if(level==0||partyLevel<level||!available||KingmakerCampaignGate.completed(status))return false;
   if("tristian".equals(k)||"amiri".equals(k))return vordakaiResolved;
@@ -204,3 +210,4 @@ public final class KingmakerCompanionSemantics {
   return hours.size();
  }
 }
+

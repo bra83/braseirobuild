@@ -13,6 +13,24 @@ public final class KingmakerCampaignGate {
  public static String chapterKey(JSONObject q){String k=q.optString("chapter_key");return k.length()>0?k:progress(q).optString("chapter_key");}
  public static boolean completed(String s){return "completed".equals(s)||"complete".equals(s)||"concluida".equals(s);}
  public static boolean retiredQuest(JSONObject q){return Arrays.asList("q_terras_sombrias","q_brecha_sekamina","q_ancoras_abissais","q_aberracoes_subterraneas","q_terremoto_da_capital","q_companheiro_amiri","q_companheiro_valerie","q_companheiro_linzi","q_companheiro_harrim","q_companheiro_tristian","q_companheiro_jaethal","q_companheiro_regongar","q_companheiro_octavia","q_companheiro_ekundayo","q_companheiro_jubilost","q_companheiro_nok_nok","q_companheiro_irmas_tiefling").contains(questKey(q));}
+ public static JSONArray objectives(JSONObject quest){
+  JSONArray data=quest.optJSONArray("objectives");if(data!=null)return data;
+  data=progress(quest).optJSONArray("objectives");if(data!=null)return data;
+  String raw=quest.optString("objectives_json");if(raw.length()>0)try{return new JSONArray(raw);}catch(Exception invalid){throw new IllegalArgumentException("Objetivos inválidos.",invalid);}
+  return new JSONArray();
+ }
+ public static boolean objectivesResolved(JSONObject quest){
+  JSONArray data=objectives(quest);for(int n=0;n<data.length();n++){
+   JSONObject item=data.optJSONObject(n);if(item==null)return false;
+   if(!item.optBoolean("completed")&&!completed(item.optString("status"))&&!("waived".equals(item.optString("status"))&&item.optString("resolution_notes").trim().length()>=5))return false;
+  }return true;
+ }
+ public static JSONObject resolveObjective(JSONObject quest,String id,boolean waived,String evidence)throws Exception{
+  if(id==null||id.length()==0||evidence==null||evidence.trim().length()<5)throw new IllegalArgumentException("Objetivo e evidência são obrigatórios.");
+  JSONObject next=new JSONObject(progress(quest).toString());JSONArray result=new JSONArray(),source=objectives(quest);boolean found=false;
+  for(int n=0;n<source.length();n++){JSONObject copy=new JSONObject(source.optJSONObject(n).toString());if(id.equals(copy.optString("id"))){if(found)throw new IllegalStateException("Identidade de objetivo duplicada.");found=true;copy.put("completed",!waived).put("status",waived?"waived":"completed").put("resolution_notes",evidence.trim());}result.put(copy);}
+  if(!found)throw new IllegalArgumentException("O objetivo não pertence à definição desta missão.");next.put("objectives",result);return next;
+ }
  public static boolean official(JSONObject q){return chapterKey(q).startsWith("chapter_")&&questKey(q).length()>0;}
  public static JSONArray prerequisites(JSONObject q){
   JSONArray a=q.optJSONArray("prerequisites");
@@ -41,7 +59,7 @@ public final class KingmakerCampaignGate {
    JSONObject result=new JSONObject(change.toString());
    if(!result.has("progress_json"))return result;
    JSONObject prior=progress(before),next=progress(result);
-   for(String field:new String[]{"quest_key","chapter_key","milestone_xp","prerequisites","rewards"})if(prior.has(field))next.put(field,prior.opt(field));
+   for(String field:new String[]{"quest_key","chapter_key","milestone_xp","prerequisites","rewards","objectives"})if(prior.has(field))next.put(field,prior.opt(field));
    result.put("progress_json",next.toString());return result;
   }catch(Exception e){throw new IllegalArgumentException("Não foi possível preservar a definição da missão.",e);}
  }
@@ -50,6 +68,7 @@ public final class KingmakerCampaignGate {
   if(retiredQuest(before)&&"archived".equals(next))return;
   if(retiredQuest(before)&&!"archived".equals(next))throw new IllegalStateException("Esta missão pertence a um rascunho substituído por conteúdo do livro.");
   if(completed(before.optString("status"))&&!completed(next))throw new IllegalStateException("Uma missão concluída não pode ser reaberta por uma atualização antiga.");
+  if(completed(next)&&!completed(before.optString("status"))&&!objectivesResolved(before))throw new IllegalStateException("Resolva os objetivos da missão antes de concluí-la.");
   if(("active".equals(next)||"in_progress".equals(next)||completed(next))&&!ready(before,all))
     throw new IllegalStateException("Conclua os pré-requisitos desta missão antes de avançar.");
  }
@@ -105,4 +124,5 @@ public final class KingmakerCampaignGate {
   return 0;
  }
 }
+
 

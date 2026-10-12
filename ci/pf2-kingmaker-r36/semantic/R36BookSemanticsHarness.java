@@ -419,6 +419,24 @@ public final class R36BookSemanticsHarness {
   check(remainingUpgrade.optJSONArray("lots").optInt(1)==3,"upgrade chooses actual free adjacent lot");
   boolean noRoom=false;try{KingmakerStructureSemantics.upgradePlacement(upgradeTown,blockedUpgrade,"cathedral",4,originalFootprint,null);}catch(IllegalStateException expected){noRoom=true;}check(noRoom,"four lot upgrade fails when its block has another building");
   JSONArray filteredUpgrade=KingmakerStructureSemantics.withoutLastInstance(new JSONArray().put(academyRow),"academy","pending_upgrade");check(filteredUpgrade.length()==0,"placement removes only selected old instance from simulated occupancy");
+  JSONObject journalQuest=new JSONObject().put("chapter_key","chapter_00_call_for_heroes").put("quest_key","q_journal_test").put("status","active").put("progress_json",new JSONObject().put("objectives",new JSONArray().put(new JSONObject().put("id","first").put("description","Resolver a cena").put("completed",false)).put(new JSONObject().put("id","second").put("description","Escolher o desfecho").put("completed",false))).toString());
+  check(!KingmakerCampaignGate.objectivesResolved(journalQuest),"unresolved objectives cannot certify quest completion");
+  JSONObject journalProgress=KingmakerCampaignGate.resolveObjective(journalQuest,"first",false,"Cena resolvida com os personagens");journalQuest.put("progress_json",journalProgress.toString());
+  check(!KingmakerCampaignGate.objectivesResolved(journalQuest),"one resolved objective does not complete the entire quest");
+  journalProgress=KingmakerCampaignGate.resolveObjective(journalQuest,"second",true,"A decisão do grupo dispensou esta alternativa");journalQuest.put("progress_json",journalProgress.toString());
+  check(KingmakerCampaignGate.objectivesResolved(journalQuest),"documented branch resolution counts without inventing an encounter");
+  check(journalProgress.optJSONArray("objectives").optJSONObject(1).optString("resolution_notes").contains("decisão"),"branch evidence remains in saved quest progress");
+  boolean inventedObjective=false;try{KingmakerCampaignGate.resolveObjective(journalQuest,"fake",false,"Texto suficientemente longo");}catch(IllegalArgumentException expected){inventedObjective=true;}check(inventedObjective,"unknown objective IDs are rejected");
+  boolean missingEvidence=false;try{KingmakerCampaignGate.resolveObjective(journalQuest,"first",true,"");}catch(IllegalArgumentException expected){missingEvidence=true;}check(missingEvidence,"branch waivers require evidence");
+  JSONObject protectedJournal=KingmakerCampaignGate.preserveDefinition(journalQuest,new JSONObject().put("progress_json",new JSONObject().put("objectives",new JSONArray()).toString()));
+  check(KingmakerCampaignGate.objectives(protectedJournal).length()==2,"model updates cannot erase the authoritative objective list");
+  JSONObject untouchedCompanion=new JSONObject().put("id",10).put("companion_key","amiri").put("influence",0).put("npc_id",0).put("available",1).put("assignment","reserve").put("notes","Companheiro oficial das Terras Roubadas.").put("unlocked_rewards_json","[]");
+  JSONObject oldAlias=new JSONObject().put("id",20).put("companion_key","npc_amiri").put("influence",8).put("npc_id",50).put("available",1).put("assignment","active").put("notes","Histórico real da campanha").put("unlocked_rewards_json","[\"amiri:old_reward\"]");
+  JSONObject mergedAlias=KingmakerCompanionSemantics.mergeLegacyAlias(untouchedCompanion,oldAlias);
+  check(mergedAlias.optInt("influence")==8&&mergedAlias.optInt("npc_id")==50,"legacy companion progress replaces only an untouched default");
+  check(mergedAlias.optLong("id")==10&&"amiri".equals(mergedAlias.optString("companion_key")),"alias merge preserves canonical identity and leader references");
+  JSONObject newerCompanion=new JSONObject(untouchedCompanion.toString()).put("influence",2).put("notes","Decisão mais recente reduziu a influência");
+  check(KingmakerCompanionSemantics.mergeLegacyAlias(newerCompanion,oldAlias).optInt("influence")==2,"older high influence cannot overwrite a newer canonical decision");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }
