@@ -285,6 +285,71 @@ public final class LorwynNetherilArcanaCanonCatalog {
                 Collections.<String, String>emptyMap(), "secreto", false
         ));
 
+        // --- EXPANSÃO LOTE B: ARCANA UNLEASHED (AU) ---
+        list.add(new Entity(
+                "au_living_spells_cataclysm", "AU", "multiverse", "present", "monster",
+                "Magias Vivas e Feitiços Conscientes", "Living Spells of the Cataclysm",
+                "Feitiços de alta potência que ganharam consciência malevolente e forma física após cataclismos arcanos.",
+                Arrays.asList(
+                        "Manifestações errantes de magias como Cloudkill, Evard's Black Tentacles e Fireball em forma de lodo mágico.",
+                        "Absorvem dano mágico do mesmo tipo para se regenerar e atacam qualquer criatura viva com pulsos de feitiço."
+                ),
+                Arrays.asList(
+                        "Podem ser dispersadas por rituais de dissipar magia de 5º nível ou seladas em orbes alquímicos pelo Conclave das Gemas.",
+                        "A Nona Pena tenta capturar feitiços vivos de sono para utilizá-los como armas de cerco furtivo."
+                ),
+                Arrays.asList("au", "living_spells", "construct", "magic_hazard", "multiverse"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "au_evolving_items_relics", "AU", "multiverse", "present", "item",
+                "Relíquias de Evolução Mágica", "Evolving Magic Items",
+                "Artefatos cuja potência, bônus de ataque e propriedades mágicas despertam progressivamente através de feitos épicos.",
+                Arrays.asList(
+                        "Exemplificados pelo Staff of Skulls e a Breastplate of the Tyrant criados nos nós de poder de AU.",
+                        "Iniciam no estágio Dormente (Dormant), despertam para Desperto (Awakened) e atingem o ápice Exaltado (Exalted)."
+                ),
+                Arrays.asList(
+                        "A transição entre estágios exige provações de caráter ou a derrota de inimigos jurados em batalha singular.",
+                        "Tentativas de forçar a evolução por meios sombrios corrompem permanentemente a ressonância do artefato."
+                ),
+                Arrays.asList("au", "evolving_items", "magic_items", "vestiges", "attunement"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "au_item_dictation_quills", "AU", "multiverse", "present", "item",
+                "Penas de Escrita Arcana (Dictation Quills)", "Dictation Quills",
+                "Instrumentos arcanos de transcrição mágica automática utilizados pela Nona Pena e escribas multiversais.",
+                Arrays.asList(
+                        "Penas encantadas que transcrevem fala, pensamentos e runas sem necessidade de tinta ou mão mortal.",
+                        "Capazes de traduzir dialetos antigos instantaneamente durante a gravação em pergaminho."
+                ),
+                Arrays.asList(
+                        "Modelos superiores da Nona Pena conseguem duplicar fórmulas arcanas de grimórios selados sem quebrar lacres de cera.",
+                        "Podem ser sintonizadas para apagar magicamente as anotações após leitura se uma senha for violada."
+                ),
+                Arrays.asList("au", "dictation_quills", "magic_item", "scribing", "ninth_quill"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "au_relic_chronos_lens", "AU", "multiverse", "present", "item",
+                "Lente de Cronos", "Chronos Lens",
+                "Relíquia óptica astral que permite vislumbrar ecos de eventos passados e futuros potenciais em um local.",
+                Arrays.asList(
+                        "Lente de cristal estelar engastada em aro de prata forjada pelo Conclave das Gemas Encantadas.",
+                        "Revela pistas invisíveis, armadilhas temporais e resíduos mágicos deixados há dias ou séculos."
+                ),
+                Arrays.asList(
+                        "A observação prolongada de futuros prováveis exige salvaguarda de Inteligência CD 14 contra confusão temporal.",
+                        "Cobiçada por inquisitivos de Eberron e batedores arcanos para desvendar crimes e conspirações perfeitas."
+                ),
+                Arrays.asList("au", "chronos_lens", "relic", "divination", "time_magic", "magic_item"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ));
+
         return Collections.unmodifiableList(list);
     }
 }

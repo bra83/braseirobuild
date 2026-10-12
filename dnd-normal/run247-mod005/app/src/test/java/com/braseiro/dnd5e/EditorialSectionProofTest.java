@@ -33,9 +33,9 @@ public final class EditorialSectionProofTest {
         List<NarrativeContentEngine.Entity> lorwynArcana = LorwynNetherilArcanaCanonCatalog.all();
 
         assertEquals("Faerûn deve conter exatamente 45 entidades comprovadas", 45, faerun.size());
-        assertEquals("Eberron deve conter exatamente 10 entidades comprovadas", 10, eberron.size());
+        assertEquals("Eberron deve conter exatamente 22 entidades comprovadas", 22, eberron.size());
         assertEquals("Ravenloft/Hungers deve conter exatamente 15 entidades comprovadas", 15, ravenloft.size());
-        assertEquals("Lorwyn/Netheril/Arcana/XMM/XSAC deve conter exatamente 16 entidades", 16, lorwynArcana.size());
+        assertEquals("Lorwyn/Netheril/Arcana/XMM/XSAC deve conter exatamente 20 entidades", 20, lorwynArcana.size());
 
         Set<String> allIds = new HashSet<>();
         int total = 0;
@@ -69,8 +69,8 @@ public final class EditorialSectionProofTest {
             total++;
         }
 
-        assertEquals("Total de entidades canônicas deve ser 86", 86, total);
-        assertEquals("Total de IDs únicos deve ser exatamente 86", 86, allIds.size());
+        assertEquals("Total de entidades canônicas deve ser 102", 102, total);
+        assertEquals("Total de IDs únicos deve ser exatamente 102", 102, allIds.size());
     }
 
     @Test
@@ -219,10 +219,47 @@ public final class EditorialSectionProofTest {
         assertTrue("Deve conter Bejeweled Conclave", ids.contains("au_bejeweled_conclave"));
         assertTrue("Deve conter Bringers of Cosmic Dawn", ids.contains("au_bringers_cosmic_dawn"));
         assertTrue("Deve conter Tomb of Shadow Serpents", ids.contains("au_tomb_shadow_serpents"));
+        assertTrue("Deve conter Magias Vivas do Cataclisma", ids.contains("au_living_spells_cataclysm"));
+        assertTrue("Deve conter Relíquias de Evolução Mágica", ids.contains("au_evolving_items_relics"));
+        assertTrue("Deve conter Penas de Escrita Arcana", ids.contains("au_item_dictation_quills"));
+        assertTrue("Deve conter Lente de Cronos", ids.contains("au_relic_chronos_lens"));
 
         // XMM e XSAC
         assertTrue("Deve conter Ecologia dos Dragões 2025", ids.contains("xmm_dragon_ecology_2025"));
         assertTrue("Deve conter Adjudicação de Regras 2025", ids.contains("xsac_adjudication_rules"));
+    }
+
+    @Test
+    public void testEberronEditorialCoverage() {
+        List<NarrativeContentEngine.Entity> list = EberronCanonCatalog.all();
+        Set<String> ids = new HashSet<>();
+        for (NarrativeContentEngine.Entity e : list) ids.add(e.id);
+
+        // Casas Dracossinaladas
+        assertTrue("Deve conter Casa Cannith", ids.contains("eberron_house_cannith"));
+        assertTrue("Deve conter Casa Lyrandar", ids.contains("eberron_house_lyrandar"));
+        assertTrue("Deve conter Casa Orien", ids.contains("eberron_house_orien"));
+        assertTrue("Deve conter Casa Deneith", ids.contains("eberron_house_deneith"));
+        assertTrue("Deve conter Casa Kundarak", ids.contains("eberron_house_kundarak"));
+        assertTrue("Deve conter Casa Sivis", ids.contains("eberron_house_sivis"));
+        assertTrue("Deve conter Casa Jorasco", ids.contains("eberron_house_jorasco"));
+        assertTrue("Deve conter Casa Ghallanda", ids.contains("eberron_house_ghallanda"));
+        assertTrue("Deve conter Casa Tharashk", ids.contains("eberron_house_tharashk"));
+        assertTrue("Deve conter Casa Vadalis", ids.contains("eberron_house_vadalis"));
+        assertTrue("Deve conter Casa Medani", ids.contains("eberron_house_medani"));
+        assertTrue("Deve conter Casas Phiarlan & Thuranni", ids.contains("eberron_house_phiarlan_thuranni"));
+
+        // Locais, Itens e Monstros de Eberron
+        assertTrue("Deve conter Sharn", ids.contains("eberron_sharn_city"));
+        assertTrue("Deve conter Mournland", ids.contains("eberron_mournland_fog"));
+        assertTrue("Deve conter Forjas de Eston", ids.contains("eberron_eston_creation_forge"));
+        assertTrue("Deve conter Universidade Morgrave", ids.contains("eberron_morgrave_university"));
+        assertTrue("Deve conter Senhor das Lâminas", ids.contains("eberron_lord_of_blades"));
+        assertTrue("Deve conter Profecia Dracônica", ids.contains("eberron_draconic_prophecy"));
+        assertTrue("Deve conter Fragmentos de Dragão", ids.contains("eberron_item_dragonshards"));
+        assertTrue("Deve conter Argonnessen", ids.contains("eberron_argonnessen"));
+        assertTrue("Deve conter Droaam", ids.contains("eberron_droaam"));
+        assertTrue("Deve conter Colosso Forjado da Guerra", ids.contains("eberron_warforged_colossus"));
     }
 
     @Test
