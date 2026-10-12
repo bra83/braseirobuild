@@ -18,6 +18,31 @@ def test_phase_and_realm_update_share_transaction(tmp_path):
     assert 'update("kingmaker_turns"' in method and 'update("kingmaker_state"' in method
     assert "changed!=1" in method and "stateChanged!=1" in method
 
+def test_completion_guard_must_not_be_injected_into_start_turn(tmp_path):
+    # Both methods share a transaction anchor. Guard belongs only in the
+    # completion method: startKingdomTurn has no outer `turn` to capture.
+    f=setup(tmp_path)
+    old=f.read_text(encoding="utf-8")
+    early=("    public JSONObject startKingdomTurn()throws Exception{"
+           +mod.OLD_COMPLETE_TX+" startBody();}}); }\\n")
+    f.write_text(early+old,encoding="utf-8")
+    mod.apply(tmp_path)
+    changed=f.read_text(encoding="utf-8")
+    prefix=changed[:changed.index(mod.START)]
+    assert mod.OLD_COMPLETE_TX in prefix
+    assert 'JSONObject live=activeTurn();' not in prefix
+    completion=changed[changed.index(mod.END):]
+    assert completion.count('JSONObject live=activeTurn();')==1
+    assert completion.count(mod.NEW_COMPLETE_TX)==1
+
+def test_duplicate_complete_transaction_anchor_rejected(tmp_path):
+    f=setup(tmp_path)
+    original=f.read_text(encoding="utf-8")
+    f.write_text(original+mod.OLD_COMPLETE_TX,encoding="utf-8")
+    # The extra anchor is outside completeTurn and must not alter its scope.
+    mod.apply(tmp_path)
+    assert f.read_text(encoding="utf-8").count(mod.NEW_COMPLETE_TX)==1
+
 def test_no_early_double_completion(tmp_path):
     f=setup(tmp_path);mod.apply(tmp_path);s=f.read_text(encoding="utf-8")
     assert '"EVENT".equals(turn.optString("phase"))' in s

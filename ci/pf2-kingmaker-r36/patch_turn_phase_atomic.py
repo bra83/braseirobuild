@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """R36 Kingmaker: atomic phase advance and no premature/repeated turn completion."""
 from pathlib import Path
+import re
 import sys
 
 SRC=Path("android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerRepository.java")
@@ -59,10 +60,21 @@ def apply(root):
     start=original.find(START);end=original.find(END,start)
     if start<0 or end<0 or original.count(START)!=1 or original.count(END)!=1:
         raise ValueError("advancePhase boundary mismatch")
-    if original.count(OLD_COMPLETE_PRE)!=1 or original.count(OLD_COMPLETE_TX)<1:
-        raise ValueError("completeTurn expected guards absent")
+    # Scope transaction insertion to completeTurn ONLY: startKingdomTurn has
+    # the same database transaction anchor, but no captured `turn` variable.
+    # A global replace silently injected the completion guard into START,
+    # generating KingmakerRepository.java:220 "cannot find symbol: turn".
     rewritten=original[:start]+REPLACEMENT+original[end:]
-    rewritten=rewritten.replace(OLD_COMPLETE_PRE,NEW_COMPLETE_PRE,1).replace(OLD_COMPLETE_TX,NEW_COMPLETE_TX,1)
+    complete_start=rewritten.index(END)
+    remainder=rewritten[complete_start+len(END):]
+    next_method=re.search(r"\n    (?:public|private|protected)\s+",remainder)
+    complete_end=(complete_start+len(END)+next_method.start()) if next_method else len(rewritten)
+    complete=rewritten[complete_start:complete_end]
+    if complete.count(OLD_COMPLETE_PRE)!=1 or complete.count(OLD_COMPLETE_TX)!=1:
+        raise ValueError("completeTurn expected guards absent or duplicated within method")
+    complete=complete.replace(OLD_COMPLETE_PRE,NEW_COMPLETE_PRE,1)
+    complete=complete.replace(OLD_COMPLETE_TX,NEW_COMPLETE_TX,1)
+    rewritten=rewritten[:complete_start]+complete+rewritten[complete_end:]
     path.write_text(rewritten,encoding="utf-8")
     print("KINGMAKER_R36_PHASE_ATOMIC_HOTFIX_APPLIED",path)
     return True
