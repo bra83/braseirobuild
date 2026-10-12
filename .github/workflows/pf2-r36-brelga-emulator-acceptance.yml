@@ -62,14 +62,16 @@ jobs:
           if(!(Test-Path $bin)){throw 'ANDROID_EMULATOR_STILL_NOT_INSTALLED'}
           $avds=@(& $bin -list-avds 2>$null | Where-Object{$_ -and $_.Trim() -and $_ -notmatch '^INFO|^WARNING|^ERROR'})
           if($LASTEXITCODE -ne 0){throw 'ANDROID_AVD_ENUMERATION_FAILED'}
-          if($avds.Count -eq 0){
+          # Never hijack a user's existing AVD (e.g. Pixel_7_Pro).
+          # Use a dedicated, deterministic API-30 image with an isolated CI name.
+          if('PF2_R36_CI' -notin $avds){
             if(!$avdmanager){throw 'ANDROID_AVDMANAGER_MISSING_ON_BRELGA'}
             'no'| & $avdmanager create avd -n 'PF2_R36_CI' -k 'system-images;android-30;google_apis;x86_64' --force
             if($LASTEXITCODE -ne 0){throw 'ANDROID_AVD_CREATION_FAILED'}
             $avds=@(& $bin -list-avds 2>$null | Where-Object{$_ -and $_.Trim() -and $_ -notmatch '^INFO|^WARNING|^ERROR'})
           }
-          if($avds.Count -eq 0){throw 'ANDROID_AVD_CREATION_NOT_VISIBLE'}
-          Write-Host "R36_AVD_READY=$($avds[0])"
+          if('PF2_R36_CI' -notin $avds){throw 'ANDROID_CI_AVD_NOT_VISIBLE'}
+          Write-Host 'R36_AVD_READY=PF2_R36_CI'
       - name: Download the immutable R36 TEST APK and verify SHA256
         shell: powershell
         env:
@@ -101,34 +103,61 @@ jobs:
         timeout-minutes: 35
         run: |
           $ErrorActionPreference='Stop'
-          $sdk=$env:ANDROID_SDK_ROOT
-          if(!$sdk){
-            $sdk=@('C:\actions-runner\android-sdk',(Join-Path $env:LOCALAPPDATA 'Android\Sdk'))|Where-Object{Test-Path (Join-Path $_ 'platform-tools\adb.exe')}|Select-Object -First 1
-          }
+          $sdk=@('C:\actions-runner\android-sdk',$env:ANDROID_SDK_ROOT,$env:ANDROID_HOME,(Join-Path $env:LOCALAPPDATA 'Android\Sdk'))|Where-Object{$_ -and (Test-Path (Join-Path $_ 'platform-tools\adb.exe'))}|Select-Object -First 1
           if(!$sdk){throw 'ANDROID_SDK_MISSING_AFTER_PROVISIONING'}
           $adb=Join-Path $sdk 'platform-tools\adb.exe'
           $emulator=Join-Path $sdk 'emulator\emulator.exe'
-          $avd=@(& $emulator -list-avds 2>$null | Where-Object{$_ -and $_.Trim() -and $_ -notmatch '^INFO|^WARNING|^ERROR'})|Select-Object -First 1
-          if(!$avd){throw 'NO_ANDROID_AVD_AFTER_PROVISIONING'}
+          if(!(Test-Path $emulator)){throw 'EMULATOR_BINARY_MISSING_AFTER_PROVISIONING'}
+          $avdNames=@(& $emulator -list-avds 2>$null|Where-Object{$_ -and $_.Trim()})
+          if('PF2_R36_CI' -notin $avdNames){throw 'DEDICATED_API30_AVD_MISSING'}
+          $logs=Join-Path $env:GITHUB_WORKSPACE 'r36-runtime-logs'
+          New-Item -ItemType Directory -Path $logs -Force|Out-Null
+          $stdout=Join-Path $logs 'emulator.stdout.txt'
+          $stderr=Join-Path $logs 'emulator.stderr.txt'
           $proc=$null
           try{
-            $proc=Start-Process -FilePath $emulator -ArgumentList @('-avd',$avd.Trim(),'-no-window','-no-audio','-no-snapshot-load','-no-boot-anim','-gpu','swiftshader_indirect') -PassThru
+            # adb.exe can print "* daemon not running" on stderr the first time.
+            # On Windows PowerShell this is a NativeCommandError with
+            # ErrorActionPreference=Stop, even though adb itself is healthy.
+            # Initialize adb safely before the boot poll.
+            $adbInit=Start-Process -FilePath $adb -ArgumentList @('start-server') -PassThru -Wait -NoNewWindow -RedirectStandardOutput (Join-Path $logs 'adb-start.stdout.txt') -RedirectStandardError (Join-Path $logs 'adb-start.stderr.txt')
+            if($adbInit.ExitCode -ne 0){throw "ADB_START_SERVER_FAILED=$($adbInit.ExitCode)"}
+            $accel=& $emulator -accel-check 2>&1|Out-String
+            Write-Host "R36_HOST_EMULATOR_ACCEL=$($accel.Trim().Replace("`n"," "))"
+            $proc=Start-Process -FilePath $emulator -ArgumentList @('-avd','PF2_R36_CI','-no-window','-no-audio','-no-snapshot-load','-no-boot-anim','-gpu','swiftshader_indirect','-no-metrics') -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+            Write-Host "R36_EMULATOR_PID=$($proc.Id)"
             $ready=$false
-            for($i=0;$i -lt 100;$i++){
+            for($i=0;$i -lt 120;$i++){
               Start-Sleep -Seconds 5
-              $boot=(& $adb -e shell getprop sys.boot_completed 2>$null | Out-String).Trim()
+              $prior=$ErrorActionPreference
+              $ErrorActionPreference='Continue'
+              try{$boot=(& $adb -e shell getprop sys.boot_completed 2>&1 | Out-String).Trim()}
+              finally{$ErrorActionPreference=$prior}
               if($boot -eq '1'){$ready=$true;break}
               if($proc.HasExited){throw "ANDROID_EMULATOR_PROCESS_EXIT=$($proc.ExitCode)"}
+              if($i%12 -eq 0){Write-Host "R36_ANDROID_BOOT_POLL=$i result=$($boot.Substring(0,[Math]::Min(100,$boot.Length)))"}
             }
             if(!$ready){throw 'ANDROID_EMULATOR_BOOT_TIMEOUT'}
             $apk=Join-Path $env:GITHUB_WORKSPACE 'r36-test-apk\Braseiro-Kingmaker-R36-test.apk'
-            & $adb -e shell input keyevent 82
             & $adb -e install -r $apk
             if($LASTEXITCODE -ne 0){throw 'R36_TEST_APK_INSTALL_FAILED'}
+            Write-Host 'R36_ANDROID_APK_INSTALLED=true'
             & python ci/pf2-kingmaker-certification/android_ui_endurance.py --adb $adb
             if($LASTEXITCODE -ne 0){throw 'REAL_ANDROID_APPDB_THREE_RESTART_GATE_FAILED'}
             Write-Host 'R36_REAL_ANDROID_UI_APPDB_3_RESTARTS=PASS'
+          }catch{
+            Write-Host "R36_REAL_ANDROID_FAILURE=$($_.Exception.Message)"
+            if(Test-Path $stderr){Write-Host 'R36_EMULATOR_STDERR_TAIL';Get-Content $stderr -Tail 110|ForEach-Object{Write-Host $_}}
+            if(Test-Path $stdout){Write-Host 'R36_EMULATOR_STDOUT_TAIL';Get-Content $stdout -Tail 35|ForEach-Object{Write-Host $_}}
+            throw
           }finally{
-            & $adb -e emu kill 2>$null
-            if($proc -and !$proc.HasExited){Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue}
+            $oldAction=$ErrorActionPreference
+            $ErrorActionPreference='SilentlyContinue'
+            try{
+              # Cleanup failures MUST NOT mask the real boot/Android result.
+              if($proc -and !$proc.HasExited){
+                & $adb -e emu kill 2>$null|Out-Null
+                Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+              }
+            }catch{Write-Host 'R36_EMULATOR_CLEANUP_NONFATAL'}finally{$ErrorActionPreference=$oldAction}
           }
