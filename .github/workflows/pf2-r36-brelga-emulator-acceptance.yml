@@ -1,0 +1,134 @@
+name: PF2 Kingmaker R36 BRELGA Android Runtime Acceptance
+on:
+  push:
+    branches: [pf2-kingmaker-r36-official-rule-fixes-20261011]
+    paths: ['.github/workflows/pf2-r36-brelga-emulator-acceptance.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pf2-r36-brelga-android-runtime
+  cancel-in-progress: true
+jobs:
+  android:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 95
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            ci/pf2-kingmaker-certification
+          ref: ${{ github.sha }}
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Provision Android Emulator and API 30 AVD on BRELGA
+        shell: powershell
+        timeout-minutes: 48
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw 'WRONG_RUNNER'}
+          $candidates=@('C:\actions-runner\android-sdk',$env:ANDROID_SDK_ROOT,$env:ANDROID_HOME,(Join-Path $env:LOCALAPPDATA 'Android\Sdk'))|Where-Object{$_ -and (Test-Path $_)}
+          $sdk=$candidates|Where-Object{Test-Path (Join-Path $_ 'platform-tools\adb.exe')}|Select-Object -First 1
+          if(!$sdk){throw 'ANDROID_SDK_WITH_ADB_NOT_FOUND'}
+          $env:ANDROID_SDK_ROOT=$sdk
+          $env:ANDROID_HOME=$sdk
+          Write-Host "R36_ANDROID_SDK=$sdk"
+          $bin=Join-Path $sdk 'emulator\emulator.exe'
+          $sdkcmd=@(Get-ChildItem (Join-Path $sdk 'cmdline-tools') -Filter sdkmanager.bat -Recurse -File -ErrorAction SilentlyContinue)
+          $avdcmd=@(Get-ChildItem (Join-Path $sdk 'cmdline-tools') -Filter avdmanager.bat -Recurse -File -ErrorAction SilentlyContinue)
+          $manager=$sdkcmd|Select-Object -First 1 -ExpandProperty FullName
+          $avdmanager=$avdcmd|Select-Object -First 1 -ExpandProperty FullName
+          if(!$manager){
+            $legacy=Join-Path $sdk 'tools\bin\sdkmanager.bat'
+            if(Test-Path $legacy){$manager=$legacy}
+          }
+          if(!$avdmanager){
+            $legacy=Join-Path $sdk 'tools\bin\avdmanager.bat'
+            if(Test-Path $legacy){$avdmanager=$legacy}
+          }
+          Write-Host "R36_SDKMANAGER_AVAILABLE=$([bool]$manager)"
+          Write-Host "R36_AVDMANAGER_AVAILABLE=$([bool]$avdmanager)"
+          Write-Host "R36_EMULATOR_PREINSTALLED=$(Test-Path $bin)"
+          if(!(Test-Path $bin) -or !(Test-Path (Join-Path $sdk 'system-images\android-30\google_apis\x86_64'))){
+            if(!$manager){throw 'ANDROID_CMDLINE_TOOLS_MISSING_ON_BRELGA: sdkmanager required for emulator provisioning'}
+            & $manager "--sdk_root=$sdk" --install 'emulator' 'platform-tools' 'system-images;android-30;google_apis;x86_64'
+            if($LASTEXITCODE -ne 0){throw "ANDROID_EMULATOR_SDK_PACKAGE_INSTALL_FAILED=$LASTEXITCODE"}
+          }
+          if(!(Test-Path $bin)){throw 'ANDROID_EMULATOR_STILL_NOT_INSTALLED'}
+          $avds=@(& $bin -list-avds 2>$null | Where-Object{$_ -and $_.Trim() -and $_ -notmatch '^INFO|^WARNING|^ERROR'})
+          if($LASTEXITCODE -ne 0){throw 'ANDROID_AVD_ENUMERATION_FAILED'}
+          if($avds.Count -eq 0){
+            if(!$avdmanager){throw 'ANDROID_AVDMANAGER_MISSING_ON_BRELGA'}
+            'no'| & $avdmanager create avd -n 'PF2_R36_CI' -k 'system-images;android-30;google_apis;x86_64' --force
+            if($LASTEXITCODE -ne 0){throw 'ANDROID_AVD_CREATION_FAILED'}
+            $avds=@(& $bin -list-avds 2>$null | Where-Object{$_ -and $_.Trim() -and $_ -notmatch '^INFO|^WARNING|^ERROR'})
+          }
+          if($avds.Count -eq 0){throw 'ANDROID_AVD_CREATION_NOT_VISIBLE'}
+          Write-Host "R36_AVD_READY=$($avds[0])"
+      - name: Download the immutable R36 TEST APK and verify SHA256
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $tag='PATHFINDER2E-9.0.37-R36-TEST-6ffb5b9c'
+          $sourceSha='6ffb5b9c73c5296ccb9c69b8e596edadc9bbb2ef'
+          $headers=@{Authorization="Bearer $env:GH_TOKEN";Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28'}
+          $rel=Invoke-RestMethod -Uri "https://api.github.com/repos/bra83/braseirobuild/releases/tags/$tag" -Headers $headers -Method Get
+          if(!$rel.prerelease -or $rel.target_commitish -ne $sourceSha){throw 'RELEASE_NOT_THE_CERTIFIED_TEST_SOURCE'}
+          $out=Join-Path $env:GITHUB_WORKSPACE 'r36-test-apk'
+          New-Item -ItemType Directory -Path $out -Force|Out-Null
+          foreach($name in @('Braseiro-Kingmaker-R36-test.apk','SHA256.txt')){
+            $asset=@($rel.assets|Where-Object{$_.name -eq $name})
+            if($asset.Count -ne 1){throw "RELEASE_ASSET_MISSING $name"}
+            $url="https://api.github.com/repos/bra83/braseirobuild/releases/assets/"+$asset[0].id
+            & curl.exe -L --fail --retry 4 --retry-delay 3 --header "Authorization: Bearer $env:GH_TOKEN" --header 'Accept: application/octet-stream' --header 'X-GitHub-Api-Version: 2022-11-28' -o (Join-Path $out $name) $url
+            if($LASTEXITCODE -ne 0){throw "RELEASE_ASSET_DOWNLOAD_FAILED $name"}
+            if((Get-Item (Join-Path $out $name)).Length -ne $asset[0].size){throw "RELEASE_ASSET_SIZE_MISMATCH $name"}
+          }
+          $apk=Join-Path $out 'Braseiro-Kingmaker-R36-test.apk'
+          $known=((Get-Content (Join-Path $out 'SHA256.txt') -Raw).Trim() -split '\s+')[0]
+          $actual=(Get-FileHash $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($actual -ne $known){throw 'R36_RELEASE_APK_HASH_MISMATCH'}
+          Write-Host "R36_VERIFIED_TEST_APK_SHA256=$actual"
+      - name: Boot Android emulator and verify production SQLite AppDb / three restarts
+        shell: powershell
+        timeout-minutes: 35
+        run: |
+          $ErrorActionPreference='Stop'
+          $sdk=$env:ANDROID_SDK_ROOT
+          if(!$sdk){
+            $sdk=@('C:\actions-runner\android-sdk',(Join-Path $env:LOCALAPPDATA 'Android\Sdk'))|Where-Object{Test-Path (Join-Path $_ 'platform-tools\adb.exe')}|Select-Object -First 1
+          }
+          if(!$sdk){throw 'ANDROID_SDK_MISSING_AFTER_PROVISIONING'}
+          $adb=Join-Path $sdk 'platform-tools\adb.exe'
+          $emulator=Join-Path $sdk 'emulator\emulator.exe'
+          $avd=@(& $emulator -list-avds 2>$null | Where-Object{$_ -and $_.Trim() -and $_ -notmatch '^INFO|^WARNING|^ERROR'})|Select-Object -First 1
+          if(!$avd){throw 'NO_ANDROID_AVD_AFTER_PROVISIONING'}
+          $proc=$null
+          try{
+            $proc=Start-Process -FilePath $emulator -ArgumentList @('-avd',$avd.Trim(),'-no-window','-no-audio','-no-snapshot-load','-no-boot-anim','-gpu','swiftshader_indirect') -PassThru
+            $ready=$false
+            for($i=0;$i -lt 100;$i++){
+              Start-Sleep -Seconds 5
+              $boot=(& $adb -e shell getprop sys.boot_completed 2>$null | Out-String).Trim()
+              if($boot -eq '1'){$ready=$true;break}
+              if($proc.HasExited){throw "ANDROID_EMULATOR_PROCESS_EXIT=$($proc.ExitCode)"}
+            }
+            if(!$ready){throw 'ANDROID_EMULATOR_BOOT_TIMEOUT'}
+            $apk=Join-Path $env:GITHUB_WORKSPACE 'r36-test-apk\Braseiro-Kingmaker-R36-test.apk'
+            & $adb -e shell input keyevent 82
+            & $adb -e install -r $apk
+            if($LASTEXITCODE -ne 0){throw 'R36_TEST_APK_INSTALL_FAILED'}
+            & python ci/pf2-kingmaker-certification/android_ui_endurance.py --adb $adb
+            if($LASTEXITCODE -ne 0){throw 'REAL_ANDROID_APPDB_THREE_RESTART_GATE_FAILED'}
+            Write-Host 'R36_REAL_ANDROID_UI_APPDB_3_RESTARTS=PASS'
+          }finally{
+            & $adb -e emu kill 2>$null
+            if($proc -and !$proc.HasExited){Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue}
+          }
