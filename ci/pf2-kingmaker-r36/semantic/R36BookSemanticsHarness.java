@@ -123,6 +123,23 @@ public final class R36BookSemanticsHarness {
   boolean wrongCapital=false;try{KingmakerStructureSemantics.requireCapital(new JSONObject().put("official_catalog_key","palace"),new JSONObject().put("name","Oleg"),"Restov");}catch(IllegalStateException expected){wrongCapital=true;}
   check(wrongCapital,"palace rejects other settlement");
   KingmakerStructureSemantics.requireCapital(new JSONObject().put("official_catalog_key","palace"),new JSONObject().put("name","Capital"),"Capital");
+  JSONObject jubilost=new JSONObject().put("companion_key","jubilost").put("influence",8).put("available",1).put("unlocked_rewards_json","[]");
+  check(KingmakerCompanionSemantics.structureRewards(jubilost).length()==1,"Jubilost offers one alchemy laboratory");
+  jubilost.put("unlocked_rewards_json",KingmakerCompanionSemantics.claimStructureReward(jubilost,"alchemist"));
+  check(KingmakerCompanionSemantics.structureRewards(jubilost).length()==0,"Jubilost free structure claim deduplicated");
+  boolean wrongGift=false;try{KingmakerCompanionSemantics.claimStructureReward(jubilost,"palace");}catch(IllegalStateException expected){wrongGift=true;}
+  check(wrongGift,"companion cannot grant arbitrary free structure");
+  tristian.put("unlocked_rewards_json","[]");
+  check(KingmakerCompanionSemantics.structureRewards(tristian).length()==2,"Tristian offers orphanage and shrine");
+  tristian.put("unlocked_rewards_json",KingmakerCompanionSemantics.claimStructureReward(tristian,"orphanage"));
+  check(KingmakerCompanionSemantics.structureRewards(tristian).length()==1,"Tristian shrine can be placed separately");
+  JSONObject offered=new JSONObject().put("companion_key","jubilost").put("influence",7).put("available",1).put("unlocked_rewards_json","[]");
+  offered.put("unlocked_rewards_json",KingmakerCompanionSemantics.rewardHistory(offered,8,"helpful",new JSONArray())).put("influence",3);
+  check(KingmakerCompanionSemantics.structureRewards(offered).length()==1,"unclaimed official gift remains after influence loss");
+  JSONObject hostileNok=new JSONObject().put("companion_key","nok_nok").put("influence",12).put("attitude","hostile").put("unlocked_rewards_json",new JSONArray().put("nok_nok_alignment:chaotic_good"));
+  JSONArray resetNok=KingmakerCompanionSemantics.alignmentHistory(hostileNok,12,"helpful",new JSONArray());
+  hostileNok.put("attitude","helpful").put("unlocked_rewards_json",resetNok);
+  check("chaotic_evil".equals(KingmakerCompanionSemantics.nokAlignment(hostileNok)),"hostility reset cannot be undone by zero influence adjustment");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

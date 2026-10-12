@@ -84,11 +84,11 @@ public final class KingmakerCompanionSemantics {
   if(p<=0||"hostile".equals(c.optString("attitude")))return "chaotic_evil";
   JSONArray history=c.optJSONArray("unlocked_rewards_json");
   if(history==null)try{history=new JSONArray(c.optString("unlocked_rewards_json","[]"));}catch(Exception ignored){history=new JSONArray();}
-  String saved="chaotic_evil";
+  String saved="chaotic_evil";boolean recorded=false;
   for(int i=0;i<history.length();i++){
-   if("nok_nok_alignment:chaotic_good".equals(history.optString(i)))saved="chaotic_good";
-   else if("nok_nok_alignment:chaotic_neutral".equals(history.optString(i))&&!"chaotic_good".equals(saved))saved="chaotic_neutral";
+   if(history.optString(i).startsWith("nok_nok_alignment:")){saved=history.optString(i).substring("nok_nok_alignment:".length());recorded=true;}
   }
+  if(recorded)return saved;
   if(p>=12)return "chaotic_good";
   if(p>=6&&"chaotic_evil".equals(saved))return "chaotic_neutral";
   return saved;
@@ -101,10 +101,35 @@ public final class KingmakerCompanionSemantics {
   String prior=nokAlignment(before);
   out.put("nok_nok_alignment:"+prior);
   current.put("influence",next).put("attitude",attitude).put("unlocked_rewards_json",out);
-  String alignment=nokAlignment(current);
+  String alignment=prior;
+  if(next<=0||"hostile".equals(attitude))alignment="chaotic_evil";
+  else if(before.optInt("influence")<12&&next>=12)alignment="chaotic_good";
+  else if(before.optInt("influence")<6&&next>=6&&"chaotic_evil".equals(alignment))alignment="chaotic_neutral";
   JSONArray result=new JSONArray();
   for(int i=0;i<out.length();i++)if(!out.optString(i).startsWith("nok_nok_alignment:"))result.put(out.optString(i));
   return result.put("nok_nok_alignment:"+alignment);
+ }
+ private static JSONArray history(JSONObject c){
+  JSONArray a=c.optJSONArray("unlocked_rewards_json");if(a!=null)return a;
+  try{return new JSONArray(c.optString("unlocked_rewards_json","[]"));}catch(Exception e){throw new IllegalArgumentException("Histórico de recompensas inválido.",e);}
+ }
+ private static boolean has(JSONArray a,String key){for(int i=0;i<a.length();i++)if(key.equals(a.optString(i)))return true;return false;}
+ public static JSONArray rewardHistory(JSONObject before,int next,String attitude,JSONArray rewards)throws Exception{
+  JSONArray out=alignmentHistory(before,next,attitude,rewards);String k=before.optString("companion_key");
+  if(next>=8&&("jubilost".equals(k)||"tristian".equals(k))){String marker=k+":official_structure_offer";if(!has(out,marker))out.put(marker);}
+  return out;
+ }
+ public static JSONArray structureRewards(JSONObject c){
+  JSONArray out=new JSONArray();if(c.optInt("available",1)!=1)return out;
+  String k=c.optString("companion_key");JSONArray rewards=history(c);
+  if(c.optInt("influence")<8&&!has(rewards,k+":official_structure_offer"))return out;
+  if("jubilost".equals(k)&&!has(rewards,"jubilost:structure_claimed:alchemist"))out.put("alchemist");
+  if("tristian".equals(k))for(String structure:new String[]{"orphanage","shrine"})if(!has(rewards,"tristian:structure_claimed:"+structure))out.put(structure);
+  return out;
+ }
+ public static JSONArray claimStructureReward(JSONObject c,String structure)throws Exception{
+  JSONArray available=structureRewards(c);if(!has(available,structure))throw new IllegalStateException("Esta estrutura não está disponível como presente deste companheiro.");
+  JSONArray out=new JSONArray(history(c).toString());out.put(c.optString("companion_key")+":structure_claimed:"+structure);return out;
  }
  public static JSONObject ongoing(JSONObject c,int partyLevel)throws Exception{
   String k=c.optString("companion_key");int p=c.optInt("influence");boolean present=c.optInt("available",1)==1;

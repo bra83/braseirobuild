@@ -241,6 +241,51 @@ def main(s):
  old='db.updateQuestStatus(q.optLong("id"),"completed","Concluída pelo jogador");showPartyDirector();'
  new='try{db.updateQuestStatus(q.optLong("id"),"completed","Concluída pelo jogador");showPartyDirector();}catch(Exception error){toast(error.getMessage());}'
  return replace_once(s,old,new,"quest UI rejection")
+def companion_rewards_runtime(s):
+ s=replace_once(s,'KingmakerCompanionSemantics.alignmentHistory(before,result.optInt("influence"),newAttitude,result.optJSONArray("all_unlocked_rewards"))','KingmakerCompanionSemantics.rewardHistory(before,result.optInt("influence"),newAttitude,result.optJSONArray("all_unlocked_rewards"))',"preserve official reward offers")
+ helper='''    public JSONObject claimCompanionStructureReward(final String companionKey,final String settlementKey,final String structureKey,final String notes)throws Exception{
+        requireEnabled();
+        final JSONObject[] result={new JSONObject()};
+        db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            JSONObject companion=db.queryOne("SELECT * FROM kingmaker_companions WHERE world_profile=? AND companion_key=?",new String[]{profile(),clean(companionKey)});
+            if(companion.length()==0)throw new IllegalArgumentException("Companheiro inexistente.");
+            JSONArray rewards=KingmakerCompanionSemantics.claimStructureReward(companion,structureKey);
+            JSONObject structure=buildStructure(settlementKey,structureKey,notes,true,new JSONObject());
+            ContentValues v=new ContentValues();v.put("unlocked_rewards_json",rewards.toString());v.put("updated_at",System.currentTimeMillis());
+            int changed=db.getWritableDatabase().update("kingmaker_companions",v,"world_profile=? AND companion_key=?",new String[]{profile(),clean(companionKey)});
+            if(changed!=1)throw new IllegalStateException("Não foi possível registrar o presente; a instalação foi revertida.");
+            result[0]=new JSONObject().put("structure",structure).put("rp_spent",0).put("commodities_spent",0).put("companion_key",companionKey).put("reward_claimed",structureKey);
+            audit("Presente de companheiro instalado",companion.optString("name")+" • "+structure.optString("name"),companion,result[0]);
+        }});return result[0];
+    }
+'''
+ i=s.rfind("\n}");return s[:i]+"\n"+helper+s[i:]
+
+def companion_rewards_ui(s):
+ start=s.index('    private void showKingmakerCompanionDetails(');end=s.index('\n    private ',start+20)
+ section=s[start:end]
+ old='final String[] actions={"Ajustar influência","Editar função e missão"};'
+ new='''final String[] actions=KingmakerCompanionSemantics.structureRewards(companion).length()>0?new String[]{"Ajustar influência","Editar função e missão","Instalar estrutura presenteada"}:new String[]{"Ajustar influência","Editar função e missão"};'''
+ section=replace_once(section,old,new,"companion gift entry")
+ section=replace_once(section,'else showKingmakerCompanionEditDialog(companion);','else if(which==1)showKingmakerCompanionEditDialog(companion);else showCompanionStructureRewardDialog(companion);',"gift route")
+ s=s[:start]+section+s[end:]
+ helper='''    private void showCompanionStructureRewardDialog(final JSONObject companion){
+        final JSONArray rewards=KingmakerCompanionSemantics.structureRewards(companion);final List<JSONObject> towns=kingmakerRepository.settlements();
+        if(rewards.length()==0||towns.isEmpty()){toast("O presente exige um assentamento e uma recompensa ainda disponível.");return;}
+        final String[] rewardNames=new String[rewards.length()],townNames=new String[towns.size()];
+        for(int i=0;i<rewardNames.length;i++){JSONObject def=kingmakerService.rules().structure(rewards.optString(i));rewardNames[i]=def.optString("name");}
+        for(int i=0;i<townNames.length;i++)townNames[i]=towns.get(i).optString("name");
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),dp(16));
+        form.addView(text("Estrutura gratuita do Companion Guide: exige espaço e o nível de construção; o presente é registrado uma única vez. Nenhum RP ou material é cobrado.",13,TEXT,false));
+        final Spinner reward=spinner(rewardNames,rewardNames[0]),town=spinner(townNames,townNames[0]);form.addView(cardWithLabel("PRESENTE",reward));form.addView(cardWithLabel("ASSENTAMENTO",town));
+        new AlertDialog.Builder(this).setTitle("Presente de "+companion.optString("name")).setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null).setPositiveButton("INSTALAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){try{
+            kingmakerRepository.claimCompanionStructureReward(companion.optString("companion_key"),towns.get(town.getSelectedItemPosition()).optString("settlement_key"),rewards.optString(reward.getSelectedItemPosition()),"Presente oficial de "+companion.optString("name"));
+            toast("Estrutura gratuita instalada.");showKingmakerCompanionsDialog();
+        }catch(Exception error){toast(error.getMessage());}}}).show();
+    }
+'''
+ i=s.rfind("\n}");return s[:i]+"\n"+helper+s[i:]
+
 def campaign_runtime(s):
  helper='''    public JSONObject helixState(){
         JSONObject feature=db.queryOne("SELECT * FROM kingmaker_features WHERE world_profile=? AND feature_key=?",new String[]{profile(),"campaign:helix_theorem"});
@@ -477,7 +522,7 @@ def regression_support(root):
 def apply(root):
  root=Path(root);base=root/SRC
  if "VERSION_NAME=9.0.37" not in (root/"version.properties").read_text():raise ValueError("Only verified R36 eligible")
- transforms={"KingmakerRepository.java":lambda s:campaign_runtime(structure_runtime(companion_runtime(structure_triggers(repository(s))))),"KingmakerRulesEngine.java":rules,"KingmakerSoloDirector.java":director,"AppDb.java":appdb,"KingmakerCampaignImporter.java":lambda s:campaign_importer(importer(s)),"MainActivity.java":lambda s:campaign_ui(event_ui(structure_ui(main(s))))}
+ transforms={"KingmakerRepository.java":lambda s:companion_rewards_runtime(campaign_runtime(structure_runtime(companion_runtime(structure_triggers(repository(s)))))),"KingmakerRulesEngine.java":rules,"KingmakerSoloDirector.java":director,"AppDb.java":appdb,"KingmakerCampaignImporter.java":lambda s:campaign_importer(importer(s)),"MainActivity.java":lambda s:companion_rewards_ui(campaign_ui(event_ui(structure_ui(main(s)))))}
  prepared={name:fn((base/name).read_text(encoding="utf-8")) for name,fn in transforms.items()}
  for name,content in prepared.items():(base/name).write_text(content,encoding="utf-8")
  for name in ["KingmakerStructureSemantics.java","KingmakerCampaignGate.java","KingmakerCompanionSemantics.java"]:shutil.copyfile(HERE/"semantic"/name,base/name)
