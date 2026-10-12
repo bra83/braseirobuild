@@ -209,4 +209,84 @@ public final class GateDEberronAndArcanaIntegrationTest {
         JSONObject eObj = gmView.optJSONArray("entities").getJSONObject(0);
         assertEquals(2, eObj.optJSONArray("gm_secrets").length());
     }
+
+    @Test
+    public void testEberronDistinctRoutesPersistedAfterReopen() throws Exception {
+        com.braseiro.dnd5e.adventure.AdventureModule module =
+                com.braseiro.dnd5e.adventure.EberronAdventureModuleCatalog.byId("efa_sharn_inquisitive");
+        assertNotNull(module);
+        com.braseiro.dnd5e.adventure.AdventureEngine engine =
+                new com.braseiro.dnd5e.adventure.AdventureEngine(db, null, null);
+
+        // Rota principal: investigação nos Cogs e publicação das provas.
+        assertTrue(engine.loadOrStartAdventure(module, 101L).optBoolean("module_installed"));
+        assertTrue(engine.processAction("begin", null).optBoolean("committed"));
+        JSONObject first = new JSONObject().put("target_node_id", "scene_2").put("roll", 16);
+        assertTrue(engine.processAction("advance_1", first).optBoolean("committed"));
+        assertTrue(engine.processAction("advance_2",
+                new JSONObject().put("target_node_id", "scene_3")).optBoolean("committed"));
+        assertTrue(engine.processAction("advance_3",
+                new JSONObject().put("target_node_id", "scene_4")).optBoolean("committed"));
+        assertTrue(engine.processAction("publish_truth", null).optBoolean("committed"));
+        assertEquals("completed", engine.getActiveState().getStatus());
+        assertTrue(engine.getActiveState().hasFlag("efa_sharn_inquisitive_path_main"));
+        assertFalse(engine.getActiveState().hasFlag("efa_sharn_inquisitive_path_alternative"));
+        assertTrue(engine.getActiveState().hasFlag("efa_sharn_truth_published"));
+        assertFalse(engine.getActiveState().hasFlag("efa_sharn_sealed_alliance"));
+
+        // Mesmo módulo, outro grupo: atalho exige rolagem e gera consequências alternativas.
+        assertTrue(engine.loadOrStartAdventure(module, 102L).optBoolean("module_installed"));
+        assertTrue(engine.processAction("begin", null).optBoolean("committed"));
+        assertTrue(engine.processAction("advance_1", first).optBoolean("committed"));
+        JSONObject shortcut = new JSONObject().put("target_node_id", "scene_4");
+        JSONObject noRoll = engine.processAction("alternative_clues", shortcut);
+        assertEquals("requires_input", noRoll.optString("status"));
+        assertEquals("scene_2", engine.getActiveState().getCurrentNodeId());
+        shortcut.put("roll", 17);
+        assertTrue(engine.processAction("alternative_clues", shortcut).optBoolean("committed"));
+        assertTrue(engine.processAction("protect_alliance", null).optBoolean("committed"));
+        assertEquals("completed", engine.getActiveState().getStatus());
+        assertTrue(engine.getActiveState().hasFlag("efa_sharn_inquisitive_path_alternative"));
+        assertFalse(engine.getActiveState().hasFlag("efa_sharn_inquisitive_path_main"));
+        assertTrue(engine.getActiveState().hasFlag("efa_sharn_sealed_alliance"));
+        assertFalse(engine.getActiveState().hasFlag("efa_sharn_truth_published"));
+
+        // Reabertura SQLite: grupos 101 e 102 conservam decisões independentes.
+        db.close();
+        db = new AppDb(context, dbName);
+        com.braseiro.dnd5e.adventure.AdventureEngine reopened =
+                new com.braseiro.dnd5e.adventure.AdventureEngine(db, null, null);
+        reopened.loadOrStartAdventure(module, 101L);
+        assertTrue(reopened.getActiveState().hasFlag("efa_sharn_truth_published"));
+        assertFalse(reopened.getActiveState().hasFlag("efa_sharn_sealed_alliance"));
+        reopened.loadOrStartAdventure(module, 102L);
+        assertTrue(reopened.getActiveState().hasFlag("efa_sharn_sealed_alliance"));
+        assertFalse(reopened.getActiveState().hasFlag("efa_sharn_truth_published"));
+    }
+
+    @Test
+    public void testMorgraveShortcutRequiresExplicitRollAndCompletionIsIdempotent() throws Exception {
+        com.braseiro.dnd5e.adventure.AdventureModule module =
+                com.braseiro.dnd5e.adventure.EberronAdventureModuleCatalog.byId("efa_morgrave_expedition");
+        assertNotNull(module);
+        com.braseiro.dnd5e.adventure.AdventureEngine engine =
+                new com.braseiro.dnd5e.adventure.AdventureEngine(db, null, null);
+        assertTrue(engine.loadOrStartAdventure(module, 103L).optBoolean("module_installed"));
+        assertTrue(engine.processAction("begin", null).optBoolean("committed"));
+        assertTrue(engine.processAction("advance_1", null).optBoolean("committed"));
+        JSONObject shortcut = new JSONObject().put("target_node_id", "scene_4");
+        assertEquals("requires_input",
+                engine.processAction("alternative_clues", shortcut).optString("status"));
+        assertEquals("scene_2", engine.getActiveState().getCurrentNodeId());
+        shortcut.put("roll", 19);
+        assertTrue(engine.processAction("alternative_clues", shortcut).optBoolean("committed"));
+        assertTrue(engine.getActiveState().hasFlag("efa_morgrave_expedition_path_alternative"));
+        assertFalse(engine.getActiveState().hasFlag("efa_morgrave_expedition_path_main"));
+        assertTrue(engine.processAction("seal_relic", null).optBoolean("committed"));
+        assertTrue(engine.getActiveState().hasFlag("efa_morgrave_relic_sealed"));
+        int historySize = engine.getActiveState().getBranchHistory().length();
+        assertFalse(engine.processAction("seal_relic", null).optBoolean("committed"));
+        assertEquals(historySize, engine.getActiveState().getBranchHistory().length());
+        assertFalse(engine.getActiveState().hasFlag("efa_morgrave_relic_delivered"));
+    }
 }
