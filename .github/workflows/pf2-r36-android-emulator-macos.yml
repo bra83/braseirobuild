@@ -53,6 +53,7 @@ jobs:
           python ci/pf2-kingmaker-r36/patch_chapter11_gate.py r35-source
           python ci/pf2-kingmaker-r36/patch_chapter9_canonical_anchors.py r35-source
           python ci/pf2-kingmaker-r36/patch_consumption_atomic.py r35-source
+          python ci/pf2-kingmaker-r36/patch_turn_phase_atomic.py r35-source
           python ci/pf2-kingmaker-r36/audit_catalog_expansion.py --project r35-source --out r36-73-structure-audit.json --require-73
           python ci/pf2-kingmaker-certification/audit_structure_catalog.py --project r35-source --out r36-emulator-structures.json --require-zero-mismatches
           chmod +x r35-source/gradlew
