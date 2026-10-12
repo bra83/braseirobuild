@@ -50,7 +50,7 @@ public final class KingmakerCampaignGate {
  }
  public static List<JSONObject> playable(List<JSONObject> candidates,List<JSONObject> all){
   List<JSONObject> out=new ArrayList<JSONObject>();
-  for(JSONObject q:candidates)if(!retiredQuest(q)&&(!official(q)||officialChapter(chapterKey(q))>0)&&ready(q,all))out.add(q);
+  for(JSONObject q:candidates)if(!retiredQuest(q)&&(!official(q)||officialChapter(chapterKey(q))>0||questKey(q).startsWith("q_cg_"))&&ready(q,all))out.add(q);
   return out;
  }
  public static JSONObject transitionState(JSONObject before,JSONObject change){
@@ -69,7 +69,7 @@ public final class KingmakerCampaignGate {
    if(resolutions!=null){
     JSONObject working=new JSONObject(before.toString()).put("progress_json",next.toString());
     for(int n=0;n<resolutions.length();n++){JSONObject resolution=resolutions.optJSONObject(n);if(resolution==null)throw new IllegalArgumentException("Resultado de objetivo inválido.");next=resolveObjective(working,resolution.optString("id"),resolution.optBoolean("waived"),resolution.optString("resolution_notes"));working.put("progress_json",next.toString());}
-    if(resolutions.length()>0)next.put("journal_started",true);
+    if(resolutions.length()>0){next.put("journal_started",true);if(!result.has("status"))result.put("status","active");}
    }
    result.put("progress_json",next.toString());return result;
   }catch(Exception e){throw new IllegalArgumentException("Não foi possível preservar a definição da missão.",e);}

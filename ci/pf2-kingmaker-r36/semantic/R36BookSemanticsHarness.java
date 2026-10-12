@@ -443,6 +443,10 @@ public final class R36BookSemanticsHarness {
   check(KingmakerCampaignGate.objectivesResolved(KingmakerCampaignGate.transitionState(narratorQuest,narratorChange)),"narrator can resolve known objectives and finish in one validated update");
   check(KingmakerCampaignGate.objectives(narratorQuest).optJSONObject(0).optBoolean("completed")==false,"narrator resolution cannot mutate the original saved snapshot");
   boolean narratorInvented=false;try{KingmakerCampaignGate.preserveDefinition(narratorQuest,new JSONObject().put("objective_resolutions",new JSONArray().put(new JSONObject().put("id","invented").put("resolution_notes","Sem fonte real no livro"))));}catch(IllegalArgumentException expected){narratorInvented=true;}check(narratorInvented,"narrator cannot append invented campaign objectives");
+  JSONObject publishedCompanionCandidate=new JSONObject().put("quest_key","q_cg_amiri").put("chapter_key","chapter_12_companion_stories").put("status","unstarted");
+  check(KingmakerCampaignGate.playable(java.util.Arrays.asList(publishedCompanionCandidate),java.util.Arrays.asList(publishedCompanionCandidate)).size()==1,"published companion adventures enter the solo director candidate list");
+  JSONObject automaticActivation=KingmakerCampaignGate.preserveDefinition(narratorQuest,new JSONObject().put("objective_resolutions",new JSONArray().put(new JSONObject().put("id","first").put("resolution_notes","O grupo resolveu esta cena"))));
+  check("active".equals(automaticActivation.optString("status")),"first narrated objective activates the quest automatically");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

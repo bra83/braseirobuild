@@ -79,7 +79,7 @@ def journal_repository(s):
             if(KingmakerCampaignGate.completed(quest.optString("status")))throw new IllegalStateException("A missão já foi concluída.");
             requireJournalEligibility(quest);
             JSONObject progress=KingmakerCampaignGate.resolveObjective(quest,objectiveId,waived,clean(evidence));progress.put("journal_started",true);
-            ContentValues v=new ContentValues();v.put("progress_json",progress.toString());v.put("updated_at",System.currentTimeMillis());
+            ContentValues v=new ContentValues();v.put("progress_json",progress.toString());v.put("status","in_progress");v.put("updated_at",System.currentTimeMillis());
             if(db.getWritableDatabase().update("quests",v,"id=? AND world_profile=?",new String[]{String.valueOf(questId),profile()})!=1)throw new IllegalStateException("O objetivo não foi persistido.");
             String k=KingmakerCampaignGate.questKey(quest);if(k.startsWith("q_cg_")){ContentValues c=new ContentValues();c.put("personal_quest_status","in_progress");c.put("updated_at",System.currentTimeMillis());db.getWritableDatabase().update("kingmaker_companions",c,"world_profile=? AND companion_key=?",new String[]{profile(),k.substring(5)});}
             result[0]=db.queryOne("SELECT * FROM quests WHERE id=? AND world_profile=?",new String[]{String.valueOf(questId),profile()});audit("Objetivo da campanha resolvido",objectiveId,quest,result[0]);
@@ -135,6 +135,24 @@ def journal_appdb(s):
         boolean vordakai=false,bloom=false;for(JSONObject q:queryList("SELECT * FROM quests WHERE world_profile=?",new String[]{getActiveMapProfile()}))if(KingmakerCampaignGate.official(q)&&!KingmakerCampaignGate.retiredQuest(q)&&KingmakerCampaignGate.completed(q.optString("status"))){if("q_vordakai".equals(KingmakerCampaignGate.questKey(q)))vordakai=true;if("q_utero_lamashtu".equals(KingmakerCampaignGate.questKey(q)))bloom=true;}
         if(!KingmakerCompanionSemantics.questAvailable(companionKey,level,companion.optInt("available",0)==1,"in_progress",vordakai,bloom))throw new IllegalStateException("A aventura do companheiro ainda não está disponível neste momento da campanha.");
         if(("ekundayo".equals(companionKey)||"linzi".equals(companionKey))&&queryOne("SELECT id FROM kingmaker_settlements WHERE world_profile=? LIMIT 1",new String[]{getActiveMapProfile()}).length()==0)throw new IllegalStateException("Esta aventura requer um assentamento do Reino.");
+    }
+'''
+ i=s.rfind('\n}');return s[:i]+'\n'+helper+s[i:]
+
+def journal_director(s):
+ for name in ['activeQuestsList','unstartedQuests']:
+  anchor=name+'=KingmakerCampaignGate.playable('+name+',allCampaignQuests);'
+  s=once(s,anchor,anchor+'\n            '+name+'=filterPublishedCompanionQuests('+name+',allCampaignQuests,profile);')
+ helper='''
+    private List<JSONObject> filterPublishedCompanionQuests(List<JSONObject> candidates,List<JSONObject> all,String profile){
+        List<JSONObject> result=new java.util.ArrayList<JSONObject>();int level=1;for(JSONObject hero:db.listActiveCharacters())level=Math.max(level,hero.optInt("level",1));
+        boolean vordakai=false,bloom=false;for(JSONObject q:all)if(KingmakerCampaignGate.official(q)&&!KingmakerCampaignGate.retiredQuest(q)&&KingmakerCampaignGate.completed(q.optString("status"))){if("q_vordakai".equals(KingmakerCampaignGate.questKey(q)))vordakai=true;if("q_utero_lamashtu".equals(KingmakerCampaignGate.questKey(q)))bloom=true;}
+        for(JSONObject quest:candidates){String key=KingmakerCampaignGate.questKey(quest);if(!key.startsWith("q_cg_")){result.add(quest);continue;}
+            String companionKey=key.substring(5);JSONObject companion=db.queryOne("SELECT * FROM kingmaker_companions WHERE world_profile=? AND companion_key=?",new String[]{profile,companionKey});
+            if(!KingmakerCompanionSemantics.questAvailable(companionKey,level,companion.optInt("available",0)==1,quest.optString("status"),vordakai,bloom))continue;
+            if(("linzi".equals(companionKey)||"ekundayo".equals(companionKey))&&db.queryOne("SELECT id FROM kingmaker_settlements WHERE world_profile=? LIMIT 1",new String[]{profile}).length()==0)continue;
+            result.add(quest);
+        }return result;
     }
 '''
  i=s.rfind('\n}');return s[:i]+'\n'+helper+s[i:]
