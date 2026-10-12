@@ -201,6 +201,25 @@ public final class R36BookSemanticsHarness {
   boolean legacyLocation=false;try{KingmakerStructureSemantics.requireGridInfrastructure(metropolis,new JSONArray().put(structure("magical_streetlamps",1)),"magical_streetlamps",firstGrid);}catch(IllegalStateException expected){legacyLocation=true;}check(legacyLocation,"legacy unknown locations never guessed");
   check(!KingmakerStructureSemantics.isGridInfrastructure("bridge")&&!KingmakerStructureSemantics.isGridInfrastructure("wall_stone"),"border infrastructure needs separate placement");
   check(KingmakerStructureSemantics.trimInstanceEffects(oldGuild,1).optJSONArray("trade_focus_instances").length()==1,"demolition also preserves remaining trade focus indices");
+
+  JSONObject twinC=new JSONObject().put("companion_key","kalikke_kanerah").put("available",1).put("influence",8);
+  JSONObject twinPrepared=KingmakerCompanionSemantics.selectTwinsPersona(twinC,new JSONObject(),"kalikke",2,"kalikke");
+  check("kalikke".equals(twinPrepared.optString("persona"))&&twinPrepared.optInt("prepared_day")==2,"twin persona stored for daily preparations");
+  boolean twinRepeat=false;try{KingmakerCompanionSemantics.selectTwinsPersona(twinC,twinPrepared,"kanerah",2,"kalikke");}catch(IllegalStateException expected){twinRepeat=true;}check(twinRepeat,"cannot switch twin again in same preparation day");
+  JSONObject twinSame=KingmakerCompanionSemantics.selectTwinsPersona(twinC,twinPrepared,"kalikke",2,"kalikke");check(twinSame.optInt("prepared_day")==2&&"kalikke".equals(twinSame.optString("persona"))&&"kalikke_kanerah".equals(twinSame.optString("shared_influence_key")),"same twin receipt idempotent");
+  JSONObject twinNext=KingmakerCompanionSemantics.selectTwinsPersona(twinC,twinPrepared,"kanerah",3,"kalikke");
+  check("kanerah".equals(twinNext.optString("persona")),"new daily preparations permit persona change");
+  check(twinC.optInt("influence")==8&&"kalikke_kanerah".equals(twinNext.optString("shared_influence_key")),"persona choice never splits or alters shared influence");
+  check(KingmakerCompanionSemantics.automaticInvestment(twinC,"counselor","kalikke"),"active Kalikke automatically invests counselor");
+  check(!KingmakerCompanionSemantics.automaticInvestment(twinC,"emissary","kalikke"),"Kalikke does not grant Kanerah investment");
+  check(KingmakerCompanionSemantics.automaticInvestment(twinC,"emissary","kanerah"),"active Kanerah automatically invests emissary");
+  check(!KingmakerCompanionSemantics.automaticInvestment(twinC,"counselor","kanerah"),"Kanerah does not grant Kalikke investment");
+  twinC.put("influence",6);boolean twinEarly=false;try{KingmakerCompanionSemantics.selectTwinsPersona(twinC,new JSONObject(),"kanerah",2,"kalikke");}catch(IllegalStateException expected){twinEarly=true;}check(twinEarly,"PC directed persona selection requires influence eight");
+  check("kanerah".equals(KingmakerCompanionSemantics.selectTwinsPersona(twinC,twinNext,"kanerah",4,"kalikke").optString("persona")),"lower influence keeps already present twin");
+  boolean twinOld=false;try{KingmakerCompanionSemantics.selectTwinsPersona(twinC,twinNext,"kanerah",2,"kalikke");}catch(IllegalStateException expected){twinOld=true;}check(twinOld,"old rest receipt cannot overwrite present persona");
+  twinC.put("influence",8);check(KingmakerCompanionSemantics.ongoing(twinC,10).optBoolean("separation_hook_available"),"separation request available at influence eight");
+  check(KingmakerCompanionSemantics.ongoing(twinC,10).optBoolean("powerful_magic_or_freedom_ritual_option"),"separation magic option has no invented level thirteen gate");
+  twinC.put("available",0);check(!KingmakerCompanionSemantics.automaticInvestment(twinC,"emissary","kanerah"),"absent twin grants no investment");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

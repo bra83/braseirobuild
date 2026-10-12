@@ -66,7 +66,11 @@ public final class KingmakerCompanionSemantics {
   return c.optInt("influence")>=leadershipInfluence(k);
  }
  public static boolean automaticInvestment(JSONObject c,String role){
+  return automaticInvestment(c,role,c.optString("active_persona"));
+ }
+ public static boolean automaticInvestment(JSONObject c,String role,String persona){
   if(c.optInt("available",1)!=1)return false;String k=c.optString("companion_key");
+  if("kalikke_kanerah".equals(k))return ("kalikke".equals(persona)&&"counselor".equals(role))||("kanerah".equals(persona)&&"emissary".equals(role));
   return ("amiri".equals(k)&&"warden".equals(role))||
          ("ekundayo".equals(k)&&("general".equals(role)||"warden".equals(role)))||
          ("jubilost".equals(k)&&"treasurer".equals(role))||
@@ -140,8 +144,19 @@ public final class KingmakerCompanionSemantics {
   if("jaethal".equals(k))out.put("emissary_automatic_investment",automaticInvestment(c,"emissary")).put("weapon_rune_access",present&&p>=8&&partyLevel>=7);
   if("octavia".equals(k))out.put("vision_of_beauty_access",present&&p>=4&&partyLevel>=3);
   if("regongar".equals(k))out.put("energy_absorbing_rune_access",present&&p>=6&&partyLevel>=11);
-  if("kalikke_kanerah".equals(k))out.put("daily_persona_choice",present&&p>=8).put("separation_ritual_available",present&&p>=8&&partyLevel>=13);
+  if("kalikke_kanerah".equals(k))out.put("daily_persona_choice",present&&p>=8).put("separation_hook_available",present&&p>=8).put("separation_adventure_recommended_level",13).put("powerful_magic_or_freedom_ritual_option",true);
   return out;
  }
+ public static JSONObject selectTwinsPersona(JSONObject companion,JSONObject previous,String requested,int preparedDay,String initialPersona)throws Exception{
+  if(!"kalikke_kanerah".equals(companion.optString("companion_key"))||companion.optInt("available",1)!=1)throw new IllegalStateException("As gêmeas não estão disponíveis.");
+  if(!"kalikke".equals(requested)&&!"kanerah".equals(requested))throw new IllegalArgumentException("Escolha Kalikke ou Kanerah.");
+  if(preparedDay<1)throw new IllegalArgumentException("Dia das preparações inválido.");
+  String active=previous.optString("persona",initialPersona);
+  if(companion.optInt("influence")<8&&!requested.equals(active))throw new IllegalStateException("A escolha da irmã pelo grupo exige Influência 8.");
+  if(previous.has("prepared_day")&&preparedDay<=previous.optInt("prepared_day")){
+   if(preparedDay==previous.optInt("prepared_day")&&requested.equals(active))return new JSONObject(previous.toString());
+   throw new IllegalStateException("A persona fica fixa até as próximas preparações diárias após um novo descanso.");
+  }
+  return new JSONObject().put("persona",requested).put("prepared_day",preparedDay).put("shared_influence_key","kalikke_kanerah");
+ }
 }
-

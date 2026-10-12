@@ -88,3 +88,13 @@ def test_grid_infrastructure_is_placed_persisted_and_repaired_in_place():
     assert 'effects.put("infrastructure_instances",KingmakerStructureSemantics.appendedInfrastructure(existing,k,buildOptions))' in SOURCE
     assert 'trimInstanceEffects(existing,count-1)' in SOURCE
     assert 'requires_special_placement",false)&&!KingmakerStructureSemantics.isGridInfrastructure(structure)' in SOURCE
+
+def test_twins_preparation_requires_rest_and_persists_before_return():
+    body=method_body('public JSONObject prepareTwinsPersona(final String requested,final String campKey)')
+    assert 'db.runInTransactionChecked' in body
+    assert '!"complete".equals(camp.optString("status"))' in body
+    assert 'optInt("total_rest_hours")<8' in body
+    assert 'db.getCombatState().optInt("running")==1' in body
+    assert 'upsertFeature("companion:twins_persona"' in body
+    assert 'chosen.optInt("prepared_day",-1)!=actual.optInt("prepared_day",-2)' in body
+    assert 'automaticInvestment(companion,role,twinsCurrentPersona())' in SOURCE
