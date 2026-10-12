@@ -42,45 +42,124 @@ public final class AdventureEngine implements IAdventureEngine {
     /** Carrega somente módulo já compilado/instalado. Não cria aventura fictícia de fallback. */
     public synchronized JSONObject loadOrStart(String moduleId){AdventureModule mod=persistenceAdapter.loadModule(moduleId);if(mod==null){JSONObject o=error("Módulo de aventura não instalado: "+moduleId);try{o.put("requires_module_install",true).put("auto_rolls",false);}catch(Exception ignored){}return o;}return loadOrStartAdventure(mod,1L);}
 
-    public synchronized JSONObject processAction(String actionId,JSONObject params){
-        String input=params!=null?params.optString("input",actionId):actionId;
-        String target=params!=null?params.optString("target_node_id",""):"";
-        int modifier=params!=null?params.optInt("modifier",0):0;
-        boolean adv=params!=null&&params.optBoolean("advantage",false),dis=params!=null&&params.optBoolean("disadvantage",false);
-        if(activeModule==null||activeState==null)return error("Nenhuma aventura ativa.");
-        AdventureNode current=activeModule.getNode(activeState.getCurrentNodeId());AdventureTransition tr=findTransition(current,target);JSONObject req=rulesAdapter.determineCheckRequirement(current,tr);
-        if(req.optBoolean("requires_check",false)){
-            if(params==null||!params.has("roll"))return inputRequired(req,adv,dis,false);
-            int r1=params.optInt("roll",0);
-            if(adv!=dis){if(!params.has("roll_2"))return inputRequired(req,adv,dis,true);return processPlayerAction(input,target,r1,params.optInt("roll_2",0),modifier,adv,dis);}
-            return processPlayerAction(input,target,r1,r1,modifier,adv,dis);
+    /**
+     * Ação de catálogo: actionId é ID da transição, NUNCA apenas texto narrado.
+     * O destino pode ser omitido (inferido pelo ID) ou deve coincidir exatamente.
+     */
+    public synchronized JSONObject processAction(String actionId, JSONObject params) {
+        if (activeModule == null || activeState == null) return error("Nenhuma aventura ativa.");
+        AdventureNode current = activeModule.getNode(activeState.getCurrentNodeId());
+        String target = params == null ? "" : params.optString("target_node_id", "");
+        AdventureTransition selected = findTransition(current, actionId, target, true);
+        if (selected == null) return blocked("Transição inexistente ou ação e destino divergentes.");
+        if (!prerequisitesSatisfied(selected)) return blocked("Pré-requisitos da ação não atendidos.");
+        JSONObject req = rulesAdapter.determineCheckRequirement(current, selected);
+        String input = params == null ? actionId : params.optString("input", actionId);
+        int modifier = params == null ? 0 : params.optInt("modifier", 0);
+        boolean advantage = params != null && params.optBoolean("advantage", false);
+        boolean disadvantage = params != null && params.optBoolean("disadvantage", false);
+        if (req.optBoolean("requires_check", false)) {
+            if (params == null || !params.has("roll")) return inputRequired(req, advantage, disadvantage, false);
+            int first = params.optInt("roll", 0);
+            if (advantage != disadvantage) {
+                if (!params.has("roll_2")) return inputRequired(req, advantage, disadvantage, true);
+                return resolvePlayerAction(actionId, input, selected.getTargetNodeId(),
+                        first, params.optInt("roll_2", 0), modifier, advantage, disadvantage);
+            }
+            return resolvePlayerAction(actionId, input, selected.getTargetNodeId(),
+                    first, first, modifier, advantage, disadvantage);
         }
-        return processPlayerAction(input,target,0,0,modifier,false,false);
+        return resolvePlayerAction(actionId, input, selected.getTargetNodeId(),
+                0, 0, modifier, false, false);
     }
 
-    public synchronized JSONObject processPlayerAction(String playerInput,String targetNodeId,int naturalRoll,int modifier,boolean advantage,boolean disadvantage){
-        if(advantage!=disadvantage){JSONObject req=new JSONObject();try{req.put("requires_check",true);}catch(Exception ignored){}return inputRequired(req,advantage,disadvantage,true);}return processPlayerAction(playerInput,targetNodeId,naturalRoll,naturalRoll,modifier,advantage,disadvantage);
+    public synchronized JSONObject processPlayerAction(String playerInput, String targetNodeId,
+            int naturalRoll, int modifier, boolean advantage, boolean disadvantage) {
+        if (advantage != disadvantage) {
+            JSONObject requirement = new JSONObject();
+            try { requirement.put("requires_check", true); } catch (Exception ignored) {}
+            return inputRequired(requirement, advantage, disadvantage, true);
+        }
+        return resolvePlayerAction(null, playerInput, targetNodeId,
+                naturalRoll, naturalRoll, modifier, advantage, disadvantage);
     }
 
-    public synchronized JSONObject processPlayerAction(String playerInput,String targetNodeId,int firstRoll,int secondRoll,int modifier,boolean advantage,boolean disadvantage){JSONObject result=new JSONObject();try{
-        if(activeModule==null||activeState==null)return error("Nenhuma aventura ativa.");
-        AdventureNode current=activeModule.getNode(activeState.getCurrentNodeId());if(current==null)return error("Nó atual inválido.");
-        JSONObject validationPayload=new JSONObject().put("target_node_id",targetNodeId==null?"":targetNodeId).put("player_input",playerInput==null?"":playerInput);
-        JSONObject validation=graphEngine.validateActionContext("PLAYER_ACTION",validationPayload);if(!validation.optBoolean("resolved",false)){result.put("status","blocked").put("validation",validation).put("auto_rolls",false);return result;}
-        AdventureTransition transition=findTransition(current,targetNodeId);JSONObject checkReq=rulesAdapter.determineCheckRequirement(current,transition);JSONObject rollResolution;
-        if(checkReq.optBoolean("requires_check",false)){
-            rollResolution=rulesAdapter.evaluateExplicitRoll(checkReq,firstRoll,secondRoll,modifier,advantage,disadvantage);
-            if(!rollResolution.optBoolean("resolved",false)){result.put("status","requires_input").put("check_requirement",checkReq).put("roll_resolution",rollResolution).put("auto_rolls",false);return result;}
-        }else{rollResolution=new JSONObject().put("resolved",true).put("success",true).put("requires_input",false).put("auto_rolls",false);}
+    public synchronized JSONObject processPlayerAction(String playerInput, String targetNodeId,
+            int firstRoll, int secondRoll, int modifier, boolean advantage, boolean disadvantage) {
+        return resolvePlayerAction(null, playerInput, targetNodeId,
+                firstRoll, secondRoll, modifier, advantage, disadvantage);
+    }
 
-        boolean success=rollResolution.optBoolean("success",true),failForward=transition!=null&&transition.isFailForward();boolean shouldAdvance=(targetNodeId!=null&&targetNodeId.length()>0)&&(success||failForward);
-        boolean committed=false;AdventureNode resolvedNode=current;
-        if(shouldAdvance){JSONObject effects=copyObject(transition==null?null:transition.getEffects());effects.put("mechanical_resolution",rollResolution).put("transition_id",transition==null?"":transition.getId());activeState.stageTransition(targetNodeId,effects);committed=activeState.commitTransaction();if(committed){persistenceAdapter.saveState(activeModule.getId(),activePartyId,activeState);resolvedNode=activeModule.getNode(activeState.getCurrentNodeId());if(resolvedNode!=null)worldAdapter.applyNodeConsequences(resolvedNode,rollResolution);}}
-        JSONObject narration=aiAdapter.buildNarrationPayload(resolvedNode,activeState,rollResolution);
-        result.put("status",committed?"success":(checkReq.optBoolean("requires_check",false)&&!success?"resolved_failure":"resolved"))
-              .put("committed",committed).put("advanced",shouldAdvance&&committed).put("current_node_id",activeState.getCurrentNodeId())
-              .put("check_requirement",checkReq).put("roll_resolution",rollResolution).put("narration_context",narration).put("auto_rolls",false);
-    }catch(Exception e){return error(e.getMessage());}return result;}
+    private JSONObject resolvePlayerAction(String explicitTransitionId, String playerInput,
+            String targetNodeId, int firstRoll, int secondRoll, int modifier,
+            boolean advantage, boolean disadvantage) {
+        try {
+            if (activeModule == null || activeState == null) return error("Nenhuma aventura ativa.");
+            if (!"in_progress".equals(activeState.getStatus())) return blocked("Aventura encerrada.");
+            AdventureNode current = activeModule.getNode(activeState.getCurrentNodeId());
+            if (current == null) return blocked("Nó atual inválido.");
+            // API antiga aceita destino sem ID apenas quando esse destino é inequívoco.
+            // A API de catálogo exige ID explícito para distinguir rotas com mesmo destino.
+            AdventureTransition selected = findTransition(current,
+                    explicitTransitionId == null ? playerInput : explicitTransitionId,
+                    targetNodeId, explicitTransitionId != null);
+            if (selected == null) return blocked("Ação ambígua, inexistente ou destino divergente.");
+            if (!prerequisitesSatisfied(selected)) return blocked("Pré-requisitos da transição não atendidos.");
+            String nextNodeId = selected.getTargetNodeId();
+            if (nextNodeId.length() == 0 ||
+                    (activeModule.getNode(nextNodeId) == null && !"completed".equals(nextNodeId)
+                            && !"failed".equals(nextNodeId))) {
+                return blocked("Destino da transição não existe no módulo.");
+            }
+            JSONObject check = rulesAdapter.determineCheckRequirement(current, selected);
+            JSONObject roll;
+            if (check.optBoolean("requires_check", false)) {
+                roll = rulesAdapter.evaluateExplicitRoll(check, firstRoll, secondRoll, modifier,
+                        advantage, disadvantage);
+                if (!roll.optBoolean("resolved", false)) {
+                    return new JSONObject().put("status", "requires_input").put("committed", false)
+                            .put("check_requirement", check).put("roll_resolution", roll)
+                            .put("auto_rolls", false);
+                }
+            } else {
+                roll = new JSONObject().put("resolved", true).put("success", true)
+                        .put("requires_input", false).put("auto_rolls", false);
+            }
+            boolean success = roll.optBoolean("success", true);
+            if (!success && !selected.isFailForward()) {
+                return new JSONObject().put("status", "resolved_failure").put("committed", false)
+                        .put("advanced", false).put("current_node_id", activeState.getCurrentNodeId())
+                        .put("check_requirement", check).put("roll_resolution", roll)
+                        .put("auto_rolls", false);
+            }
+
+            // Commit em duas fases: nunca alterar activeState ou grafo ANTES do SQLite.
+            AdventureState proposed = AdventureState.fromJson(activeState.toJson());
+            JSONObject effects = copyObject(selected.getEffects());
+            effects.put("mechanical_resolution", roll).put("transition_id", selected.getId());
+            proposed.stageTransition(nextNodeId, effects);
+            if (!proposed.commitTransaction()) return error("Falha ao preparar transição da aventura.");
+            if ("completed".equals(nextNodeId) || "failed".equals(nextNodeId))
+                proposed.setStatus(nextNodeId);
+            if (!persistenceAdapter.saveState(activeModule.getId(), activePartyId, proposed)) {
+                return error("Falha ao salvar a transição no SQLite; a escolha não foi aplicada.");
+            }
+            activeState = proposed;
+            graphEngine.resumeAdventure(activeModule, activeState);
+            AdventureNode resolvedNode = activeModule.getNode(nextNodeId);
+            boolean worldSynced = resolvedNode == null ||
+                    worldAdapter.applyNodeConsequences(resolvedNode, roll);
+            JSONObject narration = aiAdapter.buildNarrationPayload(resolvedNode, activeState, roll);
+            return new JSONObject().put("status", "success").put("committed", true)
+                    .put("advanced", true).put("transition_id", selected.getId())
+                    .put("current_node_id", activeState.getCurrentNodeId())
+                    .put("check_requirement", check).put("roll_resolution", roll)
+                    .put("world_sync_ok", worldSynced).put("narration_context", narration)
+                    .put("auto_rolls", false);
+        } catch (Exception e) {
+            return error("Não foi possível executar a escolha: " + e.getMessage());
+        }
+    }
 
     /**
      * Applies a universal command ONLY against a detached state copy. A committed
@@ -147,17 +226,68 @@ public final class AdventureEngine implements IAdventureEngine {
         }
     }
 
-    private AdventureTransition findTransition(AdventureNode node,String target){if(node==null||target==null||target.length()==0)return null;for(AdventureTransition t:node.getTransitions())if(target.equals(t.getTargetNodeId()))return t;return null;}
+    private static AdventureTransition findTransition(AdventureNode node, String actionId,
+            String target, boolean requireId) {
+        if (node == null) return null;
+        String id = actionId == null ? "" : actionId.trim();
+        String destination = target == null ? "" : target.trim();
+        if (!id.isEmpty()) {
+            for (AdventureTransition t : node.getTransitions()) {
+                if (id.equals(t.getId()))
+                    return destination.isEmpty() || destination.equals(t.getTargetNodeId()) ? t : null;
+            }
+        }
+        if (requireId || destination.isEmpty()) return null;
+        AdventureTransition sole = null;
+        for (AdventureTransition t : node.getTransitions()) {
+            if (destination.equals(t.getTargetNodeId())) {
+                if (sole != null) return null; // Destino ambíguo: exigir transition_id.
+                sole = t;
+            }
+        }
+        return sole;
+    }
+
+    private boolean prerequisitesSatisfied(AdventureTransition t) {
+        return t != null && (t.getRequiredFlag().isEmpty() ||
+                activeState.hasFlag(t.getRequiredFlag())) &&
+                (t.getRequiredClue().isEmpty() ||
+                activeState.getDiscoveredClues().contains(t.getRequiredClue()));
+    }
+
+    private static JSONObject blocked(String reason) {
+        JSONObject out = error(reason);
+        try { out.put("status", "blocked").put("committed", false).put("advanced", false); }
+        catch (Exception ignored) {}
+        return out;
+    }
     private static JSONObject copyObject(JSONObject src){try{return src==null?new JSONObject():new JSONObject(src.toString());}catch(Exception e){return new JSONObject();}}
     private static JSONObject inputRequired(JSONObject req,boolean adv,boolean dis,boolean second){JSONObject o=new JSONObject();try{o.put("status","requires_input").put("requires_input",true).put("auto_rolls",false).put("input_type",second?"second_d20":"d20").put("advantage",adv&&!dis).put("disadvantage",dis&&!adv).put("check_requirement",req==null?new JSONObject():req);}catch(Exception ignored){}return o;}
     private static JSONObject error(String msg){JSONObject o=new JSONObject();try{o.put("status","error").put("error",msg==null?"Erro desconhecido":msg).put("auto_rolls",false);}catch(Exception ignored){}return o;}
 
     @Override public JSONObject startAdventure(AdventureModule module,long partyId){return loadOrStartAdventure(module,partyId);}
     @Override public JSONObject validateActionContext(String actionType,JSONObject payload){return graphEngine.validateActionContext(actionType,payload);}
-    @Override public JSONObject commitResolution(JSONObject resolutionResult){JSONObject out=graphEngine.commitResolution(resolutionResult);if(out.optBoolean("committed",false)&&activeModule!=null&&activeState!=null)persistenceAdapter.saveState(activeModule.getId(),activePartyId,activeState);return out;}
+    @Override public synchronized JSONObject commitResolution(JSONObject resolutionResult) {
+        if (resolutionResult == null) return error("Resolução ausente.");
+        String actionId = resolutionResult.optString("action_id",
+                resolutionResult.optString("transition_id", ""));
+        if (actionId.isEmpty()) return blocked("Confirmação exige ID da ação e validação de regras.");
+        // Não aceitar efeitos, sucesso ou resultados mecânicos autodeclarados neste canal.
+        JSONObject params = new JSONObject();
+        try {
+            params.put("target_node_id", resolutionResult.optString("target_node_id", ""));
+            if (resolutionResult.has("roll")) params.put("roll", resolutionResult.optInt("roll"));
+            if (resolutionResult.has("roll_2")) params.put("roll_2", resolutionResult.optInt("roll_2"));
+            params.put("modifier", resolutionResult.optInt("modifier", 0));
+            params.put("advantage", resolutionResult.optBoolean("advantage", false));
+            params.put("disadvantage", resolutionResult.optBoolean("disadvantage", false));
+            params.put("input", resolutionResult.optString("player_input", actionId));
+        } catch (Exception e) { return error("Argumentos de resolução inválidos."); }
+        return processAction(actionId, params);
+    }
     @Override public JSONObject getNarrationContext(){return graphEngine.getNarrationContext();}
     @Override public boolean canTransition(String targetNodeId){return graphEngine.canTransition(targetNodeId);}
-    @Override public boolean commitTransaction(){boolean ok=graphEngine.commitTransaction();if(ok&&activeModule!=null&&activeState!=null)persistenceAdapter.saveState(activeModule.getId(),activePartyId,activeState);return ok;}
+    @Override public synchronized boolean commitTransaction(){return false; /* Escrita direta sem ação validada é proibida. */}
     @Override public void rollbackTransaction(){graphEngine.rollbackTransaction();}
     public AdventureModule getActiveModule(){return activeModule;} public AdventureState getActiveState(){return activeState;}
 }
