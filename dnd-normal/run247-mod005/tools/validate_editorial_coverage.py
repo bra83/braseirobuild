@@ -68,10 +68,33 @@ def within_project(root, relative):
     return resolved
 
 def test_method_present(java_file, method_name):
+    """Java JUnit methods are void; do not confuse a call with its declaration."""
     if not java_file.is_file():
         return False
     text = java_file.read_text(encoding="utf-8", errors="replace")
     return bool(re.search(r"\bvoid\s+" + re.escape(method_name) + r"\s*\(", text))
+
+
+def runtime_method_present(java_file, method_name):
+    """Accept Java declarations with non-void return types, never mere call sites.
+
+    We require a return type, a parameter list and a method body. Java source
+    without a declared implementation cannot certify an editorial section.
+    """
+    if not java_file.is_file() or not re.fullmatch(r"[A-Za-z_$][\w$]*", method_name or ""):
+        return False
+    source = java_file.read_text(encoding="utf-8", errors="replace")
+    source = re.sub(r"/\*[\s\S]*?\*/|//[^\r\n]*", "", source)
+    signature = re.compile(
+        r"(?:^|[{};])\s*"
+        r"(?:(?:public|protected|private|static|final|synchronized|native|abstract|default)\s+)*"
+        r"(?:<[^(){};]+>\s+)?"
+        r"(?:[\w$.\[\]<>?,]+\s+)+"
+        + re.escape(method_name)
+        + r"\s*\([^;{}]*\)\s*(?:throws\s+[^\{;]+)?\{",
+        re.MULTILINE,
+    )
+    return bool(signature.search(source))
 
 def validate_evidence(row, root, errors):
     """Prova somente um caso com fonte, método e XML reais, não mera classe."""
@@ -107,7 +130,7 @@ def validate_evidence(row, root, errors):
     else:
         java_path = root / "app/src/main/java" / (symbol.replace(".", "/") + ".java")
         method = str(proof.get("runtime_method", "")).strip()
-        if not method or not test_method_present(java_path, method):
+        if not method or not runtime_method_present(java_path, method):
             errors.append(f"{prefix}: método runtime específico não encontrado: {symbol}#{method}")
     assertion = str(row.get("assertion_id", ""))
     if "#" not in assertion:
