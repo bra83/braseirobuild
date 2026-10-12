@@ -1,0 +1,1511 @@
+{
+  "schema": "kingmaker-structure-mechanics-crosswalk-v1",
+  "source_drive_id": "1hHjK7DjhdDFvejYk70NNxO0zMp7Rnsn3",
+  "source_pages": "Kingmaker.pdf pp.544-553",
+  "source_type": "user_supplied_official_pdf_rule_facts",
+  "certification": "NOT_CERTIFIED",
+  "note": "Traits, upgrades, published item bonus short labels, and spatial flags are source metadata; an executable effect requires production Java implementation and Android verification.",
+  "count": 73,
+  "structures": [
+    {
+      "official_name": "ACADEMY",
+      "level": 10,
+      "traits": [
+        "building",
+        "edifice"
+      ],
+      "upgrade_from": "library",
+      "upgrade_to": "military academy, university",
+      "item_bonus": "+2 item bonus to Creative Solution",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "ALCHEMY LABORATORY",
+      "level": 3,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Demolish",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "ARCANIST’S TOWER",
+      "level": 5,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Quell Unrest using Magic",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "ARENA",
+      "level": 9,
+      "traits": [
+        "edifice",
+        "yard"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+2 item bonus to Celebrate Holiday and to Warfare checks made to Quell Unrest",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "BANK",
+      "level": 5,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Tap Treasury",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "BARRACKS",
+      "level": 3,
+      "traits": [
+        "building",
+        "residential"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "garrison",
+      "item_bonus": "+1 item bonus to Garrison Army, Recover Army, or Recruit Army (see Appendix 3) 544545",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "BREWERY",
+      "level": 1,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Establish Trade Agreement",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "BRIDGE",
+      "level": 2,
+      "traits": [
+        "infrastructure"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": null,
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": true,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "CASTLE",
+      "level": 9,
+      "traits": [
+        "building",
+        "edifice",
+        "famous",
+        "infamous"
+      ],
+      "upgrade_from": "town hall",
+      "upgrade_to": "palace",
+      "item_bonus": "+2 item bonus to New Leadership, Pledge of Fealty, Send Diplomatic Envoy, and +2 item bonus to Garrison Army, Recover Army, or Recruit Army (see Appendix 3: Warfare)",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "CATHEDRAL",
+      "level": 15,
+      "traits": [
+        "building",
+        "edifice",
+        "famous",
+        "infamous"
+      ],
+      "upgrade_from": "temple",
+      "upgrade_to": "",
+      "item_bonus": "+3 item bonus to Celebrate Holiday, Provide Care, and Repair Reputation (Corruption)",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "CEMETERY",
+      "level": 1,
+      "traits": [
+        "yard"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": null,
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "CONSTRUCTION YARD",
+      "level": 10,
+      "traits": [
+        "yard"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Build Structure and to Repair Reputation (Decay)",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "DUMP",
+      "level": 2,
+      "traits": [
+        "yard"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Demolish",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "EMBASSY",
+      "level": 8,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Send Diplomatic Envoy and Request Foreign Aid",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "FESTIVAL HALL",
+      "level": 3,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "theater",
+      "item_bonus": "+1 item bonus to Celebrate Holiday",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "FOUNDRY",
+      "level": 3,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Establish Work Site (mine)",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": true,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": true,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "GARRISON",
+      "level": 5,
+      "traits": [
+        "building",
+        "residential"
+      ],
+      "upgrade_from": "barracks",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Outfit Army or Train Army (see Appendix 3: Warfare)",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "GENERAL STORE",
+      "level": 1,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "luxury store, marketplace",
+      "item_bonus": null,
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "GRANARY",
+      "level": 1,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": null,
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": true,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "GUILDHALL",
+      "level": 5,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "trade shop",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Economy skill checks associated with the guildhall’s specific trade focus",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "HERBALIST",
+      "level": 1,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "hospital",
+      "item_bonus": "+1 item bonus to Provide Care",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "HOSPITAL",
+      "level": 9,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "herbalist",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Provide Care and Quell Unrest",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "HOUSES",
+      "level": 1,
+      "traits": [
+        "building",
+        "residential"
+      ],
+      "upgrade_from": "tenement",
+      "upgrade_to": "mansion or orphanage",
+      "item_bonus": null,
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "ILLICIT MARKET",
+      "level": 6,
+      "traits": [
+        "building",
+        "infamous"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Clandestine Business",
+      "ruin": "+1 Crime",
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "INN",
+      "level": 1,
+      "traits": [
+        "building",
+        "residential"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 Item bonus to Hire Adventurers",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "JAIL",
+      "level": 2,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Quell Unrest using Intrigue",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "KEEP",
+      "level": 3,
+      "traits": [
+        "building",
+        "edifice"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Deploy Army, Garrison Army, or Train Army (see Appendix 3: Warfare)",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "LIBRARY",
+      "level": 2,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "academy",
+      "item_bonus": "+1 item bonus to Rest and Relax using Scholarship checks",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "LUMBERYARD",
+      "level": 3,
+      "traits": [
+        "yard"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Establish Work Site (lumber camp)",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": true,
+        "requires_water_border": true,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "LUXURY STORE",
+      "level": 6,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "general store",
+      "upgrade_to": "magic shop",
+      "item_bonus": "+1 item bonus to Establish Trade Agreement",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": true,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "MAGIC SHOP",
+      "level": 8,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "luxury store",
+      "upgrade_to": "occult shop",
+      "item_bonus": "+1 item bonus to Supernatural Solution",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "MAGICAL STREETLAMPS",
+      "level": 5,
+      "traits": [
+        "infrastructure"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": null,
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "MANSION",
+      "level": 5,
+      "traits": [
+        "building",
+        "residential"
+      ],
+      "upgrade_from": "houses",
+      "upgrade_to": "noble villa",
+      "item_bonus": "+1 item bonus to Improve Lifestyle",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "MARKETPLACE",
+      "level": 4,
+      "traits": [
+        "building",
+        "residential"
+      ],
+      "upgrade_from": "general store",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Establish Trade Agreement",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "MENAGERIE",
+      "level": 12,
+      "traits": [
+        "building",
+        "edifice"
+      ],
+      "upgrade_from": "park",
+      "upgrade_to": "",
+      "item_bonus": "+2 item bonus to Rest and Relax using Wilderness",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "MILITARY ACADEMY",
+      "level": 12,
+      "traits": [
+        "building",
+        "edifice"
+      ],
+      "upgrade_from": "academy",
+      "upgrade_to": "",
+      "item_bonus": "+2 item bonus to Pledge of Fealty using Warfare, +2 item bonus to Train Army (see Appendix 3: Warfare)",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "MILL",
+      "level": 2,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Harvest Crops",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": true,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": true
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "MINT",
+      "level": 15,
+      "traits": [
+        "building",
+        "edifice"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+3 item bonus to Capital Investment, Collect Taxes, and to Repair Reputation (Crime)",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "MONUMENT",
+      "level": 3,
+      "traits": [
+        "building",
+        "edifice"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": null,
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "MUSEUM",
+      "level": 5,
+      "traits": [
+        "building",
+        "famous",
+        "infamous"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Rest and Relax using Arts",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "NOBLE VILLA",
+      "level": 9,
+      "traits": [
+        "building",
+        "residential"
+      ],
+      "upgrade_from": "mansion",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Improve Lifestyle and to Quell Unrest using Politics",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "OCCULT SHOP",
+      "level": 13,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "magic shop",
+      "upgrade_to": "",
+      "item_bonus": "+2 item bonus to Prognostication",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "OPERA HOUSE",
+      "level": 15,
+      "traits": [
+        "building",
+        "edifice",
+        "famous",
+        "infamous"
+      ],
+      "upgrade_from": "theater",
+      "upgrade_to": "",
+      "item_bonus": "+3 item bonus to Celebrate Holiday and Create a Masterpiece",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "ORPHANAGE",
+      "level": 2,
+      "traits": [
+        "building",
+        "residential"
+      ],
+      "upgrade_from": "houses",
+      "upgrade_to": "",
+      "item_bonus": null,
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "PALACE",
+      "level": 15,
+      "traits": [
+        "building",
+        "edifice",
+        "famous",
+        "infamous"
+      ],
+      "upgrade_from": "castle",
+      "upgrade_to": "",
+      "item_bonus": "+3 item bonus to New Leadership, Pledge of Fealty, and Send Diplomatic Envoy, and +3 item bonus to Garrison Army, Recover Army, or Recruit Army (see Appendix 3: Warfare)",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "PARK",
+      "level": 3,
+      "traits": [
+        "yard"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "menagerie",
+      "item_bonus": "+1 item bonus to Rest and Relax using Wilderness checks",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "PAVED STREETS",
+      "level": 4,
+      "traits": [
+        "infrastructure"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": null,
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "PIER",
+      "level": 3,
+      "traits": [
+        "yard"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "waterfront",
+      "item_bonus": "+1 item bonus to Go Fishing",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": true,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "SACRED GROVE",
+      "level": 5,
+      "traits": [
+        "yard"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Quell Unrest using Folklore",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "SECURE WAREHOUSE",
+      "level": 6,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Craft Luxuries",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "SEWER SYSTEM",
+      "level": 7,
+      "traits": [
+        "infrastructure"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Clandestine Business",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": true
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "SHRINE",
+      "level": 1,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "temple",
+      "item_bonus": "+1 item bonus to Celebrate Holiday",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "SMITHY",
+      "level": 3,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Trade Commodities, +1 item bonus to Outfit Army (see Appendix 3: Warfare)",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "SPECIALIZED ARTISAN",
+      "level": 4,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Craft Luxuries",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "STABLE",
+      "level": 3,
+      "traits": [
+        "yard"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Establish Trade Agreement",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "STOCKYARD",
+      "level": 3,
+      "traits": [
+        "yard"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Gather Livestock",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "STONEMASON",
+      "level": 3,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Establish Work Site (quarry).",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": true,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "TANNERY",
+      "level": 3,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 to Trade Commodities",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": true,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "TAVERN, DIVE",
+      "level": 1,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "tavern, popular",
+      "item_bonus": null,
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "TAVERN, POPULAR",
+      "level": 3,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "tavern, dive",
+      "upgrade_to": "tavern, luxury",
+      "item_bonus": "+1 item bonus to Hire Adventurers and to Rest and Relax using Trade",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "TAVERN, LUXURY",
+      "level": 9,
+      "traits": [
+        "building",
+        "famous"
+      ],
+      "upgrade_from": "tavern, popular",
+      "upgrade_to": "tavern, world-class",
+      "item_bonus": "+2 item bonus to Hire Adventurers and to Rest and Relax using Trade",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "TAVERN, WORLD-CLASS",
+      "level": 15,
+      "traits": [
+        "building",
+        "edifice",
+        "famous"
+      ],
+      "upgrade_from": "tavern, luxury",
+      "upgrade_to": "",
+      "item_bonus": "+3 item bonus to Hire Adventurers, to Rest and Relax using Trade, and to Repair Reputation (Strife)",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "TEMPLE",
+      "level": 7,
+      "traits": [
+        "building",
+        "famous",
+        "infamous"
+      ],
+      "upgrade_from": "shrine",
+      "upgrade_to": "cathedral",
+      "item_bonus": "+1 item bonus to Celebrate Holiday and Provide Care",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "TENEMENT",
+      "level": 0,
+      "traits": [
+        "building",
+        "residential"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "houses",
+      "item_bonus": null,
+      "ruin": "+1 to a Ruin of your choice",
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "THEATER",
+      "level": 9,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "festival hall",
+      "upgrade_to": "opera house",
+      "item_bonus": "+2 item bonus to Celebrate Holiday.",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "THIEVES’ GUILD",
+      "level": 5,
+      "traits": [
+        "building",
+        "infamous"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Infiltration",
+      "ruin": "+1 Crime",
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "TOWN HALL",
+      "level": 2,
+      "traits": [
+        "building",
+        "edifice"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "castle",
+      "item_bonus": null,
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "TRADE SHOP",
+      "level": 3,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "guildhall",
+      "item_bonus": "+1 item bonus to Purchase Commodities",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "UNIVERSITY",
+      "level": 15,
+      "traits": [
+        "building",
+        "edifice",
+        "famous"
+      ],
+      "upgrade_from": "academy",
+      "upgrade_to": "",
+      "item_bonus": "+3 item bonus to Creative Solution 552553",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "WALL, STONE",
+      "level": 5,
+      "traits": [
+        "infrastructure"
+      ],
+      "upgrade_from": "wooden wall",
+      "upgrade_to": "",
+      "item_bonus": null,
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "WALL, WOODEN",
+      "level": 1,
+      "traits": [
+        "infrastructure"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "stone wall",
+      "item_bonus": null,
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "WATCHTOWER",
+      "level": 3,
+      "traits": [
+        "building"
+      ],
+      "upgrade_from": "",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to checks to resolve events affecting the settlement.",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": true,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    },
+    {
+      "official_name": "WATERFRONT",
+      "level": 8,
+      "traits": [
+        "yard"
+      ],
+      "upgrade_from": "pier",
+      "upgrade_to": "",
+      "item_bonus": "+1 item bonus to Go Fishing, and to Establish Trade Agreement and Rest and Relax using Boating",
+      "ruin": null,
+      "effect_flags": {
+        "first_time_turn_effect": false,
+        "capacity_bonus": false,
+        "requires_water_border": false,
+        "requires_residential_neighbor": false,
+        "restricts_residential_block": false,
+        "turn_consumption_modifier": false
+      },
+      "review_status": "SOURCE_CROSSWALK_NOT_EXECUTION_CERTIFICATION"
+    }
+  ]
+}
