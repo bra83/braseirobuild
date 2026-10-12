@@ -97,6 +97,33 @@ public final class KingmakerStructureSemantics {
     (capitalName==null||capitalName.length()==0||!capitalName.equals(settlement.optString("name"))))
     throw new IllegalStateException("Um palácio só pode ser construído na capital do Reino.");
  }
+ // Core Rulebook table 10-9 / GM Core p.59: Currency per Additional PC.
+ private static final int[] INVESTMENT_GP={0,10,18,30,50,80,125,180,250,350,500,700,1000,1500,2250,3250,5000,7500,12000,20000,35000};
+ public static int investmentGp(int level){if(level<1||level>20)throw new IllegalArgumentException("Nível de Reino inválido.");return INVESTMENT_GP[level];}
+ public static int investmentDice(String degree,int gold,int level,String criticalChoice){
+  String actual=gold<investmentGp(level)?"CRITICAL_FAILURE":degree;
+  if("CRITICAL_SUCCESS".equals(actual))return 4;if("SUCCESS".equals(actual))return 2;
+  if("FAILURE".equals(actual))return 0;
+  if(!"CRITICAL_FAILURE".equals(actual))throw new IllegalArgumentException("Grau de sucesso inválido.");
+  if("resource_die".equals(criticalChoice))return 1;if("none".equals(criticalChoice))return 0;
+  throw new IllegalArgumentException("Escolha a consequência da falha crítica do investimento.");
+ }
+ public static JSONObject investmentOutcome(int level,int gold,String degree,int die,JSONArray rolls,int failureD4,String criticalChoice)throws Exception{
+  if(gold<=0)throw new IllegalArgumentException("O investimento precisa conter fundos pessoais.");
+  if(!Arrays.asList(4,6,8,10,12).contains(die))throw new IllegalArgumentException("Dado de recurso inválido.");
+  String actual=gold<investmentGp(level)?"CRITICAL_FAILURE":degree;
+  int count=investmentDice(actual,gold,level,criticalChoice);if(rolls.length()!=count)throw new IllegalArgumentException("Quantidade incorreta de dados de recurso.");
+  int rp=0,crime=0;for(int i=0;i<count;i++){int value=rolls.optInt(i,0);if(value<1||value>die)throw new IllegalArgumentException("Resultado de recurso inválido.");rp+=value;}
+  if("FAILURE".equals(actual)){if(failureD4<1||failureD4>4)throw new IllegalArgumentException("Informe 1d4 RP para a falha.");rp=failureD4;}
+  else if("CRITICAL_FAILURE".equals(actual))crime="resource_die".equals(criticalChoice)?rp:1;
+  return new JSONObject().put("degree",actual).put("required_gp",investmentGp(level)).put("gold_spent",gold).put("rp_gained",rp).put("crime",crime).put("resource_rolls",rolls).put("failure_d4","FAILURE".equals(actual)?failureD4:0).put("automatic_critical_failure",gold<investmentGp(level));
+ }
+ public static JSONObject tapTreasuryOutcome(int level,String degree,boolean unpaid,String ruin)throws Exception{
+  List<String> scale=Arrays.asList("CRITICAL_FAILURE","FAILURE","SUCCESS","CRITICAL_SUCCESS");int rank=scale.indexOf(degree);if(rank<0)throw new IllegalArgumentException("Grau inválido.");
+  if(unpaid)rank=Math.max(0,rank-2);String actual=scale.get(rank);JSONObject out=new JSONObject().put("degree",actual).put("gold_gained",rank>=2?investmentGp(level):0).put("economy_circumstance_penalty",rank<3?-1:0).put("loyalty_circumstance_penalty",rank<2?-1:0).put("unrest",rank==0?1:0);
+  if(rank==0){if(!Arrays.asList("corruption","crime","decay","strife").contains(ruin))throw new IllegalArgumentException("Escolha a Ruína afetada.");out.put(ruin,1);}
+  return out;
+ }
  public static int count(JSONArray rows,String key){
   int total=0;for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null)continue;
    if(key.equals(row.optString("structure_key"))&&"built".equals(row.optString("status","built")))total+=Math.max(0,row.optInt("count",1));}

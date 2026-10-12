@@ -140,6 +140,24 @@ public final class R36BookSemanticsHarness {
   JSONArray resetNok=KingmakerCompanionSemantics.alignmentHistory(hostileNok,12,"helpful",new JSONArray());
   hostileNok.put("attitude","helpful").put("unlocked_rewards_json",resetNok);
   check("chaotic_evil".equals(KingmakerCompanionSemantics.nokAlignment(hostileNok)),"hostility reset cannot be undone by zero influence adjustment");
+  check(KingmakerStructureSemantics.investmentGp(2)==18,"official investment level two is eighteen gp");
+  check(KingmakerStructureSemantics.investmentGp(20)==35000,"official investment level twenty");
+  JSONObject funded=KingmakerStructureSemantics.investmentOutcome(1,10,"SUCCESS",4,new JSONArray().put(3).put(4),0,"none");
+  check(funded.optInt("rp_gained")==7&&funded.optInt("gold_spent")==10,"successful investment rolls two resource dice");
+  check(KingmakerStructureSemantics.investmentOutcome(1,10,"CRITICAL_SUCCESS",4,new JSONArray().put(1).put(2).put(3).put(4),0,"none").optInt("rp_gained")==10,"critical investment four resource dice");
+  JSONObject low=KingmakerStructureSemantics.investmentOutcome(2,17,"CRITICAL_SUCCESS",4,new JSONArray(),0,"none");
+  check(low.optBoolean("automatic_critical_failure")&&low.optInt("rp_gained")==0&&low.optInt("crime")==1,"underfunded investment overrides critical success");
+  check(KingmakerStructureSemantics.investmentOutcome(1,25,"SUCCESS",4,new JSONArray().put(3).put(4),0,"none").optInt("gold_spent")==25,"investment excess is spent not converted linearly");
+  JSONObject loss=KingmakerStructureSemantics.investmentOutcome(1,10,"CRITICAL_FAILURE",6,new JSONArray().put(5),0,"resource_die");
+  check(loss.optInt("rp_gained")==5&&loss.optInt("crime")==5,"critical investment optional die adds equal crime");
+  check(KingmakerStructureSemantics.investmentOutcome(1,10,"FAILURE",12,new JSONArray(),4,"none").optInt("rp_gained")==4,"failed investment uses d4 not resource die");
+  JSONObject tapped=KingmakerStructureSemantics.tapTreasuryOutcome(2,"SUCCESS",false,"crime");
+  check(tapped.optInt("gold_gained")==18&&tapped.optInt("economy_circumstance_penalty")==-1,"treasury grants gp and overdraw penalty");
+  JSONObject repeated=KingmakerStructureSemantics.tapTreasuryOutcome(2,"CRITICAL_SUCCESS",true,"crime");
+  check("FAILURE".equals(repeated.optString("degree"))&&repeated.optInt("gold_gained")==0,"unpaid treasury worsens result two degrees");
+  check(repeated.optInt("loyalty_circumstance_penalty")==-1,"failed treasury also penalizes loyalty");
+  JSONObject worse=KingmakerStructureSemantics.tapTreasuryOutcome(2,"SUCCESS",true,"strife");
+  check(worse.optInt("unrest")==1&&worse.optInt("strife")==1,"critical treasury choice affects chosen ruin");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }
