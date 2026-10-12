@@ -5,6 +5,9 @@ e gera docs/EDITORIAL_SECTION_ACCEPTANCE.csv.
 """
 
 import csv
+
+# AVISO: este gerador cria SOMENTE candidatos à revisão. NÃO executa testes
+# nem valida fonte, licenças ou semântica por seção. Nunca emita ACCEPTED.
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -198,10 +201,10 @@ def run():
             "expected_behavior": expected,
             "runtime_symbol": real_sym,
             "assertion_id": assertion,
-            "actual_result": "VERIFIED_PASSED",
-            "source_version": "5e-2024/2025/2026-v1.0",
-            "rights_basis": "SRD_5.2_AND_FAIR_USE_FACTUAL_ADAPTATION",
-            "status": "ACCEPTED"
+            "actual_result": "NOT_RUN",
+            "source_version": "UNVERIFIED",
+            "rights_basis": "REVIEW_REQUIRED",
+            "status": "IMPLEMENTED_NEEDS_TEST"
         })
 
     # Save harmonized sections
