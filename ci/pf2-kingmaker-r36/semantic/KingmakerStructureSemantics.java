@@ -431,5 +431,22 @@ public final class KingmakerStructureSemantics {
   JSONArray out=new JSONArray(old.toString());out.put(new JSONObject(placement.toString()));return out;
  }
 
+ public static int builtBlockCount(JSONArray rows){
+  try{Set<String> occupied=new HashSet<String>();
+   for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null||row.optInt("lots",0)<=0||row.optInt("count",1)<=0||row.optString("structure_key").startsWith("under_construction_")||row.optString("structure_key").startsWith("rubble_")||"rubble".equals(instanceEffects(row).optString("construction_status")))continue;
+    JSONArray positions=lotPlacements(row);if(positions.length()!=row.optInt("count",1))return -1;
+    for(int n=0;n<positions.length();n++){JSONObject at=positions.optJSONObject(n);if(at==null||!at.has("lots"))return -1;occupied.add(at.optInt("urban_grid")+":"+at.optInt("block"));}
+   }return occupied.size();
+  }catch(Exception error){throw new IllegalArgumentException("Registro de blocos inválido.",error);}
+ }
+ public static boolean hasWaterMill(JSONObject town,JSONArray rows){
+  try{boolean legacy=false;
+   for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null||!"mill".equals(row.optString("structure_key"))||row.optInt("count",1)<=0||!"built".equals(row.optString("status","built")))continue;
+    JSONArray positions=lotPlacements(row);if(positions.length()!=row.optInt("count",1)){legacy=true;continue;}
+    for(int n=0;n<positions.length();n++){JSONObject at=positions.optJSONObject(n);if(at==null||!at.has("lots")){legacy=true;continue;}if(touchesWaterBorder(town,at))return true;}
+   }return legacy&&settlementGrid(town).optBoolean("water_mill");
+  }catch(Exception error){throw new IllegalArgumentException("Registro de moinho inválido.",error);}
+ }
+
 }
 

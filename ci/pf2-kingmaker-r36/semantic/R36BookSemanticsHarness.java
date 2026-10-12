@@ -293,6 +293,16 @@ public final class R36BookSemanticsHarness {
   JSONObject lotRecorded=structure("library",2).put("lots",1).put("effects_json",new JSONObject().put("lot_instances",new JSONArray().put(lotOne).put(lotAuto)));
   check(KingmakerStructureSemantics.trimInstanceEffects(lotRecorded,1).optJSONArray("lot_instances").length()==1,"demolition releases last registered structure footprint");
   check(KingmakerStructureSemantics.sameLotPlacement(lotTwo,new JSONObject().put("urban_grid",1).put("block",1).put("lots",new JSONArray().put(4).put(3))),"same footprint independent of lot array ordering");
+
+  check(KingmakerStructureSemantics.builtBlockCount(new JSONArray().put(lotHouse))==1,"one developed structure district needs one residential lot");
+  check(KingmakerStructureSemantics.builtBlockCount(new JSONArray().put(lotPending))==0,"unfinished work alone is not a built residential district");
+  check(KingmakerStructureSemantics.builtBlockCount(new JSONArray().put(structure("houses",1).put("lots",1)))==-1,"unknown legacy blocks remain explicitly unverified");
+  JSONObject registeredMill=structure("mill",1).put("lots",1).put("effects_json",new JSONObject().put("lot_instances",new JSONArray().put(lotOne)));
+  check(KingmakerStructureSemantics.hasWaterMill(lotVillage,new JSONArray().put(registeredMill)),"water-facing mill reduces consumption from recorded position");
+  JSONObject inlandMill=structure("mill",1).put("lots",1).put("effects_json",new JSONObject().put("lot_instances",new JSONArray().put(new JSONObject(lotOne.toString()).put("block",5))));
+  JSONObject oldMillFlagTown=new JSONObject(lotVillage.toString());JSONObject oldMillGrid=new JSONObject(oldMillFlagTown.opt("grid_json").toString()).put("water_mill",true);oldMillFlagTown.put("grid_json",oldMillGrid);
+  check(!KingmakerStructureSemantics.hasWaterMill(oldMillFlagTown,new JSONArray().put(inlandMill)),"registered inland mill cannot claim old manual water flag");
+  check(KingmakerStructureSemantics.hasWaterMill(oldMillFlagTown,new JSONArray().put(structure("mill",1).put("lots",1))),"legacy declared water mill preserved until placement registered");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

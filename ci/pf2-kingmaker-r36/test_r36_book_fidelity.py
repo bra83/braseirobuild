@@ -119,3 +119,8 @@ def test_build_reserves_and_rechecks_actual_lots_before_persisting():
     assert 'requireLotPlacement(town,new JSONArray(structures(settlementKey)),k,def.optInt("lots"),position,"")' in SOURCE
     assert 'v.put("influence",officialSettlementInfluence(town))' in SOURCE
     assert 'public void declareExistingLotPlacement(' in SOURCE
+
+def test_registered_districts_and_water_mills_use_real_placement():
+    assert 'int housingBlocks=builtBlocks<0?blocks:builtBlocks' in SOURCE
+    assert 'KingmakerStructureSemantics.builtBlockCount(new JSONArray(structures(settlementKey)))' in SOURCE
+    assert 'boolean waterMill=KingmakerStructureSemantics.hasWaterMill(town,rows)' in SOURCE
