@@ -34,7 +34,7 @@ public final class EditorialSectionProofTest {
 
         assertEquals("Faerûn deve conter exatamente 45 entidades comprovadas", 45, faerun.size());
         assertEquals("Eberron deve conter exatamente 22 entidades comprovadas", 22, eberron.size());
-        assertEquals("Ravenloft/Hungers deve conter exatamente 15 entidades comprovadas", 15, ravenloft.size());
+        assertEquals("Ravenloft/Hungers deve conter exatamente 25 entidades comprovadas", 25, ravenloft.size());
         assertEquals("Lorwyn/Netheril/Arcana/XMM/XSAC deve conter exatamente 20 entidades", 20, lorwynArcana.size());
 
         Set<String> allIds = new HashSet<>();
@@ -69,8 +69,8 @@ public final class EditorialSectionProofTest {
             total++;
         }
 
-        assertEquals("Total de entidades canônicas deve ser 102", 102, total);
-        assertEquals("Total de IDs únicos deve ser exatamente 102", 102, allIds.size());
+        assertEquals("Total de entidades canônicas deve ser 112", 112, total);
+        assertEquals("Total de IDs únicos deve ser exatamente 112", 112, allIds.size());
     }
 
     @Test
@@ -198,12 +198,24 @@ public final class EditorialSectionProofTest {
         assertTrue("Deve conter Falkovnia", ids.contains("ravenloft_falkovnia_domain"));
         assertTrue("Deve conter Borca", ids.contains("ravenloft_borca_domain"));
         assertTrue("Deve conter Tepest", ids.contains("ravenloft_tepest_domain"));
+        assertTrue("Deve conter Har'Akir", ids.contains("ravenloft_harakir_domain"));
+        assertTrue("Deve conter Hazlan", ids.contains("ravenloft_hazlan_domain"));
+        assertTrue("Deve conter Kalakeri", ids.contains("ravenloft_kalakeri_domain"));
+        assertTrue("Deve conter Valachan", ids.contains("ravenloft_valachan_domain"));
+        assertTrue("Deve conter Sithicus", ids.contains("ravenloft_sithicus_domain"));
+
+        // RHW Entidades Cósmicas e Relíquias
+        assertTrue("Deve conter Poderes Sombrios", ids.contains("ravenloft_dark_powers"));
+        assertTrue("Deve conter Símbolo Sagrado de Ravenkind", ids.contains("ravenloft_item_holy_symbol_ravenkind"));
+        assertTrue("Deve conter Espada Solar", ids.contains("ravenloft_item_sunsword"));
 
         // ABH
         assertTrue("Deve conter Palácio Szarr", ids.contains("astarion_cazador_palace"));
         assertTrue("Deve conter Sete Fomes Vampíricas", ids.contains("astarion_vampiric_hungers"));
         assertTrue("Deve conter Família de Crias de Cazador", ids.contains("astarion_cazador_spawn_family"));
         assertTrue("Deve conter Taverna Rat's Run", ids.contains("astarion_rats_run_tavern"));
+        assertTrue("Deve conter Lorde Cazador Szarr NPC", ids.contains("astarion_cazador_szarr_npc"));
+        assertTrue("Deve conter Mordida Empoderada", ids.contains("astarion_dhampir_empowered_bite"));
     }
 
     @Test
