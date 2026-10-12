@@ -29,6 +29,22 @@ concurrency:
   group: dnd-adventure-tx-brelga
   cancel-in-progress: false
 jobs:
+  editorial-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact D&D sources
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+      - name: Validate editorial inventory and false-certification regressions
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tools -p 'test_validate_editorial_coverage.py' -v
+          python3 tools/validate_editorial_coverage.py --json
+          echo "EDITORIAL_INVENTORY_VALID=TRUE; EDITORIAL_483_CERTIFIED=FALSE"
   focused:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 90
