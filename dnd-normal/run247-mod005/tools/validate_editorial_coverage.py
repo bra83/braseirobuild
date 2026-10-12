@@ -1,193 +1,229 @@
 #!/usr/bin/env python3
-"""
-Validador de Cobertura Editorial e Anti-Falso-Positivo.
-Comprova a matriz dos 10 livros D&D 2025-2026:
-1. Verifica docs/PLANO_MESTRE_MATRIZ_10_LIVROS_SECOES.csv e docs/EDITORIAL_SECTION_ACCEPTANCE.csv.
-2. Comprova correspondência de 483 seções únicas sem duplicações.
-3. Rejeita placeholders ou strings genéricas.
-4. Valida se cada runtime_symbol corresponde a um arquivo/classe real em app/src/main/java.
-5. Valida se cada assertion_id corresponde a uma classe e método de teste real em app/src/test/java.
-6. Emite erro e encerra com código não-zero se qualquer divergência for detectada.
-"""
+"""Validador de evidência editorial D&D.
 
+Este utilitário valida INVENTÁRIO por padrão. Ele jamais converte a existência
+de uma classe/teste em prova da semântica de uma seção. Use --require-complete
+como gate de homologação (retorna 2 enquanto houver seções pendentes).
+"""
+import argparse
 import csv
-import os
+import hashlib
+import json
+from collections import Counter
+from pathlib import Path
+import re
 import sys
+import xml.etree.ElementTree as ET
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SECTIONS_CSV = os.path.join(BASE_DIR, "docs", "PLANO_MESTRE_MATRIZ_10_LIVROS_SECOES.csv")
-ACCEPTANCE_CSV = os.path.join(BASE_DIR, "docs", "EDITORIAL_SECTION_ACCEPTANCE.csv")
-MAIN_JAVA_DIR = os.path.join(BASE_DIR, "app", "src", "main", "java")
-TEST_JAVA_DIR = os.path.join(BASE_DIR, "app", "src", "test", "java")
+ROOT = Path(__file__).resolve().parent.parent
+SECTIONS = Path("docs/PLANO_MESTRE_MATRIZ_10_LIVROS_SECOES.csv")
+ACCEPTANCE = Path("docs/EDITORIAL_SECTION_ACCEPTANCE.csv")
+BOOKS = {"XMM", "XSAC", "FRHOF", "FRAIF", "EFA", "AU", "RHW", "ABH", "LFL", "NF"}
+STATUSES = {
+    "IMPLEMENTED_AND_TESTED", "IMPLEMENTED_NEEDS_TEST", "MISSING",
+    "NOT_APPLICABLE", "SOURCE_UNAVAILABLE", "REUSE_NOT_AUTHORIZED"
+}
+ACCEPTANCE_COLUMNS = {
+    "book_id", "chapter_id", "section_id", "expected_behavior", "runtime_symbol",
+    "assertion_id", "actual_result", "source_version", "rights_basis", "status"
+}
+SECTIONS_COLUMNS = {
+    "book_id", "chapter_id", "section_id", "section_title", "source_url",
+    "evidence_of_access", "verification_result", "implementation_path"
+}
+PLACEHOLDERS = {"UNVERIFIED", "REVIEW_REQUIRED", "NOT_RUN", "NONE", "N/A", "UNKNOWN",
+                "ACCEPTED", "VERIFIED_PASSED", "HTTP 200"}
 
-REQUIRED_BOOKS = {"XMM", "XSAC", "FRHOF", "FRAIF", "EFA", "AU", "RHW", "ABH", "LFL", "NF"}
-REQUIRED_ACCEPTANCE_COLS = [
-    "book_id", "chapter_id", "section_id", "expected_behavior",
-    "runtime_symbol", "assertion_id", "actual_result",
-    "source_version", "rights_basis", "status"
-]
+def load_csv(root, relative, required, errors):
+    path = root / relative
+    if not path.is_file():
+        errors.append(f"Arquivo ausente: {relative}")
+        return []
+    with path.open(encoding="utf-8-sig", newline="") as fh:
+        reader = csv.DictReader(fh)
+        if reader.fieldnames is None or not required.issubset(reader.fieldnames):
+            errors.append(f"Colunas obrigatórias ausentes em {relative}: {sorted(required-set(reader.fieldnames or []))}")
+            return []
+        if len(reader.fieldnames) != len(set(reader.fieldnames)):
+            errors.append(f"Colunas duplicadas em {relative}")
+        rows = list(reader)
+    for line, row in enumerate(rows, 2):
+        if None in row:
+            errors.append(f"{relative}:{line}: CSV com campos extras/desalinhados")
+        if any(value is None for value in row.values()):
+            errors.append(f"{relative}:{line}: CSV com campos ausentes")
+    return rows
 
-FORBIDDEN_PLACEHOLDERS = ["TODO", "TBD", "PLACEHOLDER", "FAKE", "DUMMY", "MOCK_ONLY", "PENDING_PROOF"]
+def key(row):
+    return tuple((row.get(f) or "").strip() for f in ("book_id", "chapter_id", "section_id"))
 
-def find_java_file_for_symbol(symbol):
-    # com.braseiro.dnd5e.canon.FaerunCanonCatalog -> app/src/main/java/com/braseiro/dnd5e/canon/FaerunCanonCatalog.java
-    rel_path = symbol.replace(".", os.sep) + ".java"
-    full_path = os.path.join(MAIN_JAVA_DIR, rel_path)
-    if os.path.exists(full_path):
-        return full_path
-    # Try finding in tree
-    class_name = symbol.split(".")[-1] + ".java"
-    for root, _, files in os.walk(MAIN_JAVA_DIR):
-        if class_name in files:
-            return os.path.join(root, class_name)
-    return None
+def within_project(root, relative):
+    """Rejeitar caminhos absolutos ou que escapem do checkout."""
+    if not relative or Path(relative).is_absolute():
+        return None
+    base = root.resolve()
+    resolved = (base / relative).resolve()
+    if resolved == base or base not in resolved.parents:
+        return None
+    return resolved
 
-def find_test_method(assertion_id):
-    # Format: TestClass#testMethod
-    if "#" not in assertion_id:
-        return False, f"Formato inválido de assertion_id: {assertion_id} (esperado Classe#metodo)"
-    class_name, method_name = assertion_id.split("#", 1)
-    file_name = class_name + ".java"
-    
-    target_path = None
-    for root, _, files in os.walk(TEST_JAVA_DIR):
-        if file_name in files:
-            target_path = os.path.join(root, file_name)
-            break
-            
-    if not target_path or not os.path.exists(target_path):
-        return False, f"Classe de teste não encontrada: {file_name}"
-        
-    with open(target_path, "r", encoding="utf-8", errors="ignore") as f:
-        content = f.read()
-        if method_name not in content:
-            return False, f"Método {method_name} não encontrado em {file_name}"
-            
-    return True, "OK"
+def test_method_present(java_file, method_name):
+    if not java_file.is_file():
+        return False
+    text = java_file.read_text(encoding="utf-8", errors="replace")
+    return bool(re.search(r"\bvoid\s+" + re.escape(method_name) + r"\s*\(", text))
 
-def validate():
-    print("=" * 70)
-    print("INICIANDO VALIDAÇÃO EDITORIAL ANTI-FALSO-POSITIVO (10 LIVROS D&D)")
-    print("=" * 70)
-    
+def validate_evidence(row, root, errors):
+    """Prova somente um caso com fonte, método e XML reais, não mera classe."""
+    prefix = ":".join(key(row))
+    evidence_rel = (row.get("evidence_ref") or "").strip()
+    evidence_file = within_project(root, evidence_rel)
+    if not evidence_file or not evidence_file.is_file() or not evidence_rel.startswith("docs/editorial-evidence/"):
+        errors.append(f"{prefix}: IMPLEMENTED_AND_TESTED sem comprovante JSON em docs/editorial-evidence/")
+        return
+    try:
+        proof = json.loads(evidence_file.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        errors.append(f"{prefix}: JSON de evidência inválido: {exc}")
+        return
+    for field in ("book_id", "chapter_id", "section_id"):
+        if str(proof.get(field, "")) != str(row.get(field, "")):
+            errors.append(f"{prefix}: comprovante não corresponde a {field}")
+    source_sha = str(proof.get("source_sha256", ""))
+    if not re.fullmatch(r"[0-9a-fA-F]{64}", source_sha):
+        errors.append(f"{prefix}: source_sha256 verificável ausente")
+    source_ref = str(proof.get("source_url", ""))
+    if not source_ref.startswith(("https://", "http://")):
+        errors.append(f"{prefix}: URL de origem ausente")
+    for f in ("rights_basis", "source_version", "expected_game_behavior", "observed_game_behavior"):
+        v = str(proof.get(f, "")).strip()
+        if not v or v.upper() in PLACEHOLDERS:
+            errors.append(f"{prefix}: evidência insuficiente em {f}")
+    if str(row.get("rights_basis", "")).upper() in PLACEHOLDERS or str(row.get("source_version", "")).upper() in PLACEHOLDERS:
+        errors.append(f"{prefix}: fonte/direitos genéricos não podem homologar uma seção")
+    symbol = str(row.get("runtime_symbol", "")).strip()
+    if not re.fullmatch(r"(?:[A-Za-z_]\w*\.)+[A-Za-z_]\w*", symbol):
+        errors.append(f"{prefix}: runtime_symbol inválido")
+    else:
+        java_path = root / "app/src/main/java" / (symbol.replace(".", "/") + ".java")
+        method = str(proof.get("runtime_method", "")).strip()
+        if not method or not test_method_present(java_path, method):
+            errors.append(f"{prefix}: método runtime específico não encontrado: {symbol}#{method}")
+    assertion = str(row.get("assertion_id", ""))
+    if "#" not in assertion:
+        errors.append(f"{prefix}: assertion_id deve ter Classe#metodo")
+        return
+    klass, method = assertion.split("#", 1)
+    test_paths = list((root / "app/src/test/java").rglob(klass + ".java"))
+    if len(test_paths) != 1 or not test_method_present(test_paths[0], method):
+        errors.append(f"{prefix}: método de teste não localizado sem ambiguidade: {assertion}")
+        return
+    test_source = test_paths[0].read_text(encoding="utf-8", errors="replace")
+    # Exige chave exata no teste; não aceita 149 seções ligadas por inferência a teste genérico.
+    if f'"{row["section_id"]}"' not in test_source and f'"{row["book_id"]}:{row["chapter_id"]}:{row["section_id"]}"' not in test_source:
+        errors.append(f"{prefix}: o teste {assertion} não referencia a seção de modo identificável")
+    xml_path = within_project(root, str(proof.get("test_xml", "")))
+    if not xml_path or not xml_path.is_file():
+        errors.append(f"{prefix}: XML de execução não localizado no projeto")
+        return
+    try:
+        xml_root = ET.parse(xml_path).getroot()
+        testcases = [
+            case for case in xml_root.iter("testcase")
+            if case.get("name") == method and case.get("classname", "").endswith(klass)
+        ]
+        if len(testcases) != 1 or any(c.find("failure") is not None or c.find("error") is not None or c.find("skipped") is not None for c in testcases):
+            errors.append(f"{prefix}: XML não comprova caso executado/aprovado: {assertion}")
+    except (ET.ParseError, OSError) as exc:
+        errors.append(f"{prefix}: XML ilegível: {exc}")
+    if (row.get("actual_result") or "") != "VERIFIED_PASSED":
+        errors.append(f"{prefix}: resultado real incompatível com IMPLEMENTED_AND_TESTED")
+
+def inspect(root):
     errors = []
-    
-    if not os.path.exists(SECTIONS_CSV):
-        print(f"ERRO FATAL: {SECTIONS_CSV} não encontrado.")
-        sys.exit(1)
-    if not os.path.exists(ACCEPTANCE_CSV):
-        print(f"ERRO FATAL: {ACCEPTANCE_CSV} não encontrado.")
-        sys.exit(1)
-        
-    # 1. Carregar Matriz de Seções
-    sections_map = {}
-    with open(SECTIONS_CSV, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for i, row in enumerate(reader, start=2):
-            key = (row["book_id"], row["chapter_id"], row["section_id"])
-            if key in sections_map:
-                errors.append(f"Chave duplicada em PLANO_MESTRE_MATRIZ_10_LIVROS_SECOES.csv linha {i}: {key}")
-            sections_map[key] = row
-            
-    print(f"[OK] Matriz base carregada: {len(sections_map)} seções mapeadas.")
-    
-    # 2. Carregar e Validar Ledger de Aceitação
-    acceptance_map = {}
-    book_counts = {b: 0 for b in REQUIRED_BOOKS}
-    symbol_cache = {}
-    test_cache = {}
-    
-    with open(ACCEPTANCE_CSV, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for col in REQUIRED_ACCEPTANCE_COLS:
-            if col not in reader.fieldnames:
-                errors.append(f"Coluna obrigatória ausente em EDITORIAL_SECTION_ACCEPTANCE.csv: {col}")
-                
-        for i, row in enumerate(reader, start=2):
-            for col in REQUIRED_ACCEPTANCE_COLS:
-                val = (row.get(col) or "").strip()
-                if not val:
-                    errors.append(f"Linha {i}: Coluna '{col}' vazia.")
-                for ph in FORBIDDEN_PLACEHOLDERS:
-                    if ph in val.upper():
-                        errors.append(f"Linha {i}: Placeholder proibido '{ph}' na coluna '{col}': {val}")
-                        
-            key = (row.get("book_id"), row.get("chapter_id"), row.get("section_id"))
-            if key in acceptance_map:
-                errors.append(f"Chave duplicada em EDITORIAL_SECTION_ACCEPTANCE.csv linha {i}: {key}")
-            acceptance_map[key] = row
-            
-            b_id = row.get("book_id")
-            if b_id in book_counts:
-                book_counts[b_id] += 1
-            else:
-                errors.append(f"Linha {i}: Livro desconhecido '{b_id}'")
-                
-            # Validar status e actual_result
-            if row.get("status") != "ACCEPTED":
-                errors.append(f"Linha {i}: Status inválido '{row.get('status')}'; esperado 'ACCEPTED'")
-            if row.get("actual_result") != "VERIFIED_PASSED":
-                errors.append(f"Linha {i}: actual_result inválido '{row.get('actual_result')}'; esperado 'VERIFIED_PASSED'")
-                
-            # Validar runtime_symbol
-            sym = row.get("runtime_symbol")
-            if sym not in symbol_cache:
-                path = find_java_file_for_symbol(sym)
-                if not path:
-                    symbol_cache[sym] = (False, f"Símbolo de runtime não encontrado no código: {sym}")
-                else:
-                    symbol_cache[sym] = (True, path)
-            if not symbol_cache[sym][0]:
-                errors.append(f"Linha {i}: {symbol_cache[sym][1]}")
-                
-            # Validar assertion_id
-            ast = row.get("assertion_id")
-            if ast not in test_cache:
-                test_cache[ast] = find_test_method(ast)
-            if not test_cache[ast][0]:
-                errors.append(f"Linha {i}: {test_cache[ast][1]}")
+    sections = load_csv(root, SECTIONS, SECTIONS_COLUMNS, errors)
+    ledger = load_csv(root, ACCEPTANCE, ACCEPTANCE_COLUMNS, errors)
+    section_map = {}
+    for i, row in enumerate(sections, 2):
+        k = key(row)
+        if not all(k) or k[0] not in BOOKS:
+            errors.append(f"{SECTIONS}:{i}: chave inválida {k}")
+        if k in section_map:
+            errors.append(f"{SECTIONS}:{i}: seção duplicada {k}")
+        section_map[k] = row
+    ledger_map = {}
+    status_counts = Counter()
+    by_book = {b: Counter() for b in sorted(BOOKS)}
+    for i, row in enumerate(ledger, 2):
+        k = key(row)
+        name = ":".join(k)
+        if k in ledger_map:
+            errors.append(f"{ACCEPTANCE}:{i}: linha duplicada {name}")
+        ledger_map[k] = row
+        if k[0] not in BOOKS:
+            errors.append(f"{ACCEPTANCE}:{i}: livro desconhecido {k[0]}")
+            continue
+        status = (row.get("status") or "").strip()
+        status_counts[status] += 1
+        by_book[k[0]][status] += 1
+        if status not in STATUSES:
+            errors.append(f"{ACCEPTANCE}:{i}: estado proibido: {status!r}")
+            continue
+        reference = section_map.get(k)
+        if reference is None:
+            errors.append(f"{ACCEPTANCE}:{i}: seção inexistente na matriz-base: {name}")
+            continue
+        if status == "NOT_APPLICABLE":
+            reason = (row.get("review_note") or "").strip()
+            if not reason or reason.upper() in PLACEHOLDERS:
+                errors.append(f"{name}: NOT_APPLICABLE exige justificativa editorial individual")
+        if status == "IMPLEMENTED_AND_TESTED":
+            validate_evidence(row, root, errors)
+        else:
+            if (row.get("actual_result") or "").strip() == "VERIFIED_PASSED":
+                errors.append(f"{name}: resultado VERiFIED_PASSED falso para estado {status}")
+        # Comparar progresso documental sem tratar alegação de HTTP 200 como evidência.
+        if status == "IMPLEMENTED_AND_TESTED" and (reference.get("verification_result") or "") == "NOT_APPLICABLE":
+            errors.append(f"{name}: contradição entre matriz-base e ledger")
+    for k in sorted(set(section_map) - set(ledger_map)):
+        errors.append(f"{ACCEPTANCE}: seção ausente: {k}")
+    if len(ledger_map) != len(section_map):
+        errors.append(f"Contagem divergente: {len(section_map)} inventariadas / {len(ledger_map)} no ledger")
+    return {
+        "inventory_sections": len(section_map),
+        "ledger_sections": len(ledger_map),
+        "statuses": dict(status_counts),
+        "by_book": {k: dict(v) for k, v in by_book.items()},
+        "certified": status_counts["IMPLEMENTED_AND_TESTED"],
+        "pending": len(ledger_map) - status_counts["IMPLEMENTED_AND_TESTED"],
+        "errors": errors
+    }
 
-    print(f"[OK] Ledger de aceitação carregado: {len(acceptance_map)} seções auditadas.")
-    
-    # 3. Correspondência 1-para-1 estrita
-    if len(sections_map) != 483:
-        errors.append(f"Total de seções na matriz base diferente de 483: {len(sections_map)}")
-    if len(acceptance_map) != 483:
-        errors.append(f"Total de seções no ledger de aceitação diferente de 483: {len(acceptance_map)}")
-        
-    diff_missing = set(sections_map.keys()) - set(acceptance_map.keys())
-    if diff_missing:
-        errors.append(f"Seções presentes na matriz base mas ausentes no ledger: {len(diff_missing)} chaves.")
-        
-    diff_extra = set(acceptance_map.keys()) - set(sections_map.keys())
-    if diff_extra:
-        errors.append(f"Seções presentes no ledger mas ausentes na matriz base: {len(diff_extra)} chaves.")
-        
-    # 4. Exibir sumário por livro
-    print("\n--- DISTRIBUIÇÃO AUDITADA POR LIVRO ---")
-    for b in sorted(REQUIRED_BOOKS):
-        print(f"  * {b:<6}: {book_counts[b]:>3} seções comprovadas e aceitas")
-        if book_counts[b] == 0:
-            errors.append(f"Livro sem seções aceitas: {b}")
-            
-    print(f"\n--- SÍMBOLOS E TESTES VALIDADOS NO CÓDIGO FONTE ---")
-    print(f"  * Símbolos de runtime únicos verificados: {len(symbol_cache)}")
-    print(f"  * Assertivas de teste únicas verificadas: {len(test_cache)}")
-
-    if errors:
-        print("\n" + "!" * 70)
-        print(f"FALHA NA VALIDAÇÃO EDITORIAL: {len(errors)} ERROS DETECTADOS:")
-        for e in errors[:30]:
-            print(f"  [X] {e}")
-        if len(errors) > 30:
-            print(f"  ... e mais {len(errors) - 30} erros suprimidos.")
-        print("!" * 70)
-        sys.exit(1)
-        
-    print("\n" + "=" * 70)
-    print("SUCESSO: TODAS AS 483 SEÇÕES FORAM COMPROVADAS E ACEITAS SEM FALSOS POSITIVOS!")
-    print("=" * 70)
-    sys.exit(0)
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--project-root", type=Path, default=ROOT)
+    parser.add_argument("--require-complete", action="store_true", help="Falhar se uma seção não estiver comprovada")
+    parser.add_argument("--json", action="store_true", help="Imprimir resumo legível por máquina")
+    options = parser.parse_args(argv)
+    result = inspect(options.project_root)
+    if options.json:
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+    else:
+        print(f"Inventário: {result['inventory_sections']} seções; "
+              f"com prova individual: {result['certified']}; pendentes: {result['pending']}")
+        for status, total in sorted(result["statuses"].items()):
+            print(f"  {status}: {total}")
+        for e in result["errors"][:30]:
+            print("ERRO:", e)
+        if len(result["errors"]) > 30:
+            print(f"... outros {len(result['errors']) - 30} erros")
+    if result["errors"]:
+        return 1
+    if options.require_complete and result["pending"]:
+        print("GATE REPROVADO: existem seções sem comprovação individual.", file=sys.stderr)
+        return 2
+    print("Inventário consistente; isto NÃO é homologação editorial integral.")
+    return 0
 
 if __name__ == "__main__":
-    validate()
+    raise SystemExit(main())
