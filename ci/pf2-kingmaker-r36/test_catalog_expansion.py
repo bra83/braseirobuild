@@ -60,7 +60,8 @@ def test_build_repair_fail_closed_without_tender_and_lots():
           +'public JSONObject resolveRepairStructure'+prototype+anchor+'}\n')
     result=m.transform_repository(mock)
     assert result.count('requires_special_placement')==2
-    assert result.count('requires_cost_choice')==2
+    assert result.count('requires_cost_choice')==4
+    assert result.count('Esta estrutura não tem custo alternativo.')==2
     assert result.count('if("lumber".equals(commodityChoice))def.put("stone",0);')==2
     assert result.count('else if("stone".equals(commodityChoice))def.put("lumber",0);')==2
     assert 'return resolveBuildStructure(settlementKey,structureKey,naturalRoll,skillKey,notes,"");' in result

@@ -157,6 +157,8 @@ def transform_repository(source):
     guard=(anchor+'\n'
            '        if(def.optBoolean("requires_special_placement",false))\n'
            '            throw new IllegalStateException("Estrutura de implantação especial: selecione o tipo/local exigido pelo manual Kingmaker.");\n'
+           '        if(!def.optBoolean("requires_cost_choice",false)&&commodityChoice.length()>0)\n'
+           '            throw new IllegalArgumentException("Esta estrutura não tem custo alternativo.");\n'
            '        if(def.optBoolean("requires_cost_choice",false)){\n'
            '            if("lumber".equals(commodityChoice))def.put("stone",0);\n'
            '            else if("stone".equals(commodityChoice))def.put("lumber",0);\n'

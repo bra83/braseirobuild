@@ -27,6 +27,9 @@ def test_r35_manual_construction_is_replaced_by_rules_engine():
     assert '"d20 de construção"' in output
     assert 'officialKeys[position]' in output
     assert 'defaultSkills[position]' in output
+    assert 'officialCosts.setText(officialDetails[position]);' in output
+    assert 'DETAILS_TOKEN' not in output
+    assert 'Construção: ' in output
     assert "Pagar com Madeira" in output
     assert "Pagar com Pedra" in output
     assert 'n,skill,value(notes),commodityChoice' in output

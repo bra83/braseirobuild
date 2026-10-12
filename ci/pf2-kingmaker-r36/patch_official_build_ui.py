@@ -40,6 +40,13 @@ def transform(source):
             +(" · implantação especial" if x["lots"] is None else "")
             +(" · custo alternativo" if " or " in x["cost_text"] else "")
             for x in rows]
+    details=[
+      x["official_name"]+" | "+x["cost_text"]
+      +" | Construção: "+x["construction"]+" CD "+str(x["construction_dc"])
+      +" | Lotes: "+(str(x["lots"]) if x["lots"] is not None else "implantação específica")
+      +(" | Escolha Madeira OU Pedra" if " or " in x["cost_text"] else "")
+      for x in rows
+    ]
     expected=[skill_data(x["construction"])[0][0] for x in rows]
     selection=["Automático (perícia oficial)"]+sorted(set(
       skill for x in rows for skill in skill_data(x["construction"])[0]))
@@ -47,14 +54,24 @@ def transform(source):
     private void showKingmakerStructureDialog(final JSONObject settlement){
         final String[] officialKeys=KEYS_TOKEN;
         final String[] officialLabels=LABELS_TOKEN;
+        final String[] officialDetails=DETAILS_TOKEN;
         final String[] defaultSkills=DEFAULT_TOKEN;
         final String[] skillOptions=SKILL_TOKEN;
         LinearLayout form=new LinearLayout(this);
         form.setOrientation(LinearLayout.VERTICAL);
         form.setPadding(dp(12),0,dp(12),dp(16));
-        form.addView(text("Estruturas oficiais de Kingmaker. O motor confere fase de Atividades, proficiência, nível, lotes, pré-requisitos, RP, materiais, rolagem e consequências. Infraestruturas de implantação especial e pagamentos alternativos ainda exigem a resolução apropriada e serão bloqueados, nunca cobrados silenciosamente.",12,MUTED,false));
+        form.addView(text("Estruturas oficiais de Kingmaker. O motor confere fase de Atividades, proficiência, nível, lotes, pré-requisitos, RP, materiais, rolagem e consequências. Implantações especiais exigem uma regra espacial ainda não homologada e serão bloqueadas. Para Watchtower selecione a opção Madeira ou Pedra; nenhum pagamento alternativo é cobrado automaticamente.",12,MUTED,false));
         final Spinner choice=spinner(officialLabels,officialLabels[0]);
         form.addView(cardWithLabel("ESTRUTURA OFICIAL",choice));
+        final TextView officialCosts=text(officialDetails[0],12,MUTED,false);
+        form.addView(officialCosts);
+        choice.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener(){
+            public void onItemSelected(android.widget.AdapterView<?> parent,View item,int position,long id){
+                if(position>=0&&position<officialDetails.length)
+                    officialCosts.setText(officialDetails[position]);
+            }
+            public void onNothingSelected(android.widget.AdapterView<?> parent){}
+        });
         final Spinner skillChoice=spinner(skillOptions,skillOptions[0]);
         form.addView(cardWithLabel("PERÍCIA (automática ou alternativa permitida)",skillChoice));
         final String[] commodityOptions={"Sem alternativa","Pagar com Madeira","Pagar com Pedra"};
@@ -90,6 +107,7 @@ def transform(source):
 
     '''
     method=method.replace("KEYS_TOKEN",array(keys)).replace("LABELS_TOKEN",array(labels))
+    method=method.replace("DETAILS_TOKEN",array(details))
     method=method.replace("DEFAULT_TOKEN",array(expected)).replace("SKILL_TOKEN",array(selection))
     return source[:start]+method+source[end:]
 

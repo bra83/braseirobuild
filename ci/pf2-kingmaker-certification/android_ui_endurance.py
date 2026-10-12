@@ -245,6 +245,7 @@ def create_army(name,allegiance):
             log("ARMY_ALLEGIANCE_FIELD_MISSING",[v[0] for v in edits[:8]])
             return False
         shell("input","tap",str(allegiance_field[1]),str(allegiance_field[2]))
+        shell("input","keyevent","123") # KEYCODE_MOVE_END: clear known value fully
         # Replace only the known initial 7-character value, then verify it.
         for _ in range(7):shell("input","keyevent","67")
         shell("input","text",allegiance)
