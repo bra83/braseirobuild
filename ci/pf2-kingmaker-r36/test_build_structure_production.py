@@ -23,7 +23,7 @@ def test_unfinished_and_rubble_are_persisted_and_occupy_lots():
     assert 'must_demolish' in s
 
 def test_success_reuses_prepaid_cost_and_refunds_half_commodities_only():
-    assert 'buildStructure(townKey,structureKey,notes,true)' in s
+    assert 'buildStructure(townKey,structureKey,notes,true,buildOptions)' in s
     for k in ("lumber","stone","ore","luxuries"):
         assert f'put("{k}",{k}/2)' in s
     assert 'put("resource_points",rp/2)' not in s

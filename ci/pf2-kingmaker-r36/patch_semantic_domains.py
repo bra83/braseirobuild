@@ -94,15 +94,13 @@ def structure_triggers(s):
  begin=s.index('                int unrestRed = def.optInt("unrest_reduction", 0);')
  end=s.index('                sv.put("updated_at", System.currentTimeMillis());',begin)
  s=s[:begin]+'''                JSONObject buildEffects=officialBuildEffects(settlementKey,structureKey,def,buildOptions);
-                for(String stat:new String[]{"unrest","crime","corruption","decay","strife"}){
-                    int delta=buildEffects.optInt(stat);if(delta!=0)sv.put(stat,Math.max(0,s.optInt(stat)+delta));
-                }
-                if(buildEffects.has("unrest"))sv.put("anarchy",rules.isAnarchy(Math.max(0,s.optInt("unrest")+buildEffects.optInt("unrest")))?1:0);
                 int reputationCap=s.optInt("level",1)>=20?4:3;
-                for(String stat:new String[]{"fame","infamy"})if(buildEffects.optInt(stat)!=0)sv.put(stat,Math.max(0,Math.min(reputationCap,s.optInt(stat)+buildEffects.optInt(stat))));
+                for(String stat:new String[]{"fame","infamy"})if(buildEffects.has(stat))buildEffects.put(stat,Math.max(0,Math.min(reputationCap,s.optInt(stat)+buildEffects.optInt(stat)))-s.optInt(stat));
 '''+s[end:]
  anchor='strV.put("effects_json", effects.toString());'
  s=replace_once(s,anchor,'effects.put("official_build_effects",buildEffects);'+anchor,"persist build effects")
+ anchor='db.getWritableDatabase().update("kingmaker_state", sv, "world_profile=?", new String[]{profile()});'
+ s=replace_once(s,anchor,anchor+'\n                adjustState(buildEffects,"Efeitos oficiais da construção");\n                ContentValues anarchyState=new ContentValues();anarchyState.put("anarchy",rules.isAnarchy(state().optInt("unrest"))?1:0);db.getWritableDatabase().update("kingmaker_state",anarchyState,"world_profile=?",new String[]{profile()});',"ruin thresholds use core accounting")
  # One-time migration backs up old generated broad bonuses instead of losing them.
  migration='''    private void migrateLegacyStructureBonuses()throws Exception{
         String marker="migration:r36_structure_scope";
@@ -181,7 +179,7 @@ def director(s):
 '''+anchor,"unstarted dependencies")
  s=s.replace('unstartedQuests.get(0).optString("chapter_key", "")','KingmakerCampaignGate.chapterKey(unstartedQuests.get(0))')
  anchor='            String guidanceText = buildGuidanceText(activeChapter, chapterTitle, currentStage, activeQuestsList, recommendedScene, sceneAction);'
- s=replace_once(s,anchor,'''            int officialChapter=KingmakerCampaignGate.officialChapter(chapterKey);
+ s=replace_once(s,anchor,'''            int officialChapter=!activeQuestsList.isEmpty()?KingmakerCampaignGate.officialChapterForQuest(activeQuestsList.get(0)):KingmakerCampaignGate.officialChapter(chapterKey);
             if(officialChapter>0)chapterTitle=KingmakerCampaignGate.officialTitle(officialChapter);
             out.put("official_chapter",officialChapter).put("campaign_chapter_count",11);
 '''+anchor,"official chapter identity")

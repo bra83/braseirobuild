@@ -9,7 +9,7 @@ def test_half_cost_paid_before_check():
     assert 'def.optInt("rp",0)/2' in method
     for k in ("lumber","stone","ore","luxuries"):
         assert f'def.optInt("{k}",0)/2' in method
-    assert method.index('adjustState(new JSONObject().put("resource_points",-rp)')<method.index('recordCheck("repair_structure"')
+    assert method.index('adjustState(new JSONObject().put("resource_points",-rp)')<method.index('recordCheckAtSettlement(townKey,"repair_structure"')
     assert 'recordRpSpent(rp);' in method
     assert 'db.runInTransactionChecked(' in method
 def test_critical_rubble_and_critical_commodity_refund_persisted():
@@ -20,7 +20,8 @@ def test_critical_rubble_and_critical_commodity_refund_persisted():
     assert 'oldEffects.put("construction_status","complete").put("damaged",false)' in method
     for k in ("lumber","stone","ore","luxuries"):assert f'put("{k}",{k}/2)' in method
 def test_existing_repair_item_bonus_does_not_stack():
-    assert '"repair_structure".equals(activity)?Math.max(skill.optInt("item_bonus"),2)' in source
+    assert 'Math.max(skill.optInt("item_bonus"),structureItem)' in source
+    assert 'if("repair_structure".equals(activity))civicItemBonus=Math.max(civicItemBonus,2);' in source
     assert '.put("item",civicItemBonus)' in source
 def test_activity_dispatcher_uses_real_roll_and_skill():
     assert 'return resolveRepairStructure(p.optString("settlement_key"), p.optString("structure_key"), nat, skill, notes);' in source

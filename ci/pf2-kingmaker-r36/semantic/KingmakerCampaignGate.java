@@ -56,6 +56,14 @@ public final class KingmakerCampaignGate {
   if(!m.find())return 0;
   int legacy=Integer.parseInt(m.group(1));return legacy>=0&&legacy<=10?legacy+1:0;
  }
+ public static int officialChapterForQuest(JSONObject q){
+  String k=questKey(q);
+  if("q_call_for_heroes".equals(k)||"q_carta_restov".equals(k))return 1;
+  if(Arrays.asList("q_oleg","q_kressle","q_senhor_cervos").contains(k))return 3;
+  if(Arrays.asList("q_bokken","q_tuskgutter","q_sicomoro","q_templo_alce").contains(k))return 2;
+  if("q_fundacao_baronia".equals(k))return 4;
+  return officialChapter(chapterKey(q));
+ }
  public static String officialTitle(int chapter){
   String[] titles={"","Convocação de Heróis","Rumo aos Ermos","Terras Roubadas","Rios de Sangue","O Culto do Florescimento","O Desaparecimento de Varnhold","Sangue por Sangue","A Guerra dos Reis dos Rios","Eles Espreitam Abaixo","O Som de Mil Gritos","A Maldição do Rei Lanterna"};
   return chapter>=1&&chapter<=11?titles[chapter]:"Conteúdo complementar";
