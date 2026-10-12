@@ -1,6 +1,7 @@
 package com.braseiro.dnd5e;
 
 import com.braseiro.dnd5e.adventure.AdventureModule;
+import com.braseiro.dnd5e.adventure.AdventureNode;
 import com.braseiro.dnd5e.adventure.FaerunAdventureModuleCatalog;
 import com.braseiro.dnd5e.canon.EberronCanonCatalog;
 import com.braseiro.dnd5e.canon.FaerunCanonCatalog;
@@ -113,20 +114,53 @@ public final class EditorialSectionProofTest {
     @Test
     public void testFaerunAdventureModulesFiveSpecsNonLinear() {
         List<AdventureModule> modules = FaerunAdventureModuleCatalog.all();
-        assertEquals("Deve conter 5 aventuras oficiais compiladas de FRAiF", 5, modules.size());
+        assertEquals("Deve conter 5 aventuras de FRAiF (2 publicadas exatas + 3 ganchos originais)", 5, modules.size());
 
-        Set<String> modIds = new HashSet<>();
-        for (AdventureModule m : modules) {
-            modIds.add(m.getId());
-            assertTrue("Módulo deve ter nós", m.getNodes().size() >= 4);
-            assertNotNull("Módulo deve ter nó setup", m.getNodes().get("setup"));
+        AdventureModule damara = FaerunAdventureModuleCatalog.byId("fraif_tomb_damara");
+        assertNotNull("The Tomb of Damara deve existir", damara);
+        assertEquals("The Tomb of Damara deve ser Nível 3", 3, damara.getMetadata().optInt("recommended_level"));
+        assertTrue("The Tomb of Damara deve ser marcada como oficial publicada", damara.getMetadata().optBoolean("is_official_published"));
+        assertEquals("official_published_adventure_adaptation", damara.getMetadata().optString("runtime_tier"));
+        // Comprovar presença de Bonegnasher e Silverstar nos nós
+        StringBuilder damaraText = new StringBuilder();
+        for (AdventureNode n : damara.getNodes().values()) {
+            damaraText.append(n.getTitle()).append(" ").append(n.getDescription()).append(" ");
         }
+        String damaraFullText = damaraText.toString();
+        assertTrue("Deve citar Bonegnasher", damaraFullText.contains("Bonegnasher"));
+        assertTrue("Deve citar a família Silverstar e resgate de Sara", damaraFullText.contains("Silverstar"));
+        assertTrue("Deve citar Orbe de Damara", damaraFullText.contains("Orbe de Damara"));
 
-        assertTrue("Deve conter fraif_heir_trial", modIds.contains("fraif_heir_trial"));
-        assertTrue("Deve conter fraif_archmage_legacy", modIds.contains("fraif_archmage_legacy"));
-        assertTrue("Deve conter fraif_tomb_damara", modIds.contains("fraif_tomb_damara"));
-        assertTrue("Deve conter fraif_lost_library", modIds.contains("fraif_lost_library"));
-        assertTrue("Deve conter fraif_baldurs_undercellar", modIds.contains("fraif_baldurs_undercellar"));
+        AdventureModule lethchauntos = FaerunAdventureModuleCatalog.byId("fraif_lost_library");
+        assertNotNull("The Lost Library of Lethchauntos deve existir", lethchauntos);
+        assertEquals("The Lost Library of Lethchauntos deve ser Nível 1 (introdutória)", 1, lethchauntos.getMetadata().optInt("recommended_level"));
+        assertTrue("The Lost Library of Lethchauntos deve ser marcada como oficial publicada", lethchauntos.getMetadata().optBoolean("is_official_published"));
+        assertEquals("official_published_adventure_adaptation", lethchauntos.getMetadata().optString("runtime_tier"));
+        // Comprovar presença de Myrna Nor, Powell Niccam e o tomo Nathlum
+        StringBuilder lethText = new StringBuilder();
+        for (AdventureNode n : lethchauntos.getNodes().values()) {
+            lethText.append(n.getTitle()).append(" ").append(n.getDescription()).append(" ");
+        }
+        String lethFullText = lethText.toString();
+        assertTrue("Deve citar Myrna Nor", lethFullText.contains("Myrna Nor"));
+        assertTrue("Deve citar Powell 'the Owl' Niccam", lethFullText.contains("Powell"));
+        assertTrue("Deve citar o tomo Nathlum", lethFullText.contains("Nathlum"));
+
+        // Comprovar que os outros 3 módulos são rotulados explicitamente como originais
+        AdventureModule heir = FaerunAdventureModuleCatalog.byId("fraif_heir_trial");
+        assertNotNull(heir);
+        assertFalse("The Heir's Trial é criação original compatível", heir.getMetadata().optBoolean("is_official_published"));
+        assertEquals("original_scenario_campaign_hook", heir.getMetadata().optString("runtime_tier"));
+
+        AdventureModule archmage = FaerunAdventureModuleCatalog.byId("fraif_archmage_legacy");
+        assertNotNull(archmage);
+        assertFalse("The Archmage's Legacy é criação original compatível", archmage.getMetadata().optBoolean("is_official_published"));
+        assertEquals("original_scenario_campaign_hook", archmage.getMetadata().optString("runtime_tier"));
+
+        AdventureModule undercellar = FaerunAdventureModuleCatalog.byId("fraif_baldurs_undercellar");
+        assertNotNull(undercellar);
+        assertFalse("Conspiracy in the Under-Cellar é criação original compatível", undercellar.getMetadata().optBoolean("is_official_published"));
+        assertEquals("original_scenario_campaign_hook", undercellar.getMetadata().optString("runtime_tier"));
     }
 
     @Test
