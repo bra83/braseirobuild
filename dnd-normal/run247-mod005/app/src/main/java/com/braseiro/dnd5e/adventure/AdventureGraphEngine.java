@@ -46,7 +46,23 @@ public final class AdventureGraphEngine implements IAdventureEngine {
 
     @Override public synchronized JSONObject getNarrationContext(){JSONObject res=new JSONObject();try{if(currentModule!=null&&currentState!=null){AdventureNode n=currentModule.getNode(currentState.getCurrentNodeId());if(n!=null)res.put("title",n.getTitle()).put("description",n.getDescription()).put("location_id",n.getLocationId()).put("directives",n.getGmDirectives()).put("state",currentState.toJson());}}catch(Exception ignored){}return res;}
 
-    @Override public synchronized boolean canTransition(String targetNodeId){if(currentModule==null||currentState==null||targetNodeId==null)return false;AdventureNode node=currentModule.getNode(currentState.getCurrentNodeId());if(node==null)return false;for(AdventureTransition t:node.getTransitions())if(targetNodeId.equals(t.getTargetNodeId())){if(t.getRequiredFlag().length()>0&&!currentState.hasFlag(t.getRequiredFlag()))return false;if(t.getRequiredClue().length()>0&&!currentState.getDiscoveredClues().contains(t.getRequiredClue()))return false;return true;}return false;}
+    @Override public synchronized boolean canTransition(String targetNodeId) {
+        if (currentModule == null || currentState == null || targetNodeId == null)
+            return false;
+        AdventureNode node = currentModule.getNode(currentState.getCurrentNodeId());
+        if (node == null) return false;
+        // Several choices may share a destination. An inaccessible first choice
+        // must not hide another valid action leading to that scene.
+        for (AdventureTransition option : node.getTransitions()) {
+            if (!targetNodeId.equals(option.getTargetNodeId())) continue;
+            if (!option.getRequiredFlag().isEmpty()
+                    && !currentState.hasFlag(option.getRequiredFlag())) continue;
+            if (!option.getRequiredClue().isEmpty()
+                    && !currentState.getDiscoveredClues().contains(option.getRequiredClue())) continue;
+            return true;
+        }
+        return false;
+    }
     @Override public synchronized boolean commitTransaction(){return currentState!=null&&currentState.commitTransaction();}
     @Override public synchronized void rollbackTransaction(){if(currentState!=null)currentState.rollbackTransaction();}
     public synchronized AdventureState getCurrentState(){return currentState;}
