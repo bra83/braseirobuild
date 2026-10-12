@@ -55,11 +55,19 @@ def test_alternative_costs_and_special_placement_are_explicit():
 
 def test_build_repair_fail_closed_without_tender_and_lots():
     anchor='if(town.length()==0||def==null)throw new IllegalArgumentException("Assentamento ou estrutura inválidos.");'
-    result=m.transform_repository(anchor+"\n"+anchor)
+    prototype='(String settlementKey,String structureKey,int naturalRoll,String skillKey,String notes)throws Exception{'
+    mock=('public JSONObject resolveBuildStructure'+prototype+anchor+'}\n'
+          +'public JSONObject resolveRepairStructure'+prototype+anchor+'}\n')
+    result=m.transform_repository(mock)
     assert result.count('requires_special_placement')==2
     assert result.count('requires_cost_choice')==2
-    with pytest.raises(ValueError,match="drift"):
-        m.transform_repository(anchor)
+    assert result.count('if("lumber".equals(commodityChoice))def.put("stone",0);')==2
+    assert result.count('else if("stone".equals(commodityChoice))def.put("lumber",0);')==2
+    assert 'return resolveBuildStructure(settlementKey,structureKey,naturalRoll,skillKey,notes,"");' in result
+    assert 'return resolveRepairStructure(settlementKey,structureKey,naturalRoll,skillKey,notes,"");' in result
+    assert 'notes,String commodityChoice)throws Exception{' in result
+    with pytest.raises(ValueError,match="resolver drift"):
+        m.transform_repository(mock.replace(anchor,"",1))
 
 def test_source_drift_fails_closed():
     with pytest.raises(ValueError):
