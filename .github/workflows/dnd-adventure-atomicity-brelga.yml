@@ -1,0 +1,59 @@
+name: Braseiro D&D - Adventure transactional regression (BRELGA)
+on:
+  push:
+    branches:
+      - antigravity/dnd-normal-fechamento-gates
+    paths:
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/adventure/**'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/adventure/AdventureTransactionSafetyRobolectricTest.java'
+      - '.github/workflows/dnd-adventure-atomicity-brelga.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dnd-adventure-tx-brelga
+  cancel-in-progress: false
+jobs:
+  focused:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+      - name: Execute AdventureTransactionSafetyRobolectricTest and full regression
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw 'EXPECTED_RUNNER_BRELGA' }
+          $java17='C:\actions-runner\_work\_tool\Java_Temurin-Hotspot_jdk\17.0.20-101\x64'
+          if (Test-Path $java17) {
+            $env:JAVA_HOME=$java17
+            $env:PATH=(Join-Path $java17 'bin')+';'+$env:PATH
+          }
+          if (!$env:ANDROID_HOME -or !(Test-Path $env:ANDROID_HOME)) {
+            $sdk=Join-Path $env:LOCALAPPDATA 'Android\Sdk'
+            if (Test-Path $sdk) { $env:ANDROID_HOME=$sdk }
+          }
+          if (!$env:ANDROID_HOME -or !(Test-Path $env:ANDROID_HOME)) { throw 'ANDROID_SDK_NOT_FOUND' }
+          $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          Set-Location 'dnd-normal/run247-mod005'
+          & .\gradlew.bat :app:testDebugUnitTest --tests com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest --no-daemon --console=plain
+          if ($LASTEXITCODE -ne 0) { throw 'FOCUSED_REGRESSION_FAILED' }
+          $xml='app/build/test-results/testDebugUnitTest/TEST-com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest.xml'
+          if (!(Test-Path $xml)) { throw 'FOCUSED_XML_MISSING' }
+          [xml]$result=Get-Content -LiteralPath $xml -Raw
+          if ([int]$result.testsuite.tests -ne 6 -or [int]$result.testsuite.failures -ne 0 -or [int]$result.testsuite.errors -ne 0 -or [int]$result.testsuite.skipped -ne 0) { throw 'SIX_REQUIRED_TESTS_NOT_GREEN' }
+          & .\gradlew.bat :app:testDebugUnitTest --no-daemon --console=plain
+          if ($LASTEXITCODE -ne 0) { throw 'FULL_SUITE_FAILED' }
+          Write-Host ('SOURCE_SHA='+$env:GITHUB_SHA)
+          Write-Host 'ADVENTURE_TRANSACTION_TESTS=6/6; FULL_SUITE=PASS; APK_NOT_BUILT=TRUE'
+      - name: Upload test XML logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dnd-adventure-test-xml-${{ github.run_id }}
+          path: dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/*.xml
+          if-no-files-found: warn
+          retention-days: 7
