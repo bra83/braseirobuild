@@ -55,6 +55,29 @@ jobs:
         uses: actions/checkout@v4
         with:
           sparse-checkout: dnd-normal/run247-mod005
+      - name: Reclaim D&D-only build outputs and check runner disk
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $project = Join-Path $env:GITHUB_WORKSPACE 'dnd-normal/run247-mod005'
+          if (!(Test-Path -LiteralPath $project)) { throw 'DND_PROJECT_WORKSPACE_MISSING' }
+          $driveRoot = [System.IO.Path]::GetPathRoot($project)
+          $drive = New-Object System.IO.DriveInfo($driveRoot)
+          Write-Host ('DND_DISK_FREE_BEFORE_BYTES=' + $drive.AvailableFreeSpace)
+          # ONLY compiled/transient outputs belonging to this D&D project.
+          # Never delete canonical source assets, maps, other VTTs or global SDK caches.
+          foreach ($relative in @('app\build', 'build', 'app\.cxx')) {
+            $dir = Join-Path $project $relative
+            if (Test-Path -LiteralPath $dir) {
+              Remove-Item -LiteralPath $dir -Recurse -Force -ErrorAction Stop
+              Write-Host ('REMOVED_DND_TRANSIENT=' + $relative)
+            }
+          }
+          $drive = New-Object System.IO.DriveInfo($driveRoot)
+          Write-Host ('DND_DISK_FREE_AFTER_BYTES=' + $drive.AvailableFreeSpace)
+          if ($drive.AvailableFreeSpace -lt 1073741824) {
+            throw ('BRELGA_INSUFFICIENT_FREE_SPACE_DND_ONLY_CLEANUP=' + $drive.AvailableFreeSpace)
+          }
       - name: Execute AdventureTransactionSafetyRobolectricTest and full regression
         shell: powershell
         run: |
