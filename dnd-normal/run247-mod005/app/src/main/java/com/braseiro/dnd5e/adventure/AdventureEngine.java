@@ -36,7 +36,7 @@ public final class AdventureEngine implements IAdventureEngine {
                 return error("Falha ao salvar primeira sessão da aventura. Nenhum jogo iniciado.");
             }
             activeState=created;res=graphEngine.resumeAdventure(module,activeState);}
-        res.put("module_installed",true).put("auto_rolls",false);return res;
+        res.put("module_installed",true).put("current_node_id",activeState!=null?activeState.getCurrentNodeId():"").put("auto_rolls",false);return res;
     }catch(Exception e){return error(e.getMessage());}}
 
     /** Carrega somente módulo já compilado/instalado. Não cria aventura fictícia de fallback. */

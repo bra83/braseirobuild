@@ -327,6 +327,324 @@ public final class NarrativeContentEngine {
         return view;
     }
 
+    /**
+     * Semeia o cânone oficial dos 10 livros no SQLite de forma transacional e determinística.
+     * Retorna o número de entidades instaladas.
+     */
+    public synchronized int seedOfficialCanon() {
+        if (appDb == null) return 0;
+        int count = 0;
+
+        // 1. Forgotten Realms: Heroes of Faerun (FRHoF) & Adventures in Faerun (FRAiF)
+        Map<String, String> harperRel = new HashMap<>();
+        harperRel.put("rival", "faerun_zhentarim");
+        harperRel.put("ally", "faerun_elminster");
+        if (saveEntity(new Entity(
+                "faerun_harpers", "FRHoF", "forgotten_realms", "present", "faction",
+                "Os Harpistas", "The Harpers",
+                "Orquestra de agentes secretos que lutam pelo equilíbrio e contra a tirania em Faerûn.",
+                java.util.Arrays.asList(
+                        "Fundados por Elminster e líderes das raças livres para defender os fracos.",
+                        "Operam através de células independentes e usam o símbolo da harpa e da lua de prata."
+                ),
+                java.util.Arrays.asList(
+                        "Possuem esconderijos mágicos camuflados sob tabernas ao longo da Costa da Espada.",
+                        "Monitoram em segredo o renascimento de cultos antigos nos picos de Netheril."
+                ),
+                java.util.Arrays.asList("faerun", "harpers", "good", "secret_agents"),
+                harperRel, "grupo", true
+        ))) count++;
+
+        Map<String, String> zhentRel = new HashMap<>();
+        zhentRel.put("rival", "faerun_harpers");
+        if (saveEntity(new Entity(
+                "faerun_zhentarim", "FRHoF", "forgotten_realms", "present", "faction",
+                "A Rede Negra (Zhentarim)", "The Zhentarim",
+                "Sindicato mercantil e militar que busca monopólio econômico e controle político.",
+                java.util.Arrays.asList(
+                        "Oferecem caravanas fortificadas, empréstimos e proteção profissional.",
+                        "Sua ala pública atua como guilda de mercenários respeitada nas cidades da Costa da Espada."
+                ),
+                java.util.Arrays.asList(
+                        "O Círculo Interno conspira para subornar magistrados em Baldur's Gate e Waterdeep.",
+                        "Mantêm armazéns subterrâneos com pólvora de fumaça e relíquias de Netheril."
+                ),
+                java.util.Arrays.asList("faerun", "zhentarim", "mercenaries", "shadow_trade"),
+                zhentRel, "grupo", true
+        ))) count++;
+
+        if (saveEntity(new Entity(
+                "faerun_elminster", "FRAiF", "forgotten_realms", "present", "npc",
+                "Elminster de Shadowdale", "Elminster of Shadowdale",
+                "O lendário Escolhido de Mystra e conselheiro dos povos livres de Toril.",
+                java.util.Arrays.asList(
+                        "Vive em uma torre pacífica no Vale das Sombras e fuma seu cachimbo místico.",
+                        "Auxilia heróis quando a estabilidade da Trama (Weave) é ameaçada."
+                ),
+                java.util.Arrays.asList(
+                        "Guarda o feitiço primordial de reparação do Weave em caso de catástrofe planar.",
+                        "Conhece as localizações secretas dos últimos nós de Mythallar em Anauroch."
+                ),
+                java.util.Arrays.asList("faerun", "chosen", "archmage", "shadowdale"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ))) count++;
+
+        if (saveEntity(new Entity(
+                "faerun_undermountain_depths", "FRAiF", "forgotten_realms", "present", "location",
+                "Profundezas de Undermountain", "Undermountain Depths",
+                "O colossal calabouço subterrâneo sob a montanha de Waterdeep.",
+                java.util.Arrays.asList(
+                        "Criado pelo mago louco Halaster Blackcloak através de milênios de escavações.",
+                        "Conecta-se a Skullport e ao Subterrâneo através de portais dimensionais instáveis."
+                ),
+                java.util.Arrays.asList(
+                        "Halaster plantou runas de drenagem que absorvem magias de alto nível nas câmaras baixas.",
+                        "Um portal direto para as ruínas de Netheril repousa selado no vigésimo terceiro nível."
+                ),
+                java.util.Arrays.asList("faerun", "waterdeep", "dungeon", "halaster"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ))) count++;
+
+        // 2. Netheril's Fall (NF)
+        if (saveEntity(new Entity(
+                "netheril_xinok_enclave", "NF", "forgotten_realms", "ancient_netheril", "location",
+                "Enclave de Xinok", "Xinok Enclave",
+                "Cidade flutuante do apogeu do Império de Netheril erguida por um Mythallar primordial.",
+                java.util.Arrays.asList(
+                        "Xinok era habitada por arquimagos e seus servos arcanos antes da Queda.",
+                        "Seus destroços repousam sob as dunas áridas do Grande Deserto de Anauroch."
+                ),
+                java.util.Arrays.asList(
+                        "O Mythallar de Xinok permanece parcialmente energizado e gera campos de gravidade anômala.",
+                        "Contém o manuscrito proibido com a fórmula de Karsus para ascensão divina."
+                ),
+                java.util.Arrays.asList("netheril", "mythallar", "ancient_magic", "ruins"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ))) count++;
+
+        // 3. Eberron: Forge of the Artificer (EFA)
+        Map<String, String> cannithRel = new HashMap<>();
+        cannithRel.put("enemy", "eberron_lord_of_blades");
+        if (saveEntity(new Entity(
+                "eberron_house_cannith", "EFA", "eberron", "998 YK", "faction",
+                "Casa Cannith", "House Cannith",
+                "A Casa Marcada portadora da Marca da Criação e artífices supremos de Khorvaire.",
+                java.util.Arrays.asList(
+                        "Criadores dos Warforged e mestres de forjas elementais e itens mágicos.",
+                        "Fraturada em três facções rivais após a destruição da sede em Cyre no Dia do Luto."
+                ),
+                java.util.Arrays.asList(
+                        "Mantêm um protótipo operacional de Forja de Criação oculto nas bordas de Breland.",
+                        "Baron Merrix pesquisa almas artificiais além dos limites do Tratado do Trono."
+                ),
+                java.util.Arrays.asList("eberron", "dragonmarked", "cannith", "artificer"),
+                cannithRel, "grupo", true
+        ))) count++;
+
+        if (saveEntity(new Entity(
+                "eberron_lord_of_blades", "EFA", "eberron", "998 YK", "npc",
+                "O Senhor das Lâminas", "The Lord of Blades",
+                "Líder messiânico dos forjados de guerra rebeldes entrincheirado na Terra Lamentada.",
+                java.util.Arrays.asList(
+                        "Prega a supremacia dos Warforged e a rejeição das raças de carne.",
+                        "Comanda patrulhas nas brumas cinzentas de Cyre recuperando relíquias de guerra."
+                ),
+                java.util.Arrays.asList(
+                        "Possui esquemas para transformar o colosso de guerra em uma fortaleza ambulante.",
+                        "Foi forjado como guarda-costas de um dos maiores patriarcas da Casa Cannith."
+                ),
+                java.util.Arrays.asList("eberron", "warforged", "mournland", "leader"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ))) count++;
+
+        if (saveEntity(new Entity(
+                "eberron_eston_creation_forge", "EFA", "eberron", "998 YK", "location",
+                "Forjas da Criação de Eston", "Eston Creation Forge",
+                "Complexo soterrado na Terra Lamentada onde foram forjados os primeiros Warforged colossais.",
+                java.util.Arrays.asList(
+                        "Eston era o coração industrial de Cyre antes da catástrofe que arrasou a nação.",
+                        "As linhas de trem elemental convergem para seus terminais despedaçados."
+                ),
+                java.util.Arrays.asList(
+                        "Uma matriz mestra pulsante continua viva nos níveis inferiores protegida por sentinelas de ferro.",
+                        "Patrulhas do Lord of Blades vigiam as fendas para impedir saqueadores de Sharn."
+                ),
+                java.util.Arrays.asList("eberron", "mournland", "creation_forge", "cannith"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ))) count++;
+
+        // 4. Ravenloft: The Horrors Within (RHW)
+        Map<String, String> strahdRel = new HashMap<>();
+        strahdRel.put("enemy", "ravenloft_van_richten");
+        strahdRel.put("enemy", "ravenloft_keepers_feather");
+        if (saveEntity(new Entity(
+                "ravenloft_strahd", "RHW", "ravenloft", "735 BC", "npc",
+                "Conde Strahd von Zarovich", "Count Strahd von Zarovich",
+                "O primeiro Darklord e mestre tirânico do domínio de Baróvia.",
+                java.util.Arrays.asList(
+                        "Um vampiro antigo, guerreiro brilhante e arquimago que governa das torres de Ravenloft.",
+                        "As Brumas obedecem ao seu chamado para fechar as fronteiras do domínio."
+                ),
+                java.util.Arrays.asList(
+                        "O Coração do Pavor nas torres do castelo absorve ferimentos graves antes de atingi-lo.",
+                        "O sangue de Tatyana renasce ciclicamente em Baróvia e é a obsessão eterna do Darklord."
+                ),
+                java.util.Arrays.asList("ravenloft", "vampire", "darklord", "barovia"),
+                strahdRel, "grupo", true
+        ))) count++;
+
+        if (saveEntity(new Entity(
+                "ravenloft_castle_ravenloft", "RHW", "ravenloft", "735 BC", "location",
+                "Castelo Ravenloft", "Castle Ravenloft",
+                "Fortaleza monumental cravada sobre o precipício de mil pés acima da vila de Baróvia.",
+                java.util.Arrays.asList(
+                        "Construído pelo arquiteto Khazan em honra à mãe de Strahd, Rainha Ravenovia.",
+                        "Suas masmorras e criptas abrigam túmulos dos generais e antepassados da família von Zarovich."
+                ),
+                java.util.Arrays.asList(
+                        "A cripta de Sergei von Zarovich guarda a luz que pode quebrar a névoa do castelo.",
+                        "Um elevador mecânico e armadilhas de teletransporte conduzem intrusos ao calabouço das almas."
+                ),
+                java.util.Arrays.asList("ravenloft", "castle", "barovia", "dungeon"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ))) count++;
+
+        if (saveEntity(new Entity(
+                "ravenloft_keepers_feather", "RHW", "ravenloft", "735 BC", "faction",
+                "Os Guardiões da Pena", "Keepers of the Feather",
+                "Sociedade secreta de wereravens leais que desafiam o governo de Strahd nas sombras.",
+                java.util.Arrays.asList(
+                        "Operam a partir da Vinícola Magia do Mago e de tabernas em Vallaki e Baróvia.",
+                        "Avisam forasteiros bem-intencionados sobre emboscadas e perigos letais das Brumas."
+                ),
+                java.util.Arrays.asList(
+                        "Guardam uma das três gemas mágicas que fertilizam a terra de Baróvia.",
+                        "Conhecem passagens secretas nas colinas que contornam as patrulhas dos lobos de Strahd."
+                ),
+                java.util.Arrays.asList("ravenloft", "wereraven", "resistance", "barovia"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ))) count++;
+
+        // 5. Astarion's Book of Hungers (ABH)
+        if (saveEntity(new Entity(
+                "astarion_cazador_palace", "ABH", "ravenloft", "present", "location",
+                "Palácio Szarr", "Szarr Palace",
+                "Mansão aristocrática nas sombras com vastos complexos rituais subterrâneos.",
+                java.util.Arrays.asList(
+                        "Residência de nobres vampiros onde festas pródigas ocultam rituais de sangue.",
+                        "Câmaras revestidas de runas ancestrais protegem os caixões dos mestres."
+                ),
+                java.util.Arrays.asList(
+                        "Sete mil almas de proles vampíricas foram marcadas para o Ritual de Ascensão Profana.",
+                        "O sarcófago oculto sob o poço contém o sangue ancestral que sacia a fome por eras."
+                ),
+                java.util.Arrays.asList("astarion", "vampire", "szarr", "hunger"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ))) count++;
+
+        // 6. Lorwyn: First Light (LFL)
+        if (saveEntity(new Entity(
+                "lorwyn_aeghith_complex", "LFL", "lorwyn", "dawn_era", "location",
+                "Complexo Comunal de Aeghith", "Aeghith Community Complex",
+                "O grande centro cívico e de encontros das espécies feéricas de Lorwyn.",
+                java.util.Arrays.asList(
+                        "Sede de celebrações artísticas, exposições de inventores e banquetes diplomáticos.",
+                        "Possui salas de acolhimento, oficinas de artífices e corredores abertos para os bosques."
+                ),
+                java.util.Arrays.asList(
+                        "Os porões do Aeghith contêm relíquias do ciclo anterior que reagem à aproximação da Grande Aurora.",
+                        "A sabotagem das máquinas voadoras foi financiada por infiltrados com Relicários do Crepúsculo."
+                ),
+                java.util.Arrays.asList("lorwyn", "aeghith", "fey", "exhibition"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ))) count++;
+
+        if (saveEntity(new Entity(
+                "lorwyn_aurora_nexus", "LFL", "lorwyn", "dawn_era", "location",
+                "Nexus da Grande Aurora", "Great Aurora Nexus",
+                "O vórtice dimensional onde o dia perpétuo de Lorwyn colide com a noite de Shadowmoor.",
+                java.util.Arrays.asList(
+                        "A Grande Aurora banha o plano em luz mágica eterna onde a decadência não se manifesta.",
+                        "Os Relicários da Aurora concedem imunidade às perturbações do Crepúsculo."
+                ),
+                java.util.Arrays.asList(
+                        "Quando a Aurora vacila, as criaturas sofrem transmutação forçada de memória e personalidade.",
+                        "A Rainha Oona manipula os fios dos sonhos nas bordas do vórtice planar."
+                ),
+                java.util.Arrays.asList("lorwyn", "shadowmoor", "aurora", "nexus"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ))) count++;
+
+        // 7. Arcana Unleashed (AU)
+        if (saveEntity(new Entity(
+                "arcana_unleashed_weavers", "AU", "forgotten_realms", "present", "faction",
+                "Círculo dos Tecelões Arcanos", "Arcane Weavers Circle",
+                "Conselho independente de pesquisadores arcanos dedicados à maestria sobre os fios da magia.",
+                java.util.Arrays.asList(
+                        "Desenvolvem técnicas avançadas para infiltradores arcanos e conjuradores de linha de frente.",
+                        "Catalogam itens que evoluem conforme o portador realiza feitos épicos."
+                ),
+                java.util.Arrays.asList(
+                        "Descobriram como ancorar magias de concentração em pequenos constructos cristalinos.",
+                        "Guardam o tratado sobre a fusão de magia elemental com feywild arcana."
+                ),
+                java.util.Arrays.asList("arcana_unleashed", "magic", "wizards", "circle"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ))) count++;
+
+        // 8. Monster Manual 2025 (XMM) & Sage Advice 2025 (XSAC)
+        if (saveEntity(new Entity(
+                "xmm_dragon_ecology_2025", "XMM", "multiverse", "present", "misc",
+                "Ecologia Dracônica dos 503 Monstros", "2025 Draconic Ecology",
+                "Padrões de comportamento, covis e ecologia dos predadores lendários do Multiverso.",
+                java.util.Arrays.asList(
+                        "Os dragões cromáticos e metálicos possuem ações lendárias reequilibradas e covis dinâmicos.",
+                        "O Bestiário de 2025 define imunidades e resistências canônicas sem aproximações arbitrárias."
+                ),
+                java.util.Arrays.asList(
+                        "Dragões anciões sentem a ruptura de nós de Weave ou Mythallars em um raio de 50 milhas.",
+                        "O sopro de um dragão vermelho de 2025 destrói barreiras mágicas de nível inferior."
+                ),
+                java.util.Arrays.asList("xmm", "dragons", "bestiary", "legendary"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ))) count++;
+
+        if (saveEntity(new Entity(
+                "xsac_adjudication_rules", "XSAC", "multiverse", "present", "misc",
+                "Compêndio de Adjudicação Canônica 2025", "Sage Advice Compendium 2025",
+                "Compilação autoritativa das decisões e interpretações oficiais dos designers do D&D.",
+                java.util.Arrays.asList(
+                        "163 decisões canônicas sobre ataques desarmados, descansos, sintonização e concentração.",
+                        "Proíbe rolagens automáticas e preserva o consentimento explícito do jogador."
+                ),
+                java.util.Arrays.asList(
+                        "A adjudicação do Mestre nunca substitui regras primárias quando a regra do livro for expressa.",
+                        "Efeitos de medo e charme exigem salvamentos explícitos em cada rodada."
+                ),
+                java.util.Arrays.asList("xsac", "rulings", "sage_advice", "mechanics"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ))) count++;
+
+        return count;
+    }
+
+    /**
+     * Retorna a visão contextual adequada para o Gemini Master e KnowledgeFirewall.
+     * Se isGm for falso, oculta estritamente todos os gmSecrets.
+     */
+    public synchronized JSONObject promptKnowledgeContext(String setting, boolean isGm) {
+        String normSetting = setting != null ? setting.trim().toLowerCase(Locale.US) : "forgotten_realms";
+        List<Entity> list = listEntitiesBySetting(normSetting, "");
+        List<String> ids = new ArrayList<>();
+        for (Entity e : list) ids.add(e.id);
+        // Também inclui multiverse se houver
+        if (!"multiverse".equals(normSetting)) {
+            List<Entity> multi = listEntitiesBySetting("multiverse", "");
+            for (Entity e : multi) ids.add(e.id);
+        }
+        return isGm ? buildGmView(normSetting, ids) : buildPlayerView(normSetting, ids);
+    }
+
     private Entity entityFromRow(JSONObject row) {
         try {
             String id = row.optString("id");
