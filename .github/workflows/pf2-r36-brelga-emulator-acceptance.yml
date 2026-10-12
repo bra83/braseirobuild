@@ -80,8 +80,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference='Stop'
-          $tag='PATHFINDER2E-9.0.37-R36-TEST-6ffb5b9c'
-          $sourceSha='6ffb5b9c73c5296ccb9c69b8e596edadc9bbb2ef'
+          $tag='PATHFINDER2E-9.0.37-R36-TEST-50c74938'
+          $sourceSha='50c74938e3898872510c91b2061495c78364adb7'
           $headers=@{Authorization="Bearer $env:GH_TOKEN";Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28'}
           $rel=Invoke-RestMethod -Uri "https://api.github.com/repos/bra83/braseirobuild/releases/tags/$tag" -Headers $headers -Method Get
           if(!$rel.prerelease -or $rel.target_commitish -ne $sourceSha){throw 'RELEASE_NOT_THE_CERTIFIED_TEST_SOURCE'}
