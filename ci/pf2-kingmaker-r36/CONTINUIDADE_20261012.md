@@ -1,3 +1,16 @@
+# Atualização: conteúdo real da abertura — 12/10/2026 19:33 BRT
+
+Último código/assets: b3b92b13f2e081543fa7f60b9c11e89778e8eb98; script reprodutível: 8e0093bcc299456364859706fccb5d2d585b909a. Run38316941465/job115035720714:15 sintéticos,318JVM,54 focados,427 regressões e Android Java PASS. Nenhum APK.
+
+- KingmakerCampaignGate.mansionCreature/mansionEncounter agora compilam Cutthroats(-1), Gromog, Jurgrindor, Nishkiv e Volodmyra, formando os6encontros A1/A4/A6/A11/A21/A23. PV/CA/saves/ataques/movimento e definições especiais vêm do PDF, sem RAG no jogo. MainActivity.applyCombatPlan usa canonical_room para substituir inimigos por essas fichas e salva official_stats no resources_json. Jurgrindor começa25/50PV; Gromog blinded. Dados das habilidades especiais estão compilados, mas não confundir isto com execução automática homologada de todas elas.
+- A1 usa3lacaios eStealth+5; initiative_mode=perception usa+3 quando PCs saem antes do ataque. A4 usa4lacaios; A21 eA23 usam2 conforme blocos mecânicos. A23 narrativa menciona4, bloco lista2: discrepância preservada explicitamente; gigantes de Jamandi não entram no encontro dos PCs.
+- Mapas oficiais da mansão extraídos das páginas impressas26/34(PDF27/35), preservando desenho, escala5ft/quadrado e rótulos completos A1–A24, inclusive sufixos. Confirmados visualmente. Assets maps/manor_east_primary.jpg e manor_west_primary.jpg; provenance.json com hashes da fonte e dos assets. Extração usa o clipping vetorial original do PDF, sem inventar geometria. Script: python render_primary_manor_maps.py --pdf /caminho/Kingmaker.pdf; validaSHAda edição e reproduz mesmosGitblobs.
+- Diário da campanha ganhou MAPAS DA MANSÃO; WebView local com zoom, semJavaScript ou acesso remoto. Assets copiados pela integração semântica para android/app/src/main/assets/pathfinder/kingmaker/maps.
+
+O pedido global AINDA NÃO ESTÁ INTEGRALMENTE RESOLVIDO. Continuar conteúdo de encontros/mapas/tesouros/ramificações/consequências dos11cap/40partes e das7aventuras de companheiros, além dos efeitos ainda pendentes. Ainda faltam perigos/incêndios e tesouros/XP/consequências completos da própria mansão. Não declarar campanha nem companheiros fechados com base nesses427testes. Não repetir somente relatórios/gates. Escopo exclusivo PF2 Kingmaker; R35 imutável; não APK até implementar o que falta.
+
+---
+
 # Atualização de execução — 12/10/2026, após pedido de upgrades/campanha/companheiros
 
 Código atual: 08768ac7703d541f2c126bbafe880819f2577035. Não declarar os três blocos integralmente encerrados.
