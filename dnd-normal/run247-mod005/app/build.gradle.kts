@@ -25,12 +25,12 @@ val qaLiteAssets = providers.gradleProperty("braseiro.qaLiteAssets")
 // Hard fail if a test-only lightweight asset mode is ever used to produce an APK.
 // This protects the canonical map bundle even if a workflow accidentally passes the flag.
 gradle.taskGraph.whenReady {
-    if (qaLiteAssets && allTasks.any {
-            val taskName = it.name.lowercase(Locale.ROOT)
-            taskName.startsWith("assemble") ||
-            taskName.startsWith("bundle") ||
-            taskName.startsWith("package") ||
-            taskName.startsWith("install")
+    if (qaLiteAssets && gradle.startParameter.taskNames.any {
+            val requestedTask = it.substringAfterLast(':').lowercase(Locale.ROOT)
+            requestedTask.startsWith("assemble") ||
+            requestedTask.startsWith("bundle") ||
+            requestedTask.startsWith("package") ||
+            requestedTask.startsWith("install")
         }) {
         throw GradleException("QA_LITE_ASSETS_FORBIDDEN_FOR_APK_OR_BUNDLE")
     }
