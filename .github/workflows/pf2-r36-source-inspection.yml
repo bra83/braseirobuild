@@ -78,6 +78,8 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'R36 phase atomic patch failed'}
           python ci\pf2-kingmaker-r36\patch_war_atomic.py "$project"
           if($LASTEXITCODE -ne 0){throw 'R36 atomic warfare patch failed'}
+          python ci\pf2-kingmaker-r36\patch_semantic_domains.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'R36 three-domain semantic patch failed'}
           python ci\pf2-kingmaker-r36\audit_catalog_expansion.py --project "$project" --out ci/pf2-r36-source-inspection/r36-catalog-73.json --require-73
           if($LASTEXITCODE -ne 0){throw 'Canonical 73-structure numerical audit failed'}
           python ci\pf2-kingmaker-certification\audit_structure_catalog.py --project "$project" --out ci/pf2-r36-source-inspection/r36-official-structure-delta.json --require-zero-mismatches

@@ -42,7 +42,7 @@ def test_build_and_repair_pass_structure_specific_dc_to_recordcheck():
     a=REPO.index("public JSONObject resolveBuildStructure(")
     b=REPO.index("public JSONObject resolveDemolish(",a)
     build=REPO[a:b]
-    assert 'naturalRoll,def.optInt("construction_dc",0)' in build
+    assert 'naturalRoll,officialConstructionDc(def)' in build
     a=REPO.index('public JSONObject resolveRepairStructure(String settlementKey,String structureKey,int naturalRoll')
     b=REPO.index("public JSONObject resolveUpgradeSettlement(",a)
     repair=REPO[a:b]

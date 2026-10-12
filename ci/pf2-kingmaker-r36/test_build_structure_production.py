@@ -9,7 +9,7 @@ s=src[a:b]
 def test_spending_is_before_roll_inside_transaction():
     assert 'db.runInTransactionChecked(' in s
     assert 'adjustState(cost,"Build Structure: custo antecipado de RP e commodities")' in s
-    assert s.index('adjustState(cost,') < s.index('recordCheck("build_structure"')
+    assert s.index('adjustState(cost,') < s.index('recordCheckAtSettlement(townKey,"build_structure"')
     assert 'recordRpSpent(rp)' in s
     assert 'cost_paid_before_check' in s
 
