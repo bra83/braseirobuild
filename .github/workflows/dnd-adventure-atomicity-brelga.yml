@@ -4,8 +4,23 @@ on:
     branches:
       - antigravity/dnd-normal-fechamento-gates
     paths:
-      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/adventure/**'
-      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/adventure/AdventureTransactionSafetyRobolectricTest.java'
+      - 'dnd-normal/run247-mod005/app/src/**'
+      - 'dnd-normal/run247-mod005/app/build.gradle*'
+      - 'dnd-normal/run247-mod005/build.gradle*'
+      - 'dnd-normal/run247-mod005/gradle/**'
+      - 'dnd-normal/run247-mod005/tools/**'
+      - 'dnd-normal/run247-mod005/docs/**'
+      - '.github/workflows/dnd-adventure-atomicity-brelga.yml'
+  pull_request:
+    branches:
+      - antigravity/dnd-normal-fechamento-gates
+    paths:
+      - 'dnd-normal/run247-mod005/app/src/**'
+      - 'dnd-normal/run247-mod005/app/build.gradle*'
+      - 'dnd-normal/run247-mod005/build.gradle*'
+      - 'dnd-normal/run247-mod005/gradle/**'
+      - 'dnd-normal/run247-mod005/tools/**'
+      - 'dnd-normal/run247-mod005/docs/**'
       - '.github/workflows/dnd-adventure-atomicity-brelga.yml'
   workflow_dispatch:
 permissions:
@@ -47,6 +62,22 @@ jobs:
           if ([int]$result.testsuite.tests -ne 6 -or [int]$result.testsuite.failures -ne 0 -or [int]$result.testsuite.errors -ne 0 -or [int]$result.testsuite.skipped -ne 0) { throw 'SIX_REQUIRED_TESTS_NOT_GREEN' }
           & .\gradlew.bat :app:testDebugUnitTest --no-daemon --console=plain
           if ($LASTEXITCODE -ne 0) { throw 'FULL_SUITE_FAILED' }
+          # Inspecionar XMLs de TODAS as suites. Resultado do Gradle isolado não é prova suficiente.
+          $reports=Get-ChildItem 'app/build/test-results/testDebugUnitTest' -Filter 'TEST-*.xml' -File
+          if (!$reports -or $reports.Count -lt 1) { throw 'FULL_SUITE_XML_MISSING' }
+          $nTests=0; $nFailures=0; $nErrors=0; $nSkipped=0
+          foreach ($report in $reports) {
+            [xml]$suite=Get-Content -LiteralPath $report.FullName -Raw
+            if (!$suite.testsuite) { throw ('INVALID_TEST_XML: '+$report.Name) }
+            $nTests += [int]$suite.testsuite.tests
+            $nFailures += [int]$suite.testsuite.failures
+            $nErrors += [int]$suite.testsuite.errors
+            $nSkipped += [int]$suite.testsuite.skipped
+          }
+          if ($nTests -le 0 -or $nFailures -ne 0 -or $nErrors -ne 0 -or $nSkipped -ne 0) {
+            throw ("FULL_SUITE_XML_NOT_GREEN: tests=$nTests failures=$nFailures errors=$nErrors skipped=$nSkipped")
+          }
+          Write-Host ("FULL_SUITE_XML=PASS; SUITES=$($reports.Count); TESTS=$nTests; FAILURES=$nFailures; ERRORS=$nErrors; SKIPPED=$nSkipped")
           Write-Host ('SOURCE_SHA='+$env:GITHUB_SHA)
           Write-Host 'ADVENTURE_TRANSACTION_TESTS=6/6; FULL_SUITE=PASS; APK_NOT_BUILT=TRUE'
       - name: Upload test XML logs
