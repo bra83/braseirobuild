@@ -165,7 +165,17 @@ def snapshot(label):
     if not db.read_bytes().startswith(b"SQLite format 3"):raise RuntimeError("INVALID_APPDB_BYTES")
     con=sqlite3.connect("file:"+db.as_posix()+"?mode=ro",uri=True)
     try:
-        assert con.execute("PRAGMA quick_check").fetchone()[0]=="ok"
+        if con.execute("PRAGMA quick_check").fetchone()[0]!="ok":
+            raise RuntimeError("APPDB_QUICK_CHECK_FAILED")
+        violations=con.execute("PRAGMA foreign_key_check").fetchall()
+        if violations:raise RuntimeError("APPDB_FOREIGN_KEY_VIOLATIONS "+repr(violations[:5]))
+        columns=[row[1] for row in con.execute('PRAGMA table_info("kingmaker_state")')]
+        kingdom_rows=con.execute('select * from kingmaker_state order by rowid').fetchall()
+        # updated_at is a write timestamp; all actual kingdom state remains hashed.
+        kingdom_values=[[value for column,value in zip(columns,row) if column!="updated_at"]
+                        for row in kingdom_rows]
+        kingdom_sha256=hashlib.sha256(json.dumps(kingdom_values,ensure_ascii=False,
+                           default=str).encode("utf-8")).hexdigest()
         state=con.execute("select enabled,turn_number,active_turn_id from kingmaker_state limit 1").fetchone()
         tables={row[0] for row in con.execute("select name from sqlite_master where type='table'")}
         counts={t:con.execute("select count(*) from "+t).fetchone()[0] for t in ("kingmaker_turns","kingmaker_armies","kingmaker_war_encounters") if t in tables}
@@ -181,7 +191,7 @@ def snapshot(label):
             rows=con.execute('select * from "'+table+'" order by rowid').fetchall()
             encoded=json.dumps(rows,ensure_ascii=False,sort_keys=True,default=str).encode("utf-8")
             row_sha256[table]=hashlib.sha256(encoded).hexdigest()
-        s={"state":state,"counts":counts,"army":army,"row_sha256":row_sha256}
+        s={"state":state,"counts":counts,"army":army,"row_sha256":row_sha256,"kingdom_state_sha256":kingdom_sha256}
         log("PRODUCTION_APPDB_"+label,json.dumps(s,ensure_ascii=False))
         return s
     finally:con.close()
@@ -223,9 +233,14 @@ def activate():
         return False
     if not click("COMEÇAR A HISTÓRIA",2):return False
     activated=snapshot("AFTER_ACTIVATION")["state"][0]==1
-    if activated and not close_stale_confirmation():
-        log("ACTIVATED_BUT_MODAL_STUCK","Kingmaker entry blocked")
-        return False
+    if activated:
+        try:
+            if not close_stale_confirmation():
+                log("ACTIVATED_MODAL_NAVIGATION_PENDING","turn UI stage must prove navigation")
+        except RuntimeError as ex:
+            # Activation is already proven by production AppDb. A transient
+            # accessibility failure belongs to the subsequent navigation gate.
+            log("ACTIVATED_UI_NAVIGATION_PENDING",str(ex)[:350])
     return activated
 def kingdom_turn():
     if not kingmaker():return False
@@ -323,7 +338,8 @@ def restart():
         launch()
         after=snapshot("AFTER_RESTART_"+str(attempt))
         if (before["state"]!=after["state"] or before["counts"]!=after["counts"]
-                or before["army"]!=after["army"] or before["row_sha256"]!=after["row_sha256"]):
+                or before["army"]!=after["army"] or before["row_sha256"]!=after["row_sha256"]
+                or before["kingdom_state_sha256"]!=after["kingdom_state_sha256"]):
             log("PERSISTENCE_DRIFT_ON_RESTART",attempt)
             return False
     return True
