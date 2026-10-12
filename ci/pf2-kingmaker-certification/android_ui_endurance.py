@@ -25,12 +25,14 @@ def nodes():
     last=""
     root=None
     for attempt in range(5):
+        # Never accept a previous dump after uiautomator reports a null root.
+        adb("shell","rm","-f","/sdcard/pf2_acceptance.xml",timeout=15)
         dumped=adb("shell","uiautomator","dump","/sdcard/pf2_acceptance.xml",allow=True,timeout=65)
         fetched=adb("exec-out","cat","/sdcard/pf2_acceptance.xml",allow=True,timeout=35)
         raw=fetched.stdout
         at=raw.find(b"<?xml")
         if at<0:at=raw.find(b"<hierarchy")
-        if dumped.returncode==0 and fetched.returncode==0 and at>=0:
+        if dumped.returncode==0 and b"ERROR:" not in dumped.stderr and fetched.returncode==0 and at>=0:
             try:
                 root=ET.fromstring(raw[at:])
                 break
@@ -199,9 +201,26 @@ def stage(name,fn):
             log(name+"_ANDROID_RUNTIME_FATAL",fatal[-1800:] if fatal.strip() else "none")
         except Exception as diag:log(name+"_LOGCAT_DIAGNOSTIC_ERROR",repr(diag)[:250])
 def activate():
-    if not kingmaker():return False
     if snapshot("BEFORE_ACTIVATION")["state"][0]==1:return True
-    if not click("ATIVAR E COMEÇAR A HISTÓRIA"):return False
+    # A valid entry point may already have opened the uncommitted confirmation.
+    # Confirm the observed dialog rather than looking for a background button.
+    current=nodes()
+    if not start_confirmation_visible(current):
+        labels={item[0] for item in current}
+        entry=next((label for label in ("ATIVAR E COMEÇAR A HISTÓRIA","ATIVAR KINGMAKER SOLO")
+                    if label in labels),None)
+        if entry is None:
+            if not kingmaker():return False
+            current=nodes()
+            if not start_confirmation_visible(current):
+                labels={item[0] for item in current}
+                entry=next((label for label in ("ATIVAR E COMEÇAR A HISTÓRIA","ATIVAR KINGMAKER SOLO")
+                            if label in labels),None)
+        if not start_confirmation_visible(current):
+            if entry is None or not click(entry,1):return False
+    if not start_confirmation_visible(nodes()):
+        log("START_CONFIRMATION_MISSING","no blind confirmation click")
+        return False
     if not click("COMEÇAR A HISTÓRIA",2):return False
     activated=snapshot("AFTER_ACTIVATION")["state"][0]==1
     if activated and not close_stale_confirmation():

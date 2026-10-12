@@ -2,7 +2,7 @@ name: PF2 Kingmaker R36 BRELGA Android Runtime Acceptance
 on:
   push:
     branches: [pf2-kingmaker-r36-official-rule-fixes-20261011]
-    paths: ['.github/workflows/pf2-r36-brelga-emulator-acceptance.yml']
+    paths: ['.github/workflows/pf2-r36-brelga-emulator-acceptance.yml', 'ci/pf2-kingmaker-certification/android_ui_endurance.py']
   workflow_dispatch:
 permissions:
   contents: read
@@ -216,11 +216,9 @@ jobs:
               }
             }catch{Write-Host 'R36_EMULATOR_CLEANUP_NONFATAL'}finally{$ErrorActionPreference=$oldAction}
           }
-      - name: Preserve Android runtime evidence even after failure
+      - name: Record runtime evidence location without Actions artifact quota
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pf2-r36-android-runtime-${{ github.sha }}
-          path: |
-            r36-runtime-logs/
-          if-no-files-found: warn
+        shell: powershell
+        run: |
+          $text="Android runtime diagnostics and production AppDb hashes are preserved in this job's logs. APK under test: 50c74938 / SHA256 8efe05a429f1b95d7ccd1a5413cffd6789a1028452ceb719ef7644bff35219e9. No semantic certification is implied."
+          [System.IO.File]::AppendAllText($env:GITHUB_STEP_SUMMARY,$text+[Environment]::NewLine,[System.Text.Encoding]::UTF8)
