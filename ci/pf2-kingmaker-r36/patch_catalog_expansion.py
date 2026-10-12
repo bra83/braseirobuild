@@ -115,6 +115,7 @@ def transform_rules(source,rows):
     wrapper=('    // '+PREFIX+': enrich/preserve baseline effects; replace only official fields.\n'
       '    public JSONObject structure(String key){\n'
       '        JSONObject officialBase=structureR35Baseline(key);\n'
+      '        boolean hadR35Structure=officialBase!=null && officialBase.length()>0;\n'
       '        if(officialBase==null)officialBase=new JSONObject();\n'
       '        String r36OfficialKey=key==null?"":key.trim().toLowerCase(java.util.Locale.US)\n'
       '            .replaceAll("[^a-z0-9]+","_").replaceAll("^_+|_+$","");\n'
@@ -122,7 +123,8 @@ def transform_rules(source,rows):
       '        } catch(Exception officialCatalogFailure) {\n'
       '            throw new IllegalStateException("Kingmaker official catalog failure",officialCatalogFailure);\n'
       '        }\n'
-      '        return officialBase;\n'
+      '        // Invalid keys must still be rejected, never free 0-RP buildings.\n'
+      '        return hadR35Structure?officialBase:null;\n'
       '    }\n'
       '    ')
     original=source[:begin]+header.replace("public JSONObject structure","private JSONObject structureR35Baseline")+source[begin+len(header):]
