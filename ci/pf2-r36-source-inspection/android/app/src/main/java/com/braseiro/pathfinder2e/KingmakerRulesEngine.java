@@ -328,6 +328,11 @@ public final class KingmakerRulesEngine {
     }
 
     public JSONObject companionProfile(String companionKey) {
+        String canonical=canonicalCompanionKey(companionKey);
+        try{return KingmakerCompanionSemantics.profile(canonical,companionProfileLegacy(canonical));}
+        catch(Exception e){throw new IllegalStateException("Perfil oficial de companheiro inválido.",e);}
+    }
+    private JSONObject companionProfileLegacy(String companionKey) {
         String k = canonicalCompanionKey(companionKey);
         JSONObject c = new JSONObject();
         try {

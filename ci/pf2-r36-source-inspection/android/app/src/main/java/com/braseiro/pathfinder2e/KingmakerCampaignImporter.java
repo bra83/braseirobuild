@@ -322,6 +322,24 @@ public final class KingmakerCampaignImporter {
             }
 
             if (exists) {
+                Cursor saved=null;
+                try{
+                    String identity=cols.contains("quest_key")?"quest_key":"title";
+                    String match=cols.contains("quest_key")?q.questKey:q.title;
+                    saved=db.rawQuery("SELECT * FROM quests WHERE world_profile=? AND "+identity+"=?",new String[]{worldProfile,match});
+                    if(saved!=null&&saved.moveToFirst()){
+                        for(String field:new String[]{"status","stage","created_at","progress_json"}){
+                            int index=saved.getColumnIndex(field);if(index<0)continue;
+                            if("created_at".equals(field))v.put(field,saved.getLong(index));
+                            else if("progress_json".equals(field)){
+                                JSONObject old=new JSONObject(saved.getString(index)==null?"{}":saved.getString(index));
+                                JSONObject canonical=new JSONObject(v.get("progress_json")==null?"{}":String.valueOf(v.get("progress_json")));
+                                for(String fixed:new String[]{"quest_key","chapter_key","milestone_xp","prerequisites","rewards"})if(canonical.has(fixed))old.put(fixed,canonical.opt(fixed));
+                                v.put(field,old.toString());
+                            }else v.put(field,saved.getString(index));
+                        }
+                    }
+                }finally{if(saved!=null)saved.close();}
                 if (cols.contains("quest_key")) {
                     db.update("quests", v, "world_profile=? AND quest_key=?", new String[]{worldProfile, q.questKey});
                 } else {

@@ -425,6 +425,8 @@ public final class KingmakerSoloDirector {
             List<JSONObject> activeQuestsList = db != null ? db.queryList(
                     "SELECT * FROM quests WHERE world_profile=? AND status IN ('active', 'in_progress', 'em_andamento') ORDER BY id ASC",
                     new String[]{profile}) : new ArrayList<JSONObject>();
+            List<JSONObject> allCampaignQuests=db.queryList("SELECT * FROM quests WHERE world_profile=? ORDER BY id ASC",new String[]{profile});
+            activeQuestsList=KingmakerCampaignGate.playable(activeQuestsList,allCampaignQuests);
             JSONArray activeQuests = new JSONArray();
             for (JSONObject q : activeQuestsList) {
                 activeQuests.put(q);
@@ -436,14 +438,15 @@ public final class KingmakerSoloDirector {
 
             if (!activeQuestsList.isEmpty()) {
                 JSONObject firstQuest = activeQuestsList.get(0);
-                chapterKey = firstQuest.optString("chapter_key", "");
+                chapterKey = KingmakerCampaignGate.chapterKey(firstQuest);
                 activeChapter = resolveChapterNumber(profile, chapterKey);
             } else {
                 List<JSONObject> unstartedQuests = db != null ? db.queryList(
-                        "SELECT * FROM quests WHERE world_profile=? AND status IN ('unstarted', 'pending', 'pendente') ORDER BY id ASC LIMIT 1",
+                        "SELECT * FROM quests WHERE world_profile=? AND status IN ('unstarted', 'pending', 'pendente') ORDER BY id ASC",
                         new String[]{profile}) : new ArrayList<JSONObject>();
+                unstartedQuests=KingmakerCampaignGate.playable(unstartedQuests,allCampaignQuests);
                 if (!unstartedQuests.isEmpty()) {
-                    chapterKey = unstartedQuests.get(0).optString("chapter_key", "");
+                    chapterKey = KingmakerCampaignGate.chapterKey(unstartedQuests.get(0));
                     activeChapter = resolveChapterNumber(profile, chapterKey);
                 } else if (db != null) {
                     JSONObject importedCh = db.queryOne(
@@ -488,6 +491,9 @@ public final class KingmakerSoloDirector {
             String recommendedScene = advGuide != null ? advGuide.optString("next_scene", "free_exploration") : "free_exploration";
             String sceneAction = KingmakerSoloFlowRouter.actionFor(recommendedScene);
 
+            int officialChapter=KingmakerCampaignGate.officialChapter(chapterKey);
+            if(officialChapter>0)chapterTitle=KingmakerCampaignGate.officialTitle(officialChapter);
+            out.put("official_chapter",officialChapter).put("campaign_chapter_count",11);
             String guidanceText = buildGuidanceText(activeChapter, chapterTitle, currentStage, activeQuestsList, recommendedScene, sceneAction);
 
             out.put("active_chapter", activeChapter)

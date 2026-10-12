@@ -220,7 +220,7 @@ public final class KingmakerRepository {
         final JSONObject[] result={new JSONObject()};final int vacancyUnrest=rulerVacant?rulerVacancyUnrest:0;db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{JSONObject before=state();int number=before.optInt("turn_number",0)+1;JSONObject dice=rules.resourceDice(before.optInt("level",1),before.optInt("size",1)),consumption=consumptionSummary();JSONArray rolls=resourceRolls==null?new JSONArray():resourceRolls;int total=0,count=dice.optInt("count",5),die=dice.optInt("die",4),overcrowded=db.queryOne("SELECT COUNT(*) AS total FROM kingmaker_settlements WHERE world_profile=? AND overcrowded=1",new String[]{profile()}).optInt("total",0);if(rolls.length()!=count)throw new IllegalArgumentException("O turno exige exatamente "+count+" resultados de d"+die+".");for(int i=0;i<rolls.length();i++){int roll=rolls.optInt(i,0);if(roll<1||roll>die)throw new IllegalArgumentException("Resultado de dado de recurso fora da faixa.");total+=roll;}JSONObject resource=new JSONObject().put("formula",dice.optString("formula")).put("rolls",rolls).put("total",total).put("entered",true).put("ruler_vacancy_unrest",vacancyUnrest).put("overcrowded_unrest",overcrowded).put("consumption",consumption).put("consumption_resolved",consumption.optInt("total")==0).put("spent_rp",0);ContentValues turn=new ContentValues();turn.put("world_profile",profile());turn.put("turn_number",number);turn.put("phase","UPKEEP");turn.put("status","active");turn.put("resource_roll_json",resource.toString());turn.put("snapshot_before_json",before.toString());turn.put("started_at",System.currentTimeMillis());long id=db.getWritableDatabase().insertOrThrow("kingmaker_turns",null,turn);ContentValues state=new ContentValues();state.put("turn_number",number);state.put("turn_phase","UPKEEP");state.put("active_turn_id",id);state.put("resource_points",total);state.put("consumption",consumption.optInt("total"));int nextUnrest=before.optInt("unrest")+vacancyUnrest+overcrowded;state.put("unrest",nextUnrest);state.put("anarchy",rules.isAnarchy(nextUnrest)?1:0);String reputation=before.optString("reputation_mode","fame");int reputationCap=before.optInt("level",1)>=20?4:3;state.put("fame","infamy".equals(reputation)?0:Math.min(reputationCap,before.optInt("fame",0)+1));state.put("infamy","infamy".equals(reputation)?Math.min(reputationCap,before.optInt("infamy",0)+1):0);state.put("updated_at",System.currentTimeMillis());db.getWritableDatabase().update("kingmaker_state",state,"world_profile=?",new String[]{profile()});result[0]=activeTurn();}});audit("Turno do Reino iniciado","Turno "+result[0].optInt("turn_number"),new JSONObject(),result[0]);return result[0];
     }
 
-    public JSONObject consumptionSummary(){JSONObject out=new JSONObject();try{int settlements=db.queryOne("SELECT COALESCE(SUM(consumption),0) AS total FROM kingmaker_settlements WHERE world_profile=?",new String[]{profile()}).optInt("total",0),army=db.queryOne("SELECT COALESCE(SUM(consumption),0) AS total FROM kingmaker_armies WHERE world_profile=?",new String[]{profile()}).optInt("total",0),farmland=influencedFarmlandCount(),modifier=state().optInt("consumption_modifier",0),total=Math.max(0,settlements+army-farmland+modifier);out.put("settlements",settlements).put("armies",army).put("influenced_farmland",farmland).put("modifier",modifier).put("total",total);}catch(Exception e){try{out.put("error",String.valueOf(e.getMessage()));}catch(Exception ignored){}}return out;}
+    public JSONObject consumptionSummary(){JSONObject out=new JSONObject();try{int settlements=officialSettlementConsumption(),army=db.queryOne("SELECT COALESCE(SUM(consumption),0) AS total FROM kingmaker_armies WHERE world_profile=?",new String[]{profile()}).optInt("total",0),farmland=influencedFarmlandCount(),modifier=state().optInt("consumption_modifier",0),total=Math.max(0,settlements+army-farmland+modifier);out.put("settlements",settlements).put("armies",army).put("influenced_farmland",farmland).put("modifier",modifier).put("total",total);}catch(Exception e){try{out.put("error",String.valueOf(e.getMessage()));}catch(Exception ignored){}}return out;}
 
     /** Resolve upkeep without allowing unpaid consumption or partial state writes. */
     public JSONObject resolveConsumption(String payment,int unrestRoll)throws Exception{
@@ -324,6 +324,11 @@ public final class KingmakerRepository {
     }
 
     public JSONObject recordCheck(String activityKey,String title,String role,String skillKey,int natural,int dc,String sourceRef,String notes,boolean awardReputationOnCrit)throws Exception{
+        return recordCheckAtSettlement("",activityKey,title,role,skillKey,natural,dc,sourceRef,notes,awardReputationOnCrit);
+    }
+    private JSONObject recordCheckAtSettlement(String settlementKey,String activityKey,String title,String role,String skillKey,int natural,int dc,String sourceRef,String notes,boolean awardReputationOnCrit)throws Exception{
+        applyStructureSkillBonuses();
+
         requireEnabled();JSONObject turn=activeTurn();if(turn.length()==0)throw new IllegalStateException("Inicie um turno de Reino antes de registrar uma atividade.");JSONObject s=state(),skill=skill(skillKey);if(skill.length()==0)throw new IllegalArgumentException("Perícia de Reino inválida.");String ability=skill.optString("ability_key"),activity=key(activityKey);
         if((rules.isAnarchy(s.optInt("unrest"))||s.optInt("anarchy",0)==1)&&!rules.isRestorativeActivity(activity))
             throw new IllegalStateException("O Reino está em Anarquia (Unrest >= 20). Nenhuma atividade de Reino pode ser realizada, exceto Acalmar Agitação e atividades restauradoras.");
@@ -333,7 +338,9 @@ public final class KingmakerRepository {
         int expansionExpert="claim_hex".equals(activity)&&s.optInt("level",1)>=4?2:0;
         // Same-type circumstance bonuses do not stack (Kingmaker p. 517).
         int circumstanceBonus=Math.max(taxes,expansionExpert);
-        int civicItemBonus="repair_structure".equals(activity)?Math.max(skill.optInt("item_bonus"),2):skill.optInt("item_bonus");
+        int structureItem=officialStructureActivityBonus(settlementKey,activity,skillKey,new JSONObject());
+        int civicItemBonus=Math.max(skill.optInt("item_bonus"),structureItem);
+        if("repair_structure".equals(activity))civicItemBonus=Math.max(civicItemBonus,2);
         int modifier=rules.skillModifier(s.optInt("level",1),score,skill.optString("rank"),civicItemBonus,leadership,vacancy-ruin+circumstanceBonus-claimPenalty,s.optInt("unrest"));int resolvedDc=dc>0?dc:controlSummary().optInt("control_dc");JSONObject result=rules.resolveKingdomCheck(skillKey,natural,modifier,resolvedDc);result.put("modifier_breakdown",new JSONObject().put("ability",rules.abilityModifier(score)).put("proficiency",new Pathfinder2eRulesEngine().proficiency(s.optInt("level",1),skill.optString("rank"))).put("item",civicItemBonus).put("invested_leadership",leadership).put("vacancy",vacancy).put("ruin",-ruin).put("unrest",-unrest).put("taxes_circumstance",taxes).put("expansion_expert_circumstance",expansionExpert).put("circumstance_bonus_applied",circumstanceBonus).put("claim_hex_stability_penalty",-claimPenalty));String activityTitle=clean(title).length()==0?KingmakerRulesEngine.skillLabel(skillKey):clean(title);ContentValues v=new ContentValues();v.put("world_profile",profile());v.put("turn_id",turn.optLong("id"));v.put("phase",turn.optString("phase"));v.put("activity_key",activity.length()==0?"kingdom_check":activity);v.put("title",activityTitle);v.put("actor_role",clean(role));v.put("skill_key",key(skillKey));v.put("natural_roll",result.optInt("natural_roll"));v.put("modifier",modifier);v.put("dc",resolvedDc);v.put("degree",result.optString("degree"));v.put("effects_json",result.toString());v.put("source_ref",clean(sourceRef));v.put("notes",clean(notes));v.put("created_at",System.currentTimeMillis());long id=db.getWritableDatabase().insertOrThrow("kingmaker_turn_activities",null,v);result.put("activity_id",id).put("turn_id",turn.optLong("id"));if("CRITICAL_SUCCESS".equals(result.optString("degree")))gainReputationPoint();audit("Teste de Reino resolvido",activityTitle+" — "+result.optString("degree_pt"),new JSONObject(),result);return result;
     }
 
@@ -692,9 +699,16 @@ public final class KingmakerRepository {
         v.put("notes",clean(notes));v.put("updated_at",System.currentTimeMillis());
         db.getWritableDatabase().update("kingmaker_companions",v,"world_profile=? AND companion_key=?",new String[]{profile(),clean(companionKey)});
     }
-    public JSONObject recordCompanionQuestProgress(String companionKey,String status,String progressNotes)throws Exception{JSONObject before=db.queryOne("SELECT * FROM kingmaker_companions WHERE world_profile=? AND companion_key=?",new String[]{profile(),clean(companionKey)});if(before.length()==0)throw new IllegalArgumentException("Companheiro inexistente.");String next=key(status);if("active".equals(next)||"started".equals(next)||"progressed".equals(next))next="in_progress";if("completed".equals(next))next="complete";if(!"in_progress".equals(next)&&!"complete".equals(next))throw new IllegalArgumentException("Estado de arco pessoal inválido.");ContentValues v=new ContentValues();v.put("personal_quest_status",next);String note=clean(progressNotes);if(note.length()>0){String previous=clean(before.optString("notes"));v.put("notes",previous.length()==0?("Arco pessoal: "+note):(previous+" | Arco pessoal: "+note));}v.put("updated_at",System.currentTimeMillis());db.getWritableDatabase().update("kingmaker_companions",v,"world_profile=? AND companion_key=?",new String[]{profile(),clean(companionKey)});JSONObject after=db.queryOne("SELECT * FROM kingmaker_companions WHERE world_profile=? AND companion_key=?",new String[]{profile(),clean(companionKey)});audit("Arco pessoal de companheiro atualizado",after.optString("name")+" • "+next,before,after);return after;}
+    public JSONObject recordCompanionQuestProgress(String companionKey,String status,String progressNotes)throws Exception{JSONObject before=db.queryOne("SELECT * FROM kingmaker_companions WHERE world_profile=? AND companion_key=?",new String[]{profile(),clean(companionKey)});if(before.length()==0)throw new IllegalArgumentException("Companheiro inexistente.");String next=key(status);if("active".equals(next)||"started".equals(next)||"progressed".equals(next))next="in_progress";if("completed".equals(next))next="complete";if(!"in_progress".equals(next)&&!"complete".equals(next))throw new IllegalArgumentException("Estado de arco pessoal inválido.");if(KingmakerCampaignGate.completed(before.optString("personal_quest_status"))&&!"complete".equals(next))throw new IllegalStateException("O arco pessoal já foi concluído.");
+        if("complete".equals(next)&&!"in_progress".equals(before.optString("personal_quest_status")))throw new IllegalStateException("Inicie e resolva o arco pessoal antes de concluí-lo.");
+        ContentValues v=new ContentValues();v.put("personal_quest_status",next);String note=clean(progressNotes);if(note.length()>0){String previous=clean(before.optString("notes"));v.put("notes",previous.length()==0?("Arco pessoal: "+note):(previous+" | Arco pessoal: "+note));}v.put("updated_at",System.currentTimeMillis());db.getWritableDatabase().update("kingmaker_companions",v,"world_profile=? AND companion_key=?",new String[]{profile(),clean(companionKey)});JSONObject after=db.queryOne("SELECT * FROM kingmaker_companions WHERE world_profile=? AND companion_key=?",new String[]{profile(),clean(companionKey)});audit("Arco pessoal de companheiro atualizado",after.optString("name")+" • "+next,before,after);return after;}
     public JSONObject pendingCompanionEvent(String companionKey){return db.queryOne("SELECT * FROM kingmaker_events WHERE world_profile=? AND status='pending' AND event_type='companion' AND source_ref=? ORDER BY created_at LIMIT 1",new String[]{profile(),"companion:"+clean(companionKey)});}
-    public JSONObject ensureCompanionPersonalEvent(String companionKey)throws Exception{JSONObject companion=db.queryOne("SELECT * FROM kingmaker_companions WHERE world_profile=? AND companion_key=?",new String[]{profile(),clean(companionKey)});if(companion.length()==0)throw new IllegalArgumentException("Companheiro inexistente.");if(companion.optInt("available",1)!=1)return new JSONObject();String status=key(companion.optString("personal_quest_status"));if("complete".equals(status)||"completed".equals(status))return new JSONObject();JSONObject pending=pendingCompanionEvent(companionKey);if(pending.length()>0)return pending;String hook=clean(companion.optString("personal_quest_notes"));String notes=hook.length()>0?hook:("Dar espaço a "+companion.optString("name")+" dentro da situação atual, sem fabricar efeito mecânico.");return addEvent("Evento pessoal — "+companion.optString("name"),"companion","",0,"companion:"+clean(companionKey),notes);}
+    public JSONObject ensureCompanionPersonalEvent(String companionKey)throws Exception{JSONObject companion=db.queryOne("SELECT * FROM kingmaker_companions WHERE world_profile=? AND companion_key=?",new String[]{profile(),clean(companionKey)});if(companion.length()==0)throw new IllegalArgumentException("Companheiro inexistente.");if(companion.optInt("available",1)!=1)return new JSONObject();int partyLevel=1;for(JSONObject hero:db.listActiveCharacters())partyLevel=Math.max(partyLevel,hero.optInt("level",1));
+        List<JSONObject> questRows=db.queryList("SELECT * FROM quests WHERE world_profile=?",new String[]{profile()});
+        boolean vordakai=false,bloom=false;
+        for(JSONObject q:questRows)if(KingmakerCampaignGate.completed(q.optString("status"))){String qk=KingmakerCampaignGate.questKey(q);if("q_vordakai".equals(qk))vordakai=true;if("q_utero_lamashtu".equals(qk))bloom=true;}
+        if(!KingmakerCompanionSemantics.questAvailable(companionKey,partyLevel,true,companion.optString("personal_quest_status"),vordakai,bloom))return new JSONObject();
+        String status=key(companion.optString("personal_quest_status"));if("complete".equals(status)||"completed".equals(status))return new JSONObject();JSONObject pending=pendingCompanionEvent(companionKey);if(pending.length()>0)return pending;String hook=clean(companion.optString("personal_quest_notes"));String notes=hook.length()>0?hook:("Dar espaço a "+companion.optString("name")+" dentro da situação atual, sem fabricar efeito mecânico.");return addEvent("Evento pessoal — "+companion.optString("name"),"companion","",0,"companion:"+clean(companionKey),notes);}
     public JSONObject pendingExplorationEvent(String hexId){String hex=clean(hexId).toUpperCase(Locale.US);return db.queryOne("SELECT * FROM kingmaker_events WHERE world_profile=? AND status='pending' AND event_type='exploration' AND source_ref LIKE ? ORDER BY created_at LIMIT 1",new String[]{profile(),"exploration:"+hex+":%"});}
     public JSONObject ensureExplorationEvent(String hexId)throws Exception{requireEnabled();String hex=clean(hexId).toUpperCase(Locale.US);if(hex.length()==0)throw new IllegalArgumentException("Hex de exploração ausente.");JSONObject map=db.getMapState();if(!hex.equals(map.optString("current_hex_id").trim().toUpperCase(Locale.US)))throw new IllegalStateException("A exploração guiada só pode ser iniciada no hex atual.");String packageId=map.optString("map_package_id");if(packageId.length()==0||db.getMapHex(packageId,hex).length()==0)throw new IllegalStateException("O hex atual não existe no Atlas ativo.");JSONObject pending=pendingExplorationEvent(hex);if(pending.length()>0)return pending;JSONObject overlay=this.hex(hex);String stage=overlay.optInt("reconnoitered",0)==1?(overlay.optInt("cleared",0)==1?"complete":"clear"):"reconnoiter";if("complete".equals(stage))return new JSONObject();String title="reconnoiter".equals(stage)?("Reconhecimento — "+hex):("Ameaças do hex — "+hex);String notes="reconnoiter".equals(stage)?("Explore "+hex+" em cena e registre o reconhecimento somente depois de a exploração acontecer."):("Confronte ou resolva as ameaças de "+hex+" em cena; marcar o hex como limpo exige confirmação explícita depois da cena.");return addEvent(title,"exploration","",0,"exploration:"+hex+":"+stage,notes);}
     public JSONObject resolveExplorationEvent(String hexId,String resolutionNotes)throws Exception{String hex=clean(hexId).toUpperCase(Locale.US);JSONObject pending=pendingExplorationEvent(hex);if(pending.length()==0)throw new IllegalStateException("Não há exploração pendente neste hex.");JSONObject map=db.getMapState();if(!hex.equals(map.optString("current_hex_id").trim().toUpperCase(Locale.US)))throw new IllegalStateException("Retorne ao hex da exploração antes de registrar o resultado.");String source=pending.optString("source_ref"),stage=source.endsWith(":clear")?"clear":"reconnoiter";JSONObject after;if("clear".equals(stage))after=clearHex(hex,resolutionNotes);else after=reconnoiterHex(hex,resolutionNotes);resolveEvent(pending.optLong("id"),new JSONObject().put("hex_id",hex).put("exploration_stage",stage).put("notes",clean(resolutionNotes)).put("kingdom_xp",0));return after;}
@@ -819,44 +833,16 @@ public final class KingmakerRepository {
     public List<JSONObject> tradeAgreements(){return db.queryList("SELECT * FROM kingmaker_trade_agreements WHERE world_profile=? ORDER BY updated_at DESC",new String[]{profile()});}
 
     public void applyStructureSkillBonuses() {
-        Map<String, Integer> bestBonuses = new HashMap<String, Integer>();
-        for (JSONObject town : settlements()) {
-            int townMaxBonus = town.optInt("max_item_bonus", 1);
-            List<JSONObject> townStructures = structures(town.optString("settlement_key"));
-            for (JSONObject st : townStructures) {
-                String skey = st.optString("structure_key");
-                JSONObject def = rules.structure(skey);
-                if (def == null) continue;
-                JSONObject bonuses = def.optJSONObject("skill_bonuses");
-                if (bonuses != null) {
-                    Iterator<String> it = bonuses.keys();
-                    while (it.hasNext()) {
-                        String skill = it.next();
-                        int rawBonus = bonuses.optInt(skill, 0);
-                        int effectiveBonus = Math.min(rawBonus, townMaxBonus);
-                        Integer currentBest = bestBonuses.get(skill);
-                        if (currentBest == null || effectiveBonus > currentBest) {
-                            bestBonuses.put(skill, effectiveBonus);
-                        }
-                    }
-                }
-            }
-        }
-        long now = System.currentTimeMillis();
-        for (JSONObject sk : skills()) {
-            String skillKey = sk.optString("skill_key");
-            int bonus = bestBonuses.containsKey(skillKey) ? bestBonuses.get(skillKey) : 0;
-            ContentValues v = new ContentValues();
-            v.put("item_bonus", bonus);
-            v.put("updated_at", now);
-            db.getWritableDatabase().update("kingmaker_skills", v, "world_profile=? AND skill_key=?", new String[]{profile(), skillKey});
-        }
+        try{migrateLegacyStructureBonuses();}catch(Exception error){throw new IllegalStateException("Falha na migração dos bônus de estruturas.",error);}
     }
 
     public JSONObject buildStructure(final String settlementKey,final String structureKey,final String notes)throws Exception{
         return buildStructure(settlementKey,structureKey,notes,false);
     }
     private JSONObject buildStructure(final String settlementKey, final String structureKey, final String notes, final boolean prepaid) throws Exception {
+        return buildStructure(settlementKey,structureKey,notes,prepaid,new JSONObject());
+    }
+    private JSONObject buildStructure(final String settlementKey, final String structureKey, final String notes, final boolean prepaid, final JSONObject buildOptions) throws Exception {
         requireEnabled();
         final JSONObject town = settlement(settlementKey);
         if (town.length() == 0) throw new IllegalArgumentException("Assentamento inexistente.");
@@ -920,12 +906,13 @@ public final class KingmakerRepository {
                 if(!prepaid)sv.put("stone", s.optInt("stone") - stoneCost);
                 if(!prepaid)sv.put("ore", s.optInt("ore") - oreCost);
                 if(!prepaid)sv.put("luxuries", s.optInt("luxuries") - luxuriesCost);
-                int unrestRed = def.optInt("unrest_reduction", 0);
-                if (unrestRed > 0) {
-                    int nextUnrest = Math.max(0, s.optInt("unrest") - unrestRed);
-                    sv.put("unrest", nextUnrest);
-                    sv.put("anarchy", rules.isAnarchy(nextUnrest) ? 1 : 0);
+                JSONObject buildEffects=officialBuildEffects(settlementKey,structureKey,def,buildOptions);
+                for(String stat:new String[]{"unrest","crime","corruption","decay","strife"}){
+                    int delta=buildEffects.optInt(stat);if(delta!=0)sv.put(stat,Math.max(0,s.optInt(stat)+delta));
                 }
+                if(buildEffects.has("unrest"))sv.put("anarchy",rules.isAnarchy(Math.max(0,s.optInt("unrest")+buildEffects.optInt("unrest")))?1:0);
+                int reputationCap=s.optInt("level",1)>=20?4:3;
+                for(String stat:new String[]{"fame","infamy"})if(buildEffects.optInt(stat)!=0)sv.put(stat,Math.max(0,Math.min(reputationCap,s.optInt(stat)+buildEffects.optInt(stat))));
                 sv.put("updated_at", System.currentTimeMillis());
                 db.getWritableDatabase().update("kingmaker_state", sv, "world_profile=?", new String[]{profile()});
                 if(!prepaid)recordRpSpent(rpCost);
@@ -943,7 +930,7 @@ public final class KingmakerRepository {
                 JSONObject commCosts = new JSONObject().put("lumber", lumberCost).put("stone", stoneCost).put("ore", oreCost).put("luxuries", luxuriesCost);
                 strV.put("commodity_costs_json", commCosts.toString());
                 JSONObject effects = new JSONObject().put("residential_lots", def.optInt("residential_lots", 0)).put("skill_bonuses", def.optJSONObject("skill_bonuses"));
-                strV.put("effects_json", effects.toString());
+                effects.put("official_build_effects",buildEffects);strV.put("effects_json", effects.toString());
                 strV.put("source_ref", "KingmakerRulesEngine");
                 strV.put("notes", clean(notes));
                 strV.put("updated_at", now);
@@ -1565,6 +1552,9 @@ public final class KingmakerRepository {
         return resolveBuildStructure(settlementKey,structureKey,naturalRoll,skillKey,notes,"");
     }
     public JSONObject resolveBuildStructure(String settlementKey,String structureKey,int naturalRoll,String skillKey,String notes,String commodityChoice)throws Exception{
+        return resolveBuildStructure(settlementKey,structureKey,naturalRoll,skillKey,notes,commodityChoice,new JSONObject());
+    }
+    public JSONObject resolveBuildStructure(String settlementKey,String structureKey,int naturalRoll,String skillKey,String notes,String commodityChoice,final JSONObject buildOptions)throws Exception{
         requireEnabled();
         if(naturalRoll<1||naturalRoll>20)throw new IllegalArgumentException("d20 fora do intervalo 1–20.");
         final String townKey=clean(settlementKey),chosenKey=key(structureKey);
@@ -1635,8 +1625,8 @@ public final class KingmakerRepository {
                     adjustState(cost,"Build Structure: custo antecipado de RP e commodities");
                     recordRpSpent(rp);
                 }
-                JSONObject check=recordCheck("build_structure","Construir Estrutura: "+chosenKey,"Vice-rei",skill,
-                    naturalRoll,def.optInt("construction_dc",0),"Kingmaker Adventure Path 2e p. 518",notes,false);
+                JSONObject check=recordCheckAtSettlement(townKey,"build_structure","Construir Estrutura: "+chosenKey,"Vice-rei",skill,
+                    naturalRoll,officialConstructionDc(def),"Kingmaker Adventure Path 2e p. 518",notes,false);
                 String degree=check.optString("degree");
                 boolean success="CRITICAL_SUCCESS".equals(degree)||"SUCCESS".equals(degree);
                 JSONObject output=new JSONObject().put("check",check).put("rp_spent",resume?0:rp)
@@ -1645,7 +1635,7 @@ public final class KingmakerRepository {
                     if(resume)db.getWritableDatabase().delete("kingmaker_structures",
                         "world_profile=? AND settlement_key=? AND structure_key=?",
                         new String[]{profile(),townKey,pendingKey});
-                    JSONObject completed=buildStructure(townKey,structureKey,notes,true);
+                    JSONObject completed=buildStructure(townKey,structureKey,notes,true,buildOptions);
                     output.put("structure",completed).put("construction_status","completed");
                     if("CRITICAL_SUCCESS".equals(degree)){
                         // Refund half of COMMODITIES, never RP.
@@ -1768,7 +1758,7 @@ public final class KingmakerRepository {
                         "Reparar Estrutura: metade de RP e commodities paga antes do teste");
                     recordRpSpent(rp);
                 }
-                JSONObject check=recordCheck("repair_structure","Reparar Estrutura: "+structure,
+                JSONObject check=recordCheckAtSettlement(townKey,"repair_structure","Reparar Estrutura: "+structure,
                     "Vice-rei",skill,naturalRoll,def.optInt("construction_dc",0),"Kingmaker Adventure Path 2e p. 518",notes,false);
                 String degree=check.optString("degree");
                 boolean criticalFailure="CRITICAL_FAILURE".equals(degree);
@@ -1926,7 +1916,7 @@ public final class KingmakerRepository {
         }
         int qty = Math.max(1, amount);
         JSONObject s = state();
-        int maxStorage = rules.commodityStorage(s.optInt("size", 1));
+        int maxStorage = officialCommodityCapacity(comm);
         if ("buy".equals(action)) {
             if (s.optInt("resource_points", 0) < qty) throw new IllegalStateException("RP insuficiente para compra de commodities.");
             int currentComm = s.optInt(comm, 0);
@@ -2218,4 +2208,66 @@ public final class KingmakerRepository {
     private static int clamp100(int value){return Math.max(0,Math.min(100,value));}
     private static String clean(String value){return value==null?"":value.replaceAll("[\\r\\n\\t]+"," ").replaceAll("\\s+"," ").trim();}
     private static String key(String value){String s=Normalizer.normalize(clean(value).toLowerCase(new Locale("pt","BR")),Normalizer.Form.NFD).replaceAll("\\p{M}","").replaceAll("[^a-z0-9]+","_").replaceAll("^_+|_+$","");return s;}
+    // R36_SEMANTIC_DOMAIN_INTEGRATION
+    private int officialStructureActivityBonus(String settlementKey,String activity,String skill,JSONObject context)throws Exception{
+        JSONObject town=settlement(settlementKey);
+        if(town.length()==0){String capital=state().optString("capital_name");for(JSONObject candidate:settlements())if(capital.length()>0&&capital.equals(candidate.optString("name"))){town=candidate;break;}}
+        if(town.length()==0)return 0;
+        return KingmakerStructureSemantics.activityBonus(new JSONArray(structures(town.optString("settlement_key"))),activity,skill,town.optInt("max_item_bonus",1),context);
+    }
+    public int officialCommodityCapacity(String commodity){
+        return rules.commodityStorage(state().optInt("size",1))+KingmakerStructureSemantics.storageIncrease(new JSONArray(structures("")),commodity);
+    }
+    private int officialConstructionDc(JSONObject definition){
+        int dc=definition.optInt("construction_dc",0);
+        for(JSONObject c:companions())if(KingmakerCompanionSemantics.constructionDcAdjustment(c,definition.optInt("lumber"))<0)return Math.max(1,dc-2);
+        return dc;
+    }
+    public JSONObject officialSettlementEffects(String settlementKey)throws Exception{
+        JSONObject town=settlement(settlementKey);if(town.length()==0)throw new IllegalArgumentException("Assentamento inexistente.");
+        JSONArray rows=new JSONArray(structures(settlementKey));JSONObject out=new JSONObject();
+        for(String category:new String[]{"mundane","alchemical","arcane","divine","primal","occult","luxury_magic"})out.put(category+"_item_level",KingmakerStructureSemantics.itemAvailabilityLevel(town.optInt("level",1),rows,category));
+        out.put("dangerous_event_unrest_reduction",KingmakerStructureSemantics.dangerousEventUnrestReduction(rows));
+        out.put("consumption_reduction",KingmakerStructureSemantics.consumptionReduction(rows,jsonObject(town.optString("grid_json","{}")).optBoolean("water_mill")));
+        return out;
+    }
+
+    private void migrateLegacyStructureBonuses()throws Exception{
+        String marker="migration:r36_structure_scope";
+        if(db.queryOne("SELECT id FROM kingmaker_features WHERE world_profile=? AND feature_key=?",new String[]{profile(),marker}).length()>0)return;
+        final JSONArray previous=new JSONArray();
+        final Map<String,Integer> legacy=new HashMap<String,Integer>();
+        for(JSONObject town:settlements())for(JSONObject row:structures(town.optString("settlement_key"))){
+            JSONObject def=rules.structure(row.optString("structure_key"));if(def==null)continue;JSONObject bonuses=def.optJSONObject("skill_bonuses");if(bonuses==null)continue;
+            Iterator<String> keys=bonuses.keys();while(keys.hasNext()){String k=keys.next();int value=Math.min(bonuses.optInt(k),town.optInt("max_item_bonus",1));if(!legacy.containsKey(k)||value>legacy.get(k))legacy.put(k,value);}
+        }
+        db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            for(JSONObject sk:skills()){String k=sk.optString("skill_key");if(sk.optString("notes").length()==0&&legacy.containsKey(k)&&sk.optInt("item_bonus")==legacy.get(k)&&sk.optInt("item_bonus")>0){
+                previous.put(sk);ContentValues v=new ContentValues();v.put("item_bonus",0);v.put("updated_at",System.currentTimeMillis());
+                db.getWritableDatabase().update("kingmaker_skills",v,"world_profile=? AND skill_key=?",new String[]{profile(),k});
+            }}
+            upsertFeature(marker,"migration","Bônus por atividade e assentamento",state().optInt("level",1),new JSONObject().put("previous_skills",previous).toString(),"Kingmaker pp.543-553","Os valores anteriores permanecem neste registro para auditoria.");
+        }});
+    }
+    private JSONObject officialBuildEffects(String townKey,String structureKey,JSONObject def,JSONObject options)throws Exception{
+        JSONObject before=state();String k=key(structureKey);int count=KingmakerStructureSemantics.count(new JSONArray(structures(townKey)),k);
+        String firstTown="structure_history:town:"+townKey+":"+k,firstKingdom="structure_history:kingdom:"+k,turnKey="structure_history:turn:"+before.optInt("turn_number")+":"+k;
+        boolean townFirst=count==0&&db.queryOne("SELECT id FROM kingmaker_features WHERE world_profile=? AND feature_key=?",new String[]{profile(),firstTown}).length()==0;
+        boolean kingdomFirst=KingmakerStructureSemantics.count(new JSONArray(structures("")),k)==0&&db.queryOne("SELECT id FROM kingmaker_features WHERE world_profile=? AND feature_key=?",new String[]{profile(),firstKingdom}).length()==0;
+        boolean turnFirst=db.queryOne("SELECT id FROM kingmaker_features WHERE world_profile=? AND feature_key=?",new String[]{profile(),turnKey}).length()==0;
+        int die1=options.optInt("die1",0),die2=options.optInt("die2",0);
+        String traits=def.optString("official_traits");
+        JSONObject result=KingmakerStructureSemantics.buildEffects(k,count,townFirst,turnFirst,kingdomFirst,(","+traits+",").contains(",FAMOUS,"),(","+traits+",").contains(",INFAMOUS,"),before.optString("reputation_mode","fame"),options.optString("ruin"),die1,die2);
+        for(String marker:new String[]{firstTown,firstKingdom,turnKey})upsertFeature(marker,"structure_history","Construção: "+def.optString("name"),before.optInt("level",1),result.toString(),"Kingmaker pp.543-553","");
+        return result;
+    }
+
+    private int officialSettlementConsumption(){
+        int total=0;for(JSONObject town:settlements()){
+            JSONArray rows=new JSONArray(structures(town.optString("settlement_key")));
+            boolean waterMill=jsonObject(town.optString("grid_json","{}")).optBoolean("water_mill");
+            total+=Math.max(0,town.optInt("consumption")-KingmakerStructureSemantics.consumptionReduction(rows,waterMill));
+        }return total;
+    }
+
 }
