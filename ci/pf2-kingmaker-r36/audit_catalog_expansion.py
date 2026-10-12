@@ -25,8 +25,8 @@ def audit(source):
         # Metadata-only blocks do not return a numeric catalog definition.
         # Parse each brace-delimited block independently, never scan through
         # intervening structures looking for a later "return".
-        blocks=re.findall(r'if\\("'+re.escape(key)+r'"\\.equals\\(r36OfficialKey\\)\\)\\s*\\{([^{}]*)\\}',source,re.DOTALL)
-        numeric=[re.search(r'\\breturn\\s+(.*?);',block,re.DOTALL) for block in blocks]
+        blocks=re.findall(r'if\("'+re.escape(key)+r'"\.equals\(r36OfficialKey\)\)\s*\{([^{}]*)\}',source,re.DOTALL)
+        numeric=[re.search(r'\breturn\s+(.*?);',block,re.DOTALL) for block in blocks]
         numeric=[m for m in numeric if m]
         if not numeric:
             legacy_anchor='if("'+key+'".equals(k))'
