@@ -6,11 +6,12 @@ book_id,chapter_id,section_id,expected_behavior,runtime_symbol,assertion_id,actu
 """
 
 import csv
+from pathlib import Path
+
+from validate_editorial_coverage import validate_evidence
 
 # AVISO: este gerador cria SOMENTE candidatos à revisão. NÃO executa testes
 # nem valida fonte, licenças ou semântica por seção. Nunca emita ACCEPTED.
-import os
-
 SOURCE_CSV = "docs/PLANO_MESTRE_MATRIZ_10_LIVROS_SECOES.csv"
 OUTPUT_CSV = "docs/EDITORIAL_SECTION_ACCEPTANCE.csv"
 
@@ -92,22 +93,34 @@ def determine_expected_behavior(book_id, content_type, title, delta):
         return f"Processar perigos de Netheril, mythallar e trama arcana ancestral: {title_clean}"
     return f"Executar cânone oficial de {book_id}: {title_clean}"
 
-def generate():
-    if not os.path.exists(SOURCE_CSV):
-        raise FileNotFoundError(f"Fonte não encontrada: {SOURCE_CSV}")
+def generate(project_root=None):
+    # Resolve against this project, never the caller\'s accidental working directory.
+    root = Path(project_root) if project_root is not None else Path(__file__).resolve().parent.parent
+    source_path = root / SOURCE_CSV
+    output_path = root / OUTPUT_CSV
+    if not source_path.is_file():
+        raise FileNotFoundError(f"Fonte não encontrada: {source_path}")
 
     rows_out = []
 
-    # Resguardar homologações FEITAS COM EVIDÊNCIA. Um gerador não pode sobrescrevê-las.
+    # Reaproveitar APENAS comprovantes que ainda passam no validador estrito.
+    # Um CSV antigo ou produzido por outro agente nunca pode se autocertificar.
     prior_proofs = {}
-    if os.path.isfile(OUTPUT_CSV):
-        with open(OUTPUT_CSV, "r", encoding="utf-8-sig", newline="") as existing_file:
+    invalid_proofs = 0
+    if output_path.is_file():
+        with output_path.open("r", encoding="utf-8-sig", newline="") as existing_file:
             for previous in csv.DictReader(existing_file):
+                if previous.get("status") != "IMPLEMENTED_AND_TESTED":
+                    continue
                 k = (previous.get("book_id"), previous.get("chapter_id"), previous.get("section_id"))
-                if previous.get("status") == "IMPLEMENTED_AND_TESTED" and previous.get("evidence_ref"):
+                evidence_errors = []
+                validate_evidence(previous, root, evidence_errors)
+                if evidence_errors:
+                    invalid_proofs += 1
+                else:
                     prior_proofs[k] = previous
 
-    with open(SOURCE_CSV, "r", encoding="utf-8") as f:
+    with source_path.open("r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
             b_id = row["book_id"]
@@ -144,12 +157,13 @@ def generate():
         "source_version", "rights_basis", "status", "evidence_ref", "review_note"
     ]
 
-    with open(OUTPUT_CSV, "w", encoding="utf-8", newline="") as f:
+    with output_path.open("w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows_out)
 
-    print(f"Sucesso: {len(rows_out)} seções gravadas em {OUTPUT_CSV}")
+    print(f"Sucesso: {len(rows_out)} seções gravadas em {output_path}; "
+          f"provas revalidadas: {len(prior_proofs)}; provas inválidas descartadas: {invalid_proofs}")
 
 if __name__ == "__main__":
     generate()
