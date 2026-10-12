@@ -276,10 +276,21 @@ public final class KingmakerStructureSemantics {
   result.put(location);
   return result;
  }
+ public static JSONArray appendedConstructionPayment(JSONObject row,JSONObject payment)throws Exception{
+  JSONArray old=instanceEffects(row).optJSONArray("construction_payments");
+  int count=row.optInt("count",0);
+  if(old!=null&&old.length()!=count)throw new IllegalStateException("Registro de pagamentos desalinhado com os exemplares.");
+  JSONArray out=old==null?new JSONArray():new JSONArray(old.toString());
+  while(out.length()<count)out.put(new JSONObject().put("authority","unknown"));
+  JSONObject copy=new JSONObject(payment.toString());
+  for(String field:new String[]{"resource_points","lumber","stone","ore","luxuries"})
+   if(!copy.has(field)||copy.optInt(field,-1)<0)throw new IllegalArgumentException("Pagamento efetivo inválido: "+field);
+  out.put(copy);return out;
+ }
  public static JSONObject trimInstanceEffects(JSONObject row,int remaining)throws Exception{
   if(remaining<0)throw new IllegalArgumentException("Quantidade de estruturas inválida.");
   JSONObject out=new JSONObject(instanceEffects(row).toString());
-  for(String field:new String[]{"trade_focus_instances","infrastructure_instances","lot_instances"}){
+  for(String field:new String[]{"trade_focus_instances","infrastructure_instances","lot_instances","construction_payments"}){
    JSONArray old=out.optJSONArray(field);if(old==null)continue;
    JSONArray kept=new JSONArray();for(int i=0;i<Math.min(remaining,old.length());i++)kept.put(old.opt(i));out.put(field,kept);
   }

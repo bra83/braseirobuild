@@ -390,6 +390,15 @@ public final class R36BookSemanticsHarness {
   JSONArray growthEighteen=new JSONArray();for(int grid=1;grid<=2;grid++)for(int block=1;block<=9;block++)growthEighteen.put(growthRow("houses",grid,block,1,2));
   check(KingmakerStructureSemantics.constructionTown(growthMetro,growthEighteen,new JSONObject(growthGridTwo.toString()).put("urban_grid",3)).optInt("developed_blocks")==27,"every available block must qualify before adding third grid");
   check(KingmakerStructureSemantics.constructionTown(growthMetro,growthNine,new JSONObject(growthGridTwo.toString()).put("urban_grid",3)).optInt("developed_blocks")==18,"half-empty existing metropolis cannot allocate another grid");
+  JSONObject paid=new JSONObject().put("resource_points",10).put("lumber",3).put("stone",0).put("ore",0).put("luxuries",0).put("authority","paid");
+  JSONArray receipts=KingmakerStructureSemantics.appendedConstructionPayment(new JSONObject().put("count",2),paid);
+  check(receipts.length()==3,"legacy payment placeholders preserve physical instance indexing");
+  check("unknown".equals(receipts.optJSONObject(0).optString("authority")),"legacy catalog costs are not payment evidence");
+  check(receipts.optJSONObject(2).optInt("lumber")==3,"net paid commodity amount survives recording");
+  JSONObject paidRow=new JSONObject().put("count",3).put("effects_json",new JSONObject().put("construction_payments",receipts).toString());
+  check(KingmakerStructureSemantics.trimInstanceEffects(paidRow,2).optJSONArray("construction_payments").length()==2,"demolition trims the matching last receipt");
+  boolean badReceipt=false;try{KingmakerStructureSemantics.appendedConstructionPayment(new JSONObject(),new JSONObject(paid.toString()).put("ore",-1));}catch(IllegalArgumentException expected){badReceipt=true;}
+  check(badReceipt,"negative actual payment cannot become upgrade credit");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }
