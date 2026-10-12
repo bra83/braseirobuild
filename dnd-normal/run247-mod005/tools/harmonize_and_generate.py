@@ -176,6 +176,16 @@ def run():
     harmonized_sections = []
     acceptance_rows = []
 
+    # Resguardar homologações FEITAS COM EVIDÊNCIA. Um gerador não pode sobrescrevê-las.
+    prior_proofs = {}
+    if os.path.isfile(ACCEPTANCE_CSV):
+        with open(ACCEPTANCE_CSV, "r", encoding="utf-8-sig", newline="") as existing_file:
+            for previous in csv.DictReader(existing_file):
+                k = (previous.get("book_id"), previous.get("chapter_id"), previous.get("section_id"))
+                if previous.get("status") == "IMPLEMENTED_AND_TESTED" and previous.get("evidence_ref"):
+                    prior_proofs[k] = previous
+
+
     for row in sections_rows:
         b_id = row["book_id"]
         c_id = row["chapter_id"]
@@ -194,7 +204,7 @@ def run():
         harmonized_sections.append(row_copy)
 
         # Acceptance row
-        acceptance_rows.append({
+        candidate = {
             "book_id": b_id,
             "chapter_id": c_id,
             "section_id": s_id,
@@ -204,8 +214,11 @@ def run():
             "actual_result": "NOT_RUN",
             "source_version": "UNVERIFIED",
             "rights_basis": "REVIEW_REQUIRED",
-            "status": "IMPLEMENTED_NEEDS_TEST"
-        })
+            "status": "IMPLEMENTED_NEEDS_TEST",
+            "evidence_ref": "",
+            "review_note": ""
+        }
+        acceptance_rows.append(prior_proofs.get((b_id, c_id, s_id), candidate))
 
     # Save harmonized sections
     with open(SECTIONS_CSV, "w", encoding="utf-8", newline="") as f:
@@ -217,7 +230,7 @@ def run():
     acc_cols = [
         "book_id", "chapter_id", "section_id", "expected_behavior",
         "runtime_symbol", "assertion_id", "actual_result",
-        "source_version", "rights_basis", "status"
+        "source_version", "rights_basis", "status", "evidence_ref", "review_note"
     ]
     with open(ACCEPTANCE_CSV, "w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=acc_cols)
