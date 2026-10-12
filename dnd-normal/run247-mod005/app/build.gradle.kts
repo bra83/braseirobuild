@@ -22,6 +22,19 @@ val generatedNpcAssetsDir = layout.buildDirectory.dir("generated/npcAssets")
 // O mapa original permanece em src/main/assets e integra todos os APKs normais.
 val qaLiteAssets = providers.gradleProperty("braseiro.qaLiteAssets")
     .map { it == "true" }.getOrElse(false)
+// Hard fail if a test-only lightweight asset mode is ever used to produce an APK.
+// This protects the canonical map bundle even if a workflow accidentally passes the flag.
+gradle.taskGraph.whenReady {
+    if (qaLiteAssets && allTasks.any {
+            val taskName = it.name.lowercase(Locale.ROOT)
+            taskName.startsWith("assemble") ||
+            taskName.startsWith("bundle") ||
+            taskName.startsWith("package") ||
+            taskName.startsWith("install")
+        }) {
+        throw GradleException("QA_LITE_ASSETS_FORBIDDEN_FOR_APK_OR_BUNDLE")
+    }
+}
 val qaLiteAssetsDir = layout.buildDirectory.dir("generated/qaLiteAssets")
 val stageQaLiteAssets by tasks.registering(Sync::class) {
     from("src/main/assets") {
