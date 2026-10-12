@@ -22,7 +22,7 @@ def audit(source):
         key=gen.key_for(r["official_name"])
         # 55 new types return an expression, while 18 old types retain their
         # original branch and are separately audited by audit_structure_catalog.
-        match=re.search(r'if\("'+re.escape(key)+r'"\.equals\(r36OfficialKey\)\)\s*return\s+(.*?);',source)
+        match=re.search(r'if\("'+re.escape(key)+r'"\.equals\(r36OfficialKey\)\)\s*\{\s*.*?return\s+(.*?);',source,re.DOTALL)
         if not match:
             legacy_anchor='if("'+key+'".equals(k))'
             results.append({"name":r["official_name"],"key":key,
