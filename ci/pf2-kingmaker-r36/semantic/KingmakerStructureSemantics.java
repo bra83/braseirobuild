@@ -388,6 +388,7 @@ public final class KingmakerStructureSemantics {
  }
  public static void requireLotPlacement(JSONObject town,JSONArray rows,String key,int lots,JSONObject placement,String excludedSite)throws Exception{
   if(isInfrastructure(key))throw new IllegalArgumentException("Infraestrutura não ocupa lotes.");
+  town=constructionTown(town,rows,placement);
   int grid=placement.optInt("urban_grid"),block=placement.optInt("block");requireAllocatedGrid(town,grid);if(block<1||block>9)throw new IllegalArgumentException("Bloco deve estar entre 1 e 9.");
   Set<Integer> selected=selectedLots(placement.optJSONArray("lots"),lots);Set<String> occupiedBlocks=new HashSet<String>();List<JSONObject> occupiedLocations=new ArrayList<JSONObject>();boolean luxuryNeighbor=false;
   for(int i=0;i<rows.length();i++){
@@ -464,5 +465,41 @@ public final class KingmakerStructureSemantics {
   JSONArray remaining=new JSONArray(),cleared=new JSONArray();
   for(int i=0;i<occupied.length();i++){int lot=Integer.parseInt(occupied.optString(i));if(entire||(success&&lot==selectedLot))cleared.put(lot);else remaining.put(lot);}
   return new JSONObject().put("remaining_rubble_lots",remaining).put("cleared_lots",cleared).put("original_structure_disabled",true).put("unrest","CRITICAL_FAILURE".equals(degree)?1:0).put("commodity",recovered>0?commodity:"").put("recovered",recovered).put("source_ref","Kingmaker pp.523–524");
+ }
+ public static JSONObject constructionTown(JSONObject original,JSONArray rows,JSONObject placement)throws Exception{
+  JSONObject town=new JSONObject(original.toString());
+  if(!town.has("kingdom_level"))return town;
+  int level=town.optInt("kingdom_level",1),grid=placement.optInt("urban_grid"),block=placement.optInt("block");
+  Map<String,Set<Integer>> built=new HashMap<String,Set<Integer>>();Set<String> occupied=new HashSet<String>();int housing=0;
+  for(int i=0;i<rows.length();i++){
+   JSONObject row=rows.optJSONObject(i);if(row==null||row.optInt("lots",0)<=0||row.optInt("count",0)<=0)continue;
+   JSONArray positions=lotPlacements(row);if(positions.length()!=row.optInt("count"))throw new IllegalStateException("Organize os lotes antigos antes de expandir.");
+   boolean completed="built".equals(row.optString("status","built"))&&!row.optString("structure_key").startsWith("under_construction_")&&!row.optString("structure_key").startsWith("rubble_");
+   for(int n=0;n<positions.length();n++){
+    JSONObject p=positions.optJSONObject(n);if(p==null||p.optJSONArray("lots")==null)throw new IllegalStateException("Organize os lotes antigos antes de expandir.");
+    String key=p.optInt("urban_grid")+":"+p.optInt("block");occupied.add(key);
+    if(completed){Set<Integer> lots=built.get(key);if(lots==null){lots=new HashSet<Integer>();built.put(key,lots);}for(int j=0;j<p.optJSONArray("lots").length();j++)lots.add(Integer.parseInt(p.optJSONArray("lots").optString(j)));if(residentialRow(row))housing+=p.optJSONArray("lots").length();}
+   }
+  }
+  String target=grid+":"+block,type=town.optString("type");
+  if(("town".equals(type)&&level<3)||("city".equals(type)&&level<9)||("metropolis".equals(type)&&level<15))throw new IllegalStateException("O nível do Reino não sustenta o porte salvo deste assentamento.");
+  if("city".equals(type))town.put("developed_blocks",9);
+  if("metropolis".equals(type))town.put("developed_blocks",allocatedGrids(town)*9);
+boolean newBlock=!occupied.contains(target),crowded=!built.isEmpty()&&housing<built.size();occupied.add(target);
+  if("village".equals(type)&&newBlock&&built.size()==1&&level>=3&&!crowded){
+   String first=built.keySet().iterator().next();String[] parts=first.split(":");int previous=Integer.parseInt(parts[1]);
+   if(grid==1&&"1".equals(parts[0])&&built.get(first).size()==4&&Math.abs((previous-1)/3-(block-1)/3)+Math.abs((previous-1)%3-(block-1)%3)==1){town.put("type","town").put("developed_blocks",Math.max(2,occupied.size()));}
+  }else if("town".equals(type)&&newBlock&&grid==1){
+   boolean ready=built.size()==4;for(Set<Integer> lots:built.values())ready&=lots.size()>=2;
+   if(ready){Set<Integer> prior=new HashSet<Integer>();for(String position:built.keySet()){String[] xy=position.split(":");if(!"1".equals(xy[0]))ready=false;prior.add(Integer.parseInt(xy[1]));}
+    Set<Integer> seen=new HashSet<Integer>();List<Integer> queue=new ArrayList<Integer>();queue.add(prior.iterator().next());while(!queue.isEmpty()){int current=queue.remove(0);if(!seen.add(current))continue;for(int other:prior)if(!seen.contains(other)&&Math.abs((current-1)/3-(other-1)/3)+Math.abs((current-1)%3-(other-1)%3)==1)queue.add(other);}ready&=seen.size()==prior.size();
+   }
+   if(occupied.size()>4&&ready&&level>=9&&!crowded)town.put("type","city").put("developed_blocks",9);
+   else if(occupied.size()<=4)town.put("developed_blocks",Math.max(town.optInt("developed_blocks",2),occupied.size()));
+  }else if(("city".equals(type)||"metropolis".equals(type))&&grid==allocatedGrids(town)+1&&level>=15&&!crowded){
+   boolean ready=true;for(int g=1;g<=allocatedGrids(town);g++)for(int b=1;b<=9;b++){Set<Integer> lots=built.get(g+":"+b);ready&=lots!=null&&lots.size()>=2;}
+   if(ready){JSONObject water=settlementGrid(town).optJSONObject("water_borders");if(isIsland(original,rows)&&(water==null||!water.has(String.valueOf(grid))))throw new IllegalStateException("Declare as bordas da nova malha antes de expandir um assentamento insular.");town.put("type","metropolis").put("developed_blocks",(allocatedGrids(town)+1)*9);}
+  }
+  return town;
  }
 }

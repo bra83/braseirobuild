@@ -12,6 +12,11 @@ public final class R36BookSemanticsHarness {
  static JSONObject build(String key,int prior,boolean firstSettlement,boolean firstTurn,boolean firstKingdom,String ruin,int d1,int d2)throws Exception{
   return KingmakerStructureSemantics.buildEffects(key,prior,firstSettlement,firstTurn,firstKingdom,false,false,"fame",ruin,d1,d2);
  }
+ static JSONObject growthRow(String key,int grid,int block,int... lots)throws Exception{
+  JSONArray selected=new JSONArray();for(int lot:lots)selected.put(lot);
+  JSONObject position=new JSONObject().put("urban_grid",grid).put("block",block).put("lots",selected);
+  return structure(key,1).put("lots",lots.length).put("effects_json",new JSONObject().put("lot_instances",new JSONArray().put(position)));
+ }
  public static void main(String[] args)throws Exception{
   check(KingmakerStructureSemantics.keys().size()==73,"all canonical keys");
   JSONArray lab=new JSONArray().put(structure("alchemist",2)).put(structure("dump",2));
@@ -355,7 +360,38 @@ public final class R36BookSemanticsHarness {
   JSONArray sleepJournal=new JSONArray().put(new JSONObject().put("activity","Descansar").put("hour",1)).put(new JSONObject().put("activity","Descansar").put("hour",1)).put(new JSONObject().put("activity","Vigiar").put("hour",2)).put(new JSONObject().put("activity","Descansar").put("hour",3));
   check(KingmakerCompanionSemantics.loggedSleepingHours(sleepJournal)==2,"sleep journal counts distinct recorded rest hours");
   check(KingmakerCompanionSemantics.loggedSleepingHours(new JSONArray().put(new JSONObject().put("activity","Descansar")))==0,"narrative without a recorded hour cannot certify rest");
+  JSONObject growthVillage=new JSONObject().put("type","village").put("developed_blocks",1).put("kingdom_level",3);
+  JSONArray growthFull=new JSONArray().put(growthRow("houses",1,1,1,2,3,4));
+  JSONObject growthNext=new JSONObject().put("urban_grid",1).put("block",2).put("lots",new JSONArray().put(1));
+  check("town".equals(KingmakerStructureSemantics.constructionTown(growthVillage,growthFull,growthNext).optString("type")),"full village grows by construction in adjacent block");
+  KingmakerStructureSemantics.requireLotPlacement(growthVillage,growthFull,"houses",1,growthNext,"");check(true,"new adjacent town lot passes placement without administrative promotion");
+  check("village".equals(KingmakerStructureSemantics.constructionTown(new JSONObject(growthVillage.toString()).put("kingdom_level",2),growthFull,growthNext).optString("type")),"kingdom level two cannot grow a town");
+  check("village".equals(KingmakerStructureSemantics.constructionTown(growthVillage,new JSONArray().put(growthRow("houses",1,1,1,2,3)),growthNext).optString("type")),"village needs all four actual completed lots");
+  check("village".equals(KingmakerStructureSemantics.constructionTown(growthVillage,new JSONArray().put(growthRow("library",1,1,1,2,3,4)),growthNext).optString("type")),"overcrowded village cannot expand");
+  check("village".equals(KingmakerStructureSemantics.constructionTown(growthVillage,growthFull,new JSONObject(growthNext.toString()).put("block",9)).optString("type")),"village expansion must touch its actual block");
+  JSONObject growthTown=new JSONObject().put("type","town").put("developed_blocks",4).put("kingdom_level",9);
+  JSONArray growthFour=new JSONArray();for(int block:new int[]{1,2,4,5})growthFour.put(growthRow("houses",1,block,1,2));
+  JSONObject growthFifth=new JSONObject(growthNext.toString()).put("block",9);
+  check("city".equals(KingmakerStructureSemantics.constructionTown(growthTown,growthFour,growthFifth).optString("type")),"four connected town blocks each containing two completed lots grow city on new block");
+  check(KingmakerStructureSemantics.constructionTown(growthTown,growthFour,growthFifth).optInt("developed_blocks")==9,"city allocates the full urban grid");
+  JSONArray growthUneven=new JSONArray().put(growthRow("houses",1,1,1,2,3,4)).put(growthRow("houses",1,2,1,2)).put(growthRow("houses",1,4,1)).put(growthRow("houses",1,5,1));
+  check("town".equals(KingmakerStructureSemantics.constructionTown(growthTown,growthUneven,growthFifth).optString("type")),"eight total lots cannot replace two in every block");
+  JSONArray growthDisconnected=new JSONArray();for(int block:new int[]{1,3,7,9})growthDisconnected.put(growthRow("houses",1,block,1,2));
+  check("town".equals(KingmakerStructureSemantics.constructionTown(growthTown,growthDisconnected,new JSONObject(growthNext.toString()).put("block",5)).optString("type")),"disconnected old town blocks cannot certify city promotion");
+  JSONObject growthCity=new JSONObject().put("type","city").put("developed_blocks",9).put("kingdom_level",15);
+  JSONArray growthNine=new JSONArray();for(int block=1;block<=9;block++)growthNine.put(growthRow("houses",1,block,1,2));
+  JSONObject growthGridTwo=new JSONObject(growthNext.toString()).put("urban_grid",2).put("block",1);
+  check("metropolis".equals(KingmakerStructureSemantics.constructionTown(growthCity,growthNine,growthGridTwo).optString("type")),"nine blocks each with two completed lots allow second grid");
+  check(KingmakerStructureSemantics.constructionTown(growthCity,growthNine,growthGridTwo).optInt("developed_blocks")==18,"second grid has nine allocated blocks");
+  check("city".equals(KingmakerStructureSemantics.constructionTown(new JSONObject(growthCity.toString()).put("kingdom_level",14),growthNine,growthGridTwo).optString("type")),"metropolis requires kingdom level fifteen");
+  JSONArray growthPending=new JSONArray();for(int block=1;block<=9;block++)growthPending.put(growthRow(block==9?"under_construction_houses":"houses",1,block,1,2));
+  check("city".equals(KingmakerStructureSemantics.constructionTown(growthCity,growthPending,growthGridTwo).optString("type")),"unfinished lots cannot qualify for a new grid");
+  JSONObject growthMetro=new JSONObject().put("type","metropolis").put("developed_blocks",18).put("kingdom_level",15);
+  JSONArray growthEighteen=new JSONArray();for(int grid=1;grid<=2;grid++)for(int block=1;block<=9;block++)growthEighteen.put(growthRow("houses",grid,block,1,2));
+  check(KingmakerStructureSemantics.constructionTown(growthMetro,growthEighteen,new JSONObject(growthGridTwo.toString()).put("urban_grid",3)).optInt("developed_blocks")==27,"every available block must qualify before adding third grid");
+  check(KingmakerStructureSemantics.constructionTown(growthMetro,growthNine,new JSONObject(growthGridTwo.toString()).put("urban_grid",3)).optInt("developed_blocks")==18,"half-empty existing metropolis cannot allocate another grid");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }
+
 

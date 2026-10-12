@@ -195,3 +195,13 @@ def test_daily_preparations_use_verified_sleep_date_and_advance_clock_once():
     assert preparation.index('db.saveSceneStateChecked(clock)')<preparation.index('upsertFeature("companion:twins_persona"')
     rules=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerRulesEngine.java").read_text(encoding="utf-8")
     assert 'restResult.optBoolean("spells_prepared_restored")&&restResult.optBoolean("focus_points_restored")' in rules
+
+
+
+def test_growth_is_spatial_and_persisted_inside_construction_transaction():
+    build=method_body('public JSONObject resolveBuildStructure(String settlementKey,String structureKey,int naturalRoll,String skillKey,String notes,String commodityChoice,final JSONObject buildOptions)')
+    assert 'town.put("kingdom_level",s.optInt("level",1))' in build
+    assert build.index('db.runInTransactionChecked') < build.index('applyConstructionGrowth(townKey,') < build.index('recordCheckAtSettlement(townKey,"build_structure"')
+    assert 'KingmakerStructureSemantics.constructionTown(before,new JSONArray(structures(settlementKey)),position)' in SOURCE
+    assert 'if(!before.optString("type").equals(type))grantSettlementMilestone(type)' in SOURCE
+    assert 'O porte muda ao construir nos novos blocos' in SOURCE
