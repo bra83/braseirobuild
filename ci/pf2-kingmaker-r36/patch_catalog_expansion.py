@@ -134,17 +134,34 @@ def transform_rules(source,rows):
                                  if key_for(r["official_name"]) not in certified_prior]}
 
 def transform_repository(source):
-    # Fail closed on types whose source manifest does not identify a normal
-    # urban-grid lot allocation, or for which alternative commodity tender
-    # has not been selected. Otherwise the existing code could silently
-    # bill its default commodity fields as if they were the only official option.
+    # Both existing public 5-argument paths remain ABI-compatible. The
+    # optional sixth argument is an explicit Lumber/Stone tender chosen by
+    # the player. Never charge BOTH alternative commodities.
+    methods=(
+      "resolveBuildStructure","resolveRepairStructure",
+    )
+    for method in methods:
+        old="public JSONObject "+method+"(String settlementKey,String structureKey,int naturalRoll,String skillKey,String notes)throws Exception{"
+        if source.count(old)!=1:
+            raise ValueError(method+" source signature drift")
+        wrapper=("public JSONObject "+method+
+          "(String settlementKey,String structureKey,int naturalRoll,String skillKey,String notes)throws Exception{\n"
+          "        return "+method+"(settlementKey,structureKey,naturalRoll,skillKey,notes,\"\");\n"
+          "    }\n"
+          "    public JSONObject "+method+
+          "(String settlementKey,String structureKey,int naturalRoll,String skillKey,String notes,String commodityChoice)throws Exception{")
+        source=source.replace(old,wrapper)
     anchor='if(town.length()==0||def==null)throw new IllegalArgumentException("Assentamento ou estrutura inválidos.");'
-    if source.count(anchor)!=2:raise ValueError("Build and Repair resolver drift")
+    if source.count(anchor)!=2:
+        raise ValueError("Build and Repair resolver drift")
     guard=(anchor+'\n'
            '        if(def.optBoolean("requires_special_placement",false))\n'
            '            throw new IllegalStateException("Estrutura de implantação especial: selecione o tipo/local exigido pelo manual Kingmaker.");\n'
-           '        if(def.optBoolean("requires_cost_choice",false))\n'
-           '            throw new IllegalStateException("Esta estrutura exige escolha explícita de commodity alternativa antes de cobrar RP.");')
+           '        if(def.optBoolean("requires_cost_choice",false)){\n'
+           '            if("lumber".equals(commodityChoice))def.put("stone",0);\n'
+           '            else if("stone".equals(commodityChoice))def.put("lumber",0);\n'
+           '            else throw new IllegalStateException("Escolha pagar a commodity alternativa com Madeira ou Pedra.");\n'
+           '        }')
     source=source.replace(anchor,guard)
     return source
 
