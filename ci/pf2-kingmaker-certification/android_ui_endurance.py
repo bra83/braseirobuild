@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """R35 real Android UI and production AppDb acceptance; no fake passes."""
-import argparse,json,re,sqlite3,subprocess,sys,tempfile,time
+import argparse,hashlib,json,re,sqlite3,subprocess,sys,tempfile,time
 from pathlib import Path
 import xml.etree.ElementTree as ET
 p=argparse.ArgumentParser();p.add_argument("--adb",required=True);args=p.parse_args()
@@ -138,9 +138,12 @@ def click(label,attempts=5,horizontal=False):
         hit=next((v for v in matches if v[4]),None) or next(iter(matches),None)
         # Prefer actionable accessibility nodes over identically named headings.
         if hit:
-            shell("input","tap",str(hit[1]),str(hit[2]))
-            time.sleep(2)
-            log("CLICK",label);return True
+            width,height=viewport()
+            if 0<=hit[1]<width and 0<=hit[2]<height:
+                shell("input","tap",str(hit[1]),str(hit[2]))
+                time.sleep(2)
+                log("CLICK",label);return True
+            log("OUT_OF_VIEW_ANDROID_NODE",label+" x="+str(hit[1])+" y="+str(hit[2]))
         if i==attempts-1:break
         if (horizontal or start_confirmation_visible(n)
                 or any(v[0]=="Configurações" for v in n)):
@@ -167,7 +170,16 @@ def snapshot(label):
         army=[]
         if "kingmaker_armies" in tables:
             army=con.execute("select name,hp,max_hp from kingmaker_armies").fetchall()
-        s={"state":state,"counts":counts,"army":army}
+        row_sha256={}
+        # A static count is not sufficient to prove saves: hash every real
+        # column in real nonempty production tables, including turn and war.
+        for table in ("kingmaker_turns","kingmaker_armies","kingmaker_war_encounters"):
+            if table not in tables:
+                continue
+            rows=con.execute('select * from "'+table+'" order by rowid').fetchall()
+            encoded=json.dumps(rows,ensure_ascii=False,sort_keys=True,default=str).encode("utf-8")
+            row_sha256[table]=hashlib.sha256(encoded).hexdigest()
+        s={"state":state,"counts":counts,"army":army,"row_sha256":row_sha256}
         log("PRODUCTION_APPDB_"+label,json.dumps(s,ensure_ascii=False))
         return s
     finally:con.close()
@@ -210,7 +222,7 @@ def kingdom_turn():
     if not click("INICIAR NOVO TURNO",8):return False
     if not click("INICIAR COM ESTA ROLAGEM",3):return False
     return snapshot("AFTER_TURN")["counts"].get("kingmaker_turns",0)>n
-def army():
+def create_army(name,allegiance):
     if not kingmaker():return False
     if "ADMINISTRAÇÃO AVANÇADA" not in {x[0] for x in nodes()}:
         if not click("ABRIR ADMINISTRAÇÃO AVANÇADA",16):return False
@@ -218,10 +230,29 @@ def army():
     if not click("CRIAR EXÉRCITO",2):return False
     n=nodes()
     edits=[v for v in n if v[3].endswith("EditText")]
-    if not edits:log("ARMY_FIELDS_MISSING",[v[0] for v in n[:40]]);return False
+    if not edits:
+        log("ARMY_FIELDS_MISSING",[v[0] for v in n[:40]])
+        return False
+    # Production form order comes from MainActivity:
+    # Name, Type, Allegiance, Level...; no database injection.
     shell("input","tap",str(edits[0][1]),str(edits[0][2]))
-    shell("input","text","Braseiro_QA_R35")
-    shell("input","keyevent","4")
+    shell("input","text",name)
+    if allegiance!="kingdom":
+        current=nodes()
+        edits=[v for v in current if v[3].endswith("EditText")]
+        allegiance_field=next((v for v in edits if v[0]=="kingdom"),None)
+        if allegiance_field is None:
+            log("ARMY_ALLEGIANCE_FIELD_MISSING",[v[0] for v in edits[:8]])
+            return False
+        shell("input","tap",str(allegiance_field[1]),str(allegiance_field[2]))
+        # Replace only the known initial 7-character value, then verify it.
+        for _ in range(7):shell("input","keyevent","67")
+        shell("input","text",allegiance)
+        changed={v[0] for v in nodes() if v[3].endswith("EditText")}
+        if allegiance not in changed:
+            log("ARMY_ALLEGIANCE_NOT_SET",sorted(changed)[:10])
+            return False
+    # Never send KEYCODE_BACK blindly: an earlier emulator ended on HOME.
     saved=False
     for label in ("SALVAR EXÉRCITO","SALVAR","REGISTRAR EXÉRCITO"):
         if label in {x[0] for x in nodes()} and click(label,2):
@@ -230,7 +261,15 @@ def army():
     if not saved:
         log("ARMY_SAVE_CONTROL_MISSING","positive action not detected in real dialog")
         return False
-    return any(x[0]=="Braseiro_QA_R35" for x in snapshot("AFTER_ARMY")["army"])
+    return any(x[0]==name for x in snapshot("AFTER_ARMY_"+name)["army"])
+def army():
+    before=snapshot("BEFORE_ARMY")["counts"].get("kingmaker_armies",0)
+    if not create_army("Braseiro_QA_Player","kingdom"):return False
+    if not create_army("Braseiro_QA_Enemy","enemy"):return False
+    after=snapshot("AFTER_OPPOSING_ARMIES")
+    expected={"Braseiro_QA_Player","Braseiro_QA_Enemy"}
+    names={x[0] for x in after["army"]}
+    return after["counts"].get("kingmaker_armies",0)>=before+2 and expected.issubset(names)
 
 def war():
     if not kingmaker():return False
@@ -263,7 +302,8 @@ def restart():
         shell("am","force-stop",PKG)
         launch()
         after=snapshot("AFTER_RESTART_"+str(attempt))
-        if before["state"]!=after["state"] or before["counts"]!=after["counts"] or before["army"]!=after["army"]:
+        if (before["state"]!=after["state"] or before["counts"]!=after["counts"]
+                or before["army"]!=after["army"] or before["row_sha256"]!=after["row_sha256"]):
             log("PERSISTENCE_DRIFT_ON_RESTART",attempt)
             return False
     return True
