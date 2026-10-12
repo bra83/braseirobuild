@@ -57,6 +57,9 @@ def transform(source):
         form.addView(cardWithLabel("ESTRUTURA OFICIAL",choice));
         final Spinner skillChoice=spinner(skillOptions,skillOptions[0]);
         form.addView(cardWithLabel("PERÍCIA (automática ou alternativa permitida)",skillChoice));
+        final String[] commodityOptions={"Sem alternativa","Pagar com Madeira","Pagar com Pedra"};
+        final Spinner commodity=spinner(commodityOptions,commodityOptions[0]);
+        form.addView(cardWithLabel("CUSTO ALTERNATIVO (Bridge / Watchtower)",commodity));
         final EditText roll=labeledField(form,"d20 de construção",String.valueOf(new java.util.Random().nextInt(20)+1),false);
         roll.setInputType(InputType.TYPE_CLASS_NUMBER);
         final EditText notes=labeledField(form,"Notas da construção / consequência","",true);
@@ -71,9 +74,11 @@ def transform(source):
                         final int n=num(roll,0);
                         final String skill=(skillChoice.getSelectedItemPosition()<=0)
                              ?defaultSkills[position]:String.valueOf(skillChoice.getSelectedItem());
+                        final String commodityChoice=commodity.getSelectedItemPosition()==1?"lumber":
+                            commodity.getSelectedItemPosition()==2?"stone":"";
                         JSONObject result=kingmakerRepository.resolveBuildStructure(
                             settlement.optString("settlement_key"),officialKeys[position],
-                            n,skill,value(notes));
+                            n,skill,value(notes),commodityChoice);
                         showKingmaker();
                         toast("Construção resolvida: "+result.optString("construction_status","resultado registrado")+".");
                     }catch(Exception ex){
