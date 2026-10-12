@@ -209,6 +209,70 @@ public final class RavenloftCanonCatalog {
                 Collections.<String, String>emptyMap(), "grupo", true
         ));
 
+        list.add(new Entity(
+                "ravenloft_borca_domain", "RHW", "ravenloft", "present", "location",
+                "Domínio de Borca", "Domain of Borca",
+                "Terra de decadência aristocrática, bailes suntuosos e venenos mortais governada por Ivana Boritsi e Ivan Dilisnya.",
+                Arrays.asList(
+                        "Palácios rococó erguem-se sobre vilas miseráveis onde a cortesia social esconde conspirações de assassinato.",
+                        "Ervas venenosas raras são cultivadas nas estufas dos nobres para eliminar rivais de herança."
+                ),
+                Arrays.asList(
+                        "O Beijo de Ivana é um veneno indetectável que transmuta sangue nobre em cristal corrosivo.",
+                        "Espiões de Borca infiltram redes de comércio interdomínios buscando receitas de venenos de Thay."
+                ),
+                Arrays.asList("ravenloft", "borca", "ivana_boritsi", "dilisnya", "poisons", "domain"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "ravenloft_tepest_domain", "RHW", "ravenloft", "present", "location",
+                "Domínio de Tepest", "Domain of Tepest",
+                "Vale rural aparentemente bucólico assombrado por bruxas feéricas e festivais macabros de sacrifício.",
+                Arrays.asList(
+                        "A vila de Viktal celebra o dízimo da colheita sob cantos folclóricos e danças em torno da fogueira.",
+                        "Florestas sussurrantes são habitadas por criaturas feéricas distorcidas pelas brumas de Ravenloft."
+                ),
+                Arrays.asList(
+                        "Mãe Lorinda devora a juventude dos aldeões oferecidos como tributo pelas próprias famílias.",
+                        "Bonecos de palha deixados nas portas durante o solstício servem como âncoras para o despertar de espantalhos assassinos."
+                ),
+                Arrays.asList("ravenloft", "tepest", "lorinda", "hags", "folk_horror", "domain"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "astarion_cazador_spawn_family", "ABH", "ravenloft", "present", "faction",
+                "Progênie de Cazador Szarr", "Cazador's Vampire Spawn",
+                "Os 'irmãos' vampíricos de Astarion: Leon, Petras, Aurelia, Dalyria, Violet e Yousen, submetidos à tirania de Cazador.",
+                Arrays.asList(
+                        "Crias vampíricas mantidas sob servidão estrita através de laços de sangue e crueldade mental.",
+                        "Enviados para seduzir almas nos salões nobres de Baldur's Gate para abastecer as masmorras do palácio."
+                ),
+                Arrays.asList(
+                        "Leon e Dalyria conspiram para sabotar os planos de ascensão de Cazador e escapar com vida.",
+                        "Cada cria carrega cicatrizes arcanas gravadas nas costas que compõem o círculo do ritual de Mefistófeles."
+                ),
+                Arrays.asList("abh", "vampire_spawn", "cazador_family", "astarion", "baldurs_gate"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "astarion_rats_run_tavern", "ABH", "ravenloft", "present", "location",
+                "Taverna Rat's Run", "Rat's Run Tavern & Inn",
+                "Taverna decadente nos becos inferiores onde aventureiros e criaturas da noite negociam segredos.",
+                Arrays.asList(
+                        "Local de encontro de caçadores de recompensas, ladinos e informantes de Astarion.",
+                        "Serve hidromel escuro e ensopados enquanto negócios ilegais são selados nos porões."
+                ),
+                Arrays.asList(
+                        "Um alçapão sob o barril principal conecta diretamente aos esgotos da Cidade Baixa e ao palácio Szarr.",
+                        "O taverneiro é um ghoul disfarçado leal a Astarion que recolhe rumores para o Mestre."
+                ),
+                Arrays.asList("abh", "rats_run", "tavern", "astarion", "safehouse"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
         return Collections.unmodifiableList(list);
     }
 }

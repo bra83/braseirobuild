@@ -397,6 +397,134 @@ public final class FaerunCanonCatalog {
                 cultDragonRel, "secreto", false
         ));
 
+        list.add(new Entity(
+                "faerun_cormanthor_myth_drannor", "FRAiF", "forgotten_realms", "present", "location",
+                "Ruínas de Cormanthor e Myth Drannor", "Cormanthor & Myth Drannor",
+                "A ancestral floresta élfica e as ruínas da gloriosa cidade que outrora uniu humanos e elfos.",
+                Arrays.asList(
+                        "Árvores gigantescas entrelaçam pedras ancestrais impregnadas de mythal enfraquecido mas potente.",
+                        "Refúgio de elfos da floresta e patrulhas rangers que impedem intrusos de pilhar túmulos nobres."
+                ),
+                Arrays.asList(
+                        "Salões subterrâneos ainda guardam portais desestabilizados que conectam a planos elementais.",
+                        "Agentes do Zhentarim financiam expedições clandestinas para roubar estelas rúnicas do mythal."
+                ),
+                Arrays.asList("faerun", "cormanthor", "myth_drannor", "mythal", "elven_ruins"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "faerun_calimshan_genie_factions", "FRAiF", "forgotten_realms", "present", "faction",
+                "Facções de Gênios de Calimshan", "Calimshan Genie Factions",
+                "Linhagens nobres e seitas influenciadas por Efreeti e Djinn disputando hegemonia no sul.",
+                Arrays.asList(
+                        "Divididos entre lealdades à Chama Eterna e aos Senhores dos Ventos em Calimport.",
+                        "Controlam caravanas mercantis de especiarias raras, gemas encantadas e seda solar."
+                ),
+                Arrays.asList(
+                        "Conspiram para romper as algemas mágicas que mantêm arqui-efreeti selados sob os desertos.",
+                        "Mantêm espiões em todas as casas de câmbio de Calimport para subornar sátrapas."
+                ),
+                Arrays.asList("faerun", "calimshan", "genie", "efreeti", "djinn", "factions"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "faerun_moonshae_moonwells", "FRAiF", "forgotten_realms", "present", "location",
+                "Poços Lunares de Moonshae", "Moonshae Moonwells",
+                "Fontes sagradas consagradas à Mãe Terra cujas águas purificadoras refletem os ciclos lunares.",
+                Arrays.asList(
+                        "Fontes de cura mística e comunhão druídica protegidas pelos Northmen e Ffolk.",
+                        "Águas que neutralizam venenos mortais e revelam ilusões quando tocadas sob o luar."
+                ),
+                Arrays.asList(
+                        "A corrupção de Malar e do deus-fera Kazgaroth tenta profanar os poços para transformá-los em fossas de sangue.",
+                        "Druidas do Círculo Negro conspiram em segredo para secar a bacia de Alaron."
+                ),
+                Arrays.asList("faerun", "moonshae", "moonwell", "earthmother", "druidic_sacred"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "faerun_item_calimemnon_crystal", "FRAiF", "forgotten_realms", "present", "item",
+                "Cristal de Calimemnon", "Calimemnon Crystal",
+                "Relíquia lendária que contém a essência aprisionada de um arqui-efreeti de Calimshan.",
+                Arrays.asList(
+                        "Emite calor abrasador constante e concede resistência a chamas arcanas ao portador.",
+                        "Cobiçado por magos do sul para alimentar forjas arcanas permanentes."
+                ),
+                Arrays.asList(
+                        "Se o cristal for quebrado por dano radiante, a entidade aprisionada é liberta com sede de vingança.",
+                        "Requer uma palavra de comando em primordial antigo para liberar seus feitiços de fogo sem consumir o portador."
+                ),
+                Arrays.asList("faerun", "calimemnon", "crystal", "magic_item", "calimshan"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ));
+
+        list.add(new Entity(
+                "faerun_item_crown_of_horns", "FRAiF", "forgotten_realms", "present", "item",
+                "Coroa de Chifres", "Crown of Horns",
+                "Artefato macabro ligado aos vestígios do deus Myrkul que instila necromancia e loucura.",
+                Arrays.asList(
+                        "Concede poderes necromânticos devastadores a quem a coloca sobre a fronte.",
+                        "Reconhecida historicamente como um dos artefatos mais perigosos dos Reinos."
+                ),
+                Arrays.asList(
+                        "A coroa sussurra pensamentos homicidas ao usuário e tenta transformá-lo em um avatar de Myrkul.",
+                        "Possui vontade própria e pode se teletransportar se o portador for purificado por bênção divina."
+                ),
+                Arrays.asList("faerun", "crown_of_horns", "myrkul", "artifact", "necromancy"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ));
+
+        list.add(new Entity(
+                "faerun_item_tome_dragon", "FRAiF", "forgotten_realms", "present", "item",
+                "Tomo do Dragão", "Tome of the Dragon",
+                "Grimório original contendo as transcrições das profecias de Sammaster e rituais dracólicos.",
+                Arrays.asList(
+                        "Contém fórmulas arcanas para criação de filactérias dracônicas e conservação cadavérica.",
+                        "Texto escrito em draconiano arcaico com tinta extraída de sangue de dragão verde."
+                ),
+                Arrays.asList(
+                        "A leitura desprotegida exige salvaguarda de Sabedoria CD 15 contra perturbação mental permanente.",
+                        "O Culto do Dragão pagará fortunas para recuperar qualquer cópia genuína das mãos de aventureiros."
+                ),
+                Arrays.asList("faerun", "tome_dragon", "sammaster", "cult_dragon", "grimoire"),
+                cultDragonRel, "secreto", false
+        ));
+
+        list.add(new Entity(
+                "faerun_beast_of_malar", "FRAiF", "forgotten_realms", "present", "monster",
+                "Fera de Malar", "Beast of Malar",
+                "Monstruosidade metamórfica invocada por cultos de caçadores de sangue do Senhor das Feras.",
+                Arrays.asList(
+                        "Criatura colossal com mandíbulas de sabre, pelos farpados e sede inesgotável por presas.",
+                        "Caça incansavelmente sob a lua cheia, aterrorizando aldeias isoladas nas fronteiras florestais."
+                ),
+                Arrays.asList(
+                        "Regenera ferimentos a menos que seja golpeada com prata consagrada ou fogo sagrado.",
+                        "Possui faro sobrenatural capaz de rastrear aventureiros feridos a quilômetros de distância."
+                ),
+                Arrays.asList("faerun", "beast_of_malar", "malar", "bestiary", "predator"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "faerun_dead_three_scion", "FRAiF", "forgotten_realms", "present", "monster",
+                "Progênie dos Três Mortos", "Dead Three Scion",
+                "Fanático possuído pelo zelo fanático de Bane, Bhaal ou Myrkul nos esgotos urbanos.",
+                Arrays.asList(
+                        "Assassinos e tiranos cruéis que organizam células de terror e sequestros nas cidades livres.",
+                        "Usam máscaras de ferro forjado e adagas rituais gravadas com o crânio e a mão de osso."
+                ),
+                Arrays.asList(
+                        "Ao tombar em combate, o corpo explode em uma névoa necrótica com CD 14 de Constituição.",
+                        "Mantêm cadernos cifrados com ordens diretas de mestres de guilda ocultos em Baldur's Gate."
+                ),
+                Arrays.asList("faerun", "dead_three", "bhaal", "bane", "myrkul", "cultists"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
         return Collections.unmodifiableList(list);
     }
 }

@@ -47,7 +47,25 @@ public final class FaerunAdventureModuleCatalog {
             s("The Desert Outpost", "02a", "anauroch_edge", "Chegada ao posto avançado no limiar das dunas onde rastros de tempestade mágica foram avistados."),
             s("The Shattered Tower", "02b", "netheril_tower", "Exploração da torre semidestruída com armadilhas de glifos arcanos e teste de Arcano CD 15."),
             s("The Weave Fracture", "02c", "anauroch_ruins", "Confronto com espectros do Weave que tentam rasgar o grimório; escolha de restaurar a Trama ou selar a torre."),
-            s("Sanctum Claimed", "02d", "demiplane_tower", "Abertura do portal demiplanar e estabelecimento da posse legítima da torre de pesquisa."))
+            s("Sanctum Claimed", "02d", "demiplane_tower", "Abertura do portal demiplanar e estabelecimento da posse legítima da torre de pesquisa.")),
+        new Spec("tomb_damara", "The Tomb of Damara", "fraif_03", 3,
+            "Nas colinas de Cormanthor, a tumba ancestral de Damara é violada por saqueadores; heróis devem impedir o despertar da maldição sepulcral.",
+            s("Entrance in Cormanthor", "03a", "cormanthor_woods", "Trilhas esquecidas sob a copa élfica conduzem às portas de granito seladas com runas arcanas."),
+            s("Hall of Statues", "03b", "damara_antechamber", "Câmara dos guardiões de pedra onde um teste de História CD 13 revela a sequência segura dos glifos."),
+            s("The Sarcophagus Seal", "03c", "damara_crypt", "Confronto com o guardião espectral e a decisão crucial: purificar o túmulo ou reclamar o Orbe de Damara."),
+            s("Dawn in the Dales", "03d", "dalelands_meadows", "Retorno às Terras dos Vales com reconhecimento das comunidades rurais e benção de Lathander.")),
+        new Spec("lost_library", "The Lost Library of Lethchauntos", "fraif_04", 7,
+            "Expedição às profundezas da lendária Biblioteca Perdida de Lethchauntos para recuperar códices primordiais do Weave antes de agentes de Thay.",
+            s("The Submerged Vaults", "04a", "lethchauntos_exterior", "Navegação por canais subterrâneos inundados e desativação das comportas mágicas."),
+            s("Athenaeum of Whispers", "04b", "lethchauntos_scriptorium", "Salão de leitura protegido por pergaminhos autômatos e teste de Arcano CD 16."),
+            s("Shadows of Thay", "04c", "lethchauntos_inner_sanctum", "Confronto diplomático ou bélico contra magos vermelhos que tentam rasgar o selo do repositório."),
+            s("Legacy Preserved", "04d", "lethchauntos_apex", "Consagração do santuário sob tutela dos Harpistas e proteção permanente do repositório.")),
+        new Spec("baldurs_undercellar", "Conspiracy in the Under-Cellar", "fraif_05", 2,
+            "Nos corredores sombrios do Under-Cellar em Baldur's Gate, agentes dos Três Mortos conspiram com mercadores corruptos para envenenar os reservatórios da cidade.",
+            s("Shadows of the Lower City", "05a", "baldurs_lower_city", "Investigação nas tavernas portuárias para identificar o contato dos contrabandistas."),
+            s("The Under-Cellar Cisterns", "05b", "baldurs_undercellar_cistern", "Descida pelos esgotos labirínticos com teste de Percepção CD 14 para evitar armadilhas de gás."),
+            s("Altar of the Three", "05c", "baldurs_shrine_dead_three", "Interrupção do ritual de contaminação com escolha de capturar o líder ou destruir os frascos tóxicos."),
+            s("Gates of Dawn", "05d", "baldurs_seatower", "Relatório aos Punhos Flamejantes e aumento de reputação nas facções de Baldur's Gate."))
     };
 
     public static List<AdventureModule> all() {
@@ -99,6 +117,15 @@ public final class FaerunAdventureModuleCatalog {
             } else if ("02b".equals(sc.id)) {
                 ck = new JSONObject();
                 try { ck.put("skill", "Arcana").put("dc", 15).put("requires_check", true); } catch (Exception ignored) {}
+            } else if ("03b".equals(sc.id)) {
+                ck = new JSONObject();
+                try { ck.put("skill", "History").put("dc", 13).put("requires_check", true); } catch (Exception ignored) {}
+            } else if ("04b".equals(sc.id)) {
+                ck = new JSONObject();
+                try { ck.put("skill", "Arcana").put("dc", 16).put("requires_check", true); } catch (Exception ignored) {}
+            } else if ("05b".equals(sc.id)) {
+                ck = new JSONObject();
+                try { ck.put("skill", "Perception").put("dc", 14).put("requires_check", true); } catch (Exception ignored) {}
             }
             nodes.put(id, new AdventureNode(id, sp.title + " — " + sc.title, sc.beat, directives(), sc.loc, null, ts, ck, null));
         }

@@ -317,6 +317,10 @@ public final class NarrativeContentEngine {
         return out;
     }
 
+    public synchronized boolean discoverEntity(String entityId) {
+        return discoverEntity(entityId, "");
+    }
+
     public synchronized boolean discoverEntity(final String entityId, final String discoveredByNote) {
         if (entityId == null || entityId.trim().length() == 0 || appDb == null) return false;
         try {

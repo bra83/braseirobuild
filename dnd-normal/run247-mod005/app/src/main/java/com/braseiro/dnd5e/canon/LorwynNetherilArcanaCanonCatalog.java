@@ -237,6 +237,54 @@ public final class LorwynNetherilArcanaCanonCatalog {
                 Collections.<String, String>emptyMap(), "grupo", true
         ));
 
+        list.add(new Entity(
+                "au_bejeweled_conclave", "AU", "multiverse", "present", "faction",
+                "O Conclave das Gemas Encantadas", "The Bejeweled Conclave",
+                "Aliança de artifices e joalheiros arcanos que transmutam minérios raros em focos mágicos vivos.",
+                Arrays.asList(
+                        "Operam guildas suntuosas em metrópoles multiversais, comercializando gemas de armazenamento de feitiços.",
+                        "Defendem o monopólio da lapidação de safiras astrais e rubis de chamas primordiais."
+                ),
+                Arrays.asList(
+                        "Financiam secretamente expedições a planos elementais para minerar os núcleos de montanhas flutuantes.",
+                        "Possuem golens de ametista que patrulham suas câmaras de cofres contra ladrões da Nona Pena."
+                ),
+                Arrays.asList("au", "bejeweled_conclave", "artificers", "gems", "magic_items"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "au_bringers_cosmic_dawn", "AU", "multiverse", "present", "faction",
+                "Portadores da Alvorada Cósmica", "Bringers of Cosmic Dawn",
+                "Ordem de místicos e astrônomos arcanos dedicados ao estudo de alinhamentos estelares e auroras planares.",
+                Arrays.asList(
+                        "Constroem observatórios no topo de picos remotos para mapear a convergência das esferas astrais.",
+                        "Vestem túnicas tecidas com fios de prata estelar que brilham suavemente na escuridão."
+                ),
+                Arrays.asList(
+                        "Preveem um grande alinhamento cósmico que abrirá passagens permanentes entre Lorwyn e o Plano Material.",
+                        "Guardam relíquias estelares que canalizam luz radiante capaz de cegar abominações abissais."
+                ),
+                Arrays.asList("au", "cosmic_dawn", "astronomy", "mystics", "radiant"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "au_tomb_shadow_serpents", "AU", "multiverse", "present", "location",
+                "Túmulo das Serpentes das Sombras", "Tomb of the Shadow Serpents",
+                "Complexo sepulcral antigo onde repousam sacerdotes ofídicos e relíquias de magia primordial das sombras.",
+                Arrays.asList(
+                        "Corredores de basalto negro ornados com relevos de serpentes de duas cabeças e bacias de veneno mágico.",
+                        "Local de peregrinação para necromantes e ilusionistas que buscam comunhão com espíritos sombrios."
+                ),
+                Arrays.asList(
+                        "No coração da tumba repousa o Cajado das Escamas Negras protegido por uma hidra espectral das sombras.",
+                        "Glifos ocultos no teto descarregam dano psíquico CD 15 em intrusos desprovidos de amuletos ofídicos."
+                ),
+                Arrays.asList("au", "shadow_serpents", "tomb", "dungeon", "adventure_location"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ));
+
         return Collections.unmodifiableList(list);
     }
 }
