@@ -123,7 +123,7 @@ def transform_rules(source,rows):
     for row in rows:
         canonical=key_for(row["official_name"])
         rec=effects[canonical]
-        residence=1 if "RESIDENTIAL" in rec["traits"] else 0
+        residence=row["lots"] if "RESIDENTIAL" in rec["traits"] else 0
         statement='            if("'+canonical+'".equals(r36OfficialKey)){\n'
         for field,value in (
             ("residential_lots",residence),
@@ -235,3 +235,4 @@ def apply(directory):
 if __name__=="__main__":
     if len(sys.argv)!=2:raise SystemExit("usage: patch_catalog_expansion.py <R36_project>")
     apply(sys.argv[1])
+

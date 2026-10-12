@@ -34,9 +34,9 @@ def test_transform_materializes_all_73_traits_and_residential_occupancy():
     assert transformed.count('officialBase.put("residential_lots",')==73
     assert transformed.count('officialBase.put("official_traits",')==73
     assert transformed.count('officialBase.put("official_effects_rule",')==73
-    for key in ("houses","inn","garrison","noble_villa","marketplace"):
+    for key,lots in {"houses":1,"inn":1,"garrison":2,"noble_villa":2,"marketplace":2}.items():
         idx=transformed.index('if("'+key+'".equals(r36OfficialKey))')
-        assert 'officialBase.put("residential_lots",1)' in transformed[idx:idx+250],key
+        assert 'officialBase.put("residential_lots",'+str(lots)+')' in transformed[idx:idx+250],key
     assert 'special_effects_semantic_certification' in transformed
 
 def test_residential_lots_propagate_to_built_structure_effects():
@@ -46,9 +46,11 @@ def test_residential_lots_propagate_to_built_structure_effects():
         return
     data=src.read_text(encoding="utf-8")
     assert "R36_OFFICIAL_CATALOG_73" in data
+    catalog={mod.key_for(row["official_name"]):row for row in mod.official_manifest()}
     for key,rec in mod.official_semantics().items():
         fragment=data[data.index('if("'+key+'".equals(r36OfficialKey))'):][:850]
-        residence=1 if "RESIDENTIAL" in rec["traits"] else 0
+        residence=catalog[key]["lots"] if "RESIDENTIAL" in rec["traits"] else 0
         assert 'officialBase.put("residential_lots",'+str(residence)+')' in fragment,key
     for key in ("houses","inn","garrison","noble_villa","marketplace"):
         assert mod.official_semantics()[key]["traits"]
+
