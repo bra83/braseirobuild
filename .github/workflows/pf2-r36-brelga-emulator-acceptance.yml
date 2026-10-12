@@ -122,12 +122,33 @@ jobs:
             # On Windows PowerShell this is a NativeCommandError with
             # ErrorActionPreference=Stop, even though adb itself is healthy.
             # Initialize adb safely before the boot poll.
-            $adbInit=Start-Process -FilePath $adb -ArgumentList @('start-server') -PassThru -NoNewWindow -RedirectStandardOutput (Join-Path $logs 'adb-start.stdout.txt') -RedirectStandardError (Join-Path $logs 'adb-start.stderr.txt')
-            if(!$adbInit.WaitForExit(12000)){
-              Stop-Process -Id $adbInit.Id -Force -ErrorAction SilentlyContinue
-              throw 'ADB_START_SERVER_HUNG_ON_BRELGA_12S'
-            }
-            if($adbInit.ExitCode -ne 0){throw "ADB_START_SERVER_FAILED=$($adbInit.ExitCode)"}
+            $psi=New-Object System.Diagnostics.ProcessStartInfo
+            $psi.FileName=$adb
+            $psi.Arguments='start-server'
+            $psi.UseShellExecute=$false
+            $psi.CreateNoWindow=$true
+            $psi.RedirectStandardOutput=$true
+            $psi.RedirectStandardError=$true
+            $adbInit=New-Object System.Diagnostics.Process
+            $adbInit.StartInfo=$psi
+            try{
+              [void]$adbInit.Start()
+              $adbOut=$adbInit.StandardOutput.ReadToEndAsync()
+              $adbErr=$adbInit.StandardError.ReadToEndAsync()
+              if(!$adbInit.WaitForExit(12000)){
+                $adbInit.Kill()
+                throw 'ADB_START_SERVER_HUNG_ON_BRELGA_12S'
+              }
+              $adbInit.WaitForExit()
+              $adbInit.Refresh()
+              $adbCode=$adbInit.ExitCode
+              # A spawned daemon can inherit pipe handles: bound log draining too.
+              if($adbOut.Wait(2000)){$adbOut.Result|Set-Content (Join-Path $logs 'adb-start.stdout.txt')}
+              if($adbErr.Wait(2000)){$adbErr.Result|Set-Content (Join-Path $logs 'adb-start.stderr.txt')}
+              Write-Host "R36_ADB_START_EXIT_CODE=$adbCode"
+              if($null -eq $adbCode){throw 'ADB_START_SERVER_EXIT_CODE_UNAVAILABLE'}
+              if($adbCode -ne 0){throw "ADB_START_SERVER_FAILED=$adbCode"}
+            }finally{$adbInit.Dispose()}
             # The emulator startup log below records accelerator failures.
             # Avoid invoking -accel-check via PowerShell native stderr under Stop.
             Write-Host 'R36_ANDROID_EMULATOR_STARTING=true'
@@ -174,6 +195,10 @@ jobs:
             Write-Host 'R36_REAL_ANDROID_UI_APPDB_3_RESTARTS=PASS'
           }catch{
             Write-Host "R36_REAL_ANDROID_FAILURE=$($_.Exception.Message)"
+            foreach($name in @('adb-start.stdout.txt','adb-start.stderr.txt')){
+              $path=Join-Path $logs $name
+              if(Test-Path $path){Write-Host "R36_ADB_LOG=$name";Get-Content $path -Tail 80|ForEach-Object{Write-Host $_}}
+            }
             if(Test-Path $stderr){Write-Host 'R36_EMULATOR_STDERR_TAIL';Get-Content $stderr -Tail 110|ForEach-Object{Write-Host $_}}
             if(Test-Path $stdout){Write-Host 'R36_EMULATOR_STDOUT_TAIL';Get-Content $stdout -Tail 35|ForEach-Object{Write-Host $_}}
             throw
@@ -188,3 +213,11 @@ jobs:
               }
             }catch{Write-Host 'R36_EMULATOR_CLEANUP_NONFATAL'}finally{$ErrorActionPreference=$oldAction}
           }
+      - name: Preserve Android runtime evidence even after failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pf2-r36-android-runtime-${{ github.sha }}
+          path: |
+            r36-runtime-logs/
+          if-no-files-found: warn
