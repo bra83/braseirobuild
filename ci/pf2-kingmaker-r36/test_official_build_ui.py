@@ -1,5 +1,6 @@
 """R36 official 73-structure UI transition: synthetic source contract, not emulator."""
 import importlib.util
+import json
 from pathlib import Path
 import sys
 import pytest
@@ -29,7 +30,9 @@ def test_r35_manual_construction_is_replaced_by_rules_engine():
     assert 'defaultSkills[position]' in output
     assert 'officialCosts.setText(officialDetails[position]);' in output
     assert 'DETAILS_TOKEN' not in output
-    assert 'Construção: ' in output
+    # Label arrays are emitted as Java-safe ASCII-escaped string literals.
+    # Test the serialization actually produced rather than raw Unicode.
+    assert json.dumps('Construção: ',ensure_ascii=True)[1:-1] in output
     assert "Pagar com Madeira" in output
     assert "Pagar com Pedra" in output
     assert 'n,skill,value(notes),commodityChoice' in output
@@ -42,7 +45,7 @@ def test_73_labels_are_from_official_pdf_not_free_text():
     assert len(rows)==73
     for name in (mod.key_for(r["official_name"]) for r in rows):
         assert '"'+name+'"' in output
-    assert 'implantação especial' in output
+    assert json.dumps('implantação especial',ensure_ascii=True)[1:-1] in output
     assert 'custo alternativo' in output
     assert "new String[]{" in output
 
