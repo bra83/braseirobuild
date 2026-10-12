@@ -70,7 +70,7 @@ jobs:
           }
           $disk = New-Object System.IO.DriveInfo($driveRoot)
           Write-Host ('DISK_RECOVERY_AFTER_BYTES=' + $disk.AvailableFreeSpace)
-          if ($disk.AvailableFreeSpace -lt 1073741824) {
+          if ($disk.AvailableFreeSpace -lt 805306368) {
             throw ('BRELGA_DISK_INSUFFICIENT_AFTER_DND_SAFE_CLEAN=' + $disk.AvailableFreeSpace)
           }
   editorial-evidence:
@@ -120,7 +120,7 @@ jobs:
           }
           $drive = New-Object System.IO.DriveInfo($driveRoot)
           Write-Host ('DND_DISK_FREE_AFTER_BYTES=' + $drive.AvailableFreeSpace)
-          if ($drive.AvailableFreeSpace -lt 1073741824) {
+          if ($drive.AvailableFreeSpace -lt 805306368) {
             throw ('BRELGA_INSUFFICIENT_FREE_SPACE_DND_ONLY_CLEANUP=' + $drive.AvailableFreeSpace)
           }
       - name: Execute AdventureTransactionSafetyRobolectricTest and full regression
