@@ -1,6 +1,7 @@
 import java.util.Properties
 import java.util.Locale
 import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.Sync
 
 plugins {
     id("com.android.application")
@@ -17,6 +18,18 @@ val appVersionCode = releaseProperties.getProperty("VERSION_CODE")?.toIntOrNull(
 val signingProperties = Properties()
 val signingPropertiesFile = rootProject.file("signing.properties")
 val generatedNpcAssetsDir = layout.buildDirectory.dir("generated/npcAssets")
+// Exclusivo de :app:testDebugUnitTest no BRELGA. Nunca usar em assembleDebug/release.
+// O mapa original permanece em src/main/assets e integra todos os APKs normais.
+val qaLiteAssets = providers.gradleProperty("braseiro.qaLiteAssets")
+    .map { it == "true" }.getOrElse(false)
+val qaLiteAssetsDir = layout.buildDirectory.dir("generated/qaLiteAssets")
+val stageQaLiteAssets by tasks.registering(Sync::class) {
+    from("src/main/assets") {
+        exclude("maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip")
+    }
+    into(qaLiteAssetsDir)
+}
+
 val syncNpcAssets by tasks.registering(Copy::class) {
     from(packageRoot.resolve("npc"))
     into(generatedNpcAssetsDir.map { it.dir("npc") })
@@ -104,6 +117,11 @@ android {
     }
 
     sourceSets.getByName("main").apply {
+        if (qaLiteAssets) {
+            // Retira APENAS a duplicacao do ZIP de Faerun da etapa de testes JVM.
+            // Esta suite nao certifica o empacotamento ou renderizacao do mapa.
+            assets.setSrcDirs(listOf(qaLiteAssetsDir))
+        }
         assets.srcDir(generatedNpcAssetsDir)
         // Proteção de produção: arquivos de teste copiados por engano para src/main
         // nunca entram no APK nem interrompem a compilação.
@@ -170,6 +188,7 @@ dependencies {
 
 tasks.named("preBuild").configure {
     dependsOn(syncNpcAssets)
+    if (qaLiteAssets) dependsOn(stageQaLiteAssets)
 }
 
 
