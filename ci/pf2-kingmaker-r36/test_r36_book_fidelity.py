@@ -318,3 +318,30 @@ def test_manor_fire_actions_persist_actual_damage_and_earned_character_xp():
     body=main[start:end]
     assert body.index('combat.optJSONArray("manor_actions")')<body.index('if("none".equals(action)')
     assert 'showKingmakerManorFire()' in main
+
+
+def test_manor_smoke_delay_and_air_count_have_actual_combat_and_sheet_effects():
+    assert 'public JSONObject resolveManorBreathingAction(' in SOURCE
+    assert 'KingmakerCampaignGate.manorSuffocation(' in SOURCE
+    assert 'Math.max(0,5+core.attributeModifier(hero,"Constituição"))' in SOURCE
+    assert '!jsonObject(combat.optString("resources_json","{}")).has("manor_suffocation_starts_round")' in SOURCE
+    assert 'manor_air_last_round' in SOURCE
+    assert 'manor_suffocation_checks' in SOURCE
+    assert 'death.put("hp",0)' in SOURCE
+    assert 'db.updateCharacterSheetChecked(hero.optLong("id"),sheet.toString())' in SOURCE
+
+
+def test_manor_treasury_reaches_actual_party_inventory_and_gold():
+    assert 'public JSONObject resolveManorTreasuryAction(' in SOURCE
+    assert 'KingmakerCampaignGate.manorTreasuryOutcome(' in SOURCE
+    assert 'adjustCompanyGold(outcome.optInt("gold_delta"))' in SOURCE
+    assert 'resources.put("shared_inventory",inventory).put("treasure_receipts",receipts)' in SOURCE
+    assert 'db.savePartyStateChecked(party)' in SOURCE
+    assert 'sheet.put("thieves_toolkit_broken",true)' in SOURCE
+    assert 'int cost="pick_lock".equals(action)?2:' in SOURCE
+    main=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java").read_text(encoding="utf-8")
+    assert 'combat.optJSONArray("manor_treasury_actions")' in main
+    assert 'showKingmakerManorTreasury()' in main
+    app=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/AppDb.java").read_text(encoding="utf-8")
+    assert 'syncPlayerCombatantHp(id,ch.optString("name"),safe)' in app
+    assert "source_kind='character' AND source_id=?" in app

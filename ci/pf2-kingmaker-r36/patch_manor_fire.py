@@ -100,4 +100,8 @@ def fire_appdb(s):
             JSONObject ch="character".equals(c.optString("source_kind"))&&c.optLong("source_id")>0?getCharacter(c.optLong("source_id")):findCharacterByName(c.optString("name"));
             if(ch.length()>0){try{setCharacterHpChecked(ch.optLong("id"),hp);JSONObject sheet=parseJsonObject(getCharacter(ch.optLong("id")).optString("sheet_json","{}"));sheet.put("dead",dead).put("dying",dying).put("wounded",wounded).put("doomed",doomed).put("unconscious",state.optBoolean("unconscious"));updateCharacterSheetChecked(ch.optLong("id"),sheet.toString());}catch(Exception failure){throw new IllegalStateException("O estado vital não foi sincronizado com a ficha.",failure);}}
         }'''
- return once(s,anchor,replacement)
+ s=once(s,anchor,replacement)
+ s=once(s,'syncPlayerCombatantHp(ch.optString("name"),safe);','syncPlayerCombatantHp(id,ch.optString("name"),safe);')
+ s=once(s,'private void syncPlayerCombatantHp(String characterName,int hp){','private void syncPlayerCombatantHp(long characterId,String characterName,int hp){')
+ s=once(s,'"world_profile=? AND is_player=1 AND lower(name)=lower(?)",new String[]{getActiveMapProfile(),characterName}','"world_profile=? AND is_player=1 AND ((source_kind=\'character\' AND source_id=?) OR (COALESCE(source_id,0)<=0 AND lower(name)=lower(?) AND 1=(SELECT COUNT(*) FROM characters ch WHERE ch.world_profile=combatants.world_profile AND lower(ch.name)=lower(combatants.name))))",new String[]{getActiveMapProfile(),String.valueOf(characterId),characterName}')
+ return s

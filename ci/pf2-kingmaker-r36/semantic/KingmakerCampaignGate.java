@@ -210,6 +210,42 @@ public final class KingmakerCampaignGate {
   return state.put("last_outcome",outcome);
  }
 
+ public static JSONObject manorSuffocation(JSONObject prior,int round,String degree,JSONArray d10,boolean freshAir,int hp)throws Exception{
+  JSONObject next=new JSONObject(prior.toString());JSONObject outcome=new JSONObject().put("damage",0).put("dead",false).put("source_ref","Kingmaker p.33; Player Core p.437, Drowning and Suffocating");
+  if(freshAir){JSONObject freed=new JSONObject();Iterator<String> keys=next.keys();while(keys.hasNext()){String key=keys.next();if(!key.startsWith("manor_suffocation_")&&!key.startsWith("manor_air_"))freed.put(key,next.opt(key));}next=freed;next.put("unconscious",hp<=0).put("last_breath_outcome",outcome.put("description","O personagem voltou a respirar ar livre."));return next;}
+  int begins=next.optInt("manor_suffocation_starts_round",Integer.MAX_VALUE);if(round<begins)throw new IllegalArgumentException("O sufocamento ainda não começou.");
+  if(next.optInt("manor_suffocation_last_round",-1)>=round)throw new IllegalArgumentException("O sufocamento desta rodada já foi resolvido.");
+  int checks=next.optInt("manor_suffocation_checks",0);if(checks<0||checks>100)throw new IllegalArgumentException("Contagem de sufocamento inválida.");int dc=20+5*checks;outcome.put("dc",dc).put("dice",checks+1);
+  if("CRITICAL_FAILURE".equals(degree)){next.put("dead",true).put("dying",0);outcome.put("dead",true).put("description","Falha crítica no teste de sufocamento: o personagem morreu.");}
+  else if("FAILURE".equals(degree)){if(d10==null||d10.length()!=checks+1)throw new IllegalArgumentException("O sufocamento exige "+(checks+1)+"d10.");int damage=0;for(int n=0;n<d10.length();n++){int roll=d10.optInt(n,0);if(roll<1||roll>10)throw new IllegalArgumentException("d10 de sufocamento inválido.");damage+=roll;}outcome.put("damage",damage).put("description","Sufocamento: "+damage+" de dano.");}
+  else if("SUCCESS".equals(degree)||"CRITICAL_SUCCESS".equals(degree))outcome.put("description","O personagem resistiu ao sufocamento nesta rodada.");else throw new IllegalArgumentException("Grau de sufocamento inválido.");
+  next.put("unconscious",!next.optBoolean("dead")).put("manor_suffocation_checks",checks+1).put("manor_suffocation_last_round",round).put("last_breath_outcome",outcome);return next;
+ }
+
+ public static JSONObject manorTreasureDefinition(String room)throws Exception{
+  JSONObject result=new JSONObject().put("room",room);JSONArray items=new JSONArray();
+  if("A4".equals(room)){items.put(new JSONObject().put("name","Poção de cura menor (minor)").put("quantity",4));items.put(new JSONObject().put("name","Poção de barkskin").put("quantity",1));items.put(new JSONObject().put("name","Poção de resistência ao fogo menor (lesser)").put("quantity",1));items.put(new JSONObject().put("name","Chave de bronze do baú A7").put("quantity",1));result.put("gold",0).put("source_ref","Kingmaker pp.27–28");}
+  else if("A7".equals(room)){items.put(new JSONObject().put("name","Poção de cura menor (lesser)").put("quantity",2));items.put(new JSONObject().put("name","Maça +1").put("quantity",1));items.put(new JSONObject().put("name","Espada longa +1").put("quantity",1));items.put(new JSONObject().put("name","Diário de pagamento dos empregados de Jamandi").put("quantity",1));result.put("gold",800).put("source_ref","Kingmaker p.29");}
+  else throw new IllegalArgumentException("Tesouro da mansão desconhecido.");return result.put("items",items);
+ }
+ public static JSONObject manorTreasuryOutcome(JSONObject prior,String action,String degree)throws Exception{
+  JSONObject state=new JSONObject(prior.toString()),outcome=new JSONObject().put("gold_delta",0).put("breaks_toolkit",false);
+  if("search_a4".equals(action)){if(state.optBoolean("a4_discovered"))throw new IllegalArgumentException("O compartimento já foi encontrado.");if("SUCCESS".equals(degree)||"CRITICAL_SUCCESS".equals(degree))state.put("a4_discovered",true);outcome.put("description",state.optBoolean("a4_discovered")?"Compartimento submerso encontrado sob a estátua de Milani.":"O compartimento não foi encontrado.");}
+  else if("loot_a4".equals(action)){if(!state.optBoolean("a4_discovered")||state.optBoolean("a4_looted"))throw new IllegalArgumentException("Encontre o compartimento antes de recolher seu conteúdo, uma única vez.");state.put("a4_looted",true).put("has_a7_key",true);outcome.put("treasure_room","A4").put("description","Poções e chave de bronze acrescentadas ao inventário compartilhado.");}
+  else if("unlock_key".equals(action)){if(!state.optBoolean("has_a7_key"))throw new IllegalArgumentException("O grupo não possui a chave de bronze A4.");if(state.optBoolean("a7_unlocked"))throw new IllegalArgumentException("O baú já está aberto.");state.put("a7_unlocked",true);outcome.put("description","Baú A7 aberto com a chave de bronze.");}
+  else if("pick_lock".equals(action)){if(state.optBoolean("a7_unlocked"))throw new IllegalArgumentException("O baú já está aberto.");int points=state.optInt("lock_successes",0);if(points<0||points>3)throw new IllegalArgumentException("Progresso da fechadura inválido.");if("CRITICAL_SUCCESS".equals(degree))points+=2;else if("SUCCESS".equals(degree))points++;else if("CRITICAL_FAILURE".equals(degree))outcome.put("breaks_toolkit",true);else if(!"FAILURE".equals(degree))throw new IllegalArgumentException("Grau de sucesso inválido.");points=Math.min(3,points);state.put("lock_successes",points).put("a7_unlocked",points>=3);outcome.put("description","Fechadura A7: "+points+" de 3 sucessos."+(outcome.optBoolean("breaks_toolkit")?" Ferramentas de ladrão quebradas.":""));}
+  else if("loot_a7".equals(action)){if(!state.optBoolean("a7_unlocked")||state.optBoolean("a7_looted"))throw new IllegalArgumentException("Abra o baú antes de recolher o tesouro, uma única vez.");state.put("a7_looted",true).put("gold_held",800);outcome.put("gold_delta",800).put("treasure_room","A7").put("description","800 PO, duas poções lesser, armas +1 e diário acrescentados aos recursos da companhia.");}
+  else{
+   if(!state.optBoolean("a7_looted"))throw new IllegalArgumentException("O baú A7 não foi saqueado.");
+   if("admit_return".equals(action)||"return_gold".equals(action)){if(state.optInt("gold_held")!=800)throw new IllegalArgumentException("O ouro já foi devolvido.");state.put("gold_held",0).put("gold_returned",true).put("gold_demanded",false).put("jamandi_resolution","admit_return".equals(action)?"honesty_reward":"gold_returned");outcome.put("gold_delta",-800).put("description","800 PO devolvidas. Jamandi permite que o grupo conserve as armas e as poções restantes.");}
+   else if("lie".equals(action)){if(state.has("lie_degree"))throw new IllegalArgumentException("A mentira já foi resolvida.");if(!Arrays.asList("CRITICAL_SUCCESS","SUCCESS","FAILURE","CRITICAL_FAILURE").contains(degree))throw new IllegalArgumentException("Grau de sucesso inválido.");boolean fooled=("SUCCESS".equals(degree)||"CRITICAL_SUCCESS".equals(degree))&&!state.optBoolean("weapons_seen");state.put("lie_degree",degree).put("gold_demanded",!fooled&&state.optInt("gold_held")>0).put("jamandi_resolution",fooled?"believes_bandit_escape":"demands_gold");outcome.put("description",fooled?"Jamandi acredita que um bandido escapou com o tesouro.":"Jamandi exige a devolução do ouro; não pune a posse das armas.");}
+   else if("weapons_seen".equals(action)){state.put("weapons_seen",true).put("gold_demanded",state.optInt("gold_held")>0).put("jamandi_resolution","demands_gold");outcome.put("description","As armas foram reconhecidas. Jamandi exige a devolução do ouro.");}
+   else if("refuse".equals(action)){if(state.optInt("gold_held")!=800)throw new IllegalArgumentException("O grupo já devolveu o ouro.");state.put("jamandi_resolution","refused_return").put("gold_demanded",false).put("future_tariff_discretionary",true);outcome.put("description","Jamandi protesta, mas cede o tesouro. Qualquer tarifa futura depende de decisão narrativa específica.");}
+   else throw new IllegalArgumentException("Ação do tesouro desconhecida.");
+  }
+  return state.put("last_treasure_outcome",outcome);
+ }
+
 }
 
 
