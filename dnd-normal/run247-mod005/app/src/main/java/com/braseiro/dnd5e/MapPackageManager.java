@@ -171,7 +171,12 @@ public final class MapPackageManager {
                     JSONObject previous = appDb.getMapStateForProfile(worldProfile);
                     JSONObject previousPackage = appDb.getMapPackageAny(previous.optString("map_package_id"));
                     String previousLogicalMapId = previous.optString("logical_map_id", previousPackage.optString("logical_map_id", previousPackage.optString("map_id")));
-                    boolean sameMap = mapId.equals(previousLogicalMapId) || (atlasProfile != null && AtlasMigrationEngine.sourceDeclaredForTarget(migrationProfiles, previousPackage.optString("map_package_id",previousPackage.optString("package_id",previous.optString("map_package_id",""))), previous.optString("coordinate_frame_id",previousPackage.optString("coordinate_frame_id","")), atlasProfile.mapPackageId, atlasProfile.coordinateFrameId));
+                    boolean isFaerunMap = mapId.toLowerCase(Locale.US).contains("faerun") || "forgotten_realms:faerun".equalsIgnoreCase(mapId) || "dnd".equalsIgnoreCase(worldProfile);
+                    boolean isPrevFaerun = previousLogicalMapId.toLowerCase(Locale.US).contains("faerun") || "forgotten_realms:faerun".equalsIgnoreCase(previousLogicalMapId) || "dnd".equalsIgnoreCase(worldProfile);
+                    boolean sameMap = mapId.equals(previousLogicalMapId)
+                            || (isFaerunMap && isPrevFaerun)
+                            || (atlasProfile != null && AtlasMigrationEngine.sourceDeclaredForTarget(migrationProfiles, previousPackage.optString("map_package_id",previousPackage.optString("package_id",previous.optString("map_package_id",""))), previous.optString("coordinate_frame_id",previousPackage.optString("coordinate_frame_id","")), atlasProfile.mapPackageId, atlasProfile.coordinateFrameId))
+                            || (previous.optString("current_hex_id", "").trim().length() > 0 && geometry != null && geometry.byId(previous.optString("current_hex_id")) != null);
                     packageId = atlasProfile != null ? atlasProfile.mapPackageId : mapId + "@" + System.currentTimeMillis();
                     if (atlasProfile != null && appDb.getMapPackageAny(packageId).length() > 0) appDb.deleteMapPackage(packageId);
                     finalDirectory = new File(context.getFilesDir(), "maps/" + safeName(packageId) + "_" + System.currentTimeMillis());
@@ -195,11 +200,12 @@ public final class MapPackageManager {
                     else if (preferred.contains("raster") && overlayUri.length() > 0) overlayMode = "raster";
                     else overlayMode = "dynamic";
 
+                    String logicalMapId = atlasProfile != null ? atlasProfile.logicalMapId : (isFaerunMap ? "forgotten_realms:faerun" : mapId);
                     SQLiteDatabase db = appDb.getWritableDatabase();
                     ContentValues packageValues = new ContentValues();
                     packageValues.put("package_id", packageId);
                     packageValues.put("map_id", mapId);
-                    packageValues.put("logical_map_id", mapId);
+                    packageValues.put("logical_map_id", logicalMapId);
                     packageValues.put("map_package_id", atlasProfile == null ? packageId : atlasProfile.mapPackageId);
                     packageValues.put("atlas_namespace", atlasProfile == null ? "" : atlasProfile.atlasNamespace);
                     packageValues.put("coordinate_frame_id", atlasProfile == null ? "" : atlasProfile.coordinateFrameId);
@@ -243,9 +249,12 @@ public final class MapPackageManager {
                     progress(callback, "Importando catálogo de locais", 5, 8);
                     requireFile(spec.locationsFile, spec.locationsName);
                     int locationCount = importLocations(spec.locationsFile, packageId, callback);
-                    if (atlasProfile != null) {
-                        stage = "importar áreas e evidência cartográfica";
+                    if (spec.areasFile != null && spec.areasFile.isFile()) {
+                        stage = "importar áreas";
                         importAreas(spec.areasFile, packageId);
+                    }
+                    if (spec.markersFile != null && spec.markersFile.isFile()) {
+                        stage = "importar evidência cartográfica";
                         importMarkers(spec.markersFile, packageId);
                     }
 
@@ -262,9 +271,13 @@ public final class MapPackageManager {
                     AtlasMigrationEngine.PositionResolution resolved = atlasProfile == null ? null : AtlasMigrationEngine.resolveCampaignPosition(appDb, previous, previousPackage, atlasProfile, migrationProfiles, packageId, geometry);
                     MapManifestGeometry.ManifestHex initial = null;
                     if (atlasProfile == null) {
-                        initial = geometry.nearest(geometry.getImageWidth() / 2f, geometry.getImageHeight() / 2f);
-                        if (initial == null) initial = geometry.byId("A1");
-                        if (sameMap && geometry.byId(previous.optString("current_hex_id")) != null) initial = geometry.byId(previous.optString("current_hex_id"));
+                        String prevHex = previous.optString("current_hex_id", "").trim();
+                        if (prevHex.length() > 0 && geometry.byId(prevHex) != null) {
+                            initial = geometry.byId(prevHex);
+                        } else {
+                            initial = geometry.nearest(geometry.getImageWidth() / 2f, geometry.getImageHeight() / 2f);
+                            if (initial == null) initial = geometry.byId("A1");
+                        }
                     } else if (resolved != null && resolved.hexId.length() > 0) initial = geometry.byId(resolved.hexId);
                     // Atlas Contract: câmera centralizada NÃO cria posição de campanha. Só restaura posição validada.
                     String currentHexId = atlasProfile != null ? (resolved == null ? "" : resolved.hexId) : (initial == null ? "" : initial.id);
@@ -283,7 +296,7 @@ public final class MapPackageManager {
                         JSONObject poiMigration = AtlasMigrationEngine.migrateCampaignPois(appDb, atlasProfile, migrationProfiles, packageId);
                         appDb.addAuditEvent("atlas_migration", "CampaignPoi reconciliados pelo contrato do pacote", poiMigration.toString(), "{}", poiMigration.toString(), true);
                     }
-                    if(sameMap && (resolved == null || "ready".equals(resolved.status) || "ready_identity_reconciled".equals(resolved.status))){String destination=atlasProfile==null&&geometry.byId(previous.optString("destination_hex_id"))!=null?previous.optString("destination_hex_id"):"";appDb.saveMapTravelStateForProfile(worldProfile,previous.optInt("position_locked",0)==1&&currentHexId.length()>0,destination,"[]",previous.optString("route_owner","Jogador"));}
+                    if(sameMap && (resolved == null || "ready".equals(resolved.status) || "ready_identity_reconciled".equals(resolved.status))){String destination=atlasProfile==null&&geometry.byId(previous.optString("destination_hex_id"))!=null?previous.optString("destination_hex_id"):"";appDb.saveMapTravelStateForProfile(worldProfile,previous.optInt("position_locked",0)==1&&currentHexId.length()>0,destination,previous.optString("route_json","[]"),previous.optString("route_owner","Jogador"));}
                     else appDb.saveMapTravelStateForProfile(worldProfile,false,"","[]","Jogador");
                     appDb.saveMapRenderModeForProfile(worldProfile, overlayMode, atlasProfile != null ? 1.6f : geometry.getMinLabelZoom());
                     pruneObsoletePackages(worldProfile, packageId, READY_PACKAGES_TO_KEEP);
@@ -545,11 +558,13 @@ public final class MapPackageManager {
                 String locationType=location.optString("type",location.optString("tipo",""));
                 String locationRegion=location.optString("region","");
                 if(locationRegion.length()==0){JSONArray regions=location.optJSONArray("regioes");if(regions==null)regions=location.optJSONArray("regiao");if(regions==null)regions=location.optJSONArray("regions");if(regions!=null){StringBuilder rb=new StringBuilder();for(int ri=0;ri<regions.length();ri++){String rv=regions.optString(ri,"");if(rv.length()>0){if(rb.length()>0)rb.append("; ");rb.append(rv);}}locationRegion=rb.toString();}else locationRegion=location.optString("regiao","");}
+                JSONObject norm = placement != null ? placement.optJSONObject("normalizado") : null;
                 ContentValues values = new ContentValues();
                 values.put("package_id", packageId);
                 values.put("logical_map_id", location.optString("logical_map_id", ""));
                 values.put("coordinate_frame_id", canonicalPosition == null ? "" : canonicalPosition.optString("coordinate_frame_id", ""));
                 if(canonicalPosition!=null){values.put("position_u",canonicalPosition.optDouble("u"));values.put("position_v",canonicalPosition.optDouble("v"));}
+                else if(norm!=null){values.put("position_u",norm.optDouble("u"));values.put("position_v",norm.optDouble("v"));}
                 values.put("canonical",1);
                 values.put("package_placement_json",packagePlacement==null?"{}":packagePlacement.toString());
                 values.put("location_id", id);

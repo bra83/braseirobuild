@@ -8137,8 +8137,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void showDriveOAuthFallback(final String after,String rawMessage){
         pendingDriveSync=after==null?"":after;
         String detail=rawMessage==null?"":rawMessage.trim();
-        new AlertDialog.Builder(this).setTitle("Conexão do Google Drive").setMessage("Esta compilação não está registrada no Google Cloud para o certificado usado no aparelho, por isso o login OAuth foi recusado"+(detail.length()>0?" ("+detail+")":"")+".\n\nO Braseiro pode acessar os mesmos arquivos sem login: o seletor oficial do Android concede acesso somente à pasta escolhida.").setNegativeButton("Cancelar",null).setPositiveButton("ESCOLHER PASTA NO DRIVE",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){if("tokenPdfs".equals(pendingDriveSync))selectTokenPdfFolder();else if("tokens".equals(pendingDriveSync))selectTokenImageFolder();else selectManualFolder();}}).show();
-        setStatus("Use o seletor de pasta do Android; nenhum cadastro no Google Cloud é necessário.");
+        String oauthHelp="\n\nParâmetros para registro no Google Cloud Console:\nPacote: "+getPackageName()+"\nSHA-1: 6F:47:92:78:1F:11:ED:FF:C8:92:AF:EB:95:69:4E:3C:03:F3:5C:DF\nEscopo: https://www.googleapis.com/auth/drive.readonly";
+        new AlertDialog.Builder(this).setTitle("Conexão do Google Drive").setMessage("Esta compilação requer registro OAuth no Google Cloud para o certificado da aplicação"+(detail.length()>0?" ("+detail+")":"")+".\n\nO Braseiro pode acessar os mesmos arquivos sem OAuth usando o seletor oficial do Android (SAF)."+oauthHelp).setNegativeButton("Cancelar",null).setPositiveButton("ESCOLHER PASTA NO DRIVE",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){if("tokenPdfs".equals(pendingDriveSync))selectTokenPdfFolder();else if("tokens".equals(pendingDriveSync))selectTokenImageFolder();else selectManualFolder();}}).show();
+        setStatus("Use o seletor de pasta do Android ou cadastre o cliente OAuth com o SHA-1 indicado.");
     }
 
     private void authorizeDrive(final String after){
@@ -8425,7 +8426,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final String fogInitKey="atlas_fog_initialized_642_"+atlasLogicalId;
         if(contractAtlasUi&&initialPackageId.length()>0&&!prefs.getBoolean(fogInitKey,false)){db.saveMapFogEnabled(true);try{initial.put("fog_enabled",1);}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada ao inicializar névoa.",ignored);}prefs.edit().putBoolean(fogInitKey,true).apply();}
         final String locationNamesKey="atlas_location_names_"+(atlasLogicalId.length()>0?atlasLogicalId:db.getActiveMapProfile());
-        if(contractAtlasUi){packageButton.setVisibility(View.GONE);choose.setVisibility(View.GONE);overlay.setVisibility(View.GONE);repairAtlas.setVisibility(View.GONE);manifest.setVisibility(View.GONE);removeManifest.setVisibility(View.GONE);exportReviews.setVisibility(View.GONE);importReviews.setVisibility(View.GONE);}
+        if(contractAtlasUi){packageButton.setVisibility(View.VISIBLE);choose.setVisibility(View.GONE);overlay.setVisibility(View.GONE);repairAtlas.setVisibility(View.VISIBLE);manifest.setVisibility(View.GONE);removeManifest.setVisibility(View.GONE);exportReviews.setVisibility(View.GONE);importReviews.setVisibility(View.GONE);}
         LinearLayout gridBar=new LinearLayout(this);gridBar.setGravity(Gravity.CENTER_VERTICAL);
         final Spinner grid=spinner(new String[]{"Quadrada","Hexagonal flat-top","Hexagonal pointy-top","Sem grade"},normalizeGridName(initial.optString("grid_type","Quadrada")));
         final SeekBar size=new SeekBar(this);size.setMax(232);size.setProgress(Math.max(0,(int)initial.optDouble("grid_size",64)-8));
@@ -8629,9 +8630,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         // O perfil ativo usa o Atlas de Faerûn e mantém seus estados históricos no banco.
         boolean bundledCurrent=APP_VERSION.equals(prefs.getString("bundled_faerun_map_version",""));
         JSONObject active=db.getMapStateForProfile(normalized);String activePackageId=active.optString("map_package_id","");
-        if(bundledCurrent&&activePackageId.length()>0&&db.hasAtlasContractMetadata(activePackageId)&&isAtlasContractRuntime(activePackageId)&&db.isMapPackageUsable(activePackageId))return;
+        if(bundledCurrent&&activePackageId.length()>0&&db.isMapPackageUsable(activePackageId))return;
         JSONObject installed=db.getLatestMapPackageByMapId(normalized,FAERUN_LOGICAL_MAP_ID);
-        if(bundledCurrent&&installed.length()>0){String id=installed.optString("package_id","");if(db.hasAtlasContractMetadata(id)&&isAtlasContractRuntime(id)&&db.isMapPackageUsable(id))return;}
+        if(installed.length()==0)installed=db.getLatestMapPackageByMapId(normalized,"faerun-atlas-2025-ptbr-21600x15390-v2-max");
+        if(bundledCurrent&&installed.length()>0){String id=installed.optString("package_id","");if(db.isMapPackageUsable(id))return;}
         ensureBundledFaerunMapAsync();
     }
 
@@ -8639,8 +8641,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(mapPackageManager==null||bundledFaerunMapInstalling)return;
         boolean bundledCurrent=APP_VERSION.equals(prefs.getString("bundled_faerun_map_version",""));
         JSONObject active=db.getMapStateForProfile(WORLD_DND);String activePackageId=active.optString("map_package_id","");
-        if(bundledCurrent&&activePackageId.length()>0&&db.hasAtlasContractMetadata(activePackageId)&&isAtlasContractRuntime(activePackageId)&&db.isMapPackageUsable(activePackageId))return;
-        JSONObject current=db.getLatestMapPackageByMapId(WORLD_DND,FAERUN_LOGICAL_MAP_ID);if(bundledCurrent&&current.length()>0){String id=current.optString("package_id","");if(db.hasAtlasContractMetadata(id)&&isAtlasContractRuntime(id)&&db.isMapPackageUsable(id))return;}
+        if(bundledCurrent&&activePackageId.length()>0&&db.isMapPackageUsable(activePackageId))return;
+        JSONObject current=db.getLatestMapPackageByMapId(WORLD_DND,FAERUN_LOGICAL_MAP_ID);
+        if(current.length()==0)current=db.getLatestMapPackageByMapId(WORLD_DND,"faerun-atlas-2025-ptbr-21600x15390-v2-max");
+        if(bundledCurrent&&current.length()>0){String id=current.optString("package_id","");if(db.isMapPackageUsable(id))return;}
         bundledFaerunMapInstalling=true;setStatus("Preparando Faerûn 2025 • Atlas Contract integrado…");
         AppExecutors.serial().execute(new Runnable(){public void run(){
             File temp=null;

@@ -53,6 +53,19 @@ android {
     }
 
     signingConfigs {
+        val stableDebugKey = rootProject.file("signing/debug.keystore")
+        if (stableDebugKey.exists()) {
+            getByName("debug") {
+                storeFile = stableDebugKey
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = true
+                enableV4Signing = false
+            }
+        }
         if (hasReleaseKey) {
             create("release") {
                 storeFile = rootProject.file(signingProperties.getProperty("storeFile"))
@@ -68,12 +81,16 @@ android {
     }
 
     buildTypes {
-        // Debug e release usam o mesmo applicationId. A mesma chave só é usada quando
-        // signing.properties ou as variáveis BRASEIRO_* forem fornecidas. O acesso
-        // padrão às pastas usa SAF e não depende de identidade OAuth no Google Cloud.
+        // Debug e release usam o mesmo applicationId. A chave de debug estável garante
+        // o mesmo fingerprint SHA-1 cadastrado no Google Cloud Console para OAuth.
         debug {
             versionNameSuffix = "-debug"
-            if (hasReleaseKey) signingConfig = signingConfigs.getByName("release")
+            val stableDebugKey = rootProject.file("signing/debug.keystore")
+            if (hasReleaseKey) {
+                signingConfig = signingConfigs.getByName("release")
+            } else if (stableDebugKey.exists()) {
+                signingConfig = signingConfigs.getByName("debug")
+            }
         }
         release {
             isMinifyEnabled = true

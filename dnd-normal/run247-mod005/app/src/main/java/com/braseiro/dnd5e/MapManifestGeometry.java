@@ -227,6 +227,20 @@ public final class MapManifestGeometry {
         if (g.stepX <= 0) g.stepX = "pointy-top".equals(g.orientation) ? g.hexWidth : g.hexWidth * .75f;
         if (g.stepY <= 0) g.stepY = "pointy-top".equals(g.orientation) ? g.hexHeight * .75f : g.hexHeight;
         g.alternateColumnOffsetY = (float) firstFinite(layout.optDouble("alternateColumnOffsetY", Double.NaN), layout.optDouble("oddColumnOffsetY", Double.NaN), g.stepY / 2f);
+        if (g.rows <= 0 && g.columns > 0 && g.imageHeight > 0 && g.stepY > 0) {
+            if ("pointy-top".equals(g.orientation)) {
+                g.rows = (int) Math.floor((g.imageHeight - g.originY) / g.stepY) + 1;
+                g.rowsEven = g.rows;
+                g.rowsOdd = g.rows;
+            } else {
+                g.rowsEven = (int) Math.floor((g.imageHeight - g.originY) / g.stepY) + 1;
+                g.rowsOdd = (int) Math.floor((g.imageHeight - (g.originY + g.alternateColumnOffsetY)) / g.stepY) + 1;
+                g.rows = Math.max(g.rowsEven, g.rowsOdd);
+            }
+        }
+        if (g.columns <= 0 && g.imageWidth > 0 && g.stepX > 0) {
+            g.columns = (int) Math.floor((g.imageWidth - g.originX) / g.stepX) + 1;
+        }
         g.explicitCenters = hasExplicitCenters(layout);
         // Em manifestos explícitos, nenhum centro/origem é corrigido por heurística.
         // Apenas grades geradas antigas podem receber normalização legada.
