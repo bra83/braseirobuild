@@ -85,6 +85,18 @@ public final class KingmakerStructureSemantics {
  }
  private static void add(String k,String b){if(BONUSES.put(k,b)!=null)throw new IllegalStateException("Estrutura duplicada.");}
  public static Set<String> keys(){return Collections.unmodifiableSet(BONUSES.keySet());}
+ public static JSONObject normalizeDefinition(JSONObject definition)throws Exception{
+  if(definition==null||!BONUSES.containsKey(definition.optString("official_catalog_key")))return definition;
+  // Upgrade From describes an optional conversion, never a prerequisite for a new build.
+  definition.put("prerequisites","").put("min_settlement_type","village");
+  if(Arrays.asList("bridge","magical_streetlamps","paved_streets","sewer_system","wall_stone","wall_wooden").contains(definition.optString("official_catalog_key")))definition.put("lots",0);
+  return definition;
+ }
+ public static void requireCapital(JSONObject definition,JSONObject settlement,String capitalName){
+  if("palace".equals(definition.optString("official_catalog_key"))&&
+    (capitalName==null||capitalName.length()==0||!capitalName.equals(settlement.optString("name"))))
+    throw new IllegalStateException("Um palácio só pode ser construído na capital do Reino.");
+ }
  public static int count(JSONArray rows,String key){
   int total=0;for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(row==null)continue;
    if(key.equals(row.optString("structure_key"))&&"built".equals(row.optString("status","built")))total+=Math.max(0,row.optInt("count",1));}

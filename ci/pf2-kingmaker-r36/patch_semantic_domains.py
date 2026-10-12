@@ -189,6 +189,13 @@ def director(s):
 '''+anchor,"official chapter identity")
  return s
 def rules(s):
+ structure='    public JSONObject structure(String key){'
+ wrapper='''    public JSONObject structure(String key){
+        try{return KingmakerStructureSemantics.normalizeDefinition(structureCanonicalDefinition(key));}
+        catch(Exception error){throw new IllegalStateException("Definição oficial de estrutura inválida.",error);}
+    }
+    private JSONObject structureCanonicalDefinition(String key){'''
+ s=replace_once(s,structure,wrapper,"optional upgrades are not build prerequisites")
  anchor='    public JSONObject companionProfile(String companionKey) {'
  wrapper='''    public JSONObject companionProfile(String companionKey) {
         String canonical=canonicalCompanionKey(companionKey);
@@ -332,6 +339,20 @@ def campaign_ui(s):
  i=s.rfind("\n}");return s[:i]+"\n"+helper+s[i:]
 
 def structure_runtime(s):
+ old='''    public JSONObject buildStructure(final String settlementKey,final String structureKey,final String notes)throws Exception{
+        return buildStructure(settlementKey,structureKey,notes,false);
+    }'''
+ new='''    public JSONObject buildStructure(final String settlementKey,final String structureKey,final String notes)throws Exception{
+        JSONObject definition=rules.structure(structureKey);if(definition==null)throw new IllegalArgumentException("Estrutura inexistente.");
+        String skill=definition.optString("construction_skill");if(skill.length()==0){String options=definition.optString("construction_skills");skill=options.length()>0?options.split(",")[0]:"engineering";}
+        JSONObject choices=new JSONObject().put("die1",new Random().nextInt(4)+1).put("die2",new Random().nextInt(4)+1);
+        return resolveBuildStructure(settlementKey,structureKey,new Random().nextInt(20)+1,skill,notes,"",choices);
+    }'''
+ s=replace_once(s,old,new,"legacy builder performs real check instead of unchecked construction")
+ anchor='        if(town.length()==0||def==null)throw new IllegalArgumentException("Assentamento ou estrutura inválidos.");'
+ start=s.index('    public JSONObject resolveBuildStructure(');end=s.index('    public JSONObject resolveDemolish(',start)
+ section=replace_once(s[start:end],anchor,anchor+'\n        KingmakerStructureSemantics.requireCapital(def,town,state().optString("capital_name"));',"palace only in capital")
+ s=s[:start]+section+s[end:]
  signature='private JSONObject recordCheckAtSettlement(String settlementKey,String activityKey,String title,String role,String skillKey,int natural,int dc,String sourceRef,String notes,boolean awardReputationOnCrit)throws Exception{'
  s=replace_once(s,signature,signature+'''
         return recordCheckAtSettlement(settlementKey,activityKey,title,role,skillKey,natural,dc,sourceRef,notes,awardReputationOnCrit,new JSONObject());

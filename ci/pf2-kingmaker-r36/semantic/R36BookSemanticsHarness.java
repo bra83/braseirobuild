@@ -116,6 +116,13 @@ public final class R36BookSemanticsHarness {
   check(!KingmakerCompanionSemantics.canLead(ekun,"fame"),"Ekundayo must be helpful to accept leadership");
   ekun.put("attitude","helpful");check(KingmakerCompanionSemantics.canLead(ekun,"fame"),"helpful Ekundayo accepts leadership");
   check(KingmakerCampaignGate.playable(Arrays.asList(quest("q_terras_sombrias","active")),graph).isEmpty(),"retired invented quest excluded from guidance");
+  JSONObject academy=KingmakerStructureSemantics.normalizeDefinition(new JSONObject().put("official_catalog_key","academy").put("prerequisites","library").put("min_settlement_type","city"));
+  check(academy.optString("prerequisites").isEmpty(),"academy can be built without upgrading library");
+  check("village".equals(academy.optString("min_settlement_type")),"no invented settlement rank for building");
+  check(KingmakerStructureSemantics.normalizeDefinition(new JSONObject().put("official_catalog_key","bridge").put("lots",1)).optInt("lots")==0,"infrastructure occupies no lot");
+  boolean wrongCapital=false;try{KingmakerStructureSemantics.requireCapital(new JSONObject().put("official_catalog_key","palace"),new JSONObject().put("name","Oleg"),"Restov");}catch(IllegalStateException expected){wrongCapital=true;}
+  check(wrongCapital,"palace rejects other settlement");
+  KingmakerStructureSemantics.requireCapital(new JSONObject().put("official_catalog_key","palace"),new JSONObject().put("name","Capital"),"Capital");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }
