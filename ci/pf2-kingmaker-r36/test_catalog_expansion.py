@@ -84,3 +84,11 @@ def test_numeric_catalog_audit_accepts_overlay_and_rejects_regression():
     damaged=inspector.audit(changed)
     assert damaged["mismatch_count"]>=1
     assert damaged["semantic_effects_certified"] is False
+
+def test_unknown_building_key_cannot_become_free_building():
+    """An invalid key must return null, not a 0-RP empty JSONObject."""
+    java,_=m.transform_rules(fake_rules(),rows)
+    assert "boolean hadR35Structure=officialBase!=null && officialBase.length()>0" in java
+    assert "return hadR35Structure?officialBase:null;" in java
+    assert "return officialBase;" not in java
+    assert 'return officialBase.put("level",' not in java
