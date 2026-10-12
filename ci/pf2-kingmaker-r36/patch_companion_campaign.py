@@ -19,6 +19,9 @@ def companion_campaign_importer(s):
         }
 '''
  s=exact(s,anchor,added+anchor)
+ s=exact(s,'new String[]{"world_clocks","world_events","npc_memory_profiles","campaign_pois","tactical_scenes"}','new String[]{"world_clocks","world_events","npc_memory_profiles","campaign_pois","tactical_scenes","kingmaker_features"}')
+ s=exact(s,'String field="world_events".equals(table)?"title":"tactical_scenes".equals(table)?"scene_key":"name";','String field="world_events".equals(table)?"title":"tactical_scenes".equals(table)?"scene_key":"kingmaker_features".equals(table)?"feature_key":"name";')
+ s=exact(s,'            if(v.size()==0)continue;','            if("kingmaker_features".equals(table)&&cols.contains("status"))v.put("status","inactive");\n            if(v.size()==0)continue;')
  s=exact(s,'            if (hasNpcMemory) {','            if (hasNpcMemory && !npc.stats.optBoolean("profile_only")) {')
  s=exact(s,'            if (hasNpcCognitive) {','            if (hasNpcCognitive && !npc.stats.optBoolean("profile_only")) {')
  s=exact(s,'            if (hasCombatants) {','            if (hasCombatants && !npc.stats.optBoolean("profile_only")) {')
@@ -38,7 +41,8 @@ def apply_companion_campaign(root):
  "world_clocks":[x["name"] for x in old["clocks"]],
  "world_events":[x["title"] for x in old["events"]],
  "campaign_pois":[x["name"] for x in old["pois"]],
- "tactical_scenes":[x["scene_key"] for x in old["scenes"]]}
+ "tactical_scenes":[x["scene_key"] for x in old["scenes"]],
+ "kingmaker_features":["milestone:"+x["milestone_key"] for x in old["milestones"]]}
  p.write_text(json.dumps(corrected,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
  regression(root)
  print("R36_COMPANION_PUBLISHED_ADVENTURES_APPLIED")

@@ -151,3 +151,12 @@ def test_harrim_protection_changes_saved_encounter_dc_before_actual_roll():
     assert body.index('harrimCampingProtection(')<body.index('boolean triggered=')
     assert 'v.put("current_encounter_dc",Math.max(0,baseDc-1))' in body
     assert 'v.put("activities_json",activities.toString())' in body
+
+
+def test_old_companion_milestones_are_retired_without_reversing_history():
+    import json
+    data=json.loads((ROOT/"android/app/src/main/assets/pathfinder/kingmaker/chapters/chapter_12_companion_stories.json").read_text(encoding="utf-8"))
+    assert set(data["metadata"]["retirement"]["kingmaker_features"])=={"milestone:milestone_lealdade_vanguarda","milestone:milestone_resgate_octavia_regongar","milestone:milestone_redencao_tristian_valerie","milestone:milestone_lenda_doze_companheiros"}
+    importer=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerCampaignImporter.java").read_text(encoding="utf-8")
+    assert '"kingmaker_features".equals(table)?"feature_key":"name"' in importer
+    assert 'if("kingmaker_features".equals(table)&&cols.contains("status"))v.put("status","inactive")' in importer
