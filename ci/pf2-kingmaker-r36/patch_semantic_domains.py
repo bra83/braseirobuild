@@ -234,6 +234,76 @@ def main(s):
  old='db.updateQuestStatus(q.optLong("id"),"completed","Concluída pelo jogador");showPartyDirector();'
  new='try{db.updateQuestStatus(q.optLong("id"),"completed","Concluída pelo jogador");showPartyDirector();}catch(Exception error){toast(error.getMessage());}'
  return replace_once(s,old,new,"quest UI rejection")
+def structure_runtime(s):
+ signature='private JSONObject recordCheckAtSettlement(String settlementKey,String activityKey,String title,String role,String skillKey,int natural,int dc,String sourceRef,String notes,boolean awardReputationOnCrit)throws Exception{'
+ s=replace_once(s,signature,signature+'''
+        return recordCheckAtSettlement(settlementKey,activityKey,title,role,skillKey,natural,dc,sourceRef,notes,awardReputationOnCrit,new JSONObject());
+    }
+    private JSONObject recordCheckAtSettlement(String settlementKey,String activityKey,String title,String role,String skillKey,int natural,int dc,String sourceRef,String notes,boolean awardReputationOnCrit,JSONObject structureContext)throws Exception{''',"context-aware check overload")
+ s=replace_once(s,'officialStructureActivityBonus(settlementKey,activity,skillKey,new JSONObject())','officialStructureActivityBonus(settlementKey,activity,skillKey,structureContext)',"context reaches structure calculation")
+ start=s.index('    private int officialStructureActivityBonus(')
+ end=s.index('    public int officialCommodityCapacity(',start)
+ s=s[:start]+'''    private int officialStructureActivityBonus(String settlementKey,String activity,String skill,JSONObject context)throws Exception{
+        JSONObject chosen=settlement(settlementKey);
+        if(clean(settlementKey).length()>0&&chosen.length()==0)throw new IllegalArgumentException("Assentamento inexistente.");
+        String targetHex=context.optString("hex_id",chosen.optString("hex_id"));
+        if(targetHex.length()>0&&hex(targetHex).optInt("claimed")!=1)return 0;
+        String capital=state().optString("capital_name");int best=0;
+        for(JSONObject town:settlements()){
+            boolean applies=capital.length()>0&&capital.equals(town.optString("name"));
+            if(targetHex.length()>0&&hexDistance(targetHex,town.optString("hex_id"))<=Math.max(0,town.optInt("influence")))applies=true;
+            if(!applies)continue;
+            int bonus=KingmakerStructureSemantics.activityBonus(new JSONArray(structures(town.optString("settlement_key"))),activity,skill,town.optInt("max_item_bonus",1),context);
+            best=Math.max(best,bonus);
+        }return best;
+    }
+'''+s[end:]
+ old='recordCheck("work_sites", "Canteiro de Trabalho: " + clean(siteType), "Tesoureiro", skill, naturalRoll, 0, "Region Activity", notes, false)'
+ new='recordCheckAtSettlement("", "work_sites", "Canteiro de Trabalho: " + clean(siteType), "Tesoureiro", skill, naturalRoll, 0, "Region Activity", notes, false,new JSONObject().put("hex_id",hexId).put("site_type",key(siteType)))'
+ s=replace_once(s,old,new,"work site location and commodity")
+ s=replace_once(s,'recordCheck("establish_trade_agreement",','recordCheckAtSettlement(originSettlementKey,"establish_trade_agreement",',"trade agreement origin")
+ # Events carry explicit settlement and danger metadata; kingdom-wide events do not inherit cemeteries.
+ old='JSONObject checkResult = recordCheck("resolve_event", ev.optString("title"), "Liderança", skillKey, naturalRoll, targetDc, ev.optString("source_ref"), notes, false);'
+ new='''JSONObject eventContext=jsonObject(ev.optString("resolution_json","{}")).optJSONObject("event_context");
+        if(eventContext==null)eventContext=new JSONObject();
+        String eventTown=eventContext.optString("settlement_key");
+        JSONObject checkResult = recordCheckAtSettlement(eventTown,"resolve_event", ev.optString("title"), "Liderança", skillKey, naturalRoll, targetDc, ev.optString("source_ref"), notes, false,eventContext);'''
+ s=replace_once(s,old,new,"event settlement context")
+ old='        if (stateChanges.length() > 0) {\n            adjustState(stateChanges, "Resolução do evento: " + ev.optString("title"));'
+ new='''        if(eventTown.length()>0&&eventContext.optBoolean("dangerous")&&stateChanges.optInt("unrest")>0){
+            int reduction=KingmakerStructureSemantics.dangerousEventUnrestReduction(new JSONArray(structures(eventTown)));
+            int original=stateChanges.optInt("unrest");stateChanges.put("unrest",Math.max(0,original-reduction));
+            resolution.put("cemetery_unrest_prevented",Math.min(original,reduction));
+            if(reduction>0)resolution.put("outcome_pt",checkResult.optString("degree_pt")+": Unrest final +"+stateChanges.optInt("unrest")+"; o cemitério impediu "+Math.min(original,reduction)+" ponto(s).");
+        }
+        resolution.put("event_context",eventContext).put("state_changes",stateChanges);
+        if (stateChanges.length() > 0) {
+            adjustState(stateChanges, "Resolução do evento: " + ev.optString("title"));'''
+ s=replace_once(s,old,new,"cemetery applied to actual event mutation")
+ helper='''    public void setSettlementEventContext(long eventId,String settlementKey,boolean dangerous)throws Exception{
+        JSONObject before=db.queryOne("SELECT * FROM kingmaker_events WHERE id=? AND world_profile=?",new String[]{String.valueOf(eventId),profile()});
+        if(before.length()==0||!"pending".equals(before.optString("status")))throw new IllegalStateException("O evento precisa estar pendente.");
+        if(clean(settlementKey).length()>0&&settlement(settlementKey).length()==0)throw new IllegalArgumentException("Assentamento inexistente.");
+        JSONObject details=jsonObject(before.optString("resolution_json","{}"));
+        details.put("event_context",new JSONObject().put("settlement_key",clean(settlementKey)).put("dangerous",dangerous));
+        ContentValues values=new ContentValues();values.put("resolution_json",details.toString());
+        db.getWritableDatabase().update("kingmaker_events",values,"id=? AND world_profile=?",new String[]{String.valueOf(eventId),profile()});
+    }
+'''
+ i=s.rfind("\n}");return s[:i]+"\n"+helper+s[i:]
+
+def event_ui(s):
+ start=s.index('    private void showAddKingmakerEventDialog()')
+ end=s.index('\n    private ',start+20)
+ section=s[start:end]
+ anchor='dc.setInputType(InputType.TYPE_CLASS_NUMBER);'
+ replacement=anchor+'''final List<JSONObject> eventTowns=kingmakerRepository.settlements();final String[] townNames=new String[eventTowns.size()+1];townNames[0]="Todo o Reino";for(int i=0;i<eventTowns.size();i++)townNames[i+1]=eventTowns.get(i).optString("name");final Spinner townChoice=spinner(townNames,"Todo o Reino");form.addView(cardWithLabel("LOCAL DO EVENTO",townChoice));final CheckBox dangerous=new CheckBox(MainActivity.this);dangerous.setText("Evento perigoso do assentamento");form.addView(dangerous);'''
+ section=replace_once(section,anchor,replacement,"event location UI")
+ old='kingmakerRepository.addEvent(value(title),value(type),value(skill),num(dc,0),value(source),value(notes));'
+ new='''JSONObject created=kingmakerRepository.addEvent(value(title),value(type),value(skill),num(dc,0),value(source),value(notes));int selection=townChoice.getSelectedItemPosition();kingmakerRepository.setSettlementEventContext(created.optLong("id"),selection==0?"":eventTowns.get(selection-1).optString("settlement_key"),dangerous.isChecked());'''
+ section=replace_once(section,old,new,"event metadata saved")
+ return s[:start]+section+s[end:]
+
 def companion_runtime(s):
  s=replace_once(s,'if(comp.length()>0&&comp.optInt("available",1)!=1){','''if(comp.length()>0&&comp.optInt("influence")<KingmakerCompanionSemantics.leadershipInfluence(comp.optString("companion_key")))throw new IllegalStateException("Influência insuficiente para este companheiro assumir liderança.");
             if(comp.length()>0&&comp.optInt("available",1)!=1){''',"leadership influence gate")
@@ -276,7 +346,7 @@ def regression_support(root):
 def apply(root):
  root=Path(root);base=root/SRC
  if "VERSION_NAME=9.0.37" not in (root/"version.properties").read_text():raise ValueError("Only verified R36 eligible")
- transforms={"KingmakerRepository.java":lambda s:companion_runtime(structure_triggers(repository(s))),"KingmakerRulesEngine.java":rules,"KingmakerSoloDirector.java":director,"AppDb.java":appdb,"KingmakerCampaignImporter.java":importer,"MainActivity.java":lambda s:structure_ui(main(s))}
+ transforms={"KingmakerRepository.java":lambda s:structure_runtime(companion_runtime(structure_triggers(repository(s)))),"KingmakerRulesEngine.java":rules,"KingmakerSoloDirector.java":director,"AppDb.java":appdb,"KingmakerCampaignImporter.java":importer,"MainActivity.java":lambda s:event_ui(structure_ui(main(s)))}
  prepared={name:fn((base/name).read_text(encoding="utf-8")) for name,fn in transforms.items()}
  for name,content in prepared.items():(base/name).write_text(content,encoding="utf-8")
  for name in ["KingmakerStructureSemantics.java","KingmakerCampaignGate.java","KingmakerCompanionSemantics.java"]:shutil.copyfile(HERE/"semantic"/name,base/name)

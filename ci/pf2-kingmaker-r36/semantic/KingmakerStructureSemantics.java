@@ -118,7 +118,7 @@ public final class KingmakerStructureSemantics {
   int specific=0;
   if("alchemical".equals(category))specific=Math.min(3,count(rows,"alchemist"));
   else if("divine".equals(category))specific=Math.max(Math.max(Math.min(3,count(rows,"magic_shop")),Math.min(3,count(rows,"occult_shop"))),Math.max(count(rows,"cathedral")>0?3:0,Math.max(Math.min(3,count(rows,"shrine")),Math.min(3,count(rows,"temple")))));
-  else {
+  else if(Arrays.asList("magic","arcane","primal","occult","luxury_magic").contains(category)) {
    int shop=Math.max(Math.min(3,count(rows,"magic_shop")),Math.min(3,count(rows,"occult_shop")));
    if("arcane".equals(category))shop=Math.max(shop,Math.min(3,count(rows,"arcanists_tower")));
    if("primal".equals(category))shop=Math.max(shop,Math.min(3,count(rows,"sacred_grove")));

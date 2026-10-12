@@ -82,6 +82,11 @@ public final class R36BookSemanticsHarness {
   check(KingmakerCompanionSemantics.leadershipInfluence("regongar")==8,"Regongar leadership at eight");
   check(KingmakerCampaignGate.officialChapterForQuest(quest("q_oleg","active"))==3,"Oleg official chapter three");
   check(KingmakerCampaignGate.officialChapterForQuest(quest("q_fundacao_baronia","active"))==4,"kingdom foundation chapter four");
+  check(KingmakerStructureSemantics.itemAvailabilityLevel(5,new JSONArray().put(structure("general_store",1)).put(structure("magic_shop",3)),"mundane")==5,"magic shops do not raise mundane item availability");
+  JSONArray works=new JSONArray().put(structure("foundry",2)).put(structure("lumberyard",1));
+  check(KingmakerStructureSemantics.activityBonus(works,"work_sites","industry",3,new JSONObject().put("site_type","mine"))==2,"foundry bonus only mine context");
+  check(KingmakerStructureSemantics.activityBonus(works,"work_sites","industry",3,new JSONObject().put("site_type","lumber_camp"))==1,"lumberyard bonus only lumber context");
+  check(KingmakerStructureSemantics.activityBonus(works,"work_sites","industry",3,new JSONObject().put("site_type","quarry"))==0,"wrong work site grants no bonus");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }
