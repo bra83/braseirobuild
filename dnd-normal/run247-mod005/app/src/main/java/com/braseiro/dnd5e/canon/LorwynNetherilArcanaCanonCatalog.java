@@ -350,6 +350,203 @@ public final class LorwynNetherilArcanaCanonCatalog {
                 Collections.<String, String>emptyMap(), "secreto", false
         ));
 
+        // --- EXPANSÃO LOTE D: LORWYN (LFL), NETHERIL (NF), XMM 2025 & XSAC 2025 ---
+
+        // 5. Entidades Adicionais de Lorwyn (LFL)
+        list.add(new Entity(
+                "lorwyn_gilt_leaf_wood", "LFL", "lorwyn", "dawn_era", "location",
+                "Floresta da Folha Dourada (Gilt-Leaf Wood)", "Gilt-Leaf Wood",
+                "Domínio florestal resplandecente dos elfos de Lorwyn governado pela busca impiedosa pela perfeição estética.",
+                Arrays.asList(
+                        "Árvores monumentais com folhas douradas onde os elfos mantêm cortes palacianas de elegância intocada.",
+                        "Os Caçadores Implacáveis (Impeccable Hunters) perseguem e exterminam criaturas consideradas feias ou deformadas (eyeblights)."
+                ),
+                Arrays.asList(
+                        "Durante a Grande Aurora, os elfos perdem sua soberania estética e tornam-se criaturas paranoicas caçadas por espantalhos.",
+                        "O Palácio das Folhas guarda sementes ancestrais que purificam águas corrompidas por pesadelos de Shadowmoor."
+                ),
+                Arrays.asList("lorwyn", "gilt_leaf", "elves", "beauty", "hunters", "first_light"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "lorwyn_kithkin_clachan", "LFL", "lorwyn", "dawn_era", "location",
+                "Clachan de Kinsbaile", "Kinsbaile Clachan",
+                "A maior e mais acolhedora aldeia comunal dos kithkin de Lorwyn, cercada por campos ondulados de trevos.",
+                Arrays.asList(
+                        "Povoado de casas de grama redondas e moinhos de vento onde os kithkin vivem em harmonia pastoral.",
+                        "Unidos pelo Laço Mental (Dought), uma teia telepática de empatia que compartilha sentimentos e alerta sobre invasores."
+                ),
+                Arrays.asList(
+                        "O Dought pode ser sobrecarregado por ataques psíquicos maciços, desorientando todos os habitantes da aldeia simultaneamente.",
+                        "Túneis sob os celeiros guardam cabras de montaria com arreios encantados para defesa rápida."
+                ),
+                Arrays.asList("lorwyn", "kithkin", "clachan", "kinsbaile", "dought", "telepathy"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "lorwyn_cenn_buite", "LFL", "lorwyn", "dawn_era", "npc",
+                "Cenn Buite de Kinsbaile", "Cenn Buite",
+                "Líder matriarcal e guardiã do Dought em Kinsbaile, mediadora sábia entre os clãs kithkin.",
+                Arrays.asList(
+                        "Coordena as defesas comunais e o acolhimento de viajantes de bom coração em Lorwyn.",
+                        "Famosa por preparar infusões de ervas douradas que acalmam mentes afligidas por medos e pressentimentos."
+                ),
+                Arrays.asList(
+                        "Tem pressentimentos recorrentes sobre a aproximação precoce da Grande Aurora nos céus dourados.",
+                        "Carrega um bastão de teixo com sino de prata que ancora a rede empática de Kinsbaile contra interferências externas."
+                ),
+                Arrays.asList("lorwyn", "cenn_buite", "kithkin_leader", "dought", "kinsbaile"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "lorwyn_shadowmoor_blight", "LFL", "lorwyn", "dawn_era", "hazard",
+                "A Praga Espinhosa de Shadowmoor", "Shadowmoor Bramble Blight",
+                "O miasma fúnebre e a vegetação de espinheiros venenosos que brotam quando o ciclo de Lorwyn transiciona para o crepúsculo.",
+                Arrays.asList(
+                        "Flores douradas murcham dando lugar a abóboras assombradas, árvores retorcidas e névoas gélidas sufocantes.",
+                        "Criaturas expostas à praga sofrem lentidão e fraqueza espiritual se não encontrarem abrigo sob lareiras acesas."
+                ),
+                Arrays.asList(
+                        "Sementes do Sol guardadas em Kinsbaile conseguem germinar através dos espinheiros, criando santuários de luz pura.",
+                        "Espantalhos assassinos (Grim Poppets) ganham vida a partir dos espinheiros caçando viajantes perdidos."
+                ),
+                Arrays.asList("lorwyn", "shadowmoor", "blight", "brambles", "fey_hazard", "nightmare"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ));
+
+        // 6. Entidades Adicionais de Netheril (NF)
+        list.add(new Entity(
+                "netheril_mythallar_core", "NF", "forgotten_realms", "ancient_netheril", "item",
+                "Núcleo do Mythallar Netherense", "Netherese Mythallar Core",
+                "O monumental artefato esférico de cristal e energia pura que abastecia com magia permanente as cidades flutuantes de Netheril.",
+                Arrays.asList(
+                        "Permitia que qualquer mortal no raio de uma milha usasse itens mágicos sem gastar cargas próprias.",
+                        "Invertia o campo gravitacional do topo montanhoso, mantendo milhões de toneladas de rocha pairando nos céus."
+                ),
+                Arrays.asList(
+                        "Qualquer corte brusco na conexão com a Trama colapsa o mythallar em uma implosão de energia planar catastrófica.",
+                        "Seus fragmentos caídos no deserto de Anauroch ainda mantêm bolsões de gravidade zero e anomalias de tempo."
+                ),
+                Arrays.asList("netheril", "mythallar", "high_magic", "floating_enclave", "artifact"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ));
+
+        list.add(new Entity(
+                "netheril_archmage_ioun", "NF", "forgotten_realms", "ancient_netheril", "item",
+                "Pedras Ioun de Alta Magia", "Netherese Ioun Stones",
+                "Gemas mágicas orbitais inventadas pelos arcanistas netherenses para amplificar mente, feitiços e proteção.",
+                Arrays.asList(
+                        "Flutuam ao redor da cabeça do usuário emitindo ressonâncias arcanas distintas conforme a cor e lapidação.",
+                        "Desenvolvidas por sábios netherenses que estudavam os Manuscritos de Nether (Nether Scrolls)."
+                ),
+                Arrays.asList(
+                        "Variantes proibidas de Ioun absorviam feitiços de atacantes e convertiam o dano em vigor para o arquimago.",
+                        "Podem ser sintonizadas com o Mythallar para conceder visão verdadeira permanente."
+                ),
+                Arrays.asList("netheril", "ioun_stones", "magic_items", "nether_scrolls", "archmage"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "netheril_phaerimm_subterranean", "NF", "forgotten_realms", "ancient_netheril", "monster",
+                "Os Phaerimm do Subsolo", "The Subterranean Phaerimm",
+                "Aberrações ancestrais cônicas que habitavam as profundezas sob Netheril e drenavam vorazmente a magia da terra.",
+                Arrays.asList(
+                        "Criaturas monstruosas com bocas ovais repletas de presas, tentáculos mágicos e poder inato de conjuração.",
+                        "Seus rituais massivos de drenagem mágica transformaram as férteis bacias de Netheril nas areias estéreis de Anauroch."
+                ),
+                Arrays.asList(
+                        "Os arcanistas de Netheril entraram em colapso militar justamente pela guerra silenciosa de atrito contra os Phaerimm.",
+                        "Foram selados pela muralha de Sharn sob Myth Drannor após milênios de destruição subterrânea."
+                ),
+                Arrays.asList("netheril", "phaerimm", "aberration", "anauroch", "magic_drain", "ancient_threat"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ));
+
+        list.add(new Entity(
+                "netheril_shadow_enclave_thultanth", "NF", "forgotten_realms", "ancient_netheril", "location",
+                "O Enclave das Sombras de Thultanth", "Thultanth, City of Shade",
+                "O lendário enclave netherense que escapou da Queda ao transmigrar para o Plano das Sombras momentos antes do feitiço de Karsus.",
+                Arrays.asList(
+                        "Habitada pelos Shadovar, humanos netherenses cuja fisiologia e magia foram transformadas pelas sombras.",
+                        "Governada pelos Doze Príncipes da Sombra e pelo Arquimago Telamont Tanthul com disciplina militar espartana."
+                ),
+                Arrays.asList(
+                        "Passaram séculos acumulando segredos da Trama das Sombras antes de retornar a Toril sobre o mar de areia.",
+                        "O enclave possui defesas de sombras sólidas que neutralizam claridade mágica de círculos inferiores."
+                ),
+                Arrays.asList("netheril", "thultanth", "city_of_shade", "shadovar", "shadow_plane", "ancient"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        // 7. Mecânicas do Monster Manual 2025 (XMM) & Sage Advice 2025 (XSAC)
+        list.add(new Entity(
+                "xmm_legendary_action_economy_2025", "XMM", "multiverse", "present", "misc",
+                "Economia de Ações Lendárias e Reações 2025", "2025 Legendary Monster Action Economy",
+                "Diretrizes e mecânicas normativas atualizadas do Monster Manual 2025 para criaturas épicas e reações dinâmicas.",
+                Arrays.asList(
+                        "Monstros lendários possuem pontos de ação lendária que renovam no início de cada um dos seus turnos.",
+                        "Reações integradas a gatilhos táticos (movimento do oponente, conjuração de feitiço ou sofrimento de dano)."
+                ),
+                Arrays.asList(
+                        "Ações de Covil (Lair Actions) ocorrem na contagem de iniciativa 20, perdendo empates automaticamente.",
+                        "Resistência Lendária permite escolher ter sucesso em salvaguardas com custo explícito de usos por descanso longo."
+                ),
+                Arrays.asList("xmm", "monster_manual_2025", "legendary_actions", "combat_rules", "reactions"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "xmm_apex_predator_tarrasque_2025", "XMM", "multiverse", "present", "monster",
+                "O Tarrasque e Titãs Destruidores 2025", "The Tarrasque & Apex Titans 2025",
+                "O ápice da destruição titânica colossal no bestiário de 2025 com carapaça reflexiva e imunidades absolutas.",
+                Arrays.asList(
+                        "Criatura colossal imune a fogo, veneno e danos não mágicos, com carapaça que reflete linhas e raios mágicos.",
+                        "Aura de Presença Aterrorizante que paralisa combatentes despreparados em um raio de 120 pés."
+                ),
+                Arrays.asList(
+                        "No manual 2025, ataques corporais ganham efeitos de alcance estendido e arremesso de rochas titânicas aprimorado.",
+                        "Exige que o grupo utilize terrenos vantajosos e coordenação tática perfeita para evitar aniquilação completa."
+                ),
+                Arrays.asList("xmm", "tarrasque", "titan", "colossal", "bestiary", "apex_predator"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "xsac_spellcasting_components_2025", "XSAC", "multiverse", "present", "misc",
+                "Adjudicação Oficial de Componentes e Conjuração 2025", "2025 Sage Advice Spellcasting Rules",
+                "Decisões oficiais do Sage Advice Compendium 2025 sobre componentes verbais, somáticos, materiais e focos arcanos.",
+                Arrays.asList(
+                        "Uma mão livre necessária para componente somático pode ser a mesma que segura o foco de conjuração material.",
+                        "Feitiços com tempo de conjuração de Ação Bônus limitam outras magias no mesmo turno a truques com tempo de 1 Ação."
+                ),
+                Arrays.asList(
+                        "Sintonização com itens mágicos requer foco ininterrupto durante um descanso curto, cessando se o item for separado por mais de 100 pés.",
+                        "Dissipar Magia (Dispel Magic) não anula efeitos de itens mágicos permanentes, apenas suprime feitiços ativos sobre alvos."
+                ),
+                Arrays.asList("xsac", "sage_advice_2025", "spellcasting", "components", "rules_clarification"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "xsac_rest_and_recovery_2025", "XSAC", "multiverse", "present", "misc",
+                "Adjudicação Oficial de Descanso e Recuperação 2025", "2025 Sage Advice Rest & Recovery Rules",
+                "Compilação normativa oficial sobre descanso curto, descanso longo, recuperação de dados de vida e exaustão.",
+                Arrays.asList(
+                        "Descanso longo recupera todos os pontos de vida e metade dos dados de vida máximos do personagem.",
+                        "Níveis de exaustão impõem penalidades matemáticas graduais cumulativas a testes D20 e velocidade de deslocamento."
+                ),
+                Arrays.asList(
+                        "Interrupções de combate ou conjuração superiores a 1 hora invalidam o benefício de descanso longo em andamento.",
+                        "Condições de paralisia e atordoamento encerram automaticamente concentração mantida sobre feitiços contínuos."
+                ),
+                Arrays.asList("xsac", "sage_advice_2025", "rest_rules", "exhaustion", "hit_dice", "recovery"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
         return Collections.unmodifiableList(list);
     }
 }

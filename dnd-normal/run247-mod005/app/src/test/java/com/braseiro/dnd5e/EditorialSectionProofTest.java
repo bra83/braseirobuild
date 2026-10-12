@@ -35,7 +35,7 @@ public final class EditorialSectionProofTest {
         assertEquals("Faerûn deve conter exatamente 45 entidades comprovadas", 45, faerun.size());
         assertEquals("Eberron deve conter exatamente 22 entidades comprovadas", 22, eberron.size());
         assertEquals("Ravenloft/Hungers deve conter exatamente 25 entidades comprovadas", 25, ravenloft.size());
-        assertEquals("Lorwyn/Netheril/Arcana/XMM/XSAC deve conter exatamente 20 entidades", 20, lorwynArcana.size());
+        assertEquals("Lorwyn/Netheril/Arcana/XMM/XSAC deve conter exatamente 32 entidades", 32, lorwynArcana.size());
 
         Set<String> allIds = new HashSet<>();
         int total = 0;
@@ -69,8 +69,8 @@ public final class EditorialSectionProofTest {
             total++;
         }
 
-        assertEquals("Total de entidades canônicas deve ser 112", 112, total);
-        assertEquals("Total de IDs únicos deve ser exatamente 112", 112, allIds.size());
+        assertEquals("Total de entidades canônicas deve ser 124", 124, total);
+        assertEquals("Total de IDs únicos deve ser exatamente 124", 124, allIds.size());
     }
 
     @Test
@@ -239,6 +239,39 @@ public final class EditorialSectionProofTest {
         // XMM e XSAC
         assertTrue("Deve conter Ecologia dos Dragões 2025", ids.contains("xmm_dragon_ecology_2025"));
         assertTrue("Deve conter Adjudicação de Regras 2025", ids.contains("xsac_adjudication_rules"));
+    }
+
+    @Test
+    public void testLorwynAndNetherilEditorialCoverage() {
+        List<NarrativeContentEngine.Entity> list = LorwynNetherilArcanaCanonCatalog.all();
+        Set<String> ids = new HashSet<>();
+        for (NarrativeContentEngine.Entity e : list) ids.add(e.id);
+
+        // Lorwyn (LFL)
+        assertTrue("Deve conter Complexo Aeghith", ids.contains("lorwyn_aeghith_complex"));
+        assertTrue("Deve conter Nexus da Aurora", ids.contains("lorwyn_aurora_nexus"));
+        assertTrue("Deve conter Tocas dos Boggarts", ids.contains("lorwyn_boggart_warrens"));
+        assertTrue("Deve conter Lareira dos Flamekin", ids.contains("lorwyn_flamekin_hearth"));
+        assertTrue("Deve conter Floresta da Folha Dourada", ids.contains("lorwyn_gilt_leaf_wood"));
+        assertTrue("Deve conter Clachan de Kinsbaile", ids.contains("lorwyn_kithkin_clachan"));
+        assertTrue("Deve conter Cenn Buite", ids.contains("lorwyn_cenn_buite"));
+        assertTrue("Deve conter Praga de Shadowmoor", ids.contains("lorwyn_shadowmoor_blight"));
+
+        // Netheril (NF)
+        assertTrue("Deve conter Enclave de Xinok", ids.contains("netheril_xinok_enclave"));
+        assertTrue("Deve conter Sanctum de Karsus", ids.contains("netheril_karsus_sanctum"));
+        assertTrue("Deve conter Larloch", ids.contains("netheril_larloch"));
+        assertTrue("Deve conter Portais do Tempo", ids.contains("netheril_time_gates"));
+        assertTrue("Deve conter Núcleo do Mythallar", ids.contains("netheril_mythallar_core"));
+        assertTrue("Deve conter Pedras Ioun de Alta Magia", ids.contains("netheril_archmage_ioun"));
+        assertTrue("Deve conter Phaerimm do Subsolo", ids.contains("netheril_phaerimm_subterranean"));
+        assertTrue("Deve conter Cidade das Sombras de Thultanth", ids.contains("netheril_shadow_enclave_thultanth"));
+
+        // XMM e XSAC 2025
+        assertTrue("Deve conter Economia de Ações Lendárias 2025", ids.contains("xmm_legendary_action_economy_2025"));
+        assertTrue("Deve conter Tarrasque 2025", ids.contains("xmm_apex_predator_tarrasque_2025"));
+        assertTrue("Deve conter Componentes e Conjuração 2025", ids.contains("xsac_spellcasting_components_2025"));
+        assertTrue("Deve conter Descanso e Recuperação 2025", ids.contains("xsac_rest_and_recovery_2025"));
     }
 
     @Test
