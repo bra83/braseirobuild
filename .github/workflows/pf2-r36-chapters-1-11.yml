@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/pf2-r36-chapters-1-11.yml'
       - 'ci/pf2-kingmaker-certification/audit_chapters_1_11.py'
+      - 'ci/pf2-kingmaker-r36/**'
   workflow_dispatch:
 permissions:
   contents: read

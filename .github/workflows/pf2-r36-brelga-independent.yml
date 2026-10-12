@@ -83,6 +83,8 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'Official structure catalog patch failed'}
           python ci\pf2-kingmaker-r36\patch_chapter11_gate.py "$project"
           if($LASTEXITCODE -ne 0){throw 'Chapter 11 official story gate failed'}
+          python ci\pf2-kingmaker-r36\patch_chapter9_canonical_anchors.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'R36 chapter narrative patch failed'}
           python ci\pf2-kingmaker-r36\audit_catalog_expansion.py --project "$project" --out r36-catalog-73-brelga.json --require-73
           if($LASTEXITCODE -ne 0){throw 'Canonical 73-structure numerical audit failed'}
           python ci\pf2-kingmaker-certification\audit_structure_catalog.py --project "$project" --out r36-official-structure-delta-brelga.json --require-zero-mismatches
