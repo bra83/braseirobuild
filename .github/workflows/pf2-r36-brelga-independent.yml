@@ -164,6 +164,26 @@ jobs:
           Pop-Location
           if($code -ne 0){throw "Full PF2 regression failed: $code"}
           Write-Host 'R36_ALL_PF2_REGRESSION_PASS=true'
+      - name: Type-check Android Java without packaging an APK
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $candidates=@('C:\actions-runner\android-sdk',$env:ANDROID_SDK_ROOT,$env:ANDROID_HOME,(Join-Path $env:LOCALAPPDATA 'Android\Sdk'))|Where-Object{$_ -and (Test-Path $_)}
+          $sdk=$candidates|Where-Object {Test-Path (Join-Path $_ 'platforms')}|Select-Object -First 1
+          if(!$sdk){throw 'Android SDK absent for Java type verification'}
+          $env:ANDROID_SDK_ROOT=$sdk
+          $env:ANDROID_HOME=$sdk
+          $gradleRoot=$env:PF2_R36_PROJECT
+          if(!(Test-Path (Join-Path $gradleRoot 'gradlew.bat'))){$gradleRoot=Join-Path $gradleRoot 'android'}
+          if(!(Test-Path (Join-Path $gradleRoot 'gradlew.bat'))){throw 'Gradle wrapper absent'}
+          Push-Location $gradleRoot
+          $ErrorActionPreference='Continue'
+          & .\gradlew.bat :app:compileDebugJavaWithJavac --no-daemon --stacktrace
+          $code=$LASTEXITCODE
+          Pop-Location
+          if($code -ne 0){throw "R36 Android Java type verification failed code=$code"}
+          Write-Host 'R36_ANDROID_JAVA_TYPECHECK_PASS=true'
+          Write-Host 'Java classes checked; APK assembly and publication remain disabled.'
       - name: Compile real Android app with R36 modifications
         if: github.event_name == 'workflow_dispatch' && inputs.compile_apk
         shell: powershell

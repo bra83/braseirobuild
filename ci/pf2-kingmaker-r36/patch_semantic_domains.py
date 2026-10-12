@@ -345,8 +345,8 @@ def structure_runtime(s):
  new='''    public JSONObject buildStructure(final String settlementKey,final String structureKey,final String notes)throws Exception{
         JSONObject definition=rules.structure(structureKey);if(definition==null)throw new IllegalArgumentException("Estrutura inexistente.");
         String skill=definition.optString("construction_skill");if(skill.length()==0){String options=definition.optString("construction_skills");skill=options.length()>0?options.split(",")[0]:"engineering";}
-        JSONObject choices=new JSONObject().put("die1",new Random().nextInt(4)+1).put("die2",new Random().nextInt(4)+1);
-        return resolveBuildStructure(settlementKey,structureKey,new Random().nextInt(20)+1,skill,notes,"",choices);
+        JSONObject choices=new JSONObject().put("die1",new java.util.Random().nextInt(4)+1).put("die2",new java.util.Random().nextInt(4)+1);
+        return resolveBuildStructure(settlementKey,structureKey,new java.util.Random().nextInt(20)+1,skill,notes,"",choices);
     }'''
  s=replace_once(s,old,new,"legacy builder performs real check instead of unchecked construction")
  anchor='        if(town.length()==0||def==null)throw new IllegalArgumentException("Assentamento ou estrutura inválidos.");'
