@@ -59,6 +59,7 @@ jobs:
           python ci/pf2-kingmaker-r36/patch_official_build_ui.py "$project"
           python ci/pf2-kingmaker-r36/patch_chapter11_gate.py "$project"
           python ci/pf2-kingmaker-r36/patch_chapter9_canonical_anchors.py "$project"
+          python ci/pf2-kingmaker-r36/patch_consumption_atomic.py "$project"
           python ci/pf2-kingmaker-r36/audit_catalog_expansion.py --project "$project" --out r36-73-structure-audit.json --require-73
           python ci/pf2-kingmaker-certification/audit_structure_catalog.py --project "$project" --out r36-official-structure-delta.json --require-zero-mismatches
           cp ci/pf2-kingmaker-r36/test_r36_book_fidelity.py "$project/tests_pf2/"
