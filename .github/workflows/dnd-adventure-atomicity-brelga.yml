@@ -178,17 +178,16 @@ jobs:
               process.env.GITHUB_WORKSPACE, 'dnd-normal', 'run247-mod005',
               'app', 'build', 'test-results', 'testDebugUnitTest'
             );
-            if (!fs.existsSync(folder)) {
-              core.warning('NO_TEST_RESULTS_DIR: tests may have failed before XML was generated');
-              return;
-            }
-            const names = fs.readdirSync(folder)
-              .filter(n => n.startsWith('TEST-') && n.endsWith('.xml'))
-              .sort();
-            if (names.length === 0) {
-              core.warning('NO_TEST_RESULTS_XML: cannot persist evidence');
-              return;
-            }
+            const present = fs.existsSync(folder);
+            const names = present
+              ? fs.readdirSync(folder)
+                  .filter(n => n.startsWith('TEST-') && n.endsWith('.xml'))
+                  .sort()
+              : [];
+            // Even a disk/compile failure must leave an auditable run record.
+            // Never turn missing XMLs into a false success.
+            if (!present) core.warning('NO_TEST_RESULTS_DIR: archived failure manifest only');
+            else if (!names.length) core.warning('NO_TEST_RESULTS_XML: archived failure manifest only');
             let totals = {tests:0, failures:0, errors:0, skipped:0};
             const files = {};
             const sha256 = {};
@@ -217,8 +216,10 @@ jobs:
               run_url: 'https://github.com/' + owner + '/' + repo +
                 '/actions/runs/' + context.runId,
               suite_count: names.length,
+              xml_directory_present: present,
+              evidence_complete: names.length > 0,
               totals: totals,
-              all_tests_passed: totals.tests > 0 &&
+              all_tests_passed: names.length > 0 && totals.tests > 0 &&
                 totals.failures === 0 && totals.errors === 0 && totals.skipped === 0,
               xml_sha256: sha256,
               xml_files: files,
