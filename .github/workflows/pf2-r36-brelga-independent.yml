@@ -7,6 +7,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: pf2-r36-brelga-independent
+  cancel-in-progress: true
 jobs:
   verify:
     runs-on: [self-hosted, Windows, X64]
@@ -26,6 +29,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Validate 73 structures, build UI and alternate-cost Python transformations
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          python -m pip install -q pytest
+          if($LASTEXITCODE -ne 0){throw 'pytest installation failed'}
+          python -m pytest -q ci/pf2-kingmaker-r36/test_catalog_expansion.py ci/pf2-kingmaker-r36/test_official_build_ui.py
+          if($LASTEXITCODE -ne 0){throw 'Catalog/UI synthetic contracts failed'}
       - name: Verify canonical R35 source by SHA256 and apply official PDF corrections
         shell: powershell
         run: |
