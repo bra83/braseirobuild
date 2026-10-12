@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Núcleo cognitivo do Mestre virtual. A IA interpreta e narra; o aplicativo
@@ -103,7 +104,8 @@ public final class MasterOrchestrator {
             String atlasHex=bMap==null?"":bMap.optString("current_hex_id","").trim();String atlasPackage=bMap==null?"":bMap.optString("map_package_id","").trim();String atlasLogical=bMap==null?"":bMap.optString("logical_map_id","").trim();String atlasFrame=bMap==null?"":bMap.optString("coordinate_frame_id","").trim();String sceneLocation=bScene==null?"":bScene.optString("location","").trim();boolean atlasCanonical=atlasPackage.length()>0&&atlasHex.length()>0;
             JSONObject canonicalPosition=new JSONObject().put("source",atlasCanonical?"atlas":"scene").put("location_id",atlasCanonical?atlasHex:sceneLocation).put("logical_map_id",atlasLogical).put("map_package_id",atlasPackage).put("coordinate_frame_id",atlasFrame).put("hex_id",atlasHex).put("scene_location",sceneLocation);if(bMap!=null&&bMap.has("position_u")&&!bMap.isNull("position_u")&&bMap.has("position_v")&&!bMap.isNull("position_v"))canonicalPosition.put("u",bMap.optDouble("position_u")).put("v",bMap.optDouble("position_v"));root.put("canonical_position",canonicalPosition);
             JSONObject campaignGrounding=new JSONObject().put("campaign",root.optJSONObject("campaign")).put("scene",compactSceneState).put("party",compactPartyState).put("map",root.optJSONObject("map")).put("atlas_public",root.optJSONObject("atlas_public")).put("canonical_position",canonicalPosition).put("living_world",root.optJSONObject("living_world")).put("environmental_director",environmentalPrompt);
-            if(narrativeEngine!=null)campaignGrounding.put("narrative_lore",narrativeEngine.promptKnowledgeContext("dnd".equalsIgnoreCase(db.getActiveMapProfile())?"forgotten_realms":db.getActiveMapProfile(),true));
+            String activeSetting = resolveActiveSetting(db, compactSceneState, canonicalPosition);
+            if(narrativeEngine!=null)campaignGrounding.put("narrative_lore",narrativeEngine.promptKnowledgeContext(activeSetting,true));
             JSONObject inferenceGrounding=new JSONObject().put("cognitive_plan",cognitive).put("npc_offscreen_preview",npcTick).put("world_discovery",discoveryDecision);
             groundingEnvelope=GroundingEnvelope.build(compactRuleRetrieval(effectiveRuleRetrieval),knowledgeView,campaignGrounding,inferenceGrounding);
             root.put("grounding_envelope",groundingEnvelope);root.put("barbara_host_contract",BarbaraHostContractV1.descriptor());
@@ -129,6 +131,57 @@ public final class MasterOrchestrator {
 
     public com.braseiro.dnd5e.adventure.AdventureEngine getAdventureEngine(){return adventureEngine;}
     public JSONObject executeOfficialBookRule(String bookId,String actionId,JSONObject input){return rules.executeOfficialBookRule(bookId,actionId,input);}
+
+    private static String resolveActiveSetting(AppDb database, JSONObject scene, JSONObject canonicalPos) {
+        if (database == null) return "forgotten_realms";
+        String mapProfile = database.getActiveMapProfile();
+        if ("mystara".equalsIgnoreCase(mapProfile)) return "mystara";
+
+        // 1. Cena explícita
+        if (scene != null) {
+            String s = scene.optString("setting", "").trim().toLowerCase(Locale.US);
+            if (s.length() > 0) return normalizeSettingName(s);
+            String loc = (scene.optString("location", "") + " " + scene.optString("description", "")).toLowerCase(Locale.US);
+            if (loc.contains("barovia") || loc.contains("ravenloft") || loc.contains("darkon") || loc.contains("borca") || loc.contains("dementlieu") || loc.contains("szarr")) return "ravenloft";
+            if (loc.contains("eberron") || loc.contains("sharn") || loc.contains("khorvaire") || loc.contains("mournland") || loc.contains("cannith")) return "eberron";
+            if (loc.contains("lorwyn") || loc.contains("shadowmoor") || loc.contains("aeghith") || loc.contains("aurora")) return "lorwyn";
+            if (loc.contains("netheril") || loc.contains("anauroch") || loc.contains("xinok")) return "forgotten_realms";
+        }
+
+        // 2. Campanha ativa
+        try {
+            JSONObject camp = database.getCampaign();
+            if (camp != null) {
+                String cs = camp.optString("setting", "").trim().toLowerCase(Locale.US);
+                if (cs.length() > 0) return normalizeSettingName(cs);
+                String notes = camp.optString("notes", "").toLowerCase(Locale.US);
+                if (notes.contains("ravenloft") || notes.contains("barovia")) return "ravenloft";
+                if (notes.contains("eberron") || notes.contains("khorvaire")) return "eberron";
+                if (notes.contains("lorwyn")) return "lorwyn";
+            }
+        } catch (Exception ignored) {}
+
+        // 3. Posição canônica / Atlas
+        if (canonicalPos != null) {
+            String posLoc = canonicalPos.optString("scene_location", "").toLowerCase(Locale.US);
+            if (posLoc.contains("barovia") || posLoc.contains("ravenloft")) return "ravenloft";
+            if (posLoc.contains("eberron") || posLoc.contains("sharn")) return "eberron";
+            if (posLoc.contains("aeghith") || posLoc.contains("lorwyn")) return "lorwyn";
+        }
+
+        return "forgotten_realms";
+    }
+
+    private static String normalizeSettingName(String s) {
+        if (s == null) return "forgotten_realms";
+        String lower = s.trim().toLowerCase(Locale.US);
+        if (lower.contains("faerun") || lower.contains("forgotten") || lower.contains("toril") || lower.contains("dnd")) return "forgotten_realms";
+        if (lower.contains("ravenloft") || lower.contains("barovia") || lower.contains("mists")) return "ravenloft";
+        if (lower.contains("eberron") || lower.contains("khorvaire")) return "eberron";
+        if (lower.contains("lorwyn") || lower.contains("shadowmoor")) return "lorwyn";
+        if (lower.contains("multiverse") || lower.contains("planar")) return "multiverse";
+        return lower;
+    }
 
     public JSONObject validateEnvelope(JSONObject envelope){return validateEnvelope(envelope,"");}
     public JSONObject validateEnvelope(JSONObject envelope,String action){
