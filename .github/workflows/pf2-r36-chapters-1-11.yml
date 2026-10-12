@@ -15,7 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          sparse-checkout: ci/pf2-kingmaker-certification
+          sparse-checkout: |
+            ci/pf2-kingmaker-certification
+            ci/pf2-kingmaker-r36
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -27,6 +29,7 @@ jobs:
           test -n "$auth"
           curl -L --fail --retry 3 --header "$auth" --header 'Accept: application/octet-stream' \
             -o r35-source.zip 'https://api.github.com/repos/bra83/braseirobuild/releases/assets/629875743'
+          test "$(stat -c %s r35-source.zip)" = "92975058"
           echo '86d9a6fd26e4139e084c8e4069f49ef53e0cf8654e0f9f5662b92f9183941aa6  r35-source.zip' | sha256sum -c -
           mkdir -p r35-source
           unzip -q r35-source.zip -d r35-source
@@ -34,13 +37,50 @@ jobs:
             test -f "$(dirname "$f")/gradlew.bat" && echo "$f"
           done)
           test "${#files[@]}" -eq 1
-          echo "KINGMAKER_PROJECT=$(dirname "${files[0]}")" >> "$GITHUB_ENV"
+          project="$(dirname "${files[0]}")"
+          echo "KINGMAKER_PROJECT=$project" >> "$GITHUB_ENV"
+          test -f "$project/gradlew"
+          test -d "$project/tests_pf2"
+          # Same ordered patch set used by pf2-r36-official-rule-fixes.yml.
+          # Do not compare unrepaired R35 JSON to a purported R36 campaign.
+          for patch in \
+            patch.py \
+            patch_claim_hex_prepaid.py \
+            patch_kingdom_accounting.py \
+            patch_claim_hex_ui.py \
+            patch_build_structure.py \
+            patch_build_structure_repairs.py \
+            patch_structure_catalog_values.py \
+            patch_multi_structure.py \
+            patch_catalog_expansion.py \
+            patch_official_build_ui.py \
+            patch_chapter11_gate.py; do
+            echo "Applying R36: $patch"
+            python "ci/pf2-kingmaker-r36/$patch" "$project"
+          done
+          grep -Fx 'VERSION_NAME=9.0.37' "$project/version.properties"
+          echo "KINGMAKER_AUDITED_COMMIT=$GITHUB_SHA"
       - name: Audit every official chapter and 40 part titles using actual quest, scene and NPC records
         shell: bash
         run: |
           set -euo pipefail
           python ci/pf2-kingmaker-certification/audit_chapters_1_11.py \
             --project "$KINGMAKER_PROJECT" --out evidence/KINGMAKER_CHAPTERS_1_11.json --fail-on-critical
+      - name: Check production Chapter 10 to 11 source gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -q pytest
+          cp ci/pf2-kingmaker-r36/test_chapter11_production.py "$KINGMAKER_PROJECT/tests_pf2/"
+          (cd "$KINGMAKER_PROJECT" && python -m pytest -q tests_pf2/test_chapter11_production.py)
+      - name: Record all 40 official part signals, without assigning certification
+        shell: bash
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ -n "${KINGMAKER_PROJECT:-}" ] && [ -d "$KINGMAKER_PROJECT/android/app/src/main/assets/pathfinder/kingmaker/chapters" ]; then
+            python ci/pf2-kingmaker-certification/official_part_semantic_audit.py --project "$KINGMAKER_PROJECT" --out evidence
+          fi
       - name: Publish genuine 11-chapter findings even on failure
         if: always()
         shell: bash
@@ -49,4 +89,7 @@ jobs:
             cat evidence/KINGMAKER_CHAPTERS_1_11_REVIEW.md >> "$GITHUB_STEP_SUMMARY"
           else
             echo 'Chapter audit did not produce evidence; gate is NOT CERTIFIED.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f evidence/OFFICIAL_PART_SEMANTIC_SIGNALS.md ]; then
+            cat evidence/OFFICIAL_PART_SEMANTIC_SIGNALS.md >> "$GITHUB_STEP_SUMMARY"
           fi
