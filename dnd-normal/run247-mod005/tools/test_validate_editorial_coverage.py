@@ -109,6 +109,28 @@ class EditorialEvidenceGateTest(unittest.TestCase):
         with (self.root / gate.ACCEPTANCE).open(newline="", encoding="utf-8") as fh:
             return list(csv.DictReader(fh))
 
+    def test_runtime_methods_support_typed_returns_without_accepting_calls(self):
+        java_path = (
+            self.root / "app/src/main/java/com/braseiro/dnd5e/canon/FaerunCanonCatalog.java"
+        )
+        java_path.parent.mkdir(parents=True)
+        java_path.write_text(
+            "class FaerunCanonCatalog {\n"
+            "  public static JSONObject applyFreedale(int party) throws IOException {\n"
+            "    return null;\n"
+            "  }\n"
+            "}\n", encoding="utf-8"
+        )
+        self.assertTrue(gate.runtime_method_present(java_path, "applyFreedale"))
+        self.assertFalse(gate.runtime_method_present(java_path, "doesNotExist"))
+        java_path.write_text(
+            "class FaerunCanonCatalog {\n"
+            "  void caller() { applyFreedale(1); }\n"
+            "  // public static JSONObject applyFreedale(int party) { return null; }\n"
+            "}\n", encoding="utf-8"
+        )
+        self.assertFalse(gate.runtime_method_present(java_path, "applyFreedale"))
+
     def test_generator_discards_fake_proof_on_regeneration(self):
         prior = {
             **self.ledger,
@@ -144,7 +166,7 @@ class EditorialEvidenceGateTest(unittest.TestCase):
             self.root / "app/src/main/java/com/braseiro/dnd5e/canon/FaerunCanonCatalog.java"
         )
         main_java.parent.mkdir(parents=True)
-        main_java.write_text("class FaerunCanonCatalog { void applyFreedale() {} }")
+        main_java.write_text("class FaerunCanonCatalog { JSONObject applyFreedale() { return null; } }")
         test_java = (
             self.root / "app/src/test/java/com/braseiro/dnd5e/EditorialSectionProofTest.java"
         )
