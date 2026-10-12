@@ -247,5 +247,42 @@ public final class KingmakerStructureSemantics {
   else {if(famous)out.put("fame",1);else if(infamous)out.put("fame",-1);}
   return out;
  }
+ public static boolean isGridInfrastructure(String key){return Arrays.asList("magical_streetlamps","paved_streets","sewer_system").contains(key);}
+ private static JSONObject instanceEffects(JSONObject row)throws Exception{
+  Object raw=row.opt("effects_json");return raw instanceof JSONObject?(JSONObject)raw:new JSONObject(row.optString("effects_json","{}"));
+ }
+ public static void requireGridInfrastructure(JSONObject town,JSONArray rows,String key,JSONObject options)throws Exception{
+  if(!isGridInfrastructure(key))throw new IllegalArgumentException("Esta estrutura não é uma instalação de malha urbana.");
+  int grid=options.optInt("urban_grid",0),blocks=town.optInt("developed_blocks",1);
+  int grids=(Math.max(1,blocks)-1)/9+1;
+  if(grid<1||grid>grids)throw new IllegalArgumentException("Selecione uma malha urbana existente: 1 a "+grids+".");
+  if(grids>1&&!"metropolis".equals(town.optString("type")))throw new IllegalStateException("Somente metrópoles têm mais de uma malha urbana.");
+  for(int i=0;i<rows.length();i++){
+   JSONObject row=rows.optJSONObject(i);if(row==null||!key.equals(row.optString("structure_key"))||!"built".equals(row.optString("status","built"))||row.optInt("count",1)<=0)continue;
+   if("sewer_system".equals(key))throw new IllegalStateException("O assentamento já tem esgoto; ele atende todas as suas malhas urbanas.");
+   JSONArray installed=instanceEffects(row).optJSONArray("infrastructure_instances");
+   if(installed==null||installed.length()!=row.optInt("count",1))throw new IllegalStateException("As instalações antigas precisam ter seus locais registrados antes de ampliar esta infraestrutura.");
+   for(int n=0;n<installed.length();n++)if(installed.optJSONObject(n)!=null&&installed.optJSONObject(n).optInt("urban_grid")==grid)
+    throw new IllegalStateException("Esta infraestrutura já existe na malha urbana indicada.");
+  }
+ }
+ public static JSONArray appendedInfrastructure(JSONObject existing,String key,JSONObject options)throws Exception{
+  if(!isGridInfrastructure(key)||options.optInt("urban_grid",0)<1)throw new IllegalArgumentException("Local da infraestrutura inválido.");
+  JSONArray old=existing.length()==0?null:instanceEffects(existing).optJSONArray("infrastructure_instances");
+  if(existing.length()>0&&(old==null||old.length()!=existing.optInt("count",1)))throw new IllegalStateException("Infraestrutura existente sem locais íntegros.");
+  JSONArray result=old==null?new JSONArray():new JSONArray(old.toString());
+  result.put(new JSONObject().put("urban_grid",options.optInt("urban_grid")).put("settlement_wide","sewer_system".equals(key)));
+  return result;
+ }
+ public static JSONObject trimInstanceEffects(JSONObject row,int remaining)throws Exception{
+  if(remaining<0)throw new IllegalArgumentException("Quantidade de estruturas inválida.");
+  JSONObject out=new JSONObject(instanceEffects(row).toString());
+  for(String field:new String[]{"trade_focus_instances","infrastructure_instances"}){
+   JSONArray old=out.optJSONArray(field);if(old==null)continue;
+   JSONArray kept=new JSONArray();for(int i=0;i<Math.min(remaining,old.length());i++)kept.put(old.opt(i));out.put(field,kept);
+  }
+  return out;
+ }
+
 }
 

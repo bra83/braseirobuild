@@ -175,6 +175,32 @@ public final class R36BookSemanticsHarness {
   check(changedFocus,"declared focus cannot change freely for next check");
   check(build("houses",0,true,true,true,"",4,4).optJSONArray("dice").length()==0,"only actual rule dice recorded");
   check(build("castle",0,true,true,true,"",4,4).optJSONArray("dice").length()==1,"castle uses one d4");
+
+  JSONObject metropolis=new JSONObject().put("type","metropolis").put("developed_blocks",10);
+  JSONObject firstGrid=new JSONObject().put("urban_grid",1),secondGrid=new JSONObject().put("urban_grid",2);
+  KingmakerStructureSemantics.requireGridInfrastructure(metropolis,new JSONArray(),"paved_streets",secondGrid);
+  check(true,"existing second metropolis grid accepts paving");
+  boolean badGrid=false;try{KingmakerStructureSemantics.requireGridInfrastructure(metropolis,new JSONArray(),"paved_streets",new JSONObject().put("urban_grid",3));}catch(IllegalArgumentException expected){badGrid=true;}check(badGrid,"unallocated grid rejected");
+  boolean nonMetro=false;try{KingmakerStructureSemantics.requireGridInfrastructure(new JSONObject().put("type","city").put("developed_blocks",10),new JSONArray(),"paved_streets",secondGrid);}catch(IllegalStateException expected){nonMetro=true;}check(nonMetro,"multiple grids require metropolis");
+  JSONArray installations=KingmakerStructureSemantics.appendedInfrastructure(new JSONObject(),"paved_streets",firstGrid);
+  JSONObject paving=structure("paved_streets",1).put("effects_json",new JSONObject().put("infrastructure_instances",installations));
+  boolean duplicate=false;try{KingmakerStructureSemantics.requireGridInfrastructure(metropolis,new JSONArray().put(paving),"paved_streets",firstGrid);}catch(IllegalStateException expected){duplicate=true;}check(duplicate,"paving cannot be paid for twice in same grid");
+  KingmakerStructureSemantics.requireGridInfrastructure(metropolis,new JSONArray().put(paving),"paved_streets",secondGrid);
+  installations=KingmakerStructureSemantics.appendedInfrastructure(paving,"paved_streets",secondGrid);
+  check(installations.length()==2&&installations.optJSONObject(1).optInt("urban_grid")==2,"second paving location persisted");
+  paving.put("count",2).put("effects_json",new JSONObject().put("infrastructure_instances",installations));
+  JSONObject trimmed=KingmakerStructureSemantics.trimInstanceEffects(paving,1);
+  check(trimmed.optJSONArray("infrastructure_instances").length()==1&&trimmed.optJSONArray("infrastructure_instances").optJSONObject(0).optInt("urban_grid")==1,"demolition removes last installation only");
+  JSONObject sewer=structure("sewer_system",1).put("effects_json",new JSONObject().put("infrastructure_instances",KingmakerStructureSemantics.appendedInfrastructure(new JSONObject(),"sewer_system",secondGrid)));
+  check(new JSONObject(sewer.opt("effects_json").toString()).optJSONArray("infrastructure_instances").optJSONObject(0).optBoolean("settlement_wide"),"sewer applies across all metropolis grids");
+  boolean doubleSewer=false;try{KingmakerStructureSemantics.requireGridInfrastructure(metropolis,new JSONArray().put(sewer),"sewer_system",firstGrid);}catch(IllegalStateException expected){doubleSewer=true;}check(doubleSewer,"sewer cannot stack across grids");
+  check(KingmakerStructureSemantics.consumptionReduction(new JSONArray().put(sewer),false)==1,"metropolis sewer consumption reduction once");
+  JSONObject restarted=new JSONObject(paving.toString());
+  boolean restartDuplicate=false;try{KingmakerStructureSemantics.requireGridInfrastructure(metropolis,new JSONArray().put(restarted),"paved_streets",secondGrid);}catch(IllegalStateException expected){restartDuplicate=true;}check(restartDuplicate,"persisted grid location survives serialization");
+  boolean missingLocation=false;try{KingmakerStructureSemantics.requireGridInfrastructure(metropolis,new JSONArray(),"magical_streetlamps",new JSONObject());}catch(IllegalArgumentException expected){missingLocation=true;}check(missingLocation,"infrastructure requires explicit grid");
+  boolean legacyLocation=false;try{KingmakerStructureSemantics.requireGridInfrastructure(metropolis,new JSONArray().put(structure("magical_streetlamps",1)),"magical_streetlamps",firstGrid);}catch(IllegalStateException expected){legacyLocation=true;}check(legacyLocation,"legacy unknown locations never guessed");
+  check(!KingmakerStructureSemantics.isGridInfrastructure("bridge")&&!KingmakerStructureSemantics.isGridInfrastructure("wall_stone"),"border infrastructure needs separate placement");
+  check(KingmakerStructureSemantics.trimInstanceEffects(oldGuild,1).optJSONArray("trade_focus_instances").length()==1,"demolition also preserves remaining trade focus indices");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

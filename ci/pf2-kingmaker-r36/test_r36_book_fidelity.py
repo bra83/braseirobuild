@@ -70,7 +70,7 @@ def test_unfinished_build_keeps_prepaid_materials_and_options():
     assert 'prepaidMaterials=resume?jsonObject(pending.optString("commodity_costs_json","{}"))' in body
     assert 'if(!paidChoice.equals(commodityChoice))throw' in body
     assert 'previous.optJSONObject("build_options")' in body
-    assert 'new String[]{"trade_focus","ruin"}' in body
+    assert 'new String[]{"trade_focus","ruin","urban_grid"}' in body
     assert body.index('if(!paidChoice.equals(commodityChoice))throw') < body.index('db.runInTransactionChecked')
     assert 'stone=resume?prepaidMaterials.optInt("stone"):def.optInt("stone",0)' in body
     assert 'lumber=resume?prepaidMaterials.optInt("lumber"):def.optInt("lumber",0)' in body
@@ -80,3 +80,11 @@ def test_public_check_delegates_to_contextual_calculation():
     body=method_body('public JSONObject recordCheck(String activityKey,String title,String role,String skillKey,int natural,int dc,String sourceRef,String notes,boolean awardReputationOnCrit)')
     assert 'return recordCheckAtSettlement("",activityKey,title,role,skillKey,natural,dc,sourceRef,notes,awardReputationOnCrit)' in body
     assert 'return recordCheckAtSettlement(settlementKey,activityKey,title,role,skillKey,natural,dc,sourceRef,notes,awardReputationOnCrit,new JSONObject())' in SOURCE
+
+def test_grid_infrastructure_is_placed_persisted_and_repaired_in_place():
+    build=method_body('public JSONObject resolveBuildStructure(String settlementKey,String structureKey,int naturalRoll,String skillKey,String notes,String commodityChoice,final JSONObject buildOptions)')
+    assert 'requireGridInfrastructure(town,new JSONArray(structures(townKey)),chosenKey,buildOptions)' in build
+    assert build.index('requireGridInfrastructure(') < build.index('db.runInTransactionChecked')
+    assert 'effects.put("infrastructure_instances",KingmakerStructureSemantics.appendedInfrastructure(existing,k,buildOptions))' in SOURCE
+    assert 'trimInstanceEffects(existing,count-1)' in SOURCE
+    assert 'requires_special_placement",false)&&!KingmakerStructureSemantics.isGridInfrastructure(structure)' in SOURCE
