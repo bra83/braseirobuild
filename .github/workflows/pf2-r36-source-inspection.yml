@@ -1,0 +1,125 @@
+name: PF2 R36 Canonical Source Inspection (no APK build)
+on:
+  push:
+    branches: [pf2-kingmaker-r36-official-rule-fixes-20261011]
+    paths: ['.github/workflows/pf2-r36-source-inspection.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pf2-r36-source-inspection
+  cancel-in-progress: false
+jobs:
+  inspect:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            ci/pf2-kingmaker-r36
+            ci/pf2-kingmaker-certification
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepare inspection directory
+        shell: powershell
+        run: New-Item r36-source-inspection -ItemType Directory -Force | Out-Null
+      - name: Verify canonical R35 source by SHA256 and apply official PDF corrections
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Wrong runner $env:RUNNER_NAME"}
+          $dir=Join-Path $env:RUNNER_TEMP ("pf2-r36-book-"+$env:GITHUB_RUN_ID)
+          $src=Join-Path $dir 'source'
+          New-Item $src -ItemType Directory -Force|Out-Null
+          $zip=Join-Path $dir 'r35-source.zip'
+          $auth=& git config --local --get http.https://github.com/.extraheader
+          if(!$auth){throw 'Missing checkout credential'}
+          & curl.exe -L --fail --retry 5 --retry-delay 3 --header $auth --header 'Accept: application/octet-stream' --header 'X-GitHub-Api-Version: 2022-11-28' -o $zip 'https://api.github.com/repos/bra83/braseirobuild/releases/assets/629875743'
+          if($LASTEXITCODE -ne 0){throw 'R35 source fetch failed'}
+          if((Get-Item $zip).Length -ne 92975058){throw 'R35 size mismatch'}
+          $sha=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($sha -ne '86d9a6fd26e4139e084c8e4069f49ef53e0cf8654e0f9f5662b92f9183941aa6'){throw "Canonical R35 hash mismatch $sha"}
+          & tar.exe -xf $zip -C $src
+          if($LASTEXITCODE -ne 0){throw 'R35 source extraction failed'}
+          $p=@(Get-ChildItem $src -Recurse -File -Filter version.properties | Where-Object{Test-Path (Join-Path $_.DirectoryName 'gradlew.bat')})
+          if($p.Count -ne 1){throw "Found $($p.Count) Gradle roots, expected exactly one"}
+          $project=$p[0].DirectoryName
+          if(!(Test-Path (Join-Path $project 'tests_pf2'))){throw 'Missing tests'}
+          python ci\pf2-kingmaker-r36\patch.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'Official rules patch failed'}
+          python ci\pf2-kingmaker-r36\patch_claim_hex_prepaid.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'Claim Hex prepaid patch failed'}
+          python ci\pf2-kingmaker-r36\patch_kingdom_accounting.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'Kingdom accounting patch failed'}
+          python ci\pf2-kingmaker-r36\patch_claim_hex_ui.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'Claim Hex UI patch failed'}
+          python ci\pf2-kingmaker-r36\patch_build_structure.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'Build Structure patch failed'}
+          python ci\pf2-kingmaker-r36\patch_build_structure_repairs.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'Build Structure repair patch failed'}
+          python ci\pf2-kingmaker-r36\patch_structure_catalog_values.py "$project"
+          python ci\pf2-kingmaker-r36\patch_multi_structure.py "$project"
+          if($LASTEXITCODE -ne 0){throw "Official multi-skill structure patch failed"}
+          python ci\pf2-kingmaker-r36\patch_catalog_expansion.py "$project"
+          if($LASTEXITCODE -ne 0){throw "Official 73-structure catalog patch failed"}
+          python ci\pf2-kingmaker-r36\patch_official_build_ui.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'Official Build Structure UI integration failed'}
+          if($LASTEXITCODE -ne 0){throw 'Official structure catalog patch failed'}
+          python ci\pf2-kingmaker-r36\patch_chapter11_gate.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'Chapter 11 official story gate failed'}
+          python ci\pf2-kingmaker-r36\patch_chapter9_canonical_anchors.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'R36 chapter narrative patch failed'}
+          python ci\pf2-kingmaker-r36\patch_consumption_atomic.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'R36 consumption atomic patch failed'}
+          python ci\pf2-kingmaker-r36\patch_turn_phase_atomic.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'R36 phase atomic patch failed'}
+          python ci\pf2-kingmaker-r36\audit_catalog_expansion.py --project "$project" --out r36-source-inspection/r36-catalog-73.json --require-73
+          if($LASTEXITCODE -ne 0){throw 'Canonical 73-structure numerical audit failed'}
+          python ci\pf2-kingmaker-certification\audit_structure_catalog.py --project "$project" --out r36-source-inspection/r36-official-structure-delta.json --require-zero-mismatches
+          if($LASTEXITCODE -ne 0){throw 'Official R36 structure catalog mismatches remain'}
+          Copy-Item ci\pf2-kingmaker-r36\test_r36_book_fidelity.py (Join-Path $project 'tests_pf2\test_r36_book_fidelity.py') -Force
+          Copy-Item ci\pf2-kingmaker-r36\test_chapter11_production.py (Join-Path $project 'tests_pf2\test_chapter11_production.py') -Force
+          Copy-Item ci\pf2-kingmaker-r36\test_r36_claim_prepaid.py (Join-Path $project 'tests_pf2\test_r36_claim_prepaid.py') -Force
+          Copy-Item ci\pf2-kingmaker-r36\test_build_structure_production.py (Join-Path $project 'tests_pf2\test_build_structure_production.py') -Force
+          Copy-Item ci\pf2-kingmaker-r36\test_build_structure_repairs_production.py (Join-Path $project 'tests_pf2\test_build_structure_repairs_production.py') -Force
+          Copy-Item ci\pf2-kingmaker-r36\test_r36_ui_and_accounting_contract.py (Join-Path $project 'tests_pf2\test_r36_ui_and_accounting_contract.py') -Force
+          Copy-Item ci\pf2-kingmaker-r36\test_official_structure_production.py (Join-Path $project 'tests_pf2\test_official_structure_production.py') -Force
+          Copy-Item ci\pf2-kingmaker-certification\kingmaker_official_structures_p544_552.json (Join-Path $project 'tests_pf2\kingmaker_official_structures_p544_552.json') -Force
+          "PF2_R36_PROJECT=$project"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "R36_SOURCE_IDENTITY_R35_HASH=$sha"
+          Write-Host 'R36_OFFICIAL_RULES_PATCH_APPLIED=true'
+      - name: Collect exact transformed Java, JSON and regression sources for inspection
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $out=Join-Path $env:GITHUB_WORKSPACE 'r36-source-inspection'
+          $root=$env:PF2_R36_PROJECT
+          $prefix=$root.TrimEnd('\')+'\'
+          $files=Get-ChildItem $root -Recurse -File | Where-Object {
+            $_.Extension -in @('.java','.json','.py','.gradle','.properties') -and
+            $_.FullName -notmatch '[\\/](build|\.gradle|node_modules)[\\/]'
+          }
+          foreach($file in $files){
+            $relative=$file.FullName.Substring($prefix.Length)
+            $target=Join-Path $out $relative
+            New-Item (Split-Path $target) -ItemType Directory -Force | Out-Null
+            Copy-Item $file.FullName $target
+          }
+          $identity=@{
+            patch_commit=$env:GITHUB_SHA
+            canonical_r35_sha256='86d9a6fd26e4139e084c8e4069f49ef53e0cf8654e0f9f5662b92f9183941aa6'
+            purpose='INSPECTION ONLY: source subset, not a full Android Studio deliverable'
+            file_count=@($files).Count
+          } | ConvertTo-Json
+          $identity | Set-Content (Join-Path $out 'SOURCE_IDENTITY.json') -Encoding UTF8
+          Write-Host "R36_TRANSFORMED_INSPECTION_FILES=$(@($files).Count)"
+      - name: Save canonical transformed source inspection evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: pf2-r36-source-inspection-${{ github.sha }}
+          path: r36-source-inspection/
+          retention-days: 3
+          if-no-files-found: error
