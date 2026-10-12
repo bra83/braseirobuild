@@ -220,6 +220,16 @@ public final class R36BookSemanticsHarness {
   twinC.put("influence",8);check(KingmakerCompanionSemantics.ongoing(twinC,10).optBoolean("separation_hook_available"),"separation request available at influence eight");
   check(KingmakerCompanionSemantics.ongoing(twinC,10).optBoolean("powerful_magic_or_freedom_ritual_option"),"separation magic option has no invented level thirteen gate");
   twinC.put("available",0);check(!KingmakerCompanionSemantics.automaticInvestment(twinC,"emissary","kanerah"),"absent twin grants no investment");
+
+  check(!KingmakerCompanionSemantics.questAvailable("amiri",11,true,"not_started",false,true),"Amiri rumors follow Vordakai");
+  check(KingmakerCompanionSemantics.questAvailable("amiri",11,true,"not_started",true,true),"Amiri source trigger available");
+  check(KingmakerCompanionSemantics.questAvailable("jubilost",8,true,"not_started",false,false),"Jubilost preferred Bloom timing is not mandatory prerequisite");
+  for(String primaryKey:new String[]{"amiri","ekundayo","jubilost","linzi","nok_nok","tristian","valerie"}){
+   JSONObject officialQuest=KingmakerCompanionSemantics.personalQuestDefinition(primaryKey);
+   check(officialQuest.optString("source_ref").startsWith("Kingmaker Companion Guide pp.")&&officialQuest.optInt("minimum_level")==KingmakerCompanionSemantics.questLevel(primaryKey),"published personal quest source "+primaryKey);
+  }
+  check(KingmakerCompanionSemantics.personalQuestDefinition("harrim").length()==0,"no invented published secondary personal adventure");
+  check(KingmakerCompanionSemantics.profile("tristian",new JSONObject().put("personal_quest","Deva caído inventado")).optString("personal_quest").equals("O Reino dos Purificados"),"Tristian narrative supersedes invented fallen deva quest");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

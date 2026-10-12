@@ -26,6 +26,10 @@ public final class KingmakerCompanionSemantics {
       .put("quest_minimum_level",questLevel(k)).put("official_personal_quest",questLevel(k)>0);
   // Secondary entries do not have the primary companions' seven published quests.
   if(questLevel(k)==0)base.put("personal_quest","").put("personal_quest_summary","");
+  else {
+   JSONObject published=personalQuestDefinition(k);
+   base.put("personal_quest",published.optString("title")).put("personal_quest_summary",published.optString("summary")).put("personal_quest_source",published.optString("source_ref")).put("quest_story_timing",published.optString("story_timing"));
+  }
   return base;
  }
  private static String label(String k){return "friendly".equals(k)?"Amistoso":"helpful".equals(k)?"Prestativo":"indifferent".equals(k)?"Indiferente":"Inamistoso";}
@@ -45,8 +49,7 @@ public final class KingmakerCompanionSemantics {
  }
  public static boolean questAvailable(String k,int partyLevel,boolean available,String status,boolean vordakaiResolved,boolean bloomResolved){
   int level=questLevel(k);if(level==0||partyLevel<level||!available||KingmakerCampaignGate.completed(status))return false;
-  if("tristian".equals(k))return vordakaiResolved;
-  if("jubilost".equals(k))return bloomResolved;
+  if("tristian".equals(k)||"amiri".equals(k))return vordakaiResolved;
   return true;
  }
  public static int constructionDcAdjustment(JSONObject companion,int lumberCost){
@@ -158,5 +161,17 @@ public final class KingmakerCompanionSemantics {
    throw new IllegalStateException("A persona fica fixa até as próximas preparações diárias após um novo descanso.");
   }
   return new JSONObject().put("persona",requested).put("prepared_day",preparedDay).put("shared_influence_key","kalikke_kanerah");
+ }
+ public static JSONObject personalQuestDefinition(String key)throws Exception{
+  String title,summary,pages,timing;
+  if("amiri".equals(key)){title="A Lâmina Quebrada";summary="Amiri busca os Seis Ursos e Nilak para compreender sua espada, a alma de Kean e a perseguição de Fionn.";pages="12–21";timing="Após derrotar Vordakai, ao alcançar nível 11; os rumores após o ataque a Tatzlford são a ocasião indicada.";}
+  else if("ekundayo".equals(key)){title="Um Banquete dos Banquetes";summary="Uma festa para Ekundayo aproxima o grupo de seu passado e da influência de Ntavi sobre sua busca de vingança contra os Reavers de Gragglebeard.";pages="27–31";timing="Após fundar o Reino, quando o grupo alcança nível 6.";}
+  else if("jubilost".equals(key)){title="Os Debates Inconsequentes";summary="Jubilost procura os Debates Inconsequentes no Primeiro Mundo, buscando uma resposta sobre a perda de conexão dos gnomos com sua terra de origem.";pages="36–43";timing="Nível 8; de preferência após o Florescimento e antes do Desaparecimento de Varnhold. Essa preferência não é um pré-requisito obrigatório.";}
+  else if("linzi".equals(key)){title="Problemas no Tesouro";summary="Linzi retirou recursos para montar uma prensa; as peças finais foram interceptadas pelo coven Jaggedbriar. O grupo investiga o desfalque e o carregamento desaparecido.";pages="48–57";timing="Primeiro dia passado em um assentamento do Reino após alcançar nível 7.";}
+  else if("nok_nok".equals(key)){title="Heróis ou Deuses?";summary="O ataque dos goblins Tanglethorn ao entreposto de Oleg leva Nok-Nok a enfrentar Nargloom e reconsiderar sua ambição de se tornar o quinto herói-deus goblin.";pages="61–67";timing="Nível 5; preferencialmente durante o capítulo 4, entre a ameaça dos trolls e o ataque da Fera.";}
+  else if("tristian".equals(key)){title="O Reino dos Purificados";summary="Após Vordakai, Tristian investiga a sociedade secreta Reino dos Purificados na capital e descobre a verdade sobre sua ancestralidade.";pages="72–81";timing="Após derrotar Vordakai e chegar ao nível 10, antes dos acontecimentos do capítulo 7.";}
+  else if("valerie".equals(key)){title="O Desafio de Sir Fredero";summary="Sir Fredero desafia Valerie no Santuário do Bosque Dourado; a manipulação da bruxa Tulvak está por trás da queda do antigo campeão de Shelyn.";pages="86–93";timing="Mensagem no nível 9, durante a investigação de Varnhold; pode começar no nível 10 com ajustes de dificuldade.";}
+  else return new JSONObject();
+  return new JSONObject().put("title",title).put("summary",summary).put("source_ref","Kingmaker Companion Guide pp."+pages).put("story_timing",timing).put("minimum_level",questLevel(key));
  }
 }
