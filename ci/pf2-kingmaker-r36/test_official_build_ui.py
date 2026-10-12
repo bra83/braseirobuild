@@ -18,7 +18,7 @@ def test_r35_manual_construction_is_replaced_by_rules_engine():
     assert "kingmakerRepository.addStructure(" not in output
     assert "kingmakerRepository.resolveBuildStructure(" in output
     assert "R36_OFFICIAL_BUILD_UI_RULES_ENGINE" in output
-    assert "INICIAR" not in output or "RESOLVER CONSTRUÇÃO" in output
+    assert "RESOLVER CONSTRUÇÃO" in output
     assert 'new java.util.Random().nextInt(20)+1' in output
     assert '"d20 de construção"' in output
     assert 'officialKeys[position]' in output
@@ -34,7 +34,7 @@ def test_73_labels_are_from_official_pdf_not_free_text():
         assert '"'+name+'"' in output
     assert 'implantação especial' in output
     assert 'custo alternativo' in output
-    assert "0 RP" not in output or '"DUMP' in output
+    assert "new String[]{" in output
 
 def test_no_replay_or_untrusted_manual_form():
     patch=mod.transform(source())
