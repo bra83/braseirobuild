@@ -22,6 +22,23 @@ def test_pdf_structure_effects_crosswalk_all_73():
         assert rec["traits"],key
         assert rec["semantic_certification"]=="PENDING",key
 
+def test_transform_materializes_all_73_traits_and_residential_occupancy():
+    catalog=mod.official_manifest()
+    official_18={"academy","alchemist","bank","barracks","brewery",
+       "castle","cathedral","embassy","garrison","granary","library",
+       "monument","pier","smithy","stables","temple","theater","town_hall"}
+    cases="\\n".join('if("'+key+'".equals(k)){return new JSONObject();}' for key in sorted(official_18))
+    before=("public JSONObject structure(String key){\\nString k=key(key);\\n"
+          +cases+"\\n}\\n    public JSONObject nextCatalog(){return null;}")
+    transformed,_=mod.transform_rules(before,catalog)
+    assert transformed.count('officialBase.put("residential_lots",')==73
+    assert transformed.count('officialBase.put("official_traits",')==73
+    assert transformed.count('officialBase.put("official_effects_rule",')==73
+    for key in ("houses","inn","garrison","noble_villa","marketplace"):
+        idx=transformed.index('if("'+key+'".equals(r36OfficialKey))')
+        assert 'officialBase.put("residential_lots",1)' in transformed[idx:idx+250],key
+    assert 'special_effects_semantic_certification' in transformed
+
 def test_residential_lots_propagate_to_built_structure_effects():
     # Reproduces metadata overlay transformation with actual production Java.
     src=ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerRulesEngine.java"
