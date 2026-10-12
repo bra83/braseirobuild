@@ -383,7 +383,15 @@ public final class KingmakerRepository {
     public JSONObject resolveArmyAction(String armyKey,String action,int natural,int dc,int attackIndex,boolean agile)throws Exception{JSONObject army=army(armyKey);if(army.length()==0)throw new IllegalArgumentException("Exército inexistente.");String kind=key(action);int mod=kind.contains("morale")||kind.contains("moral")?army.optInt("morale_modifier"):kind.contains("maneuver")||kind.contains("manobra")?army.optInt("maneuver_modifier"):army.optInt("attack_modifier");int target=dc>0?dc:(kind.contains("morale")||kind.contains("moral")?army.optInt("morale_dc"):army.optInt("maneuver_dc"));return rules.resolveArmyCheck(action,natural,mod,target,attackIndex,agile);}
     public JSONObject damageArmy(String armyKey,int hits,int weakness,int resistance)throws Exception{JSONObject before=army(armyKey);if(before.length()==0)throw new IllegalArgumentException("Exército inexistente.");JSONObject result=rules.applyArmyDamage(before.optInt("hp"),before.optInt("max_hp"),hits,weakness,resistance,before.optInt("rout_threshold"));ContentValues v=new ContentValues();v.put("hp",result.optInt("hp"));JSONArray conditions=jsonArray(before.optString("conditions_json","[]"));if(result.optBoolean("defeated")&&!contains(conditions,"defeated"))conditions.put("defeated");v.put("conditions_json",conditions.toString());v.put("updated_at",System.currentTimeMillis());db.getWritableDatabase().update("kingmaker_armies",v,"world_profile=? AND army_key=?",new String[]{profile(),armyKey});result.put("army",army(armyKey));audit("Dano de exército aplicado",before.optString("name")+" • "+result.optInt("damage"),before,army(armyKey));return result;}
 
+    // R36_WAR_ATOMIC_STATE: damage, conditions and battle log commit together.
     public JSONObject resolveWarAttack(String encounterKey,String attackerKey,String targetKey,int natural,int attackIndex,boolean agile,int weakness,int resistance)throws Exception{
+        final JSONObject[] result={new JSONObject()};
+        db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            result[0]=resolveWarAttackAtomic(encounterKey,attackerKey,targetKey,natural,attackIndex,agile,weakness,resistance);
+        }});
+        return result[0];
+    }
+    private JSONObject resolveWarAttackAtomic(String encounterKey,String attackerKey,String targetKey,int natural,int attackIndex,boolean agile,int weakness,int resistance)throws Exception{
         JSONObject encounter=db.queryOne("SELECT * FROM kingmaker_war_encounters WHERE world_profile=? AND encounter_key=?",new String[]{profile(),clean(encounterKey)});
         if(encounter.length()==0||!"active".equals(encounter.optString("status")))throw new IllegalStateException("Não há batalha ativa para este ataque.");
         JSONArray participants=jsonArray(encounter.optString("participants_json","[]"));Set<String> roster=new HashSet<String>();
@@ -497,7 +505,15 @@ public final class KingmakerRepository {
         return result;
     }
 
+    // R36_WAR_ATOMIC_STATE: damage, conditions and battle log commit together.
     public JSONObject resolveWarfareAction(String encounterKey,String actorKey,String targetKey,String action,int naturalRoll,JSONObject options)throws Exception{
+        final JSONObject[] result={new JSONObject()};
+        db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            result[0]=resolveWarfareActionAtomic(encounterKey,actorKey,targetKey,action,naturalRoll,options);
+        }});
+        return result[0];
+    }
+    private JSONObject resolveWarfareActionAtomic(String encounterKey,String actorKey,String targetKey,String action,int naturalRoll,JSONObject options)throws Exception{
         JSONObject encounter=db.queryOne("SELECT * FROM kingmaker_war_encounters WHERE world_profile=? AND encounter_key=?",new String[]{profile(),clean(encounterKey)});
         if(encounter.length()==0||!"active".equals(encounter.optString("status")))throw new IllegalStateException("Não há batalha ativa para esta ação militar.");
         JSONArray participants=jsonArray(encounter.optString("participants_json","[]"));Set<String> roster=new HashSet<String>();
@@ -574,13 +590,14 @@ public final class KingmakerRepository {
     public JSONObject advanceWarEncounter(String encounterKey,int nextRound,String activeArmyKey,String status,JSONObject logEntry)throws Exception{
         JSONObject before=db.queryOne("SELECT * FROM kingmaker_war_encounters WHERE world_profile=? AND encounter_key=?",new String[]{profile(),clean(encounterKey)});
         if(before.length()==0)throw new IllegalArgumentException("Batalha inexistente.");
+        if(!"active".equals(before.optString("status")))throw new IllegalStateException("A batalha já foi encerrada; não pode ser reaberta por uma ação antiga.");
         JSONArray participants=jsonArray(before.optString("participants_json","[]"));
         String active=clean(activeArmyKey);if(active.length()==0)active=before.optString("active_army_key");
         boolean found=false;for(int i=0;i<participants.length();i++){Object entry=participants.opt(i);String key=entry instanceof JSONObject?((JSONObject)entry).optString("army_key"):String.valueOf(entry);if(active.equals(key)){found=true;break;}}
         if(!found)throw new IllegalArgumentException("O exército ativo deve participar da batalha.");
         String nextStatus=key(status);if(!"active".equals(nextStatus)&&!"complete".equals(nextStatus)&&!"cancelled".equals(nextStatus))throw new IllegalArgumentException("Estado de batalha inválido.");
         int round=Math.max(before.optInt("round_number",1),nextRound);JSONArray log=jsonArray(before.optString("log_json","[]"));JSONObject entry=logEntry==null?new JSONObject():new JSONObject(logEntry.toString());
-        if("complete".equals(nextStatus)&&hasStandingOpposition(participants,active)){String kind=entry.optString("kind");if(!"automatic_complete".equals(kind)&&!"opposition_defeated".equals(kind))throw new IllegalStateException("A batalha ainda possui oposição viva; registre uma retirada/cessar-fogo ou resolva a próxima rodada.");}
+        if("complete".equals(nextStatus)&&hasStandingOpposition(participants,active))throw new IllegalStateException("A batalha ainda possui oposição viva; registre uma retirada/cessar-fogo ou resolva a próxima rodada.");
         entry.put("round",round).put("active_army_key",active).put("status",nextStatus).put("at",System.currentTimeMillis());log.put(entry);ContentValues v=new ContentValues();v.put("round_number",round);v.put("active_army_key",active);v.put("status",nextStatus);v.put("log_json",log.toString());v.put("updated_at",System.currentTimeMillis());db.getWritableDatabase().update("kingmaker_war_encounters",v,"world_profile=? AND encounter_key=?",new String[]{profile(),clean(encounterKey)});JSONObject after=db.queryOne("SELECT * FROM kingmaker_war_encounters WHERE world_profile=? AND encounter_key=?",new String[]{profile(),clean(encounterKey)});audit("Batalha atualizada",after.optString("name")+" • rodada "+round,before,after);return after;
     }
 
