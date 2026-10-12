@@ -36,6 +36,7 @@ def sleep_receipt_repository(s):
 '''
  i=s.rfind('\n}');return s[:i]+'\n'+helper+s[i:]
 def sleep_receipt_ui(s):
+ s=once(s,'kingmakerRepository.assignLeader(role.optString("role_name"),','kingmakerRepository.assignLeader(role.optString("role_key"),')
  start=s.index('    private void showKingmakerCompleteCampDialog(');end=s.index('\n    private ',start+20);part=s[start:end]
  anchor='new AlertDialog.Builder(this).setTitle("Concluir acampamento")'
  part=once(part,anchor,'final CheckBox slept=check("Confirmar sono completo pelas horas de Descansar já registradas e pela rotação de vigias",false);form.addView(slept);'+anchor)

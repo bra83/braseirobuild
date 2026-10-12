@@ -1,6 +1,8 @@
 package com.braseiro.pathfinder2e;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.util.Set;
+import java.util.HashSet;
 /** Book-specific influence thresholds and access gates; no generic 30-point track. */
 public final class KingmakerCompanionSemantics {
  private KingmakerCompanionSemantics(){}
