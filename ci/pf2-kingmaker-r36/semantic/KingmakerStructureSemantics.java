@@ -448,5 +448,21 @@ public final class KingmakerStructureSemantics {
   }catch(Exception error){throw new IllegalArgumentException("Registro de moinho inválido.",error);}
  }
 
-}
 
+ public static JSONObject demolitionOutcome(JSONArray occupied,int selectedLot,String degree,boolean clearEntire,String commodity,int recoveryD6)throws Exception{
+  if(occupied==null||occupied.length()==0||occupied.length()>4)throw new IllegalArgumentException("Informe os lotes físicos desta estrutura.");
+  Set<Integer> unique=new HashSet<Integer>();for(int i=0;i<occupied.length();i++){int lot=Integer.parseInt(occupied.optString(i));if(lot<1||lot>4||!unique.add(lot))throw new IllegalArgumentException("Lotes inválidos.");}
+  if(!unique.contains(selectedLot))throw new IllegalArgumentException("O lote escolhido não pertence à estrutura.");
+  if(!Arrays.asList("CRITICAL_SUCCESS","SUCCESS","FAILURE","CRITICAL_FAILURE").contains(degree))throw new IllegalArgumentException("Grau de sucesso inválido.");
+  boolean success="SUCCESS".equals(degree)||"CRITICAL_SUCCESS".equals(degree);
+  boolean entire="CRITICAL_SUCCESS".equals(degree)&&clearEntire;
+  int recovered=0;
+  if("CRITICAL_SUCCESS".equals(degree)&&!clearEntire){
+   if(!Arrays.asList("lumber","stone","ore").contains(commodity)||recoveryD6<1||recoveryD6>6)throw new IllegalArgumentException("Escolha Madeira, Pedra ou Minério e informe 1d6 válido.");
+   recovered=recoveryD6;
+  }
+  JSONArray remaining=new JSONArray(),cleared=new JSONArray();
+  for(int i=0;i<occupied.length();i++){int lot=Integer.parseInt(occupied.optString(i));if(entire||(success&&lot==selectedLot))cleared.put(lot);else remaining.put(lot);}
+  return new JSONObject().put("remaining_rubble_lots",remaining).put("cleared_lots",cleared).put("original_structure_disabled",true).put("unrest","CRITICAL_FAILURE".equals(degree)?1:0).put("commodity",recovered>0?commodity:"").put("recovered",recovered).put("source_ref","Kingmaker pp.523–524");
+ }
+}

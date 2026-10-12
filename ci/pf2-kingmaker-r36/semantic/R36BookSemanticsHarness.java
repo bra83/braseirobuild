@@ -332,6 +332,25 @@ public final class R36BookSemanticsHarness {
   check(KingmakerCompanionSemantics.harrimEncounterDcBonus(harrimAtCamp,"Madrugada")==2,"Harrim protects the pre-dawn night");
   check(KingmakerCompanionSemantics.harrimEncounterDcBonus(harrimAtCamp,"Tarde")==0,"Harrim protection does not reduce daytime encounters");
   check(KingmakerCompanionSemantics.harrimEncounterDcBonus(new JSONArray(),"Noite")==0,"Harrim not invoked cannot grant protection");
+  JSONArray demoFour=new JSONArray().put(1).put(2).put(3).put(4);
+  JSONObject demoSingle=KingmakerStructureSemantics.demolitionOutcome(demoFour,2,"SUCCESS",false,"",1);
+  check(demoSingle.optJSONArray("remaining_rubble_lots").length()==3&&demoSingle.optJSONArray("cleared_lots").length()==1,"demolition success clears one physical lot, not the whole building");
+  check(demoSingle.optBoolean("original_structure_disabled"),"demolition immediately disables every original building effect");
+  JSONObject demoCritical=KingmakerStructureSemantics.demolitionOutcome(demoFour,2,"CRITICAL_SUCCESS",true,"",1);
+  check(demoCritical.optJSONArray("remaining_rubble_lots").length()==0&&demoCritical.optJSONArray("cleared_lots").length()==4,"critical demolition may clear the entire footprint");
+  check(demoCritical.optInt("recovered")==0,"whole structure critical choice does not also salvage commodities");
+  JSONObject demoSalvage=KingmakerStructureSemantics.demolitionOutcome(demoFour,3,"CRITICAL_SUCCESS",false,"stone",6);
+  check(demoSalvage.optInt("recovered")==6&&demoSalvage.optJSONArray("remaining_rubble_lots").length()==3,"single lot critical choice recovers chosen real d6 commodities");
+  JSONObject demoFailed=KingmakerStructureSemantics.demolitionOutcome(demoFour,1,"FAILURE",true,"",1);
+  check(demoFailed.optJSONArray("remaining_rubble_lots").length()==4&&demoFailed.optInt("unrest")==0,"failure leaves every lot in rubble");
+  JSONObject demoCriticalFailed=KingmakerStructureSemantics.demolitionOutcome(demoFour,1,"CRITICAL_FAILURE",false,"",1);
+  check(demoCriticalFailed.optInt("unrest")==1&&demoCriticalFailed.optJSONArray("remaining_rubble_lots").length()==4,"critical failure adds unrest and retains rubble");
+  boolean invalidDemoLot=false;
+  try{KingmakerStructureSemantics.demolitionOutcome(new JSONArray().put(1),2,"SUCCESS",false,"",1);}catch(IllegalArgumentException expected){invalidDemoLot=true;}
+  check(invalidDemoLot,"cannot demolish a lot outside this building");
+  boolean invalidRecovery=false;
+  try{KingmakerStructureSemantics.demolitionOutcome(demoFour,1,"CRITICAL_SUCCESS",false,"food",2);}catch(IllegalArgumentException expected){invalidRecovery=true;}
+  check(invalidRecovery,"salvage never fabricates food or luxuries");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

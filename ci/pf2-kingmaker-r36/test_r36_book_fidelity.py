@@ -160,3 +160,23 @@ def test_old_companion_milestones_are_retired_without_reversing_history():
     importer=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerCampaignImporter.java").read_text(encoding="utf-8")
     assert '"kingmaker_features".equals(table)?"feature_key":"name"' in importer
     assert 'if("kingmaker_features".equals(table)&&cols.contains("status"))v.put("status","inactive")' in importer
+
+
+def test_registered_settlement_level_tracks_built_blocks_in_saved_state():
+    update=method_body('public void updateSettlement(long id,String type,int level,int population,int consumption,int developedBlocks,int occupiedLots,int residentialLots,String gridJson,String storageJson,String notes)')
+    assert 'v.put("level",builtBlocks<0?' in update
+    assert ':Math.max(1,Math.min(20,builtBlocks)))' in update
+    assert 'v.put("level",builtBlocks<0?town.optInt("level",1):Math.max(1,Math.min(20,builtBlocks)))' in SOURCE
+
+
+def test_demolition_logs_real_roll_and_stores_every_remaining_rubble_lot_atomically():
+    body=method_body('public JSONObject resolveDemolish(final String settlementKey,final String structureKey,final int naturalRoll,final int chosenLot,final boolean clearEntire,final String commodity,final int recoveryD6,final String notes)')
+    assert 'db.runInTransactionChecked' in body
+    assert 'recordCheckAtSettlement(settlementKey,"demolish"' in body
+    assert 'KingmakerStructureSemantics.demolitionOutcome(physical,selected,check.optString("degree")' in body
+    assert 'rubble.put("status","rubble")' in body and 'rubble.put("lots",1)' in body
+    assert 'rubble.put("count",remaining.length())' in body
+    assert 'effect=new JSONObject().put("demolition_group",true)' in body
+    assert 'KingmakerStructureSemantics.trimInstanceEffects(before,before.optInt("count")-1)' in body
+    assert body.index('refreshSettlementOccupancy(')<body.index('officialCommodityCapacity(kind)')
+    assert 'p.optInt("lot",0),p.optBoolean("clear_entire",true)' in SOURCE
