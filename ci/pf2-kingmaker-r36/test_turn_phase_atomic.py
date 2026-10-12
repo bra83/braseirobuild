@@ -38,7 +38,8 @@ def test_completion_guard_must_not_be_injected_into_start_turn(tmp_path):
 def test_duplicate_complete_transaction_anchor_rejected(tmp_path):
     f=setup(tmp_path)
     original=f.read_text(encoding="utf-8")
-    f.write_text(original+mod.OLD_COMPLETE_TX,encoding="utf-8")
+    f.write_text(original+"\n    public JSONObject unrelatedMethod()throws Exception{"
+                 +mod.OLD_COMPLETE_TX+" return new JSONObject();}\n",encoding="utf-8")
     # The extra anchor is outside completeTurn and must not alter its scope.
     mod.apply(tmp_path)
     assert f.read_text(encoding="utf-8").count(mod.NEW_COMPLETE_TX)==1
