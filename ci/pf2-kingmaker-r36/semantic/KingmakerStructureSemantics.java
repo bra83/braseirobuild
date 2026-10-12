@@ -276,6 +276,34 @@ public final class KingmakerStructureSemantics {
   result.put(location);
   return result;
  }
+ public static JSONArray withoutLastInstance(JSONArray rows,String original,String excluded)throws Exception{
+  JSONArray out=new JSONArray();for(int n=0;n<rows.length();n++){
+   JSONObject row=rows.optJSONObject(n);if(row==null||excluded.equals(row.optString("structure_key")))continue;
+   if(original.equals(row.optString("structure_key"))){int count=row.optInt("count",1);if(count<=1)continue;JSONObject copy=new JSONObject(row.toString());copy.put("count",count-1).put("effects_json",trimInstanceEffects(row,count-1).toString());out.put(copy);}
+   else out.put(new JSONObject(row.toString()));
+  }return out;
+ }
+ public static JSONArray additionalUpgradeLots(JSONObject original,JSONObject upgraded){
+  if(original==null||upgraded==null||!sameBlock(original,upgraded))throw new IllegalArgumentException("Upgrade deve permanecer no mesmo bloco.");
+  JSONArray old=original.optJSONArray("lots"),target=upgraded.optJSONArray("lots");Set<Integer> occupied=selectedLots(old,old==null?0:old.length()),all=selectedLots(target,target==null?0:target.length());
+  if(!all.containsAll(occupied))throw new IllegalArgumentException("Upgrade deve conservar os lotes originais.");
+  JSONArray additional=new JSONArray();for(int n=1;n<=4;n++)if(all.contains(n)&&!occupied.contains(n))additional.put(n);return additional;
+ }
+ public static JSONObject upgradePlacement(JSONObject town,JSONArray filtered,String target,int lots,JSONObject original,JSONObject requested)throws Exception{
+  if(original==null||original.optJSONArray("lots")==null)throw new IllegalStateException("Organize a posição da estrutura original.");
+  JSONObject candidate=requested==null?new JSONObject():new JSONObject(requested.toString());
+  if(candidate.has("urban_grid")&&candidate.optInt("urban_grid")!=original.optInt("urban_grid")||candidate.has("block")&&candidate.optInt("block")!=original.optInt("block"))throw new IllegalArgumentException("Upgrade deve permanecer no mesmo bloco e malha.");
+  candidate.put("urban_grid",original.optInt("urban_grid")).put("block",original.optInt("block"));
+  JSONArray chosen=candidate.optJSONArray("lots");
+  if(chosen!=null&&chosen.length()>0){additionalUpgradeLots(original,candidate);requireLotPlacement(town,filtered,target,lots,candidate,"");return candidate;}
+  IllegalStateException failure=null;
+  for(int mask=1;mask<16;mask++)if(Integer.bitCount(mask)==lots){
+   JSONArray at=new JSONArray();for(int bit=0;bit<4;bit++)if((mask&(1<<bit))!=0)at.put(bit+1);candidate.put("lots",at);
+   try{additionalUpgradeLots(original,candidate);requireLotPlacement(town,filtered,target,lots,candidate,"");return new JSONObject(candidate.toString());}
+   catch(IllegalArgumentException invalid){}catch(IllegalStateException invalid){failure=invalid;}
+  }
+  throw new IllegalStateException("Não há espaço no mesmo bloco para este upgrade.",failure);
+ }
  public static boolean canUpgrade(String from,String to){
   String pair=from+">"+to;
   return Arrays.asList("library>academy","academy>military_academy","academy>university",

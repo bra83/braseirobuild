@@ -407,6 +407,18 @@ public final class R36BookSemanticsHarness {
   check(KingmakerStructureSemantics.upgradeCost(academyRow,0,military).optInt("resource_points")==-16,"printed upgrade subtraction preserves negative RP difference");
   boolean unknownUpgrade=false;try{KingmakerStructureSemantics.upgradeCost(new JSONObject().put("structure_key","academy"),0,military);}catch(IllegalStateException expected){unknownUpgrade=true;}
   check(unknownUpgrade,"unknown old payment cannot be replaced by catalog price");
+  JSONObject originalFootprint=new JSONObject().put("urban_grid",1).put("block",1).put("lots",new JSONArray().put(1));
+  JSONObject upgradeTown=new JSONObject().put("type","village").put("developed_blocks",1);
+  JSONObject selectedUpgrade=KingmakerStructureSemantics.upgradePlacement(upgradeTown,new JSONArray(),"academy",2,originalFootprint,null);
+  check(selectedUpgrade.optInt("block")==1,"upgrade stays in the original block");
+  check(KingmakerStructureSemantics.additionalUpgradeLots(originalFootprint,selectedUpgrade).length()==1,"upgrade reserves only additional lots");
+  boolean movedUpgrade=false;try{KingmakerStructureSemantics.upgradePlacement(upgradeTown,new JSONArray(),"academy",2,originalFootprint,new JSONObject().put("urban_grid",1).put("block",2));}catch(IllegalArgumentException expected){movedUpgrade=true;}check(movedUpgrade,"upgrade cannot relocate to another block");
+  boolean replacedOriginal=false;try{KingmakerStructureSemantics.upgradePlacement(upgradeTown,new JSONArray(),"academy",2,originalFootprint,new JSONObject().put("lots",new JSONArray().put(3).put(4)));}catch(IllegalArgumentException expected){replacedOriginal=true;}check(replacedOriginal,"upgrade must retain every original lot");
+  JSONArray blockedUpgrade=new JSONArray().put(growthRow("houses",1,1,2,4));
+  JSONObject remainingUpgrade=KingmakerStructureSemantics.upgradePlacement(upgradeTown,blockedUpgrade,"academy",2,originalFootprint,null);
+  check(remainingUpgrade.optJSONArray("lots").optInt(1)==3,"upgrade chooses actual free adjacent lot");
+  boolean noRoom=false;try{KingmakerStructureSemantics.upgradePlacement(upgradeTown,blockedUpgrade,"cathedral",4,originalFootprint,null);}catch(IllegalStateException expected){noRoom=true;}check(noRoom,"four lot upgrade fails when its block has another building");
+  JSONArray filteredUpgrade=KingmakerStructureSemantics.withoutLastInstance(new JSONArray().put(academyRow),"academy","pending_upgrade");check(filteredUpgrade.length()==0,"placement removes only selected old instance from simulated occupancy");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }
