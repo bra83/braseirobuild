@@ -462,6 +462,14 @@ public final class R36BookSemanticsHarness {
   JSONObject finalMansion=KingmakerCampaignGate.mansionEncounter("A23");check(finalMansion.optBoolean("frost_giants_fought_by_jamandi"),"Jamandi's frost giants are not added to the PC encounter");
   check(finalMansion.optInt("statblock_cutthroats")==2&&finalMansion.optInt("narrative_cutthroats")==4,"contradictory printed counts remain explicit rather than silently blended");
   boolean inventedRoom=false;try{KingmakerCampaignGate.mansionEncounter("A99");}catch(IllegalArgumentException expected){inventedRoom=true;}check(inventedRoom,"unknown mansion rooms cannot create invented battles");
+  JSONObject restingHero=new JSONObject().put("hp",10).put("max_hp",30).put("level",5).put("sheet_json","{}");
+  JSONObject naturalRecovery=KingmakerCompanionSemantics.naturalRestRecovery(restingHero,3,new JSONObject(),50);
+  check(naturalRecovery.optInt("after_hp")==25&&naturalRecovery.optInt("healed")==15,"verified rest heals Constitution modifier times actual hero level");
+  check(KingmakerCompanionSemantics.naturalRestRecovery(restingHero,-2,new JSONObject(),50).optInt("healed")==5,"negative Constitution still uses minimum one per level");
+  check(KingmakerCompanionSemantics.naturalRestRecovery(new JSONObject(restingHero.toString()).put("hp",29),3,new JSONObject(),50).optInt("after_hp")==30,"natural rest never exceeds maximum HP");
+  check(!KingmakerCompanionSemantics.naturalRestRecovery(restingHero,3,new JSONObject().put("rest_end_hours",45),50).optBoolean("eligible"),"a second camp cannot grant rest benefits within twenty four hours");
+  check(KingmakerCompanionSemantics.naturalRestRecovery(restingHero,3,new JSONObject().put("rest_end_hours",26),50).optBoolean("eligible"),"exactly twenty four hours permits the next recovery");
+  check(!KingmakerCompanionSemantics.naturalRestRecovery(new JSONObject(restingHero.toString()).put("sheet_json",new JSONObject().put("dead",true).toString()),3,new JSONObject(),50).optBoolean("eligible"),"rest cannot resurrect a dead hero");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

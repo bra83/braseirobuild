@@ -290,3 +290,12 @@ def test_official_manor_maps_are_copied_and_match_provenance():
     assert 'showKingmakerManorMaps()' in main
     assert 'file:///android_asset/pathfinder/kingmaker/maps/' in main
     assert 'setJavaScriptEnabled(false)' in main
+
+
+def test_completed_camp_sleep_updates_actual_character_sheets_once():
+    body=method_body('public JSONObject recordCompletedCampSleep(')
+    assert 'receipt.put("character_recovery",applyVerifiedCampCharacterRecovery(campKey))' in body
+    assert 'private JSONArray applyVerifiedCampCharacterRecovery(' in SOURCE
+    assert 'db.setCharacterHpChecked(id,recovery.optInt("after_hp"))' in SOURCE
+    assert 'sheet.optJSONObject("kingmaker_rest_recovery")' in SOURCE
+    assert 'db.updateCharacterSheetChecked(id,sheet.toString())' in SOURCE

@@ -49,6 +49,18 @@ public final class KingmakerCompanionSemantics {
   if("nok_nok".equals(k))return 5;if("tristian".equals(k))return 10;
   if("valerie".equals(k))return 9;return 0;
  }
+ public static JSONObject naturalRestRecovery(JSONObject hero,int constitution,JSONObject prior,double absoluteHours)throws Exception{
+  if(Double.isNaN(absoluteHours)||Double.isInfinite(absoluteHours)||absoluteHours<24)throw new IllegalArgumentException("Horário de descanso inválido.");
+  int before=hero.optInt("hp"),maximum=hero.optInt("max_hp"),level=hero.optInt("level",1);
+  if(before<0||maximum<1||before>maximum||level<1||level>20)throw new IllegalArgumentException("PV ou nível inválidos para o descanso.");
+  JSONObject sheet=hero.optJSONObject("sheet_json");if(sheet==null)sheet=new JSONObject(hero.optString("sheet_json","{}"));
+  JSONObject out=new JSONObject().put("before_hp",before).put("after_hp",before).put("healed",0).put("eligible",false);
+  if(sheet.optBoolean("dead")||sheet.optInt("dying")>0)return out.put("reason","Não aplicar recuperação a morto ou personagem ainda morrendo.");
+  if(prior.has("rest_end_hours")&&(Double.isNaN(prior.optDouble("rest_end_hours"))||Double.isInfinite(prior.optDouble("rest_end_hours"))))throw new IllegalArgumentException("Histórico de descanso inválido.");
+  if(prior.has("rest_end_hours")&&absoluteHours-prior.optDouble("rest_end_hours")<24d)return out.put("reason","O benefício do descanso já foi recebido nas últimas 24 horas.");
+  int healing=(int)Math.min((long)maximum-before,Math.max(1L,(long)constitution)*level);
+  return out.put("eligible",true).put("after_hp",before+healing).put("healed",healing).put("rest_end_hours",absoluteHours);
+ }
  public static JSONObject mergeLegacyAlias(JSONObject current,JSONObject alias)throws Exception{
   JSONObject out=new JSONObject(current.toString());
   boolean untouched=current.optInt("influence")==0&&current.optInt("npc_id")==0&&current.optInt("available",1)==1&&"reserve".equals(current.optString("assignment"))&&"Companheiro oficial das Terras Roubadas.".equals(current.optString("notes"))&&history(current).length()==0;
