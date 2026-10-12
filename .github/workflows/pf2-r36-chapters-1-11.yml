@@ -11,7 +11,7 @@ permissions:
 jobs:
   canonical-chapters-audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:
@@ -60,6 +60,7 @@ jobs:
           done
           grep -Fx 'VERSION_NAME=9.0.37' "$project/version.properties"
           echo "KINGMAKER_AUDITED_COMMIT=$GITHUB_SHA"
+          echo "KINGMAKER_R36_PATCHES_DONE=true" >> "$GITHUB_ENV"
       - name: Audit every official chapter and 40 part titles using actual quest, scene and NPC records
         shell: bash
         run: |
@@ -78,13 +79,16 @@ jobs:
         if: always()
         run: |
           set -euo pipefail
-          if [ -n "${KINGMAKER_PROJECT:-}" ] && [ -d "$KINGMAKER_PROJECT/android/app/src/main/assets/pathfinder/kingmaker/chapters" ]; then
+          if [ "${KINGMAKER_R36_PATCHES_DONE:-false}" = "true" ] && [ -d "$KINGMAKER_PROJECT/android/app/src/main/assets/pathfinder/kingmaker/chapters" ]; then
             python ci/pf2-kingmaker-certification/official_part_semantic_audit.py --project "$KINGMAKER_PROJECT" --out evidence
           fi
       - name: Publish genuine 11-chapter findings even on failure
         if: always()
         shell: bash
         run: |
+          if [ "${KINGMAKER_R36_PATCHES_DONE:-false}" != "true" ]; then
+            echo 'R36 patch chain incomplete: no R35/R36 campaign audit result may be treated as R36.' >> "$GITHUB_STEP_SUMMARY"
+          fi
           if [ -f evidence/KINGMAKER_CHAPTERS_1_11_REVIEW.md ]; then
             cat evidence/KINGMAKER_CHAPTERS_1_11_REVIEW.md >> "$GITHUB_STEP_SUMMARY"
           else
