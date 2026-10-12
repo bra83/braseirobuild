@@ -27,9 +27,9 @@ def test_transform_materializes_all_73_traits_and_residential_occupancy():
     official_18={"academy","alchemist","bank","barracks","brewery",
        "castle","cathedral","embassy","garrison","granary","library",
        "monument","pier","smithy","stables","temple","theater","town_hall"}
-    cases="\\n".join('if("'+key+'".equals(k)){return new JSONObject();}' for key in sorted(official_18))
-    before=("public JSONObject structure(String key){\\nString k=key(key);\\n"
-          +cases+"\\n}\\n    public JSONObject nextCatalog(){return null;}")
+    cases="\n".join('if("'+key+'".equals(k)){return new JSONObject();}' for key in sorted(official_18))
+    before=("public JSONObject structure(String key){\nString k=key(key);\n"
+          +cases+"\n}\n    public JSONObject nextCatalog(){return null;}")
     transformed,_=mod.transform_rules(before,catalog)
     assert transformed.count('officialBase.put("residential_lots",')==73
     assert transformed.count('officialBase.put("official_traits",')==73
