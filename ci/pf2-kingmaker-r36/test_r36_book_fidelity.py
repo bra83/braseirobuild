@@ -109,3 +109,13 @@ def test_border_placement_is_checked_before_spending_and_island_penalty_is_real(
     assert 'civicItemBonus-=islandTradePenalty' in check
     assert '.put("island_trade_item_penalty",-islandTradePenalty)' in check
     assert 'preserveWaterBorders(jsonObject(old.optString("grid_json","{}")),jsonObject(gridJson))' in SOURCE
+
+def test_build_reserves_and_rechecks_actual_lots_before_persisting():
+    build=method_body('public JSONObject resolveBuildStructure(String settlementKey,String structureKey,int naturalRoll,String skillKey,String notes,String commodityChoice,final JSONObject buildOptions)')
+    assert 'chooseLotPlacement(town,new JSONArray(structures(townKey)),chosenKey,lots,requested,resume?pendingKey:"")' in build
+    assert build.index('chooseLotPlacement(') < build.index('db.runInTransactionChecked')
+    assert 'sameLotPlacement(saved,requested)' in build
+    assert 'effects.put("lot_instances",KingmakerStructureSemantics.appendedLotPlacement(existing,position))' in SOURCE
+    assert 'requireLotPlacement(town,new JSONArray(structures(settlementKey)),k,def.optInt("lots"),position,"")' in SOURCE
+    assert 'v.put("influence",officialSettlementInfluence(town))' in SOURCE
+    assert 'public void declareExistingLotPlacement(' in SOURCE

@@ -260,6 +260,39 @@ public final class R36BookSemanticsHarness {
   check(!KingmakerStructureSemantics.isIsland(borderMetro,new JSONArray()),"land borders of second grid preserve land connection");
   borderMetro.put("grid_json",KingmakerStructureSemantics.declareWaterBorders(borderMetro,2,borderAllWater,true));
   check(KingmakerStructureSemantics.isIsland(borderMetro,new JSONArray()),"all metropolis grids with water only are island");
+
+  JSONObject lotVillage=new JSONObject().put("type","village").put("developed_blocks",1).put("grid_json",new JSONObject());
+  JSONObject lotOne=new JSONObject().put("urban_grid",1).put("block",1).put("lots",new JSONArray().put(1));
+  JSONObject lotHouse=structure("houses",1).put("lots",1).put("effects_json",new JSONObject().put("lot_instances",new JSONArray().put(lotOne)));
+  boolean lotDiagonal=false;try{KingmakerStructureSemantics.requireLotPlacement(lotVillage,new JSONArray(),"academy",2,new JSONObject().put("urban_grid",1).put("block",1).put("lots",new JSONArray().put(1).put(4)),"");}catch(IllegalArgumentException expected){lotDiagonal=true;}check(lotDiagonal,"two diagonally touching lots are not contiguous");
+  JSONObject lotTwo=new JSONObject().put("urban_grid",1).put("block",1).put("lots",new JSONArray().put(3).put(4));
+  KingmakerStructureSemantics.requireLotPlacement(lotVillage,new JSONArray().put(lotHouse),"academy",2,lotTwo,"");check(true,"two adjacent free lots in same block accepted");
+  boolean lotOverlap=false;try{KingmakerStructureSemantics.requireLotPlacement(lotVillage,new JSONArray().put(lotHouse),"library",1,lotOne,"");}catch(IllegalStateException expected){lotOverlap=true;}check(lotOverlap,"occupied lot cannot be built on twice");
+  boolean lotFoundry=false;try{KingmakerStructureSemantics.requireLotPlacement(lotVillage,new JSONArray().put(lotHouse),"foundry",2,lotTwo,"");}catch(IllegalStateException expected){lotFoundry=true;}check(lotFoundry,"foundry cannot share block with housing");
+  boolean lotDump=false;try{KingmakerStructureSemantics.requireLotPlacement(lotVillage,new JSONArray().put(lotHouse),"dump",1,new JSONObject().put("urban_grid",1).put("block",1).put("lots",new JSONArray().put(3)),"");}catch(IllegalStateException expected){lotDump=true;}check(lotDump,"dump cannot share residential block");
+  JSONObject lotTannery=structure("tannery",1).put("lots",1).put("effects_json",new JSONObject().put("lot_instances",new JSONArray().put(lotOne)));
+  boolean lotLaterResidence=false;try{KingmakerStructureSemantics.requireLotPlacement(lotVillage,new JSONArray().put(lotTannery),"inn",1,new JSONObject().put("urban_grid",1).put("block",1).put("lots",new JSONArray().put(2)),"");}catch(IllegalStateException expected){lotLaterResidence=true;}check(lotLaterResidence,"later residence cannot bypass tannery restriction");
+  KingmakerStructureSemantics.requireLotPlacement(lotVillage,new JSONArray().put(lotTannery),"tenement",1,new JSONObject().put("urban_grid",1).put("block",1).put("lots",new JSONArray().put(2)),"");check(true,"tenement exception beside tannery allowed");
+  boolean lotNoWater=false;try{KingmakerStructureSemantics.requireLotPlacement(lotVillage,new JSONArray(),"pier",1,lotOne,"");}catch(IllegalStateException expected){lotNoWater=true;}check(lotNoWater,"pier requires actual adjacency to water border");
+  lotVillage.put("grid_json",KingmakerStructureSemantics.declareWaterBorders(lotVillage,1,new JSONArray().put("north"),true));
+  KingmakerStructureSemantics.requireLotPlacement(lotVillage,new JSONArray(),"lumberyard",2,new JSONObject().put("urban_grid",1).put("block",1).put("lots",new JSONArray().put(1).put(2)),"");check(true,"lumberyard next to declared water border accepted");
+  boolean lotInteriorWater=false;try{KingmakerStructureSemantics.requireLotPlacement(lotVillage,new JSONArray(),"pier",1,new JSONObject().put("urban_grid",1).put("block",5).put("lots",new JSONArray().put(1)),"");}catch(IllegalStateException expected){lotInteriorWater=true;}check(lotInteriorWater,"interior lot not adjacent merely because settlement has water");
+  KingmakerStructureSemantics.requireLotPlacement(lotVillage,new JSONArray(),"waterfront",4,new JSONObject().put("urban_grid",1).put("block",1).put("lots",new JSONArray().put(1).put(2).put(3).put(4)),"");check(true,"four-lot waterfront occupies water-facing block");
+  boolean lotLuxuryMissing=false;try{KingmakerStructureSemantics.requireLotPlacement(lotVillage,new JSONArray(),"luxury_store",1,lotOne,"");}catch(IllegalStateException expected){lotLuxuryMissing=true;}check(lotLuxuryMissing,"luxury store requires mansion or noble villa in same block");
+  JSONObject lotMansion=structure("mansion",1).put("lots",1).put("effects_json",new JSONObject().put("lot_instances",new JSONArray().put(lotOne)));
+  KingmakerStructureSemantics.requireLotPlacement(lotVillage,new JSONArray().put(lotMansion),"luxury_store",1,new JSONObject().put("urban_grid",1).put("block",1).put("lots",new JSONArray().put(2)),"");check(true,"luxury store beside mansion allowed");
+  JSONObject lotTown=new JSONObject(lotVillage.toString()).put("type","town").put("developed_blocks",2);
+  boolean lotTownDisconnected=false;try{KingmakerStructureSemantics.requireLotPlacement(lotTown,new JSONArray().put(lotHouse),"library",1,new JSONObject().put("urban_grid",1).put("block",9).put("lots",new JSONArray().put(1)),"");}catch(IllegalStateException expected){lotTownDisconnected=true;}check(lotTownDisconnected,"town blocks must be contiguous");
+  KingmakerStructureSemantics.requireLotPlacement(lotTown,new JSONArray().put(lotHouse),"library",1,new JSONObject().put("urban_grid",1).put("block",2).put("lots",new JSONArray().put(1)),"");check(true,"adjacent town block accepted");
+  boolean lotLegacyUnknown=false;try{KingmakerStructureSemantics.chooseLotPlacement(lotTown,new JSONArray().put(structure("houses",1).put("lots",1)),"library",1,null,"");}catch(IllegalStateException expected){lotLegacyUnknown=true;}check(lotLegacyUnknown,"legacy positions must be registered instead of guessed");
+  JSONObject lotAuto=KingmakerStructureSemantics.chooseLotPlacement(lotVillage,new JSONArray().put(lotHouse),"library",1,null,"");
+  check(lotAuto.optInt("block")==1&&lotAuto.optJSONArray("lots").optInt(0)==2,"automatic placement selects an actually free lot");
+  JSONObject lotPending=structure("under_construction_library",1).put("lots",1).put("effects_json",new JSONObject().put("original_structure_key","library").put("build_options",new JSONObject().put("lot_placement",lotAuto)));
+  check(KingmakerStructureSemantics.lotPlacements(lotPending).length()==1,"unfinished building reserves actual lots");
+  KingmakerStructureSemantics.requireLotPlacement(lotVillage,new JSONArray().put(lotHouse).put(lotPending),"library",1,lotAuto,"under_construction_library");check(true,"resume ignores own reservation only");
+  JSONObject lotRecorded=structure("library",2).put("lots",1).put("effects_json",new JSONObject().put("lot_instances",new JSONArray().put(lotOne).put(lotAuto)));
+  check(KingmakerStructureSemantics.trimInstanceEffects(lotRecorded,1).optJSONArray("lot_instances").length()==1,"demolition releases last registered structure footprint");
+  check(KingmakerStructureSemantics.sameLotPlacement(lotTwo,new JSONObject().put("urban_grid",1).put("block",1).put("lots",new JSONArray().put(4).put(3))),"same footprint independent of lot array ordering");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

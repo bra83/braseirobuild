@@ -279,7 +279,7 @@ public final class KingmakerStructureSemantics {
  public static JSONObject trimInstanceEffects(JSONObject row,int remaining)throws Exception{
   if(remaining<0)throw new IllegalArgumentException("Quantidade de estruturas inválida.");
   JSONObject out=new JSONObject(instanceEffects(row).toString());
-  for(String field:new String[]{"trade_focus_instances","infrastructure_instances"}){
+  for(String field:new String[]{"trade_focus_instances","infrastructure_instances","lot_instances"}){
    JSONArray old=out.optJSONArray(field);if(old==null)continue;
    JSONArray kept=new JSONArray();for(int i=0;i<Math.min(remaining,old.length());i++)kept.put(old.opt(i));out.put(field,kept);
   }
@@ -345,6 +345,90 @@ public final class KingmakerStructureSemantics {
    }
    return true;
   }catch(Exception error){throw new IllegalArgumentException("Registro espacial do assentamento inválido.",error);}
+ }
+
+ private static final Set<String> RESIDENTIAL=new HashSet<String>(Arrays.asList("barracks","garrison","houses","inn","mansion","marketplace","noble_villa","orphanage","tenement"));
+ private static String lotStructureKey(JSONObject row)throws Exception{
+  String key=row.optString("structure_key");JSONObject effect=instanceEffects(row);
+  if("rubble".equals(effect.optString("construction_status")))return "rubble";
+  return effect.optString("original_structure_key",key);
+ }
+ private static boolean residentialRow(JSONObject row)throws Exception{
+  if("rubble".equals(instanceEffects(row).optString("construction_status")))return false;
+  return RESIDENTIAL.contains(lotStructureKey(row))||instanceEffects(row).optInt("residential_lots")>0;
+ }
+ public static JSONArray lotPlacements(JSONObject row)throws Exception{
+  JSONObject effect=instanceEffects(row);JSONArray placed=effect.optJSONArray("lot_instances");
+  if(placed!=null)return placed;
+  JSONObject options=effect.optJSONObject("build_options");
+  if(options!=null&&options.optJSONObject("lot_placement")!=null)return new JSONArray().put(options.optJSONObject("lot_placement"));
+  return new JSONArray();
+ }
+ private static Set<Integer> selectedLots(JSONArray lots,int required){
+  if(lots==null||lots.length()!=required||required<1||required>4)throw new IllegalArgumentException("Selecione exatamente "+required+" lotes no mesmo bloco.");
+  Set<Integer> selected=new HashSet<Integer>();for(int i=0;i<lots.length();i++){int n=lots.optInt(i,0);if(n<1||n>4||!selected.add(n))throw new IllegalArgumentException("Lote inválido ou repetido.");}
+  Set<Integer> seen=new HashSet<Integer>();List<Integer> queue=new ArrayList<Integer>();queue.add(selected.iterator().next());
+  while(!queue.isEmpty()){int n=queue.remove(0);if(!seen.add(n))continue;int row=(n-1)/2,col=(n-1)%2;for(int other:selected)if(!seen.contains(other)&&Math.abs(row-(other-1)/2)+Math.abs(col-(other-1)%2)==1)queue.add(other);}
+  if(seen.size()!=selected.size())throw new IllegalArgumentException("Os lotes precisam ser contíguos dentro de um bloco.");
+  return selected;
+ }
+ private static boolean sameBlock(JSONObject a,JSONObject b){return a.optInt("urban_grid")==b.optInt("urban_grid")&&a.optInt("block")==b.optInt("block");}
+ public static boolean sameLotPlacement(JSONObject a,JSONObject b){
+  if(a==null||b==null||!sameBlock(a,b))return false;
+  JSONArray x=a.optJSONArray("lots"),y=b.optJSONArray("lots");if(x==null||y==null||x.length()!=y.length())return false;
+  return selectedLots(x,x.length()).equals(selectedLots(y,y.length()));
+ }
+ public static boolean touchesWaterBorder(JSONObject town,JSONObject placement)throws Exception{
+  JSONObject borders=settlementGrid(town).optJSONObject("water_borders");if(borders==null)return false;
+  JSONArray stored=borders.optJSONArray(String.valueOf(placement.optInt("urban_grid")));if(stored==null)return false;
+  Set<String> water=normalizedBorders(stored);int block=placement.optInt("block"),br=(block-1)/3,bc=(block-1)%3;JSONArray lots=placement.optJSONArray("lots");if(lots==null)return false;
+  for(int i=0;i<lots.length();i++){int lot=lots.optInt(i),lr=(lot-1)/2,lc=(lot-1)%2;
+   if((br==0&&lr==0&&water.contains("north"))||(bc==2&&lc==1&&water.contains("east"))||(br==2&&lr==1&&water.contains("south"))||(bc==0&&lc==0&&water.contains("west")))return true;
+  }return false;
+ }
+ public static void requireLotPlacement(JSONObject town,JSONArray rows,String key,int lots,JSONObject placement,String excludedSite)throws Exception{
+  if(isInfrastructure(key))throw new IllegalArgumentException("Infraestrutura não ocupa lotes.");
+  int grid=placement.optInt("urban_grid"),block=placement.optInt("block");requireAllocatedGrid(town,grid);if(block<1||block>9)throw new IllegalArgumentException("Bloco deve estar entre 1 e 9.");
+  Set<Integer> selected=selectedLots(placement.optJSONArray("lots"),lots);Set<String> occupiedBlocks=new HashSet<String>();List<JSONObject> occupiedLocations=new ArrayList<JSONObject>();boolean luxuryNeighbor=false;
+  for(int i=0;i<rows.length();i++){
+   JSONObject row=rows.optJSONObject(i);if(row==null||row.optInt("lots",0)<=0||row.optInt("count",1)<=0||row.optString("structure_key").equals(excludedSite))continue;
+   JSONArray placements=lotPlacements(row);if(placements.length()!=row.optInt("count",1))throw new IllegalStateException("Organize os lotes das estruturas antigas antes de iniciar uma nova obra.");
+   for(int n=0;n<placements.length();n++){JSONObject at=placements.optJSONObject(n);if(at==null||!at.has("lots"))throw new IllegalStateException("Organize os lotes das estruturas antigas antes de iniciar uma nova obra.");requireAllocatedGrid(town,at.optInt("urban_grid"));if(at.optInt("block")<1||at.optInt("block")>9)throw new IllegalArgumentException("Registro de bloco inválido.");selectedLots(at.optJSONArray("lots"),row.optInt("lots"));occupiedBlocks.add(at.optInt("urban_grid")+":"+at.optInt("block"));occupiedLocations.add(at);
+    if(!sameBlock(placement,at))continue;
+    for(int used:selectedLots(at.optJSONArray("lots"),row.optInt("lots")))if(selected.contains(used))throw new IllegalStateException("Lote já ocupado por uma estrutura, obra inacabada ou escombros.");
+    String existingKey=lotStructureKey(row);boolean oldResidential=residentialRow(row),newResidential=RESIDENTIAL.contains(key);
+    if((("foundry".equals(key)||"dump".equals(key))&&oldResidential)||(("foundry".equals(existingKey)||"dump".equals(existingKey))&&newResidential))throw new IllegalStateException("Fundição e Depósito de Lixo não podem compartilhar bloco com estruturas residenciais.");
+    if(("tannery".equals(key)&&oldResidential&&!"tenement".equals(existingKey))||("tannery".equals(existingKey)&&newResidential&&!"tenement".equals(key)))throw new IllegalStateException("Curtume só pode compartilhar bloco residencial com Cortiços.");
+    if(("mansion".equals(existingKey)||"noble_villa".equals(existingKey))&&"built".equals(row.optString("status","built"))&&!row.optString("structure_key").startsWith("under_construction_")&&!row.optString("structure_key").startsWith("rubble_"))luxuryNeighbor=true;
+   }
+  }
+  occupiedBlocks.add(grid+":"+block);
+  if(occupiedBlocks.size()>Math.max(1,town.optInt("developed_blocks",1)))throw new IllegalStateException("Desenvolva outro bloco antes de construir nele.");
+  if(("village".equals(town.optString("type"))&&occupiedBlocks.size()>1)||("town".equals(town.optString("type"))&&occupiedBlocks.size()>4)||("city".equals(town.optString("type"))&&occupiedBlocks.size()>9))throw new IllegalStateException("A posição excede a capacidade deste tipo de assentamento.");
+  if("town".equals(town.optString("type"))){
+   Set<Integer> blocks=new HashSet<Integer>();for(String b:occupiedBlocks){String[] p=b.split(":");if(!"1".equals(p[0]))throw new IllegalStateException("Uma vila tem somente uma malha urbana.");blocks.add(Integer.parseInt(p[1]));}
+   Set<Integer> seen=new HashSet<Integer>();List<Integer> pending=new ArrayList<Integer>();pending.add(blocks.iterator().next());
+   while(!pending.isEmpty()){int b=pending.remove(0);if(!seen.add(b))continue;for(int other:blocks)if(!seen.contains(other)&&Math.abs((b-1)/3-(other-1)/3)+Math.abs((b-1)%3-(other-1)%3)==1)pending.add(other);}
+   if(seen.size()!=blocks.size())throw new IllegalStateException("Os blocos de uma vila precisam ser contíguos.");
+  }
+  if("luxury_store".equals(key)&&!luxuryNeighbor)throw new IllegalStateException("Loja de Luxo exige uma Mansão ou Vila Nobre no mesmo bloco.");
+  if(Arrays.asList("lumberyard","pier","waterfront").contains(key)&&!touchesWaterBorder(town,placement))throw new IllegalStateException("Esta estrutura exige ao menos um lote adjacente a uma borda de água.");
+ }
+ public static JSONObject chooseLotPlacement(JSONObject town,JSONArray rows,String key,int lots,JSONObject requested,String excludedSite)throws Exception{
+  int firstGrid=requested==null?1:requested.optInt("urban_grid",1),firstBlock=requested==null?1:requested.optInt("block",1);
+  if(requested!=null&&requested.optJSONArray("lots")!=null&&requested.optJSONArray("lots").length()>0){requireLotPlacement(town,rows,key,lots,requested,excludedSite);return new JSONObject(requested.toString());}
+  Exception last=null;
+  for(int grid=firstGrid;grid<=(requested==null?allocatedGrids(town):firstGrid);grid++)for(int block=firstBlock;block<=(requested==null?9:firstBlock);block++)for(int mask=1;mask<16;mask++){
+   if(Integer.bitCount(mask)!=lots)continue;JSONArray selected=new JSONArray();for(int lot=1;lot<=4;lot++)if((mask&(1<<(lot-1)))!=0)selected.put(lot);
+   JSONObject candidate=new JSONObject().put("urban_grid",grid).put("block",block).put("lots",selected);
+   try{requireLotPlacement(town,rows,key,lots,candidate,excludedSite);return candidate;}catch(IllegalArgumentException e){last=e;}catch(IllegalStateException e){last=e;if(e.getMessage().startsWith("Organize os lotes"))throw e;}
+  }
+  throw new IllegalStateException(last==null?"Não existe uma posição válida para esta estrutura.":last.getMessage());
+ }
+ public static JSONArray appendedLotPlacement(JSONObject existing,JSONObject placement)throws Exception{
+  JSONArray old=existing.length()==0?new JSONArray():lotPlacements(existing);
+  if(existing.length()>0&&old.length()!=existing.optInt("count",1))throw new IllegalStateException("As posições anteriores precisam estar registradas.");
+  JSONArray out=new JSONArray(old.toString());out.put(new JSONObject(placement.toString()));return out;
  }
 
 }
