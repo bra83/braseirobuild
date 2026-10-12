@@ -64,3 +64,19 @@ def test_expansion_expert_bonus_is_limited_to_claim_hex_and_kingdom_level_four()
     assert 'vacancy-ruin+circumstanceBonus-claimPenalty' in check
     assert '.put("circumstance_bonus_applied",circumstanceBonus)' in check
     assert '.put("expansion_expert_circumstance",expansionExpert)' in check
+
+def test_unfinished_build_keeps_prepaid_materials_and_options():
+    body=method_body('public JSONObject resolveBuildStructure(String settlementKey,String structureKey,int naturalRoll,String skillKey,String notes,String commodityChoice,final JSONObject buildOptions)')
+    assert 'prepaidMaterials=resume?jsonObject(pending.optString("commodity_costs_json","{}"))' in body
+    assert 'if(!paidChoice.equals(commodityChoice))throw' in body
+    assert 'previous.optJSONObject("build_options")' in body
+    assert 'new String[]{"trade_focus","ruin"}' in body
+    assert body.index('if(!paidChoice.equals(commodityChoice))throw') < body.index('db.runInTransactionChecked')
+    assert 'stone=resume?prepaidMaterials.optInt("stone"):def.optInt("stone",0)' in body
+    assert 'lumber=resume?prepaidMaterials.optInt("lumber"):def.optInt("lumber",0)' in body
+    assert '.put("commodity_choice",commodityChoice).put("build_options",new JSONObject(buildOptions.toString()))' in body
+
+def test_public_check_delegates_to_contextual_calculation():
+    body=method_body('public JSONObject recordCheck(String activityKey,String title,String role,String skillKey,int natural,int dc,String sourceRef,String notes,boolean awardReputationOnCrit)')
+    assert 'return recordCheckAtSettlement("",activityKey,title,role,skillKey,natural,dc,sourceRef,notes,awardReputationOnCrit)' in body
+    assert 'return recordCheckAtSettlement(settlementKey,activityKey,title,role,skillKey,natural,dc,sourceRef,notes,awardReputationOnCrit,new JSONObject())' in SOURCE

@@ -64,6 +64,39 @@ def repository_focus(s):
         return KingmakerStructureSemantics.pcItemBonus(new JSONArray(structures(settlementKey)),activity,skill,focus);
     }
 '''
+ # An unfinished build retains its paid materials and declared focus.
+ start=s.index('    public JSONObject resolveBuildStructure(');end=s.index('    public JSONObject resolveDemolish(',start);part=s[start:end]
+ part=once(part,'        final boolean resume=pending.length()>0;','''        final boolean resume=pending.length()>0;
+        final JSONObject prepaidMaterials=resume?jsonObject(pending.optString("commodity_costs_json","{}")):new JSONObject();
+        if(resume){
+            JSONObject previous=jsonObject(pending.optString("effects_json","{}"));
+            if(def.optBoolean("requires_cost_choice",false)){
+                String paidChoice=previous.optString("commodity_choice");
+                if(paidChoice.length()==0){
+                    int paidWood=prepaidMaterials.optInt("lumber"),paidStone=prepaidMaterials.optInt("stone");
+                    if(paidWood>0&&paidStone==0)paidChoice="lumber";
+                    else if(paidStone>0&&paidWood==0)paidChoice="stone";
+                    else throw new IllegalStateException("A obra antiga não registra o material alternativo pago; confira o registro antes de retomar.");
+                }
+                if(!paidChoice.equals(commodityChoice))throw new IllegalStateException("Retome a obra com o material que já foi pago: "+paidChoice+".");
+            }
+            JSONObject originalOptions=previous.optJSONObject("build_options");
+            if(originalOptions!=null)for(String field:new String[]{"trade_focus","ruin"}){
+                if(!originalOptions.optString(field).equals(buildOptions.optString(field)))throw new IllegalStateException("A escolha de "+field+" da obra inacabada precisa ser preservada.");
+            }
+        }''')
+ old='''        final int rp=def.optInt("rp",0),lumber=def.optInt("lumber",0),stone=def.optInt("stone",0),
+            ore=def.optInt("ore",0),luxuries=def.optInt("luxuries",0);'''
+ new='''        final int rp=resume?pending.optInt("construction_rp"):def.optInt("rp",0),
+            lumber=resume?prepaidMaterials.optInt("lumber"):def.optInt("lumber",0),
+            stone=resume?prepaidMaterials.optInt("stone"):def.optInt("stone",0),
+            ore=resume?prepaidMaterials.optInt("ore"):def.optInt("ore",0),
+            luxuries=resume?prepaidMaterials.optInt("luxuries"):def.optInt("luxuries",0);'''
+ part=once(part,old,new)
+ part=once(part,'.put("last_attempt_turn",turn.optInt("turn_number")).toString());',
+ '''.put("last_attempt_turn",turn.optInt("turn_number"))
+                        .put("commodity_choice",commodityChoice).put("build_options",new JSONObject(buildOptions.toString())).toString());''')
+ s=s[:start]+part+s[end:]
  i=s.rfind('\n}');return s[:i]+'\n'+helper+s[i:]
 def focus_ui(s):
  # Construction focus is plain-language trade information, not an implementation field.
