@@ -8,7 +8,7 @@ on:
       - 'ci/pf2-kingmaker-certification/android_ui_endurance.py'
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: pf2-r36-brelga-independent
   cancel-in-progress: true
@@ -150,20 +150,66 @@ jobs:
           Set-Content -Path (Join-Path $out 'SHA256.txt') -Value ("$hash  Braseiro-Kingmaker-R36-test.apk") -Encoding ascii
           Write-Host "R36_TEST_APK_SHA256=$hash"
           Write-Host "R36_COMPILED_ANDROID_PASS=true"
-      - name: Publish R36 TEST APK artifact (not certified, not a release)
-        uses: actions/upload-artifact@v4
-        with:
-          name: Kingmaker-R36-9.0.37-TEST-APK
-          path: r36-test-apk/
-          if-no-files-found: error
-          retention-days: 30
-          compression-level: 0
+      - name: Publish R36 TEST prerelease APK (does not use full Actions artifact storage)
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $tag="PATHFINDER2E-9.0.37-R36-TEST-"+$env:GITHUB_SHA.Substring(0,8)
+          $headers=@{Authorization="Bearer $env:GH_TOKEN";Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28'}
+          $uri="https://api.github.com/repos/bra83/braseirobuild/releases/tags/$tag"
+          $rel=$null
+          try{$rel=Invoke-RestMethod -Uri $uri -Headers $headers -Method Get}
+          catch{
+            if(!$_.Exception.Response -or [int]$_.Exception.Response.StatusCode -ne 404){throw}
+          }
+          if(!$rel){
+            $body=@{
+              tag_name=$tag
+              target_commitish=$env:GITHUB_SHA
+              name='Braseiro Kingmaker R36 9.0.37 - TEST APK - NOT CERTIFIED'
+              draft=$false
+              prerelease=$true
+              make_latest='false'
+              body=("TEST BUILD ONLY - NOT A CERTIFIED RELEASE. " +
+                "Source: "+$env:GITHUB_SHA+". R35 stable release is unchanged. " +
+                "Source regression and Gradle build have passed; real Android UI/AppDb 3-restart " +
+                "acceptance and semantic completeness of 73 structures, 11 chapters, companions " +
+                "and kingdom warfare remain uncertified.")
+            }|ConvertTo-Json -Compress -Depth 6
+            $rel=Invoke-RestMethod -Uri 'https://api.github.com/repos/bra83/braseirobuild/releases' -Headers $headers -Method Post -ContentType 'application/json' -Body $body
+          }
+          if(!$rel.id -or !$rel.upload_url -or !$rel.prerelease){throw 'TEST_PRERELEASE_NOT_CONFIRMED'}
+          $files=@(
+            @{Name='Braseiro-Kingmaker-R36-test.apk';Type='application/vnd.android.package-archive'},
+            @{Name='SHA256.txt';Type='text/plain'}
+          )
+          $prefix=($rel.upload_url -split '\{')[0]
+          foreach($entry in $files){
+            $file=Join-Path (Join-Path $env:GITHUB_WORKSPACE 'r36-test-apk') $entry.Name
+            if(!(Test-Path $file)){throw "TEST_RELEASE_FILE_MISSING $($entry.Name)"}
+            $prior=@($rel.assets|Where-Object{$_.name -eq $entry.Name})
+            if($prior.Count -gt 0){
+              if($prior[0].size -ne (Get-Item $file).Length){throw 'EXISTING_RELEASE_ASSET_SIZE_MISMATCH'}
+              Write-Host "R36_TEST_ASSET_ALREADY_PRESENT=$($entry.Name)"
+              continue
+            }
+            $url=$prefix+'?name='+[uri]::EscapeDataString($entry.Name)
+            $raw=& curl.exe -L -sS --fail --retry 3 --request POST --header "Authorization: Bearer $env:GH_TOKEN" --header 'Accept: application/vnd.github+json' --header "Content-Type: $($entry.Type)" --data-binary "@$file" "$url"
+            if($LASTEXITCODE -ne 0){throw "GITHUB_PRERELEASE_UPLOAD_FAILED $($entry.Name)"}
+            $asset=($raw -join "`n")|ConvertFrom-Json
+            if(!$asset.id -or $asset.size -ne (Get-Item $file).Length){throw "GITHUB_PRERELEASE_ASSET_NOT_CONFIRMED $($entry.Name)"}
+            Write-Host "R36_TEST_ASSET_URL=$($asset.browser_download_url)"
+          }
+          Write-Host "R36_TEST_PRERELEASE_URL=$($rel.html_url)"
+
       - name: State scope truthfully
         if: always()
         shell: powershell
         run: |
           Write-Host 'Only selected official book rules tested in this candidate. NOT whole-campaign certification.'
-          Write-Host 'This workflow uploads a TEST APK only after successful source checks and Gradle compile. This is not a certified release.'
+          Write-Host 'TEST-only GitHub prerelease, not a final or certified release. Stable R35 remains unchanged.'
 
   android-ui-acceptance:
     name: Real Android emulator / AppDb 3-restart acceptance
@@ -178,10 +224,27 @@ jobs:
           sparse-checkout: |
             ci/pf2-kingmaker-certification
           ref: ${{ github.sha }}
-      - uses: actions/download-artifact@v4
-        with:
-          name: Kingmaker-R36-9.0.37-TEST-APK
-          path: r36-test-apk
+      - name: Download exact R36 TEST APK and checksum from the prerelease
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $tag="PATHFINDER2E-9.0.37-R36-TEST-"+$env:GITHUB_SHA.Substring(0,8)
+          $headers=@{Authorization="Bearer $env:GH_TOKEN";Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28'}
+          $rel=Invoke-RestMethod -Uri "https://api.github.com/repos/bra83/braseirobuild/releases/tags/$tag" -Headers $headers -Method Get
+          if(!$rel.id -or !$rel.prerelease -or $rel.target_commitish -ne $env:GITHUB_SHA){throw 'TEST_RELEASE_IDENTITY_MISMATCH'}
+          $out=Join-Path $env:GITHUB_WORKSPACE 'r36-test-apk'
+          New-Item -ItemType Directory -Path $out -Force|Out-Null
+          foreach($name in @('Braseiro-Kingmaker-R36-test.apk','SHA256.txt')){
+            $asset=@($rel.assets|Where-Object{$_.name -eq $name})
+            if($asset.Count -ne 1){throw "TEST_RELEASE_ASSET_MISSING $name"}
+            $url="https://api.github.com/repos/bra83/braseirobuild/releases/assets/"+$asset[0].id
+            & curl.exe -L --fail --retry 3 --retry-delay 3 --header "Authorization: Bearer $env:GH_TOKEN" --header 'Accept: application/octet-stream' --header 'X-GitHub-Api-Version: 2022-11-28' -o (Join-Path $out $name) $url
+            if($LASTEXITCODE -ne 0){throw "TEST_RELEASE_ASSET_DOWNLOAD_FAILED $name"}
+            if((Get-Item (Join-Path $out $name)).Length -ne $asset[0].size){throw "TEST_RELEASE_ASSET_SIZE_MISMATCH $name"}
+          }
+          Write-Host "R36_TEST_RELEASE_CHECKED=$($rel.html_url)"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
