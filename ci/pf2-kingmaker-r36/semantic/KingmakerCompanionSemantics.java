@@ -54,19 +54,49 @@ public final class KingmakerCompanionSemantics {
     "helpful".equals(companion.optString("attitude"))&&lumberCost>0?-2:0;
  }
  public static int leadershipInfluence(String k){
-  if("harrim".equals(k)||"nok_nok".equals(k))return 8;
+  if("harrim".equals(k)||"nok_nok".equals(k)||"regongar".equals(k))return 8;
   if("jaethal".equals(k)||"octavia".equals(k))return 6;
   if("kalikke_kanerah".equals(k))return 4;return 0;
  }
  public static boolean automaticInvestment(JSONObject c,String role){
   if(c.optInt("available",1)!=1)return false;String k=c.optString("companion_key");
   return ("harrim".equals(k)&&"magister".equals(role)&&c.optInt("influence")>=8)||
-         ("jaethal".equals(k)&&"emissary".equals(role)&&c.optInt("influence")>=6);
+         ("jaethal".equals(k)&&"emissary".equals(role)&&c.optInt("influence")>=6)||
+         ("nok_nok".equals(k)&&"emissary".equals(role)&&c.optInt("influence")>=8)||
+         ("octavia".equals(k)&&"magister".equals(role)&&c.optInt("influence")>=6)||
+         ("regongar".equals(k)&&"general".equals(role)&&c.optInt("influence")>=8);
+ }
+ public static String nokAlignment(JSONObject c){
+  int p=c.optInt("influence");
+  if(p<=0||"hostile".equals(c.optString("attitude")))return "chaotic_evil";
+  JSONArray history=c.optJSONArray("unlocked_rewards_json");
+  if(history==null)try{history=new JSONArray(c.optString("unlocked_rewards_json","[]"));}catch(Exception ignored){history=new JSONArray();}
+  String saved="chaotic_evil";
+  for(int i=0;i<history.length();i++){
+   if("nok_nok_alignment:chaotic_good".equals(history.optString(i)))saved="chaotic_good";
+   else if("nok_nok_alignment:chaotic_neutral".equals(history.optString(i))&&!"chaotic_good".equals(saved))saved="chaotic_neutral";
+  }
+  if(p>=12)return "chaotic_good";
+  if(p>=6&&"chaotic_evil".equals(saved))return "chaotic_neutral";
+  return saved;
+ }
+ public static JSONArray alignmentHistory(JSONObject before,int next,String attitude,JSONArray rewards)throws Exception{
+  JSONArray out=new JSONArray();
+  for(int i=0;i<rewards.length();i++)if(!rewards.optString(i).startsWith("nok_nok_alignment:"))out.put(rewards.optString(i));
+  if(!"nok_nok".equals(before.optString("companion_key")))return out;
+  JSONObject current=new JSONObject(before.toString());
+  String prior=nokAlignment(before);
+  out.put("nok_nok_alignment:"+prior);
+  current.put("influence",next).put("attitude",attitude).put("unlocked_rewards_json",out);
+  String alignment=nokAlignment(current);
+  JSONArray result=new JSONArray();
+  for(int i=0;i<out.length();i++)if(!out.optString(i).startsWith("nok_nok_alignment:"))result.put(out.optString(i));
+  return result.put("nok_nok_alignment:"+alignment);
  }
  public static JSONObject ongoing(JSONObject c,int partyLevel)throws Exception{
   String k=c.optString("companion_key");int p=c.optInt("influence");boolean present=c.optInt("available",1)==1;
   JSONObject out=new JSONObject().put("companion_key",k).put("active",present);
-  if("nok_nok".equals(k))out.put("alignment",p>=12?"chaotic_good":p>=6?"chaotic_neutral":"chaotic_evil").put("camping_circumstance_penalty",present&&p<6?-1:0).put("primary_hero_influence_bonus",present&&p>=2?1:0);
+  if("nok_nok".equals(k))out.put("alignment",nokAlignment(c)).put("camping_circumstance_penalty",present&&"chaotic_evil".equals(nokAlignment(c))?-1:0).put("primary_hero_influence_bonus",present&&p>=2?1:0);
   if("ekundayo".equals(k))out.put("lumber_construction_dc_adjustment",constructionDcAdjustment(c,1));
   if("harrim".equals(k))out.put("infectious_ennui_access",present&&p>=6&&partyLevel>=5).put("magister_automatic_investment",automaticInvestment(c,"magister"));
   if("jaethal".equals(k))out.put("emissary_automatic_investment",automaticInvestment(c,"emissary")).put("weapon_rune_access",present&&p>=8&&partyLevel>=7);

@@ -234,14 +234,55 @@ def main(s):
  old='db.updateQuestStatus(q.optLong("id"),"completed","Concluída pelo jogador");showPartyDirector();'
  new='try{db.updateQuestStatus(q.optLong("id"),"completed","Concluída pelo jogador");showPartyDirector();}catch(Exception error){toast(error.getMessage());}'
  return replace_once(s,old,new,"quest UI rejection")
+def companion_runtime(s):
+ s=replace_once(s,'if(comp.length()>0&&comp.optInt("available",1)!=1){','''if(comp.length()>0&&comp.optInt("influence")<KingmakerCompanionSemantics.leadershipInfluence(comp.optString("companion_key")))throw new IllegalStateException("Influência insuficiente para este companheiro assumir liderança.");
+            if(comp.length()>0&&comp.optInt("available",1)!=1){''',"leadership influence gate")
+ s=replace_once(s,'leader.optInt("invested")==1&&key(ability)',
+ '(leader.optInt("invested")==1||officialAutomaticInvestment(leader))&&key(ability)',"automatic investment calculation")
+ s=replace_once(s,'v.put("unlocked_rewards_json",result.optJSONArray("all_unlocked_rewards").toString());',
+ 'v.put("unlocked_rewards_json",KingmakerCompanionSemantics.alignmentHistory(before,result.optInt("influence"),newAttitude,result.optJSONArray("all_unlocked_rewards")).toString());',"persistent Nok alignment")
+ helper='''    private boolean officialAutomaticInvestment(JSONObject leader){
+        for(JSONObject companion:companions())if(companion.optString("name").equals(leader.optString("leader_name")))return KingmakerCompanionSemantics.automaticInvestment(companion,leader.optString("role_key"));
+        return false;
+    }
+'''
+ i=s.rfind("\n}");return s[:i]+"\n"+helper+s[i:]
+
+def regression_support(root):
+ # SELECT * must return row fields, not the scalar used by existence probes.
+ p=root/"tests_pf2/java/mock_android/android/database/sqlite/SQLiteDatabase.java"
+ s=p.read_text(encoding="utf-8")
+ anchor='        if (sql.contains("FROM quests WHERE world_profile=? AND quest_key=?")) {'
+ s=replace_once(s,anchor,'''        if (sql.startsWith("SELECT * FROM quests WHERE world_profile=? AND ")) {
+            List<Map<String,Object>> matching=new ArrayList<Map<String,Object>>();
+            String identity=sql.contains("AND quest_key=?")?"quest_key":"title";
+            for(Map<String,Object> row:tables.get("quests"))
+                if(selectionArgs[0].equals(row.get("world_profile"))&&selectionArgs[1].equals(row.get(identity)))matching.add(row);
+            return new MockTableCursor(new ArrayList<String>(tableColumns.get("quests")),matching);
+        }
+'''+anchor,"mock row query")
+ h=root/"tests_pf2/java/Pf2KingmakerCompleteMechanicsHarness.java"
+ t=h.read_text(encoding="utf-8")
+ t=replace_once(t,'prof.optJSONArray("thresholds").length() >= 3','prof.optJSONArray("thresholds").length() >= 2',"published attitude thresholds")
+ replacements={
+ 'check(newly1 != null && newly1.length() == 1, "reward unlocked at threshold 2");':'check(newly1 != null && newly1.length() == 0, "attitude alone grants no invented reward");',
+ 'check("amiri_friendly".equals(newly1.optJSONObject(0).optString("reward_id")), "amiri_friendly unlocked");':'check("friendly".equals(inf1.optString("attitude")), "official friendly threshold reached");',
+ 'check(newly2 != null && newly2.length() == 1, "only 1 newly unlocked reward at threshold 4");':'check(newly2 != null && newly2.length() == 0, "helpful alone grants no invented reward");',
+ 'check("amiri_helpful".equals(newly2.optJSONObject(0).optString("reward_id")), "amiri_helpful unlocked");':'check("helpful".equals(inf2.optString("attitude")), "official helpful threshold reached");',
+ 'check(inf2.optJSONArray("all_unlocked_rewards").length() == 2, "total 2 rewards unlocked");':'check(inf2.optJSONArray("all_unlocked_rewards").length() == 0, "no fabricated permanent boons");'}
+ for a,b in replacements.items():t=replace_once(t,a,b,"obsolete companion reward contract")
+ p.write_text(s,encoding="utf-8");h.write_text(t,encoding="utf-8")
+
 def apply(root):
  root=Path(root);base=root/SRC
  if "VERSION_NAME=9.0.37" not in (root/"version.properties").read_text():raise ValueError("Only verified R36 eligible")
- transforms={"KingmakerRepository.java":lambda s:structure_triggers(repository(s)),"KingmakerRulesEngine.java":rules,"KingmakerSoloDirector.java":director,"AppDb.java":appdb,"KingmakerCampaignImporter.java":importer,"MainActivity.java":lambda s:structure_ui(main(s))}
+ transforms={"KingmakerRepository.java":lambda s:companion_runtime(structure_triggers(repository(s))),"KingmakerRulesEngine.java":rules,"KingmakerSoloDirector.java":director,"AppDb.java":appdb,"KingmakerCampaignImporter.java":importer,"MainActivity.java":lambda s:structure_ui(main(s))}
  prepared={name:fn((base/name).read_text(encoding="utf-8")) for name,fn in transforms.items()}
  for name,content in prepared.items():(base/name).write_text(content,encoding="utf-8")
  for name in ["KingmakerStructureSemantics.java","KingmakerCampaignGate.java","KingmakerCompanionSemantics.java"]:shutil.copyfile(HERE/"semantic"/name,base/name)
+ regression_support(root)
  print("R36_THREE_SEMANTIC_DOMAINS_INTEGRATED")
 if __name__=="__main__":
  if len(sys.argv)!=2:raise SystemExit("usage: patch_semantic_domains.py <R36_project>")
  apply(sys.argv[1])
+

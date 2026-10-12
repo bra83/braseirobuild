@@ -66,6 +66,22 @@ public final class R36BookSemanticsHarness {
   check(KingmakerCompanionSemantics.constructionDcAdjustment(ekun,1)==-2,"Ekun lumber benefit");
   check(KingmakerCompanionSemantics.constructionDcAdjustment(ekun,0)==0,"Ekun no benefit without lumber");
   ekun.put("attitude","friendly");check(KingmakerCompanionSemantics.constructionDcAdjustment(ekun,1)==0,"Ekun ongoing benefit conditional");
+  JSONObject nok=new JSONObject().put("companion_key","nok_nok").put("influence",12).put("attitude","helpful").put("available",1);
+  JSONArray history=KingmakerCompanionSemantics.alignmentHistory(nok,3,"indifferent",new JSONArray());
+  nok.put("influence",3).put("attitude","indifferent").put("unlocked_rewards_json",history);
+  check("chaotic_good".equals(KingmakerCompanionSemantics.nokAlignment(nok)),"Nok retains good alignment after influence loss");
+  check(KingmakerCompanionSemantics.ongoing(nok,10).optInt("camping_circumstance_penalty")==0,"reformed Nok has no camping penalty");
+  history=KingmakerCompanionSemantics.alignmentHistory(nok,0,"indifferent",history);
+  nok.put("influence",0).put("unlocked_rewards_json",history);
+  check("chaotic_evil".equals(KingmakerCompanionSemantics.nokAlignment(nok)),"Nok reverts at zero");
+  nok.put("influence",4).put("unlocked_rewards_json",history);
+  check("chaotic_evil".equals(KingmakerCompanionSemantics.nokAlignment(nok)),"zero reset persists when influence rises below six");
+  JSONObject octavia=new JSONObject().put("companion_key","octavia").put("influence",6).put("available",1);
+  check(KingmakerCompanionSemantics.automaticInvestment(octavia,"magister"),"Octavia Magister auto investment");
+  check(!KingmakerCompanionSemantics.automaticInvestment(octavia,"general"),"automatic investment requires designated role");
+  check(KingmakerCompanionSemantics.leadershipInfluence("regongar")==8,"Regongar leadership at eight");
+  check(KingmakerCampaignGate.officialChapterForQuest(quest("q_oleg","active"))==3,"Oleg official chapter three");
+  check(KingmakerCampaignGate.officialChapterForQuest(quest("q_fundacao_baronia","active"))==4,"kingdom foundation chapter four");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }
