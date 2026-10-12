@@ -184,7 +184,7 @@ public final class R36BookSemanticsHarness {
   boolean nonMetro=false;try{KingmakerStructureSemantics.requireGridInfrastructure(new JSONObject().put("type","city").put("developed_blocks",10),new JSONArray(),"paved_streets",secondGrid);}catch(IllegalStateException expected){nonMetro=true;}check(nonMetro,"multiple grids require metropolis");
   JSONArray installations=KingmakerStructureSemantics.appendedInfrastructure(new JSONObject(),"paved_streets",firstGrid);
   JSONObject paving=structure("paved_streets",1).put("effects_json",new JSONObject().put("infrastructure_instances",installations));
-  boolean duplicate=false;try{KingmakerStructureSemantics.requireGridInfrastructure(metropolis,new JSONArray().put(paving),"paved_streets",firstGrid);}catch(IllegalStateException expected){duplicate=true;}check(duplicate,"paving cannot be paid for twice in same grid");
+  boolean gridDuplicate=false;try{KingmakerStructureSemantics.requireGridInfrastructure(metropolis,new JSONArray().put(paving),"paved_streets",firstGrid);}catch(IllegalStateException expected){gridDuplicate=true;}check(gridDuplicate,"paving cannot be paid for twice in same grid");
   KingmakerStructureSemantics.requireGridInfrastructure(metropolis,new JSONArray().put(paving),"paved_streets",secondGrid);
   installations=KingmakerStructureSemantics.appendedInfrastructure(paving,"paved_streets",secondGrid);
   check(installations.length()==2&&installations.optJSONObject(1).optInt("urban_grid")==2,"second paving location persisted");
