@@ -106,8 +106,8 @@ def transform_rules(source,rows):
         # Correct the numeric rules without wiping any preexisting special
         # effects, prerequisites, residential lots, or other runtime metadata.
         generated.append('            if("'+canonical+'".equals(r36OfficialKey)) {\n'
-          '                officialBase.remove("construction_skill");\n'
-          '                officialBase.remove("construction_skills");\n'
+          '                officialBase.put("construction_skill","");\n'
+          '                officialBase.put("construction_skills","");\n'
           '                return '+expr+';\n'
           '            }\n')
     if len(generated)!=55:

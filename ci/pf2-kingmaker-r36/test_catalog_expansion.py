@@ -37,6 +37,12 @@ def test_generated_catalog_preserves_all_prior_entries():
         assert f'if("{key}".equals(k))' in after
     assert 'special_effects_semantic_certification","PENDING"' in after
     assert 'construction_dc' in after
+    # The shipped Android/test JSONObject has put(), but no remove().
+    # Clear both mutually exclusive skill fields with ABI-safe writes before
+    # restoring exactly the official single- or multi-skill definition.
+    assert 'officialBase.remove(' not in after
+    assert after.count('officialBase.put("construction_skill","");')==55
+    assert after.count('officialBase.put("construction_skills","");')==55
     with pytest.raises(ValueError,match="twice"):
         m.transform_rules(after,rows)
 
