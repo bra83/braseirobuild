@@ -138,7 +138,10 @@ jobs:
           Set-Location 'dnd-normal/run247-mod005'
           # One Gradle execution: focused safety cases are verified from its XML afterward.
           # Test-only asset profile excludes one 102 MB Faerun ZIP copy; APK builds are unchanged.
-          & .\gradlew.bat :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
+          # Explicit argv keeps PowerShell from splitting -Pbraseiro.qaLiteAssets=true
+          # into a Gradle task named .qaLiteAssets=true on Windows PowerShell.
+          $gradleArgs = @(':app:testDebugUnitTest', '-Pbraseiro.qaLiteAssets=true', '--no-daemon', '--console=plain')
+          & .\gradlew.bat @gradleArgs
           if ($LASTEXITCODE -ne 0) { throw 'FULL_SUITE_FAILED' }
           $xml='app/build/test-results/testDebugUnitTest/TEST-com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest.xml'
           if (!(Test-Path $xml)) { throw 'FOCUSED_XML_MISSING' }
