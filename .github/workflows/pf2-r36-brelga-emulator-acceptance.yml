@@ -122,7 +122,11 @@ jobs:
             # On Windows PowerShell this is a NativeCommandError with
             # ErrorActionPreference=Stop, even though adb itself is healthy.
             # Initialize adb safely before the boot poll.
-            $adbInit=Start-Process -FilePath $adb -ArgumentList @('start-server') -PassThru -Wait -NoNewWindow -RedirectStandardOutput (Join-Path $logs 'adb-start.stdout.txt') -RedirectStandardError (Join-Path $logs 'adb-start.stderr.txt')
+            $adbInit=Start-Process -FilePath $adb -ArgumentList @('start-server') -PassThru -NoNewWindow -RedirectStandardOutput (Join-Path $logs 'adb-start.stdout.txt') -RedirectStandardError (Join-Path $logs 'adb-start.stderr.txt')
+            if(!$adbInit.WaitForExit(12000)){
+              Stop-Process -Id $adbInit.Id -Force -ErrorAction SilentlyContinue
+              throw 'ADB_START_SERVER_HUNG_ON_BRELGA_12S'
+            }
             if($adbInit.ExitCode -ne 0){throw "ADB_START_SERVER_FAILED=$($adbInit.ExitCode)"}
             # The emulator startup log below records accelerator failures.
             # Avoid invoking -accel-check via PowerShell native stderr under Stop.
@@ -130,17 +134,37 @@ jobs:
             $proc=Start-Process -FilePath $emulator -ArgumentList @('-avd','PF2_R36_CI','-no-window','-no-audio','-no-snapshot-load','-no-boot-anim','-gpu','swiftshader_indirect','-no-metrics') -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
             Write-Host "R36_EMULATOR_PID=$($proc.Id)"
             $ready=$false
-            for($i=0;$i -lt 120;$i++){
-              Start-Sleep -Seconds 5
-              $prior=$ErrorActionPreference
-              $ErrorActionPreference='Continue'
-              try{$boot=(& $adb -e shell getprop sys.boot_completed 2>&1 | Out-String).Trim()}
-              finally{$ErrorActionPreference=$prior}
+            $deadline=(Get-Date).AddMinutes(8)
+            $i=0
+            while((Get-Date) -lt $deadline){
+              $psi=New-Object System.Diagnostics.ProcessStartInfo
+              $psi.FileName=$adb
+              $psi.Arguments='-e shell getprop sys.boot_completed'
+              $psi.UseShellExecute=$false
+              $psi.CreateNoWindow=$true
+              $psi.RedirectStandardOutput=$true
+              $psi.RedirectStandardError=$true
+              $poll=New-Object System.Diagnostics.Process
+              $poll.StartInfo=$psi
+              $boot='NOT_READY'
+              try{
+                [void]$poll.Start()
+                if(!$poll.WaitForExit(6000)){
+                  $poll.Kill()
+                  $boot='ADB_GETPROP_TIMEOUT'
+                }elseif($poll.ExitCode -eq 0){
+                  $boot=$poll.StandardOutput.ReadToEnd().Trim()
+                }else{
+                  $boot='ADB_EXIT_'+$poll.ExitCode
+                }
+              }finally{$poll.Dispose()}
               if($boot -eq '1'){$ready=$true;break}
               if($proc.HasExited){throw "ANDROID_EMULATOR_PROCESS_EXIT=$($proc.ExitCode)"}
-              if($i%12 -eq 0){Write-Host "R36_ANDROID_BOOT_POLL=$i result=$($boot.Substring(0,[Math]::Min(100,$boot.Length)))"}
+              if($i%4 -eq 0){Write-Host "R36_ANDROID_BOOT_POLL=$i result=$boot"}
+              Start-Sleep -Seconds 3
+              $i++
             }
-            if(!$ready){throw 'ANDROID_EMULATOR_BOOT_TIMEOUT'}
+            if(!$ready){throw 'ANDROID_EMULATOR_BOOT_TIMEOUT_8MIN_WITH_BOUNDED_ADB_POLL'}
             $apk=Join-Path $env:GITHUB_WORKSPACE 'r36-test-apk\Braseiro-Kingmaker-R36-test.apk'
             & $adb -e install -r $apk
             if($LASTEXITCODE -ne 0){throw 'R36_TEST_APK_INSTALL_FAILED'}
