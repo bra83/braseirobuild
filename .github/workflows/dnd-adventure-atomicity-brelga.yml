@@ -73,22 +73,6 @@ jobs:
           if ($disk.AvailableFreeSpace -lt 805306368) {
             throw ('BRELGA_DISK_INSUFFICIENT_AFTER_DND_SAFE_CLEAN=' + $disk.AvailableFreeSpace)
           }
-  editorial-evidence:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout exact D&D sources
-        uses: actions/checkout@v4
-        with:
-          sparse-checkout: dnd-normal/run247-mod005
-      - name: Validate editorial inventory and false-certification regressions
-        working-directory: dnd-normal/run247-mod005
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 -m unittest discover -s tools -p 'test_validate_editorial_coverage.py' -v
-          python3 tools/validate_editorial_coverage.py --json
-          echo "EDITORIAL_INVENTORY_VALID=TRUE; EDITORIAL_483_CERTIFIED=FALSE"
   focused:
     needs: disk-recovery
     permissions:
@@ -123,6 +107,18 @@ jobs:
           if ($drive.AvailableFreeSpace -lt 805306368) {
             throw ('BRELGA_INSUFFICIENT_FREE_SPACE_DND_ONLY_CLEANUP=' + $drive.AvailableFreeSpace)
           }
+      - name: Editorial proof consistency and anti-false-certification regression
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          Set-Location 'dnd-normal/run247-mod005'
+          $python=Get-Command python.exe -ErrorAction SilentlyContinue
+          if (!$python) { throw 'BRELGA_PYTHON_NOT_FOUND_FOR_EDITORIAL_GATE' }
+          & $python.Source -m unittest discover -s tools -p 'test_validate_editorial_coverage.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'EDITORIAL_ANTI_FALSE_CERTIFICATION_TEST_FAILED' }
+          & $python.Source tools/validate_editorial_coverage.py --json
+          if ($LASTEXITCODE -ne 0) { throw 'EDITORIAL_INVENTORY_INCONSISTENT' }
+          Write-Host 'EDITORIAL_INVENTORY_CHECK=PASS; EDITORIAL_COMPLETION_NOT_CLAIMED=TRUE'
       - name: Execute AdventureTransactionSafetyRobolectricTest and full regression
         shell: powershell
         run: |
@@ -140,14 +136,14 @@ jobs:
           if (!$env:ANDROID_HOME -or !(Test-Path $env:ANDROID_HOME)) { throw 'ANDROID_SDK_NOT_FOUND' }
           $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
           Set-Location 'dnd-normal/run247-mod005'
-          & .\gradlew.bat :app:testDebugUnitTest --tests com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest --no-daemon --console=plain
-          if ($LASTEXITCODE -ne 0) { throw 'FOCUSED_REGRESSION_FAILED' }
+          # One Gradle execution: focused safety cases are verified from its XML afterward.
+          # Test-only asset profile excludes one 102 MB Faerun ZIP copy; APK builds are unchanged.
+          & .\gradlew.bat :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
+          if ($LASTEXITCODE -ne 0) { throw 'FULL_SUITE_FAILED' }
           $xml='app/build/test-results/testDebugUnitTest/TEST-com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest.xml'
           if (!(Test-Path $xml)) { throw 'FOCUSED_XML_MISSING' }
           [xml]$result=Get-Content -LiteralPath $xml -Raw
           if ([int]$result.testsuite.tests -ne 6 -or [int]$result.testsuite.failures -ne 0 -or [int]$result.testsuite.errors -ne 0 -or [int]$result.testsuite.skipped -ne 0) { throw 'SIX_REQUIRED_TESTS_NOT_GREEN' }
-          & .\gradlew.bat :app:testDebugUnitTest --no-daemon --console=plain
-          if ($LASTEXITCODE -ne 0) { throw 'FULL_SUITE_FAILED' }
           # Inspecionar XMLs de TODAS as suites. Resultado do Gradle isolado não é prova suficiente.
           $reports=Get-ChildItem 'app/build/test-results/testDebugUnitTest' -Filter 'TEST-*.xml' -File
           if (!$reports -or $reports.Count -lt 1) { throw 'FULL_SUITE_XML_MISSING' }
