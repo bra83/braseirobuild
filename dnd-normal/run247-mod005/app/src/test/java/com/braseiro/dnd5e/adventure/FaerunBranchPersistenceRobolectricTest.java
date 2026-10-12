@@ -100,7 +100,7 @@ public final class FaerunBranchPersistenceRobolectricTest {
                     // the same SQLiteOpenHelper instance.
                     db.close();
                     db = null;
-                    reopened = new AppDb(context, databaseName);
+                    reopened = AppDbTestHelper.createSandbox(context, databaseName);
                     AdventureEngine resumed = new AdventureEngine(reopened, null, null);
                     JSONObject restored = resumed.loadOrStartAdventure(module, 23L);
                     assertEquals(module.getId() + ": restored node",
