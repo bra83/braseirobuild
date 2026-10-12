@@ -194,11 +194,17 @@ public final class NarrativeContentEngine {
                         for (Map.Entry<String, String> r : existing.relations.entrySet()) {
                             mergedRelations.put(r.getKey(), r.getValue());
                         }
-                        // PRESERVAÇÃO DE ESTADO VIVO: descoberta do jogador NUNCA é revertida por seed!
+                        // Descobertas do jogador jamais são revertidas durante a atualização do catálogo.
                         if (existing.discovered) {
                             discovered = true;
                             visibility = "grupo";
-                        } else if (!"secreto".equals(existing.visibility) && !"mestre".equals(existing.visibility)) {
+                        } else if ("secreto".equals(canon.visibility) || "mestre".equals(canon.visibility)) {
+                            // Sigilo editorial recém-adicionado prevalece sobre uma visibilidade pública antiga.
+                            visibility = canon.visibility;
+                        } else if ("secreto".equals(existing.visibility) || "mestre".equals(existing.visibility)) {
+                            // Nunca expor entidades antigas ainda não descobertas por simples re-seed.
+                            visibility = existing.visibility;
+                        } else {
                             visibility = existing.visibility;
                         }
                     }
