@@ -1,8 +1,79 @@
 # HANDOFF — BRASEIRO PATHFINDER 2E KINGMAKER (R36)
-**Atualização verificada:** 11/10/2026. **Escopo exclusivo:** Pathfinder 2e no modo Kingmaker.  
-**Objetivo do novo chat:** continuar a finalização real, sem reiniciar o trabalho, inventar porcentagens, chamar presença de arquivos de certificação integral ou modificar outros VTTs.
+**Atualização verificada: 12/10/2026. Escopo exclusivo: PF2e Kingmaker.**
 
-> **COMANDO IMEDIATO PARA O NOVO CHAT:** Acesse o GitHub conectado, confirme HEAD/Actions **novamente** (podem ter mudado após esta captura), leia este arquivo e os workflows, examine o resultado do emulador macOS e feche os testes reais de turnos de Reino, exércitos, guerras, persistência/backup e os desvios dos PDFs. Execute correções e gates reais em lotes completos, preserve R35, reportando commits, resultados e pendências concretas. Não responda só com plano.
+## Continuidade verificada em 12/10/2026, 19:27 UTC
+
+Esta seção supersede as datas, a ordem de reconstrução e a próxima ação do texto histórico abaixo. O objetivo completo continua aberto: semântica integral das 73 estruturas, 11 capítulos/40 partes e companheiros. Não declarar 100%, não criar APK até as implementações solicitadas estarem prontas, não atuar em outros VTTs e não alterar a R35.
+
+### Código e evidência mais recentes
+
+- Commit de código validado: `0fe8d3a129f9c47392081f196ea7c302f73a2cec`.
+- [BRELGA, run 38297432696](https://github.com/bra83/braseirobuild/actions/runs/38297432696): verify **success**, job `114971802383`.
+- Saída real: **15 testes sintéticos**, **257 verificações JVM de semântica**, **45 testes focados**, **418 testes de regressão completos** e `:app:compileDebugJavaWithJavac` aprovado.
+- `R36_ANDROID_JAVA_TYPECHECK_PASS=true`, `BUILD SUCCESSFUL in 1m 4s`.
+- Emulador **skipped**. Nenhum APK desta continuidade foi gerado ou publicado. O APK instalado anteriormente não contém estas correções. Compilação de tipos e JVM não são homologação de UI, AppDb real, três reinícios ou backup.
+- Consultar HEAD e Actions novamente antes de alterar a branch. O commit que grava esta atualização de documentação naturalmente muda HEAD; a evidência acima é do commit de código informado.
+
+### Correções executadas nesta continuidade
+
+**Estruturas e assentamentos**
+- Lotes físicos por exemplar, malha, bloco e lista de lotes; tamanho impresso, contiguidade, sobreposição, obras incompletas e escombros. Registro de posições antigas por formulário normal, sem inventar coordenadas para saves legados.
+- Foundry/Dump não compartilham bloco com Residential; Tannery admite apenas Tenement; Luxury Store precisa de Mansion/Noble Villa no mesmo bloco.
+- Lumberyard/Pier/Waterfront exigem contato físico com borda de água; Mill reduz Consumo somente pela posição registrada junto à água.
+- Streetlamps e Paved Streets por malha; Sewer uma vez por assentamento; Bridge e muros por borda, sem sobreposição.
+- Bordas de água declaradas por malha a partir de hex elegível. Assentamento insular sem ponte tem influência zero e penalidade real de Trade; construir/demolir ponte atualiza a influência salva.
+- Habitação e nível do assentamento usam blocos realmente construídos; escombros, obras e infraestrutura não contam como blocos construídos. Saves com posição desconhecida mantêm fallback explícito até organização.
+- Demolição normal com d20 real e Engenharia contra CD de Controle. Sucesso libera um lote; sucesso crítico escolhe estrutura inteira ou recuperação 1d6 de Madeira/Pedra/Minério. Falhas deixam escombros; falha crítica também +1 Unrest. Toda a estrutura perde seus efeitos no início; cada lote restante fica reservado e a mutação é transacional. Interface normal em Editar assentamento.
+- Construção pré-paga/resumo, reparos, bônus específicos, Treasury/Bank/Mint, história de efeitos de primeira construção e o catálogo numérico já integrados continuam na cadeia.
+
+**Companheiros**
+- Influência compartilhada das gêmeas; Kalikke/ Kanerah ativa controla o investimento automático de Counselor/Emissary. Persona salva como feature, escolha do grupo a partir de Influência 8.
+- Preparações passam pelo formulário normal: sono confirmado pelas horas distintas de Descansar registradas e pela duração da rotação de vigias do grupo. Não usar um acampamento encerrado sem sono registrado como prova.
+- Persona usa o dia do descanso registrado; preparações avançam 30 minutos no relógio real, dentro da mesma transação. Repetir a mesma preparação é idempotente. Não reaproveitar descanso de outro dia para nova preparação.
+- Harrim: atividade normal de acampamento, proteção +2 na CD do teste real de encontros **noturnos**, sem acumular repetições no mesmo camp. Não altera CD básica permanentemente nem concede proteção de dia.
+- Perfis com sete enredos publicados: Amiri **Blood Calling / O Chamado do Sangue**, Ekundayo **A Feast of Feasts**, Jubilost **The Inconsequent Debates**, Linzi **Treasury Trouble**, Nok-Nok **Heroes or Gods?**, Tristian **Kingdom of the Cleansed**, Valerie **Sir Fredero’s Challenge**.
+- Suplemento JSON passa de doze aventuras inventadas para sete aventuras publicadas e doze perfis. Retira ouro, itens, XP e eventos automáticos sem fonte; não reaproveita IDs falsos como prova de concluir aventuras diferentes.
+- Migração arquiva missões antigas, desativa eventos/POIs/cenas antigos e quatro marcos inventados de lealdade/redenção; preserva histórico, sem apagar ou recalcular arbitrariamente consequências já salvas.
+- Perfis descritivos não criam combatentes genéricos nem reiniciam o estado cognitivo de NPCs. Novos registros usam chaves canônicas de companheiro.
+- Editor de líderes inclui companheiros disponíveis, seleciona por tipo/ID e usa role_key, não rótulo traduzido. Bloqueia o mesmo companheiro em dois cargos via entradas NPC/companion; um herói homônimo não herda automaticamente o investimento de um companheiro.
+- Isto corrige **enredos/dados e mecânicas específicas**, não compila integralmente os encontros, mapas, tesouros, rituais, magias, runas ou todos os arcos do guia.
+
+**Campanha**
+- Mantida a correção de Candlemere/Foras/Thresholders/Pharasmins e o ritual opcional da Hélice, sem a antiga trama inventada de Nar-Voth/Sekamina.
+- Mantidos capítulos oficiais 1–11 e manifesto de 40 partes. Atlas e suplemento de companheiros não são capítulos 12/13 da campanha.
+- O suplemento conserva `chapterNumber:12` apenas como identidade legada de arquivo; metadata diz explicitamente que não é capítulo oficial.
+- Não confundir a revisão de enredo de Candlemere ou das sete aventuras com cobertura integral dos onze capítulos.
+
+### Reconstrução atual
+
+Use o workflow **`.github/workflows/pf2-r36-brelga-independent.yml`**, extraindo o ZIP canônico R35 e seguindo sua cadeia exata. A lista antiga de oito patches abaixo está incompleta para o código atual. A etapa final integra `patch_semantic_domains.py`, que compõe os módulos de estruturas, tesouraria, campanha, gêmeas, bordas, lotes, demolição, sono e liderança e copia três helpers Java. Ela também corrige os assets e contratos obsoletos de regressão.
+
+Arquivos recentes em `ci/pf2-kingmaker-r36/`:
+- `patch_grid_infrastructure.py`, `patch_twins_persona.py`, `patch_border_infrastructure.py`, `patch_lot_placement.py`, `patch_occupied_blocks.py`.
+- `patch_companion_campaign.py`, `patch_harrim_camping.py`, `patch_demolition_lots.py`, `patch_completed_camp_sleep.py`, `patch_companion_leaders.py`.
+- `semantic/companion_adventures.json`, os três helpers e `semantic/R36BookSemanticsHarness.java`.
+- `test_r36_book_fidelity.py` é um conjunto de guardas de integração; não certifica execução no telefone.
+
+O executor local desconectou durante esta continuidade. As alterações foram preservadas via GitHub e testadas no BRELGA. Não perder tempo repetindo exec_command offline: ferramentas conectadas de GitHub e Drive continuam suficientes para ler fontes, enviar código e obter CI. O snapshot `ci/pf2-r36-source-inspection/` é **antigo** e serve para âncoras; não é o código Android completo mais recente.
+
+Os PDFs corretos podem ser lidos integralmente como texto com o fetch do Drive em modo padrão, sem download local: principal ~2,47 milhões de caracteres; Companion Guide ~532 mil. Não gravar URLs de download com credenciais em repositório, workflow ou logs.
+
+### Próximas correções concretas
+
+1. Crescimento Village→Town→City→Metropolis e malhas adicionais precisa dos predicados espaciais do livro p.541 e transição no momento correto de Build Structure. O fluxo administrativo legado ainda usa totais agregados. Village cheio: próximo bloco adjacente, Reino 3; Town: dois lotes em **cada um** dos quatro blocos, Reino 9; City: dois lotes em cada bloco antes de outra malha, Reino 15. Não conceder milestone de promoção só por editar categoria.
+2. Upgrades físicos/custos: custo realmente usado no exemplar, despesas alternativas e construções gratuitas; diferença de RP/commodities, lotes adicionais no mesmo bloco, substituição de efeitos somente ao concluir. Não usar custo de catálogo como prova de pagamento anterior. Conferir diferenças negativas publicadas, inclusive Academy→Military Academy e Wooden Wall→Stone Wall.
+3. Museum: transferência de item real nível 6+, relevância aprovada pelo Mestre, Unrest −1 por doação/+1 por retirada. Menagerie: captura/transporte reais, criatura 6+, Reino >= criatura+4, Fame/Infamy ou Ruin, Unrest por sapientes a cada início de turno. Exigem inventário/ledger de propriedade real; equipment atual é texto livre.
+4. PC checks/shops: ligar bônus de estruturas e níveis de itens ao contexto e fluxo de jogo reais, respeitando tipos de bônus. Paved Streets: movimento e relógio. Town Hall/Castle/Palace: quotas por líder PC; Palace/Ruler +3 em todas Leadership checks; Relocate Capital e transformação em uma única Noble Villa de quatro lotes.
+5. Companheiros: New Leadership com grau melhorado nos cargos publicados, Jaethal/Famous +1d3 Unrest, atividades especiais de líderes, magias/runas/itens, demais atividades de camping, separação das gêmeas, janelas de história e aventuras completas. Horas de sono confirmadas não equivalem a aplicação integral de cura, magias, foco ou condições nas fichas.
+6. Legados: revisar possíveis duplicatas npc_* vs chaves canônicas e personal_quest_status vindo de arcos inventados; não somar Influência, apagar decisões ou considerar esse status prova de completar outra aventura. Manter histórico separado e identidade verificável.
+7. Campanha: confronto real de cada uma das 40 partes, ramificações, encontros, mapas, tesouros e consequências; Cap.1 ainda precisa dos encontros físicos da Mansão Aldori. As sete aventuras do suplemento não têm seus encontros/recompensas automáticos compilados, e não confundir sua presença em JSON com progressão completa no Solo.
+8. Hélice: bônus +4 de status contra teletransporte/banimento para IDs presentes na Casa na Margem do Tempo ainda precisa se ligar a saving throws reais.
+9. Revisar APIs administrativas antigas de demolição/reparo e quaisquer rotas que ainda possam contornar os resolvedores oficiais. As rotas normais novas e resolveKingdomActivity usam demolição por lote; não chamar a remoção administrativa antiga de atividade oficial.
+10. Depois das implementações, compilar um snapshot fixo e fazer Android real, AppDb com dados não vazios, três reinícios, export/import/backup, guerras e consequências. Não gerar APK antecipadamente. Não transformar resultado JVM/source contract em homologação desses gates.
+
+---
+
+## Registro histórico de 11/10/2026 — preservado, não usar como status atual
 
 ## 1. Fonte de verdade — repositório, branch, baseline
 - Repositório: https://github.com/bra83/braseirobuild
