@@ -1,0 +1,1112 @@
+{
+  "schema": "braseiro-pathfinder2e-chapter-v1",
+  "chapter_key": "chapter_08_they_lurk_below",
+  "chapterKey": "chapter_08_they_lurk_below",
+  "chapter_number": 8,
+  "chapterNumber": 8,
+  "title": "Eles Espreitam Abaixo: As Profundezas das Terras Sombrias",
+  "locale": "pt-BR",
+  "level_min": 14,
+  "levelMin": 14,
+  "level_max": 16,
+  "levelMax": 16,
+  "summary": "Enquanto a Baronia comemora o triunfo sobre os tiranos da superfície, abalos sísmicos catastróficos e fendas titânicas rompem a crosta sob as Terras Roubadas, ameaçando engolir cidades inteiras no abismo. Criaturas pálidas e aberrações inimagináveis das profundezas inexploradas das Terras Sombrias (Darklands) — especificamente dos estratos esquecidos de Nar-Voth e Sekamina — emergem à superfície, sequestrando batedores e espalhando miasmas necróticos. Investigações geológicas e místicas revelam que âncoras planares abissais foram cravadas sob a terra pela ninfa Nyrissa, canalizando distorções da realidade entre o Primeiro Mundo e os abismos subterrâneos para fraturar os pilares tectônicos da civilização. Os heróis precisam descer às entranhas do mundo com engenheiros anões, navegar por cavernas de fungos fluorescentes e abismos gravitacionais, enfrentar conclaves de devoradores de mentes e aberrações de tentáculos e despedaçar as âncoras abissais para salvar as fundações de seu reino.",
+  "quests": [
+    {
+      "quest_key": "q_terras_sombrias",
+      "questKey": "q_terras_sombrias",
+      "title": "Expedição às Profundezas de Nar-Voth",
+      "status": "unstarted",
+      "stage": "descida_abismo",
+      "objective": "Descer pela grande fenda de Nar-Voth, estabelecer uma base avançada subterrânea e mapear os túneis infestados por horrores subterrâneos.",
+      "stakes": "Se o estrato de Nar-Voth não for pacificado e fortificado, colunas de aberrações continuarão invadindo a capital através das redes de esgoto.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 450,
+      "milestoneXp": 450,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_som_1",
+          "desc": "Conduzir a comitiva pelas vertiginosas galerias de calcário de Nar-Voth até a borda do abismo",
+          "description": "Conduzir a comitiva pelas vertiginosas galerias de calcário de Nar-Voth até a borda do abismo",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_som_2",
+          "desc": "Auxiliar o engenheiro Torund Martelo-de-Mina a erguer barricadas e fortificações no posto anão subterrâneo",
+          "description": "Auxiliar o engenheiro Torund Martelo-de-Mina a erguer barricadas e fortificações no posto anão subterrâneo",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_som_3",
+          "desc": "Repelir o ataque surpresa de espreitadores das trevas nas cavernas de fungos luminescentes",
+          "description": "Repelir o ataque surpresa de espreitadores das trevas nas cavernas de fungos luminescentes",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 2500,
+        "xp": 450,
+        "items": [
+          "lanterna_eterna_de_nar_voth",
+          "picareta_runica_de_mithral",
+          "mapa_das_galerias_sombrias"
+        ]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_brecha_sekamina",
+      "questKey": "q_brecha_sekamina",
+      "title": "A Contenção da Brecha de Sekamina",
+      "status": "unstarted",
+      "stage": "avanco_sekamina",
+      "objective": "Penetrar o estrato intermediário de Sekamina, cruzar pontes suspensas sobre rios de magma e fechar a brecha que despeja aberrações milenares.",
+      "stakes": "A ruptura completa da abóbada de Sekamina causará colapso tectônico sobre todas as cadeias montanhosas do sul.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 500,
+      "milestoneXp": 500,
+      "prerequisites": [
+        "q_terras_sombrias"
+      ],
+      "objectives": [
+        {
+          "id": "obj_sek_1",
+          "desc": "Atravessar a ponte suspensa sobre o vácuo de Sekamina esquivando-se de rajadas gravitacionais",
+          "description": "Atravessar a ponte suspensa sobre o vácuo de Sekamina esquivando-se de rajadas gravitacionais",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_sek_2",
+          "desc": "Derrotar o titânico Verme Púrpuro das Profundezas que perfura as paredes da caverna",
+          "description": "Derrotar o titânico Verme Púrpuro das Profundezas que perfura as paredes da caverna",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_sek_3",
+          "desc": "Selar a brecha com runas de contenção elemental junto ao mestre da pedra Brakan",
+          "description": "Selar a brecha com runas de contenção elemental junto ao mestre da pedra Brakan",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 4000,
+        "xp": 500,
+        "items": [
+          "placas_de_quitina_do_verme_purpuro",
+          "anel_de_imunidade_a_gravidade"
+        ]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_ancoras_abissais",
+      "questKey": "q_ancoras_abissais",
+      "title": "O Rompimento das Âncoras Planares Abissais",
+      "status": "unstarted",
+      "stage": "destruicao_monolitos",
+      "objective": "Localizar o santuário das raízes abissais, derrotar os guardiões feéricos corrompidos e despedaçar os três monólitos de basalto negro que ancoram o cataclismo.",
+      "stakes": "As âncoras fundirão o plano material ao abismo primordial de Nyrissa, transformando a região em um ermo de pesadelos eternos.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 600,
+      "milestoneXp": 600,
+      "prerequisites": [
+        "q_brecha_sekamina"
+      ],
+      "objectives": [
+        {
+          "id": "obj_anc_1",
+          "desc": "Infiltrar a câmara selada onde as raízes do Primeiro Mundo se fundem a rochas vulcânicas",
+          "description": "Infiltrar a câmara selada onde as raízes do Primeiro Mundo se fundem a rochas vulcânicas",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_anc_2",
+          "desc": "Desativar os vórtices gravitacionais e as zonas de trevas necróticas que protegem os monólitos",
+          "description": "Desativar os vórtices gravitacionais e as zonas de trevas necróticas que protegem os monólitos",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_anc_3",
+          "desc": "Fragmentar os monólitos utilizando armas adamantinas ou feitiços de banimento planar",
+          "description": "Fragmentar os monólitos utilizando armas adamantinas ou feitiços de banimento planar",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 6000,
+        "xp": 600,
+        "items": [
+          "fragmento_de_basalto_abissal_purificado",
+          "cetro_de_estabilidade_planar"
+        ]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_aberracoes_subterraneas",
+      "questKey": "q_aberracoes_subterraneas",
+      "title": "O Flagelo das Profundezas de Candlemere: Foras e os Thresholders de Yog-Sothoth",
+      "status": "unstarted",
+      "stage": "cacada_conclave",
+      "objective": "Investigar o complexo subterraneo sob a Ilha de Candlemere, confrontar o culto dos Thresholders liderado por Foras e impedir a manifestacao aberrante de Yog-Sothoth.",
+      "stakes": "Se o portal do vazio primordial nao for selado, horrores inimaginaveis de Yog-Sothoth consumirao a realidade das Terras Roubadas.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 400,
+      "milestoneXp": 400,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_abe_1",
+          "desc": "Resistir às rajadas psíquicas emitidas pela matriz de cristais ressoantes nas cavernas altas",
+          "description": "Resistir às rajadas psíquicas emitidas pela matriz de cristais ressoantes nas cavernas altas",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_abe_2",
+          "desc": "Confrontar o lorde aberrante Xur'Krag e aniquilar seu conclave de horrores tentaculares",
+          "description": "Confrontar o lorde aberrante Xur'Krag e aniquilar seu conclave de horrores tentaculares",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_abe_3",
+          "desc": "Libertar os prisioneiros catatônicos e administrar elixires restauradores de sanidade",
+          "description": "Libertar os prisioneiros catatônicos e administrar elixires restauradores de sanidade",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 3000,
+        "xp": 400,
+        "items": [
+          "diadema_de_blindagem_psiquica",
+          "cristais_psionicos_lapidados"
+        ]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_terremoto_da_capital",
+      "questKey": "q_terremoto_da_capital",
+      "title": "A Estabilização Tectônica das Fundações do Reino",
+      "status": "unstarted",
+      "stage": "reforco_estrutural",
+      "objective": "Trabalhar em conjunto com os sapadores anões e clérigos de Torag para reforçar as falhas geológicas sob a cidade real antes do próximo abalo.",
+      "stakes": "O castelo real, muralhas e templos da capital desabarão em fendas gigantescas se as fundações cederem.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 350,
+      "milestoneXp": 350,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_ter_1",
+          "desc": "Inspecionar os alicerces subterrâneos das muralhas e identificar fraturas de estresse de rocha",
+          "description": "Inspecionar os alicerces subterrâneos das muralhas e identificar fraturas de estresse de rocha",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_ter_2",
+          "desc": "Injetar argamassa alquímica de endurecimento instantâneo e estacas de aço nas falhas geológicas",
+          "description": "Injetar argamassa alquímica de endurecimento instantâneo e estacas de aço nas falhas geológicas",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 1500,
+        "xp": 350,
+        "items": [
+          "martelo_de_engenharia_runica",
+          "estacas_geologicas_de_adamante"
+        ]
+      },
+      "progress_json": {}
+    }
+  ],
+  "hazards": [
+    {
+      "hazard_key": "hazard_fenda_abissal_gravitacional",
+      "hazardKey": "hazard_fenda_abissal_gravitacional",
+      "name": "Fenda Abissal de Gravidade Invertida",
+      "level": 14,
+      "traits": [
+        "complexo",
+        "magico",
+        "planar"
+      ],
+      "stealth_dc": 35,
+      "stealthDc": 35,
+      "perception_dc": 35,
+      "perceptionDc": 35,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 34,
+      "savingThrowDc": 34,
+      "disable_skills": [
+        {
+          "skill": "Arcanismo",
+          "dc": 35,
+          "proficiency": "mestre",
+          "description": "Fechar a distorção no tecido do espaço reancorando as linhas de éter planar"
+        },
+        {
+          "skill": "Ocultismo",
+          "dc": 35,
+          "proficiency": "mestre",
+          "description": "Entoar frequências harmônicas que neutralizam o vórtice de vácuo primordial"
+        }
+      ],
+      "routine_actions": 2,
+      "routineActions": 2,
+      "hazard_type": "magico",
+      "complexity": "complexo",
+      "ac": 34,
+      "hardness": 20,
+      "hp": 110,
+      "bt": 55,
+      "reaction": "Desperta ao detectar a presença de campos gravitacionais naturais no raio de 12 metros.",
+      "reset": "Não se rearma se o nexo arcano for dissipado.",
+      "xp": 180,
+      "description": "Uma rasgadura luminosa e vertiginosa na pedra que projeta luz negra, invertendo a gravidade e sugando criaturas contra o teto e o vazio abissal.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Inversão Gravitacional Violenta",
+          "description": "Lança criaturas 15 metros para o teto da caverna causando 6d6 de dano de impacto e deixando alvos caídos (CD 34 de Reflexos)."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Pulso de Força Esmagador",
+          "description": "Emite onda gravitacional planar de força concentrada causando 4d10+10 de dano de força em área de 9 metros."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_zona_escuridao_necrotica",
+      "hazardKey": "hazard_zona_escuridao_necrotica",
+      "name": "Zona de Escuridão Necrótica Asfixiante",
+      "level": 15,
+      "traits": [
+        "complexo",
+        "magico",
+        "sombra",
+        "necromancia"
+      ],
+      "stealth_dc": 36,
+      "stealthDc": 36,
+      "perception_dc": 36,
+      "perceptionDc": 36,
+      "saving_throw_type": "Fortitude",
+      "savingThrowType": "Fortitude",
+      "saving_throw_dc": 35,
+      "savingThrowDc": 35,
+      "disable_skills": [
+        {
+          "skill": "Religião",
+          "dc": 36,
+          "proficiency": "mestre",
+          "description": "Canalizar energia radiante sagrada para banir a escuridão sobrenatural condensada"
+        },
+        {
+          "skill": "Ocultismo",
+          "dc": 36,
+          "proficiency": "mestre",
+          "description": "Dissipar os filamentos de sombra viva que alimentam a poça de vácuo"
+        }
+      ],
+      "routine_actions": 2,
+      "routineActions": 2,
+      "hazard_type": "magico",
+      "complexity": "complexo",
+      "ac": 35,
+      "hardness": 22,
+      "hp": 120,
+      "bt": 60,
+      "reaction": "Engole o ambiente quando tochas ou magias de luz são aproximadas do poço de sombras.",
+      "reset": "Recarrega após 24 horas alimentando-se da escuridão natural das profundezas.",
+      "xp": 200,
+      "description": "Uma nuvem impenetrável de negrura sobrenatural e frio absoluto onde a luz não brilha e a respiração transforma-se em cinzas.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Frio Gélido do Vazio",
+          "description": "Causa 5d8 de dano de frio e impõe a condição enfraquecido 2 em falha no teste de Fortitude (CD 35)."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Sufocamento Necrótico",
+          "description": "Drena o ar dos pulmões causando 4d8 de dano de vitalidade negativa e condição lento 1."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_terremoto_primordial",
+      "hazardKey": "hazard_terremoto_primordial",
+      "name": "Cataclismo de Realidade Tectônica Primordial",
+      "level": 15,
+      "traits": [
+        "complexo",
+        "ambiental",
+        "terra"
+      ],
+      "stealth_dc": 35,
+      "stealthDc": 35,
+      "perception_dc": 35,
+      "perceptionDc": 35,
+      "saving_throw_type": "Fortitude",
+      "savingThrowType": "Fortitude",
+      "saving_throw_dc": 36,
+      "savingThrowDc": 36,
+      "disable_skills": [
+        {
+          "skill": "Natureza",
+          "dc": 36,
+          "proficiency": "mestre",
+          "description": "Acalmar as placas tectônicas sintonizando com o espírito elemental adormecido da montanha"
+        },
+        {
+          "skill": "Atletismo",
+          "dc": 36,
+          "proficiency": "lendario",
+          "description": "Cunhar escoras maciças de titânio nos pontos nodulares de tensão geológica"
+        }
+      ],
+      "routine_actions": 2,
+      "routineActions": 2,
+      "hazard_type": "ambiental",
+      "complexity": "complexo",
+      "ac": 36,
+      "hardness": 25,
+      "hp": 135,
+      "bt": 67,
+      "reaction": "Inicia quando os monólitos abissais canalizam pulso de choque tectônico.",
+      "reset": "Cessa após o rompimento das âncoras abissais.",
+      "xp": 200,
+      "description": "Tremores titânicos que despedaçam tetos rochosos, abrem fendas de lava subterrânea e colapsam galerias inteiras.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Desabamento de Estalactites Gigantes",
+          "description": "Espigões colossais de pedra despencam causando 6d10 de dano perfurante e de concussão (CD 36 de Reflexos para meio dano)."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Fissura de Lava Expelida",
+          "description": "O chão racha liberando jatos magmáticos que causam 4d12 de dano de fogo e deixam terreno perigoso."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_cristais_psiquicos_ressoantes",
+      "hazardKey": "hazard_cristais_psiquicos_ressoantes",
+      "name": "Matriz de Cristais Psíquicos Devoradores de Sanidade",
+      "level": 14,
+      "traits": [
+        "simples",
+        "magico",
+        "mental"
+      ],
+      "stealth_dc": 34,
+      "stealthDc": 34,
+      "perception_dc": 34,
+      "perceptionDc": 34,
+      "saving_throw_type": "Vontade",
+      "savingThrowType": "Vontade",
+      "saving_throw_dc": 35,
+      "savingThrowDc": 35,
+      "disable_skills": [
+        {
+          "skill": "Ocultismo",
+          "dc": 34,
+          "proficiency": "mestre",
+          "description": "Interferir na ressonância telepática dos cristais através de foco mental disciplinado"
+        },
+        {
+          "skill": "Ladroagem",
+          "dc": 34,
+          "proficiency": "mestre",
+          "description": "Deslocar o cristal mestre de sua matriz sem disparar a reverberação sônica"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "armadilha",
+      "complexity": "simples",
+      "ac": 33,
+      "hardness": 16,
+      "hp": 75,
+      "bt": 37,
+      "reaction": "Dispara quando qualquer criatura senciente pensa intencionalmente a menos de 10 metros da matriz.",
+      "reset": "Reinicia após 10 minutos acumulando estática de pensamentos.",
+      "xp": 120,
+      "description": "Cacho de geodos de ametista púrpura pulsante que vibram em alta frequência, transmitindo dores agudas diretamente no cérebro.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Grito Psíquico Lacerante",
+          "description": "Causa 6d8 de dano mental e condição atordoado 1 em falha no teste de Vontade (CD 35)."
+        }
+      ]
+    }
+  ],
+  "pois": [
+    {
+      "poi_key": "poi_fossa_de_nar_voth",
+      "poiKey": "poi_fossa_de_nar_voth",
+      "poi_id": "poi_fossa_de_nar_voth",
+      "poiId": "poi_fossa_de_nar_voth",
+      "campaign_key": "chapter_08_they_lurk_below",
+      "campaignKey": "chapter_08_they_lurk_below",
+      "map_id": "stolen_lands",
+      "name": "Grande Abismo de Nar-Voth",
+      "name_key": "grande_abismo_de_nar_voth",
+      "type": "dungeon",
+      "hex_id": "H_NAR_VOTH",
+      "hexId": "H_NAR_VOTH",
+      "location_id": "loc_nar_voth",
+      "q": -1,
+      "r": 3,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Monstruosa garganta subterrânea que desce em espiral por quilômetros na crosta da terra, servindo como portal de entrada para o estrato superior das Terras Sombrias.",
+      "tags": [
+        "dungeon",
+        "darklands",
+        "nar_voth",
+        "abismo"
+      ],
+      "development_level": 3,
+      "icon": "🕳️",
+      "notes": "Ponto de partida da expedição às profundezas."
+    },
+    {
+      "poi_key": "poi_abobada_de_sekamina",
+      "poiKey": "poi_abobada_de_sekamina",
+      "poi_id": "poi_abobada_de_sekamina",
+      "poiId": "poi_abobada_de_sekamina",
+      "campaign_key": "chapter_08_they_lurk_below",
+      "campaignKey": "chapter_08_they_lurk_below",
+      "map_id": "stolen_lands",
+      "name": "Abóbada Negra de Sekamina",
+      "name_key": "abobada_negra_de_sekamina",
+      "type": "dungeon",
+      "hex_id": "H_SEKAMINA_VAULT",
+      "hexId": "H_SEKAMINA_VAULT",
+      "location_id": "loc_sekamina_vault",
+      "q": -2,
+      "r": 3,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Caverna de dimensões continentais situada nos estratos profundos de Sekamina, onde cidades abandonadas de civilizações subterrâneas repousam sob rios de fogo.",
+      "tags": [
+        "dungeon",
+        "sekamina",
+        "darklands",
+        "climax"
+      ],
+      "development_level": 4,
+      "icon": "🌋",
+      "notes": "Palco do avanço e contenção da brecha profunda."
+    },
+    {
+      "poi_key": "poi_fenda_abissal_raiz",
+      "poiKey": "poi_fenda_abissal_raiz",
+      "poi_id": "poi_fenda_abissal_raiz",
+      "poiId": "poi_fenda_abissal_raiz",
+      "campaign_key": "chapter_08_they_lurk_below",
+      "campaignKey": "chapter_08_they_lurk_below",
+      "map_id": "stolen_lands",
+      "name": "Fenda das Raízes Abissais do Primeiro Mundo",
+      "name_key": "fenda_das_raizes_abissais_do_primeiro_mundo",
+      "type": "landmark",
+      "hex_id": "H_ABYSSAL_FISSURE",
+      "hexId": "H_ABYSSAL_FISSURE",
+      "location_id": "loc_abyssal_fissure",
+      "q": 0,
+      "r": 2,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Fissura cósmica onde enormes raízes esmeraldas do Primeiro Mundo perfuram o basalto negro subterrâneo, ancoradas por monólitos que desafiam as leis naturais.",
+      "tags": [
+        "fenda",
+        "planar",
+        "ancoras",
+        "nyrissa"
+      ],
+      "development_level": 2,
+      "icon": "🌀",
+      "notes": "Santuário das âncoras planares de Nyrissa."
+    },
+    {
+      "poi_key": "poi_posto_subterraneo_batedores",
+      "poiKey": "poi_posto_subterraneo_batedores",
+      "poi_id": "poi_posto_subterraneo_batedores",
+      "poiId": "poi_posto_subterraneo_batedores",
+      "campaign_key": "chapter_08_they_lurk_below",
+      "campaignKey": "chapter_08_they_lurk_below",
+      "map_id": "stolen_lands",
+      "name": "Posto Avançado Subterrâneo dos Anões de Golarion",
+      "name_key": "posto_avancado_subterraneo_dos_anoes_de_golarion",
+      "type": "refuge",
+      "hex_id": "H_UNDERGROUND_POST",
+      "hexId": "H_UNDERGROUND_POST",
+      "location_id": "loc_underground_post",
+      "q": -1,
+      "r": 4,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Fortificação encravada na rocha construída pela companhia de engenharia anã, protegida por grades de ferro e forjas de campanha.",
+      "tags": [
+        "anoes",
+        "refugio",
+        "posto_avancado",
+        "engenharia"
+      ],
+      "development_level": 2,
+      "icon": "⛏️",
+      "notes": "Base operacional e hospital de campanha para a expedição subterrânea."
+    },
+    {
+      "poi_key": "poi_geodo_fungico_luminescente",
+      "poiKey": "poi_geodo_fungico_luminescente",
+      "poi_id": "poi_geodo_fungico_luminescente",
+      "poiId": "poi_geodo_fungico_luminescente",
+      "campaign_key": "chapter_08_they_lurk_below",
+      "campaignKey": "chapter_08_they_lurk_below",
+      "map_id": "stolen_lands",
+      "name": "Geodo Titânico de Fungos Luminescentes",
+      "name_key": "geodo_titanico_de_fungos_luminescentes",
+      "type": "resource_site",
+      "hex_id": "H_FUNGAL_GEODE",
+      "hexId": "H_FUNGAL_GEODE",
+      "location_id": "loc_fungal_geode",
+      "q": -2,
+      "r": 4,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Esplêndida caverna esférica forrada de cristais de quartzo e cogumelos colossais bioluminescentes que emitem luz azulada e esporos medicinais.",
+      "tags": [
+        "fungos",
+        "recursos",
+        "geodo",
+        "bioluminescencia"
+      ],
+      "development_level": 1,
+      "icon": "🍄",
+      "notes": "Fonte botânica de antídotos e reagentes de poções de cura profunda."
+    }
+  ],
+  "npcs": [
+    {
+      "npc_key": "npc_lorde_aberrante_xulgath",
+      "npcKey": "npc_lorde_aberrante_xulgath",
+      "stable_id": "npc_lorde_aberrante_xulgath",
+      "stableId": "npc_lorde_aberrante_xulgath",
+      "name": "Xur'Krag, o Olho das Profundezas",
+      "summary": "Tirano aberrante com múltiplos tentáculos oculares e inteligência alienígena superior, líder do conclave de criaturas de Sekamina.",
+      "goals": "Escravizar a superfície e nutrir os ovos de sua ninhada cósmica com as mentes dos governantes mortais.",
+      "secrets": "Aceitou pacto com a ninfa Nyrissa em troca de portais que concederiam à sua raça o domínio do continente.",
+      "attitude": "hostil",
+      "relationship": "Mente mestre das aberrações subterrâneas",
+      "knowledge": "Poderes psíquicos devastadores, geografia oculta das Darklands e anatomia alienígena.",
+      "debts": "Nenhuma.",
+      "last_seen": "Santuário dos Monólitos Negros Abissais",
+      "hex_id": "H_SEKAMINA_VAULT",
+      "hexId": "H_SEKAMINA_VAULT",
+      "faction": "Conclave das Aberrações das Terras Sombrias",
+      "token_uri": "tokens/xurkrag.png",
+      "visual_description": "Massa grotesca de carne elástica cinzenta com quatro tentáculos compridos terminando em olhos vorazes e mandíbula circular quitinosa.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "Seus cérebros frágeis queimam como velas ao vento... O mundo de cima pertence agora ao abismo sem luz!",
+          "topic": "loucura_psiquica",
+          "quest_key": "q_aberracoes_subterraneas"
+        }
+      ],
+      "stats": {
+        "hp": 240,
+        "max_hp": 240,
+        "ac": 35,
+        "perception": 26
+      }
+    },
+    {
+      "npc_key": "npc_engenheiro_anao_torund",
+      "npcKey": "npc_engenheiro_anao_torund",
+      "stable_id": "npc_engenheiro_anao_torund",
+      "stableId": "npc_engenheiro_anao_torund",
+      "name": "Torund Martelo-de-Mina",
+      "summary": "Mestre de engenharia militar anã e veterano de incontáveis campanhas subterrâneas contra horrores de Nar-Voth.",
+      "goals": "Manter a integridade física das galerias, proteger os heróis contra soterramentos e expurgar a escória aberrante.",
+      "secrets": "Perdeu seu antigo clã em um ataque surpresa de devoradores de mentes e jurou vingança perpétua.",
+      "attitude": "amistoso",
+      "relationship": "Engenheiro chefe e estrategista das profundezas",
+      "knowledge": "Engenharia de minas, escoramento tectônico e pontos fracos de monstruosidades de quitina.",
+      "debts": "Fornece maquinário pesado de perfuração e explosivos alquímicos para romper barricadas.",
+      "last_seen": "Posto Avançado Subterrâneo dos Anões",
+      "hex_id": "H_UNDERGROUND_POST",
+      "hexId": "H_UNDERGROUND_POST",
+      "faction": "Companhia Real de Sapadores e Engenharia Anã",
+      "token_uri": "tokens/torund.png",
+      "visual_description": "Anão atarracado de barba ruiva trançada presa ao cinto de ferramentas, óculos de proteção de cristal e martelo de adamante nos ombros.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "amistoso",
+          "text": "A pedra fala quando está para quebrar, majestade! Estas fendas não são naturais; alguém está forçando a montanha com magia negra. Temos que cravar nossas escoras já!",
+          "topic": "engenharia_de_crise",
+          "quest_key": "q_terras_sombrias"
+        },
+        {
+          "attitude_req": "prestativo",
+          "text": "Minhas forjas estão prontas. Se vocês abrirem caminho até os monólitos, meus sapadores garantirão que a caverna não desabe em cima de nós!",
+          "topic": "plano_de_assalto",
+          "quest_key": "q_ancoras_abissais"
+        }
+      ],
+      "stats": {
+        "hp": 160,
+        "max_hp": 160,
+        "ac": 33,
+        "perception": 24
+      }
+    },
+    {
+      "npc_key": "npc_sacerdotisa_sombra_nyvea",
+      "npcKey": "npc_sacerdotisa_sombra_nyvea",
+      "stable_id": "npc_sacerdotisa_sombra_nyvea",
+      "stableId": "npc_sacerdotisa_sombra_nyvea",
+      "name": "Nyvea, a Tecedora de Sombras",
+      "summary": "Mística eremita das profundezas que viveu isolada por décadas nas cavernas de fungos, conhecedora das correntes de sombra e éter.",
+      "goals": "Preservar o equilíbrio entre o mundo da luz e o reino subterrâneo, impedindo que o vácuo devore ambos.",
+      "secrets": "Conhece as palavras exatas de dispersão que desativam os vórtices de gravidade invertida.",
+      "attitude": "indiferente",
+      "relationship": "Guia esotérica das trevas e sábia subterrânea",
+      "knowledge": "Trilhas invisíveis de Sekamina, biologia de fungos luminescentes e exorcismo de sombras.",
+      "debts": "Ensina rituais de proteção contra dano necrótico e frio planar.",
+      "last_seen": "Geodo Titânico de Fungos Luminescentes",
+      "hex_id": "H_FUNGAL_GEODE",
+      "hexId": "H_FUNGAL_GEODE",
+      "faction": "Eremitas Guardiões do Subterrâneo",
+      "token_uri": "tokens/nyvea.png",
+      "visual_description": "Mulher esguia e pálida de cabelos brancos longos, olhos leitosos adaptados à escuridão e manto tecido com fios de fungos brilhantes.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "indiferente",
+          "text": "Vocês trazem o fogo da superfície para um lugar onde a luz queima... Mas se desejam conter a podridão de Nyrissa, eu guiarei seus passos até as raízes.",
+          "topic": "sabedoria_sombria",
+          "quest_key": "q_ancoras_abissais"
+        }
+      ],
+      "stats": {
+        "hp": 115,
+        "max_hp": 115,
+        "ac": 31,
+        "perception": 25
+      }
+    },
+    {
+      "npc_key": "npc_guardiao_pedra_brakan",
+      "npcKey": "npc_guardiao_pedra_brakan",
+      "stable_id": "npc_guardiao_pedra_brakan",
+      "stableId": "npc_guardiao_pedra_brakan",
+      "name": "Brakan do Granito",
+      "summary": "Elementalista mestre convocado para canalizar a magia da terra e estabilizar os leitos rochosos sob as cidades da Baronia.",
+      "goals": "Suturar as feridas tectônicas e fechar os canais de magma expelidos pelas fendas abissais.",
+      "secrets": "Percebeu que a crosta terrestre foi enfraquecida por rituais antigos que remontam à era de Ghol-Gan.",
+      "attitude": "amistoso",
+      "relationship": "Mago elemental de terra aliado",
+      "knowledge": "Litomancia avançada, detecção de falhas geológicas e encantamentos de fortificação mineral.",
+      "debts": "Realiza o rito de selamento permanente da brecha de Sekamina.",
+      "last_seen": "Posto Avançado Subterrâneo dos Anões",
+      "hex_id": "H_UNDERGROUND_POST",
+      "hexId": "H_UNDERGROUND_POST",
+      "faction": "Companhia Real de Sapadores e Engenharia Anã",
+      "token_uri": "tokens/brakan.png",
+      "visual_description": "Oread de pele acinzentada com incrustações de cristal nas têmporas, cajado de basalto esculpido e túnica de couro endurecido.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "amistoso",
+          "text": "A rocha geme de dor sob o peso destas âncoras... Destruam os monólitos e eu farei o granito se fechar como uma cicatriz eterna!",
+          "topic": "pacto_da_terra",
+          "quest_key": "q_brecha_sekamina"
+        }
+      ],
+      "stats": {
+        "hp": 130,
+        "max_hp": 130,
+        "ac": 32,
+        "perception": 23
+      }
+    },
+    {
+      "npc_key": "npc_explorador_subterraneo_valin",
+      "npcKey": "npc_explorador_subterraneo_valin",
+      "stable_id": "npc_explorador_subterraneo_valin",
+      "stableId": "npc_explorador_subterraneo_valin",
+      "name": "Valin Pé-de-Musgo",
+      "summary": "Batedor goblin engenhoso e sobrevivente experiente que conhece cada fresta e passagem secreta dos estratos de Nar-Voth.",
+      "goals": "Ganhar recompensas em ouro, provar que goblins são os melhores batedores e coletar cogumelos raros.",
+      "secrets": "Roubou uma chave de prata gravada com rosas feéricas do corpo de um mensageiro morto no abismo.",
+      "attitude": "prestativo",
+      "relationship": "Batedor explorador e informante leal",
+      "knowledge": "Rotas de fuga seguras, localização de armadilhas de esporos e esconderijos de monstros.",
+      "debts": "Guia os heróis diretamente pelas passagens secretas sem acionar emboscadas.",
+      "last_seen": "Grande Abismo de Nar-Voth",
+      "hex_id": "H_NAR_VOTH",
+      "hexId": "H_NAR_VOTH",
+      "faction": "Eremitas Guardiões do Subterrâneo",
+      "token_uri": "tokens/valin.png",
+      "visual_description": "Goblin pequeno de olhos grandes e amarelos, colete de couro salpicado de musgo fosforescente e cinto cheio de frascos de cogumelos.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "prestativo",
+          "text": "Valin sabe por onde pisar! Grandes guerreiros fazem muito barulho clanc-clanc e acordam os bichos de tentáculos! Sigam o Valin se quiserem ficar vivos!",
+          "topic": "trilha_segura",
+          "quest_key": "q_terras_sombrias"
+        }
+      ],
+      "stats": {
+        "hp": 85,
+        "max_hp": 85,
+        "ac": 30,
+        "perception": 25
+      }
+    }
+  ],
+  "scenes": [
+    {
+      "scene_key": "scene_abismo_sekamina_ponte",
+      "sceneKey": "scene_abismo_sekamina_ponte",
+      "title": "Ponte Suspensa sobre o Vazio de Sekamina",
+      "location": "Abóbada Negra de Sekamina",
+      "hex_id": "H_SEKAMINA_VAULT",
+      "hexId": "H_SEKAMINA_VAULT",
+      "environment": "abismo_subterraneo",
+      "width_cells": 20,
+      "widthCells": 20,
+      "height_cells": 12,
+      "heightCells": 12,
+      "seed": 8001,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "ponte_de_correntes",
+          "name": "Passarela de Ferro e Correntes Suspensas",
+          "x": 3,
+          "y": 4,
+          "width": 14,
+          "height": 4,
+          "terrain": "dificil",
+          "description": "Pranchas de ferro balançando sobre um precipício sem fundo com correntes de ar ascendentes de lava"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "pilar_ancora_ponte",
+          "x": 2,
+          "y": 5,
+          "width": 2,
+          "height": 2,
+          "type": "ferro_pesado",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "maior"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "plataforma_norte",
+          "x": 1,
+          "y": 5,
+          "team": "player",
+          "description": "Beirada rochosa do estrato norte"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "batalha_ponte_sekamina"
+      }
+    },
+    {
+      "scene_key": "scene_camara_monolitos_abissais",
+      "sceneKey": "scene_camara_monolitos_abissais",
+      "title": "Santuário dos Monólitos Negros Abissais",
+      "location": "Fenda das Raízes Abissais do Primeiro Mundo",
+      "hex_id": "H_ABYSSAL_FISSURE",
+      "hexId": "H_ABYSSAL_FISSURE",
+      "environment": "santuario_planar",
+      "width_cells": 18,
+      "widthCells": 18,
+      "height_cells": 14,
+      "heightCells": 14,
+      "seed": 8002,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "nexo_planar",
+          "name": "Nexo das Três Âncoras de Basalto",
+          "x": 4,
+          "y": 3,
+          "width": 10,
+          "height": 8,
+          "terrain": "magico",
+          "description": "Solo rochoso pulsando com energia cósmica negra onde raízes colossais esmeraldas sangram seiva ácida"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "monolito_central",
+          "x": 8,
+          "y": 6,
+          "width": 2,
+          "height": 3,
+          "type": "basalto_planar",
+          "blocks_movement": true,
+          "blocks_vision": true,
+          "cover": "maior"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "portal_das_raizes",
+          "x": 9,
+          "y": 13,
+          "team": "player",
+          "description": "Abertura entre as raízes retorcidas"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "confronto_final_ancoras"
+      }
+    },
+    {
+      "scene_key": "scene_caverna_geodo_fungico",
+      "sceneKey": "scene_caverna_geodo_fungico",
+      "title": "Salão dos Fungos Colossais Luminescentes",
+      "location": "Geodo Titânico de Fungos Luminescentes",
+      "hex_id": "H_FUNGAL_GEODE",
+      "hexId": "H_FUNGAL_GEODE",
+      "environment": "bosque_fungico",
+      "width_cells": 16,
+      "widthCells": 16,
+      "height_cells": 12,
+      "heightCells": 12,
+      "seed": 8003,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "clareira_esporos",
+          "name": "Clareira Central de Bioluminescência",
+          "x": 3,
+          "y": 2,
+          "width": 10,
+          "height": 8,
+          "terrain": "normal",
+          "description": "Chão acolchoado por musgo esmeralda e cogumelos gigantes de 5 metros que brilham em azul e anil"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "tronco_cogumelo_gigante",
+          "x": 7,
+          "y": 5,
+          "width": 2,
+          "height": 2,
+          "type": "fungo_solido",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "padrao"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "tunel_do_musgo",
+          "x": 1,
+          "y": 6,
+          "team": "player",
+          "description": "Túnel coberto de vegetação brilhante"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "encontro_nyvea_geodo"
+      }
+    }
+  ],
+  "factions": [
+    {
+      "name": "Conclave das Aberrações das Terras Sombrias",
+      "agenda": "Corromper o plano material, aniquilar as mentes humanas e erguer um império de trevas cósmicas.",
+      "resources": "Aberrações tentaculares psíquicas, vermes de Sekamina e magia de vácuo primordial.",
+      "relationship": -5,
+      "current_plan": "Alimentar os monólitos com energia necrótica para provocar o colapso sísmico da capital.",
+      "location": "Abóbada Negra de Sekamina",
+      "active": true
+    },
+    {
+      "name": "Companhia Real de Sapadores e Engenharia Anã",
+      "agenda": "Mapear o subterrâneo, proteger os alicerces do reino e erradicar as ameaças geológicas com tecnologia e magia de Torag.",
+      "resources": "Engenheiros anões veteranos, brocas mecânicas pesadas e explosivos alquímicos controlados.",
+      "relationship": 5,
+      "current_plan": "Erguer bases seguras ao longo de Nar-Voth para sustentar o avanço dos heróis até os monólitos.",
+      "location": "Posto Avançado Subterrâneo",
+      "active": true
+    },
+    {
+      "name": "Eremitas Guardiões do Subterrâneo",
+      "agenda": "Manter a santidade dos ciclos naturais subterrâneos e impedir invasões destrutivas em ambos os lados.",
+      "resources": "Místicos de sombras, batedores goblins silenciosos e elixires botânicos bioluminescentes.",
+      "relationship": 2,
+      "current_plan": "Auxiliar a comitiva real a navegar pelos túneis sem perturbar colônias de feras neutras.",
+      "location": "Geodo Titânico de Fungos Luminescentes",
+      "active": true
+    }
+  ],
+  "clocks": [
+    {
+      "name": "Colapso Sísmico das Galerias da Capital",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "As falhas tectônicas sob a cidade real cedem, fazendo desabar distritos inteiros e o palácio governamental.",
+      "automatic": false,
+      "active": true
+    },
+    {
+      "name": "Eclosão do Exército Aberrante na Superfície",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "Enxames de monstruosidades de Sekamina emergem por dezenas de poços e rios, dominando a capital pelo terror.",
+      "automatic": true,
+      "active": true
+    }
+  ],
+  "events": [
+    {
+      "title": "O Grande Abalo Sísmico na Cidade Real",
+      "description": "Um terremoto de magnitude sem precedentes racha a praça central da capital e abre uma cratera fumegante que ecoa sussurros alienígenas.",
+      "due_at": 70000,
+      "due_day": 9,
+      "status": "scheduled",
+      "consequence_json": {
+        "unrest_increase": 3,
+        "scene": "scene_abismo_sekamina_ponte"
+      }
+    },
+    {
+      "title": "A Fuga dos Batedores Caídos nas Sombras",
+      "description": "Batedores anões feridos chegam cambaleando ao posto avançado avisando sobre a aproximação de horrores de tentáculos de Sekamina.",
+      "due_at": 130000,
+      "due_day": 26,
+      "status": "scheduled",
+      "consequence_json": {
+        "scene": "scene_caverna_geodo_fungico"
+      }
+    }
+  ],
+  "milestones": [
+    {
+      "milestone_key": "milestone_expedicao_nar_voth",
+      "milestoneKey": "milestone_expedicao_nar_voth",
+      "name": "O Estabelecimento da Rota Segura por Nar-Voth",
+      "xp": 450,
+      "source_ref": "Kingmaker PZO2020 Capítulo 8",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 8"
+    },
+    {
+      "milestone_key": "milestone_selamento_sekamina",
+      "milestoneKey": "milestone_selamento_sekamina",
+      "name": "A Contenção da Brecha de Sekamina",
+      "xp": 500,
+      "source_ref": "Kingmaker PZO2020 Capítulo 8",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 8"
+    },
+    {
+      "milestone_key": "milestone_neutralizacao_ancoras",
+      "milestoneKey": "milestone_neutralizacao_ancoras",
+      "name": "A Destruição das Âncoras Planares Abissais",
+      "xp": 600,
+      "source_ref": "Kingmaker PZO2020 Capítulo 8",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 8"
+    },
+    {
+      "milestone_key": "milestone_estabilizacao_geologica",
+      "milestoneKey": "milestone_estabilizacao_geologica",
+      "name": "A Salvação Tectônica das Fundações do Reino",
+      "xp": 650,
+      "source_ref": "Kingmaker PZO2020 Capítulo 8",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 8"
+    }
+  ],
+  "metadata": {
+    "author": "Braseiro PF2e Engine",
+    "ruleset": "Pathfinder 2e Remaster",
+    "source": "Kingmaker Adventure Path PZO2020",
+    "version": "1.0.0",
+    "locale": "pt-BR"
+  }
+}

@@ -1,0 +1,1410 @@
+{
+  "schema": "braseiro-pathfinder2e-chapter-v1",
+  "chapter_key": "chapter_12_companion_stories",
+  "chapterKey": "chapter_12_companion_stories",
+  "chapter_number": 12,
+  "chapterNumber": 12,
+  "title": "Histórias, Diálogos e Missões Pessoais dos Doze Companheiros",
+  "locale": "pt-BR",
+  "level_min": 1,
+  "levelMin": 1,
+  "level_max": 20,
+  "levelMax": 20,
+  "summary": "Compêndio narrativo e psicológico detalhado contendo os arcos de desenvolvimento pessoal, missões de lealdade, perfis cognitivos, laços de confiança e diálogos de acampamento em torno da fogueira para todos os doze companheiros canônicos da campanha Kingmaker (PZO2020/PZO2021). Inclui a bárbara Amiri e a honra de sua tribo dos Seis Ursos; a guerreira Valerie e seu rompimento desafiador com a Ordem de Shelyn; a barda Linzi e a crônica épica de fundação do reino; o clérigo anão Harrim e a busca melancólica pelo sentido do vazio de Groetus; o sacerdote solar Tristian e sua penitência divina como emissário de Sarenrae; a inquisidora morta-viva Jaethal e a justiça implacável de Urgathoa; o magus de batalha Regongar e a fúria contra os escravistas da Liga Técnica; a feiticeira ladina Octavia e a conquista jubilosa da liberdade; o patrulheiro Ekundayo e o desfecho de sua vingança contra os troles assassinos; o erudito alquimista Jubilost Narthropple e a cura intelectual do Branqueamento; o ladino goblin Nok-Nok e sua jornada para se tornar o quinto herói do mundo; e as irmãs cinéticas tieflings Kalikke e Kanerah, dividindo a mesma alma e corpo entre a água serena e o fogo inclemente.",
+  "quests": [
+    {
+      "quest_key": "q_companheiro_amiri",
+      "questKey": "q_companheiro_amiri",
+      "title": "A Honra da Espada Gigante de Amiri",
+      "status": "unstarted",
+      "stage": "prova_da_tribo",
+      "objective": "Ajudar Amiri a confrontar o passado de exílio de sua tribo dos Seis Ursos, abater o gigante que a humilhou e consagrar sua lâmina descomunal.",
+      "stakes": "Se não resolver suas pendências com a tribo, Amiri sucumbirá a uma fúria cega autodestrutiva.",
+      "owner_character_id": 1,
+      "faction_id": 0,
+      "milestone_xp": 400,
+      "milestoneXp": 400,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_ami_1",
+          "desc": "Rastrear os guerreiros remanescentes da tribo dos Seis Ursos nas Colinas Nomen",
+          "description": "Rastrear os guerreiros remanescentes da tribo dos Seis Ursos nas Colinas Nomen",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_ami_2",
+          "desc": "Confrontar o Chefe Korgun e derrotar o gigante de gelo em duelo sagrado de honra",
+          "description": "Confrontar o Chefe Korgun e derrotar o gigante de gelo em duelo sagrado de honra",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 2000,
+        "xp": 400,
+        "items": ["espada_bastarda_titanica_consagrada"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_companheiro_valerie",
+      "questKey": "q_companheiro_valerie",
+      "title": "A Cicatriz e o Julgamento de Valerie",
+      "status": "unstarted",
+      "stage": "confronto_ordem",
+      "objective": "Apoiar Valerie perante o tribunal e duelo de honra imposto pelos paladinos da Ordem do Raio Prismático de Shelyn.",
+      "stakes": "Valerie será declarada renegada e perderá seu posto de regente defensora se for condenada injustamente.",
+      "owner_character_id": 2,
+      "faction_id": 0,
+      "milestone_xp": 400,
+      "milestoneXp": 400,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_val_1",
+          "desc": "Acompanhar Valerie até o templo solitário da luz para encontrar Fredero Pembre",
+          "description": "Acompanhar Valerie até o templo solitário da luz para encontrar Fredero Pembre",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_val_2",
+          "desc": "Superar o duelo de esgrima formal e assegurar o veredito favorável de bravura moral",
+          "description": "Superar o duelo de esgrima formal e assegurar o veredito favorável de bravura moral",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 2000,
+        "xp": 400,
+        "items": ["escudo_de_torre_da_dignidade_inquebravel"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_companheiro_linzi",
+      "questKey": "q_companheiro_linzi",
+      "title": "A Crônica Eterna e a Imprensa de Linzi",
+      "status": "unstarted",
+      "stage": "recuperar_imprensa",
+      "objective": "Ajudar Linzi a recuperar sua prensa tipográfica roubada e publicar a primeira edição da história verdadeira da Baronia.",
+      "stakes": "A história do reino será caluniada por panfletos difamatórios impressos por rivais de Pitax.",
+      "owner_character_id": 3,
+      "faction_id": 0,
+      "milestone_xp": 350,
+      "milestoneXp": 350,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_lin_1",
+          "desc": "Recuperar a prensa de tipos móveis escondida em um depósito de contrabandistas",
+          "description": "Recuperar a prensa de tipos móveis escondida em um depósito de contrabandistas",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_lin_2",
+          "desc": "Fundar a Academia de Artes e Baladas da Capital com Linzi como diretora",
+          "description": "Fundar a Academia de Artes e Baladas da Capital com Linzi como diretora",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 1500,
+        "xp": 350,
+        "items": ["alaude_das_mil_cancoes_imortais"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_companheiro_harrim",
+      "questKey": "q_companheiro_harrim",
+      "title": "O Vazio e o Despertar de Harrim",
+      "status": "unstarted",
+      "stage": "reliquia_groetus",
+      "objective": "Explorar a tumba ancestral do clã de Harrim e descobrir a relíquia sagrada do fim dos tempos sob o olhar de Groetus.",
+      "stakes": "Harrim permanecerá imerso em niilismo amargo sem compreender o verdadeiro papel da renovação da vida.",
+      "owner_character_id": 4,
+      "faction_id": 0,
+      "milestone_xp": 400,
+      "milestoneXp": 400,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_har_1",
+          "desc": "Descer ao sepulcro do clã dos martelos e decifrar as runas de forja fraturada",
+          "description": "Descer ao sepulcro do clã dos martelos e decifrar as runas de forja fraturada",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_har_2",
+          "desc": "Ajudar Harrim a aceitar sua identidade como sacerdote do ciclo final sem desespero",
+          "description": "Ajudar Harrim a aceitar sua identidade como sacerdote do ciclo final sem desespero",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 2000,
+        "xp": 400,
+        "items": ["martelo_da_lua_pálida_de_groetus"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_companheiro_tristian",
+      "questKey": "q_companheiro_tristian",
+      "title": "A Graça Perdida do Deva Tristian",
+      "status": "unstarted",
+      "stage": "redencao_solar",
+      "objective": "Ajudar Tristian a expiar seu papel involuntário na manipulação do Olho de Lamashtu por Nyrissa e restaurar suas asas celestiais.",
+      "stakes": "A centelha divina de Tristian se extinguirá para sempre se ele sucumbir à culpa da traição.",
+      "owner_character_id": 5,
+      "faction_id": 0,
+      "milestone_xp": 500,
+      "milestoneXp": 500,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_tri_1",
+          "desc": "Realizar vigília de oração solar na clareira do Altar da Alvorada",
+          "description": "Realizar vigília de oração solar na clareira do Altar da Alvorada",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_tri_2",
+          "desc": "Derrotar o espectro da culpa que manifesta as mentiras da ninfa esmeralda",
+          "description": "Derrotar o espectro da culpa que manifesta as mentiras da ninfa esmeralda",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 3000,
+        "xp": 500,
+        "items": ["simbolo_sagrado_solar_de_sarenrae"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_companheiro_jaethal",
+      "questKey": "q_companheiro_jaethal",
+      "title": "A Imortalidade Sombria de Jaethal",
+      "status": "unstarted",
+      "stage": "tribunal_urgathoa",
+      "objective": "Acompanhar Jaethal na caçada aos seus antigos algozes kyoni e definir se ela abraça a imortalidade profana ou a redenção materna.",
+      "stakes": "A alma da filha de Jaethal será tomada por Urgathoa se a inquisidora não fizer sua escolha definitiva.",
+      "owner_character_id": 6,
+      "faction_id": 0,
+      "milestone_xp": 450,
+      "milestoneXp": 450,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_jae_1",
+          "desc": "Encontrar o rastro do culto de Urgathoa nas florestas limítrofes",
+          "description": "Encontrar o rastro do culto de Urgathoa nas florestas limítrofes",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_jae_2",
+          "desc": "Confrontar a matriarca cultista e selar o destino espiritual da linhagem de Jaethal",
+          "description": "Confrontar a matriarca cultista e selar o destino espiritual da linhagem de Jaethal",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 2500,
+        "xp": 450,
+        "items": ["foice_da_sentenca_espectral"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_companheiro_regongar",
+      "questKey": "q_companheiro_regongar",
+      "title": "A Fúria Liberta de Regongar",
+      "status": "unstarted",
+      "stage": "vinganca_escravistas",
+      "objective": "Rastrear os carrascos da Liga Técnica que escravizaram Regongar na juventude e erradicar seu acampamento de tortura.",
+      "stakes": "Sem fechar essa cicatriz de dor, Regongar não conseguirá controlar seus rompantes assassinos.",
+      "owner_character_id": 7,
+      "faction_id": 0,
+      "milestone_xp": 450,
+      "milestoneXp": 450,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_reg_1",
+          "desc": "Assaltar a guarnição clandestina de escravistas da Liga Técnica",
+          "description": "Assaltar a guarnição clandestina de escravistas da Liga Técnica",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_reg_2",
+          "desc": "Executar o carrasco mestre e libertar os escravos aprisionados nas jaulas de ferro",
+          "description": "Executar o carrasco mestre e libertar os escravos aprisionados nas jaulas de ferro",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 2500,
+        "xp": 450,
+        "items": ["cimitarra_eletrica_da_libertacao"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_companheiro_octavia",
+      "questKey": "q_companheiro_octavia",
+      "title": "As Asas da Liberdade de Octavia",
+      "status": "unstarted",
+      "stage": "busca_pela_mae",
+      "objective": "Localizar o paradeiro da mãe de Octavia vendida como escrava pela Liga Técnica e libertá-la com vida.",
+      "stakes": "Octavia viverá assombrada pela incerteza sobre o destino de sua mãe biológica.",
+      "owner_character_id": 8,
+      "faction_id": 0,
+      "milestone_xp": 450,
+      "milestoneXp": 450,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_oct_1",
+          "desc": "Infiltrar-se nos arquivos do entreposto da Liga Técnica para encontrar os registros de venda",
+          "description": "Infiltrar-se nos arquivos do entreposto da Liga Técnica para encontrar os registros de venda",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_oct_2",
+          "desc": "Resgatar a mãe de Octavia na propriedade rural e trazê-la em segurança para a capital",
+          "description": "Resgatar a mãe de Octavia na propriedade rural e trazê-la em segurança para a capital",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 2500,
+        "xp": 450,
+        "items": ["manto_das_plumas_de_liberdade"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_companheiro_ekundayo",
+      "questKey": "q_companheiro_ekundayo",
+      "title": "O Banquete de Vingança de Ekundayo",
+      "status": "unstarted",
+      "stage": "cacar_hargulka",
+      "objective": "Ajudar Ekundayo e seu fiel cão de caça a aniquilar os chefes troles responsáveis pelo massacre de sua esposa e filhos.",
+      "stakes": "Ekundayo definhará consumido pelo ódio caso não encontre um novo propósito de vida com Elina.",
+      "owner_character_id": 9,
+      "faction_id": 0,
+      "milestone_xp": 400,
+      "milestoneXp": 400,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_eku_1",
+          "desc": "Rastrear o covil dos troles carniceiros nas cavernas rochosas do sul",
+          "description": "Rastrear o covil dos troles carniceiros nas cavernas rochosas do sul",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_eku_2",
+          "desc": "Derrotar o carrasco trole Kargadd e celebrar o rito funerário de paz da família de Ekun",
+          "description": "Derrotar o carrasco trole Kargadd e celebrar o rito funerário de paz da família de Ekun",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 2000,
+        "xp": 400,
+        "items": ["arco_longo_da_vinganca_justa"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_companheiro_jubilost",
+      "questKey": "q_companheiro_jubilost",
+      "title": "O Debate dos Eruditos e o Conhecimento de Jubilost",
+      "status": "unstarted",
+      "stage": "debate_academico",
+      "objective": "Ajudar o gnomo Jubilost Narthropple a vencer o torneio intelectual de charadas contra os eruditos do Primeiro Mundo e deter seu Branqueamento.",
+      "stakes": "O Branqueamento consumirá a mente e a vitalidade de Jubilost caso ele perca o entusiasmo pelas maravilhas do saber.",
+      "owner_character_id": 10,
+      "faction_id": 0,
+      "milestone_xp": 450,
+      "milestoneXp": 450,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_jub_1",
+          "desc": "Decifrar o enigma das três fontes anãs na fortaleza subterrânea",
+          "description": "Decifrar o enigma das três fontes anãs na fortaleza subterrânea",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_jub_2",
+          "desc": "Humilhar o filósofo feérico em debate público durante a feira cultural",
+          "description": "Humilhar o filósofo feérico em debate público durante a feira cultural",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 2500,
+        "xp": 450,
+        "items": ["grimorio_de_alquimia_absoluta_de_jubilost"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_companheiro_nok_nok",
+      "questKey": "q_companheiro_nok_nok",
+      "title": "O Quinto Herói Goblin Nok-Nok",
+      "status": "unstarted",
+      "stage": "erguer_estatua",
+      "objective": "Auxiliar o ladino goblin Nok-Nok a construir estátuas comemorativas, derrotar o monstro barghest e provar que goblins podem ser heróis grandiosos.",
+      "stakes": "A tribo goblin de Nok-Nok continuará sacrificando inocentes aos barghests sem a liderança de seu grande herói.",
+      "owner_character_id": 11,
+      "faction_id": 0,
+      "milestone_xp": 350,
+      "milestoneXp": 350,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_nok_1",
+          "desc": "Erguer o santuário com a estátua tosca do Grande Herói Nok-Nok na capital",
+          "description": "Erguer o santuário com a estátua tosca do Grande Herói Nok-Nok na capital",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_nok_2",
+          "desc": "Desafiar e estripar o barghest monstruoso que aterrorizava a aldeia goblin",
+          "description": "Desafiar e estripar o barghest monstruoso que aterrorizava a aldeia goblin",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 1500,
+        "xp": 350,
+        "items": ["punhais_gemeos_do_quinto_heroi"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_companheiro_irmas_tiefling",
+      "questKey": "q_companheiro_irmas_tiefling",
+      "title": "O Segredo das Almas Gêmeas: Kalikke e Kanerah",
+      "status": "unstarted",
+      "stage": "misterio_antepassado",
+      "objective": "Desvendar a maldição planar que força as irmãs cinéticas Kalikke e Kanerah a partilhar um mesmo corpo material e confrontar o Antepassado.",
+      "stakes": "Uma das irmãs será tragada para o inferno abissal se o pacto do Antepassado não for neutralizado.",
+      "owner_character_id": 12,
+      "faction_id": 0,
+      "milestone_xp": 500,
+      "milestoneXp": 500,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_kal_1",
+          "desc": "Encontrar a relíquia do cálice de água e fogo escondida nas ruínas florestais",
+          "description": "Encontrar a relíquia do cálice de água e fogo escondida nas ruínas florestais",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_kal_2",
+          "desc": "Superar o teste do Antepassado e separar permanentemente os corpos das duas irmãs",
+          "description": "Superar o teste do Antepassado e separar permanentemente os corpos das duas irmãs",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 3000,
+        "xp": 500,
+        "items": ["anel_da_dualidade_elemental_tiefling"]
+      },
+      "progress_json": {}
+    }
+  ],
+  "hazards": [
+    {
+      "hazard_key": "hazard_pesadelo_tecnoliga",
+      "hazardKey": "hazard_pesadelo_tecnoliga",
+      "name": "Dispositivo de Suplício Psíquico da Liga Técnica",
+      "level": 7,
+      "traits": ["complexo", "tecnologico", "mental"],
+      "stealth_dc": 24,
+      "stealthDc": 24,
+      "perception_dc": 24,
+      "perceptionDc": 24,
+      "saving_throw_type": "Vontade",
+      "savingThrowType": "Vontade",
+      "saving_throw_dc": 24,
+      "savingThrowDc": 24,
+      "disable_skills": [
+        {
+          "skill": "Ladroagem",
+          "dc": 25,
+          "proficiency": "especialista",
+          "description": "Cortar os condutores de energia líquida e desconectar os eletrodos de tortura"
+        },
+        {
+          "skill": "Ocultismo",
+          "dc": 25,
+          "proficiency": "especialista",
+          "description": "Bloquear o sinal psíquico irradiado pelas bobinas numerianas"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "armadilha",
+      "complexity": "complexo",
+      "ac": 20,
+      "hardness": 10,
+      "hp": 45,
+      "bt": 22,
+      "reaction": "Dispara quando um prisioneiro ou invasor entra na área de contenção das celas.",
+      "reset": "Não reseta após a quebra dos fusíveis.",
+      "xp": 80,
+      "description": "Máquina de ferro negro com bobinas cintilantes de plasma azul que transmitem ondas de terror psíquico no aposento.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Descarga de Agonia Mental",
+          "description": "Causa 3d8 de dano mental e impõe a condição amedrontado 1 a todos os alvos (Vontade CD 24)."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_altar_urgathoa_sangue",
+      "hazardKey": "hazard_altar_urgathoa_sangue",
+      "name": "Altar Sacrificial Profano de Urgathoa",
+      "level": 9,
+      "traits": ["complexo", "divino", "necromancia"],
+      "stealth_dc": 27,
+      "stealthDc": 27,
+      "perception_dc": 27,
+      "perceptionDc": 27,
+      "saving_throw_type": "Fortitude",
+      "savingThrowType": "Fortitude",
+      "saving_throw_dc": 27,
+      "savingThrowDc": 27,
+      "disable_skills": [
+        {
+          "skill": "Religião",
+          "dc": 28,
+          "proficiency": "especialista",
+          "description": "Purificar a pedra de sacrifício com água benta e preces de Pharasma"
+        },
+        {
+          "skill": "Ladroagem",
+          "dc": 28,
+          "proficiency": "especialista",
+          "description": "Remover os cálices de osso que canalizam o sangue para a bacia central"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "armadilha",
+      "complexity": "complexo",
+      "ac": 24,
+      "hardness": 14,
+      "hp": 60,
+      "bt": 30,
+      "reaction": "Desperta ao derramar de qualquer gota de sangue mortal no raio de 6 metros.",
+      "reset": "Não reseta após a consagração do solo.",
+      "xp": 120,
+      "description": "Mesa de mármore negro manchada de sangue coagulado que exala vapores fétidos de pestilência.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Pulso de Putrefação Necrótica",
+          "description": "Dispara onda de energia negativa causando 4d6 de dano de vazio e drenado 1 (Fortitude CD 27)."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_emboscada_estacas_goblin",
+      "hazardKey": "hazard_emboscada_estacas_goblin",
+      "name": "Armadilha Caótica de Estacas de Nok-Nok",
+      "level": 4,
+      "traits": ["complexo", "mecanico", "goblin"],
+      "stealth_dc": 20,
+      "stealthDc": 20,
+      "perception_dc": 20,
+      "perceptionDc": 20,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 20,
+      "savingThrowDc": 20,
+      "disable_skills": [
+        {
+          "skill": "Ladroagem",
+          "dc": 21,
+          "proficiency": "treinado",
+          "description": "Cortar o barbante amarrado em latas velhas que aciona o gatilho da mola"
+        },
+        {
+          "skill": "Sobrevivência",
+          "dc": 21,
+          "proficiency": "treinado",
+          "description": "Detectar o padrão bizarro de gravetos empilhados pelo goblin"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "armadilha",
+      "complexity": "complexo",
+      "ac": 16,
+      "hardness": 6,
+      "hp": 25,
+      "bt": 12,
+      "reaction": "Dispara quando alguém tropeça no barbante esticado.",
+      "reset": "Pode ser rearmada manualmente em 1 minuto por um goblin.",
+      "xp": 50,
+      "description": "Tronco cheio de pregos enferrujados e dentes de javali que balança do teto da caverna com barulho de chocalho.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Balanço do Tronco Dentado",
+          "description": "Golpeia o intruso causando 2d10+4 de dano perfurante e derrubando-o no chão (Reflexos CD 20)."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_fratura_elemental_cinetico",
+      "hazardKey": "hazard_fratura_elemental_cinetico",
+      "name": "Fratura Ígneo-Aquática Instável das Gêmeas",
+      "level": 12,
+      "traits": ["complexo", "elemental", "fogo", "agua"],
+      "stealth_dc": 30,
+      "stealthDc": 30,
+      "perception_dc": 30,
+      "perceptionDc": 30,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 31,
+      "savingThrowDc": 31,
+      "disable_skills": [
+        {
+          "skill": "Natureza",
+          "dc": 32,
+          "proficiency": "mestre",
+          "description": "Equilibrar os fluxos opostos de calor e umidade na fenda elemental"
+        },
+        {
+          "skill": "Arcanismo",
+          "dc": 32,
+          "proficiency": "mestre",
+          "description": "Dispersar a ressonância cinética que alimenta o vapor superaquecido"
+        }
+      ],
+      "routine_actions": 2,
+      "routineActions": 2,
+      "hazard_type": "magico",
+      "complexity": "complexo",
+      "ac": 29,
+      "hardness": 15,
+      "hp": 80,
+      "bt": 40,
+      "reaction": "Ativa-se quando a alternância espiritual entre Kalikke e Kanerah provoca um choque de planos elementais.",
+      "reset": "Não reseta após o equilíbrio térmico.",
+      "xp": 160,
+      "description": "Gêiser gêmeo que alterna violentamente entre jatos de água congelante e labaredas ardentes de magma.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Rajada de Vapor Escaldante",
+          "description": "Causa 4d8 de dano de fogo e 2d8 de dano de concussão em área de 6 metros (Reflexos CD 31)."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Onda de Frio Cortante",
+          "description": "Congela o chão em gelo liso, causando 3d8 de dano de frio e tornando o terreno difícil."
+        }
+      ]
+    }
+  ],
+  "pois": [
+    {
+      "poi_key": "poi_acampamento_principal_companheiros",
+      "poiKey": "poi_acampamento_principal_companheiros",
+      "poi_id": "poi_acampamento_principal_companheiros",
+      "poiId": "poi_acampamento_principal_companheiros",
+      "campaign_key": "chapter_12_companion_stories",
+      "campaignKey": "chapter_12_companion_stories",
+      "map_id": "stolen_lands",
+      "name": "Acampamento Central dos Heróis sob as Estrelas",
+      "name_key": "acampamento_central_dos_herois_sob_as_estrelas",
+      "type": "refuge",
+      "hex_id": "H_CAMP_MAIN",
+      "hexId": "H_CAMP_MAIN",
+      "location_id": "loc_camp_main",
+      "q": 0,
+      "r": 0,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "A clareira da fogueira onde os doze companheiros se reúnem à noite para descansar, cozinhar, afiar armas e compartilhar segredos e angústias.",
+      "tags": ["acampamento", "fogueira", "companheiros", "descanso"],
+      "development_level": 3,
+      "icon": "🔥",
+      "notes": "Cenário principal de interações de acampamento e avanço de lealdade."
+    },
+    {
+      "poi_key": "poi_santuario_shelyn_valerie",
+      "poiKey": "poi_santuario_shelyn_valerie",
+      "poi_id": "poi_santuario_shelyn_valerie",
+      "poiId": "poi_santuario_shelyn_valerie",
+      "campaign_key": "chapter_12_companion_stories",
+      "campaignKey": "chapter_12_companion_stories",
+      "map_id": "stolen_lands",
+      "name": "Santuário Solitário da Luz Prismática",
+      "name_key": "santuario_solitario_da_luz_prismatica",
+      "type": "landmark",
+      "hex_id": "H_SHELYN_VALERIE",
+      "hexId": "H_SHELYN_VALERIE",
+      "location_id": "loc_shelyn_valerie",
+      "q": 1,
+      "r": 1,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Templo em ruínas parciais erguido em homenagem a Shelyn onde os paladinos desafiam Valerie para provar sua virtude.",
+      "tags": ["shelyn", "valerie", "paladino", "duelo"],
+      "development_level": 2,
+      "icon": "⚔️",
+      "notes": "Palco da quest pessoal de Valerie."
+    },
+    {
+      "poi_key": "poi_antiga_fortaleza_liga_tecnica",
+      "poiKey": "poi_antiga_fortaleza_liga_tecnica",
+      "poi_id": "poi_antiga_fortaleza_liga_tecnica",
+      "poiId": "poi_antiga_fortaleza_liga_tecnica",
+      "campaign_key": "chapter_12_companion_stories",
+      "campaignKey": "chapter_12_companion_stories",
+      "map_id": "stolen_lands",
+      "name": "Ruínas da Fortaleza da Liga Técnica",
+      "name_key": "ruinas_da_fortaleza_da_liga_tecnica",
+      "type": "dungeon",
+      "hex_id": "H_TECHNIC_LEAGUE",
+      "hexId": "H_TECHNIC_LEAGUE",
+      "location_id": "loc_technic_league",
+      "q": -3,
+      "r": -1,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "ruined",
+      "description": "Bastião blindado em metal alienígena abandonado pelos magos de Numeria após o resgate de Octavia e Regongar.",
+      "tags": ["dungeon", "tecnologia", "numeria", "regongar", "octavia"],
+      "development_level": 2,
+      "icon": "⚙️",
+      "notes": "Local das missões de vingança e libertação da escravidão."
+    },
+    {
+      "poi_key": "poi_tumba_clan_torag_harrim",
+      "poiKey": "poi_tumba_clan_torag_harrim",
+      "poi_id": "poi_tumba_clan_torag_harrim",
+      "poiId": "poi_tumba_clan_torag_harrim",
+      "campaign_key": "chapter_12_companion_stories",
+      "campaignKey": "chapter_12_companion_stories",
+      "map_id": "stolen_lands",
+      "name": "Sepulcro Esquecido do Clã dos Martelos",
+      "name_key": "sepulcro_esquecido_do_cla_dos_martelos",
+      "type": "dungeon",
+      "hex_id": "H_HARRIM_TOMB",
+      "hexId": "H_HARRIM_TOMB",
+      "location_id": "loc_harrim_tomb",
+      "q": 2,
+      "r": 2,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "abandoned",
+      "description": "Mausoléu subterrâneo anão onde repousam os ancestrais de Harrim que o renegaram por sua fé em Groetus.",
+      "tags": ["dungeon", "anoes", "harrim", "groetus"],
+      "development_level": 2,
+      "icon": "⚒️",
+      "notes": "Local de reconciliação e descoberta de Harrim."
+    },
+    {
+      "poi_key": "poi_aldeia_goblin_nok_nok",
+      "poiKey": "poi_aldeia_goblin_nok_nok",
+      "poi_id": "poi_aldeia_goblin_nok_nok",
+      "poiId": "poi_aldeia_goblin_nok_nok",
+      "campaign_key": "chapter_12_companion_stories",
+      "campaignKey": "chapter_12_companion_stories",
+      "map_id": "stolen_lands",
+      "name": "Santuário dos Heróis Goblins de Nok-Nok",
+      "name_key": "santuario_dos_herois_goblins_de_nok_nok",
+      "type": "settlement",
+      "hex_id": "H_NOK_NOK_VILLAGE",
+      "hexId": "H_NOK_NOK_VILLAGE",
+      "location_id": "loc_nok_nok_village",
+      "q": -2,
+      "r": -2,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Povoado caótico de cabanas de palha e estátuas de lama onde a tribo goblin reverencia Nok-Nok como salvador lendário.",
+      "tags": ["povoado", "goblin", "nok_nok", "heroi"],
+      "development_level": 1,
+      "icon": "🗡️",
+      "notes": "Comunidade aliada pacificada sob a liderança de Nok-Nok."
+    }
+  ],
+  "npcs": [
+    {
+      "npc_key": "npc_amiri",
+      "npcKey": "npc_amiri",
+      "stable_id": "npc_amiri",
+      "stableId": "npc_amiri",
+      "name": "Amiri",
+      "summary": "Bárbara humana expatriada da tribo dos Seis Ursos das Terras dos Senhores dos Mamutes, portadora de uma espada bastarda colossal arrancada de um gigante.",
+      "goals": "Provar sua força e valor perante o mundo sem se curvar a tradições patriarcais opressivas.",
+      "secrets": "Teme no íntimo que a espada gigante esteja amaldiçoada com a fúria do espírito do gigante morto.",
+      "attitude": "amistoso",
+      "relationship": "Companheira bárbara leal da linha de frente",
+      "knowledge": "Sobrevivência nas estepes glaciais, táticas contra gigantes e fúria guerreira.",
+      "debts": "Gratidão por acolhimento na corte da Baronia.",
+      "last_seen": "Acampamento Central",
+      "hex_id": "H_CAMP_MAIN",
+      "faction": "Círculo de Companheiros Leais da Coroa",
+      "visual_description": "Mulher musculosa de cicatrizes de batalha, cabelos negros rebeldes e pintura de guerra nas maçãs do rosto.",
+      "is_companion": true,
+      "isCompanion": true,
+      "dialogue_tree": [
+        {
+          "attitude_req": "amistoso",
+          "text": "Quem precisa de títulos quando se tem uma espada de três metros e sangue quente nas veias? Vamos encontrar algo grande para matar!",
+          "topic": "conversa_acampamento",
+          "quest_key": "q_companheiro_amiri"
+        }
+      ],
+      "stats": {
+        "ac": 26,
+        "hp": 130,
+        "max_hp": 130
+      }
+    },
+    {
+      "npc_key": "npc_valerie",
+      "npcKey": "npc_valerie",
+      "stable_id": "npc_valerie",
+      "stableId": "npc_valerie",
+      "name": "Valerie",
+      "summary": "Nobre guerreira brevana que abandonou o noviciado na Ordem de Shelyn, repudiando a obsessão por beleza superficial em favor da disciplina militar.",
+      "goals": "Construir uma vida digna regida pela retidão, dever e honra militar em vez de futilidades cortesãs.",
+      "secrets": "Guarda ressentimento profundo pelas cicatrizes impostas por antigos pretendentes da Ordem.",
+      "attitude": "amistoso",
+      "relationship": "Defensora de escudo e regente marcial da corte",
+      "knowledge": "Heráldica brevana, etiqueta nobre, táticas de infantaria pesada e código militar.",
+      "debts": "Lealdade à liderança dos governantes.",
+      "last_seen": "Acampamento Central",
+      "hex_id": "H_CAMP_MAIN",
+      "faction": "Círculo de Companheiros Leais da Coroa",
+      "visual_description": "Guerreira loira com postura altiva, envergando armadura de placas reluzente e escudo de torre.",
+      "is_companion": true,
+      "isCompanion": true,
+      "dialogue_tree": [
+        {
+          "attitude_req": "amistoso",
+          "text": "A disciplina de um exército não depende de canções bonitas, mas de aço temperado e homens que não quebram formação.",
+          "topic": "dever_militar",
+          "quest_key": "q_companheiro_valerie"
+        }
+      ],
+      "stats": {
+        "ac": 29,
+        "hp": 125,
+        "max_hp": 125
+      }
+    },
+    {
+      "npc_key": "npc_linzi",
+      "npcKey": "npc_linzi",
+      "stable_id": "npc_linzi",
+      "stableId": "npc_linzi",
+      "name": "Linzi",
+      "summary": "Barda pequenina expulsa da Academia de Restov por audácia cômica, cronista oficial da fundação do reino e alma das noites de fogueira.",
+      "goals": "Escrever o livro definitivo sobre a ascensão da Baronia, garantindo que os heróis sejam lembrados para sempre.",
+      "secrets": "Usa fundos da tesouraria para comprar papel nobre e tintas sem autorização prévia.",
+      "attitude": "prestativo",
+      "relationship": "Cronista e confidente de todos os heróis",
+      "knowledge": "História das Nações Fluviais, baladas épicas, política brevana e fofocas nobres.",
+      "debts": "Adoração sincera pelos fundadores do reino.",
+      "last_seen": "Acampamento Central",
+      "hex_id": "H_CAMP_MAIN",
+      "faction": "Círculo de Companheiros Leais da Coroa",
+      "visual_description": "Pequenina de olhos curiosos e cabelos castanhos cacheados, sempre com seu alaúde e caderno de notas em mãos.",
+      "is_companion": true,
+      "isCompanion": true,
+      "dialogue_tree": [
+        {
+          "attitude_req": "prestativo",
+          "text": "Não se movam! A luz do fogo está perfeita nessa pose heroica! Isso com certeza vai para o capítulo quatro da nossa crônica!",
+          "topic": "cronica_reino",
+          "quest_key": "q_companheiro_linzi"
+        }
+      ],
+      "stats": {
+        "ac": 23,
+        "hp": 75,
+        "max_hp": 75
+      }
+    },
+    {
+      "npc_key": "npc_harrim",
+      "npcKey": "npc_harrim",
+      "stable_id": "npc_harrim",
+      "stableId": "npc_harrim",
+      "name": "Harrim",
+      "summary": "Clérigo anão de Groetus, o deus da lua que trará o fim do multiverso, desiludido com a forja de Torag e confortado pela inevitabilidade do vazio.",
+      "goals": "Ajudar a testemunhar a queda dos reinos e encontrar paz na certeza de que todas as coisas têm um fim.",
+      "secrets": "No fundo, preocupa-se genuinamente com a sobrevivência dos companheiros, embora nunca admita em voz alta.",
+      "attitude": "indiferente",
+      "relationship": "Conselheiro religioso e curandeiro do grupo",
+      "knowledge": "Teologia de Groetus e Torag, maldições milenares, rituais funerários e forja rúnica.",
+      "debts": "Aceitação de sua fé excêntrica.",
+      "last_seen": "Acampamento Central",
+      "hex_id": "H_CAMP_MAIN",
+      "faction": "Círculo de Companheiros Leais da Coroa",
+      "visual_description": "Anão desgrenhado de barba cinzenta embaraçada e túnicas frouxas decoradas com símbolos da lua escura.",
+      "is_companion": true,
+      "isCompanion": true,
+      "dialogue_tree": [
+        {
+          "attitude_req": "indiferente",
+          "text": "Por que todo esse esforço para erguer muralhas? Um dia a poeira cobrirá o castelo de vocês, e Groetus sorrirá serenamente.",
+          "topic": "filosofia_vazio",
+          "quest_key": "q_companheiro_harrim"
+        }
+      ],
+      "stats": {
+        "ac": 25,
+        "hp": 110,
+        "max_hp": 110
+      }
+    },
+    {
+      "npc_key": "npc_tristian",
+      "npcKey": "npc_tristian",
+      "stable_id": "npc_tristian",
+      "stableId": "npc_tristian",
+      "name": "Tristian",
+      "summary": "Clérigo solar aasimar de Sarenrae e antigo deva celestial transformado em mortal por Nyrissa, carregando profunda dor e compaixão curativa.",
+      "goals": "Espalhar a luz, a misericórdia e a cura de Sarenrae por todas as terras devastadas pela escuridão.",
+      "secrets": "Sentia-se obrigado a relatar acontecimentos a Nyrissa para tentar salvar inocentes da colheita mortal.",
+      "attitude": "prestativo",
+      "relationship": "Curandeiro milagroso e sacerdote conselheiro",
+      "knowledge": "Magia divina celestial, cura de aflições sobrenaturais e tradições solares.",
+      "debts": "Desejo profundo de redenção.",
+      "last_seen": "Acampamento Central",
+      "hex_id": "H_CAMP_MAIN",
+      "faction": "Círculo de Companheiros Leais da Coroa",
+      "visual_description": "Jovem esguio com olhos brilhantes dourados e cabelos alvos como a luz da alvorada vestindo túnicas simples de linho.",
+      "is_companion": true,
+      "isCompanion": true,
+      "dialogue_tree": [
+        {
+          "attitude_req": "prestativo",
+          "text": "A Luz da Flor da Alvorada aquece a todos, mesmo aqueles que caminharam nas sombras mais escuras. Não percam a esperança.",
+          "topic": "consolo_solar",
+          "quest_key": "q_companheiro_tristian"
+        }
+      ],
+      "stats": {
+        "ac": 24,
+        "hp": 85,
+        "max_hp": 85
+      }
+    },
+    {
+      "npc_key": "npc_jaethal",
+      "npcKey": "npc_jaethal",
+      "stable_id": "npc_jaethal",
+      "stableId": "npc_jaethal",
+      "name": "Jaethal",
+      "summary": "Inquisidora elfa morta-viva abençoada pela deusa Urgathoa com eterna juventude cadavérica, pragmática, implacável e desprovida de escrúpulos morais.",
+      "goals": "Preservar sua imortalidade e cumprir os desígnios cruéis da Princesa Pálida sem se submeter a leis mortais.",
+      "secrets": "Ama secretamente sua filha Taneka e está disposta a desafiar sua própria deusa para protegê-la.",
+      "attitude": "indiferente",
+      "relationship": "Inquisidora implacável e investigadora judicial",
+      "knowledge": "Necromancia, tortura, interrogatório, venenos e heráldica elfa de Kyonin.",
+      "debts": "Pacto pragmático de mútua conveniência.",
+      "last_seen": "Acampamento Central",
+      "hex_id": "H_CAMP_MAIN",
+      "faction": "Círculo de Companheiros Leais da Coroa",
+      "visual_description": "Elfa aristocrática de pele pálida como alabastro e olhar gélido, empunhando uma foice comprida afiada.",
+      "is_companion": true,
+      "isCompanion": true,
+      "dialogue_tree": [
+        {
+          "attitude_req": "indiferente",
+          "text": "A moralidade é um luxo frágil dos vivos que apodrecem. Os mortos entendem apenas a permanência e a força.",
+          "topic": "visao_urgathoa",
+          "quest_key": "q_companheiro_jaethal"
+        }
+      ],
+      "stats": {
+        "ac": 27,
+        "hp": 105,
+        "max_hp": 105
+      }
+    },
+    {
+      "npc_key": "npc_regongar",
+      "npcKey": "npc_regongar",
+      "stable_id": "npc_regongar",
+      "stableId": "npc_regongar",
+      "name": "Regongar",
+      "summary": "Meio-orc magus de linhagem dracônica azul, sobrevivente dos cativeiros brutais da Liga Técnica, feroz no combate e intensamente apaixonado por Octavia.",
+      "goals": "Destruir todos os escravistas de Golarion e viver cada dia intensamente com fúria, eletricidade e prazer.",
+      "secrets": "Tem pesadelos frequentes com os chicotes de metal e experimentos numerianos de sua infância.",
+      "attitude": "amistoso",
+      "relationship": "Companheiro agressivo e guerreiro arcano de vanguarda",
+      "knowledge": "Magia de relâmpagos, esgrima com cimitarra, táticas de saque e fraquezas de autômatos.",
+      "debts": "Gratidão feroz por sua libertação da escravidão.",
+      "last_seen": "Acampamento Central",
+      "hex_id": "H_CAMP_MAIN",
+      "faction": "Círculo de Companheiros Leais da Coroa",
+      "visual_description": "Meio-orc musculoso de presas afiadas e cicatrizes de eletricidade azul gravadas no peito e braços.",
+      "is_companion": true,
+      "isCompanion": true,
+      "dialogue_tree": [
+        {
+          "attitude_req": "amistoso",
+          "text": "Quem tentar encostar um dedo na Octavia ou na nossa liberdade vai aprender como dói um choque de cem volts nas entranhas!",
+          "topic": "furia_libertaria",
+          "quest_key": "q_companheiro_regongar"
+        }
+      ],
+      "stats": {
+        "ac": 26,
+        "hp": 115,
+        "max_hp": 115
+      }
+    },
+    {
+      "npc_key": "npc_octavia",
+      "npcKey": "npc_octavia",
+      "stable_id": "npc_octavia",
+      "stableId": "npc_octavia",
+      "name": "Octavia",
+      "summary": "Meio-elfa trapaceira arcana de espírito radiante e indomável, ex-escrava da Liga Técnica que escolheu abraçar a alegria, o riso e a bondade contra a crueldade do mundo.",
+      "goals": "Celebrar a liberdade todos os dias, reencontrar sua mãe e construir um reino justo onde a escravidão seja proibida sob pena de morte.",
+      "secrets": "Teme ser capturada novamente e esconde uma chave-mestra mágica costurada em seu corpete.",
+      "attitude": "prestativo",
+      "relationship": "Maga ladina e companheira compassiva",
+      "knowledge": "Transmutação mágica, furto de bolsas, fechaduras complexas e sociedade de Numeria.",
+      "debts": "Amor fraterno e lealdade incondicional aos governantes.",
+      "last_seen": "Acampamento Central",
+      "hex_id": "H_CAMP_MAIN",
+      "faction": "Círculo de Companheiros Leais da Coroa",
+      "visual_description": "Meio-elfa elegante de sorriso iluminado e cabelos ondulados, vestindo plumas coloridas e capas vaporosas.",
+      "is_companion": true,
+      "isCompanion": true,
+      "dialogue_tree": [
+        {
+          "attitude_req": "prestativo",
+          "text": "O mundo já tem tristeza demais. O nosso papel não é apenas governar, mas fazer com que as pessoas voltem a sonhar e cantar sem medo!",
+          "topic": "alegria_liberdade",
+          "quest_key": "q_companheiro_octavia"
+        }
+      ],
+      "stats": {
+        "ac": 24,
+        "hp": 75,
+        "max_hp": 75
+      }
+    },
+    {
+      "npc_key": "npc_ekundayo",
+      "npcKey": "npc_ekundayo",
+      "stable_id": "npc_ekundayo",
+      "stableId": "npc_ekundayo",
+      "name": "Ekundayo",
+      "summary": "Patrulheiro humano silencioso e taciturno, devoto de Torag, focado na caçada obstinada aos troles que assassinaram sua família.",
+      "goals": "Proteger os inocentes da Baronia contra feras monstruosas e vingar cada gota de sangue de seus entes queridos.",
+      "secrets": "A afeição crescente por Elina, a taverneira da capital, faz com que ele hesite em se entregar totalmente à morte na batalha.",
+      "attitude": "amistoso",
+      "relationship": "Atirador de elite e patrulheiro dos ermos",
+      "knowledge": "Arquearia de longo alcance, anatomia de troles e gigantes, sobrevivência e rastreamento.",
+      "debts": "Apoio da Baronia na erradicação dos troles.",
+      "last_seen": "Acampamento Central",
+      "hex_id": "H_CAMP_MAIN",
+      "faction": "Círculo de Companheiros Leais da Coroa",
+      "visual_description": "Homem moreno e imponente de olhar solene, acompanhado inseparavelmente por seu enorme mastim de caça.",
+      "is_companion": true,
+      "isCompanion": true,
+      "dialogue_tree": [
+        {
+          "attitude_req": "amistoso",
+          "text": "O arco deve permanecer firme, e a flecha só é disparada com justiça. Torag guia meus braços para que nenhuma outra família sofra o que a minha sofreu.",
+          "topic": "honra_cacador",
+          "quest_key": "q_companheiro_ekundayo"
+        }
+      ],
+      "stats": {
+        "ac": 26,
+        "hp": 105,
+        "max_hp": 105
+      }
+    },
+    {
+      "npc_key": "npc_jubilost",
+      "npcKey": "npc_jubilost",
+      "stable_id": "npc_jubilost",
+      "stableId": "npc_jubilost",
+      "name": "Jubilost",
+      "summary": "Gnomo alquimista e ensaísta notável de renome continental, dono de uma arrogância afiada que esconde um intelecto brilhante e uma lealdade inabalável.",
+      "goals": "Descobrir as origens arcanas da magia feérica e provar a superioridade de sua mente sobre todos os governantes medíocres de Golarion.",
+      "secrets": "O pavor do Branqueamento o consome secretamente toda vez que ele passa um dia sem aprender algo verdadeiramente novo.",
+      "attitude": "indiferente",
+      "relationship": "Mestre da Fazenda Real e alquimista conselheiro",
+      "knowledge": "Alquimia avançada, história continental, economia e bombas incendiárias.",
+      "debts": "Reconhecimento oficial como tesoureiro real.",
+      "last_seen": "Acampamento Central",
+      "hex_id": "H_CAMP_MAIN",
+      "faction": "Círculo de Companheiros Leais da Coroa",
+      "visual_description": "Gnomo impecavelmente vestido em colete de veludo azul e monóculo, com cabelos arroxeados e pasta cheia de frascos borbulhantes.",
+      "is_companion": true,
+      "isCompanion": true,
+      "dialogue_tree": [
+        {
+          "attitude_req": "indiferente",
+          "text": "Se vocês pretendem liderar uma nação, recomendo vivamente que leiam meu tratado sobre administração fiscal antes de cometerem mais uma asneira orçamentária!",
+          "topic": "erudicao_gnomica",
+          "quest_key": "q_companheiro_jubilost"
+        }
+      ],
+      "stats": {
+        "ac": 25,
+        "hp": 85,
+        "max_hp": 85
+      }
+    },
+    {
+      "npc_key": "npc_nok_nok",
+      "npcKey": "npc_nok_nok",
+      "stable_id": "npc_nok_nok",
+      "stableId": "npc_nok_nok",
+      "name": "Nok-Nok",
+      "summary": "Ladino goblin exilado de sua tribo por sonhar alto demais, autoproclamado o 'Quinto Herói' do mundo após Torag e Iomedae.",
+      "goals": "Construir monumentos de lama em sua honra, derrotar monstros gigantes e ser ovacionado na corte da capital.",
+      "secrets": "Teme a escuridão absoluta e guarda pedrinhas brilhantes como talismãs sagrados.",
+      "attitude": "prestativo",
+      "relationship": "Batedor furtivo e assassino de monstros",
+      "knowledge": "Furtividade goblin, armadilhas improvisadas, hábitos de barghests e pontos cegos de muralhas.",
+      "debts": "Felicidade imensa por ter amigos 'gigantes'.",
+      "last_seen": "Acampamento Central",
+      "hex_id": "H_CAMP_MAIN",
+      "faction": "Círculo de Companheiros Leais da Coroa",
+      "visual_description": "Goblin pequeno de orelhas pontudas caídas e sorriso dentuço, brandindo adagas feitas de vidro e ossos afiados.",
+      "is_companion": true,
+      "isCompanion": true,
+      "dialogue_tree": [
+        {
+          "attitude_req": "prestativo",
+          "text": "Nok-Nok é grande herói! Nok-Nok esfaqueia os monstros por trás bem rápido e depois todo mundo aplaude Nok-Nok!",
+          "topic": "heroismos_nok_nok",
+          "quest_key": "q_companheiro_nok_nok"
+        }
+      ],
+      "stats": {
+        "ac": 27,
+        "hp": 80,
+        "max_hp": 80
+      }
+    },
+    {
+      "npc_key": "npc_kalikke_kanerah",
+      "npcKey": "npc_kalikke_kanerah",
+      "stable_id": "npc_kalikke_kanerah",
+      "stableId": "npc_kalikke_kanerah",
+      "name": "Kalikke e Kanerah",
+      "summary": "Irmãs gêmeas cinéticas tieflings ligadas por um pacto misterioso: Kalikke manipula água com bondade e serenidade, enquanto Kanerah comanda fogo com pragmatismo ambicioso.",
+      "goals": "Desvencilhar-se da interferência do Antepassado e conquistar prosperidade duradoura na nova capital.",
+      "secrets": "Uma precisa dormir no vazio planar para que a outra possa manifestar-se no corpo físico material.",
+      "attitude": "amistoso",
+      "relationship": "Cineticistas gêmeas elementais e conselheiras",
+      "knowledge": "Energia cinética elemental, planos infernais, comércio e sobrevivência nos ermos.",
+      "debts": "Proteção oferecida pelos heróis contra o Antepassado.",
+      "last_seen": "Acampamento Central",
+      "hex_id": "H_CAMP_MAIN",
+      "faction": "Círculo de Companheiros Leais da Coroa",
+      "visual_description": "Tiefling graciosa de pele acobreada e pequenos chifres espiralados que muda sutilmente de traços entre a serenidade aquática e o fervor ígneo.",
+      "is_companion": true,
+      "isCompanion": true,
+      "dialogue_tree": [
+        {
+          "attitude_req": "amistoso",
+          "text": "Kalikke prefere acalmar as águas turbulentas, mas se precisarem que alguém queime as pontes e balance os livros fiscais, chamem a Kanerah!",
+          "topic": "dualidade_elemental",
+          "quest_key": "q_companheiro_irmas_tiefling"
+        }
+      ],
+      "stats": {
+        "ac": 26,
+        "hp": 95,
+        "max_hp": 95
+      }
+    }
+  ],
+  "scenes": [
+    {
+      "scene_key": "scene_fogueira_acampamento_dialogos",
+      "sceneKey": "scene_fogueira_acampamento_dialogos",
+      "title": "A Fogueira Noturna do Acampamento Real",
+      "location": "Acampamento Central dos Heróis sob as Estrelas",
+      "hex_id": "H_CAMP_MAIN",
+      "environment": "planicie",
+      "width_cells": 14,
+      "widthCells": 14,
+      "height_cells": 10,
+      "heightCells": 10,
+      "seed": 12101,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "circulo_fogueira_central",
+          "name": "Círculo da Fogueira e Troncos de Assento",
+          "x": 4,
+          "y": 3,
+          "width": 6,
+          "height": 4,
+          "terrain": "normal",
+          "description": "Área aconchegante iluminada pelas brasas da fogueira onde os companheiros se sentam em círculo"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "fogueira_pedras",
+          "x": 6,
+          "y": 4,
+          "width": 2,
+          "height": 2,
+          "type": "fogueira_acesa",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "nenhum"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "trilha_tendas_sul",
+          "x": 6,
+          "y": 8,
+          "team": "player",
+          "description": "Caminho de acesso a partir das barracas de descanso"
+        }
+      ],
+      "hazards": [],
+      "combatants": []
+    },
+    {
+      "scene_key": "scene_duelo_honra_ordem_paladinos",
+      "sceneKey": "scene_duelo_honra_ordem_paladinos",
+      "title": "Arena do Duelo de Honra com a Ordem do Raio Prismático",
+      "location": "Santuário Solitário da Luz Prismática",
+      "hex_id": "H_SHELYN_VALERIE",
+      "environment": "urbano",
+      "width_cells": 12,
+      "widthCells": 12,
+      "height_cells": 10,
+      "heightCells": 10,
+      "seed": 12102,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "tablado_marmore_duelo",
+          "name": "Tablado de Mármore do Duelo Formal",
+          "x": 2,
+          "y": 2,
+          "width": 8,
+          "height": 6,
+          "terrain": "normal",
+          "description": "Pátio circular de pedras polidas delimitado por colunas de Shelyn para combates singulares de cavalaria"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "estatua_shelyn_partida",
+          "x": 5,
+          "y": 1,
+          "width": 2,
+          "height": 1,
+          "type": "estatua_pedra",
+          "blocks_movement": true,
+          "blocks_vision": true,
+          "cover": "padrao"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "degraus_pavilhao_leste",
+          "x": 1,
+          "y": 5,
+          "team": "player",
+          "description": "Entrada cerimonial para os desafiantes"
+        }
+      ],
+      "hazards": [],
+      "combatants": []
+    }
+  ],
+  "factions": [
+    {
+      "name": "Círculo de Companheiros Leais da Coroa",
+      "agenda": "Apoiar os líderes da Baronia, vencer seus fantasmas do passado e forjar uma família unida pelo destino.",
+      "resources": "Talentos marciais, arcanos, divinos e furtivos de doze dos maiores heróis das Nações Fluviais.",
+      "relationship": 5,
+      "current_plan": "Proteger o reino em todas as frentes e superar juntos as provações de Nyrissa e do Rei Lanterna.",
+      "location": "Acampamento Central e Palácio da Capital",
+      "active": true
+    },
+    {
+      "name": "Ordem do Raio Prismático de Shelyn",
+      "agenda": "Propagar a beleza e as artes sagradas através da cavalaria nobre e reconquistar os devotos renegados.",
+      "resources": "Paladinos devotos, bardos sagrados e influências diplomáticas nas cortes de Brevoy.",
+      "relationship": 0,
+      "current_plan": "Testar a retidão moral de Valerie para verificar se ela é digna de continuar empunhando armas.",
+      "location": "Santuários Fronteiriços",
+      "active": true
+    },
+    {
+      "name": "Liga Técnica de Numeria",
+      "agenda": "Recapturar escravos fugitivos e confiscar relíquias tecnológicas alienígenas a qualquer custo.",
+      "resources": "Magos carrascos, mercenários armados com pistolas de plasma e autômatos de ferro negro.",
+      "relationship": -5,
+      "current_plan": "Enviar caçadores de recompensa para sequestrar Octavia e Regongar.",
+      "location": "Fronteira com Numeria",
+      "active": true
+    }
+  ],
+  "clocks": [
+    {
+      "name": "Harmonia e Lealdade Geral do Grupo",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "Os doze companheiros atingem vínculo supremo de fraternidade, ganhando bônus permanentes de moral em combate.",
+      "automatic": false,
+      "active": true
+    },
+    {
+      "name": "Intriga Sombria dos Mestres do Passado",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "Assassinos e cobradores de dívidas do passado atacam o acampamento de surpresa durante a madrugada.",
+      "automatic": true,
+      "active": true
+    }
+  ],
+  "events": [
+    {
+      "title": "A Grande Noite de Cantoria ao Redor da Fogueira",
+      "description": "Linzi e Octavia organizam uma celebração inesquecível após uma grande vitória, onde cada companheiro compartilha sua história mais preciosa.",
+      "due_at": 50000,
+      "due_day": 10,
+      "status": "scheduled",
+      "consequence_json": {
+        "loyalty_boost": 2,
+        "scene": "scene_fogueira_acampamento_dialogos"
+      }
+    },
+    {
+      "title": "A Chegada de Mensageiros com Mandados do Passado",
+      "description": "Arautos de Brevoy e Numeria chegam com mandados de prisão exigindo a extradição de companheiros, forçando a corte a tomar uma posição firme.",
+      "due_at": 100000,
+      "due_day": 22,
+      "status": "scheduled",
+      "consequence_json": {
+        "scene": "scene_duelo_honra_ordem_paladinos"
+      }
+    }
+  ],
+  "milestones": [
+    {
+      "milestone_key": "milestone_lealdade_vanguarda",
+      "milestoneKey": "milestone_lealdade_vanguarda",
+      "name": "A Consolidação da Guarda de Vanguarda",
+      "xp": 400,
+      "source_ref": "Kingmaker PZO2020 Capítulo 12",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 12"
+    },
+    {
+      "milestone_key": "milestone_resgate_octavia_regongar",
+      "milestoneKey": "milestone_resgate_octavia_regongar",
+      "name": "A Libertação Absoluta contra a Liga Técnica",
+      "xp": 500,
+      "source_ref": "Kingmaker PZO2020 Capítulo 12",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 12"
+    },
+    {
+      "milestone_key": "milestone_redencao_tristian_valerie",
+      "milestoneKey": "milestone_redencao_tristian_valerie",
+      "name": "O Julgamento de Honra e a Graça Restaurada",
+      "xp": 600,
+      "source_ref": "Kingmaker PZO2020 Capítulo 12",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 12"
+    },
+    {
+      "milestone_key": "milestone_lenda_doze_companheiros",
+      "milestoneKey": "milestone_lenda_doze_companheiros",
+      "name": "A Lenda Viva dos Doze Companheiros do Reino",
+      "xp": 800,
+      "source_ref": "Kingmaker PZO2020 Capítulo 12",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 12"
+    }
+  ],
+  "metadata": {
+    "author": "Braseiro PF2e Engine",
+    "ruleset": "Pathfinder 2e Remaster",
+    "source": "Kingmaker Adventure Path PZO2020",
+    "version": "1.0.0",
+    "locale": "pt-BR"
+  }
+}

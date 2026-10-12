@@ -1,0 +1,71 @@
+{
+  "schema": "braseiro-pathfinder2e-chapter-v1",
+  "chapter_key": "chapter_00_call_for_heroes",
+  "chapterKey": "chapter_00_call_for_heroes",
+  "chapter_number": 0,
+  "chapterNumber": 0,
+  "title": "Prólogo — Convocação de Heróis em Restov",
+  "locale": "pt-BR",
+  "level_min": 1,
+  "levelMin": 1,
+  "level_max": 1,
+  "levelMax": 1,
+  "summary": "Prólogo estruturado que mantém Restov como sandbox até a escolha explícita de ir à mansão de Lady Jamandi e então bloqueia saltos até a carta e a partida para as Terras Roubadas.",
+  "metadata": {
+    "urban_anchor": "Restov, Rostland, Brevoy",
+    "sandbox_before_mansion": true,
+    "canonical_gate": "charter_before_stolen_lands",
+    "runtime_authority": "KingmakerPreludePolicy"
+  },
+  "quests": [
+    {
+      "quest_key": "q_call_for_heroes",
+      "questKey": "q_call_for_heroes",
+      "title": "Convocação de Heróis — Restov",
+      "status": "active",
+      "stage": "restov_sandbox",
+      "objective": "Explorar Restov livremente e responder à convocação de Lady Jamandi apenas quando o grupo decidir.",
+      "stakes": "Ir à mansão inicia a campanha principal; a expedição não pode começar antes da carta.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 0,
+      "milestoneXp": 0,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_call_1",
+          "desc": "Chegar a Restov",
+          "description": "Chegar a Restov",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_call_2",
+          "desc": "Escolher quando ir à mansão de Lady Jamandi",
+          "description": "Escolher quando ir à mansão de Lady Jamandi",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_call_3",
+          "desc": "Concluir os marcos da mansão e aceitar ou recusar a carta",
+          "description": "Concluir os marcos da mansão e aceitar ou recusar a carta",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {},
+      "progress_json": {
+        "runtime_phase_authority": "kingmaker_state.campaign_story_phase"
+      }
+    }
+  ],
+  "hazards": [],
+  "pois": [],
+  "tactical_scenes": [],
+  "npcs": [],
+  "factions": [],
+  "clocks": [],
+  "events": [],
+  "milestones": []
+}

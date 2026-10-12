@@ -1,0 +1,907 @@
+{
+  "schema": "braseiro-pathfinder2e-chapter-v1",
+  "chapter_key": "chapter_03_rivers_run_red",
+  "chapterKey": "chapter_03_rivers_run_red",
+  "chapter_number": 3,
+  "chapterNumber": 3,
+  "title": "Rios Correm Vermelhos: A Invasão dos Troles de Hargulka",
+  "locale": "pt-BR",
+  "level_min": 5,
+  "levelMin": 5,
+  "level_max": 7,
+  "levelMax": 7,
+  "summary": "A primeira grande prova de fogo militar da jovem Baronia: uma incursão devastadora de troles munidos de armaduras forjadas e runas mágicas que conferem imunidade anormal ao fogo e ao ácido. A expedição precisa resgatar a caravana fluvial de Jubilost Narthropple nas corredeiras do Rio Murque, negociar ingredientes arcanos com a reclusa Velha Beldame em seu pântano, desvendar o segredo da imunidade rúnica dos troles de pedra e sitiar o antigo reduto anão que se tornou o covil do Rei Hargulka.",
+  "quests": [
+    {
+      "quest_key": "q_hargulka",
+      "questKey": "q_hargulka",
+      "title": "A Fortaleza dos Troles de Pedra",
+      "status": "unstarted",
+      "stage": "localizar_reduto",
+      "objective": "Localizar a antiga fortaleza anã arruinada nas montanhas do sul e abater o Rei Troll Hargulka para erradicar a invasão.",
+      "stakes": "Caso Hargulka permaneça vivo, sua horda blindada marchará diretamente contra a capital baronial, arrasando tudo em seu caminho.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 400,
+      "milestoneXp": 400,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_har_1",
+          "desc": "Rastrear os destacamentos de guerra dos troles pelas margens do Lago Lamacento",
+          "description": "Rastrear os destacamentos de guerra dos troles pelas margens do Lago Lamacento",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_har_2",
+          "desc": "Invadir as muralhas inferiores e desativar as forjas de armaduras pesadas dos troles",
+          "description": "Invadir as muralhas inferiores e desativar as forjas de armaduras pesadas dos troles",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_har_3",
+          "desc": "Derrotar o xamã de pedra Nagrundi e neutralizar suas barreiras de fogo",
+          "description": "Derrotar o xamã de pedra Nagrundi e neutralizar suas barreiras de fogo",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_har_4",
+          "desc": "Enfrentar e matar o Rei Troll Hargulka em sua câmara do trono",
+          "description": "Enfrentar e matar o Rei Troll Hargulka em sua câmara do trono",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 600,
+        "xp": 400,
+        "items": ["machado_de_batalha_runico_de_hargulka", "peitoral_de_pedra_forjada", "tesouro_mineral_dos_troles"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_jubilost",
+      "questKey": "q_jubilost",
+      "title": "A Caravana Atolada de Jubilost",
+      "status": "unstarted",
+      "stage": "socorro_imediato",
+      "objective": "Socorrer o explorador e cartógrafo gnomo Jubilost Narthropple e sua expedição sob cerco de troles no Vau do Rio Murque.",
+      "stakes": "Se Jubilost for devorado, o reino perderá o maior cartógrafo das Terras Fluviais e um conselheiro econômico brilhante.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 150,
+      "milestoneXp": 150,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_jub_1",
+          "desc": "Romper a linha de cerco dos troles ao redor dos carroções no Vau do Rio Murque",
+          "description": "Romper a linha de cerco dos troles ao redor dos carroções no Vau do Rio Murque",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_jub_2",
+          "desc": "Garantir a integridade dos baús de mapas e espécimes botânicos de Jubilost",
+          "description": "Garantir a integridade dos baús de mapas e espécimes botânicos de Jubilost",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_jub_3",
+          "desc": "Escoltar Jubilost até a segurança da corte baronial e ouvi-lo sobre as rotas fluviais",
+          "description": "Escoltar Jubilost até a segurança da corte baronial e ouvi-lo sobre as rotas fluviais",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 150,
+        "xp": 150,
+        "items": ["atlas_fluvial_do_rio_murque", "lentes_de_engenharia_gnomicas"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_bruxa_pantano",
+      "questKey": "q_bruxa_pantano",
+      "title": "O Caldeirão da Velha Beldame",
+      "status": "unstarted",
+      "stage": "negociacao_pantano",
+      "objective": "Viajar até a choupana oculta da Velha Beldame nas profundezas lamacentas e convencê-la a compartilhar segredos contra as criaturas do pântano.",
+      "stakes": "A sabedoria ancestral da bruxa é a chave para superar as aberrações da fauna e contornar a névoa ácida.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 180,
+      "milestoneXp": 180,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_bel_1",
+          "desc": "Atravessar o atoleiro fétido sem despertar os vermes gigantes do lodo",
+          "description": "Atravessar o atoleiro fétido sem despertar os vermes gigantes do lodo",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_bel_2",
+          "desc": "Trazer para Beldame o fungo de casca negra que cresce nas pedras do rio",
+          "description": "Trazer para Beldame o fungo de casca negra que cresce nas pedras do rio",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_bel_3",
+          "desc": "Receber as poções de infusão corrosiva capazes de enfraquecer o couro dos troles de pedra",
+          "description": "Receber as poções de infusão corrosiva capazes de enfraquecer o couro dos troles de pedra",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 120,
+        "xp": 180,
+        "items": ["oleo_dissolvente_de_beldame", "unguento_antisseptico_do_pantano"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_troles_pedra",
+      "questKey": "q_troles_pedra",
+      "title": "O Segredo dos Troles Imunes",
+      "status": "unstarted",
+      "stage": "analise_alquimica",
+      "objective": "Dissecar espécimes de troles abatidos e desvendar a alquimia das runas protetoras fornecidas por poderes misteriosos.",
+      "stakes": "Soldados da guarnição continuarão sendo esmagados se o exército baronial não aprender a contornar a carapaça dos monstros.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 200,
+      "milestoneXp": 200,
+      "prerequisites": ["q_jubilost"],
+      "objectives": [
+        {
+          "id": "obj_sec_1",
+          "desc": "Examinar a carne petrificada e as incisões rúnicas nos cadáveres dos troles",
+          "description": "Examinar a carne petrificada e as incisões rúnicas nos cadáveres dos troles",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_sec_2",
+          "desc": "Descobrir as marcas arcanas sugerindo a intervenção de uma patrona feérica oculta",
+          "description": "Descobrir as marcas arcanas sugerindo a intervenção de uma patrona feérica oculta",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 180,
+        "xp": 200,
+        "items": ["fragmento_de_runa_do_primeiro_mundo"]
+      },
+      "progress_json": {}
+    }
+  ],
+  "hazards": [
+    {
+      "hazard_key": "hazard_geleia_acida",
+      "hazardKey": "hazard_geleia_acida",
+      "name": "Geleia Ácida Gotejante da Caverna",
+      "level": 5,
+      "traits": ["ambiental", "acido"],
+      "stealth_dc": 23,
+      "stealthDc": 23,
+      "perception_dc": 23,
+      "perceptionDc": 23,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 23,
+      "savingThrowDc": 23,
+      "disable_skills": [
+        {
+          "skill": "Ladroagem",
+          "dc": 24,
+          "proficiency": "especialista",
+          "description": "Fixar canaletas de chapa metálica para desviar as gotas ácidas do teto"
+        },
+        {
+          "skill": "Sobrevivência",
+          "dc": 24,
+          "proficiency": "treinado",
+          "description": "Neutralizar a poça ácida com cal viva e terra arenosa"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "ambiental",
+      "complexity": "simples",
+      "ac": 21,
+      "hardness": 0,
+      "hp": 40,
+      "bt": 20,
+      "reaction": "Reage a fontes de calor ou vibrações pesadas no piso da caverna.",
+      "reset": "Acumula novo ácido em 6 horas.",
+      "xp": 60,
+      "description": "Massa gelatinosa verde-escura translúcida aderida às estalactites, que goteja ácido fumegante capaz de corroer metais e carne.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "name": "Chuva Ácida Corrosiva",
+          "description": "Geleia cáustica cai sobre criaturas na área causando 3d8 de dano de ácido e 1d8 de dano contínuo de ácido."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_desmoronamento_trolls",
+      "hazardKey": "hazard_desmoronamento_trolls",
+      "name": "Desmoronamento Rúnico dos Troles",
+      "level": 6,
+      "traits": ["complexo", "mecanico", "armadilha"],
+      "stealth_dc": 24,
+      "stealthDc": 24,
+      "perception_dc": 24,
+      "perceptionDc": 24,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 25,
+      "savingThrowDc": 25,
+      "disable_skills": [
+        {
+          "skill": "Ladroagem",
+          "dc": 25,
+          "proficiency": "especialista",
+          "description": "Calçar os contrapesos rúnicos com cunhas de aço para travar o mecanismo"
+        },
+        {
+          "skill": "Atletismo",
+          "dc": 25,
+          "proficiency": "especialista",
+          "description": "Suster a viga de suporte de pedra durante o desabamento inicial"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "armadilha",
+      "complexity": "complexo",
+      "ac": 24,
+      "hardness": 10,
+      "hp": 48,
+      "bt": 24,
+      "reaction": "Despenca quando intrusos passam pelo desfiladeiro de entrada da fortaleza.",
+      "reset": "Não se rearma sem escavação pesada de troles.",
+      "xp": 90,
+      "description": "Blocos maciços de granito esculpidos com runas brutas, suspensos por correntes de ferro enferrujado sobre a garganta rochosa.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "name": "Avalanche de Rochas",
+          "description": "Desaba rochedos gigantes causando 4d10+6 de dano de concussão e soterra a área (terreno difícil e imobilizado com CD 25 para escapar)."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_neblina_pantano",
+      "hazardKey": "hazard_neblina_pantano",
+      "name": "Neblina Pestilenta da Velha Beldame",
+      "level": 5,
+      "traits": ["ambiental", "veneno"],
+      "stealth_dc": 23,
+      "stealthDc": 23,
+      "perception_dc": 23,
+      "perceptionDc": 23,
+      "saving_throw_type": "Fortitude",
+      "savingThrowType": "Fortitude",
+      "saving_throw_dc": 23,
+      "savingThrowDc": 23,
+      "disable_skills": [
+        {
+          "skill": "Natureza",
+          "dc": 23,
+          "proficiency": "treinado",
+          "description": "Espalhar ervas de salva fumegantes para dissipar a névoa mefítica"
+        },
+        {
+          "skill": "Medicina",
+          "dc": 23,
+          "proficiency": "treinado",
+          "description": "Improvisar máscaras de linho embebidas em vinagre para filtrar os vapores fétidos"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "ambiental",
+      "complexity": "simples",
+      "ac": 20,
+      "hardness": 0,
+      "hp": 36,
+      "bt": 18,
+      "reaction": "Cobre a área quando passos agitam as águas pantanosas estagnadas.",
+      "reset": "Dissipa com ventos fortes em 1 hora.",
+      "xp": 60,
+      "description": "Vapores espessos e amarelados desprendidos do lodo podre, carregados de miasmas tóxicos que atacam as vias aéreas.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "name": "Vapor Asfixiante",
+          "description": "Causa 3d6 de dano de veneno e impõe condição enjoado 1 em falha no teste de Fortitude."
+        }
+      ]
+    }
+  ],
+  "pois": [
+    {
+      "poi_key": "poi_fortaleza_hargulka",
+      "poiKey": "poi_fortaleza_hargulka",
+      "poi_id": "poi_fortaleza_hargulka",
+      "poiId": "poi_fortaleza_hargulka",
+      "campaign_key": "chapter_03_rivers_run_red",
+      "campaignKey": "chapter_03_rivers_run_red",
+      "map_id": "stolen_lands",
+      "name": "Fortaleza dos Troles de Pedra",
+      "name_key": "fortaleza_dos_troles_de_pedra",
+      "type": "dungeon",
+      "hex_id": "H_HARGULKA",
+      "hexId": "H_HARGULKA",
+      "location_id": "loc_fortaleza_hargulka",
+      "q": 3,
+      "r": 6,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Antiga cidadela anã de pedra esculpida encravada na montanha, convertida na base militar dos troles de Hargulka com forjas e calabouços.",
+      "tags": ["fortaleza_troll", "dungeon", "ana", "forjas"],
+      "development_level": 2,
+      "icon": "👹",
+      "notes": "Covil do Rei Hargulka e de suas tropas pesadas."
+    },
+    {
+      "poi_key": "poi_vau_jubilost",
+      "poiKey": "poi_vau_jubilost",
+      "poi_id": "poi_vau_jubilost",
+      "poiId": "poi_vau_jubilost",
+      "campaign_key": "chapter_03_rivers_run_red",
+      "campaignKey": "chapter_03_rivers_run_red",
+      "map_id": "stolen_lands",
+      "name": "Vau do Rio Murque e Caravana de Jubilost",
+      "name_key": "vau_do_rio_murque_e_caravana_de_jubilost",
+      "type": "landmark",
+      "hex_id": "H_JUBILOST",
+      "hexId": "H_JUBILOST",
+      "location_id": "loc_vau_jubilost",
+      "q": 0,
+      "r": 5,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Travessia pedregosa do caudaloso Rio Murque onde a comitiva acadêmica de Jubilost ficou presa na lama sob ataque de troles.",
+      "tags": ["rio", "resgate", "companheiro"],
+      "development_level": 1,
+      "icon": "🛶",
+      "notes": "Ponto de encontro inicial para recrutamento de Jubilost."
+    },
+    {
+      "poi_key": "poi_choupana_bruxa",
+      "poiKey": "poi_choupana_bruxa",
+      "poi_id": "poi_choupana_bruxa",
+      "poiId": "poi_choupana_bruxa",
+      "campaign_key": "chapter_03_rivers_run_red",
+      "campaignKey": "chapter_03_rivers_run_red",
+      "map_id": "stolen_lands",
+      "name": "Choupana da Velha Beldame",
+      "name_key": "choupana_da_velha_beldame",
+      "type": "refuge",
+      "hex_id": "H_SWAMP_WITCH",
+      "hexId": "H_SWAMP_WITCH",
+      "location_id": "loc_choupana_beldame",
+      "q": -2,
+      "r": 5,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Cabana de madeira tortuosa sobre palafitas no centro de um lamaçal sombrio, protegida por espantalhos mágicos e gatos pretos.",
+      "tags": ["bruxa", "pantano", "alquimia", "magia"],
+      "development_level": 1,
+      "icon": "🧙‍♀️",
+      "notes": "Comércio de poções raras e poções contra troles."
+    },
+    {
+      "poi_key": "poi_mina_solitaria",
+      "poiKey": "poi_mina_solitaria",
+      "poi_id": "poi_mina_solitaria",
+      "poiId": "poi_mina_solitaria",
+      "campaign_key": "chapter_03_rivers_run_red",
+      "campaignKey": "chapter_03_rivers_run_red",
+      "map_id": "stolen_lands",
+      "name": "Mina de Prata Abandonada dos Troles",
+      "name_key": "mina_de_prata_abandonada_dos_troles",
+      "type": "resource_site",
+      "hex_id": "H_13",
+      "hexId": "H_13",
+      "location_id": "loc_mina_troles",
+      "q": 2,
+      "r": 6,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Antiga galeria de extração de minério de prata explorada forçadamente pelos troles para armaduras pesadas.",
+      "tags": ["mina", "recurso", "prata"],
+      "development_level": 1,
+      "icon": "⛏️",
+      "notes": "Excelente sítio econômico para anexação pelo reino."
+    }
+  ],
+  "scenes": [
+    {
+      "scene_key": "scene_vau_jubilost",
+      "sceneKey": "scene_vau_jubilost",
+      "title": "Vau do Rio Murque e Carroças Atoladas",
+      "location": "Vau do Rio Murque",
+      "hex_id": "H_JUBILOST",
+      "hexId": "H_JUBILOST",
+      "environment": "rio_corredeira",
+      "width_cells": 16,
+      "widthCells": 16,
+      "height_cells": 10,
+      "heightCells": 10,
+      "seed": 3001,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "leito_correnteza",
+          "name": "Corredeiras Profundas do Murque",
+          "x": 0,
+          "y": 3,
+          "width": 16,
+          "height": 4,
+          "terrain": "agua_dificil",
+          "description": "Correnteza violenta que arrasta criaturas caídas e afoga carroções atolados"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "carroca_gnomica_atolada",
+          "x": 7,
+          "y": 4,
+          "width": 3,
+          "height": 2,
+          "type": "madeira_reforcada",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "maior"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "barranco_norte",
+          "x": 4,
+          "y": 1,
+          "team": "player",
+          "description": "Descida rápida de terra firme pelo barranco norte"
+        },
+        {
+          "point_key": "margem_sul_troles",
+          "x": 10,
+          "y": 8,
+          "team": "enemy",
+          "description": "Troles brandindo clavas pesadas investindo da margem sul"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "ataque_caravana_jubilost"
+      }
+    },
+    {
+      "scene_key": "scene_choupana_bruxa",
+      "sceneKey": "scene_choupana_bruxa",
+      "title": "Jardim de Espinhos e Caldeirão de Beldame",
+      "location": "Choupana da Velha Beldame",
+      "hex_id": "H_SWAMP_WITCH",
+      "hexId": "H_SWAMP_WITCH",
+      "environment": "pantano_brumoso",
+      "width_cells": 14,
+      "widthCells": 14,
+      "height_cells": 10,
+      "heightCells": 10,
+      "seed": 3002,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "lamaçal_profundo",
+          "name": "Lamaçal Estagnado",
+          "x": 0,
+          "y": 0,
+          "width": 14,
+          "height": 10,
+          "terrain": "pantano",
+          "description": "Lodo viscoso que reduz pela metade a velocidade e exala odor de decomposição"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "palafitas_da_cabana",
+          "x": 5,
+          "y": 3,
+          "width": 4,
+          "height": 4,
+          "type": "madeira_antiga",
+          "blocks_movement": true,
+          "blocks_vision": true,
+          "cover": "total"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "ponte_de_tabuas",
+          "x": 7,
+          "y": 9,
+          "team": "player",
+          "description": "Passadiço bambo de tábuas apodrecidas"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "encontro_beldame"
+      }
+    },
+    {
+      "scene_key": "scene_sala_trono_hargulka",
+      "sceneKey": "scene_sala_trono_hargulka",
+      "title": "Salão do Trono de Hargulka",
+      "location": "Fortaleza dos Troles de Pedra",
+      "hex_id": "H_HARGULKA",
+      "hexId": "H_HARGULKA",
+      "environment": "fortaleza_subterranea",
+      "width_cells": 18,
+      "widthCells": 18,
+      "height_cells": 14,
+      "heightCells": 14,
+      "seed": 3003,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "estrado_do_trono",
+          "name": "Estrado Real de Hargulka",
+          "x": 6,
+          "y": 1,
+          "width": 6,
+          "height": 4,
+          "terrain": "elevado",
+          "description": "Plataforma de granito onde repousa o trono de crânios e troféus de guerra anões"
+        },
+        {
+          "zone_key": "fosso_de_braseiros",
+          "name": "Fosso de Fundição e Fogo",
+          "x": 2,
+          "y": 6,
+          "width": 14,
+          "height": 2,
+          "terrain": "perigoso",
+          "description": "Vala com brasas incandescentes de fundição onde troles aquecem suas lâminas"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "pilar_anão_talhado",
+          "x": 4,
+          "y": 4,
+          "width": 2,
+          "height": 2,
+          "type": "pedra_reforcada",
+          "blocks_movement": true,
+          "blocks_vision": true,
+          "cover": "maior"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "portao_de_ferro_forjado",
+          "x": 9,
+          "y": 13,
+          "team": "player",
+          "description": "Portão arrombado por aríete de cerco"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "batalha_rei_hargulka"
+      }
+    }
+  ],
+  "npcs": [
+    {
+      "npc_key": "npc_jubilost_narthropple",
+      "npcKey": "npc_jubilost_narthropple",
+      "stable_id": "npc_jubilost_narthropple",
+      "stableId": "npc_jubilost_narthropple",
+      "name": "Jubilost Narthropple",
+      "summary": "Erudito gnomo arrogante, autor prolífico, cartógrafo de renome e aventureiro de inteligência aguçadíssima.",
+      "goals": "Mapear cada curva fluvial das Terras Roubadas e publicar a enciclopédia definitiva de geografia de Avistan.",
+      "secrets": "Sofre da Descoloração e precisa desesperadamente de novas experiências intelectuais para manter a vitalidade.",
+      "attitude": "indiferente",
+      "relationship": "Companheiro erudito e futuro Tesoureiro",
+      "knowledge": "Cartografia avançada, finanças mercantis, política das cidades de Brevoy e alquimia de bombardeiro.",
+      "debts": "Se resgatado das garras dos troles, oferece seus serviços inestimáveis como Conselheiro ou Tesoureiro.",
+      "last_seen": "Vau do Rio Murque",
+      "hex_id": "H_JUBILOST",
+      "hexId": "H_JUBILOST",
+      "faction": "Sociedade de Exploração Fluvial de Jubilost",
+      "token_uri": "tokens/jubilost.png",
+      "visual_description": "Gnomo de cabelos azuis penteados com esmero, roupas de viagem impecáveis apesar do barro, óculos redondos e relógio de bolso.",
+      "is_companion": true,
+      "isCompanion": true,
+      "dialogue_tree": [
+        {
+          "attitude_req": "indiferente",
+          "text": "Demoraram demais! Vocês chamam isso de tempo de resposta militar? Minha bagagem bibliográfica quase foi destruída por troles iletrados!",
+          "topic": "resgate_rabugento",
+          "quest_key": "q_jubilost"
+        },
+        {
+          "attitude_req": "amistoso",
+          "text": "Devo admitir que sua intervenção com lâminas e aço foi de uma competência aceitável. Se sua capital tiver uma biblioteca digna, aceito visitá-la.",
+          "topic": "oferta_tesoureiro",
+          "quest_key": "q_jubilost"
+        },
+        {
+          "attitude_req": "prestativo",
+          "text": "Os dados contábeis do seu reino eram um desastre antes de eu assumir a tesouraria. Felizmente para vocês, estou aqui para garantir o superávit.",
+          "topic": "fidelidade_governo",
+          "quest_key": "q_hargulka"
+        }
+      ],
+      "stats": {
+        "hp": 40,
+        "max_hp": 40,
+        "ac": 22,
+        "perception": 14
+      }
+    },
+    {
+      "npc_key": "npc_velha_beldame",
+      "npcKey": "npc_velha_beldame",
+      "stable_id": "npc_velha_beldame",
+      "stableId": "npc_velha_beldame",
+      "name": "Velha Beldame, a Bruxa do Pântano",
+      "summary": "Bruxa eremita reclusa, sarcástica e idosa que habita o lodo do Lago Lamacento cozinhando infusões de ervas.",
+      "goals": "Viver sem ser incomodada por colonos barulhentos e estudar os vapores espirituais do pântano.",
+      "secrets": "Possui uma antiga ligação familiar com os coven de fadas do Primeiro Mundo.",
+      "attitude": "desfavoravel",
+      "relationship": "Conjuradora excêntrica e fornecedora de unguentos",
+      "knowledge": "Feitiços de ocultismo, botânica pantanosa e métodos de perfurar couro de trolls.",
+      "debts": "Troca óleos dissolventes por fungos negros raros colhidos nas corredeiras.",
+      "last_seen": "Choupana do Lago Lamacento",
+      "hex_id": "H_SWAMP_WITCH",
+      "hexId": "H_SWAMP_WITCH",
+      "faction": "Terras Roubadas",
+      "token_uri": "tokens/beldame.png",
+      "visual_description": "Anciã encurvada de unhas longas amareladas, xale de penas de corvo e olhos perspicazes que enxergam através de ilusões.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "desfavoravel",
+          "text": "Quem mandou vocês pisotearem minhas urtigas? Saíam daqui antes que eu transforme suas pernas em pernas de sapo!",
+          "topic": "rabugice",
+          "quest_key": "q_bruxa_pantano"
+        },
+        {
+          "attitude_req": "indiferente",
+          "text": "Ah, os troles de Hargulka estão incomodando suas belas cidadezinhas de madeira? Eles usam pedra na pele, tolos... É preciso quebrar a rocha antes da carne.",
+          "topic": "segredo_troll",
+          "quest_key": "q_bruxa_pantano"
+        }
+      ],
+      "stats": {
+        "hp": 38,
+        "max_hp": 38,
+        "ac": 20,
+        "perception": 13
+      }
+    },
+    {
+      "npc_key": "npc_rei_hargulka",
+      "npcKey": "npc_rei_hargulka",
+      "stable_id": "npc_rei_hargulka",
+      "stableId": "npc_rei_hargulka",
+      "name": "Rei Hargulka",
+      "summary": "Soberano tirânico da Nação Troll, de intelecto feroz e ambição de criar um império de troles civilizados e blindados.",
+      "goals": "Destruir a Baronia humana e fazer dos rios correntes vermelhos de sangue dos colonos.",
+      "secrets": "Recebeu a dádiva das runas de imunidade de uma misteriosa donzela feérica que lhe prometeu a coroa das Terras Roubadas.",
+      "attitude": "hostil",
+      "relationship": "General inimigo supremo",
+      "knowledge": "Táticas militares, metalurgia pesada de armaduras de troles e liderança de hordas selvagens.",
+      "debts": "Nenhuma.",
+      "last_seen": "Salão do Trono da Fortaleza dos Troles",
+      "hex_id": "H_HARGULKA",
+      "hexId": "H_HARGULKA",
+      "faction": "Nação Troll de Hargulka",
+      "token_uri": "tokens/hargulka.png",
+      "visual_description": "Troll colossal de pele cinzenta rochosa vestindo cota de placas de aço negro forjada, empunhando uma clava rúnica devastadora.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "Humanos fracos constroem cercas de gravetos e acham que mandam na terra! Agora é a era de Hargulka e da Nação Troll!",
+          "topic": "declaracao_guerra",
+          "quest_key": "q_hargulka"
+        }
+      ],
+      "stats": {
+        "hp": 115,
+        "max_hp": 115,
+        "ac": 25,
+        "perception": 15
+      }
+    },
+    {
+      "npc_key": "npc_kesten_garess",
+      "npcKey": "npc_kesten_garess",
+      "stable_id": "npc_kesten_garess",
+      "stableId": "npc_kesten_garess",
+      "name": "Kesten Garess",
+      "summary": "Capitão nobre deserdado de Brevoy que comanda a guarda e as patrulhas de fronteira da Baronia com coragem inabalável.",
+      "goals": "Redimir o nome Garess através do dever militar honrado e defender os colonos até a morte.",
+      "secrets": "Foi deserdado após um romance trágico e proibido com uma camponesa em Rostland.",
+      "attitude": "prestativo",
+      "relationship": "Capitão leal da Guarda da Baronia",
+      "knowledge": "Manobras de patrulha, defesa de fortes e disciplina militar de infantaria.",
+      "debts": "Oferece a vida para proteger os limites do reino.",
+      "last_seen": "Quartel-General da Guarda",
+      "hex_id": "H_HARGULKA",
+      "hexId": "H_HARGULKA",
+      "faction": "Guarda da Baronia",
+      "token_uri": "tokens/kesten_garess.png",
+      "visual_description": "Cavaleiro vigoroso de postura nobre, capa azul escura sobre armadura de placas prateada e espada longa ao quadril.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "prestativo",
+          "text": "Meus homens estão prontos para marchar! Se os troles quiserem cruzar o rio, terão de passar sobre os nossos corpos!",
+          "topic": "relatorio_defesa",
+          "quest_key": "q_hargulka"
+        }
+      ],
+      "stats": {
+        "hp": 60,
+        "max_hp": 60,
+        "ac": 23,
+        "perception": 12
+      }
+    }
+  ],
+  "factions": [
+    {
+      "name": "Nação Troll de Hargulka",
+      "agenda": "Erradicar os reinos humanos nas Terras Fluviais e instaurar um domínio de troles blindados.",
+      "resources": "Troles de pedra blindados com aço, forjas subterrâneas anãs e clavas encantadas.",
+      "relationship": -4,
+      "current_plan": "Cercar assentamentos fronteiriços e forçar a capitulação da capital baronial.",
+      "location": "Fortaleza dos Troles de Pedra",
+      "active": true
+    },
+    {
+      "name": "Guarda da Baronia",
+      "agenda": "Proteger as fronteiras, manter a ordem pública e repelir incursões monstruosas.",
+      "resources": "Patrulhas de infantaria armada, postos de vigia e milícia treinada.",
+      "relationship": 4,
+      "current_plan": "Fortificar as passagens fluviais e guarnecer as pontes do Rio Murque.",
+      "location": "Capital da Baronia e Postos de Fronteira",
+      "active": true
+    },
+    {
+      "name": "Sociedade de Exploração Fluvial de Jubilost",
+      "agenda": "Mapear o sistema hidrográfico das Terras Roubadas e catalogar recursos minerais e botânicos.",
+      "resources": "Carroções adaptados de cartografia, barcos fluviais leves e instrumentos científicos.",
+      "relationship": 2,
+      "current_plan": "Concluir a carta hidrográfica do Rio Murque e estabelecer acordos comerciais com a capital.",
+      "location": "Rio Murque e Vaus Fluviais",
+      "active": true
+    }
+  ],
+  "clocks": [
+    {
+      "name": "Avanço das Tropas Troles na Fronteira",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "Vilas satélites sofrem ataques de tochas e colonos fogem em pânico para os portões da capital.",
+      "automatic": false,
+      "active": true
+    },
+    {
+      "name": "Agitação Popular pelas Invasões de Troles",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "O Reino sofre +3 de Agitação (Unrest) e penalidade de -2 em testes de Estabilidade.",
+      "automatic": true,
+      "active": true
+    }
+  ],
+  "events": [
+    {
+      "title": "Ataque Troll a um Assentamento de Fronteira",
+      "description": "Batedores troles em armaduras pesadas rompem as paliçadas de uma aldeia e exigem tributo em gado e prisioneiros.",
+      "due_at": 10000,
+      "due_day": 8,
+      "status": "scheduled",
+      "consequence_json": {
+        "unrest_increase": 1
+      }
+    },
+    {
+      "title": "Audiência Diplomática com Jubilost na Corte",
+      "description": "Jubilost Narthropple comparece ao conselho da Baronia apresentando suas credenciais de Tesoureiro.",
+      "due_at": 25000,
+      "due_day": 18,
+      "status": "scheduled",
+      "consequence_json": {
+        "economy_bonus": 2
+      }
+    }
+  ],
+  "milestones": [
+    {
+      "milestone_key": "milestone_resgate_jubilost",
+      "milestoneKey": "milestone_resgate_jubilost",
+      "name": "O Resgate de Jubilost no Rio Murque",
+      "xp": 150,
+      "source_ref": "Kingmaker PZO2020 Capítulo 3",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 3"
+    },
+    {
+      "milestone_key": "milestone_segredo_troles",
+      "milestoneKey": "milestone_segredo_troles",
+      "name": "A Descoberta das Forjas Rúnicas dos Troles",
+      "xp": 200,
+      "source_ref": "Kingmaker PZO2020 Capítulo 3",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 3"
+    },
+    {
+      "milestone_key": "milestone_alianca_beldame",
+      "milestoneKey": "milestone_alianca_beldame",
+      "name": "O Pacto Alquímico com a Velha Beldame",
+      "xp": 180,
+      "source_ref": "Kingmaker PZO2020 Capítulo 3",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 3"
+    },
+    {
+      "milestone_key": "milestone_destruicao_hargulka",
+      "milestoneKey": "milestone_destruicao_hargulka",
+      "name": "A Destruição da Fortaleza de Hargulka",
+      "xp": 400,
+      "source_ref": "Kingmaker PZO2020 Capítulo 3",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 3"
+    }
+  ],
+  "metadata": {
+    "author": "Braseiro PF2e Engine",
+    "ruleset": "Pathfinder 2e Remaster",
+    "source": "Kingmaker Adventure Path PZO2020",
+    "version": "1.0.0",
+    "locale": "pt-BR"
+  }
+}

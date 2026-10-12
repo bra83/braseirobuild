@@ -1,0 +1,55 @@
+{
+  "product": "Braseiro Pathfinder 2e",
+  "version_name": "8.2.0",
+  "version_code": 80200,
+  "db_schema": 57,
+  "backup_format": 20,
+  "motor_barbara": "1.1.0",
+  "official_barbara_checkpoint_sha256": "9f5197bc2f88c3c74c0843955be215501fe11f77d9e69832e8d507a16c2648a7",
+  "mechanics_authority": "Pathfinder2eRulesEngine",
+  "dice_runtime": "native GURPS-parity PhysicalDiceEngine + Dice3DView; PF2 DiceRollSpec resolves rules",
+  "atlas": {
+    "revision": "V5-MAX",
+    "map_id": "pathfinder2e-inner-sea-2135x2720-canonical-v5-max-compat",
+    "asset_sha256": "dbd7262e44a6c614f8262ed23c88bc0080bce91dc3ffc8991a25b84887149c83"
+  },
+  "device_regressions_fixed": [
+    "backup_format_20_validator",
+    "atlas_v5_manifest_geometry_and_logical_identity",
+    "native_physical_dice_gurps_parity",
+    "candle_narration_lifecycle_hooks",
+    "opaque_diagnostics",
+    "single_gemini_turn_path",
+    "pf2_current_validator_redirect"
+  ],
+  "official_core": {
+    "path": "LATEST/barbara-local-checkpoint-latest.tar.gz",
+    "version": "1.1.0",
+    "sha256": "9f5197bc2f88c3c74c0843955be215501fe11f77d9e69832e8d507a16c2648a7"
+  },
+  "base_project": "ADAPTACOES/PATHFINDER_2E/Braseiro_Pathfinder2e_8.1.2_MOTOR_BARBARA_1.1.0_V5_MAX_ANDROID_STUDIO.zip",
+  "dice_reference": "ADAPTACOES/GURPS/Braseiro_GURPS_10.6.0_MOTOR_BARBARA_1.1.0_ANDROID_STUDIO.zip",
+  "narration_hooks": [
+    "onMasterNarrationStarted",
+    "onNarrationChunk",
+    "onMasterNarrationEnded"
+  ],
+  "channels": {
+    "action": "PLAYER_ACTION",
+    "master": "GM_HELP"
+  },
+  "single_database": true,
+  "single_gemini_call_per_turn": true,
+  "validation": {
+    "pytest_pf2": "34/34 PASS",
+    "pathfinder_gate": "166/166 PASS",
+    "java_parse": "141/141 PASS",
+    "java_ast_javac": "0 syntax errors; 0 unresolved local calls",
+    "tool_suites": "18/18 PASS",
+    "dice_contract": "720 sessions; 1040 faces PASS",
+    "dice_stress": "1180 simulations PASS",
+    "dice_extreme": "11730 cases PASS",
+    "backup_contract": "v20 PASS; v21 rejected; mapless nonblocking; legacy v11 supported",
+    "aggregate": "RELEASE_GATE_8_2_PASS"
+  }
+}

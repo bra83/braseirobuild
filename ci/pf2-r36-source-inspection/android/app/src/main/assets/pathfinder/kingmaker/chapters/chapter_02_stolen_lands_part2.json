@@ -1,0 +1,1050 @@
+{
+  "schema": "braseiro-pathfinder2e-chapter-v1",
+  "chapter_key": "chapter_02_stolen_lands_part2",
+  "chapterKey": "chapter_02_stolen_lands_part2",
+  "chapter_number": 2,
+  "chapterNumber": 2,
+  "title": "Terras Roubadas - Parte 2: O Covil do Senhor dos Cervos e Fundação da Baronia",
+  "locale": "pt-BR",
+  "level_min": 2,
+  "levelMin": 2,
+  "level_max": 5,
+  "levelMax": 5,
+  "summary": "A expansão decisiva da expedição no coração do Cinturão Verde. A caçada ao temível javali Tuskgutter, a mediação ou conquista na guerra entre Kobolds Escamas de Fuligem e Ácaros sob as raízes do Velho Sicômoro, a redenção do clérigo Jhod Kavken e purificação da fonte sagrada no Templo do Alce, a infiltração e destruição da Fortaleza do Lago Tuskwater culminando na derrota do Senhor dos Cervos e na sagração da nova Baronia sob a Carta Régia de Restov.",
+  "quests": [
+    {
+      "quest_key": "q_tuskgutter",
+      "questKey": "q_tuskgutter",
+      "title": "A Caçada ao Tuskgutter",
+      "status": "unstarted",
+      "stage": "rastreamento_mata",
+      "objective": "Rastrear o colossal javali Presa-Firme nas matas densas ao sul e abater a fera para garantir a segurança dos colonos.",
+      "stakes": "O javali monstruoso continuará destruindo fazendas pioneiras e vitimando patrulhas nos ermos.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 120,
+      "milestoneXp": 120,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_tusk_1",
+          "desc": "Encontrar a trilha de árvores quebradas e pegadas colossais na mata sul",
+          "description": "Encontrar a trilha de árvores quebradas e pegadas colossais na mata sul",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_tusk_2",
+          "desc": "Abater o Tuskgutter em seu covil de espinheiros e recuperar sua cabeça como troféu",
+          "description": "Abater o Tuskgutter em seu covil de espinheiros e recuperar sua cabeça como troféu",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_tusk_3",
+          "desc": "Entregar a cabeça da besta a Oleg Leveton para reivindicar a recompensa pública",
+          "description": "Entregar a cabeça da besta a Oleg Leveton para reivindicar a recompensa pública",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 60,
+        "xp": 120,
+        "items": ["trofeu_cabeca_tuskgutter", "arco_composto_reforcado"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_sicomoro",
+      "questKey": "q_sicomoro",
+      "title": "O Mistério das Raízes do Velho Sicômoro",
+      "status": "unstarted",
+      "stage": "infiltracao_subterranea",
+      "objective": "Descer ao complexo subterrâneo escavado sob o Velho Sicômoro milenar e solucionar a guerra entre a tribo Kobold Escamas de Fuligem e os Ácaros do Rei Gordolobo.",
+      "stakes": "Caso a guerra se alastre, monstros das profundezas invadirão a superfície em hordas desesperadas.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 140,
+      "milestoneXp": 140,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_sico_1",
+          "desc": "Adentrar as galerias de raízes retorcidas do Velho Sicômoro",
+          "description": "Adentrar as galerias de raízes retorcidas do Velho Sicômoro",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_sico_2",
+          "desc": "Recuperar a estatueta sagrada de fuligem roubada pelos ácaros",
+          "description": "Recuperar a estatueta sagrada de fuligem roubada pelos ácaros",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_sico_3",
+          "desc": "Derrotar o Rei Gordolobo e desmascarar as maquinações do falso xamã Tartuk",
+          "description": "Derrotar o Rei Gordolobo e desmascarar as maquinações do falso xamã Tartuk",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_sico_4",
+          "desc": "Firmar um pacto de amizade ou vassalagem com o Chefe Sootscale",
+          "description": "Firmar um pacto de amizade ou vassalagem com o Chefe Sootscale",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 90,
+        "xp": 140,
+        "items": ["idolo_de_fuligem", "lanca_cerimonial_sootscale", "alianca_kobold"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_templo_alce",
+      "questKey": "q_templo_alce",
+      "title": "A Purificação do Templo do Alce",
+      "status": "unstarted",
+      "stage": "peregrinacao_sagrada",
+      "objective": "Guiar o sacerdote de Erastil Jhod Kavken até a clareira esquecida do Templo do Alce, derrotar o urso corrompido e consagrar a fonte milagrosa.",
+      "stakes": "A permanência da maldição feérica impede o florescimento da natureza e a atração de pioneiros religiosos.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 150,
+      "milestoneXp": 150,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_alce_1",
+          "desc": "Localizar as ruínas cobertas de hera do Templo do Alce na floresta profunda",
+          "description": "Localizar as ruínas cobertas de hera do Templo do Alce na floresta profunda",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_alce_2",
+          "desc": "Libertar ou abater em misericórdia o urso guardião enlouquecido pela mácula",
+          "description": "Libertar ou abater em misericórdia o urso guardião enlouquecido pela mácula",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_alce_3",
+          "desc": "Realizar o ritual de consagração da fonte límpida com as preces de Jhod",
+          "description": "Realizar o ritual de consagração da fonte límpida com as preces de Jhod",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 75,
+        "xp": 150,
+        "items": ["agua_benta_da_fonte_do_alce", "simbolo_sagrado_consagrado_de_erastil"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_senhor_cervos",
+      "questKey": "q_senhor_cervos",
+      "title": "A Queda do Senhor dos Cervos",
+      "status": "unstarted",
+      "stage": "planejamento_assalto",
+      "objective": "Assaltar a fortaleza de paliçadas do Senhor dos Cervos no Lago Tuskwater e aniquilar o império do medo dos bandidos.",
+      "stakes": "Enquanto o Senhor dos Cervos viver, nenhum reino legítimo poderá ser fundado nas Terras Roubadas.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 250,
+      "milestoneXp": 250,
+      "prerequisites": ["q_kressle"],
+      "objectives": [
+        {
+          "id": "obj_cervo_1",
+          "desc": "Reconhecer as defesas perimetrais, a jaula do urso zumbi e as torres de tiro da fortaleza",
+          "description": "Reconhecer as defesas perimetrais, a jaula do urso zumbi e as torres de tiro da fortaleza",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_cervo_2",
+          "desc": "Semear discórdia ou aliar-se com Akiros Ismort para enfraquecer os defensores",
+          "description": "Semear discórdia ou aliar-se com Akiros Ismort para enfraquecer os defensores",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_cervo_3",
+          "desc": "Eliminar o sádico Dovan de Nisroch e o eremita decrépito Nugrah",
+          "description": "Eliminar o sádico Dovan de Nisroch e o eremita decrépito Nugrah",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_cervo_4",
+          "desc": "Confrontar e derrotar o Senhor dos Cervos no topo de seu baluarte",
+          "description": "Confrontar e derrotar o Senhor dos Cervos no topo de seu baluarte",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 250,
+        "xp": 250,
+        "items": ["elmo_do_senhor_dos_cervos", "arco_composto_magico_do_cervo", "chave_do_tesouro_do_forte"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_fundacao_baronia",
+      "questKey": "q_fundacao_baronia",
+      "title": "A Fundação da Baronia das Terras Roubadas",
+      "status": "unstarted",
+      "stage": "declaracao_reino",
+      "objective": "Apresentar a vitória solene aos emissários de Restov, proclamar a Carta Régia e estabelecer a capital da nova Baronia.",
+      "stakes": "Consolidar a transição de um bando aventureiro para governantes soberanos de uma nação em ascensão.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 300,
+      "milestoneXp": 300,
+      "prerequisites": ["q_senhor_cervos"],
+      "objectives": [
+        {
+          "id": "obj_baronia_1",
+          "desc": "Designar os papéis do conselho de liderança da Baronia (Governante, Conselheiro, General, etc.)",
+          "description": "Designar os papéis do conselho de liderança da Baronia (Governante, Conselheiro, General, etc.)",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_baronia_2",
+          "desc": "Construir os primeiros edifícios cívicos e muralhas da capital",
+          "description": "Construir os primeiros edifícios cívicos e muralhas da capital",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_baronia_3",
+          "desc": "Receber a coroação e juramento de fidelidade dos primeiros cidadãos e aliados",
+          "description": "Receber a coroação e juramento de fidelidade dos primeiros cidadãos e aliados",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 500,
+        "xp": 300,
+        "items": ["carta_regia_selada_de_brevoy", "coroa_baronial_de_cervo_prateado"]
+      },
+      "progress_json": {}
+    }
+  ],
+  "hazards": [
+    {
+      "hazard_key": "hazard_raiz_sicomoro",
+      "hazardKey": "hazard_raiz_sicomoro",
+      "name": "Alçapão Espinhoso do Velho Sicômoro",
+      "level": 2,
+      "traits": ["complexo", "mecanico", "armadilha"],
+      "stealth_dc": 18,
+      "stealthDc": 18,
+      "perception_dc": 18,
+      "perceptionDc": 18,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 19,
+      "savingThrowDc": 19,
+      "disable_skills": [
+        {
+          "skill": "Ladroagem",
+          "dc": 18,
+          "proficiency": "treinado",
+          "description": "Destravar as tramas de raízes vivas presas aos ganchos de pressão"
+        },
+        {
+          "skill": "Natureza",
+          "dc": 17,
+          "proficiency": "treinado",
+          "description": "Acalmar o crescimento agressivo da madeira fada com seiva neutralizadora"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "armadilha",
+      "complexity": "complexo",
+      "ac": 17,
+      "hardness": 5,
+      "hp": 24,
+      "bt": 12,
+      "reaction": "Abre um poço de 4 metros guarnecido de espinhos quando acionado por pisada.",
+      "reset": "As raízes fecham a armadilha lentamente ao longo de 1 hora.",
+      "xp": 45,
+      "description": "Uma trama de raízes vivas do Sicômoro entrelaçadas sobre um buraco repleto de espinhos pontiagudos preparados pelos ácaros.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "name": "Aperto das Raízes",
+          "description": "Raízes móveis se contraem em volta do alvo caído causando 1d8+3 de dano de concussão e o mantêm preso."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_fonte_corrompida",
+      "hazardKey": "hazard_fonte_corrompida",
+      "name": "Fonte Amaldiçoada do Templo do Alce",
+      "level": 3,
+      "traits": ["ambiental", "assombracao", "magico"],
+      "stealth_dc": 20,
+      "stealthDc": 20,
+      "perception_dc": 20,
+      "perceptionDc": 20,
+      "saving_throw_type": "Vontade",
+      "savingThrowType": "Vontade",
+      "saving_throw_dc": 20,
+      "savingThrowDc": 20,
+      "disable_skills": [
+        {
+          "skill": "Religião",
+          "dc": 20,
+          "proficiency": "treinado",
+          "description": "Proferir uma oração a Erastil aspergindo água pura sobre a efígie do Alce"
+        },
+        {
+          "skill": "Natureza",
+          "dc": 19,
+          "proficiency": "treinado",
+          "description": "Arrancar o lodo fétido e as ervas venenosas que obstruem a vertente sagrada"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "assombracao",
+      "complexity": "simples",
+      "ac": 18,
+      "hardness": 0,
+      "hp": 30,
+      "bt": 15,
+      "reaction": "Emana uma onda de desespero e agonia quando intrusos tocam a borda da fonte arruinada.",
+      "reset": "Não reseta após purificada pelo ritual de consagração.",
+      "xp": 60,
+      "description": "A fonte sagrada de Erastil, tomada por uma névoa púrpura profana que projeta sussurros de desespero e dor na mente dos presentes.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "name": "Murmúrio de Agonia",
+          "description": "Causa 2d6 de dano mental a todas as criaturas em um raio de 6 metros; falha impõe a condição amedrontado 2."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_caveira_alarme_cervo",
+      "hazardKey": "hazard_caveira_alarme_cervo",
+      "name": "Alarme de Caveiras do Senhor dos Cervos",
+      "level": 4,
+      "traits": ["complexo", "mecanico", "armadilha"],
+      "stealth_dc": 21,
+      "stealthDc": 21,
+      "perception_dc": 21,
+      "perceptionDc": 21,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 21,
+      "savingThrowDc": 21,
+      "disable_skills": [
+        {
+          "skill": "Ladroagem",
+          "dc": 22,
+          "proficiency": "especialista",
+          "description": "Calçar os sinos de cobre ocultos nas órbitas das caveiras e cortar os fios tensores"
+        },
+        {
+          "skill": "Manufatura",
+          "dc": 21,
+          "proficiency": "treinado",
+          "description": "Desmontar o arranjo de cordas de tripa sem provocar o ricochete sonoro"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "armadilha",
+      "complexity": "complexo",
+      "ac": 20,
+      "hardness": 6,
+      "hp": 32,
+      "bt": 16,
+      "reaction": "Dispara quando fios tensores invisíveis esticados entre as estacas do forte são rompidos.",
+      "reset": "Manual (10 minutos para rearranjar as caveiras).",
+      "xp": 75,
+      "description": "Fileiras de crânios humanos e de cervos suspensos por cabos de aço e tripas secas, munidos de sinos de alarme e virotes de besta acoplados.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "name": "Salva de Virotes e Clamor",
+          "description": "Dispara 2 virotes envenenados (+14 para acertar) causando 2d6+4 de dano perfurante e alerta todo o contingente do forte."
+        }
+      ]
+    }
+  ],
+  "pois": [
+    {
+      "poi_key": "poi_velho_sicomoro",
+      "poiKey": "poi_velho_sicomoro",
+      "poi_id": "poi_velho_sicomoro",
+      "poiId": "poi_velho_sicomoro",
+      "campaign_key": "chapter_02_stolen_lands_part2",
+      "campaignKey": "chapter_02_stolen_lands_part2",
+      "map_id": "stolen_lands",
+      "name": "O Velho Sicômoro e Complexo de Raízes",
+      "name_key": "o_velho_sicomoro_e_complexo_de_raizes",
+      "type": "dungeon",
+      "hex_id": "H_SYCAMORE",
+      "hexId": "H_SYCAMORE",
+      "location_id": "loc_velho_sicomoro",
+      "q": 1,
+      "r": 3,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Uma gigantesca árvore centenária que domina o topo de uma colina, com túneis subterrâneos escavados entre suas grossas raízes onde vivem ácaros e kobolds.",
+      "tags": ["arvore_ancestral", "dungeon", "subterraneo", "guerra_tribal"],
+      "development_level": 1,
+      "icon": "🌳",
+      "notes": "Entrada principal sob o tronco partido e fendas laterais de raízes."
+    },
+    {
+      "poi_key": "poi_templo_alce",
+      "poiKey": "poi_templo_alce",
+      "poi_id": "poi_templo_alce",
+      "poiId": "poi_templo_alce",
+      "campaign_key": "chapter_02_stolen_lands_part2",
+      "campaignKey": "chapter_02_stolen_lands_part2",
+      "map_id": "stolen_lands",
+      "name": "Templo Sagrado do Alce",
+      "name_key": "templo_sagrado_do_alce",
+      "type": "landmark",
+      "hex_id": "H_ELK_TEMPLE",
+      "hexId": "H_ELK_TEMPLE",
+      "location_id": "loc_templo_alce",
+      "q": -2,
+      "r": 3,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Antigo santuário de colunas de pedra em honra a Erastil, oculto na mata densa e purificável através da fé e do combate sagrado.",
+      "tags": ["sagrado", "erastil", "cura", "restaurado"],
+      "development_level": 1,
+      "icon": "🦌",
+      "notes": "Fonte mágica que cura aflições e abençoa a nova corte."
+    },
+    {
+      "poi_key": "poi_guarida_tuskgutter",
+      "poiKey": "poi_guarida_tuskgutter",
+      "poi_id": "poi_guarida_tuskgutter",
+      "poiId": "poi_guarida_tuskgutter",
+      "campaign_key": "chapter_02_stolen_lands_part2",
+      "campaignKey": "chapter_02_stolen_lands_part2",
+      "map_id": "stolen_lands",
+      "name": "Covil do Tuskgutter",
+      "name_key": "covil_do_tuskgutter",
+      "type": "lair",
+      "hex_id": "H_TUSKGUTTER",
+      "hexId": "H_TUSKGUTTER",
+      "location_id": "loc_covil_tuskgutter",
+      "q": 0,
+      "r": 4,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Grotão encoberto por espinheiros cerrados e troncos partidos onde habita o lendário javali Presa-Firme cercado de ossadas.",
+      "tags": ["besta", "cacada", "covil"],
+      "development_level": 1,
+      "icon": "🐗",
+      "notes": "Terreno difícil repleto de fendas lamacentas."
+    },
+    {
+      "poi_key": "poi_forte_senhor_cervos",
+      "poiKey": "poi_forte_senhor_cervos",
+      "poi_id": "poi_forte_senhor_cervos",
+      "poiId": "poi_forte_senhor_cervos",
+      "campaign_key": "chapter_02_stolen_lands_part2",
+      "campaignKey": "chapter_02_stolen_lands_part2",
+      "map_id": "stolen_lands",
+      "name": "Fortaleza do Senhor dos Cervos",
+      "name_key": "fortaleza_do_senhor_dos_cervos",
+      "type": "settlement",
+      "hex_id": "H_STAG_FORT",
+      "hexId": "H_STAG_FORT",
+      "location_id": "loc_forte_senhor_cervos",
+      "q": 1,
+      "r": 5,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Forte de madeira com paliçadas duplas sobre uma elevação à beira do Lago Tuskwater, coração do poder do Senhor dos Cervos e futura sede da capital.",
+      "tags": ["fortaleza", "capital_em_potencial", "lago", "chefe"],
+      "development_level": 2,
+      "icon": "🏰",
+      "notes": "Local ideal para a fundação da primeira cidade da Baronia após ser expurgado."
+    },
+    {
+      "poi_key": "poi_tribo_sootscale",
+      "poiKey": "poi_tribo_sootscale",
+      "poi_id": "poi_tribo_sootscale",
+      "poiId": "poi_tribo_sootscale",
+      "campaign_key": "chapter_02_stolen_lands_part2",
+      "campaignKey": "chapter_02_stolen_lands_part2",
+      "map_id": "stolen_lands",
+      "name": "Cavernas dos Kobolds Escamas de Fuligem",
+      "name_key": "cavernas_dos_kobolds_escamas_de_fuligem",
+      "type": "dungeon",
+      "hex_id": "H_SOOTSCALE",
+      "hexId": "H_SOOTSCALE",
+      "location_id": "loc_cavernas_sootscale",
+      "q": 2,
+      "r": 3,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Antiga mina de prata abandonada habitada pelo clã kobold liderado pelo Chefe Sootscale, com armadilhas engenhosas e passagens estreitas.",
+      "tags": ["kobolds", "mina", "diplomacia"],
+      "development_level": 1,
+      "icon": "⛏️",
+      "notes": "Pode se tornar fonte de recursos minerais para o reino caso se firme aliança."
+    }
+  ],
+  "scenes": [
+    {
+      "scene_key": "scene_velho_sicomoro",
+      "sceneKey": "scene_velho_sicomoro",
+      "title": "Túneis Subterrâneos do Velho Sicômoro",
+      "location": "O Velho Sicômoro",
+      "hex_id": "H_SYCAMORE",
+      "hexId": "H_SYCAMORE",
+      "environment": "subterraneo_raiz",
+      "width_cells": 16,
+      "widthCells": 16,
+      "height_cells": 12,
+      "heightCells": 12,
+      "seed": 2001,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "ninho_acaros",
+          "name": "Salão dos Ácaros e Centopeia Gigante",
+          "x": 2,
+          "y": 2,
+          "width": 6,
+          "height": 6,
+          "terrain": "normal",
+          "description": "Câmara fétida repleta de folhas apodrecidas, fardos de teias e o trono tosco do Rei Gordolobo"
+        },
+        {
+          "zone_key": "galeria_raizes",
+          "name": "Corredor Estreito de Raízes",
+          "x": 8,
+          "y": 4,
+          "width": 8,
+          "height": 4,
+          "terrain": "dificil",
+          "description": "Passagem estreita onde raízes suspensas exigem agachamento para criaturas médias"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "pilar_raiz_mestre",
+          "x": 5,
+          "y": 5,
+          "width": 2,
+          "height": 2,
+          "type": "madeira_viva",
+          "blocks_movement": true,
+          "blocks_vision": true,
+          "cover": "maior"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "fenda_norte",
+          "x": 3,
+          "y": 1,
+          "team": "player",
+          "description": "Abertura escavada entre os nós da árvore na superfície"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "guerra_sicomoro"
+      }
+    },
+    {
+      "scene_key": "scene_templo_alce",
+      "sceneKey": "scene_templo_alce",
+      "title": "Clareira Sagrada e Fonte do Alce",
+      "location": "Templo Antigo do Alce",
+      "hex_id": "H_ELK_TEMPLE",
+      "hexId": "H_ELK_TEMPLE",
+      "environment": "ruinas_sagradas",
+      "width_cells": 14,
+      "widthCells": 14,
+      "height_cells": 10,
+      "heightCells": 10,
+      "seed": 2002,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "perimetro_fonte",
+          "name": "Bacia e Espelho d'Água da Fonte",
+          "x": 4,
+          "y": 3,
+          "width": 6,
+          "height": 4,
+          "terrain": "agua_baixa",
+          "description": "Piscina circular de mármore esverdeado com água outrora benta, agora enevoada por mácula mágica"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "coluna_quebrada_erastil",
+          "x": 3,
+          "y": 2,
+          "width": 1,
+          "height": 2,
+          "type": "pedra_talhada",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "padrao"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "alameda_sagrada",
+          "x": 7,
+          "y": 9,
+          "team": "player",
+          "description": "Trilha flanqueada por carvalhos ancestrais"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "purificacao_templo"
+      }
+    },
+    {
+      "scene_key": "scene_forte_senhor_cervos",
+      "sceneKey": "scene_forte_senhor_cervos",
+      "title": "Pátio e Baluartes do Forte do Cervo",
+      "location": "Fortaleza do Senhor dos Cervos",
+      "hex_id": "H_STAG_FORT",
+      "hexId": "H_STAG_FORT",
+      "environment": "fortaleza_paliçada",
+      "width_cells": 18,
+      "widthCells": 18,
+      "height_cells": 14,
+      "heightCells": 14,
+      "seed": 2003,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "patio_inferior",
+          "name": "Pátio Inferior e Jaulas de Feras",
+          "x": 2,
+          "y": 4,
+          "width": 12,
+          "height": 6,
+          "terrain": "normal",
+          "description": "Área aberta de terra com a jaula de madeira maciça onde o urso enjaulado Ami ruge em fúria"
+        },
+        {
+          "zone_key": "passadico_superior",
+          "name": "Baluarte e Passadiço de Tiro do Senhor dos Cervos",
+          "x": 4,
+          "y": 0,
+          "width": 10,
+          "height": 3,
+          "terrain": "elevado",
+          "description": "Plataforma fortificada de madeira com seteiras e trono rústico adornado de chifres"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "jaula_do_urso",
+          "x": 10,
+          "y": 5,
+          "width": 3,
+          "height": 3,
+          "type": "grades_de_ferro",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "padrao"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "portao_paliçada_sul",
+          "x": 8,
+          "y": 13,
+          "team": "player",
+          "description": "Portão fortificado de toras afiadas"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "batalha_final_senhor_cervos"
+      }
+    }
+  ],
+  "npcs": [
+    {
+      "npc_key": "npc_jhod_kavken",
+      "npcKey": "npc_jhod_kavken",
+      "stable_id": "npc_jhod_kavken",
+      "stableId": "npc_jhod_kavken",
+      "name": "Jhod Kavken",
+      "summary": "Clérigo devoto de Erastil, atormentado por visões de um templo profanado e buscando remissão para erros do passado.",
+      "goals": "Purificar o Templo do Alce e servir como guia espiritual e Grande Conselheiro da nova comunidade.",
+      "secrets": "Cometeu um ato desonrado em Galt que custou vidas inocentes, pelo qual jurou penitência perpétua.",
+      "attitude": "amistoso",
+      "relationship": "Aliado religioso e conselheiro devoto",
+      "knowledge": "Conhece ritos de consagração de Erastil, história eclesiástica e teologia agrária.",
+      "debts": "Oferece bênçãos e cura para o grupo e assume com lealdade um cargo de liderança na Baronia.",
+      "last_seen": "Posto de Oleg e Templo do Alce",
+      "hex_id": "H_ELK_TEMPLE",
+      "hexId": "H_ELK_TEMPLE",
+      "faction": "Pioneiros da Nova Baronia",
+      "token_uri": "tokens/jhod_kavken.png",
+      "visual_description": "Homem austero de olhos cansados, cabelos grisalhos curtos e túnica rústica de linho com o arco de Erastil bordado em fios verdes.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "amistoso",
+          "text": "Erastil me enviou em sonho... Uma fera amaldiçoada chora sangue diante da fonte do Alce. Precisamos libertá-la.",
+          "topic": "visao_sagrada",
+          "quest_key": "q_templo_alce"
+        },
+        {
+          "attitude_req": "prestativo",
+          "text": "O Velho Caçador abençoou esta terra através das mãos de vocês. Servirei à sua corte como Conselheiro com retidão.",
+          "topic": "conselheiro_baronia",
+          "quest_key": "q_fundacao_baronia"
+        }
+      ],
+      "stats": {
+        "hp": 28,
+        "max_hp": 28,
+        "ac": 16,
+        "perception": 10
+      }
+    },
+    {
+      "npc_key": "npc_chefe_sootscale",
+      "npcKey": "npc_chefe_sootscale",
+      "stable_id": "npc_chefe_sootscale",
+      "stableId": "npc_chefe_sootscale",
+      "name": "Chefe Sootscale",
+      "summary": "Líder pragmático da tribo kobold Escamas de Fuligem, desgastado pela tirania do xamã Tartuk e pela guerra contra os ácaros.",
+      "goals": "Proteger seu clã da extinção, recuperar a estátua sagrada e livrar-se das maldições manipuladas por Tartuk.",
+      "secrets": "Reconhece em segredo que os humanos armados são aliados mais confiáveis do que falsos deuses kobolds.",
+      "attitude": "indiferente",
+      "relationship": "Líder tribal negociável",
+      "knowledge": "Domina todas as galerias subterrâneas e veios de prata do Velho Sicômoro.",
+      "debts": "Coloca a perícia mineradora e construtora de sua tribo a serviço do reino.",
+      "last_seen": "Cavernas Sootscale",
+      "hex_id": "H_SOOTSCALE",
+      "hexId": "H_SOOTSCALE",
+      "faction": "Tribo Kobold Escamas de Fuligem",
+      "token_uri": "tokens/chefe_sootscale.png",
+      "visual_description": "Kobold de escamas pretas lustrosas adornado com dentes de javali e empunhando uma lança com ponta de prata polida.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "indiferente",
+          "text": "Humanos altos querem sangue kobold? Ou querem esmagar ácaros fedorentos que roubaram o deus de pedra?",
+          "topic": "proposta_sootscale",
+          "quest_key": "q_sicomoro"
+        },
+        {
+          "attitude_req": "amistoso",
+          "text": "Vocês quebraram a estátua maldita de Tartuk! Não há maldição! Kobolds Escamas de Fuligem são amigos de seu povo!",
+          "topic": "libertacao_kobold",
+          "quest_key": "q_sicomoro"
+        }
+      ],
+      "stats": {
+        "hp": 22,
+        "max_hp": 22,
+        "ac": 17,
+        "perception": 8
+      }
+    },
+    {
+      "npc_key": "npc_akiros_ismort",
+      "npcKey": "npc_akiros_ismort",
+      "stable_id": "npc_akiros_ismort",
+      "stableId": "npc_akiros_ismort",
+      "name": "Akiros Ismort",
+      "summary": "Tenente do Senhor dos Cervos e antigo paladino caído de Erastil, consumido pela vergonha e buscando redenção.",
+      "goals": "Romper com a brutalidade insana do Senhor dos Cervos sem ser executado por traição.",
+      "secrets": "Guarda a chave secreta que destranca os portões traseiros da fortaleza do Tuskwater.",
+      "attitude": "desfavoravel",
+      "relationship": "Tenente inimigo suscetível a redenção",
+      "knowledge": "Plano exato de patrulhas, hábitos de embriaguez do Senhor dos Cervos e forças do forte.",
+      "debts": "Se redimido, luta ao lado dos heróis e pode tornar-se o General ou Guardião da Baronia.",
+      "last_seen": "Fortaleza do Senhor dos Cervos",
+      "hex_id": "H_STAG_FORT",
+      "hexId": "H_STAG_FORT",
+      "faction": "Bandos do Senhor dos Cervos",
+      "token_uri": "tokens/akiros_ismort.png",
+      "visual_description": "Homem vigoroso de expressão pesarosa, vestindo cota de malha pesada sob capa esfarrapada com as insígnias rasgadas de sua ordem.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "desfavoravel",
+          "text": "Vocês não entendem o que este lugar faz com um homem... O Senhor dos Cervos é um demônio embriagado, mas ele me deu abrigo quando os sacerdotes me renegaram.",
+          "topic": "dilema_akiros",
+          "quest_key": "q_senhor_cervos"
+        },
+        {
+          "attitude_req": "indiferente",
+          "text": "Se vocês realmente juram perante Erastil que trarão ordem justa e me permitirão expiar minhas falhas, eu abro os portões.",
+          "topic": "traicao_ao_forte",
+          "quest_key": "q_senhor_cervos"
+        }
+      ],
+      "stats": {
+        "hp": 48,
+        "max_hp": 48,
+        "ac": 19,
+        "perception": 9
+      }
+    },
+    {
+      "npc_key": "npc_dovan_de_nisroch",
+      "npcKey": "npc_dovan_de_nisroch",
+      "stable_id": "npc_dovan_de_nisroch",
+      "stableId": "npc_dovan_de_nisroch",
+      "name": "Dovan de Nisroch",
+      "summary": "Torturador sádico oriundo de Nidal, braço direito e manipulador cruel que gerencia as masmorras do forte.",
+      "goals": "Infligir tormento, acumular joias e manter controle psicológico sobre o Senhor dos Cervos.",
+      "secrets": "Planeja assassinar o Senhor dos Cervos e fugir com o tesouro da fortaleza assim que Restov enviar tropas regulares.",
+      "attitude": "hostil",
+      "relationship": "Inimigo cruel e ardiloso",
+      "knowledge": "Segredos de tortura, venenos das Terras Sombrias e esconderijos de joias roubadas.",
+      "debts": "Nenhuma.",
+      "last_seen": "Masmorras da Fortaleza do Tuskwater",
+      "hex_id": "H_STAG_FORT",
+      "hexId": "H_STAG_FORT",
+      "faction": "Bandos do Senhor dos Cervos",
+      "token_uri": "tokens/dovan.png",
+      "visual_description": "Homem pálido com cabelos pretos oleosos, sorriso viperino e florete fino decorado com madrepérola escura.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "Vejam só... carne fresca para minhas lâminas. Antes de vocês morrerem, vão me implorar para cortar suas línguas!",
+          "topic": "ameaca",
+          "quest_key": "q_senhor_cervos"
+        }
+      ],
+      "stats": {
+        "hp": 42,
+        "max_hp": 42,
+        "ac": 19,
+        "perception": 10
+      }
+    },
+    {
+      "npc_key": "npc_senhor_dos_cervos",
+      "npcKey": "npc_senhor_dos_cervos",
+      "stable_id": "npc_senhor_dos_cervos",
+      "stableId": "npc_senhor_dos_cervos",
+      "name": "O Senhor dos Cervos",
+      "summary": "Déspota selvagem e colossal, de rosto oculto sob o crânio de um cervo monstruoso, afogado em uísque e violência cega.",
+      "goals": "Esmagar qualquer autoridade estrangeira e banhar os ermos em sangue.",
+      "secrets": "Filho traumatizado e abusado do eremita Nugrah, cuja loucura foi alimentada por anos de isolamento e ódio.",
+      "attitude": "hostil",
+      "relationship": "Chefe antagonista militar",
+      "knowledge": "Força física brutal, táticas de guerrilha em florestas e uso de arcos de tração extrema.",
+      "debts": "Nenhuma.",
+      "last_seen": "Baluarte Superior da Fortaleza",
+      "hex_id": "H_STAG_FORT",
+      "hexId": "H_STAG_FORT",
+      "faction": "Bandos do Senhor dos Cervos",
+      "token_uri": "tokens/senhor_dos_cervos.png",
+      "visual_description": "Gigantesco guerreiro musculoso coberto de cicatrizes, trajando couraça de couro cru e o macabro elmo de crânio com galhadas colossais.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "Quem entra no meu forte só sai em pedaços atirados aos corvos! Venham sentir o peso dos meus punhos!",
+          "topic": "furia",
+          "quest_key": "q_senhor_cervos"
+        }
+      ],
+      "stats": {
+        "hp": 65,
+        "max_hp": 65,
+        "ac": 21,
+        "perception": 11
+      }
+    }
+  ],
+  "factions": [
+    {
+      "name": "Bandos do Senhor dos Cervos",
+      "agenda": "Subjugar o Cinturão Verde através do terror e execuções sumárias.",
+      "resources": "Fortaleza murada no Lago Tuskwater, arqueiros veteranos e feras enjauladas.",
+      "relationship": -3,
+      "current_plan": "Consolidar todas as quadrilhas de bandidos e marchar contra postos avançados de Brevoy.",
+      "location": "Fortaleza do Tuskwater",
+      "active": true
+    },
+    {
+      "name": "Tribo Kobold Escamas de Fuligem",
+      "agenda": "Minar prata em paz e proteger seus ovos contra incursões de ácaros.",
+      "resources": "Complexo subterrâneo de minas, armadilhas artesanais e guerreiros furtivos.",
+      "relationship": 0,
+      "current_plan": "Destruir a liderança dos ácaros e forjar aliança com os heróis da superfície.",
+      "location": "Velho Sicômoro e Cavernas Sootscale",
+      "active": true
+    },
+    {
+      "name": "Ácaros do Velho Sicômoro",
+      "agenda": "Propagar o caos, idolatrar insetos grotescos e atormentar criaturas maiores.",
+      "resources": "Centopeias gigantes domadas, dardos envenenados e passagens estreitas de raízes.",
+      "relationship": -3,
+      "current_plan": "Manter a estatueta de fuligem cativa para enfraquecer os kobolds.",
+      "location": "Raízes Profundas do Sicômoro",
+      "active": true
+    },
+    {
+      "name": "Pioneiros da Nova Baronia",
+      "agenda": "Erguer cidades, arar campos e fundar uma nação soberana sob o estatuto da Carta Régia.",
+      "resources": "Carta Régia de Restov, clérigos de Erastil, colonos artesãos e soldados veteranos.",
+      "relationship": 3,
+      "current_plan": "Transformar o forte purificado na capital Cervo da Prata e expandir o território.",
+      "location": "Lago Tuskwater e Terras Roubadas",
+      "active": true
+    }
+  ],
+  "clocks": [
+    {
+      "name": "Guerra Subterrânea no Velho Sicômoro",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "Os ácaros desencadeiam uma investida massiva de centopeias gigantes sobre a superfície.",
+      "automatic": false,
+      "active": true
+    },
+    {
+      "name": "Reforços da Fortaleza do Cervo",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "Bandidos errantes retornam ao forte, dobrando o número de arqueiros nos baluartes.",
+      "automatic": false,
+      "active": true
+    }
+  ],
+  "events": [
+    {
+      "title": "A Investida do Tuskgutter nas Fazendas",
+      "description": "O monstro descomunal despedaça paliçadas ao sul do posto de Oleg em busca de mantimentos.",
+      "due_at": 5000,
+      "due_day": 5,
+      "status": "scheduled",
+      "consequence_json": {
+        "scene": "scene_covil_tuskgutter"
+      }
+    },
+    {
+      "title": "A Proclamação da Carta e Fundação da Baronia",
+      "description": "Comitiva régia de Restov chega à fortaleza purificada com pergaminhos imperiais para a coroação dos governantes.",
+      "due_at": 50000,
+      "due_day": 30,
+      "status": "scheduled",
+      "consequence_json": {
+        "kingdom_level": 2,
+        "unrest": 0
+      }
+    }
+  ],
+  "milestones": [
+    {
+      "milestone_key": "milestone_tuskgutter",
+      "milestoneKey": "milestone_tuskgutter",
+      "name": "O Abate do Monstruoso Tuskgutter",
+      "xp": 120,
+      "source_ref": "Kingmaker PZO2020 Capítulo 2",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 2"
+    },
+    {
+      "milestone_key": "milestone_paz_kobold",
+      "milestoneKey": "milestone_paz_kobold",
+      "name": "A Pacificação do Velho Sicômoro",
+      "xp": 140,
+      "source_ref": "Kingmaker PZO2020 Capítulo 2",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 2"
+    },
+    {
+      "milestone_key": "milestone_purificacao_alce",
+      "milestoneKey": "milestone_purificacao_alce",
+      "name": "A Purificação do Templo do Alce",
+      "xp": 150,
+      "source_ref": "Kingmaker PZO2020 Capítulo 2",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 2"
+    },
+    {
+      "milestone_key": "milestone_queda_senhor_cervos",
+      "milestoneKey": "milestone_queda_senhor_cervos",
+      "name": "A Queda do Senhor dos Cervos",
+      "xp": 250,
+      "source_ref": "Kingmaker PZO2020 Capítulo 2",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 2"
+    },
+    {
+      "milestone_key": "milestone_fundacao_baronia",
+      "milestoneKey": "milestone_fundacao_baronia",
+      "name": "A Fundação da Baronia das Terras Roubadas",
+      "xp": 300,
+      "source_ref": "Kingmaker PZO2020 Capítulo 2",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 2"
+    }
+  ],
+  "metadata": {
+    "author": "Braseiro PF2e Engine",
+    "ruleset": "Pathfinder 2e Remaster",
+    "source": "Kingmaker Adventure Path PZO2020",
+    "version": "1.0.0",
+    "locale": "pt-BR"
+  }
+}

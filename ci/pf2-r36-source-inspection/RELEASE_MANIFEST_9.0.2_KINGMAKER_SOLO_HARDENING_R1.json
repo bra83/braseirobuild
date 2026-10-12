@@ -1,0 +1,30 @@
+{
+  "project": "Braseiro Pathfinder 2e",
+  "release": "9.0.2",
+  "version_code": 90002,
+  "checkpoint": "KINGMAKER_SOLO_HARDENING_R1",
+  "priority": "KINGMAKER_SOLO",
+  "baseline": {
+    "name": "Braseiro_Pathfinder2e_9.0.1_MOTOR_BARBARA_1.1.2_KINGMAKER_SOLO_ATLAS_V6_ANDROID_STUDIO.zip",
+    "sha256": "d30743fa35ad4e99ed7fdbd17a6daafa0549b849cdc866dab6b6100f54e4b6f3"
+  },
+  "runtime": {
+    "package": "com.braseiro.pathfinder2e",
+    "db_schema": 59,
+    "backup_format": 22,
+    "motor_barbara": "1.1.2",
+    "mechanical_authorities": ["Pathfinder2eRulesEngine", "KingmakerRulesEngine"],
+    "persistence": "AppDb"
+  },
+  "validation": {
+    "pytest": "78/78 PASS",
+    "kingmaker_gates": "78 PASS",
+    "solo_hardening_gates": "16 PASS",
+    "java_syntax": "146/146 PASS",
+    "tool_tests": "18/18 PASS",
+    "appdb_semantic": "PASS",
+    "core_semantic": "PASS",
+    "json_checked_exceptions": "PASS",
+    "gradle": "NOT_DECLARED"
+  }
+}

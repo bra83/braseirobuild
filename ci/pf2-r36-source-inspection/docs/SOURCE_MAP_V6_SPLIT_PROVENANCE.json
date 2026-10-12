@@ -1,0 +1,37 @@
+{
+  "source_chat": "Criar Overlay E Manifesto",
+  "source_delivery": "split_2_parts",
+  "parts": [
+    {
+      "name": "PACOTE_MAPA_PATHFINDER_2E_INNER_SEA_CANONICO_V6_GRID_NATIVE_HIRES_COMPAT_PARTE_1_CORE.zip",
+      "bytes": 129760713,
+      "sha256": "c03601e3732b68464a563c7bbea69c7e5c648d1ffec8ef3b17fe499cb40f6725",
+      "original_files": 23
+    },
+    {
+      "name": "PACOTE_MAPA_PATHFINDER_2E_INNER_SEA_CANONICO_V6_GRID_NATIVE_HIRES_COMPAT_PARTE_2_REFERENCIAS.zip",
+      "bytes": 143003981,
+      "sha256": "7e04b25f2080c6b7b7d136da6a969c4ff6bdb7c5635072d336d25d0d48dc6def",
+      "original_files": 4
+    }
+  ],
+  "combined_original_files": 27,
+  "combined_coverage": "100%",
+  "expected_original_full_package_sha256": "f17c16f4cf6740e9169824ad8032edbd4139c93a026e30760c0a5d61a2c4bdb7",
+  "runtime_asset": {
+    "path": "android/app/src/main/assets/pathfinder/atlas/inner_sea_canonical_v6_grid_native_hires_compat.zip",
+    "bytes": 44512743,
+    "sha256": "341c8468de88fcd7dc888419a7c2323383118185f94f4893af4672b53dc683c6",
+    "files": 18,
+    "policy": "operational files only; large reference/source previews remain source-package references and are not duplicated into Android assets"
+  },
+  "map": {
+    "map_id": "pathfinder2e-inner-sea-4270x5388-canonical-v6-grid-native-hires-compat",
+    "logical_map_id": "pathfinder:golarion:inner_sea",
+    "coordinate_frame_id": "pf2e:golarion:inner_sea:shieldwulf_hexmap_rectified_v1",
+    "width": 4270,
+    "height": 5388,
+    "hexes": 3300,
+    "locations": 67
+  }
+}

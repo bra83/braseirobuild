@@ -1,0 +1,124 @@
+{
+  "scope": "read_only_java_catalog_vs_official_pdf",
+  "source": "Kingmaker.pdf, Appendix 2, pp. 544-552",
+  "canonical_pdf_id": "1hHjK7DjhdDFvejYk70NNxO0zMp7Rnsn3",
+  "official_structures_extracted": 73,
+  "runtime_keys_compared": 18,
+  "mismatched_keys": 0,
+  "semantic_certification": "OPEN",
+  "limitations": [
+    "PDF extraction requires manual QA",
+    "Comparison uses mapped Java catalogue keys only",
+    "This does not validate combat, chapter flow, SQLite state or Android UX"
+  ],
+  "results": [
+    {
+      "key": "academy",
+      "official_name": "ACADEMY",
+      "status": "numeric_match",
+      "differences": []
+    },
+    {
+      "key": "alchemist",
+      "official_name": "ALCHEMY LABORATORY",
+      "status": "numeric_match",
+      "differences": []
+    },
+    {
+      "key": "bank",
+      "official_name": "BANK",
+      "status": "numeric_match",
+      "differences": []
+    },
+    {
+      "key": "barracks",
+      "official_name": "BARRACKS",
+      "status": "numeric_match",
+      "differences": []
+    },
+    {
+      "key": "brewery",
+      "official_name": "BREWERY",
+      "status": "numeric_match",
+      "differences": []
+    },
+    {
+      "key": "castle",
+      "official_name": "CASTLE",
+      "status": "numeric_match",
+      "differences": []
+    },
+    {
+      "key": "cathedral",
+      "official_name": "CATHEDRAL",
+      "status": "numeric_match",
+      "differences": []
+    },
+    {
+      "key": "embassy",
+      "official_name": "EMBASSY",
+      "status": "numeric_match",
+      "differences": []
+    },
+    {
+      "key": "garrison",
+      "official_name": "GARRISON",
+      "status": "numeric_match",
+      "differences": []
+    },
+    {
+      "key": "granary",
+      "official_name": "GRANARY",
+      "status": "numeric_match",
+      "differences": []
+    },
+    {
+      "key": "library",
+      "official_name": "LIBRARY",
+      "status": "numeric_match",
+      "differences": []
+    },
+    {
+      "key": "monument",
+      "official_name": "MONUMENT",
+      "status": "numeric_match",
+      "differences": []
+    },
+    {
+      "key": "pier",
+      "official_name": "PIER",
+      "status": "numeric_match",
+      "differences": []
+    },
+    {
+      "key": "smithy",
+      "official_name": "SMITHY",
+      "status": "numeric_match",
+      "differences": []
+    },
+    {
+      "key": "stables",
+      "official_name": "STABLE",
+      "status": "numeric_match",
+      "differences": []
+    },
+    {
+      "key": "temple",
+      "official_name": "TEMPLE",
+      "status": "numeric_match",
+      "differences": []
+    },
+    {
+      "key": "theater",
+      "official_name": "THEATER",
+      "status": "numeric_match",
+      "differences": []
+    },
+    {
+      "key": "town_hall",
+      "official_name": "TOWN HALL",
+      "status": "numeric_match",
+      "differences": []
+    }
+  ]
+}

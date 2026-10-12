@@ -1,0 +1,946 @@
+{
+  "schema": "braseiro-pathfinder2e-chapter-v1",
+  "chapter_key": "chapter_04_cult_of_bloom",
+  "chapterKey": "chapter_04_cult_of_bloom",
+  "chapter_number": 4,
+  "chapterNumber": 4,
+  "title": "O Culto da Flor e a Infecção do Primeiro Mundo",
+  "locale": "pt-BR",
+  "level_min": 7,
+  "levelMin": 7,
+  "level_max": 9,
+  "levelMax": 9,
+  "summary": "Uma calamidade biológica e mística de proporções catastróficas acomete a Baronia: a infecção sobrenatural do Desabrochar (The Bloom). Sementes planares do Primeiro Mundo germinam no interior de feras e cidadãos, rasgando seus ventres para libertar aberrações botânicas monstruosas. O grupo precisa investigar a loucura dos corujursos florescentes, conter o pânico nas aldeias ao lado do compassivo clérigo Tristian, desmantelar o culto herético da Mãe dos Monstros liderado pela sacerdotisa Tsanna e marchar até o abismo do Útero de Lamashtu para selar o portal interdimensional antes que o reino seja engolido pela floresta feérica.",
+  "quests": [
+    {
+      "quest_key": "q_utero_lamashtu",
+      "questKey": "q_utero_lamashtu",
+      "title": "O Útero de Lamashtu e o Desabrochar Feérico",
+      "status": "unstarted",
+      "stage": "descida_ao_abismo",
+      "objective": "Penetrar as profundezas contaminadas do Útero de Lamashtu, confrontar a sacerdotisa Tsanna e fechar a fenda planar de onde jorra a praga da Flor. Investigar os acontecimentos no vilarejo de Darivan e purificar o útero de Lamashtu.",
+      "stakes": "Caso a fonte no Útero de Lamashtu permaneça aberta, todas as capitais das Terras Fluviais sucumbirão à metamorfose monstruosa.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 500,
+      "milestoneXp": 500,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_ute_1",
+          "desc": "Localizar o portal de entrada do Útero de Lamashtu através das gargantas rochosas ocidentais",
+          "description": "Localizar o portal de entrada do Útero de Lamashtu através das gargantas rochosas ocidentais",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_ute_2",
+          "desc": "Derrotar os fanáticos cultistas e feras corrompidas que guardam as piscinas de nascimento profano",
+          "description": "Derrotar os fanáticos cultistas e feras corrompidas que guardam as piscinas de nascimento profano",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_ute_3",
+          "desc": "Confrontar a alta sacerdotisa Tsanna e desvendar o papel da misteriosa ninfa Nyrissa na praga",
+          "description": "Confrontar a alta sacerdotisa Tsanna e desvendar o papel da misteriosa ninfa Nyrissa na praga",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_ute_4",
+          "desc": "Executar o rito de selamento do portal feérico para purificar permanentemente a caverna",
+          "description": "Executar o rito de selamento do portal feérico para purificar permanentemente a caverna",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 1000,
+        "xp": 500,
+        "items": [
+          "reliquia_profanada_de_lamashtu",
+          "petala_eterna_do_primeiro_mundo",
+          "manto_da_sacerdotisa_tsanna"
+        ]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_corujursos",
+      "questKey": "q_corujursos",
+      "title": "A Praga dos Corujursos Mutantes",
+      "status": "unstarted",
+      "stage": "rastreamento_alcateia",
+      "objective": "Eliminar as alcateias de corujursos mutantes que tiveram flores parasitas brotando de seus peitos e aterrorizam as aldeias orientais.",
+      "stakes": "As feras infectadas liberam nuvens de esporos que contaminam mananciais de água potável de cidades inteiras.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 200,
+      "milestoneXp": 200,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_cor_1",
+          "desc": "Rastrear os rastros de sangue com pétalas púrpuras que levam ao ninho dos corujursos",
+          "description": "Rastrear os rastros de sangue com pétalas púrpuras que levam ao ninho dos corujursos",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_cor_2",
+          "desc": "Abater o colossal Corujurso Alfa Florescente antes que ele lidere uma investida sobre a Vila de Bravan",
+          "description": "Abater o colossal Corujurso Alfa Florescente antes que ele lidere uma investida sobre a Vila de Bravan",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_cor_3",
+          "desc": "Incinerar as carcaças infectadas com fogo alquímico para esterilizar o ninho",
+          "description": "Incinerar as carcaças infectadas com fogo alquímico para esterilizar o ninho",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 250,
+        "xp": 200,
+        "items": [
+          "bico_de_corujurso_florescente",
+          "sementes_cristalizadas_da_flor"
+        ]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_cura_flor",
+      "questKey": "q_cura_flor",
+      "title": "A Busca pelo Antídoto da Flor de Nyrissa",
+      "status": "unstarted",
+      "stage": "pesquisa_clinica",
+      "objective": "Trabalhar em conjunto com o clérigo Tristian e os curandeiros da capital para desenvolver um antídoto que impeça o Desabrochar em humanos.",
+      "stakes": "Sem um elixir neutralizador, dezenas de cidadãos hospitalizados morrerão na eclosão fatal das sementes feéricas.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 220,
+      "milestoneXp": 220,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_cur_1",
+          "desc": "Colher amostras intactas do pólen da Flor em estágio inicial de germinação",
+          "description": "Colher amostras intactas do pólen da Flor em estágio inicial de germinação",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_cur_2",
+          "desc": "Realizar canalização de energia solar divina com Tristian para purificar o princípio ativo",
+          "description": "Realizar canalização de energia solar divina com Tristian para purificar o princípio ativo",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_cur_3",
+          "desc": "Distribuir o elixir curativo nos hospitais de campanha da capital e salvar os aldeões",
+          "description": "Distribuir o elixir curativo nos hospitais de campanha da capital e salvar os aldeões",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 300,
+        "xp": 220,
+        "items": [
+          "elixir_de_purificacao_solar_de_sarenrae",
+          "frasco_de_essencia_feerica_neutralizada"
+        ]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_fenda_primeiro_mundo",
+      "questKey": "q_fenda_primeiro_mundo",
+      "title": "O Selamento das Fendas Vivas",
+      "status": "unstarted",
+      "stage": "expedicao_bosque",
+      "objective": "Rastrear as fendas menores no Bosque Sussurrante onde o tecido da realidade está se rasgando e expelindo aberrações.",
+      "stakes": "As distorções espaciais ameaçam engolir estradas comerciais e isolar a capital da Baronia.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 250,
+      "milestoneXp": 250,
+      "prerequisites": [
+        "q_corujursos"
+      ],
+      "objectives": [
+        {
+          "id": "obj_fen_1",
+          "desc": "Identificar as três anomalias luminescentes no coração da floresta",
+          "description": "Identificar as três anomalias luminescentes no coração da floresta",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_fen_2",
+          "desc": "Superar as criaturas feéricas guardiãs das fendas e estabilizar as âncoras arcanas",
+          "description": "Superar as criaturas feéricas guardiãs das fendas e estabilizar as âncoras arcanas",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 350,
+        "xp": 250,
+        "items": [
+          "cristal_ancora_dimensional",
+          "bastao_de_foco_solar"
+        ]
+      },
+      "progress_json": {}
+    }
+  ],
+  "hazards": [
+    {
+      "hazard_key": "hazard_esporos_flor",
+      "hazardKey": "hazard_esporos_flor",
+      "name": "Nuvem de Esporos da Flor Feérica",
+      "level": 7,
+      "traits": [
+        "complexo",
+        "ambiental",
+        "feérico",
+        "veneno"
+      ],
+      "stealth_dc": 26,
+      "stealthDc": 26,
+      "perception_dc": 26,
+      "perceptionDc": 26,
+      "saving_throw_type": "Fortitude",
+      "savingThrowType": "Fortitude",
+      "saving_throw_dc": 26,
+      "savingThrowDc": 26,
+      "disable_skills": [
+        {
+          "skill": "Natureza",
+          "dc": 27,
+          "proficiency": "mestre",
+          "description": "Identificar a frequência vibratória das pétalas e queimar o centro do cálice"
+        },
+        {
+          "skill": "Medicina",
+          "dc": 26,
+          "proficiency": "especialista",
+          "description": "Aplicar filtros herméticos nas vias respiratórias e isolar a dispersão de esporos"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "ambiental",
+      "complexity": "complexo",
+      "ac": 25,
+      "hardness": 0,
+      "hp": 60,
+      "bt": 30,
+      "reaction": "Explode em nuvem de pólen púrpura bioluminescente quando uma criatura se aproxima a menos de 4 metros.",
+      "reset": "As flores regeneram seus sacos de pólen em 4 horas.",
+      "xp": 100,
+      "description": "Tufos de flores exóticas carnívoras de pétalas translúcidas que pulsam como corações vivos, liberando esporos que tentam se enraizar nos pulmões.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "name": "Dispersão Germinativa",
+          "description": "Esporos alucinógenos provocam 4d8 de dano de veneno e impõem condição confuso em falha crítica no teste de Fortitude."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_vortice_primeiro_mundo",
+      "hazardKey": "hazard_vortice_primeiro_mundo",
+      "name": "Vórtice Planar do Primeiro Mundo",
+      "level": 8,
+      "traits": [
+        "complexo",
+        "magico",
+        "planar"
+      ],
+      "stealth_dc": 27,
+      "stealthDc": 27,
+      "perception_dc": 27,
+      "perceptionDc": 27,
+      "saving_throw_type": "Vontade",
+      "savingThrowType": "Vontade",
+      "saving_throw_dc": 28,
+      "savingThrowDc": 28,
+      "disable_skills": [
+        {
+          "skill": "Arcanismo",
+          "dc": 28,
+          "proficiency": "mestre",
+          "description": "Realinhar os filamentos de éter para fechar a fenda dimensional"
+        },
+        {
+          "skill": "Ocultismo",
+          "dc": 28,
+          "proficiency": "mestre",
+          "description": "Banir o eco da consciência primordial de Nyrissa que ancora o vórtice"
+        }
+      ],
+      "routine_actions": 2,
+      "routineActions": 2,
+      "hazard_type": "magico",
+      "complexity": "complexo",
+      "ac": 26,
+      "hardness": 12,
+      "hp": 72,
+      "bt": 36,
+      "reaction": "Desperta ao detectar conjuração de magia ou sangue derramado nas proximidades.",
+      "reset": "Não se rearma após ter suas âncoras arcanas rompidas.",
+      "xp": 120,
+      "description": "Uma rasgadura luminosa no espaço com cores que não existem no plano material, emitindo gargalhadas fadas e distorcendo a gravidade local.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "name": "Sucção Dimensional",
+          "description": "Puxa criaturas em um raio de 9 metros em direção ao centro com força irresistível (CD 28 de Atletismo ou Reflexos)."
+        },
+        {
+          "action_cost": 1,
+          "name": "Onda de Mutação Caótica",
+          "description": "Emite radiação feérica causando 3d10 de dano de força e condição enfraquecido 2 em falha no teste de Vontade."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_raizes_lamashtu",
+      "hazardKey": "hazard_raizes_lamashtu",
+      "name": "Raízes Constritoras de Lamashtu",
+      "level": 7,
+      "traits": [
+        "complexo",
+        "ambiental",
+        "armadilha"
+      ],
+      "stealth_dc": 26,
+      "stealthDc": 26,
+      "perception_dc": 26,
+      "perceptionDc": 26,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 26,
+      "savingThrowDc": 26,
+      "disable_skills": [
+        {
+          "skill": "Atletismo",
+          "dc": 26,
+          "proficiency": "especialista",
+          "description": "Romper os troncos mestres à força com alavancas pesadas"
+        },
+        {
+          "skill": "Sobrevivência",
+          "dc": 26,
+          "proficiency": "especialista",
+          "description": "Desenterrar as raízes nodulares e cortar os pontos vitais de seiva"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "armadilha",
+      "complexity": "complexo",
+      "ac": 24,
+      "hardness": 8,
+      "hp": 55,
+      "bt": 27,
+      "reaction": "Chicoteia violentamente quando criaturas adentram a câmara sagrada do templo.",
+      "reset": "As raízes se contraem novamente em 30 minutos.",
+      "xp": 100,
+      "description": "Troncos espinhosos pulsantes com veias escarlates que emergem do solo rochoso como tentáculos vivos de uma fera vegetal primordial.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "name": "Constrição Dilacerante",
+          "description": "Agarra e esmaga o alvo causando 3d8+8 de dano perfurante e de concussão, mantendo a vítima contida."
+        }
+      ]
+    }
+  ],
+  "pois": [
+    {
+      "poi_key": "poi_utero_lamashtu",
+      "poiKey": "poi_utero_lamashtu",
+      "poi_id": "poi_utero_lamashtu",
+      "poiId": "poi_utero_lamashtu",
+      "campaign_key": "chapter_04_cult_of_bloom",
+      "campaignKey": "chapter_04_cult_of_bloom",
+      "map_id": "stolen_lands",
+      "name": "O Útero de Lamashtu",
+      "name_key": "o_utero_de_lamashtu",
+      "type": "dungeon",
+      "hex_id": "H_LAMASHTU",
+      "hexId": "H_LAMASHTU",
+      "location_id": "loc_utero_lamashtu",
+      "q": -3,
+      "r": 6,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Caverna profana ancestral nas montanhas ocidentais, consagrada à Mãe dos Monstros e conectada diretamente a uma fenda corrosiva do Primeiro Mundo.",
+      "tags": [
+        "templo_profano",
+        "dungeon",
+        "portal",
+        "climax"
+      ],
+      "development_level": 2,
+      "icon": "🩸",
+      "notes": "Origem da praga do Desabrochar nas Terras Roubadas."
+    },
+    {
+      "poi_key": "poi_ninho_corujursos",
+      "poiKey": "poi_ninho_corujursos",
+      "poi_id": "poi_ninho_corujursos",
+      "poiId": "poi_ninho_corujursos",
+      "campaign_key": "chapter_04_cult_of_bloom",
+      "campaignKey": "chapter_04_cult_of_bloom",
+      "map_id": "stolen_lands",
+      "name": "Caverna dos Corujursos Infectados",
+      "name_key": "caverna_dos_corujursos_infectados",
+      "type": "lair",
+      "hex_id": "H_OWLBEARS",
+      "hexId": "H_OWLBEARS",
+      "location_id": "loc_ninho_corujursos",
+      "q": 1,
+      "r": 6,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Gruta sombria coberta de fungos fluorescentes e plumagens manchadas de seiva onde corujursos mutantes chocam ovos contaminados pela Flor.",
+      "tags": [
+        "monstros",
+        "cacada",
+        "covil"
+      ],
+      "development_level": 1,
+      "icon": "🦉",
+      "notes": "Covil do temível Corujurso Alfa Florescente."
+    },
+    {
+      "poi_key": "poi_bosque_sussurrante",
+      "poiKey": "poi_bosque_sussurrante",
+      "poi_id": "poi_bosque_sussurrante",
+      "poiId": "poi_bosque_sussurrante",
+      "campaign_key": "chapter_04_cult_of_bloom",
+      "campaignKey": "chapter_04_cult_of_bloom",
+      "map_id": "stolen_lands",
+      "name": "Bosque das Fendas Floridas",
+      "name_key": "bosque_das_fendas_floridas",
+      "type": "landmark",
+      "hex_id": "H_WHISPERING_WOOD",
+      "hexId": "H_WHISPERING_WOOD",
+      "location_id": "loc_bosque_sussurrante",
+      "q": -1,
+      "r": 7,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Arboreto encantado onde árvores cantam sussurros em língua feérica e flores carnívoras gigantes desabrocham sob as fendas planares abertas.",
+      "tags": [
+        "feerico",
+        "fendas",
+        "magia_planar"
+      ],
+      "development_level": 1,
+      "icon": "🌸",
+      "notes": "Ponto de incursão constante de espíritos feéricos hostis."
+    },
+    {
+      "poi_key": "poi_vila_bravan",
+      "poiKey": "poi_vila_bravan",
+      "poi_id": "poi_vila_bravan",
+      "poiId": "poi_vila_bravan",
+      "campaign_key": "chapter_04_cult_of_bloom",
+      "campaignKey": "chapter_04_cult_of_bloom",
+      "map_id": "stolen_lands",
+      "name": "Vila de Bravan Acometida pela Febre Floral",
+      "name_key": "vila_de_bravan_acometida_pela_febre_floral",
+      "type": "settlement",
+      "hex_id": "H_17",
+      "hexId": "H_17",
+      "location_id": "loc_vila_bravan",
+      "q": 0,
+      "r": 6,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Próspero povoado agrícola nas margens do lago, transformado em zona de quarentena sanitária após o surto repentino do Desabrochar.",
+      "tags": [
+        "vila",
+        "quarentena",
+        "hospital",
+        "resgate"
+      ],
+      "development_level": 1,
+      "icon": "🏘️",
+      "notes": "Necessita de envio urgente de suprimentos médicos e milícias de isolamento."
+    }
+  ],
+  "scenes": [
+    {
+      "scene_key": "scene_utero_lamashtu",
+      "sceneKey": "scene_utero_lamashtu",
+      "title": "Santuário do Útero de Lamashtu",
+      "location": "O Útero de Lamashtu",
+      "hex_id": "H_LAMASHTU",
+      "hexId": "H_LAMASHTU",
+      "environment": "santuario_profano",
+      "width_cells": 18,
+      "widthCells": 18,
+      "height_cells": 14,
+      "heightCells": 14,
+      "seed": 4001,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "piscina_nascimento",
+          "name": "Piscina Profana de Sangue e Seiva",
+          "x": 6,
+          "y": 4,
+          "width": 6,
+          "height": 6,
+          "terrain": "agua_dificil",
+          "description": "Líquido viscoso carmesim de onde brotam flores feéricas mutantes sob a estátua tricéfala de Lamashtu"
+        },
+        {
+          "zone_key": "altar_fenda",
+          "name": "Altar da Fenda Planar",
+          "x": 7,
+          "y": 1,
+          "width": 4,
+          "height": 3,
+          "terrain": "elevado",
+          "description": "Plataforma de obsidiana onde o rasgo do Primeiro Mundo pulsa em luz esmeralda ofuscante"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "estatua_chacal_lamashtu",
+          "x": 4,
+          "y": 4,
+          "width": 2,
+          "height": 2,
+          "type": "pedra_profana",
+          "blocks_movement": true,
+          "blocks_vision": true,
+          "cover": "maior"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "garganta_de_entrada",
+          "x": 9,
+          "y": 13,
+          "team": "player",
+          "description": "Entrada natural em arco de pedra escarpada"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "climax_utero_lamashtu"
+      }
+    },
+    {
+      "scene_key": "scene_bosque_fenda",
+      "sceneKey": "scene_bosque_fenda",
+      "title": "Clareira da Fenda Viva",
+      "location": "Bosque das Fendas Floridas",
+      "hex_id": "H_WHISPERING_WOOD",
+      "hexId": "H_WHISPERING_WOOD",
+      "environment": "bosque_feerico",
+      "width_cells": 16,
+      "widthCells": 16,
+      "height_cells": 12,
+      "heightCells": 12,
+      "seed": 4002,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "circulo_flores",
+          "name": "Anel de Flores Gigantes Desabrochadas",
+          "x": 3,
+          "y": 3,
+          "width": 10,
+          "height": 6,
+          "terrain": "magico",
+          "description": "Solo coberto de raízes fosforescentes e pétalas gigantes que exalam pólen inebriante"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "menir_ancora",
+          "x": 7,
+          "y": 5,
+          "width": 2,
+          "height": 2,
+          "type": "cristal_arcano",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "padrao"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "trilha_silenciosa",
+          "x": 1,
+          "y": 6,
+          "team": "player",
+          "description": "Aproximação protegida pelas copas das árvores"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "batalha_fenda_bosque"
+      }
+    },
+    {
+      "scene_key": "scene_vila_bravan",
+      "sceneKey": "scene_vila_bravan",
+      "title": "Centro da Vila Infectada",
+      "location": "Vila de Bravan",
+      "hex_id": "H_17",
+      "hexId": "H_17",
+      "environment": "assentamento_quarentena",
+      "width_cells": 16,
+      "widthCells": 16,
+      "height_cells": 10,
+      "heightCells": 10,
+      "seed": 4003,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "praca_hospital",
+          "name": "Praça Central e Tendas de Tratamento",
+          "x": 3,
+          "y": 2,
+          "width": 10,
+          "height": 6,
+          "terrain": "normal",
+          "description": "Tendas de lona onde pacientes com a Flor gemem sob os cuidados de clérigos de Sarenrae"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "barricada_quarentena",
+          "x": 6,
+          "y": 8,
+          "width": 4,
+          "height": 1,
+          "type": "madeira_farpada",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "padrao"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "estrada_oeste",
+          "x": 1,
+          "y": 5,
+          "team": "player",
+          "description": "Entrada principal protegida por guardas com archotes"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "eclosao_praca_bravan"
+      }
+    }
+  ],
+  "npcs": [
+    {
+      "npc_key": "npc_sacerdotisa_tsanna",
+      "npcKey": "npc_sacerdotisa_tsanna",
+      "stable_id": "npc_sacerdotisa_tsanna",
+      "stableId": "npc_sacerdotisa_tsanna",
+      "name": "Tsanna, Alta Sacerdotisa de Lamashtu",
+      "summary": "Fanática religiosa carismática e implacável, profetisa da Mãe dos Monstros que vê no Desabrochar o renascimento sagrado das feras primordiais.",
+      "goals": "Alimentar a fenda do Útero com almas para que a floresta de monstros de Lamashtu suplante as cidades fracas da civilização.",
+      "secrets": "Crê que a ninfa Nyrissa é um anjo divino enviado por Lamashtu para purificar as terras roubadas através da dor.",
+      "attitude": "hostil",
+      "relationship": "Líder herética fanática",
+      "knowledge": "Liturgias de Lamashtu, rituais de mutação biológica e localização de portais fey.",
+      "debts": "Se poupada e desarmada através de diplomacia excepcional, pode ser banida ou mantida sob custódia.",
+      "last_seen": "Câmara Profana do Útero de Lamashtu",
+      "hex_id": "H_LAMASHTU",
+      "hexId": "H_LAMASHTU",
+      "faction": "Culto da Mãe dos Monstros (Lamashtu)",
+      "token_uri": "tokens/tsanna.png",
+      "visual_description": "Mulher feroz de tatuagens rituais em espiral no rosto, vestes cerimoniais de pelo de hiena e empunhando uma kukri cerimonial de prata.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "Cegos! Vocês chamam de praga a bênção da Grande Mãe! Das entranhas de seus filhos nascerão os verdadeiros senhores desta terra!",
+          "topic": "fanatismo",
+          "quest_key": "q_utero_lamashtu"
+        },
+        {
+          "attitude_req": "desfavoravel",
+          "text": "Vocês podem quebrar minhas adagas, mas não podem parar o choro da Donzela das Flores... Ela já começou a colher o tributo do reino.",
+          "topic": "revelacao_nyrissa",
+          "quest_key": "q_utero_lamashtu"
+        }
+      ],
+      "stats": {
+        "hp": 95,
+        "max_hp": 95,
+        "ac": 26,
+        "perception": 18
+      }
+    },
+    {
+      "npc_key": "npc_tristian",
+      "npcKey": "npc_tristian",
+      "stable_id": "npc_tristian",
+      "stableId": "npc_tristian",
+      "name": "Tristian",
+      "summary": "Clérigo gentil e profundamente empático de Sarenrae, cujos olhos tristes guardam uma luz acolhedora e uma conexão misteriosa com as fendas.",
+      "goals": "Aliviar o sofrimento de todos os enfermos e encontrar a causa raiz das distorções planares.",
+      "secrets": "Um ser celestial do Primeiro Mundo privado de suas asas e memórias por uma barganha trágica com Nyrissa.",
+      "attitude": "amistoso",
+      "relationship": "Companheiro devoto e Curador Real",
+      "knowledge": "Magia divina solar de Sarenrae, saberes planares do Primeiro Mundo e teologia da cura.",
+      "debts": "Dedica dia e noite sem descanso para sintetizar a cura do Desabrochar para o povo da Baronia.",
+      "last_seen": "Hospitais de campanha da Capital e Vila de Bravan",
+      "hex_id": "H_17",
+      "hexId": "H_17",
+      "faction": "Curandeiros da Fé Solar de Sarenrae",
+      "token_uri": "tokens/tristian.png",
+      "visual_description": "Jovem esguio de túnica branca simples com detalhes dourados, cabelos loiros revoltos e olhar puro de compaixão infinita.",
+      "is_companion": true,
+      "isCompanion": true,
+      "dialogue_tree": [
+        {
+          "attitude_req": "amistoso",
+          "text": "A dor dessas pessoas despedaça meu coração... A Flor não pertence a este mundo; é um veneno da tristeza do Primeiro Mundo. Ajudem-me a canalizar a luz da Flor do Alvorecer.",
+          "topic": "compaixao",
+          "quest_key": "q_cura_flor"
+        },
+        {
+          "attitude_req": "prestativo",
+          "text": "Sinto uma presença triste e fria nos sussurros da fenda... Não importa o quão tenebroso pareça o abismo de Lamashtu, a luz de Sarenrae guiará nossos passos.",
+          "topic": "determinacao_solar",
+          "quest_key": "q_utero_lamashtu"
+        }
+      ],
+      "stats": {
+        "hp": 65,
+        "max_hp": 65,
+        "ac": 25,
+        "perception": 17
+      }
+    },
+    {
+      "npc_key": "npc_corujurso_alfa",
+      "npcKey": "npc_corujurso_alfa",
+      "stable_id": "npc_corujurso_alfa",
+      "stableId": "npc_corujurso_alfa",
+      "name": "Corujurso Alfa Florescente",
+      "summary": "Monstruosidade titânica resultante da germinação simbiótica de flores do Primeiro Mundo no corpo de um predador ápice.",
+      "goals": "Alimentar suas crias e espalhar os esporos da flor por onde passar.",
+      "secrets": "Seu coração vegetal emite pulsos capazes de coordenar feras menores na floresta.",
+      "attitude": "hostil",
+      "relationship": "Predador supremo infectado",
+      "knowledge": "Faro apurado, garras dilacerantes e rugido perturbador.",
+      "debts": "Nenhuma.",
+      "last_seen": "Caverna dos Corujursos Infectados",
+      "hex_id": "H_OWLBEARS",
+      "hexId": "H_OWLBEARS",
+      "faction": "Corte Feérica do Primeiro Mundo",
+      "token_uri": "tokens/corujurso_alfa.png",
+      "visual_description": "Fera de 4 metros com plumagem preta e amarela salpicada de orquídeas púrpuras gigantes brotando da carne, bico afiado escorrendo seiva corrosiva.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "A besta solta um guincho ensurdecedor misturado ao rugido urso, enquanto espinhos vegetais erriçam em seu dorso!",
+          "topic": "ataque_bestial",
+          "quest_key": "q_corujursos"
+        }
+      ],
+      "stats": {
+        "hp": 130,
+        "max_hp": 130,
+        "ac": 27,
+        "perception": 16
+      }
+    },
+    {
+      "npc_key": "npc_aldeao_kaelen",
+      "npcKey": "npc_aldeao_kaelen",
+      "stable_id": "npc_aldeao_kaelen",
+      "stableId": "npc_aldeao_kaelen",
+      "name": "Aldeão Kaelen",
+      "summary": "Primeiro habitante de Bravan a sobreviver à eclosão inicial graças à intervenção cirúrgica emergencial dos heróis.",
+      "goals": "Recuperar a saúde e avisar outros vilarejos sobre os sintomas da febre das flores.",
+      "secrets": "Viu Tsanna despejando pólen negro nas fontes públicas de água na calada da noite.",
+      "attitude": "prestativo",
+      "relationship": "Testemunha chave do contágio",
+      "knowledge": "Relato detalhado da dor dos sintomas e identificação da sacerdotisa cultista.",
+      "debts": "Oferece seu testemunho público para acalmar a revolta popular.",
+      "last_seen": "Vila de Bravan",
+      "hex_id": "H_17",
+      "hexId": "H_17",
+      "faction": "Pioneiros da Nova Baronia",
+      "token_uri": "tokens/kaelen.png",
+      "visual_description": "Camponês jovem pálido, com bandagens cirúrgicas no torso e olhar agradecido aos heróis.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "prestativo",
+          "text": "Foi a mulher de peles de hiena! Eu a vi no poço... Quando bebi a água, senti raízes crescendo dentro do meu estômago! Vocês me salvaram da morte!",
+          "topic": "testemunho_crime",
+          "quest_key": "q_cura_flor"
+        }
+      ],
+      "stats": {
+        "hp": 20,
+        "max_hp": 20,
+        "ac": 14,
+        "perception": 8
+      }
+    }
+  ],
+  "factions": [
+    {
+      "name": "Culto da Mãe dos Monstros (Lamashtu)",
+      "agenda": "Propagar o Desabrochar, subverter a civilização e consagrar o mundo como berçário de feras.",
+      "resources": "Sacerdotisas fanáticas, feras mutantes nascidas da Flor e cavernas do Útero.",
+      "relationship": -4,
+      "current_plan": "Contaminar os mananciais fluviais para infectar toda a população das Terras Roubadas.",
+      "location": "O Útero de Lamashtu",
+      "active": true
+    },
+    {
+      "name": "Corte Feérica do Primeiro Mundo",
+      "agenda": "Recuperar a terra para o domínio primordial das fadas e testar os governantes com horrores vivos.",
+      "resources": "Fendas planares abertas, ilusões distorcidas e vegetação senciente agressiva.",
+      "relationship": -3,
+      "current_plan": "Expandir as fendas do Bosque Sussurrante e desestabilizar as leis físicas materiais.",
+      "location": "Bosque das Fendas Floridas e Primeiro Mundo",
+      "active": true
+    },
+    {
+      "name": "Curandeiros da Fé Solar de Sarenrae",
+      "agenda": "Erradicar a praga com luz divina, acolher os enfermos e restaurar a esperança nas cidades.",
+      "resources": "Clérigos solares de Sarenrae, elixires botânicos purificados e hospitais de campanha.",
+      "relationship": 4,
+      "current_plan": "Administrar o antídoto desenvolvido por Tristian em todos os assentamentos afetados.",
+      "location": "Capital da Baronia e Vilas Rurais",
+      "active": true
+    }
+  ],
+  "clocks": [
+    {
+      "name": "Germinação da Praga da Flor na População",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "Múltiplas eclosões simultâneas ocorrem na capital, gerando monstros no mercado e caos público.",
+      "automatic": false,
+      "active": true
+    },
+    {
+      "name": "Desestabilização Planar dos Ermos",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "A fronteira entre o plano material e o Primeiro Mundo se rompe, alterando o clima e a flora.",
+      "automatic": true,
+      "active": true
+    }
+  ],
+  "events": [
+    {
+      "title": "O Primeiro Desabrochar na Praça da Capital",
+      "description": "Um mercador adoece repentinamente em público e uma besta mutante de pétalas rasga seu ventre diante da multidão.",
+      "due_at": 15000,
+      "due_day": 10,
+      "status": "scheduled",
+      "consequence_json": {
+        "unrest_increase": 2,
+        "scene": "scene_praca_capital"
+      }
+    },
+    {
+      "title": "O Cerco de Bestas Floridas aos Portões",
+      "description": "Alcateia de monstros infectados guiados pela emanação do Útero cerca as paliçadas da Vila de Bravan.",
+      "due_at": 35000,
+      "due_day": 22,
+      "status": "scheduled",
+      "consequence_json": {
+        "scene": "scene_vila_bravan"
+      }
+    }
+  ],
+  "milestones": [
+    {
+      "milestone_key": "milestone_corujursos",
+      "milestoneKey": "milestone_corujursos",
+      "name": "A Contenção da Praga dos Corujursos Mutantes",
+      "xp": 200,
+      "source_ref": "Kingmaker PZO2020 Capítulo 4",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 4"
+    },
+    {
+      "milestone_key": "milestone_cura_flor",
+      "milestoneKey": "milestone_cura_flor",
+      "name": "A Síntese do Antídoto da Flor com Tristian",
+      "xp": 220,
+      "source_ref": "Kingmaker PZO2020 Capítulo 4",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 4"
+    },
+    {
+      "milestone_key": "milestone_selamento_fendas",
+      "milestoneKey": "milestone_selamento_fendas",
+      "name": "O Selamento das Fendas Feéricas no Bosque",
+      "xp": 250,
+      "source_ref": "Kingmaker PZO2020 Capítulo 4",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 4"
+    },
+    {
+      "milestone_key": "milestone_utero_lamashtu",
+      "milestoneKey": "milestone_utero_lamashtu",
+      "name": "A Purificação do Útero de Lamashtu",
+      "xp": 500,
+      "source_ref": "Kingmaker PZO2020 Capítulo 4",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 4"
+    }
+  ],
+  "metadata": {
+    "author": "Braseiro PF2e Engine",
+    "ruleset": "Pathfinder 2e Remaster",
+    "source": "Kingmaker Adventure Path PZO2020",
+    "version": "1.0.0",
+    "locale": "pt-BR"
+  }
+}

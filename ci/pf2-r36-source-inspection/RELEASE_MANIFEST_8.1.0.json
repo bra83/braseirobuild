@@ -1,0 +1,24 @@
+{
+  "name": "Braseiro Pathfinder 2e",
+  "version": "8.1.0",
+  "version_code": 80100,
+  "db_schema": 56,
+  "backup_format": 20,
+  "system": "pathfinder_2e",
+  "ruleset": "Pathfinder 2e Remaster",
+  "motor_barbara": "1.1.0",
+  "barbara_modules": 58,
+  "authority": {
+    "mechanics": "Pathfinder2eRulesEngine",
+    "persistence": "AppDb",
+    "rules": "RuleRetrievalEngine+MasterRulesArbiter",
+    "position": "host canonical Atlas/scene"
+  },
+  "contracts": {
+    "PLAYER_ACTION": "advancing fiction",
+    "GM_HELP": "non-advancing auxiliary",
+    "duplicate_gemini_call": false,
+    "second_database": false
+  },
+  "base": "Braseiro Pathfinder2e 8.0.0 consolidated"
+}

@@ -1,0 +1,1178 @@
+{
+  "source_document": "Kingmaker.pdf",
+  "source_drive_file_id": "1hHjK7DjhdDFvejYk70NNxO0zMp7Rnsn3",
+  "scope": "Appendix 2, settlement structure stat blocks (mechanical data only)",
+  "extraction": "automated PDF text extraction; requires manual QA, especially alternative commodity costs, prerequisites and multiskill checks",
+  "certification": "NOT_CERTIFIED",
+  "count": 73,
+  "structures": [
+    {
+      "official_name": "ACADEMY",
+      "official_level": 10,
+      "lots": 2,
+      "costs": {
+        "rp": 52,
+        "lumber": 12,
+        "stone": 12,
+        "ore": 0,
+        "luxuries": 6
+      },
+      "cost_text": "52 RP, 12 Lumber, 6 Luxuries, 12 Stone",
+      "construction": "Scholarship (expert)",
+      "construction_dc": 27,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "ALCHEMY LABORATORY",
+      "official_level": 3,
+      "lots": 1,
+      "costs": {
+        "rp": 18,
+        "lumber": 0,
+        "stone": 5,
+        "ore": 2,
+        "luxuries": 0
+      },
+      "cost_text": "18 RP, 2 Ore, 5 Stone",
+      "construction": "Industry (trained)",
+      "construction_dc": 16,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "ARCANIST’S TOWER",
+      "official_level": 5,
+      "lots": 1,
+      "costs": {
+        "rp": 30,
+        "lumber": 0,
+        "stone": 6,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "30 RP, 6 Stone",
+      "construction": "Magic (trained)",
+      "construction_dc": 20,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "ARENA",
+      "official_level": 9,
+      "lots": 4,
+      "costs": {
+        "rp": 40,
+        "lumber": 6,
+        "stone": 12,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "40 RP, 6 Lumber, 12 Stone",
+      "construction": "Warfare (expert)",
+      "construction_dc": 26,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "BANK",
+      "official_level": 5,
+      "lots": 1,
+      "costs": {
+        "rp": 28,
+        "lumber": 0,
+        "stone": 6,
+        "ore": 4,
+        "luxuries": 0
+      },
+      "cost_text": "28 RP, 4 Ore, 6 Stone",
+      "construction": "Trade (trained)",
+      "construction_dc": 20,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "BARRACKS",
+      "official_level": 3,
+      "lots": 1,
+      "costs": {
+        "rp": 6,
+        "lumber": 2,
+        "stone": 1,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "6 RP, 2 Lumber, 1 Stone",
+      "construction": "Defense",
+      "construction_dc": 16,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "BREWERY",
+      "official_level": 1,
+      "lots": 1,
+      "costs": {
+        "rp": 6,
+        "lumber": 2,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "6 RP, 2 Lumber",
+      "construction": "Agriculture",
+      "construction_dc": 15,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "BRIDGE",
+      "official_level": 2,
+      "lots": null,
+      "costs": {
+        "rp": 6,
+        "lumber": 1,
+        "stone": 1,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "6 RP, 1 Lumber or 1 Stone",
+      "construction": "Engineering",
+      "construction_dc": 16,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "CASTLE",
+      "official_level": 9,
+      "lots": 4,
+      "costs": {
+        "rp": 54,
+        "lumber": 12,
+        "stone": 12,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "54 RP, 12 Lumber, 12 Stone",
+      "construction": "Defense (expert), Industry (expert), Magic (expert), or Statecraft (expert)",
+      "construction_dc": 26,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "CATHEDRAL",
+      "official_level": 15,
+      "lots": 4,
+      "costs": {
+        "rp": 58,
+        "lumber": 20,
+        "stone": 20,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "58 RP, 20 Lumber, 20 Stone",
+      "construction": "Folklore (master)",
+      "construction_dc": 34,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "CEMETERY",
+      "official_level": 1,
+      "lots": 1,
+      "costs": {
+        "rp": 4,
+        "lumber": 0,
+        "stone": 1,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "4 RP, 1 Stone",
+      "construction": "Folklore",
+      "construction_dc": 15,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "CONSTRUCTION YARD",
+      "official_level": 10,
+      "lots": 4,
+      "costs": {
+        "rp": 40,
+        "lumber": 10,
+        "stone": 10,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "40 RP, 10 Lumber, 10 Stone",
+      "construction": "Engineering",
+      "construction_dc": 27,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "DUMP",
+      "official_level": 2,
+      "lots": 1,
+      "costs": {
+        "rp": 4,
+        "lumber": 0,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "4 RP",
+      "construction": "Industry",
+      "construction_dc": 16,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "EMBASSY",
+      "official_level": 8,
+      "lots": 2,
+      "costs": {
+        "rp": 26,
+        "lumber": 10,
+        "stone": 4,
+        "ore": 0,
+        "luxuries": 6
+      },
+      "cost_text": "26 RP, 10 Lumber, 6 Luxuries, 4 Stone",
+      "construction": "Politics",
+      "construction_dc": 24,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "FESTIVAL HALL",
+      "official_level": 3,
+      "lots": 1,
+      "costs": {
+        "rp": 7,
+        "lumber": 3,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "7 RP, 3 Lumber",
+      "construction": "Arts",
+      "construction_dc": 18,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "FOUNDRY",
+      "official_level": 3,
+      "lots": 2,
+      "costs": {
+        "rp": 16,
+        "lumber": 5,
+        "stone": 3,
+        "ore": 2,
+        "luxuries": 0
+      },
+      "cost_text": "16 RP, 5 Lumber, 2 Ore, 3 Stone",
+      "construction": "Industry (trained)",
+      "construction_dc": 18,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "GARRISON",
+      "official_level": 5,
+      "lots": 2,
+      "costs": {
+        "rp": 28,
+        "lumber": 6,
+        "stone": 3,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "28 RP, 6 Lumber, 3 Stone",
+      "construction": "Warfare (trained)",
+      "construction_dc": 20,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "GENERAL STORE",
+      "official_level": 1,
+      "lots": 1,
+      "costs": {
+        "rp": 8,
+        "lumber": 1,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "8 RP, 1 Lumber",
+      "construction": "Trade",
+      "construction_dc": 15,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "GRANARY",
+      "official_level": 1,
+      "lots": 1,
+      "costs": {
+        "rp": 12,
+        "lumber": 2,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "12 RP, 2 Lumber",
+      "construction": "Agriculture",
+      "construction_dc": 15,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "GUILDHALL",
+      "official_level": 5,
+      "lots": 2,
+      "costs": {
+        "rp": 34,
+        "lumber": 8,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "34 RP, 8 Lumber",
+      "construction": "Trade (expert)",
+      "construction_dc": 20,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "HERBALIST",
+      "official_level": 1,
+      "lots": 1,
+      "costs": {
+        "rp": 10,
+        "lumber": 1,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "10 RP, 1 Lumber",
+      "construction": "Wilderness",
+      "construction_dc": 15,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "HOSPITAL",
+      "official_level": 9,
+      "lots": 2,
+      "costs": {
+        "rp": 30,
+        "lumber": 10,
+        "stone": 6,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "30 RP, 10 Lumber, 6 Stone",
+      "construction": "Defense (expert)",
+      "construction_dc": 26,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "HOUSES",
+      "official_level": 1,
+      "lots": 1,
+      "costs": {
+        "rp": 3,
+        "lumber": 1,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "3 RP, 1 Lumber",
+      "construction": "Industry",
+      "construction_dc": 15,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "ILLICIT MARKET",
+      "official_level": 6,
+      "lots": 1,
+      "costs": {
+        "rp": 50,
+        "lumber": 5,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "50 RP, 5 Lumber",
+      "construction": "Intrigue (trained)",
+      "construction_dc": 22,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "INN",
+      "official_level": 1,
+      "lots": 1,
+      "costs": {
+        "rp": 10,
+        "lumber": 2,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "10 RP, 2 Lumber",
+      "construction": "Trade",
+      "construction_dc": 15,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "JAIL",
+      "official_level": 2,
+      "lots": 1,
+      "costs": {
+        "rp": 14,
+        "lumber": 4,
+        "stone": 4,
+        "ore": 2,
+        "luxuries": 0
+      },
+      "cost_text": "14 RP, 4 Lumber, 2 Ore, 4 Stone",
+      "construction": "Defense",
+      "construction_dc": 16,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "KEEP",
+      "official_level": 3,
+      "lots": 2,
+      "costs": {
+        "rp": 32,
+        "lumber": 8,
+        "stone": 8,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "32 RP, 8 Lumber, 8 Stone",
+      "construction": "Defense (trained)",
+      "construction_dc": 18,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "LIBRARY",
+      "official_level": 2,
+      "lots": 1,
+      "costs": {
+        "rp": 6,
+        "lumber": 4,
+        "stone": 2,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "6 RP, 4 Lumber, 2 Stone",
+      "construction": "Scholarship (trained)",
+      "construction_dc": 16,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "LUMBERYARD",
+      "official_level": 3,
+      "lots": 2,
+      "costs": {
+        "rp": 16,
+        "lumber": 5,
+        "stone": 0,
+        "ore": 1,
+        "luxuries": 0
+      },
+      "cost_text": "16 RP, 5 Lumber, 1 Ore",
+      "construction": "Industry (trained)",
+      "construction_dc": 18,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "LUXURY STORE",
+      "official_level": 6,
+      "lots": 1,
+      "costs": {
+        "rp": 28,
+        "lumber": 10,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 6
+      },
+      "cost_text": "28 RP, 10 Lumber, 6 Luxuries",
+      "construction": "Trade (expert)",
+      "construction_dc": 22,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "MAGIC SHOP",
+      "official_level": 8,
+      "lots": 1,
+      "costs": {
+        "rp": 44,
+        "lumber": 8,
+        "stone": 6,
+        "ore": 0,
+        "luxuries": 6
+      },
+      "cost_text": "44 RP, 8 Lumber, 6 Luxuries, 6 Stone",
+      "construction": "Magic (expert)",
+      "construction_dc": 24,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "MAGICAL STREETLAMPS",
+      "official_level": 5,
+      "lots": null,
+      "costs": {
+        "rp": 20,
+        "lumber": 0,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "20 RP",
+      "construction": "Magic (expert)",
+      "construction_dc": 20,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "MANSION",
+      "official_level": 5,
+      "lots": 1,
+      "costs": {
+        "rp": 10,
+        "lumber": 6,
+        "stone": 3,
+        "ore": 0,
+        "luxuries": 6
+      },
+      "cost_text": "10 RP, 6 Lumber, 6 Luxuries, 3 Stone",
+      "construction": "Industry (trained)",
+      "construction_dc": 20,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "MARKETPLACE",
+      "official_level": 4,
+      "lots": 2,
+      "costs": {
+        "rp": 48,
+        "lumber": 4,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "48 RP, 4 Lumber",
+      "construction": "Trade (trained)",
+      "construction_dc": 19,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "MENAGERIE",
+      "official_level": 12,
+      "lots": 4,
+      "costs": {
+        "rp": 26,
+        "lumber": 14,
+        "stone": 10,
+        "ore": 10,
+        "luxuries": 0
+      },
+      "cost_text": "26 RP, 14 Lumber, 10 Ore, 10 Stone",
+      "construction": "Wilderness (expert)",
+      "construction_dc": 30,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "MILITARY ACADEMY",
+      "official_level": 12,
+      "lots": 2,
+      "costs": {
+        "rp": 36,
+        "lumber": 12,
+        "stone": 10,
+        "ore": 6,
+        "luxuries": 0
+      },
+      "cost_text": "36 RP, 12 Lumber, 6 Ore, 10 Stone",
+      "construction": "Warfare (expert)",
+      "construction_dc": 30,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "MILL",
+      "official_level": 2,
+      "lots": 1,
+      "costs": {
+        "rp": 6,
+        "lumber": 2,
+        "stone": 1,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "6 RP, 2 Lumber, 1 Stone",
+      "construction": "Industry (trained)",
+      "construction_dc": 16,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "MINT",
+      "official_level": 15,
+      "lots": 1,
+      "costs": {
+        "rp": 30,
+        "lumber": 12,
+        "stone": 16,
+        "ore": 20,
+        "luxuries": 0
+      },
+      "cost_text": "30 RP, 12 Lumber, 20 Ore, 16 Stone",
+      "construction": "Trade (master)",
+      "construction_dc": 34,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "MONUMENT",
+      "official_level": 3,
+      "lots": 1,
+      "costs": {
+        "rp": 6,
+        "lumber": 0,
+        "stone": 1,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "6 RP, 1 Stone",
+      "construction": "Arts (trained)",
+      "construction_dc": 18,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "MUSEUM",
+      "official_level": 5,
+      "lots": 2,
+      "costs": {
+        "rp": 30,
+        "lumber": 6,
+        "stone": 2,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "30 RP, 6 Lumber, 2 Stone",
+      "construction": "Exploration (trained)",
+      "construction_dc": 20,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "NOBLE VILLA",
+      "official_level": 9,
+      "lots": 2,
+      "costs": {
+        "rp": 24,
+        "lumber": 10,
+        "stone": 8,
+        "ore": 0,
+        "luxuries": 6
+      },
+      "cost_text": "24 RP, 10 Lumber, 6 Luxuries, 8 Stone",
+      "construction": "Politics (expert)",
+      "construction_dc": 19,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "OCCULT SHOP",
+      "official_level": 13,
+      "lots": 1,
+      "costs": {
+        "rp": 68,
+        "lumber": 12,
+        "stone": 6,
+        "ore": 0,
+        "luxuries": 12
+      },
+      "cost_text": "68 RP, 12 Lumber, 12 Luxuries, 6 Stone",
+      "construction": "Magic (master)",
+      "construction_dc": 32,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "OPERA HOUSE",
+      "official_level": 15,
+      "lots": 2,
+      "costs": {
+        "rp": 40,
+        "lumber": 20,
+        "stone": 16,
+        "ore": 0,
+        "luxuries": 18
+      },
+      "cost_text": "40 RP, 20 Lumber, 18 Luxuries, 16 Stone",
+      "construction": "Arts (master)",
+      "construction_dc": 34,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "ORPHANAGE",
+      "official_level": 2,
+      "lots": 1,
+      "costs": {
+        "rp": 6,
+        "lumber": 2,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "6 RP, 2 Lumber",
+      "construction": "Industry",
+      "construction_dc": 16,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "PALACE",
+      "official_level": 15,
+      "lots": 4,
+      "costs": {
+        "rp": 108,
+        "lumber": 20,
+        "stone": 20,
+        "ore": 15,
+        "luxuries": 12
+      },
+      "cost_text": "108 RP, 20 Lumber, 12 Luxuries, 15 Ore, 20 Stone",
+      "construction": "Defense (master), Industry (master), Magic (master), or Statecraft (master)",
+      "construction_dc": 34,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "PARK",
+      "official_level": 3,
+      "lots": 1,
+      "costs": {
+        "rp": 5,
+        "lumber": 0,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "5 RP",
+      "construction": "Wilderness",
+      "construction_dc": 18,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "PAVED STREETS",
+      "official_level": 4,
+      "lots": null,
+      "costs": {
+        "rp": 12,
+        "lumber": 0,
+        "stone": 6,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "12 RP, 6 Stone",
+      "construction": "Industry (trained)",
+      "construction_dc": 19,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "PIER",
+      "official_level": 3,
+      "lots": 1,
+      "costs": {
+        "rp": 16,
+        "lumber": 2,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "16 RP, 2 Lumber",
+      "construction": "Boating",
+      "construction_dc": 18,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "SACRED GROVE",
+      "official_level": 5,
+      "lots": 1,
+      "costs": {
+        "rp": 36,
+        "lumber": 0,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "36 RP",
+      "construction": "Wilderness (trained)",
+      "construction_dc": 20,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "SECURE WAREHOUSE",
+      "official_level": 6,
+      "lots": 2,
+      "costs": {
+        "rp": 24,
+        "lumber": 6,
+        "stone": 6,
+        "ore": 4,
+        "luxuries": 0
+      },
+      "cost_text": "24 RP, 6 Lumber, 4 Ore, 6 Stone",
+      "construction": "Industry (expert)",
+      "construction_dc": 22,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "SEWER SYSTEM",
+      "official_level": 7,
+      "lots": null,
+      "costs": {
+        "rp": 24,
+        "lumber": 8,
+        "stone": 8,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "24 RP, 8 Lumber, 8 Stone",
+      "construction": "Engineering (expert)",
+      "construction_dc": 23,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "SHRINE",
+      "official_level": 1,
+      "lots": 1,
+      "costs": {
+        "rp": 8,
+        "lumber": 2,
+        "stone": 1,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "8 RP, 2 Lumber, 1 Stone",
+      "construction": "Folklore (trained)",
+      "construction_dc": 15,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "SMITHY",
+      "official_level": 3,
+      "lots": 1,
+      "costs": {
+        "rp": 8,
+        "lumber": 2,
+        "stone": 1,
+        "ore": 1,
+        "luxuries": 0
+      },
+      "cost_text": "8 RP, 2 Lumber, 1 Ore, 1 Stone",
+      "construction": "Industry (trained)",
+      "construction_dc": 18,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "SPECIALIZED ARTISAN",
+      "official_level": 4,
+      "lots": 1,
+      "costs": {
+        "rp": 10,
+        "lumber": 4,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 1
+      },
+      "cost_text": "10 RP, 4 Lumber, 1 Luxury",
+      "construction": "Trade (expert)",
+      "construction_dc": 19,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "STABLE",
+      "official_level": 3,
+      "lots": 1,
+      "costs": {
+        "rp": 10,
+        "lumber": 2,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "10 RP, 2 Lumber",
+      "construction": "Wilderness (trained)",
+      "construction_dc": 18,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "STOCKYARD",
+      "official_level": 3,
+      "lots": 4,
+      "costs": {
+        "rp": 20,
+        "lumber": 4,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "20 RP, 4 Lumber",
+      "construction": "Industry",
+      "construction_dc": 18,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "STONEMASON",
+      "official_level": 3,
+      "lots": 2,
+      "costs": {
+        "rp": 16,
+        "lumber": 2,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "16 RP, 2 Lumber",
+      "construction": "Industry (trained)",
+      "construction_dc": 18,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "TANNERY",
+      "official_level": 3,
+      "lots": 1,
+      "costs": {
+        "rp": 6,
+        "lumber": 2,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "6 RP, 2 Lumber",
+      "construction": "Industry (trained)",
+      "construction_dc": 18,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "TAVERN, DIVE",
+      "official_level": 1,
+      "lots": 1,
+      "costs": {
+        "rp": 12,
+        "lumber": 1,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "12 RP, 1 Lumber",
+      "construction": "Trade (trained)",
+      "construction_dc": 15,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "TAVERN, POPULAR",
+      "official_level": 3,
+      "lots": 1,
+      "costs": {
+        "rp": 24,
+        "lumber": 6,
+        "stone": 2,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "24 RP, 6 Lumber, 2 Stone",
+      "construction": "Trade (expert)",
+      "construction_dc": 18,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "TAVERN, LUXURY",
+      "official_level": 9,
+      "lots": 2,
+      "costs": {
+        "rp": 48,
+        "lumber": 10,
+        "stone": 8,
+        "ore": 0,
+        "luxuries": 8
+      },
+      "cost_text": "48 RP, 10 Lumber, 8 Luxuries, 8 Stone",
+      "construction": "Trade (master)",
+      "construction_dc": 26,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "TAVERN, WORLD-CLASS",
+      "official_level": 15,
+      "lots": 2,
+      "costs": {
+        "rp": 64,
+        "lumber": 18,
+        "stone": 15,
+        "ore": 0,
+        "luxuries": 15
+      },
+      "cost_text": "64 RP, 18 Lumber, 15 Luxuries, 15 Stone",
+      "construction": "Trade (master)",
+      "construction_dc": 34,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "TEMPLE",
+      "official_level": 7,
+      "lots": 2,
+      "costs": {
+        "rp": 32,
+        "lumber": 6,
+        "stone": 6,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "32 RP, 6 Lumber, 6 Stone",
+      "construction": "Folklore (trained)",
+      "construction_dc": 23,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "TENEMENT",
+      "official_level": 0,
+      "lots": 1,
+      "costs": {
+        "rp": 1,
+        "lumber": 1,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "1 RP, 1 Lumber",
+      "construction": "Industry",
+      "construction_dc": 14,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "THEATER",
+      "official_level": 9,
+      "lots": 2,
+      "costs": {
+        "rp": 24,
+        "lumber": 8,
+        "stone": 3,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "24 RP, 8 Lumber, 3 Stone",
+      "construction": "Arts (expert)",
+      "construction_dc": 26,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "THIEVES’ GUILD",
+      "official_level": 5,
+      "lots": 1,
+      "costs": {
+        "rp": 25,
+        "lumber": 4,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "25 RP, 4 Lumber",
+      "construction": "Intrigue (trained)",
+      "construction_dc": 20,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "TOWN HALL",
+      "official_level": 2,
+      "lots": 2,
+      "costs": {
+        "rp": 22,
+        "lumber": 4,
+        "stone": 4,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "22 RP, 4 Lumber, 4 Stone",
+      "construction": "Defense (trained), Industry (trained), Magic (trained), or Statecraft (trained)",
+      "construction_dc": 16,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "TRADE SHOP",
+      "official_level": 3,
+      "lots": 1,
+      "costs": {
+        "rp": 10,
+        "lumber": 2,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "10 RP, 2 Lumber",
+      "construction": "Trade (trained)",
+      "construction_dc": 18,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "UNIVERSITY",
+      "official_level": 15,
+      "lots": 4,
+      "costs": {
+        "rp": 78,
+        "lumber": 18,
+        "stone": 18,
+        "ore": 0,
+        "luxuries": 18
+      },
+      "cost_text": "78 RP, 18 Lumber, 18 Luxuries, 18 Stone",
+      "construction": "Scholarship (master)",
+      "construction_dc": 34,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "WALL, STONE",
+      "official_level": 5,
+      "lots": null,
+      "costs": {
+        "rp": 4,
+        "lumber": 0,
+        "stone": 8,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "4 RP, 8 Stone",
+      "construction": "Defense (trained)",
+      "construction_dc": 20,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "WALL, WOODEN",
+      "official_level": 1,
+      "lots": null,
+      "costs": {
+        "rp": 2,
+        "lumber": 4,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "2 RP, 4 Lumber",
+      "construction": "Defense",
+      "construction_dc": 15,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "WATCHTOWER",
+      "official_level": 3,
+      "lots": 1,
+      "costs": {
+        "rp": 12,
+        "lumber": 4,
+        "stone": 4,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "12 RP, 4 Lumber or 4 Stone",
+      "construction": "Defense (trained)",
+      "construction_dc": 18,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    },
+    {
+      "official_name": "WATERFRONT",
+      "official_level": 8,
+      "lots": 4,
+      "costs": {
+        "rp": 90,
+        "lumber": 10,
+        "stone": 0,
+        "ore": 0,
+        "luxuries": 0
+      },
+      "cost_text": "90 RP, 10 Lumber",
+      "construction": "Boating (expert)",
+      "construction_dc": 24,
+      "source": "Kingmaker.pdf Appendix 2 pp. 544-552"
+    }
+  ]
+}

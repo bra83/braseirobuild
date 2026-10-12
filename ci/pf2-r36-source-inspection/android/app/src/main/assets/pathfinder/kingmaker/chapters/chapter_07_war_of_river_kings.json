@@ -1,0 +1,1031 @@
+{
+  "schema": "braseiro-pathfinder2e-chapter-v1",
+  "chapter_key": "chapter_07_war_of_river_kings",
+  "chapterKey": "chapter_07_war_of_river_kings",
+  "chapter_number": 7,
+  "chapterNumber": 7,
+  "title": "A Guerra dos Reis dos Rios: O Desafio de Pitax e Rushlight",
+  "locale": "pt-BR",
+  "level_min": 12,
+  "levelMin": 12,
+  "level_max": 14,
+  "levelMax": 14,
+  "summary": "À medida que a Baronia dos heróis ascende como potência hegemônica entre as Terras Fluviais, a inveja, a paranoia e as maquinações belicistas do vizinho Reino de Pitax eclodem em crise aberta. O extravagante e despótico Rei Castruccio Irovetti — secretamente manipulado e financiado pela misteriosa ninfa Nyrissa — convoca a corte dos heróis para disputar o lendário e perigoso Torneio de Rushlight (Rushlight Tournament). O festival, que deveria celebrar a perícia em arquearia, duelos de esgrima, oratória e banquetes suntuosos, converte-se em um ninho de trapaças, venenos e tentativas vis de assassinato diplomático. Após o torneio, mercenários de ferro, monstros fluviais sob controle feérico e sabotadores infiltram as fronteiras do reino do jogador. Para proteger a soberania do reino, os heróis precisam desvendar os segredos ancestrais da enigmática Abadia da Rosa Branca (Whiterose Abbey), apoiar a resistência artística clandestina de Pitax e liderar o cerco e invasão ao grandioso Palácio Real para depor o tirano Irovetti.",
+  "quests": [
+    {
+      "quest_key": "q_rushlight",
+      "questKey": "q_rushlight",
+      "title": "Vitória no Torneio de Rushlight",
+      "status": "unstarted",
+      "stage": "provas_torneio",
+      "objective": "Superar as provas de perícia, arquearia, duelo de lâminas e retórica durante o Torneio de Rushlight, neutralizando as armações e trapaças de Pitax.",
+      "stakes": "Uma derrota humilhante em Rushlight abalará a reputação diplomática do reino perante os demais Reis dos Rios e legitimará as ambições de Pitax.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 400,
+      "milestoneXp": 400,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_rus_1",
+          "desc": "Conquistar a vitória na competição de tiro com arco contra os campeões de Pitax e Gralhas Fluviais",
+          "description": "Conquistar a vitória na competição de tiro com arco contra os campeões de Pitax e Gralhas Fluviais",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_rus_2",
+          "desc": "Derrotar o campeão de esgrima de Irovetti no duelo de honra da arena principal",
+          "description": "Derrotar o campeão de esgrima de Irovetti no duelo de honra da arena principal",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_rus_3",
+          "desc": "Expor a trapaça do bardo real de Pitax durante o banquete de retórica e sátira",
+          "description": "Expor a trapaça do bardo real de Pitax durante o banquete de retórica e sátira",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 2000,
+        "xp": 400,
+        "items": ["taca_dourada_de_rushlight", "manto_do_campeao_fluvial", "arco_de_teixo_encantado"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_irovetti",
+      "questKey": "q_irovetti",
+      "title": "A Queda do Rei Usurpador Castruccio Irovetti",
+      "status": "unstarted",
+      "stage": "assalto_palacio",
+      "objective": "Comandar as forças do reino no cerco e infiltração do Palácio Real de Pitax, neutralizar sua guarda de autômatos e depor o tirano Castruccio Irovetti.",
+      "stakes": "Caso Irovetti não seja destituído, utilizará as armas feéricas fornecidas por Nyrissa para queimar os portos fluviais e escravizar a população.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 600,
+      "milestoneXp": 600,
+      "prerequisites": ["q_rushlight"],
+      "objectives": [
+        {
+          "id": "obj_iro_1",
+          "desc": "Infiltrar os portões de ferro do Palácio de Pitax contornando as armadilhas de mecanismo de relógio",
+          "description": "Infiltrar os portões de ferro do Palácio de Pitax contornando as armadilhas de mecanismo de relógio",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_iro_2",
+          "desc": "Derrotar a guarda mercenária de elite liderada pelo Capitão Vargas nos pátios nobres",
+          "description": "Derrotar a guarda mercenária de elite liderada pelo Capitão Vargas nos pátios nobres",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_iro_3",
+          "desc": "Confrontar Castruccio Irovetti no Salão Dourado do Trono e encerrar sua tirania melodramática",
+          "description": "Confrontar Castruccio Irovetti no Salão Dourado do Trono e encerrar sua tirania melodramática",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 5000,
+        "xp": 600,
+        "items": ["coroa_de_esmeraldas_de_pitax", "florete_do_rei_usurpador", "tesouro_real_de_irovetti"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_abadia_rosa_branca",
+      "questKey": "q_abadia_rosa_branca",
+      "title": "O Segredo da Abadia da Rosa Branca",
+      "status": "unstarted",
+      "stage": "exploracao_abadia",
+      "objective": "Investigar as ruínas históricas da Abadia da Rosa Branca, desvendar onde Irovetti obteve a lendária espada Briar e pacificar o espírito do guardião.",
+      "stakes": "O segredo por trás do artefato Briar e sua conexão mística com a ninfa Nyrissa permanecerá incompreendido, tornando a baronia vulnerável ao clímax feérico.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 450,
+      "milestoneXp": 450,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_aba_1",
+          "desc": "Descobrir a localização secreta da ilha fluvial onde a Abadia da Rosa Branca repousa encoberta por brumas",
+          "description": "Descobrir a localização secreta da ilha fluvial onde a Abadia da Rosa Branca repousa encoberta por brumas",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_aba_2",
+          "desc": "Desvendar os enigmas das antigas barricas de vinho com o eremita Irmão Gardensen",
+          "description": "Desvendar os enigmas das antigas barricas de vinho com o eremita Irmão Gardensen",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_aba_3",
+          "desc": "Descobrir documentos que comprovam o pacto entre Irovetti e a ninfa Nyrissa nas adegas inferiores",
+          "description": "Descobrir documentos que comprovam o pacto entre Irovetti e a ninfa Nyrissa nas adegas inferiores",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 1800,
+        "xp": 450,
+        "items": ["vinho_ancestral_da_rosa_branca", "pergaminho_do_pacto_de_nyrissa"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_guerrilha_literaria",
+      "questKey": "q_guerrilha_literaria",
+      "title": "A Conspiração da Academia de Belas Artes de Pitax",
+      "status": "unstarted",
+      "stage": "contato_resistencia",
+      "objective": "Estabelecer aliança com Atalia Neven e os poetas e bardos clandestinos da Academia de Pitax para incitar uma insurreição popular pacífica contra o tirano.",
+      "stakes": "Sem o apoio dos cidadãos e intelectuais, a tomada de Pitax causará anos de revoltas civis sangrentas.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 400,
+      "milestoneXp": 400,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_gue_1",
+          "desc": "Reunir-se clandestinamente no sótão da Academia de Artes sob o disfarce de mercadores",
+          "description": "Reunir-se clandestinamente no sótão da Academia de Artes sob o disfarce de mercadores",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_gue_2",
+          "desc": "Neutralizar censores e espiões reais sem levantar o alarme dos guardas das muralhas",
+          "description": "Neutralizar censores e espiões reais sem levantar o alarme dos guardas das muralhas",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_gue_3",
+          "desc": "Distribuir panfletos de sátira e poesia revolucionária nas praças públicas de Pitax",
+          "description": "Distribuir panfletos de sátira e poesia revolucionária nas praças públicas de Pitax",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 1400,
+        "xp": 400,
+        "items": ["alaude_dos_bardos_livres", "chave_dos_tuneis_secretos_de_pitax"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_sabotadores_fluviais",
+      "questKey": "q_sabotadores_fluviais",
+      "title": "A Neutralização dos Monstros Fluviais de Irovetti",
+      "status": "unstarted",
+      "stage": "patrulha_rio",
+      "objective": "Expurgar as hidras e quimeras modificadas alquimicamente que Irovetti soltou nos afluentes fluviais para estrangular o comércio dos heróis.",
+      "stakes": "As rotas comerciais do Rio Shrike e Pitax serão fechadas, gerando colapso econômico na tesouraria real.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 350,
+      "milestoneXp": 350,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_sab_1",
+          "desc": "Rastrear os ninhos fluviais das hidras venenosas alimentadas com lixo alquímico",
+          "description": "Rastrear os ninhos fluviais das hidras venenosas alimentadas com lixo alquímico",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_sab_2",
+          "desc": "Destruir a balsa de contenção e capturar os alquimistas de Pitax responsáveis pela soltura dos monstros",
+          "description": "Destruir a balsa de contenção e capturar os alquimistas de Pitax responsáveis pela soltura dos monstros",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 1100,
+        "xp": 350,
+        "items": ["couro_de_hidra_alquimica", "frascos_de_reagente_corrosivo"]
+      },
+      "progress_json": {}
+    }
+  ],
+  "hazards": [
+    {
+      "hazard_key": "hazard_mecanismo_seguranca_palacio",
+      "hazardKey": "hazard_mecanismo_seguranca_palacio",
+      "name": "Dispositivo de Defesa Mecatrônico do Salão de Irovetti",
+      "level": 12,
+      "traits": ["complexo", "mecanico", "relogio"],
+      "stealth_dc": 33,
+      "stealthDc": 33,
+      "perception_dc": 33,
+      "perceptionDc": 33,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 32,
+      "savingThrowDc": 32,
+      "disable_skills": [
+        {
+          "skill": "Ladroagem",
+          "dc": 33,
+          "proficiency": "mestre",
+          "description": "Abrir o painel dourado e bloquear os volantes de escape de mecanismo de relógio com cunhas de aço"
+        },
+        {
+          "skill": "Manufatura",
+          "dc": 33,
+          "proficiency": "especialista",
+          "description": "Reverter a polaridade das engrenagens principais e desacoplar os fios de detonação"
+        }
+      ],
+      "routine_actions": 2,
+      "routineActions": 2,
+      "hazard_type": "armadilha",
+      "complexity": "complexo",
+      "ac": 32,
+      "hardness": 18,
+      "hp": 90,
+      "bt": 45,
+      "reaction": "Dispara quando um intruso não autorizado pisa no tapete imperial diante do trono.",
+      "reset": "Armadilha de relógio de rearme automático que opera continuamente por corda mecânica.",
+      "xp": 160,
+      "description": "Um complexo autômato embutido nas paredes de mármore e ouro que aciona balistas ocultas e esferas de bronze giratórias cortantes.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Rajada de Balistas de Precisão",
+          "description": "Dispara três virotes de aço perfurante causando 4d8+8 de dano perfurante por projétil (CD 32 de Reflexos)."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Vapor de Mercúrio Incandescente",
+          "description": "Emite nuvem tóxica de vapor em cone de 9 metros causando 3d10 de dano de fogo e condição enjoado 1."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_fonte_envenenada_pitax",
+      "hazardKey": "hazard_fonte_envenenada_pitax",
+      "name": "Fonte Ornamentada com Veneno Hidráulico de Beldroega",
+      "level": 12,
+      "traits": ["simples", "veneno", "ambiental"],
+      "stealth_dc": 32,
+      "stealthDc": 32,
+      "perception_dc": 32,
+      "perceptionDc": 32,
+      "saving_throw_type": "Fortitude",
+      "savingThrowType": "Fortitude",
+      "saving_throw_dc": 33,
+      "savingThrowDc": 33,
+      "disable_skills": [
+        {
+          "skill": "Medicina",
+          "dc": 31,
+          "proficiency": "mestre",
+          "description": "Identificar a coloração arroxeada do veneno e aplicar agente neutralizador à base de carvão"
+        },
+        {
+          "skill": "Sobrevivência",
+          "dc": 32,
+          "proficiency": "especialista",
+          "description": "Desviar os canos de abastecimento da fonte diretamente para o esgoto pluvial"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "ambiental",
+      "complexity": "simples",
+      "ac": 30,
+      "hardness": 14,
+      "hp": 65,
+      "bt": 32,
+      "reaction": "Espirra jatos de névoa venenosa no ambiente quando a alavanca de fluxo é acionada.",
+      "reset": "Requer novo abastecimento dos tanques de toxina.",
+      "xp": 90,
+      "description": "Uma fonte clássica de ninfas esculpida em alabastro, cujas bicas foram sabotadas por Irovetti para espalhar neurotoxina.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Pulverização de Neurotoxina",
+          "description": "Causa 5d10 de dano de veneno e condição estupefato 2 em falha no teste de Fortitude (CD 33)."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_armadilha_relogio_laminas",
+      "hazardKey": "hazard_armadilha_relogio_laminas",
+      "name": "Pilar de Lâminas Mecânicas de Pitax",
+      "level": 13,
+      "traits": ["complexo", "mecanico", "armadilha"],
+      "stealth_dc": 34,
+      "stealthDc": 34,
+      "perception_dc": 34,
+      "perceptionDc": 34,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 33,
+      "savingThrowDc": 33,
+      "disable_skills": [
+        {
+          "skill": "Ladroagem",
+          "dc": 34,
+          "proficiency": "mestre",
+          "description": "Desacoplar a mola espiral mestra situada na base do pilar com gaze de cobre"
+        },
+        {
+          "skill": "Manufatura",
+          "dc": 34,
+          "proficiency": "mestre",
+          "description": "Introduzir pino de travamento de emergência no tambor central dentado"
+        }
+      ],
+      "routine_actions": 2,
+      "routineActions": 2,
+      "hazard_type": "armadilha",
+      "complexity": "complexo",
+      "ac": 33,
+      "hardness": 20,
+      "hp": 96,
+      "bt": 48,
+      "reaction": "Disparado quando a porta de acesso ao tesouro do palácio é forçada.",
+      "reset": "O mecanismo de corda interna mantém o pilar girando por 10 minutos antes de parar.",
+      "xp": 180,
+      "description": "Coluna arquitetônica que se desdobra subitamente em uma torre giratória de lâminas afiadas de navalha impulsionadas por mecanismo de precisão.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Vórtice Giratório Ceifador",
+          "description": "Lâminas em alta rotação causam 5d8+10 de dano cortante em criaturas em um raio de 4,5 metros (CD 33 de Reflexos)."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_espelho_ilusao_hipnotica",
+      "hazardKey": "hazard_espelho_ilusao_hipnotica",
+      "name": "Espelho Imperial de Fascínio Arcano",
+      "level": 13,
+      "traits": ["simples", "magico", "ilusao"],
+      "stealth_dc": 33,
+      "stealthDc": 33,
+      "perception_dc": 33,
+      "perceptionDc": 33,
+      "saving_throw_type": "Vontade",
+      "savingThrowType": "Vontade",
+      "saving_throw_dc": 34,
+      "savingThrowDc": 34,
+      "disable_skills": [
+        {
+          "skill": "Arcanismo",
+          "dc": 33,
+          "proficiency": "mestre",
+          "description": "Dissipar o tecer da teia de fascínio mental inscrita na moldura de prata"
+        },
+        {
+          "skill": "Ocultismo",
+          "dc": 33,
+          "proficiency": "especialista",
+          "description": "Quebrar o padrão de ressonância geométrica do reflexo distorcido"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "armadilha",
+      "complexity": "simples",
+      "ac": 31,
+      "hardness": 15,
+      "hp": 60,
+      "bt": 30,
+      "reaction": "Ativado no momento em que qualquer ser encara seu próprio reflexo no espelho do vestíbulo.",
+      "reset": "Não se rearma se o vidro for coberto ou destruído.",
+      "xp": 110,
+      "description": "Um espelho de corpo inteiro em moldura de prata dourada que exibe uma versão idealizada e hipnótica da vítima, subjugando sua mente.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Encantamento Hipnótico Irresistível",
+          "description": "Impõe a condição fascinado e controlado por 1 rodada em falha crítica no teste de Vontade (CD 34)."
+        }
+      ]
+    }
+  ],
+  "pois": [
+    {
+      "poi_key": "poi_campos_torneio_rushlight",
+      "poiKey": "poi_campos_torneio_rushlight",
+      "poi_id": "poi_campos_torneio_rushlight",
+      "poiId": "poi_campos_torneio_rushlight",
+      "campaign_key": "chapter_07_war_of_river_kings",
+      "campaignKey": "chapter_07_war_of_river_kings",
+      "map_id": "stolen_lands",
+      "name": "Campos do Torneio de Rushlight",
+      "name_key": "campos_do_torneio_de_rushlight",
+      "type": "landmark",
+      "hex_id": "H_RUSHLIGHT",
+      "hexId": "H_RUSHLIGHT",
+      "location_id": "loc_rushlight",
+      "q": -6,
+      "r": 4,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Vastos pavilhões de seda colorida, arquibancadas de madeira esculpida e arenas de justa erguidas às margens do lago para o festival dos Reis dos Rios.",
+      "tags": ["torneio", "diplomacia", "rushlight", "jogos"],
+      "development_level": 3,
+      "icon": "🎪",
+      "notes": "Sede dos jogos e conspirações de Castruccio Irovetti."
+    },
+    {
+      "poi_key": "poi_palacio_pitax",
+      "poiKey": "poi_palacio_pitax",
+      "poi_id": "poi_palacio_pitax",
+      "poiId": "poi_palacio_pitax",
+      "campaign_key": "chapter_07_war_of_river_kings",
+      "campaignKey": "chapter_07_war_of_river_kings",
+      "map_id": "stolen_lands",
+      "name": "Palácio Real de Pitax",
+      "name_key": "palacio_real_de_pitax",
+      "type": "settlement",
+      "hex_id": "H_PITAX_PALACE",
+      "hexId": "H_PITAX_PALACE",
+      "location_id": "loc_pitax_palace",
+      "q": -7,
+      "r": 5,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Fortaleza urbana de opulência barroca extravagante, com torres de mármore branco, estátuas douradas e muralhas com canhões de mecanismo de relógio.",
+      "tags": ["capital", "palacio", "pitax", "climax"],
+      "development_level": 4,
+      "icon": "🏰",
+      "notes": "Coração do poder de Irovetti e alvo do assalto final."
+    },
+    {
+      "poi_key": "poi_abadia_rosa_branca",
+      "poiKey": "poi_abadia_rosa_branca",
+      "poi_id": "poi_abadia_rosa_branca",
+      "poiId": "poi_abadia_rosa_branca",
+      "campaign_key": "chapter_07_war_of_river_kings",
+      "campaignKey": "chapter_07_war_of_river_kings",
+      "map_id": "stolen_lands",
+      "name": "Abadia Decadente da Rosa Branca",
+      "name_key": "abadia_decadente_da_rosa_branca",
+      "type": "dungeon",
+      "hex_id": "H_WHITEROSE_ABBEY",
+      "hexId": "H_WHITEROSE_ABBEY",
+      "location_id": "loc_whiterose",
+      "q": -6,
+      "r": 6,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "ruined",
+      "description": "Antigo mosteiro de monges produtores de vinho, agora em ruínas e envolto em vinhedos venenosos e fantasmas guardiões de segredos feéricos.",
+      "tags": ["dungeon", "abadia", "misterio", "vinho"],
+      "development_level": 2,
+      "icon": "🍷",
+      "notes": "Local onde repousavam segredos sobre Briar e Nyrissa."
+    },
+    {
+      "poi_key": "poi_porto_fluvial_pitax",
+      "poiKey": "poi_porto_fluvial_pitax",
+      "poi_id": "poi_porto_fluvial_pitax",
+      "poiId": "poi_porto_fluvial_pitax",
+      "campaign_key": "chapter_07_war_of_river_kings",
+      "campaignKey": "chapter_07_war_of_river_kings",
+      "map_id": "stolen_lands",
+      "name": "Docas Fluviais do Rio Pitax",
+      "name_key": "docas_fluviais_do_rio_pitax",
+      "type": "landmark",
+      "hex_id": "H_PITAX_DOCKS",
+      "hexId": "H_PITAX_DOCKS",
+      "location_id": "loc_pitax_docks",
+      "q": -7,
+      "r": 4,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Movimentado cais mercantil repleto de barcaças mercantes, armazéns alfandegários e marinheiros de todos os Reinos dos Rios.",
+      "tags": ["porto", "comercio", "rio", "docas"],
+      "development_level": 3,
+      "icon": "⚓",
+      "notes": "Ponto nevrálgico da economia e logística fluvial de Pitax."
+    },
+    {
+      "poi_key": "poi_academia_artes_pitax",
+      "poiKey": "poi_academia_artes_pitax",
+      "poi_id": "poi_academia_artes_pitax",
+      "poiId": "poi_academia_artes_pitax",
+      "campaign_key": "chapter_07_war_of_river_kings",
+      "campaignKey": "chapter_07_war_of_river_kings",
+      "map_id": "stolen_lands",
+      "name": "Academia Imperial de Artes e Música de Pitax",
+      "name_key": "academia_imperial_de_artes_e_musica_de_pitax",
+      "type": "refuge",
+      "hex_id": "H_PITAX_ACADEMY",
+      "hexId": "H_PITAX_ACADEMY",
+      "location_id": "loc_pitax_academy",
+      "q": -8,
+      "r": 5,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Edifício neoclássico de teatros, conservatórios e bibliotecas onde músicos e poetas se reúnem sob a censura estrita dos comissários de Irovetti.",
+      "tags": ["artes", "resistencia", "musica", "refugio"],
+      "development_level": 3,
+      "icon": "🎭",
+      "notes": "Quartel-general da dissidência artística de Atalia Neven."
+    }
+  ],
+  "npcs": [
+    {
+      "npc_key": "npc_rei_castruccio_irovetti",
+      "npcKey": "npc_rei_castruccio_irovetti",
+      "stable_id": "npc_rei_castruccio_irovetti",
+      "stableId": "npc_rei_castruccio_irovetti",
+      "name": "Rei Castruccio Irovetti de Pitax",
+      "summary": "Monarca vaidoso, duelista perigoso e farsante megalomaníaco, que usurpou a coroa de Pitax e busca a submissão de todos os governantes vizinhos.",
+      "goals": "Esmagar a reputação da Baronia dos heróis, expandir seu domínio e manter o favor da ninfa Nyrissa.",
+      "secrets": "Sabe que Nyrissa o considera descartável, mas acredita ingenuamente que seu charme e talento convencerão a ninfa a desposá-lo.",
+      "attitude": "hostil",
+      "relationship": "Rei rival e tirano usurpador de Pitax",
+      "knowledge": "Esgrima de duelo de alto nível, diplomacia dos Reis dos Rios e intrigas teatrais.",
+      "debts": "Se encurralado, tenta negociar tesouros de arte em troca de sua vida miserável.",
+      "last_seen": "Salão Nobre do Palácio Real de Pitax",
+      "hex_id": "H_PITAX_PALACE",
+      "hexId": "H_PITAX_PALACE",
+      "faction": "Coroa e Guarda Real de Pitax",
+      "token_uri": "tokens/irovetti.png",
+      "visual_description": "Homem esbelto de bigode afilado e capa de cetim escarlate ornada com arminho, empunhando um florete ornamentado com rubis.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "Camponeses insolentes de uma baronia provinciana! Vocês ousam desafiar o ápice da sofisticação e da cultura fluvial? Meu palco será o túmulo de vocês!",
+          "topic": "soberba_real",
+          "quest_key": "q_irovetti"
+        }
+      ],
+      "stats": {
+        "hp": 220,
+        "max_hp": 220,
+        "ac": 33,
+        "perception": 24
+      }
+    },
+    {
+      "npc_key": "npc_atalia_neven",
+      "npcKey": "npc_atalia_neven",
+      "stable_id": "npc_atalia_neven",
+      "stableId": "npc_atalia_neven",
+      "name": "Atalia Neven, Diretora da Academia",
+      "summary": "Dramaturga e barda brilhante de Pitax, defensora incansável da liberdade de expressão que lidera a rede clandestina de poetas rebeldes.",
+      "goals": "Libertar Pitax da censura violenta de Irovetti e restaurar a academia como um farol de criatividade e verdade.",
+      "secrets": "Possui uma cópia dos registros fiscais secretos que comprovam que Irovetti pagou bandidos para sabotarem o torneio.",
+      "attitude": "amistoso",
+      "relationship": "Líder da resistência interna e intelectual aliada",
+      "knowledge": "Passagens secretas sob a cidade de Pitax, sátiras políticas e nomes de simpatizantes na corte.",
+      "debts": "Coloca a milícia cidadã e os poetas de Pitax a serviço do governo legítimo dos heróis.",
+      "last_seen": "Porões da Academia de Belas Artes",
+      "hex_id": "H_PITAX_ACADEMY",
+      "hexId": "H_PITAX_ACADEMY",
+      "faction": "Resistência Clandestina dos Artistas de Pitax",
+      "token_uri": "tokens/atalia.png",
+      "visual_description": "Mulher distinta de olhar firme, vestindo túnica de veludo índigo salpicada de tinta de pena e portando uma adaga de prata disfarçada na manga.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "amistoso",
+          "text": "A beleza de Pitax não pode continuar asfixiada pelos delírios de um tirano narcisista. Com a força de vocês e as nossas palavras, destronaremos Irovetti.",
+          "topic": "revolucao_das_artes",
+          "quest_key": "q_guerrilha_literaria"
+        }
+      ],
+      "stats": {
+        "hp": 105,
+        "max_hp": 105,
+        "ac": 29,
+        "perception": 23
+      }
+    },
+    {
+      "npc_key": "npc_guardiao_vencarlo",
+      "npcKey": "npc_guardiao_vencarlo",
+      "stable_id": "npc_guardiao_vencarlo",
+      "stableId": "npc_guardiao_vencarlo",
+      "name": "Mestre Vencarlo Guillen",
+      "summary": "Lendário mestre de esgrima e juiz imparcial do Torneio de Rushlight, famoso em toda a Avistan por sua honra inabalável.",
+      "goals": "Assegurar que os jogos de Rushlight ocorram sob regras justas e que a esgrima não seja manchada por trapaças vis.",
+      "secrets": "Percebeu que o florete do campeão de Pitax foi ungido com veneno paralítico antes da final.",
+      "attitude": "indiferente",
+      "relationship": "Árbitro supremo do torneio de honra",
+      "knowledge": "Técnicas avançadas de florete e rapieira, precedentes históricos dos Reis dos Rios e código cavalheiresco.",
+      "debts": "Concede a vitória legítima e o troféu aos heróis caso exponham a trapaça de forma impecável.",
+      "last_seen": "Pavilhão dos Juízes nos Campos de Rushlight",
+      "hex_id": "H_RUSHLIGHT",
+      "hexId": "H_RUSHLIGHT",
+      "faction": "Comitê Organizador do Torneio de Rushlight",
+      "token_uri": "tokens/vencarlo.png",
+      "visual_description": "Homem maduro de porte atlético esguio, cabelos prateados presos para trás e olhar severo de avaliador de esgrima.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "indiferente",
+          "text": "Em minha arena, apenas o aço e a habilidade pura decidem o vencedor. Se houver veneno ou feitiçaria covarde, desqualificarei o culpado na hora!",
+          "topic": "justica_da_lamina",
+          "quest_key": "q_rushlight"
+        }
+      ],
+      "stats": {
+        "hp": 140,
+        "max_hp": 140,
+        "ac": 32,
+        "perception": 25
+      }
+    },
+    {
+      "npc_key": "npc_estevan_vargas",
+      "npcKey": "npc_estevan_vargas",
+      "stable_id": "npc_estevan_vargas",
+      "stableId": "npc_estevan_vargas",
+      "name": "Capitão Estevan Vargas",
+      "summary": "Comandante austero e cruel da guarda mercenária de Pitax, um veterano de guerra de ferro que obedece ordens mediante pagamento de ouro farto.",
+      "goals": "Manter a ordem militar no palácio e esmagar qualquer tentativa de insurreição dos rebeldes.",
+      "secrets": "Sabe que o tesouro de Irovetti está se esgotando e que seu contrato pode não ser honrado caso a guerra se arraste.",
+      "attitude": "hostil",
+      "relationship": "Comandante mercenário inimigo jurado",
+      "knowledge": "Disposição tática dos guardas do palácio, rondas noturnas e código dos portões de ferro.",
+      "debts": "Pode ser subornado ou convencido a debandar caso os heróis provem que o rei não tem como pagá-lo.",
+      "last_seen": "Pátio de Armas do Palácio Real",
+      "hex_id": "H_PITAX_PALACE",
+      "hexId": "H_PITAX_PALACE",
+      "faction": "Coroa e Guarda Real de Pitax",
+      "token_uri": "tokens/vargas.png",
+      "visual_description": "Soldado corpulento em armadura completa de aço enegrecido, cicatriz que cruza seu olho esquerdo e maça estrela pesada no cinto.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "Meu contrato é claro: ninguém passa por estes portões enquanto o ouro de Pitax for bom. Preparem-se para sangrar!",
+          "topic": "barricada_mercenaria",
+          "quest_key": "q_irovetti"
+        }
+      ],
+      "stats": {
+        "hp": 165,
+        "max_hp": 165,
+        "ac": 32,
+        "perception": 21
+      }
+    },
+    {
+      "npc_key": "npc_irmao_gardensen",
+      "npcKey": "npc_irmao_gardensen",
+      "stable_id": "npc_irmao_gardensen",
+      "stableId": "npc_irmao_gardensen",
+      "name": "Irmão Gardensen, Guardião de Whiterose",
+      "summary": "Último monge residente da Abadia da Rosa Branca, excêntrico e aficionado por vinhos raros, que preserva a memória do lugar.",
+      "goals": "Proteger os últimos tonéis de vintage sagrado de Whiterose e evitar que tolos profanem os relicários.",
+      "secrets": "Presenciou o momento em que Nyrissa entregou uma muda de rosa corrompida a Irovetti na cripta da abadia.",
+      "attitude": "indiferente",
+      "relationship": "Guardião eremita e conhecedor de lendas",
+      "knowledge": "História dos ritos de consagração de Whiterose, vinicultura mística e portais de rosas.",
+      "debts": "Compartilha uma garrafa de vinho lendário de 50 anos que concede bônus temporário de resistência a magia.",
+      "last_seen": "Adegas da Abadia da Rosa Branca",
+      "hex_id": "H_WHITEROSE_ABBEY",
+      "hexId": "H_WHITEROSE_ABBEY",
+      "faction": "Resistência Clandestina dos Artistas de Pitax",
+      "token_uri": "tokens/gardensen.png",
+      "visual_description": "Monge rechonchudo de batinas manchadas de vinho tinto, nariz avermelhado e sorriso bondoso sob cabelos brancos desgrenhados.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "indiferente",
+          "text": "Quem bebe deste vinho enxerga o passado e o futuro... Irovetti bebeu e perdeu a razão; a dama das flores o enganou com facilidade infantil!",
+          "topic": "revelacao_do_vinhedo",
+          "quest_key": "q_abadia_rosa_branca"
+        }
+      ],
+      "stats": {
+        "hp": 90,
+        "max_hp": 90,
+        "ac": 27,
+        "perception": 22
+      }
+    }
+  ],
+  "scenes": [
+    {
+      "scene_key": "scene_palacio_pitax_sala_trono",
+      "sceneKey": "scene_palacio_pitax_sala_trono",
+      "title": "Sala do Trono Dourado de Irovetti",
+      "location": "Palácio Real de Pitax",
+      "hex_id": "H_PITAX_PALACE",
+      "hexId": "H_PITAX_PALACE",
+      "environment": "palacio_real",
+      "width_cells": 20,
+      "widthCells": 20,
+      "height_cells": 14,
+      "heightCells": 14,
+      "seed": 7001,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "estrado_do_trono",
+          "name": "Estrado Real e Galeria de Arte",
+          "x": 4,
+          "y": 2,
+          "width": 12,
+          "height": 8,
+          "terrain": "normal",
+          "description": "Tapeçarias douradas, colunas de mármore e piso lustrado onde autômatos de bronze guardam o trono"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "estatua_ouro_irovetti",
+          "x": 9,
+          "y": 4,
+          "width": 2,
+          "height": 2,
+          "type": "bronze_dourado",
+          "blocks_movement": true,
+          "blocks_vision": true,
+          "cover": "maior"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "portas_duplas_norte",
+          "x": 10,
+          "y": 13,
+          "team": "player",
+          "description": "Portas monumentais de jacarandá talhado"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "confronto_final_irovetti"
+      }
+    },
+    {
+      "scene_key": "scene_arena_torneio_rushlight",
+      "sceneKey": "scene_arena_torneio_rushlight",
+      "title": "Arena Principal do Torneio de Rushlight",
+      "location": "Campos do Torneio de Rushlight",
+      "hex_id": "H_RUSHLIGHT",
+      "hexId": "H_RUSHLIGHT",
+      "environment": "arena_de_torneio",
+      "width_cells": 18,
+      "widthCells": 18,
+      "height_cells": 12,
+      "heightCells": 12,
+      "seed": 7002,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "pista_de_justa",
+          "name": "Pista de Areia e Alvos de Arquearia",
+          "x": 3,
+          "y": 2,
+          "width": 12,
+          "height": 8,
+          "terrain": "normal",
+          "description": "Areia batida ladeada por cercas de carvalho onde os nobres e plebeus torcem sob os estandartes fluviais"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "cerca_de_justa",
+          "x": 4,
+          "y": 6,
+          "width": 10,
+          "height": 1,
+          "type": "madeira_reforcada",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "padrao"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "portao_dos_desafiantes",
+          "x": 1,
+          "y": 6,
+          "team": "player",
+          "description": "Acesso dos campeões sob fanfarra de trombetas"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "duelo_final_rushlight"
+      }
+    },
+    {
+      "scene_key": "scene_adega_abadia_rosa_branca",
+      "sceneKey": "scene_adega_abadia_rosa_branca",
+      "title": "Adega das Barricas Místicas da Abadia",
+      "location": "Abadia Decadente da Rosa Branca",
+      "hex_id": "H_WHITEROSE_ABBEY",
+      "hexId": "H_WHITEROSE_ABBEY",
+      "environment": "adega_ancestral",
+      "width_cells": 16,
+      "widthCells": 16,
+      "height_cells": 10,
+      "heightCells": 10,
+      "seed": 7003,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "corredor_tonéis",
+          "name": "Corredor das Grandes Barricas de Carvalho",
+          "x": 2,
+          "y": 2,
+          "width": 12,
+          "height": 6,
+          "terrain": "dificil",
+          "description": "Piso de lajotas úmidas manchadas de mosto de uva e teias de aranha fluorescentes"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "toneis_gigantes",
+          "x": 8,
+          "y": 4,
+          "width": 3,
+          "height": 2,
+          "type": "madeira_pesada",
+          "blocks_movement": true,
+          "blocks_vision": true,
+          "cover": "maior"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "escada_da_adega",
+          "x": 1,
+          "y": 5,
+          "team": "player",
+          "description": "Degraus de pedra carcomida que descem do claustro"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "investigacao_whiterose"
+      }
+    }
+  ],
+  "factions": [
+    {
+      "name": "Coroa e Guarda Real de Pitax",
+      "agenda": "Subjugar as Terras Roubadas sob a hegemonia militar e artística de Pitax.",
+      "resources": "Exército mercenário bem equipado, autômatos mecatrônicos e riqueza monetária considerável.",
+      "relationship": -4,
+      "current_plan": "Vencer Rushlight com trapaças e em seguida iniciar bloqueios fluviais e invasão de fronteiras.",
+      "location": "Palácio Real de Pitax",
+      "active": true
+    },
+    {
+      "name": "Comitê Organizador do Torneio de Rushlight",
+      "agenda": "Manter a tradição dos jogos sagrados dos Reis dos Rios e arbitrar as disputas sem viés partidário.",
+      "resources": "Juízes renomados, campos de justa estruturados e reconhecimento diplomático internacional.",
+      "relationship": 2,
+      "current_plan": "Conduzir as competições em estrita observância ao livro das leis dos torneios fluviais.",
+      "location": "Campos de Rushlight",
+      "active": true
+    },
+    {
+      "name": "Resistência Clandestina dos Artistas de Pitax",
+      "agenda": "Depor o usurpador Irovetti, restaurar a liberdade artística e integrar Pitax pacificamente à confederação regional.",
+      "resources": "Poetas, bardos influentes, panfletos de sátira e rotas secretas pelas catacumbas.",
+      "relationship": 4,
+      "current_plan": "Incitar a população a abrir os portões da cidade durante o avanço das tropas libertadoras.",
+      "location": "Academia de Belas Artes de Pitax",
+      "active": true
+    }
+  ],
+  "clocks": [
+    {
+      "name": "Sabotagem e Propaganda de Guerra de Irovetti",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "As calúnias de Irovetti isolam diplomaticamente o reino do jogador dos demais Reis dos Rios.",
+      "automatic": false,
+      "active": true
+    },
+    {
+      "name": "Marcha das Legiões Mercenárias contra o Reino",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "As legiões mercenárias de Pitax cruzam o rio e assediam as fortalezas fluviais da Baronia.",
+      "automatic": true,
+      "active": true
+    }
+  ],
+  "events": [
+    {
+      "title": "O Convite Cerimonial com Desafio de Irovetti",
+      "description": "Emissários arrogantes de Pitax entregam na sala do trono da Baronia um convite dourado para o Torneio de Rushlight recheado de ofensas veladas.",
+      "due_at": 60000,
+      "due_day": 7,
+      "status": "scheduled",
+      "consequence_json": {
+        "scene": "scene_arena_torneio_rushlight"
+      }
+    },
+    {
+      "title": "A Emboscada dos Biltres do Rio no Retorno de Rushlight",
+      "description": "Assassinos a soldo de Pitax interceptam a comitiva real nas gargantas fluviais após o encerramento do torneio.",
+      "due_at": 110000,
+      "due_day": 24,
+      "status": "scheduled",
+      "consequence_json": {
+        "scene": "scene_adega_abadia_rosa_branca"
+      }
+    }
+  ],
+  "milestones": [
+    {
+      "milestone_key": "milestone_triunfo_rushlight",
+      "milestoneKey": "milestone_triunfo_rushlight",
+      "name": "O Triunfo Esplêndido no Torneio de Rushlight",
+      "xp": 400,
+      "source_ref": "Kingmaker PZO2020 Capítulo 7",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 7"
+    },
+    {
+      "milestone_key": "milestone_segredos_whiterose",
+      "milestoneKey": "milestone_segredos_whiterose",
+      "name": "A Revelação dos Mistérios da Abadia da Rosa Branca",
+      "xp": 450,
+      "source_ref": "Kingmaker PZO2020 Capítulo 7",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 7"
+    },
+    {
+      "milestone_key": "milestone_alianca_dissidentes",
+      "milestoneKey": "milestone_alianca_dissidentes",
+      "name": "A Libertação da Academia de Artes de Pitax",
+      "xp": 400,
+      "source_ref": "Kingmaker PZO2020 Capítulo 7",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 7"
+    },
+    {
+      "milestone_key": "milestone_queda_irovetti",
+      "milestoneKey": "milestone_queda_irovetti",
+      "name": "A Tomada de Pitax e a Queda de Castruccio Irovetti",
+      "xp": 600,
+      "source_ref": "Kingmaker PZO2020 Capítulo 7",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 7"
+    }
+  ],
+  "metadata": {
+    "author": "Braseiro PF2e Engine",
+    "ruleset": "Pathfinder 2e Remaster",
+    "source": "Kingmaker Adventure Path PZO2020",
+    "version": "1.0.0",
+    "locale": "pt-BR"
+  }
+}

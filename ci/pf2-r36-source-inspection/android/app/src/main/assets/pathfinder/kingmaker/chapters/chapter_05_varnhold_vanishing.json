@@ -1,0 +1,1044 @@
+{
+  "schema": "braseiro-pathfinder2e-chapter-v1",
+  "chapter_key": "chapter_05_varnhold_vanishing",
+  "chapterKey": "chapter_05_varnhold_vanishing",
+  "chapter_number": 5,
+  "chapterNumber": 5,
+  "title": "O Desaparecimento de Varnhold e o Sepulcro de Vordakai",
+  "locale": "pt-BR",
+  "level_min": 8,
+  "levelMin": 8,
+  "level_max": 10,
+  "levelMax": 10,
+  "summary": "O súbito e misterioso silêncio que envolve a colônia vizinha de Varnhold, fundada pelo respeitado Lorde Maegar Varn nas Terras Altas de Dunsward, força os heróis a liderarem uma expedição de investigação de urgência máxima. Ao chegarem, encontram a vila e o forte perfeitamente preservados, mas completamente desertos: refeições largadas em mesas, oficinas de ferreiros intactas e nem um único corpo ou vestígio evidente de massacre. Pistas fragmentadas apontam para conflitos com a orgulhosa e reclusa tribo de centauros Nomen e revelam a terrível intervenção de uma abominação esquecida do império ancestral de Ghol-Gan: o ciclope lich Vordakai, que despertou em seu sepulcro submerso e usou jarras de almas e o olho da adivinhação para engolir toda a população de Varnhold.",
+  "quests": [
+    {
+      "quest_key": "q_varnhold",
+      "questKey": "q_varnhold",
+      "title": "O Povo Desaparecido de Varnhold",
+      "status": "unstarted",
+      "stage": "investigacao_colonia",
+      "objective": "Investigar a colônia deserta de Varnhold, vasculhar o forte de Maegar Varn e descobrir a causa do sumiço inexplicável de centenas de colonos.",
+      "stakes": "Se o sumiço dos colonos não for esclarecido e contido, a mesma força oculta poderá atingir a capital e as vilas do reino do jogador.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 250,
+      "milestoneXp": 250,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_var_1",
+          "desc": "Inspecionar os portões e paliçadas intactas do entreposto comercial de Varnhold",
+          "description": "Inspecionar os portões e paliçadas intactas do entreposto comercial de Varnhold",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_var_2",
+          "desc": "Vasculhar a estalagem e a mansão fortificada de Maegar Varn em busca de diários e cartas",
+          "description": "Vasculhar a estalagem e a mansão fortificada de Maegar Varn em busca de diários e cartas",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_var_3",
+          "desc": "Encontrar a inscrição ensanguentada 'Nomen' e recolher pistas sobre os centauros das estepes",
+          "description": "Encontrar a inscrição ensanguentada 'Nomen' e recolher pistas sobre os centauros das estepes",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 600,
+        "xp": 250,
+        "items": ["diario_de_maegar_varn", "mapa_das_alturas_de_dunsward", "chave_do_forte_varnhold"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_centauros",
+      "questKey": "q_centauros",
+      "title": "A Paz com a Tribo dos Centauros Nomen",
+      "status": "unstarted",
+      "stage": "parlamento_estepes",
+      "objective": "Cruzar as Terras Altas de Dunsward, parlamentar com a matriarca guerreira Aecora Silverfire e recuperar as relíquias sagradas de sua tribo para forjar uma aliança.",
+      "stakes": "Um conflito aberto com os milhares de centauros Nomen destruirá a retaguarda militar do reino enquanto o lich age nas sombras.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 300,
+      "milestoneXp": 300,
+      "prerequisites": ["q_varnhold"],
+      "objectives": [
+        {
+          "id": "obj_cen_1",
+          "desc": "Cruzar as pradarias varridas pelo vento sem provocar ataques hostis das patrulhas centauras",
+          "description": "Cruzar as pradarias varridas pelo vento sem provocar ataques hostis das patrulhas centauras",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_cen_2",
+          "desc": "Apresentar-se à matriarca Aecora Silverfire e demonstrar honra através de perícias de diplomacia ou combate ritual",
+          "description": "Apresentar-se à matriarca Aecora Silverfire e demonstrar honra através de perícias de diplomacia ou combate ritual",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_cen_3",
+          "desc": "Recuperar o Arco dos Ventos Sagrados das garras de monstros das montanhas e devolver à tribo",
+          "description": "Recuperar o Arco dos Ventos Sagrados das garras de monstros das montanhas e devolver à tribo",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 800,
+        "xp": 300,
+        "items": ["arco_sagrado_dos_nomen", "amuleto_de_paz_centaura", "ervas_medicinais_das_estepes"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_vordakai",
+      "questKey": "q_vordakai",
+      "title": "O Sepulcro do Ciclope Lich Vordakai",
+      "status": "unstarted",
+      "stage": "infiltracao_tumba",
+      "objective": "Penetrar o mausoléu ciclópico de Ghol-Gan na Ilha das Águas Negras, contornar perigos afogados e destruir o ciclope lich Vordakai.",
+      "stakes": "Vordakai continuará colhendo almas mortais até reerguer a tirania nefasta do império primordial de Ghol-Gan sobre o continente.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 500,
+      "milestoneXp": 500,
+      "prerequisites": ["q_centauros"],
+      "objectives": [
+        {
+          "id": "obj_vor_1",
+          "desc": "Navegar pelas corredeiras e localizar o portal ciclópico monumental do sepulcro",
+          "description": "Navegar pelas corredeiras e localizar o portal ciclópico monumental do sepulcro",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_vor_2",
+          "desc": "Superar os mortos-vivos ciclopes gigantes e desativar os sarcófagos drenadores de almas",
+          "description": "Superar os mortos-vivos ciclopes gigantes e desativar os sarcófagos drenadores de almas",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_vor_3",
+          "desc": "Confrontar Vordakai em seu trono de obsidiana e destruir seu corpo esquelético e foco necromântico",
+          "description": "Confrontar Vordakai em seu trono de obsidiana e destruir seu corpo esquelético e foco necromântico",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 2500,
+        "xp": 500,
+        "items": ["cetro_de_obsidiana_de_vordakai", "anel_do_olho_ciclope", "manto_necromantico_de_ghol_gan"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_jarra_almas",
+      "questKey": "q_jarra_almas",
+      "title": "A Libertação dos Cidadãos e a Jarra de Almas de Vordakai",
+      "status": "unstarted",
+      "stage": "resgate_almas",
+      "objective": "Encontrar a câmara de conservação das jarras de jade e ônix de Vordakai, quebrando o encantamento para libertar Maegar Varn e o povo de Varnhold.",
+      "stakes": "Se as jarras forem quebradas incorretamente, as centenas de almas inocentes presas se dissiparão no éter para sempre.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 350,
+      "milestoneXp": 350,
+      "prerequisites": ["q_vordakai"],
+      "objectives": [
+        {
+          "id": "obj_jar_1",
+          "desc": "Localizar o santuário interior onde repousam as jarras de almas ciclópicas",
+          "description": "Localizar o santuário interior onde repousam as jarras de almas ciclópicas",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_jar_2",
+          "desc": "Decifrar as runas arcanas de Ghol-Gan com saberes de Ocultismo ou Religião para separar as essências vitais",
+          "description": "Decifrar as runas arcanas de Ghol-Gan com saberes de Ocultismo ou Religião para separar as essências vitais",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_jar_3",
+          "desc": "Executar o rito de desvinculação espiritual e restabelecer os corpos dos colonos resgatados",
+          "description": "Executar o rito de desvinculação espiritual e restabelecer os corpos dos colonos resgatados",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 1200,
+        "xp": 350,
+        "items": ["jarra_de_jade_purificada", "juramento_de_lealdade_de_varnhold"]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_degrau_prateado",
+      "questKey": "q_degrau_prateado",
+      "title": "O Mistério do Bosque do Degrau Prateado",
+      "status": "unstarted",
+      "stage": "exploracao_lago",
+      "objective": "Explorar o bosque sagrado ao redor do Lago Degrau Prateado e pacificar os espíritos da água perturbados pela maldade de Vordakai.",
+      "stakes": "A contaminação espiritual das águas de Degrau Prateado ameaça secar as fontes hídricas da bacia oriental.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 200,
+      "milestoneXp": 200,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_deg_1",
+          "desc": "Mapear as margens arborizadas e a cascata cintilante do Lago Degrau Prateado",
+          "description": "Mapear as margens arborizadas e a cascata cintilante do Lago Degrau Prateado",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_deg_2",
+          "desc": "Purificar a fonte mística dominada por aparições afogadas e restos de ciclopes",
+          "description": "Purificar a fonte mística dominada por aparições afogadas e restos de ciclopes",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 400,
+        "xp": 200,
+        "items": ["agua_benta_do_degrau_prateado", "perola_do_lago_encantada"]
+      },
+      "progress_json": {}
+    }
+  ],
+  "hazards": [
+    {
+      "hazard_key": "hazard_sarcofago_drenador",
+      "hazardKey": "hazard_sarcofago_drenador",
+      "name": "Sarcófago Drenador de Almas Ciclópico",
+      "level": 9,
+      "traits": ["complexo", "magico", "necromancia"],
+      "stealth_dc": 29,
+      "stealthDc": 29,
+      "perception_dc": 29,
+      "perceptionDc": 29,
+      "saving_throw_type": "Fortitude",
+      "savingThrowType": "Fortitude",
+      "saving_throw_dc": 28,
+      "savingThrowDc": 28,
+      "disable_skills": [
+        {
+          "skill": "Religião",
+          "dc": 28,
+          "proficiency": "especialista",
+          "description": "Entoar preces de consagração e purificar as runas necromânticas talhadas na pedra"
+        },
+        {
+          "skill": "Ladroagem",
+          "dc": 28,
+          "proficiency": "mestre",
+          "description": "Remover os pinos de ônix canalizadores que transferem essência vital para as jarras"
+        }
+      ],
+      "routine_actions": 2,
+      "routineActions": 2,
+      "hazard_type": "magico",
+      "complexity": "complexo",
+      "ac": 28,
+      "hardness": 14,
+      "hp": 76,
+      "bt": 38,
+      "reaction": "Desperta imediatamente quando qualquer criatura viva pisa no raio de 6 metros do sarcófago selado.",
+      "reset": "Não se rearma após a quebra dos pinos de ônix.",
+      "xp": 120,
+      "description": "Um monólito esculpido em basalto negro em proporções de ciclope, circundado por runas esverdeadas que vibram com o eco agoniado de almas enclausuradas.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Sifão Vital de Ghol-Gan",
+          "description": "Emite ondas necróticas que causam 3d8+6 de dano de vitalidade negativa e impõem a condição drenado 1 em falha no teste de Fortitude (CD 28)."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Pavor das Tumbas Esquecidas",
+          "description": "Projéta sussurros apavorantes em idioma ciclope arcaico infligindo a condição apavorado 2 (CD 28 de Vontade)."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_cripta_afogada",
+      "hazardKey": "hazard_cripta_afogada",
+      "name": "Gatilho de Inundação da Cripta Afogada",
+      "level": 8,
+      "traits": ["complexo", "mecanico", "armadilha"],
+      "stealth_dc": 27,
+      "stealthDc": 27,
+      "perception_dc": 27,
+      "perceptionDc": 27,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 26,
+      "savingThrowDc": 26,
+      "disable_skills": [
+        {
+          "skill": "Ladroagem",
+          "dc": 26,
+          "proficiency": "especialista",
+          "description": "Travar as comportas de bronze no teto e encravar o eixo principal da válvula"
+        },
+        {
+          "skill": "Atletismo",
+          "dc": 26,
+          "proficiency": "especialista",
+          "description": "Forçar a roda de vedação de ferro para cortar o fluxo do lago subterrâneo"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "armadilha",
+      "complexity": "complexo",
+      "ac": 26,
+      "hardness": 12,
+      "hp": 60,
+      "bt": 30,
+      "reaction": "Disparado quando a placa de pressão no piso central da câmara funerária afunda sob 100 kg de peso.",
+      "reset": "Leva 24 horas para drenar naturalmente o excesso de água pelas fendas da rocha.",
+      "xp": 100,
+      "description": "Um engenhoso sistema hidráulico ciclópico que desvia o leito do lago subterrâneo para encher a câmara em minutos, afogando invasores.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Turbilhão Submerso Esmagador",
+          "description": "A água sobe violentamente 1,5 metro por rodada, arrastando criaturas contra esporões de pedra e causando 3d6+6 de dano de concussão (CD 26 de Reflexos)."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_olho_petrificador",
+      "hazardKey": "hazard_olho_petrificador",
+      "name": "Olho Ciclópico Oculatório Petrificador",
+      "level": 9,
+      "traits": ["simples", "magico", "transmutacao"],
+      "stealth_dc": 28,
+      "stealthDc": 28,
+      "perception_dc": 28,
+      "perceptionDc": 28,
+      "saving_throw_type": "Fortitude",
+      "savingThrowType": "Fortitude",
+      "saving_throw_dc": 28,
+      "savingThrowDc": 28,
+      "disable_skills": [
+        {
+          "skill": "Arcanismo",
+          "dc": 28,
+          "proficiency": "especialista",
+          "description": "Dissipar o feixe focalizador de transmutação petrificante no cristal central"
+        },
+        {
+          "skill": "Ladroagem",
+          "dc": 28,
+          "proficiency": "especialista",
+          "description": "Cegar a lente de berilo usando pó negro ou estilhaçar as lâminas refletoras"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "armadilha",
+      "complexity": "simples",
+      "ac": 27,
+      "hardness": 10,
+      "hp": 48,
+      "bt": 24,
+      "reaction": "Dispara um raio âmbar quando alguém cruza o olhar entalhado da estátua sem recitar a senha sagrada de Ghol-Gan.",
+      "reset": "Recarrega após 1 hora drenando a estática das pedras da tumba.",
+      "xp": 80,
+      "description": "Um enorme olho de cristal verde incrustado na testa de uma estátua ciclope, canalizando raios de transmutação de carne em pedra.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Raio de Petrificação Ciclópica",
+          "description": "Causa condição petrificado lenta: lento 1 em sucesso, desacelerado 1 e petrificado em 1 minuto em falha (CD 28 de Fortitude)."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_abismo_pedra_falsa",
+      "hazardKey": "hazard_abismo_pedra_falsa",
+      "name": "Fosso Oculto de Lanças de Bronze de Ghol-Gan",
+      "level": 8,
+      "traits": ["simples", "mecanico", "armadilha"],
+      "stealth_dc": 26,
+      "stealthDc": 26,
+      "perception_dc": 26,
+      "perceptionDc": 26,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 26,
+      "savingThrowDc": 26,
+      "disable_skills": [
+        {
+          "skill": "Ladroagem",
+          "dc": 26,
+          "proficiency": "especialista",
+          "description": "Calçar a laje basculante com cunhas de ferro e travar as molas de bronze"
+        },
+        {
+          "skill": "Sobrevivência",
+          "dc": 24,
+          "proficiency": "especialista",
+          "description": "Identificar as rachaduras no piso e improvisar pranchas de apoio seguras"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "armadilha",
+      "complexity": "simples",
+      "ac": 24,
+      "hardness": 8,
+      "hp": 40,
+      "bt": 20,
+      "reaction": "Abre quando mais de 50 kg pisam na pedra central falsa.",
+      "reset": "Armadilha manual que requer alavanca de rearme.",
+      "xp": 60,
+      "description": "Fosso de 9 metros de profundidade forrado com estacas afiadas de bronze antigo banhadas em toxinas necrosantes.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Queda com Empalação",
+          "description": "A vítima sofre 3d6 de dano de queda e 3d8+6 de dano perfurante das lanças (CD 26 de Reflexos para agarrar a borda)."
+        }
+      ]
+    }
+  ],
+  "pois": [
+    {
+      "poi_key": "poi_posto_varnhold",
+      "poiKey": "poi_posto_varnhold",
+      "poi_id": "poi_posto_varnhold",
+      "poiId": "poi_posto_varnhold",
+      "campaign_key": "chapter_05_varnhold_vanishing",
+      "campaignKey": "chapter_05_varnhold_vanishing",
+      "map_id": "stolen_lands",
+      "name": "Colônia Abandonada de Varnhold",
+      "name_key": "colonia_abandonada_de_varnhold",
+      "type": "settlement",
+      "hex_id": "H_VARNHOLD",
+      "hexId": "H_VARNHOLD",
+      "location_id": "loc_varnhold",
+      "q": 3,
+      "r": 5,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "abandoned",
+      "description": "Assentamento fortificado de colonos do norte, construído por Maegar Varn. Suas ruas de terra batida, oficinas e casas de madeira permanecem intactas, mas sem viva alma.",
+      "tags": ["colonia", "misterio", "assentamento", "dunsward"],
+      "development_level": 2,
+      "icon": "🏘️",
+      "notes": "Ponto de partida da investigação do desaparecimento."
+    },
+    {
+      "poi_key": "poi_acampamento_nomen",
+      "poiKey": "poi_acampamento_nomen",
+      "poi_id": "poi_acampamento_nomen",
+      "poiId": "poi_acampamento_nomen",
+      "campaign_key": "chapter_05_varnhold_vanishing",
+      "campaignKey": "chapter_05_varnhold_vanishing",
+      "map_id": "stolen_lands",
+      "name": "Acampamento dos Centauros Nomen",
+      "name_key": "acampamento_dos_centauros_nomen",
+      "type": "settlement",
+      "hex_id": "H_NOMEN_CAMP",
+      "hexId": "H_NOMEN_CAMP",
+      "location_id": "loc_nomen_camp",
+      "q": 5,
+      "r": 5,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Amplo círculo de tendas de couro pintadas sob o céu aberto das estepes de Dunsward, onde centenas de guerreiros e arqueiros centauros protegem seus rebanhos e tradições ancestrais.",
+      "tags": ["centauros", "tribo", "diplomacia", "estepes"],
+      "development_level": 2,
+      "icon": "🏹",
+      "notes": "Sede da matriarca guerreira Aecora Silverfire."
+    },
+    {
+      "poi_key": "poi_sepulcro_vordakai",
+      "poiKey": "poi_sepulcro_vordakai",
+      "poi_id": "poi_sepulcro_vordakai",
+      "poiId": "poi_sepulcro_vordakai",
+      "campaign_key": "chapter_05_varnhold_vanishing",
+      "campaignKey": "chapter_05_varnhold_vanishing",
+      "map_id": "stolen_lands",
+      "name": "O Sepulcro do Lich Vordakai",
+      "name_key": "o_sepulcro_do_lich_vordakai",
+      "type": "dungeon",
+      "hex_id": "H_VORDAKAI_TOMB",
+      "hexId": "H_VORDAKAI_TOMB",
+      "location_id": "loc_sepulcro_vordakai",
+      "q": 6,
+      "r": 6,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Monstruosa tumba submersa escavada no interior de uma ilha rochosa no rio, erguida há milênios pelos ciclopes de Ghol-Gan e agora reanimada pelo necromante lich Vordakai.",
+      "tags": ["dungeon", "lich", "ghol_gan", "climax"],
+      "development_level": 3,
+      "icon": "💀",
+      "notes": "Covil do ciclope lich Vordakai e local onde as almas dos colonos estão encarceradas."
+    },
+    {
+      "poi_key": "poi_bosque_degrau_prateado",
+      "poiKey": "poi_bosque_degrau_prateado",
+      "poi_id": "poi_bosque_degrau_prateado",
+      "poiId": "poi_bosque_degrau_prateado",
+      "campaign_key": "chapter_05_varnhold_vanishing",
+      "campaignKey": "chapter_05_varnhold_vanishing",
+      "map_id": "stolen_lands",
+      "name": "Cascata e Bosque do Degrau Prateado",
+      "name_key": "cascata_e_bosque_do_degrau_prateado",
+      "type": "landmark",
+      "hex_id": "H_SILVERSTEP",
+      "hexId": "H_SILVERSTEP",
+      "location_id": "loc_silverstep",
+      "q": 2,
+      "r": 5,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Límpido lago alpino alimentado por uma queda d'água resplandecente, cercado por faias prateadas e espíritos da natureza reverenciados pelas tribos locais.",
+      "tags": ["lago", "espiritos", "landmark", "natureza"],
+      "development_level": 1,
+      "icon": "🌊",
+      "notes": "Refúgio de fadas e ermitões fluviais."
+    },
+    {
+      "poi_key": "poi_portao_das_terras_altas",
+      "poiKey": "poi_portao_das_terras_altas",
+      "poi_id": "poi_portao_das_terras_altas",
+      "poiId": "poi_portao_das_terras_altas",
+      "campaign_key": "chapter_05_varnhold_vanishing",
+      "campaignKey": "chapter_05_varnhold_vanishing",
+      "map_id": "stolen_lands",
+      "name": "Passo Montanhoso das Terras Altas de Dunsward",
+      "name_key": "passo_montanhoso_das_terras_altas_de_dunsward",
+      "type": "refuge",
+      "hex_id": "H_DUNSWARD_PASS",
+      "hexId": "H_DUNSWARD_PASS",
+      "location_id": "loc_dunsward_pass",
+      "q": 4,
+      "r": 4,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Desfiladeiro ventoso que corta a cordilheira de montanhas entre o Cinturão Verde e as vastas estepes de Dunsward, vigiado por marcos de pedras antigas.",
+      "tags": ["passo_montanhoso", "refugio", "estrada"],
+      "development_level": 1,
+      "icon": "⛰️",
+      "notes": "Ponto de passagem estratégico para expedições ao leste."
+    }
+  ],
+  "npcs": [
+    {
+      "npc_key": "npc_maegar_varn",
+      "npcKey": "npc_maegar_varn",
+      "stable_id": "npc_maegar_varn",
+      "stableId": "npc_maegar_varn",
+      "name": "Lorde Maegar Varn",
+      "summary": "Nobre guerreiro de Rostov, valoroso e carismático, comandante do bando mercenário dos Anfitriões de Varn e fundador da colônia de Varnhold.",
+      "goals": "Proteger seu povo, erguer uma baronia justa nas estepes e manter amizade com o reino dos heróis.",
+      "secrets": "Tentou negociar com Vordakai acreditando que se tratava apenas de um sábio antigo, caindo em sua armadilha necromântica.",
+      "attitude": "amistoso",
+      "relationship": "Aliado governante e companheiro de armas",
+      "knowledge": "História dos mercenários de Restov, fronteiras de Dunsward e táticas de cavalaria.",
+      "debts": "Se resgatado de sua prisão na jarra de almas, jura vassalagem ou eterna amizade política aos heróis.",
+      "last_seen": "Salão Nobre do Forte Varnhold e Sepulcro de Vordakai",
+      "hex_id": "H_VARNHOLD",
+      "hexId": "H_VARNHOLD",
+      "faction": "Colonizadores de Varnhold",
+      "token_uri": "tokens/maegar_varn.png",
+      "visual_description": "Homem vigoroso na faixa dos trinta e cinco anos, de barba castanha bem aparada, armadura de placas cinzeladas com o brasão do falcão dourado de Varnhold.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "amistoso",
+          "text": "Minha mente estava presa em um pesadelo escuro como breu... O ciclope nos olhou e nossas almas foram sugadas como fumaça ao vento!",
+          "topic": "o_despertar",
+          "quest_key": "q_jarra_almas"
+        },
+        {
+          "attitude_req": "prestativo",
+          "text": "Vocês salvaram Varnhold quando todos já nos davam por mortos. A partir de hoje, nossas terras marcham unidas com as suas.",
+          "topic": "juramento_de_paz",
+          "quest_key": "q_varnhold"
+        }
+      ],
+      "stats": {
+        "hp": 110,
+        "max_hp": 110,
+        "ac": 28,
+        "perception": 19
+      }
+    },
+    {
+      "npc_key": "npc_aecora_silverfire",
+      "npcKey": "npc_aecora_silverfire",
+      "stable_id": "npc_aecora_silverfire",
+      "stableId": "npc_aecora_silverfire",
+      "name": "Aecora Silverfire, Matriarca Nomen",
+      "summary": "Líder guerreira e guia espiritual dos centauros Nomen, venerada por sua maestria implacável com o arco e sua fidelidade aos túmulos sagrados.",
+      "goals": "Garantir a sobrevivência de sua tribo e punir qualquer intruso que viole as terras de sepultamento de seu povo.",
+      "secrets": "Sabe que a lenda do 'Demônio Caolho do Sepulcro' é real e temia que os colonos de Varnhold o despertassem ao minerar as colinas.",
+      "attitude": "desfavoravel",
+      "relationship": "Matriarca guerreira soberana",
+      "knowledge": "Rotas secretas das estepes, história oral de Ghol-Gan e arqueirismo montado.",
+      "debts": "Oferece batedores e cavalaria centaura para auxiliar na proteção das fronteiras do reino.",
+      "last_seen": "Acampamento Principal da Tribo Nomen",
+      "hex_id": "H_NOMEN_CAMP",
+      "hexId": "H_NOMEN_CAMP",
+      "faction": "Tribo Nomen de Centauros",
+      "token_uri": "tokens/aecora_silverfire.png",
+      "visual_description": "Centauro fêmea de pelagem branca como a neve e tronco humano coberto de pinturas de guerra cinzentas, empunhando um grande arco de freixo.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "desfavoravel",
+          "text": "Bípedes de pele macia trazem apenas ganância e ferro para as estepes. Por que deveríamos poupar vocês e não expulsá-los com nossas flechas?",
+          "topic": "desconfianca",
+          "quest_key": "q_centauros"
+        },
+        {
+          "attitude_req": "amistoso",
+          "text": "Vocês recuperaram o arco dos nossos ancestrais e não mancharam o sangue da tribo. Os Nomen reconhecem sua coragem sob as estrelas.",
+          "topic": "paz_firmada",
+          "quest_key": "q_centauros"
+        }
+      ],
+      "stats": {
+        "hp": 125,
+        "max_hp": 125,
+        "ac": 29,
+        "perception": 21
+      }
+    },
+    {
+      "npc_key": "npc_vordakai",
+      "npcKey": "npc_vordakai",
+      "stable_id": "npc_vordakai",
+      "stableId": "npc_vordakai",
+      "name": "Vordakai, o Ciclope Lich de Ghol-Gan",
+      "summary": "Monstruosidade necromântica ciclópica de mais de quatro metros, imperador-sacerdote mumificado dos tempos de Ghol-Gan despertado do sono milenar.",
+      "goals": "Consumir as almas de todos os mortais das Terras Roubadas para restaurar seu império cadavérico de ciclopes.",
+      "secrets": "Foi despertado por visões enviadas pela ninfa Nyrissa, que pretendia usá-lo como instrumento de aniquilação da Baronia.",
+      "attitude": "hostil",
+      "relationship": "Arquivilão lich e tirano ancestral",
+      "knowledge": "Magias de morte de Ghol-Gan, ritos de transferência de almas e segredos da queda dos ciclopes.",
+      "debts": "Nenhuma.",
+      "last_seen": "Câmara do Trono no Sepulcro de Vordakai",
+      "hex_id": "H_VORDAKAI_TOMB",
+      "hexId": "H_VORDAKAI_TOMB",
+      "faction": "Remanescentes Ciclópicos de Ghol-Gan (Mortos-Vivos)",
+      "token_uri": "tokens/vordakai.png",
+      "visual_description": "Esqueleto ciclópico gigantesco envolto em linho manchado de unguentos profanos, com um único olho de rubi faiscante e coroado de ouro antigo.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "Vermes efêmeros... Suas almas alimentarão meu renascimento, assim como os fracos colonos que ousaram pisar sobre minhas pedras sagradas!",
+          "topic": "soberba_ancestral",
+          "quest_key": "q_vordakai"
+        }
+      ],
+      "stats": {
+        "hp": 180,
+        "max_hp": 180,
+        "ac": 30,
+        "perception": 23
+      }
+    },
+    {
+      "npc_key": "npc_cephal_lorentus",
+      "npcKey": "npc_cephal_lorentus",
+      "stable_id": "npc_cephal_lorentus",
+      "stableId": "npc_cephal_lorentus",
+      "name": "Cephal Lorentus",
+      "summary": "Mago conselheiro arrogante de Varnhold enviado por Rostov, cuja ambição desmedida o levou a tentar barganhar com Vordakai antes da queda da vila.",
+      "goals": "Salvar sua própria pele e dominar os segredos da magia de Ghol-Gan.",
+      "secrets": "Traiu Maegar Varn ao revelar a localização das defesas de Varnhold na vã esperança de receber poder arcano do lich.",
+      "attitude": "hostil",
+      "relationship": "Mago traidor transformado em servo morto-vivo",
+      "knowledge": "Mapas das defesas de Varnhold e fórmulas de necromancia menor.",
+      "debts": "Pode tentar suplicar por clemência antes de perecer em combate.",
+      "last_seen": "Salão das Catacumbas do Sepulcro",
+      "hex_id": "H_VORDAKAI_TOMB",
+      "hexId": "H_VORDAKAI_TOMB",
+      "faction": "Remanescentes Ciclópicos de Ghol-Gan (Mortos-Vivos)",
+      "token_uri": "tokens/cephal_lorentus.png",
+      "visual_description": "Homem pálido com vestes de mago rasgadas e olhos vítreos sob a influência da dominação necromântica de Vordakai.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "Vocês não entendem! O mestre Vordakai é o futuro desta terra! Nenhum poder mortal pode desafiar o império que despertou!",
+          "topic": "delirio_traicao",
+          "quest_key": "q_vordakai"
+        }
+      ],
+      "stats": {
+        "hp": 75,
+        "max_hp": 75,
+        "ac": 26,
+        "perception": 18
+      }
+    },
+    {
+      "npc_key": "npc_will_elvenblood",
+      "npcKey": "npc_will_elvenblood",
+      "stable_id": "npc_will_elvenblood",
+      "stableId": "npc_will_elvenblood",
+      "name": "Will Sangue-Élfico",
+      "summary": "Meio-elfo batedor e guarda veterano de Varnhold, um dos raros sobreviventes que estava caçando nos ermos quando a vila inteira desapareceu.",
+      "goals": "Descobrir o destino de seus companheiros e ajudar a resgatar Lorde Maegar.",
+      "secrets": "Encontrou um corvo falante de penas esmeraldas que riu e sussurrou profecias sobre a dama das flores antes do ataque.",
+      "attitude": "amistoso",
+      "relationship": "Batedor sobrevivente e guia local",
+      "knowledge": "Trilhas de Dunsward, pontos de emboscada e hábitos dos colonos de Varnhold.",
+      "debts": "Oferece-se como batedor permanente para a guarnição do reino.",
+      "last_seen": "Colinas próximas a Varnhold",
+      "hex_id": "H_VARNHOLD",
+      "hexId": "H_VARNHOLD",
+      "faction": "Colonizadores de Varnhold",
+      "token_uri": "tokens/will_elvenblood.png",
+      "visual_description": "Meio-elfo de capa verde desbotada, arco composto nas costas e expressão angustiada com o silêncio da colônia.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "amistoso",
+          "text": "Eu voltei da caçada e não havia um som sequer... Nenhuma gota de sangue, nenhuma espada quebrada. Apenas comida quente na mesa e ninguém para comer.",
+          "topic": "o_sumico",
+          "quest_key": "q_varnhold"
+        }
+      ],
+      "stats": {
+        "hp": 70,
+        "max_hp": 70,
+        "ac": 27,
+        "perception": 20
+      }
+    }
+  ],
+  "scenes": [
+    {
+      "scene_key": "scene_varnhold_vila",
+      "sceneKey": "scene_varnhold_vila",
+      "title": "Pátio Central de Varnhold Deserta",
+      "location": "Colônia Abandonada de Varnhold",
+      "hex_id": "H_VARNHOLD",
+      "hexId": "H_VARNHOLD",
+      "environment": "assentamento_fantasma",
+      "width_cells": 16,
+      "widthCells": 16,
+      "height_cells": 12,
+      "heightCells": 12,
+      "seed": 5001,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "praca_do_forte",
+          "name": "Pátio da Paliçada e Estalagem",
+          "x": 2,
+          "y": 2,
+          "width": 12,
+          "height": 8,
+          "terrain": "normal",
+          "description": "Casas de madeira com portas entreabertas e ferraria com brasa apagada sob o vento gélido das estepes"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "carroca_virada",
+          "x": 7,
+          "y": 5,
+          "width": 2,
+          "height": 1,
+          "type": "madeira",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "padrao"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "portao_norte",
+          "x": 1,
+          "y": 6,
+          "team": "player",
+          "description": "Portão principal de carvalho fortificado"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "chegada_varnhold"
+      }
+    },
+    {
+      "scene_key": "scene_sepulcro_salao_trono",
+      "sceneKey": "scene_sepulcro_salao_trono",
+      "title": "Salão Imperial de Vordakai",
+      "location": "O Sepulcro do Lich Vordakai",
+      "hex_id": "H_VORDAKAI_TOMB",
+      "hexId": "H_VORDAKAI_TOMB",
+      "environment": "cripta_ciclopica",
+      "width_cells": 18,
+      "widthCells": 18,
+      "height_cells": 14,
+      "heightCells": 14,
+      "seed": 5002,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "estrado_de_obsidiana",
+          "name": "Estrado do Trono de Vordakai",
+          "x": 4,
+          "y": 2,
+          "width": 10,
+          "height": 6,
+          "terrain": "magico",
+          "description": "Piso de mármore negro com pilares ciclópicos colossais entalhados com cenas de massacres antigos"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "sarcofago_mestre",
+          "x": 8,
+          "y": 4,
+          "width": 3,
+          "height": 2,
+          "type": "basalto",
+          "blocks_movement": true,
+          "blocks_vision": true,
+          "cover": "maior"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "portal_das_aguas",
+          "x": 9,
+          "y": 13,
+          "team": "player",
+          "description": "Entrada pelo arco inundado de pedra negra"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "confronto_final_vordakai"
+      }
+    },
+    {
+      "scene_key": "scene_degrau_prateado_bosque",
+      "sceneKey": "scene_degrau_prateado_bosque",
+      "title": "Clareira da Cascata do Degrau Prateado",
+      "location": "Cascata e Bosque do Degrau Prateado",
+      "hex_id": "H_SILVERSTEP",
+      "hexId": "H_SILVERSTEP",
+      "environment": "bosque_alpino",
+      "width_cells": 14,
+      "widthCells": 14,
+      "height_cells": 10,
+      "heightCells": 10,
+      "seed": 5003,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "praia_fluvial",
+          "name": "Margens do Lago Cristalino",
+          "x": 2,
+          "y": 2,
+          "width": 10,
+          "height": 6,
+          "terrain": "dificil",
+          "description": "Cascalho úmido e águas prateadas rasas salpicadas de flores de lótus luminosas"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "penhasco_cascata",
+          "x": 10,
+          "y": 1,
+          "width": 3,
+          "height": 8,
+          "type": "rocha_molhada",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "maior"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "trilha_das_faias",
+          "x": 1,
+          "y": 5,
+          "team": "player",
+          "description": "Trilha sombreada por faias prateadas"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "encontro_espiritual_degrau_prateado"
+      }
+    }
+  ],
+  "factions": [
+    {
+      "name": "Colonizadores de Varnhold",
+      "agenda": "Colonizar e pacificar as Terras Altas de Dunsward sob a bandeira de Restov.",
+      "resources": "Paliçadas de madeira, ferrarias de qualidade e fazendeiros dedicados.",
+      "relationship": 4,
+      "current_plan": "Recuperar-se do cativeiro necromântico e reconstruir a colônia.",
+      "location": "Varnhold",
+      "active": true
+    },
+    {
+      "name": "Tribo Nomen de Centauros",
+      "agenda": "Defender a liberdade das estepes e preservar os santuários ancestrais contra a ganância humana.",
+      "resources": "Arqueiros montados de elite, cavalaria veloz e conhecimento profundo do relevo.",
+      "relationship": 0,
+      "current_plan": "Patrulhar as fronteiras e caçar invasores que desrespeitarem os acordos.",
+      "location": "Estepes de Dunsward",
+      "active": true
+    },
+    {
+      "name": "Remanescentes Ciclópicos de Ghol-Gan (Mortos-Vivos)",
+      "agenda": "Erguer o império dos mortos e escravizar todas as raças mortais sob o comando do lich Vordakai.",
+      "resources": "Guerreiros ciclopes esqueletais, magia profana milenar e o Olho Oculatório.",
+      "relationship": -5,
+      "current_plan": "Drenar a vida de prisioneiros para completar o ritual de ressurgimento da frota ciclópica.",
+      "location": "O Sepulcro de Vordakai",
+      "active": true
+    }
+  ],
+  "clocks": [
+    {
+      "name": "Consunção das Almas dos Colonos na Jarra",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "As almas de Maegar Varn e dos colonos são consumidas irreversivelmente pelo lich, impedindo qualquer ressurreição.",
+      "automatic": false,
+      "active": true
+    },
+    {
+      "name": "Levante de Guerra da Tribo Nomen",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "Os centauros Nomen lançam um ataque devastador contra todas as fazendas orientais da Baronia.",
+      "automatic": true,
+      "active": true
+    }
+  ],
+  "events": [
+    {
+      "title": "Mensageiro em Pânico das Fronteiras Orientais",
+      "description": "Um cavaleiro exausto chega à capital informando que caravanas comerciais não encontram ninguém vivo em Varnhold há mais de três semanas.",
+      "due_at": 40000,
+      "due_day": 5,
+      "status": "scheduled",
+      "consequence_json": {
+        "unrest_increase": 1,
+        "scene": "scene_varnhold_vila"
+      }
+    },
+    {
+      "title": "A Vingança dos Centauros contra as Patrulhas",
+      "description": "Centauros Nomen atacam postos avançados de fronteira após encontrarem túmulos profanados nas colinas.",
+      "due_at": 75000,
+      "due_day": 18,
+      "status": "scheduled",
+      "consequence_json": {
+        "scene": "scene_degrau_prateado_bosque"
+      }
+    }
+  ],
+  "milestones": [
+    {
+      "milestone_key": "milestone_investigacao_varnhold",
+      "milestoneKey": "milestone_investigacao_varnhold",
+      "name": "A Descoberta do Enigma do Esvaziamento de Varnhold",
+      "xp": 250,
+      "source_ref": "Kingmaker PZO2020 Capítulo 5",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 5"
+    },
+    {
+      "milestone_key": "milestone_diplomacia_centauros",
+      "milestoneKey": "milestone_diplomacia_centauros",
+      "name": "O Tratado de Aliança com os Centauros Nomen",
+      "xp": 300,
+      "source_ref": "Kingmaker PZO2020 Capítulo 5",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 5"
+    },
+    {
+      "milestone_key": "milestone_derrota_vordakai",
+      "milestoneKey": "milestone_derrota_vordakai",
+      "name": "A Destruição do Ciclope Lich Vordakai",
+      "xp": 500,
+      "source_ref": "Kingmaker PZO2020 Capítulo 5",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 5"
+    },
+    {
+      "milestone_key": "milestone_resgate_almas_varnhold",
+      "milestoneKey": "milestone_resgate_almas_varnhold",
+      "name": "A Libertação das Almas de Maegar Varn e dos Colonos",
+      "xp": 350,
+      "source_ref": "Kingmaker PZO2020 Capítulo 5",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 5"
+    }
+  ],
+  "metadata": {
+    "author": "Braseiro PF2e Engine",
+    "ruleset": "Pathfinder 2e Remaster",
+    "source": "Kingmaker Adventure Path PZO2020",
+    "version": "1.0.0",
+    "locale": "pt-BR"
+  }
+}

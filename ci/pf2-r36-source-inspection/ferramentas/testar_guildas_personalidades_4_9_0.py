@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+from pathlib import Path
+import json,re,sys
+root=Path(__file__).resolve().parents[1]
+src=root/'android/app/src/main/java/com/braseiro/pathfinder2e'
+db=(src/'AppDb.java').read_text(encoding='utf-8')
+guild=(src/'GuildEngine.java').read_text(encoding='utf-8')
+main=(src/'MainActivity.java').read_text(encoding='utf-8')
+master=(src/'MasterOrchestrator.java').read_text(encoding='utf-8')
+context=(src/'MasterGameContext.java').read_text(encoding='utf-8')
+npc=(src/'NpcAgencyEngine.java').read_text(encoding='utf-8')
+living=(src/'LivingWorldSimulationEngine.java').read_text(encoding='utf-8')
+backup=(src/'BackupContractValidator.java').read_text(encoding='utf-8')
+data=json.loads((root/'android/app/src/main/assets/npc/npc_personalities_300.json').read_text(encoding='utf-8'))
+checks=[]
+def ok(name,cond):
+    if not cond: raise AssertionError(name)
+    checks.append(name)
+ok('catálogo contém exatamente 300 perfis',len(data.get('npcs',[]))==300)
+ok('ids de personalidade únicos',len({x.get('id') for x in data['npcs']})==300)
+ok('todo perfil possui personalidade, reações e gancho',all(x.get('personalidade') and x.get('reacoes') and x.get('gancho_de_jogo') for x in data['npcs']))
+ok('memória baixa também provisiona personalidade','ensureNpcPersonalityProvisioned(name);' in db)
+ok('cognição baixa também aplica catálogo','ensureNpcPersonalityOnIncoming(state,name);' in db)
+ok('backfill universal existe','backfillNpcPersonalities()' in db)
+ok('membro NPC recebe personalidade','ensureNpcPersonalityProvisioned(npc);' in db)
+m=re.search(r'DB_VERSION\s*=\s*(\d+)',db);ok('banco v51+',bool(m) and int(m.group(1))>=51)
+for table in ['guilds','guild_ranks','guild_members','guild_contracts','guild_projects','guild_sites','guild_ledger','guild_relations']:
+    ok('tabela '+table,('CREATE TABLE IF NOT EXISTS '+table) in db)
+ok('guildas sincronizadas como facções','syncGuildFactionChecked' in db and 'upsertFaction' in db)
+ok('hierarquia e promoção automática','adjustGuildMemberReputationChecked' in db and 'requirements_json' in db)
+ok('contrato cria missão','acceptGuildContractChecked' in db and 'applyQuestUpdateChecked' in db)
+ok('contrato conclui missão','completeGuildContractChecked' in db and 'updateQuestStatus' in db)
+ok('sede valida atlas e cria marcador','addGuildSiteChecked' in db and 'saveMapHexNote' in db and 'getRawMapHex' in db)
+ok('economia impede saldo negativo','fundos suficientes' in db)
+ok('mensalidade persistente','dues_due_day' in db and 'last_dues_notice_day' in db and 'dues_due' in guild)
+ok('simulação lê mensalidade da patente correta','optDouble("rank_dues_amount"' in guild)
+ok('mensalidade pode ser paga atomicamente','recordGuildDuesPaymentChecked' in db and 'entry_type","dues' in db and 'dues_paid_day' in db)
+ok('recompensas de contrato preservam arrays e objetos','parseJsonValue' in db and 'jsonValueHasContent' in db and 'requirements",requirements' in db)
+ok('ações inválidas de guilda são descartadas','knownAction' in guild and 'allowedContractStatus' in guild and 'validAction' in guild)
+ok('guildas no mundo vivo','guild_simulation' in living and 'GuildEngine' in living)
+ok('guildas no Mestre','GuildEngine' in master and 'validateUpdates' in master and 'applyUpdates' in master)
+ok('guildas no barramento','guilds' in context and 'write_after_review' in context)
+ok('guildas na navegação','"Guildas"' in main and 'showGuilds()' in main)
+ok('guildas no status do combate','listGuildMembershipsForHero' in main and 'listGuildMembershipsForNpc' in main)
+ok('contratos usam fluxo missão','acceptGuildContractChecked' in main and 'completeGuildContractChecked' in main)
+ok('personalidade no agente de NPC','personality_json' in npc and 'ensureNpcMembership' in npc)
+ok('backup v18+',('MAX_SUPPORTED_VERSION=18' in backup or 'MAX_SUPPORTED_VERSION=19' in backup or 'MAX_SUPPORTED_VERSION=20' in backup) and ('put("version",18)' in db or 'put("version",19)' in db or 'put("version",20)' in db))
+for key in ['guilds','guildRanks','guildMembers','guildContracts','guildProjects','guildSites','guildLedger','guildRelations']:
+    ok('backup inclui '+key,('"'+key+'"') in db and ('"'+key+'"') in backup)
+print(f'RESULTADO GUILDAS & PERSONALIDADES 4.9.0: {len(checks)}/{len(checks)} verificações aprovadas.')

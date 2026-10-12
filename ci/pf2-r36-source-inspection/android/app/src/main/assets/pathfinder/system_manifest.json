@@ -1,0 +1,32 @@
+{
+  "system": "Pathfinder 2e Remaster",
+  "mechanical_authority": "Pathfinder2eRulesEngine",
+  "narrative_authority": "Motor Barbara + BraseiroNarrativeDirector",
+  "living_world": true,
+  "token_prompt": "PathfinderTokenPromptBuilder",
+  "campaign_model": "multi-campaign saves; Kingmaker fully implemented and optional",
+  "kingmaker": {
+    "schema": 1,
+    "catalog": "pathfinder/kingmaker/kingmaker_catalog.json",
+    "mechanical_authority": "KingmakerRulesEngine + Pathfinder2eRulesEngine",
+    "persistence": "same AppDb, isolated by world_profile",
+    "subsystems": [
+      "kingdom creation and advancement",
+      "leadership and kingdom skills",
+    "kingdom turns and events",
+    "consumption, overcrowding and XP milestones",
+    "hexploration and claimed territory",
+    "settlements, urban grids, structures and trade",
+      "armies and warfare",
+      "companions, influence and camping"
+    ],
+    "atlas_policy": "canonical Atlas read-only; Kingmaker territory is a campaign overlay",
+    "manual_policy": "procedures and state are native; source-specific activity, structure, tactic and event effects retain manual and page references"
+  },
+  "forbidden_fallbacks": [
+    "qualquer sistema mecânico externo ao PF2e Remaster"
+  ],
+  "product": "Braseiro Pathfinder 2e",
+  "world_profile": "pf2",
+  "image_identity_contract": "characters and NPCs are described from persistent visual identity before Gemini generation"
+}

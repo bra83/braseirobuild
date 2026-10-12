@@ -1,0 +1,47 @@
+{
+  "atlas": {
+    "bundle_revision": 6,
+    "canonical_locations": 67,
+    "location_reference_status": {
+      "approximate": 67,
+      "confirmed": 0
+    },
+    "package": "inner_sea_canonical_v5_max_compat.zip",
+    "sha256": "dbd7262e44a6c614f8262ed23c88bc0080bce91dc3ffc8991a25b84887149c83"
+  },
+  "authority": {
+    "atlas": "host_canonical",
+    "mechanics": "Pathfinder2eRulesEngine",
+    "persistent_state": "AppDb"
+  },
+  "backup_format": 21,
+  "db_schema": 58,
+  "external_not_run": [
+    "Gradle assemble/install",
+    "physical device/APK homologation"
+  ],
+  "gates": {
+    "aggregate_wrapper": "TIMEOUT >120s; constituents passed separately",
+    "java_syntax": "142/142 PASS",
+    "legacy_motor_entrypoint": "27/27 + smoke PASS",
+    "pf2_8_4": "197/197 PASS",
+    "pytest": "67/67 PASS",
+    "tools": "18/18 PASS"
+  },
+  "map_runtime_calibration": {
+    "baked_grid": true,
+    "offset_x": -4.7674317,
+    "offset_y": 2.5002666,
+    "scale": 1.004556327
+  },
+  "motor_barbara": {
+    "checkpoint_sha256": "e057291ceeebc4376f144e6e7daa0fb12422625981397e95ff164edfaf18e644",
+    "mode": "external_host",
+    "module_count": 60,
+    "supervisor_protocol": 2,
+    "version": "1.1.2"
+  },
+  "release": "Braseiro Pathfinder 2e 8.4.0",
+  "version_code": 80400,
+  "version_name": "8.4.0"
+}

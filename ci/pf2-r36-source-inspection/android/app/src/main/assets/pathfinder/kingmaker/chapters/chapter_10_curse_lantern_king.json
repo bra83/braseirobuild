@@ -1,0 +1,1060 @@
+{
+  "schema": "braseiro-pathfinder2e-chapter-v1",
+  "chapter_key": "chapter_10_curse_lantern_king",
+  "chapterKey": "chapter_10_curse_lantern_king",
+  "chapter_number": 10,
+  "chapterNumber": 10,
+  "title": "A Maldição do Rei Lanterna: A Guerra Épica Feérica",
+  "locale": "pt-BR",
+  "level_min": 18,
+  "levelMin": 18,
+  "level_max": 20,
+  "levelMax": 20,
+  "summary": "Mesmo após a pacificação ou derrota de Nyrissa, o verdadeiro arquiteto da tragédia milenar das Terras Roubadas finalmente revela sua face: o Rei Lanterna (The Lantern King), um dos Mais Velhos (The Eldest) do Primeiro Mundo e semideus do engano, do riso cruel e da metamorfose cósmica. Furioso por ter sua grande 'brincadeira' interrompida pelo triunfo de simples governantes mortais, o Rei Lanterna decreta a punição suprema: uma guerra épica de reestruturação planar. O semideus rasga as fundações materiais do reino, convertendo rios em metal líquido, montanhas em bolhas de vidro flutuante e cidades em teatrios de marionetes monstruosas. Para quebrar para sempre a Maldição da Coroa das Terras Roubadas e assegurar a soberania indelével de sua dinastia, os governantes devem ascender ao pináculo do poder mítico (níveis 18 a 20), navegar pelas ilusões divinas do trapaceiro supremo, repelir suas hostes de aberrações de luz dourada e subjugar seu avatar no coração do sol prismático.",
+  "quests": [
+    {
+      "quest_key": "q_revelacao_rei_lanterna",
+      "questKey": "q_revelacao_rei_lanterna",
+      "title": "A Revelação Mítica do Rei Lanterna",
+      "status": "unstarted",
+      "stage": "desmascarar_trapaceiro",
+      "objective": "Desvendar a presença oculta do Rei Lanterna por trás da corrupção secular de Nyrissa e compreender a natureza de sua grande brincadeira cósmica. Desvendar o enigma de The Apology (A Apologia), navegar pelo pesadelo feérico de Hunting Dream (Sonho de Caça) e confrontar a soberania do Lantern Kingdom (Reino da Lanterna).",
+      "stakes": "Se a verdade do Mais Velho não for compreendida, cada tentativa de governar o reino continuará repetindo a maldição dos reis caídos.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 700,
+      "milestoneXp": 700,
+      "prerequisites": [
+        "q_redencao_espada_briar"
+      ],
+      "objectives": [
+        {
+          "id": "obj_rev_1",
+          "desc": "Interrogar os espíritos memoriais libertados do graal de Nyrissa sobre a voz dourada que a amaldiçoou",
+          "description": "Interrogar os espíritos memoriais libertados do graal de Nyrissa sobre a voz dourada que a amaldiçoou",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_rev_2",
+          "desc": "Confrontar o bobo da corte metamorfo que sussurrava mentiras nos conselhos reais da capital",
+          "description": "Confrontar o bobo da corte metamorfo que sussurrava mentiras nos conselhos reais da capital",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_rev_3",
+          "desc": "Desvendar o selo primordial do riso dourado incrustado na Coroa das Terras Roubadas",
+          "description": "Desvendar o selo primordial do riso dourado incrustado na Coroa das Terras Roubadas",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 12000,
+        "xp": 700,
+        "items": [
+          "diadema_da_visao_antiga",
+          "pergaminho_do_nome_verdadeiro_do_eldest"
+        ]
+      },
+      "progress_json": {},
+      "book_progression_source": "Kingmaker 2e pp. 480-484: Chapter 11 follows the resolution of Nyrissa"
+    },
+    {
+      "quest_key": "q_quebra_maldicao_coroa",
+      "questKey": "q_quebra_maldicao_coroa",
+      "title": "A Quebra da Maldição da Coroa Feérica",
+      "status": "unstarted",
+      "stage": "forjar_contra_maldicao",
+      "objective": "Forjar a contra-maldição no Altar da Verdade e Soberania Eterna para anular a condenação cíclica imposta pelo Rei Lanterna sobre os tronos das Terras Roubadas.",
+      "stakes": "A permanência da maldição fará com que o reino seja devorado por catástrofes mágicas a cada nova geração.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 800,
+      "milestoneXp": 800,
+      "prerequisites": [
+        "q_revelacao_rei_lanterna"
+      ],
+      "objectives": [
+        {
+          "id": "obj_cor_1",
+          "desc": "Reunir o sangue sagrado das sete dinastias extintas dos governantes mortais das Terras Roubadas",
+          "description": "Reunir o sangue sagrado das sete dinastias extintas dos governantes mortais das Terras Roubadas",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_cor_2",
+          "desc": "Purificar a coroa real no fogo primordial da Forja das Estrelas com a bênção dos deuses",
+          "description": "Purificar a coroa real no fogo primordial da Forja das Estrelas com a bênção dos deuses",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_cor_3",
+          "desc": "Entoar o decreto de soberania perpétua que desafia o direito dos Mais Velhos sobre a terra mortal",
+          "description": "Entoar o decreto de soberania perpétua que desafia o direito dos Mais Velhos sobre a terra mortal",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 20000,
+        "xp": 800,
+        "items": [
+          "coroa_da_soberania_eterna_imortal",
+          "manto_da_imunidade_divina"
+        ]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_guerra_reestruturacao_planar",
+      "questKey": "q_guerra_reestruturacao_planar",
+      "title": "A Guerra da Reestruturação Planar",
+      "status": "unstarted",
+      "stage": "batalha_dimensoes",
+      "objective": "Liderar os exércitos da Baronia contra as hordas transmorfadas do Rei Lanterna e ancorar as leis da física golarioniana contra o caos primordial.",
+      "stakes": "A terra se tornará um playground caótico onde a gravidade, o tempo e a própria matéria mudarão ao capricho de uma gargalhada divina.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 900,
+      "milestoneXp": 900,
+      "prerequisites": [
+        "q_quebra_maldicao_coroa"
+      ],
+      "objectives": [
+        {
+          "id": "obj_pla_1",
+          "desc": "Comandar as falanges reais contra os titãs de vidro flutuante e centuriões de riso dourado",
+          "description": "Comandar as falanges reais contra os titãs de vidro flutuante e centuriões de riso dourado",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_pla_2",
+          "desc": "Destruir os três monólitos prismáticos de reestruturação fincados nas capitais de província",
+          "description": "Destruir os três monólitos prismáticos de reestruturação fincados nas capitais de província",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_pla_3",
+          "desc": "Consagrar os rios e vales com as águas da criação firme trazidas do Plano Material Puro",
+          "description": "Consagrar os rios e vales com as águas da criação firme trazidas do Plano Material Puro",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 25000,
+        "xp": 900,
+        "items": [
+          "estandarte_da_ordem_inquebravel",
+          "armadura_de_adamante_mitico"
+        ]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_destino_eterno_reino",
+      "questKey": "q_destino_eterno_reino",
+      "title": "O Destino Eterno do Reino Soberano",
+      "status": "unstarted",
+      "stage": "apoteose_final",
+      "objective": "Invadir o nexo prismático do sol dourado, derrotar a manifestação apoteótica do Rei Lanterna e proclamar a independência absoluta das Terras Roubadas perante o cosmos.",
+      "stakes": "O fracasso transformará todos os súditos em bufões fantasmagóricos condenados a entreter a corte feérica por toda a eternidade.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 1000,
+      "milestoneXp": 1000,
+      "prerequisites": [
+        "q_guerra_reestruturacao_planar"
+      ],
+      "objectives": [
+        {
+          "id": "obj_des_1",
+          "desc": "Penetrar o Trono dos Prismas desafiando as armadilhas conceituais e os feixes desintegradores de luz",
+          "description": "Penetrar o Trono dos Prismas desafiando as armadilhas conceituais e os feixes desintegradores de luz",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_des_2",
+          "desc": "Derrotar as três formas divinas sucessivas do Rei Lanterna (Ladrão de Sombras, Bufão de Luz e Tirano Dourado)",
+          "description": "Derrotar as três formas divinas sucessivas do Rei Lanterna (Ladrão de Sombras, Bufão de Luz e Tirano Dourado)",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_des_3",
+          "desc": "Celebrar o Tratado dos Mundos Livres selado no coração de Golarion com o testemunho dos deuses",
+          "description": "Celebrar o Tratado dos Mundos Livres selado no coração de Golarion com o testemunho dos deuses",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 50000,
+        "xp": 1000,
+        "items": [
+          "lanterna_solar_do_deus_derrotado",
+          "cetro_supremo_de_golarion"
+        ]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_tribunal_dos_antigos",
+      "questKey": "q_tribunal_dos_antigos",
+      "title": "O Tribunal dos Feéricos Primordiais",
+      "status": "unstarted",
+      "stage": "diplomacia_eldest",
+      "objective": "Convocar e convencer os outros Mais Velhos neutros (como Magdh, a Trina, e Imbrex) a cessar a interferência do Rei Lanterna no plano mortal.",
+      "stakes": "Sem o reconhecimento do tribunal feérico, o Primeiro Mundo continuará enviando exércitos de vingança.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 650,
+      "milestoneXp": 650,
+      "prerequisites": [
+        "q_revelacao_rei_lanterna"
+      ],
+      "objectives": [
+        {
+          "id": "obj_tri_1",
+          "desc": "Apresentar a crônica das mil injustiças cometidas pelo Rei Lanterna diante dos emissários dos Mais Velhos",
+          "description": "Apresentar a crônica das mil injustiças cometidas pelo Rei Lanterna diante dos emissários dos Mais Velhos",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_tri_2",
+          "desc": "Vencer o enigma das três profecias paradoxais apresentado pelo oráculo Elan",
+          "description": "Vencer o enigma das três profecias paradoxais apresentado pelo oráculo Elan",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 10000,
+        "xp": 650,
+        "items": [
+          "sigilo_de_neutralidade_dos_eldest"
+        ]
+      },
+      "progress_json": {}
+    }
+  ],
+  "hazards": [
+    {
+      "hazard_key": "hazard_ilusoes_brincadeira_divina",
+      "hazardKey": "hazard_ilusoes_brincadeira_divina",
+      "name": "Ilusões da Pegadinha Divina do Mais Velho",
+      "level": 19,
+      "traits": [
+        "complexo",
+        "divino",
+        "ilusao",
+        "fada"
+      ],
+      "stealth_dc": 42,
+      "stealthDc": 42,
+      "perception_dc": 42,
+      "perceptionDc": 42,
+      "saving_throw_type": "Vontade",
+      "savingThrowType": "Vontade",
+      "saving_throw_dc": 41,
+      "savingThrowDc": 41,
+      "disable_skills": [
+        {
+          "skill": "Ocultismo",
+          "dc": 43,
+          "proficiency": "lendario",
+          "description": "Romper a farsa mental compreendendo a piada cósmica sem enlouquecer"
+        },
+        {
+          "skill": "Religião",
+          "dc": 43,
+          "proficiency": "lendario",
+          "description": "Invocação de dogmas de divindades da verdade como Iomedae ou Abadar para dispersar a mentira"
+        }
+      ],
+      "routine_actions": 3,
+      "routineActions": 3,
+      "hazard_type": "magico",
+      "complexity": "complexo",
+      "ac": 43,
+      "hardness": 28,
+      "hp": 160,
+      "bt": 80,
+      "reaction": "Dispara quando um herói tenta emitir uma ordem de comando ou conjurar magia divina.",
+      "reset": "Não reseta após a ancoragem da verdade absoluta.",
+      "xp": 300,
+      "description": "Um labirinto de risadas trovejantes e miragens douradas que distorcem amigos em monstros e invertem as palavras faladas.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Gargalhada Divina Enlouquecedora",
+          "description": "O eco do riso do Rei Lanterna causa 6d10 de dano mental em área e impõe a condição confuso por 1 rodada (Vontade CD 41)."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Inversão de Lealdades Ilusória",
+          "description": "Faz com que os heróis enxerguem seus companheiros como avatares sorridentes do próprio semideus."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Troca Cósmica de Posições",
+          "description": "Teletransporta dois alvos aleatórios invertendo suas coordenadas e aplicando dreno vital temporário."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_feixes_lanternas_rasga_realidade",
+      "hazardKey": "hazard_feixes_lanternas_rasga_realidade",
+      "name": "Feixes da Lanterna Rasgadores da Realidade",
+      "level": 20,
+      "traits": [
+        "complexo",
+        "magico",
+        "luz",
+        "planar"
+      ],
+      "stealth_dc": 43,
+      "stealthDc": 43,
+      "perception_dc": 43,
+      "perceptionDc": 43,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 42,
+      "savingThrowDc": 42,
+      "disable_skills": [
+        {
+          "skill": "Arcanismo",
+          "dc": 44,
+          "proficiency": "lendario",
+          "description": "Refratar as correntes de luz solar prismática utilizando espelhos de vácuo abissal"
+        },
+        {
+          "skill": "Ladroagem",
+          "dc": 44,
+          "proficiency": "lendario",
+          "description": "Desmontar o foco de cristal divino que canaliza o núcleo da lanterna cósmica"
+        }
+      ],
+      "routine_actions": 3,
+      "routineActions": 3,
+      "hazard_type": "armadilha",
+      "complexity": "complexo",
+      "ac": 44,
+      "hardness": 30,
+      "hp": 180,
+      "bt": 90,
+      "reaction": "Reage imediatamente à presença de qualquer criatura desprovida de essência dos Mais Velhos.",
+      "reset": "Inoperante permanentemente quando a carcaça de ouro solar for fraturada.",
+      "xp": 360,
+      "description": "Feixes ofuscantes de plasma dourado e luz pura que cortam rocha, carne e espaço como navalhas dimensionais.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Varredura Incandescente Solar",
+          "description": "Dispara cone de 18 metros de luz estelar pura causando 8d10+20 de dano de fogo e energia radiante (Reflexos CD 42)."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Raio Desintegrador de Luz Feérica",
+          "description": "Um raio único atinge o alvo com maior armadura causando 10d10 de dano de força e deixando-o drenado 2."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Ofuscação da Visão Absoluta",
+          "description": "Cega todas as criaturas sem proteção mágica contra clarões divinos no raio de 30 metros."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_vortice_magia_selvagem_caotica",
+      "hazardKey": "hazard_vortice_magia_selvagem_caotica",
+      "name": "Vórtice Cósmico de Magia Selvagem",
+      "level": 19,
+      "traits": [
+        "complexo",
+        "magico",
+        "caos",
+        "ambiental"
+      ],
+      "stealth_dc": 41,
+      "stealthDc": 41,
+      "perception_dc": 41,
+      "perceptionDc": 41,
+      "saving_throw_type": "Fortitude",
+      "savingThrowType": "Fortitude",
+      "saving_throw_dc": 41,
+      "savingThrowDc": 41,
+      "disable_skills": [
+        {
+          "skill": "Natureza",
+          "dc": 42,
+          "proficiency": "lendario",
+          "description": "Acalmar as forças telúricas primordiais restabelecendo os ciclos elementais de Golarion"
+        },
+        {
+          "skill": "Arcanismo",
+          "dc": 42,
+          "proficiency": "lendario",
+          "description": "Estruturar o tecido de éter ambiente neutralizando as surtos caóticos de transmutação"
+        }
+      ],
+      "routine_actions": 2,
+      "routineActions": 2,
+      "hazard_type": "ambiental",
+      "complexity": "complexo",
+      "ac": 42,
+      "hardness": 25,
+      "hp": 150,
+      "bt": 75,
+      "reaction": "Desperta ao menor sinal de conjuração de feitiços de nível 7 ou superior.",
+      "reset": "Não se rearma uma vez absorvido pelas linhas de ley purificadas.",
+      "xp": 300,
+      "description": "Uma tempestade furiosa de cores impossíveis que desafia a tabela periódica, transformando ar em vinho e ferro em plumas.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Surto de Transmutação Desenfreada",
+          "description": "Alvos devem ter sucesso em Fortitude CD 41 ou sofrem 6d8 de dano físico e são parcialmente polimorfados (lentos 1)."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Reversão Mágica Espontânea",
+          "description": "Dissipa o efeito benéfico mágico de nível mais alto ativo no grupo e causa ricochete de 4d10 de dano de força."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_fenda_reestruturacao_planar",
+      "hazardKey": "hazard_fenda_reestruturacao_planar",
+      "name": "Fenda Caótica de Reestruturação da Paisagem",
+      "level": 20,
+      "traits": [
+        "complexo",
+        "planar",
+        "transmutacao"
+      ],
+      "stealth_dc": 43,
+      "stealthDc": 43,
+      "perception_dc": 43,
+      "perceptionDc": 43,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 43,
+      "savingThrowDc": 43,
+      "disable_skills": [
+        {
+          "skill": "Sobrevivência",
+          "dc": 44,
+          "proficiency": "lendario",
+          "description": "Identificar os nós tectônicos estáveis e ancorar estacas rúnicas de fixação geográfica"
+        },
+        {
+          "skill": "Arcanismo",
+          "dc": 44,
+          "proficiency": "lendario",
+          "description": "Suturar a rasgadura dimensional tecendo fibras de matéria do Plano Material"
+        }
+      ],
+      "routine_actions": 3,
+      "routineActions": 3,
+      "hazard_type": "ambiental",
+      "complexity": "complexo",
+      "ac": 44,
+      "hardness": 28,
+      "hp": 170,
+      "bt": 85,
+      "reaction": "Dispara quando a terra sob os pés do grupo se dobra verticalmente em direção aos céus.",
+      "reset": "Não se rearma se as estacas rúnicas forem cravadas.",
+      "xp": 360,
+      "description": "A terra se dobra como um origami gigante, criando abismos verticais e gravidade que puxa lateralmente.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Dobra Tectônica Esmagadora",
+          "description": "Placas de rocha se chocam violentamente causando 8d8+16 de dano de concussão e soterrando criaturas (Reflexos CD 43)."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Gêiser de Metal Derretido",
+          "description": "Erupção de ferro líquido do núcleo planar causando 6d10 de dano de fogo e 3d6 persistente."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Vácuo Espacial Arrebatador",
+          "description": "Puxa todas as criaturas a até 15 metros 6 metros em direção ao centro da fenda."
+        }
+      ]
+    }
+  ],
+  "pois": [
+    {
+      "poi_key": "poi_coroa_iluminada",
+      "poiKey": "poi_coroa_iluminada",
+      "poi_id": "poi_coroa_iluminada",
+      "poiId": "poi_coroa_iluminada",
+      "campaign_key": "chapter_10_curse_lantern_king",
+      "campaignKey": "chapter_10_curse_lantern_king",
+      "map_id": "stolen_lands",
+      "name": "Coroa Iluminada do Pináculo Real",
+      "name_key": "coroa_iluminada_do_pinaculo_real",
+      "type": "landmark",
+      "hex_id": "H_LANTERN_CROWN",
+      "hexId": "H_LANTERN_CROWN",
+      "location_id": "loc_lantern_crown",
+      "q": 0,
+      "r": 0,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "O topo da torre do palácio real na capital, cercado por uma auréola estelar de luz feérica deixada pelo desafio do Rei Lanterna.",
+      "tags": [
+        "capital",
+        "coroa",
+        "pinaculo",
+        "luz"
+      ],
+      "development_level": 5,
+      "icon": "👑",
+      "notes": "Ponto de partida da resistência soberana e defesa da coroa."
+    },
+    {
+      "poi_key": "poi_nexo_rei_lanterna",
+      "poiKey": "poi_nexo_rei_lanterna",
+      "poi_id": "poi_nexo_rei_lanterna",
+      "poiId": "poi_nexo_rei_lanterna",
+      "campaign_key": "chapter_10_curse_lantern_king",
+      "campaignKey": "chapter_10_curse_lantern_king",
+      "map_id": "stolen_lands",
+      "name": "Nexo Prismático do Rei Lanterna",
+      "name_key": "nexo_prismatico_do_rei_lanterna",
+      "type": "lair",
+      "hex_id": "H_LANTERN_NEXUS",
+      "hexId": "H_LANTERN_NEXUS",
+      "location_id": "loc_lantern_nexus",
+      "q": 1,
+      "r": -1,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Manifestação dimensional flutuante nos céus do reino semelhante a um sol falso em chamas douradas e prismáticas.",
+      "tags": [
+        "covil",
+        "eldest",
+        "lanterna",
+        "climax"
+      ],
+      "development_level": 5,
+      "icon": "☀️",
+      "notes": "Santuário final onde o avatar do Rei Lanterna aguarda os heróis."
+    },
+    {
+      "poi_key": "poi_altar_verdade_eterna",
+      "poiKey": "poi_altar_verdade_eterna",
+      "poi_id": "poi_altar_verdade_eterna",
+      "poiId": "poi_altar_verdade_eterna",
+      "campaign_key": "chapter_10_curse_lantern_king",
+      "campaignKey": "chapter_10_curse_lantern_king",
+      "map_id": "stolen_lands",
+      "name": "Altar da Verdade e Soberania Eterna",
+      "name_key": "altar_da_verdade_e_soberania_eterna",
+      "type": "settlement",
+      "hex_id": "H_SOVEREIGN_ALTAR",
+      "hexId": "H_SOVEREIGN_ALTAR",
+      "location_id": "loc_sovereign_altar",
+      "q": -1,
+      "r": 1,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Antigo santuário de mármore e platina construído no coração da floresta, onde as leis de Golarion são purificadas contra o engano feérico.",
+      "tags": [
+        "santuario",
+        "verdade",
+        "altar",
+        "soberania"
+      ],
+      "development_level": 4,
+      "icon": "⚖️",
+      "notes": "Local de realização da contra-maldição que quebra o ciclo de ruína."
+    },
+    {
+      "poi_key": "poi_vortice_pesadelos_feericos",
+      "poiKey": "poi_vortice_pesadelos_feericos",
+      "poi_id": "poi_vortice_pesadelos_feericos",
+      "poiId": "poi_vortice_pesadelos_feericos",
+      "campaign_key": "chapter_10_curse_lantern_king",
+      "campaignKey": "chapter_10_curse_lantern_king",
+      "map_id": "stolen_lands",
+      "name": "Vórtice dos Pesadelos Feéricos e Trocas de Rosto",
+      "name_key": "vortice_dos_pesadelos_feericos_e_trocas_de_rosto",
+      "type": "dungeon",
+      "hex_id": "H_FEY_NIGHTMARE",
+      "hexId": "H_FEY_NIGHTMARE",
+      "location_id": "loc_fey_nightmare",
+      "q": 2,
+      "r": -2,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Depressão cósmica onde as memórias e identidades de centenas de vassalos são roubadas e transformadas em máscaras vivas.",
+      "tags": [
+        "dungeon",
+        "pesadelos",
+        "mascaras",
+        "engano"
+      ],
+      "development_level": 3,
+      "icon": "🎭",
+      "notes": "Covil dos generais de riso e ladrões de rosto do Mais Velho."
+    },
+    {
+      "poi_key": "poi_campina_riso_eterno",
+      "poiKey": "poi_campina_riso_eterno",
+      "poi_id": "poi_campina_riso_eterno",
+      "poiId": "poi_campina_riso_eterno",
+      "campaign_key": "chapter_10_curse_lantern_king",
+      "campaignKey": "chapter_10_curse_lantern_king",
+      "map_id": "stolen_lands",
+      "name": "Campina do Riso Eterno e Magia Fluida",
+      "name_key": "campina_do_riso_eterno_e_magia_fluida",
+      "type": "resource_site",
+      "hex_id": "H_LAUGHING_MEADOW",
+      "hexId": "H_LAUGHING_MEADOW",
+      "location_id": "loc_laughing_meadow",
+      "q": -2,
+      "r": 2,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Vastas colinas cobertas por flores douradas cintilantes que destilam mel divino e essência de luz estelar pura.",
+      "tags": [
+        "recursos",
+        "mel_divino",
+        "campina",
+        "magia_fluida"
+      ],
+      "development_level": 3,
+      "icon": "🌼",
+      "notes": "Fonte inesgotável de reagentes para elixires de imortalidade e restauração absoluta."
+    }
+  ],
+  "npcs": [
+    {
+      "npc_key": "npc_rei_lanterna_avatar",
+      "npcKey": "npc_rei_lanterna_avatar",
+      "stable_id": "npc_rei_lanterna_avatar",
+      "stableId": "npc_rei_lanterna_avatar",
+      "name": "O Rei Lanterna (O Mais Velho)",
+      "summary": "Um dos deuses primordiais do Primeiro Mundo, personificação viva do engano, do humor cósmico cruel e da maleabilidade eterna da existência.",
+      "goals": "Transformar a grandiosa Baronia em cinzas e risadas, garantindo que nenhum mortal triunfe sobre suas farsas divinas.",
+      "secrets": "Embora pareça invulnerável, sua essência depende de ser levado a sério; se os heróis provarem honra indômita e desdém pelo seu deboche, seu poder se desfaz.",
+      "attitude": "hostil",
+      "relationship": "Inimigo supremo mítico da campanha",
+      "knowledge": "Gênese do multiverso, tecelagem de maldições divinas e segredos de todos os deuses.",
+      "debts": "Nenhuma dívida com mortais.",
+      "last_seen": "Nexo Prismático",
+      "hex_id": "H_LANTERN_NEXUS",
+      "faction": "Hostes do Rei Lanterna e Feéricos da Discórdia",
+      "visual_description": "Entidade de luz solar dourada resplandecente que se molda a cada segundo: ora um rei coroado de chamas, ora um bobo risonho com uma lanterna de vidro puro.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "Vocês acharam que derrotar uma ninfazinha triste era o final feliz? Eu escrevi a primeira linha dessa história antes das montanhas de vocês existirem!",
+          "topic": "troca_ofensas",
+          "quest_key": "q_destino_eterno_reino"
+        },
+        {
+          "attitude_req": "indiferente",
+          "text": "Impressionante. Vocês continuam de pé mesmo quando transformei o chão sob seus pés em cerveja e o ar em ferro. Talvez haja algo divertido em vocês afinal...",
+          "topic": "admiracao_sardonica",
+          "quest_key": "q_destino_eterno_reino"
+        }
+      ],
+      "stats": {
+        "ac": 45,
+        "hp": 450,
+        "max_hp": 450
+      }
+    },
+    {
+      "npc_key": "npc_oraculo_ouro_feerico",
+      "npcKey": "npc_oraculo_ouro_feerico",
+      "stable_id": "npc_oraculo_ouro_feerico",
+      "stableId": "npc_oraculo_ouro_feerico",
+      "name": "Oráculo Elan, a Voz das Estrelas",
+      "summary": "Feérico milenar neutro que viaja pelas linhas temporais observando os caprichos dos Mais Velhos.",
+      "goals": "Garantir o equilíbrio entre o Primeiro Mundo e o Plano Material.",
+      "secrets": "Conhece a exata sequência rúnica para quebrar a Coroa das Terras Roubadas.",
+      "attitude": "indiferente",
+      "relationship": "Conselheiro cósmico neutro",
+      "knowledge": "História dos Mais Velhos, genealogia feérica e profecias planares.",
+      "debts": "Dívida de hospitalidade para com o reino.",
+      "last_seen": "Altar da Verdade e Soberania Eterna",
+      "hex_id": "H_SOVEREIGN_ALTAR",
+      "faction": "Conselho dos Feéricos Anciãos Neutros",
+      "visual_description": "Ancião feérico com túnicas tecidas de constelações visíveis e olhos vazios de pura luz azulada.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "indiferente",
+          "text": "O Rei Lanterna não pode ser morto como um homem, mas pode ser derrotado se vocês se recusarem a ser seus joguetes.",
+          "topic": "orientacao_sagrada",
+          "quest_key": "q_quebra_maldicao_coroa"
+        },
+        {
+          "attitude_req": "amistoso",
+          "text": "Tomem este prisma de luz fria. Ele revelará a verdadeira forma do semideus quando ele tentar vestir seus amigos com máscaras de riso.",
+          "topic": "dom_oraculo",
+          "quest_key": "q_destino_eterno_reino"
+        }
+      ],
+      "stats": {
+        "ac": 40,
+        "hp": 280,
+        "max_hp": 280
+      }
+    },
+    {
+      "npc_key": "npc_arconte_mortal_vanguardia",
+      "npcKey": "npc_arconte_mortal_vanguardia",
+      "stable_id": "npc_arconte_mortal_vanguardia",
+      "stableId": "npc_arconte_mortal_vanguardia",
+      "name": "General Kaelen da Guarda Real",
+      "summary": "Comandante supremo das legiões mortais do reino, inabalável perante as aberrações da reestruturação planar.",
+      "goals": "Manter as linhas defensivas da capital e evacuar os civis em segurança.",
+      "secrets": "Jurou dar a própria vida para que os governantes alcancem o portal do sol.",
+      "attitude": "prestativo",
+      "relationship": "General leal da Baronia",
+      "knowledge": "Estratégia militar em larga escala, logística de cerco e táticas contra criaturas voadoras.",
+      "debts": "Lealdade absoluta sob juramento sagrado.",
+      "last_seen": "Muralhas da Capital",
+      "hex_id": "H_LANTERN_CROWN",
+      "faction": "Aliança Soberana dos Povos Livres de Golarion",
+      "visual_description": "Veterano de cabelos grisalhos envergando armadura de placas completa forjada em adamante.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "prestativo",
+          "text": "Majestades! Nossas falanges manterão o solo firme enquanto vocês sobem aos céus para confrontar esse deus pretensioso!",
+          "topic": "relatorio_defesa",
+          "quest_key": "q_guerra_reestruturacao_planar"
+        }
+      ],
+      "stats": {
+        "ac": 41,
+        "hp": 260,
+        "max_hp": 260
+      }
+    },
+    {
+      "npc_key": "npc_emissario_primeiro_mundo",
+      "npcKey": "npc_emissario_primeiro_mundo",
+      "stable_id": "npc_emissario_primeiro_mundo",
+      "stableId": "npc_emissario_primeiro_mundo",
+      "name": "Emissário Lorde Silenus",
+      "summary": "Representante de cortes feéricas dissidentes cansadas da tirania caótica do Rei Lanterna.",
+      "goals": "Estabelecer uma embaixada permanente em Golarion sob a proteção do novo império mortal.",
+      "secrets": "Oferece espiões feéricos que revelam onde as fendas de reestruturação planar se abrirão.",
+      "attitude": "amistoso",
+      "relationship": "Aliado diplomático de peso",
+      "knowledge": "Cortesias feéricas, rotas clandestinas do Primeiro Mundo e fraquezas de construtos de vidro.",
+      "debts": "Pacto de auxílio mútuo.",
+      "last_seen": "Palácio Real",
+      "hex_id": "H_LANTERN_CROWN",
+      "faction": "Conselho dos Feéricos Anciãos Neutros",
+      "visual_description": "Sátiro nobre com chifres decorados em filigrana de prata e vestimentas de seda esmeralda.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "amistoso",
+          "text": "Muitos em nosso reino não desejam a destruição de suas terras. Estamos prontos para lutar ao seu lado pela paz.",
+          "topic": "pacto_feerico",
+          "quest_key": "q_tribunal_dos_antigos"
+        }
+      ],
+      "stats": {
+        "ac": 38,
+        "hp": 210,
+        "max_hp": 210
+      }
+    }
+  ],
+  "scenes": [
+    {
+      "scene_key": "scene_confronto_trono_prismas",
+      "sceneKey": "scene_confronto_trono_prismas",
+      "title": "O Trono dos Prismas e Gargalhadas Eternas",
+      "location": "Nexo Prismático do Rei Lanterna - Pináculo Solar",
+      "hex_id": "H_LANTERN_NEXUS",
+      "environment": "planar",
+      "width_cells": 18,
+      "widthCells": 18,
+      "height_cells": 14,
+      "heightCells": 14,
+      "seed": 10101,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "plataforma_sol_dourado",
+          "name": "Plataforma Central do Fogo Cósmico",
+          "x": 6,
+          "y": 4,
+          "width": 6,
+          "height": 6,
+          "terrain": "normal",
+          "description": "Arena circular de cristal estelar sólido suspensa sobre o vácuo de ouro líquido onde o Rei Lanterna se manifesta"
+        },
+        {
+          "zone_key": "periferia_feixes_luz",
+          "name": "Anel Periférico de Feixes Cortantes",
+          "x": 0,
+          "y": 0,
+          "width": 18,
+          "height": 2,
+          "terrain": "dificil",
+          "description": "Bordas da plataforma varridas por feixes de plasma solar divinos"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "prisma_divino_1",
+          "x": 3,
+          "y": 6,
+          "width": 2,
+          "height": 2,
+          "type": "cristal_solar",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "padrao"
+        },
+        {
+          "obstacle_key": "prisma_divino_2",
+          "x": 13,
+          "y": 6,
+          "width": 2,
+          "height": 2,
+          "type": "cristal_solar",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "padrao"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "ponte_de_luz_entrada",
+          "x": 9,
+          "y": 13,
+          "team": "player",
+          "description": "Ponte de arco-íris condensado por onde os heróis alcançam o trono"
+        }
+      ],
+      "hazards": [],
+      "combatants": []
+    },
+    {
+      "scene_key": "scene_campo_batalha_planar",
+      "sceneKey": "scene_campo_batalha_planar",
+      "title": "A Planície da Reestruturação Planar",
+      "location": "Planícies da Baronia - Área de Fratura Geográfica",
+      "hex_id": "H_LANTERN_CROWN",
+      "environment": "ermos",
+      "width_cells": 16,
+      "widthCells": 16,
+      "height_cells": 10,
+      "heightCells": 10,
+      "seed": 10102,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "terreno_origami_dobrado",
+          "name": "Placas Tectônicas Dobradas",
+          "x": 2,
+          "y": 2,
+          "width": 12,
+          "height": 6,
+          "terrain": "dificil",
+          "description": "Chão de granito partido e erguido em ângulos retos desafiando as leis físicas"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "parede_vidro_flutuante",
+          "x": 7,
+          "y": 4,
+          "width": 2,
+          "height": 2,
+          "type": "vidro_flutuante",
+          "blocks_movement": true,
+          "blocks_vision": true,
+          "cover": "superior"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "trincheira_guarda_real",
+          "x": 1,
+          "y": 5,
+          "team": "player",
+          "description": "Posição fortificada dos sapadores da guarda real"
+        }
+      ],
+      "hazards": [],
+      "combatants": []
+    }
+  ],
+  "factions": [
+    {
+      "name": "Hostes do Rei Lanterna e Feéricos da Discórdia",
+      "agenda": "Apagar a história e o orgulho das nações mortais através de uma farsa destrutiva de proporções cósmicas.",
+      "resources": "Titãs de vidro, feixes solares primordiais, poderes de transmutação absoluta e legiões de metamorfos.",
+      "relationship": -5,
+      "current_plan": "Converter todo o território das Terras Roubadas em um labirinto eterno de brinquedos feéricos.",
+      "location": "Nexo Prismático",
+      "active": true
+    },
+    {
+      "name": "Aliança Soberana dos Povos Livres de Golarion",
+      "agenda": "Defender a existência independente, honra e soberania inalienável do reino mortal fundado pelos heróis.",
+      "resources": "Exércitos veteranos da Baronia, companhias de engenharia anã, magia divina de Torag e Iomedae.",
+      "relationship": 5,
+      "current_plan": "Sustentar a linha de batalha na capital e canalizar poder para a quebra da maldição da coroa.",
+      "location": "Capital Real",
+      "active": true
+    },
+    {
+      "name": "Conselho dos Feéricos Anciãos Neutros",
+      "agenda": "Supervisionar a disputa e garantir que os limites da Criação não sejam irremediavelmente aniquilados.",
+      "resources": "Magia oracular neutra, sigilos de imunidade cósmica e pactos de não agressão.",
+      "relationship": 2,
+      "current_plan": "Testemunhar o confronto final e ratificar a soberania da dinastia mortal em caso de vitória.",
+      "location": "Altar da Verdade e Soberania Eterna",
+      "active": true
+    }
+  ],
+  "clocks": [
+    {
+      "name": "Transmutação Irreversível das Terras Roubadas em Feudo Feérico",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "As leis naturais de Golarion colapsam e o reino é reescrito como mero palco de piadas para os Mais Velhos.",
+      "automatic": true,
+      "active": true
+    },
+    {
+      "name": "Ruptura Total das Leis Físicas no Reino",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "A matéria perde toda coerência, dispersando cidades e habitantes em poeira estelar cintilante.",
+      "automatic": false,
+      "active": true
+    }
+  ],
+  "events": [
+    {
+      "title": "A Grande Brincadeira: Rios Transformados em Mel e Ouro",
+      "description": "O Rei Lanterna estala os dedos e todos os mananciais do reino passam a jorrar ouro fundido e xarope feérico, ameaçando a sobrevivência de plantações e rebanhos.",
+      "due_at": 110000,
+      "due_day": 15,
+      "status": "scheduled",
+      "consequence_json": {
+        "unrest_increase": 5,
+        "scene": "scene_campo_batalha_planar"
+      }
+    },
+    {
+      "title": "O Toque da Meia-Noite Eterna do Rei Lanterna",
+      "description": "O sol físico é substituído pela Lanterna Dourada, e o tempo pára para todos os mortais que não portem relíquias consagradas de soberania.",
+      "due_at": 160000,
+      "due_day": 30,
+      "status": "scheduled",
+      "consequence_json": {
+        "scene": "scene_confronto_trono_prismas"
+      }
+    }
+  ],
+  "milestones": [
+    {
+      "milestone_key": "milestone_revelacao_arquiteto",
+      "milestoneKey": "milestone_revelacao_arquiteto",
+      "name": "O Desmascarar do Rei Lanterna",
+      "xp": 700,
+      "source_ref": "Kingmaker PZO2020 Capítulo 10",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 10"
+    },
+    {
+      "milestone_key": "milestone_maldicao_coroa_quebrada",
+      "milestoneKey": "milestone_maldicao_coroa_quebrada",
+      "name": "A Anulação Eterna da Maldição da Coroa",
+      "xp": 800,
+      "source_ref": "Kingmaker PZO2020 Capítulo 10",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 10"
+    },
+    {
+      "milestone_key": "milestone_reestruturacao_planar_vencida",
+      "milestoneKey": "milestone_reestruturacao_planar_vencida",
+      "name": "O Triunfo na Guerra da Reestruturação Planar",
+      "xp": 900,
+      "source_ref": "Kingmaker PZO2020 Capítulo 10",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 10"
+    },
+    {
+      "milestone_key": "milestone_apoteose_reino_eterno",
+      "milestoneKey": "milestone_apoteose_reino_eterno",
+      "name": "A Queda do Mais Velho e a Consagração do Império",
+      "xp": 1000,
+      "source_ref": "Kingmaker PZO2020 Capítulo 10",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 10"
+    }
+  ],
+  "metadata": {
+    "author": "Braseiro PF2e Engine",
+    "ruleset": "Pathfinder 2e Remaster",
+    "source": "Kingmaker Adventure Path PZO2020",
+    "version": "1.0.0",
+    "locale": "pt-BR"
+  }
+}

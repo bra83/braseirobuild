@@ -1,0 +1,1089 @@
+{
+  "schema": "braseiro-pathfinder2e-chapter-v1",
+  "chapter_key": "chapter_06_blood_for_blood",
+  "chapterKey": "chapter_06_blood_for_blood",
+  "chapter_number": 6,
+  "chapterNumber": 6,
+  "title": "Sangue por Sangue: A Fúria dos Bárbaros Senhores dos Tigres",
+  "locale": "pt-BR",
+  "level_min": 10,
+  "levelMin": 10,
+  "level_max": 12,
+  "levelMax": 12,
+  "summary": "Uma onda avassaladora de violência assola as fronteiras ocidentais da Baronia: as hordas bárbaras dos Senhores dos Tigres (Tiger Lords), vindas das estepes gélidas e terras brutas de Numéria, marcham sob o comando implacável de Armag, que se proclama a reencarnação do lendário herói bárbaro Armag Ancestral. Manipulado nas sombras pelas sinistras Irmãs Sem Nome (Defaced Sisters) a mando da ninfa Nyrissa, o líder bárbaro busca adentrar a secreta e mortal Tumba de Armag para empunhar a espada colossal amaldiçoada Ovinrbaane, o Inimigo dos Reis. Os heróis precisam proteger as aldeias indefesas, apoiar a valorosa companheira bárbara Amiri a acertar as contas com suas origens e seu clã renegado, desmantelar o culto das feiticeiras sem rosto, invadir o labirinto funerário protegido por armadilhas do império de Ghol-Gan e derrotar Armag antes que a fúria da lâmina tirânica mergulhe as Terras Roubadas em um banho de sangue sem fim.",
+  "quests": [
+    {
+      "quest_key": "q_armag",
+      "questKey": "q_armag",
+      "title": "A Tumba de Armag e a Espada Maldita Ovinrbaane",
+      "status": "unstarted",
+      "stage": "localizar_tumba",
+      "objective": "Rastrear a localização exata da Tumba de Armag, romper suas defesas letais de Ghol-Gan, derrotar Armag possuído e neutralizar o espírito tirânico de Ovinrbaane.",
+      "stakes": "Se Armag fundir sua mente por completo com a espada senciente Ovinrbaane, liderará um exército imparável que arrasará todas as cidades fluviais.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 550,
+      "milestoneXp": 550,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_arm_1",
+          "desc": "Interrogar batedores e desvendar o mapa sagrado que aponta para a ravina da Tumba de Armag",
+          "description": "Interrogar batedores e desvendar o mapa sagrado que aponta para a ravina da Tumba de Armag",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_arm_2",
+          "desc": "Navegar pelas catacumbas da tumba contornando fossos mortais e lâminas pendulares ciclópicas",
+          "description": "Navegar pelas catacumbas da tumba contornando fossos mortais e lâminas pendulares ciclópicas",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_arm_3",
+          "desc": "Vencer o duelo mortal contra Armag no coração do sepulcro e arrancar a espada de suas mãos",
+          "description": "Vencer o duelo mortal contra Armag no coração do sepulcro e arrancar a espada de suas mãos",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 3500,
+        "xp": 550,
+        "items": [
+          "espada_bastarda_ovinrbaane_neutralizada",
+          "elmo_de_chifres_do_urso_ancestral",
+          "armadura_de_placas_barbara"
+        ]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_incursoes_tigres",
+      "questKey": "q_incursoes_tigres",
+      "title": "Repelir as Incursões dos Bárbaros Senhores dos Tigres",
+      "status": "unstarted",
+      "stage": "defesa_fronteirica",
+      "objective": "Fortificar as guarnições dos vales ocidentais e aniquilar os destacamentos avançados de saqueadores bárbaros. Defender o assentamento de Tatzlford das investidas dos Senhores Tigres e investigar as alianças secretas de Fort Drelev.",
+      "stakes": "Aldeias e feudos rurais serão queimados e dezenas de súditos serão capturados como escravos pelos saqueadores.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 300,
+      "milestoneXp": 300,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_inc_1",
+          "desc": "Interceptar a vanguarda bárbara na Garganta das Pedras e resgatar colonos encurralados",
+          "description": "Interceptar a vanguarda bárbara na Garganta das Pedras e resgatar colonos encurralados",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_inc_2",
+          "desc": "Confrontar a capitã de guerra Gvaxt e desarticular a linha de suprimentos bárbaros",
+          "description": "Confrontar a capitã de guerra Gvaxt e desarticular a linha de suprimentos bárbaros",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 900,
+        "xp": 300,
+        "items": [
+          "machados_de_arremesso_numerianos",
+          "peles_de_tigre_dentes_de_sabre"
+        ]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_irmas_sem_rosto",
+      "questKey": "q_irmas_sem_rosto",
+      "title": "O Conluio das Irmãs Sem Nome",
+      "status": "unstarted",
+      "stage": "investigacao_santuario",
+      "objective": "Infiltrar o santuário oculto das Irmãs Sem Nome e cortar os laços místicos que as bruxas utilizam para enganar Armag e semear o caos.",
+      "stakes": "A feitiçaria ilusória das sacerdotisas cega os líderes bárbaros e abre portais sombrios para abominações feéricas.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 350,
+      "milestoneXp": 350,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_irm_1",
+          "desc": "Localizar o santuário de pedras cinzentas erguido na colina enevoada",
+          "description": "Localizar o santuário de pedras cinzentas erguido na colina enevoada",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_irm_2",
+          "desc": "Derrotar a Alta Irmã Kallatha e interromper o ritual de adivinhação do espelho de sangue",
+          "description": "Derrotar a Alta Irmã Kallatha e interromper o ritual de adivinhação do espelho de sangue",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_irm_3",
+          "desc": "Apresentar as provas da traição das feiticeiras ao ancião Dugath no grande acampamento bárbaro",
+          "description": "Apresentar as provas da traição das feiticeiras ao ancião Dugath no grande acampamento bárbaro",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 1200,
+        "xp": 350,
+        "items": [
+          "veu_de_sangue_profanado",
+          "adaga_ritual_de_obsidiana"
+        ]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_honra_de_amiri",
+      "questKey": "q_honra_de_amiri",
+      "title": "O Desafio Pessoal de Amiri",
+      "status": "unstarted",
+      "stage": "acerto_de_contas",
+      "objective": "Acompanhar a companheira guerreira Amiri no confronto direto contra os guerreiros de sua tribo natal para vingar sua honra e livrá-la da zombaria dos clãs.",
+      "stakes": "Se Amiri for derrotada ou desonrada, perderá seu espírito combativo e abandonará a comitiva real para sempre.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 280,
+      "milestoneXp": 280,
+      "prerequisites": [],
+      "objectives": [
+        {
+          "id": "obj_ami_1",
+          "desc": "Desafiar os campeões dos Senhores dos Tigres no fosso de honra diante de todo o acampamento",
+          "description": "Desafiar os campeões dos Senhores dos Tigres no fosso de honra diante de todo o acampamento",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_ami_2",
+          "desc": "Provar a força indomável de Amiri sem permitir interferências covardes de traidores",
+          "description": "Provar a força indomável de Amiri sem permitir interferências covardes de traidores",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 500,
+        "xp": 280,
+        "items": [
+          "espada_bastarda_gigante_reforjada",
+          "tatuagens_de_vitoria_dos_seis_ursos"
+        ]
+      },
+      "progress_json": {}
+    },
+    {
+      "quest_key": "q_neutralizar_espada",
+      "questKey": "q_neutralizar_espada",
+      "title": "A Purificação Espiritual de Ovinrbaane",
+      "status": "unstarted",
+      "stage": "rito_confinamento",
+      "objective": "Realizar um rito milenar de exorcismo ou confinamento arcano para selar a consciência assassina da espada ancestral Ovinrbaane.",
+      "stakes": "Qualquer guerreiro que empunhar a espada sem sua purificação será consumido por loucura genocida.",
+      "owner_character_id": 0,
+      "faction_id": 0,
+      "milestone_xp": 400,
+      "milestoneXp": 400,
+      "prerequisites": [
+        "q_armag"
+      ],
+      "objectives": [
+        {
+          "id": "obj_ovi_1",
+          "desc": "Conter o vórtice espiritual de fúria gerado pelo espírito de Armag Ancestral",
+          "description": "Conter o vórtice espiritual de fúria gerado pelo espírito de Armag Ancestral",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "obj_ovi_2",
+          "desc": "Forjar bainhas encantadas com ferro frio e ouro sagrado para conter a malevolência da arma",
+          "description": "Forjar bainhas encantadas com ferro frio e ouro sagrado para conter a malevolência da arma",
+          "status": "pending",
+          "completed": false
+        }
+      ],
+      "rewards": {
+        "gold": 1500,
+        "xp": 400,
+        "items": [
+          "bainha_de_ouro_sagrada",
+          "essencia_da_furia_pacificada"
+        ]
+      },
+      "progress_json": {}
+    }
+  ],
+  "hazards": [
+    {
+      "hazard_key": "hazard_fosso_estacas_barbaro",
+      "hazardKey": "hazard_fosso_estacas_barbaro",
+      "name": "Fosso Camuflado de Estacas Envenenadas dos Senhores dos Tigres",
+      "level": 10,
+      "traits": [
+        "simples",
+        "mecanico",
+        "armadilha"
+      ],
+      "stealth_dc": 29,
+      "stealthDc": 29,
+      "perception_dc": 29,
+      "perceptionDc": 29,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 30,
+      "savingThrowDc": 30,
+      "disable_skills": [
+        {
+          "skill": "Ladroagem",
+          "dc": 30,
+          "proficiency": "especialista",
+          "description": "Desarmar as estacas de tensão com tenazes e calçar os suportes de vime"
+        },
+        {
+          "skill": "Sobrevivência",
+          "dc": 28,
+          "proficiency": "especialista",
+          "description": "Identificar folhagens cortadas e terra fofa marcando os limites do fosso"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "armadilha",
+      "complexity": "simples",
+      "ac": 28,
+      "hardness": 10,
+      "hp": 45,
+      "bt": 22,
+      "reaction": "Desaba sob o peso de qualquer criatura Pequena ou maior que pise na cobertura de galhos trançados.",
+      "reset": "Requer trabalho manual de 3 horas para ser reconstruído.",
+      "xp": 80,
+      "description": "Uma vala profunda de 6 metros forrada com estacas afiadas de madeira endurecida no fogo e lambuzadas com veneno virulento de víbora das estepes.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Perfuração com Toxina Brutal",
+          "description": "Causa 3d6 de dano de queda mais 4d8+8 de dano perfurante e impõe veneno (CD 30 de Fortitude ou sofre drenado 1)."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_armadilha_espirito_espada",
+      "hazardKey": "hazard_armadilha_espirito_espada",
+      "name": "Vórtice Espiritual de Sangue de Ovinrbaane",
+      "level": 11,
+      "traits": [
+        "complexo",
+        "assombracao",
+        "necromancia"
+      ],
+      "stealth_dc": 31,
+      "stealthDc": 31,
+      "perception_dc": 31,
+      "perceptionDc": 31,
+      "saving_throw_type": "Vontade",
+      "savingThrowType": "Vontade",
+      "saving_throw_dc": 30,
+      "savingThrowDc": 30,
+      "disable_skills": [
+        {
+          "skill": "Religião",
+          "dc": 31,
+          "proficiency": "especialista",
+          "description": "Exorcizar o espírito tirânico ancestral entoando cânticos de paz para os mortos"
+        },
+        {
+          "skill": "Ocultismo",
+          "dc": 31,
+          "proficiency": "mestre",
+          "description": "Romper a teia psíquica de ódio que une a lâmina às almas dos guerreiros sepultados"
+        }
+      ],
+      "routine_actions": 2,
+      "routineActions": 2,
+      "hazard_type": "assombracao",
+      "complexity": "complexo",
+      "ac": 30,
+      "hardness": 16,
+      "hp": 88,
+      "bt": 44,
+      "reaction": "Disparado quando a câmara funerária de Armag é violada sem oferenda de sangue real.",
+      "reset": "Desvanece por 1 dia após ser exorcizado.",
+      "xp": 140,
+      "description": "Uma tempestade espectral de névoa avermelhada e rostos distorcidos de conquistadores mortos que rugem exigindo cabeças decepadas.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Grito de Conquista Tirânica",
+          "description": "Sussurros ensurdecedores infligem 4d10 de dano mental e condição confuso por 1 rodada em falha no teste de Vontade (CD 30)."
+        },
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Chicote de Sangue Espectral",
+          "description": "Tentáculos de névoa rubra chicoteiam alvos causando 3d8+6 de dano de corte e derrubando as vítimas."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_guilhotina_ghol_gan",
+      "hazardKey": "hazard_guilhotina_ghol_gan",
+      "name": "Lâminas Pendulares Ciclópicas de Ghol-Gan",
+      "level": 10,
+      "traits": [
+        "complexo",
+        "mecanico",
+        "armadilha"
+      ],
+      "stealth_dc": 30,
+      "stealthDc": 30,
+      "perception_dc": 30,
+      "perceptionDc": 30,
+      "saving_throw_type": "Reflexos",
+      "savingThrowType": "Reflexos",
+      "saving_throw_dc": 30,
+      "savingThrowDc": 30,
+      "disable_skills": [
+        {
+          "skill": "Ladroagem",
+          "dc": 30,
+          "proficiency": "mestre",
+          "description": "Inserir barras de ferro maciço nas engrenagens de contrapeso ocultas no teto"
+        },
+        {
+          "skill": "Manufatura",
+          "dc": 30,
+          "proficiency": "especialista",
+          "description": "Cortar os cabos tensores mestres de bronze que impulsionam o arco das lâminas"
+        }
+      ],
+      "routine_actions": 2,
+      "routineActions": 2,
+      "hazard_type": "armadilha",
+      "complexity": "complexo",
+      "ac": 29,
+      "hardness": 14,
+      "hp": 70,
+      "bt": 35,
+      "reaction": "Acionada ao pisar no segundo degrau de mármore do corredor funerário principal.",
+      "reset": "Armadilha automática com contrapeso hidráulico que reinicia a cada rodada.",
+      "xp": 100,
+      "description": "Foices monumentais de ferro negro de três metros de envergadura que balançam em cruz através do corredor em velocidade vertiginosa.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Golpe Transversal Ceifador",
+          "description": "Lâminas cortam o ar causando 4d12 de dano cortante com acerto crítico decepador (CD 30 de Reflexos)."
+        }
+      ]
+    },
+    {
+      "hazard_key": "hazard_gas_asfixiante_catacumba",
+      "hazardKey": "hazard_gas_asfixiante_catacumba",
+      "name": "Câmara de Névoa Corrosiva Sufocante",
+      "level": 11,
+      "traits": [
+        "simples",
+        "ambiental",
+        "ar"
+      ],
+      "stealth_dc": 30,
+      "stealthDc": 30,
+      "perception_dc": 30,
+      "perceptionDc": 30,
+      "saving_throw_type": "Fortitude",
+      "savingThrowType": "Fortitude",
+      "saving_throw_dc": 31,
+      "savingThrowDc": 31,
+      "disable_skills": [
+        {
+          "skill": "Sobrevivência",
+          "dc": 29,
+          "proficiency": "especialista",
+          "description": "Identificar os orifícios de ventilação nas paredes e obstruí-los com barro e tecidos"
+        },
+        {
+          "skill": "Ladroagem",
+          "dc": 31,
+          "proficiency": "especialista",
+          "description": "Fechar as comportas herméticas de pedra e travar os selos de chumbo"
+        }
+      ],
+      "routine_actions": 1,
+      "routineActions": 1,
+      "hazard_type": "ambiental",
+      "complexity": "simples",
+      "ac": 28,
+      "hardness": 12,
+      "hp": 50,
+      "bt": 25,
+      "reaction": "Dispara quando a porta de entrada da catacumba se fecha abruptamente por gravidade.",
+      "reset": "O gás é expelido naturalmente após 1 hora se as saídas forem desobstruídas.",
+      "xp": 70,
+      "description": "Um vapor amarelo-esverdeado pesado que queima os pulmões e corrói mucosas em segundos.",
+      "routine": [
+        {
+          "action_cost": 1,
+          "actionCost": 1,
+          "name": "Inalação Corrosiva Pulmonar",
+          "description": "Causa 5d8 de dano de veneno e condição nauseado 2 em falha no teste de Fortitude (CD 31)."
+        }
+      ]
+    }
+  ],
+  "pois": [
+    {
+      "poi_key": "poi_acampamento_senhores_tigres",
+      "poiKey": "poi_acampamento_senhores_tigres",
+      "poi_id": "poi_acampamento_senhores_tigres",
+      "poiId": "poi_acampamento_senhores_tigres",
+      "campaign_key": "chapter_06_blood_for_blood",
+      "campaignKey": "chapter_06_blood_for_blood",
+      "map_id": "stolen_lands",
+      "name": "Grande Acampamento dos Senhores dos Tigres",
+      "name_key": "grande_acampamento_dos_senhores_dos_tigres",
+      "type": "settlement",
+      "hex_id": "H_TIGER_CAMP",
+      "hexId": "H_TIGER_CAMP",
+      "location_id": "loc_tiger_camp",
+      "q": -4,
+      "r": 5,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Imensa concentração de tendas de pele de bisão, estandartes com cabeças de feras empalhadas e fossos de combate onde guerreiros bárbaros celebram a guerra.",
+      "tags": [
+        "barbaros",
+        "acampamento",
+        "senhores_dos_tigres",
+        "combate"
+      ],
+      "development_level": 2,
+      "icon": "🏕️",
+      "notes": "Base das hordas de Armag e do conselho tribal de Dugath."
+    },
+    {
+      "poi_key": "poi_tumba_de_armag",
+      "poiKey": "poi_tumba_de_armag",
+      "poi_id": "poi_tumba_de_armag",
+      "poiId": "poi_tumba_de_armag",
+      "campaign_key": "chapter_06_blood_for_blood",
+      "campaignKey": "chapter_06_blood_for_blood",
+      "map_id": "stolen_lands",
+      "name": "A Cripta Subterrânea da Tumba de Armag",
+      "name_key": "a_cripta_subterranea_da_tumba_de_armag",
+      "type": "dungeon",
+      "hex_id": "H_ARMAG_TOMB",
+      "hexId": "H_ARMAG_TOMB",
+      "location_id": "loc_armag_tomb",
+      "q": -5,
+      "r": 7,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Mausoléu ciclópico ancestral escavado no granito de uma ravina desolada, onde jaz o corpo do herói lendário e a terrível espada Ovinrbaane.",
+      "tags": [
+        "dungeon",
+        "tumba",
+        "artefato",
+        "climax"
+      ],
+      "development_level": 3,
+      "icon": "⚔️",
+      "notes": "Palco do clímax narrativo e confronto definitivo com Armag."
+    },
+    {
+      "poi_key": "poi_santuario_irmas_sem_rosto",
+      "poiKey": "poi_santuario_irmas_sem_rosto",
+      "poi_id": "poi_santuario_irmas_sem_rosto",
+      "poiId": "poi_santuario_irmas_sem_rosto",
+      "campaign_key": "chapter_06_blood_for_blood",
+      "campaignKey": "chapter_06_blood_for_blood",
+      "map_id": "stolen_lands",
+      "name": "Santuário Oculto das Irmãs Sem Nome",
+      "name_key": "santuario_oculto_das_irmas_sem_nome",
+      "type": "landmark",
+      "hex_id": "H_DEFACED_SISTERS",
+      "hexId": "H_DEFACED_SISTERS",
+      "location_id": "loc_defaced_sisters",
+      "q": -3,
+      "r": 6,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Círculo de monólitos de pedra esculpidos com figuras sem faces, cercado por névoa densa onde feiticeiras realizam adivinhações com sangue sacrificado.",
+      "tags": [
+        "culto",
+        "feiticeiras",
+        "nyrissa",
+        "landmark"
+      ],
+      "development_level": 1,
+      "icon": "🔮",
+      "notes": "Covil das Irmãs Sem Nome aliadas a Nyrissa."
+    },
+    {
+      "poi_key": "poi_posto_fronteira_oeste",
+      "poiKey": "poi_posto_fronteira_oeste",
+      "poi_id": "poi_posto_fronteira_oeste",
+      "poiId": "poi_posto_fronteira_oeste",
+      "campaign_key": "chapter_06_blood_for_blood",
+      "campaignKey": "chapter_06_blood_for_blood",
+      "map_id": "stolen_lands",
+      "name": "Forte Vigilante da Garganta das Pedras",
+      "name_key": "forte_vigilante_da_garganta_das_pedras",
+      "type": "refuge",
+      "hex_id": "H_WEST_OUTPOST",
+      "hexId": "H_WEST_OUTPOST",
+      "location_id": "loc_west_outpost",
+      "q": -2,
+      "r": 5,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Forte de pedra e madeira encravado no desfiladeiro ocidental, construído pela guarda do reino para monitorar invasões de Numéria.",
+      "tags": [
+        "guarnicao",
+        "militar",
+        "fronteira",
+        "refugio"
+      ],
+      "development_level": 2,
+      "icon": "🛡️",
+      "notes": "Ponto de defesa chave contra a marcha bárbara."
+    },
+    {
+      "poi_key": "poi_ravina_ferro_rubro",
+      "poiKey": "poi_ravina_ferro_rubro",
+      "poi_id": "poi_ravina_ferro_rubro",
+      "poiId": "poi_ravina_ferro_rubro",
+      "campaign_key": "chapter_06_blood_for_blood",
+      "campaignKey": "chapter_06_blood_for_blood",
+      "map_id": "stolen_lands",
+      "name": "Ravina do Ferro Rubro",
+      "name_key": "ravina_do_ferro_rubro",
+      "type": "resource_site",
+      "hex_id": "H_RED_IRON_RAVINE",
+      "hexId": "H_RED_IRON_RAVINE",
+      "location_id": "loc_red_iron",
+      "q": -4,
+      "r": 6,
+      "source": "campaign",
+      "origin": "campaign_discovery",
+      "canonical": 0,
+      "hidden": false,
+      "discovered": true,
+      "created_by": "campaign",
+      "status": "active",
+      "description": "Fenda geológica rica em minério de ferro avermelhado e rochas magnéticas estranhas caídas do céu em eras passadas.",
+      "tags": [
+        "mineracao",
+        "recursos",
+        "numeria",
+        "ravina"
+      ],
+      "development_level": 1,
+      "icon": "⛏️",
+      "notes": "Fonte mineral de armaduras e armas bárbaras pesadas."
+    }
+  ],
+  "npcs": [
+    {
+      "npc_key": "npc_armag_duas_vezes_nascido",
+      "npcKey": "npc_armag_duas_vezes_nascido",
+      "stable_id": "npc_armag_duas_vezes_nascido",
+      "stableId": "npc_armag_duas_vezes_nascido",
+      "name": "Armag, o Duas-Vezes-Nascido",
+      "summary": "Guerreiro titânico e implacável líder dos Senhores dos Tigres, consumido pela convicção fanática de que é a alma reencarnada do primeiro Armag.",
+      "goals": "Empunhar Ovinrbaane, marchar contra todas as cidades fracas do sul e governar um império de guerreiros eternos.",
+      "secrets": "Está sendo manipulado pelas Irmãs Sem Nome, que sussurram falsas visões de vitória enviadas pela ninfa Nyrissa.",
+      "attitude": "hostil",
+      "relationship": "General inimigo jurado e avatar da destruição",
+      "knowledge": "Táticas de cerco bárbaro, lendas de Numéria e estilo de luta com espada bastarda gigante.",
+      "debts": "Se desarmado e libertado da possessão da espada, pode encarar sua própria mortalidade com vergonha trágica.",
+      "last_seen": "Câmara do Trono da Tumba de Armag",
+      "hex_id": "H_ARMAG_TOMB",
+      "hexId": "H_ARMAG_TOMB",
+      "faction": "Confederação Bárbara dos Senhores dos Tigres",
+      "token_uri": "tokens/armag.png",
+      "visual_description": "Guerreiro colossal de peito nu coberto de cicatrizes de garras de tigre, calças de couro de mamute e empunhando a lâmina profana Ovinrbaane.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "Eu sou Armag! O sangue de mil reis ferve nesta lâmina! Vocês e seu reinozinho de pedras quebradas cairão sob o ferro de Numéria!",
+          "topic": "furia_de_conquista",
+          "quest_key": "q_armag"
+        }
+      ],
+      "stats": {
+        "hp": 210,
+        "max_hp": 210,
+        "ac": 31,
+        "perception": 22
+      }
+    },
+    {
+      "npc_key": "npc_dugath",
+      "npcKey": "npc_dugath",
+      "stable_id": "npc_dugath",
+      "stableId": "npc_dugath",
+      "name": "Dugath, Ancião dos Senhores dos Tigres",
+      "summary": "Conselheiro sábio e honrado da tribo bárbara, respeitado por gerações de guerreiros por sua justiça e apego às leis das estepes.",
+      "goals": "Preservar a honra e a sobrevivência de seu povo, desconfiando abertamente das bruxas de rostos cobertos.",
+      "secrets": "Suspeita que as Irmãs Sem Nome planejam sacrificar os guerreiros da tribo para libertar um mal ancestral feérico.",
+      "attitude": "indiferente",
+      "relationship": "Líder diplomático tribal pragmático",
+      "knowledge": "História verdadeira dos clãs bárbaros, rotas de travessia montanhosa e direito consuetudinário.",
+      "debts": "Se os heróis revelarem a traição das bruxas com provas incontestáveis, Dugath impedirá os guerreiros de atacarem o reino.",
+      "last_seen": "Tenda do Conselho no Grande Acampamento",
+      "hex_id": "H_TIGER_CAMP",
+      "hexId": "H_TIGER_CAMP",
+      "faction": "Confederação Bárbara dos Senhores dos Tigres",
+      "token_uri": "tokens/dugath.png",
+      "visual_description": "Homem idoso de cabelos e barba grisalhos trançados, olhos penetrantes e manto cerimonial feito com pele de tigre de bengala.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "indiferente",
+          "text": "Armag fala com voz de ferro, mas meu coração de velho ouve o sussurro de serpentes ao seu lado. O que os nobres do sul querem em nosso acampamento?",
+          "topic": "desconfianca_sabia",
+          "quest_key": "q_incursoes_tigres"
+        },
+        {
+          "attitude_req": "amistoso",
+          "text": "Vocês desmascararam as feiticeiras sem rosto! O sangue dos meus irmãos não será desperdiçado pelas loucuras de uma dama feérica.",
+          "topic": "pacto_de_honra",
+          "quest_key": "q_irmas_sem_rosto"
+        }
+      ],
+      "stats": {
+        "hp": 120,
+        "max_hp": 120,
+        "ac": 28,
+        "perception": 24
+      }
+    },
+    {
+      "npc_key": "npc_irma_mutilada_kallatha",
+      "npcKey": "npc_irma_mutilada_kallatha",
+      "stable_id": "npc_irma_mutilada_kallatha",
+      "stableId": "npc_irma_mutilada_kallatha",
+      "name": "Kallatha, Alta Irmã Sem Nome",
+      "summary": "Feiticeira impiedosa que arrancou seu próprio rosto em rito profano de devoção a Nyrissa, servindo como sua enviada entre os bárbaros.",
+      "goals": "Garantir que Armag encontre Ovinrbaane e cause a destruição total da Baronia antes de ser destruído.",
+      "secrets": "Comunica-se diariamente com o reino feérico através de um espelho de prata entalhado com rosas murchas.",
+      "attitude": "hostil",
+      "relationship": "Sacerdotisa manipuladora a serviço de Nyrissa",
+      "knowledge": "Maldições do Primeiro Mundo, localização exata da Tumba de Armag e ritos de sacrifício.",
+      "debts": "Nenhuma.",
+      "last_seen": "Santuário Oculto das Irmãs Sem Nome",
+      "hex_id": "H_DEFACED_SISTERS",
+      "hexId": "H_DEFACED_SISTERS",
+      "faction": "Irmandade das Irmãs Sem Nome de Nyrissa",
+      "token_uri": "tokens/kallatha.png",
+      "visual_description": "Mulher esguia envolta em túnicas de gaze branca manchadas de sangue seco, com um véu de ferro sem orifícios cobrindo onde outrora ficava seu rosto.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "A Senhora dos Mil Gritos preparou o destino desta terra! Armag é apenas o fogo; nós somos a mão que consome sua coroa em cinzas!",
+          "topic": "profecia_sinistra",
+          "quest_key": "q_irmas_sem_rosto"
+        }
+      ],
+      "stats": {
+        "hp": 115,
+        "max_hp": 115,
+        "ac": 29,
+        "perception": 22
+      }
+    },
+    {
+      "npc_key": "npc_amiri_cacadora",
+      "npcKey": "npc_amiri_cacadora",
+      "stable_id": "npc_amiri_cacadora",
+      "stableId": "npc_amiri_cacadora",
+      "name": "Amiri",
+      "summary": "Bárbara formidável e leal companheira dos heróis, empunhando uma espada bastarda de tamanho descomunal tomada de um gigante que ela abateu sozinha.",
+      "goals": "Vingar-se dos guerreiros que riram de suas habilidades em Numéria e provar que nenhuma tradição machista calará sua lâmina.",
+      "secrets": "Guarda profunda mágoa pelo massacre covarde de seus amigos leais pelas mãos dos líderes tribais no passado.",
+      "attitude": "amistoso",
+      "relationship": "Companheira bárbara destemida",
+      "knowledge": "Combate selvagem, costumes dos clãs de Numéria e pontos fracos de feras titânicas.",
+      "debts": "Defende os heróis com sua própria vida em qualquer batalha.",
+      "last_seen": "Acampamento Real e Forte Vigilante",
+      "hex_id": "H_WEST_OUTPOST",
+      "hexId": "H_WEST_OUTPOST",
+      "faction": "Confederação Bárbara dos Senhores dos Tigres",
+      "token_uri": "tokens/amiri.png",
+      "visual_description": "Mulher musculosa de cabelos negros desgrenhados, armadura leve de tiras de couro e empunhando uma espada colossal com determinação feroz.",
+      "is_companion": true,
+      "isCompanion": true,
+      "dialogue_tree": [
+        {
+          "attitude_req": "amistoso",
+          "text": "Aqueles vermes dos Senhores dos Tigres pensam que mulheres servem apenas para costurar peles! Vamos mostrar a eles o peso da minha espada!",
+          "topic": "furia_pessoal",
+          "quest_key": "q_honra_de_amiri"
+        },
+        {
+          "attitude_req": "prestativo",
+          "text": "Lutar ao lado de vocês foi a melhor escolha que fiz. Quando Armag erguer aquela espada maldita, estarei ao seu lado para quebrar seu queixo!",
+          "topic": "lealdade_inabalavel",
+          "quest_key": "q_armag"
+        }
+      ],
+      "stats": {
+        "hp": 150,
+        "max_hp": 150,
+        "ac": 30,
+        "perception": 20
+      }
+    },
+    {
+      "npc_key": "npc_guerreira_gvaxt",
+      "npcKey": "npc_guerreira_gvaxt",
+      "stable_id": "npc_guerreira_gvaxt",
+      "stableId": "npc_guerreira_gvaxt",
+      "name": "Gvaxt, a Lança Veloz",
+      "summary": "Capitã de vanguarda dos invasores, famosa por sua destreza com lanças duplas e lealdade cega ao nome de Armag.",
+      "goals": "Provar seu valor na linha de frente e obter despojos de guerra para seu esquadrão.",
+      "secrets": "Começou a temer a insanidade crescente nos olhos de Armag desde que ele começou a escutar as bruxas.",
+      "attitude": "hostil",
+      "relationship": "Inimiga valorosa em campo de batalha",
+      "knowledge": "Posicionamento das patrulhas nas ravinas e códigos de trompas de guerra.",
+      "debts": "Se poupada com honra de guerreira, pode se recusar a levantar armas novamente contra os heróis.",
+      "last_seen": "Garganta das Pedras",
+      "hex_id": "H_WEST_OUTPOST",
+      "hexId": "H_WEST_OUTPOST",
+      "faction": "Confederação Bárbara dos Senhores dos Tigres",
+      "token_uri": "tokens/gvaxt.png",
+      "visual_description": "Mulher esguia e veloz com pintura facial escarlate, elmo de dentes de tigre e duas lanças curtas com pontas de aço farpadas.",
+      "is_companion": false,
+      "isCompanion": false,
+      "dialogue_tree": [
+        {
+          "attitude_req": "hostil",
+          "text": "Vocês lutam como feras... Mas ninguém pode deter a marcha do renascido Armag!",
+          "topic": "desafio_guerreiro",
+          "quest_key": "q_incursoes_tigres"
+        }
+      ],
+      "stats": {
+        "hp": 98,
+        "max_hp": 98,
+        "ac": 29,
+        "perception": 19
+      }
+    }
+  ],
+  "scenes": [
+    {
+      "scene_key": "scene_tumba_camara_ancestral",
+      "sceneKey": "scene_tumba_camara_ancestral",
+      "title": "Câmara do Trono de Armag Ancestral",
+      "location": "A Cripta Subterrânea da Tumba de Armag",
+      "hex_id": "H_ARMAG_TOMB",
+      "hexId": "H_ARMAG_TOMB",
+      "environment": "cripta_profanada",
+      "width_cells": 18,
+      "widthCells": 18,
+      "height_cells": 14,
+      "heightCells": 14,
+      "seed": 6001,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "fosso_sacrificio",
+          "name": "Plataforma Central de Sangue",
+          "x": 4,
+          "y": 3,
+          "width": 10,
+          "height": 8,
+          "terrain": "magico",
+          "description": "Pedestal octogonal de ferro e mármore manchado onde a espada Ovinrbaane emite pulsar avermelhado e calor sufocante"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "pilares_cranios",
+          "x": 8,
+          "y": 5,
+          "width": 2,
+          "height": 2,
+          "type": "pedra_entalhada",
+          "blocks_movement": true,
+          "blocks_vision": true,
+          "cover": "maior"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "portal_da_cripta",
+          "x": 9,
+          "y": 13,
+          "team": "player",
+          "description": "Portão de bronze arrombado"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "confronto_final_armag"
+      }
+    },
+    {
+      "scene_key": "scene_emboscada_garganta_pedras",
+      "sceneKey": "scene_emboscada_garganta_pedras",
+      "title": "Garganta Estreita das Pedras Rolantes",
+      "location": "Forte Vigilante da Garganta das Pedras",
+      "hex_id": "H_WEST_OUTPOST",
+      "hexId": "H_WEST_OUTPOST",
+      "environment": "desfiladeiro_rochoso",
+      "width_cells": 16,
+      "widthCells": 16,
+      "height_cells": 12,
+      "heightCells": 12,
+      "seed": 6002,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "leito_da_garganta",
+          "name": "Trilha Rochosa Estreita",
+          "x": 3,
+          "y": 2,
+          "width": 10,
+          "height": 8,
+          "terrain": "dificil",
+          "description": "Cascalho escorregadio e penhascos íngremes ideais para emboscadas de arqueiros bárbaros"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "pedregulho_defensivo",
+          "x": 7,
+          "y": 6,
+          "width": 3,
+          "height": 2,
+          "type": "rocha_solida",
+          "blocks_movement": true,
+          "blocks_vision": true,
+          "cover": "maior"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "passagem_sul",
+          "x": 1,
+          "y": 6,
+          "team": "player",
+          "description": "Entrada meridional do desfiladeiro"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "emboscada_garganta"
+      }
+    },
+    {
+      "scene_key": "scene_acampamento_barbaro",
+      "sceneKey": "scene_acampamento_barbaro",
+      "title": "Arena Central dos Senhores dos Tigres",
+      "location": "Grande Acampamento dos Senhores dos Tigres",
+      "hex_id": "H_TIGER_CAMP",
+      "hexId": "H_TIGER_CAMP",
+      "environment": "arena_tribal",
+      "width_cells": 16,
+      "widthCells": 16,
+      "height_cells": 10,
+      "heightCells": 10,
+      "seed": 6003,
+      "status": "ready",
+      "zones": [
+        {
+          "zone_key": "circulo_duelo",
+          "name": "Círculo de Luta Escavado na Terra",
+          "x": 3,
+          "y": 2,
+          "width": 10,
+          "height": 6,
+          "terrain": "normal",
+          "description": "Solo batido delimitado por crânios de ursos e tochas fumegantes acesas com gordura animal"
+        }
+      ],
+      "obstacles": [
+        {
+          "obstacle_key": "tora_de_fogueira",
+          "x": 8,
+          "y": 5,
+          "width": 2,
+          "height": 1,
+          "type": "madeira_em_chamas",
+          "blocks_movement": true,
+          "blocks_vision": false,
+          "cover": "baixa"
+        }
+      ],
+      "entry_points": [
+        {
+          "point_key": "arco_dos_estandartes",
+          "x": 1,
+          "y": 5,
+          "team": "player",
+          "description": "Entrada ladeada por lanças com peles de tigre"
+        }
+      ],
+      "hazards": [],
+      "combatants": [],
+      "source_context": {
+        "event_trigger": "duelo_amiri_arena"
+      }
+    }
+  ],
+  "factions": [
+    {
+      "name": "Confederação Bárbara dos Senhores dos Tigres",
+      "agenda": "Saquear as terras do sul, glorificar o nome de Armag e provar superioridade militar em combate.",
+      "resources": "Milhares de guerreiros furiosos, montarias de tigres dentes-de-sabre e armas forjadas em metal estelar.",
+      "relationship": -4,
+      "current_plan": "Concentrar tropas para o assalto final às fortificações da capital do reino.",
+      "location": "Estepes Ocidentais e Grande Acampamento",
+      "active": true
+    },
+    {
+      "name": "Irmandade das Irmãs Sem Nome de Nyrissa",
+      "agenda": "Manipular os bárbaros para desgastar e enfraquecer o reino mortal antes da chegada do cataclismo fey.",
+      "resources": "Feitiçaria ilusória, adivinhação através de espelhos de sangue e fanáticos cegados.",
+      "relationship": -5,
+      "current_plan": "Conduzir Armag até a espada Ovinrbaane para torná-lo um avatar descontrolado da carnificina.",
+      "location": "Santuário Oculto",
+      "active": true
+    },
+    {
+      "name": "Guarnição das Fronteiras do Reino",
+      "agenda": "Defender os colonos ocidentais, conter os saques e garantir rotas de abastecimento seguras.",
+      "resources": "Paliçadas de pedra, catapultas leves e soldados regulares da Baronia.",
+      "relationship": 5,
+      "current_plan": "Manter os passos montanhosos bloqueados até a chegada da comitiva real.",
+      "location": "Forte Vigilante da Garganta das Pedras",
+      "active": true
+    }
+  ],
+  "clocks": [
+    {
+      "name": "Possessão Total de Armag por Ovinrbaane",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "A mente humana de Armag é inteiramente aniquilada pelo espírito tirânico da espada, transformando-o em um avatar invulnerável da matança.",
+      "automatic": false,
+      "active": true
+    },
+    {
+      "name": "Marcha do Exército Bárbaro sobre a Capital",
+      "current_value": 0,
+      "max_value": 4,
+      "consequence": "Hordas de Senhores dos Tigres rompem as defesas do forte ocidental e iniciam o cerco à capital da Baronia.",
+      "automatic": true,
+      "active": true
+    }
+  ],
+  "events": [
+    {
+      "title": "Invasão Noturna a um Povoado Agrícola Ocidental",
+      "description": "Batedores bárbaros incendeiam celeiros e espalham pânico nas fazendas mais afastadas do reino.",
+      "due_at": 50000,
+      "due_day": 8,
+      "status": "scheduled",
+      "consequence_json": {
+        "unrest_increase": 2,
+        "scene": "scene_emboscada_garganta_pedras"
+      }
+    },
+    {
+      "title": "Desafio Aberto de Armag na Fronteira",
+      "description": "Armag crava uma lança com a cabeça de um gigante diante do Forte Vigilante, desafiando o governante do reino para um duelo.",
+      "due_at": 90000,
+      "due_day": 20,
+      "status": "scheduled",
+      "consequence_json": {
+        "scene": "scene_acampamento_barbaro"
+      }
+    }
+  ],
+  "milestones": [
+    {
+      "milestone_key": "milestone_defesa_fronteiras",
+      "milestoneKey": "milestone_defesa_fronteiras",
+      "name": "A Vitória Defensiva contra a Vanguarda Bárbara",
+      "xp": 300,
+      "source_ref": "Kingmaker PZO2020 Capítulo 6",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 6"
+    },
+    {
+      "milestone_key": "milestone_desmantelar_irmas",
+      "milestoneKey": "milestone_desmantelar_irmas",
+      "name": "O Desmascaramento das Irmãs Sem Nome",
+      "xp": 350,
+      "source_ref": "Kingmaker PZO2020 Capítulo 6",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 6"
+    },
+    {
+      "milestone_key": "milestone_tumba_armag",
+      "milestoneKey": "milestone_tumba_armag",
+      "name": "A Conquista da Tumba de Armag",
+      "xp": 400,
+      "source_ref": "Kingmaker PZO2020 Capítulo 6",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 6"
+    },
+    {
+      "milestone_key": "milestone_derrota_armag_ovinrbaane",
+      "milestoneKey": "milestone_derrota_armag_ovinrbaane",
+      "name": "A Derrota de Armag e o Encarceramento de Ovinrbaane",
+      "xp": 550,
+      "source_ref": "Kingmaker PZO2020 Capítulo 6",
+      "sourceRef": "Kingmaker PZO2020 Capítulo 6"
+    }
+  ],
+  "metadata": {
+    "author": "Braseiro PF2e Engine",
+    "ruleset": "Pathfinder 2e Remaster",
+    "source": "Kingmaker Adventure Path PZO2020",
+    "version": "1.0.0",
+    "locale": "pt-BR"
+  }
+}
