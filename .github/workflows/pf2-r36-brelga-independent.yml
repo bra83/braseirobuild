@@ -5,7 +5,6 @@ on:
     paths:
       - '.github/workflows/pf2-r36-brelga-independent.yml'
       - 'ci/pf2-kingmaker-r36/**'
-      - 'ci/pf2-kingmaker-certification/android_ui_endurance.py'
   workflow_dispatch:
     inputs:
       compile_apk:
@@ -95,6 +94,8 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'R36 consumption atomic patch failed'}
           python ci\pf2-kingmaker-r36\patch_turn_phase_atomic.py "$project"
           if($LASTEXITCODE -ne 0){throw 'R36 phase atomic patch failed'}
+          python ci\pf2-kingmaker-r36\patch_war_atomic.py "$project"
+          if($LASTEXITCODE -ne 0){throw 'R36 atomic warfare patch failed'}
           python ci\pf2-kingmaker-r36\audit_catalog_expansion.py --project "$project" --out r36-catalog-73-brelga.json --require-73
           if($LASTEXITCODE -ne 0){throw 'Canonical 73-structure numerical audit failed'}
           python ci\pf2-kingmaker-certification\audit_structure_catalog.py --project "$project" --out r36-official-structure-delta-brelga.json --require-zero-mismatches
@@ -110,6 +111,16 @@ jobs:
           "PF2_R36_PROJECT=$project"|Out-File $env:GITHUB_ENV -Append -Encoding utf8
           Write-Host "R36_SOURCE_IDENTITY_R35_HASH=$sha"
           Write-Host 'R36_OFFICIAL_RULES_PATCH_APPLIED=true'
+      - name: Parse all transformed production Java without building APK
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $classes=Join-Path $env:RUNNER_TEMP ("pf2-r36-syntax-"+$env:GITHUB_RUN_ID)
+          New-Item $classes -ItemType Directory -Force | Out-Null
+          javac -encoding UTF-8 -d "$classes" "$env:PF2_R36_PROJECT\tools\JavaSyntaxValidator.java"
+          if($LASTEXITCODE -ne 0){throw 'JAVA_SYNTAX_VALIDATOR_COMPILATION_FAILED'}
+          java -cp "$classes" JavaSyntaxValidator "$env:PF2_R36_PROJECT\android\app\src\main\java"
+          if($LASTEXITCODE -ne 0){throw 'R36_PRODUCTION_JAVA_SYNTAX_FAILED'}
       - name: Official-rule focused regression
         shell: powershell
         run: |
