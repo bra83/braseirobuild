@@ -4,6 +4,8 @@ on:
     branches: [pf2-kingmaker-r36-official-rule-fixes-20261011]
     paths:
       - '.github/workflows/pf2-r36-brelga-independent.yml'
+      - 'ci/pf2-kingmaker-r36/**'
+      - 'ci/pf2-kingmaker-certification/android_ui_endurance.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -21,7 +23,7 @@ jobs:
             ci/pf2-kingmaker-r36
             ci/pf2-kingmaker-certification
             .github/workflows
-          ref: pf2-kingmaker-r36-official-rule-fixes-20261011
+          ref: ${{ github.sha }}
       - uses: actions/setup-java@v5
         with:
           distribution: temurin

@@ -4,9 +4,14 @@ on:
     branches: [pf2-kingmaker-r36-official-rule-fixes-20261011]
     paths:
       - '.github/workflows/pf2-r36-snapshot-20261011.yml'
+      - 'ci/pf2-kingmaker-r36/**'
+      - 'ci/pf2-kingmaker-certification/android_ui_endurance.py'
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: pf2-r36-snapshot-hosted
+  cancel-in-progress: true
 jobs:
   verify-hosted:
     runs-on: ubuntu-latest
