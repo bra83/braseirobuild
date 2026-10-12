@@ -191,7 +191,12 @@ def snapshot(label):
             rows=con.execute('select * from "'+table+'" order by rowid').fetchall()
             encoded=json.dumps(rows,ensure_ascii=False,sort_keys=True,default=str).encode("utf-8")
             row_sha256[table]=hashlib.sha256(encoded).hexdigest()
-        s={"state":state,"counts":counts,"army":army,"row_sha256":row_sha256,"kingdom_state_sha256":kingdom_sha256}
+        turn_details=[dict(zip(("id","phase","status","resource_roll_json"),row)) for row in
+                      con.execute("select id,phase,status,resource_roll_json from kingmaker_turns order by id")]
+        war_details=[dict(zip(("encounter_key","name","status","log_json"),row)) for row in
+                     con.execute("select encounter_key,name,status,log_json from kingmaker_war_encounters order by id")]
+        s={"state":state,"counts":counts,"army":army,"row_sha256":row_sha256,
+           "kingdom_state_sha256":kingdom_sha256,"turn_details":turn_details,"war_details":war_details}
         log("PRODUCTION_APPDB_"+label,json.dumps(s,ensure_ascii=False))
         return s
     finally:con.close()
@@ -244,7 +249,8 @@ def activate():
     return activated
 def kingdom_turn():
     if not kingmaker():return False
-    n=snapshot("BEFORE_TURN")["counts"].get("kingmaker_turns",0)
+    before=snapshot("BEFORE_TURN")
+    n=before["counts"].get("kingmaker_turns",0)
     # The solo guided button may correctly gate turns until kingdom founding.
     # Use the actual technical Kingdom admin route for an isolated engine gate.
     visible={x[0] for x in nodes()}
@@ -253,9 +259,33 @@ def kingdom_turn():
         if "ADMINISTRAÇÃO AVANÇADA" not in {x[0] for x in nodes()}:
             log("ADMIN_MODE_NOT_ENTERED","advanced button did not switch view")
             return False
-    if not click("INICIAR NOVO TURNO",8):return False
-    if not click("INICIAR COM ESTA ROLAGEM",3):return False
-    return snapshot("AFTER_TURN")["counts"].get("kingmaker_turns",0)>n
+    if before["state"][2]:
+        log("RESUME_PERSISTED_TURN",before["state"][2])
+        started=before
+    else:
+        if not click("INICIAR NOVO TURNO",8):return False
+        if not click("INICIAR COM ESTA ROLAGEM",3):return False
+        started=snapshot("AFTER_TURN")
+        if started["counts"].get("kingmaker_turns",0)<=n:return False
+    turn_id=started["state"][2]
+    # Complete each real production phase; creating a row alone is not a turn.
+    for step in range(8):
+        current=snapshot("TURN_PHASE_"+str(step))
+        turn=next((row for row in current["turn_details"] if row["id"]==turn_id),None)
+        if turn is None:return False
+        if turn["status"]=="complete":
+            return current["state"][2]==0 and json.loads(turn["resource_roll_json"]).get("consumption_resolved") is True
+        if turn["phase"]=="UPKEEP" and not json.loads(turn["resource_roll_json"]).get("consumption_resolved"):
+            if not click("RESOLVER CONSUMO",8) or not click("CONFIRMAR ESCOLHA",2):return False
+        phase_button=None
+        for attempt in range(8):
+            phase_button=next((item[0] for item in nodes()
+                              if item[0].startswith("CONCLUIR ") and item[0].endswith(" E AVANÇAR")),None)
+            if phase_button:break
+            scroll_content()
+        if phase_button is None or not click(phase_button,1):return False
+    log("COMPLETE_KINGDOM_TURN_NOT_PROVEN","phase limit reached")
+    return False
 def create_army(name,allegiance):
     if not kingmaker():return False
     if "ADMINISTRAÇÃO AVANÇADA" not in {x[0] for x in nodes()}:
@@ -271,6 +301,9 @@ def create_army(name,allegiance):
     # Name, Type, Allegiance, Level...; no database injection.
     shell("input","tap",str(edits[0][1]),str(edits[0][2]))
     shell("input","text",name)
+    if name not in {item[0] for item in nodes() if item[3].endswith("EditText")}:
+        log("ARMY_NAME_INPUT_NOT_VERIFIED",name)
+        return False
     if allegiance!="kingdom":
         current=nodes()
         edits=[v for v in current if v[3].endswith("EditText")]
@@ -299,10 +332,10 @@ def create_army(name,allegiance):
     return any(x[0]==name for x in snapshot("AFTER_ARMY_"+name)["army"])
 def army():
     before=snapshot("BEFORE_ARMY")["counts"].get("kingmaker_armies",0)
-    if not create_army("Braseiro_QA_Player","kingdom"):return False
-    if not create_army("Braseiro_QA_Enemy","enemy"):return False
+    if not create_army("qaplayer","kingdom"):return False
+    if not create_army("qaenemy","enemy"):return False
     after=snapshot("AFTER_OPPOSING_ARMIES")
-    expected={"Braseiro_QA_Player","Braseiro_QA_Enemy"}
+    expected={"qaplayer","qaenemy"}
     names={x[0] for x in after["army"]}
     return after["counts"].get("kingmaker_armies",0)>=before+2 and expected.issubset(names)
 
@@ -320,11 +353,38 @@ def war():
         log("WAR_NAME_FIELD_MISSING",[x[0] for x in form[:30]])
         return False
     shell("input","tap",str(fields[0][1]),str(fields[0][2]))
-    shell("input","text","R36_Batalha_QA")
+    shell("input","text","qawar")
     # Avoid Android KEYCODE_BACK: it previously sent the test process HOME.
     if not click("INICIAR",3):return False
     after=snapshot("AFTER_WAR")
-    return after["counts"].get("kingmaker_war_encounters",0)>before
+    if after["counts"].get("kingmaker_war_encounters",0)<=before:return False
+    battle=next((row for row in after["war_details"] if row["name"]=="qawar"),None)
+    if battle is None:return False
+    battle_key=battle["encounter_key"]
+    for attempt in range(20):
+        current=snapshot("WAR_ATTACK_"+str(attempt))
+        live=next((row for row in current["war_details"] if row["encounter_key"]==battle_key),None)
+        if live is None:return False
+        if live["status"]=="complete":
+            entries=json.loads(live["log_json"])
+            return any(entry.get("kind")=="attack" and entry.get("damage",0)>0 for entry in entries)
+        if not kingmaker():return False
+        if not click("EXÉRCITOS E BATALHAS",12) or not click("BATALHAS",2):return False
+        label=next((item[0] for item in nodes() if item[0].startswith("qawar •")),None)
+        if label is None or not click(label,1) or not click("JOGAR RODADA",2):return False
+        edits=[item for item in nodes() if item[3].endswith("EditText")]
+        if not edits:return False
+        # The production dialog's first EditText is its editable physical d20.
+        # Use a legal deterministic natural roll, without SQL/state injection.
+        field=edits[0]
+        if not field[0].isdigit():return False
+        shell("input","tap",str(field[1]),str(field[2]))
+        shell("input","keyevent","123")
+        for _ in field[0]:shell("input","keyevent","67")
+        shell("input","text","20")
+        if not click("ATACAR",2) or not click("Fechar",2):return False
+    log("RESOLVED_WAR_NOT_PROVEN","attack limit reached")
+    return False
 
 def restart():
     before=snapshot("BEFORE_RESTART")
