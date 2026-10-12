@@ -54,7 +54,8 @@ jobs:
             patch_multi_structure.py \
             patch_catalog_expansion.py \
             patch_official_build_ui.py \
-            patch_chapter11_gate.py; do
+            patch_chapter11_gate.py \
+            patch_chapter9_canonical_anchors.py; do
             echo "Applying R36: $patch"
             python "ci/pf2-kingmaker-r36/$patch" "$project"
           done
