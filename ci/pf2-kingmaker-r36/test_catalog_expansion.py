@@ -64,5 +64,23 @@ def test_build_repair_fail_closed_without_tender_and_lots():
 def test_source_drift_fails_closed():
     with pytest.raises(ValueError):
         m.transform_rules(fake_rules().replace('structure(String key)','notStructure(String key)'),rows)
-    with pytest.raises(ValueError,match="No original"):
+    with pytest.raises(ValueError,match="Canonical 18"):
         m.transform_rules('public JSONObject structure(String key){} \n    public JSONObject next() {}',rows)
+
+def test_numeric_catalog_audit_accepts_overlay_and_rejects_regression():
+    """The CI auditor must understand overlays, not only baseline returns."""
+    inspector_path=Path(__file__).with_name("audit_catalog_expansion.py")
+    inspector_spec=importlib.util.spec_from_file_location("r36_catalog_audit",inspector_path)
+    inspector=importlib.util.module_from_spec(inspector_spec)
+    inspector_spec.loader.exec_module(inspector)
+    java,_=m.transform_rules(fake_rules(),rows)
+    result=inspector.audit(java)
+    assert result["official_entries"]==73
+    assert result["present_existing"]==18
+    assert result["generated_numeric_match"]==55
+    assert result["mismatch_count"]==0
+    changed=java.replace('.put("construction_dc",27)', '.put("construction_dc",99)',1)
+    assert changed!=java
+    damaged=inspector.audit(changed)
+    assert damaged["mismatch_count"]>=1
+    assert damaged["semantic_effects_certified"] is False
