@@ -1,8 +1,12 @@
 """R36 official 73-structure UI transition: synthetic source contract, not emulator."""
 import importlib.util
 from pathlib import Path
+import sys
 import pytest
 FILE=Path(__file__).with_name("patch_official_build_ui.py")
+# A spec-loaded script is not automatically added to sys.path, unlike CLI
+# execution. Resolve its sibling catalog module the same way on CI and locally.
+sys.path.insert(0,str(FILE.parent))
 s=importlib.util.spec_from_file_location("build_ui",FILE)
 mod=importlib.util.module_from_spec(s)
 s.loader.exec_module(mod)
