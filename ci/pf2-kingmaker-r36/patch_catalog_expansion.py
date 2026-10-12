@@ -124,7 +124,7 @@ def transform_rules(source,rows):
         canonical=key_for(row["official_name"])
         rec=effects[canonical]
         residence=1 if "RESIDENTIAL" in rec["traits"] else 0
-        statement='            if("'+canonical+'".equals(r36OfficialKey)){\\n'
+        statement='            if("'+canonical+'".equals(r36OfficialKey)){\n'
         for field,value in (
             ("residential_lots",residence),
             ("official_traits",",".join(rec["traits"])),
@@ -135,8 +135,8 @@ def transform_rules(source,rows):
             ("official_upgrade_to",rec["upgrade_to"]),
         ):
             literal=str(value) if isinstance(value,int) else java_quote(value)
-            statement+='                officialBase.put('+java_quote(field)+','+literal+');\\n'
-        statement+='            }\\n'
+            statement+='                officialBase.put('+java_quote(field)+','+literal+');\n'
+        statement+='            }\n'
         semantic_overlay.append(statement)
     if len(semantic_overlay)!=73:
         raise ValueError("73 official structure semantics not overlaid")
