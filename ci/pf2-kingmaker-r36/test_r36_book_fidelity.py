@@ -70,7 +70,7 @@ def test_unfinished_build_keeps_prepaid_materials_and_options():
     assert 'prepaidMaterials=resume?jsonObject(pending.optString("commodity_costs_json","{}"))' in body
     assert 'if(!paidChoice.equals(commodityChoice))throw' in body
     assert 'previous.optJSONObject("build_options")' in body
-    assert 'new String[]{"trade_focus","ruin","urban_grid"}' in body
+    assert 'new String[]{"trade_focus","ruin","urban_grid","border"}' in body
     assert body.index('if(!paidChoice.equals(commodityChoice))throw') < body.index('db.runInTransactionChecked')
     assert 'stone=resume?prepaidMaterials.optInt("stone"):def.optInt("stone",0)' in body
     assert 'lumber=resume?prepaidMaterials.optInt("lumber"):def.optInt("lumber",0)' in body
@@ -87,7 +87,7 @@ def test_grid_infrastructure_is_placed_persisted_and_repaired_in_place():
     assert build.index('requireGridInfrastructure(') < build.index('db.runInTransactionChecked')
     assert 'effects.put("infrastructure_instances",KingmakerStructureSemantics.appendedInfrastructure(existing,k,buildOptions))' in SOURCE
     assert 'trimInstanceEffects(existing,count-1)' in SOURCE
-    assert 'requires_special_placement",false)&&!KingmakerStructureSemantics.isGridInfrastructure(structure)' in SOURCE
+    assert 'requires_special_placement",false)&&!KingmakerStructureSemantics.isInfrastructure(structure)' in SOURCE
 
 def test_twins_preparation_requires_rest_and_persists_before_return():
     body=method_body('public JSONObject prepareTwinsPersona(final String requested,final String campKey)')
@@ -98,3 +98,14 @@ def test_twins_preparation_requires_rest_and_persists_before_return():
     assert 'upsertFeature("companion:twins_persona"' in body
     assert 'chosen.optInt("prepared_day",-1)!=actual.optInt("prepared_day",-2)' in body
     assert 'automaticInvestment(companion,role,twinsCurrentPersona())' in SOURCE
+
+def test_border_placement_is_checked_before_spending_and_island_penalty_is_real():
+    build=method_body('public JSONObject resolveBuildStructure(String settlementKey,String structureKey,int naturalRoll,String skillKey,String notes,String commodityChoice,final JSONObject buildOptions)')
+    assert 'requireBorderInfrastructure(town,new JSONArray(structures(townKey)),chosenKey,buildOptions)' in build
+    assert build.index('requireBorderInfrastructure(') < build.index('db.runInTransactionChecked')
+    assert 'originalOptions.has(field)' in build
+    check=method_body('private JSONObject recordCheckAtSettlement(String settlementKey,String activityKey,String title,String role,String skillKey,int natural,int dc,String sourceRef,String notes,boolean awardReputationOnCrit,JSONObject structureContext)')
+    assert 'islandTradePenalty="trade".equals(key(skillKey))?officialIslandTradePenalty():0' in check
+    assert 'civicItemBonus-=islandTradePenalty' in check
+    assert '.put("island_trade_item_penalty",-islandTradePenalty)' in check
+    assert 'preserveWaterBorders(jsonObject(old.optString("grid_json","{}")),jsonObject(gridJson))' in SOURCE

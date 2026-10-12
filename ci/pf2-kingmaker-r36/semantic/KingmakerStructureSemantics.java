@@ -267,11 +267,13 @@ public final class KingmakerStructureSemantics {
   }
  }
  public static JSONArray appendedInfrastructure(JSONObject existing,String key,JSONObject options)throws Exception{
-  if(!isGridInfrastructure(key)||options.optInt("urban_grid",0)<1)throw new IllegalArgumentException("Local da infraestrutura inválido.");
+  if(!isInfrastructure(key)||options.optInt("urban_grid",0)<1)throw new IllegalArgumentException("Local da infraestrutura inválido.");
   JSONArray old=existing.length()==0?null:instanceEffects(existing).optJSONArray("infrastructure_instances");
   if(existing.length()>0&&(old==null||old.length()!=existing.optInt("count",1)))throw new IllegalStateException("Infraestrutura existente sem locais íntegros.");
   JSONArray result=old==null?new JSONArray():new JSONArray(old.toString());
-  result.put(new JSONObject().put("urban_grid",options.optInt("urban_grid")).put("settlement_wide","sewer_system".equals(key)));
+  JSONObject location=new JSONObject().put("urban_grid",options.optInt("urban_grid")).put("settlement_wide","sewer_system".equals(key));
+  if(isBorderInfrastructure(key))location.put("border",options.optString("border"));
+  result.put(location);
   return result;
  }
  public static JSONObject trimInstanceEffects(JSONObject row,int remaining)throws Exception{
@@ -282,6 +284,67 @@ public final class KingmakerStructureSemantics {
    JSONArray kept=new JSONArray();for(int i=0;i<Math.min(remaining,old.length());i++)kept.put(old.opt(i));out.put(field,kept);
   }
   return out;
+ }
+
+ public static boolean isBorderInfrastructure(String key){return Arrays.asList("bridge","wall_stone","wall_wooden").contains(key);}
+ public static boolean isInfrastructure(String key){return isGridInfrastructure(key)||isBorderInfrastructure(key);}
+ private static Set<String> normalizedBorders(JSONArray borders){
+  if(borders==null)throw new IllegalArgumentException("Lista de bordas inválida.");
+  Set<String> result=new HashSet<String>();
+  for(int i=0;i<borders.length();i++){String value=borders.optString(i);if(!Arrays.asList("north","east","south","west").contains(value)||!result.add(value))throw new IllegalArgumentException("Borda inválida ou repetida.");}
+  return result;
+ }
+ private static int allocatedGrids(JSONObject town){return (Math.max(1,town.optInt("developed_blocks",1))-1)/9+1;}
+ private static void requireAllocatedGrid(JSONObject town,int grid){
+  if(grid<1||grid>allocatedGrids(town))throw new IllegalArgumentException("Malha urbana inexistente.");
+  if(grid>1&&!"metropolis".equals(town.optString("type")))throw new IllegalStateException("Mais de uma malha exige uma metrópole.");
+ }
+ private static JSONObject settlementGrid(JSONObject town)throws Exception{
+  Object raw=town.opt("grid_json");return raw instanceof JSONObject?new JSONObject(raw.toString()):new JSONObject(town.optString("grid_json","{}"));
+ }
+ public static JSONObject declareWaterBorders(JSONObject town,int grid,JSONArray water,boolean eligible)throws Exception{
+  requireAllocatedGrid(town,grid);Set<String> chosen=normalizedBorders(water);
+  if(!eligible&&!chosen.isEmpty())throw new IllegalArgumentException("Bordas de água exigem lago, rio ou pântano no hex.");
+  JSONObject out=settlementGrid(town),all=out.optJSONObject("water_borders");
+  if(out.has("water_borders")&&all==null)throw new IllegalArgumentException("Registro de bordas inválido.");
+  if(all==null)all=new JSONObject();String field=String.valueOf(grid);
+  if(all.has(field)&&!normalizedBorders(all.optJSONArray(field)).equals(chosen))throw new IllegalStateException("A escolha das bordas de água é permanente.");
+  JSONArray canonical=new JSONArray();for(String side:new String[]{"north","east","south","west"})if(chosen.contains(side))canonical.put(side);
+  all.put(field,canonical);out.put("water_borders",all);return out;
+ }
+ public static JSONObject preserveWaterBorders(JSONObject previous,JSONObject next)throws Exception{
+  JSONObject old=previous.optJSONObject("water_borders"),now=next.optJSONObject("water_borders");
+  if((previous.has("water_borders")&&old==null)||(next.has("water_borders")&&now==null))throw new IllegalArgumentException("Registro de bordas inválido.");
+  int before=old==null?0:old.length(),after=now==null?0:now.length();
+  if(before!=after)throw new IllegalStateException("Registre novas bordas pelo formulário de bordas; escolhas existentes são permanentes.");
+  if(old!=null){Iterator<String> fields=old.keys();while(fields.hasNext()){String field=fields.next();if(now==null||!normalizedBorders(old.optJSONArray(field)).equals(normalizedBorders(now.optJSONArray(field))))throw new IllegalStateException("As bordas de água não podem ser alteradas.");}}
+  return next;
+ }
+ public static void requireBorderInfrastructure(JSONObject town,JSONArray rows,String key,JSONObject options)throws Exception{
+  if(!isBorderInfrastructure(key))throw new IllegalArgumentException("Estrutura não é de borda.");
+  int grid=options.optInt("urban_grid",0);requireAllocatedGrid(town,grid);String border=options.optString("border");
+  if(!Arrays.asList("north","east","south","west").contains(border))throw new IllegalArgumentException("Escolha a borda da infraestrutura.");
+  JSONObject top=settlementGrid(town).optJSONObject("water_borders");JSONArray water=top==null?new JSONArray():top.optJSONArray(String.valueOf(grid));
+  if("bridge".equals(key)&&(water==null||!normalizedBorders(water).contains(border)))throw new IllegalStateException("Uma ponte só pode ocupar uma borda de água previamente registrada.");
+  for(int i=0;i<rows.length();i++){
+   JSONObject row=rows.optJSONObject(i);if(row==null||row.optInt("count",1)<=0||!"built".equals(row.optString("status","built")))continue;
+   String other=row.optString("structure_key");boolean wall=key.startsWith("wall_")&&other.startsWith("wall_");if(!key.equals(other)&&!wall)continue;
+   JSONArray installed=instanceEffects(row).optJSONArray("infrastructure_instances");
+   if(installed==null||installed.length()!=row.optInt("count",1))throw new IllegalStateException("Infraestrutura antiga sem posições registradas.");
+   for(int n=0;n<installed.length();n++){JSONObject location=installed.optJSONObject(n);if(location!=null&&location.optInt("urban_grid")==grid&&border.equals(location.optString("border")))throw new IllegalStateException("Esta borda já tem "+(wall?"uma muralha.":"uma ponte."));}
+  }
+ }
+ public static boolean isIsland(JSONObject town,JSONArray rows){
+  try{
+   JSONObject water=settlementGrid(town).optJSONObject("water_borders");if(water==null)return false;
+   for(int grid=1;grid<=allocatedGrids(town);grid++){JSONArray sides=water.optJSONArray(String.valueOf(grid));if(sides==null||normalizedBorders(sides).size()!=4)return false;}
+   for(int i=0;i<rows.length();i++){
+    JSONObject row=rows.optJSONObject(i);if(row==null||!"bridge".equals(row.optString("structure_key"))||row.optInt("count",1)<=0||!"built".equals(row.optString("status","built")))continue;
+    JSONArray bridges=instanceEffects(row).optJSONArray("infrastructure_instances");if(bridges==null)continue;
+    for(int n=0;n<bridges.length();n++){JSONObject location=bridges.optJSONObject(n);if(location==null)continue;int grid=location.optInt("urban_grid");if(grid>=1&&grid<=allocatedGrids(town)&&normalizedBorders(water.optJSONArray(String.valueOf(grid))).contains(location.optString("border")))return false;}
+   }
+   return true;
+  }catch(Exception error){throw new IllegalArgumentException("Registro espacial do assentamento inválido.",error);}
  }
 
 }

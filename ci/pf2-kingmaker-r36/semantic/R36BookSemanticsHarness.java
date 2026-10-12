@@ -230,6 +230,36 @@ public final class R36BookSemanticsHarness {
   }
   check(KingmakerCompanionSemantics.personalQuestDefinition("harrim").length()==0,"no invented published secondary personal adventure");
   check(KingmakerCompanionSemantics.profile("tristian",new JSONObject().put("personal_quest","Deva caído inventado")).optString("personal_quest").equals("O Reino dos Purificados"),"Tristian narrative supersedes invented fallen deva quest");
+
+  JSONObject borderTown=new JSONObject().put("type","town").put("developed_blocks",4).put("grid_json",new JSONObject());
+  JSONArray borderAllWater=new JSONArray().put("north").put("east").put("south").put("west");
+  JSONObject borderTopology=KingmakerStructureSemantics.declareWaterBorders(borderTown,1,borderAllWater,true);
+  borderTown.put("grid_json",borderTopology);
+  check(KingmakerStructureSemantics.isIsland(borderTown,new JSONArray()),"four water borders without bridge form island");
+  boolean borderImmutable=false;try{KingmakerStructureSemantics.declareWaterBorders(borderTown,1,new JSONArray().put("north"),true);}catch(IllegalStateException expected){borderImmutable=true;}check(borderImmutable,"water borders permanent after declaration");
+  boolean borderDry=false;try{KingmakerStructureSemantics.declareWaterBorders(new JSONObject().put("type","village").put("developed_blocks",1),1,new JSONArray().put("north"),false);}catch(IllegalArgumentException expected){borderDry=true;}check(borderDry,"water border requires eligible hex");
+  boolean borderRepeat=false;try{KingmakerStructureSemantics.declareWaterBorders(new JSONObject().put("type","village"),1,new JSONArray().put("north").put("north"),true);}catch(IllegalArgumentException expected){borderRepeat=true;}check(borderRepeat,"repeated border rejected");
+  boolean borderEdit=false;try{KingmakerStructureSemantics.preserveWaterBorders(borderTopology,new JSONObject());}catch(IllegalStateException expected){borderEdit=true;}check(borderEdit,"generic settlement editor cannot erase topology");
+  JSONObject borderNewNotes=new JSONObject(borderTopology.toString()).put("other_note","preserved");
+  check(KingmakerStructureSemantics.preserveWaterBorders(borderTopology,borderNewNotes).optString("other_note").equals("preserved"),"other civic grid fields editable");
+  JSONObject borderNorth=new JSONObject().put("urban_grid",1).put("border","north");
+  KingmakerStructureSemantics.requireBorderInfrastructure(borderTown,new JSONArray(),"bridge",borderNorth);check(true,"bridge occupies declared water border");
+  JSONObject borderBridge=structure("bridge",1).put("effects_json",new JSONObject().put("infrastructure_instances",KingmakerStructureSemantics.appendedInfrastructure(new JSONObject(),"bridge",borderNorth)));
+  check(!KingmakerStructureSemantics.isIsland(borderTown,new JSONArray().put(borderBridge)),"completed bridge restores island connection");
+  boolean borderDoubleBridge=false;try{KingmakerStructureSemantics.requireBorderInfrastructure(borderTown,new JSONArray().put(borderBridge),"bridge",borderNorth);}catch(IllegalStateException expected){borderDoubleBridge=true;}check(borderDoubleBridge,"same border cannot contain duplicate bridge");
+  borderBridge.put("status","rubble");check(KingmakerStructureSemantics.isIsland(borderTown,new JSONArray().put(borderBridge)),"rubble bridge grants no island connection");
+  boolean borderLandBridge=false;try{KingmakerStructureSemantics.requireBorderInfrastructure(new JSONObject().put("type","village"),new JSONArray(),"bridge",borderNorth);}catch(IllegalStateException expected){borderLandBridge=true;}check(borderLandBridge,"bridge rejected on default land border");
+  KingmakerStructureSemantics.requireBorderInfrastructure(borderTown,new JSONArray(),"wall_wooden",borderNorth);check(true,"wall has chosen border");
+  JSONObject borderWall=structure("wall_wooden",1).put("effects_json",new JSONObject().put("infrastructure_instances",KingmakerStructureSemantics.appendedInfrastructure(new JSONObject(),"wall_wooden",borderNorth)));
+  boolean borderOverlap=false;try{KingmakerStructureSemantics.requireBorderInfrastructure(borderTown,new JSONArray().put(borderWall),"wall_stone",borderNorth);}catch(IllegalStateException expected){borderOverlap=true;}check(borderOverlap,"new stone wall cannot overlap wooden wall without conversion");
+  KingmakerStructureSemantics.requireBorderInfrastructure(borderTown,new JSONArray().put(borderWall),"wall_stone",new JSONObject().put("urban_grid",1).put("border","east"));check(true,"different wall borders independent");
+  check(KingmakerStructureSemantics.isInfrastructure("bridge")&&KingmakerStructureSemantics.isInfrastructure("wall_stone")&&KingmakerStructureSemantics.isInfrastructure("wall_wooden"),"all border infrastructures supported");
+  check(KingmakerStructureSemantics.isIsland(new JSONObject(borderTown.toString()),new JSONArray()),"water topology survives serialization");
+  JSONObject borderMetro=new JSONObject().put("type","metropolis").put("developed_blocks",10);
+  borderMetro.put("grid_json",KingmakerStructureSemantics.declareWaterBorders(borderMetro,1,borderAllWater,true));
+  check(!KingmakerStructureSemantics.isIsland(borderMetro,new JSONArray()),"land borders of second grid preserve land connection");
+  borderMetro.put("grid_json",KingmakerStructureSemantics.declareWaterBorders(borderMetro,2,borderAllWater,true));
+  check(KingmakerStructureSemantics.isIsland(borderMetro,new JSONArray()),"all metropolis grids with water only are island");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }
