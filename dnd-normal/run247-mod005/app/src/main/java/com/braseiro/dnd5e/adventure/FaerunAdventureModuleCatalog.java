@@ -98,7 +98,7 @@ public final class FaerunAdventureModuleCatalog {
                 "complete_objectives", arr("rescue_silverstars"), "npc_states", npcMap("sara_silverstar", "rescued", "hobgoblin_captain", "bribed"))));
         nodes.put("scene_2", new AdventureNode("scene_2", "The Tomb of Damara — Prisão e Resgate dos Silverstar",
                 "Quatro membros da família Silverstar são interrogados por um Hobgoblin Captain e dois guardas. A caçula Sara Silverstar esconde a chave mágica da tumba de Damara sob os trapos.",
-                directives(), "tomb_prison", Arrays.asList("sara_silverstar", "hobgoblin_captain"), sc2Tr, rescueCheck, null));
+                directives(), "tomb_prison", Arrays.asList("sara_silverstar", "hobgoblin_captain"), sc2Tr, null, null));
 
         // Cena 3: Bonegnasher's Den
         List<AdventureTransition> sc3Tr = new ArrayList<>();
@@ -109,7 +109,7 @@ public final class FaerunAdventureModuleCatalog {
                 "", "", false, null, fx("add_flags", arr("bonegnasher_destroyed"), "npc_states", npcMap("bonegnasher", "destroyed"))));
         nodes.put("scene_3", new AdventureNode("scene_3", "The Tomb of Damara — Covil de Bonegnasher",
                 "O espírito colossal do senhor ogro Bonegnasher canaliza energias necróticas sobre a porta selada, rugindo por vingança e pela posse do Orbe de Damara.",
-                directives(), "tomb_bonegnasher_lair", Arrays.asList("bonegnasher_warlord"), sc3Tr, banishCheck, null));
+                directives(), "tomb_bonegnasher_lair", Arrays.asList("bonegnasher_warlord"), sc3Tr, null, null));
 
         // Cena 4: Damara's Tomb & Conclusion
         List<AdventureTransition> sc4Tr = new ArrayList<>();
@@ -152,7 +152,7 @@ public final class FaerunAdventureModuleCatalog {
                 "", "", false, null, fx("add_flags", arr("hasty_march_taken"), "add_clues", arr("acampamento_zhentilar_avistado"))));
         nodes.put("scene_1", new AdventureNode("scene_1", "The Lost Library of Lethchauntos — Jornada por Cormanthor",
                 "Marcha de quatro dias sob as copas ancestrais de Cormanthor rumo à colina oculta onde fica a entrada da biblioteca de Lethchauntos.",
-                directives(), "cormanthor_trails", Arrays.asList("myrna_nor"), sc1Tr, trackCheck, null));
+                directives(), "cormanthor_trails", Arrays.asList("myrna_nor"), sc1Tr, null, null));
 
         // Cena 2: Powell's Vanguard
         List<AdventureTransition> sc2Tr = new ArrayList<>();
@@ -164,7 +164,7 @@ public final class FaerunAdventureModuleCatalog {
                 "", "", false, forceCheck, fx("add_flags", arr("library_door_broken", "breach_library"), "add_clues", arr("sentinelas_em_alerta_maximo"), "complete_objectives", arr("breach_library"))));
         nodes.put("scene_2", new AdventureNode("scene_2", "The Lost Library of Lethchauntos — Vanguarda de Powell",
                 "A entrada na colina foi desobstruída. Portas maciças de boa qualidade protegem os corredores iluminados por tochas deixadas pelos capangas de Powell Niccam.",
-                directives(), "lethchauntos_outer_halls", Arrays.asList("powell_sentinels"), sc2Tr, pickCheck, null));
+                directives(), "lethchauntos_outer_halls", Arrays.asList("powell_sentinels"), sc2Tr, null, null));
 
         // Cena 3: The Athenaeum Confrontation
         List<AdventureTransition> sc3Tr = new ArrayList<>();
@@ -175,7 +175,7 @@ public final class FaerunAdventureModuleCatalog {
                 "", "", false, null, fx("add_flags", arr("powell_defeated_in_battle"), "npc_states", npcMap("powell_niccam", "captured"))));
         nodes.put("scene_3", new AdventureNode("scene_3", "The Lost Library of Lethchauntos — O Ateneu",
                 "No coração da biblioteca de Lethchauntos, Powell Niccam e seus mercenários tentam remover o tomo Nathlum de seu pedestal protegido por glifos.",
-                directives(), "lethchauntos_athenaeum", Arrays.asList("powell_the_owl_niccam"), sc3Tr, parleyPowellCheck, null));
+                directives(), "lethchauntos_athenaeum", Arrays.asList("powell_the_owl_niccam"), sc3Tr, null, null));
 
         // Cena 4: The Nathlum Preserved
         List<AdventureTransition> sc4Tr = new ArrayList<>();
@@ -238,7 +238,7 @@ public final class FaerunAdventureModuleCatalog {
                 "", "", false, null, fx("add_flags", arr("cleric_testimony_obtained"))));
         nodes.put("scene_3", new AdventureNode("scene_3", "The Heir's Trial — Cofre das Provas",
                 "Investigação da cripta ancestral na Cidade dos Mortos onde jaz o selo heráldico da linhagem.",
-                directives(), "waterdeep_city_of_dead", Arrays.asList("city_guard_captain"), sc3Tr, investCheck, null));
+                directives(), "waterdeep_city_of_dead", Arrays.asList("city_guard_captain"), sc3Tr, null, null));
 
         // Cena 4: Coronation or Exile
         List<AdventureTransition> sc4Tr = new ArrayList<>();
@@ -279,7 +279,7 @@ public final class FaerunAdventureModuleCatalog {
                 "", "", false, survCheck, fx("add_flags", arr("solo_navigation_achieved"), "add_clues", arr("anomalia_magica_rastreada"))));
         nodes.put("scene_1", new AdventureNode("scene_1", "The Archmage's Legacy — Posto Avançado",
                 "Chegada ao posto avançado no limiar das dunas onde rastros de tempestade mágica foram avistados.",
-                directives(), "anauroch_edge", Arrays.asList("bedine_guide"), sc1Tr, survCheck, null));
+                directives(), "anauroch_edge", Arrays.asList("bedine_guide"), sc1Tr, null, null));
 
         // Cena 2: The Shattered Tower
         List<AdventureTransition> sc2Tr = new ArrayList<>();
@@ -290,7 +290,7 @@ public final class FaerunAdventureModuleCatalog {
                 "", "", false, null, fx("add_flags", arr("ward_forced_shock"), "add_clues", arr("camara_arrombada"))));
         nodes.put("scene_2", new AdventureNode("scene_2", "The Archmage's Legacy — A Torre Fraturada",
                 "Exploração da torre semidestruída com armadilhas de glifos arcanos de Netheril.",
-                directives(), "netheril_tower", Arrays.asList("tower_automaton"), sc2Tr, arcCheck, null));
+                directives(), "netheril_tower", Arrays.asList("tower_automaton"), sc2Tr, null, null));
 
         // Cena 3: The Weave Fracture
         List<AdventureTransition> sc3Tr = new ArrayList<>();
@@ -341,7 +341,7 @@ public final class FaerunAdventureModuleCatalog {
                 "", "", false, intimCheck, fx("add_flags", arr("smuggler_confessed"), "add_clues", arr("lote_de_veneno_letal"))));
         nodes.put("scene_1", new AdventureNode("scene_1", "Conspiracy in the Under-Cellar — Cidade Baixa",
                 "Investigação nas tavernas portuárias para identificar o contato dos contrabandistas.",
-                directives(), "baldurs_lower_city", Arrays.asList("guild_informant"), sc1Tr, intimCheck, null));
+                directives(), "baldurs_lower_city", Arrays.asList("guild_informant"), sc1Tr, null, null));
 
         // Cena 2: The Under-Cellar Cisterns
         List<AdventureTransition> sc2Tr = new ArrayList<>();
@@ -352,7 +352,7 @@ public final class FaerunAdventureModuleCatalog {
                 "", "", false, null, fx("add_flags", arr("gas_trap_triggered"), "add_clues", arr("cultistas_alertados"))));
         nodes.put("scene_2", new AdventureNode("scene_2", "Conspiracy in the Under-Cellar — Cisternas",
                 "Descida pelos esgotos labirínticos repletos de reservatórios e armadilhas de gás.",
-                directives(), "baldurs_undercellar_cistern", Arrays.asList("cistern_scavenger"), sc2Tr, percCheck, null));
+                directives(), "baldurs_undercellar_cistern", Arrays.asList("cistern_scavenger"), sc2Tr, null, null));
 
         // Cena 3: Altar of the Three
         List<AdventureTransition> sc3Tr = new ArrayList<>();
