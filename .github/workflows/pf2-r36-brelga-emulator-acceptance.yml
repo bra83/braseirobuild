@@ -66,7 +66,9 @@ jobs:
           # Use a dedicated, deterministic API-30 image with an isolated CI name.
           if('PF2_R36_CI' -notin $avds){
             if(!$avdmanager){throw 'ANDROID_AVDMANAGER_MISSING_ON_BRELGA'}
-            'no'| & $avdmanager create avd -n 'PF2_R36_CI' -k 'system-images;android-30;google_apis;x86_64' --force
+            # Supply a concrete Pixel device profile: this avoids the native
+            # stdin encoding bug in Windows PowerShell ('?no is not a valid reply').
+            & $avdmanager create avd -n 'PF2_R36_CI' -k 'system-images;android-30;google_apis;x86_64' -d 'pixel_6' --force
             if($LASTEXITCODE -ne 0){throw 'ANDROID_AVD_CREATION_FAILED'}
             $avds=@(& $bin -list-avds 2>$null | Where-Object{$_ -and $_.Trim() -and $_ -notmatch '^INFO|^WARNING|^ERROR'})
           }
@@ -122,8 +124,9 @@ jobs:
             # Initialize adb safely before the boot poll.
             $adbInit=Start-Process -FilePath $adb -ArgumentList @('start-server') -PassThru -Wait -NoNewWindow -RedirectStandardOutput (Join-Path $logs 'adb-start.stdout.txt') -RedirectStandardError (Join-Path $logs 'adb-start.stderr.txt')
             if($adbInit.ExitCode -ne 0){throw "ADB_START_SERVER_FAILED=$($adbInit.ExitCode)"}
-            $accel=& $emulator -accel-check 2>&1|Out-String
-            Write-Host "R36_HOST_EMULATOR_ACCEL=$($accel.Trim().Replace("`n"," "))"
+            # The emulator startup log below records accelerator failures.
+            # Avoid invoking -accel-check via PowerShell native stderr under Stop.
+            Write-Host 'R36_ANDROID_EMULATOR_STARTING=true'
             $proc=Start-Process -FilePath $emulator -ArgumentList @('-avd','PF2_R36_CI','-no-window','-no-audio','-no-snapshot-load','-no-boot-anim','-gpu','swiftshader_indirect','-no-metrics') -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
             Write-Host "R36_EMULATOR_PID=$($proc.Id)"
             $ready=$false
