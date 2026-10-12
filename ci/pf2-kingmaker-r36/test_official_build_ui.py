@@ -36,7 +36,7 @@ def test_r35_manual_construction_is_replaced_by_rules_engine():
     assert "Pagar com Madeira" in output
     assert "Pagar com Pedra" in output
     assert 'n,skill,value(notes),commodityChoice' in output
-    assert 'Automático (perícia oficial)' in output
+    assert json.dumps('Automático (perícia oficial)',ensure_ascii=True)[1:-1] in output
     assert 'Construção oficial:' in output
 
 def test_73_labels_are_from_official_pdf_not_free_text():
