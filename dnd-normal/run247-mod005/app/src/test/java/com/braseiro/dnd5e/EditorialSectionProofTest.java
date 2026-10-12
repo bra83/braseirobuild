@@ -17,11 +17,12 @@ import java.util.Set;
 import static org.junit.Assert.*;
 
 /**
- * Comprova o inventário editorial e comportamental dos 10 livros recentes do D&D:
- * 1. Correspondência estrita de IDs de fonte e unicidade de 70 entidades canônicas.
- * 2. Cobertura por livro: XMM, XSAC, FRHoF, FRAiF, EFA, AU, RHW, ABH, LFL, NF.
- * 3. Validação das 5 aventuras não lineares de FRAiF com testes de perícia manuais.
- * 4. Isolamento formal entre os cenários (Faerûn, Eberron, Ravenloft, Lorwyn, Netheril, Multiverso).
+ * Verifica integridade estrutural dos catálogos narrativos e fluxos de aventura:
+ * 1. IDs de fonte válidos e unicidade de 124 entidades canônicas catalogadas.
+ * 2. Presença dos 10 códigos de fonte: XMM, XSAC, FRHOF, FRAIF, EFA, AU, RHW, ABH, LFL, NF.
+ * 3. Ramificações e consequências testadas das aventuras implementadas.
+ * 4. Isolamento estrutural de cenários (Faerûn, Eberron, Ravenloft, Lorwyn, Netheril, Multiverso).
+ * Não certifica a cobertura individual das 483 seções editoriais nem fidelidade aos livros.
  */
 public final class EditorialSectionProofTest {
 
