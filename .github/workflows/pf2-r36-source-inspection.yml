@@ -122,7 +122,8 @@ jobs:
           $ErrorActionPreference='Stop'
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- ci/pf2-r36-source-inspection
+          git add --sparse -- ci/pf2-r36-source-inspection
+          if($LASTEXITCODE -ne 0){throw 'SOURCE_INSPECTION_STAGE_FAILED'}
           git diff --cached --quiet
           if($LASTEXITCODE -eq 0){Write-Host 'INSPECTION_SOURCE_UNCHANGED';exit 0}
           if($LASTEXITCODE -ne 1){throw 'SOURCE_INSPECTION_DIFF_FAILED'}
