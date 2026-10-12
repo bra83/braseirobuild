@@ -18,7 +18,7 @@ ANCHORS = (
         "objective": "Investigar o complexo subterraneo sob a Ilha de Candlemere, confrontar o culto dos Thresholders liderado por Foras e impedir a manifestacao aberrante de Yog-Sothoth.",
         "stakes": "Se o portal do vazio primordial nao for selado, horrores inimaginaveis de Yog-Sothoth consumirao a realidade das Terras Roubadas.",
     }),
-    ("chapter_01_stolen_lands_part1.json", "q_banquete_espadas", {
+    ("chapter_01_stolen_lands_part1.json", "q_carta_restov", {
         "objective_append": "Investigar e repelir os assassinos da guilda Lágrimas Negras (Black Tears) infiltrados em Restov.",
     }),
     ("chapter_04_cult_of_bloom.json", "q_utero_lamashtu", {
