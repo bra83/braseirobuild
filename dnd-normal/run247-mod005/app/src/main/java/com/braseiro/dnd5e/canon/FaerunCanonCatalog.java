@@ -525,6 +525,289 @@ public final class FaerunCanonCatalog {
                 Collections.<String, String>emptyMap(), "grupo", true
         ));
 
+        // --- EXPANSÃO LOTE A: HEROES OF FAERÛN & ADVENTURES IN FAERÛN ---
+
+        // 5. Cidades e Regiões Fundamentais Adicionais (FRAiF)
+        list.add(new Entity(
+                "faerun_shadowdale", "FRAiF", "forgotten_realms", "present", "location",
+                "Shadowdale (Vale das Sombras)", "Shadowdale",
+                "O mais célebre vale dos Dalelands, símbolo de resistência e coração pastoral de Faerûn.",
+                Arrays.asList(
+                        "Composto pela estalagem lendária Old Skull Inn, campos cultivados e a imponente colina Old Skull.",
+                        "Refúgio tradicional de aventureiros, mantido sob a vigilância benevolente da torre de Elminster.",
+                        "Povoado autônomo governado pela virtude cívica e alianças históricas com os Harpistas."
+                ),
+                Arrays.asList(
+                        "Cavernas profundas sob a colina Old Skull ligam os Dalelands diretamente ao Underdark.",
+                        "Tratados ancestrais com os elfos de Cormanthor impedem o corte de carvalhos mágicos no perímetro."
+                ),
+                Arrays.asList("faerun", "dalelands", "shadowdale", "elminster", "old_skull_inn"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "faerun_neverwinter", "FRAiF", "forgotten_realms", "present", "location",
+                "Neverwinter (Jóia do Norte)", "Neverwinter, City of Skilled Hands",
+                "Metrópole costeira aquecida pelo Rio Neverwinter, em vibrante reconstrução sob Lord Dagult Neverember.",
+                Arrays.asList(
+                        "Famosa pelo artesanato refinado de relógios de água, lâmpadas de vidro e jardins suspensos.",
+                        "O Lorde Protetor Dagult Neverember comanda a reconstrução dos distritos após a erupção do Monte Hotenow.",
+                        "Membro proeminente da Aliança dos Lordes com forte presença militar de mercenários leais."
+                ),
+                Arrays.asList(
+                        "O Abismo (The Chasm) sob o Distrito Sudeste ainda emana anomalias da Spellplague e aberrações do Reino Distante.",
+                        "A seita dos Filhos de Alagondar opera clandestinamente contra o governo de Neverember nas tavernas do porto."
+                ),
+                Arrays.asList("faerun", "neverwinter", "sword_coast", "lords_alliance", "dagult_neverember"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "faerun_silverymoon", "FRAiF", "forgotten_realms", "present", "location",
+                "Silverymoon (Gema do Norte)", "Silverymoon, Gem of the North",
+                "Centro de alta magia, erudição e tolerância racial protegido por um mythal prateado resplandecente.",
+                Arrays.asList(
+                        "Governada pela Alta Senhora e pelo Conselho dos Doze Pares em harmonia com elfos, anões e humanos.",
+                        "A Ponte Lunar (Moonbridge) de energia pura curva-se magicamente sobre o Rio Rauvin.",
+                        "Sede da Universidade de Silverymoon e dos lendários Cavaleiros de Prata (Knights in Silver)."
+                ),
+                Arrays.asList(
+                        "O Mythal de Silverymoon bloqueia teletransporte hostil e neutraliza feitiços necromânticos de morte instantânea.",
+                        "Magos da Capa Estrelada monitoram passagens secretas nas Montanhas Nether para barrar orcs e orogs."
+                ),
+                Arrays.asList("faerun", "silverymoon", "mythal", "high_magic", "silver_marches"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "faerun_thay", "FRAiF", "forgotten_realms", "present", "location",
+                "Império de Thay", "Thay",
+                "Planalto vulcânico oriental governado pelo regime necromântico de ferro dos Magos Vermelhos.",
+                Arrays.asList(
+                        "Sociedade rigidamente estratificada com legiões de mortos-vivos subservientes e fortalezas de basalto.",
+                        "Comandada pelos oito Zulkirs dedicados às escolas tradicionais de magia, sob supremacia de Szass Tam.",
+                        "Mantêm enclaves comerciais diplomáticos ao redor de Faerûn para financiar pesquisas arcanas."
+                ),
+                Arrays.asList(
+                        "Szass Tam executa rituais sombrios permanentes para erguer o Grande Mythal da Morte em todo o planalto.",
+                        "Dissidentes e escravizados formam redes secretas de fuga auxiliadas por agentes Harpistas."
+                ),
+                Arrays.asList("faerun", "thay", "red_wizards", "szass_tam", "necromancy"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        // 6. NPCs Fundamentais de Faerûn e das Aventuras (FRAiF & FRHoF)
+        Map<String, String> kharaRel = new HashMap<>();
+        kharaRel.put("location", "faerun_shadowdale");
+        kharaRel.put("ally", "faerun_harpers");
+        list.add(new Entity(
+                "faerun_khara_sulwood", "FRAiF", "forgotten_realms", "present", "npc",
+                "Lady Khara Sulwood", "Lady Khara Sulwood",
+                "Nobre e patrona de Shadowdale, defensora dos Dalelands que contrata heróis para purificar a Tumba de Damara.",
+                Arrays.asList(
+                        "Conhecida por sua retidão, generosidade com viajantes e lealdade às famílias pioneiras de Shadowdale.",
+                        "Financia expedições armadas para resgatar reféns de incursores hobgoblins e monstros espectrais."
+                ),
+                Arrays.asList(
+                        "Guarda o juramento secreto dos Protetores de Damara para nunca permitir que o Orbe caia nas mãos do Zhentarim.",
+                        "Possui comunicação direta com os Harpistas para alertar sobre movimentações hostis em Cormanthor."
+                ),
+                Arrays.asList("faerun", "khara_sulwood", "shadowdale", "dalelands", "patron", "tomb_of_damara"),
+                kharaRel, "grupo", true
+        ));
+
+        Map<String, String> myrnaRel = new HashMap<>();
+        myrnaRel.put("residence", "faerun_shadowdale");
+        myrnaRel.put("rival", "faerun_powell_the_owl_niccam");
+        list.add(new Entity(
+                "faerun_myrna_nor", "FRAiF", "forgotten_realms", "present", "npc",
+                "Myrna Nor", "Myrna Nor",
+                "Estudiosa arcana e maga de Shadowdale, patrona da busca pela Biblioteca Perdida de Lethchauntos.",
+                Arrays.asList(
+                        "Frequenta a taverna Old Skull Inn estudando manuscritos e mapas de expedições antigas em Cormanthor.",
+                        "Dedicada à preservação de tomos históricos e fórmulas alquímicas pré-Queda de Netheril."
+                ),
+                Arrays.asList(
+                        "Descobriu a rota exata de quatro dias pela floresta que leva à colina da biblioteca oculta.",
+                        "Pretende purificar as fórmulas do tomo Nathlum para curar pestes raras sem gerar toxinas letais."
+                ),
+                Arrays.asList("faerun", "myrna_nor", "shadowdale", "lethchauntos", "scholar", "lost_library"),
+                myrnaRel, "grupo", true
+        ));
+
+        Map<String, String> powellRel = new HashMap<>();
+        powellRel.put("contractor", "faerun_zhentarim");
+        powellRel.put("rival", "faerun_myrna_nor");
+        list.add(new Entity(
+                "faerun_powell_the_owl_niccam", "FRAiF", "forgotten_realms", "present", "npc",
+                "Powell 'the Owl' Niccam", "Powell 'the Owl' Niccam",
+                "Mercenário astuto e líder de batedores financiado pelo Zhentarim para saquear Lethchauntos.",
+                Arrays.asList(
+                        "Recebeu o apelido de 'Coruja' pela audição apurada, cálculo tático frio e ataques noturnos precisos.",
+                        "Comanda uma vanguarda de mercenários e sentinelas armados com bestas pesadas e ferramentas de arrombamento."
+                ),
+                Arrays.asList(
+                        "Planeja vender as fórmulas de venenos do tomo Nathlum ao melhor comprador nos mercados clandestinos de Sembia.",
+                        "Se encurralado e subornado com ouro superior, está disposto a romper o contrato com a Rede Negra."
+                ),
+                Arrays.asList("faerun", "powell_niccam", "mercenary", "zhentarim", "lost_library", "rival"),
+                powellRel, "grupo", true
+        ));
+
+        Map<String, String> bonegnasherRel = new HashMap<>();
+        bonegnasherRel.put("haunt", "faerun_dalelands");
+        bonegnasherRel.put("enemy", "faerun_khara_sulwood");
+        list.add(new Entity(
+                "faerun_bonegnasher", "FRAiF", "forgotten_realms", "present", "monster",
+                "Bonegnasher, o Warlord Ogro Espectral", "Bonegnasher the Spectral Warlord",
+                "Monstruosidade espectral colossal que assombra as ruínas da Tumba de Damara em busca do Orbe.",
+                Arrays.asList(
+                        "Ogro belicista do passado cuja alma vingativa foi reanimada por emanações necróticas profundas.",
+                        "Subjugou bandos de ghouls carniceiros e hobgoblins mercenários para fazer valer sua vontade."
+                ),
+                Arrays.asList(
+                        "Vulnerável a rituais sagrados de expulsão e à história ancestral de suas derrotas em vida.",
+                        "Alimenta seu poder sugando a força vital de prisioneiros confinados nas celas subterrâneas."
+                ),
+                Arrays.asList("faerun", "bonegnasher", "specter", "ogre", "tomb_of_damara", "undead"),
+                bonegnasherRel, "secreto", false
+        ));
+
+        list.add(new Entity(
+                "faerun_drizzt_dourden", "FRHoF", "forgotten_realms", "present", "npc",
+                "Drizzt Do'Urden", "Drizzt Do'Urden",
+                "O patrulheiro drow heróico da Espinha do Mundo, devoto de Mielikki e portador das cimitarras Icingdeath e Twinkle.",
+                Arrays.asList(
+                        "Renegou a tirania matriarcal de Menzoberranzan para lutar com honra pelos povos da superfície.",
+                        "Acompanhado pela pantera astral mágica Guenhwyvar, invocada através de uma estatueta de ônix.",
+                        "Lenda viva nas Dez Cidades de Icewind Dale e ao longo de toda a Costa da Espada."
+                ),
+                Arrays.asList(
+                        "Domina o estado guerreiro do Caçador (The Hunter), canalizando foco mortal em defesa dos indefesos.",
+                        "Mantém vigilância sobre clãs de drows leais a Eilistraee que buscam refúgio e redenção sob a luz da lua."
+                ),
+                Arrays.asList("faerun", "drizzt", "drow", "ranger", "icewind_dale", "legend"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        Map<String, String> szassRel = new HashMap<>();
+        szassRel.put("domain", "faerun_thay");
+        szassRel.put("enemy", "faerun_harpers");
+        szassRel.put("faction", "faerun_red_wizards");
+        list.add(new Entity(
+                "faerun_szass_tam", "FRHoF", "forgotten_realms", "present", "npc",
+                "Szass Tam, Zulkir da Necromancia", "Szass Tam, Supreme Zulkir",
+                "O tirano lich imortal e governante absoluto de Thay, senhor incontestável dos Magos Vermelhos.",
+                Arrays.asList(
+                        "Conduz pesquisas milenares sobre a mortalidade, criando legiões de dread warriors e vampiros.",
+                        "Representa a maior ameaça necromântica unificada às nações orientais e meridionais de Faerûn."
+                ),
+                Arrays.asList(
+                        "Sua filactéria original está escondida em um demiplano acessível apenas por chaves de sangue necromântico.",
+                        "Usa simulacros perfeitos para despachar ordens e conduzir negociações perigosas sem se expor."
+                ),
+                Arrays.asList("faerun", "szass_tam", "lich", "red_wizards", "thay", "necromancy"),
+                szassRel, "secreto", false
+        ));
+
+        // 7. Relíquias e Itens das Aventuras de Faerûn (FRAiF)
+        list.add(new Entity(
+                "faerun_item_orb_of_damara", "FRAiF", "forgotten_realms", "present", "item",
+                "Orbe de Damara", "Orb of Damara",
+                "Relíquia sagrada de proteção contra mortos-vivos resgatada nas profundezas da Tumba de Damara.",
+                Arrays.asList(
+                        "Esfera de cristal puro banhada por bênçãos clericais ancestrais de sacerdotes de Lathander e Ilmater.",
+                        "Irradia aura suave que impede carniçais e aparições de se aproximarem sem sofrer queimaduras radiantes."
+                ),
+                Arrays.asList(
+                        "Ao ser canalizado com uma ação, dissipa áreas de escuridão mágica e revela segredos ocultos em pedra.",
+                        "Reivindicado por Lady Khara Sulwood como herança defensiva inalienável do povo de Shadowdale."
+                ),
+                Arrays.asList("faerun", "orb_of_damara", "tomb_of_damara", "holy_relic", "magic_item"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ));
+
+        list.add(new Entity(
+                "faerun_item_nathlum_grimoire", "FRAiF", "forgotten_realms", "present", "item",
+                "O Grimório Nathlum", "The Nathlum Grimoire",
+                "Tratado arcano lendário preservado na Biblioteca de Lethchauntos sobre toxinas e antídotos.",
+                Arrays.asList(
+                        "Encadernado em couro alquímico imune à podridão do tempo, com fechos gravados em runas dracônicas.",
+                        "Fonte de conhecimento valorizada tanto por curandeiros de prestígio quanto por guildas de assassinos."
+                ),
+                Arrays.asList(
+                        "Contém receitas de antídotos universais capazes de neutralizar qualquer veneno mortal em três rodadas.",
+                        "Guardado com glifos de vigilância que incendeiam cópias falsificadas ao menor contato de ferro comum."
+                ),
+                Arrays.asList("faerun", "nathlum", "lethchauntos", "grimoire", "alchemy", "magic_item"),
+                Collections.<String, String>emptyMap(), "secreto", false
+        ));
+
+        // 8. Panteão Maior Adicional (FRHoF)
+        list.add(new Entity(
+                "faerun_deity_lathander", "FRHoF", "forgotten_realms", "present", "religion",
+                "Lathander, o Senhor da Manhã", "Lathander, the Morninglord",
+                "Deus da alvorada, primavera, nascimento, renovação e luz eterna de Toril.",
+                Arrays.asList(
+                        "Padroeiro de novos começos, otimismo juvenil e cruzados que purificam horrores mortos-vivos.",
+                        "Seus templos têm arquitetura voltada para o leste com vitrais rosados que capturam o primeiro raio de sol."
+                ),
+                Arrays.asList(
+                        "O Sangue de Lathander é uma relíquia consagrada procurada para dissipar maldições cósmicas de sombras.",
+                        "Clérigos lathanderianos lideram iniciativas de reconstrução em áreas devastadas por guerras mágicas."
+                ),
+                Arrays.asList("faerun", "lathander", "morninglord", "deity", "light", "dawn"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "faerun_deity_kelemvor", "FRHoF", "forgotten_realms", "present", "religion",
+                "Kelemvor, Juiz dos Condenados", "Kelemvor, Lord of the Dead",
+                "Deus da morte justa, guia impassível das almas no Plano de Fuga e inimigo jurado do morticínio zumbi.",
+                Arrays.asList(
+                        "Ensina que a morte é um ciclo natural sagrado da existência que não deve ser temido nem abreviado.",
+                        "Condena veementemente a necromancia que escraviza almas ou impede a transição para os planos exteriores."
+                ),
+                Arrays.asList(
+                        "Guardiões da Fé da Torre das Caveiras defendem cemitérios em cidades contra ladrões de cadáveres zhentilares.",
+                        "A Cidade do Julgamento acolhe espíritos imparciais antes de sua passagem aos lares divinos."
+                ),
+                Arrays.asList("faerun", "kelemvor", "death", "deity", "justice", "graveyard"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "faerun_deity_ilmater", "FRHoF", "forgotten_realms", "present", "religion",
+                "Ilmater, O Que Chora", "Ilmater, the Broken God",
+                "Deus da compaixão, perseverança, martírio e acolhimento dos que sofrem e são oprimidos.",
+                Arrays.asList(
+                        "Conhecido como o Deus Quebrado, venerado pelos pobres, escravizados e feridos de guerra.",
+                        "Seus monges e sacerdotes viajam descalços administrando curas e conforto espiritual sem cobrar tributos."
+                ),
+                Arrays.asList(
+                        "Devotos de Ilmater podem assumir ferimentos de companheiros feridos através de rituais de empatia sagrada.",
+                        "Confronta a crueldade dos deuses Loviatar e Bane resgatando prisioneiros de calabouços escuros."
+                ),
+                Arrays.asList("faerun", "ilmater", "compassion", "deity", "healing", "perseverance"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
+        list.add(new Entity(
+                "faerun_deity_bane", "FRHoF", "forgotten_realms", "present", "religion",
+                "Bane, o Senhor Negro", "Bane, the Black Lord",
+                "Deus da tirania, medo, controle militar e ambição desmedida, membro supremo dos Três Mortos.",
+                Arrays.asList(
+                        "Venerado por tiranos, conquistadores implacáveis, generais corruptos e agentes do Zhentarim.",
+                        "Exige obediência absoluta à hierarquia de força e desprezo total pela fraqueza ou misericórdia."
+                ),
+                Arrays.asList(
+                        "O Culto da Mão Negra mantém santuários secretos sob quartéis para corromper jovens oficiais do exército.",
+                        "Conspira continuamente para submeter os outros dois membros dos Três Mortos (Bhaal e Myrkul) ao seu comando."
+                ),
+                Arrays.asList("faerun", "bane", "tyranny", "deity", "dead_three", "zhentarim"),
+                Collections.<String, String>emptyMap(), "grupo", true
+        ));
+
         return Collections.unmodifiableList(list);
     }
 }

@@ -32,7 +32,7 @@ public final class EditorialSectionProofTest {
         List<NarrativeContentEngine.Entity> ravenloft = RavenloftCanonCatalog.all();
         List<NarrativeContentEngine.Entity> lorwynArcana = LorwynNetherilArcanaCanonCatalog.all();
 
-        assertEquals("Faerûn deve conter exatamente 29 entidades comprovadas", 29, faerun.size());
+        assertEquals("Faerûn deve conter exatamente 45 entidades comprovadas", 45, faerun.size());
         assertEquals("Eberron deve conter exatamente 10 entidades comprovadas", 10, eberron.size());
         assertEquals("Ravenloft/Hungers deve conter exatamente 15 entidades comprovadas", 15, ravenloft.size());
         assertEquals("Lorwyn/Netheril/Arcana/XMM/XSAC deve conter exatamente 16 entidades", 16, lorwynArcana.size());
@@ -69,8 +69,8 @@ public final class EditorialSectionProofTest {
             total++;
         }
 
-        assertEquals("Total de entidades canônicas deve ser 70", 70, total);
-        assertEquals("Total de IDs únicos deve ser exatamente 70", 70, allIds.size());
+        assertEquals("Total de entidades canônicas deve ser 86", 86, total);
+        assertEquals("Total de IDs únicos deve ser exatamente 86", 86, allIds.size());
     }
 
     @Test
@@ -83,10 +83,12 @@ public final class EditorialSectionProofTest {
 
         // Ch 2 Dalelands & Cormanthor
         assertTrue("Deve conter Dalelands", ids.contains("faerun_dalelands"));
+        assertTrue("Deve conter Shadowdale", ids.contains("faerun_shadowdale"));
         assertTrue("Deve conter Cormanthor/Myth Drannor", ids.contains("faerun_cormanthor_myth_drannor"));
 
         // Ch 3 Icewind Dale
         assertTrue("Deve conter Icewind Dale", ids.contains("faerun_icewind_dale"));
+        assertTrue("Deve conter Drizzt Do'Urden", ids.contains("faerun_drizzt_dourden"));
 
         // Ch 4 Calimshan
         assertTrue("Deve conter Calimshan", ids.contains("faerun_calimshan"));
@@ -96,20 +98,38 @@ public final class EditorialSectionProofTest {
         assertTrue("Deve conter Ilhas Moonshae", ids.contains("faerun_moonshae_isles"));
         assertTrue("Deve conter Poços Lunares", ids.contains("faerun_moonshae_moonwells"));
 
-        // Ch 6 Baldur's Gate
+        // Ch 6 Baldur's Gate, Neverwinter & Silverymoon
         assertTrue("Deve conter Baldur's Gate", ids.contains("faerun_baldurs_gate"));
+        assertTrue("Deve conter Neverwinter", ids.contains("faerun_neverwinter"));
+        assertTrue("Deve conter Silverymoon", ids.contains("faerun_silverymoon"));
+        assertTrue("Deve conter Thay", ids.contains("faerun_thay"));
 
         // Ch 7 Lost Library of Lethchauntos
         assertTrue("Deve conter Biblioteca de Lethchauntos", ids.contains("faerun_lost_library_lethchauntos"));
+        assertTrue("Deve conter Myrna Nor", ids.contains("faerun_myrna_nor"));
+        assertTrue("Deve conter Powell the Owl Niccam", ids.contains("faerun_powell_the_owl_niccam"));
 
-        // Ch 8 Magic Items
+        // Protagonistas & Antagonistas de Aventuras
+        assertTrue("Deve conter Lady Khara Sulwood", ids.contains("faerun_khara_sulwood"));
+        assertTrue("Deve conter Bonegnasher", ids.contains("faerun_bonegnasher"));
+        assertTrue("Deve conter Szass Tam", ids.contains("faerun_szass_tam"));
+
+        // Ch 8 Magic Items & Relíquias de Aventuras
         assertTrue("Deve conter Cristal de Calimemnon", ids.contains("faerun_item_calimemnon_crystal"));
         assertTrue("Deve conter Coroa de Chifres", ids.contains("faerun_item_crown_of_horns"));
         assertTrue("Deve conter Tomo do Dragão", ids.contains("faerun_item_tome_dragon"));
+        assertTrue("Deve conter Orbe de Damara", ids.contains("faerun_item_orb_of_damara"));
+        assertTrue("Deve conter Grimório Nathlum", ids.contains("faerun_item_nathlum_grimoire"));
 
         // Ch 9 Bestiary
         assertTrue("Deve conter Fera de Malar", ids.contains("faerun_beast_of_malar"));
         assertTrue("Deve conter Progênie dos Três Mortos", ids.contains("faerun_dead_three_scion"));
+
+        // Panteão Maior
+        assertTrue("Deve conter Lathander", ids.contains("faerun_deity_lathander"));
+        assertTrue("Deve conter Kelemvor", ids.contains("faerun_deity_kelemvor"));
+        assertTrue("Deve conter Ilmater", ids.contains("faerun_deity_ilmater"));
+        assertTrue("Deve conter Bane", ids.contains("faerun_deity_bane"));
     }
 
     @Test
