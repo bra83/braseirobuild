@@ -97,6 +97,16 @@ def generate():
         raise FileNotFoundError(f"Fonte não encontrada: {SOURCE_CSV}")
 
     rows_out = []
+
+    # Resguardar homologações FEITAS COM EVIDÊNCIA. Um gerador não pode sobrescrevê-las.
+    prior_proofs = {}
+    if os.path.isfile(OUTPUT_CSV):
+        with open(OUTPUT_CSV, "r", encoding="utf-8-sig", newline="") as existing_file:
+            for previous in csv.DictReader(existing_file):
+                k = (previous.get("book_id"), previous.get("chapter_id"), previous.get("section_id"))
+                if previous.get("status") == "IMPLEMENTED_AND_TESTED" and previous.get("evidence_ref"):
+                    prior_proofs[k] = previous
+
     with open(SOURCE_CSV, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
@@ -112,7 +122,7 @@ def generate():
             runtime = to_runtime_symbol(path)
             assertion = determine_assertion(b_id, ctype, s_id)
 
-            rows_out.append({
+            candidate = {
                 "book_id": b_id,
                 "chapter_id": c_id,
                 "section_id": s_id,
@@ -122,13 +132,16 @@ def generate():
                 "actual_result": "NOT_RUN",
                 "source_version": "UNVERIFIED",
                 "rights_basis": "REVIEW_REQUIRED",
-                "status": "IMPLEMENTED_NEEDS_TEST"
-            })
+                "status": "IMPLEMENTED_NEEDS_TEST",
+                "evidence_ref": "",
+                "review_note": ""
+            }
+            rows_out.append(prior_proofs.get((b_id, c_id, s_id), candidate))
 
     fieldnames = [
         "book_id", "chapter_id", "section_id", "expected_behavior",
         "runtime_symbol", "assertion_id", "actual_result",
-        "source_version", "rights_basis", "status"
+        "source_version", "rights_basis", "status", "evidence_ref", "review_note"
     ]
 
     with open(OUTPUT_CSV, "w", encoding="utf-8", newline="") as f:
