@@ -112,4 +112,49 @@ public final class NarrativeCanonPersistenceTest {
         restoredDb.close();
         context.deleteDatabase(newDbName);
     }
+
+    @Test
+    public void reSeedMustNotExposeUndiscoveredEntitiesWhenSecrecyChanges() throws Exception {
+        NarrativeContentEngine engine = new NarrativeContentEngine(db);
+        String entityId = "regression_visibility_" + UUID.randomUUID().toString().substring(0, 8);
+        List<String> ids = Collections.singletonList(entityId);
+
+        NarrativeContentEngine.Entity originallyPublic = new NarrativeContentEngine.Entity(
+                entityId, "FRHOF", "forgotten_realms", "present", "lore",
+                "Cofre de Segredos", "Hidden Vault", "Rumor conhecido",
+                Collections.singletonList("Fato comum"), Collections.singletonList("Segredo de mestre"),
+                Collections.<String>emptyList(), Collections.<String, String>emptyMap(), "grupo", false);
+        NarrativeContentEngine.Entity classifiedSecret = new NarrativeContentEngine.Entity(
+                entityId, "FRHOF", "forgotten_realms", "present", "lore",
+                "Cofre de Segredos", "Hidden Vault", "Rumor secreto",
+                Collections.singletonList("Novo fato"), Collections.singletonList("Segredo de mestre"),
+                Collections.<String>emptyList(), Collections.<String, String>emptyMap(), "secreto", false);
+
+        assertTrue(engine.seedCanonicalEntity(originallyPublic));
+        assertEquals(1, engine.buildPlayerView("forgotten_realms", ids)
+                .getJSONArray("entities").length());
+
+        // Um novo catálogo torna secreta uma entidade ainda não descoberta.
+        assertTrue(engine.seedCanonicalEntity(classifiedSecret));
+        assertFalse(engine.getEntity(entityId).discovered);
+        assertEquals("secreto", engine.getEntity(entityId).visibility);
+        assertEquals(0, engine.buildPlayerView("forgotten_realms", ids)
+                .getJSONArray("entities").length());
+        assertEquals(1, engine.buildGmView("forgotten_realms", ids)
+                .getJSONArray("entities").length());
+
+        // Reclassificação pública futura não deve vazar segredo ainda não descoberto.
+        assertTrue(engine.seedCanonicalEntity(originallyPublic));
+        assertEquals("secreto", engine.getEntity(entityId).visibility);
+        assertEquals(0, engine.buildPlayerView("forgotten_realms", ids)
+                .getJSONArray("entities").length());
+
+        // Descoberta genuína deve liberar acesso e resistir a re-seed.
+        assertTrue(engine.discoverEntity(entityId, "Descoberto em jogo"));
+        assertTrue(engine.seedCanonicalEntity(classifiedSecret));
+        assertTrue(engine.getEntity(entityId).discovered);
+        assertEquals("grupo", engine.getEntity(entityId).visibility);
+        assertEquals(1, engine.buildPlayerView("forgotten_realms", ids)
+                .getJSONArray("entities").length());
+    }
 }
