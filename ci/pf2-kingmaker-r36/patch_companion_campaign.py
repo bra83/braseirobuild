@@ -75,16 +75,26 @@ def regression(root):
   new=f'assert {var} == sum(len(load_chapter_data(ch).get("{field}", [])) for ch in CHAPTER_KEYS)'
   s=exact(s,old,new)
  s=exact(s,'assert total_scenes >= 12, f"Esperado >= 12 cenas táticas, encontrado {total_scenes}"','assert total_scenes == sum(len(load_chapter_data(ch).get("scenes", [])) + bool(load_chapter_data(ch).get("hazards", [])) for ch in CHAPTER_KEYS)')
+ s=exact(s,'        # Valida que termos centrais estão em pt-BR','''        if key == "chapter_12_companion_stories":
+            assert data["locale"] == "pt-BR" and "Companheiros" in data["title"]
+            assert all(q["objective"] and all(o["description"] for o in q["objectives"]) for q in data["quests"])
+            continue
+        # Valida que termos centrais estão em pt-BR''')
  p.write_text(s,encoding="utf-8")
  p=directory/"test_kingmaker_challenger_final.py";s=p.read_text(encoding="utf-8")
  s=exact(s,'!= "candlemere-r36-primary":','not in {"candlemere-r36-primary", "companions-r36-primary"}:')
  s=exact(s,'assert total_xp >= 19000, f"XP acumulado insuficiente ({total_xp}) para cobrir 19 níveis de progressão"','assert total_xp == sum(sum(q.get("milestone_xp", 0) for q in json.loads((CHAPTERS_DIR / f).read_text(encoding="utf-8")).get("quests", [])) + sum(m.get("xp", 0) for m in json.loads((CHAPTERS_DIR / f).read_text(encoding="utf-8")).get("milestones", [])) for f in CANONICAL_CHAPTER_FILES)')
  s=exact(s,'assert quest_count >= 60, f"Contagem inesperada de quests na campanha: {quest_count}"','assert quest_count == sum(len(json.loads((CHAPTERS_DIR / f).read_text(encoding="utf-8")).get("quests", [])) for f in CANONICAL_CHAPTER_FILES)')
  s=exact(s,'assert milestone_count >= 40, f"Contagem inesperada de marcos na campanha: {milestone_count}"','assert milestone_count == sum(len(json.loads((CHAPTERS_DIR / f).read_text(encoding="utf-8")).get("milestones", [])) for f in CANONICAL_CHAPTER_FILES)')
+ s=exact(s,'        assert len(data.get("hazards", [])) > 0, f"Capítulo sem perigos: {filename}"','''        if data.get("metadata", {}).get("definition_revision") == "companions-r36-primary":
+            assert data["hazards"] == [] and data["metadata"]["coverage"]["all_encounters_compiled"] is False
+        else:
+            assert len(data.get("hazards", [])) > 0, f"Capítulo sem perigos: {filename}"''')
  s=exact(s,'def test_milestone_xp_summation_covers_full_progression():','def test_milestone_xp_summation_matches_loaded_definitions():')
  s=exact(s,'"""Valida o somatório de XP de marcos em toda a campanha (mínimo 19.000 XP para Nível 20)."""','"""Confere contabilidade dos valores carregados, sem certificar a cobertura do livro."""')
  p.write_text(s,encoding="utf-8")
  p=directory/"java/KingmakerFinalStressHarness.java";s=p.read_text(encoding="utf-8")
  s=exact(s,'"candlemere-r36-primary".equals(cat.metadata.optString("definition_revision"))','("candlemere-r36-primary".equals(cat.metadata.optString("definition_revision")) || "companions-r36-primary".equals(cat.metadata.optString("definition_revision")))')
+ s=exact(s,'check(!cat.hazards.isEmpty(), "Capítulo deve possuir perigos canônicos: " + filename);','check(!cat.hazards.isEmpty() || ("companions-r36-primary".equals(cat.metadata.optString("definition_revision")) && !cat.metadata.optJSONObject("coverage").optBoolean("all_encounters_compiled")), "Perigos compilados ou cobertura declarada incompleta: " + filename);')
  s=exact(s,'check(totalMilestoneXp >= 19000, "Milestone XP total da campanha deve ser suficiente para progressão nível 1 a 20: " + totalMilestoneXp);','check(catalogs.get(11).milestones.isEmpty(), "Não conceder XP inventado de lealdade ou redenção dos companheiros");')
  p.write_text(s,encoding="utf-8")

@@ -174,4 +174,22 @@ public final class KingmakerCompanionSemantics {
   else return new JSONObject();
   return new JSONObject().put("title",title).put("summary",summary).put("source_ref","Kingmaker Companion Guide pp."+pages).put("story_timing",timing).put("minimum_level",questLevel(key));
  }
+
+ public static int harrimCampingProtection(JSONArray activities){
+  for(int i=0;i<activities.length();i++){
+   JSONObject activity=activities.optJSONObject(i);
+   if(activity!=null&&"harrim_blend_into_night".equals(activity.optString("companion_activity")))throw new IllegalStateException("A proteção de Harrim já foi invocada neste acampamento.");
+  }
+  return 2;
+ }
+
+ public static int harrimEncounterDcBonus(JSONArray activities,String daypart){
+  String phase=daypart==null?"":daypart.toLowerCase(java.util.Locale.ROOT);
+  if(!"noite".equals(phase)&&!"madrugada".equals(phase)&&!"night".equals(phase))return 0;
+  for(int i=0;i<activities.length();i++){
+   JSONObject activity=activities.optJSONObject(i);
+   if(activity!=null&&"harrim_blend_into_night".equals(activity.optString("companion_activity"))&&"harrim".equals(activity.optString("actor_companion_key"))&&activity.optInt("encounter_dc_bonus")==2)return 2;
+  }
+  return 0;
+ }
 }

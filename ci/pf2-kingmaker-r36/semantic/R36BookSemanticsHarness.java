@@ -322,6 +322,16 @@ public final class R36BookSemanticsHarness {
   try{KingmakerCampaignGate.requireTransition(quest("q_companheiro_tristian","unstarted"),"completed",new ArrayList<JSONObject>());}catch(IllegalStateException expected){retiredRejected=true;}
   check(retiredRejected,"retired companion quest cannot grant its invented reward");
   check("O Chamado do Sangue".equals(KingmakerCompanionSemantics.personalQuestDefinition("amiri").optString("title")),"primary Amiri adventure is Blood Calling, not only foreshadowing");
+  check(KingmakerCompanionSemantics.harrimCampingProtection(new JSONArray())==2,"Harrim protection raises actual encounter DC by two");
+  boolean repeatedHarrim=false;
+  try{KingmakerCompanionSemantics.harrimCampingProtection(new JSONArray().put(new JSONObject().put("companion_activity","harrim_blend_into_night")));}catch(IllegalStateException expected){repeatedHarrim=true;}
+  check(repeatedHarrim,"same camp cannot stack repeated Harrim prayers");
+  check(KingmakerCompanionSemantics.harrimCampingProtection(new JSONArray().put(new JSONObject().put("activity","Vigiar")))==2,"ordinary watch does not consume Harrim protection");
+  JSONArray harrimAtCamp=new JSONArray().put(new JSONObject().put("companion_activity","harrim_blend_into_night").put("actor_companion_key","harrim").put("encounter_dc_bonus",2));
+  check(KingmakerCompanionSemantics.harrimEncounterDcBonus(harrimAtCamp,"Noite")==2,"Harrim protection applies to night encounter check");
+  check(KingmakerCompanionSemantics.harrimEncounterDcBonus(harrimAtCamp,"Madrugada")==2,"Harrim protects the pre-dawn night");
+  check(KingmakerCompanionSemantics.harrimEncounterDcBonus(harrimAtCamp,"Tarde")==0,"Harrim protection does not reduce daytime encounters");
+  check(KingmakerCompanionSemantics.harrimEncounterDcBonus(new JSONArray(),"Noite")==0,"Harrim not invoked cannot grant protection");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

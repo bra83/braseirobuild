@@ -139,3 +139,15 @@ def test_companion_supplement_has_only_published_adventures_and_no_fake_rewards(
     assert 'hasCombatants && !npc.stats.optBoolean("profile_only")' in importer
     assert 'hasNpcCognitive && !npc.stats.optBoolean("profile_only")' in importer
     assert 'canonicalCompanionKey(npc.npcKey.replaceFirst("^npc_",""))' in importer
+
+
+def test_harrim_protection_changes_saved_encounter_dc_before_actual_roll():
+    body=method_body('public JSONObject recordCampHour(String campKey,String activityJson,int encounterRoll)')
+    assert 'KingmakerCompanionSemantics.harrimCampingProtection(activities)' in body
+    assert 'before.optInt("current_encounter_dc")<=0' in body
+    assert 'companion.optInt("available",1)!=1' in body
+    assert 'harrimEncounterDcBonus(activities,db.getSceneState().optString("time_of_day"))' in body
+    assert 'int dc=baseDc>0?baseDc+nightBonus:0' in body
+    assert body.index('harrimCampingProtection(')<body.index('boolean triggered=')
+    assert 'v.put("current_encounter_dc",Math.max(0,baseDc-1))' in body
+    assert 'v.put("activities_json",activities.toString())' in body
