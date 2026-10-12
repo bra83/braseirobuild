@@ -260,3 +260,15 @@ def test_narrator_objective_updates_validate_preserved_definition():
     assert 'KingmakerCampaignGate.transitionState(previous,q)' in app
     assert 'previous.length()==0&&KingmakerCampaignGate.official(q)' in app
     assert 'CompanionSemantics.questAvailable(companionKey,level' in app
+
+
+def test_mansion_combat_uses_primary_book_stats_and_initial_hp():
+    main=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java").read_text(encoding="utf-8")
+    start=main.index('private String applyCombatPlan(')
+    end=main.index('private String buildHeroAiContext(',start)
+    body=main[start:end]
+    assert 'KingmakerCampaignGate.mansionEncounter(room)' in body
+    assert 'KingmakerPreludePolicy.isMansionPhase' in body
+    assert 'combat.put("enemies",encounter.optJSONArray("enemies"))' in body
+    assert 'Math.max(hp,Math.min(999,e.optInt("max_hp",hp)))' in body
+    assert 'enemyResources.put("official_stats"' in body

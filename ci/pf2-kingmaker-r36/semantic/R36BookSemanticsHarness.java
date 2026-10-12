@@ -447,6 +447,21 @@ public final class R36BookSemanticsHarness {
   check(KingmakerCampaignGate.playable(java.util.Arrays.asList(publishedCompanionCandidate),java.util.Arrays.asList(publishedCompanionCandidate)).size()==1,"published companion adventures enter the solo director candidate list");
   JSONObject automaticActivation=KingmakerCampaignGate.preserveDefinition(narratorQuest,new JSONObject().put("objective_resolutions",new JSONArray().put(new JSONObject().put("id","first").put("resolution_notes","O grupo resolveu esta cena"))));
   check("active".equals(automaticActivation.optString("status")),"first narrated objective activates the quest automatically");
+  JSONObject openingEncounter=KingmakerCampaignGate.mansionEncounter("A1");JSONObject initialCutthroats=openingEncounter.optJSONArray("enemies").optJSONObject(0);
+  check(initialCutthroats.optInt("count")==3,"opening room has three printed cutthroats");
+  check(initialCutthroats.optInt("hp")==8&&initialCutthroats.optInt("ac")==15,"opening cutthroats use printed HP and AC");
+  check(initialCutthroats.optJSONObject("official_stats").optInt("level")==-1,"negative creature level is preserved");
+  check(initialCutthroats.optInt("initiative_bonus")==5,"ambush initiative uses Stealth");
+  check(KingmakerCampaignGate.mansionEncounter("A4").optJSONArray("enemies").optJSONObject(0).optInt("count")==4,"water garden has four cutthroats");
+  JSONObject gromogCreature=KingmakerCampaignGate.mansionCreature("gromog");check("blinded".equals(gromogCreature.optString("conditions")),"Gromog starts blinded");
+  check(!gromogCreature.optJSONObject("official_stats").optBoolean("deadly_trait"),"Gromog's itchy ogre hook has no deadly trait");
+  JSONObject jurgrindorCreature=KingmakerCampaignGate.mansionCreature("jurgrindor");check(jurgrindorCreature.optInt("hp")==25&&jurgrindorCreature.optInt("max_hp")==50,"Jurgrindor starts at twenty five of fifty HP");
+  check(jurgrindorCreature.optJSONObject("official_stats").optInt("chill_breath_reflex_dc")==18,"Jurgrindor breath uses printed Reflex DC");
+  JSONObject nishkivCreature=KingmakerCampaignGate.mansionCreature("nishkiv");check("1d6".equals(nishkivCreature.optJSONObject("official_stats").optString("sneak_attack_damage")),"Nishkiv has printed precision damage");
+  check(KingmakerCampaignGate.mansionEncounter("A21").optJSONArray("enemies").length()==2,"parlor preserves both printed enemy types");
+  JSONObject finalMansion=KingmakerCampaignGate.mansionEncounter("A23");check(finalMansion.optBoolean("frost_giants_fought_by_jamandi"),"Jamandi's frost giants are not added to the PC encounter");
+  check(finalMansion.optInt("statblock_cutthroats")==2&&finalMansion.optInt("narrative_cutthroats")==4,"contradictory printed counts remain explicit rather than silently blended");
+  boolean inventedRoom=false;try{KingmakerCampaignGate.mansionEncounter("A99");}catch(IllegalArgumentException expected){inventedRoom=true;}check(inventedRoom,"unknown mansion rooms cannot create invented battles");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

@@ -101,6 +101,36 @@ public final class KingmakerCampaignGate {
   String[] titles={"","Convocação de Heróis","Rumo aos Ermos","Terras Roubadas","Rios de Sangue","O Culto do Florescimento","O Desaparecimento de Varnhold","Sangue por Sangue","A Guerra dos Reis dos Rios","Eles Espreitam Abaixo","O Som de Mil Gritos","A Maldição do Rei Lanterna"};
   return chapter>=1&&chapter<=11?titles[chapter]:"Conteúdo complementar";
  }
+ public static JSONObject mansionCreature(String key)throws Exception{
+  int level,hp,maxHp,ac,fort,ref,will,perception,stealth,speed,attack;String name,weapon,damage,conditions="",pages;
+  if("cutthroat".equals(key)){name="Lacaio das Lágrimas Negras";level=-1;hp=8;maxHp=8;ac=15;fort=5;ref=7;will=2;perception=3;stealth=5;speed=25;attack=6;weapon="Adaga";damage="1d4+2";pages="25";}
+  else if("gromog".equals(key)){name="Gromog";level=2;hp=28;maxHp=28;ac=16;fort=11;ref=4;will=5;perception=1;stealth=0;speed=25;attack=9;weapon="Gancho de ogro";damage="1d10+3";conditions="blinded";pages="28";}
+  else if("jurgrindor".equals(key)){name="Jurgrindor";level=3;hp=25;maxHp=50;ac=17;fort=12;ref=6;will=9;perception=9;stealth=8;speed=30;attack=10;weapon="Punho";damage="1d8+8";pages="31";}
+  else if("nishkiv".equals(key)){name="Nishkiv, a Faca";level=1;hp=20;maxHp=20;ac=16;fort=6;ref=9;will=5;perception=5;stealth=7;speed=25;attack=9;weapon="Adaga";damage="1d4+1";pages="36";}
+  else if("volodmyra".equals(key)){name="Volodmyra";level=3;hp=48;maxHp=48;ac=18;fort=11;ref=9;will=7;perception=7;stealth=5;speed=25;attack=11;weapon="Machado grande +1";damage="1d12+4";pages="38";}
+  else throw new IllegalArgumentException("Adversário não registrado no livro.");
+  JSONObject stats=new JSONObject().put("level",level).put("fortitude",fort).put("reflex",ref).put("will",will).put("perception",perception).put("stealth",stealth).put("speed_feet",speed).put("melee_attack",attack).put("melee_damage",damage).put("melee_weapon",weapon);
+  if("cutthroat".equals(key))stats.put("ranged_attack",6).put("ranged_damage","1d6").put("ranged_weapon","Besta de mão").put("range_increment_feet",60).put("bolts",10).put("silver_pieces",5);
+  if("gromog".equals(key))stats.put("blinded",true).put("itchy_flat_dc",10).put("scratch_actions_success",1).put("scratch_actions_failure",2).put("reach_feet",10).put("deadly_trait",false);
+  if("jurgrindor".equals(key))stats.put("wounded_arm_penalties_already_included",true).put("end_turn_bleeding_flat_dc",12).put("persistent_bleed_on_failure","1d6").put("chill_breath_actions",1).put("chill_breath_cone_feet",15).put("chill_breath_damage","2d6").put("chill_breath_reflex_dc",18).put("chill_breath_critical_failure","immobilized").put("escape_dc",18).put("chill_breath_cooldown","1d4").put("rock_attacks_available",false);
+  if("nishkiv".equals(key))stats.put("attack_of_opportunity",true).put("double_strike_actions",2).put("second_strike_off_guard_if_first_hits",true).put("normal_multiple_attack_penalty",true).put("sneak_attack_damage","1d6").put("lesser_healing_potions",3);
+  if("volodmyra".equals(key))stats.put("attack_of_opportunity",true).put("overhand_smash_actions",2).put("overhand_smash_extra_damage",8).put("overhand_smash_fortitude_dc",17).put("overhand_smash_failure","prone").put("spinning_sweep_actions",1).put("spinning_sweep_third_attack_penalty",-8).put("spinning_sweep_extra_damage","2d6").put("lesser_healing_potions",4).put("necklace_gp",20).put("ring_gp",30);
+  return new JSONObject().put("name",name).put("count",1).put("hp",hp).put("max_hp",maxHp).put("ac",ac).put("initiative_bonus",perception).put("conditions",conditions).put("speed",String.valueOf(speed)+" ft").put("attacks",weapon+" +"+attack+"; "+damage).put("official_stats",stats).put("source_ref","Kingmaker p."+pages);
+ }
+ public static JSONObject mansionEncounter(String room)throws Exception{
+  JSONArray enemies=new JSONArray();String pages;
+  if("A1".equals(room)){enemies.put(mansionCreature("cutthroat").put("count",3).put("initiative_bonus",5));pages="25";}
+  else if("A4".equals(room)){enemies.put(mansionCreature("cutthroat").put("count",4));pages="27";}
+  else if("A6".equals(room)){enemies.put(mansionCreature("gromog"));pages="28";}
+  else if("A11".equals(room)){enemies.put(mansionCreature("jurgrindor"));pages="30–31";}
+  else if("A21".equals(room)){enemies.put(mansionCreature("cutthroat").put("count",2)).put(mansionCreature("nishkiv"));pages="36";}
+  else if("A23".equals(room)){enemies.put(mansionCreature("cutthroat").put("count",2)).put(mansionCreature("volodmyra"));pages="37–38";}
+  else throw new IllegalArgumentException("Área da mansão sem encontro compilado.");
+  JSONObject out=new JSONObject().put("room",room).put("enemies",enemies).put("source_ref","Kingmaker pp."+pages);
+  if("A1".equals(room))out.put("initiative_alternative","Perception if the PCs meet the cutthroats in A2 rather than wait in A1");
+  if("A23".equals(room))out.put("statblock_cutthroats",2).put("narrative_cutthroats",4).put("count_authority","Printed encounter stat block; narrative discrepancy retained").put("frost_giants_fought_by_jamandi",true);
+  return out;
+ }
  public static final String[] HELIX_ROOMS={"B14","B13","B12","B10","B8","B4","B3","B2","B1"};
  public static JSONObject advanceHelix(JSONObject before,String room,int natural,int modifier,boolean iconPrepared,boolean placedClosed,JSONArray present)throws Exception{
   if(before.optBoolean("completed"))throw new IllegalStateException("O Teorema da Hélice já foi concluído.");
