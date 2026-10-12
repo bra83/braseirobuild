@@ -234,6 +234,101 @@ def main(s):
  old='db.updateQuestStatus(q.optLong("id"),"completed","Concluída pelo jogador");showPartyDirector();'
  new='try{db.updateQuestStatus(q.optLong("id"),"completed","Concluída pelo jogador");showPartyDirector();}catch(Exception error){toast(error.getMessage());}'
  return replace_once(s,old,new,"quest UI rejection")
+def campaign_runtime(s):
+ helper='''    public JSONObject helixState(){
+        JSONObject feature=db.queryOne("SELECT * FROM kingmaker_features WHERE world_profile=? AND feature_key=?",new String[]{profile(),"campaign:helix_theorem"});
+        return jsonObject(feature.optString("effects_json","{}"));
+    }
+    public boolean hasCanonicalCandlemere(){
+        JSONObject chapter=db.queryOne("SELECT * FROM kingmaker_campaign_chapters WHERE world_profile=? AND chapter_key=?",new String[]{profile(),"chapter_08_they_lurk_below"});
+        return "candlemere-r36-primary".equals(jsonObject(chapter.optString("metadata_json","{}")).optString("definition_revision"));
+    }
+    public JSONObject resolveHelixTheorem(final String room,final int natural,final int modifier,final boolean iconPrepared,final boolean placedClosed,final JSONArray present,final String notes)throws Exception{
+        if(!hasCanonicalCandlemere())throw new IllegalStateException("Importe o capítulo de Candlemere antes de resolver o ritual.");
+        final JSONObject[] result={new JSONObject()};
+        db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            JSONObject before=helixState();
+            for(int i=0;i<present.length();i++){
+                long id=Long.parseLong(present.optString(i));boolean found=false;
+                for(JSONObject hero:db.listActiveCharacters())if(hero.optLong("id")==id)found=true;
+                if(!found)throw new IllegalArgumentException("Personagem presente não pertence à companhia ativa.");
+            }
+            result[0]=KingmakerCampaignGate.advanceHelix(before,room,natural,modifier,iconPrepared,placedClosed,present);
+            JSONArray history=before.optJSONArray("history");if(history==null)history=new JSONArray();
+            history.put(new JSONObject().put("room",room).put("natural_roll",natural).put("modifier",modifier).put("step",result[0].optInt("step")).put("completed",result[0].optBoolean("completed")).put("notes",clean(notes)));
+            result[0].put("history",history);
+            upsertFeature("campaign:helix_theorem","campaign_ritual","Teorema da Hélice",16,result[0].toString(),"Kingmaker pp.413,456",notes);
+            audit("Teorema da Hélice",room+" • etapa "+result[0].optInt("step"),before,result[0]);
+        }});return result[0];
+    }
+'''
+ i=s.rfind("\n}");return s[:i]+"\n"+helper+s[i:]
+
+def campaign_importer(s):
+ anchor='            persistQuests(db, worldProfile, catalog.chapterKey, catalog.quests, now);'
+ s=replace_once(s,anchor,'            retireUnsupportedCampaignContent(db, worldProfile, chapterJson);\n'+anchor,"retire draft before official insertion")
+ anchor='        // 1. Checa kingmaker_campaign_chapters'
+ revision='''        if("chapter_08_they_lurk_below".equals(chapterKey)){
+            Cursor revision=null;
+            try{
+                revision=db.rawQuery("SELECT metadata_json FROM kingmaker_campaign_chapters WHERE world_profile=? AND chapter_key=?",new String[]{worldProfile,chapterKey});
+                if(revision!=null&&revision.moveToFirst())return "candlemere-r36-primary".equals(new JSONObject(revision.getString(0)).optString("definition_revision"));
+            }catch(Exception ignored){}finally{if(revision!=null)revision.close();}
+            return false;
+        }
+'''
+ s=replace_once(s,anchor,revision+anchor,"chapter revision migration")
+ helper='''    private static void retireUnsupportedCampaignContent(SQLiteDatabase db,String profile,JSONObject chapter)throws JSONException{
+        JSONObject metadata=chapter.optJSONObject("metadata");if(metadata==null)return;
+        JSONObject retired=metadata.optJSONObject("retirement");if(retired==null)return;
+        JSONArray quests=retired.optJSONArray("quests");
+        if(quests!=null&&tableExists(db,"quests")){
+            Set<String> cols=getTableColumns(db,"quests");
+            for(int i=0;i<quests.length();i++){
+                JSONObject item=quests.optJSONObject(i);if(item==null)continue;
+                ContentValues v=new ContentValues();v.put("status","archived");
+                if(cols.contains("stage"))v.put("stage","Rascunho substituído pelo capítulo oficial de Candlemere; progresso anterior preservado no registro.");
+                String field=cols.contains("quest_key")?"quest_key":"title";
+                db.update("quests",v,"world_profile=? AND "+field+"=?",new String[]{profile,item.optString("quest_key".equals(field)?"key":"title")});
+            }
+        }
+        for(String table:new String[]{"world_clocks","world_events","npc_memory_profiles"}){
+            JSONArray names=retired.optJSONArray(table);if(names==null||!tableExists(db,table))continue;
+            Set<String> cols=getTableColumns(db,table);String field="world_events".equals(table)?"title":"name";
+            if(!cols.contains("world_profile")||!cols.contains(field))continue;
+            ContentValues v=new ContentValues();
+            if(cols.contains("active"))v.put("active",0);
+            if("world_events".equals(table)&&cols.contains("status"))v.put("status","resolved");
+            if(v.size()==0)continue;
+            for(int i=0;i<names.length();i++)db.update(table,v,"world_profile=? AND "+field+"=?",new String[]{profile,names.optString(i)});
+        }
+    }
+'''
+ i=s.rfind("\n}");return s[:i]+"\n"+helper+s[i:]
+
+def campaign_ui(s):
+ anchor='km.addView(kingdomButton);b.addView(km);'
+ s=replace_once(s,anchor,'''km.addView(kingdomButton);if(kingmakerEnabled&&kingmakerRepository.hasCanonicalCandlemere()){Button helix=button("CANDLEMERE: TEOREMA DA HÉLICE",PANEL2);helix.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showHelixTheoremDialog();}});km.addView(helix);}b.addView(km);''',"ritual entry point")
+ helper='''    private void showHelixTheoremDialog(){
+        JSONObject state=kingmakerRepository.helixState();
+        if(state.optBoolean("completed")){new AlertDialog.Builder(this).setTitle("Teorema da Hélice concluído").setMessage("A Espiral foi neutralizada. Os personagens registrados como presentes recebem +4 de status nos testes de resistência contra teletransporte ou banimento enquanto estiverem na Casa na Margem do Tempo.").setPositiveButton("Fechar",null).show();return;}
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),dp(16));
+        form.addView(text("Etapa "+state.optInt("step")+" de 9. Ocultismo CD 36; falha ou ordem incorreta reinicia o ritual. Após B1, deposite o ícone fechado na alcova.",13,TEXT,false));
+        final String[] rooms=KingmakerCampaignGate.HELIX_ROOMS;final Spinner room=spinner(rooms,state.optInt("step")<9?rooms[state.optInt("step")]:"B1");form.addView(cardWithLabel("CÂMARA ATUAL",room));
+        final EditText natural=labeledField(form,"d20 natural","10",false),modifier=labeledField(form,"Modificador total de Ocultismo, incluindo Ajuda","0",false),notes=labeledField(form,"Notas","",true);
+        final CheckBox icon=check("Ícone obtido em B14 ou preparado com Manufatura CD 38",false),placed=check("Ícone ainda fechado depositado na alcova de B1",false);form.addView(icon);form.addView(placed);
+        final List<JSONObject> heroes=db.listActiveCharacters();final List<CheckBox> present=new ArrayList<CheckBox>();
+        form.addView(text("PERSONAGENS PRESENTES EM CANDLEMERE AO CONCLUIR",12,GOLD,true));
+        for(JSONObject hero:heroes){CheckBox box=check(hero.optString("name"),false);present.add(box);form.addView(box);}
+        new AlertDialog.Builder(this).setTitle("Teorema da Hélice").setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null).setPositiveButton("RESOLVER ETAPA",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){try{
+            JSONArray ids=new JSONArray();for(int i=0;i<heroes.size();i++)if(present.get(i).isChecked())ids.put(heroes.get(i).optLong("id"));
+            JSONObject result=kingmakerRepository.resolveHelixTheorem(String.valueOf(room.getSelectedItem()),num(natural,10),num(modifier,0),icon.isChecked(),placed.isChecked(),ids,value(notes));
+            toast(result.optBoolean("completed")?"Teorema concluído; recompensa registrada: 120 XP de aventura.":result.optBoolean("reset")?"Ritual reiniciado em B14.":"Etapa registrada: "+result.optInt("step")+"/9");showHelixTheoremDialog();
+        }catch(Exception error){toast(error.getMessage());}}}).show();
+    }
+'''
+ i=s.rfind("\n}");return s[:i]+"\n"+helper+s[i:]
+
 def structure_runtime(s):
  signature='private JSONObject recordCheckAtSettlement(String settlementKey,String activityKey,String title,String role,String skillKey,int natural,int dc,String sourceRef,String notes,boolean awardReputationOnCrit)throws Exception{'
  s=replace_once(s,signature,signature+'''
@@ -331,6 +426,13 @@ def regression_support(root):
             return new MockTableCursor(new ArrayList<String>(tableColumns.get("quests")),matching);
         }
 '''+anchor,"mock row query")
+ anchor='        if (sql.contains("FROM kingmaker_campaign_chapters WHERE world_profile=? AND chapter_key=?")) {'
+ s=replace_once(s,anchor,'''        if(sql.startsWith("SELECT metadata_json FROM kingmaker_campaign_chapters WHERE world_profile=? AND chapter_key=?")){
+            List<Map<String,Object>> matching=new ArrayList<Map<String,Object>>();
+            for(Map<String,Object> row:tables.get("kingmaker_campaign_chapters"))if(selectionArgs[0].equals(row.get("world_profile"))&&selectionArgs[1].equals(row.get("chapter_key")))matching.add(row);
+            return new MockTableCursor(Collections.singletonList("metadata_json"),matching);
+        }
+'''+anchor,"mock chapter revision query")
  h=root/"tests_pf2/java/Pf2KingmakerCompleteMechanicsHarness.java"
  t=h.read_text(encoding="utf-8")
  t=replace_once(t,'prof.optJSONArray("thresholds").length() >= 3','prof.optJSONArray("thresholds").length() >= 2',"published attitude thresholds")
@@ -346,11 +448,13 @@ def regression_support(root):
 def apply(root):
  root=Path(root);base=root/SRC
  if "VERSION_NAME=9.0.37" not in (root/"version.properties").read_text():raise ValueError("Only verified R36 eligible")
- transforms={"KingmakerRepository.java":lambda s:structure_runtime(companion_runtime(structure_triggers(repository(s)))),"KingmakerRulesEngine.java":rules,"KingmakerSoloDirector.java":director,"AppDb.java":appdb,"KingmakerCampaignImporter.java":importer,"MainActivity.java":lambda s:event_ui(structure_ui(main(s)))}
+ transforms={"KingmakerRepository.java":lambda s:campaign_runtime(structure_runtime(companion_runtime(structure_triggers(repository(s))))),"KingmakerRulesEngine.java":rules,"KingmakerSoloDirector.java":director,"AppDb.java":appdb,"KingmakerCampaignImporter.java":lambda s:campaign_importer(importer(s)),"MainActivity.java":lambda s:campaign_ui(event_ui(structure_ui(main(s))))}
  prepared={name:fn((base/name).read_text(encoding="utf-8")) for name,fn in transforms.items()}
  for name,content in prepared.items():(base/name).write_text(content,encoding="utf-8")
  for name in ["KingmakerStructureSemantics.java","KingmakerCampaignGate.java","KingmakerCompanionSemantics.java"]:shutil.copyfile(HERE/"semantic"/name,base/name)
  regression_support(root)
+ from patch_campaign_semantics import apply_campaign
+ apply_campaign(root)
  print("R36_THREE_SEMANTIC_DOMAINS_INTEGRATED")
 if __name__=="__main__":
  if len(sys.argv)!=2:raise SystemExit("usage: patch_semantic_domains.py <R36_project>")

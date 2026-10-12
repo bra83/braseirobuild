@@ -87,6 +87,26 @@ public final class R36BookSemanticsHarness {
   check(KingmakerStructureSemantics.activityBonus(works,"work_sites","industry",3,new JSONObject().put("site_type","mine"))==2,"foundry bonus only mine context");
   check(KingmakerStructureSemantics.activityBonus(works,"work_sites","industry",3,new JSONObject().put("site_type","lumber_camp"))==1,"lumberyard bonus only lumber context");
   check(KingmakerStructureSemantics.activityBonus(works,"work_sites","industry",3,new JSONObject().put("site_type","quarry"))==0,"wrong work site grants no bonus");
+  JSONObject ritual=new JSONObject();JSONArray attendees=new JSONArray().put(7).put(9);
+  for(int i=0;i<9;i++){
+   ritual=KingmakerCampaignGate.advanceHelix(ritual,KingmakerCampaignGate.HELIX_ROOMS[i],10,26,true,false,attendees);
+   check(ritual.optInt("step")==i+1,"ritual correct order step "+i);
+  }
+  check(!ritual.optBoolean("completed"),"nine checks require final closed icon placement");
+  ritual=KingmakerCampaignGate.advanceHelix(ritual,"B1",10,26,true,true,attendees);
+  check(ritual.optBoolean("completed")&&ritual.optInt("xp_award")==120,"ritual complete and award once");
+  check(KingmakerCampaignGate.helixSaveStatusBonus(ritual,7,true,"teleportation")==4,"present hero teleportation protection in House");
+  check(KingmakerCampaignGate.helixSaveStatusBonus(ritual,10,true,"teleportation")==0,"absent hero receives no protection");
+  check(KingmakerCampaignGate.helixSaveStatusBonus(ritual,7,false,"teleportation")==0,"protection confined to House");
+  check(KingmakerCampaignGate.helixSaveStatusBonus(ritual,7,true,"fire")==0,"no universal save bonus");
+  boolean duplicate=false;try{KingmakerCampaignGate.advanceHelix(ritual,"B1",10,26,true,true,attendees);}catch(IllegalStateException expected){duplicate=true;}
+  check(duplicate,"completed ritual cannot award twice");
+  JSONObject wrong=KingmakerCampaignGate.advanceHelix(new JSONObject(),"B13",20,40,true,false,attendees);
+  check(wrong.optInt("step")==0&&wrong.optBoolean("reset"),"wrong ritual chamber resets despite critical success");
+  JSONObject failed=KingmakerCampaignGate.advanceHelix(new JSONObject().put("step",4),"B8",2,26,true,false,attendees);
+  check(failed.optInt("step")==0,"failed occultism resets ritual");
+  JSONObject twenty=KingmakerCampaignGate.advanceHelix(new JSONObject(),"B14",20,0,true,false,attendees);
+  check(twenty.optInt("step")==0,"natural twenty raises critical failure only to failure");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

@@ -12,6 +12,7 @@ public final class KingmakerCampaignGate {
  public static String questKey(JSONObject q){String k=q.optString("quest_key");return k.length()>0?k:progress(q).optString("quest_key");}
  public static String chapterKey(JSONObject q){String k=q.optString("chapter_key");return k.length()>0?k:progress(q).optString("chapter_key");}
  public static boolean completed(String s){return "completed".equals(s)||"complete".equals(s)||"concluida".equals(s);}
+ public static boolean retiredQuest(JSONObject q){return Arrays.asList("q_terras_sombrias","q_brecha_sekamina","q_ancoras_abissais","q_aberracoes_subterraneas","q_terremoto_da_capital").contains(questKey(q));}
  public static boolean official(JSONObject q){return chapterKey(q).startsWith("chapter_")&&questKey(q).length()>0;}
  public static JSONArray prerequisites(JSONObject q){
   JSONArray a=q.optJSONArray("prerequisites");
@@ -31,7 +32,7 @@ public final class KingmakerCampaignGate {
  }
  public static List<JSONObject> playable(List<JSONObject> candidates,List<JSONObject> all){
   List<JSONObject> out=new ArrayList<JSONObject>();
-  for(JSONObject q:candidates)if((!official(q)||officialChapter(chapterKey(q))>0)&&ready(q,all))out.add(q);
+  for(JSONObject q:candidates)if(!retiredQuest(q)&&(!official(q)||officialChapter(chapterKey(q))>0)&&ready(q,all))out.add(q);
   return out;
  }
  public static JSONObject preserveDefinition(JSONObject before,JSONObject change){
@@ -46,6 +47,7 @@ public final class KingmakerCampaignGate {
  }
  public static void requireTransition(JSONObject before,String next,List<JSONObject> all){
   if(!official(before))return;
+  if(retiredQuest(before)&&!"archived".equals(next))throw new IllegalStateException("Esta missão pertence ao rascunho substituído pelo capítulo oficial de Candlemere.");
   if(completed(before.optString("status"))&&!completed(next))throw new IllegalStateException("Uma missão concluída não pode ser reaberta por uma atualização antiga.");
   if(("active".equals(next)||"in_progress".equals(next)||completed(next))&&!ready(before,all))
     throw new IllegalStateException("Conclua os pré-requisitos desta missão antes de avançar.");
@@ -67,6 +69,39 @@ public final class KingmakerCampaignGate {
  public static String officialTitle(int chapter){
   String[] titles={"","Convocação de Heróis","Rumo aos Ermos","Terras Roubadas","Rios de Sangue","O Culto do Florescimento","O Desaparecimento de Varnhold","Sangue por Sangue","A Guerra dos Reis dos Rios","Eles Espreitam Abaixo","O Som de Mil Gritos","A Maldição do Rei Lanterna"};
   return chapter>=1&&chapter<=11?titles[chapter]:"Conteúdo complementar";
+ }
+ public static final String[] HELIX_ROOMS={"B14","B13","B12","B10","B8","B4","B3","B2","B1"};
+ public static JSONObject advanceHelix(JSONObject before,String room,int natural,int modifier,boolean iconPrepared,boolean placedClosed,JSONArray present)throws Exception{
+  if(before.optBoolean("completed"))throw new IllegalStateException("O Teorema da Hélice já foi concluído.");
+  if(!iconPrepared)throw new IllegalStateException("Obtenha o ícone de B14 ou prepare-o com Manufatura CD 38.");
+  if(!Arrays.asList(HELIX_ROOMS).contains(room))throw new IllegalArgumentException("Câmara inválida para o ritual.");
+  int step=before.optInt("step");if(step<0||step>9)throw new IllegalArgumentException("Progresso ritual inválido.");
+  JSONObject out=new JSONObject(before.toString());boolean accepted=false;
+  if(step==9){
+   if(!"B1".equals(room))step=0;
+   else accepted=true;
+  }else{
+   if(natural<1||natural>20)throw new IllegalArgumentException("Informe um d20 entre 1 e 20.");
+   int total=natural+modifier,degree=total>=46?3:total>=36?2:total<=26?0:1;
+   if(natural==20)degree=Math.min(3,degree+1);else if(natural==1)degree=Math.max(0,degree-1);
+   accepted=HELIX_ROOMS[step].equals(room)&&degree>=2;
+   step=accepted?step+1:0;
+   out.put("natural_roll",natural).put("modifier",modifier).put("total",total).put("dc",36).put("degree",degree);
+  }
+  out.put("step",step).put("last_room",room).put("reset",!accepted).put("completed",false).put("xp_award",0);
+  if(step==9&&placedClosed){
+   JSONArray ids=new JSONArray();Set<Long> unique=new HashSet<Long>();
+   for(int i=0;i<present.length();i++){long id=Long.parseLong(present.optString(i));if(id<=0)throw new IllegalArgumentException("Personagem presente inválido.");if(unique.add(id))ids.put(id);}
+   if(ids.length()==0)throw new IllegalArgumentException("Registre ao menos um personagem presente no ritual.");
+   out.put("completed",true).put("present_character_ids",ids).put("xp_award",120);
+  }
+  return out.put("next_room",step<9?HELIX_ROOMS[step]:"B1: depositar o ícone fechado").put("source_ref","Kingmaker p.413");
+ }
+ public static int helixSaveStatusBonus(JSONObject ritual,long heroId,boolean inHouse,String effect){
+  if(!ritual.optBoolean("completed")||!inHouse||!("teleportation".equals(effect)||"banishment".equals(effect)))return 0;
+  JSONArray present=ritual.optJSONArray("present_character_ids");if(present==null)return 0;
+  for(int i=0;i<present.length();i++)if(String.valueOf(heroId).equals(present.optString(i)))return 4;
+  return 0;
  }
 }
 
