@@ -180,3 +180,18 @@ def test_demolition_logs_real_roll_and_stores_every_remaining_rubble_lot_atomica
     assert 'KingmakerStructureSemantics.trimInstanceEffects(before,before.optInt("count")-1)' in body
     assert body.index('refreshSettlementOccupancy(')<body.index('officialCommodityCapacity(kind)')
     assert 'p.optInt("lot",0),p.optBoolean("clear_entire",true)' in SOURCE
+
+
+def test_daily_preparations_use_verified_sleep_date_and_advance_clock_once():
+    body=method_body('public JSONObject recordCompletedCampSleep(final String campKey)')
+    assert 'db.runInTransactionChecked' in body and 'loggedSleepingHours(' in body
+    assert 'logged<required||camp.optInt("elapsed_hours")<required' in body
+    assert '.put("completed_day",Math.max(1,db.getSceneState().optInt("day_number",1)))' in body
+    assert 'if("logged_camp_hours".equals(rest.optString("sleep_authority")))' in body
+    preparation=method_body('public JSONObject prepareTwinsPersona(final String requested,final String campKey)')
+    assert 'optInt("completed_day"' in preparation
+    assert 'if(previous.optInt("prepared_day")==day){out[0]=previous;return;}' in preparation
+    assert 'total=start+0.5d' in preparation and 'db.saveSceneStateChecked(clock)' in preparation
+    assert preparation.index('db.saveSceneStateChecked(clock)')<preparation.index('upsertFeature("companion:twins_persona"')
+    rules=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerRulesEngine.java").read_text(encoding="utf-8")
+    assert 'restResult.optBoolean("spells_prepared_restored")&&restResult.optBoolean("focus_points_restored")' in rules

@@ -351,6 +351,10 @@ public final class R36BookSemanticsHarness {
   boolean invalidRecovery=false;
   try{KingmakerStructureSemantics.demolitionOutcome(demoFour,1,"CRITICAL_SUCCESS",false,"food",2);}catch(IllegalArgumentException expected){invalidRecovery=true;}
   check(invalidRecovery,"salvage never fabricates food or luxuries");
+  check(KingmakerCompanionSemantics.loggedSleepingHours(new JSONArray())==0,"empty camp does not prove completed sleep");
+  JSONArray sleepJournal=new JSONArray().put(new JSONObject().put("activity","Descansar").put("hour",1)).put(new JSONObject().put("activity","Descansar").put("hour",1)).put(new JSONObject().put("activity","Vigiar").put("hour",2)).put(new JSONObject().put("activity","Descansar").put("hour",3));
+  check(KingmakerCompanionSemantics.loggedSleepingHours(sleepJournal)==2,"sleep journal counts distinct recorded rest hours");
+  check(KingmakerCompanionSemantics.loggedSleepingHours(new JSONArray().put(new JSONObject().put("activity","Descansar")))==0,"narrative without a recorded hour cannot certify rest");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

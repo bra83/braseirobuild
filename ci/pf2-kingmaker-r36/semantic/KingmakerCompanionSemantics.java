@@ -192,4 +192,13 @@ public final class KingmakerCompanionSemantics {
   }
   return 0;
  }
+
+ public static int loggedSleepingHours(JSONArray activities){
+  Set<Integer> hours=new HashSet<Integer>();
+  for(int i=0;i<activities.length();i++){
+   JSONObject row=activities.optJSONObject(i);
+   if(row!=null&&"Descansar".equals(row.optString("activity"))&&row.optInt("hour")>0)hours.add(row.optInt("hour"));
+  }
+  return hours.size();
+ }
 }
