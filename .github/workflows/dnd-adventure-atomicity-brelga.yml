@@ -136,11 +136,11 @@ jobs:
           if (!$env:ANDROID_HOME -or !(Test-Path $env:ANDROID_HOME)) { throw 'ANDROID_SDK_NOT_FOUND' }
           $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
           Set-Location 'dnd-normal/run247-mod005'
-          # One Gradle execution: focused safety cases are verified from its XML afterward.
-          # Test-only asset profile excludes one 102 MB Faerun ZIP copy; APK builds are unchanged.
-          # Explicit argv keeps PowerShell from splitting -Pbraseiro.qaLiteAssets=true
-          # into a Gradle task named .qaLiteAssets=true on Windows PowerShell.
-          $gradleArgs = @(':app:testDebugUnitTest', '-Pbraseiro.qaLiteAssets=true', '--no-daemon', '--console=plain')
+          # Run against real map assets: Issue27MapAndOAuthIntegrationTest validates
+          # the 102 MB Faerun ZIP and its actual manifest. Lite assets must never
+          # be used for the full suite because they cause two false test failures.
+          # BRELGA safe cleanup measured >2 GB free before this run.
+          $gradleArgs = @(':app:testDebugUnitTest', '--no-daemon', '--console=plain')
           & .\gradlew.bat @gradleArgs
           if ($LASTEXITCODE -ne 0) { throw 'FULL_SUITE_FAILED' }
           $xml='app/build/test-results/testDebugUnitTest/TEST-com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest.xml'
