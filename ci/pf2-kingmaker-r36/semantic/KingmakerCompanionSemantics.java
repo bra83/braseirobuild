@@ -58,13 +58,26 @@ public final class KingmakerCompanionSemantics {
   if("jaethal".equals(k)||"octavia".equals(k))return 6;
   if("kalikke_kanerah".equals(k))return 4;return 0;
  }
+ public static boolean canLead(JSONObject c,String reputationMode){
+  if(c.optInt("available",1)!=1)return false;
+  String k=c.optString("companion_key");
+  if("ekundayo".equals(k))return "helpful".equals(c.optString("attitude"));
+  if("tristian".equals(k))return !"infamy".equals(reputationMode)||c.optInt("influence")>=8;
+  return c.optInt("influence")>=leadershipInfluence(k);
+ }
  public static boolean automaticInvestment(JSONObject c,String role){
   if(c.optInt("available",1)!=1)return false;String k=c.optString("companion_key");
-  return ("harrim".equals(k)&&"magister".equals(role)&&c.optInt("influence")>=8)||
-         ("jaethal".equals(k)&&"emissary".equals(role)&&c.optInt("influence")>=6)||
+  return ("amiri".equals(k)&&"warden".equals(role))||
+         ("ekundayo".equals(k)&&("general".equals(role)||"warden".equals(role)))||
+         ("jubilost".equals(k)&&"treasurer".equals(role))||
+         ("linzi".equals(k)&&"counselor".equals(role))||
+         ("tristian".equals(k)&&"magister".equals(role))||
+         ("valerie".equals(k)&&"general".equals(role))||
+         ("harrim".equals(k)&&"magister".equals(role))||
+         ("jaethal".equals(k)&&"emissary".equals(role))||
          ("nok_nok".equals(k)&&"emissary".equals(role)&&c.optInt("influence")>=8)||
-         ("octavia".equals(k)&&"magister".equals(role)&&c.optInt("influence")>=6)||
-         ("regongar".equals(k)&&"general".equals(role)&&c.optInt("influence")>=8);
+         ("octavia".equals(k)&&"magister".equals(role))||
+         ("regongar".equals(k)&&"general".equals(role));
  }
  public static String nokAlignment(JSONObject c){
   int p=c.optInt("influence");

@@ -40,7 +40,7 @@ def corrected_chapter(old):
  d['hazards']=[{'hazard_key':'hazard_candlemere_praise','hazardKey':'hazard_candlemere_praise','name':'Louvor a Yog-Sothoth','level':19,
   'traits':['complexo','magico','armadilha'],'stealth_dc':47,'perception_dc':47,'saving_throw_type':'Fortitude','saving_throw_dc':41,
   'disable_skills':[{'skill':'Ocultismo','dc':47,'proficiency':'mestre','description':'Três sucessos seguidos ao recitar as frases; desativa por 1 hora.'},{'skill':'Religião','dc':49,'proficiency':'mestre','description':'Três sucessos seguidos; dissipar magia de 9º nível usa CD de contramágica 38.'}],
-  'hazard_type':'magico','complexity':'complexo','routine_actions':1,'xp':0,
+  'hazard_type':'magico','complexity':'complexo','routine_actions':1,'xp':0,'physical_defenses_published':False,'source_ref':'Kingmaker p.415',
   'description':'Armadilha de B4: permanecer mais de uma rodada sem recitar as frases em Aklo provoca rajadas de frio.',
   'reaction':'12d6 de frio, Fortitude básica CD 41; falha crítica também imobiliza por 1 minuto. Em seguida rola iniciativa.',
   'routine':[{'action_cost':1,'name':'Rajada de frio','description':'Todas as criaturas em B4 sofrem 12d6 de frio, Fortitude básica CD 41; falha crítica imobiliza por 1 minuto.'}],
@@ -59,7 +59,8 @@ def corrected_chapter(old):
  metadata=dict(d.get('metadata',{}));metadata.update(official_chapter_number=9,source_ref='Kingmaker pp.396-421',definition_revision='candlemere-r36-primary',
   parts=[{'key':'threshold_of_dread','title':'O Limiar do Pavor','page':398,'minimum_level':16},{'key':'depth_of_fear','title':'A Profundidade do Medo','page':412,'minimum_level':16}],
   retirement={'quests':[{'key':q.get('quest_key'),'title':q.get('title')} for q in old.get('quests',[])],
-   'world_clocks':[x.get('name') for x in old.get('clocks',[])],'world_events':[x.get('title') for x in old.get('events',[])],'npc_memory_profiles':[x.get('name') for x in old.get('npcs',[])]},
+   'world_clocks':[x.get('name') for x in old.get('clocks',[])],'world_events':[x.get('title') for x in old.get('events',[])],'npc_memory_profiles':[x.get('name') for x in old.get('npcs',[])],
+   'campaign_pois':[x.get('name') for x in old.get('pois',[])],'tactical_scenes':[x.get('scene_key') for x in old.get('scenes',[])]},
   coverage={'plot_correction':True,'all_encounters_compiled':False,'all_maps_compiled':False})
  d['metadata']=metadata
  return d

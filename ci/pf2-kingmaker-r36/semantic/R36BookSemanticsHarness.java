@@ -107,6 +107,15 @@ public final class R36BookSemanticsHarness {
   check(failed.optInt("step")==0,"failed occultism resets ritual");
   JSONObject twenty=KingmakerCampaignGate.advanceHelix(new JSONObject(),"B14",20,0,true,false,attendees);
   check(twenty.optInt("step")==0,"natural twenty raises critical failure only to failure");
+  check(KingmakerCompanionSemantics.automaticInvestment(new JSONObject().put("companion_key","amiri").put("available",1),"warden"),"Amiri Warden automatic investment");
+  check(KingmakerCompanionSemantics.automaticInvestment(new JSONObject().put("companion_key","linzi").put("available",1),"counselor"),"Linzi Counselor automatic investment");
+  JSONObject tristian=new JSONObject().put("companion_key","tristian").put("available",1).put("influence",0);
+  check(KingmakerCompanionSemantics.canLead(tristian,"fame"),"Tristian accepts famous kingdom without influence gate");
+  check(!KingmakerCompanionSemantics.canLead(tristian,"infamy"),"Tristian rejects infamous kingdom below eight");
+  tristian.put("influence",8);check(KingmakerCompanionSemantics.canLead(tristian,"infamy"),"Tristian joins infamous kingdom at eight");
+  check(!KingmakerCompanionSemantics.canLead(ekun,"fame"),"Ekundayo must be helpful to accept leadership");
+  ekun.put("attitude","helpful");check(KingmakerCompanionSemantics.canLead(ekun,"fame"),"helpful Ekundayo accepts leadership");
+  check(KingmakerCampaignGate.playable(Arrays.asList(quest("q_terras_sombrias","active")),graph).isEmpty(),"retired invented quest excluded from guidance");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

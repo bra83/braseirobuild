@@ -292,13 +292,15 @@ def campaign_importer(s):
                 db.update("quests",v,"world_profile=? AND "+field+"=?",new String[]{profile,item.optString("quest_key".equals(field)?"key":"title")});
             }
         }
-        for(String table:new String[]{"world_clocks","world_events","npc_memory_profiles"}){
+        for(String table:new String[]{"world_clocks","world_events","npc_memory_profiles","campaign_pois","tactical_scenes"}){
             JSONArray names=retired.optJSONArray(table);if(names==null||!tableExists(db,table))continue;
-            Set<String> cols=getTableColumns(db,table);String field="world_events".equals(table)?"title":"name";
+            Set<String> cols=getTableColumns(db,table);String field="world_events".equals(table)?"title":"tactical_scenes".equals(table)?"scene_key":"name";
             if(!cols.contains("world_profile")||!cols.contains(field))continue;
             ContentValues v=new ContentValues();
             if(cols.contains("active"))v.put("active",0);
             if("world_events".equals(table)&&cols.contains("status"))v.put("status","resolved");
+            if("tactical_scenes".equals(table)&&cols.contains("status"))v.put("status","archived");
+            if("campaign_pois".equals(table)){if(cols.contains("hidden"))v.put("hidden",1);if(cols.contains("discovered"))v.put("discovered",0);}
             if(v.size()==0)continue;
             for(int i=0;i<names.length();i++)db.update(table,v,"world_profile=? AND "+field+"=?",new String[]{profile,names.optString(i)});
         }
@@ -400,13 +402,19 @@ def event_ui(s):
  return s[:start]+section+s[end:]
 
 def companion_runtime(s):
- s=replace_once(s,'if(comp.length()>0&&comp.optInt("available",1)!=1){','''if(comp.length()>0&&comp.optInt("influence")<KingmakerCompanionSemantics.leadershipInfluence(comp.optString("companion_key")))throw new IllegalStateException("Influência insuficiente para este companheiro assumir liderança.");
+ s=replace_once(s,'if(comp.length()>0&&comp.optInt("available",1)!=1){','''if(comp.length()>0&&!KingmakerCompanionSemantics.canLead(comp,state().optString("reputation_mode","fame")))throw new IllegalStateException("Este companheiro ainda não aceita assumir liderança nas condições atuais.");
             if(comp.length()>0&&comp.optInt("available",1)!=1){''',"leadership influence gate")
  s=replace_once(s,'leader.optInt("invested")==1&&key(ability)',
  '(leader.optInt("invested")==1||officialAutomaticInvestment(leader))&&key(ability)',"automatic investment calculation")
  s=replace_once(s,'v.put("unlocked_rewards_json",result.optJSONArray("all_unlocked_rewards").toString());',
  'v.put("unlocked_rewards_json",KingmakerCompanionSemantics.alignmentHistory(before,result.optInt("influence"),newAttitude,result.optJSONArray("all_unlocked_rewards")).toString());',"persistent Nok alignment")
- helper='''    private boolean officialAutomaticInvestment(JSONObject leader){
+ s=replace_once(s,'if(leader.length()>0&&invested&&old.optInt("invested")==0){','if(leader.length()>0&&invested&&!officialAutomaticInvestmentForName(leader,roleKey)){',"extra companion investment does not consume manual quota")
+ s=replace_once(s,'int count=db.queryOne("SELECT COUNT(*) AS total FROM kingmaker_leaders WHERE world_profile=? AND invested=1",new String[]{profile()}).optInt("total");','int count=0;for(JSONObject selected:leaders())if(!roleKey.equals(selected.optString("role_key"))&&selected.optInt("invested")==1&&!officialAutomaticInvestment(selected))count++;',"manual investments counted separately")
+ helper='''    private boolean officialAutomaticInvestmentForName(String name,String role){
+        for(JSONObject companion:companions())if(companion.optString("name").equals(name)||companion.optString("companion_key").equals(name))return KingmakerCompanionSemantics.automaticInvestment(companion,role);
+        return false;
+    }
+    private boolean officialAutomaticInvestment(JSONObject leader){
         for(JSONObject companion:companions())if(companion.optString("name").equals(leader.optString("leader_name")))return KingmakerCompanionSemantics.automaticInvestment(companion,leader.optString("role_key"));
         return false;
     }
@@ -455,6 +463,8 @@ def apply(root):
  regression_support(root)
  from patch_campaign_semantics import apply_campaign
  apply_campaign(root)
+ from patch_campaign_regressions import apply_regressions
+ apply_regressions(root)
  print("R36_THREE_SEMANTIC_DOMAINS_INTEGRATED")
 if __name__=="__main__":
  if len(sys.argv)!=2:raise SystemExit("usage: patch_semantic_domains.py <R36_project>")
