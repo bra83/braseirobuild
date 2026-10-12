@@ -100,7 +100,11 @@ def structure_triggers(s):
  anchor='strV.put("effects_json", effects.toString());'
  s=replace_once(s,anchor,'effects.put("official_build_effects",buildEffects);'+anchor,"persist build effects")
  anchor='db.getWritableDatabase().update("kingmaker_state", sv, "world_profile=?", new String[]{profile()});'
- s=replace_once(s,anchor,anchor+'\n                adjustState(buildEffects,"Efeitos oficiais da construção");\n                ContentValues anarchyState=new ContentValues();anarchyState.put("anarchy",rules.isAnarchy(state().optInt("unrest"))?1:0);db.getWritableDatabase().update("kingmaker_state",anarchyState,"world_profile=?",new String[]{profile()});',"ruin thresholds use core accounting")
+ build_start=s.index("    private JSONObject buildStructure(")
+ build_end=s.index("    public JSONObject demolishStructure(",build_start)
+ build=s[build_start:build_end]
+ build=replace_once(build,anchor,anchor+'\n                adjustState(buildEffects,"Efeitos oficiais da construção");\n                ContentValues anarchyState=new ContentValues();anarchyState.put("anarchy",rules.isAnarchy(state().optInt("unrest"))?1:0);db.getWritableDatabase().update("kingmaker_state",anarchyState,"world_profile=?",new String[]{profile()});',"ruin thresholds use core accounting")
+ s=s[:build_start]+build+s[build_end:]
  # One-time migration backs up old generated broad bonuses instead of losing them.
  migration='''    private void migrateLegacyStructureBonuses()throws Exception{
         String marker="migration:r36_structure_scope";
