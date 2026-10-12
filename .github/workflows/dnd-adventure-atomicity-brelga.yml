@@ -80,8 +80,12 @@ jobs:
           Write-Host ("FULL_SUITE_XML=PASS; SUITES=$($reports.Count); TESTS=$nTests; FAILURES=$nFailures; ERRORS=$nErrors; SKIPPED=$nSkipped")
           Write-Host ('SOURCE_SHA='+$env:GITHUB_SHA)
           Write-Host 'ADVENTURE_TRANSACTION_TESTS=6/6; FULL_SUITE=PASS; APK_NOT_BUILT=TRUE'
-      - name: Upload test XML logs
+      # The verified XML totals and commit SHA are written into the job log above.
+      # GitHub Actions artifact storage may be full; that must not invalidate passing tests.
+      # Report upload problems as a soft failure, without weakening test assertions.
+      - name: Upload test XML logs (best effort; quota non-blocking)
         if: always()
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: dnd-adventure-test-xml-${{ github.run_id }}
