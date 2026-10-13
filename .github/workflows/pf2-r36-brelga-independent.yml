@@ -182,6 +182,18 @@ jobs:
           $verified=[System.IO.File]::ReadAllBytes($init)
           if($verified.Length -ge 3 -and $verified[0] -eq 0xEF -and $verified[1] -eq 0xBB -and $verified[2] -eq 0xBF){throw 'GRADLE_INIT_BOM_REPAIR_FAILED'}
           Write-Host 'BRELGA_GRADLE_INIT_UTF8_CLEAN=true'
+          # The runner's global cache init script also uses an invalid caches() block
+          # (Gradle fails on line 3 before it ever loads the Android project).
+          # Preserve it outside init.d, where Gradle no longer auto-executes it.
+          $script=[System.IO.File]::ReadAllText($init)
+          if($script -match '(?m)^\s*caches\s*\(' -or $script -match '(?m)^\s*caches\s*\{'){
+            $archive=Join-Path $env:USERPROFILE ('.gradle\braseiro-cache.invalid.'+$env:GITHUB_RUN_ID+'.gradle')
+            if(Test-Path -LiteralPath $archive){throw "GRADLE_INIT_ARCHIVE_ALREADY_EXISTS $archive"}
+            Move-Item -LiteralPath $init -Destination $archive -ErrorAction Stop
+            if(Test-Path -LiteralPath $init){throw 'GRADLE_INIT_QUARANTINE_FAILED'}
+            Write-Host "BRELGA_INVALID_GRADLE_INIT_PRESERVED=$archive"
+            Write-Host 'BRELGA_INVALID_GRADLE_INIT_DISABLED=true'
+          }else{Write-Host 'BRELGA_GRADLE_INIT_NO_UNSUPPORTED_CACHES_CALL=true'}
       - name: Type-check Android Java without packaging an APK
         shell: powershell
         run: |
