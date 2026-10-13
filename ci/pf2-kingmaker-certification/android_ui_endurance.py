@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """R35 real Android UI and production AppDb acceptance; no fake passes."""
-import argparse,hashlib,json,re,sqlite3,subprocess,sys,tempfile,time
+import argparse,hashlib,json,re,shutil,sqlite3,subprocess,sys,tempfile,time
 from pathlib import Path
 import xml.etree.ElementTree as ET
 p=argparse.ArgumentParser();p.add_argument("--adb",required=True);args=p.parse_args()
 A=args.adb;PKG="com.braseiro.pathfinder2e";G={};SYSTEM_UI_RETRIES=0
+# Native Windows CI defaults to cp1252, but the real Android hierarchy contains
+# emoji and PT-BR accents. Logging must never abort a fail-closed runtime gate.
+for stream in (sys.stdout,sys.stderr):
+    if hasattr(stream,"reconfigure"):
+        stream.reconfigure(encoding="utf-8",errors="backslashreplace")
 def log(k,x):print(k+"="+str(x),flush=True)
 def adb(*parts,allow=False,timeout=48):
     try:r=subprocess.run([A,"-e",*parts],capture_output=True,timeout=timeout)
@@ -24,7 +29,10 @@ def nodes():
     # synthetic success and never a replacement for the real on-device dump.
     last=""
     root=None
-    for attempt in range(5):
+    for attempt in range(10):
+        # A cold Windows API-30 AVD may expose its WebView before the
+        # UiTestAutomationBridge accessibility root has initialized.
+        # Wait for a fresh REAL XML hierarchy; never reuse a previous dump.
         # Never accept a previous dump after uiautomator reports a null root.
         adb("shell","rm","-f","/sdcard/pf2_acceptance.xml",timeout=15)
         dumped=adb("shell","uiautomator","dump","/sdcard/pf2_acceptance.xml",allow=True,timeout=65)
@@ -42,8 +50,8 @@ def nodes():
             last=("dump="+str(dumped.returncode)+" fetch="+str(fetched.returncode)
                 +" raw="+repr(raw[:180])+" stderr="+repr(dumped.stderr[:180]))
         log("UI_DUMP_RETRY",str(attempt+1)+" "+last[:250])
-        time.sleep(2)
-    if root is None:raise RuntimeError("UI_DUMP_UNAVAILABLE_AFTER_5_RETRIES "+last[:350])
+        time.sleep(min(3+attempt,8))
+    if root is None:raise RuntimeError("UI_DUMP_UNAVAILABLE_AFTER_10_RETRIES "+last[:350])
     out=[]
     for e in root.iter("node"):
         txt=e.attrib.get("text","").strip() or e.attrib.get("content-desc","").strip()
@@ -155,51 +163,71 @@ def click(label,attempts=5,horizontal=False):
         time.sleep(1)
     log("NOT_FOUND",label);return False
 def snapshot(label):
-    directory=Path(tempfile.mkdtemp(prefix="pf2-real-appdb-"))
-    for suffix in ("","-wal","-shm"):
-        name="braseiro_pathfinder2e.db"+suffix
-        r=adb("exec-out","run-as",PKG,"cat","databases/"+name,allow=True,timeout=60)
-        if r.returncode==0 and r.stdout:(directory/name).write_bytes(r.stdout)
-        elif not suffix:raise RuntimeError("APPDB_UNREADABLE "+r.stderr.decode(errors="replace")[:220])
-    db=directory/"braseiro_pathfinder2e.db"
-    if not db.read_bytes().startswith(b"SQLite format 3"):raise RuntimeError("INVALID_APPDB_BYTES")
-    con=sqlite3.connect("file:"+db.as_posix()+"?mode=ro",uri=True)
     try:
-        if con.execute("PRAGMA quick_check").fetchone()[0]!="ok":
-            raise RuntimeError("APPDB_QUICK_CHECK_FAILED")
-        violations=con.execute("PRAGMA foreign_key_check").fetchall()
-        if violations:raise RuntimeError("APPDB_FOREIGN_KEY_VIOLATIONS "+repr(violations[:5]))
-        columns=[row[1] for row in con.execute('PRAGMA table_info("kingmaker_state")')]
-        kingdom_rows=con.execute('select * from kingmaker_state order by rowid').fetchall()
-        # updated_at is a write timestamp; all actual kingdom state remains hashed.
-        kingdom_values=[[value for column,value in zip(columns,row) if column!="updated_at"]
-                        for row in kingdom_rows]
-        kingdom_sha256=hashlib.sha256(json.dumps(kingdom_values,ensure_ascii=False,
-                           default=str).encode("utf-8")).hexdigest()
-        state=con.execute("select enabled,turn_number,active_turn_id from kingmaker_state limit 1").fetchone()
-        tables={row[0] for row in con.execute("select name from sqlite_master where type='table'")}
-        counts={t:con.execute("select count(*) from "+t).fetchone()[0] for t in ("kingmaker_turns","kingmaker_armies","kingmaker_war_encounters") if t in tables}
-        army=[]
-        if "kingmaker_armies" in tables:
-            army=con.execute("select name,hp,max_hp from kingmaker_armies").fetchall()
-        row_sha256={}
-        # A static count is not sufficient to prove saves: hash every real
-        # column in real nonempty production tables, including turn and war.
-        for table in ("kingmaker_turns","kingmaker_armies","kingmaker_war_encounters"):
-            if table not in tables:
-                continue
-            rows=con.execute('select * from "'+table+'" order by rowid').fetchall()
-            encoded=json.dumps(rows,ensure_ascii=False,sort_keys=True,default=str).encode("utf-8")
-            row_sha256[table]=hashlib.sha256(encoded).hexdigest()
-        turn_details=[dict(zip(("id","phase","status","resource_roll_json"),row)) for row in
-                      con.execute("select id,phase,status,resource_roll_json from kingmaker_turns order by id")]
-        war_details=[dict(zip(("encounter_key","name","status","log_json"),row)) for row in
-                     con.execute("select encounter_key,name,status,log_json from kingmaker_war_encounters order by id")]
-        s={"state":state,"counts":counts,"army":army,"row_sha256":row_sha256,
-           "kingdom_state_sha256":kingdom_sha256,"turn_details":turn_details,"war_details":war_details}
-        log("PRODUCTION_APPDB_"+label,json.dumps(s,ensure_ascii=False))
-        return s
-    finally:con.close()
+        directory=Path(tempfile.mkdtemp(prefix="pf2-real-appdb-"))
+        db_name="braseiro_pathfinder2e.db"
+        # Wait for a real database created by Android application startup; a
+        # full cold boot on BRELGA can show APP_PID before AppDb initialization.
+        # No fake fixture, SQL injection, schema creation or inferred PASS.
+        ready=False
+        last_error=""
+        for attempt in range(10):
+            r=adb("exec-out","run-as",PKG,"cat","databases/"+db_name,allow=True,timeout=60)
+            if r.returncode==0 and r.stdout.startswith(b"SQLite format 3"):
+                (directory/db_name).write_bytes(r.stdout)
+                ready=True
+                break
+            last_error=("exit="+str(r.returncode)+" stderr="+
+                        r.stderr.decode(errors="replace")[:160]+
+                        " stdout="+repr(r.stdout[:100]))
+            log("APPDB_STARTUP_RETRY",str(attempt+1)+" "+last_error)
+            if attempt<9:time.sleep(4)
+        if not ready:raise RuntimeError("APPDB_UNREADABLE_AFTER_10_RETRIES "+last_error)
+        for suffix in ("-wal","-shm"):
+            name=db_name+suffix
+            r=adb("exec-out","run-as",PKG,"cat","databases/"+name,allow=True,timeout=60)
+            if r.returncode==0 and r.stdout:(directory/name).write_bytes(r.stdout)
+        db=directory/"braseiro_pathfinder2e.db"
+        if not db.read_bytes().startswith(b"SQLite format 3"):raise RuntimeError("INVALID_APPDB_BYTES")
+        con=sqlite3.connect("file:"+db.as_posix()+"?mode=ro",uri=True)
+        try:
+            if con.execute("PRAGMA quick_check").fetchone()[0]!="ok":
+                raise RuntimeError("APPDB_QUICK_CHECK_FAILED")
+            violations=con.execute("PRAGMA foreign_key_check").fetchall()
+            if violations:raise RuntimeError("APPDB_FOREIGN_KEY_VIOLATIONS "+repr(violations[:5]))
+            columns=[row[1] for row in con.execute('PRAGMA table_info("kingmaker_state")')]
+            kingdom_rows=con.execute('select * from kingmaker_state order by rowid').fetchall()
+            # updated_at is a write timestamp; all actual kingdom state remains hashed.
+            kingdom_values=[[value for column,value in zip(columns,row) if column!="updated_at"]
+                            for row in kingdom_rows]
+            kingdom_sha256=hashlib.sha256(json.dumps(kingdom_values,ensure_ascii=False,
+                               default=str).encode("utf-8")).hexdigest()
+            state=con.execute("select enabled,turn_number,active_turn_id from kingmaker_state limit 1").fetchone()
+            tables={row[0] for row in con.execute("select name from sqlite_master where type='table'")}
+            counts={t:con.execute("select count(*) from "+t).fetchone()[0] for t in ("kingmaker_turns","kingmaker_armies","kingmaker_war_encounters") if t in tables}
+            army=[]
+            if "kingmaker_armies" in tables:
+                army=con.execute("select name,hp,max_hp from kingmaker_armies").fetchall()
+            row_sha256={}
+            # A static count is not sufficient to prove saves: hash every real
+            # column in real nonempty production tables, including turn and war.
+            for table in ("kingmaker_turns","kingmaker_armies","kingmaker_war_encounters"):
+                if table not in tables:
+                    continue
+                rows=con.execute('select * from "'+table+'" order by rowid').fetchall()
+                encoded=json.dumps(rows,ensure_ascii=False,sort_keys=True,default=str).encode("utf-8")
+                row_sha256[table]=hashlib.sha256(encoded).hexdigest()
+            turn_details=[dict(zip(("id","phase","status","resource_roll_json"),row)) for row in
+                          con.execute("select id,phase,status,resource_roll_json from kingmaker_turns order by id")]
+            war_details=[dict(zip(("encounter_key","name","status","log_json"),row)) for row in
+                         con.execute("select encounter_key,name,status,log_json from kingmaker_war_encounters order by id")]
+            s={"state":state,"counts":counts,"army":army,"row_sha256":row_sha256,
+               "kingdom_state_sha256":kingdom_sha256,"turn_details":turn_details,"war_details":war_details}
+            log("PRODUCTION_APPDB_"+label,json.dumps(s,ensure_ascii=False))
+            return s
+        finally:con.close()
+    finally:
+        shutil.rmtree(directory,ignore_errors=True)
 def stage(name,fn):
     try: G[name]=bool(fn())
     except Exception as ex:G[name]=False;log(name+"_ERROR",repr(ex)[:600])

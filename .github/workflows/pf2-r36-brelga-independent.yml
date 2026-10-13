@@ -21,6 +21,9 @@ jobs:
   verify:
     runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 100
+    env:
+      PYTHONIOENCODING: utf-8
+      PYTHONUTF8: '1'
     steps:
       - uses: actions/checkout@v4
         with:
