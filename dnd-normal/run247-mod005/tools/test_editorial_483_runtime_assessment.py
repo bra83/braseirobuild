@@ -19,10 +19,15 @@ class Editorial483AssessmentTest(unittest.TestCase):
         # The strict ledger already counts EVERY unproven section, including
         # non-gameplay editorial entries. Do not count them twice (the prior
         # assertion gave 500 for an actual inventory of 483).
-        self.assertEqual(483, report["pending_semantic_certification"]
-                         + report["source_verified_and_semantic_passed"])
-        self.assertGreater(non_rules, 0)
-        self.assertLess(non_rules, 483)
+        # The strict ledger deliberately excludes not-applicable editorial
+        # entries from semantic pending count. Account for them once, not zero
+        # times (437) or twice (500).
+        self.assertEqual(report["sections_evaluated"],
+                         report["pending_semantic_certification"]
+                         + report["source_verified_and_semantic_passed"]
+                         + report["non_rule_items"])
+        self.assertEqual(non_rules, report["non_rule_items"])
+        self.assertEqual(46, non_rules)
         self.assertEqual(483, len(set(r["key"] for r in report["sections"])))
 
     def test_au_sections_link_real_rule_engines_not_merely_translation(self):
