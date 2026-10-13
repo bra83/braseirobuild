@@ -614,6 +614,48 @@ public final class R36BookSemanticsHarness {
   check(trisBranch.optInt("xp_awarded")==120&&trisBranch.optJSONArray("items_awarded").length()==2,"Tristian redemption branch awards 120 XP, Celestial Wings, and Incarnate Ancestry ritual");
   JSONObject nokBranch=KingmakerCompanionSemantics.resolveCompanionAdventureBranch("nok_nok","hero_of_stolen_lands",new JSONObject().put("companion_key","nok_nok").put("influence",4),new JSONObject());
   check(nokBranch.optJSONArray("unlocked_rewards_json").toString().contains("nok_nok_alignment:chaotic_neutral"),"Nok-Nok heroism branch shifts alignment to chaotic neutral");
+  // Regression: every actual Companion Guide branch ID must resolve through
+  // the catalog, not through contradictory legacy branch names.
+  String[] companions={"amiri","ekundayo","jubilost","linzi","nok_nok","tristian","valerie"};
+  String[] publishedBranches={"free_kean_reforge_pure_blade","temper_vengeance_embrace_fellowship",
+    "ask_gnome_first_world_truth","forgive_linzi_establish_press",
+    "guide_nok_nok_to_true_heroism","cleanse_sanctuary_awaken_aasimar_wings","deny_mercy_to_dying_fredero"};
+  for(int i=0;i<companions.length;i++){
+   JSONObject publishedBranch=new JSONObject().put("branch_key",publishedBranches[i])
+    .put("influence_delta",i==6?-4:2).put("available_after",i!=6)
+    .put("attitude_after",i==6?"indifferent":"helpful")
+    .put("xp_awarded",500).put("items_awarded",new JSONArray().put("UNVERIFIED REWARD"))
+    .put("feature_unlocked","proof:"+companions[i]).put("description","Escolha oficial");
+   JSONObject progress=new JSONObject().put("branches",new JSONArray().put(publishedBranch))
+    .put("automatic_rewards_compiled",false);
+   JSONObject before=new JSONObject().put("companion_key",companions[i]).put("influence",4).put("available",1);
+   JSONObject outcome=KingmakerCompanionSemantics.resolveCompanionAdventureBranch(companions[i],publishedBranches[i],before,progress);
+   check(publishedBranches[i].equals(outcome.optString("branch_key")),"Companion published branch ID: "+companions[i]);
+   check(outcome.optInt("xp_awarded")==0&&outcome.optJSONArray("items_awarded").length()==0,
+    "Unverified reward never minted: "+companions[i]);
+   check(outcome.optInt("available_after")==(i==6?0:1),"Official companion availability: "+companions[i]);
+   boolean refused=false;
+   try{KingmakerCompanionSemantics.resolveCompanionAdventureBranch(companions[i],"obsolete_unpublished_branch",before,progress);}
+   catch(IllegalArgumentException ex){refused=true;}
+   check(refused,"Obsolete/invented branch rejected: "+companions[i]);
+  }
+  // Genuine Ekundayo feast: exactly 5 Victory Points, not 8.
+  JSONObject publishedFeast=new JSONObject()
+   .put("scenes",new JSONArray().put(new JSONObject()
+    .put("skill_checks",new JSONArray().put(new JSONObject().put("check_id","ekundayo_feast_contribution").put("dc",22)))))
+   .put("feast_points_target",5).put("feast_points",4);
+  JSONObject feastOutcome=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
+   "ekundayo","ekundayo_feast_contribution",10,12,22,publishedFeast).optJSONObject("progress");
+  check(feastOutcome.optInt("feast_points")==5&&feastOutcome.optBoolean("feast_success"),
+   "Official 5-VP feast threshold is reached at fifth point");
+  boolean wrongDcBlocked=false;
+  try{KingmakerCompanionSemantics.resolveCompanionAdventureCheck("ekundayo","ekundayo_feast_contribution",10,12,20,publishedFeast);}
+  catch(IllegalArgumentException ex){wrongDcBlocked=true;}
+  check(wrongDcBlocked,"Narrator cannot lower published DC");
+  boolean inventedCheckBlocked=false;
+  try{KingmakerCompanionSemantics.resolveCompanionAdventureCheck("ekundayo","invented_check",10,12,22,publishedFeast);}
+  catch(IllegalArgumentException ex){inventedCheckBlocked=true;}
+  check(inventedCheckBlocked,"Narrator cannot inject unlisted check");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }
