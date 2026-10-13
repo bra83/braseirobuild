@@ -72,9 +72,9 @@ class XmmIndependentSourceTests(unittest.TestCase):
             xmm.trait_rows(source)
     def test_grapple_escape_dc_is_on_hit_not_a_saving_throw(self):
         source=[{"name":"Ankheg","action":[{"name":"Bite","entries":[
-          "{@condition Grappled|XPHB}, escape {@dc 13}."],}]}]
+          "{@atkr m} reach 5 ft. {@condition Grappled|XPHB}, escape {@dc 13}."],}]}]
         compiled=[{"id":"Ankheg","actions":[{"name":"Bite","escape_dc":13,
-          "condition_on_hit":"grappled","condition_max_target_size":"large"}]}]
+          "condition_on_hit":"grappled","condition_max_target_size":"large","reach_ft":5}]}]
         contracts=[{"id":"Ankheg","name":"Bite","slot":0,"condition":"grappled",
           "dc":13,"size":"Large"}]
         errors,count=xmm.check_grapple_escape_riders(source,compiled,contracts,1)
@@ -82,6 +82,11 @@ class XmmIndependentSourceTests(unittest.TestCase):
         compiled[0]["actions"][0]["save_dc"]=13
         errors,_=xmm.check_grapple_escape_riders(source,compiled,contracts,1)
         self.assertEqual(["Ankheg:Bite:ESCAPE_DC_MISCLASSIFIED","GRAPPLE_ESCAPE_RECORD_COUNT:0"],errors)
+        compiled[0]["actions"][0].pop("save_dc")
+        compiled[0]["actions"][0]["reach_ft"]=10
+        errors,_=xmm.check_grapple_escape_riders(source,compiled,contracts,1)
+        self.assertEqual(["Ankheg:Bite:GRAPPLE_REACH_MISMATCH",
+                          "GRAPPLE_ESCAPE_RECORD_COUNT:0"],errors)
     def test_save_damage_contract_is_compared_to_source_behavior(self):
         source=[{"name":"Test Dragon","action":[{"name":"Fire Breath {@recharge 5}",
           "entries":["{@actSave dex} {@dc 14}, each creature. {@actSaveFail} 21 ({@damage 6d6}) Fire damage. {@actSaveSuccess} Half damage."]}]}]

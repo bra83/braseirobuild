@@ -85,8 +85,9 @@ def check_grapple_escape_riders(source, compiled, contracts, expected_count=36):
             continue
         text=json.dumps(src.get("entries",[]),ensure_ascii=False)
         dc=int(rider["dc"])
+        source_reach=re.search(r"\breach\s+(\d+)\s*ft\.?",text,re.I)
         if "{@condition Grappled" not in text or ("escape {@dc %d}"%dc) not in text or \
-           "saving throw" in text.lower() or "escape" not in text.lower():
+           "saving throw" in text.lower() or "escape" not in text.lower() or not source_reach:
             problems.append(monster+":"+rider["name"]+":PINNED_ESCAPE_SOURCE_CHANGED")
             continue
         source_saves=re.findall(r"\{@actSave\s+(str|dex|con|int|wis|cha)\}\s*\{@dc\s*(\d+)",text,re.I)
@@ -94,6 +95,9 @@ def check_grapple_escape_riders(source, compiled, contracts, expected_count=36):
             dst.get("save_ability","").lower()!=source_saves[0][0].lower() or
             dst.get("save_dc")!=int(source_saves[0][1]) or not dst.get("condition_on_fail")))
         save_unproven=(not source_saves and any(k in dst for k in ("save_dc","save_ability","condition_on_fail")))
+        if dst.get("reach_ft")!=int(source_reach.group(1)):
+            problems.append(monster+":"+rider["name"]+":GRAPPLE_REACH_MISMATCH")
+            continue
         if dst.get("escape_dc")!=dc or dst.get("condition_max_target_size")!=rider.get("size","").lower() or \
            "grappled" not in dst.get("condition_on_hit","").lower() or save_mismatch or save_unproven:
             problems.append(monster+":"+rider["name"]+":ESCAPE_DC_MISCLASSIFIED")
@@ -388,6 +392,7 @@ def check(project, bestiary_bytes, book_bytes):
         "spellcasting_usage_records_compared":len(spellrows),
         "spellcaster_records_compared":totals["spellcasting_monsters"],
         "grapple_escape_records_compared":totals["grapple_escape_records"],
+        "grapple_reach_records_compared":totals["grapple_escape_records"],
         "source_trait_contracts_compared":len(traitrows),
         "source_trait_families_compared":len({r["kind"] for r in traitrows}),
         "source_save_damage_actions_compared":save_count,
