@@ -210,6 +210,18 @@ def journal_ui(s):
         form.addView(text(check.optString("description"),14,TEXT,false));
         final EditText natural=labeledField(form,"Resultado natural do d20 (1 a 20)","",true);
         final EditText bonus=labeledField(form,"Modificador total (sem o d20)","0",true);
+        final List<Integer> availableDcs=new ArrayList<Integer>();availableDcs.add(check.optInt("dc"));
+        final List<String> dcLabels=new ArrayList<String>();dcLabels.add("CD publicada "+check.optInt("dc"));
+        if(check.has("alternative_dc_when_helpful")){
+            availableDcs.add(check.optInt("alternative_dc_when_helpful"));
+            dcLabels.add("CD se Ekundayo prestativo "+check.optInt("alternative_dc_when_helpful"));
+        }
+        if(check.has("alternative_dc_for_crafting")){
+            availableDcs.add(check.optInt("alternative_dc_for_crafting"));
+            dcLabels.add("CD alternativa de Manufatura "+check.optInt("alternative_dc_for_crafting"));
+        }
+        final Spinner chosenDc=spinner(dcLabels.toArray(new String[0]),dcLabels.get(0));
+        form.addView(cardWithLabel("CD DO TESTE",chosenDc));
         final String companion=KingmakerCampaignGate.questKey(q).substring(5);
         new AlertDialog.Builder(this).setTitle(check.optString("skill")+" • CD "+check.optInt("dc"))
          .setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null)
@@ -217,7 +229,7 @@ def journal_ui(s):
             try{
                 int d20=Integer.parseInt(value(natural).trim());
                 int mod=Integer.parseInt(value(bonus).trim());
-                JSONObject result=kingmakerRepository.resolveCompanionAdventureCheck(companion,check.optString("check_id"),d20,mod,check.optInt("dc"));
+                JSONObject result=kingmakerRepository.resolveCompanionAdventureCheck(companion,check.optString("check_id"),d20,mod,availableDcs.get(chosenDc.getSelectedItemPosition()));
                 JSONObject roll=result.optJSONObject("check");
                 toast("Teste aplicado e salvo: "+(roll==null?"":roll.optString("degree")));
                 showKingmakerCampaignJournal();
