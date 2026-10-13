@@ -221,5 +221,148 @@ public final class KingmakerCompanionSemantics {
   }
   return hours.size();
  }
+
+ public static String attitudeForInfluence(String k,int influence){
+  if(influence<0)return "hostile";
+  if("amiri".equals(k)||"harrim".equals(k)||"octavia".equals(k))return influence>=4?"helpful":influence>=2?"friendly":"indifferent";
+  if("linzi".equals(k))return influence>=2?"helpful":influence>=1?"friendly":"indifferent";
+  if("jaethal".equals(k)||"valerie".equals(k))return influence>=6?"helpful":influence>=3?"friendly":"indifferent";
+  if("ekundayo".equals(k))return influence>=8?"helpful":influence>=4?"friendly":influence>=2?"indifferent":"unfriendly";
+  if("regongar".equals(k))return influence>=6?"helpful":influence>=4?"friendly":influence>=2?"indifferent":"unfriendly";
+  if("kalikke_kanerah".equals(k))return influence>=6?"helpful":influence>=4?"friendly":"indifferent";
+  if("nok_nok".equals(k))return influence>=8?"helpful":influence>=4?"friendly":"indifferent";
+  if("jubilost".equals(k)||"tristian".equals(k))return influence>=8?"helpful":influence>=2?"friendly":"indifferent";
+  return "indifferent";
+ }
+
+ public static JSONObject resolveCompanionAdventureCheck(String companionKey,String checkId,int naturalRoll,int totalModifier,int dc,JSONObject currentProgress)throws Exception{
+  if(companionKey==null||questLevel(companionKey)==0)throw new IllegalArgumentException("Companheiro sem aventura publicada: "+companionKey);
+  if(checkId==null||checkId.trim().length()==0)throw new IllegalArgumentException("Identificador do teste da aventura é obrigatório.");
+  if(naturalRoll<1||naturalRoll>20)throw new IllegalArgumentException("O d20 natural deve estar entre 1 e 20.");
+  if(dc<10||dc>60)throw new IllegalArgumentException("CD inválida para aventura de companheiro: "+dc);
+  int total=naturalRoll+totalModifier;
+  int deg=total>=dc+10?3:total>=dc?2:total<=dc-10?0:1;
+  if(naturalRoll==20)deg=Math.min(3,deg+1);else if(naturalRoll==1)deg=Math.max(0,deg-1);
+  String degree=deg==3?"CRITICAL_SUCCESS":deg==2?"SUCCESS":deg==1?"FAILURE":"CRITICAL_FAILURE";
+  JSONObject next=currentProgress!=null?new JSONObject(currentProgress.toString()):new JSONObject();
+  JSONArray checks=next.optJSONArray("adventure_checks");if(checks==null)checks=new JSONArray();
+  JSONObject entry=new JSONObject().put("check_id",checkId.trim()).put("natural_roll",naturalRoll).put("modifier",totalModifier).put("total",total).put("dc",dc).put("degree",degree);
+  checks.put(entry);
+  next.put("adventure_checks",checks).put("journal_started",true);
+  if("ekundayo".equals(companionKey)){
+   int delta=deg==3?2:deg==2?1:deg==1?0:-1;
+   int pts=Math.max(0,next.optInt("feast_points",0)+delta);
+   next.put("feast_points",pts).put("feast_success",pts>=8);
+   entry.put("feast_points_delta",delta).put("feast_points_total",pts);
+  }else if("jubilost".equals(companionKey)){
+   int wins=next.optInt("debate_wins",0)+(deg>=2?1:0);
+   int losses=next.optInt("debate_losses",0)+(deg<2?1:0);
+   next.put("debate_wins",wins).put("debate_losses",losses).put("debate_won",wins>=3);
+   entry.put("debate_wins",wins).put("debate_losses",losses);
+  }else if("tristian".equals(companionKey)){
+   int rpDelta=deg==3?2:deg==2?1:0;
+   int rp=next.optInt("research_points",0)+rpDelta;
+   int curse=next.optInt("curse_countdown",0)+(deg==0?2:1);
+   next.put("research_points",rp).put("curse_countdown",curse).put("sanctum_located",rp>=12).put("maray_afflicted",curse>=6);
+   entry.put("research_points_total",rp).put("curse_countdown",curse);
+  }else if("valerie".equals(companionKey)){
+   int rounds=next.optInt("duel_rounds",0)+1;
+   boolean subdued=next.optBoolean("fredero_subdued")||deg>=2;
+   next.put("duel_rounds",rounds).put("fredero_subdued",subdued);
+   entry.put("fredero_subdued",subdued);
+  }
+  return new JSONObject().put("companion_key",companionKey).put("check",entry).put("progress",next);
+ }
+
+ public static JSONObject resolveCompanionAdventureBranch(String companionKey,String branchKey,JSONObject companionBefore,JSONObject currentProgress)throws Exception{
+  if(companionKey==null||questLevel(companionKey)==0)throw new IllegalArgumentException("Companheiro sem aventura publicada: "+companionKey);
+  if(branchKey==null||branchKey.trim().length()==0)throw new IllegalArgumentException("Ramificação da aventura é obrigatória.");
+  String b=branchKey.trim();
+  int infDelta=0,xp=80,availableAfter=companionBefore.optInt("available",1);
+  String alignAfter="",feature="",summary="";
+  JSONArray items=new JSONArray();
+  if("amiri".equals(companionKey)){
+   if("reconcile_six_bears".equals(b)||"defeat_tigers_spare_bears".equals(b)){
+    infDelta=2;xp=120;items.put("Espada Grande de Kean Reforjada (+2 Greater Striking Frost Giant-Bane)");
+    feature="companion_boon:amiri_six_bears_alliance";summary="Amiri honra Nilak, reconcilia-se com a tribo dos Seis Ursos e desperta o poder ancestral da espada de Kean.";
+   }else if("slay_tigers_and_avenge_nilak".equals(b)){
+    infDelta=1;xp=80;items.put("Espada Grande de Kean Desperta (+2 Striking Giant-Bane)");
+    feature="companion_boon:amiri_blood_calling_vengeance";summary="Amiri abate Fionn e os Senhores Tigres em vingança direta por Nilak.";
+   }else throw new IllegalArgumentException("Ramificação desconhecida para Amiri: "+b);
+  }else if("ekundayo".equals(companionKey)){
+   if("accept_new_life_and_ntavi".equals(b)||"feast_triumph_let_go_vengeance".equals(b)){
+    infDelta=2;xp=80;items.put("Arco Composto de Ntavi (+1 Striking)");
+    feature="companion_boon:ekundayo_feast_of_feasts";summary="Ekundayo supera o luto no Banquete dos Banquetes, derrota Karga e aceita uma nova vida nas Terras Roubadas.";
+   }else if("cling_to_vengeance".equals(b)){
+    infDelta=0;xp=40;feature="companion_boon:ekundayo_sworn_avenger";summary="Ekundayo derrota Karga, mas mantém seu juramento implacável contra os gigantes.";
+   }else throw new IllegalArgumentException("Ramificação desconhecida para Ekundayo: "+b);
+  }else if("jubilost".equals(companionKey)){
+   if("win_debate_free_host".equals(b)||"answer_xae_save_gnomes".equals(b)){
+    infDelta=2;xp=80;items.put("Notas Secretas de Xae sobre o Branqueamento");
+    feature="jubilost:official_structure_offer";summary="Jubilost vence os Debates Inconsequentes, liberta seu duplo e recebe a resposta de Xae, oferecendo um Laboratório de Alquimia gratuito ao Reino.";
+   }else if("forfeit_or_lose_debate".equals(b)){
+    infDelta=-2;xp=30;feature="companion_outcome:jubilost_debate_ setback";summary="Jubilost deixa os Debates Inconsequentes sem o favor completo de Xae.";
+   }else throw new IllegalArgumentException("Ramificação desconhecida para Jubilost: "+b);
+  }else if("linzi".equals(companionKey)){
+   if("expose_eike_and_pardon_linzi".equals(b)||"recover_press_establish_printing".equals(b)){
+    infDelta=2;xp=80;items.put("Prensa Tipográfica Completa da Academia");
+    feature="companion_boon:linzi_printing_press";summary="O grupo derrota o coven Jaggedbriar, desmascara Eike, recupera a prensa tipográfica e perdoa o empréstimo de Linzi.";
+   }else if("punish_linzi_strict_audit".equals(b)){
+    infDelta=-1;xp=80;items.put("Prensa Tipográfica Confiscada pelo Tesouro");
+    feature="companion_boon:linzi_printing_press";summary="A prensa é recuperada do coven Jaggedbriar, mas Linzi sofre repreensão formal pelo uso do tesouro.";
+   }else throw new IllegalArgumentException("Ramificação desconhecida para Linzi: "+b);
+  }else if("nok_nok".equals(companionKey)){
+   if("hero_of_stolen_lands".equals(b)||"reject_lamashtu_choose_heroism".equals(b)){
+    infDelta=2;xp=80;alignAfter="chaotic_neutral";items.put("Corta-Cães do Quinto Deus-Herói (+1 Striking Returning)");
+    feature="companion_boon:nok_nok_fifth_hero";summary="Nok-Nok derrota Nargloom e o Barghest Maior, rejeita a servidão cega a Lamashtu e assume seu papel como herói das Terras Roubadas.";
+   }else if("worship_lamashtu_shrine".equals(b)){
+    infDelta=0;xp=40;alignAfter="chaotic_evil";feature="companion_boon:nok_nok_lamashtu_zealot";summary="Nok-Nok derrota Nargloom mas mantém os santuários de Lamashtu.";
+   }else throw new IllegalArgumentException("Ramificação desconhecida para Nok-Nok: "+b);
+  }else if("tristian".equals(companionKey)){
+   if("redeem_cultists_awaken_deva".equals(b)||"cleanse_curse_incarnate_ancestry".equals(b)){
+    infDelta=2;xp=120;items.put("Asas Celestiais Despertas de Sarenrae").put("Ritual Ancestralidade Encarnada (Incarnate Ancestry)");
+    feature="tristian:official_structure_offer";summary="Tristian derrota Maray, purifica o Reino dos Purificados, desperta sua herança de Deva Astral e oferece um Orfanato ou Santuário gratuito ao Reino.";
+   }else if("purge_cult_without_mercy".equals(b)){
+    infDelta=0;xp=80;items.put("Asas Celestiais Despertas de Sarenrae");
+    feature="companion_boon:tristian_celestial_wings";summary="Tristian erradica o Reino dos Purificados pela força e desperta suas asas celestiais.";
+   }else throw new IllegalArgumentException("Ramificação desconhecida para Tristian: "+b);
+  }else if("valerie".equals(companionKey)){
+   if("spare_fredero_and_slay_tulvak".equals(b)||"redeem_fredero_break_curse".equals(b)){
+    infDelta=2;xp=80;availableAfter=1;items.put("Escudo de Aço Polido de Sir Fredero (+2 Sturdy Shield)");
+    feature="companion_boon:valerie_scar_healed";summary="Valerie vence o duelo com honra, poupa Sir Fredero, derrota a bruxa Tulvak e tem sua cicatriz curada por Shelyn.";
+   }else if("deny_mercy_slay_fredero".equals(b)){
+    infDelta=-6;xp=0;availableAfter=0;feature="companion_departure:valerie_denied_mercy";summary="Sir Fredero tem a misericórdia negada; indignada com a violação do código de honra, Valerie abandona permanentemente a companhia.";
+   }else throw new IllegalArgumentException("Ramificação desconhecida para Valerie: "+b);
+  }
+  int beforeInf=companionBefore.optInt("influence",0);
+  int afterInf=Math.max(0,beforeInf+infDelta);
+  String attitudeAfter=availableAfter==0?"hostile":attitudeForInfluence(companionKey,afterInf);
+  JSONArray existingRewards=history(companionBefore);
+  JSONArray updatedRewards=rewardHistory(companionBefore,afterInf,attitudeAfter,existingRewards);
+  if(feature.length()>0&&!has(updatedRewards,feature))updatedRewards.put(feature);
+  if("nok_nok".equals(companionKey)&&alignAfter.length()>0){
+   JSONArray cleaned=new JSONArray();
+   for(int i=0;i<updatedRewards.length();i++)if(!updatedRewards.optString(i).startsWith("nok_nok_alignment:"))cleaned.put(updatedRewards.optString(i));
+   cleaned.put("nok_nok_alignment:"+alignAfter);
+   updatedRewards=cleaned;
+  }
+  JSONObject nextProgress=currentProgress!=null?new JSONObject(currentProgress.toString()):new JSONObject();
+  nextProgress.put("branch_resolved",b).put("branch_summary",summary).put("xp_awarded",xp).put("items_awarded",items).put("journal_started",true);
+  return new JSONObject()
+   .put("companion_key",companionKey)
+   .put("branch_key",b)
+   .put("summary",summary)
+   .put("influence_before",beforeInf)
+   .put("influence_delta",infDelta)
+   .put("influence_after",afterInf)
+   .put("attitude_after",attitudeAfter)
+   .put("available_after",availableAfter)
+   .put("xp_awarded",xp)
+   .put("items_awarded",items)
+   .put("feature_unlocked",feature)
+   .put("unlocked_rewards_json",updatedRewards)
+   .put("progress",nextProgress);
+ }
 }
+
 

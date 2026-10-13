@@ -1,0 +1,171 @@
+{
+  "project": "Braseiro VTT — Pathfinder 2e Kingmaker",
+  "release_target": "9.0.37-R36",
+  "base_release_preserved": "PATHFINDER2E-9.0.36-R35",
+  "base_source_sha256": "86d9a6fd26e4139e084c8e4069f49ef53e0cf8654e0f9f5662b92f9183941aa6",
+  "branch": "pf2-kingmaker-r36-official-rule-fixes-20261011",
+  "domains": {
+    "front_a_and_b_chapters_1_to_11": {
+      "official_chapters": 11,
+      "official_parts_mapped_and_audited": 40,
+      "missing_named_anchors": 0,
+      "official_part_audit_review_needed": 0,
+      "chapter_9_candlemere": {
+        "official_title": "They Lurk Below (Candlemere)",
+        "pages": "394-423",
+        "quests": 5,
+        "canonical_pois": [
+          "poi_candlemere_contested_level",
+          "poi_candlemere_spiral_yog_sothoth"
+        ],
+        "tactical_scenes": [
+          "scene_candlemere_contested_level",
+          "scene_candlemere_spiral_yog_sothoth"
+        ],
+        "hazards": [
+          "hazard_candlemere_praise",
+          "hazard_candlemere_spiral_seal",
+          "hazard_candlemere_orb_blast"
+        ],
+        "npcs_and_creatures": 13,
+        "helix_theorem_mechanics": {
+          "room_sequence": ["B14", "B13", "B12", "B10", "B8", "B4", "B3", "B2", "B1"],
+          "occultism_dc": 36,
+          "reset_on_failure_or_wrong_order": true,
+          "chapter_11_save_status_bonus": 4,
+          "chapter_11_save_bonus_helper": "KingmakerCampaignGate.helixStatusBonusAgainstTeleportOrBanishment"
+        }
+      },
+      "chapter_11_story_gate": {
+        "official_title": "The Curse of the Lantern King",
+        "required_completed_quests": ["q_sound_thousand_screams", "q_no_canto_de_mil_gritos"],
+        "required_milestones": ["milestone_pitax_conquistada", "milestone_1000_gritos_selados"],
+        "required_briar_artifact": true,
+        "gate_class": "KingmakerCampaignGate"
+      },
+      "campaign_totals": {
+        "asset_files": 13,
+        "quests_count": 60,
+        "pois_count": 54,
+        "npcs_count": 70,
+        "scenes_count": 28,
+        "hazards_count": 39,
+        "events_count": 20,
+        "milestones_count": 42,
+        "quest_dangling": 0,
+        "quest_dependency_cycles": 0
+      }
+    },
+    "front_c_companion_guide": {
+      "companion_profiles": 12,
+      "published_personal_adventures": 7,
+      "secondary_companions_with_campaign_hooks": 5,
+      "audit_no_literal_quest_links": 0,
+      "adventures": [
+        {
+          "companion": "amiri",
+          "quest_key": "q_cg_amiri",
+          "official_title": "Blood Calling",
+          "pages": "12-21",
+          "minimum_level": 11,
+          "scenes": ["A1", "B1-B2", "B3"],
+          "branches": ["reconcile_six_bears", "slay_tigers_and_avenge_nilak"]
+        },
+        {
+          "companion": "ekundayo",
+          "quest_key": "q_cg_ekundayo",
+          "official_title": "A Feast of Feasts",
+          "pages": "27-31",
+          "minimum_level": 6,
+          "scenes": ["Banquete", "C1-C2"],
+          "subsystem": "Feast Points (target 8)",
+          "branches": ["accept_new_life_and_ntavi", "cling_to_vengeance"]
+        },
+        {
+          "companion": "jubilost",
+          "quest_key": "q_cg_jubilost",
+          "official_title": "The Inconsequent Debates",
+          "pages": "36-43",
+          "minimum_level": 8,
+          "scenes": ["A1-A8", "A9", "Debate Hall"],
+          "subsystem": "Debate Rounds (3 wins required)",
+          "branches": ["win_debate_free_host", "forfeit_or_lose_debate"]
+        },
+        {
+          "companion": "linzi",
+          "quest_key": "q_cg_linzi",
+          "official_title": "Treasury Trouble",
+          "pages": "48-57",
+          "minimum_level": 7,
+          "scenes": ["Academia", "B1-B5"],
+          "branches": ["expose_eike_and_pardon_linzi", "punish_linzi_strict_audit"]
+        },
+        {
+          "companion": "nok_nok",
+          "quest_key": "q_cg_nok_nok",
+          "official_title": "Heroes or Gods?",
+          "pages": "61-67",
+          "minimum_level": 5,
+          "scenes": ["Oleg's Trading Post", "C1-C4"],
+          "branches": ["hero_of_stolen_lands", "worship_lamashtu_shrine"]
+        },
+        {
+          "companion": "tristian",
+          "quest_key": "q_cg_tristian",
+          "official_title": "Kingdom of the Cleansed",
+          "pages": "72-81",
+          "minimum_level": 10,
+          "scenes": ["Investigacao", "D1-D4", "D5-D6", "D7"],
+          "subsystem": "Research Points (target 12) & Curse Countdown (threshold 6)",
+          "branches": ["cleanse_sanctuary_awaken_aasimar_wings", "purge_cult_without_mercy"]
+        },
+        {
+          "companion": "valerie",
+          "quest_key": "q_cg_valerie",
+          "official_title": "Sir Fredero's Challenge",
+          "pages": "86-93",
+          "minimum_level": 9,
+          "scenes": ["E1-E2", "E3-E4"],
+          "subsystem": "Honor Duel & Shelyn's Shame Haunt",
+          "branches": ["spare_fredero_and_slay_tulvak", "deny_mercy_slay_fredero"]
+        }
+      ],
+      "repository_entrypoints": [
+        "KingmakerRepository.advanceCompanionInfluence",
+        "KingmakerRepository.selectCompanionTwinsPersona",
+        "KingmakerRepository.claimCompanionStructureGift",
+        "KingmakerRepository.invokeHarrimCampingProtection",
+        "KingmakerRepository.startCompanionPersonalAdventure",
+        "KingmakerRepository.resolveCompanionAdventureCheck",
+        "KingmakerRepository.resolveCompanionAdventureBranch"
+      ]
+    },
+    "front_d_kingdom_structures_leadership_warfare": {
+      "official_structures_catalog": {
+        "total_structures": 73,
+        "zero_mismatches_against_p544_552": true,
+        "paved_streets_free_first_per_turn": true,
+        "museum_magic_item_vault_and_fame_infamy": true,
+        "menagerie_exhibit_ruin_fame_and_sapient_unrest": true,
+        "pc_settlement_structure_item_bonuses": true
+      },
+      "new_leadership_p520": {
+        "four_degrees_of_success": true,
+        "invested_roles_reassignment_up_to_4": true,
+        "invested_status_bonus_preserved_and_transferred": true,
+        "companion_automatic_investment_enforced": true,
+        "vacancy_penalties_recomputed": true,
+        "vip_once_per_turn_enforced": true
+      },
+      "kingdom_turn_and_warfare": {
+        "claim_hex_prepaid_1_rp": true,
+        "collect_taxes_4_degrees_and_untradeable_penalty": true,
+        "improve_lifestyle_4_degrees": true,
+        "tap_treasury_4_degrees": true,
+        "atomic_consumption_and_turn_phase_locks": true,
+        "atomic_warfare_damage_rout_and_destruction": true,
+        "war_checks_passed": "9/9"
+      }
+    }
+  }
+}

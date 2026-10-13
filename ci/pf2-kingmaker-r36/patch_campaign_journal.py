@@ -96,6 +96,69 @@ def journal_repository(s):
             result[0]=db.queryOne("SELECT * FROM quests WHERE id=? AND world_profile=?",new String[]{String.valueOf(questId),profile()});audit("Missão da campanha concluída",k,before,result[0]);
         }});return result[0];
     }
+    public JSONObject resolveCompanionAdventureCheck(final String companionKey,final String checkId,final int naturalRoll,final int totalModifier,final int dc)throws Exception{
+        requireEnabled();final String canonical=KingmakerRulesEngine.canonicalCompanionKey(clean(companionKey).replaceFirst("^npc_",""));
+        final JSONObject[] result={new JSONObject()};db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            JSONObject quest=officialCompanionQuest(canonical);if(quest.length()==0)throw new IllegalArgumentException("Aventura oficial de companheiro não encontrada: "+canonical);
+            if(KingmakerCampaignGate.completed(quest.optString("status")))throw new IllegalStateException("A aventura deste companheiro já foi concluída.");
+            requireJournalEligibility(quest);
+            JSONObject progress=KingmakerCampaignGate.progress(quest);
+            JSONObject outcome=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(canonical,checkId,naturalRoll,totalModifier,dc,progress);
+            JSONObject nextProgress=outcome.getJSONObject("progress");
+            ContentValues v=new ContentValues();v.put("progress_json",nextProgress.toString());v.put("status","in_progress");v.put("updated_at",System.currentTimeMillis());
+            db.getWritableDatabase().update("quests",v,"id=? AND world_profile=?",new String[]{String.valueOf(quest.optLong("id")),profile()});
+            ContentValues c=new ContentValues();c.put("personal_quest_status","in_progress");c.put("updated_at",System.currentTimeMillis());
+            db.getWritableDatabase().update("kingmaker_companions",c,"world_profile=? AND companion_key=?",new String[]{profile(),canonical});
+            result[0]=outcome;audit("Teste de aventura de companheiro",canonical+" • "+checkId,quest,outcome);
+        }});return result[0];
+    }
+    public JSONObject resolveCompanionAdventureBranch(final String companionKey,final String branchKey)throws Exception{
+        requireEnabled();final String canonical=KingmakerRulesEngine.canonicalCompanionKey(clean(companionKey).replaceFirst("^npc_",""));
+        final JSONObject[] result={new JSONObject()};db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            String receiptKey="companion_branch_receipt:q_cg_"+canonical;
+            JSONObject existingReceipt=db.queryOne("SELECT * FROM kingmaker_features WHERE world_profile=? AND feature_key=?",new String[]{profile(),receiptKey});
+            if(existingReceipt.length()>0){result[0]=jsonObject(existingReceipt.optString("effects_json","{}")).put("idempotent_replay",true);return;}
+            JSONObject quest=officialCompanionQuest(canonical);if(quest.length()==0)throw new IllegalArgumentException("Aventura oficial de companheiro não encontrada: "+canonical);
+            requireJournalEligibility(quest);
+            if(!KingmakerCampaignGate.objectivesResolved(quest))throw new IllegalStateException("Resolva todos os objetivos da aventura antes de consolidar o desfecho.");
+            JSONObject comp=companion(canonical);if(comp.length()==0)throw new IllegalArgumentException("Companheiro inexistente: "+canonical);
+            JSONObject progress=KingmakerCampaignGate.progress(quest);
+            JSONObject outcome=KingmakerCompanionSemantics.resolveCompanionAdventureBranch(canonical,branchKey,comp,progress);
+            ContentValues cv=new ContentValues();
+            cv.put("influence",outcome.optInt("influence_after"));
+            cv.put("attitude",outcome.optString("attitude_after"));
+            cv.put("available",outcome.optInt("available_after",1));
+            cv.put("unlocked_rewards_json",outcome.optJSONArray("unlocked_rewards_json").toString());
+            cv.put("personal_quest_status","complete");
+            cv.put("personal_quest_notes",outcome.optString("summary"));
+            cv.put("updated_at",System.currentTimeMillis());
+            db.getWritableDatabase().update("kingmaker_companions",cv,"world_profile=? AND companion_key=?",new String[]{profile(),canonical});
+            if(!KingmakerCampaignGate.completed(quest.optString("status"))){
+                db.updateQuestStatus(quest.optLong("id"),"completed",outcome.optString("summary"));
+            }
+            ContentValues qv=new ContentValues();qv.put("progress_json",outcome.getJSONObject("progress").toString());qv.put("updated_at",System.currentTimeMillis());
+            db.getWritableDatabase().update("quests",qv,"id=? AND world_profile=?",new String[]{String.valueOf(quest.optLong("id")),profile()});
+            int xpAward=outcome.optInt("xp_awarded",0);
+            if(xpAward>0){
+                for(JSONObject hero:db.listActiveCharacters()){
+                    JSONObject sheet=jsonObject(hero.optString("sheet_json","{}"));
+                    sheet.put("experience_points",sheet.optInt("experience_points",0)+xpAward);
+                    db.updateCharacterSheetChecked(hero.optLong("id"),sheet.toString());
+                }
+            }
+            JSONArray awardedItems=outcome.optJSONArray("items_awarded");
+            if(awardedItems!=null&&awardedItems.length()>0){
+                JSONObject party=db.getPartyState();
+                JSONObject resources=jsonObject(party.optString("resources_json","{}"));
+                JSONArray inv=resources.optJSONArray("shared_inventory");if(inv==null)inv=new JSONArray();
+                for(int i=0;i<awardedItems.length();i++)inv.put(new JSONObject().put("name",awardedItems.optString(i)).put("quantity",1).put("source","q_cg_"+canonical));
+                resources.put("shared_inventory",inv);party.put("resources_json",resources.toString());
+                db.savePartyStateChecked(party);
+            }
+            upsertFeature(receiptKey,"companion_adventure_branch","Desfecho: "+quest.optString("title"),KingmakerCompanionSemantics.questLevel(canonical),outcome.toString(),"Kingmaker Companion Guide",outcome.optString("summary"));
+            result[0]=outcome;audit("Desfecho de aventura de companheiro",canonical+" • "+branchKey,comp,outcome);
+        }});return result[0];
+    }
 '''
  i=s.rfind('\n}');return s[:i]+'\n'+helper+s[i:]
 def journal_ui(s):

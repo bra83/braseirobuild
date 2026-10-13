@@ -1,0 +1,91 @@
+{
+  "project": "Braseiro VTT — Pathfinder 2e Kingmaker (R36)",
+  "branch": "pf2-kingmaker-r36-official-rule-fixes-20261011",
+  "executed_at": "2026-10-13T01:40:00-03:00",
+  "verification_gates": {
+    "synthetic_patch_pytest_suite": {
+      "status": "PASS",
+      "passed": 64,
+      "failed": 0
+    },
+    "audit_catalog_expansion_73_structures": {
+      "status": "PASS",
+      "official_rows": 73,
+      "mismatches": 0
+    },
+    "audit_structure_catalog_zero_mismatches": {
+      "status": "PASS",
+      "mismatches": 0
+    },
+    "java_syntax_validator": {
+      "status": "PASS",
+      "files_parsed": 164,
+      "files_total": 164
+    },
+    "r36_book_semantics_jvm_harness": {
+      "status": "PASS",
+      "assertions_passed": 404,
+      "failed": 0
+    },
+    "focused_r36_book_contract_pytest": {
+      "status": "PASS",
+      "passed": 61,
+      "failed": 0
+    },
+    "full_pf2_and_kingmaker_regression_suite": {
+      "status": "PASS",
+      "passed": 434,
+      "failed": 0,
+      "duration_seconds": 92.1
+    },
+    "certification_audits": {
+      "audit_chapters_1_11": {
+        "status": "PASS",
+        "chapters": 11,
+        "parts": 40,
+        "missing_named_anchors": 0,
+        "critical": 0,
+        "cross_chapter_edges": 2,
+        "nyrissa_gate": true
+      },
+      "audit_companions_warfare_depth": {
+        "status": "PASS",
+        "companions": 12,
+        "no_literal_quest_links": 0,
+        "war_checks_passed": 9,
+        "war_checks_total": 9,
+        "critical": 0
+      },
+      "official_part_semantic_audit": {
+        "status": "PASS",
+        "chapters": 11,
+        "part_names": 40,
+        "review_needed": 0
+      },
+      "audit_campaign": {
+        "status": "PASS",
+        "asset_count": 13,
+        "quests_count": 60,
+        "pois_count": 54,
+        "npcs_count": 70,
+        "scenes_count": 28,
+        "hazards_count": 39,
+        "events_count": 20,
+        "milestones_count": 42,
+        "quest_dangling": 0,
+        "quest_dependency_cycles": 0,
+        "sqlite_fixture_cycles": 20,
+        "objectives_persisted": 3640
+      }
+    },
+    "android_gradle_compile_debug_java_with_javac": {
+      "status": "PASS",
+      "task": ":app:compileDebugJavaWithJavac",
+      "exit_code": 0
+    },
+    "android_device_or_emulator_e2e_playthrough": {
+      "status": "PENDING_CI_RUNNER_BRELGA",
+      "note": "Real Android AVD/device 3-restart AppDb endurance and full human/live-UI campaign playthrough are executed on the self-hosted BRELGA runner via pf2-r36-brelga-independent.yml and were not fabricated locally."
+    }
+  }
+}

@@ -593,8 +593,30 @@ public final class R36BookSemanticsHarness {
   check(sapientAdd.optBoolean("sapient")&&sapientAdd.optInt("fame_delta")==1,"Sapient creature in Menagerie grants Fame but is flagged sapient");
   JSONArray menagerieStruct=new JSONArray().put(new JSONObject().put("structure_key","menagerie").put("status","built").put("count",1).put("effects_json",new JSONObject().put("menagerie_creatures",sapientAdd.optJSONArray("creatures"))));
   check(KingmakerStructureSemantics.menagerieSapientTurnUnrest(menagerieStruct)==1,"Each sapient creature in a Menagerie adds 1 Unrest at start of Kingdom turn");
+  // Priority 2: Companion Guide adventure checks and branching consequences
+  JSONObject ekProg=new JSONObject();
+  for(int i=0;i<4;i++)ekProg=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("ekundayo","feast_round_"+(i+1),18,12,20,ekProg).optJSONObject("progress");
+  check(ekProg.optInt("feast_points")==8&&ekProg.optBoolean("feast_success"),"Four critical successes in Feast of Feasts reach 8 Feast Points");
+  JSONObject ekBranch=KingmakerCompanionSemantics.resolveCompanionAdventureBranch("ekundayo","accept_new_life_and_ntavi",new JSONObject().put("companion_key","ekundayo").put("influence",6),ekProg);
+  check(ekBranch.optInt("influence_after")==8&&"helpful".equals(ekBranch.optString("attitude_after"))&&ekBranch.optInt("xp_awarded")==80,"Ekundayo positive branch reaches Helpful (8) and awards 80 XP");
+  JSONObject jubProg=new JSONObject();
+  for(int i=0;i<3;i++)jubProg=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","debate_q"+(i+1),15,14,24,jubProg).optJSONObject("progress");
+  check(jubProg.optInt("debate_wins")==3&&jubProg.optBoolean("debate_won"),"Three successful rounds win the Inconsequent Debates");
+  JSONObject jubBranch=KingmakerCompanionSemantics.resolveCompanionAdventureBranch("jubilost","win_debate_free_host",new JSONObject().put("companion_key","jubilost").put("influence",6),jubProg);
+  check(jubBranch.optJSONArray("unlocked_rewards_json").toString().contains("jubilost:official_structure_offer"),"Jubilost debate victory unlocks official Alchemist structure offer");
+  JSONObject valMercy=KingmakerCompanionSemantics.resolveCompanionAdventureBranch("valerie","spare_fredero_and_slay_tulvak",new JSONObject().put("companion_key","valerie").put("influence",4).put("available",1),new JSONObject());
+  check(valMercy.optInt("available_after")==1&&"helpful".equals(valMercy.optString("attitude_after")),"Valerie remains available and Helpful when Sir Fredero is spared");
+  JSONObject valDepart=KingmakerCompanionSemantics.resolveCompanionAdventureBranch("valerie","deny_mercy_slay_fredero",new JSONObject().put("companion_key","valerie").put("influence",4).put("available",1),new JSONObject());
+  check(valDepart.optInt("available_after")==0&&"hostile".equals(valDepart.optString("attitude_after")),"Valerie permanently leaves the party when Sir Fredero is denied mercy");
+  JSONObject trisProg=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("tristian","research_cult",19,18,27,new JSONObject()).optJSONObject("progress");
+  check(trisProg.optInt("research_points")==2&&trisProg.optInt("curse_countdown")==1,"Tristian critical research check adds 2 Research Points and advances Curse Countdown by 1");
+  JSONObject trisBranch=KingmakerCompanionSemantics.resolveCompanionAdventureBranch("tristian","redeem_cultists_awaken_deva",new JSONObject().put("companion_key","tristian").put("influence",6),trisProg);
+  check(trisBranch.optInt("xp_awarded")==120&&trisBranch.optJSONArray("items_awarded").length()==2,"Tristian redemption branch awards 120 XP, Celestial Wings, and Incarnate Ancestry ritual");
+  JSONObject nokBranch=KingmakerCompanionSemantics.resolveCompanionAdventureBranch("nok_nok","hero_of_stolen_lands",new JSONObject().put("companion_key","nok_nok").put("influence",4),new JSONObject());
+  check(nokBranch.optJSONArray("unlocked_rewards_json").toString().contains("nok_nok_alignment:chaotic_neutral"),"Nok-Nok heroism branch shifts alignment to chaotic neutral");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }
+
 
 

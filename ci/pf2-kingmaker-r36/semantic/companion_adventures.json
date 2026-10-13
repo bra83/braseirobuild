@@ -10,7 +10,7 @@
   "levelMin": 1,
   "level_max": 20,
   "levelMax": 20,
-  "summary": "Sete aventuras pessoais publicadas no Kingmaker Companion Guide. Os outros cinco perfis possuem regras de influência, liderança e acampamento; não são convertidos em aventuras inventadas.",
+  "summary": "Sete aventuras pessoais publicadas no Kingmaker Companion Guide com cenas, encontros, perigos, testes de perícia, ramificações e consequências oficiais. Os outros cinco perfis possuem regras de influência, liderança e acampamento; não são convertidos em aventuras inventadas.",
   "quests": [
     {
       "quest_key": "q_cg_amiri",
@@ -19,7 +19,7 @@
       "status": "unstarted",
       "stage": "pending",
       "objective": "Investigar a espada que contém Kean, encontrar Nilak entre os Seis Ursos e resolver a perseguição de Fionn.",
-      "stakes": "Resolver os acontecimentos da aventura com as escolhas do grupo.",
+      "stakes": "Decidir o destino da alma de Kean aprisionada na espada bastarda gigante de Amiri e deter o necromante kellid Fionn.",
       "owner_character_id": 0,
       "faction_id": 0,
       "milestone_xp": 0,
@@ -28,22 +28,29 @@
       "objectives": [
         {
           "id": "cg_amiri_step_1",
-          "desc": "Examinar a quebra e a recomposição da espada de Amiri.",
-          "description": "Examinar a quebra e a recomposição da espada de Amiri.",
+          "desc": "Examinar a quebra e a recomposição da espada de Amiri após o despertar do espírito de Kean.",
+          "description": "Examinar a quebra e a recomposição da espada de Amiri após o despertar do espírito de Kean.",
           "status": "pending",
           "completed": false
         },
         {
           "id": "cg_amiri_step_2",
-          "desc": "Procurar os Seis Ursos e Nilak no acampamento atacado por mortos-vivos.",
-          "description": "Procurar os Seis Ursos e Nilak no acampamento atacado por mortos-vivos.",
+          "desc": "Procurar os Seis Ursos e Nilak no acampamento atacado por mortos-vivos (A1) e derrotar os Enforcados e Criaturas Tumulares.",
+          "description": "Procurar os Seis Ursos e Nilak no acampamento atacado por mortos-vivos (A1) e derrotar os Enforcados e Criaturas Tumulares.",
           "status": "pending",
           "completed": false
         },
         {
           "id": "cg_amiri_step_3",
-          "desc": "Investigar Fionn e decidir como resolver a prisão da alma de Kean.",
-          "description": "Investigar Fionn e decidir como resolver a prisão da alma de Kean.",
+          "desc": "Rastrear a trilha de mortos-vivos até a caverna de Fionn (B1–B2) e superar a emboscada de Aparições Pavorosas e Juramentados da Guerra.",
+          "description": "Rastrear a trilha de mortos-vivos até a caverna de Fionn (B1–B2) e superar a emboscada de Aparições Pavorosas e Juramentados da Guerra.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_amiri_step_4",
+          "desc": "Confrontar o necromante Fionn na câmara ritual (B3) e decidir entre destruir a lâmina para libertar Kean ou manter seu espírito vinculado à espada.",
+          "description": "Confrontar o necromante Fionn na câmara ritual (B3) e decidir entre destruir a lâmina para libertar Kean ou manter seu espírito vinculado à espada.",
           "status": "pending",
           "completed": false
         }
@@ -60,7 +67,80 @@
         "source_ref": "Kingmaker Companion Guide pp.12–21",
         "official_title": "Blood Calling",
         "definition_revision": "companions-r36-primary",
-        "automatic_rewards_compiled": false
+        "automatic_rewards_compiled": false,
+        "playable_adventure_compiled": true,
+        "scenes": [
+          {
+            "scene_key": "cg_amiri_a1_six_bears_camp",
+            "code": "A1",
+            "title": "Acampamento dos Seis Ursos Sob Ataque",
+            "page": 15,
+            "environment": "wilderness_camp",
+            "encounter_severity": "Moderate 11",
+            "skill_checks": [
+              {"check_id": "amiri_examine_sword", "skill": "Religião", "alt_skill": "Ocultismo", "dc": 28, "description": "Identificar o espírito de Kean aprisionado na espada bastarda Grande de Amiri."},
+              {"check_id": "amiri_track_six_bears", "skill": "Sobrevivência", "dc": 28, "description": "Rastrear o acampamento da tribo dos Seis Ursos e localizar Nilak."}
+            ],
+            "enemies": [
+              {"npc_key": "cg_gallowdead_a1", "name": "Enforcado (Gallowdead)", "count": 2, "level": 11, "hp": 205, "ac": 31, "perception": 20, "fortitude": 23, "reflex": 18, "will": 20, "attack_bonus": 24, "damage": "2d10+12 contundente mais 2d6 negativo"},
+              {"npc_key": "cg_wight_minion", "name": "Criatura Tumular (Wight)", "count": 6, "level": 3, "hp": 50, "ac": 18, "perception": 10, "fortitude": 11, "reflex": 7, "will": 10, "attack_bonus": 12, "damage": "1d6+4 cortante mais dreno de vida"}
+            ]
+          },
+          {
+            "scene_key": "cg_amiri_b1_b2_fionn_cavern",
+            "code": "B1-B2",
+            "title": "Entrada e Túneis da Caverna de Fionn",
+            "page": 17,
+            "environment": "cavern",
+            "encounter_severity": "Moderate 11",
+            "skill_checks": [
+              {"check_id": "amiri_cavern_scouting", "skill": "Percepção", "dc": 30, "description": "Detectar as aparições antes da emboscada nos túneis."}
+            ],
+            "enemies": [
+              {"npc_key": "cg_dread_wraith", "name": "Aparição Pavorosa (Dread Wraith)", "count": 2, "level": 9, "hp": 135, "ac": 28, "perception": 19, "fortitude": 15, "reflex": 19, "will": 21, "attack_bonus": 21, "damage": "2d8+5 negativo mais dreno CD 27"},
+              {"npc_key": "cg_warsworn", "name": "Juramentado da Guerra (Warsworn)", "count": 1, "level": 11, "hp": 210, "ac": 30, "perception": 20, "fortitude": 23, "reflex": 17, "will": 22, "attack_bonus": 24, "damage": "2d12+12 contundente"}
+            ]
+          },
+          {
+            "scene_key": "cg_amiri_b3_fionn_sanctum",
+            "code": "B3",
+            "title": "Santuário Necromântico de Fionn",
+            "page": 19,
+            "environment": "cavern_sanctum",
+            "encounter_severity": "Severe 11",
+            "skill_checks": [
+              {"check_id": "amiri_kean_communion", "skill": "Diplomacia", "alt_skill": "Intimidação", "dc": 30, "description": "Acalmar a fúria de Kean e Amiri durante o confronto com Fionn."}
+            ],
+            "enemies": [
+              {"npc_key": "cg_fionn_necromancer", "name": "Fionn, Necromante Kellid", "count": 1, "level": 12, "hp": 195, "ac": 31, "perception": 21, "fortitude": 20, "reflex": 19, "will": 24, "spell_dc": 32, "spell_attack": 24, "attack_bonus": 21, "damage": "2d8+6 contundente mais 2d6 negativo"},
+              {"npc_key": "cg_gallowdead_b3", "name": "Enforcado Guardião", "count": 1, "level": 11, "hp": 205, "ac": 31, "perception": 20, "fortitude": 23, "reflex": 18, "will": 20, "attack_bonus": 24, "damage": "2d10+12 contundente"}
+            ]
+          }
+        ],
+        "branches": [
+          {
+            "branch_key": "free_kean_reforge_pure_blade",
+            "title": "Libertar a alma de Kean e purificar a espada de Amiri",
+            "description": "Amiri e o grupo permitem que a alma de Kean encontre descanso após a queda de Fionn, reforjando a espada sem aprisionamento espiritual.",
+            "influence_delta": 2,
+            "attitude_after": "helpful",
+            "available_after": true,
+            "xp_awarded": 80,
+            "items_awarded": ["Espada Bastarda Grande +2 Impactante Maior Álgida Purificada de Amiri"],
+            "feature_unlocked": "amiri:blood_calling_kean_freed"
+          },
+          {
+            "branch_key": "keep_kean_bound_in_blade",
+            "title": "Manter o espírito de Kean preso na espada bastarda",
+            "description": "O espírito de Kean permanece vinculado à lâmina para preservar seu poder bruto, gerando tensão com Nilak mas mantendo a arma desperta.",
+            "influence_delta": 0,
+            "attitude_after": "friendly",
+            "available_after": true,
+            "xp_awarded": 80,
+            "items_awarded": ["Espada Bastarda Grande +2 Impactante Maior Mutável Álgida de Kean"],
+            "feature_unlocked": "amiri:blood_calling_kean_bound"
+          }
+        ]
       }
     },
     {
@@ -70,7 +150,7 @@
       "status": "unstarted",
       "stage": "pending",
       "objective": "Preparar a festa de Ekundayo e investigar Ntavi e os Reavers de Gragglebeard.",
-      "stakes": "Resolver os acontecimentos da aventura com as escolhas do grupo.",
+      "stakes": "Acumular Pontos de Banquete na celebração do Reino e ajudar Ekundayo a escolher entre sua nova família e a vingança autodestrutiva instigada por Ntavi.",
       "owner_character_id": 0,
       "faction_id": 0,
       "milestone_xp": 0,
@@ -79,22 +159,29 @@
       "objectives": [
         {
           "id": "cg_ekundayo_step_1",
-          "desc": "Organizar o banquete, escolhendo local e contribuições do grupo.",
-          "description": "Organizar o banquete, escolhendo local e contribuições do grupo.",
+          "desc": "Organizar o banquete em um assentamento do Reino, escolhendo local e acumulando Pontos de Banquete com culinária, bebidas e entretenimento.",
+          "description": "Organizar o banquete em um assentamento do Reino, escolhendo local e acumulando Pontos de Banquete com culinária, bebidas e entretenimento.",
           "status": "pending",
           "completed": false
         },
         {
           "id": "cg_ekundayo_step_2",
-          "desc": "Lidar com Ntavi e a retomada da vingança de Ekundayo.",
-          "description": "Lidar com Ntavi e a retomada da vingança de Ekundayo.",
+          "desc": "Intervir quando Ntavi interrompe a festa para reacender o ódio de Ekundayo contra os gigantes da tribo de Gragglebeard.",
+          "description": "Intervir quando Ntavi interrompe a festa para reacender o ódio de Ekundayo contra os gigantes da tribo de Gragglebeard.",
           "status": "pending",
           "completed": false
         },
         {
           "id": "cg_ekundayo_step_3",
-          "desc": "Confrontar os Reavers de Gragglebeard e decidir o destino dessa busca.",
-          "description": "Confrontar os Reavers de Gragglebeard e decidir o destino dessa busca.",
+          "desc": "Rastrear e enfrentar Gragglebeard, Ntavi e os Saqueadores nas colinas (C1–C2), superando a armadilha de desmoronamento.",
+          "description": "Rastrear e enfrentar Gragglebeard, Ntavi e os Saqueadores nas colinas (C1–C2), superando a armadilha de desmoronamento.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_ekundayo_step_4",
+          "desc": "Decidir com Ekundayo se ele abandona a vingança autodestrutiva de Ntavi ou cede ao ódio implacável.",
+          "description": "Decidir com Ekundayo se ele abandona a vingança autodestrutiva de Ntavi ou cede ao ódio implacável.",
           "status": "pending",
           "completed": false
         }
@@ -111,7 +198,67 @@
         "source_ref": "Kingmaker Companion Guide pp.27–31",
         "official_title": "A Feast of Feasts",
         "definition_revision": "companions-r36-primary",
-        "automatic_rewards_compiled": false
+        "automatic_rewards_compiled": false,
+        "playable_adventure_compiled": true,
+        "scenes": [
+          {
+            "scene_key": "cg_ekundayo_feast_hall",
+            "code": "FEAST",
+            "title": "O Banquete dos Banquetes no Assentamento",
+            "page": 27,
+            "environment": "settlement_hall",
+            "encounter_severity": "Social 6",
+            "skill_checks": [
+              {"check_id": "ekundayo_feast_venue", "skill": "Sociedade", "alt_skill": "Sobrevivência", "dc": 21, "description": "Preparar o local do banquete (Taverna, Castelo ou Acampamento ao ar livre) para ganhar Pontos de Banquete."},
+              {"check_id": "ekundayo_feast_cooking", "skill": "Manufatura", "alt_skill": "Saber de Culinária", "dc": 22, "description": "Preparar o prato principal e bebidas para o banquete de Ekundayo."},
+              {"check_id": "ekundayo_feast_entertainment", "skill": "Performance", "alt_skill": "Diplomacia", "dc": 22, "description": "Conduzir brindes e histórias que honrem a memória da família de Ekundayo."}
+            ],
+            "enemies": []
+          },
+          {
+            "scene_key": "cg_ekundayo_c1_c2_reaver_camp",
+            "code": "C1-C2",
+            "title": "Desfiladeiro e Covil dos Saqueadores de Gragglebeard",
+            "page": 29,
+            "environment": "hills_ravine",
+            "encounter_severity": "Severe 6",
+            "hazards": [
+              {"hazard_key": "cg_hazard_gragglebeard_rockslide", "name": "Avalanche de Pedras dos Saqueadores", "level": 5, "stealth_dc": 23, "saving_throw_type": "Reflexos", "saving_throw_dc": 22, "disable_skill": "Ladroagem", "disable_dc": 23, "damage": "4d8+10 contundente"}
+            ],
+            "skill_checks": [
+              {"check_id": "ekundayo_calm_hatred", "skill": "Diplomacia", "dc": 22, "description": "Convencer Ekundayo a não sacrificar a própria vida na emboscada de Ntavi."}
+            ],
+            "enemies": [
+              {"npc_key": "cg_gragglebeard", "name": "Gragglebeard, Chefe Gigante da Colina", "count": 1, "level": 8, "hp": 150, "ac": 25, "perception": 15, "fortitude": 19, "reflex": 12, "will": 15, "attack_bonus": 20, "damage": "2d10+11 contundente"},
+              {"npc_key": "cg_ntavi", "name": "Ntavi, Caçadora Vingativa", "count": 1, "level": 7, "hp": 115, "ac": 25, "perception": 16, "fortitude": 16, "reflex": 18, "will": 14, "attack_bonus": 18, "damage": "2d8+6 cortante"},
+              {"npc_key": "cg_hill_giant_reaver", "name": "Saqueador de Gragglebeard", "count": 2, "level": 6, "hp": 110, "ac": 22, "perception": 12, "fortitude": 16, "reflex": 10, "will": 12, "attack_bonus": 17, "damage": "2d8+9 contundente"}
+            ]
+          }
+        ],
+        "branches": [
+          {
+            "branch_key": "temper_vengeance_embrace_fellowship",
+            "title": "Superar o ódio autodestrutivo e proteger os novos aliados",
+            "description": "Ekundayo derrota Gragglebeard sem ceder à obsessão cega de Ntavi, encontrando paz ao lado de Cão e do grupo.",
+            "influence_delta": 2,
+            "attitude_after": "helpful",
+            "available_after": true,
+            "xp_awarded": 80,
+            "items_awarded": ["Arco Longo Composto +1 Impactante de Gragglebeard", "Colar da Lealdade do Cão de Caça"],
+            "feature_unlocked": "ekundayo:feast_of_feasts_peace"
+          },
+          {
+            "branch_key": "consume_in_ruthless_vengeance",
+            "title": "Incentivar a vingança implacável ao lado de Ntavi",
+            "description": "Ekundayo executa sua vingança com furor impiedoso, mantendo-se eficiente em combate mas emocionalmente distante.",
+            "influence_delta": 1,
+            "attitude_after": "friendly",
+            "available_after": true,
+            "xp_awarded": 60,
+            "items_awarded": ["Arco Longo Composto +1 Impactante de Gragglebeard"],
+            "feature_unlocked": "ekundayo:feast_of_feasts_vengeance"
+          }
+        ]
       }
     },
     {
@@ -121,7 +268,7 @@
       "status": "unstarted",
       "stage": "pending",
       "objective": "Seguir as pesquisas de Xae para conseguir um convite aos Debates e investigar por que os gnomos deixaram o Primeiro Mundo.",
-      "stakes": "Resolver os acontecimentos da aventura com as escolhas do grupo.",
+      "stakes": "Vencer as três rodadas formais dos Debates Inconsequentes perante o Anfitrião e formular a pergunta cósmica de Jubilost.",
       "owner_character_id": 0,
       "faction_id": 0,
       "milestone_xp": 0,
@@ -130,22 +277,29 @@
       "objectives": [
         {
           "id": "cg_jubilost_step_1",
-          "desc": "Investigar as notas de Xae e o santuário de Shyka.",
-          "description": "Investigar as notas de Xae e o santuário de Shyka.",
+          "desc": "Investigar as notas de Xae e ativar a passagem no santuário de Shyka rumo ao Primeiro Mundo.",
+          "description": "Investigar as notas de Xae e ativar a passagem no santuário de Shyka rumo ao Primeiro Mundo.",
           "status": "pending",
           "completed": false
         },
         {
           "id": "cg_jubilost_step_2",
-          "desc": "Conseguir um convite e participar dos Debates Inconsequentes.",
-          "description": "Conseguir um convite e participar dos Debates Inconsequentes.",
+          "desc": "Conquistar o apoio dos candidatos feéricos e defender o anfiteatro contra sabotadores durante a abertura dos Debates.",
+          "description": "Conquistar o apoio dos candidatos feéricos e defender o anfiteatro contra sabotadores durante a abertura dos Debates.",
           "status": "pending",
           "completed": false
         },
         {
           "id": "cg_jubilost_step_3",
-          "desc": "Considerar as respostas e consequências do encontro com o Anfitrião.",
-          "description": "Considerar as respostas e consequências do encontro com o Anfitrião.",
+          "desc": "Vencer as três rodadas de argumentação dos Debates Inconsequentes perante o Anfitrião.",
+          "description": "Vencer as três rodadas de argumentação dos Debates Inconsequentes perante o Anfitrião.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_jubilost_step_4",
+          "desc": "Escolher a pergunta final ao Anfitrião (a verdade sobre o Desbotamento dos gnomos ou os segredos do Primeiro Mundo).",
+          "description": "Escolher a pergunta final ao Anfitrião (a verdade sobre o Desbotamento dos gnomos ou os segredos do Primeiro Mundo).",
           "status": "pending",
           "completed": false
         }
@@ -162,7 +316,64 @@
         "source_ref": "Kingmaker Companion Guide pp.36–43",
         "official_title": "The Inconsequent Debates",
         "definition_revision": "companions-r36-primary",
-        "automatic_rewards_compiled": false
+        "automatic_rewards_compiled": false,
+        "playable_adventure_compiled": true,
+        "scenes": [
+          {
+            "scene_key": "cg_jubilost_shyka_sanctuary",
+            "code": "SHYKA",
+            "title": "Santuário Temporal de Shyka e Notas de Xae",
+            "page": 37,
+            "environment": "ancient_shrine",
+            "encounter_severity": "Moderate 8",
+            "skill_checks": [
+              {"check_id": "jubilost_decipher_xae", "skill": "Ocultismo", "alt_skill": "Natureza", "dc": 25, "description": "Decifrar os cálculos cronológicos de Xae para abrir a fenda aos Debates."}
+            ],
+            "enemies": [
+              {"npc_key": "cg_time_dimensional_hound", "name": "Guardião Dimensional Deslocado", "count": 2, "level": 7, "hp": 115, "ac": 25, "perception": 16, "fortitude": 15, "reflex": 18, "will": 15, "attack_bonus": 18, "damage": "2d8+7 cortante"}
+            ]
+          },
+          {
+            "scene_key": "cg_jubilost_debate_amphitheater",
+            "code": "DEBATES",
+            "title": "Anfiteatro dos Debates Inconsequentes",
+            "page": 39,
+            "environment": "first_world_amphitheater",
+            "encounter_severity": "Severe 8",
+            "skill_checks": [
+              {"check_id": "jubilost_debate_round_1", "skill": "Sociedade", "alt_skill": "Arcanismo", "dc": 26, "description": "Primeira rodada de debate: refutar as teses absurdas sobre cosmologia feérica."},
+              {"check_id": "jubilost_debate_round_2", "skill": "Diplomacia", "alt_skill": "Dissimulação", "dc": 26, "description": "Segunda rodada de debate: conquistar o júri feérico e o Anfitrião."},
+              {"check_id": "jubilost_debate_round_3", "skill": "Ocultismo", "alt_skill": "Performance", "dc": 28, "description": "Terceira rodada de debate: resolver o paradoxo final proposto pelo Anfitrião."}
+            ],
+            "enemies": [
+              {"npc_key": "cg_fey_debate_crasher", "name": "Sabotador Feérico Exaltado", "count": 2, "level": 8, "hp": 135, "ac": 26, "perception": 17, "fortitude": 16, "reflex": 19, "will": 17, "attack_bonus": 19, "damage": "2d8+8 perfurante mais 1d6 mental"}
+            ]
+          }
+        ],
+        "branches": [
+          {
+            "branch_key": "ask_gnome_first_world_truth",
+            "title": "Perguntar ao Anfitrião por que os gnomos deixaram o Primeiro Mundo",
+            "description": "Jubilost obtém a resposta histórica e metafísica para sua obra definitiva, alcançando Influência máxima e oferecendo uma Alquimia gratuita ao Reino.",
+            "influence_delta": 2,
+            "attitude_after": "helpful",
+            "available_after": true,
+            "xp_awarded": 80,
+            "items_awarded": ["Tomo das Crônicas do Primeiro Mundo de Jubilost", "Fórmula de Elixir da Mente Lúcida Maior"],
+            "feature_unlocked": "jubilost:inconsequent_debates_gnome_truth"
+          },
+          {
+            "branch_key": "ask_stolen_lands_planar_secret",
+            "title": "Perguntar ao Anfitrião sobre os mistérios planares das Terras Roubadas",
+            "description": "O grupo prioriza pistas estratégicas sobre o Primeiro Mundo nas Terras Roubadas; Jubilost respeita a utilidade prática da resposta.",
+            "influence_delta": 1,
+            "attitude_after": "helpful",
+            "available_after": true,
+            "xp_awarded": 80,
+            "items_awarded": ["Fórmula de Elixir da Mente Lúcida Maior"],
+            "feature_unlocked": "jubilost:inconsequent_debates_planar_secret"
+          }
+        ]
       }
     },
     {
@@ -172,7 +383,7 @@
       "status": "unstarted",
       "stage": "pending",
       "objective": "Investigar os recursos desviados por Linzi para a prensa e as peças interceptadas pelo coven Jaggedbriar.",
-      "stakes": "Resolver os acontecimentos da aventura com as escolhas do grupo.",
+      "stakes": "Recuperar a prensa tipográfica de Linzi das estrigas do coven Jaggedbriar e decidir como tratar o desfalque bem-intencionado no Tesouro do Reino.",
       "owner_character_id": 0,
       "faction_id": 0,
       "milestone_xp": 0,
@@ -181,22 +392,29 @@
       "objectives": [
         {
           "id": "cg_linzi_step_1",
-          "desc": "Investigar a discrepância no tesouro e ouvir Linzi.",
-          "description": "Investigar a discrepância no tesouro e ouvir Linzi.",
+          "desc": "Auditar a discrepância no tesouro do assentamento e ouvir a confissão de Linzi sobre a compra da prensa tipográfica.",
+          "description": "Auditar a discrepância no tesouro do assentamento e ouvir a confissão de Linzi sobre a compra da prensa tipográfica.",
           "status": "pending",
           "completed": false
         },
         {
           "id": "cg_linzi_step_2",
-          "desc": "Rastrear o carregamento desaparecido e o coven Jaggedbriar.",
-          "description": "Rastrear o carregamento desaparecido e o coven Jaggedbriar.",
+          "desc": "Examinar a carroça atacada (C1) e seguir os rastros pelo pântano (C2) até o território do coven Jaggedbriar.",
+          "description": "Examinar a carroça atacada (C1) e seguir os rastros pelo pântano (C2) até o território do coven Jaggedbriar.",
           "status": "pending",
           "completed": false
         },
         {
           "id": "cg_linzi_step_3",
-          "desc": "Resolver a ameaça das bruxas e o destino das peças da prensa.",
-          "description": "Resolver a ameaça das bruxas e o destino das peças da prensa.",
+          "desc": "Derrotar as estrigas do coven Jaggedbriar no covil do pântano (C3) e recuperar as matrizes da prensa.",
+          "description": "Derrotar as estrigas do coven Jaggedbriar no covil do pântano (C3) e recuperar as matrizes da prensa.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_linzi_step_4",
+          "desc": "Decidir se perdoa a dívida de Linzi oficializando a Imprensa do Reino ou se exige a restituição estrita ao tesouro.",
+          "description": "Decidir se perdoa a dívida de Linzi oficializando a Imprensa do Reino ou se exige a restituição estrita ao tesouro.",
           "status": "pending",
           "completed": false
         }
@@ -213,7 +431,67 @@
         "source_ref": "Kingmaker Companion Guide pp.48–57",
         "official_title": "Treasury Trouble",
         "definition_revision": "companions-r36-primary",
-        "automatic_rewards_compiled": false
+        "automatic_rewards_compiled": false,
+        "playable_adventure_compiled": true,
+        "scenes": [
+          {
+            "scene_key": "cg_linzi_c1_c2_wagon_and_bog",
+            "code": "C1-C2",
+            "title": "Carroça Destroçada e Pântano de Jaggedbriar",
+            "page": 51,
+            "environment": "swamp_road",
+            "encounter_severity": "Moderate 7",
+            "hazards": [
+              {"hazard_key": "cg_hazard_jaggedbriar_mire", "name": "Lamaçal Engolidor de Jaggedbriar", "level": 6, "stealth_dc": 24, "saving_throw_type": "Reflexos", "saving_throw_dc": 23, "disable_skill": "Sobrevivência", "disable_dc": 23, "damage": "Submersão e imobilização no pântano"}
+            ],
+            "skill_checks": [
+              {"check_id": "linzi_treasury_audit", "skill": "Sociedade", "alt_skill": "Saber de Contabilidade", "dc": 23, "description": "Rastrear a nota fiscal da prensa encomendada por Linzi."},
+              {"check_id": "linzi_track_wagon", "skill": "Sobrevivência", "dc": 23, "description": "Seguir o rastro das caixas pesadas da prensa pelo pântano."}
+            ],
+            "enemies": [
+              {"npc_key": "cg_jaggedbriar_wisp", "name": "Fogo-Fátuo do Pântano (Will-o'-Wisp)", "count": 2, "level": 6, "hp": 50, "ac": 26, "perception": 16, "fortitude": 10, "reflex": 18, "will": 14, "attack_bonus": 17, "damage": "2d8+4 eletricidade"}
+            ]
+          },
+          {
+            "scene_key": "cg_linzi_c3_jaggedbriar_coven",
+            "code": "C3",
+            "title": "Covil do Conventículo Jaggedbriar",
+            "page": 54,
+            "environment": "hag_bog_lair",
+            "encounter_severity": "Severe 7",
+            "skill_checks": [
+              {"check_id": "linzi_recover_press_parts", "skill": "Manufatura", "alt_skill": "Atletismo", "dc": 24, "description": "Resgatar e montar sem danos as chapas tipográficas da prensa."}
+            ],
+            "enemies": [
+              {"npc_key": "cg_jaggedbriar_matron", "name": "Matriarca Estriga de Jaggedbriar", "count": 1, "level": 8, "hp": 135, "ac": 26, "perception": 17, "fortitude": 17, "reflex": 15, "will": 18, "spell_dc": 26, "attack_bonus": 19, "damage": "2d8+8 cortante"},
+              {"npc_key": "cg_jaggedbriar_sister", "name": "Irmã do Conventículo Jaggedbriar", "count": 2, "level": 6, "hp": 95, "ac": 23, "perception": 14, "fortitude": 15, "reflex": 13, "will": 15, "spell_dc": 24, "attack_bonus": 16, "damage": "2d6+6 cortante"}
+            ]
+          }
+        ],
+        "branches": [
+          {
+            "branch_key": "forgive_linzi_establish_press",
+            "title": "Perdoar Linzi e inaugurar oficialmente a Prensa Tipográfica",
+            "description": "O grupo perdoa o empréstimo impulsivo de Linzi e instala a prensa no assentamento, garantindo a gratidão e dedicação total da barda.",
+            "influence_delta": 2,
+            "attitude_after": "helpful",
+            "available_after": true,
+            "xp_awarded": 80,
+            "items_awarded": ["Prensa Tipográfica de Linzi Instalada", "Crônica Ilustrada dos Fundadores"],
+            "feature_unlocked": "linzi:treasury_trouble_press_established"
+          },
+          {
+            "branch_key": "reprimand_linzi_enforce_repayment",
+            "title": "Repreender Linzi e exigir reposição contábil dos fundos",
+            "description": "Linzi aceita devolver gradualmente o valor com os lucros de seus folhetos; a prensa funciona, mas ela fica envergonhada.",
+            "influence_delta": -1,
+            "attitude_after": "friendly",
+            "available_after": true,
+            "xp_awarded": 80,
+            "items_awarded": ["Prensa Tipográfica de Linzi Instalada"],
+            "feature_unlocked": "linzi:treasury_trouble_repayment_enforced"
+          }
+        ]
       }
     },
     {
@@ -223,7 +501,7 @@
       "status": "unstarted",
       "stage": "pending",
       "objective": "Investigar a ameaça dos Tanglethorn a Oleg e a liderança de Nargloom.",
-      "stakes": "Resolver os acontecimentos da aventura com as escolhas do grupo.",
+      "stakes": "Defender o Entreposto de Oleg contra a tribo Tanglethorn, derrotar Nargloom e orientar Nok-Nok entre o heroísmo genuíno e a megalomania divina.",
       "owner_character_id": 0,
       "faction_id": 0,
       "milestone_xp": 0,
@@ -232,22 +510,29 @@
       "objectives": [
         {
           "id": "cg_nok_nok_step_1",
-          "desc": "Investigar o aviso de Nok-Nok sobre o ataque ao entreposto de Oleg.",
-          "description": "Investigar o aviso de Nok-Nok sobre o ataque ao entreposto de Oleg.",
+          "desc": "Ouvir o alerta de Nok-Nok sobre o ataque dos goblins Tanglethorn ao Entreposto Comercial de Oleg e repelir os batedores.",
+          "description": "Ouvir o alerta de Nok-Nok sobre o ataque dos goblins Tanglethorn ao Entreposto Comercial de Oleg e repelir os batedores.",
           "status": "pending",
           "completed": false
         },
         {
           "id": "cg_nok_nok_step_2",
-          "desc": "Enfrentar os Tanglethorn e seu líder Nargloom.",
-          "description": "Enfrentar os Tanglethorn e seu líder Nargloom.",
+          "desc": "Rastrear os Tanglethorn até seu santuário improvisado de Lamashtu e desarmar suas armadilhas de espinhos.",
+          "description": "Rastrear os Tanglethorn até seu santuário improvisado de Lamashtu e desarmar suas armadilhas de espinhos.",
           "status": "pending",
           "completed": false
         },
         {
           "id": "cg_nok_nok_step_3",
-          "desc": "Resolver a ambição de Nok-Nok de se tornar o quinto herói-deus goblin.",
-          "description": "Resolver a ambição de Nok-Nok de se tornar o quinto herói-deus goblin.",
+          "desc": "Derrotar o chefe Nargloom e sua guarda pessoal no santuário Tanglethorn.",
+          "description": "Derrotar o chefe Nargloom e sua guarda pessoal no santuário Tanglethorn.",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_nok_nok_step_4",
+          "desc": "Orientar Nok-Nok sobre o verdadeiro significado de ser um herói do Reino em vez de um tirano autoproclamado quinto deus goblin.",
+          "description": "Orientar Nok-Nok sobre o verdadeiro significado de ser um herói do Reino em vez de um tirano autoproclamado quinto deus goblin.",
           "status": "pending",
           "completed": false
         }
@@ -264,7 +549,69 @@
         "source_ref": "Kingmaker Companion Guide pp.61–67",
         "official_title": "Heroes or Gods?",
         "definition_revision": "companions-r36-primary",
-        "automatic_rewards_compiled": false
+        "automatic_rewards_compiled": false,
+        "playable_adventure_compiled": true,
+        "scenes": [
+          {
+            "scene_key": "cg_nok_nok_oleg_defense",
+            "code": "OLEG",
+            "title": "Ataque dos Batedores Tanglethorn ao Entreposto de Oleg",
+            "page": 62,
+            "environment": "trading_post",
+            "encounter_severity": "Moderate 5",
+            "skill_checks": [
+              {"check_id": "nok_nok_interrogate_raiders", "skill": "Intimidação", "alt_skill": "Diplomacia", "dc": 20, "description": "Descobrir a localização do covil de Nargloom a partir dos batedores Tanglethorn."}
+            ],
+            "enemies": [
+              {"npc_key": "cg_tanglethorn_commando", "name": "Comando Goblin Tanglethorn", "count": 4, "level": 2, "hp": 30, "ac": 18, "perception": 7, "fortitude": 8, "reflex": 10, "will": 6, "attack_bonus": 10, "damage": "1d8+4 cortante"},
+              {"npc_key": "cg_goblin_dog", "name": "Cão Goblin", "count": 2, "level": 1, "hp": 17, "ac": 16, "perception": 6, "fortitude": 8, "reflex": 8, "will": 4, "attack_bonus": 9, "damage": "1d6+3 perfurante"}
+            ]
+          },
+          {
+            "scene_key": "cg_nok_nok_nargloom_shrine",
+            "code": "SHRINE",
+            "title": "Santuário de Espinhos de Nargloom",
+            "page": 65,
+            "environment": "briar_shrine",
+            "encounter_severity": "Severe 5",
+            "hazards": [
+              {"hazard_key": "cg_hazard_tanglethorn_spikes", "name": "Lançador de Espinhos Tanglethorn", "level": 4, "stealth_dc": 21, "saving_throw_type": "Reflexos", "saving_throw_dc": 21, "disable_skill": "Ladroagem", "disable_dc": 20, "damage": "3d8+6 perfurante"}
+            ],
+            "skill_checks": [
+              {"check_id": "nok_nok_heroic_guidance", "skill": "Diplomacia", "alt_skill": "Sociedade", "dc": 20, "description": "Convencer Nok-Nok de que o heroísmo verdadeiro supera a tirania de Nargloom."}
+            ],
+            "enemies": [
+              {"npc_key": "cg_nargloom", "name": "Nargloom, Chefe dos Tanglethorn", "count": 1, "level": 6, "hp": 102, "ac": 24, "perception": 14, "fortitude": 15, "reflex": 14, "will": 12, "attack_bonus": 17, "damage": "2d6+7 perfurante mais 1d6 ácido"},
+              {"npc_key": "cg_tanglethorn_pyro", "name": "Piromante Tanglethorn", "count": 2, "level": 3, "hp": 42, "ac": 19, "perception": 8, "fortitude": 7, "reflex": 11, "will": 8, "attack_bonus": 11, "damage": "2d6 fogo"}
+            ]
+          }
+        ],
+        "branches": [
+          {
+            "branch_key": "guide_nok_nok_to_true_heroism",
+            "title": "Guiar Nok-Nok para o caminho de um verdadeiro herói",
+            "description": "Nok-Nok compreende que proteger seus amigos traz mais glória do que imitar Nargloom, progredindo sua tendência para Caótico e Neutro / Caótico e Bom.",
+            "influence_delta": 2,
+            "attitude_after": "helpful",
+            "available_after": true,
+            "alignment_after": "chaotic_neutral",
+            "xp_awarded": 80,
+            "items_awarded": ["Corta-Cães +1 Impactante de Nargloom", "Troféu do Quinto Herói Goblin"],
+            "feature_unlocked": "nok_nok:heroes_or_gods_heroic"
+          },
+          {
+            "branch_key": "indulge_goblin_god_ego",
+            "title": "Alimentar a ambição egoísta de Nok-Nok como deus-goblin",
+            "description": "Nok-Nok celebra a queda de Nargloom proclamando sua própria divindade caótica, mantendo sua tendência Caótica e Maligna.",
+            "influence_delta": 1,
+            "attitude_after": "friendly",
+            "available_after": true,
+            "alignment_after": "chaotic_evil",
+            "xp_awarded": 60,
+            "items_awarded": ["Corta-Cães +1 Impactante de Nargloom"],
+            "feature_unlocked": "nok_nok:heroes_or_gods_ego"
+          }
+        ]
       }
     },
     {
@@ -274,7 +621,7 @@
       "status": "unstarted",
       "stage": "pending",
       "objective": "Investigar a sociedade secreta na capital e a verdade sobre a ancestralidade de Tristian.",
-      "stakes": "Resolver os acontecimentos da aventura com as escolhas do grupo.",
+      "stakes": "Detectar o culto de Yhidothrus antes que a Contagem da Maldição Purificadora chegue a zero, derrotar o Primeiro Fiel e revelar a natureza aasimar de Tristian.",
       "owner_character_id": 0,
       "faction_id": 0,
       "milestone_xp": 0,
@@ -283,22 +630,29 @@
       "objectives": [
         {
           "id": "cg_tristian_step_1",
-          "desc": "Investigar as atividades do Reino dos Purificados na capital.",
-          "description": "Investigar as atividades do Reino dos Purificados na capital.",
+          "desc": "Pesquisar o Reino dos Purificados na capital (Ocultismo CD 25, Diplomacia CD 27, Sociedade CD 29) e Confrontar o Recrutador Talbot (Dissimulação CD 25, Diplomacia CD 27, Intimidação CD 29).",
+          "description": "Pesquisar o Reino dos Purificados na capital (Ocultismo CD 25, Diplomacia CD 27, Sociedade CD 29) e Confrontar o Recrutador Talbot (Dissimulação CD 25, Diplomacia CD 27, Intimidação CD 29).",
           "status": "pending",
           "completed": false
         },
         {
           "id": "cg_tristian_step_2",
-          "desc": "Localizar o santuário e enfrentar o Primeiro Fiel e seus cultistas.",
-          "description": "Localizar o santuário e enfrentar o Primeiro Fiel e seus cultistas.",
+          "desc": "Infiltrar o Santuário dos Purificados (D1–D4), superando os 5 Bodaks na Cripta Antiga, o Alarme de Travamento (CD 32) e o ritual na Sala de Ascensão.",
+          "description": "Infiltrar o Santuário dos Purificados (D1–D4), superando os 5 Bodaks na Cripta Antiga, o Alarme de Travamento (CD 32) e o ritual na Sala de Ascensão.",
           "status": "pending",
           "completed": false
         },
         {
           "id": "cg_tristian_step_3",
-          "desc": "Resolver a ameaça da Maldição Purificadora e as revelações sobre Tristian.",
-          "description": "Resolver a ameaça da Maldição Purificadora e as revelações sobre Tristian.",
+          "desc": "Explorar o Quarto do Primeiro Fiel (D5, Glifos de Guarda CD 34 e diários do ritual Encarnar Ancestralidade) e derrotar o Hezrou e os 2 Nabasus no Sumidouro Infestado (D6).",
+          "description": "Explorar o Quarto do Primeiro Fiel (D5, Glifos de Guarda CD 34 e diários do ritual Encarnar Ancestralidade) e derrotar o Hezrou e os 2 Nabasus no Sumidouro Infestado (D6).",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_tristian_step_4",
+          "desc": "Derrotar o Primeiro Fiel na Câmara da Encarnação (D7), encerrar a Maldição Purificadora e testemunhar o despertar das Asas Celestiais de Tristian na piscina de Shyka.",
+          "description": "Derrotar o Primeiro Fiel na Câmara da Encarnação (D7), encerrar a Maldição Purificadora e testemunhar o despertar das Asas Celestiais de Tristian na piscina de Shyka.",
           "status": "pending",
           "completed": false
         }
@@ -315,7 +669,100 @@
         "source_ref": "Kingmaker Companion Guide pp.72–81",
         "official_title": "Kingdom of the Cleansed",
         "definition_revision": "companions-r36-primary",
-        "automatic_rewards_compiled": false
+        "automatic_rewards_compiled": false,
+        "playable_adventure_compiled": true,
+        "curse_countdown_initial": 10,
+        "scenes": [
+          {
+            "scene_key": "cg_tristian_capital_investigation",
+            "code": "CAPITAL",
+            "title": "Investigação do Reino dos Purificados na Capital",
+            "page": 74,
+            "environment": "urban_capital",
+            "encounter_severity": "Investigation 10",
+            "skill_checks": [
+              {"check_id": "tristian_research_cult", "skill": "Ocultismo", "alt_skill": "Diplomacia", "dc": 25, "description": "Pesquisar o Reino dos Purificados na capital (Ocultismo CD 25, Diplomacia CD 27, Sociedade CD 29) até 8+ Pontos de Pesquisa."},
+              {"check_id": "tristian_confront_talbot", "skill": "Dissimulação", "alt_skill": "Diplomacia", "dc": 25, "description": "Confrontar o recrutador Talbot (Dissimulação CD 25, Diplomacia CD 27, Intimidação CD 29) para descobrir a localização do Santuário."}
+            ],
+            "enemies": []
+          },
+          {
+            "scene_key": "cg_tristian_d1_d4_outer_sanctuary",
+            "code": "D1-D4",
+            "title": "Cripta Antiga (D2) e Sala de Ascensão (D3)",
+            "page": 76,
+            "environment": "underground_sanctuary",
+            "encounter_severity": "Moderate 10",
+            "hazards": [
+              {"hazard_key": "cg_hazard_locking_alarm_d2", "name": "Alarme de Travamento de Yhidothrus", "level": 10, "stealth_dc": 27, "saving_throw_type": "Vontade", "saving_throw_dc": 29, "disable_skill": "Ladroagem", "disable_dc": 32, "ac": 25, "hardness": 18, "hp": 70, "bt": 35, "damage": "Sela a porta e desperta os 5 bodaks da área D2"}
+            ],
+            "skill_checks": [
+              {"check_id": "tristian_d2_shyka_lore", "skill": "Percepção", "alt_skill": "Religião", "dc": 25, "description": "Reconhecer a arquitetura de Shyka profanada pelo culto de Yhidothrus (Percepção CD 25 / Religião CD 27)."}
+            ],
+            "enemies": [
+              {"npc_key": "cg_sanctuary_bodak", "name": "Bodak do Reino dos Purificados", "count": 5, "level": 8, "hp": 110, "ac": 26, "perception": 17, "fortitude": 15, "reflex": 16, "will": 18, "attack_bonus": 18, "damage": "2d8+7 negativo mais Olhar Drenante CD 23"},
+              {"npc_key": "cg_cleansed_cultist", "name": "Cultista Purificado", "count": 6, "level": 6, "hp": 100, "ac": 24, "perception": 12, "fortitude": 12, "reflex": 16, "will": 14, "attack_bonus": 17, "damage": "1d6+5 cortante mais 2d6 furtivo e Liberar o Verme do Âmago Fort CD 24 (6d6 mental)"}
+            ]
+          },
+          {
+            "scene_key": "cg_tristian_d5_d6_sinkhole",
+            "code": "D5-D6",
+            "title": "Quarto do Primeiro Fiel (D5) e Sumidouro Infestado (D6)",
+            "page": 79,
+            "environment": "underground_cathedral",
+            "encounter_severity": "Moderate 10",
+            "hazards": [
+              {"hazard_key": "cg_hazard_glyph_of_warding_d5", "name": "Glifos de Guarda de Yhidothrus (2)", "level": 13, "stealth_dc": 34, "saving_throw_type": "Fortitude", "saving_throw_dc": 34, "disable_skill": "Ladroagem", "disable_dc": 34, "damage": "Rajada Espiritual (16d6 força, CD 34)"}
+            ],
+            "skill_checks": [
+              {"check_id": "tristian_d5_secret_door", "skill": "Percepção", "dc": 30, "description": "Localizar a porta secreta no entalhe de Yhidothrus entre D5 e D6."},
+              {"check_id": "tristian_d6_brain_worms", "skill": "Natureza", "alt_skill": "Religião", "dc": 25, "description": "Identificar os vermes cerebrais que infestam o sumidouro (Natureza CD 25 / Religião CD 27)."}
+            ],
+            "enemies": [
+              {"npc_key": "cg_hezrou_demon", "name": "Demônio Hezrou Guardião", "count": 1, "level": 11, "hp": 225, "ac": 31, "perception": 21, "fortitude": 24, "reflex": 18, "will": 21, "attack_bonus": 24, "damage": "2d12+11 perfurante mais fedor CD 29"},
+              {"npc_key": "cg_nabasu_demon", "name": "Demônio Nabasu", "count": 2, "level": 8, "hp": 135, "ac": 27, "perception": 17, "fortitude": 18, "reflex": 16, "will": 17, "attack_bonus": 19, "damage": "2d8+8 perfurante mais Olhar Rouba-Morte CD 26"}
+            ]
+          },
+          {
+            "scene_key": "cg_tristian_d7_incarnation_chamber",
+            "code": "D7",
+            "title": "Câmara da Encarnação e A Piscina de Shyka",
+            "page": 80,
+            "environment": "starlit_pool_chamber",
+            "encounter_severity": "Severe 10",
+            "skill_checks": [
+              {"check_id": "tristian_d7_pool_lore", "skill": "Religião", "dc": 25, "description": "Confirmar que a piscina sagrada de Shyka é uma Piscina de Encarnação (+4 de circunstância no ritual Encarnar Ancestralidade)."}
+            ],
+            "enemies": [
+              {"npc_key": "cg_first_faithful", "name": "O Primeiro Fiel", "count": 1, "level": 13, "hp": 240, "ac": 34, "perception": 24, "fortitude": 24, "reflex": 20, "will": 26, "spell_dc": 34, "spell_attack": 24, "attack_bonus": 25, "damage": "3d8+6 perfurante mais 2d8 veneno (alcance 3m); Refocar Maldição Vontade CD 27-contagem; Liberar o Verme do Âmago Fort CD 34"},
+              {"npc_key": "cg_cleansed_cultist_d7", "name": "Cultista Purificado da Plataforma", "count": 3, "level": 6, "hp": 100, "ac": 24, "perception": 12, "fortitude": 12, "reflex": 16, "will": 14, "attack_bonus": 17, "damage": "1d6+5 cortante"}
+            ]
+          }
+        ],
+        "branches": [
+          {
+            "branch_key": "cleanse_sanctuary_awaken_aasimar_wings",
+            "title": "Derrotar o Primeiro Fiel, extinguir a Maldição a tempo e despertar as Asas Celestiais de Tristian",
+            "description": "A Maldição Purificadora desaparece com a queda do Primeiro Fiel antes que Maray sucumba; Tristian toca a Piscina de Encarnação, descobre sua herança aasimar (Natureza Cooperativa torna-se Asas Celestiais) e o grupo aprende o ritual Encarnar Ancestralidade.",
+            "influence_delta": 2,
+            "attitude_after": "helpful",
+            "available_after": true,
+            "xp_awarded": 120,
+            "items_awarded": ["Cajado de Necromancia Superior", "Mochila de Carga Tipo II (430 po)", "Varinha de Criar Comida (4º Nível)", "Diários do Ritual Encarnar Ancestralidade (Nível 5)", "Talento de Ancestralidade de Tristian: Asas Celestiais"],
+            "feature_unlocked": "tristian:celestial_wings_and_incarnate_ancestry"
+          },
+          {
+            "branch_key": "purge_cult_without_mercy",
+            "title": "Erradicar o Reino dos Purificados após o avanço da Contagem da Maldição",
+            "description": "A investigação demora (Contagem da Maldição >= 6), transformando Maray em bodak antes da vitória sobre o Primeiro Fiel; Tristian lamenta as vítimas não salvas, mas purifica o santuário e desperta suas Asas Celestiais.",
+            "influence_delta": 0,
+            "attitude_after": "friendly",
+            "available_after": true,
+            "xp_awarded": 80,
+            "items_awarded": ["Cajado de Necromancia Superior", "Talento de Ancestralidade de Tristian: Asas Celestiais"],
+            "feature_unlocked": "companion_boon:tristian_celestial_wings"
+          }
+        ]
       }
     },
     {
@@ -325,7 +772,7 @@
       "status": "unstarted",
       "stage": "pending",
       "objective": "Ir ao Santuário do Bosque Dourado e investigar a manipulação de Sir Fredero Sinnet por Tulvak.",
-      "stakes": "Resolver os acontecimentos da aventura com as escolhas do grupo.",
+      "stakes": "Enfrentar Sir Fredero Sinnet em duelo no Bosque Dourado, decidir se poupa sua vida, derrotar a estriga verde Tulvak e escolher o destino do santuário de Shelyn.",
       "owner_character_id": 0,
       "faction_id": 0,
       "milestone_xp": 0,
@@ -334,22 +781,29 @@
       "objectives": [
         {
           "id": "cg_valerie_step_1",
-          "desc": "Receber o desafio e viajar com Valerie ao santuário.",
-          "description": "Receber o desafio e viajar com Valerie ao santuário.",
+          "desc": "Receber a carta de desafio de Sir Fredero Sinnet e viajar com Valerie ao Santuário do Bosque Dourado (Religião/Sociedade CD 25).",
+          "description": "Receber a carta de desafio de Sir Fredero Sinnet e viajar com Valerie ao Santuário do Bosque Dourado (Religião/Sociedade CD 25).",
           "status": "pending",
           "completed": false
         },
         {
           "id": "cg_valerie_step_2",
-          "desc": "Resolver o confronto com Sir Fredero Sinnet.",
-          "description": "Resolver o confronto com Sir Fredero Sinnet.",
+          "desc": "Resolver o duelo no Átrio (E1) contra Sir Fredero Sinnet e investigar a assombração Vergonha de Shelyn no Espelho D'água (E2).",
+          "description": "Resolver o duelo no Átrio (E1) contra Sir Fredero Sinnet e investigar a assombração Vergonha de Shelyn no Espelho D'água (E2).",
           "status": "pending",
           "completed": false
         },
         {
           "id": "cg_valerie_step_3",
-          "desc": "Investigar Tulvak e decidir o destino do antigo campeão.",
-          "description": "Investigar Tulvak e decidir o destino do antigo campeão.",
+          "desc": "Superar as quatro Falsas Sacerdotisas na Antecâmara (E3) e derrotar a estriga verde Tulvak e seus Arbustos Sorvedouros em seu domínio (E4).",
+          "description": "Superar as quatro Falsas Sacerdotisas na Antecâmara (E3) e derrotar a estriga verde Tulvak e seus Arbustos Sorvedouros em seu domínio (E4).",
+          "status": "pending",
+          "completed": false
+        },
+        {
+          "id": "cg_valerie_step_4",
+          "desc": "Decidir o destino de Sir Fredero Sinnet (poupá-lo e convencê-lo a ficar com Diplomacia CD 26, ou negar-lhe misericórdia) e se restaura o Santuário de Shelyn.",
+          "description": "Decidir o destino de Sir Fredero Sinnet (poupá-lo e convencê-lo a ficar com Diplomacia CD 26, ou negar-lhe misericórdia) e se restaura o Santuário de Shelyn.",
           "status": "pending",
           "completed": false
         }
@@ -366,7 +820,80 @@
         "source_ref": "Kingmaker Companion Guide pp.86–93",
         "official_title": "Sir Fredero’s Challenge",
         "definition_revision": "companions-r36-primary",
-        "automatic_rewards_compiled": false
+        "automatic_rewards_compiled": false,
+        "playable_adventure_compiled": true,
+        "scenes": [
+          {
+            "scene_key": "cg_valerie_e1_e2_atrium_and_pool",
+            "code": "E1-E2",
+            "title": "Átrio do Duelo (E1) e O Espelho D'água (E2)",
+            "page": 88,
+            "environment": "marble_shrine_courtyard",
+            "encounter_severity": "Moderate 9",
+            "hazards": [
+              {"hazard_key": "cg_hazard_shelyns_shame_e2", "name": "Vergonha de Shelyn", "level": 11, "stealth_dc": 33, "saving_throw_type": "Vontade", "saving_throw_dc": 30, "disable_skill": "Religião", "disable_dc": 29, "alt_disable_skill": "Diplomacia", "alt_disable_dc": 33, "damage": "Esperança ou Desespero (Vontade CD 30); desabilitar concede Agradecimento de Shelyn (+1 de estado em todos os testes no santuário)"}
+            ],
+            "skill_checks": [
+              {"check_id": "valerie_golden_bough_lore", "skill": "Religião", "alt_skill": "Sociedade", "dc": 25, "description": "Recordar a história do Santuário do Bosque Dourado."},
+              {"check_id": "valerie_disarm_shelyn_haunt", "skill": "Religião", "alt_skill": "Diplomacia", "dc": 29, "description": "Confortar a assombração Vergonha de Shelyn (Religião CD 29 mestre ou Diplomacia CD 33 especialista)."}
+            ],
+            "enemies": [
+              {"npc_key": "cg_sir_fredero_sinnet", "name": "Sir Fredero Sinnet", "count": 1, "level": 9, "hp": 160, "ac": 28, "perception": 15, "fortitude": 21, "reflex": 17, "will": 15, "attack_bonus": 20, "damage": "2d8+10 cortante mais 1d6 sônico; rende-se com 10 PV ou menos (40 XP no duelo)"}
+            ]
+          },
+          {
+            "scene_key": "cg_valerie_e3_e4_tulvak_domain",
+            "code": "E3-E4",
+            "title": "Antecâmara (E3) e Domínio de Tulvak (E4)",
+            "page": 91,
+            "environment": "octagonal_cathedral",
+            "encounter_severity": "Severe 9",
+            "skill_checks": [
+              {"check_id": "valerie_convince_fredero_stay", "skill": "Diplomacia", "dc": 26, "description": "Convencer Sir Fredero redimido a permanecer nas Terras Roubadas e ajudar na restauração do santuário."},
+              {"check_id": "valerie_find_tulvak_cache", "skill": "Percepção", "dc": 25, "description": "Encontrar o esconderijo de Tulvak atrás da estátua leste (Mochila de Carga Tipo I e tesouros)."}
+            ],
+            "enemies": [
+              {"npc_key": "cg_false_priestess", "name": "Falsa Sacerdotisa", "count": 4, "level": 7, "hp": 120, "ac": 22, "perception": 15, "fortitude": 13, "reflex": 16, "will": 15, "spell_dc": 25, "attack_bonus": 14, "damage": "1d8+6 cortante mais 1d6 Arma Primal"},
+              {"npc_key": "cg_tulvak_green_hag", "name": "Tulvak, Estriga Verde Variante", "count": 1, "level": 11, "hp": 220, "ac": 31, "perception": 22, "fortitude": 22, "reflex": 20, "will": 22, "spell_dc": 30, "attack_bonus": 25, "damage": "2d10+13 cortante mais 1d6 sangramento (Segadeira Macabra); Revelação Perturbadora Vontade CD 30; Humores Enfraquecedores Fort CD 30"},
+              {"npc_key": "cg_sucking_shrub", "name": "Arbusto Sorvedouro", "count": 2, "level": 7, "hp": 115, "ac": 24, "perception": 16, "fortitude": 17, "reflex": 14, "will": 13, "attack_bonus": 18, "damage": "2d8+8 cortante"}
+            ]
+          }
+        ],
+        "branches": [
+          {
+            "branch_key": "spare_fredero_and_restore_shrine",
+            "title": "Poupar Sir Fredero, derrotar Tulvak e restaurar o Santuário do Bosque Dourado",
+            "description": "Valerie vence o duelo com honra, o grupo salva Sir Fredero, derrota Tulvak e consagra o santuário a Shelyn, recebendo a dádiva menor da deusa.",
+            "influence_delta": 2,
+            "attitude_after": "helpful",
+            "available_after": true,
+            "xp_awarded": 120,
+            "items_awarded": ["Segadeira Macabra (Item 9)", "Mochila de Carga Tipo I", "Manto do Coiote", "Varinha de Toque Vampírico", "Bastão Imóvel", "Pergaminhos de Corrente de Relâmpagos e Teleporte", "Dádiva Menor de Shelyn (1x falha em Diplomacia vira Sucesso Crítico)"],
+            "feature_unlocked": "valerie:shelyn_minor_boon_and_fredero_redeemed"
+          },
+          {
+            "branch_key": "spare_fredero_leave_shrine",
+            "title": "Poupar Sir Fredero e derrotar Tulvak sem restaurar o santuário",
+            "description": "Sir Fredero sobrevive e pede desculpas a Valerie; Tulvak é derrotada e Valerie permanece leal ao grupo.",
+            "influence_delta": 1,
+            "attitude_after": "helpful",
+            "available_after": true,
+            "xp_awarded": 120,
+            "items_awarded": ["Segadeira Macabra (Item 9)", "Mochila de Carga Tipo I", "Manto do Coiote", "Varinha de Toque Vampírico", "Bastão Imóvel"],
+            "feature_unlocked": "valerie:fredero_spared"
+          },
+          {
+            "branch_key": "deny_mercy_to_dying_fredero",
+            "title": "Negar misericórdia a Sir Fredero morrendo após o duelo",
+            "description": "Conforme a página 89 do Companion Guide, negar misericórdia a Sir Fredero faz Valerie ficar decepcionada e deixar o grupo após a aventura.",
+            "influence_delta": -4,
+            "attitude_after": "indifferent",
+            "available_after": false,
+            "xp_awarded": 40,
+            "items_awarded": [],
+            "feature_unlocked": "valerie:departed_over_fredero_death"
+          }
+        ]
       }
     }
   ],
@@ -379,16 +906,20 @@
       "name": "Amiri",
       "is_companion": true,
       "isCompanion": true,
-      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
-      "goals": "",
-      "secrets": "",
+      "summary": "Companheira bárbara kellid de Kingmaker; função de Guardiã (investimento automático), atividade de acampamento Caçar e Coletar Aprimorado e aventura pessoal O Chamado do Sangue (pp. 6–21).",
+      "goals": "Provar sua força, proteger os Seis Ursos e resolver o espírito de Kean em sua espada gigante.",
+      "secrets": "Fugiu de sua tribo após ser enviada em uma missão suicida contra gigantes do gelo.",
       "attitude": "indiferente",
-      "last_seen": "",
+      "last_seen": "Mansão de Jamandi Aldori",
       "dialogue_tree": [],
-      "source_ref": "Kingmaker Companion Guide",
+      "source_ref": "Kingmaker Companion Guide pp.6–21",
       "profile_only": true,
       "stats": {
-        "profile_only": true
+        "profile_only": true,
+        "level": 1,
+        "class": "Bárbara (Instinto Gigante)",
+        "leadership_role": "warden",
+        "personal_quest_key": "q_cg_amiri"
       }
     },
     {
@@ -397,16 +928,20 @@
       "name": "Valerie",
       "is_companion": true,
       "isCompanion": true,
-      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
-      "goals": "",
-      "secrets": "",
+      "summary": "Companheira guerreira de Kingmaker; função de General (investimento automático e Exercícios de Guerra), atividade de acampamento Preservar Armadura e aventura pessoal O Desafio de Sir Fredero (pp. 82–93).",
+      "goals": "Ser julgada por sua competência marcial e liderança, não por sua beleza ou pelos dogmas de Shelyn.",
+      "secrets": "Ex-aprendiz da Ordem da Rosa perseguida por seu antigo mentor Sir Fredero Sinnet.",
       "attitude": "indiferente",
-      "last_seen": "",
+      "last_seen": "Mansão de Jamandi Aldori",
       "dialogue_tree": [],
-      "source_ref": "Kingmaker Companion Guide",
+      "source_ref": "Kingmaker Companion Guide pp.82–93",
       "profile_only": true,
       "stats": {
-        "profile_only": true
+        "profile_only": true,
+        "level": 1,
+        "class": "Guerreira (Discípulo Marcial)",
+        "leadership_role": "general",
+        "personal_quest_key": "q_cg_valerie"
       }
     },
     {
@@ -415,16 +950,20 @@
       "name": "Linzi",
       "is_companion": true,
       "isCompanion": true,
-      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
-      "goals": "",
-      "secrets": "",
+      "summary": "Companheira barda halfling de Kingmaker; função de Conselheira (investimento automático), crônica heroica no acampamento e aventura pessoal Problemas no Tesouro (pp. 44–57).",
+      "goals": "Escrever a biografia épica dos fundadores do Reino e fundar a própria imprensa.",
+      "secrets": "Desviou temporariamente fundos do tesouro para comprar uma prensa tipográfica de Pitax.",
       "attitude": "indiferente",
-      "last_seen": "",
+      "last_seen": "Mansão de Jamandi Aldori",
       "dialogue_tree": [],
-      "source_ref": "Kingmaker Companion Guide",
+      "source_ref": "Kingmaker Companion Guide pp.44–57",
       "profile_only": true,
       "stats": {
-        "profile_only": true
+        "profile_only": true,
+        "level": 1,
+        "class": "Barda (Musa Polímata)",
+        "leadership_role": "counselor",
+        "personal_quest_key": "q_cg_linzi"
       }
     },
     {
@@ -433,16 +972,21 @@
       "name": "Harrim",
       "is_companion": true,
       "isCompanion": true,
-      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
-      "goals": "",
-      "secrets": "",
+      "summary": "Companheiro clérigo anão de Groetus; função de Magista com Influência 8 (investimento automático e Evangelizar o Fim), atividade de acampamento Fazer Parte da Noite (+2 na CD de encontros noturnos) e magia rara Lassidão Contagiante (pp. 94–95).",
+      "goals": "Testemunhar a entropia inevitável dos reinos nas Terras Roubadas e confortar os desesperados.",
+      "secrets": "Abandonou Torag após sentir-se amaldiçoado com a incapacidade de forjar sem quebrar.",
       "attitude": "indiferente",
-      "last_seen": "",
+      "last_seen": "Mansão de Jamandi Aldori",
       "dialogue_tree": [],
-      "source_ref": "Kingmaker Companion Guide",
+      "source_ref": "Kingmaker Companion Guide pp.94–95",
       "profile_only": true,
       "stats": {
-        "profile_only": true
+        "profile_only": true,
+        "level": 1,
+        "class": "Clérigo de Groetus",
+        "leadership_role": "magister",
+        "camping_activity": "harrim_blend_into_night",
+        "leadership_activity": "evangelize_the_end"
       }
     },
     {
@@ -451,16 +995,20 @@
       "name": "Tristian",
       "is_companion": true,
       "isCompanion": true,
-      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
-      "goals": "",
-      "secrets": "",
+      "summary": "Companheiro clérigo de Sarenrae; função de Magista (investimento automático), presente de Orfanato ou Santuário gratuito com Influência 8 e aventura pessoal O Reino dos Purificados (pp. 68–81).",
+      "goals": "Levar redenção e misericórdia às Terras Roubadas e proteger o Reino contra cultos corruptores.",
+      "secrets": "Possui herança celestial aasimar latente que desperta na Piscina de Encarnação de Shyka.",
       "attitude": "indiferente",
-      "last_seen": "",
+      "last_seen": "Templo do Alce / Terras Roubadas",
       "dialogue_tree": [],
-      "source_ref": "Kingmaker Companion Guide",
+      "source_ref": "Kingmaker Companion Guide pp.68–81",
       "profile_only": true,
       "stats": {
-        "profile_only": true
+        "profile_only": true,
+        "level": 1,
+        "class": "Clérigo de Sarenrae",
+        "leadership_role": "magister",
+        "personal_quest_key": "q_cg_tristian"
       }
     },
     {
@@ -469,16 +1017,21 @@
       "name": "Jaethal",
       "is_companion": true,
       "isCompanion": true,
-      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
-      "goals": "",
-      "secrets": "",
+      "summary": "Companheira elfa morta-viva campeã de Urgathoa; função de Emissária com Influência 6 (investimento automático, +1d3 Desordem se o reino for Famoso, Banquetes Decadentes), atividade Guardiões Mortos-Vivos e runa Sorvedora (pp. 96–97).",
+      "goals": "Desfrutar de novas intrigas e sensações nas Terras Roubadas sob o favor de Urgathoa.",
+      "secrets": "Exilada de Kyonin por rituais de sangue e erguida como morta-viva por Urgathoa.",
       "attitude": "indiferente",
-      "last_seen": "",
+      "last_seen": "Mansão de Jamandi Aldori",
       "dialogue_tree": [],
-      "source_ref": "Kingmaker Companion Guide",
+      "source_ref": "Kingmaker Companion Guide pp.96–97",
       "profile_only": true,
       "stats": {
-        "profile_only": true
+        "profile_only": true,
+        "level": 1,
+        "class": "Campeã de Urgathoa (Cura Negativa)",
+        "leadership_role": "emissary",
+        "camping_activity": "undead_guardians",
+        "leadership_activity": "decadent_feasts"
       }
     },
     {
@@ -487,16 +1040,21 @@
       "name": "Regongar",
       "is_companion": true,
       "isCompanion": true,
-      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
-      "goals": "",
-      "secrets": "",
+      "summary": "Companheiro meio-orc magus; função de General com Influência 8 (investimento automático e Demonstração de Força), atividade de acampamento Postura Intimidante e runa Absorvente (pp. 104–105).",
+      "goals": "Proteger Octavia e nunca mais se submeter a captores como a Liga Técnica.",
+      "secrets": "Apesar de sua ferocidade caótica, confia incondicionalmente em Octavia.",
       "attitude": "indiferente",
-      "last_seen": "",
+      "last_seen": "Acampamento nas Terras Roubadas (Capítulo 3)",
       "dialogue_tree": [],
-      "source_ref": "Kingmaker Companion Guide",
+      "source_ref": "Kingmaker Companion Guide pp.104–105",
       "profile_only": true,
       "stats": {
-        "profile_only": true
+        "profile_only": true,
+        "level": 1,
+        "class": "Magus Meio-Orc",
+        "leadership_role": "general",
+        "camping_activity": "intimidating_posture",
+        "leadership_activity": "show_of_strength"
       }
     },
     {
@@ -505,16 +1063,21 @@
       "name": "Octavia",
       "is_companion": true,
       "isCompanion": true,
-      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
-      "goals": "",
-      "secrets": "",
+      "summary": "Companheira meio-elfa maga/ladina; função de Magista com Influência 6 (investimento automático e uso de Magia em atividades festivas/artesanais), atividade Colocar Alarmes e magia Visão da Beleza (pp. 102–103).",
+      "goals": "Viver em liberdade ao lado de Regongar e espalhar beleza pelas Terras Roubadas.",
+      "secrets": "Fugitiva da Liga Técnica de Numéria ao lado de Regongar.",
       "attitude": "indiferente",
-      "last_seen": "",
+      "last_seen": "Acampamento nas Terras Roubadas (Capítulo 3)",
       "dialogue_tree": [],
-      "source_ref": "Kingmaker Companion Guide",
+      "source_ref": "Kingmaker Companion Guide pp.102–103",
       "profile_only": true,
       "stats": {
-        "profile_only": true
+        "profile_only": true,
+        "level": 1,
+        "class": "Maga / Ladina Meio-Elfa",
+        "leadership_role": "magister",
+        "camping_activity": "set_alarms",
+        "leadership_activity": "magic_civic_substitution"
       }
     },
     {
@@ -523,16 +1086,20 @@
       "name": "Ekundayo",
       "is_companion": true,
       "isCompanion": true,
-      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
-      "goals": "",
-      "secrets": "",
+      "summary": "Companheiro guardião humano; função de General ou Guardião (investimento automático), redução de -2 na CD de construção com Madeira quando Prestativo e aventura pessoal Um Banquete dos Banquetes (pp. 22–31).",
+      "goals": "Vingar sua família morta pelos gigantes de Gragglebeard e proteger seu companheiro animal Cão.",
+      "secrets": "Ntavi tenta usá-lo como arma cega de vingança contra os gigantes.",
       "attitude": "indiferente",
-      "last_seen": "",
+      "last_seen": "Terras Roubadas",
       "dialogue_tree": [],
-      "source_ref": "Kingmaker Companion Guide",
+      "source_ref": "Kingmaker Companion Guide pp.22–31",
       "profile_only": true,
       "stats": {
-        "profile_only": true
+        "profile_only": true,
+        "level": 1,
+        "class": "Guardião (Ranger)",
+        "leadership_role": "warden",
+        "personal_quest_key": "q_cg_ekundayo"
       }
     },
     {
@@ -541,16 +1108,20 @@
       "name": "Jubilost",
       "is_companion": true,
       "isCompanion": true,
-      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
-      "goals": "",
-      "secrets": "",
+      "summary": "Companheiro alquimista gnomo; função de Tesoureiro (investimento automático), presente de laboratório de Alquimista gratuito com Influência 8 e aventura pessoal Os Debates Inconsequentes (pp. 32–43).",
+      "goals": "Catalogar as Terras Roubadas e descobrir a verdade sobre o exílio dos gnomos do Primeiro Mundo.",
+      "secrets": "Teme o Desbotamento e busca continuar a pesquisa inacabada de Xae.",
       "attitude": "indiferente",
-      "last_seen": "",
+      "last_seen": "Travessia do Rio / Terras Roubadas",
       "dialogue_tree": [],
-      "source_ref": "Kingmaker Companion Guide",
+      "source_ref": "Kingmaker Companion Guide pp.32–43",
       "profile_only": true,
       "stats": {
-        "profile_only": true
+        "profile_only": true,
+        "level": 1,
+        "class": "Alquimista Gnomo",
+        "leadership_role": "treasurer",
+        "personal_quest_key": "q_cg_jubilost"
       }
     },
     {
@@ -559,16 +1130,20 @@
       "name": "Nok-Nok",
       "is_companion": true,
       "isCompanion": true,
-      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
-      "goals": "",
-      "secrets": "",
+      "summary": "Companheiro ladino goblin; função de Emissário com Influência 8 (investimento automático), progressão de tendência CE→CN→CG e aventura pessoal Heróis ou Deuses? (pp. 58–67).",
+      "goals": "Tornar-se o quinto herói-deus goblin ou um verdadeiro herói ao lado dos PJs.",
+      "secrets": "Rejeitado pela tribo Tanglethorn de Nargloom antes de buscar o grupo.",
       "attitude": "indiferente",
-      "last_seen": "",
+      "last_seen": "Fronteiras das Terras Roubadas",
       "dialogue_tree": [],
-      "source_ref": "Kingmaker Companion Guide",
+      "source_ref": "Kingmaker Companion Guide pp.58–67",
       "profile_only": true,
       "stats": {
-        "profile_only": true
+        "profile_only": true,
+        "level": 1,
+        "class": "Ladino Goblin",
+        "leadership_role": "emissary",
+        "personal_quest_key": "q_cg_nok_nok"
       }
     },
     {
@@ -577,16 +1152,20 @@
       "name": "Kalikke e Kanerah",
       "is_companion": true,
       "isCompanion": true,
-      "summary": "Companheiro de Kingmaker; consulte seu perfil de influência para as regras de vínculo, liderança e acampamento.",
-      "goals": "",
-      "secrets": "",
+      "summary": "Companheiras gêmeas tiefling cineticistas (Kalikke: Conselheira / Perigos Aquáticos / Rajada Aquosa; Kanerah: Emissária / Melhorar Fogueira / Rajada Abrasadora) com troca nas preparações diárias em Influência 8 e gancho de separação contra o balor Ancestral (pp. 98–101).",
+      "goals": "Encontrar uma forma de separar suas almas em dois corpos vivos e escapar do pacto com o balor Ancestral.",
+      "secrets": "Compartilham um único corpo físico devido ao pacto que Kalikke fez para salvar Kanerah da execução em Qadira.",
       "attitude": "indiferente",
-      "last_seen": "",
+      "last_seen": "Capital do Reino",
       "dialogue_tree": [],
-      "source_ref": "Kingmaker Companion Guide",
+      "source_ref": "Kingmaker Companion Guide pp.98–101",
       "profile_only": true,
       "stats": {
-        "profile_only": true
+        "profile_only": true,
+        "level": 1,
+        "class": "Cineticista Tiefling (Água / Fogo)",
+        "leadership_role": "counselor",
+        "aliases": ["Kalikke and Kanerah", "Kalikke", "Kanerah"]
       }
     }
   ],
@@ -673,12 +1252,19 @@
       "tactical_scenes": [
         "scene_fogueira_acampamento_dialogos",
         "scene_duelo_honra_ordem_paladinos"
+      ],
+      "kingmaker_features": [
+        "milestone:milestone_lealdade_vanguarda",
+        "milestone:milestone_resgate_octavia_regongar",
+        "milestone:milestone_redencao_tristian_valerie",
+        "milestone:milestone_lenda_doze_companheiros"
       ]
     },
     "coverage": {
       "published_personal_adventures": 7,
       "companion_profiles": 12,
       "plot_correction": true,
+      "playable_adventures_compiled": true,
       "all_encounters_compiled": false,
       "all_maps_compiled": false,
       "automatic_rewards_compiled": false

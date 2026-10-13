@@ -385,3 +385,28 @@ def test_leadership_checks_and_approval_effects_reach_real_runtime():
     assert 'kingmakerRepository.resolveKingdomActivity("new_leadership_approval",args)' in main
     assert (ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerLeadershipSemantics.java").exists()
 
+
+def test_companion_adventures_candlemere_and_40_official_parts_completeness():
+    import json
+    assert 'public JSONObject resolveCompanionAdventureCheck(' in SOURCE
+    assert 'public JSONObject resolveCompanionAdventureBranch(' in SOURCE
+    assert 'KingmakerCompanionSemantics.resolveCompanionAdventureCheck(' in SOURCE
+    assert 'KingmakerCompanionSemantics.resolveCompanionAdventureBranch(' in SOURCE
+    comp_data = json.loads((ROOT/"android/app/src/main/assets/pathfinder/kingmaker/chapters/chapter_12_companion_stories.json").read_text(encoding="utf-8"))
+    for q in comp_data["quests"]:
+        assert len(q["objectives"]) >= 3
+        prog = q["progress_json"]
+        scenes = prog.get("scenes", [])
+        assert len(scenes) >= 1
+        assert sum(len(s.get("enemies", [])) for s in scenes) >= 1
+        assert sum(len(s.get("skill_checks", [])) for s in scenes) >= 1
+        assert len(prog.get("branches", [])) >= 2
+    candlemere = json.loads((ROOT/"android/app/src/main/assets/pathfinder/kingmaker/chapters/chapter_08_they_lurk_below.json").read_text(encoding="utf-8"))
+    assert len(candlemere["pois"]) == 2
+    assert len(candlemere["scenes"]) == 2
+    assert len(candlemere["hazards"]) == 3
+    assert len(candlemere["npcs"]) == 13
+    npc_keys = {n["npc_key"] for n in candlemere["npcs"]}
+    for required_npc in ("npc_foras", "npc_korog", "npc_kyetriel", "npc_niodrhast", "npc_leng_envoy", "npc_thresholder_mystic", "npc_candlemere_shoggoth"):
+        assert required_npc in npc_keys
+
