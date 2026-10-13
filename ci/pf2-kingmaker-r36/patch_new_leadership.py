@@ -88,9 +88,9 @@ def repo(s):
     s=s[:a]+middle+s[b:]
     # All current dispatch callers must supply the real d20/skill rather than falling back to a fictitious roll.
     a='return resolveNewLeadership(p.optString("role"), p.optString("entity_kind"), p.optLong("entity_id", 0), p.optString("name"), p.optBoolean("invested", false), notes);'
-    b='return resolveNewLeadership(p.optString("role"), p.optString("entity_kind"), p.optLong("entity_id", 0), p.optString("name"), p.optBoolean("invested", false), nat, skill, notes);'
+    b='if(!p.has("natural_roll"))throw new IllegalArgumentException("Informe o d20 real da atividade Nova Liderança.");return resolveNewLeadership(p.optString("role"), p.optString("entity_kind"), p.optLong("entity_id", 0), p.optString("name"), p.optBoolean("invested", false), nat, skill, notes);'
     s=once(s,a,b)
-    s=once(s,'} else if ("proclamation".equals(k)) {','} else if ("new_leadership_approval".equals(k)) {\n            return resolveNewLeadershipApproval(p.optString("role"), skill, nat);\n        } else if ("proclamation".equals(k)) {')
+    s=once(s,'} else if ("proclamation".equals(k)) {','} else if ("new_leadership_approval".equals(k)) {\n            if(!p.has("natural_roll"))throw new IllegalArgumentException("Informe o d20 real da aceitação popular.");return resolveNewLeadershipApproval(p.optString("role"), skill, nat);\n        } else if ("proclamation".equals(k)) {')
     # Inject the real circumstance adjustment into the existing source-level kingdom skill resolver.
     a=s.index('    public JSONObject recordCheck(String activityKey,String title,String role,String skillKey,int natural,int dc,String sourceRef,String notes,boolean awardReputationOnCrit)')
     b=s.index('    public List<JSONObject> turnActivities(',a)
@@ -126,7 +126,14 @@ def ui(s):
     add='''final String[] leadershipSkills={"Intriga","Política","Estadismo","Guerra"},leadershipKeys={"intrigue","politics","statecraft","warfare"};
     final Spinner skill=spinner(leadershipSkills,"Política");form.addView(cardWithLabel("PERÍCIA • NOVA LIDERANÇA",skill));
     final EditText natural=labeledField(form,"d20 real (1–20) • após a fundação","",false);natural.setInputType(InputType.TYPE_CLASS_NUMBER);
-    form.addView(text("Na fundação, a nomeação é gratuita. Após o primeiro turno, o teste oficial é obrigatório; Jaethal pode causar Agitação.",12,MUTED,false));'''
+    form.addView(text("Na fundação, a nomeação é gratuita. Após o primeiro turno, o teste oficial é obrigatório; Jaethal pode causar Agitação.",12,MUTED,false));
+    boolean awaitingApproval=false;for(JSONObject history:kingmakerRepository.features("leadership_assignment"))if(("leadership:"+role.optString("role_key")).equals(history.optString("feature_key"))){try{awaitingApproval=new JSONObject(history.optString("effects_json","{}")).optBoolean("approval_pending");}catch(Exception ignored){}}
+    if(awaitingApproval){final Button approval=new Button(this);approval.setText("ACEITAÇÃO POPULAR • FASE EVENTOS");
+        approval.setOnClickListener(new View.OnClickListener(){public void onClick(View v){try{
+            JSONObject args=new JSONObject().put("role",role.optString("role_name")).put("skill_key",leadershipKeys[skill.getSelectedItemPosition()]).put("natural_roll",num(natural,0));
+            JSONObject receipt=kingmakerRepository.resolveKingdomActivity("new_leadership_approval",args);
+            toast("Aceitação: "+receipt.optJSONObject("check").optString("degree_pt"));showKingmaker();
+        }catch(Exception ex){toast("Aceitação popular: "+ex.getMessage());}}});form.addView(approval);}'''
     part=once(part,anchor,anchor+add)
     original='kingmakerRepository.assignLeader(role.optString("role_name"),c.optString("kind"),c.optLong("id"),c.optString("name"),invested.isChecked(),value(notes));'
     replacement='''if(kingmakerRepository.state().optInt("turn_number",0)==0)kingmakerRepository.assignLeader(role.optString("role_name"),c.optString("kind"),c.optLong("id"),c.optString("name"),invested.isChecked(),value(notes));
