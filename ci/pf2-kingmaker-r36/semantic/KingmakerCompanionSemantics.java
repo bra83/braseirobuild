@@ -253,7 +253,9 @@ public final class KingmakerCompanionSemantics {
      JSONObject c=checks.optJSONObject(j);
      if(c!=null&&checkId.trim().equals(c.optString("check_id"))){
       declared=true;
-      matchedDc=dc==c.optInt("dc",-1)||dc==c.optInt("alternative_dc_when_helpful",-1)||dc==c.optInt("alternative_dc_for_crafting",-1);
+      matchedDc=dc==c.optInt("dc",-1)||dc==c.optInt("alternative_dc_when_helpful",-1)||dc==c.optInt("alternative_dc_for_crafting",-1)
+       ||("ekundayo".equals(companionKey)&&"ekundayo_request_stay".equals(checkId)
+          &&"GM_SELECTED".equals(c.optString("dc_mode")));
       JSONArray alternateSkillDcs=c.optJSONArray("alternate_skill_dcs");
       if(alternateSkillDcs!=null)for(int n=0;n<alternateSkillDcs.length();n++){
        JSONObject alt=alternateSkillDcs.optJSONObject(n);
@@ -264,6 +266,18 @@ public final class KingmakerCompanionSemantics {
    }
    if(!declared)throw new IllegalArgumentException("Teste não definido no Companion Guide para "+companionKey+": "+checkId);
    if(!matchedDc)throw new IllegalArgumentException("CD alterada indevidamente no teste "+checkId+": "+dc);
+  }
+  if("ekundayo".equals(companionKey)&&"ekundayo_request_stay".equals(checkId)){
+   // The published scene requires Request but contains no numeric DC:
+   // let the GM set it; allow it only after the bridge fight with Ntavi present.
+   if(currentProgress==null||!currentProgress.optBoolean("bridge_battle_concluded",false)
+     ||!currentProgress.optBoolean("ntavi_at_bridge",false))
+    throw new IllegalStateException("Request exige combate concluído e Ntavi presente.");
+   if(currentProgress.optBoolean("ekundayo_request_attempted",false))
+    throw new IllegalStateException("Este Request já foi resolvido.");
+   String att=currentProgress.optString("ekundayo_attitude_at_request","");
+   if(!("friendly".equals(att)||"helpful".equals(att)))
+    throw new IllegalStateException("Request exige Ekundayo pelo menos Amistoso.");
   }
   int total=naturalRoll+totalModifier;
   int deg=total>=dc+10?3:total>=dc?2:total<=dc-10?0:1;
@@ -278,7 +292,7 @@ public final class KingmakerCompanionSemantics {
   next.put("adventure_checks",checks).put("journal_started",true);
   if("ekundayo".equals(companionKey)&&(officialScenes==null||"ekundayo_feast_contribution".equals(checkId))){
    int delta=deg==3?2:deg==2?1:deg==1?0:-1;
-   int pts=Math.max(0,next.optInt("feast_points",0)+delta);
+   int pts=next.optInt("feast_points",0)+delta;
    int goal=next.optInt("feast_points_target",officialScenes==null?8:5);
    next.put("feast_points",pts).put("feast_success",pts>=goal)
     .put("feast_participated",true);
@@ -292,6 +306,10 @@ public final class KingmakerCompanionSemantics {
     .put("ntavi_location_revealed",deg>=2)
     .put("ntavi_false_silverstep_clue",deg==0);
    entry.put("ntavi_conclusion",prevented?"PC_LOYALTY_RETAINED":"EKUNDAYO_RECRUITED");
+  }else if("ekundayo".equals(companionKey)&&"ekundayo_request_stay".equals(checkId)){
+   next.put("ekundayo_request_attempted",true).put("ekundayo_request_stay_accepted",deg>=2)
+    .put("ekundayo_request_dc",dc);
+   entry.put("ekundayo_request_accepted",deg>=2).put("gm_selected_dc",true);
   }else if("jubilost".equals(companionKey)&&(officialScenes==null||checkId.startsWith("jubilost_debate_round_"))){
    int wins=next.optInt("debate_wins",0)+(deg>=2?1:0);
    int losses=next.optInt("debate_losses",0)+(deg<2?1:0);
@@ -389,12 +407,23 @@ public final class KingmakerCompanionSemantics {
     // defeat the Reavers and keeping Ekundayo raises influence to at least 8.
     if(currentProgress.optBoolean("feast_success",false))
      nextInfluence=Math.max(nextInfluence,priorInfluence<2?2:priorInfluence<4?4:8);
-    if(nextAvailable==1)nextInfluence=Math.max(nextInfluence,8);
-    if(nextAvailable==0){
-     if(currentProgress.has("ntavi_at_bridge")&&!currentProgress.optBoolean("ntavi_at_bridge"))
-      throw new IllegalStateException("Ntavi saiu após a conversa e não está presente para recrutar Ekundayo.");
-     if(currentProgress.optBoolean("ekundayo_romance_with_pc")||currentProgress.optBoolean("ekundayo_request_stay_accepted"))
-      throw new IllegalStateException("Ekundayo permanece com os PJs por romance ou Request aceito.");
+    // Guide p.31: reaching 8 Influence at the bridge requires real party aid
+    // and Ekundayo remaining. The feast can separately earn the next tier.
+    if(nextAvailable==1&&currentProgress.optBoolean("pc_aided_bridge",false))
+     nextInfluence=Math.max(nextInfluence,8);
+    if(currentProgress.optJSONArray("scenes")!=null){
+     if(!currentProgress.optBoolean("bridge_battle_concluded",false))
+      throw new IllegalStateException("Registre o combate da ponte antes do desfecho.");
+     boolean ntaviHere=currentProgress.optBoolean("ntavi_at_bridge",true);
+     boolean romance=currentProgress.optBoolean("ekundayo_romance_with_pc",false);
+     boolean requestPassed=currentProgress.optBoolean("ekundayo_request_attempted",false)
+      &&currentProgress.optBoolean("ekundayo_request_stay_accepted",false);
+     String att=companionBefore.optString("attitude",attitudeForInfluence(companionKey,priorInfluence));
+     boolean friendly="friendly".equals(att)||"helpful".equals(att);
+     if(nextAvailable==1&&ntaviHere&&!romance&&(!friendly||!requestPassed))
+      throw new IllegalStateException("Com Ntavi presente, só é possível reter Ekundayo por romance ou Request bem-sucedido, se for Amistoso.");
+     if(nextAvailable==0&&(!ntaviHere||romance||requestPassed))
+      throw new IllegalStateException("Ntavi ausente, romance ou Request bem-sucedido impedem a partida.");
     }
    }
    String nextAttitude="ekundayo".equals(companionKey)

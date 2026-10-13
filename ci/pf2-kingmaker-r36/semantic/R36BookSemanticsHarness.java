@@ -682,6 +682,14 @@ public final class R36BookSemanticsHarness {
     // Use real published checks to reach each Jubilost outcome. An unanswered
     // fixture may not bypass the Host's three ordered questions (Guide p.42).
     JSONObject branchProgress=progress;
+    if("ekundayo".equals(companionKey)){
+     boolean staying="temper_vengeance_embrace_fellowship".equals(branchId);
+     branchProgress=new JSONObject(progress.toString())
+      .put("bridge_battle_concluded",true).put("pc_aided_bridge",true);
+     branchProgress=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
+      "ekundayo","ekundayo_interrupt_ntavi",staying?10:3,staying?11:7,21,branchProgress)
+      .optJSONObject("progress");
+    }
     if("jubilost".equals(companionKey)){
      branchProgress=new JSONObject(progress.toString());
      int debateDc=branchProgress.optJSONObject("debate_rule").optInt("dc");
@@ -746,6 +754,12 @@ public final class R36BookSemanticsHarness {
      JSONObject sourceCheck=sourceChecks.optJSONObject(c);
      String id=sourceCheck.optString("check_id");
      int dc=sourceCheck.optInt("dc");
+     boolean gmRequest="ekundayo_request_stay".equals(id)&&"GM_SELECTED".equals(sourceCheck.optString("dc_mode"));
+     if(gmRequest){
+      dc=21; // fixture GM choice, not a book-defined DC
+      checkedProgress=new JSONObject(progress.toString()).put("bridge_battle_concluded",true)
+       .put("ntavi_at_bridge",true).put("ekundayo_attitude_at_request","friendly");
+     }
      // Tristian must investigate to 8 RP before Talbot becomes accessible.
      // Earn these points via the published research check, not a manual flag.
      if("tristian".equals(companionKey)&&"tristian_confront_talbot".equals(id)){
@@ -755,15 +769,25 @@ public final class R36BookSemanticsHarness {
      }
      JSONObject result=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
       companionKey,id,10,dc-10,dc,checkedProgress);
-     if("jubilost".equals(companionKey)||"tristian".equals(companionKey))
+     if("jubilost".equals(companionKey)||"tristian".equals(companionKey)||gmRequest)
       checkedProgress=result.optJSONObject("progress");
      check(id.equals(result.optJSONObject("check").optString("check_id")),
       "Canonical JSON skill check accepted: "+id);
      officialChecks++;
-     boolean forbidden=false;
-     try{KingmakerCompanionSemantics.resolveCompanionAdventureCheck(companionKey,id,10,dc-10,dc+1,progress);}
-     catch(IllegalArgumentException expected){forbidden=true;}
-     check(forbidden,"Modified canonical skill DC rejected: "+id);
+     if(gmRequest){
+      check(result.optJSONObject("check").optInt("dc")==21
+       &&result.optJSONObject("progress").optBoolean("ekundayo_request_stay_accepted"),
+       "GM Request DC and success are saved, without inventing fixed book DC");
+      boolean repeated=false;
+      try{KingmakerCompanionSemantics.resolveCompanionAdventureCheck(companionKey,id,10,dc-10,dc,checkedProgress);}
+      catch(IllegalStateException expected){repeated=true;}
+      check(repeated,"Repeat Request cannot silently override prior result");
+     }else{
+      boolean forbidden=false;
+      try{KingmakerCompanionSemantics.resolveCompanionAdventureCheck(companionKey,id,10,dc-10,dc+1,progress);}
+      catch(IllegalArgumentException expected){forbidden=true;}
+      check(forbidden,"Modified canonical skill DC rejected: "+id);
+     }
     }
    }
    check(officialChecks>0,"Real companion story checks executable: "+companionKey);
@@ -791,9 +815,20 @@ public final class R36BookSemanticsHarness {
   check("CRITICAL_SUCCESS".equals(ntaviCritical.optString("ntavi_interruption_degree"))
    &&ntaviCritical.optBoolean("ntavi_at_bridge")&&ntaviCritical.optBoolean("ntavi_recruitment_prevented"),
    "Helpful Ekundayo upgrades social success; Ntavi remains and early attack prevented");
+  ntaviCritical.put("bridge_battle_concluded",true).put("pc_aided_bridge",true)
+   .put("ekundayo_attitude_at_request","friendly");
+  boolean stayWithoutRequestBlocked=false;
+  try{KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
+   "ekundayo","temper_vengeance_embrace_fellowship",
+   new JSONObject().put("influence",4).put("attitude","friendly"),ntaviCritical);}
+  catch(IllegalStateException expected){stayWithoutRequestBlocked=true;}
+  check(stayWithoutRequestBlocked,"Ntavi present: require a completed successful Request or romance");
+  JSONObject requestSuccess=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
+   "ekundayo","ekundayo_request_stay",10,12,21,ntaviCritical).optJSONObject("progress");
+  check(requestSuccess.optBoolean("ekundayo_request_stay_accepted"),"Successful GM-selected Request recorded");
   JSONObject ekStay=KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
    "ekundayo","temper_vengeance_embrace_fellowship",
-   new JSONObject().put("influence",4).put("available",1),ntaviCritical);
+   new JSONObject().put("influence",4).put("attitude","friendly").put("available",1),requestSuccess);
   check(ekStay.optInt("influence_after")>=8&&ekStay.optInt("xp_awarded")==40
    &&ekStay.optJSONArray("items_awarded").length()==0,
    "Book-verified 30+10 XP and at-least-8 influence, no invented branch treasure");
@@ -802,6 +837,7 @@ public final class R36BookSemanticsHarness {
   check("SUCCESS".equals(ntaviSuccess.optString("ntavi_interruption_degree"))
    &&!ntaviSuccess.optBoolean("ntavi_at_bridge")&&ntaviSuccess.optBoolean("ntavi_recruitment_prevented"),
    "Normal social success sends Ntavi away but prevents early attack");
+  ntaviSuccess.put("bridge_battle_concluded",true).put("pc_aided_bridge",false);
   boolean cannotDepartWithAbsentNtavi=false;
   try{KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
    "ekundayo","consume_in_ruthless_vengeance",new JSONObject().put("influence",0),ntaviSuccess);}
@@ -813,6 +849,7 @@ public final class R36BookSemanticsHarness {
    &&ntaviFailure.optBoolean("ntavi_false_silverstep_clue")
    &&ntaviFailure.optBoolean("ekundayo_departs_early"),
    "Critical failure causes false Silverstep clue and early departure");
+  ntaviFailure.put("bridge_battle_concluded",true).put("pc_aided_bridge",false);
   JSONObject ekDeparture=KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
    "ekundayo","consume_in_ruthless_vengeance",new JSONObject().put("influence",0),ntaviFailure);
   check(ekDeparture.optInt("available_after")==0&&ekDeparture.optInt("xp_awarded")==0,
@@ -823,6 +860,20 @@ public final class R36BookSemanticsHarness {
    "ekundayo","consume_in_ruthless_vengeance",new JSONObject().put("influence",0),romance);}
   catch(IllegalStateException expected){romanceProtected=true;}
   check(romanceProtected,"Ekundayo romance with a PC blocks leaving with Ntavi");
+  JSONObject noAid=new JSONObject(ekActual.toString())
+   .put("bridge_battle_concluded",true).put("pc_aided_bridge",false).put("ntavi_at_bridge",false);
+  JSONObject notHelped=KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
+   "ekundayo","temper_vengeance_embrace_fellowship",
+   new JSONObject().put("influence",4).put("attitude","friendly"),noAid);
+  check(notHelped.optInt("influence_after")==4,"Cannot mint 8 Influence without banquet threshold or bridge help");
+  noAid.put("pc_aided_bridge",true);
+  JSONObject helped=KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
+   "ekundayo","temper_vengeance_embrace_fellowship",
+   new JSONObject().put("influence",4).put("attitude","friendly"),noAid);
+  check(helped.optInt("influence_after")==8,"Bridge aid plus Ekundayo staying earns 8 Influence");
+  JSONObject feastPenalty=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
+   "ekundayo","ekundayo_feast_contribution",1,0,22,new JSONObject(ekActual.toString())).optJSONObject("progress");
+  check(feastPenalty.optInt("feast_points")==-1,"Critical failure deducts one banquet VP");
   // Jubilost official VP accounting and outcomes — Companion Guide pp.41-43.
   JSONArray jvSourceChecks=new JSONArray();
   for(int jvIndex=1;jvIndex<=3;jvIndex++)jvSourceChecks.put(new JSONObject().put("check_id","jubilost_debate_round_"+jvIndex).put("dc",24));

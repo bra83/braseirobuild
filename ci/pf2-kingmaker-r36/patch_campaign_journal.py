@@ -107,6 +107,8 @@ def journal_repository(s):
             if("ekundayo".equals(canonical)){
                 JSONObject c=companion(canonical);
                 progress.put("ekundayo_helpful","helpful".equals(c.optString("attitude"))||c.optInt("influence",0)>=8);
+                if("ekundayo_request_stay".equals(checkId))
+                    progress.put("ekundayo_attitude_at_request",c.optString("attitude"));
             }
             JSONObject outcome=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(canonical,checkId,naturalRoll,totalModifier,dc,progress);
             JSONObject nextProgress=outcome.getJSONObject("progress");
@@ -115,6 +117,35 @@ def journal_repository(s):
             ContentValues c=new ContentValues();c.put("personal_quest_status","in_progress");c.put("updated_at",System.currentTimeMillis());
             db.getWritableDatabase().update("kingmaker_companions",c,"world_profile=? AND companion_key=?",new String[]{profile(),canonical});
             result[0]=outcome;audit("Teste de aventura de companheiro",canonical+" • "+checkId,quest,outcome);
+        }});return result[0];
+    }
+    public JSONObject recordEkundayoBridgeOutcome(final boolean partyHelped)throws Exception{
+        requireEnabled();final JSONObject[] result={new JSONObject()};
+        db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            JSONObject quest=officialCompanionQuest("ekundayo");
+            if(quest.length()==0||KingmakerCampaignGate.completed(quest.optString("status")))
+                throw new IllegalStateException("Aventura de Ekundayo indisponível ou concluída.");
+            requireJournalEligibility(quest);
+            boolean bridgeCompleted=false;
+            JSONArray objectives=KingmakerCampaignGate.objectives(quest);
+            for(int i=0;i<objectives.length();i++){
+                JSONObject obj=objectives.optJSONObject(i);
+                if(obj!=null&&"cg_ekundayo_step_3".equals(obj.optString("id"))
+                   &&(obj.optBoolean("completed",false)||"completed".equals(obj.optString("status"))))
+                    bridgeCompleted=true;
+            }
+            if(!bridgeCompleted)throw new IllegalStateException("Conclua o objetivo da ponte antes de registrar a ajuda.");
+            JSONObject progress=KingmakerCampaignGate.progress(quest);
+            if(progress.has("pc_aided_bridge")){
+                if(progress.optBoolean("pc_aided_bridge")!=partyHelped)
+                    throw new IllegalStateException("O resultado da ponte já está salvo e não pode ser alterado.");
+                result[0]=progress.put("idempotent_replay",true);return;
+            }
+            progress.put("bridge_battle_concluded",true).put("pc_aided_bridge",partyHelped);
+            ContentValues cv=new ContentValues();cv.put("progress_json",progress.toString());cv.put("updated_at",System.currentTimeMillis());
+            if(db.getWritableDatabase().update("quests",cv,"id=? AND world_profile=?",new String[]{String.valueOf(quest.optLong("id")),profile()})!=1)
+                throw new IllegalStateException("O resultado da ponte não foi persistido.");
+            result[0]=progress;audit("Ajuda dos PJs na ponte",partyHelped?"PJs ajudaram":"PJs não ajudaram",quest,progress);
         }});return result[0];
     }
     public JSONObject resolveCompanionAdventureBranch(final String companionKey,final String branchKey)throws Exception{
@@ -204,7 +235,9 @@ def journal_ui(s):
             for(int j=0;j<rolls.length();j++){
                 JSONObject check=rolls.optJSONObject(j);if(check==null)continue;
                 checks.add(check);
-                labels.add(scene.optString("title")+" • "+check.optString("skill")+" CD "+check.optInt("dc")+" • "+check.optString("description"));
+                labels.add(scene.optString("title")+" • "+check.optString("skill")
+                    +("GM_SELECTED".equals(check.optString("dc_mode"))?" • CD do Mestre":" CD "+check.optInt("dc"))
+                    +" • "+check.optString("description"));
             }
         }
         if(checks.isEmpty()){toast("Nenhum teste publicado nesta aventura.");return;}
@@ -219,8 +252,10 @@ def journal_ui(s):
         form.addView(text(check.optString("description"),14,TEXT,false));
         final EditText natural=labeledField(form,"Resultado natural do d20 (1 a 20)","",true);
         final EditText bonus=labeledField(form,"Modificador total (sem o d20)","0",true);
-        final List<Integer> availableDcs=new ArrayList<Integer>();availableDcs.add(check.optInt("dc"));
-        final List<String> dcLabels=new ArrayList<String>();dcLabels.add("CD publicada "+check.optInt("dc"));
+        final boolean gmSelectedDc="GM_SELECTED".equals(check.optString("dc_mode"));
+        final EditText manualDc=gmSelectedDc?labeledField(form,"CD de Request definida pelo Mestre (10 a 60)","",true):null;
+        final List<Integer> availableDcs=new ArrayList<Integer>();if(!gmSelectedDc)availableDcs.add(check.optInt("dc"));
+        final List<String> dcLabels=new ArrayList<String>();if(!gmSelectedDc)dcLabels.add("CD publicada "+check.optInt("dc"));
         if(check.has("alternative_dc_when_helpful")){
             availableDcs.add(check.optInt("alternative_dc_when_helpful"));
             dcLabels.add("CD se Ekundayo prestativo "+check.optInt("alternative_dc_when_helpful"));
@@ -236,8 +271,8 @@ def journal_ui(s):
             availableDcs.add(alternative.optInt("dc"));
             dcLabels.add(alternative.optString("skill")+" • CD "+alternative.optInt("dc"));
         }
-        final Spinner chosenDc=spinner(dcLabels.toArray(new String[0]),dcLabels.get(0));
-        form.addView(cardWithLabel("CD DO TESTE",chosenDc));
+        final Spinner chosenDc=gmSelectedDc?null:spinner(dcLabels.toArray(new String[0]),dcLabels.get(0));
+        if(chosenDc!=null)form.addView(cardWithLabel("CD DO TESTE",chosenDc));
         final String companion=KingmakerCampaignGate.questKey(q).substring(5);
         new AlertDialog.Builder(this).setTitle(check.optString("skill")+" • CD "+check.optInt("dc"))
          .setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null)
@@ -245,7 +280,8 @@ def journal_ui(s):
             try{
                 int d20=Integer.parseInt(value(natural).trim());
                 int mod=Integer.parseInt(value(bonus).trim());
-                JSONObject result=kingmakerRepository.resolveCompanionAdventureCheck(companion,check.optString("check_id"),d20,mod,availableDcs.get(chosenDc.getSelectedItemPosition()));
+                JSONObject result=kingmakerRepository.resolveCompanionAdventureCheck(companion,check.optString("check_id"),d20,mod,
+                    manualDc!=null?Integer.parseInt(value(manualDc).trim()):availableDcs.get(chosenDc.getSelectedItemPosition()));
                 JSONObject roll=result.optJSONObject("check");
                 toast("Teste aplicado e salvo: "+(roll==null?"":roll.optString("degree")));
                 showKingmakerCampaignJournal();
@@ -255,6 +291,19 @@ def journal_ui(s):
     private void showKingmakerCompanionBranchChoices(final JSONObject q){
         final String key=KingmakerCampaignGate.questKey(q);if(!key.startsWith("q_cg_")){toast("Esta não é uma aventura pessoal.");return;}
         final String companion=key.substring(5);
+        if("ekundayo".equals(companion)&&!KingmakerCampaignGate.progress(q).has("pc_aided_bridge")){
+            new AlertDialog.Builder(this).setTitle("Ekundayo • Ponte do Pequeno Sellen")
+             .setMessage("Depois de concluir o objetivo da ponte: os PJs realmente ajudaram Ekundayo na batalha? A resposta será persistida e não poderá ser alterada.")
+             .setPositiveButton("SIM, AJUDARAM",new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){
+                try{kingmakerRepository.recordEkundayoBridgeOutcome(true);showKingmakerCampaignJournal();}
+                catch(Exception e){toast(e.getMessage());}
+             }})
+             .setNeutralButton("NÃO AJUDARAM",new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){
+                try{kingmakerRepository.recordEkundayoBridgeOutcome(false);showKingmakerCampaignJournal();}
+                catch(Exception e){toast(e.getMessage());}
+             }})
+             .setNegativeButton("Cancelar",null).show();return;
+        }
         final JSONArray branches=KingmakerCampaignGate.progress(q).optJSONArray("branches");
         if(branches==null||branches.length()==0){toast("O catálogo desta aventura não contém desfechos oficiais.");return;}
         final List<String> labels=new ArrayList<String>();

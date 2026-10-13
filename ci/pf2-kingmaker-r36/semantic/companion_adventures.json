@@ -408,6 +408,13 @@
                 "dc": 20,
                 "alternative_dc_for_crafting": 25,
                 "description": "Reconhecer pilares avariados da ponte."
+              },
+              {
+                "check_id": "ekundayo_request_stay",
+                "skill": "Diplomacia (Request)",
+                "dc_mode": "GM_SELECTED",
+                "source_ref": "Kingmaker Companion Guide p.31; PF2e Request",
+                "description": "Após o confronto dos Reavers, se Ntavi está presente e Ekundayo é ao menos Amistoso, realizar Request. O livro não fixa uma CD; o Mestre deve informá-la."
               }
             ],
             "enemies": [
@@ -551,7 +558,8 @@
           "ntavi_present_and_attitude_at_least_friendly": "PJs precisam usar Request com sucesso para retê-lo, exceto se existir romance confirmado com um PJ",
           "romance_with_pc": "Ekundayo fica automaticamente com o PJ",
           "pc_aided_bridge_and_ekundayo_remains": "A influência com Ekundayo sobe pelo menos até 8",
-          "ntavi_absent": "Ntavi não pode recrutar Ekundayo ao fim da missão"
+          "ntavi_absent": "Ntavi não pode recrutar Ekundayo ao fim da missão",
+          "request_dc_source": "GM_SELECTED: livro exige Request bem-sucedido, sem CD numérica fixa."
         },
         "xp_book_verified": {
           "banquet_victory_points_at_least_5": 30,

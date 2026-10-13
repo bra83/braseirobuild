@@ -514,3 +514,25 @@ def test_jubilost_other_host_question_causes_official_departure():
     source=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerCompanionSemantics.java").read_text(encoding="utf-8")
     assert 'nextProgress.put("jubilost_departure_tone"' in source
     assert 'nextAvailable=0' in source
+
+
+def test_ekundayo_guide_request_bridge_and_gm_dc_contract():
+    """Companion Guide p.31: result of party aid and Request is persisted."""
+    import json
+    data=json.loads((ROOT/"android/app/src/main/assets/pathfinder/kingmaker/chapters/chapter_12_companion_stories.json").read_text(encoding="utf-8"))
+    ek=next(q["progress_json"] for q in data["quests"] if q["progress_json"]["companion_key"]=="ekundayo")
+    bridge=next(s for s in ek["scenes"] if s["code"]=="STANDOFF")
+    request=next(c for c in bridge["skill_checks"] if c["check_id"]=="ekundayo_request_stay")
+    assert request["dc_mode"]=="GM_SELECTED" and "dc" not in request
+    semantic=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerCompanionSemantics.java").read_text(encoding="utf-8")
+    assert 'currentProgress.optBoolean("pc_aided_bridge",false)' in semantic
+    assert 'currentProgress.optBoolean("bridge_battle_concluded",false)' in semantic
+    assert '"ekundayo_request_stay_accepted",deg>=2' in semantic
+    assert '"GM_SELECTED".equals(c.optString("dc_mode"))' in semantic
+    journal=method_body('public JSONObject recordEkundayoBridgeOutcome(')
+    assert 'db.runInTransactionChecked' in journal
+    assert '"cg_ekundayo_step_3".equals(obj.optString("id"))' in journal
+    assert 'progress.put("bridge_battle_concluded",true).put("pc_aided_bridge",partyHelped)' in journal
+    ui=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java").read_text(encoding="utf-8")
+    assert 'recordEkundayoBridgeOutcome(true)' in ui
+    assert 'recordEkundayoBridgeOutcome(false)' in ui
