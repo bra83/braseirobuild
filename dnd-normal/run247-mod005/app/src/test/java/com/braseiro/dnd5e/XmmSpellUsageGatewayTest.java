@@ -40,10 +40,14 @@ public final class XmmSpellUsageGatewayTest {
  }
  @Test public void androidGatewayRoutesCatalogAndEligibility()throws Exception {
   OfficialBookRuntimeGateway gw=new OfficialBookRuntimeGateway(null);
-  assertTrue(gw.execute("xmm","spell_options",new JSONObject().put("name","Aarakocra Aeromancer")).getBoolean("executed"));
+  JSONObject options=gw.execute("xmm","spell_options",new JSONObject().put("name","Aarakocra Aeromancer"));
+  assertTrue(options.getBoolean("executed"));
+  assertEquals("Aarakocra Aeromancer", options.getJSONObject("result").getString("id"));
   JSONObject r=gw.execute("xmm","spell_usage_check",new JSONObject().put("monster","Aarakocra Aeromancer").put("spell","Mage Hand"));
   assertTrue(r.getBoolean("executed"));
   assertFalse(r.getBoolean("auto_mutation_allowed"));
   assertFalse(r.getJSONObject("result").getBoolean("spell_effects_applied"));
+  JSONObject wrongBook=gw.execute("rhw","spell_usage_check",new JSONObject().put("monster","Aarakocra Aeromancer").put("spell","Mage Hand"));
+  assertFalse(wrongBook.getBoolean("executed"));
  }
 }

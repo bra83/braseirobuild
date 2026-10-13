@@ -162,16 +162,6 @@ public final class OfficialBookRuntimeGateway {
             if ("list_subclasses".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("subclasses", ravenloft.listSubclasses());
             if ("bestiary_install".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("result", RavenloftBestiaryRuntimeEngine.install());
             if ("bestiary_coverage".equals(action)) { RavenloftBestiaryRuntimeEngine.install(); return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("result", RavenloftBestiaryRuntimeEngine.coverage()); }
-            if ("spell_options".equals(action)) {
-                JSONObject r=Xmm2025SpellUsageIndex.options(in.optString("name"));
-                return new JSONObject().put("executed",r.optBoolean("resolved"))
-                     .put("auto_mutation_allowed",false).put("result",r);
-            }
-            if ("spell_usage_check".equals(action)) {
-                JSONObject r=Xmm2025SpellUsageIndex.check(in);
-                return new JSONObject().put("executed",r.optBoolean("resolved"))
-                     .put("auto_mutation_allowed",false).put("result",r);
-            }
             if ("statblock".equals(action)) { RavenloftBestiaryRuntimeEngine.install(); String id = in.optString("name"); JSONObject profile = CompiledStatblockEngine.runtimeProfile(id); return new JSONObject().put("executed", profile.optBoolean("found", false)).put("auto_mutation_allowed", false).put("result", profile); }
             if ("species".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("result", ravenloft.species(in.optString("name")));
             if ("background".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("result", ravenloft.background(in.optString("name")));
@@ -563,6 +553,8 @@ public final class OfficialBookRuntimeGateway {
             if ("recharge".equals(action)) {JSONObject r=Xmm2025SourceIndex.rechargeDecision(in);return new JSONObject().put("executed",r.optBoolean("resolved",false)).put("auto_mutation_allowed",false).put("result",r);}
             if ("source_reference".equals(action)) {JSONObject r=Xmm2025CompiledBestiaryEngine.source(in.optString("name"));return new JSONObject().put("executed",r.length()>0).put("auto_mutation_allowed",false).put("result",r);}
             if ("filter".equals(action)) {JSONObject r=Xmm2025CompiledBestiaryEngine.search(in.optString("dimension"),in.optString("value"));return new JSONObject().put("executed",r.optBoolean("resolved",false)).put("auto_mutation_allowed",false).put("result",r);}
+            if ("spell_options".equals(action)) {JSONObject r=Xmm2025SpellUsageIndex.options(in.optString("name"));return new JSONObject().put("executed",r.optBoolean("resolved",false)).put("auto_mutation_allowed",false).put("result",r);}
+            if ("spell_usage_check".equals(action)) {JSONObject r=Xmm2025SpellUsageIndex.check(in);return new JSONObject().put("executed",r.optBoolean("resolved",false)).put("auto_mutation_allowed",false).put("result",r);}
             if ("statblock".equals(action)) { JSONObject r = Xmm2025CompiledBestiaryEngine.statblock(in.optString("name")); return new JSONObject().put("executed", r.optBoolean("resolved", false)).put("auto_mutation_allowed", false).put("result", r); }
         } catch (Exception e) {
             return blocked("xmm", action, "runtime_error:" + e.getMessage());
