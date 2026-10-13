@@ -26,6 +26,39 @@ public final class AdventureCorruptSaveSafetyRobolectricTest {
         assertReadFailurePreservesExistingRow(true);
     }
 
+    @Test public void corruptedSecondCampaignCannotReusePreviousActiveSession() throws Exception {
+        Context context = RuntimeEnvironment.getApplication();
+        String name = "dnd_cross_campaign_" + UUID.randomUUID().toString().substring(0, 8) + ".db";
+        AppDb db = AppDbTestHelper.createSandbox(context, name);
+        try {
+            db.setActiveMapProfile("dnd");
+            AdventureEngine active = new AdventureEngine(db, null, null);
+            AdventureModule first = FaerunAdventureModuleCatalog.byId("fraif_heir_trial");
+            AdventureModule second = FaerunAdventureModuleCatalog.byId("fraif_tomb_damara");
+            assertTrue(active.loadOrStartAdventure(first, 5L).optBoolean("module_installed"));
+            assertTrue(active.processAction("begin", null).optBoolean("committed"));
+            AdventureEngine seed = new AdventureEngine(db, null, null);
+            assertTrue(seed.loadOrStartAdventure(second, 6L).optBoolean("module_installed"));
+            db.getWritableDatabase().execSQL(
+                    "UPDATE adventure_state_journal SET state_json=? WHERE module_id=? AND party_id=?",
+                    new Object[]{"{damaged", second.getId(), 6});
+            JSONObject denied = active.loadOrStartAdventure(second, 6L);
+            assertEquals("error", denied.optString("status"));
+            assertNull("Cannot retain previous campaign's active state", active.getActiveState());
+            assertEquals("Old GM context cannot survive a failed load", 0,
+                    active.getNarrationContext().length());
+            assertFalse(active.processAction("begin", null).optBoolean("committed"));
+            assertEquals("scene_1", new AdventurePersistenceAdapter(db)
+                    .loadState(first.getId(), 5L).getCurrentNodeId());
+            assertEquals("{damaged", db.queryOne(
+                    "SELECT state_json FROM adventure_state_journal WHERE module_id=? AND party_id=?",
+                    new String[]{second.getId(), "6"}).optString("state_json"));
+        } finally {
+            db.close();
+            context.deleteDatabase(name);
+        }
+    }
+
     private static void assertReadFailurePreservesExistingRow(boolean orphanNode) throws Exception {
         Context context = RuntimeEnvironment.getApplication();
         String name = "dnd_corrupt_save_" + UUID.randomUUID().toString().substring(0, 8) + ".db";
