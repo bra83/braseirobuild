@@ -1,7 +1,5 @@
 package com.braseiro.dnd5e;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -9,59 +7,46 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import static org.junit.Assert.*;
 
 /**
- * Individually exercises the 25 XMM A-Y editorial monster-entry sections.
- * Each section must have actual registered monsters and playable fields.
- * This is a tactical runtime-index test, NOT book-statblock fidelity proof.
+ * Separate JUnit assertion methods for all 25 XMM alphabetical book sections.
+ * Every relevant compiled creature gets actual mechanical profile checks.
+ * Independent editorial source-fidelity comparisons remain outstanding.
  */
-@RunWith(Parameterized.class)
 public final class Xmm25AlphabetSectionRuntimeTest {
-    @Parameterized.Parameters(name="XMM:{0} Monsters ({1})")
-    public static Collection<Object[]> alphabetSections() {
-        return Arrays.asList(new Object[][] {
-        {"sec_1_0","A"},
-        {"sec_1_1","B"},
-        {"sec_1_2","C"},
-        {"sec_1_3","D"},
-        {"sec_1_4","E"},
-        {"sec_1_5","F"},
-        {"sec_1_6","G"},
-        {"sec_1_7","H"},
-        {"sec_1_8","I"},
-        {"sec_1_9","J"},
-        {"sec_1_10","K"},
-        {"sec_1_11","L"},
-        {"sec_1_12","M"},
-        {"sec_1_13","N"},
-        {"sec_1_14","O"},
-        {"sec_1_15","P"},
-        {"sec_1_16","Q"},
-        {"sec_1_17","R"},
-        {"sec_1_18","S"},
-        {"sec_1_19","T"},
-        {"sec_1_20","U"},
-        {"sec_1_21","V"},
-        {"sec_1_22","W"},
-        {"sec_1_23","X"},
-        {"sec_1_24","Y"}
-        });
-    }
     @BeforeClass public static void prepareBestiary() {
         JSONObject installed=Xmm2025CompiledBestiaryEngine.install();
         assertEquals("Not all bestiary entries registered",503,installed.optInt("statblocks_installed"));
         assertEquals("Registration failures",0,installed.optInt("blocked",-1));
     }
-    private final String sectionId;
-    private final String initial;
-    public Xmm25AlphabetSectionRuntimeTest(String sectionId,String initial) {
-        this.sectionId=sectionId; this.initial=initial;
-    }
+    @Test public void testXmm_sec_1_0() { assertLetter("sec_1_0","A"); }
+    @Test public void testXmm_sec_1_1() { assertLetter("sec_1_1","B"); }
+    @Test public void testXmm_sec_1_2() { assertLetter("sec_1_2","C"); }
+    @Test public void testXmm_sec_1_3() { assertLetter("sec_1_3","D"); }
+    @Test public void testXmm_sec_1_4() { assertLetter("sec_1_4","E"); }
+    @Test public void testXmm_sec_1_5() { assertLetter("sec_1_5","F"); }
+    @Test public void testXmm_sec_1_6() { assertLetter("sec_1_6","G"); }
+    @Test public void testXmm_sec_1_7() { assertLetter("sec_1_7","H"); }
+    @Test public void testXmm_sec_1_8() { assertLetter("sec_1_8","I"); }
+    @Test public void testXmm_sec_1_9() { assertLetter("sec_1_9","J"); }
+    @Test public void testXmm_sec_1_10() { assertLetter("sec_1_10","K"); }
+    @Test public void testXmm_sec_1_11() { assertLetter("sec_1_11","L"); }
+    @Test public void testXmm_sec_1_12() { assertLetter("sec_1_12","M"); }
+    @Test public void testXmm_sec_1_13() { assertLetter("sec_1_13","N"); }
+    @Test public void testXmm_sec_1_14() { assertLetter("sec_1_14","O"); }
+    @Test public void testXmm_sec_1_15() { assertLetter("sec_1_15","P"); }
+    @Test public void testXmm_sec_1_16() { assertLetter("sec_1_16","Q"); }
+    @Test public void testXmm_sec_1_17() { assertLetter("sec_1_17","R"); }
+    @Test public void testXmm_sec_1_18() { assertLetter("sec_1_18","S"); }
+    @Test public void testXmm_sec_1_19() { assertLetter("sec_1_19","T"); }
+    @Test public void testXmm_sec_1_20() { assertLetter("sec_1_20","U"); }
+    @Test public void testXmm_sec_1_21() { assertLetter("sec_1_21","V"); }
+    @Test public void testXmm_sec_1_22() { assertLetter("sec_1_22","W"); }
+    @Test public void testXmm_sec_1_23() { assertLetter("sec_1_23","X"); }
+    @Test public void testXmm_sec_1_24() { assertLetter("sec_1_24","Y"); }
 
-    @Test public void bookAlphabetSectionMustExposeRealTacticalProfiles() {
+    private static void assertLetter(String sectionId, String initial) {
         JSONArray names=Xmm2025CompiledBestiaryEngine.catalog().optJSONArray("names");
         assertNotNull(names);
         int present=0;
