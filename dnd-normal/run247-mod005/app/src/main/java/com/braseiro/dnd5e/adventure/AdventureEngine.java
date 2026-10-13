@@ -28,9 +28,16 @@ public final class AdventureEngine implements IAdventureEngine {
         if(module.getNode(module.getRootNodeId())==null)return error("Módulo inválido: nó inicial ausente.");
         if(!persistenceAdapter.saveModule(module))return error("Falha ao persistir módulo da aventura.");
         activeModule=module;activePartyId=partyId;
-        AdventureState loaded=persistenceAdapter.loadState(module.getId(),partyId);
+        AdventureState loaded=persistenceAdapter.loadStateForStart(module.getId(),partyId);
         JSONObject res;
-        if(loaded!=null){activeState=loaded;res=graphEngine.resumeAdventure(module,loaded);}else{AdventureState created=new AdventureState(module.getRootNodeId());
+        if(loaded!=null){
+            res=graphEngine.resumeAdventure(module,loaded);
+            if ("error".equals(res.optString("status"))) {
+                activeState=null;
+                return error("Save existente incompatível com o grafo atual; não sobrescrever.");
+            }
+            activeState=loaded;
+        }else{AdventureState created=new AdventureState(module.getRootNodeId());
             if(!persistenceAdapter.saveState(module.getId(),partyId,created)){
                 activeState=null;
                 return error("Falha ao salvar primeira sessão da aventura. Nenhum jogo iniciado.");
