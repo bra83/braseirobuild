@@ -33,4 +33,42 @@ public final class XmmAttackConditionSafetyTest {
   assertEquals(36,c.getInt("grappled"));assertEquals(21,c.getInt("other_riders_manual"));
   assertFalse(c.getBoolean("full_automation_certified"));
  }
+ @Test public void everyIndexedRiderMatchesItsCompiledActionAndSizeGate()throws Exception{
+  assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
+  JSONArray catalog=Xmm2025AttackConditionEngine.catalog();assertEquals(65,catalog.length());
+  for(int i=0;i<catalog.length();i++){
+   JSONObject indexed=catalog.getJSONObject(i);String monster=indexed.getString("id");
+   String action=indexed.getString("name"),maximum=indexed.getString("size");
+   JSONObject profile=CompiledStatblockEngine.runtimeProfile(monster);
+   JSONObject compiled=profile.getJSONArray("actions").getJSONObject(indexed.getInt("slot"));
+   assertEquals(monster+" / "+action,action,compiled.optString("name"));
+   assertTrue(monster+" / "+action,compiled.optBoolean("source_bound"));
+   assertEquals(monster+" / "+action,indexed.getString("condition"),
+    compiled.optString("condition_on_hit"));
+   assertEquals(monster+" / "+action,maximum.toLowerCase(java.util.Locale.ROOT),
+    compiled.optString("condition_max_target_size"));
+
+   JSONObject hit=Xmm2025AttackConditionEngine.resolve(new JSONObject().put("monster",monster)
+    .put("action",action).put("attack_hit",true).put("target_is_creature",true)
+    .put("target_size",maximum));
+   assertTrue(monster+" / "+action+": "+hit,hit.optBoolean("resolved"));
+   JSONArray proposed=hit.getJSONArray("proposed_conditions");assertEquals(monster+" / "+action,1,proposed.length());
+   JSONObject condition=proposed.getJSONObject(0);
+   assertEquals(monster+" / "+action,indexed.getString("condition"),condition.optString("condition"));
+   if("grappled".equals(indexed.getString("condition")))
+    assertEquals(monster+" / "+action,indexed.getInt("dc"),condition.optInt("escape_dc"));
+   else assertFalse(monster+" / "+action,condition.has("escape_dc"));
+   assertEquals(monster+" / "+action,indexed.optBoolean("other"),
+    hit.optBoolean("additional_source_effects_manual"));
+   assertFalse(monster+" / "+action,hit.optBoolean("condition_applied"));
+
+   JSONObject tooLarge=Xmm2025AttackConditionEngine.resolve(new JSONObject().put("monster",monster)
+    .put("action",action).put("attack_hit",true).put("target_is_creature",true)
+    .put("target_size","Gargantuan"));
+   assertTrue(monster+" / "+action+": "+tooLarge,tooLarge.optBoolean("resolved"));
+   if(!"Gargantuan".equalsIgnoreCase(maximum))assertEquals(monster+" / "+action,0,
+    tooLarge.getJSONArray("proposed_conditions").length());
+   assertFalse(monster+" / "+action,tooLarge.optBoolean("condition_applied"));
+  }
+ }
 }
