@@ -115,6 +115,46 @@ public final class AdventureTransactionSafetyRobolectricTest {
         assertFalse("A mesma recompensa não pode ser repetida", replay.optBoolean("committed"));
     }
 
+
+    @Test public void sceneLocationWriteFailureRollsBackAdventureStateAtomically() throws Exception {
+        Map<String, AdventureNode> nodes = new LinkedHashMap<>();
+        AdventureTransition travel = new AdventureTransition("travel", "arrival",
+                "Viajar até o novo local", "", "", false, null, effects("travel_recorded"));
+        nodes.put("start", new AdventureNode("start", "Partida", "", "",
+                "departure_location", Collections.<String>emptyList(),
+                Collections.singletonList(travel), null, null));
+        nodes.put("arrival", new AdventureNode("arrival", "Chegada", "", "",
+                "destination_location", Collections.<String>emptyList(),
+                Collections.<AdventureTransition>emptyList(), null, null));
+        AdventureModule m = new AdventureModule("tx_location_atomic", "Localização atômica",
+                "1.0", "start", nodes, new JSONObject());
+        assertTrue(engine.loadOrStartAdventure(m, 7).optBoolean("module_installed"));
+        String priorLocation = db.getSceneState().optString("location");
+        db.getWritableDatabase().execSQL(
+                "CREATE TRIGGER deny_location_update BEFORE UPDATE OF location " +
+                "ON scene_state_profiles WHEN NEW.world_profile='dnd' " +
+                "BEGIN SELECT RAISE(ABORT, 'world location write failure'); END");
+        JSONObject denied = engine.processAction("travel", null);
+        assertFalse("Location failure must roll back adventure branch: " + denied,
+                denied.optBoolean("committed"));
+        assertEquals("start", engine.getActiveState().getCurrentNodeId());
+        assertFalse(engine.getActiveState().hasFlag("travel_recorded"));
+        assertEquals(priorLocation, db.getSceneState().optString("location"));
+        AdventureState stored = new AdventurePersistenceAdapter(db).loadState(m.getId(), 7);
+        assertNotNull(stored);
+        assertEquals("start", stored.getCurrentNodeId());
+        assertFalse(stored.hasFlag("travel_recorded"));
+        db.getWritableDatabase().execSQL("DROP TRIGGER deny_location_update");
+
+        JSONObject committed = engine.processAction("travel", null);
+        assertTrue("Retry must commit both changes: " + committed,
+                committed.optBoolean("committed"));
+        assertTrue(engine.getActiveState().hasFlag("travel_recorded"));
+        assertEquals("destination_location", db.getSceneState().optString("location"));
+        assertEquals("arrival", new AdventurePersistenceAdapter(db)
+                .loadState(m.getId(), 7).getCurrentNodeId());
+    }
+
     @Test public void uncheckedCommitApisCannotWriteState() throws Exception {
         AdventureModule m = module("tx_bypass", "end", true);
         engine.loadOrStartAdventure(m, 7);
