@@ -71,7 +71,7 @@ public final class SageAdvice2025RulesEngine {
                 .put("species_traits", 1)
                 .put("feats", 9)
                 .put("equipment", 2)
-                .put("spellcasting", 56)
+                .put("spellcasting", 57)
                 .put("monsters", 8)
                 .put("magic_items", 9)
                 .put("rules_role_meta", 1);
@@ -87,7 +87,10 @@ public final class SageAdvice2025RulesEngine {
                 .put("auto_rolls", false)
                 .put("auto_mutation_allowed", false)
                 .put("dm_final_say", true)
-                .put("complete", true);
+                .put("complete", true)
+                .put("source_fidelity_semantically_certified", false)
+                .put("editorial_qas", 163)
+                .put("editorial_policy_endpoints", 1);
     }
 
     public JSONArray categories() throws Exception {
@@ -130,7 +133,7 @@ public final class SageAdvice2025RulesEngine {
             case "multiple_bonus_actions": return ok(id,"combat","Só uma Bonus Action pode ser usada no turno.").put("max_bonus_actions",1);
             case "help_move_away": return ok(id,"combat","Depois de usar Help para distrair um inimigo, não é necessário permanecer adjacente para preservar o benefício.");
             case "rehide_action": return ok(id,"combat","Sem habilidade especial, esconder-se novamente em combate requer Hide action.");
-            case "ready_damage_stops_movement": return ok(id,"combat","Dano de uma readied action não interrompe movimento salvo se o efeito também disser que interrompe movimento.");
+            case "ready_damage_stops_movement": return ok(id,"combat","Dano de Ready não interrompe movimento sem efeito de parada, como Sentinel, ou redução do alvo a 0 HP.");
             case "ready_with_charger": return ok(id,"combat","Ready não combina movimento + Attack no mesmo turno como Charger exige.").put("allowed",false);
             case "ready_target_range_timing": return ok(id,"combat","Alcance/alvo de readied action é verificado quando a Reaction acontece, não quando Ready é declarado.");
             case "ready_spell_resource": return ok(id,"combat","Ao preparar um spell, os recursos de conjuração são gastos imediatamente e não retornam se o gatilho não ocorrer.");
@@ -224,7 +227,7 @@ public final class SageAdvice2025RulesEngine {
             case "focus_consumed_or_costly_material": return ok(id,"spellcasting","Spellcasting Focus não substitui componente com custo nem componente consumido.");
             case "focus_somatic_hand": return ok(id,"spellcasting","A mesma mão pode manipular Material/Focus e Somatic quando o spell tem Material; spell apenas Somatic requer mão livre salvo exceção.");
             case "concentration_range_los": return ok(id,"spellcasting","Manter Concentration não exige permanecer em range ou line of sight salvo regra específica.");
-            case "temp_hp_concentration_dc": return ok(id,"spellcasting","Dano absorvido por Temporary HP ainda conta como dano sofrido para Concentration; Ward que sofre o dano em seu lugar pode alterar isso.");
+            case "temp_hp_concentration_dc": return ok(id,"spellcasting","Dano absorvido por Temporary HP ainda conta como dano sofrido para Concentration; no exemplo oficial, 30 de dano exigem DC 15. Arcane Ward que absorve dano no lugar do caster pode reduzir ou eliminar o teste.").put("example_incoming_damage",30).put("example_concentration_dc",15);
             case "dismiss_spell": return ok(id,"spellcasting","Spell não-instantâneo pode ser encerrado pelo caster conforme as regras atuais de Duration, salvo restrição específica.");
             case "animate_objects_time_stop": return ok(id,"spellcasting","Conjurar Animate Objects durante Time Stop não encerra por si só; comandar as criaturas pode encerrar por afetar outras criaturas.");
             case "armor_of_agathys_temp_hp_source": return ok(id,"spellcasting","Armor of Agathys requer que o alvo tenha Temporary HP; eles não precisam vir do próprio spell.");
@@ -236,7 +239,7 @@ public final class SageAdvice2025RulesEngine {
             case "dispel_magic_nonspell": return ok(id,"spellcasting","Dispel Magic encerra spells; não remove efeito mágico não criado por spell salvo texto específico/decisão do DM.");
             case "instantaneous_spell_dispel": return ok(id,"spellcasting","Resultado de spell Instantaneous não permanece sustentado por magia e não pode ser depois dispensado apenas por sua origem mágica.");
             case "readied_dispel_magic": return ok(id,"spellcasting","Dispel Magic preparado não substitui Counterspell; ele pode remover um spell logo após o spell entrar em vigor.");
-            case "dispel_globe_invulnerability": return ok(id,"spellcasting","Dispel Magic pode encerrar a barreira de Globe of Invulnerability.");
+            case "dispel_globe_invulnerability": return ok(id,"spellcasting","Dispel Magic pode dissipar a barreira Globe of Invulnerability, mas não dissipa automaticamente efeitos mágicos ativos dentro dela.").put("dispels_globe_barrier",true).put("dispels_other_inside_effects",false);
             case "dispel_bless_one_target": return ok(id,"spellcasting","Dispel Magic remove o efeito de Bless do alvo afetado, não automaticamente de todos os alvos do mesmo casting.");
             case "familiar_help": return ok(id,"spellcasting","Find Familiar não permite atacar, mas familiar pode usar Help.");
             case "familiar_sneak_attack_ally": return ok(id,"spellcasting","Familiar é ally e pode satisfazer requisito de presença de aliado para Sneak Attack quando as demais condições valem.");
@@ -245,6 +248,7 @@ public final class SageAdvice2025RulesEngine {
             case "heroism_existing_frightened": return ok(id,"spellcasting","Heroism suprime Frightened durante a imunidade; a condição pode retornar depois se ainda não tiver expirado/removido.");
             case "mage_armor_shield": return ok(id,"spellcasting","Mage Armor funciona com Shield.").put("shield_allowed",true);
             case "mage_armor_unarmored_defense": return ok(id,"spellcasting","Mage Armor e Unarmored Defense são fórmulas alternativas de AC e não se somam.");
+            case "mage_armor_name_is_not_literal_armor": return ok(id,"spellcasting","O nome Mage Armor é figurativo: o efeito do spell determina a regra, não a palavra armor no nome.").put("counts_as_worn_armor",false);
             case "minor_illusion_move_object": return ok(id,"spellcasting","Objeto criado por Minor Illusion não se move por si só.");
             case "minor_illusion_fog": return ok(id,"spellcasting","Minor Illusion cria objeto/som nos limites do spell, não efeito atmosférico como fog cloud.");
             case "planar_binding_summon": return ok(id,"spellcasting","Planar Binding não invoca a criatura; tenta vincular criatura já presente e em alcance.");
@@ -276,7 +280,7 @@ public final class SageAdvice2025RulesEngine {
             case "magic_item_spell_save_dc": return ok(id,"magic_items","Spell de magic item usa DC 8 + spellcasting ability modifier + proficiency; sem spellcasting ability, modifier é 0, salvo item definir DC própria.");
             case "administer_potion_unconscious": return ok(id,"magic_items","Potion pode ser administrada a outra criatura, inclusive Unconscious, usando a ação/Bonus Action prevista pela regra atual.");
             case "potion_concentration": return ok(id,"magic_items","Potion exige Concentration apenas se sua descrição disser ou se duplicar spell que exige Concentration.");
-            case "spell_scroll_class_list": return ok(id,"magic_items","Spell Scroll exige que o spell esteja na spell list usada pela classe/subclasse conforme a regra específica do item.");
+            case "spell_scroll_class_list": return ok(id,"magic_items","Scroll comum admite ativação por personagem alfabetizado; o tipo específico Spell Scroll exige spell na spell list da classe/subclasse.").put("general_scroll_requires_spell_list",false).put("spell_scroll_requires_spell_list",true);
             case "ring_bracers_ac_stack": return ok(id,"magic_items","Ring of Protection e Bracers of Defense acumulam porque são efeitos diferentes, respeitando restrições de attunement/duplicata.");
             case "magic_bow_nonmagic_ammo": return ok(id,"magic_items","Ataque feito por magic ranged weapon é mágico mesmo com ammunition não-mágica.");
             case "thrown_magic_weapon_return": return ok(id,"magic_items","Magic weapon arremessada só retorna automaticamente se sua descrição disser que retorna.");

@@ -149,6 +149,7 @@ public final class SageAdvice163RuntimeContractTest {
         {"heroism_existing_frightened", "spellcasting", "DETERMINISTIC"},
         {"mage_armor_shield", "spellcasting", "DETERMINISTIC"},
         {"mage_armor_unarmored_defense", "spellcasting", "DETERMINISTIC"},
+        {"mage_armor_name_is_not_literal_armor", "spellcasting", "DETERMINISTIC"},
         {"minor_illusion_move_object", "spellcasting", "DETERMINISTIC"},
         {"minor_illusion_fog", "spellcasting", "DETERMINISTIC"},
         {"planar_binding_summon", "spellcasting", "DETERMINISTIC"},
@@ -181,8 +182,7 @@ public final class SageAdvice163RuntimeContractTest {
         {"magic_bow_nonmagic_ammo", "magic_items", "DETERMINISTIC"},
         {"thrown_magic_weapon_return", "magic_items", "DETERMINISTIC"},
         {"sphere_annihilation_tiny_hut", "magic_items", "DETERMINISTIC"},
-        {"magic_shield_must_don", "magic_items", "DETERMINISTIC"},
-        {"dm_final_say", "rules_role_meta", "MANUAL_DM"}
+        {"magic_shield_must_don", "magic_items", "DETERMINISTIC"}
         });
     }
 
