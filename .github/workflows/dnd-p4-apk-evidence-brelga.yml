@@ -73,7 +73,12 @@ jobs:
           $bytes=(Get-Item -LiteralPath $asset).Length
           Write-Host ('CANONICAL_FAERUN_BYTES='+$bytes)
           if ($bytes -ne 102373336) { throw 'FAERUN_CANONICAL_ASSET_INCORRECT_SIZE' }
-          & .\gradlew.bat :app:testDebugUnitTest :app:assembleDebug -Pbraseiro.qaLiteAssets=false --no-daemon --console=plain
+          # PowerShell parses unquoted -Pfoo.bar=false as a member expression;
+          # pass the Gradle property as one literal argument.
+          $gradleArgs = @(':app:testDebugUnitTest', ':app:assembleDebug',
+                          '-Pbraseiro.qaLiteAssets=false', '--no-daemon',
+                          '--console=plain')
+          & .\gradlew.bat @gradleArgs
           if ($LASTEXITCODE -ne 0) { throw 'GRADLE_TEST_OR_APK_BUILD_FAILED' }
           $reports=@(Get-ChildItem -Path 'app/build/test-results/testDebugUnitTest' -Filter 'TEST-*.xml' -File)
           if ($reports.Count -lt 58) { throw ('REGRESSION_SUITE_COUNT_REGRESSED='+$reports.Count) }
