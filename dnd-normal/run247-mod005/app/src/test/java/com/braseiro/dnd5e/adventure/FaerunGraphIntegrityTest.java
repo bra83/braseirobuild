@@ -52,6 +52,20 @@ public final class FaerunGraphIntegrityTest {
             assertEquals(module.getId() + ": unreachable scenes or orphan nodes", nodes.keySet(), reachableScenes);
             assertTrue(module.getId() + ": consequences absent from player choices",
                     meaningfulTransitions >= 2);
+            int divergentDecisionPoints = 0;
+            for (AdventureNode node : nodes.values()) {
+                if (node.getTransitions().size() < 2) continue;
+                Set<String> distinctOutcomes = new HashSet<>();
+                for (AdventureTransition option : node.getTransitions()) {
+                    assertTrue(module.getId() + "/" + node.getId() + "/" + option.getId()
+                                    + ": player choice without durable consequence",
+                            option.getEffects() != null && option.getEffects().length() > 0);
+                    distinctOutcomes.add(option.getTargetNodeId() + "|" + option.getEffects().toString());
+                }
+                if (distinctOutcomes.size() > 1) divergentDecisionPoints++;
+            }
+            assertTrue(module.getId() + ": no materially different choices",
+                    divergentDecisionPoints >= 1);
         }
     }
 }
