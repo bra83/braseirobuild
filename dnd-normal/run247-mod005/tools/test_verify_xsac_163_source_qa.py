@@ -26,7 +26,7 @@ class XsacSourceTraceTests(unittest.TestCase):
     def test_pinned_blob_is_git_blob_not_file_sha(self):
         import hashlib
         data=b"test"
-        expected=hashlib.sha1(b"blob 4\\0test").hexdigest()
+        expected=hashlib.sha1(b"blob 4\0test").hexdigest()
         self.assertEqual(expected,xsac.git_blob_sha(data))
 
 if __name__ == "__main__":

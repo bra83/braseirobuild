@@ -29,7 +29,7 @@ CATS = {
 PATTERN = re.compile(r'\{"([a-z0-9_]+)",\s*"([a-z_]+)",\s*"(DETERMINISTIC|MANUAL_DM)"\}')
 
 def git_blob_sha(data: bytes) -> str:
-    return hashlib.sha1(b"blob " + str(len(data)).encode() + b"\\0" + data).hexdigest()
+    return hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest()
 
 def pointer(data, path):
     if not path.startswith("/bookData/"):
@@ -144,7 +144,7 @@ def main():
     print(payload)
     if opt.json_out:
         opt.json_out.parent.mkdir(parents=True, exist_ok=True)
-        opt.json_out.write_text(payload + "\\n", encoding="utf-8")
+        opt.json_out.write_text(payload + "\n", encoding="utf-8")
     return 0
 
 if __name__ == "__main__":
