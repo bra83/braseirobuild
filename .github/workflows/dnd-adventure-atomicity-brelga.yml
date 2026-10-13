@@ -118,7 +118,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'EDITORIAL_ANTI_FALSE_CERTIFICATION_TEST_FAILED' }
           & $python.Source tools/validate_editorial_coverage.py --json
           if ($LASTEXITCODE -ne 0) { throw 'EDITORIAL_INVENTORY_INCONSISTENT' }
-          Write-Host 'EDITORIAL_INVENTORY_CHECK=PASS; EDITORIAL_COMPLETION_NOT_CLAIMED=TRUE'
+          & $python.Source -m unittest discover -s tools -p 'test_editorial_483_runtime_assessment.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'EDITORIAL_483_STRUCTURAL_TESTS_FAILED' }
+          & $python.Source tools/editorial_483_runtime_assessment.py --json --output build/editorial-483/report.json
+          if ($LASTEXITCODE -ne 0) { throw 'EDITORIAL_483_RUNTIME_LINKS_MISSING' }
+          Write-Host 'EDITORIAL_483_SECTION_BINDINGS=PASS; SEMANTIC_CERTIFICATION_NOT_CLAIMED=TRUE'
       - name: Execute AdventureTransactionSafetyRobolectricTest and full regression
         shell: powershell
         run: |
@@ -240,6 +244,14 @@ jobs:
             const evidenceBranch = 'dnd-normal-qa-evidence';
             const target = 'runs/' + context.runId + '/attempt-' +
               process.env.GITHUB_RUN_ATTEMPT + '.json';
+            const editorialPath = path.join(
+              process.env.GITHUB_WORKSPACE, 'dnd-normal', 'run247-mod005',
+              'build', 'editorial-483', 'report.json'
+            );
+            const editorial483 = fs.existsSync(editorialPath)
+              ? JSON.parse(fs.readFileSync(editorialPath, 'utf8'))
+              : null;
+            if (!editorial483) core.warning('EDITORIAL_483_REPORT_MISSING');
             const payload = JSON.stringify({
               format: 'BRASEIRO_DND_GRADLE_XML_EVIDENCE_V1',
               source_sha: context.sha,
@@ -255,7 +267,8 @@ jobs:
                 totals.failures === 0 && totals.errors === 0 && totals.skipped === 0,
               xml_sha256: sha256,
               xml_files: files,
-              note: 'Automated Robolectric/Gradle tests; not a certification of all editorial sections or of a physical Android device.'
+              editorial_483: editorial483,
+              note: 'Automated Robolectric/Gradle tests and individual structural editorial audit; no claim of semantic certification or physical Android testing.'
             }, null, 2);
             const blob = await github.rest.git.createBlob({
               owner, repo, content: payload, encoding: 'utf-8'
