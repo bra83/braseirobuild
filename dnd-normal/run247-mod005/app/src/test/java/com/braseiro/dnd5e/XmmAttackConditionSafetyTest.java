@@ -43,11 +43,27 @@ public final class XmmAttackConditionSafetyTest {
   assertEquals(60,ranged.optInt("range_normal_ft"));assertEquals(60,ranged.optInt("range_long_ft"));
   assertTrue(TacticalAttackGeometryRules.validProfile(ranged.optString("attack_mode"),
    ranged.optInt("melee_reach_ft"),ranged.optInt("range_normal_ft"),ranged.optInt("range_long_ft")));
+
+  JSONObject storm=StatblockCombatRuntimeEngine.rangeProfile("Djinni","Storm Bolt",10);
+  assertTrue(storm.toString(),storm.optBoolean("resolved"));
+  assertEquals("ranged",storm.optString("attack_mode"));
+  assertEquals(120,storm.optInt("range_normal_ft"));assertEquals(120,storm.optInt("range_long_ft"));
+  assertTrue(TacticalAttackGeometryRules.validProfile(storm.optString("attack_mode"),
+   storm.optInt("melee_reach_ft"),storm.optInt("range_normal_ft"),storm.optInt("range_long_ft")));
+
+  JSONObject tarrasque=StatblockCombatRuntimeEngine.rangeProfile("Tarrasque","Tail",5);
+  assertTrue(tarrasque.toString(),tarrasque.optBoolean("resolved"));
+  assertEquals("melee",tarrasque.optString("attack_mode"));
+  assertEquals(30,tarrasque.optInt("melee_reach_ft"));
+  assertEquals(0,tarrasque.optInt("range_normal_ft"));assertEquals(0,tarrasque.optInt("range_long_ft"));
+  assertTrue(TacticalAttackGeometryRules.validProfile(tarrasque.optString("attack_mode"),
+   tarrasque.optInt("melee_reach_ft"),tarrasque.optInt("range_normal_ft"),
+   tarrasque.optInt("range_long_ft")));
  }
  @Test public void coverageDoesNotCertifyFullAction()throws Exception{
   JSONObject c=Xmm2025AttackConditionEngine.coverage();
   assertEquals(65,c.getInt("verified"));assertEquals(29,c.getInt("prone"));
-  assertEquals(36,c.getInt("grappled"));assertEquals(21,c.getInt("other_riders_manual"));
+  assertEquals(36,c.getInt("grappled"));assertEquals(22,c.getInt("other_riders_manual"));
   assertFalse(c.getBoolean("full_automation_certified"));
  }
  @Test public void everyIndexedRiderMatchesItsCompiledActionAndSizeGate()throws Exception{

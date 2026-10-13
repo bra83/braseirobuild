@@ -10,6 +10,8 @@ GRAPPLED=re.compile(r'\{@condition Grappled\|XPHB\} condition \(escape \{@dc (\d
 SIZE=re.compile(r'\b(Tiny|Small|Medium|Large|Huge|Gargantuan) or smaller\b',re.I)
 SAVE=re.compile(r"\{@actSave\s+(str|dex|con|int|wis|cha)\}\s*\{@dc\s*(\d+)",re.I)
 OTHER=re.compile(r'\{@condition (?!Grappled\|XPHB)[^}]+\}|\{@damage |\b(?:until|while|takes|can pull|move|ability checks|disadvantage|advantage)\b',re.I)
+RANGE=re.compile(r'\brange\s+(\d+)(?:/(\d+))?\s+(?:ft\.?\b|feet\b)',re.I)
+ALTERNATE_DAMAGE=re.compile(r'\bor\s+\d+\s*\(\{@damage\b',re.I)
 def expected_rows(monsters):
     out=[]
     for i,monster in enumerate(monsters):
@@ -22,7 +24,7 @@ def expected_rows(monsters):
             for m in PRONE.finditer(entry):
                 out.append({"id":monster["name"],"name":name,"slot":j,"ptr":ptr,
                     "size":m.group(1),"condition":"prone","dc":0,
-                    "other":bool(entry[m.end():].strip())})
+                    "other":bool(entry[m.end():].strip()) or bool(ALTERNATE_DAMAGE.search(entry))})
             if "saving throw" in entry.lower():continue
             for m in GRAPPLED.finditer(entry):
                 sizes=list(SIZE.finditer(entry[:m.start()]))
@@ -37,6 +39,26 @@ def expected_rows(monsters):
                     row["save_dc"]=int(save.group(2))
                 out.append(row)
     return out
+def check_ranged_prone_attack_ranges(source,compiled,contracts):
+    source_by_id={m["name"]:m for m in source}
+    compiled_by_id={m["id"]:m for m in compiled}
+    checked=0
+    for row in contracts:
+        if row["condition"]!="prone":continue
+        profile=compiled_by_id[row["id"]]
+        action=profile["actions"][row["slot"]]
+        modes=action.get("attack_modes",[])
+        if "r" not in modes or "m" in modes:continue
+        source_action=source_by_id[row["id"]]["action"][row["slot"]]
+        entries=source_action.get("entries",[])
+        entry=entries[0] if entries and isinstance(entries[0],str) else ""
+        match=RANGE.search(entry)
+        if not match:raise ValueError("XMM_RANGED_PRONE_SOURCE_RANGE_MISSING:"+row["id"]+"::"+row["name"])
+        normal=int(match.group(1));far=int(match.group(2) or normal)
+        if action.get("range_normal_ft")!=normal or action.get("range_long_ft")!=far:
+            raise ValueError("XMM_RANGED_PRONE_SOURCE_RANGE_MISMATCH:"+row["id"]+"::"+row["name"])
+        checked+=1
+    return checked
 def check(project,raw):
     if base.blob_sha(raw)!=base.BESTIARY_SHA:raise ValueError("XMM_PINNED_BESTIARY_BLOB_MISMATCH")
     src=json.loads(raw)["monster"]
@@ -44,11 +66,14 @@ def check(project,raw):
     actual=base.java_rows((project/JAVA).read_text(encoding="utf-8"))
     if len(expected)!=65 or len(actual)!=65 or expected!=actual:
         raise ValueError("XMM_65_ATTACK_RIDERS_INDEPENDENT_SOURCE_MISMATCH")
+    compiled=base.java_rows((project/base.JAVA_RUNTIME).read_text(encoding="utf-8"))
+    ranged=check_ranged_prone_attack_ranges(src,compiled,actual)
     if sum(x["condition"]=="prone" for x in actual)!=29:raise ValueError("XMM_PRONE_COUNT")
     if sum(x["condition"]=="grappled" for x in actual)!=36:raise ValueError("XMM_GRAPPLE_COUNT")
-    if sum(x["other"] for x in actual)!=21:raise ValueError("XMM_OTHER_RIDERS_COUNT")
+    if sum(x["other"] for x in actual)!=22:raise ValueError("XMM_OTHER_RIDERS_COUNT")
     return {"source":"XMM","verified_riders":65,"prone":29,"grappled":36,
-        "additional_manual":21,"source_blob_sha1":base.BESTIARY_SHA,
+        "additional_manual":22,"source_blob_sha1":base.BESTIARY_SHA,
+        "ranged_prone_ranges_compared":ranged,
         "full_action_automation_certified":False}
 def main():
     p=argparse.ArgumentParser()

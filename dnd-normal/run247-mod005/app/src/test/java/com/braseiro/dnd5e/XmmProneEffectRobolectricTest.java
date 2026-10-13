@@ -40,6 +40,12 @@ public final class XmmProneEffectRobolectricTest {
             assertEquals(monster+" / "+actionName,"prone",action.optString("condition_on_hit"));
             assertEquals(monster+" / "+actionName,rider.getString("size").toLowerCase(java.util.Locale.ROOT),
                 action.optString("condition_max_target_size"));
+            boolean hasMelee=false,hasRanged=false;JSONArray modes=action.optJSONArray("attack_modes");
+            if(modes!=null)for(int i=0;i<modes.length();i++){
+                hasMelee|="m".equalsIgnoreCase(modes.optString(i));
+                hasRanged|="r".equalsIgnoreCase(modes.optString(i));
+            }
+            int targetX=hasRanged&&!hasMelee?4:3; // 10 ft keeps ranged attacks out of close combat.
             JSONArray specs=StatblockCombatFlowEngine.damageSpecs(action.optString("damage",""),
                 action.optString("damage_type",""),action.optString("extra_damage",""));
             assertTrue(monster+" / "+actionName+" source damage required",specs.length()>0);
@@ -58,7 +64,7 @@ public final class XmmProneEffectRobolectricTest {
             bind(db,actor,monster,null);bind(db,target,null,rider.getString("size").toLowerCase(java.util.Locale.ROOT));
             db.setCombatRunning(true);assertEquals(actor,db.nextTurn().optLong("id"));
             new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
-            position(db,actor,2,2);position(db,target,3,2);
+            position(db,actor,2,2);position(db,target,targetX,2);
             JSONObject hit=db.applyCompiledStatblockAttack(actor,target,monster,actionName,
                 19,0,rolled,0,0,-1,-1,"ui-monster-prone-matrix-"+ordinal);
             assertTrue(monster+" / "+actionName+": "+hit,hit.optBoolean("statblock_attack_committed"));
@@ -142,6 +148,6 @@ public final class XmmProneEffectRobolectricTest {
             if(rider.optBoolean("other")){manual++;continue;}
             applySourceProneRider(context,rider,applied);applied++;
         }
-        assertEquals(29,prone);assertEquals(28,applied);assertEquals(1,manual);
+        assertEquals(29,prone);assertEquals(27,applied);assertEquals(2,manual);
     }
 }
