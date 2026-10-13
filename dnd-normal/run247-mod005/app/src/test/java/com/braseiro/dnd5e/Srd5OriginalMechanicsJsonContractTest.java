@@ -27,6 +27,20 @@ public final class Srd5OriginalMechanicsJsonContractTest {
         assertEquals(10,dnd.modifier(30));
     }
 
+    @Test public void srd2014AllSixAbilityAbbreviationsAndLongNamesResolve() throws Exception {
+        JSONObject hero=new JSONObject().put("str",18).put("dex",16)
+                .put("con",14).put("int_score",12).put("wis",10).put("cha",8);
+        final String[] abbreviations={"str","dex","con","int","wis","cha"};
+        final String[] longNames={"Strength","Dexterity","Constitution",
+                "Intelligence","Wisdom","Charisma"};
+        final int[] expected={18,16,14,12,10,8};
+        for(int i=0;i<abbreviations.length;i++){
+            assertEquals(abbreviations[i],expected[i],dnd.abilityScore(hero,abbreviations[i]));
+            assertEquals(longNames[i],expected[i],dnd.abilityScore(hero,longNames[i]));
+        }
+        assertEquals(15,dnd.abilityScore(new JSONObject().put("int",15),"INT"));
+    }
+
     @Test public void srd2014ProficiencyProgressesAtLevelsFiveNineThirteenSeventeen() {
         final int[] levels={1,4,5,8,9,12,13,16,17,20};
         final int[] expected={2,2,3,3,4,4,5,5,6,6};
