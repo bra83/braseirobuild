@@ -37,8 +37,12 @@ public final class KingmakerLeadershipSemantics {
    .put("source_ref","Kingmaker Adventure Path p. 520; Kingmaker Companion Guide");
  }
  public static int leaderActivityModifier(JSONObject appointment,int turn){
+  return leaderActivityModifier(appointment,turn,"ACTIVITY");
+ }
+ /** The failure penalty applies only to activities in the Activity phase (Kingmaker p.520). */
+ public static int leaderActivityModifier(JSONObject appointment,int turn,String phase){
   if(appointment==null||appointment.optBoolean("vacant"))return 0;
-  if(appointment.optBoolean("approval_pending"))return -1;
+  if(appointment.optBoolean("approval_pending"))return "ACTIVITY".equalsIgnoreCase(phase)?-1:0;
   return "CRITICAL_SUCCESS".equals(appointment.optString("degree"))&&turn<=appointment.optInt("appointed_turn")+1?1:0;
  }
 }
