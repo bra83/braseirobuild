@@ -2829,6 +2829,42 @@ public class AppDb extends SQLiteOpenHelper {
             if(getCombatState().optInt("running",0)!=1)
                 return out.put("statblock_multiattack_blocked","encounter_not_running");
             JSONObject profile=CompiledStatblockEngine.runtimeProfile(id),declared=profile.optJSONObject("multiattack");
+            // The XMM source index can authorize a concrete attack-only plan
+            // without inventing any of the 82 unresolved Multiattack sequences.
+            // Reject special uses and all manual action effects, and permit a
+            // Prone rider only as the last component.
+            if(declared!=null&&declared.optBoolean("manual_sequence_required",false)&&
+                "Monster Manual (2025)".equals(CompiledStatblockEngine.get(id).optString("source_book",""))){
+                JSONArray selected=new JSONArray();
+                if(rolls==null)return out.put("statblock_multiattack_blocked","multiattack_rolls_required");
+                for(int n=0;n<rolls.length();n++){
+                    JSONObject step=rolls.optJSONObject(n);
+                    if(step==null||!(step.opt("action") instanceof String))
+                        return out.put("statblock_multiattack_blocked","explicit_xmm_action_required_"+n);
+                    selected.put(step.getString("action"));
+                }
+                JSONObject sourcePlan=Xmm2025MultiattackPlanIndex.resolve(
+                    new JSONObject().put("monster",id).put("selected_actions",selected));
+                if(!sourcePlan.optBoolean("resolved",false))
+                    return out.put("statblock_multiattack_blocked",
+                        "xmm_source_plan_"+sourcePlan.optString("status","unresolved"));
+                JSONArray sourceSteps=sourcePlan.optJSONArray("steps");
+                if(sourceSteps==null||sourceSteps.length()!=rolls.length())
+                    return out.put("statblock_multiattack_blocked","xmm_source_plan_count_mismatch");
+                for(int n=0;n<sourceSteps.length();n++){
+                    JSONObject sourceStep=sourceSteps.getJSONObject(n);
+                    JSONObject compiledStep=compiledMonsterRiderAction(id,selected.getString(n));
+                    if(!"attack".equals(sourceStep.optString("kind"))||
+                        !compiledStep.optBoolean("source_bound",false)||
+                        compiledStep.optBoolean("manual_rider_resolution_required",true)||
+                        (n<sourceSteps.length()-1&&!compiledStep.optString("condition_on_hit","").isEmpty())||
+                        (n==sourceSteps.length()-1&&
+                            !compiledStep.optString("condition_on_hit","").isEmpty()&&
+                            !MonsterOnHitProneRules.validSource(compiledStep)))
+                        return out.put("statblock_multiattack_blocked","xmm_component_requires_manual_resolution_"+n);
+                }
+                declared=new JSONObject().put("count",selected.length()).put("sequence",selected);
+            }
             if(declared==null)return out.put("statblock_multiattack_blocked","multiattack_not_compiled");
             JSONArray seq=declared.optJSONArray("sequence");String[] sequence=null;
             if(seq!=null){sequence=new String[seq.length()];for(int i=0;i<sequence.length;i++)sequence[i]=seq.optString(i);}
