@@ -52,7 +52,6 @@ def repo(s):
             if(unrest>0)adjustState(new JSONObject().put("unrest",unrest),"Nova Liderança: "+role);
             check.put("degree",degree).put("degree_before_companion",original).put("new_leadership_circumstance",KingmakerLeadershipSemantics.skillCircumstance(r,sk));
             upsertFeature("leadership:"+r,"leadership_assignment","Nova Liderança • "+role,Math.max(1,state().optInt("level",1)),outcome.toString(),"Kingmaker Adventure Path p.520; Companion Guide","Resultado da nomeação e aceitação popular");
-            check.put("outcome",outcome);
             ContentValues log=new ContentValues();log.put("degree",degree);log.put("effects_json",check.toString());
             db.getWritableDatabase().update("kingmaker_turn_activities",log,"id=? AND world_profile=?",new String[]{String.valueOf(check.optLong("activity_id")),profile()});
             receipt[0]=outcome;
