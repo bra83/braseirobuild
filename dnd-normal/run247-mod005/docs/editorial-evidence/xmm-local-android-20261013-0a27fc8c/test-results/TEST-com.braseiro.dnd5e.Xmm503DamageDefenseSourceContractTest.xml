@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" tests="503" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:40:08" hostname="0f1875aecc7d" time="0.248">
+  <properties/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[0: Aarakocra Aeromancer defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.003"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[1: Aarakocra Skirmisher defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[2: Aberrant Cultist defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[3: Aboleth defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[4: Abominable Yeti defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[5: Adult Black Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[6: Adult Blue Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[7: Adult Brass Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[8: Adult Bronze Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[9: Adult Copper Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[10: Adult Gold Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[11: Adult Green Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[12: Adult Red Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[13: Adult Silver Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[14: Adult White Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[15: Air Elemental defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[16: Allosaurus defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[17: Ancient Black Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.012"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[18: Ancient Blue Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[19: Ancient Brass Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[20: Ancient Bronze Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[21: Ancient Copper Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[22: Ancient Gold Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[23: Ancient Green Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[24: Ancient Red Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[25: Ancient Silver Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[26: Ancient White Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[27: Animal Lord defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[28: Animated Armor defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[29: Animated Broom defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[30: Animated Flying Sword defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[31: Animated Rug of Smothering defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[32: Ankheg defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[33: Ankylosaurus defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[34: Ape defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[35: Arcanaloth defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[36: Arch-hag defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[37: Archelon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[38: Archmage defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[39: Archpriest defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[40: Assassin defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[41: Awakened Shrub defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[42: Awakened Tree defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[43: Axe Beak defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[44: Azer Pyromancer defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[45: Azer Sentinel defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[46: Baboon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[47: Badger defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[48: Balor defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[49: Bandit defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[50: Bandit Captain defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[51: Bandit Crime Lord defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[52: Bandit Deceiver defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[53: Banshee defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[54: Barbed Devil defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[55: Barlgura defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[56: Basilisk defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[57: Bat defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[58: Bearded Devil defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[59: Behir defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[60: Beholder defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[61: Beholder Zombie defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[62: Berserker defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[63: Berserker Commander defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[64: Black Bear defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[65: Black Dragon Wyrmling defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[66: Black Pudding defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[67: Blink Dog defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[68: Blob of Annihilation defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[69: Blood Hawk defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[70: Blue Dragon Wyrmling defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[71: Blue Slaad defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[72: Boar defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[73: Bone Devil defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[74: Bone Naga defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[75: Brass Dragon Wyrmling defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[76: Brazen Gorgon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[77: Bronze Dragon Wyrmling defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[78: Brown Bear defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[79: Bugbear Stalker defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[80: Bugbear Warrior defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[81: Bulette defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[82: Bulette Pup defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[83: Bullywug Bog Sage defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[84: Bullywug Warrior defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[85: Cambion defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[86: Camel defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[87: Carrion Crawler defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[88: Cat defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[89: Centaur Trooper defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[90: Centaur Warden defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[91: Chain Devil defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[92: Chasme defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[93: Chimera defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[94: Chuul defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[95: Clay Golem defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[96: Cloaker defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[97: Cloud Giant defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[98: Cockatrice defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[99: Cockatrice Regent defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[100: Colossus defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[101: Commoner defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[102: Constrictor Snake defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[103: Copper Dragon Wyrmling defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[104: Couatl defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[105: Crab defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[106: Crawling Claw defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[107: Crocodile defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[108: Cultist defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[109: Cultist Fanatic defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[110: Cultist Hierophant defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[111: Cyclops Oracle defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[112: Cyclops Sentry defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[113: Dao defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[114: Darkmantle defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[115: Death Cultist defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[116: Death Dog defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[117: Death Knight defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[118: Death Knight Aspirant defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[119: Death Slaad defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[120: Death Tyrant defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[121: Deer defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[122: Demilich defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[123: Deva defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[124: Dire Wolf defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[125: Dire Worg defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[126: Displacer Beast defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[127: Djinni defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[128: Doppelganger defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[129: Dracolich defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[130: Draft Horse defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[131: Dragon Turtle defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[132: Dretch defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[133: Drider defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[134: Druid defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[135: Dryad defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[136: Dust Mephit defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[137: Eagle defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[138: Earth Elemental defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[139: Efreeti defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[140: Elemental Cataclysm defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[141: Elemental Cultist defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[142: Elephant defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[143: Elk defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[144: Empyrean defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[145: Empyrean Iota defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[146: Erinyes defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[147: Ettercap defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[148: Ettin defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[149: Faerie Dragon Adult defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[150: Faerie Dragon Youth defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[151: Fiend Cultist defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[152: Fire Elemental defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[153: Fire Giant defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[154: Flameskull defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[155: Flaming Skeleton defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[156: Flesh Golem defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[157: Flumph defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[158: Flying Snake defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[159: Fomorian defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[160: Frog defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[161: Frost Giant defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[162: Galeb Duhr defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[163: Gargoyle defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[164: Gas Spore Fungus defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[165: Gelatinous Cube defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[166: Ghast defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[167: Ghast Gravecaller defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[168: Ghost defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[169: Ghoul defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[170: Giant Ape defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[171: Giant Axe Beak defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[172: Giant Badger defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[173: Giant Bat defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[174: Giant Boar defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[175: Giant Centipede defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[176: Giant Constrictor Snake defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[177: Giant Crab defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[178: Giant Crocodile defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[179: Giant Eagle defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[180: Giant Elk defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[181: Giant Fire Beetle defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[182: Giant Frog defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[183: Giant Goat defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[184: Giant Hyena defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[185: Giant Lizard defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[186: Giant Octopus defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[187: Giant Owl defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[188: Giant Rat defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[189: Giant Scorpion defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[190: Giant Seahorse defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[191: Giant Shark defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[192: Giant Spider defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[193: Giant Squid defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[194: Giant Toad defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[195: Giant Venomous Snake defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[196: Giant Vulture defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[197: Giant Wasp defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[198: Giant Weasel defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[199: Giant Wolf Spider defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[200: Gibbering Mouther defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[201: Githyanki Dracomancer defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[202: Githyanki Knight defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[203: Githyanki Warrior defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[204: Githzerai Monk defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[205: Githzerai Psion defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[206: Githzerai Zerth defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[207: Glabrezu defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[208: Gladiator defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[209: Gnoll Demoniac defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[210: Gnoll Fang of Yeenoghu defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[211: Gnoll Pack Lord defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[212: Gnoll Warrior defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[213: Goat defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.006"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[214: Goblin Boss defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[215: Goblin Hexer defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[216: Goblin Minion defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[217: Goblin Warrior defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[218: Gold Dragon Wyrmling defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[219: Gorgon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[220: Goristro defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[221: Graveyard Revenant defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[222: Gray Ooze defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[223: Gray Slaad defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[224: Green Dragon Wyrmling defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[225: Green Hag defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[226: Green Slaad defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[227: Grell defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[228: Grick defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[229: Grick Ancient defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[230: Griffon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[231: Grimlock defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[232: Guard defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[233: Guard Captain defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[234: Guardian Naga defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[235: Gulthias Blight defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[236: Half-Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[237: Harpy defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[238: Haunting Revenant defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[239: Hawk defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[240: Hell Hound defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[241: Helmed Horror defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[242: Hezrou defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[243: Hill Giant defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[244: Hippogriff defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[245: Hippopotamus defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[246: Hobgoblin Captain defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[247: Hobgoblin Warlord defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[248: Hobgoblin Warrior defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[249: Homunculus defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[250: Hook Horror defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[251: Horned Devil defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[252: Hunter Shark defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[253: Hydra defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[254: Hyena defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[255: Ice Devil defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[256: Ice Mephit defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[257: Imp defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[258: Incubus defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[259: Intellect Devourer defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[260: Invisible Stalker defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[261: Iron Golem defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[262: Jackal defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[263: Jackalwere defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[264: Juvenile Shadow Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[265: Kenku defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[266: Killer Whale defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[267: Knight defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[268: Kobold Warrior defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[269: Kraken defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[270: Kuo-toa defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[271: Kuo-toa Archpriest defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[272: Kuo-toa Monitor defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[273: Kuo-toa Whip defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[274: Lacedon Ghoul defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[275: Lamia defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[276: Larva defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[277: Lemure defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[278: Lich defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[279: Lion defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[280: Lizard defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[281: Lizardfolk Geomancer defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[282: Lizardfolk Sovereign defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[283: Mage defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[284: Mage Apprentice defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[285: Magma Mephit defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[286: Magmin defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[287: Mammoth defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[288: Manes defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[289: Manes Vaporspawn defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[290: Manticore defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[291: Marid defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[292: Marilith defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[293: Mastiff defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[294: Medusa defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[295: Merfolk Skirmisher defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[296: Merfolk Wavebender defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[297: Merrow defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[298: Mezzoloth defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[299: Mimic defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[300: Mind Flayer defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[301: Mind Flayer Arcanist defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[302: Minotaur of Baphomet defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[303: Minotaur Skeleton defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[304: Modron Duodrone defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[305: Modron Monodrone defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[306: Modron Pentadrone defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[307: Modron Quadrone defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[308: Modron Tridrone defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[309: Mud Mephit defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[310: Mule defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[311: Mummy defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[312: Mummy Lord defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[313: Myconid Adult defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[314: Myconid Sovereign defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[315: Myconid Spore Servant defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[316: Myconid Sprout defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[317: Nalfeshnee defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[318: Needle Blight defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[319: Night Hag defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[320: Nightmare defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[321: Noble defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[322: Noble Prodigy defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[323: Nothic defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[324: Nycaloth defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[325: Ochre Jelly defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[326: Octopus defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[327: Ogre defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[328: Ogre Zombie defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[329: Ogrillon Ogre defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[330: Oni defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[331: Otyugh defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[332: Owl defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[333: Owlbear defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[334: Panther defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[335: Pegasus defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[336: Performer defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[337: Performer Legend defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[338: Performer Maestro defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[339: Peryton defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[340: Phase Spider defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[341: Piercer defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[342: Piranha defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[343: Pirate defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[344: Pirate Admiral defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[345: Pirate Captain defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[346: Pit Fiend defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[347: Pixie defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[348: Pixie Wonderbringer defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[349: Planetar defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[350: Plesiosaurus defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[351: Polar Bear defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[352: Poltergeist defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[353: Pony defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[354: Priest defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[355: Priest Acolyte defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[356: Primeval Owlbear defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[357: Pseudodragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[358: Psychic Gray Ooze defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[359: Pteranodon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[360: Purple Worm defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[361: Quaggoth defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[362: Quaggoth Thonot defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[363: Quasit defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[364: Questing Knight defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[365: Rakshasa defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[366: Rat defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[367: Raven defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[368: Red Dragon Wyrmling defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[369: Red Slaad defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[370: Reef Shark defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[371: Remorhaz defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[372: Revenant defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[373: Rhinoceros defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[374: Riding Horse defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[375: Roc defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[376: Roper defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[377: Rust Monster defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[378: Saber-Toothed Tiger defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[379: Sahuagin Baron defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[380: Sahuagin Priest defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[381: Sahuagin Warrior defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[382: Salamander defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[383: Salamander Fire Snake defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[384: Salamander Inferno Master defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[385: Satyr defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[386: Satyr Revelmaster defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[387: Scarecrow defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[388: Scorpion defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[389: Scout defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[390: Scout Captain defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[391: Sea Hag defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[392: Seahorse defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[393: Shadow defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[394: Shadow Demon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[395: Shadow Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[396: Shambling Mound defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[397: Shield Guardian defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[398: Shrieker Fungus defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[399: Silver Dragon Wyrmling defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[400: Skeleton defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[401: Slaad Tadpole defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[402: Smoke Mephit defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[403: Solar defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[404: Spectator defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[405: Specter defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[406: Sphinx of Lore defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[407: Sphinx of Secrets defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[408: Sphinx of Valor defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[409: Sphinx of Wonder defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[410: Spider defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.022"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[411: Spined Devil defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[412: Spirit Naga defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[413: Sprite defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[414: Spy defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[415: Spy Master defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[416: Steam Mephit defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[417: Stirge defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[418: Stone Giant defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[419: Stone Golem defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[420: Storm Giant defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[421: Succubus defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[422: Swarm of Bats defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[423: Swarm of Crawling Claws defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[424: Swarm of Dretches defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[425: Swarm of Insects defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[426: Swarm of Larvae defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[427: Swarm of Lemures defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[428: Swarm of Piranhas defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[429: Swarm of Rats defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[430: Swarm of Ravens defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[431: Swarm of Stirges defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[432: Swarm of Venomous Snakes defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[433: Tarrasque defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[434: Thri-kreen Marauder defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[435: Thri-kreen Psion defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[436: Tiger defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[437: Tough defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[438: Tough Boss defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[439: Treant defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[440: Tree Blight defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[441: Triceratops defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[442: Troglodyte defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[443: Troll defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[444: Troll Limb defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[445: Twig Blight defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[446: Tyrannosaurus Rex defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[447: Ultroloth defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[448: Umber Hulk defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[449: Unicorn defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[450: Vampire defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[451: Vampire Familiar defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[452: Vampire Nightbringer defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[453: Vampire Spawn defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[454: Vampire Umbral Lord defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[455: Venomous Snake defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[456: Vine Blight defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[457: Violet Fungus defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[458: Violet Fungus Necrohulk defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[459: Vrock defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[460: Vulture defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[461: Warhorse defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[462: Warhorse Skeleton defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[463: Warrior Commander defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[464: Warrior Infantry defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[465: Warrior Veteran defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[466: Water Elemental defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[467: Water Weird defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[468: Weasel defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[469: Werebear defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[470: Wereboar defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[471: Wererat defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[472: Weretiger defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[473: Werewolf defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[474: White Dragon Wyrmling defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[475: Wight defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[476: Will-o'-Wisp defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[477: Winged Kobold defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[478: Winter Wolf defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[479: Wolf defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[480: Worg defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[481: Wraith defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[482: Wyvern defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[483: Xorn defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[484: Yeti defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[485: Yochlol defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[486: Young Black Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[487: Young Blue Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[488: Young Brass Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[489: Young Bronze Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[490: Young Copper Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[491: Young Gold Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[492: Young Green Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[493: Young Red Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[494: Young Remorhaz defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[495: Young Silver Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[496: Young White Dragon defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[497: Yuan-ti Abomination defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[498: Yuan-ti Infiltrator defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[499: Yuan-ti Malison (Type 1) defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[500: Yuan-ti Malison (Type 2) defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.001"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[501: Yuan-ti Malison (Type 3) defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <testcase name="compiledDefensesMustMatchPinnedSourceOrRemainConditional[502: Zombie defense]" classname="com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

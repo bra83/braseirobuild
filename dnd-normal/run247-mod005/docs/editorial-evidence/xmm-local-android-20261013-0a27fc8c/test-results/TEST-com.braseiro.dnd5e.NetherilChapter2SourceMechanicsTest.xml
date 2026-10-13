@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.NetherilChapter2SourceMechanicsTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:39:36" hostname="0f1875aecc7d" time="0.001">
+  <properties/>
+  <testcase name="testNf_sec_2_1_dampenedSpellDurationRequiresFullMinute" classname="com.braseiro.dnd5e.NetherilChapter2SourceMechanicsTest" time="0.0"/>
+  <testcase name="testNf_sec_2_1_gatewayDoesNotCommitWorldState" classname="com.braseiro.dnd5e.NetherilChapter2SourceMechanicsTest" time="0.0"/>
+  <testcase name="testNf_sec_2_1_empoweredForceDamageDieMinimumThree" classname="com.braseiro.dnd5e.NetherilChapter2SourceMechanicsTest" time="0.0"/>
+  <testcase name="testNf_sec_2_1_telepathyStartsAtEightIntelligence" classname="com.braseiro.dnd5e.NetherilChapter2SourceMechanicsTest" time="0.0"/>
+  <testcase name="testNf_sec_2_1_lowGravityJumpAndFallingDamage" classname="com.braseiro.dnd5e.NetherilChapter2SourceMechanicsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

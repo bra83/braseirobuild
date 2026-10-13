@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:39:43" hostname="0f1875aecc7d" time="1.875">
+  <properties/>
+  <testcase name="damageParserConsumesEveryTermAndRejectsOverflowBeforeCommitting" classname="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" time="0.023"/>
+  <testcase name="biteConditionIsTypedSourceTurnBoundAndSurvivesBackup21" classname="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" time="1.092"/>
+  <testcase name="aggregateAndMismatchedDamageProofsFailBeforeMutation" classname="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" time="0.164"/>
+  <testcase name="preexistingConditionOwnershipConflictFailsClosedBeforeMutation" classname="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" time="0.154"/>
+  <testcase name="legacyAttackRollbackWhenTypedDamageParsingFailsAfterActionSpend" classname="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" time="0.018"/>
+  <testcase name="typedDamageMustMapEveryDiceGroupToItsSourceDamageType" classname="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" time="0.013"/>
+  <testcase name="sourceTurnExpiryBatchRollsBackAllRowsAndRetriesOnce" classname="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" time="0.196"/>
+  <testcase name="naturalOneDoesNotApplyTheOnHitRider" classname="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" time="0.138"/>
+  <testcase name="brainRendingBiteDamagePreservesTypedModifierComponents" classname="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" time="0.022"/>
+  <testcase name="legacyFlowBlocksUnsupportedOnHitButKeepsPlainAttack" classname="com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest" time="0.055"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

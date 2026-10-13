@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:40:25" hostname="0f1875aecc7d" time="3.888">
+  <properties/>
+  <testcase name="testG02AttackResolutionAndRollback" classname="com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest" time="0.138"/>
+  <testcase name="testG03EquippedWeaponProfile" classname="com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest" time="0.197"/>
+  <testcase name="testG14Backup21ExportImportRoundtrip" classname="com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest" time="0.784"/>
+  <testcase name="testG10CompanionProposalIsolation" classname="com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest" time="0.02"/>
+  <testcase name="testG08TacticalGeometryAndCover" classname="com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest" time="0.016"/>
+  <testcase name="testG01IdentityAndLineage" classname="com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest" time="0.114"/>
+  <testcase name="testG09NarratedMovementIntentAndReceipts" classname="com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest" time="0.18"/>
+  <testcase name="testG15BuildAndRunnerEnvironment" classname="com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest" time="0.011"/>
+  <testcase name="testG04TacticalGridMovementAndBudget" classname="com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest" time="0.154"/>
+  <testcase name="testG12SceneImageImportPolicy" classname="com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest" time="0.011"/>
+  <testcase name="testG07CharacterProgressionAndMulticlass" classname="com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest" time="0.01"/>
+  <testcase name="testG05BestiaryDamageFormulasAndConditions" classname="com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest" time="2.179"/>
+  <testcase name="testG16HardwareValidationProtocols" classname="com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest" time="0.021"/>
+  <testcase name="testG06SpellsComponentsAndConcentration" classname="com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest" time="0.018"/>
+  <testcase name="testG13NarrationChunkingEngines" classname="com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest" time="0.02"/>
+  <testcase name="testG11LivingWorldDeterministicClock" classname="com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest" time="0.011"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

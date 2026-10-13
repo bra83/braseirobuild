@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.AstarionBloodlustPdfRuleTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:39:30" hostname="0f1875aecc7d" time="0.013">
+  <properties/>
+  <testcase name="powerfulRecoveryAdjustsNaturalOneAndTwoToThree" classname="com.braseiro.dnd5e.AstarionBloodlustPdfRuleTest" time="0.0"/>
+  <testcase name="sanguineFeastRequiresActualAttackHitBloodiedEligibleTargetAndResources" classname="com.braseiro.dnd5e.AstarionBloodlustPdfRuleTest" time="0.001"/>
+  <testcase name="gatewayResolvesBloodlustWithoutHiddenStateMutation" classname="com.braseiro.dnd5e.AstarionBloodlustPdfRuleTest" time="0.012"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

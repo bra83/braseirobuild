@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.adventure.EberronRouteDivergenceRobolectricTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:40:21" hostname="0f1875aecc7d" time="0.692">
+  <properties/>
+  <testcase name="bothModulesPersistTheirMainAndAlternateRoutes" classname="com.braseiro.dnd5e.adventure.EberronRouteDivergenceRobolectricTest" time="0.692"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

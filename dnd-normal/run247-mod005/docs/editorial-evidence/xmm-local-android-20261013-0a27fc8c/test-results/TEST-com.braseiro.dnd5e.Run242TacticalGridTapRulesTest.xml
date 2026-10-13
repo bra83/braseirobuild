@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run242TacticalGridTapRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:39:40" hostname="0f1875aecc7d" time="0.006">
+  <properties/>
+  <testcase name="exactEdgesAndCenterMapIntoExpectedGridCell" classname="com.braseiro.dnd5e.Run242TacticalGridTapRulesTest" time="0.001"/>
+  <testcase name="invalidOrOutsideTouchesAreAlwaysRejected" classname="com.braseiro.dnd5e.Run242TacticalGridTapRulesTest" time="0.003"/>
+  <testcase name="mappedDestinationUsesSamePersistedRouteRules" classname="com.braseiro.dnd5e.Run242TacticalGridTapRulesTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

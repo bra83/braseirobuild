@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.GateAFoundationIntegrationTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:39:30" hostname="0f1875aecc7d" time="0.818">
+  <properties/>
+  <testcase name="testPillar1_LoreEntityAndKnowledgeFirewall" classname="com.braseiro.dnd5e.GateAFoundationIntegrationTest" time="0.198"/>
+  <testcase name="testPillar2_OfficialBookRuntimeGatewayTenBooksAndLore" classname="com.braseiro.dnd5e.GateAFoundationIntegrationTest" time="0.437"/>
+  <testcase name="testPillar3_AdventureEnginePersistenceAndGraphTraversal" classname="com.braseiro.dnd5e.GateAFoundationIntegrationTest" time="0.183"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

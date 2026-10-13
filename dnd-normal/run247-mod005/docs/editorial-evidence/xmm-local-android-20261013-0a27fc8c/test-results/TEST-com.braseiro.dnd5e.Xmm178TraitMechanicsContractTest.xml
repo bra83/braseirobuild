@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" tests="178" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:40:06" hostname="0f1875aecc7d" time="0.088">
+  <properties/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[0: Aboleth / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[1: Adult Black Dragon / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[2: Adult Blue Dragon / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[3: Adult Brass Dragon / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[4: Adult Bronze Dragon / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[5: Adult Copper Dragon / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[6: Adult Gold Dragon / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[7: Adult Green Dragon / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[8: Adult Red Dragon / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[9: Adult Silver Dragon / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[10: Adult White Dragon / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[11: Ancient Black Dragon / Legendary Resistance (4/Day, or 5/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[12: Ancient Blue Dragon / Legendary Resistance (4/Day, or 5/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[13: Ancient Brass Dragon / Legendary Resistance (4/Day, or 5/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[14: Ancient Bronze Dragon / Legendary Resistance (4/Day, or 5/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[15: Ancient Copper Dragon / Legendary Resistance (4/Day, or 5/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[16: Ancient Gold Dragon / Legendary Resistance (4/Day, or 5/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[17: Ancient Green Dragon / Legendary Resistance (4/Day, or 5/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[18: Ancient Red Dragon / Legendary Resistance (4/Day, or 5/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[19: Ancient Silver Dragon / Legendary Resistance (4/Day, or 5/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[20: Ancient White Dragon / Legendary Resistance (4/Day, or 5/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[21: Animal Lord / Legendary Resistance (4/Day)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[22: Animal Lord / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[23: Animated Broom / Flyby]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[24: Arcanaloth / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[25: Arch-hag / Legendary Resistance (4/Day, or 5/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[26: Arch-hag / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[27: Archmage / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[28: Assassin / Evasion]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[29: Baboon / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[30: Balor / Legendary Resistance (3/Day)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[31: Balor / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[32: Bandit Crime Lord / Evasion]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[33: Barbed Devil / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[34: Bearded Devil / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[35: Beholder / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[36: Beholder Zombie / Undead Fortitude]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[37: Blob of Annihilation / Legendary Resistance (4/Day)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[38: Blob of Annihilation / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[39: Blood Hawk / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[40: Blue Slaad / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[41: Bone Devil / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[42: Chain Devil / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[43: Chasme / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[44: Clay Golem / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[45: Cockatrice Regent / Flyby]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[46: Colossus / Legendary Resistance (4/Day)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[47: Colossus / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[48: Colossus / Siege Monster]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[49: Dao / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[50: Death Knight / Legendary Resistance (3/Day)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[51: Death Knight / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[52: Death Knight Aspirant / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[53: Death Slaad / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[54: Death Tyrant / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[55: Demilich / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[56: Deva / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[57: Dire Wolf / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[58: Dire Worg / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[59: Djinni / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[60: Dracolich / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[61: Dracolich / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[62: Drider / Sunlight Sensitivity]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[63: Dryad / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[64: Earth Elemental / Siege Monster]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[65: Efreeti / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[66: Elemental Cataclysm / Legendary Resistance (4/Day)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[67: Elemental Cataclysm / Siege Monster]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[68: Empyrean / Legendary Resistance (4/Day)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[69: Empyrean / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[70: Empyrean Iota / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[71: Erinyes / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[72: Faerie Dragon Adult / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[73: Faerie Dragon Youth / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[74: Flameskull / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[75: Flesh Golem / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[76: Flying Snake / Flyby]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[77: Gargoyle / Flyby]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[78: Giant Owl / Flyby]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[79: Giant Rat / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[80: Giant Vulture / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[81: Giant Wasp / Flyby]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[82: Glabrezu / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[83: Goristro / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[84: Goristro / Siege Monster]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[85: Gray Slaad / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[86: Green Slaad / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[87: Hell Hound / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[88: Helmed Horror / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[89: Hezrou / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[90: Hippogriff / Flyby]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[91: Hobgoblin Warrior / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[92: Horned Devil / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[93: Hyena / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[94: Ice Devil / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[95: Imp / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[96: Iron Golem / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[97: Jackalwere / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[98: Juvenile Shadow Dragon / Sunlight Sensitivity]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[99: Kobold Warrior / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[100: Kobold Warrior / Sunlight Sensitivity]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[101: Kraken / Legendary Resistance (4/Day, or 5/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[102: Kraken / Siege Monster]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[103: Kuo-toa / Sunlight Sensitivity]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[104: Kuo-toa Archpriest / Sunlight Sensitivity]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[105: Kuo-toa Monitor / Sunlight Sensitivity]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[106: Kuo-toa Whip / Sunlight Sensitivity]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[107: Lich / Legendary Resistance (4/Day, or 5/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[108: Lion / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[109: Marilith / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[110: Mezzoloth / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[111: Mind Flayer / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[112: Mind Flayer Arcanist / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[113: Mummy Lord / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[114: Mummy Lord / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[115: Nalfeshnee / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[116: Night Hag / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[117: Nycaloth / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[118: Ogre Zombie / Undead Fortitude]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[119: Owl / Flyby]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[120: Peryton / Flyby]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[121: Pit Fiend / Legendary Resistance (4/Day)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[122: Pit Fiend / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[123: Pixie / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[124: Pixie Wonderbringer / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[125: Planetar / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[126: Primeval Owlbear / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[127: Pseudodragon / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[128: Pteranodon / Flyby]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[129: Quasit / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[130: Red Slaad / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[131: Reef Shark / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[132: Salamander Inferno Master / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[133: Satyr / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[134: Satyr Revelmaster / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[135: Shadow Dragon / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[136: Shadow Dragon / Sunlight Sensitivity]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[137: Slaad Tadpole / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[138: Solar / Legendary Resistance (4/Day)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[139: Solar / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[140: Specter / Sunlight Sensitivity]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[141: Sphinx of Lore / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[142: Sphinx of Secrets / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[143: Sphinx of Valor / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[144: Sphinx of Wonder / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[145: Spined Devil / Flyby]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[146: Spined Devil / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[147: Stone Golem / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[148: Tarrasque / Legendary Resistance (6/Day)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[149: Tarrasque / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[150: Tarrasque / Siege Monster]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[151: Tough / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[152: Tough Boss / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[153: Treant / Siege Monster]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[154: Troglodyte / Sunlight Sensitivity]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.002"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[155: Twig Blight / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[156: Ultroloth / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[157: Unicorn / Legendary Resistance (3/Day)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[158: Unicorn / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[159: Vampire / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[160: Vampire Umbral Lord / Legendary Resistance (3/Day, or 4/Day in Lair)]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[161: Vrock / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[162: Vulture / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[163: Warrior Infantry / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[164: Werewolf / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[165: Wight / Sunlight Sensitivity]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[166: Winged Kobold / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[167: Winged Kobold / Sunlight Sensitivity]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[168: Winter Wolf / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[169: Wolf / Pack Tactics]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[170: Wraith / Sunlight Sensitivity]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[171: Yochlol / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[172: Yuan-ti Abomination / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[173: Yuan-ti Infiltrator / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[174: Yuan-ti Malison (Type 1) / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[175: Yuan-ti Malison (Type 2) / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[176: Yuan-ti Malison (Type 3) / Magic Resistance]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.0"/>
+  <testcase name="traitMustBindToExactCompiledSourceAndResolveWithoutMutation[177: Zombie / Undead Fortitude]" classname="com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

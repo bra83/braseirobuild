@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:39:34" hostname="0f1875aecc7d" time="0.775">
+  <properties/>
+  <testcase name="testBundledFaerunAssetLocationAndPresence" classname="com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest" time="0.162"/>
+  <testcase name="testOAuthSigningCertificateFingerprints" classname="com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest" time="0.068"/>
+  <testcase name="testFaerunManifestGeometryParsing" classname="com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest" time="0.33"/>
+  <testcase name="testPartyStateAndFogPreservationInAppDb" classname="com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest" time="0.214"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

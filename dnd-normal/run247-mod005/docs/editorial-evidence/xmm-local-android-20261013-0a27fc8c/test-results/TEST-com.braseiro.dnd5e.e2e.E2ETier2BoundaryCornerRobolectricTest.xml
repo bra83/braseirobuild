@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.e2e.E2ETier2BoundaryCornerRobolectricTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:40:30" hostname="0f1875aecc7d" time="0.126">
+  <properties/>
+  <testcase name="testTacticalMovementDistanceBoundaries" classname="com.braseiro.dnd5e.e2e.E2ETier2BoundaryCornerRobolectricTest" time="0.013"/>
+  <testcase name="testBackup21IntegrityEnvelopeBoundaries" classname="com.braseiro.dnd5e.e2e.E2ETier2BoundaryCornerRobolectricTest" time="0.014"/>
+  <testcase name="testAttackGeometryBoundaries" classname="com.braseiro.dnd5e.e2e.E2ETier2BoundaryCornerRobolectricTest" time="0.011"/>
+  <testcase name="testCompanionProposalIsolationBoundaries" classname="com.braseiro.dnd5e.e2e.E2ETier2BoundaryCornerRobolectricTest" time="0.011"/>
+  <testcase name="testNarrationChunkingBoundaries" classname="com.braseiro.dnd5e.e2e.E2ETier2BoundaryCornerRobolectricTest" time="0.013"/>
+  <testcase name="testDamageFormulaBoundaries" classname="com.braseiro.dnd5e.e2e.E2ETier2BoundaryCornerRobolectricTest" time="0.014"/>
+  <testcase name="testSceneImageImportPolicyBoundaries" classname="com.braseiro.dnd5e.e2e.E2ETier2BoundaryCornerRobolectricTest" time="0.01"/>
+  <testcase name="testCharacterProgressionBoundaries" classname="com.braseiro.dnd5e.e2e.E2ETier2BoundaryCornerRobolectricTest" time="0.011"/>
+  <testcase name="testLivingWorldCatchupBoundaries" classname="com.braseiro.dnd5e.e2e.E2ETier2BoundaryCornerRobolectricTest" time="0.015"/>
+  <testcase name="testDamageMitigationBoundaries" classname="com.braseiro.dnd5e.e2e.E2ETier2BoundaryCornerRobolectricTest" time="0.013"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

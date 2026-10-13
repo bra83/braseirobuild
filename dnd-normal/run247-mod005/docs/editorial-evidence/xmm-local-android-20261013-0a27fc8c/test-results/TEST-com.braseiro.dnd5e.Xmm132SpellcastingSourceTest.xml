@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" tests="132" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:40:06" hostname="0f1875aecc7d" time="0.033">
+  <properties/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[0: Aarakocra Aeromancer]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.003"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[1: Aberrant Cultist]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[2: Adult Black Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[3: Adult Blue Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[4: Adult Brass Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[5: Adult Bronze Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[6: Adult Copper Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.001"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[7: Adult Gold Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[8: Adult Green Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[9: Adult Red Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[10: Adult Silver Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[11: Adult White Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[12: Ancient Black Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[13: Ancient Blue Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[14: Ancient Brass Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.001"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[15: Ancient Bronze Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[16: Ancient Copper Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[17: Ancient Gold Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[18: Ancient Green Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[19: Ancient Red Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[20: Ancient Silver Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[21: Ancient White Dragon]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[22: Animal Lord]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[23: Arcanaloth]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[24: Arch-hag]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[25: Archmage]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[26: Archpriest]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[27: Azer Pyromancer]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[28: Bandit Deceiver]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.001"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[29: Barlgura]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[30: Bone Naga]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[31: Bullywug Bog Sage]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[32: Cambion]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[33: Centaur Warden]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[34: Cloaker]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[35: Cloud Giant]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.001"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[36: Couatl]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[37: Cultist Fanatic]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[38: Cultist Hierophant]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[39: Cyclops Oracle]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[40: Dao]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[41: Death Cultist]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[42: Death Knight]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.001"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[43: Death Knight Aspirant]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[44: Death Slaad]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[45: Deva]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[46: Djinni]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[47: Doppelganger]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[48: Dracolich]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[49: Drider]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.001"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[50: Druid]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[51: Dryad]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[52: Dust Mephit]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[53: Efreeti]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[54: Elemental Cataclysm]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[55: Elemental Cultist]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[56: Empyrean]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[57: Empyrean Iota]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.001"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[58: Faerie Dragon Adult]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[59: Faerie Dragon Youth]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[60: Fiend Cultist]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[61: Flameskull]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[62: Ghast Gravecaller]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.009"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[63: Ghost]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[64: Giant Owl]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[65: Githyanki Dracomancer]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.001"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[66: Githyanki Knight]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[67: Githyanki Warrior]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[68: Githzerai Monk]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[69: Githzerai Psion]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[70: Githzerai Zerth]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[71: Glabrezu]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[72: Goblin Hexer]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.001"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[73: Gray Slaad]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[74: Green Hag]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[75: Green Slaad]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[76: Guardian Naga]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[77: Ice Devil]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[78: Ice Mephit]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[79: Imp]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[80: Incubus]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[81: Kenku]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[82: Kuo-toa Archpriest]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[83: Kuo-toa Whip]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[84: Lamia]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[85: Lich]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[86: Lizardfolk Geomancer]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.001"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[87: Mage]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[88: Mage Apprentice]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[89: Marid]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[90: Merfolk Wavebender]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[91: Mezzoloth]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[92: Mind Flayer]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[93: Mind Flayer Arcanist]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[94: Mummy Lord]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.001"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[95: Night Hag]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[96: Noble Prodigy]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[97: Oni]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[98: Performer Legend]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[99: Performer Maestro]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[100: Pit Fiend]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[101: Pixie]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[102: Pixie Wonderbringer]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.001"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[103: Planetar]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[104: Priest]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[105: Priest Acolyte]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[106: Quaggoth Thonot]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[107: Quasit]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[108: Questing Knight]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[109: Rakshasa]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[110: Sahuagin Priest]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[111: Sea Hag]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[112: Solar]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[113: Sphinx of Lore]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[114: Sphinx of Secrets]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[115: Sphinx of Valor]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[116: Spirit Naga]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.001"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[117: Sprite]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[118: Stone Golem]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[119: Storm Giant]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[120: Thri-kreen Psion]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[121: Ultroloth]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[122: Unicorn]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[123: Vampire]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.004"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[124: Vampire Umbral Lord]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[125: Vine Blight]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[126: Yochlol]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[127: Yuan-ti Abomination]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[128: Yuan-ti Infiltrator]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.001"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[129: Yuan-ti Malison (Type 1)]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[130: Yuan-ti Malison (Type 2)]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <testcase name="eachSpellcasterExposesSourceUsageAndNeverAutoCasts[131: Yuan-ti Malison (Type 3)]" classname="com.braseiro.dnd5e.Xmm132SpellcastingSourceTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
