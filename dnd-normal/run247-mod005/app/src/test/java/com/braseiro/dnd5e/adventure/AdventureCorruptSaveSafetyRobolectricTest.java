@@ -59,6 +59,46 @@ public final class AdventureCorruptSaveSafetyRobolectricTest {
         }
     }
 
+    @Test public void invalidSaveMustNotReplaceInstalledModuleVersion() throws Exception {
+        Context context = RuntimeEnvironment.getApplication();
+        String name = "dnd_module_rollback_" + UUID.randomUUID().toString().substring(0, 8) + ".db";
+        AppDb db = AppDbTestHelper.createSandbox(context, name);
+        try {
+            db.setActiveMapProfile("dnd");
+            AdventureModule original = FaerunAdventureModuleCatalog.byId(MODULE_ID);
+            AdventureEngine engine = new AdventureEngine(db, null, null);
+            assertTrue(engine.loadOrStartAdventure(original, 8L).optBoolean("module_installed"));
+            assertTrue(engine.processAction("begin", null).optBoolean("committed"));
+            String installedBefore = db.queryOne(
+                    "SELECT module_json FROM adventure_modules WHERE module_id=?",
+                    new String[]{MODULE_ID}).getString("module_json");
+
+            JSONObject save = new AdventurePersistenceAdapter(db).loadState(MODULE_ID, 8L).toJson();
+            save.put("current_node_id", "orphaned_old_scene");
+            db.getWritableDatabase().execSQL(
+                    "UPDATE adventure_state_journal SET current_node_id=?,state_json=? " +
+                    "WHERE module_id=? AND party_id=?",
+                    new Object[]{"orphaned_old_scene", save.toString(), MODULE_ID, 8});
+            AdventureModule newer = new AdventureModule(original.getId(),
+                    "Upgrade must not overwrite a damaged save", "2.0.0",
+                    original.getRootNodeId(), original.getNodes(), original.getMetadata());
+            AdventureEngine reopened = new AdventureEngine(db, null, null);
+            JSONObject rejected = reopened.loadOrStartAdventure(newer, 8L);
+            assertEquals("error", rejected.optString("status"));
+            assertEquals(installedBefore, db.queryOne(
+                    "SELECT module_json FROM adventure_modules WHERE module_id=?",
+                    new String[]{MODULE_ID}).getString("module_json"));
+            assertEquals("orphaned_old_scene", db.queryOne(
+                    "SELECT current_node_id FROM adventure_state_journal " +
+                    "WHERE module_id=? AND party_id=?",
+                    new String[]{MODULE_ID, "8"}).optString("current_node_id"));
+            assertNull(reopened.getActiveState());
+        } finally {
+            db.close();
+            context.deleteDatabase(name);
+        }
+    }
+
     private static void assertReadFailurePreservesExistingRow(boolean orphanNode) throws Exception {
         Context context = RuntimeEnvironment.getApplication();
         String name = "dnd_corrupt_save_" + UUID.randomUUID().toString().substring(0, 8) + ".db";
