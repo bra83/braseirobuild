@@ -24,6 +24,8 @@ jobs:
     env:
       PYTHONIOENCODING: utf-8
       PYTHONUTF8: '1'
+      # Java harness output must match Python's forced UTF-8 decoder on Windows BRELGA.
+      JAVA_TOOL_OPTIONS: '-Dfile.encoding=UTF-8 -Dsun.stdout.encoding=UTF-8 -Dsun.stderr.encoding=UTF-8'
     steps:
       - uses: actions/checkout@v4
         with:
