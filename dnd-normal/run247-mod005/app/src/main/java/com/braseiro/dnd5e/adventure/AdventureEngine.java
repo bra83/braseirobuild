@@ -141,12 +141,14 @@ public final class AdventureEngine implements IAdventureEngine {
             if (!proposed.commitTransaction()) return error("Falha ao preparar transição da aventura.");
             if ("completed".equals(nextNodeId) || "failed".equals(nextNodeId))
                 proposed.setStatus(nextNodeId);
-            if (!persistenceAdapter.saveState(activeModule.getId(), activePartyId, proposed)) {
-                return error("Falha ao salvar a transição no SQLite; a escolha não foi aplicada.");
+            AdventureNode resolvedNode = activeModule.getNode(nextNodeId);
+            String locationId = resolvedNode == null ? "" : resolvedNode.getLocationId();
+            if (!persistenceAdapter.saveTransitionWithLocation(
+                    activeModule.getId(), activePartyId, proposed, locationId)) {
+                return error("Falha ao salvar escolha e local no SQLite; nenhuma alteração foi aplicada.");
             }
             activeState = proposed;
             graphEngine.resumeAdventure(activeModule, activeState);
-            AdventureNode resolvedNode = activeModule.getNode(nextNodeId);
             boolean worldSynced = resolvedNode == null ||
                     worldAdapter.applyNodeConsequences(resolvedNode, roll);
             JSONObject narration = aiAdapter.buildNarrationPayload(resolvedNode, activeState, roll);
