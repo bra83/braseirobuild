@@ -106,14 +106,14 @@ public final class XmmGrappleEscapeRobolectricTest {
             JSONObject free=db.getCombatant(target);
             assertFalse(ConditionTokenGuard.has(free.optString("conditions"),"grappled"));
             assertFalse(new JSONObject(free.optString("resources_json","{}")).has("xmm_grapple_state"));
-            assertEquals(hp-10,free.optInt("hp"));
+            assertEquals(hp-20,free.optInt("hp"));
             JSONObject backup=db.exportAll();assertEquals("",Backup21IntegrityEnvelope.check(backup));
             db.close();db=new AppDb(context,dbName);db.setActiveMapProfile("dnd");
             JSONObject reopened=db.findCombatantByName("XMM Grapple Target");
             assertFalse(ConditionTokenGuard.has(reopened.optString("conditions"),"grappled"));
             assertFalse(new JSONObject(reopened.optString("resources_json","{}")).has("xmm_grapple_state"));
             db.importAll(backup);reopened=db.findCombatantByName("XMM Grapple Target");
-            assertEquals(hp-10,reopened.optInt("hp"));
+            assertEquals(hp-20,reopened.optInt("hp"));
             assertFalse(ConditionTokenGuard.has(reopened.optString("conditions"),"grappled"));
             assertFalse(new JSONObject(reopened.optString("resources_json","{}")).has("xmm_grapple_state"));
 
