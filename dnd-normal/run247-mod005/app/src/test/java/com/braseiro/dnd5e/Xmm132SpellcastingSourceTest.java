@@ -15,7 +15,7 @@ public final class Xmm132SpellcastingSourceTest {
  @Parameterized.Parameters(name="{index}: {0}")
  public static Collection<Object[]> cases(){
   ArrayList<Object[]> result=new ArrayList<>();
-  JSONArray names=Xmm2025CompiledBestiaryEngine.catalog().getJSONArray("names");
+  JSONArray names=Xmm2025CompiledBestiaryEngine.catalog().optJSONArray("names");
   for(int i=0;i<names.length();i++){
    String id=names.optString(i);
    JSONObject source=Xmm2025SourceIndex.get(id);
