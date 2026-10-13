@@ -136,6 +136,35 @@ jobs:
           if (!$env:ANDROID_HOME -or !(Test-Path $env:ANDROID_HOME)) { throw 'ANDROID_SDK_NOT_FOUND' }
           $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
           Set-Location 'dnd-normal/run247-mod005'
+          # P0: inspect the shared Gradle init script without editing it.
+          # An isolated user home excludes broken global init.d scripts while
+          # junctions reuse dependency caches / wrapper downloads across builds.
+          $sharedGradleHome = Join-Path $env:USERPROFILE '.gradle'
+          $sharedInit = Join-Path $sharedGradleHome 'init.d\braseiro-cache.init.gradle'
+          if (Test-Path -LiteralPath $sharedInit) {
+            $initBytes = [System.IO.File]::ReadAllBytes($sharedInit)
+            $initHash = (Get-FileHash -LiteralPath $sharedInit -Algorithm SHA256).Hash
+            $prefixCount = [Math]::Min(16, $initBytes.Length)
+            $prefix = if ($prefixCount -gt 0) { [BitConverter]::ToString($initBytes, 0, $prefixCount) } else { '(empty)' }
+            Write-Host ('P0_SHARED_GRADLE_INIT_SHA256=' + $initHash)
+            Write-Host ('P0_SHARED_GRADLE_INIT_FIRST_BYTES=' + $prefix)
+          } else {
+            Write-Host 'P0_SHARED_GRADLE_INIT=ABSENT'
+          }
+          $isolatedGradleHome = Join-Path $env:RUNNER_TEMP ('dnd-gradle-' + $env:GITHUB_RUN_ID + '-' + $env:GITHUB_RUN_ATTEMPT)
+          New-Item -ItemType Directory -Force -Path $isolatedGradleHome | Out-Null
+          foreach ($cacheDir in @('caches', 'wrapper')) {
+            $sourceDir = Join-Path $sharedGradleHome $cacheDir
+            $linkDir = Join-Path $isolatedGradleHome $cacheDir
+            if (Test-Path -LiteralPath $sourceDir) {
+              if (-not (Test-Path -LiteralPath $linkDir)) {
+                New-Item -ItemType Junction -Path $linkDir -Target $sourceDir -ErrorAction Stop | Out-Null
+              }
+              Write-Host ('P0_SHARED_GRADLE_REUSE=' + $cacheDir)
+            }
+          }
+          $env:GRADLE_USER_HOME = $isolatedGradleHome
+          Write-Host 'P0_BRELGA_INIT_SCRIPT=ISOLATED; SHARED_FILE_UNMODIFIED=TRUE'
           # Run against real map assets: Issue27MapAndOAuthIntegrationTest validates
           # the 102 MB Faerun ZIP and its actual manifest. Lite assets must never
           # be used for the full suite because they cause two false test failures.
