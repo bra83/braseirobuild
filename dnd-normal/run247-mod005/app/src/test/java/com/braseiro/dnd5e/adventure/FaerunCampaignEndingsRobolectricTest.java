@@ -27,6 +27,27 @@ import static org.junit.Assert.*;
 @Config(sdk = 35, manifest = Config.NONE)
 public final class FaerunCampaignEndingsRobolectricTest {
     @Test
+    public void normalDndWorldAdapterDoesNotWriteMystaraProfile() throws Exception {
+        Context context = RuntimeEnvironment.getApplication();
+        String databaseName = "dnd_profile_isolation_" + UUID.randomUUID().toString().substring(0, 8) + ".db";
+        AppDb db = AppDbTestHelper.createSandbox(context, databaseName);
+        try {
+            db.setActiveMapProfile("mystara");
+            JSONObject before = db.getSceneState();
+            AdventureNode target = FaerunAdventureModuleCatalog.byId("fraif_tomb_damara")
+                    .getNode("scene_1");
+            assertFalse("Normal D&D must never advance frozen Mystara world",
+                    new AdventureWorldAdapter(db, null).applyNodeConsequences(target, new JSONObject()));
+            JSONObject after = db.getSceneState();
+            assertEquals(before.optString("location"), after.optString("location"));
+            assertEquals(before.optInt("day_number"), after.optInt("day_number"));
+        } finally {
+            db.close();
+            context.deleteDatabase(databaseName);
+        }
+    }
+
+    @Test
     public void fiveCampaignsTwoEndingsAndThreeSqliteReopens() throws Exception {
         Context context = RuntimeEnvironment.getApplication();
         List<AdventureModule> modules = FaerunAdventureModuleCatalog.all();
