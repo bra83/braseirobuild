@@ -773,7 +773,7 @@ public final class R36BookSemanticsHarness {
   JSONObject jvSource=new JSONObject().put("scenes",new JSONArray().put(new JSONObject().put("skill_checks",jvSourceChecks))).put("debate_rule",new JSONObject());
   JSONObject jvProgress=new JSONObject(jvSource.toString());
   for(int jvIndex=1;jvIndex<=3;jvIndex++)jvProgress=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
-    "jubilost","jubilost_debate_round_"+jvIndex,14,10,24,jvProgress).getJSONObject("progress");
+    "jubilost","jubilost_debate_round_"+jvIndex,14,10,24,jvProgress).optJSONObject("progress");
   check(jvProgress.optInt("debate_rounds_answered")==3&&jvProgress.optInt("debate_victory_points")==3,
     "Three ordinary successful debate answers award 3 Victory Points, not generic wins");
   check("WIN".equals(jvProgress.optString("debate_outcome"))&&jvProgress.optBoolean("host_question_available"),
@@ -783,9 +783,9 @@ public final class R36BookSemanticsHarness {
   catch(IllegalStateException ex){jvRepeatedBlocked=true;}
   check(jvRepeatedBlocked,"Repeat debate round must not mint extra Victory Points");
   JSONObject jvOnePoint=new JSONObject(jvSource.toString());
-  jvOnePoint=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_1",14,10,24,jvOnePoint).getJSONObject("progress");
-  jvOnePoint=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_2",5,0,24,jvOnePoint).getJSONObject("progress");
-  jvOnePoint=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_3",5,0,24,jvOnePoint).getJSONObject("progress");
+  jvOnePoint=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_1",14,10,24,jvOnePoint).optJSONObject("progress");
+  jvOnePoint=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_2",5,0,24,jvOnePoint).optJSONObject("progress");
+  jvOnePoint=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_3",5,0,24,jvOnePoint).optJSONObject("progress");
   check(jvOnePoint.optInt("debate_victory_points")==1&&"NO_WINNER".equals(jvOnePoint.optString("debate_outcome")),
     "One Victory Point makes Shyka declare no winner, not grant an answer");
   boolean jvUnwonQuestionBlocked=false;
@@ -797,13 +797,13 @@ public final class R36BookSemanticsHarness {
   JSONObject jvFailBranch=new JSONObject().put("branch_key","jubilost_debates_no_answer")
     .put("influence_delta",0).put("available_after",true).put("attitude_after","indifferent")
     .put("description","Debate encerrado sem resposta");
-  jvOnePoint.getJSONArray("branches").put(jvFailBranch);
+  jvOnePoint.optJSONArray("branches").put(jvFailBranch);
   JSONObject jvNoAnswer=KingmakerCompanionSemantics.resolveCompanionAdventureBranch("jubilost",
     "jubilost_debates_no_answer",new JSONObject().put("influence",4),jvOnePoint);
-  check(jvNoAnswer.optInt("xp_awarded")==0&&jvNoAnswer.getJSONArray("items_awarded").length()==0,
+  check(jvNoAnswer.optInt("xp_awarded")==0&&jvNoAnswer.optJSONArray("items_awarded").length()==0,
     "Unwon debate does not produce invented XP/loot");
   JSONObject jvCritical=new JSONObject(jvSource.toString());
-  jvCritical=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_1",20,14,24,jvCritical).getJSONObject("progress");
+  jvCritical=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_1",20,14,24,jvCritical).optJSONObject("progress");
   check(jvCritical.optInt("debate_victory_points")==2,"A critical success awards 2 VP");
   boolean jvOutOfOrderBlocked=false;
   try{KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_3",20,14,24,jvCritical);}
