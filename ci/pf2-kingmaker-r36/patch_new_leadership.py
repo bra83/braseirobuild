@@ -50,8 +50,8 @@ def repo(s):
             else assignLeaderUnchecked(role,entityKind,entityId,name,invested,notes);
             int unrest=outcome.optInt("new_leadership_unrest");
             if(unrest>0)adjustState(new JSONObject().put("unrest",unrest),"Nova Liderança: "+role);
-            upsertFeature("leadership:"+r,"leadership_assignment","Nova Liderança • "+role,Math.max(1,state().optInt("level",1)),outcome.toString(),"Kingmaker Adventure Path p.520; Companion Guide","Resultado da nomeação e aceitação popular");
             check.put("degree",degree).put("degree_before_companion",original).put("new_leadership_circumstance",KingmakerLeadershipSemantics.skillCircumstance(r,sk));
+            upsertFeature("leadership:"+r,"leadership_assignment","Nova Liderança • "+role,Math.max(1,state().optInt("level",1)),outcome.toString(),"Kingmaker Adventure Path p.520; Companion Guide","Resultado da nomeação e aceitação popular");
             check.put("outcome",outcome);
             ContentValues log=new ContentValues();log.put("degree",degree);log.put("effects_json",check.toString());
             db.getWritableDatabase().update("kingmaker_turn_activities",log,"id=? AND world_profile=?",new String[]{String.valueOf(check.optLong("activity_id")),profile()});
@@ -67,7 +67,7 @@ def repo(s):
             JSONObject saved=db.queryOne("SELECT * FROM kingmaker_features WHERE world_profile=? AND feature_key=?",new String[]{profile(),"leadership:"+r});
             JSONObject status=jsonObject(saved.optString("effects_json","{}")),turn=activeTurn();
             int number=state().optInt("turn_number",0);
-            if(!status.optBoolean("approval_pending")||turn.length()==0||number<=status.optInt("appointed_turn")||status.optInt("approval_checked_turn",-1)==number)
+            if(!status.optBoolean("approval_pending")||turn.length()==0||!"EVENT".equals(turn.optString("phase"))||number<=status.optInt("appointed_turn")||status.optInt("approval_checked_turn",-1)==number)
                 throw new IllegalStateException("A aceitação só pode ser tentada uma vez, ao fim de um turno posterior à nomeação.");
             JSONObject check=recordCheck("new_leadership_approval","Aceitação da Liderança",role,sk,natural,0,"Kingmaker Adventure Path p.520", "",false);
             String degree=check.optString("degree");
