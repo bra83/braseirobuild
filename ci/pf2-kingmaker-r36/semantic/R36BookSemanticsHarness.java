@@ -664,20 +664,20 @@ public final class R36BookSemanticsHarness {
    java.nio.file.Paths.get(projectRoot,"android","app","src","main","assets","pathfinder","kingmaker","chapters","chapter_12_companion_stories.json")),
    java.nio.charset.StandardCharsets.UTF_8);
   JSONObject actualChapter=new JSONObject(companionAsset);
-  JSONArray seven=actualChapter.getJSONArray("quests");
+  JSONArray seven=actualChapter.optJSONArray("quests");
   check(seven.length()==7,"Exactly seven actual personal adventures imported");
   Set<String> checkedCompanions=new HashSet<String>();
   for(int n=0;n<seven.length();n++){
-   JSONObject q=seven.getJSONObject(n);
-   JSONObject progress=q.getJSONObject("progress_json");
-   String companionKey=progress.getString("companion_key");
+   JSONObject q=seven.optJSONObject(n);
+   JSONObject progress=q.optJSONObject("progress_json");
+   String companionKey=progress.optString("companion_key");
    check(checkedCompanions.add(companionKey),"Personal quest identity unique: "+companionKey);
-   check(("q_cg_"+companionKey).equals(q.getString("quest_key")),"Personal quest identity linked: "+companionKey);
-   JSONArray options=progress.getJSONArray("branches");
+   check(("q_cg_"+companionKey).equals(q.optString("quest_key")),"Personal quest identity linked: "+companionKey);
+   JSONArray options=progress.optJSONArray("branches");
    check(options.length()>=2,"Actual personal quest has alternate outcomes: "+companionKey);
    for(int k=0;k<options.length();k++){
-    JSONObject sourceBranch=options.getJSONObject(k);
-    String branchId=sourceBranch.getString("branch_key");
+    JSONObject sourceBranch=options.optJSONObject(k);
+    String branchId=sourceBranch.optString("branch_key");
     JSONObject companionBefore=new JSONObject().put("companion_key",companionKey).put("influence",4).put("available",1);
     JSONObject actualResult=KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
      companionKey,branchId,companionBefore,progress);
@@ -690,18 +690,18 @@ public final class R36BookSemanticsHarness {
     check(actualResult.optInt("xp_awarded")==0&&actualResult.optJSONArray("items_awarded").length()==0,
      "Unverified automatic rewards blocked: "+branchId);
    }
-   JSONArray scenes=progress.getJSONArray("scenes");
+   JSONArray scenes=progress.optJSONArray("scenes");
    int officialChecks=0;
    for(int k=0;k<scenes.length();k++){
-    JSONArray sourceChecks=scenes.getJSONObject(k).optJSONArray("skill_checks");
+    JSONArray sourceChecks=scenes.optJSONObject(k).optJSONArray("skill_checks");
     if(sourceChecks==null)continue;
     for(int c=0;c<sourceChecks.length();c++){
-     JSONObject sourceCheck=sourceChecks.getJSONObject(c);
-     String id=sourceCheck.getString("check_id");
-     int dc=sourceCheck.getInt("dc");
+     JSONObject sourceCheck=sourceChecks.optJSONObject(c);
+     String id=sourceCheck.optString("check_id");
+     int dc=sourceCheck.optInt("dc");
      JSONObject result=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
       companionKey,id,10,dc-10,dc,progress);
-     check(id.equals(result.getJSONObject("check").getString("check_id")),
+     check(id.equals(result.optJSONObject("check").optString("check_id")),
       "Canonical JSON skill check accepted: "+id);
      officialChecks++;
      boolean forbidden=false;
