@@ -1,6 +1,6 @@
-book_id,chapter_id,section_id,section_title,drive_file_id,pdf_file_name,text_chars,title_in_body_offset,anchor_status,semantic_validation
+"book_id","chapter_id","section_id","section_title","drive_file_id","pdf_file_name","text_chars","title_in_body_offset","anchor_status","semantic_validation"
 "FRAIF","ch_0","sec_0_0","More Forgotten Realms","1HpHuBFTlRJiqQCWK7v39YgEvi9Tp1oFT","Forgotten Realms - Adventures in Faerûn_texto.pdf","852139","26736","TEXT_BODY_TITLE_FOUND","NOT_A_BEHAVIORAL_PROOF"
-"FRAIF","ch_0","sec_0_1","Using This Book","1HpHuBFTlRJiqQCWK7v39YgEvi9Tp1oFT","Forgotten Realms - Adventures in Faerûn_texto.pdf","852139","-1","ONLY_TOC_OR_FRONT_MATTER","NOT_A_BEHAVIORAL_PROOF"
+"FRAIF","ch_0","sec_0_1","Using This Book","1HpHuBFTlRJiqQCWK7v39YgEvi9Tp1oFT","Forgotten Realms - Adventures in Faerûn_texto.pdf","852139","5956","TEXT_BODY_TITLE_FOUND","NOT_A_BEHAVIORAL_PROOF"
 "FRAIF","ch_0","sec_0_2","Other Resources","1HpHuBFTlRJiqQCWK7v39YgEvi9Tp1oFT","Forgotten Realms - Adventures in Faerûn_texto.pdf","852139","26442","TEXT_BODY_TITLE_FOUND","NOT_A_BEHAVIORAL_PROOF"
 "FRAIF","ch_1","sec_1_0","""I am he who rules the world, don't you know? One little piece at a time.""–Jarlaxle","1HpHuBFTlRJiqQCWK7v39YgEvi9Tp1oFT","Forgotten Realms - Adventures in Faerûn_texto.pdf","852139","-1","TITLE_NOT_FOUND","NOT_A_BEHAVIORAL_PROOF"
 "FRAIF","ch_1","sec_1_1","Creating Epic Fantasy","1HpHuBFTlRJiqQCWK7v39YgEvi9Tp1oFT","Forgotten Realms - Adventures in Faerûn_texto.pdf","852139","-1","ONLY_TOC_OR_FRONT_MATTER","NOT_A_BEHAVIORAL_PROOF"
@@ -151,7 +151,7 @@ book_id,chapter_id,section_id,section_title,drive_file_id,pdf_file_name,text_cha
 "FRAIF","ch_10","sec_10_0","Atlas of Faerûn","1HpHuBFTlRJiqQCWK7v39YgEvi9Tp1oFT","Forgotten Realms - Adventures in Faerûn_texto.pdf","852139","838456","TEXT_BODY_TITLE_FOUND","NOT_A_BEHAVIORAL_PROOF"
 "FRAIF","ch_11","sec_11_0","Credits","1HpHuBFTlRJiqQCWK7v39YgEvi9Tp1oFT","Forgotten Realms - Adventures in Faerûn_texto.pdf","852139","838493","TEXT_BODY_TITLE_FOUND","NOT_A_BEHAVIORAL_PROOF"
 "ABH","ch_0","sec_0_0","Astarion peruses his written insights about sundry creatures of the night.","1rDyGkKe_btRHAR1P4xULh5enYEUM5Qgs","Astarion_s Book Of Hungers.pdf","69345","-1","ONLY_TOC_OR_FRONT_MATTER","NOT_A_BEHAVIORAL_PROOF"
-"ABH","ch_0","sec_0_1","Using This Supplement","1rDyGkKe_btRHAR1P4xULh5enYEUM5Qgs","Astarion_s Book Of Hungers.pdf","69345","-1","ONLY_TOC_OR_FRONT_MATTER","NOT_A_BEHAVIORAL_PROOF"
+"ABH","ch_0","sec_0_1","Using This Supplement","1rDyGkKe_btRHAR1P4xULh5enYEUM5Qgs","Astarion_s Book Of Hungers.pdf","69345","2303","TEXT_BODY_TITLE_FOUND","NOT_A_BEHAVIORAL_PROOF"
 "ABH","ch_1","sec_1_0","Revelers at this decadent ball in Baldur's Gate don't realize that vampires are in their midst and on the prowl","1rDyGkKe_btRHAR1P4xULh5enYEUM5Qgs","Astarion_s Book Of Hungers.pdf","69345","-1","ONLY_TOC_OR_FRONT_MATTER","NOT_A_BEHAVIORAL_PROOF"
 "ABH","ch_1","sec_1_1","Character Backgrounds","1rDyGkKe_btRHAR1P4xULh5enYEUM5Qgs","Astarion_s Book Of Hungers.pdf","69345","-1","ONLY_TOC_OR_FRONT_MATTER","NOT_A_BEHAVIORAL_PROOF"
 "ABH","ch_1","sec_1_2","Character Species","1rDyGkKe_btRHAR1P4xULh5enYEUM5Qgs","Astarion_s Book Of Hungers.pdf","69345","-1","ONLY_TOC_OR_FRONT_MATTER","NOT_A_BEHAVIORAL_PROOF"

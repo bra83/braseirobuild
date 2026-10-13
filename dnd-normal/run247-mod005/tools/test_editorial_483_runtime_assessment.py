@@ -67,6 +67,49 @@ class Editorial483AssessmentTest(unittest.TestCase):
         self.assertEqual(7, sum(s["next_gate"] == "EXACT_FRAIF_MAGIC_ITEM_EFFECTS_REQUIRED"
                                  for s in fraif))
 
+    def test_stage01_source_locator_and_editorial_classification(self):
+        """483 exact pinned source records; editorial decisions must not be guessed."""
+        import csv
+        from pathlib import Path
+
+        root = audit.ROOT / "docs"
+        def load(name):
+            with (root / name).open(encoding="utf-8-sig", newline="") as f:
+                return list(csv.DictReader(f))
+        matrix = load("PLANO_MESTRE_MATRIZ_10_LIVROS_SECOES.csv")
+        ledger = load("EDITORIAL_SECTION_ACCEPTANCE.csv")
+        provenance = load("EDITORIAL_SOURCE_PROVENANCE_483.csv")
+        anchors = load("SOURCE_BOOK_JSON_ANCHORS_483_20261013.csv")
+        section_key = lambda r: (r["book_id"], r["chapter_id"], r["section_id"])
+        self.assertEqual(483, len(matrix))
+        self.assertEqual(483, len(ledger))
+        self.assertEqual(483, len(provenance))
+        self.assertEqual(483, len(anchors))
+        pm = {section_key(row): row for row in provenance}
+        am = {section_key(row): row for row in anchors}
+        lm = {section_key(row): row for row in ledger}
+        self.assertEqual(483, len(pm))
+        self.assertEqual(set(pm), set(am))
+        self.assertEqual(set(pm), set(lm))
+        reviewed = 0
+        for row in matrix:
+            k = section_key(row)
+            self.assertIn(k, pm)
+            p, a = pm[k], am[k]
+            self.assertEqual(p["source_git_blob_sha1"], a["mirror_json_blob_sha"])
+            self.assertTrue(p["source_commit"] and len(p["source_commit"]) == 40)
+            self.assertTrue(p["json_pointer_to_exact_title"].startswith("/bookData/"))
+            self.assertTrue(a["mirror_json_pointer"].startswith("/bookData/"))
+            self.assertIn(p["source_git_blob_sha1"], row["evidence_of_access"])
+            self.assertIn(a["mirror_json_pointer"], row["evidence_of_access"])
+            self.assertIn("/blob/" + p["source_commit"] + "/", a["source_url"])
+            if row["content_type"] in {"editorial_metadata", "illustration_caption"}:
+                self.assertEqual("NOT_APPLICABLE", lm[k]["status"], k)
+                self.assertTrue(lm[k]["review_note"], k)
+                reviewed += 1
+        self.assertEqual(56, reviewed)
+        self.assertEqual(56, sum(1 for x in ledger if x["status"] == "NOT_APPLICABLE"))
+
     def test_editorial_metadata_is_not_a_gameplay_mechanic(self):
         self.assertEqual("EDITORIAL_ONLY", audit.gameplay_tier(
             "editorial_metadata", "Credits"))
