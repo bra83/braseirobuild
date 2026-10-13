@@ -199,6 +199,11 @@ def inspect(root):
         if reference is None:
             errors.append(f"{ACCEPTANCE}:{i}: seção inexistente na matriz-base: {name}")
             continue
+        if (reference.get("content_type") or "").strip() == "illustration_caption" and status != "NOT_APPLICABLE":
+            errors.append(f"{name}: legenda de ilustração não pode contar como regra não testada/certificada")
+        if status == "NOT_APPLICABLE" and (row.get("review_note") or "").startswith("VERIFIED_NON_RULE_IMAGE: "):
+            if (reference.get("content_type") or "").strip() != "illustration_caption":
+                errors.append(f"{name}: prova de legenda de imagem não corresponde ao tipo de conteúdo")
         if status == "NOT_APPLICABLE":
             reason = (row.get("review_note") or "").strip()
             if not reason or reason.upper() in PLACEHOLDERS:
@@ -235,7 +240,8 @@ def inspect(root):
         "statuses": dict(status_counts),
         "by_book": {k: dict(v) for k, v in by_book.items()},
         "certified": len(validated_sections),
-        "pending": len(ledger_map) - len(validated_sections),
+        "non_rule_items": status_counts["NOT_APPLICABLE"],
+        "pending": len(ledger_map) - len(validated_sections) - status_counts["NOT_APPLICABLE"],
         "errors": errors
     }
 
