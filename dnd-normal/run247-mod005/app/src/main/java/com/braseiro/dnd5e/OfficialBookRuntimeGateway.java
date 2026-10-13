@@ -71,6 +71,14 @@ public final class OfficialBookRuntimeGateway {
         try {
             if ("list_feats".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("feats", astarion.listVampiricFeats());
             if ("epic_boon".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("result", astarion.getEpicBoon(in.optString("boon")));
+            if ("feat_feature".equals(action)) {
+                String rule=in.optString("feature_id","");
+                JSONObject result=new AstarionPdfFeatRulesEngine().evaluate(rule,in);
+                return new JSONObject().put("executed",result.optBoolean("resolved",false))
+                        .put("status",result.optBoolean("resolved",false)?"manual_application_required":"blocked")
+                        .put("auto_mutation_allowed",false).put("persisted",false)
+                        .put("result",result);
+            }
             if ("bloodlust_powerful_recovery".equals(action)) {
                 JSONObject result=astarion.evaluateBloodlustRecovery(
                         in.optInt("rolled_hit_die",0), in.optInt("hit_die_sides",0));
