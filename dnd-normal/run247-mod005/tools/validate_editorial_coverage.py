@@ -175,6 +175,7 @@ def inspect(root):
             errors.append(f"{SECTIONS}:{i}: seção duplicada {k}")
         section_map[k] = row
     ledger_map = {}
+    certified_assertions = {}
     status_counts = Counter()
     by_book = {b: Counter() for b in sorted(BOOKS)}
     for i, row in enumerate(ledger, 2):
@@ -202,6 +203,14 @@ def inspect(root):
                 errors.append(f"{name}: NOT_APPLICABLE exige justificativa editorial individual")
         if status == "IMPLEMENTED_AND_TESTED":
             validate_evidence(row, root, errors)
+            # Every accepted editorial section must have its OWN executable JUnit
+            # method. A generic shared test may still check runtime inventory,
+            # but it cannot certify 149 distinct book sections by implication.
+            assertion = (row.get("assertion_id") or "").strip()
+            if assertion in certified_assertions:
+                errors.append(f"{name}: assertion_id compartilhado com {certified_assertions[assertion]}: {assertion}")
+            else:
+                certified_assertions[assertion] = name
         else:
             if (row.get("actual_result") or "").strip() == "VERIFIED_PASSED":
                 errors.append(f"{name}: resultado VERiFIED_PASSED falso para estado {status}")
