@@ -364,5 +364,10 @@ def test_leadership_checks_and_approval_effects_reach_real_runtime():
     assert 'new JSONObject().put("unrest",unrest)' in SOURCE
     assert 'public JSONObject resolveNewLeadershipApproval(' in SOURCE
     assert 'status.put("approval_pending",false)' in SOURCE
-    assert 'kingmakerRepository.resolveKingdomActivity("new_leadership",args)' in (ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java").read_text(encoding="utf-8")
+    assert '!"EVENT".equals(turn.optString("phase"))' in SOURCE
+    assert 'Mudança oficial de cargo' in SOURCE
+    assert 'if(!p.has("natural_roll"))throw new IllegalArgumentException' in SOURCE
+    main=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java").read_text(encoding="utf-8")
+    assert 'kingmakerRepository.resolveKingdomActivity("new_leadership",args)' in main
+    assert 'kingmakerRepository.resolveKingdomActivity("new_leadership_approval",args)' in main
     assert (ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerLeadershipSemantics.java").exists()
