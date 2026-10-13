@@ -278,6 +278,55 @@ public final class KingmakerCompanionSemantics {
   if(companionKey==null||questLevel(companionKey)==0)throw new IllegalArgumentException("Companheiro sem aventura publicada: "+companionKey);
   if(branchKey==null||branchKey.trim().length()==0)throw new IllegalArgumentException("Ramificação da aventura é obrigatória.");
   String b=branchKey.trim();
+  // Production companion quests carry their published branches in progress_json.
+  // Never fall through to historical hard-coded outcomes for a live quest:
+  // the legacy IDs differ from the actual seven adventure definitions.
+  JSONArray canonicalBranches=currentProgress==null?null:currentProgress.optJSONArray("branches");
+  if(canonicalBranches!=null){
+   JSONObject selected=null;
+   for(int i=0;i<canonicalBranches.length();i++){
+    JSONObject candidate=canonicalBranches.optJSONObject(i);
+    if(candidate!=null&&b.equals(candidate.optString("branch_key"))){
+     if(selected!=null)throw new IllegalStateException("Desfecho duplicado no catálogo: "+b);
+     selected=candidate;
+    }
+   }
+   if(selected==null)throw new IllegalArgumentException("Desfecho não publicado para "+companionKey+": "+b);
+   int priorInfluence=companionBefore.optInt("influence",0);
+   int delta=selected.optInt("influence_delta",0);
+   int nextInfluence=Math.max(0,priorInfluence+delta);
+   int nextAvailable=selected.optBoolean("available_after",true)?1:0;
+   String nextAttitude=selected.optString("attitude_after",attitudeForInfluence(companionKey,nextInfluence));
+   String unlocked=selected.optString("feature_unlocked","");
+   JSONArray historyAfter=rewardHistory(companionBefore,nextInfluence,nextAttitude,history(companionBefore));
+   if(unlocked.length()>0&&!has(historyAfter,unlocked))historyAfter.put(unlocked);
+   String alignment=selected.optString("alignment_after","");
+   if("nok_nok".equals(companionKey)&&alignment.length()>0){
+    JSONArray cleanRewards=new JSONArray();
+    for(int i=0;i<historyAfter.length();i++)if(!historyAfter.optString(i).startsWith("nok_nok_alignment:"))cleanRewards.put(historyAfter.optString(i));
+    cleanRewards.put("nok_nok_alignment:"+alignment);historyAfter=cleanRewards;
+   }
+   // Source-defined automatic rewards are quarantined until the exact
+   // book loot/XP has been certified; never mint invented inventory/XP.
+   boolean rewardsCertified=currentProgress.optBoolean("automatic_rewards_compiled",false);
+   int xpCertified=rewardsCertified?selected.optInt("xp_awarded",0):0;
+   JSONArray itemsCertified=new JSONArray();
+   if(rewardsCertified){
+    JSONArray sourceItems=selected.optJSONArray("items_awarded");
+    if(sourceItems!=null)for(int i=0;i<sourceItems.length();i++)itemsCertified.put(sourceItems.optString(i));
+   }
+   JSONObject nextProgress=new JSONObject(currentProgress.toString());
+   String summary=selected.optString("description",selected.optString("title"));
+   nextProgress.put("branch_resolved",b).put("branch_summary",summary)
+    .put("xp_awarded",xpCertified).put("items_awarded",itemsCertified).put("journal_started",true);
+   return new JSONObject().put("companion_key",companionKey).put("branch_key",b)
+    .put("summary",summary).put("influence_before",priorInfluence)
+    .put("influence_delta",delta).put("influence_after",nextInfluence)
+    .put("attitude_after",nextAttitude).put("available_after",nextAvailable)
+    .put("xp_awarded",xpCertified).put("items_awarded",itemsCertified)
+    .put("feature_unlocked",unlocked).put("unlocked_rewards_json",historyAfter)
+    .put("progress",nextProgress);
+  }
   int infDelta=0,xp=80,availableAfter=companionBefore.optInt("available",1);
   String alignAfter="",feature="",summary="";
   JSONArray items=new JSONArray();
