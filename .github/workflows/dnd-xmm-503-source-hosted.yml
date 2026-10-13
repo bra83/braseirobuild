@@ -1,0 +1,51 @@
+name: Braseiro D&D XMM - independent 503 source audit (hosted)
+on:
+  push:
+    branches:
+      - antigravity/dnd-normal-fechamento-gates
+    paths:
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Xmm2025SourceIndex.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Xmm2025BookIndex.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Xmm2025CompiledBestiaryEngine.java'
+      - 'dnd-normal/run247-mod005/tools/verify_xmm_503_source.py'
+      - 'dnd-normal/run247-mod005/tools/test_verify_xmm_503_source.py'
+      - '.github/workflows/dnd-xmm-503-source-hosted.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dnd-xmm-source-hosted
+  cancel-in-progress: true
+jobs:
+  independent-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: dnd-normal/run247-mod005
+    steps:
+      - name: Checkout pinned D&D project, never touch Mystara
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify negative-path tests
+        run: python -m unittest discover -s tools -p 'test_verify_xmm_503_source.py' -v
+      - name: Independently compare all XMM 503 records and 36 source sections
+        run: python tools/verify_xmm_503_source.py --json-out build/xmm-503/source-report.json
+      - name: Assert real provenance and no fictitious full automation
+        run: |
+          python - <<'PY'
+          import json
+          x=json.load(open('build/xmm-503/source-report.json',encoding='utf-8'))
+          assert x['source_monsters_compared']==503
+          assert x['editorial_sections_compared']==36
+          assert x['recharge_actions_compared']==120
+          assert x['spellcaster_records_compared']==132
+          assert x['source_field_and_catalog_gate_pass']
+          assert not x['full_monster_combat_automation_certified']
+          print('XMM_503_PINNED_SOURCE_AUDIT=PASS; COMBAT_AUTOMATION_NOT_CLAIMED')
+          PY
