@@ -21,6 +21,7 @@ public final class AstarionHungersRulesEngine {
         boolean eligible=!"construct".equals(type)&&!"constructo".equals(type)&&!"undead".equals(type)&&!"morto-vivo".equals(type)&&!"morto vivo".equals(type);
         boolean useAvailable=spent<pb,validChoice="drain".equals(pick)||"drenar".equals(pick)||"strengthen".equals(pick)||"fortalecer".equals(pick);
         res.put("eligible_target",eligible).put("uses_max",pb).put("uses_spent_before",spent).put("use_available",useAvailable).put("auto_rolls",false).put("source_verified",true);
+        if(piercingDamage<=0||type.isEmpty()||proficiencyBonus<1||usesSpent<0){res.put("resolved",false).put("reason","valid_damage_target_and_resources_required");return res;}
         if(!eligible||!useAvailable||!validChoice){res.put("resolved",false).put("requires_choice",eligible&&useAvailable&&!validChoice);return res;}
         res.put("resolved",true).put("uses_spent_after",spent+1).put("choice",pick);
         if("drain".equals(pick)||"drenar".equals(pick))res.put("healing",Math.max(0,piercingDamage));
