@@ -60,7 +60,7 @@ public final class XmmProneEffectRobolectricTest {
             new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
             position(db,actor,2,2);position(db,target,3,2);
             JSONObject hit=db.applyCompiledStatblockAttack(actor,target,monster,actionName,
-                19,19,rolled,0,0,-1,-1,"ui-monster-prone-matrix-"+ordinal);
+                19,0,rolled,0,0,-1,-1,"ui-monster-prone-matrix-"+ordinal);
             assertTrue(monster+" / "+actionName+": "+hit,hit.optBoolean("statblock_attack_committed"));
             assertTrue(monster+" / "+actionName,
                 ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"prone"));
