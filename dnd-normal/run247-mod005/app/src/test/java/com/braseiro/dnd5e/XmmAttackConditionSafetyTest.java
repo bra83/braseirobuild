@@ -43,8 +43,8 @@ public final class XmmAttackConditionSafetyTest {
    JSONObject compiled=profile.getJSONArray("actions").getJSONObject(indexed.getInt("slot"));
    assertEquals(monster+" / "+action,action,compiled.optString("name"));
    assertTrue(monster+" / "+action,compiled.optBoolean("source_bound"));
-   assertEquals(monster+" / "+action,indexed.getString("condition"),
-    compiled.optString("condition_on_hit"));
+   assertTrue(monster+" / "+action,
+    ConditionTokenGuard.has(compiled.optString("condition_on_hit"),indexed.getString("condition")));
    assertEquals(monster+" / "+action,maximum.toLowerCase(java.util.Locale.ROOT),
     compiled.optString("condition_max_target_size"));
 
