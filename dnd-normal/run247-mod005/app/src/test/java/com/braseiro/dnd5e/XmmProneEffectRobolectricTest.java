@@ -59,8 +59,14 @@ public final class XmmProneEffectRobolectricTest {
             db.setCombatRunning(true);assertEquals(actor,db.nextTurn().optLong("id"));
             new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
             position(db,actor,2,2);position(db,target,3,2);
+            // An adjacent ranged attack can require disadvantage. Supply both
+            // physical d20 faces only when the authoritative preflight requires them.
+            JSONObject preview=db.previewCompiledMonsterAttackRollMode(actor,target,monster,actionName);
+            assertTrue(monster+" / "+actionName+": "+preview,
+                preview.optBoolean("monster_roll_preview_valid"));
+            int secondNatural=preview.optBoolean("second_d20_required")?19:0;
             JSONObject hit=db.applyCompiledStatblockAttack(actor,target,monster,actionName,
-                19,0,rolled,0,0,-1,-1,"ui-monster-prone-matrix-"+ordinal);
+                19,secondNatural,rolled,0,0,-1,-1,"ui-monster-prone-matrix-"+ordinal);
             assertTrue(monster+" / "+actionName+": "+hit,hit.optBoolean("statblock_attack_committed"));
             assertTrue(monster+" / "+actionName,
                 ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"prone"));
