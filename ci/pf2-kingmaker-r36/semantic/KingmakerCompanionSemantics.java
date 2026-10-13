@@ -342,7 +342,9 @@ public final class KingmakerCompanionSemantics {
       throw new IllegalStateException("Ekundayo permanece com os PJs por romance ou Request aceito.");
     }
    }
-   String nextAttitude=nextAvailable==0?"unfriendly":attitudeForInfluence(companionKey,nextInfluence);
+   String nextAttitude="ekundayo".equals(companionKey)
+    ?(nextAvailable==0?"unfriendly":attitudeForInfluence(companionKey,nextInfluence))
+    :selected.optString("attitude_after",attitudeForInfluence(companionKey,nextInfluence));
    String unlocked=selected.optString("feature_unlocked","");
    JSONArray historyAfter=rewardHistory(companionBefore,nextInfluence,nextAttitude,history(companionBefore));
    if(unlocked.length()>0&&!has(historyAfter,unlocked))historyAfter.put(unlocked);
