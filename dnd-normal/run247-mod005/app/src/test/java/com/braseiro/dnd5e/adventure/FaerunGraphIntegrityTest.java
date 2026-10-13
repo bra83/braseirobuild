@@ -21,7 +21,7 @@ public final class FaerunGraphIntegrityTest {
         for (AdventureModule module : modules) {
             Map<String, AdventureNode> nodes = module.getNodes();
             assertNotNull(module.getId(), nodes.get("setup"));
-            assertNotNull(module.getId(), nodes.get("completed"));
+            // "completed" is the AdventureEngine terminal sentinel, not a stored node.
 
             Set<String> visited = new HashSet<>();
             ArrayDeque<String> pending = new ArrayDeque<>();
@@ -30,6 +30,7 @@ public final class FaerunGraphIntegrityTest {
             while (!pending.isEmpty()) {
                 String nodeId = pending.removeFirst();
                 if (!visited.add(nodeId)) continue;
+                if ("completed".equals(nodeId)) continue;
                 AdventureNode node = nodes.get(nodeId);
                 assertNotNull(module.getId() + " has dangling target " + nodeId, node);
                 Set<String> actionIds = new HashSet<>();
@@ -40,13 +41,15 @@ public final class FaerunGraphIntegrityTest {
                             actionIds.add(transition.getId()));
                     String target = transition.getTargetNodeId();
                     assertTrue(module.getId() + "/" + nodeId + ": dangling target " + target,
-                            nodes.containsKey(target));
+                            "completed".equals(target) || nodes.containsKey(target));
                     if (transition.getEffects().length() > 0) meaningfulTransitions++;
                     pending.addLast(target);
                 }
             }
             assertTrue(module.getId() + ": ending cannot be reached", visited.contains("completed"));
-            assertEquals(module.getId() + ": unreachable scenes or orphan nodes", nodes.keySet(), visited);
+            Set<String> reachableScenes = new HashSet<>(visited);
+            reachableScenes.remove("completed");
+            assertEquals(module.getId() + ": unreachable scenes or orphan nodes", nodes.keySet(), reachableScenes);
             assertTrue(module.getId() + ": consequences absent from player choices",
                     meaningfulTransitions >= 2);
         }
