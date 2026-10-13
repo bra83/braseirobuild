@@ -556,6 +556,8 @@ public final class OfficialBookRuntimeGateway {
 
     private JSONObject executeXsac(String action, JSONObject in) {
         try {
+            if ("rules_references".equals(action) || "bibliography".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("result", sageAdvice.rulesReferences());
+            if ("official_rulings".equals(action) || "ruling_policy".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("result", sageAdvice.officialRulingsPolicy());
             if ("coverage".equals(action) || "descriptor".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("result", sageAdvice.coverage());
             if ("categories".equals(action) || "list_categories".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("categories", sageAdvice.categories());
             if ("resolve".equals(action) || "ruling".equals(action)) { JSONObject r = sageAdvice.resolve(in.optString("rule_id"), in); return new JSONObject().put("executed", r.optBoolean("resolved", false)).put("status", r.optString("status", r.optBoolean("resolved", false) ? "resolved" : "blocked")).put("auto_mutation_allowed", false).put("result", r); }

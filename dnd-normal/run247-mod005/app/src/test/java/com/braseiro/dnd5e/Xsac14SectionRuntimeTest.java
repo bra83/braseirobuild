@@ -32,13 +32,24 @@ public final class Xsac14SectionRuntimeTest {
         assertEquals("XSAC:"+sectionId,163,cov.optInt("source_rulings"));
         assertFalse("XSAC:"+sectionId,cov.optBoolean("auto_rolls",true));
         if ("rules_references".equals(key)) {
-            assertEquals("xsac",cov.optString("source_id"));
-            assertFalse(cov.optString("source_sha").isEmpty());
+            JSONObject ref=engine.rulesReferences();
+            assertEquals("sec_0_0",ref.getString("section_id"));
+            assertEquals(3,ref.getJSONArray("core_rulebook_ids").length());
+            assertEquals("XPHB",ref.getJSONArray("core_rulebook_ids").getString(0));
+            assertEquals("XMM",ref.getJSONArray("core_rulebook_ids").getString(1));
+            assertEquals("XDMG",ref.getJSONArray("core_rulebook_ids").getString(2));
+            assertEquals("https://www.dndbeyond.com/sources/dnd/sae",ref.getString("errata_url"));
+            assertFalse(ref.getBoolean("auto_mutation_allowed"));
             return;
         }
         if ("official_rulings".equals(key)) {
+            JSONObject policy=engine.officialRulingsPolicy();
+            assertEquals("sec_0_1",policy.getString("section_id"));
+            assertTrue(policy.getBoolean("dm_has_final_say"));
+            assertTrue(policy.getBoolean("official_rulings_in_sage_advice"));
+            assertFalse(policy.getBoolean("public_statements_are_official_rulings"));
+            assertEquals("MANUAL_DM",policy.getString("resolution_mode"));
             assertEquals(163,cov.optInt("classified_rulings"));
-            assertTrue(cov.optBoolean("dm_final_say",false));
             return;
         }
         int actual=0;

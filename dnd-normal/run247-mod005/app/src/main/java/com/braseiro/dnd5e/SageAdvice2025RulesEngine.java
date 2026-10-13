@@ -100,6 +100,32 @@ public final class SageAdvice2025RulesEngine {
                 .put("spellcasting").put("monsters").put("magic_items");
     }
 
+    /** Structural references from XSAC "Rules References" (not a reproduction of the books). */
+    public JSONObject rulesReferences() throws Exception {
+        return new JSONObject()
+                .put("source_id", SOURCE_ID)
+                .put("section_id", "sec_0_0")
+                .put("core_rulebook_ids", new JSONArray().put("XPHB").put("XMM").put("XDMG"))
+                .put("errata_url", "https://www.dndbeyond.com/sources/dnd/sae")
+                .put("source_commit", XsacSourceLocator.SOURCE_COMMIT)
+                .put("source_blob_sha1", XsacSourceLocator.SOURCE_BLOB_SHA1)
+                .put("auto_mutation_allowed", false);
+    }
+
+    /** XSAC "Official Rulings": the DM remains the final adjudicator. */
+    public JSONObject officialRulingsPolicy() throws Exception {
+        return new JSONObject()
+                .put("source_id", SOURCE_ID)
+                .put("section_id", "sec_0_1")
+                .put("official_rulings_in_sage_advice", true)
+                .put("public_statements_are_official_rulings", false)
+                .put("dm_has_final_say", true)
+                .put("resolution_mode", "MANUAL_DM")
+                .put("source_commit", XsacSourceLocator.SOURCE_COMMIT)
+                .put("auto_rolls", false)
+                .put("auto_mutation_allowed", false);
+    }
+
     /** Resolve uma clarificação por ID sem tocar no estado do jogo. */
     public JSONObject resolve(String rawId, JSONObject input) throws Exception {
         final String id = norm(rawId);
