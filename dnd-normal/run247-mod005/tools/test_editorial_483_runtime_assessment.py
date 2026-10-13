@@ -26,9 +26,19 @@ class Editorial483AssessmentTest(unittest.TestCase):
                          report["pending_semantic_certification"]
                          + report["source_verified_and_semantic_passed"]
                          + report["non_rule_items"])
-        self.assertEqual(non_rules, report["non_rule_items"])
-        # Count is sourced from live 483-row classifications, not a stale
-        # constant from an earlier editorial snapshot (46 became 63).
+        # Source metadata makes a section a possible non-rule; only a
+        # justified NOT_APPLICABLE entry is actually reviewed. The latest
+        # inventory has 63 candidates, 46 reviewed and 17 still pending.
+        self.assertEqual(non_rules, report["editorial_only_candidates"])
+        self.assertEqual(
+            non_rules - report["non_rule_items"],
+            report["editorial_only_pending_review"])
+        self.assertEqual(
+            report["editorial_only_pending_review"],
+            len(report["editorial_only_pending_review_ids"]))
+        self.assertEqual(
+            len(set(report["editorial_only_pending_review_ids"])),
+            report["editorial_only_pending_review"])
         self.assertGreater(non_rules, 0)
         self.assertLess(non_rules, report["sections_evaluated"])
         self.assertEqual(483, len(set(r["key"] for r in report["sections"])))
