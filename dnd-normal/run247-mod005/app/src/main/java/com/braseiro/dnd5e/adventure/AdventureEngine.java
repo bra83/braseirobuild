@@ -27,6 +27,10 @@ public final class AdventureEngine implements IAdventureEngine {
         if(module==null){return error("Módulo de aventura ausente.");}
         if(module.getNode(module.getRootNodeId())==null)return error("Módulo inválido: nó inicial ausente.");
         if(!persistenceAdapter.saveModule(module))return error("Falha ao persistir módulo da aventura.");
+        // An unreadable new campaign must never leave the previous one
+        // attached under another module ID or expose its narrator context.
+        graphEngine.clearSession();
+        activeState=null;
         activeModule=module;activePartyId=partyId;
         AdventureState loaded=persistenceAdapter.loadStateForStart(module.getId(),partyId);
         JSONObject res;
