@@ -450,3 +450,42 @@ def test_companion_branch_ids_are_executable_and_ekundayo_matches_primary_guide(
     assert hazard["level"]==6 and hazard["saving_throw_dc"]==24
     assert hazard["support"]["hp_current"]==10 and hazard["support"]["hardness"]==10
     assert bridge["treasure"]["silver_pieces"]==25 and bridge["treasure"]["gold_pieces"]==12
+
+
+def test_ekundayo_book_outcomes_persist_in_actual_journal_and_sheets():
+    """Companion Guide pp.27–31: checks -> saved quest -> source outcomes -> published XP."""
+    import json
+    catalog=json.loads((ROOT/"android/app/src/main/assets/pathfinder/kingmaker/chapters/chapter_12_companion_stories.json").read_text(encoding="utf-8"))
+    q=next(x for x in catalog["quests"] if x["quest_key"]=="q_cg_ekundayo")
+    progress=q["progress_json"]
+    assert progress["feast_points_target"]==5
+    assert progress["feast_xp_if_5_victory_points"]==30
+    assert progress["feast_xp_otherwise"]==10
+    assert progress["extra_xp_if_ntavi_does_not_recruit_ekundayo"]==10
+    assert set(progress["ntavi_conversation_results"])=={"CRITICAL_SUCCESS","SUCCESS","FAILURE","CRITICAL_FAILURE"}
+    assert progress["ntavi_conversation_results"]["CRITICAL_FAILURE"]["false_silverstep_clue"]
+    outcomes=progress["branches"]
+    assert len(outcomes)==2
+    assert outcomes[0]["available_after"] is True
+    assert outcomes[1]["available_after"] is False
+    assert all(not b["items_awarded"] and b["xp_awarded"]==0 for b in outcomes)
+    scene=next(x for x in progress["scenes"] if x["code"]=="STANDOFF")
+    assert {e["npc_key"]:(e["count"],e["level"]) for e in scene["enemies"]}=={
+        "cg_gragglebeard":(1,7),"cg_reaver_ogre_warrior":(4,3),"cg_reaver_wyvern":(1,6)}
+    assert scene["treasure"]["items"]==["+1 falchion","fear gem talisman","mentalist's staff","spellguard shield"]
+    semantic=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerCompanionSemantics.java").read_text(encoding="utf-8")
+    for literal in ['"ntavi_interruption_degree"','"ntavi_recruitment_prevented"',
+                    '"ntavi_false_silverstep_clue"','"feast_participated"',
+                    'currentProgress.optBoolean("feast_success",false)?30:10',
+                    'nextInfluence=Math.max(nextInfluence,8)',
+                    '"ekundayo_romance_with_pc"']:
+        assert literal in semantic
+    assert 'db.runInTransactionChecked' in method_body('public JSONObject resolveCompanionAdventureCheck(')
+    assert 'db.runInTransactionChecked' in method_body('public JSONObject resolveCompanionAdventureBranch(')
+    journal=method_body('public JSONObject resolveCompanionAdventureCheck(')
+    assert 'progress.put("ekundayo_helpful"' in journal
+    main=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java").read_text(encoding="utf-8")
+    assert 'showKingmakerCompanionSkillChecks' in main
+    assert 'showKingmakerCompanionSkillRoll' in main
+    assert 'availableDcs.get(chosenDc.getSelectedItemPosition())' in main
+    assert 'kingmakerRepository.resolveCompanionAdventureCheck(companion,' in main
