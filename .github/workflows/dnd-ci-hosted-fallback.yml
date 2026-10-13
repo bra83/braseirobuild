@@ -1,16 +1,5 @@
 name: Braseiro D&D - Hosted regression fallback
 on:
-  push:
-    branches:
-      - antigravity/dnd-normal-fechamento-gates
-    paths:
-      - 'dnd-normal/run247-mod005/app/src/**'
-      - 'dnd-normal/run247-mod005/app/build.gradle*'
-      - 'dnd-normal/run247-mod005/build.gradle*'
-      - 'dnd-normal/run247-mod005/gradle/**'
-      - 'dnd-normal/run247-mod005/docs/**'
-      - 'dnd-normal/run247-mod005/tools/**'
-      - '.github/workflows/dnd-ci-hosted-fallback.yml'
   workflow_dispatch:
 permissions:
   contents: read
