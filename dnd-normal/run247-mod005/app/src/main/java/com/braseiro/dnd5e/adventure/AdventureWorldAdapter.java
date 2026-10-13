@@ -26,6 +26,9 @@ public final class AdventureWorldAdapter {
      */
     public synchronized boolean applyNodeConsequences(AdventureNode targetNode, JSONObject resolution) {
         if (targetNode == null || db == null) return false;
+        // Este executor pertence exclusivamente ao Braseiro D&D Normal.
+        // Nunca aplicar migração/avanço de aventura a um perfil Mystara congelado.
+        if (!"dnd".equals(db.getActiveMapProfile())) return false;
         try {
             final String locationId = targetNode.getLocationId();
             if (locationId != null && locationId.length() > 0) {
