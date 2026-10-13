@@ -55,9 +55,13 @@ public final class XmmAttackConditionSafetyTest {
    JSONArray proposed=hit.getJSONArray("proposed_conditions");assertEquals(monster+" / "+action,1,proposed.length());
    JSONObject condition=proposed.getJSONObject(0);
    assertEquals(monster+" / "+action,indexed.getString("condition"),condition.optString("condition"));
-   if("grappled".equals(indexed.getString("condition")))
+   if("grappled".equals(indexed.getString("condition"))) {
     assertEquals(monster+" / "+action,indexed.getInt("dc"),condition.optInt("escape_dc"));
-   else assertFalse(monster+" / "+action,condition.has("escape_dc"));
+    assertEquals(monster+" / "+action,indexed.getInt("dc"),compiled.optInt("escape_dc"));
+   } else {
+    assertFalse(monster+" / "+action,condition.has("escape_dc"));
+    assertEquals(monster+" / "+action,"stands_up",compiled.optString("condition_ends_when"));
+   }
    assertEquals(monster+" / "+action,indexed.optBoolean("other"),
     hit.optBoolean("additional_source_effects_manual"));
    assertFalse(monster+" / "+action,hit.optBoolean("condition_applied"));
