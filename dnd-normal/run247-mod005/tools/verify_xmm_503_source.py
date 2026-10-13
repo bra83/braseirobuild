@@ -17,6 +17,7 @@ JAVA_SPELLS="app/src/main/java/com/braseiro/dnd5e/Xmm2025SpellUsageIndex.java"
 JAVA_TRAITS="app/src/main/java/com/braseiro/dnd5e/Xmm2025TraitMechanicsEngine.java"
 JAVA_RUNTIME="app/src/main/java/com/braseiro/dnd5e/Xmm2025CompiledBestiaryEngine.java"
 JAVA_ATTACK_CONDITIONS="app/src/main/java/com/braseiro/dnd5e/Xmm2025AttackConditionEngine.java"
+JAVA_SAVE_DAMAGE="app/src/main/java/com/braseiro/dnd5e/Xmm2025SaveDamageEngine.java"
 LITERAL=re.compile(r'^\s*("(?:\\.|[^"\\])*")\s*,?\s*$',re.M)
 RCH=re.compile(r'\s*\{@recharge(?: (\d))?\}')
 SP=re.compile(r'\{@spell ([^|}]+)')
@@ -100,6 +101,50 @@ def check_grapple_escape_riders(source, compiled, contracts, expected_count=36):
             checked+=1
     if checked!=expected_count:
         problems.append("GRAPPLE_ESCAPE_RECORD_COUNT:"+str(checked))
+    return problems,checked
+
+SAVE_DAMAGE=re.compile(r"\{@actSave\s+(str|dex|con|int|wis|cha)\}\s*\{@dc\s*(\d+)\}"
+    r".*?(\d+)\s*\(\{@damage\s+([^}]+)\}\)\s+([A-Za-z]+) damage\.",re.I|re.S)
+def check_save_damage_actions(source, contracts, expected_count=59):
+    """Bind every simple save-for-half contract to its pinned source action."""
+    problems=[]; checked=0; seen=set()
+    for row in contracts:
+        monster=row.get("id",""); name=row.get("name",""); category=row.get("category","")
+        pointer=row.get("source_pointer","")
+        if pointer in seen:
+            problems.append(monster+":"+name+":DUPLICATE_SAVE_SOURCE_POINTER"); continue
+        seen.add(pointer)
+        match=re.fullmatch(r"/monster/(\d+)/(action|bonus)/(\d+)/entries/0",pointer)
+        if not match:
+            problems.append(monster+":"+name+":INVALID_SAVE_SOURCE_POINTER"); continue
+        mi,source_category,slot=match.group(1),match.group(2),int(match.group(3))
+        if source_category != category:
+            problems.append(monster+":"+name+":SAVE_CATEGORY_MISMATCH"); continue
+        try:
+            src=source[int(mi)]
+            actions=src.get(source_category,[])
+            action=actions[slot]
+        except (IndexError,TypeError):
+            problems.append(monster+":"+name+":SAVE_ACTION_MISSING"); continue
+        if src.get("name")!=monster or RCH.sub("",action.get("name","")).strip()!=name:
+            problems.append(monster+":"+name+":SAVE_ACTION_SLOT_MISMATCH"); continue
+        entries=action.get("entries",[])
+        text=entries[0] if entries and isinstance(entries[0],str) else ""
+        parsed=SAVE_DAMAGE.search(text)
+        if not parsed:
+            problems.append(monster+":"+name+":SOURCE_NOT_SIMPLE_SAVE_FOR_HALF"); continue
+        ability,dc,average,dice,damage_type=(parsed.group(1).lower(),int(parsed.group(2)),
+            int(parsed.group(3)),parsed.group(4).strip(),parsed.group(5).lower())
+        success=re.search(r"\{@actSaveSuccess\}\s*Half damage\.",text,re.I)
+        if not success:
+            problems.append(monster+":"+name+":SOURCE_SUCCESS_DAMAGE_RULE_MISMATCH"); continue
+        source_recharge="{@recharge" in action.get("name","")
+        if (row.get("ability")!=ability or row.get("dc")!=dc or row.get("average")!=average or
+            row.get("dice")!=dice or row.get("damage_type","").lower()!=damage_type or
+            row.get("recharge")!=source_recharge):
+            problems.append(monster+":"+name+":SAVE_DAMAGE_SEMANTICS_MISMATCH"); continue
+        checked+=1
+    if checked!=expected_count: problems.append("SAVE_DAMAGE_RECORD_COUNT:"+str(checked))
     return problems,checked
 
 
@@ -321,6 +366,7 @@ def check(project, bestiary_bytes, book_bytes):
     bookrows=java_rows((project/JAVA_BOOK).read_text(encoding="utf-8"))
     spellrows=java_rows((project/JAVA_SPELLS).read_text(encoding="utf-8"))
     traitrows=java_rows((project/JAVA_TRAITS).read_text(encoding="utf-8"))
+    save_damage_rows=java_rows((project/JAVA_SAVE_DAMAGE).read_text(encoding="utf-8"))
     if traitrows!=trait_rows(src):
         raise ValueError("XMM_178_TRAIT_SOURCE_INDEX_MISMATCH")
     expected_usage=usage_rows(src)
@@ -328,11 +374,13 @@ def check(project, bestiary_bytes, book_bytes):
         raise ValueError("XMM_132_SPELLCASTING_USAGE_MISMATCH")
 
     monster_errors,totals=check_monsters(src,index,compiled,attack_contracts)
+    save_errors,save_count=check_save_damage_actions(src,save_damage_rows)
     section_errors=check_book(book,bookrows)
-    if monster_errors or section_errors:
+    if monster_errors or section_errors or save_errors:
         raise ValueError("XMM_SOURCE_MISMATCH:"+json.dumps(
             {"monsters":monster_errors[:20],"monster_count":len(monster_errors),
-             "sections":section_errors[:20],"section_count":len(section_errors)}))
+             "sections":section_errors[:20],"section_count":len(section_errors),
+             "save_damage":save_errors[:20],"save_damage_count":len(save_errors)}))
     return {"format":"XMM_INDEPENDENT_SOURCE_MATCH_V1","source_commit":PIN,
         "bestiary_git_blob_sha1":BESTIARY_SHA,"book_git_blob_sha1":BOOK_SHA,
         "source_monsters_compared":503,"editorial_sections_compared":36,
@@ -342,6 +390,7 @@ def check(project, bestiary_bytes, book_bytes):
         "grapple_escape_records_compared":totals["grapple_escape_records"],
         "source_trait_contracts_compared":len(traitrows),
         "source_trait_families_compared":len({r["kind"] for r in traitrows}),
+        "source_save_damage_actions_compared":save_count,
         "source_field_and_catalog_gate_pass":True,
         "full_monster_combat_automation_certified":False}
 

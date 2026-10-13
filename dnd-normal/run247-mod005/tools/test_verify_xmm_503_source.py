@@ -82,6 +82,33 @@ class XmmIndependentSourceTests(unittest.TestCase):
         compiled[0]["actions"][0]["save_dc"]=13
         errors,_=xmm.check_grapple_escape_riders(source,compiled,contracts,1)
         self.assertEqual(["Ankheg:Bite:ESCAPE_DC_MISCLASSIFIED","GRAPPLE_ESCAPE_RECORD_COUNT:0"],errors)
+    def test_save_damage_contract_is_compared_to_source_behavior(self):
+        source=[{"name":"Test Dragon","action":[{"name":"Fire Breath {@recharge 5}",
+          "entries":["{@actSave dex} {@dc 14}, each creature. {@actSaveFail} 21 ({@damage 6d6}) Fire damage. {@actSaveSuccess} Half damage."]}]}]
+        row={"id":"Test Dragon","name":"Fire Breath","category":"action",
+          "slot":0,"source_pointer":"/monster/0/action/0/entries/0","ability":"dex",
+          "dc":14,"average":21,"dice":"6d6","damage_type":"fire","recharge":True}
+        errors,count=xmm.check_save_damage_actions(source,[row],1)
+        self.assertEqual([],errors); self.assertEqual(1,count)
+        row["dc"]=15
+        errors,_=xmm.check_save_damage_actions(source,[row],1)
+        self.assertEqual(["Test Dragon:Fire Breath:SAVE_DAMAGE_SEMANTICS_MISMATCH",
+                          "SAVE_DAMAGE_RECORD_COUNT:0"],errors)
+        row["dc"]=14
+        errors,_=xmm.check_save_damage_actions(source,[row,row.copy()],1)
+        self.assertEqual(["Test Dragon:Fire Breath:DUPLICATE_SAVE_SOURCE_POINTER"],errors)
+    def test_save_damage_contract_rejects_wrong_slot_and_extra_effect_shape(self):
+        source=[{"name":"Test Dragon","action":[{"name":"Other","entries":["No save."]}]}]
+        row={"id":"Test Dragon","name":"Fire Breath","category":"action",
+          "source_pointer":"/monster/0/action/0/entries/0","ability":"dex",
+          "dc":14,"average":21,"dice":"6d6","damage_type":"fire","recharge":True}
+        errors,_=xmm.check_save_damage_actions(source,[row],1)
+        self.assertEqual(["Test Dragon:Fire Breath:SAVE_ACTION_SLOT_MISMATCH",
+                          "SAVE_DAMAGE_RECORD_COUNT:0"],errors)
+        source[0]["action"][0]["name"]="Fire Breath"
+        errors,_=xmm.check_save_damage_actions(source,[row],1)
+        self.assertEqual(["Test Dragon:Fire Breath:SOURCE_NOT_SIMPLE_SAVE_FOR_HALF",
+                          "SAVE_DAMAGE_RECORD_COUNT:0"],errors)
     def test_not_503_is_not_success(self):
         with self.assertRaises(ValueError):xmm.check_monsters([],[],[])
 if __name__=="__main__":unittest.main()

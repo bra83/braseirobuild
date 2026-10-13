@@ -27,3 +27,10 @@
 - O commit XMM recebido durante a sincronização implementou o bridge de multiataque por resultados explícitos por etapa e adicionou `XmmMultiattackRiderBridgeTest`; foi preservado no HEAD verificado abaixo.
 - BRELGA run `38417191768`, SHA de código `ba6b7c1e9270e856bdbc2097197064142bc2374c`: 94 suites, 2.481 testes, 0 falhas, 0 erros, 0 ignorados; 7/7 testes AdventureTransaction; APK não compilado. Evidência: `dnd-normal-qa-evidence/runs/38417191768/attempt-1.json`. Hashes: `Xmm503SourceAndRechargeTest` `17c06b62cc8f745d2580d24a7033c74ab7e79b642bf3cd634aeb333b69ed6fbc`, `XmmAttackConditionGatewayTest` `56084d735882601b27555a1205a15f8a32bfb8a9919da6fed301d380299ad754`, `XmmAttackConditionSafetyTest` `817aa80d7e2a1628d13eb1abdb94cb9089be9d26dd14ac1ab6e0eafe514d9b1c`, `XmmMultiattackRiderBridgeTest` `07881756afccbd81918abe7a612d6c0ff33301d03f11131241262831b77ab508`.
 - A etapa 03 permanece aberta. Nenhum APK foi compilado.
+
+## Verificação independente adicional — ações simples de salvaguarda
+
+- O comparador independente agora lê as 59 entradas do `Xmm2025SaveDamageEngine` e vincula cada uma ao caminho de origem pinado, criatura, categoria/slot, nome, atributo e CD da salvaguarda, média, expressão de dano, tipo, metade no sucesso e indicação de recarga.
+- Resultado local arquivado em `docs/editorial-evidence/xmm-independent-source-match-local.json`: 503 criaturas, 36 seções, 120 recargas, 132 registros de conjuração, 178 traits, 36 CDs de escape e 59 ações simples de dano passaram a comparação independente. A automação integral continua explicitamente falsa.
+- `python -m unittest discover -s tools -p 'test_verify_xmm_503_source.py' -v`: 15/15. Os testes novos recusam divergência de CD, slot/categoria/nome e ações fora do formato simples de salvaguarda por metade.
+- Esta rodada fortalece a prova fonte→índice; não implementa aplicação persistente dessas 59 ações nem certifica os efeitos restantes. A etapa 03 permanece aberta; CI BRELGA para o SHA desta alteração ainda pendente. Nenhum APK foi compilado.
