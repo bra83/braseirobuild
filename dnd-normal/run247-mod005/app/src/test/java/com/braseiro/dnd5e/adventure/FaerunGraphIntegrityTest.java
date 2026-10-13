@@ -68,4 +68,20 @@ public final class FaerunGraphIntegrityTest {
                     divergentDecisionPoints >= 1);
         }
     }
+    @Test
+    public void publishedReferencesAreExplicitlySummarizedAndOriginalsRemainOriginal() {
+        for (AdventureModule module : FaerunAdventureModuleCatalog.all()) {
+            boolean publishedReference = "fraif_tomb_damara".equals(module.getId())
+                    || "fraif_lost_library".equals(module.getId());
+            assertEquals(module.getId(), publishedReference,
+                    module.getMetadata().optBoolean("is_official_published"));
+            assertEquals(module.getId(),
+                    publishedReference ? "official_published_adventure_adaptation"
+                            : "original_scenario_compatible",
+                    module.getMetadata().optString("source_fidelity"));
+            assertTrue(module.getId() + ": misleading displayed origin",
+                    module.getTitle().contains(publishedReference
+                            ? "adaptação resumida" : "Original"));
+        }
+    }
 }
