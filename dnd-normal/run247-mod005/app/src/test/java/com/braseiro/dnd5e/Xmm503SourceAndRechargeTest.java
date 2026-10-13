@@ -48,6 +48,16 @@ public final class Xmm503SourceAndRechargeTest {
       assertFalse(action.getBoolean("recharge_auto_rolls"));
       assertTrue(action.getBoolean("recharge_roll_required"));
    }
+   if("Ankheg".equals(id)){
+      JSONObject bite=raw.getJSONArray("actions").getJSONObject(0);
+      assertEquals("Bite",bite.getString("name"));
+      assertEquals(13,bite.getInt("escape_dc"));
+      assertFalse("escape DC must never be represented as a saving throw",bite.has("save_dc"));
+      assertEquals("grappled",bite.getString("condition_on_hit"));
+      assertEquals("large",bite.getString("condition_max_target_size"));
+      assertEquals("unsupported_grapple_escape_rider",
+         MonsterActionEconomyGuard.attackRiderBlock(bite));
+   }
    assertFalse(raw.getBoolean("auto_rolls"));
    assertFalse(raw.getBoolean("full_statblock_claim"));
  }

@@ -67,6 +67,9 @@ public final class MonsterActionEconomyGuard {
         // Never grant other conditions an indefinite duration by inference.
         if(untilStand)return !timing&&MonsterOnHitProneRules.validSource(action)?"":
             "unsupported_untimed_on_hit_rider";
+        if(action.has("escape_dc")&&"grappled".equals(canonical))
+            return action.optInt("escape_dc",0)>0?"unsupported_grapple_escape_rider":
+                "invalid_compiled_escape_dc";
         if(action.has("condition_max_target_size"))
             return "unsupported_untimed_on_hit_rider";
         try {

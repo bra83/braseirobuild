@@ -58,6 +58,30 @@ def recharge_rows(source):
                             "min":int(matched.group(1) or "6")})
     return out
 
+def check_ankheg_bite_source(source, compiled):
+    """Check one non-save on-hit escape-DC rider against its pinned source."""
+    source_row=next((x for x in source if x.get("name")=="Ankheg"),None)
+    compiled_row=next((x for x in compiled if x.get("id")=="Ankheg"),None)
+    if source_row is None or compiled_row is None:
+        return ["ANKHEG_BITE:MISSING_CREATURE"]
+    src=next((x for x in source_row.get("action",[]) if x.get("name")=="Bite"),None)
+    dst=next((x for x in compiled_row.get("actions",[]) if x.get("name")=="Bite"),None)
+    if src is None or dst is None:
+        return ["ANKHEG_BITE:MISSING_ACTION"]
+    text=json.dumps(src.get("entries",[]),ensure_ascii=False)
+    required=("{@hit 5}","reach 5 ft.","2d6 + 3","1d6","Large or smaller",
+              "Grappled","escape {@dc 13}")
+    if any(term not in text for term in required):
+        return ["ANKHEG_BITE:PINNED_SOURCE_SEMANTICS_CHANGED"]
+    problems=[]
+    if dst.get("to_hit")!=5 or dst.get("reach_ft")!=5 or dst.get("damage")!="2d6 + 3 + 1d6":
+        problems.append("ANKHEG_BITE:ATTACK_OR_DAMAGE")
+    if dst.get("escape_dc")!=13 or dst.get("condition_on_hit")!="grappled" or \
+       dst.get("condition_max_target_size")!="large" or "save_dc" in dst or \
+       "save_ability" in dst or "condition_on_fail" in dst:
+        problems.append("ANKHEG_BITE:ESCAPE_DC_MISCLASSIFIED")
+    return problems
+
 def check_monsters(source,index,compiled):
     problems=[]
     if len(source)!=503 or len(index)!=503 or len(compiled)!=503:
@@ -65,6 +89,7 @@ def check_monsters(source,index,compiled):
     if len({x["name"] for x in source})!=503 or len({x["id"] for x in index})!=503:
         raise ValueError("XMM_DUPLICATE_MONSTERS")
     recharges,spellcasters=0,0
+    problems.extend(check_ankheg_bite_source(source,compiled))
     for i,(s,e,c) in enumerate(zip(source,index,compiled)):
         monster=s["name"]
         if not(e["id"]==c["id"]==monster and e["ptr"]=="/monster/"+str(i)):
