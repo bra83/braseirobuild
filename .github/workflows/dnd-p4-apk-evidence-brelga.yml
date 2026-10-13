@@ -1,0 +1,161 @@
+name: Braseiro D&D - P4 QA APK (BRELGA)
+on:
+  push:
+    branches:
+      - antigravity/dnd-normal-fechamento-gates
+    paths:
+      - '.github/workflows/dnd-p4-apk-evidence-brelga.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dnd-p4-apk-brelga
+  cancel-in-progress: false
+jobs:
+  build-verify-draft:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 120
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout exact D&D tree including canonical 102MB atlas
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+          persist-credentials: true
+      - name: Configure BRELGA SDK and isolate damaged global Gradle init
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw 'EXPECTED_RUNNER_BRELGA' }
+          $java17='C:\actions-runner\_work\_tool\Java_Temurin-Hotspot_jdk\17.0.20-101\x64'
+          if (Test-Path $java17) {
+            $env:JAVA_HOME=$java17
+            $env:PATH=(Join-Path $java17 'bin')+';'+$env:PATH
+          }
+          if (!$env:ANDROID_HOME -or !(Test-Path $env:ANDROID_HOME)) {
+            $sdk=Join-Path $env:LOCALAPPDATA 'Android\Sdk'
+            if (Test-Path $sdk) { $env:ANDROID_HOME=$sdk }
+          }
+          if (!(Test-Path $env:ANDROID_HOME)) { throw 'ANDROID_SDK_NOT_FOUND' }
+          $env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+          $sharedHome=Join-Path $env:USERPROFILE '.gradle'
+          $isolatedHome=Join-Path $env:RUNNER_TEMP ('dnd-p4-gradle-'+$env:GITHUB_RUN_ID)
+          New-Item -ItemType Directory -Force -Path $isolatedHome | Out-Null
+          foreach ($name in @('caches','wrapper')) {
+            $source=Join-Path $sharedHome $name
+            $target=Join-Path $isolatedHome $name
+            if ((Test-Path -LiteralPath $source) -and !(Test-Path -LiteralPath $target)) {
+              New-Item -ItemType Junction -Path $target -Target $source | Out-Null
+            }
+          }
+          'JAVA_HOME='+$env:JAVA_HOME >> $env:GITHUB_ENV
+          'ANDROID_HOME='+$env:ANDROID_HOME >> $env:GITHUB_ENV
+          'ANDROID_SDK_ROOT='+$env:ANDROID_SDK_ROOT >> $env:GITHUB_ENV
+          'GRADLE_USER_HOME='+$isolatedHome >> $env:GITHUB_ENV
+          $disk=New-Object System.IO.DriveInfo([System.IO.Path]::GetPathRoot($env:GITHUB_WORKSPACE))
+          Write-Host ('P4_DISK_FREE_BYTES='+$disk.AvailableFreeSpace)
+          if ($disk.AvailableFreeSpace -lt 2147483648) { throw 'INSUFFICIENT_FREE_DISK_FOR_FULL_ATLAS_APK' }
+      - name: Run portable P4 verifier tests
+        shell: powershell
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          $ErrorActionPreference='Stop'
+          python -m unittest discover -s tools -p 'test_verify_dnd_apk.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'P4_VERIFIER_REGRESSION_FAILED' }
+      - name: Run full Android regression and compile FULL real-assets APK
+        shell: powershell
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          $ErrorActionPreference='Stop'
+          $asset='app/src/main/assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip'
+          if (!(Test-Path -LiteralPath $asset)) { throw 'FAERUN_CANONICAL_ASSET_MISSING' }
+          $bytes=(Get-Item -LiteralPath $asset).Length
+          Write-Host ('CANONICAL_FAERUN_BYTES='+$bytes)
+          if ($bytes -ne 102373336) { throw 'FAERUN_CANONICAL_ASSET_INCORRECT_SIZE' }
+          & .\gradlew.bat :app:testDebugUnitTest :app:assembleDebug -Pbraseiro.qaLiteAssets=false --no-daemon --console=plain
+          if ($LASTEXITCODE -ne 0) { throw 'GRADLE_TEST_OR_APK_BUILD_FAILED' }
+          $reports=@(Get-ChildItem -Path 'app/build/test-results/testDebugUnitTest' -Filter 'TEST-*.xml' -File)
+          if ($reports.Count -lt 58) { throw ('REGRESSION_SUITE_COUNT_REGRESSED='+$reports.Count) }
+          $tests=0
+          foreach ($report in $reports) {
+            [xml]$xml=Get-Content -LiteralPath $report.FullName -Raw
+            if (!$xml.testsuite) { throw ('INVALID_XML='+$report.Name) }
+            $tests += [int]$xml.testsuite.tests
+            if ([int]$xml.testsuite.failures -gt 0 -or [int]$xml.testsuite.errors -gt 0 -or
+                [int]$xml.testsuite.skipped -gt 0) { throw ('FAILED_XML='+$report.Name) }
+          }
+          if ($tests -lt 246) { throw ('REGRESSION_TESTS_REGRESSED='+$tests) }
+          Write-Host ('DND_FULL_REGRESSION=PASS; SUITES='+$reports.Count+'; TESTS='+$tests)
+          Write-Host ('SOURCE_SHA='+$env:GITHUB_SHA)
+      - name: Inspect APK ZIP, byte-identical Faerûn asset, package ID and signing
+        id: audit
+        shell: powershell
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          $ErrorActionPreference='Stop'
+          $apks=@(Get-ChildItem 'app/build/outputs/apk/debug' -Filter '*.apk' -File)
+          if ($apks.Count -ne 1) { throw ('EXACTLY_ONE_DEBUG_APK_REQUIRED; found='+$apks.Count) }
+          $apk=$apks[0].FullName
+          New-Item -ItemType Directory -Force -Path build/p4-qa | Out-Null
+          python tools/verify_dnd_apk.py --apk $apk --project . --output build/p4-qa/apk-atlas-verification.json
+          if ($LASTEXITCODE -ne 0) { throw 'APK_ATLAS_BYTES_GATE_FAILED' }
+          $candidates=@(Get-ChildItem (Join-Path $env:ANDROID_HOME 'build-tools') -Directory |
+            Sort-Object Name -Descending | Where-Object {
+              (Test-Path (Join-Path $_.FullName 'apksigner.bat')) -and
+              (Test-Path (Join-Path $_.FullName 'aapt.exe'))
+            })
+          if ($candidates.Count -eq 0) { throw 'SDK_APKSIGNER_AAPT_MISSING' }
+          $buildTools=$candidates[0].FullName
+          $aapt=Join-Path $buildTools 'aapt.exe'
+          $badging=(& $aapt dump badging $apk) -join "`n"
+          if ($LASTEXITCODE -ne 0 -or $badging -notmatch "package: name='com\.braseiro\.dnd5e'") {
+            throw 'APK_PACKAGE_ID_NOT_COM_BRASEIRO_DND5E'
+          }
+          $signer=Join-Path $buildTools 'apksigner.bat'
+          $signing=(& $signer verify --verbose --print-certs $apk) -join "`n"
+          if ($LASTEXITCODE -ne 0) { throw 'APK_SIGNATURE_INVALID' }
+          $match=[regex]::Match($signing,'(?im)certificate SHA-1 digest:\s*([0-9a-f:]+)')
+          if (!$match.Success) { throw 'APK_SIGNER_SHA1_MISSING' }
+          $fingerprint=$match.Groups[1].Value.Replace(':','').ToLowerInvariant()
+          if ($fingerprint -ne '6f4792781f11edffc892afeb95694e3c03f35cdf') {
+            throw ('APK_SIGNER_NOT_STABLE_DEBUG='+$fingerprint)
+          }
+          Write-Host 'APK_SIGNED_STABLE_DEBUG=TRUE; APK_PACKAGE_ID=COM_BRASEIRO_DND5E'
+          Write-Host ('APK_PATH='+$apk)
+          $manifest=Get-Content -Raw build/p4-qa/apk-atlas-verification.json | ConvertFrom-Json
+          $manifest | Add-Member -NotePropertyName 'source_sha' -NotePropertyValue $env:GITHUB_SHA
+          $manifest | Add-Member -NotePropertyName 'stable_debug_signer_sha1' -NotePropertyValue $fingerprint
+          $manifest | ConvertTo-Json -Depth 8 | Set-Content -Encoding UTF8 build/p4-qa/apk-atlas-verification.json
+          $hash=(Get-FileHash -LiteralPath $apk -Algorithm SHA256).Hash.ToLowerInvariant()
+          ("$hash  $($apks[0].Name)") | Set-Content -Encoding ascii build/p4-qa/SHA256SUMS.txt
+      - name: Package complete versioned D&D source with canonical atlas
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $target=Join-Path $env:GITHUB_WORKSPACE 'dnd-normal/run247-mod005/build/p4-qa'
+          $zip=Join-Path $target 'BRASEIRO_DND_NORMAL_P4_SOURCE.zip'
+          & git archive --format=zip "--output=$zip" $env:GITHUB_SHA -- dnd-normal/run247-mod005
+          if ($LASTEXITCODE -ne 0 -or !(Test-Path $zip)) { throw 'SOURCE_ARCHIVE_FAILED' }
+          if ((Get-Item $zip).Length -lt 100000000) { throw 'SOURCE_ARCHIVE_MISSING_CANONICAL_MAP' }
+          $sum=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          ("$sum  BRASEIRO_DND_NORMAL_P4_SOURCE.zip") | Add-Content -Encoding ascii (Join-Path $target 'SHA256SUMS.txt')
+          Write-Host ('SOURCE_ARCHIVE_SHA256='+$sum)
+      - name: Publish QA-only DRAFT release (not a homologated APK release)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: dnd-p4-qa-${{ github.sha }}
+          target_commitish: ${{ github.sha }}
+          name: Braseiro D&D P4 QA — ${{ github.sha }}
+          draft: true
+          prerelease: true
+          fail_on_unmatched_files: true
+          body: |
+            Internal QA only, not a user-certified release.
+            Real Faerun ZIP byte-identical with packaged APK, 246+ tests clean, package name and stable debug certificate verified by BRELGA.
+            Outstanding: editorial section-by-section certification, live Gemini, on-device installation/reopening, and external Google Cloud OAuth setup.
+          files: |
+            dnd-normal/run247-mod005/app/build/outputs/apk/debug/*.apk
+            dnd-normal/run247-mod005/build/p4-qa/BRASEIRO_DND_NORMAL_P4_SOURCE.zip
+            dnd-normal/run247-mod005/build/p4-qa/SHA256SUMS.txt
+            dnd-normal/run247-mod005/build/p4-qa/apk-atlas-verification.json
