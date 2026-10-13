@@ -175,7 +175,7 @@ jobs:
           $xml='app/build/test-results/testDebugUnitTest/TEST-com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest.xml'
           if (!(Test-Path $xml)) { throw 'FOCUSED_XML_MISSING' }
           [xml]$result=Get-Content -LiteralPath $xml -Raw
-          if ([int]$result.testsuite.tests -ne 6 -or [int]$result.testsuite.failures -ne 0 -or [int]$result.testsuite.errors -ne 0 -or [int]$result.testsuite.skipped -ne 0) { throw 'SIX_REQUIRED_TESTS_NOT_GREEN' }
+          if ([int]$result.testsuite.tests -ne 7 -or [int]$result.testsuite.failures -ne 0 -or [int]$result.testsuite.errors -ne 0 -or [int]$result.testsuite.skipped -ne 0) { throw 'SEVEN_REQUIRED_TESTS_NOT_GREEN' }
           # Inspecionar XMLs de TODAS as suites. Resultado do Gradle isolado não é prova suficiente.
           $reports=Get-ChildItem 'app/build/test-results/testDebugUnitTest' -Filter 'TEST-*.xml' -File
           if (!$reports -or $reports.Count -lt 1) { throw 'FULL_SUITE_XML_MISSING' }
@@ -193,7 +193,7 @@ jobs:
           }
           Write-Host ("FULL_SUITE_XML=PASS; SUITES=$($reports.Count); TESTS=$nTests; FAILURES=$nFailures; ERRORS=$nErrors; SKIPPED=$nSkipped")
           Write-Host ('SOURCE_SHA='+$env:GITHUB_SHA)
-          Write-Host 'ADVENTURE_TRANSACTION_TESTS=6/6; FULL_SUITE=PASS; APK_NOT_BUILT=TRUE'
+          Write-Host 'ADVENTURE_TRANSACTION_TESTS=7/7; FULL_SUITE=PASS; APK_NOT_BUILT=TRUE'
       # This repository is private. Store the complete Gradle XML results on a
       # dedicated QA branch rather than GitHub Actions artifact storage.
       # This is intentionally a hard gate: failed evidence publication is visible.
