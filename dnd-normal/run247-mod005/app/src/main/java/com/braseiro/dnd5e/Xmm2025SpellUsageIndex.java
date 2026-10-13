@@ -178,21 +178,21 @@ public final class Xmm2025SpellUsageIndex {
      JSONArray names=entry.optJSONArray("will");
      if(names!=null)for(int k=0;k<names.length();k++)
       if(requested.equalsIgnoreCase(names.getString(k)))
-       return decision(data,entry,requested,"will",0,in);
+       return decision(data,entry,requested,"will",0,false,in);
     }else if(limits!=null){
      for(java.util.Iterator<String> usageKeys=limits.keys();usageKeys.hasNext();){
       String key=usageKeys.next();
       JSONArray names=limits.getJSONArray(key);
       for(int k=0;k<names.length();k++)
        if(requested.equalsIgnoreCase(names.getString(k)))
-        return decision(data,entry,requested,usage,Integer.parseInt(key),in);
+        return decision(data,entry,requested,usage,Integer.parseInt(key.endsWith("e") ? key.substring(0,key.length()-1) : key),key.endsWith("e"),in);
      }
     }
    }
   }
   return blocked("spell_not_in_source_spellcasting_options");
  }
- private static JSONObject decision(JSONObject row,JSONObject entry,String spell,String usage,int amount,JSONObject in)throws Exception {
+ private static JSONObject decision(JSONObject row,JSONObject entry,String spell,String usage,int amount,boolean perSpellEach,JSONObject in)throws Exception {
   JSONObject out=new JSONObject().put("resolved",true).put("source","XMM")
     .put("monster",row.getString("id")).put("spell",spell).put("usage",usage)
     .put("entry",entry.getString("name")).put("display_as",entry.getString("display_as"))
@@ -209,7 +209,7 @@ public final class Xmm2025SpellUsageIndex {
        .put("may_attempt",JSONObject.NULL);
     return out.put("status","recharge_confirmed").put("may_attempt",in.getBoolean("recharge_ready"));
   }
-  out.put("source_usage_limit",amount);
+  out.put("source_usage_limit",amount).put("uses_each_per_spell",perSpellEach);
   if(!in.has("uses_remaining"))return out.put("status","manual_usage_count_required")
         .put("may_attempt",JSONObject.NULL);
   int left=in.optInt("uses_remaining",-1);
