@@ -23,6 +23,7 @@ Fonte indicada pelo usuário:
 | Checagem passiva = 10 + modificadores; vantagem +5; desvantagem −5; cancela quando ambas | `DndRulesEngine.passiveScore` + nova sobrecarga com duas flags | `srd2014PassiveCheckHasPlusFiveMinusFiveAndCancellation` |
 | Vantagem e desvantagem: maior/menor de dois d20, com cancelamento | `DndRulesEngine.chooseD20` | `srd2014AdvantageChoosesHighDisadvantageChoosesLow` |
 | Capacidade de carga = 15 × Força; empurrar/arrastar/levantar = dobro | `DndRulesEngine.carryingCapacity/pushDragLiftCapacity` | `srd2014CarryingCapacityAndPushDragLiftUseStrengthMultiplier` |
+| Capacidade por tamanho: Tiny metade; Large ×2; Huge ×4; Gargantuan ×8 | Sobrecargas `carryingCapacity(strength, size)` e `pushDragLiftCapacity(strength, size)` | `srd2014SizeAdjustmentsToStrengthCapacityFollowSrdJson` |
 | Ataque com d20 natural 1 sempre erra, natural 20 sempre acerta | `DndRulesEngine.resolveAttack` | `srd2014CombatNaturalOneMissesAndTwentyAlwaysHits` |
 | Teste contra morte 1 natural causa duas falhas; 20 restaura 1 PV | `DndRulesEngine.resolveDeathSave` | `srd2014DeathSavesRollOneCountsTwoFailuresRollTwentyRegainsOneHp` |
 | CD de concentração 2014 = maior entre 10 e metade do dano | `DndRulesEngine.concentrationDc` | `srd2014ConcentrationUsesTenOrHalfDamageWhicheverHigher` |
