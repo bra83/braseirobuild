@@ -135,6 +135,7 @@ jobs:
             (Join-Path $src 'KingmakerStructureSemantics.java'),
             (Join-Path $src 'KingmakerCampaignGate.java'),
             (Join-Path $src 'KingmakerCompanionSemantics.java'),
+            (Join-Path $src 'KingmakerLeadershipSemantics.java'),
             (Join-Path $env:GITHUB_WORKSPACE 'ci\pf2-kingmaker-r36\semantic\R36BookSemanticsHarness.java')
           )
           $sources+=@(Get-ChildItem (Join-Path $env:PF2_R36_PROJECT 'tools\runtime_json\org\json') -Filter '*.java' | Select-Object -ExpandProperty FullName)
