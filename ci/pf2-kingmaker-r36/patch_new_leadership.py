@@ -109,7 +109,7 @@ def repo(s):
         if(!"new_leadership".equals(activity)&&!"new_leadership_approval".equals(activity)){
             for(JSONObject office:leaders())if(office.optInt("vacant")!=1&&(role.equalsIgnoreCase(office.optString("role_name"))||key(role).equals(office.optString("role_key")))){
                 JSONObject saved=db.queryOne("SELECT * FROM kingmaker_features WHERE world_profile=? AND feature_key=?",new String[]{profile(),"leadership:"+office.optString("role_key")});
-                incumbentShift=KingmakerLeadershipSemantics.leaderActivityModifier(jsonObject(saved.optString("effects_json","{}")),s.optInt("turn_number"));break;
+                incumbentShift=KingmakerLeadershipSemantics.leaderActivityModifier(jsonObject(saved.optString("effects_json","{}")),s.optInt("turn_number"),activeTurn().optString("phase"));break;
             }
         }
         '''
