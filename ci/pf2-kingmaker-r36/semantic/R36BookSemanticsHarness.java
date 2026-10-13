@@ -767,6 +767,48 @@ public final class R36BookSemanticsHarness {
    "ekundayo","consume_in_ruthless_vengeance",new JSONObject().put("influence",0),romance);}
   catch(IllegalStateException expected){romanceProtected=true;}
   check(romanceProtected,"Ekundayo romance with a PC blocks leaving with Ntavi");
+  // Jubilost official VP accounting and outcomes — Companion Guide pp.41-43.
+  JSONArray jvSourceChecks=new JSONArray();
+  for(int jvIndex=1;jvIndex<=3;jvIndex++)jvSourceChecks.put(new JSONObject().put("check_id","jubilost_debate_round_"+jvIndex).put("dc",24));
+  JSONObject jvSource=new JSONObject().put("scenes",new JSONArray().put(new JSONObject().put("skill_checks",jvSourceChecks))).put("debate_rule",new JSONObject());
+  JSONObject jvProgress=new JSONObject(jvSource.toString());
+  for(int jvIndex=1;jvIndex<=3;jvIndex++)jvProgress=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
+    "jubilost","jubilost_debate_round_"+jvIndex,14,10,24,jvProgress).getJSONObject("progress");
+  check(jvProgress.optInt("debate_rounds_answered")==3&&jvProgress.optInt("debate_victory_points")==3,
+    "Three ordinary successful debate answers award 3 Victory Points, not generic wins");
+  check("WIN".equals(jvProgress.optString("debate_outcome"))&&jvProgress.optBoolean("host_question_available"),
+    "Exactly 3 Victory Points earns one Host answer");
+  boolean jvRepeatedBlocked=false;
+  try{KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_3",14,10,24,jvProgress);}
+  catch(IllegalStateException ex){jvRepeatedBlocked=true;}
+  check(jvRepeatedBlocked,"Repeat debate round must not mint extra Victory Points");
+  JSONObject jvOnePoint=new JSONObject(jvSource.toString());
+  jvOnePoint=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_1",14,10,24,jvOnePoint).getJSONObject("progress");
+  jvOnePoint=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_2",5,0,24,jvOnePoint).getJSONObject("progress");
+  jvOnePoint=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_3",5,0,24,jvOnePoint).getJSONObject("progress");
+  check(jvOnePoint.optInt("debate_victory_points")==1&&"NO_WINNER".equals(jvOnePoint.optString("debate_outcome")),
+    "One Victory Point makes Shyka declare no winner, not grant an answer");
+  boolean jvUnwonQuestionBlocked=false;
+  jvOnePoint.put("branches",new JSONArray().put(new JSONObject().put("branch_key","ask_gnome_first_world_truth").put("available_after",true)));
+  try{KingmakerCompanionSemantics.resolveCompanionAdventureBranch("jubilost","ask_gnome_first_world_truth",
+    new JSONObject().put("influence",4),jvOnePoint);}
+  catch(IllegalStateException ex){jvUnwonQuestionBlocked=true;}
+  check(jvUnwonQuestionBlocked,"Cannot ask the Host a question after scoring only 1 Victory Point");
+  JSONObject jvFailBranch=new JSONObject().put("branch_key","jubilost_debates_no_answer")
+    .put("influence_delta",0).put("available_after",true).put("attitude_after","indifferent")
+    .put("description","Debate encerrado sem resposta");
+  jvOnePoint.getJSONArray("branches").put(jvFailBranch);
+  JSONObject jvNoAnswer=KingmakerCompanionSemantics.resolveCompanionAdventureBranch("jubilost",
+    "jubilost_debates_no_answer",new JSONObject().put("influence",4),jvOnePoint);
+  check(jvNoAnswer.optInt("xp_awarded")==0&&jvNoAnswer.getJSONArray("items_awarded").length()==0,
+    "Unwon debate does not produce invented XP/loot");
+  JSONObject jvCritical=new JSONObject(jvSource.toString());
+  jvCritical=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_1",20,14,24,jvCritical).getJSONObject("progress");
+  check(jvCritical.optInt("debate_victory_points")==2,"A critical success awards 2 VP");
+  boolean jvOutOfOrderBlocked=false;
+  try{KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_3",20,14,24,jvCritical);}
+  catch(IllegalStateException ex){jvOutOfOrderBlocked=true;}
+  check(jvOutOfOrderBlocked,"Three official questions must be answered in order");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }
