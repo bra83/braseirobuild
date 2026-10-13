@@ -1,0 +1,29 @@
+name: DND 483 editorial fast gate
+on:
+  push:
+    branches:
+      - antigravity/dnd-normal-fechamento-gates
+    paths:
+      - 'dnd-normal/run247-mod005/tools/editorial_483_runtime_assessment.py'
+      - 'dnd-normal/run247-mod005/tools/test_editorial_483_runtime_assessment.py'
+      - 'dnd-normal/run247-mod005/tools/validate_editorial_coverage.py'
+      - 'dnd-normal/run247-mod005/docs/PLANO_MESTRE_MATRIZ_10_LIVROS_SECOES.csv'
+      - 'dnd-normal/run247-mod005/docs/EDITORIAL_SECTION_ACCEPTANCE.csv'
+      - '.github/workflows/dnd-483-editorial-fast-gate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  structural-editorial-fast-gate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dnd-normal/run247-mod005
+    steps:
+      - uses: actions/checkout@v4
+      - name: Strict ledger source and status consistency
+        run: python3 tools/validate_editorial_coverage.py --json
+      - name: 483 per-section structural and 17 pending editorial candidates
+        run: python3 -m unittest discover -s tools -p 'test_editorial_483_runtime_assessment.py' -v
+      - name: Export actual structural evidence, never semantic certification
+        run: python3 tools/editorial_483_runtime_assessment.py --json --output build/editorial-483-structural-latest.json
