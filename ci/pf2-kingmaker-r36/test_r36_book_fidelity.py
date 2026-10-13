@@ -410,3 +410,39 @@ def test_companion_adventures_candlemere_and_40_official_parts_completeness():
     for required_npc in ("npc_foras", "npc_korog", "npc_kyetriel", "npc_niodrhast", "npc_leng_envoy", "npc_thresholder_mystic", "npc_candlemere_shoggoth"):
         assert required_npc in npc_keys
 
+
+def test_companion_branch_ids_are_executable_and_ekundayo_matches_primary_guide():
+    """Catalog-to-Java/UI interface and original Companion Guide pp.27-31 regression."""
+    import json
+    data=json.loads((ROOT/"android/app/src/main/assets/pathfinder/kingmaker/chapters/chapter_12_companion_stories.json").read_text(encoding="utf-8"))
+    expected={"amiri","ekundayo","jubilost","linzi","nok_nok","tristian","valerie"}
+    assert {q["progress_json"]["companion_key"] for q in data["quests"]}==expected
+    for quest in data["quests"]:
+        branches=quest["progress_json"]["branches"]
+        ids=[b["branch_key"] for b in branches]
+        assert len(ids)==len(set(ids))>=2, quest["quest_key"]
+        assert all(b.get("description") and b.get("feature_unlocked") for b in branches)
+    engine=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerCompanionSemantics.java").read_text(encoding="utf-8")
+    assert 'currentProgress.optJSONArray("branches")' in engine
+    assert 'selected.optString("branch_key")' in engine
+    assert 'if(selected==null)throw new IllegalArgumentException' in engine
+    assert 'boolean rewardsCertified=currentProgress.optBoolean("automatic_rewards_compiled",false)' in engine
+    assert 'if(!declared)throw new IllegalArgumentException' in engine
+    assert 'if(!matchedDc)throw new IllegalArgumentException' in engine
+    ui=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java").read_text(encoding="utf-8")
+    assert 'showKingmakerCompanionBranchChoices' in ui
+    assert 'kingmakerRepository.resolveCompanionAdventureBranch(companion,' in ui
+    journal=method_body('public JSONObject finishCampaignQuest(final long questId)')
+    assert 'if(k.startsWith("q_cg_"))throw new IllegalStateException' in journal
+
+    ek=next(q for q in data["quests"] if q["quest_key"]=="q_cg_ekundayo")["progress_json"]
+    assert ek["feast_points_target"]==5 and ek["feast_contribution_dc"]==22
+    assert ek["extra_xp_if_ntavi_does_not_recruit_ekundayo"]==10
+    bridge=next(s for s in ek["scenes"] if s["code"]=="STANDOFF")
+    foes={e["npc_key"]:(e["level"],e["count"]) for e in bridge["enemies"]}
+    assert foes=={"cg_gragglebeard":(7,1),"cg_reaver_ogre_warrior":(3,4),"cg_reaver_wyvern":(6,1)}
+    assert any(a["npc_key"]=="cg_ntavi" and a["level"]==6 for a in bridge["allies"])
+    hazard=next(h for h in bridge["hazards"] if h["hazard_key"]=="cg_hazard_collapsing_bridge")
+    assert hazard["level"]==6 and hazard["saving_throw_dc"]==24
+    assert hazard["support"]["hp_current"]==10 and hazard["support"]["hardness"]==10
+    assert bridge["treasure"]["silver_pieces"]==25 and bridge["treasure"]["gold_pieces"]==12
