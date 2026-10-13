@@ -124,6 +124,16 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'EDITORIAL_483_STRUCTURAL_TESTS_FAILED' }
           & $python.Source tools/editorial_483_runtime_assessment.py --json --output build/editorial-483/report.json
           if ($LASTEXITCODE -ne 0) { throw 'EDITORIAL_483_RUNTIME_LINKS_MISSING' }
+          # XSAC source Q/A gate is strictly a 163-entry pinned locator check.
+          & $python.Source -m unittest discover -s tools -p 'test_verify_xsac_163_source_qa.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'XSAC_SOURCE_VERIFIER_UNIT_TESTS_FAILED' }
+          & $python.Source tools/verify_xsac_163_source_qa.py --json-out build/xsac-163/source-report.json
+          if ($LASTEXITCODE -ne 0) { throw 'XSAC_SOURCE_163_QA_GATE_FAILED' }
+          $xsac=Get-Content build/xsac-163/source-report.json -Raw | ConvertFrom-Json
+          if ($xsac.official_qa_count -ne 163 -or !$xsac.source_index_gate_pass -or $xsac.gameplay_semantics_certified) {
+            throw 'XSAC_SOURCE_REPORT_INVALID'
+          }
+          Write-Host 'XSAC_163_QA_SOURCE_INDEX=PASS; SEMANTIC_CERTIFICATION_NOT_CLAIMED=TRUE'
           Write-Host 'EDITORIAL_483_SECTION_BINDINGS=PASS; SEMANTIC_CERTIFICATION_NOT_CLAIMED=TRUE'
       - name: Execute AdventureTransactionSafetyRobolectricTest and full regression
         shell: powershell
