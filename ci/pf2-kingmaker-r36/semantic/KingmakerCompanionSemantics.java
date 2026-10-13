@@ -236,6 +236,9 @@ public final class KingmakerCompanionSemantics {
  }
 
  public static JSONObject resolveCompanionAdventureCheck(String companionKey,String checkId,int naturalRoll,int totalModifier,int dc,JSONObject currentProgress)throws Exception{
+  return resolveCompanionAdventureCheck(companionKey,checkId,naturalRoll,totalModifier,dc,currentProgress,0L);
+ }
+ public static JSONObject resolveCompanionAdventureCheck(String companionKey,String checkId,int naturalRoll,int totalModifier,int dc,JSONObject currentProgress,long feastActorId)throws Exception{
   if(companionKey==null||questLevel(companionKey)==0)throw new IllegalArgumentException("Companheiro sem aventura publicada: "+companionKey);
   if(checkId==null||checkId.trim().length()==0)throw new IllegalArgumentException("Identificador do teste da aventura é obrigatório.");
   if(naturalRoll<1||naturalRoll>20)throw new IllegalArgumentException("O d20 natural deve estar entre 1 e 20.");
@@ -267,6 +270,16 @@ public final class KingmakerCompanionSemantics {
    if(!declared)throw new IllegalArgumentException("Teste não definido no Companion Guide para "+companionKey+": "+checkId);
    if(!matchedDc)throw new IllegalArgumentException("CD alterada indevidamente no teste "+checkId+": "+dc);
   }
+  if("ekundayo".equals(companionKey)&&"ekundayo_feast_contribution".equals(checkId)&&officialScenes!=null){
+   if(feastActorId<=0)throw new IllegalArgumentException("Selecione o PJ que contribuiu para o banquete.");
+   JSONArray participants=currentProgress.optJSONArray("feast_contributor_ids");
+   if(participants!=null)for(int i=0;i<participants.length();i++)
+    if(participants.optLong(i)==feastActorId)
+     throw new IllegalStateException("Cada PJ só pode contribuir uma vez para os Pontos de Vitória do banquete.");
+  }
+  if("ekundayo".equals(companionKey)&&"ekundayo_interrupt_ntavi".equals(checkId)
+     &&currentProgress!=null&&currentProgress.optBoolean("ntavi_conversation_resolved",false))
+   throw new IllegalStateException("A conversa com Ntavi já foi resolvida e não pode ser repetida.");
   if("ekundayo".equals(companionKey)&&"ekundayo_request_stay".equals(checkId)){
    // The published scene requires Request but contains no numeric DC:
    // let the GM set it; allow it only after the bridge fight with Ntavi present.
@@ -292,6 +305,12 @@ public final class KingmakerCompanionSemantics {
   next.put("adventure_checks",checks).put("journal_started",true);
   if("ekundayo".equals(companionKey)&&(officialScenes==null||"ekundayo_feast_contribution".equals(checkId))){
    int delta=deg==3?2:deg==2?1:deg==1?0:-1;
+   if(officialScenes!=null){
+    JSONArray contributors=next.optJSONArray("feast_contributor_ids");
+    if(contributors==null)contributors=new JSONArray();
+    contributors.put(feastActorId);next.put("feast_contributor_ids",contributors);
+    entry.put("contributor_character_id",feastActorId);
+   }
    int pts=next.optInt("feast_points",0)+delta;
    int goal=next.optInt("feast_points_target",officialScenes==null?8:5);
    next.put("feast_points",pts).put("feast_success",pts>=goal)
@@ -300,6 +319,7 @@ public final class KingmakerCompanionSemantics {
   }else if("ekundayo".equals(companionKey)&&"ekundayo_interrupt_ntavi".equals(checkId)){
    boolean prevented=deg>=2;
    next.put("ntavi_interruption_degree",degree)
+    .put("ntavi_conversation_resolved",true)
     .put("ntavi_at_bridge",deg!=2)
     .put("ekundayo_departs_early",!prevented)
     .put("ntavi_recruitment_prevented",prevented)
@@ -369,6 +389,32 @@ public final class KingmakerCompanionSemantics {
   return new JSONObject().put("companion_key",companionKey).put("check",entry).put("progress",next);
  }
 
+ public static JSONObject recordEkundayoNoIntervention(JSONObject currentProgress)throws Exception{
+  if(currentProgress==null||currentProgress.optJSONArray("scenes")==null)
+   throw new IllegalArgumentException("É necessária a aventura oficial de Ekundayo.");
+  if(currentProgress.optBoolean("ntavi_conversation_resolved",false))
+   throw new IllegalStateException("A conversa com Ntavi já foi resolvida.");
+  JSONObject next=new JSONObject(currentProgress.toString());
+  next.put("ntavi_conversation_resolved",true).put("ntavi_interruption_degree","NO_INTERVENTION")
+   .put("ntavi_at_bridge",true).put("ekundayo_departs_early",true)
+   .put("ntavi_recruitment_prevented",false).put("ntavi_location_revealed",false)
+   .put("ntavi_false_silverstep_clue",false).put("journal_started",true);
+  return next;
+ }
+ public static JSONObject recordEkundayoRomance(JSONObject currentProgress,long characterId)throws Exception{
+  if(currentProgress==null||currentProgress.optJSONArray("scenes")==null)
+   throw new IllegalArgumentException("É necessária a aventura oficial de Ekundayo.");
+  if(characterId<=0)throw new IllegalArgumentException("Personagem do romance inválido.");
+  if(currentProgress.optBoolean("ntavi_conversation_resolved",false))
+   throw new IllegalStateException("Registre o romance estabelecido antes da conversa com Ntavi.");
+  if(currentProgress.has("ekundayo_romance_pc_id")){
+   if(currentProgress.optLong("ekundayo_romance_pc_id")==characterId)return new JSONObject(currentProgress.toString());
+   throw new IllegalStateException("O vínculo romântico registrado não pode ser trocado.");
+  }
+  return new JSONObject(currentProgress.toString()).put("ekundayo_romance_with_pc",true)
+   .put("ekundayo_romance_pc_id",characterId).put("ekundayo_romance_verified_by_player",true)
+   .put("journal_started",true);
+ }
  public static JSONObject resolveCompanionAdventureBranch(String companionKey,String branchKey,JSONObject companionBefore,JSONObject currentProgress)throws Exception{
   if(companionKey==null||questLevel(companionKey)==0)throw new IllegalArgumentException("Companheiro sem aventura publicada: "+companionKey);
   if(branchKey==null||branchKey.trim().length()==0)throw new IllegalArgumentException("Ramificação da aventura é obrigatória.");
@@ -414,7 +460,9 @@ public final class KingmakerCompanionSemantics {
     if(currentProgress.optJSONArray("scenes")!=null){
      if(!currentProgress.optBoolean("bridge_battle_concluded",false))
       throw new IllegalStateException("Registre o combate da ponte antes do desfecho.");
-     boolean ntaviHere=currentProgress.optBoolean("ntavi_at_bridge",true);
+     if(!currentProgress.optBoolean("ntavi_conversation_resolved",false)||!currentProgress.has("ntavi_at_bridge"))
+      throw new IllegalStateException("Resolva explicitamente a conversa com Ntavi, inclusive a decisão de não intervir.");
+     boolean ntaviHere=currentProgress.optBoolean("ntavi_at_bridge",false);
      boolean romance=currentProgress.optBoolean("ekundayo_romance_with_pc",false);
      boolean requestPassed=currentProgress.optBoolean("ekundayo_request_attempted",false)
       &&currentProgress.optBoolean("ekundayo_request_stay_accepted",false);

@@ -98,25 +98,68 @@ def journal_repository(s):
         }});return result[0];
     }
     public JSONObject resolveCompanionAdventureCheck(final String companionKey,final String checkId,final int naturalRoll,final int totalModifier,final int dc)throws Exception{
+        return resolveCompanionAdventureCheck(companionKey,checkId,naturalRoll,totalModifier,dc,0L);
+    }
+    public JSONObject resolveCompanionAdventureCheck(final String companionKey,final String checkId,final int naturalRoll,final int totalModifier,final int dc,final long feastActorId)throws Exception{
         requireEnabled();final String canonical=KingmakerRulesEngine.canonicalCompanionKey(clean(companionKey).replaceFirst("^npc_",""));
         final JSONObject[] result={new JSONObject()};db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
             JSONObject quest=officialCompanionQuest(canonical);if(quest.length()==0)throw new IllegalArgumentException("Aventura oficial de companheiro não encontrada: "+canonical);
             if(KingmakerCampaignGate.completed(quest.optString("status")))throw new IllegalStateException("A aventura deste companheiro já foi concluída.");
             requireJournalEligibility(quest);
             JSONObject progress=KingmakerCampaignGate.progress(quest);
+            if("ekundayo".equals(canonical)&&"ekundayo_feast_contribution".equals(checkId)){
+                boolean found=false;
+                for(JSONObject hero:db.listActiveCharacters())if(hero.optLong("id")==feastActorId)found=true;
+                if(!found)throw new IllegalArgumentException("O contribuinte deve ser um personagem ativo da campanha.");
+            }
             if("ekundayo".equals(canonical)){
                 JSONObject c=companion(canonical);
                 progress.put("ekundayo_helpful","helpful".equals(c.optString("attitude"))||c.optInt("influence",0)>=8);
                 if("ekundayo_request_stay".equals(checkId))
                     progress.put("ekundayo_attitude_at_request",c.optString("attitude"));
             }
-            JSONObject outcome=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(canonical,checkId,naturalRoll,totalModifier,dc,progress);
+            JSONObject outcome=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(canonical,checkId,naturalRoll,totalModifier,dc,progress,feastActorId);
             JSONObject nextProgress=outcome.getJSONObject("progress");
             ContentValues v=new ContentValues();v.put("progress_json",nextProgress.toString());v.put("status","in_progress");v.put("updated_at",System.currentTimeMillis());
             db.getWritableDatabase().update("quests",v,"id=? AND world_profile=?",new String[]{String.valueOf(quest.optLong("id")),profile()});
             ContentValues c=new ContentValues();c.put("personal_quest_status","in_progress");c.put("updated_at",System.currentTimeMillis());
             db.getWritableDatabase().update("kingmaker_companions",c,"world_profile=? AND companion_key=?",new String[]{profile(),canonical});
             result[0]=outcome;audit("Teste de aventura de companheiro",canonical+" • "+checkId,quest,outcome);
+        }});return result[0];
+    }
+    public JSONObject recordEkundayoNtaviNoIntervention()throws Exception{
+        requireEnabled();final JSONObject[] result={new JSONObject()};
+        db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            JSONObject quest=officialCompanionQuest("ekundayo");
+            if(quest.length()==0||KingmakerCampaignGate.completed(quest.optString("status")))
+                throw new IllegalStateException("Aventura de Ekundayo indisponível ou concluída.");
+            requireJournalEligibility(quest);
+            JSONObject progress=KingmakerCompanionSemantics.recordEkundayoNoIntervention(KingmakerCampaignGate.progress(quest));
+            ContentValues cv=new ContentValues();cv.put("progress_json",progress.toString());
+            cv.put("status","in_progress");cv.put("updated_at",System.currentTimeMillis());
+            if(db.getWritableDatabase().update("quests",cv,"id=? AND world_profile=?",new String[]{String.valueOf(quest.optLong("id")),profile()})!=1)
+                throw new IllegalStateException("A decisão sobre Ntavi não foi persistida.");
+            result[0]=progress;audit("Conversa com Ntavi","PJs não intervieram",quest,progress);
+        }});return result[0];
+    }
+    public JSONObject recordEkundayoRomance(final long characterId)throws Exception{
+        requireEnabled();final JSONObject[] result={new JSONObject()};
+        db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            boolean active=false;
+            for(JSONObject hero:db.listActiveCharacters())if(hero.optLong("id")==characterId)active=true;
+            if(!active)throw new IllegalArgumentException("O romance deve ser com um PJ ativo.");
+            JSONObject quest=officialCompanionQuest("ekundayo");
+            if(quest.length()==0||KingmakerCampaignGate.completed(quest.optString("status")))
+                throw new IllegalStateException("Aventura de Ekundayo indisponível ou concluída.");
+            requireJournalEligibility(quest);
+            JSONObject previous=KingmakerCampaignGate.progress(quest);
+            JSONObject progress=KingmakerCompanionSemantics.recordEkundayoRomance(previous,characterId);
+            if(previous.optLong("ekundayo_romance_pc_id",0)==characterId){result[0]=progress.put("idempotent_replay",true);return;}
+            ContentValues cv=new ContentValues();cv.put("progress_json",progress.toString());
+            cv.put("status","in_progress");cv.put("updated_at",System.currentTimeMillis());
+            if(db.getWritableDatabase().update("quests",cv,"id=? AND world_profile=?",new String[]{String.valueOf(quest.optLong("id")),profile()})!=1)
+                throw new IllegalStateException("O romance não foi persistido.");
+            result[0]=progress;audit("Romance estabelecido de Ekundayo","PJ id "+characterId,quest,progress);
         }});return result[0];
     }
     public JSONObject recordEkundayoBridgeOutcome(final boolean partyHelped)throws Exception{
@@ -244,7 +287,35 @@ def journal_ui(s):
         new AlertDialog.Builder(this).setTitle("Testes oficiais • "+q.optString("title"))
          .setItems(labels.toArray(new String[0]),new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){
             showKingmakerCompanionSkillRoll(q,checks.get(which));
-         }}).setNegativeButton("Voltar",null).show();
+         }}).setNegativeButton("Voltar",null)
+         .setNeutralButton("ekundayo".equals(KingmakerCampaignGate.questKey(q).substring(5))?"NÃO INTERVIR EM NTAVI":null,
+          new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){
+             new AlertDialog.Builder(MainActivity.this).setTitle("Ntavi • decisão irreversível")
+              .setMessage("Os PJs não interrompem a conversa. Ntavi convence Ekundayo a partir cedo para enfrentar os Reavers.")
+              .setNegativeButton("Cancelar",null).setPositiveButton("CONFIRMAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){
+                 try{kingmakerRepository.recordEkundayoNtaviNoIntervention();showKingmakerCampaignJournal();}
+                 catch(Exception e){toast(e.getMessage());}
+              }}).show();
+          }})
+         .setPositiveButton("ekundayo".equals(KingmakerCampaignGate.questKey(q).substring(5))?"ROMANCE ESTABELECIDO":null,
+          new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){
+             showKingmakerEkundayoRomance();
+          }}).show();
+    }
+    private void showKingmakerEkundayoRomance(){
+        final List<JSONObject> heroes=db.listActiveCharacters();
+        if(heroes.isEmpty()){toast("Nenhum PJ ativo para registrar romance.");return;}
+        final List<String> labels=new ArrayList<String>();
+        for(JSONObject hero:heroes)labels.add(hero.optString("name","PJ #"+hero.optLong("id")));
+        final Spinner chosen=spinner(labels.toArray(new String[0]),labels.get(0));
+        new AlertDialog.Builder(this).setTitle("Ekundayo • romance já estabelecido")
+         .setMessage("Registre apenas um relacionamento que já exista na história. Essa evidência será persistida e não poderá ser trocada.")
+         .setView(chosen).setNegativeButton("Cancelar",null)
+         .setPositiveButton("CONFIRMAR VÍNCULO",new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){
+             try{kingmakerRepository.recordEkundayoRomance(heroes.get(chosen.getSelectedItemPosition()).optLong("id"));
+                 showKingmakerCampaignJournal();}
+             catch(Exception e){toast(e.getMessage());}
+         }}).show();
     }
     private void showKingmakerCompanionSkillRoll(final JSONObject q,final JSONObject check){
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);
@@ -252,6 +323,17 @@ def journal_ui(s):
         form.addView(text(check.optString("description"),14,TEXT,false));
         final EditText natural=labeledField(form,"Resultado natural do d20 (1 a 20)","",true);
         final EditText bonus=labeledField(form,"Modificador total (sem o d20)","0",true);
+        final boolean feastContribution="ekundayo_feast_contribution".equals(check.optString("check_id"))
+            &&"ekundayo".equals(KingmakerCampaignGate.questKey(q).substring(5));
+        final List<JSONObject> feastActors=feastContribution?db.listActiveCharacters():new ArrayList<JSONObject>();
+        if(feastContribution&&feastActors.isEmpty()){toast("Nenhum PJ ativo para contribuir com o banquete.");return;}
+        final Spinner feastActorSpinner;
+        if(feastContribution){
+            final List<String> actorNames=new ArrayList<String>();
+            for(JSONObject hero:feastActors)actorNames.add(hero.optString("name","PJ #"+hero.optLong("id")));
+            feastActorSpinner=spinner(actorNames.toArray(new String[0]),actorNames.get(0));
+            form.addView(cardWithLabel("PERSONAGEM QUE CONTRIBUI (UMA VEZ POR PJ)",feastActorSpinner));
+        }else feastActorSpinner=null;
         final boolean gmSelectedDc="GM_SELECTED".equals(check.optString("dc_mode"));
         final EditText manualDc=gmSelectedDc?labeledField(form,"CD de Request definida pelo Mestre (10 a 60)","",true):null;
         final List<Integer> availableDcs=new ArrayList<Integer>();if(!gmSelectedDc)availableDcs.add(check.optInt("dc"));
@@ -281,7 +363,8 @@ def journal_ui(s):
                 int d20=Integer.parseInt(value(natural).trim());
                 int mod=Integer.parseInt(value(bonus).trim());
                 JSONObject result=kingmakerRepository.resolveCompanionAdventureCheck(companion,check.optString("check_id"),d20,mod,
-                    manualDc!=null?Integer.parseInt(value(manualDc).trim()):availableDcs.get(chosenDc.getSelectedItemPosition()));
+                    manualDc!=null?Integer.parseInt(value(manualDc).trim()):availableDcs.get(chosenDc.getSelectedItemPosition()),
+                    feastActorSpinner==null?0L:feastActors.get(feastActorSpinner.getSelectedItemPosition()).optLong("id"));
                 JSONObject roll=result.optJSONObject("check");
                 toast("Teste aplicado e salvo: "+(roll==null?"":roll.optString("degree")));
                 showKingmakerCampaignJournal();

@@ -645,7 +645,7 @@ public final class R36BookSemanticsHarness {
     .put("skill_checks",new JSONArray().put(new JSONObject().put("check_id","ekundayo_feast_contribution").put("dc",22)))))
    .put("feast_points_target",5).put("feast_points",4);
   JSONObject feastOutcome=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
-   "ekundayo","ekundayo_feast_contribution",10,12,22,publishedFeast).optJSONObject("progress");
+   "ekundayo","ekundayo_feast_contribution",10,12,22,publishedFeast,101L).optJSONObject("progress");
   check(feastOutcome.optInt("feast_points")==5&&feastOutcome.optBoolean("feast_success"),
    "Official 5-VP feast threshold is reached at fifth point");
   boolean wrongDcBlocked=false;
@@ -686,6 +686,7 @@ public final class R36BookSemanticsHarness {
      boolean staying="temper_vengeance_embrace_fellowship".equals(branchId);
      branchProgress=new JSONObject(progress.toString())
       .put("bridge_battle_concluded",true).put("pc_aided_bridge",true);
+     if(staying)branchProgress=KingmakerCompanionSemantics.recordEkundayoRomance(branchProgress,101L);
      branchProgress=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
       "ekundayo","ekundayo_interrupt_ntavi",staying?10:3,staying?11:7,21,branchProgress)
       .optJSONObject("progress");
@@ -755,6 +756,7 @@ public final class R36BookSemanticsHarness {
      JSONObject sourceCheck=sourceChecks.optJSONObject(c);
      String id=sourceCheck.optString("check_id");
      int dc=sourceCheck.optInt("dc");
+     long feastActor="ekundayo_feast_contribution".equals(id)?1101L:0L;
      boolean gmRequest="ekundayo_request_stay".equals(id)&&"GM_SELECTED".equals(sourceCheck.optString("dc_mode"));
      if(gmRequest){
       dc=21; // fixture GM choice, not a book-defined DC
@@ -769,7 +771,7 @@ public final class R36BookSemanticsHarness {
         companionKey,"tristian_research_cult",10,15,25,checkedProgress).optJSONObject("progress");
      }
      JSONObject result=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
-      companionKey,id,10,dc-10,dc,checkedProgress);
+      companionKey,id,10,dc-10,dc,checkedProgress,feastActor);
      if("jubilost".equals(companionKey)||"tristian".equals(companionKey)||gmRequest)
       checkedProgress=result.optJSONObject("progress");
      check(id.equals(result.optJSONObject("check").optString("check_id")),
@@ -807,9 +809,15 @@ public final class R36BookSemanticsHarness {
   JSONObject feastReady=new JSONObject(ekActual.toString());
   for(int i=0;i<5;i++)
    feastReady=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
-    "ekundayo","ekundayo_feast_contribution",10,12,22,feastReady).optJSONObject("progress");
-  check(feastReady.optInt("feast_points")==5&&feastReady.optBoolean("feast_success"),
-   "5 official banquet VPs using five success rolls");
+    "ekundayo","ekundayo_feast_contribution",10,12,22,feastReady,100L+i).optJSONObject("progress");
+  check(feastReady.optInt("feast_points")==5&&feastReady.optBoolean("feast_success")
+   &&feastReady.optJSONArray("feast_contributor_ids").length()==5,
+   "Five distinct PCs earned the five official banquet VPs");
+  boolean repeatFeastBlocked=false;
+  try{KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
+   "ekundayo","ekundayo_feast_contribution",10,12,22,feastReady,100L);}
+  catch(IllegalStateException expected){repeatFeastBlocked=true;}
+  check(repeatFeastBlocked,"One feast contribution per PC; no repeat VP farming");
   feastReady.put("ekundayo_helpful",true);
   JSONObject ntaviCritical=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
    "ekundayo","ekundayo_interrupt_ntavi",10,11,21,feastReady).optJSONObject("progress");
@@ -862,7 +870,8 @@ public final class R36BookSemanticsHarness {
   catch(IllegalStateException expected){romanceProtected=true;}
   check(romanceProtected,"Ekundayo romance with a PC blocks leaving with Ntavi");
   JSONObject noAid=new JSONObject(ekActual.toString())
-   .put("bridge_battle_concluded",true).put("pc_aided_bridge",false).put("ntavi_at_bridge",false);
+   .put("bridge_battle_concluded",true).put("pc_aided_bridge",false)
+   .put("ntavi_conversation_resolved",true).put("ntavi_at_bridge",false);
   JSONObject notHelped=KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
    "ekundayo","temper_vengeance_embrace_fellowship",
    new JSONObject().put("influence",4).put("attitude","friendly"),noAid);
@@ -873,8 +882,38 @@ public final class R36BookSemanticsHarness {
    new JSONObject().put("influence",4).put("attitude","friendly"),noAid);
   check(helped.optInt("influence_after")==8,"Bridge aid plus Ekundayo staying earns 8 Influence");
   JSONObject feastPenalty=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
-   "ekundayo","ekundayo_feast_contribution",1,0,22,new JSONObject(ekActual.toString())).optJSONObject("progress");
+   "ekundayo","ekundayo_feast_contribution",1,0,22,new JSONObject(ekActual.toString()),901L).optJSONObject("progress");
   check(feastPenalty.optInt("feast_points")==-1,"Critical failure deducts one banquet VP");
+  JSONObject ntaviUninterrupted=KingmakerCompanionSemantics.recordEkundayoNoIntervention(ekActual);
+  check(ntaviUninterrupted.optBoolean("ntavi_conversation_resolved")
+   &&"NO_INTERVENTION".equals(ntaviUninterrupted.optString("ntavi_interruption_degree"))
+   &&ntaviUninterrupted.optBoolean("ntavi_at_bridge")
+   &&ntaviUninterrupted.optBoolean("ekundayo_departs_early"),
+   "No intervention: Ntavi recruits Ekundayo, both depart early");
+  boolean lateInterruptionBlocked=false;
+  try{KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
+   "ekundayo","ekundayo_interrupt_ntavi",10,11,21,ntaviUninterrupted);}
+  catch(IllegalStateException expected){lateInterruptionBlocked=true;}
+  check(lateInterruptionBlocked,"No late interruption after explicitly ignoring Ntavi");
+  boolean unknownNtaviBlocked=false;
+  try{KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
+   "ekundayo","temper_vengeance_embrace_fellowship",
+   new JSONObject().put("influence",4).put("attitude","friendly"),
+   new JSONObject(ekActual.toString()).put("bridge_battle_concluded",true));}
+  catch(IllegalStateException expected){unknownNtaviBlocked=true;}
+  check(unknownNtaviBlocked,"Cannot assume Ntavi present or absent without resolved conversation");
+  JSONObject establishedRomance=KingmakerCompanionSemantics.recordEkundayoRomance(ekActual,101L);
+  check(establishedRomance.optBoolean("ekundayo_romance_with_pc")
+   &&establishedRomance.optLong("ekundayo_romance_pc_id")==101L,
+   "Existing romance with actual PC ID is persisted in quest progress");
+  boolean changedRomanceBlocked=false;
+  try{KingmakerCompanionSemantics.recordEkundayoRomance(establishedRomance,102L);}
+  catch(IllegalStateException expected){changedRomanceBlocked=true;}
+  check(changedRomanceBlocked,"Recorded romantic bond cannot be reassigned");
+  boolean lateRomanceBlocked=false;
+  try{KingmakerCompanionSemantics.recordEkundayoRomance(ntaviUninterrupted,101L);}
+  catch(IllegalStateException expected){lateRomanceBlocked=true;}
+  check(lateRomanceBlocked,"Romance cannot be invented after Ntavi's conversation");
   // Jubilost official VP accounting and outcomes — Companion Guide pp.41-43.
   JSONArray jvSourceChecks=new JSONArray();
   for(int jvIndex=1;jvIndex<=3;jvIndex++)jvSourceChecks.put(new JSONObject().put("check_id","jubilost_debate_round_"+jvIndex).put("dc",24));

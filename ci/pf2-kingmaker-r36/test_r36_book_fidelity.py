@@ -536,3 +536,23 @@ def test_ekundayo_guide_request_bridge_and_gm_dc_contract():
     ui=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java").read_text(encoding="utf-8")
     assert 'recordEkundayoBridgeOutcome(true)' in ui
     assert 'recordEkundayoBridgeOutcome(false)' in ui
+
+
+def test_ekundayo_party_identity_ntavi_no_intervention_and_romance():
+    """Companion Guide pp.27-31: party identity and durable choices."""
+    semantic=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerCompanionSemantics.java").read_text(encoding="utf-8")
+    assert '"feast_contributor_ids"' in semantic
+    assert 'participants.optLong(i)==feastActorId' in semantic
+    assert '"ntavi_conversation_resolved",true' in semantic
+    assert '"NO_INTERVENTION"' in semantic
+    assert '"ekundayo_romance_pc_id",characterId' in semantic
+    assert 'currentProgress.optBoolean("ntavi_conversation_resolved",false)' in semantic
+    journal=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerRepository.java").read_text(encoding="utf-8")
+    assert 'public JSONObject recordEkundayoNtaviNoIntervention()' in journal
+    assert 'public JSONObject recordEkundayoRomance(final long characterId)' in journal
+    assert 'for(JSONObject hero:db.listActiveCharacters())if(hero.optLong("id")==feastActorId)' in journal
+    assert 'feastActorId' in journal and 'progress_json' in journal
+    ui=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java").read_text(encoding="utf-8")
+    assert 'feastActors.get(feastActorSpinner.getSelectedItemPosition()).optLong("id")' in ui
+    assert 'recordEkundayoNtaviNoIntervention()' in ui
+    assert 'recordEkundayoRomance(heroes.get(chosen.getSelectedItemPosition()).optLong("id"))' in ui
