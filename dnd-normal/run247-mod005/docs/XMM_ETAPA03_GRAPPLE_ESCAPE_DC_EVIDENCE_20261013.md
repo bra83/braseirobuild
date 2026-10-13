@@ -19,6 +19,6 @@ Cada registro é checado contra seu texto/pointer pinado, DC de escape, condiç�
 - `verify_xmm_65_attack_conditions.py`: 65 riders conferidos (29 Prone, 36 Grappled); 21 efeitos adicionais continuam marcados como manuais.
 - BRELGA run `38411724879`, código SHA `a7837a276482eda028f02e565e42c17d4fb65d41`: 93 suites, 2.450 testes, 0 falhas/erros/ignorados. Evidência `dnd-normal-qa-evidence/runs/38411724879/attempt-1.json`; XML `Xmm503SourceAndRechargeTest` SHA-256 `20bb2b8fd0edcc018780363935055154a8f0ae5ecaee94d50d058b7c6e194652`.
 
-Auditoria GitHub-hosted run `38411724847` foi bloqueada antes dos steps por pendência de billing/limite da conta (check annotation). Esse run antecede a ampliação para 36 ações. Na tentativa local desta revisão, Gradle 8.11.1 não pôde ser baixado por conexão recusada; não há ainda resultado Android vinculado ao novo SHA.
+Auditoria GitHub-hosted run `38414597372`, código SHA `52ea9806da9d2b0dbad217f4eee936cc5fc24ac3`, passou: fonte pinada, 503 monstros, 36 seções e 65 riders. A suíte BRELGA run `38415921354`, código SHA `e343288bebeb414d6c2f8a6bb9d02fab7e11a0fe`, passou com 93 suites e 2.475 testes sem falhas/erros/ignorados. XML `Xmm503SourceAndRechargeTest` SHA-256 `f484a86b9b9919a4c5665f975dae6b87764666f13c59d952382787113c9f59f7`. A tentativa Gradle local anterior não iniciou porque o ambiente recusou o download de Gradle 8.11.1.
 
 A mudança corrige os metadados de fonte; não implementa a fuga/persistência do agarrão e não fecha ETAPA 03.
