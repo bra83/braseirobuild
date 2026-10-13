@@ -71,6 +71,31 @@ public final class OfficialBookRuntimeGateway {
         try {
             if ("list_feats".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("feats", astarion.listVampiricFeats());
             if ("epic_boon".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("result", astarion.getEpicBoon(in.optString("boon")));
+            if ("bloodlust_powerful_recovery".equals(action)) {
+                JSONObject result=astarion.evaluateBloodlustRecovery(
+                        in.optInt("rolled_hit_die",0), in.optInt("hit_die_sides",0));
+                return new JSONObject().put("executed",result.optBoolean("resolved",false))
+                        .put("status",result.optBoolean("resolved",false)?"resolved":"blocked")
+                        .put("auto_mutation_allowed",false).put("persisted",false)
+                        .put("result",result);
+            }
+            if ("bloodlust_sanguine_feast".equals(action)) {
+                JSONObject result=astarion.evaluateBloodlustSanguineFeast(
+                        in.optBoolean("hit_with_attack_roll",false),
+                        in.optBoolean("target_bloodied",false),
+                        in.optString("target_creature_type",""),
+                        in.optBoolean("already_used_this_turn",true),
+                        in.optBoolean("hit_die_available",false),
+                        in.optInt("rolled_hit_die",0),
+                        in.optInt("hit_die_sides",0),
+                        in.optInt("constitution_modifier",0),
+                        in.optInt("proficiency_bonus",0),
+                        in.optInt("uses_spent",0));
+                return new JSONObject().put("executed",result.optBoolean("resolved",false))
+                        .put("status",result.optBoolean("resolved",false)?"manual_application_required":"blocked")
+                        .put("auto_mutation_allowed",false).put("persisted",false)
+                        .put("result",result);
+            }
             if ("blood_frenzy".equals(action)) return astarion.evaluateBloodFrenzy(in.optInt("hunger_level"), in.optInt("target_hp"), in.optInt("target_max_hp"));
             if ("dhampir_bite_empower".equals(action)) {
                 final long characterId = in.optLong("character_id", 0);
