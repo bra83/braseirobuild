@@ -46,8 +46,13 @@ public final class AdventureWorldAdapter {
             if (worldEngine != null) {
                 String nodeDesc = targetNode.getTitle() != null ? targetNode.getTitle() : targetNode.getId();
                 JSONObject preview = worldEngine.preview("Avanco de aventura: " + nodeDesc);
-                if (preview != null && !preview.optBoolean("committed", false)) {
-                    worldEngine.commit(preview);
+                if (preview == null || preview.optString("error", "").length() > 0) {
+                    AppLog.w("AdventureWorldAdapter", "Prévia de mundo indisponível na mudança de cena.", null);
+                    return false;
+                }
+                if (!preview.optBoolean("committed", false) && !worldEngine.commit(preview)) {
+                    AppLog.w("AdventureWorldAdapter", "O motor do mundo rejeitou o avanço do tempo.", null);
+                    return false;
                 }
             }
             return true;
