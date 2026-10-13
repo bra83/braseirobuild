@@ -91,8 +91,9 @@ def journal_repository(s):
             if(before.length()==0||!KingmakerCampaignGate.official(before))throw new IllegalArgumentException("Missão da campanha inexistente.");
             if(KingmakerCampaignGate.completed(before.optString("status"))){result[0]=before;return;}
             requireJournalEligibility(before);if(!KingmakerCampaignGate.objectivesResolved(before))throw new IllegalStateException("Resolva todos os objetivos ou registre a ramificação que os dispensa.");
+            String k=KingmakerCampaignGate.questKey(before);
+            if(k.startsWith("q_cg_"))throw new IllegalStateException("Aventura de companheiro exige escolha de desfecho publicado e aplicação de consequências. Use ESCOLHER DESFECHO.");
             db.updateQuestStatus(questId,"completed","Objetivos resolvidos no Diário da Campanha");
-            String k=KingmakerCampaignGate.questKey(before);if(k.startsWith("q_cg_")){ContentValues c=new ContentValues();c.put("personal_quest_status","complete");c.put("updated_at",System.currentTimeMillis());db.getWritableDatabase().update("kingmaker_companions",c,"world_profile=? AND companion_key=?",new String[]{profile(),k.substring(5)});}
             result[0]=db.queryOne("SELECT * FROM quests WHERE id=? AND world_profile=?",new String[]{String.valueOf(questId),profile()});audit("Missão da campanha concluída",k,before,result[0]);
         }});return result[0];
     }
@@ -176,7 +177,27 @@ def journal_ui(s):
     private void showKingmakerQuestObjectives(final JSONObject q){
         final JSONArray objectives=KingmakerCampaignGate.objectives(q);final List<String> labels=new ArrayList<String>();
         for(int n=0;n<objectives.length();n++){JSONObject o=objectives.optJSONObject(n);labels.add((o.optBoolean("completed")||"waived".equals(o.optString("status"))?"✓ ":"○ ")+o.optString("description",o.optString("desc")));}
-        new AlertDialog.Builder(this).setTitle(q.optString("title")).setItems(labels.toArray(new String[0]),new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){showKingmakerObjectiveOutcome(q,objectives.optJSONObject(which));}}).setNegativeButton("Voltar",null).setPositiveButton("CONCLUIR MISSÃO",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){try{kingmakerRepository.finishCampaignQuest(q.optLong("id"));showKingmakerCampaignJournal();}catch(Exception e){toast(e.getMessage());}}}).show();
+        final boolean isCompanion=KingmakerCampaignGate.questKey(q).startsWith("q_cg_");
+        new AlertDialog.Builder(this).setTitle(q.optString("title")).setItems(labels.toArray(new String[0]),new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){showKingmakerObjectiveOutcome(q,objectives.optJSONObject(which));}}).setNegativeButton("Voltar",null).setPositiveButton(isCompanion?"ESCOLHER DESFECHO":"CONCLUIR MISSÃO",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){try{if(isCompanion)showKingmakerCompanionBranchChoices(q);else{kingmakerRepository.finishCampaignQuest(q.optLong("id"));showKingmakerCampaignJournal();}}catch(Exception e){toast(e.getMessage());}}}).show();
+    }
+    private void showKingmakerCompanionBranchChoices(final JSONObject q){
+        final String key=KingmakerCampaignGate.questKey(q);if(!key.startsWith("q_cg_")){toast("Esta não é uma aventura pessoal.");return;}
+        final String companion=key.substring(5);
+        final JSONArray branches=KingmakerCampaignGate.progress(q).optJSONArray("branches");
+        if(branches==null||branches.length()==0){toast("O catálogo desta aventura não contém desfechos oficiais.");return;}
+        final List<String> labels=new ArrayList<String>();
+        for(int i=0;i<branches.length();i++){JSONObject b=branches.optJSONObject(i);labels.add(b==null?"Desfecho inválido":b.optString("title",b.optString("branch_key")));}
+        new AlertDialog.Builder(this).setTitle("Desfecho de "+q.optString("title"))
+         .setItems(labels.toArray(new String[0]),new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){
+            final JSONObject selected=branches.optJSONObject(which);if(selected==null){toast("Desfecho inválido.");return;}
+            new AlertDialog.Builder(MainActivity.this).setTitle(selected.optString("title"))
+             .setMessage(selected.optString("description")+"\\n\\nAs consequências serão persistidas e não poderão ser concedidas duas vezes.")
+             .setNegativeButton("Cancelar",null)
+             .setPositiveButton("CONFIRMAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){
+                try{kingmakerRepository.resolveCompanionAdventureBranch(companion,selected.optString("branch_key"));showKingmakerCampaignJournal();}
+                catch(Exception e){toast(e.getMessage());}
+             }}).show();
+         }}).setNegativeButton("Voltar",null).show();
     }
     private void showKingmakerObjectiveOutcome(final JSONObject q,final JSONObject objective){
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),dp(16));form.addView(text(objective.optString("description",objective.optString("desc")),14,TEXT,false));
