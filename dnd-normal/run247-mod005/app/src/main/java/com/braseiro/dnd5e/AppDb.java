@@ -7055,6 +7055,9 @@ public List<JSONObject> listWorldEventsForMaster(int limit){return queryList("SE
         root.put("sceneState",getSceneState());
         root.put("npcMemories",new JSONArray(queryList("SELECT * FROM npc_memory_profiles WHERE world_profile=? ORDER BY updated_at",new String[]{profile})));
         root.put("auditLog",new JSONArray(queryList("SELECT * FROM audit_log WHERE world_profile=? ORDER BY created_at",new String[]{profile})));
+        // D&D Normal adventure state must travel with BACKUP21.
+        // Mystara is excluded by the bridge's active-profile guard.
+        com.braseiro.dnd5e.adventure.AdventureBackupBridge.attach(root, this);
         root.put("characters",new JSONArray(listCharacters()));
         root.put("journal",new JSONArray(listJournal()));
         root.put("combatants",new JSONArray(queryList(
@@ -7235,6 +7238,10 @@ public List<JSONObject> listWorldEventsForMaster(int limit){return queryList("SE
                 compiledChanged=true;
                 CompiledContentBackupBridge.restoreOrThrow(root);
             }
+            // BACKUP21 v21 extension: restore D&D adventures within the same
+            // transaction as the campaign; invalid payload rolls back everything.
+            com.braseiro.dnd5e.adventure.AdventureBackupBridge.restoreIfPresent(
+                    root, db, backupProfile);
             db.setTransactionSuccessful();
         }catch(Exception failure){
             restoreFailure=failure;
