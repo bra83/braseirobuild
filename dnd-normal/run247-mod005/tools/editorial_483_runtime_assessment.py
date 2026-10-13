@@ -180,6 +180,24 @@ def run(root: Path):
     semantic_gate = existing.inspect(root)
     problems.extend("INVENTORY_GATE:" + e for e in semantic_gate["errors"])
 
+    # Distinguish "looks like non-gameplay" from "reviewed NOT_APPLICABLE".
+    # An editorial-metadata title alone is never evidence of source review.
+    non_rule_candidates = [
+        item for item in entries
+        if item["tier"] == "EDITORIAL_ONLY" or
+        item["kind"] == "illustration_caption"
+    ]
+    non_rule_pending_review = [
+        item["key"] for item in non_rule_candidates
+        if by_ledger[item["key"]].get("status") != "NOT_APPLICABLE"
+    ]
+    reviewed_non_rule_ids = [
+        item["key"] for item in non_rule_candidates
+        if by_ledger[item["key"]].get("status") == "NOT_APPLICABLE"
+    ]
+    if len(reviewed_non_rule_ids) != semantic_gate["non_rule_items"]:
+        problems.append("NON_RULE_REVIEW_MISMATCH")
+
     # The root includes 483 distinct sections, but they are NOT all game rules.
     return {
         "format": "BRASEIRO_DND_EDITORIAL_483_SECTION_ASSESSMENT_V1",
@@ -191,6 +209,9 @@ def run(root: Path):
         "structural_evidence": dict(sorted(assessment.items())),
         "individual_test_methods_shared": dict(sorted(shared_test.items())),
         "non_rule_items": semantic_gate["non_rule_items"],
+        "editorial_only_candidates": len(non_rule_candidates),
+        "editorial_only_pending_review": len(non_rule_pending_review),
+        "editorial_only_pending_review_ids": non_rule_pending_review,
         "source_verified_and_semantic_passed": semantic_gate["certified"],
         "pending_semantic_certification": semantic_gate["pending"],
         "structural_gate_pass": not problems,
