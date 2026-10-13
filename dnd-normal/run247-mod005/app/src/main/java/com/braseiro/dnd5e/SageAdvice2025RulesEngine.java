@@ -16,11 +16,11 @@ import org.json.JSONObject;
 public final class SageAdvice2025RulesEngine {
     public static final String SOURCE_ID = "xsac";
     public static final String SOURCE_TITLE = "Sage Advice Compendium (2025)";
-    public static final String SOURCE_SHA = "fcc345740f77e2841683e6b6f8f37f1b8b2acad3";
+    public static final String SOURCE_SHA = XsacSourceLocator.SOURCE_BLOB_SHA1;
     public static final int SOURCE_RULINGS = 163;
 
     private static JSONObject ok(String id, String category, String rule) throws Exception {
-        return new JSONObject()
+        return XsacSourceLocator.annotate(new JSONObject()
                 .put("resolved", true)
                 .put("status", "resolved")
                 .put("source_id", SOURCE_ID)
@@ -29,11 +29,11 @@ public final class SageAdvice2025RulesEngine {
                 .put("rule", rule)
                 .put("resolution_mode", "DETERMINISTIC")
                 .put("auto_rolls", false)
-                .put("auto_mutation_allowed", false);
+                .put("auto_mutation_allowed", false), id);
     }
 
     private static JSONObject manual(String id, String category, String rule) throws Exception {
-        return new JSONObject()
+        return XsacSourceLocator.annotate(new JSONObject()
                 .put("resolved", true)
                 .put("status", "manual_dm")
                 .put("source_id", SOURCE_ID)
@@ -42,7 +42,7 @@ public final class SageAdvice2025RulesEngine {
                 .put("rule", rule)
                 .put("resolution_mode", "MANUAL_DM")
                 .put("auto_rolls", false)
-                .put("auto_mutation_allowed", false);
+                .put("auto_mutation_allowed", false), id);
     }
 
     private static JSONObject blocked(String id) throws Exception {

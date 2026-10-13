@@ -204,6 +204,15 @@ public final class SageAdvice163RuntimeContractTest {
         assertEquals(ruleId, answer.optString("rule_id"));
         assertEquals("xsac",answer.optString("source_id"));
         assertEquals(category,answer.optString("category"));
+        assertEquals("OFFICIAL_QA",answer.optString("source_record_kind"));
+        assertEquals(XsacSourceLocator.SOURCE_COMMIT,answer.optString("source_commit"));
+        assertEquals(XsacSourceLocator.SOURCE_BLOB_SHA1,answer.optString("source_blob_sha1"));
+        assertTrue(ruleId + " must have a pinned Q/A pointer",
+                answer.optString("source_pointer").startsWith("/bookData/0/data/0/entries/"));
+        assertTrue(ruleId + " must be listed in source index",
+                XsacSourceLocator.hasQa(ruleId));
+        assertFalse(ruleId + " cannot claim source semantic certification",
+                answer.optBoolean("source_semantics_certified",true));
         assertEquals(mode,answer.optString("resolution_mode"));
         assertEquals("Manual decisions may not be silently automated",
                 mode.equals("MANUAL_DM") ? "manual_dm":"resolved",
