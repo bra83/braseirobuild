@@ -207,13 +207,17 @@ public final class Xmm2025SpellUsageIndex {
     out.put("minimum_d6",amount).put("recharge_check_required",true);
     if(!in.has("recharge_ready"))return out.put("status","manual_recharge_status_required")
        .put("may_attempt",JSONObject.NULL);
-    return out.put("status","recharge_confirmed").put("may_attempt",in.getBoolean("recharge_ready"));
+    Object ready=in.opt("recharge_ready");
+    if(!(ready instanceof Boolean))return blocked("invalid_recharge_ready_type");
+    return out.put("status","recharge_confirmed").put("may_attempt",((Boolean)ready).booleanValue());
   }
   out.put("source_usage_limit",amount).put("uses_each_per_spell",perSpellEach);
   if(!in.has("uses_remaining"))return out.put("status","manual_usage_count_required")
         .put("may_attempt",JSONObject.NULL);
-  int left=in.optInt("uses_remaining",-1);
-  if(left<0)return blocked("invalid_remaining_uses");
+  Object remaining=in.opt("uses_remaining");
+  if(!(remaining instanceof Integer||remaining instanceof Long))return blocked("invalid_remaining_uses");
+  long left=((Number)remaining).longValue();
+  if(left<0||left>amount)return blocked("invalid_remaining_uses");
   return out.put("status","use_count_confirmed").put("uses_remaining",left)
        .put("may_attempt",left>0);
  }
