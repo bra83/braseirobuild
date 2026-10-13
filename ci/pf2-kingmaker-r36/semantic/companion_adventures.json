@@ -614,91 +614,278 @@
         "companion_key": "jubilost",
         "minimum_level": 8,
         "story_timing": "Nível 8; após o Florescimento e antes de Varnhold é preferência, não exigência.",
-        "source_ref": "Kingmaker Companion Guide pp.36–43",
+        "source_ref": "Kingmaker Companion Guide pp.36-43",
         "official_title": "The Inconsequent Debates",
         "definition_revision": "companions-r36-primary",
         "automatic_rewards_compiled": false,
         "playable_adventure_compiled": true,
         "scenes": [
           {
-            "scene_key": "cg_jubilost_shyka_sanctuary",
-            "code": "SHYKA",
-            "title": "Santuário Temporal de Shyka e Notas de Xae",
+            "scene_key": "cg_jubilost_shrine_approach",
+            "code": "A1-A2",
+            "title": "Caverna do Santuário de Shyka — Lago de Montanha e Covil da Peluda",
             "page": 37,
-            "environment": "ancient_shrine",
+            "source_ref": "Kingmaker Companion Guide pp.36-38",
+            "environment": "hills_mountain_cave",
             "encounter_severity": "Moderate 8",
+            "exploration_requirement": "Explorar por um dia o hex com o extremo sul do Lago Silverstep, nas Colinas dos Tors de Levenies",
             "skill_checks": [
               {
-                "check_id": "jubilost_decipher_xae",
-                "skill": "Ocultismo",
-                "alt_skill": "Natureza",
+                "check_id": "jubilost_recall_debates",
+                "skill": "Natureza",
+                "dc": 28,
+                "alternate_skill_dcs": [
+                  {
+                    "skill": "Saber do Primeiro Mundo",
+                    "dc": 24
+                  }
+                ],
+                "description": "Lembrar as regras e a tradição dos Debates Inconsequentes."
+              },
+              {
+                "check_id": "jubilost_find_shrine_cave",
+                "skill": "Saber de Colinas/Montanhas",
+                "dc": 24,
+                "alternate_skill_dcs": [
+                  {
+                    "skill": "Sobrevivência",
+                    "dc": 26
+                  },
+                  {
+                    "skill": "Percepção",
+                    "dc": 19
+                  }
+                ],
+                "description": "Após um dia de exploração, localizar a caverna escondida do santuário."
+              },
+              {
+                "check_id": "jubilost_climb_cave",
+                "skill": "Atletismo",
+                "dc": 20,
+                "description": "Subir o penhasco até a entrada da caverna."
+              },
+              {
+                "check_id": "jubilost_recognize_runes",
+                "skill": "Percepção",
                 "dc": 25,
-                "description": "Decifrar os cálculos cronológicos de Xae para abrir a fenda aos Debates."
+                "prerequisite": "Saber Silvestre",
+                "description": "Ler as antigas orações aos Anciãos gravadas na pedra."
+              },
+              {
+                "check_id": "jubilost_recognize_shyka_symbols",
+                "skill": "Natureza",
+                "dc": 25,
+                "alternate_skill_dcs": [
+                  {
+                    "skill": "Religião",
+                    "dc": 25
+                  }
+                ],
+                "description": "Identificar os sete símbolos de Shyka e a ampulheta menos quebrada."
+              },
+              {
+                "check_id": "jubilost_identify_door",
+                "skill": "Identificar Magia",
+                "dc": 24,
+                "description": "Descobrir que a porta abre tocando os sete símbolos do menos ao mais quebrado."
+              },
+              {
+                "check_id": "jubilost_force_shrine_door",
+                "skill": "Atletismo",
+                "dc": 30,
+                "description": "Forçar a porta de pedra (Dureza 18, PV 70), alternativa ao enigma."
+              }
+            ],
+            "puzzle": {
+              "puzzle_key": "shyka_seven_hourglasses",
+              "symbols_count": 7,
+              "solution": "Tocar do menos quebrado ao mais quebrado",
+              "hardness": 18,
+              "hp": 70,
+              "force_open_dc": 30,
+              "closes_after_seconds": 60
+            },
+            "enemies": [
+              {
+                "npc_key": "cg_peluda",
+                "name": "Peluda",
+                "count": 1,
+                "level": 10,
+                "source_ref": "Kingmaker Companion Guide p.38; Bestiary 2 p.196",
+                "hp": 170,
+                "ac": 30,
+                "perception": 21,
+                "fortitude": 21,
+                "reflex": 17,
+                "will": 19,
+                "attack_bonus": 23,
+                "attacks": [
+                  {
+                    "name": "Mandíbulas",
+                    "attack_bonus": 23,
+                    "damage": "2d12+13 perfurante"
+                  },
+                  {
+                    "name": "Cauda",
+                    "attack_bonus": 23,
+                    "damage": "2d6+13 contundente"
+                  }
+                ]
+              }
+            ],
+            "treasure": {
+              "source_ref": "Kingmaker Companion Guide p.38",
+              "copper_pieces": 4200,
+              "silver_pieces": 1120,
+              "gold_pieces": 104,
+              "jewelry_gp_value": 150,
+              "items": [
+                "rod of wonder",
+                "wand of vampiric touch",
+                "+1 chainmail",
+                "+1 striking Aldori dueling sword"
+              ],
+              "awarded_only_when_found": true
+            }
+          },
+          {
+            "scene_key": "cg_jubilost_xae_ghost",
+            "code": "A3",
+            "title": "Santuário Oculto — Espírito de Xae e os Sete Julgamentos",
+            "page": 38,
+            "source_ref": "Kingmaker Companion Guide pp.38-39",
+            "environment": "magical_shrine",
+            "encounter_severity": "Severe 8",
+            "skill_checks": [
+              {
+                "check_id": "jubilost_recognize_shyka_statues",
+                "skill": "Natureza",
+                "dc": 25,
+                "alternate_skill_dcs": [
+                  {
+                    "skill": "Religião",
+                    "dc": 25
+                  }
+                ],
+                "description": "Identificar as sete manifestações de Shyka."
               }
             ],
             "enemies": [
               {
-                "npc_key": "cg_time_dimensional_hound",
-                "name": "Guardião Dimensional Deslocado",
-                "count": 2,
-                "level": 7,
-                "hp": 115,
-                "ac": 25,
-                "perception": 16,
-                "fortitude": 15,
-                "reflex": 18,
-                "will": 15,
-                "attack_bonus": 18,
-                "damage": "2d8+7 cortante"
+                "npc_key": "cg_xae",
+                "name": "Xae, Fantasma da Pesquisadora Gnoma",
+                "count": 1,
+                "level": 11,
+                "source_ref": "Companion Guide pp.38-39",
+                "hp": 150,
+                "ac": 28,
+                "perception": 19,
+                "fortitude": 19,
+                "reflex": 20,
+                "will": 19,
+                "attack_bonus": 21,
+                "damage": "2d10+12 negativo",
+                "abilities": [
+                  {
+                    "name": "Shyka's Judgment",
+                    "action_cost": 2,
+                    "dc": 30,
+                    "save": "Vontade",
+                    "critical_success": "sem efeito",
+                    "success": "6d6 mental",
+                    "failure": "12d6 mental e lento 1",
+                    "critical_failure": "18d6 mental, atordoado 1 e 2d6 mental persistente",
+                    "recharge": "1d4 rodadas"
+                  },
+                  {
+                    "name": "Twist Time",
+                    "action_cost": 2,
+                    "dc": 30,
+                    "save": "Fortitude",
+                    "trigger": "Golpe com mão fantasmagórica"
+                  }
+                ]
               }
             ]
           },
           {
-            "scene_key": "cg_jubilost_debate_amphitheater",
+            "scene_key": "cg_jubilost_inconsequent_debates",
             "code": "DEBATES",
-            "title": "Anfiteatro dos Debates Inconsequentes",
-            "page": 39,
-            "environment": "first_world_amphitheater",
-            "encounter_severity": "Severe 8",
+            "title": "Debates Inconsequentes — Três Perguntas do Anfitrião",
+            "page": 42,
+            "source_ref": "Kingmaker Companion Guide pp.40-43",
+            "environment": "first_world_forest_glade",
+            "encounter_severity": "Social 8",
+            "question_count": 3,
+            "teams": [
+              "PJs e Jubilost",
+              "Kirkett",
+              "Sir Allfrey",
+              "Nyrd Zottenropple"
+            ],
             "skill_checks": [
               {
                 "check_id": "jubilost_debate_round_1",
-                "skill": "Sociedade",
-                "alt_skill": "Arcanismo",
-                "dc": 26,
-                "description": "Primeira rodada de debate: refutar as teses absurdas sobre cosmologia feérica."
+                "skill": "Diplomacia",
+                "dc": 24,
+                "alternate_skill_dcs": [
+                  {
+                    "skill": "Enganação",
+                    "dc": 24
+                  },
+                  {
+                    "skill": "Intimidação",
+                    "dc": 24
+                  },
+                  {
+                    "skill": "Performance",
+                    "dc": 24
+                  }
+                ],
+                "description": "Responder o que pode mover uma montanha"
               },
               {
                 "check_id": "jubilost_debate_round_2",
                 "skill": "Diplomacia",
-                "alt_skill": "Dissimulação",
-                "dc": 26,
-                "description": "Segunda rodada de debate: conquistar o júri feérico e o Anfitrião."
+                "dc": 24,
+                "alternate_skill_dcs": [
+                  {
+                    "skill": "Enganação",
+                    "dc": 24
+                  },
+                  {
+                    "skill": "Intimidação",
+                    "dc": 24
+                  },
+                  {
+                    "skill": "Performance",
+                    "dc": 24
+                  }
+                ],
+                "description": "Responder o que enfraquece quando é de muitos e morre quando é de ninguém"
               },
               {
                 "check_id": "jubilost_debate_round_3",
-                "skill": "Ocultismo",
-                "alt_skill": "Performance",
-                "dc": 28,
-                "description": "Terceira rodada de debate: resolver o paradoxo final proposto pelo Anfitrião."
+                "skill": "Diplomacia",
+                "dc": 24,
+                "alternate_skill_dcs": [
+                  {
+                    "skill": "Enganação",
+                    "dc": 24
+                  },
+                  {
+                    "skill": "Intimidação",
+                    "dc": 24
+                  },
+                  {
+                    "skill": "Performance",
+                    "dc": 24
+                  }
+                ],
+                "description": "Responder que monstro nasce conosco e cresce a cada dia"
               }
             ],
-            "enemies": [
-              {
-                "npc_key": "cg_fey_debate_crasher",
-                "name": "Sabotador Feérico Exaltado",
-                "count": 2,
-                "level": 8,
-                "hp": 135,
-                "ac": 26,
-                "perception": 17,
-                "fortitude": 16,
-                "reflex": 19,
-                "will": 17,
-                "attack_bonus": 19,
-                "damage": "2d8+8 perfurante mais 1d6 mental"
-              }
-            ]
+            "enemies": []
           }
         ],
         "branches": [
@@ -729,6 +916,59 @@
             ],
             "feature_unlocked": "jubilost:inconsequent_debates_planar_secret"
           }
+        ],
+        "debate_rule": {
+          "source_ref": "Kingmaker Companion Guide pp.41-42",
+          "questions": 3,
+          "dc": 24,
+          "skills": [
+            "Enganação",
+            "Diplomacia",
+            "Intimidação",
+            "Performance"
+          ],
+          "victory_points": {
+            "CRITICAL_SUCCESS": 2,
+            "SUCCESS": 1,
+            "FAILURE": 0,
+            "CRITICAL_FAILURE": -1
+          },
+          "outcomes": [
+            {
+              "max_vp": 0,
+              "outcome": "lost_other_team_wins"
+            },
+            {
+              "min_vp": 1,
+              "max_vp": 1,
+              "outcome": "no_winner"
+            },
+            {
+              "min_vp": 2,
+              "max_vp": 2,
+              "outcome": "tie_one_question_answered"
+            },
+            {
+              "min_vp": 3,
+              "max_vp": 3,
+              "outcome": "win_one_question_answered"
+            },
+            {
+              "min_vp": 4,
+              "max_vp": 6,
+              "outcome": "extraordinary_every_pc_one_question"
+            }
+          ],
+          "host_gift": {
+            "source_ref": "Kingmaker Companion Guide p.43",
+            "use_once_per_pc": true,
+            "trigger": "Falha/falha crítica em salvamento ou crítico recebido em Ataque",
+            "effect": "Falha crítica torna-se sucesso crítico; golpe crítico recebido torna-se falha crítica",
+            "requires_answer_to_earned_question": true
+          }
+        },
+        "metadata_source_verified": [
+          "Kingmaker Companion Guide pp.36-43: busca da caverna, peluda, Xae, tesouro, três perguntas e Victory Points"
         ]
       }
     },
