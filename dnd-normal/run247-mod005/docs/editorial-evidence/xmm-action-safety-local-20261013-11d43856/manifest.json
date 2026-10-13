@@ -1,0 +1,45 @@
+{
+  "format": "XMM_LOCAL_ACTION_SAFETY_EVIDENCE_V1",
+  "code_commit": "11d438568b122f9d5a3923d4896df266dc855dcd",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "source_comparison": "xmm-source-comparison.json",
+  "source_comparison_sha256": "f7c3fbe2b3d3707f9a6d6e4267d1e615897164c5bb4e50cafe5e7c3a49cc191a",
+  "newly_manual_actions": "manual-actions.json",
+  "newly_manual_actions_sha256": "cb1f43a1350ca49d60c63b210c6cff1a778c7ec058b3462f9ac9bb7accc5720e",
+  "newly_manual_actions_count": 56,
+  "unmodeled_effect_actions_total": 93,
+  "python_tests": {
+    "command": "python3 -m unittest discover -s tools -p test_*.py",
+    "passed": 53,
+    "failed": 0
+  },
+  "source_gates": {
+    "xmm_503_source": true,
+    "xmm_65_attack_conditions": true,
+    "grapple_escape_and_reach_records": 36,
+    "prone_records": 29,
+    "grappled_records": 36,
+    "additional_manual_grapple_riders": 22
+  },
+  "editorial_inventory": {
+    "unit_tests_483_runtime_assessment": 5,
+    "unit_tests_coverage": 12,
+    "structural_links": 483,
+    "broken_links": 0,
+    "semantic_certification": "NOT_CLAIMED"
+  },
+  "android_unit_tests": {
+    "command": "bash gradlew :app:testDebugUnitTest --offline",
+    "status": "BLOCKED_BEFORE_TASK",
+    "reason": "Wrapper required Gradle 8.11.1 download; connection to services.gradle.org was refused.",
+    "executed": false
+  },
+  "brelga_ci": "NOT_RUN_ON_THIS_COMMIT",
+  "apk": "NOT_BUILT_CONTRACT_STAGE_03",
+  "stage_03_closed": false,
+  "limitations": [
+    "Manual flags prevent automatic attack/save resolution where source effects are not represented by the typed runtime.",
+    "The result does not certify every creature effect or close the 36 XMM sections.",
+    "Rights review and BRELGA validation remain open."
+  ]
+}

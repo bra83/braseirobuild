@@ -1,0 +1,286 @@
+{
+  "format": "XMM_MANUAL_SOURCE_ACTIONS_V1",
+  "newly_marked_count": 56,
+  "actions": [
+    {
+      "id": "Adult Copper Dragon",
+      "action": "Slowing Breath",
+      "source_pointer": "/monster/9/action/3/entries/0"
+    },
+    {
+      "id": "Adult Gold Dragon",
+      "action": "Weakening Breath",
+      "source_pointer": "/monster/10/action/3/entries/0"
+    },
+    {
+      "id": "Ancient Copper Dragon",
+      "action": "Slowing Breath",
+      "source_pointer": "/monster/21/action/3/entries/0"
+    },
+    {
+      "id": "Ancient Gold Dragon",
+      "action": "Weakening Breath",
+      "source_pointer": "/monster/22/action/3/entries/0"
+    },
+    {
+      "id": "Animal Lord",
+      "action": "Animal Spirit",
+      "source_pointer": "/monster/27/action/3/entries/0"
+    },
+    {
+      "id": "Ankheg",
+      "action": "Bite",
+      "source_pointer": "/monster/32/action/0/entries/0"
+    },
+    {
+      "id": "Arch-hag",
+      "action": "Crackling Wave",
+      "source_pointer": "/monster/36/action/2/entries/0"
+    },
+    {
+      "id": "Balor",
+      "action": "Lightning Blade",
+      "source_pointer": "/monster/48/action/2/entries/0"
+    },
+    {
+      "id": "Bearded Devil",
+      "action": "Infernal Glaive",
+      "source_pointer": "/monster/58/action/2/entries/0"
+    },
+    {
+      "id": "Berserker Commander",
+      "action": "Greataxe",
+      "source_pointer": "/monster/63/action/1/entries/0"
+    },
+    {
+      "id": "Berserker Commander",
+      "action": "Javelin",
+      "source_pointer": "/monster/63/action/2/entries/0"
+    },
+    {
+      "id": "Copper Dragon Wyrmling",
+      "action": "Slowing Breath",
+      "source_pointer": "/monster/103/action/2/entries/0"
+    },
+    {
+      "id": "Cyclops Oracle",
+      "action": "Flash of Light",
+      "source_pointer": "/monster/111/action/2/entries/0"
+    },
+    {
+      "id": "Death Cultist",
+      "action": "Dread Scythe",
+      "source_pointer": "/monster/115/action/1/entries/0"
+    },
+    {
+      "id": "Doppelganger",
+      "action": "Slam",
+      "source_pointer": "/monster/128/action/1/entries/0"
+    },
+    {
+      "id": "Ettin",
+      "action": "Morningstar",
+      "source_pointer": "/monster/148/action/2/entries/0"
+    },
+    {
+      "id": "Fire Giant",
+      "action": "Hammer Throw",
+      "source_pointer": "/monster/153/action/2/entries/0"
+    },
+    {
+      "id": "Frost Giant",
+      "action": "Great Bow",
+      "source_pointer": "/monster/161/action/2/entries/0"
+    },
+    {
+      "id": "Giant Axe Beak",
+      "action": "Sharpened Beak",
+      "source_pointer": "/monster/171/action/1/entries/0"
+    },
+    {
+      "id": "Giant Shark",
+      "action": "Bite",
+      "source_pointer": "/monster/191/action/1/entries/0"
+    },
+    {
+      "id": "Goblin Boss",
+      "action": "Scimitar",
+      "source_pointer": "/monster/214/action/1/entries/0"
+    },
+    {
+      "id": "Goblin Boss",
+      "action": "Shortbow",
+      "source_pointer": "/monster/214/action/2/entries/0"
+    },
+    {
+      "id": "Goblin Warrior",
+      "action": "Scimitar",
+      "source_pointer": "/monster/217/action/0/entries/0"
+    },
+    {
+      "id": "Goblin Warrior",
+      "action": "Shortbow",
+      "source_pointer": "/monster/217/action/1/entries/0"
+    },
+    {
+      "id": "Gold Dragon Wyrmling",
+      "action": "Weakening Breath",
+      "source_pointer": "/monster/218/action/3/entries/0"
+    },
+    {
+      "id": "Haunting Revenant",
+      "action": "Object Slam",
+      "source_pointer": "/monster/238/action/1/entries/0"
+    },
+    {
+      "id": "Hobgoblin Warlord",
+      "action": "Javelin",
+      "source_pointer": "/monster/247/action/1/entries/0"
+    },
+    {
+      "id": "Horned Devil",
+      "action": "Infernal Tail",
+      "source_pointer": "/monster/251/action/3/entries/0"
+    },
+    {
+      "id": "Hunter Shark",
+      "action": "Bite",
+      "source_pointer": "/monster/252/action/0/entries/0"
+    },
+    {
+      "id": "Ice Devil",
+      "action": "Ice Spear",
+      "source_pointer": "/monster/255/action/1/entries/0"
+    },
+    {
+      "id": "Incubus",
+      "action": "Restless Touch",
+      "source_pointer": "/monster/258/action/1/entries/0"
+    },
+    {
+      "id": "Lacedon Ghoul",
+      "action": "Icy Bite",
+      "source_pointer": "/monster/274/action/1/entries/0"
+    },
+    {
+      "id": "Merfolk Skirmisher",
+      "action": "Ocean Spear",
+      "source_pointer": "/monster/295/action/0/entries/0"
+    },
+    {
+      "id": "Mummy",
+      "action": "Rotting Fist",
+      "source_pointer": "/monster/311/action/1/entries/0"
+    },
+    {
+      "id": "Mummy Lord",
+      "action": "Rotting Fist",
+      "source_pointer": "/monster/312/action/1/entries/0"
+    },
+    {
+      "id": "Piranha",
+      "action": "Bite",
+      "source_pointer": "/monster/342/action/0/entries/0"
+    },
+    {
+      "id": "Pirate Captain",
+      "action": "Rapier",
+      "source_pointer": "/monster/345/action/1/entries/0"
+    },
+    {
+      "id": "Poltergeist",
+      "action": "Telekinetic Thrust",
+      "source_pointer": "/monster/352/action/2/entries/0"
+    },
+    {
+      "id": "Psychic Gray Ooze",
+      "action": "Pseudopod",
+      "source_pointer": "/monster/358/action/0/entries/0"
+    },
+    {
+      "id": "Rakshasa",
+      "action": "Cursed Touch",
+      "source_pointer": "/monster/365/action/1/entries/0"
+    },
+    {
+      "id": "Red Slaad",
+      "action": "Injecting Claw",
+      "source_pointer": "/monster/369/action/1/entries/0"
+    },
+    {
+      "id": "Scout Captain",
+      "action": "Shortsword",
+      "source_pointer": "/monster/390/action/1/entries/0"
+    },
+    {
+      "id": "Scout Captain",
+      "action": "Longbow",
+      "source_pointer": "/monster/390/action/2/entries/0"
+    },
+    {
+      "id": "Shadow",
+      "action": "Draining Swipe",
+      "source_pointer": "/monster/393/action/0/entries/0"
+    },
+    {
+      "id": "Sphinx of Secrets",
+      "action": "Curse of the Riddle",
+      "source_pointer": "/monster/407/action/2/entries/0"
+    },
+    {
+      "id": "Steam Mephit",
+      "action": "Steam Breath {@recharge}",
+      "source_pointer": "/monster/416/action/1/entries/0"
+    },
+    {
+      "id": "Warrior Commander",
+      "action": "Greatsword",
+      "source_pointer": "/monster/463/action/1/entries/0"
+    },
+    {
+      "id": "Warrior Commander",
+      "action": "Longbow",
+      "source_pointer": "/monster/463/action/2/entries/0"
+    },
+    {
+      "id": "Werebear",
+      "action": "Bite (Bear or Hybrid Form Only)",
+      "source_pointer": "/monster/469/action/1/entries/0"
+    },
+    {
+      "id": "Wereboar",
+      "action": "Gore (Boar or Hybrid Form Only)",
+      "source_pointer": "/monster/470/action/1/entries/0"
+    },
+    {
+      "id": "Wererat",
+      "action": "Bite (Rat or Hybrid Form Only)",
+      "source_pointer": "/monster/471/action/1/entries/0"
+    },
+    {
+      "id": "Weretiger",
+      "action": "Bite (Tiger or Hybrid Form Only)",
+      "source_pointer": "/monster/472/action/1/entries/0"
+    },
+    {
+      "id": "Werewolf",
+      "action": "Bite (Wolf or Hybrid Form Only)",
+      "source_pointer": "/monster/473/action/1/entries/0"
+    },
+    {
+      "id": "Worg",
+      "action": "Bite",
+      "source_pointer": "/monster/480/action/0/entries/0"
+    },
+    {
+      "id": "Young Copper Dragon",
+      "action": "Slowing Breath",
+      "source_pointer": "/monster/490/action/3/entries/0"
+    },
+    {
+      "id": "Young Gold Dragon",
+      "action": "Weakening Breath",
+      "source_pointer": "/monster/491/action/3/entries/0"
+    }
+  ]
+}
