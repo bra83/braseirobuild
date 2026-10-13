@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Ravenloft2026SourceRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:18:21" hostname="0f1875aecc7d" time="0.001">
+  <properties/>
+  <testcase name="unearthlyScreamCannotTriggerAgainstAttackThatAlreadyMissed" classname="com.braseiro.dnd5e.Ravenloft2026SourceRulesTest" time="0.0"/>
+  <testcase name="unearthlyScreamCanChangeHitIntoMissOnceAndSpendOneUse" classname="com.braseiro.dnd5e.Ravenloft2026SourceRulesTest" time="0.0"/>
+  <testcase name="dhampirBiteRequiresPositiveDamageAndSpecifiedEligibleCreature" classname="com.braseiro.dnd5e.Ravenloft2026SourceRulesTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

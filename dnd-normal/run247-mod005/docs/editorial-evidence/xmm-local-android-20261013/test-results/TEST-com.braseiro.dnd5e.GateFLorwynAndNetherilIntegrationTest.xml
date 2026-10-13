@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.GateFLorwynAndNetherilIntegrationTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:18:18" hostname="0f1875aecc7d" time="0.359">
+  <properties/>
+  <testcase name="testLorwynAndNetherilLoreFirewall" classname="com.braseiro.dnd5e.GateFLorwynAndNetherilIntegrationTest" time="0.119"/>
+  <testcase name="testNetherilsFallEnvironmentalEffectsAndHazards" classname="com.braseiro.dnd5e.GateFLorwynAndNetherilIntegrationTest" time="0.121"/>
+  <testcase name="testLorwynFirstLightSpeciesAndRealmCrossing" classname="com.braseiro.dnd5e.GateFLorwynAndNetherilIntegrationTest" time="0.119"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

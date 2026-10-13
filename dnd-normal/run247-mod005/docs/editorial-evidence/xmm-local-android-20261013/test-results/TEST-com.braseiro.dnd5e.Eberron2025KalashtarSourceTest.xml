@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Eberron2025KalashtarSourceTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:18:15" hostname="0f1875aecc7d" time="0.003">
+  <properties/>
+  <testcase name="kalashtarTelepathyMustCheckDistanceAgainstTenTimesLevel" classname="com.braseiro.dnd5e.Eberron2025KalashtarSourceTest" time="0.002"/>
+  <testcase name="mindLinkReplyRequiresMagicActionAndOneHourDuration" classname="com.braseiro.dnd5e.Eberron2025KalashtarSourceTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

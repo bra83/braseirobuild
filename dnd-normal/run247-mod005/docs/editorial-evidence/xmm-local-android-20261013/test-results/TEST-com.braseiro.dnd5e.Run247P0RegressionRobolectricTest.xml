@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run247P0RegressionRobolectricTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:18:32" hostname="0f1875aecc7d" time="1.643">
+  <properties/>
+  <testcase name="testP02_LegendarySpellsPreflightRejectionAndRealSaveBonus" classname="com.braseiro.dnd5e.Run247P0RegressionRobolectricTest" time="0.033"/>
+  <testcase name="testP03_MasterOrchestratorDurablePersistence" classname="com.braseiro.dnd5e.Run247P0RegressionRobolectricTest" time="1.59"/>
+  <testcase name="testP01_ForcedMovementAndTeleportCoordinatesMutation" classname="com.braseiro.dnd5e.Run247P0RegressionRobolectricTest" time="0.019"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

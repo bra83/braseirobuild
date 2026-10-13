@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run237ForcedMovementRobolectricTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:18:23" hostname="0f1875aecc7d" time="0.418">
+  <properties/>
+  <testcase name="manualPullCommitsAndBlockedPathRollsBack" classname="com.braseiro.dnd5e.Run237ForcedMovementRobolectricTest" time="0.418"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

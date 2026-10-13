@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:19:03" hostname="0f1875aecc7d" time="0.888">
+  <properties/>
+  <testcase name="actionIdCannotBePairedWithDifferentDestination" classname="com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest" time="0.13"/>
+  <testcase name="terminalAdventureStatusSurvivesReloadWithoutTerminalNode" classname="com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest" time="0.126"/>
+  <testcase name="faerunChoiceWithSameTargetPreservesSpecificConsequences" classname="com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest" time="0.127"/>
+  <testcase name="sameTargetRequiresActionIdAndAppliesOnlyChosenEffects" classname="com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest" time="0.115"/>
+  <testcase name="sceneLocationWriteFailureRollsBackAdventureStateAtomically" classname="com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest" time="0.14"/>
+  <testcase name="uncheckedCommitApisCannotWriteState" classname="com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest" time="0.127"/>
+  <testcase name="failedSqliteWriteMustNotPublishGraphStateOrFlags" classname="com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest" time="0.123"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

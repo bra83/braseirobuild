@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.e2e.E2ETier3CrossFeatureInteractionsRobolectricTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:19:13" hostname="0f1875aecc7d" time="1.124">
+  <properties/>
+  <testcase name="testCrossInteraction_TacticalMovement_Terrain_Cover_Receipt_Replay" classname="com.braseiro.dnd5e.e2e.E2ETier3CrossFeatureInteractionsRobolectricTest" time="0.181"/>
+  <testcase name="testCrossInteraction_Progression_Equip_Attack_Mitigation_Transaction" classname="com.braseiro.dnd5e.e2e.E2ETier3CrossFeatureInteractionsRobolectricTest" time="0.124"/>
+  <testcase name="testCrossInteraction_SpellCasting_Concentration_TurnBoundary" classname="com.braseiro.dnd5e.e2e.E2ETier3CrossFeatureInteractionsRobolectricTest" time="0.011"/>
+  <testcase name="testCrossInteraction_LivingWorld_Narration_Snapshot_Restore" classname="com.braseiro.dnd5e.e2e.E2ETier3CrossFeatureInteractionsRobolectricTest" time="0.665"/>
+  <testcase name="testCrossInteraction_ActionEconomy_ConditionLedger_Rollback" classname="com.braseiro.dnd5e.e2e.E2ETier3CrossFeatureInteractionsRobolectricTest" time="0.143"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

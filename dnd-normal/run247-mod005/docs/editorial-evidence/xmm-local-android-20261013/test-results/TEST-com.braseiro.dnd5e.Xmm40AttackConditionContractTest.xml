@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" tests="65" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:18:51" hostname="0f1875aecc7d" time="0.041">
+  <properties/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[0: Aberrant Cultist/Tentacle Lash]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[1: Aboleth/Tentacle]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[2: Animated Rug of Smothering/Smother]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[3: Ankheg/Bite]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[4: Ankylosaurus/Tail]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[5: Arch-hag/Spectral Claw]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[6: Barbed Devil/Claws]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[7: Barlgura/Thrash]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[8: Brown Bear/Claw]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[9: Bugbear Warrior/Grab]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[10: Chain Devil/Chain]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[11: Chimera/Ram]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[12: Chuul/Pincer]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[13: Colossus/Radiant Ray]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[14: Crocodile/Bite]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[15: Cyclops Sentry/Stone Club]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[16: Dao/Earthen Maul]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[17: Dire Wolf/Bite]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[18: Djinni/Storm Bolt]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[19: Dragon Turtle/Tail]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[20: Earth Elemental/Rock Launch]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[21: Ettin/Battleaxe]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[22: Giant Axe Beak/Talons]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[23: Giant Crab/Claw]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[24: Giant Crocodile/Bite]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[25: Giant Crocodile/Tail]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[26: Giant Frog/Bite]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[27: Giant Octopus/Tentacles]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[28: Giant Scorpion/Claw]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[29: Giant Squid/Tentacle]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[30: Giant Toad/Bite]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[31: Gibbering Mouther/Bite]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[32: Glabrezu/Pincer]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[33: Graveyard Revenant/Suffocate]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[34: Grell/Paralyzing Tentacles]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[35: Grick/Tentacles]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[36: Grick Ancient/Slam]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[37: Grick Ancient/Tentacles]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[38: Griffon/Rend]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[39: Hill Giant/Tree Club]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[40: Kuo-toa Whip/Pincer Staff]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[41: Lizardfolk Sovereign/Earthen Maul]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[42: Mastiff/Bite]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[43: Merfolk Wavebender/Aquatic Burst]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[44: Mezzoloth/Claws]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[45: Mimic/Pseudopod]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[46: Mind Flayer/Tentacles]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[47: Otyugh/Tentacle]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.002"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[48: Purple Worm/Bite]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[49: Remorhaz/Bite]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[50: Roc/Talons]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[51: Stone Giant/Boulder]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[52: Swarm of Crawling Claws/Swarm of Grasping Hands]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[53: Swarm of Stirges/Swarm of Proboscises]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[54: Tarrasque/Tail]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[55: Tiger/Rend]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[56: Tyrannosaurus Rex/Bite]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[57: Tyrannosaurus Rex/Tail]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[58: Vampire/Grave Strike (Vampire Form Only)]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.002"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[59: Vampire Spawn/Claw]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[60: Vine Blight/Constricting Vine]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.005"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[61: Water Elemental/Slam]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[62: Water Weird/Surge]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[63: Winter Wolf/Bite]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.0"/>
+  <testcase name="sourceBoundOnHitRiderIsPureAndSizeGated[64: Wolf/Bite]" classname="com.braseiro.dnd5e.Xmm40AttackConditionContractTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run244G05AttackRiderForcedMovementRobolectricTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:18:25" hostname="0f1875aecc7d" time="0.598">
+  <properties/>
+  <testcase name="attackHitRiderPushProneMustPreflightAndCommitOrRollback" classname="com.braseiro.dnd5e.Run244G05AttackRiderForcedMovementRobolectricTest" time="0.598"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

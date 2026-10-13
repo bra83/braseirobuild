@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run243WeightedTerrainRouteTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:18:25" hostname="0f1875aecc7d" time="0.002">
+  <properties/>
+  <testcase name="reactionPathMustFollowWeightedRouteNotUnweightedShortestPath" classname="com.braseiro.dnd5e.Run243WeightedTerrainRouteTest" time="0.001"/>
+  <testcase name="invalidExplicitTerrainShapeFailsClosed" classname="com.braseiro.dnd5e.Run243WeightedTerrainRouteTest" time="0.0"/>
+  <testcase name="noCornerCuttingAndNoBlockedDestination" classname="com.braseiro.dnd5e.Run243WeightedTerrainRouteTest" time="0.001"/>
+  <testcase name="previewFingerprintBindsTerrainAndChosenPath" classname="com.braseiro.dnd5e.Run243WeightedTerrainRouteTest" time="0.0"/>
+  <testcase name="forcedDifficultCellChargesExtraAndCrawlingStacks" classname="com.braseiro.dnd5e.Run243WeightedTerrainRouteTest" time="0.0"/>
+  <testcase name="choosesCheaperDetourRatherThanShortestDifficultRoute" classname="com.braseiro.dnd5e.Run243WeightedTerrainRouteTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

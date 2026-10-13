@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.adventure.FaerunCampaignEndingsRobolectricTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:19:06" hostname="0f1875aecc7d" time="1.763">
+  <properties/>
+  <testcase name="fiveCampaignsTwoEndingsAndThreeSqliteReopens" classname="com.braseiro.dnd5e.adventure.FaerunCampaignEndingsRobolectricTest" time="1.652"/>
+  <testcase name="normalDndWorldAdapterDoesNotWriteMystaraProfile" classname="com.braseiro.dnd5e.adventure.FaerunCampaignEndingsRobolectricTest" time="0.111"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

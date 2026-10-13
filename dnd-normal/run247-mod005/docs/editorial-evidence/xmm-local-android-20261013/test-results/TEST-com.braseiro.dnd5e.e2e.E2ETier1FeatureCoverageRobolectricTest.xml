@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" tests="21" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:19:11" hostname="0f1875aecc7d" time="1.157">
+  <properties/>
+  <testcase name="testF09EvidenceMatricesUpdate" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.011"/>
+  <testcase name="testF05GrappleEscapeDcDecoupling" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.01"/>
+  <testcase name="testF10IdentityAndTreeIntegrity" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.01"/>
+  <testcase name="testF08TwoStageGrapplePrerequisites" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.01"/>
+  <testcase name="testF13SpellsCatalogAndConcentration" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.011"/>
+  <testcase name="testF14CharacterCreationAndProgression" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.01"/>
+  <testcase name="testF17DmAssistantMemoryAndAudioDelivery" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.01"/>
+  <testcase name="testF16LivingWorldDeterministicClock" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.011"/>
+  <testcase name="testF19BuildSuiteAndHardwareValidation" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.01"/>
+  <testcase name="testF04ConditionTimingExpiration" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.011"/>
+  <testcase name="testF07TypedOnHitRidersPipeline" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.01"/>
+  <testcase name="testF20GatesCoverageMatrixFinalHomologation" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.042"/>
+  <testcase name="testF11AttackMitigationAndRollback" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.011"/>
+  <testcase name="testF06SpellcastingSaveDcResolution" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.011"/>
+  <testcase name="testF21MultiTierVerificationSuite" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.025"/>
+  <testcase name="testF03ActionEconomyBudgets" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.106"/>
+  <testcase name="testF18ConsistentSnapshotAndRemapping" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.654"/>
+  <testcase name="testF15UiIntentPreviewAndProposalQueue" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.019"/>
+  <testcase name="testF01DamageFormulaContractHarmonization" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.012"/>
+  <testcase name="testF02SqliteWalFixtureConcurrency" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.133"/>
+  <testcase name="testF12TacticalGridMovementAndBudget" classname="com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest" time="0.022"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

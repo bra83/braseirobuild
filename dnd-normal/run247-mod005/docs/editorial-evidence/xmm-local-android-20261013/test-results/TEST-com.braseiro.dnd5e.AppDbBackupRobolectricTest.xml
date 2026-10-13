@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.AppDbBackupRobolectricTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:18:05" hostname="0f1875aecc7d" time="10.039">
+  <properties/>
+  <testcase name="worldTickRunsClockAndBackgroundWorldThroughAppDbTransaction" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="6.642"/>
+  <testcase name="companionProposalApprovalUsesCurrentPersistedAuthorityAndSnapshot" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="0.351"/>
+  <testcase name="legacyBackupRestoresCoreSaveWithoutBackup21Seal" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="0.45"/>
+  <testcase name="compiledStatblockAttackUsesPersistedCombatTurnAndRejectsReplay" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="0.369"/>
+  <testcase name="deferredCommitFailureRollsBackSqliteAndCompiledBundle" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="0.408"/>
+  <testcase name="importingFullAuditWindowDoesNotDropOldestPortableEvent" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="0.439"/>
+  <testcase name="levelUpPersistsOneClassChoiceAtomicallyAndReopens" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="0.453"/>
+  <testcase name="guidedCharacterActionPersistsTypedEffectAndRejectsPendingReplay" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="0.295"/>
+  <testcase name="backup21RoundTripReopensAndPreservesPortableSections" classname="com.braseiro.dnd5e.AppDbBackupRobolectricTest" time="0.632"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

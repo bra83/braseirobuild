@@ -1,0 +1,954 @@
+{
+  "format": "BRASEIRO_LOCAL_ANDROID_UNIT_TEST_EVIDENCE_V1",
+  "run_id": "xmm-local-android-20261013-d355ab38",
+  "code_commit": "d355ab38c11848ce01ec21de3ec95e52c404317a",
+  "branch": "antigravity/dnd-normal-fechamento-gates",
+  "command": "GRADLE_USER_HOME=/tmp/xmm-local-android/gradle-home ANDROID_HOME=/tmp/xmm-local-android/sdk ANDROID_SDK_ROOT=/tmp/xmm-local-android/sdk JAVA_HOME=/tmp/xmm-local-android/jdk /tmp/xmm-local-android/gradle/gradle-8.11.1/bin/gradle --no-daemon :app:testDebugUnitTest",
+  "toolchain": {
+    "gradle": "8.11.1",
+    "java": "Eclipse Temurin JDK 21.0.12.1",
+    "android_sdk_platform": "35",
+    "android_build_tools": "35.0.0"
+  },
+  "result": {
+    "suites": 100,
+    "tests": 2493,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "apk_built": false
+  },
+  "warnings": [
+    "Android SDK tools reported support through SDK XML v3 while installed metadata used v4.",
+    "Chaquopy could not emit .pyc because configured buildPython 3.12.14 is incompatible; Android tests completed successfully."
+  ],
+  "source_comparison_file": "xmm-source-comparison.json",
+  "source_comparison": {
+    "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+    "bestiary_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+    "book_blob_sha1": "a21801793df3515d07ef9a56d9febefea1c6f8f7",
+    "monsters": 503,
+    "sections": 36,
+    "recharge_actions": 120,
+    "spellcasting_usage_records": 132,
+    "traits": 178,
+    "grapple_escape_records": 36,
+    "grapple_reach_records": 36,
+    "save_damage_actions": 59,
+    "riders": 65,
+    "prone": 29,
+    "grappled": 36,
+    "additional_effects_manual": 22,
+    "ranged_prone_ranges_compared": 4,
+    "full_monster_combat_automation_certified": false
+  },
+  "test_xml": [
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.AppDbBackupRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.AppDbBackupRobolectricTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "db138ab26e429a7b853afd2d19f51e6598df48421462877ffaa3851e3d5766da"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Astarion16FeatsPdfCatalogTest.xml",
+      "suite": "com.braseiro.dnd5e.Astarion16FeatsPdfCatalogTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "5f7d3c90d1b4b66ffc498706101e51afcb33939daf3dfa47a1f8a247e3c53049"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.AstarionBloodlustPdfRuleTest.xml",
+      "suite": "com.braseiro.dnd5e.AstarionBloodlustPdfRuleTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "bd7ae711b1eec534277592eb824bf7bb43fd2812aa15929c854354f8d9e5a5fa"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.AstarionPdf12FeatsRulesTest.xml",
+      "suite": "com.braseiro.dnd5e.AstarionPdf12FeatsRulesTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "fb81216f453c28cf46c3be5a67c76fd19d23228c16de01f23adb9cbc6af9a8e9"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.CharacterLevelUpTransitionEngineTest.xml",
+      "suite": "com.braseiro.dnd5e.CharacterLevelUpTransitionEngineTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "dc9bcebec9c24387c516b6eac9cfb581705485490844ccd4f04f7601ce7a0267"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.CompanionProposalIsolationRulesTest.xml",
+      "suite": "com.braseiro.dnd5e.CompanionProposalIsolationRulesTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "83ef28d8c9dacdab5302e09d0c4f456249998348cad66f1a7d4ab4609f7822c5"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.CompiledMonsterDamageGuardTest.xml",
+      "suite": "com.braseiro.dnd5e.CompiledMonsterDamageGuardTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "c74f55b03f3d54b952dfdfb354ca982a7bb7bebc0ba909d1b19e82fa8024d34e"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Core2024BlessTurnRulesTest.xml",
+      "suite": "com.braseiro.dnd5e.Core2024BlessTurnRulesTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "8571ea9275f3d19914f5459eccf841d9eaf44d482cd2efe7bb4406ac1cb8c5b2"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Eberron2025KalashtarSourceTest.xml",
+      "suite": "com.braseiro.dnd5e.Eberron2025KalashtarSourceTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "93d1df485cf9523c89dbf15be9f2551b8da23eb4e4de31e221292bc67b77dffc"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.EditorialSectionProofTest.xml",
+      "suite": "com.braseiro.dnd5e.EditorialSectionProofTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "bae48e04d0776c98396a6cf33461edeabbb6291189869ec3d3d25baffec959a5"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.FaerunRegionalBridgeRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.FaerunRegionalBridgeRobolectricTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "080a2f518b5f2d665bb72c261915c3df7021a4faa43333ff0fe1ad25256c920d"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.GateAFoundationIntegrationTest.xml",
+      "suite": "com.braseiro.dnd5e.GateAFoundationIntegrationTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "0e3b3d17f16405cdf6f5ec66437e7d42646c89c438a222fe17a4fd2891b9e7ae"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.GateBMonstersAndRulingsTest.xml",
+      "suite": "com.braseiro.dnd5e.GateBMonstersAndRulingsTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "8a924f51e424b9de9961bf3873bebd6905ebb7de5b7705da3b660c8826bec9ea"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.GateCFaerunIntegrationTest.xml",
+      "suite": "com.braseiro.dnd5e.GateCFaerunIntegrationTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "6b8e6c4e49ed7cc0676438e2ef32b251682e446de2a1d6f9e4ef471a607fab20"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.GateDEberronAndArcanaIntegrationTest.xml",
+      "suite": "com.braseiro.dnd5e.GateDEberronAndArcanaIntegrationTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "e34e80a756b3e07b59894a3995e86a90fb8bdc2c0014d092931e5d98b2dbddc8"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.GateERavenloftAndHungersIntegrationTest.xml",
+      "suite": "com.braseiro.dnd5e.GateERavenloftAndHungersIntegrationTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "49c17fc9b1c9ff07cbb87c395683f3a06f7b970767ef402b195395019ac01826"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.GateFLorwynAndNetherilIntegrationTest.xml",
+      "suite": "com.braseiro.dnd5e.GateFLorwynAndNetherilIntegrationTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "c413c76e7980b8b74d228a60069ff10c567528e696d800175d35dcf043f4bab2"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest.xml",
+      "suite": "com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "63fe885638a95fc562e78e4bad37c5886609101515d71a486a97a40caeb4861a"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.LivingWorldCatchUpRulesTest.xml",
+      "suite": "com.braseiro.dnd5e.LivingWorldCatchUpRulesTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "e73775b28b20aaac4d6a5459c9bac4344c9f8b893da001d4e548031e80a6dfe2"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.MonsterSaveDamageGuardTest.xml",
+      "suite": "com.braseiro.dnd5e.MonsterSaveDamageGuardTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "35496b9cd08524503e56d9b4bea4545689df5a20b0dd1e7a708e4f3b4138866f"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.NarrativeCanonPersistenceTest.xml",
+      "suite": "com.braseiro.dnd5e.NarrativeCanonPersistenceTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "d6a9527205a50a2699734e1fca192150f1a427b419410cc002e6625cdc8ee4a6"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.NetherilChapter2SourceMechanicsTest.xml",
+      "suite": "com.braseiro.dnd5e.NetherilChapter2SourceMechanicsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "46bd070caf31e0d4d7e778c2694f663dbb7d95c3b23118ddec9740976d1b21e6"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Ravenloft2026SourceRulesTest.xml",
+      "suite": "com.braseiro.dnd5e.Ravenloft2026SourceRulesTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "ca6dca8c56c45cfcc53f6403b2ab056d3c113c00533847e416490e6230f1dd46"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Ravenloft2026TouchOfDeathSourceTest.xml",
+      "suite": "com.braseiro.dnd5e.Ravenloft2026TouchOfDeathSourceTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "41dbfe2018667a2b5fe330da493f52cca2fb0041d302e3e77acf83ff0b2a26ac"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run231HostilityRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run231HostilityRobolectricTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "beebc17c553cb2ff2f145ffaa1982415738e696f1724acb4f01fc8699914387e"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run232RechargeRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run232RechargeRobolectricTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "4bd89abd8a27d21b0c6af2021ce0bee6f47473ef17ccd942be507fa223c7c566"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run233SecondaryRiderRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run233SecondaryRiderRobolectricTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "c18f1d499a3a1627e322d7f79526cfadf11d8e6c2dc5a3553e42659c2e602454"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run234TimedConditionRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run234TimedConditionRobolectricTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "081d71acac27a1ffbe991a2017849b158bdfd10b0aec07dcc9214069cf23707e"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run235RecoveryRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run235RecoveryRobolectricTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "ed587828e0ad4dd006912fe4a72fa46f96cb3586ae2a4daff779d1274a5d8b73"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run236ConditionBackupRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run236ConditionBackupRobolectricTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "a6217c63baa079933bf0d5ce464b766953d596566e67b9ebe46d3949ade9b38a"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run237ForcedMovementRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run237ForcedMovementRobolectricTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "8514facae55ca58a37bb5db69aee31ce7e96bb9c0d2659ef105c6c4666d80e7f"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run238ActionEconomyRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run238ActionEconomyRobolectricTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "87cf5ff65603b5b1269a1ba2c72ef471848e2835e4f66966c972b91263893d5e"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run242TacticalBoardRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run242TacticalBoardRobolectricTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "7ffd384a04b93c307ee54f94a021df55c08a39244cc5844e47030eab2b28e00a"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run242TacticalGridTapRulesTest.xml",
+      "suite": "com.braseiro.dnd5e.Run242TacticalGridTapRulesTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "dfb1b3f710a9e30acba892133f501159c97bb5b3910746c28fb2fa034c774b18"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run243TacticalMovementRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run243TacticalMovementRobolectricTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "1519cfffe08be8b989fe69ade2f73a9938f80446fadd4739ae6086f512e98ed8"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run243WeightedTerrainRouteTest.xml",
+      "suite": "com.braseiro.dnd5e.Run243WeightedTerrainRouteTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "a79ca0917f563800228ea80bf911840575d546b712e7d442525e96a124eb5851"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run244G05AttackRiderForcedMovementRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run244G05AttackRiderForcedMovementRobolectricTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "69472864e2c4359c515122c54dcdd7d271cf3d2697a2c477cb4944abcc13ae63"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run245G05ForcedMovementCornerRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run245G05ForcedMovementCornerRobolectricTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "71a179406dda80e783aaccc3b95e0b97e1a3b8e0151a6c14bebcb30a196c7dbe"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run245G05MultiattackFinalForcedMovementRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run245G05MultiattackFinalForcedMovementRobolectricTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "2e4c96071f82a96e1761fc886732bed4b995ee54a40f7fbbfb5d862ac1a86462"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run245G05MultiattackTypedDamageRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run245G05MultiattackTypedDamageRobolectricTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "616d3c3e769f9fbbb7a0d0fb3cbdbc50eac39a6da9386e5c2ecfc2e5b9ce0e3c"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run245G05RhwOnHitConditionRobolectricTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "63855f7c34d87dd7272a57acb02e19781a5c78c3b178ebf29478f9da452e0d01"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run245G05RhwTurnBoundHitRidersRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run245G05RhwTurnBoundHitRidersRobolectricTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "d83e7ea6704a213aad1fb8d51f4912ce1cf3984cf93b45efa407c3821de0b8f2"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run245G08G09NarratedTacticalMovementRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run245G08G09NarratedTacticalMovementRobolectricTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "9150e30ee592d6f75218608966c4fbd65ad491b0ddaaf1d6b6488fdf5e69dc14"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run245G12SceneImageImportPolicyTest.xml",
+      "suite": "com.braseiro.dnd5e.Run245G12SceneImageImportPolicyTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "b8ba3aa5b62ff8a3e8385dc456a1a1a94b4de69db26184674ab4d2982ce446ad"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run245G13NarrationChunkerTest.xml",
+      "suite": "com.braseiro.dnd5e.Run245G13NarrationChunkerTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "423ebe4de2e7931247e90415d21d14b9730ad04e5abad7d751e12d010df9dbe3"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run245PartyWeaponAttackRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run245PartyWeaponAttackRobolectricTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "4c2d2c198508a4f493eff348aebabc0eb640b3426d03505faaf61b3150ea80ea"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run246G05TypedOnHitBatchRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run246G05TypedOnHitBatchRobolectricTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "5b073bca20bbd8b9c46f090034e9da1cb22f48edc1595b0bbdf4da8617bd7e55"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run247G05UntimedProneRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run247G05UntimedProneRobolectricTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "5ebd5d83f1e4ab5823aabfd232f75b10c575d243d5587e70d9da049932a728ed"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Run247P0RegressionRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.Run247P0RegressionRobolectricTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "0f34047623aeeed4c8dd0ef90ec93988fcbc055789d8ed873fa860828178d232"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.SageAdvice163MeaningWitnessTest.xml",
+      "suite": "com.braseiro.dnd5e.SageAdvice163MeaningWitnessTest",
+      "tests": 163,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "a7921abc90881acee3b8f642d66ad980f9bb7c37042c525017d5e0d3e4180341"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.SageAdvice163RuntimeContractTest.xml",
+      "suite": "com.braseiro.dnd5e.SageAdvice163RuntimeContractTest",
+      "tests": 163,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "3c653150e5f99578edea034ab7f6b1bee4efcbfb50aeaa390df72c52625c08ee"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.SageAdvice2025SourceCorrectionsTest.xml",
+      "suite": "com.braseiro.dnd5e.SageAdvice2025SourceCorrectionsTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "39ccf17e2aff741eed2fe26446e083f5ef8354d0d8f2272cc1a4da04746d69b8"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.SimulatedGameSessionNarrativeTest.xml",
+      "suite": "com.braseiro.dnd5e.SimulatedGameSessionNarrativeTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "07a420231ee6140e4c551a324bed88929caeb641841bcfa8a81070216e9a4234"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.SpellTargetComponentExecutorTest.xml",
+      "suite": "com.braseiro.dnd5e.SpellTargetComponentExecutorTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "67836ea938cf5cccd524088069738b3031f4d7dd0323b8e7d2c3eb2f99884718"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Srd5OriginalMechanicsJsonContractTest.xml",
+      "suite": "com.braseiro.dnd5e.Srd5OriginalMechanicsJsonContractTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "dd2d95e5a6e120797571117427b88b5cc8be965a5d260fa12687df7df28f523d"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.TenBooksMasterIntegrationProofTest.xml",
+      "suite": "com.braseiro.dnd5e.TenBooksMasterIntegrationProofTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "234a5f800ccc5bd2f3f14e905a7c55bc4d705f3ac7713c251aa0d5bb96e92e34"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Xmm11NonAlphabetSectionsTest.xml",
+      "suite": "com.braseiro.dnd5e.Xmm11NonAlphabetSectionsTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "65f9623cca2a8b1cb3400ac64b01e573c28d91012becbcb0ea781815f822081b"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Xmm132SpellcastingSourceTest.xml",
+      "suite": "com.braseiro.dnd5e.Xmm132SpellcastingSourceTest",
+      "tests": 132,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "d7e96318b3b8f132239583169087de9a82b1f5bc3c7084b43284039a3e35f4f6"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest.xml",
+      "suite": "com.braseiro.dnd5e.Xmm178TraitMechanicsContractTest",
+      "tests": 178,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "d2e88660a331cfd14bbc22179253e813928c798ba4a0cabeb511c396eb2fdbfe"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Xmm2025AlphabetIndexTest.xml",
+      "suite": "com.braseiro.dnd5e.Xmm2025AlphabetIndexTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "ec5fe57f28afeac1398f8485454034d881a3eb03dbc115fe5fd13af704e5a9b1"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Xmm2025RechargeDecisionTest.xml",
+      "suite": "com.braseiro.dnd5e.Xmm2025RechargeDecisionTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "e213df1d1368b741d8ba8aa3b6b6649ab3b27975af59516f2978e86a62cb8b00"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest.xml",
+      "suite": "com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest",
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "fd9354aa77c47ba0dba0c2fac488be56c4501a9dced6d38b77072d94aa6f612b"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Xmm306MultiattackPlanContractTest.xml",
+      "suite": "com.braseiro.dnd5e.Xmm306MultiattackPlanContractTest",
+      "tests": 306,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "48884b100fe008863df00b6913730d186f5f58fbf06210d2a7b6f15261827a94"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Xmm40AttackConditionContractTest.xml",
+      "suite": "com.braseiro.dnd5e.Xmm40AttackConditionContractTest",
+      "tests": 65,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "53ec5d8b95f52d4c4b865a895b3a7f5cbda51100d680dbcfa3deb25f092026a4"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest.xml",
+      "suite": "com.braseiro.dnd5e.Xmm503DamageDefenseSourceContractTest",
+      "tests": 503,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "ae5f0327809287f3213b7a1a7cde15ade67f97bbda27a8ec0cbe1392803ee48a"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Xmm503SourceAndRechargeTest.xml",
+      "suite": "com.braseiro.dnd5e.Xmm503SourceAndRechargeTest",
+      "tests": 503,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "1293e0890dca3dca0bff02ca448ad1dd8aaea8456f76e5411edfc848e3a43d5e"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Xmm503StatblockRuntimeContractTest.xml",
+      "suite": "com.braseiro.dnd5e.Xmm503StatblockRuntimeContractTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "9c9e93f1f11d896afafe0ee34e50c0fe328942ff7417b982c4d5e966b5f979f2"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest.xml",
+      "suite": "com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest",
+      "tests": 59,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "2b29557a2cad46b0bfd5780066c6a35b713a413392d39193a7eea09f9bbb4c8e"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.XmmAttackConditionGatewayTest.xml",
+      "suite": "com.braseiro.dnd5e.XmmAttackConditionGatewayTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "bd6d3a74684388d800719d873456ec4fd62e74f6d56c7fcf6876b1086da2b2cf"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.XmmAttackConditionSafetyTest.xml",
+      "suite": "com.braseiro.dnd5e.XmmAttackConditionSafetyTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "6a764e8d76f8b8d4ea559ee32302436600cb210d3f8d428790c8c75ed363a119"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.XmmDamageDefenseGatewayTest.xml",
+      "suite": "com.braseiro.dnd5e.XmmDamageDefenseGatewayTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "33a0e0781b3ace1544b19b34eba6ee20e41ae2cdd05ea200e4cdffc4fcf42918"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.XmmGrappleEscapeRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.XmmGrappleEscapeRobolectricTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "8d8dacc2232fac0a78946ea02df122cceca3d9a60a9bc885547825aa41b270d6"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.XmmGrappleEscapeRulesTest.xml",
+      "suite": "com.braseiro.dnd5e.XmmGrappleEscapeRulesTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "03e2cedab622ef039667ca4e4a8d08346a2c66a9e619b1fca81e1ea0273c0c9a"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.XmmMultiattackRiderBridgeTest.xml",
+      "suite": "com.braseiro.dnd5e.XmmMultiattackRiderBridgeTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "0d922b47ad2f9eb06b93fc9399b617a0a73b9c388dc7534a17214ea15d616f0b"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.XmmMultiattackSafetyTest.xml",
+      "suite": "com.braseiro.dnd5e.XmmMultiattackSafetyTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "feab385bac72aee3530271a043e8509370734c781ad322d084e3b776954daa92"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.XmmProneEffectRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.XmmProneEffectRobolectricTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "cbd8cf4e4a24f3587359710fd96aee50e55852b486f34b32168fd413d7359b7c"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.XmmSaveDamageEffectRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.XmmSaveDamageEffectRobolectricTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "75c7d18d0f85a2d0df7cc2ec724ca5b8bdb5e8989e1096e4279b64ab3df2b660"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.XmmSaveDamageGatewayTest.xml",
+      "suite": "com.braseiro.dnd5e.XmmSaveDamageGatewayTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "92c286dff11489eaa20162f2a2bd3ebab3db9167af917b7688c07a1e1df15745"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.XmmSourceIndexGatewayTest.xml",
+      "suite": "com.braseiro.dnd5e.XmmSourceIndexGatewayTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "cca2237cbb3a328fb9c15e80077d6c85cef37ab3ba63dec07deab7c72f1ef28a"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.XmmSpellUsageGatewayTest.xml",
+      "suite": "com.braseiro.dnd5e.XmmSpellUsageGatewayTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "cabbe9a7cc03c396b3d92ace41f47e9678138c48d8feb1b314b6c0b2ebc7744c"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.XmmSpellUsageStrictInputTest.xml",
+      "suite": "com.braseiro.dnd5e.XmmSpellUsageStrictInputTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "5492e9d7b971a123e6d4caf75788f49f8255bef99485bf47d9e32c9534cc1660"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.XmmTraitMechanicsSafetyTest.xml",
+      "suite": "com.braseiro.dnd5e.XmmTraitMechanicsSafetyTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "f85b8a3f0ae0011eda3faff491ddf8557bdb24bf25957798fc04fa77ad5f0e95"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.Xsac14SectionRuntimeTest.xml",
+      "suite": "com.braseiro.dnd5e.Xsac14SectionRuntimeTest",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "b044ea5f59c44682d210d5ed04a64e9986aead6b2c9f715622075eb41ed128cc"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.XsacEditorialSourceGatewayTest.xml",
+      "suite": "com.braseiro.dnd5e.XsacEditorialSourceGatewayTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "418a17f7e9576e963cae49fcf3eb260c77764c5663668ddb11aeb6168d92ae51"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.XsacSourceLocatorTest.xml",
+      "suite": "com.braseiro.dnd5e.XsacSourceLocatorTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "36de35d99e907e336b64309aff85efce263882e1ff0e462ca556652107dd2015"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.adventure.AdventureBackupRoundTripRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.adventure.AdventureBackupRoundTripRobolectricTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "ed640449e077f93f9716e150b35cb136c63f466a7aae7f1764464f1328c651f9"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.adventure.AdventureCorruptSaveSafetyRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.adventure.AdventureCorruptSaveSafetyRobolectricTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "3860d1a5656533f721b8fe01dfcb5f54d4e1a89223292b517a712228f55511fe"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.adventure.AdventureManualAdjudicationPersistenceRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.adventure.AdventureManualAdjudicationPersistenceRobolectricTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "cb8d70bbc17b4ffd00775fcbfe375d1e399bc86f9dd6ccbbebf50f8c84c2de3d"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "22dc86b2477f2ad5f5df99056a250a4ac21116f25b0f3c37209c01c227495eb5"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.adventure.EberronRouteDivergenceRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.adventure.EberronRouteDivergenceRobolectricTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "e236c3a73da1723ad2e6511614512b9d2a4436b8857bb7608c4e90d7c2ea278a"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.adventure.FaerunBranchPersistenceRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.adventure.FaerunBranchPersistenceRobolectricTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "df71fb8bdc8765d3dff019117f299cf5ec342c4a44f26c2afabdf6627d9c3c77"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.adventure.FaerunCampaignEndingsRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.adventure.FaerunCampaignEndingsRobolectricTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "edba574798a2e7da335c75b3db96021ad669a08e907f92df411b5293d038d80a"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.adventure.FaerunGraphIntegrityTest.xml",
+      "suite": "com.braseiro.dnd5e.adventure.FaerunGraphIntegrityTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "e925046f6c9c9184fc2bf2c700a1bf8501391a4c1c9183bdeb497e21ce26d84d"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.adventure.ManualAdjudicationEngineTest.xml",
+      "suite": "com.braseiro.dnd5e.adventure.ManualAdjudicationEngineTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "437f00efe0ca576d2862d934baf341ccdc1b85bc6ad01700549f63508745e707"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.adventure.UniversalGithubModulesIntegrationTest.xml",
+      "suite": "com.braseiro.dnd5e.adventure.UniversalGithubModulesIntegrationTest",
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "6f911777316360fae35c4f9c286ba90bb802ff65569b0cca15aa858ca8d2a5fd"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest",
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "65c4da88e026280bffc74c33d3ea3301703c86835228623e7f030bde75dcfa6b"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest",
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "fed4bcfc5ea67c14c6bd7b7c816c955c3a4665e9bb2e9995f9e52f2596a53fb5"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.e2e.E2ETier2BoundaryCornerRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.e2e.E2ETier2BoundaryCornerRobolectricTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "e28ebedb0c5b26663acc5d7fc1d36d5047afeaf86f01ada648157cd79a0db17c"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.e2e.E2ETier3CrossFeatureInteractionsRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.e2e.E2ETier3CrossFeatureInteractionsRobolectricTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "33212881936cabc229fd48c128c845cb68f7cccf460bfd7edc95eb625ef7b521"
+    },
+    {
+      "file": "test-results/TEST-com.braseiro.dnd5e.e2e.E2ETier4RealWorldScenariosRobolectricTest.xml",
+      "suite": "com.braseiro.dnd5e.e2e.E2ETier4RealWorldScenariosRobolectricTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "a4b4a5576f6dfb9a89e7b88af0369ab4e937be602a5dd28fcb13ec2cdd7fccd0"
+    }
+  ],
+  "execution": {
+    "gradle_executable": "/tmp/xmm-local-android/gradle/gradle-8.11.1/bin/gradle",
+    "java_home": "/tmp/xmm-local-android/jdk",
+    "android_home": "/tmp/xmm-local-android/sdk",
+    "gradle_user_home": "/tmp/xmm-local-android/gradle-home",
+    "tls": "inherited HTTPS proxy with configured CODEX_PROXY_CERT imported into a temporary JDK truststore; credential values excluded"
+  }
+}

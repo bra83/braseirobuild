@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run245G13NarrationChunkerTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:18:32" hostname="0f1875aecc7d" time="0.102">
+  <properties/>
+  <testcase name="shortNarrationRemainsOneChunkForEachBackend" classname="com.braseiro.dnd5e.Run245G13NarrationChunkerTest" time="0.003"/>
+  <testcase name="androidChunksPreserveTextAndRespectProgressiveBudgets" classname="com.braseiro.dnd5e.Run245G13NarrationChunkerTest" time="0.041"/>
+  <testcase name="kokoroChunksPreserveTextAndStayWithinProviderLimit" classname="com.braseiro.dnd5e.Run245G13NarrationChunkerTest" time="0.029"/>
+  <testcase name="charonChunksPreserveTextAndRespectProgressiveBudgets" classname="com.braseiro.dnd5e.Run245G13NarrationChunkerTest" time="0.028"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.adventure.ManualAdjudicationEngineTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:19:08" hostname="0f1875aecc7d" time="0.001">
+  <properties/>
+  <testcase name="failureAndMixedResultsRemainDistinct" classname="com.braseiro.dnd5e.adventure.ManualAdjudicationEngineTest" time="0.0"/>
+  <testcase name="staleSceneWrongIdAndDuplicateReinterpretationAreRejected" classname="com.braseiro.dnd5e.adventure.ManualAdjudicationEngineTest" time="0.0"/>
+  <testcase name="successPersistsAcrossStateRoundTripWithoutChangingHpOrTime" classname="com.braseiro.dnd5e.adventure.ManualAdjudicationEngineTest" time="0.001"/>
+  <testcase name="neverAcceptsSilentMissingChoicesOrUnboundedFacts" classname="com.braseiro.dnd5e.adventure.ManualAdjudicationEngineTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

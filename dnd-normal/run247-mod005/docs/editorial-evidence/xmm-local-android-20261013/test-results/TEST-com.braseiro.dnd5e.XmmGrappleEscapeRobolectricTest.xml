@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.XmmGrappleEscapeRobolectricTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:18:53" hostname="0f1875aecc7d" time="1.337">
+  <properties/>
+  <testcase name="simpleSourceGrappleCanBeEscapedWithExplicitActionAndPersists" classname="com.braseiro.dnd5e.XmmGrappleEscapeRobolectricTest" time="1.337"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

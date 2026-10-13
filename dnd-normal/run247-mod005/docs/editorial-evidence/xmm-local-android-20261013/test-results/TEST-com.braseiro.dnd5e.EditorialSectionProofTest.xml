@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.EditorialSectionProofTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:18:15" hostname="0f1875aecc7d" time="0.021">
+  <properties/>
+  <testcase name="testLostLibraryBranchingConsequencesDivergence" classname="com.braseiro.dnd5e.EditorialSectionProofTest" time="0.007"/>
+  <testcase name="testFaerunAdventureModulesFiveSpecsNonLinear" classname="com.braseiro.dnd5e.EditorialSectionProofTest" time="0.001"/>
+  <testcase name="testTombOfDamaraBranchingStateDivergence" classname="com.braseiro.dnd5e.EditorialSectionProofTest" time="0.001"/>
+  <testcase name="testLorwynAndNetherilEditorialCoverage" classname="com.braseiro.dnd5e.EditorialSectionProofTest" time="0.002"/>
+  <testcase name="testSourceCodesAndUniqueEntityIds" classname="com.braseiro.dnd5e.EditorialSectionProofTest" time="0.008"/>
+  <testcase name="testRavenloftAndHungersEditorialSections" classname="com.braseiro.dnd5e.EditorialSectionProofTest" time="0.001"/>
+  <testcase name="testAdventuresHaveRichBranchingNodesAndConcreteEffects" classname="com.braseiro.dnd5e.EditorialSectionProofTest" time="0.0"/>
+  <testcase name="testFraifEditorialSectionsCoverage" classname="com.braseiro.dnd5e.EditorialSectionProofTest" time="0.0"/>
+  <testcase name="testHeirTrialBranchingConsequences" classname="com.braseiro.dnd5e.EditorialSectionProofTest" time="0.0"/>
+  <testcase name="testArcanaUnleashedAndMultiverseSections" classname="com.braseiro.dnd5e.EditorialSectionProofTest" time="0.0"/>
+  <testcase name="testEberronEditorialCoverage" classname="com.braseiro.dnd5e.EditorialSectionProofTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

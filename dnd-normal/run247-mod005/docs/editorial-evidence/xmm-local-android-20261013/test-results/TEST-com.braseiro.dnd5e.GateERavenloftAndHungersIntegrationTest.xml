@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.GateERavenloftAndHungersIntegrationTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:18:18" hostname="0f1875aecc7d" time="0.384">
+  <properties/>
+  <testcase name="testRavenloftDarkGiftsMistsAndSubclasses" classname="com.braseiro.dnd5e.GateERavenloftAndHungersIntegrationTest" time="0.12"/>
+  <testcase name="testRavenloftLoreAndDarklordKnowledgeFirewall" classname="com.braseiro.dnd5e.GateERavenloftAndHungersIntegrationTest" time="0.132"/>
+  <testcase name="testAstarionHungersVampiricEmpowermentAndBoons" classname="com.braseiro.dnd5e.GateERavenloftAndHungersIntegrationTest" time="0.132"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
