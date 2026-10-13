@@ -26,8 +26,9 @@ public final class XmmSaveDamageGatewayTest {
   JSONObject r=req();
   assertEquals("damage_roll_out_of_source_bounds",
    Xmm2025SaveDamageEngine.resolve(r.put("damage_total",10000)).getString("status"));
+  r.remove("damage_total");
   assertEquals("explicit_damage_total_required",
-   Xmm2025SaveDamageEngine.resolve(r.remove("damage_total")).getString("status"));
+   Xmm2025SaveDamageEngine.resolve(r).getString("status"));
   assertEquals("source_action_not_in_verified_subset",
    Xmm2025SaveDamageEngine.resolve(r.put("monster","Aboleth")).getString("status"));
  }
