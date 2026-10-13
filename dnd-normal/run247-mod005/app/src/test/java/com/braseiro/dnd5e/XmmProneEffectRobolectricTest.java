@@ -73,7 +73,7 @@ public final class XmmProneEffectRobolectricTest {
             JSONObject transition=committed.getJSONObject("resolved")
                 .getJSONObject("on_hit_condition_transition");
             assertEquals(1,transition.getJSONArray("applied").length());
-            assertEquals("prone",transition.getJSONArray("applied").getString(0));
+            assertEquals("caido",transition.getJSONArray("applied").getString(0));
 
             JSONObject replay=db.applyCompiledStatblockAttack(actor,target,"Ankylosaurus",
                 "Tail",15,0,5,0,token);
