@@ -27,6 +27,17 @@ def to_runtime_symbol(path):
     return "com.braseiro.dnd5e.NarrativeContentEngine"
 
 def determine_assertion(book_id, content_type, section_id):
+    # These section-scoped JUnit methods actually exist. Keep them stable when
+    # the acceptance ledger is regenerated; a book-wide generic gate is not
+    # adequate proof of an individual editorial section.
+    if book_id == "XMM" and section_id.startswith("sec_1_"):
+        index = section_id[len("sec_1_"):]
+        if index.isdecimal() and 0 <= int(index) <= 24:
+            return f"Xmm25AlphabetSectionRuntimeTest#testXmm_sec_1_{int(index)}"
+    if book_id == "XSAC" and section_id.startswith("sec_0_"):
+        index = section_id[len("sec_0_"):]
+        if index.isdecimal() and 0 <= int(index) <= 13:
+            return f"Xsac14SectionRuntimeTest#testXsac_sec_0_{int(index)}"
     if book_id == "XMM":
         if "ecology" in section_id or "dragon" in section_id:
             return "EditorialSectionProofTest#testArcanaUnleashedAndMultiverseSections"
