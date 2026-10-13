@@ -729,8 +729,9 @@ public final class R36BookSemanticsHarness {
       "indifferent".equals(angry.optString("attitude_after")),
       "Companion Guide pp.42-43: non-Helpful Jubilost leaves angrily");
     }
-    check(actualResult.optInt("xp_awarded")==0&&actualResult.optJSONArray("items_awarded").length()==0,
-     "Unverified automatic rewards blocked: "+branchId);
+    int bookXp="ekundayo".equals(companionKey)&&branchProgress.optBoolean("ntavi_recruitment_prevented",false)?10:0;
+    check(actualResult.optInt("xp_awarded")==bookXp&&actualResult.optJSONArray("items_awarded").length()==0,
+     "Only book-verified XP granted; unverified branch loot blocked: "+branchId);
     JSONObject restoredProgress=new JSONObject(actualResult.optJSONObject("progress").toString());
     boolean replayBlocked=false;
     try{KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
