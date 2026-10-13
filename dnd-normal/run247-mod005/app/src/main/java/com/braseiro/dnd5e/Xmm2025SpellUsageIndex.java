@@ -180,7 +180,8 @@ public final class Xmm2025SpellUsageIndex {
       if(requested.equalsIgnoreCase(names.getString(k)))
        return decision(data,entry,requested,"will",0,in);
     }else if(limits!=null){
-     for(String key:limits.keySet()){
+     for(java.util.Iterator<String> usageKeys=limits.keys();usageKeys.hasNext();){
+      String key=usageKeys.next();
       JSONArray names=limits.getJSONArray(key);
       for(int k=0;k<names.length();k++)
        if(requested.equalsIgnoreCase(names.getString(k)))
