@@ -108,7 +108,8 @@ class EditorialEvidenceGateTest(unittest.TestCase):
         self.write(sections=[self.base, second], ledger=[first_proof, second_proof])
         report = gate.inspect(self.root)
         self.assertTrue(any("assertion_id compartilhado" in reason for reason in report["errors"]))
-        self.assertEqual(0, report["certified"] if not report["errors"] else 0)
+        self.assertEqual(0, report["certified"])
+        self.assertEqual(2, report["pending"])
 
     def prepare_generator_source(self):
         # The generation source requires more metadata than the inventory gate.
