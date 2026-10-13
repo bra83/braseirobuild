@@ -116,6 +116,8 @@ jobs:
           if (!$python) { throw 'BRELGA_PYTHON_NOT_FOUND_FOR_EDITORIAL_GATE' }
           & $python.Source -m unittest discover -s tools -p 'test_validate_editorial_coverage.py' -v
           if ($LASTEXITCODE -ne 0) { throw 'EDITORIAL_ANTI_FALSE_CERTIFICATION_TEST_FAILED' }
+          & $python.Source tools/check_483_runtime_links.py --out docs/editorial-483-runtime-links.json
+          if ($LASTEXITCODE -ne 0) { throw 'EDITORIAL_483_RUNTIME_LINKS_BROKEN' }
           & $python.Source tools/validate_editorial_coverage.py --json
           if ($LASTEXITCODE -ne 0) { throw 'EDITORIAL_INVENTORY_INCONSISTENT' }
           & $python.Source -m unittest discover -s tools -p 'test_editorial_483_runtime_assessment.py' -v
