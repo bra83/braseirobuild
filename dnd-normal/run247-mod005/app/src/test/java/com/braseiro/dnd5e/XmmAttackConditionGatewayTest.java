@@ -7,8 +7,8 @@ public final class XmmAttackConditionGatewayTest {
   OfficialBookRuntimeGateway g=new OfficialBookRuntimeGateway(null);
   JSONObject in=new JSONObject().put("monster","Crocodile").put("action","Bite")
    .put("attack_hit",true).put("target_is_creature",true).put("target_size","Medium");
-  assertEquals(40,g.execute("xmm","attack_condition_coverage",new JSONObject()).getJSONObject("result").getInt("verified"));
-  assertEquals(40,g.execute("xmm","attack_condition_catalog",new JSONObject()).getJSONArray("result").length());
+  assertEquals(65,g.execute("xmm","attack_condition_coverage",new JSONObject()).getJSONObject("result").getInt("verified"));
+  assertEquals(65,g.execute("xmm","attack_condition_catalog",new JSONObject()).getJSONArray("result").length());
   assertTrue(g.execute("xmm","attack_condition_profile",in).getBoolean("executed"));
   JSONObject r=g.execute("xmm","attack_condition_resolve",in);
   assertTrue(r.toString(),r.getBoolean("executed"));
