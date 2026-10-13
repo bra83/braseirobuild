@@ -58,6 +58,14 @@ public final class Ravenloft2026TouchOfDeathSourceTest {
         assertTrue(cancel.optBoolean("advantage_cancels_disadvantage"));
         assertEquals(12,cancel.optInt("selected_d20"));
 
+        JSONObject singleDieCancel=engine.resolveCharacterAction(
+                "touch_of_death_death_save",
+                new JSONObject().put("first_d20",9).put("has_advantage",true),
+                character(),new JSONObject());
+        assertTrue("Advantage + disadvantage cancel; only one die is rolled",
+                singleDieCancel.optBoolean("resolved"));
+        assertEquals(9,singleDieCancel.optInt("selected_d20"));
+
         JSONObject invalid=engine.resolveCharacterAction(
                 "touch_of_death_death_save",
                 new JSONObject().put("first_d20",21).put("second_d20",1),
