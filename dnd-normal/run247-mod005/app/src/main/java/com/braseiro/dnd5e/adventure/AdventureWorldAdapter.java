@@ -31,7 +31,8 @@ public final class AdventureWorldAdapter {
         if (!"dnd".equals(db.getActiveMapProfile())) return false;
         try {
             final String locationId = targetNode.getLocationId();
-            if (locationId != null && locationId.length() > 0\n                    && !locationId.equals(db.getSceneState().optString("location"))) {
+            if (locationId != null && locationId.length() > 0
+                    && !locationId.equals(db.getSceneState().optString("location"))) {
                 db.runInTransactionChecked(new AppDb.CheckedTransaction() {
                     @Override
                     public void run() throws Exception {
