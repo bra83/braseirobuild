@@ -13,8 +13,12 @@ class Editorial483AssessmentTest(unittest.TestCase):
         self.assertEqual(audit.EXPECTED, report["by_book"])
         self.assertEqual(483, report["structural_evidence"]["RUNTIME_CLASS_PATH_LINKED"])
         self.assertEqual(483, report["structural_evidence"]["TEST_METHOD_DECLARED"])
+        non_rules = sum(1 for item in report["sections"]
+                        if item["tier"] == "EDITORIAL_ONLY" or
+                        item["kind"] == "illustration_caption")
         self.assertEqual(483, report["pending_semantic_certification"]
-                         + report["source_verified_and_semantic_passed"])
+                         + report["source_verified_and_semantic_passed"] + non_rules)
+        self.assertEqual(46, non_rules)
         self.assertEqual(483, len(set(r["key"] for r in report["sections"])))
 
     def test_au_sections_link_real_rule_engines_not_merely_translation(self):
