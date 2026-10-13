@@ -345,3 +345,24 @@ def test_manor_treasury_reaches_actual_party_inventory_and_gold():
     app=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/AppDb.java").read_text(encoding="utf-8")
     assert 'syncPlayerCombatantHp(id,ch.optString("name"),safe)' in app
     assert "source_kind='character' AND source_id=?" in app
+
+
+def test_new_leadership_is_real_persisted_kingdom_activity_not_free_assignment():
+    assert 'public JSONObject resolveNewLeadership(final String role,' in SOURCE
+    assert 'KingmakerLeadershipSemantics.skillCircumstance(r,sk)' in SOURCE
+    assert 'KingmakerLeadershipSemantics.improved(original,preferred)' in SOURCE
+    assert 'KingmakerLeadershipSemantics.appointment(degree,r,currentTurn,jaethal,famous,die)' in SOURCE
+    assert 'db.runInTransactionChecked(new AppDb.CheckedTransaction()' in SOURCE
+    assert 'db.getWritableDatabase().update("kingmaker_turn_activities",log' in SOURCE
+    assert 'upsertFeature("leadership:"+r,"leadership_assignment"' in SOURCE
+    assert 'Depois da fundação, use a atividade Nova Liderança' in SOURCE
+    assert 'return resolveNewLeadership(p.optString("role"), p.optString("entity_kind"), p.optLong("entity_id", 0), p.optString("name"), p.optBoolean("invested", false), nat, skill, notes);' in SOURCE
+
+
+def test_leadership_checks_and_approval_effects_reach_real_runtime():
+    assert 'newLeadershipShift+incumbentShift' in SOURCE
+    assert 'new JSONObject().put("unrest",unrest)' in SOURCE
+    assert 'public JSONObject resolveNewLeadershipApproval(' in SOURCE
+    assert 'status.put("approval_pending",false)' in SOURCE
+    assert 'kingmakerRepository.resolveKingdomActivity("new_leadership",args)' in (ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java").read_text(encoding="utf-8")
+    assert (ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerLeadershipSemantics.java").exists()
