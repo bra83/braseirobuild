@@ -27,6 +27,23 @@ public final class XmmAttackConditionSafetyTest {
   assertEquals(12,r.getJSONArray("proposed_conditions").getJSONObject(0).getInt("escape_dc"));
   assertTrue(r.getBoolean("additional_source_effects_manual"));assertFalse(r.getBoolean("condition_applied"));
  }
+ @Test public void hybridXmmAttackSelectsValidMeleeAndRangedProfiles()throws Exception{
+  JSONObject melee=StatblockCombatRuntimeEngine.rangeProfile("Arch-hag","Spectral Claw",5);
+  assertTrue(melee.toString(),melee.optBoolean("resolved"));
+  assertEquals("melee",melee.optString("attack_mode"));
+  assertEquals(10,melee.optInt("melee_reach_ft"));
+  assertEquals(0,melee.optInt("range_normal_ft"));assertEquals(0,melee.optInt("range_long_ft"));
+  assertTrue(TacticalAttackGeometryRules.validProfile(melee.optString("attack_mode"),
+   melee.optInt("melee_reach_ft"),melee.optInt("range_normal_ft"),melee.optInt("range_long_ft")));
+
+  JSONObject ranged=StatblockCombatRuntimeEngine.rangeProfile("Arch-hag","Spectral Claw",15);
+  assertTrue(ranged.toString(),ranged.optBoolean("resolved"));
+  assertEquals("ranged",ranged.optString("attack_mode"));
+  assertEquals(0,ranged.optInt("melee_reach_ft"));
+  assertEquals(60,ranged.optInt("range_normal_ft"));assertEquals(60,ranged.optInt("range_long_ft"));
+  assertTrue(TacticalAttackGeometryRules.validProfile(ranged.optString("attack_mode"),
+   ranged.optInt("melee_reach_ft"),ranged.optInt("range_normal_ft"),ranged.optInt("range_long_ft")));
+ }
  @Test public void coverageDoesNotCertifyFullAction()throws Exception{
   JSONObject c=Xmm2025AttackConditionEngine.coverage();
   assertEquals(65,c.getInt("verified"));assertEquals(29,c.getInt("prone"));
