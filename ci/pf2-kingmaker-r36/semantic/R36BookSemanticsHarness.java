@@ -558,6 +558,41 @@ public final class R36BookSemanticsHarness {
   check(KingmakerLeadershipSemantics.leaderActivityModifier(poor,100,"UPKEEP")==0&&KingmakerLeadershipSemantics.leaderActivityModifier(poor,100,"EVENT")==0&&KingmakerLeadershipSemantics.leaderActivityModifier(poor,100,"COMMERCE")==0,"No New Leadership failure penalty outside Activity phase");
   JSONObject welcomed=KingmakerLeadershipSemantics.appointment("CRITICAL_SUCCESS","magister",4,false,false,0);
   check(KingmakerLeadershipSemantics.leaderActivityModifier(welcomed,5)==1&&KingmakerLeadershipSemantics.leaderActivityModifier(welcomed,6)==0,"Critical bonus lasts through next Kingdom turn");
+  // Priority 1: New Leadership Timing, Single Role, Invested Reselection, Paved Streets, Museum & Menagerie
+  boolean foundingCheckBlocked=false;try{KingmakerLeadershipSemantics.validateTiming(0,"UPKEEP",true,false,false);}catch(IllegalStateException e){foundingCheckBlocked=true;}
+  check(foundingCheckBlocked,"Founding turn 0 uses free assignment, not New Leadership check");
+  check("UPKEEP_STEP_1".equals(KingmakerLeadershipSemantics.validateTiming(1,"UPKEEP",false,false,false).optString("mode")),"Normal in-turn New Leadership allowed in Upkeep Step 1");
+  check("EXTRAORDINARY_OUT_OF_TURN".equals(KingmakerLeadershipSemantics.validateTiming(2,"",true,false,false).optString("mode")),"Out-of-turn New Leadership allowed when role is vacant");
+  check("EXTRAORDINARY_OUT_OF_TURN".equals(KingmakerLeadershipSemantics.validateTiming(2,"",false,true,false).optString("mode")),"Out-of-turn New Leadership allowed when incumbent dies or is unavailable");
+  boolean outOfTurnNonVacantBlocked=false;try{KingmakerLeadershipSemantics.validateTiming(2,"",false,false,false);}catch(IllegalStateException e){outOfTurnNonVacantBlocked=true;}
+  check(outOfTurnNonVacantBlocked,"Out-of-turn replacement of available non-vacant leader is blocked");
+  JSONArray sampleLeaders=new JSONArray()
+   .put(new JSONObject().put("role_key","ruler").put("vacant",0).put("entity_kind","character").put("entity_id",10L).put("leader_name","Aldori Hero"))
+   .put(new JSONObject().put("role_key","counselor").put("vacant",0).put("entity_kind","companion").put("entity_id",2L).put("leader_name","Tristian"))
+   .put(new JSONObject().put("role_key","general").put("vacant",0).put("entity_kind","companion").put("entity_id",1L).put("leader_name","Amiri"))
+   .put(new JSONObject().put("role_key","treasurer").put("vacant",0).put("entity_kind","companion").put("entity_id",3L).put("leader_name","Jubilost"))
+   .put(new JSONObject().put("role_key","emissary").put("vacant",0).put("entity_kind","npc").put("entity_id",0L).put("leader_name","Kesten Garess"))
+   .put(new JSONObject().put("role_key","magister").put("vacant",0).put("entity_kind","npc").put("entity_id",0L).put("leader_name","Storyteller"))
+   .put(new JSONObject().put("role_key","viceroy").put("vacant",1).put("entity_kind","").put("entity_id",0L).put("leader_name",""));
+  boolean duplicateNameBlocked=false;try{KingmakerLeadershipSemantics.validateSingleRolePerLeader(sampleLeaders,"warden","npc",0L,"kesten garess");}catch(IllegalStateException e){duplicateNameBlocked=true;}
+  check(duplicateNameBlocked,"Same leader name cannot occupy two leadership roles simultaneously");
+  Set<String> autoComp=new HashSet<String>(Arrays.asList("counselor","general"));
+  Set<String> reselected=KingmakerLeadershipSemantics.validateInvestedReselection(sampleLeaders,new JSONArray().put("ruler").put("treasurer").put("emissary").put("magister"),autoComp);
+  check(reselected.size()==6&&reselected.contains("counselor")&&reselected.contains("general"),"Four manual invested roles combine with automatic companion investments");
+  boolean fiveManualBlocked=false;try{KingmakerLeadershipSemantics.validateInvestedReselection(sampleLeaders,new JSONArray().put("ruler").put("treasurer").put("emissary").put("magister").put("counselor"),Collections.<String>emptySet());}catch(IllegalStateException e){fiveManualBlocked=true;}
+  check(fiveManualBlocked,"More than four manual invested roles is rejected");
+  JSONArray pavedRows=new JSONArray().put(new JSONObject().put("structure_key","paved_streets").put("status","built").put("count",1).put("effects_json",new JSONObject().put("infrastructure_instances",new JSONArray().put(new JSONObject().put("urban_grid",1)))));
+  check(KingmakerStructureSemantics.lotTravelMinutes(pavedRows,1,3)==15&&KingmakerStructureSemantics.lotTravelMinutes(pavedRows,2,3)==45,"Paved streets reduce adjacent lot travel from 15 to 5 minutes per lot in that Urban Grid");
+  JSONObject donated=KingmakerStructureSemantics.museumExhibitOutcome(new JSONArray(),"donate","briar_replica","Relic of Stag",6,true);
+  check(donated.optInt("unrest_delta")==-1&&donated.optJSONArray("exhibits").length()==1,"Donating level 6+ historical magic item to Museum reduces Unrest by 1");
+  JSONObject removedExhibit=KingmakerStructureSemantics.museumExhibitOutcome(donated.optJSONArray("exhibits"),"remove","briar_replica","Relic of Stag",6,true);
+  check(removedExhibit.optInt("unrest_delta")==1&&removedExhibit.optJSONArray("exhibits").length()==0,"Removing item from Museum display increases Unrest by 1");
+  JSONObject menagerieAdd=KingmakerStructureSemantics.menagerieAdditionOutcome(new JSONArray(),10,"owlbear_alpha","Alpha Owlbear",6,-4,"ruin","strife","fame");
+  check(menagerieAdd.optInt("ruin_delta")==-1&&"strife".equals(menagerieAdd.optString("ruin_key"))&&!menagerieAdd.optBoolean("sapient"),"Level 6 animal added to Menagerie at Kingdom level 10 reduces chosen Ruin by 1");
+  JSONObject sapientAdd=KingmakerStructureSemantics.menagerieAdditionOutcome(menagerieAdd.optJSONArray("creatures"),12,"wyvern_captive","Captive Wyvern",6,-2,"reputation","","fame");
+  check(sapientAdd.optBoolean("sapient")&&sapientAdd.optInt("fame_delta")==1,"Sapient creature in Menagerie grants Fame but is flagged sapient");
+  JSONArray menagerieStruct=new JSONArray().put(new JSONObject().put("structure_key","menagerie").put("status","built").put("count",1).put("effects_json",new JSONObject().put("menagerie_creatures",sapientAdd.optJSONArray("creatures"))));
+  check(KingmakerStructureSemantics.menagerieSapientTurnUnrest(menagerieStruct)==1,"Each sapient creature in a Menagerie adds 1 Unrest at start of Kingdom turn");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }

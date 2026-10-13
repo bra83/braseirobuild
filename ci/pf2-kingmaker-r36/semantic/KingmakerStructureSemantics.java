@@ -565,4 +565,107 @@ boolean newBlock=!occupied.contains(target),crowded=!built.isEmpty()&&housing<bu
   }
   return town;
  }
+ public static boolean hasPavedStreetsInGrid(JSONArray rows,int urbanGrid)throws Exception{
+  if(urbanGrid<1)throw new IllegalArgumentException("Malha urbana inválida.");
+  if(rows==null)return false;
+  for(int i=0;i<rows.length();i++){
+   JSONObject row=rows.optJSONObject(i);
+   if(row==null||!"paved_streets".equals(row.optString("structure_key"))||!"built".equals(row.optString("status","built"))||row.optInt("count",1)<=0)continue;
+   JSONArray instances=instanceEffects(row).optJSONArray("infrastructure_instances");
+   if(instances==null||instances.length()==0){if(urbanGrid==1)return true;continue;}
+   for(int n=0;n<instances.length();n++){
+    JSONObject loc=instances.optJSONObject(n);
+    if(loc!=null&&loc.optInt("urban_grid")==urbanGrid)return true;
+   }
+  }
+  return false;
+ }
+ /** Kingmaker p. 550: 5 minutes per adjacent lot move in an Urban Grid with Paved Streets, 15 minutes otherwise. */
+ public static int lotTravelMinutes(JSONArray rows,int urbanGrid,int adjacentLotSteps)throws Exception{
+  if(adjacentLotSteps<1)throw new IllegalArgumentException("Informe ao menos 1 deslocamento entre lotes adjacentes.");
+  return adjacentLotSteps*(hasPavedStreetsInGrid(rows,urbanGrid)?5:15);
+ }
+ /** Kingmaker p. 549: Museum magic item display (level 6+ with historical/regional import: -1 Unrest on donate, +1 Unrest on remove). */
+ public static JSONObject museumExhibitOutcome(JSONArray currentExhibits,String action,String itemKey,String itemName,int itemLevel,boolean historicalOrRegionalValue)throws Exception{
+  String act=action==null?"":action.trim().toLowerCase(Locale.ROOT);
+  String k=itemKey==null?"":itemKey.trim();
+  if(k.isEmpty())throw new IllegalArgumentException("Identificador do item do Museu obrigatório.");
+  JSONArray existing=currentExhibits==null?new JSONArray():new JSONArray(currentExhibits.toString());
+  if("donate".equals(act)){
+   if(itemLevel<6||!historicalOrRegionalValue)
+    throw new IllegalArgumentException("O Museu exige item mágico de nível 6+ com valor histórico ou regional significativo (Kingmaker p. 549).");
+   for(int i=0;i<existing.length();i++){
+    JSONObject e=existing.optJSONObject(i);
+    if(e!=null&&k.equalsIgnoreCase(e.optString("item_key")))
+     throw new IllegalStateException("Este item já está em exibição no Museu.");
+   }
+   JSONObject added=new JSONObject().put("item_key",k).put("name",itemName==null||itemName.trim().isEmpty()?k:itemName.trim()).put("level",itemLevel).put("historical_or_regional_value",true);
+   existing.put(added);
+   return new JSONObject().put("action","donate").put("item_key",k).put("unrest_delta",-1).put("exhibits",existing).put("source_ref","Kingmaker p. 549");
+  }else if("remove".equals(act)){
+   JSONArray remaining=new JSONArray();
+   boolean found=false;
+   for(int i=0;i<existing.length();i++){
+    JSONObject e=existing.optJSONObject(i);
+    if(e!=null&&k.equalsIgnoreCase(e.optString("item_key"))){found=true;continue;}
+    remaining.put(e);
+   }
+   if(!found)throw new IllegalStateException("O item indicado não está em exibição no Museu.");
+   return new JSONObject().put("action","remove").put("item_key",k).put("unrest_delta",1).put("exhibits",remaining).put("source_ref","Kingmaker p. 549");
+  }
+  throw new IllegalArgumentException("Ação do Museu inválida: use donate ou remove.");
+ }
+ /** Kingmaker p. 548: Menagerie captured living creature (level 6+ requires kingdom level >= creature level + 4; grants +1 Fame/Infamy or -1 Ruin; sapient Int >= -3 adds +1 Unrest at start of each Kingdom turn). */
+ public static JSONObject menagerieAdditionOutcome(JSONArray currentCreatures,int kingdomLevel,String creatureKey,String creatureName,int creatureLevel,int intelligenceMod,String benefitChoice,String ruinChoice,String reputationMode)throws Exception{
+  String k=creatureKey==null?"":creatureKey.trim();
+  if(k.isEmpty()||creatureLevel<1)throw new IllegalArgumentException("Informe criatura válida e seu nível para o Menagerie.");
+  JSONArray existing=currentCreatures==null?new JSONArray():new JSONArray(currentCreatures.toString());
+  for(int i=0;i<existing.length();i++){
+   JSONObject c=existing.optJSONObject(i);
+   if(c!=null&&k.equalsIgnoreCase(c.optString("creature_key")))
+    throw new IllegalStateException("Esta criatura já foi adicionada ao Menagerie.");
+  }
+  if(creatureLevel>=6&&kingdomLevel<creatureLevel+4)
+   throw new IllegalStateException("O nível do Reino deve ser ao menos 4 níveis superior ao da criatura de nível 6+ para exibi-la no Menagerie (Kingmaker p. 548).");
+  boolean sapient=intelligenceMod>=-3;
+  int fameDelta=0,infamyDelta=0,ruinDelta=0;
+  String chosenRuin="";
+  if(creatureLevel>=6){
+   String ben=benefitChoice==null?"":benefitChoice.trim().toLowerCase(Locale.ROOT);
+   if("reputation".equals(ben)||"fame".equals(ben)||"infamy".equals(ben)){
+    if("infamy".equalsIgnoreCase(reputationMode))infamyDelta=1;
+    else fameDelta=1;
+   }else if("ruin".equals(ben)){
+    String r=ruinChoice==null?"":ruinChoice.trim().toLowerCase(Locale.ROOT);
+    if(!Arrays.asList("corruption","crime","decay","strife").contains(r))
+     throw new IllegalArgumentException("Escolha uma Ruína válida (corruption, crime, decay, strife) para reduzir em 1.");
+    chosenRuin=r;
+    ruinDelta=-1;
+   }else{
+    throw new IllegalArgumentException("Para criatura de nível 6+, escolha reputation (Fama/Infâmia +1) ou ruin (Ruína -1).");
+   }
+  }
+  JSONObject entry=new JSONObject().put("creature_key",k).put("name",creatureName==null||creatureName.trim().isEmpty()?k:creatureName.trim()).put("level",creatureLevel).put("intelligence_mod",intelligenceMod).put("sapient",sapient);
+  existing.put(entry);
+  return new JSONObject().put("creature_key",k).put("level",creatureLevel).put("sapient",sapient)
+   .put("appropriate_animal",intelligenceMod<=-4).put("turn_unrest_per_turn",sapient?1:0)
+   .put("fame_delta",fameDelta).put("infamy_delta",infamyDelta)
+   .put("ruin_key",chosenRuin).put("ruin_delta",ruinDelta)
+   .put("creatures",existing).put("source_ref","Kingmaker p. 548");
+ }
+ public static int menagerieSapientTurnUnrest(JSONArray allStructureRows)throws Exception{
+  if(allStructureRows==null)return 0;
+  int sapientTotal=0;
+  for(int i=0;i<allStructureRows.length();i++){
+   JSONObject row=allStructureRows.optJSONObject(i);
+   if(row==null||!"menagerie".equals(row.optString("structure_key"))||!"built".equals(row.optString("status","built"))||row.optInt("count",1)<=0)continue;
+   JSONArray creatures=instanceEffects(row).optJSONArray("menagerie_creatures");
+   if(creatures==null)continue;
+   for(int n=0;n<creatures.length();n++){
+    JSONObject c=creatures.optJSONObject(n);
+    if(c!=null&&(c.optBoolean("sapient")||c.optInt("intelligence_mod",-4)>=-3))sapientTotal++;
+   }
+  }
+  return sapientTotal;
+ }
 }

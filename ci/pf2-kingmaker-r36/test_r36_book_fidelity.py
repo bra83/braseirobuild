@@ -352,6 +352,11 @@ def test_new_leadership_is_real_persisted_kingdom_activity_not_free_assignment()
     assert 'KingmakerLeadershipSemantics.skillCircumstance(r,sk)' in SOURCE
     assert 'KingmakerLeadershipSemantics.improved(original,preferred)' in SOURCE
     assert 'KingmakerLeadershipSemantics.appointment(degree,r,currentTurn,jaethal,famous,die)' in SOURCE
+    assert 'KingmakerLeadershipSemantics.validateTiming(' in SOURCE
+    assert 'KingmakerLeadershipSemantics.validateSingleRolePerLeader(' in SOURCE
+    assert 'KingmakerLeadershipSemantics.validateInvestedReselection(' in SOURCE
+    assert 'public JSONArray reselectInvestedRoles(' in SOURCE
+    assert 'public JSONObject setRoleInvested(' in SOURCE
     assert 'db.runInTransactionChecked(new AppDb.CheckedTransaction()' in SOURCE
     assert 'db.getWritableDatabase().update("kingmaker_turn_activities",log' in SOURCE
     assert 'upsertFeature("leadership:"+r,"leadership_assignment"' in SOURCE
@@ -367,7 +372,16 @@ def test_leadership_checks_and_approval_effects_reach_real_runtime():
     assert '!"EVENT".equals(turn.optString("phase"))' in SOURCE
     assert 'Mudança oficial de cargo' in SOURCE
     assert 'if(!p.has("natural_roll"))throw new IllegalArgumentException' in SOURCE
+    assert 'public JSONObject moveInSettlementGrid(' in SOURCE
+    assert 'public JSONObject manageMuseumExhibit(' in SOURCE
+    assert 'public JSONObject addCreatureToMenagerie(' in SOURCE
+    assert 'public JSONObject resolveCharacterSavingThrow(' in SOURCE
+    assert 'public JSONObject resolveCharacterSkillCheck(' in SOURCE
+    pf2=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/Pathfinder2eRulesEngine.java").read_text(encoding="utf-8")
+    assert 'KingmakerCampaignGate.helixSaveStatusBonus(' in pf2
+    assert 'KingmakerStructureSemantics.pcItemBonus(' in pf2
     main=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/MainActivity.java").read_text(encoding="utf-8")
     assert 'kingmakerRepository.resolveKingdomActivity("new_leadership",args)' in main
     assert 'kingmakerRepository.resolveKingdomActivity("new_leadership_approval",args)' in main
     assert (ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerLeadershipSemantics.java").exists()
+
