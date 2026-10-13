@@ -21,6 +21,18 @@ class XmmIndependentSourceTests(unittest.TestCase):
     def test_book_source_locator_dereferences_real_section(self):
         doc={"bookData":[{"data":[{"name":"example"}]}]}
         self.assertEqual("example",xmm.deref(doc,"/bookData/0/data/0")["name"])
+    def test_spell_usage_rows_are_precise_and_not_raw_prose(self):
+        source=[{"name":"Wizard","spellcasting":[
+          {"name":"Spellcasting","will":["{@spell Mage Hand|XPHB}"],
+           "daily":{"2":["{@spell Fireball|XPHB}"]},"ability":"int",
+           "displayAs":"action","headerEntries":["Do not include prose"]}]}]
+        data=xmm.usage_rows(source)
+        self.assertEqual(1,len(data))
+        entry=data[0]["entries"][0]
+        self.assertEqual(["Mage Hand"],entry["will"])
+        self.assertEqual(["Fireball"],entry["daily"]["2"])
+        self.assertNotIn("headerEntries",entry)
+        self.assertEqual("/monster/0/spellcasting",data[0]["source_pointer"])
     def test_not_503_is_not_success(self):
         with self.assertRaises(ValueError):xmm.check_monsters([],[],[])
 if __name__=="__main__":unittest.main()

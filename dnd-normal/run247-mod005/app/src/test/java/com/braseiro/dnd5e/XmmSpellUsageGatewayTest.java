@@ -1,0 +1,37 @@
+package com.braseiro.dnd5e;
+import org.json.JSONObject;
+import org.junit.Test;
+import static org.junit.Assert.*;
+/** No hidden casts or consumption: explicit advisory eligibility only. */
+public final class XmmSpellUsageGatewayTest {
+ @Test public void atWillSpellCanBeIdentifiedWithoutConsumingResources()throws Exception {
+  JSONObject in=new JSONObject().put("monster","Aarakocra Aeromancer").put("spell","Mage Hand");
+  JSONObject out=Xmm2025SpellUsageIndex.check(in);
+  assertTrue(out.getBoolean("resolved"));
+  assertTrue(out.getBoolean("may_attempt"));
+  assertEquals("will",out.getString("usage"));
+  assertEquals(0,out.getInt("spells_cast"));
+  assertFalse(out.getBoolean("auto_mutation_allowed"));
+ }
+ @Test public void dailyLimitedSpellNeedsExplicitRemainingCount()throws Exception {
+  JSONObject in=new JSONObject().put("monster","Aarakocra Aeromancer").put("spell","Lightning Bolt");
+  JSONObject unknown=Xmm2025SpellUsageIndex.check(in);
+  assertEquals("manual_usage_count_required",unknown.getString("status"));
+  assertTrue(unknown.isNull("may_attempt"));
+  assertFalse(Xmm2025SpellUsageIndex.check(in.put("uses_remaining",0)).getBoolean("may_attempt"));
+  assertTrue(Xmm2025SpellUsageIndex.check(in.put("uses_remaining",1)).getBoolean("may_attempt"));
+  assertFalse(Xmm2025SpellUsageIndex.check(in).getBoolean("spell_effects_applied"));
+ }
+ @Test public void unknownCreatureAndSpellFailClosed()throws Exception {
+  assertFalse(Xmm2025SpellUsageIndex.check(new JSONObject().put("monster","unknown").put("spell","Fireball")).getBoolean("resolved"));
+  assertFalse(Xmm2025SpellUsageIndex.check(new JSONObject().put("monster","Aboleth").put("spell","nonexistent spell")).getBoolean("resolved"));
+ }
+ @Test public void androidGatewayRoutesCatalogAndEligibility()throws Exception {
+  OfficialBookRuntimeGateway gw=new OfficialBookRuntimeGateway(null);
+  assertTrue(gw.execute("xmm","spell_options",new JSONObject().put("name","Aarakocra Aeromancer")).getBoolean("executed"));
+  JSONObject r=gw.execute("xmm","spell_usage_check",new JSONObject().put("monster","Aarakocra Aeromancer").put("spell","Mage Hand"));
+  assertTrue(r.getBoolean("executed"));
+  assertFalse(r.getBoolean("auto_mutation_allowed"));
+  assertFalse(r.getJSONObject("result").getBoolean("spell_effects_applied"));
+ }
+}

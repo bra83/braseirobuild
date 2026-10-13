@@ -13,6 +13,7 @@ FILES=("data/bestiary/bestiary-xmm.json","data/book/book-xmm.json")
 SOURCE="https://raw.githubusercontent.com/5etools-mirror-3/5etools-src/"+PIN+"/"
 JAVA_INDEX="app/src/main/java/com/braseiro/dnd5e/Xmm2025SourceIndex.java"
 JAVA_BOOK="app/src/main/java/com/braseiro/dnd5e/Xmm2025BookIndex.java"
+JAVA_SPELLS="app/src/main/java/com/braseiro/dnd5e/Xmm2025SpellUsageIndex.java"
 JAVA_RUNTIME="app/src/main/java/com/braseiro/dnd5e/Xmm2025CompiledBestiaryEngine.java"
 LITERAL=re.compile(r'^\s*("(?:\\.|[^"\\])*")\s*,?\s*$',re.M)
 RCH=re.compile(r'\s*\{@recharge(?: (\d))?\}')
@@ -109,6 +110,24 @@ def check_monsters(source,index,compiled):
     return problems,{"monsters":len(source),"recharge_actions":recharges,
                      "spellcasting_monsters":spellcasters}
 
+def usage_rows(source):
+    out=[]
+    for monster in source:
+        if not monster.get("spellcasting"):
+            continue
+        entries=[]
+        for spellcasting in monster["spellcasting"]:
+            row={"name":spellcasting["name"],
+                 "display_as":spellcasting.get("displayAs","action"),
+                 "spellcasting_ability":spellcasting.get("ability",""),
+                 "will":SP.findall(json.dumps(spellcasting.get("will",[])))}
+            for key in ("daily","restLong","legendary","recharge"):
+                row[key]={k:SP.findall(json.dumps(v)) for k,v in spellcasting.get(key,{}).items()}
+            entries.append(row)
+        ptr=f"/monster/{source.index(monster)}/spellcasting"
+        out.append({"id":monster["name"],"source_pointer":ptr,"entries":entries})
+    return out
+
 def deref(book,p):
     obj=book
     for part in p.strip("/").split("/"):
@@ -154,6 +173,11 @@ def check(project, bestiary_bytes, book_bytes):
     index=java_rows((project/JAVA_INDEX).read_text(encoding="utf-8"))
     compiled=java_rows((project/JAVA_RUNTIME).read_text(encoding="utf-8"))
     bookrows=java_rows((project/JAVA_BOOK).read_text(encoding="utf-8"))
+    spellrows=java_rows((project/JAVA_SPELLS).read_text(encoding="utf-8"))
+    expected_usage=usage_rows(src)
+    if len(spellrows)!=132 or spellrows!=expected_usage:
+        raise ValueError("XMM_132_SPELLCASTING_USAGE_MISMATCH")
+
     monster_errors,totals=check_monsters(src,index,compiled)
     section_errors=check_book(book,bookrows)
     if monster_errors or section_errors:
@@ -164,6 +188,7 @@ def check(project, bestiary_bytes, book_bytes):
         "bestiary_git_blob_sha1":BESTIARY_SHA,"book_git_blob_sha1":BOOK_SHA,
         "source_monsters_compared":503,"editorial_sections_compared":36,
         "recharge_actions_compared":totals["recharge_actions"],
+        "spellcasting_usage_records_compared":len(spellrows),
         "spellcaster_records_compared":totals["spellcasting_monsters"],
         "source_field_and_catalog_gate_pass":True,
         "full_monster_combat_automation_certified":False}
