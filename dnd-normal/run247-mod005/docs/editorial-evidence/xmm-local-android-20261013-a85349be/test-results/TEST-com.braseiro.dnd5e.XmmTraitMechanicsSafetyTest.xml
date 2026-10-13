@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.XmmTraitMechanicsSafetyTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:27:25" hostname="0f1875aecc7d" time="0.004">
+  <properties/>
+  <testcase name="sunlightDoesNotImposeDisadvantageOnSaves" classname="com.braseiro.dnd5e.XmmTraitMechanicsSafetyTest" time="0.001"/>
+  <testcase name="androidGatewayExposesPureTraitContracts" classname="com.braseiro.dnd5e.XmmTraitMechanicsSafetyTest" time="0.0"/>
+  <testcase name="undeadFortitudeRejectsRadiantAndCritical" classname="com.braseiro.dnd5e.XmmTraitMechanicsSafetyTest" time="0.001"/>
+  <testcase name="packTacticsRejectsIncapacitatedAlly" classname="com.braseiro.dnd5e.XmmTraitMechanicsSafetyTest" time="0.0"/>
+  <testcase name="siegeMonsterDoesNotDoubleCreatureDamage" classname="com.braseiro.dnd5e.XmmTraitMechanicsSafetyTest" time="0.0"/>
+  <testcase name="evasionHandlesFailedSaveAndIncapacitation" classname="com.braseiro.dnd5e.XmmTraitMechanicsSafetyTest" time="0.001"/>
+  <testcase name="flybyDoesNotProtectWalkingMovement" classname="com.braseiro.dnd5e.XmmTraitMechanicsSafetyTest" time="0.0"/>
+  <testcase name="unknownTraitAndImplicitInputsFailClosed" classname="com.braseiro.dnd5e.XmmTraitMechanicsSafetyTest" time="0.0"/>
+  <testcase name="legendaryResourceAndLairCapacity" classname="com.braseiro.dnd5e.XmmTraitMechanicsSafetyTest" time="0.001"/>
+  <testcase name="magicResistanceDoesNotApplyToNonMagicalSaves" classname="com.braseiro.dnd5e.XmmTraitMechanicsSafetyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

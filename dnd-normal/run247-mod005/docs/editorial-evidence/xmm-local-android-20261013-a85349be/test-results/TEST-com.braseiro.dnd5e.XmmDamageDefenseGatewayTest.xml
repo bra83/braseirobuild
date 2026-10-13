@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.XmmDamageDefenseGatewayTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:27:17" hostname="0f1875aecc7d" time="0.004">
+  <properties/>
+  <testcase name="coverageNeverClaimsCompleteMonsterTraits" classname="com.braseiro.dnd5e.XmmDamageDefenseGatewayTest" time="0.0"/>
+  <testcase name="saveForHalfComposesWithTargetVulnerabilityAndImmunity" classname="com.braseiro.dnd5e.XmmDamageDefenseGatewayTest" time="0.001"/>
+  <testcase name="gatewayRoutesXmmOnlyAndDoesNotMutate" classname="com.braseiro.dnd5e.XmmDamageDefenseGatewayTest" time="0.0"/>
+  <testcase name="sourceConditionalDefensesFailClosed" classname="com.braseiro.dnd5e.XmmDamageDefenseGatewayTest" time="0.0"/>
+  <testcase name="conditionImmunityChecksOnlyUnconditionalSource" classname="com.braseiro.dnd5e.XmmDamageDefenseGatewayTest" time="0.001"/>
+  <testcase name="malformedOrUnconfirmedDamageCannotResolve" classname="com.braseiro.dnd5e.XmmDamageDefenseGatewayTest" time="0.001"/>
+  <testcase name="vulnerabilityDoublesDamage" classname="com.braseiro.dnd5e.XmmDamageDefenseGatewayTest" time="0.0"/>
+  <testcase name="resistanceHalvesAndRoundsDown" classname="com.braseiro.dnd5e.XmmDamageDefenseGatewayTest" time="0.0"/>
+  <testcase name="immunityZerosDamage" classname="com.braseiro.dnd5e.XmmDamageDefenseGatewayTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

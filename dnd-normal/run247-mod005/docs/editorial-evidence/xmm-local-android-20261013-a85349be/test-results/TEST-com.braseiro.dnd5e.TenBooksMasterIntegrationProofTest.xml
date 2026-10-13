@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.TenBooksMasterIntegrationProofTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:27:07" hostname="0f1875aecc7d" time="5.923">
+  <properties/>
+  <testcase name="test3_KnowledgeFirewallProtectsUndiscoveredSecretsFromPlayer" classname="com.braseiro.dnd5e.TenBooksMasterIntegrationProofTest" time="0.15"/>
+  <testcase name="test1_MasterGroundingContainsCorrectBookFacts" classname="com.braseiro.dnd5e.TenBooksMasterIntegrationProofTest" time="2.45"/>
+  <testcase name="test2_CharactersAndFactionsActCoherentlyWithSetting" classname="com.braseiro.dnd5e.TenBooksMasterIntegrationProofTest" time="0.255"/>
+  <testcase name="test8_FaerunMapAndIssue27CorrectionsPreserved" classname="com.braseiro.dnd5e.TenBooksMasterIntegrationProofTest" time="0.129"/>
+  <testcase name="test4_AdventuresAllowNonLinearChoicesAndPersistentConsequences" classname="com.braseiro.dnd5e.TenBooksMasterIntegrationProofTest" time="2.535"/>
+  <testcase name="test7_SavesBackupsAndReloadsPreserveWorldAndStories" classname="com.braseiro.dnd5e.TenBooksMasterIntegrationProofTest" time="0.151"/>
+  <testcase name="test6_SettingsStrictlyIsolatedNoCrossPollution" classname="com.braseiro.dnd5e.TenBooksMasterIntegrationProofTest" time="0.138"/>
+  <testcase name="test5_SpecialRulesModifyRealGameState" classname="com.braseiro.dnd5e.TenBooksMasterIntegrationProofTest" time="0.115"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

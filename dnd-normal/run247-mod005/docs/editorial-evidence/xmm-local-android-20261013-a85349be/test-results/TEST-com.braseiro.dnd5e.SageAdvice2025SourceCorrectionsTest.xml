@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.SageAdvice2025SourceCorrectionsTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:26:57" hostname="0f1875aecc7d" time="0.003">
+  <properties/>
+  <testcase name="scrollDecisionRequiresExplicitBookClassAndLiteracyInputs" classname="com.braseiro.dnd5e.SageAdvice2025SourceCorrectionsTest" time="0.001"/>
+  <testcase name="dmPolicyAndUnknownIdsDoNotMutateInput" classname="com.braseiro.dnd5e.SageAdvice2025SourceCorrectionsTest" time="0.0"/>
+  <testcase name="concentrationCheckRetainsExactThirtyDamageDcFifteenExample" classname="com.braseiro.dnd5e.SageAdvice2025SourceCorrectionsTest" time="0.001"/>
+  <testcase name="concentrationDcComputedOnlyOnExplicitDamageWithoutHiddenRolls" classname="com.braseiro.dnd5e.SageAdvice2025SourceCorrectionsTest" time="0.001"/>
+  <testcase name="dispellingGlobeDoesNotDispellInsideEffects" classname="com.braseiro.dnd5e.SageAdvice2025SourceCorrectionsTest" time="0.0"/>
+  <testcase name="mageArmorIsNamedFigurativelyRatherThanWornArmor" classname="com.braseiro.dnd5e.SageAdvice2025SourceCorrectionsTest" time="0.0"/>
+  <testcase name="editorialCatalogueHasExactly163QuestionsPlusSeparateDmPolicy" classname="com.braseiro.dnd5e.SageAdvice2025SourceCorrectionsTest" time="0.0"/>
+  <testcase name="gatewayPreservesSourceRulingAndNeverExecutesHiddenChanges" classname="com.braseiro.dnd5e.SageAdvice2025SourceCorrectionsTest" time="0.0"/>
+  <testcase name="ordinaryScrollAndSpellScrollHaveDifferentRequirements" classname="com.braseiro.dnd5e.SageAdvice2025SourceCorrectionsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

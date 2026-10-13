@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run245G08G09NarratedTacticalMovementRobolectricTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:26:54" hostname="0f1875aecc7d" time="0.58">
+  <properties/>
+  <testcase name="narratedMoveWithUnresolvedOpportunityAttackDoesNotSpendOrMove" classname="com.braseiro.dnd5e.Run245G08G09NarratedTacticalMovementRobolectricTest" time="0.237"/>
+  <testcase name="narratedMovePreflightsThenCommitsPositionBudgetAndReplayReceipt" classname="com.braseiro.dnd5e.Run245G08G09NarratedTacticalMovementRobolectricTest" time="0.199"/>
+  <testcase name="narratedMoveWithBlockedDestinationFailsClosed" classname="com.braseiro.dnd5e.Run245G08G09NarratedTacticalMovementRobolectricTest" time="0.143"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

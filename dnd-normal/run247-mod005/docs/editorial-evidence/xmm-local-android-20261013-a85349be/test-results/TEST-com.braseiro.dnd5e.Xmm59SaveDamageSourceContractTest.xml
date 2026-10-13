@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" tests="59" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:27:17" hostname="0f1875aecc7d" time="0.03">
+  <properties/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[0 Abominable Yeti / Cold Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[1 Adult Black Dragon / Acid Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[2 Adult Blue Dragon / Lightning Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[3 Adult Brass Dragon / Fire Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[4 Adult Bronze Dragon / Lightning Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[5 Adult Copper Dragon / Acid Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[6 Adult Gold Dragon / Fire Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[7 Adult Green Dragon / Poison Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[8 Adult Red Dragon / Fire Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[9 Adult Silver Dragon / Cold Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[10 Adult White Dragon / Cold Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[11 Ancient Black Dragon / Acid Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[12 Ancient Blue Dragon / Lightning Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[13 Ancient Brass Dragon / Fire Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[14 Ancient Bronze Dragon / Lightning Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[15 Ancient Copper Dragon / Acid Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[16 Ancient Gold Dragon / Fire Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[17 Ancient Green Dragon / Poison Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[18 Ancient Red Dragon / Fire Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[19 Ancient Silver Dragon / Cold Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[20 Ancient White Dragon / Cold Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[21 Ankheg / Acid Spray]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[22 Behir / Lightning Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[23 Black Dragon Wyrmling / Acid Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[24 Blue Dragon Wyrmling / Lightning Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[25 Brass Dragon Wyrmling / Fire Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[26 Bronze Dragon Wyrmling / Lightning Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[27 Chimera / Fire Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[28 Copper Dragon Wyrmling / Acid Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[29 Dracolich / Necrotic Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[30 Elephant / Trample]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[31 Glabrezu / Pummel]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[32 Gold Dragon Wyrmling / Fire Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[33 Gorgon / Trample]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[34 Green Dragon Wyrmling / Poison Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[35 Hell Hound / Fire Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[36 Ice Mephit / Frost Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[37 Iron Golem / Poison Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[38 Kraken / Lightning Strike]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[39 Magma Mephit / Fire Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[40 Mammoth / Trample]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[41 Nothic / Rotting Gaze]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[42 Planetar / Holy Burst]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[43 Red Dragon Wyrmling / Fire Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[44 Silver Dragon Wyrmling / Cold Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[45 Storm Giant / Lightning Storm]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[46 Tree Blight / Gnash]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[47 White Dragon Wyrmling / Cold Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[48 Winter Wolf / Cold Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[49 Young Black Dragon / Acid Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[50 Young Blue Dragon / Lightning Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[51 Young Brass Dragon / Fire Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[52 Young Bronze Dragon / Lightning Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[53 Young Copper Dragon / Acid Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[54 Young Gold Dragon / Fire Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[55 Young Green Dragon / Poison Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[56 Young Red Dragon / Fire Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[57 Young Silver Dragon / Cold Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.0"/>
+  <testcase name="eachVerifiedSaveDamageActionHonorsExplicitSaveAndDamage[58 Young White Dragon / Cold Breath]" classname="com.braseiro.dnd5e.Xmm59SaveDamageSourceContractTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Ravenloft2026TouchOfDeathSourceTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:26:42" hostname="0f1875aecc7d" time="0.0">
+  <properties/>
+  <testcase name="advantageCancelsDisadvantageAndRequiresBothManualRolls" classname="com.braseiro.dnd5e.Ravenloft2026TouchOfDeathSourceTest" time="0.0"/>
+  <testcase name="twoExplicitD20RollsUseLowerForDisadvantagedDeathSave" classname="com.braseiro.dnd5e.Ravenloft2026TouchOfDeathSourceTest" time="0.0"/>
+  <testcase name="chillTouchBypassesNecroticResistanceOnlyAfterExplicitCast" classname="com.braseiro.dnd5e.Ravenloft2026TouchOfDeathSourceTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

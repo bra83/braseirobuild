@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.AstarionPdf12FeatsRulesTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:26:36" hostname="0f1875aecc7d" time="0.002">
+  <properties/>
+  <testcase name="rebukePronesHugeOrSmallerOnlyOnRadiantDamage" classname="com.braseiro.dnd5e.AstarionPdf12FeatsRulesTest" time="0.0"/>
+  <testcase name="bomberFarLobberAllowsVisibleFortyFootVialDuringAttack" classname="com.braseiro.dnd5e.AstarionPdf12FeatsRulesTest" time="0.001"/>
+  <testcase name="cloyingMistsExtinguishesOnlyNonmagicalFlamesAndSlowsEnemies" classname="com.braseiro.dnd5e.AstarionPdf12FeatsRulesTest" time="0.0"/>
+  <testcase name="vampiresPlaythingTimelyRetreatConsumesBonusActionAndPbUse" classname="com.braseiro.dnd5e.AstarionPdf12FeatsRulesTest" time="0.0"/>
+  <testcase name="putrefyPoisonsSingleDamagedTargetUntilNextTurn" classname="com.braseiro.dnd5e.AstarionPdf12FeatsRulesTest" time="0.0"/>
+  <testcase name="vampiresPlaythingDecantingOnlyAfterLongRestWithVial" classname="com.braseiro.dnd5e.AstarionPdf12FeatsRulesTest" time="0.0"/>
+  <testcase name="treacherousAllureGrantsAdvantageOnlyAgainstCharmedTarget" classname="com.braseiro.dnd5e.AstarionPdf12FeatsRulesTest" time="0.0"/>
+  <testcase name="gatewayPreservesFailClosedNoMutationContract" classname="com.braseiro.dnd5e.AstarionPdf12FeatsRulesTest" time="0.0"/>
+  <testcase name="loveBitesRequiresImmediateDamageFromMeleeOrUnarmed" classname="com.braseiro.dnd5e.AstarionPdf12FeatsRulesTest" time="0.0"/>
+  <testcase name="deliciousPainGrantsBpsResistanceByReactionUntilNextTurn" classname="com.braseiro.dnd5e.AstarionPdf12FeatsRulesTest" time="0.0"/>
+  <testcase name="tirelessRevelerRequiresAllyDistanceSpendAndMissingInspiration" classname="com.braseiro.dnd5e.AstarionPdf12FeatsRulesTest" time="0.0"/>
+  <testcase name="lightBringerSunHealingRequiresSunlightActualHitDieAndBonusAction" classname="com.braseiro.dnd5e.AstarionPdf12FeatsRulesTest" time="0.0"/>
+  <testcase name="vampireHunterVitalityWardRequiresExactPbExplicitDice" classname="com.braseiro.dnd5e.AstarionPdf12FeatsRulesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

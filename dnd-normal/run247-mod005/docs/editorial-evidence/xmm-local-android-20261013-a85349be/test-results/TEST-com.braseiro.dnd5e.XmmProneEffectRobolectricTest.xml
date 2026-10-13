@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.XmmProneEffectRobolectricTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-13T22:27:19" hostname="0f1875aecc7d" time="4.464">
+  <properties/>
+  <testcase name="everySimpleSourceProneRiderAppliesThroughTheCombatTransaction" classname="com.braseiro.dnd5e.XmmProneEffectRobolectricTest" time="3.403"/>
+  <testcase name="sourceProneRiderFailsClosedThenPersistsAfterARealHit" classname="com.braseiro.dnd5e.XmmProneEffectRobolectricTest" time="0.859"/>
+  <testcase name="bloodiedSwarmUsesReducedDamageAndStillKnocksTargetProne" classname="com.braseiro.dnd5e.XmmProneEffectRobolectricTest" time="0.201"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
