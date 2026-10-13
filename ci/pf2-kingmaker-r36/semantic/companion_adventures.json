@@ -915,6 +915,19 @@
               "Fórmula de Elixir da Mente Lúcida Maior"
             ],
             "feature_unlocked": "jubilost:inconsequent_debates_planar_secret"
+          },
+          {
+            "branch_key": "jubilost_debates_no_answer",
+            "title": "Debate perdido ou encerrado sem vencedor",
+            "description": "Com zero ou menos Pontos de Vitória, outra equipe vence; com 1 Ponto de Vitória, o Anfitrião manda todos de volta sem responder perguntas. Nenhuma resposta foi conquistada.",
+            "influence_delta": 0,
+            "attitude_after": "indifferent",
+            "available_after": true,
+            "xp_awarded": 0,
+            "items_awarded": [],
+            "feature_unlocked": "jubilost:inconsequent_debates_no_answer",
+            "source_ref": "Kingmaker Companion Guide p.42",
+            "condition": "debate_rounds_answered==3 && debate_victory_points<=1"
           }
         ],
         "debate_rule": {
