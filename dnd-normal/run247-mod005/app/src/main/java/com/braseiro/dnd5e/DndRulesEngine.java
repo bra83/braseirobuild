@@ -91,6 +91,23 @@ public final class DndRulesEngine {
 
     public int carryingCapacity(int strength){return Math.max(0,strength)*15;}
     public int pushDragLiftCapacity(int strength){return carryingCapacity(strength)*2;}
+    /** SRD5 (2014): Small/Medium normal; Tiny half; each step over Medium doubles. */
+    public int carryingCapacity(int strength,String creatureSize){
+        String size=norm(creatureSize);
+        int base=carryingCapacity(strength);
+        if(size.equals("tiny")||size.equals("miudo")||size.equals("minusculo"))return base/2;
+        if(size.equals("small")||size.equals("pequeno")||
+           size.equals("medium")||size.equals("medio"))return base;
+        if(size.equals("large")||size.equals("grande"))return base*2;
+        if(size.equals("huge")||size.equals("enorme"))return base*4;
+        if(size.equals("gargantuan")||size.equals("colossal"))return base*8;
+        throw new IllegalArgumentException("creature_size_required");
+    }
+
+    public int pushDragLiftCapacity(int strength,String creatureSize){
+        return carryingCapacity(strength,creatureSize)*2;
+    }
+
     public int concentrationDc(int damage){return Math.max(10,Math.max(0,damage)/2);}
     /** Revisão 2024 limita a CD de concentração a 30; 2014 preserva a fórmula histórica. */
     public int concentrationDc(int damage,String profile){int dc=concentrationDc(damage);return is2024(profile)?Math.min(30,dc):dc;}
