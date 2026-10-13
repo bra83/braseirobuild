@@ -17,6 +17,8 @@ A cobertura inclui Ankheg/Bite, Bugbear Warrior/Grab, Crocodile/Bite, Giant Croc
 - Comparador Python negativo: 12/12 passou.
 - `verify_xmm_503_source.py`: 503 criaturas, 36 seções, 120 recargas, 132 conjuradores, 178 contratos de traits e 11 CDs de fuga comparados; automação integral de combate continua `false`.
 - `verify_xmm_40_attack_conditions.py`: 40 riders conferidos (29 Prone, 11 Grappled); efeitos adicionais continuam marcados como manuais.
-- BRELGA no SHA anterior `89dc40fc4cd985c5a122c3d48707f64ec7180068`: 2.450 testes, 1 falha na asserção que cobria os 11 agarrões enquanto somente Ankheg havia sido corrigido. A nova revisão estende a alteração aos 11 e será submetida à suíte completa novamente.
+- BRELGA run `38411724879`, código SHA `a7837a276482eda028f02e565e42c17d4fb65d41`: 93 suites, 2.450 testes, 0 falhas/erros/ignorados. Evidência `dnd-normal-qa-evidence/runs/38411724879/attempt-1.json`; XML `Xmm503SourceAndRechargeTest` SHA-256 `20bb2b8fd0edcc018780363935055154a8f0ae5ecaee94d50d058b7c6e194652`.
+
+Auditoria GitHub-hosted run `38411724847` foi bloqueada antes dos steps por pendência de billing/limite da conta (check annotation). Os comparadores Python locais passaram.
 
 A mudança corrige os metadados de fonte; não implementa a fuga/persistência do agarrão e não fecha ETAPA 03.
