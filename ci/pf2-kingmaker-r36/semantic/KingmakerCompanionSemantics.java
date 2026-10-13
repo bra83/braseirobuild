@@ -240,21 +240,44 @@ public final class KingmakerCompanionSemantics {
   if(checkId==null||checkId.trim().length()==0)throw new IllegalArgumentException("Identificador do teste da aventura é obrigatório.");
   if(naturalRoll<1||naturalRoll>20)throw new IllegalArgumentException("O d20 natural deve estar entre 1 e 20.");
   if(dc<10||dc>60)throw new IllegalArgumentException("CD inválida para aventura de companheiro: "+dc);
+  // For a real imported quest, a caller cannot invent a check ID or its DC.
+  JSONArray officialScenes=currentProgress==null?null:currentProgress.optJSONArray("scenes");
+  if(officialScenes!=null){
+   boolean declared=false,matchedDc=false;
+   for(int i=0;i<officialScenes.length();i++){
+    JSONObject scene=officialScenes.optJSONObject(i);
+    if(scene==null)continue;
+    JSONArray checks=scene.optJSONArray("skill_checks");
+    if(checks==null)continue;
+    for(int j=0;j<checks.length();j++){
+     JSONObject c=checks.optJSONObject(j);
+     if(c!=null&&checkId.trim().equals(c.optString("check_id"))){
+      declared=true;
+      matchedDc=dc==c.optInt("dc",-1)||dc==c.optInt("alternative_dc_when_helpful",-1)||dc==c.optInt("alternative_dc_for_crafting",-1);
+     }
+    }
+   }
+   if(!declared)throw new IllegalArgumentException("Teste não definido no Companion Guide para "+companionKey+": "+checkId);
+   if(!matchedDc)throw new IllegalArgumentException("CD alterada indevidamente no teste "+checkId+": "+dc);
+  }
   int total=naturalRoll+totalModifier;
   int deg=total>=dc+10?3:total>=dc?2:total<=dc-10?0:1;
   if(naturalRoll==20)deg=Math.min(3,deg+1);else if(naturalRoll==1)deg=Math.max(0,deg-1);
+  if("ekundayo_interrupt_ntavi".equals(checkId)&&currentProgress!=null&&currentProgress.optBoolean("ekundayo_helpful",false))
+   deg=Math.min(3,deg+1);
   String degree=deg==3?"CRITICAL_SUCCESS":deg==2?"SUCCESS":deg==1?"FAILURE":"CRITICAL_FAILURE";
   JSONObject next=currentProgress!=null?new JSONObject(currentProgress.toString()):new JSONObject();
   JSONArray checks=next.optJSONArray("adventure_checks");if(checks==null)checks=new JSONArray();
   JSONObject entry=new JSONObject().put("check_id",checkId.trim()).put("natural_roll",naturalRoll).put("modifier",totalModifier).put("total",total).put("dc",dc).put("degree",degree);
   checks.put(entry);
   next.put("adventure_checks",checks).put("journal_started",true);
-  if("ekundayo".equals(companionKey)){
+  if("ekundayo".equals(companionKey)&&(officialScenes==null||"ekundayo_feast_contribution".equals(checkId))){
    int delta=deg==3?2:deg==2?1:deg==1?0:-1;
    int pts=Math.max(0,next.optInt("feast_points",0)+delta);
-   next.put("feast_points",pts).put("feast_success",pts>=8);
+   int goal=next.optInt("feast_points_target",officialScenes==null?8:5);
+   next.put("feast_points",pts).put("feast_success",pts>=goal);
    entry.put("feast_points_delta",delta).put("feast_points_total",pts);
-  }else if("jubilost".equals(companionKey)){
+  }else if("jubilost".equals(companionKey)&&(officialScenes==null||checkId.startsWith("jubilost_debate_round_"))){
    int wins=next.optInt("debate_wins",0)+(deg>=2?1:0);
    int losses=next.optInt("debate_losses",0)+(deg<2?1:0);
    next.put("debate_wins",wins).put("debate_losses",losses).put("debate_won",wins>=3);
