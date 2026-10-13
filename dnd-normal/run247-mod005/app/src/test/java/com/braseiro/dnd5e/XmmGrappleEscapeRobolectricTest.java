@@ -69,7 +69,14 @@ public final class XmmGrappleEscapeRobolectricTest {
             assertEquals("/monster/3/action/1/entries/0",state.optString("source_pointer"));
             assertEquals("",Backup21IntegrityEnvelope.check(db.exportAll()));
 
-            position(db,target,8,2);
+            // The pinned Aboleth Tentacle has 10-foot reach: the target at
+            // exactly 10 feet remains Grappled; one square farther releases it.
+            position(db,target,4,2);
+            JSONObject atReach=db.reconcileXmmGrappleStates();
+            assertTrue(atReach.toString(),atReach.optBoolean("grapple_reconciliation_committed"));
+            assertEquals(0,atReach.getJSONArray("released").length());
+            assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"grappled"));
+            position(db,target,5,2);
             JSONObject outOfReach=db.reconcileXmmGrappleStates();
             assertTrue(outOfReach.toString(),outOfReach.optBoolean("grapple_reconciliation_committed"));
             assertEquals("target_outside_grapple_reach",outOfReach.getJSONArray("released")
