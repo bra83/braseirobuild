@@ -220,6 +220,13 @@ def journal_ui(s):
             availableDcs.add(check.optInt("alternative_dc_for_crafting"));
             dcLabels.add("CD alternativa de Manufatura "+check.optInt("alternative_dc_for_crafting"));
         }
+        final JSONArray alternateSkillDcs=check.optJSONArray("alternate_skill_dcs");
+        if(alternateSkillDcs!=null)for(int a=0;a<alternateSkillDcs.length();a++){
+            JSONObject alternative=alternateSkillDcs.optJSONObject(a);
+            if(alternative==null)continue;
+            availableDcs.add(alternative.optInt("dc"));
+            dcLabels.add(alternative.optString("skill")+" • CD "+alternative.optInt("dc"));
+        }
         final Spinner chosenDc=spinner(dcLabels.toArray(new String[0]),dcLabels.get(0));
         form.addView(cardWithLabel("CD DO TESTE",chosenDc));
         final String companion=KingmakerCampaignGate.questKey(q).substring(5);
