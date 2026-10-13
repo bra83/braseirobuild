@@ -2857,7 +2857,10 @@ public class AppDb extends SQLiteOpenHelper {
                     componentSource.optString("category","action"));
                 if(!componentBlock.isEmpty())return out.put("statblock_multiattack_blocked",
                     componentBlock+"_"+i);
-                String componentRiderBlock=MonsterActionEconomyGuard.attackRiderBlock(componentSource,false);
+                // XMM: a verified final Prone hit may commit atomically; an earlier
+                // knockdown could change the roll mode of later components.
+                boolean finalProne=i==count-1&&MonsterOnHitProneRules.validSource(componentSource);
+                String componentRiderBlock=MonsterActionEconomyGuard.attackRiderBlock(componentSource,finalProne);
                 if(!componentRiderBlock.isEmpty())return out.put("statblock_multiattack_blocked",
                     componentRiderBlock+"_"+i);
                 long targetId=step.optLong("target_id",0);targets[i]=targetId;
@@ -2952,6 +2955,20 @@ public class AppDb extends SQLiteOpenHelper {
                     return out.put("statblock_multiattack_blocked","rider_save_required_"+i);
                 if(!attack.optBoolean("rider_save_required",false)&&save!=0)
                     return out.put("statblock_multiattack_blocked","unexpected_rider_save_"+i);
+                // Fail closed on size, ownership and source drift before spending
+                // the Multiattack action or changing any HP.
+                if(finalProne&&attack.optBoolean("hit",false)){
+                    if(!"prone".equals(attack.optString("rider_on_hit_condition",""))||
+                        attack.optInt("rider_on_hit_duration_rounds",0)!=0||
+                        !attack.optString("rider_on_hit_duration_tick","").isEmpty())
+                        return out.put("statblock_multiattack_blocked","compiled_prone_source_changed_"+i);
+                    if(stagedConditions.containsKey(targetId))
+                        return out.put("statblock_multiattack_blocked","prone_after_staged_condition_unsupported_"+i);
+                    String proneBlock=compiledMonsterOnHitConditionBlock(actorId,targetId,
+                        id,action,token+"-s"+i,"prone");
+                    if(!proneBlock.isEmpty())
+                        return out.put("statblock_multiattack_blocked",proneBlock+"_"+i);
+                }
                 // A recharging or special activation needs its own economy and
                 // recovery state, so it cannot silently become a free component.
                 if(!attack.optString("recharge","").trim().isEmpty())
@@ -3080,6 +3097,17 @@ public class AppDb extends SQLiteOpenHelper {
                         rider.put("forced_movement_transition",moved);
                         attack.put("forced_movement_transition",moved);
                     }
+                }
+                // Commit the final, source-bound on-hit Prone without inventing
+                // a duration or a second action. All changes share one transaction.
+                JSONObject finalSource=compiledMonsterRiderAction(id,actions[i]);
+                if(i==count-1&&MonsterOnHitProneRules.validSource(finalSource)&&
+                    attack.optBoolean("hit",false)){
+                    if(!"prone".equals(attack.optString("rider_on_hit_condition","")))
+                        throw new IllegalStateException("multiattack_prone_source_changed_rollback");
+                    JSONObject transition=commitCompiledMonsterOnHitCondition(actorId,targetId,
+                        id,actions[i],stepToken,"prone");
+                    attack.put("on_hit_condition_transition",transition);
                 }
                 attack.put("attack_geometry",geometries[i]);
                 recordEffectReceipt(combatReceiptKey(actorId,stepToken+"-proof"),attack.toString());
