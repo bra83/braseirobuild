@@ -3249,7 +3249,8 @@ public class AppDb extends SQLiteOpenHelper {
             if(!saveAbilityBlock.isEmpty())return out.put("statblock_save_blocked",saveAbilityBlock);
             if(!MonsterSaveDamageGuard.accepts(
                 sourceAction.optString("damage",""),sourceAction.optString("damage_on_save",""),
-                resolved.optBoolean("save_success",false),damageTotal))
+                resolved.optBoolean("save_success",false),
+                sourceAction.optDouble("damage_on_save_multiplier",Double.NaN),damageTotal))
                 return out.put("statblock_save_blocked","damage_total_outside_compiled_save_dice");
             // RUN237: a bonus action must not consume a normal action. Legendary
             // actions and reactions require separate turn/trigger budgets and
