@@ -554,6 +554,8 @@ public final class R36BookSemanticsHarness {
   check(KingmakerLeadershipSemantics.appointment("CRITICAL_FAILURE","ruler",6,false,false,0).optInt("new_leadership_unrest")==2,"Critical failed Ruler appointment causes ruler and rejection Unrest");
   JSONObject poor=KingmakerLeadershipSemantics.appointment("FAILURE","magister",4,false,false,0);
   check(KingmakerLeadershipSemantics.leaderActivityModifier(poor,100)==-1,"Failure penalty persists until successful acceptance");
+  check(KingmakerLeadershipSemantics.leaderActivityModifier(poor,100,"ACTIVITY")==-1,"Failure penalty applies in Activity phase");
+  check(KingmakerLeadershipSemantics.leaderActivityModifier(poor,100,"UPKEEP")==0&&KingmakerLeadershipSemantics.leaderActivityModifier(poor,100,"EVENT")==0&&KingmakerLeadershipSemantics.leaderActivityModifier(poor,100,"COMMERCE")==0,"No New Leadership failure penalty outside Activity phase");
   JSONObject welcomed=KingmakerLeadershipSemantics.appointment("CRITICAL_SUCCESS","magister",4,false,false,0);
   check(KingmakerLeadershipSemantics.leaderActivityModifier(welcomed,5)==1&&KingmakerLeadershipSemantics.leaderActivityModifier(welcomed,6)==0,"Critical bonus lasts through next Kingdom turn");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
