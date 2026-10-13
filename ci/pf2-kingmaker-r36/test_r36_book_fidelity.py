@@ -1,6 +1,7 @@
 """Source contract guards for canonical Kingmaker PDF p. 522 / 530 / 531.
 No claim of whole-book certification: these guards detect regression of verified fixes.
 """
+import json
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerRepository.java").read_text(encoding="utf-8")
