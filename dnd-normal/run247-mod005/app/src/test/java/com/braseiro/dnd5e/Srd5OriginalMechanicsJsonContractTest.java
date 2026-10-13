@@ -71,6 +71,21 @@ public final class Srd5OriginalMechanicsJsonContractTest {
         assertEquals(540,dnd.pushDragLiftCapacity(18));
     }
 
+    @Test public void srd2014SizeAdjustmentsToStrengthCapacityFollowSrdJson() {
+        assertEquals(75,dnd.carryingCapacity(10,"Tiny"));
+        assertEquals(150,dnd.carryingCapacity(10,"Small"));
+        assertEquals(150,dnd.carryingCapacity(10,"Medium"));
+        assertEquals(300,dnd.carryingCapacity(10,"Large"));
+        assertEquals(600,dnd.carryingCapacity(10,"Huge"));
+        assertEquals(1200,dnd.carryingCapacity(10,"Gargantuan"));
+        assertEquals(600,dnd.pushDragLiftCapacity(10,"Large"));
+        assertEquals(75,dnd.carryingCapacity(10,"Miúdo"));
+        boolean blocked=false;
+        try{dnd.carryingCapacity(10,"unknown size");}
+        catch(IllegalArgumentException expected){blocked=true;}
+        assertTrue("Unknown creature size must fail closed",blocked);
+    }
+
     @Test public void srd2014CombatNaturalOneMissesAndTwentyAlwaysHits() {
         JSONObject automaticMiss=dnd.resolveAttack(1,100,1,false,false);
         assertFalse(automaticMiss.optBoolean("hit",true));
