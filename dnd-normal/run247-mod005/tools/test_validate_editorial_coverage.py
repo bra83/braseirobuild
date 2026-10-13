@@ -94,6 +94,20 @@ class EditorialEvidenceGateTest(unittest.TestCase):
         self.assertTrue(any("seção ausente" in e for e in result["errors"]))
 
 
+    def test_generator_has_individual_assertion_id_for_39_probed_sections(self):
+        assigned = set()
+        for n in range(25):
+            case = generator.determine_assertion("XMM", "monster_entry", f"sec_1_{n}")
+            self.assertEqual(f"Xmm25AlphabetSectionRuntimeTest#testXmm_sec_1_{n}", case)
+            self.assertNotIn(case, assigned)
+            assigned.add(case)
+        for n in range(14):
+            case = generator.determine_assertion("XSAC", "rules_ruling", f"sec_0_{n}")
+            self.assertEqual(f"Xsac14SectionRuntimeTest#testXsac_sec_0_{n}", case)
+            self.assertNotIn(case, assigned)
+            assigned.add(case)
+        self.assertEqual(39, len(assigned))
+
     def test_shared_generic_assertion_cannot_certify_two_sections(self):
         second = {**self.base, "section_id": "sec_2_10", "section_title": "Second unrelated source section"}
         first_proof = {
