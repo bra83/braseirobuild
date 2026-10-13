@@ -29,6 +29,44 @@ public final class XmmProneEffectRobolectricTest {
             "id=? AND world_profile=?",new String[]{String.valueOf(id),"dnd"}));
     }
 
+    private static void applySourceProneRider(Context context,JSONObject rider,int ordinal)throws Exception {
+        String dbName="xmm_prone_matrix_"+ordinal+"_"+Long.toHexString(System.nanoTime())+".db";
+        AppDb db=new AppDb(context,dbName);
+        try {
+            db.setActiveMapProfile("dnd");
+            String monster=rider.getString("id"),actionName=rider.getString("name");
+            JSONObject action=CompiledStatblockEngine.runtimeProfile(monster).getJSONArray("actions")
+                .getJSONObject(rider.getInt("slot"));
+            assertEquals(monster+" / "+actionName,"prone",action.optString("condition_on_hit"));
+            assertEquals(monster+" / "+actionName,rider.getString("size").toLowerCase(java.util.Locale.ROOT),
+                action.optString("condition_max_target_size"));
+            JSONArray specs=StatblockCombatFlowEngine.damageSpecs(action.optString("damage_expression",""),
+                action.optString("damage_type",""),action.optString("extra_damage_expression",""));
+            assertTrue(monster+" / "+actionName+" source damage required",specs.length()>0);
+            JSONArray rolled=new JSONArray();
+            for(int i=0;i<specs.length();i++){
+                JSONObject spec=specs.getJSONObject(i);
+                CompiledMonsterDamageGuard.Range range=CompiledMonsterDamageGuard.range(
+                    spec.optString("expression"),"",false);
+                assertNotNull(monster+" / "+actionName+" damage range",range);
+                rolled.put(new JSONObject().put("expression",spec.optString("expression"))
+                    .put("damage_type",spec.optString("type"))
+                    .put("damage_total",range.min));
+            }
+            long actor=db.addCombatant("XMM "+monster+" prone matrix",20,100,100,12,"",false);
+            long target=db.addCombatant("XMM Prone Target "+ordinal,10,100,100,1,"",true);
+            bind(db,actor,monster,null);bind(db,target,null,rider.getString("size").toLowerCase(java.util.Locale.ROOT));
+            db.setCombatRunning(true);assertEquals(actor,db.nextTurn().optLong("id"));
+            new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
+            position(db,actor,2,2);position(db,target,3,2);
+            JSONObject hit=db.applyCompiledStatblockAttack(actor,target,monster,actionName,
+                19,19,rolled,0,0,-1,-1,"ui-monster-prone-matrix-"+ordinal);
+            assertTrue(monster+" / "+actionName+": "+hit,hit.optBoolean("statblock_attack_committed"));
+            assertTrue(monster+" / "+actionName,
+                ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"prone"));
+        } finally {db.close();context.deleteDatabase(dbName);}
+    }
+
     @Test public void sourceProneRiderFailsClosedThenPersistsAfterARealHit()throws Exception {
         JSONObject install=Xmm2025CompiledBestiaryEngine.install();
         assertEquals(503,install.optInt("statblocks_installed"));
@@ -91,5 +129,19 @@ public final class XmmProneEffectRobolectricTest {
         } finally {
             db.close();context.deleteDatabase(dbName);
         }
+    }
+
+    @Test public void everySimpleSourceProneRiderAppliesThroughTheCombatTransaction()throws Exception {
+        assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
+        JSONArray rows=Xmm2025AttackConditionEngine.catalog();int prone=0,applied=0,manual=0;
+        Context context=RuntimeEnvironment.getApplication();
+        for(int i=0;i<rows.length();i++){
+            JSONObject rider=rows.getJSONObject(i);
+            if(!"prone".equals(rider.optString("condition")))continue;
+            prone++;
+            if(rider.optBoolean("other")){manual++;continue;}
+            applySourceProneRider(context,rider,applied);applied++;
+        }
+        assertEquals(29,prone);assertEquals(28,applied);assertEquals(1,manual);
     }
 }
