@@ -130,20 +130,20 @@ def ui(s):
     boolean awaitingApproval=false;for(JSONObject history:kingmakerRepository.features("leadership_assignment"))if(("leadership:"+role.optString("role_key")).equals(history.optString("feature_key"))){try{awaitingApproval=new JSONObject(history.optString("effects_json","{}")).optBoolean("approval_pending");}catch(Exception ignored){}}
     if(awaitingApproval){final Button approval=new Button(this);approval.setText("ACEITAÇÃO POPULAR • FASE EVENTOS");
         approval.setOnClickListener(new View.OnClickListener(){public void onClick(View v){try{
-            JSONObject args=new JSONObject().put("role",role.optString("role_name")).put("skill_key",leadershipKeys[skill.getSelectedItemPosition()]).put("natural_roll",num(natural,0));
+            JSONObject args=new JSONObject().put("role",role.optString("role_key")).put("skill_key",leadershipKeys[skill.getSelectedItemPosition()]).put("natural_roll",num(natural,0));
             JSONObject receipt=kingmakerRepository.resolveKingdomActivity("new_leadership_approval",args);
             toast("Aceitação: "+receipt.optJSONObject("check").optString("degree_pt"));showKingmaker();
         }catch(Exception ex){toast("Aceitação popular: "+ex.getMessage());}}});form.addView(approval);}'''
     part=once(part,anchor,anchor+add)
-    original='kingmakerRepository.assignLeader(role.optString("role_name"),c.optString("kind"),c.optLong("id"),c.optString("name"),invested.isChecked(),value(notes));'
-    replacement='''if(kingmakerRepository.state().optInt("turn_number",0)==0)kingmakerRepository.assignLeader(role.optString("role_name"),c.optString("kind"),c.optLong("id"),c.optString("name"),invested.isChecked(),value(notes));
-    else {JSONObject args=new JSONObject().put("role",role.optString("role_name")).put("entity_kind",c.optString("kind")).put("entity_id",c.optLong("id")).put("name",c.optString("name")).put("invested",invested.isChecked()).put("natural_roll",num(natural,0)).put("skill_key",leadershipKeys[skill.getSelectedItemPosition()]).put("notes",value(notes));
+    original='kingmakerRepository.assignLeader(role.optString("role_key"),c.optString("kind"),c.optLong("id"),c.optString("name"),invested.isChecked(),value(notes));'
+    replacement='''if(kingmakerRepository.state().optInt("turn_number",0)==0)kingmakerRepository.assignLeader(role.optString("role_key"),c.optString("kind"),c.optLong("id"),c.optString("name"),invested.isChecked(),value(notes));
+    else {JSONObject args=new JSONObject().put("role",role.optString("role_key")).put("entity_kind",c.optString("kind")).put("entity_id",c.optLong("id")).put("name",c.optString("name")).put("invested",invested.isChecked()).put("natural_roll",num(natural,0)).put("skill_key",leadershipKeys[skill.getSelectedItemPosition()]).put("notes",value(notes));
           kingmakerRepository.resolveKingdomActivity("new_leadership",args);}'''
     if original in part:
         part=once(part,original,replacement)
     else:
         import re
-        calls=[m for m in re.finditer(r'kingmakerRepository\.(?:assignLeader|resolveNewLeadership)\([^;]*?\);',part) if 'role.optString("role_name")' in m.group(0)]
+        calls=[m for m in re.finditer(r'kingmakerRepository\.(?:assignLeader|resolveNewLeadership)\([^;]*?\);',part) if 'role.optString("role_key")' in m.group(0)]
         if len(calls)!=1:raise ValueError("NEW_LEADERSHIP_UI_CALL_DRIFT "+str(len(calls))+" "+part[-3000:])
         call=calls[0].group(0)
         part=once(part,call,replacement)
