@@ -126,7 +126,7 @@ public final class FaerunAdventureModuleCatalog {
                 directives(), "tomb_crypt_chamber", Arrays.asList("faerun_khara_sulwood", "damara_guardian"), sc4Tr, null, reward(400, "Orb of Damara")));
 
         JSONObject meta = meta("tomb_damara", 3, true, "official_published_adventure_adaptation", "official_published_adventure_adaptation");
-        return new AdventureModule("fraif_tomb_damara", "The Tomb of Damara (FRAiF Oficial)", "1.0.0", "setup", nodes, meta);
+        return new AdventureModule("fraif_tomb_damara", "The Tomb of Damara (adaptação resumida FRAiF)", "1.0.0", "setup", nodes, meta);
     }
 
     // =========================================================================
@@ -192,7 +192,7 @@ public final class FaerunAdventureModuleCatalog {
                 directives(), "lethchauntos_sanctum", Arrays.asList("myrna_nor"), sc4Tr, null, reward(250, "Nathlum Grimoire")));
 
         JSONObject meta = meta("lost_library", 1, true, "official_published_adventure_adaptation", "official_published_adventure_adaptation");
-        return new AdventureModule("fraif_lost_library", "The Lost Library of Lethchauntos (FRAiF Oficial)", "1.0.0", "setup", nodes, meta);
+        return new AdventureModule("fraif_lost_library", "The Lost Library of Lethchauntos (adaptação resumida FRAiF)", "1.0.0", "setup", nodes, meta);
     }
 
     // =========================================================================
