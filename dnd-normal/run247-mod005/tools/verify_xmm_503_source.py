@@ -14,6 +14,7 @@ SOURCE="https://raw.githubusercontent.com/5etools-mirror-3/5etools-src/"+PIN+"/"
 JAVA_INDEX="app/src/main/java/com/braseiro/dnd5e/Xmm2025SourceIndex.java"
 JAVA_BOOK="app/src/main/java/com/braseiro/dnd5e/Xmm2025BookIndex.java"
 JAVA_SPELLS="app/src/main/java/com/braseiro/dnd5e/Xmm2025SpellUsageIndex.java"
+JAVA_TRAITS="app/src/main/java/com/braseiro/dnd5e/Xmm2025TraitMechanicsEngine.java"
 JAVA_RUNTIME="app/src/main/java/com/braseiro/dnd5e/Xmm2025CompiledBestiaryEngine.java"
 LITERAL=re.compile(r'^\s*("(?:\\.|[^"\\])*")\s*,?\s*$',re.M)
 RCH=re.compile(r'\s*\{@recharge(?: (\d))?\}')
@@ -219,6 +220,32 @@ def check_book(book,rows):
             if not r.get("editorial_only"):problems.append(k+":CREDITS_NOT_EDITORIAL")
     return problems
 
+TRAIT_KINDS={"Magic Resistance":["Advantage|XPHB} on saving throws against spells and other magical effects."],"Legendary Resistance":["fails a saving throw, it can choose to succeed instead."],"Pack Tactics":["Advantage|XPHB} on","attack roll","within 5 feet of the creature","doesn't have the {@condition Incapacitated"],"Sunlight Sensitivity":["While in sunlight","Disadvantage|XPHB} on ability checks and attack rolls."],"Flyby":["doesn't provoke","Opportunity Attack","when it flies out of an enemy's reach."],"Siege Monster":["deals double damage to objects and structures."],"Evasion":["Dexterity saving throw to take only half damage","no damage if it succeeds","half damage if it fails","Incapacitated"],"Undead Fortitude":["damage reduces the zombie to 0","{@dc 5} plus the damage taken","Radiant","Critical Hit","drops to 1"]}
+def trait_rows(source):
+    result=[]
+    for i,monster in enumerate(source):
+        for j,t in enumerate(monster.get("trait",[])):
+            kind=re.sub(r"\s*\(.*\)$","",t["name"])
+            if kind not in TRAIT_KINDS:continue
+            entries=t.get("entries")
+            if not isinstance(entries,list) or len(entries)!=1 or not isinstance(entries[0],str):
+                raise ValueError("XMM_TRAIT_ENTRY_SHAPE_CHANGED:"+monster["name"])
+            body=entries[0]
+            if any(term not in body for term in TRAIT_KINDS[kind]):
+                raise ValueError("XMM_TRAIT_SOURCE_SEMANTICS_CHANGED:"+monster["name"]+":"+kind)
+            uses=re.search(r"\((\d+)/Day(?:, or (\d+)/Day in Lair)?\)",t["name"])
+            if kind=="Legendary Resistance" and not uses:
+                raise ValueError("XMM_LEGENDARY_USES_NOT_PINNED:"+monster["name"])
+            result.append({
+                "id":monster["name"],"kind":kind,"trait":t["name"],"slot":j,
+                "ptr":f"/monster/{i}/trait/{j}/entries/0",
+                "uses":int(uses.group(1)) if uses else 0,
+                "lair_uses":int(uses.group(2) or uses.group(1)) if uses else 0,
+            })
+    if len(result)!=178 or len({r["kind"] for r in result})!=8:
+        raise ValueError("XMM_TRAIT_178_8_SOURCE_TOTAL_CHANGED:"+str(len(result)))
+    return result
+
 def check(project, bestiary_bytes, book_bytes):
     if blob_sha(bestiary_bytes)!=BESTIARY_SHA:raise ValueError("XMM_BESTIARY_GIT_BLOB_MISMATCH")
     if blob_sha(book_bytes)!=BOOK_SHA:raise ValueError("XMM_BOOK_GIT_BLOB_MISMATCH")
@@ -228,6 +255,9 @@ def check(project, bestiary_bytes, book_bytes):
     compiled=java_rows((project/JAVA_RUNTIME).read_text(encoding="utf-8"))
     bookrows=java_rows((project/JAVA_BOOK).read_text(encoding="utf-8"))
     spellrows=java_rows((project/JAVA_SPELLS).read_text(encoding="utf-8"))
+    traitrows=java_rows((project/JAVA_TRAITS).read_text(encoding="utf-8"))
+    if traitrows!=trait_rows(src):
+        raise ValueError("XMM_178_TRAIT_SOURCE_INDEX_MISMATCH")
     expected_usage=usage_rows(src)
     if len(spellrows)!=132 or spellrows!=expected_usage:
         raise ValueError("XMM_132_SPELLCASTING_USAGE_MISMATCH")
@@ -244,6 +274,8 @@ def check(project, bestiary_bytes, book_bytes):
         "recharge_actions_compared":totals["recharge_actions"],
         "spellcasting_usage_records_compared":len(spellrows),
         "spellcaster_records_compared":totals["spellcasting_monsters"],
+        "source_trait_contracts_compared":len(traitrows),
+        "source_trait_families_compared":len({r["kind"] for r in traitrows}),
         "source_field_and_catalog_gate_pass":True,
         "full_monster_combat_automation_certified":False}
 

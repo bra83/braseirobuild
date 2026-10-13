@@ -45,6 +45,15 @@ class XmmIndependentSourceTests(unittest.TestCase):
         expected=xmm.source_named_groups(ref)
         self.assertEqual(["Balor","Pit Fiend"],expected["Fiends"])
         with self.assertRaises(ValueError):xmm.source_named_groups({"entries":[]})
+    def test_trait_semantics_drift_is_hard_failure(self):
+        source=[{"name":"Fake","trait":[{"name":"Magic Resistance","entries":["Attack bonus"]}]}]
+        with self.assertRaisesRegex(ValueError,"XMM_TRAIT_SOURCE_SEMANTICS_CHANGED"):
+            xmm.trait_rows(source)
+    def test_legendary_resistance_requires_pinned_daily_limit(self):
+        source=[{"name":"Fake","trait":[{"name":"Legendary Resistance",
+                 "entries":["If the dragon fails a saving throw, it can choose to succeed instead."]}]}]
+        with self.assertRaisesRegex(ValueError,"XMM_LEGENDARY_USES_NOT_PINNED"):
+            xmm.trait_rows(source)
     def test_not_503_is_not_success(self):
         with self.assertRaises(ValueError):xmm.check_monsters([],[],[])
 if __name__=="__main__":unittest.main()

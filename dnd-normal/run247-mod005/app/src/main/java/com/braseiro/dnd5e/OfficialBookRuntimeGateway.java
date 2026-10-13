@@ -563,6 +563,10 @@ public final class OfficialBookRuntimeGateway {
             if ("save_damage_resolve".equals(action)) {JSONObject r=Xmm2025SaveDamageEngine.resolve(in);return new JSONObject().put("executed",r.optBoolean("resolved",false)).put("auto_mutation_allowed",false).put("result",r);}
             if ("spell_options".equals(action)) {JSONObject r=Xmm2025SpellUsageIndex.options(in.optString("name"));return new JSONObject().put("executed",r.optBoolean("resolved",false)).put("auto_mutation_allowed",false).put("result",r);}
             if ("spell_usage_check".equals(action)) {JSONObject r=Xmm2025SpellUsageIndex.check(in);return new JSONObject().put("executed",r.optBoolean("resolved",false)).put("auto_mutation_allowed",false).put("result",r);}
+            if ("trait_coverage".equals(action)) return new JSONObject().put("executed",true).put("auto_mutation_allowed",false).put("result",Xmm2025TraitMechanicsEngine.coverage());
+            if ("trait_catalog".equals(action)) return new JSONObject().put("executed",true).put("auto_mutation_allowed",false).put("result",Xmm2025TraitMechanicsEngine.entries());
+            if ("trait_profile".equals(action)) {JSONObject r=Xmm2025TraitMechanicsEngine.profile(in.optString("monster"),in.optString("trait"));return new JSONObject().put("executed",r.length()>0).put("auto_mutation_allowed",false).put("result",r);}
+            if ("trait_resolve".equals(action)) {JSONObject r=Xmm2025TraitMechanicsEngine.resolve(in);return new JSONObject().put("executed",r.optBoolean("resolved",false)).put("auto_mutation_allowed",false).put("result",r);}
             if ("statblock".equals(action)) { JSONObject r = Xmm2025CompiledBestiaryEngine.statblock(in.optString("name")); return new JSONObject().put("executed", r.optBoolean("resolved", false)).put("auto_mutation_allowed", false).put("result", r); }
         } catch (Exception e) {
             return blocked("xmm", action, "runtime_error:" + e.getMessage());
