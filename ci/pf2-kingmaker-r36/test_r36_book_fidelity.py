@@ -246,7 +246,11 @@ def test_campaign_objectives_and_completion_share_checked_transaction():
     assert 'KingmakerCampaignGate.resolveObjective(' in body
     body=method_body('public JSONObject finishCampaignQuest(')
     assert 'db.runInTransactionChecked' in body and 'objectivesResolved(before)' in body
-    assert 'personal_quest_status","complete"' in body
+    assert 'if(k.startsWith("q_cg_"))throw new IllegalStateException' in body
+    branch=method_body('public JSONObject resolveCompanionAdventureBranch(')
+    assert 'db.runInTransactionChecked' in branch
+    assert 'personal_quest_status","complete"' in branch
+    assert 'companion_branch_receipt:q_cg_' in branch
 
 
 def test_narrator_uses_the_same_upgrade_backend():
