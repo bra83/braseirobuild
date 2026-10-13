@@ -16,7 +16,15 @@ public final class Xmm11NonAlphabetSectionsTest {
  @Test public void testXmm_sec_0_0()throws Exception {assertTrue(sec("ch_0","sec_0_0").getJSONArray("rules").length()>=4);}
  @Test public void testXmm_sec_0_1()throws Exception {assertTrue(sec("ch_0","sec_0_1").getJSONArray("fields").length()>8);}
  @Test public void testXmm_sec_0_2()throws Exception {assertTrue(sec("ch_0","sec_0_2").getJSONArray("fields").length()>=5);}
- @Test public void testXmm_sec_0_3()throws Exception {assertEquals(22,sec("ch_0","sec_0_3").getJSONArray("parts").length());}
+ @Test public void testXmm_sec_0_3()throws Exception {
+    JSONArray parts=sec("ch_0","sec_0_3").getJSONArray("parts");
+    // 2025 XMM pinned book JSON has 23 named subsections here, including
+    // "Running a Monster" and "Limited Usage"; never truncate the last item.
+    assertEquals("All 23 source subheadings of Parts of a Stat Block",23,parts.length());
+    assertEquals("Size",parts.getString(0));
+    assertEquals("Running a Monster",parts.getString(13));
+    assertEquals("Limited Usage",parts.getString(22));
+ }
  @Test public void testXmm_sec_2_0()throws Exception {
     JSONArray names=sec("ch_2","sec_2_0").getJSONArray("names");
     assertEquals(96,names.length());
