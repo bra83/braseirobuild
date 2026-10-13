@@ -13,3 +13,12 @@
 - A auditoria hospedada XMM no mesmo SHA falhou antes dos steps por bloqueio de billing/limite GitHub (run 38409706810; annotations do check). A execução local dos comparadores Python permanece verde.
 
 - BRELGA run `38411724879`, código SHA `a7837a276482eda028f02e565e42c17d4fb65d41`: 93 suites, 2.450 testes, 0 falhas/erros/ignorados. Evidência bruta arquivada em `dnd-normal-qa-evidence/runs/38411724879/attempt-1.json`; XML `Xmm503SourceAndRechargeTest` SHA-256 `20bb2b8fd0edcc018780363935055154a8f0ae5ecaee94d50d058b7c6e194652`.
+
+## Continuação — ampliação da correção dos riders (13/10/2026)
+
+- A auditoria do conjunto revelou que o defeito não se limitava aos 11 ataques inicialmente tratados. Os 36 ataques XMM com Grappled e limite de tamanho explicitamente comprovado agora guardam a CD em `escape_dc`, a condição em `condition_on_hit` e o limite em `condition_max_target_size`. Os riders continuam bloqueados pelo guard até que aplicação, fuga e persistência sejam suportadas integralmente.
+- O catálogo indexado pela fonte passou de 40 para 65 ataques: 29 Prone e 36 Grappled. Vinte riders Grappled têm efeitos adicionais e um rider Prone também tem efeito adicional; os 21 seguem manuais. O catálogo não certifica automação integral. Três outros ataques Grappled sem limite de tamanho explícito não receberam limite inventado e continuam fora dessa cobertura executável.
+- Grell / Paralyzing Tentacles preserva dois mecanismos distintos da fonte: escape CD 12 e salvaguarda de Constituição CD 11 com consequência separada. A comparação independente exige ambos os campos.
+- Verificação local no working tree desta rodada: `test_verify_xmm_503_source.py` 13/13; `verify_xmm_503_source.py` comparou 503 criaturas, 36 seções, 120 recargas, 132 conjuradores, 178 traits e 36 CDs de escape; `verify_xmm_65_attack_conditions.py` conferiu 65 riders. Os testes de avaliação editorial passaram 5/5 e o validador de cobertura 12/12.
+- O teste Android focal foi solicitado via `bash gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.Xmm503SourceAndRechargeTest --tests com.braseiro.dnd5e.XmmAttackConditionSafetyTest`, mas não iniciou: o wrapper tentou baixar Gradle 8.11.1 e a conexão foi recusada. O BRELGA verde anterior cobre somente o SHA `a7837a27` e o estado dos 11 registros; não valida esta ampliação. A execução CI para o novo SHA permanece necessária.
+- A etapa 03 permanece aberta. Nenhum APK foi compilado.

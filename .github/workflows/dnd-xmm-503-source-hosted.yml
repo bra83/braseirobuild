@@ -8,7 +8,7 @@ on:
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Xmm2025BookIndex.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Xmm2025CompiledBestiaryEngine.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Xmm2025AttackConditionEngine.java'
-      - 'dnd-normal/run247-mod005/tools/verify_xmm_40_attack_conditions.py'
+      - 'dnd-normal/run247-mod005/tools/verify_xmm_65_attack_conditions.py'
       - 'dnd-normal/run247-mod005/tools/verify_xmm_503_source.py'
       - 'dnd-normal/run247-mod005/tools/test_verify_xmm_503_source.py'
       - '.github/workflows/dnd-xmm-503-source-hosted.yml'
@@ -36,8 +36,8 @@ jobs:
           python-version: '3.12'
       - name: Verify negative-path tests
         run: python -m unittest discover -s tools -p 'test_verify_xmm_503_source.py' -v
-      - name: Independently verify 40 attack condition riders
-        run: python tools/verify_xmm_40_attack_conditions.py
+      - name: Independently verify 65 attack condition riders
+        run: python tools/verify_xmm_65_attack_conditions.py
       - name: Independently compare all XMM 503 records and 36 source sections
         run: python tools/verify_xmm_503_source.py --json-out build/xmm-503/source-report.json
       - name: Assert real provenance and no fictitious full automation

@@ -55,9 +55,15 @@ public final class Xmm503SourceAndRechargeTest {
       JSONObject action=raw.getJSONArray("actions").getJSONObject(contract.getInt("slot"));
       assertEquals(contract.getString("name"),action.getString("name"));
       assertEquals(contract.getInt("dc"),action.getInt("escape_dc"));
-      assertFalse("escape DC must never be represented as a saving throw",action.has("save_dc"));
-      assertFalse(action.has("save_ability"));
-      assertFalse(action.has("condition_on_fail"));
+      if(contract.has("save_dc")){
+         assertEquals(contract.getInt("save_dc"),action.getInt("save_dc"));
+         assertEquals(contract.getString("save_ability"),action.getString("save_ability"));
+         assertTrue(action.has("condition_on_fail"));
+      }else{
+         assertFalse("escape DC must never be represented as a saving throw",action.has("save_dc"));
+         assertFalse(action.has("save_ability"));
+         assertFalse(action.has("condition_on_fail"));
+      }
       assertTrue(action.getString("condition_on_hit").contains("grappled"));
       assertEquals(contract.getString("size").toLowerCase(java.util.Locale.ROOT),
          action.getString("condition_max_target_size"));

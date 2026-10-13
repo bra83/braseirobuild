@@ -29,8 +29,8 @@ public final class XmmAttackConditionSafetyTest {
  }
  @Test public void coverageDoesNotCertifyFullAction()throws Exception{
   JSONObject c=Xmm2025AttackConditionEngine.coverage();
-  assertEquals(40,c.getInt("verified"));assertEquals(29,c.getInt("prone"));
-  assertEquals(11,c.getInt("grappled"));assertEquals(8,c.getInt("other_riders_manual"));
+  assertEquals(65,c.getInt("verified"));assertEquals(29,c.getInt("prone"));
+  assertEquals(36,c.getInt("grappled"));assertEquals(21,c.getInt("other_riders_manual"));
   assertFalse(c.getBoolean("full_automation_certified"));
  }
 }

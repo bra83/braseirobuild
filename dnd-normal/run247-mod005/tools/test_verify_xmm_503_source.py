@@ -1,8 +1,24 @@
 """Negative-path, no-network tests for the XMM 503 independent comparator."""
 import unittest
+from io import BytesIO
 import verify_xmm_503_source as xmm
 
 class XmmIndependentSourceTests(unittest.TestCase):
+    def test_source_fetch_retries_transient_timeout_and_keeps_pin_url(self):
+        calls=[]
+        class Response(BytesIO):
+            def __enter__(self): return self
+            def __exit__(self,*args): self.close()
+        def opener(request,timeout):
+            calls.append((request.full_url,timeout))
+            if len(calls)==1: raise TimeoutError("transient mirror timeout")
+            return Response(b"pinned")
+        result=xmm.fetch_source_bytes("https://example.invalid/pinned.json",
+            attempts=2,opener=opener)
+        self.assertEqual(b"pinned",result)
+        self.assertEqual(2,len(calls))
+        self.assertEqual(["https://example.invalid/pinned.json"]*2,
+                         [x[0] for x in calls])
     def test_git_blob_has_null_separator(self):
         import hashlib
         self.assertEqual(hashlib.sha1(b"blob 4\0test").hexdigest(),xmm.blob_sha(b"test"))

@@ -3,7 +3,7 @@
 source JSON, plus the 36 source-bound book sections. Never certify just a class count.
 No original statblock prose is republished in the Android app.
 """
-import argparse, hashlib, json, re, urllib.request
+import argparse, hashlib, json, re, time, urllib.request
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
 PIN="8c026b807fac21862a309379a0c3228a0683198b"
@@ -59,7 +59,7 @@ def recharge_rows(source):
                             "min":int(matched.group(1) or "6")})
     return out
 
-def check_grapple_escape_riders(source, compiled, contracts, expected_count=11):
+def check_grapple_escape_riders(source, compiled, contracts, expected_count=36):
     """Check source-pinned grapple escape DCs are never compiled as saves."""
     problems=[]
     checked=0
@@ -88,9 +88,13 @@ def check_grapple_escape_riders(source, compiled, contracts, expected_count=11):
            "saving throw" in text.lower() or "escape" not in text.lower():
             problems.append(monster+":"+rider["name"]+":PINNED_ESCAPE_SOURCE_CHANGED")
             continue
+        source_saves=re.findall(r"\{@actSave\s+(str|dex|con|int|wis|cha)\}\s*\{@dc\s*(\d+)",text,re.I)
+        save_mismatch=(bool(source_saves) and (len(source_saves)!=1 or
+            dst.get("save_ability","").lower()!=source_saves[0][0].lower() or
+            dst.get("save_dc")!=int(source_saves[0][1]) or not dst.get("condition_on_fail")))
+        save_unproven=(not source_saves and any(k in dst for k in ("save_dc","save_ability","condition_on_fail")))
         if dst.get("escape_dc")!=dc or dst.get("condition_max_target_size")!=rider.get("size","").lower() or \
-           "grappled" not in dst.get("condition_on_hit","").lower() or "save_dc" in dst or \
-           "save_ability" in dst or "condition_on_fail" in dst:
+           "grappled" not in dst.get("condition_on_hit","").lower() or save_mismatch or save_unproven:
             problems.append(monster+":"+rider["name"]+":ESCAPE_DC_MISCLASSIFIED")
         else:
             checked+=1
@@ -290,6 +294,22 @@ def trait_rows(source):
         raise ValueError("XMM_TRAIT_178_8_SOURCE_TOTAL_CHANGED:"+str(len(result)))
     return result
 
+def fetch_source_bytes(url, user_agent="Braseiro-XMM-Provenance/1.0", max_bytes=5*1024*1024,
+                      attempts=3, opener=None):
+    """Retry transient source mirror timeouts without changing the pinned URL."""
+    open_url=opener or urllib.request.urlopen
+    request=urllib.request.Request(url,headers={"User-Agent":user_agent})
+    last_error=None
+    for attempt in range(attempts):
+        try:
+            with open_url(request,timeout=90) as response:
+                return response.read(max_bytes)
+        except (TimeoutError, OSError, urllib.error.URLError) as error:
+            last_error=error
+            if attempt+1<attempts:
+                time.sleep(2**attempt)
+    raise last_error
+
 def check(project, bestiary_bytes, book_bytes):
     if blob_sha(bestiary_bytes)!=BESTIARY_SHA:raise ValueError("XMM_BESTIARY_GIT_BLOB_MISMATCH")
     if blob_sha(book_bytes)!=BOOK_SHA:raise ValueError("XMM_BOOK_GIT_BLOB_MISMATCH")
@@ -335,10 +355,7 @@ def main():
         best=(args.source_dir/"bestiary-xmm.json").read_bytes()
         book=(args.source_dir/"book-xmm.json").read_bytes()
     else:
-        files=[]
-        for name in FILES:
-            req=urllib.request.Request(SOURCE+name,headers={"User-Agent":"Braseiro-XMM-Provenance/1.0"})
-            with urllib.request.urlopen(req,timeout=90) as f:files.append(f.read(5*1024*1024))
+        files=[fetch_source_bytes(SOURCE+name) for name in FILES]
         best,book=files
     result=check(args.project_root.resolve(),best,book)
     payload=json.dumps(result,indent=2,ensure_ascii=False)
