@@ -47,7 +47,15 @@ def repo(s):
             JSONObject outcome=KingmakerLeadershipSemantics.appointment(degree,r,currentTurn,jaethal,famous,die);
             outcome.put("raw_degree",original).put("companion_degree_improved",preferred).put("check",check);
             if("CRITICAL_FAILURE".equals(degree))assignLeaderUnchecked(role,"",0,"",false,notes);
-            else assignLeaderUnchecked(role,entityKind,entityId,name,invested,notes);
+            else{
+                for(JSONObject occupied:leaders()){
+                    if(occupied.optInt("vacant")==1||r.equals(occupied.optString("role_key")))continue;
+                    boolean matchingId=entityId>0&&entityId==occupied.optLong("entity_id")&&entityKind.equals(occupied.optString("entity_kind"));
+                    boolean matchingName=entityId<=0&&clean(name).equalsIgnoreCase(occupied.optString("leader_name"));
+                    if(matchingId||matchingName)assignLeaderUnchecked(occupied.optString("role_key"),"",0,"",false,"Mudança oficial de cargo");
+                }
+                assignLeaderUnchecked(role,entityKind,entityId,name,invested,notes);
+            }
             int unrest=outcome.optInt("new_leadership_unrest");
             if(unrest>0)adjustState(new JSONObject().put("unrest",unrest),"Nova Liderança: "+role);
             check.put("degree",degree).put("degree_before_companion",original).put("new_leadership_circumstance",KingmakerLeadershipSemantics.skillCircumstance(r,sk));
