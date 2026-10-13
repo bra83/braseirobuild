@@ -27,7 +27,9 @@ permissions:
   contents: read
 concurrency:
   group: dnd-adventure-tx-brelga
-  cancel-in-progress: false
+# Only the newest D&D source is eligible for an expensive Android regression.
+  # Old queued and in-progress runs are safely superseded; source/QA evidence is SHA-scoped.
+  cancel-in-progress: true
 jobs:
   # Sem actions/checkout: o runner pode estar tão cheio que falha ANTES dos steps.
   disk-recovery:
