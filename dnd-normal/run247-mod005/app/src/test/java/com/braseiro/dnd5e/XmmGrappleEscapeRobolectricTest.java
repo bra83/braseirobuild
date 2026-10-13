@@ -69,6 +69,19 @@ public final class XmmGrappleEscapeRobolectricTest {
             assertEquals("/monster/3/action/1/entries/0",state.optString("source_pointer"));
             assertEquals("",Backup21IntegrityEnvelope.check(db.exportAll()));
 
+            position(db,target,8,2);
+            JSONObject outOfReach=db.reconcileXmmGrappleStates();
+            assertTrue(outOfReach.toString(),outOfReach.optBoolean("grapple_reconciliation_committed"));
+            assertEquals("target_outside_grapple_reach",outOfReach.getJSONArray("released")
+                .getJSONObject(0).optString("reason"));
+            assertFalse(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"grappled"));
+            position(db,target,3,2);
+            assertEquals(target,db.nextTurn().optLong("id"));
+            assertEquals(actor,db.nextTurn().optLong("id"));
+            JSONObject secondHit=db.applyCompiledStatblockAttack(actor,target,"Aboleth","Tentacle",
+                20,0,10,0,"ui-monster-xmm-grapple-hit-after-range");
+            assertTrue(secondHit.toString(),secondHit.optBoolean("statblock_attack_committed"));
+            assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"grappled"));
             assertEquals(target,db.nextTurn().optLong("id"));
             JSONObject prompt=db.getXmmGrappleEscapeInfo(target);
             assertTrue(prompt.toString(),prompt.optBoolean("grapple_escape_available"));
@@ -103,6 +116,20 @@ public final class XmmGrappleEscapeRobolectricTest {
             assertEquals(hp-10,reopened.optInt("hp"));
             assertFalse(ConditionTokenGuard.has(reopened.optString("conditions"),"grappled"));
             assertFalse(new JSONObject(reopened.optString("resources_json","{}")).has("xmm_grapple_state"));
+
+            assertEquals(actor,db.nextTurn().optLong("id"));
+            JSONObject thirdHit=db.applyCompiledStatblockAttack(actor,target,"Aboleth","Tentacle",
+                20,0,10,0,"ui-monster-xmm-grapple-hit-before-incapacitated-source");
+            assertTrue(thirdHit.toString(),thirdHit.optBoolean("statblock_attack_committed"));
+            db.updateConditions(actor,"Incapacitado");
+            assertEquals(target,db.nextTurn().optLong("id"));
+            JSONObject incapacitated=db.resolveXmmGrappleEscape(target,"athletics",30,
+                "ui-grapple-escape-source-incapacitated");
+            assertTrue(incapacitated.toString(),incapacitated.optBoolean("automatic_release"));
+            assertFalse(incapacitated.optBoolean("action_spent",true));
+            assertTrue(new JSONObject(db.getCombatant(target).optString("resources_json","{}"))
+                .optBoolean("action_available",false));
+            assertFalse(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"grappled"));
         } finally { db.close();context.deleteDatabase(dbName); }
     }
 }

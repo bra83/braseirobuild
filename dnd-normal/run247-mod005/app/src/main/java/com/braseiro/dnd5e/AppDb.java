@@ -2267,6 +2267,78 @@ public class AppDb extends SQLiteOpenHelper {
         }catch(Exception invalid){try{return out.put("hostility_ledger_blocked","malformed_hostility_ledger");}
             catch(Exception ignored){return out;}}
     }
+    /** Reconcile the two source-declared automatic endings of an XMM grapple. */
+    private JSONArray reconcileXmmGrappleStatesInternal()throws Exception{
+        JSONArray released=new JSONArray();
+        for(JSONObject target:listCombatants()){
+            long targetId=target.optLong("id",0);
+            JSONObject targetResources=combatResources(target);
+            JSONObject state=targetResources.optJSONObject("xmm_grapple_state");
+            if(state==null)continue;
+            long sourceId=state.optLong("source_actor_id",0);
+            JSONObject source=getCombatant(sourceId);
+            JSONObject sourceResources=combatResources(source);
+            String monster=state.optString("source_statblock",""),actionName=state.optString("source_action","");
+            JSONObject action=compiledMonsterRiderAction(monster,actionName);
+            String reason="";
+            if(sourceId<=0||sourceId==targetId||source.length()==0||source.optInt("hp",0)<=0||
+                sourceResources.optBoolean("dead",false)||
+                ConditionRulesEngine.incapacitated(source.optString("conditions",""))||
+                !monster.equals(sourceResources.optString("block_id",""))||
+                !Xmm2025GrappleEscapeRules.validSource(monster,action)||
+                state.optInt("escape_dc",0)!=action.optInt("escape_dc")||
+                !state.optString("source_pointer","").equals(
+                    Xmm2025AttackConditionEngine.profile(monster,actionName).optString("ptr"))||
+                !state.optString("source_blob_sha1","").equals(Xmm2025AttackConditionEngine.SOURCE_BLOB)){
+                reason="grappler_incapacitated_or_source_invalid";
+            }else{
+                int reach=action.optInt("reach_ft",0);
+                if(reach>0){
+                    JSONObject sourcePos=tacticalGridPosition(sourceId),targetPos=tacticalGridPosition(targetId);
+                    if(!sourcePos.has("grid_blocked")&&!targetPos.has("grid_blocked")&&
+                        sourcePos.optString("scene_key","").equals(targetPos.optString("scene_key",""))){
+                        OpportunityAttackRules.Position a=new OpportunityAttackRules.Position(
+                            sourcePos.optInt("cell_x"),sourcePos.optInt("cell_y"),0,1);
+                        OpportunityAttackRules.Position t=new OpportunityAttackRules.Position(
+                            targetPos.optInt("cell_x"),targetPos.optInt("cell_y"),0,1);
+                        if(OpportunityAttackRules.distanceFeet(a,t)>reach)reason="target_outside_grapple_reach";
+                    }
+                }
+            }
+            if(reason.isEmpty())continue;
+            String before=target.optString("conditions","");
+            String after=ConditionRulesEngine.remove(before,"grappled");
+            targetResources.remove("xmm_grapple_state");
+            int movementMax=targetResources.optInt("movement_max_ft",0);
+            if(movementMax<=0&&!ConditionRulesEngine.speedZero(after)){
+                int speed=combatBaseSpeed(target);
+                targetResources.put("movement_max_ft",speed).put("movement_remaining_ft",speed);
+            }
+            ContentValues values=new ContentValues();values.put("conditions",after);
+            values.put("resources_json",targetResources.toString());
+            requireCombatantWrite(getWritableDatabase().update("combatants",values,
+                "id=? AND world_profile=?",new String[]{String.valueOf(targetId),getActiveMapProfile()}));
+            syncCombatantHeroState(target,target.optInt("hp"),target.optInt("temp_hp"),after,targetResources);
+            String receipt=combatReceiptKey(targetId,"xmm-grapple-auto-end-"+
+                state.optString("source_receipt","")+"-"+reason);
+            if(!hasEffectReceipt(receipt))recordEffectReceipt(receipt,new JSONObject()
+                .put("effect","xmm_grapple_automatic_end").put("reason",reason)
+                .put("target_id",targetId).put("source_actor_id",sourceId)
+                .put("conditions_before",before).put("conditions_after",after).toString());
+            released.put(new JSONObject().put("target_id",targetId).put("reason",reason));
+        }
+        return released;
+    }
+    /** Called while rendering combat; repeat calls are idempotent and state-bound. */
+    public JSONObject reconcileXmmGrappleStates(){
+        return combatAtomic("xmm_grapple_reconcile",new CombatAtomicWork(){
+            public JSONObject run()throws Exception{
+                return new JSONObject().put("grapple_reconciliation_committed",true)
+                    .put("released",reconcileXmmGrappleStatesInternal());
+            }
+        });
+    }
+
     /** Read-only, source-bound escape prompt for a simple XMM grapple. */
     public JSONObject getXmmGrappleEscapeInfo(long targetId){
         JSONObject out=new JSONObject();
@@ -2308,6 +2380,12 @@ public class AppDb extends SQLiteOpenHelper {
                 return out.put("grapple_escape_blocked","invalid_operation_token");
             String receipt=combatReceiptKey(targetId,token+"-escape");
             if(hasEffectReceipt(receipt))return out.put("grapple_escape_blocked","already_resolved_or_replayed");
+            JSONArray automatic=reconcileXmmGrappleStatesInternal();
+            for(int i=0;i<automatic.length();i++)if(automatic.optJSONObject(i)!=null&&
+                automatic.getJSONObject(i).optLong("target_id")==targetId)
+                return out.put("grapple_escape_committed",true).put("automatic_release",true)
+                    .put("release_reason",automatic.getJSONObject(i).optString("reason"))
+                    .put("action_spent",false).put("auto_rolls",false);
             JSONObject info=getXmmGrappleEscapeInfo(targetId);
             if(!info.optBoolean("grapple_escape_available",false))
                 return out.put("grapple_escape_blocked",info.optString("reason","grapple_escape_unavailable"));
