@@ -1,0 +1,55 @@
+name: Braseiro D&D - verify 10 book sources and 483 pointers
+on:
+  push:
+    branches:
+      - antigravity/dnd-normal-fechamento-gates
+    paths:
+      - 'dnd-normal/run247-mod005/docs/EDITORIAL_SOURCE_PROVENANCE_483.csv'
+      - 'dnd-normal/run247-mod005/docs/EDITORIAL_SECTION_ACCEPTANCE.csv'
+      - 'dnd-normal/run247-mod005/docs/PLANO_MESTRE_MATRIZ_10_LIVROS_SECOES.csv'
+      - 'dnd-normal/run247-mod005/tools/verify_book_sources_483.py'
+      - 'dnd-normal/run247-mod005/tools/test_verify_book_sources_483.py'
+      - '.github/workflows/dnd-editorial-source-provenance-brelga.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dnd-source-provenance-brelga
+  cancel-in-progress: false
+jobs:
+  source-provenance:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 20
+    steps:
+      - name: Checkout only D&D Normal source; never change Mystara
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+      - name: Execute independent local source-proof verifier unit tests
+        shell: powershell
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          $ErrorActionPreference='Stop'
+          if ($env:RUNNER_NAME -ne 'BRELGA') { throw 'EXPECTED_RUNNER_BRELGA' }
+          & python -m unittest discover -s tools -p 'test_verify_book_sources_483.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'SOURCE_VERIFIER_UNIT_TESTS_FAILED' }
+      - name: Download exact pinned 10 JSON blobs; hash and compare all 483 source pointers
+        shell: powershell
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          $ErrorActionPreference='Stop'
+          $env:PYTHONDONTWRITEBYTECODE='1'
+          $env:PYTHONIOENCODING='utf-8'
+          & python tools/verify_book_sources_483.py --project-root . --json-out docs/book-source-evidence-last-ci.json
+          if ($LASTEXITCODE -ne 0) { throw 'TEN_SOURCE_BOOKS_OR_483_PATHS_NOT_VERIFIED' }
+          $result=Get-Content docs/book-source-evidence-last-ci.json -Raw | ConvertFrom-Json
+          if ($result.exact_chapter_title_pointers_verified -ne 483 -or
+              $result.non_rule_illustrations -ne 46 -or
+              $result.books_verified -ne 10 -or
+              !$result.source_title_provenance_passed -or
+              $result.game_runtime_semantics_certified) {
+            throw 'SOURCE_PROVENANCE_REPORT_INCONSISTENT'
+          }
+          Write-Host ('SOURCE_PIN='+$result.source_commit)
+          Write-Host 'SOURCE_PROVENANCE=10_BOOKS_483_EXACT_JSON_PATHS_46_ILLUSTRATIONS_PASS'
+          Write-Host 'GAME_RULES_SEMANTIC_CERTIFICATION=NOT_CLAIMED'
