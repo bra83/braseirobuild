@@ -117,13 +117,21 @@ def generate(project_root=None):
     # Reaproveitar APENAS comprovantes que ainda passam no validador estrito.
     # Um CSV antigo ou produzido por outro agente nunca pode se autocertificar.
     prior_proofs = {}
+    prior_verified_illustrations = {}
     invalid_proofs = 0
     if output_path.is_file():
         with output_path.open("r", encoding="utf-8-sig", newline="") as existing_file:
             for previous in csv.DictReader(existing_file):
+                k = (previous.get("book_id"), previous.get("chapter_id"), previous.get("section_id"))
+                if previous.get("status") == "NOT_APPLICABLE" and (
+                    previous.get("review_note") or ""
+                ).startswith("VERIFIED_NON_RULE_IMAGE: ") and (
+                    previous.get("source_version") or ""
+                ).startswith("5etools-mirror-snapshot@"):
+                    prior_verified_illustrations[k] = previous
+                    continue
                 if previous.get("status") != "IMPLEMENTED_AND_TESTED":
                     continue
-                k = (previous.get("book_id"), previous.get("chapter_id"), previous.get("section_id"))
                 evidence_errors = []
                 validate_evidence(previous, root, evidence_errors)
                 if evidence_errors:
@@ -160,7 +168,11 @@ def generate(project_root=None):
                 "evidence_ref": "",
                 "review_note": ""
             }
-            rows_out.append(prior_proofs.get((b_id, c_id, s_id), candidate))
+            k = (b_id, c_id, s_id)
+            if ctype == "illustration_caption" and k in prior_verified_illustrations:
+                rows_out.append(prior_verified_illustrations[k])
+            else:
+                rows_out.append(prior_proofs.get(k, candidate))
 
     fieldnames = [
         "book_id", "chapter_id", "section_id", "expected_behavior",
