@@ -578,6 +578,37 @@ public final class Xmm2025SourceIndex {
   return new JSONObject().put("resolved",true).put("count",names.length()).put("names",names)
     .put("source","XMM").put("auto_rolls",false).put("source_commit",SOURCE_COMMIT);
  }
+ /** Recharge is evaluated only after an explicit user-supplied d6 result.
+  * It never rolls dice, restores a resource, or alters turn state on its own.
+  */
+ public static JSONObject rechargeDecision(JSONObject in)throws Exception {
+   String id=in==null?"":in.optString("monster");
+   String category=in==null?"":in.optString("category");
+   String actionName=in==null?"":in.optString("action");
+   JSONObject monster=get(id);
+   if(monster.length()==0)return new JSONObject().put("resolved",false)
+       .put("reason","unknown_monster").put("auto_rolls",false);
+   JSONArray candidates=monster.getJSONArray("recharges");
+   JSONObject match=null;
+   for(int i=0;i<candidates.length();i++){
+      JSONObject item=candidates.getJSONObject(i);
+      if(category.equals(item.getString("cat"))&&actionName.equals(item.getString("name"))){match=item;break;}
+   }
+   if(match==null)return new JSONObject().put("resolved",false)
+       .put("reason","recharge_action_not_registered").put("auto_rolls",false);
+   JSONObject result=new JSONObject().put("resolved",true)
+       .put("source","XMM").put("monster",id).put("category",category).put("action",actionName)
+       .put("source_pointer",monster.getString("ptr")).put("minimum_d6",match.getInt("min"))
+       .put("maximum_d6",6).put("recharge_roll_required",true)
+       .put("resolution_mode","EXPLICIT_PLAYER_OR_DM_D6")
+       .put("auto_rolls",false).put("auto_mutation_allowed",false);
+   if(!in.has("roll_d6"))return result.put("status","manual_roll_required");
+   int roll=in.optInt("roll_d6",-1);
+   if(roll<1||roll>6)return new JSONObject().put("resolved",false)
+       .put("reason","d6_result_out_of_range").put("auto_rolls",false);
+   return result.put("status","recharge_evaluated").put("roll_d6",roll)
+       .put("recharged",roll>=match.getInt("min"));
+ }
  public static JSONObject coverage()throws Exception {
   return new JSONObject().put("source","XMM").put("indexed",size())
      .put("recharge_entries",120).put("spellcasting_statblocks",132)
