@@ -3,7 +3,7 @@
 **Projeto:** Braseiro D&D 5e Normal (`run247-mod005`)  
 **Branch:** `antigravity/dnd-normal-fechamento-gates`  
 **Data da Auditoria:** 12 de Outubro de 2026  
-**Status:** HOMOLOGADO E VERIFICADO  
+**Status:** INVENTÁRIO COMPLETO; HOMOLOGAÇÃO SEMÂNTICA INDIVIDUAL PENDENTE  
 
 ---
 
@@ -88,7 +88,46 @@ As 483 seções distribuídas pelos dez livros foram formalmente inventariadas e
 | Astarion's Book of Hungers | ABH | 16 | `AstarionHungersRulesEngine` | Mecânicas de Mordida / Fomes Vampíricas |
 | Lorwyn: First Light | LFL | 20 | `LorwynFirstLightRulesEngine` | Travessia Planar / Regras de Aurora |
 | Netheril's Fall | NF | 46 | `NetherilsFallRulesEngine` | Perigos Ambientais / Mythallar |
-| **TOTAL** | **10 LIVROS** | **483 SEÇÕES** | **18 CLASSES DE RUNTIME** | **100% AUDITADO E VALIDADO** |
+| **TOTAL** | **10 LIVROS** | **483 SEÇÕES INVENTARIADAS** | **RUNTIME MAPEADO; APROVAÇÃO SEMÂNTICA NÃO INFERIDA** | **CERTIFICAÇÃO INDIVIDUAL PENDENTE** |
+
+---
+
+## 3.1 Gate executável de cobertura — distinção obrigatória
+
+O ledger `docs/EDITORIAL_SECTION_ACCEPTANCE.csv` classifica as **483 entradas**
+como `IMPLEMENTED_NEEDS_TEST`, com `source_version=UNVERIFIED` e
+`rights_basis=REVIEW_REQUIRED`, à data do último levantamento. Logo, a
+contagem de seções, a existência de símbolos Java e a aprovação de testes de
+integração compartilhados **não certificam fidelidade individual ao conteúdo
+publicado**.
+
+`tools/editorial_483_runtime_assessment.py` executa a conferência exata das
+483 linhas do inventário, pareando cada chave livro/capítulo/seção com o
+ledger, arquivo Java e método de teste correspondente. O relatório por linha
+é gravado em `build/editorial-483/report.json` e anexado às evidências do
+BRELGA. `--require-complete` não aprova enquanto faltarem certificados
+semânticos individuais.
+
+Correções de implementação efetiva já adicionadas, mas ainda sujeitas
+à regressão do HEAD:
+
+- 45 seções de Arcana Unleashed foram realocadas da classe de mera
+  tradução `ArcanaUnleashedPtBr` para os motores de subclasses, magias,
+  facções, itens e bestiário. As seções de aventura narrativa continuam
+  assinaladas para implantação específica; o redirecionamento não prova
+  sua execução.
+- 64 linhas de bestiário regional FRAIF passaram a ser indexadas
+  individualmente: 39 entradas de criaturas, 23 cabeçalhos de famílias
+  e 2 elementos editoriais. Somente fichas fonte-vinculadas e completas
+  podem ser utilizadas mecanicamente.
+- Das oito linhas de objetos FRAIF, uma é legenda/ilustração e sete
+  correspondem a itens nomeados. Os sete itens agora são consultáveis,
+  sem simular seus efeitos enquanto a fonte não tiver sido verificada.
+
+A seção `2. Fundamentação Legal` abaixo expressa uma posição de
+arquitetura e não constitui concessão automática de licença de reprodução
+ou prova do acesso a cada fonte. URLs e referências em índices públicos,
+isoladamente, não autorizam a conclusão de certificação editorial.
 
 ---
 
