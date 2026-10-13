@@ -36,7 +36,10 @@ public final class AdventureWorldAdapter {
                         ContentValues cv = new ContentValues();
                         cv.put("location", locationId);
                         cv.put("updated_at", System.currentTimeMillis());
-                        sql.update("scene_state", cv, "world_profile=?", new String[]{db.getActiveMapProfile()});
+                        int changed = sql.update("scene_state_profiles", cv, "world_profile=?",
+                                new String[]{db.getActiveMapProfile()});
+                        if (changed != 1) throw new IllegalStateException(
+                                "Local de aventura não persistido no perfil ativo.");
                     }
                 });
             }
