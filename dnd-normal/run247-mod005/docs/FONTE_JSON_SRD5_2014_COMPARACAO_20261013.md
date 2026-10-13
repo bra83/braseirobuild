@@ -18,6 +18,7 @@ Fonte indicada pelo usuário:
 | Regra SRD5 original | Java existente | Teste comportamental independente |
 | --- | --- | --- |
 | Modificador de atributo: floor((score-10)/2) | `DndRulesEngine.modifier` | `Srd5OriginalMechanicsJsonContractTest.srd2014AbilityScoresUseRoundedDownHalfDifference` |
+| Seis atributos STR/DEX/CON/INT/WIS/CHA (abreviação e nome por extenso) | `DndRulesEngine.abilityScore` (corrigido) | `srd2014AllSixAbilityAbbreviationsAndLongNamesResolve` |
 | Bônus de proficiência por faixa de nível | `DndRulesEngine.proficiencyBonus` | `srd2014ProficiencyProgressesAtLevelsFiveNineThirteenSeventeen` |
 | Checagem passiva = 10 + modificadores; vantagem +5; desvantagem −5; cancela quando ambas | `DndRulesEngine.passiveScore` + nova sobrecarga com duas flags | `srd2014PassiveCheckHasPlusFiveMinusFiveAndCancellation` |
 | Vantagem e desvantagem: maior/menor de dois d20, com cancelamento | `DndRulesEngine.chooseD20` | `srd2014AdvantageChoosesHighDisadvantageChoosesLow` |
