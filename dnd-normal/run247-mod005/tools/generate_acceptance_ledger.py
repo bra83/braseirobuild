@@ -30,6 +30,15 @@ def determine_assertion(book_id, content_type, section_id):
     # These section-scoped JUnit methods actually exist. Keep them stable when
     # the acceptance ledger is regenerated; a book-wide generic gate is not
     # adequate proof of an individual editorial section.
+    if book_id == "ABH":
+        source_tests = {
+            "sec_1_2": "Astarion16FeatsPdfCatalogTest#noDhampirBiteResourceSpendWithoutDamageOrValidTarget",
+            "sec_1_3": "Astarion16FeatsPdfCatalogTest#exactSixteenSourceFeatsAndCategories",
+            "sec_1_5": "AstarionBloodlustPdfRuleTest#sanguineFeastRequiresActualAttackHitBloodiedEligibleTargetAndResources",
+            "sec_1_6": "Astarion16FeatsPdfCatalogTest#sourceSpecificEpicBoonsHaveDistinctRealBehaviors",
+        }
+        if section_id in source_tests:
+            return source_tests[section_id]
     if book_id == "XMM" and section_id.startswith("sec_1_"):
         index = section_id[len("sec_1_"):]
         if index.isdecimal() and 0 <= int(index) <= 24:
