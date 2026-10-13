@@ -32,15 +32,29 @@ public final class FaerunCampaignEndingsRobolectricTest {
         String databaseName = "dnd_profile_isolation_" + UUID.randomUUID().toString().substring(0, 8) + ".db";
         AppDb db = AppDbTestHelper.createSandbox(context, databaseName);
         try {
-            db.setActiveMapProfile("mystara");
-            JSONObject before = db.getSceneState();
+            // Normal D&D intentionally forces the active profile to 'dnd';
+            // setActiveMapProfile("mystara") does NOT switch worlds in this app.
+            // Assert isolation against an actual separate SQLite row instead.
+            db.setActiveMapProfile("dnd");
+            db.getWritableDatabase().execSQL(
+                    "INSERT OR IGNORE INTO scene_state_profiles(world_profile, location) " +
+                    "VALUES('mystara', 'frozen_mystara_location')");
+            db.getWritableDatabase().execSQL(
+                    "UPDATE scene_state_profiles SET location='frozen_mystara_location' " +
+                    "WHERE world_profile='mystara'");
+            JSONObject frozenBefore = db.queryOne(
+                    "SELECT location,day_number FROM scene_state_profiles WHERE world_profile=?",
+                    new String[]{"mystara"});
             AdventureNode target = FaerunAdventureModuleCatalog.byId("fraif_tomb_damara")
                     .getNode("scene_1");
-            assertFalse("Normal D&D must never advance frozen Mystara world",
+            assertTrue("D&D world transition must commit to D&D profile",
                     new AdventureWorldAdapter(db, null).applyNodeConsequences(target, new JSONObject()));
-            JSONObject after = db.getSceneState();
-            assertEquals(before.optString("location"), after.optString("location"));
-            assertEquals(before.optInt("day_number"), after.optInt("day_number"));
+            assertEquals(target.getLocationId(), db.getSceneState().optString("location"));
+            JSONObject frozenAfter = db.queryOne(
+                    "SELECT location,day_number FROM scene_state_profiles WHERE world_profile=?",
+                    new String[]{"mystara"});
+            assertEquals(frozenBefore.optString("location"), frozenAfter.optString("location"));
+            assertEquals(frozenBefore.optInt("day_number"), frozenAfter.optInt("day_number"));
         } finally {
             db.close();
             context.deleteDatabase(databaseName);
