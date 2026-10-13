@@ -2,6 +2,7 @@ package com.braseiro.dnd5e;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.junit.Test;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import java.util.Arrays;
@@ -17,10 +18,10 @@ public final class Xmm503SourceAndRechargeTest {
    for(int i=0;i<names.length();i++)rows[i][0]=names.optString(i);
    return Arrays.asList(rows);
  }
+ @BeforeClass public static void installOnce() throws Exception { assertEquals(503,Xmm2025CompiledBestiaryEngine.install().getInt("statblocks_installed")); }
  private final String id;
  public Xmm503SourceAndRechargeTest(String id){this.id=id;}
  @Test public void everyCreatureRetainsItsSourceStatsAndManualRecharge() throws Exception {
-   JSONObject done=Xmm2025CompiledBestiaryEngine.install();assertEquals(503,done.getInt("statblocks_installed"));
    JSONObject ref=Xmm2025SourceIndex.get(id),raw=CompiledStatblockEngine.get(id);
    assertEquals(ref.getInt("ac"),raw.getInt("armor_class"));
    assertEquals(ref.getInt("hp"),raw.getInt("hit_points"));
