@@ -16,7 +16,8 @@ No commit `b7627b4df8165979732839c151755d7a720cfb94`, os dois ramos foram movido
 
 - Teste: `XmmSpellUsageGatewayTest#androidGatewayRoutesCatalogAndEligibility` e suíte Android completa.
 - BRELGA run `38380092340`: 84 suites, 1.642 testes, 0 falhas, 0 erros, 0 ignorados; SHA de código `b7627b4df8165979732839c151755d7a720cfb94`.
-- XML bruto e hashes arquivados em `dnd-normal-qa-evidence/runs/38380092340/attempt-1.json` no branch QA dedicado. A repetição no SHA deste registro documental será adicionada quando concluída.
+- Repetição com o registro documental incluído: BRELGA run `38381018048`, SHA `5fb607be60fdd5baef6eefd225fe2fc6410e34e5`, 84 suites, 1.642 testes, 0 falhas, 0 erros, 0 ignorados.
+- XMLs brutos e hashes arquivados no branch `dnd-normal-qa-evidence`, em `runs/38381018048/attempt-1.json`. O XML específico `TEST-com.braseiro.dnd5e.XmmSpellUsageGatewayTest.xml` contém 5/5 testes verdes e SHA-256 `700b80118f116de46c01e69c8fbeee1944e3fb70efc9c3b6156561a5c9449214`.
 - Fonte comparada independentemente: `verify_xmm_503_source.py` reportou 503 statblocks, 36 seções, 120 recargas e 132 registros de conjuração; `full_monster_combat_automation_certified=false`.
 
 ## Limite desta prova
