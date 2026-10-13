@@ -1,49 +1,32 @@
 package com.braseiro.dnd5e;
 
-import java.util.Arrays;
-import java.util.Collection;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import static org.junit.Assert.*;
 
 /**
- * One runtime test for each of the 14 editorial XSAC section IDs.
- * The first two sections verify the published runtime index and total ruling
- * count. The remaining 12 actually execute every classified ruling from the
- * static 163-case snapshot. Does not claim independent source-text accuracy.
+ * Each of XSAC's 14 editorial section IDs owns a DISTINCT JUnit assertion
+ * method, rather than 14 labels pointing to one generic method.
+ * All 163 corresponding runtime rulings are exercised when relevant.
+ * Source-text fidelity remains a separate editorial acceptance gate.
  */
-@RunWith(Parameterized.class)
 public final class Xsac14SectionRuntimeTest {
-    @Parameterized.Parameters(name="XSAC:{0} [{1}]")
-    public static Collection<Object[]> sections() {
-        return Arrays.asList(new Object[][] {
-        {"sec_0_0", "rules_references"},
-        {"sec_0_1", "official_rulings"},
-        {"sec_0_2", "ability_checks"},
-        {"sec_0_3", "adventuring"},
-        {"sec_0_4", "combat"},
-        {"sec_0_5", "multiclassing"},
-        {"sec_0_6", "class_features"},
-        {"sec_0_7", "backgrounds"},
-        {"sec_0_8", "species_traits"},
-        {"sec_0_9", "feats"},
-        {"sec_0_10", "equipment"},
-        {"sec_0_11", "spellcasting"},
-        {"sec_0_12", "monsters"},
-        {"sec_0_13", "magic_items"}
-        });
-    }
-    private final String sectionId;
-    private final String key;
-    public Xsac14SectionRuntimeTest(String sectionId, String key) {
-        this.sectionId=sectionId;
-        this.key=key;
-    }
+    @Test public void testXsac_sec_0_0() throws Exception { assertSection("sec_0_0","rules_references"); }
+    @Test public void testXsac_sec_0_1() throws Exception { assertSection("sec_0_1","official_rulings"); }
+    @Test public void testXsac_sec_0_2() throws Exception { assertSection("sec_0_2","ability_checks"); }
+    @Test public void testXsac_sec_0_3() throws Exception { assertSection("sec_0_3","adventuring"); }
+    @Test public void testXsac_sec_0_4() throws Exception { assertSection("sec_0_4","combat"); }
+    @Test public void testXsac_sec_0_5() throws Exception { assertSection("sec_0_5","multiclassing"); }
+    @Test public void testXsac_sec_0_6() throws Exception { assertSection("sec_0_6","class_features"); }
+    @Test public void testXsac_sec_0_7() throws Exception { assertSection("sec_0_7","backgrounds"); }
+    @Test public void testXsac_sec_0_8() throws Exception { assertSection("sec_0_8","species_traits"); }
+    @Test public void testXsac_sec_0_9() throws Exception { assertSection("sec_0_9","feats"); }
+    @Test public void testXsac_sec_0_10() throws Exception { assertSection("sec_0_10","equipment"); }
+    @Test public void testXsac_sec_0_11() throws Exception { assertSection("sec_0_11","spellcasting"); }
+    @Test public void testXsac_sec_0_12() throws Exception { assertSection("sec_0_12","monsters"); }
+    @Test public void testXsac_sec_0_13() throws Exception { assertSection("sec_0_13","magic_items"); }
 
-    @Test public void executeSectionScopedRulings() throws Exception {
+    private static void assertSection(String sectionId, String key) throws Exception {
         SageAdvice2025RulesEngine engine=new SageAdvice2025RulesEngine();
         JSONObject cov=engine.coverage();
         assertEquals("XSAC:"+sectionId,163,cov.optInt("source_rulings"));
@@ -68,7 +51,7 @@ public final class Xsac14SectionRuntimeTest {
             assertFalse(answer.optBoolean("auto_rolls",true));
             actual++;
         }
-        assertTrue("No functional rulings linked to XSAC:"+sectionId,actual>0);
+        assertTrue("No rulings linked to XSAC:"+sectionId,actual>0);
         assertEquals("Rulings missing in editorial XSAC section "+sectionId,
                 cov.getJSONObject("category_counts").getInt(key),actual);
     }
