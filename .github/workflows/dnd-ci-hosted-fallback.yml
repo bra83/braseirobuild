@@ -1,0 +1,179 @@
+name: Braseiro D&D - Hosted regression fallback
+on:
+  push:
+    branches:
+      - antigravity/dnd-normal-fechamento-gates
+    paths:
+      - 'dnd-normal/run247-mod005/app/src/**'
+      - 'dnd-normal/run247-mod005/app/build.gradle*'
+      - 'dnd-normal/run247-mod005/build.gradle*'
+      - 'dnd-normal/run247-mod005/gradle/**'
+      - 'dnd-normal/run247-mod005/docs/**'
+      - 'dnd-normal/run247-mod005/tools/**'
+      - '.github/workflows/dnd-ci-hosted-fallback.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dnd-hosted-regression-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout only D&D source at event SHA
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+      - name: Install Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Configure Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Install Android 35 build requirements
+        shell: bash
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Anti-false-certification editorial checks
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          python3 -m unittest discover -s tools -p 'test_validate_editorial_coverage.py' -v
+          python3 tools/validate_editorial_coverage.py --json
+          echo 'EDITORIAL_INVENTORY_CHECK=PASS; EDITORIAL_COMPLETION_NOT_CLAIMED=TRUE'
+      - name: Compile and execute real-asset Robolectric suite
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest --no-daemon --console=plain
+      - name: Certify XML suite totals from this exact source SHA
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import glob, xml.etree.ElementTree as ET
+          paths = glob.glob('app/build/test-results/testDebugUnitTest/TEST-*.xml')
+          if not paths:
+              raise SystemExit('FULL_SUITE_XML_MISSING')
+          totals = {k: 0 for k in ('tests', 'failures', 'errors', 'skipped')}
+          for path in paths:
+              root = ET.parse(path).getroot()
+              for key in totals:
+                  totals[key] += int(root.get(key, '0'))
+          print('FULL_SUITE_XML=' + ('PASS' if totals['tests'] > 0
+              and all(totals[k] == 0 for k in ('failures','errors','skipped')) else 'FAIL')
+              + '; SUITES=' + str(len(paths)) + '; ' +
+              '; '.join(k.upper() + '=' + str(v) for k, v in totals.items()))
+          if totals['tests'] <= 0 or any(totals[k] for k in ('failures','errors','skipped')):
+              raise SystemExit('FULL_SUITE_XML_NOT_GREEN')
+          PY
+          echo "SOURCE_SHA=$GITHUB_SHA"
+          echo "APK_NOT_BUILT=TRUE"
+      - name: Publish XML evidence to isolated Git branch (no artifacts quota)
+        if: always() && github.event_name != 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const crypto = require('crypto');
+            const folder = path.join(
+              process.env.GITHUB_WORKSPACE, 'dnd-normal', 'run247-mod005',
+              'app', 'build', 'test-results', 'testDebugUnitTest'
+            );
+            const present = fs.existsSync(folder);
+            const names = present
+              ? fs.readdirSync(folder)
+                  .filter(n => n.startsWith('TEST-') && n.endsWith('.xml'))
+                  .sort()
+              : [];
+            // Even a disk/compile failure must leave an auditable run record.
+            // Never turn missing XMLs into a false success.
+            if (!present) core.warning('NO_TEST_RESULTS_DIR: archived failure manifest only');
+            else if (!names.length) core.warning('NO_TEST_RESULTS_XML: archived failure manifest only');
+            let totals = {tests:0, failures:0, errors:0, skipped:0};
+            const files = {};
+            const sha256 = {};
+            for (const name of names) {
+              const xml = fs.readFileSync(path.join(folder, name), 'utf8');
+              const tag = xml.match(/<testsuite\b[^>]*>/);
+              if (!tag) throw Error('INVALID_TEST_SUITE_XML: ' + name);
+              const attr = key => {
+                const m = tag[0].match(new RegExp('\\b' + key + '="(\\d+)"'));
+                if (!m) throw Error('MISSING_SUITE_METRIC_' + key + ': ' + name);
+                return Number(m[1]);
+              };
+              for (const key of Object.keys(totals)) totals[key] += attr(key);
+              files[name] = xml;
+              sha256[name] = crypto.createHash('sha256').update(xml).digest('hex');
+            }
+            const {owner, repo} = context.repo;
+            const evidenceBranch = 'dnd-normal-qa-evidence';
+            const target = 'runs/' + context.runId + '/attempt-' +
+              process.env.GITHUB_RUN_ATTEMPT + '.json';
+            const payload = JSON.stringify({
+              format: 'BRASEIRO_DND_GRADLE_XML_EVIDENCE_V1',
+              source_sha: context.sha,
+              workflow_run: context.runId,
+              workflow_attempt: Number(process.env.GITHUB_RUN_ATTEMPT),
+              run_url: 'https://github.com/' + owner + '/' + repo +
+                '/actions/runs/' + context.runId,
+              suite_count: names.length,
+              xml_directory_present: present,
+              evidence_complete: names.length > 0,
+              totals: totals,
+              all_tests_passed: names.length > 0 && totals.tests > 0 &&
+                totals.failures === 0 && totals.errors === 0 && totals.skipped === 0,
+              xml_sha256: sha256,
+              xml_files: files,
+              note: 'Automated Robolectric/Gradle tests; not a certification of all editorial sections or of a physical Android device.'
+            }, null, 2);
+            const blob = await github.rest.git.createBlob({
+              owner, repo, content: payload, encoding: 'utf-8'
+            });
+            let previous = null, baseTree = null;
+            try {
+              const reference = await github.rest.git.getRef({
+                owner, repo, ref: 'heads/' + evidenceBranch
+              });
+              previous = reference.data.object.sha;
+              const previousCommit = await github.rest.git.getCommit({
+                owner, repo, commit_sha: previous
+              });
+              baseTree = previousCommit.data.tree.sha;
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            const treeArgs = {
+              owner, repo,
+              tree: [{path: target, mode: '100644', type: 'blob', sha: blob.data.sha}]
+            };
+            if (baseTree) treeArgs.base_tree = baseTree;
+            const tree = await github.rest.git.createTree(treeArgs);
+            const commit = await github.rest.git.createCommit({
+              owner, repo, tree: tree.data.sha,
+              parents: previous ? [previous] : [],
+              message: 'qa(dnd): archive run ' + context.runId + ' XML evidence'
+            });
+            if (previous) {
+              await github.rest.git.updateRef({
+                owner, repo, ref: 'heads/' + evidenceBranch,
+                sha: commit.data.sha, force: false
+              });
+            } else {
+              await github.rest.git.createRef({
+                owner, repo, ref: 'refs/heads/' + evidenceBranch,
+                sha: commit.data.sha
+              });
+            }
+            core.info('QA_EVIDENCE_STORED=' + evidenceBranch + '/' + target);
+            core.info('QA_EVIDENCE_SHA=' + context.sha);
+            core.info('QA_EVIDENCE_SUITES=' + names.length);
+            core.info('QA_EVIDENCE_TESTS=' + totals.tests);
+            core.info('QA_EVIDENCE_FAILURES=' + totals.failures);
+
