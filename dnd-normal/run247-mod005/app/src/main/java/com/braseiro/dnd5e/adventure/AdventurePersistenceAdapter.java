@@ -65,5 +65,36 @@ public final class AdventurePersistenceAdapter {
 
     public synchronized AdventureState loadState(String moduleId,long partyId){if(db==null||moduleId==null)return null;try{SQLiteDatabase sql=db.getWritableDatabase();ensureSchema(sql);JSONObject row=db.queryOne("SELECT state_json FROM adventure_state_journal WHERE module_id=? AND party_id=? LIMIT 1",new String[]{moduleId,String.valueOf(partyId)});String raw=row==null?"":row.optString("state_json","");return raw.length()>0?AdventureState.fromJson(new JSONObject(raw)):null;}catch(Exception e){AppLog.e("AdventurePersistenceAdapter","Falha ao carregar estado da aventura.",e);return null;}}
 
+    /**
+     * Fail closed when a previously persisted campaign cannot be read.
+     * Absence is the ONLY situation in which a new campaign may be created.
+     * Parsing/query errors must never overwrite a real player's save.
+     */
+    public synchronized AdventureState loadStateForStart(String moduleId, long partyId)
+            throws Exception {
+        if (db == null || moduleId == null || moduleId.trim().isEmpty())
+            throw new IllegalArgumentException("Identificador de campanha inválido.");
+        SQLiteDatabase sql = db.getWritableDatabase();
+        ensureSchema(sql);
+        android.database.Cursor cursor = sql.rawQuery(
+                "SELECT state_json,current_node_id FROM adventure_state_journal " +
+                "WHERE module_id=? AND party_id=? LIMIT 1",
+                new String[]{moduleId, String.valueOf(partyId)});
+        try {
+            if (!cursor.moveToFirst()) return null; // confirmed absent, safe to start
+            String raw = cursor.getString(0);
+            String node = cursor.getString(1);
+            if (raw == null || raw.trim().isEmpty())
+                throw new IllegalStateException("Save da aventura está vazio; não sobrescrever.");
+            JSONObject stored = new JSONObject(raw);
+            String jsonNode = stored.optString("current_node_id", "");
+            if (jsonNode.isEmpty() || !jsonNode.equals(node))
+                throw new IllegalStateException("Save da aventura inconsistente; não sobrescrever.");
+            return AdventureState.fromJson(stored);
+        } finally {
+            cursor.close();
+        }
+    }
+
     private void ensureSchema(SQLiteDatabase sql){if(sql==null)return;sql.execSQL("CREATE TABLE IF NOT EXISTS adventure_modules (module_id TEXT PRIMARY KEY,version TEXT NOT NULL,module_json TEXT NOT NULL,updated_at INTEGER NOT NULL)");sql.execSQL("CREATE TABLE IF NOT EXISTS adventure_state_journal (module_id TEXT NOT NULL,party_id INTEGER NOT NULL,current_node_id TEXT NOT NULL,state_json TEXT NOT NULL,updated_at INTEGER NOT NULL,PRIMARY KEY(module_id, party_id))");}
 }
