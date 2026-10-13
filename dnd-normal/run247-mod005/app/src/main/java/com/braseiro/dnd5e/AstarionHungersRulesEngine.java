@@ -27,6 +27,62 @@ public final class AstarionHungersRulesEngine {
         else res.put("next_check_or_attack_bonus",Math.max(0,piercingDamage)).put("duration_minutes",1);
     }catch(Exception ignored){}return res;}
 
+    /**
+     * Bloodlust / Powerful Recovery (Astarion's Book of Hungers, chapter 1).
+     * The player supplies the rolled Hit Die; only low results are adjusted.
+     * Never rolls dice, heals characters or changes inventory implicitly.
+     */
+    public JSONObject evaluateBloodlustRecovery(int rolledHitDie,int hitDieSides) {
+        JSONObject out=new JSONObject();
+        try {
+            out.put("source_book","ABH").put("feature","bloodlust_powerful_recovery")
+                    .put("auto_rolls",false).put("auto_mutation_allowed",false);
+            if (!validHitDie(rolledHitDie,hitDieSides))
+                return out.put("resolved",false).put("reason","valid_explicit_hit_die_required");
+            return out.put("resolved",true)
+                    .put("rolled_hit_die",rolledHitDie)
+                    .put("adjusted_hit_die",Math.max(3,rolledHitDie))
+                    .put("hit_die_sides",hitDieSides);
+        } catch (Exception e) { return out; }
+    }
+
+    /**
+     * Bloodlust / Sanguine Feast, deterministic resolution PREVIEW. The attack
+     * hit, Bloodied flag and the Hit Die value MUST be supplied by the caller.
+     * Using this result consumes a Hit Die and one feat use, at most once per
+     * turn; persistence is deliberately not claimed by this pure method.
+     */
+    public JSONObject evaluateBloodlustSanguineFeast(
+            boolean hitWithAttackRoll,boolean targetBloodied,String targetCreatureType,
+            boolean alreadyUsedThisTurn,boolean hitDieAvailable,int rolledHitDie,
+            int hitDieSides,int constitutionModifier,int proficiencyBonus,int spentUses) {
+        JSONObject out=new JSONObject();
+        try {
+            out.put("source_book","ABH").put("feature","bloodlust_sanguine_feast")
+                    .put("auto_rolls",false).put("auto_mutation_allowed",false)
+                    .put("requires_manual_application",true);
+            String type=targetCreatureType==null?"":targetCreatureType.trim().toLowerCase();
+            if(type.isEmpty()) return out.put("resolved",false).put("reason","creature_type_required");
+            if("construct".equals(type)||"constructo".equals(type)||
+               "undead".equals(type)||"morto-vivo".equals(type)||"morto vivo".equals(type))
+                return out.put("resolved",false).put("reason","target_type_ineligible");
+            if(!hitWithAttackRoll||!targetBloodied||alreadyUsedThisTurn)
+                return out.put("resolved",false).put("reason","trigger_not_met");
+            if(!hitDieAvailable||!validHitDie(rolledHitDie,hitDieSides))
+                return out.put("resolved",false).put("reason","hit_die_unavailable_or_invalid");
+            if(proficiencyBonus<1||spentUses<0||spentUses>=proficiencyBonus)
+                return out.put("resolved",false).put("reason","feat_uses_exhausted_or_invalid");
+            int heal=Math.max(0,rolledHitDie+constitutionModifier);
+            return out.put("resolved",true).put("healing",heal)
+                    .put("hit_die_consumed",1).put("uses_spent_after",spentUses+1)
+                    .put("once_per_turn",true).put("uses_max",proficiencyBonus);
+        } catch (Exception e) { return out; }
+    }
+
+    private static boolean validHitDie(int value,int sides) {
+        return (sides==6||sides==8||sides==10||sides==12) && value>=1 && value<=sides;
+    }
+
     /** Blood Frenzy não é uma regra da espécie apresentada na fonte. */
     public JSONObject evaluateBloodFrenzy(int hungerLevel,int targetCurrentHp,int targetMaxHp){JSONObject res=new JSONObject();try{res.put("resolved",false).put("mechanic_defined_by_source",false).put("auto_rolls",false).put("status","blocked_unsupported_rule");}catch(Exception ignored){}return res;}
 
