@@ -714,6 +714,59 @@ public final class R36BookSemanticsHarness {
   }
   check(checkedCompanions.containsAll(Arrays.asList("amiri","ekundayo","jubilost","linzi","nok_nok","tristian","valerie")),
    "All seven official companions checked against installed JSON");
+  // Companion Guide pp.27-31: real installed Feast of Feasts quest,
+  // Ntavi's four conversation outcomes, XP and departure conditions.
+  JSONObject ekActual=null;
+  for(int n=0;n<seven.length();n++){
+   JSONObject quest=seven.optJSONObject(n);
+   if("q_cg_ekundayo".equals(quest.optString("quest_key")))
+    ekActual=quest.optJSONObject("progress_json");
+  }
+  check(ekActual!=null,"Ekundayo canonical quest from installed source");
+  JSONObject feastReady=new JSONObject(ekActual.toString());
+  for(int i=0;i<5;i++)
+   feastReady=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
+    "ekundayo","ekundayo_feast_contribution",10,12,22,feastReady).optJSONObject("progress");
+  check(feastReady.optInt("feast_points")==5&&feastReady.optBoolean("feast_success"),
+   "5 official banquet VPs using five success rolls");
+  feastReady.put("ekundayo_helpful",true);
+  JSONObject ntaviCritical=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
+   "ekundayo","ekundayo_interrupt_ntavi",10,11,21,feastReady).optJSONObject("progress");
+  check("CRITICAL_SUCCESS".equals(ntaviCritical.optString("ntavi_interruption_degree"))
+   &&ntaviCritical.optBoolean("ntavi_at_bridge")&&ntaviCritical.optBoolean("ntavi_recruitment_prevented"),
+   "Helpful Ekundayo upgrades social success; Ntavi remains and early attack prevented");
+  JSONObject ekStay=KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
+   "ekundayo","temper_vengeance_embrace_fellowship",
+   new JSONObject().put("influence",4).put("available",1),ntaviCritical);
+  check(ekStay.optInt("influence_after")>=8&&ekStay.optInt("xp_awarded")==40
+   &&ekStay.optJSONArray("items_awarded").length()==0,
+   "Book-verified 30+10 XP and at-least-8 influence, no invented branch treasure");
+  JSONObject ntaviSuccess=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
+   "ekundayo","ekundayo_interrupt_ntavi",10,11,21,ekActual).optJSONObject("progress");
+  check("SUCCESS".equals(ntaviSuccess.optString("ntavi_interruption_degree"))
+   &&!ntaviSuccess.optBoolean("ntavi_at_bridge")&&ntaviSuccess.optBoolean("ntavi_recruitment_prevented"),
+   "Normal social success sends Ntavi away but prevents early attack");
+  boolean cannotDepartWithAbsentNtavi=false;
+  try{KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
+   "ekundayo","consume_in_ruthless_vengeance",new JSONObject().put("influence",0),ntaviSuccess);}
+  catch(IllegalStateException expected){cannotDepartWithAbsentNtavi=true;}
+  check(cannotDepartWithAbsentNtavi,"Ekundayo cannot depart with Ntavi after she has left festival");
+  JSONObject ntaviFailure=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
+   "ekundayo","ekundayo_interrupt_ntavi",3,7,21,ekActual).optJSONObject("progress");
+  check("CRITICAL_FAILURE".equals(ntaviFailure.optString("ntavi_interruption_degree"))
+   &&ntaviFailure.optBoolean("ntavi_false_silverstep_clue")
+   &&ntaviFailure.optBoolean("ekundayo_departs_early"),
+   "Critical failure causes false Silverstep clue and early departure");
+  JSONObject ekDeparture=KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
+   "ekundayo","consume_in_ruthless_vengeance",new JSONObject().put("influence",0),ntaviFailure);
+  check(ekDeparture.optInt("available_after")==0&&ekDeparture.optInt("xp_awarded")==0,
+   "Ekundayo may leave with present Ntavi; no arbitrary XP");
+  JSONObject romance=new JSONObject(ntaviFailure.toString()).put("ekundayo_romance_with_pc",true);
+  boolean romanceProtected=false;
+  try{KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
+   "ekundayo","consume_in_ruthless_vengeance",new JSONObject().put("influence",0),romance);}
+  catch(IllegalStateException expected){romanceProtected=true;}
+  check(romanceProtected,"Ekundayo romance with a PC blocks leaving with Ntavi");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }
