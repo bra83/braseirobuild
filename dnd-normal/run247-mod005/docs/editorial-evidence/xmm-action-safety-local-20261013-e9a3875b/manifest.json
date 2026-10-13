@@ -1,0 +1,52 @@
+{
+  "format": "XMM_LOCAL_ACTION_SAFETY_EVIDENCE_V3",
+  "code_commit": "e9a3875b760921ab9ac9ad5bde34f35e92be8100",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "source_comparison": "xmm-source-comparison.json",
+  "source_comparison_sha256": "6cca6a94f97630b3a2b5a3ade31cc45722820fe0f253c534893926d7f84713a4",
+  "manual_action_inventory": "manual-actions.json",
+  "manual_action_inventory_sha256": "28fcc61adbc3c46c46a72b165833e34e16a05de7e242d9b8604570f41678c40e",
+  "manual_unmodeled_source_effects_total": 248,
+  "runtime_block_coverage": {
+    "source_actions_total": 248,
+    "attack_routes_blocked_without_damage": 121,
+    "saving_throw_routes_blocked_without_damage": 101,
+    "manual_preflight_only_routes": 26,
+    "test": "XmmUnmodeledSourceEffectRuntimeTest.all248UnmodeledSourceActionsFailClosedAtRuntimePreflight"
+  },
+  "python_tests": {
+    "command": "python3 -m unittest discover -s tools -p test_*.py",
+    "passed": 55,
+    "failed": 0
+  },
+  "android_unit_tests": {
+    "command": "bash gradlew :app:testDebugUnitTest --no-daemon --console=plain",
+    "status": "PASS",
+    "environment": {
+      "gradle": "8.11.1",
+      "jdk": "21.0.12",
+      "android_platform": "35",
+      "build_tools": "35.0.0"
+    },
+    "tests": 2501,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "xml_files": 102,
+    "results_archive": "android-test-results.zip",
+    "results_archive_sha256": "9ee697e3e3995046e36a0b405cae20e28507100e056ca5ef57a58255b44e14a5"
+  },
+  "local_compile": {
+    "command": "bash gradlew :app:compileDebugJavaWithJavac --no-daemon --console=plain",
+    "status": "PASS"
+  },
+  "brelga_ci": "NOT_RUN_ON_THIS_COMMIT",
+  "apk": "NOT_BUILT_CONTRACT_STAGE_03",
+  "stage_03_closed": false,
+  "limitations": [
+    "Untyped source effects are blocked, not fully implemented as playable effects.",
+    "Detailed mechanical validation for all 36 sections remains open.",
+    "Rights review and remote CI/BRELGA validation remain open.",
+    "This evidence does not certify full monster combat automation."
+  ]
+}
