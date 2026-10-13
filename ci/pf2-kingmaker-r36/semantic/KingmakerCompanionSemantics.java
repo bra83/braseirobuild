@@ -275,8 +275,18 @@ public final class KingmakerCompanionSemantics {
    int delta=deg==3?2:deg==2?1:deg==1?0:-1;
    int pts=Math.max(0,next.optInt("feast_points",0)+delta);
    int goal=next.optInt("feast_points_target",officialScenes==null?8:5);
-   next.put("feast_points",pts).put("feast_success",pts>=goal);
+   next.put("feast_points",pts).put("feast_success",pts>=goal)
+    .put("feast_participated",true);
    entry.put("feast_points_delta",delta).put("feast_points_total",pts);
+  }else if("ekundayo".equals(companionKey)&&"ekundayo_interrupt_ntavi".equals(checkId)){
+   boolean prevented=deg>=2;
+   next.put("ntavi_interruption_degree",degree)
+    .put("ntavi_at_bridge",deg!=2)
+    .put("ekundayo_departs_early",!prevented)
+    .put("ntavi_recruitment_prevented",prevented)
+    .put("ntavi_location_revealed",deg>=2)
+    .put("ntavi_false_silverstep_clue",deg==0);
+   entry.put("ntavi_conclusion",prevented?"PC_LOYALTY_RETAINED":"EKUNDAYO_RECRUITED");
   }else if("jubilost".equals(companionKey)&&(officialScenes==null||checkId.startsWith("jubilost_debate_round_"))){
    int wins=next.optInt("debate_wins",0)+(deg>=2?1:0);
    int losses=next.optInt("debate_losses",0)+(deg<2?1:0);
@@ -319,7 +329,20 @@ public final class KingmakerCompanionSemantics {
    int delta=selected.optInt("influence_delta",0);
    int nextInfluence=Math.max(0,priorInfluence+delta);
    int nextAvailable=selected.optBoolean("available_after",true)?1:0;
-   String nextAttitude=selected.optString("attitude_after",attitudeForInfluence(companionKey,nextInfluence));
+   if("ekundayo".equals(companionKey)){
+    // Guide pp.27-31: 5 feast VP advances one influence tier; helping
+    // defeat the Reavers and keeping Ekundayo raises influence to at least 8.
+    if(currentProgress.optBoolean("feast_success",false))
+     nextInfluence=Math.max(nextInfluence,priorInfluence<2?2:priorInfluence<4?4:8);
+    if(nextAvailable==1)nextInfluence=Math.max(nextInfluence,8);
+    if(nextAvailable==0){
+     if(currentProgress.has("ntavi_at_bridge")&&!currentProgress.optBoolean("ntavi_at_bridge"))
+      throw new IllegalStateException("Ntavi saiu após a conversa e não está presente para recrutar Ekundayo.");
+     if(currentProgress.optBoolean("ekundayo_romance_with_pc")||currentProgress.optBoolean("ekundayo_request_stay_accepted"))
+      throw new IllegalStateException("Ekundayo permanece com os PJs por romance ou Request aceito.");
+    }
+   }
+   String nextAttitude=nextAvailable==0?"unfriendly":attitudeForInfluence(companionKey,nextInfluence);
    String unlocked=selected.optString("feature_unlocked","");
    JSONArray historyAfter=rewardHistory(companionBefore,nextInfluence,nextAttitude,history(companionBefore));
    if(unlocked.length()>0&&!has(historyAfter,unlocked))historyAfter.put(unlocked);
@@ -333,6 +356,14 @@ public final class KingmakerCompanionSemantics {
    // book loot/XP has been certified; never mint invented inventory/XP.
    boolean rewardsCertified=currentProgress.optBoolean("automatic_rewards_compiled",false);
    int xpCertified=rewardsCertified?selected.optInt("xp_awarded",0):0;
+   if("ekundayo".equals(companionKey)){
+    // The Guide explicitly awards 30/10 XP for feast participation and
+    // 10 XP for preventing Ntavi's reckless private recruitment.
+    // Do not grant unverified treasure or made-up branch XP.
+    if(currentProgress.optBoolean("feast_participated",false))
+     xpCertified+=currentProgress.optBoolean("feast_success",false)?30:10;
+    if(currentProgress.optBoolean("ntavi_recruitment_prevented",false))xpCertified+=10;
+   }
    JSONArray itemsCertified=new JSONArray();
    if(rewardsCertified){
     JSONArray sourceItems=selected.optJSONArray("items_awarded");
