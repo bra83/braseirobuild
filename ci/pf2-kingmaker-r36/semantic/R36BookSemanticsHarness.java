@@ -656,6 +656,64 @@ public final class R36BookSemanticsHarness {
   try{KingmakerCompanionSemantics.resolveCompanionAdventureCheck("ekundayo","invented_check",10,12,22,publishedFeast);}
   catch(IllegalArgumentException ex){inventedCheckBlocked=true;}
   check(inventedCheckBlocked,"Narrator cannot inject unlisted check");
+  // Official asset integration: all seven canonical JSON definitions as installed
+  // (not synthetic branch IDs invented by the test).
+  String projectRoot=System.getenv("PF2_R36_PROJECT");
+  check(projectRoot!=null&&projectRoot.length()>0,"R36 project path supplied to integration harness");
+  String companionAsset=new String(java.nio.file.Files.readAllBytes(
+   java.nio.file.Paths.get(projectRoot,"android","app","src","main","assets","pathfinder","kingmaker","chapters","chapter_12_companion_stories.json")),
+   java.nio.charset.StandardCharsets.UTF_8);
+  JSONObject actualChapter=new JSONObject(companionAsset);
+  JSONArray seven=actualChapter.getJSONArray("quests");
+  check(seven.length()==7,"Exactly seven actual personal adventures imported");
+  Set<String> checkedCompanions=new HashSet<String>();
+  for(int n=0;n<seven.length();n++){
+   JSONObject q=seven.getJSONObject(n);
+   JSONObject progress=q.getJSONObject("progress_json");
+   String companionKey=progress.getString("companion_key");
+   check(checkedCompanions.add(companionKey),"Personal quest identity unique: "+companionKey);
+   check(("q_cg_"+companionKey).equals(q.getString("quest_key")),"Personal quest identity linked: "+companionKey);
+   JSONArray options=progress.getJSONArray("branches");
+   check(options.length()>=2,"Actual personal quest has alternate outcomes: "+companionKey);
+   for(int k=0;k<options.length();k++){
+    JSONObject sourceBranch=options.getJSONObject(k);
+    String branchId=sourceBranch.getString("branch_key");
+    JSONObject companionBefore=new JSONObject().put("companion_key",companionKey).put("influence",4).put("available",1);
+    JSONObject actualResult=KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
+     companionKey,branchId,companionBefore,progress);
+    check(branchId.equals(actualResult.optString("branch_key")),"Canonical JSON branch accepted: "+branchId);
+    check(actualResult.optInt("influence_delta")==sourceBranch.optInt("influence_delta"),"Influence matches canonical branch: "+branchId);
+    check(actualResult.optInt("available_after")==(sourceBranch.optBoolean("available_after",true)?1:0),
+     "Companion departure matches canonical branch: "+branchId);
+    check(actualResult.optString("feature_unlocked").equals(sourceBranch.optString("feature_unlocked")),
+     "Feature matches canonical branch: "+branchId);
+    check(actualResult.optInt("xp_awarded")==0&&actualResult.optJSONArray("items_awarded").length()==0,
+     "Unverified automatic rewards blocked: "+branchId);
+   }
+   JSONArray scenes=progress.getJSONArray("scenes");
+   int officialChecks=0;
+   for(int k=0;k<scenes.length();k++){
+    JSONArray sourceChecks=scenes.getJSONObject(k).optJSONArray("skill_checks");
+    if(sourceChecks==null)continue;
+    for(int c=0;c<sourceChecks.length();c++){
+     JSONObject sourceCheck=sourceChecks.getJSONObject(c);
+     String id=sourceCheck.getString("check_id");
+     int dc=sourceCheck.getInt("dc");
+     JSONObject result=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
+      companionKey,id,10,dc-10,dc,progress);
+     check(id.equals(result.getJSONObject("check").getString("check_id")),
+      "Canonical JSON skill check accepted: "+id);
+     officialChecks++;
+     boolean forbidden=false;
+     try{KingmakerCompanionSemantics.resolveCompanionAdventureCheck(companionKey,id,10,dc-10,dc+1,progress);}
+     catch(IllegalArgumentException expected){forbidden=true;}
+     check(forbidden,"Modified canonical skill DC rejected: "+id);
+    }
+   }
+   check(officialChecks>0,"Real companion story checks executable: "+companionKey);
+  }
+  check(checkedCompanions.containsAll(Arrays.asList("amiri","ekundayo","jubilost","linzi","nok_nok","tristian","valerie")),
+   "All seven official companions checked against installed JSON");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }
