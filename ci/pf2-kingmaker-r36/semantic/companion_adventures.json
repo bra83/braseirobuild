@@ -255,8 +255,8 @@
       "title": "Um Banquete dos Banquetes",
       "status": "unstarted",
       "stage": "pending",
-      "objective": "Preparar a festa de Ekundayo e investigar Ntavi e os Reavers de Gragglebeard.",
-      "stakes": "Acumular Pontos de Banquete na celebração do Reino e ajudar Ekundayo a escolher entre sua nova família e a vingança autodestrutiva instigada por Ntavi.",
+      "objective": "Ajudar Ekundayo a superar seu luto na celebração; resolver o plano de Ntavi e o confronto com Gragglebeard na ponte do Pequeno Sellen.",
+      "stakes": "Ntavi tenta recrutar Ekundayo para uma vingança imprudente; sua permanência depende do vínculo com o grupo, do confronto e de suas decisões.",
       "owner_character_id": 0,
       "faction_id": 0,
       "milestone_xp": 0,
@@ -265,29 +265,29 @@
       "objectives": [
         {
           "id": "cg_ekundayo_step_1",
-          "desc": "Organizar o banquete em um assentamento do Reino, escolhendo local e acumulando Pontos de Banquete com culinária, bebidas e entretenimento.",
-          "description": "Organizar o banquete em um assentamento do Reino, escolhendo local e acumulando Pontos de Banquete com culinária, bebidas e entretenimento.",
+          "desc": "Organizar o banquete no Reino; cada PJ pode contribuir com um teste apropriado CD 22, acumulando 5 Victory Points para aumentar a Influência de Ekundayo ao próximo patamar.",
+          "description": "Organizar o banquete no Reino; cada PJ pode contribuir com um teste apropriado CD 22, acumulando 5 Victory Points para aumentar a Influência de Ekundayo ao próximo patamar.",
           "status": "pending",
           "completed": false
         },
         {
           "id": "cg_ekundayo_step_2",
-          "desc": "Intervir quando Ntavi interrompe a festa para reacender o ódio de Ekundayo contra os gigantes da tribo de Gragglebeard.",
-          "description": "Intervir quando Ntavi interrompe a festa para reacender o ódio de Ekundayo contra os gigantes da tribo de Gragglebeard.",
+          "desc": "Observar Ntavi (Percepção CD 21) e decidir se interromperá sua persuasão (Enganação, Diplomacia ou Intimidação CD 21), registrando os quatro graus possíveis.",
+          "description": "Observar Ntavi (Percepção CD 21) e decidir se interromperá sua persuasão (Enganação, Diplomacia ou Intimidação CD 21), registrando os quatro graus possíveis.",
           "status": "pending",
           "completed": false
         },
         {
           "id": "cg_ekundayo_step_3",
-          "desc": "Rastrear e enfrentar Gragglebeard, Ntavi e os Saqueadores nas colinas (C1–C2), superando a armadilha de desmoronamento.",
-          "description": "Rastrear e enfrentar Gragglebeard, Ntavi e os Saqueadores nas colinas (C1–C2), superando a armadilha de desmoronamento.",
+          "desc": "Se necessário, investigar a saída da dupla e rastreá-la; enfrentar Gragglebeard, sua wyvern e quatro ogros na ponte desmoronando sobre o Pequeno Sellen. Ntavi não é inimiga automática.",
+          "description": "Se necessário, investigar a saída da dupla e rastreá-la; enfrentar Gragglebeard, sua wyvern e quatro ogros na ponte desmoronando sobre o Pequeno Sellen. Ntavi não é inimiga automática.",
           "status": "pending",
           "completed": false
         },
         {
           "id": "cg_ekundayo_step_4",
-          "desc": "Decidir com Ekundayo se ele abandona a vingança autodestrutiva de Ntavi ou cede ao ódio implacável.",
-          "description": "Decidir com Ekundayo se ele abandona a vingança autodestrutiva de Ntavi ou cede ao ódio implacável.",
+          "desc": "Após derrotar os Reavers, resolver se Ekundayo permanece; ele pode partir com Ntavi se não tiver vínculo suficiente com o grupo ou se a tentativa apropriada de Request falhar.",
+          "description": "Após derrotar os Reavers, resolver se Ekundayo permanece; ele pode partir com Ntavi se não tiver vínculo suficiente com o grupo ou se a tentativa apropriada de Request falhar.",
           "status": "pending",
           "completed": false
         }
@@ -300,8 +300,8 @@
       "progress_json": {
         "companion_key": "ekundayo",
         "minimum_level": 6,
-        "story_timing": "Após fundar o Reino, ao alcançar nível 6.",
-        "source_ref": "Kingmaker Companion Guide pp.27–31",
+        "story_timing": "Depois da fundação do Reino, no nível 6, idealmente antes do capítulo 5; festa preparada ao longo do mês.",
+        "source_ref": "Kingmaker Companion Guide pp.27-31",
         "official_title": "A Feast of Feasts",
         "definition_revision": "companions-r36-primary",
         "automatic_rewards_compiled": false,
@@ -478,30 +478,25 @@
         "branches": [
           {
             "branch_key": "temper_vengeance_embrace_fellowship",
-            "title": "Superar o ódio autodestrutivo e proteger os novos aliados",
-            "description": "Ekundayo derrota Gragglebeard sem ceder à obsessão cega de Ntavi, encontrando paz ao lado de Cão e do grupo.",
-            "influence_delta": 2,
-            "attitude_after": "helpful",
+            "title": "Ekundayo permanece com os PJs após derrotar os Reavers",
+            "description": "Os PJs enfrentam os Reavers com Ekundayo; Ntavi não o convence a partir. Ele mantém os laços com a companhia e, se recebeu ajuda na batalha, sua Influência pode chegar a 8.",
+            "influence_delta": 0,
+            "attitude_after": "friendly",
             "available_after": true,
-            "xp_awarded": 80,
-            "items_awarded": [
-              "Arco Longo Composto +1 Impactante de Gragglebeard",
-              "Colar da Lealdade do Cão de Caça"
-            ],
-            "feature_unlocked": "ekundayo:feast_of_feasts_peace"
+            "xp_awarded": 0,
+            "items_awarded": [],
+            "feature_unlocked": "ekundayo:feast_of_feasts_stays"
           },
           {
             "branch_key": "consume_in_ruthless_vengeance",
-            "title": "Incentivar a vingança implacável ao lado de Ntavi",
-            "description": "Ekundayo executa sua vingança com furor impiedoso, mantendo-se eficiente em combate mas emocionalmente distante.",
-            "influence_delta": 1,
-            "attitude_after": "friendly",
-            "available_after": true,
-            "xp_awarded": 60,
-            "items_awarded": [
-              "Arco Longo Composto +1 Impactante de Gragglebeard"
-            ],
-            "feature_unlocked": "ekundayo:feast_of_feasts_vengeance"
+            "title": "Ekundayo parte para o sul com Ntavi",
+            "description": "Se Ntavi estiver presente e Ekundayo concordar em segui-la após o confronto, sem que os PJs consigam mantê-lo por vínculo, romance ou Request, ele deixa a companhia.",
+            "influence_delta": 0,
+            "attitude_after": "unfriendly",
+            "available_after": false,
+            "xp_awarded": 0,
+            "items_awarded": [],
+            "feature_unlocked": "ekundayo:feast_of_feasts_departed_with_ntavi"
           }
         ],
         "feast_points_target": 5,
@@ -518,7 +513,53 @@
         "interrupt_ntavi_dc": 21,
         "metadata_source_verified": [
           "Kingmaker Companion Guide pp.27-31: preparação do banquete, Ntavi, criaturas, ponte e tesouro"
-        ]
+        ],
+        "feast_influence_reward": "Ao obter pelo menos 5 Victory Points, subir para o próximo patamar de influência de Ekundayo.",
+        "ntavi_conversation_results": {
+          "CRITICAL_SUCCESS": {
+            "ntavi_at_bridge": true,
+            "location_revealed": true,
+            "prevented_early_attack": true,
+            "description": "Ntavi revela o local, mas Ekundayo acompanha os PJs; Ntavi permanece na festa e pode seguir o grupo.",
+            "ekundayo_departs_early": false
+          },
+          "SUCCESS": {
+            "ntavi_at_bridge": false,
+            "location_revealed": true,
+            "prevented_early_attack": true,
+            "description": "Ekundayo percebe as pistas, mantém-se com os PJs; Ntavi vai embora e não participa do combate.",
+            "ekundayo_departs_early": false
+          },
+          "FAILURE": {
+            "ntavi_at_bridge": true,
+            "location_revealed": false,
+            "prevented_early_attack": false,
+            "description": "Ntavi procura Ekundayo secretamente e o convence a partir cedo para enfrentar Gragglebeard.",
+            "ekundayo_departs_early": true
+          },
+          "CRITICAL_FAILURE": {
+            "ntavi_at_bridge": true,
+            "location_revealed": false,
+            "prevented_early_attack": false,
+            "false_silverstep_clue": true,
+            "description": "Como falha, mas Ntavi mente que o acampamento fica na margem sul do Lago Silverstep.",
+            "ekundayo_departs_early": true
+          }
+        },
+        "end_conditions": {
+          "ntavi_present_and_attitude_below_friendly": "Ekundayo pode acompanhar Ntavi ao sul",
+          "ntavi_present_and_attitude_at_least_friendly": "PJs precisam usar Request com sucesso para retê-lo, exceto se existir romance confirmado com um PJ",
+          "romance_with_pc": "Ekundayo fica automaticamente com o PJ",
+          "pc_aided_bridge_and_ekundayo_remains": "A influência com Ekundayo sobe pelo menos até 8",
+          "ntavi_absent": "Ntavi não pode recrutar Ekundayo ao fim da missão"
+        },
+        "xp_book_verified": {
+          "banquet_victory_points_at_least_5": 30,
+          "banquet_otherwise": 10,
+          "prevent_ntavi_recruitment": 10
+        },
+        "rewards_provenance": "XP concedida por resultados do banquete e da intervenção; tesouro da ponte só se encontrado; sem XP arbitrário de ramo.",
+        "official_scene_resolution_compiled": false
       }
     },
     {
