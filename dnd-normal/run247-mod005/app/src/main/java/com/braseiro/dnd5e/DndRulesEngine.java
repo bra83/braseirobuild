@@ -218,12 +218,22 @@ public final class DndRulesEngine {
 
     public int abilityScore(JSONObject hero,String ability){
         JSONObject h=hero==null?new JSONObject():hero,sheet=embeddedSheet(h);String a=norm(ability);
-        if(a.startsWith("for")||a.contains("strength"))return h.has("str")?h.optInt("str",10):sheet.optInt("str",10);
-        if(a.startsWith("des")||a.contains("dexterity"))return h.has("dex")?h.optInt("dex",10):sheet.optInt("dex",10);
-        if(a.startsWith("con"))return h.has("con")?h.optInt("con",10):sheet.optInt("con",10);
-        if(a.startsWith("int"))return h.has("int_score")?h.optInt("int_score",10):sheet.optInt("int_score",10);
-        if(a.startsWith("sab")||a.contains("wisdom"))return h.has("wis")?h.optInt("wis",10):sheet.optInt("wis",10);
-        if(a.startsWith("car")||a.contains("charisma"))return h.has("cha")?h.optInt("cha",10):sheet.optInt("cha",10);
+        // Standard SRD ability identifiers (STR/DEX/CON/INT/WIS/CHA)
+        // must resolve as well as English/PT-BR long-form names.
+        if(a.equals("str")||a.startsWith("for")||a.contains("strength"))
+            return h.has("str")?h.optInt("str",10):sheet.optInt("str",10);
+        if(a.equals("dex")||a.startsWith("des")||a.contains("dexterity"))
+            return h.has("dex")?h.optInt("dex",10):sheet.optInt("dex",10);
+        if(a.equals("con")||a.startsWith("const")||a.contains("constitution"))
+            return h.has("con")?h.optInt("con",10):sheet.optInt("con",10);
+        if(a.equals("int")||a.startsWith("int")||a.contains("intelligence"))
+            return h.has("int_score")?h.optInt("int_score",10):
+                   h.has("int")?h.optInt("int",10):
+                   sheet.has("int_score")?sheet.optInt("int_score",10):sheet.optInt("int",10);
+        if(a.equals("wis")||a.startsWith("sab")||a.contains("wisdom"))
+            return h.has("wis")?h.optInt("wis",10):sheet.optInt("wis",10);
+        if(a.equals("cha")||a.startsWith("car")||a.contains("charisma"))
+            return h.has("cha")?h.optInt("cha",10):sheet.optInt("cha",10);
         return 10;
     }
 
