@@ -43,7 +43,7 @@ def repo(s):
             String original=check.optString("degree"),degree=KingmakerLeadershipSemantics.improved(original,preferred);
             int currentTurn=state().optInt("turn_number",1);
             boolean jaethal="jaethal".equals(comp.optString("companion_key")),famous=!"infamy".equals(state().optString("reputation_mode","fame"));
-            int die=jaethal&&famous?dice.nextInt(3)+1:0;
+            int die=jaethal&&famous?new java.security.SecureRandom().nextInt(3)+1:0;
             JSONObject outcome=KingmakerLeadershipSemantics.appointment(degree,r,currentTurn,jaethal,famous,die);
             outcome.put("raw_degree",original).put("companion_degree_improved",preferred).put("check",check);
             if("CRITICAL_FAILURE".equals(degree))assignLeaderUnchecked(role,"",0,"",false,notes);
