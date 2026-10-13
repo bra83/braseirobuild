@@ -9,6 +9,12 @@ public final class AdventureGraphEngine implements IAdventureEngine {
 
     public AdventureGraphEngine() {}
 
+    /** Discard stale UI/narration state when a different adventure is opened. */
+    public synchronized void clearSession() {
+        currentModule = null;
+        currentState = null;
+    }
+
     @Override public synchronized JSONObject startAdventure(AdventureModule module,long partyId){
         if(module==null)return error("Módulo nulo");
         return attachAdventure(module,new AdventureState(module.getRootNodeId()),"started");
