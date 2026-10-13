@@ -521,6 +521,13 @@ public final class OfficialBookRuntimeGateway {
             if ("coverage".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("result", netheril.coverage());
             if ("list_environmental_effects".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("effects", netheril.listEnvironmentalEffects());
             if ("environmental_effect".equals(action)) { JSONObject r = netheril.environmental(in.optString("name")); return new JSONObject().put("executed", r.optBoolean("found", false)).put("auto_mutation_allowed", false).put("result", r); }
+            if ("apply_environmental_effect".equals(action)) {
+                JSONObject resolved=netheril.applyEnvironmentalEffect(in.optString("name"),in);
+                return new JSONObject().put("executed",resolved.optBoolean("resolved",false))
+                        .put("persisted",false).put("auto_mutation_allowed",false)
+                        .put("status",resolved.optBoolean("resolved",false)?"manual_application_required":"blocked")
+                        .put("result",resolved);
+            }
             if ("list_hazards".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("hazards", netheril.listHazards());
             if ("hazard".equals(action)) { JSONObject r = netheril.hazard(in.optString("name"), Math.max(1, in.optInt("level", 1))); return new JSONObject().put("executed", r.optBoolean("found", false)).put("auto_mutation_allowed", false).put("result", r); }
             if ("list_items".equals(action)) return new JSONObject().put("executed", true).put("auto_mutation_allowed", false).put("items", netheril.listItems());
