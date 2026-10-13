@@ -534,6 +534,28 @@ public final class R36BookSemanticsHarness {
   dishonest=KingmakerCampaignGate.manorTreasuryOutcome(dishonest,"refuse","");check(dishonest.optInt("gold_held")==800&&dishonest.optBoolean("future_tariff_discretionary"),"refusal keeps treasure and records only discretionary future tariff");
   JSONObject honest=KingmakerCampaignGate.manorTreasuryOutcome(treasury,"admit_return","");check(honest.optJSONObject("last_treasure_outcome").optInt("gold_delta")==-800&&honest.optString("jamandi_resolution").equals("honesty_reward"),"honesty returns actual gold while preserving permitted weapons and remaining potions");
   boolean repeatedReturn=false;try{KingmakerCampaignGate.manorTreasuryOutcome(honest,"return_gold","");}catch(IllegalArgumentException e){repeatedReturn=true;}check(repeatedReturn,"gold cannot be debited twice by treasury return");
+  check(KingmakerLeadershipSemantics.skillCircumstance("emissary","intrigue")==2,"Intrigue grants +2 to Emissary");
+  check(KingmakerLeadershipSemantics.skillCircumstance("treasurer","intrigue")==2,"Intrigue grants +2 to Treasurer");
+  check(KingmakerLeadershipSemantics.skillCircumstance("counselor","politics")==2,"Politics grants +2 to Counselor");
+  check(KingmakerLeadershipSemantics.skillCircumstance("ruler","politics")==-2,"Ruler has net -2 with Politics (+2 minus 4)");
+  check(KingmakerLeadershipSemantics.skillCircumstance("ruler","warfare")==-4,"Ruler has -4 with nonpreferred skill");
+  check(KingmakerLeadershipSemantics.skillCircumstance("magister","statecraft")==2,"Statecraft grants +2 to Magister");
+  check(KingmakerLeadershipSemantics.skillCircumstance("viceroy","statecraft")==2,"Statecraft grants +2 to Viceroy");
+  check(KingmakerLeadershipSemantics.skillCircumstance("general","warfare")==2,"Warfare grants +2 to General");
+  check(KingmakerLeadershipSemantics.skillCircumstance("warden","warfare")==2,"Warfare grants +2 to Warden");
+  check(KingmakerLeadershipSemantics.improved("CRITICAL_FAILURE",true).equals("FAILURE"),"Preferred companion improves critical failure one degree");
+  check(KingmakerLeadershipSemantics.improved("FAILURE",true).equals("SUCCESS"),"Preferred companion improves failure one degree");
+  check(KingmakerLeadershipSemantics.improved("SUCCESS",true).equals("CRITICAL_SUCCESS"),"Preferred companion improves success one degree");
+  check(KingmakerLeadershipSemantics.improved("CRITICAL_SUCCESS",true).equals("CRITICAL_SUCCESS"),"Preferred companion cannot exceed critical success");
+  check(KingmakerLeadershipSemantics.appointment("SUCCESS","emissary",6,true,true,3).optInt("new_leadership_unrest")==3,"Famous Jaethal adds 1d3 Unrest");
+  check(KingmakerLeadershipSemantics.appointment("SUCCESS","emissary",6,true,false,0).optInt("new_leadership_unrest")==0,"Infamous Jaethal causes no Unrest");
+  check(KingmakerLeadershipSemantics.appointment("CRITICAL_FAILURE","emissary",6,true,true,2).optInt("new_leadership_unrest")==1,"Rejected Jaethal causes only base critical failure Unrest");
+  check(KingmakerLeadershipSemantics.appointment("FAILURE","ruler",6,false,false,0).optInt("new_leadership_unrest")==1,"Noncritical Ruler assignment adds one Unrest");
+  check(KingmakerLeadershipSemantics.appointment("CRITICAL_FAILURE","ruler",6,false,false,0).optInt("new_leadership_unrest")==2,"Critical failed Ruler appointment causes ruler and rejection Unrest");
+  JSONObject poor=KingmakerLeadershipSemantics.appointment("FAILURE","magister",4,false,false,0);
+  check(KingmakerLeadershipSemantics.leaderActivityModifier(poor,100)==-1,"Failure penalty persists until successful acceptance");
+  JSONObject welcomed=KingmakerLeadershipSemantics.appointment("CRITICAL_SUCCESS","magister",4,false,false,0);
+  check(KingmakerLeadershipSemantics.leaderActivityModifier(welcomed,5)==1&&KingmakerLeadershipSemantics.leaderActivityModifier(welcomed,6)==0,"Critical bonus lasts through next Kingdom turn");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }
