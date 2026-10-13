@@ -709,7 +709,7 @@ public final class R36BookSemanticsHarness {
      "Feature matches canonical branch: "+branchId);
     check(actualResult.optInt("xp_awarded")==0&&actualResult.optJSONArray("items_awarded").length()==0,
      "Unverified automatic rewards blocked: "+branchId);
-    JSONObject restoredProgress=new JSONObject(actualResult.getJSONObject("progress").toString());
+    JSONObject restoredProgress=new JSONObject(actualResult.optJSONObject("progress").toString());
     boolean replayBlocked=false;
     try{KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
       companionKey,branchId,companionBefore,restoredProgress);}
