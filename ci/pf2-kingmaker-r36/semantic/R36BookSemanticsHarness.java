@@ -778,10 +778,10 @@ public final class R36BookSemanticsHarness {
       check(result.optJSONObject("check").optInt("dc")==21
        &&result.optJSONObject("progress").optBoolean("ekundayo_request_stay_accepted"),
        "GM Request DC and success are saved, without inventing fixed book DC");
-      boolean repeated=false;
+      boolean ekRequestRepeated=false;
       try{KingmakerCompanionSemantics.resolveCompanionAdventureCheck(companionKey,id,10,dc-10,dc,checkedProgress);}
-      catch(IllegalStateException expected){repeated=true;}
-      check(repeated,"Repeat Request cannot silently override prior result");
+      catch(IllegalStateException expected){ekRequestRepeated=true;}
+      check(ekRequestRepeated,"Repeat Request cannot silently override prior result");
      }else{
       boolean forbidden=false;
       try{KingmakerCompanionSemantics.resolveCompanionAdventureCheck(companionKey,id,10,dc-10,dc+1,progress);}
