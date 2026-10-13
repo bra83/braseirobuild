@@ -94,6 +94,22 @@ class EditorialEvidenceGateTest(unittest.TestCase):
         self.assertTrue(any("seção ausente" in e for e in result["errors"]))
 
 
+    def test_shared_generic_assertion_cannot_certify_two_sections(self):
+        second = {**self.base, "section_id": "sec_2_10", "section_title": "Second unrelated source section"}
+        first_proof = {
+            **self.ledger, "status": "IMPLEMENTED_AND_TESTED",
+            "actual_result": "VERIFIED_PASSED",
+            "evidence_ref": "docs/editorial-evidence/missing-one.json",
+        }
+        second_proof = {
+            **first_proof, "section_id": "sec_2_10",
+            "evidence_ref": "docs/editorial-evidence/missing-two.json",
+        }
+        self.write(sections=[self.base, second], ledger=[first_proof, second_proof])
+        report = gate.inspect(self.root)
+        self.assertTrue(any("assertion_id compartilhado" in reason for reason in report["errors"]))
+        self.assertEqual(0, report["certified"] if not report["errors"] else 0)
+
     def prepare_generator_source(self):
         # The generation source requires more metadata than the inventory gate.
         row = {**self.base, "content_type": "lore", "delta": ""}
