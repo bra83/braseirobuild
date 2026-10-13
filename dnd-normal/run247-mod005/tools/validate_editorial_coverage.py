@@ -176,6 +176,8 @@ def inspect(root):
         section_map[k] = row
     ledger_map = {}
     certified_assertions = {}
+    validated_sections = set()
+    reused_assertion_keys = set()
     status_counts = Counter()
     by_book = {b: Counter() for b in sorted(BOOKS)}
     for i, row in enumerate(ledger, 2):
@@ -202,15 +204,20 @@ def inspect(root):
             if not reason or reason.upper() in PLACEHOLDERS:
                 errors.append(f"{name}: NOT_APPLICABLE exige justificativa editorial individual")
         if status == "IMPLEMENTED_AND_TESTED":
+            before_section_errors = len(errors)
             validate_evidence(row, root, errors)
+            if len(errors) == before_section_errors:
+                validated_sections.add(k)
             # Every accepted editorial section must have its OWN executable JUnit
             # method. A generic shared test may still check runtime inventory,
             # but it cannot certify 149 distinct book sections by implication.
             assertion = (row.get("assertion_id") or "").strip()
             if assertion in certified_assertions:
-                errors.append(f"{name}: assertion_id compartilhado com {certified_assertions[assertion]}: {assertion}")
+                reused_assertion_keys.add(k)
+                reused_assertion_keys.add(certified_assertions[assertion])
+                errors.append(f"{name}: assertion_id compartilhado com {':'.join(certified_assertions[assertion])}: {assertion}")
             else:
-                certified_assertions[assertion] = name
+                certified_assertions[assertion] = k
         else:
             if (row.get("actual_result") or "").strip() == "VERIFIED_PASSED":
                 errors.append(f"{name}: resultado VERiFIED_PASSED falso para estado {status}")
@@ -221,13 +228,14 @@ def inspect(root):
         errors.append(f"{ACCEPTANCE}: seção ausente: {k}")
     if len(ledger_map) != len(section_map):
         errors.append(f"Contagem divergente: {len(section_map)} inventariadas / {len(ledger_map)} no ledger")
+    validated_sections.difference_update(reused_assertion_keys)
     return {
         "inventory_sections": len(section_map),
         "ledger_sections": len(ledger_map),
         "statuses": dict(status_counts),
         "by_book": {k: dict(v) for k, v in by_book.items()},
-        "certified": status_counts["IMPLEMENTED_AND_TESTED"],
-        "pending": len(ledger_map) - status_counts["IMPLEMENTED_AND_TESTED"],
+        "certified": len(validated_sections),
+        "pending": len(ledger_map) - len(validated_sections),
         "errors": errors
     }
 
