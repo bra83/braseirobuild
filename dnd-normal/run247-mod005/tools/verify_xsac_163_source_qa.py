@@ -70,6 +70,14 @@ def collect(node, at, category, section_id):
         out.extend(collect(sub, at + "/entries/" + str(i), category, section_id))
     return out
 
+def runtime_case_registered(java_source: str, rule_id: str) -> bool:
+    """Accept direct return and braced case, while rejecting comments/fake case labels.
+
+    Cases may use multiple statements for input-aware deterministic resolution.
+    """
+    label = re.compile(r'^\\s*case\\s+"'+re.escape(rule_id)+r'"\\s*:\\s*(?:return\\s+(?:ok|manual)\\s*\\(|\\{)', re.M)
+    return bool(label.search(java_source))
+
 def verified_rows(project: Path, source_bytes: bytes):
     if git_blob_sha(source_bytes) != BLOB:
         raise ValueError("PINNED_XSAC_GIT_BLOB_MISMATCH")
@@ -105,7 +113,7 @@ def verified_rows(project: Path, source_bytes: bytes):
         obj = pointer(doc, expected_pointer)
         if not isinstance(obj, dict) or not isinstance(obj.get("name"), str) or not obj.get("entries"):
             raise ValueError("XSAC_EMPTY_QA_BODY:" + str(i + 1))
-        if not re.search(r'case "' + re.escape(case_id) + r'":\s*return\s+(ok|manual)\(', engine):
+        if not runtime_case_registered(engine, case_id):
             raise ValueError("XSAC_RUNTIME_CASE_MISSING:" + case_id)
     if '"dm_final_say", "rules_role_meta"' in java_source:
         raise ValueError("XSAC_POLICY_MISTAKEN_FOR_QA")

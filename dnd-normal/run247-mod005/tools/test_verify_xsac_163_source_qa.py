@@ -23,6 +23,20 @@ class XsacSourceTraceTests(unittest.TestCase):
              {"type":"list","items":[{"type":"item","name":"Heading","entry":"Rule"}]}]}
         self.assertEqual(1,len(xsac.collect(inp,"/a","combat","sec_0_4")))
 
+    def test_runtime_case_accepts_brace_blocks_and_direct_resolvers(self):
+        engine='''switch (id) {
+            case "simple": return ok(id, "combat", "description");
+            case "dynamic": {
+                JSONObject ruling = ok(id,"combat","description");
+                return ruling;
+            }
+        }'''
+        self.assertTrue(xsac.runtime_case_registered(engine,"simple"))
+        self.assertTrue(xsac.runtime_case_registered(engine,"dynamic"))
+        self.assertFalse(xsac.runtime_case_registered(engine,"missing"))
+        self.assertFalse(xsac.runtime_case_registered('// case "fake": return ok(', "fake"))
+        self.assertFalse(xsac.runtime_case_registered(engine,"amic"))
+
     def test_pinned_blob_is_git_blob_not_file_sha(self):
         import hashlib
         data=b"test"
