@@ -104,6 +104,10 @@ def journal_repository(s):
             if(KingmakerCampaignGate.completed(quest.optString("status")))throw new IllegalStateException("A aventura deste companheiro já foi concluída.");
             requireJournalEligibility(quest);
             JSONObject progress=KingmakerCampaignGate.progress(quest);
+            if("ekundayo".equals(canonical)){
+                JSONObject c=companion(canonical);
+                progress.put("ekundayo_helpful","helpful".equals(c.optString("attitude"))||c.optInt("influence",0)>=8);
+            }
             JSONObject outcome=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(canonical,checkId,naturalRoll,totalModifier,dc,progress);
             JSONObject nextProgress=outcome.getJSONObject("progress");
             ContentValues v=new ContentValues();v.put("progress_json",nextProgress.toString());v.put("status","in_progress");v.put("updated_at",System.currentTimeMillis());
@@ -178,7 +182,47 @@ def journal_ui(s):
         final JSONArray objectives=KingmakerCampaignGate.objectives(q);final List<String> labels=new ArrayList<String>();
         for(int n=0;n<objectives.length();n++){JSONObject o=objectives.optJSONObject(n);labels.add((o.optBoolean("completed")||"waived".equals(o.optString("status"))?"✓ ":"○ ")+o.optString("description",o.optString("desc")));}
         final boolean isCompanion=KingmakerCampaignGate.questKey(q).startsWith("q_cg_");
-        new AlertDialog.Builder(this).setTitle(q.optString("title")).setItems(labels.toArray(new String[0]),new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){showKingmakerObjectiveOutcome(q,objectives.optJSONObject(which));}}).setNegativeButton("Voltar",null).setPositiveButton(isCompanion?"ESCOLHER DESFECHO":"CONCLUIR MISSÃO",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){try{if(isCompanion)showKingmakerCompanionBranchChoices(q);else{kingmakerRepository.finishCampaignQuest(q.optLong("id"));showKingmakerCampaignJournal();}}catch(Exception e){toast(e.getMessage());}}}).show();
+        new AlertDialog.Builder(this).setTitle(q.optString("title")).setItems(labels.toArray(new String[0]),new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){showKingmakerObjectiveOutcome(q,objectives.optJSONObject(which));}}).setNegativeButton("Voltar",null).setNeutralButton(isCompanion?"ROLAGENS DA AVENTURA":null,new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){if(isCompanion)showKingmakerCompanionSkillChecks(q);}}).setPositiveButton(isCompanion?"ESCOLHER DESFECHO":"CONCLUIR MISSÃO",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){try{if(isCompanion)showKingmakerCompanionBranchChoices(q);else{kingmakerRepository.finishCampaignQuest(q.optLong("id"));showKingmakerCampaignJournal();}}catch(Exception e){toast(e.getMessage());}}}).show();
+    }
+    private void showKingmakerCompanionSkillChecks(final JSONObject q){
+        final JSONArray scenes=KingmakerCampaignGate.progress(q).optJSONArray("scenes");
+        if(scenes==null){toast("Esta aventura não possui testes cadastrados.");return;}
+        final List<JSONObject> checks=new ArrayList<JSONObject>();
+        final List<String> labels=new ArrayList<String>();
+        for(int i=0;i<scenes.length();i++){
+            JSONObject scene=scenes.optJSONObject(i);if(scene==null)continue;
+            JSONArray rolls=scene.optJSONArray("skill_checks");if(rolls==null)continue;
+            for(int j=0;j<rolls.length();j++){
+                JSONObject check=rolls.optJSONObject(j);if(check==null)continue;
+                checks.add(check);
+                labels.add(scene.optString("title")+" • "+check.optString("skill")+" CD "+check.optInt("dc")+" • "+check.optString("description"));
+            }
+        }
+        if(checks.isEmpty()){toast("Nenhum teste publicado nesta aventura.");return;}
+        new AlertDialog.Builder(this).setTitle("Testes oficiais • "+q.optString("title"))
+         .setItems(labels.toArray(new String[0]),new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){
+            showKingmakerCompanionSkillRoll(q,checks.get(which));
+         }}).setNegativeButton("Voltar",null).show();
+    }
+    private void showKingmakerCompanionSkillRoll(final JSONObject q,final JSONObject check){
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);
+        form.setPadding(dp(12),0,dp(12),dp(16));
+        form.addView(text(check.optString("description"),14,TEXT,false));
+        final EditText natural=labeledField(form,"Resultado natural do d20 (1 a 20)","",true);
+        final EditText bonus=labeledField(form,"Modificador total (sem o d20)","0",true);
+        final String companion=KingmakerCampaignGate.questKey(q).substring(5);
+        new AlertDialog.Builder(this).setTitle(check.optString("skill")+" • CD "+check.optInt("dc"))
+         .setView(scrollableDialogView(form)).setNegativeButton("Cancelar",null)
+         .setPositiveButton("APLICAR TESTE",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){
+            try{
+                int d20=Integer.parseInt(value(natural).trim());
+                int mod=Integer.parseInt(value(bonus).trim());
+                JSONObject result=kingmakerRepository.resolveCompanionAdventureCheck(companion,check.optString("check_id"),d20,mod,check.optInt("dc"));
+                JSONObject roll=result.optJSONObject("check");
+                toast("Teste aplicado e salvo: "+(roll==null?"":roll.optString("degree")));
+                showKingmakerCampaignJournal();
+            }catch(Exception e){toast(e.getMessage());}
+         }}).show();
     }
     private void showKingmakerCompanionBranchChoices(final JSONObject q){
         final String key=KingmakerCampaignGate.questKey(q);if(!key.startsWith("q_cg_")){toast("Esta não é uma aventura pessoal.");return;}
