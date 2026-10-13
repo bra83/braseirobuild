@@ -69,7 +69,29 @@ public final class XmmConditionalAttackDamageSourceTest {
             JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile(row[0]),row[1]);
             assertNotNull(row[0]+" action",action);
             assertTrue(row[0]+" must be explicitly manual",action.optBoolean("manual_rider_resolution_required"));
-            JSONObject result=StatblockCombatRuntimeEngine.attack(row[0],row[1],20,1,20,40);
+            JSONObject result=action.has("to_hit")
+                ?StatblockCombatRuntimeEngine.attack(row[0],row[1],20,1,20,40)
+                :StatblockCombatRuntimeEngine.savingThrowAction(row[0],row[1],40);
+            assertTrue(row[0]+" must block: "+result,result.optBoolean("blocked"));
+            assertEquals("manual_source_action_resolution_required",result.optString("reason"));
+            assertFalse(result.has("damage_expression"));
+        }
+    }
+
+    @Test public void unmodeledSourceRidersFailBeforeDamage(){
+        String[][] manual={
+            {"Giant Axe Beak","Sharpened Beak"}, {"Balor","Lightning Blade"},
+            {"Fire Giant","Hammer Throw"}, {"Bearded Devil","Infernal Glaive"},
+            {"Shadow","Draining Swipe"}, {"Goblin Boss","Scimitar"},
+            {"Mummy","Rotting Fist"}, {"Adult Copper Dragon","Slowing Breath"}
+        };
+        for(String[] row:manual){
+            JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile(row[0]),row[1]);
+            assertNotNull(row[0]+" action",action);
+            assertTrue(row[0]+" must be explicitly manual",action.optBoolean("manual_rider_resolution_required"));
+            JSONObject result=action.has("to_hit")
+                ?StatblockCombatRuntimeEngine.attack(row[0],row[1],20,1,20,40)
+                :StatblockCombatRuntimeEngine.savingThrowAction(row[0],row[1],40);
             assertTrue(row[0]+" must block: "+result,result.optBoolean("blocked"));
             assertEquals("manual_source_action_resolution_required",result.optString("reason"));
             assertFalse(result.has("damage_expression"));

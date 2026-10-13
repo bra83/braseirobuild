@@ -273,6 +273,40 @@ def check_conditional_attack_damage(source,compiled,expected_bloodied=13,expecte
     return errors,{"source_bloodied_attack_branches":bloodied_count,
                    "source_alternate_attack_branches_manual":manual_count}
 
+UNMODELED_ACTION_EFFECTS=re.compile(
+    r"\b(?:advantage|disadvantage|cursed?|curse|wound|pushed|pulled|"
+    r"reactions?|speed.{0,24}(?:halved|reduced|decreases?)|"
+    r"(?:strength|dexterity|constitution|intelligence|wisdom|charisma) score decreases|"
+    r"hit points? maximum decreases|another creature|other creature|choice creature|"
+    r"creature within \d+ feet of the target|"
+    r"can.t regain|doesn.t regain|no benefit from finishing|"
+    r"creates one of the following effects)\b",re.I)
+
+def source_action_requires_manual_resolution(action):
+    """Catch source attack effects that are not part of the typed runtime contract."""
+    def flatten(value):
+        if isinstance(value,str): return value
+        if isinstance(value,list): return " ".join(flatten(x) for x in value)
+        if isinstance(value,dict): return " ".join(flatten(x) for x in value.values())
+        return ""
+    text=flatten(action.get("entries",[]))
+    return bool(UNMODELED_ACTION_EFFECTS.search(text))
+
+def check_unmodeled_action_effects(source,compiled):
+    """Require an explicit fail-closed flag for known untyped source effects."""
+    by_id={m["id"]:m for m in compiled}; errors=[]; checked=0
+    for monster in source:
+        dst=by_id.get(monster.get("name"),{})
+        actions=dst.get("actions",[])
+        for slot,action in enumerate(monster.get("action",[])):
+            if not source_action_requires_manual_resolution(action):
+                continue
+            checked+=1
+            compiled_action=actions[slot] if slot<len(actions) else {}
+            if not compiled_action.get("manual_rider_resolution_required",False):
+                errors.append(f"{monster['name']}:{action.get('name','?')}:UNTYPED_SOURCE_EFFECT_NOT_MANUAL")
+    return errors,checked
+
 def usage_rows(source):
     out=[]
     for monster in source:
@@ -444,12 +478,14 @@ def check(project, bestiary_bytes, book_bytes):
 
     monster_errors,totals=check_monsters(src,index,compiled,attack_contracts)
     branch_errors,branch_totals=check_conditional_attack_damage(src,compiled)
+    effect_errors,effect_count=check_unmodeled_action_effects(src,compiled)
     save_errors,save_count=check_save_damage_actions(src,save_damage_rows)
     section_errors=check_book(book,bookrows)
-    if monster_errors or branch_errors or section_errors or save_errors:
+    if monster_errors or branch_errors or effect_errors or section_errors or save_errors:
         raise ValueError("XMM_SOURCE_MISMATCH:"+json.dumps(
             {"monsters":monster_errors[:20],"monster_count":len(monster_errors),
              "conditional_attack_damage":branch_errors[:20],"conditional_attack_damage_count":len(branch_errors),
+             "unmodeled_action_effects":effect_errors[:20],"unmodeled_action_effects_count":len(effect_errors),
              "sections":section_errors[:20],"section_count":len(section_errors),
              "save_damage":save_errors[:20],"save_damage_count":len(save_errors)}))
     return {"format":"XMM_INDEPENDENT_SOURCE_MATCH_V1","source_commit":PIN,
@@ -463,6 +499,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_trait_contracts_compared":len(traitrows),
         "source_trait_families_compared":len({r["kind"] for r in traitrows}),
         "source_save_damage_actions_compared":save_count,
+        "source_actions_with_unmodeled_effects_manual":effect_count,
         **branch_totals,
         "source_field_and_catalog_gate_pass":True,
         "full_monster_combat_automation_certified":False}

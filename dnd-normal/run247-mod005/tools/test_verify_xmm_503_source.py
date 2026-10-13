@@ -139,6 +139,16 @@ class XmmIndependentSourceTests(unittest.TestCase):
         compiled[0]["actions"][0]["manual_rider_resolution_required"]=False
         errors,_=xmm.check_conditional_attack_damage(source,compiled,0,1)
         self.assertIn("Goat:Ram:UNMODELED_ALTERNATE_DAMAGE_NOT_MANUAL",errors)
+    def test_unmodeled_action_riders_fail_closed(self):
+        source=[{"name":"Giant Axe Beak","action":[{"name":"Sharpened Beak",
+          "entries":["Hit the target, and a creature within 5 feet of the target takes damage."]}]}]
+        compiled=[{"id":"Giant Axe Beak","actions":[{"name":"Sharpened Beak",
+          "manual_rider_resolution_required":False}]}]
+        errors,count=xmm.check_unmodeled_action_effects(source,compiled)
+        self.assertEqual(1,count)
+        self.assertEqual(["Giant Axe Beak:Sharpened Beak:UNTYPED_SOURCE_EFFECT_NOT_MANUAL"],errors)
+        compiled[0]["actions"][0]["manual_rider_resolution_required"]=True
+        self.assertEqual(([],1),xmm.check_unmodeled_action_effects(source,compiled))
     def test_not_503_is_not_success(self):
         with self.assertRaises(ValueError):xmm.check_monsters([],[],[])
 if __name__=="__main__":unittest.main()

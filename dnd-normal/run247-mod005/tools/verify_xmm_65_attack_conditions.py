@@ -37,7 +37,8 @@ def expected_rows(monsters,compiled=None):
                 if not sizes:continue
                 row={"id":monster["name"],"name":name,"slot":j,"ptr":ptr,
                     "size":sizes[-1].group(1).title(),"condition":"grappled",
-                    "dc":int(m.group(1)),"other":bool(OTHER.search(entry[m.end():]))}
+                    "dc":int(m.group(1)),"other":bool(OTHER.search(entry[m.end():]) or
+                        OTHER.search(entry.split("{@h}",1)[0]))}
                 save=SAVE.search(entry)
                 if save:
                     row["save_ability"]=save.group(1).lower()
@@ -75,9 +76,9 @@ def check(project,raw):
     ranged=check_ranged_prone_attack_ranges(src,compiled,actual)
     if sum(x["condition"]=="prone" for x in actual)!=29:raise ValueError("XMM_PRONE_COUNT")
     if sum(x["condition"]=="grappled" for x in actual)!=36:raise ValueError("XMM_GRAPPLE_COUNT")
-    if sum(x["other"] for x in actual)!=21:raise ValueError("XMM_OTHER_RIDERS_COUNT")
+    if sum(x["other"] for x in actual)!=22:raise ValueError("XMM_OTHER_RIDERS_COUNT")
     return {"source":"XMM","verified_riders":65,"prone":29,"grappled":36,
-        "additional_manual":21,"source_blob_sha1":base.BESTIARY_SHA,
+        "additional_manual":22,"source_blob_sha1":base.BESTIARY_SHA,
         "ranged_prone_ranges_compared":ranged,
         "full_action_automation_certified":False}
 def main():
