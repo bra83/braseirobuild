@@ -33,6 +33,18 @@ class XmmIndependentSourceTests(unittest.TestCase):
         self.assertEqual(["Fireball"],entry["daily"]["2"])
         self.assertNotIn("headerEntries",entry)
         self.assertEqual("/monster/0/spellcasting",data[0]["source_pointer"])
+    def test_habitat_group_comparison_preserves_order_and_membership(self):
+        ref={"entries":[{"type":"table","caption":"Forest Monsters",
+                         "rows":[["2","{@creature Dryad|XMM}, {@creature Satyr|XMM}"]]}]}
+        expected=xmm.source_habitat_groups(ref)
+        self.assertEqual({"Forest Monsters":["Dryad","Satyr"]},expected)
+        self.assertNotEqual({"Forest Monsters":["Dryad"]},expected)
+    def test_named_groups_preserve_source_list_membership(self):
+        ref={"entries":[{"type":"list","items":[
+            {"name":"Fiends","type":"list","items":["{@creature Balor|XMM}","{@creature Pit Fiend|XMM}"]}]}]}
+        expected=xmm.source_named_groups(ref)
+        self.assertEqual(["Balor","Pit Fiend"],expected["Fiends"])
+        with self.assertRaises(ValueError):xmm.source_named_groups({"entries":[]})
     def test_not_503_is_not_success(self):
         with self.assertRaises(ValueError):xmm.check_monsters([],[],[])
 if __name__=="__main__":unittest.main()

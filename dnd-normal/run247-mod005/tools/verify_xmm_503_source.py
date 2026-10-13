@@ -140,29 +140,83 @@ def creature_refs(x):
     if not isinstance(x,dict):return []
     return ([x["name"]] if x.get("type")=="statblock" and x.get("tag")=="creature" else [])+creature_refs(x.get("entries",[]))
 
+def source_creature_names_from_markup(value):
+    """Only creature references, never broad substring matches or inferred names."""
+    return re.findall(r'\{@creature ([^|}]+)',json.dumps(value,ensure_ascii=False))
+
+def source_habitat_groups(ref):
+    return {node["caption"]:source_creature_names_from_markup(node.get("rows",[]))
+            for node in ref.get("entries",[]) if isinstance(node,dict) and node.get("type")=="table"}
+
+def source_named_groups(ref):
+    lists=[node for node in ref.get("entries",[]) if isinstance(node,dict) and node.get("type")=="list"]
+    if len(lists)!=1:
+        raise ValueError("XMM_GROUP_LIST_STRUCTURE_CHANGED")
+    return {group["name"]:source_creature_names_from_markup(group.get("items",[]))
+            for group in lists[0].get("items",[]) if isinstance(group,dict) and group.get("name")}
+
 def check_book(book,rows):
     problems=[]
     if len(rows)!=36 or len({r["key"] for r in rows})!=36:
         return ["XMM_36_SECTION_COUNT"]
-    sections=book["bookData"][0]["data"]
-    chapters=[0,1,2,3,4]
+    required={("ch_0:sec_0_"+str(i)) for i in range(4)}
+    required.update("ch_1:sec_1_"+str(i) for i in range(25))
+    required.update({"ch_2:sec_2_0","ch_3:sec_3_0","ch_3:sec_3_1",
+                     "ch_3:sec_3_2","ch_3:sec_3_3","ch_3:sec_3_4","ch_4:sec_4_0"})
+    if {r["key"] for r in rows}!=required:problems.append("XMM_SECTION_KEYS_DIFFER")
     for r in rows:
         k=r["key"]
         try:ref=deref(book,r["pointer"])
-        except (IndexError,KeyError,TypeError):problems.append(k+":INVALID_POINTER");continue
+        except (IndexError,KeyError,TypeError,ValueError):problems.append(k+":INVALID_POINTER");continue
+        if not isinstance(ref,dict):problems.append(k+":NONOBJECT_SECTION");continue
         if r["title"]!=ref.get("name"):problems.append(k+":TITLE_DIFF")
+        if r["page"]!=ref.get("page"):problems.append(k+":PAGE_DIFF")
         if k.startswith("ch_1:"):
             if r["names"]!=creature_refs(ref):problems.append(k+":ALPHABET_CREATURE_NAMES")
-        if k=="ch_2:sec_2_0":
-            expected=re.findall(r'\{@creature ([^|}]+)',json.dumps(ref["entries"][2]["items"]))
+        elif k=="ch_2:sec_2_0":
+            expected=source_creature_names_from_markup(ref["entries"][2]["items"])
             if r["names"]!=expected:problems.append(k+":ANIMAL_NAMES")
-        if k=="ch_3:sec_3_0" and len(r["conversion_rows"])!=59:
-            problems.append(k+":CONVERSIONS")
-        if k=="ch_3:sec_3_1" and len(r["groups"])!=12:problems.append(k+":HABITATS")
-        if k=="ch_3:sec_3_2" and len(r["groups"])!=14:problems.append(k+":CREATURE_TYPES")
-        if k=="ch_3:sec_3_3" and len(r["groups"])!=12:problems.append(k+":GROUPS")
-        if k=="ch_3:sec_3_4" and len(r["groups"])!=30:problems.append(k+":CHALLENGE_LISTS")
-        if k=="ch_4:sec_4_0" and not r.get("editorial_only"):problems.append(k+":CREDITS_NOT_EDITORIAL")
+        elif k=="ch_3:sec_3_0":
+            expected=[[source_creature_names_from_markup(cell) for cell in row]
+                      for row in ref["entries"][1]["rows"]]
+            if r["conversion_rows"]!=expected or len(expected)!=59:
+                problems.append(k+":EXACT_2014_2025_CONVERSIONS")
+        elif k=="ch_3:sec_3_1":
+            expected=source_habitat_groups(ref)
+            if r["groups"]!=expected or len(expected)!=12:
+                problems.append(k+":EXACT_HABITAT_GROUPS")
+        elif k in ("ch_3:sec_3_2","ch_3:sec_3_3","ch_3:sec_3_4"):
+            expected=source_named_groups(ref)
+            sizes={"ch_3:sec_3_2":14,"ch_3:sec_3_3":12,"ch_3:sec_3_4":30}
+            if r["groups"]!=expected or len(expected)!=sizes[k]:
+                problems.append(k+":EXACT_MONSTER_GROUPS")
+        elif k=="ch_0:sec_0_3":
+            expected=[entry["name"] for entry in ref["entries"]
+                      if isinstance(entry,dict) and entry.get("name")]
+            if r.get("parts")!=expected or len(expected)!=23:
+                problems.append(k+":EXACT_23_STATBLOCK_PARTS")
+        elif k=="ch_0:sec_0_2":
+            expected=[x.get("name","").lower().replace(" ","_")
+                      for x in ref["entries"] if isinstance(x,dict) and x.get("name")]
+            if r.get("fields")!=expected:
+                problems.append(k+":EXACT_5_MONSTER_ENTRY_COMPONENTS")
+        elif k=="ch_0:sec_0_1":
+            explanatory=json.dumps(ref["entries"],ensure_ascii=False)
+            required_terms=("Armor Class","Hit Points","Speed","Initiative","Ability Scores",
+                            "Traits","Actions","Reactions","Legendary Actions")
+            if any(word not in explanatory for word in required_terms):
+                problems.append(k+":STATBLOCK_GLOSSARY_SOURCE_CHANGED")
+            if len(r.get("fields",[]))<9:
+                problems.append(k+":STATBLOCK_RUNTIME_FIELDS_INCOMPLETE")
+        elif k=="ch_0:sec_0_0":
+            source_text=json.dumps(ref["entries"],ensure_ascii=False).lower()
+            requirements=("more than 500 stat blocks","alphabetically","2014","replacement")
+            if any(term not in source_text for term in requirements):
+                problems.append(k+":2025_CHANGE_SEMANTICS")
+            if len(r.get("rules",[]))<4:
+                problems.append(k+":2025_CHANGE_RULE_COVERAGE")
+        elif k=="ch_4:sec_4_0":
+            if not r.get("editorial_only"):problems.append(k+":CREDITS_NOT_EDITORIAL")
     return problems
 
 def check(project, bestiary_bytes, book_bytes):
