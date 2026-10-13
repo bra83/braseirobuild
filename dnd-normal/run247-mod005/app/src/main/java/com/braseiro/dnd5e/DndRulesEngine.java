@@ -76,6 +76,19 @@ public final class DndRulesEngine {
 
     public int initiativeBonus(JSONObject hero){return modifier(hero==null?10:hero.optInt("dex",10))-exhaustionD20Penalty(hero);}
     public int passiveScore(JSONObject hero,String ability,String skill){return 10+checkBonus(hero,ability,skill);}
+    /**
+     * 2014 SRD5 "Passive Checks": passive total includes +5 with advantage,
+     * -5 with disadvantage, and no modifier when both cancel. Also preserves
+     * the three-argument call sites already in use.
+     * Source: BTMorton/dnd-5e-srd json/06 mechanics.json, SHA
+     * 004cc01b5e6228b7eafcae29830cd2d9d47584db (OGL 1.0a).
+     */
+    public int passiveScore(JSONObject hero,String ability,String skill,
+                            boolean advantage,boolean disadvantage){
+        int base=passiveScore(hero,ability,skill);
+        return base+(advantage==disadvantage?0:(advantage?5:-5));
+    }
+
     public int carryingCapacity(int strength){return Math.max(0,strength)*15;}
     public int pushDragLiftCapacity(int strength){return carryingCapacity(strength)*2;}
     public int concentrationDc(int damage){return Math.max(10,Math.max(0,damage)/2);}
