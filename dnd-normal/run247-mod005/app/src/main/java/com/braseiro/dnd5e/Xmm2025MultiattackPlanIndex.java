@@ -326,21 +326,53 @@ public final class Xmm2025MultiattackPlanIndex {
   if(r==null)return blocked("source_multiattack_not_registered");
   JSONArray v=r.getJSONArray("v");if(v.length()==0)return blocked("complex_multiattack_requires_manual_source_resolution").put("monster",id).put("source_pointer",r.getString("ptr"));
   if(v.length()>1&&!in.has("variant_index"))return blocked("explicit_variant_selection_required");
+  if(in.has("variant_index")&&!(in.opt("variant_index") instanceof Integer))return blocked("explicit_integer_variant_index_required");
   int variant=in.optInt("variant_index",0);if(variant<0||variant>=v.length())return blocked("invalid_variant_index");
   JSONArray groups=v.getJSONArray(variant),chosen=in.optJSONArray("selected_actions");int total=0;boolean ambiguous=false;
   for(int i=0;i<groups.length();i++){JSONObject g=groups.getJSONObject(i);total+=g.getInt("c");if(g.getJSONArray("o").length()>1)ambiguous=true;}
   if(chosen==null&&ambiguous)return blocked("explicit_attack_choices_required").put("required_slots",total);
   if(chosen!=null&&chosen.length()!=total)return blocked("attack_choice_count_mismatch").put("required_slots",total);
+  if(in.has("selected_actions")&&chosen==null)return blocked("selected_actions_must_be_array");
+  JSONArray outcomes=in.optJSONArray("step_outcomes");
+  if(in.has("step_outcomes")&&outcomes==null)return blocked("step_outcomes_must_be_array");
+  if(outcomes!=null&&outcomes.length()!=total)return blocked("step_outcome_count_mismatch").put("required_slots",total);
   if(!CompiledStatblockEngine.has(id))Xmm2025CompiledBestiaryEngine.install();
   JSONObject installed=CompiledStatblockEngine.get(id);if(installed.length()==0)return blocked("compiled_monster_not_installed");
   JSONArray actions=installed.getJSONArray("actions"),steps=new JSONArray();int slot=0,attacks=0,uses=0;
   for(int i=0;i<groups.length();i++){JSONObject g=groups.getJSONObject(i);JSONArray opts=g.getJSONArray("o");String kind=g.getString("k");
-   for(int j=0;j<g.getInt("c");j++){String name=chosen==null?opts.getString(0):chosen.getString(slot);boolean allowed=false,registered=false;
+   for(int j=0;j<g.getInt("c");j++){
+    if(chosen!=null&&!(chosen.opt(slot) instanceof String))return blocked("explicit_attack_name_required").put("slot",slot);
+    String name=chosen==null?opts.getString(0):chosen.getString(slot);boolean allowed=false,registered=false;
     for(int k=0;k<opts.length();k++)if(name.equals(opts.getString(k)))allowed=true;
     if(!allowed)return blocked("attack_choice_not_allowed").put("slot",slot);
-    for(int k=0;k<actions.length();k++)if(name.equals(actions.getJSONObject(k).optString("name")))registered=true;
+    for(int k=0;k<actions.length();k++){
+     JSONObject compiledAction=actions.getJSONObject(k);
+     if(name.equals(compiledAction.optString("name"))&&compiledAction.optBoolean("source_bound",false)
+       &&(!"attack".equals(kind)||compiledAction.optJSONArray("attack_modes")!=null))registered=true;
+    }
     if(!registered)return blocked("attack_choice_not_in_compiled_statblock").put("slot",slot);
-    steps.put(new JSONObject().put("slot",slot++).put("kind",kind).put("action",name).put("manual_effect_resolution_required",true));
+    JSONObject step=new JSONObject().put("slot",slot).put("kind",kind).put("action",name).put("manual_effect_resolution_required",true);
+    if("attack".equals(kind)){
+     JSONObject rider=Xmm2025AttackConditionEngine.profile(id,name);
+     if(rider.length()>0){
+      JSONObject contract=new JSONObject().put("condition",rider.getString("condition"))
+       .put("source_pointer",rider.getString("ptr")).put("source_blob_sha1",Xmm2025AttackConditionEngine.SOURCE_BLOB)
+       .put("target_max_size",rider.getString("size")).put("requires_explicit_hit_and_target",true)
+       .put("additional_source_effects_manual",rider.getBoolean("other")).put("condition_applied",false);
+      if("grappled".equals(rider.getString("condition")))contract.put("escape_dc",rider.getInt("dc"));
+      step.put("on_hit_condition_contract",contract);
+      if(outcomes!=null){
+       JSONObject outcome=outcomes.optJSONObject(slot);
+       if(outcome==null)return blocked("explicit_step_outcome_required").put("slot",slot);
+       JSONObject request=new JSONObject(outcome.toString()).put("monster",id).put("action",name);
+       JSONObject resolvedRider=Xmm2025AttackConditionEngine.resolve(request);
+       if(!resolvedRider.optBoolean("resolved",false))return blocked("rider_step_unresolved").put("slot",slot)
+        .put("reason_detail",resolvedRider.optString("reason"));
+       step.put("on_hit_condition_result",resolvedRider);
+      }
+     }
+    }
+    steps.put(step);slot++;
     if("attack".equals(kind))attacks++;else uses++;
    }
   }
