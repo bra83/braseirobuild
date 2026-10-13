@@ -18,6 +18,9 @@ public final class StatblockCombatFlowEngine{
   if(ae==null)return block("token_not_in_initiative");
   JSONObject declaredAction=findAction(av.optString("statblock_id"),action);
   if(declaredAction==null)return block("action_not_found");
+  if("Monster Manual (2025)".equals(CompiledStatblockEngine.get(av.optString("statblock_id")).optString("source_book"))&&
+      declaredAction.optBoolean("manual_unmodeled_source_effect_required",false))
+   return block("manual_source_action_resolution_required");
   if(!"legendary_action".equalsIgnoreCase(declaredAction.optString("category","")))return block("not_a_legendary_action");
   int cost=declaredAction.optInt("legendary_cost",1);if(cost<=0)cost=1;
   int remainingLeg=ae.optInt("legendary_points_remaining",0);

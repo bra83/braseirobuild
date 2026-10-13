@@ -186,16 +186,16 @@ public final class E2ETier1FeatureCoverageRobolectricTest {
         StatblockTurnEngine.setInitiative("xmm-silver", 12);
         StatblockTurnEngine.start(); // xmm-target is current_token
 
-        // Dragon executes Scorching Sands from special_actions (save DC 16 DEX, 6d8 fire)
+        // Scorching Sands has a source-declared speed rider which has no typed handler;
+        // it must block before damage or legendary-point consumption.
         int targetHpBefore = StatblockEncounterStateEngine.view("xmm-target").optInt("hp");
+        String turnBeforeManual = StatblockTurnEngine.state().toString();
         JSONObject dragonAction = StatblockCombatFlowEngine.legendaryAction("xmm-dragon", "xmm-target", "Scorching Sands", 5);
-        assertTrue(dragonAction.toString(), dragonAction.optBoolean("resolved"));
-        assertEquals("saving_throw", dragonAction.optString("resolution_type"));
-        assertFalse(dragonAction.optBoolean("save_success"));
-        int fireDmg = dragonAction.optInt("applied_damage");
-        assertTrue(fireDmg > 0);
+        assertTrue(dragonAction.toString(), dragonAction.optBoolean("blocked"));
+        assertEquals("manual_source_action_resolution_required", dragonAction.optString("reason"));
         int targetHpAfter = StatblockEncounterStateEngine.view("xmm-target").optInt("hp");
-        assertEquals(targetHpBefore - fireDmg, targetHpAfter);
+        assertEquals(targetHpBefore, targetHpAfter);
+        assertEquals(turnBeforeManual, StatblockTurnEngine.state().toString());
 
         // Dragon executes Blazing Light from special_actions (spells: Scorching Ray)
         JSONObject spellAction = StatblockCombatFlowEngine.legendaryAction("xmm-dragon", "xmm-target", "Blazing Light", 15);
@@ -205,29 +205,25 @@ public final class E2ETier1FeatureCoverageRobolectricTest {
         assertTrue(spellAction.optBoolean("hit"));
         assertTrue(spellAction.optInt("applied_damage") > 0);
 
-        // 7. Audit-specific verification: Negation vs Half-Damage multipliers on saving throw
-        // Case A: Complete negation on successful save for Scorching Sands (damage_multiplier = 0.0)
+        // 7. Source riders which are not modeled must block before damage and resource spend.
         int hpBeforeHalf = StatblockEncounterStateEngine.view("xmm-target").optInt("hp");
+        String turnBeforeSecondManual = StatblockTurnEngine.state().toString();
         JSONObject negateSaveAction = StatblockCombatFlowEngine.legendaryAction("xmm-dragon", "xmm-target", "Scorching Sands", 20);
-        assertTrue(negateSaveAction.toString(), negateSaveAction.optBoolean("resolved"));
-        assertTrue(negateSaveAction.optBoolean("save_success"));
-        assertEquals(0.0d, negateSaveAction.optDouble("damage_multiplier"), 0.001d);
-        assertEquals(0, negateSaveAction.optInt("applied_damage"));
+        assertTrue(negateSaveAction.toString(), negateSaveAction.optBoolean("blocked"));
+        assertEquals("manual_source_action_resolution_required", negateSaveAction.optString("reason"));
         assertEquals(hpBeforeHalf, StatblockEncounterStateEngine.view("xmm-target").optInt("hp"));
+        assertEquals(turnBeforeSecondManual, StatblockTurnEngine.state().toString());
 
-        // Case B: Half damage on successful save for Adult Silver Dragon Cold Gale (damage_multiplier = 0.5)
+        // Adult Silver Dragon Cold Gale includes a push rider, so it also fails closed.
+        String turnBeforeSilver = StatblockTurnEngine.state().toString();
         JSONObject silverHalfAction = StatblockCombatFlowEngine.legendaryAction("xmm-silver", "xmm-target", "Cold Gale", 20);
-        assertTrue(silverHalfAction.toString(), silverHalfAction.optBoolean("resolved"));
-        assertTrue(silverHalfAction.optBoolean("save_success"));
-        assertEquals(0.5d, silverHalfAction.optDouble("damage_multiplier"), 0.001d);
-        int halfApplied = silverHalfAction.optInt("applied_damage");
-        assertTrue(halfApplied > 0);
-        // Verify full damage on failed save is exactly 2x half applied (or within floor rounding)
+        assertTrue(silverHalfAction.toString(), silverHalfAction.optBoolean("blocked"));
+        assertEquals("manual_source_action_resolution_required", silverHalfAction.optString("reason"));
+        assertEquals(turnBeforeSilver, StatblockTurnEngine.state().toString());
         JSONObject silverFailAction = StatblockCombatFlowEngine.legendaryAction("xmm-silver", "xmm-target", "Cold Gale", 5);
-        assertTrue(silverFailAction.optBoolean("resolved"));
-        assertFalse(silverFailAction.optBoolean("save_success"));
-        int fullApplied = silverFailAction.optInt("applied_damage");
-        assertEquals(fullApplied / 2, halfApplied);
+        assertTrue(silverFailAction.toString(), silverFailAction.optBoolean("blocked"));
+        assertEquals("manual_source_action_resolution_required", silverFailAction.optString("reason"));
+        assertEquals(turnBeforeSilver, StatblockTurnEngine.state().toString());
 
         // 8. Audit-specific verification: Forced movement and teleportation in special effects
         // Reset encounter state for Ankhtepot Sands of Time (teleport:60ft)

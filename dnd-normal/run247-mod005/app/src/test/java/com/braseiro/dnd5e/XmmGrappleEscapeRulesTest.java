@@ -34,7 +34,7 @@ public final class XmmGrappleEscapeRulesTest {
                 }
             }else manual++;
         }
-        assertEquals(36,grapples);assertEquals(20,manual);assertEquals(16,executable);
+        assertEquals(36,grapples);assertEquals(21,manual);assertEquals(15,executable);
     }
 
     @Test public void escapeUsesAnExplicitAthleticsOrAcrobaticsTotal()throws Exception{

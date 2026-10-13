@@ -55,6 +55,8 @@ public final class MonsterActionEconomyGuard {
     }
     public static String attackRiderBlock(JSONObject action,boolean allowTypedOnHit) {
         if(action==null)return "unresolved_attack_hit_rider_requires_typed_handler";
+        if(action.optBoolean("manual_unmodeled_source_effect_required",false))
+            return "manual_source_action_resolution_required";
         String block=attackRiderBlock(action.optInt("save_dc",0),
             action.optString("save_ability",""),action.optString("condition_on_fail",""),
             action.optString("effect_on_fail",""));

@@ -89,6 +89,8 @@ public final class XmmConditionalAttackDamageSourceTest {
             JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile(row[0]),row[1]);
             assertNotNull(row[0]+" action",action);
             assertTrue(row[0]+" must be explicitly manual",action.optBoolean("manual_rider_resolution_required"));
+            assertTrue(row[0]+" must identify its untyped source effect",
+                action.optBoolean("manual_unmodeled_source_effect_required"));
             JSONObject result=action.has("to_hit")
                 ?StatblockCombatRuntimeEngine.attack(row[0],row[1],20,1,20,40)
                 :StatblockCombatRuntimeEngine.savingThrowAction(row[0],row[1],40);
@@ -98,8 +100,43 @@ public final class XmmConditionalAttackDamageSourceTest {
         }
     }
 
+    @Test public void unmodeledLegendarySaveEffectFailsClosed(){
+        JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile("Adult Black Dragon"),"Cloud of Insects");
+        assertNotNull(action);
+        assertTrue(action.optBoolean("manual_unmodeled_source_effect_required"));
+        JSONObject result=StatblockCombatRuntimeEngine.savingThrowAction("Adult Black Dragon","Cloud of Insects",99);
+        assertTrue(result.toString(),result.optBoolean("blocked"));
+        assertEquals("manual_source_action_resolution_required",result.optString("reason"));
+        assertFalse(result.has("damage_expression"));
+    }
+
+    @Test public void compoundOrRecurringSourceConditionsFailClosed(){
+        String[][] cases={
+            {"Adult Brass Dragon","Sleep Breath"},
+            {"Adult Silver Dragon","Paralyzing Breath"},
+            {"Pseudodragon","Sting"},
+            {"Tarrasque","Thunderous Bellow"},
+            {"Carrion Crawler","Paralyzing Tentacles"}
+        };
+        for(String[] row:cases){
+            JSONObject action=findAction(CompiledStatblockEngine.runtimeProfile(row[0]),row[1]);
+            assertNotNull(row[0]+" action",action);
+            assertTrue(row[0]+"/"+row[1]+" needs dedicated manual handling",
+                action.optBoolean("manual_unmodeled_source_effect_required"));
+            JSONObject result=StatblockCombatRuntimeEngine.savingThrowAction(row[0],row[1],99);
+            assertTrue(row[0]+"/"+row[1]+" must block: "+result,result.optBoolean("blocked"));
+            assertEquals("manual_source_action_resolution_required",result.optString("reason"));
+            assertFalse(result.has("damage_expression"));
+        }
+    }
+
     private static JSONObject findAction(JSONObject profile,String name){
         org.json.JSONArray actions=profile.optJSONArray("actions");
+        if(actions!=null)for(int i=0;i<actions.length();i++){
+            JSONObject action=actions.optJSONObject(i);
+            if(action!=null&&name.equals(action.optString("name")))return action;
+        }
+        actions=profile.optJSONArray("special_actions");
         if(actions!=null)for(int i=0;i<actions.length();i++){
             JSONObject action=actions.optJSONObject(i);
             if(action!=null&&name.equals(action.optString("name")))return action;

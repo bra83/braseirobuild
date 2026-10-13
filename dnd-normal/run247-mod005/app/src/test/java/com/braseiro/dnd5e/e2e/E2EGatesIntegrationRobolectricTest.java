@@ -359,25 +359,26 @@ public final class E2EGatesIntegrationRobolectricTest {
             assertEquals(heroHpBefore - appliedDmg, StatblockEncounterStateEngine.view("g05-hero").optInt("hp"));
 
             // Adult Brass Dragon from special_actions via MasterOrchestrator
+            int heroHpBeforeUntypedDragon = StatblockEncounterStateEngine.view("g05-hero").optInt("hp");
             JSONObject dragonAction = orchestrator.resolveStatblockLegendaryAction("g05-dragon", "g05-hero", "Scorching Sands", 8);
-            assertTrue(dragonAction.toString(), dragonAction.optBoolean("resolved"));
-            assertEquals("saving_throw", dragonAction.optString("resolution_type"));
-            int dmgBeforeHalf = dragonAction.optInt("applied_damage");
-            assertTrue(dmgBeforeHalf > 0);
+            assertFalse(dragonAction.toString(), dragonAction.optBoolean("resolved"));
+            assertTrue(dragonAction.toString(), dragonAction.optBoolean("blocked"));
+            assertEquals("manual_source_action_resolution_required", dragonAction.optString("reason"));
+            assertEquals(heroHpBeforeUntypedDragon, StatblockEncounterStateEngine.view("g05-hero").optInt("hp"));
 
-            // Audit verification: save negation on Scorching Sands (multiplier = 0.0)
+            // The same untyped speed rider blocks even when the save would negate damage.
             JSONObject dragonNegate = orchestrator.resolveStatblockLegendaryAction("g05-dragon", "g05-hero", "Scorching Sands", 20);
-            assertTrue(dragonNegate.toString(), dragonNegate.optBoolean("resolved"));
-            assertTrue(dragonNegate.optBoolean("save_success"));
-            assertEquals(0.0d, dragonNegate.optDouble("damage_multiplier"), 0.001d);
-            assertEquals(0, dragonNegate.optInt("applied_damage"));
+            assertFalse(dragonNegate.toString(), dragonNegate.optBoolean("resolved"));
+            assertTrue(dragonNegate.toString(), dragonNegate.optBoolean("blocked"));
+            assertEquals("manual_source_action_resolution_required", dragonNegate.optString("reason"));
+            assertEquals(heroHpBeforeUntypedDragon, StatblockEncounterStateEngine.view("g05-hero").optInt("hp"));
 
-            // Audit verification: half damage on Adult Silver Dragon Cold Gale (multiplier = 0.5)
+            // Adult Silver Dragon Cold Gale has an untyped push rider and also fails closed.
             JSONObject silverHalf = orchestrator.resolveStatblockLegendaryAction("g05-silver", "g05-hero", "Cold Gale", 20);
-            assertTrue(silverHalf.toString(), silverHalf.optBoolean("resolved"));
-            assertTrue(silverHalf.optBoolean("save_success"));
-            assertEquals(0.5d, silverHalf.optDouble("damage_multiplier"), 0.001d);
-            assertTrue(silverHalf.optInt("applied_damage") > 0);
+            assertFalse(silverHalf.toString(), silverHalf.optBoolean("resolved"));
+            assertTrue(silverHalf.toString(), silverHalf.optBoolean("blocked"));
+            assertEquals("manual_source_action_resolution_required", silverHalf.optString("reason"));
+            assertEquals(heroHpBeforeUntypedDragon, StatblockEncounterStateEngine.view("g05-hero").optInt("hp"));
 
             // Audit verification: spellcasting action execution
             JSONObject dragonSpell = orchestrator.resolveStatblockLegendaryAction("g05-dragon", "g05-hero", "Blazing Light", 15);

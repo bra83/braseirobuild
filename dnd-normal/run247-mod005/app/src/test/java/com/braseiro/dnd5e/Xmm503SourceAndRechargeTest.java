@@ -67,9 +67,12 @@ public final class Xmm503SourceAndRechargeTest {
       assertTrue(action.getString("condition_on_hit").contains("grappled"));
       assertEquals(contract.getString("size").toLowerCase(java.util.Locale.ROOT),
          action.getString("condition_max_target_size"));
-      assertTrue(MonsterActionEconomyGuard.attackRiderBlock(action).startsWith("unsupported_"));
+      String riderBlock=MonsterActionEconomyGuard.attackRiderBlock(action);
+      assertTrue(riderBlock, riderBlock.startsWith("unsupported_")||
+         "manual_source_action_resolution_required".equals(riderBlock));
       if(action.getString("condition_on_hit").contains(","))
-         assertEquals("unsupported_grapple_escape_rider",MonsterActionEconomyGuard.attackRiderBlock(action));
+         assertTrue(riderBlock,"unsupported_grapple_escape_rider".equals(riderBlock)||
+            "manual_source_action_resolution_required".equals(riderBlock));
    }
    assertFalse(raw.getBoolean("auto_rolls"));
    assertFalse(raw.getBoolean("full_statblock_claim"));

@@ -274,13 +274,17 @@ def check_conditional_attack_damage(source,compiled,expected_bloodied=13,expecte
                    "source_alternate_attack_branches_manual":manual_count}
 
 UNMODELED_ACTION_EFFECTS=re.compile(
-    r"\b(?:advantage|disadvantage|cursed?|curse|wound|pushed|pulled|"
+    r"(?:\b(?:advantage|disadvantage|cursed?|curse|wound|pushed|pulled|"
     r"reactions?|speed.{0,24}(?:halved|reduced|decreases?)|"
     r"(?:strength|dexterity|constitution|intelligence|wisdom|charisma) score decreases|"
-    r"hit points? maximum decreases|another creature|other creature|choice creature|"
+    r"hit points?.{0,100}maximum decreases|temporary hit points|another creature|other creature|choice creature|"
     r"creature within \d+ feet of the target|"
     r"can.t regain|doesn.t regain|no benefit from finishing|"
-    r"creates one of the following effects)\b",re.I)
+    r"creates one of the following effects|one of the .*? choice|"
+    r"\{@hom\}|\{@hazard burning|starts? (?:to )?burning|"
+    r"(?:pushes|pulls|moves) the target|teleport the target|"
+    r"attaches to the target|while attached|removing its heart|"
+    r"kills the target by)\b|\{@hom\}|\{@hazard burning\b)",re.I)
 
 def source_action_requires_manual_resolution(action):
     """Catch source attack effects that are not part of the typed runtime contract."""
@@ -290,21 +294,31 @@ def source_action_requires_manual_resolution(action):
         if isinstance(value,dict): return " ".join(flatten(x) for x in value.values())
         return ""
     text=flatten(action.get("entries",[]))
-    return bool(UNMODELED_ACTION_EFFECTS.search(text))
+    # Compound conditions and recurring saves need a typed condition lifecycle;
+    # returning a comma-separated condition string does not implement that lifecycle.
+    conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
+    recurring=bool(re.search(r"\brepeats? the save\b|\bat the end of each of its turns\b",text,re.I))
+    return bool(UNMODELED_ACTION_EFFECTS.search(text)) or len(conditions)>1 or recurring
 
 def check_unmodeled_action_effects(source,compiled):
-    """Require an explicit fail-closed flag for known untyped source effects."""
+    """Require a dedicated fail-closed flag for known untyped source effects."""
     by_id={m["id"]:m for m in compiled}; errors=[]; checked=0
     for monster in source:
         dst=by_id.get(monster.get("name"),{})
-        actions=dst.get("actions",[])
-        for slot,action in enumerate(monster.get("action",[])):
-            if not source_action_requires_manual_resolution(action):
-                continue
-            checked+=1
-            compiled_action=actions[slot] if slot<len(actions) else {}
-            if not compiled_action.get("manual_rider_resolution_required",False):
-                errors.append(f"{monster['name']}:{action.get('name','?')}:UNTYPED_SOURCE_EFFECT_NOT_MANUAL")
+        categories=(("action","actions",None),("bonus","special_actions","bonus_action"),
+                    ("reaction","special_actions","reaction"),("legendary","special_actions","legendary_action"))
+        for source_field,dest_field,category in categories:
+            destination=dst.get(dest_field,[])
+            if category: destination=[a for a in destination if a.get("category")==category]
+            for slot,action in enumerate(monster.get(source_field,[])):
+                if not source_action_requires_manual_resolution(action): continue
+                checked+=1
+                compiled_action=destination[slot] if slot<len(destination) else {}
+                expected_name=RCH.sub("",action.get("name","")).strip()
+                if compiled_action.get("name")!=expected_name:
+                    errors.append(f"{monster['name']}:{action.get('name','?')}:UNTYPED_SOURCE_ACTION_SLOT_MISMATCH")
+                if not compiled_action.get("manual_unmodeled_source_effect_required",False):
+                    errors.append(f"{monster['name']}:{action.get('name','?')}:UNTYPED_SOURCE_EFFECT_NOT_MANUAL")
     return errors,checked
 
 def usage_rows(source):
@@ -499,7 +513,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_trait_contracts_compared":len(traitrows),
         "source_trait_families_compared":len({r["kind"] for r in traitrows}),
         "source_save_damage_actions_compared":save_count,
-        "source_actions_with_unmodeled_effects_manual":effect_count,
+        "source_abilities_with_unmodeled_effects_manual":effect_count,
         **branch_totals,
         "source_field_and_catalog_gate_pass":True,
         "full_monster_combat_automation_certified":False}

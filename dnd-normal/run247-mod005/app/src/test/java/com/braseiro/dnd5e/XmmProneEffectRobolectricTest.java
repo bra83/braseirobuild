@@ -178,7 +178,7 @@ public final class XmmProneEffectRobolectricTest {
             JSONObject beforeActor=db.getCombatant(actor),beforeTarget=db.getCombatant(target);
             JSONObject result=db.applyCompiledStatblockAttack(actor,target,"Mimic","Bite",
                 20,0,5,0,"ui-monster-xmm-manual-conditional-block");
-            assertEquals("unresolved_attack_hit_rider_requires_typed_handler",
+            assertEquals("manual_source_action_resolution_required",
                 result.optString("statblock_attack_blocked"));
             assertEquals(beforeTarget.optInt("hp"),db.getCombatant(target).optInt("hp"));
             assertTrue(new JSONObject(db.getCombatant(actor).optString("resources_json","{}"))

@@ -143,12 +143,39 @@ class XmmIndependentSourceTests(unittest.TestCase):
         source=[{"name":"Giant Axe Beak","action":[{"name":"Sharpened Beak",
           "entries":["Hit the target, and a creature within 5 feet of the target takes damage."]}]}]
         compiled=[{"id":"Giant Axe Beak","actions":[{"name":"Sharpened Beak",
-          "manual_rider_resolution_required":False}]}]
+          "manual_unmodeled_source_effect_required":False}]}]
         errors,count=xmm.check_unmodeled_action_effects(source,compiled)
         self.assertEqual(1,count)
         self.assertEqual(["Giant Axe Beak:Sharpened Beak:UNTYPED_SOURCE_EFFECT_NOT_MANUAL"],errors)
-        compiled[0]["actions"][0]["manual_rider_resolution_required"]=True
+        compiled[0]["actions"][0]["manual_unmodeled_source_effect_required"]=True
         self.assertEqual(([],1),xmm.check_unmodeled_action_effects(source,compiled))
+    def test_unmodeled_movement_object_and_persistent_effects_fail_closed(self):
+        effects=[
+          "the target's Hit Point maximum decreases by 5.",
+          "the target gains Temporary Hit Points equal to the damage taken.",
+          "the attacker pushes the target up to 15 feet straight away.",
+          "the attacker can teleport the target up to 10 feet.",
+          "{@hom}The weapon magically returns to the wielder's hand.",
+          "the target starts {@hazard burning|XPHB}.",
+          "While attached, the target takes 2d4 damage at the start of each turn."
+        ]
+        source=[];compiled=[]
+        for i,effect in enumerate(effects):
+            name=f"Monster {i}"
+            source.append({"name":name,"action":[{"name":"Effect","entries":[effect]}]})
+            compiled.append({"id":name,"actions":[{"name":"Effect",
+                "manual_unmodeled_source_effect_required":False}]})
+        errors,count=xmm.check_unmodeled_action_effects(source,compiled)
+        self.assertEqual(len(effects),count)
+        self.assertEqual(len(effects),len(errors))
+        self.assertTrue(all(e.endswith(":UNTYPED_SOURCE_EFFECT_NOT_MANUAL") for e in errors))
+    def test_compound_conditions_and_repeated_saves_require_manual_resolution(self):
+        self.assertTrue(xmm.source_action_requires_manual_resolution({"entries":[
+            "The target has {@condition Deafened|XPHB} and {@condition Frightened|XPHB} conditions."]}))
+        self.assertTrue(xmm.source_action_requires_manual_resolution({"entries":[
+            "The target has the {@condition Poisoned|XPHB} condition and repeats the save at the end of each of its turns."]}))
+        self.assertFalse(xmm.source_action_requires_manual_resolution({"entries":[
+            "The target has the {@condition Frightened|XPHB} condition until the end of its next turn."]}))
     def test_not_503_is_not_success(self):
         with self.assertRaises(ValueError):xmm.check_monsters([],[],[])
 if __name__=="__main__":unittest.main()
