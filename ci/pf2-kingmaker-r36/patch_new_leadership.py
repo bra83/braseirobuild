@@ -136,7 +136,7 @@ def ui(s):
         part=once(part,original,replacement)
     else:
         import re
-        calls=[m for m in re.finditer(r'kingmakerRepository\\.(?:assignLeader|resolveNewLeadership)\\([^;]*?\\);',part) if 'role.optString("role_name")' in m.group(0)]
+        calls=[m for m in re.finditer(r'kingmakerRepository\.(?:assignLeader|resolveNewLeadership)\([^;]*?\);',part) if 'role.optString("role_name")' in m.group(0)]
         if len(calls)!=1:raise ValueError("NEW_LEADERSHIP_UI_CALL_DRIFT "+str(len(calls))+" "+part[-3000:])
         call=calls[0].group(0)
         part=once(part,call,replacement)
