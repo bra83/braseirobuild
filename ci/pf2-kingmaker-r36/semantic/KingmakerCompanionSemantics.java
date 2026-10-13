@@ -314,10 +314,33 @@ public final class KingmakerCompanionSemantics {
    }else next.put("debate_won",wins>=3);
    entry.put("debate_wins",wins).put("debate_losses",losses);
   }else if("tristian".equals(companionKey)){
-   int rpDelta=deg==3?2:deg==2?1:0;
-   int rp=next.optInt("research_points",0)+rpDelta;
-   int curse=next.optInt("curse_countdown",0)+(deg==0?2:1);
-   next.put("research_points",rp).put("curse_countdown",curse).put("sanctum_located",rp>=12).put("maray_afflicted",curse>=6);
+   // Companion Guide pp.73-75: Countdown starts at 20 and decreases to 0.
+   // Only capital research and recruiter confrontations affect this system.
+   int curse="guide_20_down_v1".equals(currentProgress==null?"":currentProgress.optString("curse_semantics_revision"))
+    ?currentProgress.optInt("curse_countdown",20):20;
+   int rp=next.optInt("research_points",0);
+   if("tristian_research_cult".equals(checkId)){
+    int rpDelta=deg==3?2:deg==2?1:0;
+    rp+=rpDelta;
+    if(deg==0)curse=Math.max(0,curse-1);
+    next.put("research_points",rp).put("recruiter_revealed",rp>=8);
+    entry.put("research_points_delta",rpDelta);
+   }else if("tristian_confront_talbot".equals(checkId)){
+    if(rp<8)throw new IllegalStateException("Localize o recrutador com ao menos 8 Pontos de Pesquisa.");
+    if(deg==3)next.put("sanctum_located",true);
+    else if(deg==2)next.put("recruiter_followup_dc_reduction",2);
+    else{
+     next.put("recruiter_retry_after_hours",24);
+     if(deg==0){
+      curse=Math.max(0,curse-1);
+      next.put("recruiter_additional_research_required",2)
+       .put("recruiter_followup_dc_reduction",0);
+     }
+    }
+   }
+   next.put("curse_semantics_revision","guide_20_down_v1")
+    .put("curse_countdown",curse).put("cleansing_curse_active",curse<=0)
+    .put("research_points",rp);
    entry.put("research_points_total",rp).put("curse_countdown",curse);
   }else if("valerie".equals(companionKey)){
    int rounds=next.optInt("duel_rounds",0)+1;
