@@ -784,8 +784,8 @@ public final class R36BookSemanticsHarness {
   check(jvRepeatedBlocked,"Repeat debate round must not mint extra Victory Points");
   JSONObject jvOnePoint=new JSONObject(jvSource.toString());
   jvOnePoint=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_1",14,10,24,jvOnePoint).optJSONObject("progress");
-  jvOnePoint=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_2",5,0,24,jvOnePoint).optJSONObject("progress");
-  jvOnePoint=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_3",5,0,24,jvOnePoint).optJSONObject("progress");
+  jvOnePoint=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_2",15,0,24,jvOnePoint).optJSONObject("progress");
+  jvOnePoint=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_3",15,0,24,jvOnePoint).optJSONObject("progress");
   check(jvOnePoint.optInt("debate_victory_points")==1&&"NO_WINNER".equals(jvOnePoint.optString("debate_outcome")),
     "One Victory Point makes Shyka declare no winner, not grant an answer");
   boolean jvUnwonQuestionBlocked=false;
