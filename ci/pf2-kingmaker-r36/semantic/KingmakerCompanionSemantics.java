@@ -254,6 +254,11 @@ public final class KingmakerCompanionSemantics {
      if(c!=null&&checkId.trim().equals(c.optString("check_id"))){
       declared=true;
       matchedDc=dc==c.optInt("dc",-1)||dc==c.optInt("alternative_dc_when_helpful",-1)||dc==c.optInt("alternative_dc_for_crafting",-1);
+      JSONArray alternateSkillDcs=c.optJSONArray("alternate_skill_dcs");
+      if(alternateSkillDcs!=null)for(int n=0;n<alternateSkillDcs.length();n++){
+       JSONObject alt=alternateSkillDcs.optJSONObject(n);
+       if(alt!=null&&dc==alt.optInt("dc",-1))matchedDc=true;
+      }
      }
     }
    }
@@ -290,7 +295,23 @@ public final class KingmakerCompanionSemantics {
   }else if("jubilost".equals(companionKey)&&(officialScenes==null||checkId.startsWith("jubilost_debate_round_"))){
    int wins=next.optInt("debate_wins",0)+(deg>=2?1:0);
    int losses=next.optInt("debate_losses",0)+(deg<2?1:0);
-   next.put("debate_wins",wins).put("debate_losses",losses).put("debate_won",wins>=3);
+   next.put("debate_wins",wins).put("debate_losses",losses);
+   if(officialScenes!=null){
+    // Companion Guide p.42: three fixed questions at DC 24, degrees yield
+    // +2, +1, 0 or -1 Victory Points. Three mere "wins" are not the metric.
+    int answered=currentProgress.optInt("debate_rounds_answered",0);
+    String expected="jubilost_debate_round_"+(answered+1);
+    if(answered>=3||!expected.equals(checkId))
+     throw new IllegalStateException("Os três debates devem ocorrer na ordem do livro e sem repetições. Próximo: "+expected);
+    int gained=deg==3?2:deg==2?1:deg==1?0:-1;
+    int vp=currentProgress.optInt("debate_victory_points",0)+gained;
+    next.put("debate_rounds_answered",answered+1).put("debate_victory_points",vp)
+     .put("debate_won",answered+1==3&&vp>=3)
+     .put("host_question_available",answered+1==3&&vp>=2)
+     .put("host_each_pc_question",answered+1==3&&vp>=4);
+    if(answered+1==3)next.put("debate_outcome",vp<=0?"LOST":vp==1?"NO_WINNER":vp==2?"TIE":vp==3?"WIN":"EXTRAORDINARY_WIN");
+    entry.put("victory_points_delta",gained).put("victory_points_total",vp);
+   }else next.put("debate_won",wins>=3);
    entry.put("debate_wins",wins).put("debate_losses",losses);
   }else if("tristian".equals(companionKey)){
    int rpDelta=deg==3?2:deg==2?1:0;
@@ -325,6 +346,13 @@ public final class KingmakerCompanionSemantics {
     }
    }
    if(selected==null)throw new IllegalArgumentException("Desfecho não publicado para "+companionKey+": "+b);
+   if("jubilost".equals(companionKey)&&currentProgress.has("debate_rule")){
+    if(currentProgress.optInt("debate_rounds_answered",0)!=3)
+     throw new IllegalStateException("Responda as três perguntas do Anfitrião antes de encerrar os Debates.");
+    boolean questionEarned=currentProgress.optInt("debate_victory_points",0)>=2;
+    if(questionEarned=="jubilost_debates_no_answer".equals(b))
+     throw new IllegalStateException("Este resultado não corresponde à pontuação do debate.");
+   }
    int priorInfluence=companionBefore.optInt("influence",0);
    int delta=selected.optInt("influence_delta",0);
    int nextInfluence=Math.max(0,priorInfluence+delta);
