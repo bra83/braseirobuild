@@ -154,6 +154,29 @@ public final class RavenloftHorrorsWithinRulesEngine {
         if(a.equals("watchers_nat1"))return nat1Save(o,s,in,"wisdom",13+pb,"Disadvantage_on_D20_Tests","up_to_1_minute_repeat_save_end_turn");
         if(a.equals("watchers_repeat_save")){Integer save=explicitTotal(in,"save_total");if(save==null)return pending(o,"save_total_required");return o.put("resolved",true).put("state_after",s).put("save_dc",13+pb).put("effect_ends",save>=13+pb);}
 
+        // RHW 2026 Dark Gift: Touch of Death (data/feats.json, page 35).
+        // No die is rolled and no death-save state is silently mutated.
+        if(a.equals("touch_of_death_chill_touch")){
+            if(!in.optBoolean("spell_cast_confirmed",false))return pending(o,"spell_cast_confirmation_required");
+            return o.put("resolved",true).put("state_after",s).put("spell","Chill Touch")
+                .put("spell_components_required",false)
+                .put("necrotic_damage_ignores_resistance",true)
+                .put("spellcasting_ability_choice_required",true);
+        }
+        if(a.equals("touch_of_death_death_save")){
+            Integer first=explicitDie(in,"first_d20",1,20);
+            if(first==null)return pending(o,"first_d20_required");
+            Integer second=explicitDie(in,"second_d20",1,20);
+            if(second==null)return pending(o,"second_d20_required");
+            boolean cancel=in.optBoolean("has_advantage",false);
+            int chosen=cancel?first:Math.min(first,second);
+            return o.put("resolved",true).put("state_after",s)
+                .put("death_save_disadvantage",true)
+                .put("advantage_cancels_disadvantage",cancel)
+                .put("selected_d20",chosen)
+                .put("requires_core_death_save_application",true);
+        }
+
         // Reanimator Artificer
         if(a.equals("reanimator_create_companion")){boolean free=!s.optBoolean("reanimator_free_companion_used",false),slot=in.optBoolean("spell_slot_spend_confirmed",false);if(!free&&!slot)return pending(o,"spell_slot_spend_confirmation_required");if(s.optBoolean("reanimated_companion_present",false))return block(o,"companion_already_present");if(free)s.put("reanimator_free_companion_used",true);s.put("reanimated_companion_present",true).put("reanimated_companion_hp",5+5*level);JSONObject c=new JSONObject().put("ac",10+intel).put("hp",5+5*level).put("hit_dice",level+"d8").put("walk_ft",30).put("blindsight_ft",60).put("resistances","necrotic|poison").put("immunity","lightning").put("condition_immunities","Charmed|Exhaustion|Poisoned").put("death_burst","2d4 Necrotic; DEX save spell DC; half on success").put("dreadful_swipe","1d4 + INT Necrotic; uses spell attack modifier");if(level>=9)c.put("death_burst","4d4 Necrotic; DEX save spell DC; half on success").put("companion_necrotic_ignores_resistance",true);return o.put("resolved",true).put("state_after",s).put("companion",c).put("spell_slot_spent",!free);}
         if(a.equals("reanimator_jolt_to_life")){int max=Math.max(0,intel);if(max<=0)return block(o,"intelligence_modifier_has_no_uses");if(!spend(s,"reanimator_jolt_uses",max))return block(o,"no_uses_remaining");return o.put("resolved",true).put("state_after",s).put("healing",level).put("lightning_damage_dice",level>=17?"4d4":level>=11?"3d4":"2d4").put("emanation_ft",10).put("save","DEX vs spell save DC; half success");}
