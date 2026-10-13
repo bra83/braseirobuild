@@ -98,10 +98,17 @@ def check_grapple_escape_riders(source, compiled, contracts, expected_count=36):
         if dst.get("reach_ft")!=int(source_reach.group(1)):
             problems.append(monster+":"+rider["name"]+":GRAPPLE_REACH_MISMATCH")
             continue
-        if dst.get("escape_dc")!=dc or dst.get("condition_max_target_size")!=rider.get("size","").lower() or \
-           "grappled" not in dst.get("condition_on_hit","").lower() or save_mismatch or save_unproven:
+        semantic_ok=(dst.get("escape_dc")==dc and
+            dst.get("condition_max_target_size")==rider.get("size","").lower() and
+            "grappled" in dst.get("condition_on_hit","").lower() and
+            not save_mismatch and not save_unproven)
+        manual_ok=(bool(dst.get("manual_rider_resolution_required",False))==
+            bool(rider.get("other",False)))
+        if not semantic_ok:
             problems.append(monster+":"+rider["name"]+":ESCAPE_DC_MISCLASSIFIED")
-        else:
+        if not manual_ok:
+            problems.append(monster+":"+rider["name"]+":MANUAL_RIDER_FLAG_MISMATCH")
+        if semantic_ok and manual_ok:
             checked+=1
     if checked!=expected_count:
         problems.append("GRAPPLE_ESCAPE_RECORD_COUNT:"+str(checked))
@@ -207,6 +214,64 @@ def check_monsters(source,index,compiled,attack_contracts=None):
     return problems,{"monsters":len(source),"recharge_actions":recharges,
                      "spellcasting_monsters":spellcasters,
                      "grapple_escape_records":grapple_count}
+
+def check_conditional_attack_damage(source,compiled,expected_bloodied=13,expected_manual=5):
+    """Ensure alternate attack damage is selected or the action stays manual.
+
+    A second damage expression is not automatically additive. This pins the
+    Bloodied branches used by the runtime and requires other alternate/extra
+    damage clauses to remain explicitly manual until their condition is modeled.
+    """
+    by_id={m["id"]:m for m in compiled}
+    errors=[]; bloodied_count=0; manual_count=0
+    bloodied_status=re.compile(r"\{@status\s+Bloodied(?:\|[^}]*)?\}",re.I)
+    damage=re.compile(r"\{@damage\s+([^}]+)\}",re.I)
+    alternate=re.compile(r"(?:,\s*or|—or)\s*\d+\s*\(\{@damage\s+([^}]+)\}\)",re.I)
+    suffix=re.compile(r"^[\s—-]*plus\s+\d+\s*\(\{@damage\s+([^}]+)\}\)\s+([A-Za-z]+)\s+damage\b",re.I)
+    for monster in source:
+        dst=by_id.get(monster["name"],{})
+        for slot,action in enumerate(monster.get("action",[])):
+            entries=action.get("entries",[])
+            entry=" ".join(x for x in entries if isinstance(x,str))
+            compiled_actions=dst.get("actions",[])
+            compiled_action=compiled_actions[slot] if slot<len(compiled_actions) else {}
+            status=bloodied_status.search(entry)
+            alt=alternate.search(entry)
+            if status and alt:
+                bloodied_count+=1
+                expressions=damage.findall(entry)
+                if len(expressions)<2 or expressions[1].strip()!=alt.group(1).strip():
+                    errors.append(f"{monster['name']}:{action['name']}:BLOODIED_SOURCE_BRANCH_SHAPE")
+                    continue
+                tail=entry[status.end():]
+                extra=suffix.search(tail)
+                extra_expr=extra.group(1).strip() if extra else ""
+                expected_base=expressions[0].strip()+(" + "+extra_expr if extra_expr else "")
+                expected_alt=expressions[1].strip()+(" + "+extra_expr if extra_expr else "")
+                base_match=re.search(r"\{@damage\s+"+re.escape(expressions[0])+r"\}\)\s*([A-Za-z]+)\s+damage",entry,re.I)
+                extra_type=extra.group(2).lower() if extra else ""
+                expected_type=(base_match.group(1).lower() if base_match else "")
+                if extra_type: expected_type += " + "+extra_type
+                if compiled_action.get("damage")!=expected_base:
+                    errors.append(f"{monster['name']}:{action['name']}:BASE_DAMAGE:{compiled_action.get('damage')}!={expected_base}")
+                if compiled_action.get("damage_bloodied")!=expected_alt:
+                    errors.append(f"{monster['name']}:{action['name']}:BLOODIED_DAMAGE:{compiled_action.get('damage_bloodied')}!={expected_alt}")
+                if compiled_action.get("damage_type","").lower()!=expected_type:
+                    errors.append(f"{monster['name']}:{action['name']}:BLOODIED_DAMAGE_TYPE:{compiled_action.get('damage_type')}!={expected_type}")
+                source_requires_manual=("{@condition Grappled" in entry or "{@variantrule Advantage" in entry)
+                if bool(compiled_action.get("manual_rider_resolution_required",False))!=source_requires_manual:
+                    errors.append(f"{monster['name']}:{action['name']}:BLOODIED_OTHER_RIDER_MANUAL_FLAG")
+            elif alt:
+                manual_count+=1
+                if not compiled_action.get("manual_rider_resolution_required",False):
+                    errors.append(f"{monster['name']}:{action['name']}:UNMODELED_ALTERNATE_DAMAGE_NOT_MANUAL")
+            if re.search(r"\bif\b.{0,220}\b(?:takes|deals) an extra\s+\d+\s*\(\{@damage",entry,re.I) and \
+               not compiled_action.get("manual_rider_resolution_required",False):
+                errors.append(f"{monster['name']}:{action['name']}:CONDITIONAL_EXTRA_DAMAGE_NOT_MANUAL")
+    if bloodied_count!=expected_bloodied: errors.append(f"BLOODIED_BRANCH_TOTAL:{bloodied_count}:{expected_bloodied}")
+    if manual_count!=expected_manual: errors.append(f"UNMODELED_ALTERNATE_DAMAGE_TOTAL:{manual_count}:{expected_manual}")
+    return errors,{"source_bloodied_attack_branches":bloodied_count,
+                   "source_alternate_attack_branches_manual":manual_count}
 
 def usage_rows(source):
     out=[]
@@ -378,11 +443,13 @@ def check(project, bestiary_bytes, book_bytes):
         raise ValueError("XMM_132_SPELLCASTING_USAGE_MISMATCH")
 
     monster_errors,totals=check_monsters(src,index,compiled,attack_contracts)
+    branch_errors,branch_totals=check_conditional_attack_damage(src,compiled)
     save_errors,save_count=check_save_damage_actions(src,save_damage_rows)
     section_errors=check_book(book,bookrows)
-    if monster_errors or section_errors or save_errors:
+    if monster_errors or branch_errors or section_errors or save_errors:
         raise ValueError("XMM_SOURCE_MISMATCH:"+json.dumps(
             {"monsters":monster_errors[:20],"monster_count":len(monster_errors),
+             "conditional_attack_damage":branch_errors[:20],"conditional_attack_damage_count":len(branch_errors),
              "sections":section_errors[:20],"section_count":len(section_errors),
              "save_damage":save_errors[:20],"save_damage_count":len(save_errors)}))
     return {"format":"XMM_INDEPENDENT_SOURCE_MATCH_V1","source_commit":PIN,
@@ -396,6 +463,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_trait_contracts_compared":len(traitrows),
         "source_trait_families_compared":len({r["kind"] for r in traitrows}),
         "source_save_damage_actions_compared":save_count,
+        **branch_totals,
         "source_field_and_catalog_gate_pass":True,
         "full_monster_combat_automation_certified":False}
 

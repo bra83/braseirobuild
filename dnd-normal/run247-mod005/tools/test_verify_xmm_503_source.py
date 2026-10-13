@@ -114,6 +114,31 @@ class XmmIndependentSourceTests(unittest.TestCase):
         errors,_=xmm.check_save_damage_actions(source,[row],1)
         self.assertEqual(["Test Dragon:Fire Breath:SOURCE_NOT_SIMPLE_SAVE_FOR_HALF",
                           "SAVE_DAMAGE_RECORD_COUNT:0"],errors)
+    def test_bloodied_damage_branch_matches_source_and_is_not_summed(self):
+        source=[{"name":"Blood Hawk","action":[{"name":"Beak","entries":[
+          "{@atkr m} {@hit 4}, reach 5 ft. {@h}4 ({@damage 1d4 + 2}) Piercing damage, "
+          "or 6 ({@damage 1d8 + 2}) Piercing damage if the target is {@status Bloodied|XPHB}."]}]}]
+        compiled=[{"id":"Blood Hawk","actions":[{"name":"Beak","damage":"1d4 + 2",
+          "damage_bloodied":"1d8 + 2","damage_type":"piercing",
+          "manual_rider_resolution_required":False}]}]
+        errors,counts=xmm.check_conditional_attack_damage(source,compiled,1,0)
+        self.assertEqual([],errors);self.assertEqual(1,counts["source_bloodied_attack_branches"])
+        compiled[0]["actions"][0]["damage_bloodied"]="1d4 + 2 + 1d8 + 2"
+        errors,_=xmm.check_conditional_attack_damage(source,compiled,1,0)
+        self.assertTrue(any("BLOODIED_DAMAGE:" in e for e in errors))
+    def test_unmodeled_conditional_damage_must_remain_manual(self):
+        source=[{"name":"Goat","action":[{"name":"Ram","entries":[
+          "{@atkr m} {@hit 2}, reach 5 ft. {@h}1 Bludgeoning damage, or 2 "
+          "({@damage 1d4}) Bludgeoning damage if the goat moved 20+ feet straight "
+          "toward the target immediately before the hit."]}]}]
+        compiled=[{"id":"Goat","actions":[{"name":"Ram","damage":"1",
+          "damage_type":"bludgeoning","manual_rider_resolution_required":True,
+          "damage_alternative_expression":"1d4"}]}]
+        errors,counts=xmm.check_conditional_attack_damage(source,compiled,0,1)
+        self.assertEqual([],errors);self.assertEqual(1,counts["source_alternate_attack_branches_manual"])
+        compiled[0]["actions"][0]["manual_rider_resolution_required"]=False
+        errors,_=xmm.check_conditional_attack_damage(source,compiled,0,1)
+        self.assertIn("Goat:Ram:UNMODELED_ALTERNATE_DAMAGE_NOT_MANUAL",errors)
     def test_not_503_is_not_success(self):
         with self.assertRaises(ValueError):xmm.check_monsters([],[],[])
 if __name__=="__main__":unittest.main()

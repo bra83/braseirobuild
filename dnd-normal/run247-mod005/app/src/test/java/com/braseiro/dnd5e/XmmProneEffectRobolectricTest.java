@@ -162,6 +162,31 @@ public final class XmmProneEffectRobolectricTest {
         applySourceProneRider(RuntimeEnvironment.getApplication(),rider,28,true);
     }
 
+    @Test public void unsupportedXmmConditionalAttackDoesNotCommitDamageOrSpendAction()throws Exception {
+        assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
+        Context context=RuntimeEnvironment.getApplication();
+        String dbName="xmm_manual_attack_"+Long.toHexString(System.nanoTime())+".db";
+        AppDb db=new AppDb(context,dbName);
+        try {
+            db.setActiveMapProfile("dnd");
+            long actor=db.addCombatant("XMM Mimic",20,58,58,12,"",false);
+            long target=db.addCombatant("XMM Manual Target",10,40,40,12,"",true);
+            bind(db,actor,"Mimic",null);
+            db.setCombatRunning(true);assertEquals(actor,db.nextTurn().optLong("id"));
+            new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
+            position(db,actor,2,2);position(db,target,3,2);
+            JSONObject beforeActor=db.getCombatant(actor),beforeTarget=db.getCombatant(target);
+            JSONObject result=db.applyCompiledStatblockAttack(actor,target,"Mimic","Bite",
+                20,0,5,0,"ui-monster-xmm-manual-conditional-block");
+            assertEquals("unresolved_attack_hit_rider_requires_typed_handler",
+                result.optString("statblock_attack_blocked"));
+            assertEquals(beforeTarget.optInt("hp"),db.getCombatant(target).optInt("hp"));
+            assertTrue(new JSONObject(db.getCombatant(actor).optString("resources_json","{}"))
+                .optBoolean("action_available",false));
+            assertEquals(beforeActor.optInt("hp"),db.getCombatant(actor).optInt("hp"));
+        } finally {db.close();context.deleteDatabase(dbName);}
+    }
+
     @Test public void everySimpleSourceProneRiderAppliesThroughTheCombatTransaction()throws Exception {
         assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
         JSONArray rows=Xmm2025AttackConditionEngine.catalog();int prone=0,applied=0,manual=0;
