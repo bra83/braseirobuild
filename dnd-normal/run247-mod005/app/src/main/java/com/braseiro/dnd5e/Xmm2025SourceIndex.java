@@ -516,13 +516,19 @@ public final class Xmm2025SourceIndex {
   "{\"id\":\"Zombie\",\"page\":346,\"ptr\":\"/monster/502\",\"type\":\"undead\",\"cr\":\"1/4\",\"ac\":8,\"hp\":15,\"formula\":\"2d8 + 6\",\"abilities\":{\"str\":13,\"dex\":6,\"con\":16,\"int\":3,\"wis\":6,\"cha\":5},\"habitats\":[\"planar, shadowfell\",\"underdark\",\"urban\"],\"group\":\"\",\"counts\":{\"traits\":1,\"actions\":1,\"bonus\":0,\"reaction\":0,\"legendary\":0,\"spells\":0},\"recharges\":[],\"spells\":[]}"
  };
  private static final Map<String,JSONObject> INDEX=new LinkedHashMap<>();
- static {for(String s:RAW){JSONObject row=new JSONObject(s);
-   if(INDEX.put(row.optString("id"),row)!=null)throw new IllegalStateException("DUPLICATE_XMM");
- }if(INDEX.size()!=503)throw new IllegalStateException("XMM_503_NOT_INDEXED");}
+ static {try {
+   for(String s:RAW){JSONObject row=new JSONObject(s);
+     if(INDEX.put(row.optString("id"),row)!=null)throw new IllegalStateException("DUPLICATE_XMM");
+   }
+   if(INDEX.size()!=503)throw new IllegalStateException("XMM_503_NOT_INDEXED");
+ }catch(Exception e){throw new ExceptionInInitializerError(e);}}
  private Xmm2025SourceIndex(){}
  public static int size(){return INDEX.size();}
  public static JSONArray ids(){JSONArray out=new JSONArray();for(String id:INDEX.keySet())out.put(id);return out;}
- public static JSONObject get(String id){JSONObject r=INDEX.get(id);return r==null?new JSONObject():new JSONObject(r.toString());}
+ public static JSONObject get(String id){JSONObject r=INDEX.get(id);
+   if(r==null)return new JSONObject();
+   try{return new JSONObject(r.toString());}catch(Exception e){return new JSONObject();}
+ }
  public static JSONObject enrich(JSONObject stat)throws Exception {
   String id=stat.getString("id");JSONObject ref=get(id);
   if(ref.length()==0)throw new IllegalArgumentException("XMM_SOURCE_MISSING:"+id);

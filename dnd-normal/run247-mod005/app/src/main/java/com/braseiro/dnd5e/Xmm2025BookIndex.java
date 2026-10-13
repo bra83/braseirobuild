@@ -49,9 +49,12 @@ public final class Xmm2025BookIndex {
   "{\"key\":\"ch_4:sec_4_0\",\"title\":\"Credits\",\"pointer\":\"/bookData/0/data/4\",\"page\":2,\"editorial_only\":true}"
  };
  private static final Map<String,JSONObject> SECTIONS=new LinkedHashMap<>();
- static {for(String s:RAW){JSONObject x=new JSONObject(s);
-   if(SECTIONS.put(x.optString("key"),x)!=null)throw new IllegalStateException("DUPLICATE_XMM_SECTION");
- }if(SECTIONS.size()!=36)throw new IllegalStateException("XMM_36_MISSING");}
+ static {try {
+   for(String s:RAW){JSONObject x=new JSONObject(s);
+     if(SECTIONS.put(x.optString("key"),x)!=null)throw new IllegalStateException("DUPLICATE_XMM_SECTION");
+   }
+   if(SECTIONS.size()!=36)throw new IllegalStateException("XMM_36_MISSING");
+ }catch(Exception e){throw new ExceptionInInitializerError(e);}}
  private Xmm2025BookIndex(){}
  public static int count(){return SECTIONS.size();}
  public static JSONObject section(String chapter,String id) throws Exception {
