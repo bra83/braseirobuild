@@ -424,7 +424,7 @@ def test_companion_branch_ids_are_executable_and_ekundayo_matches_primary_guide(
         assert all(b.get("description") and b.get("feature_unlocked") for b in branches)
     engine=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerCompanionSemantics.java").read_text(encoding="utf-8")
     assert 'currentProgress.optJSONArray("branches")' in engine
-    assert 'selected.optString("branch_key")' in engine
+    assert 'candidate.optString("branch_key")' in engine
     assert 'if(selected==null)throw new IllegalArgumentException' in engine
     assert 'boolean rewardsCertified=currentProgress.optBoolean("automatic_rewards_compiled",false)' in engine
     assert 'if(!declared)throw new IllegalArgumentException' in engine
