@@ -26,6 +26,15 @@
    `telepathy` exige distância fornecida dentro de 10×nível; nova ação `mind_link_reply` exige confirmação de Magic action, alvo, distância e apresenta duração de 60 minutos (expiração ainda requer controle externo).
 4. `Eberron2025KalashtarSourceTest`: testes com distâncias no limite, fora do limite, falta de dado e nova ação.
 
+## RHW 2026 — Dark Gift Touch of Death (página 35)
+- Mesmo blob imutável de feats RHW (`99b18fd68c050cbc6b5a8d2e1f6da3a5c175ec08`).
+- Regra consultada: `Touch of Death` / `Death Touch` e `Pull of the Grave`.
+- Código novo em `RavenloftHorrorsWithinRulesEngine.resolveCharacterAction`:
+  `touch_of_death_chill_touch` (confirmação explícita, sem componentes e resistência necrótica ignorada) e
+  `touch_of_death_death_save` (desvantagem com dois d20 fornecidos; vantagem cancela e exige somente um d20).
+- Teste `Ravenloft2026TouchOfDeathSourceTest` valida três casos e roll inválido.
+- **Importante:** só há prévia de resultado; o motor central ainda aplica o estado do death save. Não atribuir commit de salvamento à prévia.
+
 ## Resultado ainda NÃO afirmado
 
 O workflow BRELGA para estes SHAs precisa concluir com XML de teste verde. Essas provas abrangem os **comportamentos indicados**, não todo o capítulo de RHW/EFA nem todos os 483 IDs. O índice de 483 seções e suas ocorrências no JSON está em `docs/SOURCE_BOOK_JSON_ANCHORS_483_20261013.csv` e exige comparação de comportamento por seção.
