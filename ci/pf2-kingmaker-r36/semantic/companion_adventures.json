@@ -1445,19 +1445,39 @@
               {
                 "check_id": "tristian_research_cult",
                 "skill": "Ocultismo",
-                "alt_skill": "Diplomacia",
                 "dc": 25,
-                "description": "Pesquisar o Reino dos Purificados na capital (Ocultismo CD 25, Diplomacia CD 27, Sociedade CD 29) até 8+ Pontos de Pesquisa."
+                "alternate_skill_dcs": [
+                  {
+                    "skill": "Diplomacia",
+                    "dc": 27
+                  },
+                  {
+                    "skill": "Sociedade",
+                    "dc": 29
+                  }
+                ],
+                "duration_hours": 4,
+                "description": "Pesquisar o Reino dos Purificados na capital; uma falha crítica reduz a Contagem da Maldição em 1."
               },
               {
                 "check_id": "tristian_confront_talbot",
-                "skill": "Dissimulação",
-                "alt_skill": "Diplomacia",
+                "skill": "Enganação",
                 "dc": 25,
-                "description": "Confrontar o recrutador Talbot (Dissimulação CD 25, Diplomacia CD 27, Intimidação CD 29) para descobrir a localização do Santuário."
+                "alternate_skill_dcs": [
+                  {
+                    "skill": "Diplomacia",
+                    "dc": 27
+                  },
+                  {
+                    "skill": "Intimidação",
+                    "dc": 29
+                  }
+                ],
+                "description": "Confrontar um recrutador descoberto após 8 Pontos de Pesquisa; apenas sucesso crítico revela imediatamente o santuário."
               }
             ],
-            "enemies": []
+            "enemies": [],
+            "source_ref": "Kingmaker Companion Guide pp.73-75"
           },
           {
             "scene_key": "cg_tristian_d1_d4_outer_sanctuary",
@@ -1670,6 +1690,64 @@
             ],
             "feature_unlocked": "companion_boon:tristian_celestial_wings"
           }
+        ],
+        "curse_rule": {
+          "source_ref": "Kingmaker Companion Guide pp.73-75",
+          "starting_countdown": 20,
+          "per_idle_24_hours": -1,
+          "per_active_24_hours": 0,
+          "per_critical_failure_research": -1,
+          "per_critical_failure_confront": -1,
+          "per_sanctum_rest": -1,
+          "curse_at_zero": true,
+          "curse_save": "Fortitude DC 27",
+          "curse_conditions": [
+            "clumsy 1",
+            "drained 1",
+            "enfeebled 1",
+            "stupefied 1"
+          ],
+          "repeat_every_hours_if_active": 24
+        },
+        "research_rule": {
+          "source_ref": "Kingmaker Companion Guide pp.74-75",
+          "hours_per_research": 4,
+          "investigation_checks": [
+            {
+              "skill": "Ocultismo",
+              "dc": 25
+            },
+            {
+              "skill": "Diplomacia",
+              "dc": 27
+            },
+            {
+              "skill": "Sociedade",
+              "dc": 29
+            }
+          ],
+          "research_points_to_find_talbot": 8,
+          "recruiter_dc": [
+            {
+              "skill": "Enganação",
+              "dc": 25
+            },
+            {
+              "skill": "Diplomacia",
+              "dc": 27
+            },
+            {
+              "skill": "Intimidação",
+              "dc": 29
+            }
+          ],
+          "critical_recruiter_success_reveals_sanctum": true,
+          "recruiter_success_followup_dc_modifier": -2,
+          "recruiter_failure_lockout_hours": 24,
+          "recruiter_critical_failure_new_research_points_required": 2
+        },
+        "metadata_source_verified": [
+          "Kingmaker Companion Guide pp.73-75: Curse Countdown 20 decresce até 0; pesquisa (4h), CDs 25/27/29, 8 pontos revelam recrutador"
         ]
       }
     },
