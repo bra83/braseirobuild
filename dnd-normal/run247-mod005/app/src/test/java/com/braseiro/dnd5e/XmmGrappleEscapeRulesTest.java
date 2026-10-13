@@ -10,6 +10,7 @@ public final class XmmGrappleEscapeRulesTest {
     @Test public void eachSimpleXmmGrappleIsTypedAndAdditionalEffectsStayManual()throws Exception{
         assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
         JSONArray rows=Xmm2025AttackConditionEngine.catalog();int grapples=0,manual=0,executable=0;
+        String[] sizes={"Tiny","Small","Medium","Large","Huge","Gargantuan"};
         for(int i=0;i<rows.length();i++){
             JSONObject row=rows.getJSONObject(i);if(!"grappled".equals(row.optString("condition")))continue;
             grapples++;String monster=row.getString("id"),name=row.getString("name");
@@ -22,10 +23,15 @@ public final class XmmGrappleEscapeRulesTest {
                 compiled.optString("condition_max_target_size"));
             if(valid){
                 executable++;
-                assertTrue(Xmm2025GrappleEscapeRules.targetEligible(monster,compiled,row.getString("size")));
-                assertTrue(Xmm2025GrappleEscapeRules.targetEligible(monster,compiled,
-                    compiled.optString("condition_max_target_size")));
-                assertFalse(Xmm2025GrappleEscapeRules.targetEligible(monster,compiled,"Gargantuan"));
+                int maximum=-1;String declared=compiled.optString("condition_max_target_size");
+                for(int sizeIndex=0;sizeIndex<sizes.length;sizeIndex++){
+                    if(sizes[sizeIndex].toLowerCase(java.util.Locale.ROOT).equals(declared))maximum=sizeIndex;
+                }
+                assertTrue(monster+" / "+name+" has a valid maximum size",maximum>=0);
+                for(int sizeIndex=0;sizeIndex<sizes.length;sizeIndex++){
+                    assertEquals(monster+" / "+name+" / "+sizes[sizeIndex],sizeIndex<=maximum,
+                        Xmm2025GrappleEscapeRules.targetEligible(monster,compiled,sizes[sizeIndex]));
+                }
             }else manual++;
         }
         assertEquals(36,grapples);assertEquals(20,manual);assertEquals(16,executable);
