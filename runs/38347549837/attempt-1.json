@@ -1,0 +1,21 @@
+{
+  "format": "BRASEIRO_DND_GRADLE_XML_EVIDENCE_V1",
+  "source_sha": "989a2bb7dd6d731a4f2f7a9aa5a22352630a9762",
+  "workflow_run": 38347549837,
+  "workflow_attempt": 1,
+  "run_url": "https://github.com/bra83/braseirobuild/actions/runs/38347549837",
+  "suite_count": 0,
+  "xml_directory_present": false,
+  "evidence_complete": false,
+  "totals": {
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "all_tests_passed": false,
+  "xml_sha256": {},
+  "xml_files": {},
+  "editorial_483": null,
+  "note": "Automated Robolectric/Gradle tests and individual structural editorial audit; no claim of semantic certification or physical Android testing."
+}
