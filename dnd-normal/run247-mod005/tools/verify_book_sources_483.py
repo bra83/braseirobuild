@@ -24,6 +24,49 @@ SOURCE_REPOSITORY = "5etools-mirror-3/5etools-src"
 SOURCE_COMMIT = "8c026b807fac21862a309379a0c3228a0683198b"
 BOOKS = {"XMM", "XSAC", "FRHOF", "FRAIF", "EFA", "AU", "RHW", "ABH", "LFL", "NF"}
 
+# Reviewed against the dereferenced source bodies, not inferred from headings.
+# Non-gameplay production credits and pure bibliography can be NOT_APPLICABLE.
+# Reader's guides, canonical timelines and pronunciation tables remain active.
+EDITORIAL_EXCLUSIONS = {
+    ("XMM", "ch_4", "sec_4_0"): "STAFF_CREDITS",
+    ("FRHOF", "ch_0", "sec_0_8"): "CROSS_BOOK_REFERENCES",
+    ("FRHOF", "ch_8", "sec_8_0"): "STAFF_CREDITS",
+    ("FRAIF", "ch_0", "sec_0_2"): "CROSS_BOOK_REFERENCES",
+    ("FRAIF", "ch_11", "sec_11_0"): "STAFF_CREDITS",
+    ("EFA", "ch_10", "sec_10_0"): "STAFF_CREDITS",
+    ("AU", "ch_8", "sec_8_0"): "STAFF_CREDITS",
+    ("AU", "ch_8", "sec_8_1"): "STAFF_CREDITS",
+    ("RHW", "ch_7", "sec_7_0"): "STAFF_CREDITS",
+    ("RHW", "ch_7", "sec_7_1"): "STAFF_CREDITS",
+}
+
+
+def valid_editorial_exclusion(key, matrix_row, ledger_row, source_row) -> bool:
+    """Only ten individually reviewed non-image entries can be non-rules.
+
+    Requires a pinned source locator and source-body classification in the
+    ledger. This never certifies implementation of gameplay sections.
+    """
+    reason = EDITORIAL_EXCLUSIONS.get(key)
+    if reason is None:
+        return False
+    note = ledger_row.get("review_note", "")
+    marker = f"STAGE01_SOURCE_CONTENT_REVIEW:{reason};"
+    return all((
+        matrix_row.get("content_type") == "editorial_metadata",
+        matrix_row.get("verification_result") == "NOT_APPLICABLE",
+        ledger_row.get("status") == "NOT_APPLICABLE",
+        ledger_row.get("actual_result") == "NON_RULE_EDITORIAL_REVIEWED",
+        ledger_row.get("expected_behavior", "").startswith("No game action required;"),
+        note.startswith(marker),
+        source_row["source_git_blob_sha1"] in note,
+        source_row["source_file"] in note,
+        source_row["source_commit"] in matrix_row.get("evidence_of_access", "")
+            or source_row["source_git_blob_sha1"] in matrix_row.get("evidence_of_access", ""),
+        ledger_row.get("rights_basis") == "REVIEW_REQUIRED",
+    ))
+
+
 
 def normalized(value: str) -> str:
     # Same conservative matching used for the verified title-only source map:
@@ -147,16 +190,26 @@ def verify(project: Path, source_dir: Path | None = None) -> dict:
                 problems.append((k, "IMAGE_NOT_EXCLUDED_FROM_RULES"))
                 continue
         else:
-            if mapped[k]["content_type"] == "illustration_caption" or accepted[k]["status"] == "NOT_APPLICABLE":
-                problems.append((k, "NONIMAGE_WRONGLY_EXCLUDED"))
+            if mapped[k]["content_type"] == "illustration_caption":
+                problems.append((k, "NONIMAGE_WRONGLY_TAGGED_AS_ILLUSTRATION"))
+                continue
+            if accepted[k]["status"] == "NOT_APPLICABLE":
+                if not valid_editorial_exclusion(k, mapped[k], accepted[k], row):
+                    problems.append((k, "NONIMAGE_WRONGLY_EXCLUDED"))
+                    continue
+            elif k in EDITORIAL_EXCLUSIONS:
+                problems.append((k, "REVIEWED_EDITORIAL_STATUS_REGRESSED"))
                 continue
         counts[book] += 1
         types[source_type] += 1
 
     if problems:
         raise ValueError("SOURCE_POINTERS_FAILED: " + json.dumps(problems[:20], ensure_ascii=False))
-    if sum(counts.values()) != 483 or types["image"] != 46:
-        raise ValueError("SOURCE_PROVENANCE_INCOMPLETE_OR_IMAGE_COUNT_CHANGED")
+    editorial_count = sum(1 for k, row in accepted.items()
+                          if k in EDITORIAL_EXCLUSIONS and row["status"] == "NOT_APPLICABLE")
+    if (sum(counts.values()) != 483 or types["image"] != 46 or
+            editorial_count != len(EDITORIAL_EXCLUSIONS)):
+        raise ValueError("SOURCE_PROVENANCE_INCOMPLETE_OR_NONRULE_COUNT_CHANGED")
     return {
         "format": "DND_PINNED_SOURCE_VERIFICATION_V1",
         "source_repository": SOURCE_REPOSITORY,
@@ -167,6 +220,8 @@ def verify(project: Path, source_dir: Path | None = None) -> dict:
         "counts_by_book": dict(counts),
         "counts_by_type": dict(types),
         "non_rule_illustrations": types["image"],
+        "non_rule_editorial": editorial_count,
+        "non_rule_total": types["image"] + editorial_count,
         "source_title_provenance_passed": True,
         "semantics_against_original_publisher_verified": False,
         "game_runtime_semantics_certified": False,
