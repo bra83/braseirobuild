@@ -16,6 +16,7 @@ JAVA_BOOK="app/src/main/java/com/braseiro/dnd5e/Xmm2025BookIndex.java"
 JAVA_SPELLS="app/src/main/java/com/braseiro/dnd5e/Xmm2025SpellUsageIndex.java"
 JAVA_TRAITS="app/src/main/java/com/braseiro/dnd5e/Xmm2025TraitMechanicsEngine.java"
 JAVA_RUNTIME="app/src/main/java/com/braseiro/dnd5e/Xmm2025CompiledBestiaryEngine.java"
+JAVA_ATTACK_CONDITIONS="app/src/main/java/com/braseiro/dnd5e/Xmm2025AttackConditionEngine.java"
 LITERAL=re.compile(r'^\s*("(?:\\.|[^"\\])*")\s*,?\s*$',re.M)
 RCH=re.compile(r'\s*\{@recharge(?: (\d))?\}')
 SP=re.compile(r'\{@spell ([^|}]+)')
@@ -58,38 +59,55 @@ def recharge_rows(source):
                             "min":int(matched.group(1) or "6")})
     return out
 
-def check_ankheg_bite_source(source, compiled):
-    """Check one non-save on-hit escape-DC rider against its pinned source."""
-    source_row=next((x for x in source if x.get("name")=="Ankheg"),None)
-    compiled_row=next((x for x in compiled if x.get("id")=="Ankheg"),None)
-    if source_row is None or compiled_row is None:
-        return ["ANKHEG_BITE:MISSING_CREATURE"]
-    src=next((x for x in source_row.get("action",[]) if x.get("name")=="Bite"),None)
-    dst=next((x for x in compiled_row.get("actions",[]) if x.get("name")=="Bite"),None)
-    if src is None or dst is None:
-        return ["ANKHEG_BITE:MISSING_ACTION"]
-    text=json.dumps(src.get("entries",[]),ensure_ascii=False)
-    required=("{@hit 5}","reach 5 ft.","2d6 + 3","1d6","Large or smaller",
-              "Grappled","escape {@dc 13}")
-    if any(term not in text for term in required):
-        return ["ANKHEG_BITE:PINNED_SOURCE_SEMANTICS_CHANGED"]
+def check_grapple_escape_riders(source, compiled, contracts, expected_count=11):
+    """Check source-pinned grapple escape DCs are never compiled as saves."""
     problems=[]
-    if dst.get("to_hit")!=5 or dst.get("reach_ft")!=5 or dst.get("damage")!="2d6 + 3 + 1d6":
-        problems.append("ANKHEG_BITE:ATTACK_OR_DAMAGE")
-    if dst.get("escape_dc")!=13 or dst.get("condition_on_hit")!="grappled" or \
-       dst.get("condition_max_target_size")!="large" or "save_dc" in dst or \
-       "save_ability" in dst or "condition_on_fail" in dst:
-        problems.append("ANKHEG_BITE:ESCAPE_DC_MISCLASSIFIED")
-    return problems
+    checked=0
+    for rider in contracts:
+        if rider.get("condition")!="grappled":
+            continue
+        monster=rider["id"]
+        source_row=next((x for x in source if x.get("name")==monster),None)
+        compiled_row=next((x for x in compiled if x.get("id")==monster),None)
+        if source_row is None or compiled_row is None:
+            problems.append(monster+":GRAPPLE_CREATURE_MISSING")
+            continue
+        slot=rider["slot"]
+        try:
+            src=source_row["action"][slot]
+            dst=compiled_row["actions"][slot]
+        except (KeyError,IndexError,TypeError):
+            problems.append(monster+":"+rider["name"]+":GRAPPLE_ACTION_MISSING")
+            continue
+        if src.get("name")!=rider.get("name") or dst.get("name")!=rider.get("name"):
+            problems.append(monster+":"+rider["name"]+":GRAPPLE_ACTION_SLOT_MISMATCH")
+            continue
+        text=json.dumps(src.get("entries",[]),ensure_ascii=False)
+        dc=int(rider["dc"])
+        if "{@condition Grappled" not in text or ("escape {@dc %d}"%dc) not in text or \
+           "saving throw" in text.lower() or "escape" not in text.lower():
+            problems.append(monster+":"+rider["name"]+":PINNED_ESCAPE_SOURCE_CHANGED")
+            continue
+        if dst.get("escape_dc")!=dc or dst.get("condition_max_target_size")!=rider.get("size","").lower() or \
+           "grappled" not in dst.get("condition_on_hit","").lower() or "save_dc" in dst or \
+           "save_ability" in dst or "condition_on_fail" in dst:
+            problems.append(monster+":"+rider["name"]+":ESCAPE_DC_MISCLASSIFIED")
+        else:
+            checked+=1
+    if checked!=expected_count:
+        problems.append("GRAPPLE_ESCAPE_RECORD_COUNT:"+str(checked))
+    return problems,checked
 
-def check_monsters(source,index,compiled):
+
+def check_monsters(source,index,compiled,attack_contracts=None):
     problems=[]
     if len(source)!=503 or len(index)!=503 or len(compiled)!=503:
         raise ValueError(f"XMM_NOT_503:{len(source)}:{len(index)}:{len(compiled)}")
     if len({x["name"] for x in source})!=503 or len({x["id"] for x in index})!=503:
         raise ValueError("XMM_DUPLICATE_MONSTERS")
     recharges,spellcasters=0,0
-    problems.extend(check_ankheg_bite_source(source,compiled))
+    grapple_errors,grapple_count=check_grapple_escape_riders(source,compiled,attack_contracts or [])
+    problems.extend(grapple_errors)
     for i,(s,e,c) in enumerate(zip(source,index,compiled)):
         monster=s["name"]
         if not(e["id"]==c["id"]==monster and e["ptr"]=="/monster/"+str(i)):
@@ -134,7 +152,8 @@ def check_monsters(source,index,compiled):
     if recharges!=120 or spellcasters!=132:
         problems.append(f"SOURCE_TOTALS:{recharges}:{spellcasters}")
     return problems,{"monsters":len(source),"recharge_actions":recharges,
-                     "spellcasting_monsters":spellcasters}
+                     "spellcasting_monsters":spellcasters,
+                     "grapple_escape_records":grapple_count}
 
 def usage_rows(source):
     out=[]
@@ -278,6 +297,7 @@ def check(project, bestiary_bytes, book_bytes):
     book=json.loads(book_bytes)
     index=java_rows((project/JAVA_INDEX).read_text(encoding="utf-8"))
     compiled=java_rows((project/JAVA_RUNTIME).read_text(encoding="utf-8"))
+    attack_contracts=java_rows((project/JAVA_ATTACK_CONDITIONS).read_text(encoding="utf-8"))
     bookrows=java_rows((project/JAVA_BOOK).read_text(encoding="utf-8"))
     spellrows=java_rows((project/JAVA_SPELLS).read_text(encoding="utf-8"))
     traitrows=java_rows((project/JAVA_TRAITS).read_text(encoding="utf-8"))
@@ -287,7 +307,7 @@ def check(project, bestiary_bytes, book_bytes):
     if len(spellrows)!=132 or spellrows!=expected_usage:
         raise ValueError("XMM_132_SPELLCASTING_USAGE_MISMATCH")
 
-    monster_errors,totals=check_monsters(src,index,compiled)
+    monster_errors,totals=check_monsters(src,index,compiled,attack_contracts)
     section_errors=check_book(book,bookrows)
     if monster_errors or section_errors:
         raise ValueError("XMM_SOURCE_MISMATCH:"+json.dumps(
@@ -299,6 +319,7 @@ def check(project, bestiary_bytes, book_bytes):
         "recharge_actions_compared":totals["recharge_actions"],
         "spellcasting_usage_records_compared":len(spellrows),
         "spellcaster_records_compared":totals["spellcasting_monsters"],
+        "grapple_escape_records_compared":totals["grapple_escape_records"],
         "source_trait_contracts_compared":len(traitrows),
         "source_trait_families_compared":len({r["kind"] for r in traitrows}),
         "source_field_and_catalog_gate_pass":True,

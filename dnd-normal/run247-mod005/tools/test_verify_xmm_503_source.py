@@ -54,17 +54,18 @@ class XmmIndependentSourceTests(unittest.TestCase):
                  "entries":["If the dragon fails a saving throw, it can choose to succeed instead."]}]}]
         with self.assertRaisesRegex(ValueError,"XMM_LEGENDARY_USES_NOT_PINNED"):
             xmm.trait_rows(source)
-    def test_ankheg_escape_dc_is_on_hit_not_a_saving_throw(self):
+    def test_grapple_escape_dc_is_on_hit_not_a_saving_throw(self):
         source=[{"name":"Ankheg","action":[{"name":"Bite","entries":[
-          "{@hit 5}, reach 5 ft. 10 ({@damage 2d6 + 3}) Slashing plus 3 ({@damage 1d6}) Acid. "
-          "If target Large or smaller, it has Grappled (escape {@dc 13})."]}]}]
-        compiled=[{"id":"Ankheg","actions":[{"name":"Bite","to_hit":5,"reach_ft":5,
-          "damage":"2d6 + 3 + 1d6","escape_dc":13,"condition_on_hit":"grappled",
-          "condition_max_target_size":"large"}]}]
-        self.assertEqual([],xmm.check_ankheg_bite_source(source,compiled))
+          "{@condition Grappled|XPHB}, escape {@dc 13}."],}]}]
+        compiled=[{"id":"Ankheg","actions":[{"name":"Bite","escape_dc":13,
+          "condition_on_hit":"grappled","condition_max_target_size":"large"}]}]
+        contracts=[{"id":"Ankheg","name":"Bite","slot":0,"condition":"grappled",
+          "dc":13,"size":"Large"}]
+        errors,count=xmm.check_grapple_escape_riders(source,compiled,contracts,1)
+        self.assertEqual([],errors); self.assertEqual(1,count)
         compiled[0]["actions"][0]["save_dc"]=13
-        self.assertEqual(["ANKHEG_BITE:ESCAPE_DC_MISCLASSIFIED"],
-                         xmm.check_ankheg_bite_source(source,compiled))
+        errors,_=xmm.check_grapple_escape_riders(source,compiled,contracts,1)
+        self.assertEqual(["Ankheg:Bite:ESCAPE_DC_MISCLASSIFIED","GRAPPLE_ESCAPE_RECORD_COUNT:0"],errors)
     def test_not_503_is_not_success(self):
         with self.assertRaises(ValueError):xmm.check_monsters([],[],[])
 if __name__=="__main__":unittest.main()

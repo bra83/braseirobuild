@@ -61,15 +61,15 @@ public final class MonsterActionEconomyGuard {
         if(!action.has("to_hit")||condition.isEmpty())
             return "unresolved_attack_hit_rider_requires_typed_handler";
         String canonical=CompiledMonsterActionGuard.canonicalCondition(condition);
+        if(action.has("escape_dc")&&condition.toLowerCase(Locale.ROOT).contains("grappled"))
+            return action.optInt("escape_dc",0)>0?"unsupported_grapple_escape_rider":
+                "invalid_compiled_escape_dc";
         if(canonical.isEmpty()||!canonical.equals(ConditionTokenGuard.canonical(condition)))
             return "unsupported_on_hit_condition";
         // An untimed Prone rider has an explicit stand-up recovery mechanism.
         // Never grant other conditions an indefinite duration by inference.
         if(untilStand)return !timing&&MonsterOnHitProneRules.validSource(action)?"":
             "unsupported_untimed_on_hit_rider";
-        if(action.has("escape_dc")&&"grappled".equals(canonical))
-            return action.optInt("escape_dc",0)>0?"unsupported_grapple_escape_rider":
-                "invalid_compiled_escape_dc";
         if(action.has("condition_max_target_size"))
             return "unsupported_untimed_on_hit_rider";
         try {

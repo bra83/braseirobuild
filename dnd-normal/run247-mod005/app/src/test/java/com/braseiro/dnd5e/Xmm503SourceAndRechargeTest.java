@@ -48,15 +48,22 @@ public final class Xmm503SourceAndRechargeTest {
       assertFalse(action.getBoolean("recharge_auto_rolls"));
       assertTrue(action.getBoolean("recharge_roll_required"));
    }
-   if("Ankheg".equals(id)){
-      JSONObject bite=raw.getJSONArray("actions").getJSONObject(0);
-      assertEquals("Bite",bite.getString("name"));
-      assertEquals(13,bite.getInt("escape_dc"));
-      assertFalse("escape DC must never be represented as a saving throw",bite.has("save_dc"));
-      assertEquals("grappled",bite.getString("condition_on_hit"));
-      assertEquals("large",bite.getString("condition_max_target_size"));
-      assertEquals("unsupported_grapple_escape_rider",
-         MonsterActionEconomyGuard.attackRiderBlock(bite));
+   JSONArray grappleContracts=Xmm2025AttackConditionEngine.catalog();
+   for(int i=0;i<grappleContracts.length();i++){
+      JSONObject contract=grappleContracts.getJSONObject(i);
+      if(!id.equals(contract.optString("id"))||!"grappled".equals(contract.optString("condition")))continue;
+      JSONObject action=raw.getJSONArray("actions").getJSONObject(contract.getInt("slot"));
+      assertEquals(contract.getString("name"),action.getString("name"));
+      assertEquals(contract.getInt("dc"),action.getInt("escape_dc"));
+      assertFalse("escape DC must never be represented as a saving throw",action.has("save_dc"));
+      assertFalse(action.has("save_ability"));
+      assertFalse(action.has("condition_on_fail"));
+      assertTrue(action.getString("condition_on_hit").contains("grappled"));
+      assertEquals(contract.getString("size").toLowerCase(java.util.Locale.ROOT),
+         action.getString("condition_max_target_size"));
+      assertTrue(MonsterActionEconomyGuard.attackRiderBlock(action).startsWith("unsupported_"));
+      if(action.getString("condition_on_hit").contains(","))
+         assertEquals("unsupported_grapple_escape_rider",MonsterActionEconomyGuard.attackRiderBlock(action));
    }
    assertFalse(raw.getBoolean("auto_rolls"));
    assertFalse(raw.getBoolean("full_statblock_claim"));
