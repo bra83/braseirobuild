@@ -78,12 +78,49 @@
             "environment": "wilderness_camp",
             "encounter_severity": "Moderate 11",
             "skill_checks": [
-              {"check_id": "amiri_examine_sword", "skill": "Religião", "alt_skill": "Ocultismo", "dc": 28, "description": "Identificar o espírito de Kean aprisionado na espada bastarda Grande de Amiri."},
-              {"check_id": "amiri_track_six_bears", "skill": "Sobrevivência", "dc": 28, "description": "Rastrear o acampamento da tribo dos Seis Ursos e localizar Nilak."}
+              {
+                "check_id": "amiri_examine_sword",
+                "skill": "Religião",
+                "alt_skill": "Ocultismo",
+                "dc": 28,
+                "description": "Identificar o espírito de Kean aprisionado na espada bastarda Grande de Amiri."
+              },
+              {
+                "check_id": "amiri_track_six_bears",
+                "skill": "Sobrevivência",
+                "dc": 28,
+                "description": "Rastrear o acampamento da tribo dos Seis Ursos e localizar Nilak."
+              }
             ],
             "enemies": [
-              {"npc_key": "cg_gallowdead_a1", "name": "Enforcado (Gallowdead)", "count": 2, "level": 11, "hp": 205, "ac": 31, "perception": 20, "fortitude": 23, "reflex": 18, "will": 20, "attack_bonus": 24, "damage": "2d10+12 contundente mais 2d6 negativo"},
-              {"npc_key": "cg_wight_minion", "name": "Criatura Tumular (Wight)", "count": 6, "level": 3, "hp": 50, "ac": 18, "perception": 10, "fortitude": 11, "reflex": 7, "will": 10, "attack_bonus": 12, "damage": "1d6+4 cortante mais dreno de vida"}
+              {
+                "npc_key": "cg_gallowdead_a1",
+                "name": "Enforcado (Gallowdead)",
+                "count": 2,
+                "level": 11,
+                "hp": 205,
+                "ac": 31,
+                "perception": 20,
+                "fortitude": 23,
+                "reflex": 18,
+                "will": 20,
+                "attack_bonus": 24,
+                "damage": "2d10+12 contundente mais 2d6 negativo"
+              },
+              {
+                "npc_key": "cg_wight_minion",
+                "name": "Criatura Tumular (Wight)",
+                "count": 6,
+                "level": 3,
+                "hp": 50,
+                "ac": 18,
+                "perception": 10,
+                "fortitude": 11,
+                "reflex": 7,
+                "will": 10,
+                "attack_bonus": 12,
+                "damage": "1d6+4 cortante mais dreno de vida"
+              }
             ]
           },
           {
@@ -94,11 +131,42 @@
             "environment": "cavern",
             "encounter_severity": "Moderate 11",
             "skill_checks": [
-              {"check_id": "amiri_cavern_scouting", "skill": "Percepção", "dc": 30, "description": "Detectar as aparições antes da emboscada nos túneis."}
+              {
+                "check_id": "amiri_cavern_scouting",
+                "skill": "Percepção",
+                "dc": 30,
+                "description": "Detectar as aparições antes da emboscada nos túneis."
+              }
             ],
             "enemies": [
-              {"npc_key": "cg_dread_wraith", "name": "Aparição Pavorosa (Dread Wraith)", "count": 2, "level": 9, "hp": 135, "ac": 28, "perception": 19, "fortitude": 15, "reflex": 19, "will": 21, "attack_bonus": 21, "damage": "2d8+5 negativo mais dreno CD 27"},
-              {"npc_key": "cg_warsworn", "name": "Juramentado da Guerra (Warsworn)", "count": 1, "level": 11, "hp": 210, "ac": 30, "perception": 20, "fortitude": 23, "reflex": 17, "will": 22, "attack_bonus": 24, "damage": "2d12+12 contundente"}
+              {
+                "npc_key": "cg_dread_wraith",
+                "name": "Aparição Pavorosa (Dread Wraith)",
+                "count": 2,
+                "level": 9,
+                "hp": 135,
+                "ac": 28,
+                "perception": 19,
+                "fortitude": 15,
+                "reflex": 19,
+                "will": 21,
+                "attack_bonus": 21,
+                "damage": "2d8+5 negativo mais dreno CD 27"
+              },
+              {
+                "npc_key": "cg_warsworn",
+                "name": "Juramentado da Guerra (Warsworn)",
+                "count": 1,
+                "level": 11,
+                "hp": 210,
+                "ac": 30,
+                "perception": 20,
+                "fortitude": 23,
+                "reflex": 17,
+                "will": 22,
+                "attack_bonus": 24,
+                "damage": "2d12+12 contundente"
+              }
             ]
           },
           {
@@ -109,11 +177,45 @@
             "environment": "cavern_sanctum",
             "encounter_severity": "Severe 11",
             "skill_checks": [
-              {"check_id": "amiri_kean_communion", "skill": "Diplomacia", "alt_skill": "Intimidação", "dc": 30, "description": "Acalmar a fúria de Kean e Amiri durante o confronto com Fionn."}
+              {
+                "check_id": "amiri_kean_communion",
+                "skill": "Diplomacia",
+                "alt_skill": "Intimidação",
+                "dc": 30,
+                "description": "Acalmar a fúria de Kean e Amiri durante o confronto com Fionn."
+              }
             ],
             "enemies": [
-              {"npc_key": "cg_fionn_necromancer", "name": "Fionn, Necromante Kellid", "count": 1, "level": 12, "hp": 195, "ac": 31, "perception": 21, "fortitude": 20, "reflex": 19, "will": 24, "spell_dc": 32, "spell_attack": 24, "attack_bonus": 21, "damage": "2d8+6 contundente mais 2d6 negativo"},
-              {"npc_key": "cg_gallowdead_b3", "name": "Enforcado Guardião", "count": 1, "level": 11, "hp": 205, "ac": 31, "perception": 20, "fortitude": 23, "reflex": 18, "will": 20, "attack_bonus": 24, "damage": "2d10+12 contundente"}
+              {
+                "npc_key": "cg_fionn_necromancer",
+                "name": "Fionn, Necromante Kellid",
+                "count": 1,
+                "level": 12,
+                "hp": 195,
+                "ac": 31,
+                "perception": 21,
+                "fortitude": 20,
+                "reflex": 19,
+                "will": 24,
+                "spell_dc": 32,
+                "spell_attack": 24,
+                "attack_bonus": 21,
+                "damage": "2d8+6 contundente mais 2d6 negativo"
+              },
+              {
+                "npc_key": "cg_gallowdead_b3",
+                "name": "Enforcado Guardião",
+                "count": 1,
+                "level": 11,
+                "hp": 205,
+                "ac": 31,
+                "perception": 20,
+                "fortitude": 23,
+                "reflex": 18,
+                "will": 20,
+                "attack_bonus": 24,
+                "damage": "2d10+12 contundente"
+              }
             ]
           }
         ],
@@ -126,7 +228,9 @@
             "attitude_after": "helpful",
             "available_after": true,
             "xp_awarded": 80,
-            "items_awarded": ["Espada Bastarda Grande +2 Impactante Maior Álgida Purificada de Amiri"],
+            "items_awarded": [
+              "Espada Bastarda Grande +2 Impactante Maior Álgida Purificada de Amiri"
+            ],
             "feature_unlocked": "amiri:blood_calling_kean_freed"
           },
           {
@@ -137,7 +241,9 @@
             "attitude_after": "friendly",
             "available_after": true,
             "xp_awarded": 80,
-            "items_awarded": ["Espada Bastarda Grande +2 Impactante Maior Mutável Álgida de Kean"],
+            "items_awarded": [
+              "Espada Bastarda Grande +2 Impactante Maior Mutável Álgida de Kean"
+            ],
             "feature_unlocked": "amiri:blood_calling_kean_bound"
           }
         ]
@@ -209,30 +315,164 @@
             "environment": "settlement_hall",
             "encounter_severity": "Social 6",
             "skill_checks": [
-              {"check_id": "ekundayo_feast_venue", "skill": "Sociedade", "alt_skill": "Sobrevivência", "dc": 21, "description": "Preparar o local do banquete (Taverna, Castelo ou Acampamento ao ar livre) para ganhar Pontos de Banquete."},
-              {"check_id": "ekundayo_feast_cooking", "skill": "Manufatura", "alt_skill": "Saber de Culinária", "dc": 22, "description": "Preparar o prato principal e bebidas para o banquete de Ekundayo."},
-              {"check_id": "ekundayo_feast_entertainment", "skill": "Performance", "alt_skill": "Diplomacia", "dc": 22, "description": "Conduzir brindes e histórias que honrem a memória da família de Ekundayo."}
+              {
+                "check_id": "ekundayo_feast_contribution",
+                "skill": "Perícia apropriada à contribuição",
+                "dc": 22,
+                "description": "Cada PJ contribui para o banquete com perícia apropriada; acumular 5 Victory Points conforme graus de sucesso."
+              },
+              {
+                "check_id": "ekundayo_sense_motive_ntavi",
+                "skill": "Percepção",
+                "dc": 21,
+                "description": "Perceber o interesse romântico de Ntavi e suas intenções ao falar de Amanda."
+              },
+              {
+                "check_id": "ekundayo_interrupt_ntavi",
+                "skill": "Diplomacia",
+                "alt_skills": [
+                  "Enganação",
+                  "Intimidação"
+                ],
+                "dc": 21,
+                "description": "Interromper Ntavi. Se Ekundayo for prestativo, melhore o grau do resultado em um passo. Aliados podem Ajudar."
+              }
             ],
-            "enemies": []
+            "enemies": [],
+            "source_ref": "Kingmaker Companion Guide pp.27-29"
           },
           {
             "scene_key": "cg_ekundayo_c1_c2_reaver_camp",
-            "code": "C1-C2",
-            "title": "Desfiladeiro e Covil dos Saqueadores de Gragglebeard",
+            "code": "STANDOFF",
+            "title": "Confronto na Ponte sobre o Pequeno Sellen",
             "page": 29,
-            "environment": "hills_ravine",
+            "environment": "ancient_stone_bridge_little_sellen_river",
             "encounter_severity": "Severe 6",
             "hazards": [
-              {"hazard_key": "cg_hazard_gragglebeard_rockslide", "name": "Avalanche de Pedras dos Saqueadores", "level": 5, "stealth_dc": 23, "saving_throw_type": "Reflexos", "saving_throw_dc": 22, "disable_skill": "Ladroagem", "disable_dc": 23, "damage": "4d8+10 contundente"}
+              {
+                "hazard_key": "cg_hazard_collapsing_bridge",
+                "name": "Ponte Desmoronando",
+                "level": 6,
+                "source_ref": "Kingmaker Companion Guide pp.30-31",
+                "stealth_bonus": 25,
+                "stealth_bonus_if_supports_analyzed": 0,
+                "trigger": "Um dos dois pilares restantes é destruído",
+                "knowledge_checks": [
+                  {
+                    "skill": "Saber de Engenharia",
+                    "dc": 20
+                  },
+                  {
+                    "skill": "Manufatura",
+                    "dc": 25
+                  }
+                ],
+                "support": {
+                  "ac": 21,
+                  "fortitude": 9,
+                  "reflex": 9,
+                  "hardness": 10,
+                  "hp_max": 58,
+                  "broken_threshold": 29,
+                  "hp_current": 10
+                },
+                "saving_throw_type": "Reflexos",
+                "saving_throw_dc": 24,
+                "damage": "5d6 contundente adicional por detritos (salvamento básico) para quem está sobre a ponte; queda de 9 metros",
+                "under_bridge_damage": {
+                  "critical_success": "0",
+                  "success": "2d8+9 contundente",
+                  "failure": "4d8+18 contundente; caído",
+                  "critical_failure": "8d8+18 contundente; caído e imobilizado"
+                }
+              }
             ],
             "skill_checks": [
-              {"check_id": "ekundayo_calm_hatred", "skill": "Diplomacia", "dc": 22, "description": "Convencer Ekundayo a não sacrificar a própria vida na emboscada de Ntavi."}
+              {
+                "check_id": "ekundayo_gather_information_departure",
+                "skill": "Diplomacia",
+                "dc": 20,
+                "description": "Investigar a partida de Ekundayo e Ntavi; no sucesso crítico descobre direção do Pequeno Sellen."
+              },
+              {
+                "check_id": "ekundayo_track_departure",
+                "skill": "Sobrevivência",
+                "dc": 32,
+                "alternative_dc_when_helpful": 22,
+                "description": "Rastrear a dupla; CD 22 se Ekundayo for prestativo e deixar pistas."
+              },
+              {
+                "check_id": "ekundayo_recognize_bridge_supports",
+                "skill": "Saber de Engenharia",
+                "alt_skill": "Manufatura",
+                "dc": 20,
+                "alternative_dc_for_crafting": 25,
+                "description": "Reconhecer pilares avariados da ponte."
+              }
             ],
             "enemies": [
-              {"npc_key": "cg_gragglebeard", "name": "Gragglebeard, Chefe Gigante da Colina", "count": 1, "level": 8, "hp": 150, "ac": 25, "perception": 15, "fortitude": 19, "reflex": 12, "will": 15, "attack_bonus": 20, "damage": "2d10+11 contundente"},
-              {"npc_key": "cg_ntavi", "name": "Ntavi, Caçadora Vingativa", "count": 1, "level": 7, "hp": 115, "ac": 25, "perception": 16, "fortitude": 16, "reflex": 18, "will": 14, "attack_bonus": 18, "damage": "2d8+6 cortante"},
-              {"npc_key": "cg_hill_giant_reaver", "name": "Saqueador de Gragglebeard", "count": 2, "level": 6, "hp": 110, "ac": 22, "perception": 12, "fortitude": 16, "reflex": 10, "will": 12, "attack_bonus": 17, "damage": "2d8+9 contundente"}
-            ]
+              {
+                "npc_key": "cg_gragglebeard",
+                "name": "Gragglebeard (Gigante da Colina)",
+                "count": 1,
+                "level": 7,
+                "source_ref": "Companion Guide p.30; Bestiary p.170",
+                "perception": 13,
+                "statblock_key": "hill_giant"
+              },
+              {
+                "npc_key": "cg_reaver_ogre_warrior",
+                "name": "Guerreiro Ogro",
+                "count": 4,
+                "level": 3,
+                "source_ref": "Companion Guide p.30; Bestiary p.252",
+                "perception": 5,
+                "statblock_key": "ogre_warrior"
+              },
+              {
+                "npc_key": "cg_reaver_wyvern",
+                "name": "Wyvern",
+                "count": 1,
+                "level": 6,
+                "source_ref": "Companion Guide p.30; Bestiary p.133",
+                "perception": 13,
+                "statblock_key": "wyvern"
+              }
+            ],
+            "source_ref": "Kingmaker Companion Guide pp.29-31",
+            "allies": [
+              {
+                "npc_key": "cg_ntavi",
+                "name": "Ntavi",
+                "role": "Aliada circunstancial; não é inimiga da cena",
+                "level": 6,
+                "source_ref": "Companion Guide p.30",
+                "hp": 105,
+                "ac": 23,
+                "perception": 13,
+                "fortitude": 15,
+                "reflex": 14,
+                "will": 11
+              },
+              {
+                "npc_key": "ekundayo",
+                "name": "Ekundayo",
+                "role": "Companheiro/aliado",
+                "level": 6
+              }
+            ],
+            "treasure": {
+              "silver_pieces": 25,
+              "gold_pieces": 12,
+              "items": [
+                "+1 falchion",
+                "fear gem talisman",
+                "mentalist's staff",
+                "spellguard shield"
+              ],
+              "source_ref": "Kingmaker Companion Guide p.31",
+              "awarded_only_when_found": true
+            }
           }
         ],
         "branches": [
@@ -244,7 +484,10 @@
             "attitude_after": "helpful",
             "available_after": true,
             "xp_awarded": 80,
-            "items_awarded": ["Arco Longo Composto +1 Impactante de Gragglebeard", "Colar da Lealdade do Cão de Caça"],
+            "items_awarded": [
+              "Arco Longo Composto +1 Impactante de Gragglebeard",
+              "Colar da Lealdade do Cão de Caça"
+            ],
             "feature_unlocked": "ekundayo:feast_of_feasts_peace"
           },
           {
@@ -255,9 +498,26 @@
             "attitude_after": "friendly",
             "available_after": true,
             "xp_awarded": 60,
-            "items_awarded": ["Arco Longo Composto +1 Impactante de Gragglebeard"],
+            "items_awarded": [
+              "Arco Longo Composto +1 Impactante de Gragglebeard"
+            ],
             "feature_unlocked": "ekundayo:feast_of_feasts_vengeance"
           }
+        ],
+        "feast_points_target": 5,
+        "feast_contribution_dc": 22,
+        "feast_victory_point_rules": {
+          "critical_success": 2,
+          "success": 1,
+          "failure": 0,
+          "critical_failure": -1
+        },
+        "feast_xp_if_5_victory_points": 30,
+        "feast_xp_otherwise": 10,
+        "extra_xp_if_ntavi_does_not_recruit_ekundayo": 10,
+        "interrupt_ntavi_dc": 21,
+        "metadata_source_verified": [
+          "Kingmaker Companion Guide pp.27-31: preparação do banquete, Ntavi, criaturas, ponte e tesouro"
         ]
       }
     },
@@ -327,10 +587,29 @@
             "environment": "ancient_shrine",
             "encounter_severity": "Moderate 8",
             "skill_checks": [
-              {"check_id": "jubilost_decipher_xae", "skill": "Ocultismo", "alt_skill": "Natureza", "dc": 25, "description": "Decifrar os cálculos cronológicos de Xae para abrir a fenda aos Debates."}
+              {
+                "check_id": "jubilost_decipher_xae",
+                "skill": "Ocultismo",
+                "alt_skill": "Natureza",
+                "dc": 25,
+                "description": "Decifrar os cálculos cronológicos de Xae para abrir a fenda aos Debates."
+              }
             ],
             "enemies": [
-              {"npc_key": "cg_time_dimensional_hound", "name": "Guardião Dimensional Deslocado", "count": 2, "level": 7, "hp": 115, "ac": 25, "perception": 16, "fortitude": 15, "reflex": 18, "will": 15, "attack_bonus": 18, "damage": "2d8+7 cortante"}
+              {
+                "npc_key": "cg_time_dimensional_hound",
+                "name": "Guardião Dimensional Deslocado",
+                "count": 2,
+                "level": 7,
+                "hp": 115,
+                "ac": 25,
+                "perception": 16,
+                "fortitude": 15,
+                "reflex": 18,
+                "will": 15,
+                "attack_bonus": 18,
+                "damage": "2d8+7 cortante"
+              }
             ]
           },
           {
@@ -341,12 +620,43 @@
             "environment": "first_world_amphitheater",
             "encounter_severity": "Severe 8",
             "skill_checks": [
-              {"check_id": "jubilost_debate_round_1", "skill": "Sociedade", "alt_skill": "Arcanismo", "dc": 26, "description": "Primeira rodada de debate: refutar as teses absurdas sobre cosmologia feérica."},
-              {"check_id": "jubilost_debate_round_2", "skill": "Diplomacia", "alt_skill": "Dissimulação", "dc": 26, "description": "Segunda rodada de debate: conquistar o júri feérico e o Anfitrião."},
-              {"check_id": "jubilost_debate_round_3", "skill": "Ocultismo", "alt_skill": "Performance", "dc": 28, "description": "Terceira rodada de debate: resolver o paradoxo final proposto pelo Anfitrião."}
+              {
+                "check_id": "jubilost_debate_round_1",
+                "skill": "Sociedade",
+                "alt_skill": "Arcanismo",
+                "dc": 26,
+                "description": "Primeira rodada de debate: refutar as teses absurdas sobre cosmologia feérica."
+              },
+              {
+                "check_id": "jubilost_debate_round_2",
+                "skill": "Diplomacia",
+                "alt_skill": "Dissimulação",
+                "dc": 26,
+                "description": "Segunda rodada de debate: conquistar o júri feérico e o Anfitrião."
+              },
+              {
+                "check_id": "jubilost_debate_round_3",
+                "skill": "Ocultismo",
+                "alt_skill": "Performance",
+                "dc": 28,
+                "description": "Terceira rodada de debate: resolver o paradoxo final proposto pelo Anfitrião."
+              }
             ],
             "enemies": [
-              {"npc_key": "cg_fey_debate_crasher", "name": "Sabotador Feérico Exaltado", "count": 2, "level": 8, "hp": 135, "ac": 26, "perception": 17, "fortitude": 16, "reflex": 19, "will": 17, "attack_bonus": 19, "damage": "2d8+8 perfurante mais 1d6 mental"}
+              {
+                "npc_key": "cg_fey_debate_crasher",
+                "name": "Sabotador Feérico Exaltado",
+                "count": 2,
+                "level": 8,
+                "hp": 135,
+                "ac": 26,
+                "perception": 17,
+                "fortitude": 16,
+                "reflex": 19,
+                "will": 17,
+                "attack_bonus": 19,
+                "damage": "2d8+8 perfurante mais 1d6 mental"
+              }
             ]
           }
         ],
@@ -359,7 +669,10 @@
             "attitude_after": "helpful",
             "available_after": true,
             "xp_awarded": 80,
-            "items_awarded": ["Tomo das Crônicas do Primeiro Mundo de Jubilost", "Fórmula de Elixir da Mente Lúcida Maior"],
+            "items_awarded": [
+              "Tomo das Crônicas do Primeiro Mundo de Jubilost",
+              "Fórmula de Elixir da Mente Lúcida Maior"
+            ],
             "feature_unlocked": "jubilost:inconsequent_debates_gnome_truth"
           },
           {
@@ -370,7 +683,9 @@
             "attitude_after": "helpful",
             "available_after": true,
             "xp_awarded": 80,
-            "items_awarded": ["Fórmula de Elixir da Mente Lúcida Maior"],
+            "items_awarded": [
+              "Fórmula de Elixir da Mente Lúcida Maior"
+            ],
             "feature_unlocked": "jubilost:inconsequent_debates_planar_secret"
           }
         ]
@@ -442,14 +757,48 @@
             "environment": "swamp_road",
             "encounter_severity": "Moderate 7",
             "hazards": [
-              {"hazard_key": "cg_hazard_jaggedbriar_mire", "name": "Lamaçal Engolidor de Jaggedbriar", "level": 6, "stealth_dc": 24, "saving_throw_type": "Reflexos", "saving_throw_dc": 23, "disable_skill": "Sobrevivência", "disable_dc": 23, "damage": "Submersão e imobilização no pântano"}
+              {
+                "hazard_key": "cg_hazard_jaggedbriar_mire",
+                "name": "Lamaçal Engolidor de Jaggedbriar",
+                "level": 6,
+                "stealth_dc": 24,
+                "saving_throw_type": "Reflexos",
+                "saving_throw_dc": 23,
+                "disable_skill": "Sobrevivência",
+                "disable_dc": 23,
+                "damage": "Submersão e imobilização no pântano"
+              }
             ],
             "skill_checks": [
-              {"check_id": "linzi_treasury_audit", "skill": "Sociedade", "alt_skill": "Saber de Contabilidade", "dc": 23, "description": "Rastrear a nota fiscal da prensa encomendada por Linzi."},
-              {"check_id": "linzi_track_wagon", "skill": "Sobrevivência", "dc": 23, "description": "Seguir o rastro das caixas pesadas da prensa pelo pântano."}
+              {
+                "check_id": "linzi_treasury_audit",
+                "skill": "Sociedade",
+                "alt_skill": "Saber de Contabilidade",
+                "dc": 23,
+                "description": "Rastrear a nota fiscal da prensa encomendada por Linzi."
+              },
+              {
+                "check_id": "linzi_track_wagon",
+                "skill": "Sobrevivência",
+                "dc": 23,
+                "description": "Seguir o rastro das caixas pesadas da prensa pelo pântano."
+              }
             ],
             "enemies": [
-              {"npc_key": "cg_jaggedbriar_wisp", "name": "Fogo-Fátuo do Pântano (Will-o'-Wisp)", "count": 2, "level": 6, "hp": 50, "ac": 26, "perception": 16, "fortitude": 10, "reflex": 18, "will": 14, "attack_bonus": 17, "damage": "2d8+4 eletricidade"}
+              {
+                "npc_key": "cg_jaggedbriar_wisp",
+                "name": "Fogo-Fátuo do Pântano (Will-o'-Wisp)",
+                "count": 2,
+                "level": 6,
+                "hp": 50,
+                "ac": 26,
+                "perception": 16,
+                "fortitude": 10,
+                "reflex": 18,
+                "will": 14,
+                "attack_bonus": 17,
+                "damage": "2d8+4 eletricidade"
+              }
             ]
           },
           {
@@ -460,11 +809,45 @@
             "environment": "hag_bog_lair",
             "encounter_severity": "Severe 7",
             "skill_checks": [
-              {"check_id": "linzi_recover_press_parts", "skill": "Manufatura", "alt_skill": "Atletismo", "dc": 24, "description": "Resgatar e montar sem danos as chapas tipográficas da prensa."}
+              {
+                "check_id": "linzi_recover_press_parts",
+                "skill": "Manufatura",
+                "alt_skill": "Atletismo",
+                "dc": 24,
+                "description": "Resgatar e montar sem danos as chapas tipográficas da prensa."
+              }
             ],
             "enemies": [
-              {"npc_key": "cg_jaggedbriar_matron", "name": "Matriarca Estriga de Jaggedbriar", "count": 1, "level": 8, "hp": 135, "ac": 26, "perception": 17, "fortitude": 17, "reflex": 15, "will": 18, "spell_dc": 26, "attack_bonus": 19, "damage": "2d8+8 cortante"},
-              {"npc_key": "cg_jaggedbriar_sister", "name": "Irmã do Conventículo Jaggedbriar", "count": 2, "level": 6, "hp": 95, "ac": 23, "perception": 14, "fortitude": 15, "reflex": 13, "will": 15, "spell_dc": 24, "attack_bonus": 16, "damage": "2d6+6 cortante"}
+              {
+                "npc_key": "cg_jaggedbriar_matron",
+                "name": "Matriarca Estriga de Jaggedbriar",
+                "count": 1,
+                "level": 8,
+                "hp": 135,
+                "ac": 26,
+                "perception": 17,
+                "fortitude": 17,
+                "reflex": 15,
+                "will": 18,
+                "spell_dc": 26,
+                "attack_bonus": 19,
+                "damage": "2d8+8 cortante"
+              },
+              {
+                "npc_key": "cg_jaggedbriar_sister",
+                "name": "Irmã do Conventículo Jaggedbriar",
+                "count": 2,
+                "level": 6,
+                "hp": 95,
+                "ac": 23,
+                "perception": 14,
+                "fortitude": 15,
+                "reflex": 13,
+                "will": 15,
+                "spell_dc": 24,
+                "attack_bonus": 16,
+                "damage": "2d6+6 cortante"
+              }
             ]
           }
         ],
@@ -477,7 +860,10 @@
             "attitude_after": "helpful",
             "available_after": true,
             "xp_awarded": 80,
-            "items_awarded": ["Prensa Tipográfica de Linzi Instalada", "Crônica Ilustrada dos Fundadores"],
+            "items_awarded": [
+              "Prensa Tipográfica de Linzi Instalada",
+              "Crônica Ilustrada dos Fundadores"
+            ],
             "feature_unlocked": "linzi:treasury_trouble_press_established"
           },
           {
@@ -488,7 +874,9 @@
             "attitude_after": "friendly",
             "available_after": true,
             "xp_awarded": 80,
-            "items_awarded": ["Prensa Tipográfica de Linzi Instalada"],
+            "items_awarded": [
+              "Prensa Tipográfica de Linzi Instalada"
+            ],
             "feature_unlocked": "linzi:treasury_trouble_repayment_enforced"
           }
         ]
@@ -560,11 +948,43 @@
             "environment": "trading_post",
             "encounter_severity": "Moderate 5",
             "skill_checks": [
-              {"check_id": "nok_nok_interrogate_raiders", "skill": "Intimidação", "alt_skill": "Diplomacia", "dc": 20, "description": "Descobrir a localização do covil de Nargloom a partir dos batedores Tanglethorn."}
+              {
+                "check_id": "nok_nok_interrogate_raiders",
+                "skill": "Intimidação",
+                "alt_skill": "Diplomacia",
+                "dc": 20,
+                "description": "Descobrir a localização do covil de Nargloom a partir dos batedores Tanglethorn."
+              }
             ],
             "enemies": [
-              {"npc_key": "cg_tanglethorn_commando", "name": "Comando Goblin Tanglethorn", "count": 4, "level": 2, "hp": 30, "ac": 18, "perception": 7, "fortitude": 8, "reflex": 10, "will": 6, "attack_bonus": 10, "damage": "1d8+4 cortante"},
-              {"npc_key": "cg_goblin_dog", "name": "Cão Goblin", "count": 2, "level": 1, "hp": 17, "ac": 16, "perception": 6, "fortitude": 8, "reflex": 8, "will": 4, "attack_bonus": 9, "damage": "1d6+3 perfurante"}
+              {
+                "npc_key": "cg_tanglethorn_commando",
+                "name": "Comando Goblin Tanglethorn",
+                "count": 4,
+                "level": 2,
+                "hp": 30,
+                "ac": 18,
+                "perception": 7,
+                "fortitude": 8,
+                "reflex": 10,
+                "will": 6,
+                "attack_bonus": 10,
+                "damage": "1d8+4 cortante"
+              },
+              {
+                "npc_key": "cg_goblin_dog",
+                "name": "Cão Goblin",
+                "count": 2,
+                "level": 1,
+                "hp": 17,
+                "ac": 16,
+                "perception": 6,
+                "fortitude": 8,
+                "reflex": 8,
+                "will": 4,
+                "attack_bonus": 9,
+                "damage": "1d6+3 perfurante"
+              }
             ]
           },
           {
@@ -575,14 +995,56 @@
             "environment": "briar_shrine",
             "encounter_severity": "Severe 5",
             "hazards": [
-              {"hazard_key": "cg_hazard_tanglethorn_spikes", "name": "Lançador de Espinhos Tanglethorn", "level": 4, "stealth_dc": 21, "saving_throw_type": "Reflexos", "saving_throw_dc": 21, "disable_skill": "Ladroagem", "disable_dc": 20, "damage": "3d8+6 perfurante"}
+              {
+                "hazard_key": "cg_hazard_tanglethorn_spikes",
+                "name": "Lançador de Espinhos Tanglethorn",
+                "level": 4,
+                "stealth_dc": 21,
+                "saving_throw_type": "Reflexos",
+                "saving_throw_dc": 21,
+                "disable_skill": "Ladroagem",
+                "disable_dc": 20,
+                "damage": "3d8+6 perfurante"
+              }
             ],
             "skill_checks": [
-              {"check_id": "nok_nok_heroic_guidance", "skill": "Diplomacia", "alt_skill": "Sociedade", "dc": 20, "description": "Convencer Nok-Nok de que o heroísmo verdadeiro supera a tirania de Nargloom."}
+              {
+                "check_id": "nok_nok_heroic_guidance",
+                "skill": "Diplomacia",
+                "alt_skill": "Sociedade",
+                "dc": 20,
+                "description": "Convencer Nok-Nok de que o heroísmo verdadeiro supera a tirania de Nargloom."
+              }
             ],
             "enemies": [
-              {"npc_key": "cg_nargloom", "name": "Nargloom, Chefe dos Tanglethorn", "count": 1, "level": 6, "hp": 102, "ac": 24, "perception": 14, "fortitude": 15, "reflex": 14, "will": 12, "attack_bonus": 17, "damage": "2d6+7 perfurante mais 1d6 ácido"},
-              {"npc_key": "cg_tanglethorn_pyro", "name": "Piromante Tanglethorn", "count": 2, "level": 3, "hp": 42, "ac": 19, "perception": 8, "fortitude": 7, "reflex": 11, "will": 8, "attack_bonus": 11, "damage": "2d6 fogo"}
+              {
+                "npc_key": "cg_nargloom",
+                "name": "Nargloom, Chefe dos Tanglethorn",
+                "count": 1,
+                "level": 6,
+                "hp": 102,
+                "ac": 24,
+                "perception": 14,
+                "fortitude": 15,
+                "reflex": 14,
+                "will": 12,
+                "attack_bonus": 17,
+                "damage": "2d6+7 perfurante mais 1d6 ácido"
+              },
+              {
+                "npc_key": "cg_tanglethorn_pyro",
+                "name": "Piromante Tanglethorn",
+                "count": 2,
+                "level": 3,
+                "hp": 42,
+                "ac": 19,
+                "perception": 8,
+                "fortitude": 7,
+                "reflex": 11,
+                "will": 8,
+                "attack_bonus": 11,
+                "damage": "2d6 fogo"
+              }
             ]
           }
         ],
@@ -596,7 +1058,10 @@
             "available_after": true,
             "alignment_after": "chaotic_neutral",
             "xp_awarded": 80,
-            "items_awarded": ["Corta-Cães +1 Impactante de Nargloom", "Troféu do Quinto Herói Goblin"],
+            "items_awarded": [
+              "Corta-Cães +1 Impactante de Nargloom",
+              "Troféu do Quinto Herói Goblin"
+            ],
             "feature_unlocked": "nok_nok:heroes_or_gods_heroic"
           },
           {
@@ -608,7 +1073,9 @@
             "available_after": true,
             "alignment_after": "chaotic_evil",
             "xp_awarded": 60,
-            "items_awarded": ["Corta-Cães +1 Impactante de Nargloom"],
+            "items_awarded": [
+              "Corta-Cães +1 Impactante de Nargloom"
+            ],
             "feature_unlocked": "nok_nok:heroes_or_gods_ego"
           }
         ]
@@ -681,8 +1148,20 @@
             "environment": "urban_capital",
             "encounter_severity": "Investigation 10",
             "skill_checks": [
-              {"check_id": "tristian_research_cult", "skill": "Ocultismo", "alt_skill": "Diplomacia", "dc": 25, "description": "Pesquisar o Reino dos Purificados na capital (Ocultismo CD 25, Diplomacia CD 27, Sociedade CD 29) até 8+ Pontos de Pesquisa."},
-              {"check_id": "tristian_confront_talbot", "skill": "Dissimulação", "alt_skill": "Diplomacia", "dc": 25, "description": "Confrontar o recrutador Talbot (Dissimulação CD 25, Diplomacia CD 27, Intimidação CD 29) para descobrir a localização do Santuário."}
+              {
+                "check_id": "tristian_research_cult",
+                "skill": "Ocultismo",
+                "alt_skill": "Diplomacia",
+                "dc": 25,
+                "description": "Pesquisar o Reino dos Purificados na capital (Ocultismo CD 25, Diplomacia CD 27, Sociedade CD 29) até 8+ Pontos de Pesquisa."
+              },
+              {
+                "check_id": "tristian_confront_talbot",
+                "skill": "Dissimulação",
+                "alt_skill": "Diplomacia",
+                "dc": 25,
+                "description": "Confrontar o recrutador Talbot (Dissimulação CD 25, Diplomacia CD 27, Intimidação CD 29) para descobrir a localização do Santuário."
+              }
             ],
             "enemies": []
           },
@@ -694,14 +1173,60 @@
             "environment": "underground_sanctuary",
             "encounter_severity": "Moderate 10",
             "hazards": [
-              {"hazard_key": "cg_hazard_locking_alarm_d2", "name": "Alarme de Travamento de Yhidothrus", "level": 10, "stealth_dc": 27, "saving_throw_type": "Vontade", "saving_throw_dc": 29, "disable_skill": "Ladroagem", "disable_dc": 32, "ac": 25, "hardness": 18, "hp": 70, "bt": 35, "damage": "Sela a porta e desperta os 5 bodaks da área D2"}
+              {
+                "hazard_key": "cg_hazard_locking_alarm_d2",
+                "name": "Alarme de Travamento de Yhidothrus",
+                "level": 10,
+                "stealth_dc": 27,
+                "saving_throw_type": "Vontade",
+                "saving_throw_dc": 29,
+                "disable_skill": "Ladroagem",
+                "disable_dc": 32,
+                "ac": 25,
+                "hardness": 18,
+                "hp": 70,
+                "bt": 35,
+                "damage": "Sela a porta e desperta os 5 bodaks da área D2"
+              }
             ],
             "skill_checks": [
-              {"check_id": "tristian_d2_shyka_lore", "skill": "Percepção", "alt_skill": "Religião", "dc": 25, "description": "Reconhecer a arquitetura de Shyka profanada pelo culto de Yhidothrus (Percepção CD 25 / Religião CD 27)."}
+              {
+                "check_id": "tristian_d2_shyka_lore",
+                "skill": "Percepção",
+                "alt_skill": "Religião",
+                "dc": 25,
+                "description": "Reconhecer a arquitetura de Shyka profanada pelo culto de Yhidothrus (Percepção CD 25 / Religião CD 27)."
+              }
             ],
             "enemies": [
-              {"npc_key": "cg_sanctuary_bodak", "name": "Bodak do Reino dos Purificados", "count": 5, "level": 8, "hp": 110, "ac": 26, "perception": 17, "fortitude": 15, "reflex": 16, "will": 18, "attack_bonus": 18, "damage": "2d8+7 negativo mais Olhar Drenante CD 23"},
-              {"npc_key": "cg_cleansed_cultist", "name": "Cultista Purificado", "count": 6, "level": 6, "hp": 100, "ac": 24, "perception": 12, "fortitude": 12, "reflex": 16, "will": 14, "attack_bonus": 17, "damage": "1d6+5 cortante mais 2d6 furtivo e Liberar o Verme do Âmago Fort CD 24 (6d6 mental)"}
+              {
+                "npc_key": "cg_sanctuary_bodak",
+                "name": "Bodak do Reino dos Purificados",
+                "count": 5,
+                "level": 8,
+                "hp": 110,
+                "ac": 26,
+                "perception": 17,
+                "fortitude": 15,
+                "reflex": 16,
+                "will": 18,
+                "attack_bonus": 18,
+                "damage": "2d8+7 negativo mais Olhar Drenante CD 23"
+              },
+              {
+                "npc_key": "cg_cleansed_cultist",
+                "name": "Cultista Purificado",
+                "count": 6,
+                "level": 6,
+                "hp": 100,
+                "ac": 24,
+                "perception": 12,
+                "fortitude": 12,
+                "reflex": 16,
+                "will": 14,
+                "attack_bonus": 17,
+                "damage": "1d6+5 cortante mais 2d6 furtivo e Liberar o Verme do Âmago Fort CD 24 (6d6 mental)"
+              }
             ]
           },
           {
@@ -712,15 +1237,62 @@
             "environment": "underground_cathedral",
             "encounter_severity": "Moderate 10",
             "hazards": [
-              {"hazard_key": "cg_hazard_glyph_of_warding_d5", "name": "Glifos de Guarda de Yhidothrus (2)", "level": 13, "stealth_dc": 34, "saving_throw_type": "Fortitude", "saving_throw_dc": 34, "disable_skill": "Ladroagem", "disable_dc": 34, "damage": "Rajada Espiritual (16d6 força, CD 34)"}
+              {
+                "hazard_key": "cg_hazard_glyph_of_warding_d5",
+                "name": "Glifos de Guarda de Yhidothrus (2)",
+                "level": 13,
+                "stealth_dc": 34,
+                "saving_throw_type": "Fortitude",
+                "saving_throw_dc": 34,
+                "disable_skill": "Ladroagem",
+                "disable_dc": 34,
+                "damage": "Rajada Espiritual (16d6 força, CD 34)"
+              }
             ],
             "skill_checks": [
-              {"check_id": "tristian_d5_secret_door", "skill": "Percepção", "dc": 30, "description": "Localizar a porta secreta no entalhe de Yhidothrus entre D5 e D6."},
-              {"check_id": "tristian_d6_brain_worms", "skill": "Natureza", "alt_skill": "Religião", "dc": 25, "description": "Identificar os vermes cerebrais que infestam o sumidouro (Natureza CD 25 / Religião CD 27)."}
+              {
+                "check_id": "tristian_d5_secret_door",
+                "skill": "Percepção",
+                "dc": 30,
+                "description": "Localizar a porta secreta no entalhe de Yhidothrus entre D5 e D6."
+              },
+              {
+                "check_id": "tristian_d6_brain_worms",
+                "skill": "Natureza",
+                "alt_skill": "Religião",
+                "dc": 25,
+                "description": "Identificar os vermes cerebrais que infestam o sumidouro (Natureza CD 25 / Religião CD 27)."
+              }
             ],
             "enemies": [
-              {"npc_key": "cg_hezrou_demon", "name": "Demônio Hezrou Guardião", "count": 1, "level": 11, "hp": 225, "ac": 31, "perception": 21, "fortitude": 24, "reflex": 18, "will": 21, "attack_bonus": 24, "damage": "2d12+11 perfurante mais fedor CD 29"},
-              {"npc_key": "cg_nabasu_demon", "name": "Demônio Nabasu", "count": 2, "level": 8, "hp": 135, "ac": 27, "perception": 17, "fortitude": 18, "reflex": 16, "will": 17, "attack_bonus": 19, "damage": "2d8+8 perfurante mais Olhar Rouba-Morte CD 26"}
+              {
+                "npc_key": "cg_hezrou_demon",
+                "name": "Demônio Hezrou Guardião",
+                "count": 1,
+                "level": 11,
+                "hp": 225,
+                "ac": 31,
+                "perception": 21,
+                "fortitude": 24,
+                "reflex": 18,
+                "will": 21,
+                "attack_bonus": 24,
+                "damage": "2d12+11 perfurante mais fedor CD 29"
+              },
+              {
+                "npc_key": "cg_nabasu_demon",
+                "name": "Demônio Nabasu",
+                "count": 2,
+                "level": 8,
+                "hp": 135,
+                "ac": 27,
+                "perception": 17,
+                "fortitude": 18,
+                "reflex": 16,
+                "will": 17,
+                "attack_bonus": 19,
+                "damage": "2d8+8 perfurante mais Olhar Rouba-Morte CD 26"
+              }
             ]
           },
           {
@@ -731,11 +1303,44 @@
             "environment": "starlit_pool_chamber",
             "encounter_severity": "Severe 10",
             "skill_checks": [
-              {"check_id": "tristian_d7_pool_lore", "skill": "Religião", "dc": 25, "description": "Confirmar que a piscina sagrada de Shyka é uma Piscina de Encarnação (+4 de circunstância no ritual Encarnar Ancestralidade)."}
+              {
+                "check_id": "tristian_d7_pool_lore",
+                "skill": "Religião",
+                "dc": 25,
+                "description": "Confirmar que a piscina sagrada de Shyka é uma Piscina de Encarnação (+4 de circunstância no ritual Encarnar Ancestralidade)."
+              }
             ],
             "enemies": [
-              {"npc_key": "cg_first_faithful", "name": "O Primeiro Fiel", "count": 1, "level": 13, "hp": 240, "ac": 34, "perception": 24, "fortitude": 24, "reflex": 20, "will": 26, "spell_dc": 34, "spell_attack": 24, "attack_bonus": 25, "damage": "3d8+6 perfurante mais 2d8 veneno (alcance 3m); Refocar Maldição Vontade CD 27-contagem; Liberar o Verme do Âmago Fort CD 34"},
-              {"npc_key": "cg_cleansed_cultist_d7", "name": "Cultista Purificado da Plataforma", "count": 3, "level": 6, "hp": 100, "ac": 24, "perception": 12, "fortitude": 12, "reflex": 16, "will": 14, "attack_bonus": 17, "damage": "1d6+5 cortante"}
+              {
+                "npc_key": "cg_first_faithful",
+                "name": "O Primeiro Fiel",
+                "count": 1,
+                "level": 13,
+                "hp": 240,
+                "ac": 34,
+                "perception": 24,
+                "fortitude": 24,
+                "reflex": 20,
+                "will": 26,
+                "spell_dc": 34,
+                "spell_attack": 24,
+                "attack_bonus": 25,
+                "damage": "3d8+6 perfurante mais 2d8 veneno (alcance 3m); Refocar Maldição Vontade CD 27-contagem; Liberar o Verme do Âmago Fort CD 34"
+              },
+              {
+                "npc_key": "cg_cleansed_cultist_d7",
+                "name": "Cultista Purificado da Plataforma",
+                "count": 3,
+                "level": 6,
+                "hp": 100,
+                "ac": 24,
+                "perception": 12,
+                "fortitude": 12,
+                "reflex": 16,
+                "will": 14,
+                "attack_bonus": 17,
+                "damage": "1d6+5 cortante"
+              }
             ]
           }
         ],
@@ -748,7 +1353,13 @@
             "attitude_after": "helpful",
             "available_after": true,
             "xp_awarded": 120,
-            "items_awarded": ["Cajado de Necromancia Superior", "Mochila de Carga Tipo II (430 po)", "Varinha de Criar Comida (4º Nível)", "Diários do Ritual Encarnar Ancestralidade (Nível 5)", "Talento de Ancestralidade de Tristian: Asas Celestiais"],
+            "items_awarded": [
+              "Cajado de Necromancia Superior",
+              "Mochila de Carga Tipo II (430 po)",
+              "Varinha de Criar Comida (4º Nível)",
+              "Diários do Ritual Encarnar Ancestralidade (Nível 5)",
+              "Talento de Ancestralidade de Tristian: Asas Celestiais"
+            ],
             "feature_unlocked": "tristian:celestial_wings_and_incarnate_ancestry"
           },
           {
@@ -759,7 +1370,10 @@
             "attitude_after": "friendly",
             "available_after": true,
             "xp_awarded": 80,
-            "items_awarded": ["Cajado de Necromancia Superior", "Talento de Ancestralidade de Tristian: Asas Celestiais"],
+            "items_awarded": [
+              "Cajado de Necromancia Superior",
+              "Talento de Ancestralidade de Tristian: Asas Celestiais"
+            ],
             "feature_unlocked": "companion_boon:tristian_celestial_wings"
           }
         ]
@@ -831,14 +1445,51 @@
             "environment": "marble_shrine_courtyard",
             "encounter_severity": "Moderate 9",
             "hazards": [
-              {"hazard_key": "cg_hazard_shelyns_shame_e2", "name": "Vergonha de Shelyn", "level": 11, "stealth_dc": 33, "saving_throw_type": "Vontade", "saving_throw_dc": 30, "disable_skill": "Religião", "disable_dc": 29, "alt_disable_skill": "Diplomacia", "alt_disable_dc": 33, "damage": "Esperança ou Desespero (Vontade CD 30); desabilitar concede Agradecimento de Shelyn (+1 de estado em todos os testes no santuário)"}
+              {
+                "hazard_key": "cg_hazard_shelyns_shame_e2",
+                "name": "Vergonha de Shelyn",
+                "level": 11,
+                "stealth_dc": 33,
+                "saving_throw_type": "Vontade",
+                "saving_throw_dc": 30,
+                "disable_skill": "Religião",
+                "disable_dc": 29,
+                "alt_disable_skill": "Diplomacia",
+                "alt_disable_dc": 33,
+                "damage": "Esperança ou Desespero (Vontade CD 30); desabilitar concede Agradecimento de Shelyn (+1 de estado em todos os testes no santuário)"
+              }
             ],
             "skill_checks": [
-              {"check_id": "valerie_golden_bough_lore", "skill": "Religião", "alt_skill": "Sociedade", "dc": 25, "description": "Recordar a história do Santuário do Bosque Dourado."},
-              {"check_id": "valerie_disarm_shelyn_haunt", "skill": "Religião", "alt_skill": "Diplomacia", "dc": 29, "description": "Confortar a assombração Vergonha de Shelyn (Religião CD 29 mestre ou Diplomacia CD 33 especialista)."}
+              {
+                "check_id": "valerie_golden_bough_lore",
+                "skill": "Religião",
+                "alt_skill": "Sociedade",
+                "dc": 25,
+                "description": "Recordar a história do Santuário do Bosque Dourado."
+              },
+              {
+                "check_id": "valerie_disarm_shelyn_haunt",
+                "skill": "Religião",
+                "alt_skill": "Diplomacia",
+                "dc": 29,
+                "description": "Confortar a assombração Vergonha de Shelyn (Religião CD 29 mestre ou Diplomacia CD 33 especialista)."
+              }
             ],
             "enemies": [
-              {"npc_key": "cg_sir_fredero_sinnet", "name": "Sir Fredero Sinnet", "count": 1, "level": 9, "hp": 160, "ac": 28, "perception": 15, "fortitude": 21, "reflex": 17, "will": 15, "attack_bonus": 20, "damage": "2d8+10 cortante mais 1d6 sônico; rende-se com 10 PV ou menos (40 XP no duelo)"}
+              {
+                "npc_key": "cg_sir_fredero_sinnet",
+                "name": "Sir Fredero Sinnet",
+                "count": 1,
+                "level": 9,
+                "hp": 160,
+                "ac": 28,
+                "perception": 15,
+                "fortitude": 21,
+                "reflex": 17,
+                "will": 15,
+                "attack_bonus": 20,
+                "damage": "2d8+10 cortante mais 1d6 sônico; rende-se com 10 PV ou menos (40 XP no duelo)"
+              }
             ]
           },
           {
@@ -849,13 +1500,64 @@
             "environment": "octagonal_cathedral",
             "encounter_severity": "Severe 9",
             "skill_checks": [
-              {"check_id": "valerie_convince_fredero_stay", "skill": "Diplomacia", "dc": 26, "description": "Convencer Sir Fredero redimido a permanecer nas Terras Roubadas e ajudar na restauração do santuário."},
-              {"check_id": "valerie_find_tulvak_cache", "skill": "Percepção", "dc": 25, "description": "Encontrar o esconderijo de Tulvak atrás da estátua leste (Mochila de Carga Tipo I e tesouros)."}
+              {
+                "check_id": "valerie_convince_fredero_stay",
+                "skill": "Diplomacia",
+                "dc": 26,
+                "description": "Convencer Sir Fredero redimido a permanecer nas Terras Roubadas e ajudar na restauração do santuário."
+              },
+              {
+                "check_id": "valerie_find_tulvak_cache",
+                "skill": "Percepção",
+                "dc": 25,
+                "description": "Encontrar o esconderijo de Tulvak atrás da estátua leste (Mochila de Carga Tipo I e tesouros)."
+              }
             ],
             "enemies": [
-              {"npc_key": "cg_false_priestess", "name": "Falsa Sacerdotisa", "count": 4, "level": 7, "hp": 120, "ac": 22, "perception": 15, "fortitude": 13, "reflex": 16, "will": 15, "spell_dc": 25, "attack_bonus": 14, "damage": "1d8+6 cortante mais 1d6 Arma Primal"},
-              {"npc_key": "cg_tulvak_green_hag", "name": "Tulvak, Estriga Verde Variante", "count": 1, "level": 11, "hp": 220, "ac": 31, "perception": 22, "fortitude": 22, "reflex": 20, "will": 22, "spell_dc": 30, "attack_bonus": 25, "damage": "2d10+13 cortante mais 1d6 sangramento (Segadeira Macabra); Revelação Perturbadora Vontade CD 30; Humores Enfraquecedores Fort CD 30"},
-              {"npc_key": "cg_sucking_shrub", "name": "Arbusto Sorvedouro", "count": 2, "level": 7, "hp": 115, "ac": 24, "perception": 16, "fortitude": 17, "reflex": 14, "will": 13, "attack_bonus": 18, "damage": "2d8+8 cortante"}
+              {
+                "npc_key": "cg_false_priestess",
+                "name": "Falsa Sacerdotisa",
+                "count": 4,
+                "level": 7,
+                "hp": 120,
+                "ac": 22,
+                "perception": 15,
+                "fortitude": 13,
+                "reflex": 16,
+                "will": 15,
+                "spell_dc": 25,
+                "attack_bonus": 14,
+                "damage": "1d8+6 cortante mais 1d6 Arma Primal"
+              },
+              {
+                "npc_key": "cg_tulvak_green_hag",
+                "name": "Tulvak, Estriga Verde Variante",
+                "count": 1,
+                "level": 11,
+                "hp": 220,
+                "ac": 31,
+                "perception": 22,
+                "fortitude": 22,
+                "reflex": 20,
+                "will": 22,
+                "spell_dc": 30,
+                "attack_bonus": 25,
+                "damage": "2d10+13 cortante mais 1d6 sangramento (Segadeira Macabra); Revelação Perturbadora Vontade CD 30; Humores Enfraquecedores Fort CD 30"
+              },
+              {
+                "npc_key": "cg_sucking_shrub",
+                "name": "Arbusto Sorvedouro",
+                "count": 2,
+                "level": 7,
+                "hp": 115,
+                "ac": 24,
+                "perception": 16,
+                "fortitude": 17,
+                "reflex": 14,
+                "will": 13,
+                "attack_bonus": 18,
+                "damage": "2d8+8 cortante"
+              }
             ]
           }
         ],
@@ -868,7 +1570,15 @@
             "attitude_after": "helpful",
             "available_after": true,
             "xp_awarded": 120,
-            "items_awarded": ["Segadeira Macabra (Item 9)", "Mochila de Carga Tipo I", "Manto do Coiote", "Varinha de Toque Vampírico", "Bastão Imóvel", "Pergaminhos de Corrente de Relâmpagos e Teleporte", "Dádiva Menor de Shelyn (1x falha em Diplomacia vira Sucesso Crítico)"],
+            "items_awarded": [
+              "Segadeira Macabra (Item 9)",
+              "Mochila de Carga Tipo I",
+              "Manto do Coiote",
+              "Varinha de Toque Vampírico",
+              "Bastão Imóvel",
+              "Pergaminhos de Corrente de Relâmpagos e Teleporte",
+              "Dádiva Menor de Shelyn (1x falha em Diplomacia vira Sucesso Crítico)"
+            ],
             "feature_unlocked": "valerie:shelyn_minor_boon_and_fredero_redeemed"
           },
           {
@@ -879,7 +1589,13 @@
             "attitude_after": "helpful",
             "available_after": true,
             "xp_awarded": 120,
-            "items_awarded": ["Segadeira Macabra (Item 9)", "Mochila de Carga Tipo I", "Manto do Coiote", "Varinha de Toque Vampírico", "Bastão Imóvel"],
+            "items_awarded": [
+              "Segadeira Macabra (Item 9)",
+              "Mochila de Carga Tipo I",
+              "Manto do Coiote",
+              "Varinha de Toque Vampírico",
+              "Bastão Imóvel"
+            ],
             "feature_unlocked": "valerie:fredero_spared"
           },
           {
@@ -1165,7 +1881,11 @@
         "level": 1,
         "class": "Cineticista Tiefling (Água / Fogo)",
         "leadership_role": "counselor",
-        "aliases": ["Kalikke and Kanerah", "Kalikke", "Kanerah"]
+        "aliases": [
+          "Kalikke and Kanerah",
+          "Kalikke",
+          "Kanerah"
+        ]
       }
     }
   ],
