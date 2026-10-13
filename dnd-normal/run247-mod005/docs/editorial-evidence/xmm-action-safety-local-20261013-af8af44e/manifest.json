@@ -1,0 +1,58 @@
+{
+  "format": "XMM_LOCAL_ACTION_SAFETY_EVIDENCE_V2",
+  "code_commit": "af8af44ec95b65a7d4db0b40bd38b793b290626c",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "source_comparison": "xmm-source-comparison.json",
+  "source_comparison_sha256": "6cca6a94f97630b3a2b5a3ade31cc45722820fe0f253c534893926d7f84713a4",
+  "manual_action_inventory": "manual-actions.json",
+  "manual_action_inventory_sha256": "28fcc61adbc3c46c46a72b165833e34e16a05de7e242d9b8604570f41678c40e",
+  "manual_unmodeled_source_effects_total": 248,
+  "source_gates": {
+    "source_monsters_compared": 503,
+    "editorial_sections_compared": 36,
+    "recharge_actions_compared": 120,
+    "spellcasting_usage_records_compared": 132,
+    "grapple_escape_records_compared": 36,
+    "grapple_reach_records_compared": 36,
+    "source_trait_contracts_compared": 178,
+    "source_save_damage_actions_compared": 59,
+    "source_abilities_with_unmodeled_effects_manual": 248,
+    "source_field_and_catalog_gate_pass": true,
+    "full_monster_combat_automation_certified": false
+  },
+  "python_tests": {
+    "command": "python3 -m unittest discover -s tools -p test_*.py",
+    "passed": 55,
+    "failed": 0
+  },
+  "android_unit_tests": {
+    "command": "bash gradlew :app:testDebugUnitTest --no-daemon --console=plain",
+    "status": "PASS",
+    "environment": {
+      "gradle": "8.11.1",
+      "jdk": "21.0.12",
+      "android_platform": "35",
+      "build_tools": "35.0.0"
+    },
+    "tests": 2500,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "xml_files": 101,
+    "results_archive": "android-test-results.zip",
+    "results_archive_sha256": "ae1a6d48c0f6c67128966db9c55294f6cbcb1a2b521795428a65acff1e8c29f3"
+  },
+  "local_compile": {
+    "command": "bash gradlew :app:compileDebugJavaWithJavac --no-daemon --console=plain",
+    "status": "PASS"
+  },
+  "brelga_ci": "NOT_RUN_ON_THIS_COMMIT",
+  "apk": "NOT_BUILT_CONTRACT_STAGE_03",
+  "stage_03_closed": false,
+  "limitations": [
+    "The manual marker blocks effects that lack a typed runtime handler; it does not implement those mechanics.",
+    "The 36 XMM sections and full source/effect rights review remain open.",
+    "Remote CI/BRELGA confirmation is pending.",
+    "This evidence does not certify full monster combat automation."
+  ]
+}
