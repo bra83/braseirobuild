@@ -1,0 +1,30 @@
+{
+  "book_id": "XSAC",
+  "chapter_id": "ch_0",
+  "section_id": "sec_0_1",
+  "source_url": "https://github.com/5etools-mirror-3/5etools-src/blob/8c026b807fac21862a309379a0c3228a0683198b/data/book/book-xsac.json",
+  "source_sha256": "ae0041d9570e68897328e86b884d9758d0f8ac0aaa37e878374f3d7966211584",
+  "source_git_blob_sha1": "b99ffecf35c09ad8efc5f3b1ab6b3df2b6562a06",
+  "source_version": "Sage Advice Compendium 2025; pinned 5etools mirror commit 8c026b807fac21862a309379a0c3228a0683198b",
+  "rights_basis": "MECHANICS_INTERPRETATION_ONLY_NO_SOURCE_PROSE_REPUBLISHED_RIGHTS_TO_VERBATIM_SOURCE_NOT_CLAIMED",
+  "source_text_rights_for_republication_asserted": false,
+  "expected_game_behavior": "Decisão final de adjudicação pertence ao Mestre; declarações públicas externas ao compêndio não são rulings oficiais",
+  "observed_game_behavior": "BRELGA run 38358645138: 14/14 section JUnit, 163/163 advisory source meaning witnesses, 163/163 QA runtime contracts, source pin verifier and Android gateway regression; zero failed tests.",
+  "runtime_method": "officialRulingsPolicy",
+  "runtime_class": "com.braseiro.dnd5e.SageAdvice2025RulesEngine",
+  "test_xml": "docs/editorial-evidence/xml/TEST-com.braseiro.dnd5e.Xsac14SectionRuntimeTest.xml",
+  "related_test_xml": [
+    "docs/editorial-evidence/xml/TEST-com.braseiro.dnd5e.SageAdvice163RuntimeContractTest.xml",
+    "docs/editorial-evidence/xml/TEST-com.braseiro.dnd5e.SageAdvice163MeaningWitnessTest.xml",
+    "docs/editorial-evidence/xml/TEST-com.braseiro.dnd5e.XsacEditorialSourceGatewayTest.xml"
+  ],
+  "section_source_pointer": "/bookData/0/data/0/entries/2",
+  "indexed_source_qas": 0,
+  "qa_runtime_ids": [],
+  "source_qa_pointers": [],
+  "ci_url": "https://github.com/bra83/braseirobuild/actions/runs/38358645138",
+  "ci_source_sha": "b2858314a46151afbe17aa529e314d1f4fadeda1",
+  "qa_test_total": 671,
+  "qa_test_suites": 76,
+  "caveat": "Proof covers XSAC local advisory adjudication and source-derived statements, not automatic application in unrelated game engines; no claim of a licence to republish source prose."
+}
