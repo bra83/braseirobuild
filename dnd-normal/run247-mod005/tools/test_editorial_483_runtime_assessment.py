@@ -100,6 +100,9 @@ class Editorial483AssessmentTest(unittest.TestCase):
             self.assertTrue(p["source_commit"] and len(p["source_commit"]) == 40)
             self.assertTrue(p["json_pointer_to_exact_title"].startswith("/bookData/"))
             self.assertTrue(a["mirror_json_pointer"].startswith("/bookData/"))
+            self.assertEqual(
+                p["json_pointer_to_exact_title"].rsplit("/", 1)[0],
+                a["mirror_json_pointer"], k)
             self.assertIn(p["source_git_blob_sha1"], row["evidence_of_access"])
             self.assertIn(a["mirror_json_pointer"], row["evidence_of_access"])
             self.assertIn("/blob/" + p["source_commit"] + "/", a["source_url"])
