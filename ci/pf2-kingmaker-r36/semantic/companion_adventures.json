@@ -906,10 +906,9 @@
           {
             "branch_key": "ask_stolen_lands_planar_secret",
             "title": "Perguntar ao Anfitrião sobre os mistérios planares das Terras Roubadas",
-            "description": "O grupo prioriza pistas estratégicas sobre o Primeiro Mundo nas Terras Roubadas; Jubilost respeita a utilidade prática da resposta.",
+            "description": "O grupo pergunta sobre as Terras Roubadas em vez de perguntar pelos gnomos. Companion Guide pp.42-43: Jubilost deixa o grupo, discretamente se já era Prestativo ou irritado caso contrário.",
             "influence_delta": 1,
-            "attitude_after": "helpful",
-            "available_after": true,
+            "available_after": false,
             "xp_awarded": 80,
             "items_awarded": [
               "Fórmula de Elixir da Mente Lúcida Maior"

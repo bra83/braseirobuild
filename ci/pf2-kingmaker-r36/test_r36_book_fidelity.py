@@ -501,3 +501,15 @@ def test_companion_branch_receipt_rejects_conflicting_replays():
     assert 'resolveCompanionAdventureBranch(canonical,requestedBranch,comp,progress)' in branch
     engine=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerCompanionSemantics.java").read_text(encoding="utf-8")
     assert 'currentProgress.optString("branch_resolved","")' in engine
+
+
+def test_jubilost_other_host_question_causes_official_departure():
+    """Companion Guide pp.42-43: group question makes Jubilost leave."""
+    data=json.loads((ROOT/"android/app/src/main/assets/pathfinder/kingmaker/chapters/chapter_12_companion_stories.json").read_text(encoding="utf-8"))
+    quest=next(q["progress_json"] for q in data["quests"] if q["progress_json"]["companion_key"]=="jubilost")
+    choice=next(b for b in quest["branches"] if b["branch_key"]=="ask_stolen_lands_planar_secret")
+    assert choice["available_after"] is False
+    assert "attitude_after" not in choice
+    source=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerCompanionSemantics.java").read_text(encoding="utf-8")
+    assert 'nextProgress.put("jubilost_departure_tone"' in source
+    assert 'nextAvailable=0' in source

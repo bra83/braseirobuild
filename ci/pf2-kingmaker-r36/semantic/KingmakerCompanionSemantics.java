@@ -400,6 +400,15 @@ public final class KingmakerCompanionSemantics {
    String nextAttitude="ekundayo".equals(companionKey)
     ?(nextAvailable==0?"unfriendly":attitudeForInfluence(companionKey,nextInfluence))
     :selected.optString("attitude_after",attitudeForInfluence(companionKey,nextInfluence));
+   // Companion Guide pp.42-43: choosing the party's own question makes
+   // Jubilost depart, quietly when Helpful and angrily otherwise.
+   boolean jubilostOtherQuestion="jubilost".equals(companionKey)
+    &&"ask_stolen_lands_planar_secret".equals(b);
+   if(jubilostOtherQuestion){
+    nextAvailable=0;
+    nextAttitude=companionBefore.optString("attitude","");
+    if(nextAttitude.length()==0)nextAttitude=attitudeForInfluence(companionKey,priorInfluence);
+   }
    String unlocked=selected.optString("feature_unlocked","");
    JSONArray historyAfter=rewardHistory(companionBefore,nextInfluence,nextAttitude,history(companionBefore));
    if(unlocked.length()>0&&!has(historyAfter,unlocked))historyAfter.put(unlocked);
@@ -427,6 +436,8 @@ public final class KingmakerCompanionSemantics {
     if(sourceItems!=null)for(int i=0;i<sourceItems.length();i++)itemsCertified.put(sourceItems.optString(i));
    }
    JSONObject nextProgress=new JSONObject(currentProgress.toString());
+   if(jubilostOtherQuestion)
+    nextProgress.put("jubilost_departure_tone","helpful".equals(nextAttitude)?"quiet":"angry");
    String summary=selected.optString("description",selected.optString("title"));
    nextProgress.put("branch_resolved",b).put("branch_summary",summary)
     .put("xp_awarded",xpCertified).put("items_awarded",itemsCertified).put("journal_started",true);

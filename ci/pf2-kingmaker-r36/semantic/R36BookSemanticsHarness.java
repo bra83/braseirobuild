@@ -707,6 +707,20 @@ public final class R36BookSemanticsHarness {
      "Companion departure matches canonical branch: "+branchId);
     check(actualResult.optString("feature_unlocked").equals(sourceBranch.optString("feature_unlocked")),
      "Feature matches canonical branch: "+branchId);
+    if("jubilost".equals(companionKey)&&"ask_stolen_lands_planar_secret".equals(branchId)){
+     JSONObject helpful=new JSONObject(companionBefore.toString()).put("attitude","helpful");
+     JSONObject unhappy=new JSONObject(companionBefore.toString()).put("attitude","indifferent");
+     JSONObject quiet=KingmakerCompanionSemantics.resolveCompanionAdventureBranch(companionKey,branchId,helpful,branchProgress);
+     JSONObject angry=KingmakerCompanionSemantics.resolveCompanionAdventureBranch(companionKey,branchId,unhappy,branchProgress);
+     check(quiet.optInt("available_after")==0&&
+      "quiet".equals(quiet.optJSONObject("progress").optString("jubilost_departure_tone"))&&
+      "helpful".equals(quiet.optString("attitude_after")),
+      "Companion Guide pp.42-43: Helpful Jubilost leaves quietly");
+     check(angry.optInt("available_after")==0&&
+      "angry".equals(angry.optJSONObject("progress").optString("jubilost_departure_tone"))&&
+      "indifferent".equals(angry.optString("attitude_after")),
+      "Companion Guide pp.42-43: non-Helpful Jubilost leaves angrily");
+    }
     check(actualResult.optInt("xp_awarded")==0&&actualResult.optJSONArray("items_awarded").length()==0,
      "Unverified automatic rewards blocked: "+branchId);
     JSONObject restoredProgress=new JSONObject(actualResult.optJSONObject("progress").toString());
