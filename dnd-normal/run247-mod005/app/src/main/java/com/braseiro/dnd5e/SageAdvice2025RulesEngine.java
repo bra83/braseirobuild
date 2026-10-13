@@ -226,7 +226,18 @@ public final class SageAdvice2025RulesEngine {
             case "focus_consumed_or_costly_material": return ok(id,"spellcasting","Spellcasting Focus não substitui componente com custo nem componente consumido.");
             case "focus_somatic_hand": return ok(id,"spellcasting","A mesma mão pode manipular Material/Focus e Somatic quando o spell tem Material; spell apenas Somatic requer mão livre salvo exceção.");
             case "concentration_range_los": return ok(id,"spellcasting","Manter Concentration não exige permanecer em range ou line of sight salvo regra específica.");
-            case "temp_hp_concentration_dc": return ok(id,"spellcasting","Dano absorvido por Temporary HP ainda conta como dano sofrido para Concentration; no exemplo oficial, 30 de dano exigem DC 15. Arcane Ward que absorve dano no lugar do caster pode reduzir ou eliminar o teste.").put("example_incoming_damage",30).put("example_concentration_dc",15);
+            case "temp_hp_concentration_dc": {
+                JSONObject ruling = ok(id,"spellcasting","Temporary HP absorvem dano mas o conjurador ainda o sofreu para Concentration; 30 de dano exigem DC 15. Arcane Ward pode absorver dano no lugar do conjurador.");
+                ruling.put("example_incoming_damage",30).put("example_concentration_dc",15);
+                if (in.has("damage_taken")) {
+                    int damage = in.optInt("damage_taken",-1);
+                    if (damage < 0) return blocked(id).put("reason","invalid_damage_taken");
+                    if (damage == 0) return ruling.put("requires_check",false);
+                    return ruling.put("requires_check",true)
+                            .put("calculated_dc",Math.max(10,damage/2));
+                }
+                return ruling;
+            }
             case "dismiss_spell": return ok(id,"spellcasting","Spell não-instantâneo pode ser encerrado pelo caster conforme as regras atuais de Duration, salvo restrição específica.");
             case "animate_objects_time_stop": return ok(id,"spellcasting","Conjurar Animate Objects durante Time Stop não encerra por si só; comandar as criaturas pode encerrar por afetar outras criaturas.");
             case "armor_of_agathys_temp_hp_source": return ok(id,"spellcasting","Armor of Agathys requer que o alvo tenha Temporary HP; eles não precisam vir do próprio spell.");
@@ -279,7 +290,22 @@ public final class SageAdvice2025RulesEngine {
             case "magic_item_spell_save_dc": return ok(id,"magic_items","Spell de magic item usa DC 8 + spellcasting ability modifier + proficiency; sem spellcasting ability, modifier é 0, salvo item definir DC própria.");
             case "administer_potion_unconscious": return ok(id,"magic_items","Potion pode ser administrada a outra criatura, inclusive Unconscious, usando a ação/Bonus Action prevista pela regra atual.");
             case "potion_concentration": return ok(id,"magic_items","Potion exige Concentration apenas se sua descrição disser ou se duplicar spell que exige Concentration.");
-            case "spell_scroll_class_list": return ok(id,"magic_items","Scroll comum admite ativação por personagem alfabetizado; o tipo específico Spell Scroll exige spell na spell list da classe/subclasse.").put("general_scroll_requires_spell_list",false).put("spell_scroll_requires_spell_list",true);
+            case "spell_scroll_class_list": {
+                JSONObject ruling = ok(id,"magic_items","Scroll comum pode ser tentado por leitor alfabetizado; Spell Scroll exige o spell na lista de magia usada pela classe/subclasse.").put("general_scroll_requires_spell_list",false).put("spell_scroll_requires_spell_list",true);
+                if (in.has("scroll_kind")) {
+                    String kind = norm(in.optString("scroll_kind"));
+                    if ("general_scroll".equals(kind)) {
+                        if (!in.has("literate")) return ruling.put("can_attempt_activation", JSONObject.NULL);
+                        return ruling.put("can_attempt_activation",in.optBoolean("literate"));
+                    }
+                    if ("spell_scroll".equals(kind)) {
+                        if (!in.has("spell_on_class_list")) return ruling.put("can_read_spell_scroll", JSONObject.NULL);
+                        return ruling.put("can_read_spell_scroll",in.optBoolean("spell_on_class_list"));
+                    }
+                    return blocked(id).put("reason","unknown_scroll_kind");
+                }
+                return ruling;
+            }
             case "ring_bracers_ac_stack": return ok(id,"magic_items","Ring of Protection e Bracers of Defense acumulam porque são efeitos diferentes, respeitando restrições de attunement/duplicata.");
             case "magic_bow_nonmagic_ammo": return ok(id,"magic_items","Ataque feito por magic ranged weapon é mágico mesmo com ammunition não-mágica.");
             case "thrown_magic_weapon_return": return ok(id,"magic_items","Magic weapon arremessada só retorna automaticamente se sua descrição disser que retorna.");

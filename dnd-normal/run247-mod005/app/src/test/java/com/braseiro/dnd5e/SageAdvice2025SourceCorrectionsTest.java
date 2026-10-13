@@ -57,6 +57,43 @@ public final class SageAdvice2025SourceCorrectionsTest {
         assertFalse(answer.getBoolean("dispels_other_inside_effects"));
     }
 
+    @Test public void scrollDecisionRequiresExplicitBookClassAndLiteracyInputs() throws Exception {
+        JSONObject ordinary=rules.resolve("spell_scroll_class_list",
+                new JSONObject().put("scroll_kind","general_scroll").put("literate",true));
+        assertTrue(ordinary.getBoolean("can_attempt_activation"));
+        assertFalse(rules.resolve("spell_scroll_class_list",
+                new JSONObject().put("scroll_kind","general_scroll").put("literate",false))
+                .getBoolean("can_attempt_activation"));
+        assertTrue(rules.resolve("spell_scroll_class_list",
+                new JSONObject().put("scroll_kind","spell_scroll").put("spell_on_class_list",true))
+                .getBoolean("can_read_spell_scroll"));
+        assertFalse(rules.resolve("spell_scroll_class_list",
+                new JSONObject().put("scroll_kind","spell_scroll").put("spell_on_class_list",false))
+                .getBoolean("can_read_spell_scroll"));
+        JSONObject unknown=rules.resolve("spell_scroll_class_list",
+                new JSONObject().put("scroll_kind","mystery"));
+        assertFalse(unknown.getBoolean("resolved"));
+        JSONObject incomplete=rules.resolve("spell_scroll_class_list",
+                new JSONObject().put("scroll_kind","spell_scroll"));
+        assertTrue(incomplete.isNull("can_read_spell_scroll"));
+    }
+
+    @Test public void concentrationDcComputedOnlyOnExplicitDamageWithoutHiddenRolls() throws Exception {
+        JSONObject input=new JSONObject().put("damage_taken",30);
+        String original=input.toString();
+        JSONObject result=rules.resolve("temp_hp_concentration_dc",input);
+        assertEquals(15,result.getInt("calculated_dc"));
+        assertTrue(result.getBoolean("requires_check"));
+        assertEquals(original,input.toString());
+        assertFalse(result.getBoolean("auto_rolls"));
+        assertEquals(10,rules.resolve("temp_hp_concentration_dc",
+                new JSONObject().put("damage_taken",7)).getInt("calculated_dc"));
+        assertFalse(rules.resolve("temp_hp_concentration_dc",
+                new JSONObject().put("damage_taken",0)).getBoolean("requires_check"));
+        assertFalse(rules.resolve("temp_hp_concentration_dc",
+                new JSONObject().put("damage_taken",-1)).getBoolean("resolved"));
+    }
+
     @Test public void dmPolicyAndUnknownIdsDoNotMutateInput() throws Exception {
         JSONObject input=new JSONObject().put("hp",17).put("spell_slot",3);
         String before=input.toString();
