@@ -16,6 +16,13 @@ public final class SageAdvice2025SourceCorrectionsTest {
         assertEquals(163,coverage.getInt("editorial_qas"));
         assertEquals(1,coverage.getInt("editorial_policy_endpoints"));
         assertEquals(57,coverage.getJSONObject("category_counts").getInt("spellcasting"));
+        assertFalse(coverage.getJSONObject("category_counts").has("rules_role_meta"));
+        int officialQaCount=0;
+        org.json.JSONObject totals=coverage.getJSONObject("category_counts");
+        for(java.util.Iterator<String> it=totals.keys(); it.hasNext();) {
+            officialQaCount+=totals.getInt(it.next());
+        }
+        assertEquals(163,officialQaCount);
         assertFalse(coverage.getBoolean("source_fidelity_semantically_certified"));
         assertEquals(163,SageAdvice163RuntimeContractTest.cases().size());
         assertEquals("MANUAL_DM",rules.resolve("dm_final_say",null).getString("resolution_mode"));

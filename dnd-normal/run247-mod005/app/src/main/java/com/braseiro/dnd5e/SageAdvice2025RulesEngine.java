@@ -73,8 +73,7 @@ public final class SageAdvice2025RulesEngine {
                 .put("equipment", 2)
                 .put("spellcasting", 57)
                 .put("monsters", 8)
-                .put("magic_items", 9)
-                .put("rules_role_meta", 1);
+                .put("magic_items", 9);
         return new JSONObject()
                 .put("source_id", SOURCE_ID)
                 .put("source_title", SOURCE_TITLE)
