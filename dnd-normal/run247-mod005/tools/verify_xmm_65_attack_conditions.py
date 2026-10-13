@@ -12,7 +12,8 @@ SAVE=re.compile(r"\{@actSave\s+(str|dex|con|int|wis|cha)\}\s*\{@dc\s*(\d+)",re.I
 OTHER=re.compile(r'\{@condition (?!Grappled\|XPHB)[^}]+\}|\{@damage |\b(?:until|while|takes|can pull|move|ability checks|disadvantage|advantage)\b',re.I)
 RANGE=re.compile(r'\brange\s+(\d+)(?:/(\d+))?\s+(?:ft\.?\b|feet\b)',re.I)
 ALTERNATE_DAMAGE=re.compile(r'\bor\s+\d+\s*\(\{@damage\b',re.I)
-def expected_rows(monsters):
+def expected_rows(monsters,compiled=None):
+    compiled_by_id={m["id"]:m for m in (compiled or [])}
     out=[]
     for i,monster in enumerate(monsters):
         for j,action in enumerate(monster.get("action",[])):
@@ -22,9 +23,13 @@ def expected_rows(monsters):
             name=base.RCH.sub("",action["name"]).strip()
             ptr=f"/monster/{i}/action/{j}/entries/0"
             for m in PRONE.finditer(entry):
+                compiled_actions=compiled_by_id.get(monster["name"],{}).get("actions",[])
+                compiled_action=compiled_actions[j] if j<len(compiled_actions) else {}
+                alternate_damage=bool(ALTERNATE_DAMAGE.search(entry))
+                alternate_supported=bool(compiled_action.get("damage_bloodied"))
                 out.append({"id":monster["name"],"name":name,"slot":j,"ptr":ptr,
                     "size":m.group(1),"condition":"prone","dc":0,
-                    "other":bool(entry[m.end():].strip()) or bool(ALTERNATE_DAMAGE.search(entry))})
+                    "other":bool(entry[m.end():].strip()) or (alternate_damage and not alternate_supported)})
             if "saving throw" in entry.lower():continue
             for m in GRAPPLED.finditer(entry):
                 sizes=list(SIZE.finditer(entry[:m.start()]))
@@ -62,17 +67,17 @@ def check_ranged_prone_attack_ranges(source,compiled,contracts):
 def check(project,raw):
     if base.blob_sha(raw)!=base.BESTIARY_SHA:raise ValueError("XMM_PINNED_BESTIARY_BLOB_MISMATCH")
     src=json.loads(raw)["monster"]
-    expected=expected_rows(src)
+    compiled=base.java_rows((project/base.JAVA_RUNTIME).read_text(encoding="utf-8"))
+    expected=expected_rows(src,compiled)
     actual=base.java_rows((project/JAVA).read_text(encoding="utf-8"))
     if len(expected)!=65 or len(actual)!=65 or expected!=actual:
         raise ValueError("XMM_65_ATTACK_RIDERS_INDEPENDENT_SOURCE_MISMATCH")
-    compiled=base.java_rows((project/base.JAVA_RUNTIME).read_text(encoding="utf-8"))
     ranged=check_ranged_prone_attack_ranges(src,compiled,actual)
     if sum(x["condition"]=="prone" for x in actual)!=29:raise ValueError("XMM_PRONE_COUNT")
     if sum(x["condition"]=="grappled" for x in actual)!=36:raise ValueError("XMM_GRAPPLE_COUNT")
-    if sum(x["other"] for x in actual)!=22:raise ValueError("XMM_OTHER_RIDERS_COUNT")
+    if sum(x["other"] for x in actual)!=21:raise ValueError("XMM_OTHER_RIDERS_COUNT")
     return {"source":"XMM","verified_riders":65,"prone":29,"grappled":36,
-        "additional_manual":22,"source_blob_sha1":base.BESTIARY_SHA,
+        "additional_manual":21,"source_blob_sha1":base.BESTIARY_SHA,
         "ranged_prone_ranges_compared":ranged,
         "full_action_automation_certified":False}
 def main():

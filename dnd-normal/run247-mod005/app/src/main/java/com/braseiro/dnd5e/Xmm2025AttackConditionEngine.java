@@ -58,7 +58,7 @@ public final class Xmm2025AttackConditionEngine {
   "{\"id\":\"Remorhaz\",\"name\":\"Bite\",\"slot\":0,\"ptr\":\"/monster/371/action/0/entries/0\",\"size\":\"Large\",\"condition\":\"grappled\",\"dc\":17,\"other\":true}",
   "{\"id\":\"Roc\",\"name\":\"Talons\",\"slot\":2,\"ptr\":\"/monster/375/action/2/entries/0\",\"size\":\"Huge\",\"condition\":\"grappled\",\"dc\":19,\"other\":true}",
   "{\"id\":\"Stone Giant\",\"name\":\"Boulder\",\"slot\":2,\"ptr\":\"/monster/418/action/2/entries/0\",\"size\":\"Large\",\"condition\":\"prone\",\"dc\":0,\"other\":false}",
-  "{\"id\":\"Swarm of Crawling Claws\",\"name\":\"Swarm of Grasping Hands\",\"slot\":0,\"ptr\":\"/monster/423/action/0/entries/0\",\"size\":\"Medium\",\"condition\":\"prone\",\"dc\":0,\"other\":true}",
+  "{\"id\":\"Swarm of Crawling Claws\",\"name\":\"Swarm of Grasping Hands\",\"slot\":0,\"ptr\":\"/monster/423/action/0/entries/0\",\"size\":\"Medium\",\"condition\":\"prone\",\"dc\":0,\"other\":false}",
   "{\"id\":\"Swarm of Stirges\",\"name\":\"Swarm of Proboscises\",\"slot\":0,\"ptr\":\"/monster/431/action/0/entries/0\",\"size\":\"Medium\",\"condition\":\"grappled\",\"dc\":13,\"other\":true}",
   "{\"id\":\"Tarrasque\",\"name\":\"Tail\",\"slot\":3,\"ptr\":\"/monster/433/action/3/entries/0\",\"size\":\"Huge\",\"condition\":\"prone\",\"dc\":0,\"other\":false}",
   "{\"id\":\"Tiger\",\"name\":\"Rend\",\"slot\":0,\"ptr\":\"/monster/436/action/0/entries/0\",\"size\":\"Large\",\"condition\":\"prone\",\"dc\":0,\"other\":false}",
@@ -80,7 +80,7 @@ public final class Xmm2025AttackConditionEngine {
  private static JSONObject blocked(String why){try{return new JSONObject().put("resolved",false).put("reason",why).put("auto_rolls",false).put("auto_mutation_allowed",false).put("condition_applied",false);}catch(Exception e){return new JSONObject();}}
  public static JSONArray catalog()throws Exception{JSONArray a=new JSONArray();for(JSONObject r:INDEX.values())a.put(new JSONObject(r.toString()));return a;}
  public static JSONObject profile(String monster,String action)throws Exception{JSONObject r=INDEX.get(monster+"::"+action);return r==null?new JSONObject():new JSONObject(r.toString());}
- public static JSONObject coverage()throws Exception{return new JSONObject().put("source","XMM").put("verified",65).put("prone",29).put("grappled",36).put("other_riders_manual",22).put("source_blob_sha1",SOURCE_BLOB).put("full_automation_certified",false).put("auto_rolls",false);}
+ public static JSONObject coverage()throws Exception{return new JSONObject().put("source","XMM").put("verified",65).put("prone",29).put("grappled",36).put("other_riders_manual",21).put("source_blob_sha1",SOURCE_BLOB).put("full_automation_certified",false).put("auto_rolls",false);}
  private static int size(String s){for(int i=0;i<SIZES.length;i++)if(SIZES[i].equals(s))return i;return -1;}
  private static boolean flag(JSONObject in,String key)throws Exception{if(!(in.opt(key) instanceof Boolean))throw new IllegalArgumentException("explicit_boolean_"+key+"_required");return in.getBoolean(key);}
  public static JSONObject resolve(JSONObject in){try{

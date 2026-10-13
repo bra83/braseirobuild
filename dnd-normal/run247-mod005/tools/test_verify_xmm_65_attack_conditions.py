@@ -27,5 +27,14 @@ class XmmAttackConditionRangeTests(unittest.TestCase):
         row=xmm.expected_rows(source)[0]
         self.assertTrue(row["other"])
 
+    def test_source_bound_bloodied_damage_branch_is_not_manual(self):
+        source=[{"name":"Swarm","action":[{"name":"Hands","entries":[
+            "{@atkr m} {@hit 4}, reach 5 ft. 20 ({@damage 4d8 + 2}) damage, or 11 "
+            "({@damage 2d8 + 2}) damage if Bloodied. If the target is a Medium "
+            "or smaller creature, it has the {@condition Prone|XPHB} condition."]}]}]
+        compiled=[{"id":"Swarm","actions":[{"damage_bloodied":"2d8 + 2"}]}]
+        row=xmm.expected_rows(source,compiled)[0]
+        self.assertFalse(row["other"])
+
 if __name__=="__main__":
     unittest.main()

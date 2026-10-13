@@ -30,6 +30,11 @@ public final class XmmProneEffectRobolectricTest {
     }
 
     private static void applySourceProneRider(Context context,JSONObject rider,int ordinal)throws Exception {
+        applySourceProneRider(context,rider,ordinal,false);
+    }
+
+    private static void applySourceProneRider(Context context,JSONObject rider,int ordinal,
+        boolean bloodied)throws Exception {
         String dbName="xmm_prone_matrix_"+ordinal+"_"+Long.toHexString(System.nanoTime())+".db";
         AppDb db=new AppDb(context,dbName);
         try {
@@ -40,13 +45,8 @@ public final class XmmProneEffectRobolectricTest {
             assertEquals(monster+" / "+actionName,"prone",action.optString("condition_on_hit"));
             assertEquals(monster+" / "+actionName,rider.getString("size").toLowerCase(java.util.Locale.ROOT),
                 action.optString("condition_max_target_size"));
-            boolean hasMelee=false,hasRanged=false;JSONArray modes=action.optJSONArray("attack_modes");
-            if(modes!=null)for(int i=0;i<modes.length();i++){
-                hasMelee|="m".equalsIgnoreCase(modes.optString(i));
-                hasRanged|="r".equalsIgnoreCase(modes.optString(i));
-            }
-            int targetX=hasRanged&&!hasMelee?4:3; // 10 ft keeps ranged attacks out of close combat.
-            JSONArray specs=StatblockCombatFlowEngine.damageSpecs(action.optString("damage",""),
+            String attackDamage=bloodied?action.optString("damage_bloodied",""):action.optString("damage","");
+            JSONArray specs=StatblockCombatFlowEngine.damageSpecs(attackDamage,
                 action.optString("damage_type",""),action.optString("extra_damage",""));
             assertTrue(monster+" / "+actionName+" source damage required",specs.length()>0);
             JSONArray rolled=new JSONArray();
@@ -59,15 +59,25 @@ public final class XmmProneEffectRobolectricTest {
                     .put("damage_type",spec.optString("type"))
                     .put("damage_total",range.min));
             }
-            long actor=db.addCombatant("XMM "+monster+" prone matrix",20,100,100,12,"",false);
+            long actor=db.addCombatant("XMM "+monster+" prone matrix",20,bloodied?24:100,bloodied?49:100,12,"",false);
             long target=db.addCombatant("XMM Prone Target "+ordinal,10,100,100,1,"",true);
             bind(db,actor,monster,null);bind(db,target,null,rider.getString("size").toLowerCase(java.util.Locale.ROOT));
             db.setCombatRunning(true);assertEquals(actor,db.nextTurn().optLong("id"));
             new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
-            position(db,actor,2,2);position(db,target,targetX,2);
+            position(db,actor,2,2);position(db,target,3,2);
+            // An adjacent ranged attack can require disadvantage. Supply both
+            // physical d20 faces only when the authoritative preflight requires them.
+            JSONObject preview=db.previewCompiledMonsterAttackRollMode(actor,target,monster,actionName);
+            assertTrue(monster+" / "+actionName+": "+preview,
+                preview.optBoolean("monster_roll_preview_valid"));
+            int secondNatural=preview.optBoolean("second_d20_required")?19:0;
             JSONObject hit=db.applyCompiledStatblockAttack(actor,target,monster,actionName,
-                19,0,rolled,0,0,-1,-1,"ui-monster-prone-matrix-"+ordinal);
+                19,secondNatural,rolled,0,0,-1,-1,"ui-monster-prone-matrix-"+ordinal);
             assertTrue(monster+" / "+actionName+": "+hit,hit.optBoolean("statblock_attack_committed"));
+            assertEquals(monster+" / "+actionName+" conditional damage choice",
+                bloodied,hit.getJSONObject("resolved").optBoolean("bloodied_damage_selected"));
+            assertEquals(monster+" / "+actionName+" source damage expression",
+                attackDamage,hit.getJSONObject("resolved").optString("damage_expression"));
             assertTrue(monster+" / "+actionName,
                 ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"prone"));
         } finally {db.close();context.deleteDatabase(dbName);}
@@ -137,6 +147,21 @@ public final class XmmProneEffectRobolectricTest {
         }
     }
 
+    @Test public void bloodiedSwarmUsesReducedDamageAndStillKnocksTargetProne()throws Exception {
+        JSONObject installed=Xmm2025CompiledBestiaryEngine.install();
+        assertTrue(installed.toString(),installed.optBoolean("complete"));
+        JSONObject action=CompiledStatblockEngine.runtimeProfile("Swarm of Crawling Claws")
+            .getJSONArray("actions").getJSONObject(0);
+        assertEquals("4d8 + 2",action.optString("damage"));
+        assertEquals("2d8 + 2",action.optString("damage_bloodied"));
+        assertEquals("necrotic",action.optString("damage_type"));
+        assertFalse(action.optBoolean("manual_rider_resolution_required",true));
+        JSONObject rider=Xmm2025AttackConditionEngine.profile("Swarm of Crawling Claws",
+            "Swarm of Grasping Hands");
+        assertEquals("prone",rider.optString("condition"));
+        applySourceProneRider(RuntimeEnvironment.getApplication(),rider,28,true);
+    }
+
     @Test public void everySimpleSourceProneRiderAppliesThroughTheCombatTransaction()throws Exception {
         assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
         JSONArray rows=Xmm2025AttackConditionEngine.catalog();int prone=0,applied=0,manual=0;
@@ -148,6 +173,6 @@ public final class XmmProneEffectRobolectricTest {
             if(rider.optBoolean("other")){manual++;continue;}
             applySourceProneRider(context,rider,applied);applied++;
         }
-        assertEquals(29,prone);assertEquals(27,applied);assertEquals(2,manual);
+        assertEquals(29,prone);assertEquals(28,applied);assertEquals(1,manual);
     }
 }
