@@ -133,6 +133,16 @@ jobs:
           if ($xsac.official_qa_count -ne 163 -or !$xsac.source_index_gate_pass -or $xsac.gameplay_semantics_certified) {
             throw 'XSAC_SOURCE_REPORT_INVALID'
           }
+          # Independently compare 503 statblock mechanics and 36 book sections to pinned XMM.
+          & $python.Source -m unittest discover -s tools -p 'test_verify_xmm_503_source.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'XMM_SOURCE_VERIFIER_UNIT_TESTS_FAILED' }
+          & $python.Source tools/verify_xmm_503_source.py --json-out build/xmm-503/source-report.json
+          if ($LASTEXITCODE -ne 0) { throw 'XMM_SOURCE_503_INDEPENDENT_GATE_FAILED' }
+          $xmm=Get-Content build/xmm-503/source-report.json -Raw | ConvertFrom-Json
+          if ($xmm.source_monsters_compared -ne 503 -or $xmm.editorial_sections_compared -ne 36 -or !$xmm.source_field_and_catalog_gate_pass -or $xmm.full_monster_combat_automation_certified) {
+            throw 'XMM_SOURCE_PROVENANCE_NOT_ACCEPTABLE'
+          }
+          Write-Host 'XMM_SOURCE_503_FIELD_COMPARE_AND_36_SECTION_INDEX=PASS'
           Write-Host 'XSAC_163_QA_SOURCE_INDEX=PASS; SEMANTIC_CERTIFICATION_NOT_CLAIMED=TRUE'
           Write-Host 'EDITORIAL_483_SECTION_BINDINGS=PASS; SEMANTIC_CERTIFICATION_NOT_CLAIMED=TRUE'
       - name: Execute AdventureTransactionSafetyRobolectricTest and full regression
