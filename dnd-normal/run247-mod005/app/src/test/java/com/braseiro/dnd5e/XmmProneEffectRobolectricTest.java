@@ -40,8 +40,8 @@ public final class XmmProneEffectRobolectricTest {
             assertEquals(monster+" / "+actionName,"prone",action.optString("condition_on_hit"));
             assertEquals(monster+" / "+actionName,rider.getString("size").toLowerCase(java.util.Locale.ROOT),
                 action.optString("condition_max_target_size"));
-            JSONArray specs=StatblockCombatFlowEngine.damageSpecs(action.optString("damage_expression",""),
-                action.optString("damage_type",""),action.optString("extra_damage_expression",""));
+            JSONArray specs=StatblockCombatFlowEngine.damageSpecs(action.optString("damage",""),
+                action.optString("damage_type",""),action.optString("extra_damage",""));
             assertTrue(monster+" / "+actionName+" source damage required",specs.length()>0);
             JSONArray rolled=new JSONArray();
             for(int i=0;i<specs.length();i++){
