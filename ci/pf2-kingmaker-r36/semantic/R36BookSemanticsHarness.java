@@ -608,7 +608,7 @@ public final class R36BookSemanticsHarness {
   check(valMercy.optInt("available_after")==1&&"helpful".equals(valMercy.optString("attitude_after")),"Valerie remains available and Helpful when Sir Fredero is spared");
   JSONObject valDepart=KingmakerCompanionSemantics.resolveCompanionAdventureBranch("valerie","deny_mercy_slay_fredero",new JSONObject().put("companion_key","valerie").put("influence",4).put("available",1),new JSONObject());
   check(valDepart.optInt("available_after")==0&&"hostile".equals(valDepart.optString("attitude_after")),"Valerie permanently leaves the party when Sir Fredero is denied mercy");
-  JSONObject trisProg=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("tristian","research_cult",19,18,27,new JSONObject()).optJSONObject("progress");
+  JSONObject trisProg=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("tristian","tristian_research_cult",19,18,25,new JSONObject()).optJSONObject("progress");
   check(trisProg.optInt("research_points")==2&&trisProg.optInt("curse_countdown")==20,"Tristian critical research grants 2 points without shortening the official countdown of 20");
   JSONObject trisBranch=KingmakerCompanionSemantics.resolveCompanionAdventureBranch("tristian","redeem_cultists_awaken_deva",new JSONObject().put("companion_key","tristian").put("influence",6),trisProg);
   check(trisBranch.optInt("xp_awarded")==120&&trisBranch.optJSONArray("items_awarded").length()==2,"Tristian redemption branch awards 120 XP, Celestial Wings, and Incarnate Ancestry ritual");
