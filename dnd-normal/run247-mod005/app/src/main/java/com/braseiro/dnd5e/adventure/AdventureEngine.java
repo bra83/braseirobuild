@@ -23,32 +23,62 @@ public final class AdventureEngine implements IAdventureEngine {
 
     public synchronized boolean installModule(AdventureModule module){return persistenceAdapter.saveModule(module);}
 
-    public synchronized JSONObject loadOrStartAdventure(AdventureModule module,long partyId){JSONObject out=new JSONObject();try{
-        if(module==null){return error("Módulo de aventura ausente.");}
-        if(module.getNode(module.getRootNodeId())==null)return error("Módulo inválido: nó inicial ausente.");
-        if(!persistenceAdapter.saveModule(module))return error("Falha ao persistir módulo da aventura.");
-        // An unreadable new campaign must never leave the previous one
-        // attached under another module ID or expose its narrator context.
+    public synchronized JSONObject loadOrStartAdventure(AdventureModule module,long partyId) {
+        // Never expose the previous campaign under a different module/party.
         graphEngine.clearSession();
-        activeState=null;
-        activeModule=module;activePartyId=partyId;
-        AdventureState loaded=persistenceAdapter.loadStateForStart(module.getId(),partyId);
-        JSONObject res;
-        if(loaded!=null){
-            res=graphEngine.resumeAdventure(module,loaded);
-            if ("error".equals(res.optString("status"))) {
-                activeState=null;
-                return error("Save existente incompatível com o grafo atual; não sobrescrever.");
+        activeModule = null;
+        activeState = null;
+        activePartyId = 0L;
+        try {
+            if (module == null) return error("Módulo de aventura ausente.");
+            if (module.getNode(module.getRootNodeId()) == null)
+                return error("Módulo inválido: nó inicial ausente.");
+
+            // Read and validate first. A damaged existing save must not even
+            // replace the previously installed module/version in SQLite.
+            AdventureState loaded = persistenceAdapter.loadStateForStart(module.getId(), partyId);
+            if (loaded != null) {
+                String node = loaded.getCurrentNodeId();
+                String status = loaded.getStatus();
+                boolean terminal = ("completed".equals(node) || "failed".equals(node))
+                        && node.equals(status);
+                if (module.getNode(node) == null && !terminal)
+                    return error("Save incompatível com o grafo atual; módulo e save preservados.");
             }
-            activeState=loaded;
-        }else{AdventureState created=new AdventureState(module.getRootNodeId());
-            if(!persistenceAdapter.saveState(module.getId(),partyId,created)){
-                activeState=null;
-                return error("Falha ao salvar primeira sessão da aventura. Nenhum jogo iniciado.");
+            if (!persistenceAdapter.saveModule(module))
+                return error("Falha ao persistir módulo da aventura.");
+
+            activeModule = module;
+            activePartyId = partyId;
+            JSONObject result;
+            if (loaded != null) {
+                result = graphEngine.resumeAdventure(module, loaded);
+                if ("error".equals(result.optString("status"))) {
+                    activeModule = null;
+                    return error("Save existente incompatível com o grafo atual; não sobrescrever.");
+                }
+                activeState = loaded;
+            } else {
+                AdventureState created = new AdventureState(module.getRootNodeId());
+                if (!persistenceAdapter.saveState(module.getId(), partyId, created)) {
+                    activeModule = null;
+                    return error("Falha ao salvar primeira sessão da aventura.");
+                }
+                activeState = created;
+                result = graphEngine.resumeAdventure(module, activeState);
             }
-            activeState=created;res=graphEngine.resumeAdventure(module,activeState);}
-        res.put("module_installed",true).put("current_node_id",activeState!=null?activeState.getCurrentNodeId():"").put("auto_rolls",false);return res;
-    }catch(Exception e){return error(e.getMessage());}}
+            result.put("module_installed", true)
+                    .put("current_node_id", activeState.getCurrentNodeId())
+                    .put("auto_rolls", false);
+            return result;
+        } catch (Exception e) {
+            graphEngine.clearSession();
+            activeModule = null;
+            activeState = null;
+            activePartyId = 0L;
+            return error("Falha ao carregar aventura sem alterar o save: " + e.getMessage());
+        }
+    }
 
     /** Carrega somente módulo já compilado/instalado. Não cria aventura fictícia de fallback. */
     public synchronized JSONObject loadOrStart(String moduleId){AdventureModule mod=persistenceAdapter.loadModule(moduleId);if(mod==null){JSONObject o=error("Módulo de aventura não instalado: "+moduleId);try{o.put("requires_module_install",true).put("auto_rolls",false);}catch(Exception ignored){}return o;}return loadOrStartAdventure(mod,1L);}
