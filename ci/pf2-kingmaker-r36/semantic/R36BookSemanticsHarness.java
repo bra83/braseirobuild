@@ -679,8 +679,28 @@ public final class R36BookSemanticsHarness {
     JSONObject sourceBranch=options.optJSONObject(k);
     String branchId=sourceBranch.optString("branch_key");
     JSONObject companionBefore=new JSONObject().put("companion_key",companionKey).put("influence",4).put("available",1);
+    // Use real published checks to reach each Jubilost outcome. An unanswered
+    // fixture may not bypass the Host's three ordered questions (Guide p.42).
+    JSONObject branchProgress=progress;
+    if("jubilost".equals(companionKey)){
+     branchProgress=new JSONObject(progress.toString());
+     int debateDc=branchProgress.optJSONObject("debate_rule").optInt("dc");
+     check(debateDc==24,"Actual Jubilost debate DC from installed Companion Guide data");
+     boolean noAnswer="jubilost_debates_no_answer".equals(branchId);
+     for(int round=1;round<=3;round++){
+      // At 1 VP Shyka names no winner; at 3 VP the Host answers.
+      int modifier=debateDc-10-((noAnswer&&round>1)?1:0);
+      branchProgress=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
+       companionKey,"jubilost_debate_round_"+round,10,modifier,debateDc,branchProgress)
+       .optJSONObject("progress");
+     }
+     check(branchProgress.optInt("debate_rounds_answered")==3,
+      "Jubilost published outcome requires all three real debate checks: "+branchId);
+     check(branchProgress.optInt("debate_victory_points")==(noAnswer?1:3),
+      "Jubilost published outcome has consistent Victory Points: "+branchId);
+    }
     JSONObject actualResult=KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
-     companionKey,branchId,companionBefore,progress);
+     companionKey,branchId,companionBefore,branchProgress);
     check(branchId.equals(actualResult.optString("branch_key")),"Canonical JSON branch accepted: "+branchId);
     check(actualResult.optInt("influence_delta")==sourceBranch.optInt("influence_delta"),"Influence matches canonical branch: "+branchId);
     check(actualResult.optInt("available_after")==(sourceBranch.optBoolean("available_after",true)?1:0),
@@ -692,6 +712,7 @@ public final class R36BookSemanticsHarness {
    }
    JSONArray scenes=progress.optJSONArray("scenes");
    int officialChecks=0;
+   JSONObject checkedProgress=progress;
    for(int k=0;k<scenes.length();k++){
     JSONArray sourceChecks=scenes.optJSONObject(k).optJSONArray("skill_checks");
     if(sourceChecks==null)continue;
@@ -699,8 +720,17 @@ public final class R36BookSemanticsHarness {
      JSONObject sourceCheck=sourceChecks.optJSONObject(c);
      String id=sourceCheck.optString("check_id");
      int dc=sourceCheck.optInt("dc");
+     // Tristian must investigate to 8 RP before Talbot becomes accessible.
+     // Earn these points via the published research check, not a manual flag.
+     if("tristian".equals(companionKey)&&"tristian_confront_talbot".equals(id)){
+      while(checkedProgress.optInt("research_points")<8)
+       checkedProgress=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
+        companionKey,"tristian_research_cult",10,15,25,checkedProgress).optJSONObject("progress");
+     }
      JSONObject result=KingmakerCompanionSemantics.resolveCompanionAdventureCheck(
-      companionKey,id,10,dc-10,dc,progress);
+      companionKey,id,10,dc-10,dc,checkedProgress);
+     if("jubilost".equals(companionKey)||"tristian".equals(companionKey))
+      checkedProgress=result.optJSONObject("progress");
      check(id.equals(result.optJSONObject("check").optString("check_id")),
       "Canonical JSON skill check accepted: "+id);
      officialChecks++;
