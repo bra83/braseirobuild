@@ -166,9 +166,9 @@ public final class RavenloftHorrorsWithinRulesEngine {
         if(a.equals("touch_of_death_death_save")){
             Integer first=explicitDie(in,"first_d20",1,20);
             if(first==null)return pending(o,"first_d20_required");
-            Integer second=explicitDie(in,"second_d20",1,20);
-            if(second==null)return pending(o,"second_d20_required");
             boolean cancel=in.optBoolean("has_advantage",false);
+            Integer second=cancel?null:explicitDie(in,"second_d20",1,20);
+            if(!cancel&&second==null)return pending(o,"second_d20_required");
             int chosen=cancel?first:Math.min(first,second);
             return o.put("resolved",true).put("state_after",s)
                 .put("death_save_disadvantage",true)
