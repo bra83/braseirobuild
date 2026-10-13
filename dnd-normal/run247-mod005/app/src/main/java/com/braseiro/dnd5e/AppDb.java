@@ -2847,7 +2847,9 @@ public class AppDb extends SQLiteOpenHelper {
             String rollBlock=context.blockDice(natural,secondNatural);
             if(!rollBlock.isEmpty())return out.put("statblock_attack_blocked",rollBlock);
             final int effectiveNatural=context.effective(natural,secondNatural);
-            JSONObject resolved=StatblockCombatRuntimeEngine.attack(id,action,effectiveNatural,geometry.optInt("effective_ac",effectiveCombatantAc(targetId)));
+            JSONObject resolved=StatblockCombatRuntimeEngine.attack(id,action,effectiveNatural,
+                 geometry.optInt("effective_ac",effectiveCombatantAc(targetId)),
+                 actor.optInt("hp",-1),actor.optInt("max_hp",-1));
             if(!resolved.optBoolean("resolved",false))return out.put("statblock_attack_blocked",resolved.optString("reason","statblock_attack_unresolved"));
             if(context.criticalOnHit&&resolved.optBoolean("hit",false))
                 resolved.put("critical",true).put("critical_by_condition",true);
