@@ -75,7 +75,7 @@ def runtime_case_registered(java_source: str, rule_id: str) -> bool:
 
     Cases may use multiple statements for input-aware deterministic resolution.
     """
-    label = re.compile(r'^\\s*case\\s+"'+re.escape(rule_id)+r'"\\s*:\\s*(?:return\\s+(?:ok|manual)\\s*\\(|\\{)', re.M)
+    label = re.compile(r'^\s*case\s+"'+re.escape(rule_id)+r'"\s*:\s*(?:return\s+(?:ok|manual)\s*\(|\{)', re.M)
     return bool(label.search(java_source))
 
 def verified_rows(project: Path, source_bytes: bytes):
