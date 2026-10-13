@@ -3018,6 +3018,41 @@ public class AppDb extends SQLiteOpenHelper {
             if(getCombatState().optInt("running",0)!=1)
                 return out.put("statblock_multiattack_blocked","encounter_not_running");
             JSONObject profile=CompiledStatblockEngine.runtimeProfile(id),declared=profile.optJSONObject("multiattack");
+            // XMM Multiattack must match an explicit source-pinned sequence. Complex
+            // variants and special "use" components remain blocked, not improvised.
+            if(declared!=null&&declared.optBoolean("manual_sequence_required",false)&&
+                "Monster Manual (2025)".equals(CompiledStatblockEngine.get(id).optString("source_book",""))){
+                if(rolls==null)return out.put("statblock_multiattack_blocked","multiattack_rolls_required");
+                JSONArray selected=new JSONArray();
+                for(int n=0;n<rolls.length();n++){
+                    JSONObject step=rolls.optJSONObject(n);
+                    if(step==null||!(step.opt("action") instanceof String))
+                        return out.put("statblock_multiattack_blocked","explicit_xmm_action_required_"+n);
+                    selected.put(step.getString("action"));
+                }
+                JSONObject sourcePlan=Xmm2025MultiattackPlanIndex.resolve(
+                    new JSONObject().put("monster",id).put("selected_actions",selected));
+                if(!sourcePlan.optBoolean("resolved",false))
+                    return out.put("statblock_multiattack_blocked",
+                        "xmm_source_plan_"+sourcePlan.optString("status","unresolved"));
+                JSONArray sourceSteps=sourcePlan.optJSONArray("steps");
+                if(sourceSteps==null||sourceSteps.length()!=rolls.length())
+                    return out.put("statblock_multiattack_blocked","xmm_source_plan_count_mismatch");
+                for(int n=0;n<sourceSteps.length();n++){
+                    JSONObject step=sourceSteps.getJSONObject(n);
+                    JSONObject action=compiledMonsterRiderAction(id,selected.getString(n));
+                    boolean prone=MonsterOnHitProneRules.validSource(action);
+                    if(!"attack".equals(step.optString("kind"))||
+                        !action.optBoolean("source_bound",false)||
+                        (action.optBoolean("manual_rider_resolution_required",true)&&!prone)||
+                        (prone&&n!=sourceSteps.length()-1)||
+                        (!prone&&!action.optString("condition_on_hit","").isEmpty())||
+                        !MonsterActionEconomyGuard.attackRiderBlock(action,prone).isEmpty())
+                        return out.put("statblock_multiattack_blocked",
+                            "xmm_component_requires_manual_resolution_"+n);
+                }
+                declared=new JSONObject().put("count",selected.length()).put("sequence",selected);
+            }
             if(declared==null)return out.put("statblock_multiattack_blocked","multiattack_not_compiled");
             JSONArray seq=declared.optJSONArray("sequence");String[] sequence=null;
             if(seq!=null){sequence=new String[seq.length()];for(int i=0;i<sequence.length;i++)sequence[i]=seq.optString(i);}
@@ -3046,7 +3081,10 @@ public class AppDb extends SQLiteOpenHelper {
                     componentSource.optString("category","action"));
                 if(!componentBlock.isEmpty())return out.put("statblock_multiattack_blocked",
                     componentBlock+"_"+i);
-                String componentRiderBlock=MonsterActionEconomyGuard.attackRiderBlock(componentSource,false);
+                // Only the final source-declared Prone rider can be committed:
+                // earlier knockdowns would change later d20 advantage.
+                boolean finalProne=i==count-1&&MonsterOnHitProneRules.validSource(componentSource);
+                String componentRiderBlock=MonsterActionEconomyGuard.attackRiderBlock(componentSource,finalProne);
                 if(!componentRiderBlock.isEmpty())return out.put("statblock_multiattack_blocked",
                     componentRiderBlock+"_"+i);
                 long targetId=step.optLong("target_id",0);targets[i]=targetId;
@@ -3191,6 +3229,12 @@ public class AppDb extends SQLiteOpenHelper {
                     if(forcedPlans[i].has("forced_movement_blocked"))
                         return out.put("statblock_multiattack_blocked",forcedPlans[i].optString("forced_movement_blocked"));
                 }
+                if(finalProne&&attack.optBoolean("hit",false)){
+                    String ownershipBlock=compiledMonsterOnHitConditionBlock(actorId,targetId,id,
+                        action,token+"-s"+i,componentSource.optString("condition_on_hit",""));
+                    if(!ownershipBlock.isEmpty())return out.put("statblock_multiattack_blocked",
+                        ownershipBlock+"_"+i);
+                }
                 previews[i]=attack;riders[i]=rider;damages[i]=damage;
                 mitigatedDamages[i]=mitigatedDamage;typedDamagePlans[i]=typedPlan;
                 if(attack.optBoolean("hit",false)&&attack.optBoolean("rider_save_required",false)&&
@@ -3268,6 +3312,21 @@ public class AppDb extends SQLiteOpenHelper {
                             forcedSpecs[i],forcedPlans[i]);
                         rider.put("forced_movement_transition",moved);
                         attack.put("forced_movement_transition",moved);
+                    }
+                }
+                if(i==count-1&&attack.optBoolean("hit",false)){
+                    JSONObject finalSource=compiledMonsterRiderAction(id,actions[i]);
+                    if(MonsterOnHitProneRules.validSource(finalSource)){
+                        String condition=finalSource.optString("condition_on_hit","");
+                        if(!condition.equals(attack.optString("rider_on_hit_condition",""))||
+                            finalSource.optInt("condition_duration_rounds",0)!=
+                                attack.optInt("rider_on_hit_duration_rounds",0)||
+                            !finalSource.optString("condition_duration_tick","").equals(
+                                attack.optString("rider_on_hit_duration_tick","")))
+                            throw new IllegalStateException("multiattack_prone_source_changed_rollback");
+                        JSONObject transition=commitCompiledMonsterOnHitCondition(actorId,targetId,id,
+                            actions[i],stepToken,condition);
+                        attack.put("on_hit_condition_transition",transition);
                     }
                 }
                 attack.put("attack_geometry",geometries[i]);
