@@ -709,6 +709,18 @@ public final class R36BookSemanticsHarness {
      "Feature matches canonical branch: "+branchId);
     check(actualResult.optInt("xp_awarded")==0&&actualResult.optJSONArray("items_awarded").length()==0,
      "Unverified automatic rewards blocked: "+branchId);
+    JSONObject restoredProgress=new JSONObject(actualResult.getJSONObject("progress").toString());
+    boolean replayBlocked=false;
+    try{KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
+      companionKey,branchId,companionBefore,restoredProgress);}
+    catch(IllegalStateException expected){replayBlocked=true;}
+    check(replayBlocked,"Saved outcome cannot be granted again: "+branchId);
+    String alternate=options.optJSONObject((k+1)%options.length()).optString("branch_key");
+    boolean changedOutcomeBlocked=false;
+    try{KingmakerCompanionSemantics.resolveCompanionAdventureBranch(
+      companionKey,alternate,companionBefore,restoredProgress);}
+    catch(IllegalStateException expected){changedOutcomeBlocked=true;}
+    check(changedOutcomeBlocked,"Saved outcome cannot change branch: "+branchId);
    }
    JSONArray scenes=progress.optJSONArray("scenes");
    int officialChecks=0;

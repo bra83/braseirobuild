@@ -120,15 +120,24 @@ def journal_repository(s):
     public JSONObject resolveCompanionAdventureBranch(final String companionKey,final String branchKey)throws Exception{
         requireEnabled();final String canonical=KingmakerRulesEngine.canonicalCompanionKey(clean(companionKey).replaceFirst("^npc_",""));
         final JSONObject[] result={new JSONObject()};db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            String requestedBranch=clean(branchKey);
+            if(requestedBranch.length()==0)throw new IllegalArgumentException("Escolha um desfecho oficial da aventura.");
             String receiptKey="companion_branch_receipt:q_cg_"+canonical;
             JSONObject existingReceipt=db.queryOne("SELECT * FROM kingmaker_features WHERE world_profile=? AND feature_key=?",new String[]{profile(),receiptKey});
-            if(existingReceipt.length()>0){result[0]=jsonObject(existingReceipt.optString("effects_json","{}")).put("idempotent_replay",true);return;}
+            if(existingReceipt.length()>0){
+                JSONObject previous=jsonObject(existingReceipt.optString("effects_json","{}"));
+                if(!requestedBranch.equals(previous.optString("branch_key","")))
+                    throw new IllegalStateException("Esta aventura já foi concluída com outro desfecho; a escolha anterior não pode mudar.");
+                result[0]=previous.put("idempotent_replay",true);return;
+            }
             JSONObject quest=officialCompanionQuest(canonical);if(quest.length()==0)throw new IllegalArgumentException("Aventura oficial de companheiro não encontrada: "+canonical);
+            if(KingmakerCampaignGate.completed(quest.optString("status")))
+                throw new IllegalStateException("Missão concluída sem recibo de desfecho; reparar os dados antes de aplicar recompensas.");
             requireJournalEligibility(quest);
             if(!KingmakerCampaignGate.objectivesResolved(quest))throw new IllegalStateException("Resolva todos os objetivos da aventura antes de consolidar o desfecho.");
             JSONObject comp=companion(canonical);if(comp.length()==0)throw new IllegalArgumentException("Companheiro inexistente: "+canonical);
             JSONObject progress=KingmakerCampaignGate.progress(quest);
-            JSONObject outcome=KingmakerCompanionSemantics.resolveCompanionAdventureBranch(canonical,branchKey,comp,progress);
+            JSONObject outcome=KingmakerCompanionSemantics.resolveCompanionAdventureBranch(canonical,requestedBranch,comp,progress);
             ContentValues cv=new ContentValues();
             cv.put("influence",outcome.optInt("influence_after"));
             cv.put("attitude",outcome.optString("attitude_after"));

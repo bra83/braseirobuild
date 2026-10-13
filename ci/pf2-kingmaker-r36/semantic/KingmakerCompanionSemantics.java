@@ -369,6 +369,10 @@ public final class KingmakerCompanionSemantics {
     }
    }
    if(selected==null)throw new IllegalArgumentException("Desfecho não publicado para "+companionKey+": "+b);
+   // Persisted quest progress is terminal; the Android receipt alone can replay
+   // the identical result, without awarding XP/influence or gifts again.
+   if(!currentProgress.optString("branch_resolved","").isEmpty())
+    throw new IllegalStateException("Esta aventura já possui desfecho salvo; não aplique consequências novamente.");
    if("jubilost".equals(companionKey)&&currentProgress.has("debate_rule")){
     if(currentProgress.optInt("debate_rounds_answered",0)!=3)
      throw new IllegalStateException("Responda as três perguntas do Anfitrião antes de encerrar os Debates.");

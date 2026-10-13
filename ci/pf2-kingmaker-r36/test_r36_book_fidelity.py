@@ -489,3 +489,15 @@ def test_ekundayo_book_outcomes_persist_in_actual_journal_and_sheets():
     assert 'showKingmakerCompanionSkillRoll' in main
     assert 'availableDcs.get(chosenDc.getSelectedItemPosition())' in main
     assert 'kingmakerRepository.resolveCompanionAdventureCheck(companion,' in main
+
+
+def test_companion_branch_receipt_rejects_conflicting_replays():
+    """Android receipts are idempotent only for the same published choice."""
+    branch=method_body('public JSONObject resolveCompanionAdventureBranch(')
+    assert 'String requestedBranch=clean(branchKey)' in branch
+    assert 'requestedBranch.equals(previous.optString("branch_key",""))' in branch
+    assert 'previous.put("idempotent_replay",true)' in branch
+    assert 'if(KingmakerCampaignGate.completed(quest.optString("status")))' in branch
+    assert 'resolveCompanionAdventureBranch(canonical,requestedBranch,comp,progress)' in branch
+    engine=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerCompanionSemantics.java").read_text(encoding="utf-8")
+    assert 'currentProgress.optString("branch_resolved","")' in engine
