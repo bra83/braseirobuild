@@ -190,6 +190,7 @@ def run(root: Path):
         "by_tier": dict(sorted(by_tier.items())),
         "structural_evidence": dict(sorted(assessment.items())),
         "individual_test_methods_shared": dict(sorted(shared_test.items())),
+        "non_rule_items": semantic_gate["non_rule_items"],
         "source_verified_and_semantic_passed": semantic_gate["certified"],
         "pending_semantic_certification": semantic_gate["pending"],
         "structural_gate_pass": not problems,
