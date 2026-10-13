@@ -165,6 +165,23 @@ jobs:
           Pop-Location
           if($code -ne 0){throw "Full PF2 regression failed: $code"}
           Write-Host 'R36_ALL_PF2_REGRESSION_PASS=true'
+      - name: Repair UTF-8 BOM in BRELGA Gradle cache init script
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Wrong runner $env:RUNNER_NAME"}
+          $init=Join-Path $env:USERPROFILE '.gradle\init.d\braseiro-cache.init.gradle'
+          if(!(Test-Path -LiteralPath $init)){Write-Host 'BRELGA_GRADLE_CACHE_INIT_ABSENT=true';exit 0}
+          $bytes=[System.IO.File]::ReadAllBytes($init)
+          if($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF){
+            $clean=New-Object byte[] ($bytes.Length-3)
+            [System.Array]::Copy($bytes,3,$clean,0,$clean.Length)
+            [System.IO.File]::WriteAllBytes($init,$clean)
+            Write-Host 'BRELGA_GRADLE_INIT_UTF8_BOM_REMOVED=true'
+          }else{Write-Host 'BRELGA_GRADLE_INIT_ALREADY_NO_BOM=true'}
+          $verified=[System.IO.File]::ReadAllBytes($init)
+          if($verified.Length -ge 3 -and $verified[0] -eq 0xEF -and $verified[1] -eq 0xBB -and $verified[2] -eq 0xBF){throw 'GRADLE_INIT_BOM_REPAIR_FAILED'}
+          Write-Host 'BRELGA_GRADLE_INIT_UTF8_CLEAN=true'
       - name: Type-check Android Java without packaging an APK
         shell: powershell
         run: |
