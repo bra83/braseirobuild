@@ -50,7 +50,7 @@ public final class XmmGrappleEscapeRobolectricTest {
             int hp=db.getCombatant(target).optInt("hp");
 
             JSONObject unverified=db.applyCompiledStatblockAttack(actor,target,"Aboleth","Tentacle",
-                20,0,1,0,"ui-monster-xmm-grapple-size-required");
+                20,0,10,0,"ui-monster-xmm-grapple-size-required");
             assertEquals("target_size_not_verified",unverified.optString("statblock_attack_blocked"));
             assertEquals(hp,db.getCombatant(target).optInt("hp"));
             assertTrue(new JSONObject(db.getCombatant(actor).optString("resources_json","{}"))
