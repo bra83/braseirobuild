@@ -609,7 +609,7 @@ public final class R36BookSemanticsHarness {
   JSONObject valDepart=KingmakerCompanionSemantics.resolveCompanionAdventureBranch("valerie","deny_mercy_slay_fredero",new JSONObject().put("companion_key","valerie").put("influence",4).put("available",1),new JSONObject());
   check(valDepart.optInt("available_after")==0&&"hostile".equals(valDepart.optString("attitude_after")),"Valerie permanently leaves the party when Sir Fredero is denied mercy");
   JSONObject trisProg=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("tristian","research_cult",19,18,27,new JSONObject()).optJSONObject("progress");
-  check(trisProg.optInt("research_points")==2&&trisProg.optInt("curse_countdown")==1,"Tristian critical research check adds 2 Research Points and advances Curse Countdown by 1");
+  check(trisProg.optInt("research_points")==2&&trisProg.optInt("curse_countdown")==20,"Tristian critical research grants 2 points without shortening the official countdown of 20");
   JSONObject trisBranch=KingmakerCompanionSemantics.resolveCompanionAdventureBranch("tristian","redeem_cultists_awaken_deva",new JSONObject().put("companion_key","tristian").put("influence",6),trisProg);
   check(trisBranch.optInt("xp_awarded")==120&&trisBranch.optJSONArray("items_awarded").length()==2,"Tristian redemption branch awards 120 XP, Celestial Wings, and Incarnate Ancestry ritual");
   JSONObject nokBranch=KingmakerCompanionSemantics.resolveCompanionAdventureBranch("nok_nok","hero_of_stolen_lands",new JSONObject().put("companion_key","nok_nok").put("influence",4),new JSONObject());
@@ -809,6 +809,40 @@ public final class R36BookSemanticsHarness {
   try{KingmakerCompanionSemantics.resolveCompanionAdventureCheck("jubilost","jubilost_debate_round_3",20,14,24,jvCritical);}
   catch(IllegalStateException ex){jvOutOfOrderBlocked=true;}
   check(jvOutOfOrderBlocked,"Three official questions must be answered in order");
+  // Tristian Guide pp.73-75: 20 descending clock, 8 RP reveals recruiter,
+  // non-research room checks must never change Research Points.
+  JSONObject trOfficial=new JSONObject()
+   .put("scenes",new JSONArray().put(new JSONObject().put("skill_checks",new JSONArray()
+    .put(new JSONObject().put("check_id","tristian_research_cult").put("dc",25)
+     .put("alternate_skill_dcs",new JSONArray().put(new JSONObject().put("skill","Diplomacia").put("dc",27))
+      .put(new JSONObject().put("skill","Sociedade").put("dc",29))))
+    .put(new JSONObject().put("check_id","tristian_confront_talbot").put("dc",25)))))
+   .put("curse_rule",new JSONObject().put("starting_countdown",20));
+  JSONObject trResearch=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("tristian",
+    "tristian_research_cult",20,20,25,trOfficial).optJSONObject("progress");
+  check(trResearch.optInt("research_points")==2&&trResearch.optInt("curse_countdown")==20,
+   "Tristian critical research: +2 RP, countdown stays 20");
+  check("guide_20_down_v1".equals(trResearch.optString("curse_semantics_revision")),
+   "Tristian countdown revision is persisted to protect legacy saves");
+  JSONObject trAlt=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("tristian",
+    "tristian_research_cult",10,17,27,trResearch).optJSONObject("progress");
+  check(trAlt.optInt("research_points")==3&&trAlt.optInt("curse_countdown")==20,
+   "Tristian DC 27 Diplomacy alternate research succeeds");
+  JSONObject trCriticalFail=KingmakerCompanionSemantics.resolveCompanionAdventureCheck("tristian",
+    "tristian_research_cult",1,0,25,trAlt).optJSONObject("progress");
+  check(trCriticalFail.optInt("curse_countdown")==19&&trCriticalFail.optInt("research_points")==3,
+   "Tristian critical research failure reduces countdown by 1, not raises it");
+  JSONObject trUnknownCheck=new JSONObject(trCriticalFail.toString());
+  boolean trUnknownBlocked=false;
+  try{KingmakerCompanionSemantics.resolveCompanionAdventureCheck("tristian",
+    "invented_research_action",12,15,25,trUnknownCheck);}
+  catch(IllegalArgumentException ex){trUnknownBlocked=true;}
+  check(trUnknownBlocked,"Tristian invented research action rejected");
+  boolean trRecruiterTooSoon=false;
+  try{KingmakerCompanionSemantics.resolveCompanionAdventureCheck("tristian",
+    "tristian_confront_talbot",12,16,25,trCriticalFail);}
+  catch(IllegalStateException ex){trRecruiterTooSoon=true;}
+  check(trRecruiterTooSoon,"Tristian cannot confront hidden recruiter before 8 Research Points");
   System.out.println("R36_BOOK_SEMANTICS_ASSERTIONS_PASS="+assertions);
  }
 }
