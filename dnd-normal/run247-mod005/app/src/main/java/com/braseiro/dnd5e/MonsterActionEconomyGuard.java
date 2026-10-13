@@ -45,6 +45,14 @@ public final class MonsterActionEconomyGuard {
     public static String attackRiderBlock(JSONObject action) {
         return attackRiderBlock(action,true);
     }
+    /** XMM standalone Grappled actions are executable only for the source-indexed
+     * simple subset whose escape DC and size cap match the compiled block. */
+    public static String attackRiderBlock(JSONObject action,String statblockId) {
+        String blocked=attackRiderBlock(action);
+        if("unsupported_grapple_escape_rider".equals(blocked)&&
+            Xmm2025GrappleEscapeRules.validSource(statblockId,action))return "";
+        return blocked;
+    }
     public static String attackRiderBlock(JSONObject action,boolean allowTypedOnHit) {
         if(action==null)return "unresolved_attack_hit_rider_requires_typed_handler";
         String block=attackRiderBlock(action.optInt("save_dc",0),
