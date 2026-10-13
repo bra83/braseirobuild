@@ -334,14 +334,15 @@ public final class Xmm2025DamageDefenseEngine {
   for(String[] pair:new String[][]{{"r","resistances"},{"i","immunities"},
       {"v","vulnerabilities"},{"c","condition_immunities"}}){
    String key=pair[0],actual=compiled.optString(pair[1]).trim();
-   boolean complex=("c".equals(key)?data.getBoolean("complex_condition"):data.getBoolean("complex_damage"));
+   boolean complex="c".equals(key)?data.getBoolean("complex_condition"):
+    (data.getBoolean("complex_damage") && (actual.startsWith("special:") || actual.contains("(conditional)")));
    String expected=joined(data.getJSONArray(key));
    if(!complex&&!expected.equals(actual))return blocked("compiled_defense_mismatch:"+name+":"+key);
    if(complex&&actual.isEmpty())return blocked("compiled_complex_defense_marker_missing:"+name+":"+key);
   }
   JSONObject pointer=Xmm2025SourceIndex.get(name);
   return data.put("resolved",true).put("source","XMM")
-   .put("source_pointer",pointer.getString("source_pointer"))
+   .put("source_pointer",pointer.getString("ptr"))
    .put("source_blob_sha1",SOURCE_BLOB)
    .put("auto_rolls",false).put("auto_mutation_allowed",false)
    .put("full_trait_effects_certified",false);

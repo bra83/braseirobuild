@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
 public final class Xmm503DamageDefenseSourceContractTest {
  @Parameterized.Parameters(name="{index}: {0} defense")
  public static Collection<Object[]> monsters(){
-  JSONArray names=Xmm2025SourceIndex.names();ArrayList<Object[]> out=new ArrayList<>();
+  JSONArray names=Xmm2025SourceIndex.ids();ArrayList<Object[]> out=new ArrayList<>();
   for(int i=0;i<names.length();i++)out.add(new Object[]{names.optString(i)});
   return out;
  }
@@ -26,7 +26,7 @@ public final class Xmm503DamageDefenseSourceContractTest {
   JSONObject source=Xmm2025DamageDefenseEngine.profile(monster);
   assertTrue(monster+": "+source.toString(),source.getBoolean("resolved"));
   assertEquals(Xmm2025DamageDefenseEngine.SOURCE_BLOB,source.getString("source_blob_sha1"));
-  assertEquals(Xmm2025SourceIndex.get(monster).getString("source_pointer"),source.getString("source_pointer"));
+  assertEquals(Xmm2025SourceIndex.get(monster).getString("ptr"),source.getString("source_pointer"));
   assertFalse(source.getBoolean("full_trait_effects_certified"));
   JSONObject req=new JSONObject().put("defender",monster).put("target_confirmed",true)
    .put("incoming_damage",11).put("damage_type","force");
