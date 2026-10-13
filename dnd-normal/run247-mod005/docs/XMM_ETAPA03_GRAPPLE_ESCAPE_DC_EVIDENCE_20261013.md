@@ -21,4 +21,6 @@ Cada registro é checado contra seu texto/pointer pinado, DC de escape, condiç�
 
 Auditoria GitHub-hosted run `38414597372`, código SHA `52ea9806da9d2b0dbad217f4eee936cc5fc24ac3`, passou: fonte pinada, 503 monstros, 36 seções e 65 riders. A suíte BRELGA run `38415921354`, código SHA `e343288bebeb414d6c2f8a6bb9d02fab7e11a0fe`, passou com 93 suites e 2.475 testes sem falhas/erros/ignorados. XML `Xmm503SourceAndRechargeTest` SHA-256 `f484a86b9b9919a4c5665f975dae6b87764666f13c59d952382787113c9f59f7`. A tentativa Gradle local anterior não iniciou porque o ambiente recusou o download de Gradle 8.11.1.
 
+No HEAD combinado seguinte (`ba6b7c1e9270e856bdbc2097197064142bc2374c`), BRELGA run `38417191768` passou com 94 suites, 2.481 testes, 0 falhas/erros/ignorados. Hash do XML `Xmm503SourceAndRechargeTest`: `17c06b62cc8f745d2580d24a7033c74ab7e79b642bf3cd634aeb333b69ed6fbc`. Essa execução também cobriu os testes de bridge de rider por etapa explícita do multiataque. APK não foi compilado.
+
 A mudança corrige os metadados de fonte; não implementa a fuga/persistência do agarrão e não fecha ETAPA 03.
