@@ -4289,6 +4289,53 @@ public class AppDb extends SQLiteOpenHelper {
     private String combatReceiptKey(long combatantId,String token){
         return CombatPersistentReceiptKey.forCombatant(combatantId,token);
     }
+    private String tacticalGridLatestPathKey(long combatantId){
+        return combatReceiptKey(combatantId,"ui-grid-latest-path");
+    }
+    private void clearTacticalGridChargePath(long combatantId){
+        if(combatantId<=0)return;
+        getWritableDatabase().delete("effect_receipts","world_profile=? AND effect_key=?",
+            new String[]{getActiveMapProfile(),tacticalGridLatestPathKey(combatantId)});
+    }
+    private void rememberTacticalGridChargePath(long combatantId,String pathToken)throws Exception{
+        if(combatantId<=0||pathToken==null||!pathToken.startsWith("ui-grid-")||
+            !pathToken.endsWith("-movement-path")||!CombatActionReceiptGuard.validToken(pathToken))
+            throw new IllegalArgumentException("invalid_latest_grid_path_reference");
+        clearTacticalGridChargePath(combatantId);
+        ContentValues marker=new ContentValues();marker.put("world_profile",getActiveMapProfile());
+        marker.put("effect_key",tacticalGridLatestPathKey(combatantId));marker.put("source",pathToken);
+        marker.put("applied_at",System.currentTimeMillis());
+        getWritableDatabase().insertOrThrow("effect_receipts",null,marker);
+    }
+    /** Read the last committed route only while it remains the actor's current
+     * position. Any spent action or turn boundary invalidates its marker. */
+    public JSONObject latestTacticalGridMovementProof(long actorId){
+        JSONObject out=new JSONObject();
+        try{
+            if(actorId<=0)return out.put("grid_path_blocked","invalid_actor");
+            JSONObject marker=queryOne("SELECT source,applied_at FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{getActiveMapProfile(),tacticalGridLatestPathKey(actorId)});
+            String pathToken=marker.optString("source","");
+            if(!pathToken.startsWith("ui-grid-")||!pathToken.endsWith("-movement-path")||
+                !CombatActionReceiptGuard.validToken(pathToken))
+                return out.put("grid_path_blocked","no_immediately_preceding_grid_movement");
+            JSONObject row=queryOne("SELECT source,applied_at FROM effect_receipts WHERE world_profile=? AND effect_key=?",
+                new String[]{getActiveMapProfile(),combatReceiptKey(actorId,pathToken)});
+            JSONObject proof=new JSONObject(row.optString("source","{}"));
+            JSONObject position=tacticalGridPosition(actorId);
+            if(!TacticalGridMovementProofRules.valid(proof,actorId)||position.has("grid_blocked")||
+                !proof.optString("scene_key").equals(position.optString("scene_key"))||
+                proof.optInt("to_x",Integer.MIN_VALUE)!=position.optInt("cell_x",Integer.MAX_VALUE)||
+                proof.optInt("to_y",Integer.MIN_VALUE)!=position.optInt("cell_y",Integer.MAX_VALUE))
+                return out.put("grid_path_blocked","movement_path_no_longer_matches_position");
+            return out.put("grid_path_valid",true).put("proof",proof)
+                .put("movement_receipt_applied_at",row.optLong("applied_at"))
+                .put("path_marker_applied_at",marker.optLong("applied_at"));
+        }catch(Exception invalid){
+            try{return out.put("grid_path_blocked","movement_path_proof_unavailable");}
+            catch(Exception ignored){return out;}
+        }
+    }
     private String combatReceiptDecision(JSONObject resources,String token,String signature,long combatantId){
         if(token==null||token.isEmpty())return "";
         if(!CombatActionReceiptGuard.validToken(token)||combatantId<=0)return "invalid_operation_token";
@@ -4412,6 +4459,7 @@ public class AppDb extends SQLiteOpenHelper {
             else r.put("bonus_action".equals(key)?"bonus_action_available":"action_available",false);
             recordCombatReceipt(r,operationToken,signature,id);v.put("resources_json",r.toString());
             requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}));
+            clearTacticalGridChargePath(id);
             return getCombatant(id);
         }});
     }
@@ -4430,6 +4478,7 @@ public class AppDb extends SQLiteOpenHelper {
             r.put("movement_remaining_ft",available-feet);recordCombatReceipt(r,operationToken,signature,id);
             ContentValues v=new ContentValues();v.put("resources_json",r.toString());
             requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}));
+            clearTacticalGridChargePath(id);
             return getCombatant(id);
         }});
     }
@@ -4450,6 +4499,7 @@ public class AppDb extends SQLiteOpenHelper {
             conditions=ConditionRulesEngine.remove(conditions,"Caído");r.put("movement_remaining_ft",remaining-cost);recordCombatReceipt(r,operationToken,signature,id);
             ContentValues v=new ContentValues();v.put("conditions",conditions);v.put("resources_json",r.toString());
             requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}));
+            clearTacticalGridChargePath(id);
             syncCombatantHeroState(c,c.optInt("hp"),c.optInt("temp_hp"),conditions,r);
             return getCombatant(id).put("stood_up",true).put("stand_cost_ft",cost);
         }});
@@ -4612,6 +4662,7 @@ public class AppDb extends SQLiteOpenHelper {
             }
         JSONArray endTransitions=previousActorId>0?
             advanceConditionTimersOnActorTurnEnd(previousActorId):new JSONArray();
+        if(previousActorId>0)clearTacticalGridChargePath(previousActorId);
         int idx=state.optInt("turn_index",-1); int round=state.optInt("round_no",1); idx++; if(idx>=list.size()){idx=0;round++;}
         ContentValues clear=new ContentValues();clear.put("active_turn",0);getWritableDatabase().update("combatants",clear,"world_profile=?",new String[]{getActiveMapProfile()});
         JSONObject active=list.get(idx);long activeId=active.optLong("id");ContentValues a=new ContentValues();a.put("active_turn",1);if(!"mystara".equals(getActiveMapProfile()))a.put("reaction_used",0);getWritableDatabase().update("combatants",a,"id=?",new String[]{String.valueOf(activeId)});if(!"mystara".equals(getActiveMapProfile())){JSONObject timerBatch=advanceConditionTimersOnActorTurnStart(activeId,encounterId,round,idx);prepareCombatantTurn(activeId);active=getCombatant(activeId);if(timerBatch.optBoolean("changed",false)){
@@ -6251,6 +6302,7 @@ public class AppDb extends SQLiteOpenHelper {
         catch(Exception invalidPath){return new JSONObject().put("grid_blocked","invalid_movement_path_proof");}
         try{recordEffectReceipt(combatReceiptKey(actorId,token+"-movement-path"),pathProof.toString());}
         catch(Exception invalidReceipt){return new JSONObject().put("grid_blocked","movement_path_receipt_unavailable");}
+        rememberTacticalGridChargePath(actorId,token+"-movement-path");
         return moved.put("grid_movement_committed",true).put("opportunity_attacks_resolved",opportunities.length())
             .put("movement_feet",cost)
             .put("grid_destination_x",destX).put("grid_destination_y",destY)

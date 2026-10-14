@@ -282,6 +282,8 @@ public final class E2EGatesIntegrationRobolectricTest {
             assertEquals(10, pathProof.optInt("distance_ft"));
             assertEquals(preview.getJSONArray("route_cells").toString(),
                     pathProof.getJSONArray("route_cells").toString());
+            assertTrue(f.db.latestTacticalGridMovementProof(actor).toString(),
+                    f.db.latestTacticalGridMovementProof(actor).optBoolean("grid_path_valid"));
             assertEquals(4, f.db.tacticalGridPosition(actor).optInt("cell_x"));
             assertEquals(2, f.db.tacticalGridPosition(actor).optInt("cell_y"));
 
@@ -299,6 +301,9 @@ public final class E2EGatesIntegrationRobolectricTest {
             JSONObject replayedToken = f.db.moveCombatantToGridCell(actor, 5, 2, false, false,
                     previewNext.optString("grid_fingerprint"), "ui-grid-g04-move-001");
             assertEquals("position_replayed", replayedToken.optString("grid_blocked"));
+            JSONObject spentBonus=f.db.spendCombatantTurnResource(actor,"bonus_action","ui-grid-charge-intervening-action");
+            assertFalse("Bonus action spend must succeed: "+spentBonus,spentBonus.has("resource_blocked"));
+            assertFalse(f.db.latestTacticalGridMovementProof(actor).optBoolean("grid_path_valid",false));
         }
     }
 

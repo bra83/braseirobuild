@@ -15,3 +15,8 @@ Os repositórios ajudam a acelerar comparação de esquemas e conferência do SR
 ## Decisão para esta etapa
 
 Usar JSON público como estrutura de comparação quando a origem e a licença do dado estiverem claras. Para ações e efeitos do XMM, manter o fonte pinado, comparar cada comportamento com o registro correspondente e não trocar o conjunto por outro pacote que não cubra essa edição. Nenhum novo texto de livro foi copiado para o aplicativo durante esta pesquisa.
+
+
+## Instrução do proprietário — uso pessoal
+
+Em 14/10/2026, o proprietário confirmou que pagou pelo material e autorizou usar o material disponível para completar o VTT de uso estritamente pessoal, sem limitar a implementação ao SRD. A origem e a edição ainda devem ser registradas e conferidas: esse aceite orienta o escopo do projeto, não transforma a licença MIT do código de um repositório em licença de conteúdo. Manter o material dentro do projeto solicitado e não publicar dumps integrais em notas ou na resposta. A seleção automática de um JSON externo continua exigindo comparação com o livro/edição corretos para não misturar revisões ou descartar regras.

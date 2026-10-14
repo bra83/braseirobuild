@@ -94,6 +94,8 @@ public final class Run243TacticalMovementRobolectricTest {
             JSONObject restoredPath=new JSONObject(pathRow.optString("source"));
             assertEquals(restored.optLong("id"),restoredPath.optLong("actor_id"));
             assertTrue(TacticalGridMovementProofRules.valid(restoredPath,restored.optLong("id")));
+            assertTrue(db.latestTacticalGridMovementProof(restored.optLong("id")).toString(),
+                db.latestTacticalGridMovementProof(restored.optLong("id")).optBoolean("grid_path_valid"));
             assertEquals(0,db.queryOne("SELECT effect_key FROM effect_receipts WHERE world_profile=? AND effect_key=?",
                 new String[]{"dnd",oldPathKey}).length());
         }finally{db.close();context.deleteDatabase(dbName);}
