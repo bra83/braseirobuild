@@ -24,7 +24,11 @@ requirements(){
   command -v gh >/dev/null || { report 'BLOCKED_GITHUB_CLI_NOT_INSTALLED'; return 2; }
   gh auth status >/dev/null 2>&1 || { report 'BLOCKED_GITHUB_CLI_NOT_AUTHENTICATED'; return 2; }
   command -v codex >/dev/null || { report 'BLOCKED_CODEX_CLI_NOT_INSTALLED'; return 2; }
-  codex login status >/dev/null 2>&1 || { report 'BLOCKED_CODEX_LOGIN_REQUIRED'; return 2; }
+  local mode
+  mode="$(codex login status 2>&1)" || { report 'BLOCKED_CODEX_LOGIN_REQUIRED'; return 2; }
+  if ! grep -qi 'ChatGPT' <<< "$mode"; then
+    report 'BLOCKED_CODEX_CHATGPT_LOGIN_REQUIRED_TO_AVOID_PAID_API'; return 2
+  fi
   command -v python3 >/dev/null || { report 'BLOCKED_PYTHON3_REQUIRED'; return 2; }
   command -v java >/dev/null || { report 'BLOCKED_JAVA_REQUIRED'; return 2; }
   [[ -d "${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/NONEXISTENT}}" ]] || { report 'BLOCKED_ANDROID_SDK_REQUIRED'; return 2; }
@@ -123,7 +127,9 @@ develop_once(){
   local base ci ticket work stamp log
   base="$(git -C "$ROOT" rev-parse HEAD)"
   ci="$(ci_for_sha "$base")" || { report 'INFRA_CI_QUERY_FAILED'; return 3; }
-  if [[ "$ci" != success ]]; then report "BLOCKED_BASE_CI=$ci SHA=$base"; return 2; fi
+  if [[ "$ci" != success ]]; then
+    report "BASE_CI_NOT_GREEN=$ci SHA=$base; CODE_CAN_BE_PREPARED_BUT_PUSH_WAITS_FOR_GREEN_CI"
+  fi
   if [[ "$(cat "$STATE/last-attempt" 2>/dev/null || true)" == "$base" ]]; then
     report "ALREADY_ATTEMPTED_BASE_SHA=$base"; return 0
   fi
@@ -132,7 +138,13 @@ develop_once(){
   work="${TMPDIR:-/tmp}/braseiro-dnd-xmm-$stamp"
   log="$STATE/logs/$stamp.log"
   printf '%s\n' "$base" > "$STATE/last-attempt"
-  git -C "$ROOT" worktree add -b "$ticket" "$work" "$base" > "$STATE/worktree.log" 2>&1 || { report 'BLOCKED_WORKTREE_CREATE'; return 2; }
+  git -C "$ROOT" worktree add --no-checkout -b "$ticket" "$work" "$base" > "$STATE/worktree.log" 2>&1 || { report 'BLOCKED_WORKTREE_CREATE'; return 2; }
+  if ! git -C "$work" sparse-checkout set dnd-normal/run247-mod005 > "$STATE/sparse.log" 2>&1; then
+    report "BLOCKED_SPARSE_DND_CHECKOUT_WORKTREE=$work"; return 2
+  fi
+  if [[ ! -f "$work/dnd-normal/run247-mod005/gradlew" ]]; then
+    report "BLOCKED_DND_PROJECT_NOT_CHECKED_OUT=$work"; return 2
+  fi
   report "CODEX_SESSION_STARTED=$ticket WORKTREE=$work"
   if ! codex exec -C "$work/dnd-normal/run247-mod005" --sandbox workspace-write - < "$POLICY" > "$log" 2>&1; then
     report "CODEX_FAILED_NO_INTEGRATION_LOG=$log"; return 2
@@ -179,8 +191,13 @@ install(){
     command -v npm >/dev/null || { echo 'NPM_REQUIRED_TO_INSTALL_CODEX_CLI'; return 2; }
     npm install -g @openai/codex || return 2
   fi
-  if ! codex login status >/dev/null 2>&1; then
+  local mode
+  mode="$(codex login status 2>&1)" || {
     echo 'CODEX_LOGIN_REQUIRED: run "codex login", then repeat this same install command.'
+    return 2
+  }
+  if ! grep -qi 'ChatGPT' <<< "$mode"; then
+    echo 'CODEX_CHATGPT_AUTH_REQUIRED: run "codex logout && codex login" (avoids API-key charges).'
     return 2
   fi
   bash "$SELF/codespace-dnd-sync.sh" install || return 2
