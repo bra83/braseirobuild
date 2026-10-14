@@ -2079,9 +2079,12 @@ public class AppDb extends SQLiteOpenHelper {
         int duration=MonsterConditionTimerLedger.compiledDuration(sourceAction);
         MonsterConditionRecoveryLedger.Spec recovery=MonsterConditionRecoveryLedger.compiled(sourceAction);
         String beforeTimers=target.optString("condition_timers_json","[]");
+        String tick=sourceAction.optString("condition_duration_tick","target_turn_start");
+        boolean skipFirstSourceEnd="source_turn_end".equals(tick)&&
+            getCombatant(sourceActorId).optInt("active_turn",0)==1;
         JSONArray timers=MonsterConditionTimerLedger.stage(beforeTimers,plan,duration,
             sourceActorId,blockId,actionName,receiptToken,
-            sourceAction.optString("condition_duration_tick","target_turn_start"));
+            tick,skipFirstSourceEnd);
         timers=MonsterConditionRecoveryLedger.stage(timers,plan,recovery,
             sourceActorId,blockId,actionName,receiptToken);
         if(!plan.after.equals(plan.before))updateConditionsChecked(targetId,plan.after);
@@ -2236,7 +2239,9 @@ public class AppDb extends SQLiteOpenHelper {
             MonsterConditionTimerLedger.stage(target.optString("condition_timers_json","[]"),
                 plan,MonsterConditionTimerLedger.compiledDuration(sourceAction),sourceActorId,
                 blockId,actionName,receiptToken,
-                sourceAction.optString("condition_duration_tick","target_turn_start"));
+                sourceAction.optString("condition_duration_tick","target_turn_start"),
+                "source_turn_end".equals(sourceAction.optString("condition_duration_tick",""))&&
+                    getCombatant(sourceActorId).optInt("active_turn",0)==1);
             return "";
         }catch(IllegalArgumentException invalid){
             if("condition_timer_ownership_conflict".equals(invalid.getMessage()))
@@ -4596,6 +4601,13 @@ public class AppDb extends SQLiteOpenHelper {
                     .put("target_id",check.optLong("id")).put("conditions",new JSONArray(due));
             }
         }
+        long previousActorId=0;
+        if(!"mystara".equals(getActiveMapProfile())&&state.optInt("turn_index",-1)>=0)
+            for(JSONObject prior:list)if(prior.optInt("active_turn",0)==1){
+                previousActorId=prior.optLong("id",0);break;
+            }
+        JSONArray endTransitions=previousActorId>0?
+            advanceConditionTimersOnActorTurnEnd(previousActorId):new JSONArray();
         int idx=state.optInt("turn_index",-1); int round=state.optInt("round_no",1); idx++; if(idx>=list.size()){idx=0;round++;}
         ContentValues clear=new ContentValues();clear.put("active_turn",0);getWritableDatabase().update("combatants",clear,"world_profile=?",new String[]{getActiveMapProfile()});
         JSONObject active=list.get(idx);long activeId=active.optLong("id");ContentValues a=new ContentValues();a.put("active_turn",1);if(!"mystara".equals(getActiveMapProfile()))a.put("reaction_used",0);getWritableDatabase().update("combatants",a,"id=?",new String[]{String.valueOf(activeId)});if(!"mystara".equals(getActiveMapProfile())){JSONObject timerBatch=advanceConditionTimersOnActorTurnStart(activeId,encounterId,round,idx);prepareCombatantTurn(activeId);active=getCombatant(activeId);if(timerBatch.optBoolean("changed",false)){
@@ -4610,6 +4622,7 @@ public class AppDb extends SQLiteOpenHelper {
                 }
             }
         }}
+        if(endTransitions.length()>0)active.put("condition_timer_end_transitions",endTransitions);
         JSONObject phase=getCombatState();String phaseName=phase.optString("state","");if(CombatStateMachine.PREPARING.equals(phaseName)&&!transitionCombatState(CombatStateMachine.INITIATIVE,new JSONObject()))throw new IllegalStateException("invalid_initiative_transition");phase=getCombatState();phaseName=phase.optString("state","");if((CombatStateMachine.INITIATIVE.equals(phaseName)||CombatStateMachine.RESOLVING.equals(phaseName)||CombatStateMachine.AWAITING_ROLL.equals(phaseName))&&!transitionCombatState(CombatStateMachine.ACTIVE_ROUND,new JSONObject()))throw new IllegalStateException("invalid_active_round_transition");
         ContentValues s=new ContentValues();s.put("round_no",round);s.put("turn_index",idx);s.put("running",1);s.put("state",CombatStateMachine.ACTIVE_ROUND);s.put("pending_roll_json","{}");s.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("combat_state_profiles",s,"world_profile=?",new String[]{getActiveMapProfile()}); reconcileCore2024BlessTurnChecked(round); return active;
     }});}
@@ -5881,6 +5894,53 @@ public class AppDb extends SQLiteOpenHelper {
             try{return out.put("attack_geometry_blocked","geometry_runtime_error");}
             catch(Exception ignored){return out;}
         }
+    }
+    /** Resolve source-turn-end timers as the active creature yields the turn.
+     * This is separate from turn-start ticking: collapsing the two boundaries
+     * would expire effects such as "until the end of its next turn" too early. */
+    private JSONArray advanceConditionTimersOnActorTurnEnd(long activeActorId) throws Exception {
+        JSONArray changedRows=new JSONArray();
+        JSONObject state=getCombatState();
+        String encounterId=state.optString("encounter_id","");
+        int round=state.optInt("round_no",1),turnIndex=state.optInt("turn_index",-1);
+        for(JSONObject c:listCombatants()){
+            long targetId=c.optLong("id",0);
+            if(targetId<=0)throw new IllegalStateException("timer_target_missing_rollback");
+            String oldConditions=c.optString("conditions","");
+            String oldTimers=c.optString("condition_timers_json","[]");
+            MonsterConditionTimerLedger.Transition transition=
+                MonsterConditionTimerLedger.advanceSourceTurnEnd(oldTimers,activeActorId);
+            if(!transition.changed)continue;
+            String conditions=oldConditions;
+            for(String removed:transition.expired)conditions=ConditionRulesEngine.remove(conditions,removed);
+            ContentValues values=new ContentValues();values.put("condition_timers_json",transition.timers.toString());
+            values.put("conditions",conditions);
+            JSONObject resources=combatResources(c);
+            if(ConditionRulesEngine.breaksConcentration(conditions)){
+                values.put("concentration","");resources.remove("concentration_save_pending");
+                resources.remove("concentration_save_queue");values.put("resources_json",resources.toString());
+            }
+            requireCombatantWrite(getWritableDatabase().update("combatants",values,
+                "id=? AND world_profile=?",new String[]{String.valueOf(targetId),getActiveMapProfile()}));
+            JSONObject saved=getCombatant(targetId);
+            if(!conditions.equals(saved.optString("conditions",""))||
+                !transition.timers.toString().equals(new JSONArray(saved.optString("condition_timers_json","[]")).toString()))
+                throw new IllegalStateException("condition_timer_end_readback_rollback");
+            syncCombatantHeroState(c,c.optInt("hp"),c.optInt("temp_hp"),conditions,resources);
+            JSONArray ended=new JSONArray();for(String x:transition.expired)ended.put(x);
+            JSONObject proof=new JSONObject().put("schema","monster_condition_turn_end_v1")
+                .put("conditions_before",oldConditions).put("conditions_after",conditions)
+                .put("timers_before",new JSONArray(oldTimers)).put("timers_after",transition.timers)
+                .put("expired",ended).put("encounter_id",encounterId).put("round",round)
+                .put("turn_index",turnIndex).put("source_actor_id",activeActorId)
+                .put("target_id",targetId);
+            String receipt="monster-condition-turn-end-v1:"+encounterId+":"+round+":"+
+                turnIndex+":"+targetId;
+            recordEffectReceipt(receipt,proof.toString());
+            changedRows.put(new JSONObject().put("target_id",targetId)
+                .put("transition",proof).put("receipt",receipt));
+        }
+        return changedRows;
     }
     /** RUN208: inspect the actual tactical board; destination coordinates are grid cells, zero-based. */
     public JSONObject tacticalGridPosition(long actorId){

@@ -36,7 +36,8 @@ public final class MonsterConditionTimerLedger {
         // owner. Source-turn expiry is needed for conditions explicitly lasting
         // until the source creature's next turn.
         String tick=action.optString("condition_duration_tick","");
-        if(!"target_turn_start".equals(tick)&&!"source_turn_start".equals(tick))
+        if(!"target_turn_start".equals(tick)&&!"source_turn_start".equals(tick)&&
+            !"source_turn_end".equals(tick))
             throw new IllegalArgumentException("condition_duration_trigger_not_compiled");
         Object raw=action.opt("condition_duration_rounds");
         if(!(raw instanceof Number))throw new IllegalArgumentException("condition_duration_not_integer");
@@ -70,7 +71,11 @@ public final class MonsterConditionTimerLedger {
                    o.optString("source_statblock","").isEmpty()||
                    o.optString("source_action","").isEmpty()||
                    o.optString("source_receipt","").isEmpty()||
-                   !supportedTick(o.optString("trigger","target_turn_start")))
+                   !supportedTick(o.optString("trigger","target_turn_start"))||
+                   (o.has("skip_first_source_turn_end")&&
+                    !(o.opt("skip_first_source_turn_end") instanceof Boolean))||
+                   (o.has("skip_first_source_turn_end")&&
+                    !"source_turn_end".equals(o.optString("trigger",""))))
                     throw new IllegalArgumentException("invalid_typed_condition_timer");
             }
             return array;
@@ -83,11 +88,17 @@ public final class MonsterConditionTimerLedger {
     }
     public static JSONArray stage(String rawTimers,MonsterConditionRiderPlan.Result plan,
         int duration,long sourceActor,String statblock,String action,String receipt,String tick) throws Exception {
+        return stage(rawTimers,plan,duration,sourceActor,statblock,action,receipt,tick,false);
+    }
+    public static JSONArray stage(String rawTimers,MonsterConditionRiderPlan.Result plan,
+        int duration,long sourceActor,String statblock,String action,String receipt,String tick,
+        boolean skipFirstSourceTurnEnd) throws Exception {
         JSONArray existing=parse(rawTimers);
         if(duration==0)return existing;
         if(duration<1||duration>100||sourceActor<=0||
             statblock==null||statblock.trim().isEmpty()||action==null||action.trim().isEmpty()||
-            receipt==null||receipt.trim().isEmpty()||!supportedTick(tick))
+            receipt==null||receipt.trim().isEmpty()||!supportedTick(tick)||
+            skipFirstSourceTurnEnd&&(!"source_turn_end".equals(tick)))
             throw new IllegalArgumentException("invalid_timed_rider_authority");
         if(plan==null||!plan.valid()||!plan.alreadyPresent.isEmpty())
             throw new IllegalArgumentException("ambiguous_timed_condition_ownership");
@@ -98,11 +109,14 @@ public final class MonsterConditionTimerLedger {
                 if(ConditionTokenGuard.has(timer.optString("name",""),applied))
                     throw new IllegalArgumentException("condition_timer_ownership_conflict");
             }
-            result.put(new JSONObject().put("schema",SCHEMA).put("name",applied)
+            JSONObject staged=new JSONObject().put("schema",SCHEMA).put("name",applied)
                 .put("rounds",duration).put("source_actor_id",sourceActor)
                 .put("trigger",tick)
                 .put("source_statblock",statblock).put("source_action",action)
-                .put("source_receipt",receipt));
+                .put("source_receipt",receipt);
+            if("source_turn_end".equals(tick))
+                staged.put("skip_first_source_turn_end",skipFirstSourceTurnEnd);
+            result.put(staged);
         }
         return result;
     }
@@ -123,15 +137,19 @@ public final class MonsterConditionTimerLedger {
      * Legacy timer format {name,rounds} keeps its existing decrement semantics.
      */
     public static Transition advance(String rawTimers) throws Exception {
-        return advanceInternal(rawTimers,0,0,true);
+        return advanceInternal(rawTimers,0,0,true,true);
     }
     /** Advance timers on this combatant's row when the active actor starts a
      * turn. The timer owner is either its target (legacy/default) or its source. */
     public static Transition advance(String rawTimers,long targetActorId,long activeActorId) throws Exception {
-        return advanceInternal(rawTimers,targetActorId,activeActorId,false);
+        return advanceInternal(rawTimers,targetActorId,activeActorId,false,true);
+    }
+    /** Advance source-turn-end timers when the current actor relinquishes its turn. */
+    public static Transition advanceSourceTurnEnd(String rawTimers,long activeActorId) throws Exception {
+        return advanceInternal(rawTimers,0,activeActorId,false,false);
     }
     private static Transition advanceInternal(String rawTimers,long targetActorId,
-        long activeActorId,boolean legacyTargetOnly) throws Exception {
+        long activeActorId,boolean legacyTargetOnly,boolean turnStart) throws Exception {
         JSONArray timers=parse(rawTimers),remaining=new JSONArray();
         List<String> candidates=new ArrayList<String>();
         boolean changed=false;
@@ -144,10 +162,17 @@ public final class MonsterConditionTimerLedger {
                 remaining.put(timer);continue;
             }
             String tick=timer.optString("trigger","target_turn_start");
-            long clockActor="source_turn_start".equals(tick)?timer.optLong("source_actor_id",0):targetActorId;
+            boolean endTick="source_turn_end".equals(tick);
+            long clockActor="source_turn_start".equals(tick)||endTick?
+                timer.optLong("source_actor_id",0):targetActorId;
             boolean due=legacyTargetOnly?"target_turn_start".equals(tick):
-                activeActorId>0&&clockActor>0&&clockActor==activeActorId;
+                activeActorId>0&&clockActor>0&&clockActor==activeActorId&&
+                    (turnStart?!endTick:endTick);
             if(!due){
+                remaining.put(timer);continue;
+            }
+            if(endTick&&timer.optBoolean("skip_first_source_turn_end",false)){
+                timer.put("skip_first_source_turn_end",false);changed=true;
                 remaining.put(timer);continue;
             }
             int rounds=timer.optInt("rounds",0);
@@ -170,6 +195,7 @@ public final class MonsterConditionTimerLedger {
         return new Transition(remaining,expired,changed);
     }
     private static boolean supportedTick(String tick) {
-        return "target_turn_start".equals(tick)||"source_turn_start".equals(tick);
+        return "target_turn_start".equals(tick)||"source_turn_start".equals(tick)||
+            "source_turn_end".equals(tick);
     }
 }

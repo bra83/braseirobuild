@@ -199,6 +199,16 @@ class XmmIndependentSourceTests(unittest.TestCase):
         errors,count=xmm.check_unmodeled_action_effects(source,compiled)
         self.assertEqual(1,count)
         self.assertIn("UNTYPED_SOURCE_EFFECT_NOT_MANUAL",errors[0])
+    def test_scarecrow_fearsome_claw_expires_at_end_of_its_next_turn(self):
+        source=[{"name":"Scarecrow","action":[{"name":"Fearsome Claw","entries":[
+            "Hit: damage, and the target has the {@condition Frightened|XPHB} condition until the end of the scarecrow's next turn."]}]}]
+        compiled=[{"id":"Scarecrow","actions":[{"name":"Fearsome Claw","condition_on_hit":"frightened",
+            "condition_duration_rounds":1,"condition_duration_tick":"source_turn_end"}]}]
+        self.assertEqual(([],0),xmm.check_unmodeled_action_effects(source,compiled))
+        compiled[0]["actions"][0]["condition_duration_tick"]="source_turn_start"
+        errors,count=xmm.check_unmodeled_action_effects(source,compiled)
+        self.assertEqual(1,count)
+        self.assertIn("UNTYPED_SOURCE_EFFECT_NOT_MANUAL",errors[0])
     def test_not_503_is_not_success(self):
         with self.assertRaises(ValueError):xmm.check_monsters([],[],[])
 if __name__=="__main__":unittest.main()

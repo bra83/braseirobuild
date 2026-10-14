@@ -298,7 +298,10 @@ def source_action_requires_manual_resolution(action):
     # returning a comma-separated condition string does not implement that lifecycle.
     conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
     recurring=bool(re.search(r"\brepeats? the save\b|\bat the end of each of its turns\b",text,re.I))
-    return bool(UNMODELED_ACTION_EFFECTS.search(text)) or len(conditions)>1 or recurring
+    next_source_turn_end=(RCH.sub("",action.get("name","")).strip()=="Fearsome Claw" and
+        "until the end of the scarecrow's next turn" in text.casefold() and
+        "frightened" in conditions)
+    return bool(UNMODELED_ACTION_EFFECTS.search(text)) or len(conditions)>1 or recurring or next_source_turn_end
 
 def source_action_has_typed_compound_condition_contract(monster_name,action,compiled_action):
     """Narrowly typed source condition bundles with an exact source-turn expiry."""
@@ -315,6 +318,17 @@ def source_action_has_typed_compound_condition_contract(monster_name,action,comp
     elif monster_name=="Storm Giant" and name=="Thunderbolt":
         expected={"blinded","deafened"}; field="condition_on_hit"
         source_until="until the start of the giant's next turn"
+    elif monster_name=="Scarecrow" and name=="Fearsome Claw":
+        expected={"frightened"}; field="condition_on_hit"
+        source_until="until the end of the scarecrow's next turn"
+        source_conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
+        compiled_conditions={x.strip().casefold() for x in compiled_action.get(field,"").split(",")}
+        return (source_conditions==expected and compiled_conditions==expected and
+            source_until in text.casefold() and not compiled_action.get("save_dc") and
+            not compiled_action.get("save_ability") and not compiled_action.get("condition_on_fail") and
+            compiled_action.get("condition_duration_rounds")==1 and
+            compiled_action.get("condition_duration_tick")=="source_turn_end" and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
     else:return False
     source_conditions={x.casefold() for x in re.findall(r"\{@condition ([^|}]+)",text,re.I)}
     compiled_conditions={x.strip().casefold() for x in compiled_action.get(field,"").split(",")}
@@ -543,6 +557,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_save_damage_actions_compared":save_count,
         "source_abilities_with_unmodeled_effects_manual":effect_count,
         "source_compound_condition_actions_typed":2,
+        "source_single_condition_actions_typed":1,
         **branch_totals,
         "source_field_and_catalog_gate_pass":True,
         "full_monster_combat_automation_certified":False}
