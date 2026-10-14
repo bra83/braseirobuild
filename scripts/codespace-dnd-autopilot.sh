@@ -35,9 +35,18 @@ requirements(){
   [[ -f "$POLICY" ]] || { report 'BLOCKED_POLICY_MISSING'; return 2; }
 }
 ci_for_sha(){
-  local sha="$1" status
-  status="$(gh api "repos/$REPO/actions/workflows/dnd-normal-automation-ci.yml/runs?branch=$BRANCH&per_page=30" \
+  local sha="$1" status parent meta
+  status="$(gh api "repos/$REPO/actions/workflows/dnd-normal-automation-ci.yml/runs?head_sha=$sha&per_page=30" \
     | python3 -c 'import json,sys; sha=sys.argv[1]; runs=json.load(sys.stdin).get("workflow_runs",[]); r=next((x for x in runs if x.get("head_sha")==sha),None); print("MISSING" if not r else (r.get("conclusion") or r.get("status") or "UNKNOWN"))' "$sha")" || return 3
+  if [[ "$status" != MISSING ]]; then printf '%s\n' "$status"; return 0; fi
+  # Only a verified one-file post-CI handoff commit can inherit parent CI.
+  meta="$(gh api "repos/$REPO/commits/$sha")" || return 3
+  parent="$(printf '%s' "$meta" | python3 -c 'import json,sys; d=json.load(sys.stdin); f=d.get("files") or []; p=d.get("parents") or []; m=d.get("commit",{}).get("message",""); ok=len(p)==1 and len(f)==1 and f[0].get("filename")=="docs/HANDOFF_DND_ATUAL.md" and m.startswith("docs(dnd): update automatic handoff for "); print(p[0].get("sha","") if ok else "")')" || return 3
+  if [[ "$parent" =~ ^[a-f0-9]{40}$ ]]; then
+    status="$(gh api "repos/$REPO/actions/workflows/dnd-normal-automation-ci.yml/runs?head_sha=$parent&per_page=30" \
+      | python3 -c 'import json,sys; sha=sys.argv[1]; runs=json.load(sys.stdin).get("workflow_runs",[]); r=next((x for x in runs if x.get("head_sha")==sha),None); print("MISSING" if not r else (r.get("conclusion") or r.get("status") or "UNKNOWN"))' "$parent")" || return 3
+    [[ "$status" != success ]] || echo "HANDOFF_ONLY_PARENT_CI_VERIFIED=$parent" >&2
+  fi
   printf '%s\n' "$status"
 }
 validate_changes(){

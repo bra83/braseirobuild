@@ -118,4 +118,27 @@ public final class HybridXmmBatchResolutionEngineTest {
         assertFalse(batch(gateway(packet(many))).optBoolean("evaluated"));
         assertFalse(batch(gateway(packet(new JSONArray()))).optBoolean("evaluated"));
     }
+    @Test
+    public void hostPlayerDispatcherUsesBatchAndRejectsModelForgedChannels() throws Exception {
+        JSONObject request = input("host", "Aboleth", "/monster/3",
+                "source_reference", new JSONObject());
+        JSONObject envelope = packet(new JSONArray().put(request));
+        JSONObject player = new JSONObject().put("channel", "PLAYER_REACTION")
+                .put("mechanic_family", "xmm_batch_preview")
+                .put("action_id", "preview-aboleth").put("batch", envelope);
+        JSONObject accepted = CompiledPlayerActionDispatcher.dispatch(
+                new MasterRulesArbiter(null), player);
+        assertTrue(accepted.optBoolean("accepted"));
+        assertEquals(1, accepted.getJSONObject("result").optInt("resolved_count"));
+        assertFalse(accepted.optBoolean("auto_commit", true));
+        assertFalse(accepted.optBoolean("effect_applied", true));
+        assertFalse(accepted.optBoolean("persisted", true));
+        assertTrue(accepted.optBoolean("host_resolution_required_for_mutation"));
+        JSONObject forged = new JSONObject(player.toString()).put("channel", "GEMINI");
+        JSONObject rejected = CompiledPlayerActionDispatcher.dispatch(
+                new MasterRulesArbiter(null), forged);
+        assertFalse(rejected.optBoolean("accepted"));
+        assertEquals("blocked_invalid_action_channel", rejected.optString("authority"));
+    }
+
 }

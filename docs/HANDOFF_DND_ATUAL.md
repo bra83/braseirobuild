@@ -70,6 +70,17 @@ Continuar exclusivamente ETAPA 03: integrar ações XMM com efeitos manuais em c
 - Em infra parada/runner BRELGA na fila, o agente não presume PASS nem integra código sem testes. Pode consultar GitHub e tentar novamente quando houver CI verde.
 - O agente de IA não é garantido pela automação GitHub: depende do Codex CLI instalado, login válido, limites da conta e terminal Codespace iniciado.
 
+## Arquitetura híbrida verificada em 14/10/2026
+
+- Motor Bárbara 1.1.3: última versão encontrada em [Motor Barbara/LATEST](https://drive.google.com/drive/folders/1oVAD0khD3dqNF1gu6EmjjBi2MSAWxplG) em 14/10/2026. O D&D já integra `BarbaraSupervisor` (Android/Chaquopy e contrato `BarbaraHostContractV1`); nenhuma migração de motor foi feita.
+- Integração existente, preservada: `GeminiService` e tratamento de indisponibilidade; `RuleRetrievalEngine` e `RuleProcedureCompiler` para RAG; `MasterRulesArbiter`/`MasterResponseValidator` para autoridade de regras; `OfficialBookRuntimeGateway`, `CompiledContentRuntimeGateway` e SQLite para efeitos autorizados.
+- Pasta oficial D&D: [Google Drive D&D5e](https://drive.google.com/drive/folders/13wB-KfYCe2k5xGmb-z2D09KRDJtSyfHu). Verificar edição e disponibilidade por arquivo; não publicar PDFs privados nem artefatos que os reconstituam.
+- Pacote novo: `HybridXmmBatchResolutionEngine` e operação `hybrid_batch_preview` no `OfficialBookRuntimeGateway`; até 24 propostas num lote, com XMM 2025, SHA pinado, ponteiro da fonte, IDs exclusivos e 8 operações mecânicas existentes (damage/save, traits, recarga e uso de magias). Não grava banco nem rola dados automaticamente.
+- Ponte host: `CompiledPlayerActionDispatcher` recebe `mechanic_family=xmm_batch_preview` sob canal de ação do jogador; resultados continuam exigindo aplicação pelo host. Não dá autoridade mecânica ao Gemini ou ao RAG.
+- Testes criados: dados explícitos para Cold Breath e Legendary Resistance, casos inválidos de edição, fonte, duplicação, tentativa de mutação e integração do despachante do jogador. **Criar teste não equivale a executá-lo**; conferir BRELGA do HEAD exato antes de afirmar PASS.
+- Autopiloto Codespace: a política exige testes locais e CI verde antes da integração. Enquanto o runner estiver na fila, trabalhos podem ser preparados isoladamente, mas não publicados. O monitor confere se um commit automático de handoff alterou **somente** `docs/HANDOFF_DND_ATUAL.md` antes de aceitar o CI do código-pai. Não confundir essa equivalência com execução nova de testes no commit documental.
+- Escopo da entrega: ETAPA 03 ainda aberta; 2/15 etapas homologadas, Android físico não homologado, nenhum APK novo por este pacote.
+
 ## Histórico
 
 Este documento foi criado com a infraestrutura de automação. Não foi usado como prova de conclusão de qualquer etapa. As edições automáticas ficam estritamente na seção abaixo; preservar todo o restante.

@@ -16,6 +16,21 @@ public final class CompiledPlayerActionDispatcher {
    String actionId=request.optString("action_id","").trim();
    if(actionId.isEmpty())return reject(out,"blocked_missing_action_id");
    out.put("action_id",actionId);
+   if("xmm_batch_preview".equals(family)) {
+    // Player-originated preview: no direct write, no hidden roll.
+    JSONObject batch=request.optJSONObject("batch");
+    JSONObject wrapper=new OfficialBookRuntimeGateway(null).execute(
+       "xmm","hybrid_batch_preview",batch);
+    JSONObject preview=wrapper==null?null:wrapper.optJSONObject("result");
+    if(preview==null||!preview.optBoolean("evaluated",false))
+      return unresolved(out,family,preview,"blocked_hybrid_batch_preflight");
+    return out.put("accepted",true).put("mechanic_family",family)
+       .put("result",preview).put("auto_commit",false)
+       .put("effect_applied",false).put("persisted",false)
+       .put("requires_normal_arbiter_transaction",false)
+       .put("host_resolution_required_for_mutation",true)
+       .put("authority","xmm_pinned_read_only_preview");
+   }
    if("supplement_procedure".equals(family)) {
     String id=request.optString("rule_id","");
     JSONObject inputs=request.optJSONObject("inputs");
