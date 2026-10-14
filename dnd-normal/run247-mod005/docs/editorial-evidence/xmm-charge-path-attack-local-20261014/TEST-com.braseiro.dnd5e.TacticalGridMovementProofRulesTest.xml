@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.TacticalGridMovementProofRulesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-14T02:55:16" hostname="0f1875aecc7d" time="0.005">
+  <properties/>
+  <testcase name="bentOrForgedPathCannotQualify" classname="com.braseiro.dnd5e.TacticalGridMovementProofRulesTest" time="0.005"/>
+  <testcase name="onlyStraightCommittedCellPathsQualifyAndTheyMustApproachTarget" classname="com.braseiro.dnd5e.TacticalGridMovementProofRulesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,83 @@
+{
+  "schema": "XMM_CHARGE_PATH_ATTACK_EVIDENCE_V1",
+  "date": "2026-10-14",
+  "source_commit": "7d0f17e2a273293d78f7359132054766b436ad05",
+  "source_scope": "22 XMM 2025 direct monster attacks with pinned straight-movement charge requirements; route proof required to apply conditional damage or prone; multiattack components remain unavailable.",
+  "gradle_command": "bash gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.XmmChargeMovementRulesTest --tests com.braseiro.dnd5e.XmmConditionalAttackDamageSourceTest --tests com.braseiro.dnd5e.XmmChargePathAttackRobolectricTest --tests com.braseiro.dnd5e.XmmProneEffectRobolectricTest --tests com.braseiro.dnd5e.Run243TacticalMovementRobolectricTest --tests com.braseiro.dnd5e.TacticalGridMovementProofRulesTest --tests com.braseiro.dnd5e.XmmPtBrActionLabelTest --tests com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest.testG04TacticalGridMovementAndBudget",
+  "environment": "Local Android SDK / JDK 21 / Gradle wrapper 8.11.1",
+  "test_suites": 8,
+  "test_count": 19,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "full_suite": false,
+  "apk_built": false,
+  "multiattack_charge_integration_complete": false,
+  "manual_rider_flag_globally_cleared": false,
+  "xml": [
+    {
+      "file": "TEST-com.braseiro.dnd5e.XmmChargeMovementRulesTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "285c9d3f69a0b519afbbc8d6aa0a0365a487d23dcd5e4bc2a386e7f1a7331696"
+    },
+    {
+      "file": "TEST-com.braseiro.dnd5e.XmmConditionalAttackDamageSourceTest.xml",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "a934c229c34979ba87fbc93d133ed455adbc9e76667d4fd0a24c47b98005cbd8"
+    },
+    {
+      "file": "TEST-com.braseiro.dnd5e.XmmChargePathAttackRobolectricTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "dda93a2657ad92b14867657f95141df68524e87dc9311bd0b6ee7d702665cc17"
+    },
+    {
+      "file": "TEST-com.braseiro.dnd5e.XmmProneEffectRobolectricTest.xml",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "639c77acf6a9ff1da0871d3bcb65880358f6ceb4afbb23cdf7a7be39b7857203"
+    },
+    {
+      "file": "TEST-com.braseiro.dnd5e.Run243TacticalMovementRobolectricTest.xml",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "0a41411cb9a7deae0cafb2169e1b131e44fa8ac62ec833da3554da51a9b231e4"
+    },
+    {
+      "file": "TEST-com.braseiro.dnd5e.TacticalGridMovementProofRulesTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "2d1061c62c27a5cebfe820dd590b8b14bafcc992830bd34f6c4cca2423ad876a"
+    },
+    {
+      "file": "TEST-com.braseiro.dnd5e.XmmPtBrActionLabelTest.xml",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "787114235f7ebe6be0783583027f3ba68e31a2931244d254b861b4a7ba9ac353"
+    },
+    {
+      "file": "TEST-com.braseiro.dnd5e.e2e.E2EGatesIntegrationRobolectricTest.xml",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "4ad2631448a42cddb215adef85c69c36ca4a25dc93252969e87b48189180ad31"
+    }
+  ]
+}
