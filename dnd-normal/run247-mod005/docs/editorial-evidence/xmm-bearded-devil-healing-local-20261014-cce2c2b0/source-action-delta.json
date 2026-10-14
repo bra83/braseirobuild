@@ -1,0 +1,20 @@
+{
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "source_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "source_pointer": "/monster/58/action/1/entries/0",
+  "creature": "Bearded Devil",
+  "action": "Beard",
+  "source_contract": {
+    "hit_condition": "poisoned",
+    "expiry": "start_of_source_next_turn",
+    "effect_while_condition_active": "prevent_hit_point_regain"
+  },
+  "runtime_fields": {
+    "condition_on_hit": "poisoned",
+    "condition_duration_rounds": 1,
+    "condition_duration_tick": "source_turn_start",
+    "prevents_hit_point_regain_while_condition": "poisoned"
+  },
+  "state_proof": "Combat hit persists poisoned and an owned source-turn timer; direct and batch healing do not mutate HP while that timer is active; at the source turn start the condition and timer expire and healing works again.",
+  "remaining_manual_source_effects_after_change": 245
+}

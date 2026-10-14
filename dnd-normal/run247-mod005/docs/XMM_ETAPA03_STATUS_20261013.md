@@ -172,3 +172,11 @@
 - A primeira execução integral encontrou duas regressões: a preferência de rota reta ignorava terreno difícil mais barato, e o validador de dano tipado retornava erro de quantidade antes de identificar tipos repetidos. Corrigi ambas; a rota reta agora só vence em empate de custo e a rejeição por agregação de tipo repetido foi preservada.
 - Após a correção, `:app:testDebugUnitTest` passou no SHA `7101d61d89f624f764472cb92cc879a76d7d7f71`: **2.524 testes, 109 XMLs, zero falhas/erros/ignorados**. Os 34 testes dos comparadores Python XMM também passaram; o comparador pinado conferiu 503 criaturas e 36 seções.
 - O comparador continua marcando 246 efeitos como manuais e `full_monster_combat_automation_certified=false`. A etapa 03 permanece aberta; não foi feito build APK nem CI BRELGA neste SHA. Evidência: `docs/editorial-evidence/xmm-full-suite-local-20261014-7101d61d/`.
+
+
+### Beard do Diabo Barbado: veneno impede recuperar PV (14/10/2026)
+
+- A fonte XMM pinada declara que Beard aplica envenenado até o início do próximo turno do diabo e impede a recuperação de PV enquanto o veneno durar. O bloco agora persiste essa consequência no timer pertencente à fonte. Cura direta e cura em lote falham sem mutação durante o efeito; no início do turno do Diabo Barbado, o timer e envenenado expiram, e a cura volta a funcionar.
+- O contrato independente verifica o ponteiro `/monster/58/action/1/entries/0` contra o bloco, o gatilho e o campo de supressão. O efeito deixou de compor o total manual: comparador XMM reporta 245 fora dos contratos tipados, de 246 no snapshot anterior.
+- No SHA `cce2c2b0b6d5ca7cfe55a6fadb838b7ebe31b1dc`, suíte completa local: **2.525 testes / 110 XMLs / 0 falhas / 0 erros / 0 ignorados**; comparadores Python 35/35; fonte XMM pinada 503/503 monstros e 36/36 seções. Certificação de automação integral permanece falsa; etapa 03 continua aberta. Evidência: `docs/editorial-evidence/xmm-bearded-devil-healing-local-20261014-cce2c2b0/`.
+- O proprietário confirmou aquisição dos materiais e uso estritamente pessoal do VTT, autorizando consulta para a implementação. O runtime registra somente o efeito mecânico necessário; o livro não é republicado dentro do app.

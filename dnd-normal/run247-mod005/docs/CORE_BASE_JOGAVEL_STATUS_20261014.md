@@ -37,6 +37,8 @@ O executor de rota para ataques diretos de investida, seus 19 testes selecionado
 
 A suíte completa Android/Robolectric, os hashes de 109 XMLs, comparador XMM e registro das duas regressões corrigidas estão em [`xmm-full-suite-local-20261014-7101d61d`](editorial-evidence/xmm-full-suite-local-20261014-7101d61d/manifest.json).
 
+O contrato do Diabo Barbado / Barba, o bloqueio persistente de cura, a expiração no turno correto e a regressão integral atualizada estão em [`xmm-bearded-devil-healing-local-20261014-cce2c2b0`](editorial-evidence/xmm-bearded-devil-healing-local-20261014-cce2c2b0/manifest.json).
+
 - Suíte Android/Robolectric no commit XMM: **2.516 testes, 0 falhas, 0 erros, 0 ignorados**, em 105 arquivos XML.
 - Testes Python no commit XMM: **65 passaram**.
 - Comparação XMM: 503 monstros, 36 seções, 120 ações de recarga, 132 registros de conjuração, 178 contratos de traços e 59 ações simples de salvaguarda conferidos.
@@ -44,6 +46,6 @@ A suíte completa Android/Robolectric, os hashes de 109 XMLs, comparador XMM e r
 
 ## Ainda não está fechado como núcleo pronto
 
-A lista versionada de ações manuais ainda tem **246 entradas**, concentradas em outros efeitos que aguardam modelagem ou decisão explícita. O comparador amplo reporta 246 ações/efeitos fora dos seus contratos tipados; esse número tem denominador próprio e não significa que cada ação tenha sido homologada individualmente. O Fearsome Claw deixou de depender de um efeito manual. Ainda não é possível afirmar que todos os monstros estejam prontos para combate. Também continuam pendentes o CI BRELGA neste SHA e a instalação/abertura em Android. Não havia aparelho ADB conectado; não foi gerado APK, conforme o gate atual da etapa XMM.
+A lista manual arquivada no SHA anterior tinha **246 entradas**. A comparação pinada atualizada após implementar o Beard do Diabo Barbado agora conta **245 efeitos fora dos contratos tipados**; o denominador é ação/efeito do comparador, não uma certificação de cada monstro. O VTT segue sem cobertura integral de combate. Também estão pendentes CI BRELGA e instalação/abertura em Android físico; não havia aparelho ADB conectado e nenhum APK foi gerado nesta etapa.
 
-O núcleo básico permanece em andamento. A próxima implementação fica no XMM: tratar os outros efeitos ainda manuais com prova fonte→runtime→estado e revisar as sequências de multiataque que possam conter investidas. O registro do Espantalho usa a comparação estruturada auxiliar 5e.tools; validação da ação contra o PDF licenciado continua pendente. Os suplementos não avançam antes da conclusão do núcleo.
+O proprietário informou em 14/10/2026 que adquiriu os materiais e autorizou sua consulta no VTT de uso estritamente pessoal. Essa autorização orienta a conferência interna do conteúdo mecânico; o projeto continua sem reproduzir integralmente os livros. O núcleo permanece em andamento: XMM ainda tem efeitos manuais, e não avanço para suplementos.

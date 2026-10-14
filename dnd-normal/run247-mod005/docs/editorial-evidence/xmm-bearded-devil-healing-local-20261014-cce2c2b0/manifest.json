@@ -1,0 +1,49 @@
+{
+  "schema": "XMM_BEARD_HEALING_EFFECT_EVIDENCE_V1",
+  "date": "2026-10-14",
+  "source_commit": "cce2c2b0b6d5ca7cfe55a6fadb838b7ebe31b1dc",
+  "scope": "Bearded Devil Beard: persist the source-turn poison, prevent hit point regain until it expires, and retain the full regression suite.",
+  "gradle_command": "bash gradlew :app:testDebugUnitTest",
+  "gradle_result": "BUILD SUCCESSFUL",
+  "android_tests": 2525,
+  "android_xml": 110,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "python_source_comparator_tests": 35,
+  "python_source_comparator_result": "passed",
+  "source_comparison": {
+    "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+    "monsters": 503,
+    "sections": 36,
+    "manual_effects_after_change": 245,
+    "full_monster_combat_automation_certified": false
+  },
+  "full_suite": true,
+  "apk_built": false,
+  "brelga_ci_run": false,
+  "source_test_xml": {
+    "file": "TEST-com.braseiro.dnd5e.XmmBeardedDevilHealingSuppressionRobolectricTest.xml",
+    "tests": 1,
+    "failures": 0,
+    "sha256": "8cb66b1fc3d993871348498d93a0d64dcfdba9f2c0e93f551fbf7b383b125c24"
+  },
+  "files": [
+    {
+      "file": "android-test-results.zip",
+      "sha256": "9aa10d33b0181d18a3a5ae83a3d52f2589cedd4d53f63990689c3a3f4a50b5eb"
+    },
+    {
+      "file": "android-test-summary.json",
+      "sha256": "60619b2c66bf43e039c06bc6150cfab8be02b61513e6f590e4042d5b254d64f0"
+    },
+    {
+      "file": "xmm-source-comparison.json",
+      "sha256": "ae426e7373b71684472a7b171f0f375d9855efe5c5dbd5a80c6413c9814ec6d4"
+    },
+    {
+      "file": "source-action-delta.json",
+      "sha256": "f8fa51e1b342f73de4db5615e099c387dc691ace1b20be8f92cf5fbb009a18b8"
+    }
+  ]
+}
