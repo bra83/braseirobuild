@@ -154,7 +154,10 @@ public final class StatblockCombatFlowEngine{
       declaredAction.optString("category",""))))return block("unsupported_non_action_economy_in_legacy_flow");
   String riderBlock=MonsterActionEconomyGuard.attackRiderBlock(declaredAction,false);if("unsupported_multiattack_on_hit_rider".equals(riderBlock))return block("unsupported_on_hit_rider_in_legacy_flow");if(!riderBlock.isEmpty())return block(riderBlock);
   JSONObject tp=CompiledStatblockEngine.runtimeProfile(tv.optString("statblock_id"));DndRulesEngine rules=new DndRulesEngine();String cover=tv.optString("cover","");if(rules.hasTotalCover(cover))return block("target_has_total_cover");int geometryCover=geometry==null?0:geometry.coverBonus;int ac=tp.optInt("armor_class",10)+Math.max(rules.coverAcBonus(cover),geometryCover);JSONObject range=StatblockCombatRuntimeEngine.rangeProfile(av.optString("statblock_id"),action,distanceFt);if(range.optBoolean("blocked"))return range;if(range.optBoolean("out_of_range"))return block("attack_out_of_range").put("range",range);
-  JSONObject cp=ConditionRulesEngine.attackProfile(StatblockEncounterStateEngine.conditionText(attacker),StatblockEncounterStateEngine.conditionText(target),distanceFt,true,true,false,false,DndRulesEngine.PROFILE_2014);if(cp.optBoolean("blocked",false))return block("attacker_incapacitated");if(range.optBoolean("long_range_disadvantage",false)||(range.optBoolean("ranged",false)&&distanceFt>0d&&distanceFt<=5d&&!ConditionRulesEngine.incapacitated(StatblockEncounterStateEngine.conditionText(target)))||(geometry!=null&&(geometry.longRangeDisadvantage||geometry.unseenDisadvantage)))cp.put("disadvantage",true);int used=rules.chooseD20(firstD20,secondD20,cp.optBoolean("advantage",false),cp.optBoolean("disadvantage",false));
+  XmmConditionalAttackRollRules.Result sourceRollMode=XmmConditionalAttackRollRules.advantage(
+      declaredAction,tv.optInt("hp",-1),tv.optInt("max_hp",-1));
+  if(!sourceRollMode.legal())return block(sourceRollMode.blocked);
+  JSONObject cp=ConditionRulesEngine.attackProfile(StatblockEncounterStateEngine.conditionText(attacker),StatblockEncounterStateEngine.conditionText(target),distanceFt,true,true,false,false,DndRulesEngine.PROFILE_2014);if(cp.optBoolean("blocked",false))return block("attacker_incapacitated");if(sourceRollMode.advantage)cp.put("advantage",true);if(range.optBoolean("long_range_disadvantage",false)||(range.optBoolean("ranged",false)&&distanceFt>0d&&distanceFt<=5d&&!ConditionRulesEngine.incapacitated(StatblockEncounterStateEngine.conditionText(target)))||(geometry!=null&&(geometry.longRangeDisadvantage||geometry.unseenDisadvantage)))cp.put("disadvantage",true);int used=rules.chooseD20(firstD20,secondD20,cp.optBoolean("advantage",false),cp.optBoolean("disadvantage",false));
   JSONObject r=StatblockCombatRuntimeEngine.attack(av.optString("statblock_id"),action,used,ac,
       av.optInt("hp",-1),av.optInt("max_hp",-1),false,
       cp.optBoolean("advantage",false)&&!cp.optBoolean("disadvantage",false));if(r.optBoolean("blocked"))return r;r.put("first_d20",firstD20).put("second_d20",secondD20).put("roll_mode",cp.optBoolean("advantage",false)&&!cp.optBoolean("disadvantage",false)?"advantage":cp.optBoolean("disadvantage",false)&&!cp.optBoolean("advantage",false)?"disadvantage":"normal").put("target_cover",cover).put("range",range);if(geometry!=null)r.put("attack_geometry_receipt",TacticalCreatureGeometryRules.receipt(geometry)).put("geometry_cover_bonus",geometryCover).put("unseen_disadvantage",geometry.unseenDisadvantage).put("blindsight_used",geometry.usedBlindsight);if(r.optBoolean("hit")&&cp.optBoolean("critical_on_hit",false))r.put("critical",true).put("critical_from_condition",true);
@@ -200,10 +203,18 @@ public final class StatblockCombatFlowEngine{
   // later out-of-range/invalid component must not leave earlier damage behind.
   JSONObject[] planned=new JSONObject[actions.length];
   for(int i=0;i<actions.length;i++){
+   JSONObject componentSource=findAction(av.optString("statblock_id"),actions[i]);
+   if(componentSource==null)return block("multiattack_component_blocked").put("component",i)
+       .put("detail",block("action_not_found"));
    JSONObject range=StatblockCombatRuntimeEngine.rangeProfile(av.optString("statblock_id"),actions[i],distanceFt);
    if(range.optBoolean("blocked")||range.optBoolean("out_of_range"))return block("multiattack_component_out_of_range").put("component",i).put("detail",range);
+   XmmConditionalAttackRollRules.Result sourceRollMode=XmmConditionalAttackRollRules.advantage(
+       componentSource,tv.optInt("hp",-1),tv.optInt("max_hp",-1));
+   if(!sourceRollMode.legal())return block("multiattack_component_blocked").put("component",i)
+       .put("detail",block(sourceRollMode.blocked));
    JSONObject cp=ConditionRulesEngine.attackProfile(StatblockEncounterStateEngine.conditionText(attacker),StatblockEncounterStateEngine.conditionText(target),distanceFt,true,true,false,false,DndRulesEngine.PROFILE_2014);
    if(cp.optBoolean("blocked",false))return block("attacker_incapacitated").put("component",i);
+   if(sourceRollMode.advantage)cp.put("advantage",true);
    if(range.optBoolean("long_range_disadvantage",false)||(range.optBoolean("ranged",false)&&distanceFt>0d&&distanceFt<=5d&&!ConditionRulesEngine.incapacitated(StatblockEncounterStateEngine.conditionText(target))))cp.put("disadvantage",true);
    int used=rules.chooseD20(firstD20s[i],secondD20s[i],cp.optBoolean("advantage",false),cp.optBoolean("disadvantage",false));
    JSONObject r=StatblockCombatRuntimeEngine.attack(av.optString("statblock_id"),actions[i],used,ac,

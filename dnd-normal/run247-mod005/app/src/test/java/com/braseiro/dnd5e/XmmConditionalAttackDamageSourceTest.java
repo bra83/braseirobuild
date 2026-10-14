@@ -31,7 +31,7 @@ public final class XmmConditionalAttackDamageSourceTest {
         {"Swarm of Insects","Bites","2d4 + 1","1d4 + 1","poison",false},
         {"Swarm of Larvae","Bites","2d6 + 2","2d4 + 2","necrotic",false},
         {"Swarm of Lemures","Vile Slime","2d8 + 2","2d6 + 2","poison",false},
-        {"Swarm of Piranhas","Bites","2d4 + 3","1d4 + 3","piercing",true},
+        {"Swarm of Piranhas","Bites","2d4 + 3","1d4 + 3","piercing",false},
         {"Swarm of Rats","Bites","2d4","1d4","piercing",false},
         {"Swarm of Ravens","Beaks","1d6 + 2","1d4","piercing",false},
         {"Swarm of Stirges","Swarm of Proboscises","2d10 + 3","1d10 + 3","piercing",true},

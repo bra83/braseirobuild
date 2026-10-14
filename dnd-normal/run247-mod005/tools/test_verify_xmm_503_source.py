@@ -37,6 +37,40 @@ class XmmIndependentSourceTests(unittest.TestCase):
         self.assertEqual(5,count)
         self.assertIn("ADVANTAGE_BONUS_DAMAGE_MISMATCH",errors[0])
 
+    def test_wounded_target_advantage_is_bound_to_four_shark_and_piranha_attacks(self):
+        cases=[
+            ("Giant Shark","Bite",9,"3d10 + 6",22),
+            ("Hunter Shark","Bite",6,"3d6 + 4",14),
+            ("Piranha","Bite",5,"1",1),
+            ("Swarm of Piranhas","Bites",5,"2d4 + 3",8),
+        ]
+        source_by_id={};compiled_by_id={}
+        for monster,name,to_hit,damage,average in cases:
+            source_by_id.setdefault(monster,{"name":monster,"action":[]})["action"].append({
+                "name":name,"entries":["{@atkr m} {@hit "+str(to_hit)+
+                "} (with {@variantrule Advantage|XPHB} if the target doesn't have all its "+
+                "{@variantrule Hit Points|XPHB}), reach 5 ft. {@h}"+str(average)+
+                (" ({@damage "+damage+"})" if damage!="1" else "")+
+                " Piercing damage"+(", or 5 ({@damage 1d4 + 3}) Piercing damage if the swarm is {@status Bloodied|XPHB}" if monster=="Swarm of Piranhas" else "")+"."]})
+            runtime={"name":name,"to_hit":to_hit,"attack_modes":["m"],"reach_ft":5,
+                "damage":damage,"damage_type":"piercing",
+                "attack_advantage_if_target_missing_hit_points":True,
+                "manual_rider_resolution_required":False,
+                "manual_unmodeled_source_effect_required":False}
+            if monster=="Swarm of Piranhas":runtime["damage_bloodied"]="1d4 + 3"
+            compiled_by_id.setdefault(monster,{"id":monster,"actions":[]})["actions"].append(runtime)
+        source=list(source_by_id.values());compiled=list(compiled_by_id.values())
+        self.assertEqual(([],4),xmm.check_wounded_target_advantage_attacks(source,compiled))
+        swarm_source=[source_by_id["Swarm of Piranhas"]]
+        swarm_compiled=[compiled_by_id["Swarm of Piranhas"]]
+        self.assertEqual(([],{"source_bloodied_attack_branches":1,
+            "source_alternate_attack_branches_manual":0}),
+            xmm.check_conditional_attack_damage(swarm_source,swarm_compiled,1,0))
+        compiled[-1]["actions"][0]["attack_advantage_if_target_missing_hit_points"]=False
+        errors,count=xmm.check_wounded_target_advantage_attacks(source,compiled)
+        self.assertEqual(3,count)
+        self.assertIn("WOUNDED_TARGET_ADVANTAGE_MISMATCH",errors[0])
+
     def test_chain_devil_infernal_chain_requires_every_source_bound_rider(self):
         source={"name":"Conjure Infernal Chain","entries":[
             "The devil conjures a fiery chain to bind a creature. {@actSave dex} {@dc 15}, one creature the devil can see within 60 feet. {@actSaveFail} 9 ({@damage 2d4 + 4}) Fire damage, and the target has the {@condition Restrained|XPHB} condition until the end of the devil's next turn, at which point the chain disappears. If the target is Large or smaller, the devil moves the target up to 30 feet straight toward itself. {@actSaveSuccess} The chain disappears."]}

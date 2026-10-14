@@ -1,0 +1,39 @@
+{
+  "schema": "XMM_LOCAL_WOUNDED_TARGET_ADVANTAGE_EVIDENCE_V1",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "bestiary_git_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "book_git_blob_sha1": "a21801793df3515d07ef9a56d9febefea1c6f8f7",
+  "source_monsters_compared": 503,
+  "editorial_sections_compared": 36,
+  "source_attack_wounded_target_advantage_contracts_compared": 4,
+  "source_abilities_with_unmodeled_effects_manual": 211,
+  "full_monster_combat_automation_certified": false,
+  "python_source_verifier_tests": 43,
+  "gradle_command": "JAVA_HOME=/workspace/jdk21 ANDROID_HOME=/workspace/android-sdk bash gradlew :app:testDebugUnitTest --offline",
+  "gradle_result": {
+    "test_suites": 122,
+    "tests": 2543,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "focused_tests": [
+    "XmmConditionalAttackRollRobolectricTest",
+    "XmmConditionalAttackDamageSourceTest",
+    "XmmUnmodeledSourceEffectRuntimeTest"
+  ],
+  "apk_generated": false,
+  "brelga": "pending for new commit SHA",
+  "tested_source_files_sha256": {
+    "app/src/main/java/com/braseiro/dnd5e/AppDb.java": "b226bd533838fc9bac56873693210714a5f57091a1e0e8e3e43f75c0db691d2c",
+    "app/src/main/java/com/braseiro/dnd5e/MonsterAttackRollModeRules.java": "7316c287260fe96673de2e75cbfeef5aa0153de509ff251cbb3cd6729ff93795",
+    "app/src/main/java/com/braseiro/dnd5e/StatblockCombatFlowEngine.java": "f71cf8059453b9b36f0f1455acd76adc5d6482b4b2cb18053a19a0f3e098de59",
+    "app/src/main/java/com/braseiro/dnd5e/Xmm2025CompiledBestiaryEngine.java": "5a9d465544741cec6c941ba3103f488032c56cfef73d9d2ac21f8ec759f522ac",
+    "app/src/main/java/com/braseiro/dnd5e/XmmConditionalAttackRollRules.java": "83c5949e15d2f3df412b9183789eb81455f0cf3e2a31ada18cc90d4c8f1cc0fb",
+    "app/src/test/java/com/braseiro/dnd5e/XmmConditionalAttackRollRobolectricTest.java": "a488dd29fbdf7568492afc3faf6bbed97a81215201a804f6fd641e51a713802e",
+    "app/src/test/java/com/braseiro/dnd5e/XmmConditionalAttackDamageSourceTest.java": "c6aa24a034d7e2e1589aafc4f8ad5d57534d40be75c11506396b5272dedbfedb",
+    "app/src/test/java/com/braseiro/dnd5e/XmmUnmodeledSourceEffectRuntimeTest.java": "41f17e1640df80da098a7372849a0a2f8717af28dea9736ebdfc1c1f7ee2c0c2",
+    "tools/test_verify_xmm_503_source.py": "33fc64e6fda7ef1e6f801416caf063570f49f4df05432dbb8ced039aa646f68f",
+    "tools/verify_xmm_503_source.py": "be8eeda45889697dc83ed3622cc50a9fd55df453cf0cb329495ff17452746f51"
+  }
+}

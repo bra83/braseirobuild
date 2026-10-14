@@ -47,6 +47,14 @@ public final class MonsterAttackRollModeRules {
     public static Result evaluate(String attackMode,int distanceFt,boolean longRange,
                                   String attackerConditions,String targetConditions,
                                   boolean confirmedAdditionalAdjacentHostile){
+        return evaluate(attackMode,distanceFt,longRange,attackerConditions,targetConditions,
+            confirmedAdditionalAdjacentHostile,false);
+    }
+    /** The source statblock can declare one additional, verified advantage predicate. */
+    public static Result evaluate(String attackMode,int distanceFt,boolean longRange,
+                                  String attackerConditions,String targetConditions,
+                                  boolean confirmedAdditionalAdjacentHostile,
+                                  boolean sourceDeclaredAdvantage){
         if((!"melee".equals(attackMode)&&!"ranged".equals(attackMode))||
             distanceFt<5||distanceFt>1200||distanceFt%5!=0||
             (longRange&&!"ranged".equals(attackMode)))return blocked("invalid_attack_mode_context");
@@ -62,7 +70,7 @@ public final class MonsterAttackRollModeRules {
         boolean targetIncap=incapacitated(targetConditions);
         boolean threatened="ranged".equals(attackMode)&&
             ((distanceFt==5&&!targetBlind&&!targetIncap)||confirmedAdditionalAdjacentHostile);
-        boolean advantage=targetBlind||has(targetConditions,"impedido")||
+        boolean advantage=sourceDeclaredAdvantage||targetBlind||has(targetConditions,"impedido")||
             has(targetConditions,"aturdido")||has(targetConditions,"paralisado")||
             has(targetConditions,"inconsciente")||has(targetConditions,"petrificado")||
             (has(targetConditions,"caido")&&distanceFt<=5);

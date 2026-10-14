@@ -2918,11 +2918,15 @@ public class AppDb extends SQLiteOpenHelper {
             if(natural<1||natural>20||(damageComponents==null&&damageTotal<0)||
                 riderSaveRoll<0||riderSaveRoll>100)
                 return out.put("statblock_attack_blocked","invalid_roll_input");
+            XmmConditionalAttackRollRules.Result sourceRollMode=
+                XmmConditionalAttackRollRules.advantage(sourceAction,target.optInt("hp",-1),
+                    target.optInt("max_hp",-1));
+            if(!sourceRollMode.legal())return out.put("statblock_attack_blocked",sourceRollMode.blocked);
             MonsterAttackRollModeRules.Result context=MonsterAttackRollModeRules.evaluate(
                 geometry.optString("attack_mode",""),geometry.optInt("distance_ft",0),
                 geometry.optBoolean("long_range_disadvantage",false),
                 actor.optString("conditions",""),target.optString("conditions",""),
-                geometry.optBoolean("additional_adjacent_hostile",false));
+                geometry.optBoolean("additional_adjacent_hostile",false),sourceRollMode.advantage);
             String rollBlock=context.blockDice(natural,secondNatural);
             if(!rollBlock.isEmpty())return out.put("statblock_attack_blocked",rollBlock);
             final int effectiveNatural=context.effective(natural,secondNatural);
@@ -2931,7 +2935,7 @@ public class AppDb extends SQLiteOpenHelper {
             JSONObject resolved=StatblockCombatRuntimeEngine.attack(id,action,effectiveNatural,
                  geometry.optInt("effective_ac",effectiveCombatantAc(targetId)),
                  actor.optInt("hp",-1),actor.optInt("max_hp",-1),chargeQualified,
-                 context.advantage);
+                 context.mode==MonsterAttackRollModeRules.ADVANTAGE);
             if(!resolved.optBoolean("resolved",false))return out.put("statblock_attack_blocked",resolved.optString("reason","statblock_attack_unresolved"));
             if(chargeQualification.optBoolean("charge_supported",false)){
                 if(resolved.optBoolean("hit",false)&&resolved.optBoolean("charge_qualified",false)&&
@@ -2942,8 +2946,9 @@ public class AppDb extends SQLiteOpenHelper {
             }
             if(context.criticalOnHit&&resolved.optBoolean("hit",false))
                 resolved.put("critical",true).put("critical_by_condition",true);
-            resolved.put("roll_mode",context.modeName()).put("roll_advantage",context.advantage)
-                .put("roll_disadvantage",context.disadvantage)
+            resolved.put("roll_mode",context.modeName())
+                .put("roll_advantage",context.mode==MonsterAttackRollModeRules.ADVANTAGE)
+                .put("roll_disadvantage",context.mode==MonsterAttackRollModeRules.DISADVANTAGE)
                 .put("adjacent_hostile_disadvantage",context.adjacentHostile)
                 .put("additional_hostile_id",geometry.optLong("additional_hostile_id",0))
                 .put("hostility_selection_source",geometry.optString("hostility_selection_source","none"));
@@ -3222,27 +3227,34 @@ public class AppDb extends SQLiteOpenHelper {
                 if(!geometry.optBoolean("attack_geometry_valid",false))
                     return out.put("statblock_multiattack_blocked","invalid_geometry_"+i).put("detail",geometry);
                 int secondNatural=step.optInt("long_range_second_d20",0);
+                XmmConditionalAttackRollRules.Result sourceRollMode=
+                    XmmConditionalAttackRollRules.advantage(componentSource,target.optInt("hp",-1),
+                        target.optInt("max_hp",-1));
+                if(!sourceRollMode.legal())return out.put("statblock_multiattack_blocked",
+                    sourceRollMode.blocked+"_"+i);
                 MonsterAttackRollModeRules.Result context=MonsterAttackRollModeRules.evaluate(
                     geometry.optString("attack_mode",""),geometry.optInt("distance_ft",0),
                     geometry.optBoolean("long_range_disadvantage",false),
                     actor.optString("conditions",""),
                     stagedConditions.containsKey(targetId)?stagedConditions.get(targetId):
                         target.optString("conditions",""),
-                    geometry.optBoolean("additional_adjacent_hostile",false));
+                    geometry.optBoolean("additional_adjacent_hostile",false),sourceRollMode.advantage);
                 String rollBlock=context.blockDice(natural,secondNatural);
                 if(!rollBlock.isEmpty())return out.put("statblock_multiattack_blocked",rollBlock+"_"+i);
                 int effectiveNatural=context.effective(natural,secondNatural);
                 JSONObject attack=StatblockCombatRuntimeEngine.attack(id,action,effectiveNatural,
                     geometry.optInt("effective_ac",0),actor.optInt("hp",-1),
-                    actor.optInt("max_hp",-1),false,context.advantage);
+                    actor.optInt("max_hp",-1),false,
+                    context.mode==MonsterAttackRollModeRules.ADVANTAGE);
                 attack.put("first_natural_d20",natural).put("second_natural_d20",secondNatural)
                     .put("effective_natural_d20",effectiveNatural);
                 if(!attack.optBoolean("resolved",false))
                     return out.put("statblock_multiattack_blocked","attack_unresolved_"+i).put("detail",attack);
                 if(context.criticalOnHit&&attack.optBoolean("hit",false))
                     attack.put("critical",true).put("critical_by_condition",true);
-                attack.put("roll_mode",context.modeName()).put("roll_advantage",context.advantage)
-                    .put("roll_disadvantage",context.disadvantage)
+                attack.put("roll_mode",context.modeName())
+                    .put("roll_advantage",context.mode==MonsterAttackRollModeRules.ADVANTAGE)
+                    .put("roll_disadvantage",context.mode==MonsterAttackRollModeRules.DISADVANTAGE)
                     .put("adjacent_hostile_disadvantage",context.adjacentHostile)
                     .put("additional_hostile_id",geometry.optLong("additional_hostile_id",0))
                     .put("hostility_selection_source",geometry.optString("hostility_selection_source","none"));

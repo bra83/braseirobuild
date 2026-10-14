@@ -50,6 +50,12 @@ ADVANTAGE_BONUS_ATTACK_DAMAGE={
     ("Scout Captain","Shortsword"): ("1d6 + 3",6,10,"3d6","piercing",5,"m",5,0,0),
     ("Scout Captain","Longbow"): ("1d8 + 3",7,10,"3d6","piercing",5,"r",0,150,600),
 }
+WOUNDED_TARGET_ADVANTAGE_ATTACKS={
+    ("Giant Shark","Bite"): (9,"3d10 + 6","piercing"),
+    ("Hunter Shark","Bite"): (6,"3d6 + 4","piercing"),
+    ("Piranha","Bite"): (5,"1","piercing"),
+    ("Swarm of Piranhas","Bites"): (5,"2d4 + 3","piercing"),
+}
 SOURCE_TURN_START_HEALING_SUPPRESSION={("Bearded Devil","Beard"),
     ("Bone Devil","Infernal Sting"),("Dire Worg","Bite")}
 TARGET_TURN_END_HIT_CONDITIONS={
@@ -477,7 +483,10 @@ def check_conditional_attack_damage(source,compiled,expected_bloodied=13,expecte
                     errors.append(f"{monster['name']}:{action['name']}:BLOODIED_DAMAGE:{compiled_action.get('damage_bloodied')}!={expected_alt}")
                 if compiled_action.get("damage_type","").lower()!=expected_type:
                     errors.append(f"{monster['name']}:{action['name']}:BLOODIED_DAMAGE_TYPE:{compiled_action.get('damage_type')}!={expected_type}")
-                source_requires_manual=("{@condition Grappled" in entry or "{@variantrule Advantage" in entry)
+                typed_wounded_advantage=(monster["name"],RCH.sub("",action.get("name","" )).strip()) in WOUNDED_TARGET_ADVANTAGE_ATTACKS and wounded_target_advantage_matches(
+                    monster["name"],action,compiled_action)
+                source_requires_manual=("{@condition Grappled" in entry or
+                    ("{@variantrule Advantage" in entry and not typed_wounded_advantage))
                 if bool(compiled_action.get("manual_rider_resolution_required",False))!=source_requires_manual:
                     errors.append(f"{monster['name']}:{action['name']}:BLOODIED_OTHER_RIDER_MANUAL_FLAG")
             elif alt:
@@ -580,6 +589,44 @@ def check_advantage_bonus_attack_damage(source,compiled):
     if checked!=len(ADVANTAGE_BONUS_ATTACK_DAMAGE):errors.append("ADVANTAGE_BONUS_ATTACK_COUNT:"+str(checked))
     return errors,checked
 
+def wounded_target_advantage_matches(monster_name,action,compiled_action):
+    name=RCH.sub("",action.get("name","" )).strip()
+    expected=WOUNDED_TARGET_ADVANTAGE_ATTACKS.get((monster_name,name))
+    if expected is None:return False
+    to_hit,damage,damage_type=expected
+    text=" ".join(x for x in action.get("entries",[]) if isinstance(x,str))
+    prefix=re.search(r"\{@atkr\s+m\}\s*\{@hit\s+(\d+)\}",text,re.I)
+    reach=re.search(r"reach\s+(\d+)\s*ft\.",text,re.I)
+    hit=re.search(r"\{@h\}\s*(\d+)(?:\s*\(\{@damage\s+([^}]+)\}\))?\s+"+
+        re.escape(damage_type)+r"\s+damage",text,re.I)
+    conditional=bool(re.search(
+        r"\(with\s+\{@variantrule Advantage\|XPHB\}\s+if the target doesn't have all its " +
+        r"\{@variantrule Hit Points\|XPHB\}\)",text,re.I))
+    return (prefix is not None and int(prefix.group(1))==to_hit and
+        reach is not None and int(reach.group(1))==5 and hit is not None and
+        (hit.group(2) or "1").replace(" ","")==damage.replace(" ","") and
+        compiled_action.get("to_hit")==to_hit and compiled_action.get("attack_modes")==["m"] and
+        compiled_action.get("reach_ft")==5 and compiled_action.get("damage")==damage and
+        compiled_action.get("damage_type")==damage_type and conditional and
+        compiled_action.get("attack_advantage_if_target_missing_hit_points") is True and
+        (monster_name!="Swarm of Piranhas" or
+         compiled_action.get("damage_bloodied")=="1d4 + 3") and
+        not compiled_action.get("manual_rider_resolution_required",False) and
+        not compiled_action.get("manual_unmodeled_source_effect_required",False))
+
+def check_wounded_target_advantage_attacks(source,compiled):
+    by_id={row["id"]:row for row in compiled};errors=[];checked=0
+    for (monster,name),_ in WOUNDED_TARGET_ADVANTAGE_ATTACKS.items():
+        src=next((x for x in source if x.get("name")==monster),None);row=by_id.get(monster,{})
+        action=next((x for x in (src or {}).get("action",[]) if RCH.sub("",x.get("name","" )).strip()==name),None)
+        runtime=next((x for x in row.get("actions",[]) if x.get("name")==name),None)
+        if action is None or runtime is None or not wounded_target_advantage_matches(monster,action,runtime):
+            errors.append(f"{monster}:{name}:WOUNDED_TARGET_ADVANTAGE_MISMATCH")
+        else:checked+=1
+    if checked!=len(WOUNDED_TARGET_ADVANTAGE_ATTACKS):
+        errors.append("WOUNDED_TARGET_ADVANTAGE_COUNT:"+str(checked))
+    return errors,checked
+
 def source_action_requires_manual_resolution(action,monster_name=""):
     """Catch source attack effects that are not part of the typed runtime contract."""
     def flatten(value):
@@ -612,7 +659,8 @@ def source_action_requires_manual_resolution(action,monster_name=""):
     secondary_attack_damage=(monster_name,RCH.sub("",action.get("name","")).strip()) in SOURCE_SECONDARY_ATTACK_DAMAGE
     chain_devil_typed=(monster_name,RCH.sub("",action.get("name","")).strip())==("Chain Devil","Conjure Infernal Chain")
     advantage_bonus_typed=(monster_name,RCH.sub("",action.get("name","")).strip()) in ADVANTAGE_BONUS_ATTACK_DAMAGE
-    return (bool(UNMODELED_ACTION_EFFECTS.search(text)) and not chain_devil_typed and not advantage_bonus_typed) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end or bone_naga_source_turn_start or next_target_turn_end or simple_source_turn_start or simple_source_turn_end or secondary_attack_damage
+    wounded_target_advantage_typed=(monster_name,RCH.sub("",action.get("name","")).strip()) in WOUNDED_TARGET_ADVANTAGE_ATTACKS
+    return (bool(UNMODELED_ACTION_EFFECTS.search(text)) and not chain_devil_typed and not advantage_bonus_typed and not wounded_target_advantage_typed) or len(conditions)>1 or recurring or next_source_turn_end or merrow_next_turn_end or bone_naga_source_turn_start or next_target_turn_end or simple_source_turn_start or simple_source_turn_end or secondary_attack_damage
 
 def chain_devil_infernal_chain_matches(action,compiled_action):
     text=json.dumps(action.get("entries",[]),ensure_ascii=False).casefold()
@@ -711,6 +759,8 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
     source_text=text.casefold()
     if (monster_name,name) in ADVANTAGE_BONUS_ATTACK_DAMAGE:
         return advantage_bonus_attack_matches(monster_name,action,compiled_action)
+    if (monster_name,name) in WOUNDED_TARGET_ADVANTAGE_ATTACKS:
+        return wounded_target_advantage_matches(monster_name,action,compiled_action)
     if (monster_name,name)==("Merrow","Harpoon"):
         return ("{@atkr m,r}" in text and "{@hit 6}" in text and
             "range 20/60 ft." in source_text and
@@ -1175,12 +1225,14 @@ def check(project, bestiary_bytes, book_bytes):
     chain_errors=check_chain_devil_infernal_chain(src,compiled)
     attack_damage_errors,attack_damage_count=check_attack_primary_damage(src,compiled)
     advantage_damage_errors,advantage_damage_count=check_advantage_bonus_attack_damage(src,compiled)
+    wounded_advantage_errors,wounded_advantage_count=check_wounded_target_advantage_attacks(src,compiled)
     attack_secondary_errors,attack_secondary_count=check_attack_secondary_damage_contracts(src,compiled)
     turn_start_errors,turn_start_count=check_source_turn_start_hit_conditions(src,compiled)
     save_errors,save_count=check_save_damage_actions(src,save_damage_rows)
     section_errors=check_book(book,bookrows)
     if (monster_errors or branch_errors or effect_errors or chain_errors or section_errors or save_errors or
-        turn_start_errors or attack_damage_errors or advantage_damage_errors or attack_secondary_errors):
+        turn_start_errors or attack_damage_errors or advantage_damage_errors or
+        wounded_advantage_errors or attack_secondary_errors):
         raise ValueError("XMM_SOURCE_MISMATCH:"+json.dumps(
             {"monsters":monster_errors[:20],"monster_count":len(monster_errors),
              "conditional_attack_damage":branch_errors[:20],"conditional_attack_damage_count":len(branch_errors),
@@ -1189,6 +1241,7 @@ def check(project, bestiary_bytes, book_bytes):
              "source_turn_start_conditions":turn_start_errors[:20],"source_turn_start_conditions_count":len(turn_start_errors),
              "attack_primary_damage":attack_damage_errors[:20],"attack_primary_damage_count":len(attack_damage_errors),
              "advantage_bonus_damage":advantage_damage_errors[:20],"advantage_bonus_damage_count":len(advantage_damage_errors),
+             "wounded_target_advantage":wounded_advantage_errors[:20],"wounded_target_advantage_count":len(wounded_advantage_errors),
              "attack_secondary_damage":attack_secondary_errors[:20],"attack_secondary_damage_count":len(attack_secondary_errors),
              "sections":section_errors[:20],"section_count":len(section_errors),
              "save_damage":save_errors[:20],"save_damage_count":len(save_errors)}))
@@ -1205,6 +1258,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_save_damage_actions_compared":save_count,
         "source_attack_primary_damage_compared":attack_damage_count,
         "source_attack_advantage_bonus_damage_contracts_compared":advantage_damage_count,
+        "source_attack_wounded_target_advantage_contracts_compared":wounded_advantage_count,
         "source_attack_secondary_damage_contracts_compared":attack_secondary_count,
         "source_abilities_with_unmodeled_effects_manual":effect_count,
         "source_chain_devil_infernal_chain_semantics_compared":1,
