@@ -1,0 +1,426 @@
+warning: [options] location of system modules is not set in conjunction with -source 17
+  not setting the location of system modules may lead to class files that cannot run on JDK 17
+    --release 17 is recommended instead of -source 17 -target 17 because it sets the location of system modules automatically
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:103: error: package androidx.work does not exist
+import androidx.work.ExistingWorkPolicy;
+                    ^
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:104: error: package androidx.work does not exist
+import androidx.work.OneTimeWorkRequest;
+                    ^
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:105: error: package androidx.work does not exist
+import androidx.work.WorkInfo;
+                    ^
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:106: error: package androidx.work does not exist
+import androidx.work.WorkManager;
+                    ^
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:107: error: package androidx.work does not exist
+import androidx.work.Data;
+                    ^
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:9: error: package com.google.android.gms.tasks does not exist
+import com.google.android.gms.tasks.Tasks;
+                                   ^
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:10: error: package com.google.mlkit.vision.common does not exist
+import com.google.mlkit.vision.common.InputImage;
+                                     ^
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:11: error: package com.google.mlkit.vision.text does not exist
+import com.google.mlkit.vision.text.TextRecognition;
+                                   ^
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:12: error: package com.google.mlkit.vision.text does not exist
+import com.google.mlkit.vision.text.TextRecognizer;
+                                   ^
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:13: error: package com.google.mlkit.vision.text.latin does not exist
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
+                                         ^
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:14: error: package com.tom_roush.pdfbox.android does not exist
+import com.tom_roush.pdfbox.android.PDFBoxResourceLoader;
+                                   ^
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:15: error: package com.tom_roush.pdfbox.pdmodel does not exist
+import com.tom_roush.pdfbox.pdmodel.PDDocument;
+                                   ^
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:16: error: package com.tom_roush.pdfbox.text does not exist
+import com.tom_roush.pdfbox.text.PDFTextStripper;
+                                ^
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9318: error: cannot find symbol
+    private void monitorAudioWork(final WorkManager manager,final UUID workId){
+                                        ^
+  symbol:   class WorkManager
+  location: class MainActivity
+app/src/main/java/com/braseiro/dnd5e/BarbaraSupervisor.java:9: error: package com.chaquo.python does not exist
+import com.chaquo.python.PyObject;
+                        ^
+app/src/main/java/com/braseiro/dnd5e/BarbaraSupervisor.java:10: error: package com.chaquo.python does not exist
+import com.chaquo.python.Python;
+                        ^
+app/src/main/java/com/braseiro/dnd5e/BarbaraSupervisor.java:11: error: package com.chaquo.python.android does not exist
+import com.chaquo.python.android.AndroidPlatform;
+                                ^
+app/src/main/java/com/braseiro/dnd5e/BarbaraSupervisor.java:23: error: cannot find symbol
+    private PyObject module;
+            ^
+  symbol:   class PyObject
+  location: class BarbaraSupervisor
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9292: error: cannot find symbol
+        Data input=new Data.Builder().putString(AudioLibraryImportWorker.KEY_TREE_URI,uriText).build();
+        ^
+  symbol:   class Data
+  location: class MainActivity
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:11: error: cannot find symbol
+import androidx.annotation.NonNull;
+                          ^
+  symbol:   class NonNull
+  location: package androidx.annotation
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:12: error: package androidx.core.app does not exist
+import androidx.core.app.NotificationCompat;
+                        ^
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:13: error: package androidx.documentfile.provider does not exist
+import androidx.documentfile.provider.DocumentFile;
+                                     ^
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:14: error: package androidx.work does not exist
+import androidx.work.Data;
+                    ^
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:15: error: package androidx.work does not exist
+import androidx.work.ForegroundInfo;
+                    ^
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:16: error: package androidx.work does not exist
+import androidx.work.Worker;
+                    ^
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:17: error: package androidx.work does not exist
+import androidx.work.WorkerParameters;
+                    ^
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:39: error: cannot find symbol
+public final class AudioLibraryImportWorker extends Worker {
+                                                    ^
+  symbol: class Worker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:67: error: cannot find symbol
+    public AudioLibraryImportWorker(@NonNull Context appContext, @NonNull WorkerParameters params) {
+                                                                          ^
+  symbol:   class WorkerParameters
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:78: error: cannot find symbol
+    @NonNull @Override public Result doWork() {
+                              ^
+  symbol:   class Result
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:114: error: cannot find symbol
+    private void walk(DocumentFile node, String relative, int depth) throws Exception {
+                      ^
+  symbol:   class DocumentFile
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:292: error: cannot find symbol
+    private void copySmallText(DocumentFile source, File target) throws Exception {
+                               ^
+  symbol:   class DocumentFile
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:304: error: cannot find symbol
+    private ForegroundInfo foreground(String text, boolean ongoing) {
+            ^
+  symbol:   class ForegroundInfo
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:326: error: cannot find symbol
+    private static Data progress(String current, int imported, int skipped, int failed) {
+                   ^
+  symbol:   class Data
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:329: error: cannot find symbol
+    private static Data error(String message) { return new Data.Builder().putString("error", message).build(); }
+                   ^
+  symbol:   class Data
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:67: error: cannot find symbol
+    public AudioLibraryImportWorker(@NonNull Context appContext, @NonNull WorkerParameters params) {
+                                     ^
+  symbol:   class NonNull
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:67: error: cannot find symbol
+    public AudioLibraryImportWorker(@NonNull Context appContext, @NonNull WorkerParameters params) {
+                                                                  ^
+  symbol:   class NonNull
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:78: error: cannot find symbol
+    @NonNull @Override public Result doWork() {
+     ^
+  symbol:   class NonNull
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9292: error: package Data does not exist
+        Data input=new Data.Builder().putString(AudioLibraryImportWorker.KEY_TREE_URI,uriText).build();
+                           ^
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9293: error: cannot find symbol
+        final OneTimeWorkRequest request=new OneTimeWorkRequest.Builder(AudioLibraryImportWorker.class).setInputData(input).addTag(AudioLibraryImportWorker.UNIQUE_WORK).build();
+              ^
+  symbol:   class OneTimeWorkRequest
+  location: class MainActivity
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9293: error: package OneTimeWorkRequest does not exist
+        final OneTimeWorkRequest request=new OneTimeWorkRequest.Builder(AudioLibraryImportWorker.class).setInputData(input).addTag(AudioLibraryImportWorker.UNIQUE_WORK).build();
+                                                               ^
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9294: error: cannot find symbol
+        final WorkManager manager=WorkManager.getInstance(getApplicationContext());
+              ^
+  symbol:   class WorkManager
+  location: class MainActivity
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9294: error: cannot find symbol
+        final WorkManager manager=WorkManager.getInstance(getApplicationContext());
+                                  ^
+  symbol:   variable WorkManager
+  location: class MainActivity
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9295: error: cannot find symbol
+        manager.enqueueUniqueWork(AudioLibraryImportWorker.UNIQUE_WORK,ExistingWorkPolicy.REPLACE,request);
+                                                                       ^
+  symbol:   variable ExistingWorkPolicy
+  location: class MainActivity
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9303: error: cannot find symbol
+                WorkManager manager=WorkManager.getInstance(getApplicationContext());
+                ^
+  symbol: class WorkManager
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9303: error: cannot find symbol
+                WorkManager manager=WorkManager.getInstance(getApplicationContext());
+                                    ^
+  symbol: variable WorkManager
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9304: error: cannot find symbol
+                List<WorkInfo> infos=manager.getWorkInfosForUniqueWork(AudioLibraryImportWorker.UNIQUE_WORK).get();
+                     ^
+  symbol: class WorkInfo
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9306: error: cannot find symbol
+                WorkInfo selected=null;
+                ^
+  symbol: class WorkInfo
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9307: error: cannot find symbol
+                for(WorkInfo info:infos){
+                    ^
+  symbol: class WorkInfo
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9309: error: package WorkInfo does not exist
+                    WorkInfo.State state=info.getState();
+                            ^
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9310: error: package WorkInfo does not exist
+                    if(state==WorkInfo.State.RUNNING||state==WorkInfo.State.ENQUEUED||state==WorkInfo.State.BLOCKED){selected=info;break;}
+                                      ^
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9310: error: package WorkInfo does not exist
+                    if(state==WorkInfo.State.RUNNING||state==WorkInfo.State.ENQUEUED||state==WorkInfo.State.BLOCKED){selected=info;break;}
+                                                                     ^
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9310: error: package WorkInfo does not exist
+                    if(state==WorkInfo.State.RUNNING||state==WorkInfo.State.ENQUEUED||state==WorkInfo.State.BLOCKED){selected=info;break;}
+                                                                                                     ^
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9311: error: package WorkInfo does not exist
+                    if(state==WorkInfo.State.SUCCEEDED&&!info.getId().toString().equals(prefs.getString("audio_import_applied_work_id","")))selected=info;
+                                      ^
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9324: error: cannot find symbol
+                    WorkInfo info=manager.getWorkInfoById(workId).get();
+                    ^
+  symbol: class WorkInfo
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9326: error: cannot find symbol
+                    Data progress=info.getProgress();
+                    ^
+  symbol: class Data
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9331: error: package WorkInfo does not exist
+                        if(info.getState()==WorkInfo.State.SUCCEEDED){
+                                                    ^
+app/src/main/java/com/braseiro/dnd5e/MainActivity.java:9340: error: package WorkInfo does not exist
+                        }else if(info.getState()!=WorkInfo.State.CANCELLED||monitorId.equals(monitoredAudioWorkId)){
+                                                          ^
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:51: error: cannot find symbol
+        PDFBoxResourceLoader.init(this.context);
+        ^
+  symbol:   variable PDFBoxResourceLoader
+  location: class LocalManualIndexer
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:122: error: cannot find symbol
+        TextResult result=new TextResult();PDDocument document=null;ParcelFileDescriptor pfd=null;PdfRenderer renderer=null;TextRecognizer recognizer=null;
+                                           ^
+  symbol:   class PDDocument
+  location: class LocalManualIndexer
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:122: error: cannot find symbol
+        TextResult result=new TextResult();PDDocument document=null;ParcelFileDescriptor pfd=null;PdfRenderer renderer=null;TextRecognizer recognizer=null;
+                                                                                                                            ^
+  symbol:   class TextRecognizer
+  location: class LocalManualIndexer
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:124: error: cannot find symbol
+            document=PDDocument.load(pdf);int total=document.getNumberOfPages();result.pageCount=total;
+                     ^
+  symbol:   variable PDDocument
+  location: class LocalManualIndexer
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:125: error: cannot find symbol
+            PDFTextStripper stripper=new PDFTextStripper();
+            ^
+  symbol:   class PDFTextStripper
+  location: class LocalManualIndexer
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:125: error: cannot find symbol
+            PDFTextStripper stripper=new PDFTextStripper();
+                                         ^
+  symbol:   class PDFTextStripper
+  location: class LocalManualIndexer
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:132: error: cannot find symbol
+                    if(recognizer==null)recognizer=TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+                                                                             ^
+  symbol:   variable TextRecognizerOptions
+  location: class LocalManualIndexer
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:132: error: cannot find symbol
+                    if(recognizer==null)recognizer=TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+                                                   ^
+  symbol:   variable TextRecognition
+  location: class LocalManualIndexer
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:139: error: cannot find symbol
+                        text=cleanText(Tasks.await(recognizer.process(InputImage.fromBitmap(bitmap,0)),90,TimeUnit.SECONDS).getText());result.usedOcr=true;
+                                       ^
+  symbol:   variable Tasks
+  location: class LocalManualIndexer
+app/src/main/java/com/braseiro/dnd5e/LocalManualIndexer.java:139: error: cannot find symbol
+                        text=cleanText(Tasks.await(recognizer.process(InputImage.fromBitmap(bitmap,0)),90,TimeUnit.SECONDS).getText());result.usedOcr=true;
+                                                                      ^
+  symbol:   variable InputImage
+  location: class LocalManualIndexer
+app/src/main/java/com/braseiro/dnd5e/BarbaraSupervisor.java:34: error: cannot find symbol
+            if(!Python.isStarted())Python.start(new AndroidPlatform(context));
+                ^
+  symbol:   variable Python
+  location: class BarbaraSupervisor
+app/src/main/java/com/braseiro/dnd5e/BarbaraSupervisor.java:34: error: cannot find symbol
+            if(!Python.isStarted())Python.start(new AndroidPlatform(context));
+                                                    ^
+  symbol:   class AndroidPlatform
+  location: class BarbaraSupervisor
+app/src/main/java/com/braseiro/dnd5e/BarbaraSupervisor.java:34: error: cannot find symbol
+            if(!Python.isStarted())Python.start(new AndroidPlatform(context));
+                                   ^
+  symbol:   variable Python
+  location: class BarbaraSupervisor
+app/src/main/java/com/braseiro/dnd5e/BarbaraSupervisor.java:35: error: cannot find symbol
+            module=Python.getInstance().getModule("braseiro_barbara_adapter");
+                   ^
+  symbol:   variable Python
+  location: class BarbaraSupervisor
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:78: error: method does not override or implement a method from a supertype
+    @NonNull @Override public Result doWork() {
+             ^
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:79: error: cannot find symbol
+        String raw = getInputData().getString(KEY_TREE_URI);
+                     ^
+  symbol:   method getInputData()
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:80: error: cannot find symbol
+        if (raw == null || raw.trim().isEmpty()) return Result.failure(error("Pasta de áudio ausente."));
+                                                        ^
+  symbol:   variable Result
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:86: error: cannot find symbol
+        if (!allowed) return Result.failure(error("A permissão persistente da pasta foi perdida."));
+                             ^
+  symbol:   variable Result
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:87: error: cannot find symbol
+        final String jobId=getId().toString();
+                           ^
+  symbol:   method getId()
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:92: error: cannot find symbol
+            DocumentFile root = DocumentFile.fromTreeUri(context, tree);
+            ^
+  symbol:   class DocumentFile
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:92: error: cannot find symbol
+            DocumentFile root = DocumentFile.fromTreeUri(context, tree);
+                                ^
+  symbol:   variable DocumentFile
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:95: error: cannot find symbol
+                return Result.failure(error("O Android não conseguiu abrir a pasta."));
+                       ^
+  symbol:   variable Result
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:103: error: cannot find symbol
+            return Result.success(progress("Concluído", imported, skipped, failed));
+                   ^
+  symbol:   variable Result
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:107: error: cannot find symbol
+            boolean retry=getRunAttemptCount() < 2 && !isStopped();
+                          ^
+  symbol:   method getRunAttemptCount()
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:107: error: cannot find symbol
+            boolean retry=getRunAttemptCount() < 2 && !isStopped();
+                                                       ^
+  symbol:   method isStopped()
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:109: error: cannot find symbol
+            if (retry) return Result.retry();
+                              ^
+  symbol:   variable Result
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:110: error: cannot find symbol
+            return Result.failure(error(message));
+                   ^
+  symbol:   variable Result
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:115: error: cannot find symbol
+        if (isStopped()) throw new InterruptedException("Importação cancelada.");
+            ^
+  symbol:   method isStopped()
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:118: error: cannot find symbol
+            DocumentFile[] children;
+            ^
+  symbol:   class DocumentFile
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:120: error: cannot find symbol
+            for (DocumentFile child : children) walk(child, join(relative, child.getName()), depth + 1);
+                 ^
+  symbol:   class DocumentFile
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:156: error: cannot find symbol
+                if (isStopped()) throw new InterruptedException("Importação cancelada.");
+                    ^
+  symbol:   method isStopped()
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:192: error: cannot find symbol
+                    if (isStopped()) throw new InterruptedException("Importação cancelada.");
+                        ^
+  symbol:   method isStopped()
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:225: error: cannot find symbol
+            if(imported%4==0)writeCheckpoint(getId().toString());
+                                             ^
+  symbol:   method getId()
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:226: error: cannot find symbol
+            jobDb.updateImportJob(getId().toString(),getInputData().getString(KEY_TREE_URI),"running",imported,skipped,failed,normalized,null,false);
+                                  ^
+  symbol:   method getId()
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:226: error: cannot find symbol
+            jobDb.updateImportJob(getId().toString(),getInputData().getString(KEY_TREE_URI),"running",imported,skipped,failed,normalized,null,false);
+                                                     ^
+  symbol:   method getInputData()
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:309: error: package NotificationCompat does not exist
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL)
+                          ^
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:309: error: package NotificationCompat does not exist
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL)
+                                                                   ^
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:317: error: cannot find symbol
+            return new ForegroundInfo(
+                       ^
+  symbol:   class ForegroundInfo
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:323: error: cannot find symbol
+        return new ForegroundInfo(NOTIFICATION_ID, builder.build());
+                   ^
+  symbol:   class ForegroundInfo
+  location: class AudioLibraryImportWorker
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:327: error: package Data does not exist
+        return new Data.Builder().putString("current", current).putInt(KEY_IMPORTED, imported).putInt(KEY_SKIPPED, skipped).putInt(KEY_FAILED, failed).build();
+                       ^
+app/src/main/java/com/braseiro/dnd5e/AudioLibraryImportWorker.java:329: error: package Data does not exist
+    private static Data error(String message) { return new Data.Builder().putString("error", message).build(); }
+                                                               ^
+app/src/main/java/com/braseiro/dnd5e/DiceSoundEngine.java:11: error: package R does not exist
+    public DiceSoundEngine(Context c){/*BR_JSON_WRAP*/try{AudioAttributes aa=new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build();pool=new SoundPool.Builder().setMaxStreams(8).setAudioAttributes(aa).build();sounds.put("plastic",pool.load(c,R.raw.dice_plastic,1));sounds.put("stone",pool.load(c,R.raw.dice_stone,1));sounds.put("metal",pool.load(c,R.raw.dice_metal,1));sounds.put("bone",pool.load(c,R.raw.dice_bone,1));sounds.put("wood",pool.load(c,R.raw.dice_wood,1));sounds.put("crystal",pool.load(c,R.raw.dice_crystal,1));sounds.put("glass",pool.load(c,R.raw.dice_glass,1));sounds.put("obsidian",pool.load(c,R.raw.dice_obsidian,1));sounds.put("ivory",pool.load(c,R.raw.dice_ivory,1));sounds.put("leather",pool.load(c,R.raw.dice_leather,1));}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
+                                                                                                                                                                                                                                                                                                                                 ^
+app/src/main/java/com/braseiro/dnd5e/DiceSoundEngine.java:11: error: package R does not exist
+    public DiceSoundEngine(Context c){/*BR_JSON_WRAP*/try{AudioAttributes aa=new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build();pool=new SoundPool.Builder().setMaxStreams(8).setAudioAttributes(aa).build();sounds.put("plastic",pool.load(c,R.raw.dice_plastic,1));sounds.put("stone",pool.load(c,R.raw.dice_stone,1));sounds.put("metal",pool.load(c,R.raw.dice_metal,1));sounds.put("bone",pool.load(c,R.raw.dice_bone,1));sounds.put("wood",pool.load(c,R.raw.dice_wood,1));sounds.put("crystal",pool.load(c,R.raw.dice_crystal,1));sounds.put("glass",pool.load(c,R.raw.dice_glass,1));sounds.put("obsidian",pool.load(c,R.raw.dice_obsidian,1));sounds.put("ivory",pool.load(c,R.raw.dice_ivory,1));sounds.put("leather",pool.load(c,R.raw.dice_leather,1));}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
+                                                                                                                                                                                                                                                                                                                                                                                       ^
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: app/src/main/java/com/braseiro/dnd5e/MainActivity.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+100 errors
+1 warning
+only showing the first 100 errors, of 108 total; use -Xmaxerrs if you would like to see more
