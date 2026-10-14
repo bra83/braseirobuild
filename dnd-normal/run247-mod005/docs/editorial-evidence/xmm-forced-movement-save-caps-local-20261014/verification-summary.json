@@ -1,0 +1,98 @@
+{
+  "schema": "XMM_LOCAL_EVIDENCE_V1",
+  "source_code_sha": "b112cc232ee3a50a726f5b8798c382c6bec6ce59",
+  "pinned_source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "pinned_bestiary_blob": "9a4137b508ef37562ed94889470b1594b57e85c",
+  "local_gradle": {
+    "suite_count": 119,
+    "tests": 2536,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "command": "JAVA_HOME=/workspace/jdk21 ANDROID_HOME=/workspace/android-sdk bash gradlew :app:testDebugUnitTest --offline"
+  },
+  "python": {
+    "xmm_source_comparator_tests": 40,
+    "attack_condition_tests": 4,
+    "passed": true
+  },
+  "source_comparison": {
+    "monsters": 503,
+    "sections": 36,
+    "manual_effects": 222,
+    "full_combat_automation_certified": false
+  },
+  "implemented": [
+    {
+      "monster": "Tough Boss",
+      "action": "Warhammer",
+      "source_pointer": "/monster/438/action/1/entries/0",
+      "effect": "push:10ft"
+    },
+    {
+      "monster": "Goristro",
+      "action": "Brutal Gore",
+      "source_pointer": "/monster/220/action/1/entries/0",
+      "effect": "push:20ft;prone"
+    },
+    {
+      "monster": "Poltergeist",
+      "action": "Telekinetic Thrust",
+      "source_pointer": "/monster/352/action/1/entries/0",
+      "effect": "push:30ft on failed Strength save"
+    },
+    {
+      "monsters": [
+        "Adult Bronze Dragon",
+        "Ancient Bronze Dragon",
+        "Bronze Dragon Wyrmling",
+        "Young Bronze Dragon"
+      ],
+      "action": "Repulsion Breath",
+      "source_pointers": [
+        "/monster/8/action/3/entries/0",
+        "/monster/20/action/3/entries/0",
+        "/monster/77/action/3/entries/0",
+        "/monster/489/action/3/entries/0"
+      ],
+      "effects": "age-specific push plus Prone on failed Strength save"
+    },
+    {
+      "monster": "Air Elemental",
+      "action": "Whirlwind",
+      "source_pointer": "/monster/15/action/2/entries/0",
+      "effect": "push:20ft;prone on failed save; Medium size cap"
+    },
+    {
+      "monster": "Marid",
+      "action": "Water Jet",
+      "source_pointer": "/monster/291/action/2/entries/0",
+      "effect": "push:20ft;prone on failed save; Huge size cap"
+    },
+    {
+      "monster": "Bone Naga",
+      "action": "Serpentine Gaze",
+      "source_pointer": "/monster/74/action/2/entries/0",
+      "effect": "failed Wisdom save causes psychic damage and Charmed until the start of the naga’s next turn; duration is verified across persisted turn progression"
+    }
+  ],
+  "brelga_latest_run_id": 38526163749,
+  "brelga_latest_run_status": "success",
+  "hosted_source_audit_run_id": 38526163690,
+  "hosted_source_audit_status": "failed_before_audit_due_to_GitHub_Actions_billing_limit",
+  "focused_test": {
+    "file": "TEST-com.braseiro.dnd5e.XmmBoneNagaSerpentineGazeRobolectricTest.xml",
+    "sha256": "705951054f31606f274ae625007f80238d9b29f7a6ed0e2d8f638b6c1830f6eb"
+  },
+  "brelga_latest_run_url": "https://github.com/bra83/braseirobuild/actions/runs/38526163749",
+  "brelga_exact_sha": {
+    "sha": "b112cc232ee3a50a726f5b8798c382c6bec6ce59",
+    "suite_count": 119,
+    "tests": 2536,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "evidence_complete": true,
+    "xml_directory_present": true
+  }
+}

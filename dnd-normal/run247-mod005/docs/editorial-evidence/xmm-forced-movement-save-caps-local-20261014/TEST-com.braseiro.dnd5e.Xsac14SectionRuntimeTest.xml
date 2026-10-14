@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Xsac14SectionRuntimeTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-10-14T07:05:14" hostname="0f1875aecc7d" time="0.002">
+  <properties/>
+  <testcase name="testXsac_sec_0_0" classname="com.braseiro.dnd5e.Xsac14SectionRuntimeTest" time="0.0"/>
+  <testcase name="testXsac_sec_0_1" classname="com.braseiro.dnd5e.Xsac14SectionRuntimeTest" time="0.001"/>
+  <testcase name="testXsac_sec_0_2" classname="com.braseiro.dnd5e.Xsac14SectionRuntimeTest" time="0.0"/>
+  <testcase name="testXsac_sec_0_3" classname="com.braseiro.dnd5e.Xsac14SectionRuntimeTest" time="0.0"/>
+  <testcase name="testXsac_sec_0_4" classname="com.braseiro.dnd5e.Xsac14SectionRuntimeTest" time="0.0"/>
+  <testcase name="testXsac_sec_0_5" classname="com.braseiro.dnd5e.Xsac14SectionRuntimeTest" time="0.0"/>
+  <testcase name="testXsac_sec_0_6" classname="com.braseiro.dnd5e.Xsac14SectionRuntimeTest" time="0.0"/>
+  <testcase name="testXsac_sec_0_7" classname="com.braseiro.dnd5e.Xsac14SectionRuntimeTest" time="0.0"/>
+  <testcase name="testXsac_sec_0_8" classname="com.braseiro.dnd5e.Xsac14SectionRuntimeTest" time="0.0"/>
+  <testcase name="testXsac_sec_0_9" classname="com.braseiro.dnd5e.Xsac14SectionRuntimeTest" time="0.0"/>
+  <testcase name="testXsac_sec_0_10" classname="com.braseiro.dnd5e.Xsac14SectionRuntimeTest" time="0.001"/>
+  <testcase name="testXsac_sec_0_11" classname="com.braseiro.dnd5e.Xsac14SectionRuntimeTest" time="0.0"/>
+  <testcase name="testXsac_sec_0_12" classname="com.braseiro.dnd5e.Xsac14SectionRuntimeTest" time="0.0"/>
+  <testcase name="testXsac_sec_0_13" classname="com.braseiro.dnd5e.Xsac14SectionRuntimeTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

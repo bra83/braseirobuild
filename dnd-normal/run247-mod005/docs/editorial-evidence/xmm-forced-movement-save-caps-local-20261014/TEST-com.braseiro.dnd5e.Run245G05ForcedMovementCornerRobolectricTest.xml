@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run245G05ForcedMovementCornerRobolectricTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-14T07:04:23" hostname="0f1875aecc7d" time="0.623">
+  <properties/>
+  <testcase name="diagonalCornerBlocksEntireAttackThenAcceptsClearPath" classname="com.braseiro.dnd5e.Run245G05ForcedMovementCornerRobolectricTest" time="0.623"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

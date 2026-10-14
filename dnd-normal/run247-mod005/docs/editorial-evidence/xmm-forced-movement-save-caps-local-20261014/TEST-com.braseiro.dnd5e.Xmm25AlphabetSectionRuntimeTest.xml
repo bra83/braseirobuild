@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" tests="25" skipped="0" failures="0" errors="0" timestamp="2026-10-14T07:04:55" hostname="0f1875aecc7d" time="0.7">
+  <properties/>
+  <testcase name="testXmm_sec_1_0" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.035"/>
+  <testcase name="testXmm_sec_1_1" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.033"/>
+  <testcase name="testXmm_sec_1_2" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.03"/>
+  <testcase name="testXmm_sec_1_3" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.048"/>
+  <testcase name="testXmm_sec_1_4" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.025"/>
+  <testcase name="testXmm_sec_1_5" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.025"/>
+  <testcase name="testXmm_sec_1_6" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.04"/>
+  <testcase name="testXmm_sec_1_7" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.026"/>
+  <testcase name="testXmm_sec_1_8" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.023"/>
+  <testcase name="testXmm_sec_1_9" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.024"/>
+  <testcase name="testXmm_sec_1_10" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.024"/>
+  <testcase name="testXmm_sec_1_11" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.023"/>
+  <testcase name="testXmm_sec_1_12" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.03"/>
+  <testcase name="testXmm_sec_1_13" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.024"/>
+  <testcase name="testXmm_sec_1_14" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.025"/>
+  <testcase name="testXmm_sec_1_15" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.028"/>
+  <testcase name="testXmm_sec_1_16" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.021"/>
+  <testcase name="testXmm_sec_1_17" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.025"/>
+  <testcase name="testXmm_sec_1_18" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.035"/>
+  <testcase name="testXmm_sec_1_19" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.027"/>
+  <testcase name="testXmm_sec_1_20" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.023"/>
+  <testcase name="testXmm_sec_1_21" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.026"/>
+  <testcase name="testXmm_sec_1_22" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.027"/>
+  <testcase name="testXmm_sec_1_23" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.022"/>
+  <testcase name="testXmm_sec_1_24" classname="com.braseiro.dnd5e.Xmm25AlphabetSectionRuntimeTest" time="0.027"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

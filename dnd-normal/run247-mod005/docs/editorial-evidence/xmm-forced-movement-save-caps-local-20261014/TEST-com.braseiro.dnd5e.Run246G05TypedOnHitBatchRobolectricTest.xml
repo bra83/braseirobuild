@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run246G05TypedOnHitBatchRobolectricTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-14T07:04:32" hostname="0f1875aecc7d" time="0.192">
+  <properties/>
+  <testcase name="fixedMultiConditionBundleNeedsAValidTimerForEveryToken" classname="com.braseiro.dnd5e.Run246G05TypedOnHitBatchRobolectricTest" time="0.015"/>
+  <testcase name="noDurationOrProseCannotBecomePermanentCondition" classname="com.braseiro.dnd5e.Run246G05TypedOnHitBatchRobolectricTest" time="0.019"/>
+  <testcase name="timerExpiresOnlyAtSourceTurnAndHasNoDuplicateTransition" classname="com.braseiro.dnd5e.Run246G05TypedOnHitBatchRobolectricTest" time="0.017"/>
+  <testcase name="allFifteenSourceBoundRidersAreExecutableWithoutInventedSavingThrows" classname="com.braseiro.dnd5e.Run246G05TypedOnHitBatchRobolectricTest" time="0.141"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

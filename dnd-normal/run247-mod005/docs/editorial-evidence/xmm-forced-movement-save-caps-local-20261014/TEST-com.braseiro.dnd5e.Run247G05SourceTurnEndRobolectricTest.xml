@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.Run247G05SourceTurnEndRobolectricTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-14T07:04:32" hostname="0f1875aecc7d" time="5.16">
+  <properties/>
+  <testcase name="gasSporeTendrilExpiresPoisonAtEndOfTargetsNextTurn" classname="com.braseiro.dnd5e.Run247G05SourceTurnEndRobolectricTest" time="0.332"/>
+  <testcase name="hillGiantTrashLobExpiresPoisonAtEndOfTargetsNextTurn" classname="com.braseiro.dnd5e.Run247G05SourceTurnEndRobolectricTest" time="0.264"/>
+  <testcase name="couatlBiteExpiresPoisonAtEndOfCouatlsNextTurn" classname="com.braseiro.dnd5e.Run247G05SourceTurnEndRobolectricTest" time="0.272"/>
+  <testcase name="merrowBiteExpiresPoisonAtEndOfItsNextTurn" classname="com.braseiro.dnd5e.Run247G05SourceTurnEndRobolectricTest" time="0.232"/>
+  <testcase name="fourteenXmmOnHitConditionsApplyAndExpireAtStartOfSourceTurn" classname="com.braseiro.dnd5e.Run247G05SourceTurnEndRobolectricTest" time="3.049"/>
+  <testcase name="scarecrowFearsomeClawExpiresAtEndOfItsNextTurn" classname="com.braseiro.dnd5e.Run247G05SourceTurnEndRobolectricTest" time="0.24"/>
+  <testcase name="cloudGiantThundercloudExpiresIncapacitatedAtEndOfTargetsNextTurn" classname="com.braseiro.dnd5e.Run247G05SourceTurnEndRobolectricTest" time="0.278"/>
+  <testcase name="giantVultureGougeExpiresPoisonAtEndOfTargetsNextTurn" classname="com.braseiro.dnd5e.Run247G05SourceTurnEndRobolectricTest" time="0.253"/>
+  <testcase name="ledgerDoesNotExpireAtSourceStartAndHonorsCurrentTurnSkip" classname="com.braseiro.dnd5e.Run247G05SourceTurnEndRobolectricTest" time="0.016"/>
+  <testcase name="ghastGravecallerHorrificNecrosisExpiresAtTargetsNextTurnEnd" classname="com.braseiro.dnd5e.Run247G05SourceTurnEndRobolectricTest" time="0.223"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

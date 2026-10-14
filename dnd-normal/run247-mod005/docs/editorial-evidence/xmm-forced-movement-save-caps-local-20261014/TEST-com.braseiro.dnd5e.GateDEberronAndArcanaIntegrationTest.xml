@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.GateDEberronAndArcanaIntegrationTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-14T07:04:14" hostname="0f1875aecc7d" time="0.743">
+  <properties/>
+  <testcase name="testEberronDistinctRoutesPersistedAfterReopen" classname="com.braseiro.dnd5e.GateDEberronAndArcanaIntegrationTest" time="0.214"/>
+  <testcase name="testEberronForgeArtificerAndAirships" classname="com.braseiro.dnd5e.GateDEberronAndArcanaIntegrationTest" time="0.121"/>
+  <testcase name="testEberronLoreAndKnowledgeFirewall" classname="com.braseiro.dnd5e.GateDEberronAndArcanaIntegrationTest" time="0.119"/>
+  <testcase name="testMorgraveShortcutRequiresExplicitRollAndCompletionIsIdempotent" classname="com.braseiro.dnd5e.GateDEberronAndArcanaIntegrationTest" time="0.163"/>
+  <testcase name="testArcanaUnleashedSubclassesAndFeats" classname="com.braseiro.dnd5e.GateDEberronAndArcanaIntegrationTest" time="0.126"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

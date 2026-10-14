@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.XmmMultiattackRiderBridgeTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-14T07:05:03" hostname="0f1875aecc7d" time="0.042">
+  <properties/>
+  <testcase name="plansExposePinnedRiderContractsWithoutApplyingThem" classname="com.braseiro.dnd5e.XmmMultiattackRiderBridgeTest" time="0.001"/>
+  <testcase name="malformedOutcomesFailClosed" classname="com.braseiro.dnd5e.XmmMultiattackRiderBridgeTest" time="0.001"/>
+  <testcase name="missesAndOversizedTargetsDoNotApplyEffects" classname="com.braseiro.dnd5e.XmmMultiattackRiderBridgeTest" time="0.0"/>
+  <testcase name="explicitPerStepHitsProduceUnappliedConditionProposals" classname="com.braseiro.dnd5e.XmmMultiattackRiderBridgeTest" time="0.001"/>
+  <testcase name="allStructuredPlansStillHaveSourceBoundActions" classname="com.braseiro.dnd5e.XmmMultiattackRiderBridgeTest" time="0.038"/>
+  <testcase name="malformedVariantAndAttackChoicesFailClosed" classname="com.braseiro.dnd5e.XmmMultiattackRiderBridgeTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

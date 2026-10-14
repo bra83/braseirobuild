@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.NarrativeCanonPersistenceTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-14T07:04:16" hostname="0f1875aecc7d" time="1.059">
+  <properties/>
+  <testcase name="testReSeedingCanonPreservesPlayerDiscoveriesAndCustomData" classname="com.braseiro.dnd5e.NarrativeCanonPersistenceTest" time="0.167"/>
+  <testcase name="testBackup21RoundTripPreservesNarrativeEntitiesAndDiscoveries" classname="com.braseiro.dnd5e.NarrativeCanonPersistenceTest" time="0.772"/>
+  <testcase name="reSeedMustNotExposeUndiscoveredEntitiesWhenSecrecyChanges" classname="com.braseiro.dnd5e.NarrativeCanonPersistenceTest" time="0.12"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[System.logW: A resource was acquired at attached stack trace but never released. See java.io.Closeable for information on avoiding resource leaks.
+java.lang.Throwable: Explicit termination method 'close' not called
+	at dalvik.system.CloseGuard.$$robo$$dalvik_system_CloseGuard$openWithCallSite(CloseGuard.java:288)
+	at dalvik.system.CloseGuard.openWithCallSite(CloseGuard.java)
+	at dalvik.system.CloseGuard.$$robo$$dalvik_system_CloseGuard$open(CloseGuard.java:257)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.robolectric.shadows.ShadowCloseGuard$CloseGuardReflector$$Reflector13.open(Unknown Source)
+	at org.robolectric.shadows.ShadowCloseGuard.open(ShadowCloseGuard.java:38)
+	at dalvik.system.CloseGuard.open(CloseGuard.java)
+	at android.database.sqlite.SQLiteDatabase.$$robo$$android_database_sqlite_SQLiteDatabase$openInner(SQLiteDatabase.java:1164)
+	at android.database.sqlite.SQLiteDatabase.openInner(SQLiteDatabase.java)
+	at android.database.sqlite.SQLiteDatabase.$$robo$$android_database_sqlite_SQLiteDatabase$open(SQLiteDatabase.java:1143)
+	at android.database.sqlite.SQLiteDatabase.open(SQLiteDatabase.java)
+	at android.database.sqlite.SQLiteDatabase.$$robo$$android_database_sqlite_SQLiteDatabase$openDatabase(SQLiteDatabase.java:1007)
+	at android.database.sqlite.SQLiteDatabase.openDatabase(SQLiteDatabase.java)
+	at android.database.sqlite.SQLiteDatabase.$$robo$$android_database_sqlite_SQLiteDatabase$openDatabase(SQLiteDatabase.java:996)
+	at android.database.sqlite.SQLiteDatabase.openDatabase(SQLiteDatabase.java)
+	at android.database.sqlite.SQLiteOpenHelper.$$robo$$android_database_sqlite_SQLiteOpenHelper$getDatabaseLocked(SQLiteOpenHelper.java:373)
+	at android.database.sqlite.SQLiteOpenHelper.getDatabaseLocked(SQLiteOpenHelper.java)
+	at android.database.sqlite.SQLiteOpenHelper.$$robo$$android_database_sqlite_SQLiteOpenHelper$getWritableDatabase(SQLiteOpenHelper.java:316)
+	at android.database.sqlite.SQLiteOpenHelper.getWritableDatabase(SQLiteOpenHelper.java)
+	at com.braseiro.dnd5e.AppDb.ensureMapWorldState(AppDb.java:5472)
+	at com.braseiro.dnd5e.AppDb.updateMapStateForProfile(AppDb.java:5475)
+	at com.braseiro.dnd5e.AppDb.saveMapPackageStateForProfile(AppDb.java:5481)
+	at com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest.testPartyStateAndFogPreservationInAppDb(Issue27MapAndOAuthIntegrationTest.java:114)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.robolectric.RobolectricTestRunner$HelperTestRunner$1.evaluate(RobolectricTestRunner.java:502)
+	at org.robolectric.internal.SandboxTestRunner$2.lambda$evaluate$2(SandboxTestRunner.java:285)
+	at org.robolectric.internal.bytecode.Sandbox.lambda$runOnMainThread$0(Sandbox.java:104)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+]]></system-err>
+</testsuite>
