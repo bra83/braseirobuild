@@ -1,0 +1,49 @@
+{
+  "commit": "886e40e0f3720b380beca0de17b37bb8da40a617",
+  "description": "Immediate hit damage separated from secondary, recurring, or choice-based effects. Secondary effects remain explicitly manual until their independent resolution is implemented.",
+  "changes": [
+    {
+      "monster": "Animated Rug of Smothering",
+      "action": "Smother",
+      "source_pointer": "/monster/31/action/0/entries/0",
+      "immediate_hit_damage": "2d6+3 bludgeoning",
+      "separate_effect": "Grapple is an explicit alternative to damage; it is not auto-applied with hit damage. Requires explicit choice."
+    },
+    {
+      "monster": "Dao",
+      "action": "Earth Burst",
+      "source_pointer": "/monster/113/action/2/entries/0",
+      "immediate_hit_damage": "2d8+6 bludgeoning",
+      "separate_effect": "3d6 thunder AoE on separate Dexterity save; manual rider resolution."
+    },
+    {
+      "monster": "Half-Dragon",
+      "action": "Claw",
+      "source_pointer": "/monster/236/action/1/entries/0",
+      "immediate_hit_damage": "1d4+4 slashing",
+      "separate_effect": "2d6 damage type depends on draconic origin; manual resolution."
+    },
+    {
+      "monster": "Pit Fiend",
+      "action": "Bite",
+      "source_pointer": "/monster/346/action/1/entries/0",
+      "immediate_hit_damage": "3d6+8 piercing",
+      "separate_effect": "Poison save; recurring 6d6 poison at start of target turns; manual resolution."
+    },
+    {
+      "monster": "Stirge",
+      "action": "Proboscis",
+      "source_pointer": "/monster/417/action/0/entries/0",
+      "immediate_hit_damage": "1d6+3 piercing",
+      "separate_effect": "Attached target takes recurring 2d4 necrotic at start of Stirge turns; manual resolution."
+    },
+    {
+      "monster": "Vine Blight",
+      "action": "Constricting Vine",
+      "source_pointer": "/monster/456/action/0/entries/0",
+      "immediate_hit_damage": "1d8+2 bludgeoning",
+      "separate_effect": "Grappled target takes recurring 1d8 at start of target turns; manual resolution."
+    }
+  ],
+  "verification": "581 primary attack damage formulas/types compared to pinned XMM source; six secondary effect contracts compared; all selected riders retain manual/fail-closed gating."
+}

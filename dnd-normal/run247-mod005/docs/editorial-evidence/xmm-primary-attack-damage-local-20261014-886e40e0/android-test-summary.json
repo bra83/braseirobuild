@@ -1,0 +1,9 @@
+{
+  "task": ":app:testDebugUnitTest",
+  "commit": "886e40e0f3720b380beca0de17b37bb8da40a617",
+  "xml_files": 111,
+  "tests": 2527,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0
+}

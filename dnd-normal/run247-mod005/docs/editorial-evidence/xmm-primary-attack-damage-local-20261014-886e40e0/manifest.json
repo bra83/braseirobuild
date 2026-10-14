@@ -1,0 +1,44 @@
+{
+  "schema": "XMM_LOCAL_SOURCE_ATTACK_DAMAGE_EVIDENCE_V1",
+  "code_commit": "886e40e0f3720b380beca0de17b37bb8da40a617",
+  "generated_utc": "2026-10-14",
+  "change": "Separates six XMM attacks immediate damage from alternative, area-save, dynamic-type, or recurring effects; no unsupported secondary effect is automated.",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "verification": {
+    "android_gradle_task": ":app:testDebugUnitTest",
+    "tests": 2527,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "android_xml_files": 111,
+    "python_comparator_tests": 39,
+    "source_monsters_compared": 503,
+    "editorial_sections_compared": 36,
+    "source_attack_primary_damage_compared": 581,
+    "source_attack_secondary_damage_contracts_compared": 6,
+    "source_abilities_with_unmodeled_effects_manual": 244,
+    "full_monster_combat_automation_certified": false,
+    "apk_built": false,
+    "brelga_ci_run": true,
+    "book_source_verifier_python_tests": 5,
+    "editorial_ledger_sections": 483,
+    "editorial_ledger_inventory_errors": 0,
+    "xmm_semantically_certified_sections": 0,
+    "xmm_sections_pending": 35
+  },
+  "ci": {
+    "brelga_run_id": 38507845074,
+    "brelga_url": "https://github.com/bra83/braseirobuild/actions/runs/38507845074",
+    "status_at_evidence_capture": "in_progress",
+    "independent_audit_run_id": 38507845159,
+    "independent_audit_status": "failed_before_any_job_step"
+  },
+  "artifacts": {
+    "android-full-suite-xml.zip": "823da27a14b4197fc29bced6b6ba1b90ce47fa499ab9c6d9b6737521d02687f0",
+    "android-test-summary.json": "d92693088af4aeb9807b973467d4e92bb6404506546d4c03c0e5e31c19de12f9",
+    "source-comparison.json": "05b98e2cd947a4ee64235274f524bb23168b3ce2c3a87ee6121f5bfd1ed1fafc",
+    "manual-effect-backlog-244.json": "ca767252d7e113b96ae754c1043e952ce3445f9069fb7e0cccec6283f97b563d",
+    "source-action-delta.json": "3a06f7028d711c2e07638e921afd45dc17f090b50940bf00a23b1aea33684dbc",
+    "rights-basis-owner-confirmation.json": "eaff2760753fa01bee4b7258fb2322104ab5e9a890de292948d8f16f7b441a20"
+  }
+}
