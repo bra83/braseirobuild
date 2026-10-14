@@ -301,7 +301,7 @@ def charge_extra_damage_matches(monster_name,source_action,compiled_action):
 
 def source_action_has_saving_throw(action):
     text=json.dumps(action,ensure_ascii=False)
-    return bool(re.search(r"\{@actSave\s+(?:str|dex|con|int|wis|cha)\}|saving throws?",text,re.I))
+    return bool(re.search(r"\{@actSave\s+(?:str|dex|con|int|wis|cha)\}|saving throws?|spell saves?",text,re.I))
 
 def condition_on_fail_matches_source(action,compiled_action):
     return (not compiled_action.get("condition_on_fail") or source_action_has_saving_throw(action))
@@ -328,6 +328,8 @@ def check_conditional_attack_damage(source,compiled,expected_bloodied=13,expecte
             compiled_action=compiled_actions[slot] if slot<len(compiled_actions) else {}
             if not condition_on_fail_matches_source(action,compiled_action):
                 errors.append(f"{monster['name']}:{action['name']}:CONDITION_ON_FAIL_WITHOUT_SOURCE_SAVE")
+            if compiled_action.get("save_dc",0) and not source_action_has_saving_throw(action):
+                errors.append(f"{monster['name']}:{action['name']}:SAVE_DC_WITHOUT_SOURCE_SAVING_THROW")
             status=bloodied_status.search(entry)
             alt=alternate.search(entry)
             if status and alt:

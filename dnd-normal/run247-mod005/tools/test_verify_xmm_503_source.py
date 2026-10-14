@@ -178,6 +178,8 @@ class XmmIndependentSourceTests(unittest.TestCase):
         self.assertFalse(xmm.condition_on_fail_matches_source(source,{"condition_on_fail":"prone"}))
         saved={"name":"Breath","entries":["{@actSave dex} {@dc 15}, target. {@actSaveFail} {@condition Prone|XPHB}."]}
         self.assertTrue(xmm.condition_on_fail_matches_source(saved,{"condition_on_fail":"prone","save_dc":15}))
+        spell_save={"name":"Charm","entries":["The spell requires a spell save {@dc 15}."]}
+        self.assertTrue(xmm.source_action_has_saving_throw(spell_save))
     def test_unmodeled_action_riders_fail_closed(self):
         source=[{"name":"Giant Axe Beak","action":[{"name":"Sharpened Beak",
           "entries":["Hit the target, and a creature within 5 feet of the target takes damage."]}]}]
