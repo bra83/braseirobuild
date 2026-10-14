@@ -1,15 +1,17 @@
 {
   "schema": "XMM_LOCAL_RETURNING_ATTACK_EVIDENCE_MANIFEST_V1",
   "code_commit": "82d2f179c964e8977d0ab586487070c62461abd8",
+  "ci_evidence_commit": "c3c78b598283d58f7b48ecc5eca61203a1bc4227",
   "generated_utc": "2026-10-14",
   "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
   "source_pointer": "/monster/1/action/1/entries/0",
   "artifacts_sha256": {
     "android-full-suite-xml.zip": "a4057a790a9e40a85a609df729ff26e9bf55dc8ab2b72a8a21a238c7f9f3711f",
+    "brelga-result.json": "d15e8bfeddbc6bd22601800fe2ef0b38c927c234f529b3ff35cd885ca9f88de8",
     "manual-effect-backlog-243.json": "5fcfc2d4db7105b95c5b94011312167b60595c897c1941fc312891bbff7a3768",
     "source-comparison.json": "79c6de8b88d0041d0d67c62275f0c4c4f8da7df0c02f07f66db2274f8c3312a8",
     "test-results/TEST-com.braseiro.dnd5e.XmmReturningJavelinCombatTest.xml": "f8e8cc7a6a6df672140dc85f47ee76e10c72e740c4cba7199935c13fd0db8f32",
     "test-results/TEST-com.braseiro.dnd5e.XmmUnmodeledSourceEffectRuntimeTest.xml": "175bb5b49018bd91f1cca144c488b5fb21cf2ced5a27498b808bbf6fcf38b815",
-    "verification-summary.json": "370ff770ed88fb0dca6ecb868cafa916fc531efe592b8e90d08371c139f8dba6"
+    "verification-summary.json": "3d4e6c5f40b40c33ba5292f65106d0ed19c38ef80d707ba2517c2345b97c2aa2"
   }
 }

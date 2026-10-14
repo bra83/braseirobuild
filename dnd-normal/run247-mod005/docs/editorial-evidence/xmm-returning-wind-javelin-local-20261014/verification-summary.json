@@ -27,6 +27,14 @@
       "full_monster_combat_automation_certified": false
     },
     "apk_built": false,
-    "brelga_for_this_sha": "pending after push"
+    "brelga_for_this_sha": "passed",
+    "brelga_run_url": "https://github.com/bra83/braseirobuild/actions/runs/38512028236",
+    "brelga_source_sha": "c3c78b598283d58f7b48ecc5eca61203a1bc4227",
+    "brelga_tested_code_commit": "82d2f179c964e8977d0ab586487070c62461abd8",
+    "brelga_suites": 112,
+    "brelga_android_tests": 2528,
+    "brelga_failures": 0,
+    "brelga_errors": 0,
+    "brelga_skipped": 0
   }
 }
