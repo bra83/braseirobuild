@@ -187,3 +187,10 @@
 - A mesma consequência fonte foi aplicada a mais dois casos XMM: Diabo Ósseo / Ferrão Infernal e Worg Atroz / Mordida. Com o Diabo Barbado / Barba, os três persistem envenenado e bloqueiam cura até o início do turno da criatura; em todos, cura direta e em lote não alteram PV durante o efeito e passam a funcionar após a expiração.
 - Os ponteiros verificados são `/monster/58/action/1/entries/0`, `/monster/73/action/2/entries/0` e `/monster/125/action/1/entries/0`, no blob XMM pinado. Comparador agora marca 243 efeitos manuais, redução de 2 neste incremento; automação completa continua falsa.
 - No SHA `a9c9200e66a43f0cfc1faae3e6f5b25760439c23`, suíte local completa: **2.525 testes / 110 XMLs / nenhum failure, error ou skipped**; comparadores Python 36/36; fonte XMM conferiu 503 criaturas e 36 seções. A etapa 03 segue aberta. Evidência: `docs/editorial-evidence/xmm-poison-healing-three-monsters-local-20261014-a9c9200e/`.
+
+
+### Supressão de recuperação de PV por tempo: Death Cultist (14/10/2026)
+
+- A Foice do Pavor do Death Cultist aplica, em acerto, um efeito sem condição que impede o alvo de recuperar PV até o fim do próximo turno dele. O timer persistido diferencia esse limite do início de turno da criatura de origem usado pelos efeitos de veneno anteriores. Ataques múltiplos com esse rider continuam bloqueados; o aviso apresentado ao jogador está em PT-BR.
+- O comparador valida o texto-fonte XMM `/monster/115/action/1/entries/0`, a duração, o gatilho e os indicadores de resolução manual. A quantidade de efeitos ainda fora de contratos tipados caiu de 243 para 242; automação integral segue falsa.
+- Commit `a1c8caff9da8fe1589f374863620d6e060a2ddc9`: Gradle local completo **2.526 testes / 111 XMLs / 0 falhas / 0 erros / 0 ignorados**; testes Python do comparador **37/37**; fonte pinada comparou **503 monstros e 36 seções**. Evidências e hashes: `docs/editorial-evidence/xmm-dread-scythe-healing-local-20261014-a1c8caff/`. APK não gerado e BRELGA não executado.

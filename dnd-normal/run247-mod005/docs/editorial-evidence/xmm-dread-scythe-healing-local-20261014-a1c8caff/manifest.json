@@ -1,0 +1,28 @@
+{
+  "schema": "XMM_LOCAL_EFFECT_EVIDENCE_V1",
+  "commit": "a1c8caff9da8fe1589f374863620d6e060a2ddc9",
+  "generated_utc": "2026-10-14",
+  "change": "Death Cultist / Dread Scythe blocks HP regain through the end of the target next turn; timer persists and expires at the declared boundary.",
+  "source_pointer": "XMM pinned source /monster/115/action/1/entries/0",
+  "verification": {
+    "android_gradle_task": ":app:testDebugUnitTest",
+    "android_xml_files": 111,
+    "tests": 2526,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "focused_tests": "XmmDeathCultistHealingSuppressionRobolectricTest, XmmBeardedDevilHealingSuppressionRobolectricTest, XmmUnmodeledSourceEffectRuntimeTest, XmmConditionalAttackDamageSourceTest, XmmPtBrActionLabelTest, E2EGatesIntegrationRobolectricTest.testG04TacticalGridMovementAndBudget",
+    "python_comparator_tests": 37,
+    "xmm_source_monsters_compared": 503,
+    "xmm_editorial_sections_compared": 36,
+    "source_abilities_with_unmodeled_effects_manual": 242,
+    "full_monster_combat_automation_certified": false,
+    "apk_built": false,
+    "brelga_ci_run": false
+  },
+  "artifacts": {
+    "android-full-suite-xml.zip": "fae1a8093e5439ba346f4353d5118230f39827200e20cbaed1a4fb3dad5d9169",
+    "source-comparison.json": "8279a1e07ce1fa8058a92b26e4a1593ec06ce02bb61bb69d36afbffd75fb4f67",
+    "dread-scythe-robolectric.xml": "aa1f2049e2a0f1e25257980b344686fbff9ee850b5c797689e3da6894a946300"
+  }
+}

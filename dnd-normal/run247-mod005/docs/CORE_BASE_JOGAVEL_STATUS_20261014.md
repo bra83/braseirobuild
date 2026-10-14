@@ -46,9 +46,12 @@ O contrato do Diabo Barbado / Barba, o bloqueio persistente de cura, a expiraç�
 
 ## Ainda não está fechado como núcleo pronto
 
-A lista manual arquivada no SHA anterior tinha **246 entradas**. A comparação pinada atualizada após implementar o Beard do Diabo Barbado agora conta **243 efeitos fora dos contratos tipados**; o denominador é ação/efeito do comparador, não uma certificação de cada monstro. O VTT segue sem cobertura integral de combate. Também estão pendentes CI BRELGA e instalação/abertura em Android físico; não havia aparelho ADB conectado e nenhum APK foi gerado nesta etapa.
+A lista manual arquivada no SHA anterior tinha **246 entradas**. A comparação pinada mais recente, após tipar os efeitos de recuperação de PV da Barba do Diabo Barbado, Ferrão Infernal do Diabo Ósseo, Mordida do Worg Atroz e Foice do Pavor do Death Cultist, conta **242 efeitos fora dos contratos tipados**; o denominador é ação/efeito do comparador, não uma certificação de cada monstro. O VTT segue sem cobertura integral de combate. Também estão pendentes CI BRELGA e instalação/abertura em Android físico; não havia aparelho ADB conectado e nenhum APK foi gerado nesta etapa.
 
 O proprietário informou em 14/10/2026 que adquiriu os materiais e autorizou sua consulta no VTT de uso estritamente pessoal. Essa autorização orienta a conferência interna do conteúdo mecânico; o projeto continua sem reproduzir integralmente os livros. O núcleo permanece em andamento: XMM ainda tem efeitos manuais, e não avanço para suplementos.
 
 
 A expansão do mesmo efeito para três monstros, com as 2.525 regressões e comparação fonte atualizadas, está em [`xmm-poison-healing-three-monsters-local-20261014-a9c9200e`](editorial-evidence/xmm-poison-healing-three-monsters-local-20261014-a9c9200e/manifest.json).
+
+
+A Foice do Pavor agora persiste a supressão de cura até o fim do próximo turno do alvo. No commit `a1c8caff9da8fe1589f374863620d6e060a2ddc9`, passaram 2.526 testes Android/Robolectric em 111 XMLs, os 37 testes Python do comparador e a comparação XMM de 503 monstros/36 seções. Evidência e hashes: [`xmm-dread-scythe-healing-local-20261014-a1c8caff`](editorial-evidence/xmm-dread-scythe-healing-local-20261014-a1c8caff/manifest.json). Os 242 efeitos manuais, a falta de execução BRELGA e a validação pendente em aparelho mantêm o núcleo aberto.
