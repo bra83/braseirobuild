@@ -1,0 +1,37 @@
+{
+  "schema": "XMM_LOCAL_COLOSSUS_FORCED_MOVEMENT_EVIDENCE_V1",
+  "code_commit": "9a0cc2d2160af6ccb8077d0811d0b39f64c0a955",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "source_bestiary_blob": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "source_pointer": "/monster/100/action/1/entries/0",
+  "behavior": "Colossus Slam applies source-validated push up to 20 ft after a hit; selected path is checked against direction, distance, obstacles, occupancy and board boundaries before the transaction commits. A miss deals no damage and causes no displacement.",
+  "local_gradle_command": "JAVA_HOME=/workspace/jdk21 ANDROID_HOME=/workspace/android-sdk bash gradlew :app:testDebugUnitTest --offline",
+  "android": {
+    "xml_files": 113,
+    "tests": 2529,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "focused_android_tests": [
+    "XmmColossusForcedMovementRobolectricTest#slamPushesOnHitAndNeverMovesOnMiss",
+    "XmmUnmodeledSourceEffectRuntimeTest#all242UnmodeledSourceActionsFailClosedAtRuntimePreflight"
+  ],
+  "python_commands": [
+    "python3 -m unittest discover -s tools -p 'test_verify_xmm_503_source.py' -v",
+    "python3 -m unittest discover -s tools -p 'test_verify_xmm_65_attack_conditions.py' -v"
+  ],
+  "python_tests": {
+    "xmm_source": 37,
+    "attack_conditions": 4,
+    "failures": 0
+  },
+  "source_comparison": {
+    "creatures": 503,
+    "sections": 36,
+    "manual_effects": 242,
+    "full_monster_combat_automation_certified": false
+  },
+  "apk_built": false,
+  "brelga": "pending on code commit 9a0cc2d2160af6ccb8077d0811d0b39f64c0a955"
+}

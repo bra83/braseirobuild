@@ -1,0 +1,1676 @@
+{
+  "schema": "XMM_MANUAL_EFFECT_BACKLOG_V1",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "bestiary_git_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "source_monsters": 503,
+  "manual_effect_count": 238,
+  "entries": [
+    {
+      "source_pointer": "/monster/2/action/1",
+      "monster": "Aberrant Cultist",
+      "action": "Tentacle Lash",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/3/action/2",
+      "monster": "Aboleth",
+      "action": "Consume Memories",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/3/action/3",
+      "monster": "Aboleth",
+      "action": "Dominate Mind (2/Day)",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/3/legendary/1",
+      "monster": "Aboleth",
+      "action": "Psychic Drain",
+      "category": "legendary_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/5/legendary/0",
+      "monster": "Adult Black Dragon",
+      "action": "Cloud of Insects",
+      "category": "legendary_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/7/action/3",
+      "monster": "Adult Brass Dragon",
+      "action": "Sleep Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/7/legendary/2",
+      "monster": "Adult Brass Dragon",
+      "action": "Scorching Sands",
+      "category": "legendary_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/8/action/3",
+      "monster": "Adult Bronze Dragon",
+      "action": "Repulsion Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/9/action/3",
+      "monster": "Adult Copper Dragon",
+      "action": "Slowing Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/10/action/3",
+      "monster": "Adult Gold Dragon",
+      "action": "Weakening Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/13/action/3",
+      "monster": "Adult Silver Dragon",
+      "action": "Paralyzing Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/13/legendary/1",
+      "monster": "Adult Silver Dragon",
+      "action": "Cold Gale",
+      "category": "legendary_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/15/action/2",
+      "monster": "Air Elemental",
+      "action": "Whirlwind",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/17/legendary/0",
+      "monster": "Ancient Black Dragon",
+      "action": "Cloud of Insects",
+      "category": "legendary_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/19/action/3",
+      "monster": "Ancient Brass Dragon",
+      "action": "Sleep Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/19/legendary/2",
+      "monster": "Ancient Brass Dragon",
+      "action": "Scorching Sands",
+      "category": "legendary_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/20/action/3",
+      "monster": "Ancient Bronze Dragon",
+      "action": "Repulsion Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/21/action/3",
+      "monster": "Ancient Copper Dragon",
+      "action": "Slowing Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/22/action/3",
+      "monster": "Ancient Gold Dragon",
+      "action": "Weakening Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/25/action/3",
+      "monster": "Ancient Silver Dragon",
+      "action": "Paralyzing Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/25/legendary/1",
+      "monster": "Ancient Silver Dragon",
+      "action": "Cold Gale",
+      "category": "legendary_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/27/action/3",
+      "monster": "Animal Lord",
+      "action": "Animal Spirit",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/31/action/0",
+      "monster": "Animated Rug of Smothering",
+      "action": "Smother",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/32/action/0",
+      "monster": "Ankheg",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/35/action/2",
+      "monster": "Arcanaloth",
+      "action": "Banishing Claw (Requires Soul Tome)",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/36/action/2",
+      "monster": "Arch-hag",
+      "action": "Crackling Wave",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/36/bonus/0",
+      "monster": "Arch-hag",
+      "action": "Witch Strike",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/48/action/2",
+      "monster": "Balor",
+      "action": "Lightning Blade",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/51/bonus/0",
+      "monster": "Bandit Crime Lord",
+      "action": "Deadly Aim",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/54/action/3",
+      "monster": "Barbed Devil",
+      "action": "Hurl Flame",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/56/bonus/0",
+      "monster": "Basilisk",
+      "action": "Petrifying Gaze",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/58/action/2",
+      "monster": "Bearded Devil",
+      "action": "Infernal Glaive",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/59/action/2",
+      "monster": "Behir",
+      "action": "Constrict",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/59/bonus/0",
+      "monster": "Behir",
+      "action": "Swallow",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/60/action/2",
+      "monster": "Beholder",
+      "action": "Eye Rays",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/61/action/2",
+      "monster": "Beholder Zombie",
+      "action": "Eye Rays",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/63/action/1",
+      "monster": "Berserker Commander",
+      "action": "Greataxe",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/63/action/2",
+      "monster": "Berserker Commander",
+      "action": "Javelin",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/63/bonus/0",
+      "monster": "Berserker Commander",
+      "action": "Frenzied Rush",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/68/action/2",
+      "monster": "Blob of Annihilation",
+      "action": "Engulf",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/71/action/1",
+      "monster": "Blue Slaad",
+      "action": "Mutating Claw",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/75/action/2",
+      "monster": "Brass Dragon Wyrmling",
+      "action": "Sleep Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/76/action/2",
+      "monster": "Brazen Gorgon",
+      "action": "Smelting Charge",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/77/action/3",
+      "monster": "Bronze Dragon Wyrmling",
+      "action": "Repulsion Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/79/action/2",
+      "monster": "Bugbear Stalker",
+      "action": "Morningstar",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/80/action/1",
+      "monster": "Bugbear Warrior",
+      "action": "Light Hammer",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/81/action/2",
+      "monster": "Bulette",
+      "action": "Deadly Leap",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/87/action/2",
+      "monster": "Carrion Crawler",
+      "action": "Paralyzing Tentacles",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/91/action/1",
+      "monster": "Chain Devil",
+      "action": "Chain",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/91/action/2",
+      "monster": "Chain Devil",
+      "action": "Conjure Infernal Chain",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/92/action/0",
+      "monster": "Chasme",
+      "action": "Proboscis",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/92/bonus/0",
+      "monster": "Chasme",
+      "action": "Drone",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/93/action/1",
+      "monster": "Chimera",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/94/action/2",
+      "monster": "Chuul",
+      "action": "Paralyzing Tentacles",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/95/action/1",
+      "monster": "Clay Golem",
+      "action": "Slam",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/98/action/0",
+      "monster": "Cockatrice",
+      "action": "Petrifying Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/99/action/1",
+      "monster": "Cockatrice Regent",
+      "action": "Petrifying Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/103/action/2",
+      "monster": "Copper Dragon Wyrmling",
+      "action": "Slowing Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/104/action/1",
+      "monster": "Couatl",
+      "action": "Constrict",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/107/action/0",
+      "monster": "Crocodile",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/111/action/2",
+      "monster": "Cyclops Oracle",
+      "action": "Flash of Light",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/112/reaction/0",
+      "monster": "Cyclops Sentry",
+      "action": "Limited Foresight",
+      "category": "reaction",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/113/action/2",
+      "monster": "Dao",
+      "action": "Earth Burst",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/114/action/0",
+      "monster": "Darkmantle",
+      "action": "Crush",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/116/action/1",
+      "monster": "Death Dog",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/117/legendary/1",
+      "monster": "Death Knight",
+      "action": "Fell Word",
+      "category": "legendary_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/119/action/1",
+      "monster": "Death Slaad",
+      "action": "Chaos Blade",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/120/action/2",
+      "monster": "Death Tyrant",
+      "action": "Eye Rays",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/120/bonus/0",
+      "monster": "Death Tyrant",
+      "action": "Negative Energy Cone",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/122/legendary/0",
+      "monster": "Demilich",
+      "action": "Energy Drain",
+      "category": "legendary_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/127/action/3",
+      "monster": "Djinni",
+      "action": "Create Whirlwind",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/128/action/1",
+      "monster": "Doppelganger",
+      "action": "Slam",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/128/action/2",
+      "monster": "Doppelganger",
+      "action": "Unsettling Visage",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/132/action/1",
+      "monster": "Dretch",
+      "action": "Fetid Cloud (1/Day)",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/140/action/2",
+      "monster": "Elemental Cataclysm",
+      "action": "Cataclysmic Event",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/141/action/2",
+      "monster": "Elemental Cultist",
+      "action": "Elemental Claw",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/141/reaction/0",
+      "monster": "Elemental Cultist",
+      "action": "Elemental Absorption (1/Day)",
+      "category": "reaction",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/144/legendary/0",
+      "monster": "Empyrean",
+      "action": "Bolster",
+      "category": "legendary_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/148/action/2",
+      "monster": "Ettin",
+      "action": "Morningstar",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/149/action/1",
+      "monster": "Faerie Dragon Adult",
+      "action": "Euphoria Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/152/action/1",
+      "monster": "Fire Elemental",
+      "action": "Burn",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/153/action/2",
+      "monster": "Fire Giant",
+      "action": "Hammer Throw",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/161/action/2",
+      "monster": "Frost Giant",
+      "action": "Great Bow",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/161/bonus/0",
+      "monster": "Frost Giant",
+      "action": "War Cry",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/171/action/1",
+      "monster": "Giant Axe Beak",
+      "action": "Sharpened Beak",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/178/action/1",
+      "monster": "Giant Crocodile",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/182/action/1",
+      "monster": "Giant Frog",
+      "action": "Swallow",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/186/action/0",
+      "monster": "Giant Octopus",
+      "action": "Tentacles",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/191/action/1",
+      "monster": "Giant Shark",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/194/action/1",
+      "monster": "Giant Toad",
+      "action": "Swallow",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/205/action/1",
+      "monster": "Githzerai Psion",
+      "action": "Psychic Warp",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/209/action/2",
+      "monster": "Gnoll Demoniac",
+      "action": "Hunger of Yeenoghu",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/211/action/3",
+      "monster": "Gnoll Pack Lord",
+      "action": "Incite Rampage",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/214/action/1",
+      "monster": "Goblin Boss",
+      "action": "Scimitar",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/214/action/2",
+      "monster": "Goblin Boss",
+      "action": "Shortbow",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/217/action/0",
+      "monster": "Goblin Warrior",
+      "action": "Scimitar",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/217/action/1",
+      "monster": "Goblin Warrior",
+      "action": "Shortbow",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/218/action/3",
+      "monster": "Gold Dragon Wyrmling",
+      "action": "Weakening Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/219/action/1",
+      "monster": "Gorgon",
+      "action": "Petrifying Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/220/action/1",
+      "monster": "Goristro",
+      "action": "Brutal Gore",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/221/action/2",
+      "monster": "Graveyard Revenant",
+      "action": "Haunting Glare",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/223/action/1",
+      "monster": "Gray Slaad",
+      "action": "Chaos Claw",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/226/action/1",
+      "monster": "Green Slaad",
+      "action": "Chaos Staff",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/227/action/2",
+      "monster": "Grell",
+      "action": "Paralyzing Tentacles",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/235/action/3",
+      "monster": "Gulthias Blight",
+      "action": "Life-Draining Root",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/236/action/1",
+      "monster": "Half-Dragon",
+      "action": "Claw",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/237/action/1",
+      "monster": "Harpy",
+      "action": "Luring Song",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/238/action/1",
+      "monster": "Haunting Revenant",
+      "action": "Object Slam",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/247/action/1",
+      "monster": "Hobgoblin Warlord",
+      "action": "Javelin",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/249/action/0",
+      "monster": "Homunculus",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/250/action/1",
+      "monster": "Hook Horror",
+      "action": "Hook",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/251/action/2",
+      "monster": "Horned Devil",
+      "action": "Hurl Flame",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/251/action/3",
+      "monster": "Horned Devil",
+      "action": "Infernal Tail",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/252/action/0",
+      "monster": "Hunter Shark",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/255/action/1",
+      "monster": "Ice Devil",
+      "action": "Ice Spear",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/258/action/1",
+      "monster": "Incubus",
+      "action": "Restless Touch",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/265/action/0",
+      "monster": "Kenku",
+      "action": "Shadow Blade",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/269/action/1",
+      "monster": "Kraken",
+      "action": "Tentacle",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/269/action/2",
+      "monster": "Kraken",
+      "action": "Fling",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/269/action/4",
+      "monster": "Kraken",
+      "action": "Swallow",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/269/legendary/1",
+      "monster": "Kraken",
+      "action": "Toxic Ink",
+      "category": "legendary_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/270/action/1",
+      "monster": "Kuo-toa",
+      "action": "Sticky Net (1/Day)",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/274/action/1",
+      "monster": "Lacedon Ghoul",
+      "action": "Icy Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/275/action/2",
+      "monster": "Lamia",
+      "action": "Corrupting Touch",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/282/action/1",
+      "monster": "Lizardfolk Sovereign",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/286/action/0",
+      "monster": "Magmin",
+      "action": "Touch",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/291/action/2",
+      "monster": "Marid",
+      "action": "Water Jet",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/292/action/2",
+      "monster": "Marilith",
+      "action": "Constrict",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/294/bonus/0",
+      "monster": "Medusa",
+      "action": "Petrifying Gaze",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/295/action/0",
+      "monster": "Merfolk Skirmisher",
+      "action": "Ocean Spear",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/296/reaction/0",
+      "monster": "Merfolk Wavebender",
+      "action": "Watery Rebuke",
+      "category": "reaction",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/298/action/1",
+      "monster": "Mezzoloth",
+      "action": "Claws",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/298/action/2",
+      "monster": "Mezzoloth",
+      "action": "Mercurial Trident",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/299/action/0",
+      "monster": "Mimic",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/299/action/1",
+      "monster": "Mimic",
+      "action": "Pseudopod",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/300/action/0",
+      "monster": "Mind Flayer",
+      "action": "Tentacles",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/301/action/1",
+      "monster": "Mind Flayer Arcanist",
+      "action": "Arcane Tentacles",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/304/action/1",
+      "monster": "Modron Duodrone",
+      "action": "Clockwork Blade",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/306/action/3",
+      "monster": "Modron Pentadrone",
+      "action": "Paralysis Gas",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/308/action/1",
+      "monster": "Modron Tridrone",
+      "action": "Clockwork Spear",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/311/action/1",
+      "monster": "Mummy",
+      "action": "Rotting Fist",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/312/action/1",
+      "monster": "Mummy Lord",
+      "action": "Rotting Fist",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/313/action/1",
+      "monster": "Myconid Adult",
+      "action": "Pacifying Spores (1/Day)",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/314/action/3",
+      "monster": "Myconid Sovereign",
+      "action": "Pacifying Spores",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/317/reaction/0",
+      "monster": "Nalfeshnee",
+      "action": "Pursuit",
+      "category": "reaction",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/324/action/1",
+      "monster": "Nycaloth",
+      "action": "Mercurial Axe",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/331/action/1",
+      "monster": "Otyugh",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/331/action/3",
+      "monster": "Otyugh",
+      "action": "Tentacle Slam",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/337/action/2",
+      "monster": "Performer Legend",
+      "action": "Majestic Song",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/339/action/2",
+      "monster": "Peryton",
+      "action": "Talons",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/340/action/1",
+      "monster": "Phase Spider",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/342/action/0",
+      "monster": "Piranha",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/344/action/1",
+      "monster": "Pirate Admiral",
+      "action": "Scimitar",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/344/bonus/0",
+      "monster": "Pirate Admiral",
+      "action": "Rally (1/Day)",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/345/action/1",
+      "monster": "Pirate Captain",
+      "action": "Rapier",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/346/action/1",
+      "monster": "Pit Fiend",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/347/action/0",
+      "monster": "Pixie",
+      "action": "Faerie Dust",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/348/action/1",
+      "monster": "Pixie Wonderbringer",
+      "action": "Faerie Dust",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/352/action/2",
+      "monster": "Poltergeist",
+      "action": "Telekinetic Thrust",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/357/action/2",
+      "monster": "Pseudodragon",
+      "action": "Sting",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/358/action/0",
+      "monster": "Psychic Gray Ooze",
+      "action": "Pseudopod",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/360/action/1",
+      "monster": "Purple Worm",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/360/bonus/0",
+      "monster": "Purple Worm",
+      "action": "Swallow",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/363/action/1",
+      "monster": "Quasit",
+      "action": "Scare (1/Day)",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/365/action/0",
+      "monster": "Rakshasa",
+      "action": "Multiattack",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/365/action/1",
+      "monster": "Rakshasa",
+      "action": "Cursed Touch",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/369/action/1",
+      "monster": "Red Slaad",
+      "action": "Injecting Claw",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/371/action/0",
+      "monster": "Remorhaz",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/371/bonus/0",
+      "monster": "Remorhaz",
+      "action": "Swallow",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/372/action/2",
+      "monster": "Revenant",
+      "action": "Vengeful Glare",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/372/bonus/0",
+      "monster": "Revenant",
+      "action": "Vow of Revenge (1/Day)",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/375/action/2",
+      "monster": "Roc",
+      "action": "Talons",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/376/action/2",
+      "monster": "Roper",
+      "action": "Tentacle",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/379/reaction/0",
+      "monster": "Sahuagin Baron",
+      "action": "Fiendish Blood",
+      "category": "reaction",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/382/action/1",
+      "monster": "Salamander",
+      "action": "Flame Spear",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/382/action/2",
+      "monster": "Salamander",
+      "action": "Constrict",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/384/action/1",
+      "monster": "Salamander Inferno Master",
+      "action": "Flame Trident",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/384/action/2",
+      "monster": "Salamander Inferno Master",
+      "action": "Inferno Blast",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/386/action/2",
+      "monster": "Satyr Revelmaster",
+      "action": "Fey Melody",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/387/action/1",
+      "monster": "Scarecrow",
+      "action": "Terrifying Glare",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/390/action/1",
+      "monster": "Scout Captain",
+      "action": "Shortsword",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/390/action/2",
+      "monster": "Scout Captain",
+      "action": "Longbow",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/390/bonus/0",
+      "monster": "Scout Captain",
+      "action": "Aim",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/393/action/0",
+      "monster": "Shadow",
+      "action": "Draining Swipe",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/396/action/2",
+      "monster": "Shambling Mound",
+      "action": "Engulf",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/399/action/3",
+      "monster": "Silver Dragon Wyrmling",
+      "action": "Paralyzing Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/403/action/1",
+      "monster": "Solar",
+      "action": "Flying Sword",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/404/action/2",
+      "monster": "Spectator",
+      "action": "Eye Rays",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/405/action/0",
+      "monster": "Specter",
+      "action": "Life Drain",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/407/action/0",
+      "monster": "Sphinx of Secrets",
+      "action": "Multiattack",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/407/action/2",
+      "monster": "Sphinx of Secrets",
+      "action": "Curse of the Riddle",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/408/action/2",
+      "monster": "Sphinx of Valor",
+      "action": "Roar (3/Day)",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/409/reaction/0",
+      "monster": "Sphinx of Wonder",
+      "action": "Burst of Ingenuity (2/Day)",
+      "category": "reaction",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/416/action/1",
+      "monster": "Steam Mephit",
+      "action": "Steam Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/417/action/0",
+      "monster": "Stirge",
+      "action": "Proboscis",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/421/action/3",
+      "monster": "Succubus",
+      "action": "Draining Kiss",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/428/action/0",
+      "monster": "Swarm of Piranhas",
+      "action": "Bites",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/430/action/1",
+      "monster": "Swarm of Ravens",
+      "action": "Cacophony",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/431/action/0",
+      "monster": "Swarm of Stirges",
+      "action": "Swarm of Proboscises",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/433/action/1",
+      "monster": "Tarrasque",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/433/action/4",
+      "monster": "Tarrasque",
+      "action": "Thunderous Bellow",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/433/bonus/0",
+      "monster": "Tarrasque",
+      "action": "Swallow",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/438/action/1",
+      "monster": "Tough Boss",
+      "action": "Warhammer",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/440/action/2",
+      "monster": "Tree Blight",
+      "action": "Grasping Root",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/446/action/1",
+      "monster": "Tyrannosaurus Rex",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/447/action/1",
+      "monster": "Ultroloth",
+      "action": "Mercurial Whip",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/448/bonus/0",
+      "monster": "Umber Hulk",
+      "action": "Confusing Gaze",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/449/legendary/1",
+      "monster": "Unicorn",
+      "action": "Shimmering Shield",
+      "category": "legendary_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/450/action/2",
+      "monster": "Vampire",
+      "action": "Bite (Bat or Vampire Form Only)",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/451/action/1",
+      "monster": "Vampire Familiar",
+      "action": "Umbral Dagger",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/452/action/1",
+      "monster": "Vampire Nightbringer",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/453/action/2",
+      "monster": "Vampire Spawn",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/454/bonus/0",
+      "monster": "Vampire Umbral Lord",
+      "action": "Sanguine Drain",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/456/action/0",
+      "monster": "Vine Blight",
+      "action": "Constricting Vine",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/458/action/2",
+      "monster": "Violet Fungus Necrohulk",
+      "action": "Spore Bomb",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/458/bonus/0",
+      "monster": "Violet Fungus Necrohulk",
+      "action": "Absorb Body",
+      "category": "bonus_action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/459/action/2",
+      "monster": "Vrock",
+      "action": "Spores",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/463/action/1",
+      "monster": "Warrior Commander",
+      "action": "Greatsword",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/463/action/2",
+      "monster": "Warrior Commander",
+      "action": "Longbow",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/466/action/2",
+      "monster": "Water Elemental",
+      "action": "Whelm",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/467/action/0",
+      "monster": "Water Weird",
+      "action": "Surge",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/469/action/1",
+      "monster": "Werebear",
+      "action": "Bite (Bear or Hybrid Form Only)",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/470/action/1",
+      "monster": "Wereboar",
+      "action": "Gore (Boar or Hybrid Form Only)",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/471/action/1",
+      "monster": "Wererat",
+      "action": "Bite (Rat or Hybrid Form Only)",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/472/action/1",
+      "monster": "Weretiger",
+      "action": "Bite (Tiger or Hybrid Form Only)",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/473/action/1",
+      "monster": "Werewolf",
+      "action": "Bite (Wolf or Hybrid Form Only)",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/475/action/3",
+      "monster": "Wight",
+      "action": "Life Drain",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/480/action/0",
+      "monster": "Worg",
+      "action": "Bite",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/481/action/0",
+      "monster": "Wraith",
+      "action": "Life Drain",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/485/reaction/0",
+      "monster": "Yochlol",
+      "action": "Toxic Escape",
+      "category": "reaction",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/488/action/3",
+      "monster": "Young Brass Dragon",
+      "action": "Sleep Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/489/action/3",
+      "monster": "Young Bronze Dragon",
+      "action": "Repulsion Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/490/action/3",
+      "monster": "Young Copper Dragon",
+      "action": "Slowing Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/491/action/3",
+      "monster": "Young Gold Dragon",
+      "action": "Weakening Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/495/action/3",
+      "monster": "Young Silver Dragon",
+      "action": "Paralyzing Breath",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/497/action/2",
+      "monster": "Yuan-ti Abomination",
+      "action": "Constrict",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/497/action/3",
+      "monster": "Yuan-ti Abomination",
+      "action": "Poison Spray",
+      "category": "action",
+      "compiled_manual_guard": true
+    },
+    {
+      "source_pointer": "/monster/501/action/2",
+      "monster": "Yuan-ti Malison (Type 3)",
+      "action": "Constrict",
+      "category": "action",
+      "compiled_manual_guard": true
+    }
+  ],
+  "source_prose_included": false
+}

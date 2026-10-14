@@ -1,0 +1,29 @@
+{
+  "schema": "XMM_LOCAL_VERIFICATION_V1",
+  "feature": "Balor Flame Whip size-capped pull with source-coupled Prone",
+  "code_commit": "c28ef5445bf57d888cf318e7ce2ad4c527225c1d",
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "bestiary_git_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "source_action_pointer": "/monster/48/action/1/entries/0",
+  "local_gradle_command": "JAVA_HOME=/workspace/jdk21 ANDROID_HOME=/workspace/android-sdk bash gradlew --offline :app:testDebugUnitTest",
+  "local_gradle_result": "BUILD SUCCESSFUL",
+  "local_gradle_totals": {
+    "xml_files": 115,
+    "tests": 2531,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "python_source_comparator_tests": "39/39 passed",
+  "python_attack_condition_tests": "4/4 passed",
+  "source_comparison": {
+    "monsters": 503,
+    "editorial_sections": 36,
+    "manual_source_effects_remaining": 239,
+    "full_monster_combat_automation_certified": false
+  },
+  "apk_built": false,
+  "hosted_independent_audit": "failed_before_job_start_due_to_GitHub_actions_billing_limit",
+  "brelga_exact_sha": "pending",
+  "brelga_run_url": "https://github.com/bra83/braseirobuild/actions/runs/38515803868"
+}

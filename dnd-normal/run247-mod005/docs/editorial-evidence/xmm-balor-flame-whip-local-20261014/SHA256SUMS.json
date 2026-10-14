@@ -1,0 +1,10 @@
+{
+  "TEST-com.braseiro.dnd5e.XmmBalorCompoundRiderRulesTest.xml": "fa17027d9fc6f91e2e9553ceb4f0ddd5319ec0e8ec031e7a2eec259aad25d37d",
+  "TEST-com.braseiro.dnd5e.XmmConditionalAttackDamageSourceTest.xml": "a2b1efd99aa2969c3eb736830a5581210c56ab438bc9e7a805cee1eb340721b7",
+  "TEST-com.braseiro.dnd5e.XmmSizedForcedMovementRobolectricTest.xml": "13c255a0c5cbf2fe9e191b52c83600a7befc87952f5ca84eb0dda7e079cfc475",
+  "TEST-com.braseiro.dnd5e.XmmUnmodeledSourceEffectRuntimeTest.xml": "7e256b846eef51fdce3085d29dac1e236d176c2e8b1a733ac78fc53e8d3e6133",
+  "android-full-suite-xml.zip": "7d671634e97d91cb6852a83adb608a69d3b21247ebcc1fc1d0951c623e2d03c2",
+  "manual-effect-backlog-239.json": "e903870dbc869b18c67a3a7bebd485dc57e4795e483eebe34037510e5f1a5536",
+  "verification-summary.json": "29d2a897f19493adffffa047a3f4d96c0dbd61ef8d489f9ecf22acd83c75f4c3",
+  "xmm-source-comparison.json": "c8d17670e5f7127e72879fe4308b5b41cab2c794af7d06754f8513200fc8ba04"
+}

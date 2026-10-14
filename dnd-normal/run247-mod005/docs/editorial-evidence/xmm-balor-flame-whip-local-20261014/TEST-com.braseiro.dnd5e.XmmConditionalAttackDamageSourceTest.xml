@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.braseiro.dnd5e.XmmConditionalAttackDamageSourceTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-10-14T05:10:43" hostname="0f1875aecc7d" time="0.185">
+  <properties/>
+  <testcase name="everyPinnedChargeActionHasTheTypedMovementGate" classname="com.braseiro.dnd5e.XmmConditionalAttackDamageSourceTest" time="0.142"/>
+  <testcase name="bloodiedBranchesMatchSourceAndChooseOnlyOneDamageExpression" classname="com.braseiro.dnd5e.XmmConditionalAttackDamageSourceTest" time="0.012"/>
+  <testcase name="unmodeledLegendarySaveEffectFailsClosed" classname="com.braseiro.dnd5e.XmmConditionalAttackDamageSourceTest" time="0.001"/>
+  <testcase name="compoundOrRecurringSourceConditionsFailClosed" classname="com.braseiro.dnd5e.XmmConditionalAttackDamageSourceTest" time="0.003"/>
+  <testcase name="ongoingAndAreaDamageAreNeverFoldedIntoTheImmediateHit" classname="com.braseiro.dnd5e.XmmConditionalAttackDamageSourceTest" time="0.004"/>
+  <testcase name="unmodeledSourceRidersFailBeforeDamage" classname="com.braseiro.dnd5e.XmmConditionalAttackDamageSourceTest" time="0.004"/>
+  <testcase name="unmodeledMoveAdvantageAndGrappleAlternativesFailClosed" classname="com.braseiro.dnd5e.XmmConditionalAttackDamageSourceTest" time="0.017"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

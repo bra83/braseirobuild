@@ -232,3 +232,19 @@
 - O mesmo fluxo de combate valida o tamanho persistido do alvo, limite de movimento, direção, percurso, ocupação e obstáculos. Tamanho acima do limite mantém o dano e suprime apenas o movimento; tamanho desconhecido bloqueia antes de dano/mutação. Colossus / Slam continua coberto no mesmo executor (`/monster/100/action/1/entries/0`). Interface e escolha de células em PT-BR.
 - Teste Robolectric de combate cobre puxão, empurrão, alvo acima do limite e tamanho desconhecido. A comparação independente do código fonte aceita somente os riders, limites, danos, alcances e tamanhos que correspondem à fonte. A lista de efeitos sem contrato tipado cai para **240**; automação total continua falsa.
 - Suíte local completa após esse lote: **2.530 testes / 114 XMLs / zero falhas, erros ou ignorados**; Python: comparador XMM **38/38**, riders de ataque **4/4**; fonte: **503 criaturas / 36 seções**. Evidências previstas em `docs/editorial-evidence/xmm-forced-movement-on-hit-local-20261014/`. BRELGA para o novo SHA ainda pendente; XMM permanece aberto, com 35 seções sem prova semântica individual. APK não gerado.
+
+
+### Puxão e queda do chicote flamejante do Balor (14/10/2026)
+
+- Fonte XMM pinada: Balor / Flame Whip, `/monster/48/action/1/entries/0`. Em um acerto, o runtime permite puxar até 25 pés e aplicar Prone somente a alvos Enormes ou menores. O alvo escolhe a célula; o banco valida tamanho e caminho e confirma dano, deslocamento e condição dentro da mesma transação. Alvos Gargantuescos recebem o dano, sem movimento nem Prone. A condição persiste até o alvo se levantar.
+- O comparador independente confere ataque, alcance, ambos os componentes e tipos de dano, limite de tamanho, direção e condição contra a fonte pinada. Testes Robolectric exercitam um alvo elegível e outro acima do limite; as verificações Python passaram **39/39** e **4/4**.
+- Commit de código `c28ef5445bf57d888cf318e7ce2ad4c527225c1d`: suíte Gradle local **2.531 testes / 115 XMLs / zero falhas, erros ou ignorados**. A comparação manteve **503 criaturas / 36 seções**, com **239 efeitos ainda sem runtime tipado** e certificação integral falsa. Evidências e hashes em `docs/editorial-evidence/xmm-balor-flame-whip-local-20261014/`.
+- O BRELGA do SHA exato está pendente. O auditor independente hospedado não iniciou por limite de cobrança do GitHub Actions; a comparação foi executada localmente e passou. Etapa 03 aberta, 35 seções sem prova semântica individual; nenhum APK foi gerado.
+
+
+### Puxão elétrico da raiz carregada do Shambling Mound (14/10/2026)
+
+- Fonte XMM pinada: Shambling Mound / Charged Tendril, `/monster/396/action/1/entries/0`. O acerto permite puxar exatamente 5 pés, em direção ao atacante, apenas quando o alvo é Médio ou menor. O runtime também exige alcance de 10 pés, aceita os dois componentes de dano vinculados às expressões-fonte e confirma dano e movimento atomicamente.
+- Teste Robolectric confirma alcance, distância, puxão de uma célula e dano de contusão+raio. O comparador vincula alcance, dano, tipos, direção e limite de tamanho à fonte. O backlog tipado cai para **238 efeitos**.
+- Commit `d97425a627f401611cc5b8d74ca63dc077380171`: suíte Gradle completa local **2.531 testes / 115 XMLs / zero falhas, erros ou ignorados**; validadores Python **39/39** e **4/4**; fonte **503 criaturas / 36 seções**. Evidências e hashes em `docs/editorial-evidence/xmm-shambling-mound-local-20261014/`.
+- BRELGA do SHA exato pendente; auditor hospedado impedido pela configuração de cobrança do GitHub Actions. Etapa 03 permanece aberta, 35 seções sem prova semântica individual, automação integral não certificada e nenhum APK gerado.
