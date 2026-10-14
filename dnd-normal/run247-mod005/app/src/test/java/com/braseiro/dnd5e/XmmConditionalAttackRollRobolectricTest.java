@@ -85,6 +85,37 @@ public final class XmmConditionalAttackRollRobolectricTest {
             XmmConditionalAttackRollRules.advantage(action,20,20).blocked);
     }
 
+    @Test public void bugbearStalkerMorningstarUsesOnlyItsOwnGrappleForAdvantage(){
+        assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
+        JSONObject action=findAction("Bugbear Stalker","Morningstar");assertNotNull(action);
+        assertFalse(action.optBoolean("manual_unmodeled_source_effect_required"));
+        assertEquals("target_grappled_by_attacker",action.optString("attack_advantage_condition"));
+        XmmConditionalAttackRollRules.Result owned=
+            XmmConditionalAttackRollRules.advantage(action,30,30,true);
+        assertTrue(owned.legal());assertTrue(owned.advantage);
+        XmmConditionalAttackRollRules.Result other=
+            XmmConditionalAttackRollRules.advantage(action,30,30,false);
+        assertTrue(other.legal());assertFalse(other.advantage);
+        assertEquals("source_advantage_grapple_link_unverified",
+            XmmConditionalAttackRollRules.advantage(action,30,30).blocked);
+    }
+
+    @Test public void doppelgangerSlamHasAdvantageOnlyInFirstCombatRound(){
+        assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
+        JSONObject action=findAction("Doppelganger","Slam");assertNotNull(action);
+        assertFalse(action.optBoolean("manual_rider_resolution_required"));
+        assertFalse(action.optBoolean("manual_unmodeled_source_effect_required"));
+        assertTrue(action.optBoolean("attack_advantage_during_first_combat_round"));
+        XmmConditionalAttackRollRules.Result first=
+            XmmConditionalAttackRollRules.advantage(action,52,52,null,true);
+        assertTrue(first.legal());assertTrue(first.advantage);
+        XmmConditionalAttackRollRules.Result later=
+            XmmConditionalAttackRollRules.advantage(action,52,52,null,false);
+        assertTrue(later.legal());assertFalse(later.advantage);
+        assertEquals("source_advantage_combat_round_unverified",
+            XmmConditionalAttackRollRules.advantage(action,52,52).blocked);
+    }
+
     @Test public void bugbearWarriorLightHammerUsesItsPersistedGrappleLink()throws Exception{
         assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
         Context context=RuntimeEnvironment.getApplication();
@@ -172,6 +203,81 @@ public final class XmmConditionalAttackRollRobolectricTest {
             assertEquals("Vantagem",resolved.optString("roll_mode"));
             assertTrue(resolved.optBoolean("attack_had_advantage",false));
             assertEquals(38,db.getCombatant(target).optInt("hp"));
+        }finally{db.close();context.deleteDatabase(dbName);}
+    }
+
+    @Test public void scoutCaptainAimPersistsAndIsConsumedByItsNextAttack()throws Exception{
+        assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
+        Context context=RuntimeEnvironment.getApplication();
+        String dbName="xmm_scout_aim_"+Long.toHexString(System.nanoTime())+".db";
+        AppDb db=new AppDb(context,dbName);
+        try{
+            db.setActiveMapProfile("dnd");long scout=db.addCombatant("Scout Captain Aim",10,66,66,15,"",false);
+            long target=db.addCombatant("Aim Target",10,50,50,10,"",true);bind(db,scout,"Scout Captain",null);
+            db.setCombatRunning(true);JSONObject opening=db.nextTurn();
+            if(opening.optLong("id")!=scout)opening=db.nextTurn();
+            assertEquals(scout,opening.optLong("id"));
+            new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
+            position(db,scout,2,2);position(db,target,3,2);
+            JSONObject aim=db.applyCompiledStatblockNextAttackAdvantage(scout,"Scout Captain","Aim",
+                "ui-monster-bonus-scout-aim-test");
+            assertTrue(aim.toString(),aim.optBoolean("statblock_bonus_committed",false));
+            JSONObject preview=db.previewCompiledMonsterAttackRollMode(scout,target,
+                "Scout Captain","Shortsword");
+            assertTrue(preview.toString(),preview.optBoolean("monster_roll_preview_valid",false));
+            assertEquals("Vantagem",preview.optString("roll_mode"));
+            JSONObject hit=db.applyCompiledStatblockAttack(scout,target,"Scout Captain","Shortsword",
+                2,17,7,0,0L,-1,-1,"ui-monster-scout-aim-attack-test");
+            assertTrue(hit.toString(),hit.optBoolean("statblock_attack_committed",false));
+            JSONObject resolved=hit.getJSONObject("resolved");
+            assertTrue(resolved.optBoolean("next_attack_advantage_consumed",false));
+            assertEquals("Vantagem",resolved.optString("roll_mode"));
+            assertEquals(43,db.getCombatant(target).optInt("hp"));
+            JSONObject source= new JSONObject(db.getCombatant(scout).optString("resources_json","{}"));
+            assertFalse(source.has("xmm_next_attack_advantage"));
+        }finally{db.close();context.deleteDatabase(dbName);}
+    }
+
+    @Test public void scoutCaptainAimAppliesOnlyToFirstMultiattackRoll()throws Exception{
+        assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
+        Context context=RuntimeEnvironment.getApplication();
+        String dbName="xmm_scout_aim_multi_"+Long.toHexString(System.nanoTime())+".db";
+        AppDb db=new AppDb(context,dbName);
+        try{
+            db.setActiveMapProfile("dnd");long scout=db.addCombatant("Scout Captain Multi",10,66,66,15,"",false);
+            long target=db.addCombatant("Aim Multi Target",10,50,50,10,"",true);bind(db,scout,"Scout Captain",null);
+            db.setCombatRunning(true);JSONObject opening=db.nextTurn();
+            if(opening.optLong("id")!=scout)opening=db.nextTurn();assertEquals(scout,opening.optLong("id"));
+            new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
+            position(db,scout,2,2);position(db,target,3,2);
+            JSONObject aim=db.applyCompiledStatblockNextAttackAdvantage(scout,"Scout Captain","Aim",
+                "ui-monster-bonus-aim-multi");
+            assertTrue(aim.toString(),aim.optBoolean("statblock_bonus_committed",false));
+            JSONArray rolls=new JSONArray();
+            for(int i=0;i<2;i++){
+                String expression=i==0?"1d6 + 3 + 3d6":"1d6 + 3";
+                JSONArray specs=StatblockCombatFlowEngine.damageSpecs(expression,"piercing","",""),parts=new JSONArray();
+                for(int j=0;j<specs.length();j++){
+                    JSONObject spec=specs.getJSONObject(j);CompiledMonsterDamageGuard.Range range=
+                        CompiledMonsterDamageGuard.range(spec.optString("expression"),"",false);
+                    assertNotNull(range);parts.put(new JSONObject().put("expression",spec.optString("expression"))
+                        .put("damage_type",spec.optString("type")).put("damage_total",range.min));
+                }
+                rolls.put(new JSONObject().put("action","Shortsword").put("target_id",target)
+                    .put("natural",i==0?2:15).put("long_range_second_d20",i==0?17:0)
+                    .put("rider_save_roll",0).put("damage_components",parts));
+            }
+            JSONObject result=db.applyCompiledStatblockMultiattack(scout,"Scout Captain",rolls,
+                "ui-monster-multi-aim-test");
+            assertTrue(result.toString(),result.optBoolean("statblock_multiattack_committed",false));
+            JSONArray outcomes=result.getJSONArray("components");assertEquals(2,outcomes.length());
+            assertTrue(outcomes.getJSONObject(0).getJSONObject("resolved").optBoolean(
+                "next_attack_advantage_from_action",false));
+            assertFalse(outcomes.getJSONObject(1).getJSONObject("resolved").optBoolean(
+                "roll_advantage",false));
+            assertFalse(new JSONObject(db.getCombatant(scout).optString("resources_json","{}"))
+                .has("xmm_next_attack_advantage"));
+            assertEquals(39,db.getCombatant(target).optInt("hp"));
         }finally{db.close();context.deleteDatabase(dbName);}
     }
 

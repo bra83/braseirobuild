@@ -29,7 +29,7 @@ public final class MonsterForcedMovementRules {
     public static Spec compiled(String effectOnFail,String conditionOnFail) {
         String effect=effectOnFail==null?"":effectOnFail.trim().toLowerCase(Locale.ROOT);
         String condition=conditionOnFail==null?"":conditionOnFail.trim().toLowerCase(Locale.ROOT);
-        if(effect.isEmpty()||!effect.matches("(?:push|pull):(?:5|10|15|20|25|30|35|40|45|50|55|60)ft(?:;(?:prone|restrained))?"))
+        if(effect.isEmpty()||!effect.matches("(?:push|pull|either):(?:5|10|15|20|25|30|35|40|45|50|55|60)ft(?:;(?:prone|restrained))?"))
             return null;
         int separator=effect.indexOf(':');int suffix=effect.indexOf("ft",separator);
         String direction=effect.substring(0,separator);
@@ -102,7 +102,10 @@ public final class MonsterForcedMovementRules {
                     return blocked("forced_movement_corner_blocked",targetX,targetY,destX,destY);
             }
             int current=distance(actorX,actorY,x,y);
-            if("push".equals(spec.direction)?current<=previous:current>=previous)
+            boolean wrongDirection="push".equals(spec.direction)?current<=previous:
+                "pull".equals(spec.direction)?current>=previous:
+                    current==previous;
+            if(wrongDirection)
                 return blocked("forced_movement_wrong_direction",targetX,targetY,destX,destY);
             previous=current;
         }

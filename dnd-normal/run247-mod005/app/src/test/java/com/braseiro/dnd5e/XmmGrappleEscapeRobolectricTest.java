@@ -142,4 +142,165 @@ public final class XmmGrappleEscapeRobolectricTest {
             assertFalse(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"grappled"));
         } finally { db.close();context.deleteDatabase(dbName); }
     }
+
+    @Test public void mimicEscapeDisadvantageUsesLowerOfTwoExplicitTotals()throws Exception {
+        assertEquals(503,Xmm2025CompiledBestiaryEngine.install().optInt("statblocks_installed"));
+        JSONObject attack=CompiledStatblockEngine.runtimeProfile("Mimic").getJSONArray("actions").getJSONObject(1);
+        assertTrue(Xmm2025GrappleEscapeRules.validSource("Mimic",attack));
+        assertTrue(attack.optBoolean("escape_check_disadvantage"));
+        Context context=RuntimeEnvironment.getApplication();
+        String dbName="xmm_mimic_escape_"+Long.toHexString(System.nanoTime())+".db";
+        AppDb db=new AppDb(context,dbName);long actor=0,target=0;
+        try {
+            db.setActiveMapProfile("dnd");
+            actor=db.addCombatant("XMM Mimic",20,58,58,12,"",false);
+            target=db.addCombatant("Mimic Grapple Target",10,40,40,14,"",true);
+            bind(db,actor,"Mimic",null);bind(db,target,null,"medium");
+            db.setCombatRunning(true);assertEquals(actor,db.nextTurn().optLong("id"));
+            new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
+            position(db,actor,2,2);position(db,target,3,2);
+            org.json.JSONArray damage=new org.json.JSONArray()
+                .put(new JSONObject().put("expression","1d8 + 3").put("damage_type","bludgeoning").put("damage_total",7))
+                .put(new JSONObject().put("expression","1d8").put("damage_type","acid").put("damage_total",3));
+            JSONObject hit=db.applyCompiledStatblockAttack(actor,target,"Mimic","Pseudopod",
+                20,0,damage,0,0L,-1,-1,"ui-monster-mimic-grapple-hit");
+            assertTrue(hit.toString(),hit.optBoolean("statblock_attack_committed"));
+            JSONObject state=new JSONObject(db.getCombatant(target).optString("resources_json","{}"))
+                .optJSONObject("xmm_grapple_state");
+            assertNotNull(state);assertTrue(state.optBoolean("escape_check_disadvantage"));
+            assertEquals(target,db.nextTurn().optLong("id"));
+            JSONObject prompt=db.getXmmGrappleEscapeInfo(target);
+            assertTrue(prompt.toString(),prompt.optBoolean("grapple_escape_available"));
+            assertTrue(prompt.optBoolean("check_disadvantage"));
+            JSONObject fail=db.resolveXmmGrappleEscape(target,"athletics",18,12,
+                "ui-grapple-escape-mimic-fail");
+            assertTrue(fail.toString(),fail.optBoolean("grapple_escape_committed"));
+            assertEquals(12,fail.getJSONObject("resolved").optInt("check_total"));
+            assertFalse(fail.getJSONObject("resolved").optBoolean("success"));
+            assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"grappled"));
+            assertEquals(actor,db.nextTurn().optLong("id"));assertEquals(target,db.nextTurn().optLong("id"));
+            JSONObject success=db.resolveXmmGrappleEscape(target,"acrobatics",20,13,
+                "ui-grapple-escape-mimic-pass");
+            assertTrue(success.toString(),success.optBoolean("grapple_escape_committed"));
+            assertEquals(13,success.getJSONObject("resolved").optInt("check_total"));
+            assertTrue(success.getJSONObject("resolved").optBoolean("success"));
+            assertFalse(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"grappled"));
+            assertFalse(new JSONObject(db.getCombatant(target).optString("resources_json","{}"))
+                .has("xmm_grapple_state"));
+        } finally { db.close();context.deleteDatabase(dbName); }
+    }
+
+    @Test public void waterWeirdEscapeRemovesItsSourceLinkedRestraint()throws Exception {
+        assertEquals(503,Xmm2025CompiledBestiaryEngine.install().optInt("statblocks_installed"));
+        Context context=RuntimeEnvironment.getApplication();
+        String dbName="xmm_water_weird_grapple_"+Long.toHexString(System.nanoTime())+".db";
+        AppDb db=new AppDb(context,dbName);long actor=0,target=0;
+        try {
+            db.setActiveMapProfile("dnd");
+            actor=db.addCombatant("XMM Water Weird",20,58,58,13,"",false);
+            target=db.addCombatant("Water Weird Target",10,40,40,14,"",true);
+            bind(db,actor,"Water Weird",null);bind(db,target,null,"medium");
+            db.setCombatRunning(true);assertEquals(actor,db.nextTurn().optLong("id"));
+            new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
+            position(db,actor,2,2);position(db,target,3,2);
+            JSONObject hit=db.applyCompiledStatblockAttack(actor,target,"Water Weird","Surge",
+                20,0,12,0,"ui-monster-water-weird-grapple-hit");
+            assertTrue(hit.toString(),hit.optBoolean("statblock_attack_committed"));
+            JSONObject grabbed=db.getCombatant(target);
+            assertTrue(ConditionTokenGuard.has(grabbed.optString("conditions"),"grappled"));
+            assertTrue(ConditionTokenGuard.has(grabbed.optString("conditions"),"restrained"));
+            JSONObject state=new JSONObject(grabbed.optString("resources_json","{}"))
+                .optJSONObject("xmm_grapple_state");
+            assertNotNull(state);assertEquals("[\"grappled\",\"restrained\"]",
+                state.optJSONArray("linked_conditions").toString());
+            assertEquals(target,db.nextTurn().optLong("id"));
+            JSONObject prompt=db.getXmmGrappleEscapeInfo(target);
+            assertTrue(prompt.toString(),prompt.optBoolean("grapple_escape_available"));
+            JSONObject escaped=db.resolveXmmGrappleEscape(target,"athletics",13,
+                "ui-grapple-escape-water-weird");
+            assertTrue(escaped.toString(),escaped.optBoolean("grapple_escape_committed"));
+            assertTrue(escaped.getJSONObject("resolved").optBoolean("success"));
+            String after=db.getCombatant(target).optString("conditions");
+            assertFalse(after,ConditionTokenGuard.has(after,"grappled"));
+            assertFalse(after,ConditionTokenGuard.has(after,"restrained"));
+        } finally { db.close();context.deleteDatabase(dbName); }
+    }
+
+    @Test public void failedConstrictSaveCreatesLinkedGrappleThatCanBeEscaped()throws Exception {
+        assertEquals(503,Xmm2025CompiledBestiaryEngine.install().optInt("statblocks_installed"));
+        Context context=RuntimeEnvironment.getApplication();
+        String dbName="xmm_behir_constrict_"+Long.toHexString(System.nanoTime())+".db";
+        AppDb db=new AppDb(context,dbName);long actor=0,target=0;
+        try {
+            db.setActiveMapProfile("dnd");
+            actor=db.addCombatant("XMM Behir",20,168,168,17,"",false);
+            target=db.addCombatant("Behir Constrict Target",10,60,60,15,"",false);
+            bind(db,actor,"Behir",null);bind(db,target,null,"medium");
+            assertEquals("medium",new JSONObject(db.getCombatant(target).optString(
+                "resources_json","{}")).optString("size_category"));
+            db.setCombatRunning(true);assertEquals(actor,db.nextTurn().optLong("id"));
+            new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
+            position(db,actor,2,2);position(db,target,5,2);
+            JSONObject hit=db.applyCompiledStatblockSaveAction(actor,target,"Behir","Constrict",
+                1,20,"ui-monster-save-behir-constrict-fail");
+            assertTrue(hit.toString(),hit.optBoolean("statblock_save_committed"));
+            JSONObject grabbed=db.getCombatant(target);
+            assertTrue(grabbed.toString(),ConditionTokenGuard.has(grabbed.optString("conditions"),"grappled"));
+            assertTrue(grabbed.toString(),ConditionTokenGuard.has(grabbed.optString("conditions"),"restrained"));
+            JSONObject binding=new JSONObject(grabbed.optString("resources_json","{}"))
+                .optJSONObject("xmm_grapple_state");
+            assertNotNull(binding);assertEquals(16,binding.optInt("escape_dc"));
+            assertEquals(actor,binding.optLong("source_actor_id"));
+            assertEquals("Behir",binding.optString("source_statblock"));
+            assertEquals(target,db.nextTurn().optLong("id"));
+            JSONObject escaped=db.resolveXmmGrappleEscape(target,"athletics",16,
+                "ui-grapple-escape-behir");
+            assertTrue(escaped.toString(),escaped.optBoolean("grapple_escape_committed"));
+            String after=db.getCombatant(target).optString("conditions");
+            assertFalse(after,ConditionTokenGuard.has(after,"grappled"));
+            assertFalse(after,ConditionTokenGuard.has(after,"restrained"));
+            assertFalse(new JSONObject(db.getCombatant(target).optString("resources_json","{}"))
+                .has("xmm_grapple_state"));
+        } finally { db.close();context.deleteDatabase(dbName); }
+    }
+
+    @Test public void crocodileBitePersistsRestraintAndItsTailCannotHitThatTarget()throws Exception {
+        assertEquals(503,Xmm2025CompiledBestiaryEngine.install().optInt("statblocks_installed"));
+        Context context=RuntimeEnvironment.getApplication();
+        String dbName="xmm_crocodile_linked_bite_"+Long.toHexString(System.nanoTime())+".db";
+        AppDb db=new AppDb(context,dbName);long actor=0,target=0,other=0;
+        try {
+            db.setActiveMapProfile("dnd");
+            actor=db.addCombatant("XMM Giant Crocodile",20,85,85,14,"",false);
+            target=db.addCombatant("Crocodile Bite Target",10,60,60,14,"",true);
+            other=db.addCombatant("Crocodile Tail Target",9,60,60,14,"",true);
+            bind(db,actor,"Giant Crocodile",null);bind(db,target,null,"Large");bind(db,other,null,"Medium");
+            db.setCombatRunning(true);assertEquals(actor,db.nextTurn().optLong("id"));
+            new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
+            position(db,actor,1,2);position(db,target,2,2);position(db,other,3,2);
+            JSONObject bite=db.applyCompiledStatblockAttack(actor,target,"Giant Crocodile","Bite",
+                20,21,0,"ui-monster-xmm-croc-bite");
+            assertTrue(bite.toString(),bite.optBoolean("statblock_attack_committed"));
+            JSONObject grabbed=db.getCombatant(target);
+            assertTrue(ConditionTokenGuard.has(grabbed.optString("conditions"),"grappled"));
+            assertTrue(ConditionTokenGuard.has(grabbed.optString("conditions"),"restrained"));
+            JSONObject state=new JSONObject(grabbed.optString("resources_json","{}"))
+                .optJSONObject("xmm_grapple_state");
+            assertNotNull(state);assertEquals(15,state.optInt("escape_dc"));
+            assertEquals("[\"grappled\",\"restrained\"]",state.optJSONArray("linked_conditions").toString());
+            assertEquals(target,db.nextTurn().optLong("id"));
+            assertEquals(other,db.nextTurn().optLong("id"));
+            assertEquals(actor,db.nextTurn().optLong("id"));
+            JSONObject blocked=db.applyCompiledStatblockAttack(actor,target,"Giant Crocodile","Tail",
+                20,23,0,"ui-monster-xmm-croc-tail-same-target");
+            assertEquals("source_cannot_target_its_grappled_target",
+                blocked.optString("statblock_attack_blocked"));
+            assertTrue(new JSONObject(db.getCombatant(actor).optString("resources_json","{}"))
+                .optBoolean("action_available",false));
+            JSONObject allowed=db.applyCompiledStatblockAttack(actor,other,"Giant Crocodile","Tail",
+                20,23,0,"ui-monster-xmm-croc-tail-other-target");
+            assertTrue(allowed.toString(),allowed.optBoolean("statblock_attack_committed"));
+            assertTrue(ConditionTokenGuard.has(db.getCombatant(other).optString("conditions"),"prone"));
+        } finally { db.close();context.deleteDatabase(dbName); }
+    }
 }

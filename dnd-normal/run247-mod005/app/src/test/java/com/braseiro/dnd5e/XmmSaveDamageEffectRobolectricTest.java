@@ -130,6 +130,57 @@ public final class XmmSaveDamageEffectRobolectricTest {
         }finally{db.close();context.deleteDatabase(dbName);}
     }
 
+    @Test public void scarecrowGlarePersistsAndEndsBothSourceConditionsTogether()throws Exception {
+        assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
+        JSONObject action=null;JSONArray actions=CompiledStatblockEngine.runtimeProfile("Scarecrow").optJSONArray("actions");
+        for(int i=0;actions!=null&&i<actions.length();i++){
+            JSONObject candidate=actions.optJSONObject(i);
+            if(candidate!=null&&"Terrifying Glare".equals(candidate.optString("name")))action=candidate;
+        }
+        assertNotNull(action);assertFalse(action.optBoolean("manual_unmodeled_source_effect_required"));
+        assertEquals("frightened, paralyzed",action.optString("condition_on_fail"));
+        assertEquals("source_turn_end",action.optString("condition_duration_tick"));
+        JSONObject runtime=StatblockCombatRuntimeEngine.savingThrowAction("Scarecrow","Terrifying Glare",1);
+        assertTrue(runtime.toString(),runtime.optBoolean("resolved"));
+        assertEquals("frightened, paralyzed",runtime.optString("condition_on_fail"));
+
+        Context context=RuntimeEnvironment.getApplication();
+        String dbName="xmm_scarecrow_glare_"+Long.toHexString(System.nanoTime())+".db";
+        AppDb db=new AppDb(context,dbName);long actor=0,target=0;
+        try{
+            db.setActiveMapProfile("dnd");
+            actor=db.addCombatant("XMM Scarecrow",20,36,36,11,"",false);
+            target=db.addCombatant("XMM Glare Target",10,30,30,12,"",false);
+            bind(db,actor,"Scarecrow");db.setCombatRunning(true);
+            JSONObject targetResources=new JSONObject(db.getCombatant(target).optString("resources_json","{}"));
+            targetResources.put("size_category","Medium");ContentValues targetValues=new ContentValues();
+            targetValues.put("resources_json",targetResources.toString());
+            assertEquals(1,db.getWritableDatabase().update("combatants",targetValues,
+                "id=? AND world_profile=?",new String[]{String.valueOf(target),"dnd"}));
+            assertEquals(actor,db.nextTurn().optLong("id"));
+            JSONObject committed=db.applyCompiledStatblockSaveAction(actor,target,"Scarecrow",
+                "Terrifying Glare",1,0,"ui-monster-save-scarecrow-glare");
+            assertTrue(committed.toString(),committed.optBoolean("statblock_save_committed"));
+            JSONObject affected=db.getCombatant(target);
+            assertTrue(ConditionTokenGuard.has(affected.optString("conditions"),"frightened"));
+            assertTrue(ConditionTokenGuard.has(affected.optString("conditions"),"paralyzed"));
+            JSONArray timers=new JSONArray(affected.optString("condition_timers_json","[]"));
+            assertEquals(2,timers.length());
+            assertEquals("source_turn_end",timers.getJSONObject(0).optString("trigger"));
+            assertEquals(actor,timers.getJSONObject(0).optLong("source_actor_id"));
+            assertEquals(target,db.nextTurn().optLong("id"));
+            assertEquals(actor,db.nextTurn().optLong("id"));
+            affected=db.getCombatant(target);
+            assertTrue(ConditionTokenGuard.has(affected.optString("conditions"),"frightened"));
+            assertTrue(ConditionTokenGuard.has(affected.optString("conditions"),"paralyzed"));
+            assertEquals(target,db.nextTurn().optLong("id"));
+            affected=db.getCombatant(target);
+            assertFalse(ConditionTokenGuard.has(affected.optString("conditions"),"frightened"));
+            assertFalse(ConditionTokenGuard.has(affected.optString("conditions"),"paralyzed"));
+            assertEquals(0,new JSONArray(affected.optString("condition_timers_json","[]")).length());
+        }finally{db.close();context.deleteDatabase(dbName);}
+    }
+
     @Test public void stormGiantThunderboltPersistsBothHitConditionsUntilGiantTurn()throws Exception {
         assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
         JSONObject action=null;JSONArray actions=CompiledStatblockEngine.runtimeProfile("Storm Giant").optJSONArray("actions");
@@ -174,6 +225,102 @@ public final class XmmSaveDamageEffectRobolectricTest {
             affected=db.getCombatant(target);
             assertFalse(ConditionTokenGuard.has(affected.optString("conditions"),"blinded"));
             assertFalse(ConditionTokenGuard.has(affected.optString("conditions"),"deafened"));
+            assertEquals(0,new JSONArray(affected.optString("condition_timers_json","[]")).length());
+        }finally{db.close();context.deleteDatabase(dbName);}
+    }
+
+    @Test public void tarrasqueBellowDealsSaveDamageAndPersistsBothTimedConditions()throws Exception {
+        assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
+        JSONObject action=null;JSONArray actions=CompiledStatblockEngine.runtimeProfile("Tarrasque").optJSONArray("actions");
+        for(int i=0;actions!=null&&i<actions.length();i++){
+            JSONObject candidate=actions.optJSONObject(i);
+            if(candidate!=null&&"Thunderous Bellow".equals(candidate.optString("name")))action=candidate;
+        }
+        assertNotNull(action);assertEquals("deafened, frightened",action.optString("condition_on_fail"));
+        assertEquals("target_turn_end",action.optString("condition_duration_tick"));
+        assertFalse(action.optBoolean("manual_unmodeled_source_effect_required"));
+        JSONObject runtime=StatblockCombatRuntimeEngine.savingThrowAction("Tarrasque","Thunderous Bellow",1);
+        assertTrue(runtime.toString(),runtime.optBoolean("resolved"));
+        assertEquals("deafened, frightened",runtime.optString("condition_on_fail"));
+
+        Context context=RuntimeEnvironment.getApplication();
+        String dbName="xmm_tarrasque_bellow_"+Long.toHexString(System.nanoTime())+".db";
+        AppDb db=new AppDb(context,dbName);long actor=0,target=0;
+        try{
+            db.setActiveMapProfile("dnd");
+            actor=db.addCombatant("XMM Tarrasque",20,676,676,25,"",false);
+            target=db.addCombatant("XMM Bellow Target",10,120,120,15,"",true);
+            bind(db,actor,"Tarrasque");db.setCombatRunning(true);
+            JSONObject targetResources=new JSONObject(db.getCombatant(target).optString("resources_json","{}"));
+            targetResources.put("size_category","Medium");ContentValues targetSize=new ContentValues();
+            targetSize.put("resources_json",targetResources.toString());
+            assertEquals(1,db.getWritableDatabase().update("combatants",targetSize,
+                "id=? AND world_profile=?",new String[]{String.valueOf(target),"dnd"}));
+            assertEquals(actor,db.nextTurn().optLong("id"));
+            new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
+            position(db,actor,2,2);position(db,target,8,2);
+            JSONObject committed=db.applyCompiledStatblockSaveAction(actor,target,"Tarrasque",
+                "Thunderous Bellow",1,78,"ui-monster-save-xmm-tarrasque-bellow");
+            assertTrue(committed.toString(),committed.optBoolean("statblock_save_committed"));
+            assertEquals(42,db.getCombatant(target).optInt("hp"));
+            JSONObject affected=db.getCombatant(target);
+            assertTrue(ConditionTokenGuard.has(affected.optString("conditions"),"deafened"));
+            assertTrue(ConditionTokenGuard.has(affected.optString("conditions"),"frightened"));
+            JSONArray timers=new JSONArray(affected.optString("condition_timers_json","[]"));
+            assertEquals(2,timers.length());assertEquals(1,timers.getJSONObject(0).optInt("rounds"));
+            assertEquals("target_turn_end",timers.getJSONObject(0).optString("trigger"));
+            assertEquals(target,db.nextTurn().optLong("id"));
+            assertTrue(ConditionTokenGuard.has(db.getCombatant(target).optString("conditions"),"deafened"));
+            assertEquals(actor,db.nextTurn().optLong("id"));
+            affected=db.getCombatant(target);
+            assertFalse(ConditionTokenGuard.has(affected.optString("conditions"),"deafened"));
+            assertFalse(ConditionTokenGuard.has(affected.optString("conditions"),"frightened"));
+            assertEquals(0,new JSONArray(affected.optString("condition_timers_json","[]")).length());
+        }finally{db.close();context.deleteDatabase(dbName);}
+    }
+
+    @Test public void yuanTiPoisonSprayPersistsItsPoisonAndBlindnessUntilItsNextTurn()throws Exception {
+        assertTrue(Xmm2025CompiledBestiaryEngine.install().optBoolean("complete"));
+        JSONObject action=null;JSONArray actions=CompiledStatblockEngine.runtimeProfile("Yuan-ti Abomination").optJSONArray("actions");
+        for(int i=0;actions!=null&&i<actions.length();i++){
+            JSONObject candidate=actions.optJSONObject(i);
+            if(candidate!=null&&"Poison Spray".equals(candidate.optString("name")))action=candidate;
+        }
+        assertNotNull(action);assertEquals("poisoned, blinded",action.optString("condition_on_fail"));
+        assertEquals("source_turn_end",action.optString("condition_duration_tick"));
+        assertFalse(action.optBoolean("manual_unmodeled_source_effect_required"));
+
+        Context context=RuntimeEnvironment.getApplication();
+        String dbName="xmm_yuan_ti_poison_"+Long.toHexString(System.nanoTime())+".db";
+        AppDb db=new AppDb(context,dbName);long actor=0,target=0;
+        try{
+            db.setActiveMapProfile("dnd");
+            actor=db.addCombatant("XMM Yuan-ti Abomination",20,120,120,15,"",false);
+            target=db.addCombatant("XMM Poison Target",10,80,80,14,"",true);
+            bind(db,actor,"Yuan-ti Abomination");db.setCombatRunning(true);
+            JSONObject targetResources=new JSONObject(db.getCombatant(target).optString("resources_json","{}"));
+            targetResources.put("size_category","Medium");ContentValues targetSize=new ContentValues();
+            targetSize.put("resources_json",targetResources.toString());
+            assertEquals(1,db.getWritableDatabase().update("combatants",targetSize,
+                "id=? AND world_profile=?",new String[]{String.valueOf(target),"dnd"}));
+            assertEquals(actor,db.nextTurn().optLong("id"));
+            new ProceduralTacticalSceneGenerator(db).ensureForCurrentScene();db.ensureTacticalTokensForCombat();
+            position(db,actor,2,2);position(db,target,4,2);
+            JSONObject committed=db.applyCompiledStatblockSaveAction(actor,target,"Yuan-ti Abomination",
+                "Poison Spray",1,21,"ui-monster-save-xmm-yuan-ti-poison");
+            assertTrue(committed.toString(),committed.optBoolean("statblock_save_committed"));
+            JSONObject affected=db.getCombatant(target);
+            assertTrue(ConditionTokenGuard.has(affected.optString("conditions"),"poisoned"));
+            assertTrue(ConditionTokenGuard.has(affected.optString("conditions"),"blinded"));
+            JSONArray timers=new JSONArray(affected.optString("condition_timers_json","[]"));
+            assertEquals(2,timers.length());assertEquals("source_turn_end",timers.getJSONObject(0).optString("trigger"));
+            assertEquals(target,db.nextTurn().optLong("id"));assertTrue(ConditionTokenGuard.has(
+                db.getCombatant(target).optString("conditions"),"poisoned"));
+            assertEquals(actor,db.nextTurn().optLong("id"));affected=db.getCombatant(target);
+            assertTrue(ConditionTokenGuard.has(affected.optString("conditions"),"poisoned"));
+            assertEquals(target,db.nextTurn().optLong("id"));affected=db.getCombatant(target);
+            assertFalse(ConditionTokenGuard.has(affected.optString("conditions"),"poisoned"));
+            assertFalse(ConditionTokenGuard.has(affected.optString("conditions"),"blinded"));
             assertEquals(0,new JSONArray(affected.optString("condition_timers_json","[]")).length());
         }finally{db.close();context.deleteDatabase(dbName);}
     }

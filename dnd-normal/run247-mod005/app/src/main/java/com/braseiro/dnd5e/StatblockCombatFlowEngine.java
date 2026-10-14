@@ -155,7 +155,8 @@ public final class StatblockCombatFlowEngine{
   String riderBlock=MonsterActionEconomyGuard.attackRiderBlock(declaredAction,false);if("unsupported_multiattack_on_hit_rider".equals(riderBlock))return block("unsupported_on_hit_rider_in_legacy_flow");if(!riderBlock.isEmpty())return block(riderBlock);
   JSONObject tp=CompiledStatblockEngine.runtimeProfile(tv.optString("statblock_id"));DndRulesEngine rules=new DndRulesEngine();String cover=tv.optString("cover","");if(rules.hasTotalCover(cover))return block("target_has_total_cover");int geometryCover=geometry==null?0:geometry.coverBonus;int ac=tp.optInt("armor_class",10)+Math.max(rules.coverAcBonus(cover),geometryCover);JSONObject range=StatblockCombatRuntimeEngine.rangeProfile(av.optString("statblock_id"),action,distanceFt);if(range.optBoolean("blocked"))return range;if(range.optBoolean("out_of_range"))return block("attack_out_of_range").put("range",range);
   XmmConditionalAttackRollRules.Result sourceRollMode=XmmConditionalAttackRollRules.advantage(
-      declaredAction,tv.optInt("hp",-1),tv.optInt("max_hp",-1));
+      declaredAction,tv.optInt("hp",-1),tv.optInt("max_hp",-1),null,
+      ts.optInt("round",1)==1);
   if(!sourceRollMode.legal())return block(sourceRollMode.blocked);
   JSONObject cp=ConditionRulesEngine.attackProfile(StatblockEncounterStateEngine.conditionText(attacker),StatblockEncounterStateEngine.conditionText(target),distanceFt,true,true,false,false,DndRulesEngine.PROFILE_2014);if(cp.optBoolean("blocked",false))return block("attacker_incapacitated");if(sourceRollMode.advantage)cp.put("advantage",true);if(range.optBoolean("long_range_disadvantage",false)||(range.optBoolean("ranged",false)&&distanceFt>0d&&distanceFt<=5d&&!ConditionRulesEngine.incapacitated(StatblockEncounterStateEngine.conditionText(target)))||(geometry!=null&&(geometry.longRangeDisadvantage||geometry.unseenDisadvantage)))cp.put("disadvantage",true);int used=rules.chooseD20(firstD20,secondD20,cp.optBoolean("advantage",false),cp.optBoolean("disadvantage",false));
   JSONObject r=StatblockCombatRuntimeEngine.attack(av.optString("statblock_id"),action,used,ac,
@@ -209,7 +210,8 @@ public final class StatblockCombatFlowEngine{
    JSONObject range=StatblockCombatRuntimeEngine.rangeProfile(av.optString("statblock_id"),actions[i],distanceFt);
    if(range.optBoolean("blocked")||range.optBoolean("out_of_range"))return block("multiattack_component_out_of_range").put("component",i).put("detail",range);
    XmmConditionalAttackRollRules.Result sourceRollMode=XmmConditionalAttackRollRules.advantage(
-       componentSource,tv.optInt("hp",-1),tv.optInt("max_hp",-1));
+       componentSource,tv.optInt("hp",-1),tv.optInt("max_hp",-1),null,
+       ts.optInt("round",1)==1);
    if(!sourceRollMode.legal())return block("multiattack_component_blocked").put("component",i)
        .put("detail",block(sourceRollMode.blocked));
    JSONObject cp=ConditionRulesEngine.attackProfile(StatblockEncounterStateEngine.conditionText(attacker),StatblockEncounterStateEngine.conditionText(target),distanceFt,true,true,false,false,DndRulesEngine.PROFILE_2014);

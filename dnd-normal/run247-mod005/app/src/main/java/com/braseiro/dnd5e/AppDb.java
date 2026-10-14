@@ -2061,6 +2061,18 @@ public class AppDb extends SQLiteOpenHelper {
         }
         throw new IllegalStateException("compiled_rider_action_not_found_rollback");
     }
+    private JSONObject compiledMonsterDeclaredAction(String blockId,String actionName){
+        JSONObject profile=CompiledStatblockEngine.runtimeProfile(blockId);
+        for(String field:new String[]{"actions","special_actions"}){
+            JSONArray actions=profile.optJSONArray(field);
+            for(int i=0;actions!=null&&i<actions.length();i++){
+                JSONObject action=actions.optJSONObject(i);
+                if(action!=null&&actionName!=null&&actionName.trim().equalsIgnoreCase(
+                    action.optString("name","")))return action;
+            }
+        }
+        throw new IllegalStateException("compiled_statblock_action_not_found_rollback");
+    }
     private int compiledMonsterRiderDuration(String blockId,String actionName) {
         return MonsterConditionTimerLedger.compiledDuration(compiledMonsterRiderAction(blockId,actionName));
     }
@@ -2102,15 +2114,29 @@ public class AppDb extends SQLiteOpenHelper {
         String blockId,String actionName,String receiptToken,String declared) throws Exception {
         JSONObject target=getCombatant(targetId);
         if(target.length()==0)throw new IllegalStateException("rider_target_missing_rollback");
-        MonsterConditionRiderPlan.Result plan=MonsterConditionRiderPlan.plan(
-            declared,target.optString("conditions",""),
-            new MonsterConditionRiderPlan.Immunity(){public boolean immune(String condition){
-                return combatantConditionImmune(target,condition);
-            }});
-        if(!plan.valid())throw new IllegalStateException("unsupported_secondary_rider_rollback:"+plan.blocked);
         JSONObject sourceAction=compiledMonsterRiderAction(blockId,actionName);
-        int duration=MonsterConditionTimerLedger.compiledDuration(sourceAction);
         MonsterConditionRecoveryLedger.Spec recovery=MonsterConditionRecoveryLedger.compiled(sourceAction);
+        MonsterConditionRiderPlan.Immunity immunity=new MonsterConditionRiderPlan.Immunity(){public boolean immune(String condition){
+                return combatantConditionImmune(target,condition);
+            }};
+        MonsterConditionRiderPlan.Result plan=MonsterConditionRiderPlan.plan(
+            declared,target.optString("conditions",""),immunity);
+        if(recovery!=null&&!recovery.linkedConditions.isEmpty()){
+            if(plan.immune.contains(recovery.condition)){
+                // A dependent condition such as Paralyzed while Poisoned must
+                // not survive immunity to the prerequisite condition.
+                plan=MonsterConditionRiderPlan.plan(recovery.condition,
+                    target.optString("conditions",""),immunity);
+            }else if(plan.applied.contains(recovery.condition)){
+                StringBuilder bundled=new StringBuilder(declared);
+                for(String linked:recovery.linkedConditions)
+                    if(!ConditionTokenGuard.has(declared,linked))bundled.append(", ").append(linked);
+                plan=MonsterConditionRiderPlan.plan(bundled.toString(),
+                    target.optString("conditions",""),immunity);
+            }
+        }
+        if(!plan.valid())throw new IllegalStateException("unsupported_secondary_rider_rollback:"+plan.blocked);
+        int duration=MonsterConditionTimerLedger.compiledDuration(sourceAction);
         String beforeTimers=target.optString("condition_timers_json","[]");
         String tick=sourceAction.optString("condition_duration_tick","target_turn_start");
         boolean skipFirstSourceEnd="source_turn_end".equals(tick)&&
@@ -2146,6 +2172,33 @@ public class AppDb extends SQLiteOpenHelper {
             .put("recovery_save_ability",recovery==null?"":recovery.ability)
             .put("condition_timers_before",new JSONArray(beforeTimers))
             .put("condition_timers_after",timers);
+    }
+    private JSONObject commitXmmMovementSpeedEffect(long sourceActorId,long targetId,
+        String blockId,String actionName,String operationToken,JSONObject sourceAction)throws Exception{
+        XmmMovementSpeedEffectLedger.Spec spec=XmmMovementSpeedEffectLedger.compiled(sourceAction);
+        if(spec==null)throw new IllegalStateException("compiled_speed_effect_invalid_rollback");
+        JSONObject target=getCombatant(targetId),state=getCombatState();
+        if(target.length()==0)throw new IllegalStateException("speed_effect_target_missing_rollback");
+        JSONObject resources=combatResources(target);
+        JSONArray prior=new JSONArray(resources.optString(XmmMovementSpeedEffectLedger.FIELD,"[]"));
+        XmmMovementSpeedEffectLedger.Transition transition=XmmMovementSpeedEffectLedger.apply(prior,
+            spec,sourceActorId,targetId,blockId,actionName,operationToken+"-speed-effect",
+            Math.max(1,state.optInt("round_no",1)),Math.max(0,state.optInt("turn_index",0)));
+        if(!transition.valid())throw new IllegalStateException("speed_effect_commit_blocked_rollback:"+transition.blocked);
+        resources.put(XmmMovementSpeedEffectLedger.FIELD,transition.effects);
+        ContentValues values=new ContentValues();values.put("resources_json",resources.toString());
+        requireCombatantWrite(getWritableDatabase().update("combatants",values,
+            "id=? AND world_profile=?",new String[]{String.valueOf(targetId),getActiveMapProfile()}));
+        JSONObject saved=getCombatant(targetId);
+        if(!transition.effects.toString().equals(new JSONArray(combatResources(saved)
+            .optString(XmmMovementSpeedEffectLedger.FIELD,"[]")).toString()))
+            throw new IllegalStateException("speed_effect_readback_rollback");
+        syncCombatantHeroState(target,target.optInt("hp"),target.optInt("temp_hp"),
+            target.optString("conditions",""),resources);
+        return new JSONObject().put("schema",XmmMovementSpeedEffectLedger.SCHEMA)
+            .put("target_id",targetId).put("source_actor_id",sourceActorId)
+            .put("feet",spec.feet).put("expires_on",spec.expiresOn)
+            .put("effects_after",transition.effects);
     }
     /** Commit a source-declared no-save on-hit condition. An immune target is
      * receipted as immune without a timer. If the condition is already present,
@@ -2282,6 +2335,19 @@ public class AppDb extends SQLiteOpenHelper {
                 if(!plan.alreadyPresent.isEmpty()&&!sameOwnedGrapple)return "on_hit_condition_ownership_ambiguous";
                 JSONObject targetResources=combatResources(target);
                 if(targetResources.has("xmm_grapple_state")&&!sameOwnedGrapple)return "on_hit_condition_ownership_ambiguous";
+                int capacity=sourceAction.optInt("grapple_target_capacity",0);
+                if(capacity>0&&!sameOwnedGrapple){
+                    int held=0;
+                    for(JSONObject current:listCombatants()){
+                        if(current.optLong("id",0)==targetId)continue;
+                        if(!ConditionTokenGuard.has(current.optString("conditions",""),"grappled"))continue;
+                        JSONObject binding=combatResources(current).optJSONObject("xmm_grapple_state");
+                        if(binding!=null&&binding.optLong("source_actor_id",0)==sourceActorId&&
+                            blockId.equals(binding.optString("source_statblock",""))&&
+                            actionName.equals(binding.optString("source_action","")))held++;
+                    }
+                    if(held>=capacity)return "xmm_grapple_tentacle_capacity_reached";
+                }
             }
         }
         if(sourceAction.has("condition_ends_when")){
@@ -2350,7 +2416,21 @@ public class AppDb extends SQLiteOpenHelper {
         }catch(Exception invalid){try{return out.put("hostility_ledger_blocked","malformed_hostility_ledger");}
             catch(Exception ignored){return out;}}
     }
-    /** Reconcile the two source-declared automatic endings of an XMM grapple. */
+    private String removeXmmGrappleLinkedConditions(String conditions,JSONObject state){
+        String after=conditions==null?"":conditions;
+        JSONArray linked=state==null?null:state.optJSONArray("linked_conditions");
+        if(linked==null)return ConditionRulesEngine.remove(after,"grappled");
+        boolean grappled=false;
+        for(int i=0;i<linked.length();i++){
+            String condition=ConditionTokenGuard.canonical(linked.optString(i,""));
+            if(!"agarrado".equals(condition)&&!"impedido".equals(condition))
+                return ConditionRulesEngine.remove(after,"grappled");
+            if("agarrado".equals(condition))grappled=true;
+            after=ConditionRulesEngine.remove(after,condition);
+        }
+        return grappled?after:ConditionRulesEngine.remove(after,"grappled");
+    }
+    /** Reconcile the source-declared automatic endings of an XMM grapple. */
     private JSONArray reconcileXmmGrappleStatesInternal()throws Exception{
         JSONArray released=new JSONArray();
         for(JSONObject target:listCombatants()){
@@ -2363,6 +2443,11 @@ public class AppDb extends SQLiteOpenHelper {
             JSONObject sourceResources=combatResources(source);
             String monster=state.optString("source_statblock",""),actionName=state.optString("source_action","");
             JSONObject action=compiledMonsterRiderAction(monster,actionName);
+            JSONArray linked=Xmm2025GrappleEscapeRules.conditions(monster,action);
+            JSONArray savedLinked=state.optJSONArray("linked_conditions");
+            boolean linkedStateValid=savedLinked==null?
+                linked.length()==1&&!Xmm2025GrappleEscapeRules.escapeCheckDisadvantage(monster,action):
+                savedLinked.toString().equals(linked.toString());
             String reason="";
             if(sourceId<=0||sourceId==targetId||source.length()==0||source.optInt("hp",0)<=0||
                 sourceResources.optBoolean("dead",false)||
@@ -2370,8 +2455,11 @@ public class AppDb extends SQLiteOpenHelper {
                 !monster.equals(sourceResources.optString("block_id",""))||
                 !Xmm2025GrappleEscapeRules.validSource(monster,action)||
                 state.optInt("escape_dc",0)!=action.optInt("escape_dc")||
+                state.optBoolean("escape_check_disadvantage",false)!=
+                    Xmm2025GrappleEscapeRules.escapeCheckDisadvantage(monster,action)||
+                !linkedStateValid||
                 !state.optString("source_pointer","").equals(
-                    Xmm2025AttackConditionEngine.profile(monster,actionName).optString("ptr"))||
+                    Xmm2025GrappleEscapeRules.profile(monster,actionName).optString("ptr"))||
                 !state.optString("source_blob_sha1","").equals(Xmm2025AttackConditionEngine.SOURCE_BLOB)){
                 reason="grappler_incapacitated_or_source_invalid";
             }else{
@@ -2390,7 +2478,7 @@ public class AppDb extends SQLiteOpenHelper {
             }
             if(reason.isEmpty())continue;
             String before=target.optString("conditions","");
-            String after=ConditionRulesEngine.remove(before,"grappled");
+            String after=removeXmmGrappleLinkedConditions(before,state);
             targetResources.remove("xmm_grapple_state");
             int movementMax=targetResources.optInt("movement_max_ft",0);
             if(movementMax<=0&&!ConditionRulesEngine.speedZero(after)){
@@ -2434,15 +2522,26 @@ public class AppDb extends SQLiteOpenHelper {
             String monster=state.optString("source_statblock",""),action=state.optString("source_action","");
             JSONObject compiled=compiledMonsterRiderAction(monster,action);
             JSONObject sourceResources=combatResources(source);
-            JSONObject sourcePin=Xmm2025AttackConditionEngine.profile(monster,action);
+            JSONObject sourcePin=Xmm2025GrappleEscapeRules.profile(monster,action);
             String targetSize=verifiedCombatantSizeCategory(target);
+            JSONArray linked=Xmm2025GrappleEscapeRules.conditions(monster,compiled);
+            JSONArray savedLinked=state.optJSONArray("linked_conditions");
+            boolean linkedConditionsPresent=savedLinked==null?
+                linked.length()==1&&!Xmm2025GrappleEscapeRules.escapeCheckDisadvantage(monster,compiled):
+                savedLinked.toString().equals(linked.toString());
+            if(linkedConditionsPresent)for(int li=0;li<linked.length();li++)
+                if(!ConditionTokenGuard.has(target.optString("conditions",""),linked.optString(li)))
+                    linkedConditionsPresent=false;
             if(sourceId<=0||sourceId==targetId||source.length()==0||
                 !monster.equals(sourceResources.optString("block_id",""))||
                 !Xmm2025GrappleEscapeRules.validSource(monster,compiled)||
                 state.optInt("escape_dc",0)!=compiled.optInt("escape_dc")||
+                state.optBoolean("escape_check_disadvantage",false)!=
+                    Xmm2025GrappleEscapeRules.escapeCheckDisadvantage(monster,compiled)||
                 !state.optString("source_pointer","").equals(sourcePin.optString("ptr"))||
                 !state.optString("source_blob_sha1","").equals(Xmm2025AttackConditionEngine.SOURCE_BLOB)||
                 !state.optString("max_target_size","").equals(compiled.optString("condition_max_target_size"))||
+                !linkedConditionsPresent||
                 !Xmm2025GrappleEscapeRules.targetEligible(monster,compiled,targetSize))
                 return out.put("grapple_escape_available",false).put("reason","grapple_source_state_invalid");
             return out.put("grapple_escape_available",true).put("target_id",targetId)
@@ -2450,6 +2549,7 @@ public class AppDb extends SQLiteOpenHelper {
                 .put("source_statblock",monster).put("source_action",action)
                 .put("escape_dc",state.optInt("escape_dc"))
                 .put("check_options",new JSONArray().put("athletics").put("acrobatics"))
+                .put("check_disadvantage",Xmm2025GrappleEscapeRules.escapeCheckDisadvantage(monster,compiled))
                 .put("action_cost","action").put("auto_rolls",false);
         }catch(Exception invalid){try{return out.put("grapple_escape_available",false)
             .put("reason","grapple_source_state_invalid");}catch(Exception ignored){return out;}}
@@ -2457,6 +2557,11 @@ public class AppDb extends SQLiteOpenHelper {
     /** Apply a caller-rolled XPHB Escape a Grapple check and persist the result. */
     public JSONObject resolveXmmGrappleEscape(final long targetId,final String skill,
         final int checkTotal,final String token){
+        return resolveXmmGrappleEscape(targetId,skill,checkTotal,Integer.MIN_VALUE,token);
+    }
+    /** Resolves a source-disadvantaged escape check from both real d20 totals. */
+    public JSONObject resolveXmmGrappleEscape(final long targetId,final String skill,
+        final int firstCheckTotal,final int secondCheckTotal,final String token){
         return combatAtomic("xmm_grapple_escape",new CombatAtomicWork(){public JSONObject run()throws Exception{
             JSONObject out=new JSONObject(),target=getCombatant(targetId);
             if(token==null||!token.startsWith("ui-grapple-escape-")||!CombatActionReceiptGuard.validToken(token))
@@ -2474,7 +2579,8 @@ public class AppDb extends SQLiteOpenHelper {
                 return out.put("grapple_escape_blocked",info.optString("reason","grapple_escape_unavailable"));
             if(target.length()==0||target.optInt("hp",0)<=0||getCombatState().optInt("running",0)!=1)
                 return out.put("grapple_escape_blocked","invalid_or_inactive_target");
-            JSONObject resolved=Xmm2025GrappleEscapeRules.resolveEscape(skill,checkTotal,info.optInt("escape_dc"));
+            JSONObject resolved=Xmm2025GrappleEscapeRules.resolveEscape(skill,firstCheckTotal,
+                secondCheckTotal,info.optInt("escape_dc"),info.optBoolean("check_disadvantage",false));
             if(!resolved.optBoolean("resolved",false))return out.put("grapple_escape_blocked",resolved.optString("reason"));
             JSONObject resources=combatResources(target);
             String turnBlock=CombatTurnGuard.spendBlock("action",getCombatState().optInt("running",0)==1,
@@ -2489,7 +2595,7 @@ public class AppDb extends SQLiteOpenHelper {
             target=getCombatant(targetId);resources=combatResources(target);
             String before=target.optString("conditions","");
             if(resolved.optBoolean("success",false)){
-                String after=ConditionRulesEngine.remove(before,"grappled");
+                String after=removeXmmGrappleLinkedConditions(before,resources.optJSONObject("xmm_grapple_state"));
                 resources.remove("xmm_grapple_state");
                 // Keep the current turn's movement budget. Escape does not grant a fresh move.
                 ContentValues v=new ContentValues();v.put("conditions",after);v.put("resources_json",resources.toString());
@@ -2587,7 +2693,7 @@ public class AppDb extends SQLiteOpenHelper {
             String signature="damage:"+amount+":"+(damageType==null?"":damageType)+":"+critical+":"+nonlethalMelee;
             String decision=combatReceiptDecision(receiptResources,operationToken,signature,id);
             if(!decision.isEmpty())return combatReceiptResponse(c,"damage",decision);
-            
+
             if("mystara".equals(getActiveMapProfile())){int hp=Math.max(0,c.optInt("hp")-amount);ContentValues v=new ContentValues();v.put("hp",hp);v.put("temp_hp",0);recordCombatReceipt(receiptResources,operationToken,signature,id);v.put("resources_json",receiptResources.toString());
                 requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}));return getCombatant(id).put("applied_damage",amount);}
             String res=c.optString("resistances"),vul=c.optString("vulnerabilities"),imm=c.optString("immunities"),conditions=c.optString("conditions");if(ConditionRulesEngine.resistantToAllDamage(conditions))res=(res.trim().isEmpty()?"all":res+", all");
@@ -2756,13 +2862,15 @@ public class AppDb extends SQLiteOpenHelper {
                 return out.put("monster_roll_preview_blocked",geometry.optString("attack_geometry_blocked","invalid_geometry"));
             XmmConditionalAttackRollRules.Result sourceMode=XmmConditionalAttackRollRules.advantage(
                 sourceAction,target.optInt("hp",-1),target.optInt("max_hp",-1),
-                xmmTargetGrappledByAttacker(actorId,targetId));
+                xmmTargetGrappledByAttacker(actorId,targetId),
+                getCombatState().optInt("round_no",1)==1);
             if(!sourceMode.legal())return out.put("monster_roll_preview_blocked",sourceMode.blocked);
+            boolean aimed=compiledNextAttackAdvantage(actorId).length()>0;
             MonsterAttackRollModeRules.Result rule=MonsterAttackRollModeRules.evaluate(
                 geometry.optString("attack_mode",""),geometry.optInt("distance_ft",0),
                 geometry.optBoolean("long_range_disadvantage",false),
                 actor.optString("conditions",""),target.optString("conditions",""),
-                geometry.optBoolean("additional_adjacent_hostile",false),sourceMode.advantage);
+                geometry.optBoolean("additional_adjacent_hostile",false),sourceMode.advantage||aimed);
             if(!rule.legal())return out.put("monster_roll_preview_blocked",rule.blocked);
             return out.put("monster_roll_preview_valid",true)
                 .put("roll_mode",rule.modeName()).put("second_d20_required",rule.mode!=MonsterAttackRollModeRules.NORMAL)
@@ -2770,11 +2878,72 @@ public class AppDb extends SQLiteOpenHelper {
                 .put("additional_hostile_id",geometry.optLong("additional_hostile_id",0))
                 .put("hostility_selection_source",geometry.optString("hostility_selection_source","none"))
                 .put("critical_on_hit_from_condition",rule.criticalOnHit)
+                .put("next_attack_advantage_from_action",aimed)
                 .put("effective_ac",geometry.optInt("effective_ac"))
                 .put("distance_ft",geometry.optInt("distance_ft"));
         }catch(Exception failure){AppLog.e("AppDb","Falha ao visualizar modo de ataque compilado",failure);
             try{return out.put("monster_roll_preview_blocked","preview_runtime_error");}
             catch(Exception ignored){return out;}}
+    }
+
+    /** A one-roll bonus-action benefit is valid only in the exact source turn that created it. */
+    private JSONObject compiledNextAttackAdvantage(long actorId){
+        try{
+            JSONObject actor=getCombatant(actorId),state=getCombatState();
+            if(actor.length()==0||actor.optInt("active_turn",0)!=1||state.optInt("running",0)!=1)
+                return new JSONObject();
+            JSONObject resources=combatResources(actor),effect=resources.optJSONObject("xmm_next_attack_advantage");
+            if(effect==null||!"xmm_next_attack_advantage_v1".equals(effect.optString("schema",""))||
+                effect.optLong("actor_id",0)!=actorId||effect.optInt("round_no",0)!=state.optInt("round_no",-1)||
+                effect.optInt("turn_index",-1)!=state.optInt("turn_index",-2))return new JSONObject();
+            String block=effect.optString("source_statblock",""),action=effect.optString("source_action","");
+            JSONObject source=compiledMonsterDeclaredAction(block,action);
+            if(!source.optBoolean("grants_advantage_next_attack_this_turn",false)||
+                !"bonus_action".equals(source.optString("category","")))return new JSONObject();
+            return effect;
+        }catch(Exception ignored){return new JSONObject();}
+    }
+
+    /** Execute a source-compiled bonus action that grants advantage on the next attack roll. */
+    public JSONObject applyCompiledStatblockNextAttackAdvantage(final long actorId,
+        final String statblockId,final String action,final String token){
+        return combatAtomic("compiled_statblock_next_attack_advantage",new CombatAtomicWork(){
+            public JSONObject run()throws Exception{
+                JSONObject out=new JSONObject(),actor=getCombatant(actorId);
+                if(token==null||!token.startsWith("ui-monster-bonus-")||!CombatActionReceiptGuard.validToken(token))
+                    return out.put("statblock_bonus_blocked","invalid_operation_token");
+                String key=combatReceiptKey(actorId,token+"-bonus");
+                if(hasEffectReceipt(key))return out.put("statblock_bonus_blocked","already_resolved_or_replayed");
+                if(actor.length()==0||actor.optInt("is_player",0)==1||actor.optInt("hp",0)<=0)
+                    return out.put("statblock_bonus_blocked","invalid_monster_actor");
+                JSONObject resources=combatResources(actor);String id=resources.optString("block_id","").trim();
+                String authority=CompiledMonsterActionGuard.statblockBlock(id,statblockId);
+                if(!authority.isEmpty())return out.put("statblock_bonus_blocked",authority);
+                JSONObject source=compiledMonsterDeclaredAction(id,action);
+                if(!source.optBoolean("grants_advantage_next_attack_this_turn",false)||
+                    !"bonus_action".equals(source.optString("category","")))
+                    return out.put("statblock_bonus_blocked","unsupported_compiled_bonus_action");
+                JSONObject state=getCombatState();
+                String turnBlock=CombatTurnGuard.spendBlock("bonus_action",state.optInt("running",0)==1,
+                    actor.optInt("active_turn",0)==1,ConditionRulesEngine.incapacitated(
+                        actor.optString("conditions","")),actor.optInt("hp",0),resources.optBoolean("dead",false),
+                    actor.optInt("reaction_used",0)==1,resources.optBoolean("action_available",true),
+                    resources.optBoolean("bonus_action_available",true));
+                if(!turnBlock.isEmpty())return out.put("statblock_bonus_blocked",turnBlock);
+                resources.put("bonus_action_available",false);
+                recordCombatReceipt(resources,token+"-turn","spend:bonus_action",actorId);
+                JSONObject effect=new JSONObject().put("schema","xmm_next_attack_advantage_v1")
+                    .put("actor_id",actorId).put("source_statblock",id).put("source_action",action)
+                    .put("round_no",state.optInt("round_no",1)).put("turn_index",state.optInt("turn_index",0))
+                    .put("effect_key",key);
+                resources.put("xmm_next_attack_advantage",effect);
+                ContentValues write=new ContentValues();write.put("resources_json",resources.toString());
+                requireCombatantWrite(getWritableDatabase().update("combatants",write,
+                    "id=? AND world_profile=?",new String[]{String.valueOf(actorId),getActiveMapProfile()}));
+                recordEffectReceipt(key,effect.toString());
+                return out.put("statblock_bonus_committed",true).put("statblock_bonus_receipt",key)
+                    .put("resolved",effect);
+            }});
     }
 
     /** Resolve only a valid, persisted source-to-target XMM grapple link. */
@@ -2943,21 +3112,37 @@ public class AppDb extends SQLiteOpenHelper {
                 resources.optBoolean("bonus_action_available",true));
             if(!turnBlock.isEmpty())return out.put("statblock_attack_blocked",turnBlock);
             if(target.optInt("hp",0)<=0||combatantHasTotalCover(targetId))return out.put("statblock_attack_blocked","invalid_or_covered_target");
+            String forbiddenGrappleAction=sourceAction.optString(
+                "cannot_target_own_grappled_target_with_action","").trim();
+            if(!forbiddenGrappleAction.isEmpty()){
+                if(!"Tail".equals(action)||!"Bite".equals(forbiddenGrappleAction)||
+                    !("Giant Crocodile".equals(id)||"Tyrannosaurus Rex".equals(id)))
+                    return out.put("statblock_attack_blocked","unsupported_grapple_target_exclusion");
+                Boolean ownedGrapple=xmmTargetGrappledByAttacker(actorId,targetId);
+                if(ownedGrapple==null&&ConditionTokenGuard.has(
+                    target.optString("conditions",""),"grappled"))
+                    return out.put("statblock_attack_blocked","grapple_ownership_unverified");
+                if(Boolean.TRUE.equals(ownedGrapple))
+                    return out.put("statblock_attack_blocked","source_cannot_target_its_grappled_target");
+            }
             JSONObject geometry=compiledStatblockAttackGeometry(actorId,targetId,id,action,additionalThreatId);
             if(!geometry.optBoolean("attack_geometry_valid",false))return out.put("statblock_attack_blocked",
                 geometry.optString("attack_geometry_blocked","geometry_unavailable")).put("attack_geometry",geometry);
             if(natural<1||natural>20||(damageComponents==null&&damageTotal<0)||
                 riderSaveRoll<0||riderSaveRoll>100)
                 return out.put("statblock_attack_blocked","invalid_roll_input");
+            Boolean ownedGrappleForDamage=xmmTargetGrappledByAttacker(actorId,targetId);
             XmmConditionalAttackRollRules.Result sourceRollMode=
                 XmmConditionalAttackRollRules.advantage(sourceAction,target.optInt("hp",-1),
-                    target.optInt("max_hp",-1),xmmTargetGrappledByAttacker(actorId,targetId));
+                    target.optInt("max_hp",-1),ownedGrappleForDamage,
+                    getCombatState().optInt("round_no",1)==1);
             if(!sourceRollMode.legal())return out.put("statblock_attack_blocked",sourceRollMode.blocked);
+            boolean nextAttackAdvantage=compiledNextAttackAdvantage(actorId).length()>0;
             MonsterAttackRollModeRules.Result context=MonsterAttackRollModeRules.evaluate(
                 geometry.optString("attack_mode",""),geometry.optInt("distance_ft",0),
                 geometry.optBoolean("long_range_disadvantage",false),
                 actor.optString("conditions",""),target.optString("conditions",""),
-                geometry.optBoolean("additional_adjacent_hostile",false),sourceRollMode.advantage);
+                geometry.optBoolean("additional_adjacent_hostile",false),sourceRollMode.advantage||nextAttackAdvantage);
             String rollBlock=context.blockDice(natural,secondNatural);
             if(!rollBlock.isEmpty())return out.put("statblock_attack_blocked",rollBlock);
             final int effectiveNatural=context.effective(natural,secondNatural);
@@ -2966,7 +3151,7 @@ public class AppDb extends SQLiteOpenHelper {
             JSONObject resolved=StatblockCombatRuntimeEngine.attack(id,action,effectiveNatural,
                  geometry.optInt("effective_ac",effectiveCombatantAc(targetId)),
                  actor.optInt("hp",-1),actor.optInt("max_hp",-1),chargeQualified,
-                 context.mode==MonsterAttackRollModeRules.ADVANTAGE);
+                 context.mode==MonsterAttackRollModeRules.ADVANTAGE,ownedGrappleForDamage);
             if(!resolved.optBoolean("resolved",false))return out.put("statblock_attack_blocked",resolved.optString("reason","statblock_attack_unresolved"));
             if(chargeQualification.optBoolean("charge_supported",false)){
                 if(resolved.optBoolean("hit",false)&&resolved.optBoolean("charge_qualified",false)&&
@@ -2979,6 +3164,7 @@ public class AppDb extends SQLiteOpenHelper {
                 resolved.put("critical",true).put("critical_by_condition",true);
             resolved.put("roll_mode",context.modeName())
                 .put("roll_advantage",context.mode==MonsterAttackRollModeRules.ADVANTAGE)
+                .put("next_attack_advantage_from_action",nextAttackAdvantage)
                 .put("roll_disadvantage",context.mode==MonsterAttackRollModeRules.DISADVANTAGE)
                 .put("adjacent_hostile_disadvantage",context.adjacentHostile)
                 .put("additional_hostile_id",geometry.optLong("additional_hostile_id",0))
@@ -3156,6 +3342,11 @@ public class AppDb extends SQLiteOpenHelper {
                     action,token,onHitCondition);
                 resolved.put("on_hit_condition_transition",transition);
             }
+            if(resolved.optBoolean("hit",false)&&sourceAction.optInt("speed_reduction_ft",0)>0){
+                JSONObject transition=commitXmmMovementSpeedEffect(actorId,targetId,id,action,
+                    token,sourceAction);
+                resolved.put("movement_speed_transition",transition);
+            }
             if(resolved.optBoolean("hit",false)&&
                 sourceAction.optInt("healing_suppression_duration_rounds",0)>0){
                 JSONObject transition=commitCompiledHealingSuppression(actorId,targetId,id,action,token);
@@ -3170,6 +3361,16 @@ public class AppDb extends SQLiteOpenHelper {
                 ContentValues rechargeWrite=new ContentValues();rechargeWrite.put("resources_json",resources.toString());
                 requireCombatantWrite(getWritableDatabase().update("combatants",rechargeWrite,
                     "id=? AND world_profile=?",new String[]{String.valueOf(actorId),getActiveMapProfile()}));
+            }
+            if(nextAttackAdvantage){
+                JSONObject liveActor=getCombatant(actorId),liveResources=combatResources(liveActor);
+                if(compiledNextAttackAdvantage(actorId).length()==0)
+                    throw new IllegalStateException("next_attack_advantage_source_changed_rollback");
+                liveResources.remove("xmm_next_attack_advantage");ContentValues clear=new ContentValues();
+                clear.put("resources_json",liveResources.toString());
+                requireCombatantWrite(getWritableDatabase().update("combatants",clear,
+                    "id=? AND world_profile=?",new String[]{String.valueOf(actorId),getActiveMapProfile()}));
+                resolved.put("next_attack_advantage_consumed",true);
             }
             resolved.put("attack_geometry",geometry).put("resource_cost",resourceCost)
                 .put("first_natural_d20",natural)
@@ -3220,6 +3421,7 @@ public class AppDb extends SQLiteOpenHelper {
             java.util.HashMap<Long,String> stagedConditions=new java.util.HashMap<Long,String>();
             long[] targets=new long[count];int[] damages=new int[count],mitigatedDamages=new int[count];
             JSONObject[] typedDamagePlans=new JSONObject[count];
+            boolean nextAttackAdvantage=compiledNextAttackAdvantage(actorId).length()>0;
             for(int i=0;i<count;i++){
                 JSONObject step=rolls.optJSONObject(i);
                 if(step==null)return out.put("statblock_multiattack_blocked","missing_component_"+i);
@@ -3269,7 +3471,8 @@ public class AppDb extends SQLiteOpenHelper {
                     actor.optString("conditions",""),
                     stagedConditions.containsKey(targetId)?stagedConditions.get(targetId):
                         target.optString("conditions",""),
-                    geometry.optBoolean("additional_adjacent_hostile",false),sourceRollMode.advantage);
+                    geometry.optBoolean("additional_adjacent_hostile",false),sourceRollMode.advantage||
+                        (i==0&&nextAttackAdvantage));
                 String rollBlock=context.blockDice(natural,secondNatural);
                 if(!rollBlock.isEmpty())return out.put("statblock_multiattack_blocked",rollBlock+"_"+i);
                 int effectiveNatural=context.effective(natural,secondNatural);
@@ -3284,6 +3487,7 @@ public class AppDb extends SQLiteOpenHelper {
                 if(context.criticalOnHit&&attack.optBoolean("hit",false))
                     attack.put("critical",true).put("critical_by_condition",true);
                 attack.put("roll_mode",context.modeName())
+                    .put("next_attack_advantage_from_action",i==0&&nextAttackAdvantage)
                     .put("roll_advantage",context.mode==MonsterAttackRollModeRules.ADVANTAGE)
                     .put("roll_disadvantage",context.mode==MonsterAttackRollModeRules.DISADVANTAGE)
                     .put("adjacent_hostile_disadvantage",context.adjacentHostile)
@@ -3425,7 +3629,8 @@ public class AppDb extends SQLiteOpenHelper {
                 XmmConditionalAttackRollRules.Result liveSourceMode=
                     XmmConditionalAttackRollRules.advantage(liveAction,
                         liveTarget.optInt("hp",-1),liveTarget.optInt("max_hp",-1),
-                        xmmTargetGrappledByAttacker(actorId,targetId));
+                        xmmTargetGrappledByAttacker(actorId,targetId),
+                        getCombatState().optInt("round_no",1)==1);
                 if(!liveSourceMode.legal())
                     throw new IllegalStateException("multiattack_dynamic_source_roll_mode_rollback_"+i);
                 MonsterAttackRollModeRules.Result liveMode=MonsterAttackRollModeRules.evaluate(
@@ -3434,7 +3639,8 @@ public class AppDb extends SQLiteOpenHelper {
                     getCombatant(actorId).optString("conditions",""),
                     liveTarget.optString("conditions",""),
                     liveGeometry.optBoolean("additional_adjacent_hostile",false),
-                    liveSourceMode.advantage);
+                    liveSourceMode.advantage||(i==0&&nextAttackAdvantage&&
+                        compiledNextAttackAdvantage(actorId).length()>0));
                 if(!liveMode.legal()||!liveMode.modeName().equals(attack.optString("roll_mode",""))||
                     liveMode.advantage!=attack.optBoolean("roll_advantage",false)||
                     liveMode.disadvantage!=attack.optBoolean("roll_disadvantage",false)||
@@ -3474,6 +3680,15 @@ public class AppDb extends SQLiteOpenHelper {
                 attack.put("attack_geometry",geometries[i]);
                 recordEffectReceipt(combatReceiptKey(actorId,stepToken+"-proof"),attack.toString());
                 outcomes.put(outcome.put("resolved",attack).put("rider",rider).put("damage",damageResult));
+            }
+            if(nextAttackAdvantage){
+                JSONObject liveActor=getCombatant(actorId),liveResources=combatResources(liveActor);
+                if(compiledNextAttackAdvantage(actorId).length()==0)
+                    throw new IllegalStateException("multiattack_next_attack_advantage_source_changed_rollback");
+                liveResources.remove("xmm_next_attack_advantage");ContentValues clear=new ContentValues();
+                clear.put("resources_json",liveResources.toString());
+                requireCombatantWrite(getWritableDatabase().update("combatants",clear,
+                    "id=? AND world_profile=?",new String[]{String.valueOf(actorId),getActiveMapProfile()}));
             }
             JSONObject proof=new JSONObject().put("schema","statblock_multiattack_v1").put("actor_id",actorId)
                 .put("statblock_id",id).put("count",count).put("components",outcomes);
@@ -3663,9 +3878,25 @@ public class AppDb extends SQLiteOpenHelper {
                 if(!sourceAction.optString("effect_on_fail","").equals(resolved.optString("effect_on_fail",""))||
                     !sourceAction.optString("condition_on_fail","").equals(resolved.optString("condition_on_fail","")))
                     return out.put("statblock_save_blocked","compiled_effect_source_changed");
+                boolean saveGrapple=Xmm2025GrappleEscapeRules.validSource(id,sourceAction);
+                if(saveGrapple){
+                    String targetSize=verifiedCombatantSizeCategory(target);
+                    if(!MonsterOnHitProneRules.validSize(targetSize))
+                        return out.put("statblock_save_blocked","target_size_not_verified");
+                    if(!Xmm2025GrappleEscapeRules.targetEligible(id,sourceAction,targetSize))
+                        conditionOnFailToApply="";
+                    else{
+                        JSONObject targetResources=combatResources(target);
+                        boolean sameOwned=compiledGrappleOwnedBy(actorId,targetId,id,action);
+                        if((targetResources.has("xmm_grapple_state")&&!sameOwned)||
+                            (!sameOwned&&(ConditionTokenGuard.has(target.optString("conditions",""),"grappled")||
+                                ConditionTokenGuard.has(target.optString("conditions",""),"restrained"))))
+                            return out.put("statblock_save_blocked","on_hit_condition_ownership_ambiguous");
+                    }
+                }
                 forced=MonsterForcedMovementRules.compiled(sourceAction.optString("effect_on_fail",""),
                     sourceAction.optString("condition_on_fail",""));
-                if(!MonsterEffectOnFailGuard.supported(resolved.optString("condition_on_fail",""),
+                if(!saveGrapple&&!MonsterEffectOnFailGuard.supported(resolved.optString("condition_on_fail",""),
                     resolved.optString("effect_on_fail",""))&&forced==null)
                     return out.put("statblock_save_blocked","unsupported_secondary_effect");
                 String maximumTargetSize=sourceAction.optString("effect_on_fail_max_target_size","").trim();
@@ -3728,6 +3959,19 @@ public class AppDb extends SQLiteOpenHelper {
             if(!resolved.optBoolean("save_success",true)){
                 if(!conditionOnFailToApply.isEmpty())riderTransition=commitCompiledMonsterConditionRider(
                     actorId,targetId,id,action,token,conditionOnFailToApply);
+                if(Xmm2025GrappleEscapeRules.validSource(id,sourceAction)&&
+                    riderTransition.optJSONArray("applied")!=null&&
+                    riderTransition.optJSONArray("applied").length()>0){
+                    JSONObject updatedTarget=getCombatant(targetId),targetResources=combatResources(updatedTarget);
+                    if(targetResources.has("xmm_grapple_state"))
+                        throw new IllegalStateException("grapple_state_ownership_ambiguous_rollback");
+                    JSONObject binding=Xmm2025GrappleEscapeRules.binding(id,sourceAction,actorId,token);
+                    targetResources.put("xmm_grapple_state",binding);
+                    ContentValues stateWrite=new ContentValues();stateWrite.put("resources_json",targetResources.toString());
+                    requireCombatantWrite(getWritableDatabase().update("combatants",stateWrite,
+                        "id=? AND world_profile=?",new String[]{String.valueOf(targetId),getActiveMapProfile()}));
+                    riderTransition.put("grapple_state",binding);
+                }
                 resolved.put("rider_condition_transition",riderTransition);
                 if(forced!=null){
                     JSONObject moved=commitCompiledMonsterForcedMovement(actorId,targetId,forced,forcedPlan);
@@ -3736,6 +3980,11 @@ public class AppDb extends SQLiteOpenHelper {
                 if(forcedMovementSkippedForSize)resolved.put("forced_movement_skipped",
                     "target_size_exceeds_movement_limit").put("target_size_category",
                     verifiedCombatantSizeCategory(target));
+                if(sourceAction.optInt("speed_reduction_ft",0)>0){
+                    JSONObject speedTransition=commitXmmMovementSpeedEffect(actorId,targetId,id,
+                        action,token,sourceAction);
+                    resolved.put("movement_speed_transition",speedTransition);
+                }
             }
             if(!recharge.isEmpty()){resources=combatResources(getCombatant(actorId));spent=resources.optJSONObject("statblock_recharge_spent");if(spent==null)spent=new JSONObject();MonsterRechargeLedgerCodec.write(spent,action,true);resources.put("statblock_recharge_spent",spent);JSONObject spentRound=resources.optJSONObject("statblock_recharge_spent_round");if(spentRound==null)spentRound=new JSONObject();MonsterRechargeLedgerCodec.write(spentRound,action,Math.max(1,getCombatState().optInt("round_no",1)));resources.put("statblock_recharge_spent_round",spentRound);ContentValues v=new ContentValues();v.put("resources_json",resources.toString());requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(actorId),getActiveMapProfile()}));}
             recordEffectReceipt(key,resolved.toString());
@@ -5043,10 +5292,13 @@ public class AppDb extends SQLiteOpenHelper {
             }
         JSONArray endTransitions=previousActorId>0?
             advanceConditionTimersOnActorTurnEnd(previousActorId):new JSONArray();
+        JSONArray speedEndTransitions=previousActorId>0?
+            advanceXmmMovementSpeedEffects(previousActorId,"target_turn_end",
+                state.optInt("round_no",1),state.optInt("turn_index",-1)):new JSONArray();
         if(previousActorId>0)clearTacticalGridChargePath(previousActorId);
         int idx=state.optInt("turn_index",-1); int round=state.optInt("round_no",1); idx++; if(idx>=list.size()){idx=0;round++;}
         ContentValues clear=new ContentValues();clear.put("active_turn",0);getWritableDatabase().update("combatants",clear,"world_profile=?",new String[]{getActiveMapProfile()});
-        JSONObject active=list.get(idx);long activeId=active.optLong("id");ContentValues a=new ContentValues();a.put("active_turn",1);if(!"mystara".equals(getActiveMapProfile()))a.put("reaction_used",0);getWritableDatabase().update("combatants",a,"id=?",new String[]{String.valueOf(activeId)});if(!"mystara".equals(getActiveMapProfile())){JSONObject timerBatch=advanceConditionTimersOnActorTurnStart(activeId,encounterId,round,idx);prepareCombatantTurn(activeId);active=getCombatant(activeId);if(timerBatch.optBoolean("changed",false)){
+        JSONObject active=list.get(idx);long activeId=active.optLong("id");JSONArray speedStartTransitions=new JSONArray();ContentValues a=new ContentValues();a.put("active_turn",1);if(!"mystara".equals(getActiveMapProfile()))a.put("reaction_used",0);getWritableDatabase().update("combatants",a,"id=?",new String[]{String.valueOf(activeId)});if(!"mystara".equals(getActiveMapProfile())){JSONObject timerBatch=advanceConditionTimersOnActorTurnStart(activeId,encounterId,round,idx);speedStartTransitions=advanceXmmMovementSpeedEffects(activeId,"source_turn_start",round,idx);prepareCombatantTurn(activeId);active=getCombatant(activeId);if(timerBatch.optBoolean("changed",false)){
             JSONArray transitions=timerBatch.optJSONArray("transitions");
             active.put("condition_timer_transitions",transitions==null?new JSONArray():transitions);
             if(transitions!=null)for(int i=0;i<transitions.length();i++){
@@ -5059,6 +5311,8 @@ public class AppDb extends SQLiteOpenHelper {
             }
         }}
         if(endTransitions.length()>0)active.put("condition_timer_end_transitions",endTransitions);
+        if(speedEndTransitions.length()>0)active.put("movement_speed_end_transitions",speedEndTransitions);
+        if(speedStartTransitions.length()>0)active.put("movement_speed_start_transitions",speedStartTransitions);
         JSONObject phase=getCombatState();String phaseName=phase.optString("state","");if(CombatStateMachine.PREPARING.equals(phaseName)&&!transitionCombatState(CombatStateMachine.INITIATIVE,new JSONObject()))throw new IllegalStateException("invalid_initiative_transition");phase=getCombatState();phaseName=phase.optString("state","");if((CombatStateMachine.INITIATIVE.equals(phaseName)||CombatStateMachine.RESOLVING.equals(phaseName)||CombatStateMachine.AWAITING_ROLL.equals(phaseName))&&!transitionCombatState(CombatStateMachine.ACTIVE_ROUND,new JSONObject()))throw new IllegalStateException("invalid_active_round_transition");
         ContentValues s=new ContentValues();s.put("round_no",round);s.put("turn_index",idx);s.put("running",1);s.put("state",CombatStateMachine.ACTIVE_ROUND);s.put("pending_roll_json","{}");s.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("combat_state_profiles",s,"world_profile=?",new String[]{getActiveMapProfile()}); reconcileCore2024BlessTurnChecked(round); return active;
     }});}
@@ -5102,7 +5356,10 @@ public class AppDb extends SQLiteOpenHelper {
                         compiledMonsterRiderAction(timer.optString("source_statblock",""),
                             timer.optString("source_action","")));
                     if(sourceSpec==null||!sourceSpec.condition.equals(resolved.condition)||
-                        sourceSpec.dc!=resolved.dc||!sourceSpec.ability.equals(resolved.ability))
+                        sourceSpec.dc!=resolved.dc||!sourceSpec.ability.equals(resolved.ability)||
+                        sourceSpec.autoSuccessAfterFailedSaves!=timer.optInt(
+                            "auto_success_after_failed_saves",0)||
+                        !recoveryLinkedConditionsEqual(sourceSpec,timer.optJSONArray("linked_conditions")))
                         throw new IllegalStateException("recovery_source_authority_mismatch_rollback");
                     authorityMatches++;
                 }
@@ -5115,6 +5372,23 @@ public class AppDb extends SQLiteOpenHelper {
                         stillActive=true;break;
                     }
                     if(!stillActive)newConditions=ConditionRulesEngine.remove(oldConditions,resolved.condition);
+                    for(int i=0;i<authorityTimers.length();i++){
+                        JSONObject timer=authorityTimers.getJSONObject(i);
+                        if(!MonsterConditionRecoveryLedger.SCHEMA.equals(timer.optString("schema",""))||
+                            !resolved.condition.equals(timer.optString("name","")))continue;
+                        JSONArray linked=timer.optJSONArray("linked_conditions");
+                        for(int li=0;linked!=null&&li<linked.length();li++){
+                            String linkedCondition=linked.optString(li,"");boolean stillOwned=false;
+                            for(int ti=0;ti<resolved.timers.length();ti++){
+                                JSONObject remaining=resolved.timers.optJSONObject(ti);
+                                if(remaining!=null&&ConditionTokenGuard.has(
+                                    remaining.optString("name",""),linkedCondition)){
+                                    stillOwned=true;break;
+                                }
+                            }
+                            if(!stillOwned)newConditions=ConditionRulesEngine.remove(newConditions,linkedCondition);
+                        }
+                    }
                 }
                 ContentValues update=new ContentValues();
                 update.put("condition_timers_json",resolved.timers.toString());
@@ -5132,6 +5406,7 @@ public class AppDb extends SQLiteOpenHelper {
                     .put("target_id",targetId).put("condition",resolved.condition)
                     .put("save_ability",resolved.ability).put("save_dc",resolved.dc)
                     .put("save_total",saveTotal).put("success",resolved.success)
+                    .put("automatic_success",resolved.automaticSuccess)
                     .put("conditions_before",oldConditions).put("conditions_after",newConditions)
                     .put("timers_before",new JSONArray(oldTimers)).put("timers_after",resolved.timers);
                 recordEffectReceipt(key,receipt.toString());
@@ -5141,8 +5416,54 @@ public class AppDb extends SQLiteOpenHelper {
         });
     }
 
+    private static boolean recoveryLinkedConditionsEqual(
+        MonsterConditionRecoveryLedger.Spec spec,JSONArray persisted){
+        JSONArray expected=new JSONArray();
+        if(spec!=null)for(String condition:spec.linkedConditions)expected.put(condition);
+        JSONArray actual=persisted==null?new JSONArray():persisted;
+        return expected.toString().equals(actual.toString());
+    }
+
     /** Apply target-turn and source-turn timer ticks atomically. A source
      * actor may own timers stored on several other combatants' rows. */
+    private JSONArray advanceXmmMovementSpeedEffects(long boundaryActorId,String boundary,
+        int round,int turnIndex)throws Exception{
+        JSONArray changedRows=new JSONArray();JSONObject state=getCombatState();
+        String encounter=state.optString("encounter_id","");
+        for(JSONObject combatant:listCombatants()){
+            long targetId=combatant.optLong("id",0);if(targetId<=0)throw new IllegalStateException("speed_effect_target_missing_rollback");
+            JSONObject resources=combatResources(combatant);
+            if(!resources.has(XmmMovementSpeedEffectLedger.FIELD))continue;
+            JSONArray prior=new JSONArray(resources.optString(XmmMovementSpeedEffectLedger.FIELD,"[]"));
+            XmmMovementSpeedEffectLedger.Transition transition=XmmMovementSpeedEffectLedger.advance(
+                prior,boundaryActorId,boundary,round,turnIndex);
+            if(!transition.valid())throw new IllegalStateException("speed_effect_tick_invalid_rollback:"+transition.blocked);
+            if(!transition.changed())continue;
+            if(transition.effects.length()==0)resources.remove(XmmMovementSpeedEffectLedger.FIELD);
+            else resources.put(XmmMovementSpeedEffectLedger.FIELD,transition.effects);
+            ContentValues values=new ContentValues();values.put("resources_json",resources.toString());
+            requireCombatantWrite(getWritableDatabase().update("combatants",values,
+                "id=? AND world_profile=?",new String[]{String.valueOf(targetId),getActiveMapProfile()}));
+            JSONObject saved=getCombatant(targetId);
+            String expected=transition.effects.length()==0?"[]":transition.effects.toString();
+            if(!expected.equals(new JSONArray(combatResources(saved)
+                .optString(XmmMovementSpeedEffectLedger.FIELD,"[]")).toString()))
+                throw new IllegalStateException("speed_effect_tick_readback_rollback");
+            syncCombatantHeroState(combatant,combatant.optInt("hp"),combatant.optInt("temp_hp"),
+                combatant.optString("conditions",""),resources);
+            JSONObject proof=new JSONObject().put("schema",XmmMovementSpeedEffectLedger.SCHEMA)
+                .put("boundary",boundary).put("boundary_actor_id",boundaryActorId)
+                .put("round",round).put("turn_index",turnIndex)
+                .put("target_id",targetId).put("expired",transition.expired)
+                .put("effects_after",transition.effects);
+            String receipt="xmm-speed-effect-turn-v1:"+encounter+":"+round+":"+turnIndex+":"+
+                boundary+":"+boundaryActorId+":"+targetId;
+            recordEffectReceipt(receipt,proof.toString());
+            changedRows.put(new JSONObject().put("target_id",targetId)
+                .put("transition",proof).put("receipt",receipt));
+        }
+        return changedRows;
+    }
     private JSONObject advanceConditionTimersOnActorTurnStart(long activeActorId,
         String encounterId,int round,int turnIndex) {
         JSONArray changedRows=new JSONArray();
@@ -5192,7 +5513,7 @@ public class AppDb extends SQLiteOpenHelper {
         }catch(Exception error){AppLog.e("AppDb","Falha ao atualizar durações de condição.",error);
             throw new IllegalStateException("condition_timer_rollback",error);}
     }
-    private void prepareCombatantTurn(long id){JSONObject c=getCombatant(id);if(c.length()==0)return;try{JSONObject r=combatResources(c);boolean canAct=c.optInt("hp",0)>0&&!r.optBoolean("dead",false)&&!ConditionRulesEngine.incapacitated(c.optString("conditions"));r.put("action_available",canAct).put("bonus_action_available",canAct).put("turn_started_at",System.currentTimeMillis());int speed=combatBaseSpeed(c);if(c.optInt("is_player",0)==1){JSONObject ch=findCharacterByName(c.optString("name"));speed=Math.max(0,speed-new DndRulesEngine().exhaustionSpeedPenaltyFeet(ch));}if(ConditionRulesEngine.speedZero(c.optString("conditions")))speed=0;r.put("movement_max_ft",speed).put("movement_remaining_ft",speed);boolean dead=r.optBoolean("dead",false),stable=r.optBoolean("stable",false);r.put("death_save_due",c.optInt("hp")==0&&!dead&&!stable);if(ConditionRulesEngine.breaksConcentration(c.optString("conditions"))){r.remove("concentration_save_pending");r.remove("concentration_save_queue");}ContentValues v=new ContentValues();v.put("resources_json",r.toString());if(ConditionRulesEngine.breaksConcentration(c.optString("conditions")))v.put("concentration","");getWritableDatabase().update("combatants",v,"id=?",new String[]{String.valueOf(id)});}catch(Exception e){AppLog.e("AppDb","Falha ao preparar economia de turno.",e);throw new IllegalStateException("turn_budget_rollback",e);}}
+    private void prepareCombatantTurn(long id){JSONObject c=getCombatant(id);if(c.length()==0)return;try{JSONObject r=combatResources(c);boolean canAct=c.optInt("hp",0)>0&&!r.optBoolean("dead",false)&&!ConditionRulesEngine.incapacitated(c.optString("conditions"));r.put("action_available",canAct).put("bonus_action_available",canAct).put("turn_started_at",System.currentTimeMillis());int speed=combatBaseSpeed(c);if(c.optInt("is_player",0)==1){JSONObject ch=findCharacterByName(c.optString("name"));speed=Math.max(0,speed-new DndRulesEngine().exhaustionSpeedPenaltyFeet(ch));}int speedPenalty=XmmMovementSpeedEffectLedger.penalty(new JSONArray(r.optString(XmmMovementSpeedEffectLedger.FIELD,"[]")),id);if(speedPenalty<0)throw new IllegalStateException("speed_effect_ledger_invalid");speed=Math.max(0,speed-speedPenalty);if(ConditionRulesEngine.speedZero(c.optString("conditions")))speed=0;r.put("movement_max_ft",speed).put("movement_remaining_ft",speed);boolean dead=r.optBoolean("dead",false),stable=r.optBoolean("stable",false);r.put("death_save_due",c.optInt("hp")==0&&!dead&&!stable);if(ConditionRulesEngine.breaksConcentration(c.optString("conditions"))){r.remove("concentration_save_pending");r.remove("concentration_save_queue");}ContentValues v=new ContentValues();v.put("resources_json",r.toString());if(ConditionRulesEngine.breaksConcentration(c.optString("conditions")))v.put("concentration","");getWritableDatabase().update("combatants",v,"id=?",new String[]{String.valueOf(id)});}catch(Exception e){AppLog.e("AppDb","Falha ao preparar economia de turno.",e);throw new IllegalStateException("turn_budget_rollback",e);}}
 
 
     public long addDiceHistory(String formula,String detail,int total,String mode){return addDiceHistoryBound(formula,detail,total,mode,new JSONObject());}
