@@ -1,0 +1,418 @@
+{
+  "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+  "bestiary_git_blob_sha1": "9a4137b508ef37562ed948894a70b1594b57e85c",
+  "scope": "Removed condition_on_fail from 30 actions whose pinned source actions do not call for a saving throw. Recast hit conditions, random or choice effects, movement and size conditions, existing grapples, swallow effects, reduction-to-zero effects, and escape/detach ability checks into source-appropriate manual metadata. All remain gated for manual resolution.",
+  "actions": [
+    {
+      "creature": "Allosaurus",
+      "action": "Claws",
+      "source_pointer": "/monster/16/action/1",
+      "page": 348,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "conditional_condition_on_hit": "prone",
+        "conditional_condition": "moved_30ft_straight_toward_target_immediately_before_hit",
+        "conditional_max_target_size": "large"
+      }
+    },
+    {
+      "creature": "Balor",
+      "action": "Flame Whip",
+      "source_pointer": "/monster/48/action/1",
+      "page": 26,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "conditional_condition_on_hit": "prone",
+        "conditional_max_target_size": "huge",
+        "conditional_push_distance_ft": 25,
+        "conditional_push_direction": "toward_attacker"
+      }
+    },
+    {
+      "creature": "Bearded Devil",
+      "action": "Beard",
+      "source_pointer": "/monster/58/action/1",
+      "page": 33,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "condition_on_hit": "poisoned",
+        "condition_duration_rounds": 1,
+        "condition_duration_tick": "source_turn_start"
+      }
+    },
+    {
+      "creature": "Bone Devil",
+      "action": "Infernal Sting",
+      "source_pointer": "/monster/73/action/2",
+      "page": 52,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "condition_on_hit": "poisoned",
+        "condition_duration_rounds": 1,
+        "condition_duration_tick": "source_turn_start"
+      }
+    },
+    {
+      "creature": "Bugbear Stalker",
+      "action": "Morningstar",
+      "source_pointer": "/monster/79/action/2",
+      "page": 62,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "attack_advantage_condition": "target_grappled_by_attacker"
+      }
+    },
+    {
+      "creature": "Bugbear Warrior",
+      "action": "Light Hammer",
+      "source_pointer": "/monster/80/action/1",
+      "page": 62,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "attack_advantage_condition": "target_grappled_by_attacker"
+      }
+    },
+    {
+      "creature": "Cloaker",
+      "action": "Attach",
+      "source_pointer": "/monster/96/action/1",
+      "page": 73,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "condition_on_hit": "blinded",
+        "condition_ends_when": "detached",
+        "detach_dc": 14
+      }
+    },
+    {
+      "creature": "Darkmantle",
+      "action": "Crush",
+      "source_pointer": "/monster/114/action/0",
+      "page": 90,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "conditional_condition_on_hit": "blinded",
+        "conditional_max_target_size": "medium",
+        "condition_ends_when": "detached",
+        "detach_dc": 13
+      }
+    },
+    {
+      "creature": "Death Slaad",
+      "action": "Chaos Blade",
+      "source_pointer": "/monster/119/action/1",
+      "page": 287,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "condition_choice_on_hit": "charmed, frightened, poisoned, incapacitated",
+        "condition_duration_rounds": 1,
+        "condition_duration_tick": "source_turn_start"
+      }
+    },
+    {
+      "creature": "Dire Worg",
+      "action": "Bite",
+      "source_pointer": "/monster/125/action/1",
+      "page": 335,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "condition_on_hit": "poisoned",
+        "condition_duration_rounds": 1,
+        "condition_duration_tick": "source_turn_start"
+      }
+    },
+    {
+      "creature": "Elephant",
+      "action": "Gore",
+      "source_pointer": "/monster/142/action/1",
+      "page": 353,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "conditional_condition_on_hit": "prone",
+        "conditional_condition": "moved_20ft_straight_toward_target_immediately_before_hit",
+        "conditional_max_target_size": "huge"
+      }
+    },
+    {
+      "creature": "Empyrean",
+      "action": "Sacred Weapon",
+      "source_pointer": "/monster/144/action/1",
+      "page": 113,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "condition_on_hit": "stunned",
+        "condition_duration_rounds": 1,
+        "condition_duration_tick": "source_turn_start"
+      }
+    },
+    {
+      "creature": "Ghast Gravecaller",
+      "action": "Claw",
+      "source_pointer": "/monster/167/action/1",
+      "page": 130,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "conditional_condition_on_hit": "paralyzed",
+        "conditional_target_type_exclusion": "undead"
+      }
+    },
+    {
+      "creature": "Giant Frog",
+      "action": "Swallow",
+      "source_pointer": "/monster/182/action/1",
+      "page": 357,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "swallow_conditions_manual": "blinded, restrained",
+        "swallow_exit_condition": "prone"
+      }
+    },
+    {
+      "creature": "Giant Toad",
+      "action": "Swallow",
+      "source_pointer": "/monster/194/action/1",
+      "page": 360,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "swallow_conditions_manual": "blinded, restrained",
+        "swallow_exit_condition": "prone"
+      }
+    },
+    {
+      "creature": "Githzerai Psion",
+      "action": "Psychic Warp",
+      "source_pointer": "/monster/205/action/1",
+      "page": 137,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "condition_choice_on_hit": "charmed, prone"
+      }
+    },
+    {
+      "creature": "Gorgon",
+      "action": "Gore",
+      "source_pointer": "/monster/219/action/0",
+      "page": 148,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "conditional_condition_on_hit": "prone",
+        "conditional_condition": "moved_20ft_straight_toward_target_immediately_before_hit",
+        "conditional_max_target_size": "large"
+      }
+    },
+    {
+      "creature": "Goristro",
+      "action": "Brutal Gore",
+      "source_pointer": "/monster/220/action/1",
+      "page": 150,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "conditional_condition_on_hit": "prone",
+        "conditional_max_target_size": "huge",
+        "conditional_push_distance_ft": 20,
+        "conditional_push_direction": "away_from_attacker"
+      }
+    },
+    {
+      "creature": "Gray Slaad",
+      "action": "Chaos Claw",
+      "source_pointer": "/monster/223/action/1",
+      "page": 286,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "condition_choice_on_hit": "charmed, frightened, poisoned, incapacitated",
+        "condition_duration_rounds": 1,
+        "condition_duration_tick": "source_turn_start"
+      }
+    },
+    {
+      "creature": "Green Slaad",
+      "action": "Chaos Staff",
+      "source_pointer": "/monster/226/action/1",
+      "page": 286,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "condition_choice_on_hit": "charmed, frightened, poisoned, incapacitated",
+        "condition_duration_rounds": 1,
+        "condition_duration_tick": "source_turn_start"
+      }
+    },
+    {
+      "creature": "Kraken",
+      "action": "Tentacle",
+      "source_pointer": "/monster/269/action/1",
+      "page": 187,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "condition_on_hit": "grappled, restrained",
+        "condition_ends_when": "grappled ends",
+        "escape_dc": 20
+      }
+    },
+    {
+      "creature": "Mammoth",
+      "action": "Gore",
+      "source_pointer": "/monster/287/action/1",
+      "page": 365,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "conditional_condition_on_hit": "prone",
+        "conditional_condition": "moved_20ft_straight_toward_target_immediately_before_hit",
+        "conditional_max_target_size": "huge"
+      }
+    },
+    {
+      "creature": "Phase Spider",
+      "action": "Bite",
+      "source_pointer": "/monster/340/action/1",
+      "page": 239,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "condition_on_target_reduced_to_zero_hp": "poisoned, paralyzed",
+        "target_stable_when_reduced_to_zero_hp": true
+      }
+    },
+    {
+      "creature": "Pixie",
+      "action": "Faerie Dust",
+      "source_pointer": "/monster/347/action/0",
+      "page": 244,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "condition_choice_on_hit": "charmed, poisoned",
+        "condition_duration_rounds": 1,
+        "condition_duration_tick": "source_turn_start"
+      }
+    },
+    {
+      "creature": "Pixie Wonderbringer",
+      "action": "Faerie Dust",
+      "source_pointer": "/monster/348/action/1",
+      "page": 244,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "condition_choice_on_hit": "charmed, poisoned",
+        "condition_duration_rounds": 1,
+        "condition_duration_tick": "source_turn_start"
+      }
+    },
+    {
+      "creature": "Roper",
+      "action": "Reel",
+      "source_pointer": "/monster/376/action/3",
+      "page": 262,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "requires_existing_target_condition": "grappled"
+      }
+    },
+    {
+      "creature": "Roper",
+      "action": "Tentacle",
+      "source_pointer": "/monster/376/action/2",
+      "page": 262,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "condition_on_hit": "grappled, poisoned",
+        "condition_ends_when": "grappled ends",
+        "escape_dc": 14
+      }
+    },
+    {
+      "creature": "Tarrasque",
+      "action": "Bite",
+      "source_pointer": "/monster/433/action/1",
+      "page": 305,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "condition_on_hit": "grappled, restrained",
+        "condition_ends_when": "grappled ends",
+        "escape_dc": 20,
+        "effect_while_grappled": "teleport_blocked"
+      }
+    },
+    {
+      "creature": "Vampire Familiar",
+      "action": "Umbral Dagger",
+      "source_pointer": "/monster/451/action/1",
+      "page": 314,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "condition_on_target_reduced_to_zero_hp": "poisoned, paralyzed",
+        "target_stable_when_reduced_to_zero_hp": true
+      }
+    },
+    {
+      "creature": "Warhorse Skeleton",
+      "action": "Hooves",
+      "source_pointer": "/monster/462/action/0",
+      "page": 282,
+      "source_contains_saving_throw": false,
+      "condition_on_fail": null,
+      "manual_rider_resolution_required": true,
+      "profile_fields": {
+        "conditional_condition_on_hit": "prone",
+        "conditional_condition": "moved_20ft_straight_toward_target_immediately_before_hit",
+        "conditional_max_target_size": "large"
+      }
+    }
+  ]
+}

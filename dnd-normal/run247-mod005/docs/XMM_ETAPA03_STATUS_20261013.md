@@ -131,3 +131,9 @@
 - No commit `55eec85d1765c52ad8a60dcd78e293b0df853c18`, 13 perfis separam dano base do adicional, guardam o tipo de dano extra e ligam “caído” ao acerto após movimento retilíneo suficiente contra o tamanho permitido. Removido `condition_on_fail=prone`, que descrevia o gatilho incorretamente.
 - Os 13 riders seguem manuais e falham fechados: o combate ainda não guarda o trajeto do monstro imediatamente antes do ataque. Mimic / Bite e Peryton / Gore têm correções fonte→perfil arquivadas separadamente.
 - Android/Robolectric: 2.516 testes, 0 falhas/erros/ignorados em 105 XMLs. Python: 64 testes passaram. O comparador da fonte pinada conferiu 503 monstros e 36 seções; automação total segue falsa. BRELGA, revisão do PDF licenciado e fechamento da etapa permanecem pendentes; nenhum APK foi gerado. Evidência em `docs/editorial-evidence/xmm-charge-extra-local-20261014-55eec85d/`.
+
+
+### Auditoria de condição em falha sem salvaguarda (14/10/2026)
+
+- No commit `e29cf40152d4f6f229d92d267172a3c96ce91fec`, a checagem passou a rejeitar qualquer `condition_on_fail` sem salvaguarda correspondente na ação fonte. Foram corrigidas 30 ações: efeitos de acerto, pré-requisitos, condições dependentes de movimento/tamanho, escolhas aleatórias, agarrões, desengates e efeitos condicionados a HP 0.
+- As ações sem executor continuam marcadas para resolução manual. A distinção estruturada não as certifica como automatizadas. Verificação do comparador pinado e 65 testes Python passaram; Android/Robolectric: 2.516 testes, zero falhas/erros/ignorados em 105 XMLs. Evidência em `docs/editorial-evidence/xmm-condition-semantics-local-20261014-e29cf401/`. BRELGA e PDF licenciado ainda pendentes; nenhum APK gerado.
