@@ -700,6 +700,19 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
             compiled_action.get("reach_ft")==10 and
             not compiled_action.get("manual_rider_resolution_required",False) and
             not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    if monster_name=="Poltergeist" and name=="Telekinetic Thrust":
+        return ("{@actSave str}" in text and "{@dc 12}" in text and
+            "one creature the poltergeist can see within 30 feet" in source_text and
+            "{@actsavefail}" in text.casefold() and "{@damage 2d6 + 2}" in text and
+            "force damage" in source_text and
+            "the target is pushed up to 30 feet straight away from the poltergeist" in source_text and
+            compiled_action.get("save_ability")=="str" and compiled_action.get("save_dc")==12 and
+            compiled_action.get("effect_on_fail")=="push:30ft" and
+            compiled_action.get("damage")=="2d6 + 2" and
+            compiled_action.get("damage_type")=="force" and
+            not compiled_action.get("damage_on_save") and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
     if monster_name=="Aarakocra Skirmisher" and name=="Wind Javelin":
         return ("magically returns to the aarakocra's hand immediately after a ranged attack" in text.casefold() and
             "{@atkr m,r}" in text and
