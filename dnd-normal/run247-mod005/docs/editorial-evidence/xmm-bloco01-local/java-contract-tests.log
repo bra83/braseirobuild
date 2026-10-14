@@ -1,0 +1,17 @@
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+PASS fourSourceVariantsAndNoOtherCreature
+PASS changedSourceFieldsAreNotExecutable
+PASS slowsSpeedAndBlocksOnlySourceDeclaredEconomy
+PASS effectExpiresAtEndOfNextTargetTurn
+PASS currentTargetTurnEndDoesNotExpireNextTurnEffect
+PASS expirationReplayIsIdempotent
+PASS activationReplayRejectsWithoutMutating
+PASS overlappingOriginsDoNotQuarterSpeedOrExpireTogether
+PASS serializationPreservesOwnershipAndRestrictions
+PASS backupRemapsBothIdsAndPreservesDuration
+PASS orphanBackupAndWrongEncounterReject
+PASS corruptPersistedStateFailsClosed
+PASS actualInstalledProfilesResolveSavesAndKeepOtherBreathsManual
+PASS nestedReceiptsRemapEffectOwnersAndTargetKeys
+RESULT 14 passed, 0 failed (pure Java; no SQLite claim)

@@ -1120,6 +1120,24 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
     text=flatten(action.get("entries",[]))
     name=RCH.sub("",action.get("name","")).strip()
     source_text=text.casefold()
+    if name=="Slowing Breath" and monster_name in {
+            "Adult Copper Dragon","Ancient Copper Dragon","Copper Dragon Wyrmling","Young Copper Dragon"}:
+        dc,cone={"Adult Copper Dragon":(18,60),"Ancient Copper Dragon":(22,90),
+                 "Copper Dragon Wyrmling":(11,15),"Young Copper Dragon":(14,30)}[monster_name]
+        # Match the COMPLETE pinned source sentence; a changed consequence stays manual.
+        expected=(f"{{@actSave con}} {{@dc {dc}}}, each creature in a {cone}-foot "
+            "{@variantrule Cone [Area of Effect]|XPHB|Cone}. {@actSaveFail} The target can't take Reactions; "
+            "its {@variantrule Speed|XPHB} is halved; and it can take either an action or a "
+            "{@variantrule Bonus Action|XPHB} on its turn, not both. This effect lasts until the end of its next turn.")
+        return (text==expected and compiled_action.get("save_dc")==dc and
+            compiled_action.get("save_ability")=="con" and
+            compiled_action.get("save_effect_kind")=="slowing_breath" and
+            compiled_action.get("save_effect_duration")=="target_next_turn_end" and
+            compiled_action.get("target_range_ft")==cone and compiled_action.get("target_area_shape")=="cone" and
+            compiled_action.get("category")=="action" and
+            not any(compiled_action.get(k) for k in ("condition_on_fail","effect_on_fail","damage","recharge")) and
+            compiled_action.get("manual_rider_resolution_required") is False and
+            compiled_action.get("manual_unmodeled_source_effect_required") is False)
     if (monster_name,name)==("Scout Captain","Aim"):
         return ("{@variantrule advantage|xphb} on the next attack roll it makes during the current turn" in source_text and
             compiled_action.get("category")=="bonus_action" and
@@ -1650,6 +1668,22 @@ def check_unmodeled_action_effects(source,compiled):
                     errors.append(f"{monster['name']}:{action.get('name','?')}:UNTYPED_SOURCE_EFFECT_NOT_MANUAL")
     return errors,checked-typed_conditions
 
+def check_save_effect_contracts(source,compiled):
+    """Every non-condition save-effect marker must have an exact independent source contract."""
+    source_by_id={m["name"]:m for m in source};errors=[];count=0
+    copper={"Adult Copper Dragon","Ancient Copper Dragon","Copper Dragon Wyrmling","Young Copper Dragon"}
+    for monster in compiled:
+        for action in monster.get("actions",[])+monster.get("special_actions",[]):
+            if "save_effect_kind" not in action:continue
+            block=monster["id"];name=action.get("name")
+            original=next((a for a in source_by_id.get(block,{}).get("action",[]) if a.get("name")==name),{})
+            if (block not in copper or name!="Slowing Breath" or
+                action.get("save_effect_kind")!="slowing_breath" or
+                not source_action_has_typed_condition_contract(block,original,action)):
+                errors.append(f"{block}:{name}:SAVE_EFFECT_SOURCE_CONTRACT_MISMATCH")
+            else:count+=1
+    return errors,count
+
 def usage_rows(source):
     out=[]
     for monster in source:
@@ -1822,6 +1856,7 @@ def check(project, bestiary_bytes, book_bytes):
     monster_errors,totals=check_monsters(src,index,compiled,attack_contracts)
     branch_errors,branch_totals=check_conditional_attack_damage(src,compiled)
     effect_errors,effect_count=check_unmodeled_action_effects(src,compiled)
+    save_effect_errors,save_effect_count=check_save_effect_contracts(src,compiled)
     chain_errors=check_chain_devil_infernal_chain(src,compiled)
     attack_damage_errors,attack_damage_count=check_attack_primary_damage(src,compiled)
     multiattack_errors,multiattack_count=check_simple_multiattacks(src,compiled)
@@ -1835,7 +1870,7 @@ def check(project, bestiary_bytes, book_bytes):
     save_errors,save_count=check_save_damage_actions(src,save_damage_rows)
     section_errors=check_book(book,bookrows)
     if (monster_errors or branch_errors or effect_errors or chain_errors or section_errors or save_errors or
-        multiattack_errors or
+        multiattack_errors or save_effect_errors or
         turn_start_errors or attack_damage_errors or advantage_damage_errors or
         wounded_advantage_errors or grappled_advantage_errors or attack_secondary_errors):
         raise ValueError("XMM_SOURCE_MISMATCH:"+json.dumps(
@@ -1844,6 +1879,7 @@ def check(project, bestiary_bytes, book_bytes):
              "unmodeled_action_effects":effect_errors[:20],"unmodeled_action_effects_count":len(effect_errors),
              "chain_devil_infernal_chain":chain_errors,
              "typed_multiattack":multiattack_errors,
+             "save_effects":save_effect_errors,
              "source_turn_start_conditions":turn_start_errors[:20],"source_turn_start_conditions_count":len(turn_start_errors),
              "attack_primary_damage":attack_damage_errors[:20],"attack_primary_damage_count":len(attack_damage_errors),
              "advantage_bonus_damage":advantage_damage_errors[:20],"advantage_bonus_damage_count":len(advantage_damage_errors),
@@ -1863,6 +1899,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_trait_contracts_compared":len(traitrows),
         "source_trait_families_compared":len({r["kind"] for r in traitrows}),
         "source_save_damage_actions_compared":save_count,
+        "source_save_effect_contracts_compared":save_effect_count,
         "source_attack_primary_damage_compared":attack_damage_count,
         "source_typed_simple_multiattack_contracts_compared":multiattack_count,
         "source_attack_advantage_bonus_damage_contracts_compared":advantage_damage_count,
@@ -1873,7 +1910,7 @@ def check(project, bestiary_bytes, book_bytes):
         "source_chain_devil_infernal_chain_semantics_compared":1,
         "source_compound_condition_actions_typed":2,
         "source_single_condition_actions_typed":9+turn_start_count,
-        "source_timed_noncondition_effects_typed":1,
+        "source_timed_noncondition_effects_typed":1+save_effect_count,
         **branch_totals,
         "source_field_and_catalog_gate_pass":True,
         "full_monster_combat_automation_certified":False}

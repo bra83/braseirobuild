@@ -3583,6 +3583,45 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         }});dialog.show();
     }
 
+    private void compiledSlowingBreathBatchDialog(final JSONObject monster) {
+        final long actor=monster.optLong("id");
+        final String block=parseObjectSafe(monster.optString("resources_json","{}")).optString("block_id");
+        if(XmmSaveEffectLedger.dc(block)==0){toast("Este bloco não possui Sopro Lento automatizado.");return;}
+        final ArrayList<JSONObject> targets=new ArrayList<JSONObject>();
+        final ArrayList<CheckBox> included=new ArrayList<CheckBox>();
+        final ArrayList<EditText> saves=new ArrayList<EditText>();
+        LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);
+        form.setPadding(dp(12),dp(8),dp(12),dp(12));
+        form.addView(text("Marque todas as criaturas no cone de "+XmmSaveEffectLedger.cone(block)+
+            " pés, incluindo aliados. Informe o total de cada salvaguarda de Constituição (CD "+
+            XmmSaveEffectLedger.dc(block)+"). Uma ação aplica o sopro inteiro. O Mestre confirma o cone; alcance e caminho são conferidos no mapa.",12,MUTED,false));
+        for(JSONObject row:db.listCombatants())if(row.optLong("id")!=actor&&row.optInt("hp",0)>0){
+            targets.add(row);CheckBox selected=check(row.optString("name"),false);
+            included.add(selected);form.addView(selected);
+            saves.add(labeledField(form,"Total da salvaguarda de "+row.optString("name"),"",false));
+        }
+        ScrollView scroll=new ScrollView(this);scroll.addView(form);
+        final AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Sopro Lento • cone")
+            .setView(scroll).setNegativeButton("CANCELAR",null).setPositiveButton("APLICAR",null).create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener(){public void onShow(DialogInterface d){
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                JSONArray rows=new JSONArray();
+                try {
+                    for(int i=0;i<targets.size();i++)if(included.get(i).isChecked())
+                        rows.put(new JSONObject().put("target_id",targets.get(i).optLong("id"))
+                            .put("save_total",Integer.parseInt(value(saves.get(i)).trim())));
+                }catch(Exception bad){toast("Informe um total inteiro para cada alvo marcado.");return;}
+                if(rows.length()==0){toast("Marque ao menos um alvo do cone.");return;}
+                JSONObject result=db.applyCompiledSaveEffectBatch(actor,block,"Slowing Breath",rows,
+                    "ui-monster-save-"+java.util.UUID.randomUUID());
+                if(!result.optBoolean("save_effect_batch_committed",false)){
+                    toast("Sopro preservado sem aplicação: "+result.optString("save_effect_batch_blocked",
+                        result.optString("operation_error","confira alvos, salvaguardas e mapa")));return;
+                }
+                toast("Sopro Lento aplicado a todos os alvos com uma ação.");dialog.dismiss();showCombat();
+            }});
+        }});dialog.show();
+    }
     /** Guided compiled monster action with a target saving throw; damage is supplied after the save. */
     private void compiledMonsterSaveActionDialog(final JSONObject monster){
         final long actorId=monster.optLong("id");final JSONObject resources=parseObjectSafe(monster.optString("resources_json","{}"));final String statblock=resources.optString("block_id","");
@@ -3602,6 +3641,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(names.isEmpty()||targets.isEmpty()){toast(names.isEmpty()?"Este bloco não declara ações de salvaguarda.":"Não há alvo vivo para a ação.");return;}
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),0);String[] targetNames=new String[targets.size()];for(int i=0;i<targets.size();i++)targetNames[i]=targets.get(i).optString("name","Alvo");
         final Spinner target=spinner(targetNames,targetNames[0]);form.addView(cardWithLabel("ALVO",target));final Spinner action=spinner(names.toArray(new String[0]),names.get(0));form.addView(cardWithLabel("AÇÃO DE SALVAGUARDA",action));
+        if(XmmSaveEffectLedger.dc(statblock)>0) {
+            form.addView(text("Sopro Lento: o Mestre confirma quais criaturas estão no cone. Não causa dano nem exige recarga. Em uma falha, o alvo fica sem reações, com deslocamento pela metade e pode usar ação OU ação bônus até o fim do próximo turno.",12,MUTED,false));
+            Button coneBatch=button("SOPRO LENTO • TODOS OS ALVOS DO CONE",GREEN);
+            coneBatch.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                compiledSlowingBreathBatchDialog(monster);
+            }});form.addView(coneBatch);
+        }
         final EditText save=labeledField(form,"Total da salvaguarda (d20 + bônus)","",false);final EditText damage=labeledField(form,"Dano final após a salvaguarda","0",false);
         final EditText forcedX=labeledField(form,"Empurrar/puxar: célula X de destino (se aplicável)","",false);
         final EditText forcedY=labeledField(form,"Empurrar/puxar: célula Y de destino (se aplicável)","",false);
@@ -3852,6 +3898,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(combatant.optString("conditions").trim().length()>0)state.append("Condições: ").append(combatant.optString("conditions")).append('\n');
         if(combatant.optString("concentration").trim().length()>0)state.append("Concentração: ").append(combatant.optString("concentration")).append('\n');
         state.append("Reação: ").append(combatant.optInt("reaction_used",0)==1?"já utilizada":"disponível");
+        try { if(!"mystara".equals(db.getActiveMapProfile())&&XmmSaveEffectLedger.slowed(
+                parseObjectSafe(combatant.optString("resources_json","{}")),combatant.optLong("id")))
+            state.append("\nSopro Lento: sem reações; deslocamento pela metade; ação OU ação bônus. Termina no fim do próximo turno.");
+        } catch(Exception invalid) { state.append("\nEfeito de sopro inválido: confira os dados de combate."); }
+
         if(combatant.optInt("death_success",0)+combatant.optInt("death_fail",0)>0)state.append("\nMorte: ").append(combatant.optInt("death_success",0)).append(" sucessos • ").append(combatant.optInt("death_fail",0)).append(" falhas");
         addSheetSection(body,"CONDIÇÕES E TURNO",state.toString());
         StringBuilder defenses=new StringBuilder();
