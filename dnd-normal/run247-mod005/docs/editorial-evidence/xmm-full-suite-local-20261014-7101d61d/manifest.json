@@ -1,0 +1,43 @@
+{
+  "schema": "XMM_FULL_LOCAL_REGRESSION_EVIDENCE_V1",
+  "date": "2026-10-14",
+  "source_commit": "7101d61d89f624f764472cb92cc879a76d7d7f71",
+  "scope": "Full Android unit/Robolectric regression suite plus independent pinned XMM source comparison after charge route integration fixes.",
+  "gradle_command": "bash gradlew :app:testDebugUnitTest",
+  "gradle_result": "BUILD SUCCESSFUL",
+  "android_tests": 2524,
+  "android_xml": 109,
+  "android_failures": 0,
+  "android_errors": 0,
+  "android_skipped": 0,
+  "python_source_comparator_tests": 34,
+  "python_source_comparator_result": "passed",
+  "source_comparison": {
+    "source_commit": "8c026b807fac21862a309379a0c3228a0683198b",
+    "monsters": 503,
+    "sections": 36,
+    "manual_effects": 246,
+    "full_monster_combat_automation_certified": false
+  },
+  "full_suite": true,
+  "apk_built": false,
+  "brelga_ci_run": false,
+  "files": [
+    {
+      "file": "android-test-results.zip",
+      "sha256": "2122e58db97de1146ebeea241725873ca4846256454aa4d7dbe804160615a42e"
+    },
+    {
+      "file": "android-test-summary.json",
+      "sha256": "927c4ba9564b56aa8a3f7745e7e49c4e2462d8de1eb14c6047ca570637bbda63"
+    },
+    {
+      "file": "xmm-source-comparison.json",
+      "sha256": "86ac022f314c8e543aa1bb3aa362d1b74b9b8e8956a89250a0cc55098917fa0c"
+    },
+    {
+      "file": "regressions-fixed.json",
+      "sha256": "4cd8b173e70a0987d6b53a6dff48254e7d7dbcc10ef6db2cf710bd0b3033e36f"
+    }
+  ]
+}

@@ -165,3 +165,10 @@
 - O planejador agora prefere a faixa horizontal/vertical reta solicitada quando ela está livre; se a rota precisa desviar por obstáculo, o recibo é válido para movimento, mas não qualifica investida.
 - Oito classes de teste selecionadas (19 testes) passaram no Gradle local: regras puras da investida, 22 contratos de ação-fonte, ataque Robolectric de javali com dano/“caído”, ataque normal sem rider, regressões de “caído”, rota, movimento E2E e backup/restore. Isso não é a suíte completa, CI BRELGA, build APK nem fechamento da etapa. Evidência local: `docs/editorial-evidence/xmm-charge-path-attack-local-20261014/`.
 - Os campos-fonte continuam marcados `manual_rider_resolution_required` porque outras rotas de execução ainda não têm o mesmo contexto; o comparador de fonte e o fechamento XMM completo permanecem separados desta capacidade limitada.
+
+
+### Regressão integral local após o executor de investidas (14/10/2026)
+
+- A primeira execução integral encontrou duas regressões: a preferência de rota reta ignorava terreno difícil mais barato, e o validador de dano tipado retornava erro de quantidade antes de identificar tipos repetidos. Corrigi ambas; a rota reta agora só vence em empate de custo e a rejeição por agregação de tipo repetido foi preservada.
+- Após a correção, `:app:testDebugUnitTest` passou no SHA `7101d61d89f624f764472cb92cc879a76d7d7f71`: **2.524 testes, 109 XMLs, zero falhas/erros/ignorados**. Os 34 testes dos comparadores Python XMM também passaram; o comparador pinado conferiu 503 criaturas e 36 seções.
+- O comparador continua marcando 246 efeitos como manuais e `full_monster_combat_automation_certified=false`. A etapa 03 permanece aberta; não foi feito build APK nem CI BRELGA neste SHA. Evidência: `docs/editorial-evidence/xmm-full-suite-local-20261014-7101d61d/`.

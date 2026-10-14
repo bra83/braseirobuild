@@ -1,0 +1,23 @@
+{
+  "full_suite_first_run": {
+    "tests": 2524,
+    "failures": 2,
+    "failing_tests": [
+      "Run243WeightedTerrainRouteTest.choosesCheaperDetourRatherThanShortestDifficultRoute",
+      "Run245G05MultiattackTypedDamageRobolectricTest.multiattackRequiresAndPersistsTypedDamageProofs"
+    ]
+  },
+  "causes_and_fixes": [
+    {
+      "test": "Run243WeightedTerrainRouteTest.choosesCheaperDetourRatherThanShortestDifficultRoute",
+      "cause": "straight route preference returned before weighted terrain costs were compared",
+      "fix": "prefer the straight route only when its cost ties the least-cost Dijkstra route"
+    },
+    {
+      "test": "Run245G05MultiattackTypedDamageRobolectricTest.multiattackRequiresAndPersistsTypedDamageProofs",
+      "cause": "typed damage validation reported component count mismatch before identifying repeated damage types",
+      "fix": "detect repeated canonical damage types first and retain typed_damage_type_repeated_requires_source_aggregation"
+    }
+  ],
+  "focused_regression_run": "passed: Run243WeightedTerrainRouteTest, Run245G05MultiattackTypedDamageRobolectricTest, XmmChargeMovementRulesTest, XmmChargePathAttackRobolectricTest, E2E G04 tactical movement test"
+}
