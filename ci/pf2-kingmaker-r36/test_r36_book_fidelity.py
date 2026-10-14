@@ -542,7 +542,7 @@ def test_ekundayo_party_identity_ntavi_no_intervention_and_romance():
     """Companion Guide pp.27-31: party identity and durable choices."""
     semantic=(ROOT/"android/app/src/main/java/com/braseiro/pathfinder2e/KingmakerCompanionSemantics.java").read_text(encoding="utf-8")
     assert '"feast_contributor_ids"' in semantic
-    assert 'participants.optLong(i)==feastActorId' in semantic
+    assert 'Long.toString(feastActorId).equals(participants.optString(i))' in semantic
     assert '"ntavi_conversation_resolved",true' in semantic
     assert '"NO_INTERVENTION"' in semantic
     assert '"ekundayo_romance_pc_id",characterId' in semantic

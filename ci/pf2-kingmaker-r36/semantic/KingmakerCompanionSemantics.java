@@ -273,8 +273,10 @@ public final class KingmakerCompanionSemantics {
   if("ekundayo".equals(companionKey)&&"ekundayo_feast_contribution".equals(checkId)&&officialScenes!=null){
    if(feastActorId<=0)throw new IllegalArgumentException("Selecione o PJ que contribuiu para o banquete.");
    JSONArray participants=currentProgress.optJSONArray("feast_contributor_ids");
+   // JSONArray in the packaged runtime supports optString(index), but not
+   // getLong(index) or optLong(index). The IDs are persisted as decimal longs.
    if(participants!=null)for(int i=0;i<participants.length();i++)
-    if(participants.optLong(i)==feastActorId)
+    if(Long.toString(feastActorId).equals(participants.optString(i)))
      throw new IllegalStateException("Cada PJ só pode contribuir uma vez para os Pontos de Vitória do banquete.");
   }
   if("ekundayo".equals(companionKey)&&"ekundayo_interrupt_ntavi".equals(checkId)
