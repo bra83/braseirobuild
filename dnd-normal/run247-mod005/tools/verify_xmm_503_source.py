@@ -713,6 +713,24 @@ def source_action_has_typed_condition_contract(monster_name,action,compiled_acti
             not compiled_action.get("damage_on_save") and
             not compiled_action.get("manual_rider_resolution_required",False) and
             not compiled_action.get("manual_unmodeled_source_effect_required",False))
+    bronze_breaths={
+        ("Adult Bronze Dragon","Repulsion Breath"):(19,60),
+        ("Ancient Bronze Dragon","Repulsion Breath"):(23,60),
+        ("Bronze Dragon Wyrmling","Repulsion Breath"):(12,30),
+        ("Young Bronze Dragon","Repulsion Breath"):(15,40),
+    }
+    bronze=bronze_breaths.get((monster_name,name))
+    if bronze:
+        dc,distance=bronze
+        return ("{@actSave str}" in text and f"{{@dc {dc}}}" in text and
+            "30-foot" in source_text and "{@actsavefail}" in text.casefold() and
+            f"pushed up to {distance} feet straight away from the dragon" in source_text and
+            "{@condition prone|xphb}" in text.casefold() and
+            compiled_action.get("save_ability")=="str" and compiled_action.get("save_dc")==dc and
+            compiled_action.get("effect_on_fail")==f"push:{distance}ft;prone" and
+            compiled_action.get("condition_on_fail")=="prone" and
+            not compiled_action.get("manual_rider_resolution_required",False) and
+            not compiled_action.get("manual_unmodeled_source_effect_required",False))
     if monster_name=="Aarakocra Skirmisher" and name=="Wind Javelin":
         return ("magically returns to the aarakocra's hand immediately after a ranged attack" in text.casefold() and
             "{@atkr m,r}" in text and
